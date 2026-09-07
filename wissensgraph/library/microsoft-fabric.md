@@ -3,11 +3,15 @@ id: "tool:microsoft-fabric"
 name: "Microsoft Fabric"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 92
 kernaussagen: 0
 mit_kernaussagen: 0
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/microsoft-fabric.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/microsoft-fabric.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/microsoft-fabric.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/microsoft-fabric.json"
 aliase:
   - "Fabric"
   - "Fabrik"
@@ -89,6 +93,8 @@ Für dieses Thema liegen noch keine maschinell erzeugten Kernaussagen vor.
 | [Power BI Seiten per URL steuern - Sprechende URLs mit PBIP & VS Code \| Power BI Tutorial](https://www.youtube.com/watch?v=DcEfNIupEHM) | 2025-12-01 | nur-zeitstempel | [00:27](https://www.youtube.com/watch?v=DcEfNIupEHM&t=27s) · [05:07](https://www.youtube.com/watch?v=DcEfNIupEHM&t=307s) |
 | [Power BI Update Juni 2025](https://www.youtube.com/watch?v=LnNoXBIG7Lc) | 2025-06-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=0s) |
 | [Daten-WG 2026 Lineup](https://www.youtube.com/watch?v=AX7b8_aNekw) | 2026-05-01 | nur-zeitstempel | [01:43](https://www.youtube.com/watch?v=AX7b8_aNekw&t=103s) · [02:51](https://www.youtube.com/watch?v=AX7b8_aNekw&t=171s) · [06:16](https://www.youtube.com/watch?v=AX7b8_aNekw&t=376s) |
+
+40 von 92 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/microsoft-fabric.json).
 
 ## Hinweise
 

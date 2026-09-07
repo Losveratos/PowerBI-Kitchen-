@@ -3,11 +3,15 @@ id: "tool:excel"
 name: "Excel"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 75
 kernaussagen: 15
 mit_kernaussagen: 7
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/excel.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/excel.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/excel.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/excel.json"
 aliase: []
 ---
 
@@ -103,6 +107,8 @@ Keine weiteren Schreibweisen hinterlegt.
 | [GxP Talk - KI im regulierten Umfeld?](https://www.youtube.com/watch?v=XtH4JqTwaqM) | 2026-05-01 | kernaussagen+zeitstempel | [16:48](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1008s) · [52:03](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=3123s) · [55:31](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=3331s) |
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [39:43](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=2383s) · [44:27](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=2667s) · [49:13](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=2953s) |
 | [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [18:55](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1135s) · [31:33](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1893s) · [39:34](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2374s) |
+
+40 von 75 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/excel.json).
 
 ## Hinweise
 

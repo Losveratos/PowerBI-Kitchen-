@@ -3,11 +3,15 @@ id: "tool:copilot-studio"
 name: "Copilot Studio"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 6
 kernaussagen: 0
 mit_kernaussagen: 0
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot-studio.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot-studio.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/copilot-studio.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/copilot-studio.json"
 aliase: []
 ---
 

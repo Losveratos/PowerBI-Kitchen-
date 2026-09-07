@@ -3,11 +3,15 @@ id: "topic:lizenzen"
 name: "Lizenzen"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 33
 kernaussagen: 11
 mit_kernaussagen: 8
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/lizenzen.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/lizenzen.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/lizenzen.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/lizenzen.json"
 aliase:
   - "Lizenz"
   - "Lizenzierung"

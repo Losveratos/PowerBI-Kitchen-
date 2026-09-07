@@ -3,11 +3,15 @@ id: "tool:translytical-task-flows"
 name: "Translytical Task Flows"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 9
 kernaussagen: 15
 mit_kernaussagen: 6
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/translytical-task-flows.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/translytical-task-flows.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/translytical-task-flows.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/translytical-task-flows.json"
 aliase:
   - "Writeback"
   - "Write-back"

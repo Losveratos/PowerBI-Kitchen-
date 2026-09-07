@@ -3,11 +3,15 @@ id: "tool:qlik"
 name: "Qlik"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 4
 kernaussagen: 13
 mit_kernaussagen: 2
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/qlik.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/qlik.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/qlik.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/qlik.json"
 aliase:
   - "QlikView"
   - "Qlik Sense"

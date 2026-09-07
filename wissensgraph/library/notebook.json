@@ -4,8 +4,12 @@
  "typ": "tool",
  "slug": "notebook",
  "stand": "2026-09-07",
- "build": "20260907-1012",
+ "build": "20260907-1056",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/notebook.html",
+ "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/notebook.html",
+ "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/notebook.md",
+ "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/notebook.json",
  "dokumente_gesamt": 43,
  "kernaussagen_gesamt": 24,
  "mit_kernaussagen": 9,
@@ -1217,6 +1221,56 @@
      "label": "39:36",
      "url": "https://www.youtube.com/watch?v=r416vanitYw&t=2376s",
      "sekunde": 2376
+    }
+   ]
+  },
+  {
+   "id": "yt:iB4vHRvaErE",
+   "titel": "Mensch bleiben, wenn Power BI geht",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=iB4vHRvaErE",
+   "sprungmarken": [
+    {
+     "label": "26:45",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=1605s",
+     "sekunde": 1605
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "20:02",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1202s",
+     "sekunde": 1202
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.009,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20Power-BI-Nutzer%20wissen%20m%C3%BCssen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Fabric-Bausteine",
+     "sekunde": null
     }
    ]
   }

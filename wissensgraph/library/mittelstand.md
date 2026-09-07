@@ -3,11 +3,15 @@ id: "topic:mittelstand"
 name: "Mittelstand"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 17
 kernaussagen: 7
 mit_kernaussagen: 5
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/mittelstand.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/mittelstand.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/mittelstand.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/mittelstand.json"
 aliase:
   - "KMU"
   - "mittelständisch"

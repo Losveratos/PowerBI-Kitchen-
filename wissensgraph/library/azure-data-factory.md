@@ -3,11 +3,15 @@ id: "tool:azure-data-factory"
 name: "Azure Data Factory"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 2
 kernaussagen: 0
 mit_kernaussagen: 0
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-data-factory.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-data-factory.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/azure-data-factory.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/azure-data-factory.json"
 aliase:
   - "ADF"
 ---

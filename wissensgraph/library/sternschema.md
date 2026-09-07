@@ -3,11 +3,15 @@ id: "topic:sternschema"
 name: "Sternschema"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 30
 kernaussagen: 22
 mit_kernaussagen: 7
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/sternschema.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/sternschema.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/sternschema.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/sternschema.json"
 aliase:
   - "Star Schema"
   - "Faktentabelle"

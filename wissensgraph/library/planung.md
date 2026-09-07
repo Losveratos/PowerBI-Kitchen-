@@ -3,11 +3,15 @@ id: "topic:planung"
 name: "Planung"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 36
 kernaussagen: 23
 mit_kernaussagen: 6
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/planung.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/planung.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/planung.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/planung.json"
 aliase:
   - "Planning"
   - "Forecast"

@@ -3,11 +3,15 @@ id: "topic:migration"
 name: "Migration"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 14
 kernaussagen: 5
 mit_kernaussagen: 3
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/migration.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/migration.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/migration.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/migration.json"
 aliase:
   - "migrieren"
   - "Ablösung"

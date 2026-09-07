@@ -3,11 +3,15 @@ id: "tool:analysis-services"
 name: "Analysis Services"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 3
 kernaussagen: 3
 mit_kernaussagen: 2
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/analysis-services.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/analysis-services.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/analysis-services.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/analysis-services.json"
 aliase:
   - "SSAS"
   - "Tabular"

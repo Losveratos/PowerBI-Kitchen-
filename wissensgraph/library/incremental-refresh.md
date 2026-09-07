@@ -3,11 +3,15 @@ id: "tool:incremental-refresh"
 name: "Incremental Refresh"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 6
 kernaussagen: 0
 mit_kernaussagen: 0
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/incremental-refresh.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/incremental-refresh.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/incremental-refresh.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/incremental-refresh.json"
 aliase:
   - "inkrementelle Aktualisierung"
   - "Incremental"

@@ -3,11 +3,15 @@ id: "topic:ki"
 name: "KI"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 90
 kernaussagen: 67
 mit_kernaussagen: 17
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/ki.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/ki.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/ki.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/ki.json"
 aliase:
   - "AI"
   - "Künstliche Intelligenz"
@@ -138,8 +142,8 @@ AI, Künstliche Intelligenz, LLM, ChatGPT, Claude, GPT, Agenten, Agent, Machine 
 | [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | nur-zeitstempel | [12:13](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=733s) · [19:43](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1183s) · [30:04](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1804s) |
 | [Was wir von Iron Man für Datenprojekte lernen können (data:unplugged Vortrag)](https://www.youtube.com/watch?v=qVZhboahaDE) | 2025-04-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=qVZhboahaDE&t=0s) · [01:33](https://www.youtube.com/watch?v=qVZhboahaDE&t=93s) · [03:10](https://www.youtube.com/watch?v=qVZhboahaDE&t=190s) |
 | [Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?](https://www.youtube.com/watch?v=jETxUNQSl-w) | 2026-02-01 | kernaussagen+zeitstempel | [01:38](https://www.youtube.com/watch?v=jETxUNQSl-w&t=98s) · [29:29](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1769s) · [32:38](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1958s) |
-| [Ist KI das neue Papier — und Markdown der neue Stift?](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html) · [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=M%C3%BCssen%20wir%20Prototyping%20%2Aneu%20denken%3F%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=LinkedIn-Post%20%C2%B7%20Original%20%28EN%29) |
 | [Is AI the New Paper — and Markdown the New Pen?](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html) · [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=Do%20we%20have%20to%20%2Arethink%20prototyping%3F%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=LinkedIn%20post%20%C2%B7%20Original%20%28EN%29) |
+| [Ist KI das neue Papier — und Markdown der neue Stift?](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html) · [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=M%C3%BCssen%20wir%20Prototyping%20%2Aneu%20denken%3F%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=LinkedIn-Post%20%C2%B7%20Original%20%28EN%29) |
 | [Von Patronen zu Prozessen](https://www.youtube.com/watch?v=0cHtxIm7fVw) | 2025-08-01 | nur-zeitstempel | [12:35](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=755s) · [14:01](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=841s) · [17:12](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=1032s) |
 | [Von Patronen zu Prozessen (nur Ton)](https://www.youtube.com/watch?v=s3CveEVoDvo) | 2025-07-01 | nur-zeitstempel | [12:35](https://www.youtube.com/watch?v=s3CveEVoDvo&t=755s) · [14:01](https://www.youtube.com/watch?v=s3CveEVoDvo&t=841s) · [17:12](https://www.youtube.com/watch?v=s3CveEVoDvo&t=1032s) |
 | [Wie viel CO₂ steckt in einem Token? — KI-Energie-Simulator](https://datenwgknowledgekitchen.com/ki-co2-simulator.html) | 2026-07-03 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/ki-co2-simulator.html) · [Abschnitt](https://datenwgknowledgekitchen.com/ki-co2-simulator.html#:~:text=Was%20das%20Werkzeug%20rechnet) · [Abschnitt](https://datenwgknowledgekitchen.com/ki-co2-simulator.html#:~:text=Anhang%3A%20Quellen%20%26%20Annahmen) |
@@ -159,11 +163,13 @@ AI, Künstliche Intelligenz, LLM, ChatGPT, Claude, GPT, Agenten, Agent, Machine 
 | [Wie war die Daten-WG? · Im Gespräch mit Artur König](https://www.youtube.com/watch?v=z4ZeHPzIeeU) | 2025-03-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1s) · [03:25](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=205s) · [12:38](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=758s) |
 | [Objektive Daten gibt es nicht](https://www.youtube.com/watch?v=-_4bfrjRCVo) | 2026-06-01 | nur-zeitstempel | [35:09](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2109s) · [36:41](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2201s) · [39:49](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2389s) |
 | [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | nur-zeitstempel | [10:25](https://www.youtube.com/watch?v=4VVNDNusq4U&t=625s) · [49:52](https://www.youtube.com/watch?v=4VVNDNusq4U&t=2992s) · [53:00](https://www.youtube.com/watch?v=4VVNDNusq4U&t=3180s) |
-| [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
 | [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
+| [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
 | [Slam @dataunplugged Pre-Event von @Dataciders](https://www.youtube.com/watch?v=OYvXe4k-Df8) | 2025-04-01 | nur-zeitstempel | [00:04](https://www.youtube.com/watch?v=OYvXe4k-Df8&t=4s) |
 | [Daten-WG 2026 Lineup](https://www.youtube.com/watch?v=AX7b8_aNekw) | 2026-05-01 | nur-zeitstempel | [04:01](https://www.youtube.com/watch?v=AX7b8_aNekw&t=241s) · [09:42](https://www.youtube.com/watch?v=AX7b8_aNekw&t=582s) · [21:47](https://www.youtube.com/watch?v=AX7b8_aNekw&t=1307s) |
 | [Daten-WG Deep Dive Financial Reporting - part 5](https://www.youtube.com/watch?v=iymmxuXHh44) | 2025-07-01 | nur-zeitstempel | [08:01](https://www.youtube.com/watch?v=iymmxuXHh44&t=481s) · [22:25](https://www.youtube.com/watch?v=iymmxuXHh44&t=1345s) · [1:05:42](https://www.youtube.com/watch?v=iymmxuXHh44&t=3942s) |
+
+40 von 90 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/ki.json).
 
 ## Hinweise
 

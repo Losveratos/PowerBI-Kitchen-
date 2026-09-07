@@ -7,7 +7,11 @@
 <meta name="description" content="DatenWG Library: Themen, Tools, Personen und belegte Kernaussagen aus den Folgen und Seiten der Daten-WG. Jede Verbindung springt auf die Sekunde ins Video oder auf den Abschnitt der Seite.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="DatenWG Library · Early Access Beta">
-<meta property="og:description" content="Themen, Personen und Kernaussagen aus 126 Folgen. Jede Verbindung springt auf die Sekunde ins Video.">
+<meta property="og:description" content="Themen, Personen und Kernaussagen aus 147 Folgen. Jede Verbindung springt auf die Sekunde ins Video.">
+<meta property="og:site_name" content="Daten-WG Knowledge Kitchen">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/wissensgraph/">
 <meta property="og:image" content="https://datenwgknowledgekitchen.com/wissensgraph/og.png">
 <meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/">
 <meta name="twitter:card" content="summary_large_image">
@@ -40,7 +44,7 @@ header h1 a{color:inherit;text-decoration:none}
 .cov{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px;border:1px solid var(--line);color:var(--ink-mute);background:var(--bg)}
 .cov.c4{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .cov.c3{border-color:#8FD3C4;color:var(--accent)}
-.cov.c1{opacity:.7}
+.cov.c1{color:#6B6B6B;border-color:#D8D3C4}
 .skel{background:linear-gradient(90deg,#F1EEE5 25%,#F7F5EE 50%,#F1EEE5 75%);background-size:200% 100%;animation:sk 1.2s infinite;border-radius:8px;height:16px;margin:10px 0}
 @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .err{background:#FBE7EF;border:1px solid var(--n-person);color:var(--n-person);padding:12px 14px;border-radius:10px;margin:16px 0}
@@ -147,14 +151,18 @@ h2 .sub{font-family:var(--mono);font-size:11px;color:var(--ink-mute);font-weight
 <header>
   <h1><a href="#">DatenWG <em>Library</em></a> <span class="beta" title="Early Access Beta: Inhalte sind maschinell extrahiert, nicht redigiert. Feedback an michael.tenner84@gmail.com">Early Access Beta</span></h1>
   <div class="searchbox"><input id="q" type="search" placeholder="Thema, Person, Folge oder Volltext … " autocomplete="off"><div class="suggest" id="suggest"></div></div>
-  <div class="hdr-links"><nav class="viewbar" id="viewbar" aria-label="Ansicht"><a class="on" href="#">Wiki</a><a id="graph-link" data-v="graph" href="graph.html">Graph</a><a data-v="timeline" href="graph.html#v=timeline">Zeitstrahl</a><a data-v="list" href="graph.html#v=list">Liste</a></nav><a href="../index.html">← Kitchen</a></div>
+  <div class="hdr-links"><nav class="viewbar" id="viewbar" aria-label="Ansicht"><a class="on" href="#">Wiki</a><a id="graph-link" data-v="graph" href="graph.html">Graph</a><a data-v="timeline" href="graph.html#v=timeline">Zeitstrahl</a><a data-v="list" href="graph.html#v=list">Liste</a><a href="thema/" title="Alle Themen als statische Seiten, auch ohne JavaScript">A bis Z</a></nav><a href="../index.html">← Kitchen</a></div>
 </header>
 <noscript><div style="padding:16px 22px;font-family:'Segoe UI',sans-serif;max-width:820px"><p><b>DatenWG Library</b>: Themen, Tools, Personen und belegte Kernaussagen aus den Folgen und Seiten der Daten-WG. Jede Verbindung springt auf die Sekunde ins Video. Diese Ansicht braucht JavaScript.</p><p>Ohne JavaScript: <a href="library/index.md">Markdown-Index aller Themen</a> · <a href="thema/">Themen-Landingpages</a> · <a href="../wissensgraph-aus-transkripten.html">Wie die Library entstanden ist</a></p></div></noscript>
 <details class="status" id="status"><summary id="status-sum">lädt …</summary><div class="body" id="status-body"></div></details>
 <main>
   <nav class="tree" id="tree"></nav>
-  <article id="page"><div class="skel" style="width:40%;height:28px"></div><div class="skel" style="width:80%"></div><div class="skel" style="width:70%"></div><div class="skel" style="width:60%"></div><p class="meta" id="loading-note">Lade Datenbasis …</p></article>
+  <article id="page" tabindex="-1" aria-live="polite"><div class="skel" style="width:40%;height:28px"></div><div class="skel" style="width:80%"></div><div class="skel" style="width:70%"></div><div class="skel" style="width:60%"></div><p class="meta" id="loading-note">Lade Datenbasis …</p></article>
 </main>
+<footer style="border-top:1px solid var(--line);background:var(--bg-card);padding:18px 34px 26px;font-size:13px;color:var(--ink-soft);line-height:1.6">
+  <b style="color:var(--ink)">Dasselbe Kit auf euren Daten.</b> Was hier aus Podcast-Transkripten entsteht, läuft mit denselben vier Tabellen über Teams-Mitschriften, Word-Dokumente und E-Mails, im eigenen Microsoft-Tenant: Segmente mit Zeit oder Absatz, Vokabular gegen Schreibvarianten, Kernaussagen mit Beleg, Graph in Fabric mit GQL, Data Agent für Fragen in natürlicher Sprache. Ob die Anreicherung im Tenant bleibt oder ein externes Modell nutzt, ist eine Entscheidung pro Kunde, nicht des Kits.
+  <span style="display:block;margin-top:6px"><a href="playbook.md">Playbook mit Checkpoints für das Enterprise-Szenario</a> · <a href="../wissensgraph-aus-transkripten.html">Wie die Library entstanden ist</a> · <a href="library/index.md">Markdown-Index für Agenten</a> · <a href="thema/">Alle Themen A bis Z</a> · Kontakt: <a href="mailto:michael.tenner84@gmail.com?subject=DatenWG%20Library%20im%20eigenen%20Tenant">Michael Tenner, Daten-WG</a></span>
+</footer>
 
 <script>
 const DATA = 'data/';
@@ -266,8 +274,14 @@ async function ensureSegs() {
 }
 
 // ---------- Routing ----------
+let lastHash = null;
+function afterRender(title) {
+  document.title = (title ? title + ' · ' : '') + 'DatenWG Library';
+  const h = document.querySelector('#page h1.title'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({preventScroll: true}); }
+}
 function route() {
   const p = new URLSearchParams(location.hash.slice(1));
+  if (location.hash !== lastHash) { window.scrollTo(0, 0); lastHash = location.hash; }
   const t = p.get('t') || 'all', s = p.get('s');
   if (t !== timeRange) { timeRange = t; dcCache = null; }
   const ns = new Set(s ? s.split(',') : ['youtube','markdown']);
@@ -280,11 +294,19 @@ function route() {
   if (ask) return renderAsk(ask, p.get('a') || '', p.get('b') || '', p.get('p') || '');
   if (q) return renderSearch(q);
   const n = id && byId.get(id);
-  if (!n) return renderStart();
-  if (isDoc(n)) return renderDoc(n);
-  if (n.type === 'Bucket') return renderBucket(n);
-  renderConcept(n);
-  window.scrollTo(0, 0);
+  if (!n) { renderStart(); afterRender(''); return; }
+  if (isDoc(n)) { renderDoc(n).then(() => afterRender(n.name)); return; }
+  if (n.type === 'Bucket') { renderBucket(n); afterRender(n.name); return; }
+  renderConcept(n); afterRender(n.name);
+  setCanonical(n);
+}
+// R2-05: Themenseite meldet ihre Landingpage als kanonische Adresse und Teilen-Ziel
+function setCanonical(n) {
+  const slug = n.id.replace(/^(topic|tool):/, '');
+  const url = 'https://datenwgknowledgekitchen.com/wissensgraph/thema/' + slug + '.html';
+  let c = document.querySelector('link[rel=canonical]'); if (c) c.href = url;
+  let og = document.querySelector('meta[property="og:url"]'); if (og) og.content = url;
+  let ot = document.querySelector('meta[property="og:title"]'); if (ot) ot.content = n.name + ' · DatenWG Library';
 }
 function setFilter(kind, v) {
   const p = new URLSearchParams(location.hash.slice(1));
@@ -403,7 +425,7 @@ function renderStart() {
     <h1 class="title">DatenWG Library: das Wissen der Daten-WG, <strong style="color:var(--accent);font-weight:700">verknüpft</strong></h1>
     <p class="meta" style="margin:-2px 0 10px">Early Access Beta · Kernaussagen und Themen sind maschinell extrahiert, nicht redigiert. Bei Widersprüchen gilt das Video oder die Seite. Feedback: <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a></p>
     <p class="lead">${G.meta.episodes} Folgen (${G.meta.episodes_with_transcript} mit Transkript, ${G.meta.episodes_with_claims} mit Kernaussagen) und ${G.meta.pages} Seiten der Kitchen als Graph: Themen, Tools, Personen und ${G.claims.length} belegte Kernaussagen. Jede Stelle springt auf die Sekunde ins Video oder auf den Abschnitt der Seite.</p>
-    <div class="kpis"><div class="kpi"><b>${G.concepts.length}</b>Konzepte</div><div class="kpi"><b>${G.claims.length}</b>Kernaussagen</div><div class="kpi"><b>${G.edges.filter(e => e.type === 'RELATES_TO').length}</b>Themenbeziehungen</div><div class="kpi"><b>${G.docs.filter(d => docActive(d) && d.source === 'youtube').length}</b>Folgen im Filter</div><div class="kpi"><b>${G.docs.filter(d => docActive(d) && d.source === 'markdown').length}</b>Seiten im Filter</div></div>
+    <div class="kpis"><div class="kpi"><b>${G.meta.concepts || G.concepts.length}</b>Konzepte</div><div class="kpi"><b>${G.claims.length}</b>Kernaussagen</div><div class="kpi"><b>${G.edges.filter(e => e.type === 'RELATES_TO').length}</b>Themenbeziehungen</div><div class="kpi"><b>${G.docs.filter(d => docActive(d) && d.source === 'youtube').length}</b>Folgen im Filter</div><div class="kpi"><b>${G.docs.filter(d => docActive(d) && d.source === 'markdown').length}</b>Seiten im Filter</div></div>
     <h2>Fragen zum Ausprobieren</h2><div class="chips">${examples.map(([t, a, b, p]) => `<a class="chip" href="${askHref(t, a, b, p)}">${esc(label(t, a, b, p))}</a>`).join('')}</div>
     <h2>Stärkste Themen<span class="sub">im gewählten Zeitraum</span></h2><div class="carousel">${top.map(([n]) => conceptCard(n, null, claimsOf(n.id)[0]?.name)).join('')}</div>
     <h2>Neueste Folgen</h2><div class="carousel">${newest.map(d => docCard(d)).join('')}</div>
@@ -427,6 +449,9 @@ function renderConcept(n) {
   let h = crumbs([bucket ? {name: bucket.name, href: href(bucket.id)} : {name: TYPE_DE[n.type]}, {name: n.name}]);
   h += `<h1 class="title">${esc(n.name)}<small style="background:${TYPE_COLOR[n.type]}">${TYPE_DE[n.type]}</small></h1><p class="lead">${esc(lead)}</p>`;
   h += `<div class="kpis"><div class="kpi"><b>${docs.length}</b>Dokumente</div><div class="kpi"><b>${docs.reduce((a, x) => a + (x.e.segments || 0), 0)}</b>Segmente</div><div class="kpi"><b>${claims.length}</b>Kernaussagen</div><div class="kpi"><b>${explains.size}</b>Folgen mit Kapitel dazu</div></div>`;
+  const slug = n.id.replace(/^(topic|tool):/, '');
+  const isTT = n.type === 'Topic' || n.type === 'Tool';
+  h += isTT ? `<div class="meta" style="margin:4px 0 8px">Für Agenten und Werkzeuge: <a href="library/${slug}.md">Markdown</a> · <a href="library/${slug}.json">JSON</a> · <a href="thema/${slug}.html">Landingpage ohne JavaScript</a> · <a href="thema/${slug}.html" title="Diese Adresse teilen, sie zeigt Vorschaubild und Beschreibung">Teilen: thema/${slug}.html</a></div>` : '';
   h += `<div><a class="btn" href="${'graph.html#' + new URLSearchParams({n: n.id, f: n.id}).toString()}">⌖ Im Graph öffnen</a><a class="btn" href="${'#' + new URLSearchParams({ask: 'said', a: n.name}).toString()}">Was wurde dazu gesagt?</a><a class="btn" href="${'#' + new URLSearchParams({ask: 'who', a: n.name}).toString()}">Wer erklärt das?</a></div>`;
   if (rel.length) h += `<h2>${n.type === 'Person' ? 'Themen dieser Person' : 'Verwandte Themen'}<span class="sub">${n.type === 'Person' ? 'nach Dokumenten, in denen sie dabei ist' : 'nach gemeinsamen Segmenten'}</span></h2><div class="carousel">${rel.map(x => conceptCard(x.o, x.docs ? null : x.w, claimsOf(x.o.id)[0]?.name)).join('')}</div>`;
   if (typed.length) h += `<h2>Belegte Beziehungen</h2><ul class="list">${typed.map(e => { const a = byId.get(e.s), bb = byId.get(e.t), d = byId.get(e.doc_id); return `<li>${nodeA(a, 't')} <span class="badge">${REL[e.type]}</span> ${nodeA(bb, 't')}<div class="m">${esc(e.ev)}${d ? ' · <a href="' + href(d.id) + '">' + esc(d.name) + '</a>' : ''}</div></li>`; }).join('')}</ul>`;
@@ -434,7 +459,7 @@ function renderConcept(n) {
   if (eps.length) h += `<h2>Folgen<span class="sub">${eps.length} · nach Anteil</span></h2><div class="carousel">${eps.slice(0, 12).map(x => docCard(x.doc, x.e, {explains: explains.has(x.doc.id)})).join('')}</div>`;
   h += `<h2>${n.type === 'Person' ? 'Dabei in' : 'Alle Dokumente mit Stellen'}</h2><ul class="list">${docs.slice(0, 60).map(x => docRow(x.doc, n.type === 'Person' ? null : x.e, explains, n.type === 'Person' ? null : n.id, null, x.role)).join('') || '<li class="empty">keine im Zeitraum</li>'}</ul>`;
   if (pages.length) h += `<h2>Seiten der Kitchen dazu</h2><div class="grid">${pages.slice(0, 8).map(x => docCard(x.doc, x.e)).join('')}</div>`;
-  if (persons.size) h += `<h2>Personen</h2><div class="chips">${[...persons.entries()].sort((a, b) => b[1] - a[1]).map(([pid, c]) => `<a class="chip" href="${href(pid)}">${esc(byId.get(pid).name)} <span class="cnt" style="opacity:.6">${c}</span></a>`).join('')}</div>`;
+  if (persons.size) h += `<h2>Personen</h2><div class="chips">${[...persons.entries()].sort((a, b) => b[1] - a[1]).map(([pid, c]) => `<a class="chip" href="${href(pid)}">${esc(byId.get(pid).name)} <span class="cnt" style="color:#6B6B6B">${c}</span></a>`).join('')}</div>`;
   h += sparkline(n.id);
   $('#page').innerHTML = h; bindClaims(claims); bindEvidence(n.id);
 }
@@ -454,9 +479,9 @@ async function renderDoc(d) {
   h += `<div class="two"><div><h1 class="title" style="font-size:28px">${esc(d.name)}${d.source === 'markdown' ? '<small style="background:var(--n-page)">Seite</small>' : ''}</h1>`;
   h += `<div class="meta">${d.format ? esc(d.format) + ' · ' : ''}${fmtD(d.published)}${d.source === 'markdown' ? ' (Dateistand)' : ''}${d.duration_s ? ' · ' + Math.round(d.duration_s / 60) + ' min' : ''} · ${(d.lang || '').toUpperCase()} ${covBadge(d)}</div>`;
   h += `<p class="lead">${esc(d.summary || d.desc)}</p><div><a class="btn primary" target="_blank" rel="noopener" href="${esc(d.url)}">${d.source === 'markdown' ? '📄 Seite öffnen' : '▶ Auf YouTube'}</a><a class="btn" href="${'graph.html#' + new URLSearchParams({n: d.id}).toString()}">⌖ Im Graph</a></div>`;
-  if (persons.length) h += `<h2>Gespräch</h2><div class="chips">${persons.map(x => `<a class="chip" href="${href(x.p.id)}">${esc(x.p.name)} <span style="opacity:.6">${x.role === 'host' ? 'Host' : 'Gast'}</span></a>`).join('')}</div>`;
+  if (persons.length) h += `<h2>Gespräch</h2><div class="chips">${persons.map(x => `<a class="chip" href="${href(x.p.id)}">${esc(x.p.name)} <span style="color:#6B6B6B">${x.role === 'host' ? 'Host' : 'Gast'}</span></a>`).join('')}</div>`;
   h += `</div><div>${thumb(d) ? `<a target="_blank" rel="noopener" href="${esc(d.url)}"><img src="${thumb(d).replace('mqdefault', 'hqdefault')}" alt="" style="width:100%;border-radius:12px;box-shadow:var(--shadow)"></a>` : ''}</div></div>`;
-  h += `<h2>Themen in diesem Dokument</h2><div class="chips">${ments.slice(0, 20).map(x => `<a class="chip" href="${href(x.n.id)}" style="border-left:3px solid ${TYPE_COLOR[x.n.type]}">${esc(x.n.name)} <span style="opacity:.6">${x.e.segments}</span></a>`).join('')}</div>`;
+  h += `<h2>Themen in diesem Dokument</h2><div class="chips">${ments.slice(0, 20).map(x => `<a class="chip" href="${href(x.n.id)}" style="border-left:3px solid ${TYPE_COLOR[x.n.type]}">${esc(x.n.name)} <span style="color:#6B6B6B">${x.e.segments}</span></a>`).join('')}</div>`;
   if (explains.length) h += `<h2>Erklärt<span class="sub">Kapitel oder Titel nennt das Thema</span></h2><ul class="list">${explains.map(x => `<li>${nodeA(x.n, 't')}<div class="m">${esc(x.ev)}</div></li>`).join('')}</ul>`;
   h += claimsSection(claims, 'Kernaussagen dieser Folge');
   h += `<h2>${d.source === 'markdown' ? 'Abschnitte' : 'Kapitel und Segmente'}<span class="sub">mit Themen je Abschnitt</span></h2><div id="doc-segs" class="empty">lädt …</div>`;
@@ -496,7 +521,7 @@ const byName = name => G.concepts.find(x => x.name.toLowerCase() === name.toLowe
 const gqlTime = () => timeRange === 'all' ? '' : `\n<span class="k">FILTER</span> d.published >= '${timeRange === 'm3' ? 'heute-3M' : timeRange === 'm12' ? 'heute-12M' : timeRange === '2024' ? '…' : timeRange + '-01-01'}'`;
 async function renderAsk(tpl, a, b, p) {
   const A = byName(a); if (!A) { $('#page').innerHTML = crumbs([{name: 'Frage'}]) + `<p class="empty">„${esc(a)}" ist kein bekannter Knoten.</p>`; return; }
-  await ensureSegs();
+  if (tpl === 'both') await ensureSegs();   // nur diese Vorlage braucht die Segmente
   const explains = new Set((G.in.get(A.id) || []).filter(e => e.type === 'EXPLAINS').map(e => e.s));
   let title = '', gql = '', body = '', node2 = null;
   if (tpl === 'who') {
@@ -559,7 +584,7 @@ async function renderSearch(q) {
   const cnt = new Map(); for (const s of hits) for (const m of s.m) cnt.set(m[0], (cnt.get(m[0]) || 0) + 1);
   const topC = [...cnt.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([id, c]) => [byId.get(id), c]).filter(x => x[0]);
   let h = crumbs([{name: 'Suche'}]) + `<h1 class="title" style="font-size:26px">„${esc(q)}"</h1><div class="meta">${hits.length} Segmente in ${byDoc.size} Dokumenten · Zeitraum ${timeRange === 'all' ? 'alle' : timeRange}</div>`;
-  if (topC.length) h += `<div class="chips" style="margin:10px 0">${topC.map(([n, c]) => `<a class="chip" href="${href(n.id)}">${esc(n.name)} <span style="opacity:.6">${c}</span></a>`).join('')}</div>`;
+  if (topC.length) h += `<div class="chips" style="margin:10px 0">${topC.map(([n, c]) => `<a class="chip" href="${href(n.id)}">${esc(n.name)} <span style="color:#6B6B6B">${c}</span></a>`).join('')}</div>`;
   for (const [docId, ss] of docsSorted.slice(0, 30)) { const d = byId.get(docId); h += `<h2 style="font-size:16px"><a href="${href(docId)}">${esc(d.name)}</a><span class="sub">${ss.length} · ${fmtD(d.published)}</span></h2>${ss.slice(0, 3).map(s => segHtml(d, s, terms)).join('')}`; }
   $('#page').innerHTML = h;
 }

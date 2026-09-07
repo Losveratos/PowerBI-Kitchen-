@@ -78,6 +78,11 @@ daneben, damit der Übergang zu Fabric kein Bruch ist.
 - **Kapitel aus der Beschreibung sind Gold.** Eine Kapitelüberschrift, die ein Thema nennt, ist eine sehr belastbare "erklärt"-Kante. Im Unternehmen entsprechen dem Agenda-Punkte, Überschriften in Word und Betreffzeilen.
 - **Der Graph darf nicht zu voll sein.** 140 Konzepte plus 126 Dokumente auf einmal sind unlesbar. Standardansicht: Konzepte ab N Folgen und Beziehungen ab M gemeinsamen Segmenten, Dokumente erst auf Klick.
 
+- **Teilnehmer kommen aus dem Format, nicht aus dem Transkript.** „Thinkers Talk" heißt Marcus und Artur, „Quarterly" heißt Gabi und Artur. Im Unternehmen ist das die Kalender-Einladung. Wer wirklich spricht, weiß nur eine Diarisierung, das steht im Backlog.
+- **Dokumente sind nur ein weiterer Adapter.** Die 21 Kitchen-Seiten kamen als Markdown mit Überschriften-Abschnitten in dasselbe Schema wie die Folgen. Der Absprung geht auf den Abschnitt per Text-Fragment, weil die Seiten keine stabilen Anker haben. Bei Word und SharePoint entsprechend: Überschrift als Anker, Seite als Fallback.
+- **Fragen als Vorlagen, nicht als Freitext.** Fünf Fragetypen decken den Alltag ab und lassen sich 1:1 als GQL formulieren. Das ist die Brücke zum Data Agent in Fabric: dieselben Muster werden dort NL2GQL-Beispiele.
+- **Zustand in die URL.** Jede Sicht (Knoten, Frage, Zeitraum, Fokus) ist ein Link. Im Unternehmen ist das der Unterschied zwischen „schau mal im Tool" und „hier ist die Antwort".
+
 ## Offene Fragen
 
 - Ontology (Fabric IQ) als formale Vokabular-Definition: lohnt erst, wenn mehrere Domänen zusammenkommen.

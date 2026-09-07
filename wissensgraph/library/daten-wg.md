@@ -3,11 +3,15 @@ id: "topic:daten-wg"
 name: "Daten-WG"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 80
 kernaussagen: 16
 mit_kernaussagen: 9
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/daten-wg.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/daten-wg.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/daten-wg.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/daten-wg.json"
 aliase:
   - "Daten WG"
   - "DatenWG"
@@ -106,6 +110,8 @@ Daten WG, DatenWG
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=0s) · [57:15](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=3435s) |
 | [BI Thinkers Talk n.73](https://www.youtube.com/watch?v=pOJpXxsfUt0) | 2026-02-01 | kernaussagen+zeitstempel | [50:24](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3024s) · [57:27](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3447s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [53:23](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3203s) · [56:00](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3360s) |
+
+40 von 80 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/daten-wg.json).
 
 ## Hinweise
 

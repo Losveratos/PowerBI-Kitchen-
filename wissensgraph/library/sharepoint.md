@@ -3,11 +3,15 @@ id: "tool:sharepoint"
 name: "SharePoint"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 22
 kernaussagen: 3
 mit_kernaussagen: 3
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/sharepoint.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/sharepoint.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/sharepoint.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/sharepoint.json"
 aliase:
   - "Share Point"
 ---

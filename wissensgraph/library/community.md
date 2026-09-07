@@ -3,11 +3,15 @@ id: "topic:community"
 name: "Community"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 52
 kernaussagen: 6
 mit_kernaussagen: 5
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/community.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/community.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/community.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/community.json"
 aliase:
   - "User Group"
   - "Meetup"
@@ -99,6 +103,8 @@ User Group, Meetup, MVP, Usergroup, Meetups
 | [GxP Talk - Validierung vs. Agilität](https://www.youtube.com/watch?v=KO_qFge77o8) | 2026-03-01 | kernaussagen+zeitstempel | [03:10](https://www.youtube.com/watch?v=KO_qFge77o8&t=190s) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [04:38](https://www.youtube.com/watch?v=luk4S4ukKmg&t=278s) |
 | [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | nur-zeitstempel | [11:20](https://www.youtube.com/watch?v=DQENmzAkNqw&t=680s) |
+
+40 von 52 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/community.json).
 
 ## Hinweise
 

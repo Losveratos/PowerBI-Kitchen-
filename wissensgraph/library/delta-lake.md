@@ -3,11 +3,15 @@ id: "tool:delta-lake"
 name: "Delta Lake"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 4
 kernaussagen: 0
 mit_kernaussagen: 0
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/delta-lake.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/delta-lake.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/delta-lake.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/delta-lake.json"
 aliase:
   - "Delta"
   - "Parquet"

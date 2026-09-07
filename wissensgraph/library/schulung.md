@@ -3,11 +3,15 @@ id: "topic:schulung"
 name: "Schulung"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 34
 kernaussagen: 6
 mit_kernaussagen: 3
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/schulung.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/schulung.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/schulung.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/schulung.json"
 aliase:
   - "Training"
   - "Enablement"

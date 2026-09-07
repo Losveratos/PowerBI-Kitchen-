@@ -3,11 +3,15 @@ id: "tool:azure-maps"
 name: "Azure Maps"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 5
 kernaussagen: 17
 mit_kernaussagen: 2
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-maps.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-maps.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/azure-maps.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/azure-maps.json"
 aliase:
   - "Azure Map"
 ---

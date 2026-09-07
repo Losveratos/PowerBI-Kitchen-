@@ -3,11 +3,15 @@ id: "topic:reporting"
 name: "Reporting"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 44
 kernaussagen: 15
 mit_kernaussagen: 8
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/reporting.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/reporting.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/reporting.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/reporting.json"
 aliase:
   - "Berichtswesen"
   - "Controlling"
@@ -100,8 +104,8 @@ Berichtswesen, Controlling, Finance, Finanzen, P&L, GuV, Bericht, Berichte, Repo
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [48:27](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2907s) · [49:58](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2998s) · [51:30](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3090s) |
 | [Von Patronen zu Prozessen](https://www.youtube.com/watch?v=0cHtxIm7fVw) | 2025-08-01 | nur-zeitstempel | [15:28](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=928s) · [17:12](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=1032s) · [18:48](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=1128s) |
 | [Von Patronen zu Prozessen (nur Ton)](https://www.youtube.com/watch?v=s3CveEVoDvo) | 2025-07-01 | nur-zeitstempel | [15:28](https://www.youtube.com/watch?v=s3CveEVoDvo&t=928s) · [17:12](https://www.youtube.com/watch?v=s3CveEVoDvo&t=1032s) · [18:46](https://www.youtube.com/watch?v=s3CveEVoDvo&t=1126s) |
-| [Ist KI das neue Papier — und Markdown der neue Stift?](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html) |
 | [Is AI the New Paper — and Markdown the New Pen?](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html) |
+| [Ist KI das neue Papier — und Markdown der neue Stift?](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html) |
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [47:19](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2839s) · [1:11:57](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4317s) · [1:26:35](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5195s) |
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | nur-zeitstempel | [15:35](https://www.youtube.com/watch?v=lZvpCBMKASM&t=935s) · [20:52](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1252s) · [22:34](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1354s) |
 | [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | nur-zeitstempel | [07:44](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=464s) · [22:24](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1344s) · [27:54](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1674s) |
@@ -113,6 +117,8 @@ Berichtswesen, Controlling, Finance, Finanzen, P&L, GuV, Bericht, Berichte, Repo
 | [Die Schweiz faehrt Europa davon — Bahnnutzung 2024](https://datenwgknowledgekitchen.com/zugfahrten-infografik.html) | 2026-06-05 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/zugfahrten-infografik.html#:~:text=Br%C3%BCcke%20zu%20Power%20BI%3A%20%2Aals%20DAX-HTML-Visual%2A) |
 | [Datenmodellierung ist Governance](https://www.youtube.com/watch?v=lH_-A8NAQ-k) | 2025-11-01 | nur-zeitstempel | [05:02](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=302s) · [07:04](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=424s) |
 | [Prinzipien oder Paragrafen](https://www.youtube.com/watch?v=6WhWLcuFvZE) | 2026-02-01 | kernaussagen+zeitstempel | [01:43](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=103s) · [13:05](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=785s) |
+
+40 von 44 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/reporting.json).
 
 ## Hinweise
 

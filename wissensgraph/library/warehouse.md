@@ -3,11 +3,15 @@ id: "tool:warehouse"
 name: "Warehouse"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 42
 kernaussagen: 14
 mit_kernaussagen: 7
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/warehouse.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/warehouse.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/warehouse.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/warehouse.json"
 aliase:
   - "Data Warehouse"
   - "DWH"
@@ -106,6 +110,8 @@ Data Warehouse, DWH, Datawarehouse, Data Warehousing
 | [Daten-WG Deep Dive: AI on top of BI](https://www.youtube.com/watch?v=HXAP16trRc8) | 2025-07-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) |
 | [BI Thinkers Talk - Data Modelling - Fabric Data Days Edition](https://www.youtube.com/watch?v=mUALlPmGcEk) | 2025-11-01 | kernaussagen+zeitstempel | [22:42](https://www.youtube.com/watch?v=mUALlPmGcEk&t=1362s) |
 | [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
+
+40 von 42 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/warehouse.json).
 
 ## Hinweise
 

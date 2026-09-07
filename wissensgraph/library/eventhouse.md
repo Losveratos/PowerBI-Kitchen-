@@ -3,11 +3,15 @@ id: "tool:eventhouse"
 name: "Eventhouse"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 10
 kernaussagen: 0
 mit_kernaussagen: 0
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/eventhouse.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/eventhouse.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/eventhouse.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/eventhouse.json"
 aliase:
   - "KQL"
   - "Kusto"

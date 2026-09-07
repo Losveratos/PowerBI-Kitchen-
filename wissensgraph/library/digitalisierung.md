@@ -3,11 +3,15 @@ id: "topic:digitalisierung"
 name: "Digitalisierung"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 10
 kernaussagen: 17
 mit_kernaussagen: 5
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/digitalisierung.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/digitalisierung.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/digitalisierung.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/digitalisierung.json"
 aliase:
   - "digitale Transformation"
   - "Transformation"

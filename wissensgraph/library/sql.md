@@ -3,11 +3,15 @@ id: "tool:sql"
 name: "SQL"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 2
 kernaussagen: 15
 mit_kernaussagen: 7
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/sql.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/sql.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/sql.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/sql.json"
 aliase:
   - "SQL-Abfrage"
   - "SQL-Abfragen"

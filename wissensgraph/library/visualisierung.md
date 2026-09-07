@@ -3,11 +3,15 @@ id: "topic:visualisierung"
 name: "Visualisierung"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 83
 kernaussagen: 30
 mit_kernaussagen: 11
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/visualisierung.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/visualisierung.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/visualisierung.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/visualisierung.json"
 aliase:
   - "Visuals"
   - "Charts"
@@ -85,8 +89,8 @@ Visuals, Charts, Diagramme, Diagramm, Visualisierungen, Visual
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
 | [175 Jahre Klimageschichte zum Anfassen — Waermestreifen 3D](https://datenwgknowledgekitchen.com/waermestreifen-3d.html) | 2026-08-04 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/waermestreifen-3d.html) · [Abschnitt](https://datenwgknowledgekitchen.com/waermestreifen-3d.html) · [Abschnitt](https://datenwgknowledgekitchen.com/waermestreifen-3d.html#:~:text=Interaktion%3A%20ein%20Visual%2C%20kein%20Film) |
-| [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=01%20%C2%B7%20In%20drei%20Schritten%20loslegen) |
 | [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps) |
+| [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=01%20%C2%B7%20In%20drei%20Schritten%20loslegen) |
 | [Power BI Update November 2025](https://www.youtube.com/watch?v=XJZxYNIeEVc) | 2025-11-01 | nur-zeitstempel | [00:16](https://www.youtube.com/watch?v=XJZxYNIeEVc&t=16s) · [01:17](https://www.youtube.com/watch?v=XJZxYNIeEVc&t=77s) · [03:31](https://www.youtube.com/watch?v=XJZxYNIeEVc&t=211s) |
 | [Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! \| Power BI Tutorial](https://www.youtube.com/watch?v=GsLfiuPlsQE) | 2025-10-01 | nur-zeitstempel | [00:41](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=41s) · [03:00](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=180s) · [04:30](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=270s) |
 | [Power BI Update Oktober 2025](https://www.youtube.com/watch?v=LVSttJlhrqM) | 2025-10-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=LVSttJlhrqM&t=0s) · [01:01](https://www.youtube.com/watch?v=LVSttJlhrqM&t=61s) · [02:52](https://www.youtube.com/watch?v=LVSttJlhrqM&t=172s) |
@@ -124,6 +128,8 @@ Visuals, Charts, Diagramme, Diagramm, Visualisierungen, Visual
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [24:40](https://www.youtube.com/watch?v=r416vanitYw&t=1480s) · [28:05](https://www.youtube.com/watch?v=r416vanitYw&t=1685s) · [41:10](https://www.youtube.com/watch?v=r416vanitYw&t=2470s) |
 | [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | nur-zeitstempel | [01:36](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=96s) · [03:12](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=192s) · [10:39](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=639s) |
 | [The Day After Tomorrow – Nach der Einführung geht es erst richtig los \| Power BI Summit 2023](https://www.youtube.com/watch?v=KwySyTxW_EI) | 2023-03-01 | nur-zeitstempel | [09:02](https://www.youtube.com/watch?v=KwySyTxW_EI&t=542s) · [30:07](https://www.youtube.com/watch?v=KwySyTxW_EI&t=1807s) · [48:10](https://www.youtube.com/watch?v=KwySyTxW_EI&t=2890s) |
+
+40 von 83 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/visualisierung.json).
 
 ## Hinweise
 

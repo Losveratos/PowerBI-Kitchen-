@@ -3,11 +3,15 @@ id: "topic:data-vault"
 name: "Data Vault"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 3
 kernaussagen: 4
 mit_kernaussagen: 2
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/data-vault.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/data-vault.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/data-vault.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/data-vault.json"
 aliase:
   - "Datavault"
   - "Hub"

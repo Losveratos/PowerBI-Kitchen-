@@ -4,8 +4,12 @@
  "typ": "tool",
  "slug": "workspace",
  "stand": "2026-09-07",
- "build": "20260907-1012",
+ "build": "20260907-1056",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/workspace.html",
+ "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/workspace.html",
+ "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/workspace.md",
+ "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/workspace.json",
  "dokumente_gesamt": 45,
  "kernaussagen_gesamt": 14,
  "mit_kernaussagen": 6,
@@ -1163,6 +1167,81 @@
      "label": "08:03",
      "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=483s",
      "sekunde": 483
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "07:51",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=471s",
+     "sekunde": 471
+    }
+   ]
+  },
+  {
+   "id": "yt:_Vh5fDfHWz4",
+   "titel": "Daten-WG Special: Power BI vs. Qlik -part2",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4",
+   "sprungmarken": [
+    {
+     "label": "05:18",
+     "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=318s",
+     "sekunde": 318
+    }
+   ]
+  },
+  {
+   "id": "yt:iymmxuXHh44",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 5",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=iymmxuXHh44",
+   "sprungmarken": [
+    {
+     "label": "06:26",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=386s",
+     "sekunde": 386
+    }
+   ]
+  },
+  {
+   "id": "yt:r416vanitYw",
+   "titel": "BI Thinkers Talk nr.69",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.023,
+   "url": "https://www.youtube.com/watch?v=r416vanitYw",
+   "sprungmarken": [
+    {
+     "label": "11:54",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=714s",
+     "sekunde": 714
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "40:41",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2441s",
+     "sekunde": 2441
     }
    ]
   }

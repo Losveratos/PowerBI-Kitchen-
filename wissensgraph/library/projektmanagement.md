@@ -3,11 +3,15 @@ id: "topic:projektmanagement"
 name: "Projektmanagement"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 12
 kernaussagen: 12
 mit_kernaussagen: 2
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/projektmanagement.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/projektmanagement.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/projektmanagement.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/projektmanagement.json"
 aliase:
   - "Scrum"
   - "agil"

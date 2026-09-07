@@ -4,8 +4,12 @@
  "typ": "tool",
  "slug": "copilot",
  "stand": "2026-09-07",
- "build": "20260907-1012",
+ "build": "20260907-1056",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot.html",
+ "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot.html",
+ "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/copilot.md",
+ "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/copilot.json",
  "dokumente_gesamt": 47,
  "kernaussagen_gesamt": 24,
  "mit_kernaussagen": 10,
@@ -390,31 +394,6 @@
    ]
   },
   {
-   "id": "yt:WJXREKKx2yo",
-   "titel": "Vorbereiten der Daten für KI",
-   "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
-   "anteil": 0.667,
-   "url": "https://www.youtube.com/watch?v=WJXREKKx2yo",
-   "sprungmarken": [
-    {
-     "label": "00:01",
-     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=1s",
-     "sekunde": 1
-    },
-    {
-     "label": "01:35",
-     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=95s",
-     "sekunde": 95
-    },
-    {
-     "label": "04:42",
-     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=282s",
-     "sekunde": 282
-    }
-   ]
-  },
-  {
    "id": "yt:_MfM3rhJx58",
    "titel": "Copilot + Power Automate = Gamechanger",
    "datum": "2025-08-01",
@@ -436,6 +415,31 @@
      "label": "08:07",
      "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=487s",
      "sekunde": 487
+    }
+   ]
+  },
+  {
+   "id": "yt:WJXREKKx2yo",
+   "titel": "Vorbereiten der Daten für KI",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.667,
+   "url": "https://www.youtube.com/watch?v=WJXREKKx2yo",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "01:35",
+     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=95s",
+     "sekunde": 95
+    },
+    {
+     "label": "04:42",
+     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=282s",
+     "sekunde": 282
     }
    ]
   },
@@ -1176,6 +1180,131 @@
      "label": "01:48",
      "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=108s",
      "sekunde": 108
+    }
+   ]
+  },
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "43:38",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2618s",
+     "sekunde": 2618
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.023,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Warum%20nicht%20direkt%20auf%20die%20Tabellen%20berichten%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20ins%20Modell%20geh%C3%B6rt",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20drei%20Plattform-Schichten%20unter%20den%20Workloads",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:bt81POE-9Ig",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.023,
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
+   "sprungmarken": [
+    {
+     "label": "26:22",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1582s",
+     "sekunde": 1582
+    }
+   ]
+  },
+  {
+   "id": "yt:iB4vHRvaErE",
+   "titel": "Mensch bleiben, wenn Power BI geht",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=iB4vHRvaErE",
+   "sprungmarken": [
+    {
+     "label": "07:12",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=432s",
+     "sekunde": 432
+    }
+   ]
+  },
+  {
+   "id": "yt:Wwvhv8WA2Qc",
+   "titel": "BI Thinkers Talk Nr.62",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc",
+   "sprungmarken": [
+    {
+     "label": "31:47",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1907s",
+     "sekunde": 1907
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.021,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "27:56",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1676s",
+     "sekunde": 1676
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.013,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Vor%20Production-Deploy",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20Copilot%20kann",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Realistische%20Erwartung",
+     "sekunde": null
     }
    ]
   }

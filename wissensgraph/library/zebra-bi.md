@@ -3,11 +3,15 @@ id: "tool:zebra-bi"
 name: "Zebra BI"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 11
 kernaussagen: 2
 mit_kernaussagen: 2
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/zebra-bi.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/zebra-bi.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/zebra-bi.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/zebra-bi.json"
 aliase:
   - "Zebra"
 ---

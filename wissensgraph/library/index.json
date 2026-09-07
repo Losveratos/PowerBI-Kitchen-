@@ -1,7 +1,7 @@
 {
  "name": "DatenWG Library",
  "stand": "2026-09-07",
- "build": "20260907-1012",
+ "build": "20260907-1056",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "schema": "Jede Themendatei hat denselben Aufbau: Frontmatter, Einordnung, Aliase, Nachbarthemen, Kernaussagen, Dokumente, Hinweise. Zu jeder Datei liegt eine inhaltsgleiche .json daneben.",
  "meta": {

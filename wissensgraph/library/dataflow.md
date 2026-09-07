@@ -3,11 +3,15 @@ id: "tool:dataflow"
 name: "Dataflow"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 30
 kernaussagen: 15
 mit_kernaussagen: 6
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/dataflow.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/dataflow.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/dataflow.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/dataflow.json"
 aliase:
   - "Dataflows"
   - "Dataflow Gen2"

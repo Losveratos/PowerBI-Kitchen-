@@ -3,11 +3,15 @@ id: "tool:power-automate"
 name: "Power Automate"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 13
 kernaussagen: 2
 mit_kernaussagen: 2
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-automate.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-automate.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/power-automate.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/power-automate.json"
 aliase:
   - "Flow"
 ---

@@ -3,11 +3,15 @@ id: "topic:supply-chain"
 name: "Supply Chain"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 11
 kernaussagen: 18
 mit_kernaussagen: 2
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/supply-chain.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/supply-chain.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/supply-chain.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/supply-chain.json"
 aliase:
   - "Logistik"
   - "Lieferkette"

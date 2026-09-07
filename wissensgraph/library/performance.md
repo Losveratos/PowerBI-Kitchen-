@@ -3,11 +3,15 @@ id: "topic:performance"
 name: "Performance"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 38
 kernaussagen: 27
 mit_kernaussagen: 15
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/performance.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/performance.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/performance.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/performance.json"
 aliase:
   - "Performanz"
   - "Optimierung"

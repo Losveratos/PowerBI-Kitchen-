@@ -3,11 +3,15 @@ id: "tool:python"
 name: "Python"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 37
 kernaussagen: 9
 mit_kernaussagen: 6
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/python.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/python.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/python.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/python.json"
 aliase: []
 ---
 

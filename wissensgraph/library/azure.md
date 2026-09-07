@@ -3,11 +3,15 @@ id: "tool:azure"
 name: "Azure"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 19
 kernaussagen: 15
 mit_kernaussagen: 6
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/azure.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/azure.json"
 aliase:
   - "Microsoft Azure"
 ---

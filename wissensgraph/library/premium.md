@@ -3,11 +3,15 @@ id: "tool:premium"
 name: "Premium"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 20
 kernaussagen: 2
 mit_kernaussagen: 2
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/premium.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/premium.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/premium.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/premium.json"
 aliase:
   - "Power BI Premium"
   - "P1"

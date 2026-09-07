@@ -3,11 +3,15 @@ id: "tool:synapse"
 name: "Synapse"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 2
 kernaussagen: 1
 mit_kernaussagen: 1
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/synapse.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/synapse.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/synapse.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/synapse.json"
 aliase:
   - "Azure Synapse"
 ---

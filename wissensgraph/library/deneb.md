@@ -3,11 +3,15 @@ id: "tool:deneb"
 name: "Deneb"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 11
 kernaussagen: 13
 mit_kernaussagen: 3
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/deneb.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/deneb.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/deneb.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/deneb.json"
 aliase:
   - "Vega"
   - "Vega-Lite"

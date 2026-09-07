@@ -3,11 +3,15 @@ id: "topic:datenmodellierung"
 name: "Datenmodellierung"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 80
 kernaussagen: 0
 mit_kernaussagen: 0
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenmodellierung.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenmodellierung.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/datenmodellierung.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/datenmodellierung.json"
 aliase:
   - "Datenmodell"
   - "Data Modeling"
@@ -65,8 +69,8 @@ Für dieses Thema liegen noch keine maschinell erzeugten Kernaussagen vor.
 | [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | nur-zeitstempel | [18:05](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1085s) · [21:06](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1266s) · [24:07](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1447s) |
 | [Metadaten als Superkraft](https://www.youtube.com/watch?v=UUlPoJOhco8) | — | kernaussagen+zeitstempel | [00:01](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1s) · [15:47](https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s) · [21:03](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1263s) |
 | [TMDL Magie: Multi Parameter Tabelle - Feldparameter Next Level! \| Power BI Tutorial](https://www.youtube.com/watch?v=sShNdgnHjr4) | 2025-10-01 | nur-zeitstempel | [03:36](https://www.youtube.com/watch?v=sShNdgnHjr4&t=216s) · [06:42](https://www.youtube.com/watch?v=sShNdgnHjr4&t=402s) |
-| [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
 | [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
+| [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
 | [Analytics Speed Challenge \| Power BI vs. IBM Cognos Analytics](https://www.youtube.com/watch?v=g2Fijpqwcvw) | 2025-11-01 | nur-zeitstempel | [06:17](https://www.youtube.com/watch?v=g2Fijpqwcvw&t=377s) |
 | [Power BI Update Juni 2025](https://www.youtube.com/watch?v=LnNoXBIG7Lc) | 2025-06-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=0s) |
 | [Starting with Microsft Fabric the Skills you need](https://www.youtube.com/watch?v=m3xNYfVih0Q) | 2024-08-01 | nur-zeitstempel | [35:12](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2112s) · [36:48](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2208s) · [38:43](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2323s) |
@@ -92,6 +96,8 @@ Für dieses Thema liegen noch keine maschinell erzeugten Kernaussagen vor.
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [01:34](https://www.youtube.com/watch?v=r416vanitYw&t=94s) · [41:10](https://www.youtube.com/watch?v=r416vanitYw&t=2470s) · [42:48](https://www.youtube.com/watch?v=r416vanitYw&t=2568s) |
 | [Power BI-Teams werden Fabric-Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc) | — | nur-zeitstempel | [04:13](https://www.youtube.com/watch?v=YzfcMurbWNc&t=253s) · [25:00](https://www.youtube.com/watch?v=YzfcMurbWNc&t=1500s) |
 | [Die Schweiz faehrt Europa davon — Bahnnutzung 2024](https://datenwgknowledgekitchen.com/zugfahrten-infografik.html) | 2026-06-05 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/zugfahrten-infografik.html#:~:text=Br%C3%BCcke%20zu%20Power%20BI%3A%20%2Aals%20DAX-HTML-Visual%2A) |
+
+40 von 80 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/datenmodellierung.json).
 
 ## Hinweise
 

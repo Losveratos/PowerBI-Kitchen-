@@ -4,8 +4,12 @@
  "typ": "tool",
  "slug": "power-query",
  "stand": "2026-09-07",
- "build": "20260907-1012",
+ "build": "20260907-1056",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-query.html",
+ "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-query.html",
+ "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-query.md",
+ "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-query.json",
  "dokumente_gesamt": 45,
  "kernaussagen_gesamt": 13,
  "mit_kernaussagen": 8,
@@ -1115,6 +1119,81 @@
      "label": "12:51",
      "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=771s",
      "sekunde": 771
+    }
+   ]
+  },
+  {
+   "id": "yt:iTK3xUd8V5I",
+   "titel": "Daten-WG Special: Power BI vs. Qlik -part3",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=iTK3xUd8V5I",
+   "sprungmarken": [
+    {
+     "label": "46:19",
+     "url": "https://www.youtube.com/watch?v=iTK3xUd8V5I&t=2779s",
+     "sekunde": 2779
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "20:30",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1230s",
+     "sekunde": 1230
+    }
+   ]
+  },
+  {
+   "id": "yt:iB4vHRvaErE",
+   "titel": "Mensch bleiben, wenn Power BI geht",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=iB4vHRvaErE",
+   "sprungmarken": [
+    {
+     "label": "17:06",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=1026s",
+     "sekunde": 1026
+    }
+   ]
+  },
+  {
+   "id": "yt:Wwvhv8WA2Qc",
+   "titel": "BI Thinkers Talk Nr.62",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc",
+   "sprungmarken": [
+    {
+     "label": "51:02",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3062s",
+     "sekunde": 3062
+    }
+   ]
+  },
+  {
+   "id": "yt:xCzKEIB4W5I",
+   "titel": "Fabric Planning unboxing",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I",
+   "sprungmarken": [
+    {
+     "label": "34:04",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=2044s",
+     "sekunde": 2044
     }
    ]
   }

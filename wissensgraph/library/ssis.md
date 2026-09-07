@@ -3,11 +3,15 @@ id: "tool:ssis"
 name: "SSIS"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 6
 kernaussagen: 18
 mit_kernaussagen: 2
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/ssis.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/ssis.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/ssis.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/ssis.json"
 aliase:
   - "Integration Services"
 ---

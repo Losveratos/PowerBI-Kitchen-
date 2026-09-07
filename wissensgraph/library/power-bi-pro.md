@@ -3,11 +3,15 @@ id: "tool:power-bi-pro"
 name: "Power BI Pro"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 8
 kernaussagen: 3
 mit_kernaussagen: 3
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-pro.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-pro.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-pro.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-pro.json"
 aliase:
   - "Pro-Lizenz"
   - "Pro Lizenz"

@@ -3,11 +3,15 @@ id: "tool:notebook"
 name: "Notebook"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 43
 kernaussagen: 24
 mit_kernaussagen: 9
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/notebook.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/notebook.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/notebook.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/notebook.json"
 aliase:
   - "Notebooks"
   - "Spark Notebook"
@@ -114,6 +118,8 @@ Notebooks, Spark Notebook
 | [BI Thinkers Talk nr.68](https://www.youtube.com/watch?v=VD1N68Fhoco) | 2025-10-01 | nur-zeitstempel | [56:24](https://www.youtube.com/watch?v=VD1N68Fhoco&t=3384s) |
 | [Daten-WG Special: Power BI vs. Qlik -part2](https://www.youtube.com/watch?v=_Vh5fDfHWz4) | 2025-10-01 | nur-zeitstempel | [05:18](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=318s) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [39:36](https://www.youtube.com/watch?v=r416vanitYw&t=2376s) |
+
+40 von 43 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/notebook.json).
 
 ## Hinweise
 

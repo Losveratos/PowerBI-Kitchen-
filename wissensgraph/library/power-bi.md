@@ -3,11 +3,15 @@ id: "tool:power-bi"
 name: "Power BI"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 124
 kernaussagen: 75
 mit_kernaussagen: 21
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi.json"
 aliase:
   - "PowerBI"
   - "Power-BI"
@@ -148,8 +152,8 @@ PowerBI, Power-BI, Power DI, PBI
 | [Power BI Update Mai 2025](https://www.youtube.com/watch?v=zkfdfc5fo-E) | 2025-05-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=0s) · [00:23](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=23s) · [13:04](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=784s) |
 | [Power BI Seiten per URL steuern - Sprechende URLs mit PBIP & VS Code \| Power BI Tutorial](https://www.youtube.com/watch?v=DcEfNIupEHM) | 2025-12-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=DcEfNIupEHM&t=1s) · [00:27](https://www.youtube.com/watch?v=DcEfNIupEHM&t=27s) · [01:29](https://www.youtube.com/watch?v=DcEfNIupEHM&t=89s) |
 | [Power BI Update Juli 2025](https://www.youtube.com/watch?v=TkxwcAyBGUM) | 2025-07-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=TkxwcAyBGUM&t=0s) · [02:07](https://www.youtube.com/watch?v=TkxwcAyBGUM&t=127s) · [06:09](https://www.youtube.com/watch?v=TkxwcAyBGUM&t=369s) |
-| [Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! \| Power BI Tutorial](https://www.youtube.com/watch?v=GsLfiuPlsQE) | 2025-10-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=1s) · [01:20](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=80s) · [04:30](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=270s) |
 | [Power BI Update Oktober 2025](https://www.youtube.com/watch?v=LVSttJlhrqM) | 2025-10-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=LVSttJlhrqM&t=0s) · [03:54](https://www.youtube.com/watch?v=LVSttJlhrqM&t=234s) · [04:21](https://www.youtube.com/watch?v=LVSttJlhrqM&t=261s) |
+| [Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! \| Power BI Tutorial](https://www.youtube.com/watch?v=GsLfiuPlsQE) | 2025-10-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=1s) · [01:20](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=80s) · [04:30](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=270s) |
 | [Daten-WG Special: Power BI vs. Qlik](https://www.youtube.com/watch?v=aYHk_V8n_CE) | 2025-10-01 | nur-zeitstempel | [08:02](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=482s) · [09:43](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=583s) · [11:19](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=679s) |
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [03:20](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=200s) · [06:50](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=410s) · [33:37](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2017s) |
 | [Daten-WG Special: Power BI vs. Qlik -part2](https://www.youtube.com/watch?v=_Vh5fDfHWz4) | 2025-10-01 | nur-zeitstempel | [31:24](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=1884s) · [34:33](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=2073s) · [1:05:36](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=3936s) |
@@ -167,6 +171,8 @@ PowerBI, Power-BI, Power DI, PBI
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | nur-zeitstempel | [07:46](https://www.youtube.com/watch?v=lZvpCBMKASM&t=466s) · [26:33](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1593s) · [47:01](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2821s) |
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | nur-zeitstempel | [06:11](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=371s) · [13:57](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=837s) · [30:19](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1819s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [03:11](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=191s) · [05:30](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=330s) · [09:01](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=541s) |
+
+40 von 124 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi.json).
 
 ## Hinweise
 

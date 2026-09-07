@@ -3,11 +3,15 @@ id: "topic:refresh"
 name: "Refresh"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 38
 kernaussagen: 5
 mit_kernaussagen: 4
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/refresh.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/refresh.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/refresh.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/refresh.json"
 aliase:
   - "Aktualisierung"
   - "Scheduled Refresh"

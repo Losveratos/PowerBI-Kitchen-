@@ -3,11 +3,15 @@ id: "topic:ibcs"
 name: "IBCS"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 21
 kernaussagen: 7
 mit_kernaussagen: 4
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/ibcs.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/ibcs.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/ibcs.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/ibcs.json"
 aliase:
   - "Hichert"
   - "Semantic Notation"

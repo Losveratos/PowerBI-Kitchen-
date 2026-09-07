@@ -7,7 +7,11 @@
 <meta name="description" content="Graph-Sicht der DatenWG Library: Themen, Tools und Personen aus den Folgen der Daten-WG als Netz, mit Zeitstrahl, Fokus und Abfrage-Vorlagen. Jede Verbindung springt auf die Sekunde ins Video.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="DatenWG Library · Graph-Sicht">
-<meta property="og:description" content="Themen, Personen und Kernaussagen aus 126 Folgen als Graph. Jede Verbindung springt auf die Sekunde ins Video.">
+<meta property="og:description" content="Themen, Personen und Kernaussagen aus 147 Folgen als Graph. Jede Verbindung springt auf die Sekunde ins Video.">
+<meta property="og:site_name" content="Daten-WG Knowledge Kitchen">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/wissensgraph/graph.html">
 <meta property="og:image" content="https://datenwgknowledgekitchen.com/wissensgraph/og.png">
 <meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/graph.html">
 <meta name="twitter:card" content="summary_large_image">
@@ -46,13 +50,13 @@ input[type=range]{width:100%}
 #graph svg{width:100%;height:100%;display:block}
 .node circle,.node rect{stroke:#fff;stroke-width:1.5px;cursor:pointer}
 .node text{font-family:var(--sans);font-size:11px;pointer-events:none;fill:var(--ink)}
-.node.dim{opacity:.18}
-.link{stroke:#9a958a;stroke-opacity:.35}
-.link.dim{stroke-opacity:.05}
+.node.dim{opacity:.3}
+.link{stroke:#7A7466;stroke-opacity:.55}
+.link.dim{stroke-opacity:.15}
 .link.hl{stroke:var(--accent);stroke-opacity:.9}
 .link.co{stroke-dasharray:4 3}
 .link.typed{stroke:var(--accent);stroke-opacity:.8}
-.link.typed.dim{stroke-opacity:.08}
+.link.typed.dim{stroke-opacity:.2}
 .node:focus{outline:none}
 .node:focus circle,.node:focus rect{stroke:var(--ink);stroke-width:3px}
 .legend{position:absolute;right:14px;bottom:12px;font-family:var(--mono);font-size:10px;color:var(--ink-mute);background:rgba(250,250,245,.9);padding:6px 10px;border-radius:6px;line-height:1.7;border:1px solid var(--line)}
@@ -63,7 +67,7 @@ input[type=range]{width:100%}
 .cov{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px;border:1px solid var(--line);color:var(--ink-mute);background:var(--bg)}
 .cov.c4{border-color:var(--accent);color:var(--accent);background:#E3F2ED}
 .cov.c3{border-color:#8FD3C4;color:var(--accent)}
-.cov.c1{opacity:.7}
+.cov.c1{color:#6B6B6B;border-color:#D8D3C4}
 .err{background:#FBE7EF;border:1px solid var(--n-person);color:var(--n-person);padding:12px 14px;border-radius:10px;margin:10px 0;font-size:13px}
 .fb{font-family:var(--mono);font-size:10px;color:var(--ink-mute);margin-left:8px;text-decoration:none}
 .status{font-family:var(--mono);font-size:11px;color:var(--ink-mute);background:var(--bg-soft);border-bottom:1px solid var(--line)}
@@ -279,7 +283,7 @@ fetch(DATA + 'graph.json').then(r => { if (!r.ok) throw new Error('graph.json: H
   G.out = new Map(); G.in = new Map();
   for (const e of g.edges) { (G.out.get(e.s) || G.out.set(e.s, []).get(e.s)).push(e); (G.in.get(e.t) || G.in.set(e.t, []).get(e.t)).push(e); }
   const nF = G.docs.filter(d => d.source === 'youtube').length, nP = G.docs.length - nF;
-  $('#hdr-stats').textContent = `${nF} Folgen · ${nP} Seiten · ${g.nodes.length - G.docs.length - G.claims.length} Konzepte · ${G.claims.length} Kernaussagen · ${g.edges.length} Verbindungen`;
+  $('#hdr-stats').textContent = `${nF} Folgen · ${nP} Seiten · ${(g.meta && g.meta.concepts) || (g.nodes.length - G.docs.length - G.claims.length)} Konzepte · ${G.claims.length} Kernaussagen · ${g.edges.length} Verbindungen`;
   const concepts = g.nodes.filter(n => ['Topic','Tool','Person','Organization'].includes(n.type)).sort((a, b) => a.name.localeCompare(b.name, 'de'));
   $('#concepts').innerHTML = concepts.map(n => `<option value="${esc(n.name)}">`).join('');
   $('#persons').innerHTML = concepts.filter(n => n.type === 'Person').map(n => `<option value="${esc(n.name)}">`).join('');

@@ -3,11 +3,15 @@ id: "tool:import-mode"
 name: "Import Mode"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 12
 kernaussagen: 7
 mit_kernaussagen: 5
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/import-mode.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/import-mode.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/import-mode.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/import-mode.json"
 aliase:
   - "Importmodus"
   - "Import-Modus"

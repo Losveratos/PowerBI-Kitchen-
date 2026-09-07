@@ -3,11 +3,15 @@ id: "tool:direct-lake"
 name: "Direct Lake"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 32
 kernaussagen: 20
 mit_kernaussagen: 10
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/direct-lake.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/direct-lake.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/direct-lake.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/direct-lake.json"
 aliase:
   - "DirectLake"
   - "Direct-Lake"

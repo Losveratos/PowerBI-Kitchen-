@@ -3,11 +3,15 @@ id: "tool:git"
 name: "Git"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 25
 kernaussagen: 1
 mit_kernaussagen: 1
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/git.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/git.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/git.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/git.json"
 aliase:
   - "Git Integration"
   - "Git-Integration"

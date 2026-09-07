@@ -3,11 +3,15 @@ id: "tool:lakehouse"
 name: "Lakehouse"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 39
 kernaussagen: 21
 mit_kernaussagen: 10
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/lakehouse.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/lakehouse.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/lakehouse.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/lakehouse.json"
 aliase:
   - "Lake House"
 ---

@@ -3,11 +3,15 @@ id: "topic:row-level-security"
 name: "Row-Level Security"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 12
 kernaussagen: 6
 mit_kernaussagen: 5
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/row-level-security.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/row-level-security.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/row-level-security.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/row-level-security.json"
 aliase:
   - "RLS"
   - "Zeilenebene"

@@ -3,11 +3,15 @@ id: "tool:semantic-model"
 name: "Semantic Model"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 30
 kernaussagen: 39
 mit_kernaussagen: 12
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/semantic-model.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/semantic-model.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/semantic-model.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/semantic-model.json"
 aliase:
   - "Semantikmodell"
   - "Semantic Models"

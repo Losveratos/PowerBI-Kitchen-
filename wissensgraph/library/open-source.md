@@ -3,11 +3,15 @@ id: "topic:open-source"
 name: "Open Source"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 9
 kernaussagen: 0
 mit_kernaussagen: 0
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/open-source.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/open-source.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/open-source.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/open-source.json"
 aliase:
   - "Opensource"
   - "Open-Source"

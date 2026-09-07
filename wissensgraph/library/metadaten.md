@@ -3,11 +3,15 @@ id: "topic:metadaten"
 name: "Metadaten"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 25
 kernaussagen: 23
 mit_kernaussagen: 6
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/metadaten.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/metadaten.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/metadaten.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/metadaten.json"
 aliase:
   - "Metadata"
   - "Meta-Daten"

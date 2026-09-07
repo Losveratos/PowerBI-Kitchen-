@@ -3,11 +3,15 @@ id: "topic:self-service-bi"
 name: "Self-Service BI"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 18
 kernaussagen: 26
 mit_kernaussagen: 10
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/self-service-bi.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/self-service-bi.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/self-service-bi.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/self-service-bi.json"
 aliase:
   - "Self-Service"
   - "Self Service"

@@ -4,8 +4,12 @@
  "typ": "thema",
  "slug": "reporting",
  "stand": "2026-09-07",
- "build": "20260907-1012",
+ "build": "20260907-1056",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/reporting.html",
+ "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/reporting.html",
+ "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/reporting.md",
+ "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/reporting.json",
  "dokumente_gesamt": 44,
  "kernaussagen_gesamt": 15,
  "mit_kernaussagen": 8,
@@ -958,21 +962,6 @@
    ]
   },
   {
-   "id": "page:prototyping-pnl-treiberbaum",
-   "titel": "Ist KI das neue Papier — und Markdown der neue Stift?",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.143,
-   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:prototyping-pnl-treiberbaum_en",
    "titel": "Is AI the New Paper — and Markdown the New Pen?",
    "datum": "2026-08-31",
@@ -983,6 +972,21 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:prototyping-pnl-treiberbaum",
+   "titel": "Ist KI das neue Papier — und Markdown der neue Stift?",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.143,
+   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
      "sekunde": null
     }
    ]
@@ -1241,6 +1245,60 @@
      "sekunde": 785
     }
    ]
+  },
+  {
+   "id": "yt:vd1r02bj9Qk",
+   "titel": "Power BI vs. Qlik",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk",
+   "sprungmarken": [
+    {
+     "label": "12:25",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=745s",
+     "sekunde": 745
+    }
+   ]
+  },
+  {
+   "id": "yt:inko8wG9jlY",
+   "titel": "Boring Charts, Better Insights",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.038,
+   "url": "https://www.youtube.com/watch?v=inko8wG9jlY",
+   "sprungmarken": [
+    {
+     "label": "09:12",
+     "url": "https://www.youtube.com/watch?v=inko8wG9jlY&t=552s",
+     "sekunde": 552
+    }
+   ]
+  },
+  {
+   "id": "yt:-_4bfrjRCVo",
+   "titel": "Objektive Daten gibt es nicht",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.03,
+   "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo",
+   "sprungmarken": [
+    {
+     "label": "15:28",
+     "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo&t=928s",
+     "sekunde": 928
+    }
+   ]
+  },
+  {
+   "id": "yt:xU_s43HekPM",
+   "titel": "From Finance to Fabric",
+   "datum": "2026-03-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=xU_s43HekPM",
+   "sprungmarken": []
   }
  ],
  "hinweise": [

@@ -3,11 +3,15 @@ id: "tool:power-query"
 name: "Power Query"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 45
 kernaussagen: 13
 mit_kernaussagen: 8
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-query.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-query.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/power-query.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/power-query.json"
 aliase:
   - "M-Code"
   - "Power Query M"
@@ -105,6 +109,8 @@ M-Code, Power Query M, Query Editor, Abfrage-Editor
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Dataflow%20Gen2) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Weg%20C%20%C2%B7%20Shortcut%2C%20wenn%20Daten%20schon%20existieren) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Dataflow-Weg%20%28Low-Code%29) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | nur-zeitstempel | [19:44](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1184s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [12:51](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=771s) |
+
+40 von 45 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/power-query.json).
 
 ## Hinweise
 

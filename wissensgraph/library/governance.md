@@ -3,11 +3,15 @@ id: "topic:governance"
 name: "Governance"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 27
 kernaussagen: 64
 mit_kernaussagen: 18
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/governance.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/governance.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/governance.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/governance.json"
 aliase:
   - "Data Governance"
   - "Compliance"

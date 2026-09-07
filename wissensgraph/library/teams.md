@@ -3,11 +3,15 @@ id: "tool:teams"
 name: "Teams"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 25
 kernaussagen: 0
 mit_kernaussagen: 0
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/teams.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/teams.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/teams.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/teams.json"
 aliase:
   - "Microsoft Teams"
   - "MS Teams"

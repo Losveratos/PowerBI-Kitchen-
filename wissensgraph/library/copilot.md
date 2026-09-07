@@ -3,11 +3,15 @@ id: "tool:copilot"
 name: "Copilot"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 47
 kernaussagen: 24
 mit_kernaussagen: 10
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/copilot.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/copilot.json"
 aliase:
   - "Co-Pilot"
 ---
@@ -74,8 +78,8 @@ Co-Pilot
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
 | [Protokoll in 60 Sekunden! - So geht es mit Copilot!](https://www.youtube.com/watch?v=wuuPwUPQVxk) | 2025-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=wuuPwUPQVxk&t=0s) · [01:42](https://www.youtube.com/watch?v=wuuPwUPQVxk&t=102s) |
-| [Vorbereiten der Daten für KI](https://www.youtube.com/watch?v=WJXREKKx2yo) | 2025-08-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=WJXREKKx2yo&t=1s) · [01:35](https://www.youtube.com/watch?v=WJXREKKx2yo&t=95s) · [04:42](https://www.youtube.com/watch?v=WJXREKKx2yo&t=282s) |
 | [Copilot + Power Automate = Gamechanger](https://www.youtube.com/watch?v=_MfM3rhJx58) | 2025-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=_MfM3rhJx58&t=0s) · [03:16](https://www.youtube.com/watch?v=_MfM3rhJx58&t=196s) · [08:07](https://www.youtube.com/watch?v=_MfM3rhJx58&t=487s) |
+| [Vorbereiten der Daten für KI](https://www.youtube.com/watch?v=WJXREKKx2yo) | 2025-08-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=WJXREKKx2yo&t=1s) · [01:35](https://www.youtube.com/watch?v=WJXREKKx2yo&t=95s) · [04:42](https://www.youtube.com/watch?v=WJXREKKx2yo&t=282s) |
 | [Power BI Update Januar 2026](https://www.youtube.com/watch?v=TAM5AAZqh7k) | 2026-01-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s) · [00:40](https://www.youtube.com/watch?v=TAM5AAZqh7k&t=40s) · [03:19](https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s) |
 | [Forms + Power Automate = Feedback-Alarm!](https://www.youtube.com/watch?v=1mfhZw7bg_c) | 2025-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=1mfhZw7bg_c&t=0s) · [03:13](https://www.youtube.com/watch?v=1mfhZw7bg_c&t=193s) · [06:19](https://www.youtube.com/watch?v=1mfhZw7bg_c&t=379s) |
 | [Daten-WG Life-Update \| State of Power BI, Fabric & AI-Tools](https://www.youtube.com/watch?v=d3HdhRe_nK8) | 2026-06-01 | nur-zeitstempel | [06:26](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=386s) · [09:08](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=548s) · [15:14](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=914s) |
@@ -113,6 +117,8 @@ Co-Pilot
 | [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | nur-zeitstempel | [25:25](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1525s) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [33:52](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2032s) |
 | [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | nur-zeitstempel | [01:48](https://www.youtube.com/watch?v=DQENmzAkNqw&t=108s) |
+
+40 von 47 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/copilot.json).
 
 ## Hinweise
 

@@ -3,11 +3,15 @@ id: "tool:paginated-reports"
 name: "Paginated Reports"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 3
 kernaussagen: 1
 mit_kernaussagen: 1
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/paginated-reports.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/paginated-reports.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/paginated-reports.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/paginated-reports.json"
 aliase:
   - "Paginierte Berichte"
   - "Report Builder"

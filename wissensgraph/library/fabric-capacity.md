@@ -3,11 +3,15 @@ id: "tool:fabric-capacity"
 name: "Fabric Capacity"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 26
 kernaussagen: 29
 mit_kernaussagen: 9
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/fabric-capacity.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/fabric-capacity.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/fabric-capacity.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/fabric-capacity.json"
 aliase:
   - "Capacity"
   - "Kapazität"

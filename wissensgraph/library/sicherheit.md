@@ -3,11 +3,15 @@ id: "topic:sicherheit"
 name: "Sicherheit"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 53
 kernaussagen: 26
 mit_kernaussagen: 13
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/sicherheit.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/sicherheit.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/sicherheit.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/sicherheit.json"
 aliase:
   - "Security"
   - "Datenschutz"
@@ -118,6 +122,8 @@ Security, Datenschutz, DSGVO, Sensitivity Label
 | [Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?](https://www.youtube.com/watch?v=jETxUNQSl-w) | 2026-02-01 | kernaussagen+zeitstempel | [23:36](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1416s) |
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [23:12](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1392s) |
 | [BI Thinkers Talk n.73](https://www.youtube.com/watch?v=pOJpXxsfUt0) | 2026-02-01 | kernaussagen+zeitstempel | [45:23](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2723s) |
+
+40 von 53 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/sicherheit.json).
 
 ## Hinweise
 

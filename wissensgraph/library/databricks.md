@@ -3,11 +3,15 @@ id: "tool:databricks"
 name: "Databricks"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 6
 kernaussagen: 5
 mit_kernaussagen: 4
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/databricks.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/databricks.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/databricks.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/databricks.json"
 aliase: []
 ---
 

@@ -3,11 +3,15 @@ id: "topic:strategie"
 name: "Strategie"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 19
 kernaussagen: 14
 mit_kernaussagen: 4
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/strategie.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/strategie.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/strategie.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/strategie.json"
 aliase:
   - "BI-Strategie"
   - "Datenstrategie"

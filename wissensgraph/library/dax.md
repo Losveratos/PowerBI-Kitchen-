@@ -3,11 +3,15 @@ id: "tool:dax"
 name: "DAX"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 57
 kernaussagen: 40
 mit_kernaussagen: 17
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/dax.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/dax.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/dax.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/dax.json"
 aliase:
   - "Data Analysis Expressions"
 ---
@@ -129,6 +133,8 @@ Data Analysis Expressions
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [36:36](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=2196s) · [55:29](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=3329s) |
 | [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | nur-zeitstempel | [07:02](https://www.youtube.com/watch?v=e50qKdVn-24&t=422s) |
 | [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [30:45](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1845s) |
+
+40 von 57 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/dax.json).
 
 ## Hinweise
 

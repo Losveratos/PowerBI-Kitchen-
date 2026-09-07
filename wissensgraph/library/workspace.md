@@ -3,11 +3,15 @@ id: "tool:workspace"
 name: "Workspace"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 45
 kernaussagen: 14
 mit_kernaussagen: 6
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/workspace.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/workspace.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/workspace.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/workspace.json"
 aliase:
   - "Arbeitsbereich"
   - "Workspaces"
@@ -105,6 +109,8 @@ Arbeitsbereich, Workspaces, Arbeitsbereiche
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [35:27](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2127s) |
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | nur-zeitstempel | [20:34](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1234s) |
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [08:03](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=483s) |
+
+40 von 45 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/workspace.json).
 
 ## Hinweise
 

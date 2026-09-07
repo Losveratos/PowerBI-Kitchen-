@@ -3,11 +3,15 @@ id: "topic:echtzeit"
 name: "Echtzeit"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 33
 kernaussagen: 2
 mit_kernaussagen: 2
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/echtzeit.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/echtzeit.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/echtzeit.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/echtzeit.json"
 aliase:
   - "Real-Time"
   - "Streaming"

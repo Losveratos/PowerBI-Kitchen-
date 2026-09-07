@@ -3,11 +3,15 @@ id: "tool:composite-models"
 name: "Composite Models"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 5
 kernaussagen: 1
 mit_kernaussagen: 1
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/composite-models.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/composite-models.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/composite-models.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/composite-models.json"
 aliase:
   - "Composite Model"
   - "zusammengesetzte Modelle"

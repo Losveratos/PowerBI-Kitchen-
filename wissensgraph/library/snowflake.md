@@ -3,11 +3,15 @@ id: "tool:snowflake"
 name: "Snowflake"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 21
 kernaussagen: 5
 mit_kernaussagen: 5
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/snowflake.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/snowflake.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/snowflake.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/snowflake.json"
 aliase: []
 ---
 

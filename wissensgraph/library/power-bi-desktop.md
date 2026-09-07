@@ -3,11 +3,15 @@ id: "tool:power-bi-desktop"
 name: "Power BI Desktop"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 38
 kernaussagen: 36
 mit_kernaussagen: 12
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-desktop.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-desktop.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-desktop.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-desktop.json"
 aliase:
   - "Desktop"
 ---

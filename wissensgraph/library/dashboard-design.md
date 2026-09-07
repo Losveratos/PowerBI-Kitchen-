@@ -3,11 +3,15 @@ id: "topic:dashboard-design"
 name: "Dashboard Design"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 5
 kernaussagen: 9
 mit_kernaussagen: 5
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/dashboard-design.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/dashboard-design.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/dashboard-design.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/dashboard-design.json"
 aliase:
   - "Dashboard"
   - "Report Design"

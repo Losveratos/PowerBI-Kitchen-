@@ -3,11 +3,15 @@ id: "tool:mirroring"
 name: "Mirroring"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1012"
+build: "20260907-1056"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 17
 kernaussagen: 25
 mit_kernaussagen: 5
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/mirroring.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/mirroring.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/mirroring.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/mirroring.json"
 aliase:
   - "Mirrored Database"
   - "Spiegelung"
