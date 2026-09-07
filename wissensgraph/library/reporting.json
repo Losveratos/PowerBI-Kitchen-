@@ -3,8 +3,8 @@
  "name": "Reporting",
  "typ": "thema",
  "slug": "reporting",
- "stand": "2026-09-06",
- "build": "20260906-2313",
+ "stand": "2026-09-07",
+ "build": "20260907-1012",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "dokumente_gesamt": 44,
  "kernaussagen_gesamt": 15,
@@ -958,21 +958,6 @@
    ]
   },
   {
-   "id": "page:prototyping-pnl-treiberbaum_en",
-   "titel": "Is AI the New Paper — and Markdown the New Pen?",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.143,
-   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:prototyping-pnl-treiberbaum",
    "titel": "Ist KI das neue Papier — und Markdown der neue Stift?",
    "datum": "2026-08-31",
@@ -983,6 +968,21 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:prototyping-pnl-treiberbaum_en",
+   "titel": "Is AI the New Paper — and Markdown the New Pen?",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.143,
+   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
      "sekunde": null
     }
    ]

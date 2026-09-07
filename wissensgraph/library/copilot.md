@@ -2,8 +2,8 @@
 id: "tool:copilot"
 name: "Copilot"
 typ: tool
-stand: "2026-09-06"
-build: "20260906-2313"
+stand: "2026-09-07"
+build: "20260907-1012"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 47
 kernaussagen: 24
@@ -83,8 +83,8 @@ Co-Pilot
 | [Forms + Sharepoint + Powerautomate](https://www.youtube.com/watch?v=kP8YNW1XN_E) | 2025-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=kP8YNW1XN_E&t=0s) · [08:12](https://www.youtube.com/watch?v=kP8YNW1XN_E&t=492s) |
 | [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | nur-zeitstempel | [00:50](https://www.youtube.com/watch?v=e50qKdVn-24&t=50s) · [10:50](https://www.youtube.com/watch?v=e50qKdVn-24&t=650s) · [13:04](https://www.youtube.com/watch?v=e50qKdVn-24&t=784s) |
 | [BI Thinkers Talk n.74](https://www.youtube.com/watch?v=rWE0gMx7v7I) | 2026-03-01 | kernaussagen+zeitstempel | [14:34](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=874s) · [22:42](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1362s) · [27:27](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1647s) |
-| [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
 | [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
+| [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
 | [Power BI Update November 2025](https://www.youtube.com/watch?v=XJZxYNIeEVc) | 2025-11-01 | nur-zeitstempel | [03:31](https://www.youtube.com/watch?v=XJZxYNIeEVc&t=211s) |
 | [Power BI Update August 2025](https://www.youtube.com/watch?v=jTXo4aEr07o) | 2025-08-01 | nur-zeitstempel | [02:46](https://www.youtube.com/watch?v=jTXo4aEr07o&t=166s) |
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [13:11](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=791s) · [21:32](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1292s) · [23:12](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1392s) |

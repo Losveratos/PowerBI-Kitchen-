@@ -2,8 +2,8 @@
 id: "tool:dax"
 name: "DAX"
 typ: tool
-stand: "2026-09-06"
-build: "20260906-2313"
+stand: "2026-09-07"
+build: "20260907-1012"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 57
 kernaussagen: 40
@@ -97,8 +97,8 @@ Data Analysis Expressions
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Context%20Transition) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Klassifizierungen%20ableiten) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=05%20%C2%B7%20DAX%20%2A%C2%B7%20Formelsprache%2A) |
 | [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | nur-zeitstempel | [18:05](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1085s) · [21:06](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1266s) · [24:07](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1447s) |
 | [Visual Analytics with Power BI](https://www.youtube.com/watch?v=UxE0DPnLgIg) | 2021-09-01 | nur-zeitstempel | [09:44](https://www.youtube.com/watch?v=UxE0DPnLgIg&t=584s) · [21:54](https://www.youtube.com/watch?v=UxE0DPnLgIg&t=1314s) · [34:02](https://www.youtube.com/watch?v=UxE0DPnLgIg&t=2042s) |
-| [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
 | [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
+| [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
 | [Power BI Update Juni 2025](https://www.youtube.com/watch?v=LnNoXBIG7Lc) | 2025-06-01 | nur-zeitstempel | [02:30](https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=150s) |
 | [BI Thinkers Talk nr.71](https://www.youtube.com/watch?v=LUrL8A5lNgI) | 2025-12-01 | kernaussagen+zeitstempel | [19:17](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1157s) · [39:38](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2378s) · [41:40](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2500s) |
 | [Power BI Update März 2026](https://www.youtube.com/watch?v=ASwcPvbMRZc) | 2026-03-01 | kernaussagen+zeitstempel | [05:57](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=357s) · [06:21](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=381s) |

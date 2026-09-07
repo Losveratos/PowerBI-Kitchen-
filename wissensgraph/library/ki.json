@@ -3,8 +3,8 @@
  "name": "KI",
  "typ": "thema",
  "slug": "ki",
- "stand": "2026-09-06",
- "build": "20260906-2313",
+ "stand": "2026-09-07",
+ "build": "20260907-1012",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "dokumente_gesamt": 90,
  "kernaussagen_gesamt": 67,
@@ -1105,31 +1105,6 @@
    ]
   },
   {
-   "id": "page:prototyping-pnl-treiberbaum_en",
-   "titel": "Is AI the New Paper — and Markdown the New Pen?",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.429,
-   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=Do%20we%20have%20to%20%2Arethink%20prototyping%3F%2A",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=LinkedIn%20post%20%C2%B7%20Original%20%28EN%29",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:prototyping-pnl-treiberbaum",
    "titel": "Ist KI das neue Papier — und Markdown der neue Stift?",
    "datum": "2026-08-31",
@@ -1150,6 +1125,31 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=LinkedIn-Post%20%C2%B7%20Original%20%28EN%29",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:prototyping-pnl-treiberbaum_en",
+   "titel": "Is AI the New Paper — and Markdown the New Pen?",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.429,
+   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=Do%20we%20have%20to%20%2Arethink%20prototyping%3F%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=LinkedIn%20post%20%C2%B7%20Original%20%28EN%29",
      "sekunde": null
     }
    ]

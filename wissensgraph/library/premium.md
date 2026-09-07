@@ -2,8 +2,8 @@
 id: "tool:premium"
 name: "Premium"
 typ: tool
-stand: "2026-09-06"
-build: "20260906-2313"
+stand: "2026-09-07"
+build: "20260907-1012"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 20
 kernaussagen: 2

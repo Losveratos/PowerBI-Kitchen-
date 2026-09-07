@@ -3,8 +3,8 @@
  "name": "Copilot",
  "typ": "tool",
  "slug": "copilot",
- "stand": "2026-09-06",
- "build": "20260906-2313",
+ "stand": "2026-09-07",
+ "build": "20260907-1012",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "dokumente_gesamt": 47,
  "kernaussagen_gesamt": 24,
@@ -610,21 +610,6 @@
    ]
   },
   {
-   "id": "page:chartkitchen-schnellstart",
-   "titel": "ChartKitchen byDatenWG — Schnellstart",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.2,
-   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:chartkitchen-schnellstart_en",
    "titel": "ChartKitchen byDatenWG — Quick Start",
    "datum": "2026-08-31",
@@ -635,6 +620,21 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart",
+   "titel": "ChartKitchen byDatenWG — Schnellstart",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide",
      "sekunde": null
     }
    ]

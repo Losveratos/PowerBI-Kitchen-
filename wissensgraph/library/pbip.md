@@ -2,8 +2,8 @@
 id: "tool:pbip"
 name: "PBIP"
 typ: tool
-stand: "2026-09-06"
-build: "20260906-2313"
+stand: "2026-09-07"
+build: "20260907-1012"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 14
 kernaussagen: 8
@@ -53,8 +53,8 @@ Power BI Project, Power BI Projekt, PBIR, Enhanced Report Format
 | --- | --- | --- | --- |
 | [Drillthrough-Auswahl sortieren – So kontrollierst du die Reihenfolge! \| Power BI Tutorial](https://www.youtube.com/watch?v=0n8hZ6v_0Lc) | 2025-12-01 | nur-zeitstempel | [02:02](https://www.youtube.com/watch?v=0n8hZ6v_0Lc&t=122s) · [05:16](https://www.youtube.com/watch?v=0n8hZ6v_0Lc&t=316s) |
 | [Report-Design als Framework — ein Skill für Power BI](https://datenwgknowledgekitchen.com/powerbi-design-skill.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=4%20%C2%B7%20Warten%20statt%20neu%20bauen%20%E2%80%94%20Bulk%20%C2%B7%20Linter%20%C2%B7%20Wireframes) · [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=F%C3%BCr%20wen%3A%20%2AMenschen%20und%20Agenten%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=Skill%20ausprobieren) |
-| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
 | [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
+| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
 | [Power BI Seiten per URL steuern - Sprechende URLs mit PBIP & VS Code \| Power BI Tutorial](https://www.youtube.com/watch?v=DcEfNIupEHM) | 2025-12-01 | nur-zeitstempel | [01:29](https://www.youtube.com/watch?v=DcEfNIupEHM&t=89s) |
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [01:54](https://www.youtube.com/watch?v=G8s96sHUHac&t=114s) · [04:56](https://www.youtube.com/watch?v=G8s96sHUHac&t=296s) · [08:20](https://www.youtube.com/watch?v=G8s96sHUHac&t=500s) |
 | [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | nur-zeitstempel | [09:45](https://www.youtube.com/watch?v=DQENmzAkNqw&t=585s) |

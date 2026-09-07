@@ -2,8 +2,8 @@
 id: "topic:ki"
 name: "KI"
 typ: thema
-stand: "2026-09-06"
-build: "20260906-2313"
+stand: "2026-09-07"
+build: "20260907-1012"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 90
 kernaussagen: 67
@@ -138,8 +138,8 @@ AI, Künstliche Intelligenz, LLM, ChatGPT, Claude, GPT, Agenten, Agent, Machine 
 | [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | nur-zeitstempel | [12:13](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=733s) · [19:43](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1183s) · [30:04](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1804s) |
 | [Was wir von Iron Man für Datenprojekte lernen können (data:unplugged Vortrag)](https://www.youtube.com/watch?v=qVZhboahaDE) | 2025-04-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=qVZhboahaDE&t=0s) · [01:33](https://www.youtube.com/watch?v=qVZhboahaDE&t=93s) · [03:10](https://www.youtube.com/watch?v=qVZhboahaDE&t=190s) |
 | [Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?](https://www.youtube.com/watch?v=jETxUNQSl-w) | 2026-02-01 | kernaussagen+zeitstempel | [01:38](https://www.youtube.com/watch?v=jETxUNQSl-w&t=98s) · [29:29](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1769s) · [32:38](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1958s) |
-| [Is AI the New Paper — and Markdown the New Pen?](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html) · [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=Do%20we%20have%20to%20%2Arethink%20prototyping%3F%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=LinkedIn%20post%20%C2%B7%20Original%20%28EN%29) |
 | [Ist KI das neue Papier — und Markdown der neue Stift?](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html) · [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=M%C3%BCssen%20wir%20Prototyping%20%2Aneu%20denken%3F%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=LinkedIn-Post%20%C2%B7%20Original%20%28EN%29) |
+| [Is AI the New Paper — and Markdown the New Pen?](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html) · [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=Do%20we%20have%20to%20%2Arethink%20prototyping%3F%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=LinkedIn%20post%20%C2%B7%20Original%20%28EN%29) |
 | [Von Patronen zu Prozessen](https://www.youtube.com/watch?v=0cHtxIm7fVw) | 2025-08-01 | nur-zeitstempel | [12:35](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=755s) · [14:01](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=841s) · [17:12](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=1032s) |
 | [Von Patronen zu Prozessen (nur Ton)](https://www.youtube.com/watch?v=s3CveEVoDvo) | 2025-07-01 | nur-zeitstempel | [12:35](https://www.youtube.com/watch?v=s3CveEVoDvo&t=755s) · [14:01](https://www.youtube.com/watch?v=s3CveEVoDvo&t=841s) · [17:12](https://www.youtube.com/watch?v=s3CveEVoDvo&t=1032s) |
 | [Wie viel CO₂ steckt in einem Token? — KI-Energie-Simulator](https://datenwgknowledgekitchen.com/ki-co2-simulator.html) | 2026-07-03 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/ki-co2-simulator.html) · [Abschnitt](https://datenwgknowledgekitchen.com/ki-co2-simulator.html#:~:text=Was%20das%20Werkzeug%20rechnet) · [Abschnitt](https://datenwgknowledgekitchen.com/ki-co2-simulator.html#:~:text=Anhang%3A%20Quellen%20%26%20Annahmen) |

@@ -3,8 +3,8 @@
  "name": "Power BI Desktop",
  "typ": "tool",
  "slug": "power-bi-desktop",
- "stand": "2026-09-06",
- "build": "20260906-2313",
+ "stand": "2026-09-07",
+ "build": "20260907-1012",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "dokumente_gesamt": 38,
  "kernaussagen_gesamt": 36,
@@ -498,26 +498,6 @@
    ]
   },
   {
-   "id": "page:chartkitchen-schnellstart",
-   "titel": "ChartKitchen byDatenWG — Schnellstart",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.4,
-   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=Visual%20herunterladen",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=01%20%C2%B7%20In%20drei%20Schritten%20loslegen",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:chartkitchen-schnellstart_en",
    "titel": "ChartKitchen byDatenWG — Quick Start",
    "datum": "2026-08-31",
@@ -533,6 +513,26 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart",
+   "titel": "ChartKitchen byDatenWG — Schnellstart",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.4,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=Visual%20herunterladen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=01%20%C2%B7%20In%20drei%20Schritten%20loslegen",
      "sekunde": null
     }
    ]

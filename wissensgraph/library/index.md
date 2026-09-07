@@ -1,14 +1,14 @@
 ---
 name: "DatenWG Library"
-stand: "2026-09-06"
-build: "20260906-2313"
+stand: "2026-09-07"
+build: "20260907-1012"
 themen: 103
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 ---
 
 # DatenWG Library
 
-Stand 2026-09-06, Build 20260906-2313. 147 Folgen und 21 Seiten, davon 126 mit Transkript, 123 mit Zeitstempeln und 38 mit Kernaussagen. Insgesamt 677 Kernaussagen und 145 Konzepte.
+Stand 2026-09-07, Build 20260907-1012. 147 Folgen und 21 Seiten, davon 126 mit Transkript, 123 mit Zeitstempeln und 38 mit Kernaussagen. Insgesamt 677 Kernaussagen und 145 Konzepte.
 
 Jede Themendatei hat denselben Aufbau: Frontmatter, Einordnung, Aliase, Nachbarthemen, Kernaussagen, Dokumente, Hinweise. Zu jeder Datei liegt eine inhaltsgleiche .json daneben.
 
