@@ -4,34 +4,70 @@
  "typ": "tool",
  "slug": "tmdl",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/tmdl.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/tmdl.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/tmdl.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/tmdl.json",
  "dokumente_gesamt": 10,
- "kernaussagen_gesamt": 9,
- "mit_kernaussagen": 5,
+ "kernaussagen_gesamt": 30,
+ "mit_kernaussagen": 11,
  "aliase": [
   "Tabular Model Definition Language"
  ],
- "einordnung": "Spaltenbeschreibungen lassen sich in Power BI sowohl in der Modellansicht als auch in der TMDL-Ansicht hinterlegen. TMDL steht für \"Tabular Model Definition Language\". Vor der neuen GUI-Unterstützung konnten benutzerdefinierte DAX-Funktionen nur über die DAX Query View oder über TMDL angelegt werden.",
+ "einordnung": "Der MCP Modeling Server für Power BI kann momentan alles bearbeiten, was über TMDL abgebildet ist, also Power Query, Datenmodell, Beziehungen und DAX-Measures. (Stand 2025-12) Das Frontend bzw. die Report-Seiten von Power BI lassen sich mit dem MCP Modeling Server momentan noch nicht bearbeiten. (Stand 2025-12) Bevor Microsoft einen offiziellen MCP Modeling Server bereitstellte, hatte sich Code Buller mit verschiedensten Hilfsmitteln eine eigene Schnittstelle zum Power-BI-Modell selbst gebaut. (Stand 2025-12)",
  "nachbarn": [
+  {
+   "id": "tool:semantic-model",
+   "name": "Semantic Model",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "um die äh Anprogrammierbarkeit von semantischen Modellen an der Stelle zu verbessern",
+   "datei": "semantic-model.md"
+  },
+  {
+   "id": "tool:power-query",
+   "name": "Power Query",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 3,
+   "beleg": "weil du ja in Tindel keine Power Query laden kannst",
+   "datei": "power-query.md"
+  },
   {
    "id": "tool:copilot",
    "name": "Copilot",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "Du kannst halt alles nur verändern, was irgendwo im TMDL Model steht (Segment 30)",
    "datei": "copilot.md"
   },
   {
+   "id": "tool:power-query",
+   "name": "Power Query",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 3,
+   "beleg": "alles im was Power Query, Datenmodell, Beziehung, DAX Measures, alles das, was darin embettet ist",
+   "datei": "power-query.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 6,
+   "beleg": "alles im was Power Query, Datenmodell, Beziehung, DAX Measures, alles das, was darin embettet ist",
+   "datei": "dax.md"
+  },
+  {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "power-bi.md"
@@ -40,25 +76,16 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "performance.md"
   },
   {
-   "id": "tool:dax",
-   "name": "DAX",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 6,
-   "beleg": "",
-   "datei": "dax.md"
-  },
-  {
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "direct-lake.md"
@@ -67,7 +94,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "reporting.md"
@@ -76,7 +103,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -85,22 +112,22 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "sicherheit.md"
-  },
-  {
-   "id": "tool:power-query",
-   "name": "Power Query",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "power-query.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 466,
+   "zeit": "07:46",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=466s",
+   "aussage": "Fuer Berichtsdesign gibt es in Power BI Desktop bislang keine TMDL-artige Ansicht; im Developer Hub wurde deshalb eine neue Report View analog zur TMDL-View gebaut."
+  },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update März 2026",
@@ -121,12 +148,84 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 285,
+   "zeit": "04:45",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=285s",
+   "aussage": "Der MCP Modeling Server für Power BI kann momentan alles bearbeiten, was über TMDL abgebildet ist, also Power Query, Datenmodell, Beziehungen und DAX-Measures."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 293,
+   "zeit": "04:53",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=293s",
+   "aussage": "Das Frontend bzw. die Report-Seiten von Power BI lassen sich mit dem MCP Modeling Server momentan noch nicht bearbeiten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 413,
+   "zeit": "06:53",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=413s",
+   "aussage": "Bevor Microsoft einen offiziellen MCP Modeling Server bereitstellte, hatte sich Code Buller mit verschiedensten Hilfsmitteln eine eigene Schnittstelle zum Power-BI-Modell selbst gebaut."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 666,
+   "zeit": "11:06",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=666s",
+   "aussage": "Der MCP Server muss angewiesen werden, die lokale Power-BI-Datei zu nutzen, und fragt danach vor jeder Aktion um Erlaubnis."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 1459,
+   "zeit": "24:19",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=1459s",
+   "aussage": "Bei Änderungen am Modell fragt der MCP Server jedes Mal nach einer expliziten Bestätigung, bevor die Operation ausgeführt wird."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 1744,
+   "zeit": "29:04",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=1744s",
+   "aussage": "Bei komplexeren Aufgaben wie dem Aufbau eines Sternschemas wird vermutet, dass mehr Instructions dem MCP-Assistenten helfen würden, das gewünschte Ergebnis zuverlässiger zu erzielen."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
    "sekunde": 1916,
    "zeit": "31:56",
    "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1916s",
    "aussage": "Spaltenbeschreibungen lassen sich in Power BI sowohl in der Modellansicht als auch in der TMDL-Ansicht hinterlegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 2463,
+   "zeit": "41:03",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=2463s",
+   "aussage": "Bei einem Kundenprojekt ließ sich ein komplett großgeschriebenes Snake-Case-Datenbankschema mithilfe von KI und TMDL sehr schnell in lesbare Namen übersetzen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 2504,
+   "zeit": "41:44",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=2504s",
+   "aussage": "TMDL reagiert sehr unverzeihend, wenn die Einrückung nicht korrekt gesetzt wird."
   },
   {
    "typ": "Warnung",
@@ -147,6 +246,15 @@
    "aussage": "TMDL steht für \"Tabular Model Definition Language\"."
   },
   {
+   "typ": "Warnung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 3937,
+   "zeit": "1:05:37",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=3937s",
+   "aussage": "Im Laufe der Demo wurde die Power-BI-Datei durch die Interaktion mit dem MCP Server korrupt, sodass sie sich nicht mehr öffnen ließ."
+  },
+  {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
@@ -165,6 +273,15 @@
    "aussage": "Neue wiederverwendbare DAX-Funktionen lassen sich derzeit nicht direkt in der Power-BI-Desktop-Oberfläche erstellen oder bearbeiten, sondern nur im DAX-Abfrageeditor oder über die TMDL-Ansicht, während Desktop sie nur lesend als vorhandene Funktionen mit Lösch- und Umbenennen-Option anzeigt."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1254,
+   "zeit": "20:54",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1254s",
+   "aussage": "Ein Kalender lässt sich per Power Query aufbauen und zusätzlich über TMDL mit Formaten, Sortierungen und Hierarchien anreichern."
+  },
+  {
    "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
@@ -174,6 +291,69 @@
    "aussage": "Der Power BI Project Mode mit TMDL und PBIR erlaubt es, Berichte programmatisch über Textdateien zu ändern, was laut einem Sprecher die Bearbeitung durch KI erheblich erleichtert."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 1875,
+   "zeit": "31:15",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1875s",
+   "aussage": "Auf der Community-Plattform FabSnippets veröffentlichen Leute fertige TMDL-Snippets zum Copypasten, etwa Martin Bubenheimers Calculation-Group-Measure für gleitende Durchschnitte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 1971,
+   "zeit": "32:51",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1971s",
+   "aussage": "Die TMDL-View verfügt nun über ein neues Vorschau-Feature, das eine Änderung anzeigt, bevor sie tatsächlich übernommen und am bestehenden Modell verändert wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 1982,
+   "zeit": "33:02",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1982s",
+   "aussage": "Die TMDL-Vorschau meldet einen Fehler, wenn eine semantisch ungültige Änderung eingefügt wird, etwa eine nicht existierende Data Category."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 2329,
+   "zeit": "38:49",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2329s",
+   "aussage": "Auch mit den neuen TMDL-Kalendermöglichkeiten wird es weiterhin als einfacher angesehen, einen Feiertag schnell in Power Query zu ergänzen statt in DAX."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 2580,
+   "zeit": "43:00",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2580s",
+   "aussage": "Feiertagslogik sollte nicht Teil des TMDL-/Kalenderthemas sein, sondern eher als eine Art Offset separat behandelt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 3041,
+   "zeit": "50:41",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3041s",
+   "aussage": "Über den XML-Endpoint lässt sich in TMDL kein Power Query laden, weshalb ein in Power Query gebauter Arbeitstage-Offset wie der von Lars Schreiber nicht einfach eins zu eins in TMDL nachgebaut werden kann."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 3095,
+   "zeit": "51:35",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3095s",
+   "aussage": "Vordefinierte Hilfsdaten wie eine Feiertagstabelle gehören ins Backend, also nach Power Query oder woanders, statt nur deshalb in TMDL eingefügt zu werden, weil sich das dort einfach per Copy-Paste einfügen lässt."
+  },
+  {
    "typ": "Meinung",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
@@ -181,6 +361,33 @@
    "zeit": "07:00",
    "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=420s",
    "aussage": "Strukturierter, klar lesbarer Code wie TMDL ist notwendig, damit KI-Tools und Copilot Power-BI-Modelle gut nutzen und automatisiert bearbeiten können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 595,
+   "zeit": "09:55",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=595s",
+   "aussage": "DAX User Defined Functions lassen sich aktuell nur über die DAX Query View oder über TMDL definieren, nicht über die GUI."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 815,
+   "zeit": "13:35",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=815s",
+   "aussage": "TMDL ist als Community-Projekt von Matthias Terbach entstanden und hat in Rekordzeit den Weg zu einem offiziell unterstuetzten Bestandteil des Produkts inklusive TMDL View geschafft."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2214,
+   "zeit": "36:54",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2214s",
+   "aussage": "Mit dem Tabular Editor bzw. im TMDL-Code lassen sich schon inoffiziell Composite Models aus Import- und Direct-Lake-Tabellen bauen, bevor das offiziell in Power BI Desktop verfuegbar ist."
   }
  ],
  "dokumente": [
@@ -188,7 +395,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.194,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -213,7 +420,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.1,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -263,7 +470,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.048,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [

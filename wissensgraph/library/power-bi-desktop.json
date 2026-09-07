@@ -4,25 +4,25 @@
  "typ": "tool",
  "slug": "power-bi-desktop",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-desktop.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-desktop.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-desktop.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-desktop.json",
  "dokumente_gesamt": 38,
- "kernaussagen_gesamt": 36,
- "mit_kernaussagen": 12,
+ "kernaussagen_gesamt": 47,
+ "mit_kernaussagen": 19,
  "aliase": [
   "Desktop"
  ],
- "einordnung": "Die Visual-Studio-Code-Erweiterung für Microsoft Fabric erlaubt es, aus einer Power-BI-Projektdatei einzelne Teile wie nur den Bericht oder nur das semantische Modell hochzuladen, statt immer die gesamte PBIX hochzuladen. Microsoft plant eine Funktion, mit der Power BI Desktop Codeänderungen im Hintergrund automatisch erkennt und die Berichtsdefinition neu lädt, ohne dass die Anwendung komplett neu gestartet werden muss. Power BI Desktop wurde so gehärtet, dass es Codesegmente von Drittanbieter-Tools, die es selbst nicht versteht, ignoriert, statt wie früher etwa bei manuellen Partitionsdefinitionen mit einem Fehler abzubrechen.",
+ "einordnung": "Die Visual-Studio-Code-Erweiterung für Microsoft Fabric erlaubt es, aus einer Power-BI-Projektdatei einzelne Teile wie nur den Bericht oder nur das semantische Modell hochzuladen, statt immer die gesamte PBIX hochzuladen. (Stand 2025-09) Microsoft plant eine Funktion, mit der Power BI Desktop Codeänderungen im Hintergrund automatisch erkennt und die Berichtsdefinition neu lädt, ohne dass die Anwendung komplett neu gestartet werden muss. (Stand 2025-09) Power BI Desktop wurde so gehärtet, dass es Codesegmente von Drittanbieter-Tools, die es selbst nicht versteht, ignoriert, statt wie früher etwa bei manuellen Partitionsdefinitionen mit einem Fehler abzubrechen. (Stand 2025-09)",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 108,
    "beleg": "",
    "datei": "power-bi.md"
@@ -31,7 +31,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 47,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -40,7 +40,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 25,
    "beleg": "",
    "datei": "reporting.md"
@@ -49,7 +49,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "performance.md"
@@ -58,7 +58,7 @@
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "direct-lake.md"
@@ -67,7 +67,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -76,7 +76,7 @@
    "id": "tool:power-query",
    "name": "Power Query",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "power-query.md"
@@ -85,7 +85,7 @@
    "id": "tool:semantic-model",
    "name": "Semantic Model",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "semantic-model.md"
@@ -94,7 +94,7 @@
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "refresh.md"
@@ -103,7 +103,7 @@
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 15,
    "beleg": "",
    "datei": "datenmodellierung.md"
@@ -112,7 +112,7 @@
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "dax.md"
@@ -121,7 +121,7 @@
    "id": "tool:directquery",
    "name": "DirectQuery",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "directquery.md"
@@ -130,7 +130,7 @@
    "id": "tool:premium",
    "name": "Premium",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "premium.md"
@@ -139,7 +139,7 @@
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "excel.md"
@@ -148,13 +148,31 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "sicherheit.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 466,
+   "zeit": "07:46",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=466s",
+   "aussage": "Fuer Berichtsdesign gibt es in Power BI Desktop bislang keine TMDL-artige Ansicht; im Developer Hub wurde deshalb eine neue Report View analog zur TMDL-View gebaut."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 534,
+   "zeit": "08:54",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=534s",
+   "aussage": "Beim Umbenennen von Dimensionen in Power BI Desktop muessen betroffene Filter auf vielen Berichtsseiten bislang oft haendisch angepasst werden."
+  },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.76",
@@ -189,7 +207,7 @@
    "sekunde": 31,
    "zeit": "00:31",
    "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=31s",
-   "aussage": "Der Autor sieht die feste Full-HD-Auflösung als Fortschritt, auch wenn andere Auflösungen für Browser-Bildschirme unter Umständen besser passen könnten."
+   "aussage": "Artur König sieht die feste Full-HD-Auflösung als Fortschritt, auch wenn andere Auflösungen für Browser-Bildschirme unter Umständen besser passen könnten."
   },
   {
    "typ": "Fakt",
@@ -234,7 +252,7 @@
    "sekunde": 40,
    "zeit": "00:40",
    "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=40s",
-   "aussage": "Der neue graue Standardhintergrund der visuellen Oberfläche gefällt dem Sprecher nicht."
+   "aussage": "Der neue graue Standardhintergrund der visuellen Oberfläche gefällt Artur König nicht."
   },
   {
    "typ": "Fakt",
@@ -333,7 +351,7 @@
    "sekunde": 823,
    "zeit": "13:43",
    "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=823s",
-   "aussage": "Nach Einschätzung des Sprechers besteht der Tooltip-Fehler bei kombinierten Line-and-Column-Charts mit zwei Achsen bereits seit 2023."
+   "aussage": "Nach Einschätzung eines der Sprecher besteht der Tooltip-Fehler bei kombinierten Line-and-Column-Charts mit zwei Achsen bereits seit 2023."
   },
   {
    "typ": "Fakt",
@@ -351,7 +369,7 @@
    "sekunde": 974,
    "zeit": "16:14",
    "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=974s",
-   "aussage": "Bei komplexen Diagrammen mit unzuverlässigen Standard-Tooltips empfiehlt der Sprecher eine dedizierte Tooltip-Seite, weil generische Lösungen wegen der visual-spezifischen Filterauswahl nicht funktionieren."
+   "aussage": "Bei komplexen Diagrammen mit unzuverlässigen Standard-Tooltips empfiehlt einer der Sprecher eine dedizierte Tooltip-Seite, weil generische Lösungen wegen der visual-spezifischen Filterauswahl nicht funktionieren."
   },
   {
    "typ": "Warnung",
@@ -400,12 +418,39 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 666,
+   "zeit": "11:06",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=666s",
+   "aussage": "Der MCP Server muss angewiesen werden, die lokale Power-BI-Datei zu nutzen, und fragt danach vor jeder Aktion um Erlaubnis."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
    "sekunde": 1589,
    "zeit": "26:29",
    "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1589s",
    "aussage": "In Power BI Desktop eingefügte Hyperlinks in Textfeldern lassen sich erst nach der Veröffentlichung des Berichts anklicken, nicht direkt im Desktop."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 647,
+   "zeit": "10:47",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=647s",
+   "aussage": "Power BI Desktop lässt sich kostenlos herunterladen, waehrend es eine kostenlose Desktop-Version von Qlik in dieser Form nicht mehr gibt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2892,
+   "zeit": "48:12",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2892s",
+   "aussage": "Die Web-Version von Power BI wirkt im direkten Vergleich zur Desktop-Variante moderner und gefaellt subjektiv besser."
   },
   {
    "typ": "Fakt",
@@ -471,6 +516,24 @@
    "aussage": "Eine im Jahr 2016 erstellte Power-BI-Datei ließ sich auch mit einer neueren Programmversion noch öffnen, während der umgekehrte Weg nicht funktioniert."
   },
   {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 2960,
+   "zeit": "49:20",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2960s",
+   "aussage": "Ein Power-BI-Desktop-Update im Sommer soll dazu geführt haben, dass Dataflow-Konnektoren für Fabric und die Power Platform nicht mehr funktionierten; als Workaround wurde die Umstellung auf Legacy Data Flows genannt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 166,
+   "zeit": "02:46",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=166s",
+   "aussage": "In Power BI Desktop kopiert der Rechtsklick in der Table View inzwischen nur noch den einzelnen Wert statt der ganzen Spalte oder Tabelle."
+  },
+  {
    "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
@@ -478,6 +541,42 @@
    "zeit": "03:27",
    "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=207s",
    "aussage": "Das März-Update von Power BI Desktop führt ein neues UI-Standarddesign mit grauem Hintergrund ein."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 231,
+   "zeit": "03:51",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=231s",
+   "aussage": "Live-Editing von Direct-Lake-Semantikmodellen ist sowohl im Power BI Service als auch in Power BI Desktop GA."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 286,
+   "zeit": "04:46",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=286s",
+   "aussage": "Das Editieren von Semantikmodellen im Web soll mit dem September-Release auch in Power BI Desktop funktionieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2426,
+   "zeit": "40:26",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2426s",
+   "aussage": "Bisher konnte ein Modell mit aktiviertem Incremental Refresh in Power BI Desktop nicht heruntergeladen werden, das ist inzwischen behoben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2510,
+   "zeit": "41:50",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2510s",
+   "aussage": "Durch das Desktop-Hardening von Microsoft koennen jetzt auch semantische Modelle in Power BI Desktop geoeffnet werden, die zuvor im Service oder mit Third-Party-Tools veraendert wurden und sich dadurch nicht mehr oeffnen liessen."
   }
  ],
  "dokumente": [
@@ -775,7 +874,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.139,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -800,7 +899,7 @@
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.135,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [
@@ -1025,7 +1124,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.073,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -1100,7 +1199,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -1155,7 +1254,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.05,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -1235,7 +1334,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -1265,7 +1364,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -1280,7 +1379,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [

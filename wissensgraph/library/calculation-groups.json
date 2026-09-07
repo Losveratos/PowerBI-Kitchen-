@@ -4,26 +4,26 @@
  "typ": "tool",
  "slug": "calculation-groups",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/calculation-groups.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/calculation-groups.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/calculation-groups.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/calculation-groups.json",
  "dokumente_gesamt": 13,
- "kernaussagen_gesamt": 1,
- "mit_kernaussagen": 1,
+ "kernaussagen_gesamt": 3,
+ "mit_kernaussagen": 3,
  "aliase": [
   "Berechnungsgruppen",
   "Calculation Group"
  ],
- "einordnung": "NAMEOF wird laut dem Sprecher besonders in Calculation Groups bei verschachtelten Bedingungen nützlich.",
+ "einordnung": "DAX User Defined Functions ermöglichen wiederverwendbaren DAX-Code außerhalb von Calculation Groups mit echten Eingabeparametern, auch Tabellen als Input. Auf der Community-Plattform FabSnippets veröffentlichen Leute fertige TMDL-Snippets zum Copypasten, etwa Martin Bubenheimers Calculation-Group-Measure für gleitende Durchschnitte. (Stand 2025-04) NAMEOF wird laut Artur König besonders in Calculation Groups bei verschachtelten Bedingungen nützlich. (Stand 2026-02)",
  "nachbarn": [
   {
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "dax.md"
@@ -32,7 +32,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "power-bi.md"
@@ -41,7 +41,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -50,7 +50,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -59,7 +59,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "reporting.md"
@@ -73,7 +73,25 @@
    "sekunde": 151,
    "zeit": "02:31",
    "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=151s",
-   "aussage": "NAMEOF wird laut dem Sprecher besonders in Calculation Groups bei verschachtelten Bedingungen nützlich."
+   "aussage": "NAMEOF wird laut Artur König besonders in Calculation Groups bei verschachtelten Bedingungen nützlich."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 1875,
+   "zeit": "31:15",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1875s",
+   "aussage": "Auf der Community-Plattform FabSnippets veröffentlichen Leute fertige TMDL-Snippets zum Copypasten, etwa Martin Bubenheimers Calculation-Group-Measure für gleitende Durchschnitte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 522,
+   "zeit": "08:42",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=522s",
+   "aussage": "DAX User Defined Functions ermöglichen wiederverwendbaren DAX-Code außerhalb von Calculation Groups mit echten Eingabeparametern, auch Tabellen als Input."
   }
  ],
  "dokumente": [
@@ -161,7 +179,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.028,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -191,7 +209,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [

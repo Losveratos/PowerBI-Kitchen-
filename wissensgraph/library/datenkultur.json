@@ -4,33 +4,51 @@
  "typ": "thema",
  "slug": "datenkultur",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenkultur.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenkultur.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/datenkultur.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/datenkultur.json",
  "dokumente_gesamt": 9,
- "kernaussagen_gesamt": 3,
- "mit_kernaussagen": 3,
+ "kernaussagen_gesamt": 15,
+ "mit_kernaussagen": 9,
  "aliase": [
   "Data Culture",
   "Data Literacy",
   "Datenkompetenz"
  ],
- "einordnung": "Julia empfiehlt, gezielt in Schulung und kulturellen Wandel der Belegschaft zu investieren, damit KI-Initiativen nicht zu Frust unter den Mitarbeitenden führen. Ob Fachbereiche selbst Datenmodelle bauen oder diese Aufgabe delegieren, hängt laut Ulrik stark von der Unternehmenskultur und der technischen Affinität der Beteiligten ab. Nach Einschätzung eines Sprechers hat die COVID-19-Pandemie die Akzeptanz von Power BI in Unternehmen deutlich erhöht, weil öffentliche Dashboards wie das des RKI den Nutzen von Datenvisualisierung sichtbar machten.",
+ "einordnung": "In manchen Organisationskulturen wird praktisch jede Anforderung aus dem Fachbereich automatisch als Prio 1 eingestuft. (Stand 2025-11) In der Praxis wurden eingestellte Data Scientisten oft für Automatisierung beziehungsweise Data Engineering statt für Machine-Learning-Modelle eingesetzt, was sie unglücklich machte, dem Unternehmen aber half. (Stand 2025-11) Julia empfiehlt, gezielt in Schulung und kulturellen Wandel der Belegschaft zu investieren, damit KI-Initiativen nicht zu Frust unter den Mitarbeitenden führen. (Stand 2026-05)",
  "nachbarn": [
   {
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "ki.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 200,
+   "zeit": "03:20",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=200s",
+   "aussage": "Datenentscheidungen sollen nachvollziehbar bleiben, weshalb bewusst vermieden wird, Analysen als Blackbox darzustellen, aus der man sich zurückzieht."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 838,
+   "zeit": "13:58",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=838s",
+   "aussage": "Dataflows eignen sich weiterhin gut fuer Citizen Developer, weil Fachbereiche dadurch ueber Tabellen, Quellen und Transformationen mit dem Datenteam kommunizieren lernen."
+  },
   {
    "typ": "Empfehlung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
@@ -51,12 +69,102 @@
   },
   {
    "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 993,
+   "zeit": "16:33",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=993s",
+   "aussage": "Laut einem Zitat von Lars Schreiber gehören die Daten nicht der IT, sondern dem Fachbereich."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 1218,
+   "zeit": "20:18",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1218s",
+   "aussage": "In manchen Organisationskulturen wird praktisch jede Anforderung aus dem Fachbereich automatisch als Prio 1 eingestuft."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 1434,
+   "zeit": "23:54",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1434s",
+   "aussage": "Datenprozesse müssen vom Business selbst entdeckt und genutzt werden, sonst wirkt es schnell so, als wolle die IT dem Business etwas vorschreiben."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 1737,
+   "zeit": "28:57",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1737s",
+   "aussage": "Um relevant zu bleiben, muss sich Business Intelligence dringend mit Organisationsthemen statt nur mit Technik befassen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 1793,
+   "zeit": "29:53",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1793s",
+   "aussage": "Die Organisation und ihre Denkweise haben einen großen Einfluss darauf, wie ein Datenmodell aufgebaut wird, etwa ob es eine zentrale Kundendimension oder ein zentrales Data Warehouse gibt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 2161,
+   "zeit": "36:01",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=2161s",
+   "aussage": "Fachanwender und Führungskräfte steigen bei technischen Erklärungen zu ETL, Tools und KI häufig schon nach wenigen Sätzen aus dem Gespräch aus."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 2375,
+   "zeit": "39:35",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=2375s",
+   "aussage": "In der Praxis wurden eingestellte Data Scientisten oft für Automatisierung beziehungsweise Data Engineering statt für Machine-Learning-Modelle eingesetzt, was sie unglücklich machte, dem Unternehmen aber half."
+  },
+  {
+   "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
    "sekunde": 4430,
    "zeit": "1:13:50",
    "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4430s",
    "aussage": "Nach Einschätzung eines Sprechers hat die COVID-19-Pandemie die Akzeptanz von Power BI in Unternehmen deutlich erhöht, weil öffentliche Dashboards wie das des RKI den Nutzen von Datenvisualisierung sichtbar machten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 1002,
+   "zeit": "16:42",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1002s",
+   "aussage": "Für die Kartenansicht der Events im Dashboard wird Azure Maps verwendet, was scherzhaft als Datenversand in die USA kommentiert wird."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1762,
+   "zeit": "29:22",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1762s",
+   "aussage": "Nach Marco Geuers Kernbotschaft müssen Führungskräfte anders bewertet und Zielsysteme anders ausgestaltet werden, damit datengetriebenes Arbeiten wirklich funktioniert."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 2101,
+   "zeit": "35:01",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2101s",
+   "aussage": "Bevor ein Bericht gebaut wird, soll zunächst geklärt werden, warum ein Nutzer ihn braucht und was er damit erreichen will."
   }
  ],
  "dokumente": [
@@ -64,7 +172,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.087,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": [
@@ -104,7 +212,7 @@
    "id": "yt:rrCi0lnGrCg",
    "titel": "Mythos Data Vault und richtig große Modelle",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.045,
    "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
    "sprungmarken": [
@@ -134,7 +242,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [
@@ -188,7 +296,7 @@
    "id": "yt:lH_-A8NAQ-k",
    "titel": "Datenmodellierung ist Governance",
    "datum": "2025-11-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
    "sprungmarken": []

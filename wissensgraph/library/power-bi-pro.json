@@ -4,26 +4,35 @@
  "typ": "tool",
  "slug": "power-bi-pro",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-pro.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-pro.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-pro.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-pro.json",
  "dokumente_gesamt": 8,
- "kernaussagen_gesamt": 3,
- "mit_kernaussagen": 3,
+ "kernaussagen_gesamt": 6,
+ "mit_kernaussagen": 6,
  "aliase": [
   "Pro-Lizenz",
   "Pro Lizenz"
  ],
- "einordnung": "Mit der Power-BI-Pro-Lizenz gilt eine Dateigrößengrenze von 1 GB, deren Überschreitung in Richtung Premium zu höheren Kosten führen kann. Mit der Einführung von Power BI Premium im Jahr 2017 benötigten plötzlich auch reine Berichtskonsumenten eine Power BI Pro Lizenz, um Berichte weiterhin kostenlos empfangen zu können. Die Microsoft-eigene Fabric-Erweiterung für Visual Studio Code zeigt alle Workspaces inklusive Pro-Workspaces an, während eine alternative Community-Erweiterung nur Fabric-Workspaces anzeigt.",
+ "einordnung": "Mit der Power-BI-Pro-Lizenz gilt eine Dateigrößengrenze von 1 GB, deren Überschreitung in Richtung Premium zu höheren Kosten führen kann. (Stand 2026-01) Für Echtzeit-Dashboards ist laut Brian Bønk keine Power-BI-Pro-Lizenz nötig, es genügt mindestens eine F2-Fabric-Instanz. (Stand 2025-09) In diesem Projekt wird bewusst weder DirectQuery noch Direct Lake genutzt, um die Fabric-Kapazitaet durch das mit Power-BI-Pro-Lizenzen ausgerollte Frontend nicht zu belasten. (Stand 2026-08)",
  "nachbarn": [
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "eigene Workspaces, da braucht man eine Power BI Pro Lizenz",
+   "datei": "workspace.md"
+  },
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "power-bi.md"
@@ -32,7 +41,7 @@
    "id": "topic:lizenzen",
    "name": "Lizenzen",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "lizenzen.md"
@@ -41,7 +50,7 @@
    "id": "tool:fabric-capacity",
    "name": "Fabric Capacity",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "fabric-capacity.md"
@@ -50,7 +59,7 @@
    "id": "tool:premium",
    "name": "Premium",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "premium.md"
@@ -59,7 +68,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -68,7 +77,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "reporting.md"
@@ -77,7 +86,7 @@
    "id": "tool:data-pipeline",
    "name": "Data Pipeline",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "data-pipeline.md"
@@ -86,13 +95,22 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "lakehouse.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 470,
+   "zeit": "07:50",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=470s",
+   "aussage": "In diesem Projekt wird bewusst weder DirectQuery noch Direct Lake genutzt, um die Fabric-Kapazitaet durch das mit Power-BI-Pro-Lizenzen ausgerollte Frontend nicht zu belasten."
+  },
   {
    "typ": "Fakt",
    "dokument": "Denken in Tabellen",
@@ -104,12 +122,30 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 603,
+   "zeit": "10:03",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=603s",
+   "aussage": "Ein eigener Workspace in Power BI erfordert eine Power BI Pro Lizenz, die kostenlose Lizenz berechtigt nur zur Nutzung des persoenlichen My Workspace."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
    "sekunde": 388,
    "zeit": "06:28",
    "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=388s",
    "aussage": "Die Microsoft-eigene Fabric-Erweiterung für Visual Studio Code zeigt alle Workspaces inklusive Pro-Workspaces an, während eine alternative Community-Erweiterung nur Fabric-Workspaces anzeigt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1294,
+   "zeit": "21:34",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1294s",
+   "aussage": "Für Echtzeit-Dashboards ist laut Brian Bønk keine Power-BI-Pro-Lizenz nötig, es genügt mindestens eine F2-Fabric-Instanz."
   },
   {
    "typ": "Fakt",
@@ -156,7 +192,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.038,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -171,7 +207,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.032,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -186,7 +222,7 @@
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.027,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [

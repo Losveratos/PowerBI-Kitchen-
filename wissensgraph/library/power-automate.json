@@ -4,34 +4,61 @@
  "typ": "tool",
  "slug": "power-automate",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-automate.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-automate.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-automate.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-automate.json",
  "dokumente_gesamt": 13,
- "kernaussagen_gesamt": 2,
- "mit_kernaussagen": 2,
+ "kernaussagen_gesamt": 18,
+ "mit_kernaussagen": 5,
  "aliase": [
   "Flow"
  ],
- "einordnung": "SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist. Process Mining wertet Log- und Transaktionsdaten aus, um Abweichungen vom idealen Prozess sichtbar zu machen, und soll mittlerweile auch in Power Automate Einzug gehalten haben.",
+ "einordnung": "Der gezeigte Power-Automate-Flow fuer die Kundengenehmigung wurde mit Hilfe von Copilot erstellt. (Stand 2025-08) Bei Copilot in Power Automate lassen sich Prompts sowohl auf Deutsch als auch auf Englisch eingeben. (Stand 2025-08) Copilot prueft automatisch, ob die noetigen Zugaenge zu SharePoint und Teams fuer den vorgeschlagenen Flow vorhanden sind. (Stand 2025-08)",
  "nachbarn": [
   {
    "id": "tool:translytical-task-flows",
    "name": "Translytical Task Flows",
    "kantentyp": "ersetzt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "dann hat Power Automate ja explizit über ein Power BI Connector den Refresh triggern müssen. Jetzt ist das alles in einem",
    "datei": "translytical-task-flows.md"
   },
   {
+   "id": "tool:sharepoint",
+   "name": "SharePoint",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 7,
+   "beleg": "ob ich Zugang sowohl zu SharePoint als auch Teams habe",
+   "datei": "sharepoint.md"
+  },
+  {
+   "id": "tool:teams",
+   "name": "Teams",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 3,
+   "beleg": "ob ich Zugang sowohl zu SharePoint als auch Teams habe",
+   "datei": "teams.md"
+  },
+  {
+   "id": "tool:paginated-reports",
+   "name": "Paginated Reports",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "bei mir war es eben so bisschen dieses Power Automat, wie ich paginierte Berichte reinbringe",
+   "datei": "paginated-reports.md"
+  },
+  {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "power-bi.md"
@@ -40,7 +67,7 @@
    "id": "tool:copilot",
    "name": "Copilot",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "copilot.md"
@@ -49,7 +76,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -58,25 +85,16 @@
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "refresh.md"
   },
   {
-   "id": "tool:sharepoint",
-   "name": "SharePoint",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 7,
-   "beleg": "",
-   "datei": "sharepoint.md"
-  },
-  {
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "direct-lake.md"
@@ -85,7 +103,7 @@
    "id": "tool:data-pipeline",
    "name": "Data Pipeline",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "data-pipeline.md"
@@ -94,7 +112,7 @@
    "id": "topic:schulung",
    "name": "Schulung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "schulung.md"
@@ -103,7 +121,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "ki.md"
@@ -112,7 +130,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -121,7 +139,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -130,28 +148,10 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "sicherheit.md"
-  },
-  {
-   "id": "tool:dataflow",
-   "name": "Dataflow",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "dataflow.md"
-  },
-  {
-   "id": "topic:performance",
-   "name": "Performance",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "performance.md"
   }
  ],
  "kernaussagen": [
@@ -163,6 +163,150 @@
    "zeit": "51:03",
    "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3063s",
    "aussage": "SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 4,
+   "zeit": "00:04",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=4s",
+   "aussage": "Der gezeigte Power-Automate-Flow fuer die Kundengenehmigung wurde mit Hilfe von Copilot erstellt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 69,
+   "zeit": "01:09",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=69s",
+   "aussage": "Bei der Arbeit mit Copilot in Power Automate wird der Flow schrittweise statt komplett auf einmal beschrieben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 96,
+   "zeit": "01:36",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=96s",
+   "aussage": "Bei Copilot in Power Automate lassen sich Prompts sowohl auf Deutsch als auch auf Englisch eingeben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 110,
+   "zeit": "01:50",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=110s",
+   "aussage": "Copilot prueft automatisch, ob die noetigen Zugaenge zu SharePoint und Teams fuer den vorgeschlagenen Flow vorhanden sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 155,
+   "zeit": "02:35",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=155s",
+   "aussage": "Die Teams-Benachrichtigung im Flow wird ueber einen Bot namens Flowbot verschickt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 219,
+   "zeit": "03:39",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=219s",
+   "aussage": "Die Genehmigungsspalte in der SharePoint-Liste wurde als Auswahlliste mit den Optionen Submitted, Approved und Denied angelegt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 265,
+   "zeit": "04:25",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=265s",
+   "aussage": "Fuer den Genehmigungsschritt wird die Variante 'Genehmigung ablehnen erste Antwort' (Approve/Reject - First to respond) verwendet."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 279,
+   "zeit": "04:39",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=279s",
+   "aussage": "Im Genehmigungsschritt lassen sich unter Details zusaetzliche Parameter wie Vorname, Nachname oder eine ID-Nummer der Kundin oder des Kunden hinzufuegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 308,
+   "zeit": "05:08",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=308s",
+   "aussage": "Ueber das Feld 'Link zu Element' laesst sich im Genehmigungsschritt direkt auf den betroffenen SharePoint-Eintrag verlinken."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 358,
+   "zeit": "05:58",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=358s",
+   "aussage": "Nach dem Genehmigungsschritt wird per Bedingung (Condition) geprueft, ob das Ergebnis 'approved' entspricht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 406,
+   "zeit": "06:46",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=406s",
+   "aussage": "Im True-Zweig der Bedingung wird der Genehmigungswert per SharePoint-Aktion 'Update Items' zurueck in die Liste geschrieben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 456,
+   "zeit": "07:36",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=456s",
+   "aussage": "Auch im False-Zweig der Bedingung muss die SharePoint-Aktion 'Update Items' mit Liste und ID separat definiert werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 494,
+   "zeit": "08:14",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=494s",
+   "aussage": "Im False-Zweig wird beim Genehmigungswert nicht 'approved', sondern 'denied' in die SharePoint-Liste geschrieben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 566,
+   "zeit": "09:26",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=566s",
+   "aussage": "Eine Genehmigung kann sowohl ueber Teams als auch per E-Mail bestaetigt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1432,
+   "zeit": "23:52",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1432s",
+   "aussage": "Bei diesem gemeinsamen Aftercon-Projekt ging es unter anderem darum, paginierte Berichte per Power Automate in den Bericht einzubinden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1627,
+   "zeit": "27:07",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1627s",
+   "aussage": "Vor den User Data Functions ließ sich Ähnliches nur über Power Automate mit Premium-Lizenz umsetzen, was als eher wackelig empfunden wurde, insbesondere bei der Kontextübergabe."
   },
   {
    "typ": "Meinung",
@@ -229,7 +373,7 @@
    "id": "yt:kP8YNW1XN_E",
    "titel": "Forms + Sharepoint + Powerautomate",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.5,
    "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E",
    "sprungmarken": [
@@ -279,7 +423,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.171,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -304,7 +448,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.098,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -369,7 +513,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.065,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [

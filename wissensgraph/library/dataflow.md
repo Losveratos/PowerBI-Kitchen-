@@ -3,11 +3,11 @@ id: "tool:dataflow"
 name: "Dataflow"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 30
-kernaussagen: 15
-mit_kernaussagen: 6
+kernaussagen: 31
+mit_kernaussagen: 14
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/dataflow.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/dataflow.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/dataflow.md"
@@ -21,7 +21,7 @@ aliase:
 
 # Dataflow
 
-Aus einem Fabric-Notebook lässt sich per API ein Dataflow ansteuern und darüber Power-Query-Code (M-Code) ausführen. Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss. Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen.
+Aus einem Fabric-Notebook lässt sich per API ein Dataflow ansteuern und darüber Power-Query-Code (M-Code) ausführen. (Stand 2026-03) Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss. (Stand 2025-09) Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen.
 
 ## Aliase
 
@@ -29,23 +29,23 @@ Dataflows, Dataflow Gen2, Gen2, Datenfluss
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Data Pipeline](data-pipeline.md) | setzt-voraus | belegt | 28 |
-| [Notebook](notebook.md) | empfiehlt | belegt | 54 |
-| [Notebook](notebook.md) | gegensatz | belegt | 54 |
-| [Microsoft Fabric](microsoft-fabric.md) | ko-vorkommen | heuristik | 54 |
-| [Lakehouse](lakehouse.md) | ko-vorkommen | heuristik | 48 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 44 |
-| [Warehouse](warehouse.md) | ko-vorkommen | heuristik | 30 |
-| [Power Query](power-query.md) | ko-vorkommen | heuristik | 28 |
-| [Performance](performance.md) | ko-vorkommen | heuristik | 26 |
-| [Workspace](workspace.md) | ko-vorkommen | heuristik | 26 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 18 |
-| [KI](ki.md) | ko-vorkommen | heuristik | 17 |
-| [Spark](spark.md) | ko-vorkommen | heuristik | 16 |
-| [Eventhouse](eventhouse.md) | ko-vorkommen | heuristik | 14 |
-| [Python](python.md) | ko-vorkommen | heuristik | 14 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Data Pipeline](data-pipeline.md) | Dataflow setzt-voraus Data Pipeline | automatisch extrahiert, Quellenstelle vorhanden | „so eine Datenpipeline zu nehmen und die zwei Dataflows hintereinander zu hängen“ (Microsoft Fabric — braucht das wirklich jemand?) | 28 |
+| [Data Pipeline](data-pipeline.md) | Dataflow gegensatz Data Pipeline | automatisch extrahiert, Quellenstelle vorhanden | „Bei Dataflus geht's garantiert.“ (Daten-WG Deep Dive Financial Reporting, 2025-05) | 28 |
+| [Data Pipeline](data-pipeline.md) | Dataflow teil-von Data Pipeline | automatisch extrahiert, Quellenstelle vorhanden | „ich kann Dataflow nehmen und in der Pipeline einbauen“ (600 SQL-Tabellen in Fabric) | 28 |
+| [Notebook](notebook.md) | Dataflow empfiehlt Notebook | automatisch extrahiert, Quellenstelle vorhanden | „benutze ich Dataflows, um die Daten in meinem meinem Bronze zu stagen und von da aus dann die Weiterverarbeitung mit dem Notebook zu machen“ (BI Thinkers Talk n.74, 2026-03) | 54 |
+| [Notebook](notebook.md) | Dataflow gegensatz Notebook | automatisch extrahiert, Quellenstelle vorhanden | „einfach auch wartbar im Gegensatz zu Notebooks“ (BI Thinkers Talk nr.67, 2025-09) | 54 |
+| [Microsoft Fabric](microsoft-fabric.md) | Dataflow und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 54 |
+| [Lakehouse](lakehouse.md) | Dataflow und Lakehouse im selben Segment | Heuristik, gezählt |  | 48 |
+| [Power BI](power-bi.md) | Dataflow und Power BI im selben Segment | Heuristik, gezählt |  | 44 |
+| [Warehouse](warehouse.md) | Dataflow und Warehouse im selben Segment | Heuristik, gezählt |  | 30 |
+| [Power Query](power-query.md) | Dataflow und Power Query im selben Segment | Heuristik, gezählt |  | 28 |
+| [Performance](performance.md) | Dataflow und Performance im selben Segment | Heuristik, gezählt |  | 26 |
+| [Workspace](workspace.md) | Dataflow und Workspace im selben Segment | Heuristik, gezählt |  | 26 |
+| [SQL](sql.md) | Dataflow und SQL im selben Segment | Heuristik, gezählt |  | 25 |
+| [Reporting](reporting.md) | Dataflow und Reporting im selben Segment | Heuristik, gezählt |  | 18 |
+| [KI](ki.md) | Dataflow und KI im selben Segment | Heuristik, gezählt |  | 17 |
 
 ## Kernaussagen
 
@@ -53,6 +53,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
 | --- | --- | --- | --- | --- | --- | --- |
+| Meinung | Daten-WG Life-Update \| Fabric Architekturen | 2026-08 | 13:58 | auf die Sekunde | Dataflows eignen sich weiterhin gut fuer Citizen Developer, weil Fachbereiche dadurch ueber Tabellen, Quellen und Transformationen mit dem Datenteam kommunizieren lernen. | [▶](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=838s) |
 | Empfehlung | BI Thinkers Talk n.74 | 2026-03 | 39:25 | auf die Sekunde | Ein Dataflow lässt sich als Wrapper nutzen, um über dessen Connections APIs wie die Power BI Scanner API anzusprechen, ohne im Notebook einen Service Principal hinterlegen zu müssen. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2365s) |
 | Fakt | BI Thinkers Talk n.74 | 2026-03 | 39:26 | auf die Sekunde | Aus einem Fabric-Notebook lässt sich per API ein Dataflow ansteuern und darüber Power-Query-Code (M-Code) ausführen. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2366s) |
 | Empfehlung | BI Thinkers Talk n.74 | 2026-03 | 41:51 | auf die Sekunde | Für kleinere Datenmengen und einfache Transformationen wie Entpivotieren eignet sich ein Dataflow, während stark verschachteltes JSON, etwa aus der Scanner API, eher in einem Notebook verarbeitet werden sollte. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2511s) |
@@ -60,13 +61,28 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Fakt | BI Thinkers Talk n.72 | 2026-01 | 54:25 | auf die Sekunde | Deployment Pipelines unterstützen Dataflows, Lakehouses und Direct Lake nicht zuverlässig, sodass danach oft manuell mit VS Code nachgearbeitet werden muss. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3265s) |
 | Empfehlung | BI Thinkers Talk nr.67 | 2025-09 | 41:23 | auf die Sekunde | Bei neueren Dataflow-Generationen sind Datenverbindungen an die erstellende Person gebunden, weshalb empfohlen wird, Connections konsequent freizugeben und nach Möglichkeit einen Service Principal für die Verbindung zu nutzen. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=2483s) |
 | Fakt | BI Thinkers Talk nr.67 | 2025-09 | 43:22 | auf die Sekunde | Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=2602s) |
+| Warnung | Daten-WG Deep Dive Financial Reporting - part 6 | 2025-08 | 35:36 | auf die Sekunde | Im Warehouse ist beim Dataflow-Ziel nur der Modus Append wählbar und nicht mehr umkehrbar, während im Lakehouse nur Replace zur Verfügung steht. | [▶](https://www.youtube.com/watch?v=bt81POE-9Ig&t=2136s) |
+| Warnung | Daten-WG Thinkers Talk nr.65 | 2025-07 | 49:20 | auf die Sekunde | Ein Power-BI-Desktop-Update im Sommer soll dazu geführt haben, dass Dataflow-Konnektoren für Fabric und die Power Platform nicht mehr funktionierten; als Workaround wurde die Umstellung auf Legacy Data Flows genannt. | [▶](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2960s) |
 | Meinung | 10 Jahre Power BI | 2025-07 | 50:58 | auf die Sekunde | Dataflows werden als der Beginn davon beschrieben, dass Power BI von einem reinen Datei- bzw. Modellformat zu einer echten Datenplattform wurde. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3058s) |
+| Empfehlung | Daten-WG Thinkers Talk nr.65 | 2025-07 | 51:32 | auf die Sekunde | Dataflow Gen2 mit Git-Integration wird gegenüber Gen1 grundsätzlich empfohlen, weil er inzwischen aus Pipelines nutzbar ist und neue Features bekommt. | [▶](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3092s) |
+| Warnung | Daten-WG Thinkers Talk nr.65 | 2025-07 | 59:31 | auf die Sekunde | Bei Dataflow Gen2 ist die Change-Detection-Einstellung für Incremental Refresh anders als bei Gen1 nicht optional, sondern muss zwingend angegeben werden. | [▶](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3571s) |
+| Fakt | Daten-WG Thinkers Talk nr.65 | 2025-07 | 1:04:43 | auf die Sekunde | Bei Dataflow Gen1 lag die komplette Speicherschicht in der Hand des Dataflows selbst, während man bei Gen2 sein eigenes Ziel wie Warehouse oder Lakehouse selbst verwalten muss. | [▶](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3883s) |
+| Empfehlung | Daten-WG Deep Dive Financial Reporting | 2025-05 | 57:26 | auf die Sekunde | Für das inkrementelle Laden der Buchungsdaten wird ein Dataflow gegenüber der Pipeline bevorzugt, weil inkrementelles Laden dort garantiert funktioniert. | [▶](https://www.youtube.com/watch?v=TYmKrreMO3I&t=3446s) |
+| Fakt | Fabric & Power BI Quarterly \| 2025 Q2 | 2025-04 | 03:08 | auf die Sekunde | Dataflow Gen2 lässt sich inzwischen einfach speichern, ohne dass dabei automatisch ein Lauf gestartet wird. | [▶](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=188s) |
+| Fakt | Fabric & Power BI Quarterly \| 2025 Q2 | 2025-04 | 30:09 | auf die Sekunde | Die neue Variable Library kann sowohl in Dataflows bzw. Data Pipelines als auch im CI/CD-Kontext genutzt werden, um workspace-spezifische Zielwerte für Variablen abzulegen. | [▶](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1809s) |
+| Fakt | Fabric & Power BI Quarterly · 2025 Q3 |  | 03:33 | auf die Sekunde | Microsoft hat sich entschieden, DataMarts abzuloesen, weil deren Mehrwert gegenueber Fabric mit Warehouse und Dataflows Gen 2 in der Community zunehmend infrage gestellt wurde. | [▶](https://www.youtube.com/watch?v=lZvpCBMKASM&t=213s) |
 | Fakt | Fabric & Power BI Quarterly · 2026-2 |  | 12:08 | auf die Sekunde | Dataflow Gen 1 wechselt in einen Legacy- beziehungsweise Wartungsstatus ohne neue Features. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=728s) |
 | Meinung | Fabric & Power BI Quarterly · 2026-2 |  | 13:37 | auf die Sekunde | In Dataflow Gen 2 sind deutlich mehr Investitionen und Integrationsmöglichkeiten geflossen, als für Dataflow Gen 1 je möglich waren. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=817s) |
 | Fakt | Fabric & Power BI Quarterly · 2026-2 |  | 15:37 | auf die Sekunde | Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=937s) |
+| Meinung | 600 SQL-Tabellen in Fabric |  | 17:13 | auf die Sekunde | Bei der Verarbeitung von hunderten Tabellen muss man in Dataflows jede Tabelle einzeln managen, was als schmerzhaft beschrieben wird. | [▶](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1033s) |
+| Meinung | 600 SQL-Tabellen in Fabric |  | 18:46 | auf die Sekunde | Dataflows werden weiterhin als gutes Werkzeug für komplexe ("tricky") Transformationen wie Pivot/Unpivot beschrieben. | [▶](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1126s) |
 | Meinung | Microsoft Fabric — braucht das wirklich jemand? |  | 19:44 | auf die Sekunde | Dataflows lassen sich laut Martin nicht gut orchestrieren. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1184s) |
 | Warnung | Microsoft Fabric — braucht das wirklich jemand? |  | 19:51 | auf die Sekunde | Werden zwei Dataflows über ein Lakehouse verkettet, stehen am Folgetag keine neuen Daten bereit, weil der SQL-Endpoint des Lakehouse nicht sofort aktualisiert wird. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1191s) |
 | Empfehlung | Fabric & Power BI Quarterly · 2026-2 |  | 20:12 | auf die Sekunde | Es wird empfohlen, keine neuen Dataflows Gen 1 mehr anzulegen. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1212s) |
+| Fakt | Fabric & Power BI Quarterly · 2025 Q4 |  | 28:33 | auf die Sekunde | Dataflows Gen2 wurden überarbeitet und bringen vor allem bei Dataflows, die länger als 10 Minuten laufen, eine deutliche Verbesserung bei Performance und CU-Verbrauch. | [▶](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1713s) |
+| Fakt | Fabric & Power BI Quarterly · 2025 Q4 |  | 29:50 | auf die Sekunde | Ein neuer, nur für Entwickler sichtbarer Filter erlaubt es, Dataflows während der Entwicklung auf einen kleinen Zeitraum zu beschränken, während der produktive Lauf trotzdem den vollen Zeitraum verarbeitet. | [▶](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1790s) |
+| Fakt | Fabric & Power BI Quarterly · 2025 Q3 |  | 32:02 | auf die Sekunde | Dataflows sind mittlerweile vollwertig in Pipelines nutzbar und ihre Ziele lassen sich parametrisieren, sodass Parameter und Variablen aus Pipelines an Dataflows uebergeben werden koennen. | [▶](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1922s) |
+| Fakt | Fabric & Power BI Quarterly · 2025 Q4 |  | 32:18 | auf die Sekunde | Variable Libraries sind jetzt GA und ermöglichen parametrisierte, dynamische Designansätze über verschiedene Fabric-Objekte hinweg, unter anderem in Dataflows. | [▶](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1938s) |
 | Fakt | Microsoft Fabric — braucht das wirklich jemand? |  | 40:06 | auf die Sekunde | Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2406s) |
 
 ## Dokumente
@@ -79,29 +95,29 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Power BI Update August 2025](https://www.youtube.com/watch?v=jTXo4aEr07o) | 2025-08-01 | nur-zeitstempel | [01:21](https://www.youtube.com/watch?v=jTXo4aEr07o&t=81s) · [03:53](https://www.youtube.com/watch?v=jTXo4aEr07o&t=233s) |
 | [Power BI Update April 2025](https://www.youtube.com/watch?v=lT-C7fPzxj4) | 2025-04-01 | nur-zeitstempel | [03:08](https://www.youtube.com/watch?v=lT-C7fPzxj4&t=188s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Schnell-Heuristik) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Gen2%20vs.%20Gen1%20%28Power-BI-Dataflows%29) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Weg%20C%20%C2%B7%20Shortcut%2C%20wenn%20Daten%20schon%20existieren) |
-| [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | nur-zeitstempel | [12:15](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=735s) · [13:57](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=837s) · [33:36](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2016s) |
+| [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [12:15](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=735s) · [13:57](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=837s) · [33:36](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2016s) |
 | [BI Thinkers Talk n.74](https://www.youtube.com/watch?v=rWE0gMx7v7I) | 2026-03-01 | kernaussagen+zeitstempel | [35:51](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2151s) · [39:06](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2346s) · [41:00](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2460s) |
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [29:33](https://www.youtube.com/watch?v=G8s96sHUHac&t=1773s) · [31:14](https://www.youtube.com/watch?v=G8s96sHUHac&t=1874s) · [47:47](https://www.youtube.com/watch?v=G8s96sHUHac&t=2867s) |
 | [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [07:26](https://www.youtube.com/watch?v=mTVeZzshLzE&t=446s) · [19:45](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1185s) · [21:24](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1284s) |
-| [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | nur-zeitstempel | [27:23](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1643s) · [29:00](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1740s) · [34:05](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2045s) |
-| [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | nur-zeitstempel | [13:37](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s) · [16:07](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=967s) · [18:22](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1102s) |
+| [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [27:23](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1643s) · [29:00](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1740s) · [34:05](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2045s) |
+| [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [13:37](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s) · [16:07](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=967s) · [18:22](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1102s) |
 | [Power BI Update Oktober 2025](https://www.youtube.com/watch?v=LVSttJlhrqM) | 2025-10-01 | nur-zeitstempel | [04:21](https://www.youtube.com/watch?v=LVSttJlhrqM&t=261s) |
 | [Starting with Microsft Fabric the Skills you need](https://www.youtube.com/watch?v=m3xNYfVih0Q) | 2024-08-01 | nur-zeitstempel | [06:28](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=388s) · [17:44](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=1064s) · [19:15](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=1155s) |
-| [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | nur-zeitstempel | [04:49](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=289s) · [47:42](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2862s) · [1:00:37](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3637s) |
+| [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | kernaussagen+zeitstempel | [04:49](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=289s) · [47:42](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2862s) · [1:00:37](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3637s) |
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [01:38](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=98s) · [04:48](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=288s) · [44:27](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=2667s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [11:00](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=660s) · [12:50](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=770s) · [14:21](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=861s) |
-| [Daten-WG Deep Dive Financial Reporting - part 6](https://www.youtube.com/watch?v=bt81POE-9Ig) | 2025-08-01 | nur-zeitstempel | [06:51](https://www.youtube.com/watch?v=bt81POE-9Ig&t=411s) · [21:19](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1279s) · [26:22](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1582s) |
-| [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | nur-zeitstempel | [02:30](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=150s) · [29:17](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1757s) · [30:50](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1850s) |
+| [Daten-WG Deep Dive Financial Reporting - part 6](https://www.youtube.com/watch?v=bt81POE-9Ig) | 2025-08-01 | kernaussagen+zeitstempel | [06:51](https://www.youtube.com/watch?v=bt81POE-9Ig&t=411s) · [21:19](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1279s) · [26:22](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1582s) |
+| [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [02:30](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=150s) · [29:17](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1757s) · [30:50](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1850s) |
 | [BI Thinkers Talk nr.77](https://www.youtube.com/watch?v=eWfTt93anl4) | — | nur-zeitstempel | [50:00](https://www.youtube.com/watch?v=eWfTt93anl4&t=3000s) · [56:49](https://www.youtube.com/watch?v=eWfTt93anl4&t=3409s) · [1:04:41](https://www.youtube.com/watch?v=eWfTt93anl4&t=3881s) |
-| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | nur-zeitstempel | [03:02](https://www.youtube.com/watch?v=lZvpCBMKASM&t=182s) · [32:02](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1922s) |
+| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [03:02](https://www.youtube.com/watch?v=lZvpCBMKASM&t=182s) · [32:02](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1922s) |
 | [Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial](https://www.youtube.com/watch?v=5HhNQZlB-1E) | 2025-12-01 | kernaussagen+zeitstempel | [07:20](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=440s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [28:14](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1694s) · [31:33](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1893s) |
 | [Daten-WG Deep Dive Financial Reporting - part 7](https://www.youtube.com/watch?v=232JhS9vbQ0) | 2025-09-01 | nur-zeitstempel | [23:26](https://www.youtube.com/watch?v=232JhS9vbQ0&t=1406s) · [25:30](https://www.youtube.com/watch?v=232JhS9vbQ0&t=1530s) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [32:17](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1937s) · [47:00](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2820s) |
-| [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | nur-zeitstempel | [57:04](https://www.youtube.com/watch?v=TYmKrreMO3I&t=3424s) |
+| [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | kernaussagen+zeitstempel | [57:04](https://www.youtube.com/watch?v=TYmKrreMO3I&t=3424s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wann%20lohnt%20sich%20ein%20Dataflow%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Dataflow%20Gen2%20%28Fabric%29) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Fabric-Bausteine) |
 | [Daten-WG 2026 Lineup](https://www.youtube.com/watch?v=AX7b8_aNekw) | 2026-05-01 | nur-zeitstempel | [02:51](https://www.youtube.com/watch?v=AX7b8_aNekw&t=171s) |
-| [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | nur-zeitstempel | [49:35](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2975s) |
+| [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | kernaussagen+zeitstempel | [49:35](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2975s) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [54:04](https://www.youtube.com/watch?v=r416vanitYw&t=3244s) |
 
 ## Hinweise

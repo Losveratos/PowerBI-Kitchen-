@@ -4,26 +4,35 @@
  "typ": "tool",
  "slug": "import-mode",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/import-mode.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/import-mode.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/import-mode.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/import-mode.json",
  "dokumente_gesamt": 12,
- "kernaussagen_gesamt": 7,
- "mit_kernaussagen": 5,
+ "kernaussagen_gesamt": 18,
+ "mit_kernaussagen": 12,
  "aliase": [
   "Importmodus",
   "Import-Modus"
  ],
- "einordnung": "Bei der Migration eines Importmodells zu Direct Lake wurde eine bisher per Power-Query-Abfrage angelegte Measure-Tabelle durch eine Calculated Table mit einer leeren Hilfsspalte ersetzt. Die Kombination aus Direct Lake und Import Mode ist mittlerweile GA verfügbar und ermöglicht damit ein stabileres Composite-Modell. Für Direct Lake gab es weiterhin Probleme, während der Import-Modus über den SQL-Endpoint funktionierte.",
+ "einordnung": "Bei der Migration eines Importmodells zu Direct Lake wurde eine bisher per Power-Query-Abfrage angelegte Measure-Tabelle durch eine Calculated Table mit einer leeren Hilfsspalte ersetzt. (Stand 2025-09) Die Kombination aus Direct Lake und Import Mode ist mittlerweile GA verfügbar und ermöglicht damit ein stabileres Composite-Modell. (Stand 2025-09) Im Projekt waren die Semantic Models keine Direct-Lake-, sondern klassische Import-Modelle.",
  "nachbarn": [
   {
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 6,
+   "beleg": "Aggregation kommt vor dem Laden in den Speicher, was natürlich auch extrem gut ist",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 6,
    "beleg": "für Importmodelle gibt's ja Deployment Rules, für Direct Lake nicht",
    "datei": "direct-lake.md"
@@ -32,7 +41,7 @@
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ersetzt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 6,
    "beleg": "Verbindung für den Bericht von dem Importmodell auf den Direct Lake Modell umgestellt",
    "datei": "direct-lake.md"
@@ -41,7 +50,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "power-bi.md"
@@ -50,7 +59,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -59,7 +68,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "performance.md"
@@ -68,7 +77,7 @@
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "refresh.md"
@@ -77,7 +86,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -86,7 +95,7 @@
    "id": "tool:directquery",
    "name": "DirectQuery",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "directquery.md"
@@ -95,7 +104,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "warehouse.md"
@@ -104,16 +113,25 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "power-bi-desktop.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:delta-lake",
    "name": "Delta Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "delta-lake.md"
@@ -122,7 +140,7 @@
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "onelake.md"
@@ -131,31 +149,22 @@
    "id": "tool:composite-models",
    "name": "Composite Models",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "composite-models.md"
-  },
-  {
-   "id": "topic:row-level-security",
-   "name": "Row-Level Security",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "row-level-security.md"
-  },
-  {
-   "id": "topic:sicherheit",
-   "name": "Sicherheit",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "sicherheit.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1545,
+   "zeit": "25:45",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1545s",
+   "aussage": "Ein Composite Model, das Kennzahlen aus einem zentralen Modell in ein zweites Direct-Lake-Modell uebernehmen soll, laesst sich nicht einfach als ein Direct-Lake-Modell mit zusaetzlichen Importtabellen bauen, sondern erfordert ein Composite Model ueber beide semantischen Modelle."
+  },
   {
    "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
@@ -212,12 +221,102 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 2901,
+   "zeit": "48:21",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2901s",
+   "aussage": "Anders als im Import-Modus zeigt Direct Lake keine Speicherstatistik im Datenmodell an, solange keine Abfrage die Daten tatsächlich geladen hat."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 3880,
+   "zeit": "1:04:40",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=3880s",
+   "aussage": "Bei Direct Lake erfolgt die Aggregation, bevor Daten überhaupt in den Speicher geladen werden, was den Speicherbedarf gegenüber dem Import-Modus deutlich reduzieren kann."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "BI Thinkers Talk Nr.62",
    "dokument_id": "yt:Wwvhv8WA2Qc",
    "sekunde": 1993,
    "zeit": "33:13",
    "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1993s",
    "aussage": "Für eine Fabric-SQL-Datenbank ist Direct Lake nicht nutzbar, weshalb im Berichtsmodell Import oder DirectQuery verwendet werden muss."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 662,
+   "zeit": "11:02",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=662s",
+   "aussage": "Der aktuelle Preview-Stand der Composite Models über mehrere Lakehäuser verhält sich eher wie ein Import Mode ohne lange Ladezeiten, weil eigene Measures, Beziehungen und Row-Level Security noch fehlen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 2162,
+   "zeit": "36:02",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2162s",
+   "aussage": "Eine eigene Datumstabelle aus der Quelle ist vor allem bei DirectQuery relevant, damit Jahresfilter direkt an die Quelle weitergereicht werden können, statt alle passenden Einzeltage aufzuzählen; im Import Mode ist das wegen der Persistierung der Daten weniger entscheidend."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 181,
+   "zeit": "03:01",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=181s",
+   "aussage": "Import-Semantikmodelle lassen sich inzwischen vollständig im Web bearbeiten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1202,
+   "zeit": "20:02",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1202s",
+   "aussage": "Im Projekt waren die Semantic Models keine Direct-Lake-, sondern klassische Import-Modelle."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1362,
+   "zeit": "22:42",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1362s",
+   "aussage": "Für Row-Level-Security-Anforderungen im Import Mode wurden Warehouse-Views statt vollem Lake-House-Zugriff verwendet, was sich als performanter erwies als eine Notebook-Kopie."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2214,
+   "zeit": "36:54",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2214s",
+   "aussage": "Mit dem Tabular Editor bzw. im TMDL-Code lassen sich schon inoffiziell Composite Models aus Import- und Direct-Lake-Tabellen bauen, bevor das offiziell in Power BI Desktop verfuegbar ist."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2297,
+   "zeit": "38:17",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2297s",
+   "aussage": "Bei Translytical-Writeback in ein grosses Import-Modell mit aktiviertem Haken fuer automatische Aktualisierung nach dem Schreiben kann der Refresh eine Viertelstunde dauern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2426,
+   "zeit": "40:26",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2426s",
+   "aussage": "Bisher konnte ein Modell mit aktiviertem Incremental Refresh in Power BI Desktop nicht heruntergeladen werden, das ist inzwischen behoben."
   }
  ],
  "dokumente": [
@@ -260,7 +359,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.042,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -275,7 +374,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.032,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -305,7 +404,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -320,7 +419,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.028,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -335,7 +434,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [
@@ -350,7 +449,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [

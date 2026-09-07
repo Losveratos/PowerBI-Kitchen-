@@ -4,27 +4,27 @@
  "typ": "thema",
  "slug": "strategie",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/strategie.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/strategie.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/strategie.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/strategie.json",
  "dokumente_gesamt": 19,
- "kernaussagen_gesamt": 14,
- "mit_kernaussagen": 4,
+ "kernaussagen_gesamt": 21,
+ "mit_kernaussagen": 8,
  "aliase": [
   "BI-Strategie",
   "Datenstrategie",
   "strategisch"
  ],
- "einordnung": "Unternehmen unterscheiden bei der Digitalisierung typischerweise drei Horizonte: interne Prozessautomatisierung, nach außen gerichtete Produkt- und Serviceerweiterungen sowie die grundsätzliche Neuausrichtung des Geschäftsmodells. KI-gestützte Interview-, Portfolio- und Systemanalysen können die Vorbereitung eines Zielbild-Workshops von vormals mehreren Monaten auf eine einzelne Session verkürzen. Bevor man sich mit Tools beschäftigt, sollte man gemeinsam mit den relevantesten Stakeholdern zunächst ein gemeinsames Zielbild entwickeln.",
+ "einordnung": "Unternehmen unterscheiden bei der Digitalisierung typischerweise drei Horizonte: interne Prozessautomatisierung, nach außen gerichtete Produkt- und Serviceerweiterungen sowie die grundsätzliche Neuausrichtung des Geschäftsmodells. (Stand 2026-02) KI-gestützte Interview-, Portfolio- und Systemanalysen können die Vorbereitung eines Zielbild-Workshops von vormals mehreren Monaten auf eine einzelne Session verkürzen. (Stand 2026-02) Die Entwicklung des Tools wurde aus eigener Tasche finanziert statt Kunden in Rechnung gestellt, zu geschätzt niedrigen vierstelligen statt sonst üblichen fünfstelligen Kosten für vergleichbare Programmierleistung. (Stand 2026-08)",
  "nachbarn": [
   {
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "ki.md"
@@ -33,7 +33,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "power-bi.md"
@@ -42,7 +42,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "reporting.md"
@@ -51,7 +51,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -60,16 +60,25 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "performance.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "sicherheit.md"
@@ -78,25 +87,16 @@
    "id": "topic:lizenzen",
    "name": "Lizenzen",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "lizenzen.md"
   },
   {
-   "id": "tool:sql",
-   "name": "SQL",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 6,
-   "beleg": "",
-   "datei": "sql.md"
-  },
-  {
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -105,7 +105,7 @@
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "direct-lake.md"
@@ -114,7 +114,7 @@
    "id": "topic:self-service-bi",
    "name": "Self-Service BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "self-service-bi.md"
@@ -123,7 +123,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -132,7 +132,7 @@
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "planung.md"
@@ -141,7 +141,7 @@
    "id": "topic:governance",
    "name": "Governance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "governance.md"
@@ -150,13 +150,49 @@
    "id": "topic:projektmanagement",
    "name": "Projektmanagement",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "projektmanagement.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 733,
+   "zeit": "12:13",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=733s",
+   "aussage": "Der Umgang mit KI-gestützter, datenbasierter Teamarbeit wird als zunehmend wichtige Führungsaufgabe eingeordnet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1572,
+   "zeit": "26:12",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1572s",
+   "aussage": "Die Entwicklung des Tools wurde aus eigener Tasche finanziert statt Kunden in Rechnung gestellt, zu geschätzt niedrigen vierstelligen statt sonst üblichen fünfstelligen Kosten für vergleichbare Programmierleistung."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1753,
+   "zeit": "29:13",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1753s",
+   "aussage": "Kunden würden die Beratung wegen des Tools nicht einfach einsparen, weil der eigentliche Mehrwert in der angesammelten Erfahrung liegt und nicht nur im Tool selbst."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 2456,
+   "zeit": "40:56",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2456s",
+   "aussage": "Der beschriebene Wandel wird explizit als Transformation statt als Ersetzung eingeordnet und als exponentiell statt linear verlaufend beschrieben, vergleichbar mit der historischen Einführung von Computern in der Bürowelt."
+  },
   {
    "typ": "Meinung",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
@@ -282,6 +318,33 @@
    "zeit": "40:06",
    "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=2406s",
    "aussage": "Wer mit der Umsetzung von KI- oder BI-Projekten wartet, bis Tools ausgereifter sind, verliert gegenüber Wettbewerbern wertvolle Zeit, weil jede Woche des Wartens eine verlorene Woche ist."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 1737,
+   "zeit": "28:57",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1737s",
+   "aussage": "Um relevant zu bleiben, muss sich Business Intelligence dringend mit Organisationsthemen statt nur mit Technik befassen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 414,
+   "zeit": "06:54",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=414s",
+   "aussage": "Der Einsatz eines strukturierten Einführungsframeworks schafft Sicherheit für die Projektplanung, weil von Anfang an klar ist, worauf man sich einlässt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 516,
+   "zeit": "08:36",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=516s",
+   "aussage": "Microsoft beschraenkt sich bei Power BI und Fabric bewusst auf Kernkompetenzen und ueberlaesst ergaenzende Loesungen wie FUAM Partnern und der Community."
   }
  ],
  "dokumente": [
@@ -289,7 +352,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.333,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": [
@@ -389,7 +452,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.171,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [
@@ -439,7 +502,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.125,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -479,7 +542,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.087,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": [
@@ -569,7 +632,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [

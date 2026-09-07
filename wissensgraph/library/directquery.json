@@ -4,25 +4,25 @@
  "typ": "tool",
  "slug": "directquery",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/directquery.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/directquery.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/directquery.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/directquery.json",
  "dokumente_gesamt": 18,
- "kernaussagen_gesamt": 5,
- "mit_kernaussagen": 3,
+ "kernaussagen_gesamt": 11,
+ "mit_kernaussagen": 8,
  "aliase": [
   "Direct Query"
  ],
- "einordnung": "Für eine Fabric-SQL-Datenbank ist Direct Lake nicht nutzbar, weshalb im Berichtsmodell Import oder DirectQuery verwendet werden muss. Gespiegelte Daten in Fabric zu nutzen ist günstiger, als DirectQuery direkt gegen große Lake-Systeme wie Snowflake oder Databricks zu fahren, weil dort pro Abfrage Rechenkosten anfallen. Bei DirectQuery-Abfragen über mehrere Fakttabellen hinweg entstehen laut den Sprechern schnell zusätzliche Overhead-Queries für jeden Join, was die Performance deutlich verschlechtert.",
+ "einordnung": "Für eine Fabric-SQL-Datenbank ist Direct Lake nicht nutzbar, weshalb im Berichtsmodell Import oder DirectQuery verwendet werden muss. (Stand 2025-05) In diesem Projekt wird bewusst weder DirectQuery noch Direct Lake genutzt, um die Fabric-Kapazitaet durch das mit Power-BI-Pro-Lizenzen ausgerollte Frontend nicht zu belasten. (Stand 2026-08) Wird das Zeitfenster einer DirectQuery-Abfrage auf eine Kusto-/Eventhouse-Datenbank deutlich verkleinert, hält die Fabric-Kapazität im Langzeittest spürbar länger durch. (Stand 2025-07)",
  "nachbarn": [
   {
    "id": "tool:mirroring",
    "name": "Mirroring",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 8,
    "beleg": "wenn Daten erstmal in Fabric sind gespiegelt, das ist schon besser als jetzt direct query auf irgendwelche großen Lake Systeme zu machen, die dann pro Computer halt berechnen und dann entsprechend teu",
    "datei": "mirroring.md"
@@ -31,7 +31,7 @@
    "id": "topic:sternschema",
    "name": "Sternschema",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 9,
    "beleg": "dass äh Direct Query eigentlich kein Starschema [verträgt] (Segment 5)",
    "datei": "sternschema.md"
@@ -40,7 +40,7 @@
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 34,
    "beleg": "glaube ich ja, dass wir da Direct Lake nicht hinbekommen, aber für so ein kleinen Use Case wird's ja Direct Query wahrscheinlich auch tun",
    "datei": "direct-lake.md"
@@ -49,7 +49,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 32,
    "beleg": "",
    "datei": "power-bi.md"
@@ -58,7 +58,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 31,
    "beleg": "",
    "datei": "performance.md"
@@ -67,7 +67,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 25,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -76,7 +76,7 @@
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "onelake.md"
@@ -85,7 +85,7 @@
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "refresh.md"
@@ -94,16 +94,25 @@
    "id": "tool:snowflake",
    "name": "Snowflake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "snowflake.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 16,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 15,
    "beleg": "",
    "datei": "reporting.md"
@@ -112,7 +121,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -121,7 +130,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -130,7 +139,7 @@
    "id": "tool:delta-lake",
    "name": "Delta Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "delta-lake.md"
@@ -139,22 +148,22 @@
    "id": "tool:fabric-capacity",
    "name": "Fabric Capacity",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "fabric-capacity.md"
-  },
-  {
-   "id": "topic:row-level-security",
-   "name": "Row-Level Security",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 11,
-   "beleg": "",
-   "datei": "row-level-security.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 470,
+   "zeit": "07:50",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=470s",
+   "aussage": "In diesem Projekt wird bewusst weder DirectQuery noch Direct Lake genutzt, um die Fabric-Kapazitaet durch das mit Power-BI-Pro-Lizenzen ausgerollte Frontend nicht zu belasten."
+  },
   {
    "typ": "Empfehlung",
    "dokument": "Fabric & Power BI Quarterly · 2026-1",
@@ -183,6 +192,42 @@
    "aussage": "Bei DirectQuery-Abfragen über mehrere Fakttabellen hinweg entstehen laut den Sprechern schnell zusätzliche Overhead-Queries für jeden Join, was die Performance deutlich verschlechtert."
   },
   {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 2132,
+   "zeit": "35:32",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2132s",
+   "aussage": "Wird das Zeitfenster einer DirectQuery-Abfrage auf eine Kusto-/Eventhouse-Datenbank deutlich verkleinert, hält die Fabric-Kapazität im Langzeittest spürbar länger durch."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 2297,
+   "zeit": "38:17",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2297s",
+   "aussage": "DirectQuery gilt als sehr teuer im Kapazitätsverbrauch, was sich auch bei Translytical Task Flows gezeigt hat."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 1524,
+   "zeit": "25:24",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1524s",
+   "aussage": "Die Kombination aus DirectQuery und KQL ueber Kusto im Hintergrund funktioniert gut und macht bei schneller Interaktion mit den Live-Daten Spass."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 1894,
+   "zeit": "31:34",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=1894s",
+   "aussage": "Direct Query gegen ein Produktivsystem kann bei hoher Last reale Performanceprobleme im ERP-System verursachen, wie ein Vorfall in einer Power-BI-Schulung zeigte."
+  },
+  {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk Nr.62",
    "dokument_id": "yt:Wwvhv8WA2Qc",
@@ -199,6 +244,15 @@
    "zeit": "48:53",
    "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2933s",
    "aussage": "Mit Direct Lake wäre das Zurückschreiben asynchron und dadurch deutlich schneller als mit DirectQuery."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 2162,
+   "zeit": "36:02",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2162s",
+   "aussage": "Eine eigene Datumstabelle aus der Quelle ist vor allem bei DirectQuery relevant, damit Jahresfilter direkt an die Quelle weitergereicht werden können, statt alle passenden Einzeltage aufzuzählen; im Import Mode ist das wegen der Persistierung der Daten weniger entscheidend."
   }
  ],
  "dokumente": [
@@ -256,7 +310,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.077,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -346,7 +400,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.065,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -366,7 +420,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.057,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -411,7 +465,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.042,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -426,7 +480,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.038,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -456,7 +510,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.028,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -486,7 +540,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.027,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -501,7 +555,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [
@@ -516,7 +570,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.023,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [

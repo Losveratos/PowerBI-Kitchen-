@@ -4,26 +4,26 @@
  "typ": "thema",
  "slug": "open-source",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/open-source.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/open-source.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/open-source.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/open-source.json",
  "dokumente_gesamt": 9,
- "kernaussagen_gesamt": 0,
- "mit_kernaussagen": 0,
+ "kernaussagen_gesamt": 1,
+ "mit_kernaussagen": 1,
  "aliase": [
   "Opensource",
   "Open-Source"
  ],
- "einordnung": "Open Source kommt in 9 Dokumenten der Daten-WG vor; am ausführlichsten in „Report-Design als Framework — ein Skill für Power BI“ (2026-08-31).",
+ "einordnung": "Die Fabric CLI ist bei der FabCon GA gegangen und wird gleichzeitig Open Source, um Erweiterbarkeit durch die Community zu ermöglichen.",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "power-bi.md"
@@ -32,7 +32,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -41,7 +41,7 @@
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "dax.md"
@@ -50,7 +50,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "ki.md"
@@ -59,7 +59,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "performance.md"
@@ -68,7 +68,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -77,7 +77,7 @@
    "id": "tool:tabular-editor",
    "name": "Tabular Editor",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "tabular-editor.md"
@@ -86,7 +86,7 @@
    "id": "topic:community",
    "name": "Community",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "community.md"
@@ -95,13 +95,23 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "visualisierung.md"
   }
  ],
- "kernaussagen": [],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 2136,
+   "zeit": "35:36",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2136s",
+   "aussage": "Die Fabric CLI ist bei der FabCon GA gegangen und wird gleichzeitig Open Source, um Erweiterbarkeit durch die Community zu ermöglichen."
+  }
+ ],
  "dokumente": [
   {
    "id": "page:powerbi-design-skill",
@@ -127,7 +137,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -177,7 +187,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [
@@ -192,7 +202,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [

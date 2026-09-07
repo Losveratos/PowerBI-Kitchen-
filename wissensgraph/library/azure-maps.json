@@ -4,25 +4,25 @@
  "typ": "tool",
  "slug": "azure-maps",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-maps.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-maps.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/azure-maps.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/azure-maps.json",
  "dokumente_gesamt": 5,
- "kernaussagen_gesamt": 17,
- "mit_kernaussagen": 2,
+ "kernaussagen_gesamt": 19,
+ "mit_kernaussagen": 4,
  "aliase": [
   "Azure Map"
  ],
- "einordnung": "In diesem Tutorial wird gezeigt, wie eine Von-bis-Postleitzahlenregion aus einer Excel-Tabelle in ein Flächenkartogramm mit Azure Maps in Power BI umgewandelt wird. Die von GitHub geladenen Shapefiles liegen als Brotli-komprimierte .br-Dateien vor und müssen vor der Weiterverarbeitung mit einem Online-Tool entpackt werden. Die reparierten Shapefile-Geometrien werden in QGIS über einen Join mit der CSV-Datei der Gebietsaufteilung anhand der Postleitzahl verknüpft.",
+ "einordnung": "In diesem Tutorial wird gezeigt, wie eine Von-bis-Postleitzahlenregion aus einer Excel-Tabelle in ein Flächenkartogramm mit Azure Maps in Power BI umgewandelt wird. (Stand 2026-01) Die von GitHub geladenen Shapefiles liegen als Brotli-komprimierte .br-Dateien vor und müssen vor der Weiterverarbeitung mit einem Online-Tool entpackt werden. (Stand 2026-01) Die reparierten Shapefile-Geometrien werden in QGIS über einen Join mit der CSV-Datei der Gebietsaufteilung anhand der Postleitzahl verknüpft. (Stand 2026-01)",
  "nachbarn": [
   {
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "Wenn ihr natürlich in euren Gebieten international arbeitet, habt ihr sowieso die Countryspalte mit drin. Dann braucht ihr die selbstverständlich nicht den DAX zu berechnen.",
    "datei": "dax.md"
@@ -31,7 +31,7 @@
    "id": "tool:azure",
    "name": "Azure",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "azure.md"
@@ -40,7 +40,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "power-bi.md"
@@ -49,7 +49,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -108,7 +108,7 @@
    "sekunde": 199,
    "zeit": "03:19",
    "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s",
-   "aussage": "Der Sprecher findet die individuellen Azure-Maps-Marker unterhaltsam, aber für seine eigene Arbeit wenig relevant."
+   "aussage": "Artur König findet die individuellen Azure-Maps-Marker unterhaltsam, aber für seine eigene Arbeit wenig relevant."
   },
   {
    "typ": "Empfehlung",
@@ -117,7 +117,7 @@
    "sekunde": 199,
    "zeit": "03:19",
    "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s",
-   "aussage": "Der Sprecher empfiehlt Zuschauern, bei Interesse an den individuellen Azure-Maps-Markern einen Kommentar zu hinterlassen."
+   "aussage": "Artur König empfiehlt Zuschauern, bei Interesse an den individuellen Azure-Maps-Markern einen Kommentar zu hinterlassen."
   },
   {
    "typ": "Warnung",
@@ -208,6 +208,24 @@
    "zeit": "28:08",
    "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1688s",
    "aussage": "Gegenüber dem Flächenkartogramm bietet Azure Maps den Vorteil einer echten Kartenbasis mit Straßen, Flüssen und Städten, die zusätzlichen räumlichen Kontext liefert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 1002,
+   "zeit": "16:42",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1002s",
+   "aussage": "Für die Kartenansicht der Events im Dashboard wird Azure Maps verwendet, was scherzhaft als Datenversand in die USA kommentiert wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 3016,
+   "zeit": "50:16",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=3016s",
+   "aussage": "Fuer das Azure-Maps-Visual gibt es jetzt zwei zusaetzliche Tenant-Settings, mit denen sich das Subprocessing der Kartendaten ausserhalb der eigenen Region deaktivieren laesst."
   }
  ],
  "dokumente": [
@@ -255,7 +273,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.083,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -295,7 +313,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [

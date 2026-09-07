@@ -3,11 +3,11 @@ id: "tool:synapse"
 name: "Synapse"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 2
-kernaussagen: 1
-mit_kernaussagen: 1
+kernaussagen: 2
+mit_kernaussagen: 2
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/synapse.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/synapse.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/synapse.md"
@@ -18,7 +18,7 @@ aliase:
 
 # Synapse
 
-Beim Fabric-Kapazitätsmodell (Flat Rate) ist der tatsächliche Ressourcenverbrauch laut den Sprechern weniger transparent als bei nutzungsbasierter Abrechnung wie bei Synapse.
+Weder Synapse mit Data Factory noch Fabric ersetzen automatisch Sonderzeichen in Spaltennamen, um Parquet-kompatible Namen zu erzeugen. (Stand 2025-05) Beim Fabric-Kapazitätsmodell (Flat Rate) ist der tatsächliche Ressourcenverbrauch laut den Sprechern weniger transparent als bei nutzungsbasierter Abrechnung wie bei Synapse. (Stand 2025-12)
 
 ## Aliase
 
@@ -26,23 +26,23 @@ Azure Synapse
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Azure](azure.md) | ko-vorkommen | heuristik | 9 |
-| [Microsoft Fabric](microsoft-fabric.md) | ko-vorkommen | heuristik | 7 |
-| [Data Pipeline](data-pipeline.md) | ko-vorkommen | heuristik | 6 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 6 |
-| [Warehouse](warehouse.md) | ko-vorkommen | heuristik | 6 |
-| [Azure Data Factory](azure-data-factory.md) | ko-vorkommen | heuristik | 5 |
-| [Fabric Capacity](fabric-capacity.md) | ko-vorkommen | heuristik | 5 |
-| [OneLake](onelake.md) | ko-vorkommen | heuristik | 5 |
-| [SQL Server](sql-server.md) | ko-vorkommen | heuristik | 4 |
-| [Purview](purview.md) | ko-vorkommen | heuristik | 3 |
-| [Spark](spark.md) | ko-vorkommen | heuristik | 3 |
-| [Echtzeit](echtzeit.md) | ko-vorkommen | heuristik | 3 |
-| [Governance](governance.md) | ko-vorkommen | heuristik | 3 |
-| [Dataflow](dataflow.md) | ko-vorkommen | heuristik | 3 |
-| [Premium](premium.md) | ko-vorkommen | heuristik | 3 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Azure](azure.md) | Synapse und Azure im selben Segment | Heuristik, gezählt |  | 9 |
+| [Microsoft Fabric](microsoft-fabric.md) | Synapse und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 7 |
+| [Data Pipeline](data-pipeline.md) | Synapse und Data Pipeline im selben Segment | Heuristik, gezählt |  | 6 |
+| [Power BI](power-bi.md) | Synapse und Power BI im selben Segment | Heuristik, gezählt |  | 6 |
+| [SQL](sql.md) | Synapse und SQL im selben Segment | Heuristik, gezählt |  | 6 |
+| [Warehouse](warehouse.md) | Synapse und Warehouse im selben Segment | Heuristik, gezählt |  | 6 |
+| [Azure Data Factory](azure-data-factory.md) | Synapse und Azure Data Factory im selben Segment | Heuristik, gezählt |  | 5 |
+| [Fabric Capacity](fabric-capacity.md) | Synapse und Fabric Capacity im selben Segment | Heuristik, gezählt |  | 5 |
+| [OneLake](onelake.md) | Synapse und OneLake im selben Segment | Heuristik, gezählt |  | 5 |
+| [SQL Server](sql-server.md) | Synapse und SQL Server im selben Segment | Heuristik, gezählt |  | 4 |
+| [Purview](purview.md) | Synapse und Purview im selben Segment | Heuristik, gezählt |  | 3 |
+| [Spark](spark.md) | Synapse und Spark im selben Segment | Heuristik, gezählt |  | 3 |
+| [Echtzeit](echtzeit.md) | Synapse und Echtzeit im selben Segment | Heuristik, gezählt |  | 3 |
+| [Governance](governance.md) | Synapse und Governance im selben Segment | Heuristik, gezählt |  | 3 |
+| [Dataflow](dataflow.md) | Synapse und Dataflow im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -51,6 +51,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
 | --- | --- | --- | --- | --- | --- | --- |
 | Meinung | BI Thinkers Talk nr.71 | 2025-12 | 11:56 | auf die Sekunde | Beim Fabric-Kapazitätsmodell (Flat Rate) ist der tatsächliche Ressourcenverbrauch laut den Sprechern weniger transparent als bei nutzungsbasierter Abrechnung wie bei Synapse. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=716s) |
+| Fakt | Daten-WG Deep Dive Financial Reporting | 2025-05 | 29:27 | auf die Sekunde | Weder Synapse mit Data Factory noch Fabric ersetzen automatisch Sonderzeichen in Spaltennamen, um Parquet-kompatible Namen zu erzeugen. | [▶](https://www.youtube.com/watch?v=TYmKrreMO3I&t=1767s) |
 
 ## Dokumente
 

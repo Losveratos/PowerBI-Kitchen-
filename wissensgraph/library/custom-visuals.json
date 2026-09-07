@@ -4,28 +4,28 @@
  "typ": "tool",
  "slug": "custom-visuals",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/custom-visuals.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/custom-visuals.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/custom-visuals.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/custom-visuals.json",
  "dokumente_gesamt": 19,
- "kernaussagen_gesamt": 20,
- "mit_kernaussagen": 9,
+ "kernaussagen_gesamt": 25,
+ "mit_kernaussagen": 11,
  "aliase": [
   "Custom Visual",
   "benutzerdefinierte Visuals",
   "pbiviz",
   "AppSource"
  ],
- "einordnung": "Bei HTML-Custom-Visuals in Power BI wird der HTML-Code in eine DAX-Formel geschrieben, die als Measure in das HTML-Visual gezogen wird. Ein Kunde entschied sich trotz einer passenderen Custom-Visual-Alternative für die Umsetzung mit dem Standard-Visual, weil der Einkaufsprozess für kostenpflichtige Custom Visuals ein großes Hindernis darstellt. Deneb-Visuals erfordern Coding beziehungsweise Scripting mit Vega beziehungsweise Vega-Lite, sobald ein Endanwender einen speziellen Visualisierungs-Task lösen will, der im Standardumfang von Power BI nicht möglich ist.",
+ "einordnung": "Bei HTML-Custom-Visuals in Power BI wird der HTML-Code in eine DAX-Formel geschrieben, die als Measure in das HTML-Visual gezogen wird. (Stand 2026-05) Ein Kunde entschied sich trotz einer passenderen Custom-Visual-Alternative für die Umsetzung mit dem Standard-Visual, weil der Einkaufsprozess für kostenpflichtige Custom Visuals ein großes Hindernis darstellt. (Stand 2026-01) Deneb-Visuals erfordern Coding beziehungsweise Scripting mit Vega beziehungsweise Vega-Lite, sobald ein Endanwender einen speziellen Visualisierungs-Task lösen will, der im Standardumfang von Power BI nicht möglich ist.",
  "nachbarn": [
   {
    "id": "tool:deneb",
    "name": "Deneb",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 5,
    "beleg": "In Denb stößt er dann irgendwann an Grenzen ... In dem Power BI, also in den tatsächlichen Custom Visuals, ist er ziemlich frei.",
    "datei": "deneb.md"
@@ -34,7 +34,7 @@
    "id": "tool:zebra-bi",
    "name": "Zebra BI",
    "kantentyp": "ersetzt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 5,
    "beleg": "wie lange wird's jetzt dauern einfach Zebra BI nachzucoden",
    "datei": "zebra-bi.md"
@@ -43,7 +43,7 @@
    "id": "tool:deneb",
    "name": "Deneb",
    "kantentyp": "teil-von",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 5,
    "beleg": "dieses Custom Visual, mit dem ich über Vega Light bzw. Vega Aufgaben lösen kann",
    "datei": "deneb.md"
@@ -52,7 +52,7 @@
    "id": "topic:ibcs",
    "name": "IBCS",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 14,
    "beleg": "wer mal versucht hat irgendwas nachzubauen, was Richtung IBCS geht und kein Custom nutzt, der ist ein absoluter Masochist",
    "datei": "ibcs.md"
@@ -61,7 +61,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 63,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -70,7 +70,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "power-bi.md"
@@ -79,7 +79,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "reporting.md"
@@ -88,7 +88,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "ki.md"
@@ -97,7 +97,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -106,7 +106,7 @@
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "dax.md"
@@ -115,7 +115,7 @@
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "planung.md"
@@ -124,7 +124,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "performance.md"
@@ -133,7 +133,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -142,7 +142,7 @@
    "id": "tool:python",
    "name": "Python",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "python.md"
@@ -151,7 +151,7 @@
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "datenmodellierung.md"
@@ -192,7 +192,7 @@
    "sekunde": 3502,
    "zeit": "58:22",
    "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3502s",
-   "aussage": "Der Gast schätzt, dass ein herkömmlicher Custom-Visual-Zugang im Schnitt 500 bis 600 Dollar kostet, während ein mit KI selbst gebautes Äquivalent nur etwa 200 Dollar Kosten verursacht."
+   "aussage": "Einer der Gäste schätzt, dass ein herkömmlicher Custom-Visual-Zugang im Schnitt 500 bis 600 Dollar kostet, während ein mit KI selbst gebautes Äquivalent nur etwa 200 Dollar Kosten verursacht."
   },
   {
    "typ": "Fakt",
@@ -268,6 +268,42 @@
   },
   {
    "typ": "Warnung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 438,
+   "zeit": "07:18",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=438s",
+   "aussage": "Reference Labels sind in der neuen KPI-Karte fragil, weil sie beim Entfernen der zugrunde liegenden Measure verschwinden und danach neu gesetzt werden müssen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1366,
+   "zeit": "22:46",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1366s",
+   "aussage": "Die neue KPI-Karte befindet sich noch im Preview-Status, was bei manchen Formatierungsoptionen eingeschränkte Möglichkeiten mit sich bringt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1440,
+   "zeit": "24:00",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1440s",
+   "aussage": "Eine selbstgebaute SVG-Grafik lässt sich zwar gut über GitHub ausrollen, ist bei klar benannten Feldern nutzbar, schränkt aber die Self-Service-Tauglichkeit gegenüber Standardvisuals ein."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 2188,
+   "zeit": "36:28",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=2188s",
+   "aussage": "Werden dekorative Visual Calculations wie dynamische Titel im Visual selbst gepflegt, wandert beim Kopieren des Visuals die zugehörige Logik automatisch mit, ohne dass Measures im Zielmodell gesucht werden müssen."
+  },
+  {
+   "typ": "Warnung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
    "sekunde": 3128,
@@ -319,6 +355,15 @@
    "zeit": "56:29",
    "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3389s",
    "aussage": "Die neuen Slicer unterstützen aktuell keine Hierarchien als Auswahlbedingung für eine Datenfunktion, auch nicht der Hierarchy Slicer."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 283,
+   "zeit": "04:43",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=283s",
+   "aussage": "Reference Lines werden inzwischen bei mehreren Power-BI-Visualtypen unterstützt und nicht mehr nur beim Liniendiagramm."
   },
   {
    "typ": "Fakt",
@@ -544,7 +589,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [

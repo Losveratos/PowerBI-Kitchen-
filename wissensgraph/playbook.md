@@ -83,6 +83,11 @@ daneben, damit der Übergang zu Fabric kein Bruch ist.
 - **Fragen als Vorlagen, nicht als Freitext.** Fünf Fragetypen decken den Alltag ab und lassen sich 1:1 als GQL formulieren. Das ist die Brücke zum Data Agent in Fabric: dieselben Muster werden dort NL2GQL-Beispiele.
 - **Zustand in die URL.** Jede Sicht (Knoten, Frage, Zeitraum, Fokus) ist ein Link. Im Unternehmen ist das der Unterschied zwischen „schau mal im Tool" und „hier ist die Antwort".
 
+- **Segment-Ordinal reicht nicht als Beleg.** Die erste Extraktionswelle lieferte je Aussage nur die Segmentnummer; ein Segment ist im Median 95 Sekunden lang, die Sprungmarke lag bis zu drei Minuten daneben. Zwei Gegenmittel: das Modell muss ein wörtliches Zitat (6 bis 15 Wörter) mitliefern, und ein deterministischer Schritt sucht Zitat oder Aussage im Wort-Transkript und setzt die Sekunde (`kgk/enrich/anchor.py`). Ergebnis im Testfall: 620 von 789 Aussagen auf die Sekunde, der Rest ehrlich als „Abschnittsanfang" markiert. Im Unternehmen gilt dasselbe für Teams-Transkripte: Wortzeitstempel behalten, Zitat verlangen, Anker prüfen.
+- **Kennzeichnung in drei Teilen.** „Belegt" allein verwischt drei Dinge: automatisch extrahiert (Herkunft), Quellenstelle vorhanden (und wie genau), redaktionell geprüft (bisher nichts). Jede Aussage trägt alle drei getrennt plus den Stand der Quelle. Eine Null bei den Kernaussagen sagt, ob „noch nicht ausgewertet" oder „ausgewertet, aber nichts zugeordnet".
+- **Zweite Welle nach Abdeckung, nicht nach Aktualität.** Die neuesten 30 Folgen zuerst zu verarbeiten ließ die größten Themen leer (Microsoft Fabric: 92 Dokumente, 0 Aussagen). Auswahlregel für Folgewellen: je Konzept ohne Aussagen die drei Dokumente mit den meisten Treffersegmenten (`prepare_prompts --coverage 3 --skip-enriched`).
+- **Ein Praxistest vor dem nächsten Feature.** Fünf bis zehn echte Fragen, drei bis fünf Personen ohne Anleitung, fünf Prüffragen je Antwort (`playbook/PRAXISTEST.md`). Das Ergebnis priorisiert das Backlog besser als jedes weitere Review.
+
 ## Offene Fragen
 
 - Ontology (Fabric IQ) als formale Vokabular-Definition: lohnt erst, wenn mehrere Domänen zusammenkommen.

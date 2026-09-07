@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "dashboard-design",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/dashboard-design.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/dashboard-design.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/dashboard-design.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/dashboard-design.json",
  "dokumente_gesamt": 5,
- "kernaussagen_gesamt": 9,
- "mit_kernaussagen": 5,
+ "kernaussagen_gesamt": 28,
+ "mit_kernaussagen": 11,
  "aliase": [
   "Dashboard",
   "Report Design",
@@ -21,13 +21,13 @@
   "Layout",
   "Design"
  ],
- "einordnung": "Die neuen Quicktipps funktionieren auch auf Kacheln. Der maximale Wert für die Breite eines visuellen Rahmens um ein Visual in Power BI beträgt 99. In Power BI gibt es vier Standardvisualisierungen mit horizontalen Balken: gestapelte, gruppierte und 100%-gestapelte Balkendiagramme sowie das Trichterdiagramm.",
+ "einordnung": "Die Heatmap wird als Lieblingsvisualisierung beschrieben, die über Jahre verfeinert wurde und ursprünglich aus der Bioinformatik zur Mustererkennung in großen Datenmengen stammt. (Stand 2026-08) Die neuen Quicktipps funktionieren auch auf Kacheln. (Stand 2026-01) Der maximale Wert für die Breite eines visuellen Rahmens um ein Visual in Power BI beträgt 99. (Stand 2025-12)",
  "nachbarn": [
   {
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -36,7 +36,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "power-bi.md"
@@ -45,7 +45,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -54,7 +54,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "reporting.md"
@@ -63,7 +63,7 @@
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "planung.md"
@@ -72,13 +72,22 @@
    "id": "topic:ibcs",
    "name": "IBCS",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "ibcs.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 243,
+   "zeit": "04:03",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=243s",
+   "aussage": "Die Heatmap wird als Lieblingsvisualisierung beschrieben, die über Jahre verfeinert wurde und ursprünglich aus der Bioinformatik zur Mustererkennung in großen Datenmengen stammt."
+  },
   {
    "typ": "Meinung",
    "dokument": "BI Thinkers Talk nr.76",
@@ -134,6 +143,15 @@
    "aussage": "In Power BI gibt es vier Standardvisualisierungen mit horizontalen Balken: gestapelte, gruppierte und 100%-gestapelte Balkendiagramme sowie das Trichterdiagramm."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 543,
+   "zeit": "09:03",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=543s",
+   "aussage": "In einer normalen flachen Excel-Tabelle lassen sich keine flexiblen Kategorie-Filterungen oder Bedingungen umsetzen, weshalb fuer solche Auswertungen Dashboards mit echten Dimensionen noetig sind."
+  },
+  {
    "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
@@ -159,6 +177,159 @@
    "zeit": "1:18:31",
    "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4711s",
    "aussage": "Ein Sprecher prognostiziert, dass KI-Agentensysteme künftig Dashboards direkt aus natürlichsprachigen Anweisungen erstellen werden, wodurch klassische manuelle Berichtsentwicklung an Bedeutung verliert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 220,
+   "zeit": "03:40",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=220s",
+   "aussage": "Beim Gaming-Stand auf einer Konferenz wussten Besucherinnen und Besucher zunaechst nicht, wofuer der Aussteller eigentlich steht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 587,
+   "zeit": "09:47",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=587s",
+   "aussage": "Beim Fun-o-Meter wird die Kamera nicht auf das Spiel, sondern auf die spielenden Personen gerichtet, um deren Emotionen zu analysieren."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 1683,
+   "zeit": "28:03",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1683s",
+   "aussage": "Das gebaute Dashboard ist performant und laesst sich schnell aktualisieren, weshalb es sich auch fuer kuenftige Veranstaltungen als Case eignet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 494,
+   "zeit": "08:14",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=494s",
+   "aussage": "Die Dashboard- bzw. Tech-Challenge für Fabric ist auf drei Monate angelegt, damit danach klar ist, wer mitmacht und was der Output ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1166,
+   "zeit": "19:26",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1166s",
+   "aussage": "Bei der \"Visual Ranking Weltmeisterschaft\" auf der Daten-WG 2025 stimmten die Teilnehmenden live per Mentimeter ab, welches Visual sie als Champion einstufen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1594,
+   "zeit": "26:34",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1594s",
+   "aussage": "Der zweite, deutlich anspruchsvollere Anwendungsfall ist ein Vorstandsbericht mit 14 vollständig individuellen Seiten zum Fortschritt der digitalen Transformation der Rheinland Versicherungsgruppe."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 2067,
+   "zeit": "34:27",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2067s",
+   "aussage": "Business Analytics wird als kein Selbstzweck verstanden, es geht nicht darum, möglichst viele oder bunte Diagrammtypen zu verwenden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 289,
+   "zeit": "04:49",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=289s",
+   "aussage": "In Power BI gibt es seit rund zwei Releases (ca. zwei Wochen) die Möglichkeit, einen Page Navigator automatisch als Buttons einzufügen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 322,
+   "zeit": "05:22",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=322s",
+   "aussage": "Am automatisch eingefügten Page-Navigator wird das Standardlayout mit Rand (\"Coversong\") optisch nicht als gelungen empfunden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 380,
+   "zeit": "06:20",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=380s",
+   "aussage": "Beim Button-Design wird ein atomic-design-artiger Ansatz verfolgt: erst den Button einfügen, dann sein Aussehen festlegen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 455,
+   "zeit": "07:35",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=455s",
+   "aussage": "Bei Buttons wird empfohlen, die Breite so zu wählen, dass sie zur Breite anderer Elemente wie Kacheln passt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 690,
+   "zeit": "11:30",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=690s",
+   "aussage": "In einem US-Police-Beispiel-Dashboard wird beim Klick auf ein Bundesland wie Kalifornien automatisch der zugehörige Navigations-Button deaktiviert, um den aktiven Filter anzuzeigen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 768,
+   "zeit": "12:48",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=768s",
+   "aussage": "Eine Navigationsleiste zum Wechseln zwischen einzelnen Seiten wird mit Bookmarks umgesetzt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1061,
+   "zeit": "17:41",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1061s",
+   "aussage": "Ein selbst gestaltetes Icon wird als PNG abgespeichert, um es anschließend als Navigationselement im Power-BI-Bericht einzubinden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1197,
+   "zeit": "19:57",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1197s",
+   "aussage": "Für mehrere Navigations-Icons wird empfohlen, einen fertig formatierten Button per Strg+C/Strg+V zu duplizieren, statt jeden einzeln neu zu gestalten."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 2019,
+   "zeit": "33:39",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=2019s",
+   "aussage": "Als Framework wird empfohlen, die Struktur der ersten Seite eines Reports nach Möglichkeit auf den anderen Seiten wiederzuverwenden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 2556,
+   "zeit": "42:36",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=2556s",
+   "aussage": "Für den Vergleich zweier frei wählbarer Projektgruppen wird ein Wasserfall-Chart genutzt, das zeigt, welche Gruppe besser performt hat und wie groß die Abweichung insgesamt war."
   }
  ],
  "dokumente": [
@@ -251,7 +422,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [

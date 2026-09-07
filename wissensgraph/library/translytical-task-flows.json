@@ -4,28 +4,28 @@
  "typ": "tool",
  "slug": "translytical-task-flows",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/translytical-task-flows.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/translytical-task-flows.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/translytical-task-flows.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/translytical-task-flows.json",
  "dokumente_gesamt": 9,
- "kernaussagen_gesamt": 15,
- "mit_kernaussagen": 6,
+ "kernaussagen_gesamt": 24,
+ "mit_kernaussagen": 11,
  "aliase": [
   "Writeback",
   "Write-back",
   "Task Flows",
   "Rückschreiben"
  ],
- "einordnung": "Translytical Task Flows sind jetzt allgemein verfügbar (Generally Available) und nicht mehr nur als Vorschau. Translytical Task Flows sind jetzt allgemein verfügbar (GA) und bauen auf den vorherigen GA-Schritten von SQL in Fabric, User Data Functions und Input Slicer auf. Die Writeback-Funktion wird als User Defined Function in der Fabric-SQL-Datenbank mit einer SQL-Update-Query umgesetzt.",
+ "einordnung": "Translytical Task Flows sind jetzt allgemein verfügbar (Generally Available) und nicht mehr nur als Vorschau. (Stand 2026-03) Die Anbindung von User Data Functions an Translytical Task Flows für native Writeback-Logik in Power BI wurde auf der FABCON selbst nicht explizit erwähnt, steht aber weiterhin für Q2 auf der Fabric-Roadmap. (Stand 2025-04) Translytical Task Flows sind jetzt allgemein verfügbar (GA) und bauen auf den vorherigen GA-Schritten von SQL in Fabric, User Data Functions und Input Slicer auf.",
  "nachbarn": [
   {
    "id": "tool:sql",
    "name": "SQL",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "auch da ein gewisser Vorlauf mit erst Sequel in Fabric GA, dann User Data Functions GA, dann Input Slicer GA und jetzt transitas, das auf all diesen Bausteinen aufbaut",
    "datei": "sql.md"
@@ -34,16 +34,25 @@
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "Da sind einfach zwei verschiedene Sachen, was es eben nicht gab in Power BI ... in Transluttical ist halt eine Inputtabelle und die gibt es jetzt mit dem Planning.",
    "datei": "planung.md"
   },
   {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "Wobei ich schreib z.B. in Warehouse, weil das G ist",
+   "datei": "warehouse.md"
+  },
+  {
    "id": "tool:power-automate",
    "name": "Power Automate",
    "kantentyp": "ersetzt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "dann hat Power Automate ja explizit über ein Power BI Connector den Refresh triggern müssen. Jetzt ist das alles in einem",
    "datei": "power-automate.md"
@@ -52,7 +61,7 @@
    "id": "tool:fabric-capacity",
    "name": "Fabric Capacity",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "seit wir da am Bauen sind, quasi seit 4:20 Uhr, dass das so hochgeschossen ist, das ist jetzt kein Zufall",
    "datei": "fabric-capacity.md"
@@ -61,7 +70,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "power-bi.md"
@@ -105,6 +114,24 @@
    "aussage": "Arthur wünscht sich für Translytical Task Flows eine bessere Eingabemöglichkeit als den aktuellen Text-Slicer, etwa mit Zeilenumbrüchen und Kommentarfunktion."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1630,
+   "zeit": "27:10",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1630s",
+   "aussage": "Mit einer Fabric-F2-Kapazität lassen sich Realtime Intelligence, Translytical Task Flows und Copilot bereits gut nutzen, solange die traditionellen Batch-Workloads nicht zu intensiv sind."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 2297,
+   "zeit": "38:17",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2297s",
+   "aussage": "DirectQuery gilt als sehr teuer im Kapazitätsverbrauch, was sich auch bei Translytical Task Flows gezeigt hat."
+  },
+  {
    "typ": "Meinung",
    "dokument": "BI Thinkers Talk Nr.62",
    "dokument_id": "yt:Wwvhv8WA2Qc",
@@ -129,7 +156,7 @@
    "sekunde": 1774,
    "zeit": "29:34",
    "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1774s",
-   "aussage": "Aus Sicht des Sprechers sind Datenfunktionen zum Zurückschreiben noch nicht vollständig self-service-tauglich, weil Modell, Datenhaltung und Funktion aktuell nicht an Fachbereiche übergeben werden sollten."
+   "aussage": "Aus Sicht eines der Sprecher sind Datenfunktionen zum Zurückschreiben noch nicht vollständig self-service-tauglich, weil Modell, Datenhaltung und Funktion aktuell nicht an Fachbereiche übergeben werden sollten."
   },
   {
    "typ": "Fakt",
@@ -165,7 +192,7 @@
    "sekunde": 2935,
    "zeit": "48:55",
    "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2935s",
-   "aussage": "Direkt in ein Fabric-Warehouse zu schreiben gilt laut dem Sprecher nicht als Best Practice."
+   "aussage": "Direkt in ein Fabric-Warehouse zu schreiben gilt laut einem der Sprecher nicht als Best Practice."
   },
   {
    "typ": "Meinung",
@@ -196,12 +223,75 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1326,
+   "zeit": "22:06",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1326s",
+   "aussage": "Die Anbindung von User Data Functions an Translytical Task Flows für native Writeback-Logik in Power BI wurde auf der FABCON selbst nicht explizit erwähnt, steht aber weiterhin für Q2 auf der Fabric-Roadmap."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
    "sekunde": 516,
    "zeit": "08:36",
    "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=516s",
    "aussage": "Translytical Task Flows sind jetzt allgemein verfügbar (GA) und bauen auf den vorherigen GA-Schritten von SQL in Fabric, User Data Functions und Input Slicer auf."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 741,
+   "zeit": "12:21",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=741s",
+   "aussage": "Translytical User Defined Functions sind in Microsoft Fabric bereits GA, aus Power-BI-Sicht aber noch ein Preview-Feature."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 800,
+   "zeit": "13:20",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=800s",
+   "aussage": "Translytical Task Flows ermöglichen inzwischen auch Freitexteingaben als DAX-Writeback, aktuell noch in Preview."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 1626,
+   "zeit": "27:06",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1626s",
+   "aussage": "Translytical Task Flows sind mittlerweile ein Fabric-internes statt eines reinen Power-BI-internen Features und bringen fertige, per Knopfdruck nutzbare Rueckschreibfunktionen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 1747,
+   "zeit": "29:07",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1747s",
+   "aussage": "Translytical Task Flows sind bewusst auf einen ueberschaubaren Scope wie das Zurueckschreiben von Einzelwerten und Kommentierungen begrenzt und nicht fuer komplexes Splashing gedacht."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 1793,
+   "zeit": "29:53",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1793s",
+   "aussage": "Beim Translytical-Writeback-Feature wird das aktuell genutzte Eingabefeld eigentlich ein zweckentfremdeter Filter, weshalb Nutzer keine Zeilenumbrueche fuer Kommentare eingeben koennen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2297,
+   "zeit": "38:17",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2297s",
+   "aussage": "Bei Translytical-Writeback in ein grosses Import-Modell mit aktiviertem Haken fuer automatische Aktualisierung nach dem Schreiben kann der Refresh eine Viertelstunde dauern."
   }
  ],
  "dokumente": [
@@ -239,7 +329,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [

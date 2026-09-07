@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL · DatenWG Library</title>
+<meta name="description" content="Die Kusto Query Language ist deklarativ aufgebaut, weil man mit dem Tabellennamen beginnt, statt wie in SQL zuerst die gewünschten Spalten anzugeben. (Stand 2025-09) Die Replikation der Tabelle selbst erzeugt keine zusätzlichen Fabric-Kapazitätskosten, erst der Datenzugriff über SQL, Power BI oder …">
+<meta property="og:title" content="SQL · DatenWG Library">
+<meta property="og:description" content="Die Kusto Query Language ist deklarativ aufgebaut, weil man mit dem Tabellennamen beginnt, statt wie in SQL zuerst die gewünschten Spalten anzugeben. (Stand 2025-09) Die Replikation der Tabelle selbst erzeugt keine zusätzlichen Fabric-Kapazitätskosten, erst der Datenzugriff über SQL, Power BI oder …">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://datenwgknowledgekitchen.com/wissensgraph/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="Daten-WG Knowledge Kitchen">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/sql.html">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/wissensgraph/thema/sql.html">
+<link rel="alternate" type="text/markdown" href="https://datenwgknowledgekitchen.com/wissensgraph/library/sql.md">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · tool</p>
+<h1>SQL</h1>
+<p class="lead">Die Kusto Query Language ist deklarativ aufgebaut, weil man mit dem Tabellennamen beginnt, statt wie in SQL zuerst die gewünschten Spalten anzugeben. (Stand 2025-09) Die Replikation der Tabelle selbst erzeugt keine zusätzlichen Fabric-Kapazitätskosten, erst der Datenzugriff über SQL, Power BI oder Spark wird nach den regulären Tarifen berechnet. (Stand 2026-01) Nach Abschluss der Replikation lassen sich die gespiegelten Daten direkt per SQL-Abfrage in Fabric auslesen. (Stand 2026-01)</p>
+<div class="btns"><a class="btn" href="../#n=tool%3Asql">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Asql&amp;f=tool%3Asql">Im Graph öffnen</a></div>
+<p class="meta">50 Dokumente · 16 Kernaussagen · Stand 2026-09-07 · Build 20260907-1949</p>
+<h2>Aliase</h2>
+<p><span class="tag">SQL-Abfrage</span> <span class="tag">SQL-Abfragen</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Intelligence Sheets von Lumel sind in Fabric aktuell auf SQL-Datenbank-Verbindungen beschränkt.<span class="meta quote">Fakt · Stand 2026-04 · BI Thinkers Talk nr.75 · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=3025s">50:25</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Eine einzelne SQL-Datenbank kann bereits eine F2-Kapazität stark auslasten, wie ein interner Vorfall zeigte.<span class="meta quote">Warnung · Stand 2026-03 · Fabric Planning unboxing · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=562s">09:22</a> · automatisch extrahiert · Stelle: Abschnittsanfang</span></li>
+<li>Beim Anlegen eines Planning-Objekts wird automatisch eine Fabric SQL-Datenbank erstellt.<span class="meta quote">Fakt · Stand 2026-03 · Fabric Planning unboxing · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=586s">09:46</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Für Rückschreibungen mit Power Table wird empfohlen, eine eigene Datenbank anzulegen statt die automatisch erstellte Metadaten-Datenbank zu verwenden.<span class="meta quote">Empfehlung · Stand 2026-03 · Fabric Planning unboxing · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=1042s">17:22</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Als Datenquelle für Planning-Objekte ist aktuell nur eine SQL-Datenbank wählbar, während Inforiver zusätzlich Lakehouse und Warehouse unterstützte.<span class="meta quote">Fakt · Stand 2026-03 · Fabric Planning unboxing · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=2044s">34:04</a> · automatisch extrahiert · Stelle: Abschnittsanfang</span></li>
+<li>Das Zurückschreiben ist derzeit auf SQL-Datenbanken beschränkt, während Inforiver zusätzlich nach Snowflake oder SAP schreiben konnte.<span class="meta quote">Warnung · Stand 2026-03 · Fabric Planning unboxing · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=3060s">51:00</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Als Workaround definiert einer der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden.<span class="meta quote">Empfehlung · Stand 2026-02 · BI Thinkers Talk n.73 · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=3298s">54:58</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Die Replikation der Tabelle selbst erzeugt keine zusätzlichen Fabric-Kapazitätskosten, erst der Datenzugriff über SQL, Power BI oder Spark wird nach den regulären Tarifen berechnet.<span class="meta quote">Fakt · Stand 2026-01 · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=219s">03:39</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Nach Abschluss der Replikation lassen sich die gespiegelten Daten direkt per SQL-Abfrage in Fabric auslesen.<span class="meta quote">Fakt · Stand 2026-01 · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=519s">08:39</a> · automatisch extrahiert · Stelle: Abschnittsanfang</span></li>
+<li>Die SQL-Schnittstellen in Fabric sind auf Massendaten ausgelegt und nicht dafür gedacht, einzelne Datensätze zu schreiben.<span class="meta quote">Fakt · Stand 2025-12 · Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=48s">00:48</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Die Kusto Query Language ist deklarativ aufgebaut, weil man mit dem Tabellennamen beginnt, statt wie in SQL zuerst die gewünschten Spalten anzugeben.<span class="meta quote">Fakt · Stand 2025-09 · Why Passion Beats Niche · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=137s">02:17</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Weil eine zu restriktive Firewall-Security den SQL-Zugriff auf Lakehouse-Tabellen blockierte, baute der Kunde stattdessen ein semantisches Direct-Lake-Modell direkt im Web auf.<span class="meta quote">Fakt · Stand 2025-09 · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1236s">20:36</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Für das Zurückschreiben aus Power BI wird eine SQL-Datenbank in Fabric statt eines Lakehouse verwendet.<span class="meta quote">Empfehlung · Stand 2025-05 · BI Thinkers Talk Nr.62 · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=995s">16:35</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Die Writeback-Funktion wird als User Defined Function in der Fabric-SQL-Datenbank mit einer SQL-Update-Query umgesetzt.<span class="meta quote">Fakt · Stand 2025-05 · BI Thinkers Talk Nr.62 · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=1007s">16:47</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Beim Aufbau der SQL-Query sollten Parameter beziehungsweise Platzhalter statt direkt eingefügter Werte verwendet werden, um SQL-Injection zu vermeiden.<span class="meta quote">Warnung · Stand 2025-05 · BI Thinkers Talk Nr.62 · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=1430s">23:50</a> · automatisch extrahiert · Stelle: Abschnittsanfang</span></li>
+<li>In der Update-Query muss der Tabellenname mit dem Schema-Präfix SalesLT angegeben werden, sonst schlägt die Ausführung mit einem Invalid-Object-Name-Fehler fehl.<span class="meta quote">Fakt · Stand 2025-05 · BI Thinkers Talk Nr.62 · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=1522s">25:22</a> · automatisch extrahiert · Stelle: Abschnittsanfang</span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=QyhnWfGih_o">Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen</a><span class="meta quote">2026-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=QyhnWfGih_o&amp;t=0s">00:00</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Typische%20Nutzung">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20das%20Warehouse%20exklusiv%20kann">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20zwei%20Dinge%2C%20die%20man%20wissen%20muss">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=J-lN5JN-F5I">Daten-WG Life-Update | Fabric Architekturen</a><span class="meta quote">2026-08-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=34s">00:34</a> · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=1819s">30:19</a> · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=2016s">33:36</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=HXAP16trRc8">Daten-WG Deep Dive: AI on top of BI</a><span class="meta quote">2025-07-01 · nur-text · <a href="https://www.youtube.com/watch?v=HXAP16trRc8">Abschnitt</a> · <a href="https://www.youtube.com/watch?v=HXAP16trRc8">Abschnitt</a> · <a href="https://www.youtube.com/watch?v=HXAP16trRc8">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ">Why Passion Beats Niche</a><span class="meta quote">2025-09-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=0s">00:00</a> · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=124s">02:04</a> · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=1505s">25:05</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=7j34Ndng0Os">Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=160s">02:40</a> · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=241s">04:01</a> · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=519s">08:39</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=5HhNQZlB-1E">Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial</a><span class="meta quote">2025-12-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=41s">00:41</a> · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=75s">01:15</a> · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=253s">04:13</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc">BI Thinkers Talk Nr.62</a><span class="meta quote">2025-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=778s">12:58</a> · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=1430s">23:50</a> · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=1907s">31:47</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=UUlPoJOhco8">Metadaten als Superkraft</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=UUlPoJOhco8&amp;t=94s">01:34</a> · <a href="https://www.youtube.com/watch?v=UUlPoJOhco8&amp;t=221s">03:41</a> · <a href="https://www.youtube.com/watch?v=UUlPoJOhco8&amp;t=530s">08:50</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=m3xNYfVih0Q">Starting with Microsft Fabric the Skills you need</a><span class="meta quote">2024-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=388s">06:28</a> · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=1923s">32:03</a> · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=2014s">33:34</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=RtUiF1J5XEg">600 SQL-Tabellen in Fabric</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=470s">07:50</a> · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=967s">16:07</a> · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1195s">19:55</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=27rC2zefFOU">Realtalk zu Self Service mit Power BI</a><span class="meta quote">2024-02-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=27rC2zefFOU&amp;t=1205s">20:05</a> · <a href="https://www.youtube.com/watch?v=27rC2zefFOU&amp;t=1745s">29:05</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w">Daten-WG Thinkers Talk nr.65</a><span class="meta quote">2025-07-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=692s">11:32</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1291s">21:31</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1384s">23:04</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=c-LWoo-O5PQ">SharePoint direkt in Microsoft Fabric nutzen | Lakehouse, Direct Lake &amp; Power BI</a><span class="meta quote">2026-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=c-LWoo-O5PQ&amp;t=500s">08:20</a> · <a href="https://www.youtube.com/watch?v=c-LWoo-O5PQ&amp;t=560s">09:20</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9wl_PLvgvyc">10 Jahre BI für alle? Was Power BI wirklich verändert hat</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9wl_PLvgvyc&amp;t=546s">09:06</a> · <a href="https://www.youtube.com/watch?v=9wl_PLvgvyc&amp;t=667s">11:07</a> · <a href="https://www.youtube.com/watch?v=9wl_PLvgvyc&amp;t=1993s">33:13</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=xCzKEIB4W5I">Fabric Planning unboxing</a><span class="meta quote">2026-03-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=562s">09:22</a> · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=1035s">17:15</a> · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=3019s">50:19</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TkxwcAyBGUM">Power BI Update Juli 2025</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=TkxwcAyBGUM&amp;t=369s">06:09</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Z6RZjkn_6lY">Microsoft Fabric Shortcut Transformation erklärt: Updates im Praxistest</a><span class="meta quote">2026-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=Z6RZjkn_6lY&amp;t=28s">00:28</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYp5xCAU2AU">Fabric &amp; Power BI Quarterly · 2026-1</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=541s">09:01</a> · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1250s">20:50</a> · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1350s">22:30</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=SSUpe1JON9Y">The Power of User Groups</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=SSUpe1JON9Y&amp;t=490s">08:10</a> · <a href="https://www.youtube.com/watch?v=SSUpe1JON9Y&amp;t=604s">10:04</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=eWfTt93anl4">BI Thinkers Talk nr.77</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=eWfTt93anl4&amp;t=1054s">17:34</a> · <a href="https://www.youtube.com/watch?v=eWfTt93anl4&amp;t=1819s">30:19</a> · <a href="https://www.youtube.com/watch?v=eWfTt93anl4&amp;t=2507s">41:47</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datenbank-Quellen%20%C2%B7%20der%20Folding-Hebel">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datenbank-Quellen%20%C2%B7%20der%20Folding-Hebel">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Strategie%204%3A%20Native%20Query%20als%20Ausweg">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=d3HdhRe_nK8">Daten-WG Life-Update | State of Power BI, Fabric &amp; AI-Tools</a><span class="meta quote">2026-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=d3HdhRe_nK8&amp;t=130s">02:10</a> · <a href="https://www.youtube.com/watch?v=d3HdhRe_nK8&amp;t=816s">13:36</a> · <a href="https://www.youtube.com/watch?v=d3HdhRe_nK8&amp;t=1334s">22:14</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=pOJpXxsfUt0">BI Thinkers Talk n.73</a><span class="meta quote">2026-02-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=584s">09:44</a> · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=3220s">53:40</a> · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=3447s">57:27</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=hbUYMyqb6r8">Denken in Tabellen</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=826s">13:46</a> · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=1905s">31:45</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=AX7b8_aNekw">Daten-WG 2026 Lineup</a><span class="meta quote">2026-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=AX7b8_aNekw&amp;t=103s">01:43</a> · <a href="https://www.youtube.com/watch?v=AX7b8_aNekw&amp;t=933s">15:33</a> · <a href="https://www.youtube.com/watch?v=AX7b8_aNekw&amp;t=1025s">17:05</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=GWCHNmLs72M">Power BI Update August 2026</a><span class="meta quote">2026-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=GWCHNmLs72M&amp;t=455s">07:35</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=UxE0DPnLgIg">Visual Analytics with Power BI</a><span class="meta quote">2021-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=UxE0DPnLgIg&amp;t=41s">00:41</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=2368s">39:28</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=2918s">48:38</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=1354s">22:34</a> · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=1445s">24:05</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=pTTYySb0Cyg">Fabric &amp; Power BI Quarterly · 2026-2</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=2520s">42:00</a> · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=2614s">43:34</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=luk4S4ukKmg">BI Thinkers Talk n.72</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=1937s">32:17</a> · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=2032s">33:52</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=4VVNDNusq4U">BI Thinkers Talk nr.64</a><span class="meta quote">2025-07-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=4VVNDNusq4U&amp;t=515s">08:35</a> · <a href="https://www.youtube.com/watch?v=4VVNDNusq4U&amp;t=2426s">40:26</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=r416vanitYw">BI Thinkers Talk nr.69</a><span class="meta quote">2025-11-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=3532s">58:52</a> · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=3624s">1:00:24</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=YzfcMurbWNc">Power BI-Teams werden Fabric-Datendienstleister</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=YzfcMurbWNc&amp;t=160s">02:40</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=G8s96sHUHac">BI Thinkers Talk nr.67</a><span class="meta quote">2025-09-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1168s">19:28</a> · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=3266s">54:26</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=BDnwlOqRElY">Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup</a><span class="meta quote">2025-06-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=BDnwlOqRElY&amp;t=2043s">34:03</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=6WhWLcuFvZE">Prinzipien oder Paragrafen</a><span class="meta quote">2026-02-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=6WhWLcuFvZE&amp;t=1243s">20:43</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=mTVeZzshLzE">Microsoft Fabric — braucht das wirklich jemand?</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=949s">15:49</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9VX4-lLa0EI">BI Thinkers Talk nr.63</a><span class="meta quote">2025-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9VX4-lLa0EI&amp;t=1578s">26:18</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=232JhS9vbQ0">Daten-WG Deep Dive Financial Reporting - part 7</a><span class="meta quote">2025-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=232JhS9vbQ0&amp;t=96s">01:36</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=DQENmzAkNqw">Daten-WG BI Thinkers Talk nr.66</a><span class="meta quote">2025-08-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=DQENmzAkNqw&amp;t=3137s">52:17</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY">BI Thinkers Talk nr.75</a><span class="meta quote">2026-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=3079s">51:19</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=VD1N68Fhoco">BI Thinkers Talk nr.68</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=VD1N68Fhoco&amp;t=3200s">53:20</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=KMk1k5uCLZU">Daten-WG Thinkers Talk n61</a><span class="meta quote">2025-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=KMk1k5uCLZU&amp;t=2975s">49:35</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1035s">17:15</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8">BI Thinkers Talk nr.76</a><span class="meta quote">2026-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=2945s">49:05</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI">10 Jahre Power BI</a><span class="meta quote">2025-07-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=4008s">1:06:48</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=l_aHydZyh4s">MCP@Daten-WG@SQL Konferenz</a><span class="meta quote">2026-03-01 · kernaussagen+zeitstempel</span></li>
+<li><a href="https://www.youtube.com/watch?v=c90oD4zR1Aw">More than PBIX</a><span class="meta quote">2025-12-01 · nur-metadaten</span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="translytical-task-flows.html">Translytical Task Flows</a><span class="meta quote">Translytical Task Flows setzt-voraus SQL · automatisch extrahiert, Quellenstelle vorhanden · „auch da ein gewisser Vorlauf mit erst Sequel in Fabric GA, dann User Data Functions GA, dann Input Slicer GA und jetzt transitas, das auf all diesen Bausteinen aufbaut“ (Fabric &amp; Power BI Quarterly · 2026-2) · 0 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">SQL und Microsoft Fabric im selben Segment · Heuristik, gezählt · 74 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">SQL und Power BI im selben Segment · Heuristik, gezählt · 67 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">SQL und Lakehouse im selben Segment · Heuristik, gezählt · 49 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">SQL und Warehouse im selben Segment · Heuristik, gezählt · 46 gemeinsame Segmente</span></li>
+<li><a href="sql-server.html">SQL Server</a><span class="meta quote">SQL und SQL Server im selben Segment · Heuristik, gezählt · 38 gemeinsame Segmente</span></li>
+<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">SQL und Direct Lake im selben Segment · Heuristik, gezählt · 31 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">SQL und Performance im selben Segment · Heuristik, gezählt · 31 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">SQL und Reporting im selben Segment · Heuristik, gezählt · 28 gemeinsame Segmente</span></li>
+<li><a href="notebook.html">Notebook</a><span class="meta quote">SQL und Notebook im selben Segment · Heuristik, gezählt · 26 gemeinsame Segmente</span></li>
+<li><a href="delta-lake.html">Delta Lake</a><span class="meta quote">SQL und Delta Lake im selben Segment · Heuristik, gezählt · 26 gemeinsame Segmente</span></li>
+<li><a href="echtzeit.html">Echtzeit</a><span class="meta quote">SQL und Echtzeit im selben Segment · Heuristik, gezählt · 25 gemeinsame Segmente</span></li>
+<li><a href="onelake.html">OneLake</a><span class="meta quote">SQL und OneLake im selben Segment · Heuristik, gezählt · 25 gemeinsame Segmente</span></li>
+<li><a href="dataflow.html">Dataflow</a><span class="meta quote">SQL und Dataflow im selben Segment · Heuristik, gezählt · 25 gemeinsame Segmente</span></li>
+<li><a href="ki.html">KI</a><span class="meta quote">SQL und KI im selben Segment · Heuristik, gezählt · 24 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">Für Agenten und Werkzeuge: <a href="https://datenwgknowledgekitchen.com/wissensgraph/library/sql.md">Markdown</a> · <a href="https://datenwgknowledgekitchen.com/wissensgraph/library/sql.json">JSON</a> · <a href="../library/index.md">Index aller Themen</a></p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

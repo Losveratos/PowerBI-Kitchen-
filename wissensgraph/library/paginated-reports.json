@@ -4,33 +4,51 @@
  "typ": "tool",
  "slug": "paginated-reports",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/paginated-reports.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/paginated-reports.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/paginated-reports.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/paginated-reports.json",
  "dokumente_gesamt": 3,
- "kernaussagen_gesamt": 1,
- "mit_kernaussagen": 1,
+ "kernaussagen_gesamt": 2,
+ "mit_kernaussagen": 2,
  "aliase": [
   "Paginierte Berichte",
   "Report Builder",
   "Paginated Report"
  ],
- "einordnung": "Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen.",
+ "einordnung": "Bei diesem gemeinsamen Aftercon-Projekt ging es unter anderem darum, paginierte Berichte per Power Automate in den Bericht einzubinden. (Stand 2025-05) Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen.",
  "nachbarn": [
   {
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "ist auch ein bisschen Konkurrenz zu Paginonated Reports an einigen Stellen",
    "datei": "planung.md"
+  },
+  {
+   "id": "tool:power-automate",
+   "name": "Power Automate",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "bei mir war es eben so bisschen dieses Power Automat, wie ich paginierte Berichte reinbringe",
+   "datei": "power-automate.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1432,
+   "zeit": "23:52",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1432s",
+   "aussage": "Bei diesem gemeinsamen Aftercon-Projekt ging es unter anderem darum, paginierte Berichte per Power Automate in den Bericht einzubinden."
+  },
   {
    "typ": "Meinung",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
@@ -61,7 +79,7 @@
    "id": "yt:aEXtFWW-pmo",
    "titel": "Wie war die Daten-WG 2025? (Teil 1)",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo",
    "sprungmarken": [

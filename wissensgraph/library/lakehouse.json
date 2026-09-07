@@ -4,43 +4,79 @@
  "typ": "tool",
  "slug": "lakehouse",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/lakehouse.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/lakehouse.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/lakehouse.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/lakehouse.json",
  "dokumente_gesamt": 39,
- "kernaussagen_gesamt": 21,
- "mit_kernaussagen": 10,
+ "kernaussagen_gesamt": 45,
+ "mit_kernaussagen": 19,
  "aliase": [
   "Lake House"
  ],
- "einordnung": "Der Wechsel von einem Lakehouse zu einem Warehouse lässt sich in der Praxis in wenigen Minuten umsetzen, da ein neues Warehouse leer und schnell angelegt ist. Ein Lakehouse wird beim Deployment in einen neuen Workspace leer angelegt, ohne die enthaltenen Daten mitzukopieren. In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können.",
+ "einordnung": "In diesem Projekt wurden Views im Lakehouse ueber Notebooks per Create-and-Replace angelegt, damit sie sich ueber Deployment Pipelines mitversenden lassen und je Umgebung automatisch das passende Lakehouse zugewiesen wird. (Stand 2026-08) In diesem Kundenprojekt wurde die Bronze-Schicht bewusst als Lakehouse aufgebaut, ab Silber und Gold aber mit Warehouses gearbeitet, weil sich der Kunde mit Stored Procedures und Views sicherer fuehlt. (Stand 2026-08) Bei einem strikten Layering-Ansatz wird Self-Service-Nutzern meist nur per Shortcut Zugriff auf den Gold-Layer gewaehrt, waehrend Bronze und Silber den Data Engineers vorbehalten bleiben. (Stand 2026-08)",
  "nachbarn": [
+  {
+   "id": "tool:deployment-pipelines",
+   "name": "Deployment Pipelines",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 9,
+   "beleg": "der Analytic Endpunkt vom Lake House wird nicht die Objekte da drin werden nicht übertragen",
+   "datei": "deployment-pipelines.md"
+  },
   {
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ersetzt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 71,
    "beleg": "wir müssen jetzt zu WHäusern... das neue Warehouse war halt leer, ist in wenigen Klicks angelegt",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 71,
+   "beleg": "Beim Warehouse hat man nur append und kann das auch nicht zurück umstellen. Beim Lake House habe ich nur replaced",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 71,
+   "beleg": "mussten wir effektiv die Lake Houses replizieren, Shortcuts in diesen Lake Houses reinsetzen und dann vom Warehouse über fully qualified Links dieser Lakees anziehen",
    "datei": "warehouse.md"
   },
   {
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 40,
    "beleg": "der Kunde hat einfach ein Direct Lake Modell letztendlich ... hier quasi ein Modell, was nach dem Deployment immer noch auf dem Lake House im Test hängt",
    "datei": "direct-lake.md"
   },
   {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 34,
+   "beleg": "könnte ich sie in OneLake auslagern und in Lakehouse verwenden, um darauf aufbauend ein semantisches Modell zu erstellen",
+   "datei": "onelake.md"
+  },
+  {
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 91,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -49,7 +85,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 59,
    "beleg": "",
    "datei": "power-bi.md"
@@ -58,16 +94,25 @@
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 51,
    "beleg": "",
    "datei": "notebook.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 49,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:dataflow",
    "name": "Dataflow",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 48,
    "beleg": "",
    "datei": "dataflow.md"
@@ -76,25 +121,16 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 36,
    "beleg": "",
    "datei": "workspace.md"
   },
   {
-   "id": "tool:onelake",
-   "name": "OneLake",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 34,
-   "beleg": "",
-   "datei": "onelake.md"
-  },
-  {
    "id": "tool:delta-lake",
    "name": "Delta Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "delta-lake.md"
@@ -103,7 +139,7 @@
    "id": "tool:data-pipeline",
    "name": "Data Pipeline",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 27,
    "beleg": "",
    "datei": "data-pipeline.md"
@@ -112,49 +148,94 @@
    "id": "tool:spark",
    "name": "Spark",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 23,
    "beleg": "",
    "datei": "spark.md"
-  },
-  {
-   "id": "topic:reporting",
-   "name": "Reporting",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 22,
-   "beleg": "",
-   "datei": "reporting.md"
-  },
-  {
-   "id": "topic:refresh",
-   "name": "Refresh",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 20,
-   "beleg": "",
-   "datei": "refresh.md"
-  },
-  {
-   "id": "tool:semantic-model",
-   "name": "Semantic Model",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 20,
-   "beleg": "",
-   "datei": "semantic-model.md"
-  },
-  {
-   "id": "topic:performance",
-   "name": "Performance",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 18,
-   "beleg": "",
-   "datei": "performance.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 209,
+   "zeit": "03:29",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=209s",
+   "aussage": "In diesem Projekt wurden Views im Lakehouse ueber Notebooks per Create-and-Replace angelegt, damit sie sich ueber Deployment Pipelines mitversenden lassen und je Umgebung automatisch das passende Lakehouse zugewiesen wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 419,
+   "zeit": "06:59",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=419s",
+   "aussage": "In diesem Kundenprojekt wurde die Bronze-Schicht bewusst als Lakehouse aufgebaut, ab Silber und Gold aber mit Warehouses gearbeitet, weil sich der Kunde mit Stored Procedures und Views sicherer fuehlt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 446,
+   "zeit": "07:26",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=446s",
+   "aussage": "Beim Import von Navision-Daten muss die Zeitstempel-Datentyp-Korrektur bereits im Bronze-Layer erfolgen, weil reine Zeitwerte sonst zu Fehlern fuehren."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 824,
+   "zeit": "13:44",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=824s",
+   "aussage": "Bei Fabric Deployment Pipelines werden Objekte des SQL-Analytics-Endpunkts eines Lakehouse wie Views nicht mit uebertragen, waehrend das beim Warehouse funktioniert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1092,
+   "zeit": "18:12",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1092s",
+   "aussage": "Nach dieser Auffassung braucht eine Medaillon-Architektur zwingend drei Schichten, weil Bronze allein dem Ablegen der Rohdaten dient."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1116,
+   "zeit": "18:36",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1116s",
+   "aussage": "Der Gold-Layer muss nicht immer dieselbe Technologie sein, sondern sollte je nach Use Case und Empfaenger gewaehlt werden, etwa Lakehouse fuer ein Data-Analytics-Team oder Warehouse fuer Reporting."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 1146,
+   "zeit": "19:06",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1146s",
+   "aussage": "Aus einem unspezifischen Prompt hat der Agent Hub eigenstaendig ein Notebook, ein Lakehouse, ein Semantic Model und einen Report erstellt, inklusive eines selbst geschriebenen Fabric Clients fuer die Fabric-APIs."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1182,
+   "zeit": "19:42",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1182s",
+   "aussage": "Bei einem strikten Layering-Ansatz wird Self-Service-Nutzern meist nur per Shortcut Zugriff auf den Gold-Layer gewaehrt, waehrend Bronze und Silber den Data Engineers vorbehalten bleiben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1276,
+   "zeit": "21:16",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1276s",
+   "aussage": "Bei einem Self-Service-Lakehouse-Ansatz werden fertige Daten aus dem Gold-Layer per Shortcut bereitgestellt, damit Fachbereichs-Excel-Mappings nicht mehr zentral in Bronze verwaltet werden muessen."
+  },
   {
    "typ": "Fakt",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
@@ -198,7 +279,7 @@
    "sekunde": 2408,
    "zeit": "40:08",
    "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2408s",
-   "aussage": "Der Sprecher hält doppelte Datenhaltung in einem zweiten Lakehouse für unnötig, wenn ohnehin schon ein Direct-Lake-Modell mit großen Datenmengen im Einsatz ist."
+   "aussage": "Einer der Sprecher hält doppelte Datenhaltung in einem zweiten Lakehouse für unnötig, wenn ohnehin schon ein Direct-Lake-Modell mit großen Datenmengen im Einsatz ist."
   },
   {
    "typ": "Warnung",
@@ -216,7 +297,7 @@
    "sekunde": 3298,
    "zeit": "54:58",
    "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3298s",
-   "aussage": "Als Workaround definiert der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden."
+   "aussage": "Als Workaround definiert einer der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden."
   },
   {
    "typ": "Fakt",
@@ -282,6 +363,60 @@
    "aussage": "Weil eine zu restriktive Firewall-Security den SQL-Zugriff auf Lakehouse-Tabellen blockierte, baute der Kunde stattdessen ein semantisches Direct-Lake-Modell direkt im Web auf."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1570,
+   "zeit": "26:10",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1570s",
+   "aussage": "Die Verarbeitung pro Gigabyte ist in der Custom-Datenbank laut Brian Bønk etwas teurer als bei Lakehouse und Warehouse in Microsoft Fabric."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1658,
+   "zeit": "27:38",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1658s",
+   "aussage": "Für Echtzeitanalysen nicht mehr relevante ältere Daten können laut Brian Bønk nach OneLake ausgelagert und im Lakehouse als Basis für ein semantisches Modell genutzt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1769,
+   "zeit": "29:29",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1769s",
+   "aussage": "In einem Hybrid-Setup in Fabric lassen sich laut Brian Bønk nach OneLake ausgelagerte Daten per Verknüpfung weiterhin zusammen mit nahezu in Echtzeit verfügbaren Live-Daten abfragen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 2136,
+   "zeit": "35:36",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2136s",
+   "aussage": "Im Warehouse ist beim Dataflow-Ziel nur der Modus Append wählbar und nicht mehr umkehrbar, während im Lakehouse nur Replace zur Verfügung steht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 360,
+   "zeit": "06:00",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=360s",
+   "aussage": "Um aus einem Shortcut wirklich eine nutzbare Tabelle zu machen, muss man weiterhin ein Notebook oder einen Dataflow orchestrieren, da der Shortcut selbst nicht so echtzeitfähig ist, wie er sein könnte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 3883,
+   "zeit": "1:04:43",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3883s",
+   "aussage": "Bei Dataflow Gen1 lag die komplette Speicherschicht in der Hand des Dataflows selbst, während man bei Gen2 sein eigenes Ziel wie Warehouse oder Lakehouse selbst verwalten muss."
+  },
+  {
    "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk Nr.62",
    "dokument_id": "yt:Wwvhv8WA2Qc",
@@ -289,6 +424,33 @@
    "zeit": "16:35",
    "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=995s",
    "aussage": "Für das Zurückschreiben aus Power BI wird eine SQL-Datenbank in Fabric statt eines Lakehouse verwendet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 569,
+   "zeit": "09:29",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=569s",
+   "aussage": "Die neue Direct-Lake-Variante verbindet sich nicht mehr über den SQL-Endpoint des Lakehouses, sondern direkt mit den Delta-Tabellen im OneLake."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1124,
+   "zeit": "18:44",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1124s",
+   "aussage": "OneLake Security soll als zentrale Policy Engine Spalten-, Row-Level- und dynamische Tabellenebenen-Sicherheit über Lakehouse, Warehouse und Power BI hinweg abdecken."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1307,
+   "zeit": "21:47",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1307s",
+   "aussage": "User Data Functions ermöglichen es, Business Logic zu implementieren und zu kapseln und sie anschließend in einem Lakehouse, einer Data Pipeline und einem Warehouse wiederzuverwenden."
   },
   {
    "typ": "Meinung",
@@ -309,6 +471,15 @@
    "aussage": "Der erste Quickwin beim Umstieg auf Fabric ist laut Artur, Daten überhaupt persistent abzulegen, statt sie bei jeder Aktualisierung neu zu laden."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 1105,
+   "zeit": "18:25",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1105s",
+   "aussage": "Die Incremental-Refresh-Option für Materialized Lake Views war eines der meistgefragten Kundenfeedbacks und wurde entsprechend veröffentlicht."
+  },
+  {
    "typ": "Warnung",
    "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
    "dokument_id": "yt:mTVeZzshLzE",
@@ -316,6 +487,15 @@
    "zeit": "19:51",
    "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1191s",
    "aussage": "Werden zwei Dataflows über ein Lakehouse verkettet, stehen am Folgetag keine neuen Daten bereit, weil der SQL-Endpoint des Lakehouse nicht sofort aktualisiert wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1233,
+   "zeit": "20:33",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1233s",
+   "aussage": "Da ein Warehouse keine eigenen Shortcuts anlegen kann, mussten im Projekt Lake Houses repliziert werden, um darüber per Shortcut auf Bronze- und Gold-Layer zuzugreifen."
   },
   {
    "typ": "Fakt",
@@ -336,6 +516,15 @@
    "aussage": "Ein Lakehouse wird beim Deployment in einen neuen Workspace leer angelegt, ohne die enthaltenen Daten mitzukopieren."
   },
   {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1373,
+   "zeit": "22:53",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1373s",
+   "aussage": "Nach dem letzten Kenntnisstand des Gasts funktioniert OneLake-Security nur auf Ordner-, nicht auf Tabellenebene."
+  },
+  {
    "typ": "Meinung",
    "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
    "dokument_id": "yt:mTVeZzshLzE",
@@ -343,6 +532,33 @@
    "zeit": "25:06",
    "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1506s",
    "aussage": "Shortcuts gelten laut Martin als das Killer-Feature des Lakehouse."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2088,
+   "zeit": "34:48",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2088s",
+   "aussage": "Tabellen aus einem Lakehouse oder Warehouse lassen sich jetzt direkt in Excel einbinden, aehnlich wie vorher ueber Power BI."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2353,
+   "zeit": "39:13",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2353s",
+   "aussage": "Composite Models sollen kuenftig die Moeglichkeit bieten, Direct-Lake-Tabellen aus mehreren Lakehouses zu kombinieren, ohne mehr zwingend ueber den einen zentralen SQL-Endpunkt konsumieren zu muessen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2545,
+   "zeit": "42:25",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2545s",
+   "aussage": "Mit der Shortcut-Transformation wird eine per Shortcut verlinkte CSV-Datei automatisch in eine Delta-Tabelle umgewandelt, ohne dass dafuer ein Notebook laufen muss."
   }
  ],
  "dokumente": [
@@ -400,7 +616,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.258,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -425,7 +641,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.25,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -495,7 +711,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.2,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -635,7 +851,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.122,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -685,7 +901,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.111,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -725,7 +941,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.093,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -750,7 +966,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.077,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -835,7 +1051,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -895,7 +1111,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.053,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -955,7 +1171,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.047,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [
@@ -975,7 +1191,7 @@
    "id": "yt:rrCi0lnGrCg",
    "titel": "Mythos Data Vault und richtig große Modelle",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.045,
    "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
    "sprungmarken": [
@@ -1010,7 +1226,7 @@
    "id": "yt:BDnwlOqRElY",
    "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
    "datum": "2025-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
    "sprungmarken": [
@@ -1055,7 +1271,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.027,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [

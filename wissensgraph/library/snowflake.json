@@ -4,23 +4,23 @@
  "typ": "tool",
  "slug": "snowflake",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/snowflake.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/snowflake.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/snowflake.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/snowflake.json",
  "dokumente_gesamt": 21,
- "kernaussagen_gesamt": 5,
- "mit_kernaussagen": 5,
+ "kernaussagen_gesamt": 9,
+ "mit_kernaussagen": 9,
  "aliase": [],
- "einordnung": "Fabric bietet jetzt bidirektionale Shortcut-Integrationen mit Snowflake und Databricks. Gespiegelte Daten in Fabric zu nutzen ist günstiger, als DirectQuery direkt gegen große Lake-Systeme wie Snowflake oder Databricks zu fahren, weil dort pro Abfrage Rechenkosten anfallen. Das Zurückschreiben ist derzeit auf SQL-Datenbanken beschränkt, während Inforiver zusätzlich nach Snowflake oder SAP schreiben konnte.",
+ "einordnung": "Mit Snowflake Mirroring lassen sich Snowflake-Datenbanken als Kopie in Fabric einziehen, während eine Databricks-Verbindung per Link wie ein Shortcut funktioniert, ohne die Daten zu kopieren. Die OneLake Table API erlaubt den nativen Zugriff auf Delta- oder Iceberg-Tabellen und ermöglicht die bidirektionale Nutzung mit Snowflake. Fabric Mirroring unterstützt offiziell Snowflake und Databricks über deren eigene Delta-/Job-Mechanismen, lässt sich über Open Mirroring aber auch für eigene Datenquellen erweitern, wenn Inserts, Updates und Deletes entsprechend gekennzeichnet werden. (Stand 2025-07)",
  "nachbarn": [
   {
    "id": "tool:mirroring",
    "name": "Mirroring",
    "kantentyp": "teil-von",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 25,
    "beleg": "für Snowflake komplett bidirektionale Geschichte",
    "datei": "mirroring.md"
@@ -29,7 +29,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 45,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -38,7 +38,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "power-bi.md"
@@ -47,7 +47,7 @@
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "onelake.md"
@@ -56,7 +56,7 @@
    "id": "tool:directquery",
    "name": "DirectQuery",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "directquery.md"
@@ -65,7 +65,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "warehouse.md"
@@ -74,7 +74,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "performance.md"
@@ -83,7 +83,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "reporting.md"
@@ -92,16 +92,25 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "lakehouse.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "direct-lake.md"
@@ -110,7 +119,7 @@
    "id": "topic:governance",
    "name": "Governance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "governance.md"
@@ -119,7 +128,7 @@
    "id": "tool:delta-lake",
    "name": "Delta Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "delta-lake.md"
@@ -128,7 +137,7 @@
    "id": "tool:sap",
    "name": "SAP",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "sap.md"
@@ -137,19 +146,10 @@
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "excel.md"
-  },
-  {
-   "id": "tool:sharepoint",
-   "name": "SharePoint",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 8,
-   "beleg": "",
-   "datei": "sharepoint.md"
   }
  ],
  "kernaussagen": [
@@ -182,6 +182,24 @@
   },
   {
    "typ": "Meinung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 952,
+   "zeit": "15:52",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=952s",
+   "aussage": "Es wird als zukünftige Möglichkeit gesehen, dass MCP-Server von Snowflake, Databricks oder SAP miteinander reden und Daten direkt nach Fabric schieben könnten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 924,
+   "zeit": "15:24",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=924s",
+   "aussage": "Fabric Mirroring unterstützt offiziell Snowflake und Databricks über deren eigene Delta-/Job-Mechanismen, lässt sich über Open Mirroring aber auch für eigene Datenquellen erweitern, wenn Inserts, Updates und Deletes entsprechend gekennzeichnet werden."
+  },
+  {
+   "typ": "Meinung",
    "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
    "dokument_id": "yt:mTVeZzshLzE",
    "sekunde": 1050,
@@ -197,6 +215,24 @@
    "zeit": "24:59",
    "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1499s",
    "aussage": "Fabric bietet jetzt bidirektionale Shortcut-Integrationen mit Snowflake und Databricks."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 1564,
+   "zeit": "26:04",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1564s",
+   "aussage": "Die OneLake Table API erlaubt den nativen Zugriff auf Delta- oder Iceberg-Tabellen und ermöglicht die bidirektionale Nutzung mit Snowflake."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1710,
+   "zeit": "28:30",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1710s",
+   "aussage": "Mit Snowflake Mirroring lassen sich Snowflake-Datenbanken als Kopie in Fabric einziehen, während eine Databricks-Verbindung per Link wie ein Shortcut funktioniert, ohne die Daten zu kopieren."
   }
  ],
  "dokumente": [
@@ -269,7 +305,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.125,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -319,7 +355,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.073,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -364,7 +400,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.047,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -399,7 +435,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.038,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -474,7 +510,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.025,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [

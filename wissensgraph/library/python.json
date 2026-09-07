@@ -4,23 +4,32 @@
  "typ": "tool",
  "slug": "python",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/python.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/python.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/python.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/python.json",
  "dokumente_gesamt": 37,
- "kernaussagen_gesamt": 9,
- "mit_kernaussagen": 6,
+ "kernaussagen_gesamt": 14,
+ "mit_kernaussagen": 9,
  "aliase": [],
- "einordnung": "Der Power BI Fixer basiert auf einem Fork und übernimmt Komponenten wie Best Practice Analyser, Memory Analyser und Perspective Editor von Michael Kowalskis Semantic-Link-Labs-Arbeit. Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht. Power BI und einfach nutzbare Datenplattformen ermöglichten Tom Martens, nach rund zehn Jahren ohne Programmierung über Fabric und Python wieder ins Programmieren einzusteigen.",
+ "einordnung": "Ein selbstgeschriebenes Python-Skript exportiert SQL-Server-Tabellen als Delta-Parquet-Dateien direkt in den OneLake-Speicher, wo sie sofort als Tabelle über den SQL-Endpunkt verfügbar sind. (Stand 2025-07) Beim Push von Daten per Python-Skript in den OneLake werden im Gegensatz zum Zugriff über ein Data Gateway keine Fabric-CUs für das Abholen der Daten belastet. (Stand 2025-07) Die Authentifizierung des Python-Skripts gegenüber OneLake erfolgt über ein Service Principal mit Client ID und Client Secret in einer Konfigurationsdatei. (Stand 2025-07)",
  "nachbarn": [
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 25,
+   "beleg": "Fabric bietet die Möglichkeit z.B. Python Code auszuführen und darüber kann ich z.B. relativ einfach Internetseiten auslesen.",
+   "datei": "microsoft-fabric.md"
+  },
   {
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 30,
    "beleg": "",
    "datei": "ki.md"
@@ -29,34 +38,34 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "power-bi.md"
   },
   {
-   "id": "tool:microsoft-fabric",
-   "name": "Microsoft Fabric",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 25,
-   "beleg": "",
-   "datei": "microsoft-fabric.md"
-  },
-  {
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "notebook.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 16,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -65,7 +74,7 @@
    "id": "tool:dataflow",
    "name": "Dataflow",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "dataflow.md"
@@ -74,7 +83,7 @@
    "id": "tool:power-query",
    "name": "Power Query",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "power-query.md"
@@ -83,7 +92,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "reporting.md"
@@ -92,7 +101,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "warehouse.md"
@@ -101,7 +110,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "performance.md"
@@ -110,7 +119,7 @@
    "id": "tool:copilot",
    "name": "Copilot",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "copilot.md"
@@ -119,7 +128,7 @@
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "excel.md"
@@ -128,7 +137,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -137,19 +146,10 @@
    "id": "tool:spark",
    "name": "Spark",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "spark.md"
-  },
-  {
-   "id": "topic:datenmodellierung",
-   "name": "Datenmodellierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 6,
-   "beleg": "",
-   "datei": "datenmodellierung.md"
   }
  ],
  "kernaussagen": [
@@ -208,6 +208,15 @@
    "aussage": "Die im Lakehouse als Rohdaten liegenden Dateien lassen sich per COPY-INTO-Befehl in eine Warehouse-Tabelle laden oder mit einem Notebook, etwa in Python, weiterverarbeiten."
   },
   {
+   "typ": "Meinung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 3642,
+   "zeit": "1:00:42",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=3642s",
+   "aussage": "Das Herausziehen von Power-BI-Daten zur Kombination mit anderen Quellen für z. B. eine Python-Visualisierung funktioniert über den MCP Server aktuell noch holprig, gilt aber als zukunftsträchtiger Ansatz."
+  },
+  {
    "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
@@ -215,6 +224,42 @@
    "zeit": "29:33",
    "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1773s",
    "aussage": "Für sich wiederholende Aufgaben wie Suchen-und-Ersetzen über ein ganzes Projekt sollte die KI besser ein wiederverwendbares Skript, etwa in Python, generieren, statt jede Datei einzeln direkt durch die KI anpassen zu lassen, um Copilot-Credits zu sparen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1442,
+   "zeit": "24:02",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1442s",
+   "aussage": "Ein selbstgeschriebenes Python-Skript exportiert SQL-Server-Tabellen als Delta-Parquet-Dateien direkt in den OneLake-Speicher, wo sie sofort als Tabelle über den SQL-Endpunkt verfügbar sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1574,
+   "zeit": "26:14",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1574s",
+   "aussage": "Beim Push von Daten per Python-Skript in den OneLake werden im Gegensatz zum Zugriff über ein Data Gateway keine Fabric-CUs für das Abholen der Daten belastet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1702,
+   "zeit": "28:22",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1702s",
+   "aussage": "Die Authentifizierung des Python-Skripts gegenüber OneLake erfolgt über ein Service Principal mit Client ID und Client Secret in einer Konfigurationsdatei."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 2256,
+   "zeit": "37:36",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2256s",
+   "aussage": "Für das Auflösen der rekursiven Zeilen- und Kontenverweise in der Mapping-Tabelle wird ein Python-Notebook gegenüber Power Query bevorzugt, weil Power Query keine regulären Ausdrücke bietet."
   },
   {
    "typ": "Fakt",
@@ -360,7 +405,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.116,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -470,7 +515,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.097,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -545,7 +590,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.081,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -570,7 +615,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.077,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -675,7 +720,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.057,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -715,7 +760,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -735,7 +780,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -915,7 +960,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.025,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -930,7 +975,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [

@@ -3,11 +3,11 @@ id: "topic:performance"
 name: "Performance"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 38
-kernaussagen: 27
-mit_kernaussagen: 15
+kernaussagen: 42
+mit_kernaussagen: 23
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/performance.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/performance.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/performance.md"
@@ -22,7 +22,7 @@ aliase:
 
 # Performance
 
-Bei geringer Datenmenge und einfachen Measures zeigte sich in eigenen Tests kein signifikanter Performance-Unterschied zwischen Flat Table und Sternschema. Power BI im Web unterstützt jetzt die Themes-Auswahl und den Performance Analyzer und ist damit fast gleichwertig zu Power BI Desktop. Nach den Tests der Writeback-Funktion stieg die CU-Auslastung der F2-Kapazität in der Capacity-Metrics-App auf über 100 Prozent.
+Bei geringer Datenmenge und einfachen Measures zeigte sich in eigenen Tests kein signifikanter Performance-Unterschied zwischen Flat Table und Sternschema. (Stand 2026-01) Dataflows Gen2 wurden überarbeitet und bringen vor allem bei Dataflows, die länger als 10 Minuten laufen, eine deutliche Verbesserung bei Performance und CU-Verbrauch. Power BI im Web unterstützt jetzt die Themes-Auswahl und den Performance Analyzer und ist damit fast gleichwertig zu Power BI Desktop. (Stand 2026-01)
 
 ## Aliase
 
@@ -30,23 +30,23 @@ Performanz, Optimierung, Ladezeit, langsam, schnell
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Sternschema](sternschema.md) | setzt-voraus | belegt | 43 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 90 |
-| [Microsoft Fabric](microsoft-fabric.md) | ko-vorkommen | heuristik | 58 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 41 |
-| [DAX](dax.md) | ko-vorkommen | heuristik | 38 |
-| [Visualisierung](visualisierung.md) | ko-vorkommen | heuristik | 37 |
-| [Refresh](refresh.md) | ko-vorkommen | heuristik | 36 |
-| [KI](ki.md) | ko-vorkommen | heuristik | 36 |
-| [Power Query](power-query.md) | ko-vorkommen | heuristik | 36 |
-| [Direct Lake](direct-lake.md) | ko-vorkommen | heuristik | 31 |
-| [Datenmodellierung](datenmodellierung.md) | ko-vorkommen | heuristik | 31 |
-| [DirectQuery](directquery.md) | ko-vorkommen | heuristik | 31 |
-| [Sicherheit](sicherheit.md) | ko-vorkommen | heuristik | 26 |
-| [Dataflow](dataflow.md) | ko-vorkommen | heuristik | 26 |
-| [Power BI Desktop](power-bi-desktop.md) | ko-vorkommen | heuristik | 22 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Sternschema](sternschema.md) | Performance setzt-voraus Sternschema | automatisch extrahiert, Quellenstelle vorhanden | „schon ab einem gewissen Level muss man einfach das Sternschema machen“ (Power BI vs. Qlik, 2026-01) | 43 |
+| [Power BI](power-bi.md) | Performance und Power BI im selben Segment | Heuristik, gezählt |  | 90 |
+| [Microsoft Fabric](microsoft-fabric.md) | Performance und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 58 |
+| [Reporting](reporting.md) | Performance und Reporting im selben Segment | Heuristik, gezählt |  | 41 |
+| [DAX](dax.md) | Performance und DAX im selben Segment | Heuristik, gezählt |  | 38 |
+| [Visualisierung](visualisierung.md) | Performance und Visualisierung im selben Segment | Heuristik, gezählt |  | 37 |
+| [Refresh](refresh.md) | Performance und Refresh im selben Segment | Heuristik, gezählt |  | 36 |
+| [KI](ki.md) | Performance und KI im selben Segment | Heuristik, gezählt |  | 36 |
+| [Power Query](power-query.md) | Performance und Power Query im selben Segment | Heuristik, gezählt |  | 36 |
+| [Direct Lake](direct-lake.md) | Performance und Direct Lake im selben Segment | Heuristik, gezählt |  | 31 |
+| [Datenmodellierung](datenmodellierung.md) | Performance und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 31 |
+| [DirectQuery](directquery.md) | Performance und DirectQuery im selben Segment | Heuristik, gezählt |  | 31 |
+| [SQL](sql.md) | Performance und SQL im selben Segment | Heuristik, gezählt |  | 31 |
+| [Sicherheit](sicherheit.md) | Performance und Sicherheit im selben Segment | Heuristik, gezählt |  | 26 |
+| [Dataflow](dataflow.md) | Performance und Dataflow im selben Segment | Heuristik, gezählt |  | 26 |
 
 ## Kernaussagen
 
@@ -54,6 +54,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
 | --- | --- | --- | --- | --- | --- | --- |
+| Warnung | Fabric Workload Demo mit Alexander Korn und Lukasz Obst | 2026-08 | 07:17 | auf die Sekunde | Der Best Practice Analyzer und der Memory Analyzer aus dem Power BI Fixer sind ebenfalls im Developer Hub enthalten, wobei der Memory Analyzer noch nicht fertig ist. | [▶](https://www.youtube.com/watch?v=e50qKdVn-24&t=437s) |
+| Warnung | Daten-WG Life-Update \| Fabric Architekturen | 2026-08 | 24:00 | auf die Sekunde | Werden zentral verwaltete Daten ueber Composite Models durch laenderspezifische Excel-Mappings angereichert, kann daraus ein sehr performance-schwaches Konstrukt entstehen. | [▶](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1440s) |
 | Empfehlung | GxP Talk - KI im regulierten Umfeld? | 2026-05 | 27:32 | auf die Sekunde | Martin empfiehlt, bei zeitkritisch und in großer Menge anfallenden Daten zusätzlich lokalen Speicher vorzuhalten, um Risiken durch unterbrochene Datenübertragung zu reduzieren. | [▶](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1652s) |
 | Meinung | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 2026-04 | 32:21 | auf die Sekunde | Nicht die Länge, sondern die Varianz der Durchlaufzeit zwischen Prozessschritten verursacht die größten Probleme in der Supply Chain. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=1941s) |
 | Fakt | BI Thinkers Talk nr.75 | 2026-04 | 37:06 | auf die Sekunde | Der Power BI Fixer kann den Best Practice Analyser auf dem Semantic Model ausführen und gefundene Verstöße direkt automatisiert fixen lassen. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2226s) |
@@ -75,53 +77,66 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Fakt | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 2025-12 | 00:48 | auf die Sekunde | Die SQL-Schnittstellen in Fabric sind auf Massendaten ausgelegt und nicht dafür gedacht, einzelne Datensätze zu schreiben. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=48s) |
 | Warnung | BI Thinkers Talk nr.71 | 2025-12 | 10:20 | auf die Sekunde | Bei DirectQuery-Abfragen über mehrere Fakttabellen hinweg entstehen laut den Sprechern schnell zusätzliche Overhead-Queries für jeden Join, was die Performance deutlich verschlechtert. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=620s) |
 | Fakt | BI Thinkers Talk nr.71 | 2025-12 | 10:41 | auf die Sekunde | In einem Projekt mit 14 Werken und 27 Tabellen pro Werk im Viertelstundentakt kostete ein Aktualisierungsdurchlauf pro Werk rund 28 Cent, was hochgerechnet auf sechs Werke eine F64-Kapazität auslastete und jährlich über 5000 Euro allein für den Datentransport verursachte. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=641s) |
+| Empfehlung | Unboxing MCP Server for Power BI Modelling | 2025-12 | 21:30 | auf die Sekunde | Für eine Demo wird empfohlen, ein Modell anzubinden, das bereits Daten enthält, statt live mit einem leeren Modell zu starten. | [▶](https://www.youtube.com/watch?v=iinfiHxznOU&t=1290s) |
 | Empfehlung | BI Thinkers Talk - Data Modelling - Fabric Data Days Edition | 2025-11 | 11:08 | Abschnittsanfang | Beim Datenmodell gilt das Prinzip weniger ist mehr: Es sollen nur die für die Anforderung nötigen Daten geladen werden, um spätere Performance-Probleme und hohe Speicherkosten zu vermeiden. | [▶](https://www.youtube.com/watch?v=mUALlPmGcEk&t=668s) |
 | Fakt | BI Thinkers Talk - Data Modelling - Fabric Data Days Edition | 2025-11 | 19:54 | auf die Sekunde | Ob ein Sternschema oder eine One-Big-Table weniger Speicherplatz benötigt, hängt stark von der konkreten Modellierung der Daten ab und lässt sich nicht pauschal beantworten. | [▶](https://www.youtube.com/watch?v=mUALlPmGcEk&t=1194s) |
+| Fakt | Why Passion Beats Niche | 2025-09 | 20:26 | auf die Sekunde | Wird die KQL-Datenbank im Hintergrund nicht genutzt, pausiert sie laut Brian Bønk automatisch, sodass keine Kosten entstehen. | [▶](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1226s) |
+| Fakt | Why Passion Beats Niche | 2025-09 | 25:55 | auf die Sekunde | Die Custom-Engine benötigt laut Brian Bønk keine Datenmodellierung und kein Sternschema, während Power BI für die beste Performance ein Sternschema braucht. | [▶](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1555s) |
+| Empfehlung | Daten-WG Deep Dive Financial Reporting - part 6 | 2025-08 | 12:23 | auf die Sekunde | Bei sehr großen Faktentabellen sollte man versuchen, Joins zur Schlüsselbildung zu vermeiden, auch wenn die Performance im Power-Datenmodell dadurch minimal schlechter wird. | [▶](https://www.youtube.com/watch?v=bt81POE-9Ig&t=743s) |
+| Empfehlung | Daten-WG Deep Dive Financial Reporting - part 6 | 2025-08 | 15:45 | auf die Sekunde | Wird eine Faktentabelle so groß, dass die Performance leidet, können in Power BI zusätzliche Aggregationstabellen für häufig genutzte Dimensionen gebaut werden. | [▶](https://www.youtube.com/watch?v=bt81POE-9Ig&t=945s) |
+| Empfehlung | Daten-WG Deep Dive Financial Reporting - part 6 | 2025-08 | 23:41 | auf die Sekunde | Für einen einzelnen Bericht sollte der Kalender nicht unnötig lang gehalten werden, sondern kann sein Startdatum z.B. aus dem ersten Hauptbucheintrag der Quelldaten ableiten. | [▶](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1421s) |
+| Fakt | Daten-WG Deep Dive Financial Reporting - part 6 | 2025-08 | 1:04:40 | auf die Sekunde | Bei Direct Lake erfolgt die Aggregation, bevor Daten überhaupt in den Speicher geladen werden, was den Speicherbedarf gegenüber dem Import-Modus deutlich reduzieren kann. | [▶](https://www.youtube.com/watch?v=bt81POE-9Ig&t=3880s) |
+| Meinung | Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup | 2025-06 | 25:24 | auf die Sekunde | Die Kombination aus DirectQuery und KQL ueber Kusto im Hintergrund funktioniert gut und macht bei schneller Interaktion mit den Live-Daten Spass. | [▶](https://www.youtube.com/watch?v=BDnwlOqRElY&t=1524s) |
+| Meinung | Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup | 2025-06 | 28:03 | auf die Sekunde | Das gebaute Dashboard ist performant und laesst sich schnell aktualisieren, weshalb es sich auch fuer kuenftige Veranstaltungen als Case eignet. | [▶](https://www.youtube.com/watch?v=BDnwlOqRElY&t=1683s) |
+| Warnung | Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup | 2025-06 | 37:06 | auf die Sekunde | Bei einem Lasttest in einer kleineren F2-Fabric-Kapazitaet war nicht der Datenstrom selbst das Problem, sondern die durch Auto-Refresh ausgeloesten haeufigen Abfragen, die viele Ressourcen kosteten. | [▶](https://www.youtube.com/watch?v=BDnwlOqRElY&t=2226s) |
+| Warnung | Daten-WG Deep Dive Financial Reporting | 2025-05 | 31:34 | auf die Sekunde | Direct Query gegen ein Produktivsystem kann bei hoher Last reale Performanceprobleme im ERP-System verursachen, wie ein Vorfall in einer Power-BI-Schulung zeigte. | [▶](https://www.youtube.com/watch?v=TYmKrreMO3I&t=1894s) |
+| Fakt | Daten-WG Deep Dive Financial Reporting | 2025-05 | 31:56 | auf die Sekunde | Mit Fabric als Zwischenschicht wird jede Quelltabelle nur einmal pro Tabelle abgefragt statt einmal pro Bericht, der die Tabelle benötigt. | [▶](https://www.youtube.com/watch?v=TYmKrreMO3I&t=1916s) |
 | Meinung | BI Thinkers Talk Nr.62 | 2025-05 | 48:53 | auf die Sekunde | Mit Direct Lake wäre das Zurückschreiben asynchron und dadurch deutlich schneller als mit DirectQuery. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2933s) |
 | Meinung | BI Thinkers Talk Nr.62 | 2025-05 | 1:02:31 | auf die Sekunde | Bei Direct Lake fällt die Aktualisierung des semantischen Modells nach dem Schreiben kaum auf, weil kein spürbarer Refresh-Vorgang nötig ist. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3751s) |
 | Fakt | BI Thinkers Talk Nr.62 | 2025-05 | 1:10:37 | Abschnittsanfang | Nach den Tests der Writeback-Funktion stieg die CU-Auslastung der F2-Kapazität in der Capacity-Metrics-App auf über 100 Prozent. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=4237s) |
 | Meinung | Microsoft Fabric — braucht das wirklich jemand? |  | 11:19 | auf die Sekunde | Ein zentrales, datenhaltendes Objekt wie ein Lakehouse macht Power-BI-Modelle laut Artur deutlich stabiler und beschleunigt Aktualisierungen von zwei Stunden auf zwei Minuten. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=679s) |
+| Fakt | Fabric & Power BI Quarterly · 2025 Q4 |  | 28:33 | auf die Sekunde | Dataflows Gen2 wurden überarbeitet und bringen vor allem bei Dataflows, die länger als 10 Minuten laufen, eine deutliche Verbesserung bei Performance und CU-Verbrauch. | [▶](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1713s) |
 
 ## Dokumente
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [05:02](https://www.youtube.com/watch?v=27rC2zefFOU&t=302s) · [08:02](https://www.youtube.com/watch?v=27rC2zefFOU&t=482s) · [11:03](https://www.youtube.com/watch?v=27rC2zefFOU&t=663s) |
-| [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | nur-zeitstempel | [01:47](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=107s) · [04:01](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=241s) · [13:42](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=822s) |
-| [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1s) · [10:46](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=646s) · [18:58](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1138s) |
+| [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | kernaussagen+zeitstempel | [01:47](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=107s) · [04:01](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=241s) · [13:42](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=822s) |
+| [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [00:01](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1s) · [10:46](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=646s) · [18:58](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1138s) |
 | [Power BI Update Oktober 2025](https://www.youtube.com/watch?v=LVSttJlhrqM) | 2025-10-01 | nur-zeitstempel | [03:54](https://www.youtube.com/watch?v=LVSttJlhrqM&t=234s) · [04:21](https://www.youtube.com/watch?v=LVSttJlhrqM&t=261s) |
 | [LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management](https://www.youtube.com/watch?v=DFw664hd1IE) | 2026-04-01 | kernaussagen+zeitstempel | [06:24](https://www.youtube.com/watch?v=DFw664hd1IE&t=384s) · [20:57](https://www.youtube.com/watch?v=DFw664hd1IE&t=1257s) · [25:48](https://www.youtube.com/watch?v=DFw664hd1IE&t=1548s) |
 | [Data Binning and Lorenz Curve in DAX \| Alberto Ferrari & Michael Tenner, Berlin Power BI User Group](https://www.youtube.com/watch?v=183uLZ3GYDo) | 2023-01-01 | nur-zeitstempel | [08:29](https://www.youtube.com/watch?v=183uLZ3GYDo&t=509s) · [10:02](https://www.youtube.com/watch?v=183uLZ3GYDo&t=602s) · [25:32](https://www.youtube.com/watch?v=183uLZ3GYDo&t=1532s) |
-| [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | nur-zeitstempel | [13:37](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s) · [16:07](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=967s) · [24:33](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1473s) |
+| [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [13:37](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s) · [16:07](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=967s) · [24:33](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1473s) |
 | [Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?](https://www.youtube.com/watch?v=jETxUNQSl-w) | 2026-02-01 | kernaussagen+zeitstempel | [03:27](https://www.youtube.com/watch?v=jETxUNQSl-w&t=207s) · [21:16](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1276s) · [32:38](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1958s) |
 | [Daten-WG Special: Power BI vs. Qlik -part2](https://www.youtube.com/watch?v=_Vh5fDfHWz4) | 2025-10-01 | nur-zeitstempel | [03:46](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=226s) · [18:47](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=1127s) · [1:05:36](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=3936s) |
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=G8s96sHUHac&t=0s) · [1:08:31](https://www.youtube.com/watch?v=G8s96sHUHac&t=4111s) · [1:14:54](https://www.youtube.com/watch?v=G8s96sHUHac&t=4494s) |
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [15:33](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=933s) · [18:55](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1135s) · [31:45](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s) |
 | [Daten-WG Deep Dive Financial Reporting - part 5](https://www.youtube.com/watch?v=iymmxuXHh44) | 2025-07-01 | nur-zeitstempel | [01:44](https://www.youtube.com/watch?v=iymmxuXHh44&t=104s) · [04:51](https://www.youtube.com/watch?v=iymmxuXHh44&t=291s) · [09:40](https://www.youtube.com/watch?v=iymmxuXHh44&t=580s) |
-| [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | nur-zeitstempel | [27:23](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1643s) · [34:05](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2045s) · [54:44](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3284s) |
+| [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [27:23](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1643s) · [34:05](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2045s) · [54:44](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3284s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=6.%20SUMX%20%C3%BCber%20die%20ganze%20Tabelle) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Storage%20Engine%20vs.%20Formula%20Engine) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Optimierungs-Checkliste) |
 | [BI Thinkers Talk nr.76](https://www.youtube.com/watch?v=mlkP-6i5Kq8) | 2026-05-01 | kernaussagen+zeitstempel | [45:45](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=2745s) · [49:05](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=2945s) · [55:18](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s) |
-| [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | nur-zeitstempel | [00:03](https://www.youtube.com/watch?v=4VVNDNusq4U&t=3s) · [01:45](https://www.youtube.com/watch?v=4VVNDNusq4U&t=105s) · [56:27](https://www.youtube.com/watch?v=4VVNDNusq4U&t=3387s) |
+| [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | kernaussagen+zeitstempel | [00:03](https://www.youtube.com/watch?v=4VVNDNusq4U&t=3s) · [01:45](https://www.youtube.com/watch?v=4VVNDNusq4U&t=105s) · [56:27](https://www.youtube.com/watch?v=4VVNDNusq4U&t=3387s) |
 | [Projektcontrolling mit dynamischen Arbeitstagen in Power BI](https://www.youtube.com/watch?v=cD-5z_Bq0N4) | 2025-05-01 | nur-zeitstempel | [08:34](https://www.youtube.com/watch?v=cD-5z_Bq0N4&t=514s) · [15:18](https://www.youtube.com/watch?v=cD-5z_Bq0N4&t=918s) · [38:00](https://www.youtube.com/watch?v=cD-5z_Bq0N4&t=2280s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [03:46](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=226s) · [10:57](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=657s) · [13:30](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=810s) |
 | [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [02:09](https://www.youtube.com/watch?v=mTVeZzshLzE&t=129s) · [05:02](https://www.youtube.com/watch?v=mTVeZzshLzE&t=302s) · [40:00](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2400s) |
 | [Fabric Planning unboxing](https://www.youtube.com/watch?v=xCzKEIB4W5I) | 2026-03-01 | kernaussagen+zeitstempel | [04:42](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=282s) · [58:32](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3512s) · [1:09:28](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=4168s) |
-| [Unboxing MCP Server for Power BI Modelling](https://www.youtube.com/watch?v=iinfiHxznOU) | 2025-12-01 | nur-zeitstempel | [01:34](https://www.youtube.com/watch?v=iinfiHxznOU&t=94s) · [12:37](https://www.youtube.com/watch?v=iinfiHxznOU&t=757s) · [21:08](https://www.youtube.com/watch?v=iinfiHxznOU&t=1268s) |
+| [Unboxing MCP Server for Power BI Modelling](https://www.youtube.com/watch?v=iinfiHxznOU) | 2025-12-01 | kernaussagen+zeitstempel | [01:34](https://www.youtube.com/watch?v=iinfiHxznOU&t=94s) · [12:37](https://www.youtube.com/watch?v=iinfiHxznOU&t=757s) · [21:08](https://www.youtube.com/watch?v=iinfiHxznOU&t=1268s) |
 | [BI Thinkers Talk Nr.62](https://www.youtube.com/watch?v=Wwvhv8WA2Qc) | 2025-05-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=0s) · [01:35](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=95s) · [1:07:25](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=4045s) |
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [06:24](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=384s) · [16:25](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=985s) · [55:29](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=3329s) |
-| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | nur-zeitstempel | [04:43](https://www.youtube.com/watch?v=lZvpCBMKASM&t=283s) · [17:44](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1064s) · [36:51](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2211s) |
+| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [04:43](https://www.youtube.com/watch?v=lZvpCBMKASM&t=283s) · [17:44](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1064s) · [36:51](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2211s) |
 | [Power BI Update September 2025](https://www.youtube.com/watch?v=6gQiIbyhWEc) | 2025-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=6gQiIbyhWEc&t=0s) · [08:56](https://www.youtube.com/watch?v=6gQiIbyhWEc&t=536s) |
-| [Daten-WG Deep Dive Financial Reporting - part 6](https://www.youtube.com/watch?v=bt81POE-9Ig) | 2025-08-01 | nur-zeitstempel | [11:42](https://www.youtube.com/watch?v=bt81POE-9Ig&t=702s) · [14:57](https://www.youtube.com/watch?v=bt81POE-9Ig&t=897s) · [16:43](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1003s) |
+| [Daten-WG Deep Dive Financial Reporting - part 6](https://www.youtube.com/watch?v=bt81POE-9Ig) | 2025-08-01 | kernaussagen+zeitstempel | [11:42](https://www.youtube.com/watch?v=bt81POE-9Ig&t=702s) · [14:57](https://www.youtube.com/watch?v=bt81POE-9Ig&t=897s) · [16:43](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1003s) |
 | [Daten-WG Deep Dive Financial Reporting - part 7](https://www.youtube.com/watch?v=232JhS9vbQ0) | 2025-09-01 | nur-zeitstempel | [01:36](https://www.youtube.com/watch?v=232JhS9vbQ0&t=96s) · [05:24](https://www.youtube.com/watch?v=232JhS9vbQ0&t=324s) · [25:30](https://www.youtube.com/watch?v=232JhS9vbQ0&t=1530s) |
 | [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [10:48](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=648s) · [12:25](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=745s) · [15:57](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=957s) |
 | [BI Thinkers Talk - Data Modelling - Fabric Data Days Edition](https://www.youtube.com/watch?v=mUALlPmGcEk) | 2025-11-01 | kernaussagen+zeitstempel | [09:34](https://www.youtube.com/watch?v=mUALlPmGcEk&t=574s) · [17:32](https://www.youtube.com/watch?v=mUALlPmGcEk&t=1052s) · [35:39](https://www.youtube.com/watch?v=mUALlPmGcEk&t=2139s) |
 | [BI Thinkers Talk nr.71](https://www.youtube.com/watch?v=LUrL8A5lNgI) | 2025-12-01 | kernaussagen+zeitstempel | [05:01](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=301s) · [09:41](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=581s) · [51:29](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=3089s) |
-| [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | nur-zeitstempel | [02:30](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=150s) · [13:39](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=819s) · [39:28](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2368s) |
+| [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [02:30](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=150s) · [13:39](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=819s) · [39:28](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2368s) |
 | [Visual Analytics with Power BI](https://www.youtube.com/watch?v=UxE0DPnLgIg) | 2021-09-01 | nur-zeitstempel | [15:50](https://www.youtube.com/watch?v=UxE0DPnLgIg&t=950s) · [31:00](https://www.youtube.com/watch?v=UxE0DPnLgIg&t=1860s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=03%20%C2%B7%20Semantische%20Modelle%20%26%20%2ADirect%20Lake%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Zwei%20Varianten%20%E2%80%94%20wichtig%20seit%202025) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Der%20Vergleich) |
-| [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | nur-zeitstempel | [04:49](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=289s) · [08:08](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=488s) · [11:32](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=692s) |
+| [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | kernaussagen+zeitstempel | [04:49](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=289s) · [08:08](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=488s) · [11:32](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=692s) |
 | [BI Thinkers Talk nr.68](https://www.youtube.com/watch?v=VD1N68Fhoco) | 2025-10-01 | nur-zeitstempel | [43:39](https://www.youtube.com/watch?v=VD1N68Fhoco&t=2619s) · [53:20](https://www.youtube.com/watch?v=VD1N68Fhoco&t=3200s) · [1:01:04](https://www.youtube.com/watch?v=VD1N68Fhoco&t=3664s) |
-| [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | nur-zeitstempel | [30:17](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1817s) · [38:13](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2293s) · [47:59](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2879s) |
+| [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | kernaussagen+zeitstempel | [30:17](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1817s) · [38:13](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2293s) · [47:59](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2879s) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [01:34](https://www.youtube.com/watch?v=r416vanitYw&t=94s) · [05:28](https://www.youtube.com/watch?v=r416vanitYw&t=328s) · [58:52](https://www.youtube.com/watch?v=r416vanitYw&t=3532s) |
 | [Daten-WG Deep Dive: AI on top of BI](https://www.youtube.com/watch?v=HXAP16trRc8) | 2025-07-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) · [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) · [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) |
 

@@ -29,11 +29,11 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/daten-wg.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/datenmodellierung.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/datenmodellierung.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/daten-wg.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
@@ -53,15 +53,19 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/sql.html</loc>
+    <lastmod>2026-09-07</lastmod>
+  </url>
+  <url>
     <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/workspace.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/power-query.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/power-query.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/workspace.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
@@ -125,11 +129,11 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/sternschema.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/dataflow.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/dataflow.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/sternschema.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
@@ -165,11 +169,11 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/ibcs.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/snowflake.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/snowflake.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/ibcs.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
@@ -221,11 +225,11 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/pbip.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/migration.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/migration.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/pbip.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
@@ -249,11 +253,11 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/projektmanagement.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/import-mode.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/import-mode.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/projektmanagement.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
@@ -273,11 +277,15 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/gateway.html</loc>
+    <lastmod>2026-09-07</lastmod>
+  </url>
+  <url>
     <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/zebra-bi.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/gateway.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/tmdl.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
@@ -289,10 +297,6 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/tmdl.html</loc>
-    <lastmod>2026-09-07</lastmod>
-  </url>
-  <url>
     <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/eventhouse.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
@@ -301,11 +305,11 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/data-pipeline.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/datenkultur.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/datenkultur.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/data-pipeline.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
@@ -317,11 +321,11 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-pro.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/bookmarks.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/bookmarks.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-pro.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
@@ -341,15 +345,11 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot-studio.html</loc>
-    <lastmod>2026-09-07</lastmod>
-  </url>
-  <url>
     <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/incremental-refresh.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-maps.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot-studio.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
@@ -357,11 +357,15 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/tabular-editor.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-maps.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
     <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/composite-models.html</loc>
+    <lastmod>2026-09-07</lastmod>
+  </url>
+  <url>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/tabular-editor.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
@@ -373,15 +377,7 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/data-agent.html</loc>
-    <lastmod>2026-09-07</lastmod>
-  </url>
-  <url>
     <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/sql-endpoint.html</loc>
-    <lastmod>2026-09-07</lastmod>
-  </url>
-  <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/zertifizierung.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
@@ -389,11 +385,19 @@
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
-    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/update.html</loc>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/data-agent.html</loc>
+    <lastmod>2026-09-07</lastmod>
+  </url>
+  <url>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/zertifizierung.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>
     <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/data-vault.html</loc>
+    <lastmod>2026-09-07</lastmod>
+  </url>
+  <url>
+    <loc>https://datenwgknowledgekitchen.com/wissensgraph/thema/update.html</loc>
     <lastmod>2026-09-07</lastmod>
   </url>
   <url>

@@ -4,15 +4,15 @@
  "typ": "tool",
  "slug": "semantic-model",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/semantic-model.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/semantic-model.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/semantic-model.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/semantic-model.json",
  "dokumente_gesamt": 30,
- "kernaussagen_gesamt": 39,
- "mit_kernaussagen": 12,
+ "kernaussagen_gesamt": 55,
+ "mit_kernaussagen": 24,
  "aliase": [
   "Semantikmodell",
   "Semantic Models",
@@ -20,22 +20,40 @@
   "Datasets",
   "semantisches Modell"
  ],
- "einordnung": "Über die DAX Query View ließ sich die KI triviale Measures für das Semantic Model anlegen. Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird. Zurückgeschriebene Planungswerte müssen erst wieder in das Semantic Model integriert werden, um sie im Modell nahezu in Echtzeit nutzen zu können.",
+ "einordnung": "Über die DAX Query View ließ sich die KI triviale Measures für das Semantic Model anlegen. (Stand 2026-03) Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird. (Stand 2026-03) Zurückgeschriebene Planungswerte müssen erst wieder in das Semantic Model integriert werden, um sie im Modell nahezu in Echtzeit nutzen zu können. (Stand 2026-03)",
  "nachbarn": [
   {
    "id": "tool:data-agent",
    "name": "Data Agent",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "Data Agents klassische Fabric Data Agents ... basierend auf den bereits bestehenden Möglichkeiten wie semantischen Modellen z.B. an der Stelle als Kernfeature zu arbeiten",
    "datei": "data-agent.md"
   },
   {
+   "id": "tool:tmdl",
+   "name": "TMDL",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "um die äh Anprogrammierbarkeit von semantischen Modellen an der Stelle zu verbessern",
+   "datei": "tmdl.md"
+  },
+  {
+   "id": "tool:composite-models",
+   "name": "Composite Models",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "ich glaube, du kannst es über zwei Composite oder kannst ein Composite Modelle auf beide semantische Modelle setzen",
+   "datei": "composite-models.md"
+  },
+  {
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 9,
    "beleg": "muss ich ja schon die Zieltabellen einbinden und Bedarf auch ein bisschen mehr, also Datenmodellierung",
    "datei": "planung.md"
@@ -44,7 +62,7 @@
    "id": "topic:ibcs",
    "name": "IBCS",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "wir wollen eigentlich eine Berichtsänderung, aber dazu braucht Modeländerung",
    "datei": "ibcs.md"
@@ -53,16 +71,25 @@
    "id": "tool:copilot",
    "name": "Copilot",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 4,
    "beleg": "es gibt aber diese Einstellung für den Copilot nur an dem Dataset und von da aus wird's weiter vererbt",
    "datei": "copilot.md"
   },
   {
+   "id": "tool:eventhouse",
+   "name": "Eventhouse",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "die Abfrage wird dem Eventhaus zugerechnet und nicht dem Dataset",
+   "datei": "eventhouse.md"
+  },
+  {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 46,
    "beleg": "",
    "datei": "power-bi.md"
@@ -71,7 +98,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 34,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -80,7 +107,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 27,
    "beleg": "",
    "datei": "reporting.md"
@@ -89,7 +116,7 @@
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "direct-lake.md"
@@ -98,7 +125,7 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "workspace.md"
@@ -107,7 +134,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -116,7 +143,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -125,40 +152,40 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "performance.md"
-  },
-  {
-   "id": "topic:refresh",
-   "name": "Refresh",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 15,
-   "beleg": "",
-   "datei": "refresh.md"
-  },
-  {
-   "id": "topic:sicherheit",
-   "name": "Sicherheit",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 12,
-   "beleg": "",
-   "datei": "sicherheit.md"
-  },
-  {
-   "id": "topic:datenmodellierung",
-   "name": "Datenmodellierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 12,
-   "beleg": "",
-   "datei": "datenmodellierung.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 409,
+   "zeit": "06:49",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=409s",
+   "aussage": "Der Model Explorer aus dem Power BI Fixer ist auch im Developer Hub enthalten und zeigt die geladenen semantischen Modelle in einer Ordnerstruktur."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 1146,
+   "zeit": "19:06",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1146s",
+   "aussage": "Aus einem unspezifischen Prompt hat der Agent Hub eigenstaendig ein Notebook, ein Lakehouse, ein Semantic Model und einen Report erstellt, inklusive eines selbst geschriebenen Fabric Clients fuer die Fabric-APIs."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1545,
+   "zeit": "25:45",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1545s",
+   "aussage": "Ein Composite Model, das Kennzahlen aus einem zentralen Modell in ein zweites Direct-Lake-Modell uebernehmen soll, laesst sich nicht einfach als ein Direct-Lake-Modell mit zusaetzlichen Importtabellen bauen, sondern erfordert ein Composite Model ueber beide semantischen Modelle."
+  },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
@@ -431,6 +458,15 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2037,
+   "zeit": "33:57",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2037s",
+   "aussage": "In Power BI existieren semantisches Modell und Bericht als zwei getrennte Objekte, waehrend beides in Qlik in einer gemeinsamen App zusammengefasst ist."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
    "sekunde": 309,
@@ -476,6 +512,51 @@
   },
   {
    "typ": "Empfehlung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1658,
+   "zeit": "27:38",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1658s",
+   "aussage": "Für Echtzeitanalysen nicht mehr relevante ältere Daten können laut Brian Bønk nach OneLake ausgelagert und im Lakehouse als Basis für ein semantisches Modell genutzt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 879,
+   "zeit": "14:39",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=879s",
+   "aussage": "Im Notebook muss man angeben, mit welchem Ziel-Dataset im Workspace der übertragene Bericht verbunden werden soll."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 2490,
+   "zeit": "41:30",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2490s",
+   "aussage": "Das automatische Standarddatenmodell in Fabric wird demnächst abgeschafft, was im Video begrüßt wird, da es selten brauchbar gewesen sei."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 3805,
+   "zeit": "1:03:25",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=3805s",
+   "aussage": "Von impliziten Measures wird für den Dauereinsatz abgeraten, auch wenn sie für schnelle Tests praktisch sind."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1998,
+   "zeit": "33:18",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1998s",
+   "aussage": "MCP-Server machen es möglich, semantische Modelle per Code über LLMs zu nutzen, was in der Community bereits als Mainstream gilt."
+  },
+  {
+   "typ": "Empfehlung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
    "sekunde": 4008,
@@ -493,6 +574,24 @@
    "aussage": "Beim Auslösen der Datenfunktion liest das semantische Modell offenbar alle Tabellen neu, nicht nur die betroffene, unabhängig vom Speichermodus."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 569,
+   "zeit": "09:29",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=569s",
+   "aussage": "Die neue Direct-Lake-Variante verbindet sich nicht mehr über den SQL-Endpoint des Lakehouses, sondern direkt mit den Delta-Tabellen im OneLake."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 856,
+   "zeit": "14:16",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=856s",
+   "aussage": "Eine sinnvolle Strukturierung der Daten im Datenmodell wird als Grundvoraussetzung dafür beschrieben, die Daten sinnvoll auswerten zu können."
+  },
+  {
    "typ": "Empfehlung",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
@@ -502,6 +601,42 @@
    "aussage": "Wiederverwertbare Berechnungslogik sollte dauerhaft ins Semantic Model statt in Visual Calculations gepackt werden, da Visual Calculations eher ein Shortcut sind."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 231,
+   "zeit": "03:51",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=231s",
+   "aussage": "Live-Editing von Direct-Lake-Semantikmodellen ist sowohl im Power BI Service als auch in Power BI Desktop GA."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 286,
+   "zeit": "04:46",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=286s",
+   "aussage": "Das Editieren von Semantikmodellen im Web soll mit dem September-Release auch in Power BI Desktop funktionieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 815,
+   "zeit": "13:35",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=815s",
+   "aussage": "TMDL ist als Community-Projekt von Matthias Terbach entstanden und hat in Rekordzeit den Weg zu einem offiziell unterstuetzten Bestandteil des Produkts inklusive TMDL View geschafft."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1202,
+   "zeit": "20:02",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1202s",
+   "aussage": "Im Projekt waren die Semantic Models keine Direct-Lake-, sondern klassische Import-Modelle."
+  },
+  {
    "typ": "Meinung",
    "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
    "dokument_id": "yt:mTVeZzshLzE",
@@ -509,6 +644,15 @@
    "zeit": "27:11",
    "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1631s",
    "aussage": "Fabric schafft laut Artur unternehmensweite Transparenz, weil zentrale Experten dadurch mehrfach duplizierte semantische Modelle erkennen können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2510,
+   "zeit": "41:50",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2510s",
+   "aussage": "Durch das Desktop-Hardening von Microsoft koennen jetzt auch semantische Modelle in Power BI Desktop geoeffnet werden, die zuvor im Service oder mit Third-Party-Tools veraendert wurden und sich dadurch nicht mehr oeffnen liessen."
   }
  ],
  "dokumente": [
@@ -561,7 +705,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.208,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -706,7 +850,7 @@
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.081,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [
@@ -731,7 +875,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.073,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -866,7 +1010,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -986,7 +1130,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.047,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -1026,7 +1170,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.038,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -1041,7 +1185,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [

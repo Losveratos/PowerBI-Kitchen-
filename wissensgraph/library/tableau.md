@@ -3,7 +3,7 @@ id: "tool:tableau"
 name: "Tableau"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 16
 kernaussagen: 1
@@ -17,7 +17,7 @@ aliase: []
 
 # Tableau
 
-Eine breite, gejointe Tabelle funktioniert werkzeugübergreifend mit Power BI, Tableau und anderen Reporting-Tools, was zu ihrer Verbreitung beiträgt.
+Eine breite, gejointe Tabelle funktioniert werkzeugübergreifend mit Power BI, Tableau und anderen Reporting-Tools, was zu ihrer Verbreitung beiträgt. (Stand 2026-01)
 
 ## Aliase
 
@@ -25,16 +25,17 @@ Keine weiteren Schreibweisen hinterlegt.
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Power BI](power-bi.md) | gegensatz | belegt | 16 |
-| [KI](ki.md) | ko-vorkommen | heuristik | 5 |
-| [Excel](excel.md) | ko-vorkommen | heuristik | 5 |
-| [Visualisierung](visualisierung.md) | ko-vorkommen | heuristik | 5 |
-| [Schulung](schulung.md) | ko-vorkommen | heuristik | 4 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 3 |
-| [SAP](sap.md) | ko-vorkommen | heuristik | 3 |
-| [Datenmodellierung](datenmodellierung.md) | ko-vorkommen | heuristik | 3 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Power BI](power-bi.md) | Tableau gegensatz Power BI | automatisch extrahiert, Quellenstelle vorhanden | „das war für mich viel einfacher, das war irgendwie Microsoft Kosmos, das war leichter zu lernen und so bin ich zu Power BI gekommen“ (10 Jahre Power BI, 2025-07) | 16 |
+| [KI](ki.md) | Tableau und KI im selben Segment | Heuristik, gezählt |  | 5 |
+| [Excel](excel.md) | Tableau und Excel im selben Segment | Heuristik, gezählt |  | 5 |
+| [Visualisierung](visualisierung.md) | Tableau und Visualisierung im selben Segment | Heuristik, gezählt |  | 5 |
+| [Schulung](schulung.md) | Tableau und Schulung im selben Segment | Heuristik, gezählt |  | 4 |
+| [Reporting](reporting.md) | Tableau und Reporting im selben Segment | Heuristik, gezählt |  | 3 |
+| [SAP](sap.md) | Tableau und SAP im selben Segment | Heuristik, gezählt |  | 3 |
+| [Datenmodellierung](datenmodellierung.md) | Tableau und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 3 |
+| [SQL](sql.md) | Tableau und SQL im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -60,7 +61,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?](https://www.youtube.com/watch?v=jETxUNQSl-w) | 2026-02-01 | kernaussagen+zeitstempel | [19:44](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1184s) |
 | [Power BI Deep Dive: DAX UDF + TMDL](https://www.youtube.com/watch?v=0FPA1k5YiTs) | 2025-10-01 | nur-zeitstempel | [04:48](https://www.youtube.com/watch?v=0FPA1k5YiTs&t=288s) |
 | [Daten-WG Life-Update \| State of Power BI, Fabric & AI-Tools](https://www.youtube.com/watch?v=d3HdhRe_nK8) | 2026-06-01 | nur-zeitstempel | [04:47](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=287s) |
-| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | nur-zeitstempel | [52:08](https://www.youtube.com/watch?v=lZvpCBMKASM&t=3128s) |
+| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [52:08](https://www.youtube.com/watch?v=lZvpCBMKASM&t=3128s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [06:02](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=362s) |
 | [BI Thinkers Talk nr.68](https://www.youtube.com/watch?v=VD1N68Fhoco) | 2025-10-01 | nur-zeitstempel | [04:49](https://www.youtube.com/watch?v=VD1N68Fhoco&t=289s) |
 | [Daten-WG Special: Power BI vs. Qlik -part2](https://www.youtube.com/watch?v=_Vh5fDfHWz4) | 2025-10-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=0s) |

@@ -4,25 +4,34 @@
  "typ": "tool",
  "slug": "azure-data-factory",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-data-factory.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-data-factory.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/azure-data-factory.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/azure-data-factory.json",
  "dokumente_gesamt": 2,
- "kernaussagen_gesamt": 0,
- "mit_kernaussagen": 0,
+ "kernaussagen_gesamt": 2,
+ "mit_kernaussagen": 1,
  "aliase": [
   "ADF"
  ],
- "einordnung": "Azure Data Factory kommt in 2 Dokumenten der Daten-WG vor; am ausführlichsten in „Microsoft Fabric — Einsteiger-Guide“ (2026-08-31).",
+ "einordnung": "Weder Synapse mit Data Factory noch Fabric ersetzen automatisch Sonderzeichen in Spaltennamen, um Parquet-kompatible Namen zu erzeugen. (Stand 2025-05) Bei Azure Data Factory heißt das Gateway-Äquivalent Integration Runtime, eine andere Software als der Gateway für Power BI und Fabric. (Stand 2025-05)",
  "nachbarn": [
+  {
+   "id": "tool:gateway",
+   "name": "Gateway",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "Ich glaube bei der bei der Data Factory heiß das Ding Integration Runtime.",
+   "datei": "gateway.md"
+  },
   {
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -31,7 +40,7 @@
    "id": "tool:azure",
    "name": "Azure",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "azure.md"
@@ -40,7 +49,7 @@
    "id": "tool:data-pipeline",
    "name": "Data Pipeline",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "data-pipeline.md"
@@ -49,7 +58,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "power-bi.md"
@@ -58,7 +67,7 @@
    "id": "tool:synapse",
    "name": "Synapse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "synapse.md"
@@ -67,7 +76,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "warehouse.md"
@@ -76,7 +85,7 @@
    "id": "tool:dataflow",
    "name": "Dataflow",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "dataflow.md"
@@ -85,7 +94,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -94,7 +103,7 @@
    "id": "tool:fabric-capacity",
    "name": "Fabric Capacity",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "fabric-capacity.md"
@@ -103,7 +112,7 @@
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "onelake.md"
@@ -112,16 +121,25 @@
    "id": "tool:spark",
    "name": "Spark",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "spark.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "notebook.md"
@@ -130,31 +148,32 @@
    "id": "tool:premium",
    "name": "Premium",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "premium.md"
-  },
-  {
-   "id": "tool:delta-lake",
-   "name": "Delta Lake",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "delta-lake.md"
-  },
-  {
-   "id": "tool:workspace",
-   "name": "Workspace",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "workspace.md"
   }
  ],
- "kernaussagen": [],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 1767,
+   "zeit": "29:27",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=1767s",
+   "aussage": "Weder Synapse mit Data Factory noch Fabric ersetzen automatisch Sonderzeichen in Spaltennamen, um Parquet-kompatible Namen zu erzeugen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 2706,
+   "zeit": "45:06",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2706s",
+   "aussage": "Bei Azure Data Factory heißt das Gateway-Äquivalent Integration Runtime, eine andere Software als der Gateway für Power BI und Fabric."
+  }
+ ],
  "dokumente": [
   {
    "id": "page:fabric_einsteiger_guide_v1",

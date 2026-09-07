@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "planung",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/planung.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/planung.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/planung.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/planung.json",
  "dokumente_gesamt": 36,
- "kernaussagen_gesamt": 23,
- "mit_kernaussagen": 6,
+ "kernaussagen_gesamt": 24,
+ "mit_kernaussagen": 7,
  "aliase": [
   "Planning",
   "Forecast",
@@ -20,13 +20,13 @@
   "Plan",
   "Planwerte"
  ],
- "einordnung": "Das neue Planning-Feature, ehemals Lumel bzw. Inforiver, ist jetzt direkt in Microsoft Fabric integriert und benötigt keine zusätzliche Lizenz, sondern nur Fabric-Kapazität. Beim Anlegen eines Planning-Objekts wird automatisch eine Fabric SQL-Datenbank erstellt. Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird.",
+ "einordnung": "Das neue Planning-Feature, ehemals Lumel bzw. Inforiver, ist jetzt direkt in Microsoft Fabric integriert und benötigt keine zusätzliche Lizenz, sondern nur Fabric-Kapazität. (Stand 2026-03) Beim Anlegen eines Planning-Objekts wird automatisch eine Fabric SQL-Datenbank erstellt. (Stand 2026-03) Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird. (Stand 2026-03)",
  "nachbarn": [
   {
    "id": "tool:translytical-task-flows",
    "name": "Translytical Task Flows",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "Da sind einfach zwei verschiedene Sachen, was es eben nicht gab in Power BI ... in Transluttical ist halt eine Inputtabelle und die gibt es jetzt mit dem Planning.",
    "datei": "translytical-task-flows.md"
@@ -35,7 +35,7 @@
    "id": "tool:paginated-reports",
    "name": "Paginated Reports",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "ist auch ein bisschen Konkurrenz zu Paginonated Reports an einigen Stellen",
    "datei": "paginated-reports.md"
@@ -44,7 +44,7 @@
    "id": "tool:fabric-capacity",
    "name": "Fabric Capacity",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 8,
    "beleg": "es aber braucht einfach Kapazität, aber es gibt für mich, es gibt keine extra Lizenzen",
    "datei": "fabric-capacity.md"
@@ -53,7 +53,7 @@
    "id": "tool:semantic-model",
    "name": "Semantic Model",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 9,
    "beleg": "muss ich ja schon die Zieltabellen einbinden und Bedarf auch ein bisschen mehr, also Datenmodellierung",
    "datei": "semantic-model.md"
@@ -62,7 +62,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 31,
    "beleg": "",
    "datei": "power-bi.md"
@@ -71,7 +71,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -80,7 +80,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "reporting.md"
@@ -89,7 +89,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 25,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -98,7 +98,7 @@
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "excel.md"
@@ -107,16 +107,25 @@
    "id": "topic:ibcs",
    "name": "IBCS",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "ibcs.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "topic:daten-wg",
    "name": "Daten-WG",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "daten-wg.md"
@@ -125,7 +134,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "performance.md"
@@ -134,7 +143,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "ki.md"
@@ -143,19 +152,10 @@
    "id": "topic:sternschema",
    "name": "Sternschema",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "sternschema.md"
-  },
-  {
-   "id": "topic:sicherheit",
-   "name": "Sicherheit",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 9,
-   "beleg": "",
-   "datei": "sicherheit.md"
   }
  ],
  "kernaussagen": [
@@ -356,6 +356,15 @@
    "zeit": "23:40",
    "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1420s",
    "aussage": "Bei einem Ist-Budget-Vergleich mit unterschiedlicher Granularität von Kunde und Produkt sowie täglicher und monatlicher Frequenz wird eine flache Tabelle mit Field Parameters schnell unübersichtlich, während ein Sternschema die Zusammenführung vereinfacht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1853,
+   "zeit": "30:53",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1853s",
+   "aussage": "Der Termin der nächsten Daten-WG wurde bewusst in den Oktober gelegt, um Konflikte mit Jahreswechsel- und Jahresend-Stress zu vermeiden."
   },
   {
    "typ": "Fakt",
@@ -682,7 +691,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.097,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -707,7 +716,7 @@
    "id": "yt:aEXtFWW-pmo",
    "titel": "Wie war die Daten-WG 2025? (Teil 1)",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.087,
    "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo",
    "sprungmarken": [
@@ -787,7 +796,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.067,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": [
@@ -822,7 +831,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.057,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [
@@ -842,7 +851,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -882,7 +891,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.053,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -922,7 +931,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.048,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [
@@ -1049,21 +1058,21 @@
    ]
   },
   {
-   "id": "yt:MmPs7IH0nBE",
-   "titel": "Fabric Planning Hands-On (3)",
-   "datum": "2026-05-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=MmPs7IH0nBE",
-   "sprungmarken": []
-  },
-  {
    "id": "yt:mIQU6gtnwoA",
    "titel": "Fabric Planning Hands-On (2)",
    "datum": "2026-05-01",
    "abdeckung": "nur-metadaten",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=mIQU6gtnwoA",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:MmPs7IH0nBE",
+   "titel": "Fabric Planning Hands-On (3)",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=MmPs7IH0nBE",
    "sprungmarken": []
   },
   {

@@ -4,26 +4,26 @@
  "typ": "tool",
  "slug": "incremental-refresh",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/incremental-refresh.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/incremental-refresh.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/incremental-refresh.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/incremental-refresh.json",
  "dokumente_gesamt": 6,
- "kernaussagen_gesamt": 0,
- "mit_kernaussagen": 0,
+ "kernaussagen_gesamt": 4,
+ "mit_kernaussagen": 4,
  "aliase": [
   "inkrementelle Aktualisierung",
   "Incremental"
  ],
- "einordnung": "Incremental Refresh kommt in 6 Dokumenten der Daten-WG vor; am ausführlichsten in „Daten-WG Thinkers Talk nr.65“ (2025-07-01).",
+ "einordnung": "Bisher konnte ein Modell mit aktiviertem Incremental Refresh in Power BI Desktop nicht heruntergeladen werden, das ist inzwischen behoben. Die Incremental-Refresh-Option für Materialized Lake Views war eines der meistgefragten Kundenfeedbacks und wurde entsprechend veröffentlicht. Für das inkrementelle Laden der Buchungsdaten wird ein Dataflow gegenüber der Pipeline bevorzugt, weil inkrementelles Laden dort garantiert funktioniert. (Stand 2025-05)",
  "nachbarn": [
   {
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "refresh.md"
@@ -32,7 +32,7 @@
    "id": "tool:power-query",
    "name": "Power Query",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "power-query.md"
@@ -41,7 +41,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "performance.md"
@@ -50,7 +50,7 @@
    "id": "tool:dataflow",
    "name": "Dataflow",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "dataflow.md"
@@ -59,7 +59,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "power-bi.md"
@@ -68,7 +68,7 @@
    "id": "topic:sternschema",
    "name": "Sternschema",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "sternschema.md"
@@ -77,7 +77,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -86,19 +86,56 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   }
  ],
- "kernaussagen": [],
+ "kernaussagen": [
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 3571,
+   "zeit": "59:31",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3571s",
+   "aussage": "Bei Dataflow Gen2 ist die Change-Detection-Einstellung für Incremental Refresh anders als bei Gen1 nicht optional, sondern muss zwingend angegeben werden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 3446,
+   "zeit": "57:26",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=3446s",
+   "aussage": "Für das inkrementelle Laden der Buchungsdaten wird ein Dataflow gegenüber der Pipeline bevorzugt, weil inkrementelles Laden dort garantiert funktioniert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 1105,
+   "zeit": "18:25",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1105s",
+   "aussage": "Die Incremental-Refresh-Option für Materialized Lake Views war eines der meistgefragten Kundenfeedbacks und wurde entsprechend veröffentlicht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2426,
+   "zeit": "40:26",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2426s",
+   "aussage": "Bisher konnte ein Modell mit aktiviertem Incremental Refresh in Power BI Desktop nicht heruntergeladen werden, das ist inzwischen behoben."
+  }
+ ],
  "dokumente": [
   {
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.093,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -123,7 +160,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.054,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -168,7 +205,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.028,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -183,7 +220,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [

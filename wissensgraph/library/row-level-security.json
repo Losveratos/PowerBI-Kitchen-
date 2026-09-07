@@ -4,28 +4,46 @@
  "typ": "thema",
  "slug": "row-level-security",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/row-level-security.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/row-level-security.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/row-level-security.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/row-level-security.json",
  "dokumente_gesamt": 12,
- "kernaussagen_gesamt": 6,
- "mit_kernaussagen": 5,
+ "kernaussagen_gesamt": 13,
+ "mit_kernaussagen": 8,
  "aliase": [
   "RLS",
   "Zeilenebene",
   "Row Level Security",
   "Berechtigungen"
  ],
- "einordnung": "Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen. Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte. Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird.",
+ "einordnung": "OneLake Security soll als zentrale Policy Engine Spalten-, Row-Level- und dynamische Tabellenebenen-Sicherheit über Lakehouse, Warehouse und Power BI hinweg abdecken. (Stand 2025-04) Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen. (Stand 2026-03) Die Manipulation über die Berichtsdatei betrifft nur das Frontend und kann nur sichtbar machen, was im Modell bereits vorhanden, aber schlecht verborgen ist. (Stand 2025-08)",
  "nachbarn": [
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 13,
+   "beleg": "dann sag mal tschüss zu Direct Lake. Das ist gerade aus dem Fenster",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "tool:field-parameters",
+   "name": "Field Parameters",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "nutzt dann hier die Field Parameter, um das ganze Thema zu umgehen",
+   "datei": "field-parameters.md"
+  },
   {
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "sicherheit.md"
@@ -34,7 +52,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 27,
    "beleg": "",
    "datei": "reporting.md"
@@ -43,7 +61,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 25,
    "beleg": "",
    "datei": "power-bi.md"
@@ -52,7 +70,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -61,7 +79,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "performance.md"
@@ -70,25 +88,16 @@
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "onelake.md"
   },
   {
-   "id": "tool:direct-lake",
-   "name": "Direct Lake",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 13,
-   "beleg": "",
-   "datei": "direct-lake.md"
-  },
-  {
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "workspace.md"
@@ -97,7 +106,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -106,7 +115,7 @@
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "refresh.md"
@@ -115,7 +124,7 @@
    "id": "tool:directquery",
    "name": "DirectQuery",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "directquery.md"
@@ -124,7 +133,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "warehouse.md"
@@ -133,7 +142,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -142,19 +151,10 @@
    "id": "tool:data-pipeline",
    "name": "Data Pipeline",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "data-pipeline.md"
-  },
-  {
-   "id": "topic:governance",
-   "name": "Governance",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 9,
-   "beleg": "",
-   "datei": "governance.md"
   }
  ],
  "kernaussagen": [
@@ -202,6 +202,69 @@
    "zeit": "21:50",
    "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1310s",
    "aussage": "Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1147,
+   "zeit": "19:07",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1147s",
+   "aussage": "Werden Platzhalternamen im Referenzmodell nicht sorgfältig gewählt, besteht das Risiko einer Art Power-BI-Code-Injection über eingeschleuste JSON- oder RLS-Inhalte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1168,
+   "zeit": "19:28",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1168s",
+   "aussage": "Die Manipulation über die Berichtsdatei betrifft nur das Frontend und kann nur sichtbar machen, was im Modell bereits vorhanden, aber schlecht verborgen ist."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 662,
+   "zeit": "11:02",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=662s",
+   "aussage": "Der aktuelle Preview-Stand der Composite Models über mehrere Lakehäuser verhält sich eher wie ein Import Mode ohne lange Ladezeiten, weil eigene Measures, Beziehungen und Row-Level Security noch fehlen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 725,
+   "zeit": "12:05",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=725s",
+   "aussage": "Echte Composite Models werden erst mit der angekündigten OneLake Security möglich, weil dann Berechtigungen aus verschiedenen Quellen mitgezogen werden können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1124,
+   "zeit": "18:44",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1124s",
+   "aussage": "OneLake Security soll als zentrale Policy Engine Spalten-, Row-Level- und dynamische Tabellenebenen-Sicherheit über Lakehouse, Warehouse und Power BI hinweg abdecken."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1362,
+   "zeit": "22:42",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1362s",
+   "aussage": "Für Row-Level-Security-Anforderungen im Import Mode wurden Warehouse-Views statt vollem Lake-House-Zugriff verwendet, was sich als performanter erwies als eine Notebook-Kopie."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1497,
+   "zeit": "24:57",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1497s",
+   "aussage": "Wenn Views im Warehouse oder Predicate Functions für Security genutzt werden, ist Direct Lake danach nicht mehr nutzbar."
   },
   {
    "typ": "Warnung",
@@ -298,7 +361,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.114,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -368,7 +431,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.053,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -388,7 +451,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.042,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -418,7 +481,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [

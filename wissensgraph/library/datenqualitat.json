@@ -4,28 +4,28 @@
  "typ": "thema",
  "slug": "datenqualitat",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenqualitat.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenqualitat.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/datenqualitat.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/datenqualitat.json",
  "dokumente_gesamt": 14,
- "kernaussagen_gesamt": 22,
- "mit_kernaussagen": 7,
+ "kernaussagen_gesamt": 36,
+ "mit_kernaussagen": 15,
  "aliase": [
   "Data Quality",
   "Qualität",
   "Testing",
   "Tests"
  ],
- "einordnung": "Measure Killer nutzt Metadaten, um zu prüfen, ob Spalten, Tabellen und Measures tatsächlich in den Reportdateien verwendet werden. Fehlende Beschreibungen von Measures in Power BI führen dazu, dass verschiedene Personen dieselbe Kennzahl unterschiedlich benennen und berechnen. Durch die Konsolidierung der Daten in einem Reporting-System werden Mängel in der Datenqualität der Quellsysteme schnell sichtbar.",
+ "einordnung": "Measure Killer nutzt Metadaten, um zu prüfen, ob Spalten, Tabellen und Measures tatsächlich in den Reportdateien verwendet werden. Fehlende Beschreibungen von Measures in Power BI führen dazu, dass verschiedene Personen dieselbe Kennzahl unterschiedlich benennen und berechnen. Durch die Konsolidierung der Daten in einem Reporting-System werden Mängel in der Datenqualität der Quellsysteme schnell sichtbar. (Stand 2026-04)",
  "nachbarn": [
   {
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "ki.md"
@@ -34,7 +34,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "performance.md"
@@ -43,7 +43,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "power-bi.md"
@@ -52,7 +52,7 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "sicherheit.md"
@@ -61,7 +61,7 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "workspace.md"
@@ -70,7 +70,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -79,7 +79,7 @@
    "id": "topic:metadaten",
    "name": "Metadaten",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "metadaten.md"
@@ -88,7 +88,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "reporting.md"
@@ -97,7 +97,7 @@
    "id": "topic:sternschema",
    "name": "Sternschema",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "sternschema.md"
@@ -106,7 +106,7 @@
    "id": "topic:row-level-security",
    "name": "Row-Level Security",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "row-level-security.md"
@@ -115,7 +115,7 @@
    "id": "tool:copilot",
    "name": "Copilot",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "copilot.md"
@@ -124,16 +124,25 @@
    "id": "tool:premium",
    "name": "Premium",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "premium.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "topic:governance",
    "name": "Governance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "governance.md"
@@ -142,22 +151,31 @@
    "id": "topic:mittelstand",
    "name": "Mittelstand",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "mittelstand.md"
-  },
-  {
-   "id": "topic:projektmanagement",
-   "name": "Projektmanagement",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "projektmanagement.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 446,
+   "zeit": "07:26",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=446s",
+   "aussage": "Beim Import von Navision-Daten muss die Zeitstempel-Datentyp-Korrektur bereits im Bronze-Layer erfolgen, weil reine Zeitwerte sonst zu Fehlern fuehren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1079,
+   "zeit": "17:59",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1079s",
+   "aussage": "Weil sich das Tool auf wenige KPIs statt auf ein vollständiges BI-System konzentriert, bleiben die extrahierten Daten schlank, statt große Excel-Dateien mit Makros oder komplexe ETL-Prozesse zu benötigen."
+  },
   {
    "typ": "Fakt",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
@@ -321,6 +339,105 @@
    "aussage": "In der Drillthrough-Detailtabelle sollte ein Filter auf Umsatz ist nicht leer gesetzt werden, um Zeilen ohne Wert nach dem Drill auszublenden."
   },
   {
+   "typ": "Warnung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 931,
+   "zeit": "15:31",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=931s",
+   "aussage": "Der MCP Modeling Server kann Daten momentan nicht automatisch aus einem CSV-Repository per Link anbinden, das Laden muss manuell über den Power-Query-Webconnector erfolgen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 1537,
+   "zeit": "25:37",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=1537s",
+   "aussage": "Beim automatischen Übersetzen von Spaltennamen ins Deutsche kommen nicht immer die richtigen Begriffe heraus, weil der Assistent kein Glossar im Hintergrund hat."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 3937,
+   "zeit": "1:05:37",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=3937s",
+   "aussage": "Im Laufe der Demo wurde die Power-BI-Datei durch die Interaktion mit dem MCP Server korrupt, sodass sie sich nicht mehr öffnen ließ."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 588,
+   "zeit": "09:48",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=588s",
+   "aussage": "Die häufigste Fehlerquelle in Datenmodellen liegt beim Verjoinen mehrerer Tabellen in Power Query, etwa durch verdoppelte oder inkonsistente Datensätze."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1782,
+   "zeit": "29:42",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1782s",
+   "aussage": "Datumsangaben im ISO-Format mit Bindestrichen sind bei der Interpretation in Power Query in der Regel unkritisch."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1799,
+   "zeit": "29:59",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1799s",
+   "aussage": "Bei mehrdeutigen Datumsformaten wird empfohlen, im Power-Query-Transformationsschritt explizit die Culture (z.B. en-US) anzugeben, damit das Ergebnis nicht von der Spracheinstellung abhängt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1889,
+   "zeit": "31:29",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1889s",
+   "aussage": "Die Culture-Einstellung in Power Query gilt für den gesamten Transformationsschritt und nicht pro Spalte, weshalb gemischte Formate zwei getrennte Schritte erfordern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Mythos Data Vault und richtig große Modelle",
+   "dokument_id": "yt:rrCi0lnGrCg",
+   "sekunde": 1031,
+   "zeit": "17:11",
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1031s",
+   "aussage": "Aktuell werden Quellsysteme häufig tabellenweise per CDC oder als Delta Lake direkt in den Data Lake geschrieben, was ohne Ordnungsstruktur schnell zu einem sogenannten Data Swamp wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Mythos Data Vault und richtig große Modelle",
+   "dokument_id": "yt:rrCi0lnGrCg",
+   "sekunde": 1266,
+   "zeit": "21:06",
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1266s",
+   "aussage": "Die Data-Vault-Modellierung ist laut Volker Nürnberg vollständig auditierbar und lässt sich verlustfrei bis zur Quelle zurückverfolgen und refaktorieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Mythos Data Vault und richtig große Modelle",
+   "dokument_id": "yt:rrCi0lnGrCg",
+   "sekunde": 1443,
+   "zeit": "24:03",
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1443s",
+   "aussage": "Ein solches automatisiertes Data-Vault-Tool erkennt vermutliche Geschäftsschlüssel unter anderem an den Namen oder Inhalten von Spalten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1526,
+   "zeit": "25:26",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1526s",
+   "aussage": "Der erste eigene Power-BI-Bericht zur Überwachung von Datenlieferungen eines externen Partners benötigte etwa zwei Personentage Entwicklungszeit."
+  },
+  {
    "typ": "Fakt",
    "dokument": "Metadaten als Superkraft",
    "dokument_id": "yt:UUlPoJOhco8",
@@ -355,6 +472,15 @@
    "zeit": "20:22",
    "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1222s",
    "aussage": "Der einfachste erste Schritt für eine BI-Abteilung ist, Measure Killer anzuhängen und innerhalb von rund zehn Minuten einen ersten Status zu Datenqualität und Nutzung zu erhalten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 1469,
+   "zeit": "24:29",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1469s",
+   "aussage": "Copilot dient vor allem zwei Szenarien: Unterstuetzung beim Erlernen neuer Faehigkeiten und Erleichterung repetitiver Standardaufgaben, ist aber kein Ersatz fuer Spezialisten."
   }
  ],
  "dokumente": [
@@ -637,7 +763,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [

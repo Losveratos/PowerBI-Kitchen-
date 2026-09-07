@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SQL Endpoint · DatenWG Library</title>
-<meta name="description" content="Für Direct Lake gab es weiterhin Probleme, während der Import-Modus über den SQL-Endpoint funktionierte. Über die Fabric-Service-Status-Seite lässt sich nachvollziehen, wenn Dienste wie SQL-Endpunkte oder Dataflows gestört sind, auch wenn der Status dort nicht immer eindeutig kommuniziert wird.">
+<meta name="description" content="Mirroring in Fabric wuerde es heute ermoeglichen, SAP-Datasphere-Daten automatisch in ein per SQL-Endpunkt lesbares Format zu ueberfuehren, war zum Projektzeitpunkt aber noch nicht verfuegbar.">
 <meta property="og:title" content="SQL Endpoint · DatenWG Library">
-<meta property="og:description" content="Für Direct Lake gab es weiterhin Probleme, während der Import-Modus über den SQL-Endpoint funktionierte. Über die Fabric-Service-Status-Seite lässt sich nachvollziehen, wenn Dienste wie SQL-Endpunkte oder Dataflows gestört sind, auch wenn der Status dort nicht immer eindeutig kommuniziert wird.">
+<meta property="og:description" content="Mirroring in Fabric wuerde es heute ermoeglichen, SAP-Datasphere-Daten automatisch in ein per SQL-Endpunkt lesbares Format zu ueberfuehren, war zum Projektzeitpunkt aber noch nicht verfuegbar.">
 <meta property="og:type" content="article">
 <meta property="og:image" content="https://datenwgknowledgekitchen.com/wissensgraph/og.png">
 <meta property="og:image:width" content="1200">
@@ -48,18 +48,23 @@ footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
 <main>
 <p class="kicker">DatenWG Library · tool</p>
 <h1>SQL Endpoint</h1>
-<p class="lead">Für Direct Lake gab es weiterhin Probleme, während der Import-Modus über den SQL-Endpoint funktionierte. Über die Fabric-Service-Status-Seite lässt sich nachvollziehen, wenn Dienste wie SQL-Endpunkte oder Dataflows gestört sind, auch wenn der Status dort nicht immer eindeutig kommuniziert wird. Direct Lake existiert in zwei Varianten, verbunden über den SQL-Endpoint oder direkt mit dem Lake, was zusätzliche Komplexität für Citizen Developer schafft.</p>
+<p class="lead">Mirroring in Fabric wuerde es heute ermoeglichen, SAP-Datasphere-Daten automatisch in ein per SQL-Endpunkt lesbares Format zu ueberfuehren, war zum Projektzeitpunkt aber noch nicht verfuegbar. (Stand 2026-08) Bei einem groesseren SAP-Konzernprojekt wurden Bronze und Silber als Warehouse aufgebaut, weil das Pipeline-Feature zum Refresh der SQL-Endpunkt-Metadaten damals noch nicht existierte. (Stand 2026-08) Für Direct Lake gab es weiterhin Probleme, während der Import-Modus über den SQL-Endpoint funktionierte. (Stand 2026-03)</p>
 <div class="btns"><a class="btn" href="../#n=tool%3Asql-endpoint">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Asql-endpoint&amp;f=tool%3Asql-endpoint">Im Graph öffnen</a></div>
-<p class="meta">4 Dokumente · 5 Kernaussagen · Stand 2026-09-07 · Build 20260907-1922</p>
+<p class="meta">4 Dokumente · 10 Kernaussagen · Stand 2026-09-07 · Build 20260907-1949</p>
 <h2>Aliase</h2>
 <p><span class="tag">SQL Analytics Endpoint</span> <span class="tag">SQL-Endpunkt</span></p>
 <h2>Kernaussagen</h2>
 <ul>
+<li>Mirroring in Fabric wuerde es heute ermoeglichen, SAP-Datasphere-Daten automatisch in ein per SQL-Endpunkt lesbares Format zu ueberfuehren, war zum Projektzeitpunkt aber noch nicht verfuegbar.<span class="meta quote">Fakt · Stand 2026-08 · Daten-WG Life-Update | Fabric Architekturen · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=113s">01:53</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Bei einem groesseren SAP-Konzernprojekt wurden Bronze und Silber als Warehouse aufgebaut, weil das Pipeline-Feature zum Refresh der SQL-Endpunkt-Metadaten damals noch nicht existierte.<span class="meta quote">Fakt · Stand 2026-08 · Daten-WG Life-Update | Fabric Architekturen · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=760s">12:40</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Bei Fabric Deployment Pipelines werden Objekte des SQL-Analytics-Endpunkts eines Lakehouse wie Views nicht mit uebertragen, waehrend das beim Warehouse funktioniert.<span class="meta quote">Warnung · Stand 2026-08 · Daten-WG Life-Update | Fabric Architekturen · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=824s">13:44</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Für Direct Lake gab es weiterhin Probleme, während der Import-Modus über den SQL-Endpoint funktionierte.<span class="meta quote">Fakt · Stand 2026-03 · Fabric Planning unboxing · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=251s">04:11</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Beim Deployment eines Lakehouse über eine Deployment Pipeline werden Views, die im SQL-Endpunkt des Lakehouse angelegt wurden, nicht mit übertragen.<span class="meta quote">Warnung · Stand 2026-02 · BI Thinkers Talk n.73 · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=3298s">54:58</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Über die Fabric-Service-Status-Seite lässt sich nachvollziehen, wenn Dienste wie SQL-Endpunkte oder Dataflows gestört sind, auch wenn der Status dort nicht immer eindeutig kommuniziert wird.<span class="meta quote">Fakt · Stand 2026-01 · BI Thinkers Talk n.72 · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=1937s">32:17</a> · automatisch extrahiert · Stelle: Abschnittsanfang</span></li>
+<li>Ein selbstgeschriebenes Python-Skript exportiert SQL-Server-Tabellen als Delta-Parquet-Dateien direkt in den OneLake-Speicher, wo sie sofort als Tabelle über den SQL-Endpunkt verfügbar sind.<span class="meta quote">Fakt · Stand 2025-07 · Daten-WG Thinkers Talk nr.65 · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1442s">24:02</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Werden zwei Dataflows über ein Lakehouse verkettet, stehen am Folgetag keine neuen Daten bereit, weil der SQL-Endpoint des Lakehouse nicht sofort aktualisiert wird.<span class="meta quote">Warnung · Stand  · Microsoft Fabric — braucht das wirklich jemand? · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=1191s">19:51</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Direct Lake existiert in zwei Varianten, verbunden über den SQL-Endpoint oder direkt mit dem Lake, was zusätzliche Komplexität für Citizen Developer schafft.<span class="meta quote">Fakt · Stand  · Microsoft Fabric — braucht das wirklich jemand? · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=1708s">28:28</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Composite Models sollen kuenftig die Moeglichkeit bieten, Direct-Lake-Tabellen aus mehreren Lakehouses zu kombinieren, ohne mehr zwingend ueber den einen zentralen SQL-Endpunkt konsumieren zu muessen.<span class="meta quote">Fakt · Stand  · Fabric &amp; Power BI Quarterly · 2025 Q3 · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2353s">39:13</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 </ul>
 <h2>Dokumente</h2>
 <ul>
@@ -70,21 +75,21 @@ footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
 </ul>
 <h2>Nachbarthemen</h2>
 <ul>
-<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">setzt-voraus · belegt · 10 gemeinsame Segmente</span></li>
-<li><a href="notebook.html">Notebook</a><span class="meta quote">ersetzt · belegt · 4 gemeinsame Segmente</span></li>
-<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">ko-vorkommen · heuristik · 13 gemeinsame Segmente</span></li>
-<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 11 gemeinsame Segmente</span></li>
-<li><a href="delta-lake.html">Delta Lake</a><span class="meta quote">ko-vorkommen · heuristik · 10 gemeinsame Segmente</span></li>
-<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 7 gemeinsame Segmente</span></li>
-<li><a href="onelake.html">OneLake</a><span class="meta quote">ko-vorkommen · heuristik · 7 gemeinsame Segmente</span></li>
-<li><a href="sql-server.html">SQL Server</a><span class="meta quote">ko-vorkommen · heuristik · 5 gemeinsame Segmente</span></li>
-<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 5 gemeinsame Segmente</span></li>
-<li><a href="semantic-model.html">Semantic Model</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="data-pipeline.html">Data Pipeline</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="directquery.html">DirectQuery</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="daten-wg.html">Daten-WG</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
-<li><a href="row-level-security.html">Row-Level Security</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
+<li><a href="composite-models.html">Composite Models</a><span class="meta quote">Composite Models ersetzt SQL Endpoint · automatisch extrahiert, Quellenstelle vorhanden · „die Möglichkeit bietet Direct Lake Tabellen aus nicht mehr über den Sequel Endpunkt konsumieren zu müssen“ (Fabric &amp; Power BI Quarterly · 2025 Q3) · 0 gemeinsame Segmente</span></li>
+<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">Direct Lake setzt-voraus SQL Endpoint · automatisch extrahiert, Quellenstelle vorhanden · „dem Sequel Endpoint verbundenen Direct Lake und und dem Lake verbundenen Direct Lake“ (Microsoft Fabric — braucht das wirklich jemand?) · 10 gemeinsame Segmente</span></li>
+<li><a href="notebook.html">Notebook</a><span class="meta quote">Notebook ersetzt SQL Endpoint · automatisch extrahiert, Quellenstelle vorhanden · „Wenn du das Lake House über die Pipeline jagst, kriegst du die Daten aus dem SQLM Punkt nicht angezeigt ... die Definition der Views in TSQL Notebooks gepackt“ (BI Thinkers Talk n.73, 2026-02) · 4 gemeinsame Segmente</span></li>
+<li><a href="sql.html">SQL</a><span class="meta quote">SQL Endpoint und SQL im selben Segment · Heuristik, gezählt · 16 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">SQL Endpoint und Lakehouse im selben Segment · Heuristik, gezählt · 13 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">SQL Endpoint und Microsoft Fabric im selben Segment · Heuristik, gezählt · 11 gemeinsame Segmente</span></li>
+<li><a href="delta-lake.html">Delta Lake</a><span class="meta quote">SQL Endpoint und Delta Lake im selben Segment · Heuristik, gezählt · 10 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">SQL Endpoint und Warehouse im selben Segment · Heuristik, gezählt · 7 gemeinsame Segmente</span></li>
+<li><a href="onelake.html">OneLake</a><span class="meta quote">SQL Endpoint und OneLake im selben Segment · Heuristik, gezählt · 7 gemeinsame Segmente</span></li>
+<li><a href="sql-server.html">SQL Server</a><span class="meta quote">SQL Endpoint und SQL Server im selben Segment · Heuristik, gezählt · 5 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">SQL Endpoint und Power BI im selben Segment · Heuristik, gezählt · 5 gemeinsame Segmente</span></li>
+<li><a href="semantic-model.html">Semantic Model</a><span class="meta quote">SQL Endpoint und Semantic Model im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">SQL Endpoint und Reporting im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="data-pipeline.html">Data Pipeline</a><span class="meta quote">SQL Endpoint und Data Pipeline im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="directquery.html">DirectQuery</a><span class="meta quote">SQL Endpoint und DirectQuery im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
 </ul>
 <h2>Hinweise</h2>
 <p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>

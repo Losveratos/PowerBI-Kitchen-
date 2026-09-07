@@ -4,36 +4,45 @@
  "typ": "thema",
  "slug": "self-service-bi",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/self-service-bi.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/self-service-bi.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/self-service-bi.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/self-service-bi.json",
  "dokumente_gesamt": 18,
- "kernaussagen_gesamt": 26,
- "mit_kernaussagen": 10,
+ "kernaussagen_gesamt": 43,
+ "mit_kernaussagen": 16,
  "aliase": [
   "Self-Service",
   "Self Service",
   "Selfservice"
  ],
- "einordnung": "Der Begriff Self-Service Business Intelligence wurde 2011 von TDWI in einem Best-Practice-Report definiert. Ein zentraler Auslöser für Self-Service BI war ein IT-Flaschenhals, bei dem Anfragen von Fachbereichs-Kollegen wegen begrenzter IT-Kapazität nicht schnell genug bearbeitet werden konnten. Nach einer weltweiten Freigabe von Power-BI-Lizenzen in einem Konzern entstand zunächst der Eindruck eines Kontrollverlusts durch unkontrolliert erstellte Dashboards.",
+ "einordnung": "Nach dem Proof of Concept wollten die ersten Fachbereiche die Power-BI-Lösung sofort nutzen, wodurch daraus schnell ein Einführungsszenario wurde. (Stand 2022-06) Das Microsoft-Konzept eines Center of Excellence wurde bei der Rheinland Versicherung über die IT-Abteilung abgebildet. (Stand 2022-06) Das Berechtigungskonzept wurde bereits festgelegt, bevor die ersten Teams überhaupt Zugriff auf die Power-BI-Plattform erhielten. (Stand 2022-06)",
  "nachbarn": [
   {
    "id": "topic:governance",
    "name": "Governance",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 4,
    "beleg": "dieses Spannungsfeld zwischen IT Chain und Selfsice nennen wir es einfach ITQ",
+   "datei": "governance.md"
+  },
+  {
+   "id": "topic:governance",
+   "name": "Governance",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 4,
+   "beleg": "dass berechtigungskonzept sehen wir als gewisse leitplanken die quasi ein unsichtbares gerüst zur einhaltung von von ein paar spielregeln",
    "datei": "governance.md"
   },
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "power-bi.md"
@@ -42,7 +51,7 @@
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "excel.md"
@@ -51,7 +60,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -60,7 +69,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "reporting.md"
@@ -69,7 +78,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "performance.md"
@@ -78,7 +87,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -87,7 +96,7 @@
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "datenmodellierung.md"
@@ -96,7 +105,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "ki.md"
@@ -105,7 +114,7 @@
    "id": "topic:strategie",
    "name": "Strategie",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "strategie.md"
@@ -114,7 +123,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "warehouse.md"
@@ -123,7 +132,7 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "sicherheit.md"
@@ -132,7 +141,7 @@
    "id": "topic:schulung",
    "name": "Schulung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "schulung.md"
@@ -141,22 +150,76 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "lakehouse.md"
-  },
-  {
-   "id": "tool:workspace",
-   "name": "Workspace",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "workspace.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 838,
+   "zeit": "13:58",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=838s",
+   "aussage": "Dataflows eignen sich weiterhin gut fuer Citizen Developer, weil Fachbereiche dadurch ueber Tabellen, Quellen und Transformationen mit dem Datenteam kommunizieren lernen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1079,
+   "zeit": "17:59",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1079s",
+   "aussage": "Weil sich das Tool auf wenige KPIs statt auf ein vollständiges BI-System konzentriert, bleiben die extrahierten Daten schlank, statt große Excel-Dateien mit Makros oder komplexe ETL-Prozesse zu benötigen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1155,
+   "zeit": "19:15",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1155s",
+   "aussage": "Im Tool können Teammitglieder Notizen per Sprache oder Text an jeden Wert, jede Dimension oder jeden Tag hängen, die dann in einem gemeinsamen Notes Board zusammengeführt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1182,
+   "zeit": "19:42",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1182s",
+   "aussage": "Bei einem strikten Layering-Ansatz wird Self-Service-Nutzern meist nur per Shortcut Zugriff auf den Gold-Layer gewaehrt, waehrend Bronze und Silber den Data Engineers vorbehalten bleiben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1276,
+   "zeit": "21:16",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1276s",
+   "aussage": "Bei einem Self-Service-Lakehouse-Ansatz werden fertige Daten aus dem Gold-Layer per Shortcut bereitgestellt, damit Fachbereichs-Excel-Mappings nicht mehr zentral in Bronze verwaltet werden muessen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1340,
+   "zeit": "22:20",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1340s",
+   "aussage": "Der asynchrone Workflow erlaubt es Kunden, über das Tool zu kommentieren, ohne live in einem Meeting sitzen zu müssen, während die KI im Hintergrund weiter an den Erkenntnissen arbeitet."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1398,
+   "zeit": "23:18",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1398s",
+   "aussage": "Das Tool senkt die Einstiegshürde zur Datenarbeit so weit, dass keine Vorkenntnisse wie Excel oder Pivot-Tabellen nötig sind."
+  },
   {
    "typ": "Meinung",
    "dokument": "BI Thinkers Talk n.74",
@@ -240,6 +303,24 @@
   },
   {
    "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 784,
+   "zeit": "13:04",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=784s",
+   "aussage": "Übernimmt jemand die Ownership für eine Dimension wie Kunden oder Artikel und definiert sie als Datenprodukt, kann diese entsprechend dokumentiert und für andere bereitgestellt werden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 1015,
+   "zeit": "16:55",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1015s",
+   "aussage": "Die technische Umsetzung einer Datenverantwortung kann etwa an IT oder ein BI-Competence-Center delegiert werden, wichtig ist aber, dass jemand die eigentliche Verantwortung übernimmt."
+  },
+  {
+   "typ": "Meinung",
    "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
    "dokument_id": "yt:mUALlPmGcEk",
    "sekunde": 3839,
@@ -258,12 +339,30 @@
   },
   {
    "typ": "Meinung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1440,
+   "zeit": "24:00",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1440s",
+   "aussage": "Eine selbstgebaute SVG-Grafik lässt sich zwar gut über GitHub ausrollen, ist bei klar benannten Feldern nutzbar, schränkt aber die Self-Service-Tauglichkeit gegenüber Standardvisuals ein."
+  },
+  {
+   "typ": "Meinung",
    "dokument": "BI Thinkers Talk Nr.62",
    "dokument_id": "yt:Wwvhv8WA2Qc",
    "sekunde": 1774,
    "zeit": "29:34",
    "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1774s",
-   "aussage": "Aus Sicht des Sprechers sind Datenfunktionen zum Zurückschreiben noch nicht vollständig self-service-tauglich, weil Modell, Datenhaltung und Funktion aktuell nicht an Fachbereiche übergeben werden sollten."
+   "aussage": "Aus Sicht eines der Sprecher sind Datenfunktionen zum Zurückschreiben noch nicht vollständig self-service-tauglich, weil Modell, Datenhaltung und Funktion aktuell nicht an Fachbereiche übergeben werden sollten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1878,
+   "zeit": "31:18",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1878s",
+   "aussage": "Beim TDWI-Kongress betreiben Arthur König und Philip zwei Tage lang einen eigenen Self-Service-BI-Track."
   },
   {
    "typ": "Meinung",
@@ -273,6 +372,60 @@
    "zeit": "50:14",
    "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3014s",
    "aussage": "Aus Anwendersicht ist der Power-BI-Teil der Writeback-Lösung self-service-tauglich, weil Business User nur vordefinierte Funktionen auswählen, ohne Modell oder Zielort zu kennen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 201,
+   "zeit": "03:21",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=201s",
+   "aussage": "Nach dem Proof of Concept wollten die ersten Fachbereiche die Power-BI-Lösung sofort nutzen, wodurch daraus schnell ein Einführungsszenario wurde."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 950,
+   "zeit": "15:50",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=950s",
+   "aussage": "Das Microsoft-Konzept eines Center of Excellence wurde bei der Rheinland Versicherung über die IT-Abteilung abgebildet."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1730,
+   "zeit": "28:50",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1730s",
+   "aussage": "Ein Berechtigungskonzept wurde als Leitplanke entwickelt, um in der stark von Self-Service geprägten Power-BI-Umgebung unkontrollierten Wildwuchs an Berichten zu vermeiden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1930,
+   "zeit": "32:10",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1930s",
+   "aussage": "Das Berechtigungskonzept wurde bereits festgelegt, bevor die ersten Teams überhaupt Zugriff auf die Power-BI-Plattform erhielten."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1944,
+   "zeit": "32:24",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1944s",
+   "aussage": "Unkontrollierter Wildwuchs an selbst erstellten Berichten lässt sich nachträglich kaum noch einfangen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 2309,
+   "zeit": "38:29",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2309s",
+   "aussage": "Es wird empfohlen, für die Power-BI-Einführung einen externen Partner mit Change-Kompetenz hinzuzuziehen, weil die Selbstservice-Tool-Einführung für viele Nutzer einen Umbruch bedeutet."
   },
   {
    "typ": "Fakt",
@@ -447,7 +600,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.2,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": [
@@ -497,7 +650,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.097,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -592,7 +745,7 @@
    "id": "yt:lH_-A8NAQ-k",
    "titel": "Datenmodellierung ist Governance",
    "datum": "2025-11-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.04,
    "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
    "sprungmarken": [
@@ -672,7 +825,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [

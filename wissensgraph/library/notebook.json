@@ -4,26 +4,26 @@
  "typ": "tool",
  "slug": "notebook",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/notebook.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/notebook.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/notebook.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/notebook.json",
  "dokumente_gesamt": 43,
- "kernaussagen_gesamt": 24,
- "mit_kernaussagen": 9,
+ "kernaussagen_gesamt": 36,
+ "mit_kernaussagen": 15,
  "aliase": [
   "Notebooks",
   "Spark Notebook"
  ],
- "einordnung": "Aus einem Integration-Services-Paket (SSIS) lässt sich per REST API ein Microsoft-Fabric-Notebook starten. Im SSIS-Paket wird der Notebook-Aufruf über eine Script Task in Visual Studio umgesetzt. Nach dem Ausführen des SSIS-Pakets lässt sich der erfolgreiche Notebook-Lauf in Fabric über die letzte Ausführung nachvollziehen.",
+ "einordnung": "Aus einem Integration-Services-Paket (SSIS) lässt sich per REST API ein Microsoft-Fabric-Notebook starten. (Stand 2026-02) Im SSIS-Paket wird der Notebook-Aufruf über eine Script Task in Visual Studio umgesetzt. (Stand 2026-02) Nach dem Ausführen des SSIS-Pakets lässt sich der erfolgreiche Notebook-Lauf in Fabric über die letzte Ausführung nachvollziehen. (Stand 2026-02)",
  "nachbarn": [
   {
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "teil-von",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 32,
    "beleg": "ihm eben Möglichkeiten gegeben, hier innerhalb des Arbeitsbereichs etwas Ich habe das Notebook angelegt.",
    "datei": "workspace.md"
@@ -32,7 +32,7 @@
    "id": "tool:tabular-editor",
    "name": "Tabular Editor",
    "kantentyp": "ersetzt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "du hast hier wie so eine eigene Oberfläche wie so ein eine Art Measure Killer oder Tabula Editor im Notebook",
    "datei": "tabular-editor.md"
@@ -41,7 +41,7 @@
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 18,
    "beleg": "tut dann die Perspektive dann eben über das Notebook jeden Morgen um 7 Uhr äh laufen lassen",
    "datei": "direct-lake.md"
@@ -50,7 +50,7 @@
    "id": "tool:dataflow",
    "name": "Dataflow",
    "kantentyp": "empfiehlt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 54,
    "beleg": "benutze ich Dataflows, um die Daten in meinem meinem Bronze zu stagen und von da aus dann die Weiterverarbeitung mit dem Notebook zu machen",
    "datei": "dataflow.md"
@@ -59,7 +59,7 @@
    "id": "tool:sql-endpoint",
    "name": "SQL Endpoint",
    "kantentyp": "ersetzt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 4,
    "beleg": "Wenn du das Lake House über die Pipeline jagst, kriegst du die Daten aus dem SQLM Punkt nicht angezeigt ... die Definition der Views in TSQL Notebooks gepackt",
    "datei": "sql-endpoint.md"
@@ -68,7 +68,7 @@
    "id": "tool:data-pipeline",
    "name": "Data Pipeline",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 33,
    "beleg": "wenn ich aus der Pipeline heraus das anlege, dann geht's",
    "datei": "data-pipeline.md"
@@ -77,25 +77,34 @@
    "id": "tool:dataflow",
    "name": "Dataflow",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 54,
    "beleg": "einfach auch wartbar im Gegensatz zu Notebooks",
    "datei": "dataflow.md"
   },
   {
+   "id": "tool:github",
+   "name": "GitHub",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 5,
+   "beleg": "Wir laden die Report Definition hier über das Gitub Repository",
+   "datei": "github.md"
+  },
+  {
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 70,
-   "beleg": "",
+   "beleg": "weil ich Notebook in Fabric schreiben will",
    "datei": "microsoft-fabric.md"
   },
   {
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 51,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -104,7 +113,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 42,
    "beleg": "",
    "datei": "power-bi.md"
@@ -113,16 +122,25 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "ki.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 26,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "warehouse.md"
@@ -131,31 +149,58 @@
    "id": "tool:spark",
    "name": "Spark",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 24,
    "beleg": "",
    "datei": "spark.md"
-  },
-  {
-   "id": "topic:reporting",
-   "name": "Reporting",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 23,
-   "beleg": "",
-   "datei": "reporting.md"
-  },
-  {
-   "id": "tool:python",
-   "name": "Python",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 21,
-   "beleg": "",
-   "datei": "python.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 131,
+   "zeit": "02:11",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=131s",
+   "aussage": "Beim SAP-Projekt wurden die taeglich abgelegten Delta-Dateien ueber ein Notebook eingelesen, das anhand von Tagesordnern erkennt, welche Tage bereits in der Zieltabelle liegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 209,
+   "zeit": "03:29",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=209s",
+   "aussage": "In diesem Projekt wurden Views im Lakehouse ueber Notebooks per Create-and-Replace angelegt, damit sie sich ueber Deployment Pipelines mitversenden lassen und je Umgebung automatisch das passende Lakehouse zugewiesen wird."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 717,
+   "zeit": "11:57",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=717s",
+   "aussage": "Bei einem Warehouse sind viele Optimierungen, die man sonst in Notebooks oder im Lake selbst umsetzen muesste, bereits managed abgenommen, was weniger Freiheit, aber auch weniger Risiko fuer die Kapazitaet bedeutet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 791,
+   "zeit": "13:11",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=791s",
+   "aussage": "Der Fabric Copilot unterstuetzt gezielt innerhalb eines einzelnen Items wie einem Notebook, waehrend der Agent Hub uebergreifend ueber mehrere Items hinweg End-to-End-Strecken bauen kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 1146,
+   "zeit": "19:06",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1146s",
+   "aussage": "Aus einem unspezifischen Prompt hat der Agent Hub eigenstaendig ein Notebook, ein Lakehouse, ein Semantic Model und einen Report erstellt, inklusive eines selbst geschriebenen Fabric Clients fuer die Fabric-APIs."
+  },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
@@ -307,7 +352,7 @@
    "sekunde": 3298,
    "zeit": "54:58",
    "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3298s",
-   "aussage": "Als Workaround definiert der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden."
+   "aussage": "Als Workaround definiert einer der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden."
   },
   {
    "typ": "Fakt",
@@ -356,6 +401,60 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 731,
+   "zeit": "12:11",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=731s",
+   "aussage": "Das Referenzmodell samt Monitoring-Dashboard wurde in einem GitHub-Repository bereitgestellt, damit es heruntergeladen und wiederverwendet werden kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 830,
+   "zeit": "13:50",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=830s",
+   "aussage": "Das Fabric-Notebook lädt das GitHub-Repository über eine speziell zusammengebaute URL komplett als ZIP-Datei herunter."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 879,
+   "zeit": "14:39",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=879s",
+   "aussage": "Im Notebook muss man angeben, mit welchem Ziel-Dataset im Workspace der übertragene Bericht verbunden werden soll."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1031,
+   "zeit": "17:11",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1031s",
+   "aussage": "Das Notebook prüft aktuell nicht, ob bereits ein gleichnamiger Bericht existiert, sodass mehrfaches Ausführen zu mehreren Reports mit identischem Namen führt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 360,
+   "zeit": "06:00",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=360s",
+   "aussage": "Um aus einem Shortcut wirklich eine nutzbare Tabelle zu machen, muss man weiterhin ein Notebook oder einen Dataflow orchestrieren, da der Shortcut selbst nicht so echtzeitfähig ist, wie er sein könnte."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 2256,
+   "zeit": "37:36",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2256s",
+   "aussage": "Für das Auflösen der rekursiven Zeilen- und Kontenverweise in der Mapping-Tabelle wird ein Python-Notebook gegenüber Power Query bevorzugt, weil Power Query keine regulären Ausdrücke bietet."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "Was ist Self-Service und warum ist das so schwer?",
    "dokument_id": "yt:EVsJ6zyGUWc",
    "sekunde": 1076,
@@ -371,6 +470,15 @@
    "zeit": "21:31",
    "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1291s",
    "aussage": "Copy Jobs in der Fabric Data Factory unterstützen jetzt in der Vorschau automatisch Slowly Changing Dimension Typ 2, wodurch manueller Notebook-Code für diesen Zweck überflüssig wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2545,
+   "zeit": "42:25",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2545s",
+   "aussage": "Mit der Shortcut-Transformation wird eine per Shortcut verlinkte CSV-Datei automatisch in eine Delta-Tabelle umgewandelt, ohne dass dafuer ein Notebook laufen muss."
   }
  ],
  "dokumente": [
@@ -403,7 +511,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.368,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -593,7 +701,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.167,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -668,7 +776,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.129,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -743,7 +851,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.114,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -818,7 +926,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.108,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -843,7 +951,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.098,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -868,7 +976,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.093,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [
@@ -893,7 +1001,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.083,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -918,7 +1026,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.083,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -1038,7 +1146,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.047,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -1108,7 +1216,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [
@@ -1168,7 +1276,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [

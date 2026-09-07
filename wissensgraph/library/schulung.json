@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "schulung",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/schulung.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/schulung.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/schulung.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/schulung.json",
  "dokumente_gesamt": 34,
- "kernaussagen_gesamt": 6,
- "mit_kernaussagen": 3,
+ "kernaussagen_gesamt": 13,
+ "mit_kernaussagen": 7,
  "aliase": [
   "Training",
   "Enablement",
@@ -21,13 +21,13 @@
   "Workshop",
   "Trainings"
  ],
- "einordnung": "Bevor Werkzeuge eingeführt werden, sollte im eigenen BI-Team abgefragt werden, ob das Thema Metadaten überhaupt bekannt ist. Julia empfiehlt, gezielt in Schulung und kulturellen Wandel der Belegschaft zu investieren, damit KI-Initiativen nicht zu Frust unter den Mitarbeitenden führen. Ein festes Zeitbudget von 10 bis 20 Prozent pro Mitarbeiter für die Mitwirkung an Projekten wird vorgeschlagen, damit Wissen aktiv aufgebaut wird, statt nur passiv empfangen zu werden.",
+ "einordnung": "Für den Kompetenzaufbau wurden zwei modulare Schulungsreihen entwickelt: Data Champion für Methodenkompetenz und Power BI Champion für das Tool selbst. (Stand 2022-06) Die Data-Champion-Schulung vermittelt Methodenkompetenz wie Storytelling und die Erstellung aussagekräftiger Berichte. (Stand 2022-06) Die Schulungen zu Datenmodellierung und DAX wurden zusammengelegt, weil ein komplexeres Datenmodell auch komplexere DAX-Berechnungen nach sich zieht. (Stand 2022-06)",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "power-bi.md"
@@ -36,7 +36,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "ki.md"
@@ -45,7 +45,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -54,7 +54,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -63,7 +63,7 @@
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "datenmodellierung.md"
@@ -72,7 +72,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "reporting.md"
@@ -81,7 +81,7 @@
    "id": "topic:community",
    "name": "Community",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "community.md"
@@ -90,7 +90,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "performance.md"
@@ -99,7 +99,7 @@
    "id": "topic:projektmanagement",
    "name": "Projektmanagement",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "projektmanagement.md"
@@ -108,7 +108,7 @@
    "id": "topic:daten-wg",
    "name": "Daten-WG",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "daten-wg.md"
@@ -117,7 +117,7 @@
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "dax.md"
@@ -126,7 +126,7 @@
    "id": "tool:copilot",
    "name": "Copilot",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "copilot.md"
@@ -135,31 +135,40 @@
    "id": "tool:python",
    "name": "Python",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "python.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "notebook.md"
-  },
-  {
-   "id": "tool:power-automate",
-   "name": "Power Automate",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 5,
-   "beleg": "",
-   "datei": "power-automate.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1398,
+   "zeit": "23:18",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1398s",
+   "aussage": "Das Tool senkt die Einstiegshürde zur Datenarbeit so weit, dass keine Vorkenntnisse wie Excel oder Pivot-Tabellen nötig sind."
+  },
   {
    "typ": "Empfehlung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
@@ -195,6 +204,60 @@
    "zeit": "56:16",
    "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=3376s",
    "aussage": "Ein festes Zeitbudget von 10 bis 20 Prozent pro Mitarbeiter für die Mitwirkung an Projekten wird vorgeschlagen, damit Wissen aktiv aufgebaut wird, statt nur passiv empfangen zu werden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 135,
+   "zeit": "02:15",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=135s",
+   "aussage": "Wie ein Datenmodell aufgebaut wird, hängt laut dem Workshop stark von den jeweiligen Rahmenbedingungen und Anforderungen ab und nicht von einer festen Theorie."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 2161,
+   "zeit": "36:01",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=2161s",
+   "aussage": "Fachanwender und Führungskräfte steigen bei technischen Erklärungen zu ETL, Tools und KI häufig schon nach wenigen Sätzen aus dem Gespräch aus."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Mythos Data Vault und richtig große Modelle",
+   "dokument_id": "yt:rrCi0lnGrCg",
+   "sekunde": 1872,
+   "zeit": "31:12",
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1872s",
+   "aussage": "Es gibt weltweit nur sechs von Dan Linstedt, dem Erfinder der Methodik, zertifizierte Data-Vault-Trainer, zu denen Volker Nürnberg seit 2018 zählt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1109,
+   "zeit": "18:29",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1109s",
+   "aussage": "Für den Kompetenzaufbau wurden zwei modulare Schulungsreihen entwickelt: Data Champion für Methodenkompetenz und Power BI Champion für das Tool selbst."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1130,
+   "zeit": "18:50",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1130s",
+   "aussage": "Die Data-Champion-Schulung vermittelt Methodenkompetenz wie Storytelling und die Erstellung aussagekräftiger Berichte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1349,
+   "zeit": "22:29",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1349s",
+   "aussage": "Die Schulungen zu Datenmodellierung und DAX wurden zusammengelegt, weil ein komplexeres Datenmodell auch komplexere DAX-Berechnungen nach sich zieht."
   },
   {
    "typ": "Meinung",
@@ -335,7 +398,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.267,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": [
@@ -360,7 +423,7 @@
    "id": "yt:lH_-A8NAQ-k",
    "titel": "Datenmodellierung ist Governance",
    "datum": "2025-11-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.24,
    "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
    "sprungmarken": [
@@ -685,7 +748,7 @@
    "id": "yt:K27nB68nR1M",
    "titel": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
    "datum": "2022-02-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=K27nB68nR1M",
    "sprungmarken": [
@@ -700,7 +763,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.054,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -720,7 +783,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.05,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -760,7 +823,7 @@
    "id": "yt:rrCi0lnGrCg",
    "titel": "Mythos Data Vault und richtig große Modelle",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.045,
    "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
    "sprungmarken": [
@@ -775,7 +838,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.028,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -805,7 +868,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [

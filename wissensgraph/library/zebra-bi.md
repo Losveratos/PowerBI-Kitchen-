@@ -3,11 +3,11 @@ id: "tool:zebra-bi"
 name: "Zebra BI"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 11
-kernaussagen: 2
-mit_kernaussagen: 2
+kernaussagen: 4
+mit_kernaussagen: 3
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/zebra-bi.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/zebra-bi.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/zebra-bi.md"
@@ -18,7 +18,7 @@ aliase:
 
 # Zebra BI
 
-Gekaufte Custom Visuals wie Zebra BI bieten weniger Anpassungsspielraum als codebasierte Lösungen wie Deneb, weil man an die vom Hersteller vorgesehenen Optionen gebunden bleibt. Der Gast hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten.
+Zebra BI erzeugt bei einer Abweichungsberechnung standardmäßig ebenfalls einen automatisch generierten Spaltennamen wie "Vorjahr", den man teilweise anpassen muss. (Stand 2025-08) Zebra BI bietet mit Verweisbezeichnungen nach Position bereits eine ähnliche Funktion wie die neue Visual-Calculations-Option, allerdings in einem Untermenü verschachtelt. (Stand 2025-08) Gekaufte Custom Visuals wie Zebra BI bieten weniger Anpassungsspielraum als codebasierte Lösungen wie Deneb, weil man an die vom Hersteller vorgesehenen Optionen gebunden bleibt. (Stand 2026-01)
 
 ## Aliase
 
@@ -26,15 +26,15 @@ Zebra
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Custom Visuals](custom-visuals.md) | ersetzt | belegt | 5 |
-| [Visualisierung](visualisierung.md) | ko-vorkommen | heuristik | 15 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 11 |
-| [IBCS](ibcs.md) | ko-vorkommen | heuristik | 9 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 7 |
-| [Planung](planung.md) | ko-vorkommen | heuristik | 6 |
-| [KI](ki.md) | ko-vorkommen | heuristik | 3 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Custom Visuals](custom-visuals.md) | Custom Visuals ersetzt Zebra BI | automatisch extrahiert, Quellenstelle vorhanden | „wie lange wird's jetzt dauern einfach Zebra BI nachzucoden“ (BI Thinkers Talk nr.76, 2026-05) | 5 |
+| [Visualisierung](visualisierung.md) | Zebra BI und Visualisierung im selben Segment | Heuristik, gezählt |  | 15 |
+| [Power BI](power-bi.md) | Zebra BI und Power BI im selben Segment | Heuristik, gezählt |  | 11 |
+| [IBCS](ibcs.md) | Zebra BI und IBCS im selben Segment | Heuristik, gezählt |  | 9 |
+| [Reporting](reporting.md) | Zebra BI und Reporting im selben Segment | Heuristik, gezählt |  | 7 |
+| [Planung](planung.md) | Zebra BI und Planung im selben Segment | Heuristik, gezählt |  | 6 |
+| [KI](ki.md) | Zebra BI und KI im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -42,14 +42,16 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
 | --- | --- | --- | --- | --- | --- | --- |
-| Meinung | BI Thinkers Talk nr.76 | 2026-05 | 55:18 | Abschnittsanfang | Der Gast hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s) |
+| Meinung | BI Thinkers Talk nr.76 | 2026-05 | 55:18 | Abschnittsanfang | Einer der Gäste hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s) |
 | Meinung | BI Thinkers Talk n.72 | 2026-01 | 19:12 | Abschnittsanfang | Gekaufte Custom Visuals wie Zebra BI bieten weniger Anpassungsspielraum als codebasierte Lösungen wie Deneb, weil man an die vom Hersteller vorgesehenen Optionen gebunden bleibt. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1152s) |
+| Fakt | Daten-WG BI Thinkers Talk nr.66 | 2025-08 | 37:25 | auf die Sekunde | Zebra BI erzeugt bei einer Abweichungsberechnung standardmäßig ebenfalls einen automatisch generierten Spaltennamen wie "Vorjahr", den man teilweise anpassen muss. | [▶](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2245s) |
+| Meinung | Daten-WG BI Thinkers Talk nr.66 | 2025-08 | 42:15 | auf die Sekunde | Zebra BI bietet mit Verweisbezeichnungen nach Position bereits eine ähnliche Funktion wie die neue Visual-Calculations-Option, allerdings in einem Untermenü verschachtelt. | [▶](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2535s) |
 
 ## Dokumente
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
-| [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | nur-zeitstempel | [17:48](https://www.youtube.com/watch?v=DQENmzAkNqw&t=1068s) · [37:16](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2236s) · [42:07](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2527s) |
+| [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [17:48](https://www.youtube.com/watch?v=DQENmzAkNqw&t=1068s) · [37:16](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2236s) · [42:07](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2527s) |
 | [The Power of User Groups](https://www.youtube.com/watch?v=SSUpe1JON9Y) | 2025-10-01 | nur-zeitstempel | [23:32](https://www.youtube.com/watch?v=SSUpe1JON9Y&t=1412s) |
 | [ChartKitchen byDatenWG — Documentation](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=Table%20comfort%3A%20zebra%2C%20grid%2C%20density%2C%20search%2C%20sorting) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=Table) |
 | [ChartKitchen byDatenWG — Dokumentation](https://datenwgknowledgekitchen.com/chartkitchen-doku.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Tabellen-Komfort%3A%20Zebra%2C%20Gitter%2C%20Dichte%2C%20Suche%2C%20Sortierung) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Tabelle) |

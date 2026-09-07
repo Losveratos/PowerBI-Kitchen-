@@ -4,26 +4,35 @@
  "typ": "tool",
  "slug": "sql-endpoint",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sql-endpoint.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sql-endpoint.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/sql-endpoint.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/sql-endpoint.json",
  "dokumente_gesamt": 4,
- "kernaussagen_gesamt": 5,
- "mit_kernaussagen": 4,
+ "kernaussagen_gesamt": 10,
+ "mit_kernaussagen": 7,
  "aliase": [
   "SQL Analytics Endpoint",
   "SQL-Endpunkt"
  ],
- "einordnung": "Für Direct Lake gab es weiterhin Probleme, während der Import-Modus über den SQL-Endpoint funktionierte. Über die Fabric-Service-Status-Seite lässt sich nachvollziehen, wenn Dienste wie SQL-Endpunkte oder Dataflows gestört sind, auch wenn der Status dort nicht immer eindeutig kommuniziert wird. Direct Lake existiert in zwei Varianten, verbunden über den SQL-Endpoint oder direkt mit dem Lake, was zusätzliche Komplexität für Citizen Developer schafft.",
+ "einordnung": "Mirroring in Fabric wuerde es heute ermoeglichen, SAP-Datasphere-Daten automatisch in ein per SQL-Endpunkt lesbares Format zu ueberfuehren, war zum Projektzeitpunkt aber noch nicht verfuegbar. (Stand 2026-08) Bei einem groesseren SAP-Konzernprojekt wurden Bronze und Silber als Warehouse aufgebaut, weil das Pipeline-Feature zum Refresh der SQL-Endpunkt-Metadaten damals noch nicht existierte. (Stand 2026-08) Für Direct Lake gab es weiterhin Probleme, während der Import-Modus über den SQL-Endpoint funktionierte. (Stand 2026-03)",
  "nachbarn": [
+  {
+   "id": "tool:composite-models",
+   "name": "Composite Models",
+   "kantentyp": "ersetzt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "die Möglichkeit bietet Direct Lake Tabellen aus nicht mehr über den Sequel Endpunkt konsumieren zu müssen",
+   "datei": "composite-models.md"
+  },
   {
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 10,
    "beleg": "dem Sequel Endpoint verbundenen Direct Lake und und dem Lake verbundenen Direct Lake",
    "datei": "direct-lake.md"
@@ -32,16 +41,25 @@
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "ersetzt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 4,
    "beleg": "Wenn du das Lake House über die Pipeline jagst, kriegst du die Daten aus dem SQLM Punkt nicht angezeigt ... die Definition der Views in TSQL Notebooks gepackt",
    "datei": "notebook.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 16,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -50,7 +68,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -59,7 +77,7 @@
    "id": "tool:delta-lake",
    "name": "Delta Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "delta-lake.md"
@@ -68,7 +86,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "warehouse.md"
@@ -77,7 +95,7 @@
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "onelake.md"
@@ -86,7 +104,7 @@
    "id": "tool:sql-server",
    "name": "SQL Server",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "sql-server.md"
@@ -95,7 +113,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "power-bi.md"
@@ -104,7 +122,7 @@
    "id": "tool:semantic-model",
    "name": "Semantic Model",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "semantic-model.md"
@@ -113,7 +131,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "reporting.md"
@@ -122,7 +140,7 @@
    "id": "tool:data-pipeline",
    "name": "Data Pipeline",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "data-pipeline.md"
@@ -131,31 +149,40 @@
    "id": "tool:directquery",
    "name": "DirectQuery",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "directquery.md"
-  },
-  {
-   "id": "topic:daten-wg",
-   "name": "Daten-WG",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "daten-wg.md"
-  },
-  {
-   "id": "topic:row-level-security",
-   "name": "Row-Level Security",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "row-level-security.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 113,
+   "zeit": "01:53",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=113s",
+   "aussage": "Mirroring in Fabric wuerde es heute ermoeglichen, SAP-Datasphere-Daten automatisch in ein per SQL-Endpunkt lesbares Format zu ueberfuehren, war zum Projektzeitpunkt aber noch nicht verfuegbar."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 760,
+   "zeit": "12:40",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=760s",
+   "aussage": "Bei einem groesseren SAP-Konzernprojekt wurden Bronze und Silber als Warehouse aufgebaut, weil das Pipeline-Feature zum Refresh der SQL-Endpunkt-Metadaten damals noch nicht existierte."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 824,
+   "zeit": "13:44",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=824s",
+   "aussage": "Bei Fabric Deployment Pipelines werden Objekte des SQL-Analytics-Endpunkts eines Lakehouse wie Views nicht mit uebertragen, waehrend das beim Warehouse funktioniert."
+  },
   {
    "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
@@ -184,6 +211,15 @@
    "aussage": "Über die Fabric-Service-Status-Seite lässt sich nachvollziehen, wenn Dienste wie SQL-Endpunkte oder Dataflows gestört sind, auch wenn der Status dort nicht immer eindeutig kommuniziert wird."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1442,
+   "zeit": "24:02",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1442s",
+   "aussage": "Ein selbstgeschriebenes Python-Skript exportiert SQL-Server-Tabellen als Delta-Parquet-Dateien direkt in den OneLake-Speicher, wo sie sofort als Tabelle über den SQL-Endpunkt verfügbar sind."
+  },
+  {
    "typ": "Warnung",
    "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
    "dokument_id": "yt:mTVeZzshLzE",
@@ -200,6 +236,15 @@
    "zeit": "28:28",
    "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1708s",
    "aussage": "Direct Lake existiert in zwei Varianten, verbunden über den SQL-Endpoint oder direkt mit dem Lake, was zusätzliche Komplexität für Citizen Developer schafft."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2353,
+   "zeit": "39:13",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2353s",
+   "aussage": "Composite Models sollen kuenftig die Moeglichkeit bieten, Direct-Lake-Tabellen aus mehreren Lakehouses zu kombinieren, ohne mehr zwingend ueber den einen zentralen SQL-Endpunkt konsumieren zu muessen."
   }
  ],
  "dokumente": [

@@ -3,11 +3,11 @@ id: "tool:purview"
 name: "Purview"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 1
-kernaussagen: 0
-mit_kernaussagen: 0
+kernaussagen: 1
+mit_kernaussagen: 1
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/purview.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/purview.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/purview.md"
@@ -18,7 +18,7 @@ aliase:
 
 # Purview
 
-Purview kommt in 1 Dokumenten der Daten-WG vor; am ausführlichsten in „Microsoft Fabric — Einsteiger-Guide“ (2026-08-31).
+Der OneLake-Katalog ist ausdrücklich nicht als Catalog-of-Catalogs gedacht, der Werkzeuge wie Purview oder Informatica ersetzen soll, sondern als zentraler Discovery-Einstiegspunkt für Fabric-Nutzer. (Stand 2025-04)
 
 ## Aliase
 
@@ -26,19 +26,23 @@ Microsoft Purview
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Microsoft Fabric](microsoft-fabric.md) | ko-vorkommen | heuristik | 4 |
-| [OneLake](onelake.md) | ko-vorkommen | heuristik | 4 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 4 |
-| [Governance](governance.md) | ko-vorkommen | heuristik | 4 |
-| [Data Pipeline](data-pipeline.md) | ko-vorkommen | heuristik | 3 |
-| [Fabric Capacity](fabric-capacity.md) | ko-vorkommen | heuristik | 3 |
-| [Synapse](synapse.md) | ko-vorkommen | heuristik | 3 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Microsoft Fabric](microsoft-fabric.md) | Purview und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 4 |
+| [OneLake](onelake.md) | Purview und OneLake im selben Segment | Heuristik, gezählt |  | 4 |
+| [Power BI](power-bi.md) | Purview und Power BI im selben Segment | Heuristik, gezählt |  | 4 |
+| [Governance](governance.md) | Purview und Governance im selben Segment | Heuristik, gezählt |  | 4 |
+| [Data Pipeline](data-pipeline.md) | Purview und Data Pipeline im selben Segment | Heuristik, gezählt |  | 3 |
+| [Fabric Capacity](fabric-capacity.md) | Purview und Fabric Capacity im selben Segment | Heuristik, gezählt |  | 3 |
+| [Synapse](synapse.md) | Purview und Synapse im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
-Für dieses Thema liegen noch keine maschinell erzeugten Kernaussagen vor.
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | Fabric & Power BI Quarterly \| 2025 Q2 | 2025-04 | 33:44 | auf die Sekunde | Der OneLake-Katalog ist ausdrücklich nicht als Catalog-of-Catalogs gedacht, der Werkzeuge wie Purview oder Informatica ersetzen soll, sondern als zentraler Discovery-Einstiegspunkt für Fabric-Nutzer. | [▶](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2024s) |
 
 ## Dokumente
 

@@ -4,26 +4,26 @@
  "typ": "tool",
  "slug": "bookmarks",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/bookmarks.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/bookmarks.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/bookmarks.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/bookmarks.json",
  "dokumente_gesamt": 8,
- "kernaussagen_gesamt": 0,
- "mit_kernaussagen": 0,
+ "kernaussagen_gesamt": 6,
+ "mit_kernaussagen": 1,
  "aliase": [
   "Lesezeichen",
   "Bookmark"
  ],
- "einordnung": "Bookmarks kommt in 8 Dokumenten der Daten-WG vor; am ausführlichsten in „Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report“ (2022-02-01).",
+ "einordnung": "In einem US-Police-Beispiel-Dashboard wird beim Klick auf ein Bundesland wie Kalifornien automatisch der zugehörige Navigations-Button deaktiviert, um den aktiven Filter anzuzeigen. (Stand 2022-02) Eine Navigationsleiste zum Wechseln zwischen einzelnen Seiten wird mit Bookmarks umgesetzt. (Stand 2022-02) Der Fokus-Modus eines Visuals lässt sich als Bookmark speichern und über einen Button auslösen. (Stand 2022-02)",
  "nachbarn": [
   {
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "reporting.md"
@@ -32,7 +32,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -41,7 +41,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "power-bi.md"
@@ -50,7 +50,7 @@
    "id": "tool:drillthrough",
    "name": "Drillthrough",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "drillthrough.md"
@@ -59,7 +59,7 @@
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "dax.md"
@@ -68,7 +68,7 @@
    "id": "tool:field-parameters",
    "name": "Field Parameters",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "field-parameters.md"
@@ -77,7 +77,7 @@
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "datenmodellierung.md"
@@ -86,7 +86,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "ki.md"
@@ -95,7 +95,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -104,19 +104,74 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "workspace.md"
   }
  ],
- "kernaussagen": [],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 690,
+   "zeit": "11:30",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=690s",
+   "aussage": "In einem US-Police-Beispiel-Dashboard wird beim Klick auf ein Bundesland wie Kalifornien automatisch der zugehörige Navigations-Button deaktiviert, um den aktiven Filter anzuzeigen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 768,
+   "zeit": "12:48",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=768s",
+   "aussage": "Eine Navigationsleiste zum Wechseln zwischen einzelnen Seiten wird mit Bookmarks umgesetzt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1366,
+   "zeit": "22:46",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1366s",
+   "aussage": "Bookmarks steuern nicht nur, welcher Filter angewendet wird, sondern auch, was auf der Seite überhaupt angezeigt wird."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1420,
+   "zeit": "23:40",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1420s",
+   "aussage": "Ein aufwendig mit Bookmarks gestalteter, interaktiver Report lohnt sich vor allem bei mehreren hundert Nutzern; bei wenigen Nutzern wird der Mehrwert als geringer eingeschätzt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1564,
+   "zeit": "26:04",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1564s",
+   "aussage": "Der Fokus-Modus eines Visuals lässt sich als Bookmark speichern und über einen Button auslösen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1911,
+   "zeit": "31:51",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1911s",
+   "aussage": "Die Kombination aus Drill zu einer festen Zielseite und Sprung zu einer variablen Seite wird als sehr schnelle Art zu navigieren gelobt."
+  }
+ ],
  "dokumente": [
   {
    "id": "yt:K27nB68nR1M",
    "titel": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
    "datum": "2022-02-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.278,
    "url": "https://www.youtube.com/watch?v=K27nB68nR1M",
    "sprungmarken": [
@@ -166,7 +221,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.067,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": [
@@ -256,7 +311,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": [

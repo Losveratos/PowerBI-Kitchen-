@@ -4,34 +4,43 @@
  "typ": "tool",
  "slug": "sharepoint",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sharepoint.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sharepoint.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/sharepoint.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/sharepoint.json",
  "dokumente_gesamt": 22,
- "kernaussagen_gesamt": 3,
- "mit_kernaussagen": 3,
+ "kernaussagen_gesamt": 12,
+ "mit_kernaussagen": 5,
  "aliase": [
   "Share Point"
  ],
- "einordnung": "SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist. Für den Einstieg reicht eine einfache SharePoint-Liste als minimalistischer Datenkatalog völlig aus, anstatt lange über das perfekte Tool zu diskutieren. Eine Datei über den direkten Cloud-Link statt über die lokal synchronisierte SharePoint-Kopie einzubinden gilt laut Martin als schlecht gelöst und ist eine häufige Fehlerquelle.",
+ "einordnung": "Copilot prueft automatisch, ob die noetigen Zugaenge zu SharePoint und Teams fuer den vorgeschlagenen Flow vorhanden sind. (Stand 2025-08) Die Genehmigungsspalte in der SharePoint-Liste wurde als Auswahlliste mit den Optionen Submitted, Approved und Denied angelegt. (Stand 2025-08) Ueber das Feld 'Link zu Element' laesst sich im Genehmigungsschritt direkt auf den betroffenen SharePoint-Eintrag verlinken. (Stand 2025-08)",
  "nachbarn": [
   {
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ersetzt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 17,
    "beleg": "Wir haben es da tatsächlich erstmal, weil es schneller ging mit Excel gelöst, aber ziel ist auch da Richtung SharePoint Liste zu gehen",
    "datei": "excel.md"
   },
   {
+   "id": "tool:power-automate",
+   "name": "Power Automate",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 7,
+   "beleg": "ob ich Zugang sowohl zu SharePoint als auch Teams habe",
+   "datei": "power-automate.md"
+  },
+  {
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -40,7 +49,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "power-bi.md"
@@ -49,7 +58,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -58,7 +67,7 @@
    "id": "tool:snowflake",
    "name": "Snowflake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "snowflake.md"
@@ -67,7 +76,7 @@
    "id": "tool:teams",
    "name": "Teams",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "teams.md"
@@ -76,25 +85,16 @@
    "id": "tool:mirroring",
    "name": "Mirroring",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "mirroring.md"
   },
   {
-   "id": "tool:power-automate",
-   "name": "Power Automate",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 7,
-   "beleg": "",
-   "datei": "power-automate.md"
-  },
-  {
    "id": "tool:dataflow",
    "name": "Dataflow",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "dataflow.md"
@@ -103,7 +103,7 @@
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "notebook.md"
@@ -112,7 +112,7 @@
    "id": "tool:power-query",
    "name": "Power Query",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "power-query.md"
@@ -121,7 +121,7 @@
    "id": "tool:copilot",
    "name": "Copilot",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "copilot.md"
@@ -130,7 +130,7 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "workspace.md"
@@ -139,7 +139,7 @@
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "refresh.md"
@@ -148,7 +148,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "warehouse.md"
@@ -163,6 +163,87 @@
    "zeit": "51:03",
    "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3063s",
    "aussage": "SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 24,
+   "zeit": "00:24",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=24s",
+   "aussage": "Die neuen Kundeneintraege landen auf einer gewoehnlichen SharePoint-Liste, auf die theoretisch jede Person Zugriff haben kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 110,
+   "zeit": "01:50",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=110s",
+   "aussage": "Copilot prueft automatisch, ob die noetigen Zugaenge zu SharePoint und Teams fuer den vorgeschlagenen Flow vorhanden sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 219,
+   "zeit": "03:39",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=219s",
+   "aussage": "Die Genehmigungsspalte in der SharePoint-Liste wurde als Auswahlliste mit den Optionen Submitted, Approved und Denied angelegt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 279,
+   "zeit": "04:39",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=279s",
+   "aussage": "Im Genehmigungsschritt lassen sich unter Details zusaetzliche Parameter wie Vorname, Nachname oder eine ID-Nummer der Kundin oder des Kunden hinzufuegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 308,
+   "zeit": "05:08",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=308s",
+   "aussage": "Ueber das Feld 'Link zu Element' laesst sich im Genehmigungsschritt direkt auf den betroffenen SharePoint-Eintrag verlinken."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 406,
+   "zeit": "06:46",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=406s",
+   "aussage": "Im True-Zweig der Bedingung wird der Genehmigungswert per SharePoint-Aktion 'Update Items' zurueck in die Liste geschrieben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 456,
+   "zeit": "07:36",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=456s",
+   "aussage": "Auch im False-Zweig der Bedingung muss die SharePoint-Aktion 'Update Items' mit Liste und ID separat definiert werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 494,
+   "zeit": "08:14",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=494s",
+   "aussage": "Im False-Zweig wird beim Genehmigungswert nicht 'approved', sondern 'denied' in die SharePoint-Liste geschrieben."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 2967,
+   "zeit": "49:27",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2967s",
+   "aussage": "Für kleinere und mittelständische Unternehmen wird empfohlen, eine Fabric-F2-Kapazität zu kaufen, da sie besser sei als eine reine Excel- oder SharePoint-Lösung."
   },
   {
    "typ": "Empfehlung",
@@ -188,7 +269,7 @@
    "id": "yt:kP8YNW1XN_E",
    "titel": "Forms + Sharepoint + Powerautomate",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.833,
    "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E",
    "sprungmarken": [
@@ -333,7 +414,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.125,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -398,7 +479,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.067,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": [
@@ -448,7 +529,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -483,7 +564,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.047,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -553,7 +634,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [

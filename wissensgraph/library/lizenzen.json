@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "lizenzen",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/lizenzen.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/lizenzen.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/lizenzen.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/lizenzen.json",
  "dokumente_gesamt": 33,
- "kernaussagen_gesamt": 11,
- "mit_kernaussagen": 8,
+ "kernaussagen_gesamt": 21,
+ "mit_kernaussagen": 14,
  "aliase": [
   "Lizenz",
   "Lizenzierung",
@@ -21,13 +21,13 @@
   "Preise",
   "Preis"
  ],
- "einordnung": "Fabric Planning mit Lumel erfordert keine separate Lizenz und wird ausschließlich über Capacity-Unit-Verbrauch abgerechnet. Mit der Power-BI-Pro-Lizenz gilt eine Dateigrößengrenze von 1 GB, deren Überschreitung in Richtung Premium zu höheren Kosten führen kann. Ein Tabular-Modell im SQL Server der Standard Edition ist auf 16 GB Arbeitsspeicher begrenzt, was bei Überschreitung ein Enterprise-Lizenzthema auslöst.",
+ "einordnung": "Echtzeit-Dashboards innerhalb von Microsoft Fabric sind laut Brian Bønk kostenlos und benötigen keine gesonderte Lizenz für die Visualisierung. (Stand 2025-09) Für Echtzeit-Dashboards ist laut Brian Bønk keine Power-BI-Pro-Lizenz nötig, es genügt mindestens eine F2-Fabric-Instanz. (Stand 2025-09) Ein eigener Workspace in Power BI erfordert eine Power BI Pro Lizenz, die kostenlose Lizenz berechtigt nur zur Nutzung des persoenlichen My Workspace. (Stand 2025-10)",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 36,
    "beleg": "",
    "datei": "power-bi.md"
@@ -36,7 +36,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -45,7 +45,7 @@
    "id": "tool:fabric-capacity",
    "name": "Fabric Capacity",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "fabric-capacity.md"
@@ -54,7 +54,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "reporting.md"
@@ -63,16 +63,25 @@
    "id": "tool:premium",
    "name": "Premium",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "premium.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 18,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "ki.md"
@@ -81,7 +90,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "performance.md"
@@ -90,7 +99,7 @@
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "refresh.md"
@@ -99,7 +108,7 @@
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "onelake.md"
@@ -108,7 +117,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -117,7 +126,7 @@
    "id": "tool:mirroring",
    "name": "Mirroring",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "mirroring.md"
@@ -126,7 +135,7 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "sicherheit.md"
@@ -135,7 +144,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "warehouse.md"
@@ -144,19 +153,10 @@
    "id": "tool:power-bi-pro",
    "name": "Power BI Pro",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "power-bi-pro.md"
-  },
-  {
-   "id": "topic:sternschema",
-   "name": "Sternschema",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 8,
-   "beleg": "",
-   "datei": "sternschema.md"
   }
  ],
  "kernaussagen": [
@@ -243,12 +243,102 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 543,
+   "zeit": "09:03",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=543s",
+   "aussage": "Für die Nutzung wird eine GitHub-Anmeldung benötigt, wobei GitHub Copilot Free zum Einstieg ausreicht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 603,
+   "zeit": "10:03",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=603s",
+   "aussage": "Ein eigener Workspace in Power BI erfordert eine Power BI Pro Lizenz, die kostenlose Lizenz berechtigt nur zur Nutzung des persoenlichen My Workspace."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 647,
+   "zeit": "10:47",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=647s",
+   "aussage": "Power BI Desktop lässt sich kostenlos herunterladen, waehrend es eine kostenlose Desktop-Version von Qlik in dieser Form nicht mehr gibt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 664,
+   "zeit": "11:04",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=664s",
+   "aussage": "Das guenstigste Qlik-Angebot beginnt bei rund 2400 Euro im Jahr, bei zehn Nutzern liegt man bei etwa 20 Euro pro Nutzer und Monat."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 677,
+   "zeit": "11:17",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=677s",
+   "aussage": "Bei einer Entscheidung zwischen Qlik und Power BI sollte man sich nicht in erster Linie auf die Lizenzpreise konzentrieren, sondern den konkreten Use Case durchrechnen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1264,
+   "zeit": "21:04",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1264s",
+   "aussage": "Echtzeit-Dashboards innerhalb von Microsoft Fabric sind laut Brian Bønk kostenlos und benötigen keine gesonderte Lizenz für die Visualisierung."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1294,
+   "zeit": "21:34",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1294s",
+   "aussage": "Für Echtzeit-Dashboards ist laut Brian Bønk keine Power-BI-Pro-Lizenz nötig, es genügt mindestens eine F2-Fabric-Instanz."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
    "sekunde": 1543,
    "zeit": "25:43",
    "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1543s",
    "aussage": "Mit der Einführung von Power BI Premium im Jahr 2017 benötigten plötzlich auch reine Berichtskonsumenten eine Power BI Pro Lizenz, um Berichte weiterhin kostenlos empfangen zu können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 1650,
+   "zeit": "27:30",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1650s",
+   "aussage": "Bei Azure/Fabric sind die Preise regionsabhängig, während frühere Office-Lizenzen weltweit einheitliche Preise hatten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1627,
+   "zeit": "27:07",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1627s",
+   "aussage": "Vor den User Data Functions ließ sich Ähnliches nur über Power Automate mit Premium-Lizenz umsetzen, was als eher wackelig empfunden wurde, insbesondere bei der Kontextübergabe."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 698,
+   "zeit": "11:38",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=698s",
+   "aussage": "Wuerde Microsoft jeden gewuenschten Zusatzfeature-Wunsch in den Standard von Power BI und Fabric einbauen, waere die Software dadurch teurer."
   },
   {
    "typ": "Fakt",
@@ -320,7 +410,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.154,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -385,7 +475,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.133,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": [
@@ -525,7 +615,7 @@
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.081,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [
@@ -575,7 +665,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.077,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -720,7 +810,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.057,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -775,7 +865,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.042,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -790,7 +880,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.032,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [

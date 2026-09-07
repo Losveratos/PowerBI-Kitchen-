@@ -4,27 +4,27 @@
  "typ": "tool",
  "slug": "workspace",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/workspace.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/workspace.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/workspace.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/workspace.json",
  "dokumente_gesamt": 45,
- "kernaussagen_gesamt": 14,
- "mit_kernaussagen": 6,
+ "kernaussagen_gesamt": 21,
+ "mit_kernaussagen": 10,
  "aliase": [
   "Arbeitsbereich",
   "Workspaces",
   "Arbeitsbereiche"
  ],
- "einordnung": "Ein Arbeitsbereich wird einer Kapazität zugeordnet, und innerhalb dieses Arbeitsbereichs werden Artefakte und Daten entsprechend im OneLake abgelegt. Die Rechenleistung, die innerhalb eines Arbeitsbereichs zum Arbeiten mit den Daten im OneLake genutzt wird, stammt aus der zugeordneten Fabric-Kapazität. Workspaces können in unterschiedlichen Regionen liegen, etwa manche im US-Bereich und andere in Europa, wobei die Daten jeweils in der Region gespeichert sind, in der der Workspace angelegt wurde.",
+ "einordnung": "Ein Arbeitsbereich wird einer Kapazität zugeordnet, und innerhalb dieses Arbeitsbereichs werden Artefakte und Daten entsprechend im OneLake abgelegt. (Stand 2026-03) Die Rechenleistung, die innerhalb eines Arbeitsbereichs zum Arbeiten mit den Daten im OneLake genutzt wird, stammt aus der zugeordneten Fabric-Kapazität. (Stand 2026-03) Workspaces können in unterschiedlichen Regionen liegen, etwa manche im US-Bereich und andere in Europa, wobei die Daten jeweils in der Region gespeichert sind, in der der Workspace angelegt wurde. (Stand 2026-03)",
  "nachbarn": [
   {
    "id": "tool:fabric-capacity",
    "name": "Fabric Capacity",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 28,
    "beleg": "ich habe einen Arbeitsbereich, den ordne ich einer Kapazität zu und innerhalb des Arbeitsbereichs werden dann meine Artefakte und die Daten dazu entsprechend auf den Onelake abgelegt.",
    "datei": "fabric-capacity.md"
@@ -33,16 +33,25 @@
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "teil-von",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 32,
    "beleg": "ihm eben Möglichkeiten gegeben, hier innerhalb des Arbeitsbereichs etwas Ich habe das Notebook angelegt.",
    "datei": "notebook.md"
   },
   {
+   "id": "tool:power-bi-pro",
+   "name": "Power BI Pro",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "eigene Workspaces, da braucht man eine Power BI Pro Lizenz",
+   "datei": "power-bi-pro.md"
+  },
+  {
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 74,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -51,7 +60,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 58,
    "beleg": "",
    "datei": "power-bi.md"
@@ -60,7 +69,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 36,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -69,7 +78,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 33,
    "beleg": "",
    "datei": "reporting.md"
@@ -78,7 +87,7 @@
    "id": "tool:dataflow",
    "name": "Dataflow",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "dataflow.md"
@@ -87,7 +96,7 @@
    "id": "tool:data-pipeline",
    "name": "Data Pipeline",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "data-pipeline.md"
@@ -96,7 +105,7 @@
    "id": "tool:semantic-model",
    "name": "Semantic Model",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "semantic-model.md"
@@ -105,7 +114,7 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "sicherheit.md"
@@ -114,16 +123,25 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "warehouse.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 16,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:premium",
    "name": "Premium",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "premium.md"
@@ -132,31 +150,22 @@
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "direct-lake.md"
-  },
-  {
-   "id": "topic:performance",
-   "name": "Performance",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 15,
-   "beleg": "",
-   "datei": "performance.md"
-  },
-  {
-   "id": "tool:onelake",
-   "name": "OneLake",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 15,
-   "beleg": "",
-   "datei": "onelake.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 963,
+   "zeit": "16:03",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=963s",
+   "aussage": "Im Agent Hub lassen sich Fabric-Items, Dateien und PDFs per Prompt referenzieren, und ueber ein Branch-Out-Feature kann bei vorhandener Git-Integration im Workspace direkt in einem eigenen Feature-Workspace gearbeitet werden."
+  },
   {
    "typ": "Fakt",
    "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
@@ -267,6 +276,24 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 603,
+   "zeit": "10:03",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=603s",
+   "aussage": "Ein eigener Workspace in Power BI erfordert eine Power BI Pro Lizenz, die kostenlose Lizenz berechtigt nur zur Nutzung des persoenlichen My Workspace."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 956,
+   "zeit": "15:56",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=956s",
+   "aussage": "In Qlik Cloud heissen Workspaces schlicht Spaces und Reports werden als Apps bezeichnet, die Grafiken, Daten und Formeln als gemeinsamen Container enthalten."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
    "sekunde": 388,
@@ -282,6 +309,42 @@
    "zeit": "10:54",
    "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=654s",
    "aussage": "In einer Power-BI-Projektdatei können mehrere Report-Verzeichnisse auf dasselbe semantische Modell zeigen, und Berichte lassen sich auch in einem anderen Workspace deployen als das zugehörige Modell."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 830,
+   "zeit": "13:50",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=830s",
+   "aussage": "Das Fabric-Notebook lädt das GitHub-Repository über eine speziell zusammengebaute URL komplett als ZIP-Datei herunter."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 879,
+   "zeit": "14:39",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=879s",
+   "aussage": "Im Notebook muss man angeben, mit welchem Ziel-Dataset im Workspace der übertragene Bericht verbunden werden soll."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 3154,
+   "zeit": "52:34",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3154s",
+   "aussage": "Customer Managed Key (CMK) für Fabric-Workspaces ist bereits in Public Preview, unterstützt aber noch nicht alle Fabric-Items."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 3193,
+   "zeit": "53:13",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3193s",
+   "aussage": "Workspace-Level Outbound Access Protection für Spark ist seit Anfang Oktober GA, als erstes GA-Feature im Advanced-Security-Komplex."
   }
  ],
  "dokumente": [
@@ -359,7 +422,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.333,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -474,7 +537,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.22,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -549,7 +612,7 @@
    "id": "yt:BDnwlOqRElY",
    "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
    "datum": "2025-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.174,
    "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
    "sprungmarken": [
@@ -614,7 +677,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.158,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -639,7 +702,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.154,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -689,7 +752,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.125,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -869,7 +932,7 @@
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.081,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [
@@ -894,7 +957,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.081,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -944,7 +1007,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.07,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [
@@ -1009,7 +1072,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.067,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": [
@@ -1044,7 +1107,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.057,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -1144,7 +1207,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.032,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [

@@ -4,25 +4,25 @@
  "typ": "tool",
  "slug": "azure-devops",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-devops.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-devops.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/azure-devops.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/azure-devops.json",
  "dokumente_gesamt": 3,
- "kernaussagen_gesamt": 0,
- "mit_kernaussagen": 0,
+ "kernaussagen_gesamt": 1,
+ "mit_kernaussagen": 1,
  "aliase": [
   "DevOps"
  ],
- "einordnung": "Azure DevOps kommt in 3 Dokumenten der Daten-WG vor; am ausführlichsten in „600 SQL-Tabellen in Fabric“.",
+ "einordnung": "Power BI war lange Zeit nicht wirklich DevOps-fähig.",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "power-bi.md"
@@ -31,7 +31,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -40,7 +40,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -49,7 +49,7 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "workspace.md"
@@ -58,7 +58,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "reporting.md"
@@ -67,7 +67,7 @@
    "id": "tool:git",
    "name": "Git",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "git.md"
@@ -76,7 +76,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "warehouse.md"
@@ -85,19 +85,29 @@
    "id": "tool:semantic-model",
    "name": "Semantic Model",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "semantic-model.md"
   }
  ],
- "kernaussagen": [],
+ "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 707,
+   "zeit": "11:47",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=707s",
+   "aussage": "Power BI war lange Zeit nicht wirklich DevOps-fähig."
+  }
+ ],
  "dokumente": [
   {
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.25,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -142,7 +152,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": []

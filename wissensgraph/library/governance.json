@@ -4,36 +4,45 @@
  "typ": "thema",
  "slug": "governance",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/governance.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/governance.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/governance.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/governance.json",
  "dokumente_gesamt": 27,
- "kernaussagen_gesamt": 64,
- "mit_kernaussagen": 18,
+ "kernaussagen_gesamt": 100,
+ "mit_kernaussagen": 32,
  "aliase": [
   "Data Governance",
   "Compliance",
   "Richtlinien"
  ],
- "einordnung": "Einzelne Workspaces lassen sich als Mission Critical markieren, damit sie von der automatischen Pausierung durch die Search Protection ausgenommen bleiben. Bei großflächig ausgerolltem Self-Service BI ist es nicht mehr Ziel der zentralen Abteilung, einen umfassenden Single Point of Truth zu etablieren, Security bleibt aber weiterhin zentral geregelt. Metadaten lassen sich für Data Health und Data Governance nutzen, weil sie standardisiert ausgewertet werden können.",
+ "einordnung": "Aktuell werden Quellsysteme häufig tabellenweise per CDC oder als Delta Lake direkt in den Data Lake geschrieben, was ohne Ordnungsstruktur schnell zu einem sogenannten Data Swamp wird. (Stand 2025-07) Einzelne Workspaces lassen sich als Mission Critical markieren, damit sie von der automatischen Pausierung durch die Search Protection ausgenommen bleiben. (Stand 2026-01) Bei großflächig ausgerolltem Self-Service BI ist es nicht mehr Ziel der zentralen Abteilung, einen umfassenden Single Point of Truth zu etablieren, Security bleibt aber weiterhin zentral geregelt. (Stand 2026-02)",
  "nachbarn": [
   {
    "id": "topic:self-service-bi",
    "name": "Self-Service BI",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 4,
    "beleg": "dieses Spannungsfeld zwischen IT Chain und Selfsice nennen wir es einfach ITQ",
+   "datei": "self-service-bi.md"
+  },
+  {
+   "id": "topic:self-service-bi",
+   "name": "Self-Service BI",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 4,
+   "beleg": "dass berechtigungskonzept sehen wir als gewisse leitplanken die quasi ein unsichtbares gerüst zur einhaltung von von ein paar spielregeln",
    "datei": "self-service-bi.md"
   },
   {
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -42,7 +51,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 25,
    "beleg": "",
    "datei": "power-bi.md"
@@ -51,7 +60,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 15,
    "beleg": "",
    "datei": "reporting.md"
@@ -60,7 +69,7 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "sicherheit.md"
@@ -69,7 +78,7 @@
    "id": "tool:snowflake",
    "name": "Snowflake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "snowflake.md"
@@ -78,7 +87,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "performance.md"
@@ -87,7 +96,7 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "workspace.md"
@@ -96,7 +105,7 @@
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "onelake.md"
@@ -105,7 +114,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "warehouse.md"
@@ -114,7 +123,7 @@
    "id": "tool:mirroring",
    "name": "Mirroring",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "mirroring.md"
@@ -123,7 +132,7 @@
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "excel.md"
@@ -132,7 +141,7 @@
    "id": "topic:row-level-security",
    "name": "Row-Level Security",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "row-level-security.md"
@@ -141,22 +150,58 @@
    "id": "tool:directquery",
    "name": "DirectQuery",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "directquery.md"
-  },
-  {
-   "id": "tool:data-pipeline",
-   "name": "Data Pipeline",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 7,
-   "beleg": "",
-   "datei": "data-pipeline.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 200,
+   "zeit": "03:20",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=200s",
+   "aussage": "Datenentscheidungen sollen nachvollziehbar bleiben, weshalb bewusst vermieden wird, Analysen als Blackbox darzustellen, aus der man sich zurückzieht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 871,
+   "zeit": "14:31",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=871s",
+   "aussage": "Wegen Datenschutzanforderungen bei der Arbeit mit Unternehmen wird das Tool inzwischen über einen deutschen IT-Dienstleister auf deutschen Servern gehostet statt in der Cloud von Lovable."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1182,
+   "zeit": "19:42",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1182s",
+   "aussage": "Bei einem strikten Layering-Ansatz wird Self-Service-Nutzern meist nur per Shortcut Zugriff auf den Gold-Layer gewaehrt, waehrend Bronze und Silber den Data Engineers vorbehalten bleiben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1276,
+   "zeit": "21:16",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1276s",
+   "aussage": "Bei einem Self-Service-Lakehouse-Ansatz werden fertige Daten aus dem Gold-Layer per Shortcut bereitgestellt, damit Fachbereichs-Excel-Mappings nicht mehr zentral in Bronze verwaltet werden muessen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 1437,
+   "zeit": "23:57",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1437s",
+   "aussage": "Fabric-Administratorinnen und -Administratoren koennen steuern, welche Workloads bzw. Items in ihrem Unternehmen erlaubt sind."
+  },
   {
    "typ": "Empfehlung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
@@ -326,7 +371,7 @@
    "sekunde": 1048,
    "zeit": "17:28",
    "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=1048s",
-   "aussage": "In einem der begleiteten GXP-Projekte ist die Validierung nach Einschätzung der Sprecherin bereits zu rund 30 Prozent digital und toolgestützt dokumentiert."
+   "aussage": "In einem der begleiteten GXP-Projekte ist die Validierung nach Einschätzung einer der Sprecherinnen bereits zu rund 30 Prozent digital und toolgestützt dokumentiert."
   },
   {
    "typ": "Fakt",
@@ -545,6 +590,15 @@
    "aussage": "Arthur warnt davor, ein gut funktionierendes BI-Tool nur wegen konzernweiter Vereinheitlichung ohne echten Grund zu wechseln."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 1459,
+   "zeit": "24:19",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=1459s",
+   "aussage": "Bei Änderungen am Modell fragt der MCP Server jedes Mal nach einer expliziten Bestätigung, bevor die Operation ausgeführt wird."
+  },
+  {
    "typ": "Warnung",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
@@ -552,6 +606,69 @@
    "zeit": "33:09",
    "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1989s",
    "aussage": "Copilot kann laut den Sprechern automatisch Beschreibungen zu Measures erzeugen, darf aber in bestimmten regulierten Umgebungen wie der Finanzverwaltung nicht eingesetzt werden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 784,
+   "zeit": "13:04",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=784s",
+   "aussage": "Übernimmt jemand die Ownership für eine Dimension wie Kunden oder Artikel und definiert sie als Datenprodukt, kann diese entsprechend dokumentiert und für andere bereitgestellt werden."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 974,
+   "zeit": "16:14",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=974s",
+   "aussage": "Verschiebt man die Datenverantwortung per Product Ownership vollständig in die Fachbereiche, kann dort ungewollt viel Abstimmungs-Overhead zwischen den Bereichen entstehen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 993,
+   "zeit": "16:33",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=993s",
+   "aussage": "Laut einem Zitat von Lars Schreiber gehören die Daten nicht der IT, sondern dem Fachbereich."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 1015,
+   "zeit": "16:55",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1015s",
+   "aussage": "Die technische Umsetzung einer Datenverantwortung kann etwa an IT oder ein BI-Competence-Center delegiert werden, wichtig ist aber, dass jemand die eigentliche Verantwortung übernimmt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 1218,
+   "zeit": "20:18",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1218s",
+   "aussage": "In manchen Organisationskulturen wird praktisch jede Anforderung aus dem Fachbereich automatisch als Prio 1 eingestuft."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 1434,
+   "zeit": "23:54",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1434s",
+   "aussage": "Datenprozesse müssen vom Business selbst entdeckt und genutzt werden, sonst wirkt es schnell so, als wolle die IT dem Business etwas vorschreiben."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 1793,
+   "zeit": "29:53",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1793s",
+   "aussage": "Die Organisation und ihre Denkweise haben einen großen Einfluss darauf, wie ein Datenmodell aufgebaut wird, etwa ob es eine zentrale Kundendimension oder ein zentrales Data Warehouse gibt."
   },
   {
    "typ": "Empfehlung",
@@ -563,13 +680,184 @@
    "aussage": "Sobald mehrere Faktentabellen für einen Drill-Across kombiniert werden sollen oder unternehmensweit standardisierte Dimensionen benötigt werden, ist ein dimensionales Modell mit Sternschema vorzuziehen."
   },
   {
+   "typ": "Warnung",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 24,
+   "zeit": "00:24",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=24s",
+   "aussage": "Die neuen Kundeneintraege landen auf einer gewoehnlichen SharePoint-Liste, auf die theoretisch jede Person Zugriff haben kann."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1031,
+   "zeit": "17:11",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1031s",
+   "aussage": "Das Notebook prüft aktuell nicht, ob bereits ein gleichnamiger Bericht existiert, sodass mehrfaches Ausführen zu mehreren Reports mit identischem Namen führt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1147,
+   "zeit": "19:07",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1147s",
+   "aussage": "Werden Platzhalternamen im Referenzmodell nicht sorgfältig gewählt, besteht das Risiko einer Art Power-BI-Code-Injection über eingeschleuste JSON- oder RLS-Inhalte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1168,
+   "zeit": "19:28",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1168s",
+   "aussage": "Die Manipulation über die Berichtsdatei betrifft nur das Frontend und kann nur sichtbar machen, was im Modell bereits vorhanden, aber schlecht verborgen ist."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1250,
+   "zeit": "20:50",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1250s",
+   "aussage": "Bei rund 100 Berichten dieses Stils im Unternehmen wird das manuelle Kopieren und Anpassen von Vorlagendateien sehr umständlich."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1268,
+   "zeit": "21:08",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1268s",
+   "aussage": "Werden Berichte statt aus separaten Dateien aus einem Git-Repository bezogen, entsteht dadurch ein Skaleneffekt über große Organisationen hinweg."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Mythos Data Vault und richtig große Modelle",
+   "dokument_id": "yt:rrCi0lnGrCg",
+   "sekunde": 1031,
+   "zeit": "17:11",
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1031s",
+   "aussage": "Aktuell werden Quellsysteme häufig tabellenweise per CDC oder als Delta Lake direkt in den Data Lake geschrieben, was ohne Ordnungsstruktur schnell zu einem sogenannten Data Swamp wird."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Mythos Data Vault und richtig große Modelle",
+   "dokument_id": "yt:rrCi0lnGrCg",
+   "sekunde": 1757,
+   "zeit": "29:17",
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1757s",
+   "aussage": "Im beschriebenen Zielbild soll der Fachbereich seine Datenprodukte über ein konzeptuelles Geschäftsmodell selbst definieren."
+  },
+  {
    "typ": "Meinung",
    "dokument": "BI Thinkers Talk Nr.62",
    "dokument_id": "yt:Wwvhv8WA2Qc",
    "sekunde": 1774,
    "zeit": "29:34",
    "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1774s",
-   "aussage": "Aus Sicht des Sprechers sind Datenfunktionen zum Zurückschreiben noch nicht vollständig self-service-tauglich, weil Modell, Datenhaltung und Funktion aktuell nicht an Fachbereiche übergeben werden sollten."
+   "aussage": "Aus Sicht eines der Sprecher sind Datenfunktionen zum Zurückschreiben noch nicht vollständig self-service-tauglich, weil Modell, Datenhaltung und Funktion aktuell nicht an Fachbereiche übergeben werden sollten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 81,
+   "zeit": "01:21",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=81s",
+   "aussage": "Viele der zahlreichen FABCON-2025-Ankündigungen waren weniger grundlegend neu, sondern zielten vor allem darauf ab, vorhandene und oft kritisierte Lücken zu schließen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1124,
+   "zeit": "18:44",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1124s",
+   "aussage": "OneLake Security soll als zentrale Policy Engine Spalten-, Row-Level- und dynamische Tabellenebenen-Sicherheit über Lakehouse, Warehouse und Power BI hinweg abdecken."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1307,
+   "zeit": "21:47",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1307s",
+   "aussage": "User Data Functions ermöglichen es, Business Logic zu implementieren und zu kapseln und sie anschließend in einem Lakehouse, einer Data Pipeline und einem Warehouse wiederzuverwenden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1762,
+   "zeit": "29:22",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1762s",
+   "aussage": "Nach Marco Geuers Kernbotschaft müssen Führungskräfte anders bewertet und Zielsysteme anders ausgestaltet werden, damit datengetriebenes Arbeiten wirklich funktioniert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 2024,
+   "zeit": "33:44",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2024s",
+   "aussage": "Der OneLake-Katalog ist ausdrücklich nicht als Catalog-of-Catalogs gedacht, der Werkzeuge wie Purview oder Informatica ersetzen soll, sondern als zentraler Discovery-Einstiegspunkt für Fabric-Nutzer."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 2144,
+   "zeit": "35:44",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2144s",
+   "aussage": "FUAM hat sich als offizielle State-of-the-Art-Monitoring-Lösung inklusive Capacity Matrix etabliert und löst damit die frühere Community-Lösung von Rui Romano ab."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 512,
+   "zeit": "08:32",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=512s",
+   "aussage": "Bei der Power-BI-Einführung wird empfohlen, Datenschutzbeauftragte und die Rechtsabteilung frühzeitig an einen Tisch zu holen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 950,
+   "zeit": "15:50",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=950s",
+   "aussage": "Das Microsoft-Konzept eines Center of Excellence wurde bei der Rheinland Versicherung über die IT-Abteilung abgebildet."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1730,
+   "zeit": "28:50",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1730s",
+   "aussage": "Ein Berechtigungskonzept wurde als Leitplanke entwickelt, um in der stark von Self-Service geprägten Power-BI-Umgebung unkontrollierten Wildwuchs an Berichten zu vermeiden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1930,
+   "zeit": "32:10",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1930s",
+   "aussage": "Das Berechtigungskonzept wurde bereits festgelegt, bevor die ersten Teams überhaupt Zugriff auf die Power-BI-Plattform erhielten."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1944,
+   "zeit": "32:24",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1944s",
+   "aussage": "Unkontrollierter Wildwuchs an selbst erstellten Berichten lässt sich nachträglich kaum noch einfangen."
   },
   {
    "typ": "Fakt",
@@ -597,6 +885,15 @@
    "zeit": "07:54",
    "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=474s",
    "aussage": "Ein vollständiges Metadatenkonzept sollte neben technischen Informationen auch einen Business Layer mit Ansprechpartnern und Datenherkunft umfassen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 516,
+   "zeit": "08:36",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=516s",
+   "aussage": "Microsoft beschraenkt sich bei Power BI und Fabric bewusst auf Kernkompetenzen und ueberlaesst ergaenzende Loesungen wie FUAM Partnern und der Community."
   },
   {
    "typ": "Warnung",
@@ -689,6 +986,15 @@
    "aussage": "Martin sieht keinen Bedarf, dass jeder Fachanwender eigene Fabric-Artefakte erstellen können muss."
   },
   {
+   "typ": "Meinung",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 2075,
+   "zeit": "34:35",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=2075s",
+   "aussage": "Alexander Dean findet, dass Datenkataloge von Drittanbietern nur selten wirklich funktionieren, wobei Collibra (\"Kolibra\") bisher die beste, aber nicht perfekte Plattform sei."
+  },
+  {
    "typ": "Fakt",
    "dokument": "Was ist Self-Service und warum ist das so schwer?",
    "dokument_id": "yt:EVsJ6zyGUWc",
@@ -723,6 +1029,24 @@
    "zeit": "40:32",
    "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2432s",
    "aussage": "Schatten-IT einfach zu ignorieren ist aus Sicht von Tom Martens keine Strategie; ein Mittelweg mit einer abgespeckt unterstützten Lösung ist besser, als die Fachbereiche komplett am System vorbeiarbeiten zu lassen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 3016,
+   "zeit": "50:16",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=3016s",
+   "aussage": "Fuer das Azure-Maps-Visual gibt es jetzt zwei zusaetzliche Tenant-Settings, mit denen sich das Subprocessing der Kartendaten ausserhalb der eigenen Region deaktivieren laesst."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 3154,
+   "zeit": "52:34",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3154s",
+   "aussage": "Customer Managed Key (CMK) für Fabric-Workspaces ist bereits in Public Preview, unterstützt aber noch nicht alle Fabric-Items."
   },
   {
    "typ": "Meinung",
@@ -844,7 +1168,7 @@
    "id": "yt:rrCi0lnGrCg",
    "titel": "Mythos Data Vault und richtig große Modelle",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.091,
    "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
    "sprungmarken": [
@@ -959,7 +1283,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.065,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -979,7 +1303,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.057,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -1084,7 +1408,7 @@
    "id": "yt:lH_-A8NAQ-k",
    "titel": "Datenmodellierung ist Governance",
    "datum": "2025-11-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.04,
    "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
    "sprungmarken": [
@@ -1134,7 +1458,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.028,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -1189,7 +1513,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [

@@ -4,26 +4,35 @@
  "typ": "tool",
  "slug": "deployment-pipelines",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/deployment-pipelines.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/deployment-pipelines.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/deployment-pipelines.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/deployment-pipelines.json",
  "dokumente_gesamt": 13,
- "kernaussagen_gesamt": 8,
- "mit_kernaussagen": 3,
+ "kernaussagen_gesamt": 19,
+ "mit_kernaussagen": 9,
  "aliase": [
   "Bereitstellungspipelines",
   "Deployment Pipeline"
  ],
- "einordnung": "Bei einem Direct-Lake-Modell bleibt das Semantic Model nach einem Deployment über eine Deployment Pipeline weiterhin mit dem Lakehouse der Testumgebung verbunden, die Datenquelle wird also nicht automatisch auf die Zielumgebung umgehängt. Deployment Pipelines unterstützen Dataflows, Lakehouses und Direct Lake nicht zuverlässig, sodass danach oft manuell mit VS Code nachgearbeitet werden muss. Für Import-Modelle gibt es in Deployment Pipelines eigene Deployment Rules, für Direct Lake dagegen nicht.",
+ "einordnung": "Ein manuelles Fabric-Deployment-Release hat einmal insgesamt 14 Stunden gedauert. Im Juni 2024 wurden die Fabric Deployment Pipelines Git-kompatibel, was als Durchbruch für DevOps mit Fabric beschrieben wird. Für die Warehouses wurden im Projekt klassische DACPAC-Deployments über ein SQL-Deployment-Tool eingesetzt, weil die Fabric Deployment Pipelines dafür nicht funktionierten.",
  "nachbarn": [
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 9,
+   "beleg": "der Analytic Endpunkt vom Lake House wird nicht die Objekte da drin werden nicht übertragen",
+   "datei": "lakehouse.md"
+  },
   {
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "workspace.md"
@@ -32,25 +41,16 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "power-bi.md"
   },
   {
-   "id": "tool:lakehouse",
-   "name": "Lakehouse",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 9,
-   "beleg": "",
-   "datei": "lakehouse.md"
-  },
-  {
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -59,7 +59,7 @@
    "id": "tool:data-pipeline",
    "name": "Data Pipeline",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "data-pipeline.md"
@@ -68,7 +68,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "reporting.md"
@@ -77,7 +77,7 @@
    "id": "tool:dataflow",
    "name": "Dataflow",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "dataflow.md"
@@ -86,16 +86,25 @@
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "notebook.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:semantic-model",
    "name": "Semantic Model",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "semantic-model.md"
@@ -104,7 +113,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "warehouse.md"
@@ -113,7 +122,7 @@
    "id": "tool:premium",
    "name": "Premium",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "premium.md"
@@ -122,7 +131,7 @@
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "direct-lake.md"
@@ -131,7 +140,7 @@
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "refresh.md"
@@ -140,13 +149,40 @@
    "id": "topic:row-level-security",
    "name": "Row-Level Security",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "row-level-security.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 209,
+   "zeit": "03:29",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=209s",
+   "aussage": "In diesem Projekt wurden Views im Lakehouse ueber Notebooks per Create-and-Replace angelegt, damit sie sich ueber Deployment Pipelines mitversenden lassen und je Umgebung automatisch das passende Lakehouse zugewiesen wird."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 507,
+   "zeit": "08:27",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=507s",
+   "aussage": "Es wird empfohlen, fuer Produktivbetrieb und Deployment beziehungsweise Tests getrennte Fabric-Kapazitaeten einzuplanen, damit ein fehlgeschlagenes Deployment nicht das operative System stoert."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 824,
+   "zeit": "13:44",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=824s",
+   "aussage": "Bei Fabric Deployment Pipelines werden Objekte des SQL-Analytics-Endpunkts eines Lakehouse wie Views nicht mit uebertragen, waehrend das beim Warehouse funktioniert."
+  },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.73",
@@ -181,7 +217,7 @@
    "sekunde": 3298,
    "zeit": "54:58",
    "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3298s",
-   "aussage": "Als Workaround definiert der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden."
+   "aussage": "Als Workaround definiert einer der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden."
   },
   {
    "typ": "Fakt",
@@ -202,6 +238,24 @@
    "aussage": "Für Import-Modelle gibt es in Deployment Pipelines eigene Deployment Rules, für Direct Lake dagegen nicht."
   },
   {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 3092,
+   "zeit": "51:32",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3092s",
+   "aussage": "Dataflow Gen2 mit Git-Integration wird gegenüber Gen1 grundsätzlich empfohlen, weil er inzwischen aus Pipelines nutzbar ist und neue Features bekommt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1809,
+   "zeit": "30:09",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1809s",
+   "aussage": "Die neue Variable Library kann sowohl in Dataflows bzw. Data Pipelines als auch im CI/CD-Kontext genutzt werden, um workspace-spezifische Zielwerte für Variablen abzulegen."
+  },
+  {
    "typ": "Fakt",
    "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
    "dokument_id": "yt:mTVeZzshLzE",
@@ -212,12 +266,66 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 779,
+   "zeit": "12:59",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=779s",
+   "aussage": "Ein manuelles Fabric-Deployment-Release hat einmal insgesamt 14 Stunden gedauert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 834,
+   "zeit": "13:54",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=834s",
+   "aussage": "Im Juni 2024 wurden die Fabric Deployment Pipelines Git-kompatibel, was als Durchbruch für DevOps mit Fabric beschrieben wird."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1266,
+   "zeit": "21:06",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1266s",
+   "aussage": "Fabric Deployment Pipelines kamen im Projekt nicht damit klar, dass eine Abhängigkeit wie ein bestehendes Warehouse schon existieren musste."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1270,
+   "zeit": "21:10",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1270s",
+   "aussage": "Für die Warehouses wurden im Projekt klassische DACPAC-Deployments über ein SQL-Deployment-Tool eingesetzt, weil die Fabric Deployment Pipelines dafür nicht funktionierten."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
    "dokument_id": "yt:mTVeZzshLzE",
    "sekunde": 1361,
    "zeit": "22:41",
    "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1361s",
    "aussage": "Ein Lakehouse wird beim Deployment in einen neuen Workspace leer angelegt, ohne die enthaltenen Daten mitzukopieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 1922,
+   "zeit": "32:02",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1922s",
+   "aussage": "Dataflows sind mittlerweile vollwertig in Pipelines nutzbar und ihre Ziele lassen sich parametrisieren, sodass Parameter und Variablen aus Pipelines an Dataflows uebergeben werden koennen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 1938,
+   "zeit": "32:18",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1938s",
+   "aussage": "Variable Libraries sind jetzt GA und ermöglichen parametrisierte, dynamische Designansätze über verschiedene Fabric-Objekte hinweg, unter anderem in Dataflows."
   }
  ],
  "dokumente": [
@@ -225,7 +333,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.125,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -300,7 +408,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.065,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -320,7 +428,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.053,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -355,7 +463,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [

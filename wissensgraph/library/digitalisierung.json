@@ -4,26 +4,26 @@
  "typ": "thema",
  "slug": "digitalisierung",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/digitalisierung.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/digitalisierung.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/digitalisierung.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/digitalisierung.json",
  "dokumente_gesamt": 10,
- "kernaussagen_gesamt": 17,
- "mit_kernaussagen": 5,
+ "kernaussagen_gesamt": 25,
+ "mit_kernaussagen": 9,
  "aliase": [
   "digitale Transformation",
   "Transformation"
  ],
- "einordnung": "Unternehmen unterscheiden bei der Digitalisierung typischerweise drei Horizonte: interne Prozessautomatisierung, nach außen gerichtete Produkt- und Serviceerweiterungen sowie die grundsätzliche Neuausrichtung des Geschäftsmodells. Trotz jahrzehntelanger Digitalisierungsbemühungen sind selbst Basisthemen wie die digitale Rechnungsverfolgung in vielen Unternehmen immer noch nicht flächendeckend ausgerollt. Laut Christoph betreiben mittlerweile die meisten großen Pharmakonzerne hybride Cloud-Umgebungen mit mehreren Anbietern und bauen darin Lakehouses für die Datenaufbereitung auf.",
+ "einordnung": "Unternehmen unterscheiden bei der Digitalisierung typischerweise drei Horizonte: interne Prozessautomatisierung, nach außen gerichtete Produkt- und Serviceerweiterungen sowie die grundsätzliche Neuausrichtung des Geschäftsmodells. (Stand 2026-02) Trotz jahrzehntelanger Digitalisierungsbemühungen sind selbst Basisthemen wie die digitale Rechnungsverfolgung in vielen Unternehmen immer noch nicht flächendeckend ausgerollt. (Stand 2026-02) Laut Christoph betreiben mittlerweile die meisten großen Pharmakonzerne hybride Cloud-Umgebungen mit mehreren Anbietern und bauen darin Lakehouses für die Datenaufbereitung auf. (Stand 2026-05)",
  "nachbarn": [
   {
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "ki.md"
@@ -32,7 +32,7 @@
    "id": "topic:schulung",
    "name": "Schulung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "schulung.md"
@@ -41,7 +41,7 @@
    "id": "topic:projektmanagement",
    "name": "Projektmanagement",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "projektmanagement.md"
@@ -50,13 +50,49 @@
    "id": "topic:strategie",
    "name": "Strategie",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "strategie.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1612,
+   "zeit": "26:52",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1612s",
+   "aussage": "Auf Kundenseite konzentriert sich der KI-Einsatz aktuell vor allem auf Copilot nahe den Office-Produkten, während offene, strategische KI-Entwicklungsumgebungen wegen Datenschutzbedenken und Budgetzurückhaltung noch selten sind."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 2456,
+   "zeit": "40:56",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2456s",
+   "aussage": "Der beschriebene Wandel wird explizit als Transformation statt als Ersetzung eingeordnet und als exponentiell statt linear verlaufend beschrieben, vergleichbar mit der historischen Einführung von Computern in der Bürowelt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 2806,
+   "zeit": "46:46",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2806s",
+   "aussage": "Mittelstandsunternehmen wird empfohlen, mit KI schnell und günstig das nachzuholen, was Konzerne vor zwei Jahren gemacht haben, statt sechsstellige Individualsoftware-Projekte zu beauftragen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 3155,
+   "zeit": "52:35",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=3155s",
+   "aussage": "Als Abschlussempfehlung wird geraten, aktiv mit KI zu experimentieren, statt nur darüber zu lesen oder zuzuhören, und dabei auch ruhig etwas in Credits zu investieren."
+  },
   {
    "typ": "Meinung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
@@ -109,7 +145,7 @@
    "sekunde": 1048,
    "zeit": "17:28",
    "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=1048s",
-   "aussage": "In einem der begleiteten GXP-Projekte ist die Validierung nach Einschätzung der Sprecherin bereits zu rund 30 Prozent digital und toolgestützt dokumentiert."
+   "aussage": "In einem der begleiteten GXP-Projekte ist die Validierung nach Einschätzung einer der Sprecherinnen bereits zu rund 30 Prozent digital und toolgestützt dokumentiert."
   },
   {
    "typ": "Meinung",
@@ -209,6 +245,42 @@
    "zeit": "42:11",
    "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2531s",
    "aussage": "Moderne Produktionsanlagen bestehen aus vielen vernetzten Computersystemen, und da Software statistisch etwa einen Fehler pro 1000 Codezeilen enthält, ist schnelles Beheben auftretender Fehler unverzichtbar."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 1737,
+   "zeit": "28:57",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1737s",
+   "aussage": "Um relevant zu bleiben, muss sich Business Intelligence dringend mit Organisationsthemen statt nur mit Technik befassen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 2344,
+   "zeit": "39:04",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=2344s",
+   "aussage": "Viele aktuell nachgefragten KI-Themen sind eigentlich Automatisierungsthemen, wobei den Anfragenden oft das Know-how zur Unterscheidung fehlt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 603,
+   "zeit": "10:03",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=603s",
+   "aussage": "Laut einem Vortrag von Microsoft (Thomas Sigmund) sind Rechenzentren der neue Kern der Infrastruktur, und Microsoft investiert dafür viel in NRW."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1594,
+   "zeit": "26:34",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1594s",
+   "aussage": "Der zweite, deutlich anspruchsvollere Anwendungsfall ist ein Vorstandsbericht mit 14 vollständig individuellen Seiten zum Fortschritt der digitalen Transformation der Rheinland Versicherungsgruppe."
   }
  ],
  "dokumente": [
@@ -261,7 +333,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.057,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [

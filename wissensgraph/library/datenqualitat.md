@@ -3,11 +3,11 @@ id: "topic:datenqualitat"
 name: "Datenqualität"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 14
-kernaussagen: 22
-mit_kernaussagen: 7
+kernaussagen: 36
+mit_kernaussagen: 15
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenqualitat.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenqualitat.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/datenqualitat.md"
@@ -21,7 +21,7 @@ aliase:
 
 # Datenqualität
 
-Measure Killer nutzt Metadaten, um zu prüfen, ob Spalten, Tabellen und Measures tatsächlich in den Reportdateien verwendet werden. Fehlende Beschreibungen von Measures in Power BI führen dazu, dass verschiedene Personen dieselbe Kennzahl unterschiedlich benennen und berechnen. Durch die Konsolidierung der Daten in einem Reporting-System werden Mängel in der Datenqualität der Quellsysteme schnell sichtbar.
+Measure Killer nutzt Metadaten, um zu prüfen, ob Spalten, Tabellen und Measures tatsächlich in den Reportdateien verwendet werden. Fehlende Beschreibungen von Measures in Power BI führen dazu, dass verschiedene Personen dieselbe Kennzahl unterschiedlich benennen und berechnen. Durch die Konsolidierung der Daten in einem Reporting-System werden Mängel in der Datenqualität der Quellsysteme schnell sichtbar. (Stand 2026-04)
 
 ## Aliase
 
@@ -29,23 +29,23 @@ Data Quality, Qualität, Testing, Tests
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [KI](ki.md) | ko-vorkommen | heuristik | 11 |
-| [Performance](performance.md) | ko-vorkommen | heuristik | 8 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 7 |
-| [Sicherheit](sicherheit.md) | ko-vorkommen | heuristik | 6 |
-| [Workspace](workspace.md) | ko-vorkommen | heuristik | 5 |
-| [Microsoft Fabric](microsoft-fabric.md) | ko-vorkommen | heuristik | 5 |
-| [Metadaten](metadaten.md) | ko-vorkommen | heuristik | 5 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 5 |
-| [Sternschema](sternschema.md) | ko-vorkommen | heuristik | 4 |
-| [Row-Level Security](row-level-security.md) | ko-vorkommen | heuristik | 4 |
-| [Copilot](copilot.md) | ko-vorkommen | heuristik | 3 |
-| [Premium](premium.md) | ko-vorkommen | heuristik | 3 |
-| [Governance](governance.md) | ko-vorkommen | heuristik | 3 |
-| [Mittelstand](mittelstand.md) | ko-vorkommen | heuristik | 3 |
-| [Projektmanagement](projektmanagement.md) | ko-vorkommen | heuristik | 3 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [KI](ki.md) | Datenqualität und KI im selben Segment | Heuristik, gezählt |  | 11 |
+| [Performance](performance.md) | Datenqualität und Performance im selben Segment | Heuristik, gezählt |  | 8 |
+| [Power BI](power-bi.md) | Datenqualität und Power BI im selben Segment | Heuristik, gezählt |  | 7 |
+| [Sicherheit](sicherheit.md) | Datenqualität und Sicherheit im selben Segment | Heuristik, gezählt |  | 6 |
+| [Workspace](workspace.md) | Datenqualität und Workspace im selben Segment | Heuristik, gezählt |  | 5 |
+| [Microsoft Fabric](microsoft-fabric.md) | Datenqualität und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 5 |
+| [Metadaten](metadaten.md) | Datenqualität und Metadaten im selben Segment | Heuristik, gezählt |  | 5 |
+| [Reporting](reporting.md) | Datenqualität und Reporting im selben Segment | Heuristik, gezählt |  | 5 |
+| [Sternschema](sternschema.md) | Datenqualität und Sternschema im selben Segment | Heuristik, gezählt |  | 4 |
+| [Row-Level Security](row-level-security.md) | Datenqualität und Row-Level Security im selben Segment | Heuristik, gezählt |  | 4 |
+| [Copilot](copilot.md) | Datenqualität und Copilot im selben Segment | Heuristik, gezählt |  | 3 |
+| [Premium](premium.md) | Datenqualität und Premium im selben Segment | Heuristik, gezählt |  | 3 |
+| [SQL](sql.md) | Datenqualität und SQL im selben Segment | Heuristik, gezählt |  | 3 |
+| [Governance](governance.md) | Datenqualität und Governance im selben Segment | Heuristik, gezählt |  | 3 |
+| [Mittelstand](mittelstand.md) | Datenqualität und Mittelstand im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -53,6 +53,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
 | --- | --- | --- | --- | --- | --- | --- |
+| Warnung | Daten-WG Life-Update \| Fabric Architekturen | 2026-08 | 07:26 | auf die Sekunde | Beim Import von Navision-Daten muss die Zeitstempel-Datentyp-Korrektur bereits im Bronze-Layer erfolgen, weil reine Zeitwerte sonst zu Fehlern fuehren. | [▶](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=446s) |
+| Fakt | KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber | 2026-08 | 17:59 | auf die Sekunde | Weil sich das Tool auf wenige KPIs statt auf ein vollständiges BI-System konzentriert, bleiben die extrahierten Daten schlank, statt große Excel-Dateien mit Makros oder komplexe ETL-Prozesse zu benötigen. | [▶](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1079s) |
 | Fakt | GxP Talk - KI im regulierten Umfeld? | 2026-05 | 04:55 | auf die Sekunde | Vor dem Einsatz von KI muss laut den Sprechern ein Daten- und Prozessfundament erarbeitet werden, das auch für andere Disziplinen als Basis dient. | [▶](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=295s) |
 | Meinung | GxP Talk - KI im regulierten Umfeld? | 2026-05 | 21:55 | auf die Sekunde | Julia hält die automatisierte Auswertung unstrukturierter Daten aus sozialen Medien, Arztberichten und klinischen Studien für einen besonders wertvollen KI-Anwendungsfall in der Pharmakovigilanz. | [▶](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1315s) |
 | Empfehlung | GxP Talk - KI im regulierten Umfeld? | 2026-05 | 27:32 | auf die Sekunde | Martin empfiehlt, bei zeitkritisch und in großer Menge anfallenden Daten zusätzlich lokalen Speicher vorzuhalten, um Risiken durch unterbrochene Datenübertragung zu reduzieren. | [▶](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1652s) |
@@ -71,10 +73,22 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Meinung | Denken in Tabellen | 2026-01 | 22:59 | auf die Sekunde | Redundante Daten in mehreren Views sind laut Markus nur dann problematisch, wenn sie inkonsistent werden, ansonsten kann Redundanz den Datenzugriff beschleunigen. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1379s) |
 | Meinung | Power BI: (Vertriebs-) Regionen in Azure Maps | 2026-01 | 26:47 | auf die Sekunde | Beim Drill-down bis auf Postleitzahlenebene wurden fehlerhaft zugeordnete Postleitzahlen sichtbar, was zeigt, dass sich Datenqualitätsprobleme in Power BI sehr schnell erkennen lassen. | [▶](https://www.youtube.com/watch?v=CvaOkO37HMU&t=1607s) |
 | Empfehlung | Power BI: (Vertriebs-) Regionen in Azure Maps | 2026-01 | 27:43 | auf die Sekunde | In der Drillthrough-Detailtabelle sollte ein Filter auf Umsatz ist nicht leer gesetzt werden, um Zeilen ohne Wert nach dem Drill auszublenden. | [▶](https://www.youtube.com/watch?v=CvaOkO37HMU&t=1663s) |
+| Warnung | Unboxing MCP Server for Power BI Modelling | 2025-12 | 15:31 | auf die Sekunde | Der MCP Modeling Server kann Daten momentan nicht automatisch aus einem CSV-Repository per Link anbinden, das Laden muss manuell über den Power-Query-Webconnector erfolgen. | [▶](https://www.youtube.com/watch?v=iinfiHxznOU&t=931s) |
+| Warnung | Unboxing MCP Server for Power BI Modelling | 2025-12 | 25:37 | auf die Sekunde | Beim automatischen Übersetzen von Spaltennamen ins Deutsche kommen nicht immer die richtigen Begriffe heraus, weil der Assistent kein Glossar im Hintergrund hat. | [▶](https://www.youtube.com/watch?v=iinfiHxznOU&t=1537s) |
+| Warnung | Unboxing MCP Server for Power BI Modelling | 2025-12 | 1:05:37 | auf die Sekunde | Im Laufe der Demo wurde die Power-BI-Datei durch die Interaktion mit dem MCP Server korrupt, sodass sie sich nicht mehr öffnen ließ. | [▶](https://www.youtube.com/watch?v=iinfiHxznOU&t=3937s) |
+| Warnung | Datenmodellierung ist Governance | 2025-11 | 09:48 | auf die Sekunde | Die häufigste Fehlerquelle in Datenmodellen liegt beim Verjoinen mehrerer Tabellen in Power Query, etwa durch verdoppelte oder inkonsistente Datensätze. | [▶](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=588s) |
+| Fakt | Daten-WG Deep Dive Financial Reporting - part 6 | 2025-08 | 29:42 | auf die Sekunde | Datumsangaben im ISO-Format mit Bindestrichen sind bei der Interpretation in Power Query in der Regel unkritisch. | [▶](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1782s) |
+| Empfehlung | Daten-WG Deep Dive Financial Reporting - part 6 | 2025-08 | 29:59 | auf die Sekunde | Bei mehrdeutigen Datumsformaten wird empfohlen, im Power-Query-Transformationsschritt explizit die Culture (z.B. en-US) anzugeben, damit das Ergebnis nicht von der Spracheinstellung abhängt. | [▶](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1799s) |
+| Warnung | Daten-WG Deep Dive Financial Reporting - part 6 | 2025-08 | 31:29 | auf die Sekunde | Die Culture-Einstellung in Power Query gilt für den gesamten Transformationsschritt und nicht pro Spalte, weshalb gemischte Formate zwei getrennte Schritte erfordern. | [▶](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1889s) |
+| Fakt | Mythos Data Vault und richtig große Modelle | 2025-07 | 17:11 | auf die Sekunde | Aktuell werden Quellsysteme häufig tabellenweise per CDC oder als Delta Lake direkt in den Data Lake geschrieben, was ohne Ordnungsstruktur schnell zu einem sogenannten Data Swamp wird. | [▶](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1031s) |
+| Fakt | Mythos Data Vault und richtig große Modelle | 2025-07 | 21:06 | auf die Sekunde | Die Data-Vault-Modellierung ist laut Volker Nürnberg vollständig auditierbar und lässt sich verlustfrei bis zur Quelle zurückverfolgen und refaktorieren. | [▶](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1266s) |
+| Fakt | Mythos Data Vault und richtig große Modelle | 2025-07 | 24:03 | auf die Sekunde | Ein solches automatisiertes Data-Vault-Tool erkennt vermutliche Geschäftsschlüssel unter anderem an den Namen oder Inhalten von Spalten. | [▶](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1443s) |
+| Fakt | Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022 | 2022-06 | 25:26 | auf die Sekunde | Der erste eigene Power-BI-Bericht zur Überwachung von Datenlieferungen eines externen Partners benötigte etwa zwei Personentage Entwicklungszeit. | [▶](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1526s) |
 | Fakt | Metadaten als Superkraft |  | 03:42 | auf die Sekunde | Measure Killer nutzt Metadaten, um zu prüfen, ob Spalten, Tabellen und Measures tatsächlich in den Reportdateien verwendet werden. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=222s) |
 | Meinung | Metadaten als Superkraft |  | 04:18 | auf die Sekunde | Es gibt keine universelle Datenqualität, weil die relevanten Qualitätskriterien immer vom jeweiligen Business Case abhängen. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=258s) |
 | Fakt | Metadaten als Superkraft |  | 13:30 | Abschnittsanfang | Fehlende Beschreibungen von Measures in Power BI führen dazu, dass verschiedene Personen dieselbe Kennzahl unterschiedlich benennen und berechnen. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s) |
 | Empfehlung | Metadaten als Superkraft |  | 20:22 | auf die Sekunde | Der einfachste erste Schritt für eine BI-Abteilung ist, Measure Killer anzuhängen und innerhalb von rund zehn Minuten einen ersten Status zu Datenqualität und Nutzung zu erhalten. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1222s) |
+| Meinung | Fabric & Power BI Quarterly · 2025 Q3 |  | 24:29 | auf die Sekunde | Copilot dient vor allem zwei Szenarien: Unterstuetzung beim Erlernen neuer Faehigkeiten und Erleichterung repetitiver Standardaufgaben, ist aber kein Ersatz fuer Spezialisten. | [▶](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1469s) |
 
 ## Dokumente
 
@@ -93,7 +107,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [The Day After Tomorrow – Nach der Einführung geht es erst richtig los \| Power BI Summit 2023](https://www.youtube.com/watch?v=KwySyTxW_EI) | 2023-03-01 | nur-zeitstempel | [54:13](https://www.youtube.com/watch?v=KwySyTxW_EI&t=3253s) |
 | [Mensch bleiben, wenn Power BI geht](https://www.youtube.com/watch?v=iB4vHRvaErE) | 2025-11-01 | nur-zeitstempel | [07:12](https://www.youtube.com/watch?v=iB4vHRvaErE&t=432s) · [13:40](https://www.youtube.com/watch?v=iB4vHRvaErE&t=820s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Bidirektionale%20Beziehung%20manchmal%20n%C3%B6tig) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Dimension%20B%20%C2%B7%20z.%20B.%20Kunde) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Single-Direction%20Beziehungen) |
-| [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | nur-zeitstempel | [26:36](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1596s) |
+| [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [26:36](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1596s) |
 
 ## Hinweise
 

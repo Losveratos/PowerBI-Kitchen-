@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Incremental Refresh · DatenWG Library</title>
-<meta name="description" content="Incremental Refresh kommt in 6 Dokumenten der Daten-WG vor; am ausführlichsten in „Daten-WG Thinkers Talk nr.65“ (2025-07-01).">
+<meta name="description" content="Bisher konnte ein Modell mit aktiviertem Incremental Refresh in Power BI Desktop nicht heruntergeladen werden, das ist inzwischen behoben. Die Incremental-Refresh-Option für Materialized Lake Views war eines der meistgefragten Kundenfeedbacks und wurde entsprechend veröffentlicht.">
 <meta property="og:title" content="Incremental Refresh · DatenWG Library">
-<meta property="og:description" content="Incremental Refresh kommt in 6 Dokumenten der Daten-WG vor; am ausführlichsten in „Daten-WG Thinkers Talk nr.65“ (2025-07-01).">
+<meta property="og:description" content="Bisher konnte ein Modell mit aktiviertem Incremental Refresh in Power BI Desktop nicht heruntergeladen werden, das ist inzwischen behoben. Die Incremental-Refresh-Option für Materialized Lake Views war eines der meistgefragten Kundenfeedbacks und wurde entsprechend veröffentlicht.">
 <meta property="og:type" content="article">
 <meta property="og:image" content="https://datenwgknowledgekitchen.com/wissensgraph/og.png">
 <meta property="og:image:width" content="1200">
@@ -48,32 +48,37 @@ footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
 <main>
 <p class="kicker">DatenWG Library · tool</p>
 <h1>Incremental Refresh</h1>
-<p class="lead">Incremental Refresh kommt in 6 Dokumenten der Daten-WG vor; am ausführlichsten in „Daten-WG Thinkers Talk nr.65“ (2025-07-01).</p>
+<p class="lead">Bisher konnte ein Modell mit aktiviertem Incremental Refresh in Power BI Desktop nicht heruntergeladen werden, das ist inzwischen behoben. Die Incremental-Refresh-Option für Materialized Lake Views war eines der meistgefragten Kundenfeedbacks und wurde entsprechend veröffentlicht. Für das inkrementelle Laden der Buchungsdaten wird ein Dataflow gegenüber der Pipeline bevorzugt, weil inkrementelles Laden dort garantiert funktioniert. (Stand 2025-05)</p>
 <div class="btns"><a class="btn" href="../#n=tool%3Aincremental-refresh">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Aincremental-refresh&amp;f=tool%3Aincremental-refresh">Im Graph öffnen</a></div>
-<p class="meta">6 Dokumente · 0 Kernaussagen · Stand 2026-09-07 · Build 20260907-1922</p>
+<p class="meta">6 Dokumente · 4 Kernaussagen · Stand 2026-09-07 · Build 20260907-1949</p>
 <h2>Aliase</h2>
 <p><span class="tag">inkrementelle Aktualisierung</span> <span class="tag">Incremental</span></p>
 <h2>Kernaussagen</h2>
-<p>Für dieses Thema liegen noch keine maschinell erzeugten Kernaussagen vor.</p>
+<ul>
+<li>Bei Dataflow Gen2 ist die Change-Detection-Einstellung für Incremental Refresh anders als bei Gen1 nicht optional, sondern muss zwingend angegeben werden.<span class="meta quote">Warnung · Stand 2025-07 · Daten-WG Thinkers Talk nr.65 · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=3571s">59:31</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Für das inkrementelle Laden der Buchungsdaten wird ein Dataflow gegenüber der Pipeline bevorzugt, weil inkrementelles Laden dort garantiert funktioniert.<span class="meta quote">Empfehlung · Stand 2025-05 · Daten-WG Deep Dive Financial Reporting · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=3446s">57:26</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Die Incremental-Refresh-Option für Materialized Lake Views war eines der meistgefragten Kundenfeedbacks und wurde entsprechend veröffentlicht.<span class="meta quote">Fakt · Stand  · Fabric &amp; Power BI Quarterly · 2025 Q4 · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1105s">18:25</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Bisher konnte ein Modell mit aktiviertem Incremental Refresh in Power BI Desktop nicht heruntergeladen werden, das ist inzwischen behoben.<span class="meta quote">Fakt · Stand  · Fabric &amp; Power BI Quarterly · 2025 Q3 · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2426s">40:26</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+</ul>
 <h2>Dokumente</h2>
 <ul>
-<li><a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w">Daten-WG Thinkers Talk nr.65</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=2954s">49:14</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=3151s">52:31</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=3734s">1:02:14</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=TYmKrreMO3I">Daten-WG Deep Dive Financial Reporting</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=3131s">52:11</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=3324s">55:24</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w">Daten-WG Thinkers Talk nr.65</a><span class="meta quote">2025-07-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=2954s">49:14</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=3151s">52:31</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=3734s">1:02:14</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYmKrreMO3I">Daten-WG Deep Dive Financial Reporting</a><span class="meta quote">2025-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=3131s">52:11</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=3324s">55:24</a></span></li>
 <li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Die%20wichtigsten%20Regeln">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Refresh-Performance%20verbessern">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Surrogate%20Keys%20vor%20Business%20Keys">Abschnitt</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2430s">40:30</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1740s">29:00</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2430s">40:30</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1740s">29:00</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=G8s96sHUHac">BI Thinkers Talk nr.67</a><span class="meta quote">2025-09-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=2964s">49:24</a></span></li>
 </ul>
 <h2>Nachbarthemen</h2>
 <ul>
-<li><a href="refresh.html">Refresh</a><span class="meta quote">ko-vorkommen · heuristik · 17 gemeinsame Segmente</span></li>
-<li><a href="power-query.html">Power Query</a><span class="meta quote">ko-vorkommen · heuristik · 7 gemeinsame Segmente</span></li>
-<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
-<li><a href="dataflow.html">Dataflow</a><span class="meta quote">ko-vorkommen · heuristik · 5 gemeinsame Segmente</span></li>
-<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 5 gemeinsame Segmente</span></li>
-<li><a href="sternschema.html">Sternschema</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="power-bi-desktop.html">Power BI Desktop</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
-<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
+<li><a href="refresh.html">Refresh</a><span class="meta quote">Incremental Refresh und Refresh im selben Segment · Heuristik, gezählt · 17 gemeinsame Segmente</span></li>
+<li><a href="power-query.html">Power Query</a><span class="meta quote">Incremental Refresh und Power Query im selben Segment · Heuristik, gezählt · 7 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">Incremental Refresh und Performance im selben Segment · Heuristik, gezählt · 6 gemeinsame Segmente</span></li>
+<li><a href="dataflow.html">Dataflow</a><span class="meta quote">Incremental Refresh und Dataflow im selben Segment · Heuristik, gezählt · 5 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">Incremental Refresh und Power BI im selben Segment · Heuristik, gezählt · 5 gemeinsame Segmente</span></li>
+<li><a href="sternschema.html">Sternschema</a><span class="meta quote">Incremental Refresh und Sternschema im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="power-bi-desktop.html">Power BI Desktop</a><span class="meta quote">Incremental Refresh und Power BI Desktop im selben Segment · Heuristik, gezählt · 3 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">Incremental Refresh und Microsoft Fabric im selben Segment · Heuristik, gezählt · 3 gemeinsame Segmente</span></li>
 </ul>
 <h2>Hinweise</h2>
 <p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>

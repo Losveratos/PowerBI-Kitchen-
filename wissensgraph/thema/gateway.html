@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Gateway · DatenWG Library</title>
-<meta name="description" content="Ein Vorteil des Push-Prinzips ist, dass kein Eingriff aus der Cloud in das lokale Netzwerk über ein Data Gateway nötig ist.">
+<meta name="description" content="Für den Zugriff auf eine On-Premises-Datenquelle wird für Fabric derselbe Gateway-Typ genutzt wie für Power BI. (Stand 2025-05) Bei Azure Data Factory heißt das Gateway-Äquivalent Integration Runtime, eine andere Software als der Gateway für Power BI und Fabric.">
 <meta property="og:title" content="Gateway · DatenWG Library">
-<meta property="og:description" content="Ein Vorteil des Push-Prinzips ist, dass kein Eingriff aus der Cloud in das lokale Netzwerk über ein Data Gateway nötig ist.">
+<meta property="og:description" content="Für den Zugriff auf eine On-Premises-Datenquelle wird für Fabric derselbe Gateway-Typ genutzt wie für Power BI. (Stand 2025-05) Bei Azure Data Factory heißt das Gateway-Äquivalent Integration Runtime, eine andere Software als der Gateway für Power BI und Fabric.">
 <meta property="og:type" content="article">
 <meta property="og:image" content="https://datenwgknowledgekitchen.com/wissensgraph/og.png">
 <meta property="og:image:width" content="1200">
@@ -48,46 +48,52 @@ footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
 <main>
 <p class="kicker">DatenWG Library · tool</p>
 <h1>Gateway</h1>
-<p class="lead">Ein Vorteil des Push-Prinzips ist, dass kein Eingriff aus der Cloud in das lokale Netzwerk über ein Data Gateway nötig ist.</p>
+<p class="lead">Für den Zugriff auf eine On-Premises-Datenquelle wird für Fabric derselbe Gateway-Typ genutzt wie für Power BI. (Stand 2025-05) Bei Azure Data Factory heißt das Gateway-Äquivalent Integration Runtime, eine andere Software als der Gateway für Power BI und Fabric. (Stand 2025-05) Die Anbindung einer On-Premises-Datenbank an Fabric über ein Gateway soll als offener Punkt in einer Folgesession gezeigt werden. (Stand 2025-05)</p>
 <div class="btns"><a class="btn" href="../#n=tool%3Agateway">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Agateway&amp;f=tool%3Agateway">Im Graph öffnen</a></div>
-<p class="meta">11 Dokumente · 1 Kernaussagen · Stand 2026-09-07 · Build 20260907-1922</p>
+<p class="meta">11 Dokumente · 7 Kernaussagen · Stand 2026-09-07 · Build 20260907-1949</p>
 <h2>Aliase</h2>
 <p><span class="tag">Data Gateway</span> <span class="tag">On-Premises Data Gateway</span></p>
 <h2>Kernaussagen</h2>
 <ul>
+<li>Beim Navision-Projekt wird ein Data Gateway benoetigt, weil das On-Premises-System nicht direkt mit Power BI beziehungsweise Fabric verbunden werden kann.<span class="meta quote">Fakt · Stand 2026-08 · Daten-WG Life-Update | Fabric Architekturen · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=405s">06:45</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Ein Vorteil des Push-Prinzips ist, dass kein Eingriff aus der Cloud in das lokale Netzwerk über ein Data Gateway nötig ist.<span class="meta quote">Meinung · Stand 2025-12 · Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=658s">10:58</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Beim Push von Daten per Python-Skript in den OneLake werden im Gegensatz zum Zugriff über ein Data Gateway keine Fabric-CUs für das Abholen der Daten belastet.<span class="meta quote">Fakt · Stand 2025-07 · Daten-WG Thinkers Talk nr.65 · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1574s">26:14</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Für den Zugriff auf eine On-Premises-Datenquelle wird für Fabric derselbe Gateway-Typ genutzt wie für Power BI.<span class="meta quote">Fakt · Stand 2025-05 · Daten-WG Deep Dive Financial Reporting · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=2632s">43:52</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Bei Azure Data Factory heißt das Gateway-Äquivalent Integration Runtime, eine andere Software als der Gateway für Power BI und Fabric.<span class="meta quote">Fakt · Stand 2025-05 · Daten-WG Deep Dive Financial Reporting · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=2706s">45:06</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Die Anbindung einer On-Premises-Datenbank an Fabric über ein Gateway soll als offener Punkt in einer Folgesession gezeigt werden.<span class="meta quote">Fakt · Stand 2025-05 · Daten-WG Deep Dive Financial Reporting · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=3545s">59:05</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Im Bereich Data Integration wurde Support für Mirroring in Kombination mit On-Premises- und Virtual-Network-Data-Gateways ergänzt, um gesicherten Zugriff auf firewallgeschützte Quellen zu ermöglichen.<span class="meta quote">Fakt · Stand 2025-04 · Fabric &amp; Power BI Quarterly | 2025 Q2 · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=1926s">32:06</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 </ul>
 <h2>Dokumente</h2>
 <ul>
-<li><a href="https://www.youtube.com/watch?v=TYmKrreMO3I">Daten-WG Deep Dive Financial Reporting</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=2554s">42:34</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=2648s">44:08</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=3516s">58:36</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYmKrreMO3I">Daten-WG Deep Dive Financial Reporting</a><span class="meta quote">2025-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=2554s">42:34</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=2648s">44:08</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=3516s">58:36</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=5HhNQZlB-1E">Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial</a><span class="meta quote">2025-12-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=662s">11:02</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w">Daten-WG Thinkers Talk nr.65</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1480s">24:40</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1573s">26:13</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w">Daten-WG Thinkers Talk nr.65</a><span class="meta quote">2025-07-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1480s">24:40</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1573s">26:13</a></span></li>
 <li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Embedded">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Zwei%20Gateway-Modi">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Updates%20einplanen">Abschnitt</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=J-lN5JN-F5I">Daten-WG Life-Update | Fabric Architekturen</a><span class="meta quote">2026-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=371s">06:11</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=1850s">30:50</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=J-lN5JN-F5I">Daten-WG Life-Update | Fabric Architekturen</a><span class="meta quote">2026-08-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=371s">06:11</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=1850s">30:50</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=TYp5xCAU2AU">Fabric &amp; Power BI Quarterly · 2026-1</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=902s">15:02</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=aYHk_V8n_CE">Daten-WG Special: Power BI vs. Qlik</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=aYHk_V8n_CE&amp;t=961s">16:01</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=aYHk_V8n_CE">Daten-WG Special: Power BI vs. Qlik</a><span class="meta quote">2025-10-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=aYHk_V8n_CE&amp;t=961s">16:01</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=_Vh5fDfHWz4">Daten-WG Special: Power BI vs. Qlik -part2</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=_Vh5fDfHWz4&amp;t=1322s">22:02</a></span></li>
 <li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wohin%20Shortcuts%20zeigen%20k%C3%B6nnen">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Bausteine">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20er%20kann">Abschnitt</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI">10 Jahre Power BI</a><span class="meta quote">2025-07-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=1102s">18:22</a></span></li>
 </ul>
 <h2>Nachbarthemen</h2>
 <ul>
-<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 13 gemeinsame Segmente</span></li>
-<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 12 gemeinsame Segmente</span></li>
-<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
-<li><a href="premium.html">Premium</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
-<li><a href="data-pipeline.html">Data Pipeline</a><span class="meta quote">ko-vorkommen · heuristik · 5 gemeinsame Segmente</span></li>
-<li><a href="refresh.html">Refresh</a><span class="meta quote">ko-vorkommen · heuristik · 5 gemeinsame Segmente</span></li>
-<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="dataflow.html">Dataflow</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="workspace.html">Workspace</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="azure.html">Azure</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="fabric-capacity.html">Fabric Capacity</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="semantic-model.html">Semantic Model</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="lizenzen.html">Lizenzen</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">Microsoft Fabric setzt-voraus Gateway · automatisch extrahiert, Quellenstelle vorhanden · „Wie kriegen wir eine Onprem Datenbank äh über ein Gateway nach Fabric?“ (Daten-WG Deep Dive Financial Reporting, 2025-05) · 13 gemeinsame Segmente</span></li>
+<li><a href="../#n=tool%3Aazure-data-factory">Azure Data Factory</a><span class="meta quote">Azure Data Factory gegensatz Gateway · automatisch extrahiert, Quellenstelle vorhanden · „Ich glaube bei der bei der Data Factory heiß das Ding Integration Runtime.“ (Daten-WG Deep Dive Financial Reporting, 2025-05) · 0 gemeinsame Segmente</span></li>
+<li><a href="onelake.html">OneLake</a><span class="meta quote">OneLake ersetzt Gateway · automatisch extrahiert, Quellenstelle vorhanden · „ich musste auch lokal keine ähm kein Data Gateway installieren“ (Daten-WG Thinkers Talk nr.65, 2025-07) · 0 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">Gateway und Power BI im selben Segment · Heuristik, gezählt · 12 gemeinsame Segmente</span></li>
+<li><a href="sql.html">SQL</a><span class="meta quote">Gateway und SQL im selben Segment · Heuristik, gezählt · 6 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">Gateway und Reporting im selben Segment · Heuristik, gezählt · 6 gemeinsame Segmente</span></li>
+<li><a href="premium.html">Premium</a><span class="meta quote">Gateway und Premium im selben Segment · Heuristik, gezählt · 6 gemeinsame Segmente</span></li>
+<li><a href="data-pipeline.html">Data Pipeline</a><span class="meta quote">Gateway und Data Pipeline im selben Segment · Heuristik, gezählt · 5 gemeinsame Segmente</span></li>
+<li><a href="refresh.html">Refresh</a><span class="meta quote">Gateway und Refresh im selben Segment · Heuristik, gezählt · 5 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">Gateway und Performance im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="dataflow.html">Dataflow</a><span class="meta quote">Gateway und Dataflow im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">Gateway und Lakehouse im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">Gateway und Warehouse im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="workspace.html">Workspace</a><span class="meta quote">Gateway und Workspace im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="azure.html">Azure</a><span class="meta quote">Gateway und Azure im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
 </ul>
 <h2>Hinweise</h2>
 <p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>

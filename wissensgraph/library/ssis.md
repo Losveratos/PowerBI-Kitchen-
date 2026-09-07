@@ -3,11 +3,11 @@ id: "tool:ssis"
 name: "SSIS"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 6
-kernaussagen: 18
-mit_kernaussagen: 2
+kernaussagen: 19
+mit_kernaussagen: 3
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/ssis.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/ssis.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/ssis.md"
@@ -18,7 +18,7 @@ aliase:
 
 # SSIS
 
-SQL Server Integration Services wird genutzt, um Daten in das Fabric Warehouse zu bringen. Deshalb erfolgt das Bewegen der Daten dateibasiert statt über einzelne SQL-Inserts. In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können.
+SQL Server Integration Services wird genutzt, um Daten in das Fabric Warehouse zu bringen. (Stand 2025-12) Deshalb erfolgt das Bewegen der Daten dateibasiert statt über einzelne SQL-Inserts. (Stand 2025-12) In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können. (Stand 2025-12)
 
 ## Aliase
 
@@ -26,15 +26,16 @@ Integration Services
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Azure](azure.md) | setzt-voraus | belegt | 5 |
-| [Microsoft Fabric](microsoft-fabric.md) | ko-vorkommen | heuristik | 7 |
-| [Notebook](notebook.md) | ko-vorkommen | heuristik | 5 |
-| [Warehouse](warehouse.md) | ko-vorkommen | heuristik | 5 |
-| [Lakehouse](lakehouse.md) | ko-vorkommen | heuristik | 3 |
-| [Gateway](gateway.md) | ko-vorkommen | heuristik | 3 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 3 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Azure](azure.md) | SSIS setzt-voraus Azure | automatisch extrahiert, Quellenstelle vorhanden | „wir benötigen das Aure Feature Pack für Integration Services“ (Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial, 2025-12) | 5 |
+| [Microsoft Fabric](microsoft-fabric.md) | SSIS und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 7 |
+| [Notebook](notebook.md) | SSIS und Notebook im selben Segment | Heuristik, gezählt |  | 5 |
+| [Warehouse](warehouse.md) | SSIS und Warehouse im selben Segment | Heuristik, gezählt |  | 5 |
+| [SQL](sql.md) | SSIS und SQL im selben Segment | Heuristik, gezählt |  | 4 |
+| [Lakehouse](lakehouse.md) | SSIS und Lakehouse im selben Segment | Heuristik, gezählt |  | 3 |
+| [Gateway](gateway.md) | SSIS und Gateway im selben Segment | Heuristik, gezählt |  | 3 |
+| [Power BI](power-bi.md) | SSIS und Power BI im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -60,6 +61,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Fakt | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 2025-12 | 05:22 | auf die Sekunde | Ein direktes Schreiben aus SSIS in den OneLake-Speicher ist aktuell nicht möglich, weil der mitgelieferte Connector diese Einstellung noch nicht unterstützt. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=322s) |
 | Fakt | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 2025-12 | 05:40 | auf die Sekunde | Stattdessen müssen die Daten aus SSIS in einen Azure Blob Storage bzw. ein Storage Account mit entsprechendem Container geschrieben werden. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=340s) |
 | Empfehlung | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 2025-12 | 11:13 | auf die Sekunde | Der Push-Schritt lässt sich als zusätzlicher Arbeitsschritt in bereits bestehende lokale SSIS-Pakete integrieren, die am Ende Ergebnisdateien nach Fabric hochladen. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=673s) |
+| Fakt | 600 SQL-Tabellen in Fabric |  | 15:54 | auf die Sekunde | Der Kunde des Migrationsprojekts wollte möglichst wenig an der bestehenden ETL-Logik ändern, um alte und neue Lösung eins zu eins vergleichen zu können. | [▶](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=954s) |
 
 ## Dokumente
 
@@ -67,9 +69,9 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | --- | --- | --- | --- |
 | [Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial](https://www.youtube.com/watch?v=5HhNQZlB-1E) | 2025-12-01 | kernaussagen+zeitstempel | [01:15](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=75s) · [01:46](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=106s) · [03:26](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=206s) |
 | [SSIS Integration Services: Microsoft Fabric Notebook per REST API starten](https://www.youtube.com/watch?v=NvtZ-ehiTrg) | 2026-02-01 | kernaussagen+zeitstempel | [00:01](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=1s) · [00:30](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=30s) |
-| [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | nur-zeitstempel | [07:50](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=470s) |
+| [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [07:50](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=470s) |
 | [Daten-WG Life-Update \| State of Power BI, Fabric & AI-Tools](https://www.youtube.com/watch?v=d3HdhRe_nK8) | 2026-06-01 | nur-zeitstempel | [00:44](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=44s) |
-| [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | nur-zeitstempel | [45:48](https://www.youtube.com/watch?v=TYmKrreMO3I&t=2748s) |
+| [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | kernaussagen+zeitstempel | [45:48](https://www.youtube.com/watch?v=TYmKrreMO3I&t=2748s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Bausteine) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Bausteine) |
 
 ## Hinweise

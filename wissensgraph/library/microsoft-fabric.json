@@ -4,35 +4,89 @@
  "typ": "tool",
  "slug": "microsoft-fabric",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/microsoft-fabric.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/microsoft-fabric.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/microsoft-fabric.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/microsoft-fabric.json",
  "dokumente_gesamt": 92,
- "kernaussagen_gesamt": 0,
- "mit_kernaussagen": 0,
+ "kernaussagen_gesamt": 140,
+ "mit_kernaussagen": 34,
  "aliase": [
   "Fabric",
   "Fabrik"
  ],
- "einordnung": "Microsoft Fabric kommt in 92 Dokumenten der Daten-WG vor; am ausführlichsten in „Power BI Update April 2025“ (2025-04-01).",
+ "einordnung": "Bei Fabric-Deployment-Pipelines werden Verbindungen zwischen Artefakten je nach Asset-Typ unterschiedlich und inkonsistent gehandhabt. Fabric bietet verschiedene Mirrored Items, mit denen sich bereits vorhandene Datenbanken in Fabric spiegeln lassen. (Stand 2026-01) Auch eigene Datenquellen wie Excel-Dateien lassen sich per Open Mirroring nach Fabric spiegeln. (Stand 2026-01)",
  "nachbarn": [
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 66,
+   "beleg": "wenn wir uns Fabric anschauen, haben wir zwei wesentliche Komponenten. Zum einen gibt es die Kapazität, das ist das, was wir in Asure buchen und wo die Rechenleistung stattfindet.",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "tool:gateway",
+   "name": "Gateway",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 13,
+   "beleg": "Wie kriegen wir eine Onprem Datenbank äh über ein Gateway nach Fabric?",
+   "datei": "gateway.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 70,
+   "beleg": "weil ich Notebook in Fabric schreiben will",
+   "datei": "notebook.md"
+  },
   {
    "id": "tool:power-bi",
    "name": "Power BI",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 216,
-   "beleg": "",
+   "beleg": "irgendwann wird man bei Power VII in die Fabric wandern",
    "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:python",
+   "name": "Python",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 25,
+   "beleg": "Fabric bietet die Möglichkeit z.B. Python Code auszuführen und darüber kann ich z.B. relativ einfach Internetseiten auslesen.",
+   "datei": "python.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 57,
+   "beleg": "Wir bringen erstmal nur die EP Daten von mir aus auch täglich in ein Warehouse oder in ein Oneel, wie es hier",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "tool:eventhouse",
+   "name": "Eventhouse",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 19,
+   "beleg": "das ist ein Eventhaus in Fabric",
+   "datei": "eventhouse.md"
   },
   {
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 91,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -41,43 +95,34 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 76,
    "beleg": "",
    "datei": "warehouse.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 74,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 74,
    "beleg": "",
    "datei": "workspace.md"
   },
   {
-   "id": "tool:notebook",
-   "name": "Notebook",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 70,
-   "beleg": "",
-   "datei": "notebook.md"
-  },
-  {
-   "id": "tool:fabric-capacity",
-   "name": "Fabric Capacity",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 66,
-   "beleg": "",
-   "datei": "fabric-capacity.md"
-  },
-  {
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 65,
    "beleg": "",
    "datei": "ki.md"
@@ -86,7 +131,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 63,
    "beleg": "",
    "datei": "reporting.md"
@@ -95,67 +140,1283 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 58,
    "beleg": "",
    "datei": "performance.md"
   },
   {
-   "id": "tool:onelake",
-   "name": "OneLake",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 57,
-   "beleg": "",
-   "datei": "onelake.md"
-  },
-  {
    "id": "tool:dataflow",
    "name": "Dataflow",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 54,
    "beleg": "",
    "datei": "dataflow.md"
-  },
-  {
-   "id": "topic:echtzeit",
-   "name": "Echtzeit",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 52,
-   "beleg": "",
-   "datei": "echtzeit.md"
-  },
-  {
-   "id": "tool:direct-lake",
-   "name": "Direct Lake",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 45,
-   "beleg": "",
-   "datei": "direct-lake.md"
-  },
-  {
-   "id": "tool:snowflake",
-   "name": "Snowflake",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 45,
-   "beleg": "",
-   "datei": "snowflake.md"
-  },
-  {
-   "id": "topic:refresh",
-   "name": "Refresh",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 43,
-   "beleg": "",
-   "datei": "refresh.md"
   }
  ],
- "kernaussagen": [],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 85,
+   "zeit": "01:25",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=85s",
+   "aussage": "Kundenfeedback zeigt, dass es angesichts der schnellen Entwicklung bei KI und der Vielzahl an Werkzeugen rund um Microsoft Fabric und Community-Tools wie dem Power BI Fixer schwer ist, den Ueberblick zu behalten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 98,
+   "zeit": "01:38",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=98s",
+   "aussage": "Beim SAP-Datasphere-Projekt lagen die Delta-Dateien zunaechst in einem Azure Data Lake Gen 2 statt im OneLake, liessen sich aber gut anbinden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 113,
+   "zeit": "01:53",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=113s",
+   "aussage": "Mirroring in Fabric wuerde es heute ermoeglichen, SAP-Datasphere-Daten automatisch in ein per SQL-Endpunkt lesbares Format zu ueberfuehren, war zum Projektzeitpunkt aber noch nicht verfuegbar."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 150,
+   "zeit": "02:30",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=150s",
+   "aussage": "Microsoft Fabric laesst sich ueber sogenannte Workloads um zusaetzliche Faehigkeiten erweitern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 181,
+   "zeit": "03:01",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=181s",
+   "aussage": "Workloads in Microsoft Fabric koennen auch von Drittanbietern wie Esri (ArcGIS Maps) oder aus der Community stammen und werden nach dem Hinzufuegen nativ in der Plattform nutzbar."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 405,
+   "zeit": "06:45",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=405s",
+   "aussage": "Beim Navision-Projekt wird ein Data Gateway benoetigt, weil das On-Premises-System nicht direkt mit Power BI beziehungsweise Fabric verbunden werden kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 695,
+   "zeit": "11:35",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=695s",
+   "aussage": "In Unternehmen muessen Tools wie GitHub Copilot und Visual Studio Code bei jedem Entwickler einzeln installiert werden, was angesichts unterschiedlicher Nutzergruppen in Fabric eine Huerde ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 791,
+   "zeit": "13:11",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=791s",
+   "aussage": "Der Fabric Copilot unterstuetzt gezielt innerhalb eines einzelnen Items wie einem Notebook, waehrend der Agent Hub uebergreifend ueber mehrere Items hinweg End-to-End-Strecken bauen kann."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 925,
+   "zeit": "15:25",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=925s",
+   "aussage": "In einem anderen Kundenprojekt fuehrte die Aufteilung eines urspruenglich komplett in Power BI gebauten Modells auf eine Medaillon-Architektur in Fabric dazu, dass Anpassungen durch mehrere zu orchestrierende Prozesse weniger fluessig und teils fragil wurden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 1096,
+   "zeit": "18:16",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1096s",
+   "aussage": "Der Agent Hub orchestriert einen Multi-Agenten-Workflow mit Rollen wie Fabric Data Engineer und Fabric Administrator sowie einer Verification Loop zur Bewertung der Ergebnisse."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 1384,
+   "zeit": "23:04",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1384s",
+   "aussage": "Der Developer Hub ist aktuell nicht oeffentlich verfuegbar; eine Veroeffentlichung als Fabric Workload wird intern noch abgestimmt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 1437,
+   "zeit": "23:57",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1437s",
+   "aussage": "Fabric-Administratorinnen und -Administratoren koennen steuern, welche Workloads bzw. Items in ihrem Unternehmen erlaubt sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 192,
+   "zeit": "03:12",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=192s",
+   "aussage": "Alex hat den \"Power BI Fixer\" entwickelt, ein Notebook-basiertes Tool zum Analysieren und Reparieren von Power-BI-Semantikmodellen und -Berichten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 408,
+   "zeit": "06:48",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=408s",
+   "aussage": "Der Power BI Fixer basiert auf einem Fork und übernimmt Komponenten wie Best Practice Analyser, Memory Analyser und Perspective Editor von Michael Kowalskis Semantic-Link-Labs-Arbeit."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 961,
+   "zeit": "16:01",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=961s",
+   "aussage": "Statt sofort eine komplexe Architektur mit Machine Learning aufzubauen, empfiehlt es sich, zunächst nur die ERP-Daten täglich in ein Warehouse oder OneLake zu laden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 1027,
+   "zeit": "17:07",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1027s",
+   "aussage": "Notebooks in Microsoft Fabric können vollständige interaktive Oberflächen inklusive HTML-Seiten darstellen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 1039,
+   "zeit": "17:19",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1039s",
+   "aussage": "Der Microsoft-Fabric-Activator kann automatisch warnen, wenn die Reichweite des Warenbestands unterschritten wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 2222,
+   "zeit": "37:02",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2222s",
+   "aussage": "Über Microsoft Fabric lassen sich mit Python externe Quellen wie Newsfeeds und Börsendaten kostengünstig anbinden, um Krisenherde frühzeitig zu erkennen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 3025,
+   "zeit": "50:25",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3025s",
+   "aussage": "Intelligence Sheets von Lumel sind in Fabric aktuell auf SQL-Datenbank-Verbindungen beschränkt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 3162,
+   "zeit": "52:42",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3162s",
+   "aussage": "Der USP von Infofor-artigen Tools liegt laut Alex vor allem im Writeback und im Editieren großer Tabellen, was Power BI nativ nicht bietet."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 3481,
+   "zeit": "58:01",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3481s",
+   "aussage": "Alex hält modulare, skriptbasierte Fix-Tools für KI-Agenten für besser nutzbar als ein reines MCP-Chatfenster, weil einzelne Fixes gezielt und ressourcenschonend aufgerufen werden können."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 4,
+   "zeit": "00:04",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=4s",
+   "aussage": "Die im gehörten Podcast getroffene Aussage, dass Fabric-Daten im OneLake stets in der Home-Region des Tenants liegen, ist nur teilweise richtig."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 15,
+   "zeit": "00:15",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=15s",
+   "aussage": "Translytical Task Flows sind jetzt allgemein verfügbar (Generally Available) und nicht mehr nur als Vorschau."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 28,
+   "zeit": "00:28",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=28s",
+   "aussage": "Microsoft Fabric besteht im Kern aus zwei wesentlichen Komponenten: der Kapazität, die man in Azure bucht, und dem OneLake, in dem die Daten liegen und verwaltet werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 414,
+   "zeit": "06:54",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=414s",
+   "aussage": "Direct Lake auf OneLake ist jetzt allgemein verfügbar und damit der neue Standard für Direct Lake."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 415,
+   "zeit": "06:55",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=415s",
+   "aussage": "Wer Fabric nutzt, sollte sich Direct Lake auf OneLake auf jeden Fall anschauen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 440,
+   "zeit": "07:20",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=440s",
+   "aussage": "In Microsoft Fabric gibt es jetzt neue Planning Items, mit denen sich Pläne direkt in Fabric anlegen lassen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 440,
+   "zeit": "07:20",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=440s",
+   "aussage": "Die neuen Planning Items in Fabric sollte eigentlich jeder einmal ausprobieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 448,
+   "zeit": "07:28",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=448s",
+   "aussage": "Die neuen Planning Items in Fabric gehen auf die zuvor als Lumel bzw. Info River bekannte Planungslösung zurück."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 467,
+   "zeit": "07:47",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=467s",
+   "aussage": "Mit Power Table lässt sich aus Fabric heraus nach Excel zurückschreiben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 468,
+   "zeit": "07:48",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=468s",
+   "aussage": "Das neue Planning-Feature, ehemals Lumel bzw. Inforiver, ist jetzt direkt in Microsoft Fabric integriert und benötigt keine zusätzliche Lizenz, sondern nur Fabric-Kapazität."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 478,
+   "zeit": "07:58",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=478s",
+   "aussage": "Im März 2026 hat Power BI unter anderem durch Custom Totals, neue visuelle Möglichkeiten, die Translytical-Task-Flows-Freigabe und die Planungsfunktionen in Fabric spürbar dazugewonnen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 586,
+   "zeit": "09:46",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=586s",
+   "aussage": "Beim Anlegen eines Planning-Objekts wird automatisch eine Fabric SQL-Datenbank erstellt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 903,
+   "zeit": "15:03",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=903s",
+   "aussage": "In den Fabric-Tenant-Einstellungen lässt sich der Zugriff auf Copilot für Power BI global deaktivieren oder auf vorab genehmigte Elemente beschränken."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 1,
+   "zeit": "00:01",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=1s",
+   "aussage": "Aus einem Integration-Services-Paket (SSIS) lässt sich per REST API ein Microsoft-Fabric-Notebook starten."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 8,
+   "zeit": "00:08",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=8s",
+   "aussage": "Der Notebook-Aufruf eignet sich, um nach dem Hochladen von On-Premises-Daten Richtung Fabric direkt eine Weiterverarbeitung anzustoßen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 89,
+   "zeit": "01:29",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=89s",
+   "aussage": "Nach dem Ausführen des SSIS-Pakets lässt sich der erfolgreiche Notebook-Lauf in Fabric über die letzte Ausführung nachvollziehen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 113,
+   "zeit": "01:53",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=113s",
+   "aussage": "Für die Authentifizierung wird im Tenant eine App-Registrierung mit zugehörigem Service Principal angelegt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 139,
+   "zeit": "02:19",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=139s",
+   "aussage": "Dem Service Principal müssen im Fabric-Arbeitsbereich (Workspace) explizit Berechtigungen zugewiesen werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 151,
+   "zeit": "02:31",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=151s",
+   "aussage": "Um das Notebook über die REST API anzusprechen, werden die Workspace-ID und die Notebook-ID benötigt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 158,
+   "zeit": "02:38",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=158s",
+   "aussage": "Der Service Principal erhält über ein Client Secret die Berechtigung, sich gegenüber der Fabric REST API auszuweisen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 335,
+   "zeit": "05:35",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=335s",
+   "aussage": "Das Skript holt sich zunächst mit den hinterlegten Anmeldedaten einen Access Token."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 335,
+   "zeit": "05:35",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=335s",
+   "aussage": "Mit dem Access Token ruft das Skript die Fabric REST API auf und startet das Notebook anhand von Workspace-ID und Notebook-ID."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 355,
+   "zeit": "05:55",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=355s",
+   "aussage": "Einer der Sprecher plant, den Beispielcode für den REST-API-Aufruf auf seinem Blog zu veröffentlichen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 383,
+   "zeit": "06:23",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=383s",
+   "aussage": "Die vorgestellte Lösung ermöglicht es, Daten per SSIS von einer lokalen Umgebung nach Fabric zu bringen und anschließend automatisiert per Notebook zu importieren."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1058,
+   "zeit": "17:38",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1058s",
+   "aussage": "Heiko hat Digitalisierungsthemen wie Microsoft Fabric oder Power BI in Organisationen oft zunächst bottom-up in einem einzelnen Bereich als Beweis eingeführt, bevor sie zentralisiert wurden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 5,
+   "zeit": "00:05",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=5s",
+   "aussage": "Fabric bietet verschiedene Mirrored Items, mit denen sich bereits vorhandene Datenbanken in Fabric spiegeln lassen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 7,
+   "zeit": "00:07",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=7s",
+   "aussage": "Einer der Sprecher findet Open Mirroring interessanter als klassisches Mirroring, weil es unabhängig von vorgegebenen Datenquellen funktioniert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 7,
+   "zeit": "00:07",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=7s",
+   "aussage": "Auch eigene Datenquellen wie Excel-Dateien lassen sich per Open Mirroring nach Fabric spiegeln."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 27,
+   "zeit": "00:27",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=27s",
+   "aussage": "Open Mirroring ermöglicht es, Tabellen in Fabric unabhängig von der Datenquelle darzustellen, solange der Datenprovider die Datensätze in die Quelle einliefert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 94,
+   "zeit": "01:34",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=94s",
+   "aussage": "Bei Open Mirroring fügt die Datenquelle jedem Datensatz einen Row Marker bei, über den Fabric erkennt, ob ein Insert, Update oder Delete durchzuführen ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 118,
+   "zeit": "01:58",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=118s",
+   "aussage": "Beim Open-Mirroring-Datenfluss wird der Datensatz mit Row-Marker-Event zunächst nach OneLake geschrieben, von wo Fabric eine identische Replik-Tabelle aufbaut."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 239,
+   "zeit": "03:59",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=239s",
+   "aussage": "Kollege Stefan hat als Prototyp ein Open-Mirroring-Beispiel mit einer lokalen PostgreSQL-Datenbank gebaut, die nach Fabric repliziert wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 340,
+   "zeit": "05:40",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=340s",
+   "aussage": "Über die Kommandozeile lassen sich in Fabric Workspaces auflisten, auswählen und darin per New Item eine Mirror Database anlegen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 388,
+   "zeit": "06:28",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=388s",
+   "aussage": "Oliver ist der Meinung, dass Qlik als Komplettlösung fähiger ist als Power BI, weil man bei Power BI irgendwann Richtung Microsoft Fabric wechseln muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 519,
+   "zeit": "08:39",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=519s",
+   "aussage": "Nach Abschluss der Replikation lassen sich die gespiegelten Daten direkt per SQL-Abfrage in Fabric auslesen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 546,
+   "zeit": "09:06",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=546s",
+   "aussage": "Mit der VS-Code-Erweiterung für Fabric lässt sich ein Direct-Lake-Modell innerhalb weniger Minuten von einer SQL-Datenbank auf ein Warehouse umziehen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 1937,
+   "zeit": "32:17",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=1937s",
+   "aussage": "Über die Fabric-Service-Status-Seite lässt sich nachvollziehen, wenn Dienste wie SQL-Endpunkte oder Dataflows gestört sind, auch wenn der Status dort nicht immer eindeutig kommuniziert wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 2012,
+   "zeit": "33:32",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2012s",
+   "aussage": "Auf der Ignite wurden Ontologien und Fabric IQ als neue Objekte innerhalb von Fabric vorgestellt, ergänzt um handelnde Operations Agents."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 2063,
+   "zeit": "34:23",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2063s",
+   "aussage": "Ein aktueller Fabric-Ausfall betraf offenbar nur bestimmte Azure-Regionen, da Kunden in West Europe Probleme hatten, während der eigene Tenant in North Europe nicht betroffen war."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 2823,
+   "zeit": "47:03",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2823s",
+   "aussage": "Gabi warnt davor, zu hohe Erwartungen an Fabric IQ zu stellen, da sich das Feature noch in einer frühen Phase befindet und eher eine Vision als eine fertige Implementierung darstellt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 8,
+   "zeit": "00:08",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=8s",
+   "aussage": "Statt Daten per Pull aus Fabric abzuholen, kann man vorhandene lokale Infrastruktur nutzen, um Daten per Push Richtung Fabric zu bringen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 34,
+   "zeit": "00:34",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=34s",
+   "aussage": "Der Push-Ansatz mit SSIS ist in der offiziellen Microsoft-Dokumentation im Bereich Warehousing beschrieben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 39,
+   "zeit": "00:39",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=39s",
+   "aussage": "SQL Server Integration Services wird genutzt, um Daten in das Fabric Warehouse zu bringen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 48,
+   "zeit": "00:48",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=48s",
+   "aussage": "Die SQL-Schnittstellen in Fabric sind auf Massendaten ausgelegt und nicht dafür gedacht, einzelne Datensätze zu schreiben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 60,
+   "zeit": "01:00",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=60s",
+   "aussage": "Deshalb erfolgt das Bewegen der Daten dateibasiert statt über einzelne SQL-Inserts."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 418,
+   "zeit": "06:58",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=418s",
+   "aussage": "Bei der Azure-Verbindung in SSIS gibt es bislang keine eigene Umgebungsoption für Fabric, sondern nur Azure Default sowie die Sonderbereiche China und US Government."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 529,
+   "zeit": "08:49",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=529s",
+   "aussage": "Über einen Shortcut im Fabric-Lakehouse lässt sich der Azure Data Lake Storage Gen2 einbinden, sodass die per SSIS abgelegten Paketdateien im Lakehouse sichtbar und in der Vorschau prüfbar werden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 658,
+   "zeit": "10:58",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=658s",
+   "aussage": "Ein Vorteil des Push-Prinzips ist, dass kein Eingriff aus der Cloud in das lokale Netzwerk über ein Data Gateway nötig ist."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 673,
+   "zeit": "11:13",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=673s",
+   "aussage": "Der Push-Schritt lässt sich als zusätzlicher Arbeitsschritt in bereits bestehende lokale SSIS-Pakete integrieren, die am Ende Ergebnisdateien nach Fabric hochladen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 952,
+   "zeit": "15:52",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=952s",
+   "aussage": "Es wird als zukünftige Möglichkeit gesehen, dass MCP-Server von Snowflake, Databricks oder SAP miteinander reden und Daten direkt nach Fabric schieben könnten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 83,
+   "zeit": "01:23",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=83s",
+   "aussage": "Im Rahmen der Fabric Data Days stellt Microsoft zeitlich und mengenmäßig begrenzte Gutscheine für kostenlose Power-BI-Zertifizierungsprüfungen bereit."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 464,
+   "zeit": "07:44",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=464s",
+   "aussage": "Die Medaillon-Architektur mit Bronze-, Silber- und Gold-Schichten entspricht inhaltlich einem klassischen Aufbau aus Staging, Core und Datamarts."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 598,
+   "zeit": "09:58",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=598s",
+   "aussage": "Transformationsschritte sollen möglichst weit Richtung Quelle beziehungsweise in die dazwischenliegende Datenplattform verlagert werden, damit das Power-BI-Modell die Daten bereits aufbereitet erhält."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 124,
+   "zeit": "02:04",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=124s",
+   "aussage": "Die Kusto Query Language wird unter anderem von Azure Sentinel, Azure Data Explorer und dem Eventhouse in Microsoft Fabric genutzt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 300,
+   "zeit": "05:00",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=300s",
+   "aussage": "Die Visual-Studio-Code-Erweiterung für Microsoft Fabric erlaubt es, aus einer Power-BI-Projektdatei einzelne Teile wie nur den Bericht oder nur das semantische Modell hochzuladen, statt immer die gesamte PBIX hochzuladen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 388,
+   "zeit": "06:28",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=388s",
+   "aussage": "Die Microsoft-eigene Fabric-Erweiterung für Visual Studio Code zeigt alle Workspaces inklusive Pro-Workspaces an, während eine alternative Community-Erweiterung nur Fabric-Workspaces anzeigt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 540,
+   "zeit": "09:00",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=540s",
+   "aussage": "Fabric-Experten arbeiten laut Brian Bønk wie ein T-Profil: breites Grundwissen über viele Bereiche kombiniert mit tiefem Fachwissen in einem bestimmten Gebiet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 953,
+   "zeit": "15:53",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=953s",
+   "aussage": "Die Real-Time-Intelligence-Suite in Microsoft Fabric umfasst unter anderem Eventstream, die KQL-Datenbank, Eventhouse, Activator, Echtzeit-Dashboards und KQL-Abfragesätze."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1226,
+   "zeit": "20:26",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1226s",
+   "aussage": "Wird die KQL-Datenbank im Hintergrund nicht genutzt, pausiert sie laut Brian Bønk automatisch, sodass keine Kosten entstehen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1236,
+   "zeit": "20:36",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1236s",
+   "aussage": "Weil eine zu restriktive Firewall-Security den SQL-Zugriff auf Lakehouse-Tabellen blockierte, baute der Kunde stattdessen ein semantisches Direct-Lake-Modell direkt im Web auf."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1264,
+   "zeit": "21:04",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1264s",
+   "aussage": "Echtzeit-Dashboards innerhalb von Microsoft Fabric sind laut Brian Bønk kostenlos und benötigen keine gesonderte Lizenz für die Visualisierung."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1570,
+   "zeit": "26:10",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1570s",
+   "aussage": "Die Verarbeitung pro Gigabyte ist in der Custom-Datenbank laut Brian Bønk etwas teurer als bei Lakehouse und Warehouse in Microsoft Fabric."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1769,
+   "zeit": "29:29",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1769s",
+   "aussage": "In einem Hybrid-Setup in Fabric lassen sich laut Brian Bønk nach OneLake ausgelagerte Daten per Verknüpfung weiterhin zusammen mit nahezu in Echtzeit verfügbaren Live-Daten abfragen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1947,
+   "zeit": "32:27",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1947s",
+   "aussage": "Brian Bønk wünscht sich für Real Time Intelligence eine KQL-Funktion mit Streaming-Unterstützung, vergleichbar mit einer gespeicherten Prozedur in SQL Server."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 379,
+   "zeit": "06:19",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=379s",
+   "aussage": "Bei der Umsetzung des Financial-Reporting-Modells in Fabric wurden die aufbereiteten Tabellen unglücklich benannt, kaum anders als die ursprünglichen Quelltabellen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 2490,
+   "zeit": "41:30",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2490s",
+   "aussage": "Das automatische Standarddatenmodell in Fabric wird demnächst abgeschafft, was im Video begrüßt wird, da es selten brauchbar gewesen sei."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 156,
+   "zeit": "02:36",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=156s",
+   "aussage": "Eine Projektidee bestand darin, Daten aus SAP über die SAP Datasphere in einen Azure Data Lake Gen 2 zu bringen und von dort Richtung Microsoft Fabric weiterzuleiten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 735,
+   "zeit": "12:15",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=735s",
+   "aussage": "Microsoft Fabric wird geschaetzt, weil viele benoetigte Werkzeuge bereits direkt auf der Plattform vorhanden sind, statt sich um verstreute Konfigurationen kuemmern zu muessen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 806,
+   "zeit": "13:26",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=806s",
+   "aussage": "Fuer den Case wird ein Eventstream benoetigt, der Daten empfangen kann, und dieser laesst sich mit wenigen Klicks aufsetzen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 911,
+   "zeit": "15:11",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=911s",
+   "aussage": "Im Eventstream laesst sich ein benutzerdefinierter Zugangspunkt (Custom Endpoint) anlegen, der im Hintergrund automatisch einen erreichbaren Endpunkt generiert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 1015,
+   "zeit": "16:55",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1015s",
+   "aussage": "Das Eventhaus (Eventhouse) in Fabric war fuer Arthur neu, da er den Vorgaenger HDX vorher nicht bewusst wahrgenommen hatte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 1578,
+   "zeit": "26:18",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1578s",
+   "aussage": "Der verwendete Power-BI-Connector fuer das Eventhaus heisst weiterhin Data Explorer, einen eigenen Fabric-KQL-Connector gibt es bislang nicht."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 390,
+   "zeit": "06:30",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=390s",
+   "aussage": "Das persönliche Highlight der auf der Microsoft Build vorgestellten Neuerungen war für den Sprecher das native Writeback in Power BI."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 539,
+   "zeit": "08:59",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=539s",
+   "aussage": "Die Erweiterung BC ADLS ermöglicht es, Business-Central-Tabellen aus der Cloud-Variante ähnlich wie bei einem Synapse Link direkt in ein Data Lake bzw. nach Fabric zu spiegeln."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 545,
+   "zeit": "09:05",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=545s",
+   "aussage": "BC ADLS ist ausschließlich für die Cloud-Variante von Business Central verfügbar, für On-Premises-Installationen wird es nicht benötigt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 567,
+   "zeit": "09:27",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=567s",
+   "aussage": "Datenfunktionen in Fabric funktionieren im Prinzip wie Azure Functions innerhalb von Fabric."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 669,
+   "zeit": "11:09",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=669s",
+   "aussage": "Es wird empfohlen, BC ADLS zu nutzen, bevor man eine eigene API-Anbindung für die Verbindung von Power BI und Business Central baut."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 995,
+   "zeit": "16:35",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=995s",
+   "aussage": "Für das Zurückschreiben aus Power BI wird eine SQL-Datenbank in Fabric statt eines Lakehouse verwendet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 1007,
+   "zeit": "16:47",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1007s",
+   "aussage": "Die Writeback-Funktion wird als User Defined Function in der Fabric-SQL-Datenbank mit einer SQL-Update-Query umgesetzt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 1745,
+   "zeit": "29:05",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=1745s",
+   "aussage": "Business-Central-Spaltennamen mit Sonderzeichen lassen sich nicht direkt in Parquet-Dateien laden, weil Parquet dafür keine kompatiblen Spaltennamen zulässt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 1767,
+   "zeit": "29:27",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=1767s",
+   "aussage": "Weder Synapse mit Data Factory noch Fabric ersetzen automatisch Sonderzeichen in Spaltennamen, um Parquet-kompatible Namen zu erzeugen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1852,
+   "zeit": "30:52",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1852s",
+   "aussage": "Auf der Color Cloud Konferenz in Hamburg hält Arthur König einen Vortrag über Microsoft Fabric."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 1916,
+   "zeit": "31:56",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=1916s",
+   "aussage": "Mit Fabric als Zwischenschicht wird jede Quelltabelle nur einmal pro Tabelle abgefragt statt einmal pro Bericht, der die Tabelle benötigt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 2632,
+   "zeit": "43:52",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2632s",
+   "aussage": "Für den Zugriff auf eine On-Premises-Datenquelle wird für Fabric derselbe Gateway-Typ genutzt wie für Power BI."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 3192,
+   "zeit": "53:12",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=3192s",
+   "aussage": "Fabric-Pipelines eignen sich vor allem zum Kopieren von Dateien und zum Orchestrieren von Web-APIs, weniger für inkrementelles Laden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 3545,
+   "zeit": "59:05",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=3545s",
+   "aussage": "Die Anbindung einer On-Premises-Datenbank an Fabric über ein Gateway soll als offener Punkt in einer Folgesession gezeigt werden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 81,
+   "zeit": "01:21",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=81s",
+   "aussage": "Viele der zahlreichen FABCON-2025-Ankündigungen waren weniger grundlegend neu, sondern zielten vor allem darauf ab, vorhandene und oft kritisierte Lücken zu schließen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 494,
+   "zeit": "08:14",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=494s",
+   "aussage": "Die Dashboard- bzw. Tech-Challenge für Fabric ist auf drei Monate angelegt, damit danach klar ist, wer mitmacht und was der Output ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 686,
+   "zeit": "11:26",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=686s",
+   "aussage": "Matthias Thierbach kündigte auf der Daten-WG 2025 an, selbst ein Tool für Fabric zu entwickeln, um bestehende Unzulänglichkeiten zu beseitigen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 53,
+   "zeit": "00:53",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=53s",
+   "aussage": "Fabric ist laut Martin Bubenheimer noch sehr unausgereift, instabil und fehleranfällig."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 181,
+   "zeit": "03:01",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=181s",
+   "aussage": "Weil Fabric viele Technologien mit jeweils eigenen Workarounds bündelt, muss die IT laut Martin diese alle statt eines einzigen Standards beherrschen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 213,
+   "zeit": "03:33",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=213s",
+   "aussage": "Microsoft hat sich entschieden, DataMarts abzuloesen, weil deren Mehrwert gegenueber Fabric mit Warehouse und Dataflows Gen 2 in der Community zunehmend infrage gestellt wurde."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 256,
+   "zeit": "04:16",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=256s",
+   "aussage": "Excel ist laut Martin ein erheblich stabileres Tool als Microsoft Fabric."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 365,
+   "zeit": "06:05",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=365s",
+   "aussage": "Bei Fabric-Deployment-Pipelines werden Verbindungen zwischen Artefakten je nach Asset-Typ unterschiedlich und inkonsistent gehandhabt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 428,
+   "zeit": "07:08",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=428s",
+   "aussage": "Measure Killer ist ein Werkzeug zur Analyse von Power-BI-Modellen und inzwischen auch von Fabric-Tenants."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 453,
+   "zeit": "07:33",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=453s",
+   "aussage": "Measure Killer kann Abhängigkeiten im Tenant nach Einschätzung von Jasmin Simader aktuell besser darstellen als andere verfügbare Werkzeuge."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 698,
+   "zeit": "11:38",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=698s",
+   "aussage": "Wuerde Microsoft jeden gewuenschten Zusatzfeature-Wunsch in den Standard von Power BI und Fabric einbauen, waere die Software dadurch teurer."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 741,
+   "zeit": "12:21",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=741s",
+   "aussage": "Translytical User Defined Functions sind in Microsoft Fabric bereits GA, aus Power-BI-Sicht aber noch ein Preview-Feature."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 779,
+   "zeit": "12:59",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=779s",
+   "aussage": "Ein manuelles Fabric-Deployment-Release hat einmal insgesamt 14 Stunden gedauert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 834,
+   "zeit": "13:54",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=834s",
+   "aussage": "Im Juni 2024 wurden die Fabric Deployment Pipelines Git-kompatibel, was als Durchbruch für DevOps mit Fabric beschrieben wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1005,
+   "zeit": "16:45",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1005s",
+   "aussage": "Im Projekt orchestrierten etwa acht bis neun Fabric-Pipelines mit einer metadatengetriebenen Architektur rund 600 Quelltabellen zu 150 Zieltabellen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 1049,
+   "zeit": "17:29",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1049s",
+   "aussage": "Fabric-Kapazität F2 lohnt sich aus Sicht eines der Sprecher fast immer, unabhängig von der Unternehmensgröße."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 1050,
+   "zeit": "17:30",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1050s",
+   "aussage": "Fabric ist laut Martin für Business-User mit Excel- und Power-BI-Hintergrund zugänglicher als Snowflake."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 1076,
+   "zeit": "17:56",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1076s",
+   "aussage": "Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 1127,
+   "zeit": "18:47",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1127s",
+   "aussage": "Zugriffsrechte und Nutzungsumfang lassen sich in Fabric laut Martin nicht granular genug steuern."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1266,
+   "zeit": "21:06",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1266s",
+   "aussage": "Fabric Deployment Pipelines kamen im Projekt nicht damit klar, dass eine Abhängigkeit wie ein bestehendes Warehouse schon existieren musste."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 1336,
+   "zeit": "22:16",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1336s",
+   "aussage": "Durch die Analyse von Metadaten im Fabric-Tenant lässt sich erkennen, wenn Nutzer wiederholt neue, redundante Datenmodelle statt bestehender Berichte aufbauen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 1499,
+   "zeit": "24:59",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1499s",
+   "aussage": "Fabric bietet jetzt bidirektionale Shortcut-Integrationen mit Snowflake und Databricks."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 1520,
+   "zeit": "25:20",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1520s",
+   "aussage": "Die SAP-Anbindung an Microsoft Fabric ist allgemein verfügbar (GA) geworden, und auch Airflow sowie DBT sind jetzt als eigene Items in Fabric verfügbar."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 1626,
+   "zeit": "27:06",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1626s",
+   "aussage": "Translytical Task Flows sind mittlerweile ein Fabric-internes statt eines reinen Power-BI-internen Features und bringen fertige, per Knopfdruck nutzbare Rueckschreibfunktionen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 1631,
+   "zeit": "27:11",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1631s",
+   "aussage": "Fabric schafft laut Artur unternehmensweite Transparenz, weil zentrale Experten dadurch mehrfach duplizierte semantische Modelle erkennen können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1710,
+   "zeit": "28:30",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1710s",
+   "aussage": "Mit Snowflake Mirroring lassen sich Snowflake-Datenbanken als Kopie in Fabric einziehen, während eine Databricks-Verbindung per Link wie ein Shortcut funktioniert, ohne die Daten zu kopieren."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1953,
+   "zeit": "32:33",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1953s",
+   "aussage": "Nach Einschätzung des Gasts hat Fabric inzwischen, auch wegen der DevOps-Fähigkeiten, einen Reifegrad erreicht, der es für Enterprise-Kunden geeignet macht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 2018,
+   "zeit": "33:38",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2018s",
+   "aussage": "Microsoft Fabric bietet jetzt einen Papierkorb für gelöschte Items sowie Autoscaling beziehungsweise Overage Billing für Kapazitätsspitzen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 2136,
+   "zeit": "35:36",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2136s",
+   "aussage": "Die Fabric CLI ist bei der FabCon GA gegangen und wird gleichzeitig Open Source, um Erweiterbarkeit durch die Community zu ermöglichen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 2488,
+   "zeit": "41:28",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2488s",
+   "aussage": "Fabric Planning mit Lumel erfordert keine separate Lizenz und wird ausschließlich über Capacity-Unit-Verbrauch abgerechnet."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 2711,
+   "zeit": "45:11",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=2711s",
+   "aussage": "Arturs These ist, dass die Mehrheit der heutigen Excel-Nutzer von Fabric profitieren würde."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 2861,
+   "zeit": "47:41",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2861s",
+   "aussage": "Graphdatenbanken sind jetzt direkt in Microsoft Fabric integriert und lassen sich über GQL abfragen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 3131,
+   "zeit": "52:11",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=3131s",
+   "aussage": "Power BI und einfach nutzbare Datenplattformen ermöglichten Tom Martens, nach rund zehn Jahren ohne Programmierung über Fabric und Python wieder ins Programmieren einzusteigen."
+  }
+ ],
  "dokumente": [
   {
    "id": "yt:lT-C7fPzxj4",
@@ -236,7 +1497,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.667,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -286,7 +1547,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.542,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -361,7 +1622,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.486,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -436,7 +1697,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.415,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -486,7 +1747,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.385,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -631,7 +1892,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.326,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -656,7 +1917,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.323,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -706,7 +1967,7 @@
    "id": "yt:BDnwlOqRElY",
    "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
    "datum": "2025-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.304,
    "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
    "sprungmarken": [
@@ -731,7 +1992,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.297,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -1126,7 +2387,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.194,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -1241,7 +2502,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.158,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -1316,7 +2577,7 @@
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.135,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [
@@ -1501,7 +2762,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.095,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [
@@ -1526,7 +2787,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.093,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [
@@ -1551,7 +2812,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.087,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": [
@@ -1676,7 +2937,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.051,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -1756,7 +3017,7 @@
    "id": "yt:aEXtFWW-pmo",
    "titel": "Wie war die Daten-WG 2025? (Teil 1)",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo",
    "sprungmarken": [
@@ -1771,7 +3032,7 @@
    "id": "yt:lH_-A8NAQ-k",
    "titel": "Datenmodellierung ist Governance",
    "datum": "2025-11-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.04,
    "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
    "sprungmarken": [
@@ -1846,7 +3107,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [
@@ -1861,7 +3122,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.025,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -1966,21 +3227,21 @@
    "sprungmarken": []
   },
   {
-   "id": "yt:MmPs7IH0nBE",
-   "titel": "Fabric Planning Hands-On (3)",
-   "datum": "2026-05-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=MmPs7IH0nBE",
-   "sprungmarken": []
-  },
-  {
    "id": "yt:mIQU6gtnwoA",
    "titel": "Fabric Planning Hands-On (2)",
    "datum": "2026-05-01",
    "abdeckung": "nur-metadaten",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=mIQU6gtnwoA",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:MmPs7IH0nBE",
+   "titel": "Fabric Planning Hands-On (3)",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=MmPs7IH0nBE",
    "sprungmarken": []
   },
   {

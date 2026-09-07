@@ -3,11 +3,11 @@ id: "topic:strategie"
 name: "Strategie"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 19
-kernaussagen: 14
-mit_kernaussagen: 4
+kernaussagen: 21
+mit_kernaussagen: 8
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/strategie.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/strategie.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/strategie.md"
@@ -20,7 +20,7 @@ aliase:
 
 # Strategie
 
-Unternehmen unterscheiden bei der Digitalisierung typischerweise drei Horizonte: interne Prozessautomatisierung, nach außen gerichtete Produkt- und Serviceerweiterungen sowie die grundsätzliche Neuausrichtung des Geschäftsmodells. KI-gestützte Interview-, Portfolio- und Systemanalysen können die Vorbereitung eines Zielbild-Workshops von vormals mehreren Monaten auf eine einzelne Session verkürzen. Bevor man sich mit Tools beschäftigt, sollte man gemeinsam mit den relevantesten Stakeholdern zunächst ein gemeinsames Zielbild entwickeln.
+Unternehmen unterscheiden bei der Digitalisierung typischerweise drei Horizonte: interne Prozessautomatisierung, nach außen gerichtete Produkt- und Serviceerweiterungen sowie die grundsätzliche Neuausrichtung des Geschäftsmodells. (Stand 2026-02) KI-gestützte Interview-, Portfolio- und Systemanalysen können die Vorbereitung eines Zielbild-Workshops von vormals mehreren Monaten auf eine einzelne Session verkürzen. (Stand 2026-02) Die Entwicklung des Tools wurde aus eigener Tasche finanziert statt Kunden in Rechnung gestellt, zu geschätzt niedrigen vierstelligen statt sonst üblichen fünfstelligen Kosten für vergleichbare Programmierleistung. (Stand 2026-08)
 
 ## Aliase
 
@@ -28,23 +28,23 @@ BI-Strategie, Datenstrategie, strategisch
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [KI](ki.md) | ko-vorkommen | heuristik | 20 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 19 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 12 |
-| [Microsoft Fabric](microsoft-fabric.md) | ko-vorkommen | heuristik | 11 |
-| [Performance](performance.md) | ko-vorkommen | heuristik | 11 |
-| [Sicherheit](sicherheit.md) | ko-vorkommen | heuristik | 8 |
-| [Lizenzen](lizenzen.md) | ko-vorkommen | heuristik | 6 |
-| [SQL](sql.md) | ko-vorkommen | heuristik | 6 |
-| [Visualisierung](visualisierung.md) | ko-vorkommen | heuristik | 5 |
-| [Direct Lake](direct-lake.md) | ko-vorkommen | heuristik | 5 |
-| [Self-Service BI](self-service-bi.md) | ko-vorkommen | heuristik | 5 |
-| [Power BI Desktop](power-bi-desktop.md) | ko-vorkommen | heuristik | 4 |
-| [Planung](planung.md) | ko-vorkommen | heuristik | 4 |
-| [Governance](governance.md) | ko-vorkommen | heuristik | 4 |
-| [Projektmanagement](projektmanagement.md) | ko-vorkommen | heuristik | 4 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [KI](ki.md) | Strategie und KI im selben Segment | Heuristik, gezählt |  | 20 |
+| [Power BI](power-bi.md) | Strategie und Power BI im selben Segment | Heuristik, gezählt |  | 19 |
+| [Reporting](reporting.md) | Strategie und Reporting im selben Segment | Heuristik, gezählt |  | 12 |
+| [Microsoft Fabric](microsoft-fabric.md) | Strategie und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 11 |
+| [Performance](performance.md) | Strategie und Performance im selben Segment | Heuristik, gezählt |  | 11 |
+| [SQL](sql.md) | Strategie und SQL im selben Segment | Heuristik, gezählt |  | 10 |
+| [Sicherheit](sicherheit.md) | Strategie und Sicherheit im selben Segment | Heuristik, gezählt |  | 8 |
+| [Lizenzen](lizenzen.md) | Strategie und Lizenzen im selben Segment | Heuristik, gezählt |  | 6 |
+| [Visualisierung](visualisierung.md) | Strategie und Visualisierung im selben Segment | Heuristik, gezählt |  | 5 |
+| [Direct Lake](direct-lake.md) | Strategie und Direct Lake im selben Segment | Heuristik, gezählt |  | 5 |
+| [Self-Service BI](self-service-bi.md) | Strategie und Self-Service BI im selben Segment | Heuristik, gezählt |  | 5 |
+| [Power BI Desktop](power-bi-desktop.md) | Strategie und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 4 |
+| [Planung](planung.md) | Strategie und Planung im selben Segment | Heuristik, gezählt |  | 4 |
+| [Governance](governance.md) | Strategie und Governance im selben Segment | Heuristik, gezählt |  | 4 |
+| [Projektmanagement](projektmanagement.md) | Strategie und Projektmanagement im selben Segment | Heuristik, gezählt |  | 4 |
 
 ## Kernaussagen
 
@@ -52,6 +52,10 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
 | --- | --- | --- | --- | --- | --- | --- |
+| Meinung | KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber | 2026-08 | 12:13 | Abschnittsanfang | Der Umgang mit KI-gestützter, datenbasierter Teamarbeit wird als zunehmend wichtige Führungsaufgabe eingeordnet. | [▶](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=733s) |
+| Fakt | KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber | 2026-08 | 26:12 | auf die Sekunde | Die Entwicklung des Tools wurde aus eigener Tasche finanziert statt Kunden in Rechnung gestellt, zu geschätzt niedrigen vierstelligen statt sonst üblichen fünfstelligen Kosten für vergleichbare Programmierleistung. | [▶](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1572s) |
+| Meinung | KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber | 2026-08 | 29:13 | auf die Sekunde | Kunden würden die Beratung wegen des Tools nicht einfach einsparen, weil der eigentliche Mehrwert in der angesammelten Erfahrung liegt und nicht nur im Tool selbst. | [▶](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1753s) |
+| Meinung | KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber | 2026-08 | 40:56 | auf die Sekunde | Der beschriebene Wandel wird explizit als Transformation statt als Ersetzung eingeordnet und als exponentiell statt linear verlaufend beschrieben, vergleichbar mit der historischen Einführung von Computern in der Bürowelt. | [▶](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2456s) |
 | Meinung | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 2026-04 | 06:43 | auf die Sekunde | Risikomanagement bedeutet einen planvollen Umgang mit Risiken, nicht deren vollständige Vermeidung. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=403s) |
 | Empfehlung | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 2026-04 | 47:23 | auf die Sekunde | Für die Produkte, die 80 Prozent des Umsatzes ausmachen, sollten Unternehmen gezielt Dual- oder Second-Source-Strategien entwickeln, um Abhängigkeiten von einzelnen Lieferanten zu reduzieren. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=2843s) |
 | Meinung | GxP Talk - Validierung vs. Agilität | 2026-03 | 08:24 | auf die Sekunde | Agilität sollte nicht als Angst vor Veränderung verstanden werden, sondern als Fähigkeit, flexibel auf neue Situationen reagieren zu können. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=504s) |
@@ -66,24 +70,27 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Meinung | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 2026-02 | 36:19 | auf die Sekunde | Ein komplett neu aufgebautes Unternehmen auf der grünen Wiese als Ersatz für die Transformation bestehender Unternehmen wird als unrealistische Hypothese eingeschätzt, da viele Firmen stark in Produktentwicklung und Manufacturing verwurzelt sind. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=2179s) |
 | Empfehlung | Prinzipien oder Paragrafen | 2026-02 | 37:30 | auf die Sekunde | Layher empfiehlt, innerhalb eines Unternehmens unterschiedlich schnelle Bereiche zuzulassen: streng regulierte Produktion stabil halten, in weniger regulierten Bereichen aber mehr Agilität zulassen. | [▶](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2250s) |
 | Empfehlung | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 2026-02 | 40:06 | Abschnittsanfang | Wer mit der Umsetzung von KI- oder BI-Projekten wartet, bis Tools ausgereifter sind, verliert gegenüber Wettbewerbern wertvolle Zeit, weil jede Woche des Wartens eine verlorene Woche ist. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=2406s) |
+| Meinung | Datenmodellierung ist Governance | 2025-11 | 28:57 | auf die Sekunde | Um relevant zu bleiben, muss sich Business Intelligence dringend mit Organisationsthemen statt nur mit Technik befassen. | [▶](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1737s) |
+| Meinung | Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022 | 2022-06 | 06:54 | auf die Sekunde | Der Einsatz eines strukturierten Einführungsframeworks schafft Sicherheit für die Projektplanung, weil von Anfang an klar ist, worauf man sich einlässt. | [▶](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=414s) |
+| Fakt | Fabric & Power BI Quarterly · 2025 Q3 |  | 08:36 | auf die Sekunde | Microsoft beschraenkt sich bei Power BI und Fabric bewusst auf Kernkompetenzen und ueberlaesst ergaenzende Loesungen wie FUAM Partnern und der Community. | [▶](https://www.youtube.com/watch?v=lZvpCBMKASM&t=516s) |
 
 ## Dokumente
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
-| [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | nur-zeitstempel | [03:03](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=183s) · [06:03](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=363s) · [27:08](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1628s) |
+| [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | kernaussagen+zeitstempel | [03:03](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=183s) · [06:03](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=363s) · [27:08](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1628s) |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [05:02](https://www.youtube.com/watch?v=27rC2zefFOU&t=302s) · [23:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1385s) · [26:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1565s) |
 | [Daten-WG Deep Dive: AI on top of BI](https://www.youtube.com/watch?v=HXAP16trRc8) | 2025-07-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) · [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) · [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) |
 | [Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?](https://www.youtube.com/watch?v=jETxUNQSl-w) | 2026-02-01 | kernaussagen+zeitstempel | [05:56](https://www.youtube.com/watch?v=jETxUNQSl-w&t=356s) · [21:16](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1276s) · [32:38](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1958s) |
-| [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | nur-zeitstempel | [09:14](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=554s) · [12:13](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=733s) · [14:06](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=846s) |
+| [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | kernaussagen+zeitstempel | [09:14](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=554s) · [12:13](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=733s) · [14:06](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=846s) |
 | [LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management](https://www.youtube.com/watch?v=DFw664hd1IE) | 2026-04-01 | kernaussagen+zeitstempel | [41:52](https://www.youtube.com/watch?v=DFw664hd1IE&t=2512s) · [46:48](https://www.youtube.com/watch?v=DFw664hd1IE&t=2808s) · [48:23](https://www.youtube.com/watch?v=DFw664hd1IE&t=2903s) |
-| [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | nur-zeitstempel | [02:39](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=159s) · [04:14](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=254s) · [13:37](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s) |
+| [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [02:39](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=159s) · [04:14](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=254s) · [13:37](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s) |
 | [Power BI Update Juni 2026](https://www.youtube.com/watch?v=5xB_oKdvAwQ) | 2026-06-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=5xB_oKdvAwQ&t=0s) |
-| [Wie war die Daten-WG? (2025, Teil 2)](https://www.youtube.com/watch?v=XxPFAQfLyuA) | 2025-04-01 | nur-zeitstempel | [05:04](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=304s) · [09:39](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=579s) |
+| [Wie war die Daten-WG? (2025, Teil 2)](https://www.youtube.com/watch?v=XxPFAQfLyuA) | 2025-04-01 | kernaussagen+zeitstempel | [05:04](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=304s) · [09:39](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=579s) |
 | [GxP Talk - Testing im GxP-Umfeld](https://www.youtube.com/watch?v=B0_sSJQVG8w) | 2026-04-01 | kernaussagen+zeitstempel | [24:13](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1453s) · [29:01](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1741s) · [46:50](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=2810s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [28:37](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1717s) · [36:40](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2200s) · [38:12](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2292s) |
 | [Daten-WG Life-Update \| State of Power BI, Fabric & AI-Tools](https://www.youtube.com/watch?v=d3HdhRe_nK8) | 2026-06-01 | nur-zeitstempel | [20:30](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1230s) · [35:02](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=2102s) |
-| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | nur-zeitstempel | [07:46](https://www.youtube.com/watch?v=lZvpCBMKASM&t=466s) · [38:58](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2338s) |
+| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [07:46](https://www.youtube.com/watch?v=lZvpCBMKASM&t=466s) · [38:58](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2338s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Reise%20durch%20Microsoft%20Fabric) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Einstellungen%20pr%C3%BCfen) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Voraussetzungen%20%26%20Trade-offs) |
 | [10 Jahre BI für alle? Was Power BI wirklich verändert hat](https://www.youtube.com/watch?v=9wl_PLvgvyc) | 2025-08-01 | nur-zeitstempel | [11:07](https://www.youtube.com/watch?v=9wl_PLvgvyc&t=667s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [36:46](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2206s) |

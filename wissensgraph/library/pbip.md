@@ -3,7 +3,7 @@ id: "tool:pbip"
 name: "PBIP"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 14
 kernaussagen: 8
@@ -21,7 +21,7 @@ aliase:
 
 # PBIP
 
-Die Visual-Studio-Code-Erweiterung für Microsoft Fabric erlaubt es, aus einer Power-BI-Projektdatei einzelne Teile wie nur den Bericht oder nur das semantische Modell hochzuladen, statt immer die gesamte PBIX hochzuladen. In einer Power-BI-Projektdatei können mehrere Report-Verzeichnisse auf dasselbe semantische Modell zeigen, und Berichte lassen sich auch in einem anderen Workspace deployen als das zugehörige Modell. Microsoft plant eine Funktion, mit der Power BI Desktop Codeänderungen im Hintergrund automatisch erkennt und die Berichtsdefinition neu lädt, ohne dass die Anwendung komplett neu gestartet werden muss.
+Die Visual-Studio-Code-Erweiterung für Microsoft Fabric erlaubt es, aus einer Power-BI-Projektdatei einzelne Teile wie nur den Bericht oder nur das semantische Modell hochzuladen, statt immer die gesamte PBIX hochzuladen. (Stand 2025-09) In einer Power-BI-Projektdatei können mehrere Report-Verzeichnisse auf dasselbe semantische Modell zeigen, und Berichte lassen sich auch in einem anderen Workspace deployen als das zugehörige Modell. (Stand 2025-09) Microsoft plant eine Funktion, mit der Power BI Desktop Codeänderungen im Hintergrund automatisch erkennt und die Berichtsdefinition neu lädt, ohne dass die Anwendung komplett neu gestartet werden muss. (Stand 2025-09)
 
 ## Aliase
 
@@ -29,14 +29,14 @@ Power BI Project, Power BI Projekt, PBIR, Enhanced Report Format
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 13 |
-| [Visualisierung](visualisierung.md) | ko-vorkommen | heuristik | 9 |
-| [KI](ki.md) | ko-vorkommen | heuristik | 6 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 5 |
-| [Power BI Desktop](power-bi-desktop.md) | ko-vorkommen | heuristik | 4 |
-| [DAX](dax.md) | ko-vorkommen | heuristik | 4 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Power BI](power-bi.md) | PBIP und Power BI im selben Segment | Heuristik, gezählt |  | 13 |
+| [Visualisierung](visualisierung.md) | PBIP und Visualisierung im selben Segment | Heuristik, gezählt |  | 9 |
+| [KI](ki.md) | PBIP und KI im selben Segment | Heuristik, gezählt |  | 6 |
+| [Reporting](reporting.md) | PBIP und Reporting im selben Segment | Heuristik, gezählt |  | 5 |
+| [Power BI Desktop](power-bi-desktop.md) | PBIP und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 4 |
+| [DAX](dax.md) | PBIP und DAX im selben Segment | Heuristik, gezählt |  | 4 |
 
 ## Kernaussagen
 
@@ -63,7 +63,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
 | [Power BI Seiten per URL steuern - Sprechende URLs mit PBIP & VS Code \| Power BI Tutorial](https://www.youtube.com/watch?v=DcEfNIupEHM) | 2025-12-01 | nur-zeitstempel | [01:29](https://www.youtube.com/watch?v=DcEfNIupEHM&t=89s) |
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [01:54](https://www.youtube.com/watch?v=G8s96sHUHac&t=114s) · [04:56](https://www.youtube.com/watch?v=G8s96sHUHac&t=296s) · [08:20](https://www.youtube.com/watch?v=G8s96sHUHac&t=500s) |
-| [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | nur-zeitstempel | [09:45](https://www.youtube.com/watch?v=DQENmzAkNqw&t=585s) |
+| [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [09:45](https://www.youtube.com/watch?v=DQENmzAkNqw&t=585s) |
 | [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [47:52](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2872s) |
 | [BI Thinkers Talk nr.68](https://www.youtube.com/watch?v=VD1N68Fhoco) | 2025-10-01 | nur-zeitstempel | [09:44](https://www.youtube.com/watch?v=VD1N68Fhoco&t=584s) |
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [45:44](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2744s) |

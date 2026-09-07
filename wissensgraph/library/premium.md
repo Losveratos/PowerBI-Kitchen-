@@ -3,11 +3,11 @@ id: "tool:premium"
 name: "Premium"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 20
-kernaussagen: 2
-mit_kernaussagen: 2
+kernaussagen: 5
+mit_kernaussagen: 5
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/premium.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/premium.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/premium.md"
@@ -21,7 +21,7 @@ aliase:
 
 # Premium
 
-Mit der Power-BI-Pro-Lizenz gilt eine Dateigrößengrenze von 1 GB, deren Überschreitung in Richtung Premium zu höheren Kosten führen kann. Mit der Einführung von Power BI Premium im Jahr 2017 benötigten plötzlich auch reine Berichtskonsumenten eine Power BI Pro Lizenz, um Berichte weiterhin kostenlos empfangen zu können.
+Mit der Power-BI-Pro-Lizenz gilt eine Dateigrößengrenze von 1 GB, deren Überschreitung in Richtung Premium zu höheren Kosten führen kann. (Stand 2026-01) Teilt man eine F64-Reservation auf zwei kleinere Kapazitäten auf und pausiert eine davon, verschenkt man den Rabattanteil der pausierten Kapazität. (Stand 2025-07) Mit der Einführung von Power BI Premium im Jahr 2017 benötigten plötzlich auch reine Berichtskonsumenten eine Power BI Pro Lizenz, um Berichte weiterhin kostenlos empfangen zu können. (Stand 2025-07)
 
 ## Aliase
 
@@ -29,23 +29,23 @@ Power BI Premium, P1, PPU, Premium per User
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Microsoft Fabric](microsoft-fabric.md) | ko-vorkommen | heuristik | 31 |
-| [Fabric Capacity](fabric-capacity.md) | ko-vorkommen | heuristik | 29 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 29 |
-| [Lizenzen](lizenzen.md) | ko-vorkommen | heuristik | 19 |
-| [Workspace](workspace.md) | ko-vorkommen | heuristik | 16 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 14 |
-| [Refresh](refresh.md) | ko-vorkommen | heuristik | 13 |
-| [Power BI Desktop](power-bi-desktop.md) | ko-vorkommen | heuristik | 12 |
-| [Data Pipeline](data-pipeline.md) | ko-vorkommen | heuristik | 12 |
-| [Performance](performance.md) | ko-vorkommen | heuristik | 9 |
-| [Warehouse](warehouse.md) | ko-vorkommen | heuristik | 7 |
-| [Visualisierung](visualisierung.md) | ko-vorkommen | heuristik | 7 |
-| [Lakehouse](lakehouse.md) | ko-vorkommen | heuristik | 7 |
-| [Direct Lake](direct-lake.md) | ko-vorkommen | heuristik | 7 |
-| [Migration](migration.md) | ko-vorkommen | heuristik | 6 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Microsoft Fabric](microsoft-fabric.md) | Premium und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 31 |
+| [Fabric Capacity](fabric-capacity.md) | Premium und Fabric Capacity im selben Segment | Heuristik, gezählt |  | 29 |
+| [Power BI](power-bi.md) | Premium und Power BI im selben Segment | Heuristik, gezählt |  | 29 |
+| [Lizenzen](lizenzen.md) | Premium und Lizenzen im selben Segment | Heuristik, gezählt |  | 19 |
+| [Workspace](workspace.md) | Premium und Workspace im selben Segment | Heuristik, gezählt |  | 16 |
+| [Reporting](reporting.md) | Premium und Reporting im selben Segment | Heuristik, gezählt |  | 14 |
+| [Refresh](refresh.md) | Premium und Refresh im selben Segment | Heuristik, gezählt |  | 13 |
+| [Power BI Desktop](power-bi-desktop.md) | Premium und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 12 |
+| [Data Pipeline](data-pipeline.md) | Premium und Data Pipeline im selben Segment | Heuristik, gezählt |  | 12 |
+| [SQL](sql.md) | Premium und SQL im selben Segment | Heuristik, gezählt |  | 11 |
+| [Performance](performance.md) | Premium und Performance im selben Segment | Heuristik, gezählt |  | 9 |
+| [Warehouse](warehouse.md) | Premium und Warehouse im selben Segment | Heuristik, gezählt |  | 7 |
+| [Visualisierung](visualisierung.md) | Premium und Visualisierung im selben Segment | Heuristik, gezählt |  | 7 |
+| [Lakehouse](lakehouse.md) | Premium und Lakehouse im selben Segment | Heuristik, gezählt |  | 7 |
+| [Direct Lake](direct-lake.md) | Premium und Direct Lake im selben Segment | Heuristik, gezählt |  | 7 |
 
 ## Kernaussagen
 
@@ -54,7 +54,10 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
 | --- | --- | --- | --- | --- | --- | --- |
 | Fakt | Denken in Tabellen | 2026-01 | 31:45 | Abschnittsanfang | Mit der Power-BI-Pro-Lizenz gilt eine Dateigrößengrenze von 1 GB, deren Überschreitung in Richtung Premium zu höheren Kosten führen kann. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s) |
+| Fakt | BI Thinkers Talk nr.64 | 2025-07 | 19:39 | auf die Sekunde | Teilt man eine F64-Reservation auf zwei kleinere Kapazitäten auf und pausiert eine davon, verschenkt man den Rabattanteil der pausierten Kapazität. | [▶](https://www.youtube.com/watch?v=4VVNDNusq4U&t=1179s) |
 | Fakt | 10 Jahre Power BI | 2025-07 | 25:43 | auf die Sekunde | Mit der Einführung von Power BI Premium im Jahr 2017 benötigten plötzlich auch reine Berichtskonsumenten eine Power BI Pro Lizenz, um Berichte weiterhin kostenlos empfangen zu können. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1543s) |
+| Meinung | Fabric & Power BI Quarterly \| 2025 Q2 | 2025-04 | 27:07 | auf die Sekunde | Vor den User Data Functions ließ sich Ähnliches nur über Power Automate mit Premium-Lizenz umsetzen, was als eher wackelig empfunden wurde, insbesondere bei der Kontextübergabe. | [▶](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1627s) |
+| Empfehlung | Fabric & Power BI Quarterly · 2025 Q3 |  | 05:31 | auf die Sekunde | Fuer kleinere Kunden, die DataMarts bisher ohne Premium Per User genutzt haben, lohnt sich beim Umstieg schon eine kleine F2-Kapazitaet. | [▶](https://www.youtube.com/watch?v=lZvpCBMKASM&t=331s) |
 
 ## Dokumente
 
@@ -67,17 +70,17 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [31:45](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s) · [35:27](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2127s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Die%20vier%20Lizenz-Stufen) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Die%20wichtigsten%20Regeln) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Soll%20man%20von%20Power%20BI%20Premium%20auf%20Fabric%20umstellen%3F) |
 | [Power BI Update Mai 2025](https://www.youtube.com/watch?v=zkfdfc5fo-E) | 2025-05-01 | nur-zeitstempel | [14:21](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=861s) |
-| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | nur-zeitstempel | [04:43](https://www.youtube.com/watch?v=lZvpCBMKASM&t=283s) · [07:46](https://www.youtube.com/watch?v=lZvpCBMKASM&t=466s) |
+| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [04:43](https://www.youtube.com/watch?v=lZvpCBMKASM&t=283s) · [07:46](https://www.youtube.com/watch?v=lZvpCBMKASM&t=466s) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [57:16](https://www.youtube.com/watch?v=r416vanitYw&t=3436s) · [58:52](https://www.youtube.com/watch?v=r416vanitYw&t=3532s) |
 | [Power BI-Teams werden Fabric-Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc) | — | nur-zeitstempel | [16:59](https://www.youtube.com/watch?v=YzfcMurbWNc&t=1019s) |
-| [Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup](https://www.youtube.com/watch?v=BDnwlOqRElY) | 2025-06-01 | nur-zeitstempel | [20:57](https://www.youtube.com/watch?v=BDnwlOqRElY&t=1257s) |
-| [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | nur-zeitstempel | [11:50](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=710s) |
-| [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | nur-zeitstempel | [26:36](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1596s) |
+| [Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup](https://www.youtube.com/watch?v=BDnwlOqRElY) | 2025-06-01 | kernaussagen+zeitstempel | [20:57](https://www.youtube.com/watch?v=BDnwlOqRElY&t=1257s) |
+| [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [11:50](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=710s) |
+| [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [26:36](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1596s) |
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [36:36](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=2196s) |
-| [Daten-WG Special: Power BI vs. Qlik](https://www.youtube.com/watch?v=aYHk_V8n_CE) | 2025-10-01 | nur-zeitstempel | [09:43](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=583s) |
-| [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | nur-zeitstempel | [25:29](https://www.youtube.com/watch?v=4VVNDNusq4U&t=1529s) |
-| [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | nur-zeitstempel | [1:03:42](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3822s) |
-| [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | nur-zeitstempel | [34:31](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2071s) |
+| [Daten-WG Special: Power BI vs. Qlik](https://www.youtube.com/watch?v=aYHk_V8n_CE) | 2025-10-01 | kernaussagen+zeitstempel | [09:43](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=583s) |
+| [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | kernaussagen+zeitstempel | [25:29](https://www.youtube.com/watch?v=4VVNDNusq4U&t=1529s) |
+| [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | kernaussagen+zeitstempel | [1:03:42](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3822s) |
+| [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | kernaussagen+zeitstempel | [34:31](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2071s) |
 | [Daten-WG Deep Dive: AI on top of BI](https://www.youtube.com/watch?v=HXAP16trRc8) | 2025-07-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) |
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [25:02](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1502s) |
 

@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Snowflake · DatenWG Library</title>
-<meta name="description" content="Fabric bietet jetzt bidirektionale Shortcut-Integrationen mit Snowflake und Databricks. Gespiegelte Daten in Fabric zu nutzen ist günstiger, als DirectQuery direkt gegen große Lake-Systeme wie Snowflake oder Databricks zu fahren, weil dort pro Abfrage Rechenkosten anfallen.">
+<meta name="description" content="Mit Snowflake Mirroring lassen sich Snowflake-Datenbanken als Kopie in Fabric einziehen, während eine Databricks-Verbindung per Link wie ein Shortcut funktioniert, ohne die Daten zu kopieren.">
 <meta property="og:title" content="Snowflake · DatenWG Library">
-<meta property="og:description" content="Fabric bietet jetzt bidirektionale Shortcut-Integrationen mit Snowflake und Databricks. Gespiegelte Daten in Fabric zu nutzen ist günstiger, als DirectQuery direkt gegen große Lake-Systeme wie Snowflake oder Databricks zu fahren, weil dort pro Abfrage Rechenkosten anfallen.">
+<meta property="og:description" content="Mit Snowflake Mirroring lassen sich Snowflake-Datenbanken als Kopie in Fabric einziehen, während eine Databricks-Verbindung per Link wie ein Shortcut funktioniert, ohne die Daten zu kopieren.">
 <meta property="og:type" content="article">
 <meta property="og:image" content="https://datenwgknowledgekitchen.com/wissensgraph/og.png">
 <meta property="og:image:width" content="1200">
@@ -48,33 +48,37 @@ footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
 <main>
 <p class="kicker">DatenWG Library · tool</p>
 <h1>Snowflake</h1>
-<p class="lead">Fabric bietet jetzt bidirektionale Shortcut-Integrationen mit Snowflake und Databricks. Gespiegelte Daten in Fabric zu nutzen ist günstiger, als DirectQuery direkt gegen große Lake-Systeme wie Snowflake oder Databricks zu fahren, weil dort pro Abfrage Rechenkosten anfallen. Das Zurückschreiben ist derzeit auf SQL-Datenbanken beschränkt, während Inforiver zusätzlich nach Snowflake oder SAP schreiben konnte.</p>
+<p class="lead">Mit Snowflake Mirroring lassen sich Snowflake-Datenbanken als Kopie in Fabric einziehen, während eine Databricks-Verbindung per Link wie ein Shortcut funktioniert, ohne die Daten zu kopieren. Die OneLake Table API erlaubt den nativen Zugriff auf Delta- oder Iceberg-Tabellen und ermöglicht die bidirektionale Nutzung mit Snowflake. Fabric Mirroring unterstützt offiziell Snowflake und Databricks über deren eigene Delta-/Job-Mechanismen, lässt sich über Open Mirroring aber auch für eigene Datenquellen erweitern, wenn Inserts, Updates und Deletes entsprechend gekennzeichnet werden. (Stand 2025-07)</p>
 <div class="btns"><a class="btn" href="../#n=tool%3Asnowflake">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Asnowflake&amp;f=tool%3Asnowflake">Im Graph öffnen</a></div>
-<p class="meta">21 Dokumente · 5 Kernaussagen · Stand 2026-09-07 · Build 20260907-1922</p>
+<p class="meta">21 Dokumente · 9 Kernaussagen · Stand 2026-09-07 · Build 20260907-1949</p>
 <h2>Kernaussagen</h2>
 <ul>
 <li>Das Zurückschreiben ist derzeit auf SQL-Datenbanken beschränkt, während Inforiver zusätzlich nach Snowflake oder SAP schreiben konnte.<span class="meta quote">Warnung · Stand 2026-03 · Fabric Planning unboxing · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=3060s">51:00</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Gespiegelte Daten in Fabric zu nutzen ist günstiger, als DirectQuery direkt gegen große Lake-Systeme wie Snowflake oder Databricks zu fahren, weil dort pro Abfrage Rechenkosten anfallen.<span class="meta quote">Empfehlung · Stand 2026-01 · Fabric &amp; Power BI Quarterly · 2026-1 · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1532s">25:32</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>DirectQuery unterstützt laut den Sprechern bei Quellen wie Snowflake oder Databricks kein Sternschema.<span class="meta quote">Meinung · Stand 2025-12 · BI Thinkers Talk nr.71 · <a href="https://www.youtube.com/watch?v=LUrL8A5lNgI&amp;t=484s">08:04</a> · automatisch extrahiert · Stelle: Abschnittsanfang</span></li>
+<li>Es wird als zukünftige Möglichkeit gesehen, dass MCP-Server von Snowflake, Databricks oder SAP miteinander reden und Daten direkt nach Fabric schieben könnten.<span class="meta quote">Meinung · Stand 2025-12 · Unboxing MCP Server for Power BI Modelling · <a href="https://www.youtube.com/watch?v=iinfiHxznOU&amp;t=952s">15:52</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Fabric Mirroring unterstützt offiziell Snowflake und Databricks über deren eigene Delta-/Job-Mechanismen, lässt sich über Open Mirroring aber auch für eigene Datenquellen erweitern, wenn Inserts, Updates und Deletes entsprechend gekennzeichnet werden.<span class="meta quote">Fakt · Stand 2025-07 · Daten-WG Thinkers Talk nr.65 · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=924s">15:24</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Fabric ist laut Martin für Business-User mit Excel- und Power-BI-Hintergrund zugänglicher als Snowflake.<span class="meta quote">Meinung · Stand  · Microsoft Fabric — braucht das wirklich jemand? · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=1050s">17:30</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Fabric bietet jetzt bidirektionale Shortcut-Integrationen mit Snowflake und Databricks.<span class="meta quote">Fakt · Stand  · Fabric &amp; Power BI Quarterly · 2026-2 · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=1499s">24:59</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Die OneLake Table API erlaubt den nativen Zugriff auf Delta- oder Iceberg-Tabellen und ermöglicht die bidirektionale Nutzung mit Snowflake.<span class="meta quote">Fakt · Stand  · Fabric &amp; Power BI Quarterly · 2025 Q4 · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1564s">26:04</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Mit Snowflake Mirroring lassen sich Snowflake-Datenbanken als Kopie in Fabric einziehen, während eine Databricks-Verbindung per Link wie ein Shortcut funktioniert, ohne die Daten zu kopieren.<span class="meta quote">Fakt · Stand  · 600 SQL-Tabellen in Fabric · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1710s">28:30</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 </ul>
 <h2>Dokumente</h2>
 <ul>
 <li><a href="https://www.youtube.com/watch?v=mTVeZzshLzE">Microsoft Fabric — braucht das wirklich jemand?</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=1599s">26:39</a> · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=1684s">28:04</a> · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=1776s">29:36</a></span></li>
 <li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20drei%20Integrationswege%20im%20%C3%9Cberblick">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Voraussetzungen%20%26%20Trade-offs">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Der%20Vergleich">Abschnitt</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=dKA-38gRD8Q">27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite</a><span class="meta quote">2026-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=dKA-38gRD8Q&amp;t=389s">06:29</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=RtUiF1J5XEg">600 SQL-Tabellen in Fabric</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1680s">28:00</a> · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1731s">28:51</a> · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1851s">30:51</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=RtUiF1J5XEg">600 SQL-Tabellen in Fabric</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1680s">28:00</a> · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1731s">28:51</a> · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1851s">30:51</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=TYp5xCAU2AU">Fabric &amp; Power BI Quarterly · 2026-1</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1350s">22:30</a> · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1503s">25:03</a> · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1602s">26:42</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1362s">22:42</a> · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1440s">24:00</a> · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1536s">25:36</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1362s">22:42</a> · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1440s">24:00</a> · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1536s">25:36</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=m3xNYfVih0Q">Starting with Microsft Fabric the Skills you need</a><span class="meta quote">2024-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=488s">08:08</a> · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=582s">09:42</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w">Daten-WG Thinkers Talk nr.65</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=805s">13:25</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=905s">15:05</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w">Daten-WG Thinkers Talk nr.65</a><span class="meta quote">2025-07-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=805s">13:25</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=905s">15:05</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=9wl_PLvgvyc">10 Jahre BI für alle? Was Power BI wirklich verändert hat</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9wl_PLvgvyc&amp;t=1028s">17:08</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ">Why Passion Beats Niche</a><span class="meta quote">2025-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=372s">06:12</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ">Why Passion Beats Niche</a><span class="meta quote">2025-09-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=372s">06:12</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=xCzKEIB4W5I">Fabric Planning unboxing</a><span class="meta quote">2026-03-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=2239s">37:19</a> · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=3019s">50:19</a></span></li>
 <li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datenbank-Quellen%20%C2%B7%20der%20Folding-Hebel">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Snowflake-Variante%20%28nicht%20empfohlen%29">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Star%20vor%20Snowflake">Abschnitt</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=pTTYySb0Cyg">Fabric &amp; Power BI Quarterly · 2026-2</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=1478s">24:38</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=iinfiHxznOU">Unboxing MCP Server for Power BI Modelling</a><span class="meta quote">2025-12-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=iinfiHxznOU&amp;t=951s">15:51</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=iinfiHxznOU">Unboxing MCP Server for Power BI Modelling</a><span class="meta quote">2025-12-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=iinfiHxznOU&amp;t=951s">15:51</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=VD1N68Fhoco">BI Thinkers Talk nr.68</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=VD1N68Fhoco&amp;t=1749s">29:09</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=AX7b8_aNekw">Daten-WG 2026 Lineup</a><span class="meta quote">2026-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=AX7b8_aNekw&amp;t=688s">11:28</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc">BI Thinkers Talk Nr.62</a><span class="meta quote">2025-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=2297s">38:17</a></span></li>
@@ -85,21 +89,21 @@ footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
 </ul>
 <h2>Nachbarthemen</h2>
 <ul>
-<li><a href="mirroring.html">Mirroring</a><span class="meta quote">teil-von · belegt · 25 gemeinsame Segmente</span></li>
-<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 45 gemeinsame Segmente</span></li>
-<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 29 gemeinsame Segmente</span></li>
-<li><a href="onelake.html">OneLake</a><span class="meta quote">ko-vorkommen · heuristik · 18 gemeinsame Segmente</span></li>
-<li><a href="directquery.html">DirectQuery</a><span class="meta quote">ko-vorkommen · heuristik · 16 gemeinsame Segmente</span></li>
-<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 14 gemeinsame Segmente</span></li>
-<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 14 gemeinsame Segmente</span></li>
-<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 14 gemeinsame Segmente</span></li>
-<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">ko-vorkommen · heuristik · 13 gemeinsame Segmente</span></li>
-<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">ko-vorkommen · heuristik · 13 gemeinsame Segmente</span></li>
-<li><a href="governance.html">Governance</a><span class="meta quote">ko-vorkommen · heuristik · 12 gemeinsame Segmente</span></li>
-<li><a href="delta-lake.html">Delta Lake</a><span class="meta quote">ko-vorkommen · heuristik · 10 gemeinsame Segmente</span></li>
-<li><a href="sap.html">SAP</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
-<li><a href="excel.html">Excel</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
-<li><a href="sharepoint.html">SharePoint</a><span class="meta quote">ko-vorkommen · heuristik · 8 gemeinsame Segmente</span></li>
+<li><a href="mirroring.html">Mirroring</a><span class="meta quote">Snowflake teil-von Mirroring · automatisch extrahiert, Quellenstelle vorhanden · „für Snowflake komplett bidirektionale Geschichte“ (Fabric &amp; Power BI Quarterly · 2026-1, 2026-01) · 25 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">Snowflake und Microsoft Fabric im selben Segment · Heuristik, gezählt · 45 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">Snowflake und Power BI im selben Segment · Heuristik, gezählt · 29 gemeinsame Segmente</span></li>
+<li><a href="onelake.html">OneLake</a><span class="meta quote">Snowflake und OneLake im selben Segment · Heuristik, gezählt · 18 gemeinsame Segmente</span></li>
+<li><a href="directquery.html">DirectQuery</a><span class="meta quote">Snowflake und DirectQuery im selben Segment · Heuristik, gezählt · 16 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">Snowflake und Warehouse im selben Segment · Heuristik, gezählt · 14 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">Snowflake und Performance im selben Segment · Heuristik, gezählt · 14 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">Snowflake und Reporting im selben Segment · Heuristik, gezählt · 14 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">Snowflake und Lakehouse im selben Segment · Heuristik, gezählt · 13 gemeinsame Segmente</span></li>
+<li><a href="sql.html">SQL</a><span class="meta quote">Snowflake und SQL im selben Segment · Heuristik, gezählt · 13 gemeinsame Segmente</span></li>
+<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">Snowflake und Direct Lake im selben Segment · Heuristik, gezählt · 13 gemeinsame Segmente</span></li>
+<li><a href="governance.html">Governance</a><span class="meta quote">Snowflake und Governance im selben Segment · Heuristik, gezählt · 12 gemeinsame Segmente</span></li>
+<li><a href="delta-lake.html">Delta Lake</a><span class="meta quote">Snowflake und Delta Lake im selben Segment · Heuristik, gezählt · 10 gemeinsame Segmente</span></li>
+<li><a href="sap.html">SAP</a><span class="meta quote">Snowflake und SAP im selben Segment · Heuristik, gezählt · 9 gemeinsame Segmente</span></li>
+<li><a href="excel.html">Excel</a><span class="meta quote">Snowflake und Excel im selben Segment · Heuristik, gezählt · 9 gemeinsame Segmente</span></li>
 </ul>
 <h2>Hinweise</h2>
 <p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>

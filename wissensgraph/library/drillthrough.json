@@ -4,26 +4,26 @@
  "typ": "tool",
  "slug": "drillthrough",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/drillthrough.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/drillthrough.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/drillthrough.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/drillthrough.json",
  "dokumente_gesamt": 7,
- "kernaussagen_gesamt": 4,
- "mit_kernaussagen": 3,
+ "kernaussagen_gesamt": 6,
+ "mit_kernaussagen": 4,
  "aliase": [
   "Drill-Through",
   "Drill Through"
  ],
- "einordnung": "Für eine Detailansicht je Vertriebsregion wird in Power BI eine eigene Seite angelegt und über den Gebietsnamen als Drillthrough-Ziel definiert. Über die in der PBIR-Datei gespeicherten Seitenverbindungen lässt sich die mehrstufige Navigationsstruktur eines Berichts sichtbar machen, was in Power BI Desktop selbst nicht einsehbar ist. Die neuen Quicktipps zeigen Drillthrough automatisch an, sodass der erklärungsbedürftige Rechtsklick nicht mehr nötig ist.",
+ "einordnung": "Für eine Detailansicht je Vertriebsregion wird in Power BI eine eigene Seite angelegt und über den Gebietsnamen als Drillthrough-Ziel definiert. (Stand 2026-01) Über die in der PBIR-Datei gespeicherten Seitenverbindungen lässt sich die mehrstufige Navigationsstruktur eines Berichts sichtbar machen, was in Power BI Desktop selbst nicht einsehbar ist. (Stand 2026-04) Die neuen Quicktipps zeigen Drillthrough automatisch an, sodass der erklärungsbedürftige Rechtsklick nicht mehr nötig ist. (Stand 2026-01)",
  "nachbarn": [
   {
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "reporting.md"
@@ -32,7 +32,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -41,7 +41,7 @@
    "id": "tool:bookmarks",
    "name": "Bookmarks",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "bookmarks.md"
@@ -50,7 +50,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "power-bi.md"
@@ -59,7 +59,7 @@
    "id": "tool:field-parameters",
    "name": "Field Parameters",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "field-parameters.md"
@@ -101,6 +101,24 @@
    "zeit": "27:43",
    "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1663s",
    "aussage": "In der Drillthrough-Detailtabelle sollte ein Filter auf Umsatz ist nicht leer gesetzt werden, um Zeilen ohne Wert nach dem Drill auszublenden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1822,
+   "zeit": "30:22",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1822s",
+   "aussage": "Im Stream wird neben Buttons auch das Thema Navigation und Drilling in Power BI behandelt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1911,
+   "zeit": "31:51",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1911s",
+   "aussage": "Die Kombination aus Drill zu einer festen Zielseite und Sprung zu einer variablen Seite wird als sehr schnelle Art zu navigieren gelobt."
   }
  ],
  "dokumente": [
@@ -178,7 +196,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [

@@ -3,11 +3,11 @@ id: "tool:field-parameters"
 name: "Field Parameters"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 12
-kernaussagen: 24
-mit_kernaussagen: 6
+kernaussagen: 25
+mit_kernaussagen: 7
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/field-parameters.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/field-parameters.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/field-parameters.md"
@@ -19,7 +19,7 @@ aliase:
 
 # Field Parameters
 
-Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu. Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird. Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte.
+Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu. (Stand 2026-01) Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird. (Stand 2026-01) Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte. (Stand 2026-02)
 
 ## Aliase
 
@@ -27,15 +27,16 @@ Feldparameter, Field Parameter
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [DAX](dax.md) | setzt-voraus | belegt | 5 |
-| [Visualisierung](visualisierung.md) | ko-vorkommen | heuristik | 10 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 9 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 8 |
-| [Power BI Desktop](power-bi-desktop.md) | ko-vorkommen | heuristik | 4 |
-| [Drillthrough](drillthrough.md) | ko-vorkommen | heuristik | 4 |
-| [Bookmarks](bookmarks.md) | ko-vorkommen | heuristik | 4 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [DAX](dax.md) | Field Parameters setzt-voraus DAX | automatisch extrahiert, Quellenstelle vorhanden | „In diesem Fall wird jetzt eine Parametertabelle angelegt... die ist per DAX erstellt“ (Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“, 2026-02) | 5 |
+| [Row-Level Security](row-level-security.md) | Row-Level Security setzt-voraus Field Parameters | automatisch extrahiert, Quellenstelle vorhanden | „nutzt dann hier die Field Parameter, um das ganze Thema zu umgehen“ (BI Thinkers Talk nr.64, 2025-07) | 0 |
+| [Visualisierung](visualisierung.md) | Field Parameters und Visualisierung im selben Segment | Heuristik, gezählt |  | 10 |
+| [Power BI](power-bi.md) | Field Parameters und Power BI im selben Segment | Heuristik, gezählt |  | 9 |
+| [Reporting](reporting.md) | Field Parameters und Reporting im selben Segment | Heuristik, gezählt |  | 8 |
+| [Power BI Desktop](power-bi-desktop.md) | Field Parameters und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 4 |
+| [Drillthrough](drillthrough.md) | Field Parameters und Drillthrough im selben Segment | Heuristik, gezählt |  | 4 |
+| [Bookmarks](bookmarks.md) | Field Parameters und Bookmarks im selben Segment | Heuristik, gezählt |  | 4 |
 
 ## Kernaussagen
 
@@ -64,9 +65,10 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Fakt | Denken in Tabellen | 2026-01 | 00:30 | auf die Sekunde | Eine aus Databricks stammende Flat Table führte in Power BI zu Problemen mit einer unsauberen Zeitachse und zu wenig flexiblen Darstellungen, die zunächst mit Field Parameters adressiert wurden. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=30s) |
 | Fakt | Power BI Update Januar 2026 | 2026-01 | 02:02 | Abschnittsanfang | Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu. | [▶](https://www.youtube.com/watch?v=TAM5AAZqh7k&t=122s) |
 | Fakt | Power BI Update Januar 2026 | 2026-01 | 02:13 | auf die Sekunde | Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird. | [▶](https://www.youtube.com/watch?v=TAM5AAZqh7k&t=133s) |
-| Meinung | Power BI Update Januar 2026 | 2026-01 | 03:19 | Abschnittsanfang | Der Sprecher hält die Field-Parameter- und Quicktipp-Updates für die produktivsten Neuerungen dieses Monats. | [▶](https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s) |
+| Meinung | Power BI Update Januar 2026 | 2026-01 | 03:19 | Abschnittsanfang | Artur König hält die Field-Parameter- und Quicktipp-Updates für die produktivsten Neuerungen dieses Monats. | [▶](https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s) |
 | Meinung | Denken in Tabellen | 2026-01 | 23:40 | Abschnittsanfang | Bei einem Ist-Budget-Vergleich mit unterschiedlicher Granularität von Kunde und Produkt sowie täglicher und monatlicher Frequenz wird eine flache Tabelle mit Field Parameters schnell unübersichtlich, während ein Sternschema die Zusammenführung vereinfacht. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1420s) |
 | Meinung | 10 Jahre Power BI | 2025-07 | 42:41 | auf die Sekunde | Mehrere Teilnehmer nennen Field Parameters als eines der wirkungsvollsten neuen Power-BI-Features, weil sie ein einzelnes Visual für verschiedene Kennzahlen und Achsen mehrfach nutzbar machen. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2561s) |
+| Fakt | Fabric & Power BI Quarterly · 2025 Q4 |  | 01:20 | auf die Sekunde | Field Parameters wurden im Juli 2025 als GA (General Availability) für Power BI angekündigt. | [▶](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=80s) |
 
 ## Dokumente
 
@@ -80,7 +82,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [BI Thinkers Talk nr.68](https://www.youtube.com/watch?v=VD1N68Fhoco) | 2025-10-01 | nur-zeitstempel | [24:03](https://www.youtube.com/watch?v=VD1N68Fhoco&t=1443s) · [27:20](https://www.youtube.com/watch?v=VD1N68Fhoco&t=1640s) · [29:09](https://www.youtube.com/watch?v=VD1N68Fhoco&t=1749s) |
 | [BI Thinkers Talk n.73](https://www.youtube.com/watch?v=pOJpXxsfUt0) | 2026-02-01 | kernaussagen+zeitstempel | [24:12](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=1452s) · [59:01](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3541s) |
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [42:37](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2557s) · [47:19](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2839s) · [1:11:57](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4317s) |
-| [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | nur-zeitstempel | [01:45](https://www.youtube.com/watch?v=4VVNDNusq4U&t=105s) · [03:20](https://www.youtube.com/watch?v=4VVNDNusq4U&t=200s) |
+| [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | kernaussagen+zeitstempel | [01:45](https://www.youtube.com/watch?v=4VVNDNusq4U&t=105s) · [03:20](https://www.youtube.com/watch?v=4VVNDNusq4U&t=200s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=07%20%C2%B7%20Interaktivit%C3%A4t%20%2A%C2%B7%20UX%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Bookmark%20Navigator) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Field%20Parameters%20f%C3%BCr%20Dimensionen) |
 | [Power BI Deep Dive: DAX UDF + TMDL](https://www.youtube.com/watch?v=0FPA1k5YiTs) | 2025-10-01 | nur-zeitstempel | [42:41](https://www.youtube.com/watch?v=0FPA1k5YiTs&t=2561s) |
 | [BI Thinkers Talk nr.63](https://www.youtube.com/watch?v=9VX4-lLa0EI) | 2025-06-01 | nur-zeitstempel | [29:33](https://www.youtube.com/watch?v=9VX4-lLa0EI&t=1773s) |

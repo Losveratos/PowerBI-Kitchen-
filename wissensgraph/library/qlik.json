@@ -4,36 +4,45 @@
  "typ": "tool",
  "slug": "qlik",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/qlik.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/qlik.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/qlik.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/qlik.json",
  "dokumente_gesamt": 4,
- "kernaussagen_gesamt": 13,
- "mit_kernaussagen": 2,
+ "kernaussagen_gesamt": 25,
+ "mit_kernaussagen": 3,
  "aliase": [
   "QlikView",
   "Qlik Sense",
   "Click"
  ],
- "einordnung": "Oliver Franz ist Wirtschaftswissenschaftler und arbeitet seit Langem im BI-Umfeld mit Qlik. Arthur und Oliver haben eine dreiteilige Challenge mit identischen Aufgaben in Qlik und Power BI durchgeführt: Basics, Modellierung und Visualisierung. In Qlik ist ein Streudiagramm bei großen, komplexen Datenmengen schwer zu konfigurieren.",
+ "einordnung": "Power BI Desktop lässt sich kostenlos herunterladen, waehrend es eine kostenlose Desktop-Version von Qlik in dieser Form nicht mehr gibt. (Stand 2025-10) Das guenstigste Qlik-Angebot beginnt bei rund 2400 Euro im Jahr, bei zehn Nutzern liegt man bei etwa 20 Euro pro Nutzer und Monat. (Stand 2025-10) Qlik laesst sich komplett on-premise und sogar offline betreiben, waehrend fuer Power BI dafuer nur der als veraltet beschriebene Power BI Report Server existiert. (Stand 2025-10)",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 8,
-   "beleg": "die Verbindung vorgibt und bei Power BI ... diese unidirektionale Möglichkeit Tabellen miteinander zu verknüpfen",
+   "beleg": "Wir haben in Power BI ja immer zwei Modell und Report",
    "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:power-query",
+   "name": "Power Query",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "Das fand ich tatsächlich cool, dass du so eine Art explorative Suche in Klick hast",
+   "datei": "power-query.md"
   },
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ersetzt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 8,
    "beleg": "wir hatten ursprünglich gedacht, klick Blick jetzt lass mal doch lieber Power BI als solches nehmen",
    "datei": "power-bi.md"
@@ -42,7 +51,7 @@
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "das war halt auch ganz cool, dass du mit diesem DAX viel mehr machen konntest aus meiner Sicht als in dieser Klicksprache mit Set Analysis",
    "datei": "dax.md"
@@ -51,7 +60,7 @@
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "excel.md"
@@ -60,7 +69,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -69,7 +78,7 @@
    "id": "topic:lizenzen",
    "name": "Lizenzen",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "lizenzen.md"
@@ -185,6 +194,114 @@
    "aussage": "Arthur warnt davor, ein gut funktionierendes BI-Tool nur wegen konzernweiter Vereinheitlichung ohne echten Grund zu wechseln."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 647,
+   "zeit": "10:47",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=647s",
+   "aussage": "Power BI Desktop lässt sich kostenlos herunterladen, waehrend es eine kostenlose Desktop-Version von Qlik in dieser Form nicht mehr gibt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 664,
+   "zeit": "11:04",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=664s",
+   "aussage": "Das guenstigste Qlik-Angebot beginnt bei rund 2400 Euro im Jahr, bei zehn Nutzern liegt man bei etwa 20 Euro pro Nutzer und Monat."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 677,
+   "zeit": "11:17",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=677s",
+   "aussage": "Bei einer Entscheidung zwischen Qlik und Power BI sollte man sich nicht in erster Linie auf die Lizenzpreise konzentrieren, sondern den konkreten Use Case durchrechnen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 738,
+   "zeit": "12:18",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=738s",
+   "aussage": "Qlik laesst sich komplett on-premise und sogar offline betreiben, waehrend fuer Power BI dafuer nur der als veraltet beschriebene Power BI Report Server existiert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 956,
+   "zeit": "15:56",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=956s",
+   "aussage": "In Qlik Cloud heissen Workspaces schlicht Spaces und Reports werden als Apps bezeichnet, die Grafiken, Daten und Formeln als gemeinsamen Container enthalten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 1166,
+   "zeit": "19:26",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=1166s",
+   "aussage": "Qlik Cloud hostet Rechenzentren unter anderem in Frankfurt, Irland und Singapur, sodass Kunden Datenverarbeitung nicht zwingend in den USA befuerchten muessen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 1417,
+   "zeit": "23:37",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=1417s",
+   "aussage": "In Qlik laesst sich das komplette Datenmodell per intelligenter Suche nach einem bekannten Wert durchsuchen, auch wenn der zugehoerige Feldname unbekannt ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2037,
+   "zeit": "33:57",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2037s",
+   "aussage": "In Power BI existieren semantisches Modell und Bericht als zwei getrennte Objekte, waehrend beides in Qlik in einer gemeinsamen App zusammengefasst ist."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2180,
+   "zeit": "36:20",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2180s",
+   "aussage": "Qlik bietet eine explorative Suche direkt im Aufbereitungs-Editor, die im Vergleich mit Power Query in Power BI als bisher nicht gefundenes Feature positiv auffiel."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2638,
+   "zeit": "43:58",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2638s",
+   "aussage": "In Power BI werden Master-Measures ueblicherweise an eine Tabelle im Datenmodell gebunden, waehrend Master-Kennzahlen in Qlik zur Applikation gehoeren und nicht an einer Tabelle haengen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2961,
+   "zeit": "49:21",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2961s",
+   "aussage": "Qlik bietet eine eingebaute Funktion, um automatisch eine eindeutige laufende Nummer je unterschiedlicher Feldauspraegung zu erzeugen, ohne dafuer manuell eine separate Join-Tabelle aufbauen zu muessen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 3087,
+   "zeit": "51:27",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=3087s",
+   "aussage": "In Qlik lassen sich Master-Kennzahlen als eigenstaendige Formel definieren, ohne dass sie fest an eine Tabelle im Datenmodell gebunden sind."
+  },
+  {
    "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
@@ -199,7 +316,7 @@
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.189,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [

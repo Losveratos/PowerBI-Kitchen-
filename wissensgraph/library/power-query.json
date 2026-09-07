@@ -4,28 +4,46 @@
  "typ": "tool",
  "slug": "power-query",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-query.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-query.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-query.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-query.json",
  "dokumente_gesamt": 45,
- "kernaussagen_gesamt": 13,
- "mit_kernaussagen": 8,
+ "kernaussagen_gesamt": 33,
+ "mit_kernaussagen": 15,
  "aliase": [
   "M-Code",
   "Power Query M",
   "Query Editor",
   "Abfrage-Editor"
  ],
- "einordnung": "Viele Fachanwender kennen Power Query nicht und bleiben deshalb bei breiten Tabellen, obwohl Power Query die Ein-Millionen-Zeilen-Grenze von Power Pivot umgeht. Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen. Die Schaltfläche \"Zeilen behalten\" im Power Query Editor bietet fünf Optionen: erste Zeilen behalten, letzte Zeilen behalten, einen Bereich von Zeilen behalten, Duplikate behalten und Fehler behalten.",
+ "einordnung": "Qlik bietet eine eingebaute Funktion, um automatisch eine eindeutige laufende Nummer je unterschiedlicher Feldauspraegung zu erzeugen, ohne dafuer manuell eine separate Join-Tabelle aufbauen zu muessen. (Stand 2025-10) Über den XML-Endpoint lässt sich in TMDL kein Power Query laden, weshalb ein in Power Query gebauter Arbeitstage-Offset wie der von Lars Schreiber nicht einfach eins zu eins in TMDL nachgebaut werden kann. (Stand 2025-04) Viele Fachanwender kennen Power Query nicht und bleiben deshalb bei breiten Tabellen, obwohl Power Query die Ein-Millionen-Zeilen-Grenze von Power Pivot umgeht. (Stand 2026-01)",
  "nachbarn": [
+  {
+   "id": "tool:tmdl",
+   "name": "TMDL",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 3,
+   "beleg": "weil du ja in Tindel keine Power Query laden kannst",
+   "datei": "tmdl.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 22,
+   "beleg": "sagen hier zu viel DAX Magic vorne rum. Macht das dann nur intransparent",
+   "datei": "dax.md"
+  },
   {
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "teil-von",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 23,
    "beleg": "dann unterstützt ja Excel mittlerweile Power Query",
    "datei": "excel.md"
@@ -34,16 +52,34 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "teil-von",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 53,
    "beleg": "Bei Power BI ist das Power Query, was dann dabei ist und dann das Datenmodell.",
    "datei": "power-bi.md"
   },
   {
+   "id": "tool:tmdl",
+   "name": "TMDL",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 3,
+   "beleg": "alles im was Power Query, Datenmodell, Beziehung, DAX Measures, alles das, was darin embettet ist",
+   "datei": "tmdl.md"
+  },
+  {
+   "id": "tool:qlik",
+   "name": "Qlik",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "Das fand ich tatsächlich cool, dass du so eine Art explorative Suche in Klick hast",
+   "datei": "qlik.md"
+  },
+  {
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 36,
    "beleg": "",
    "datei": "performance.md"
@@ -52,7 +88,7 @@
    "id": "tool:dataflow",
    "name": "Dataflow",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "dataflow.md"
@@ -61,25 +97,16 @@
    "id": "topic:sternschema",
    "name": "Sternschema",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "sternschema.md"
   },
   {
-   "id": "tool:dax",
-   "name": "DAX",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 22,
-   "beleg": "",
-   "datei": "dax.md"
-  },
-  {
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "datenmodellierung.md"
@@ -88,7 +115,7 @@
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "refresh.md"
@@ -97,7 +124,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -106,7 +133,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -115,46 +142,19 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "reporting.md"
   },
   {
-   "id": "topic:ki",
-   "name": "KI",
+   "id": "tool:sql",
+   "name": "SQL",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 15,
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 17,
    "beleg": "",
-   "datei": "ki.md"
-  },
-  {
-   "id": "tool:notebook",
-   "name": "Notebook",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 15,
-   "beleg": "",
-   "datei": "notebook.md"
-  },
-  {
-   "id": "tool:python",
-   "name": "Python",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 12,
-   "beleg": "",
-   "datei": "python.md"
-  },
-  {
-   "id": "tool:warehouse",
-   "name": "Warehouse",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 10,
-   "beleg": "",
-   "datei": "warehouse.md"
+   "datei": "sql.md"
   }
  ],
  "kernaussagen": [
@@ -214,12 +214,39 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 285,
+   "zeit": "04:45",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=285s",
+   "aussage": "Der MCP Modeling Server für Power BI kann momentan alles bearbeiten, was über TMDL abgebildet ist, also Power Query, Datenmodell, Beziehungen und DAX-Measures."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 931,
+   "zeit": "15:31",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=931s",
+   "aussage": "Der MCP Modeling Server kann Daten momentan nicht automatisch aus einem CSV-Repository per Link anbinden, das Laden muss manuell über den Power-Query-Webconnector erfolgen."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
    "sekunde": 1443,
    "zeit": "24:03",
    "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1443s",
    "aussage": "Die Schaltfläche \"Zeilen behalten\" im Power Query Editor bietet fünf Optionen: erste Zeilen behalten, letzte Zeilen behalten, einen Bereich von Zeilen behalten, Duplikate behalten und Fehler behalten."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 588,
+   "zeit": "09:48",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=588s",
+   "aussage": "Die häufigste Fehlerquelle in Datenmodellen liegt beim Verjoinen mehrerer Tabellen in Power Query, etwa durch verdoppelte oder inkonsistente Datensätze."
   },
   {
    "typ": "Empfehlung",
@@ -231,6 +258,24 @@
    "aussage": "Transformationsschritte sollen möglichst weit Richtung Quelle beziehungsweise in die dazwischenliegende Datenplattform verlagert werden, damit das Power-BI-Modell die Daten bereits aufbereitet erhält."
   },
   {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2180,
+   "zeit": "36:20",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2180s",
+   "aussage": "Qlik bietet eine explorative Suche direkt im Aufbereitungs-Editor, die im Vergleich mit Power Query in Power BI als bisher nicht gefundenes Feature positiv auffiel."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2961,
+   "zeit": "49:21",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2961s",
+   "aussage": "Qlik bietet eine eingebaute Funktion, um automatisch eine eindeutige laufende Nummer je unterschiedlicher Feldauspraegung zu erzeugen, ohne dafuer manuell eine separate Join-Tabelle aufbauen zu muessen."
+  },
+  {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
@@ -238,6 +283,141 @@
    "zeit": "18:43",
    "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1123s",
    "aussage": "Bei der Migration eines Importmodells zu Direct Lake wurde eine bisher per Power-Query-Abfrage angelegte Measure-Tabelle durch eine Calculated Table mit einer leeren Hilfsspalte ersetzt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1254,
+   "zeit": "20:54",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1254s",
+   "aussage": "Ein Kalender lässt sich per Power Query aufbauen und zusätzlich über TMDL mit Formaten, Sortierungen und Hierarchien anreichern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1782,
+   "zeit": "29:42",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1782s",
+   "aussage": "Datumsangaben im ISO-Format mit Bindestrichen sind bei der Interpretation in Power Query in der Regel unkritisch."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1799,
+   "zeit": "29:59",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1799s",
+   "aussage": "Bei mehrdeutigen Datumsformaten wird empfohlen, im Power-Query-Transformationsschritt explizit die Culture (z.B. en-US) anzugeben, damit das Ergebnis nicht von der Spracheinstellung abhängt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1889,
+   "zeit": "31:29",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1889s",
+   "aussage": "Die Culture-Einstellung in Power Query gilt für den gesamten Transformationsschritt und nicht pro Spalte, weshalb gemischte Formate zwei getrennte Schritte erfordern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 2811,
+   "zeit": "46:51",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2811s",
+   "aussage": "Power Query enthält seit Jahren einfache, auf Cognitive Services basierende KI-Funktionen wie Sentimentanalyse unter dem Namen KI Insights."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 782,
+   "zeit": "13:02",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=782s",
+   "aussage": "Für deutschsprachige Power-BI-Modelle wird häufig die Datumstabelle von Lars Schreiber als Power-Query-Vorlage verwendet."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 2256,
+   "zeit": "37:36",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2256s",
+   "aussage": "Für das Auflösen der rekursiven Zeilen- und Kontenverweise in der Mapping-Tabelle wird ein Python-Notebook gegenüber Power Query bevorzugt, weil Power Query keine regulären Ausdrücke bietet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 2332,
+   "zeit": "38:52",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2332s",
+   "aussage": "Beim Auflösen von Kontenbereichen in der Mapping-Tabelle muss ein Join mit der Sachkontentabelle erfolgen, da nicht jedes Konto in einem angegebenen Bereich tatsächlich existiert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 925,
+   "zeit": "15:25",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=925s",
+   "aussage": "In einer idealen Modellierung würde man für das Event-Dashboard Dimensionen anlegen und mindestens eine Kalendertabelle verwenden, statt nur Rohdaten aus der API zu übernehmen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 1150,
+   "zeit": "19:10",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1150s",
+   "aussage": "Ob ein Event als \"closed\" gilt, sollte als zeilenbezogene, unveränderliche Logik in Power Query berechnet werden statt an anderer Stelle im Bericht."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 2329,
+   "zeit": "38:49",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2329s",
+   "aussage": "Auch mit den neuen TMDL-Kalendermöglichkeiten wird es weiterhin als einfacher angesehen, einen Feiertag schnell in Power Query zu ergänzen statt in DAX."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 2580,
+   "zeit": "43:00",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2580s",
+   "aussage": "Feiertagslogik sollte nicht Teil des TMDL-/Kalenderthemas sein, sondern eher als eine Art Offset separat behandelt werden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 2624,
+   "zeit": "43:44",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2624s",
+   "aussage": "Die Berechnung des x-ten Arbeitstags nach einem Datum wird für Power Query statt für aufwendige DAX-Window-Functions empfohlen, weil komplexe DAX-Lösungen für andere schwer nachvollziehbar und zu debuggen sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 3041,
+   "zeit": "50:41",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3041s",
+   "aussage": "Über den XML-Endpoint lässt sich in TMDL kein Power Query laden, weshalb ein in Power Query gebauter Arbeitstage-Offset wie der von Lars Schreiber nicht einfach eins zu eins in TMDL nachgebaut werden kann."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 3095,
+   "zeit": "51:35",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3095s",
+   "aussage": "Vordefinierte Hilfsdaten wie eine Feiertagstabelle gehören ins Backend, also nach Power Query oder woanders, statt nur deshalb in TMDL eingefügt zu werden, weil sich das dort einfach per Copy-Paste einfügen lässt."
   },
   {
    "typ": "Meinung",
@@ -346,7 +526,7 @@
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.216,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [
@@ -396,7 +576,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.214,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [
@@ -511,7 +691,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.162,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -636,7 +816,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.075,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -686,7 +866,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.07,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [
@@ -836,7 +1016,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -901,7 +1081,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.049,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -961,7 +1141,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.047,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -1041,7 +1221,7 @@
    "id": "yt:lH_-A8NAQ-k",
    "titel": "Datenmodellierung ist Governance",
    "datum": "2025-11-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.04,
    "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
    "sprungmarken": [
@@ -1056,7 +1236,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.032,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -1096,7 +1276,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [

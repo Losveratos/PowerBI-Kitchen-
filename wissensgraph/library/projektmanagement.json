@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "projektmanagement",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/projektmanagement.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/projektmanagement.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/projektmanagement.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/projektmanagement.json",
  "dokumente_gesamt": 12,
- "kernaussagen_gesamt": 12,
- "mit_kernaussagen": 2,
+ "kernaussagen_gesamt": 18,
+ "mit_kernaussagen": 5,
  "aliase": [
   "Scrum",
   "agil",
@@ -21,13 +21,13 @@
   "Projekte",
   "Sprint"
  ],
- "einordnung": "Nach Erfahrung eines Sprechers ist in rund 80 Prozent der Fälle, in denen angeblich nur noch die Validierung fehlt, tatsächlich die Definition of Ready nicht erfüllt. Eine zusätzliche Sandbox-Umgebung neben der Entwicklungsumgebung hilft, frühes Nutzerfeedback zum Solution Design einzuholen, bevor ein Prozess final umgesetzt wird. Schlagartige Einführungen neuer Tools oder Prozesse blockieren nach Einschätzung eines Sprechers die Akzeptanz, weshalb graduelle, adaptive Veränderungsschritte empfohlen werden.",
+ "einordnung": "Nach Erfahrung eines Sprechers ist in rund 80 Prozent der Fälle, in denen angeblich nur noch die Validierung fehlt, tatsächlich die Definition of Ready nicht erfüllt. (Stand 2026-03) In manchen Organisationskulturen wird praktisch jede Anforderung aus dem Fachbereich automatisch als Prio 1 eingestuft. (Stand 2025-11) In der Praxis wurden eingestellte Data Scientisten oft für Automatisierung beziehungsweise Data Engineering statt für Machine-Learning-Modelle eingesetzt, was sie unglücklich machte, dem Unternehmen aber half. (Stand 2025-11)",
  "nachbarn": [
   {
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "ki.md"
@@ -36,7 +36,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -45,7 +45,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "power-bi.md"
@@ -54,7 +54,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "reporting.md"
@@ -63,7 +63,7 @@
    "id": "topic:schulung",
    "name": "Schulung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "schulung.md"
@@ -72,7 +72,7 @@
    "id": "tool:sap",
    "name": "SAP",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "sap.md"
@@ -81,16 +81,25 @@
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "planung.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "warehouse.md"
@@ -99,7 +108,7 @@
    "id": "topic:migration",
    "name": "Migration",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "migration.md"
@@ -108,7 +117,7 @@
    "id": "topic:strategie",
    "name": "Strategie",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "strategie.md"
@@ -117,7 +126,7 @@
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "excel.md"
@@ -126,7 +135,7 @@
    "id": "topic:community",
    "name": "Community",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "community.md"
@@ -135,7 +144,7 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "sicherheit.md"
@@ -144,19 +153,10 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "lakehouse.md"
-  },
-  {
-   "id": "topic:performance",
-   "name": "Performance",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "performance.md"
   }
  ],
  "kernaussagen": [
@@ -267,6 +267,60 @@
    "zeit": "13:48",
    "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=828s",
    "aussage": "Zielbild-Workshops funktionieren am besten mit fünf bis sieben Teilnehmenden und vorbereitenden Einzelgesprächen vor dem eigentlichen Termin."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 1218,
+   "zeit": "20:18",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1218s",
+   "aussage": "In manchen Organisationskulturen wird praktisch jede Anforderung aus dem Fachbereich automatisch als Prio 1 eingestuft."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 2375,
+   "zeit": "39:35",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=2375s",
+   "aussage": "In der Praxis wurden eingestellte Data Scientisten oft für Automatisierung beziehungsweise Data Engineering statt für Machine-Learning-Modelle eingesetzt, was sie unglücklich machte, dem Unternehmen aber half."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 297,
+   "zeit": "04:57",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=297s",
+   "aussage": "Die Keynote zur Daten-WG 2025 stellte hypothesenbasiertes Arbeiten vor, also die Frage, was eintreten muss, damit ein Datenprojekt als Erfolg gilt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 440,
+   "zeit": "07:20",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=440s",
+   "aussage": "Der Titel der Keynote zur Daten-WG 2025 lautete \"Warum Datenprojekte dein Geld verbrennen\"."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 494,
+   "zeit": "08:14",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=494s",
+   "aussage": "Die Dashboard- bzw. Tech-Challenge für Fabric ist auf drei Monate angelegt, damit danach klar ist, wer mitmacht und was der Output ist."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 414,
+   "zeit": "06:54",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=414s",
+   "aussage": "Der Einsatz eines strukturierten Einführungsframeworks schafft Sicherheit für die Projektplanung, weil von Anfang an klar ist, worauf man sich einlässt."
   }
  ],
  "dokumente": [
@@ -324,7 +378,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.333,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -469,7 +523,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -489,7 +543,7 @@
    "id": "yt:rrCi0lnGrCg",
    "titel": "Mythos Data Vault und richtig große Modelle",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.045,
    "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
    "sprungmarken": [
@@ -504,7 +558,7 @@
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.027,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [

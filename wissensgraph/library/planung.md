@@ -3,11 +3,11 @@ id: "topic:planung"
 name: "Planung"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 36
-kernaussagen: 23
-mit_kernaussagen: 6
+kernaussagen: 24
+mit_kernaussagen: 7
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/planung.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/planung.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/planung.md"
@@ -22,7 +22,7 @@ aliase:
 
 # Planung
 
-Das neue Planning-Feature, ehemals Lumel bzw. Inforiver, ist jetzt direkt in Microsoft Fabric integriert und benötigt keine zusätzliche Lizenz, sondern nur Fabric-Kapazität. Beim Anlegen eines Planning-Objekts wird automatisch eine Fabric SQL-Datenbank erstellt. Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird.
+Das neue Planning-Feature, ehemals Lumel bzw. Inforiver, ist jetzt direkt in Microsoft Fabric integriert und benötigt keine zusätzliche Lizenz, sondern nur Fabric-Kapazität. (Stand 2026-03) Beim Anlegen eines Planning-Objekts wird automatisch eine Fabric SQL-Datenbank erstellt. (Stand 2026-03) Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird. (Stand 2026-03)
 
 ## Aliase
 
@@ -30,23 +30,23 @@ Planning, Forecast, Budget, Plan, Planwerte
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Translytical Task Flows](translytical-task-flows.md) | gegensatz | belegt | 0 |
-| [Paginated Reports](paginated-reports.md) | gegensatz | belegt | 0 |
-| [Fabric Capacity](fabric-capacity.md) | setzt-voraus | belegt | 8 |
-| [Semantic Model](semantic-model.md) | setzt-voraus | belegt | 9 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 31 |
-| [Microsoft Fabric](microsoft-fabric.md) | ko-vorkommen | heuristik | 29 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 29 |
-| [Visualisierung](visualisierung.md) | ko-vorkommen | heuristik | 25 |
-| [Excel](excel.md) | ko-vorkommen | heuristik | 19 |
-| [IBCS](ibcs.md) | ko-vorkommen | heuristik | 19 |
-| [Daten-WG](daten-wg.md) | ko-vorkommen | heuristik | 12 |
-| [Performance](performance.md) | ko-vorkommen | heuristik | 12 |
-| [KI](ki.md) | ko-vorkommen | heuristik | 11 |
-| [Sternschema](sternschema.md) | ko-vorkommen | heuristik | 10 |
-| [Sicherheit](sicherheit.md) | ko-vorkommen | heuristik | 9 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Translytical Task Flows](translytical-task-flows.md) | Translytical Task Flows gegensatz Planung | automatisch extrahiert, Quellenstelle vorhanden | „Da sind einfach zwei verschiedene Sachen, was es eben nicht gab in Power BI ... in Transluttical ist halt eine Inputtabelle und die gibt es jetzt mit dem Planning.“ (Fabric & Power BI Quarterly · 2026-2) | 0 |
+| [Paginated Reports](paginated-reports.md) | Planung gegensatz Paginated Reports | automatisch extrahiert, Quellenstelle vorhanden | „ist auch ein bisschen Konkurrenz zu Paginonated Reports an einigen Stellen“ (Fabric & Power BI Quarterly · 2026-2) | 0 |
+| [Fabric Capacity](fabric-capacity.md) | Planung setzt-voraus Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „es aber braucht einfach Kapazität, aber es gibt für mich, es gibt keine extra Lizenzen“ (Fabric Planning unboxing, 2026-03) | 8 |
+| [Semantic Model](semantic-model.md) | Planung setzt-voraus Semantic Model | automatisch extrahiert, Quellenstelle vorhanden | „muss ich ja schon die Zieltabellen einbinden und Bedarf auch ein bisschen mehr, also Datenmodellierung“ (Fabric Planning unboxing, 2026-03) | 9 |
+| [Power BI](power-bi.md) | Planung und Power BI im selben Segment | Heuristik, gezählt |  | 31 |
+| [Microsoft Fabric](microsoft-fabric.md) | Planung und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 29 |
+| [Reporting](reporting.md) | Planung und Reporting im selben Segment | Heuristik, gezählt |  | 29 |
+| [Visualisierung](visualisierung.md) | Planung und Visualisierung im selben Segment | Heuristik, gezählt |  | 25 |
+| [Excel](excel.md) | Planung und Excel im selben Segment | Heuristik, gezählt |  | 19 |
+| [IBCS](ibcs.md) | Planung und IBCS im selben Segment | Heuristik, gezählt |  | 19 |
+| [SQL](sql.md) | Planung und SQL im selben Segment | Heuristik, gezählt |  | 13 |
+| [Daten-WG](daten-wg.md) | Planung und Daten-WG im selben Segment | Heuristik, gezählt |  | 12 |
+| [Performance](performance.md) | Planung und Performance im selben Segment | Heuristik, gezählt |  | 12 |
+| [KI](ki.md) | Planung und KI im selben Segment | Heuristik, gezählt |  | 11 |
+| [Sternschema](sternschema.md) | Planung und Sternschema im selben Segment | Heuristik, gezählt |  | 10 |
 
 ## Kernaussagen
 
@@ -76,6 +76,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Meinung | Fabric Planning unboxing | 2026-03 | 1:17:34 | auf die Sekunde | Power Table eignet sich nach Einschätzung des Testers vor allem für Master Data Management mit Excel-ähnlicher Bearbeitung. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=4654s) |
 | Meinung | Fabric Planning unboxing | 2026-03 | 1:24:16 | Abschnittsanfang | Das Planning-Feature wird funktional positiv bewertet, gilt wegen Optik, UX und Performance aber noch nicht als reif für einen breiten Rollout an Endnutzer in großen Unternehmen. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=5056s) |
 | Meinung | Denken in Tabellen | 2026-01 | 23:40 | Abschnittsanfang | Bei einem Ist-Budget-Vergleich mit unterschiedlicher Granularität von Kunde und Produkt sowie täglicher und monatlicher Frequenz wird eine flache Tabelle mit Field Parameters schnell unübersichtlich, während ein Sternschema die Zusammenführung vereinfacht. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1420s) |
+| Fakt | Wie war die Daten-WG? (2025, Teil 2) | 2025-04 | 30:53 | auf die Sekunde | Der Termin der nächsten Daten-WG wurde bewusst in den Oktober gelegt, um Konflikte mit Jahreswechsel- und Jahresend-Stress zu vermeiden. | [▶](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1853s) |
 | Fakt | Fabric & Power BI Quarterly · 2026-2 |  | 41:28 | auf die Sekunde | Fabric Planning mit Lumel erfordert keine separate Lizenz und wird ausschließlich über Capacity-Unit-Verbrauch abgerechnet. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2488s) |
 
 ## Dokumente
@@ -95,27 +96,27 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=SAY%20%E2%80%94%20Convey%20a%20message) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=UNIFY%20%E2%80%94%20Apply%20semantic%20notation) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=DBA%20einbinden) |
 | [The Day After Tomorrow – Nach der Einführung geht es erst richtig los \| Power BI Summit 2023](https://www.youtube.com/watch?v=KwySyTxW_EI) | 2023-03-01 | nur-zeitstempel | [24:06](https://www.youtube.com/watch?v=KwySyTxW_EI&t=1446s) · [36:07](https://www.youtube.com/watch?v=KwySyTxW_EI&t=2167s) |
 | [BI Thinkers Talk - Data Modelling - Fabric Data Days Edition](https://www.youtube.com/watch?v=mUALlPmGcEk) | 2025-11-01 | kernaussagen+zeitstempel | [12:42](https://www.youtube.com/watch?v=mUALlPmGcEk&t=762s) · [24:18](https://www.youtube.com/watch?v=mUALlPmGcEk&t=1458s) · [32:15](https://www.youtube.com/watch?v=mUALlPmGcEk&t=1935s) |
-| [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | nur-zeitstempel | [24:03](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1443s) · [35:07](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2107s) · [39:00](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2340s) |
-| [Wie war die Daten-WG 2025? (Teil 1)](https://www.youtube.com/watch?v=aEXtFWW-pmo) | 2025-05-01 | nur-zeitstempel | [24:41](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1481s) · [32:39](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1959s) |
+| [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [24:03](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1443s) · [35:07](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2107s) · [39:00](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2340s) |
+| [Wie war die Daten-WG 2025? (Teil 1)](https://www.youtube.com/watch?v=aEXtFWW-pmo) | 2025-05-01 | kernaussagen+zeitstempel | [24:41](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1481s) · [32:39](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1959s) |
 | [Power BI Update September 2025](https://www.youtube.com/watch?v=6gQiIbyhWEc) | 2025-09-01 | nur-zeitstempel | [11:14](https://www.youtube.com/watch?v=6gQiIbyhWEc&t=674s) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [03:07](https://www.youtube.com/watch?v=luk4S4ukKmg&t=187s) · [32:17](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1937s) · [1:00:08](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3608s) |
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [22:07](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1327s) · [23:40](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1420s) |
-| [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | nur-zeitstempel | [06:03](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=363s) |
+| [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | kernaussagen+zeitstempel | [06:03](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=363s) |
 | [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [34:14](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2054s) · [36:01](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2161s) |
-| [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | nur-zeitstempel | [01:36](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=96s) · [46:02](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2762s) |
-| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | nur-zeitstempel | [09:26](https://www.youtube.com/watch?v=lZvpCBMKASM&t=566s) · [30:11](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1811s) |
+| [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | kernaussagen+zeitstempel | [01:36](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=96s) · [46:02](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2762s) |
+| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [09:26](https://www.youtube.com/watch?v=lZvpCBMKASM&t=566s) · [30:11](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1811s) |
 | [GxP Talk - Validierung vs. Agilität](https://www.youtube.com/watch?v=KO_qFge77o8) | 2026-03-01 | kernaussagen+zeitstempel | [33:45](https://www.youtube.com/watch?v=KO_qFge77o8&t=2025s) · [35:19](https://www.youtube.com/watch?v=KO_qFge77o8&t=2119s) |
-| [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | nur-zeitstempel | [06:35](https://www.youtube.com/watch?v=DQENmzAkNqw&t=395s) · [42:07](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2527s) |
+| [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [06:35](https://www.youtube.com/watch?v=DQENmzAkNqw&t=395s) · [42:07](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2527s) |
 | [Daten-WG 2026 Lineup](https://www.youtube.com/watch?v=AX7b8_aNekw) | 2026-05-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=AX7b8_aNekw&t=0s) · [01:43](https://www.youtube.com/watch?v=AX7b8_aNekw&t=103s) |
-| [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | nur-zeitstempel | [22:11](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1331s) · [23:47](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1427s) |
+| [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | kernaussagen+zeitstempel | [22:11](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1331s) · [23:47](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1427s) |
 | [Von Patronen zu Prozessen](https://www.youtube.com/watch?v=0cHtxIm7fVw) | 2025-08-01 | nur-zeitstempel | [12:35](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=755s) |
 | [Von Patronen zu Prozessen (nur Ton)](https://www.youtube.com/watch?v=s3CveEVoDvo) | 2025-07-01 | nur-zeitstempel | [12:35](https://www.youtube.com/watch?v=s3CveEVoDvo&t=755s) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [47:43](https://www.youtube.com/watch?v=r416vanitYw&t=2863s) · [50:55](https://www.youtube.com/watch?v=r416vanitYw&t=3055s) |
 | [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) · [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) · [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [38:20](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2300s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Betriebs-Frage) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Lakehouse%20erstellen) |
-| [Fabric Planning Hands-On (3)](https://www.youtube.com/watch?v=MmPs7IH0nBE) | 2026-05-01 | nur-metadaten | — |
 | [Fabric Planning Hands-On (2)](https://www.youtube.com/watch?v=mIQU6gtnwoA) | 2026-05-01 | nur-metadaten | — |
+| [Fabric Planning Hands-On (3)](https://www.youtube.com/watch?v=MmPs7IH0nBE) | 2026-05-01 | nur-metadaten | — |
 | [Fabric Planning Hands-On](https://www.youtube.com/watch?v=YRoJ_6t3VrE) | 2026-04-01 | nur-metadaten | — |
 | [How to Write Back](https://www.youtube.com/watch?v=HQaLWjA-E2E) | 2025-12-01 | nur-metadaten | — |
 

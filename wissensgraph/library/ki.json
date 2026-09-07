@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "ki",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/ki.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/ki.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/ki.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/ki.json",
  "dokumente_gesamt": 90,
- "kernaussagen_gesamt": 67,
- "mit_kernaussagen": 17,
+ "kernaussagen_gesamt": 101,
+ "mit_kernaussagen": 29,
  "aliase": [
   "AI",
   "Künstliche Intelligenz",
@@ -24,13 +24,13 @@
   "Agent",
   "Machine Learning"
  ],
- "einordnung": "Vor dem Einsatz von KI muss laut den Sprechern ein Daten- und Prozessfundament erarbeitet werden, das auch für andere Disziplinen als Basis dient. Ein großer Pharmakonzern hat bei einem KI-Projekt im GXP-Bereich die prüfenden Behörden aktiv eingebunden, um gemeinsam die Grenzen des Machbaren auszuloten. KI wird in symbolische, regelbasierte und nachvollziehbare KI sowie sub-symbolische KI wie Deep Learning und Sprachmodelle unterteilt, wobei letztere schwerer nachvollziehbar ist.",
+ "einordnung": "Vor dem Einsatz von KI muss laut den Sprechern ein Daten- und Prozessfundament erarbeitet werden, das auch für andere Disziplinen als Basis dient. (Stand 2026-05) Ein großer Pharmakonzern hat bei einem KI-Projekt im GXP-Bereich die prüfenden Behörden aktiv eingebunden, um gemeinsam die Grenzen des Machbaren auszuloten. (Stand 2026-05) KI wird in symbolische, regelbasierte und nachvollziehbare KI sowie sub-symbolische KI wie Deep Learning und Sprachmodelle unterteilt, wobei letztere schwerer nachvollziehbar ist. (Stand 2026-05)",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 114,
    "beleg": "",
    "datei": "power-bi.md"
@@ -39,7 +39,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 65,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -48,7 +48,7 @@
    "id": "tool:copilot",
    "name": "Copilot",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 62,
    "beleg": "",
    "datei": "copilot.md"
@@ -57,7 +57,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 59,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -66,7 +66,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 46,
    "beleg": "",
    "datei": "reporting.md"
@@ -75,7 +75,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 36,
    "beleg": "",
    "datei": "performance.md"
@@ -84,7 +84,7 @@
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 32,
    "beleg": "",
    "datei": "datenmodellierung.md"
@@ -93,7 +93,7 @@
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 32,
    "beleg": "",
    "datei": "excel.md"
@@ -102,7 +102,7 @@
    "id": "tool:python",
    "name": "Python",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 30,
    "beleg": "",
    "datei": "python.md"
@@ -111,7 +111,7 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "sicherheit.md"
@@ -120,16 +120,25 @@
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "notebook.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 24,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "topic:daten-wg",
    "name": "Daten-WG",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "daten-wg.md"
@@ -138,7 +147,7 @@
    "id": "topic:schulung",
    "name": "Schulung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "schulung.md"
@@ -147,22 +156,130 @@
    "id": "topic:community",
    "name": "Community",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "community.md"
-  },
-  {
-   "id": "topic:strategie",
-   "name": "Strategie",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 20,
-   "beleg": "",
-   "datei": "strategie.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 56,
+   "zeit": "00:56",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=56s",
+   "aussage": "Der Beginn des Selbst-Ersetzens mit KI wird auf den letzten November datiert, also bewusst erst, nachdem sich die Tools etabliert hatten, statt sofort nach dem ChatGPT-Start."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 85,
+   "zeit": "01:25",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=85s",
+   "aussage": "Kundenfeedback zeigt, dass es angesichts der schnellen Entwicklung bei KI und der Vielzahl an Werkzeugen rund um Microsoft Fabric und Community-Tools wie dem Power BI Fixer schwer ist, den Ueberblick zu behalten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 320,
+   "zeit": "05:20",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=320s",
+   "aussage": "Ein erstes funktionierendes Heatmap-Tool wurde mit Lovable anhand von rund fünf Prompt-Zeilen gebaut, nachdem der Prompt zuvor mit GPT vorbereitet wurde."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 436,
+   "zeit": "07:16",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=436s",
+   "aussage": "Ein Jahresrückblick von Lovable ordnete ihn aufgrund seines Prompt-Volumens unter die Top 1 % der Programmierer weltweit ein."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 467,
+   "zeit": "07:47",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=467s",
+   "aussage": "Eine Auswertung der eigenen Prompts ergab, dass 36 % davon sogenannte Adjustments (Verfeinerungen) waren, was einen iterativen statt von Anfang an perfekten Prompting-Stil widerspiegelt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 555,
+   "zeit": "09:15",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=555s",
+   "aussage": "Die von der KI gelieferte Interpretation der Daten war oft nur oberflächlicher Slop und nicht das, was für echte Entscheidungen gebraucht wurde."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 733,
+   "zeit": "12:13",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=733s",
+   "aussage": "Der Umgang mit KI-gestützter, datenbasierter Teamarbeit wird als zunehmend wichtige Führungsaufgabe eingeordnet."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1252,
+   "zeit": "20:52",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1252s",
+   "aussage": "KI kann kleinteilige operative Kommentare in managementtaugliche Zusammenfassungen übersetzen, die eigentliche Geschäftsentscheidung bleibt aber weiterhin bei Menschen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1340,
+   "zeit": "22:20",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1340s",
+   "aussage": "Der asynchrone Workflow erlaubt es Kunden, über das Tool zu kommentieren, ohne live in einem Meeting sitzen zu müssen, während die KI im Hintergrund weiter an den Erkenntnissen arbeitet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1572,
+   "zeit": "26:12",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1572s",
+   "aussage": "Die Entwicklung des Tools wurde aus eigener Tasche finanziert statt Kunden in Rechnung gestellt, zu geschätzt niedrigen vierstelligen statt sonst üblichen fünfstelligen Kosten für vergleichbare Programmierleistung."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 2456,
+   "zeit": "40:56",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2456s",
+   "aussage": "Der beschriebene Wandel wird explizit als Transformation statt als Ersetzung eingeordnet und als exponentiell statt linear verlaufend beschrieben, vergleichbar mit der historischen Einführung von Computern in der Bürowelt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 2806,
+   "zeit": "46:46",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2806s",
+   "aussage": "Mittelstandsunternehmen wird empfohlen, mit KI schnell und günstig das nachzuholen, was Konzerne vor zwei Jahren gemacht haben, statt sechsstellige Individualsoftware-Projekte zu beauftragen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 3155,
+   "zeit": "52:35",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=3155s",
+   "aussage": "Als Abschlussempfehlung wird geraten, aktiv mit KI zu experimentieren, statt nur darüber zu lesen oder zuzuhören, und dabei auch ruhig etwas in Credits zu investieren."
+  },
   {
    "typ": "Meinung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
@@ -386,7 +503,7 @@
    "sekunde": 3318,
    "zeit": "55:18",
    "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s",
-   "aussage": "Der Gast hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten."
+   "aussage": "Einer der Gäste hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten."
   },
   {
    "typ": "Meinung",
@@ -395,7 +512,7 @@
    "sekunde": 3502,
    "zeit": "58:22",
    "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3502s",
-   "aussage": "Der Gast schätzt, dass ein herkömmlicher Custom-Visual-Zugang im Schnitt 500 bis 600 Dollar kostet, während ein mit KI selbst gebautes Äquivalent nur etwa 200 Dollar Kosten verursacht."
+   "aussage": "Einer der Gäste schätzt, dass ein herkömmlicher Custom-Visual-Zugang im Schnitt 500 bis 600 Dollar kostet, während ein mit KI selbst gebautes Äquivalent nur etwa 200 Dollar Kosten verursacht."
   },
   {
    "typ": "Empfehlung",
@@ -404,7 +521,7 @@
    "sekunde": 3598,
    "zeit": "59:58",
    "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3598s",
-   "aussage": "Der Gast setzt bei größeren Projekten ein Multi-Agenten-System ein, in dem verschiedene KI-Modelle je nach Aufgabenkomplexität unterschiedliche Rollen übernehmen, um Kosten zu sparen."
+   "aussage": "Einer der Gäste setzt bei größeren Projekten ein Multi-Agenten-System ein, in dem verschiedene KI-Modelle je nach Aufgabenkomplexität unterschiedliche Rollen übernehmen, um Kosten zu sparen."
   },
   {
    "typ": "Warnung",
@@ -668,6 +785,51 @@
    "aussage": "Bei der Deneb-Umsetzung lässt sich der benötigte Vega-Code mithilfe von KI generieren und anpassen, wobei die KI auch angibt, was im Vega-Standard möglich oder nur Bastelei ist."
   },
   {
+   "typ": "Meinung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 799,
+   "zeit": "13:19",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=799s",
+   "aussage": "Weil das Claude-Modell im Test zuverlässiger funktionierte als ChatGPT, wurde bei der Verbindung des MCP-Servers dabei geblieben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 2463,
+   "zeit": "41:03",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=2463s",
+   "aussage": "Bei einem Kundenprojekt ließ sich ein komplett großgeschriebenes Snake-Case-Datenbankschema mithilfe von KI und TMDL sehr schnell in lesbare Namen übersetzen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 2161,
+   "zeit": "36:01",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=2161s",
+   "aussage": "Fachanwender und Führungskräfte steigen bei technischen Erklärungen zu ETL, Tools und KI häufig schon nach wenigen Sätzen aus dem Gespräch aus."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 2344,
+   "zeit": "39:04",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=2344s",
+   "aussage": "Viele aktuell nachgefragten KI-Themen sind eigentlich Automatisierungsthemen, wobei den Anfragenden oft das Know-how zur Unterscheidung fehlt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 2375,
+   "zeit": "39:35",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=2375s",
+   "aussage": "In der Praxis wurden eingestellte Data Scientisten oft für Automatisierung beziehungsweise Data Engineering statt für Machine-Learning-Modelle eingesetzt, was sie unglücklich machte, dem Unternehmen aber half."
+  },
+  {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
@@ -695,6 +857,69 @@
    "aussage": "Für sich wiederholende Aufgaben wie Suchen-und-Ersetzen über ein ganzes Projekt sollte die KI besser ein wiederverwendbares Skript, etwa in Python, generieren, statt jede Datei einzeln direkt durch die KI anpassen zu lassen, um Copilot-Credits zu sparen."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Mythos Data Vault und richtig große Modelle",
+   "dokument_id": "yt:rrCi0lnGrCg",
+   "sekunde": 434,
+   "zeit": "07:14",
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=434s",
+   "aussage": "Bei Änderungen an Quellsystemen kann ein Data-Vault-Automatisierungssystem im Moment nur bei sogenannten Non-Breaking-Changes automatisch reagieren, bei Breaking Changes muss noch ein Mensch eingreifen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 679,
+   "zeit": "11:19",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=679s",
+   "aussage": "Im Video wird beschrieben, dass man einer KI über MCP-Server (Model Context Protocol) zusätzliche Informationen wie Handbücher als Kontext geben kann."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 758,
+   "zeit": "12:38",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=758s",
+   "aussage": "In einer Cursor-ähnlichen KI-Umgebung agiert die generative KI wie ein Junior Consultant, der Code schreibt, ausführt und bei Fehlern selbst anpasst."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Mythos Data Vault und richtig große Modelle",
+   "dokument_id": "yt:rrCi0lnGrCg",
+   "sekunde": 1393,
+   "zeit": "23:13",
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1393s",
+   "aussage": "Ein Tool namens Flowbi entsteht gerade, das für große und sehr große Unternehmen rein datengetrieben ein Data-Vault-Modell erzeugt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Mythos Data Vault und richtig große Modelle",
+   "dokument_id": "yt:rrCi0lnGrCg",
+   "sekunde": 1443,
+   "zeit": "24:03",
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1443s",
+   "aussage": "Ein solches automatisiertes Data-Vault-Tool erkennt vermutliche Geschäftsschlüssel unter anderem an den Namen oder Inhalten von Spalten."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1801,
+   "zeit": "30:01",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1801s",
+   "aussage": "KI-generierter Code liefert bei sicherheitsrelevanten Anforderungen nicht automatisch den Best-Practice-Weg, sondern zunächst nur eine einfache Lösung, solange man das nicht explizit vorgibt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1998,
+   "zeit": "33:18",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1998s",
+   "aussage": "MCP-Server machen es möglich, semantische Modelle per Code über LLMs zu nutzen, was in der Community bereits als Mainstream gilt."
+  },
+  {
    "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
@@ -702,6 +927,15 @@
    "zeit": "46:50",
    "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2810s",
    "aussage": "Der Power BI Project Mode mit TMDL und PBIR erlaubt es, Berichte programmatisch über Textdateien zu ändern, was laut einem Sprecher die Bearbeitung durch KI erheblich erleichtert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 2811,
+   "zeit": "46:51",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2811s",
+   "aussage": "Power Query enthält seit Jahren einfache, auf Cognitive Services basierende KI-Funktionen wie Sentimentanalyse unter dem Namen KI Insights."
   },
   {
    "typ": "Empfehlung",
@@ -741,12 +975,75 @@
   },
   {
    "typ": "Meinung",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 432,
+   "zeit": "07:12",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=432s",
+   "aussage": "Ein Kritikpunkt an der ersten Idee war, ein ohnehin sichtbares Signal einfach nur durch KI und Realtime Analytics zu schleusen, ohne echten Mehrwert zu schaffen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 1106,
+   "zeit": "18:26",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1106s",
+   "aussage": "Aus Datenschutzgruenden werden keine Fotos hochgeladen; stattdessen extrahiert eine lokal laufende Bibliothek die Emotionsdaten aus dem Bild und schickt nur eine JSON-Datei an den Endpunkt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 1190,
+   "zeit": "19:50",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1190s",
+   "aussage": "Zum Zeitpunkt der Praesentation wurden nur Emotionen als Prozentwerte erkannt, Alter und Geschlecht wurden noch nicht erfasst."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 96,
+   "zeit": "01:36",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=96s",
+   "aussage": "Arthur König glaubt nicht, dass KI das Tool Excel in den nächsten 10 Jahren vollständig verdrängen wird."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 147,
+   "zeit": "02:27",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=147s",
+   "aussage": "Die Arbeit mit Excel wird laut Arthur König weniger intensiv, weil Sprachmodelle eine neue Art der Interaktion mit Daten ermöglichen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 907,
+   "zeit": "15:07",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=907s",
+   "aussage": "Der Vortrag von Dilyana zu Copilot richtete sich eher an Businessanwender und ging bewusst wenig in die technische Tiefe von KI."
+  },
+  {
+   "typ": "Meinung",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
    "sekunde": 420,
    "zeit": "07:00",
    "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=420s",
    "aussage": "Strukturierter, klar lesbarer Code wie TMDL ist notwendig, damit KI-Tools und Copilot Power-BI-Modelle gut nutzen und automatisiert bearbeiten können."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 1469,
+   "zeit": "24:29",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1469s",
+   "aussage": "Copilot dient vor allem zwei Szenarien: Unterstuetzung beim Erlernen neuer Faehigkeiten und Erleichterung repetitiver Standardaufgaben, ist aber kein Ersatz fuer Spezialisten."
   },
   {
    "typ": "Meinung",
@@ -765,6 +1062,15 @@
    "zeit": "27:56",
    "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1676s",
    "aussage": "Tom Martens befürchtet, dass auf die frühere Spreadsheet Hell durch generative KI-Agenten künftig eine Agent Hell folgen könnte."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 2226,
+   "zeit": "37:06",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2226s",
+   "aussage": "Bei Fabric Real-Time lag der Fokus dieses Quartals stark auf KI-Themen wie Anomaly Detection und Operations Agents."
   }
  ],
  "dokumente": [
@@ -1037,7 +1343,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.571,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [
@@ -1337,7 +1643,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.278,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -1362,7 +1668,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.275,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -1507,7 +1813,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.233,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -1532,7 +1838,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.22,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -1607,7 +1913,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.205,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -1752,7 +2058,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.194,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -1802,7 +2108,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.174,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": [
@@ -1827,7 +2133,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.167,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -1882,7 +2188,7 @@
    "id": "yt:lH_-A8NAQ-k",
    "titel": "Datenmodellierung ist Governance",
    "datum": "2025-11-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.16,
    "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
    "sprungmarken": [
@@ -2087,7 +2393,7 @@
    "id": "yt:aEXtFWW-pmo",
    "titel": "Wie war die Daten-WG 2025? (Teil 1)",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.13,
    "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo",
    "sprungmarken": [
@@ -2222,7 +2528,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.114,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -2272,7 +2578,7 @@
    "id": "yt:rrCi0lnGrCg",
    "titel": "Mythos Data Vault und richtig große Modelle",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.091,
    "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
    "sprungmarken": [
@@ -2312,7 +2618,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.083,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -2412,7 +2718,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.054,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -2477,7 +2783,7 @@
    "id": "yt:BDnwlOqRElY",
    "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
    "datum": "2025-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
    "sprungmarken": [
@@ -2517,7 +2823,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.038,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -2597,7 +2903,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [

@@ -4,37 +4,55 @@
  "typ": "tool",
  "slug": "dataflow",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/dataflow.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/dataflow.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/dataflow.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/dataflow.json",
  "dokumente_gesamt": 30,
- "kernaussagen_gesamt": 15,
- "mit_kernaussagen": 6,
+ "kernaussagen_gesamt": 31,
+ "mit_kernaussagen": 14,
  "aliase": [
   "Dataflows",
   "Dataflow Gen2",
   "Gen2",
   "Datenfluss"
  ],
- "einordnung": "Aus einem Fabric-Notebook lässt sich per API ein Dataflow ansteuern und darüber Power-Query-Code (M-Code) ausführen. Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss. Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen.",
+ "einordnung": "Aus einem Fabric-Notebook lässt sich per API ein Dataflow ansteuern und darüber Power-Query-Code (M-Code) ausführen. (Stand 2026-03) Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss. (Stand 2025-09) Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen.",
  "nachbarn": [
   {
    "id": "tool:data-pipeline",
    "name": "Data Pipeline",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 28,
    "beleg": "so eine Datenpipeline zu nehmen und die zwei Dataflows hintereinander zu hängen",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 28,
+   "beleg": "Bei Dataflus geht's garantiert.",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 28,
+   "beleg": "ich kann Dataflow nehmen und in der Pipeline einbauen",
    "datei": "data-pipeline.md"
   },
   {
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "empfiehlt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 54,
    "beleg": "benutze ich Dataflows, um die Daten in meinem meinem Bronze zu stagen und von da aus dann die Weiterverarbeitung mit dem Notebook zu machen",
    "datei": "notebook.md"
@@ -43,7 +61,7 @@
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 54,
    "beleg": "einfach auch wartbar im Gegensatz zu Notebooks",
    "datei": "notebook.md"
@@ -52,7 +70,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 54,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -61,7 +79,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 48,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -70,7 +88,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 44,
    "beleg": "",
    "datei": "power-bi.md"
@@ -79,7 +97,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 30,
    "beleg": "",
    "datei": "warehouse.md"
@@ -88,7 +106,7 @@
    "id": "tool:power-query",
    "name": "Power Query",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "power-query.md"
@@ -97,7 +115,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "performance.md"
@@ -106,16 +124,25 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "workspace.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 25,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "reporting.md"
@@ -124,40 +151,22 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "ki.md"
-  },
-  {
-   "id": "tool:spark",
-   "name": "Spark",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 16,
-   "beleg": "",
-   "datei": "spark.md"
-  },
-  {
-   "id": "tool:eventhouse",
-   "name": "Eventhouse",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 14,
-   "beleg": "",
-   "datei": "eventhouse.md"
-  },
-  {
-   "id": "tool:python",
-   "name": "Python",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 14,
-   "beleg": "",
-   "datei": "python.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 838,
+   "zeit": "13:58",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=838s",
+   "aussage": "Dataflows eignen sich weiterhin gut fuer Citizen Developer, weil Fachbereiche dadurch ueber Tabellen, Quellen und Transformationen mit dem Datenteam kommunizieren lernen."
+  },
   {
    "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk n.74",
@@ -222,6 +231,24 @@
    "aussage": "Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss."
   },
   {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 2136,
+   "zeit": "35:36",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2136s",
+   "aussage": "Im Warehouse ist beim Dataflow-Ziel nur der Modus Append wählbar und nicht mehr umkehrbar, während im Lakehouse nur Replace zur Verfügung steht."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 2960,
+   "zeit": "49:20",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2960s",
+   "aussage": "Ein Power-BI-Desktop-Update im Sommer soll dazu geführt haben, dass Dataflow-Konnektoren für Fabric und die Power Platform nicht mehr funktionierten; als Workaround wurde die Umstellung auf Legacy Data Flows genannt."
+  },
+  {
    "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
@@ -229,6 +256,69 @@
    "zeit": "50:58",
    "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3058s",
    "aussage": "Dataflows werden als der Beginn davon beschrieben, dass Power BI von einem reinen Datei- bzw. Modellformat zu einer echten Datenplattform wurde."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 3092,
+   "zeit": "51:32",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3092s",
+   "aussage": "Dataflow Gen2 mit Git-Integration wird gegenüber Gen1 grundsätzlich empfohlen, weil er inzwischen aus Pipelines nutzbar ist und neue Features bekommt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 3571,
+   "zeit": "59:31",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3571s",
+   "aussage": "Bei Dataflow Gen2 ist die Change-Detection-Einstellung für Incremental Refresh anders als bei Gen1 nicht optional, sondern muss zwingend angegeben werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 3883,
+   "zeit": "1:04:43",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3883s",
+   "aussage": "Bei Dataflow Gen1 lag die komplette Speicherschicht in der Hand des Dataflows selbst, während man bei Gen2 sein eigenes Ziel wie Warehouse oder Lakehouse selbst verwalten muss."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 3446,
+   "zeit": "57:26",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=3446s",
+   "aussage": "Für das inkrementelle Laden der Buchungsdaten wird ein Dataflow gegenüber der Pipeline bevorzugt, weil inkrementelles Laden dort garantiert funktioniert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 188,
+   "zeit": "03:08",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=188s",
+   "aussage": "Dataflow Gen2 lässt sich inzwischen einfach speichern, ohne dass dabei automatisch ein Lauf gestartet wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1809,
+   "zeit": "30:09",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1809s",
+   "aussage": "Die neue Variable Library kann sowohl in Dataflows bzw. Data Pipelines als auch im CI/CD-Kontext genutzt werden, um workspace-spezifische Zielwerte für Variablen abzulegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 213,
+   "zeit": "03:33",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=213s",
+   "aussage": "Microsoft hat sich entschieden, DataMarts abzuloesen, weil deren Mehrwert gegenueber Fabric mit Warehouse und Dataflows Gen 2 in der Community zunehmend infrage gestellt wurde."
   },
   {
    "typ": "Fakt",
@@ -259,6 +349,24 @@
   },
   {
    "typ": "Meinung",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1033,
+   "zeit": "17:13",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1033s",
+   "aussage": "Bei der Verarbeitung von hunderten Tabellen muss man in Dataflows jede Tabelle einzeln managen, was als schmerzhaft beschrieben wird."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1126,
+   "zeit": "18:46",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1126s",
+   "aussage": "Dataflows werden weiterhin als gutes Werkzeug für komplexe (\"tricky\") Transformationen wie Pivot/Unpivot beschrieben."
+  },
+  {
+   "typ": "Meinung",
    "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
    "dokument_id": "yt:mTVeZzshLzE",
    "sekunde": 1184,
@@ -283,6 +391,42 @@
    "zeit": "20:12",
    "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1212s",
    "aussage": "Es wird empfohlen, keine neuen Dataflows Gen 1 mehr anzulegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 1713,
+   "zeit": "28:33",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1713s",
+   "aussage": "Dataflows Gen2 wurden überarbeitet und bringen vor allem bei Dataflows, die länger als 10 Minuten laufen, eine deutliche Verbesserung bei Performance und CU-Verbrauch."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 1790,
+   "zeit": "29:50",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1790s",
+   "aussage": "Ein neuer, nur für Entwickler sichtbarer Filter erlaubt es, Dataflows während der Entwicklung auf einen kleinen Zeitraum zu beschränken, während der produktive Lauf trotzdem den vollen Zeitraum verarbeitet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 1922,
+   "zeit": "32:02",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1922s",
+   "aussage": "Dataflows sind mittlerweile vollwertig in Pipelines nutzbar und ihre Ziele lassen sich parametrisieren, sodass Parameter und Variablen aus Pipelines an Dataflows uebergeben werden koennen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 1938,
+   "zeit": "32:18",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1938s",
+   "aussage": "Variable Libraries sind jetzt GA und ermöglichen parametrisierte, dynamische Designansätze über verschiedene Fabric-Objekte hinweg, unter anderem in Dataflows."
   },
   {
    "typ": "Fakt",
@@ -434,7 +578,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.194,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -534,7 +678,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.171,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -559,7 +703,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.167,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -624,7 +768,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.14,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -699,7 +843,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.116,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [
@@ -724,7 +868,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.086,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -774,7 +918,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -869,7 +1013,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.027,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -924,7 +1068,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [

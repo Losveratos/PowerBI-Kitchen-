@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Migration · DatenWG Library</title>
-<meta name="description" content="Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch. Statt Daten per Pull aus Fabric abzuholen, kann man vorhandene lokale Infrastruktur nutzen, um Daten per Push Richtung Fabric zu bringen.">
+<meta name="description" content="Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch. Das Source-System der Migration hatte über 600 SQL-Tabellen. Das neu gebaute Warehouse hatte am Ende über 150 SQL-Tabellen im Gold-Layer.">
 <meta property="og:title" content="Migration · DatenWG Library">
-<meta property="og:description" content="Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch. Statt Daten per Pull aus Fabric abzuholen, kann man vorhandene lokale Infrastruktur nutzen, um Daten per Push Richtung Fabric zu bringen.">
+<meta property="og:description" content="Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch. Das Source-System der Migration hatte über 600 SQL-Tabellen. Das neu gebaute Warehouse hatte am Ende über 150 SQL-Tabellen im Gold-Layer.">
 <meta property="og:type" content="article">
 <meta property="og:image" content="https://datenwgknowledgekitchen.com/wissensgraph/og.png">
 <meta property="og:image:width" content="1200">
@@ -48,9 +48,9 @@ footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
 <main>
 <p class="kicker">DatenWG Library · thema</p>
 <h1>Migration</h1>
-<p class="lead">Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch. Statt Daten per Pull aus Fabric abzuholen, kann man vorhandene lokale Infrastruktur nutzen, um Daten per Push Richtung Fabric zu bringen. Es wird empfohlen, keine neuen Dataflows Gen 1 mehr anzulegen.</p>
+<p class="lead">Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch. Das Source-System der Migration hatte über 600 SQL-Tabellen. Das neu gebaute Warehouse hatte am Ende über 150 SQL-Tabellen im Gold-Layer.</p>
 <div class="btns"><a class="btn" href="../#n=topic%3Amigration">In der Library öffnen</a><a class="btn" href="../graph.html#n=topic%3Amigration&amp;f=topic%3Amigration">Im Graph öffnen</a></div>
-<p class="meta">14 Dokumente · 5 Kernaussagen · Stand 2026-09-07 · Build 20260907-1922</p>
+<p class="meta">14 Dokumente · 10 Kernaussagen · Stand 2026-09-07 · Build 20260907-1949</p>
 <h2>Aliase</h2>
 <p><span class="tag">migrieren</span> <span class="tag">Ablösung</span> <span class="tag">migriert</span> <span class="tag">Umstieg</span></p>
 <h2>Kernaussagen</h2>
@@ -58,43 +58,48 @@ footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
 <li>Der Notebook-Aufruf eignet sich, um nach dem Hochladen von On-Premises-Daten Richtung Fabric direkt eine Weiterverarbeitung anzustoßen.<span class="meta quote">Empfehlung · Stand 2026-02 · SSIS Integration Services: Microsoft Fabric Notebook per REST API starten · <a href="https://www.youtube.com/watch?v=NvtZ-ehiTrg&amp;t=8s">00:08</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Die vorgestellte Lösung ermöglicht es, Daten per SSIS von einer lokalen Umgebung nach Fabric zu bringen und anschließend automatisiert per Notebook zu importieren.<span class="meta quote">Empfehlung · Stand 2026-02 · SSIS Integration Services: Microsoft Fabric Notebook per REST API starten · <a href="https://www.youtube.com/watch?v=NvtZ-ehiTrg&amp;t=383s">06:23</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Statt Daten per Pull aus Fabric abzuholen, kann man vorhandene lokale Infrastruktur nutzen, um Daten per Push Richtung Fabric zu bringen.<span class="meta quote">Fakt · Stand 2025-12 · Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=8s">00:08</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Microsoft hat sich entschieden, DataMarts abzuloesen, weil deren Mehrwert gegenueber Fabric mit Warehouse und Dataflows Gen 2 in der Community zunehmend infrage gestellt wurde.<span class="meta quote">Fakt · Stand  · Fabric &amp; Power BI Quarterly · 2025 Q3 · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=213s">03:33</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Fuer kleinere Kunden, die DataMarts bisher ohne Premium Per User genutzt haben, lohnt sich beim Umstieg schon eine kleine F2-Kapazitaet.<span class="meta quote">Empfehlung · Stand  · Fabric &amp; Power BI Quarterly · 2025 Q3 · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=331s">05:31</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Das Source-System der Migration hatte über 600 SQL-Tabellen.<span class="meta quote">Fakt · Stand  · 600 SQL-Tabellen in Fabric · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=552s">09:12</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Das neu gebaute Warehouse hatte am Ende über 150 SQL-Tabellen im Gold-Layer.<span class="meta quote">Fakt · Stand  · 600 SQL-Tabellen in Fabric · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=553s">09:13</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch.<span class="meta quote">Fakt · Stand  · Fabric &amp; Power BI Quarterly · 2026-2 · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=937s">15:37</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Der Kunde des Migrationsprojekts wollte möglichst wenig an der bestehenden ETL-Logik ändern, um alte und neue Lösung eins zu eins vergleichen zu können.<span class="meta quote">Fakt · Stand  · 600 SQL-Tabellen in Fabric · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=954s">15:54</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Es wird empfohlen, keine neuen Dataflows Gen 1 mehr anzulegen.<span class="meta quote">Empfehlung · Stand  · Fabric &amp; Power BI Quarterly · 2026-2 · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=1212s">20:12</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 </ul>
 <h2>Dokumente</h2>
 <ul>
 <li><a href="https://www.youtube.com/watch?v=pTTYySb0Cyg">Fabric &amp; Power BI Quarterly · 2026-2</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=362s">06:02</a> · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=861s">14:21</a> · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=938s">15:38</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=RtUiF1J5XEg">600 SQL-Tabellen in Fabric</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=470s">07:50</a> · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=571s">09:31</a> · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1102s">18:22</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=RtUiF1J5XEg">600 SQL-Tabellen in Fabric</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=470s">07:50</a> · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=571s">09:31</a> · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1102s">18:22</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=zkfdfc5fo-E">Power BI Update Mai 2025</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=zkfdfc5fo-E&amp;t=861s">14:21</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=Z8vpSSOmG24">Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022</a><span class="meta quote">2022-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=Z8vpSSOmG24&amp;t=2169s">36:09</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Z8vpSSOmG24">Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022</a><span class="meta quote">2022-06-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=Z8vpSSOmG24&amp;t=2169s">36:09</a></span></li>
 <li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20Fabric%20nicht%20ersetzt">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20wichtigsten%20Regeln">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Sicherheit%20%26%20Kosten">Abschnitt</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=182s">03:02</a> · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=3128s">52:08</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=182s">03:02</a> · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=3128s">52:08</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=vd1r02bj9Qk">Power BI vs. Qlik</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=vd1r02bj9Qk&amp;t=532s">08:52</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=SSUpe1JON9Y">The Power of User Groups</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=SSUpe1JON9Y&amp;t=999s">16:39</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=KwySyTxW_EI">The Day After Tomorrow – Nach der Einführung geht es erst richtig los | Power BI Summit 2023</a><span class="meta quote">2023-03-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=KwySyTxW_EI&amp;t=2528s">42:08</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=6WhWLcuFvZE">Prinzipien oder Paragrafen</a><span class="meta quote">2026-02-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=6WhWLcuFvZE&amp;t=236s">03:56</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=B0_sSJQVG8w">GxP Talk - Testing im GxP-Umfeld</a><span class="meta quote">2026-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=B0_sSJQVG8w&amp;t=1741s">29:01</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1169s">19:29</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1169s">19:29</a></span></li>
 <li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Soll%20man%20von%20Power%20BI%20Premium%20auf%20Fabric%20umstellen%3F">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Surrogate%20Keys%20vor%20Business%20Keys">Abschnitt</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=s3CveEVoDvo">Von Patronen zu Prozessen (nur Ton)</a><span class="meta quote">2025-07-01 · nur-zeitstempel</span></li>
 </ul>
 <h2>Nachbarthemen</h2>
 <ul>
-<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 18 gemeinsame Segmente</span></li>
-<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 10 gemeinsame Segmente</span></li>
-<li><a href="premium.html">Premium</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
-<li><a href="fabric-capacity.html">Fabric Capacity</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
-<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
-<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
-<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
-<li><a href="lizenzen.html">Lizenzen</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
-<li><a href="dataflow.html">Dataflow</a><span class="meta quote">ko-vorkommen · heuristik · 5 gemeinsame Segmente</span></li>
-<li><a href="refresh.html">Refresh</a><span class="meta quote">ko-vorkommen · heuristik · 5 gemeinsame Segmente</span></li>
-<li><a href="data-pipeline.html">Data Pipeline</a><span class="meta quote">ko-vorkommen · heuristik · 5 gemeinsame Segmente</span></li>
-<li><a href="projektmanagement.html">Projektmanagement</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="spark.html">Spark</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="visualisierung.html">Visualisierung</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
-<li><a href="azure.html">Azure</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">Migration und Microsoft Fabric im selben Segment · Heuristik, gezählt · 18 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">Migration und Power BI im selben Segment · Heuristik, gezählt · 10 gemeinsame Segmente</span></li>
+<li><a href="premium.html">Premium</a><span class="meta quote">Migration und Premium im selben Segment · Heuristik, gezählt · 6 gemeinsame Segmente</span></li>
+<li><a href="fabric-capacity.html">Fabric Capacity</a><span class="meta quote">Migration und Fabric Capacity im selben Segment · Heuristik, gezählt · 6 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">Migration und Warehouse im selben Segment · Heuristik, gezählt · 6 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">Migration und Lakehouse im selben Segment · Heuristik, gezählt · 6 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">Migration und Reporting im selben Segment · Heuristik, gezählt · 6 gemeinsame Segmente</span></li>
+<li><a href="lizenzen.html">Lizenzen</a><span class="meta quote">Migration und Lizenzen im selben Segment · Heuristik, gezählt · 6 gemeinsame Segmente</span></li>
+<li><a href="dataflow.html">Dataflow</a><span class="meta quote">Migration und Dataflow im selben Segment · Heuristik, gezählt · 5 gemeinsame Segmente</span></li>
+<li><a href="sql.html">SQL</a><span class="meta quote">Migration und SQL im selben Segment · Heuristik, gezählt · 5 gemeinsame Segmente</span></li>
+<li><a href="refresh.html">Refresh</a><span class="meta quote">Migration und Refresh im selben Segment · Heuristik, gezählt · 5 gemeinsame Segmente</span></li>
+<li><a href="data-pipeline.html">Data Pipeline</a><span class="meta quote">Migration und Data Pipeline im selben Segment · Heuristik, gezählt · 5 gemeinsame Segmente</span></li>
+<li><a href="projektmanagement.html">Projektmanagement</a><span class="meta quote">Migration und Projektmanagement im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="spark.html">Spark</a><span class="meta quote">Migration und Spark im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="visualisierung.html">Visualisierung</a><span class="meta quote">Migration und Visualisierung im selben Segment · Heuristik, gezählt · 3 gemeinsame Segmente</span></li>
 </ul>
 <h2>Hinweise</h2>
 <p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>

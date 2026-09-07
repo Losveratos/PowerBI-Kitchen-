@@ -4,35 +4,35 @@
  "typ": "tool",
  "slug": "power-apps",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-apps.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-apps.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-apps.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-apps.json",
  "dokumente_gesamt": 8,
- "kernaussagen_gesamt": 0,
- "mit_kernaussagen": 0,
+ "kernaussagen_gesamt": 1,
+ "mit_kernaussagen": 1,
  "aliase": [
   "PowerApps",
   "Power App"
  ],
- "einordnung": "Power Apps kommt in 8 Dokumenten der Daten-WG vor; am ausführlichsten in „Wie war die Daten-WG 2025? (Teil 1)“ (2025-05-01).",
+ "einordnung": "Bei der Aftercon bauten Teilnehmende gemeinsam eine Writeback-Funktionalität über Power Apps in einen Power-BI-Bericht. (Stand 2025-05)",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 6,
-   "beleg": "",
+   "beleg": "die Eingabefunktion in den Power BI Bericht gebaut ... Rideback Funktionalität über Power App gebaut",
    "datei": "power-bi.md"
   },
   {
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "excel.md"
@@ -41,7 +41,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -50,7 +50,7 @@
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "planung.md"
@@ -59,19 +59,29 @@
    "id": "topic:community",
    "name": "Community",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "community.md"
   }
  ],
- "kernaussagen": [],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1404,
+   "zeit": "23:24",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1404s",
+   "aussage": "Bei der Aftercon bauten Teilnehmende gemeinsam eine Writeback-Funktionalität über Power Apps in einen Power-BI-Bericht."
+  }
+ ],
  "dokumente": [
   {
    "id": "yt:aEXtFWW-pmo",
    "titel": "Wie war die Daten-WG 2025? (Teil 1)",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.087,
    "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo",
    "sprungmarken": [
@@ -91,7 +101,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.087,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": [
@@ -111,7 +121,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.065,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -131,7 +141,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.028,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -161,7 +171,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.023,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [

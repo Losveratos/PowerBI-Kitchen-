@@ -1,7 +1,7 @@
 {
  "name": "DatenWG Library",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "schema": "Jede Themendatei hat denselben Aufbau: Frontmatter, Einordnung, Aliase, Nachbarthemen, Kernaussagen, Dokumente, Hinweise. Zu jeder Datei liegt eine inhaltsgleiche .json daneben.",
  "meta": {
@@ -9,9 +9,9 @@
   "pages": 21,
   "episodes_with_transcript": 126,
   "episodes_with_timestamps": 123,
-  "episodes_with_claims": 38,
-  "claims": 677,
-  "concepts": 145
+  "episodes_with_claims": 62,
+  "claims": 1124,
+  "concepts": 140
  },
  "hinweise": [
   "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
@@ -23,7 +23,7 @@
    "typ": "tool",
    "slug": "power-bi",
    "dokumente": 124,
-   "kernaussagen": 75,
+   "kernaussagen": 144,
    "staerkstes_dokument": "Werbung | Daten WG Offsite in Dortmund – Power BI Event am 29.10.",
    "datei": "power-bi.md",
    "landingpage": "../thema/power-bi.html"
@@ -34,7 +34,7 @@
    "typ": "tool",
    "slug": "microsoft-fabric",
    "dokumente": 92,
-   "kernaussagen": 0,
+   "kernaussagen": 140,
    "staerkstes_dokument": "Power BI Update April 2025",
    "datei": "microsoft-fabric.md",
    "landingpage": "../thema/microsoft-fabric.html"
@@ -45,7 +45,7 @@
    "typ": "thema",
    "slug": "ki",
    "dokumente": 90,
-   "kernaussagen": 67,
+   "kernaussagen": 101,
    "staerkstes_dokument": "Willkommen auf dem Daten-WG Kanal",
    "datei": "ki.md",
    "landingpage": "../thema/ki.html"
@@ -56,21 +56,10 @@
    "typ": "thema",
    "slug": "visualisierung",
    "dokumente": 83,
-   "kernaussagen": 30,
+   "kernaussagen": 39,
    "staerkstes_dokument": "175 Jahre Klimageschichte zum Anfassen — Waermestreifen 3D",
    "datei": "visualisierung.md",
    "landingpage": "../thema/visualisierung.html"
-  },
-  {
-   "id": "topic:daten-wg",
-   "name": "Daten-WG",
-   "typ": "thema",
-   "slug": "daten-wg",
-   "dokumente": 80,
-   "kernaussagen": 16,
-   "staerkstes_dokument": "MCP@Daten-WG@SQL Konferenz",
-   "datei": "daten-wg.md",
-   "landingpage": "../thema/daten-wg.html"
   },
   {
    "id": "topic:datenmodellierung",
@@ -78,10 +67,21 @@
    "typ": "thema",
    "slug": "datenmodellierung",
    "dokumente": 80,
-   "kernaussagen": 0,
+   "kernaussagen": 84,
    "staerkstes_dokument": "Werbung | Daten WG Offsite in Dortmund – Power BI Event am 29.10.",
    "datei": "datenmodellierung.md",
    "landingpage": "../thema/datenmodellierung.html"
+  },
+  {
+   "id": "topic:daten-wg",
+   "name": "Daten-WG",
+   "typ": "thema",
+   "slug": "daten-wg",
+   "dokumente": 80,
+   "kernaussagen": 40,
+   "staerkstes_dokument": "MCP@Daten-WG@SQL Konferenz",
+   "datei": "daten-wg.md",
+   "landingpage": "../thema/daten-wg.html"
   },
   {
    "id": "tool:excel",
@@ -89,7 +89,7 @@
    "typ": "tool",
    "slug": "excel",
    "dokumente": 75,
-   "kernaussagen": 15,
+   "kernaussagen": 23,
    "staerkstes_dokument": "Microsoft Fabric — braucht das wirklich jemand?",
    "datei": "excel.md",
    "landingpage": "../thema/excel.html"
@@ -100,7 +100,7 @@
    "typ": "tool",
    "slug": "dax",
    "dokumente": 57,
-   "kernaussagen": 40,
+   "kernaussagen": 62,
    "staerkstes_dokument": "Expanded Tables in DAX verstehen – Beziehungen & Filter erklärt | Power BI Tutorial",
    "datei": "dax.md",
    "landingpage": "../thema/dax.html"
@@ -111,7 +111,7 @@
    "typ": "thema",
    "slug": "sicherheit",
    "dokumente": 53,
-   "kernaussagen": 26,
+   "kernaussagen": 39,
    "staerkstes_dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datei": "sicherheit.md",
    "landingpage": "../thema/sicherheit.html"
@@ -122,10 +122,21 @@
    "typ": "thema",
    "slug": "community",
    "dokumente": 52,
-   "kernaussagen": 6,
+   "kernaussagen": 26,
    "staerkstes_dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
    "datei": "community.md",
    "landingpage": "../thema/community.html"
+  },
+  {
+   "id": "tool:sql",
+   "name": "SQL",
+   "typ": "tool",
+   "slug": "sql",
+   "dokumente": 50,
+   "kernaussagen": 16,
+   "staerkstes_dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "datei": "sql.md",
+   "landingpage": "../thema/sql.html"
   },
   {
    "id": "tool:copilot",
@@ -133,21 +144,10 @@
    "typ": "tool",
    "slug": "copilot",
    "dokumente": 47,
-   "kernaussagen": 24,
+   "kernaussagen": 38,
    "staerkstes_dokument": "Protokoll in 60 Sekunden! - So geht es mit Copilot!",
    "datei": "copilot.md",
    "landingpage": "../thema/copilot.html"
-  },
-  {
-   "id": "tool:workspace",
-   "name": "Workspace",
-   "typ": "tool",
-   "slug": "workspace",
-   "dokumente": 45,
-   "kernaussagen": 14,
-   "staerkstes_dokument": "Power BI Update April 2025",
-   "datei": "workspace.md",
-   "landingpage": "../thema/workspace.html"
   },
   {
    "id": "tool:power-query",
@@ -155,10 +155,21 @@
    "typ": "tool",
    "slug": "power-query",
    "dokumente": 45,
-   "kernaussagen": 13,
+   "kernaussagen": 33,
    "staerkstes_dokument": "Power BI Update Juni 2025",
    "datei": "power-query.md",
    "landingpage": "../thema/power-query.html"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "typ": "tool",
+   "slug": "workspace",
+   "dokumente": 45,
+   "kernaussagen": 21,
+   "staerkstes_dokument": "Power BI Update April 2025",
+   "datei": "workspace.md",
+   "landingpage": "../thema/workspace.html"
   },
   {
    "id": "topic:reporting",
@@ -166,7 +177,7 @@
    "typ": "thema",
    "slug": "reporting",
    "dokumente": 44,
-   "kernaussagen": 15,
+   "kernaussagen": 33,
    "staerkstes_dokument": "ChartKitchen byDatenWG — Quick Start",
    "datei": "reporting.md",
    "landingpage": "../thema/reporting.html"
@@ -177,7 +188,7 @@
    "typ": "tool",
    "slug": "notebook",
    "dokumente": 43,
-   "kernaussagen": 24,
+   "kernaussagen": 36,
    "staerkstes_dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
    "datei": "notebook.md",
    "landingpage": "../thema/notebook.html"
@@ -188,7 +199,7 @@
    "typ": "tool",
    "slug": "warehouse",
    "dokumente": 42,
-   "kernaussagen": 14,
+   "kernaussagen": 33,
    "staerkstes_dokument": "Mythos Data Vault und richtig große Modelle",
    "datei": "warehouse.md",
    "landingpage": "../thema/warehouse.html"
@@ -199,7 +210,7 @@
    "typ": "tool",
    "slug": "lakehouse",
    "dokumente": 39,
-   "kernaussagen": 21,
+   "kernaussagen": 45,
    "staerkstes_dokument": "Starting with Microsft Fabric the Skills you need",
    "datei": "lakehouse.md",
    "landingpage": "../thema/lakehouse.html"
@@ -210,7 +221,7 @@
    "typ": "tool",
    "slug": "power-bi-desktop",
    "dokumente": 38,
-   "kernaussagen": 36,
+   "kernaussagen": 47,
    "staerkstes_dokument": "Power BI Update April 2025",
    "datei": "power-bi-desktop.md",
    "landingpage": "../thema/power-bi-desktop.html"
@@ -221,7 +232,7 @@
    "typ": "thema",
    "slug": "performance",
    "dokumente": 38,
-   "kernaussagen": 27,
+   "kernaussagen": 42,
    "staerkstes_dokument": "Realtalk zu Self Service mit Power BI",
    "datei": "performance.md",
    "landingpage": "../thema/performance.html"
@@ -232,7 +243,7 @@
    "typ": "thema",
    "slug": "refresh",
    "dokumente": 38,
-   "kernaussagen": 5,
+   "kernaussagen": 6,
    "staerkstes_dokument": "Microsoft Fabric Shortcut Transformation erklärt: Updates im Praxistest",
    "datei": "refresh.md",
    "landingpage": "../thema/refresh.html"
@@ -243,7 +254,7 @@
    "typ": "tool",
    "slug": "python",
    "dokumente": 37,
-   "kernaussagen": 9,
+   "kernaussagen": 14,
    "staerkstes_dokument": "BI Thinkers Talk nr.77",
    "datei": "python.md",
    "landingpage": "../thema/python.html"
@@ -254,7 +265,7 @@
    "typ": "thema",
    "slug": "planung",
    "dokumente": 36,
-   "kernaussagen": 23,
+   "kernaussagen": 24,
    "staerkstes_dokument": "Fabric Planning unboxing",
    "datei": "planung.md",
    "landingpage": "../thema/planung.html"
@@ -265,7 +276,7 @@
    "typ": "thema",
    "slug": "schulung",
    "dokumente": 34,
-   "kernaussagen": 6,
+   "kernaussagen": 13,
    "staerkstes_dokument": "Forms + Power Automate = Feedback-Alarm!",
    "datei": "schulung.md",
    "landingpage": "../thema/schulung.html"
@@ -276,7 +287,7 @@
    "typ": "thema",
    "slug": "lizenzen",
    "dokumente": 33,
-   "kernaussagen": 11,
+   "kernaussagen": 21,
    "staerkstes_dokument": "Country Indicator Explorer — Lebenszufriedenheit und ihre Korrelate",
    "datei": "lizenzen.md",
    "landingpage": "../thema/lizenzen.html"
@@ -287,7 +298,7 @@
    "typ": "thema",
    "slug": "echtzeit",
    "dokumente": 33,
-   "kernaussagen": 2,
+   "kernaussagen": 11,
    "staerkstes_dokument": "Why Passion Beats Niche",
    "datei": "echtzeit.md",
    "landingpage": "../thema/echtzeit.html"
@@ -298,7 +309,7 @@
    "typ": "tool",
    "slug": "direct-lake",
    "dokumente": 32,
-   "kernaussagen": 20,
+   "kernaussagen": 32,
    "staerkstes_dokument": "Microsoft Fabric — Einsteiger-Guide",
    "datei": "direct-lake.md",
    "landingpage": "../thema/direct-lake.html"
@@ -309,7 +320,7 @@
    "typ": "tool",
    "slug": "sap",
    "dokumente": 31,
-   "kernaussagen": 3,
+   "kernaussagen": 8,
    "staerkstes_dokument": "Realtalk zu Self Service mit Power BI",
    "datei": "sap.md",
    "landingpage": "../thema/sap.html"
@@ -320,21 +331,10 @@
    "typ": "tool",
    "slug": "semantic-model",
    "dokumente": 30,
-   "kernaussagen": 39,
+   "kernaussagen": 55,
    "staerkstes_dokument": "So hackst du einen Power BI Bericht | Power BI Tutorial",
    "datei": "semantic-model.md",
    "landingpage": "../thema/semantic-model.html"
-  },
-  {
-   "id": "topic:sternschema",
-   "name": "Sternschema",
-   "typ": "thema",
-   "slug": "sternschema",
-   "dokumente": 30,
-   "kernaussagen": 22,
-   "staerkstes_dokument": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
-   "datei": "sternschema.md",
-   "landingpage": "../thema/sternschema.html"
   },
   {
    "id": "tool:dataflow",
@@ -342,10 +342,21 @@
    "typ": "tool",
    "slug": "dataflow",
    "dokumente": 30,
-   "kernaussagen": 15,
+   "kernaussagen": 31,
    "staerkstes_dokument": "Microsoft Fabric Dataflow Gen2 Kosten verstehen - CU-Verbrauch einfach erklärt",
    "datei": "dataflow.md",
    "landingpage": "../thema/dataflow.html"
+  },
+  {
+   "id": "topic:sternschema",
+   "name": "Sternschema",
+   "typ": "thema",
+   "slug": "sternschema",
+   "dokumente": 30,
+   "kernaussagen": 31,
+   "staerkstes_dokument": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datei": "sternschema.md",
+   "landingpage": "../thema/sternschema.html"
   },
   {
    "id": "topic:konferenz",
@@ -353,7 +364,7 @@
    "typ": "thema",
    "slug": "konferenz",
    "dokumente": 28,
-   "kernaussagen": 20,
+   "kernaussagen": 46,
    "staerkstes_dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
    "datei": "konferenz.md",
    "landingpage": "../thema/konferenz.html"
@@ -364,7 +375,7 @@
    "typ": "thema",
    "slug": "governance",
    "dokumente": 27,
-   "kernaussagen": 64,
+   "kernaussagen": 100,
    "staerkstes_dokument": "Zehn Tage bis zum marktfähigen Stand",
    "datei": "governance.md",
    "landingpage": "../thema/governance.html"
@@ -375,7 +386,7 @@
    "typ": "tool",
    "slug": "fabric-capacity",
    "dokumente": 26,
-   "kernaussagen": 29,
+   "kernaussagen": 53,
    "staerkstes_dokument": "BI Thinkers Talk nr.64",
    "datei": "fabric-capacity.md",
    "landingpage": "../thema/fabric-capacity.html"
@@ -386,7 +397,7 @@
    "typ": "tool",
    "slug": "github",
    "dokumente": 26,
-   "kernaussagen": 0,
+   "kernaussagen": 8,
    "staerkstes_dokument": "ChartKitchen byDatenWG — Quick Start",
    "datei": "github.md",
    "landingpage": "../thema/github.html"
@@ -397,7 +408,7 @@
    "typ": "thema",
    "slug": "metadaten",
    "dokumente": 25,
-   "kernaussagen": 23,
+   "kernaussagen": 28,
    "staerkstes_dokument": "Metadaten als Superkraft",
    "datei": "metadaten.md",
    "landingpage": "../thema/metadaten.html"
@@ -408,7 +419,7 @@
    "typ": "tool",
    "slug": "git",
    "dokumente": 25,
-   "kernaussagen": 1,
+   "kernaussagen": 6,
    "staerkstes_dokument": "Zehn Tage bis zum marktfähigen Stand",
    "datei": "git.md",
    "landingpage": "../thema/git.html"
@@ -419,7 +430,7 @@
    "typ": "tool",
    "slug": "teams",
    "dokumente": 25,
-   "kernaussagen": 0,
+   "kernaussagen": 3,
    "staerkstes_dokument": "Forms + Sharepoint + Powerautomate",
    "datei": "teams.md",
    "landingpage": "../thema/teams.html"
@@ -430,10 +441,21 @@
    "typ": "tool",
    "slug": "sharepoint",
    "dokumente": 22,
-   "kernaussagen": 3,
+   "kernaussagen": 12,
    "staerkstes_dokument": "Forms + Sharepoint + Powerautomate",
    "datei": "sharepoint.md",
    "landingpage": "../thema/sharepoint.html"
+  },
+  {
+   "id": "tool:snowflake",
+   "name": "Snowflake",
+   "typ": "tool",
+   "slug": "snowflake",
+   "dokumente": 21,
+   "kernaussagen": 9,
+   "staerkstes_dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datei": "snowflake.md",
+   "landingpage": "../thema/snowflake.html"
   },
   {
    "id": "topic:ibcs",
@@ -447,23 +469,12 @@
    "landingpage": "../thema/ibcs.html"
   },
   {
-   "id": "tool:snowflake",
-   "name": "Snowflake",
-   "typ": "tool",
-   "slug": "snowflake",
-   "dokumente": 21,
-   "kernaussagen": 5,
-   "staerkstes_dokument": "Microsoft Fabric — braucht das wirklich jemand?",
-   "datei": "snowflake.md",
-   "landingpage": "../thema/snowflake.html"
-  },
-  {
    "id": "tool:premium",
    "name": "Premium",
    "typ": "tool",
    "slug": "premium",
    "dokumente": 20,
-   "kernaussagen": 2,
+   "kernaussagen": 5,
    "staerkstes_dokument": "Wie viel CO₂ steckt in einem Token? — KI-Energie-Simulator",
    "datei": "premium.md",
    "landingpage": "../thema/premium.html"
@@ -474,7 +485,7 @@
    "typ": "tool",
    "slug": "custom-visuals",
    "dokumente": 19,
-   "kernaussagen": 20,
+   "kernaussagen": 25,
    "staerkstes_dokument": "ChartKitchen byDatenWG — Quick Start",
    "datei": "custom-visuals.md",
    "landingpage": "../thema/custom-visuals.html"
@@ -485,7 +496,7 @@
    "typ": "tool",
    "slug": "azure",
    "dokumente": 19,
-   "kernaussagen": 15,
+   "kernaussagen": 21,
    "staerkstes_dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
    "datei": "azure.md",
    "landingpage": "../thema/azure.html"
@@ -496,7 +507,7 @@
    "typ": "thema",
    "slug": "strategie",
    "dokumente": 19,
-   "kernaussagen": 14,
+   "kernaussagen": 21,
    "staerkstes_dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datei": "strategie.md",
    "landingpage": "../thema/strategie.html"
@@ -507,7 +518,7 @@
    "typ": "thema",
    "slug": "self-service-bi",
    "dokumente": 18,
-   "kernaussagen": 26,
+   "kernaussagen": 43,
    "staerkstes_dokument": "Realtalk zu Self Service mit Power BI",
    "datei": "self-service-bi.md",
    "landingpage": "../thema/self-service-bi.html"
@@ -518,7 +529,7 @@
    "typ": "tool",
    "slug": "directquery",
    "dokumente": 18,
-   "kernaussagen": 5,
+   "kernaussagen": 11,
    "staerkstes_dokument": "Microsoft Fabric — Einsteiger-Guide",
    "datei": "directquery.md",
    "landingpage": "../thema/directquery.html"
@@ -529,7 +540,7 @@
    "typ": "tool",
    "slug": "mirroring",
    "dokumente": 17,
-   "kernaussagen": 25,
+   "kernaussagen": 34,
    "staerkstes_dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "datei": "mirroring.md",
    "landingpage": "../thema/mirroring.html"
@@ -540,7 +551,7 @@
    "typ": "thema",
    "slug": "mittelstand",
    "dokumente": 17,
-   "kernaussagen": 7,
+   "kernaussagen": 9,
    "staerkstes_dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
    "datei": "mittelstand.md",
    "landingpage": "../thema/mittelstand.html"
@@ -551,7 +562,7 @@
    "typ": "tool",
    "slug": "visual-calculations",
    "dokumente": 16,
-   "kernaussagen": 5,
+   "kernaussagen": 13,
    "staerkstes_dokument": "Power BI Update Juni 2025",
    "datei": "visual-calculations.md",
    "landingpage": "../thema/visual-calculations.html"
@@ -573,7 +584,7 @@
    "typ": "thema",
    "slug": "datenqualitat",
    "dokumente": 14,
-   "kernaussagen": 22,
+   "kernaussagen": 36,
    "staerkstes_dokument": "Metadaten als Superkraft",
    "datei": "datenqualitat.md",
    "landingpage": "../thema/datenqualitat.html"
@@ -584,10 +595,21 @@
    "typ": "tool",
    "slug": "onelake",
    "dokumente": 14,
-   "kernaussagen": 22,
+   "kernaussagen": 36,
    "staerkstes_dokument": "Microsoft Fabric — Einsteiger-Guide",
    "datei": "onelake.md",
    "landingpage": "../thema/onelake.html"
+  },
+  {
+   "id": "topic:migration",
+   "name": "Migration",
+   "typ": "thema",
+   "slug": "migration",
+   "dokumente": 14,
+   "kernaussagen": 10,
+   "staerkstes_dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "datei": "migration.md",
+   "landingpage": "../thema/migration.html"
   },
   {
    "id": "tool:pbip",
@@ -601,23 +623,12 @@
    "landingpage": "../thema/pbip.html"
   },
   {
-   "id": "topic:migration",
-   "name": "Migration",
-   "typ": "thema",
-   "slug": "migration",
-   "dokumente": 14,
-   "kernaussagen": 5,
-   "staerkstes_dokument": "Fabric & Power BI Quarterly · 2026-2",
-   "datei": "migration.md",
-   "landingpage": "../thema/migration.html"
-  },
-  {
    "id": "tool:deployment-pipelines",
    "name": "Deployment Pipelines",
    "typ": "tool",
    "slug": "deployment-pipelines",
    "dokumente": 13,
-   "kernaussagen": 8,
+   "kernaussagen": 19,
    "staerkstes_dokument": "600 SQL-Tabellen in Fabric",
    "datei": "deployment-pipelines.md",
    "landingpage": "../thema/deployment-pipelines.html"
@@ -628,7 +639,7 @@
    "typ": "tool",
    "slug": "power-automate",
    "dokumente": 13,
-   "kernaussagen": 2,
+   "kernaussagen": 18,
    "staerkstes_dokument": "Forms + Power Automate = Feedback-Alarm!",
    "datei": "power-automate.md",
    "landingpage": "../thema/power-automate.html"
@@ -639,7 +650,7 @@
    "typ": "tool",
    "slug": "sql-server",
    "dokumente": 13,
-   "kernaussagen": 2,
+   "kernaussagen": 7,
    "staerkstes_dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
    "datei": "sql-server.md",
    "landingpage": "../thema/sql-server.html"
@@ -650,7 +661,7 @@
    "typ": "tool",
    "slug": "calculation-groups",
    "dokumente": 13,
-   "kernaussagen": 1,
+   "kernaussagen": 3,
    "staerkstes_dokument": "Power BI Update Februar 2026",
    "datei": "calculation-groups.md",
    "landingpage": "../thema/calculation-groups.html"
@@ -661,21 +672,10 @@
    "typ": "tool",
    "slug": "field-parameters",
    "dokumente": 12,
-   "kernaussagen": 24,
+   "kernaussagen": 25,
    "staerkstes_dokument": "Power BI Update Januar 2026",
    "datei": "field-parameters.md",
    "landingpage": "../thema/field-parameters.html"
-  },
-  {
-   "id": "topic:projektmanagement",
-   "name": "Projektmanagement",
-   "typ": "thema",
-   "slug": "projektmanagement",
-   "dokumente": 12,
-   "kernaussagen": 12,
-   "staerkstes_dokument": "GxP Talk - Validierung vs. Agilität",
-   "datei": "projektmanagement.md",
-   "landingpage": "../thema/projektmanagement.html"
   },
   {
    "id": "tool:import-mode",
@@ -683,10 +683,21 @@
    "typ": "tool",
    "slug": "import-mode",
    "dokumente": 12,
-   "kernaussagen": 7,
+   "kernaussagen": 18,
    "staerkstes_dokument": "Power BI Update Juli 2026",
    "datei": "import-mode.md",
    "landingpage": "../thema/import-mode.html"
+  },
+  {
+   "id": "topic:projektmanagement",
+   "name": "Projektmanagement",
+   "typ": "thema",
+   "slug": "projektmanagement",
+   "dokumente": 12,
+   "kernaussagen": 18,
+   "staerkstes_dokument": "GxP Talk - Validierung vs. Agilität",
+   "datei": "projektmanagement.md",
+   "landingpage": "../thema/projektmanagement.html"
   },
   {
    "id": "topic:row-level-security",
@@ -694,7 +705,7 @@
    "typ": "thema",
    "slug": "row-level-security",
    "dokumente": 12,
-   "kernaussagen": 6,
+   "kernaussagen": 13,
    "staerkstes_dokument": "Microsoft Fabric — Einsteiger-Guide",
    "datei": "row-level-security.md",
    "landingpage": "../thema/row-level-security.html"
@@ -705,7 +716,7 @@
    "typ": "tool",
    "slug": "spark",
    "dokumente": 12,
-   "kernaussagen": 1,
+   "kernaussagen": 3,
    "staerkstes_dokument": "Microsoft Fabric — Einsteiger-Guide",
    "datei": "spark.md",
    "landingpage": "../thema/spark.html"
@@ -733,26 +744,37 @@
    "landingpage": "../thema/deneb.html"
   },
   {
-   "id": "tool:zebra-bi",
-   "name": "Zebra BI",
-   "typ": "tool",
-   "slug": "zebra-bi",
-   "dokumente": 11,
-   "kernaussagen": 2,
-   "staerkstes_dokument": "Daten-WG BI Thinkers Talk nr.66",
-   "datei": "zebra-bi.md",
-   "landingpage": "../thema/zebra-bi.html"
-  },
-  {
    "id": "tool:gateway",
    "name": "Gateway",
    "typ": "tool",
    "slug": "gateway",
    "dokumente": 11,
-   "kernaussagen": 1,
+   "kernaussagen": 7,
    "staerkstes_dokument": "Daten-WG Deep Dive Financial Reporting",
    "datei": "gateway.md",
    "landingpage": "../thema/gateway.html"
+  },
+  {
+   "id": "tool:zebra-bi",
+   "name": "Zebra BI",
+   "typ": "tool",
+   "slug": "zebra-bi",
+   "dokumente": 11,
+   "kernaussagen": 4,
+   "staerkstes_dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "datei": "zebra-bi.md",
+   "landingpage": "../thema/zebra-bi.html"
+  },
+  {
+   "id": "tool:tmdl",
+   "name": "TMDL",
+   "typ": "tool",
+   "slug": "tmdl",
+   "dokumente": 10,
+   "kernaussagen": 30,
+   "staerkstes_dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "datei": "tmdl.md",
+   "landingpage": "../thema/tmdl.html"
   },
   {
    "id": "topic:digitalisierung",
@@ -760,7 +782,7 @@
    "typ": "thema",
    "slug": "digitalisierung",
    "dokumente": 10,
-   "kernaussagen": 17,
+   "kernaussagen": 25,
    "staerkstes_dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
    "datei": "digitalisierung.md",
    "landingpage": "../thema/digitalisierung.html"
@@ -771,21 +793,10 @@
    "typ": "tool",
    "slug": "power-bi-service",
    "dokumente": 10,
-   "kernaussagen": 11,
+   "kernaussagen": 16,
    "staerkstes_dokument": "Power BI Update Januar 2026",
    "datei": "power-bi-service.md",
    "landingpage": "../thema/power-bi-service.html"
-  },
-  {
-   "id": "tool:tmdl",
-   "name": "TMDL",
-   "typ": "tool",
-   "slug": "tmdl",
-   "dokumente": 10,
-   "kernaussagen": 9,
-   "staerkstes_dokument": "Daten-WG Life-Update | Fabric Architekturen",
-   "datei": "tmdl.md",
-   "landingpage": "../thema/tmdl.html"
   },
   {
    "id": "tool:eventhouse",
@@ -793,7 +804,7 @@
    "typ": "tool",
    "slug": "eventhouse",
    "dokumente": 10,
-   "kernaussagen": 0,
+   "kernaussagen": 7,
    "staerkstes_dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
    "datei": "eventhouse.md",
    "landingpage": "../thema/eventhouse.html"
@@ -804,21 +815,10 @@
    "typ": "tool",
    "slug": "translytical-task-flows",
    "dokumente": 9,
-   "kernaussagen": 15,
+   "kernaussagen": 24,
    "staerkstes_dokument": "Power BI Update März 2026",
    "datei": "translytical-task-flows.md",
    "landingpage": "../thema/translytical-task-flows.html"
-  },
-  {
-   "id": "tool:data-pipeline",
-   "name": "Data Pipeline",
-   "typ": "tool",
-   "slug": "data-pipeline",
-   "dokumente": 9,
-   "kernaussagen": 5,
-   "staerkstes_dokument": "Microsoft Fabric — Einsteiger-Guide",
-   "datei": "data-pipeline.md",
-   "landingpage": "../thema/data-pipeline.html"
   },
   {
    "id": "topic:datenkultur",
@@ -826,10 +826,21 @@
    "typ": "thema",
    "slug": "datenkultur",
    "dokumente": 9,
-   "kernaussagen": 3,
+   "kernaussagen": 15,
    "staerkstes_dokument": "Wie war die Daten-WG? (2025, Teil 2)",
    "datei": "datenkultur.md",
    "landingpage": "../thema/datenkultur.html"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "typ": "tool",
+   "slug": "data-pipeline",
+   "dokumente": 9,
+   "kernaussagen": 13,
+   "staerkstes_dokument": "Microsoft Fabric — Einsteiger-Guide",
+   "datei": "data-pipeline.md",
+   "landingpage": "../thema/data-pipeline.html"
   },
   {
    "id": "topic:open-source",
@@ -837,7 +848,7 @@
    "typ": "thema",
    "slug": "open-source",
    "dokumente": 9,
-   "kernaussagen": 0,
+   "kernaussagen": 1,
    "staerkstes_dokument": "Report-Design als Framework — ein Skill für Power BI",
    "datei": "open-source.md",
    "landingpage": "../thema/open-source.html"
@@ -848,21 +859,10 @@
    "typ": "thema",
    "slug": "karriere",
    "dokumente": 8,
-   "kernaussagen": 4,
+   "kernaussagen": 16,
    "staerkstes_dokument": "Datenmodellierung ist Governance",
    "datei": "karriere.md",
    "landingpage": "../thema/karriere.html"
-  },
-  {
-   "id": "tool:power-bi-pro",
-   "name": "Power BI Pro",
-   "typ": "tool",
-   "slug": "power-bi-pro",
-   "dokumente": 8,
-   "kernaussagen": 3,
-   "staerkstes_dokument": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
-   "datei": "power-bi-pro.md",
-   "landingpage": "../thema/power-bi-pro.html"
   },
   {
    "id": "tool:bookmarks",
@@ -870,10 +870,21 @@
    "typ": "tool",
    "slug": "bookmarks",
    "dokumente": 8,
-   "kernaussagen": 0,
+   "kernaussagen": 6,
    "staerkstes_dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
    "datei": "bookmarks.md",
    "landingpage": "../thema/bookmarks.html"
+  },
+  {
+   "id": "tool:power-bi-pro",
+   "name": "Power BI Pro",
+   "typ": "tool",
+   "slug": "power-bi-pro",
+   "dokumente": 8,
+   "kernaussagen": 6,
+   "staerkstes_dokument": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
+   "datei": "power-bi-pro.md",
+   "landingpage": "../thema/power-bi-pro.html"
   },
   {
    "id": "tool:power-apps",
@@ -881,7 +892,7 @@
    "typ": "tool",
    "slug": "power-apps",
    "dokumente": 8,
-   "kernaussagen": 0,
+   "kernaussagen": 1,
    "staerkstes_dokument": "Wie war die Daten-WG 2025? (Teil 1)",
    "datei": "power-apps.md",
    "landingpage": "../thema/power-apps.html"
@@ -892,7 +903,7 @@
    "typ": "tool",
    "slug": "drillthrough",
    "dokumente": 7,
-   "kernaussagen": 4,
+   "kernaussagen": 6,
    "staerkstes_dokument": "Drillthrough-Auswahl sortieren – So kontrollierst du die Reihenfolge! | Power BI Tutorial",
    "datei": "drillthrough.md",
    "landingpage": "../thema/drillthrough.html"
@@ -903,7 +914,7 @@
    "typ": "tool",
    "slug": "ssis",
    "dokumente": 6,
-   "kernaussagen": 18,
+   "kernaussagen": 19,
    "staerkstes_dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
    "datei": "ssis.md",
    "landingpage": "../thema/ssis.html"
@@ -914,10 +925,21 @@
    "typ": "tool",
    "slug": "databricks",
    "dokumente": 6,
-   "kernaussagen": 5,
+   "kernaussagen": 8,
    "staerkstes_dokument": "The Power of User Groups",
    "datei": "databricks.md",
    "landingpage": "../thema/databricks.html"
+  },
+  {
+   "id": "tool:incremental-refresh",
+   "name": "Incremental Refresh",
+   "typ": "tool",
+   "slug": "incremental-refresh",
+   "dokumente": 6,
+   "kernaussagen": 4,
+   "staerkstes_dokument": "Daten-WG Thinkers Talk nr.65",
+   "datei": "incremental-refresh.md",
+   "landingpage": "../thema/incremental-refresh.html"
   },
   {
    "id": "tool:copilot-studio",
@@ -931,15 +953,15 @@
    "landingpage": "../thema/copilot-studio.html"
   },
   {
-   "id": "tool:incremental-refresh",
-   "name": "Incremental Refresh",
-   "typ": "tool",
-   "slug": "incremental-refresh",
-   "dokumente": 6,
-   "kernaussagen": 0,
-   "staerkstes_dokument": "Daten-WG Thinkers Talk nr.65",
-   "datei": "incremental-refresh.md",
-   "landingpage": "../thema/incremental-refresh.html"
+   "id": "topic:dashboard-design",
+   "name": "Dashboard Design",
+   "typ": "thema",
+   "slug": "dashboard-design",
+   "dokumente": 5,
+   "kernaussagen": 28,
+   "staerkstes_dokument": "So rettest du deine kaputte Power BI Theme Datei in 5 Minuten! | Power BI Tutorial",
+   "datei": "dashboard-design.md",
+   "landingpage": "../thema/dashboard-design.html"
   },
   {
    "id": "tool:azure-maps",
@@ -947,32 +969,10 @@
    "typ": "tool",
    "slug": "azure-maps",
    "dokumente": 5,
-   "kernaussagen": 17,
+   "kernaussagen": 19,
    "staerkstes_dokument": "The Power of User Groups",
    "datei": "azure-maps.md",
    "landingpage": "../thema/azure-maps.html"
-  },
-  {
-   "id": "topic:dashboard-design",
-   "name": "Dashboard Design",
-   "typ": "thema",
-   "slug": "dashboard-design",
-   "dokumente": 5,
-   "kernaussagen": 9,
-   "staerkstes_dokument": "So rettest du deine kaputte Power BI Theme Datei in 5 Minuten! | Power BI Tutorial",
-   "datei": "dashboard-design.md",
-   "landingpage": "../thema/dashboard-design.html"
-  },
-  {
-   "id": "tool:tabular-editor",
-   "name": "Tabular Editor",
-   "typ": "tool",
-   "slug": "tabular-editor",
-   "dokumente": 5,
-   "kernaussagen": 3,
-   "staerkstes_dokument": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
-   "datei": "tabular-editor.md",
-   "landingpage": "../thema/tabular-editor.html"
   },
   {
    "id": "tool:composite-models",
@@ -980,10 +980,21 @@
    "typ": "tool",
    "slug": "composite-models",
    "dokumente": 5,
-   "kernaussagen": 1,
+   "kernaussagen": 7,
    "staerkstes_dokument": "Fabric & Power BI Quarterly | 2025 Q2",
    "datei": "composite-models.md",
    "landingpage": "../thema/composite-models.html"
+  },
+  {
+   "id": "tool:tabular-editor",
+   "name": "Tabular Editor",
+   "typ": "tool",
+   "slug": "tabular-editor",
+   "dokumente": 5,
+   "kernaussagen": 5,
+   "staerkstes_dokument": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datei": "tabular-editor.md",
+   "landingpage": "../thema/tabular-editor.html"
   },
   {
    "id": "tool:dax-studio",
@@ -991,7 +1002,7 @@
    "typ": "tool",
    "slug": "dax-studio",
    "dokumente": 5,
-   "kernaussagen": 0,
+   "kernaussagen": 2,
    "staerkstes_dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datei": "dax-studio.md",
    "landingpage": "../thema/dax-studio.html"
@@ -1002,21 +1013,10 @@
    "typ": "tool",
    "slug": "qlik",
    "dokumente": 4,
-   "kernaussagen": 13,
+   "kernaussagen": 25,
    "staerkstes_dokument": "Daten-WG Special: Power BI vs. Qlik",
    "datei": "qlik.md",
    "landingpage": "../thema/qlik.html"
-  },
-  {
-   "id": "tool:data-agent",
-   "name": "Data Agent",
-   "typ": "tool",
-   "slug": "data-agent",
-   "dokumente": 4,
-   "kernaussagen": 5,
-   "staerkstes_dokument": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
-   "datei": "data-agent.md",
-   "landingpage": "../thema/data-agent.html"
   },
   {
    "id": "tool:sql-endpoint",
@@ -1024,21 +1024,10 @@
    "typ": "tool",
    "slug": "sql-endpoint",
    "dokumente": 4,
-   "kernaussagen": 5,
+   "kernaussagen": 10,
    "staerkstes_dokument": "Microsoft Fabric — Einsteiger-Guide",
    "datei": "sql-endpoint.md",
    "landingpage": "../thema/sql-endpoint.html"
-  },
-  {
-   "id": "topic:zertifizierung",
-   "name": "Zertifizierung",
-   "typ": "thema",
-   "slug": "zertifizierung",
-   "dokumente": 4,
-   "kernaussagen": 1,
-   "staerkstes_dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
-   "datei": "zertifizierung.md",
-   "landingpage": "../thema/zertifizierung.html"
   },
   {
    "id": "tool:delta-lake",
@@ -1046,21 +1035,32 @@
    "typ": "tool",
    "slug": "delta-lake",
    "dokumente": 4,
-   "kernaussagen": 0,
+   "kernaussagen": 9,
    "staerkstes_dokument": "Microsoft Fabric — Einsteiger-Guide",
    "datei": "delta-lake.md",
    "landingpage": "../thema/delta-lake.html"
   },
   {
-   "id": "topic:update",
-   "name": "Update",
+   "id": "tool:data-agent",
+   "name": "Data Agent",
+   "typ": "tool",
+   "slug": "data-agent",
+   "dokumente": 4,
+   "kernaussagen": 6,
+   "staerkstes_dokument": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datei": "data-agent.md",
+   "landingpage": "../thema/data-agent.html"
+  },
+  {
+   "id": "topic:zertifizierung",
+   "name": "Zertifizierung",
    "typ": "thema",
-   "slug": "update",
-   "dokumente": 3,
-   "kernaussagen": 5,
-   "staerkstes_dokument": "Power BI Update Juni 2026",
-   "datei": "update.md",
-   "landingpage": "../thema/update.html"
+   "slug": "zertifizierung",
+   "dokumente": 4,
+   "kernaussagen": 2,
+   "staerkstes_dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "datei": "zertifizierung.md",
+   "landingpage": "../thema/zertifizierung.html"
   },
   {
    "id": "topic:data-vault",
@@ -1068,10 +1068,21 @@
    "typ": "thema",
    "slug": "data-vault",
    "dokumente": 3,
-   "kernaussagen": 4,
+   "kernaussagen": 23,
    "staerkstes_dokument": "Mythos Data Vault und richtig große Modelle",
    "datei": "data-vault.md",
    "landingpage": "../thema/data-vault.html"
+  },
+  {
+   "id": "topic:update",
+   "name": "Update",
+   "typ": "thema",
+   "slug": "update",
+   "dokumente": 3,
+   "kernaussagen": 8,
+   "staerkstes_dokument": "Power BI Update Juni 2026",
+   "datei": "update.md",
+   "landingpage": "../thema/update.html"
   },
   {
    "id": "tool:analysis-services",
@@ -1090,7 +1101,7 @@
    "typ": "tool",
    "slug": "paginated-reports",
    "dokumente": 3,
-   "kernaussagen": 1,
+   "kernaussagen": 2,
    "staerkstes_dokument": "Wie war die Daten-WG? · Im Gespräch mit Artur König",
    "datei": "paginated-reports.md",
    "landingpage": "../thema/paginated-reports.html"
@@ -1101,20 +1112,20 @@
    "typ": "tool",
    "slug": "azure-devops",
    "dokumente": 3,
-   "kernaussagen": 0,
+   "kernaussagen": 1,
    "staerkstes_dokument": "600 SQL-Tabellen in Fabric",
    "datei": "azure-devops.md",
    "landingpage": "../thema/azure-devops.html"
   },
   {
-   "id": "tool:sql",
-   "name": "SQL",
+   "id": "tool:azure-data-factory",
+   "name": "Azure Data Factory",
    "typ": "tool",
-   "slug": "sql",
+   "slug": "azure-data-factory",
    "dokumente": 2,
-   "kernaussagen": 15,
-   "staerkstes_dokument": "Daten-WG Deep Dive: AI on top of BI",
-   "datei": "sql.md",
+   "kernaussagen": 2,
+   "staerkstes_dokument": "Microsoft Fabric — Einsteiger-Guide",
+   "datei": "azure-data-factory.md",
    "landingpage": ""
   },
   {
@@ -1123,20 +1134,9 @@
    "typ": "tool",
    "slug": "synapse",
    "dokumente": 2,
-   "kernaussagen": 1,
+   "kernaussagen": 2,
    "staerkstes_dokument": "Microsoft Fabric — Einsteiger-Guide",
    "datei": "synapse.md",
-   "landingpage": ""
-  },
-  {
-   "id": "tool:azure-data-factory",
-   "name": "Azure Data Factory",
-   "typ": "tool",
-   "slug": "azure-data-factory",
-   "dokumente": 2,
-   "kernaussagen": 0,
-   "staerkstes_dokument": "Microsoft Fabric — Einsteiger-Guide",
-   "datei": "azure-data-factory.md",
    "landingpage": ""
   },
   {
@@ -1145,7 +1145,7 @@
    "typ": "tool",
    "slug": "purview",
    "dokumente": 1,
-   "kernaussagen": 0,
+   "kernaussagen": 1,
    "staerkstes_dokument": "Microsoft Fabric — Einsteiger-Guide",
    "datei": "purview.md",
    "landingpage": ""

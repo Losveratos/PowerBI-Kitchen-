@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Composite Models · DatenWG Library</title>
-<meta name="description" content="Die Kombination aus Direct Lake und Import Mode ist mittlerweile GA verfügbar und ermöglicht damit ein stabileres Composite-Modell.">
+<meta name="description" content="Mit dem Tabular Editor bzw. im TMDL-Code lassen sich schon inoffiziell Composite Models aus Import- und Direct-Lake-Tabellen bauen, bevor das offiziell in Power BI Desktop verfuegbar ist.">
 <meta property="og:title" content="Composite Models · DatenWG Library">
-<meta property="og:description" content="Die Kombination aus Direct Lake und Import Mode ist mittlerweile GA verfügbar und ermöglicht damit ein stabileres Composite-Modell.">
+<meta property="og:description" content="Mit dem Tabular Editor bzw. im TMDL-Code lassen sich schon inoffiziell Composite Models aus Import- und Direct-Lake-Tabellen bauen, bevor das offiziell in Power BI Desktop verfuegbar ist.">
 <meta property="og:type" content="article">
 <meta property="og:image" content="https://datenwgknowledgekitchen.com/wissensgraph/og.png">
 <meta property="og:image:width" content="1200">
@@ -48,35 +48,45 @@ footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
 <main>
 <p class="kicker">DatenWG Library · tool</p>
 <h1>Composite Models</h1>
-<p class="lead">Die Kombination aus Direct Lake und Import Mode ist mittlerweile GA verfügbar und ermöglicht damit ein stabileres Composite-Modell.</p>
+<p class="lead">Mit dem Tabular Editor bzw. im TMDL-Code lassen sich schon inoffiziell Composite Models aus Import- und Direct-Lake-Tabellen bauen, bevor das offiziell in Power BI Desktop verfuegbar ist. Composite Models sollen kuenftig die Moeglichkeit bieten, Direct-Lake-Tabellen aus mehreren Lakehouses zu kombinieren, ohne mehr zwingend ueber den einen zentralen SQL-Endpunkt konsumieren zu muessen. Ein Composite Model, das Kennzahlen aus einem zentralen Modell in ein zweites Direct-Lake-Modell uebernehmen soll, laesst sich nicht einfach als ein Direct-Lake-Modell mit zusaetzlichen Importtabellen bauen, sondern erfordert ein Composite Model ueber beide semantischen Modelle. (Stand 2026-08)</p>
 <div class="btns"><a class="btn" href="../#n=tool%3Acomposite-models">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Acomposite-models&amp;f=tool%3Acomposite-models">Im Graph öffnen</a></div>
-<p class="meta">5 Dokumente · 1 Kernaussagen · Stand 2026-09-07 · Build 20260907-1922</p>
+<p class="meta">5 Dokumente · 7 Kernaussagen · Stand 2026-09-07 · Build 20260907-1949</p>
 <h2>Aliase</h2>
 <p><span class="tag">Composite Model</span> <span class="tag">zusammengesetzte Modelle</span></p>
 <h2>Kernaussagen</h2>
 <ul>
+<li>Werden zentral verwaltete Daten ueber Composite Models durch laenderspezifische Excel-Mappings angereichert, kann daraus ein sehr performance-schwaches Konstrukt entstehen.<span class="meta quote">Warnung · Stand 2026-08 · Daten-WG Life-Update | Fabric Architekturen · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=1440s">24:00</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Ein Composite Model, das Kennzahlen aus einem zentralen Modell in ein zweites Direct-Lake-Modell uebernehmen soll, laesst sich nicht einfach als ein Direct-Lake-Modell mit zusaetzlichen Importtabellen bauen, sondern erfordert ein Composite Model ueber beide semantischen Modelle.<span class="meta quote">Fakt · Stand 2026-08 · Daten-WG Life-Update | Fabric Architekturen · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=1545s">25:45</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Die Kombination aus Direct Lake und Import Mode ist mittlerweile GA verfügbar und ermöglicht damit ein stabileres Composite-Modell.<span class="meta quote">Fakt · Stand 2025-09 · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=3892s">1:04:52</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Der aktuelle Preview-Stand der Composite Models über mehrere Lakehäuser verhält sich eher wie ein Import Mode ohne lange Ladezeiten, weil eigene Measures, Beziehungen und Row-Level Security noch fehlen.<span class="meta quote">Meinung · Stand 2025-04 · Fabric &amp; Power BI Quarterly | 2025 Q2 · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=662s">11:02</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Echte Composite Models werden erst mit der angekündigten OneLake Security möglich, weil dann Berechtigungen aus verschiedenen Quellen mitgezogen werden können.<span class="meta quote">Meinung · Stand 2025-04 · Fabric &amp; Power BI Quarterly | 2025 Q2 · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=725s">12:05</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Mit dem Tabular Editor bzw. im TMDL-Code lassen sich schon inoffiziell Composite Models aus Import- und Direct-Lake-Tabellen bauen, bevor das offiziell in Power BI Desktop verfuegbar ist.<span class="meta quote">Fakt · Stand  · Fabric &amp; Power BI Quarterly · 2025 Q3 · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2214s">36:54</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Composite Models sollen kuenftig die Moeglichkeit bieten, Direct-Lake-Tabellen aus mehreren Lakehouses zu kombinieren, ohne mehr zwingend ueber den einen zentralen SQL-Endpunkt konsumieren zu muessen.<span class="meta quote">Fakt · Stand  · Fabric &amp; Power BI Quarterly · 2025 Q3 · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2353s">39:13</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 </ul>
 <h2>Dokumente</h2>
 <ul>
-<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=633s">10:33</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=726s">12:06</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2211s">36:51</a> · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2338s">38:58</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=633s">10:33</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=726s">12:06</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2211s">36:51</a> · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2338s">38:58</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=r416vanitYw">BI Thinkers Talk nr.69</a><span class="meta quote">2025-11-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=520s">08:40</a> · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=2568s">42:48</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=J-lN5JN-F5I">Daten-WG Life-Update | Fabric Architekturen</a><span class="meta quote">2026-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=1326s">22:06</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=J-lN5JN-F5I">Daten-WG Life-Update | Fabric Architekturen</a><span class="meta quote">2026-08-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=1326s">22:06</a></span></li>
 <li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Dataflow%20Gen2%20%28Fabric%29">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Test">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=DirectQuery">Abschnitt</a></span></li>
 </ul>
 <h2>Nachbarthemen</h2>
 <ul>
-<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">teil-von · belegt · 5 gemeinsame Segmente</span></li>
-<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 5 gemeinsame Segmente</span></li>
-<li><a href="directquery.html">DirectQuery</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="power-bi-desktop.html">Power BI Desktop</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="refresh.html">Refresh</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
-<li><a href="datenmodellierung.html">Datenmodellierung</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
-<li><a href="import-mode.html">Import Mode</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
-<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
-<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
-<li><a href="row-level-security.html">Row-Level Security</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
+<li><a href="tabular-editor.html">Tabular Editor</a><span class="meta quote">Composite Models setzt-voraus Tabular Editor · automatisch extrahiert, Quellenstelle vorhanden · „Mit dem Tabula Editor können wir quasi ... die Next Generation Composite Models mehr oder weniger bauen aus Import und Direct Lake“ (Fabric &amp; Power BI Quarterly · 2025 Q3) · 0 gemeinsame Segmente</span></li>
+<li><a href="sql-endpoint.html">SQL Endpoint</a><span class="meta quote">Composite Models ersetzt SQL Endpoint · automatisch extrahiert, Quellenstelle vorhanden · „die Möglichkeit bietet Direct Lake Tabellen aus nicht mehr über den Sequel Endpunkt konsumieren zu müssen“ (Fabric &amp; Power BI Quarterly · 2025 Q3) · 0 gemeinsame Segmente</span></li>
+<li><a href="onelake.html">OneLake</a><span class="meta quote">Composite Models setzt-voraus OneLake · automatisch extrahiert, Quellenstelle vorhanden · „Composite Model wird das erst, wenn dann quasi diese große Änderung, die ja auch angekündigt wurde mit Oneelake Security“ (Fabric &amp; Power BI Quarterly | 2025 Q2, 2025-04) · 0 gemeinsame Segmente</span></li>
+<li><a href="semantic-model.html">Semantic Model</a><span class="meta quote">Composite Models setzt-voraus Semantic Model · automatisch extrahiert, Quellenstelle vorhanden · „ich glaube, du kannst es über zwei Composite oder kannst ein Composite Modelle auf beide semantische Modelle setzen“ (Daten-WG Life-Update | Fabric Architekturen, 2026-08) · 0 gemeinsame Segmente</span></li>
+<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">Direct Lake teil-von Composite Models · automatisch extrahiert, Quellenstelle vorhanden · „Direct Lake plus Import, dann eine Art stabiles Composite Modell“ (BI Thinkers Talk nr.67, 2025-09) · 5 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">Composite Models und Performance im selben Segment · Heuristik, gezählt · 5 gemeinsame Segmente</span></li>
+<li><a href="directquery.html">DirectQuery</a><span class="meta quote">Composite Models und DirectQuery im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="power-bi-desktop.html">Power BI Desktop</a><span class="meta quote">Composite Models und Power BI Desktop im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="refresh.html">Refresh</a><span class="meta quote">Composite Models und Refresh im selben Segment · Heuristik, gezählt · 4 gemeinsame Segmente</span></li>
+<li><a href="datenmodellierung.html">Datenmodellierung</a><span class="meta quote">Composite Models und Datenmodellierung im selben Segment · Heuristik, gezählt · 3 gemeinsame Segmente</span></li>
+<li><a href="import-mode.html">Import Mode</a><span class="meta quote">Composite Models und Import Mode im selben Segment · Heuristik, gezählt · 3 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">Composite Models und Power BI im selben Segment · Heuristik, gezählt · 3 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">Composite Models und Lakehouse im selben Segment · Heuristik, gezählt · 3 gemeinsame Segmente</span></li>
+<li><a href="row-level-security.html">Row-Level Security</a><span class="meta quote">Composite Models und Row-Level Security im selben Segment · Heuristik, gezählt · 3 gemeinsame Segmente</span></li>
 </ul>
 <h2>Hinweise</h2>
 <p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>

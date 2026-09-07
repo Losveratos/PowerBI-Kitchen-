@@ -3,7 +3,7 @@ id: "topic:supply-chain"
 name: "Supply Chain"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 11
 kernaussagen: 18
@@ -20,7 +20,7 @@ aliase:
 
 # Supply Chain
 
-Seit der Corona-Pandemie folgt in der Lieferkette einer Krise fast nahtlos die nächste. Naturkatastrophen, politische Entscheidungen und Cyberattacken zählen zu den zunehmenden Risiken für die Beschaffung. Ein konsolidiertes Reporting zeigt Bestellbedarf, auslaufende Lieferantenverträge und Krisenrisiko im zeitlichen Verlauf.
+Seit der Corona-Pandemie folgt in der Lieferkette einer Krise fast nahtlos die nächste. (Stand 2026-04) Naturkatastrophen, politische Entscheidungen und Cyberattacken zählen zu den zunehmenden Risiken für die Beschaffung. (Stand 2026-04) Ein konsolidiertes Reporting zeigt Bestellbedarf, auslaufende Lieferantenverträge und Krisenrisiko im zeitlichen Verlauf. (Stand 2026-04)
 
 ## Aliase
 
@@ -28,12 +28,12 @@ Logistik, Lieferkette, Einkauf
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [KI](ki.md) | ko-vorkommen | heuristik | 7 |
-| [Performance](performance.md) | ko-vorkommen | heuristik | 5 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 3 |
-| [Strategie](strategie.md) | ko-vorkommen | heuristik | 3 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [KI](ki.md) | Supply Chain und KI im selben Segment | Heuristik, gezählt |  | 7 |
+| [Performance](performance.md) | Supply Chain und Performance im selben Segment | Heuristik, gezählt |  | 5 |
+| [Reporting](reporting.md) | Supply Chain und Reporting im selben Segment | Heuristik, gezählt |  | 3 |
+| [Strategie](strategie.md) | Supply Chain und Strategie im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -70,7 +70,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Was kostet ein klimaneutrales Stromsystem?](https://datenwgknowledgekitchen.com/strommix-story.html) | 2026-08-20 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/strommix-story.html#:~:text=Gegenpositionen%2C%20die%20mitlaufen%20muessen) |
 | [Was braucht ein gesunder Strommix — und was kostet er?](https://datenwgknowledgekitchen.com/whitepaper-strommix.html) | 2026-08-20 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/whitepaper-strommix.html#:~:text=Modell-Limitationen) · [Abschnitt](https://datenwgknowledgekitchen.com/whitepaper-strommix.html#:~:text=Dokumentierte%20Datenluecken) · [Abschnitt](https://datenwgknowledgekitchen.com/whitepaper-strommix.html#:~:text=7%20%C2%B7%20Quellenverzeichnis) |
 | [Von Patronen zu Prozessen (nur Ton)](https://www.youtube.com/watch?v=s3CveEVoDvo) | 2025-07-01 | nur-zeitstempel | [01:25](https://www.youtube.com/watch?v=s3CveEVoDvo&t=85s) |
-| [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | nur-zeitstempel | [12:07](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=727s) |
+| [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | kernaussagen+zeitstempel | [12:07](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=727s) |
 | [Prinzipien oder Paragrafen](https://www.youtube.com/watch?v=6WhWLcuFvZE) | 2026-02-01 | kernaussagen+zeitstempel | [13:05](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=785s) |
 | [Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?](https://www.youtube.com/watch?v=jETxUNQSl-w) | 2026-02-01 | kernaussagen+zeitstempel | [18:11](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1091s) |
 | [Objektive Daten gibt es nicht](https://www.youtube.com/watch?v=-_4bfrjRCVo) | 2026-06-01 | nur-zeitstempel | [24:54](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=1494s) |

@@ -4,25 +4,25 @@
  "typ": "tool",
  "slug": "purview",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/purview.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/purview.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/purview.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/purview.json",
  "dokumente_gesamt": 1,
- "kernaussagen_gesamt": 0,
- "mit_kernaussagen": 0,
+ "kernaussagen_gesamt": 1,
+ "mit_kernaussagen": 1,
  "aliase": [
   "Microsoft Purview"
  ],
- "einordnung": "Purview kommt in 1 Dokumenten der Daten-WG vor; am ausführlichsten in „Microsoft Fabric — Einsteiger-Guide“ (2026-08-31).",
+ "einordnung": "Der OneLake-Katalog ist ausdrücklich nicht als Catalog-of-Catalogs gedacht, der Werkzeuge wie Purview oder Informatica ersetzen soll, sondern als zentraler Discovery-Einstiegspunkt für Fabric-Nutzer. (Stand 2025-04)",
  "nachbarn": [
   {
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -31,7 +31,7 @@
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "onelake.md"
@@ -40,7 +40,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "power-bi.md"
@@ -49,7 +49,7 @@
    "id": "topic:governance",
    "name": "Governance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "governance.md"
@@ -58,7 +58,7 @@
    "id": "tool:data-pipeline",
    "name": "Data Pipeline",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "data-pipeline.md"
@@ -67,7 +67,7 @@
    "id": "tool:fabric-capacity",
    "name": "Fabric Capacity",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "fabric-capacity.md"
@@ -76,13 +76,23 @@
    "id": "tool:synapse",
    "name": "Synapse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "synapse.md"
   }
  ],
- "kernaussagen": [],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 2024,
+   "zeit": "33:44",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2024s",
+   "aussage": "Der OneLake-Katalog ist ausdrücklich nicht als Catalog-of-Catalogs gedacht, der Werkzeuge wie Purview oder Informatica ersetzen soll, sondern als zentraler Discovery-Einstiegspunkt für Fabric-Nutzer."
+  }
+ ],
  "dokumente": [
   {
    "id": "page:fabric_einsteiger_guide_v1",

@@ -149,6 +149,22 @@ h2 .sub{font-family:var(--mono);font-size:11px;color:var(--ink-mute);font-weight
 .legend{font-family:var(--mono);font-size:10px;color:var(--ink-mute);display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .legend span::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;background:var(--c)}
 @media (max-width:900px){main{grid-template-columns:1fr}nav.tree{position:static;height:auto;max-height:40vh;border-right:0;border-bottom:1px solid var(--line)}article{padding:16px}.two{grid-template-columns:1fr}}
+/* Handy: Kopfzeile umbrechen, Suchfeld volle Breite, Baum als aufklappbarer Block, keine horizontale Scrollbreite (R2-10) */
+@media (max-width:700px){
+  header{flex-wrap:wrap;gap:8px 12px;padding:10px 14px}
+  header h1{white-space:normal;font-size:19px}
+  .searchbox{flex:1 1 100%;max-width:none;min-width:0;order:9}
+  .hdr-links{display:flex;gap:10px;align-items:center;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .viewbar{flex:0 0 auto}
+  main{display:block;min-height:0}
+  nav.tree{position:static;height:auto;max-height:none;border-right:0;border-bottom:1px solid var(--line);padding:8px 12px 10px}
+  nav.tree:not(.open) > *{display:none!important}
+  nav.tree::before{content:'Filter und Themen ▸';display:block;font-weight:700;font-size:13px;padding:6px 0;cursor:pointer}
+  nav.tree.open::before{content:'Filter und Themen ▾'}
+  article{padding:14px 14px 50px;max-width:none;min-width:0}
+  .two{grid-template-columns:1fr}
+  .kpis{flex-wrap:wrap}
+}
 </style>
 </head>
 <body>
@@ -212,6 +228,8 @@ fetch(DATA + 'graph.json').then(r => { if (!r.ok) throw new Error('graph.json: H
   for (const e of g.edges) { (G.out.get(e.s) || G.out.set(e.s, []).get(e.s)).push(e); (G.in.get(e.t) || G.in.set(e.t, []).get(e.t)).push(e); }
   window.addEventListener('hashchange', route);
   route();
+  // Handy: Baum ein- und ausklappen (Klick auf die Zeile „Filter und Themen")
+  $('#tree').addEventListener('click', e => { if (window.innerWidth <= 700 && e.target === $('#tree')) $('#tree').classList.toggle('open'); });
 });
 
 // ---------- Status, Tour ----------
@@ -258,7 +276,9 @@ function neighbourDocs(nid) {
   const n = byId.get(nid);
   if (n.type === 'Person') return (G.out.get(nid) || []).filter(e => e.type === 'SPEAKS_IN').map(e => ({doc: byId.get(e.t), e, role: e.role})).filter(x => x.doc && docActive(x.doc)).sort((a, b) => (b.doc.published || '').localeCompare(a.doc.published || ''));
   if (n.type === 'Bucket') return (G.in.get(nid) || []).filter(e => e.type === 'IN_BUCKET').map(e => ({doc: byId.get(e.s), e})).filter(x => x.doc && docActive(x.doc)).sort((a, b) => (b.doc.published || '').localeCompare(a.doc.published || ''));
-  return (G.in.get(nid) || []).filter(e => e.type === 'MENTIONS').map(e => ({doc: byId.get(e.s), e})).filter(x => x.doc && docActive(x.doc)).sort((a, b) => (b.e.share || 0) - (a.e.share || 0));
+  // Gewicht = Treffersegmente × (0,3 + Anteil): ein Werbeclip mit einem Segment (Anteil 100 %) landet nicht mehr vor einem Guide mit 45 Stellen
+  const w = e => (e.segments || 0) * (0.3 + (e.share || 0));
+  return (G.in.get(nid) || []).filter(e => e.type === 'MENTIONS').map(e => ({doc: byId.get(e.s), e})).filter(x => x.doc && docActive(x.doc)).sort((a, b) => w(b.e) - w(a.e));
 }
 function related(nid, limit) {
   return [...(G.out.get(nid) || []), ...(G.in.get(nid) || [])].filter(e => e.type === 'RELATES_TO').map(e => ({o: byId.get(e.s === nid ? e.t : e.s), w: e.w})).filter(x => x.o).sort((a, b) => b.w - a.w).slice(0, limit || 12);
@@ -378,7 +398,7 @@ function claimHtml(c) {
   const d = byId.get(c.doc);
   const ts = d && c.start_s != null ? `<a class="ts" target="_blank" rel="noopener" href="${deepLink(d, c.start_s)}">▶ ${fmtT(c.start_s)}</a>` : '';
   const anchor = c.anchor ? `<details class="anchor"><summary>Im Transkript</summary><q>… ${esc(c.anchor)} …</q> <span style="font-family:var(--mono);font-size:10px">(automatische Untertitel, wörtlich)</span></details>` : '';
-  return `<div class="seg claim"><span class="h">${KIND[c.kind] || c.kind}${d ? ' · Stand ' + fmtD(d.published) + ' · <a href="' + href(d.id) + '">' + esc(d.name) + '</a>' : ''} · <span title="Von einem Sprachmodell aus dem Transkript verdichtet, nicht redaktionell geprüft">automatisch extrahiert</span>${precLabel(c, d)}</span>${ts}${esc(c.name)}${anchor}${feedbackLink(c, d)}</div>`;
+  return `<div class="seg claim"><span class="h">${KIND[c.kind] || c.kind}${d ? (d.published ? ' · Stand ' + fmtD(d.published) : ' · ohne Datum') + ' · <a href="' + href(d.id) + '">' + esc(d.name) + '</a>' : ''} · <span title="Von einem Sprachmodell aus dem Transkript verdichtet, nicht redaktionell geprüft">automatisch extrahiert</span>${precLabel(c, d)}</span>${ts}${esc(c.name)}${anchor}${feedbackLink(c, d)}</div>`;
 }
 function segHtml(doc, s, terms) {
   terms = terms || [];
@@ -479,7 +499,7 @@ function renderConcept(n) {
   if (rel.length) h += `<h2>${n.type === 'Person' ? 'Themen dieser Person' : 'Verwandte Themen'}<span class="sub">${n.type === 'Person' ? 'nach Dokumenten, in denen sie dabei ist' : 'nach gemeinsamen Segmenten'}</span></h2><div class="carousel">${rel.map(x => conceptCard(x.o, x.docs ? null : x.w, claimsOf(x.o.id)[0]?.name)).join('')}</div>`;
   if (typed.length) h += `<h2>Beziehungen mit Quellenstelle<span class="sub">automatisch extrahiert, je aus einer Kernaussage</span></h2><ul class="list">${typed.map(e => { const a = byId.get(e.s), bb = byId.get(e.t), d = byId.get(e.doc_id); return `<li>${nodeA(a, 't')} <span class="badge">${REL[e.type]}</span> ${nodeA(bb, 't')}<div class="m">${esc(e.ev)}${d ? ' · <a href="' + href(d.id) + '">' + esc(d.name) + '</a>' : ''}</div></li>`; }).join('')}</ul>`;
   h += claimsSection(claims);
-  if (eps.length) h += `<h2>Folgen<span class="sub">${eps.length} · nach Anteil</span></h2><div class="carousel">${eps.slice(0, 12).map(x => docCard(x.doc, x.e, {explains: explains.has(x.doc.id)})).join('')}</div>`;
+  if (eps.length) h += `<h2>Folgen<span class="sub">${eps.length} · nach Gewicht: Stellen × Anteil</span></h2><div class="carousel">${eps.slice(0, 12).map(x => docCard(x.doc, x.e, {explains: explains.has(x.doc.id)})).join('')}</div>`;
   h += `<h2>${n.type === 'Person' ? 'Dabei in' : 'Alle Dokumente mit Stellen'}</h2><ul class="list">${docs.slice(0, 60).map(x => docRow(x.doc, n.type === 'Person' ? null : x.e, explains, n.type === 'Person' ? null : n.id, null, x.role)).join('') || '<li class="empty">keine im Zeitraum</li>'}</ul>`;
   if (pages.length) h += `<h2>Seiten der Kitchen dazu</h2><div class="grid">${pages.slice(0, 8).map(x => docCard(x.doc, x.e)).join('')}</div>`;
   if (persons.size) h += `<h2>Personen</h2><div class="chips">${[...persons.entries()].sort((a, b) => b[1] - a[1]).map(([pid, c]) => `<a class="chip" href="${href(pid)}">${esc(byId.get(pid).name)} <span class="cnt" style="color:#6B6B6B">${c}</span></a>`).join('')}</div>`;
@@ -589,10 +609,18 @@ const qEl = $('#q'), sug = $('#suggest');
 qEl.addEventListener('input', () => {
   const v = qEl.value.trim().toLowerCase(); if (v.length < 2) { sug.style.display = 'none'; return; }
   const hits = [];
-  for (const n of G.concepts) if (n.name.toLowerCase().includes(v)) hits.push({n, k: TYPE_DE[n.type]});
+  for (const n of G.concepts) {
+    if (n.name.toLowerCase().includes(v)) { hits.push({n, k: TYPE_DE[n.type]}); continue; }
+    const al = (n.aliases || []).find(a => a.toLowerCase().includes(v));
+    if (al) hits.push({n, k: `${TYPE_DE[n.type]} · über „${al}"`, alias: true});
+  }
   for (const d of G.docs) if (d.name.toLowerCase().includes(v) && docActive(d)) hits.push({n: d, k: d.source === 'markdown' ? 'Seite' : (d.format || 'Folge')});
-  hits.sort((a, b) => (a.n.name.toLowerCase().startsWith(v) ? 0 : 1) - (b.n.name.toLowerCase().startsWith(v) ? 0 : 1));
-  sug.innerHTML = hits.slice(0, 10).map(h => `<a href="${href(h.n.id)}">${esc(h.n.name)}<span class="k">${h.k}</span></a>`).join('') + `<a href="#q=${encodeURIComponent(qEl.value.trim())}">Volltext: „${esc(qEl.value.trim())}"<span class="k">Enter</span></a>`;
+  hits.sort((a, b) => (a.n.name.toLowerCase().startsWith(v) ? 0 : a.alias ? 1 : 2) - (b.n.name.toLowerCase().startsWith(v) ? 0 : b.alias ? 1 : 2));
+  const terms = v.split(/\s+/).filter(t => t.length > 1);
+  const cl = G.claims.filter(c => { const d = byId.get(c.doc); if (!d || !docActive(d)) return false; const lt = (c.name + ' ' + (c.anchor || '')).toLowerCase(); return terms.every(t => lt.includes(t)); }).slice(0, 3);
+  sug.innerHTML = hits.slice(0, 8).map(h => `<a href="${href(h.n.id)}">${esc(h.n.name)}<span class="k">${h.k}</span></a>`).join('')
+    + cl.map(c => `<a href="${href(c.doc)}" style="font-size:12px">${esc(c.name.length > 90 ? c.name.slice(0, 88) + ' …' : c.name)}<span class="k">Kernaussage</span></a>`).join('')
+    + `<a href="#q=${encodeURIComponent(qEl.value.trim())}">Volltext: „${esc(qEl.value.trim())}"<span class="k">Enter</span></a>`;
   sug.style.display = 'block';
 });
 qEl.addEventListener('keydown', e => { if (e.key === 'Enter') { location.hash = 'q=' + encodeURIComponent(qEl.value.trim()); sug.style.display = 'none'; } if (e.key === 'Escape') sug.style.display = 'none'; });
@@ -601,13 +629,36 @@ document.addEventListener('keydown', e => { if (e.key === '/' && document.active
 async function renderSearch(q) {
   await ensureSegs();
   const terms = q.toLowerCase().split(/\s+/).filter(t => t.length > 1);
-  const hits = segs.filter(s => { const d = byId.get(s.d); if (!d || !docActive(d)) return false; const lt = s.t.toLowerCase(); return terms.every(t => lt.includes(t)); });
+  const ql = q.toLowerCase();
+  // 1. Konzepte, auch über Aliase (PBI, RLS, Power DI, Fabrik ...)
+  const direct = G.concepts.filter(n => n.name.toLowerCase() === ql || n.name.toLowerCase().includes(ql) || (n.aliases || []).some(a => a.toLowerCase() === ql));   // exakter Alias (PBI, RLS) zählt wie der Name
+  const viaAlias = G.concepts.filter(n => !direct.includes(n) && (n.aliases || []).some(a => a.toLowerCase() === ql || (ql.length >= 3 && a.toLowerCase().includes(ql))));
+  // 2. Kernaussagen (Aussage oder Transkript-Anker enthält alle Wörter)
+  const claims = G.claims.filter(c => { const d = byId.get(c.doc); if (!d || !docActive(d)) return false; const lt = (c.name + ' ' + (c.anchor || '')).toLowerCase(); return terms.every(t => lt.includes(t)); })
+    .sort((a, b) => ((byId.get(b.doc) || {}).published || '').localeCompare((byId.get(a.doc) || {}).published || ''));
+  // 3. Transkriptstellen: erst UND, sonst ODER mit Rangfolge nach Treffermenge
+  const active = segs.filter(s => { const d = byId.get(s.d); return d && docActive(d); });
+  let hits = active.filter(s => { const lt = s.t.toLowerCase(); return terms.every(t => lt.includes(t)); });
+  let mode = 'und';
+  if (!hits.length && terms.length > 1) {
+    hits = active.map(s => { const lt = s.t.toLowerCase(); return [s, terms.filter(t => lt.includes(t)).length]; }).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 300).map(x => x[0]);
+    mode = 'oder';
+  }
   const byDoc = new Map(); for (const s of hits) (byDoc.get(s.d) || byDoc.set(s.d, []).get(s.d)).push(s);
   const docsSorted = [...byDoc.entries()].sort((a, b) => b[1].length - a[1].length);
   const cnt = new Map(); for (const s of hits) for (const m of s.m) cnt.set(m[0], (cnt.get(m[0]) || 0) + 1);
   const topC = [...cnt.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([id, c]) => [byId.get(id), c]).filter(x => x[0]);
-  let h = crumbs([{name: 'Suche'}]) + `<h1 class="title" style="font-size:26px">„${esc(q)}"</h1><div class="meta">${hits.length} Segmente in ${byDoc.size} Dokumenten · Zeitraum ${timeRange === 'all' ? 'alle' : timeRange}</div>`;
-  if (topC.length) h += `<div class="chips" style="margin:10px 0">${topC.map(([n, c]) => `<a class="chip" href="${href(n.id)}">${esc(n.name)} <span style="color:#6B6B6B">${c}</span></a>`).join('')}</div>`;
+  let h = crumbs([{name: 'Suche'}]) + `<h1 class="title" style="font-size:26px">„${esc(q)}"</h1><div class="meta">${claims.length} Kernaussagen · ${hits.length} Stellen in ${byDoc.size} Dokumenten${mode === 'oder' ? ' (kein Abschnitt enthält alle Wörter, gezeigt werden die mit den meisten Treffern)' : ''} · Zeitraum ${timeRange === 'all' ? 'alle' : timeRange}</div>`;
+  if (direct.length || viaAlias.length) h += `<div class="chips" style="margin:10px 0">${direct.slice(0, 6).map(n => `<a class="chip on" href="${href(n.id)}">${esc(n.name)} <span style="color:#6B6B6B">${TYPE_DE[n.type]}</span></a>`).join('')}${viaAlias.slice(0, 6).map(n => `<a class="chip" href="${href(n.id)}" title="Gefunden über den Alias „${esc((n.aliases || []).find(a => a.toLowerCase().includes(ql)) || '')}"">${esc(n.name)} <span style="color:#6B6B6B">Meintest du?</span></a>`).join('')}</div>`;
+  if (!claims.length && !hits.length && !direct.length && !viaAlias.length) {
+    const pre = terms.filter(t => t.length >= 3).map(t => t.slice(0, 3));
+    const near = G.concepts.filter(n => pre.some(p => n.name.toLowerCase().startsWith(p) || (n.aliases || []).some(a => a.toLowerCase().startsWith(p)))).slice(0, 8);
+    h += `<div class="note"><b>Dazu gibt es in der Daten-WG keine Stelle.</b> Die Library kennt ${G.meta.episodes} Folgen und ${G.meta.pages} Seiten; das Thema kommt darin nicht vor, oder es heißt anders. ${near.length ? 'Ähnlich geschrieben: ' + near.map(n => `<a href="${href(n.id)}">${esc(n.name)}</a>`).join(', ') + '.' : ''} Alle Themen stehen links im Baum und in der <a href="library/index.md">Themenliste</a>.</div>`;
+    $('#page').innerHTML = h; return;
+  }
+  if (claims.length) h += `<h2>Kernaussagen<span class="sub">${claims.length} · neueste zuerst · automatisch extrahiert</span></h2><div id="claims">${claims.slice(0, 12).map(claimHtml).join('')}</div>`;
+  if (topC.length) h += `<h2 style="font-size:16px">Themen in den Treffern</h2><div class="chips" style="margin:6px 0 10px">${topC.map(([n, c]) => `<a class="chip" href="${href(n.id)}">${esc(n.name)} <span style="color:#6B6B6B">${c}</span></a>`).join('')}</div>`;
+  if (docsSorted.length) h += `<h2>Stellen im Transkript<span class="sub">${hits.length} in ${byDoc.size} Dokumenten</span></h2>`;
   for (const [docId, ss] of docsSorted.slice(0, 30)) { const d = byId.get(docId); h += `<h2 style="font-size:16px"><a href="${href(docId)}">${esc(d.name)}</a><span class="sub">${ss.length} · ${fmtD(d.published)}</span></h2>${ss.slice(0, 3).map(s => segHtml(d, s, terms)).join('')}`; }
   $('#page').innerHTML = h;
 }

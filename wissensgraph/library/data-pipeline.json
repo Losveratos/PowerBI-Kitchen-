@@ -4,36 +4,54 @@
  "typ": "tool",
  "slug": "data-pipeline",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/data-pipeline.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/data-pipeline.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/data-pipeline.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/data-pipeline.json",
  "dokumente_gesamt": 9,
- "kernaussagen_gesamt": 5,
- "mit_kernaussagen": 4,
+ "kernaussagen_gesamt": 13,
+ "mit_kernaussagen": 10,
  "aliase": [
   "Pipelines",
   "Data Factory",
   "Pipeline"
  ],
- "einordnung": "Copy Jobs in der Fabric Data Factory unterstützen jetzt in der Vorschau automatisch Slowly Changing Dimension Typ 2, wodurch manueller Notebook-Code für diesen Zweck überflüssig wird. Eine Connection für Notebooks lässt sich aktuell nicht direkt unter Connections anlegen, sondern nur über den Umweg einer Data Pipeline. Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss.",
+ "einordnung": "User Data Functions ermöglichen es, Business Logic zu implementieren und zu kapseln und sie anschließend in einem Lakehouse, einer Data Pipeline und einem Warehouse wiederzuverwenden. (Stand 2025-04) Die neue Variable Library kann sowohl in Dataflows bzw. Data Pipelines als auch im CI/CD-Kontext genutzt werden, um workspace-spezifische Zielwerte für Variablen abzulegen. (Stand 2025-04) Shortcut Transformations wandeln CSV-, JSON- oder Parquet-Dateien direkt im Shortcut in Delta-Tabellen um, ohne separate ETL-Strecke.",
  "nachbarn": [
   {
    "id": "tool:dataflow",
    "name": "Dataflow",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 28,
    "beleg": "so eine Datenpipeline zu nehmen und die zwei Dataflows hintereinander zu hängen",
+   "datei": "dataflow.md"
+  },
+  {
+   "id": "tool:dataflow",
+   "name": "Dataflow",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 28,
+   "beleg": "Bei Dataflus geht's garantiert.",
+   "datei": "dataflow.md"
+  },
+  {
+   "id": "tool:dataflow",
+   "name": "Dataflow",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 28,
+   "beleg": "ich kann Dataflow nehmen und in der Pipeline einbauen",
    "datei": "dataflow.md"
   },
   {
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 33,
    "beleg": "wenn ich aus der Pipeline heraus das anlege, dann geht's",
    "datei": "notebook.md"
@@ -42,7 +60,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 40,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -51,7 +69,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 36,
    "beleg": "",
    "datei": "power-bi.md"
@@ -60,16 +78,25 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 27,
    "beleg": "",
    "datei": "lakehouse.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 24,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 23,
    "beleg": "",
    "datei": "warehouse.md"
@@ -78,7 +105,7 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "workspace.md"
@@ -87,7 +114,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "reporting.md"
@@ -96,7 +123,7 @@
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "onelake.md"
@@ -105,7 +132,7 @@
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 15,
    "beleg": "",
    "datei": "direct-lake.md"
@@ -114,7 +141,7 @@
    "id": "tool:fabric-capacity",
    "name": "Fabric Capacity",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 15,
    "beleg": "",
    "datei": "fabric-capacity.md"
@@ -123,40 +150,31 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "performance.md"
-  },
-  {
-   "id": "tool:azure",
-   "name": "Azure",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 13,
-   "beleg": "",
-   "datei": "azure.md"
-  },
-  {
-   "id": "tool:spark",
-   "name": "Spark",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 13,
-   "beleg": "",
-   "datei": "spark.md"
-  },
-  {
-   "id": "tool:delta-lake",
-   "name": "Delta Lake",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 13,
-   "beleg": "",
-   "datei": "delta-lake.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 131,
+   "zeit": "02:11",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=131s",
+   "aussage": "Beim SAP-Projekt wurden die taeglich abgelegten Delta-Dateien ueber ein Notebook eingelesen, das anhand von Tagesordnern erkennt, welche Tage bereits in der Zieltabelle liegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 760,
+   "zeit": "12:40",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=760s",
+   "aussage": "Bei einem groesseren SAP-Konzernprojekt wurden Bronze und Silber als Warehouse aufgebaut, weil das Pipeline-Feature zum Refresh der SQL-Endpunkt-Metadaten damals noch nicht existierte."
+  },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.72",
@@ -185,6 +203,33 @@
    "aussage": "Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss."
   },
   {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 3192,
+   "zeit": "53:12",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=3192s",
+   "aussage": "Fabric-Pipelines eignen sich vor allem zum Kopieren von Dateien und zum Orchestrieren von Web-APIs, weniger für inkrementelles Laden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1307,
+   "zeit": "21:47",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1307s",
+   "aussage": "User Data Functions ermöglichen es, Business Logic zu implementieren und zu kapseln und sie anschließend in einem Lakehouse, einer Data Pipeline und einem Warehouse wiederzuverwenden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1809,
+   "zeit": "30:09",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1809s",
+   "aussage": "Die neue Variable Library kann sowohl in Dataflows bzw. Data Pipelines als auch im CI/CD-Kontext genutzt werden, um workspace-spezifische Zielwerte für Variablen abzulegen."
+  },
+  {
    "typ": "Empfehlung",
    "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
    "dokument_id": "yt:mTVeZzshLzE",
@@ -195,12 +240,39 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1005,
+   "zeit": "16:45",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1005s",
+   "aussage": "Im Projekt orchestrierten etwa acht bis neun Fabric-Pipelines mit einer metadatengetriebenen Architektur rund 600 Quelltabellen zu 150 Zieltabellen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 1260,
+   "zeit": "21:00",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1260s",
+   "aussage": "Shortcut Transformations wandeln CSV-, JSON- oder Parquet-Dateien direkt im Shortcut in Delta-Tabellen um, ohne separate ETL-Strecke."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
    "sekunde": 1291,
    "zeit": "21:31",
    "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1291s",
    "aussage": "Copy Jobs in der Fabric Data Factory unterstützen jetzt in der Vorschau automatisch Slowly Changing Dimension Typ 2, wodurch manueller Notebook-Code für diesen Zweck überflüssig wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 1922,
+   "zeit": "32:02",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1922s",
+   "aussage": "Dataflows sind mittlerweile vollwertig in Pipelines nutzbar und ihre Ziele lassen sich parametrisieren, sodass Parameter und Variablen aus Pipelines an Dataflows uebergeben werden koennen."
   }
  ],
  "dokumente": [
@@ -258,7 +330,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.171,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -283,7 +355,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.135,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -308,7 +380,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.098,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [

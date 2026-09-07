@@ -4,27 +4,27 @@
  "typ": "thema",
  "slug": "mittelstand",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/mittelstand.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/mittelstand.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/mittelstand.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/mittelstand.json",
  "dokumente_gesamt": 17,
- "kernaussagen_gesamt": 7,
- "mit_kernaussagen": 5,
+ "kernaussagen_gesamt": 9,
+ "mit_kernaussagen": 7,
  "aliase": [
   "KMU",
   "mittelständisch",
   "Mittelständler"
  ],
- "einordnung": "Ein mittelständisches Dienstleistungsunternehmen beauftragte Peter Gluchowski 1988 mit einem System zur Erfassung von Warenströmen zwischen Automobilherstellern und Gießereien und zur Erstellung von Auswertungen. Fabric-Kapazität F2 lohnt sich aus Sicht des Sprechers fast immer, unabhängig von der Unternehmensgröße. Im Mittelstand wird die Aufteilung zwischen Sternschema und relationaler Modellierung nach Einschätzung von Peter Gluchowski anders gehandhabt als in Großunternehmen.",
+ "einordnung": "Ein mittelständisches Dienstleistungsunternehmen beauftragte Peter Gluchowski 1988 mit einem System zur Erfassung von Warenströmen zwischen Automobilherstellern und Gießereien und zur Erstellung von Auswertungen. (Stand 2026-05) Mittelstandsunternehmen wird empfohlen, mit KI schnell und günstig das nachzuholen, was Konzerne vor zwei Jahren gemacht haben, statt sechsstellige Individualsoftware-Projekte zu beauftragen. (Stand 2026-08) Für kleinere und mittelständische Unternehmen wird empfohlen, eine Fabric-F2-Kapazität zu kaufen, da sie besser sei als eine reine Excel- oder SharePoint-Lösung. (Stand 2025-07)",
  "nachbarn": [
   {
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "ki.md"
@@ -33,7 +33,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "power-bi.md"
@@ -42,7 +42,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -51,7 +51,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "warehouse.md"
@@ -60,7 +60,7 @@
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "datenmodellierung.md"
@@ -69,7 +69,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "performance.md"
@@ -78,7 +78,7 @@
    "id": "tool:sap",
    "name": "SAP",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "sap.md"
@@ -87,7 +87,7 @@
    "id": "topic:datenqualitat",
    "name": "Datenqualität",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "datenqualitat.md"
@@ -96,13 +96,22 @@
    "id": "topic:strategie",
    "name": "Strategie",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "strategie.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Empfehlung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 2806,
+   "zeit": "46:46",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2806s",
+   "aussage": "Mittelstandsunternehmen wird empfohlen, mit KI schnell und günstig das nachzuholen, was Konzerne vor zwei Jahren gemacht haben, statt sechsstellige Individualsoftware-Projekte zu beauftragen."
+  },
   {
    "typ": "Fakt",
    "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
@@ -149,6 +158,15 @@
    "aussage": "Layher beobachtet, dass deutschsprachige Unternehmen regulatorische Anforderungen häufig übertreiben und pauschal auf alle Unternehmensbereiche anwenden, auch wo der Gesetzgeber das nicht verlangt."
   },
   {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 2967,
+   "zeit": "49:27",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2967s",
+   "aussage": "Für kleinere und mittelständische Unternehmen wird empfohlen, eine Fabric-F2-Kapazität zu kaufen, da sie besser sei als eine reine Excel- oder SharePoint-Lösung."
+  },
+  {
    "typ": "Meinung",
    "dokument": "Metadaten als Superkraft",
    "dokument_id": "yt:UUlPoJOhco8",
@@ -164,7 +182,7 @@
    "sekunde": 1049,
    "zeit": "17:29",
    "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1049s",
-   "aussage": "Fabric-Kapazität F2 lohnt sich aus Sicht des Sprechers fast immer, unabhängig von der Unternehmensgröße."
+   "aussage": "Fabric-Kapazität F2 lohnt sich aus Sicht eines der Sprecher fast immer, unabhängig von der Unternehmensgröße."
   }
  ],
  "dokumente": [
@@ -362,7 +380,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.057,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [
@@ -397,7 +415,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": [
@@ -412,7 +430,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.032,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -442,7 +460,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [

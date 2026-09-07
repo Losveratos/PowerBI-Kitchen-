@@ -3,11 +3,11 @@ id: "topic:governance"
 name: "Governance"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 27
-kernaussagen: 64
-mit_kernaussagen: 18
+kernaussagen: 100
+mit_kernaussagen: 32
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/governance.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/governance.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/governance.md"
@@ -20,7 +20,7 @@ aliase:
 
 # Governance
 
-Einzelne Workspaces lassen sich als Mission Critical markieren, damit sie von der automatischen Pausierung durch die Search Protection ausgenommen bleiben. Bei großflächig ausgerolltem Self-Service BI ist es nicht mehr Ziel der zentralen Abteilung, einen umfassenden Single Point of Truth zu etablieren, Security bleibt aber weiterhin zentral geregelt. Metadaten lassen sich für Data Health und Data Governance nutzen, weil sie standardisiert ausgewertet werden können.
+Aktuell werden Quellsysteme häufig tabellenweise per CDC oder als Delta Lake direkt in den Data Lake geschrieben, was ohne Ordnungsstruktur schnell zu einem sogenannten Data Swamp wird. (Stand 2025-07) Einzelne Workspaces lassen sich als Mission Critical markieren, damit sie von der automatischen Pausierung durch die Search Protection ausgenommen bleiben. (Stand 2026-01) Bei großflächig ausgerolltem Self-Service BI ist es nicht mehr Ziel der zentralen Abteilung, einen umfassenden Single Point of Truth zu etablieren, Security bleibt aber weiterhin zentral geregelt. (Stand 2026-02)
 
 ## Aliase
 
@@ -28,23 +28,23 @@ Data Governance, Compliance, Richtlinien
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Self-Service BI](self-service-bi.md) | gegensatz | belegt | 4 |
-| [Microsoft Fabric](microsoft-fabric.md) | ko-vorkommen | heuristik | 26 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 25 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 15 |
-| [Sicherheit](sicherheit.md) | ko-vorkommen | heuristik | 13 |
-| [Snowflake](snowflake.md) | ko-vorkommen | heuristik | 12 |
-| [Performance](performance.md) | ko-vorkommen | heuristik | 12 |
-| [Workspace](workspace.md) | ko-vorkommen | heuristik | 11 |
-| [OneLake](onelake.md) | ko-vorkommen | heuristik | 10 |
-| [Warehouse](warehouse.md) | ko-vorkommen | heuristik | 10 |
-| [Mirroring](mirroring.md) | ko-vorkommen | heuristik | 9 |
-| [Excel](excel.md) | ko-vorkommen | heuristik | 9 |
-| [Row-Level Security](row-level-security.md) | ko-vorkommen | heuristik | 9 |
-| [DirectQuery](directquery.md) | ko-vorkommen | heuristik | 7 |
-| [Data Pipeline](data-pipeline.md) | ko-vorkommen | heuristik | 7 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Self-Service BI](self-service-bi.md) | Self-Service BI gegensatz Governance | automatisch extrahiert, Quellenstelle vorhanden | „dieses Spannungsfeld zwischen IT Chain und Selfsice nennen wir es einfach ITQ“ (Was ist Self-Service und warum ist das so schwer?) | 4 |
+| [Self-Service BI](self-service-bi.md) | Self-Service BI setzt-voraus Governance | automatisch extrahiert, Quellenstelle vorhanden | „dass berechtigungskonzept sehen wir als gewisse leitplanken die quasi ein unsichtbares gerüst zur einhaltung von von ein paar spielregeln“ (Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022, 2022-06) | 4 |
+| [Microsoft Fabric](microsoft-fabric.md) | Governance und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 26 |
+| [Power BI](power-bi.md) | Governance und Power BI im selben Segment | Heuristik, gezählt |  | 25 |
+| [Reporting](reporting.md) | Governance und Reporting im selben Segment | Heuristik, gezählt |  | 15 |
+| [Sicherheit](sicherheit.md) | Governance und Sicherheit im selben Segment | Heuristik, gezählt |  | 13 |
+| [Snowflake](snowflake.md) | Governance und Snowflake im selben Segment | Heuristik, gezählt |  | 12 |
+| [Performance](performance.md) | Governance und Performance im selben Segment | Heuristik, gezählt |  | 12 |
+| [Workspace](workspace.md) | Governance und Workspace im selben Segment | Heuristik, gezählt |  | 11 |
+| [OneLake](onelake.md) | Governance und OneLake im selben Segment | Heuristik, gezählt |  | 10 |
+| [Warehouse](warehouse.md) | Governance und Warehouse im selben Segment | Heuristik, gezählt |  | 10 |
+| [Mirroring](mirroring.md) | Governance und Mirroring im selben Segment | Heuristik, gezählt |  | 9 |
+| [Excel](excel.md) | Governance und Excel im selben Segment | Heuristik, gezählt |  | 9 |
+| [Row-Level Security](row-level-security.md) | Governance und Row-Level Security im selben Segment | Heuristik, gezählt |  | 9 |
+| [DirectQuery](directquery.md) | Governance und DirectQuery im selben Segment | Heuristik, gezählt |  | 7 |
 
 ## Kernaussagen
 
@@ -52,6 +52,11 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
 | --- | --- | --- | --- | --- | --- | --- |
+| Meinung | KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber | 2026-08 | 03:20 | auf die Sekunde | Datenentscheidungen sollen nachvollziehbar bleiben, weshalb bewusst vermieden wird, Analysen als Blackbox darzustellen, aus der man sich zurückzieht. | [▶](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=200s) |
+| Fakt | KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber | 2026-08 | 14:31 | auf die Sekunde | Wegen Datenschutzanforderungen bei der Arbeit mit Unternehmen wird das Tool inzwischen über einen deutschen IT-Dienstleister auf deutschen Servern gehostet statt in der Cloud von Lovable. | [▶](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=871s) |
+| Fakt | Daten-WG Life-Update \| Fabric Architekturen | 2026-08 | 19:42 | auf die Sekunde | Bei einem strikten Layering-Ansatz wird Self-Service-Nutzern meist nur per Shortcut Zugriff auf den Gold-Layer gewaehrt, waehrend Bronze und Silber den Data Engineers vorbehalten bleiben. | [▶](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1182s) |
+| Fakt | Daten-WG Life-Update \| Fabric Architekturen | 2026-08 | 21:16 | auf die Sekunde | Bei einem Self-Service-Lakehouse-Ansatz werden fertige Daten aus dem Gold-Layer per Shortcut bereitgestellt, damit Fachbereichs-Excel-Mappings nicht mehr zentral in Bronze verwaltet werden muessen. | [▶](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1276s) |
+| Fakt | Fabric Workload Demo mit Alexander Korn und Lukasz Obst | 2026-08 | 23:57 | auf die Sekunde | Fabric-Administratorinnen und -Administratoren koennen steuern, welche Workloads bzw. Items in ihrem Unternehmen erlaubt sind. | [▶](https://www.youtube.com/watch?v=e50qKdVn-24&t=1437s) |
 | Empfehlung | GxP Talk - KI im regulierten Umfeld? | 2026-05 | 03:01 | auf die Sekunde | Arthur überträgt das Prinzip, dass in der Pharmabranche Prozesse validiert und Systeme qualifiziert werden statt Mitarbeiter, auch auf den Umgang mit KI. | [▶](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=181s) |
 | Fakt | GxP Talk - KI im regulierten Umfeld? | 2026-05 | 05:48 | auf die Sekunde | Ein großer Pharmakonzern hat bei einem KI-Projekt im GXP-Bereich die prüfenden Behörden aktiv eingebunden, um gemeinsam die Grenzen des Machbaren auszuloten. | [▶](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=348s) |
 | Fakt | GxP Talk - KI im regulierten Umfeld? | 2026-05 | 10:37 | Abschnittsanfang | Für traditionelle KI existiert im GXP-Umfeld ein risikobasierter Ansatz, bei dem für jede Eigenentwicklung mögliche Fehlerquellen bewertet und Maßnahmen dokumentiert werden müssen. | [▶](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=637s) |
@@ -70,7 +75,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Fakt | Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? | 2026-03 | 01:29 | auf die Sekunde | Bestimmte Szenarien erfordern, dass Daten aus rechtlichen oder regulatorischen Gründen in einem bestimmten Land oder einer bestimmten Region abgelegt und verarbeitet werden. | [▶](https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=89s) |
 | Fakt | GxP Talk - Validierung vs. Agilität | 2026-03 | 07:26 | auf die Sekunde | Manche Pharmaunternehmen bilden ihre Validierungsprozesse bereits digital ab, etwa über einen Git-Stack oder eine DevOps-Umgebung. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=446s) |
 | Fakt | BI Thinkers Talk n.74 | 2026-03 | 15:03 | auf die Sekunde | In den Fabric-Tenant-Einstellungen lässt sich der Zugriff auf Copilot für Power BI global deaktivieren oder auf vorab genehmigte Elemente beschränken. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=903s) |
-| Fakt | GxP Talk - Validierung vs. Agilität | 2026-03 | 17:28 | Abschnittsanfang | In einem der begleiteten GXP-Projekte ist die Validierung nach Einschätzung der Sprecherin bereits zu rund 30 Prozent digital und toolgestützt dokumentiert. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=1048s) |
+| Fakt | GxP Talk - Validierung vs. Agilität | 2026-03 | 17:28 | Abschnittsanfang | In einem der begleiteten GXP-Projekte ist die Validierung nach Einschätzung einer der Sprecherinnen bereits zu rund 30 Prozent digital und toolgestützt dokumentiert. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=1048s) |
 | Fakt | GxP Talk - Validierung vs. Agilität | 2026-03 | 23:38 | auf die Sekunde | Seit 2022 müssen größere Unternehmen im Rahmen der EU-Taxonomie ihre Nachhaltigkeit dokumentieren. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=1418s) |
 | Fakt | BI Thinkers Talk n.74 | 2026-03 | 27:50 | auf die Sekunde | Die Berechtigung für den Zugriff von Copilot wird zentral am semantischen Modell gesetzt und von dort automatisch an Berichte und Apps vererbt. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1670s) |
 | Fakt | BI Thinkers Talk n.74 | 2026-03 | 30:50 | Abschnittsanfang | Copilot generiert bei einer Anfrage in der Regel keine eigenen Kennzahlen, sondern verlinkt bevorzugt auf einen bereits vom Fachbereich verifizierten und freigegebenen Bericht. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1850s) |
@@ -95,12 +100,40 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Fakt | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 17:17 | auf die Sekunde | Einzelne Workspaces lassen sich als Mission Critical markieren, damit sie von der automatischen Pausierung durch die Search Protection ausgenommen bleiben. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1037s) |
 | Meinung | Denken in Tabellen | 2026-01 | 22:59 | auf die Sekunde | Redundante Daten in mehreren Views sind laut Markus nur dann problematisch, wenn sie inkonsistent werden, ansonsten kann Redundanz den Datenzugriff beschleunigen. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1379s) |
 | Warnung | Power BI vs. Qlik | 2026-01 | 24:03 | auf die Sekunde | Arthur warnt davor, ein gut funktionierendes BI-Tool nur wegen konzernweiter Vereinheitlichung ohne echten Grund zu wechseln. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1443s) |
+| Fakt | Unboxing MCP Server for Power BI Modelling | 2025-12 | 24:19 | auf die Sekunde | Bei Änderungen am Modell fragt der MCP Server jedes Mal nach einer expliziten Bestätigung, bevor die Operation ausgeführt wird. | [▶](https://www.youtube.com/watch?v=iinfiHxznOU&t=1459s) |
 | Warnung | BI Thinkers Talk nr.71 | 2025-12 | 33:09 | auf die Sekunde | Copilot kann laut den Sprechern automatisch Beschreibungen zu Measures erzeugen, darf aber in bestimmten regulierten Umgebungen wie der Finanzverwaltung nicht eingesetzt werden. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1989s) |
+| Meinung | Datenmodellierung ist Governance | 2025-11 | 13:04 | auf die Sekunde | Übernimmt jemand die Ownership für eine Dimension wie Kunden oder Artikel und definiert sie als Datenprodukt, kann diese entsprechend dokumentiert und für andere bereitgestellt werden. | [▶](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=784s) |
+| Warnung | Datenmodellierung ist Governance | 2025-11 | 16:14 | auf die Sekunde | Verschiebt man die Datenverantwortung per Product Ownership vollständig in die Fachbereiche, kann dort ungewollt viel Abstimmungs-Overhead zwischen den Bereichen entstehen. | [▶](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=974s) |
+| Meinung | Datenmodellierung ist Governance | 2025-11 | 16:33 | auf die Sekunde | Laut einem Zitat von Lars Schreiber gehören die Daten nicht der IT, sondern dem Fachbereich. | [▶](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=993s) |
+| Empfehlung | Datenmodellierung ist Governance | 2025-11 | 16:55 | auf die Sekunde | Die technische Umsetzung einer Datenverantwortung kann etwa an IT oder ein BI-Competence-Center delegiert werden, wichtig ist aber, dass jemand die eigentliche Verantwortung übernimmt. | [▶](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1015s) |
+| Fakt | Datenmodellierung ist Governance | 2025-11 | 20:18 | auf die Sekunde | In manchen Organisationskulturen wird praktisch jede Anforderung aus dem Fachbereich automatisch als Prio 1 eingestuft. | [▶](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1218s) |
+| Meinung | Datenmodellierung ist Governance | 2025-11 | 23:54 | auf die Sekunde | Datenprozesse müssen vom Business selbst entdeckt und genutzt werden, sonst wirkt es schnell so, als wolle die IT dem Business etwas vorschreiben. | [▶](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1434s) |
+| Meinung | Datenmodellierung ist Governance | 2025-11 | 29:53 | auf die Sekunde | Die Organisation und ihre Denkweise haben einen großen Einfluss darauf, wie ein Datenmodell aufgebaut wird, etwa ob es eine zentrale Kundendimension oder ein zentrales Data Warehouse gibt. | [▶](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1793s) |
 | Empfehlung | BI Thinkers Talk - Data Modelling - Fabric Data Days Edition | 2025-11 | 1:21:08 | auf die Sekunde | Sobald mehrere Faktentabellen für einen Drill-Across kombiniert werden sollen oder unternehmensweit standardisierte Dimensionen benötigt werden, ist ein dimensionales Modell mit Sternschema vorzuziehen. | [▶](https://www.youtube.com/watch?v=mUALlPmGcEk&t=4868s) |
-| Meinung | BI Thinkers Talk Nr.62 | 2025-05 | 29:34 | auf die Sekunde | Aus Sicht des Sprechers sind Datenfunktionen zum Zurückschreiben noch nicht vollständig self-service-tauglich, weil Modell, Datenhaltung und Funktion aktuell nicht an Fachbereiche übergeben werden sollten. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1774s) |
+| Warnung | Forms + Sharepoint + Powerautomate | 2025-08 | 00:24 | auf die Sekunde | Die neuen Kundeneintraege landen auf einer gewoehnlichen SharePoint-Liste, auf die theoretisch jede Person Zugriff haben kann. | [▶](https://www.youtube.com/watch?v=kP8YNW1XN_E&t=24s) |
+| Warnung | Daten-WG BI Thinkers Talk nr.66 | 2025-08 | 17:11 | auf die Sekunde | Das Notebook prüft aktuell nicht, ob bereits ein gleichnamiger Bericht existiert, sodass mehrfaches Ausführen zu mehreren Reports mit identischem Namen führt. | [▶](https://www.youtube.com/watch?v=DQENmzAkNqw&t=1031s) |
+| Warnung | Daten-WG BI Thinkers Talk nr.66 | 2025-08 | 19:07 | auf die Sekunde | Werden Platzhalternamen im Referenzmodell nicht sorgfältig gewählt, besteht das Risiko einer Art Power-BI-Code-Injection über eingeschleuste JSON- oder RLS-Inhalte. | [▶](https://www.youtube.com/watch?v=DQENmzAkNqw&t=1147s) |
+| Fakt | Daten-WG BI Thinkers Talk nr.66 | 2025-08 | 19:28 | auf die Sekunde | Die Manipulation über die Berichtsdatei betrifft nur das Frontend und kann nur sichtbar machen, was im Modell bereits vorhanden, aber schlecht verborgen ist. | [▶](https://www.youtube.com/watch?v=DQENmzAkNqw&t=1168s) |
+| Meinung | Daten-WG BI Thinkers Talk nr.66 | 2025-08 | 20:50 | auf die Sekunde | Bei rund 100 Berichten dieses Stils im Unternehmen wird das manuelle Kopieren und Anpassen von Vorlagendateien sehr umständlich. | [▶](https://www.youtube.com/watch?v=DQENmzAkNqw&t=1250s) |
+| Meinung | Daten-WG BI Thinkers Talk nr.66 | 2025-08 | 21:08 | auf die Sekunde | Werden Berichte statt aus separaten Dateien aus einem Git-Repository bezogen, entsteht dadurch ein Skaleneffekt über große Organisationen hinweg. | [▶](https://www.youtube.com/watch?v=DQENmzAkNqw&t=1268s) |
+| Fakt | Mythos Data Vault und richtig große Modelle | 2025-07 | 17:11 | auf die Sekunde | Aktuell werden Quellsysteme häufig tabellenweise per CDC oder als Delta Lake direkt in den Data Lake geschrieben, was ohne Ordnungsstruktur schnell zu einem sogenannten Data Swamp wird. | [▶](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1031s) |
+| Empfehlung | Mythos Data Vault und richtig große Modelle | 2025-07 | 29:17 | auf die Sekunde | Im beschriebenen Zielbild soll der Fachbereich seine Datenprodukte über ein konzeptuelles Geschäftsmodell selbst definieren. | [▶](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1757s) |
+| Meinung | BI Thinkers Talk Nr.62 | 2025-05 | 29:34 | auf die Sekunde | Aus Sicht eines der Sprecher sind Datenfunktionen zum Zurückschreiben noch nicht vollständig self-service-tauglich, weil Modell, Datenhaltung und Funktion aktuell nicht an Fachbereiche übergeben werden sollten. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1774s) |
+| Meinung | Fabric & Power BI Quarterly \| 2025 Q2 | 2025-04 | 01:21 | auf die Sekunde | Viele der zahlreichen FABCON-2025-Ankündigungen waren weniger grundlegend neu, sondern zielten vor allem darauf ab, vorhandene und oft kritisierte Lücken zu schließen. | [▶](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=81s) |
+| Fakt | Fabric & Power BI Quarterly \| 2025 Q2 | 2025-04 | 18:44 | auf die Sekunde | OneLake Security soll als zentrale Policy Engine Spalten-, Row-Level- und dynamische Tabellenebenen-Sicherheit über Lakehouse, Warehouse und Power BI hinweg abdecken. | [▶](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1124s) |
+| Fakt | Fabric & Power BI Quarterly \| 2025 Q2 | 2025-04 | 21:47 | auf die Sekunde | User Data Functions ermöglichen es, Business Logic zu implementieren und zu kapseln und sie anschließend in einem Lakehouse, einer Data Pipeline und einem Warehouse wiederzuverwenden. | [▶](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1307s) |
+| Meinung | Wie war die Daten-WG? (2025, Teil 2) | 2025-04 | 29:22 | auf die Sekunde | Nach Marco Geuers Kernbotschaft müssen Führungskräfte anders bewertet und Zielsysteme anders ausgestaltet werden, damit datengetriebenes Arbeiten wirklich funktioniert. | [▶](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1762s) |
+| Fakt | Fabric & Power BI Quarterly \| 2025 Q2 | 2025-04 | 33:44 | auf die Sekunde | Der OneLake-Katalog ist ausdrücklich nicht als Catalog-of-Catalogs gedacht, der Werkzeuge wie Purview oder Informatica ersetzen soll, sondern als zentraler Discovery-Einstiegspunkt für Fabric-Nutzer. | [▶](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2024s) |
+| Fakt | Fabric & Power BI Quarterly \| 2025 Q2 | 2025-04 | 35:44 | auf die Sekunde | FUAM hat sich als offizielle State-of-the-Art-Monitoring-Lösung inklusive Capacity Matrix etabliert und löst damit die frühere Community-Lösung von Rui Romano ab. | [▶](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2144s) |
+| Empfehlung | Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022 | 2022-06 | 08:32 | auf die Sekunde | Bei der Power-BI-Einführung wird empfohlen, Datenschutzbeauftragte und die Rechtsabteilung frühzeitig an einen Tisch zu holen. | [▶](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=512s) |
+| Fakt | Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022 | 2022-06 | 15:50 | auf die Sekunde | Das Microsoft-Konzept eines Center of Excellence wurde bei der Rheinland Versicherung über die IT-Abteilung abgebildet. | [▶](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=950s) |
+| Empfehlung | Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022 | 2022-06 | 28:50 | auf die Sekunde | Ein Berechtigungskonzept wurde als Leitplanke entwickelt, um in der stark von Self-Service geprägten Power-BI-Umgebung unkontrollierten Wildwuchs an Berichten zu vermeiden. | [▶](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1730s) |
+| Fakt | Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022 | 2022-06 | 32:10 | auf die Sekunde | Das Berechtigungskonzept wurde bereits festgelegt, bevor die ersten Teams überhaupt Zugriff auf die Power-BI-Plattform erhielten. | [▶](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1930s) |
+| Warnung | Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022 | 2022-06 | 32:24 | auf die Sekunde | Unkontrollierter Wildwuchs an selbst erstellten Berichten lässt sich nachträglich kaum noch einfangen. | [▶](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1944s) |
 | Fakt | Metadaten als Superkraft |  | 01:10 | auf die Sekunde | Metadaten lassen sich für Data Health und Data Governance nutzen, weil sie standardisiert ausgewertet werden können. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=70s) |
 | Meinung | Microsoft Fabric — braucht das wirklich jemand? |  | 03:01 | auf die Sekunde | Weil Fabric viele Technologien mit jeweils eigenen Workarounds bündelt, muss die IT laut Martin diese alle statt eines einzigen Standards beherrschen. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=181s) |
 | Meinung | Metadaten als Superkraft |  | 07:54 | auf die Sekunde | Ein vollständiges Metadatenkonzept sollte neben technischen Informationen auch einen Business Layer mit Ansprechpartnern und Datenherkunft umfassen. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=474s) |
+| Fakt | Fabric & Power BI Quarterly · 2025 Q3 |  | 08:36 | auf die Sekunde | Microsoft beschraenkt sich bei Power BI und Fabric bewusst auf Kernkompetenzen und ueberlaesst ergaenzende Loesungen wie FUAM Partnern und der Community. | [▶](https://www.youtube.com/watch?v=lZvpCBMKASM&t=516s) |
 | Warnung | Metadaten als Superkraft |  | 10:24 | Abschnittsanfang | Ein von Anfang an zu detailliert geplanter Datenkatalog mit sehr vielen Pflichtfeldern führt in der Praxis eher zur Ablehnung durch die Nutzer. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=624s) |
 | Meinung | Was ist Self-Service und warum ist das so schwer? |  | 12:43 | auf die Sekunde | Wartbarkeit ist für Tom Martens keine Kür, sondern eine grundsätzliche Voraussetzung für eine gute Self-Service-Lösung. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=763s) |
 | Warnung | Microsoft Fabric — braucht das wirklich jemand? |  | 18:47 | auf die Sekunde | Zugriffsrechte und Nutzungsumfang lassen sich in Fabric laut Martin nicht granular genug steuern. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1127s) |
@@ -111,10 +144,13 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Fakt | Fabric & Power BI Quarterly · 2026-2 |  | 28:40 | auf die Sekunde | OneLake Security stellt dieselben Zugriffsinformationen sowohl nativen Fabric-Workloads als auch Third-Party-Workloads zur Verfügung. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1720s) |
 | Empfehlung | Was ist Self-Service und warum ist das so schwer? |  | 30:18 | auf die Sekunde | Eine sichere Self-Service-Plattform erfordert aus Sicht von Tom Martens permanentes Monitoring und kontinuierlichen Dialog mit den Anwendern statt eines einmalig abgeschlossenen Projekts. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1818s) |
 | Meinung | Microsoft Fabric — braucht das wirklich jemand? |  | 31:56 | auf die Sekunde | Martin sieht keinen Bedarf, dass jeder Fachanwender eigene Fabric-Artefakte erstellen können muss. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1916s) |
+| Meinung | 600 SQL-Tabellen in Fabric |  | 34:35 | auf die Sekunde | Alexander Dean findet, dass Datenkataloge von Drittanbietern nur selten wirklich funktionieren, wobei Collibra ("Kolibra") bisher die beste, aber nicht perfekte Plattform sei. | [▶](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=2075s) |
 | Fakt | Was ist Self-Service und warum ist das so schwer? |  | 37:25 | auf die Sekunde | Power BI ist häufig zunächst unautorisiert in Konzerne gelangt, weil Fachbereiche es herunterluden, weil es effizienter war als das zentrale Reporting, und wurde erst später offiziell und professionell aufgesetzt. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2245s) |
 | Meinung | Microsoft Fabric — braucht das wirklich jemand? |  | 37:58 | auf die Sekunde | Arturs zentraler Wert ist, Probleme der Endanwender sofort zu lösen; Governance und Konsolidierung kommen für ihn erst danach. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2278s) |
 | Empfehlung | Was ist Self-Service und warum ist das so schwer? |  | 38:02 | auf die Sekunde | Tom Martens plädiert dafür, neue Werkzeuge grundsätzlich erst einmal zu erlauben, weil das die Anwender befähigt. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2282s) |
 | Empfehlung | Was ist Self-Service und warum ist das so schwer? |  | 40:32 | auf die Sekunde | Schatten-IT einfach zu ignorieren ist aus Sicht von Tom Martens keine Strategie; ein Mittelweg mit einer abgespeckt unterstützten Lösung ist besser, als die Fachbereiche komplett am System vorbeiarbeiten zu lassen. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2432s) |
+| Fakt | Fabric & Power BI Quarterly · 2025 Q3 |  | 50:16 | auf die Sekunde | Fuer das Azure-Maps-Visual gibt es jetzt zwei zusaetzliche Tenant-Settings, mit denen sich das Subprocessing der Kartendaten ausserhalb der eigenen Region deaktivieren laesst. | [▶](https://www.youtube.com/watch?v=lZvpCBMKASM&t=3016s) |
+| Fakt | Fabric & Power BI Quarterly · 2025 Q4 |  | 52:34 | auf die Sekunde | Customer Managed Key (CMK) für Fabric-Workspaces ist bereits in Public Preview, unterstützt aber noch nicht alle Fabric-Items. | [▶](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3154s) |
 | Meinung | Was ist Self-Service und warum ist das so schwer? |  | 55:21 | Abschnittsanfang | Tom Martens' finale Definition von Self-Service lautet: das, was ein Business-User ohne IT tun kann, innerhalb von Guardrails, die Governance und Compliance berücksichtigen. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=3321s) |
 
 ## Dokumente
@@ -126,26 +162,26 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [The Day After Tomorrow – Nach der Einführung geht es erst richtig los \| Power BI Summit 2023](https://www.youtube.com/watch?v=KwySyTxW_EI) | 2023-03-01 | nur-zeitstempel | [12:03](https://www.youtube.com/watch?v=KwySyTxW_EI&t=723s) · [15:04](https://www.youtube.com/watch?v=KwySyTxW_EI&t=904s) · [45:10](https://www.youtube.com/watch?v=KwySyTxW_EI&t=2710s) |
 | [Ten Days to a Market-Ready State](https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html#:~:text=What%20it%20means%20%2Aeconomically%2A) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=01%20%C2%B7%20Einordnung%20von%20%2AMicrosoft%20Fabric%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20ist%20das%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20drei%20Plattform-Schichten%20unter%20den%20Workloads) |
-| [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | nur-zeitstempel | [16:10](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=970s) · [24:37](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1477s) |
+| [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | kernaussagen+zeitstempel | [16:10](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=970s) · [24:37](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1477s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [25:03](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s) · [52:25](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=3145s) · [54:03](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=3243s) |
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=0s) · [37:00](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2220s) |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [05:02](https://www.youtube.com/watch?v=27rC2zefFOU&t=302s) |
 | [Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?](https://www.youtube.com/watch?v=jETxUNQSl-w) | 2026-02-01 | kernaussagen+zeitstempel | [18:11](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1091s) · [19:44](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1184s) |
 | [Metadaten als Superkraft](https://www.youtube.com/watch?v=UUlPoJOhco8) | — | kernaussagen+zeitstempel | [00:01](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1s) |
-| [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | nur-zeitstempel | [18:58](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1138s) · [40:30](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2430s) |
-| [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | nur-zeitstempel | [02:30](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=150s) · [32:41](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1961s) |
+| [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [18:58](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1138s) · [40:30](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2430s) |
+| [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [02:30](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=150s) · [32:41](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1961s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [31:37](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1897s) · [52:11](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=3131s) |
 | [Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial](https://www.youtube.com/watch?v=5HhNQZlB-1E) | 2025-12-01 | kernaussagen+zeitstempel | [06:21](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=381s) |
 | [Daten-WG 2026 Lineup](https://www.youtube.com/watch?v=AX7b8_aNekw) | 2026-05-01 | nur-zeitstempel | [11:28](https://www.youtube.com/watch?v=AX7b8_aNekw&t=688s) · [19:13](https://www.youtube.com/watch?v=AX7b8_aNekw&t=1153s) |
 | [Von Patronen zu Prozessen](https://www.youtube.com/watch?v=0cHtxIm7fVw) | 2025-08-01 | nur-zeitstempel | [11:38](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=698s) |
 | [Von Patronen zu Prozessen (nur Ton)](https://www.youtube.com/watch?v=s3CveEVoDvo) | 2025-07-01 | nur-zeitstempel | [11:38](https://www.youtube.com/watch?v=s3CveEVoDvo&t=698s) |
-| [Datenmodellierung ist Governance](https://www.youtube.com/watch?v=lH_-A8NAQ-k) | 2025-11-01 | nur-zeitstempel | [07:04](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=424s) |
+| [Datenmodellierung ist Governance](https://www.youtube.com/watch?v=lH_-A8NAQ-k) | 2025-11-01 | kernaussagen+zeitstempel | [07:04](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=424s) |
 | [Prinzipien oder Paragrafen](https://www.youtube.com/watch?v=6WhWLcuFvZE) | 2026-02-01 | kernaussagen+zeitstempel | [23:31](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1411s) |
 | [BI Thinkers Talk nr.71](https://www.youtube.com/watch?v=LUrL8A5lNgI) | 2025-12-01 | kernaussagen+zeitstempel | [05:01](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=301s) · [09:41](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=581s) |
-| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | nur-zeitstempel | [55:18](https://www.youtube.com/watch?v=lZvpCBMKASM&t=3318s) |
+| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [55:18](https://www.youtube.com/watch?v=lZvpCBMKASM&t=3318s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [55:02](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3302s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=08%20%C2%B7%20Service%20%26%20%2ASharing%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Die%20Reise%20durch%20Power%20BI) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Aus%20dem%20Kanal%20%C2%B7%20Modellierung%20praktisch%20durchgespielt) |
-| [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | nur-zeitstempel | [56:17](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3377s) |
+| [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [56:17](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3377s) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [16:50](https://www.youtube.com/watch?v=r416vanitYw&t=1010s) |
 | [From Oracle to Empathy](https://www.youtube.com/watch?v=1yuQVABBrNs) | 2025-09-01 | nur-metadaten | — |
 

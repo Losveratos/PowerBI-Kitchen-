@@ -4,28 +4,28 @@
  "typ": "thema",
  "slug": "sicherheit",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sicherheit.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sicherheit.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/sicherheit.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/sicherheit.json",
  "dokumente_gesamt": 53,
- "kernaussagen_gesamt": 26,
- "mit_kernaussagen": 13,
+ "kernaussagen_gesamt": 39,
+ "mit_kernaussagen": 22,
  "aliase": [
   "Security",
   "Datenschutz",
   "DSGVO",
   "Sensitivity Label"
  ],
- "einordnung": "OneLake Security stellt dieselben Zugriffsinformationen sowohl nativen Fabric-Workloads als auch Third-Party-Workloads zur Verfügung. Kritische Produktionsschritte sind laut Layher durch mehrfache unabhängige Kontrollsysteme abgesichert, sodass das Hacken eines einzelnen Systems nicht ausreicht, um ein schädliches Produkt in den Markt zu bringen. Moderne Produktionsanlagen bestehen aus vielen vernetzten Computersystemen, und da Software statistisch etwa einen Fehler pro 1000 Codezeilen enthält, ist schnelles Beheben auftretender Fehler unverzichtbar.",
+ "einordnung": "Fuer das Azure-Maps-Visual gibt es jetzt zwei zusaetzliche Tenant-Settings, mit denen sich das Subprocessing der Kartendaten ausserhalb der eigenen Region deaktivieren laesst. Customer Managed Key (CMK) für Fabric-Workspaces ist bereits in Public Preview, unterstützt aber noch nicht alle Fabric-Items. Workspace-Level Outbound Access Protection für Spark ist seit Anfang Oktober GA, als erstes GA-Feature im Advanced-Security-Komplex.",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 41,
    "beleg": "",
    "datei": "power-bi.md"
@@ -34,7 +34,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 38,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -43,7 +43,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "ki.md"
@@ -52,7 +52,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "reporting.md"
@@ -61,7 +61,7 @@
    "id": "topic:row-level-security",
    "name": "Row-Level Security",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "row-level-security.md"
@@ -70,7 +70,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "performance.md"
@@ -79,7 +79,7 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "workspace.md"
@@ -88,7 +88,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 15,
    "beleg": "",
    "datei": "warehouse.md"
@@ -97,7 +97,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 15,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -106,7 +106,7 @@
    "id": "topic:daten-wg",
    "name": "Daten-WG",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "daten-wg.md"
@@ -115,7 +115,7 @@
    "id": "topic:governance",
    "name": "Governance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "governance.md"
@@ -124,7 +124,7 @@
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "direct-lake.md"
@@ -133,7 +133,7 @@
    "id": "tool:semantic-model",
    "name": "Semantic Model",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "semantic-model.md"
@@ -142,22 +142,31 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "visualisierung.md"
   },
   {
-   "id": "topic:community",
-   "name": "Community",
+   "id": "tool:sql",
+   "name": "SQL",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
-   "datei": "community.md"
+   "datei": "sql.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 871,
+   "zeit": "14:31",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=871s",
+   "aussage": "Wegen Datenschutzanforderungen bei der Arbeit mit Unternehmen wird das Tool inzwischen über einen deutschen IT-Dienstleister auf deutschen Servern gehostet statt in der Cloud von Lovable."
+  },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.76",
@@ -321,6 +330,15 @@
    "aussage": "Fehlt der TLS-1.2-Registry-Eintrag, lässt sich die Verbindung zwar testen, die spätere Ausführung des Pakets schlägt aber mit einem Fehler fehl."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 1166,
+   "zeit": "19:26",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=1166s",
+   "aussage": "Qlik Cloud hostet Rechenzentren unter anderem in Frankfurt, Irland und Singapur, sodass Kunden Datenverarbeitung nicht zwingend in den USA befuerchten muessen."
+  },
+  {
    "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
@@ -340,12 +358,57 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1702,
+   "zeit": "28:22",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1702s",
+   "aussage": "Die Authentifizierung des Python-Skripts gegenüber OneLake erfolgt über ein Service Principal mit Client ID und Client Secret in einer Konfigurationsdatei."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1801,
+   "zeit": "30:01",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1801s",
+   "aussage": "KI-generierter Code liefert bei sicherheitsrelevanten Anforderungen nicht automatisch den Best-Practice-Weg, sondern zunächst nur eine einfache Lösung, solange man das nicht explizit vorgibt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1860,
+   "zeit": "31:00",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1860s",
+   "aussage": "GitHub Copilot in VS Code weist teilweise darauf hin, wenn Code nach einem Secret oder Schlüssel aussieht, und schlägt vor, ihn abzusichern."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1934,
+   "zeit": "32:14",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1934s",
+   "aussage": "Es kursiert eine Geschichte, wonach Copilot bei entsprechender Anfrage Informationen aus E-Mails preisgegeben haben soll, deren Wahrheitsgehalt aber unklar ist."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
    "sekunde": 5391,
    "zeit": "1:29:51",
    "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5391s",
    "aussage": "Ein Sprecher berichtet, dass ein lokal betriebenes LLM CSV-Daten verarbeiten kann, ohne dass die Daten den eigenen Rechner verlassen, was er aus Datenschutzsicht positiv bewertet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 1106,
+   "zeit": "18:26",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1106s",
+   "aussage": "Aus Datenschutzgruenden werden keine Fotos hochgeladen; stattdessen extrahiert eine lokal laufende Bibliothek die Emotionsdaten aus dem Bild und schickt nur eine JSON-Datei an den Endpunkt."
   },
   {
    "typ": "Warnung",
@@ -355,6 +418,33 @@
    "zeit": "23:50",
    "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1430s",
    "aussage": "Beim Aufbau der SQL-Query sollten Parameter beziehungsweise Platzhalter statt direkt eingefügter Werte verwendet werden, um SQL-Injection zu vermeiden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1926,
+   "zeit": "32:06",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1926s",
+   "aussage": "Im Bereich Data Integration wurde Support für Mirroring in Kombination mit On-Premises- und Virtual-Network-Data-Gateways ergänzt, um gesicherten Zugriff auf firewallgeschützte Quellen zu ermöglichen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 512,
+   "zeit": "08:32",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=512s",
+   "aussage": "Bei der Power-BI-Einführung wird empfohlen, Datenschutzbeauftragte und die Rechtsabteilung frühzeitig an einen Tisch zu holen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1373,
+   "zeit": "22:53",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1373s",
+   "aussage": "Nach dem letzten Kenntnisstand des Gasts funktioniert OneLake-Security nur auf Ordner-, nicht auf Tabellenebene."
   },
   {
    "typ": "Warnung",
@@ -391,6 +481,33 @@
    "zeit": "32:14",
    "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1934s",
    "aussage": "Komplexere Sicherheitsszenarien wie dynamische Row-Level Security und Dynamic Data Masking fehlen in OneLake Security noch und stehen auf der Roadmap."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 3016,
+   "zeit": "50:16",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=3016s",
+   "aussage": "Fuer das Azure-Maps-Visual gibt es jetzt zwei zusaetzliche Tenant-Settings, mit denen sich das Subprocessing der Kartendaten ausserhalb der eigenen Region deaktivieren laesst."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 3154,
+   "zeit": "52:34",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3154s",
+   "aussage": "Customer Managed Key (CMK) für Fabric-Workspaces ist bereits in Public Preview, unterstützt aber noch nicht alle Fabric-Items."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 3193,
+   "zeit": "53:13",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3193s",
+   "aussage": "Workspace-Level Outbound Access Protection für Spark ist seit Anfang Oktober GA, als erstes GA-Feature im Advanced-Security-Komplex."
   }
  ],
  "dokumente": [
@@ -398,7 +515,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.467,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": [
@@ -448,7 +565,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.306,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -493,7 +610,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.268,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -593,7 +710,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.2,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -668,7 +785,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.125,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -798,7 +915,7 @@
    "id": "yt:rrCi0lnGrCg",
    "titel": "Mythos Data Vault und richtig große Modelle",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.091,
    "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
    "sprungmarken": [
@@ -833,7 +950,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.086,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [
@@ -883,7 +1000,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.079,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -1048,7 +1165,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.051,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -1098,7 +1215,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.047,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -1153,7 +1270,7 @@
    "id": "yt:BDnwlOqRElY",
    "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
    "datum": "2025-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
    "sprungmarken": [
@@ -1168,7 +1285,7 @@
    "id": "yt:aEXtFWW-pmo",
    "titel": "Wie war die Daten-WG 2025? (Teil 1)",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo",
    "sprungmarken": [
@@ -1258,7 +1375,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.025,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -1288,7 +1405,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [
@@ -1303,7 +1420,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.023,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [

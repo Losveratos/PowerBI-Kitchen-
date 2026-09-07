@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "deneb",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/deneb.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/deneb.html",
@@ -18,13 +18,13 @@
   "Vega-Lite",
   "Vega Lite"
  ],
- "einordnung": "Für die gewünschte Wasserfall-Darstellung wurden zwei Eigenbau-Varianten entwickelt: eine Kombination aus gestapeltem Balkendiagramm und Liniendiagramm sowie eine Lösung mit Deneb. Bei der Deneb-Umsetzung lässt sich der benötigte Vega-Code mithilfe von KI generieren und anpassen, wobei die KI auch angibt, was im Vega-Standard möglich oder nur Bastelei ist. Bei Deneb-Templates lassen sich vorhandene Felder leicht austauschen, aber nachträglich neue Felder hinzuzufügen ist nur über die Codebasis und nicht über die Template-Oberfläche möglich.",
+ "einordnung": "Für die gewünschte Wasserfall-Darstellung wurden zwei Eigenbau-Varianten entwickelt: eine Kombination aus gestapeltem Balkendiagramm und Liniendiagramm sowie eine Lösung mit Deneb. (Stand 2026-01) Bei der Deneb-Umsetzung lässt sich der benötigte Vega-Code mithilfe von KI generieren und anpassen, wobei die KI auch angibt, was im Vega-Standard möglich oder nur Bastelei ist. (Stand 2026-01) Bei Deneb-Templates lassen sich vorhandene Felder leicht austauschen, aber nachträglich neue Felder hinzuzufügen ist nur über die Codebasis und nicht über die Template-Oberfläche möglich. (Stand 2026-01)",
  "nachbarn": [
   {
    "id": "tool:custom-visuals",
    "name": "Custom Visuals",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 5,
    "beleg": "In Denb stößt er dann irgendwann an Grenzen ... In dem Power BI, also in den tatsächlichen Custom Visuals, ist er ziemlich frei.",
    "datei": "custom-visuals.md"
@@ -33,7 +33,7 @@
    "id": "tool:custom-visuals",
    "name": "Custom Visuals",
    "kantentyp": "teil-von",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 5,
    "beleg": "dieses Custom Visual, mit dem ich über Vega Light bzw. Vega Aufgaben lösen kann",
    "datei": "custom-visuals.md"
@@ -42,7 +42,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -51,7 +51,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "power-bi.md"
@@ -60,7 +60,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "ki.md"
@@ -69,7 +69,7 @@
    "id": "topic:ibcs",
    "name": "IBCS",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "ibcs.md"
@@ -78,7 +78,7 @@
    "id": "tool:python",
    "name": "Python",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "python.md"
@@ -101,7 +101,7 @@
    "sekunde": 484,
    "zeit": "08:04",
    "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=484s",
-   "aussage": "Der Gast ließ auf diese Weise rund 30 Diagrammtypen als Deneb-Nachbauten erstellen, bevor er die Arbeit aus Zeitgründen abbrach."
+   "aussage": "Einer der Gäste ließ auf diese Weise rund 30 Diagrammtypen als Deneb-Nachbauten erstellen, bevor er die Arbeit aus Zeitgründen abbrach."
   },
   {
    "typ": "Warnung",
@@ -155,7 +155,7 @@
    "sekunde": 946,
    "zeit": "15:46",
    "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=946s",
-   "aussage": "Der Sprecher hofft, dass Microsoft Deneb beziehungsweise Vega stärker in Power BI integriert, um das bisherige proprietäre JSON-Format der Visuals abzulösen."
+   "aussage": "Einer der Sprecher hofft, dass Microsoft Deneb beziehungsweise Vega stärker in Power BI integriert, um das bisherige proprietäre JSON-Format der Visuals abzulösen."
   },
   {
    "typ": "Meinung",
@@ -348,7 +348,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [

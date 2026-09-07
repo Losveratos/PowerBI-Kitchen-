@@ -4,25 +4,25 @@
  "typ": "tool",
  "slug": "ssis",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/ssis.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/ssis.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/ssis.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/ssis.json",
  "dokumente_gesamt": 6,
- "kernaussagen_gesamt": 18,
- "mit_kernaussagen": 2,
+ "kernaussagen_gesamt": 19,
+ "mit_kernaussagen": 3,
  "aliase": [
   "Integration Services"
  ],
- "einordnung": "SQL Server Integration Services wird genutzt, um Daten in das Fabric Warehouse zu bringen. Deshalb erfolgt das Bewegen der Daten dateibasiert statt über einzelne SQL-Inserts. In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können.",
+ "einordnung": "SQL Server Integration Services wird genutzt, um Daten in das Fabric Warehouse zu bringen. (Stand 2025-12) Deshalb erfolgt das Bewegen der Daten dateibasiert statt über einzelne SQL-Inserts. (Stand 2025-12) In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können. (Stand 2025-12)",
  "nachbarn": [
   {
    "id": "tool:azure",
    "name": "Azure",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 5,
    "beleg": "wir benötigen das Aure Feature Pack für Integration Services",
    "datei": "azure.md"
@@ -31,7 +31,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -40,7 +40,7 @@
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "notebook.md"
@@ -49,16 +49,25 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "warehouse.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -67,7 +76,7 @@
    "id": "tool:gateway",
    "name": "Gateway",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "gateway.md"
@@ -76,7 +85,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "power-bi.md"
@@ -244,6 +253,15 @@
    "zeit": "11:13",
    "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=673s",
    "aussage": "Der Push-Schritt lässt sich als zusätzlicher Arbeitsschritt in bereits bestehende lokale SSIS-Pakete integrieren, die am Ende Ergebnisdateien nach Fabric hochladen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 954,
+   "zeit": "15:54",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=954s",
+   "aussage": "Der Kunde des Migrationsprojekts wollte möglichst wenig an der bestehenden ETL-Logik ändern, um alte und neue Lösung eins zu eins vergleichen zu können."
   }
  ],
  "dokumente": [
@@ -296,7 +314,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.042,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -326,7 +344,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.027,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [

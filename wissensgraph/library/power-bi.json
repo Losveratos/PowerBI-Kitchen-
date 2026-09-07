@@ -4,28 +4,28 @@
  "typ": "tool",
  "slug": "power-bi",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi.json",
  "dokumente_gesamt": 124,
- "kernaussagen_gesamt": 75,
- "mit_kernaussagen": 21,
+ "kernaussagen_gesamt": 144,
+ "mit_kernaussagen": 39,
  "aliase": [
   "PowerBI",
   "Power-BI",
   "Power DI",
   "PBI"
  ],
- "einordnung": "Arthur und Oliver haben eine dreiteilige Challenge mit identischen Aufgaben in Qlik und Power BI durchgeführt: Basics, Modellierung und Visualisierung. In Power BI ist das gezielte farbliche Hervorheben einer einzelnen Linie in einem Liniendiagramm aufwendiger als in Excel. Sowohl Qlik als auch Power BI lassen sich von der Quelle bis zum Modell als vollständige Datenplattform nutzen, Qlik über Skripte und Power BI über Power Query und das Datenmodell.",
+ "einordnung": "Arthur und Oliver haben eine dreiteilige Challenge mit identischen Aufgaben in Qlik und Power BI durchgeführt: Basics, Modellierung und Visualisierung. (Stand 2026-01) In Power BI ist das gezielte farbliche Hervorheben einer einzelnen Linie in einem Liniendiagramm aufwendiger als in Excel. (Stand 2026-01) Sowohl Qlik als auch Power BI lassen sich von der Quelle bis zum Modell als vollständige Datenplattform nutzen, Qlik über Skripte und Power BI über Power Query und das Datenmodell. (Stand 2026-01)",
  "nachbarn": [
   {
    "id": "tool:analysis-services",
    "name": "Analysis Services",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 3,
    "beleg": "diese Analyse Services drin sind und die Microsoft im Kontext von Power BI so stark verheiratet hat, dass es eben bedient werden muss",
    "datei": "analysis-services.md"
@@ -34,25 +34,43 @@
    "id": "tool:power-query",
    "name": "Power Query",
    "kantentyp": "teil-von",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 53,
    "beleg": "Bei Power BI ist das Power Query, was dann dabei ist und dann das Datenmodell.",
    "datei": "power-query.md"
   },
   {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 216,
+   "beleg": "irgendwann wird man bei Power VII in die Fabric wandern",
+   "datei": "microsoft-fabric.md"
+  },
+  {
    "id": "tool:qlik",
    "name": "Qlik",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 8,
-   "beleg": "die Verbindung vorgibt und bei Power BI ... diese unidirektionale Möglichkeit Tabellen miteinander zu verknüpfen",
+   "beleg": "Wir haben in Power BI ja immer zwei Modell und Report",
    "datei": "qlik.md"
+  },
+  {
+   "id": "topic:sternschema",
+   "name": "Sternschema",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 43,
+   "beleg": "Power BI benötigt ein Sternschema, um die beste Leistung zu erzielen",
+   "datei": "sternschema.md"
   },
   {
    "id": "tool:qlik",
    "name": "Qlik",
    "kantentyp": "ersetzt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 8,
    "beleg": "wir hatten ursprünglich gedacht, klick Blick jetzt lass mal doch lieber Power BI als solches nehmen",
    "datei": "qlik.md"
@@ -61,25 +79,25 @@
    "id": "tool:tableau",
    "name": "Tableau",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 16,
    "beleg": "das war für mich viel einfacher, das war irgendwie Microsoft Kosmos, das war leichter zu lernen und so bin ich zu Power BI gekommen",
    "datei": "tableau.md"
   },
   {
-   "id": "tool:microsoft-fabric",
-   "name": "Microsoft Fabric",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 216,
-   "beleg": "",
-   "datei": "microsoft-fabric.md"
+   "id": "tool:power-apps",
+   "name": "Power Apps",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 6,
+   "beleg": "die Eingabefunktion in den Power BI Bericht gebaut ... Rideback Funktionalität über Power App gebaut",
+   "datei": "power-apps.md"
   },
   {
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 185,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -88,7 +106,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 154,
    "beleg": "",
    "datei": "reporting.md"
@@ -97,7 +115,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 114,
    "beleg": "",
    "datei": "ki.md"
@@ -106,7 +124,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 108,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -115,7 +133,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 90,
    "beleg": "",
    "datei": "performance.md"
@@ -124,7 +142,7 @@
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 88,
    "beleg": "",
    "datei": "excel.md"
@@ -133,31 +151,67 @@
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 85,
    "beleg": "",
    "datei": "datenmodellierung.md"
-  },
-  {
-   "id": "tool:lakehouse",
-   "name": "Lakehouse",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 59,
-   "beleg": "",
-   "datei": "lakehouse.md"
-  },
-  {
-   "id": "tool:warehouse",
-   "name": "Warehouse",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 59,
-   "beleg": "",
-   "datei": "warehouse.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 250,
+   "zeit": "04:10",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=250s",
+   "aussage": "Der von Alex und Lukas entwickelte Developer Hub befindet sich aktuell im Preview-Status und enthaelt zwei Bereiche: den Agent Hub fuer agentische Workflows und Tools fuer deterministische Arbeitsweisen wie den Power BI Fixer."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 405,
+   "zeit": "06:45",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=405s",
+   "aussage": "Beim Navision-Projekt wird ein Data Gateway benoetigt, weil das On-Premises-System nicht direkt mit Power BI beziehungsweise Fabric verbunden werden kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 409,
+   "zeit": "06:49",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=409s",
+   "aussage": "Der Model Explorer aus dem Power BI Fixer ist auch im Developer Hub enthalten und zeigt die geladenen semantischen Modelle in einer Ordnerstruktur."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 437,
+   "zeit": "07:17",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=437s",
+   "aussage": "Der Best Practice Analyzer und der Memory Analyzer aus dem Power BI Fixer sind ebenfalls im Developer Hub enthalten, wobei der Memory Analyzer noch nicht fertig ist."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 446,
+   "zeit": "07:26",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=446s",
+   "aussage": "Beim Import von Navision-Daten muss die Zeitstempel-Datentyp-Korrektur bereits im Bronze-Layer erfolgen, weil reine Zeitwerte sonst zu Fehlern fuehren."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 925,
+   "zeit": "15:25",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=925s",
+   "aussage": "In einem anderen Kundenprojekt fuehrte die Aufteilung eines urspruenglich komplett in Power BI gebauten Modells auf eine Medaillon-Architektur in Fabric dazu, dass Anpassungen durch mehrere zu orchestrierende Prozesse weniger fluessig und teils fragil wurden."
+  },
   {
    "typ": "Meinung",
    "dokument": "BI Thinkers Talk nr.76",
@@ -264,7 +318,7 @@
    "sekunde": 9,
    "zeit": "00:09",
    "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=9s",
-   "aussage": "Der Sprecher bewertet den Input Slicer im Vergleich zu bisherigen Power-BI-Filterobjekten als echtes Highlight."
+   "aussage": "Artur König bewertet den Input Slicer im Vergleich zu bisherigen Power-BI-Filterobjekten als echtes Highlight."
   },
   {
    "typ": "Fakt",
@@ -291,7 +345,7 @@
    "sekunde": 81,
    "zeit": "01:21",
    "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=81s",
-   "aussage": "Der Sprecher empfiehlt, sich den Input Slicer anzusehen, da es angesichts der GA-Freigabe keine Ausrede mehr dafür gebe, ihn nicht zu nutzen."
+   "aussage": "Artur König empfiehlt, sich den Input Slicer anzusehen, da es angesichts der GA-Freigabe keine Ausrede mehr dafür gebe, ihn nicht zu nutzen."
   },
   {
    "typ": "Fakt",
@@ -453,7 +507,7 @@
    "sekunde": 199,
    "zeit": "03:19",
    "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s",
-   "aussage": "Der Sprecher hält die Field-Parameter- und Quicktipp-Updates für die produktivsten Neuerungen dieses Monats."
+   "aussage": "Artur König hält die Field-Parameter- und Quicktipp-Updates für die produktivsten Neuerungen dieses Monats."
   },
   {
    "typ": "Fakt",
@@ -606,7 +660,7 @@
    "sekunde": 946,
    "zeit": "15:46",
    "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=946s",
-   "aussage": "Der Sprecher hofft, dass Microsoft Deneb beziehungsweise Vega stärker in Power BI integriert, um das bisherige proprietäre JSON-Format der Visuals abzulösen."
+   "aussage": "Einer der Sprecher hofft, dass Microsoft Deneb beziehungsweise Vega stärker in Power BI integriert, um das bisherige proprietäre JSON-Format der Visuals abzulösen."
   },
   {
    "typ": "Fakt",
@@ -690,6 +744,51 @@
    "aussage": "Das Standard-Wasserfall-Visual in Power BI gilt als funktional limitiert, unter anderem weil sich damit keine matrixbasierte Darstellung umsetzen lässt."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 293,
+   "zeit": "04:53",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=293s",
+   "aussage": "Das Frontend bzw. die Report-Seiten von Power BI lassen sich mit dem MCP Modeling Server momentan noch nicht bearbeiten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 572,
+   "zeit": "09:32",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=572s",
+   "aussage": "Für das Setup werden Visual Studio Code, der MCP Server für Power-BI-Modeling sowie GitHub Copilot und GitHub Copilot Chat benötigt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 645,
+   "zeit": "10:45",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=645s",
+   "aussage": "Der MCP Modeling Server verbindet sich manchmal nicht beim ersten Versuch mit dem Power-BI-Modell."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 1290,
+   "zeit": "21:30",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=1290s",
+   "aussage": "Für eine Demo wird empfohlen, ein Modell anzubinden, das bereits Daten enthält, statt live mit einem leeren Modell zu starten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 3642,
+   "zeit": "1:00:42",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=3642s",
+   "aussage": "Das Herausziehen von Power-BI-Daten zur Kombination mit anderen Quellen für z. B. eine Python-Visualisierung funktioniert über den MCP Server aktuell noch holprig, gilt aber als zukunftsträchtiger Ansatz."
+  },
+  {
    "typ": "Meinung",
    "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
    "dokument_id": "yt:mUALlPmGcEk",
@@ -726,6 +825,159 @@
    "aussage": "Für Einsteiger wird das One-Big-Table-Modell weniger aus konzeptionellen als aus werkzeugbedingten Gründen empfohlen, weil Power BI dabei mehr Standardverhalten von sich aus liefert."
   },
   {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 677,
+   "zeit": "11:17",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=677s",
+   "aussage": "Bei einer Entscheidung zwischen Qlik und Power BI sollte man sich nicht in erster Linie auf die Lizenzpreise konzentrieren, sondern den konkreten Use Case durchrechnen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 738,
+   "zeit": "12:18",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=738s",
+   "aussage": "Qlik laesst sich komplett on-premise und sogar offline betreiben, waehrend fuer Power BI dafuer nur der als veraltet beschriebene Power BI Report Server existiert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 760,
+   "zeit": "12:40",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=760s",
+   "aussage": "Der Power BI Report Server haenge bei Updates etwa eineinhalb Jahre hinter der Cloud-Version hinterher."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 1900,
+   "zeit": "31:40",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=1900s",
+   "aussage": "Ein implizites Measure gilt auch in Power BI nicht als Good Practice."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2037,
+   "zeit": "33:57",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2037s",
+   "aussage": "In Power BI existieren semantisches Modell und Bericht als zwei getrennte Objekte, waehrend beides in Qlik in einer gemeinsamen App zusammengefasst ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2638,
+   "zeit": "43:58",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2638s",
+   "aussage": "In Power BI werden Master-Measures ueblicherweise an eine Tabelle im Datenmodell gebunden, waehrend Master-Kennzahlen in Qlik zur Applikation gehoeren und nicht an einer Tabelle haengen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2657,
+   "zeit": "44:17",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2657s",
+   "aussage": "Als Good Practice in Power BI wird empfohlen, konsequent eine dreischichtige Architektur mit getrennten Ordnern fuer Transform- und Output-Schritte umzusetzen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2759,
+   "zeit": "45:59",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2759s",
+   "aussage": "Wird in Power BI eine Tabelle geloescht oder umbenannt, kann ein darin enthaltenes Measure verschwinden, wenn es nicht in einer separaten Measure-Tabelle liegt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1555,
+   "zeit": "25:55",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1555s",
+   "aussage": "Die Custom-Engine benötigt laut Brian Bønk keine Datenmodellierung und kein Sternschema, während Power BI für die beste Performance ein Sternschema braucht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 388,
+   "zeit": "06:28",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=388s",
+   "aussage": "Wiederverwendbare Berichtsvorlagen sind problematisch, weil Spalten tief im Bericht eingebettet sein können und das Ersetzen über die Benutzeroberfläche nur sehr eingeschränkt funktioniert."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 743,
+   "zeit": "12:23",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=743s",
+   "aussage": "Bei sehr großen Faktentabellen sollte man versuchen, Joins zur Schlüsselbildung zu vermeiden, auch wenn die Performance im Power-Datenmodell dadurch minimal schlechter wird."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 945,
+   "zeit": "15:45",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=945s",
+   "aussage": "Wird eine Faktentabelle so groß, dass die Performance leidet, können in Power BI zusätzliche Aggregationstabellen für häufig genutzte Dimensionen gebaut werden."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1147,
+   "zeit": "19:07",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1147s",
+   "aussage": "Werden Platzhalternamen im Referenzmodell nicht sorgfältig gewählt, besteht das Risiko einer Art Power-BI-Code-Injection über eingeschleuste JSON- oder RLS-Inhalte."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 1394,
+   "zeit": "23:14",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1394s",
+   "aussage": "Ein Unternehmen sollte nur einen einzigen Azure-/Power-BI-Tenant betreiben, damit Login und Ressourcen zusammenpassen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 3304,
+   "zeit": "55:04",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=3304s",
+   "aussage": "Die bedingte Formatierung mit Datenbalken in Power BI kann keine dynamischen Farben pro Kategorie annehmen, sondern nur feste Minimum-/Mitte-/Maximum-Werte."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 3547,
+   "zeit": "59:07",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=3547s",
+   "aussage": "Um zu verhindern, dass Text über einen manuell in einer Matrix gemalten Balken hinausragt, wird fast immer eine separate Spalte für den Text empfohlen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 3594,
+   "zeit": "59:54",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=3594s",
+   "aussage": "SVG-Grafiken in Power BI bieten mehr gestalterische Flexibilität, gehen aber deutlich zulasten der Wartbarkeit."
+  },
+  {
    "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
@@ -733,6 +985,15 @@
    "zeit": "1:13:50",
    "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4430s",
    "aussage": "Nach Einschätzung eines Sprechers hat die COVID-19-Pandemie die Akzeptanz von Power BI in Unternehmen deutlich erhöht, weil öffentliche Dashboards wie das des RKI den Nutzen von Datenvisualisierung sichtbar machten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 1285,
+   "zeit": "21:25",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1285s",
+   "aussage": "Aus einer Kusto-Abfrage im Eventhaus laesst sich mit wenigen Klicks direkt ein Power-BI-Report generieren, inklusive der dafuer noetigen Abfrage und Connection Strings."
   },
   {
    "typ": "Meinung",
@@ -744,6 +1005,312 @@
    "aussage": "Das persönliche Highlight der auf der Microsoft Build vorgestellten Neuerungen war für den Sprecher das native Writeback in Power BI."
   },
   {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 669,
+   "zeit": "11:09",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=669s",
+   "aussage": "Es wird empfohlen, BC ADLS zu nutzen, bevor man eine eigene API-Anbindung für die Verbindung von Power BI und Business Central baut."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 2632,
+   "zeit": "43:52",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2632s",
+   "aussage": "Für den Zugriff auf eine On-Premises-Datenquelle wird für Fabric derselbe Gateway-Typ genutzt wie für Power BI."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 283,
+   "zeit": "04:43",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=283s",
+   "aussage": "Reference Lines werden inzwischen bei mehreren Power-BI-Visualtypen unterstützt und nicht mehr nur beim Liniendiagramm."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1039,
+   "zeit": "17:19",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1039s",
+   "aussage": "Die anschließende Session mit Kevin, Geller und Oliver füllte die vollen zwei Stunden mit Diskussion und praktischen Demonstrationen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1124,
+   "zeit": "18:44",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1124s",
+   "aussage": "OneLake Security soll als zentrale Policy Engine Spalten-, Row-Level- und dynamische Tabellenebenen-Sicherheit über Lakehouse, Warehouse und Power BI hinweg abdecken."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1326,
+   "zeit": "22:06",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1326s",
+   "aussage": "Die Anbindung von User Data Functions an Translytical Task Flows für native Writeback-Logik in Power BI wurde auf der FABCON selbst nicht explizit erwähnt, steht aber weiterhin für Q2 auf der Fabric-Roadmap."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 1367,
+   "zeit": "22:47",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1367s",
+   "aussage": "Die erweiterte relative Datumsfilterung in Power BI unterstützt nur ein Filtern auf die nächsten X Tage, was die Planung über das aktuelle Jahr hinaus einschränkt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1456,
+   "zeit": "24:16",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1456s",
+   "aussage": "Beim Power-BI-Quiz der Daten-WG 2025 kam als Detailwissen heraus, dass Elemente in Power BI eine Eckenabrundung von 100 Pixel haben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 201,
+   "zeit": "03:21",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=201s",
+   "aussage": "Nach dem Proof of Concept wollten die ersten Fachbereiche die Power-BI-Lösung sofort nutzen, wodurch daraus schnell ein Einführungsszenario wurde."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 658,
+   "zeit": "10:58",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=658s",
+   "aussage": "Das Power-BI-Café ist ein wiederkehrender Termin, der ursprünglich wöchentlich stattfand und inzwischen zweiwöchentlich läuft, um Klarheit über die Langfristigkeit des Vorhabens zu schaffen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 825,
+   "zeit": "13:45",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=825s",
+   "aussage": "Im Power-BI-Café sind in der Regel etwa acht Anwender regelmäßig aktiv dabei."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1109,
+   "zeit": "18:29",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1109s",
+   "aussage": "Für den Kompetenzaufbau wurden zwei modulare Schulungsreihen entwickelt: Data Champion für Methodenkompetenz und Power BI Champion für das Tool selbst."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1526,
+   "zeit": "25:26",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1526s",
+   "aussage": "Der erste eigene Power-BI-Bericht zur Überwachung von Datenlieferungen eines externen Partners benötigte etwa zwei Personentage Entwicklungszeit."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 2309,
+   "zeit": "38:29",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2309s",
+   "aussage": "Es wird empfohlen, für die Power-BI-Einführung einen externen Partner mit Change-Kompetenz hinzuzuziehen, weil die Selbstservice-Tool-Einführung für viele Nutzer einen Umbruch bedeutet."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 2356,
+   "zeit": "39:16",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2356s",
+   "aussage": "Auch nach Projektende wird empfohlen, die aufgebaute Kommunikation und den Support für die Power-BI-Community fortzuführen, statt sie fallen zu lassen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 289,
+   "zeit": "04:49",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=289s",
+   "aussage": "In Power BI gibt es seit rund zwei Releases (ca. zwei Wochen) die Möglichkeit, einen Page Navigator automatisch als Buttons einzufügen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 322,
+   "zeit": "05:22",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=322s",
+   "aussage": "Am automatisch eingefügten Page-Navigator wird das Standardlayout mit Rand (\"Coversong\") optisch nicht als gelungen empfunden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 380,
+   "zeit": "06:20",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=380s",
+   "aussage": "Beim Button-Design wird ein atomic-design-artiger Ansatz verfolgt: erst den Button einfügen, dann sein Aussehen festlegen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 455,
+   "zeit": "07:35",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=455s",
+   "aussage": "Bei Buttons wird empfohlen, die Breite so zu wählen, dass sie zur Breite anderer Elemente wie Kacheln passt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 690,
+   "zeit": "11:30",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=690s",
+   "aussage": "In einem US-Police-Beispiel-Dashboard wird beim Klick auf ein Bundesland wie Kalifornien automatisch der zugehörige Navigations-Button deaktiviert, um den aktiven Filter anzuzeigen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 768,
+   "zeit": "12:48",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=768s",
+   "aussage": "Eine Navigationsleiste zum Wechseln zwischen einzelnen Seiten wird mit Bookmarks umgesetzt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1061,
+   "zeit": "17:41",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1061s",
+   "aussage": "Ein selbst gestaltetes Icon wird als PNG abgespeichert, um es anschließend als Navigationselement im Power-BI-Bericht einzubinden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1197,
+   "zeit": "19:57",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1197s",
+   "aussage": "Für mehrere Navigations-Icons wird empfohlen, einen fertig formatierten Button per Strg+C/Strg+V zu duplizieren, statt jeden einzeln neu zu gestalten."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1366,
+   "zeit": "22:46",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1366s",
+   "aussage": "Bookmarks steuern nicht nur, welcher Filter angewendet wird, sondern auch, was auf der Seite überhaupt angezeigt wird."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1420,
+   "zeit": "23:40",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1420s",
+   "aussage": "Ein aufwendig mit Bookmarks gestalteter, interaktiver Report lohnt sich vor allem bei mehreren hundert Nutzern; bei wenigen Nutzern wird der Mehrwert als geringer eingeschätzt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1507,
+   "zeit": "25:07",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1507s",
+   "aussage": "Zum Mehrfachauswählen von Objekten funktioniert in Power BI nicht die Umschalttaste, sondern die Steuerungstaste (Strg)."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1564,
+   "zeit": "26:04",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1564s",
+   "aussage": "Der Fokus-Modus eines Visuals lässt sich als Bookmark speichern und über einen Button auslösen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1822,
+   "zeit": "30:22",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1822s",
+   "aussage": "Im Stream wird neben Buttons auch das Thema Navigation und Drilling in Power BI behandelt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 1911,
+   "zeit": "31:51",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1911s",
+   "aussage": "Die Kombination aus Drill zu einer festen Zielseite und Sprung zu einer variablen Seite wird als sehr schnelle Art zu navigieren gelobt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 2019,
+   "zeit": "33:39",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=2019s",
+   "aussage": "Als Framework wird empfohlen, die Struktur der ersten Seite eines Reports nach Möglichkeit auf den anderen Seiten wiederzuverwenden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 2105,
+   "zeit": "35:05",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=2105s",
+   "aussage": "Es wird als persönliche Meinung vertreten, dass viele Nutzer den Filter-Bereich in Power BI eigentlich mehr nutzen könnten und sollten, es aber nicht tun."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 2517,
+   "zeit": "41:57",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=2517s",
+   "aussage": "Bei einer Kundenanforderung mit Adventure-Works-Daten sollten beliebige Gruppen von Projekten statt nur einzelner Werte per Slicer miteinander verglichen werden, was zunächst mit Select-Measures umgesetzt wurde."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 2556,
+   "zeit": "42:36",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=2556s",
+   "aussage": "Für den Vergleich zweier frei wählbarer Projektgruppen wird ein Wasserfall-Chart genutzt, das zeigt, welche Gruppe besser performt hat und wie groß die Abweichung insgesamt war."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 2918,
+   "zeit": "48:38",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=2918s",
+   "aussage": "Als Erweiterung des Gruppenvergleichs wird vorgeschlagen, ein festes Benchmark-Projekt zu definieren und andere Projekte dagegen zu vergleichen."
+  },
+  {
    "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
@@ -751,6 +1318,24 @@
    "zeit": "00:40",
    "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=40s",
    "aussage": "Custom Totals in Tabellen und Matrizen lassen sich jetzt in Ausnahmefällen per No-Code mit wenigen Klicks anpassen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 46,
+   "zeit": "00:46",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=46s",
+   "aussage": "Sparklines in Power BI sind seit Dezember 2021 als Preview-Feature angekuendigt und zum Zeitpunkt der Aufnahme immer noch nicht GA."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 80,
+   "zeit": "01:20",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=80s",
+   "aussage": "Field Parameters wurden im Juli 2025 als GA (General Availability) für Power BI angekündigt."
   },
   {
    "typ": "Fakt",
@@ -795,7 +1380,34 @@
    "sekunde": 453,
    "zeit": "07:33",
    "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=453s",
-   "aussage": "Measure Killer kann Abhängigkeiten im Tenant nach Einschätzung der Sprecherin aktuell besser darstellen als andere verfügbare Werkzeuge."
+   "aussage": "Measure Killer kann Abhängigkeiten im Tenant nach Einschätzung von Jasmin Simader aktuell besser darstellen als andere verfügbare Werkzeuge."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 698,
+   "zeit": "11:38",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=698s",
+   "aussage": "Wuerde Microsoft jeden gewuenschten Zusatzfeature-Wunsch in den Standard von Power BI und Fabric einbauen, waere die Software dadurch teurer."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 707,
+   "zeit": "11:47",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=707s",
+   "aussage": "Power BI war lange Zeit nicht wirklich DevOps-fähig."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 741,
+   "zeit": "12:21",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=741s",
+   "aussage": "Translytical User Defined Functions sind in Microsoft Fabric bereits GA, aus Power-BI-Sicht aber noch ein Preview-Feature."
   },
   {
    "typ": "Fakt",
@@ -814,6 +1426,15 @@
    "zeit": "17:30",
    "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1050s",
    "aussage": "Fabric ist laut Martin für Business-User mit Excel- und Power-BI-Hintergrund zugänglicher als Snowflake."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 1626,
+   "zeit": "27:06",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1626s",
+   "aussage": "Translytical Task Flows sind mittlerweile ein Fabric-internes statt eines reinen Power-BI-internen Features und bringen fertige, per Knopfdruck nutzbare Rueckschreibfunktionen."
   },
   {
    "typ": "Fakt",
@@ -1229,7 +1850,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.542,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -1351,31 +1972,6 @@
    ]
   },
   {
-   "id": "yt:LVSttJlhrqM",
-   "titel": "Power BI Update Oktober 2025",
-   "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
-   "anteil": 0.5,
-   "url": "https://www.youtube.com/watch?v=LVSttJlhrqM",
-   "sprungmarken": [
-    {
-     "label": "00:00",
-     "url": "https://www.youtube.com/watch?v=LVSttJlhrqM&t=0s",
-     "sekunde": 0
-    },
-    {
-     "label": "03:54",
-     "url": "https://www.youtube.com/watch?v=LVSttJlhrqM&t=234s",
-     "sekunde": 234
-    },
-    {
-     "label": "04:21",
-     "url": "https://www.youtube.com/watch?v=LVSttJlhrqM&t=261s",
-     "sekunde": 261
-    }
-   ]
-  },
-  {
    "id": "yt:GsLfiuPlsQE",
    "titel": "Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! | Power BI Tutorial",
    "datum": "2025-10-01",
@@ -1401,10 +1997,35 @@
    ]
   },
   {
+   "id": "yt:LVSttJlhrqM",
+   "titel": "Power BI Update Oktober 2025",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.5,
+   "url": "https://www.youtube.com/watch?v=LVSttJlhrqM",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=LVSttJlhrqM&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "03:54",
+     "url": "https://www.youtube.com/watch?v=LVSttJlhrqM&t=234s",
+     "sekunde": 234
+    },
+    {
+     "label": "04:21",
+     "url": "https://www.youtube.com/watch?v=LVSttJlhrqM&t=261s",
+     "sekunde": 261
+    }
+   ]
+  },
+  {
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.486,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [
@@ -1504,7 +2125,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.429,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -1604,7 +2225,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.415,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -1754,7 +2375,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.361,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -1779,7 +2400,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.355,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -1854,7 +2475,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.333,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -2014,7 +2635,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.308,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -2394,7 +3015,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.225,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -2439,7 +3060,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.216,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -2639,7 +3260,7 @@
    "id": "yt:BDnwlOqRElY",
    "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
    "datum": "2025-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.174,
    "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
    "sprungmarken": [
@@ -2704,7 +3325,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.163,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -2729,7 +3350,7 @@
    "id": "yt:lH_-A8NAQ-k",
    "titel": "Datenmodellierung ist Governance",
    "datum": "2025-11-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.16,
    "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
    "sprungmarken": [
@@ -2779,7 +3400,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.154,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -2849,7 +3470,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.14,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [
@@ -3139,7 +3760,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.105,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -3259,7 +3880,7 @@
    "id": "yt:aEXtFWW-pmo",
    "titel": "Wie war die Daten-WG 2025? (Teil 1)",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.087,
    "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo",
    "sprungmarken": [
@@ -3354,7 +3975,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": [
@@ -3429,7 +4050,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [
@@ -3441,21 +4062,21 @@
    ]
   },
   {
-   "id": "yt:c90oD4zR1Aw",
-   "titel": "More than PBIX",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
-   "sprungmarken": []
-  },
-  {
    "id": "yt:HQaLWjA-E2E",
    "titel": "How to Write Back",
    "datum": "2025-12-01",
    "abdeckung": "nur-metadaten",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=HQaLWjA-E2E",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
    "sprungmarken": []
   },
   {
@@ -3507,7 +4128,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": []
@@ -3516,7 +4137,7 @@
    "id": "yt:K27nB68nR1M",
    "titel": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
    "datum": "2022-02-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=K27nB68nR1M",
    "sprungmarken": []

@@ -4,27 +4,27 @@
  "typ": "tool",
  "slug": "mirroring",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/mirroring.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/mirroring.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/mirroring.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/mirroring.json",
  "dokumente_gesamt": 17,
- "kernaussagen_gesamt": 25,
- "mit_kernaussagen": 5,
+ "kernaussagen_gesamt": 34,
+ "mit_kernaussagen": 11,
  "aliase": [
   "Mirrored Database",
   "Spiegelung",
   "gespiegelt"
  ],
- "einordnung": "Fabric bietet verschiedene Mirrored Items, mit denen sich bereits vorhandene Datenbanken in Fabric spiegeln lassen. Auch eigene Datenquellen wie Excel-Dateien lassen sich per Open Mirroring nach Fabric spiegeln. Open Mirroring ermöglicht es, Tabellen in Fabric unabhängig von der Datenquelle darzustellen, solange der Datenprovider die Datensätze in die Quelle einliefert.",
+ "einordnung": "Fabric bietet verschiedene Mirrored Items, mit denen sich bereits vorhandene Datenbanken in Fabric spiegeln lassen. (Stand 2026-01) Auch eigene Datenquellen wie Excel-Dateien lassen sich per Open Mirroring nach Fabric spiegeln. (Stand 2026-01) Open Mirroring ermöglicht es, Tabellen in Fabric unabhängig von der Datenquelle darzustellen, solange der Datenprovider die Datensätze in die Quelle einliefert. (Stand 2026-01)",
  "nachbarn": [
   {
    "id": "tool:directquery",
    "name": "DirectQuery",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 8,
    "beleg": "wenn Daten erstmal in Fabric sind gespiegelt, das ist schon besser als jetzt direct query auf irgendwelche großen Lake Systeme zu machen, die dann pro Computer halt berechnen und dann entsprechend teu",
    "datei": "directquery.md"
@@ -33,7 +33,7 @@
    "id": "tool:sap",
    "name": "SAP",
    "kantentyp": "teil-von",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 7,
    "beleg": "es gibt SAP Mirroring, hat wirklich auf der Febru sehr große Augen für sehr große Augen gesorgt und ist inzwischen ja da Preview",
    "datei": "sap.md"
@@ -42,7 +42,7 @@
    "id": "tool:snowflake",
    "name": "Snowflake",
    "kantentyp": "teil-von",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 25,
    "beleg": "für Snowflake komplett bidirektionale Geschichte",
    "datei": "snowflake.md"
@@ -51,7 +51,7 @@
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 16,
    "beleg": "geben ihn mit dem entsprechenden Event als Row Marker in Oneel Lake und Fabric baut daraus auf der Fabricseite eine identische Tabelle",
    "datei": "onelake.md"
@@ -60,7 +60,7 @@
    "id": "tool:fabric-capacity",
    "name": "Fabric Capacity",
    "kantentyp": "teil-von",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 10,
    "beleg": "die Speicherkosten ... sind ja die Speicherkosten je nach äh Kapazität im Terabyte Bereich äh mit drin (Segment 8)",
    "datei": "fabric-capacity.md"
@@ -69,16 +69,16 @@
    "id": "tool:fabric-capacity",
    "name": "Fabric Capacity",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 10,
-   "beleg": "kostenlosen Speicher für das Mirroring, entsprechend deiner Kapazität, bei einer F64 schon 64 TB",
+   "beleg": "hast du je nachdem, was für eine Kapazität du bei Fabric gekauft hast, kostenlosen Mirror Speicher dabei",
    "datei": "fabric-capacity.md"
   },
   {
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 33,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -87,16 +87,25 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "power-bi.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "topic:lizenzen",
    "name": "Lizenzen",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "lizenzen.md"
@@ -105,7 +114,7 @@
    "id": "topic:governance",
    "name": "Governance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "governance.md"
@@ -114,7 +123,7 @@
    "id": "tool:delta-lake",
    "name": "Delta Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "delta-lake.md"
@@ -123,7 +132,7 @@
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "direct-lake.md"
@@ -132,7 +141,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -141,22 +150,22 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "performance.md"
-  },
-  {
-   "id": "topic:reporting",
-   "name": "Reporting",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 8,
-   "beleg": "",
-   "datei": "reporting.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 113,
+   "zeit": "01:53",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=113s",
+   "aussage": "Mirroring in Fabric wuerde es heute ermoeglichen, SAP-Datasphere-Daten automatisch in ein per SQL-Endpunkt lesbares Format zu ueberfuehren, war zum Projektzeitpunkt aber noch nicht verfuegbar."
+  },
   {
    "typ": "Fakt",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
@@ -173,7 +182,7 @@
    "sekunde": 7,
    "zeit": "00:07",
    "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=7s",
-   "aussage": "Der Sprecher findet Open Mirroring interessanter als klassisches Mirroring, weil es unabhängig von vorgegebenen Datenquellen funktioniert."
+   "aussage": "Einer der Sprecher findet Open Mirroring interessanter als klassisches Mirroring, weil es unabhängig von vorgegebenen Datenquellen funktioniert."
   },
   {
    "typ": "Fakt",
@@ -308,7 +317,7 @@
    "sekunde": 558,
    "zeit": "09:18",
    "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=558s",
-   "aussage": "Der Sprecher bewertet die gezeigte Open-Mirroring-Demo als eindrucksvoll und fragt die Zuschauer, ob das Thema für sie hilfreich wäre."
+   "aussage": "Einer der Sprecher bewertet die gezeigte Open-Mirroring-Demo als eindrucksvoll und fragt die Zuschauer, ob das Thema für sie hilfreich wäre."
   },
   {
    "typ": "Fakt",
@@ -381,6 +390,78 @@
    "zeit": "55:58",
    "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3358s",
    "aussage": "Beim Mirroring von Databricks-Daten werden nur die Metadaten gespiegelt, weil Fabric direkt auf denselben zugrunde liegenden Speicher wie OneLake oder ADLS Gen2 zugreift, den Databricks bereits nutzt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 693,
+   "zeit": "11:33",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=693s",
+   "aussage": "Je nach gekaufter Fabric-Kapazität ist bei Open Mirroring kostenloser Mirror-Speicher enthalten, und das Processing wird nicht als Leistung angerechnet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 924,
+   "zeit": "15:24",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=924s",
+   "aussage": "Fabric Mirroring unterstützt offiziell Snowflake und Databricks über deren eigene Delta-/Job-Mechanismen, lässt sich über Open Mirroring aber auch für eigene Datenquellen erweitern, wenn Inserts, Updates und Deletes entsprechend gekennzeichnet werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 995,
+   "zeit": "16:35",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=995s",
+   "aussage": "Mit einer F2-Kapazität sind laut Beispiel bis zu 2 TB kostenloser Mirroring-Speicher enthalten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1005,
+   "zeit": "16:45",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1005s",
+   "aussage": "Der kostenlose Mirroring-Speicher in Fabric darf ausschließlich zum Speichern von Spiegelungsreplikaten verwendet werden, nicht für andere Daten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 539,
+   "zeit": "08:59",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=539s",
+   "aussage": "Die Erweiterung BC ADLS ermöglicht es, Business-Central-Tabellen aus der Cloud-Variante ähnlich wie bei einem Synapse Link direkt in ein Data Lake bzw. nach Fabric zu spiegeln."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1926,
+   "zeit": "32:06",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1926s",
+   "aussage": "Im Bereich Data Integration wurde Support für Mirroring in Kombination mit On-Premises- und Virtual-Network-Data-Gateways ergänzt, um gesicherten Zugriff auf firewallgeschützte Quellen zu ermöglichen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 1420,
+   "zeit": "23:40",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1420s",
+   "aussage": "Mirroring für Oracle ist zum Zeitpunkt der Aufnahme offizieller angekündigt als für SAP, das bisher nur in Sessions gezeigt wurde."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1710,
+   "zeit": "28:30",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1710s",
+   "aussage": "Mit Snowflake Mirroring lassen sich Snowflake-Datenbanken als Kopie in Fabric einziehen, während eine Databricks-Verbindung per Link wie ein Shortcut funktioniert, ohne die Daten zu kopieren."
   }
  ],
  "dokumente": [
@@ -453,7 +534,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.14,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -503,7 +584,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.073,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -573,7 +654,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.042,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -588,7 +669,7 @@
    "id": "yt:lH_-A8NAQ-k",
    "titel": "Datenmodellierung ist Governance",
    "datum": "2025-11-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.04,
    "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
    "sprungmarken": [
@@ -638,7 +719,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.032,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -653,7 +734,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [

@@ -4,26 +4,26 @@
  "typ": "tool",
  "slug": "power-bi-service",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-service.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-service.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-service.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-service.json",
  "dokumente_gesamt": 10,
- "kernaussagen_gesamt": 11,
- "mit_kernaussagen": 6,
+ "kernaussagen_gesamt": 16,
+ "mit_kernaussagen": 9,
  "aliase": [
   "Power BI Dienst",
   "app.powerbi.com"
  ],
- "einordnung": "Im Power BI Service ist Copilot jetzt prominent platziert. Nutzer können die prominente Copilot-Anzeige im Power BI Service wieder zurückdrehen. Das Q&A-Feature in Power BI ist jetzt offiziell abgekündigt.",
+ "einordnung": "Im Power BI Service ist Copilot jetzt prominent platziert. (Stand 2026-01) Nutzer können die prominente Copilot-Anzeige im Power BI Service wieder zurückdrehen. (Stand 2026-01) Das Q&A-Feature in Power BI ist jetzt offiziell abgekündigt. (Stand 2026-01)",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "power-bi.md"
@@ -32,7 +32,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "reporting.md"
@@ -41,7 +41,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -50,7 +50,7 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "workspace.md"
@@ -59,7 +59,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -68,7 +68,7 @@
    "id": "tool:semantic-model",
    "name": "Semantic Model",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "semantic-model.md"
@@ -77,7 +77,7 @@
    "id": "topic:ibcs",
    "name": "IBCS",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "ibcs.md"
@@ -86,7 +86,7 @@
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "direct-lake.md"
@@ -95,7 +95,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -104,7 +104,7 @@
    "id": "tool:premium",
    "name": "Premium",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "premium.md"
@@ -113,7 +113,7 @@
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "onelake.md"
@@ -122,7 +122,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -181,7 +181,7 @@
    "sekunde": 40,
    "zeit": "00:40",
    "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=40s",
-   "aussage": "Der Sprecher begrüßt die Abkündigung des Q&A-Features, da es ihn per Doppelklick immer wieder störte."
+   "aussage": "Artur König begrüßt die Abkündigung des Q&A-Features, da es ihn per Doppelklick immer wieder störte."
   },
   {
    "typ": "Fakt",
@@ -200,6 +200,24 @@
    "zeit": "03:45",
    "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=225s",
    "aussage": "Power BI im Web unterstützt jetzt die Themes-Auswahl und den Performance Analyzer und ist damit fast gleichwertig zu Power BI Desktop."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 1936,
+   "zeit": "32:16",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=1936s",
+   "aussage": "Power BI unterstuetzt inzwischen im Web organisatorische Themes fuer Reports, was zuvor nur im Desktop moeglich war."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2892,
+   "zeit": "48:12",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2892s",
+   "aussage": "Die Web-Version von Power BI wirkt im direkten Vergleich zur Desktop-Variante moderner und gefaellt subjektiv besser."
   },
   {
    "typ": "Fakt",
@@ -227,6 +245,33 @@
    "zeit": "17:15",
    "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1035s",
    "aussage": "Ein Sprecher warnt davor, Berichte über 'Publish to Web' zu veröffentlichen, weil dabei der Datenschutz komplett verloren geht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1930,
+   "zeit": "32:10",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1930s",
+   "aussage": "Das Berechtigungskonzept wurde bereits festgelegt, bevor die ersten Teams überhaupt Zugriff auf die Power-BI-Plattform erhielten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 181,
+   "zeit": "03:01",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=181s",
+   "aussage": "Import-Semantikmodelle lassen sich inzwischen vollständig im Web bearbeiten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 231,
+   "zeit": "03:51",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=231s",
+   "aussage": "Live-Editing von Direct-Lake-Semantikmodellen ist sowohl im Power BI Service als auch in Power BI Desktop GA."
   }
  ],
  "dokumente": [
@@ -309,7 +354,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.042,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -324,7 +369,7 @@
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.027,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [
@@ -339,7 +384,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [

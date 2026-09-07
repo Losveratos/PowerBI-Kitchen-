@@ -4,25 +4,43 @@
  "typ": "tool",
  "slug": "github",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/github.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/github.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/github.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/github.json",
  "dokumente_gesamt": 26,
- "kernaussagen_gesamt": 0,
- "mit_kernaussagen": 0,
+ "kernaussagen_gesamt": 8,
+ "mit_kernaussagen": 5,
  "aliase": [
   "Git Hub"
  ],
- "einordnung": "GitHub kommt in 26 Dokumenten der Daten-WG vor; am ausführlichsten in „ChartKitchen byDatenWG — Quick Start“ (2026-08-31).",
+ "einordnung": "In Unternehmen muessen Tools wie GitHub Copilot und Visual Studio Code bei jedem Entwickler einzeln installiert werden, was angesichts unterschiedlicher Nutzergruppen in Fabric eine Huerde ist. (Stand 2026-08) Der Agent Hub ist ueber die Anmeldung bei GitHub Copilot mit den dort verfuegbaren Modellen verbunden und speichert fruehere Prompts zur Wiederverwendung. (Stand 2026-08) Das Referenzmodell samt Monitoring-Dashboard wurde in einem GitHub-Repository bereitgestellt, damit es heruntergeladen und wiederverwendet werden kann. (Stand 2025-08)",
  "nachbarn": [
+  {
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 7,
+   "beleg": "dass wir hier im Gittaub Copilet angemeldet sind",
+   "datei": "copilot.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 5,
+   "beleg": "Wir laden die Report Definition hier über das Gitub Repository",
+   "datei": "notebook.md"
+  },
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "power-bi.md"
@@ -31,7 +49,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -40,7 +58,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -49,25 +67,16 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "ki.md"
   },
   {
-   "id": "tool:copilot",
-   "name": "Copilot",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 7,
-   "beleg": "",
-   "datei": "copilot.md"
-  },
-  {
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "dax.md"
@@ -76,7 +85,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "performance.md"
@@ -85,7 +94,7 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "workspace.md"
@@ -94,25 +103,16 @@
    "id": "tool:power-query",
    "name": "Power Query",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "power-query.md"
   },
   {
-   "id": "tool:notebook",
-   "name": "Notebook",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 5,
-   "beleg": "",
-   "datei": "notebook.md"
-  },
-  {
    "id": "tool:tabular-editor",
    "name": "Tabular Editor",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "tabular-editor.md"
@@ -121,7 +121,7 @@
    "id": "topic:community",
    "name": "Community",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "community.md"
@@ -130,7 +130,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "reporting.md"
@@ -139,7 +139,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -148,13 +148,86 @@
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "refresh.md"
   }
  ],
- "kernaussagen": [],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 695,
+   "zeit": "11:35",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=695s",
+   "aussage": "In Unternehmen muessen Tools wie GitHub Copilot und Visual Studio Code bei jedem Entwickler einzeln installiert werden, was angesichts unterschiedlicher Nutzergruppen in Fabric eine Huerde ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 1000,
+   "zeit": "16:40",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1000s",
+   "aussage": "Der Agent Hub ist ueber die Anmeldung bei GitHub Copilot mit den dort verfuegbaren Modellen verbunden und speichert fruehere Prompts zur Wiederverwendung."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 543,
+   "zeit": "09:03",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=543s",
+   "aussage": "Für die Nutzung wird eine GitHub-Anmeldung benötigt, wobei GitHub Copilot Free zum Einstieg ausreicht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 731,
+   "zeit": "12:11",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=731s",
+   "aussage": "Das Referenzmodell samt Monitoring-Dashboard wurde in einem GitHub-Repository bereitgestellt, damit es heruntergeladen und wiederverwendet werden kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 830,
+   "zeit": "13:50",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=830s",
+   "aussage": "Das Fabric-Notebook lädt das GitHub-Repository über eine speziell zusammengebaute URL komplett als ZIP-Datei herunter."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1268,
+   "zeit": "21:08",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1268s",
+   "aussage": "Werden Berichte statt aus separaten Dateien aus einem Git-Repository bezogen, entsteht dadurch ein Skaleneffekt über große Organisationen hinweg."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1860,
+   "zeit": "31:00",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1860s",
+   "aussage": "GitHub Copilot in VS Code weist teilweise darauf hin, wenn Code nach einem Secret oder Schlüssel aussieht, und schlägt vor, ihn abzusichern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1681,
+   "zeit": "28:01",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1681s",
+   "aussage": "Michaels Vortragsunterlagen zur Interaktivität über API-Schnittstellen wurden bei GitHub veröffentlicht."
+  }
+ ],
  "dokumente": [
   {
    "id": "page:chartkitchen-schnellstart_en",
@@ -200,7 +273,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.167,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -225,7 +298,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.132,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -285,7 +358,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.1,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -325,7 +398,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.071,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [
@@ -365,7 +438,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.057,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [
@@ -385,7 +458,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.051,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -405,7 +478,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.047,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -440,7 +513,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": [
@@ -550,7 +623,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.027,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [

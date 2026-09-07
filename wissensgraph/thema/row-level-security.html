@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Row-Level Security · DatenWG Library</title>
-<meta name="description" content="Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen. Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte.">
+<meta name="description" content="OneLake Security soll als zentrale Policy Engine Spalten-, Row-Level- und dynamische Tabellenebenen-Sicherheit über Lakehouse, Warehouse und Power BI hinweg abdecken.">
 <meta property="og:title" content="Row-Level Security · DatenWG Library">
-<meta property="og:description" content="Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen. Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte.">
+<meta property="og:description" content="OneLake Security soll als zentrale Policy Engine Spalten-, Row-Level- und dynamische Tabellenebenen-Sicherheit über Lakehouse, Warehouse und Power BI hinweg abdecken.">
 <meta property="og:type" content="article">
 <meta property="og:image" content="https://datenwgknowledgekitchen.com/wissensgraph/og.png">
 <meta property="og:image:width" content="1200">
@@ -48,9 +48,9 @@ footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
 <main>
 <p class="kicker">DatenWG Library · thema</p>
 <h1>Row-Level Security</h1>
-<p class="lead">Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen. Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte. Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird.</p>
+<p class="lead">OneLake Security soll als zentrale Policy Engine Spalten-, Row-Level- und dynamische Tabellenebenen-Sicherheit über Lakehouse, Warehouse und Power BI hinweg abdecken. (Stand 2025-04) Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen. (Stand 2026-03) Die Manipulation über die Berichtsdatei betrifft nur das Frontend und kann nur sichtbar machen, was im Modell bereits vorhanden, aber schlecht verborgen ist. (Stand 2025-08)</p>
 <div class="btns"><a class="btn" href="../#n=topic%3Arow-level-security">In der Library öffnen</a><a class="btn" href="../graph.html#n=topic%3Arow-level-security&amp;f=topic%3Arow-level-security">Im Graph öffnen</a></div>
-<p class="meta">12 Dokumente · 6 Kernaussagen · Stand 2026-09-07 · Build 20260907-1922</p>
+<p class="meta">12 Dokumente · 13 Kernaussagen · Stand 2026-09-07 · Build 20260907-1949</p>
 <h2>Aliase</h2>
 <p><span class="tag">RLS</span> <span class="tag">Zeilenebene</span> <span class="tag">Row Level Security</span> <span class="tag">Berechtigungen</span></p>
 <h2>Kernaussagen</h2>
@@ -60,6 +60,13 @@ footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
 <li>Das Explore-Feature ist nicht an die Build-Permission gekoppelt, sodass darüber Inhalte aus dem semantischen Modell zugänglich sein können, die im Bericht selbst nicht sichtbar sind.<span class="meta quote">Warnung · Stand 2026-03 · BI Thinkers Talk n.74 · <a href="https://www.youtube.com/watch?v=rWE0gMx7v7I&amp;t=1538s">25:38</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen.<span class="meta quote">Fakt · Stand 2026-03 · BI Thinkers Talk n.74 · <a href="https://www.youtube.com/watch?v=rWE0gMx7v7I&amp;t=1603s">26:43</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte.<span class="meta quote">Fakt · Stand 2026-01 · Fabric &amp; Power BI Quarterly · 2026-1 · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1310s">21:50</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Werden Platzhalternamen im Referenzmodell nicht sorgfältig gewählt, besteht das Risiko einer Art Power-BI-Code-Injection über eingeschleuste JSON- oder RLS-Inhalte.<span class="meta quote">Warnung · Stand 2025-08 · Daten-WG BI Thinkers Talk nr.66 · <a href="https://www.youtube.com/watch?v=DQENmzAkNqw&amp;t=1147s">19:07</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Die Manipulation über die Berichtsdatei betrifft nur das Frontend und kann nur sichtbar machen, was im Modell bereits vorhanden, aber schlecht verborgen ist.<span class="meta quote">Fakt · Stand 2025-08 · Daten-WG BI Thinkers Talk nr.66 · <a href="https://www.youtube.com/watch?v=DQENmzAkNqw&amp;t=1168s">19:28</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Der aktuelle Preview-Stand der Composite Models über mehrere Lakehäuser verhält sich eher wie ein Import Mode ohne lange Ladezeiten, weil eigene Measures, Beziehungen und Row-Level Security noch fehlen.<span class="meta quote">Meinung · Stand 2025-04 · Fabric &amp; Power BI Quarterly | 2025 Q2 · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=662s">11:02</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Echte Composite Models werden erst mit der angekündigten OneLake Security möglich, weil dann Berechtigungen aus verschiedenen Quellen mitgezogen werden können.<span class="meta quote">Meinung · Stand 2025-04 · Fabric &amp; Power BI Quarterly | 2025 Q2 · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=725s">12:05</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>OneLake Security soll als zentrale Policy Engine Spalten-, Row-Level- und dynamische Tabellenebenen-Sicherheit über Lakehouse, Warehouse und Power BI hinweg abdecken.<span class="meta quote">Fakt · Stand 2025-04 · Fabric &amp; Power BI Quarterly | 2025 Q2 · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=1124s">18:44</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Für Row-Level-Security-Anforderungen im Import Mode wurden Warehouse-Views statt vollem Lake-House-Zugriff verwendet, was sich als performanter erwies als eine Notebook-Kopie.<span class="meta quote">Fakt · Stand  · 600 SQL-Tabellen in Fabric · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1362s">22:42</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Wenn Views im Warehouse oder Predicate Functions für Security genutzt werden, ist Direct Lake danach nicht mehr nutzbar.<span class="meta quote">Warnung · Stand  · 600 SQL-Tabellen in Fabric · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1497s">24:57</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Komplexere Sicherheitsszenarien wie dynamische Row-Level Security und Dynamic Data Masking fehlen in OneLake Security noch und stehen auf der Roadmap.<span class="meta quote">Warnung · Stand  · Fabric &amp; Power BI Quarterly · 2026-2 · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=1934s">32:14</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 </ul>
 <h2>Dokumente</h2>
@@ -68,32 +75,32 @@ footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
 <li><a href="https://www.youtube.com/watch?v=GKLxM3317Xk">So hackst du einen Power BI Bericht | Power BI Tutorial</a><span class="meta quote">2025-09-01 · nur-text · <a href="https://www.youtube.com/watch?v=GKLxM3317Xk">Abschnitt</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=TkxwcAyBGUM">Power BI Update Juli 2025</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=TkxwcAyBGUM&amp;t=127s">02:07</a></span></li>
 <li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=09%20%C2%B7%20Row-Level%20Security%20%2A%C2%B7%20RLS%2A">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=3.%20Bidirektional%20sparsam">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Risiken">Abschnitt</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=633s">10:33</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=726s">12:06</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=950s">15:50</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=633s">10:33</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=726s">12:06</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=950s">15:50</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=rWE0gMx7v7I">BI Thinkers Talk n.74</a><span class="meta quote">2026-03-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=rWE0gMx7v7I&amp;t=1459s">24:19</a> · <a href="https://www.youtube.com/watch?v=rWE0gMx7v7I&amp;t=1556s">25:56</a> · <a href="https://www.youtube.com/watch?v=rWE0gMx7v7I&amp;t=1647s">27:27</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=9VX4-lLa0EI">BI Thinkers Talk nr.63</a><span class="meta quote">2025-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9VX4-lLa0EI&amp;t=2535s">42:15</a> · <a href="https://www.youtube.com/watch?v=9VX4-lLa0EI&amp;t=3027s">50:27</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=DQENmzAkNqw">Daten-WG BI Thinkers Talk nr.66</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=DQENmzAkNqw&amp;t=1068s">17:48</a> · <a href="https://www.youtube.com/watch?v=DQENmzAkNqw&amp;t=1850s">30:50</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=RtUiF1J5XEg">600 SQL-Tabellen in Fabric</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1277s">21:17</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=DQENmzAkNqw">Daten-WG BI Thinkers Talk nr.66</a><span class="meta quote">2025-08-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=DQENmzAkNqw&amp;t=1068s">17:48</a> · <a href="https://www.youtube.com/watch?v=DQENmzAkNqw&amp;t=1850s">30:50</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=RtUiF1J5XEg">600 SQL-Tabellen in Fabric</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1277s">21:17</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=TYp5xCAU2AU">Fabric &amp; Power BI Quarterly · 2026-1</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1250s">20:50</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=KMk1k5uCLZU">Daten-WG Thinkers Talk n61</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=KMk1k5uCLZU&amp;t=1133s">18:53</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=KMk1k5uCLZU">Daten-WG Thinkers Talk n61</a><span class="meta quote">2025-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=KMk1k5uCLZU&amp;t=1133s">18:53</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=xCzKEIB4W5I">Fabric Planning unboxing</a><span class="meta quote">2026-03-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=4728s">1:18:48</a></span></li>
 </ul>
 <h2>Nachbarthemen</h2>
 <ul>
-<li><a href="sicherheit.html">Sicherheit</a><span class="meta quote">ko-vorkommen · heuristik · 28 gemeinsame Segmente</span></li>
-<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 27 gemeinsame Segmente</span></li>
-<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 25 gemeinsame Segmente</span></li>
-<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 20 gemeinsame Segmente</span></li>
-<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 17 gemeinsame Segmente</span></li>
-<li><a href="onelake.html">OneLake</a><span class="meta quote">ko-vorkommen · heuristik · 14 gemeinsame Segmente</span></li>
-<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">ko-vorkommen · heuristik · 13 gemeinsame Segmente</span></li>
-<li><a href="workspace.html">Workspace</a><span class="meta quote">ko-vorkommen · heuristik · 12 gemeinsame Segmente</span></li>
-<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">ko-vorkommen · heuristik · 11 gemeinsame Segmente</span></li>
-<li><a href="refresh.html">Refresh</a><span class="meta quote">ko-vorkommen · heuristik · 11 gemeinsame Segmente</span></li>
-<li><a href="directquery.html">DirectQuery</a><span class="meta quote">ko-vorkommen · heuristik · 11 gemeinsame Segmente</span></li>
-<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 10 gemeinsame Segmente</span></li>
-<li><a href="visualisierung.html">Visualisierung</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
-<li><a href="data-pipeline.html">Data Pipeline</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
-<li><a href="governance.html">Governance</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
+<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">Row-Level Security gegensatz Direct Lake · automatisch extrahiert, Quellenstelle vorhanden · „dann sag mal tschüss zu Direct Lake. Das ist gerade aus dem Fenster“ (600 SQL-Tabellen in Fabric) · 13 gemeinsame Segmente</span></li>
+<li><a href="field-parameters.html">Field Parameters</a><span class="meta quote">Row-Level Security setzt-voraus Field Parameters · automatisch extrahiert, Quellenstelle vorhanden · „nutzt dann hier die Field Parameter, um das ganze Thema zu umgehen“ (BI Thinkers Talk nr.64, 2025-07) · 0 gemeinsame Segmente</span></li>
+<li><a href="sicherheit.html">Sicherheit</a><span class="meta quote">Row-Level Security und Sicherheit im selben Segment · Heuristik, gezählt · 28 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">Row-Level Security und Reporting im selben Segment · Heuristik, gezählt · 27 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">Row-Level Security und Power BI im selben Segment · Heuristik, gezählt · 25 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">Row-Level Security und Microsoft Fabric im selben Segment · Heuristik, gezählt · 20 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">Row-Level Security und Performance im selben Segment · Heuristik, gezählt · 17 gemeinsame Segmente</span></li>
+<li><a href="onelake.html">OneLake</a><span class="meta quote">Row-Level Security und OneLake im selben Segment · Heuristik, gezählt · 14 gemeinsame Segmente</span></li>
+<li><a href="workspace.html">Workspace</a><span class="meta quote">Row-Level Security und Workspace im selben Segment · Heuristik, gezählt · 12 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">Row-Level Security und Lakehouse im selben Segment · Heuristik, gezählt · 11 gemeinsame Segmente</span></li>
+<li><a href="refresh.html">Refresh</a><span class="meta quote">Row-Level Security und Refresh im selben Segment · Heuristik, gezählt · 11 gemeinsame Segmente</span></li>
+<li><a href="directquery.html">DirectQuery</a><span class="meta quote">Row-Level Security und DirectQuery im selben Segment · Heuristik, gezählt · 11 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">Row-Level Security und Warehouse im selben Segment · Heuristik, gezählt · 10 gemeinsame Segmente</span></li>
+<li><a href="visualisierung.html">Visualisierung</a><span class="meta quote">Row-Level Security und Visualisierung im selben Segment · Heuristik, gezählt · 9 gemeinsame Segmente</span></li>
+<li><a href="data-pipeline.html">Data Pipeline</a><span class="meta quote">Row-Level Security und Data Pipeline im selben Segment · Heuristik, gezählt · 9 gemeinsame Segmente</span></li>
 </ul>
 <h2>Hinweise</h2>
 <p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>

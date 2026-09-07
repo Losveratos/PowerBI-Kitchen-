@@ -3,7 +3,7 @@ id: "tool:analysis-services"
 name: "Analysis Services"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 3
 kernaussagen: 3
@@ -19,7 +19,7 @@ aliase:
 
 # Analysis Services
 
-Perspektiven in Analysis Services und Power BI bilden keine echte Sicherheitsgrenze ab, sodass Nutzer trotz eingeschränkter Perspektive weiterhin das komplette zugrunde liegende Modell nutzen können. Wer aus dem Analysis-Services-Umfeld kommt, bevorzugt multidimensionale Modellierung, während andere alle Aggregationen lieber im Data Warehouse vorberechnen wollen. Power BI ist technisch eng mit Analysis Services verbunden, weshalb aus dieser Perspektive ein Sternschema die passende Modellierung ist.
+Perspektiven in Analysis Services und Power BI bilden keine echte Sicherheitsgrenze ab, sodass Nutzer trotz eingeschränkter Perspektive weiterhin das komplette zugrunde liegende Modell nutzen können. (Stand 2026-04) Wer aus dem Analysis-Services-Umfeld kommt, bevorzugt multidimensionale Modellierung, während andere alle Aggregationen lieber im Data Warehouse vorberechnen wollen. (Stand 2026-01) Power BI ist technisch eng mit Analysis Services verbunden, weshalb aus dieser Perspektive ein Sternschema die passende Modellierung ist. (Stand 2026-01)
 
 ## Aliase
 
@@ -27,9 +27,9 @@ SSAS, Tabular
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Power BI](power-bi.md) | setzt-voraus | belegt | 3 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Power BI](power-bi.md) | Power BI setzt-voraus Analysis Services | automatisch extrahiert, Quellenstelle vorhanden | „diese Analyse Services drin sind und die Microsoft im Kontext von Power BI so stark verheiratet hat, dass es eben bedient werden muss“ (Denken in Tabellen, 2026-01) | 3 |
 
 ## Kernaussagen
 

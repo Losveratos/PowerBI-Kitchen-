@@ -4,26 +4,35 @@
  "typ": "tool",
  "slug": "sql-server",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sql-server.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sql-server.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/sql-server.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/sql-server.json",
  "dokumente_gesamt": 13,
- "kernaussagen_gesamt": 2,
- "mit_kernaussagen": 2,
+ "kernaussagen_gesamt": 7,
+ "mit_kernaussagen": 5,
  "aliase": [
   "T-SQL",
   "MSSQL"
  ],
- "einordnung": "Im SSIS-Datenfluss wird über eine Quelle eine SQL-Datenbank verbunden und darüber ausgewählt, welche Tabelle und Spalten geladen werden. Ein Tabular-Modell im SQL Server der Standard Edition ist auf 16 GB Arbeitsspeicher begrenzt, was bei Überschreitung ein Enterprise-Lizenzthema auslöst.",
+ "einordnung": "Im SSIS-Datenfluss wird über eine Quelle eine SQL-Datenbank verbunden und darüber ausgewählt, welche Tabelle und Spalten geladen werden. (Stand 2025-12) Brian Bønk beschäftigt sich seit vier oder fünf Jahren mit Echtzeitanalysen, seine Datenkarriere begann jedoch vor 25 Jahren mit seinem ersten SQL Server. (Stand 2025-09) Ein Tabular-Modell im SQL Server der Standard Edition ist auf 16 GB Arbeitsspeicher begrenzt, was bei Überschreitung ein Enterprise-Lizenzthema auslöst. (Stand 2026-01)",
  "nachbarn": [
+  {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 38,
+   "beleg": "",
+   "datei": "sql.md"
+  },
   {
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -32,7 +41,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 15,
    "beleg": "",
    "datei": "warehouse.md"
@@ -41,7 +50,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -50,7 +59,7 @@
    "id": "tool:azure",
    "name": "Azure",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "azure.md"
@@ -59,7 +68,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "power-bi.md"
@@ -68,7 +77,7 @@
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "onelake.md"
@@ -77,7 +86,7 @@
    "id": "topic:echtzeit",
    "name": "Echtzeit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "echtzeit.md"
@@ -86,7 +95,7 @@
    "id": "tool:delta-lake",
    "name": "Delta Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "delta-lake.md"
@@ -95,7 +104,7 @@
    "id": "tool:data-pipeline",
    "name": "Data Pipeline",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "data-pipeline.md"
@@ -104,7 +113,7 @@
    "id": "tool:spark",
    "name": "Spark",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "spark.md"
@@ -113,7 +122,7 @@
    "id": "topic:lizenzen",
    "name": "Lizenzen",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "lizenzen.md"
@@ -122,7 +131,7 @@
    "id": "tool:sql-endpoint",
    "name": "SQL Endpoint",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "sql-endpoint.md"
@@ -131,7 +140,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "performance.md"
@@ -140,19 +149,10 @@
    "id": "tool:power-query",
    "name": "Power Query",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "power-query.md"
-  },
-  {
-   "id": "topic:reporting",
-   "name": "Reporting",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 5,
-   "beleg": "",
-   "datei": "reporting.md"
   }
  ],
  "kernaussagen": [
@@ -173,6 +173,51 @@
    "zeit": "04:56",
    "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=296s",
    "aussage": "Im SSIS-Datenfluss wird über eine Quelle eine SQL-Datenbank verbunden und darüber ausgewählt, welche Tabelle und Spalten geladen werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 44,
+   "zeit": "00:44",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=44s",
+   "aussage": "Brian Bønk beschäftigt sich seit vier oder fünf Jahren mit Echtzeitanalysen, seine Datenkarriere begann jedoch vor 25 Jahren mit seinem ersten SQL Server."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1947,
+   "zeit": "32:27",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1947s",
+   "aussage": "Brian Bønk wünscht sich für Real Time Intelligence eine KQL-Funktion mit Streaming-Unterstützung, vergleichbar mit einer gespeicherten Prozedur in SQL Server."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1442,
+   "zeit": "24:02",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1442s",
+   "aussage": "Ein selbstgeschriebenes Python-Skript exportiert SQL-Server-Tabellen als Delta-Parquet-Dateien direkt in den OneLake-Speicher, wo sie sofort als Tabelle über den SQL-Endpunkt verfügbar sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 552,
+   "zeit": "09:12",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=552s",
+   "aussage": "Das Source-System der Migration hatte über 600 SQL-Tabellen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1270,
+   "zeit": "21:10",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1270s",
+   "aussage": "Für die Warehouses wurden im Projekt klassische DACPAC-Deployments über ein SQL-Deployment-Tool eingesetzt, weil die Fabric Deployment Pipelines dafür nicht funktionierten."
   }
  ],
  "dokumente": [
@@ -205,7 +250,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.154,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -390,7 +435,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.023,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [

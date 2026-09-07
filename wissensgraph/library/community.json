@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "community",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/community.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/community.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/community.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/community.json",
  "dokumente_gesamt": 52,
- "kernaussagen_gesamt": 6,
- "mit_kernaussagen": 5,
+ "kernaussagen_gesamt": 26,
+ "mit_kernaussagen": 13,
  "aliase": [
   "User Group",
   "Meetup",
@@ -20,13 +20,13 @@
   "Usergroup",
   "Meetups"
  ],
- "einordnung": "Brian hielt auf der Feb Con in Wien eine Podiumsdiskussion über Community und Benutzergruppen. Ab Mai sind bei den BI Thinkers Talks ein Auftritt von Stefan Werner sowie ein gemeinsamer Stream mit Ren Fürstenberg und Joris Karle geplant. Der BI Thinkers Talk ist mit der aktuellen Folge bei Nummer 62 angekommen, vier Jahre nach der ersten Ausgabe.",
+ "einordnung": "Brian hielt auf der Feb Con in Wien eine Podiumsdiskussion über Community und Benutzergruppen. (Stand 2026-05) Laut Erzählung auf der Daten-WG 2025 hat Stefan rund 13.000 Leute ausgebildet und die Community bei der Finanzverwaltung bottom-up aufgebaut. (Stand 2025-04) Durch die Wohnzimmeratmosphäre der Location gingen Vorträge auf der Daten-WG oft nahtlos in Diskussion und Networking über. (Stand 2025-05)",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 35,
    "beleg": "",
    "datei": "power-bi.md"
@@ -35,7 +35,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -44,7 +44,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "ki.md"
@@ -53,7 +53,7 @@
    "id": "topic:daten-wg",
    "name": "Daten-WG",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "daten-wg.md"
@@ -62,7 +62,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "reporting.md"
@@ -71,7 +71,7 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "sicherheit.md"
@@ -80,7 +80,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -89,7 +89,7 @@
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "excel.md"
@@ -98,7 +98,7 @@
    "id": "topic:schulung",
    "name": "Schulung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "schulung.md"
@@ -107,7 +107,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "performance.md"
@@ -116,7 +116,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "warehouse.md"
@@ -125,7 +125,7 @@
    "id": "topic:konferenz",
    "name": "Konferenz",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "konferenz.md"
@@ -134,7 +134,7 @@
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "datenmodellierung.md"
@@ -143,22 +143,40 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "power-bi-desktop.md"
   },
   {
-   "id": "tool:fabric-capacity",
-   "name": "Fabric Capacity",
+   "id": "tool:sql",
+   "name": "SQL",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
-   "datei": "fabric-capacity.md"
+   "datei": "sql.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 85,
+   "zeit": "01:25",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=85s",
+   "aussage": "Kundenfeedback zeigt, dass es angesichts der schnellen Entwicklung bei KI und der Vielzahl an Werkzeugen rund um Microsoft Fabric und Community-Tools wie dem Power BI Fixer schwer ist, den Ueberblick zu behalten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 181,
+   "zeit": "03:01",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=181s",
+   "aussage": "Workloads in Microsoft Fabric koennen auch von Drittanbietern wie Esri (ArcGIS Maps) oder aus der Community stammen und werden nach dem Hinzufuegen nativ in der Plattform nutzbar."
+  },
   {
    "typ": "Fakt",
    "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
@@ -202,7 +220,61 @@
    "sekunde": 558,
    "zeit": "09:18",
    "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=558s",
-   "aussage": "Der Sprecher bewertet die gezeigte Open-Mirroring-Demo als eindrucksvoll und fragt die Zuschauer, ob das Thema für sie hilfreich wäre."
+   "aussage": "Einer der Sprecher bewertet die gezeigte Open-Mirroring-Demo als eindrucksvoll und fragt die Zuschauer, ob das Thema für sie hilfreich wäre."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 312,
+   "zeit": "05:12",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=312s",
+   "aussage": "Statt einer bewusst gewählten Nische sollten Menschen laut Brian Bønk lieber ihrer Leidenschaft folgen und diese der Community zeigen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 319,
+   "zeit": "05:19",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=319s",
+   "aussage": "Ohne Leidenschaft fehlt laut Brian Bønk die Motivation, und ohne Motivation bleibt die eigene Weiterentwicklung aus."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 388,
+   "zeit": "06:28",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=388s",
+   "aussage": "Brian Bønk bietet Mentoring sowohl für angehende Community-Speaker als auch für Menschen an, die ihre Karriere im Datenbereich beginnen möchten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1390,
+   "zeit": "23:10",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1390s",
+   "aussage": "Brian Bønks Real-Time-Dashboard-Projekt wurde live auf der Data-Unplugged-Konferenz präsentiert und danach mit Community-Feedback beim SQL Saturday Rheinland weiter optimiert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 370,
+   "zeit": "06:10",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=370s",
+   "aussage": "Die Idee wurde vorab auf dem TDWI Barcamp mit anderen Teilnehmenden challengen lassen, bevor sie umgesetzt wurde."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 1760,
+   "zeit": "29:20",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1760s",
+   "aussage": "Markus hat sich viel Muehe gemacht, den gesamten Aufbau mit Schaubild und Anleitung zu dokumentieren, damit sich der Case nachbauen laesst."
   },
   {
    "typ": "Fakt",
@@ -212,6 +284,114 @@
    "zeit": "04:56",
    "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=296s",
    "aussage": "Der BI Thinkers Talk ist mit der aktuellen Folge bei Nummer 62 angekommen, vier Jahre nach der ersten Ausgabe."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 601,
+   "zeit": "10:01",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=601s",
+   "aussage": "Durch die Wohnzimmeratmosphäre der Location gingen Vorträge auf der Daten-WG oft nahtlos in Diskussion und Networking über."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 752,
+   "zeit": "12:32",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=752s",
+   "aussage": "Für die Daten-WG wurde ein eigener Raum nur fürs Networking eingerichtet, mit Lego, Wii, Super NES und Buffet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1199,
+   "zeit": "19:59",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1199s",
+   "aussage": "Die Aftercon war als Coworking-Format mit einem großen Tisch organisiert, bei dem der Ideenaustausch ganz ohne großen Fernseher funktionierte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1404,
+   "zeit": "23:24",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1404s",
+   "aussage": "Bei der Aftercon bauten Teilnehmende gemeinsam eine Writeback-Funktionalität über Power Apps in einen Power-BI-Bericht."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1905,
+   "zeit": "31:45",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1905s",
+   "aussage": "Der Sequel Saturday Rheinland gilt in der Data-Monster-Community als kostenloser Geheimtipp mit hoher inhaltlicher Qualität."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1561,
+   "zeit": "26:01",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1561s",
+   "aussage": "Laut Erzählung auf der Daten-WG 2025 hat Stefan rund 13.000 Leute ausgebildet und die Community bei der Finanzverwaltung bottom-up aufgebaut."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 1875,
+   "zeit": "31:15",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1875s",
+   "aussage": "Auf der Community-Plattform FabSnippets veröffentlichen Leute fertige TMDL-Snippets zum Copypasten, etwa Martin Bubenheimers Calculation-Group-Measure für gleitende Durchschnitte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 658,
+   "zeit": "10:58",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=658s",
+   "aussage": "Das Power-BI-Café ist ein wiederkehrender Termin, der ursprünglich wöchentlich stattfand und inzwischen zweiwöchentlich läuft, um Klarheit über die Langfristigkeit des Vorhabens zu schaffen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 825,
+   "zeit": "13:45",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=825s",
+   "aussage": "Im Power-BI-Café sind in der Regel etwa acht Anwender regelmäßig aktiv dabei."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 2356,
+   "zeit": "39:16",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2356s",
+   "aussage": "Auch nach Projektende wird empfohlen, die aufgebaute Kommunikation und den Support für die Power-BI-Community fortzuführen, statt sie fallen zu lassen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 516,
+   "zeit": "08:36",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=516s",
+   "aussage": "Microsoft beschraenkt sich bei Power BI und Fabric bewusst auf Kernkompetenzen und ueberlaesst ergaenzende Loesungen wie FUAM Partnern und der Community."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 815,
+   "zeit": "13:35",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=815s",
+   "aussage": "TMDL ist als Community-Projekt von Matthias Terbach entstanden und hat in Rekordzeit den Weg zu einem offiziell unterstuetzten Bestandteil des Produkts inklusive TMDL View geschafft."
   }
  ],
  "dokumente": [
@@ -274,7 +454,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.348,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": [
@@ -394,7 +574,7 @@
    "id": "yt:aEXtFWW-pmo",
    "titel": "Wie war die Daten-WG 2025? (Teil 1)",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.217,
    "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo",
    "sprungmarken": [
@@ -419,7 +599,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.154,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -464,7 +644,7 @@
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.135,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [
@@ -489,7 +669,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.133,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": [
@@ -509,7 +689,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.128,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -559,7 +739,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.111,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -639,7 +819,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.083,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -694,7 +874,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.071,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [
@@ -844,7 +1024,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.047,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -884,7 +1064,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.042,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -899,7 +1079,7 @@
    "id": "yt:lH_-A8NAQ-k",
    "titel": "Datenmodellierung ist Governance",
    "datum": "2025-11-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.04,
    "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
    "sprungmarken": [
@@ -929,7 +1109,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [
@@ -1004,7 +1184,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -1019,7 +1199,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.025,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -1079,7 +1259,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -1189,7 +1369,7 @@
    "id": "yt:BDnwlOqRElY",
    "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
    "datum": "2025-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
    "sprungmarken": []

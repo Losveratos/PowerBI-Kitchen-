@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "karriere",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/karriere.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/karriere.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/karriere.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/karriere.json",
  "dokumente_gesamt": 8,
- "kernaussagen_gesamt": 4,
- "mit_kernaussagen": 4,
+ "kernaussagen_gesamt": 16,
+ "mit_kernaussagen": 8,
  "aliase": [
   "Bewerbung",
   "Berufseinstieg",
@@ -21,19 +21,55 @@
   "Job",
   "Jobs"
  ],
- "einordnung": "Oliver Franz ist Wirtschaftswissenschaftler und arbeitet seit Langem im BI-Umfeld mit Qlik. Ein häufiger Wechsel von Führungskräften im Pharmaumfeld kann mehrjährige Digitalisierungs- und Testautomatisierungsinitiativen gefährden, wenn die Strategie nicht organisationsweit verankert ist. Aus Metadaten zu Datenmodellen lässt sich ableiten, wie gut ein Team mit Daten umgeht und wo Schulungsbedarf besteht.",
+ "einordnung": "Brian Bønk beschäftigt sich seit vier oder fünf Jahren mit Echtzeitanalysen, seine Datenkarriere begann jedoch vor 25 Jahren mit seinem ersten SQL Server. (Stand 2025-09) Brian Bønk bietet Mentoring sowohl für angehende Community-Speaker als auch für Menschen an, die ihre Karriere im Datenbereich beginnen möchten. (Stand 2025-09) Brian Bønk hat keine feste Tagesroutine, fragt sich aber täglich, was er Neues lernen und am nächsten Tag anwenden kann. (Stand 2025-09)",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "power-bi.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 56,
+   "zeit": "00:56",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=56s",
+   "aussage": "Der Beginn des Selbst-Ersetzens mit KI wird auf den letzten November datiert, also bewusst erst, nachdem sich die Tools etabliert hatten, statt sofort nach dem ChatGPT-Start."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 436,
+   "zeit": "07:16",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=436s",
+   "aussage": "Ein Jahresrückblick von Lovable ordnete ihn aufgrund seines Prompt-Volumens unter die Top 1 % der Programmierer weltweit ein."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 733,
+   "zeit": "12:13",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=733s",
+   "aussage": "Der Umgang mit KI-gestützter, datenbasierter Teamarbeit wird als zunehmend wichtige Führungsaufgabe eingeordnet."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1753,
+   "zeit": "29:13",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1753s",
+   "aussage": "Kunden würden die Beratung wegen des Tools nicht einfach einsparen, weil der eigentliche Mehrwert in der angesammelten Erfahrung liegt und nicht nur im Tool selbst."
+  },
   {
    "typ": "Warnung",
    "dokument": "GxP Talk - Testing im GxP-Umfeld",
@@ -51,6 +87,78 @@
    "zeit": "00:00",
    "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=0s",
    "aussage": "Oliver Franz ist Wirtschaftswissenschaftler und arbeitet seit Langem im BI-Umfeld mit Qlik."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 44,
+   "zeit": "00:44",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=44s",
+   "aussage": "Brian Bønk beschäftigt sich seit vier oder fünf Jahren mit Echtzeitanalysen, seine Datenkarriere begann jedoch vor 25 Jahren mit seinem ersten SQL Server."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 312,
+   "zeit": "05:12",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=312s",
+   "aussage": "Statt einer bewusst gewählten Nische sollten Menschen laut Brian Bønk lieber ihrer Leidenschaft folgen und diese der Community zeigen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 319,
+   "zeit": "05:19",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=319s",
+   "aussage": "Ohne Leidenschaft fehlt laut Brian Bønk die Motivation, und ohne Motivation bleibt die eigene Weiterentwicklung aus."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 388,
+   "zeit": "06:28",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=388s",
+   "aussage": "Brian Bønk bietet Mentoring sowohl für angehende Community-Speaker als auch für Menschen an, die ihre Karriere im Datenbereich beginnen möchten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 540,
+   "zeit": "09:00",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=540s",
+   "aussage": "Fabric-Experten arbeiten laut Brian Bønk wie ein T-Profil: breites Grundwissen über viele Bereiche kombiniert mit tiefem Fachwissen in einem bestimmten Gebiet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 773,
+   "zeit": "12:53",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=773s",
+   "aussage": "Brian Bønk hat keine feste Tagesroutine, fragt sich aber täglich, was er Neues lernen und am nächsten Tag anwenden kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Mythos Data Vault und richtig große Modelle",
+   "dokument_id": "yt:rrCi0lnGrCg",
+   "sekunde": 1859,
+   "zeit": "30:59",
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1859s",
+   "aussage": "Volker Nürnberg arbeitet seit 2005 ausschließlich mit Data Warehouses und kam in den frühen 2010er-Jahren zu Data Vault."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1561,
+   "zeit": "26:01",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1561s",
+   "aussage": "Laut Erzählung auf der Daten-WG 2025 hat Stefan rund 13.000 Leute ausgebildet und die Community bei der Finanzverwaltung bottom-up aufgebaut."
   },
   {
    "typ": "Meinung",
@@ -76,7 +184,7 @@
    "id": "yt:lH_-A8NAQ-k",
    "titel": "Datenmodellierung ist Governance",
    "datum": "2025-11-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.12,
    "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
    "sprungmarken": [
@@ -191,7 +299,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.038,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -206,7 +314,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [

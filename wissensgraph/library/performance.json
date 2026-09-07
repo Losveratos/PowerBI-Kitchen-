@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "performance",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/performance.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/performance.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/performance.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/performance.json",
  "dokumente_gesamt": 38,
- "kernaussagen_gesamt": 27,
- "mit_kernaussagen": 15,
+ "kernaussagen_gesamt": 42,
+ "mit_kernaussagen": 23,
  "aliase": [
   "Performanz",
   "Optimierung",
@@ -20,13 +20,13 @@
   "langsam",
   "schnell"
  ],
- "einordnung": "Bei geringer Datenmenge und einfachen Measures zeigte sich in eigenen Tests kein signifikanter Performance-Unterschied zwischen Flat Table und Sternschema. Power BI im Web unterstützt jetzt die Themes-Auswahl und den Performance Analyzer und ist damit fast gleichwertig zu Power BI Desktop. Nach den Tests der Writeback-Funktion stieg die CU-Auslastung der F2-Kapazität in der Capacity-Metrics-App auf über 100 Prozent.",
+ "einordnung": "Bei geringer Datenmenge und einfachen Measures zeigte sich in eigenen Tests kein signifikanter Performance-Unterschied zwischen Flat Table und Sternschema. (Stand 2026-01) Dataflows Gen2 wurden überarbeitet und bringen vor allem bei Dataflows, die länger als 10 Minuten laufen, eine deutliche Verbesserung bei Performance und CU-Verbrauch. Power BI im Web unterstützt jetzt die Themes-Auswahl und den Performance Analyzer und ist damit fast gleichwertig zu Power BI Desktop. (Stand 2026-01)",
  "nachbarn": [
   {
    "id": "topic:sternschema",
    "name": "Sternschema",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 43,
    "beleg": "schon ab einem gewissen Level muss man einfach das Sternschema machen",
    "datei": "sternschema.md"
@@ -35,7 +35,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 90,
    "beleg": "",
    "datei": "power-bi.md"
@@ -44,7 +44,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 58,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -53,7 +53,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 41,
    "beleg": "",
    "datei": "reporting.md"
@@ -62,7 +62,7 @@
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 38,
    "beleg": "",
    "datei": "dax.md"
@@ -71,7 +71,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 37,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -80,7 +80,7 @@
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 36,
    "beleg": "",
    "datei": "refresh.md"
@@ -89,7 +89,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 36,
    "beleg": "",
    "datei": "ki.md"
@@ -98,7 +98,7 @@
    "id": "tool:power-query",
    "name": "Power Query",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 36,
    "beleg": "",
    "datei": "power-query.md"
@@ -107,7 +107,7 @@
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 31,
    "beleg": "",
    "datei": "direct-lake.md"
@@ -116,7 +116,7 @@
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 31,
    "beleg": "",
    "datei": "datenmodellierung.md"
@@ -125,16 +125,25 @@
    "id": "tool:directquery",
    "name": "DirectQuery",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 31,
    "beleg": "",
    "datei": "directquery.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 31,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "sicherheit.md"
@@ -143,22 +152,31 @@
    "id": "tool:dataflow",
    "name": "Dataflow",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "dataflow.md"
-  },
-  {
-   "id": "tool:power-bi-desktop",
-   "name": "Power BI Desktop",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 22,
-   "beleg": "",
-   "datei": "power-bi-desktop.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 437,
+   "zeit": "07:17",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=437s",
+   "aussage": "Der Best Practice Analyzer und der Memory Analyzer aus dem Power BI Fixer sind ebenfalls im Developer Hub enthalten, wobei der Memory Analyzer noch nicht fertig ist."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1440,
+   "zeit": "24:00",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1440s",
+   "aussage": "Werden zentral verwaltete Daten ueber Composite Models durch laenderspezifische Excel-Mappings angereichert, kann daraus ein sehr performance-schwaches Konstrukt entstehen."
+  },
   {
    "typ": "Empfehlung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
@@ -350,6 +368,15 @@
   },
   {
    "typ": "Empfehlung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 1290,
+   "zeit": "21:30",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=1290s",
+   "aussage": "Für eine Demo wird empfohlen, ein Modell anzubinden, das bereits Daten enthält, statt live mit einem leeren Modell zu starten."
+  },
+  {
+   "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
    "dokument_id": "yt:mUALlPmGcEk",
    "sekunde": 668,
@@ -365,6 +392,105 @@
    "zeit": "19:54",
    "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=1194s",
    "aussage": "Ob ein Sternschema oder eine One-Big-Table weniger Speicherplatz benötigt, hängt stark von der konkreten Modellierung der Daten ab und lässt sich nicht pauschal beantworten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1226,
+   "zeit": "20:26",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1226s",
+   "aussage": "Wird die KQL-Datenbank im Hintergrund nicht genutzt, pausiert sie laut Brian Bønk automatisch, sodass keine Kosten entstehen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1555,
+   "zeit": "25:55",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1555s",
+   "aussage": "Die Custom-Engine benötigt laut Brian Bønk keine Datenmodellierung und kein Sternschema, während Power BI für die beste Performance ein Sternschema braucht."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 743,
+   "zeit": "12:23",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=743s",
+   "aussage": "Bei sehr großen Faktentabellen sollte man versuchen, Joins zur Schlüsselbildung zu vermeiden, auch wenn die Performance im Power-Datenmodell dadurch minimal schlechter wird."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 945,
+   "zeit": "15:45",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=945s",
+   "aussage": "Wird eine Faktentabelle so groß, dass die Performance leidet, können in Power BI zusätzliche Aggregationstabellen für häufig genutzte Dimensionen gebaut werden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1421,
+   "zeit": "23:41",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1421s",
+   "aussage": "Für einen einzelnen Bericht sollte der Kalender nicht unnötig lang gehalten werden, sondern kann sein Startdatum z.B. aus dem ersten Hauptbucheintrag der Quelldaten ableiten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 3880,
+   "zeit": "1:04:40",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=3880s",
+   "aussage": "Bei Direct Lake erfolgt die Aggregation, bevor Daten überhaupt in den Speicher geladen werden, was den Speicherbedarf gegenüber dem Import-Modus deutlich reduzieren kann."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 1524,
+   "zeit": "25:24",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1524s",
+   "aussage": "Die Kombination aus DirectQuery und KQL ueber Kusto im Hintergrund funktioniert gut und macht bei schneller Interaktion mit den Live-Daten Spass."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 1683,
+   "zeit": "28:03",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1683s",
+   "aussage": "Das gebaute Dashboard ist performant und laesst sich schnell aktualisieren, weshalb es sich auch fuer kuenftige Veranstaltungen als Case eignet."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 2226,
+   "zeit": "37:06",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=2226s",
+   "aussage": "Bei einem Lasttest in einer kleineren F2-Fabric-Kapazitaet war nicht der Datenstrom selbst das Problem, sondern die durch Auto-Refresh ausgeloesten haeufigen Abfragen, die viele Ressourcen kosteten."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 1894,
+   "zeit": "31:34",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=1894s",
+   "aussage": "Direct Query gegen ein Produktivsystem kann bei hoher Last reale Performanceprobleme im ERP-System verursachen, wie ein Vorfall in einer Power-BI-Schulung zeigte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 1916,
+   "zeit": "31:56",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=1916s",
+   "aussage": "Mit Fabric als Zwischenschicht wird jede Quelltabelle nur einmal pro Tabelle abgefragt statt einmal pro Bericht, der die Tabelle benötigt."
   },
   {
    "typ": "Meinung",
@@ -401,6 +527,15 @@
    "zeit": "11:19",
    "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=679s",
    "aussage": "Ein zentrales, datenhaltendes Objekt wie ein Lakehouse macht Power-BI-Modelle laut Artur deutlich stabiler und beschleunigt Aktualisierungen von zwei Stunden auf zwei Minuten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 1713,
+   "zeit": "28:33",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1713s",
+   "aussage": "Dataflows Gen2 wurden überarbeitet und bringen vor allem bei Dataflows, die länger als 10 Minuten laufen, eine deutliche Verbesserung bei Performance und CU-Verbrauch."
   }
  ],
  "dokumente": [
@@ -433,7 +568,7 @@
    "id": "yt:rrCi0lnGrCg",
    "titel": "Mythos Data Vault und richtig große Modelle",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.364,
    "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
    "sprungmarken": [
@@ -458,7 +593,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.355,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -553,7 +688,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.25,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -703,7 +838,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.22,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -778,7 +913,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.205,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -903,7 +1038,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.175,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -978,7 +1113,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.167,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -1023,7 +1158,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.163,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [
@@ -1148,7 +1283,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.143,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -1218,7 +1353,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.093,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -1268,7 +1403,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.071,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [

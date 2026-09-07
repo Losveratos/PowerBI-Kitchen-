@@ -4,35 +4,44 @@
  "typ": "tool",
  "slug": "field-parameters",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/field-parameters.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/field-parameters.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/field-parameters.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/field-parameters.json",
  "dokumente_gesamt": 12,
- "kernaussagen_gesamt": 24,
- "mit_kernaussagen": 6,
+ "kernaussagen_gesamt": 25,
+ "mit_kernaussagen": 7,
  "aliase": [
   "Feldparameter",
   "Field Parameter"
  ],
- "einordnung": "Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu. Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird. Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte.",
+ "einordnung": "Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu. (Stand 2026-01) Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird. (Stand 2026-01) Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte. (Stand 2026-02)",
  "nachbarn": [
   {
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 5,
    "beleg": "In diesem Fall wird jetzt eine Parametertabelle angelegt... die ist per DAX erstellt",
    "datei": "dax.md"
   },
   {
+   "id": "topic:row-level-security",
+   "name": "Row-Level Security",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "nutzt dann hier die Field Parameter, um das ganze Thema zu umgehen",
+   "datei": "row-level-security.md"
+  },
+  {
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -41,7 +50,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "power-bi.md"
@@ -50,7 +59,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "reporting.md"
@@ -59,7 +68,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -68,7 +77,7 @@
    "id": "tool:drillthrough",
    "name": "Drillthrough",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "drillthrough.md"
@@ -77,7 +86,7 @@
    "id": "tool:bookmarks",
    "name": "Bookmarks",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "bookmarks.md"
@@ -280,7 +289,7 @@
    "sekunde": 199,
    "zeit": "03:19",
    "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s",
-   "aussage": "Der Sprecher hält die Field-Parameter- und Quicktipp-Updates für die produktivsten Neuerungen dieses Monats."
+   "aussage": "Artur König hält die Field-Parameter- und Quicktipp-Updates für die produktivsten Neuerungen dieses Monats."
   },
   {
    "typ": "Meinung",
@@ -299,6 +308,15 @@
    "zeit": "42:41",
    "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2561s",
    "aussage": "Mehrere Teilnehmer nennen Field Parameters als eines der wirkungsvollsten neuen Power-BI-Features, weil sie ein einzelnes Visual für verschiedene Kennzahlen und Achsen mehrfach nutzbar machen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 80,
+   "zeit": "01:20",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=80s",
+   "aussage": "Field Parameters wurden im Juli 2025 als GA (General Availability) für Power BI angekündigt."
   }
  ],
  "dokumente": [
@@ -456,7 +474,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.051,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [

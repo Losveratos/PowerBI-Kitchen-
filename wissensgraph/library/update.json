@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "update",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/update.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/update.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/update.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/update.json",
  "dokumente_gesamt": 3,
- "kernaussagen_gesamt": 5,
- "mit_kernaussagen": 5,
+ "kernaussagen_gesamt": 8,
+ "mit_kernaussagen": 8,
  "aliase": [
   "Updates",
   "Monthly Update",
@@ -22,13 +22,13 @@
   "GA",
   "General Availability"
  ],
- "einordnung": "Der Input Slicer, vormals Textslicer, ist im Power BI Update vom Februar 2026 generally available geworden. Seit einem Update im Januar merken sich Field Parameters in einer Matrix den zuletzt gewählten Hierarchie-Stand, wenn zwischen unterschiedlichen Gruppierungen umgeschaltet wird. Markus hat sein erstes Update-Video im Mai 2019 veröffentlicht.",
+ "einordnung": "Der Input Slicer, vormals Textslicer, ist im Power BI Update vom Februar 2026 generally available geworden. (Stand 2026-02) Seit einem Update im Januar merken sich Field Parameters in einer Matrix den zuletzt gewählten Hierarchie-Stand, wenn zwischen unterschiedlichen Gruppierungen umgeschaltet wird. (Stand 2026-02) Markus hat sein erstes Update-Video im Mai 2019 veröffentlicht. (Stand 2025-05)",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "power-bi.md"
@@ -37,7 +37,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -46,7 +46,7 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "sicherheit.md"
@@ -55,7 +55,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "ki.md"
@@ -64,7 +64,7 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "workspace.md"
@@ -73,7 +73,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -82,7 +82,7 @@
    "id": "tool:power-query",
    "name": "Power Query",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "power-query.md"
@@ -91,7 +91,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -100,7 +100,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "performance.md"
@@ -109,7 +109,7 @@
    "id": "tool:copilot",
    "name": "Copilot",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "copilot.md"
@@ -118,7 +118,7 @@
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "refresh.md"
@@ -127,7 +127,7 @@
    "id": "tool:spark",
    "name": "Spark",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "spark.md"
@@ -171,6 +171,24 @@
    "aussage": "Seit einem Update im Januar merken sich Field Parameters in einer Matrix den zuletzt gewählten Hierarchie-Stand, wenn zwischen unterschiedlichen Gruppierungen umgeschaltet wird."
   },
   {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 760,
+   "zeit": "12:40",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=760s",
+   "aussage": "Der Power BI Report Server haenge bei Updates etwa eineinhalb Jahre hinter der Cloud-Version hinterher."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 2960,
+   "zeit": "49:20",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2960s",
+   "aussage": "Ein Power-BI-Desktop-Update im Sommer soll dazu geführt haben, dass Dataflow-Konnektoren für Fabric und die Power Platform nicht mehr funktionierten; als Workaround wurde die Umstellung auf Legacy Data Flows genannt."
+  },
+  {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk Nr.62",
    "dokument_id": "yt:Wwvhv8WA2Qc",
@@ -178,6 +196,15 @@
    "zeit": "01:57",
    "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=117s",
    "aussage": "Markus hat sein erstes Update-Video im Mai 2019 veröffentlicht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 46,
+   "zeit": "00:46",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=46s",
+   "aussage": "Sparklines in Power BI sind seit Dezember 2021 als Preview-Feature angekuendigt und zum Zeitpunkt der Aufnahme immer noch nicht GA."
   }
  ],
  "dokumente": [
@@ -235,7 +262,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.415,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [

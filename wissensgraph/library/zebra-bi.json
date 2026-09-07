@@ -4,25 +4,25 @@
  "typ": "tool",
  "slug": "zebra-bi",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/zebra-bi.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/zebra-bi.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/zebra-bi.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/zebra-bi.json",
  "dokumente_gesamt": 11,
- "kernaussagen_gesamt": 2,
- "mit_kernaussagen": 2,
+ "kernaussagen_gesamt": 4,
+ "mit_kernaussagen": 3,
  "aliase": [
   "Zebra"
  ],
- "einordnung": "Gekaufte Custom Visuals wie Zebra BI bieten weniger Anpassungsspielraum als codebasierte Lösungen wie Deneb, weil man an die vom Hersteller vorgesehenen Optionen gebunden bleibt. Der Gast hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten.",
+ "einordnung": "Zebra BI erzeugt bei einer Abweichungsberechnung standardmäßig ebenfalls einen automatisch generierten Spaltennamen wie \"Vorjahr\", den man teilweise anpassen muss. (Stand 2025-08) Zebra BI bietet mit Verweisbezeichnungen nach Position bereits eine ähnliche Funktion wie die neue Visual-Calculations-Option, allerdings in einem Untermenü verschachtelt. (Stand 2025-08) Gekaufte Custom Visuals wie Zebra BI bieten weniger Anpassungsspielraum als codebasierte Lösungen wie Deneb, weil man an die vom Hersteller vorgesehenen Optionen gebunden bleibt. (Stand 2026-01)",
  "nachbarn": [
   {
    "id": "tool:custom-visuals",
    "name": "Custom Visuals",
    "kantentyp": "ersetzt",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 5,
    "beleg": "wie lange wird's jetzt dauern einfach Zebra BI nachzucoden",
    "datei": "custom-visuals.md"
@@ -31,7 +31,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 15,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -40,7 +40,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "power-bi.md"
@@ -49,7 +49,7 @@
    "id": "topic:ibcs",
    "name": "IBCS",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "ibcs.md"
@@ -58,7 +58,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "reporting.md"
@@ -67,7 +67,7 @@
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "planung.md"
@@ -76,7 +76,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "ki.md"
@@ -90,7 +90,7 @@
    "sekunde": 3318,
    "zeit": "55:18",
    "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s",
-   "aussage": "Der Gast hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten."
+   "aussage": "Einer der Gäste hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten."
   },
   {
    "typ": "Meinung",
@@ -100,6 +100,24 @@
    "zeit": "19:12",
    "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=1152s",
    "aussage": "Gekaufte Custom Visuals wie Zebra BI bieten weniger Anpassungsspielraum als codebasierte Lösungen wie Deneb, weil man an die vom Hersteller vorgesehenen Optionen gebunden bleibt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 2245,
+   "zeit": "37:25",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=2245s",
+   "aussage": "Zebra BI erzeugt bei einer Abweichungsberechnung standardmäßig ebenfalls einen automatisch generierten Spaltennamen wie \"Vorjahr\", den man teilweise anpassen muss."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 2535,
+   "zeit": "42:15",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=2535s",
+   "aussage": "Zebra BI bietet mit Verweisbezeichnungen nach Position bereits eine ähnliche Funktion wie die neue Visual-Calculations-Option, allerdings in einem Untermenü verschachtelt."
   }
  ],
  "dokumente": [
@@ -107,7 +125,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.105,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [

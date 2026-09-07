@@ -3,7 +3,7 @@ id: "topic:ibcs"
 name: "IBCS"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 21
 kernaussagen: 7
@@ -21,7 +21,7 @@ aliase:
 
 # IBCS
 
-Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt. Für IBCS-konforme Inline-Variance-Charts verwendet der Fixer keine Custom Visuals, sondern die Error Bars der Power-BI-Core-Visuals.
+Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. (Stand 2025-07) Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt. (Stand 2026-04) Für IBCS-konforme Inline-Variance-Charts verwendet der Fixer keine Custom Visuals, sondern die Error Bars der Power-BI-Core-Visuals. (Stand 2026-04)
 
 ## Aliase
 
@@ -29,23 +29,23 @@ Hichert, Semantic Notation, SUCCESS, Notation
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Semantic Model](semantic-model.md) | setzt-voraus | belegt | 0 |
-| [Custom Visuals](custom-visuals.md) | setzt-voraus | belegt | 14 |
-| [Visualisierung](visualisierung.md) | ko-vorkommen | heuristik | 56 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 41 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 38 |
-| [Planung](planung.md) | ko-vorkommen | heuristik | 19 |
-| [Zebra BI](zebra-bi.md) | ko-vorkommen | heuristik | 9 |
-| [DAX](dax.md) | ko-vorkommen | heuristik | 7 |
-| [KI](ki.md) | ko-vorkommen | heuristik | 6 |
-| [Power BI Desktop](power-bi-desktop.md) | ko-vorkommen | heuristik | 6 |
-| [Daten-WG](daten-wg.md) | ko-vorkommen | heuristik | 5 |
-| [Power BI Service](power-bi-service.md) | ko-vorkommen | heuristik | 4 |
-| [Deneb](deneb.md) | ko-vorkommen | heuristik | 4 |
-| [SAP](sap.md) | ko-vorkommen | heuristik | 4 |
-| [Performance](performance.md) | ko-vorkommen | heuristik | 3 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Semantic Model](semantic-model.md) | IBCS setzt-voraus Semantic Model | automatisch extrahiert, Quellenstelle vorhanden | „wir wollen eigentlich eine Berichtsänderung, aber dazu braucht Modeländerung“ (BI Thinkers Talk nr.75, 2026-04) | 0 |
+| [Custom Visuals](custom-visuals.md) | IBCS setzt-voraus Custom Visuals | automatisch extrahiert, Quellenstelle vorhanden | „wer mal versucht hat irgendwas nachzubauen, was Richtung IBCS geht und kein Custom nutzt, der ist ein absoluter Masochist“ (10 Jahre Power BI, 2025-07) | 14 |
+| [Visualisierung](visualisierung.md) | IBCS und Visualisierung im selben Segment | Heuristik, gezählt |  | 56 |
+| [Reporting](reporting.md) | IBCS und Reporting im selben Segment | Heuristik, gezählt |  | 41 |
+| [Power BI](power-bi.md) | IBCS und Power BI im selben Segment | Heuristik, gezählt |  | 38 |
+| [Planung](planung.md) | IBCS und Planung im selben Segment | Heuristik, gezählt |  | 19 |
+| [Zebra BI](zebra-bi.md) | IBCS und Zebra BI im selben Segment | Heuristik, gezählt |  | 9 |
+| [DAX](dax.md) | IBCS und DAX im selben Segment | Heuristik, gezählt |  | 7 |
+| [KI](ki.md) | IBCS und KI im selben Segment | Heuristik, gezählt |  | 6 |
+| [Power BI Desktop](power-bi-desktop.md) | IBCS und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 6 |
+| [Daten-WG](daten-wg.md) | IBCS und Daten-WG im selben Segment | Heuristik, gezählt |  | 5 |
+| [Power BI Service](power-bi-service.md) | IBCS und Power BI Service im selben Segment | Heuristik, gezählt |  | 4 |
+| [Deneb](deneb.md) | IBCS und Deneb im selben Segment | Heuristik, gezählt |  | 4 |
+| [SAP](sap.md) | IBCS und SAP im selben Segment | Heuristik, gezählt |  | 4 |
+| [Performance](performance.md) | IBCS und Performance im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -53,7 +53,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
 | --- | --- | --- | --- | --- | --- | --- |
-| Meinung | BI Thinkers Talk nr.76 | 2026-05 | 55:18 | Abschnittsanfang | Der Gast hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s) |
+| Meinung | BI Thinkers Talk nr.76 | 2026-05 | 55:18 | Abschnittsanfang | Einer der Gäste hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s) |
 | Fakt | BI Thinkers Talk nr.75 | 2026-04 | 20:46 | auf die Sekunde | Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1246s) |
 | Fakt | BI Thinkers Talk nr.75 | 2026-04 | 22:53 | auf die Sekunde | Für IBCS-konforme Inline-Variance-Charts verwendet der Fixer keine Custom Visuals, sondern die Error Bars der Power-BI-Core-Visuals. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1373s) |
 | Fakt | BI Thinkers Talk nr.75 | 2026-04 | 28:35 | auf die Sekunde | Die Funktion "Fix IBCS Variance Chart" des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1715s) |
@@ -75,14 +75,14 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Objektive Daten gibt es nicht](https://www.youtube.com/watch?v=-_4bfrjRCVo) | 2026-06-01 | nur-zeitstempel | [16:30](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=990s) · [44:22](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2662s) · [45:55](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2755s) |
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [37:28](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2248s) · [52:08](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3128s) · [58:28](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3508s) |
 | [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [17:24](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1044s) · [28:26](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1706s) · [31:33](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1893s) |
-| [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | nur-zeitstempel | [20:43](https://www.youtube.com/watch?v=e50qKdVn-24&t=1243s) |
+| [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | kernaussagen+zeitstempel | [20:43](https://www.youtube.com/watch?v=e50qKdVn-24&t=1243s) |
 | [10 Jahre BI für alle? Was Power BI wirklich verändert hat](https://www.youtube.com/watch?v=9wl_PLvgvyc) | 2025-08-01 | nur-zeitstempel | [29:52](https://www.youtube.com/watch?v=9wl_PLvgvyc&t=1792s) |
 | [Boring Charts, Better Insights](https://www.youtube.com/watch?v=inko8wG9jlY) | 2025-10-01 | nur-zeitstempel | [17:36](https://www.youtube.com/watch?v=inko8wG9jlY&t=1056s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [10:23](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=623s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [48:27](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2907s) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [55:25](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3325s) |
 | [Daten-WG 2026 Lineup](https://www.youtube.com/watch?v=AX7b8_aNekw) | 2026-05-01 | nur-zeitstempel | [12:18](https://www.youtube.com/watch?v=AX7b8_aNekw&t=738s) |
-| [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | nur-zeitstempel | [08:05](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=485s) |
+| [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [08:05](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=485s) |
 | [Daten-WG Deep Dive: AI on top of BI](https://www.youtube.com/watch?v=HXAP16trRc8) | 2025-07-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) |
 | [BI Thinkers Talk nr.76](https://www.youtube.com/watch?v=mlkP-6i5Kq8) | 2026-05-01 | kernaussagen+zeitstempel | [55:18](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Bericht%20anlegen) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Visuals%20bauen) |

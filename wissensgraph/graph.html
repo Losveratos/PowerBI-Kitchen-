@@ -132,6 +132,15 @@ table.docs td.t{cursor:pointer;font-weight:500}
 table.docs td.t:hover{color:var(--accent)}
 table.docs td.m{font-family:var(--mono);font-size:11px;color:var(--ink-mute);white-space:nowrap}
 @media (max-width:1100px){main{grid-template-columns:260px 1fr;grid-template-rows:1fr auto}aside.right{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);max-height:45vh}}
+/* Handy: Filter oben als flacher Block, Graph volle Breite und mindestens 55 vh, Details darunter (R2-17) */
+@media (max-width:760px){
+  header{flex-wrap:wrap;gap:6px 12px;padding:10px 14px}
+  main{display:block;height:auto;min-height:calc(100vh - 55px)}
+  aside.left{max-height:32vh;border-right:0;border-bottom:1px solid var(--line);padding:10px 12px}
+  #graph{width:100%;min-height:55vh;height:55vh}
+  aside.right{max-height:none;border-top:1px solid var(--line)}
+  .legend{font-size:9px}
+}
 </style>
 </head>
 <body>
@@ -591,7 +600,7 @@ async function ensureSegs() {
 function neighbourDocs(nid) {   // Dokumente, die den Knoten erwähnen (aktiver Filter), sortiert nach Anteil
   const n = byId.get(nid);
   if (n.type === 'Person') return (G.out.get(nid) || []).filter(e => e.type === 'SPEAKS_IN').map(e => ({doc: byId.get(e.t), e, role: e.role})).filter(x => x.doc && docActive(x.doc)).sort((a, b) => (b.doc.published || '').localeCompare(a.doc.published || ''));
-  return (G.in.get(nid) || []).filter(e => e.type === 'MENTIONS').map(e => ({doc: byId.get(e.s), e})).filter(x => x.doc && docActive(x.doc)).sort((a, b) => (b.e.share||0) - (a.e.share||0));
+  return (G.in.get(nid) || []).filter(e => e.type === 'MENTIONS').map(e => ({doc: byId.get(e.s), e})).filter(x => x.doc && docActive(x.doc)).sort((a, b) => ((b.e.segments||0) * (0.3 + (b.e.share||0))) - ((a.e.segments||0) * (0.3 + (a.e.share||0))));   // Gewicht: Stellen x Anteil, Laenge zaehlt mit
 }
 function speakers(docId) { return (G.in.get(docId) || []).filter(e => e.type === 'SPEAKS_IN').map(e => ({p: byId.get(e.s), role: e.role})).filter(x => x.p); }
 // Jeder Knotenverweis ist ein echter Hyperlink (#n=…): Hover zeigt die Adresse, Rechtsklick kopiert, Mittelklick öffnet neu.
@@ -645,7 +654,7 @@ function showConcept(n) {
   if (rel.length) h += `<h2>Ko-Vorkommen <span class="badge" title="Zwei Themen im selben Segment, gezählt, nicht bewertet">Heuristik</span></h2><div class="chips">${rel.map(x => `<span class="chip" data-id="${esc(x.o.id)}" title="${x.w} gemeinsame Segmente">${esc(x.o.name)} <span class="stat">${x.w}</span></span>`).join('')}</div>`;
   if (typed.length) h += `<h2>Beziehungen mit Quellenstelle <span class="badge ex" title="Automatisch aus einer Kernaussage extrahiert, nicht redaktionell geprüft">automatisch extrahiert</span></h2><ul class="list">${typed.map(e => { const a = byId.get(e.s), b = byId.get(e.t), d = byId.get(e.doc_id); return `<li><span class="t" data-id="${esc(e.s === n.id ? e.t : e.s)}">${esc(a.name)} <span class="badge">${REL[e.type]}</span> ${esc(b.name)}</span><div class="m">${esc(e.ev)}${d ? ' · <span class="t" data-id="' + esc(d.id) + '">' + esc(shortTitle(d.name)) + '</span>' : ''}</div></li>`; }).join('')}</ul>`;
   if (claims.length) h += `<h2>Kernaussagen (${claims.length})</h2>${claims.slice(0, 30).map(c => claimHtml(c)).join('')}`;
-  if (n.type !== 'Person') h += `<h2>Dokumente (nach Anteil)</h2><div><span class="btn" id="show-all">Top 8 im Graph zeigen</span><span class="btn" id="hide-all">Dokumente ausblenden</span></div><ul class="list">${docs.slice(0, 40).map(x => docRow(x.doc, x.e, explains, null, n.id)).join('') || '<li class="empty">keine im Zeitraum</li>'}</ul>`;
+  if (n.type !== 'Person') h += `<h2>Dokumente (nach Gewicht: Stellen × Anteil)</h2><div><span class="btn" id="show-all">Top 8 im Graph zeigen</span><span class="btn" id="hide-all">Dokumente ausblenden</span></div><ul class="list">${docs.slice(0, 40).map(x => docRow(x.doc, x.e, explains, null, n.id)).join('') || '<li class="empty">keine im Zeitraum</li>'}</ul>`;
   $('#detail').innerHTML = h; $('#detail').scrollTop = 0;
   bindPanel(); bindCrumbs();
   const sa = $('#show-all'), ha = $('#hide-all');
@@ -695,7 +704,7 @@ function claimHtml(c) {
   const d = byId.get(c.doc);
   const ts = d && c.start_s != null ? `<a class="ts" target="_blank" rel="noopener" href="${deepLink(d, c.start_s)}">▶ ${fmtT(c.start_s)}</a>` : '';
   const anchor = c.anchor ? `<details style="margin-top:4px;font-size:12px;color:var(--ink-mute)"><summary style="cursor:pointer;font-family:var(--mono);font-size:10px">Im Transkript</summary><q style="font-style:italic">… ${esc(c.anchor)} …</q></details>` : '';
-  return `<div class="seg" style="border-left-color:var(--accent)"><span class="h">${KIND[c.kind] || c.kind}${d ? ' · Stand ' + fmtD(d.published) + ' · <span class="t" data-id="' + esc(d.id) + '" style="cursor:pointer">' + esc(shortTitle(d.name)) + '</span>' : ''} · <span title="Von einem Sprachmodell verdichtet, nicht redaktionell geprüft">automatisch extrahiert</span>${precLabel(c, d)}</span>${ts}${esc(c.name)}${anchor}${feedbackLink(c, d)}</div>`;
+  return `<div class="seg" style="border-left-color:var(--accent)"><span class="h">${KIND[c.kind] || c.kind}${d ? (d.published ? ' · Stand ' + fmtD(d.published) : ' · ohne Datum') + ' · <span class="t" data-id="' + esc(d.id) + '" style="cursor:pointer">' + esc(shortTitle(d.name)) + '</span>' : ''} · <span title="Von einem Sprachmodell verdichtet, nicht redaktionell geprüft">automatisch extrahiert</span>${precLabel(c, d)}</span>${ts}${esc(c.name)}${anchor}${feedbackLink(c, d)}</div>`;
 }
 
 async function showDoc(d) {

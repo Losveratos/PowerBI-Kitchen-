@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "sternschema",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sternschema.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sternschema.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/sternschema.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/sternschema.json",
  "dokumente_gesamt": 30,
- "kernaussagen_gesamt": 22,
- "mit_kernaussagen": 7,
+ "kernaussagen_gesamt": 31,
+ "mit_kernaussagen": 12,
  "aliase": [
   "Star Schema",
   "Faktentabelle",
@@ -20,31 +20,40 @@
   "Fakten und Dimensionen",
   "Star-Schema"
  ],
- "einordnung": "Ein Sternschema erlaubt unabhängiges Filtern über mehrere Dimensionen, ohne dass sich die Filter gegenseitig stören. Bei geringer Datenmenge und einfachen Measures zeigte sich in eigenen Tests kein signifikanter Performance-Unterschied zwischen Flat Table und Sternschema. Das 1988 entwickelte Modell mit separaten Tabellen für Kunden, Lieferanten und Artikel sowie einer zentralen Tabelle mit Schlüsseln und Kennzahlen wie Rechnungssumme und Provision entsprach im Nachhinein einem Sternschema.",
+ "einordnung": "Ein Sternschema erlaubt unabhängiges Filtern über mehrere Dimensionen, ohne dass sich die Filter gegenseitig stören. (Stand 2026-01) Bei geringer Datenmenge und einfachen Measures zeigte sich in eigenen Tests kein signifikanter Performance-Unterschied zwischen Flat Table und Sternschema. (Stand 2026-01) Das 1988 entwickelte Modell mit separaten Tabellen für Kunden, Lieferanten und Artikel sowie einer zentralen Tabelle mit Schlüsseln und Kennzahlen wie Rechnungssumme und Provision entsprach im Nachhinein einem Sternschema. (Stand 2026-05)",
  "nachbarn": [
-  {
-   "id": "topic:data-vault",
-   "name": "Data Vault",
-   "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
-   "gemeinsame_segmente": 0,
-   "beleg": "Sternschema findet sich eher auf der Ebene der Data Marts; auf Ebene des Core-DWH setzen größere Unternehmen auf normalisierte Datenhaltung oder Data Vault.",
-   "datei": "data-vault.md"
-  },
   {
    "id": "tool:directquery",
    "name": "DirectQuery",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 9,
    "beleg": "dass äh Direct Query eigentlich kein Starschema [verträgt] (Segment 5)",
    "datei": "directquery.md"
   },
   {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 31,
+   "beleg": "ein Sternschema ist das, was wir zum größten Teil favorisieren",
+   "datei": "datenmodellierung.md"
+  },
+  {
+   "id": "topic:data-vault",
+   "name": "Data Vault",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "was ist ein Sternschema überhaupt für die Enduser ... Data World ist ja jetzt nicht unbedingt ein Modell",
+   "datei": "data-vault.md"
+  },
+  {
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 43,
    "beleg": "schon ab einem gewissen Level muss man einfach das Sternschema machen",
    "datei": "performance.md"
@@ -52,26 +61,17 @@
   {
    "id": "tool:power-bi",
    "name": "Power BI",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 43,
-   "beleg": "",
+   "beleg": "Power BI benötigt ein Sternschema, um die beste Leistung zu erzielen",
    "datei": "power-bi.md"
-  },
-  {
-   "id": "topic:datenmodellierung",
-   "name": "Datenmodellierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 31,
-   "beleg": "",
-   "datei": "datenmodellierung.md"
   },
   {
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "reporting.md"
@@ -80,7 +80,7 @@
    "id": "tool:power-query",
    "name": "Power Query",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "power-query.md"
@@ -89,7 +89,7 @@
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 24,
    "beleg": "",
    "datei": "dax.md"
@@ -98,7 +98,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -107,7 +107,7 @@
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "excel.md"
@@ -116,7 +116,7 @@
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "lakehouse.md"
@@ -125,16 +125,25 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "visualisierung.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "direct-lake.md"
@@ -143,19 +152,10 @@
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "planung.md"
-  },
-  {
-   "id": "tool:warehouse",
-   "name": "Warehouse",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 9,
-   "beleg": "",
-   "datei": "warehouse.md"
   }
  ],
  "kernaussagen": [
@@ -305,12 +305,48 @@
   },
   {
    "typ": "Meinung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 1744,
+   "zeit": "29:04",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=1744s",
+   "aussage": "Bei komplexeren Aufgaben wie dem Aufbau eines Sternschemas wird vermutet, dass mehr Instructions dem MCP-Assistenten helfen würden, das gewünschte Ergebnis zuverlässiger zu erzielen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 366,
+   "zeit": "06:06",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=366s",
+   "aussage": "Wächst ein Report zu einem Standard-Reporting mit zusätzlichen Dimensionen und unterschiedlicher Granularität, führt das meist Richtung eines dimensionalen Modells beziehungsweise Sternschemas."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 483,
+   "zeit": "08:03",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=483s",
+   "aussage": "Von Flat Tables wird abgeraten, außer für sehr eng fokussierte Auswertungen in einem begrenzten Bereich."
+  },
+  {
+   "typ": "Meinung",
    "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
    "dokument_id": "yt:mUALlPmGcEk",
    "sekunde": 664,
    "zeit": "11:04",
    "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=664s",
    "aussage": "Das Sternschema mit einer zentralen Faktentabelle und umgebenden Dimensionen wird von den Sprechern als bevorzugter Modellierungsansatz in Power BI favorisiert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 698,
+   "zeit": "11:38",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=698s",
+   "aussage": "Eine gut modellierte Dimensionstabelle wie eine Artikeltabelle lässt sich über mehrere Themenbereiche wie Produktion, Einkauf und Lagerbestand hinweg wiederverwenden."
   },
   {
    "typ": "Empfehlung",
@@ -356,6 +392,51 @@
    "zeit": "24:50",
    "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1490s",
    "aussage": "Dem KI-Agenten wurden bei der Modellgenerierung explizite Vorgaben mitgegeben, darunter das Vermeiden von Snowflake-Dimensionen, Beziehungen möglichst in eine Richtung und geschäftsfreundliche statt technische Tabellennamen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1555,
+   "zeit": "25:55",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1555s",
+   "aussage": "Die Custom-Engine benötigt laut Brian Bønk keine Datenmodellierung und kein Sternschema, während Power BI für die beste Performance ein Sternschema braucht."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 697,
+   "zeit": "11:37",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=697s",
+   "aussage": "Für Dimensionsschlüssel wird ein sprechender Schlüssel gegenüber einem Hash bevorzugt, sofern keine technischen Gründe wie fehlende deterministische Sortierung bei verteilten Architekturen dagegensprechen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1356,
+   "zeit": "22:36",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1356s",
+   "aussage": "Für ein unternehmensweites Data Warehouse wird empfohlen, eine Standard-Kalendertabelle einmal zu laden und zu persistieren, statt sie für jedes Datenmodell neu zu erzeugen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 158,
+   "zeit": "02:38",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=158s",
+   "aussage": "Das Datenmodell für die Finanzberichterstattung basiert auf einer Faktentabelle mit den Buchungen aus dem Hauptbuch."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 235,
+   "zeit": "03:55",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=235s",
+   "aussage": "Die Mapping-Tabelle zwischen Konten und Berichtszeilen ist strukturell eher eine Bridge-Tabelle im Kimball-Sinn als eine klassische Faktentabelle mit Kennzahlen."
   }
  ],
  "dokumente": [
@@ -503,7 +584,7 @@
    "id": "yt:lH_-A8NAQ-k",
    "titel": "Datenmodellierung ist Governance",
    "datum": "2025-11-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.16,
    "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
    "sprungmarken": [
@@ -578,7 +659,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.14,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [
@@ -648,7 +729,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.081,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -733,7 +814,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.053,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -773,7 +854,7 @@
    "id": "yt:rrCi0lnGrCg",
    "titel": "Mythos Data Vault und richtig große Modelle",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.045,
    "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
    "sprungmarken": [
@@ -808,7 +889,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.038,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -868,7 +949,7 @@
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.027,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [
@@ -883,7 +964,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.025,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -898,7 +979,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.024,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [

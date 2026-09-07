@@ -3,11 +3,11 @@ id: "tool:notebook"
 name: "Notebook"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 43
-kernaussagen: 24
-mit_kernaussagen: 9
+kernaussagen: 36
+mit_kernaussagen: 15
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/notebook.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/notebook.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/notebook.md"
@@ -19,7 +19,7 @@ aliase:
 
 # Notebook
 
-Aus einem Integration-Services-Paket (SSIS) lässt sich per REST API ein Microsoft-Fabric-Notebook starten. Im SSIS-Paket wird der Notebook-Aufruf über eine Script Task in Visual Studio umgesetzt. Nach dem Ausführen des SSIS-Pakets lässt sich der erfolgreiche Notebook-Lauf in Fabric über die letzte Ausführung nachvollziehen.
+Aus einem Integration-Services-Paket (SSIS) lässt sich per REST API ein Microsoft-Fabric-Notebook starten. (Stand 2026-02) Im SSIS-Paket wird der Notebook-Aufruf über eine Script Task in Visual Studio umgesetzt. (Stand 2026-02) Nach dem Ausführen des SSIS-Pakets lässt sich der erfolgreiche Notebook-Lauf in Fabric über die letzte Ausführung nachvollziehen. (Stand 2026-02)
 
 ## Aliase
 
@@ -27,23 +27,23 @@ Notebooks, Spark Notebook
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Workspace](workspace.md) | teil-von | belegt | 32 |
-| [Tabular Editor](tabular-editor.md) | ersetzt | belegt | 0 |
-| [Direct Lake](direct-lake.md) | setzt-voraus | belegt | 18 |
-| [Dataflow](dataflow.md) | empfiehlt | belegt | 54 |
-| [SQL Endpoint](sql-endpoint.md) | ersetzt | belegt | 4 |
-| [Data Pipeline](data-pipeline.md) | setzt-voraus | belegt | 33 |
-| [Dataflow](dataflow.md) | gegensatz | belegt | 54 |
-| [Microsoft Fabric](microsoft-fabric.md) | ko-vorkommen | heuristik | 70 |
-| [Lakehouse](lakehouse.md) | ko-vorkommen | heuristik | 51 |
-| [Power BI](power-bi.md) | ko-vorkommen | heuristik | 42 |
-| [KI](ki.md) | ko-vorkommen | heuristik | 28 |
-| [Warehouse](warehouse.md) | ko-vorkommen | heuristik | 26 |
-| [Spark](spark.md) | ko-vorkommen | heuristik | 24 |
-| [Reporting](reporting.md) | ko-vorkommen | heuristik | 23 |
-| [Python](python.md) | ko-vorkommen | heuristik | 21 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Workspace](workspace.md) | Notebook teil-von Workspace | automatisch extrahiert, Quellenstelle vorhanden | „ihm eben Möglichkeiten gegeben, hier innerhalb des Arbeitsbereichs etwas Ich habe das Notebook angelegt.“ (SSIS Integration Services: Microsoft Fabric Notebook per REST API starten, 2026-02) | 32 |
+| [Tabular Editor](tabular-editor.md) | Notebook ersetzt Tabular Editor | automatisch extrahiert, Quellenstelle vorhanden | „du hast hier wie so eine eigene Oberfläche wie so ein eine Art Measure Killer oder Tabula Editor im Notebook“ (BI Thinkers Talk nr.75, 2026-04) | 0 |
+| [Direct Lake](direct-lake.md) | Direct Lake setzt-voraus Notebook | automatisch extrahiert, Quellenstelle vorhanden | „tut dann die Perspektive dann eben über das Notebook jeden Morgen um 7 Uhr äh laufen lassen“ (BI Thinkers Talk nr.75, 2026-04) | 18 |
+| [Dataflow](dataflow.md) | Dataflow empfiehlt Notebook | automatisch extrahiert, Quellenstelle vorhanden | „benutze ich Dataflows, um die Daten in meinem meinem Bronze zu stagen und von da aus dann die Weiterverarbeitung mit dem Notebook zu machen“ (BI Thinkers Talk n.74, 2026-03) | 54 |
+| [SQL Endpoint](sql-endpoint.md) | Notebook ersetzt SQL Endpoint | automatisch extrahiert, Quellenstelle vorhanden | „Wenn du das Lake House über die Pipeline jagst, kriegst du die Daten aus dem SQLM Punkt nicht angezeigt ... die Definition der Views in TSQL Notebooks gepackt“ (BI Thinkers Talk n.73, 2026-02) | 4 |
+| [Data Pipeline](data-pipeline.md) | Notebook setzt-voraus Data Pipeline | automatisch extrahiert, Quellenstelle vorhanden | „wenn ich aus der Pipeline heraus das anlege, dann geht's“ (BI Thinkers Talk n.72, 2026-01) | 33 |
+| [Dataflow](dataflow.md) | Dataflow gegensatz Notebook | automatisch extrahiert, Quellenstelle vorhanden | „einfach auch wartbar im Gegensatz zu Notebooks“ (BI Thinkers Talk nr.67, 2025-09) | 54 |
+| [GitHub](github.md) | Notebook setzt-voraus GitHub | automatisch extrahiert, Quellenstelle vorhanden | „Wir laden die Report Definition hier über das Gitub Repository“ (Daten-WG BI Thinkers Talk nr.66, 2025-08) | 5 |
+| [Microsoft Fabric](microsoft-fabric.md) | Notebook teil-von Microsoft Fabric | automatisch extrahiert, Quellenstelle vorhanden | „weil ich Notebook in Fabric schreiben will“ (Was ist Self-Service und warum ist das so schwer?) | 70 |
+| [Lakehouse](lakehouse.md) | Notebook und Lakehouse im selben Segment | Heuristik, gezählt |  | 51 |
+| [Power BI](power-bi.md) | Notebook und Power BI im selben Segment | Heuristik, gezählt |  | 42 |
+| [KI](ki.md) | Notebook und KI im selben Segment | Heuristik, gezählt |  | 28 |
+| [SQL](sql.md) | Notebook und SQL im selben Segment | Heuristik, gezählt |  | 26 |
+| [Warehouse](warehouse.md) | Notebook und Warehouse im selben Segment | Heuristik, gezählt |  | 26 |
+| [Spark](spark.md) | Notebook und Spark im selben Segment | Heuristik, gezählt |  | 24 |
 
 ## Kernaussagen
 
@@ -51,6 +51,11 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
 | --- | --- | --- | --- | --- | --- | --- |
+| Fakt | Daten-WG Life-Update \| Fabric Architekturen | 2026-08 | 02:11 | Abschnittsanfang | Beim SAP-Projekt wurden die taeglich abgelegten Delta-Dateien ueber ein Notebook eingelesen, das anhand von Tagesordnern erkennt, welche Tage bereits in der Zieltabelle liegen. | [▶](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=131s) |
+| Fakt | Daten-WG Life-Update \| Fabric Architekturen | 2026-08 | 03:29 | auf die Sekunde | In diesem Projekt wurden Views im Lakehouse ueber Notebooks per Create-and-Replace angelegt, damit sie sich ueber Deployment Pipelines mitversenden lassen und je Umgebung automatisch das passende Lakehouse zugewiesen wird. | [▶](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=209s) |
+| Meinung | Daten-WG Life-Update \| Fabric Architekturen | 2026-08 | 11:57 | auf die Sekunde | Bei einem Warehouse sind viele Optimierungen, die man sonst in Notebooks oder im Lake selbst umsetzen muesste, bereits managed abgenommen, was weniger Freiheit, aber auch weniger Risiko fuer die Kapazitaet bedeutet. | [▶](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=717s) |
+| Fakt | Fabric Workload Demo mit Alexander Korn und Lukasz Obst | 2026-08 | 13:11 | auf die Sekunde | Der Fabric Copilot unterstuetzt gezielt innerhalb eines einzelnen Items wie einem Notebook, waehrend der Agent Hub uebergreifend ueber mehrere Items hinweg End-to-End-Strecken bauen kann. | [▶](https://www.youtube.com/watch?v=e50qKdVn-24&t=791s) |
+| Fakt | Fabric Workload Demo mit Alexander Korn und Lukasz Obst | 2026-08 | 19:06 | auf die Sekunde | Aus einem unspezifischen Prompt hat der Agent Hub eigenstaendig ein Notebook, ein Lakehouse, ein Semantic Model und einen Report erstellt, inklusive eines selbst geschriebenen Fabric Clients fuer die Fabric-APIs. | [▶](https://www.youtube.com/watch?v=e50qKdVn-24&t=1146s) |
 | Fakt | BI Thinkers Talk nr.75 | 2026-04 | 03:12 | auf die Sekunde | Alex hat den "Power BI Fixer" entwickelt, ein Notebook-basiertes Tool zum Analysieren und Reparieren von Power-BI-Semantikmodellen und -Berichten. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=192s) |
 | Fakt | BI Thinkers Talk nr.75 | 2026-04 | 08:56 | auf die Sekunde | Der Power BI Fixer bietet im Notebook eine alternative Oberfläche ähnlich Tabular Editor, um Measures und DAX-Ausdrücke direkt am Semantic Model zu bearbeiten und zu formatieren. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=536s) |
 | Fakt | BI Thinkers Talk nr.75 | 2026-04 | 17:07 | auf die Sekunde | Notebooks in Microsoft Fabric können vollständige interaktive Oberflächen inklusive HTML-Seiten darstellen. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1027s) |
@@ -67,21 +72,28 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Fakt | SSIS Integration Services: Microsoft Fabric Notebook per REST API starten | 2026-02 | 03:52 | Abschnittsanfang | Die Paketvariablen im SSIS-Paket speichern Workspace-ID und Notebook-ID für den REST-API-Aufruf. | [▶](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=232s) |
 | Fakt | SSIS Integration Services: Microsoft Fabric Notebook per REST API starten | 2026-02 | 05:35 | auf die Sekunde | Mit dem Access Token ruft das Skript die Fabric REST API auf und startet das Notebook anhand von Workspace-ID und Notebook-ID. | [▶](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=335s) |
 | Empfehlung | BI Thinkers Talk n.73 | 2026-02 | 51:29 | auf die Sekunde | Als Alternative zum manuellen Umbinden über Power BI Desktop wird im Gespräch erwähnt, dass sich Reports auch automatisiert per Notebook mit Semantic Link umbinden lassen könnten. | [▶](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3089s) |
-| Empfehlung | BI Thinkers Talk n.73 | 2026-02 | 54:58 | auf die Sekunde | Als Workaround definiert der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden. | [▶](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3298s) |
+| Empfehlung | BI Thinkers Talk n.73 | 2026-02 | 54:58 | auf die Sekunde | Als Workaround definiert einer der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden. | [▶](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3298s) |
 | Fakt | BI Thinkers Talk n.72 | 2026-01 | 36:37 | auf die Sekunde | Seit kurzem lassen sich Notebooks in Fabric über eine Connection mit einem Service Principal ausführen, wodurch Secrets nicht mehr hartcodiert oder in einer JSON-Datei im Lakehouse abgelegt werden müssen. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2197s) |
 | Fakt | BI Thinkers Talk n.72 | 2026-01 | 37:35 | auf die Sekunde | Eine Connection für Notebooks lässt sich aktuell nicht direkt unter Connections anlegen, sondern nur über den Umweg einer Data Pipeline. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2255s) |
 | Fakt | BI Thinkers Talk n.72 | 2026-01 | 40:46 | auf die Sekunde | Beim Ausführen eines Notebooks über die Pipeline mit einem Service Principal wurden deutlich weniger Workspaces zurückgegeben, weil der Service Principal nicht Mitglied in allen Workspaces ist. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2446s) |
 | Fakt | BI Thinkers Talk n.72 | 2026-01 | 51:03 | auf die Sekunde | SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3063s) |
 | Empfehlung | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 2025-12 | 10:09 | Abschnittsanfang | Die im Lakehouse als Rohdaten liegenden Dateien lassen sich per COPY-INTO-Befehl in eine Warehouse-Tabelle laden oder mit einem Notebook, etwa in Python, weiterverarbeiten. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=609s) |
+| Fakt | Daten-WG BI Thinkers Talk nr.66 | 2025-08 | 12:11 | auf die Sekunde | Das Referenzmodell samt Monitoring-Dashboard wurde in einem GitHub-Repository bereitgestellt, damit es heruntergeladen und wiederverwendet werden kann. | [▶](https://www.youtube.com/watch?v=DQENmzAkNqw&t=731s) |
+| Fakt | Daten-WG BI Thinkers Talk nr.66 | 2025-08 | 13:50 | auf die Sekunde | Das Fabric-Notebook lädt das GitHub-Repository über eine speziell zusammengebaute URL komplett als ZIP-Datei herunter. | [▶](https://www.youtube.com/watch?v=DQENmzAkNqw&t=830s) |
+| Fakt | Daten-WG BI Thinkers Talk nr.66 | 2025-08 | 14:39 | auf die Sekunde | Im Notebook muss man angeben, mit welchem Ziel-Dataset im Workspace der übertragene Bericht verbunden werden soll. | [▶](https://www.youtube.com/watch?v=DQENmzAkNqw&t=879s) |
+| Warnung | Daten-WG BI Thinkers Talk nr.66 | 2025-08 | 17:11 | auf die Sekunde | Das Notebook prüft aktuell nicht, ob bereits ein gleichnamiger Bericht existiert, sodass mehrfaches Ausführen zu mehreren Reports mit identischem Namen führt. | [▶](https://www.youtube.com/watch?v=DQENmzAkNqw&t=1031s) |
+| Fakt | Daten-WG Thinkers Talk nr.65 | 2025-07 | 06:00 | auf die Sekunde | Um aus einem Shortcut wirklich eine nutzbare Tabelle zu machen, muss man weiterhin ein Notebook oder einen Dataflow orchestrieren, da der Shortcut selbst nicht so echtzeitfähig ist, wie er sein könnte. | [▶](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=360s) |
+| Empfehlung | Daten-WG Deep Dive Financial Reporting | 2025-05 | 37:36 | auf die Sekunde | Für das Auflösen der rekursiven Zeilen- und Kontenverweise in der Mapping-Tabelle wird ein Python-Notebook gegenüber Power Query bevorzugt, weil Power Query keine regulären Ausdrücke bietet. | [▶](https://www.youtube.com/watch?v=TYmKrreMO3I&t=2256s) |
 | Fakt | Was ist Self-Service und warum ist das so schwer? |  | 17:56 | auf die Sekunde | Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1076s) |
 | Fakt | Fabric & Power BI Quarterly · 2026-2 |  | 21:31 | auf die Sekunde | Copy Jobs in der Fabric Data Factory unterstützen jetzt in der Vorschau automatisch Slowly Changing Dimension Typ 2, wodurch manueller Notebook-Code für diesen Zweck überflüssig wird. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1291s) |
+| Fakt | Fabric & Power BI Quarterly · 2025 Q3 |  | 42:25 | auf die Sekunde | Mit der Shortcut-Transformation wird eine per Shortcut verlinkte CSV-Datei automatisch in eine Delta-Tabelle umgewandelt, ohne dass dafuer ein Notebook laufen muss. | [▶](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2545s) |
 
 ## Dokumente
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
 | [SSIS Integration Services: Microsoft Fabric Notebook per REST API starten](https://www.youtube.com/watch?v=NvtZ-ehiTrg) | 2026-02-01 | kernaussagen+zeitstempel | [02:19](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=139s) · [05:39](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=339s) · [06:11](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=371s) |
-| [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | nur-zeitstempel | [01:48](https://www.youtube.com/watch?v=DQENmzAkNqw&t=108s) · [03:25](https://www.youtube.com/watch?v=DQENmzAkNqw&t=205s) · [04:56](https://www.youtube.com/watch?v=DQENmzAkNqw&t=296s) |
+| [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [01:48](https://www.youtube.com/watch?v=DQENmzAkNqw&t=108s) · [03:25](https://www.youtube.com/watch?v=DQENmzAkNqw&t=205s) · [04:56](https://www.youtube.com/watch?v=DQENmzAkNqw&t=296s) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [37:07](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2227s) · [38:43](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2323s) · [43:49](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2629s) |
 | [Starting with Microsft Fabric the Skills you need](https://www.youtube.com/watch?v=m3xNYfVih0Q) | 2024-08-01 | nur-zeitstempel | [16:07](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=967s) · [17:44](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=1064s) · [25:34](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=1534s) |
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [01:38](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=98s) · [03:11](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=191s) · [23:12](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1392s) |
@@ -89,34 +101,34 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Deep Dive Financial Reporting - part 5](https://www.youtube.com/watch?v=iymmxuXHh44) | 2025-07-01 | nur-zeitstempel | [08:01](https://www.youtube.com/watch?v=iymmxuXHh44&t=481s) · [17:41](https://www.youtube.com/watch?v=iymmxuXHh44&t=1061s) · [27:36](https://www.youtube.com/watch?v=iymmxuXHh44&t=1656s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wer%20geht%20wo%20auf%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Typische%20Nutzung) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=NotebookUtils%20%E2%80%94%20der%20Werkzeugkasten) |
 | [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [04:40](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=280s) · [06:19](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=379s) · [42:55](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2575s) |
-| [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | nur-zeitstempel | [13:04](https://www.youtube.com/watch?v=e50qKdVn-24&t=784s) · [18:59](https://www.youtube.com/watch?v=e50qKdVn-24&t=1139s) · [24:39](https://www.youtube.com/watch?v=e50qKdVn-24&t=1479s) |
+| [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | kernaussagen+zeitstempel | [13:04](https://www.youtube.com/watch?v=e50qKdVn-24&t=784s) · [18:59](https://www.youtube.com/watch?v=e50qKdVn-24&t=1139s) · [24:39](https://www.youtube.com/watch?v=e50qKdVn-24&t=1479s) |
 | [BI Thinkers Talk n.74](https://www.youtube.com/watch?v=rWE0gMx7v7I) | 2026-03-01 | kernaussagen+zeitstempel | [39:06](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2346s) · [41:00](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2460s) · [1:16:34](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=4594s) |
 | [Power BI-Teams werden Fabric-Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc) | — | nur-zeitstempel | [13:41](https://www.youtube.com/watch?v=YzfcMurbWNc&t=821s) · [28:09](https://www.youtube.com/watch?v=YzfcMurbWNc&t=1689s) · [29:52](https://www.youtube.com/watch?v=YzfcMurbWNc&t=1792s) |
-| [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | nur-zeitstempel | [00:34](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=34s) · [02:11](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=131s) · [10:46](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=646s) |
+| [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [00:34](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=34s) · [02:11](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=131s) · [10:46](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=646s) |
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [32:47](https://www.youtube.com/watch?v=G8s96sHUHac&t=1967s) · [34:48](https://www.youtube.com/watch?v=G8s96sHUHac&t=2088s) · [42:46](https://www.youtube.com/watch?v=G8s96sHUHac&t=2566s) |
 | [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [21:24](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1284s) · [23:00](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1380s) · [25:06](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1506s) |
-| [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | nur-zeitstempel | [14:22](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=862s) · [35:32](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2132s) · [46:54](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2814s) |
+| [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [14:22](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=862s) · [35:32](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2132s) · [46:54](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2814s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [28:14](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1694s) · [30:01](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1801s) · [49:12](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2952s) |
 | [Daten-WG Deep Dive Financial Reporting - part 7](https://www.youtube.com/watch?v=232JhS9vbQ0) | 2025-09-01 | nur-zeitstempel | [20:17](https://www.youtube.com/watch?v=232JhS9vbQ0&t=1217s) · [23:26](https://www.youtube.com/watch?v=232JhS9vbQ0&t=1406s) · [25:30](https://www.youtube.com/watch?v=232JhS9vbQ0&t=1530s) |
-| [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | nur-zeitstempel | [35:49](https://www.youtube.com/watch?v=TYmKrreMO3I&t=2149s) · [37:24](https://www.youtube.com/watch?v=TYmKrreMO3I&t=2244s) · [49:02](https://www.youtube.com/watch?v=TYmKrreMO3I&t=2942s) |
-| [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | nur-zeitstempel | [17:15](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1035s) · [30:41](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1841s) · [32:17](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1937s) |
-| [Daten-WG Deep Dive Financial Reporting - part 6](https://www.youtube.com/watch?v=bt81POE-9Ig) | 2025-08-01 | nur-zeitstempel | [06:51](https://www.youtube.com/watch?v=bt81POE-9Ig&t=411s) · [08:28](https://www.youtube.com/watch?v=bt81POE-9Ig&t=508s) · [18:15](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1095s) |
-| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | nur-zeitstempel | [42:02](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2522s) · [43:39](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2619s) · [55:18](https://www.youtube.com/watch?v=lZvpCBMKASM&t=3318s) |
-| [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | nur-zeitstempel | [13:37](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s) · [21:17](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1277s) |
+| [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | kernaussagen+zeitstempel | [35:49](https://www.youtube.com/watch?v=TYmKrreMO3I&t=2149s) · [37:24](https://www.youtube.com/watch?v=TYmKrreMO3I&t=2244s) · [49:02](https://www.youtube.com/watch?v=TYmKrreMO3I&t=2942s) |
+| [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [17:15](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1035s) · [30:41](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1841s) · [32:17](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1937s) |
+| [Daten-WG Deep Dive Financial Reporting - part 6](https://www.youtube.com/watch?v=bt81POE-9Ig) | 2025-08-01 | kernaussagen+zeitstempel | [06:51](https://www.youtube.com/watch?v=bt81POE-9Ig&t=411s) · [08:28](https://www.youtube.com/watch?v=bt81POE-9Ig&t=508s) · [18:15](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1095s) |
+| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [42:02](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2522s) · [43:39](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2619s) · [55:18](https://www.youtube.com/watch?v=lZvpCBMKASM&t=3318s) |
+| [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [13:37](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s) · [21:17](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1277s) |
 | [BI Thinkers Talk n.73](https://www.youtube.com/watch?v=pOJpXxsfUt0) | 2026-02-01 | kernaussagen+zeitstempel | [50:24](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3024s) · [55:34](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3334s) · [57:27](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3447s) |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [20:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1205s) |
 | [Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial](https://www.youtube.com/watch?v=5HhNQZlB-1E) | 2025-12-01 | kernaussagen+zeitstempel | [10:09](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=609s) |
 | [Fabric Planning unboxing](https://www.youtube.com/watch?v=xCzKEIB4W5I) | 2026-03-01 | kernaussagen+zeitstempel | [03:06](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=186s) · [04:42](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=282s) · [20:19](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1219s) |
 | [Daten-WG 2026 Lineup](https://www.youtube.com/watch?v=AX7b8_aNekw) | 2026-05-01 | nur-zeitstempel | [02:51](https://www.youtube.com/watch?v=AX7b8_aNekw&t=171s) · [17:05](https://www.youtube.com/watch?v=AX7b8_aNekw&t=1025s) |
-| [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | nur-zeitstempel | [04:49](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=289s) · [06:31](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=391s) |
+| [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | kernaussagen+zeitstempel | [04:49](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=289s) · [06:31](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=391s) |
 | [Daten-WG Deep Dive: AI on top of BI](https://www.youtube.com/watch?v=HXAP16trRc8) | 2025-07-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) · [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) |
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [22:07](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1327s) |
 | [Prinzipien oder Paragrafen](https://www.youtube.com/watch?v=6WhWLcuFvZE) | 2026-02-01 | kernaussagen+zeitstempel | [14:37](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=877s) |
-| [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | nur-zeitstempel | [37:12](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2232s) |
+| [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | kernaussagen+zeitstempel | [37:12](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2232s) |
 | [Daten-WG Life-Update \| State of Power BI, Fabric & AI-Tools](https://www.youtube.com/watch?v=d3HdhRe_nK8) | 2026-06-01 | nur-zeitstempel | [00:44](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=44s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [17:22](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1042s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [21:26](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1286s) |
-| [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | nur-zeitstempel | [14:03](https://www.youtube.com/watch?v=4VVNDNusq4U&t=843s) |
+| [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | kernaussagen+zeitstempel | [14:03](https://www.youtube.com/watch?v=4VVNDNusq4U&t=843s) |
 | [BI Thinkers Talk nr.68](https://www.youtube.com/watch?v=VD1N68Fhoco) | 2025-10-01 | nur-zeitstempel | [56:24](https://www.youtube.com/watch?v=VD1N68Fhoco&t=3384s) |
 | [Daten-WG Special: Power BI vs. Qlik -part2](https://www.youtube.com/watch?v=_Vh5fDfHWz4) | 2025-10-01 | nur-zeitstempel | [05:18](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=318s) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [39:36](https://www.youtube.com/watch?v=r416vanitYw&t=2376s) |

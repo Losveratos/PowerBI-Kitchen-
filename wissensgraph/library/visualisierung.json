@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "visualisierung",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/visualisierung.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/visualisierung.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/visualisierung.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/visualisierung.json",
  "dokumente_gesamt": 83,
- "kernaussagen_gesamt": 30,
- "mit_kernaussagen": 11,
+ "kernaussagen_gesamt": 39,
+ "mit_kernaussagen": 18,
  "aliase": [
   "Visuals",
   "Charts",
@@ -21,13 +21,13 @@
   "Visualisierungen",
   "Visual"
  ],
- "einordnung": "Zieht man zusätzliche Measures in das Tooltip-Feld eines Visuals, werden weitere Werte im Tooltip angezeigt, das ursprünglich gebundene Measure lässt sich dabei aber nicht aus dem Tooltip entfernen. Für die gewünschte Wasserfall-Darstellung wurden zwei Eigenbau-Varianten entwickelt: eine Kombination aus gestapeltem Balkendiagramm und Liniendiagramm sowie eine Lösung mit Deneb. Bei der Balkendiagramm-Variante wird ein unsichtbarer, weiß eingefärbter Spacer-Bereich verwendet, um die Balken an der richtigen Position im Diagramm schweben zu lassen.",
+ "einordnung": "Zieht man zusätzliche Measures in das Tooltip-Feld eines Visuals, werden weitere Werte im Tooltip angezeigt, das ursprünglich gebundene Measure lässt sich dabei aber nicht aus dem Tooltip entfernen. (Stand 2026-02) Für die gewünschte Wasserfall-Darstellung wurden zwei Eigenbau-Varianten entwickelt: eine Kombination aus gestapeltem Balkendiagramm und Liniendiagramm sowie eine Lösung mit Deneb. (Stand 2026-01) Bei der Balkendiagramm-Variante wird ein unsichtbarer, weiß eingefärbter Spacer-Bereich verwendet, um die Balken an der richtigen Position im Diagramm schweben zu lassen. (Stand 2026-01)",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 185,
    "beleg": "",
    "datei": "power-bi.md"
@@ -36,7 +36,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 92,
    "beleg": "",
    "datei": "reporting.md"
@@ -45,7 +45,7 @@
    "id": "tool:custom-visuals",
    "name": "Custom Visuals",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 63,
    "beleg": "",
    "datei": "custom-visuals.md"
@@ -54,7 +54,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 59,
    "beleg": "",
    "datei": "ki.md"
@@ -63,7 +63,7 @@
    "id": "topic:ibcs",
    "name": "IBCS",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 56,
    "beleg": "",
    "datei": "ibcs.md"
@@ -72,7 +72,7 @@
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 50,
    "beleg": "",
    "datei": "dax.md"
@@ -81,7 +81,7 @@
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 47,
    "beleg": "",
    "datei": "power-bi-desktop.md"
@@ -90,7 +90,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 37,
    "beleg": "",
    "datei": "performance.md"
@@ -99,7 +99,7 @@
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 35,
    "beleg": "",
    "datei": "datenmodellierung.md"
@@ -108,7 +108,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 33,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -117,7 +117,7 @@
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 32,
    "beleg": "",
    "datei": "excel.md"
@@ -126,7 +126,7 @@
    "id": "tool:visual-calculations",
    "name": "Visual Calculations",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 27,
    "beleg": "",
    "datei": "visual-calculations.md"
@@ -135,7 +135,7 @@
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 25,
    "beleg": "",
    "datei": "planung.md"
@@ -144,7 +144,7 @@
    "id": "topic:daten-wg",
    "name": "Daten-WG",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "daten-wg.md"
@@ -153,13 +153,22 @@
    "id": "tool:copilot",
    "name": "Copilot",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "copilot.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 243,
+   "zeit": "04:03",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=243s",
+   "aussage": "Die Heatmap wird als Lieblingsvisualisierung beschrieben, die über Jahre verfeinert wurde und ursprünglich aus der Bioinformatik zur Mustererkennung in großen Datenmengen stammt."
+  },
   {
    "typ": "Meinung",
    "dokument": "BI Thinkers Talk nr.76",
@@ -230,7 +239,7 @@
    "sekunde": 40,
    "zeit": "00:40",
    "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=40s",
-   "aussage": "Der neue graue Standardhintergrund der visuellen Oberfläche gefällt dem Sprecher nicht."
+   "aussage": "Der neue graue Standardhintergrund der visuellen Oberfläche gefällt Artur König nicht."
   },
   {
    "typ": "Fakt",
@@ -266,7 +275,7 @@
    "sekunde": 823,
    "zeit": "13:43",
    "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=823s",
-   "aussage": "Nach Einschätzung des Sprechers besteht der Tooltip-Fehler bei kombinierten Line-and-Column-Charts mit zwei Achsen bereits seit 2023."
+   "aussage": "Nach Einschätzung eines der Sprecher besteht der Tooltip-Fehler bei kombinierten Line-and-Column-Charts mit zwei Achsen bereits seit 2023."
   },
   {
    "typ": "Fakt",
@@ -284,7 +293,7 @@
    "sekunde": 974,
    "zeit": "16:14",
    "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=974s",
-   "aussage": "Bei komplexen Diagrammen mit unzuverlässigen Standard-Tooltips empfiehlt der Sprecher eine dedizierte Tooltip-Seite, weil generische Lösungen wegen der visual-spezifischen Filterauswahl nicht funktionieren."
+   "aussage": "Bei komplexen Diagrammen mit unzuverlässigen Standard-Tooltips empfiehlt einer der Sprecher eine dedizierte Tooltip-Seite, weil generische Lösungen wegen der visual-spezifischen Filterauswahl nicht funktionieren."
   },
   {
    "typ": "Warnung",
@@ -413,6 +422,15 @@
    "aussage": "Der maximale Wert für die Breite eines visuellen Rahmens um ein Visual in Power BI beträgt 99."
   },
   {
+   "typ": "Meinung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 3642,
+   "zeit": "1:00:42",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=3642s",
+   "aussage": "Das Herausziehen von Power-BI-Daten zur Kombination mit anderen Quellen für z. B. eine Python-Visualisierung funktioniert über den MCP Server aktuell noch holprig, gilt aber als zukunftsträchtiger Ansatz."
+  },
+  {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
@@ -429,6 +447,69 @@
    "zeit": "52:08",
    "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3128s",
    "aussage": "Ein Sprecher kritisiert, dass Power BI bis heute keinen nativen Boxplot als Standardvisual anbietet, obwohl es sich um einen gängigen Diagrammtyp handelt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 3304,
+   "zeit": "55:04",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=3304s",
+   "aussage": "Die bedingte Formatierung mit Datenbalken in Power BI kann keine dynamischen Farben pro Kategorie annehmen, sondern nur feste Minimum-/Mitte-/Maximum-Werte."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 3547,
+   "zeit": "59:07",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=3547s",
+   "aussage": "Um zu verhindern, dass Text über einen manuell in einer Matrix gemalten Balken hinausragt, wird fast immer eine separate Spalte für den Text empfohlen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 3594,
+   "zeit": "59:54",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=3594s",
+   "aussage": "SVG-Grafiken in Power BI bieten mehr gestalterische Flexibilität, gehen aber deutlich zulasten der Wartbarkeit."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 587,
+   "zeit": "09:47",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=587s",
+   "aussage": "Beim Fun-o-Meter wird die Kamera nicht auf das Spiel, sondern auf die spielenden Personen gerichtet, um deren Emotionen zu analysieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1166,
+   "zeit": "19:26",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1166s",
+   "aussage": "Bei der \"Visual Ranking Weltmeisterschaft\" auf der Daten-WG 2025 stimmten die Teilnehmenden live per Mentimeter ab, welches Visual sie als Champion einstufen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 2067,
+   "zeit": "34:27",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2067s",
+   "aussage": "Business Analytics wird als kein Selbstzweck verstanden, es geht nicht darum, möglichst viele oder bunte Diagrammtypen zu verwenden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 2556,
+   "zeit": "42:36",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=2556s",
+   "aussage": "Für den Vergleich zweier frei wählbarer Projektgruppen wird ein Wasserfall-Chart genutzt, das zeigt, welche Gruppe besser performt hat und wie groß die Abweichung insgesamt war."
   }
  ],
  "dokumente": [
@@ -736,7 +817,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.447,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -1201,7 +1282,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.25,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -1306,7 +1387,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.222,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -1356,7 +1437,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.2,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [
@@ -1581,7 +1662,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.133,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": [
@@ -1626,7 +1707,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.125,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -1676,7 +1757,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.122,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -1726,7 +1807,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.115,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -1781,7 +1862,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.097,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -1871,7 +1952,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.077,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -1911,7 +1992,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.071,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [
@@ -2151,7 +2232,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": [
@@ -2231,7 +2312,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -2246,7 +2327,7 @@
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.027,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
    "sprungmarken": [

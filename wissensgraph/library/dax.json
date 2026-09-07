@@ -4,43 +4,79 @@
  "typ": "tool",
  "slug": "dax",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/dax.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/dax.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/dax.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/dax.json",
  "dokumente_gesamt": 57,
- "kernaussagen_gesamt": 40,
- "mit_kernaussagen": 17,
+ "kernaussagen_gesamt": 62,
+ "mit_kernaussagen": 26,
  "aliase": [
   "Data Analysis Expressions"
  ],
- "einordnung": "Der Input Slicer bietet automatisch einen Anti-Filter wie 'enthält nicht', für den früher DAX-Workarounds nötig waren. Die neue DAX-Funktion TABLEOF liefert zu einem angegebenen Measure oder einer Spalte die zugehörige gesamte Tabelle zurück. Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte.",
+ "einordnung": "Der Input Slicer bietet automatisch einen Anti-Filter wie 'enthält nicht', für den früher DAX-Workarounds nötig waren. (Stand 2026-02) Die neue DAX-Funktion TABLEOF liefert zu einem angegebenen Measure oder einer Spalte die zugehörige gesamte Tabelle zurück. (Stand 2026-02) Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte. (Stand 2026-02)",
  "nachbarn": [
+  {
+   "id": "tool:power-query",
+   "name": "Power Query",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 22,
+   "beleg": "sagen hier zu viel DAX Magic vorne rum. Macht das dann nur intransparent",
+   "datei": "power-query.md"
+  },
   {
    "id": "tool:field-parameters",
    "name": "Field Parameters",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 5,
    "beleg": "In diesem Fall wird jetzt eine Parametertabelle angelegt... die ist per DAX erstellt",
    "datei": "field-parameters.md"
   },
   {
+   "id": "tool:visual-calculations",
+   "name": "Visual Calculations",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 8,
+   "beleg": "Measure sind eigentlich ja besser zu kontrollieren als jetzt diese Visual Calculations",
+   "datei": "visual-calculations.md"
+  },
+  {
    "id": "tool:azure-maps",
    "name": "Azure Maps",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "Wenn ihr natürlich in euren Gebieten international arbeitet, habt ihr sowieso die Countryspalte mit drin. Dann braucht ihr die selbstverständlich nicht den DAX zu berechnen.",
    "datei": "azure-maps.md"
   },
   {
+   "id": "tool:tmdl",
+   "name": "TMDL",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 6,
+   "beleg": "alles im was Power Query, Datenmodell, Beziehung, DAX Measures, alles das, was darin embettet ist",
+   "datei": "tmdl.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 19,
+   "beleg": "je komplexer das datenmodell aussieht desto komplexer ist dann auch die berechnung der dax kennzahlen",
+   "datei": "datenmodellierung.md"
+  },
+  {
    "id": "tool:qlik",
    "name": "Qlik",
    "kantentyp": "gegensatz",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "das war halt auch ganz cool, dass du mit diesem DAX viel mehr machen konntest aus meiner Sicht als in dieser Klicksprache mit Set Analysis",
    "datei": "qlik.md"
@@ -49,7 +85,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 52,
    "beleg": "",
    "datei": "power-bi.md"
@@ -58,7 +94,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 50,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -67,7 +103,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 38,
    "beleg": "",
    "datei": "performance.md"
@@ -76,7 +112,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 32,
    "beleg": "",
    "datei": "reporting.md"
@@ -85,34 +121,16 @@
    "id": "topic:sternschema",
    "name": "Sternschema",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 24,
    "beleg": "",
    "datei": "sternschema.md"
   },
   {
-   "id": "tool:power-query",
-   "name": "Power Query",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 22,
-   "beleg": "",
-   "datei": "power-query.md"
-  },
-  {
-   "id": "topic:datenmodellierung",
-   "name": "Datenmodellierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 19,
-   "beleg": "",
-   "datei": "datenmodellierung.md"
-  },
-  {
    "id": "tool:dax-studio",
    "name": "DAX Studio",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "dax-studio.md"
@@ -121,7 +139,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -130,28 +148,10 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "ki.md"
-  },
-  {
-   "id": "tool:power-bi-desktop",
-   "name": "Power BI Desktop",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 14,
-   "beleg": "",
-   "datei": "power-bi-desktop.md"
-  },
-  {
-   "id": "tool:copilot",
-   "name": "Copilot",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 12,
-   "beleg": "",
-   "datei": "copilot.md"
   }
  ],
  "kernaussagen": [
@@ -207,7 +207,7 @@
    "sekunde": 225,
    "zeit": "03:45",
    "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=225s",
-   "aussage": "Der Autor hält das Culture-Awareness-Feature für DAX-Spalten für das Update mit dem größten praktischen Impact in diesem Release."
+   "aussage": "Artur König hält das Culture-Awareness-Feature für DAX-Spalten für das Update mit dem größten praktischen Impact in diesem Release."
   },
   {
    "typ": "Fakt",
@@ -315,7 +315,7 @@
    "sekunde": 138,
    "zeit": "02:18",
    "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
-   "aussage": "Der Sprecher erwartet, dass die neuen DAX-Funktionen NAMEOF und TABLEOF etliche bisherige Workarounds überflüssig machen werden."
+   "aussage": "Artur König erwartet, dass die neuen DAX-Funktionen NAMEOF und TABLEOF etliche bisherige Workarounds überflüssig machen werden."
   },
   {
    "typ": "Fakt",
@@ -333,7 +333,7 @@
    "sekunde": 151,
    "zeit": "02:31",
    "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=151s",
-   "aussage": "NAMEOF wird laut dem Sprecher besonders in Calculation Groups bei verschachtelten Bedingungen nützlich."
+   "aussage": "NAMEOF wird laut Artur König besonders in Calculation Groups bei verschachtelten Bedingungen nützlich."
   },
   {
    "typ": "Warnung",
@@ -373,6 +373,15 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 285,
+   "zeit": "04:45",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=285s",
+   "aussage": "Der MCP Modeling Server für Power BI kann momentan alles bearbeiten, was über TMDL abgebildet ist, also Power Query, Datenmodell, Beziehungen und DAX-Measures."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
    "sekunde": 1259,
@@ -406,6 +415,15 @@
    "zeit": "42:59",
    "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2579s",
    "aussage": "Die DAX-Funktion SUBSTITUTE ersetzt einen Text durch einen anderen, ohne dass dafür eine Zeichenlänge angegeben werden muss."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 2712,
+   "zeit": "45:12",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=2712s",
+   "aussage": "Die Anzahl der Measures im Modell ließe sich schneller über eine DAX-Query ermitteln als über den MCP-Chat-Assistenten."
   },
   {
    "typ": "Fakt",
@@ -463,12 +481,84 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 1900,
+   "zeit": "31:40",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=1900s",
+   "aussage": "Ein implizites Measure gilt auch in Power BI nicht als Good Practice."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2638,
+   "zeit": "43:58",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2638s",
+   "aussage": "In Power BI werden Master-Measures ueblicherweise an eine Tabelle im Datenmodell gebunden, waehrend Master-Kennzahlen in Qlik zur Applikation gehoeren und nicht an einer Tabelle haengen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2657,
+   "zeit": "44:17",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2657s",
+   "aussage": "Als Good Practice in Power BI wird empfohlen, konsequent eine dreischichtige Architektur mit getrennten Ordnern fuer Transform- und Output-Schritte umzusetzen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 2759,
+   "zeit": "45:59",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2759s",
+   "aussage": "Wird in Power BI eine Tabelle geloescht oder umbenannt, kann ein darin enthaltenes Measure verschwinden, wenn es nicht in einer separaten Measure-Tabelle liegt."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
    "sekunde": 3732,
    "zeit": "1:02:12",
    "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3732s",
    "aussage": "Neue wiederverwendbare DAX-Funktionen lassen sich derzeit nicht direkt in der Power-BI-Desktop-Oberfläche erstellen oder bearbeiten, sondern nur im DAX-Abfrageeditor oder über die TMDL-Ansicht, während Desktop sie nur lesend als vorhandene Funktionen mit Lösch- und Umbenennen-Option anzeigt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 517,
+   "zeit": "08:37",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=517s",
+   "aussage": "Mit Visual Calculations lässt sich Farblogik direkt im Visual als Berechnung einbauen, statt sie im Datenmodell zu pflegen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1131,
+   "zeit": "18:51",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1131s",
+   "aussage": "Eine Kalendertabelle sollte möglichst viele Spalten bereitstellen, gerade wenn sie dynamisch genutzt werden soll, wie es der bekannte Lars-Schreiber-Kalender vormacht."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1740,
+   "zeit": "29:00",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1740s",
+   "aussage": "Ein als Feldwert genutzter berechneter Wert lässt sich in der bedingten Formatierung erst auswählen, wenn das Datenformat auf Text statt Integer umgestellt wurde."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 3805,
+   "zeit": "1:03:25",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=3805s",
+   "aussage": "Von impliziten Measures wird für den Dauereinsatz abgeraten, auch wenn sie für schnelle Tests praktisch sind."
   },
   {
    "typ": "Meinung",
@@ -478,6 +568,87 @@
    "zeit": "18:55",
    "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1135s",
    "aussage": "Mit DAX ließen sich Lagerbestände zu einem bestimmten Zeitpunkt (Point in Time) einfacher berechnen als mit Set Analysis in Qlik."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 339,
+   "zeit": "05:39",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=339s",
+   "aussage": "Visual Calculations werden bisher vor allem von wenigen LinkedIn-Influencern intensiv genutzt und wirken auf DAX-versierte wie auf DAX-fremde Business User eher unüblich."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 422,
+   "zeit": "07:02",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=422s",
+   "aussage": "User Defined Functions in DAX, die Marco Rousso auf der FABCON vorgestellt hat, eröffnen DAX-Profis neue Möglichkeiten und können für Business User bestimmte Konzepte vereinfachen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 2329,
+   "zeit": "38:49",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2329s",
+   "aussage": "Auch mit den neuen TMDL-Kalendermöglichkeiten wird es weiterhin als einfacher angesehen, einen Feiertag schnell in Power Query zu ergänzen statt in DAX."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 2580,
+   "zeit": "43:00",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2580s",
+   "aussage": "Feiertagslogik sollte nicht Teil des TMDL-/Kalenderthemas sein, sondern eher als eine Art Offset separat behandelt werden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 2624,
+   "zeit": "43:44",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2624s",
+   "aussage": "Die Berechnung des x-ten Arbeitstags nach einem Datum wird für Power Query statt für aufwendige DAX-Window-Functions empfohlen, weil komplexe DAX-Lösungen für andere schwer nachvollziehbar und zu debuggen sind."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Thinkers Talk n61",
+   "dokument_id": "yt:KMk1k5uCLZU",
+   "sekunde": 3095,
+   "zeit": "51:35",
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3095s",
+   "aussage": "Vordefinierte Hilfsdaten wie eine Feiertagstabelle gehören ins Backend, also nach Power Query oder woanders, statt nur deshalb in TMDL eingefügt zu werden, weil sich das dort einfach per Copy-Paste einfügen lässt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1349,
+   "zeit": "22:29",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1349s",
+   "aussage": "Die Schulungen zu Datenmodellierung und DAX wurden zusammengelegt, weil ein komplexeres Datenmodell auch komplexere DAX-Berechnungen nach sich zieht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 2517,
+   "zeit": "41:57",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=2517s",
+   "aussage": "Bei einer Kundenanforderung mit Adventure-Works-Daten sollten beliebige Gruppen von Projekten statt nur einzelner Werte per Slicer miteinander verglichen werden, was zunächst mit Select-Measures umgesetzt wurde."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "dokument_id": "yt:K27nB68nR1M",
+   "sekunde": 2918,
+   "zeit": "48:38",
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=2918s",
+   "aussage": "Als Erweiterung des Gruppenvergleichs wird vorgeschlagen, ein festes Benchmark-Projekt zu definieren und andere Projekte dagegen zu vergleichen."
   },
   {
    "typ": "Empfehlung",
@@ -496,6 +667,33 @@
    "zeit": "07:13",
    "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=433s",
    "aussage": "Power BI kann über DAX-INFO-Funktionen bereits viele Metadaten direkt aus dem Modell auslesen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 522,
+   "zeit": "08:42",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=522s",
+   "aussage": "DAX User Defined Functions ermöglichen wiederverwendbaren DAX-Code außerhalb von Calculation Groups mit echten Eingabeparametern, auch Tabellen als Input."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 595,
+   "zeit": "09:55",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=595s",
+   "aussage": "DAX User Defined Functions lassen sich aktuell nur über die DAX Query View oder über TMDL definieren, nicht über die GUI."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 800,
+   "zeit": "13:20",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=800s",
+   "aussage": "Translytical Task Flows ermöglichen inzwischen auch Freitexteingaben als DAX-Writeback, aktuell noch in Preview."
   },
   {
    "typ": "Fakt",
@@ -651,7 +849,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.2,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": [
@@ -861,7 +1059,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.15,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -886,7 +1084,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.143,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [
@@ -911,7 +1109,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.14,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [
@@ -1056,7 +1254,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.098,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -1081,7 +1279,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.097,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -1146,7 +1344,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.086,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -1336,7 +1534,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -1461,7 +1659,7 @@
    "id": "yt:aEXtFWW-pmo",
    "titel": "Wie war die Daten-WG 2025? (Teil 1)",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo",
    "sprungmarken": [
@@ -1506,7 +1704,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.028,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -1536,7 +1734,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -1551,7 +1749,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [

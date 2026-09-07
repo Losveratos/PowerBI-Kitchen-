@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "konferenz",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/konferenz.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/konferenz.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/konferenz.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/konferenz.json",
  "dokumente_gesamt": 28,
- "kernaussagen_gesamt": 20,
- "mit_kernaussagen": 6,
+ "kernaussagen_gesamt": 46,
+ "mit_kernaussagen": 10,
  "aliase": [
   "Conference",
   "FabCon",
@@ -23,13 +23,13 @@
   "Data Saturday",
   "Konferenzen"
  ],
- "einordnung": "Die Episode wurde auf der SQL-Konferenz aufgezeichnet. Brian hielt auf der Feb Con in Wien eine Podiumsdiskussion über Community und Benutzergruppen. Die Daten-WG veranstaltet im Herbst eine eigene, kleine Konferenz.",
+ "einordnung": "Die Episode wurde auf der SQL-Konferenz aufgezeichnet. (Stand 2026-05) Brian hielt auf der Feb Con in Wien eine Podiumsdiskussion über Community und Benutzergruppen. (Stand 2026-05) Die Daten-WG veranstaltet im Herbst eine eigene, kleine Konferenz. (Stand 2026-05)",
  "nachbarn": [
   {
    "id": "topic:daten-wg",
    "name": "Daten-WG",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "daten-wg.md"
@@ -38,7 +38,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -47,7 +47,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "power-bi.md"
@@ -56,16 +56,25 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "ki.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "topic:community",
    "name": "Community",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "community.md"
@@ -74,7 +83,7 @@
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "planung.md"
@@ -83,7 +92,7 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "sicherheit.md"
@@ -92,7 +101,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -101,7 +110,7 @@
    "id": "topic:echtzeit",
    "name": "Echtzeit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "echtzeit.md"
@@ -110,7 +119,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "warehouse.md"
@@ -119,7 +128,7 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "workspace.md"
@@ -290,6 +299,240 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1390,
+   "zeit": "23:10",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1390s",
+   "aussage": "Brian Bønks Real-Time-Dashboard-Projekt wurde live auf der Data-Unplugged-Konferenz präsentiert und danach mit Community-Feedback beim SQL Saturday Rheinland weiter optimiert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 220,
+   "zeit": "03:40",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=220s",
+   "aussage": "Beim Gaming-Stand auf einer Konferenz wussten Besucherinnen und Besucher zunaechst nicht, wofuer der Aussteller eigentlich steht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 370,
+   "zeit": "06:10",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=370s",
+   "aussage": "Die Idee wurde vorab auf dem TDWI Barcamp mit anderen Teilnehmenden challengen lassen, bevor sie umgesetzt wurde."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 249,
+   "zeit": "04:09",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=249s",
+   "aussage": "Der ursprüngliche Auslöser für die Idee der Daten-WG war der Kollege Michel, der spontan ein gemeinsames mehrtägiges Event vorschlug."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 332,
+   "zeit": "05:32",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=332s",
+   "aussage": "Die ursprüngliche Idee eines einwöchigen Bootcamp-Events wurde verworfen, weil selbst etablierte Branchenevents wie SQLBits kürzer geworden sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 561,
+   "zeit": "09:21",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=561s",
+   "aussage": "Bei der Daten-WG wurde bewusst Raum für Diskussionen nach den Vorträgen eingeplant, statt nach 15 Minuten strikt abzumoderieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 817,
+   "zeit": "13:37",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=817s",
+   "aussage": "Die Räume der Daten-WG wurden formattechnisch getrennt in eine unterhaltsamere Mainstage und einen Raum für fachliche Deep-Dive-Vorträge."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 929,
+   "zeit": "15:29",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=929s",
+   "aussage": "Nach dem großen Zuspruch zu den mehrstündigen Deep-Dive-Vorträgen wird überlegt, diese künftig als separate Precon auszulagern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 988,
+   "zeit": "16:28",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=988s",
+   "aussage": "Die zweite Daten-WG am 15. Oktober findet an derselben Location statt, weil sie entscheidend zur besonderen Atmosphäre beitrug."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1129,
+   "zeit": "18:49",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1129s",
+   "aussage": "Für die Aftercon der Daten-WG wurde ein separates Ticket verkauft, das aber überwiegend im All-in-Paket mit der Precon gebucht wurde."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1328,
+   "zeit": "22:08",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1328s",
+   "aussage": "Arthur König kann sich vorstellen, kleinere Events im Format der Aftercon künftig öfter anzubieten, statt eineinhalb Jahre bis zur nächsten Daten-WG zu warten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1795,
+   "zeit": "29:55",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1795s",
+   "aussage": "Kurz nach der Daten-WG 2025 folgt Ende März das TDWI Barcamp in Köln als nächstes Community-Event."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1852,
+   "zeit": "30:52",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1852s",
+   "aussage": "Auf der Color Cloud Konferenz in Hamburg hält Arthur König einen Vortrag über Microsoft Fabric."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1878,
+   "zeit": "31:18",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1878s",
+   "aussage": "Beim TDWI-Kongress betreiben Arthur König und Philip zwei Tage lang einen eigenen Self-Service-BI-Track."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1905,
+   "zeit": "31:45",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1905s",
+   "aussage": "Der Sequel Saturday Rheinland gilt in der Data-Monster-Community als kostenloser Geheimtipp mit hoher inhaltlicher Qualität."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 297,
+   "zeit": "04:57",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=297s",
+   "aussage": "Die Keynote zur Daten-WG 2025 stellte hypothesenbasiertes Arbeiten vor, also die Frage, was eintreten muss, damit ein Datenprojekt als Erfolg gilt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 440,
+   "zeit": "07:20",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=440s",
+   "aussage": "Der Titel der Keynote zur Daten-WG 2025 lautete \"Warum Datenprojekte dein Geld verbrennen\"."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 603,
+   "zeit": "10:03",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=603s",
+   "aussage": "Laut einem Vortrag von Microsoft (Thomas Sigmund) sind Rechenzentren der neue Kern der Infrastruktur, und Microsoft investiert dafür viel in NRW."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 808,
+   "zeit": "13:28",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=808s",
+   "aussage": "Die Deep-Dive-Session zu Data Modelling bei der Daten-WG 2025 dauerte drei Stunden und war trotz kleinerem Raum sehr gut besucht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1039,
+   "zeit": "17:19",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1039s",
+   "aussage": "Die anschließende Session mit Kevin, Geller und Oliver füllte die vollen zwei Stunden mit Diskussion und praktischen Demonstrationen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1166,
+   "zeit": "19:26",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1166s",
+   "aussage": "Bei der \"Visual Ranking Weltmeisterschaft\" auf der Daten-WG 2025 stimmten die Teilnehmenden live per Mentimeter ab, welches Visual sie als Champion einstufen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1456,
+   "zeit": "24:16",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1456s",
+   "aussage": "Beim Power-BI-Quiz der Daten-WG 2025 kam als Detailwissen heraus, dass Elemente in Power BI eine Eckenabrundung von 100 Pixel haben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1681,
+   "zeit": "28:01",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1681s",
+   "aussage": "Michaels Vortragsunterlagen zur Interaktivität über API-Schnittstellen wurden bei GitHub veröffentlicht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1817,
+   "zeit": "30:17",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1817s",
+   "aussage": "Das Feedback zur Daten-WG 2025 fiel mit rund 4,8 Sternen sehr positiv aus."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1853,
+   "zeit": "30:53",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1853s",
+   "aussage": "Der Termin der nächsten Daten-WG wurde bewusst in den Oktober gelegt, um Konflikte mit Jahreswechsel- und Jahresend-Stress zu vermeiden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 2174,
+   "zeit": "36:14",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=2174s",
+   "aussage": "Die nächste Daten-WG ist für den 15. Oktober 2026 angesetzt."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
    "sekunde": null,
@@ -367,7 +610,7 @@
    "id": "yt:aEXtFWW-pmo",
    "titel": "Wie war die Daten-WG 2025? (Teil 1)",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.304,
    "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo",
    "sprungmarken": [
@@ -417,7 +660,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.125,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -482,7 +725,7 @@
    "id": "yt:KMk1k5uCLZU",
    "titel": "Daten-WG Thinkers Talk n61",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.095,
    "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
    "sprungmarken": [
@@ -597,7 +840,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.077,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -637,7 +880,7 @@
    "id": "yt:K27nB68nR1M",
    "titel": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
    "datum": "2022-02-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.056,
    "url": "https://www.youtube.com/watch?v=K27nB68nR1M",
    "sprungmarken": [
@@ -727,7 +970,7 @@
    "id": "yt:BDnwlOqRElY",
    "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
    "datum": "2025-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
    "sprungmarken": [
@@ -742,7 +985,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": [
@@ -772,7 +1015,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -787,7 +1030,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [

@@ -4,25 +4,43 @@
  "typ": "tool",
  "slug": "copilot",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/copilot.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/copilot.json",
  "dokumente_gesamt": 47,
- "kernaussagen_gesamt": 24,
- "mit_kernaussagen": 10,
+ "kernaussagen_gesamt": 38,
+ "mit_kernaussagen": 19,
  "aliase": [
   "Co-Pilot"
  ],
- "einordnung": "Im Power BI Service ist Copilot jetzt prominent platziert. Nutzer können die prominente Copilot-Anzeige im Power BI Service wieder zurückdrehen. In den Fabric-Tenant-Einstellungen lässt sich der Zugriff auf Copilot für Power BI global deaktivieren oder auf vorab genehmigte Elemente beschränken.",
+ "einordnung": "Im Power BI Service ist Copilot jetzt prominent platziert. (Stand 2026-01) Nutzer können die prominente Copilot-Anzeige im Power BI Service wieder zurückdrehen. (Stand 2026-01) Der gezeigte Power-Automate-Flow fuer die Kundengenehmigung wurde mit Hilfe von Copilot erstellt. (Stand 2025-08)",
  "nachbarn": [
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 12,
+   "beleg": "die Copilot Unterstützung nur ab F64 plus QIZE an der Stelle zur Verfügung gestellt war",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "tool:github",
+   "name": "GitHub",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 7,
+   "beleg": "dass wir hier im Gittaub Copilet angemeldet sind",
+   "datei": "github.md"
+  },
   {
    "id": "tool:semantic-model",
    "name": "Semantic Model",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 4,
    "beleg": "es gibt aber diese Einstellung für den Copilot nur an dem Dataset und von da aus wird's weiter vererbt",
    "datei": "semantic-model.md"
@@ -31,16 +49,25 @@
    "id": "tool:tmdl",
    "name": "TMDL",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "Du kannst halt alles nur verändern, was irgendwo im TMDL Model steht (Segment 30)",
    "datei": "tmdl.md"
   },
   {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 12,
+   "beleg": "Z.B. Copilot ist Backend.",
+   "datei": "fabric-capacity.md"
+  },
+  {
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 62,
    "beleg": "",
    "datei": "ki.md"
@@ -49,7 +76,7 @@
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 40,
    "beleg": "",
    "datei": "power-bi.md"
@@ -58,7 +85,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 32,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -67,7 +94,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -76,7 +103,7 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "reporting.md"
@@ -85,7 +112,7 @@
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 15,
    "beleg": "",
    "datei": "datenmodellierung.md"
@@ -94,67 +121,76 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "sicherheit.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "dax.md"
   },
   {
-   "id": "tool:fabric-capacity",
-   "name": "Fabric Capacity",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 12,
-   "beleg": "",
-   "datei": "fabric-capacity.md"
-  },
-  {
    "id": "tool:notebook",
    "name": "Notebook",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "notebook.md"
-  },
-  {
-   "id": "tool:power-automate",
-   "name": "Power Automate",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 11,
-   "beleg": "",
-   "datei": "power-automate.md"
-  },
-  {
-   "id": "topic:performance",
-   "name": "Performance",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 10,
-   "beleg": "",
-   "datei": "performance.md"
-  },
-  {
-   "id": "tool:teams",
-   "name": "Teams",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 7,
-   "beleg": "",
-   "datei": "teams.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 250,
+   "zeit": "04:10",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=250s",
+   "aussage": "Der von Alex und Lukas entwickelte Developer Hub befindet sich aktuell im Preview-Status und enthaelt zwei Bereiche: den Agent Hub fuer agentische Workflows und Tools fuer deterministische Arbeitsweisen wie den Power BI Fixer."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 791,
+   "zeit": "13:11",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=791s",
+   "aussage": "Der Fabric Copilot unterstuetzt gezielt innerhalb eines einzelnen Items wie einem Notebook, waehrend der Agent Hub uebergreifend ueber mehrere Items hinweg End-to-End-Strecken bauen kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 1000,
+   "zeit": "16:40",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1000s",
+   "aussage": "Der Agent Hub ist ueber die Anmeldung bei GitHub Copilot mit den dort verfuegbaren Modellen verbunden und speichert fruehere Prompts zur Wiederverwendung."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1612,
+   "zeit": "26:52",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1612s",
+   "aussage": "Auf Kundenseite konzentriert sich der KI-Einsatz aktuell vor allem auf Copilot nahe den Office-Produkten, während offene, strategische KI-Entwicklungsumgebungen wegen Datenschutzbedenken und Budgetzurückhaltung noch selten sind."
+  },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.74",
@@ -270,7 +306,7 @@
    "sekunde": 28,
    "zeit": "00:28",
    "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=28s",
-   "aussage": "Der Sprecher ist der Meinung, dass Copilot bleiben und sich stetig verbessern wird."
+   "aussage": "Artur König ist der Meinung, dass Copilot bleiben und sich stetig verbessern wird."
   },
   {
    "typ": "Fakt",
@@ -318,6 +354,69 @@
    "aussage": "Für sich wiederholende Aufgaben wie Suchen-und-Ersetzen über ein ganzes Projekt sollte die KI besser ein wiederverwendbares Skript, etwa in Python, generieren, statt jede Datei einzeln direkt durch die KI anpassen zu lassen, um Copilot-Credits zu sparen."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 4,
+   "zeit": "00:04",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=4s",
+   "aussage": "Der gezeigte Power-Automate-Flow fuer die Kundengenehmigung wurde mit Hilfe von Copilot erstellt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 69,
+   "zeit": "01:09",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=69s",
+   "aussage": "Bei der Arbeit mit Copilot in Power Automate wird der Flow schrittweise statt komplett auf einmal beschrieben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Forms + Sharepoint + Powerautomate",
+   "dokument_id": "yt:kP8YNW1XN_E",
+   "sekunde": 96,
+   "zeit": "01:36",
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=96s",
+   "aussage": "Bei Copilot in Power Automate lassen sich Prompts sowohl auf Deutsch als auch auf Englisch eingeben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1630,
+   "zeit": "27:10",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1630s",
+   "aussage": "Mit einer Fabric-F2-Kapazität lassen sich Realtime Intelligence, Translytical Task Flows und Copilot bereits gut nutzen, solange die traditionellen Batch-Workloads nicht zu intensiv sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1860,
+   "zeit": "31:00",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1860s",
+   "aussage": "GitHub Copilot in VS Code weist teilweise darauf hin, wenn Code nach einem Secret oder Schlüssel aussieht, und schlägt vor, ihn abzusichern."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1934,
+   "zeit": "32:14",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1934s",
+   "aussage": "Es kursiert eine Geschichte, wonach Copilot bei entsprechender Anfrage Informationen aus E-Mails preisgegeben haben soll, deren Wahrheitsgehalt aber unklar ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 2635,
+   "zeit": "43:55",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2635s",
+   "aussage": "Copilot-Nutzung zählt als Backend-Workload und kann die Kapazität über 24 Stunden belasten, steigt dabei aber vergleichsweise langsam an."
+  },
+  {
    "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
@@ -345,6 +444,24 @@
    "aussage": "Mit Copilot lassen sich IBCS-konforme Visualisierungen aktuell kaum umsetzen, weil kein nativer Zugriff auf spezialisierte Custom Visuals wie Integrated Variance Charts besteht."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 907,
+   "zeit": "15:07",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=907s",
+   "aussage": "Der Vortrag von Dilyana zu Copilot richtete sich eher an Businessanwender und ging bewusst wenig in die technische Tiefe von KI."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 2685,
+   "zeit": "44:45",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2685s",
+   "aussage": "Mit den neuen AI-/Copilot-Capacities werden die früheren Skills als Agents bezeichnet, und Copilot-Unterstützung wird künftig für alle verfügbar sein."
+  },
+  {
    "typ": "Meinung",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
@@ -352,6 +469,15 @@
    "zeit": "07:00",
    "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=420s",
    "aussage": "Strukturierter, klar lesbarer Code wie TMDL ist notwendig, damit KI-Tools und Copilot Power-BI-Modelle gut nutzen und automatisiert bearbeiten können."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 1469,
+   "zeit": "24:29",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1469s",
+   "aussage": "Copilot dient vor allem zwei Szenarien: Unterstuetzung beim Erlernen neuer Faehigkeiten und Erleichterung repetitiver Standardaufgaben, ist aber kein Ersatz fuer Spezialisten."
   },
   {
    "typ": "Meinung",
@@ -547,7 +673,7 @@
    "id": "yt:kP8YNW1XN_E",
    "titel": "Forms + Sharepoint + Powerautomate",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.333,
    "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E",
    "sprungmarken": [
@@ -567,7 +693,7 @@
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.278,
    "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
    "sprungmarken": [
@@ -702,7 +828,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.139,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -727,7 +853,7 @@
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.122,
    "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
    "sprungmarken": [
@@ -752,7 +878,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.114,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -912,7 +1038,7 @@
    "id": "yt:iinfiHxznOU",
    "titel": "Unboxing MCP Server for Power BI Modelling",
    "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.075,
    "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
    "sprungmarken": [
@@ -977,7 +1103,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.07,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -1062,7 +1188,7 @@
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
    "sprungmarken": [
@@ -1112,7 +1238,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.032,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -1142,7 +1268,7 @@
    "id": "yt:oh-3_65IQ2Q",
    "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.029,
    "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
    "sprungmarken": [
@@ -1172,7 +1298,7 @@
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
    "sprungmarken": [
@@ -1187,7 +1313,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.026,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -1227,7 +1353,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.023,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [

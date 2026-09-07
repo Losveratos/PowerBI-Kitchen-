@@ -48,30 +48,33 @@ footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
 <main>
 <p class="kicker">DatenWG Library · tool</p>
 <h1>Databricks</h1>
-<p class="lead">Eine aus Databricks stammende Flat Table führte in Power BI zu Problemen mit einer unsauberen Zeitachse und zu wenig flexiblen Darstellungen, die zunächst mit Field Parameters adressiert wurden. Databricks-Entwickler ohne Analysis-Services-Datenbank lösen den Bedarf an mehrtabelligem Fachanwender-Zugriff häufig über eine gejointe View statt über ein relationales Modell. Beim Mirroring von Databricks-Daten werden nur die Metadaten gespiegelt, weil Fabric direkt auf denselben zugrunde liegenden Speicher wie OneLake oder ADLS Gen2 zugreift, den Databricks bereits nutzt.</p>
+<p class="lead">Eine aus Databricks stammende Flat Table führte in Power BI zu Problemen mit einer unsauberen Zeitachse und zu wenig flexiblen Darstellungen, die zunächst mit Field Parameters adressiert wurden. (Stand 2026-01) Databricks-Entwickler ohne Analysis-Services-Datenbank lösen den Bedarf an mehrtabelligem Fachanwender-Zugriff häufig über eine gejointe View statt über ein relationales Modell. (Stand 2026-01) Beim Mirroring von Databricks-Daten werden nur die Metadaten gespiegelt, weil Fabric direkt auf denselben zugrunde liegenden Speicher wie OneLake oder ADLS Gen2 zugreift, den Databricks bereits nutzt. (Stand 2025-09)</p>
 <div class="btns"><a class="btn" href="../#n=tool%3Adatabricks">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Adatabricks&amp;f=tool%3Adatabricks">Im Graph öffnen</a></div>
-<p class="meta">6 Dokumente · 5 Kernaussagen · Stand 2026-09-07 · Build 20260907-1922</p>
+<p class="meta">6 Dokumente · 8 Kernaussagen · Stand 2026-09-07 · Build 20260907-1949</p>
 <h2>Kernaussagen</h2>
 <ul>
 <li>Eine aus Databricks stammende Flat Table führte in Power BI zu Problemen mit einer unsauberen Zeitachse und zu wenig flexiblen Darstellungen, die zunächst mit Field Parameters adressiert wurden.<span class="meta quote">Fakt · Stand 2026-01 · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=30s">00:30</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Databricks-Entwickler ohne Analysis-Services-Datenbank lösen den Bedarf an mehrtabelligem Fachanwender-Zugriff häufig über eine gejointe View statt über ein relationales Modell.<span class="meta quote">Fakt · Stand 2026-01 · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=259s">04:19</a> · automatisch extrahiert · Stelle: Abschnittsanfang</span></li>
 <li>Gespiegelte Daten in Fabric zu nutzen ist günstiger, als DirectQuery direkt gegen große Lake-Systeme wie Snowflake oder Databricks zu fahren, weil dort pro Abfrage Rechenkosten anfallen.<span class="meta quote">Empfehlung · Stand 2026-01 · Fabric &amp; Power BI Quarterly · 2026-1 · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1532s">25:32</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Es wird als zukünftige Möglichkeit gesehen, dass MCP-Server von Snowflake, Databricks oder SAP miteinander reden und Daten direkt nach Fabric schieben könnten.<span class="meta quote">Meinung · Stand 2025-12 · Unboxing MCP Server for Power BI Modelling · <a href="https://www.youtube.com/watch?v=iinfiHxznOU&amp;t=952s">15:52</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Beim Mirroring von Databricks-Daten werden nur die Metadaten gespiegelt, weil Fabric direkt auf denselben zugrunde liegenden Speicher wie OneLake oder ADLS Gen2 zugreift, den Databricks bereits nutzt.<span class="meta quote">Fakt · Stand 2025-09 · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=3358s">55:58</a> · automatisch extrahiert · Stelle: Abschnittsanfang</span></li>
+<li>Fabric Mirroring unterstützt offiziell Snowflake und Databricks über deren eigene Delta-/Job-Mechanismen, lässt sich über Open Mirroring aber auch für eigene Datenquellen erweitern, wenn Inserts, Updates und Deletes entsprechend gekennzeichnet werden.<span class="meta quote">Fakt · Stand 2025-07 · Daten-WG Thinkers Talk nr.65 · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=924s">15:24</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 <li>Fabric bietet jetzt bidirektionale Shortcut-Integrationen mit Snowflake und Databricks.<span class="meta quote">Fakt · Stand  · Fabric &amp; Power BI Quarterly · 2026-2 · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=1499s">24:59</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Mit Snowflake Mirroring lassen sich Snowflake-Datenbanken als Kopie in Fabric einziehen, während eine Databricks-Verbindung per Link wie ein Shortcut funktioniert, ohne die Daten zu kopieren.<span class="meta quote">Fakt · Stand  · 600 SQL-Tabellen in Fabric · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1710s">28:30</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
 </ul>
 <h2>Dokumente</h2>
 <ul>
 <li><a href="https://www.youtube.com/watch?v=SSUpe1JON9Y">The Power of User Groups</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=SSUpe1JON9Y&amp;t=227s">03:47</a> · <a href="https://www.youtube.com/watch?v=SSUpe1JON9Y&amp;t=1825s">30:25</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=hbUYMyqb6r8">Denken in Tabellen</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=259s">04:19</a></span></li>
-<li><a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ">Why Passion Beats Niche</a><span class="meta quote">2025-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=372s">06:12</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ">Why Passion Beats Niche</a><span class="meta quote">2025-09-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=372s">06:12</a></span></li>
 <li><a href="https://www.youtube.com/watch?v=HXAP16trRc8">Daten-WG Deep Dive: AI on top of BI</a><span class="meta quote">2025-07-01 · nur-text · <a href="https://www.youtube.com/watch?v=HXAP16trRc8">Abschnitt</a></span></li>
 <li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20ist%20das%3F">Abschnitt</a></span></li>
 <li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datenbank-Quellen%20%C2%B7%20der%20Folding-Hebel">Abschnitt</a></span></li>
 </ul>
 <h2>Nachbarthemen</h2>
 <ul>
-<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
-<li><a href="azure.html">Azure</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">Databricks und Power BI im selben Segment · Heuristik, gezählt · 3 gemeinsame Segmente</span></li>
+<li><a href="azure.html">Azure</a><span class="meta quote">Databricks und Azure im selben Segment · Heuristik, gezählt · 3 gemeinsame Segmente</span></li>
 </ul>
 <h2>Hinweise</h2>
 <p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>

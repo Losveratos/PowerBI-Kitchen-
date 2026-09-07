@@ -4,15 +4,15 @@
  "typ": "tool",
  "slug": "fabric-capacity",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/fabric-capacity.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/fabric-capacity.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/fabric-capacity.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/fabric-capacity.json",
  "dokumente_gesamt": 26,
- "kernaussagen_gesamt": 29,
- "mit_kernaussagen": 9,
+ "kernaussagen_gesamt": 53,
+ "mit_kernaussagen": 18,
  "aliase": [
   "Capacity",
   "Kapazität",
@@ -22,22 +22,49 @@
   "Capacities",
   "Kapazitäten"
  ],
- "einordnung": "Microsoft Fabric bietet jetzt einen Papierkorb für gelöschte Items sowie Autoscaling beziehungsweise Overage Billing für Kapazitätsspitzen. Fabric Planning mit Lumel erfordert keine separate Lizenz und wird ausschließlich über Capacity-Unit-Verbrauch abgerechnet. Für eine F64-Kapazität stellt Microsoft im Rahmen von Open Mirroring 64 TB Speicherplatz kostenlos zur Verfügung.",
+ "einordnung": "Bei Fabric Capacity sind Ausführung (Consumption) und Bezahlung (Payment) der Last zeitlich voneinander getrennt, wodurch Bursting über die Kapazitätsgrenze hinaus möglich ist. (Stand 2025-07) Wird eine überlastete Fabric-Kapazität heruntergefahren, müssen die aufgelaufenen Schulden beim Wiederhochfahren auf einen Schlag zurückgezahlt werden. (Stand 2025-07) Teilt man eine F64-Reservation auf zwei kleinere Kapazitäten auf und pausiert eine davon, verschenkt man den Rabattanteil der pausierten Kapazität. (Stand 2025-07)",
  "nachbarn": [
+  {
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 12,
+   "beleg": "die Copilot Unterstützung nur ab F64 plus QIZE an der Stelle zur Verfügung gestellt war",
+   "datei": "copilot.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 20,
+   "beleg": "Also wir nutzen kein Direct Direct Query oder Direct Lake, also Direct Query ganz böse",
+   "datei": "direct-lake.md"
+  },
   {
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 8,
    "beleg": "es aber braucht einfach Kapazität, aber es gibt für mich, es gibt keine extra Lizenzen",
    "datei": "planung.md"
   },
   {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 66,
+   "beleg": "wenn wir uns Fabric anschauen, haben wir zwei wesentliche Komponenten. Zum einen gibt es die Kapazität, das ist das, was wir in Asure buchen und wo die Rechenleistung stattfindet.",
+   "datei": "microsoft-fabric.md"
+  },
+  {
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 28,
    "beleg": "ich habe einen Arbeitsbereich, den ordne ich einer Kapazität zu und innerhalb des Arbeitsbereichs werden dann meine Artefakte und die Daten dazu entsprechend auf den Onelake abgelegt.",
    "datei": "workspace.md"
@@ -46,43 +73,43 @@
    "id": "tool:mirroring",
    "name": "Mirroring",
    "kantentyp": "teil-von",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 10,
    "beleg": "die Speicherkosten ... sind ja die Speicherkosten je nach äh Kapazität im Terabyte Bereich äh mit drin (Segment 8)",
    "datei": "mirroring.md"
   },
   {
-   "id": "tool:mirroring",
-   "name": "Mirroring",
-   "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
-   "gemeinsame_segmente": 10,
-   "beleg": "kostenlosen Speicher für das Mirroring, entsprechend deiner Kapazität, bei einer F64 schon 64 TB",
-   "datei": "mirroring.md"
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 12,
+   "beleg": "Z.B. Copilot ist Backend.",
+   "datei": "copilot.md"
   },
   {
    "id": "tool:translytical-task-flows",
    "name": "Translytical Task Flows",
    "kantentyp": "setzt-voraus",
-   "belastbarkeit": "belegt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
    "gemeinsame_segmente": 0,
    "beleg": "seit wir da am Bauen sind, quasi seit 4:20 Uhr, dass das so hochgeschossen ist, das ist jetzt kein Zufall",
    "datei": "translytical-task-flows.md"
   },
   {
-   "id": "tool:microsoft-fabric",
-   "name": "Microsoft Fabric",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 66,
-   "beleg": "",
-   "datei": "microsoft-fabric.md"
+   "id": "tool:mirroring",
+   "name": "Mirroring",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 10,
+   "beleg": "hast du je nachdem, was für eine Kapazität du bei Fabric gekauft hast, kostenlosen Mirror Speicher dabei",
+   "datei": "mirroring.md"
   },
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 52,
    "beleg": "",
    "datei": "power-bi.md"
@@ -91,7 +118,7 @@
    "id": "tool:premium",
    "name": "Premium",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "premium.md"
@@ -100,7 +127,7 @@
    "id": "topic:lizenzen",
    "name": "Lizenzen",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "lizenzen.md"
@@ -109,58 +136,58 @@
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "reporting.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 21,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "performance.md"
-  },
-  {
-   "id": "tool:onelake",
-   "name": "OneLake",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 21,
-   "beleg": "",
-   "datei": "onelake.md"
-  },
-  {
-   "id": "tool:notebook",
-   "name": "Notebook",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 20,
-   "beleg": "",
-   "datei": "notebook.md"
-  },
-  {
-   "id": "tool:direct-lake",
-   "name": "Direct Lake",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 20,
-   "beleg": "",
-   "datei": "direct-lake.md"
-  },
-  {
-   "id": "topic:refresh",
-   "name": "Refresh",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 19,
-   "beleg": "",
-   "datei": "refresh.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 470,
+   "zeit": "07:50",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=470s",
+   "aussage": "In diesem Projekt wird bewusst weder DirectQuery noch Direct Lake genutzt, um die Fabric-Kapazitaet durch das mit Power-BI-Pro-Lizenzen ausgerollte Frontend nicht zu belasten."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 507,
+   "zeit": "08:27",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=507s",
+   "aussage": "Es wird empfohlen, fuer Produktivbetrieb und Deployment beziehungsweise Tests getrennte Fabric-Kapazitaeten einzuplanen, damit ein fehlgeschlagenes Deployment nicht das operative System stoert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 717,
+   "zeit": "11:57",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=717s",
+   "aussage": "Bei einem Warehouse sind viele Optimierungen, die man sonst in Notebooks oder im Lake selbst umsetzen muesste, bereits managed abgenommen, was weniger Freiheit, aber auch weniger Risiko fuer die Kapazitaet bedeutet."
+  },
   {
    "typ": "Fakt",
    "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
@@ -379,12 +406,165 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1294,
+   "zeit": "21:34",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1294s",
+   "aussage": "Für Echtzeit-Dashboards ist laut Brian Bønk keine Power-BI-Pro-Lizenz nötig, es genügt mindestens eine F2-Fabric-Instanz."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
    "sekunde": 3358,
    "zeit": "55:58",
    "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3358s",
    "aussage": "Mirroring in Microsoft Fabric enthält kostenlosen Speicherplatz proportional zur gebuchten Kapazität, etwa 64 TB bei einer F64-Kapazität, inklusive der automatischen Transformation in Tabellenformat."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1630,
+   "zeit": "27:10",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1630s",
+   "aussage": "Mit einer Fabric-F2-Kapazität lassen sich Realtime Intelligence, Translytical Task Flows und Copilot bereits gut nutzen, solange die traditionellen Batch-Workloads nicht zu intensiv sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 693,
+   "zeit": "11:33",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=693s",
+   "aussage": "Je nach gekaufter Fabric-Kapazität ist bei Open Mirroring kostenloser Mirror-Speicher enthalten, und das Processing wird nicht als Leistung angerechnet."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 856,
+   "zeit": "14:16",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=856s",
+   "aussage": "Seit die Capacity Metrics App auch Logging-Aktivitäten und Kapazitätsmetriken kombiniert, ist das für das Monitoring sehr wertvoll."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 969,
+   "zeit": "16:09",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=969s",
+   "aussage": "Bei Fabric Capacity sind Ausführung (Consumption) und Bezahlung (Payment) der Last zeitlich voneinander getrennt, wodurch Bursting über die Kapazitätsgrenze hinaus möglich ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 995,
+   "zeit": "16:35",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=995s",
+   "aussage": "Mit einer F2-Kapazität sind laut Beispiel bis zu 2 TB kostenloser Mirroring-Speicher enthalten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 1052,
+   "zeit": "17:32",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1052s",
+   "aussage": "Wird eine überlastete Fabric-Kapazität heruntergefahren, müssen die aufgelaufenen Schulden beim Wiederhochfahren auf einen Schlag zurückgezahlt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 1179,
+   "zeit": "19:39",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1179s",
+   "aussage": "Teilt man eine F64-Reservation auf zwei kleinere Kapazitäten auf und pausiert eine davon, verschenkt man den Rabattanteil der pausierten Kapazität."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 1455,
+   "zeit": "24:15",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1455s",
+   "aussage": "Die Fabric-Kapazität wird einer bestimmten Region zugeordnet, wodurch auch die zugehörigen OneLake-Daten an diese Region gekoppelt sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 1574,
+   "zeit": "26:14",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1574s",
+   "aussage": "Beim Push von Daten per Python-Skript in den OneLake werden im Gegensatz zum Zugriff über ein Data Gateway keine Fabric-CUs für das Abholen der Daten belastet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 1740,
+   "zeit": "29:00",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1740s",
+   "aussage": "Eine Fabric-Kapazität in der Region Deutschland West kostet rund 40 Euro mehr als dieselbe Kapazität in der US-Standardregion."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 2132,
+   "zeit": "35:32",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2132s",
+   "aussage": "Wird das Zeitfenster einer DirectQuery-Abfrage auf eine Kusto-/Eventhouse-Datenbank deutlich verkleinert, hält die Fabric-Kapazität im Langzeittest spürbar länger durch."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 2297,
+   "zeit": "38:17",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2297s",
+   "aussage": "DirectQuery gilt als sehr teuer im Kapazitätsverbrauch, was sich auch bei Translytical Task Flows gezeigt hat."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 2467,
+   "zeit": "41:07",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2467s",
+   "aussage": "Beim Fabric-Capacity-Smoothing wird ein Frontend-Peak nur über einen sehr kurzen Zeitraum abgerechnet, während ein Backend-Peak über bis zu 24 Stunden verteilt wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 2635,
+   "zeit": "43:55",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2635s",
+   "aussage": "Copilot-Nutzung zählt als Backend-Workload und kann die Kapazität über 24 Stunden belasten, steigt dabei aber vergleichsweise langsam an."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 2967,
+   "zeit": "49:27",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2967s",
+   "aussage": "Für kleinere und mittelständische Unternehmen wird empfohlen, eine Fabric-F2-Kapazität zu kaufen, da sie besser sei als eine reine Excel- oder SharePoint-Lösung."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 2226,
+   "zeit": "37:06",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=2226s",
+   "aussage": "Bei einem Lasttest in einer kleineren F2-Fabric-Kapazitaet war nicht der Datenstrom selbst das Problem, sondern die durch Auto-Refresh ausgeloesten haeufigen Abfragen, die viele Ressourcen kosteten."
   },
   {
    "typ": "Fakt",
@@ -396,13 +576,49 @@
    "aussage": "Nach den Tests der Writeback-Funktion stieg die CU-Auslastung der F2-Kapazität in der Capacity-Metrics-App auf über 100 Prozent."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 2144,
+   "zeit": "35:44",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2144s",
+   "aussage": "FUAM hat sich als offizielle State-of-the-Art-Monitoring-Lösung inklusive Capacity Matrix etabliert und löst damit die frühere Community-Lösung von Rui Romano ab."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 2685,
+   "zeit": "44:45",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2685s",
+   "aussage": "Mit den neuen AI-/Copilot-Capacities werden die früheren Skills als Agents bezeichnet, und Copilot-Unterstützung wird künftig für alle verfügbar sein."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 331,
+   "zeit": "05:31",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=331s",
+   "aussage": "Fuer kleinere Kunden, die DataMarts bisher ohne Premium Per User genutzt haben, lohnt sich beim Umstieg schon eine kleine F2-Kapazitaet."
+  },
+  {
    "typ": "Empfehlung",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
    "sekunde": 1049,
    "zeit": "17:29",
    "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1049s",
-   "aussage": "Fabric-Kapazität F2 lohnt sich aus Sicht des Sprechers fast immer, unabhängig von der Unternehmensgröße."
+   "aussage": "Fabric-Kapazität F2 lohnt sich aus Sicht eines der Sprecher fast immer, unabhängig von der Unternehmensgröße."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 1713,
+   "zeit": "28:33",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1713s",
+   "aussage": "Dataflows Gen2 wurden überarbeitet und bringen vor allem bei Dataflows, die länger als 10 Minuten laufen, eine deutliche Verbesserung bei Performance und CU-Verbrauch."
   },
   {
    "typ": "Fakt",
@@ -428,7 +644,7 @@
    "id": "yt:4VVNDNusq4U",
    "titel": "BI Thinkers Talk nr.64",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.385,
    "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
    "sprungmarken": [
@@ -503,7 +719,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.194,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -528,7 +744,7 @@
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.171,
    "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
    "sprungmarken": [
@@ -603,7 +819,7 @@
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.115,
    "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
    "sprungmarken": [
@@ -778,7 +994,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.047,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [
@@ -798,7 +1014,7 @@
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.047,
    "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
    "sprungmarken": [
@@ -838,7 +1054,7 @@
    "id": "yt:BDnwlOqRElY",
    "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
    "datum": "2025-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.043,
    "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
    "sprungmarken": [
@@ -868,7 +1084,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.028,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -898,7 +1114,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.027,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [

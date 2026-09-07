@@ -3,11 +3,11 @@ id: "topic:zertifizierung"
 name: "Zertifizierung"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1922"
+build: "20260907-1949"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 4
-kernaussagen: 1
-mit_kernaussagen: 1
+kernaussagen: 2
+mit_kernaussagen: 2
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/zertifizierung.html"
 canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/zertifizierung.html"
 markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/zertifizierung.md"
@@ -22,7 +22,7 @@ aliase:
 
 # Zertifizierung
 
-Im Rahmen der Fabric Data Days stellt Microsoft zeitlich und mengenmäßig begrenzte Gutscheine für kostenlose Power-BI-Zertifizierungsprüfungen bereit.
+Im Rahmen der Fabric Data Days stellt Microsoft zeitlich und mengenmäßig begrenzte Gutscheine für kostenlose Power-BI-Zertifizierungsprüfungen bereit. (Stand 2025-11) Es gibt weltweit nur sechs von Dan Linstedt, dem Erfinder der Methodik, zertifizierte Data-Vault-Trainer, zu denen Volker Nürnberg seit 2018 zählt. (Stand 2025-07)
 
 ## Aliase
 
@@ -30,9 +30,9 @@ PL-300, DP-600, Prüfung, Zertifikat, Zertifizierungen
 
 ## Nachbarthemen
 
-| Thema | Kantentyp | Belastbarkeit | Gemeinsame Segmente |
-| --- | --- | --- | --- |
-| [Sternschema](sternschema.md) | ko-vorkommen | heuristik | 4 |
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Sternschema](sternschema.md) | Zertifizierung und Sternschema im selben Segment | Heuristik, gezählt |  | 4 |
 
 ## Kernaussagen
 
@@ -41,6 +41,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
 | --- | --- | --- | --- | --- | --- | --- |
 | Fakt | BI Thinkers Talk - Data Modelling - Fabric Data Days Edition | 2025-11 | 01:23 | auf die Sekunde | Im Rahmen der Fabric Data Days stellt Microsoft zeitlich und mengenmäßig begrenzte Gutscheine für kostenlose Power-BI-Zertifizierungsprüfungen bereit. | [▶](https://www.youtube.com/watch?v=mUALlPmGcEk&t=83s) |
+| Fakt | Mythos Data Vault und richtig große Modelle | 2025-07 | 31:12 | auf die Sekunde | Es gibt weltweit nur sechs von Dan Linstedt, dem Erfinder der Methodik, zertifizierte Data-Vault-Trainer, zu denen Volker Nürnberg seit 2018 zählt. | [▶](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1872s) |
 
 ## Dokumente
 

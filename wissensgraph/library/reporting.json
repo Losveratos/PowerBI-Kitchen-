@@ -4,15 +4,15 @@
  "typ": "thema",
  "slug": "reporting",
  "stand": "2026-09-07",
- "build": "20260907-1922",
+ "build": "20260907-1949",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/reporting.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/reporting.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/reporting.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/reporting.json",
  "dokumente_gesamt": 44,
- "kernaussagen_gesamt": 15,
- "mit_kernaussagen": 8,
+ "kernaussagen_gesamt": 33,
+ "mit_kernaussagen": 17,
  "aliase": [
   "Berichtswesen",
   "Controlling",
@@ -25,13 +25,13 @@
   "Report",
   "Reports"
  ],
- "einordnung": "Der im Fixer enthaltene Prototyper kann Berichtsseiten als Screenshot, Excalidraw-Datei oder SVG exportieren. Über die in der PBIR-Datei gespeicherten Seitenverbindungen lässt sich die mehrstufige Navigationsstruktur eines Berichts sichtbar machen, was in Power BI Desktop selbst nicht einsehbar ist. Intelligence Sheets von Lumel sind in Fabric aktuell auf SQL-Datenbank-Verbindungen beschränkt.",
+ "einordnung": "Die Data-Champion-Schulung vermittelt Methodenkompetenz wie Storytelling und die Erstellung aussagekräftiger Berichte. (Stand 2022-06) Der zweite, deutlich anspruchsvollere Anwendungsfall ist ein Vorstandsbericht mit 14 vollständig individuellen Seiten zum Fortschritt der digitalen Transformation der Rheinland Versicherungsgruppe. (Stand 2022-06) Der im Fixer enthaltene Prototyper kann Berichtsseiten als Screenshot, Excalidraw-Datei oder SVG exportieren. (Stand 2026-04)",
  "nachbarn": [
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 154,
    "beleg": "",
    "datei": "power-bi.md"
@@ -40,7 +40,7 @@
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 92,
    "beleg": "",
    "datei": "visualisierung.md"
@@ -49,7 +49,7 @@
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 63,
    "beleg": "",
    "datei": "microsoft-fabric.md"
@@ -58,7 +58,7 @@
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 46,
    "beleg": "",
    "datei": "ki.md"
@@ -67,7 +67,7 @@
    "id": "topic:ibcs",
    "name": "IBCS",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 41,
    "beleg": "",
    "datei": "ibcs.md"
@@ -76,7 +76,7 @@
    "id": "topic:performance",
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 41,
    "beleg": "",
    "datei": "performance.md"
@@ -85,7 +85,7 @@
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 40,
    "beleg": "",
    "datei": "datenmodellierung.md"
@@ -94,7 +94,7 @@
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 33,
    "beleg": "",
    "datei": "workspace.md"
@@ -103,7 +103,7 @@
    "id": "tool:dax",
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 32,
    "beleg": "",
    "datei": "dax.md"
@@ -112,7 +112,7 @@
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "planung.md"
@@ -121,7 +121,7 @@
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "warehouse.md"
@@ -130,7 +130,7 @@
    "id": "topic:sternschema",
    "name": "Sternschema",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "sternschema.md"
@@ -139,31 +139,67 @@
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "sicherheit.md"
   },
   {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 28,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
+   "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "direct-lake.md"
-  },
-  {
-   "id": "tool:semantic-model",
-   "name": "Semantic Model",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "heuristik",
-   "gemeinsame_segmente": 27,
-   "beleg": "",
-   "datei": "semantic-model.md"
   }
  ],
  "kernaussagen": [
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1116,
+   "zeit": "18:36",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1116s",
+   "aussage": "Der Gold-Layer muss nicht immer dieselbe Technologie sein, sondern sollte je nach Use Case und Empfaenger gewaehlt werden, etwa Lakehouse fuer ein Data-Analytics-Team oder Warehouse fuer Reporting."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1155,
+   "zeit": "19:15",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1155s",
+   "aussage": "Im Tool können Teammitglieder Notizen per Sprache oder Text an jeden Wert, jede Dimension oder jeden Tag hängen, die dann in einem gemeinsamen Notes Board zusammengeführt werden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1252,
+   "zeit": "20:52",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1252s",
+   "aussage": "KI kann kleinteilige operative Kommentare in managementtaugliche Zusammenfassungen übersetzen, die eigentliche Geschäftsentscheidung bleibt aber weiterhin bei Menschen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 1341,
+   "zeit": "22:21",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1341s",
+   "aussage": "Ein vom Agent Hub aus einem unspezifischen Prompt erzeugter Report ist noch kein fachbereichsreifer Report, gilt aber als starker Ausgangspunkt fuer eine schnelle End-to-End-Strecke."
+  },
   {
    "typ": "Fakt",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
@@ -273,6 +309,24 @@
    "aussage": "Oliver vertritt die These, dass Qlik das stärkere Tool für Analysen ist, während Power BI und Qlik beim Reporting etwa gleichauf liegen."
   },
   {
+   "typ": "Meinung",
+   "dokument": "Datenmodellierung ist Governance",
+   "dokument_id": "yt:lH_-A8NAQ-k",
+   "sekunde": 366,
+   "zeit": "06:06",
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=366s",
+   "aussage": "Wächst ein Report zu einem Standard-Reporting mit zusätzlichen Dimensionen und unterschiedlicher Granularität, führt das meist Richtung eines dimensionalen Modells beziehungsweise Sternschemas."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Special: Power BI vs. Qlik",
+   "dokument_id": "yt:aYHk_V8n_CE",
+   "sekunde": 1936,
+   "zeit": "32:16",
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=1936s",
+   "aussage": "Power BI unterstuetzt inzwischen im Web organisatorische Themes fuer Reports, was zuvor nur im Desktop moeglich war."
+  },
+  {
    "typ": "Warnung",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
@@ -280,6 +334,114 @@
    "zeit": "20:02",
    "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1202s",
    "aussage": "Berichte mit Writeback-Visuals wie InfoRiver sollten nach Möglichkeit nicht mehr in Power BI Desktop bearbeitet werden, weil ein erneutes Laden dort bereits von Nutzern eingegebene Daten überschreiben könnte."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 379,
+   "zeit": "06:19",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=379s",
+   "aussage": "Bei der Umsetzung des Financial-Reporting-Modells in Fabric wurden die aufbereiteten Tabellen unglücklich benannt, kaum anders als die ursprünglichen Quelltabellen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 388,
+   "zeit": "06:28",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=388s",
+   "aussage": "Wiederverwendbare Berichtsvorlagen sind problematisch, weil Spalten tief im Bericht eingebettet sein können und das Ersetzen über die Benutzeroberfläche nur sehr eingeschränkt funktioniert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 456,
+   "zeit": "07:36",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=456s",
+   "aussage": "Eine wesentliche Anforderung an das Financial-Reporting-Datenmodell war, dass es mandantenfähig sein muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 731,
+   "zeit": "12:11",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=731s",
+   "aussage": "Das Referenzmodell samt Monitoring-Dashboard wurde in einem GitHub-Repository bereitgestellt, damit es heruntergeladen und wiederverwendet werden kann."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG BI Thinkers Talk nr.66",
+   "dokument_id": "yt:DQENmzAkNqw",
+   "sekunde": 1250,
+   "zeit": "20:50",
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1250s",
+   "aussage": "Bei rund 100 Berichten dieses Stils im Unternehmen wird das manuelle Kopieren und Anpassen von Vorlagendateien sehr umständlich."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1356,
+   "zeit": "22:36",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1356s",
+   "aussage": "Für ein unternehmensweites Data Warehouse wird empfohlen, eine Standard-Kalendertabelle einmal zu laden und zu persistieren, statt sie für jedes Datenmodell neu zu erzeugen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 1421,
+   "zeit": "23:41",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1421s",
+   "aussage": "Für einen einzelnen Bericht sollte der Kalender nicht unnötig lang gehalten werden, sondern kann sein Startdatum z.B. aus dem ersten Hauptbucheintrag der Quelldaten ableiten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 63,
+   "zeit": "01:03",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=63s",
+   "aussage": "Eine Kernanforderung an das Datenmodell für die Finanzberichterstattung ist, verschiedene Berichte mit unterschiedlichen Layouts und Zeilenzusammenstellungen anzuzeigen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting",
+   "dokument_id": "yt:TYmKrreMO3I",
+   "sekunde": 111,
+   "zeit": "01:51",
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=111s",
+   "aussage": "Statt eine eigene Exceltabelle für Berichtslayouts zu pflegen, werden die Layouts direkt aus dem ERP-System übernommen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1130,
+   "zeit": "18:50",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1130s",
+   "aussage": "Die Data-Champion-Schulung vermittelt Methodenkompetenz wie Storytelling und die Erstellung aussagekräftiger Berichte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 1594,
+   "zeit": "26:34",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1594s",
+   "aussage": "Der zweite, deutlich anspruchsvollere Anwendungsfall ist ein Vorstandsbericht mit 14 vollständig individuellen Seiten zum Fortschritt der digitalen Transformation der Rheinland Versicherungsgruppe."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "dokument_id": "yt:Z8vpSSOmG24",
+   "sekunde": 2101,
+   "zeit": "35:01",
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2101s",
+   "aussage": "Bevor ein Bericht gebaut wird, soll zunächst geklärt werden, warum ein Nutzer ihn braucht und was er damit erreichen will."
   },
   {
    "typ": "Fakt",
@@ -355,7 +517,7 @@
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.6,
    "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
    "sprungmarken": [
@@ -595,7 +757,7 @@
    "id": "yt:bt81POE-9Ig",
    "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
    "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.326,
    "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
    "sprungmarken": [
@@ -645,7 +807,7 @@
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.297,
    "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
    "sprungmarken": [
@@ -765,7 +927,7 @@
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.25,
    "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
    "sprungmarken": [
@@ -962,21 +1124,6 @@
    ]
   },
   {
-   "id": "page:prototyping-pnl-treiberbaum",
-   "titel": "Ist KI das neue Papier — und Markdown der neue Stift?",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.143,
-   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:prototyping-pnl-treiberbaum_en",
    "titel": "Is AI the New Paper — and Markdown the New Pen?",
    "datum": "2026-08-31",
@@ -987,6 +1134,21 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:prototyping-pnl-treiberbaum",
+   "titel": "Ist KI das neue Papier — und Markdown der neue Stift?",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.143,
+   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
      "sekunde": null
     }
    ]
@@ -1020,7 +1182,7 @@
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.139,
    "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
    "sprungmarken": [
@@ -1045,7 +1207,7 @@
    "id": "yt:rrCi0lnGrCg",
    "titel": "Mythos Data Vault und richtig große Modelle",
    "datum": "2025-07-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.136,
    "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
    "sprungmarken": [
@@ -1170,7 +1332,7 @@
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.097,
    "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
    "sprungmarken": [
@@ -1210,7 +1372,7 @@
    "id": "yt:lH_-A8NAQ-k",
    "titel": "Datenmodellierung ist Governance",
    "datum": "2025-11-01",
-   "abdeckung": "nur-zeitstempel",
+   "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.08,
    "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
    "sprungmarken": [
