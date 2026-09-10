@@ -5,7 +5,7 @@
 - **Quelle:** https://datenwgknowledgekitchen.com/visual-standards-rechner.html
 - **Autor:innen:** Michael Tenner & Diana Ackermann · Daten-WG Knowledge Kitchen
 - **Anlass:** Pre-Conference „Visual Standards in Power BI für Controlling und Finance | Von Easy über Flexibel bis MacGyver", Daten-WG 2026, 14.10.2026, Köln
-- **Stand:** v0.4 · 09/2026 · Sprache DE · rein clientseitig, keine Server-Anbindung
+- **Stand:** v0.5 · 09/2026 · Sprache DE · rein clientseitig, keine Server-Anbindung
 - **Zitierhinweis:** Michael Tenner & Diana Ackermann, Daten-WG Knowledge Kitchen, https://datenwgknowledgekitchen.com/visual-standards-rechner.html — Abruf mit Datum angeben.
 - **Hinweis fuer Agenten:** Diese Markdown-Fassung beschreibt Modell, Voreinstellungen und Quellenlage. Regler, Simulation, Charts und Export sind nur in der HTML-Fassung nutzbar.
 - **Offenlegung:** ChartKitchen byDatenWG, das Beispiel fuer „Open Source / Eigenentwicklung", ist ein Projekt der Autor:innen.
@@ -59,11 +59,11 @@ Interne Stunden werden mit einem Bewertungsfaktor (60 = Kapazitaet frei, 100 = V
 | Lizenz je Nutzer und Jahr (Paid, Mischpreis) | 40 · 80 · 150 € | S: Inforiver ~3 $/Monat, Zebra BI Personal ~299 $/Jahr, Team 799 $/Jahr bis 5 User |
 | Site-Lizenz je Jahr (Paid) | 12.000 · 40.000 · 96.000 € | S: Inforiver Domain-wide 12–96 k$ (widerspruechliche Quellen); Presets bis 300 k€ als Schaetzung |
 | Volumenstaffel | −25 % ab 100, −45 % ab 500, −60 % ab 2.000, −70 % ab 5.000 Nutzern | F |
-| Stunden je Chart-Typ erstmalig (paid / oss / deneb / core) | 0,5–1–2 / 1–2–4 / 4–8–20 / 4–8–24 h | E: keine Literaturquelle |
-| Schulung Vorlagen-Bauer (paid / oss / deneb / core) | 4–8–16 / 4–8–16 / 16–40–80 / 8–16–40 h | F: Deneb „steep learning curve" |
-| Wartungsquote p.a. (paid / oss / deneb / core) | 10–15–20 / 15–20–30 / 20–25–40 / 20–30–45 % | F: Software-Faustregel 15–25 % |
+| Stunden je Chart-Typ erstmalig (paid / oss / deneb / core) | 2–4–7.5 / 4.5–8.5–14 / 7–12–18 / 10–16–27 h | E: simuliertes Expertenpanel (20 Profile), Median |
+| Schulung Vorlagen-Bauer (paid / oss / deneb / core) | 5–8.5–15 / 8–15–26 / 20–35–58 / 18–28–43 h | E: simuliertes Expertenpanel (20 Profile), Median |
+| Wartungsquote p.a. in % (paid / oss / deneb / core) | 6–10–18 / 15–26–38 / 11–19–30 / 20–34–52 | E: simuliertes Expertenpanel (20 Profile), Median |
 | Abkuendigungsrisiko p.a. (paid / oss / deneb / core) | 1–2–4 / 3–7–13 / 2–4–8 / 0,4–1–2 % | F: Charticulator 2023, Bing-Maps-Visuals 2025, OKViz 2026 |
-| Anwender-Support je 100 Viewer und Jahr | 2–4–8 / 3–6–12 / 4–8–16 / 5–12–24 h | E |
+| Anwender-Support je 100 Viewer und Jahr | 2–4–6.25 / 3–7–12 / 3–6–10 / 5–9.5–16 h | E: simuliertes Expertenpanel (20 Profile), Median |
 | Laufende Governance p.a. | 6–16–42 / 18–46–112 / 12–32–78 / 1–3–10 h | E, gestuft nach Organisationsgroesse (×0,3 unter 50 Viewern bis ×1,3 ab 1.000) |
 | Betriebsmodell-Faktoren (Enterprise → Self-Service) | Owner-Anteil 10 → 100 %, Varianten ×1 → ×3, Support ×0,8 → ×1,3, Governance ×1 → ×1,6 | E |
 | Reports je Ersteller (Erfahrungswert) | Enterprise ≈ 6, Managed ≈ 4, Self-Service ≈ 2, plus 2 je 1.000 Viewer | E |
@@ -81,7 +81,7 @@ Quellenlage aller 36 Annahmen: 1 verifiziert, 4 Snippet, 11 Faustregel, 20 Exper
 ## Grenzen
 
 - Nicht enthalten: Power-BI-Grundlizenzen (fuer alle gleich), Nutzen-Seite (nur als Score und „€ je Anforderungspunkt"), Aktivierung/Abschreibung (§ 248 HGB, IAS 38), Steuern (§ 50a EStG), Datenmodell und Datenaufbereitung.
-- Stunden je Chart sind Expertenschaetzungen ohne Literaturquelle und die wichtigste Stellschraube.
+- Stunden je Chart, Setup, Schulung, Wartung, Breaking-Updates und Support stammen aus einem simulierten Expertenpanel (20 Rollenprofile, per Sprachmodell unabhaengig geschaetzt, Median je Wert; Rohdaten unter sessions/visual-standards-rechner-reviews/). Das ist strukturierte Meinung, keine Messung, und die wichtigste Stellschraube.
 - Preise stammen ueberwiegend aus Such-Auszuegen der Herstellerseiten (Stand 09/2026) und sind vor einer Entscheidung beim Hersteller zu pruefen.
 - Plaetze mit ueberlappenden P10–P90-Baendern sind statistisch nicht unterscheidbar und werden zusammengefasst.
 - Der Share-Link enthaelt die Eingaben unverschluesselt im URL-Fragment. Berechnung lokal im Browser; Google Fonts und (falls die lokale Kopie fehlt) die Excel-Bibliothek werden nachgeladen.
