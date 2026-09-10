@@ -25,13 +25,14 @@ Der Rechner vergleicht vier Ansaetze, IBCS-nahe Standard-Charts (Abweichung, Was
 
 Er ist eine **Indikation unter Unsicherheit**, kein Angebot und kein Business Case. Jede Annahme ist eine Dreipunkt-Schaetzung (min · wahrscheinlich · max), aus der per PERT-Verteilung 1.500 Szenarien gezogen werden. Ausgegeben werden P10, P50 und P90.
 
-## Klickpfad in fuenf Schritten
+## Klickpfad in sechs Schritten
 
 1. **Mengengeruest:** Ersteller, Viewer (bis 10.000+), Standard-Reports (mit Erfahrungswert je Betriebsmodell), Charts je Report, Chart-Typen, Horizont 3/5/10 Jahre, Betriebsmodell (Enterprise BI, Managed Self-Service, Self-Service, stufenlos hybrid), heutiger Ansatz und Bestands-Reports fuer die Migration.
 2. **Anforderungen (MoSCoW):** 18 Kriterien mit Erfuellungsgrad 1 bis 5 je Ansatz, per Klick ueberschreibbar, eigene Zeilen moeglich (starten als „nicht geprueft"). Must mit Erfuellungsgrad 1 ist ein K.O.
 3. **Red Flags:** Governance-Schalter (nur zertifizierte Visuals, nur Core Visuals, IBCS-Zertifikat Pflicht, kein Lizenzbudget, Report Server, Embedded/Publish-to-web, Sovereign Cloud, fehlende Desktop-Gruppenrichtlinie, kein externer Dienstleister). Sie wirken als K.O.-Filter vor dem Rechnen.
 4. **Annahmen:** globale und ansatzspezifische Dreipunkt-Werte mit Quellen-Badge (V verifiziert, S Such-Snippet, F Faustregel, E Expertenschaetzung Daten-WG, N eigene Aenderung). Lizenzmodell pro Nutzer, Volumenstaffel oder Site-Lizenz.
 5. **Ergebnis:** Rangfolge (Kostenverhaeltnis und Anforderungs-Score, Regler 70/30), ausgeschlossene Ansaetze unter dem Strich mit dem Preis der Rahmenbedingung, Konflikt-Boxen, Kostenstruktur, Break-even ueber die Viewer-Zahl mit Verhandlungsgrenze (Indifferenz-Lizenzpreis), Sensitivitaet, kumulierte Kosten, Barwert, Textbausteine zu Vorteilen, Nachteilen und versteckten Kosten, Excel-Export mit Deckblatt.
+6. **Monte-Carlo-Seite:** Schwankungsbreite ±5/10/15/20/25 % um die eigenen Eingaben, wahlweise fuer Mengengeruest und Annahmen oder nur fuer das Mengengeruest, 1.000 bis 5.000 Ziehungen. Erzeugt lokal im Browser eine eigene Auswertungsseite (neuer Tab oder HTML-Datei): Verteilung der Kosten je Viewer, Anteil je Platz 1 bis 4, hart gegen weich, Erstellung gegen Nutzung mal direkt gegen indirekt (2x2 je Ansatz), Rangkorrelationen (Spearman) fuer Mengengeruest und Annahmen, gepaarte Differenz Paid gegen Open Source und eine Skalen-Simulation bei festem Verhaeltnis Ersteller : Viewer (x0,5 bis x10) mit Kipp-Punkt.
 
 ## Kostenkern (je Ansatz, Horizont H)
 
