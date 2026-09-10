@@ -86,6 +86,8 @@ h1{font-family:var(--head);font-size:32px;line-height:1.15;margin:6px 0 8px;lett
 .field label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:500;margin-bottom:5px;gap:8px;}
 .field label .val{font-family:var(--mono);color:var(--accent-text);font-weight:600;}
 .field .sub-hint{font-size:11px;color:var(--ink-soft);margin-top:3px;line-height:1.45;}
+.valin{width:92px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--accent-text);background:#fff;text-align:right;}
+.hint-btn{font-family:var(--mono);font-size:10.5px;padding:3px 8px;border-radius:12px;border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--accent-text);margin-left:4px;}
 input[type=range]{width:100%;accent-color:var(--accent);height:4px;}
 input[type=number],input[type=text]{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font-family:var(--mono);font-size:13px;background:var(--paper-2);color:var(--ink);}
 select{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:6px;font-family:var(--sans);font-size:13px;background:var(--paper-2);color:var(--ink);}
@@ -249,18 +251,19 @@ footer b{color:var(--ink);}
         <button class="preset-btn" data-preset="mittelstand">Mittelstand · 3 / 40</button>
         <button class="preset-btn" data-preset="konzern">Konzern · 25 / 1.500</button>
         <button class="preset-btn" data-preset="rs">Konzern mit Report Server · 15 / 400</button>
+        <button class="preset-btn" data-preset="gross">Großkonzern · 200 / 10.000</button>
       </div>
       <div class="grid3">
         <div>
-          <div class="field"><label><span>Ersteller (Report-Autoren)</span><span class="val" id="v-creators"></span></label><input type="range" id="creators" min="1" max="100" value="3"><div class="sub-hint">Personen, die Reports mit den Standard-Visuals bauen und warten.</div></div>
-          <div class="field"><label><span>Viewer (Nutzer, die Reports lesen)</span><span class="val" id="v-viewers"></span></label><input type="range" id="viewers" min="0" max="3000" step="10" value="40"><div class="sub-hint">Microsoft-Szenario: rund 9 Viewer je Ersteller. Bei Paid Visuals braucht jeder Viewer eine Lizenz.</div></div>
+          <div class="field"><label><span>Ersteller (Report-Autoren)</span><input type="number" class="valin" id="n-creators" min="1" max="100000" aria-label="Ersteller"></label><input type="range" id="creators" min="1" max="500" value="3"><div class="sub-hint">Personen, die Reports mit den Standard-Visuals bauen und warten.</div></div>
+          <div class="field"><label><span>Viewer (Nutzer, die Reports lesen)</span><input type="number" class="valin" id="n-viewers" min="0" max="10000000" aria-label="Viewer"></label><input type="range" id="viewers" min="0" max="20000" step="50" value="40"><div class="sub-hint">Microsoft-Szenario: rund 9 Viewer je Ersteller. Bei Paid Visuals braucht jeder Viewer eine Lizenz.</div></div>
         </div>
         <div>
-          <div class="field"><label><span>Standard-Reports</span><span class="val" id="v-reports"></span></label><input type="range" id="reports" min="1" max="100" value="6"><div class="sub-hint">Reports, die nach dem Standard gebaut werden (Übersicht, Analyse, Detail).</div></div>
-          <div class="field"><label><span>Charts je Report</span><span class="val" id="v-cpr"></span></label><input type="range" id="cpr" min="1" max="20" value="6"></div>
+          <div class="field"><label><span>Standard-Reports</span><input type="number" class="valin" id="n-reports" min="1" max="100000" aria-label="Standard-Reports"></label><input type="range" id="reports" min="1" max="1000" value="6"><div class="sub-hint" id="reports-hint">Reports, die nach dem Standard gebaut werden (Übersicht, Analyse, Detail).</div></div>
+          <div class="field"><label><span>Charts je Report</span><input type="number" class="valin" id="n-cpr" min="1" max="200" aria-label="Charts je Report"></label><input type="range" id="cpr" min="1" max="20" value="6"></div>
         </div>
         <div>
-          <div class="field"><label><span>Chart-Typen im Baukasten</span><span class="val" id="v-types"></span></label><input type="range" id="types" min="1" max="12" value="5"><div class="sub-hint">Abweichungsdiagramm, Wasserfall, Tabelle mit Δ-Spalten, KPI-Karte, Zeitreihe AC/PY/PL/FC.</div></div>
+          <div class="field"><label><span>Chart-Typen im Baukasten</span><input type="number" class="valin" id="n-types" min="1" max="50" aria-label="Chart-Typen"></label><input type="range" id="types" min="1" max="12" value="5"><div class="sub-hint">Abweichungsdiagramm, Wasserfall, Tabelle mit Δ-Spalten, KPI-Karte, Zeitreihe AC/PY/PL/FC.</div></div>
           <div class="field"><label><span>Betrachtungshorizont</span></label>
             <div class="seg" id="horizon-seg"><button data-h="3">3 Jahre</button><button data-h="5" class="active">5 Jahre</button><button data-h="10">10 Jahre</button></div>
             <div class="sub-hint">Forrester rechnet 3 Jahre, Gartner-TCO 5. Zehn Jahre zeigen, wie Lizenz und Wartung den Invest überholen.</div></div>
@@ -269,11 +272,12 @@ footer b{color:var(--ink);}
       <div class="grid3" style="margin-top:6px;padding-top:14px;border-top:1px solid var(--line)">
         <div class="field"><label><span>Betriebsmodell</span></label>
           <div class="seg" id="mode-seg"><button data-mode="ent">Enterprise BI</button><button data-mode="man" class="active">Managed Self-Service</button><button data-mode="ss">Self-Service</button></div>
+          <label style="margin-top:8px"><span>Self-Service-Anteil der Ersteller (Hybrid)</span><span class="val" id="v-ss"></span></label><input type="range" id="ss" min="0" max="100" step="5" value="25" aria-label="Self-Service-Anteil">
           <div class="sub-hint" id="mode-hint">Wer darf Standard-Reports bauen? Das Betriebsmodell verschiebt oft mehr Kosten als die Werkzeugwahl: Es bestimmt, wie viele Ersteller tief geschult werden, wie viele Chart-Varianten entstehen und wie viel Governance nötig ist.</div></div>
         <div class="field"><label><span>Heutiger Ansatz (Bestand)</span></label>
           <select id="baseline"><option value="none">Grüne Wiese, kein Bestand</option><option value="paid">3rd-Party paid im Einsatz</option><option value="oss">Open Source im Einsatz</option><option value="deneb">Deneb im Einsatz</option><option value="core">Core Visuals im Einsatz</option></select>
           <div class="sub-hint">Bleibt der heutige Ansatz, kostet der Wechsel 0 €. Jeder andere Ansatz trägt den Nachbau des Bestands.</div></div>
-        <div class="field"><label><span>Bestands-Reports, die migriert werden müssten</span><span class="val" id="v-existing"></span></label><input type="range" id="existing" min="0" max="300" value="0"><div class="sub-hint">Reports auf dem heutigen Ansatz, die beim Wechsel neu gebaut werden.</div></div>
+        <div class="field"><label><span>Bestands-Reports, die migriert werden müssten</span><input type="number" class="valin" id="n-existing" min="0" max="100000" aria-label="Bestands-Reports"></label><input type="range" id="existing" min="0" max="1000" value="0"><div class="sub-hint">Reports auf dem heutigen Ansatz, die beim Wechsel neu gebaut werden.</div></div>
       </div>
     </div>
   </section>
@@ -467,7 +471,7 @@ const GLOBAL=[
 /* Parameter je Option: v = {paid:[..],oss:[..],deneb:[..],core:[..]} */
 const OPTP=[
   {id:'lic',label:'Lizenz je Nutzer und Jahr (Listen-/Mischpreis)',sub:'€, für Ersteller und Viewer; Default = verhandelter Mischpreis, kein Listenpreis',unit:'€',v:{paid:[40,80,150]},src:'S',srcNote:'Inforiver ~3 $/Monat, Zebra BI Personal ~299 $/Jahr, Team 799 $/Jahr bis 5 User, graphomate auf Anfrage; Stand 09/2026, vom Hersteller nicht bestätigt'},
-  {id:'licSite',label:'Site-/Domain-Lizenz pro Jahr',sub:'€ pauschal, nur bei Lizenzmodell „Site“',unit:'€',v:{paid:[12000,40000,96000]},src:'S',srcNote:'Inforiver Domain-wide 12.000 $ (Zebra-Review) bis 96.000 $ (Inforiver-Blog): widersprüchliche Quellen'},
+  {id:'licSite',label:'Site-/Domain-Lizenz pro Jahr',sub:'€ pauschal, nur bei Lizenzmodell „Site“; Presets oben, bei über 5.000 Nutzern eher Rahmenvertrag',unit:'€',v:{paid:[12000,40000,96000]},src:'S',srcNote:'Inforiver Domain-wide 12.000 $ (Zebra-Review) bis 96.000 $ (Inforiver-Blog): widersprüchliche Quellen; Zebra Enterprise „unlimited site license“ ohne öffentlichen Preis'},
   {id:'cuUplift',label:'Capacity-Mehrverbrauch',sub:'% der Capacity-Jahreskosten (SVG-Strings, Deneb-Zeilenfenster)',unit:'%',v:{paid:[0,1,3],oss:[0,1,3],deneb:[0,2,5],core:[2,6,15]},src:'E',srcNote:'Capacity springt statt zu wachsen: über 70 % Auslastung ist der Aufschlag die nächste SKU'},
   {id:'licInfl',label:'Lizenzpreis-Steigerung',sub:'% pro Jahr (Vendor-Preisanpassung, Preissprünge bei Vertragswechsel)',unit:'%',v:{paid:[0,5,20]},src:'F',srcNote:'Power BI Pro selbst +40 % in 04/2025 (Einmalsprung); Vendor-Listen jährlich angepasst'},
   {id:'licAdmH100',label:'Lizenz-Administration je 100 Nutzer und Jahr',sub:'Stunden: Zuweisung, Abgleich, Offboarding, True-up',unit:'h',v:{paid:[0.5,1.5,4]},src:'E'},
@@ -491,16 +495,18 @@ const OPTP=[
   {id:'support',label:'Support / Sponsoring pro Jahr',sub:'€ (Paid: im Preis enthalten)',unit:'€',v:{oss:[0,0,2000],deneb:[0,0,9000],core:[0,0,0]},src:'V',srcNote:'Freiwillig: Deneb GitHub Sponsors 50 $/Monat ≈ 1 h bis 750 $/Monat ≈ 15 h; Default 0, weil niemand zahlen muss'},
 ];
 
-const MODES={
-  ent:{label:'Enterprise BI',ownerShare:.10,reuseF:.8,variantF:1.0,supF:.8,govF:1.0,hint:'Ein zentrales Team baut, der Fachbereich liest.'},
-  man:{label:'Managed Self-Service',ownerShare:.25,reuseF:1.0,variantF:1.6,supF:1.0,govF:1.2,hint:'Ein Kern pflegt Vorlagen, geschulte Ersteller nutzen sie.'},
-  ss:{label:'Self-Service',ownerShare:1.0,reuseF:1.4,variantF:3.0,supF:1.3,govF:1.6,hint:'Jeder Ersteller baut selbst: mehr Varianten, mehr Wartung, mehr Governance.'},
-};
+const MODE_PRESETS={ent:0,man:25,ss:100};
+const MODE_LABEL={ent:'Enterprise BI',man:'Managed Self-Service',ss:'Self-Service'};
+const MODE_HINT={ent:'Ein zentrales Team baut, der Fachbereich liest.',man:'Ein Kern pflegt Vorlagen, geschulte Ersteller nutzen sie.',ss:'Jeder Ersteller baut selbst: mehr Varianten, mehr Wartung, mehr Governance.',hybrid:'Mischform: ein Teil der Ersteller baut frei, der Rest nutzt Vorlagen des Kerns.'};
+/* Betriebsmodell stufenlos: t = Self-Service-Anteil 0..1, Faktoren linear zwischen Enterprise (0) und Self-Service (1) */
+function modeParams(){const t=Math.min(1,Math.max(0,S.ssShare/100));const L=(a,b)=>a+(b-a)*t;const key=Object.keys(MODE_PRESETS).find(k=>MODE_PRESETS[k]===S.ssShare)||'hybrid';
+  return {key,label:key==='hybrid'?'Hybrid ('+S.ssShare+' % Self-Service)':MODE_LABEL[key],hint:MODE_HINT[key],ownerShare:L(.10,1.0),reuseF:L(.8,1.4),variantF:L(1.0,3.0),supF:L(.8,1.3),govF:L(1.0,1.6),reportsPerCreator:t<=.25?6-8*t:4-(t-.25)/.75*2};}
 const PRESETS={
   pilot:{creators:1,viewers:10,reports:2,cpr:5,types:4,mode:'ss'},
   mittelstand:{creators:3,viewers:40,reports:6,cpr:6,types:5,mode:'man'},
   konzern:{creators:25,viewers:1500,reports:40,cpr:8,types:6,mode:'man',flags:{certonly:true}},
   rs:{creators:15,viewers:400,reports:25,cpr:6,types:6,mode:'ent',flags:{rs:true,certonly:true}},
+  gross:{creators:200,viewers:10000,reports:400,cpr:8,types:8,mode:'ent',licModel:'site',flags:{certonly:true}},
 };
 const LIC={inforiver:[25,30,40],zebra:[200,270,330],enterprise:[40,80,150]};
 
@@ -554,9 +560,9 @@ const SOURCES=[
 ];
 
 /* ===================== State ===================== */
-const S={creators:3,viewers:40,reports:6,cpr:6,types:5,horizon:5,mode:'man',licModel:'staffel',baseline:'none',existing:0,weight:70,per:'viewer',view:'abs',prio:{},cap:{},custom:[],flags:{},g:{},p:{},tornado:null};
+const S={creators:3,viewers:40,reports:6,cpr:6,types:5,horizon:5,mode:'man',ssShare:25,licModel:'staffel',baseline:'none',existing:0,weight:70,per:'viewer',view:'abs',prio:{},cap:{},custom:[],flags:{},g:{},p:{},tornado:null};
 function defaults(){
-  S.creators=3;S.viewers=40;S.reports=6;S.cpr=6;S.types=5;S.horizon=5;S.mode='man';S.licModel='staffel';S.baseline='none';S.existing=0;S.weight=70;S.per='viewer';
+  S.creators=3;S.viewers=40;S.reports=6;S.cpr=6;S.types=5;S.horizon=5;S.mode='man';S.ssShare=25;S.licModel='staffel';S.baseline='none';S.existing=0;S.weight=70;S.per='viewer';
   S.view='abs';S.prio={};S.cap={};S.custom=[];REQS.forEach(r=>{S.prio[r.id]=r.def;S.cap[r.id]=r.cap.slice();});
   S.flags={};FLAGS.forEach(f=>S.flags[f.id]=false);
   S.g={};GLOBAL.forEach(p=>S.g[p.id]=p.v.slice());
@@ -583,9 +589,10 @@ function q(arr,p){const a=arr.slice().sort((x,y)=>x-y);const i=(a.length-1)*p;co
 /* ===================== Kostenkern ===================== */
 const CATS=[['lic','Lizenz, Support & Capacity'],['build','Aufbau'],['switch','Migration des Bestands'],['rollout','Rollout'],['train','Schulung'],['maint','Wartung & Updates'],['gov','Governance & Anwender-Support'],['risk','Abkündigung (erwarteter Zuschlag)']];
 function viewersAvg(gPct){const gr=1+gPct/100;let t=0;for(let y=0;y<S.horizon;y++)t+=S.viewers*Math.pow(gr,y);return t/S.horizon;}
-function ownersOf(){return Math.min(S.creators,Math.max(S.creators>1?2:1,Math.ceil(S.creators*MODES[S.mode].ownerShare)));}
+function ownersOf(){return Math.min(S.creators,Math.max(S.creators>1?2:1,Math.ceil(S.creators*modeParams().ownerShare)));}
+function reportsDefault(){const M=modeParams();return Math.max(1,Math.round(S.creators*M.reportsPerCreator+S.viewers/1000*2));}
 function calc(key,draw,override){
-  const P=S.p[key],G=S.g,H=S.horizon,M=MODES[S.mode];const sim=draw===pert;
+  const P=S.p[key],G=S.g,H=S.horizon,M=modeParams();const sim=draw===pert;
   /* T04: Snapshot je Szenario. Globale Annahmen werden in fester Reihenfolge zuerst gezogen (bei gleichem Seed für alle Optionen identisch), Options-Annahmen danach; jede Annahme genau einmal. */
   const gd={};GLOBAL.forEach(q=>gd[q.id]=override&&override[q.id]!==undefined?override[q.id]:draw(G[q.id]));
   const pd={};OPTP.forEach(q=>{if(P[q.id]!==undefined)pd[q.id]=override&&override[q.id]!==undefined?override[q.id]:draw(P[q.id]);});
@@ -605,7 +612,7 @@ function calc(key,draw,override){
   let lic=0;
   if(key==='paid'){
     if(S.licModel==='site')lic=p('licSite')*licFa;
-    else{const d=S.licModel==='staffel'?(users<=100?1:users<=500?.75:users<=2000?.55:.40):1;lic=userYears*p('lic')*d;}
+    else{const d=S.licModel==='staffel'?(users<=100?1:users<=500?.75:users<=2000?.55:users<=5000?.40:.30):1;lic=userYears*p('lic')*d;}
   }
   const licAdmin=key==='paid'?(users/100)*p('licAdmH100')*rateInt*H:0;
   const support=p('support')*H;
@@ -645,7 +652,7 @@ function calc(key,draw,override){
   c.nextReportH=S.cpr*p('reuseH')*M.reuseF;
   c.vAvg=vAvg;c.owners=owners;c.reportsTotal=reportsTotal;c.variantEff=variantEff;c.licF=licF;c.pH=pH;c.licNoLic=c.total-lic;c.users=users;
   /* Zahlungsstrom je Jahr und Barwert */
-  c.cf=[c.invest];{const perYear=(c.total-c.invest-lic-risk)/H;const riskYear=Math.max(1,Math.ceil(H/2));const d=S.licModel==='staffel'?(users<=100?1:users<=500?.75:users<=2000?.55:.40):1;
+  c.cf=[c.invest];{const perYear=(c.total-c.invest-lic-risk)/H;const riskYear=Math.max(1,Math.ceil(H/2));const d=S.licModel==='staffel'?(users<=100?1:users<=500?.75:users<=2000?.55:users<=5000?.40:.30):1;
     for(let yv=0;yv<H;yv++){let v=perYear;if(key==='paid'){if(S.licModel==='site')v+=p('licSite')*Math.pow(inf,yv);else v+=(S.viewers*Math.pow(gr,yv)+S.creators)*Math.pow(inf,yv)*p('lic')*d;}if(yv+1===riskYear)v+=risk;c.cf.push(v);}}
   const disc=1+g('disc')/100;c.npv=c.cf.reduce((a,v,y)=>a+v/Math.pow(disc,y),0);
   return c;
@@ -686,6 +693,7 @@ function conflicts(){
   if(S.flags.coreonly&&ibcsHard)c.push('<b>Unlösbarer Konflikt:</b> Nur Core Visuals erlaubt und IBCS-Zertifikat Pflicht. Core Visuals sind nicht IBCS-zertifiziert.');
   if(S.prio.copilot==='M'&&S.prio.ibcscert!=='W')c.push('<b>Spannungsfeld:</b> Copilot im Visual ist Must, IBCS-Zertifikat wird gewünscht. Copilot unterstützt keine Custom Visuals, IBCS-Zertifikate gibt es nur für Custom Visuals. KI-Readiness entsteht im Datenmodell, nicht im Visual.');
   if(S.prio.rs==='M'&&!S.flags.rs)c.push('<b>Hinweis:</b> Report Server ist als Must bewertet, der Governance-Schalter „Report Server“ ist aber aus. Beides sollte zusammenpassen.');
+  if(S.creators+S.viewers>2000&&S.licModel==='peruser')c.push('<b>Prüfen:</b> Über 2.000 Nutzer mit Listenpreis pro Nutzer. Ab dieser Größe verhandeln Hersteller Staffeln oder Site-Lizenzen (Inforiver Domain-wide 12–96 k$/Jahr, Zebra Enterprise „unlimited site license“). Lizenzmodell in Schritt 4 auf Staffel oder Site stellen.');
   if(S.prio.datares==='M'&&!S.flags.certonly)c.push('<b>Hinweis:</b> „Keine Datenverarbeitung außerhalb des Tenants“ ist Must. Genau das prüft die Microsoft-Zertifizierung. Ohne den Schalter „nur zertifizierte Visuals“ bleibt die Prüfung bei euch.');
   if(S.flags.certonly&&!S.flags.nogpo)c.push('<b>Prüfen:</b> Certified-only ist aktiv. Gilt die Sperre auch im Desktop (Gruppenrichtlinie)? Sonst bauen Ersteller Reports, die im Service nicht rendern.');
   return c;
@@ -700,14 +708,12 @@ function fmtRange(t,unit){return fmtN(t[0],2)+' · '+fmtN(t[1],2)+' · '+fmtN(t[
 
 /* ===================== Rendering: Inputs ===================== */
 function renderStep1(){
-  ['creators','viewers','reports','cpr','types'].forEach(id=>{const el=document.getElementById(id);el.value=S[id];});
-  document.getElementById('v-creators').textContent=fmtN(S.creators);
-  document.getElementById('v-viewers').textContent=fmtN(S.viewers);
-  document.getElementById('v-reports').textContent=fmtN(S.reports);
-  document.getElementById('v-cpr').textContent=fmtN(S.cpr);
-  document.getElementById('v-types').textContent=fmtN(S.types);
-  document.getElementById('existing').value=S.existing;document.getElementById('v-existing').textContent=fmtN(S.existing);document.getElementById('baseline').value=S.baseline;
-  document.querySelectorAll('#mode-seg button').forEach(b=>b.classList.toggle('active',b.dataset.mode===S.mode));document.getElementById('mode-hint').textContent=MODES[S.mode].hint+' Hier bauen '+ownersOf()+' von '+S.creators+' Erstellern die Vorlagen.';
+  ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const el=document.getElementById(id);el.value=Math.min(+el.max,S[id]);const n=document.getElementById('n-'+id);if(n&&document.activeElement!==n)n.value=S[id];});
+  document.getElementById('ss').value=S.ssShare;document.getElementById('v-ss').textContent=S.ssShare+' %';
+  const rd=reportsDefault();document.getElementById('reports-hint').innerHTML='Reports, die nach dem Standard gebaut werden. Erfahrungswert für '+esc(modeParams().label)+' mit '+fmtN(S.creators)+' Erstellern: <b>'+fmtN(rd)+'</b> (Enterprise ≈ 6, Managed ≈ 4, Self-Service ≈ 2 je Ersteller, plus 2 je 1.000 Viewer; Daten-WG-Erfahrungswert) '+(rd!==S.reports?'<button class="hint-btn" id="btn-reports-default">übernehmen</button>':'<span style="color:var(--accent-text)">✓ übernommen</span>');
+  const rb=document.getElementById('btn-reports-default');if(rb)rb.addEventListener('click',()=>{S.reports=reportsDefault();pendingToast='Reports auf Erfahrungswert '+S.reports+' gesetzt';update();});
+  document.getElementById('baseline').value=S.baseline;
+  document.querySelectorAll('#mode-seg button').forEach(b=>b.classList.toggle('active',MODE_PRESETS[b.dataset.mode]===S.ssShare));document.getElementById('mode-hint').textContent=modeParams().label+': '+modeParams().hint+' Hier bauen '+ownersOf()+' von '+fmtN(S.creators)+' Erstellern die Vorlagen.';
   document.querySelectorAll('.field input[type=range]').forEach(r=>{const l=r.parentElement.querySelector('label span');if(l&&!r.getAttribute('aria-label'))r.setAttribute('aria-label',l.textContent);});
   document.querySelectorAll('#horizon-seg button').forEach(b=>b.classList.toggle('active',+b.dataset.h===S.horizon));
   document.querySelectorAll('#per-seg button').forEach(b=>b.classList.toggle('active',b.dataset.per===S.per));
@@ -747,7 +753,7 @@ function paramRow(p,vals,scope){
 }
 function paramBlock(key){
   const dev=key==='oss'?'<div class="preset-row"><span class="preset-lbl">Modus:</span><button class="preset-btn" data-dev="ready">Fertiges OSS-Visual (0 h)</button><button class="preset-btn" data-dev="ki">Eigenentwicklung KI-gestützt (40 · 200 · 600 h)</button><button class="preset-btn" data-dev="classic">Eigenentwicklung klassisch (800 · 2.000 · 3.000 h)</button></div>':'';
-  const lic=key==='paid'?'<div class="field" style="margin:10px 0 6px"><label><span>Lizenzmodell</span></label><div class="seg" id="lic-seg"><button data-lm="peruser"'+(S.licModel==='peruser'?' class="active"':'')+'>pro Nutzer (Liste)</button><button data-lm="staffel"'+(S.licModel==='staffel'?' class="active"':'')+'>Volumenstaffel</button><button data-lm="site"'+(S.licModel==='site'?' class="active"':'')+'>Site-Lizenz</button></div><div class="sub-hint">Staffel: −25 % ab 100, −45 % ab 500, −60 % ab 2.000 Nutzern (Faustregel aus Zebra-Team- und Inforiver-Volumenpreisen). Site: Pauschale pro Jahr, Nutzerzahl egal.</div></div>':'';
+  const lic=key==='paid'?'<div class="field" style="margin:10px 0 6px"><label><span>Lizenzmodell</span></label><div class="seg" id="lic-seg"><button data-lm="peruser"'+(S.licModel==='peruser'?' class="active"':'')+'>pro Nutzer (Liste)</button><button data-lm="staffel"'+(S.licModel==='staffel'?' class="active"':'')+'>Volumenstaffel</button><button data-lm="site"'+(S.licModel==='site'?' class="active"':'')+'>Site-Lizenz</button></div><div class="sub-hint">Staffel: −25 % ab 100, −45 % ab 500, −60 % ab 2.000, −70 % ab 5.000 Nutzern (Faustregel aus Zebra-Team- und Inforiver-Volumenpreisen). Site: Pauschale pro Jahr, Nutzerzahl egal.</div></div>'+(S.licModel==='site'?'<div class="preset-row"><span class="preset-lbl">Site-Indikation:</span><button class="preset-btn" data-site="inforiver">Inforiver Domain-wide · 10–90 k€</button><button class="preset-btn" data-site="zebra">Zebra Enterprise Site · 40–150 k€ (Schätzung)</button><button class="preset-btn" data-site="gross">Konzern-Rahmenvertrag · 80–300 k€ (Schätzung)</button></div>':''):'';
   const rows=OPTP.filter(p=>S.p[key][p.id]!==undefined&&!(key==='paid'&&((S.licModel==='site'&&p.id==='lic')||(S.licModel!=='site'&&p.id==='licSite')))).map(p=>paramRow(p,S.p[key][p.id],'p:'+key)).join('');
   return dev+lic+'<div class="a-row head"><div>'+esc(OPTS[OK[key]].name)+'</div><div>min</div><div>wahrsch.</div><div>max</div><div></div></div>'+rows;
 }
@@ -756,6 +762,7 @@ function renderParams(){
   document.getElementById('opt-tabs').innerHTML=OPTS.map(o=>'<button class="tab'+(activeTab===o.key?' active':'')+'" data-tab="'+o.key+'"><i style="background:'+o.color+'"></i>'+esc(o.tag)+'</button>').join('');
   document.querySelectorAll('#opt-tabs .tab').forEach(b=>b.addEventListener('click',()=>{activeTab=b.dataset.tab;renderParams();}));
   document.getElementById('opt-params').innerHTML=paramBlock(activeTab);
+  document.querySelectorAll('[data-site]').forEach(b=>b.addEventListener('click',()=>{S.p.paid.licSite=({inforiver:[10000,40000,90000],zebra:[40000,80000,150000],gross:[80000,150000,300000]})[b.dataset.site].slice();pendingToast='Site-Lizenz: '+b.textContent;renderParams();update();}));
   document.querySelectorAll('[data-dev]').forEach(b=>b.addEventListener('click',()=>{S.p.oss.devH=({ready:[0,0,0],ki:[40,200,600],classic:[800,2000,3000]})[b.dataset.dev].slice();pendingToast='Open Source: '+b.textContent;renderParams();update();}));
   document.querySelectorAll('#lic-seg button').forEach(b=>b.addEventListener('click',()=>{S.licModel=b.dataset.lm;pendingToast='Lizenzmodell: '+b.textContent;renderParams();update();}));
   document.querySelectorAll('.a-row input[type=number]').forEach(inp=>inp.addEventListener('change',()=>{
@@ -803,7 +810,7 @@ function update(){
     if(best.key==='oss')s+=' <span class="rh-warn">Offenlegung: ChartKitchen ist ein Projekt der Veranstalter. Die Kategorie gewinnt hier, weil ein fertiges, kostenloses Visual unterstellt ist (Eigenentwicklung 0 h).</span>';
     if(ev[best.key].unchecked)s+=' <span class="rh-warn">Bedingte Empfehlung: '+ev[best.key].unchecked+' Must-Anforderung(en) sind für diesen Ansatz noch nicht geprüft.</span>';
     if(ev[best.key].warn.length)s+=' <span class="rh-warn">'+ev[best.key].warn.length+' Warnung(en) für diese Option, siehe Karte.</span>';
-    s+=' Rangfolge: '+S.weight+' % Kosten, '+(100-S.weight)+' % Anforderungen · Betriebsmodell '+MODES[S.mode].label+' ('+b.owners+' von '+S.creators+' Erstellern bauen Vorlagen).';
+    s+=' Rangfolge: '+S.weight+' % Kosten, '+(100-S.weight)+' % Anforderungen · Betriebsmodell '+modeParams().label+' ('+b.owners+' von '+S.creators+' Erstellern bauen Vorlagen).';
     hl.innerHTML=s;}
   document.getElementById('sticky-label').textContent=S.weight===100?'Günstigste zulässige Option':'Empfehlung ('+S.weight+' % Kosten)';
   document.getElementById('sticky-value').innerHTML=best?esc(best.short)+' '+fmtEur(sim[best.key].p50)+(ranked[1]?' <span class="s2">· Platz 2 '+esc(ranked[1].short)+' '+(sim[ranked[1].key].p50>=sim[best.key].p50?'+':'−')+fmtEur(Math.abs(sim[ranked[1].key].p50-sim[best.key].p50))+'</span>':'')+(excluded.length?' <span class="s2">· '+excluded.length+' K.O.</span>':'')+' <a href="#s5" data-goto="s5">↓ Ergebnis</a>':'– <a href="#s5" data-goto="s5">↓ Ergebnis</a>';
@@ -868,7 +875,7 @@ function drawBreakEven(ev,best,ranked){
   cross.filter(c=>c.c===null&&!c.alwaysCheaper).forEach(c=>ins.push('<b>'+esc(c.o.short)+'</b> wird erst jenseits von '+fmtN(vmax)+' Viewern günstiger als Paid.'));
   /* Verhandlungsgrenze */
   const alt=(best&&best.key!=='paid')?best:(ranked||[]).find(o=>o.key!=='paid');
-  if(alt){const exP=expected('paid');const altT=expected(alt.key).total;const d=S.licModel==='staffel'?(exP.users<=100?1:exP.users<=500?.75:exP.users<=2000?.55:.40):1;const be=(altT-exP.licNoLic)/(exP.users*exP.licF*d);
+  if(alt){const exP=expected('paid');const altT=expected(alt.key).total;const d=S.licModel==='staffel'?(exP.users<=100?1:exP.users<=500?.75:exP.users<=2000?.55:exP.users<=5000?.40:.30):1;const be=(altT-exP.licNoLic)/(exP.users*exP.licF*d);
     ins.push('<span class="be-neg"><b>Verhandlungsgrenze:</b> Paid rechnet sich gegen '+esc(alt.name)+' bis <b>'+(be>0?fmtN(Math.round(be))+' € je Nutzer und Jahr':'0 €, also nie')+'</b>'+(S.licModel==='staffel'?' (Listenpreis vor Staffel)':S.licModel==='site'?' (umgerechnet je Nutzer)':'')+'. Das ist die Zielmarke für das Einkaufsgespräch, nicht der Listenpreis des Herstellers.</span>');}
   ins.push('<span style="color:var(--ink-soft)">'+(S.licModel==='staffel'?'Knicke in der Paid-Linie sind die Staffelgrenzen bei 100 / 500 / 2.000 Nutzern. ':'')+'Auch Open Source, Deneb und Core steigen mit der Viewer-Zahl: Anwender-Support, Nachfrage nach Reports und Zugriffs-Governance sind viewer-abhängig modelliert. Governance-Stufen bei 50 / 250 / 1.000 Viewern erzeugen die Knicke.</span>');
   document.getElementById('be-insight').innerHTML=ins.join(' ')+(ev.paid.ko.length?' <span style="color:var(--warn)">Paid ist aktuell durch K.O. ausgeschlossen, die Linie zeigt den hypothetischen Verlauf.</span>':'');
@@ -918,7 +925,7 @@ function renderTable(sim,ev,perDiv,order){
   h+='<tr><td>Erster Standard-Report (h) · jeder weitere (h)</td>'+order.map(o=>'<td>'+fmtN(sim[o.key].firstReportH,0)+' · '+fmtN(sim[o.key].nextReportH,1)+'</td>').join('')+'</tr>';
   h+='<tr><td>Abkündigung: Wahrscheinlichkeit über '+S.horizon+' Jahre</td>'+order.map(o=>'<td>'+fmtN(sim[o.key].pH*100,0)+' %</td>').join('')+'</tr>';
   h+='<tr><td>Anforderungs-Score</td>'+order.map(o=>'<td>'+ev[o.key].scorePct+' %</td>').join('')+'</tr>';
-  h+='<tr><td colspan="'+(order.length+1)+'" style="text-align:left;font-family:var(--sans);font-size:11px;color:var(--ink-soft)">Kategorien sind Erwartungswerte, proportional auf den Median (P50) skaliert. Betriebsmodell '+esc(MODES[S.mode].label)+': '+ownersOf()+' von '+S.creators+' Erstellern bauen Vorlagen; Reports inkl. Nachfrage-Wachstum ≈ '+fmtN(sim.paid.reportsTotal,0)+'. Aktivierungsfähig wären Setup, Eigenentwicklung und Chart-Aufbau (§ 248 Abs. 2 HGB Wahlrecht, IAS 38); hier nicht modelliert.</td></tr>';
+  h+='<tr><td colspan="'+(order.length+1)+'" style="text-align:left;font-family:var(--sans);font-size:11px;color:var(--ink-soft)">Kategorien sind Erwartungswerte, proportional auf den Median (P50) skaliert. Betriebsmodell '+esc(modeParams().label)+': '+ownersOf()+' von '+S.creators+' Erstellern bauen Vorlagen; Reports inkl. Nachfrage-Wachstum ≈ '+fmtN(sim.paid.reportsTotal,0)+'. Aktivierungsfähig wären Setup, Eigenentwicklung und Chart-Aufbau (§ 248 Abs. 2 HGB Wahlrecht, IAS 38); hier nicht modelliert.</td></tr>';
   document.getElementById('res-table').innerHTML=h+'</tbody>';
 }
 /* ---------- Textbausteine ---------- */
@@ -944,7 +951,7 @@ function exportXlsx(){
 }
 function exportCsvFallback(){
   const sim=lastSim;const rows=[['Posten',...OPTS.map(o=>o.name)]];CATS.forEach(([k,l])=>rows.push([l,...OPTS.map(o=>Math.round(sim[o.key].cats[k]))]));rows.push(['Gesamt P50',...OPTS.map(o=>Math.round(sim[o.key].p50))],['P10',...OPTS.map(o=>Math.round(sim[o.key].p10))],['P90',...OPTS.map(o=>Math.round(sim[o.key].p90))]);
-  rows.unshift(['Visual-Standards-Rechner · Indikation, kein Angebot · Stand '+new Date().toLocaleDateString('de-DE')+' · Daten-WG'],['Mengengerüst',S.creators+' Ersteller',S.viewers+' Viewer',S.reports+' Reports',S.horizon+' Jahre',MODES[S.mode].label],['Aktive Schalter',FLAGS.filter(f=>S.flags[f.id]).map(f=>f.label).join(' | ')||'keine'],[]);
+  rows.unshift(['Visual-Standards-Rechner · Indikation, kein Angebot · Stand '+new Date().toLocaleDateString('de-DE')+' · Daten-WG'],['Mengengerüst',S.creators+' Ersteller',S.viewers+' Viewer',S.reports+' Reports',S.horizon+' Jahre',modeParams().label],['Aktive Schalter',FLAGS.filter(f=>S.flags[f.id]).map(f=>f.label).join(' | ')||'keine'],[]);
   rows.push([],['Annahmen (min;wahrsch.;max)']);GLOBAL.forEach(p=>rows.push([p.label+' (global)',...S.g[p.id]]));OPTS.forEach(o=>OPTP.forEach(p=>{if(S.p[o.key][p.id])rows.push([o.name+' · '+p.label,...S.p[o.key][p.id]]);}));
   rows.push([],['Anforderungen','Priorität',...OPTS.map(o=>o.name)]);allReqs().forEach(r=>rows.push([r.name,PRIO[S.prio[r.id]],...OPTS.map(o=>capOf(r,o.key))]));
   const csv=rows.map(r=>r.join(';')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\ufeff'+encodeURIComponent(csv);a.download='visual-standards-rechner.csv';a.click();toast('Achtung: Excel-Bibliothek nicht erreichbar. Nur CSV mit Kosten, Annahmen und Anforderungen, ohne Formelmodell.');
@@ -954,7 +961,7 @@ function buildXlsx(){
   const col=i=>X.utils.encode_col(i);
   /* --- Lesen zuerst --- */
   const cnt={V:0,S:0,F:0,E:0};GLOBAL.concat(OPTP).forEach(p=>cnt[p.src]++);
-  const L0=[['Visual-Standards-Rechner · Indikation, kein Angebot'],['Stand',new Date().toLocaleDateString('de-DE')],['Autoren','Michael Tenner & Diana Ackermann · Daten-WG Knowledge Kitchen · Pre-Conference „Visual Standards in Power BI für Controlling und Finance“'],['Zweck','Kostenindikation für visuelle Standards in Power BI: 3rd-Party paid, Open Source / Eigenentwicklung, Deneb / Vega, Core Visuals + SVG'],['Offenlegung','ChartKitchen byDatenWG (Beispiel für Open Source / Eigenentwicklung) ist ein Projekt der Veranstalter.'],['Quellenlage der '+(cnt.V+cnt.S+cnt.F+cnt.E)+' Annahmen',cnt.V+' verifiziert · '+cnt.S+' Such-Snippet · '+cnt.F+' Faustregel · '+cnt.E+' Expertenschätzung Daten-WG'],['Was diese Zahl nicht sagt','Sie ersetzt kein Angebot und keinen Business Case. Die Rangfolge hängt an Stunden-je-Chart-Annahmen ohne Literaturquelle. Plätze mit überlappenden P10–P90-Bändern sind nicht unterscheidbar.'],['Mengengerüst',S.creators+' Ersteller · '+S.viewers+' Viewer · '+S.reports+' Reports · '+S.cpr+' Charts/Report · '+S.types+' Chart-Typen · '+S.horizon+' Jahre · Betriebsmodell '+MODES[S.mode].label+' · Lizenzmodell '+S.licModel+' · Bestand '+S.baseline+' ('+S.existing+' Reports)'],['Aktive Governance-Schalter',FLAGS.filter(f=>S.flags[f.id]).map(f=>f.label).join('; ')||'keine'],['Geänderte Annahmen',(()=>{const o=[];GLOBAL.forEach(q=>{if(q.v.join()!==S.g[q.id].join())o.push(q.label+': '+S.g[q.id].join(' · ')+' (Standard '+q.v.join(' · ')+')');});OPTS.forEach(x=>OPTP.forEach(q=>{const d=q.v[x.key],v=S.p[x.key][q.id];if(d&&v&&d.join()!==v.join())o.push(x.name+' · '+q.label+': '+v.join(' · ')+' (Standard '+d.join(' · ')+')');}));return o.join('; ')||'keine';})()],['Ungeprüfte Must-Anforderungen',(()=>{const o=[];allReqs().forEach(r=>{if(S.prio[r.id]==='M')OPTS.forEach(x=>{if(capOf(r,x.key)===0)o.push(r.name+' ('+x.short+')');});});return o.join('; ')||'keine';})()],['Nicht enthalten','Power-BI-Grundlizenzen, Nutzen-Seite (nur Score), Aktivierung/Abschreibung, Steuern'],['Share-Link',location.href.slice(0,2000)]];
+  const L0=[['Visual-Standards-Rechner · Indikation, kein Angebot'],['Stand',new Date().toLocaleDateString('de-DE')],['Autoren','Michael Tenner & Diana Ackermann · Daten-WG Knowledge Kitchen · Pre-Conference „Visual Standards in Power BI für Controlling und Finance“'],['Zweck','Kostenindikation für visuelle Standards in Power BI: 3rd-Party paid, Open Source / Eigenentwicklung, Deneb / Vega, Core Visuals + SVG'],['Offenlegung','ChartKitchen byDatenWG (Beispiel für Open Source / Eigenentwicklung) ist ein Projekt der Veranstalter.'],['Quellenlage der '+(cnt.V+cnt.S+cnt.F+cnt.E)+' Annahmen',cnt.V+' verifiziert · '+cnt.S+' Such-Snippet · '+cnt.F+' Faustregel · '+cnt.E+' Expertenschätzung Daten-WG'],['Was diese Zahl nicht sagt','Sie ersetzt kein Angebot und keinen Business Case. Die Rangfolge hängt an Stunden-je-Chart-Annahmen ohne Literaturquelle. Plätze mit überlappenden P10–P90-Bändern sind nicht unterscheidbar.'],['Mengengerüst',S.creators+' Ersteller · '+S.viewers+' Viewer · '+S.reports+' Reports · '+S.cpr+' Charts/Report · '+S.types+' Chart-Typen · '+S.horizon+' Jahre · Betriebsmodell '+modeParams().label+' · Lizenzmodell '+S.licModel+' · Bestand '+S.baseline+' ('+S.existing+' Reports)'],['Aktive Governance-Schalter',FLAGS.filter(f=>S.flags[f.id]).map(f=>f.label).join('; ')||'keine'],['Geänderte Annahmen',(()=>{const o=[];GLOBAL.forEach(q=>{if(q.v.join()!==S.g[q.id].join())o.push(q.label+': '+S.g[q.id].join(' · ')+' (Standard '+q.v.join(' · ')+')');});OPTS.forEach(x=>OPTP.forEach(q=>{const d=q.v[x.key],v=S.p[x.key][q.id];if(d&&v&&d.join()!==v.join())o.push(x.name+' · '+q.label+': '+v.join(' · ')+' (Standard '+d.join(' · ')+')');}));return o.join('; ')||'keine';})()],['Ungeprüfte Must-Anforderungen',(()=>{const o=[];allReqs().forEach(r=>{if(S.prio[r.id]==='M')OPTS.forEach(x=>{if(capOf(r,x.key)===0)o.push(r.name+' ('+x.short+')');});});return o.join('; ')||'keine';})()],['Nicht enthalten','Power-BI-Grundlizenzen, Nutzen-Seite (nur Score), Aktivierung/Abschreibung, Steuern'],['Share-Link',location.href.slice(0,2000)]];
   const wsL=X.utils.aoa_to_sheet(L0);wsL['!cols']=[{wch:30},{wch:120}];X.utils.book_append_sheet(wb,wsL,'Lesen zuerst');
   /* --- Annahmen: Dreipunkt --- */
   const A=[['Annahme','Einheit','Quelle']];OPTS.forEach(o=>A[0].push(o.name+' min',o.name+' wahrsch.',o.name+' max'));
@@ -1012,12 +1019,12 @@ function buildXlsx(){
 }
 
 /* ===================== Share-Link ===================== */
-function writeHash(){try{const st={sv:3,c:S.creators,v:S.viewers,r:S.reports,q:S.cpr,t:S.types,h:S.horizon,md:S.mode,lm:S.licModel,bl:S.baseline,ex:S.existing,tn:S.tornado,w:S.weight,pe:S.per,vw:S.view,pr:S.prio,cp:S.cap,cu:S.custom,f:S.flags,g:S.g,p:S.p};const enc=btoa(unescape(encodeURIComponent(JSON.stringify(st))));history.replaceState(null,'','#s='+enc);}catch(e){}}
+function writeHash(){try{const st={sv:3,ss:S.ssShare,c:S.creators,v:S.viewers,r:S.reports,q:S.cpr,t:S.types,h:S.horizon,md:S.mode,lm:S.licModel,bl:S.baseline,ex:S.existing,tn:S.tornado,w:S.weight,pe:S.per,vw:S.view,pr:S.prio,cp:S.cap,cu:S.custom,f:S.flags,g:S.g,p:S.p};const enc=btoa(unescape(encodeURIComponent(JSON.stringify(st))));history.replaceState(null,'','#s='+enc);}catch(e){}}
 function readHash(){try{const m=location.hash.match(/#s=(.+)/);if(!m)return false;const st=JSON.parse(decodeURIComponent(escape(atob(m[1]))));
   if(+st.sv!==3)setTimeout(()=>toast('Link aus einer älteren Version des Rechners: neue Annahmen stehen auf Standardwerten, das Modell wurde seitdem geändert.'),600);
   const qty=(v,lo,hi,d)=>{const n=Math.round(+v);return isFinite(n)?Math.max(lo,Math.min(hi,n)):d;};
   S.creators=qty(st.c,1,100000,S.creators);S.viewers=qty(st.v,0,1e7,S.viewers);S.reports=qty(st.r,1,100000,S.reports);S.cpr=qty(st.q,1,200,S.cpr);S.types=qty(st.t,1,50,S.types);S.horizon=[3,5,10].includes(+st.h)?+st.h:5;S.weight=qty(st.w,0,100,70);S.per=st.pe==='user'?'user':'viewer';
-  S.view=st.vw==='per'?'per':'abs';S.mode=MODES[st.md]?st.md:'man';S.licModel=['peruser','staffel','site'].includes(st.lm)?st.lm:'staffel';S.baseline=['none','paid','oss','deneb','core'].includes(st.bl)?st.bl:'none';S.existing=qty(st.ex,0,100000,0);S.tornado=OK[st.tn]!==undefined?st.tn:null;
+  S.view=st.vw==='per'?'per':'abs';S.mode=['ent','man','ss'].includes(st.md)?st.md:'man';S.ssShare=st.ss!==undefined?qty(st.ss,0,100,25):MODE_PRESETS[S.mode];S.licModel=['peruser','staffel','site'].includes(st.lm)?st.lm:'staffel';S.baseline=['none','paid','oss','deneb','core'].includes(st.bl)?st.bl:'none';S.existing=qty(st.ex,0,100000,0);S.tornado=OK[st.tn]!==undefined?st.tn:null;
   const cl=t=>{if(!Array.isArray(t)||t.length!==3)return null;const a=t.map(Number);if(!a.every(isFinite))return null;a.sort((x,y)=>x-y);return a.map(v=>Math.max(0,Math.min(1e9,v)));};
   if(Array.isArray(st.cu)){const caps=st.cp||{},pr=st.pr||{};S.custom=[];st.cu.filter(r=>r&&typeof r.name==='string').slice(0,20).forEach((r,i)=>{const id='c'+i;S.custom.push({id,name:String(r.name).slice(0,80),sub:String(r.sub||'').slice(0,120),cap:[0,0,0,0],custom:true});const oc=caps[r.id];S.cap[id]=Array.isArray(oc)&&oc.length===4&&oc.every(x=>isFinite(+x))?oc.map(x=>Math.min(5,Math.max(0,Math.round(+x)))):[0,0,0,0];S.prio[id]=PRIO[pr[r.id]]?pr[r.id]:'S';});}
   const ok4=t=>Array.isArray(t)&&t.length===4&&t.every(x=>isFinite(+x));
@@ -1032,7 +1039,10 @@ function bind(){
   document.addEventListener('click',e=>{const a=e.target.closest('[data-goto]');if(!a)return;e.preventDefault();const el=document.getElementById(a.dataset.goto);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});
   let simTimer=null;const scheduleUpdate=()=>{clearTimeout(simTimer);simTimer=setTimeout(update,90);};
   ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const el=document.getElementById(id);el.addEventListener('input',e=>{S[id]=+e.target.value;renderStep1();scheduleUpdate();});el.addEventListener('change',()=>{clearTimeout(simTimer);update();});});
-  document.querySelectorAll('#mode-seg button').forEach(b=>b.addEventListener('click',()=>{S.mode=b.dataset.mode;pendingToast='Betriebsmodell: '+MODES[S.mode].label;update();}));
+  document.querySelectorAll('#mode-seg button').forEach(b=>b.addEventListener('click',()=>{S.mode=b.dataset.mode;S.ssShare=MODE_PRESETS[S.mode];pendingToast='Betriebsmodell: '+modeParams().label;update();}));
+  document.getElementById('ss').addEventListener('input',e=>{S.ssShare=+e.target.value;renderStep1();scheduleUpdate();});
+  const LIM={creators:[1,100000],viewers:[0,10000000],reports:[1,100000],cpr:[1,200],types:[1,50],existing:[0,100000]};
+  ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const n=document.getElementById('n-'+id);n.addEventListener('change',e=>{let v=Math.round(+e.target.value);if(!isFinite(v)){renderStep1();return;}v=Math.max(LIM[id][0],Math.min(LIM[id][1],v));S[id]=v;pendingToast=id==='viewers'?'Viewer: '+fmtN(v)+(v>2000&&S.licModel==='peruser'?' (ab 2.000 Nutzern Site-Lizenz prüfen)':''):null;update();});});
   document.getElementById('baseline').addEventListener('change',e=>{S.baseline=e.target.value;pendingToast='Bestand: '+e.target.options[e.target.selectedIndex].text;update();});
   document.querySelectorAll('#horizon-seg button').forEach(b=>b.addEventListener('click',()=>{S.horizon=+b.dataset.h;update();}));
   document.querySelectorAll('#per-seg button').forEach(b=>b.addEventListener('click',()=>{S.per=b.dataset.per;update();}));
@@ -1041,7 +1051,7 @@ function bind(){
   document.getElementById('btn-reset-caps').addEventListener('click',resetCaps);
   document.getElementById('btn-xlsx').addEventListener('click',exportXlsx);
   document.getElementById('weight').addEventListener('input',e=>{S.weight=+e.target.value;update();});
-  document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{const p=PRESETS[b.dataset.preset];Object.assign(S,{creators:p.creators,viewers:p.viewers,reports:p.reports,cpr:p.cpr,types:p.types,mode:p.mode||S.mode});if(p.flags)Object.keys(p.flags).forEach(k=>S.flags[k]=true);document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('active',x===b));renderFlags();pendingToast='Preset geladen: '+b.textContent.trim()+(p.flags?' (setzt zusätzlich: '+Object.keys(p.flags).map(k=>FLAGS.find(f=>f.id===k).label).join(', ')+')':'');update();}));
+  document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{const p=PRESETS[b.dataset.preset];Object.assign(S,{creators:p.creators,viewers:p.viewers,reports:p.reports,cpr:p.cpr,types:p.types});if(p.mode){S.mode=p.mode;S.ssShare=MODE_PRESETS[p.mode];}if(p.licModel)S.licModel=p.licModel;if(p.flags)Object.keys(p.flags).forEach(k=>S.flags[k]=true);document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('active',x===b));renderFlags();pendingToast='Preset geladen: '+b.textContent.trim()+(p.flags?' (setzt zusätzlich: '+Object.keys(p.flags).map(k=>FLAGS.find(f=>f.id===k).label).join(', ')+')':'');update();}));
   document.querySelectorAll('[data-lic]').forEach(b=>b.addEventListener('click',()=>{S.p.paid.lic=LIC[b.dataset.lic].slice();document.querySelectorAll('[data-lic]').forEach(x=>x.classList.toggle('active',x===b));renderParams();update();toast('Lizenz-Indikation gesetzt: '+b.textContent.trim());}));
   document.getElementById('btn-reset').addEventListener('click',()=>{defaults();document.querySelectorAll('.preset-btn').forEach(x=>x.classList.remove('active'));renderReqs();renderFlags();renderParams();update();toast('Standardwerte wiederhergestellt.');});
   document.getElementById('btn-share').addEventListener('click',()=>{writeHash();const url=location.href;(navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(()=>toast('Link kopiert. Er enthält nur eure Einstellungen.'),()=>{prompt('Link kopieren:',url);});});

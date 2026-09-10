@@ -19,7 +19,7 @@ const FILE='file://'+path.resolve(__dirname,'..','visual-standards-rechner.html'
   const hash=await p.evaluate((inp)=>{
     const st={c:S.creators,v:S.viewers,r:S.reports,q:S.cpr,t:S.types,h:S.horizon,w:S.weight,pe:S.per,vw:S.view,pr:S.prio,cp:S.cap,cu:S.custom,f:S.flags,g:S.g,p:S.p};
     const map={creators:'c',viewers:'v',reports:'r',cpr:'q',types:'t',horizon:'h',weight:'w',per:'pe',view:'vw'};
-    for(const k in map)if(inp[k]!==undefined)st[map[k]]=inp[k];
+    for(const k in map)if(inp[k]!==undefined)st[map[k]]=inp[k];if(inp.mode)st.md=inp.mode;if(inp.ssShare!==undefined)st.ss=inp.ssShare;if(inp.licModel)st.lm=inp.licModel;if(inp.baseline)st.bl=inp.baseline;if(inp.existing!==undefined)st.ex=inp.existing;
     if(inp.prio)Object.assign(st.pr,inp.prio);if(inp.cap)Object.assign(st.cp,inp.cap);if(inp.flags)Object.assign(st.f,inp.flags);
     if(inp.g)Object.assign(st.g,inp.g);if(inp.p)for(const o in inp.p)Object.assign(st.p[o],inp.p[o]);
     return '#s='+btoa(unescape(encodeURIComponent(JSON.stringify(st))));
