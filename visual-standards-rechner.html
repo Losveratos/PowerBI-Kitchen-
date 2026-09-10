@@ -652,6 +652,12 @@ function calc(key,draw,override){
   c.firstReportH=p('setupH')+p('devH')+S.types*p('firstH')+S.cpr*p('reuseH');
   c.nextReportH=S.cpr*p('reuseH')*M.reuseF;
   c.vAvg=vAvg;c.owners=owners;c.reportsTotal=reportsTotal;c.variantEff=variantEff;c.licF=licF;c.pH=pH;c.licNoLic=c.total-lic;c.users=users;
+  /* Harte Kosten (Auszahlungen: Lizenz, Support, Capacity, Kurse, extern beauftragte Stunden) vs. weiche Kosten (intern bewertete Stunden) */
+  const hardFrac=rate0>0?(g('rateExt')*ext)/rate0:0;
+  const rateBased=setup+dev+build+rollout+switchCost+maint+events+risk;
+  c.hard=lic+support+capacity+owners*p('course')+rateBased*hardFrac;
+  c.soft=c.total-c.hard;
+  c.gd=gd;c.pd=pd;
   /* Zahlungsstrom je Jahr und Barwert */
   c.cf=[c.invest];{const perYear=(c.total-c.invest-lic-risk)/H;const riskYear=Math.max(1,Math.ceil(H/2));const d=S.licModel==='staffel'?(users<=100?1:users<=500?.75:users<=2000?.55:users<=5000?.40:.30):1;
     for(let yv=0;yv<H;yv++){let v=perYear;if(key==='paid'){if(S.licModel==='site')v+=p('licSite')*Math.pow(inf,yv);else v+=(S.viewers*Math.pow(gr,yv)+S.creators)*Math.pow(inf,yv)*p('lic')*d;}if(yv+1===riskYear)v+=risk;c.cf.push(v);}}
