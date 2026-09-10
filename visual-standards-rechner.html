@@ -708,15 +708,17 @@ function drawStack(sim,vf){
 function drawBreakEven(ev,best){
   const W=560,H=260,padL=70,padR=110,padT=16,padB=34;
   const vmax=Math.max(Math.ceil(S.viewers*3/50)*50,200);
-  const per=S.view==='per';const saveV=S.viewers;const series=OPTS.map(o=>{const pts=[];for(let i=0;i<=20;i++){const v=Math.max(Math.round(vmax*i/20),per?1:0);S.viewers=v;const tot=expected(o.key).total;pts.push([v,per?tot/((S.per==='viewer'?v:v+S.creators)*S.horizon):tot]);}return {o,pts};});S.viewers=saveV;
+  const per=S.view==='per';const vmin=per?Math.max(5,Math.round(vmax*0.05)):0;const saveV=S.viewers;const series=OPTS.map(o=>{const pts=[];for(let i=0;i<=20;i++){const v=Math.round(vmin+(vmax-vmin)*i/20);S.viewers=v;const tot=expected(o.key).total;pts.push([v,per?tot/((S.per==='viewer'?Math.max(v,1):v+S.creators)*S.horizon):tot]);}return {o,pts};});S.viewers=saveV;
   const ymax=Math.max(...series.flatMap(s=>s.pts.map(p=>p[1])))*1.08||1;
-  const x=v=>padL+v/vmax*(W-padL-padR),y=c=>H-padB-c/ymax*(H-padT-padB);
+  const x=v=>padL+(v-vmin)/(vmax-vmin)*(W-padL-padR),y=c=>H-padB-c/ymax*(H-padT-padB);
+  const labY={};{const arr=series.map(({o,pts})=>({k:o.key,y:y(pts[pts.length-1][1])})).sort((a,b)=>a.y-b.y);for(let i=1;i<arr.length;i++)if(arr[i].y-arr[i-1].y<11)arr[i].y=arr[i-1].y+11;arr.forEach(a=>labY[a.k]=a.y);}
   let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Break-even über die Viewer-Zahl">';
   for(let i=0;i<=4;i++){const c=ymax*i/4;s+='<line x1="'+padL+'" y1="'+y(c)+'" x2="'+(W-padR)+'" y2="'+y(c)+'" stroke="#E7E2D4"/><text x="'+(padL-6)+'" y="'+(y(c)+3)+'" font-size="9.5" text-anchor="end" fill="#5B5D52">'+fmtEur(c)+'</text>';}
-  for(let i=0;i<=4;i++){const v=vmax*i/4;s+='<text x="'+x(v)+'" y="'+(H-padB+14)+'" font-size="9.5" text-anchor="middle" fill="#5B5D52">'+fmtN(v)+'</text>';}
+  for(let i=0;i<=4;i++){const v=Math.round(vmin+(vmax-vmin)*i/4);s+='<text x="'+x(v)+'" y="'+(H-padB+14)+'" font-size="9.5" text-anchor="middle" fill="#5B5D52">'+fmtN(v)+'</text>';}
   s+='<text x="'+((padL+W-padR)/2)+'" y="'+(H-4)+'" font-size="9.5" text-anchor="middle" fill="#5B5D52">Viewer</text>';
-  s+='<line x1="'+x(S.viewers)+'" y1="'+padT+'" x2="'+x(S.viewers)+'" y2="'+(H-padB)+'" stroke="#23261F" stroke-dasharray="3 3"/><text x="'+(x(S.viewers)+4)+'" y="'+(padT+9)+'" font-size="9" fill="#23261F">heute: '+fmtN(S.viewers)+(per?' · '+perLabel():'')+'</text>';
-  series.forEach(({o,pts})=>{const ex=ev[o.key].ko.length>0;const d=pts.map((p,i)=>(i?'L':'M')+x(p[0])+' '+y(p[1])).join(' ');s+='<path d="'+d+'" fill="none" stroke="'+o.color+'" stroke-width="2"'+(ex?' stroke-dasharray="5 4" opacity=".55"':'')+'/>';const last=pts[pts.length-1];s+='<text x="'+(x(last[0])+5)+'" y="'+(y(last[1])+3)+'" font-size="9.5" fill="'+o.color+'" font-weight="600">'+esc(o.tag)+(ex?' (K.O.)':'')+'</text>';});
+  const xv=Math.max(S.viewers,vmin);
+  s+='<line x1="'+x(xv)+'" y1="'+padT+'" x2="'+x(xv)+'" y2="'+(H-padB)+'" stroke="#23261F" stroke-dasharray="3 3"/><text x="'+(x(xv)+4)+'" y="'+(padT+9)+'" font-size="9" fill="#23261F">heute: '+fmtN(S.viewers)+(per?' · '+perLabel():'')+'</text>';
+  series.forEach(({o,pts})=>{const ex=ev[o.key].ko.length>0;const d=pts.map((p,i)=>(i?'L':'M')+x(p[0])+' '+y(p[1])).join(' ');s+='<path d="'+d+'" fill="none" stroke="'+o.color+'" stroke-width="2"'+(ex?' stroke-dasharray="5 4" opacity=".55"':'')+'/>';const last=pts[pts.length-1];s+='<text x="'+(x(last[0])+5)+'" y="'+(labY[o.key]+3)+'" font-size="9.5" fill="'+o.color+'" font-weight="600">'+esc(o.tag)+(ex?' (K.O.)':'')+'</text>';});
   s+='</svg>';document.getElementById('chart-be').innerHTML=s;
   /* Insight: Schnittpunkte paid vs. andere */
   const paidLine=series[0].pts;let ins=[];
