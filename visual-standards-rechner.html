@@ -99,6 +99,11 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;}
 .cap{display:inline-flex;gap:2px;align-items:center;}
 .cap i{width:8px;height:8px;border-radius:2px;background:var(--paper-2);display:inline-block;}
 .cap i.on{background:var(--capc);}
+.cap i{cursor:pointer;}
+.cap i:hover{outline:1px solid var(--ink);}
+.cap.edited{outline:1px dotted var(--ink-soft);outline-offset:3px;border-radius:3px;}
+.rm-req{border:none;background:transparent;color:var(--ink-soft);cursor:pointer;font-size:11px;padding:0 4px;}
+.rm-req:hover{color:var(--warn);}
 .cap.ko i{background:#F4DCD4;}
 .cap-lbl{font-family:var(--mono);font-size:10px;color:var(--ink-soft);margin-left:4px;}
 .req-scroll{overflow-x:auto;}
@@ -205,6 +210,7 @@ footer b{color:var(--ink);}
   <div class="toolbar">
     <button class="btn" id="btn-reset">↺ Auf Standard zurücksetzen</button>
     <button class="btn dark" id="btn-share">🔗 Link mit Einstellungen kopieren</button>
+    <button class="btn dark" id="btn-xlsx">📊 Excel-Modell exportieren</button>
     <button class="btn" id="btn-print">🖨 Drucken / PDF</button>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -250,10 +256,11 @@ footer b{color:var(--ink);}
   <!-- ========== STEP 2 ========== -->
   <section class="section" id="s2">
     <div class="section-head"><span class="n">Schritt 2</span><h2 class="section-title">Anforderungen bewerten</h2></div>
-    <p class="section-sub">Priorisiert nach MoSCoW. Die Punkte zeigen, wie gut jeder Ansatz die Anforderung erfüllt (0 bis 3). <b>Must + 0 Punkte = K.O.</b>, Must + 1 Punkt = nur mit Einschränkungen. Should und Could fließen in den Anforderungs-Score ein.</p>
+    <p class="section-sub">Priorisiert nach MoSCoW. Die Kästchen zeigen auf einer 5er-Skala, wie gut jeder Ansatz die Anforderung erfüllt. <b>Must + 1 = K.O.</b>, Must + 2 = nur per Workaround. Should und Could fließen in den Anforderungs-Score ein. <b>Klick auf ein Kästchen überschreibt die Bewertung</b> mit eurer eigenen Einschätzung.</p>
     <div class="card">
+      <h3>Anforderungen und Erfüllungsgrad <span><button class="btn" id="btn-add-req" style="padding:6px 10px;font-size:11px">＋ Eigene Anforderung</button> <button class="btn" id="btn-reset-caps" style="padding:6px 10px;font-size:11px">↺ Bewertung zurücksetzen</button></span></h3>
       <div class="req-scroll"><table class="req-table" id="req-table"></table></div>
-      <div class="badge-legend"><span><i class="cap"><i class="on" style="--capc:var(--ink)"></i></i>je Punkt = ein Kästchen · 0 = nicht möglich · 1 = Workaround · 2 = gut · 3 = sehr gut</span><span>Bewertung: Daten-WG-Einschätzung, Stand 09/2026, editierbar im Quelltext (<code>CAP</code>).</span></div>
+      <div class="badge-legend"><span>1 = nicht möglich · 2 = nur Workaround · 3 = eingeschränkt · 4 = gut · 5 = sehr gut</span><span>Voreinstellung: Daten-WG-Einschätzung, Stand 09/2026. Eigene Bewertungen sind gepunktet umrandet und im Share-Link enthalten.</span></div>
     </div>
   </section>
 
@@ -306,7 +313,7 @@ footer b{color:var(--ink);}
     <div class="card" style="padding:14px 18px">
       <div class="weight-row">
         <div class="field" style="margin:0"><label><span>Rangfolge: Kosten ⟷ Anforderungserfüllung</span><span class="val" id="v-weight"></span></label><input type="range" id="weight" min="0" max="100" value="100"><div class="sub-hint">100 % = reine Kostenrangfolge. Nach links verschieben, um weiche Nutzen (Should/Could-Erfüllung) mitzugewichten. Nutzwertanalyse-Warnung: Gewichte sind subjektiv, deshalb sichtbar und verschiebbar.</div></div>
-        <div class="field" style="margin:0"><label><span>Kosten je … anzeigen</span></label><div class="seg" id="per-seg"><button data-per="viewer" class="active">je Viewer</button><button data-per="user">je Nutzer (Ersteller + Viewer)</button></div></div>
+        <div class="field" style="margin:0"><label><span>Perspektive der Charts und Kennzahlen</span></label><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="seg" id="view-seg"><button data-view="abs" class="active">absolut</button><button data-view="per">je Nutzer und Jahr</button></div><div class="seg" id="per-seg"><button data-per="viewer" class="active">Viewer</button><button data-per="user">Ersteller + Viewer</button></div></div><div class="sub-hint">„je Nutzer und Jahr" teilt alle Beträge durch die gewählte Nutzerbasis und den Horizont. Der Break-even zeigt dann, wie stark Aufbaukosten sich mit der Viewer-Zahl verteilen.</div></div>
       </div>
     </div>
 
@@ -335,7 +342,7 @@ footer b{color:var(--ink);}
         <div id="chart-tornado"></div>
       </div>
       <div class="card chart-card">
-        <h3>Kumulierte Kosten über die Jahre</h3>
+        <h3>Kumulierte Kosten über die Jahre <span class="eyebrow" id="chart4-h"></span></h3>
         <p class="hint">Jahr 0 = Invest (Aufbau, Schulung, Rollout). Danach Lizenz, Wartung, Support und anteiliges Risiko.</p>
         <div id="chart-cum"></div>
       </div>
@@ -376,19 +383,20 @@ const OPTS=[
 const OK=Object.fromEntries(OPTS.map((o,i)=>[o.key,i]));
 
 /* Anforderungen: Erfüllungsgrad je Option 0..3 (paid, oss, deneb, core) */
+const CAP_LBL={1:'nicht möglich',2:'nur Workaround',3:'eingeschränkt',4:'gut',5:'sehr gut'};
 const REQS=[
-  {id:'ibcs',name:'IBCS-konforme Notation',sub:'Szenarien AC/PY/PL/FC, Abweichungen, Skalierung',cap:[3,2,2,1],def:'M',note:{core:'Nur über Workarounds (Overlapping Bars, SVG-Measures)'}},
-  {id:'ibcscert',name:'IBCS-zertifiziertes Visual',sub:'Offizielle Zertifizierung des Software-Produkts',cap:[3,0,0,0],def:'C',note:{oss:'Kein kostenloses Visual ist IBCS-zertifiziert',deneb:'Deneb ist nicht IBCS-zertifiziert',core:'Core Visuals sind nicht IBCS-zertifiziert'}},
-  {id:'mscert',name:'Microsoft-zertifiziertes Visual',sub:'Export, Abos, Tenant-Freigabe ohne Ausnahme',cap:[3,1,2,3],def:'S',note:{oss:'Je nach Visual; ChartKitchen aktuell nicht zertifiziert',deneb:'AppSource-Version ja, Standalone-Build nein'}},
-  {id:'export',name:'PDF/PPT-Export und E-Mail-Abos',sub:'Nur mit zertifizierten Visuals',cap:[3,1,2,3],def:'S',note:{oss:'Nur bei zertifizierten OSS-Visuals',deneb:'Zertifiziert, aber 2025 dokumentierte Export-Bugs'}},
-  {id:'interact',name:'Interaktivität',sub:'Drill, Tooltip, Cross-Highlight, Auswahl',cap:[3,2,2,1],def:'S',note:{core:'SVG-Measures sind statische Bilder ohne Interaktion'}},
-  {id:'bigdata',name:'Große Datenmengen je Visual',sub:'Über 30.000 Zeilen',cap:[2,2,1,1],def:'C',note:{deneb:'30.000-Zeilen-Fenster',core:'32.766-Zeichen-Grenze je Textwert, Performance'}},
-  {id:'writeback',name:'Kommentare / Writeback im Visual',sub:'Planung, Anmerkungen',cap:[3,1,0,0],def:'W',note:{deneb:'Keine Writeback-Funktion',core:'Nur über Translytical Task Flows, nicht im Chart'}},
-  {id:'maint',name:'Wartbar durch den Fachbereich',sub:'Ohne Code-Kenntnisse anpassbar',cap:[3,3,1,1],def:'S',note:{deneb:'Specs sind Code (Vega-Lite JSON)',core:'Measure-Bibliotheken mit >100 Measures'}},
-  {id:'copilot',name:'Copilot / KI im Visual',sub:'Copilot erzeugt und liest nur Core Visuals',cap:[0,0,0,3],def:'C',note:{paid:'Copilot unterstützt keine Custom Visuals',oss:'Copilot unterstützt keine Custom Visuals',deneb:'Copilot unterstützt keine Custom Visuals'}},
-  {id:'exit',name:'Exit-Fähigkeit / kein Vendor-Lock-in',sub:'Wechsel ohne Neubau möglich',cap:[0,2,2,3],def:'C',note:{paid:'Report-Definitionen sind an das Vendor-Visual gebunden'}},
-  {id:'design',name:'Einheitliches Design ohne Styleguide-Disziplin',sub:'Wiedererkennung out-of-the-box',cap:[3,2,1,1],def:'S'},
-  {id:'rs',name:'Läuft im Report Server (on-prem)',sub:'Lizenzierte Visuals werden dort nicht unterstützt',cap:[0,1,1,3],def:'W',note:{paid:'Lizenzierte AppSource-Visuals laufen nicht im Report Server',oss:'Nur als Datei-Import, kein Org-Store',deneb:'Nur als Datei-Import, kein Org-Store'}},
+  {id:'ibcs',name:'IBCS-konforme Notation',sub:'Szenarien AC/PY/PL/FC, Abweichungen, Skalierung',cap:[5,4,4,2],def:'M',note:{core:'Nur über Workarounds (Overlapping Bars, SVG-Measures)'}},
+  {id:'ibcscert',name:'IBCS-zertifiziertes Visual',sub:'Offizielle Zertifizierung des Software-Produkts',cap:[5,1,1,1],def:'C',note:{oss:'Kein kostenloses Visual ist IBCS-zertifiziert',deneb:'Deneb ist nicht IBCS-zertifiziert',core:'Core Visuals sind nicht IBCS-zertifiziert'}},
+  {id:'mscert',name:'Microsoft-zertifiziertes Visual',sub:'Export, Abos, Tenant-Freigabe ohne Ausnahme',cap:[5,2,4,5],def:'S',note:{oss:'Je nach Visual; ChartKitchen aktuell nicht zertifiziert',deneb:'AppSource-Version ja, Standalone-Build nein'}},
+  {id:'export',name:'PDF/PPT-Export und E-Mail-Abos',sub:'Nur mit zertifizierten Visuals',cap:[5,2,4,5],def:'S',note:{oss:'Nur bei zertifizierten OSS-Visuals',deneb:'Zertifiziert, aber 2025 dokumentierte Export-Bugs'}},
+  {id:'interact',name:'Interaktivität',sub:'Drill, Tooltip, Cross-Highlight, Auswahl',cap:[5,4,4,2],def:'S',note:{core:'SVG-Measures sind statische Bilder ohne Interaktion'}},
+  {id:'bigdata',name:'Große Datenmengen je Visual',sub:'Über 30.000 Zeilen',cap:[4,3,2,2],def:'C',note:{deneb:'30.000-Zeilen-Fenster',core:'32.766-Zeichen-Grenze je Textwert, Performance'}},
+  {id:'writeback',name:'Kommentare / Writeback im Visual',sub:'Planung, Anmerkungen',cap:[5,2,1,1],def:'W',note:{deneb:'Keine Writeback-Funktion',core:'Nur über Translytical Task Flows, nicht im Chart'}},
+  {id:'maint',name:'Wartbar durch den Fachbereich',sub:'Ohne Code-Kenntnisse anpassbar',cap:[5,5,2,2],def:'S',note:{deneb:'Specs sind Code (Vega-Lite JSON)',core:'Measure-Bibliotheken mit >100 Measures'}},
+  {id:'copilot',name:'Copilot / KI im Visual',sub:'Copilot erzeugt und liest nur Core Visuals',cap:[1,1,1,5],def:'C',note:{paid:'Copilot unterstützt keine Custom Visuals',oss:'Copilot unterstützt keine Custom Visuals',deneb:'Copilot unterstützt keine Custom Visuals'}},
+  {id:'exit',name:'Exit-Fähigkeit / kein Vendor-Lock-in',sub:'Wechsel ohne Neubau möglich',cap:[1,3,4,5],def:'C',note:{paid:'Report-Definitionen sind an das Vendor-Visual gebunden'}},
+  {id:'design',name:'Einheitliches Design ohne Styleguide-Disziplin',sub:'Wiedererkennung out-of-the-box',cap:[5,4,2,2],def:'S'},
+  {id:'rs',name:'Läuft im Report Server (on-prem)',sub:'Lizenzierte Visuals werden dort nicht unterstützt',cap:[1,2,2,5],def:'W',note:{paid:'Lizenzierte AppSource-Visuals laufen nicht im Report Server',oss:'Nur als Datei-Import, kein Org-Store',deneb:'Nur als Datei-Import, kein Org-Store'}},
 ];
 const PRIO={M:'Must',S:'Should',C:'Could',W:'Won’t'};
 const PRIO_W={M:3,S:2,C:1,W:0};
@@ -410,10 +418,13 @@ const GLOBAL=[
   {id:'rateInt',label:'Stundensatz intern',sub:'Vollkosten Controller / BI-Team, €/h',v:[60,80,100],src:'F',srcNote:'Controller-Gehalt Ø 71 k€ plus Gemeinkostenfaktor'},
   {id:'rateExt',label:'Stundensatz extern',sub:'Freelancer / Beratung, €/h',v:[95,120,180],src:'S',srcNote:'freelancermap: Ø 98–104 €/h, Spezialisten höher'},
   {id:'migShare',label:'Migrationskosten bei Abkündigung',sub:'% des Aufbaus, der neu entsteht',v:[50,80,100],src:'F',srcNote:'Charticulator, Bing-Maps-Visuals, OKViz: Neubau statt Migration'},
+  {id:'churn',label:'Fluktuation der Ersteller',sub:'% pro Jahr, löst erneute Schulung aus',v:[5,15,30],src:'F',srcNote:'Wissensverlust trifft Code-Ansätze (Deneb, SVG) am stärksten'},
+  {id:'growth',label:'Viewer-Wachstum',sub:'% pro Jahr, treibt Per-User-Lizenzen',v:[0,10,25],src:'E',srcNote:'Self-Service-Rollouts wachsen, Lizenz folgt jedem neuen Viewer'},
 ];
 /* Parameter je Option: v = {paid:[..],oss:[..],deneb:[..],core:[..]} */
 const OPTP=[
   {id:'lic',label:'Lizenz je Nutzer und Jahr',sub:'€, für Ersteller und Viewer',unit:'€',v:{paid:[30,100,300]},src:'S',srcNote:'Inforiver ~3 $/Monat, Zebra BI ~299 $/Jahr, graphomate auf Anfrage'},
+  {id:'licInfl',label:'Lizenzpreis-Steigerung',sub:'% pro Jahr (Vendor-Preisanpassung)',unit:'%',v:{paid:[0,5,10]},src:'F',srcNote:'Power BI Pro selbst +40 % in 04/2025; Vendor-Listen jährlich angepasst'},
   {id:'ext',label:'Anteil externe Unterstützung',sub:'% der Aufbau-Stunden',unit:'%',v:{paid:[0,20,50],oss:[0,30,60],deneb:[10,50,90],core:[0,30,70]},src:'E'},
   {id:'setupH',label:'Einmaliger Setup',sub:'Evaluierung, Freigabe, Theme, Template-/Measure-Bibliothek, Stunden',unit:'h',v:{paid:[8,16,40],oss:[8,24,60],deneb:[20,60,160],core:[20,60,160]},src:'E'},
   {id:'devH',label:'Eigenentwicklung des Visuals',sub:'Nur wenn ihr selbst entwickelt, Stunden (0 = fertiges OSS-Visual)',unit:'h',v:{oss:[0,0,400]},src:'E',srcNote:'Daten-WG-Fallstudie: ~20 h KI-gestützte Steuerung bis Beta; klassisch 14–18 Personenmonate'},
@@ -482,10 +493,10 @@ const SOURCES=[
 ];
 
 /* ===================== State ===================== */
-const S={creators:3,viewers:40,reports:6,cpr:6,types:5,horizon:5,weight:100,per:'viewer',prio:{},flags:{},g:{},p:{},tornado:null};
+const S={creators:3,viewers:40,reports:6,cpr:6,types:5,horizon:5,weight:100,per:'viewer',view:'abs',prio:{},cap:{},custom:[],flags:{},g:{},p:{},tornado:null};
 function defaults(){
   S.creators=3;S.viewers=40;S.reports=6;S.cpr=6;S.types=5;S.horizon=5;S.weight=100;S.per='viewer';
-  S.prio={};REQS.forEach(r=>S.prio[r.id]=r.def);
+  S.view='abs';S.prio={};S.cap={};S.custom=[];REQS.forEach(r=>{S.prio[r.id]=r.def;S.cap[r.id]=r.cap.slice();});
   S.flags={};FLAGS.forEach(f=>S.flags[f.id]=false);
   S.g={};GLOBAL.forEach(p=>S.g[p.id]=p.v.slice());
   S.p={};OPTS.forEach(o=>{S.p[o.key]={};OPTP.forEach(p=>{if(p.v[o.key])S.p[o.key][p.id]=p.v[o.key].slice();});});
@@ -517,11 +528,12 @@ function calc(key,draw,override){
   const users=S.creators+S.viewers;
   const ext=p('ext')/100;
   const rate=g('rateInt')*(1-ext)+g('rateExt')*ext;
-  const lic=key==='paid'?users*p('lic')*H:0;
+  let licF=0;{const gr=1+g('growth')/100,inf=1+(P.licInfl?p('licInfl'):0)/100;for(let yv=0;yv<H;yv++)licF+=Math.pow(gr,yv)*Math.pow(inf,yv);}
+  const lic=key==='paid'?users*p('lic')*licF:0;
   const support=p('support')*H;
   const setup=p('setupH')*rate, dev=p('devH')*rate, build=S.types*p('firstH')*rate;
   const rollout=S.reports*S.cpr*p('reuseH')*rate;
-  const train=S.creators*(p('trainH')*g('rateInt')+p('course'));
+  const train=S.creators*(p('trainH')*g('rateInt')+p('course'))*(1+g('churn')/100*H);
   const base=setup+dev+build+rollout;
   const maint=base*(p('maint')/100)*H;
   const events=p('events')*p('fixH')*rate*H;
@@ -545,14 +557,16 @@ function simulate(key,N){
 function expected(key,override){return calc(key,pertMean,override);}
 
 /* ===================== Bewertung: K.O., Warnungen, Score ===================== */
+function allReqs(){return REQS.concat(S.custom);}
+function capOf(rq,k){const c=S.cap[rq.id];const v=c?c[OK[k]]:rq.cap[OK[k]];return Math.min(5,Math.max(1,Math.round(v)));}
 function evaluate(){
   const res={};
   OPTS.forEach(o=>{const k=o.key;const r={ko:[],warn:[],score:0,scoreMax:0};
-    REQS.forEach(rq=>{const pr=S.prio[rq.id];const cap=rq.cap[OK[k]];const note=rq.note&&rq.note[k]?rq.note[k]:rq.name+': nicht erfüllt';
-      if(pr==='M'&&cap===0)r.ko.push('Must „'+rq.name+'": '+note);
-      else if(pr==='M'&&cap===1)r.warn.push('Must „'+rq.name+'" nur mit Einschränkung: '+note);
-      else if(pr==='S'&&cap===0)r.warn.push('Should „'+rq.name+'": '+note);
-      if(pr!=='W'){r.score+=PRIO_W[pr]*cap;r.scoreMax+=PRIO_W[pr]*3;}
+    allReqs().forEach(rq=>{const pr=S.prio[rq.id];const cap=capOf(rq,k);const note=rq.note&&rq.note[k]?rq.note[k]:rq.name+': '+CAP_LBL[cap];
+      if(pr==='M'&&cap<=1)r.ko.push('Must „'+rq.name+'": '+note);
+      else if(pr==='M'&&cap===2)r.warn.push('Must „'+rq.name+'" nur per Workaround: '+note);
+      else if(pr==='S'&&cap<=1)r.warn.push('Should „'+rq.name+'": '+note);
+      if(pr!=='W'){r.score+=PRIO_W[pr]*(cap-1);r.scoreMax+=PRIO_W[pr]*4;}
     });
     FLAGS.forEach(f=>{if(!S.flags[f.id])return;if(f.excl[k])r.ko.push(f.label+': '+f.excl[k]);if(f.warn[k])r.warn.push(f.label+': '+f.warn[k]);});
     r.scorePct=r.scoreMax?Math.round(100*r.score/r.scoreMax):0;res[k]=r;});
@@ -585,20 +599,29 @@ function renderStep1(){
   document.getElementById('v-types').textContent=fmtN(S.types);
   document.querySelectorAll('#horizon-seg button').forEach(b=>b.classList.toggle('active',+b.dataset.h===S.horizon));
   document.querySelectorAll('#per-seg button').forEach(b=>b.classList.toggle('active',b.dataset.per===S.per));
+  document.querySelectorAll('#view-seg button').forEach(b=>b.classList.toggle('active',b.dataset.view===S.view));
   document.getElementById('weight').value=S.weight;
   document.getElementById('v-weight').textContent=S.weight+' % Kosten · '+(100-S.weight)+' % Anforderungen';
 }
 function renderReqs(){
   const t=document.getElementById('req-table');
   let h='<thead><tr><th>Anforderung</th><th>Priorität</th>'+OPTS.map(o=>'<th class="opt" style="--capc:'+o.color+'">'+esc(o.tag)+'<br><span style="font-weight:400;text-transform:none;letter-spacing:0">'+esc(o.name)+'</span></th>').join('')+'</tr></thead><tbody>';
-  REQS.forEach(r=>{const pr=S.prio[r.id];
-    h+='<tr><td class="name">'+esc(r.name)+'<small>'+esc(r.sub)+'</small></td><td><div class="prio" data-req="'+r.id+'">'+Object.keys(PRIO).map(k=>'<button data-p="'+k+'" class="'+(pr===k?'active'+(k==='M'?' m':''):'')+'" title="'+PRIO[k]+'">'+k+'</button>').join('')+'</div></td>';
-    OPTS.forEach((o,i)=>{const c=r.cap[i];const ko=pr==='M'&&c===0;const title=(r.note&&r.note[o.key])?r.note[o.key]:'';
-      h+='<td title="'+esc(title)+'"><span class="cap'+(ko?' ko':'')+'" style="--capc:'+o.color+'">'+[0,1,2,3].slice(1).map(n=>'<i class="'+(n<=c?'on':'')+'"></i>').join('')+'<span class="cap-lbl">'+(ko?'K.O.':c)+'</span></span></td>';});
+  allReqs().forEach(r=>{const pr=S.prio[r.id];const isCustom=!!r.custom;
+    h+='<tr><td class="name">'+esc(r.name)+(isCustom?' <button class="rm-req" data-req="'+r.id+'" title="Zeile entfernen">✕</button>':'')+'<small>'+esc(r.sub)+'</small></td><td><div class="prio" data-req="'+r.id+'">'+Object.keys(PRIO).map(k=>'<button data-p="'+k+'" class="'+(pr===k?'active'+(k==='M'?' m':''):'')+'" title="'+PRIO[k]+'">'+k+'</button>').join('')+'</div></td>';
+    OPTS.forEach((o,i)=>{const c=capOf(r,o.key);const ko=pr==='M'&&c<=1;const changed=!isCustom&&c!==r.cap[i];const title=((r.note&&r.note[o.key])?r.note[o.key]+' · ':'')+CAP_LBL[c]+(changed?' (eigene Bewertung, Standard '+r.cap[i]+')':'')+' · klicken zum Bewerten';
+      h+='<td title="'+esc(title)+'"><span class="cap'+(ko?' ko':'')+(changed?' edited':'')+'" style="--capc:'+o.color+'" data-req="'+r.id+'" data-opt="'+i+'">'+[1,2,3,4,5].map(n=>'<i class="'+(n<=c?'on':'')+'" data-v="'+n+'"></i>').join('')+'<span class="cap-lbl">'+(ko?'K.O.':c)+'</span></span></td>';});
     h+='</tr>';});
   t.innerHTML=h+'</tbody>';
-  t.querySelectorAll('.prio button').forEach(b=>b.addEventListener('click',()=>{S.prio[b.parentElement.dataset.req]=b.dataset.p;update();}));
+  t.querySelectorAll('.prio button').forEach(b=>b.addEventListener('click',()=>{S.prio[b.parentElement.dataset.req]=b.dataset.p;renderReqs();update();}));
+  t.querySelectorAll('.cap i').forEach(b=>b.addEventListener('click',()=>{const sp=b.parentElement;const id=sp.dataset.req,i=+sp.dataset.opt;if(!S.cap[id])S.cap[id]=[3,3,3,3];S.cap[id][i]=+b.dataset.v;renderReqs();update();}));
+  t.querySelectorAll('.rm-req').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.req;S.custom=S.custom.filter(r=>r.id!==id);delete S.prio[id];delete S.cap[id];renderReqs();update();}));
 }
+function addCustomReq(){
+  const name=prompt('Eigene Anforderung (kurz):');if(!name)return;const sub=prompt('Erläuterung (optional):','')||'';
+  const id='c'+Date.now().toString(36);S.custom.push({id,name:name.trim(),sub:sub.trim(),cap:[3,3,3,3],custom:true});S.prio[id]='S';S.cap[id]=[3,3,3,3];
+  renderReqs();update();toast('Anforderung ergänzt, jetzt je Ansatz bewerten (Klick auf die Kästchen).');
+}
+function resetCaps(){S.cap={};REQS.forEach(r=>S.cap[r.id]=r.cap.slice());S.custom.forEach(r=>S.cap[r.id]=[3,3,3,3]);renderReqs();update();toast('Bewertungen auf Daten-WG-Standard zurückgesetzt.');}
 function renderFlags(){
   const el=document.getElementById('flag-list');
   el.innerHTML=FLAGS.map(f=>'<label class="check-item'+(f.flag?' flag':'')+'"><input type="checkbox" data-flag="'+f.id+'"'+(S.flags[f.id]?' checked':'')+'><span>'+(f.flag?'🚩 ':'')+esc(f.label)+'<small>'+esc(f.sub)+'</small></span></label>').join('');
@@ -624,13 +647,15 @@ function renderParams(){
 }
 
 /* ===================== Rendering: Ergebnis ===================== */
+function perDivisor(){return (S.per==='viewer'?Math.max(S.viewers,1):S.creators+S.viewers)*S.horizon;}
+function perLabel(){return 'je '+(S.per==='viewer'?'Viewer':'Nutzer')+' und Jahr';}
 let lastSim={};
 function update(){
   renderStep1();
   const ev=evaluate();
   const sim={};OPTS.forEach(o=>sim[o.key]=simulate(o.key,1500));lastSim=sim;
   const allowed=OPTS.filter(o=>ev[o.key].ko.length===0),excluded=OPTS.filter(o=>ev[o.key].ko.length>0);
-  const perDiv=(S.per==='viewer'?Math.max(S.viewers,1):S.creators+S.viewers)*S.horizon;
+  const perDiv=perDivisor();const vf=S.view==='per'?1/perDiv:1;
   /* Rangfolge */
   const costs=allowed.map(o=>sim[o.key].p50);const cmin=Math.min(...costs),cmax=Math.max(...costs);
   const rankVal=o=>{const c=sim[o.key].p50;const cn=cmax>cmin?(c-cmin)/(cmax-cmin):0;const sn=1-ev[o.key].scorePct/100;const w=S.weight/100;return w*cn+(1-w)*sn;};
@@ -654,8 +679,8 @@ function update(){
   document.getElementById('kpi-allowed').innerHTML=ranked.map((o,i)=>card(o,i+1)).join('');
   document.getElementById('ko-block').innerHTML=excluded.length?'<div class="divider">Ausgeschlossen durch K.O.-Kriterien</div><div class="kpi-grid">'+excluded.map(o=>card(o,null)).join('')+'</div><div class="ko-list"><b>Warum ausgeschlossen?</b> Die Kosten der ausgeschlossenen Ansätze bleiben sichtbar, damit der Preis einer Rahmenbedingung erkennbar wird:<ul>'+excluded.map(o=>{const d=best?sim[o.key].p50-sim[best.key].p50:0;return '<li><b style="color:'+o.color+'">'+esc(o.name)+'</b>: '+ev[o.key].ko.map(esc).join('; ')+(best?' → wäre '+(d<0?fmtEur(-d)+' günstiger':fmtEur(d)+' teurer')+' als die beste zulässige Option.':'')+'</li>';}).join('')+'</ul></div>':'';
   /* Charts */
-  document.getElementById('chart1-h').textContent=S.horizon+' Jahre · P50';
-  drawStack(sim);drawBreakEven(ev,best);drawTornado(best,ev);drawCumulative(sim,ev);
+  document.getElementById('chart1-h').textContent=S.horizon+' Jahre · P50'+(S.view==='per'?' · '+perLabel():'');
+  drawStack(sim,vf);drawBreakEven(ev,best);drawTornado(best,ev);drawCumulative(sim,ev);
   renderTable(sim,ev,perDiv);renderOptCards(sim,ev);
   /* Tornado-Select */
   const sel=document.getElementById('tornado-opt');const want=S.tornado&&OK[S.tornado]!==undefined?S.tornado:(best?best.key:'paid');
@@ -665,16 +690,17 @@ function update(){
 
 /* ---------- Chart 1: Stacked bars ---------- */
 const CATCOL={lic:'#eb6834',build:'#2a78d6',rollout:'#6da7ec',train:'#1baf7a',maint:'#eda100',risk:'#8a8a80'};
-function drawStack(sim){
+function drawStack(sim,vf){
   const W=560,rowH=46,padL=150,padR=70,top=18;const H=top+OPTS.length*rowH+30;
-  const max=Math.max(...OPTS.map(o=>sim[o.key].p90))*1.05||1;const x=v=>padL+v/max*(W-padL-padR);
+  const max=Math.max(...OPTS.map(o=>sim[o.key].p90))*vf*1.05||1;const x=v=>padL+v/max*(W-padL-padR);
   let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Kostenstruktur je Ansatz">';
   const ticks=4;for(let i=0;i<=ticks;i++){const v=max*i/ticks;s+='<line x1="'+x(v)+'" y1="'+(top-4)+'" x2="'+x(v)+'" y2="'+(H-26)+'" stroke="#E7E2D4" stroke-width="1"/><text x="'+x(v)+'" y="'+(H-12)+'" font-size="9.5" text-anchor="middle" fill="#5B5D52">'+fmtEur(v)+'</text>';}
   OPTS.forEach((o,i)=>{const r=sim[o.key];const y=top+i*rowH+8;let cx=padL;
     s+='<text x="'+(padL-8)+'" y="'+(y+14)+'" font-size="10.5" text-anchor="end" fill="#23261F" font-weight="600">'+esc(o.tag)+'</text><text x="'+(padL-8)+'" y="'+(y+25)+'" font-size="8.5" text-anchor="end" fill="#5B5D52">'+esc(o.name.length>26?o.name.slice(0,25)+'…':o.name)+'</text>';
-    CATS.forEach(([k,lbl])=>{const w=r.cats[k]/max*(W-padL-padR);if(w>0){s+='<rect x="'+cx+'" y="'+y+'" width="'+Math.max(w-1.5,0)+'" height="20" fill="'+CATCOL[k]+'" rx="2"><title>'+esc(o.name)+' · '+lbl+': '+fmtEur(r.cats[k])+'</title></rect>';cx+=w;}});
-    s+='<line x1="'+x(r.p10)+'" y1="'+(y+10)+'" x2="'+x(r.p90)+'" y2="'+(y+10)+'" stroke="#23261F" stroke-width="1.5"/><line x1="'+x(r.p10)+'" y1="'+(y+5)+'" x2="'+x(r.p10)+'" y2="'+(y+15)+'" stroke="#23261F" stroke-width="1.5"/><line x1="'+x(r.p90)+'" y1="'+(y+5)+'" x2="'+x(r.p90)+'" y2="'+(y+15)+'" stroke="#23261F" stroke-width="1.5"/>';
-    s+='<text x="'+(x(r.p90)+6)+'" y="'+(y+14)+'" font-size="10" fill="#23261F" font-weight="600">'+fmtEur(r.p50)+'</text>';});
+    CATS.forEach(([k,lbl])=>{const v=r.cats[k]*vf;const w=v/max*(W-padL-padR);if(w>0){s+='<rect x="'+cx+'" y="'+y+'" width="'+Math.max(w-1.5,0)+'" height="20" fill="'+CATCOL[k]+'" rx="2"><title>'+esc(o.name)+' · '+lbl+': '+fmtEur(v)+'</title></rect>';cx+=w;}});
+    const p10=r.p10*vf,p90=r.p90*vf;
+    s+='<line x1="'+x(p10)+'" y1="'+(y+10)+'" x2="'+x(p90)+'" y2="'+(y+10)+'" stroke="#23261F" stroke-width="1.5"/><line x1="'+x(p10)+'" y1="'+(y+5)+'" x2="'+x(p10)+'" y2="'+(y+15)+'" stroke="#23261F" stroke-width="1.5"/><line x1="'+x(p90)+'" y1="'+(y+5)+'" x2="'+x(p90)+'" y2="'+(y+15)+'" stroke="#23261F" stroke-width="1.5"/>';
+    s+='<text x="'+(x(p90)+6)+'" y="'+(y+14)+'" font-size="10" fill="#23261F" font-weight="600">'+fmtEur(r.p50*vf)+'</text>';});
   s+='</svg>';document.getElementById('chart-stack').innerHTML=s;
   document.getElementById('stack-legend').innerHTML=CATS.map(([k,l])=>'<span><i style="background:'+CATCOL[k]+'"></i>'+l+'</span>').join('')+'<span><i style="background:#23261F;height:2px"></i>P10–P90</span>';
 }
@@ -682,14 +708,14 @@ function drawStack(sim){
 function drawBreakEven(ev,best){
   const W=560,H=260,padL=70,padR=110,padT=16,padB=34;
   const vmax=Math.max(Math.ceil(S.viewers*3/50)*50,200);
-  const saveV=S.viewers;const series=OPTS.map(o=>{const pts=[];for(let i=0;i<=20;i++){const v=Math.round(vmax*i/20);S.viewers=v;pts.push([v,expected(o.key).total]);}return {o,pts};});S.viewers=saveV;
+  const per=S.view==='per';const saveV=S.viewers;const series=OPTS.map(o=>{const pts=[];for(let i=0;i<=20;i++){const v=Math.max(Math.round(vmax*i/20),per?1:0);S.viewers=v;const tot=expected(o.key).total;pts.push([v,per?tot/((S.per==='viewer'?v:v+S.creators)*S.horizon):tot]);}return {o,pts};});S.viewers=saveV;
   const ymax=Math.max(...series.flatMap(s=>s.pts.map(p=>p[1])))*1.08||1;
   const x=v=>padL+v/vmax*(W-padL-padR),y=c=>H-padB-c/ymax*(H-padT-padB);
   let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Break-even über die Viewer-Zahl">';
   for(let i=0;i<=4;i++){const c=ymax*i/4;s+='<line x1="'+padL+'" y1="'+y(c)+'" x2="'+(W-padR)+'" y2="'+y(c)+'" stroke="#E7E2D4"/><text x="'+(padL-6)+'" y="'+(y(c)+3)+'" font-size="9.5" text-anchor="end" fill="#5B5D52">'+fmtEur(c)+'</text>';}
   for(let i=0;i<=4;i++){const v=vmax*i/4;s+='<text x="'+x(v)+'" y="'+(H-padB+14)+'" font-size="9.5" text-anchor="middle" fill="#5B5D52">'+fmtN(v)+'</text>';}
   s+='<text x="'+((padL+W-padR)/2)+'" y="'+(H-4)+'" font-size="9.5" text-anchor="middle" fill="#5B5D52">Viewer</text>';
-  s+='<line x1="'+x(S.viewers)+'" y1="'+padT+'" x2="'+x(S.viewers)+'" y2="'+(H-padB)+'" stroke="#23261F" stroke-dasharray="3 3"/><text x="'+(x(S.viewers)+4)+'" y="'+(padT+9)+'" font-size="9" fill="#23261F">heute: '+fmtN(S.viewers)+'</text>';
+  s+='<line x1="'+x(S.viewers)+'" y1="'+padT+'" x2="'+x(S.viewers)+'" y2="'+(H-padB)+'" stroke="#23261F" stroke-dasharray="3 3"/><text x="'+(x(S.viewers)+4)+'" y="'+(padT+9)+'" font-size="9" fill="#23261F">heute: '+fmtN(S.viewers)+(per?' · '+perLabel():'')+'</text>';
   series.forEach(({o,pts})=>{const ex=ev[o.key].ko.length>0;const d=pts.map((p,i)=>(i?'L':'M')+x(p[0])+' '+y(p[1])).join(' ');s+='<path d="'+d+'" fill="none" stroke="'+o.color+'" stroke-width="2"'+(ex?' stroke-dasharray="5 4" opacity=".55"':'')+'/>';const last=pts[pts.length-1];s+='<text x="'+(x(last[0])+5)+'" y="'+(y(last[1])+3)+'" font-size="9.5" fill="'+o.color+'" font-weight="600">'+esc(o.tag)+(ex?' (K.O.)':'')+'</text>';});
   s+='</svg>';document.getElementById('chart-be').innerHTML=s;
   /* Insight: Schnittpunkte paid vs. andere */
@@ -717,14 +743,15 @@ function drawTornado(best,ev){
 /* ---------- Chart 4: Kumuliert ---------- */
 function drawCumulative(sim,ev){
   const W=560,H=240,padL=70,padR=110,padT=16,padB=30;const H_=S.horizon;
-  const series=OPTS.map(o=>{const s=sim[o.key];const pts=[];for(let yv=0;yv<=H_;yv++)pts.push([yv,s.invest+s.yearly*yv]);return {o,pts};});
+  const uf=S.view==='per'?1/(S.per==='viewer'?Math.max(S.viewers,1):S.creators+S.viewers):1;
+  const series=OPTS.map(o=>{const s=sim[o.key];const pts=[];for(let yv=0;yv<=H_;yv++)pts.push([yv,(s.invest+s.yearly*yv)*uf]);return {o,pts};});
   const ymax=Math.max(...series.flatMap(s=>s.pts.map(p=>p[1])))*1.08||1;
   const x=v=>padL+v/H_*(W-padL-padR),y=c=>H-padB-c/ymax*(H-padT-padB);
   let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Kumulierte Kosten">';
   for(let i=0;i<=4;i++){const c=ymax*i/4;s+='<line x1="'+padL+'" y1="'+y(c)+'" x2="'+(W-padR)+'" y2="'+y(c)+'" stroke="#E7E2D4"/><text x="'+(padL-6)+'" y="'+(y(c)+3)+'" font-size="9.5" text-anchor="end" fill="#5B5D52">'+fmtEur(c)+'</text>';}
   for(let yv=0;yv<=H_;yv++)s+='<text x="'+x(yv)+'" y="'+(H-padB+14)+'" font-size="9.5" text-anchor="middle" fill="#5B5D52">J'+yv+'</text>';
   series.forEach(({o,pts})=>{const ex=ev[o.key].ko.length>0;const d=pts.map((p,i)=>(i?'L':'M')+x(p[0])+' '+y(p[1])).join(' ');s+='<path d="'+d+'" fill="none" stroke="'+o.color+'" stroke-width="2"'+(ex?' stroke-dasharray="5 4" opacity=".55"':'')+'/>';pts.forEach(p=>s+='<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="3" fill="'+o.color+'" stroke="#fff" stroke-width="1.5"><title>'+esc(o.name)+' · Jahr '+p[0]+': '+fmtEur(p[1])+'</title></circle>');const last=pts[pts.length-1];s+='<text x="'+(x(last[0])+6)+'" y="'+(y(last[1])+3)+'" font-size="9.5" fill="'+o.color+'" font-weight="600">'+esc(o.tag)+'</text>';});
-  s+='</svg>';document.getElementById('chart-cum').innerHTML=s;
+  s+='</svg>';document.getElementById('chart-cum').innerHTML=s;document.getElementById('chart4-h').textContent=S.view==='per'?'je '+(S.per==='viewer'?'Viewer':'Nutzer')+', kumuliert':'absolut';
 }
 /* ---------- Tabelle ---------- */
 function renderTable(sim,ev,perDiv){
@@ -750,14 +777,86 @@ function renderOptCards(sim,ev){
 /* ---------- Anhang / Footer ---------- */
 function renderSources(){
   document.getElementById('sources').innerHTML='<thead><tr><th>Quelle</th><th>Was drin steht</th><th>Status</th></tr></thead><tbody>'+SOURCES.map(([n,w,u,s])=>'<tr><td><a href="'+u+'" target="_blank" rel="noopener">'+esc(n)+'</a></td><td>'+esc(w)+'</td><td><span class="badge '+s+'">'+s+'</span></td></tr>').join('')+'</tbody>';
-  document.getElementById('footer').innerHTML='<b>Methodik:</b> Je Ansatz werden Lizenz und Support (Nutzer × Preis × Jahre), Aufbau (Setup, optionale Eigenentwicklung, Chart-Typen × Stunden × Stundensatz-Mix), Rollout (Reports × Charts × Wiederverwendungs-Stunden), Schulung (Ersteller × Stunden und Kurskosten), Wartung (Quote × Aufbau + Rollout × Jahre plus Breaking-Updates) und Abkündigungsrisiko (Wahrscheinlichkeit × Migrationsanteil × Aufbau) addiert. Jede Annahme ist eine Dreipunkt-Schätzung, aus der per PERT-Verteilung 1.500 Szenarien gezogen werden; angezeigt werden P10, P50 und P90. Break-even und Sensitivität nutzen den PERT-Erwartungswert. K.O.-Kriterien (Must mit 0 Punkten, Governance-Schalter) filtern vor der Rangfolge; ausgeschlossene Ansätze bleiben zur Einordnung sichtbar. Der Anforderungs-Score ist eine Nutzwertanalyse (Must 3, Should 2, Could 1) und bewusst nur über den Regler in die Rangfolge einbezogen. Power-BI-Grundlizenzen (Pro, PPU, Capacity) fallen für alle Ansätze gleich an und sind nicht enthalten. <b>Alle Zahlen sind Indikationen unter Unsicherheit</b>, keine Angebote. Der Link kodiert nur eure Eingaben, es werden keine Daten an einen Server gesendet. Schriften werden von Google Fonts geladen.<div class="footer-version">Visual-Standards-Rechner v0.1 · Michael Tenner &amp; Diana Ackermann · Daten-WG Knowledge Kitchen · Stand 09/2026 · Pre-Conference „Visual Standards in Power BI für Controlling und Finance"</div>';
+  document.getElementById('footer').innerHTML='<b>Methodik:</b> Je Ansatz werden Lizenz und Support (Nutzer × Preis × Jahre), Aufbau (Setup, optionale Eigenentwicklung, Chart-Typen × Stunden × Stundensatz-Mix), Rollout (Reports × Charts × Wiederverwendungs-Stunden), Schulung (Ersteller × Stunden und Kurskosten, wiederkehrend über die Fluktuation), Lizenz mit Viewer-Wachstum und Preissteigerung je Jahr, Wartung (Quote × Aufbau + Rollout × Jahre plus Breaking-Updates) und Abkündigungsrisiko (Wahrscheinlichkeit × Migrationsanteil × Aufbau) addiert. Jede Annahme ist eine Dreipunkt-Schätzung, aus der per PERT-Verteilung 1.500 Szenarien gezogen werden; angezeigt werden P10, P50 und P90. Break-even und Sensitivität nutzen den PERT-Erwartungswert. K.O.-Kriterien (Must mit 0 Punkten, Governance-Schalter) filtern vor der Rangfolge; ausgeschlossene Ansätze bleiben zur Einordnung sichtbar. Der Anforderungs-Score ist eine Nutzwertanalyse (Must 3, Should 2, Could 1 als Gewicht, Erfüllungsgrad 1 bis 5) und bewusst nur über den Regler in die Rangfolge einbezogen. Power-BI-Grundlizenzen (Pro, PPU, Capacity) fallen für alle Ansätze gleich an und sind nicht enthalten. <b>Alle Zahlen sind Indikationen unter Unsicherheit</b>, keine Angebote. Der Link kodiert nur eure Eingaben, es werden keine Daten an einen Server gesendet. Schriften werden von Google Fonts geladen.<div class="footer-version">Visual-Standards-Rechner v0.2 · Michael Tenner &amp; Diana Ackermann · Daten-WG Knowledge Kitchen · Stand 09/2026 · Pre-Conference „Visual Standards in Power BI für Controlling und Finance"</div>';
+}
+
+/* ===================== Excel-Export ===================== */
+function loadScript(src){return new Promise((res,rej)=>{if(window.XLSX)return res();const sc=document.createElement('script');sc.src=src;sc.onload=res;sc.onerror=rej;document.head.appendChild(sc);});}
+function exportXlsx(){
+  toast('Excel wird erzeugt …');
+  loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js').then(buildXlsx).catch(()=>{exportCsvFallback();});
+}
+function exportCsvFallback(){
+  const sim=lastSim;const rows=[['Posten',...OPTS.map(o=>o.name)]];CATS.forEach(([k,l])=>rows.push([l,...OPTS.map(o=>Math.round(sim[o.key].cats[k]))]));rows.push(['Gesamt P50',...OPTS.map(o=>Math.round(sim[o.key].p50))],['P10',...OPTS.map(o=>Math.round(sim[o.key].p10))],['P90',...OPTS.map(o=>Math.round(sim[o.key].p90))]);
+  const csv=rows.map(r=>r.join(';')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\ufeff'+encodeURIComponent(csv);a.download='visual-standards-rechner.csv';a.click();toast('Excel-Bibliothek nicht erreichbar, CSV exportiert.');
+}
+function buildXlsx(){
+  const X=window.XLSX;const wb=X.utils.book_new();const sim=lastSim;const ev=evaluate();const perDiv=perDivisor();
+  const col=i=>X.utils.encode_col(i);
+  /* --- Annahmen: Dreipunkt --- */
+  const A=[['Annahme','Einheit','Quelle']];OPTS.forEach(o=>A[0].push(o.name+' min',o.name+' wahrsch.',o.name+' max'));
+  GLOBAL.forEach(p=>{const r=[p.label+' (global)',p.sub,{V:'verifiziert',S:'Snippet',F:'Faustregel',E:'Expertenschätzung'}[p.src]];r.push(...S.g[p.id]);A.push(r);});
+  const gRow0=2;const pRow0=gRow0+GLOBAL.length+1;
+  A.push([]);
+  OPTP.forEach(p=>{const r=[p.label,p.sub,{V:'verifiziert',S:'Snippet',F:'Faustregel',E:'Expertenschätzung'}[p.src]];OPTS.forEach(o=>{const t=S.p[o.key][p.id];r.push(...(t?t:[0,0,0]));});A.push(r);});
+  const wsA=X.utils.aoa_to_sheet(A);wsA['!cols']=[{wch:38},{wch:34},{wch:16},...Array(12).fill({wch:11})];X.utils.book_append_sheet(wb,wsA,'Annahmen');
+  /* --- Modell mit Formeln --- */
+  const M=[['Parameter','Einheit',...OPTS.map(o=>o.name)]];
+  const F=str=>({f:String(str).replace(/^=/,'')});
+  const pertF=(row,c0)=>'=(Annahmen!'+col(c0)+row+'+4*Annahmen!'+col(c0+1)+row+'+Annahmen!'+col(c0+2)+row+')/6';
+  M.push(['Ersteller','Personen',S.creators]);M.push(['Viewer','Personen',S.viewers]);M.push(['Standard-Reports','Anzahl',S.reports]);M.push(['Charts je Report','Anzahl',S.cpr]);M.push(['Chart-Typen','Anzahl',S.types]);M.push(['Horizont','Jahre',S.horizon]);
+  GLOBAL.forEach((p,i)=>M.push([p.label,p.sub,F(pertF(gRow0+i,3))]));
+  const gIdx={};GLOBAL.forEach((p,i)=>gIdx[p.id]='$C$'+(8+i));
+  M.push([]);M.push(['Erwartungswert je Ansatz (PERT aus Annahmen)','']);
+  const pStart=M.length+1;
+  OPTP.forEach((p,i)=>{const r=[p.label,p.sub];OPTS.forEach((o,j)=>{r.push(S.p[o.key][p.id]?F(pertF(pRow0+i,3+3*j)):0);});M.push(r);});
+  const pr=id=>pStart+OPTP.findIndex(p=>p.id===id);
+  M.push([]);M.push(['Kosten über den Horizont','']);
+  const c0=M.length+1;const L=j=>col(2+j);
+  const costRows=[
+    ['Stundensatz-Mix','€/h',j=>'='+gIdx.rateInt+'*(1-'+L(j)+pr('ext')+'/100)+'+gIdx.rateExt+'*'+L(j)+pr('ext')+'/100'],
+    ['Lizenzfaktor (Wachstum × Preissteigerung, Summe über Jahre)','Jahre',j=>{const r='((1+'+gIdx.growth+'/100)*(1+'+L(j)+pr('licInfl')+'/100))';return '=IF(ABS('+r+'-1)<0.000001,$C$7,('+r+'^$C$7-1)/('+r+'-1))';}],
+    ['Lizenz & Support','€',j=>'=($C$2+$C$3)*'+L(j)+pr('lic')+'*'+L(j)+(c0+1)+'+'+L(j)+pr('support')+'*$C$7'],
+    ['Aufbau','€',j=>'=('+L(j)+pr('setupH')+'+'+L(j)+pr('devH')+'+$C$6*'+L(j)+pr('firstH')+')*'+L(j)+c0],
+    ['Rollout','€',j=>'=$C$4*$C$5*'+L(j)+pr('reuseH')+'*'+L(j)+c0],
+    ['Schulung','€',j=>'=$C$2*('+L(j)+pr('trainH')+'*'+gIdx.rateInt+'+'+L(j)+pr('course')+')*(1+'+gIdx.churn+'/100*$C$7)'],
+    ['Wartung & Updates','€',j=>'=('+L(j)+(c0+3)+'+'+L(j)+(c0+4)+')*'+L(j)+pr('maint')+'/100*$C$7+'+L(j)+pr('events')+'*'+L(j)+pr('fixH')+'*'+L(j)+c0+'*$C$7'],
+    ['Abkündigungsrisiko','€',j=>'='+L(j)+pr('dep')+'/100*('+L(j)+(c0+3)+'+'+L(j)+(c0+4)+')*'+gIdx.migShare+'/100'],
+    ['Gesamt (Erwartungswert)','€',j=>'=SUM('+L(j)+(c0+2)+':'+L(j)+(c0+7)+')'],
+    ['Invest (Jahr 0)','€',j=>'='+L(j)+(c0+3)+'+'+L(j)+(c0+4)+'+'+L(j)+(c0+5)],
+    ['Laufend je Jahr','€',j=>'=('+L(j)+(c0+2)+'+'+L(j)+(c0+6)+'+'+L(j)+(c0+7)+')/$C$7'],
+    ['Je Viewer und Jahr','€',j=>'='+L(j)+(c0+8)+'/MAX($C$3,1)/$C$7'],
+    ['Je Nutzer (Ersteller + Viewer) und Jahr','€',j=>'='+L(j)+(c0+8)+'/($C$2+$C$3)/$C$7'],
+  ];
+  costRows.forEach(([l,u,f])=>{const r=[l,u];OPTS.forEach((o,j)=>r.push(F(f(j))));M.push(r);});
+  M.push([]);M.push(['Hinweis: Alle grünen Eingaben in „Annahmen" ändern, das Modell rechnet nach. Die Simulation (P10/P50/P90) im Blatt „Ergebnis" ist ein Schnappschuss aus dem Browser; das Formelmodell nutzt den PERT-Erwartungswert (min + 4·wahrsch. + max)/6.']);
+  const wsM=X.utils.aoa_to_sheet(M);wsM['!cols']=[{wch:44},{wch:30},{wch:18},{wch:18},{wch:18},{wch:18}];X.utils.book_append_sheet(wb,wsM,'Modell');
+  /* --- Ergebnis (Simulation) --- */
+  const R=[['Posten',...OPTS.map(o=>o.name)]];CATS.forEach(([k,l])=>R.push([l+' (P50)',...OPTS.map(o=>Math.round(sim[o.key].cats[k]))]));
+  R.push(['Gesamt P50',...OPTS.map(o=>Math.round(sim[o.key].p50))],['Gesamt P10',...OPTS.map(o=>Math.round(sim[o.key].p10))],['Gesamt P90',...OPTS.map(o=>Math.round(sim[o.key].p90))],['Invest Jahr 0',...OPTS.map(o=>Math.round(sim[o.key].invest))],['Laufend je Jahr',...OPTS.map(o=>Math.round(sim[o.key].yearly))],[perLabel(),...OPTS.map(o=>Math.round(sim[o.key].p50/perDiv))],['Erster Standard-Report (h)',...OPTS.map(o=>Math.round(sim[o.key].firstReportH))],['Jeder weitere Report (h)',...OPTS.map(o=>+sim[o.key].nextReportH.toFixed(1))],['Anforderungs-Score %',...OPTS.map(o=>ev[o.key].scorePct)],['K.O.',...OPTS.map(o=>ev[o.key].ko.join(' | '))],['Warnungen',...OPTS.map(o=>ev[o.key].warn.join(' | '))]);
+  R.push([],['Mengengerüst'],['Ersteller',S.creators],['Viewer',S.viewers],['Reports',S.reports],['Charts je Report',S.cpr],['Chart-Typen',S.types],['Horizont (Jahre)',S.horizon],['Aktive Governance-Schalter',FLAGS.filter(f=>S.flags[f.id]).map(f=>f.label).join('; ')||'keine']);
+  const wsR=X.utils.aoa_to_sheet(R);wsR['!cols']=[{wch:34},{wch:22},{wch:22},{wch:22},{wch:22}];X.utils.book_append_sheet(wb,wsR,'Ergebnis');
+  /* --- Anforderungen --- */
+  const Q=[['Anforderung','Erläuterung','Priorität',...OPTS.map(o=>o.name+' (1–5)')]];allReqs().forEach(r=>Q.push([r.name,r.sub,PRIO[S.prio[r.id]],...OPTS.map(o=>capOf(r,o.key))]));Q.push([],['Skala: 1 nicht möglich · 2 nur Workaround · 3 eingeschränkt · 4 gut · 5 sehr gut. Must + 1 = K.O.']);
+  const wsQ=X.utils.aoa_to_sheet(Q);wsQ['!cols']=[{wch:40},{wch:44},{wch:10},{wch:18},{wch:18},{wch:18},{wch:18}];X.utils.book_append_sheet(wb,wsQ,'Anforderungen');
+  /* --- Break-even --- */
+  const B=[['Viewer',...OPTS.map(o=>o.name+' gesamt (EW)')]];const vmax=Math.max(Math.ceil(S.viewers*3/50)*50,200);const saveV=S.viewers;for(let i=0;i<=20;i++){const v=Math.round(vmax*i/20);S.viewers=v;B.push([v,...OPTS.map(o=>Math.round(expected(o.key).total))]);}S.viewers=saveV;
+  const wsB=X.utils.aoa_to_sheet(B);X.utils.book_append_sheet(wb,wsB,'Break-even');
+  /* --- Quellen --- */
+  const Sx=[['Quelle','Inhalt','URL','Status']];SOURCES.forEach(([n,w,u,st])=>Sx.push([n,w,u,{V:'verifiziert',S:'Snippet',F:'Faustregel',E:'Expertenschätzung'}[st]]));
+  const wsS=X.utils.aoa_to_sheet(Sx);wsS['!cols']=[{wch:44},{wch:50},{wch:60},{wch:14}];X.utils.book_append_sheet(wb,wsS,'Quellen');
+  X.writeFile(wb,'visual-standards-rechner.xlsx');toast('Excel-Modell exportiert: Blatt „Annahmen" ändern, „Modell" rechnet nach.');
 }
 
 /* ===================== Share-Link ===================== */
-function writeHash(){try{const st={c:S.creators,v:S.viewers,r:S.reports,q:S.cpr,t:S.types,h:S.horizon,w:S.weight,pe:S.per,pr:S.prio,f:S.flags,g:S.g,p:S.p};const enc=btoa(unescape(encodeURIComponent(JSON.stringify(st))));history.replaceState(null,'','#s='+enc);}catch(e){}}
+function writeHash(){try{const st={c:S.creators,v:S.viewers,r:S.reports,q:S.cpr,t:S.types,h:S.horizon,w:S.weight,pe:S.per,vw:S.view,pr:S.prio,cp:S.cap,cu:S.custom,f:S.flags,g:S.g,p:S.p};const enc=btoa(unescape(encodeURIComponent(JSON.stringify(st))));history.replaceState(null,'','#s='+enc);}catch(e){}}
 function readHash(){try{const m=location.hash.match(/#s=(.+)/);if(!m)return false;const st=JSON.parse(decodeURIComponent(escape(atob(m[1]))));
   S.creators=+st.c||S.creators;S.viewers=+st.v||0;S.reports=+st.r||S.reports;S.cpr=+st.q||S.cpr;S.types=+st.t||S.types;S.horizon=[3,5,10].includes(+st.h)?+st.h:5;S.weight=isFinite(+st.w)?+st.w:100;S.per=st.pe==='user'?'user':'viewer';
-  if(st.pr)REQS.forEach(r=>{if(PRIO[st.pr[r.id]])S.prio[r.id]=st.pr[r.id];});if(st.f)FLAGS.forEach(f=>S.flags[f.id]=!!st.f[f.id]);
+  S.view=st.vw==='per'?'per':'abs';
+  if(Array.isArray(st.cu))S.custom=st.cu.filter(r=>r&&typeof r.name==='string').slice(0,20).map(r=>({id:String(r.id),name:String(r.name).slice(0,80),sub:String(r.sub||'').slice(0,120),cap:[3,3,3,3],custom:true}));
+  const ok4=t=>Array.isArray(t)&&t.length===4&&t.every(x=>isFinite(+x));
+  if(st.cp)allReqs().forEach(r=>{if(ok4(st.cp[r.id]))S.cap[r.id]=st.cp[r.id].map(x=>Math.min(5,Math.max(1,Math.round(+x))));});
+  if(st.pr)allReqs().forEach(r=>{if(PRIO[st.pr[r.id]])S.prio[r.id]=st.pr[r.id];else if(!S.prio[r.id])S.prio[r.id]='S';});if(st.f)FLAGS.forEach(f=>S.flags[f.id]=!!st.f[f.id]);
   const ok3=t=>Array.isArray(t)&&t.length===3&&t.every(x=>isFinite(+x));
   if(st.g)GLOBAL.forEach(p=>{if(ok3(st.g[p.id]))S.g[p.id]=st.g[p.id].map(Number);});
   if(st.p)OPTS.forEach(o=>OPTP.forEach(p=>{if(S.p[o.key][p.id]&&st.p[o.key]&&ok3(st.p[o.key][p.id]))S.p[o.key][p.id]=st.p[o.key][p.id].map(Number);}));return true;}catch(e){return false;}}
@@ -768,6 +867,10 @@ function bind(){
   ['creators','viewers','reports','cpr','types'].forEach(id=>document.getElementById(id).addEventListener('input',e=>{S[id]=+e.target.value;update();}));
   document.querySelectorAll('#horizon-seg button').forEach(b=>b.addEventListener('click',()=>{S.horizon=+b.dataset.h;update();}));
   document.querySelectorAll('#per-seg button').forEach(b=>b.addEventListener('click',()=>{S.per=b.dataset.per;update();}));
+  document.querySelectorAll('#view-seg button').forEach(b=>b.addEventListener('click',()=>{S.view=b.dataset.view;update();}));
+  document.getElementById('btn-add-req').addEventListener('click',addCustomReq);
+  document.getElementById('btn-reset-caps').addEventListener('click',resetCaps);
+  document.getElementById('btn-xlsx').addEventListener('click',exportXlsx);
   document.getElementById('weight').addEventListener('input',e=>{S.weight=+e.target.value;update();});
   document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{const p=PRESETS[b.dataset.preset];Object.assign(S,{creators:p.creators,viewers:p.viewers,reports:p.reports,cpr:p.cpr,types:p.types});FLAGS.forEach(f=>S.flags[f.id]=!!(p.flags&&p.flags[f.id]));document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('active',x===b));renderFlags();update();toast('Preset geladen: '+b.textContent.trim());}));
   document.querySelectorAll('[data-lic]').forEach(b=>b.addEventListener('click',()=>{S.p.paid.lic=LIC[b.dataset.lic].slice();document.querySelectorAll('[data-lic]').forEach(x=>x.classList.toggle('active',x===b));renderParams();update();toast('Lizenz-Indikation gesetzt: '+b.textContent.trim());}));
