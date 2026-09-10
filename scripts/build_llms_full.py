@@ -34,6 +34,7 @@ DOCS = [
     ("whitepaper-ki-entwicklung-roi.md", "whitepaper-ki-entwicklung-roi.md"),
     ("md/pdoom-ki-risiko.md", "md/pdoom-ki-risiko.md"),
     ("md/ki-co2-simulator.md", "md/ki-co2-simulator.md"),
+    ("md/visual-standards-rechner.md", "md/visual-standards-rechner.md"),
     ("md/laender-indikatoren-explorer.md", "md/laender-indikatoren-explorer.md"),
     ("md/zugfahrten-europa.md", "md/zugfahrten-europa.md"),
     ("md/waermestreifen-3d.md", "md/waermestreifen-3d.md"),

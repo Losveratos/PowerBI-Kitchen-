@@ -1,0 +1,46 @@
+{"experts":[
+{"id":"E01","profile":"Freelance-Power-BI-Consultant, DACH-Mittelstand, Zebra BI + Core Visuals","years":9,"estimates":{
+"firstH":{"paid":[1.5,2.5,4],"oss":[3,5,8],"deneb":[8,14,22],"core":[6,10,16]},
+"reuseH":{"paid":[0.4,0.75,1.25],"oss":[0.75,1.5,2.5],"deneb":[1.5,3,5],"core":[1,2,3.5]},
+"setupH":{"paid":[4,7,12],"oss":[3,6,10],"deneb":[8,14,22],"core":[2,4,7]},
+"trainH":{"paid":[3,5,8],"oss":[5,8,14],"deneb":[20,32,50],"core":[10,18,28]},
+"lightH":{"paid":[0.5,1,2],"oss":[1,2,3.5],"deneb":[1.5,3,5],"core":[1,2,3]},
+"maint":{"paid":[5,9,15],"oss":[15,25,38],"deneb":[12,20,30],"core":[20,32,48]},
+"events":{"paid":[0.2,0.5,1],"oss":[1,2,3.5],"deneb":[0.5,1,2],"core":[1.5,3,5]},
+"fixH":{"paid":[1,2,4],"oss":[2,4,7],"deneb":[2,4,8],"core":[3,6,12]},
+"supH100":{"paid":[2,4,7],"oss":[3,6,10],"deneb":[3,6,10],"core":[5,10,18]}
+},"note":"Zebra-BI- und Core-Routine aus 30+ Reports drückt diese Zahlen, Deneb-Unerfahrenheit treibt dort Aufwand und Unsicherheit hoch."},
+{"id":"E02","profile":"Senior Consultant BI-Beratung, Deneb-Spezialistin, Konzernkunden","years":7,"estimates":{
+"firstH":{"paid":[3,5,8],"oss":[4,7,11],"deneb":[3,5,8],"core":[10,16,26]},
+"reuseH":{"paid":[0.75,1.25,2],"oss":[1,1.75,3],"deneb":[0.5,1,1.75],"core":[2,3.5,5.5]},
+"setupH":{"paid":[8,14,22],"oss":[6,10,16],"deneb":[4,8,14],"core":[3,6,10]},
+"trainH":{"paid":[5,9,14],"oss":[8,13,20],"deneb":[8,14,22],"core":[16,26,40]},
+"lightH":{"paid":[0.5,1.5,2.5],"oss":[1,2,3],"deneb":[1,2,3],"core":[1.5,3,4.5]},
+"maint":{"paid":[4,8,13],"oss":[14,22,34],"deneb":[8,15,24],"core":[22,35,50]},
+"events":{"paid":[0.2,0.5,1],"oss":[1,2,3],"deneb":[0.3,0.8,1.5],"core":[2,3.5,6]},
+"fixH":{"paid":[1,2,4],"oss":[2,4,6],"deneb":[1.5,3,6],"core":[4,7,14]},
+"supH100":{"paid":[2,4,6],"oss":[3,6,9],"deneb":[2,4,7],"core":[6,11,18]}
+},"note":"Die eigene Vega-Lite-Bibliothek drückt Deneb-Zahlen deutlich nach unten, Konzern-Governance treibt Paid-Setup nach oben."},
+{"id":"E03","profile":"IBCS-zertifizierter Berater, Zebra BI/graphomate/Inforiver, misstraut Workarounds","years":15,"estimates":{
+"firstH":{"paid":[3,5,7],"oss":[6,10,16],"deneb":[7,12,18],"core":[12,20,32]},
+"reuseH":{"paid":[0.5,1,1.5],"oss":[1,2,3.5],"deneb":[1.5,2.5,4],"core":[2,4,6]},
+"setupH":{"paid":[6,10,16],"oss":[5,9,15],"deneb":[7,12,18],"core":[3,5,9]},
+"trainH":{"paid":[4,7,10],"oss":[8,14,22],"deneb":[14,22,34],"core":[18,28,42]},
+"lightH":{"paid":[0.5,1,1.5],"oss":[1.5,2.5,4],"deneb":[1.5,2.5,4],"core":[2,3.5,5]},
+"maint":{"paid":[4,7,11],"oss":[18,28,42],"deneb":[10,18,28],"core":[28,42,60]},
+"events":{"paid":[0.1,0.4,0.8],"oss":[1.5,2.5,4],"deneb":[0.5,1,2],"core":[2.5,4.5,7]},
+"fixH":{"paid":[1,2,3],"oss":[2,5,8],"deneb":[2,4,7],"core":[5,9,16]},
+"supH100":{"paid":[1.5,3,5],"oss":[4,7,11],"deneb":[3,6,9],"core":[8,14,22]}
+},"note":"15 Jahre IBCS-Praxis heißt eingeschwungene Paid-Tools, aber Core-Workarounds werden konsequent mit Wartungs- und Risikoaufschlag bewertet."},
+{"id":"E04","profile":"Power-BI-Trainer, Core Visuals + Deneb, 200+ Teilnehmende","years":6,"estimates":{
+"firstH":{"paid":[3,6,10],"oss":[4,7,12],"deneb":[6,10,16],"core":[7,12,20]},
+"reuseH":{"paid":[0.75,1.5,2.5],"oss":[1,1.75,3],"deneb":[1,2,3.5],"core":[1.5,2.75,4.5]},
+"setupH":{"paid":[6,11,18],"oss":[4,7,12],"deneb":[6,10,16],"core":[2,4,7]},
+"trainH":{"paid":[5,8,13],"oss":[7,11,17],"deneb":[12,20,30],"core":[10,16,25]},
+"lightH":{"paid":[0.5,1,1.5],"oss":[0.75,1.5,2.25],"deneb":[1,2,3],"core":[1,1.75,2.75]},
+"maint":{"paid":[5,9,14],"oss":[15,24,36],"deneb":[10,17,26],"core":[18,28,42]},
+"events":{"paid":[0.2,0.5,1],"oss":[1,2,3.5],"deneb":[0.5,1,1.75],"core":[1.5,3,4.5]},
+"fixH":{"paid":[1,2,3.5],"oss":[2,4,6],"deneb":[2,3.5,6],"core":[3,5.5,10]},
+"supH100":{"paid":[2,4,6.5],"oss":[3,5.5,9],"deneb":[2.5,5,8],"core":[4,8,13]}
+},"note":"Aus 200+ Trainings-Teilnehmenden weiß ich: lightH für Deneb ist die kritische Stellschraube, Core-Visuals sind für Fachbereiche fehleranfälliger als gedacht."}
+]}

@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visual-Standards-Rechner · Core vs. Deneb vs. 3rd-Party</title>
+<meta name="description" content="Indikations-Rechner: Was kostet die Umsetzung visueller Standards in Power BI mit Core Visuals, Deneb, 3rd-Party paid oder Open Source? Mit K.O.-Kriterien, Bandbreiten und versteckten Kosten.">
+<meta property="og:title" content="Visual-Standards-Rechner für Power BI">
+<meta property="og:description" content="Core Visuals, Deneb, 3rd-Party paid oder Open Source? Kosten über 3/5/10 Jahre, je Viewer, mit K.O.-Kriterien und Unsicherheitsband.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/visual-standards-rechner.html">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/visual-standards-rechner.html">
+<link rel="alternate" type="text/markdown" title="Markdown" href="md/visual-standards-rechner.md">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%96%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#F1EEE5; --paper-2:#E7E2D4; --ink:#23261F; --ink-soft:#5B5D52;
+  --panel:#1B2027; --panel-2:#242B33; --line:#D8D2C0; --line-dark:#38414C;
+  --accent:#3E9C8F; --accent-soft:#AFDBD3; --accent-text:#276559;
+  --warn:#C4573A; --warn-soft:#F4DCD4; --ok:#6FA96B; --radius:10px;
+  --o-paid:#eb6834; --o-oss:#1baf7a; --o-deneb:#2a78d6; --o-core:#eda100;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace; --sans:'Inter',system-ui,sans-serif; --head:'Space Grotesk','Inter',sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--sans);}
+.wrap{max-width:1180px;margin:0 auto;padding:36px 24px 80px;}
+.sticky-bar{position:fixed;top:0;left:0;right:0;background:var(--panel);color:var(--paper);padding:10px 24px;display:flex;justify-content:center;align-items:baseline;gap:14px;font-family:var(--mono);font-size:12.5px;z-index:80;transform:translateY(-100%);transition:transform .25s ease;box-shadow:0 4px 14px rgba(0,0,0,.18);flex-wrap:wrap;}
+.sticky-bar.show{transform:translateY(0);}
+.sticky-bar .sv{font-size:15px;font-weight:600;color:var(--accent-soft);}
+.sticky-bar .s2{font-size:12px;font-weight:400;color:#C7CDD3;}
+.sticky-bar a{color:#F0C892;text-decoration:none;font-size:12px;margin-left:6px;}
+.section{scroll-margin-top:52px;}
+:where(a,button,input,select,summary,[tabindex]):focus-visible{outline:3px solid var(--accent-text);outline-offset:2px;border-radius:4px;}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+html{scroll-behavior:smooth;}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+.back-link{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);text-decoration:none;padding:6px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:22px;}
+.back-link:hover{color:var(--accent);border-color:var(--accent);background:var(--paper-2);}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);}
+h1{font-family:var(--head);font-size:32px;line-height:1.15;margin:6px 0 8px;letter-spacing:-.01em;}
+.sub{font-size:14.5px;color:var(--ink-soft);max-width:720px;line-height:1.55;margin-bottom:18px;}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+.btn{font-family:var(--mono);font-size:12px;padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--ink);display:inline-flex;align-items:center;gap:6px;}
+.btn:hover{background:var(--paper-2);}
+.btn.dark{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.btn.dark:hover{background:#000;}
+.toast{font-family:var(--mono);font-size:11.5px;color:var(--accent-text);min-height:16px;margin-bottom:10px;}
+
+.stepper{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:18px 0 26px;}
+@media(max-width:760px){.stepper{grid-template-columns:1fr 1fr;}}
+.step-chip{display:flex;gap:10px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;text-decoration:none;color:var(--ink);font-size:12.5px;}
+.step-chip:hover{border-color:var(--accent);}
+.step-chip .n{font-family:var(--mono);font-weight:600;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--paper);display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex:0 0 auto;}
+.step-chip .t{line-height:1.3;}
+.step-chip small{display:block;color:var(--ink-soft);font-size:11px;}
+
+.section{margin-top:30px;}
+.section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px;}
+.section-head .n{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-text);}
+.section-title{font-family:var(--head);font-size:20px;margin:0;}
+.section-sub{font-size:13px;color:var(--ink-soft);margin:0 0 14px;line-height:1.55;max-width:820px;}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:16px;}
+.card h3{font-family:var(--head);font-size:15px;margin:0 0 4px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.card .hint{font-size:12px;color:var(--ink-soft);margin:0 0 14px;line-height:1.5;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr;}}
+@media(max-width:1280px){.grid2.charts{grid-template-columns:1fr;}}
+.be-neg{display:block;margin-top:6px;}
+.opt-card details summary{cursor:pointer;font-family:var(--mono);font-size:11px;color:var(--accent-text);margin:8px 0 4px;}
+.gloss{margin:0 0 14px;font-size:12px;color:var(--ink-soft);}
+.gloss summary{cursor:pointer;font-family:var(--mono);font-size:11px;color:var(--accent-text);}
+.gloss dl{margin:8px 0 0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;}
+.gloss dt{font-weight:600;color:var(--ink);}
+.srcbar{display:inline-flex;gap:4px;align-items:center;font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-left:8px;}
+.srcbar i{display:inline-block;height:10px;border-radius:2px;}
+.grid2>*,.grid3>*,.opt-cards>*,.kpi-grid>*{min-width:0;}
+.a-row input[type=number]{min-width:0;}
+.preset-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.preset-lbl{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-right:4px;}
+.preset-btn{font-family:var(--mono);font-size:11px;padding:6px 10px;border-radius:20px;border:1px solid var(--line);background:var(--paper-2);cursor:pointer;color:var(--ink);}
+.preset-btn.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.field{margin-bottom:14px;}
+.field label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:500;margin-bottom:5px;gap:8px;}
+.field label .val{font-family:var(--mono);color:var(--accent-text);font-weight:600;}
+.field .sub-hint{font-size:11px;color:var(--ink-soft);margin-top:3px;line-height:1.45;}
+.field label .valin{width:96px;flex:0 0 96px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--accent-text);background:#fff;text-align:right;}
+.hint-btn{font-family:var(--mono);font-size:10.5px;padding:3px 8px;border-radius:12px;border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--accent-text);margin-left:4px;}
+input[type=range]{width:100%;accent-color:var(--accent);height:4px;}
+input[type=number],input[type=text]{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font-family:var(--mono);font-size:13px;background:var(--paper-2);color:var(--ink);}
+select{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:6px;font-family:var(--sans);font-size:13px;background:var(--paper-2);color:var(--ink);}
+input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+.seg button{font-family:var(--mono);font-size:12px;padding:8px 13px;border:none;background:#fff;cursor:pointer;color:var(--ink-soft);}
+.seg button.active{background:var(--ink);color:var(--paper);}
+.check-list{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;}
+@media(max-width:640px){.check-list{grid-template-columns:1fr;}}
+.check-item{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.4;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);}
+.check-item input{margin-top:2px;flex:0 0 auto;}
+.check-item small{display:block;color:var(--ink-soft);font-size:11px;}
+.check-item.flag{border-color:#E8C1B4;background:#FBF3EF;}
+
+/* MoSCoW table */
+.req-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.req-table th{text-align:left;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);padding:8px 6px;border-bottom:1px solid var(--line);}
+.req-table td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle;}
+.req-table tr:last-child td{border-bottom:none;}
+.req-table td.name{font-weight:500;line-height:1.35;}
+.req-table td.name small{display:block;color:var(--ink-soft);font-weight:400;font-size:11px;}
+.prio{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+.prio button{font-family:var(--mono);font-size:11px;min-width:28px;min-height:28px;padding:4px 6px;border:none;background:#fff;cursor:pointer;color:var(--ink-soft);}
+.prio button.active{background:var(--ink);color:var(--paper);}
+.prio button.active.m{background:var(--warn);}
+.cap{display:inline-flex;gap:2px;align-items:center;}
+.cap button{width:14px;height:14px;padding:5px;margin:-5px 0;box-sizing:content-box;border:none;background:var(--paper-2);background-clip:content-box;border-radius:2px;cursor:pointer;display:inline-block;}
+.cap button.on{background-color:var(--capc);}
+.cap button:hover{outline:1px solid var(--ink);outline-offset:-5px;}
+.cap.edited{outline:1px dotted var(--ink-soft);outline-offset:3px;border-radius:3px;}
+.rm-req{border:none;background:transparent;color:var(--ink-soft);cursor:pointer;font-size:11px;padding:0 4px;}
+.rm-req:hover{color:var(--warn);}
+.cap.ko button{background-color:#F4DCD4;}
+.cap-lbl{font-family:var(--mono);font-size:10px;color:var(--ink-soft);margin-left:4px;}
+.req-scroll{overflow-x:auto;}
+.req-table th.opt{color:var(--capc);}
+
+/* assumptions */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.tab{font-family:var(--mono);font-size:11.5px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper-2);cursor:pointer;color:var(--ink);display:inline-flex;align-items:center;gap:6px;}
+.tab i{width:10px;height:10px;border-radius:2px;display:inline-block;}
+.tab.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.a-row{display:grid;grid-template-columns:1.6fr 70px 70px 70px 34px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);}
+.a-row:last-child{border-bottom:none;}
+.a-row.head{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);}
+.a-row .lbl{font-size:12.5px;line-height:1.35;}
+.a-row .lbl small{display:block;color:var(--ink-soft);font-size:11px;}
+.a-row input[type=number]{padding:5px 6px;font-size:12px;text-align:right;}
+.a-row input.bad{border-color:var(--warn);background:var(--warn-soft);}
+.badge{font-family:var(--mono);font-size:10px;font-weight:600;width:24px;height:22px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);cursor:help;}
+.badge.V{background:#DCEFEB;color:var(--accent-text);}
+.badge.S{background:#FBE9D4;color:#8C5518;}
+.badge.F{background:var(--paper-2);color:var(--ink-soft);}
+.badge.E{background:#E3E7F7;color:#3A4D8F;}
+.badge.N{background:#FFF3C4;color:#7A5A00;border-color:#E6C85C;}
+.badge-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--ink-soft);margin-top:10px;}
+.badge-legend span{display:inline-flex;align-items:center;gap:5px;}
+@media(max-width:640px){.a-row{grid-template-columns:1fr 56px 56px 56px 26px;gap:5px;} .a-row .badge{width:22px;}}
+
+/* results */
+.result-headline{background:linear-gradient(135deg,var(--panel),var(--panel-2));color:var(--paper);border-left:4px solid var(--accent);border-radius:var(--radius);padding:18px 22px;margin-bottom:18px;font-size:14.5px;line-height:1.65;}
+.result-headline b{color:var(--accent-soft);font-weight:700;}
+.result-headline .rh-warn{color:#F3B8A5;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+@media(max-width:900px){.kpi-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:520px){.kpi-grid{grid-template-columns:1fr;}}
+.kpi{background:#fff;border:1px solid var(--line);border-top:4px solid var(--oc);border-radius:var(--radius);padding:14px 16px 16px;position:relative;}
+.kpi.excluded{background:var(--paper);}
+.kpi.best{box-shadow:0 10px 22px -14px rgba(35,38,31,.35);}
+.kpi .eyebrow{font-size:10px;color:var(--oct,var(--oc));}
+.kpi.excluded{opacity:1;filter:grayscale(.6);border-style:dashed;}
+.kpi .name{font-family:var(--head);font-size:14px;font-weight:600;margin:2px 0 8px;line-height:1.25;}
+.kpi .big{font-family:var(--mono);font-size:22px;font-weight:700;letter-spacing:-.01em;}
+.kpi .big small{font-size:11px;color:var(--ink-soft);font-weight:500;margin-left:4px;}
+.kpi .range{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-top:3px;}
+.kpi .per{font-family:var(--mono);font-size:12px;margin-top:8px;}
+.kpi .per b{color:var(--ink);}
+.kpi .rank{position:absolute;top:10px;right:12px;font-family:var(--mono);font-size:10.5px;padding:3px 8px;border-radius:20px;background:var(--paper-2);color:var(--ink-soft);}
+.kpi.best .rank{background:var(--ink);color:var(--paper);}
+.kpi .ko-note{font-size:11px;color:var(--warn);margin-top:8px;line-height:1.4;}
+.kpi .score{margin-top:8px;font-size:11px;color:var(--ink-soft);}
+.kpi .score .bar{height:5px;border-radius:4px;background:var(--paper-2);margin-top:4px;overflow:hidden;}
+.kpi .score .bar i{display:block;height:100%;background:var(--oc);}
+.divider{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);margin:6px 0 12px;}
+.divider:before,.divider:after{content:'';flex:1;border-top:1px dashed #E8C1B4;}
+.ko-list{background:#FBF3EF;border:1px solid #E8C1B4;border-radius:8px;padding:12px 14px;font-size:12.5px;line-height:1.55;margin-bottom:18px;}
+.ko-list b{color:var(--warn);}
+.ko-list ul{margin:6px 0 0;padding-left:18px;}
+.conflict{background:#2A2118;color:var(--paper);border-radius:8px;padding:12px 14px;font-size:12.5px;line-height:1.55;margin-bottom:18px;border-left:4px solid var(--warn);}
+.conflict b{color:#F3B8A5;}
+
+.chart-card svg{width:100%;max-width:820px;height:auto;display:block;margin:0 auto;font-family:var(--mono);}
+.chart-legend{display:flex;gap:16px;font-size:11.5px;color:var(--ink-soft);margin-top:8px;flex-wrap:wrap;}
+.chart-legend span{display:inline-flex;align-items:center;gap:6px;}
+.chart-legend i{width:12px;height:8px;border-radius:2px;display:inline-block;}
+.insight{font-size:12.5px;color:var(--ink);background:var(--paper-2);border-radius:8px;padding:10px 12px;margin-top:12px;line-height:1.6;}
+.weight-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;}
+@media(max-width:700px){.weight-row{grid-template-columns:1fr;}}
+
+table.res{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;font-size:12.5px;}
+table.res th{text-align:left;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);background:var(--paper-2);padding:9px 10px;}
+table.res td{padding:8px 10px;border-bottom:1px solid var(--line);font-family:var(--mono);text-align:right;}
+table.res td:first-child{font-family:var(--sans);text-align:left;font-weight:500;}
+table.res tr:last-child td{border-bottom:none;}
+table.res tr.total td{font-weight:600;background:#FAF8F1;}
+.tbl-scroll{overflow-x:auto;}
+
+.opt-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:860px){.opt-cards{grid-template-columns:1fr;}}
+.opt-card{background:#fff;border:1px solid var(--line);border-left:4px solid var(--oc);border-radius:var(--radius);padding:16px 18px;}
+.opt-card h4{font-family:var(--head);font-size:14.5px;margin:0 0 2px;}
+.opt-card .ex{font-size:11.5px;color:var(--ink-soft);margin-bottom:10px;}
+.opt-card h5{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin:10px 0 4px;}
+.opt-card ul{margin:0;padding-left:16px;font-size:12px;line-height:1.5;}
+.opt-card .hidden-cost{background:#FBF3EF;border-radius:6px;padding:8px 10px;margin-top:8px;}
+.opt-card .hidden-cost ul{padding-left:14px;}
+
+.appendix-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;font-size:12.5px;}
+.appendix-table th{text-align:left;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);background:var(--paper-2);padding:9px 10px;}
+.appendix-table td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5;}
+.appendix-table tr:last-child td{border-bottom:none;}
+.appendix-table a{color:var(--accent-text);text-decoration:none;border-bottom:1px solid rgba(62,156,143,.35);}
+.appendix-note{font-size:11.5px;color:var(--ink-soft);margin-top:12px;line-height:1.6;background:var(--paper-2);border-left:3px solid var(--accent);border-radius:8px;padding:12px 14px;}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-soft);line-height:1.7;}
+footer b{color:var(--ink);}
+.footer-version{margin-top:8px;font-family:var(--mono);font-size:10.5px;}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+</style>
+</head>
+<body>
+<div class="sticky-bar" id="sticky-bar"><span id="sticky-label">Günstigste zulässige Option</span><span class="sv" id="sticky-value">–</span></div>
+<div class="wrap">
+  <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
+  <div class="eyebrow">Indikations-Rechner · Controlling &amp; Finance · Pre-Conference Daten-WG 2026</div>
+  <h1>Visual-Standards-Rechner: Easy, Flexibel oder MacGyver?</h1>
+  <div class="sub">Was kostet die Umsetzung visueller Standards in Power BI mit <b>3rd-Party-Visuals</b>, <b>Open Source</b>, <b>Deneb</b> oder <b>Core Visuals</b>? Der Rechner führt in fünf Schritten durch Mengengerüst, Anforderungen, K.O.-Kriterien und Annahmen. Er liefert eine <b>Indikation</b> mit Bandbreiten, keine Preisauskunft: Alle Annahmen sind editierbar und mit ihrer Quellenlage markiert.</div>
+
+  <div class="toolbar">
+    <button class="btn" id="btn-reset">↺ Auf Standard zurücksetzen</button>
+    <button class="btn dark" id="btn-share">🔗 Link mit Einstellungen kopieren</button>
+    <button class="btn dark" id="btn-xlsx">📊 Excel-Modell exportieren</button>
+    <button class="btn" id="btn-print">🖨 Drucken / PDF</button>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <nav class="stepper" aria-label="Schritte">
+    <a class="step-chip" href="#s1" data-goto="s1"><span class="n">1</span><span class="t">Mengengerüst<small>Ersteller, Viewer, Reports</small></span></a>
+    <a class="step-chip" href="#s2" data-goto="s2"><span class="n">2</span><span class="t">Anforderungen<small>Must · Should · Could</small></span></a>
+    <a class="step-chip" href="#s3" data-goto="s3"><span class="n">3</span><span class="t">Red Flags<small>Governance-Schalter</small></span></a>
+    <a class="step-chip" href="#s4" data-goto="s4"><span class="n">4</span><span class="t">Annahmen<small>Presets mit Bandbreiten</small></span></a>
+    <a class="step-chip" href="#s5" data-goto="s5"><span class="n">5</span><span class="t">Ergebnis<small>Kosten, K.O., Einschätzung</small></span></a>
+  </nav>
+
+  <!-- ========== STEP 1 ========== -->
+  <section class="section" id="s1">
+    <div class="section-head"><span class="n">Schritt 1</span><h2 class="section-title">Mengengerüst</h2></div>
+    <p class="section-sub">Wer baut, wer liest, wie viel wird gebaut? Paid Visuals skalieren mit den <b>Viewern</b>, alle anderen Ansätze mit <b>Chart-Typen und Erstellern</b>. Dieses Verhältnis entscheidet mehr als jeder Listenpreis.</p>
+    <div class="card">
+      <div class="preset-row"><span class="preset-lbl">Presets:</span>
+        <button class="preset-btn" data-preset="pilot">Pilot · 1 Ersteller / 10 Viewer</button>
+        <button class="preset-btn" data-preset="mittelstand">Mittelstand · 3 / 40</button>
+        <button class="preset-btn" data-preset="konzern">Konzern · 25 / 1.500</button>
+        <button class="preset-btn" data-preset="rs">Konzern mit Report Server · 15 / 400</button>
+        <button class="preset-btn" data-preset="gross">Großkonzern · 200 / 10.000</button>
+      </div>
+      <div class="grid3">
+        <div>
+          <div class="field"><label><span>Ersteller (Report-Autoren)</span><input type="number" class="valin" id="n-creators" min="1" max="100000" aria-label="Ersteller"></label><input type="range" id="creators" min="1" max="500" value="3"><div class="sub-hint">Personen, die Reports mit den Standard-Visuals bauen und warten.</div></div>
+          <div class="field"><label><span>Viewer (Nutzer, die Reports lesen)</span><input type="number" class="valin" id="n-viewers" min="0" max="10000000" aria-label="Viewer"></label><input type="range" id="viewers" min="0" max="20000" step="50" value="40"><div class="sub-hint">Microsoft-Szenario: rund 9 Viewer je Ersteller. Bei Paid Visuals braucht jeder Viewer eine Lizenz.</div></div>
+        </div>
+        <div>
+          <div class="field"><label><span>Standard-Reports</span><input type="number" class="valin" id="n-reports" min="1" max="100000" aria-label="Standard-Reports"></label><input type="range" id="reports" min="1" max="1000" value="6"><div class="sub-hint" id="reports-hint">Reports, die nach dem Standard gebaut werden (Übersicht, Analyse, Detail).</div></div>
+          <div class="field"><label><span>Charts je Report</span><input type="number" class="valin" id="n-cpr" min="1" max="200" aria-label="Charts je Report"></label><input type="range" id="cpr" min="1" max="20" value="6"></div>
+        </div>
+        <div>
+          <div class="field"><label><span>Chart-Typen im Baukasten</span><input type="number" class="valin" id="n-types" min="1" max="50" aria-label="Chart-Typen"></label><input type="range" id="types" min="1" max="12" value="5"><div class="sub-hint">Abweichungsdiagramm, Wasserfall, Tabelle mit Δ-Spalten, KPI-Karte, Zeitreihe AC/PY/PL/FC.</div></div>
+          <div class="field"><label><span>Betrachtungshorizont</span></label>
+            <div class="seg" id="horizon-seg"><button data-h="3">3 Jahre</button><button data-h="5" class="active">5 Jahre</button><button data-h="10">10 Jahre</button></div>
+            <div class="sub-hint">Forrester rechnet 3 Jahre, Gartner-TCO 5. Zehn Jahre zeigen, wie Lizenz und Wartung den Invest überholen.</div></div>
+        </div>
+      </div>
+      <div class="grid3" style="margin-top:6px;padding-top:14px;border-top:1px solid var(--line)">
+        <div class="field"><label><span>Betriebsmodell</span></label>
+          <div class="seg" id="mode-seg"><button data-mode="ent">Enterprise BI</button><button data-mode="man" class="active">Managed Self-Service</button><button data-mode="ss">Self-Service</button></div>
+          <label style="margin-top:8px"><span>Self-Service-Anteil der Ersteller (Hybrid)</span><span class="val" id="v-ss"></span></label><input type="range" id="ss" min="0" max="100" step="5" value="25" aria-label="Self-Service-Anteil">
+          <div class="sub-hint" id="mode-hint">Wer darf Standard-Reports bauen? Das Betriebsmodell verschiebt oft mehr Kosten als die Werkzeugwahl: Es bestimmt, wie viele Ersteller tief geschult werden, wie viele Chart-Varianten entstehen und wie viel Governance nötig ist.</div></div>
+        <div class="field"><label><span>Heutiger Ansatz (Bestand)</span></label>
+          <select id="baseline"><option value="none">Grüne Wiese, kein Bestand</option><option value="paid">3rd-Party paid im Einsatz</option><option value="oss">Open Source im Einsatz</option><option value="deneb">Deneb im Einsatz</option><option value="core">Core Visuals im Einsatz</option></select>
+          <div class="sub-hint">Bleibt der heutige Ansatz, kostet der Wechsel 0 €. Jeder andere Ansatz trägt den Nachbau des Bestands.</div></div>
+        <div class="field"><label><span>Bestands-Reports, die migriert werden müssten</span><input type="number" class="valin" id="n-existing" min="0" max="100000" aria-label="Bestands-Reports"></label><input type="range" id="existing" min="0" max="1000" value="0"><div class="sub-hint">Reports auf dem heutigen Ansatz, die beim Wechsel neu gebaut werden.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== STEP 2 ========== -->
+  <section class="section" id="s2">
+    <div class="section-head"><span class="n">Schritt 2</span><h2 class="section-title">Anforderungen bewerten</h2></div>
+    <p class="section-sub">Priorisiert nach MoSCoW. Die Kästchen zeigen auf einer 5er-Skala, wie gut jeder Ansatz die Anforderung erfüllt. <b>Must + 1 = K.O.</b>, Must + 2 = nur per Workaround. Should und Could fließen in den Anforderungs-Score ein. <b>Klick auf ein Kästchen überschreibt die Bewertung</b> mit eurer eigenen Einschätzung.</p>
+    <div class="card">
+      <h3>Anforderungen und Erfüllungsgrad <span><button class="btn" id="btn-add-req" style="padding:6px 10px;font-size:11px">＋ Eigene Anforderung</button> <button class="btn" id="btn-reset-caps" style="padding:6px 10px;font-size:11px">↺ Bewertung zurücksetzen</button></span></h3>
+      <div class="req-scroll"><table class="req-table" id="req-table"></table></div>
+      <div class="badge-legend"><span>1 = nicht möglich · 2 = nur Workaround · 3 = eingeschränkt · 4 = gut · 5 = sehr gut</span><span>Voreinstellung: Daten-WG-Einschätzung, Stand 09/2026. Eigene Bewertungen sind gepunktet umrandet und im Share-Link enthalten.</span></div>
+    </div>
+  </section>
+
+  <!-- ========== STEP 3 ========== -->
+  <section class="section" id="s3">
+    <div class="section-head"><span class="n">Schritt 3</span><h2 class="section-title">Red Flags und Governance-Schalter</h2></div>
+    <p class="section-sub">Harte Rahmenbedingungen aus Tenant, IT-Security oder Einkauf. Sie wirken als K.O.-Filter vor dem Rechnen. Ausgeschlossene Optionen bleiben im Ergebnis sichtbar, unter dem Strich und mit Begründung.</p>
+    <div class="card">
+      <div class="check-list" id="flag-list"></div>
+    </div>
+  </section>
+
+  <!-- ========== STEP 4 ========== -->
+  <section class="section" id="s4">
+    <div class="section-head"><span class="n">Schritt 4</span><h2 class="section-title">Annahmen mit Bandbreiten</h2></div>
+    <p class="section-sub">Jede Annahme als Dreipunkt-Schätzung (min · wahrscheinlich · max). Das Ergebnis wird daraus per PERT-Verteilung und 1.500 Simulationsläufen als P10 / P50 / P90 berechnet. <b>Die Felder sind vorbelegt und müssen nicht angefasst werden.</b> Wenn ihr nur zwei Zahlen ändert, dann den Stundensatz intern und die Stunden je Chart-Typ. Quellenlage aller Annahmen: <span id="srcbar" class="srcbar"></span></p>
+    <div class="grid2">
+      <div class="card">
+        <h3>Globale Annahmen</h3>
+        <p class="hint">Gelten für alle vier Ansätze.</p>
+        <div id="global-params"></div>
+      </div>
+      <div class="card">
+        <h3>Annahmen je Ansatz</h3>
+        <div class="preset-row"><span class="preset-lbl">Lizenz-Indikation:</span>
+          <button class="preset-btn" data-lic="inforiver">Inforiver · ~30 €/User/Jahr</button>
+          <button class="preset-btn" data-lic="zebra">Zebra BI · ~270 €/User/Jahr</button>
+          <button class="preset-btn" data-lic="enterprise">Enterprise-Verhandlung · ~80 €</button>
+        </div>
+        <div class="tabs" id="opt-tabs"></div>
+        <div id="opt-params"></div>
+      </div>
+    </div>
+    <div class="badge-legend" style="margin-top:-6px;margin-bottom:8px">
+      <span><span class="badge V">V</span>verifiziert (Microsoft Learn, GitHub, Hersteller)</span>
+      <span><span class="badge S">S</span>Such-Snippet der Primärquelle, nicht direkt geprüft</span>
+      <span><span class="badge F">F</span>Faustregel aus Blogs / Beraterpraxis</span>
+      <span><span class="badge E">E</span>Expertenschätzung Daten-WG, keine Literaturquelle</span>
+      <span><span class="badge N">N</span>eigene Annahme (von euch geändert, Ursprung im Tooltip)</span>
+    </div>
+  </section>
+
+  <!-- ========== STEP 5 ========== -->
+  <section class="section" id="s5">
+    <div class="section-head"><span class="n">Schritt 5</span><h2 class="section-title">Ergebnis und Einschätzung</h2></div>
+    <p class="section-sub">Gesamtkosten über den Horizont, Kosten je Viewer und Jahr, Invest gegen laufende Kosten. Die Rangfolge ist eine Indikation unter Unsicherheit der Eingaben.</p>
+    <details class="gloss"><summary>Begriffe kurz erklärt</summary><dl><dt>P10 / P50 / P90</dt><dd>In 10 %, 50 % bzw. 90 % der 1.500 Simulationsläufe lagen die Kosten unter diesem Wert. P50 ist die „mittlere“ Zahl, P10 bis P90 die Spanne, mit der ihr rechnen solltet.</dd><dt>PERT</dt><dd>Dreipunkt-Schätzung (min, wahrscheinlich, max), aus der eine Wahrscheinlichkeitsverteilung gebildet wird. Der Erwartungswert ist (min + 4·wahrscheinlich + max) / 6.</dd><dt>MoSCoW</dt><dd>Must (ohne geht es nicht), Should (wichtig), Could (schön), Won't (diesmal nicht). Must mit Erfüllungsgrad 1 ist ein K.O.</dd><dt>K.O.</dt><dd>Der Ansatz ist ausgeschlossen, bleibt aber mit Kosten sichtbar, damit der Preis der Rahmenbedingung erkennbar ist.</dd><dt>Barwert</dt><dd>Spätere Zahlungen mit dem Kalkulationszins abgezinst. Bei 10 Jahren macht das einen Unterschied, bei 3 kaum.</dd></dl></details>
+
+    <div class="result-headline" id="headline">–</div>
+    <div id="conflict-box"></div>
+    <div class="insight" style="margin:-8px 0 16px;font-size:12px">Diese Bandbreiten entstehen aus den gewählten Modellannahmen. Sie sind keine empirisch abgesicherte Prognose tatsächlicher Projektkosten. Die Rangfolge gilt nur für den beschriebenen Leistungsumfang (Standard-Charts, kein Datenmodell, keine Datenaufbereitung), die betrachteten Produktfamilien und die angezeigten Rahmenbedingungen. Wer die Annahmen ändert, sieht am Badge weiterhin die ursprüngliche Quellenlage.</div>
+
+    <div class="card" style="padding:14px 18px">
+      <div class="weight-row">
+        <div class="field" style="margin:0"><label><span>Rangfolge: Kosten ⟷ Anforderungserfüllung</span><span class="val" id="v-weight"></span></label><input type="range" id="weight" min="0" max="100" value="100"><div class="sub-hint">100 % = reine Kostenrangfolge. Nach links verschieben, um weiche Nutzen (Should/Could-Erfüllung) mitzugewichten. Nutzwertanalyse-Warnung: Gewichte sind subjektiv, deshalb sichtbar und verschiebbar.</div></div>
+        <div class="field" style="margin:0"><label><span>Perspektive der Charts und Kennzahlen</span></label><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="seg" id="view-seg"><button data-view="abs" class="active">absolut</button><button data-view="per">je Nutzer und Jahr</button></div><div class="seg" id="per-seg"><button data-per="viewer" class="active">Viewer</button><button data-per="user">Ersteller + Viewer</button></div></div><div class="sub-hint">„je Nutzer und Jahr“ teilt alle Beträge durch die gewählte Nutzerbasis und den Horizont. Der Break-even zeigt dann, wie stark Aufbaukosten sich mit der Viewer-Zahl verteilen.</div></div>
+      </div>
+    </div>
+
+    <div class="kpi-grid" id="kpi-allowed"></div>
+    <div id="ko-block"></div>
+
+    <div class="grid2 charts">
+      <div class="card chart-card">
+        <h3>Kostenstruktur je Ansatz <span class="eyebrow" id="chart1-h"></span></h3>
+        <p class="hint">Balken = Kategorien (Erwartungswerte), Beschriftung = P50, Strich darunter = P10–P90. Aufbau, Migration und Schulung sind Invest, Lizenz, Wartung und Governance laufen jedes Jahr.</p>
+        <div id="chart-stack"></div>
+        <div class="chart-legend" id="stack-legend"></div>
+      </div>
+      <div class="card chart-card">
+        <h3>Break-even über die Viewer-Zahl</h3>
+        <p class="hint">Referenzrechnung mit mittleren Annahmen in Abhängigkeit von der Viewer-Zahl. Paid steigt mit jeder Lizenz, die anderen mit Support, Nachfrage und Governance-Stufen. Punkte markieren, ab wie vielen Viewern ein Ansatz günstiger als Paid wird.</p>
+        <div id="chart-be"></div>
+        <div class="insight" id="be-insight"></div>
+      </div>
+    </div>
+
+    <div class="grid2 charts">
+      <div class="card chart-card">
+        <h3>Was treibt das Ergebnis? <select id="tornado-opt" style="width:auto;font-size:12px;padding:5px 8px"></select></h3>
+        <p class="hint">Sensitivität: jede Annahme auf ihr Minimum bzw. Maximum gesetzt, alle anderen auf dem Erwartungswert.</p>
+        <div id="chart-tornado"></div>
+      </div>
+      <div class="card chart-card">
+        <h3>Kumulierte Kosten über die Jahre <span class="eyebrow" id="chart4-h"></span></h3>
+        <p class="hint">Jahr 0 = Invest (Aufbau, Schulung, Rollout). Danach Lizenz, Wartung, Support und anteiliges Risiko.</p>
+        <div id="chart-cum"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Kostentabelle <span class="eyebrow">P50 · in €</span></h3>
+      <div class="tbl-scroll"><table class="res" id="res-table"></table></div>
+    </div>
+
+    <div class="section-head" style="margin-top:26px"><span class="n">Einschätzung</span><h2 class="section-title" style="font-size:18px">Vorteile, Nachteile und versteckte Kosten</h2></div>
+    <p class="section-sub">Textbausteine je Ansatz, ergänzt um eure Eingaben. Die versteckten Kosten sind die Posten, die in Lizenzvergleichen meist fehlen.</p>
+    <div class="opt-cards" id="opt-cards"></div>
+    <div class="card" style="margin-top:16px;border-left:4px solid var(--ink-soft)">
+      <h3>Ausblick am Rand: Fabric Apps</h3>
+      <p class="hint" style="margin:0">Seit Mai 2026 in Public Preview (Rayfin SDK und CLI seit Juni 2026): Datenmodelle in TypeScript erzeugen automatisch eine eigene SQL-Datenbank in Fabric plus GraphQL-API, darauf laufen React-Apps mit Copilot-Unterstützung beim Bauen. Es ist kein Reporting-Layer auf dem bestehenden Semantikmodell. Voraussetzung ist eine Fabric-Capacity, abgerechnet wird über Capacity Units. Microsoft positioniert Fabric Apps als Ergänzung zu Reports, nicht als Ersatz. Für visuelle Standards heißt das: ein fünfter Weg mit Entwicklungs- statt Lizenzkosten, der in diesem Rechner noch nicht modelliert ist. Quelle: <a href="https://learn.microsoft.com/fabric/apps/overview" target="_blank" rel="noopener" style="color:var(--accent-text)">Microsoft Learn, Fabric Apps overview</a>.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><span class="n">Anhang</span><h2 class="section-title" style="font-size:18px">Quellen, Annahmen, Methodik</h2></div>
+    <div class="tbl-scroll"><table class="appendix-table" id="sources"></table></div>
+    <div class="appendix-note"><b>Ehrlichkeits-Hinweis:</b> Für „Stunden je Chart“ existiert in Literatur und Blogs keine belastbare Zahl. Die Voreinstellungen für Aufbau, Wiederverwendung, Setup, Schulung, Wartung, Breaking-Updates und Anwender-Support stammen aus einem <b>simulierten Expertenpanel</b> (20 Rollenprofile von Consultant bis Revision, unabhängig per Sprachmodell geschätzt, Median je Wert; Rohdaten im Repository unter sessions/). Das ist eine strukturierte Meinung, keine Messung, und die wichtigste Stellschraube des Modells. Eigene Erfahrungswerte gehören hier hinein. Vendor-Zahlen wie „46 % schneller“ oder „10x“ wurden bewusst nicht als Voreinstellung übernommen, weil sie Lesegeschwindigkeit und Bauzeit vermischen. Preise stammen überwiegend aus Such-Auszügen der Herstellerseiten (Stand 09/2026) und sind vor einer Entscheidung beim Hersteller zu prüfen.</div>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+'use strict';
+/* ===================== Modell-Definitionen ===================== */
+const OPTS=[
+  {key:'paid',name:'3rd-Party paid',short:'Paid',tag:'Easy',ex:'z. B. Zebra BI, Inforiver, graphomate',color:'#eb6834',tcolor:'#A63A16'},
+  {key:'oss',name:'Open Source / Eigenentwicklung',short:'Open Source',tag:'Flexibel · fertig',ex:'z. B. ChartKitchen byDatenWG (Beispiel für Eigenentwicklung, eigenes Projekt der Daten-WG)',color:'#1baf7a',tcolor:'#0E6B4A'},
+  {key:'deneb',name:'Deneb / Vega',short:'Deneb',tag:'Flexibel · Code',ex:'Vega-Lite-Templates, Business Chart Builder, vegaviz',color:'#2a78d6',tcolor:'#1B4F91'},
+  {key:'core',name:'Core Visuals + SVG',short:'Core + SVG',tag:'MacGyver',ex:'Overlapping Bars, DAX-UDF / SVG-Measures in Matrix und Karten',color:'#eda100',tcolor:'#8A5E00'},
+];
+const OK=Object.fromEntries(OPTS.map((o,i)=>[o.key,i]));
+
+/* Anforderungen: Erfüllungsgrad je Option 0..3 (paid, oss, deneb, core) */
+const CAP_LBL={0:'nicht geprüft',1:'nicht möglich',2:'nur Workaround',3:'eingeschränkt',4:'gut',5:'sehr gut'};
+const REQS=[
+  {id:'ibcs',name:'IBCS-konforme Notation',sub:'Szenarien AC/PY/PL/FC, Abweichungen, Skalierung',cap:[5,4,4,2],def:'M',note:{core:'Nur über Workarounds (Overlapping Bars, SVG-Measures)'}},
+  {id:'ibcscert',name:'IBCS-zertifiziertes Visual',sub:'Offizielle Zertifizierung des Software-Produkts',cap:[5,1,1,1],def:'C',note:{oss:'Keines der hier betrachteten kostenlosen Visuals ist IBCS-zertifiziert',deneb:'Deneb ist nicht IBCS-zertifiziert',core:'Core Visuals sind nicht IBCS-zertifiziert'}},
+  {id:'mscert',name:'Microsoft-zertifiziertes Visual',sub:'Export, Abos, Tenant-Freigabe ohne Ausnahme',cap:[5,2,4,5],def:'S',note:{oss:'Je nach Visual; ChartKitchen aktuell nicht zertifiziert',deneb:'AppSource-Version ja, Standalone-Build nein'}},
+  {id:'export',name:'PDF/PPT-Export und E-Mail-Abos',sub:'Nur mit zertifizierten Visuals',cap:[5,2,3,5],def:'S',note:{oss:'Nur bei zertifizierten OSS-Visuals',deneb:'Zertifiziert, aber 2025 dokumentierte Export-Bugs'}},
+  {id:'interact',name:'Interaktivität',sub:'Drill, Tooltip, Cross-Highlight, Auswahl',cap:[5,4,4,2],def:'S',note:{core:'SVG-Measures sind statische Bilder ohne Interaktion'}},
+  {id:'bigdata',name:'Große Datenmengen je Visual',sub:'Über 30.000 Zeilen',cap:[4,3,2,2],def:'C',note:{deneb:'Standard-Datenfenster 30.000 Zeilen, erweiterbar, dann Ressourcengrenzen',core:'Sehr lange SVG-Textwerte und viele Measures bremsen; Grenzen je Rendering-Pfad prüfen'}},
+  {id:'writeback',name:'Kommentare / Writeback im Visual',sub:'Planung, Anmerkungen',cap:[5,2,1,1],def:'W',note:{deneb:'Keine Writeback-Funktion',core:'Nur über Translytical Task Flows, nicht im Chart'}},
+  {id:'maint',name:'Wartbar durch den Fachbereich',sub:'Ohne Code-Kenntnisse anpassbar',cap:[5,5,2,2],def:'S',note:{deneb:'Specs sind Code (Vega-Lite JSON)',core:'Measure-Bibliotheken mit >100 Measures'}},
+  {id:'copilot',name:'Copilot / KI im Visual',sub:'Copilot erstellt und bearbeitet Reports nur mit Core Visuals',cap:[1,1,1,5],def:'C',note:{paid:'Copilot unterstützt keine Custom Visuals',oss:'Copilot unterstützt keine Custom Visuals',deneb:'Copilot unterstützt keine Custom Visuals'}},
+  {id:'exit',name:'Exit-Fähigkeit / kein Vendor-Lock-in',sub:'Quellcode-Zugang, Portabilität der Definitionen',cap:[1,3,4,5],def:'C',note:{paid:'Report-Definitionen sind an das Vendor-Visual gebunden'}},
+  {id:'design',name:'Einheitliches Design ohne Styleguide-Disziplin',sub:'Wiedererkennung out-of-the-box',cap:[5,4,2,2],def:'S'},
+  {id:'rs',name:'Läuft im Report Server (on-prem)',sub:'Lizenzierte Visuals werden dort nicht unterstützt',cap:[1,2,2,5],def:'W',note:{paid:'Über AppSource lizenzierte Visuals laufen nicht im Report Server; Hersteller-eigene Lizenzwege je Produkt prüfen',oss:'Nur als Datei-Import, kein Org-Store',deneb:'Nur als Datei-Import, kein Org-Store'}},
+  {id:'scale',name:'Konsistente Skalierung und Nullbasislinie',sub:'IBCS-Regel: gleiche Skalen über alle Charts einer Seite',cap:[5,4,4,2],def:'S',note:{core:'Mit SVG-Measures kaum sauber zu halten',deneb:'Über gemeinsame Signale möglich, Handarbeit'}},
+  {id:'version',name:'Änderungshistorie / Code-Review der Visual-Definition',sub:'Git-Diff, Revision, Nachvollziehbarkeit',cap:[2,3,5,4],def:'C',note:{paid:'GUI-Konfiguration, nur über PBIP-Export nachvollziehbar',deneb:'Vega-Lite-JSON ist Text und diff-fähig'}},
+  {id:'sla',name:'Vertraglicher Support mit Reaktionszeit',sub:'SLA, Eskalationsweg, Ansprechpartner',cap:[5,1,2,5],def:'S',note:{oss:'Kein SLA, Community-Support',deneb:'Support nur über GitHub-Sponsoring (50–750 $/Monat)',core:'Über den Microsoft-Support abgedeckt'}},
+  {id:'datares',name:'Keine Datenverarbeitung außerhalb des Tenants',sub:'Visual ruft keine externen Dienste auf',cap:[4,2,5,5],def:'S',note:{paid:'Zertifizierung schließt externe Aufrufe aus, Lizenzprüfung läuft über Microsoft',oss:'Ohne Zertifizierung ungeprüft: eigenes Code-Review nötig'}},
+  {id:'bus',name:'Wissen liegt bei mehr als einer Person',sub:'Änderungen ohne Schlüsselperson möglich',cap:[5,3,2,3],def:'S',note:{deneb:'Ein Maintainer im Projekt, wenige Spec-Kundige im Haus'}},
+];
+const PRIO={M:'Must',S:'Should',C:'Could',W:'Won’t'};
+const PRIO_W={M:3,S:2,C:1,W:0};
+
+/* Governance-Schalter: excl = ausgeschlossene Optionen, warn = nur Warnung */
+const FLAGS=[
+  {id:'certonly',label:'Tenant erlaubt nur zertifizierte Visuals',sub:'„Add and use certified visuals only“ aktiv. Nicht zertifizierte Visuals laden im Service nicht.',excl:{oss:'Nicht zertifiziertes Open-Source-Visual lädt im Service nicht (ChartKitchen ist aktuell nicht zertifiziert). Wenn euer OSS-Visual zertifiziert ist, Schalter „OSS-Visual ist zertifiziert“ setzen.'},warn:{deneb:'Nur die AppSource-Version, kein Standalone-Build'},flag:true},
+  {id:'osscert',label:'Unser Open-Source-Visual ist Microsoft-zertifiziert',sub:'Hebt den K.O. aus „nur zertifizierte Visuals“ für Open Source auf',excl:{},warn:{},flag:false,modifier:true},
+  {id:'noext',label:'Kein externer Dienstleister ohne Ausschreibung',sub:'Vergaberecht / Einkaufsrichtlinie: Anteil extern wird auf 0 gesetzt',excl:{},warn:{},flag:false,modifier:true},
+  {id:'coreonly',label:'Nur Core Visuals erlaubt',sub:'Custom Visuals per Tenant-Setting gesperrt',excl:{paid:'Custom Visuals im Tenant gesperrt',oss:'Custom Visuals im Tenant gesperrt',deneb:'Custom Visuals im Tenant gesperrt'},warn:{},flag:true},
+  {id:'ibcsmust',label:'IBCS-Zertifikat ist Pflicht',sub:'Einkauf oder Konzernstandard verlangt zertifizierte Software',excl:{oss:'Keines der hier betrachteten kostenlosen Visuals ist IBCS-zertifiziert',deneb:'Deneb ist nicht IBCS-zertifiziert',core:'Core Visuals sind nicht IBCS-zertifiziert'},warn:{},flag:true},
+  {id:'nobudget',label:'Kein externes Lizenzbudget',sub:'0 € für Visual-Lizenzen, nur interne Zeit',excl:{paid:'Lizenzkosten je Viewer ohne Budget'},warn:{},flag:true},
+  {id:'rs',label:'Reports laufen (auch) im Report Server',sub:'On-premises',excl:{paid:'Über AppSource lizenzierte Visuals laufen nicht im Report Server; Hersteller-eigene Lizenzwege je Produkt prüfen'},warn:{oss:'Org-Store-Visuals laufen nicht im Report Server, nur Datei-Import',deneb:'Org-Store-Visuals laufen nicht im Report Server, nur Datei-Import'},flag:false},
+  {id:'embed',label:'Publish-to-web oder Embedded (app owns data)',sub:'Lizenzdurchsetzung für Paid Visuals dort nicht möglich',excl:{},warn:{paid:'Lizenz wird in diesen Kanälen nicht durchgesetzt: rechtliche Klärung mit dem Hersteller nötig'},flag:false},
+  {id:'sovereign',label:'Sovereign Cloud / GCC',sub:'Eingeschränkter AppSource-Zugang',excl:{},warn:{paid:'Lizenzierte Visuals in Sovereign Clouds nicht verfügbar',oss:'AppSource-Zugang eingeschränkt, Datei-Import nötig',deneb:'AppSource-Zugang eingeschränkt, Datei-Import nötig'},flag:false},
+  {id:'nogpo',label:'Certified-only nur im Service, keine Desktop-Gruppenrichtlinie',sub:'Häufige Lücke',excl:{},warn:{oss:'Ersteller bauen Reports, die im Service nicht rendern',deneb:'Ersteller bauen Reports, die im Service nicht rendern'},flag:false},
+];
+
+/* Globale Parameter [min, mode, max] */
+const GLOBAL=[
+  {id:'rateInt',label:'Stundensatz intern',sub:'Vollkosten Controller / BI-Team, €/h',v:[60,80,100],src:'F',srcNote:'Controller-Gehalt Ø 71 k€ plus Gemeinkostenfaktor'},
+  {id:'rateExt',label:'Stundensatz extern',sub:'Freelancer / Beratung, €/h',v:[95,120,180],src:'S',srcNote:'freelancermap: Ø 98–104 €/h, Spezialisten höher'},
+  {id:'migShare',label:'Migrationskosten bei Abkündigung',sub:'% des Aufbaus, der neu entsteht',v:[50,80,100],src:'F',srcNote:'Charticulator, Bing-Maps-Visuals, OKViz: Neubau statt Migration'},
+  {id:'churn',label:'Fluktuation der Ersteller',sub:'% pro Jahr, löst erneute Schulung aus',v:[5,15,30],src:'F',srcNote:'Wissensverlust trifft Code-Ansätze (Deneb, SVG) am stärksten'},
+  {id:'growth',label:'Viewer-Wachstum',sub:'% pro Jahr, treibt Lizenzen, Support und Nachfrage',v:[0,10,25],src:'E',srcNote:'Self-Service-Rollouts wachsen, Lizenz folgt jedem neuen Viewer'},
+  {id:'intFactor',label:'Bewertung interner Stunden',sub:'% des internen Satzes: 60 = Kapazität frei, 100 = Vollkosten, 150 = verdrängt Fachaufgaben',v:[60,100,150],src:'E',srcNote:'CFO-Frage Nr. 1: Sind interne Stunden Auszahlungen?'},
+  {id:'demand1000',label:'Zusätzliche Reports je 1.000 Viewer und Jahr',sub:'Nachfrage wächst mit der Leserzahl, unabhängig vom Werkzeug',v:[1,2,4],src:'E'},
+  {id:'govPer1000',label:'Zugriffs-Governance je 1.000 Viewer und Jahr',sub:'Stunden: Berechtigungsreviews, Rezertifizierung, Offboarding',v:[4,10,24],src:'E'},
+  {id:'wageInfl',label:'Lohnsteigerung',sub:'% pro Jahr auf interne und externe Stundensätze (Gegenstück zur Lizenzpreis-Steigerung)',v:[1.5,2.5,4],src:'F'},
+  {id:'maintDecay',label:'Wartungs-Abklingfaktor',sub:'% je Jahr: nach dem ersten Jahr sinkt der Anpassungsbedarf (100 = konstant)',v:[75,85,95],src:'F',srcNote:'Verhindert, dass ein Chart über 10 Jahre dreimal neu gebaut wird'},
+  {id:'migFactor',label:'Nachbau-Faktor bei Migration',sub:'× Wiederverwendungs-Stunden je Bestands-Chart (Nachbau ist selten billiger als Erstbau)',v:[1,1.3,1.8],src:'F',srcNote:'Charticulator, Bing-Maps-Visuals, OKViz: Neubau statt Migration'},
+  {id:'capacityCost',label:'Jahreskosten eurer Fabric-Capacity',sub:'€, nur bei F-SKU/Premium eintragen, sonst 0 (Pro-Lizenzen: kein Capacity-Effekt)',v:[0,0,0],src:'V',srcNote:'F64 ca. 8.400 $/Monat Pay-as-you-go, regional verschieden'},
+  {id:'disc',label:'Kalkulationszins (WACC)',sub:'% für den Barwert; 0 = nominale Summe',v:[0,4,7],src:'F',srcNote:'Bei 3 Jahren ändert Diskontierung wenig, bei 10 Jahren viel'},
+];
+/* Parameter je Option: v = {paid:[..],oss:[..],deneb:[..],core:[..]} */
+const OPTP=[
+  {id:'lic',label:'Lizenz je Nutzer und Jahr (Listen-/Mischpreis)',sub:'€, für Ersteller und Viewer; Default = verhandelter Mischpreis, kein Listenpreis',unit:'€',v:{paid:[40,80,150]},src:'S',srcNote:'Inforiver ~3 $/Monat, Zebra BI Personal ~299 $/Jahr, Team 799 $/Jahr bis 5 User, graphomate auf Anfrage; Stand 09/2026, vom Hersteller nicht bestätigt'},
+  {id:'licSite',label:'Site-/Domain-Lizenz pro Jahr',sub:'€ pauschal, nur bei Lizenzmodell „Site“; Presets oben, bei über 5.000 Nutzern eher Rahmenvertrag',unit:'€',v:{paid:[12000,40000,96000]},src:'S',srcNote:'Inforiver Domain-wide 12.000 $ (Zebra-Review) bis 96.000 $ (Inforiver-Blog): widersprüchliche Quellen; Zebra Enterprise „unlimited site license“ ohne öffentlichen Preis'},
+  {id:'cuUplift',label:'Capacity-Mehrverbrauch',sub:'% der Capacity-Jahreskosten (SVG-Strings, Deneb-Zeilenfenster)',unit:'%',v:{paid:[0,1,3],oss:[0,1,3],deneb:[0,2,5],core:[2,6,15]},src:'E',srcNote:'Capacity springt statt zu wachsen: über 70 % Auslastung ist der Aufschlag die nächste SKU'},
+  {id:'licInfl',label:'Lizenzpreis-Steigerung',sub:'% pro Jahr (Vendor-Preisanpassung, Preissprünge bei Vertragswechsel)',unit:'%',v:{paid:[0,5,20]},src:'F',srcNote:'Power BI Pro selbst +40 % in 04/2025 (Einmalsprung); Vendor-Listen jährlich angepasst'},
+  {id:'licAdmH100',label:'Lizenz-Administration je 100 Nutzer und Jahr',sub:'Stunden: Zuweisung, Abgleich, Offboarding, True-up',unit:'h',v:{paid:[0.5,1.5,4]},src:'E'},
+  {id:'ext',label:'Anteil extern beauftragter Stunden',sub:'% aller Stunden für Aufbau, Rollout und Fixes (Schulung und Governance immer intern)',unit:'%',v:{paid:[0,20,50],oss:[0,30,60],deneb:[10,50,90],core:[0,30,70]},src:'E'},
+  {id:'setupH',label:'Einmaliger Setup',sub:'Evaluierung, Freigabe, Theme, Template-/Measure-Bibliothek, Stunden',unit:'h',v:{paid:[18,35,55],oss:[10,22,42],deneb:[9,18,28],core:[5,14,22]},src:'E',srcNote:'Expertenpanel 09/2026: 20 simulierte Profile (Sonnet), Median von min/wahrsch./max; Modus je Ansatz: paid 35 · oss 22 · deneb 18 · core 14; Paid hoch wegen Beschaffung und Security-Review, Deneb/Core niedrig, weil native Visuals ohne Freigabehürde'},
+  {id:'devH',label:'Eigenentwicklung des Visuals',sub:'0 · 0 · 0 = fertiges OSS-Visual nutzen. Für Eigenentwicklung den Preset-Button oben nutzen.',unit:'h',v:{oss:[0,0,0]},src:'E',srcNote:'Daten-WG-Fallstudie: ~20 h KI-gestützte Steuerung bis zu einem Beta-Stand (kein Produktionsvergleich); klassische Schätzverfahren 14–18 Personenmonate'},
+  {id:'firstH',label:'Stunden je Chart-Typ, erstmalig',sub:'Standard definieren und einmal sauber bauen',unit:'h',v:{paid:[2,4,7.5],oss:[4.5,8.5,14],deneb:[7,12,18],core:[10,16,27]},src:'E',srcNote:'Expertenpanel 09/2026: 20 simulierte Profile (Sonnet), Median von min/wahrsch./max; Modus je Ansatz: paid 4.0 · oss 8.5 · deneb 12 · core 16; inkl. Formatierung, Test und Doku des Standards; Datenmodell und Measures vorhanden'},
+  {id:'reuseH',label:'Stunden je Chart bei Wiederverwendung',sub:'Im Rollout je Report',unit:'h',v:{paid:[0.5,1,2],oss:[1,2,3.5],deneb:[1,2.5,4.5],core:[2,4,6.5]},src:'E',srcNote:'Expertenpanel 09/2026: 20 simulierte Profile (Sonnet), Median von min/wahrsch./max; Modus je Ansatz: paid 1.0 · oss 2.0 · deneb 2.5 · core 4.0; Vorlage übernehmen, Felder binden, Titel anpassen'},
+  {id:'trainH',label:'Schulung je Vorlagen-Bauer (tief)',sub:'Stunden für die Ersteller, die Standards und Templates bauen',unit:'h',v:{paid:[5,8.5,15],oss:[8,15,26],deneb:[20,35,58],core:[18,28,43]},src:'E',srcNote:'Expertenpanel 09/2026: 20 simulierte Profile (Sonnet), Median von min/wahrsch./max; Modus je Ansatz: paid 8.5 · oss 15 · deneb 35 · core 28; Spanne der Modi Deneb 14–55 h: Vorwissen in JSON entscheidet'},
+  {id:'lightH',label:'Schulung je Vorlagen-Nutzer (flach)',sub:'Stunden für Ersteller, die fertige Templates nur befüllen',unit:'h',v:{paid:[0.5,1.5,3],oss:[1,2,4],deneb:[1.5,2.75,4.5],core:[1.25,3,5]},src:'E',srcNote:'Expertenpanel 09/2026: 20 simulierte Profile (Sonnet), Median von min/wahrsch./max; Modus je Ansatz: paid 1.5 · oss 2.0 · deneb 2.75 · core 3.0'},
+  {id:'rampH',label:'Einarbeitung bei Fluktuation',sub:'Stunden bis ein neuer Ersteller produktiv ist (zusätzlich zur Schulung)',unit:'h',v:{paid:[8,16,40],oss:[16,32,80],deneb:[40,120,240],core:[24,80,160]},src:'E'},
+  {id:'supH100',label:'Anwender-Support je 100 Viewer und Jahr',sub:'Stunden: Rückfragen, Fehlerbilder, „warum sieht das so aus“',unit:'h',v:{paid:[2,4,6.25],oss:[3,7,12],deneb:[3,6,10],core:[5,9.5,16]},src:'E',srcNote:'Expertenpanel 09/2026: 20 simulierte Profile (Sonnet), Median von min/wahrsch./max; Modus je Ansatz: paid 4.0 · oss 7.0 · deneb 6.0 · core 9.5'},
+  {id:'govIntake',label:'Freigabe je Chart-Variante (einmalig)',sub:'Stunden: Security-Review, Architekturboard, AVV',unit:'h',v:{paid:[4,8,16],oss:[8,24,60],deneb:[4,12,30],core:[0,2,6]},src:'E',srcNote:'OSS ohne Zertifikat: das Code-Review liegt komplett bei euch'},
+  {id:'govRun',label:'Laufende Governance pro Jahr',sub:'Stunden: Org-Store-Pflege, Versions-Reviews, Tenant-Settings, GPO-Abgleich',unit:'h',v:{paid:[6,16,42],oss:[18,46,112],deneb:[12,32,78],core:[1,3,10]},src:'E',srcNote:'Core: nichts einzuspielen, der stille Vorteil von MacGyver'},
+  {id:'govAudit',label:'Prüfnachweis pro Jahr (Revision)',sub:'Stunden: Chart zeigt, was die Quelle sagt',unit:'h',v:{paid:[2,6,16],oss:[4,10,24],deneb:[6,16,40],core:[8,20,50]},src:'E',srcNote:'Core: 175 Measures je Abweichungsdiagramm sind prüfpflichtige Logik'},
+  {id:'course',label:'Kurskosten je Ersteller',sub:'€, extern (Vendor-Training, Vega-Kurs)',unit:'€',v:{paid:[0,250,800],oss:[0,0,300],deneb:[0,400,1500],core:[0,300,1200]},src:'S',srcNote:'EPC Group: 500–2.000 $ je Kopf und Rolle'},
+  {id:'maint',label:'Wartungsquote pro Jahr',sub:'% von Aufbau + Rollout',unit:'%',v:{paid:[6,10,18],oss:[15,26,38],deneb:[11,19,30],core:[20,34,52]},src:'E',srcNote:'Expertenpanel 09/2026: 20 simulierte Profile (Sonnet), Median von min/wahrsch./max; Modus je Ansatz: paid 10 · oss 26 · deneb 19 · core 34; Panel über allen Faustregeln: Core-Workarounds brechen bei Monatsupdates'},
+  {id:'events',label:'Breaking-Updates pro Jahr',sub:'Anzahl Ereignisse, die Reports brechen',unit:'n',v:{paid:[0.2,1,2],oss:[1,2.5,4],deneb:[1,2,3],core:[2,3.25,5.25]},src:'E',srcNote:'Expertenpanel 09/2026: 20 simulierte Profile (Sonnet), Median von min/wahrsch./max; Modus je Ansatz: paid 1.0 · oss 2.5 · deneb 2.0 · core 3.25'},
+  {id:'fixH',label:'Stunden je Breaking-Update',sub:'Analyse, Fix, Re-Test',unit:'h',v:{paid:[1,3,5.5],oss:[3,7,14],deneb:[3,6.5,12],core:[5,9.5,17]},src:'E',srcNote:'Expertenpanel 09/2026: 20 simulierte Profile (Sonnet), Median von min/wahrsch./max; Modus je Ansatz: paid 3.0 · oss 7.0 · deneb 6.5 · core 9.5'},
+  {id:'dep',label:'Abkündigungsrisiko pro Jahr',sub:'% Wahrscheinlichkeit je Jahr, dass der Ansatz neu gebaut werden muss (wird über den Horizont akkumuliert, in der Simulation als Ereignis gezogen)',unit:'%',v:{paid:[1,2,4],oss:[3,7,13],deneb:[2,4,8],core:[0.4,1,2]},src:'F',srcNote:'Charticulator 2023, Bing-Maps 2025, OKViz 2026, R/Python-Embedded 2026'},
+  {id:'support',label:'Support / Sponsoring pro Jahr',sub:'€ (Paid: im Preis enthalten)',unit:'€',v:{oss:[0,0,2000],deneb:[0,0,9000],core:[0,0,0]},src:'V',srcNote:'Freiwillig: Deneb GitHub Sponsors 50 $/Monat ≈ 1 h bis 750 $/Monat ≈ 15 h; Default 0, weil niemand zahlen muss'},
+];
+
+const MODE_PRESETS={ent:0,man:25,ss:100};
+const MODE_LABEL={ent:'Enterprise BI',man:'Managed Self-Service',ss:'Self-Service'};
+const MODE_HINT={ent:'Ein zentrales Team baut, der Fachbereich liest.',man:'Ein Kern pflegt Vorlagen, geschulte Ersteller nutzen sie.',ss:'Jeder Ersteller baut selbst: mehr Varianten, mehr Wartung, mehr Governance.',hybrid:'Mischform: ein Teil der Ersteller baut frei, der Rest nutzt Vorlagen des Kerns.'};
+/* Betriebsmodell stufenlos: t = Self-Service-Anteil 0..1, Faktoren linear zwischen Enterprise (0) und Self-Service (1) */
+function modeParams(){const t=Math.min(1,Math.max(0,S.ssShare/100));const L=(a,b)=>a+(b-a)*t;const key=Object.keys(MODE_PRESETS).find(k=>MODE_PRESETS[k]===S.ssShare)||'hybrid';
+  return {key,label:key==='hybrid'?'Hybrid ('+S.ssShare+' % Self-Service)':MODE_LABEL[key],hint:MODE_HINT[key],ownerShare:L(.10,1.0),reuseF:L(.8,1.4),variantF:L(1.0,3.0),supF:L(.8,1.3),govF:L(1.0,1.6),reportsPerCreator:t<=.25?6-8*t:4-(t-.25)/.75*2};}
+const PRESETS={
+  pilot:{creators:1,viewers:10,reports:2,cpr:5,types:4,mode:'ss'},
+  mittelstand:{creators:3,viewers:40,reports:6,cpr:6,types:5,mode:'man'},
+  konzern:{creators:25,viewers:1500,reports:40,cpr:8,types:6,mode:'man',flags:{certonly:true}},
+  rs:{creators:15,viewers:400,reports:25,cpr:6,types:6,mode:'ent',flags:{rs:true,certonly:true}},
+  gross:{creators:200,viewers:10000,reports:400,cpr:8,types:8,mode:'ent',licModel:'site',flags:{certonly:true}},
+};
+const LIC={inforiver:[25,30,40],zebra:[200,270,330],enterprise:[40,80,150]};
+
+const TEXT={
+  paid:{pro:['IBCS out-of-the-box, inklusive Zertifikat (Zebra BI, Inforiver, graphomate)','Schnellster Weg zum ersten Standard-Report, Support und Dokumentation inklusive','Microsoft-zertifiziert: Export, Abos, Tenant-Freigabe ohne Ausnahme'],
+        con:['Lizenz für jeden Viewer, keine Ausnahme für Fabric-/Premium-Capacity','Report-Definitionen sind an das Visual gebunden: Wechsel bedeutet Neubau','Nicht lizenzierbar in Report Server, Sovereign Cloud, Publish-to-web, Embedded app-owns-data','Copilot liest und erzeugt keine Custom Visuals'],
+        hidden:['Lizenzverwaltung im M365 Admin Center, Zuweisung je Nutzer','Mindestabnahmen und jährliche Preisanpassungen','Prüfung jeder Vendor-Version gegen das monatliche Power-BI-Update','Vendor-Vergleiche sind interessengeleitet (46 %, 10x): eigene Messung nötig'],
+        when:'Wenn Viewer-Zahl überschaubar, Zeit knapp und Zertifikate gefordert sind.'},
+  oss:{pro:['Keine Lizenzkosten, Code offen, forkbar: Exit ohne Vendor','Fachbereich kann Visuals ohne Code nutzen, wenn das Visual fertig ist','Eigenentwicklung ist mit KI-gestützter Entwicklung deutlich günstiger geworden'],
+       con:['Bus-Faktor: oft ein Maintainer, kein SLA, keine Roadmap-Zusage','Zertifizierung fehlt häufig (ChartKitchen: Beta, noch nicht im AppSource)','Kein IBCS-Zertifikat verfügbar','Eigenentwicklung braucht Wartung bei jedem API-Wechsel'],
+       hidden:['Sicherheitsreview und Tenant-Freigabe durch die IT','Pflege im Organizational Store: Löschen ist irreversibel, Reports brechen sofort','Abkündigungsrisiko höher als bei Paid: Migrationsbudget einplanen','Interessenkonflikt-Hinweis: ChartKitchen ist ein Daten-WG-Projekt'],
+       when:'Wenn ein passendes Visual existiert oder Entwicklungs-Know-how im Haus ist und Lizenzbudget fehlt.'},
+  deneb:{pro:['Maximale Flexibilität: jedes Chart, das Vega-Lite kann','Zertifiziert (AppSource-Version), MIT-Lizenz, kostenlos','Große Template-Community: IBCS-Templates, Business Chart Builder, vegaviz'],
+         con:['Steile Lernkurve, Specs sind Code: Wissen konzentriert sich auf wenige Köpfe','Ein Maintainer, Support nur über Sponsoring','30.000-Zeilen-Fenster, Export-Bugs 2025 dokumentiert','Kein IBCS-Zertifikat, Copilot ohne Unterstützung'],
+         hidden:['Template-Bibliothek pflegen und versionieren (Git)','Onboarding neuer Ersteller in Vega-Lite','Wissensmonopol: Ausfall einer Person blockiert Änderungen','Sponsoring als faire Gegenleistung, wenn Deneb geschäftskritisch wird'],
+         when:'Wenn Design als Code gedacht wird, Standards bewusst gepflegt werden und Flexibilität wichtiger ist als Geschwindigkeit.'},
+  core:{pro:['Keine Freigabe, keine Lizenz, keine Abhängigkeit außer Microsoft','Einzige Option mit Copilot-Unterstützung, Export und Abos ohne Einschränkung','Microsoft liefert IBCS-Features nach (Overlapping Bars 2024, DAX-UDFs 2025)'],
+        con:['IBCS nur über Workarounds: SVG-Measures, Overlapping Bars, Δ-Spalten','SVG-Measures sind statisch, lange Textwerte und viele Measures kosten Performance','MacGyver-Rating ab 3 gilt als nicht produktionsreif (Data Goblins)','Einheitliches Design nur mit Styleguide-Disziplin'],
+        hidden:['Measure-Wildwuchs: bis zu 175 Measures für ein Abweichungsdiagramm','Wartung bei jedem Monatsupdate, wenn Workarounds auf Formatdetails beruhen','Know-how-Konzentration bei DAX-/SVG-Spezialisten','Zeit, die in Workarounds statt in Inhalte fließt'],
+        when:'Wenn nur Core erlaubt ist, Copilot oder Export Pflicht sind, oder die Standards mit wenigen Chart-Typen auskommen.'},
+};
+
+const SOURCES=[
+  ['Microsoft Learn: Manage Power BI visuals admin settings','Tenant-Switches, Group-Policy-Keys, Org-Store-Regeln','https://learn.microsoft.com/fabric/admin/organizational-visuals','V'],
+  ['Microsoft Learn: Certified Power BI visuals','Was Zertifizierung prüft und freischaltet (Export, Abos)','https://learn.microsoft.com/power-bi/developer/visuals/power-bi-custom-visuals-certified','V'],
+  ['Microsoft Learn: AppSource visual license models','Wo Paid-Lizenzen nicht durchgesetzt werden (Report Server, Embedded, P2W)','https://learn.microsoft.com/power-bi/developer/visuals/custom-visual-licenses','V'],
+  ['Microsoft Learn: Organizational visuals, considerations','Löschen irreversibel, kein PPT-Export, nicht im Report Server','https://learn.microsoft.com/power-bi/developer/visuals/power-bi-custom-visuals-organization','V'],
+  ['Microsoft Learn: Copilot in Power BI','Copilot unterstützt keine Custom Visuals','https://learn.microsoft.com/power-bi/create-reports/copilot-create-reports','V'],
+  ['Microsoft Learn: Fabric SKU Estimator, Szenario','Verhältnis 150 Autoren : 1.300 Viewer','https://learn.microsoft.com/fabric/enterprise/fabric-sku-estimator-scenario','V'],
+  ['Microsoft Blog: Power BI pricing update 04/2025','Pro 14 $, PPU 24 $ je Nutzer und Monat','https://powerbi.microsoft.com/en-us/blog/important-update-to-microsoft-power-bi-pricing/','V'],
+  ['Deneb: GitHub Sponsors und Releases','MIT-Lizenz, Zertifizierung ab 1.7, 30k-Zeilen-Fenster, Support-Stufen','https://github.com/sponsors/deneb-viz','V'],
+  ['Zebra BI: Pricing und Lizenz-FAQ','Named User, jeder Viewer, ~299 $/Jahr Personal','https://zebrabi.com/pricing/','S'],
+  ['Inforiver: Pricing','Ab 3 $/User/Monat, Creator = Viewer','https://inforiver.com/pricing/','S'],
+  ['graphomate: Lizenzen','Recipients und Designer zählen, Preise auf Anfrage','https://www.graphomate.com/en/licences/','S'],
+  ['IBCS: Certified Software','Offizielle Liste IBCS-zertifizierter Software','https://www.ibcs.com/software/','S'],
+  ['freelancermap: Freelancer-Kompass 2025','Stundensätze DACH Ø 98–104 €/h','https://www.freelancermap.de/media/press_release/PM-Freelancer-Kompass-2025.pdf','S'],
+  ['Chris Webb: Maximum length of a text value','32.766-Zeichen-Grenze für SVG-Measures','https://blog.crossjoin.co.uk/2019/05/17/maximum-length-text-value-power-bi/','V'],
+  ['powerofbi.org: Responsive SVG Charts / DaxLib PowerofBI.IBCS','IBCS in Core Visuals über DAX-UDFs','https://www.powerofbi.org/powerofbi-ibcs-user-defined-functions/','S'],
+  ['Data Goblins: MacGuyver-Toolbox','Rating ≥ 3 nicht produktionsreif','https://github.com/data-goblin/powerbi-macguyver-toolbox','S'],
+  ['Alexander Korn: IBCS with built-in and custom visuals','Vergleich Built-in, Zebra, xViz, graphomate, Deneb','https://actionablereporting.com/2023/01/15/ibcs-with-power-bis-built-in-visuals-custom-visuals/','S'],
+  ['Daten-WG: Standard, Custom oder Deneb?','Entscheidungsprinzip: Standard zuerst, nur so individuell wie nötig','https://www.daten-wg.com/post/power-bi-visuals-richtig-ausw%C3%A4hlen','S'],
+  ['Charticulator: Retirement Issue #1085','Microsoft-Visual abgekündigt, Frage nach PBI-Visual unbeantwortet','https://github.com/microsoft/charticulator/issues/1085','V'],
+  ['SQLBI: Dialog boxes in custom visuals broken (02/2025)','Beleg für Breaking-Updates','https://www.sqlbi.com/blog/marco/2025/03/06/dialog-boxes-in-custom-visuals-are-broken-in-power-bi-desktop-february-2025/','S'],
+  ['Forrester TEI of Power BI (2020)','Struktur Benefits / Costs / Flexibility / Risk','https://info.microsoft.com/ww-landing-TEI-of-microsoft-power-BI.html','S'],
+  ['McConnell: Cone of Uncertainty','±2x nach Grobkonzept, ±4x davor','https://athena.ecs.csus.edu/~buckley/CSc231_files/McConell_ConeofUncertainty.pdf','S'],
+  ['Daten-WG: Zehn Tage bis zum marktfähigen Stand','Kostenhebel KI-gestützter Eigenentwicklung (Fallstudie ChartKitchen)','whitepaper-ki-entwicklung-roi.html','V'],
+  ['Microsoft Learn: Fabric Apps overview und pricing','Preview seit 05/2026, eigene SQL-Datenbank plus GraphQL, Capacity-Pflicht','https://learn.microsoft.com/fabric/apps/overview','V'],
+  ['Microsoft Learn: Fabric licenses','F-SKU-Preise regional, F64 als Schwelle für Free-Viewer','https://learn.microsoft.com/fabric/enterprise/licenses','V'],
+  ['Forrester TEI-Methodik','Benefits, Costs, Flexibility, Risk; Risikoabschlag auf Nutzen','https://www.forrester.com/policies/tei','S'],
+  ['Nutzwertanalyse (Zangemeister), Kritik','K.O.-Kriterien vor dem Scoring, Kompensationseffekt, Gewichts-Sensitivität','https://de.wikipedia.org/wiki/Nutzwertanalyse','S'],
+];
+
+/* ===================== State ===================== */
+const S={creators:3,viewers:40,reports:6,cpr:6,types:5,horizon:5,mode:'man',ssShare:25,licModel:'staffel',baseline:'none',existing:0,weight:70,per:'viewer',view:'abs',prio:{},cap:{},custom:[],flags:{},g:{},p:{},tornado:null};
+function defaults(){
+  S.creators=3;S.viewers=40;S.reports=6;S.cpr=6;S.types=5;S.horizon=5;S.mode='man';S.ssShare=25;S.licModel='staffel';S.baseline='none';S.existing=0;S.weight=70;S.per='viewer';
+  S.view='abs';S.prio={};S.cap={};S.custom=[];REQS.forEach(r=>{S.prio[r.id]=r.def;S.cap[r.id]=r.cap.slice();});
+  S.flags={};FLAGS.forEach(f=>S.flags[f.id]=false);
+  S.g={};GLOBAL.forEach(p=>S.g[p.id]=p.v.slice());
+  S.p={};OPTS.forEach(o=>{S.p[o.key]={};OPTP.forEach(p=>{if(p.v[o.key])S.p[o.key][p.id]=p.v[o.key].slice();});});
+  S.tornado=null;
+}
+defaults();
+
+/* ===================== Zufall / PERT ===================== */
+let seed=12345;
+function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
+function gaussian(){let u=0,v=0;while(u===0)u=rnd();while(v===0)v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function gammaS(a){ // Marsaglia-Tsang, a>=1 via boost
+  if(a<1){return gammaS(a+1)*Math.pow(rnd(),1/a);}
+  const d=a-1/3,c=1/Math.sqrt(9*d);
+  for(;;){let x,v;do{x=gaussian();v=1+c*x;}while(v<=0);v=v*v*v;const u=rnd();
+    if(u<1-0.0331*x*x*x*x)return d*v;if(Math.log(u)<0.5*x*x+d*(1-v+Math.log(v)))return d*v;}
+}
+function betaS(a,b){const x=gammaS(a),y=gammaS(b);return x/(x+y);}
+function pert(t){const lo=t[0],hi=t[2],m=Math.min(hi,Math.max(lo,t[1]));if(hi<=lo)return lo;const a=1+4*(m-lo)/(hi-lo),b=1+4*(hi-m)/(hi-lo);return lo+betaS(a,b)*(hi-lo);}
+function pertMean(t){const lo=t[0],hi=t[2],m=Math.min(hi,Math.max(lo,t[1]));return (lo+4*m+hi)/6;}
+function q(arr,p){const a=arr.slice().sort((x,y)=>x-y);const i=(a.length-1)*p;const lo=Math.floor(i),hi=Math.ceil(i);return a[lo]+(a[hi]-a[lo])*(i-lo);}
+
+/* ===================== Kostenkern ===================== */
+const CATS=[['lic','Lizenz, Support & Capacity'],['build','Aufbau'],['switch','Migration des Bestands'],['rollout','Rollout'],['train','Schulung'],['maint','Wartung & Updates'],['gov','Governance & Anwender-Support'],['risk','Abkündigung (erwarteter Zuschlag)']];
+function viewersAvg(gPct){const gr=1+gPct/100;let t=0;for(let y=0;y<S.horizon;y++)t+=S.viewers*Math.pow(gr,y);return t/S.horizon;}
+function ownersOf(){return Math.min(S.creators,Math.max(S.creators>1?2:1,Math.ceil(S.creators*modeParams().ownerShare)));}
+function reportsDefault(){const M=modeParams();return Math.max(1,Math.round(S.creators*M.reportsPerCreator+S.viewers/1000*2));}
+function calc(key,draw,override){
+  const P=S.p[key],G=S.g,H=S.horizon,M=modeParams();const sim=draw===pert;
+  /* T04: Snapshot je Szenario. Globale Annahmen werden in fester Reihenfolge zuerst gezogen (bei gleichem Seed für alle Optionen identisch), Options-Annahmen danach; jede Annahme genau einmal. */
+  const gd={};GLOBAL.forEach(q=>gd[q.id]=override&&override[q.id]!==undefined?override[q.id]:draw(G[q.id]));
+  const pd={};OPTP.forEach(q=>{if(P[q.id]!==undefined)pd[q.id]=override&&override[q.id]!==undefined?override[q.id]:draw(P[q.id]);});
+  const g=id=>gd[id];
+  const p=id=>pd[id]===undefined?0:pd[id];
+  const users=S.creators+S.viewers;
+  const ext=S.flags.noext?0:p('ext')/100;
+  const rateInt0=g('rateInt')*g('intFactor')/100;
+  const rate0=rateInt0*(1-ext)+g('rateExt')*ext;
+  const growth=g('growth');const vAvg=viewersAvg(growth);
+  /* Lohn- und Lizenzsteigerung: mittlerer Jahresfaktor über den Horizont */
+  const wageF=(()=>{const w=1+g('wageInfl')/100;let t=0;for(let y=0;y<H;y++)t+=Math.pow(w,y);return t/H;})();
+  const rateInt=rateInt0*wageF, rate=rate0*wageF;           /* laufende Posten */
+  /* Lizenz: Viewer wachsen ab dem 2. Betriebsjahr, Autoren bleiben konstant, Preis steigt jährlich (T05) */
+  const inf=1+(P.licInfl?p('licInfl'):0)/100,gr=1+growth/100;let licFv=0,licFa=0;for(let yv=0;yv<H;yv++){licFv+=Math.pow(gr,yv)*Math.pow(inf,yv);licFa+=Math.pow(inf,yv);}
+  const userYears=S.viewers*licFv+S.creators*licFa;const licF=userYears/Math.max(users,1);
+  let lic=0;
+  if(key==='paid'){
+    if(S.licModel==='site')lic=p('licSite')*licFa;
+    else{const d=S.licModel==='staffel'?(users<=100?1:users<=500?.75:users<=2000?.55:users<=5000?.40:.30):1;lic=userYears*p('lic')*d;}
+  }
+  const licAdmin=key==='paid'?(users/100)*p('licAdmH100')*rateInt*H:0;
+  const support=p('support')*H;
+  const capacity=g('capacityCost')*p('cuUplift')/100*H;
+  /* Aufbau (Jahr 0, ohne Lohnsteigerung), Rollout (Nachfrage wächst mit Viewern) */
+  const setup=p('setupH')*rate0, dev=p('devH')*rate0, build=S.types*p('firstH')*rate0;
+  const reportsTotal=S.reports+g('demand1000')*(vAvg/1000)*H;
+  const rollout=reportsTotal*S.cpr*p('reuseH')*M.reuseF*rate0;
+  /* Migration des Bestands: nur bei Wechsel weg vom heutigen Ansatz */
+  const switchCost=(S.baseline!=='none'&&S.baseline!==key&&S.existing>0)?S.existing*S.cpr*p('reuseH')*g('migFactor')*rate0:0;
+  /* Schulung nach Rollen: Owner tief, Nutzer flach, Fluktuation laufend */
+  const owners=ownersOf();
+  const train0=owners*(p('trainH')*rateInt0+p('course'))+(S.creators-owners)*p('lightH')*rateInt0;
+  const trainRun=S.creators*(g('churn')/100)*H*(p('trainH')+p('rampH'))*rateInt;
+  const base=setup+dev+build+rollout;
+  /* Wartung: Vorlagen werden gewartet, Instanzen nur angefasst; degressiv; Varianten treiben */
+  const guardrail=(6-capOf(REQS.find(r=>r.id==='design'),key))/4;
+  const variantEff=1+(M.variantF-1)*guardrail;
+  const maintBase=setup+dev+build+0.3*rollout;
+  const decay=g('maintDecay')/100;let maintYears=0;for(let y=0;y<H;y++)maintYears+=Math.pow(decay,y);
+  const maint=maintBase*(p('maint')/100)*maintYears*variantEff*wageF;
+  const events=p('events')*p('fixH')*rate*H;
+  /* Governance und Anwender-Support */
+  const supUsers=(vAvg/100)*p('supH100')*rateInt*H*M.supF;
+  const sizeF=vAvg<50?0.3:vAvg<250?0.6:vAvg<1000?1:1.3; /* Governance-Stufen nach Organisationsgröße */
+  const govOnce=p('govIntake')*S.types*variantEff*rateInt0*M.govF*sizeF;
+  const gov=govOnce+((p('govRun')+p('govAudit'))*H*sizeF+g('govPer1000')*(vAvg/1000)*H)*rateInt*M.govF;
+  /* Abkündigung: Jahresrate über den Horizont; in der Simulation als Ereignis */
+  const pH=1-Math.pow(1-p('dep')/100,H);
+  const hit=sim?(rnd()<pH?1:0):pH;
+  const risk=hit*(setup+dev+build)*(g('migShare')/100);
+  const c={lic:lic+support+licAdmin+capacity,build:setup+dev+build,switch:switchCost,rollout,train:train0+trainRun,maint:maint+events,gov:gov+supUsers,risk};
+  c.total=Object.values(c).reduce((a,b)=>a+b,0);
+  c.invest=c.build+c.switch+c.rollout+train0+govOnce;
+  c.yearly=(c.total-c.invest)/H;
+  c.firstReportH=p('setupH')+p('devH')+S.types*p('firstH')+S.cpr*p('reuseH');
+  c.nextReportH=S.cpr*p('reuseH')*M.reuseF;
+  c.vAvg=vAvg;c.owners=owners;c.reportsTotal=reportsTotal;c.variantEff=variantEff;c.licF=licF;c.pH=pH;c.licNoLic=c.total-lic;c.users=users;
+  /* Zahlungsstrom je Jahr und Barwert */
+  c.cf=[c.invest];{const perYear=(c.total-c.invest-lic-risk)/H;const riskYear=Math.max(1,Math.ceil(H/2));const d=S.licModel==='staffel'?(users<=100?1:users<=500?.75:users<=2000?.55:users<=5000?.40:.30):1;
+    for(let yv=0;yv<H;yv++){let v=perYear;if(key==='paid'){if(S.licModel==='site')v+=p('licSite')*Math.pow(inf,yv);else v+=(S.viewers*Math.pow(gr,yv)+S.creators)*Math.pow(inf,yv)*p('lic')*d;}if(yv+1===riskYear)v+=risk;c.cf.push(v);}}
+  const disc=1+g('disc')/100;c.npv=c.cf.reduce((a,v,y)=>a+v/Math.pow(disc,y),0);
+  return c;
+}
+function simulate(key,N){
+  const tot=[],cats={};CATS.forEach(([c])=>cats[c]=[]);let inv=[],yr=[],fr=[],nr=[];
+  for(let i=0;i<N;i++){seed=(987654+i*7919)>>>0;const c=calc(key,pert);tot.push(c.total);CATS.forEach(([k])=>cats[k].push(c[k]));inv.push(c.invest);yr.push(c.yearly);fr.push(c.firstReportH);nr.push(c.nextReportH);}
+  const ex=expected(key);
+  const out={p10:q(tot,.1),p50:q(tot,.5),p90:q(tot,.9),cats:{},invest:q(inv,.5),yearly:q(yr,.5),firstReportH:q(fr,.5),nextReportH:q(nr,.5),cf:ex.cf,npv:ex.npv,owners:ex.owners,vAvg:ex.vAvg,reportsTotal:ex.reportsTotal,pH:ex.pH,ex};
+  CATS.forEach(([k])=>out.cats[k]=cats[k].reduce((a,b)=>a+b,0)/N);
+  const sum=Object.values(out.cats).reduce((a,b)=>a+b,0);if(sum>0){const f=out.p50/sum;CATS.forEach(([k])=>out.cats[k]*=f);}
+  return out;
+}
+function expected(key,override){return calc(key,pertMean,override);}
+
+/* ===================== Bewertung: K.O., Warnungen, Score ===================== */
+function allReqs(){return REQS.concat(S.custom);}
+function capOf(rq,k){const c=S.cap[rq.id];const v=c?c[OK[k]]:rq.cap[OK[k]];return Math.min(5,Math.max(0,Math.round(v)));} /* 0 = nicht geprüft */
+function evaluate(){
+  const res={};
+  OPTS.forEach(o=>{const k=o.key;const r={ko:[],warn:[],score:0,scoreMax:0};
+    allReqs().forEach(rq=>{const pr=S.prio[rq.id];const cap=capOf(rq,k);const note=rq.note&&rq.note[k]?rq.note[k]:rq.name+': '+CAP_LBL[cap];
+      if(cap===0){if(pr==='M'){r.unchecked=(r.unchecked||0)+1;r.warn.push('Must „'+rq.name+'“ ist für diesen Ansatz noch nicht geprüft: keine uneingeschränkte Empfehlung');}return;}
+      if(pr==='M'&&cap<=1)r.ko.push('Must „'+rq.name+'“: '+note);
+      else if(pr==='M'&&cap===2)r.warn.push('Must „'+rq.name+'“ nur per Workaround: '+note);
+      else if(pr==='S'&&cap<=1)r.warn.push('Should „'+rq.name+'“: '+note);
+      if(pr!=='W'){const w=PRIO_W[pr]??2;r.score+=w*(cap-1);r.scoreMax+=w*4;}
+    });
+    FLAGS.forEach(f=>{if(!S.flags[f.id]||f.modifier)return;if(f.id==='certonly'&&k==='oss'&&S.flags.osscert){r.warn.push('Nur zertifizierte Visuals: euer OSS-Visual gilt als zertifiziert, Dezertifizierung durch Microsoft bleibt möglich');return;}if(f.excl[k])r.ko.push(f.label+': '+f.excl[k]);if(f.warn[k])r.warn.push(f.label+': '+f.warn[k]);});
+    r.scorePct=r.scoreMax?Math.round(100*r.score/r.scoreMax):0;res[k]=r;});
+  return res;
+}
+function conflicts(){
+  const c=[];
+  const ibcsHard=S.flags.ibcsmust||S.prio.ibcscert==='M';
+  if(ibcsHard&&S.flags.nobudget)c.push('<b>Unlösbarer Konflikt:</b> IBCS-Zertifikat ist Pflicht, aber es gibt kein Lizenzbudget. Keines der hier betrachteten kostenlosen Visuals ist IBCS-zertifiziert. Entweder Budget freigeben oder das Zertifikat als Should einstufen und IBCS-Konformität ohne Zertifikat anstreben.');
+  if(S.flags.coreonly&&S.prio.ibcs==='M')c.push('<b>Spannungsfeld:</b> Nur Core Visuals erlaubt, IBCS-Notation ist Must. Das geht nur über MacGyver-Workarounds (SVG-Measures, Overlapping Bars) mit hohem Wartungsaufwand. Microsoft liefert IBCS-Features schrittweise nach.');
+  if(S.flags.coreonly&&ibcsHard)c.push('<b>Unlösbarer Konflikt:</b> Nur Core Visuals erlaubt und IBCS-Zertifikat Pflicht. Core Visuals sind nicht IBCS-zertifiziert.');
+  if(S.prio.copilot==='M'&&S.prio.ibcscert!=='W')c.push('<b>Spannungsfeld:</b> Copilot im Visual ist Must, IBCS-Zertifikat wird gewünscht. Copilot unterstützt keine Custom Visuals, IBCS-Zertifikate gibt es nur für Custom Visuals. KI-Readiness entsteht im Datenmodell, nicht im Visual.');
+  if(S.prio.rs==='M'&&!S.flags.rs)c.push('<b>Hinweis:</b> Report Server ist als Must bewertet, der Governance-Schalter „Report Server“ ist aber aus. Beides sollte zusammenpassen.');
+  if(S.creators+S.viewers>2000&&S.licModel==='peruser')c.push('<b>Prüfen:</b> Über 2.000 Nutzer mit Listenpreis pro Nutzer. Ab dieser Größe verhandeln Hersteller Staffeln oder Site-Lizenzen (Inforiver Domain-wide 12–96 k$/Jahr, Zebra Enterprise „unlimited site license“). Lizenzmodell in Schritt 4 auf Staffel oder Site stellen.');
+  if(S.prio.datares==='M'&&!S.flags.certonly)c.push('<b>Hinweis:</b> „Keine Datenverarbeitung außerhalb des Tenants“ ist Must. Genau das prüft die Microsoft-Zertifizierung. Ohne den Schalter „nur zertifizierte Visuals“ bleibt die Prüfung bei euch.');
+  if(S.flags.certonly&&!S.flags.nogpo)c.push('<b>Prüfen:</b> Certified-only ist aktiv. Gilt die Sperre auch im Desktop (Gruppenrichtlinie)? Sonst bauen Ersteller Reports, die im Service nicht rendern.');
+  return c;
+}
+
+/* ===================== Formatierung ===================== */
+const sig2=n=>{if(n===0)return 0;const m=Math.pow(10,Math.floor(Math.log10(Math.abs(n)))-1);return Math.round(n/m)*m;};
+const fmtEur=n=>{if(!isFinite(n))return '–';if(Math.abs(n)>=1e12)return (n>0?'> 1 Bio. €':'< −1 Bio. €');const a=Math.abs(n);let s;if(a>=1e6)s=(sig2(n)/1e6).toLocaleString('de-DE',{maximumFractionDigits:2})+' Mio. €';else if(a>=1000)s=sig2(n);else s=Math.round(n);return typeof s==='number'?s.toLocaleString('de-DE')+' €':s;};
+const fmtN=(n,d=0)=>n.toLocaleString('de-DE',{maximumFractionDigits:d});
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fmtRange(t,unit){return fmtN(t[0],2)+' · '+fmtN(t[1],2)+' · '+fmtN(t[2],2)+(unit?' '+unit:'');}
+
+/* ===================== Rendering: Inputs ===================== */
+function renderStep1(){
+  ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const el=document.getElementById(id);el.value=Math.min(+el.max,S[id]);const n=document.getElementById('n-'+id);if(n&&document.activeElement!==n)n.value=S[id];});
+  document.getElementById('ss').value=S.ssShare;document.getElementById('v-ss').textContent=S.ssShare+' %';
+  const rd=reportsDefault();document.getElementById('reports-hint').innerHTML='Reports, die nach dem Standard gebaut werden. Erfahrungswert für '+esc(modeParams().label)+' mit '+fmtN(S.creators)+' Erstellern: <b>'+fmtN(rd)+'</b> (Enterprise ≈ 6, Managed ≈ 4, Self-Service ≈ 2 je Ersteller, plus 2 je 1.000 Viewer; Daten-WG-Erfahrungswert) '+(rd!==S.reports?'<button class="hint-btn" id="btn-reports-default">übernehmen</button>':'<span style="color:var(--accent-text)">✓ übernommen</span>');
+  const rb=document.getElementById('btn-reports-default');if(rb)rb.addEventListener('click',()=>{S.reports=reportsDefault();pendingToast='Reports auf Erfahrungswert '+S.reports+' gesetzt';update();});
+  document.getElementById('baseline').value=S.baseline;
+  document.querySelectorAll('#mode-seg button').forEach(b=>b.classList.toggle('active',MODE_PRESETS[b.dataset.mode]===S.ssShare));document.getElementById('mode-hint').textContent=modeParams().label+': '+modeParams().hint+' Hier bauen '+ownersOf()+' von '+fmtN(S.creators)+' Erstellern die Vorlagen.';
+  document.querySelectorAll('.field input[type=range]').forEach(r=>{const l=r.parentElement.querySelector('label span');if(l&&!r.getAttribute('aria-label'))r.setAttribute('aria-label',l.textContent);});
+  document.querySelectorAll('#horizon-seg button').forEach(b=>b.classList.toggle('active',+b.dataset.h===S.horizon));
+  document.querySelectorAll('#per-seg button').forEach(b=>b.classList.toggle('active',b.dataset.per===S.per));
+  document.querySelectorAll('#view-seg button').forEach(b=>b.classList.toggle('active',b.dataset.view===S.view));
+  document.getElementById('weight').value=S.weight;
+  document.getElementById('v-weight').textContent=S.weight+' % Kosten · '+(100-S.weight)+' % Anforderungen';
+}
+function renderReqs(){
+  const t=document.getElementById('req-table');
+  let h='<thead><tr><th>Anforderung</th><th>Priorität</th>'+OPTS.map(o=>'<th class="opt" style="--capc:'+o.color+'">'+esc(o.tag)+'<br><span style="font-weight:400;text-transform:none;letter-spacing:0">'+esc(o.name)+'</span></th>').join('')+'</tr></thead><tbody>';
+  allReqs().forEach(r=>{const pr=S.prio[r.id];const isCustom=!!r.custom;
+    h+='<tr><td class="name">'+esc(r.name)+(isCustom?' <button class="rm-req" data-req="'+esc(r.id)+'" title="Zeile entfernen">✕</button>':'')+'<small>'+esc(r.sub)+'</small></td><td><div class="prio" role="group" aria-label="Priorität '+esc(r.name)+'" data-req="'+esc(r.id)+'">'+Object.keys(PRIO).map(k=>'<button data-p="'+k+'" aria-pressed="'+(pr===k)+'" class="'+(pr===k?'active'+(k==='M'?' m':''):'')+'" title="'+PRIO[k]+'">'+k+'</button>').join('')+'</div></td>';
+    OPTS.forEach((o,i)=>{const c=capOf(r,o.key);const ko=pr==='M'&&c===1;const changed=!isCustom&&c!==r.cap[i];const title=((r.note&&r.note[o.key])?r.note[o.key]+' · ':'')+CAP_LBL[c]+(changed?' (eigene Bewertung, Standard '+r.cap[i]+')':'')+' · klicken zum Bewerten';
+      h+='<td title="'+esc(title)+'"><span class="cap'+(ko?' ko':'')+(changed?' edited':'')+'" role="radiogroup" aria-label="'+esc(r.name+', '+o.name)+'" style="--capc:'+o.color+'" data-req="'+esc(r.id)+'" data-opt="'+i+'">'+[1,2,3,4,5].map(n=>'<button type="button" role="radio" aria-checked="'+(n===c)+'" aria-label="'+n+' von 5: '+esc(CAP_LBL[n])+'" class="'+(n<=c?'on':'')+'" data-v="'+n+'"></button>').join('')+'<span class="cap-lbl">'+(ko?'K.O.':c===0?'?':c)+'</span></span></td>';});
+    h+='</tr>';});
+  t.innerHTML=h+'</tbody>';
+  t.querySelectorAll('.prio button').forEach(b=>b.addEventListener('click',()=>{const id=b.parentElement.dataset.req;S.prio[id]=b.dataset.p;const rq=allReqs().find(r=>r.id===id);pendingToast='„'+(rq?rq.name:id)+'“ ist jetzt '+PRIO[b.dataset.p];renderReqs();update();}));
+  t.querySelectorAll('.cap button').forEach(b=>b.addEventListener('click',()=>{const sp=b.parentElement;const id=sp.dataset.req,i=+sp.dataset.opt;if(!S.cap[id])S.cap[id]=[3,3,3,3];S.cap[id][i]=+b.dataset.v;pendingToast=OPTS[i].short+' bewertet mit '+b.dataset.v+' von 5';renderReqs();update();}));
+  t.querySelectorAll('.rm-req').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.req;S.custom=S.custom.filter(r=>r.id!==id);delete S.prio[id];delete S.cap[id];renderReqs();update();}));
+}
+function addCustomReq(){
+  const name=prompt('Eigene Anforderung (kurz):');if(!name)return;const sub=prompt('Erläuterung (optional):','')||'';
+  const id='c'+Date.now().toString(36);S.custom.push({id,name:name.trim().slice(0,80),sub:sub.trim().slice(0,120),cap:[0,0,0,0],custom:true});S.prio[id]='S';S.cap[id]=[0,0,0,0];
+  renderReqs();update();toast('Anforderung ergänzt. Sie gilt je Ansatz als „nicht geprüft“, bis ihr die Kästchen setzt.');const row=document.querySelector('.cap[data-req="'+id+'"]');if(row)row.scrollIntoView({block:'center'});
+}
+function resetCaps(){S.cap={};REQS.forEach(r=>S.cap[r.id]=r.cap.slice());S.custom.forEach(r=>S.cap[r.id]=[0,0,0,0]);renderReqs();update();toast('Bewertungen auf Daten-WG-Standard zurückgesetzt.');}
+function renderFlags(){
+  const el=document.getElementById('flag-list');
+  el.innerHTML=FLAGS.map(f=>'<label class="check-item'+(f.flag?' flag':'')+'"><input type="checkbox" data-flag="'+f.id+'"'+(S.flags[f.id]?' checked':'')+'><span>'+(f.flag?'🚩 ':'')+esc(f.label)+'<small>'+esc(f.sub)+'</small></span></label>').join('');
+  el.querySelectorAll('input').forEach(i=>i.addEventListener('change',()=>{S.flags[i.dataset.flag]=i.checked;const f=FLAGS.find(x=>x.id===i.dataset.flag);pendingToast='Schalter „'+f.label+'\“ '+(i.checked?'gesetzt':'gelöst');update();}));
+}
+let activeTab='paid';
+function paramRow(p,vals,scope){
+  const def=scope==='g'?p.v:p.v[scope.slice(2)];const changed=def&&(def[0]!==vals[0]||def[1]!==vals[1]||def[2]!==vals[2]);
+  const badge=changed?'<span class="badge N" title="'+esc('Eigene Annahme. Ursprung ('+{V:'verifiziert',S:'Snippet',F:'Faustregel',E:'Expertenschätzung'}[p.src]+'): '+def.join(' · ')+(p.srcNote?' · '+p.srcNote:''))+'">N</span>':'<span class="badge '+p.src+'" title="'+esc({V:'Verifiziert',S:'Such-Snippet',F:'Faustregel',E:'Expertenschätzung Daten-WG'}[p.src]+(p.srcNote?': '+p.srcNote:''))+'">'+p.src+'</span>';
+  return '<div class="a-row"><div class="lbl">'+esc(p.label)+'<small>'+esc(p.sub)+'</small></div>'+[0,1,2].map(i=>'<input type="number" step="any" min="0" aria-label="'+esc(p.label)+' '+['min','wahrscheinlich','max'][i]+'" data-scope="'+scope+'" data-id="'+p.id+'" data-i="'+i+'" value="'+vals[i]+'">').join('')+badge+'</div>';
+}
+function paramBlock(key){
+  const dev=key==='oss'?'<div class="preset-row"><span class="preset-lbl">Modus:</span><button class="preset-btn" data-dev="ready">Fertiges OSS-Visual (0 h)</button><button class="preset-btn" data-dev="ki">Eigenentwicklung KI-gestützt (40 · 200 · 600 h)</button><button class="preset-btn" data-dev="classic">Eigenentwicklung klassisch (800 · 2.000 · 3.000 h)</button></div>':'';
+  const lic=key==='paid'?'<div class="field" style="margin:10px 0 6px"><label><span>Lizenzmodell</span></label><div class="seg" id="lic-seg"><button data-lm="peruser"'+(S.licModel==='peruser'?' class="active"':'')+'>pro Nutzer (Liste)</button><button data-lm="staffel"'+(S.licModel==='staffel'?' class="active"':'')+'>Volumenstaffel</button><button data-lm="site"'+(S.licModel==='site'?' class="active"':'')+'>Site-Lizenz</button></div><div class="sub-hint">Staffel: −25 % ab 100, −45 % ab 500, −60 % ab 2.000, −70 % ab 5.000 Nutzern (Faustregel aus Zebra-Team- und Inforiver-Volumenpreisen). Site: Pauschale pro Jahr, Nutzerzahl egal.</div></div>'+(S.licModel==='site'?'<div class="preset-row"><span class="preset-lbl">Site-Indikation:</span><button class="preset-btn" data-site="inforiver">Inforiver Domain-wide · 10–90 k€</button><button class="preset-btn" data-site="zebra">Zebra Enterprise Site · 40–150 k€ (Schätzung)</button><button class="preset-btn" data-site="gross">Konzern-Rahmenvertrag · 80–300 k€ (Schätzung)</button></div>':''):'';
+  const rows=OPTP.filter(p=>S.p[key][p.id]!==undefined&&!(key==='paid'&&((S.licModel==='site'&&p.id==='lic')||(S.licModel!=='site'&&p.id==='licSite')))).map(p=>paramRow(p,S.p[key][p.id],'p:'+key)).join('');
+  return dev+lic+'<div class="a-row head"><div>'+esc(OPTS[OK[key]].name)+'</div><div>min</div><div>wahrsch.</div><div>max</div><div></div></div>'+rows;
+}
+function renderParams(){
+  document.getElementById('global-params').innerHTML='<div class="a-row head"><div>Annahme</div><div>min</div><div>wahrsch.</div><div>max</div><div></div></div>'+GLOBAL.map(p=>paramRow(p,S.g[p.id],'g')).join('');
+  document.getElementById('opt-tabs').innerHTML=OPTS.map(o=>'<button class="tab'+(activeTab===o.key?' active':'')+'" data-tab="'+o.key+'"><i style="background:'+o.color+'"></i>'+esc(o.tag)+'</button>').join('');
+  document.querySelectorAll('#opt-tabs .tab').forEach(b=>b.addEventListener('click',()=>{activeTab=b.dataset.tab;renderParams();}));
+  document.getElementById('opt-params').innerHTML=paramBlock(activeTab);
+  document.querySelectorAll('[data-site]').forEach(b=>b.addEventListener('click',()=>{S.p.paid.licSite=({inforiver:[10000,40000,90000],zebra:[40000,80000,150000],gross:[80000,150000,300000]})[b.dataset.site].slice();pendingToast='Site-Lizenz: '+b.textContent;renderParams();update();}));
+  document.querySelectorAll('[data-dev]').forEach(b=>b.addEventListener('click',()=>{S.p.oss.devH=({ready:[0,0,0],ki:[40,200,600],classic:[800,2000,3000]})[b.dataset.dev].slice();pendingToast='Open Source: '+b.textContent;renderParams();update();}));
+  document.querySelectorAll('#lic-seg button').forEach(b=>b.addEventListener('click',()=>{S.licModel=b.dataset.lm;pendingToast='Lizenzmodell: '+b.textContent;renderParams();update();}));
+  document.querySelectorAll('.a-row input[type=number]').forEach(inp=>inp.addEventListener('change',()=>{
+    let v=parseFloat(inp.value);if(!isFinite(v)||v<0){toast('Bitte eine Zahl ≥ 0 eingeben.');renderParams();return;}v=Math.min(v,1e9);const sc=inp.dataset.scope,id=inp.dataset.id,i=+inp.dataset.i;
+    const t=sc==='g'?S.g[id]:S.p[sc.slice(2)][id];const before=t.slice();t[i]=v;
+    if(t[0]>t[1])t[1]=t[0];if(t[2]<t[1])t[2]=t[1];if(t[1]<t[0])t[0]=t[1];
+    const lbl=(GLOBAL.concat(OPTP).find(p=>p.id===id)||{}).label||id;
+    pendingToast='„'+lbl+'“ = '+t.join(' · ')+(before.some((x,j)=>j!==i&&x!==t[j])?' (Nachbarwerte angepasst, damit min ≤ wahrsch. ≤ max)':'');
+    renderParams();update();}));
+  document.querySelectorAll('.a-row').forEach(r=>{const ins=r.querySelectorAll('input');if(ins.length===3){const v=[...ins].map(i=>parseFloat(i.value));ins.forEach(i=>i.classList.toggle('bad',!(v[0]<=v[1]&&v[1]<=v[2])));}});
+}
+
+/* ===================== Rendering: Ergebnis ===================== */
+function perDivisor(){const v=viewersAvg(pertMean(S.g.growth));return (S.per==='viewer'?Math.max(v,1):S.creators+v)*S.horizon;}
+function perLabel(){return 'je '+(S.per==='viewer'?'Viewer':'Nutzer')+' und Jahr';}
+function niceMax(v,n){n=n||4;if(!(v>0))return 1;const raw=v/n,mag=Math.pow(10,Math.floor(Math.log10(raw)));const step=[1,2,2.5,5,10].find(s=>s*mag>=raw)*mag;return step*n;}
+const safe=v=>isFinite(v)?v:0;
+let lastSim={},lastRank=[],lastExcluded=[],lastEv={},lastOrder=[],pendingToast=null;
+function overlap(a,b){const lo=Math.max(a.p10,b.p10),hi=Math.min(a.p90,b.p90);if(hi<=lo)return 0;return (hi-lo)/Math.max(1,Math.min(a.p90-a.p10,b.p90-b.p10));}
+function update(){
+  renderStep1();
+  const ev=evaluate();lastEv=ev;
+  const sim={};OPTS.forEach(o=>sim[o.key]=simulate(o.key,1500));lastSim=sim;
+  const allowed=OPTS.filter(o=>ev[o.key].ko.length===0),excluded=OPTS.filter(o=>ev[o.key].ko.length>0);
+  const perDiv=perDivisor();const vf=S.view==='per'?1/perDiv:1;
+  /* Rangfolge: Kostenverhältnis zur günstigsten Option (inkl. K.O., mengenunabhängig) und Anforderungs-Score */
+  const cminAll=Math.max(1,Math.min(...OPTS.map(o=>sim[o.key].p50)));
+  const rankVal=o=>{const cn=Math.min(1.5,Math.log(Math.max(sim[o.key].p50,1)/cminAll)/Math.log(4));const sn=1-ev[o.key].scorePct/100;const w=S.weight/100;return w*cn+(1-w)*sn;};
+  const ranked=allowed.slice().sort((a,b)=>rankVal(a)-rankVal(b));lastRank=ranked;lastExcluded=excluded;
+  const order=ranked.concat(excluded);lastOrder=order;
+  const place=[];ranked.forEach((o,i)=>{if(i>0&&overlap(sim[o.key],sim[ranked[i-1].key])>0.5&&Math.abs(sim[o.key].p50-sim[ranked[i-1].key].p50)/Math.max(1,sim[ranked[i-1].key].p50)<0.15)place.push(place[i-1]);else place.push(i+1);});
+  const placeLabel=i=>{const p=place[i];const f=place.indexOf(p),l=place.lastIndexOf(p);return f===l?'Platz '+p:'Platz '+p+'–'+(p+(l-f));};
+  const best=ranked[0];
+  /* Headline */
+  const hl=document.getElementById('headline');
+  if(!best){const bl=[];allReqs().forEach(rq=>{if(S.prio[rq.id]==='M'){const kos=OPTS.filter(o=>capOf(rq,o.key)<=1);if(kos.length)bl.push('Must „'+rq.name+'“ (schließt '+kos.map(o=>o.short).join(', ')+' aus)');}});
+    FLAGS.forEach(f=>{if(S.flags[f.id]&&!f.modifier&&Object.keys(f.excl).length)bl.push('Red Flag „'+f.label+'“ (schließt '+Object.keys(f.excl).filter(k=>!(k==='oss'&&f.id==='certonly'&&S.flags.osscert)).map(k=>OPTS[OK[k]].short).join(', ')+' aus)');});
+    hl.innerHTML='<span class="rh-warn">Alle vier Ansätze sind ausgeschlossen.</span> Blockierend: '+bl.map(esc).join(' · ')+'. Mindestens eine Bedingung lockern: ein Must auf Should setzen oder einen Schalter in Schritt 3 lösen.';}
+  else{const b=sim[best.key];const bestScore=allowed.slice().sort((x,y)=>ev[y.key].scorePct-ev[x.key].scorePct)[0];
+    let s='<b>'+esc(best.name)+'</b> ('+esc(best.tag)+') ist mit <b>'+fmtEur(b.p50)+'</b> über '+S.horizon+' Jahre '+(S.weight===100?'der günstigste':'der bestplatzierte')+' zulässige Ansatz (P10–P90: '+fmtEur(b.p10)+' bis '+fmtEur(b.p90)+'), <b>'+fmtEur(b.p50/perDiv)+'</b> '+perLabel()+'.';
+    if(bestScore&&bestScore.key!==best.key){const d=sim[bestScore.key].p50-b.p50,ds=ev[bestScore.key].scorePct-ev[best.key].scorePct;s+=' Die Anforderungen erfüllt <b>'+esc(bestScore.name)+'</b> am besten ('+ev[bestScore.key].scorePct+' % gegen '+ev[best.key].scorePct+' %), der Preis dafür: <b>'+(d>=0?'+':'−')+fmtEur(Math.abs(d))+'</b>'+(ds>0&&d>0?', also '+fmtEur(d/ds)+' je Anforderungspunkt':'')+'.';}
+    else s+=' Anforderungs-Score '+ev[best.key].scorePct+' %.';
+    if(place.length>1&&place[1]===place[0])s+=' <span class="rh-warn">Platz 1 und 2 sind statistisch nicht unterscheidbar, die Bänder überlappen.</span>';
+    const spread=b.p90/Math.max(b.p10,1);s+=' Unsicherheit: P90 ist das <b>'+fmtN(spread,1)+'-fache</b> von P10'+(spread>2.5?' <span class="rh-warn">(hoch: die größten Hebel stehen im Sensitivitäts-Chart)</span>':'')+'.';
+    if(best.key==='oss')s+=' <span class="rh-warn">Offenlegung: ChartKitchen ist ein Projekt der Veranstalter. Die Kategorie gewinnt hier, weil ein fertiges, kostenloses Visual unterstellt ist (Eigenentwicklung 0 h).</span>';
+    if(ev[best.key].unchecked)s+=' <span class="rh-warn">Bedingte Empfehlung: '+ev[best.key].unchecked+' Must-Anforderung(en) sind für diesen Ansatz noch nicht geprüft.</span>';
+    if(ev[best.key].warn.length)s+=' <span class="rh-warn">'+ev[best.key].warn.length+' Warnung(en) für diese Option, siehe Karte.</span>';
+    s+=' Rangfolge: '+S.weight+' % Kosten, '+(100-S.weight)+' % Anforderungen · Betriebsmodell '+modeParams().label+' ('+b.owners+' von '+S.creators+' Erstellern bauen Vorlagen).';
+    hl.innerHTML=s;}
+  document.getElementById('sticky-label').textContent=S.weight===100?'Günstigste zulässige Option':'Empfehlung ('+S.weight+' % Kosten)';
+  document.getElementById('sticky-value').innerHTML=best?esc(best.short)+' '+fmtEur(sim[best.key].p50)+(ranked[1]?' <span class="s2">· Platz 2 '+esc(ranked[1].short)+' '+(sim[ranked[1].key].p50>=sim[best.key].p50?'+':'−')+fmtEur(Math.abs(sim[ranked[1].key].p50-sim[best.key].p50))+'</span>':'')+(excluded.length?' <span class="s2">· '+excluded.length+' K.O.</span>':'')+' <a href="#s5" data-goto="s5">↓ Ergebnis</a>':'– <a href="#s5" data-goto="s5">↓ Ergebnis</a>';
+  /* Konflikte */
+  const cf=conflicts();document.getElementById('conflict-box').innerHTML=cf.map(c=>'<div class="conflict">'+c+'</div>').join('');
+  /* KPI-Karten */
+  const card=(o,lbl)=>{const s=sim[o.key],e=ev[o.key];const isBest=best&&o.key===best.key;
+    return '<div class="kpi'+(lbl===null?' excluded':'')+(isBest?' best':'')+'" style="--oc:'+o.color+';--oct:'+o.tcolor+'"><span class="rank">'+(lbl===null?'K.O.':lbl)+'</span><div class="eyebrow">'+esc(o.tag)+'</div><div class="name">'+esc(o.name)+'</div><div class="big">'+fmtEur(s.p50)+'<small>'+S.horizon+' J.</small></div><div class="range">P10–P90 · '+fmtEur(s.p10)+' – '+fmtEur(s.p90)+(pertMean(S.g.disc)>0?' · Barwert '+fmtEur(s.npv):'')+'</div><div class="per"><b>'+fmtEur(s.p50/perDiv)+'</b> '+perLabel()+'</div><div class="per" style="font-size:11px;color:var(--ink-soft)">Invest '+fmtEur(s.invest)+' · laufend '+fmtEur(s.yearly)+'/Jahr<br>Erster Standard-Report ≈ '+fmtN(s.firstReportH,0)+' h · jeder weitere ≈ '+fmtN(s.nextReportH,1)+' h</div><div class="score">Anforderungs-Score '+e.scorePct+' %'+(lbl===null?' (enthält ein Must mit 1 Punkt)':'')+'<div class="bar"><i style="width:'+e.scorePct+'%"></i></div></div>'+(e.ko.length?'<div class="ko-note">✕ '+e.ko.map(esc).join('<br>✕ ')+'</div>':'')+(e.warn.length?'<div class="ko-note" style="color:#8C5518">⚠ '+e.warn.map(esc).join('<br>⚠ ')+'</div>':'')+'</div>';};
+  document.getElementById('kpi-allowed').innerHTML=ranked.map((o,i)=>card(o,placeLabel(i))).join('');
+  document.getElementById('ko-block').innerHTML=excluded.length?'<div class="divider">Ausgeschlossen durch K.O.-Kriterien</div><div class="kpi-grid">'+excluded.map(o=>card(o,null)).join('')+'</div><div class="ko-list"><b>Warum ausgeschlossen, und was die Rahmenbedingung kostet:</b><ul>'+excluded.map(o=>{const d=best?sim[o.key].p50-sim[best.key].p50:0;return '<li><b style="color:'+o.tcolor+'">'+esc(o.name)+'</b>: '+ev[o.key].ko.map(esc).join('; ')+(best?' → wäre '+(d<0?fmtEur(-d)+' günstiger':fmtEur(d)+' teurer')+' als die beste zulässige Option.':'')+'</li>';}).join('')+'</ul></div>':'';
+  /* Charts, Tabelle, Karten */
+  document.getElementById('chart1-h').textContent=S.horizon+' Jahre · P50'+(S.view==='per'?' · '+perLabel():'');
+  drawStack(sim,vf,order);drawBreakEven(ev,best,ranked);drawTornado(best,ev);drawCumulative(sim,ev,order);
+  renderTable(sim,ev,perDiv,order);renderOptCards(sim,ev,order);
+  const sel=document.getElementById('tornado-opt');const want=S.tornado&&OK[S.tornado]!==undefined?S.tornado:(best?best.key:'paid');
+  if(sel.options.length!==OPTS.length)sel.innerHTML=OPTS.map(o=>'<option value="'+o.key+'">'+esc(o.name)+'</option>').join('');sel.value=want;
+  writeHash();
+  if(pendingToast){toast(pendingToast+(best?' → Platz 1: '+best.short+' '+fmtEur(sim[best.key].p50):' → alle Ansätze ausgeschlossen')+(excluded.length?' · '+excluded.length+' K.O.':''));pendingToast=null;}
+}
+/* ---------- Chart 1: Kostenstruktur ---------- */
+const CATCOL={lic:'#23261F',build:'#4A4D42',switch:'#6E7066',rollout:'#8A8C80',train:'#A9A79A',maint:'#C4C0AF',gov:'#D8D2C0',risk:'#EFEAD9'};
+function drawStack(sim,vf,order){
+  const W=600,rowH=52,padL=190,padR=84,top=18;const H=top+order.length*rowH+34;
+  const max=niceMax(Math.max(...OPTS.map(o=>sim[o.key].p90))*vf,4);const x=v=>padL+safe(v)/max*(W-padL-padR);
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Kostenstruktur je Ansatz" aria-describedby="res-table">';
+  for(let i=0;i<=4;i++){const v=max*i/4;s+='<line x1="'+x(v)+'" y1="'+(top-4)+'" x2="'+x(v)+'" y2="'+(H-28)+'" stroke="#E7E2D4"/><text x="'+x(v)+'" y="'+(H-12)+'" font-size="12" text-anchor="middle" fill="#5B5D52">'+fmtEur(v)+'</text>';}
+  order.forEach((o,i)=>{const r=sim[o.key];const ex=lastEv[o.key].ko.length>0;const y=top+i*rowH+8;let cx=padL;
+    s+='<rect x="'+(padL-6)+'" y="'+y+'" width="4" height="18" fill="'+o.color+'"/><text x="'+(padL-12)+'" y="'+(y+10)+'" font-size="13" text-anchor="end" fill="'+o.tcolor+'" font-weight="600">'+esc(o.short)+(ex?' (K.O.)':'')+'</text><text x="'+(padL-12)+'" y="'+(y+24)+'" font-size="10.5" text-anchor="end" fill="#5B5D52">'+esc(o.tag)+'</text>';
+    CATS.forEach(([k,lbl])=>{const v=r.cats[k]*vf;const w=safe(v)/max*(W-padL-padR);if(w>0){s+='<rect x="'+cx+'" y="'+y+'" width="'+Math.max(w-1.5,0)+'" height="18" fill="'+CATCOL[k]+'" rx="2"'+(ex?' opacity=".5"':'')+'><title>'+esc(o.name)+' · '+lbl+': '+fmtEur(v)+'</title></rect>';if(w>58)s+='<text x="'+(cx+w/2)+'" y="'+(y+13)+'" font-size="10" text-anchor="middle" fill="'+(['lic','build','switch'].includes(k)?'#FFFFFF':'#23261F')+'">'+fmtEur(v)+'</text>';cx+=w;}});
+    const p10=r.p10*vf,p90=r.p90*vf,yw=y+26;
+    s+='<line x1="'+x(p10)+'" y1="'+yw+'" x2="'+x(p90)+'" y2="'+yw+'" stroke="#23261F" stroke-width="1.5"/><line x1="'+x(p10)+'" y1="'+(yw-4)+'" x2="'+x(p10)+'" y2="'+(yw+4)+'" stroke="#23261F" stroke-width="1.5"/><line x1="'+x(p90)+'" y1="'+(yw-4)+'" x2="'+x(p90)+'" y2="'+(yw+4)+'" stroke="#23261F" stroke-width="1.5"/>';
+    s+='<text x="'+(x(p90)+6)+'" y="'+(y+13)+'" font-size="12.5" fill="#23261F" font-weight="600">'+fmtEur(r.p50*vf)+'</text>';});
+  s+='</svg>';document.getElementById('chart-stack').innerHTML=s;
+  document.getElementById('stack-legend').innerHTML=CATS.map(([k,l])=>'<span><i style="background:'+CATCOL[k]+';border:1px solid #D8D2C0"></i>'+l+'</span>').join('')+'<span><i style="background:#23261F;height:2px"></i>P10–P90</span>';
+}
+/* ---------- Chart 2: Break-even + Verhandlungsgrenze ---------- */
+function labelSpread(items){items.sort((a,b)=>a.y-b.y);for(let i=1;i<items.length;i++)if(items[i].y-items[i-1].y<13)items[i].y=items[i-1].y+13;const m={};items.forEach(a=>m[a.k]=a.y);return m;}
+function drawBreakEven(ev,best,ranked){
+  const W=560,H=280,padL=76,padR=120,padT=18,padB=36;const per=S.view==='per';
+  const vmax=Math.max(Math.ceil(S.viewers*3/50)*50,200);const saveV=S.viewers;
+  const abs=OPTS.map(o=>{const pts=[];for(let i=0;i<=20;i++){const v=Math.round(vmax*i/20);S.viewers=v;pts.push([v,expected(o.key).total]);}return {o,pts};});S.viewers=saveV;
+  const series=abs.map(({o,pts})=>({o,pts:pts.map(([v,t])=>[v,per?t/((S.per==='viewer'?Math.max(v,5):v+S.creators)*S.horizon):t]).filter(([v])=>!per||v>=5)}));
+  const ymax=niceMax(Math.max(...series.flatMap(s=>s.pts.map(p=>p[1]))),4);const vmin=per?5:0;
+  const x=v=>padL+(v-vmin)/(vmax-vmin)*(W-padL-padR),y=c=>H-padB-safe(c)/ymax*(H-padT-padB);
+  const labY=labelSpread(series.map(({o,pts})=>({k:o.key,y:y(pts[pts.length-1][1])})));
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Break-even über die Viewer-Zahl">';
+  for(let i=0;i<=4;i++){const c=ymax*i/4;s+='<line x1="'+padL+'" y1="'+y(c)+'" x2="'+(W-padR)+'" y2="'+y(c)+'" stroke="#E7E2D4"/><text x="'+(padL-6)+'" y="'+(y(c)+4)+'" font-size="12" text-anchor="end" fill="#5B5D52">'+fmtEur(c)+'</text>';}
+  for(let i=0;i<=4;i++){const v=Math.round(vmin+(vmax-vmin)*i/4);s+='<text x="'+x(v)+'" y="'+(H-padB+16)+'" font-size="12" text-anchor="middle" fill="#5B5D52">'+fmtN(v)+'</text>';}
+  s+='<text x="'+((padL+W-padR)/2)+'" y="'+(H-4)+'" font-size="12" text-anchor="middle" fill="#5B5D52">Viewer'+(per?' · '+perLabel():'')+'</text>';
+  const xv=Math.max(S.viewers,vmin);s+='<line x1="'+x(xv)+'" y1="'+padT+'" x2="'+x(xv)+'" y2="'+(H-padB)+'" stroke="#23261F" stroke-dasharray="3 3"/><text x="'+(x(xv)+4)+'" y="'+(padT+10)+'" font-size="11" fill="#23261F">heute: '+fmtN(S.viewers)+'</text>';
+  series.forEach(({o,pts})=>{const ex=ev[o.key].ko.length>0;const d=pts.map((p,i)=>(i?'L':'M')+x(p[0])+' '+y(p[1])).join(' ');s+='<path d="'+d+'" fill="none" stroke="'+o.color+'" stroke-width="2.5"'+(ex?' stroke-dasharray="5 4" opacity=".55"':'')+'/>';const last=pts[pts.length-1];s+='<text x="'+(x(last[0])+6)+'" y="'+(labY[o.key]+4)+'" font-size="12.5" fill="'+o.tcolor+'" font-weight="600">'+esc(o.short)+(ex?' (K.O.)':'')+'</text>';});
+  /* Schnittpunkte auf der Absolut-Kurve */
+  const paidLine=abs[0].pts;const cross=[];
+  abs.slice(1).forEach(({o,pts})=>{let c=null;for(let i=1;i<pts.length;i++){const d0=paidLine[i-1][1]-pts[i-1][1],d1=paidLine[i][1]-pts[i][1];if(d0<=0&&d1>0){const t=d0/(d0-d1);c=Math.round(pts[i-1][0]+(pts[i][0]-pts[i-1][0])*t);break;}}
+    cross.push({o,c,alwaysCheaper:c===null&&paidLine[0][1]>pts[0][1]});
+    if(c!==null&&(!per||c>=5)){const idx=pts.findIndex(p=>p[0]>=c);const yy=idx>0?y(pts[idx][1]):y(pts[0][1]);s+='<circle cx="'+x(c)+'" cy="'+yy+'" r="4.5" fill="#fff" stroke="'+o.color+'" stroke-width="2"/><text x="'+x(c)+'" y="'+(yy-8)+'" font-size="11" text-anchor="middle" fill="'+o.tcolor+'">'+fmtN(c)+'</text>';}});
+  s+='</svg>';document.getElementById('chart-be').innerHTML=s;
+  const sorted=cross.filter(c=>c.c!==null).sort((a,b)=>a.c-b.c);const done=sorted.filter(c=>c.c<=S.viewers),todo=sorted.filter(c=>c.c>S.viewers);
+  let ins=[];if(done.length)ins.push('Bei euren '+fmtN(S.viewers)+' Viewern bereits günstiger als Paid: '+done.map(c=>'<b>'+esc(c.o.short)+'</b> (ab '+fmtN(c.c)+')').join(', ')+'.');
+  if(todo.length)ins.push('Noch nicht erreicht: '+todo.map(c=>'<b>'+esc(c.o.short)+'</b> (ab '+fmtN(c.c)+' Viewern)').join(', ')+'.');
+  cross.filter(c=>c.alwaysCheaper).forEach(c=>ins.push('<b>'+esc(c.o.short)+'</b> ist bei jeder Viewer-Zahl günstiger als Paid.'));
+  cross.filter(c=>c.c===null&&!c.alwaysCheaper).forEach(c=>ins.push('<b>'+esc(c.o.short)+'</b> wird erst jenseits von '+fmtN(vmax)+' Viewern günstiger als Paid.'));
+  /* Verhandlungsgrenze */
+  const alt=(best&&best.key!=='paid')?best:(ranked||[]).find(o=>o.key!=='paid');
+  if(alt){const exP=expected('paid');const altT=expected(alt.key).total;const d=S.licModel==='staffel'?(exP.users<=100?1:exP.users<=500?.75:exP.users<=2000?.55:exP.users<=5000?.40:.30):1;const be=(altT-exP.licNoLic)/(exP.users*exP.licF*d);
+    ins.push('<span class="be-neg"><b>Verhandlungsgrenze:</b> Paid rechnet sich gegen '+esc(alt.name)+' bis <b>'+(be>0?fmtN(Math.round(be))+' € je Nutzer und Jahr':'0 €, also nie')+'</b>'+(S.licModel==='staffel'?' (Listenpreis vor Staffel)':S.licModel==='site'?' (umgerechnet je Nutzer)':'')+'. Das ist die Zielmarke für das Einkaufsgespräch, nicht der Listenpreis des Herstellers.</span>');}
+  ins.push('<span style="color:var(--ink-soft)">'+(S.licModel==='staffel'?'Knicke in der Paid-Linie sind die Staffelgrenzen bei 100 / 500 / 2.000 Nutzern. ':'')+'Auch Open Source, Deneb und Core steigen mit der Viewer-Zahl: Anwender-Support, Nachfrage nach Reports und Zugriffs-Governance sind viewer-abhängig modelliert. Governance-Stufen bei 50 / 250 / 1.000 Viewern erzeugen die Knicke.</span>');
+  document.getElementById('be-insight').innerHTML=ins.join(' ')+(ev.paid.ko.length?' <span style="color:var(--warn)">Paid ist aktuell durch K.O. ausgeschlossen, die Linie zeigt den hypothetischen Verlauf.</span>':'');
+}
+/* ---------- Chart 3: Sensitivität ---------- */
+function drawTornado(best,ev){
+  const key=S.tornado&&OK[S.tornado]!==undefined?S.tornado:(best?best.key:'paid');const o=OPTS[OK[key]];
+  const base=expected(key).total;const items=[];
+  const SRC={V:'verifiziert',S:'Snippet',F:'Faustregel',E:'Expertenschätzung'};
+  GLOBAL.forEach(p=>{const t=S.g[p.id];if(t[2]===t[0])return;items.push({l:p.label,src:p.src,lo:expected(key,{[p.id]:t[0]}).total-base,hi:expected(key,{[p.id]:t[2]}).total-base});});
+  OPTP.forEach(p=>{const t=S.p[key][p.id];if(!t||t[2]===t[0])return;items.push({l:p.label,src:p.src,lo:expected(key,{[p.id]:t[0]}).total-base,hi:expected(key,{[p.id]:t[2]}).total-base});});
+  items.sort((a,b)=>Math.abs(b.hi-b.lo)-Math.abs(a.hi-a.lo));const top=items.slice(0,8);
+  const W=560,rowH=30,padL=215,padR=70,padT=22;const H=padT+top.length*rowH+36;
+  const mx=niceMax(Math.max(...top.map(i=>Math.max(Math.abs(i.lo),Math.abs(i.hi)))),2);const cx=padL+(W-padL-padR)/2,sc=(W-padL-padR)/2/mx;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Sensitivität">';
+  s+='<line x1="'+cx+'" y1="'+padT+'" x2="'+cx+'" y2="'+(H-28)+'" stroke="#23261F"/><text x="'+(cx-sc*mx)+'" y="'+(padT-8)+'" font-size="11" fill="#5B5D52">← günstiger</text><text x="'+(cx+sc*mx)+'" y="'+(padT-8)+'" font-size="11" text-anchor="end" fill="#5B5D52">teurer →</text><text x="'+cx+'" y="'+(H-8)+'" font-size="11" text-anchor="middle" fill="#5B5D52">Basis: Referenzrechnung mit mittleren Annahmen '+fmtEur(base)+' (die Karte zeigt den Median P50 der Simulation)</text>';
+  top.forEach((it,i)=>{const y=padT+i*rowH+6;s+='<text x="'+(padL-8)+'" y="'+(y+13)+'" font-size="11.5" text-anchor="end" fill="#23261F">'+esc(it.l.length>34?it.l.slice(0,33)+'…':it.l)+'</text><rect x="'+(padL-208)+'" y="'+(y+2)+'" width="14" height="14" rx="3" fill="'+({V:'#DCEFEB',S:'#FBE9D4',F:'#E7E2D4',E:'#E3E7F7'}[it.src])+'"/><text x="'+(padL-201)+'" y="'+(y+13)+'" font-size="9" text-anchor="middle" fill="#23261F">'+it.src+'</text>';
+    [[it.lo,'#6FA96B'],[it.hi,'#C4573A']].forEach(([v,c])=>{const w=Math.abs(v)*sc;const x0=v<0?cx-w:cx;s+='<rect x="'+x0+'" y="'+y+'" width="'+Math.max(w,0)+'" height="18" fill="'+c+'" rx="2" opacity=".85"><title>'+esc(it.l)+' ('+SRC[it.src]+'): '+(v>=0?'+':'−')+fmtEur(Math.abs(v))+'</title></rect>';
+      if(Math.abs(v)>1)s+='<text x="'+(v>=0?cx+w+4:cx-w-4)+'" y="'+(y+13)+'" font-size="10.5" text-anchor="'+(v>=0?'start':'end')+'" fill="#23261F">'+(v>=0?'+':'−')+fmtEur(Math.abs(v))+'</text>';});});
+  s+='</svg>';document.getElementById('chart-tornado').innerHTML=s+'<div class="chart-legend"><span><i style="background:#6FA96B"></i>Annahme auf Minimum</span><span><i style="background:#C4573A"></i>Annahme auf Maximum</span><span style="color:'+o.tcolor+'">■ '+esc(o.name)+'</span><span>Badge = Quellenlage der Annahme</span></div>';
+}
+/* ---------- Chart 4: Kumulierte Kosten ---------- */
+function drawCumulative(sim,ev,order){
+  const W=560,H=260,padL=76,padR=120,padT=18,padB=34;const H_=S.horizon;
+  const uf=S.view==='per'?1/(S.per==='viewer'?Math.max(viewersAvg(pertMean(S.g.growth)),1):S.creators+viewersAvg(pertMean(S.g.growth))):1;
+  const series=order.map(o=>{const cf=sim[o.key].cf;const pts=[];let acc=0;cf.forEach((v,yv)=>{acc+=v;pts.push([yv,acc*uf]);});return {o,pts};});
+  const ymax=niceMax(Math.max(...series.flatMap(s=>s.pts.map(p=>p[1]))),4);
+  const x=v=>padL+v/H_*(W-padL-padR),y=c=>H-padB-safe(c)/ymax*(H-padT-padB);
+  const labY=labelSpread(series.map(({o,pts})=>({k:o.key,y:y(pts[pts.length-1][1])})));
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Kumulierte Kosten">';
+  for(let i=0;i<=4;i++){const c=ymax*i/4;s+='<line x1="'+padL+'" y1="'+y(c)+'" x2="'+(W-padR)+'" y2="'+y(c)+'" stroke="#E7E2D4"/><text x="'+(padL-6)+'" y="'+(y(c)+4)+'" font-size="12" text-anchor="end" fill="#5B5D52">'+fmtEur(c)+'</text>';}
+  for(let yv=0;yv<=H_;yv++)s+='<text x="'+x(yv)+'" y="'+(H-padB+16)+'" font-size="12" text-anchor="middle" fill="#5B5D52">'+(yv===0?'Start':'Jahr '+yv)+'</text>';
+  series.forEach(({o,pts})=>{const ex=ev[o.key].ko.length>0;const d=pts.map((p,i)=>(i?'L':'M')+x(p[0])+' '+y(p[1])).join(' ');s+='<path d="'+d+'" fill="none" stroke="'+o.color+'" stroke-width="2.5"'+(ex?' stroke-dasharray="5 4" opacity=".55"':'')+'/>';pts.forEach(p=>s+='<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="3.5" fill="'+o.color+'" stroke="#fff" stroke-width="1.5"><title>'+esc(o.name)+' · '+(p[0]===0?'Invest':'bis Jahr '+p[0])+': '+fmtEur(p[1])+'</title></circle>');const last=pts[pts.length-1];s+='<text x="'+(x(last[0])+6)+'" y="'+(labY[o.key]+4)+'" font-size="12.5" fill="'+o.tcolor+'" font-weight="600">'+esc(o.short)+'</text>';});
+  s+='</svg>';document.getElementById('chart-cum').innerHTML=s;document.getElementById('chart4-h').textContent=(S.view==='per'?'je '+(S.per==='viewer'?'Viewer':'Nutzer')+', kumuliert':'absolut')+' · Lizenzen wachsen mit Viewern und Preis';
+}
+/* ---------- Tabelle ---------- */
+function renderTable(sim,ev,perDiv,order){
+  const th=o=>'<th style="color:'+o.tcolor+'">'+esc(o.name)+'<br><span style="font-weight:400">'+esc(o.tag)+(ev[o.key].ko.length?' · K.O.':'')+'</span></th>';
+  let h='<thead><tr><th>Posten</th>'+order.map(th).join('')+'</tr></thead><tbody>';
+  CATS.forEach(([k,l])=>{h+='<tr><td>'+l+'</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].cats[k])+'</td>').join('')+'</tr>';});
+  h+='<tr class="total"><td>Gesamt über '+S.horizon+' Jahre (P50)</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].p50)+'</td>').join('')+'</tr>';
+  h+='<tr><td>Spanne P10 – P90</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].p10)+' – '+fmtEur(sim[o.key].p90)+'</td>').join('')+'</tr>';
+  h+='<tr><td>Barwert bei '+fmtN(pertMean(S.g.disc),1)+' % Kalkulationszins</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].npv)+'</td>').join('')+'</tr>';
+  h+='<tr><td>Invest (Start)</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].invest)+'</td>').join('')+'</tr>';
+  h+='<tr><td>Laufend je Jahr (Mittel)</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].yearly)+'</td>').join('')+'</tr>';
+  h+='<tr><td>'+perLabel().replace(/^je/,'Je')+'</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].p50/perDiv)+'</td>').join('')+'</tr>';
+  h+='<tr><td>Erster Standard-Report (h) · jeder weitere (h)</td>'+order.map(o=>'<td>'+fmtN(sim[o.key].firstReportH,0)+' · '+fmtN(sim[o.key].nextReportH,1)+'</td>').join('')+'</tr>';
+  h+='<tr><td>Abkündigung: Wahrscheinlichkeit über '+S.horizon+' Jahre</td>'+order.map(o=>'<td>'+fmtN(sim[o.key].pH*100,0)+' %</td>').join('')+'</tr>';
+  h+='<tr><td>Anforderungs-Score</td>'+order.map(o=>'<td>'+ev[o.key].scorePct+' %</td>').join('')+'</tr>';
+  h+='<tr><td colspan="'+(order.length+1)+'" style="text-align:left;font-family:var(--sans);font-size:11px;color:var(--ink-soft)">Kategorien sind Erwartungswerte, proportional auf den Median (P50) skaliert. Betriebsmodell '+esc(modeParams().label)+': '+ownersOf()+' von '+S.creators+' Erstellern bauen Vorlagen; Reports inkl. Nachfrage-Wachstum ≈ '+fmtN(sim.paid.reportsTotal,0)+'. Aktivierungsfähig wären Setup, Eigenentwicklung und Chart-Aufbau (§ 248 Abs. 2 HGB Wahlrecht, IAS 38); hier nicht modelliert.</td></tr>';
+  document.getElementById('res-table').innerHTML=h+'</tbody>';
+}
+/* ---------- Textbausteine ---------- */
+function renderOptCards(sim,ev,order){
+  document.getElementById('opt-cards').innerHTML=order.map(o=>{const t=TEXT[o.key],s=sim[o.key],e=ev[o.key];
+    const dyn=[];const pct=k=>Math.round(100*s.cats[k]/Math.max(s.p50,1));
+    if(o.key==='paid')dyn.push('Bei '+fmtN(S.creators+S.viewers)+' lizenzpflichtigen Nutzern ('+({peruser:'pro Nutzer',staffel:'mit Volumenstaffel',site:'Site-Lizenz'}[S.licModel])+') entfallen '+fmtEur(s.cats.lic)+' ('+pct('lic')+' %) auf Lizenz, Support und Capacity.');
+    if(o.key==='deneb'||o.key==='core')dyn.push('Wartung und Updates machen '+pct('maint')+' % der Kosten aus, Governance und Anwender-Support '+pct('gov')+' %: der Invest ist nur der Anfang.');
+    if(o.key==='oss')dyn.push('Governance und Anwender-Support: '+pct('gov')+' % der Kosten. Ohne Zertifikat liegt das Code-Review bei euch.'+(S.p.oss.devH[1]>0?' Mit '+fmtN(S.p.oss.devH[1])+' h Eigenentwicklung kommt Produktpflege bei jedem API-Wechsel dazu.':''));
+    return '<div class="opt-card" style="--oc:'+o.color+'"><h4>'+esc(o.name)+' <span class="eyebrow" style="color:'+o.tcolor+'">'+esc(o.tag)+'</span></h4><div class="ex">'+esc(o.ex)+'</div><div class="hidden-cost" style="margin-top:6px"><ul>'+dyn.map(x=>'<li><b>'+esc(x)+'</b></li>').join('')+'</ul></div><details><summary>Vorteile, Nachteile, versteckte Kosten</summary><h5>Vorteile</h5><ul>'+t.pro.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul><h5>Nachteile</h5><ul>'+t.con.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul><h5 style="color:var(--warn)">Versteckte Kosten</h5><ul>'+t.hidden.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></details><h5>Sinnvoll, wenn</h5><div style="font-size:12px;line-height:1.5">'+esc(t.when)+'</div>'+(e.ko.length?'<div class="ko-note" style="font-size:11px;color:var(--warn);margin-top:8px">In eurem Szenario ausgeschlossen: '+e.ko.map(esc).join('; ')+'</div>':'')+'</div>';}).join('');
+}
+/* ---------- Anhang / Footer ---------- */
+function renderSources(){
+  document.getElementById('sources').innerHTML='<thead><tr><th>Quelle</th><th>Was drin steht</th><th>Status</th></tr></thead><tbody>'+SOURCES.map(([n,w,u,s])=>'<tr><td><a href="'+u+'" target="_blank" rel="noopener">'+esc(n)+'</a></td><td>'+esc(w)+'</td><td><span class="badge '+s+'">'+s+'</span></td></tr>').join('')+'</tbody>';
+  document.getElementById('footer').innerHTML='<b>Methodik:</b> Je Ansatz werden Lizenz und Support (Nutzer × Preis × Jahre), Aufbau (Setup, optionale Eigenentwicklung, Chart-Typen × Stunden × Stundensatz-Mix), Rollout (Reports × Charts × Wiederverwendungs-Stunden), Schulung (Ersteller × Stunden und Kurskosten, wiederkehrend über die Fluktuation), Lizenz mit Viewer-Wachstum und Preissteigerung je Jahr, Wartung (Quote × Aufbau + Rollout × Jahre plus Breaking-Updates) und Abkündigungsrisiko (Wahrscheinlichkeit × Migrationsanteil × Aufbau) addiert. Jede Annahme ist eine Dreipunkt-Schätzung, aus der per PERT-Verteilung 1.500 Szenarien gezogen werden; angezeigt werden P10, P50 und P90. Break-even und Sensitivität nutzen den PERT-Erwartungswert. K.O.-Kriterien (Must mit 0 Punkten, Governance-Schalter) filtern vor der Rangfolge; ausgeschlossene Ansätze bleiben zur Einordnung sichtbar. Der Anforderungs-Score ist eine Nutzwertanalyse (Must 3, Should 2, Could 1 als Gewicht, Erfüllungsgrad 1 bis 5) und bewusst nur über den Regler in die Rangfolge einbezogen. Governance und Anwender-Support wachsen mit der Viewer-Zahl (Stufen bei 50 / 250 / 1.000 Viewern), das Betriebsmodell trennt tief geschulte Vorlagen-Bauer von Vorlagen-Nutzern und skaliert Varianten, Support und Governance. Lizenzen wachsen mit Viewern und Preis, Stundensätze mit der Lohnsteigerung, die Wartung klingt ab. Das Abkündigungsrisiko wird als Jahresrate über den Horizont akkumuliert und in der Simulation als Ereignis gezogen. Der Barwert nutzt den Kalkulationszins auf den Zahlungsstrom je Jahr. Die Rangfolge nutzt das Kostenverhältnis zur günstigsten Option (auch ausgeschlossene), damit eine chancenlose dritte Option die Reihenfolge der anderen nicht verschiebt; Plätze mit überlappenden P10–P90-Bändern werden zusammengefasst. Beträge sind auf zwei signifikante Stellen gerundet. Power-BI-Grundlizenzen (Pro, PPU, Capacity-Grundpreis) fallen für alle Ansätze gleich an und sind nicht enthalten, ebenso die Nutzen-Seite (nur als Score und als „€ je Anforderungspunkt\“), Aktivierung/Abschreibung und steuerliche Fragen (z. B. § 50a EStG bei Lizenzen ausländischer Anbieter). <b>Alle Zahlen sind Indikationen unter Unsicherheit</b>, keine Angebote. Die Berechnung läuft lokal im Browser. Der Share-Link enthält eure Eingaben unverschlüsselt im URL-Fragment; wer den Link hat, sieht die Annahmen. Schriften werden von Google Fonts geladen; der Excel-Export lädt die Bibliothek SheetJS zuerst lokal, sonst von cdnjs.cloudflare.com (dabei sehen Google bzw. Cloudflare eure IP-Adresse, keine Eingaben).<div class="footer-version"><a href="md/visual-standards-rechner.md" style="color:var(--accent-text)">Markdown-Fassung (Modell, Annahmen, Quellen)</a> · Visual-Standards-Rechner v0.5 · Michael Tenner &amp; Diana Ackermann · Daten-WG Knowledge Kitchen · Stand 09/2026 · Pre-Conference „Visual Standards in Power BI für Controlling und Finance“</div>';
+}
+
+/* ===================== Excel-Export ===================== */
+function loadScript(src){return new Promise((res,rej)=>{if(window.XLSX)return res();const sc=document.createElement('script');sc.src=src;sc.onload=res;sc.onerror=rej;document.head.appendChild(sc);});}
+function exportXlsx(){
+  toast('Excel wird erzeugt …');
+  loadScript('assets/js/xlsx.full.min.js').catch(()=>loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js')).then(buildXlsx).catch(()=>{exportCsvFallback();});
+}
+function exportCsvFallback(){
+  const sim=lastSim;const rows=[['Posten',...OPTS.map(o=>o.name)]];CATS.forEach(([k,l])=>rows.push([l,...OPTS.map(o=>Math.round(sim[o.key].cats[k]))]));rows.push(['Gesamt P50',...OPTS.map(o=>Math.round(sim[o.key].p50))],['P10',...OPTS.map(o=>Math.round(sim[o.key].p10))],['P90',...OPTS.map(o=>Math.round(sim[o.key].p90))]);
+  rows.unshift(['Visual-Standards-Rechner · Indikation, kein Angebot · Stand '+new Date().toLocaleDateString('de-DE')+' · Daten-WG'],['Mengengerüst',S.creators+' Ersteller',S.viewers+' Viewer',S.reports+' Reports',S.horizon+' Jahre',modeParams().label],['Aktive Schalter',FLAGS.filter(f=>S.flags[f.id]).map(f=>f.label).join(' | ')||'keine'],[]);
+  rows.push([],['Annahmen (min;wahrsch.;max)']);GLOBAL.forEach(p=>rows.push([p.label+' (global)',...S.g[p.id]]));OPTS.forEach(o=>OPTP.forEach(p=>{if(S.p[o.key][p.id])rows.push([o.name+' · '+p.label,...S.p[o.key][p.id]]);}));
+  rows.push([],['Anforderungen','Priorität',...OPTS.map(o=>o.name)]);allReqs().forEach(r=>rows.push([r.name,PRIO[S.prio[r.id]],...OPTS.map(o=>capOf(r,o.key))]));
+  const csv=rows.map(r=>r.join(';')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\ufeff'+encodeURIComponent(csv);a.download='visual-standards-rechner.csv';a.click();toast('Achtung: Excel-Bibliothek nicht erreichbar. Nur CSV mit Kosten, Annahmen und Anforderungen, ohne Formelmodell.');
+}
+function buildXlsx(){
+  const X=window.XLSX;const wb=X.utils.book_new();const sim=lastSim;const ev=evaluate();const perDiv=perDivisor();
+  const col=i=>X.utils.encode_col(i);
+  /* --- Lesen zuerst --- */
+  const cnt={V:0,S:0,F:0,E:0};GLOBAL.concat(OPTP).forEach(p=>cnt[p.src]++);
+  const L0=[['Visual-Standards-Rechner · Indikation, kein Angebot'],['Stand',new Date().toLocaleDateString('de-DE')],['Autoren','Michael Tenner & Diana Ackermann · Daten-WG Knowledge Kitchen · Pre-Conference „Visual Standards in Power BI für Controlling und Finance“'],['Zweck','Kostenindikation für visuelle Standards in Power BI: 3rd-Party paid, Open Source / Eigenentwicklung, Deneb / Vega, Core Visuals + SVG'],['Offenlegung','ChartKitchen byDatenWG (Beispiel für Open Source / Eigenentwicklung) ist ein Projekt der Veranstalter.'],['Quellenlage der '+(cnt.V+cnt.S+cnt.F+cnt.E)+' Annahmen',cnt.V+' verifiziert · '+cnt.S+' Such-Snippet · '+cnt.F+' Faustregel · '+cnt.E+' Expertenschätzung Daten-WG'],['Was diese Zahl nicht sagt','Sie ersetzt kein Angebot und keinen Business Case. Die Rangfolge hängt an Stunden-je-Chart-Annahmen ohne Literaturquelle. Plätze mit überlappenden P10–P90-Bändern sind nicht unterscheidbar.'],['Mengengerüst',S.creators+' Ersteller · '+S.viewers+' Viewer · '+S.reports+' Reports · '+S.cpr+' Charts/Report · '+S.types+' Chart-Typen · '+S.horizon+' Jahre · Betriebsmodell '+modeParams().label+' · Lizenzmodell '+S.licModel+' · Bestand '+S.baseline+' ('+S.existing+' Reports)'],['Aktive Governance-Schalter',FLAGS.filter(f=>S.flags[f.id]).map(f=>f.label).join('; ')||'keine'],['Geänderte Annahmen',(()=>{const o=[];GLOBAL.forEach(q=>{if(q.v.join()!==S.g[q.id].join())o.push(q.label+': '+S.g[q.id].join(' · ')+' (Standard '+q.v.join(' · ')+')');});OPTS.forEach(x=>OPTP.forEach(q=>{const d=q.v[x.key],v=S.p[x.key][q.id];if(d&&v&&d.join()!==v.join())o.push(x.name+' · '+q.label+': '+v.join(' · ')+' (Standard '+d.join(' · ')+')');}));return o.join('; ')||'keine';})()],['Ungeprüfte Must-Anforderungen',(()=>{const o=[];allReqs().forEach(r=>{if(S.prio[r.id]==='M')OPTS.forEach(x=>{if(capOf(r,x.key)===0)o.push(r.name+' ('+x.short+')');});});return o.join('; ')||'keine';})()],['Nicht enthalten','Power-BI-Grundlizenzen, Nutzen-Seite (nur Score), Aktivierung/Abschreibung, Steuern'],['Share-Link',location.href.slice(0,2000)]];
+  const wsL=X.utils.aoa_to_sheet(L0);wsL['!cols']=[{wch:30},{wch:120}];X.utils.book_append_sheet(wb,wsL,'Lesen zuerst');
+  /* --- Annahmen: Dreipunkt --- */
+  const A=[['Annahme','Einheit','Quelle']];OPTS.forEach(o=>A[0].push(o.name+' min',o.name+' wahrsch.',o.name+' max'));
+  GLOBAL.forEach(p=>{const r=[p.label+' (global)',p.sub,{V:'verifiziert',S:'Snippet',F:'Faustregel',E:'Expertenschätzung'}[p.src]];r.push(...S.g[p.id]);A.push(r);});
+  const gRow0=2;const pRow0=gRow0+GLOBAL.length+1;
+  A.push([]);
+  OPTP.forEach(p=>{const r=[p.label,p.sub,{V:'verifiziert',S:'Snippet',F:'Faustregel',E:'Expertenschätzung'}[p.src]];OPTS.forEach(o=>{const t=S.p[o.key][p.id];r.push(...(t?t:[0,0,0]));});A.push(r);});
+  const wsA=X.utils.aoa_to_sheet(A);wsA['!cols']=[{wch:38},{wch:34},{wch:16},...Array(12).fill({wch:11})];X.utils.book_append_sheet(wb,wsA,'Annahmen');
+  /* --- Modell mit Formeln --- */
+  const M=[['Parameter','Einheit',...OPTS.map(o=>o.name)]];
+  const F=str=>({f:String(str).replace(/^=/,'')});
+  const pertF=(row,c0)=>'=(Annahmen!'+col(c0)+row+'+4*Annahmen!'+col(c0+1)+row+'+Annahmen!'+col(c0+2)+row+')/6';
+  M.push(['Ersteller','Personen',S.creators]);M.push(['Viewer','Personen',S.viewers]);M.push(['Standard-Reports','Anzahl',S.reports]);M.push(['Charts je Report','Anzahl',S.cpr]);M.push(['Chart-Typen','Anzahl',S.types]);M.push(['Horizont','Jahre',S.horizon]);
+  GLOBAL.forEach((p,i)=>M.push([p.label,p.sub,F(pertF(gRow0+i,3))]));
+  const gIdx={};GLOBAL.forEach((p,i)=>gIdx[p.id]='$C$'+(8+i));
+  M.push([]);M.push(['Erwartungswert je Ansatz (PERT aus Annahmen)','']);
+  const pStart=M.length+1;
+  OPTP.forEach((p,i)=>{const r=[p.label,p.sub];OPTS.forEach((o,j)=>{r.push(S.p[o.key][p.id]?F(pertF(pRow0+i,3+3*j)):0);});M.push(r);});
+  const pr=id=>pStart+OPTP.findIndex(p=>p.id===id);
+  M.push([]);M.push(['Kosten über den Horizont','']);
+  const c0=M.length+1;const L=j=>col(2+j);
+  const costRows=[
+    ['Stundensatz-Mix','€/h',j=>'='+gIdx.rateInt+'*(1-'+L(j)+pr('ext')+'/100)+'+gIdx.rateExt+'*'+L(j)+pr('ext')+'/100'],
+    ['Lizenzfaktor (Wachstum × Preissteigerung, Summe über Jahre)','Jahre',j=>{const r='((1+'+gIdx.growth+'/100)*(1+'+L(j)+pr('licInfl')+'/100))';return '=IF(ABS('+r+'-1)<0.000001,$C$7,('+r+'^$C$7-1)/('+r+'-1))';}],
+    ['Lizenz & Support','€',j=>'=($C$2+$C$3)*'+L(j)+pr('lic')+'*'+L(j)+(c0+1)+'+'+L(j)+pr('support')+'*$C$7'],
+    ['Aufbau','€',j=>'=('+L(j)+pr('setupH')+'+'+L(j)+pr('devH')+'+$C$6*'+L(j)+pr('firstH')+')*'+L(j)+c0],
+    ['Rollout','€',j=>'=$C$4*$C$5*'+L(j)+pr('reuseH')+'*'+L(j)+c0],
+    ['Schulung','€',j=>'=$C$2*('+L(j)+pr('trainH')+'*'+gIdx.rateInt+'+'+L(j)+pr('course')+')*(1+'+gIdx.churn+'/100*$C$7)'],
+    ['Wartung & Updates','€',j=>'=('+L(j)+(c0+3)+'+'+L(j)+(c0+4)+')*'+L(j)+pr('maint')+'/100*$C$7+'+L(j)+pr('events')+'*'+L(j)+pr('fixH')+'*'+L(j)+c0+'*$C$7'],
+    ['Abkündigungsrisiko','€',j=>'='+L(j)+pr('dep')+'/100*('+L(j)+(c0+3)+'+'+L(j)+(c0+4)+')*'+gIdx.migShare+'/100'],
+    ['Gesamt (Erwartungswert)','€',j=>'=SUM('+L(j)+(c0+2)+':'+L(j)+(c0+7)+')'],
+    ['Invest (Jahr 0)','€',j=>'='+L(j)+(c0+3)+'+'+L(j)+(c0+4)+'+'+L(j)+(c0+5)],
+    ['Laufend je Jahr','€',j=>'=('+L(j)+(c0+2)+'+'+L(j)+(c0+6)+'+'+L(j)+(c0+7)+')/$C$7'],
+    ['Je Viewer und Jahr','€',j=>'='+L(j)+(c0+8)+'/MAX($C$3,1)/$C$7'],
+    ['Je Nutzer (Ersteller + Viewer) und Jahr','€',j=>'='+L(j)+(c0+8)+'/($C$2+$C$3)/$C$7'],
+  ];
+  costRows.forEach(([l,u,f])=>{const r=[l,u];OPTS.forEach((o,j)=>r.push(F(f(j))));M.push(r);});
+  M.push([]);M.push(['Hinweis: Vereinfachtes Formelmodell (ohne Betriebsmodell-Rollen, Governance-Stufen, Migration, Abklingfaktor und Barwert). Das Blatt „Ergebnis“ enthält die vollständige Browser-Berechnung.']);M.push(['Alle grünen Eingaben in „Annahmen“ ändern, das Modell rechnet nach. Die Simulation (P10/P50/P90) im Blatt „Ergebnis“ ist ein Schnappschuss aus dem Browser; das Formelmodell nutzt den PERT-Erwartungswert (min + 4·wahrsch. + max)/6.']);
+  const wsM=X.utils.aoa_to_sheet(M);wsM['!cols']=[{wch:44},{wch:30},{wch:18},{wch:18},{wch:18},{wch:18}];X.utils.book_append_sheet(wb,wsM,'Modell');
+  /* --- Ergebnis (Simulation) --- */
+  const R=[['Posten',...OPTS.map(o=>o.name)]];CATS.forEach(([k,l])=>R.push([l+' (P50)',...OPTS.map(o=>Math.round(sim[o.key].cats[k]))]));
+  R.push(['Gesamt P50',...OPTS.map(o=>Math.round(sim[o.key].p50))],['Gesamt P10',...OPTS.map(o=>Math.round(sim[o.key].p10))],['Gesamt P90',...OPTS.map(o=>Math.round(sim[o.key].p90))],['Barwert',...OPTS.map(o=>Math.round(sim[o.key].npv))],['Invest Jahr 0',...OPTS.map(o=>Math.round(sim[o.key].invest))],['Laufend je Jahr',...OPTS.map(o=>Math.round(sim[o.key].yearly))],[perLabel(),...OPTS.map(o=>Math.round(sim[o.key].p50/perDiv))],['Erster Standard-Report (h)',...OPTS.map(o=>Math.round(sim[o.key].firstReportH))],['Jeder weitere Report (h)',...OPTS.map(o=>+sim[o.key].nextReportH.toFixed(1))],['Anforderungs-Score %',...OPTS.map(o=>ev[o.key].scorePct)],['K.O.',...OPTS.map(o=>ev[o.key].ko.join(' | '))],['Warnungen',...OPTS.map(o=>ev[o.key].warn.join(' | '))]);
+  R.push([],['Mengengerüst'],['Ersteller',S.creators],['Viewer',S.viewers],['Reports',S.reports],['Charts je Report',S.cpr],['Chart-Typen',S.types],['Horizont (Jahre)',S.horizon],['Aktive Governance-Schalter',FLAGS.filter(f=>S.flags[f.id]).map(f=>f.label).join('; ')||'keine']);
+  const wsR=X.utils.aoa_to_sheet(R);wsR['!cols']=[{wch:34},{wch:22},{wch:22},{wch:22},{wch:22}];X.utils.book_append_sheet(wb,wsR,'Ergebnis');
+  /* --- Anforderungen --- */
+  const Q=[['Anforderung','Erläuterung','Priorität',...OPTS.map(o=>o.name+' (1–5)')]];allReqs().forEach(r=>Q.push([r.name,r.sub,PRIO[S.prio[r.id]],...OPTS.map(o=>capOf(r,o.key))]));Q.push([],['Skala: 1 nicht möglich · 2 nur Workaround · 3 eingeschränkt · 4 gut · 5 sehr gut. Must + 1 = K.O.']);
+  const wsQ=X.utils.aoa_to_sheet(Q);wsQ['!cols']=[{wch:40},{wch:44},{wch:10},{wch:18},{wch:18},{wch:18},{wch:18}];X.utils.book_append_sheet(wb,wsQ,'Anforderungen');
+  /* --- Break-even --- */
+  const B=[['Viewer',...OPTS.map(o=>o.name+' gesamt (EW)')]];const vmax=Math.max(Math.ceil(S.viewers*3/50)*50,200);const saveV=S.viewers;for(let i=0;i<=20;i++){const v=Math.round(vmax*i/20);S.viewers=v;B.push([v,...OPTS.map(o=>Math.round(expected(o.key).total))]);}S.viewers=saveV;
+  const wsB=X.utils.aoa_to_sheet(B);X.utils.book_append_sheet(wb,wsB,'Break-even');
+  /* --- Quellen --- */
+  const Sx=[['Quelle','Inhalt','URL','Status']];SOURCES.forEach(([n,w,u,st])=>Sx.push([n,w,u,{V:'verifiziert',S:'Snippet',F:'Faustregel',E:'Expertenschätzung'}[st]]));
+  const wsS=X.utils.aoa_to_sheet(Sx);wsS['!cols']=[{wch:44},{wch:50},{wch:60},{wch:14}];X.utils.book_append_sheet(wb,wsS,'Quellen');
+  X.writeFile(wb,'visual-standards-rechner.xlsx');toast('Excel-Modell exportiert: Blatt „Annahmen“ ändern, „Modell“ rechnet nach.');
+}
+
+/* ===================== Share-Link ===================== */
+function writeHash(){try{const st={sv:3,ss:S.ssShare,c:S.creators,v:S.viewers,r:S.reports,q:S.cpr,t:S.types,h:S.horizon,md:S.mode,lm:S.licModel,bl:S.baseline,ex:S.existing,tn:S.tornado,w:S.weight,pe:S.per,vw:S.view,pr:S.prio,cp:S.cap,cu:S.custom,f:S.flags,g:S.g,p:S.p};const enc=btoa(unescape(encodeURIComponent(JSON.stringify(st))));history.replaceState(null,'','#s='+enc);}catch(e){}}
+function readHash(){try{const m=location.hash.match(/#s=(.+)/);if(!m)return false;const st=JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+  if(+st.sv!==3)setTimeout(()=>toast('Link aus einer älteren Version des Rechners: neue Annahmen stehen auf Standardwerten, das Modell wurde seitdem geändert.'),600);
+  const qty=(v,lo,hi,d)=>{const n=Math.round(+v);return isFinite(n)?Math.max(lo,Math.min(hi,n)):d;};
+  S.creators=qty(st.c,1,100000,S.creators);S.viewers=qty(st.v,0,1e7,S.viewers);S.reports=qty(st.r,1,100000,S.reports);S.cpr=qty(st.q,1,200,S.cpr);S.types=qty(st.t,1,50,S.types);S.horizon=[3,5,10].includes(+st.h)?+st.h:5;S.weight=qty(st.w,0,100,70);S.per=st.pe==='user'?'user':'viewer';
+  S.view=st.vw==='per'?'per':'abs';S.mode=['ent','man','ss'].includes(st.md)?st.md:'man';S.ssShare=st.ss!==undefined?qty(st.ss,0,100,25):MODE_PRESETS[S.mode];S.licModel=['peruser','staffel','site'].includes(st.lm)?st.lm:'staffel';S.baseline=['none','paid','oss','deneb','core'].includes(st.bl)?st.bl:'none';S.existing=qty(st.ex,0,100000,0);S.tornado=OK[st.tn]!==undefined?st.tn:null;
+  const cl=t=>{if(!Array.isArray(t)||t.length!==3)return null;const a=t.map(Number);if(!a.every(isFinite))return null;a.sort((x,y)=>x-y);return a.map(v=>Math.max(0,Math.min(1e9,v)));};
+  if(Array.isArray(st.cu)){const caps=st.cp||{},pr=st.pr||{};S.custom=[];st.cu.filter(r=>r&&typeof r.name==='string').slice(0,20).forEach((r,i)=>{const id='c'+i;S.custom.push({id,name:String(r.name).slice(0,80),sub:String(r.sub||'').slice(0,120),cap:[0,0,0,0],custom:true});const oc=caps[r.id];S.cap[id]=Array.isArray(oc)&&oc.length===4&&oc.every(x=>isFinite(+x))?oc.map(x=>Math.min(5,Math.max(0,Math.round(+x)))):[0,0,0,0];S.prio[id]=PRIO[pr[r.id]]?pr[r.id]:'S';});}
+  const ok4=t=>Array.isArray(t)&&t.length===4&&t.every(x=>isFinite(+x));
+  if(st.cp)REQS.forEach(r=>{if(ok4(st.cp[r.id]))S.cap[r.id]=st.cp[r.id].map(x=>Math.min(5,Math.max(1,Math.round(+x))));});
+  if(st.pr)REQS.forEach(r=>{if(PRIO[st.pr[r.id]])S.prio[r.id]=st.pr[r.id];});if(st.f)FLAGS.forEach(f=>S.flags[f.id]=!!st.f[f.id]);
+  if(st.g)GLOBAL.forEach(p=>{const t=cl(st.g[p.id]);if(t)S.g[p.id]=t;});
+  if(st.p)OPTS.forEach(o=>OPTP.forEach(p=>{if(S.p[o.key][p.id]&&st.p[o.key]){const t=cl(st.p[o.key][p.id]);if(t)S.p[o.key][p.id]=t;}}));return true;}catch(e){return false;}}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;clearTimeout(t._t);t._t=setTimeout(()=>t.textContent='',3500);}
+
+/* ===================== Events ===================== */
+function bind(){
+  document.addEventListener('click',e=>{const a=e.target.closest('[data-goto]');if(!a)return;e.preventDefault();const el=document.getElementById(a.dataset.goto);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});
+  let simTimer=null;const scheduleUpdate=()=>{clearTimeout(simTimer);simTimer=setTimeout(update,90);};
+  ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const el=document.getElementById(id);el.addEventListener('input',e=>{S[id]=+e.target.value;renderStep1();scheduleUpdate();});el.addEventListener('change',()=>{clearTimeout(simTimer);update();});});
+  document.querySelectorAll('#mode-seg button').forEach(b=>b.addEventListener('click',()=>{S.mode=b.dataset.mode;S.ssShare=MODE_PRESETS[S.mode];pendingToast='Betriebsmodell: '+modeParams().label;update();}));
+  document.getElementById('ss').addEventListener('input',e=>{S.ssShare=+e.target.value;renderStep1();scheduleUpdate();});
+  const LIM={creators:[1,100000],viewers:[0,10000000],reports:[1,100000],cpr:[1,200],types:[1,50],existing:[0,100000]};
+  ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const n=document.getElementById('n-'+id);n.addEventListener('change',e=>{let v=Math.round(+e.target.value);if(!isFinite(v)){renderStep1();return;}v=Math.max(LIM[id][0],Math.min(LIM[id][1],v));S[id]=v;pendingToast=id==='viewers'?'Viewer: '+fmtN(v)+(v>2000&&S.licModel==='peruser'?' (ab 2.000 Nutzern Site-Lizenz prüfen)':''):null;update();});});
+  document.getElementById('baseline').addEventListener('change',e=>{S.baseline=e.target.value;pendingToast='Bestand: '+e.target.options[e.target.selectedIndex].text;update();});
+  document.querySelectorAll('#horizon-seg button').forEach(b=>b.addEventListener('click',()=>{S.horizon=+b.dataset.h;update();}));
+  document.querySelectorAll('#per-seg button').forEach(b=>b.addEventListener('click',()=>{S.per=b.dataset.per;update();}));
+  document.querySelectorAll('#view-seg button').forEach(b=>b.addEventListener('click',()=>{S.view=b.dataset.view;update();}));
+  document.getElementById('btn-add-req').addEventListener('click',addCustomReq);
+  document.getElementById('btn-reset-caps').addEventListener('click',resetCaps);
+  document.getElementById('btn-xlsx').addEventListener('click',exportXlsx);
+  document.getElementById('weight').addEventListener('input',e=>{S.weight=+e.target.value;update();});
+  document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{const p=PRESETS[b.dataset.preset];Object.assign(S,{creators:p.creators,viewers:p.viewers,reports:p.reports,cpr:p.cpr,types:p.types});if(p.mode){S.mode=p.mode;S.ssShare=MODE_PRESETS[p.mode];}if(p.licModel)S.licModel=p.licModel;if(p.flags)Object.keys(p.flags).forEach(k=>S.flags[k]=true);document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('active',x===b));renderFlags();pendingToast='Preset geladen: '+b.textContent.trim()+(p.flags?' (setzt zusätzlich: '+Object.keys(p.flags).map(k=>FLAGS.find(f=>f.id===k).label).join(', ')+')':'');update();}));
+  document.querySelectorAll('[data-lic]').forEach(b=>b.addEventListener('click',()=>{S.p.paid.lic=LIC[b.dataset.lic].slice();document.querySelectorAll('[data-lic]').forEach(x=>x.classList.toggle('active',x===b));renderParams();update();toast('Lizenz-Indikation gesetzt: '+b.textContent.trim());}));
+  document.getElementById('btn-reset').addEventListener('click',()=>{defaults();document.querySelectorAll('.preset-btn').forEach(x=>x.classList.remove('active'));renderReqs();renderFlags();renderParams();update();toast('Standardwerte wiederhergestellt.');});
+  document.getElementById('btn-share').addEventListener('click',()=>{writeHash();const url=location.href;(navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(()=>toast('Link kopiert. Er enthält nur eure Einstellungen.'),()=>{prompt('Link kopieren:',url);});});
+  document.getElementById('btn-print').addEventListener('click',()=>window.print());
+  document.getElementById('tornado-opt').addEventListener('change',e=>{S.tornado=e.target.value;update();});
+  const bar=document.getElementById('sticky-bar'),anchor=document.getElementById('headline');
+  if('IntersectionObserver' in window){new IntersectionObserver(([e])=>bar.classList.toggle('show',!e.isIntersecting),{threshold:0}).observe(anchor);}else{window.addEventListener('scroll',()=>{const r=anchor.getBoundingClientRect();bar.classList.toggle('show',r.bottom<0||r.top>innerHeight);},{passive:true});}
+  window.addEventListener('beforeprint',()=>{document.getElementById('opt-params').innerHTML=OPTS.map(o=>paramBlock(o.key)).join('<div style="height:14px"></div>');});
+  window.addEventListener('afterprint',renderParams);
+  const cnt={V:0,S:0,F:0,E:0};GLOBAL.concat(OPTP).forEach(p=>cnt[p.src]++);const tot=cnt.V+cnt.S+cnt.F+cnt.E;document.getElementById('srcbar').innerHTML=['V','S','F','E'].map(k=>'<i style="width:'+Math.max(4,Math.round(cnt[k]/tot*120))+'px;background:'+({V:'#3E9C8F',S:'#D98A3D',F:'#B4B2A2',E:'#7B8BC4'}[k])+'" title="'+k+': '+cnt[k]+'"></i>').join('')+' '+cnt.V+' verifiziert · '+cnt.S+' Snippet · '+cnt.F+' Faustregel · '+cnt.E+' Expertenschätzung, deshalb Bandbreiten statt Punktwerte.';
+}
+/* ===================== Init ===================== */
+readHash();renderReqs();renderFlags();renderParams();renderSources();bind();update();
+</script>
+<style media="print">
+.sticky-bar,.toolbar,.toast,.back-link,.stepper,input[type=range]{display:none!important;}
+body{background:#fff;}.wrap{padding:0;max-width:none;}
+.card,.kpi,.opt-card{break-inside:avoid;}
+.section{break-before:auto;}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.result-headline{color:#23261F;border:2px solid #23261F;background:#fff;}
+.result-headline b{color:#276559;}.result-headline .rh-warn{color:#A8492F;}
+.conflict{color:#23261F;border:2px solid #C4573A;background:#fff;}.conflict b{color:#A8492F;}
+.prio button.active,.seg button.active,.tab.active,.preset-btn.active{outline:2px solid #23261F;font-weight:700;}
+.opt-card details{display:block;}.opt-card details>*{display:block;}
+.grid2.charts{grid-template-columns:1fr;}
+</style>
+</body>
+</html>
