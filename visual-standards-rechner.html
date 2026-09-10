@@ -224,7 +224,7 @@ footer b{color:var(--ink);}
   <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
   <div class="eyebrow">Indikations-Rechner · Controlling &amp; Finance · Pre-Conference Daten-WG 2026</div>
   <h1>Visual-Standards-Rechner: Easy, Flexibel oder MacGyver?</h1>
-  <div class="sub">Was kostet die Umsetzung visueller Standards in Power BI mit <b>3rd-Party-Visuals</b>, <b>Open Source</b>, <b>Deneb</b> oder <b>Core Visuals</b>? Der Rechner führt in fünf Schritten durch Mengengerüst, Anforderungen, K.O.-Kriterien und Annahmen. Er liefert eine <b>Indikation</b> mit Bandbreiten, keine Preisauskunft: Alle Annahmen sind editierbar und mit ihrer Quellenlage markiert.</div>
+  <div class="sub">Was kostet die Umsetzung visueller Standards in Power BI mit <b>3rd-Party-Visuals</b>, <b>Open Source</b>, <b>Deneb</b> oder <b>Core Visuals</b>? Leitgedanke: <b>Standard zuerst, nur so individuell wie nötig.</b> Der Rechner prüft deshalb zuerst, ob es einen fachlichen Grund gibt, von den Core Visuals abzuweichen, und vergleicht dann in fünf Schritten Mengengerüst, Anforderungen, K.O.-Kriterien und Annahmen. Er liefert eine <b>Indikation</b> mit Bandbreiten, keine Preisauskunft: Alle Annahmen sind editierbar und mit ihrer Quellenlage markiert.</div>
 
   <div class="toolbar">
     <button class="btn" id="btn-reset">↺ Auf Standard zurücksetzen</button>
@@ -339,6 +339,7 @@ footer b{color:var(--ink);}
     <p class="section-sub">Gesamtkosten über den Horizont, Kosten je Viewer und Jahr, Invest gegen laufende Kosten. Die Rangfolge ist eine Indikation unter Unsicherheit der Eingaben.</p>
     <details class="gloss"><summary>Begriffe kurz erklärt</summary><dl><dt>P10 / P50 / P90</dt><dd>In 10 %, 50 % bzw. 90 % der 1.500 Simulationsläufe lagen die Kosten unter diesem Wert. P50 ist die „mittlere“ Zahl, P10 bis P90 die Spanne, mit der ihr rechnen solltet.</dd><dt>PERT</dt><dd>Dreipunkt-Schätzung (min, wahrscheinlich, max), aus der eine Wahrscheinlichkeitsverteilung gebildet wird. Der Erwartungswert ist (min + 4·wahrscheinlich + max) / 6.</dd><dt>MoSCoW</dt><dd>Must (ohne geht es nicht), Should (wichtig), Could (schön), Won't (diesmal nicht). Must mit Erfüllungsgrad 1 ist ein K.O.</dd><dt>K.O.</dt><dd>Der Ansatz ist ausgeschlossen, bleibt aber mit Kosten sichtbar, damit der Preis der Rahmenbedingung erkennbar ist.</dd><dt>Barwert</dt><dd>Spätere Zahlungen mit dem Kalkulationszins abgezinst. Bei 10 Jahren macht das einen Unterschied, bei 3 kaum.</dd></dl></details>
 
+    <div class="card" id="premise" style="border-left:4px solid var(--o-core);margin-bottom:14px"></div>
     <div class="result-headline" id="headline">–</div>
     <div id="conflict-box"></div>
     <div class="insight" style="margin:-8px 0 16px;font-size:12px">Diese Bandbreiten entstehen aus den gewählten Modellannahmen. Sie sind keine empirisch abgesicherte Prognose tatsächlicher Projektkosten. Die Rangfolge gilt nur für den beschriebenen Leistungsumfang (Standard-Charts, kein Datenmodell, keine Datenaufbereitung), die betrachteten Produktfamilien und die angezeigten Rahmenbedingungen. Wer die Annahmen ändert, sieht am Badge weiterhin die ursprüngliche Quellenlage.</div>
@@ -657,6 +658,10 @@ function calc(key,draw,override){
   const rateBased=setup+dev+build+rollout+switchCost+maint+events+risk;
   c.hard=lic+support+capacity+owners*p('course')+rateBased*hardFrac;
   c.soft=c.total-c.hard;
+  /* Phasen: Erstellung (einmalig) vs. Nutzung/Betrieb (laufend), jeweils direkt (Auszahlung) vs. indirekt (interne Zeit) */
+  const creationRate=setup+dev+build+rollout+switchCost;const creation=creationRate+train0+govOnce;
+  const creationHard=creationRate*hardFrac+owners*p('course');
+  c.phase={creation:{hard:creationHard,soft:creation-creationHard},usage:{hard:c.hard-creationHard,soft:(c.total-creation)-(c.hard-creationHard)}};
   c.gd=gd;c.pd=pd;
   /* Zahlungsstrom je Jahr und Barwert */
   c.cf=[c.invest];{const perYear=(c.total-c.invest-lic-risk)/H;const riskYear=Math.max(1,Math.ceil(H/2));const d=S.licModel==='staffel'?(users<=100?1:users<=500?.75:users<=2000?.55:users<=5000?.40:.30):1;
@@ -821,6 +826,13 @@ function update(){
     hl.innerHTML=s;}
   document.getElementById('sticky-label').textContent=S.weight===100?'Günstigste zulässige Option':'Empfehlung ('+S.weight+' % Kosten)';
   document.getElementById('sticky-value').innerHTML=best?esc(best.short)+' '+fmtEur(sim[best.key].p50)+(ranked[1]?' <span class="s2">· Platz 2 '+esc(ranked[1].short)+' '+(sim[ranked[1].key].p50>=sim[best.key].p50?'+':'−')+fmtEur(Math.abs(sim[ranked[1].key].p50-sim[best.key].p50))+'</span>':'')+(excluded.length?' <span class="s2">· '+excluded.length+' K.O.</span>':'')+' <a href="#s5" data-goto="s5">↓ Ergebnis</a>':'– <a href="#s5" data-goto="s5">↓ Ergebnis</a>';
+  /* Prämisse: Standard zuerst, nur so individuell wie nötig */
+  {const core=OPTS[OK.core];const gaps=allReqs().filter(r=>S.prio[r.id]!=='W'&&capOf(r,'core')>0&&capOf(r,'core')<=2).sort((a,b)=>PRIO_W[S.prio[b.id]]-PRIO_W[S.prio[a.id]]);
+    const musts=gaps.filter(r=>S.prio[r.id]==='M'),shoulds=gaps.filter(r=>S.prio[r.id]==='S'),coulds=gaps.filter(r=>S.prio[r.id]==='C');
+    let t='<h3 style="margin-bottom:4px">Prämisse: Standard zuerst, nur so individuell wie nötig</h3><p class="hint" style="margin-bottom:8px">Bevor Kosten verglichen werden: Gibt es überhaupt einen Grund, von den Core Visuals abzuweichen? Ein Grund ist eine Anforderung, die Core höchstens per Workaround erfüllt.</p>';
+    if(!gaps.length)t+='<div class="insight" style="margin:0"><b>Kein Grund zur Abweichung.</b> Alle bewerteten Anforderungen erfüllen die Core Visuals mit mindestens „eingeschränkt“. Jeder andere Ansatz ist Kür: Er muss über Geschwindigkeit, Wiedererkennung oder Betriebskosten gewinnen, nicht über Funktion.</div>';
+    else t+='<div class="insight" style="margin:0">'+(musts.length?'<b>Harte Gründe (Must):</b> '+musts.map(r=>esc(r.name)+' (Core: '+CAP_LBL[capOf(r,'core')]+')').join(' · ')+'. ':'<b>Kein hartes Must gegen Core.</b> ')+(shoulds.length?'<b>Weiche Gründe (Should):</b> '+shoulds.map(r=>esc(r.name)).join(' · ')+'. ':'')+(coulds.length?'<b>Nice-to-have (Could):</b> '+coulds.map(r=>esc(r.name)).join(' · ')+'. ':'')+(musts.length?'Damit ist die Abweichung fachlich begründet; der Vergleich unten zeigt, was sie kostet.':'Ohne Must-Grund ist die Abweichung eine Komfort- oder Kostenentscheidung. Prüft, ob die Should-Punkte den Mehrpreis rechtfertigen.')+'</div>';
+    document.getElementById('premise').innerHTML=t;}
   /* Konflikte */
   const cf=conflicts();document.getElementById('conflict-box').innerHTML=cf.map(c=>'<div class="conflict">'+c+'</div>').join('');
   /* KPI-Karten */
