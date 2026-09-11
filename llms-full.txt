@@ -3170,7 +3170,7 @@ DOKUMENT: https://datenwgknowledgekitchen.com/md/visual-standards-rechner.md
 - **Quelle:** https://datenwgknowledgekitchen.com/visual-standards-rechner.html
 - **Autor:innen:** Michael Tenner & Diana Ackermann · Daten-WG Knowledge Kitchen
 - **Anlass:** Pre-Conference „Visual Standards in Power BI für Controlling und Finance | Von Easy über Flexibel bis MacGyver", Daten-WG 2026, 14.10.2026, Köln
-- **Stand:** v0.5 · 09/2026 · Sprache DE · rein clientseitig, keine Server-Anbindung
+- **Stand:** v0.7 · 09/2026 (Annahmen-Audit 11.09.2026, siehe unten) · Sprache DE · rein clientseitig, keine Server-Anbindung
 - **Zitierhinweis:** Michael Tenner & Diana Ackermann, Daten-WG Knowledge Kitchen, https://datenwgknowledgekitchen.com/visual-standards-rechner.html — Abruf mit Datum angeben.
 - **Hinweis fuer Agenten:** Diese Markdown-Fassung beschreibt Modell, Voreinstellungen und Quellenlage. Regler, Simulation, Charts und Export sind nur in der HTML-Fassung nutzbar.
 - **Offenlegung:** ChartKitchen byDatenWG, das Beispiel fuer „Open Source / Eigenentwicklung", ist ein Projekt der Autor:innen.
@@ -3195,46 +3195,51 @@ Er ist eine **Indikation unter Unsicherheit**, kein Angebot und kein Business Ca
 1. **Mengengeruest:** Ersteller, Viewer (bis 10.000+), Standard-Reports (mit Erfahrungswert je Betriebsmodell), Charts je Report, Chart-Typen, Horizont 3/5/10 Jahre, Betriebsmodell (Enterprise BI, Managed Self-Service, Self-Service, stufenlos hybrid), heutiger Ansatz und Bestands-Reports fuer die Migration.
 2. **Anforderungen (MoSCoW):** 18 Kriterien mit Erfuellungsgrad 1 bis 5 je Ansatz, per Klick ueberschreibbar, eigene Zeilen moeglich (starten als „nicht geprueft"). Must mit Erfuellungsgrad 1 ist ein K.O.
 3. **Red Flags:** Governance-Schalter (nur zertifizierte Visuals, nur Core Visuals, IBCS-Zertifikat Pflicht, kein Lizenzbudget, Report Server, Embedded/Publish-to-web, Sovereign Cloud, fehlende Desktop-Gruppenrichtlinie, kein externer Dienstleister). Sie wirken als K.O.-Filter vor dem Rechnen.
-4. **Annahmen:** globale und ansatzspezifische Dreipunkt-Werte mit Quellen-Badge (V verifiziert, S Such-Snippet, F Faustregel, E Expertenschaetzung Daten-WG, N eigene Aenderung). Lizenzmodell pro Nutzer, Volumenstaffel oder Site-Lizenz.
+4. **Annahmen:** globale und ansatzspezifische Dreipunkt-Werte mit Quellen-Badge (V verifiziert, S Such-Snippet, F Faustregel, P simuliertes Expertenpanel, E Autoren-Schaetzung, N eigene Aenderung). Fabric-Capacity mit SKU-Presets F2/F8/F64. Lizenzmodell pro Nutzer, Volumenstaffel oder Site-Lizenz.
 5. **Ergebnis:** Rangfolge (Kostenverhaeltnis und Anforderungs-Score, Regler 70/30), ausgeschlossene Ansaetze unter dem Strich mit dem Preis der Rahmenbedingung, Konflikt-Boxen, Kostenstruktur, Break-even ueber die Viewer-Zahl mit Verhandlungsgrenze (Indifferenz-Lizenzpreis), Sensitivitaet, kumulierte Kosten, Barwert, Textbausteine zu Vorteilen, Nachteilen und versteckten Kosten, Excel-Export mit Deckblatt.
 6. **Monte-Carlo-Seite:** Schwankungsbreite ±5/10/15/20/25 % um die eigenen Eingaben, wahlweise fuer Mengengeruest und Annahmen oder nur fuer das Mengengeruest, 1.000 bis 5.000 Ziehungen. Erzeugt lokal im Browser eine eigene Auswertungsseite (neuer Tab oder HTML-Datei): Verteilung der Kosten je Viewer, Anteil je Platz 1 bis 4, hart gegen weich, Erstellung gegen Nutzung mal direkt gegen indirekt (2x2 je Ansatz), Rangkorrelationen (Spearman) fuer Mengengeruest und Annahmen, gepaarte Differenz Paid gegen Open Source und eine Skalen-Simulation bei festem Verhaeltnis Ersteller : Viewer (x0,5 bis x10) mit Kipp-Punkt.
 
 ## Kostenkern (je Ansatz, Horizont H)
 
 ```
-Lizenz      = Nutzerjahre × Preis × Staffelfaktor  (Viewer wachsen ab Jahr 2, Autoren konstant, Preis steigt jaehrlich)
-              oder Site-Lizenz × Jahre; plus Lizenz-Administration, Support/Sponsoring, Capacity-Aufschlag
+Lizenz      = Summe je Jahr: Nutzer × Preis × Staffelfaktor des Jahres  (Viewer wachsen ab Jahr 2, Autoren konstant, Preis steigt jaehrlich)
+              oder Site-Lizenz × Jahre; plus Lizenz-Administration (degressiv, bei Site 0), Support/Sponsoring, Capacity-Aufschlag
 Aufbau      = (Setup + Eigenentwicklung + Chart-Typen × Stunden erstmalig) × Stundensatz-Mix
 Migration   = Bestands-Reports × Charts/Report × Wiederverwendungs-Stunden × Nachbau-Faktor (nur bei Wechsel)
-Rollout     = (Reports + Nachfrage je 1.000 Viewer) × Charts/Report × Wiederverwendungs-Stunden × Betriebsmodell-Faktor
-Schulung    = Vorlagen-Bauer × tiefe Schulung + Vorlagen-Nutzer × flache Schulung + Fluktuation × (Schulung + Einarbeitung)
-Wartung     = (Setup + Entwicklung + Chart-Aufbau + 0,3 × Rollout) × Quote × Abklingfaktor-Summe × Varianten-Effekt + Breaking-Updates × Fix-Stunden
-Governance  = Freigabe je Variante + laufende Governance + Pruefnachweis (gestuft nach Organisationsgroesse) + Zugriffs-Governance je 1.000 Viewer + Anwender-Support je 100 Viewer
-Risiko      = P(Abkuendigung ueber H) × Aufbau × Migrationsanteil  (Jahresrate akkumuliert; in der Simulation als Ereignis)
+Rollout     = (Reports + Nachfrage je 1.000 Viewer + Nachfrage je Ersteller) × Charts/Report × Wiederverwendungs-Stunden × Betriebsmodell-Faktor
+Schulung    = Vorlagen-Bauer × tiefe Schulung + Vorlagen-Nutzer × flache Schulung + Fluktuation × [Bauer × (tiefe Schulung + Einarbeitung) + Nutzer × (flache Schulung + 1/4 Einarbeitung)]
+Wartung     = (Setup + Entwicklung + Chart-Aufbau + 0,3 × Rollout) × Quote (geplante Anpassungen) × Abklingfaktor-Summe × Varianten-Effekt + Breaking-Updates × Fix-Stunden
+Governance  = Freigabe je Visual-Paket (+20 % je weiterem Chart-Typ) + laufende Governance + Pruefnachweis (log-linear nach Organisationsgroesse, 50 bis 5.000 Viewer) + Zugriffs-Governance je 1.000 Viewer (ansatzunabhaengig) + Anwender-Support je 100 Viewer
+Risiko      = P(Abkuendigung ueber H) × (Aufbau + 0,6 × Rollout) × Migrationsanteil  (Jahresrate akkumuliert; in der Simulation als Ereignis)
 Barwert     = Zahlungsstrom je Jahr, abgezinst mit dem Kalkulationszins
 ```
 
-Interne Stunden werden mit einem Bewertungsfaktor (60 = Kapazitaet frei, 100 = Vollkosten, 150 = verdraengt Fachaufgaben) und einer Lohnsteigerung bewertet. Jede Annahme wird je Szenario genau einmal gezogen, globale Annahmen sind zwischen den Ansaetzen identisch (gepaarte Vergleiche).
+Interne Stunden werden mit einem Bewertungsfaktor (60 = Kapazitaet frei, 100 = Vollkosten, 150 = verdraengt Fachaufgaben; Bewertungskonvention, in der Simulation konstant) und einer Lohnsteigerung bewertet. Jede Annahme wird je Szenario genau einmal gezogen, globale Annahmen sind zwischen den Ansaetzen identisch (gepaarte Vergleiche).
 
 ## Voreinstellungen (Auswahl, min · wahrscheinlich · max)
 
 | Annahme | Wert | Quellenlage |
 |:---|:---|:---|
-| Stundensatz intern (Vollkosten) | 60 · 80 · 100 €/h | F: Controller-Gehalt Ø 71 k€ plus Gemeinkostenfaktor |
-| Stundensatz extern | 95 · 120 · 180 €/h | S: freelancermap Ø 98–104 €/h |
-| Lizenz je Nutzer und Jahr (Paid, Mischpreis) | 40 · 80 · 150 € | S: Inforiver ~3 $/Monat, Zebra BI Personal ~299 $/Jahr, Team 799 $/Jahr bis 5 User |
-| Site-Lizenz je Jahr (Paid) | 12.000 · 40.000 · 96.000 € | S: Inforiver Domain-wide 12–96 k$ (widerspruechliche Quellen); Presets bis 300 k€ als Schaetzung |
-| Volumenstaffel | −25 % ab 100, −45 % ab 500, −60 % ab 2.000, −70 % ab 5.000 Nutzern | F |
-| Stunden je Chart-Typ erstmalig (paid / oss / deneb / core) | 2–4–7.5 / 4.5–8.5–14 / 7–12–18 / 10–16–27 h | E: simuliertes Expertenpanel (20 Profile), Median |
-| Schulung Vorlagen-Bauer (paid / oss / deneb / core) | 5–8.5–15 / 8–15–26 / 20–35–58 / 18–28–43 h | E: simuliertes Expertenpanel (20 Profile), Median |
-| Wartungsquote p.a. in % (paid / oss / deneb / core) | 6–10–18 / 15–26–38 / 11–19–30 / 20–34–52 | E: simuliertes Expertenpanel (20 Profile), Median |
-| Abkuendigungsrisiko p.a. (paid / oss / deneb / core) | 1–2–4 / 3–7–13 / 2–4–8 / 0,4–1–2 % | F: Charticulator 2023, Bing-Maps-Visuals 2025, OKViz 2026 |
-| Anwender-Support je 100 Viewer und Jahr | 2–4–6.25 / 3–7–12 / 3–6–10 / 5–9.5–16 h | E: simuliertes Expertenpanel (20 Profile), Median |
-| Laufende Governance p.a. | 6–16–42 / 18–46–112 / 12–32–78 / 1–3–10 h | E, gestuft nach Organisationsgroesse (×0,3 unter 50 Viewern bis ×1,3 ab 1.000) |
+| Stundensatz intern (Vollkosten) | 65 · 85 · 115 €/h | S: Controller Ø 71 k€ × Vollkostenfaktor 1,7 / 1.500–1.600 h; Standard-Bauer liegen darueber |
+| Stundensatz extern | 95 · 125 · 220 €/h | S: freelancermap Kompass 2026 Ø 103 €/h, Berater 121; Beratungshaus 1.000–1.500 €/Tag |
+| Lizenz je Nutzer und Jahr (Paid, Einstiegspreis vor Staffel) | 40 · 80 · 150 € | S: Inforiver Analytics+ 2,40–3 $/Monat, Zebra BI Personal 299 $/Jahr, Team 799 $/Jahr fuer 5 Nutzer; Herstellerseiten in der Pruefumgebung nicht abrufbar |
+| Site-Lizenz je Jahr (Paid) | 12.000 · 35.000 · 90.000 € | S: Inforiver Domain-wide ab 12 k$ verhandelt (2026), 96 k$ flat war ein Preis von 2024; Presets bis 300 k€ als Schaetzung |
+| Volumenstaffel | −20 % ab 25, −40 % ab 100, −55 % ab 500, −70 % ab 2.000, −80 % ab 5.000 Nutzern, je Jahr | F: Zebra Team-Paket ≈ −46 % ab 5 Nutzern, Inforiver Domain-wide ≈ −80 % ab 2.000 |
+| Stunden je Chart-Typ erstmalig (paid / oss / deneb / core) | 2–4–7.5 / 4.5–8.5–14 / 7–12–18 / 10–16–27 h | P: simuliertes Expertenpanel (20 Profile), Median |
+| Stunden je Chart bei Wiederverwendung | 0.5–1–2 / 1–2–3.5 / 1–2.5–4.5 / 2–4–6.5 h | P; wichtigster ungemessener Hebel (Faktor 2 Paid zu OSS, Blindschaetzung bestaetigt, Audit haelt 1,4 fuer vertretbar) |
+| Schulung Vorlagen-Bauer (paid / oss / deneb / core) | 5–8.5–15 / 8–15–26 / 20–35–58 / 18–28–43 h | P: simuliertes Expertenpanel (20 Profile), Median |
+| Einarbeitung bei Fluktuation | 8–16–40 / 12–28–70 / 24–70–180 / 16–50–130 h | E: Autoren-Schaetzung; wirkt voll nur auf Vorlagen-Bauer |
+| Wartungsquote p.a. in % (geplante Anpassungen) | 6–10–18 / 12–22–32 / 10–17–27 / 12–30–48 | P, im Audit um den Anteil bereinigt, der in Breaking-Updates steckt |
+| Breaking-Updates p.a. / Fix-Stunden | 0.2–1–2 / 0.5–1.5–3 / 1–2–3 / 2–3–5 · 3 / 7 / 6.5 / 9.5 h | P; Deneb 3 Vorfaelle in 24 Monaten, Core 3–4 SVG-Regressionen 2025 belegt |
+| Abkuendigungsrisiko p.a. (paid / oss / deneb / core) | 1–2–4 / 3–7–13 / 1–3–6 / 0,4–1–2 % | F: Charticulator 12/2023, Bing Maps Visual 10/2025, OKViz Synoptic v1 03/2026; Deneb gesenkt, weil Vega-Lite-Specs das Wirtsvisual ueberleben |
+| Anwender-Support je 100 Viewer und Jahr | 2–4–6 / 2.5–5.5–10 / 3–6–10 / 5–9.5–16 h | P: simuliertes Expertenpanel (20 Profile), Median; OSS im Audit gesenkt |
+| Freigabe je Visual-Paket (einmalig) | 4–8–16 / 8–24–60 / 1–4–10 / 0–2–6 h | E; +20 % je weiterem Chart-Typ; zertifiziertes OSS rechnet mit dem Paid-Wert |
+| Laufende Governance p.a. | 6–16–42 / 12–30–80 / 6–16–40 / 1–3–10 h | E, log-linear nach Organisationsgroesse (×0,3 bei 50 Viewern bis ×1,3 ab 5.000) |
+| Fluktuation, Lohnsteigerung, Kalkulationszins | 5–11–22 % · 2–3–4,5 % · 5–8–10 % | S (Finance ~10 %, IT 20–22 %) · V (WSI-Tarifarchiv 2025/2026) · S (KPMG Kapitalkostenstudie 2025, WACC Ø 8,5 %) |
 | Betriebsmodell-Faktoren (Enterprise → Self-Service) | Owner-Anteil 10 → 100 %, Varianten ×1 → ×3, Support ×0,8 → ×1,3, Governance ×1 → ×1,6 | E |
 | Reports je Ersteller (Erfahrungswert) | Enterprise ≈ 6, Managed ≈ 4, Self-Service ≈ 2, plus 2 je 1.000 Viewer | E |
 
-Quellenlage aller 36 Annahmen: 1 verifiziert, 4 Snippet, 11 Faustregel, 20 Expertenschaetzung. Deshalb Bandbreiten statt Punktwerte.
+Quellenlage aller 37 Annahmen nach dem Audit: 2 verifiziert (V), 8 Such-Snippet (S), 3 Faustregel (F), 9 simuliertes Expertenpanel (P), 15 Autoren-Schaetzung (E). Deshalb Bandbreiten statt Punktwerte, und deshalb steht die Herkunft an jedem Wert.
 
 ## Rahmenbedingungen, die das Ergebnis kippen
 
@@ -3249,7 +3254,11 @@ Quellenlage aller 36 Annahmen: 1 verifiziert, 4 Snippet, 11 Faustregel, 20 Exper
 - Nicht enthalten: Power-BI-Grundlizenzen (fuer alle gleich), Nutzen-Seite (nur als Score und „€ je Anforderungspunkt"), Aktivierung/Abschreibung (§ 248 HGB, IAS 38), Steuern (§ 50a EStG), Datenmodell und Datenaufbereitung.
 - Stunden je Chart, Setup, Schulung, Wartung, Breaking-Updates und Support stammen aus einem simulierten Expertenpanel (20 Rollenprofile, per Sprachmodell unabhaengig geschaetzt, Median je Wert; Rohdaten unter sessions/visual-standards-rechner-reviews/). Das ist strukturierte Meinung, keine Messung, und die wichtigste Stellschraube.
 - Preise stammen ueberwiegend aus Such-Auszuegen der Herstellerseiten (Stand 09/2026) und sind vor einer Entscheidung beim Hersteller zu pruefen.
-- Plaetze mit ueberlappenden P10–P90-Baendern sind statistisch nicht unterscheidbar und werden zusammengefasst.
+- Plaetze mit ueberlappenden P10–P90-Baendern sind statistisch nicht unterscheidbar und werden zusammengefasst. Bei kleinen Mengen ist Paid gegen Open Source mit der vorliegenden Evidenz nicht entscheidbar; wer die Rangfolge braucht, muss messen (fuenf Charts mit beiden Werkzeugen bauen), nicht rechnen.
+
+## Annahmen-Audit 09/2026
+
+Am 10./11.09.2026 wurden alle Annahmen und die Modellstruktur in sechs unabhaengigen Pruefungen (drei Opus-Audits, Sonnet-Strukturpruefung, Sonnet-Web-Verifikation, Sonnet-Blindschaetzung ohne Kenntnis der bestehenden Werte) geprueft. Ergebnis v0.7: sieben Struktur-Fixes im Rechenkern (Fluktuationsschulung rollendifferenziert, Freigabe je Visual-Paket statt je Chart-Typ, Abkuendigungsrisiko inklusive 60 % des Rollouts, Lizenz-Administration degressiv und bei Site-Lizenz null, Staffel je Jahr, Governance log-linear, Bewertung interner Stunden als Konstante), 24 neu gesetzte Defaults, neue Annahme „neue Reports je Ersteller“, Presets mit Report-Zahlen nach der eigenen Heuristik. Der Parametersatz war in der Summe OSS-feindlich (elf von neunzehn vergleichbaren Werten um Faktor 1,75 bis 3 gegen Open Source, teils doppelt fuer dieselbe Ursache), zugleich fehlte OSS das Rollout-Risiko. Beides ist korrigiert. Vollstaendiger Bericht mit Vorher/Nachher je Preset, allen sechs Pruefberichten und offenen Punkten: `sessions/visual-standards-rechner-audit/README.md` im Repository.
 - Der Share-Link enthaelt die Eingaben unverschluesselt im URL-Fragment. Berechnung lokal im Browser; Google Fonts und (falls die lokale Kopie fehlt) die Excel-Bibliothek werden nachgeladen.
 
 ## Quellen (Auswahl)
