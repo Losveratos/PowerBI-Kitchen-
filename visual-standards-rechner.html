@@ -94,6 +94,7 @@ input[type=number],input[type=text]{width:100%;padding:7px 9px;border:1px solid 
 select{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:6px;font-family:var(--sans);font-size:13px;background:var(--paper-2);color:var(--ink);}
 input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+.mix-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px}.mix-row label{display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:11.5px;min-width:0}.mix-row .valin{width:46px;flex:0 0 46px;padding:3px 4px}
 .mc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}@media(max-width:900px){.mc-grid{grid-template-columns:1fr}}.mc-grid .seg{flex-wrap:wrap}
 .seg button{font-family:var(--mono);font-size:12px;padding:8px 13px;border:none;background:#fff;cursor:pointer;color:var(--ink-soft);}
 .seg button.active{background:var(--ink);color:var(--paper);}
@@ -154,8 +155,8 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;}
 .result-headline b{color:var(--accent-soft);font-weight:700;}
 .result-headline .rh-warn{color:#F3B8A5;}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
-@media(max-width:900px){.kpi-grid{grid-template-columns:1fr 1fr;}}
-@media(max-width:520px){.kpi-grid{grid-template-columns:1fr;}}
+.kpi-grid.three{grid-template-columns:repeat(3,1fr);}@media(max-width:900px){.kpi-grid,.kpi-grid.three{grid-template-columns:1fr 1fr;}}
+@media(max-width:520px){.kpi-grid,.kpi-grid.three{grid-template-columns:1fr;}.mix-row{grid-template-columns:1fr;}}
 .kpi{background:#fff;border:1px solid var(--line);border-top:4px solid var(--oc);border-radius:var(--radius);padding:14px 16px 16px;position:relative;}
 .kpi.excluded{background:var(--paper);}
 .kpi.best{box-shadow:0 10px 22px -14px rgba(35,38,31,.35);}
@@ -262,11 +263,12 @@ footer b{color:var(--ink);}
           <div class="field"><label><span>Viewer (Nutzer, die Reports lesen)</span><input type="number" class="valin" id="n-viewers" min="0" max="10000000" aria-label="Viewer"></label><input type="range" id="viewers" min="0" max="20000" step="50" value="40"><div class="sub-hint">Microsoft-Szenario: rund 9 Viewer je Ersteller. Bei Paid Visuals braucht jeder Viewer eine Lizenz.</div></div>
         </div>
         <div>
-          <div class="field"><label><span>Standard-Reports</span><input type="number" class="valin" id="n-reports" min="1" max="100000" aria-label="Standard-Reports"></label><input type="range" id="reports" min="1" max="1000" value="6"><div class="sub-hint" id="reports-hint">Reports, die nach dem Standard gebaut werden (Übersicht, Analyse, Detail).</div></div>
+          <div class="field"><label><span>Standard-Reports</span><input type="number" class="valin" id="n-reports" min="1" max="100000" aria-label="Standard-Reports"></label><input type="range" id="reports" min="1" max="1000" value="12"><div class="sub-hint" id="reports-hint">Reports, die nach dem Standard gebaut werden (Übersicht, Analyse, Detail).</div></div>
           <div class="field"><label><span>Charts je Report</span><input type="number" class="valin" id="n-cpr" min="1" max="200" aria-label="Charts je Report"></label><input type="range" id="cpr" min="1" max="20" value="6"></div>
         </div>
         <div>
           <div class="field"><label><span>Chart-Typen im Baukasten</span><input type="number" class="valin" id="n-types" min="1" max="50" aria-label="Chart-Typen"></label><input type="range" id="types" min="1" max="12" value="5"><div class="sub-hint">Abweichungsdiagramm, Wasserfall, Tabelle mit Δ-Spalten, KPI-Karte, Zeitreihe AC/PY/PL/FC.</div></div>
+          <div class="field"><label><span>Chart-Mix nach Komplexität (%)</span><span class="val" id="mix-sum">100 %</span></label><div class="mix-row"><label>einfach <input type="number" class="valin" id="mix-simple" min="0" max="100" aria-label="Anteil einfache Charts in Prozent"></label><label>mittel <input type="number" class="valin" id="mix-mid" min="0" max="100" aria-label="Anteil mittlere Charts in Prozent"></label><label>komplex <input type="number" class="valin" id="mix-complex" min="0" max="100" aria-label="Anteil komplexe Charts in Prozent"></label></div><div class="sub-hint"><b>Einfach:</b> Balken und Säulen mit Abweichung, Linien, KPI-Karten. <b>Mittel:</b> Tabellen mit integrierten Charts, Kleine Multiples, Szenario-Notation AC/PY/PL/FC. <b>Komplex:</b> Wasserfall mit Abweichungen, kombinierte Charts, Kommentierung, Drilldown. Die Panel-Stunden gelten für die Mischung 50 / 35 / 15; andere Mischungen skalieren die Stunden je Ansatz mit den Komplexitätsfaktoren aus Schritt 4. Core + SVG verteuert sich beim Wasserfall am stärksten.</div></div>
           <div class="field"><label><span>Betrachtungshorizont</span></label>
             <div class="seg" id="horizon-seg"><button data-h="3">3 Jahre</button><button data-h="5" class="active">5 Jahre</button><button data-h="10">10 Jahre</button></div>
             <div class="sub-hint">Forrester rechnet 3 Jahre, Gartner-TCO 5. Zehn Jahre zeigen, wie Lizenz und Wartung den Invest überholen.</div></div>
@@ -356,6 +358,7 @@ footer b{color:var(--ink);}
 
     <div class="kpi-grid" id="kpi-allowed"></div>
     <div id="ko-block"></div>
+    <div class="card" id="nulloption" style="border-left:4px solid var(--ink-soft);margin-bottom:16px"></div>
 
     <div class="grid2 charts">
       <div class="card chart-card">
@@ -487,6 +490,10 @@ const GLOBAL=[
   {id:'maintDecay',label:'Wartungs-Abklingfaktor',sub:'% je Jahr: nach dem ersten Jahr sinkt der Anpassungsbedarf (100 = konstant)',v:[80,90,97],src:'E',srcNote:'Modellierungs-Notlösung, keine Empirie: verhindert, dass ein fixer Template-Bestand über 10 Jahre dreimal neu gebaut wird. Literatur (Sekundärzitate) kennt bei wachsender Codebasis eher steigende Wartung, deshalb näher an „konstant“ (Audit 09/2026)'},
   {id:'migFactor',label:'Nachbau-Faktor bei Migration',sub:'× Wiederverwendungs-Stunden je Bestands-Chart (Nachbau ist selten billiger als Erstbau)',v:[1.1,1.5,2.5],src:'E',srcNote:'Nachbau enthält Original verstehen, Abweichungen dokumentieren, Abnahme, Parallelbetrieb; Untergrenze 1,0 war unhaltbar. Charticulator, Bing Maps, OKViz: Neubau statt Migration'},
   {id:'capacityCost',label:'Jahreskosten eurer Fabric-Capacity',sub:'€, nur bei F-SKU/Premium eintragen, sonst 0 (Pro-Lizenzen: kein Capacity-Effekt). Presets unter der Tabelle',v:[0,0,0],src:'S',srcNote:'F2 ≈ 2–3 k€, F8 ≈ 8–13 k€, F64 ≈ 60–118 k€ je Jahr (reserved bis Pay-as-you-go, West Europe, Sekundärquellen 2026; Azure-Preisliste in der Prüfumgebung nicht abrufbar). Der prozentuale Mehrverbrauch ist eine lineare Näherung, real springt die SKU'},
+  {id:'sqChartH',label:'Null-Option: Stunden je Chart ohne Standard',sub:'Jedes Chart wird einzeln formatiert und diskutiert, ohne Vorlage (Core Visuals ad hoc)',v:[1,2,4],src:'E',srcNote:'Autoren-Schätzung 09/2026, keine Quelle. Ohne Standard entfallen Setup, Schulung und Freigabe, aber jedes Chart kostet Formatierung, Abstimmung und Nacharbeit'},
+  {id:'sqMaint',label:'Null-Option: Wartungsquote ad hoc',sub:'% des Aufbaus je Jahr; uneinheitliche Reports werden häufiger angefasst',v:[20,30,45],src:'E',srcNote:'Autoren-Schätzung, keine Quelle'},
+  {id:'sqReadMin',label:'Null-Option: Leserzeit je Viewer und Woche',sub:'Minuten, die uneinheitliche Charts an Orientierung, Rückfragen und Fehlinterpretation kosten; 0 = nicht einrechnen',v:[0.5,2,6],src:'E',srcNote:'Keine unabhängige Quelle. Herstellerstudien (Zebra BI: „46 % schneller lesen“) sind interessengeleitet. Größter und am wenigsten belegter Posten der Null-Option, deshalb im Ergebnis getrennt ausgewiesen'},
+  {id:'sqSupH100',label:'Null-Option: Rückfragen je 100 Viewer und Jahr',sub:'Stunden für „was zeigt dieser Chart“ ohne einheitliche Notation',v:[6,12,20],src:'E',srcNote:'Autoren-Schätzung, keine Quelle; zum Vergleich Core + SVG mit Standard 9,5 h'},
   {id:'disc',label:'Kalkulationszins (WACC)',sub:'% für den Barwert; 0 = nominale Summe. Nominaler Zins, weil Löhne und Lizenzen nominal steigen',v:[5,8,10],src:'S',srcNote:'KPMG Kapitalkostenstudie 2025: WACC DACH Ø 8,5 %, Spanne 5,2–10,4 % (Großunternehmen; Mittelstand eher höher). Wirkt nur auf den Barwert, nicht auf die Rangfolge'},
 ];
 /* Parameter je Option: v = {paid:[..],oss:[..],deneb:[..],core:[..]} */
@@ -513,6 +520,9 @@ const OPTP=[
   {id:'events',label:'Breaking-Updates pro Jahr',sub:'Anzahl Ereignisse, die Reports brechen',unit:'n',v:{paid:[0.2,1,2],oss:[0.5,1.5,3],deneb:[1,2,3],core:[2,3,5]},src:'P',srcNote:'Expertenpanel 09/2026 (Modi paid 1.0 · oss 2.5 · deneb 2.0 · core 3.25), Audit 09/2026: Plattform-Brüche sind werkzeugunabhängig, der Unterschied liegt in „wer fixt“ (Fix-Stunden), deshalb OSS näher an Paid. Belegt: Deneb 3 Vorfälle in 24 Monaten (Issues #553, #676, Tooltip 1.6.1), Core/SVG 3–4 Regressionen 2025 (New Card px→%, SVG leer im Service)'},
   {id:'fixH',label:'Stunden je Breaking-Update',sub:'Analyse, Fix, Re-Test',unit:'h',v:{paid:[1,3,5.5],oss:[3,7,14],deneb:[3,6.5,12],core:[5,9.5,17]},src:'P',srcNote:'Expertenpanel 09/2026: 20 simulierte Profile (Sonnet), Median von min/wahrsch./max; Modus je Ansatz: paid 3.0 · oss 7.0 · deneb 6.5 · core 9.5. OSS: kein SLA, AppSource-Update 10–14 Tage bis Produktion, Zertifizierung bis 3 Wochen (Microsoft Learn)'},
   {id:'dep',label:'Abkündigungsrisiko pro Jahr',sub:'% Wahrscheinlichkeit je Jahr, dass der Ansatz neu gebaut werden muss (wird über den Horizont akkumuliert, in der Simulation als Ereignis gezogen)',unit:'%',v:{paid:[1,2,4],oss:[3,7,13],deneb:[1,3,6],core:[0.4,1,2]},src:'F',srcNote:'Charticulator (Microsoft, EOL 12/2023), Bing Maps Visual (10/2025), OKViz Synoptic Panel v1 (03/2026, Einzelquelle), R/Python nur in Embed und Publish-to-web (05/2026). Die Belege betreffen Microsoft- und kommerzielle Visuals, nicht Community-OSS; OSS bleibt wegen Bus-Faktor 1 am höchsten (Blindschätzung Sonnet sogar 15 %). Deneb gesenkt: Vega-Lite-Specs überleben das Wirtsvisual'},
+  {id:'cxSimple',label:'Komplexitätsfaktor einfache Charts',sub:'× Stunden je Chart gegenüber der mittleren Klasse (Balken mit Abweichung, Linien, KPI-Karten)',unit:'×',v:{paid:[0.5,0.7,0.9],oss:[0.5,0.7,0.9],deneb:[0.3,0.5,0.7],core:[0.25,0.4,0.6]},src:'E',srcNote:'Autoren-Schätzung 09/2026, keine Quelle. Klick-Werkzeuge sparen bei einfachen Charts wenig gegenüber der Mitte, Code-Ansätze viel (ein Balken ist in DAX/SVG schnell, ein Wasserfall nicht)'},
+  {id:'cxComplex',label:'Komplexitätsfaktor komplexe Charts',sub:'× Stunden je Chart (Wasserfall mit Abweichungen, kombinierte Charts, Kommentierung, Drilldown)',unit:'×',v:{paid:[1.2,1.4,1.8],oss:[1.3,1.6,2.2],deneb:[1.8,2.5,3.5],core:[2.5,4,6]},src:'E',srcNote:'Autoren-Schätzung 09/2026, keine Quelle. Paid liefert den Chart-Typ fertig; Core + SVG baut den Wasserfall mit Szenario-Notation aus Measures von Hand. Der Chart-Mix (Schritt 1) gewichtet diese Faktoren, bei 50 / 35 / 15 gelten die Panel-Stunden unverändert'},
+  {id:'learn',label:'Lernrate je Verdopplung',sub:'% weniger Stunden je Chart bei jeder Verdopplung der gebauten Charts je Ersteller; Panelwert gilt für den 10. Chart, Untergrenze 50 %',unit:'%',v:{paid:[0,5,10],oss:[5,10,15],deneb:[8,15,25],core:[8,15,25]},src:'F',srcNote:'Faustregel nach Wright: 80–90 % Lernkurve bei manueller Arbeit entspricht 10–20 % je Verdopplung. Code-Ansätze lernen mehr (Vorlagenbibliothek reift), Klick-Werkzeuge weniger. Kleine Teams mit wenigen Charts je Kopf liegen auf dem steilen Teil der Kurve und zahlen mehr als der Panelwert. Keine Messung für Power BI'},
   {id:'support',label:'Support / Sponsoring pro Jahr',sub:'€ (Paid: im Preis enthalten)',unit:'€',v:{oss:[0,0,1000],deneb:[0,0,3000],core:[0,0,0]},src:'V',srcNote:'Freiwillig. Deneb GitHub Sponsors (verifiziert): 50 $ Bronze ≈ 1 h, 150 $ Silver, 250 $ Gold ≈ 3 h, 750 $ Platinum ≈ 15 h je Monat; Max = Gold. Achtung: der Erwartungswert von 0 · 0 · max ist max/6, nicht 0'},
 ];
 
@@ -582,14 +592,14 @@ const SOURCES=[
 ];
 
 /* ===================== State ===================== */
-const S={creators:3,viewers:40,reports:6,cpr:6,types:5,horizon:5,mode:'man',ssShare:25,licModel:'staffel',baseline:'none',existing:0,weight:70,per:'viewer',view:'abs',prio:{},cap:{},custom:[],flags:{},g:{},p:{},tornado:null,mc:{w:15,n:2000,a:'pct'}};
+const S={creators:3,viewers:40,reports:12,cpr:6,types:5,horizon:5,mode:'man',ssShare:25,licModel:'staffel',baseline:'none',existing:0,weight:70,per:'viewer',view:'abs',prio:{},cap:{},custom:[],flags:{},g:{},p:{},tornado:null,mc:{w:15,n:2000,a:'pct'},mix:[50,35,15]};
 function defaults(){
-  S.creators=3;S.viewers=40;S.reports=6;S.cpr=6;S.types=5;S.horizon=5;S.mode='man';S.ssShare=25;S.licModel='staffel';S.baseline='none';S.existing=0;S.weight=70;S.per='viewer';
+  S.creators=3;S.viewers=40;S.reports=12;S.cpr=6;S.types=5;S.horizon=5;S.mode='man';S.ssShare=25;S.licModel='staffel';S.baseline='none';S.existing=0;S.weight=70;S.per='viewer';
   S.view='abs';S.prio={};S.cap={};S.custom=[];REQS.forEach(r=>{S.prio[r.id]=r.def;S.cap[r.id]=r.cap.slice();});
   S.flags={};FLAGS.forEach(f=>S.flags[f.id]=false);
   S.g={};GLOBAL.forEach(p=>S.g[p.id]=p.v.slice());
   S.p={};OPTS.forEach(o=>{S.p[o.key]={};OPTP.forEach(p=>{if(p.v[o.key])S.p[o.key][p.id]=p.v[o.key].slice();});});
-  S.tornado=null;S.mc={w:15,n:2000,a:'pct'};
+  S.tornado=null;S.mc={w:15,n:2000,a:'pct'};S.mix=[50,35,15];
 }
 defaults();
 
@@ -624,6 +634,11 @@ function calc(key,draw,override){
   const p=id=>pd[id]===undefined?0:pd[id];
   const users=S.creators+S.viewers;
   const ext=S.flags.noext?0:p('ext')/100;
+  /* Chart-Mix: Komplexitätsfaktoren je Klasse, normiert auf die Standard-Mischung 50/35/15, für die die Panel-Stunden gelten */
+  const mixS=(S.mix[0]+S.mix[1]+S.mix[2])||100;const mxs=S.mix.map(x=>x/mixS);const cx=[p('cxSimple'),1,p('cxComplex')];const cx0=[.5,.35,.15];
+  const compMult=(mxs[0]*cx[0]+mxs[1]*cx[1]+mxs[2]*cx[2])/(cx0[0]*cx[0]+cx0[1]*cx[1]+cx0[2]*cx[2]);
+  /* Lernkurve (Wright): Stunden je Chart fallen um learn % je Verdopplung; Panelwert = 10. Chart je Ersteller; mittlerer Faktor über alle Charts, Untergrenze 0,5 */
+  const learnF=(n,r)=>{if(n<=0||r<=0)return 1;const b=-Math.log(1-r/100)/Math.LN2,a=1-b;const avg=(Math.pow(n+.5,a)-Math.pow(.5,a))/(a*n);return Math.max(.5,avg*Math.pow(10,b));};
   const rateInt0=g('rateInt')*g('intFactor')/100;
   const rate0=rateInt0*(1-ext)+g('rateExt')*ext;
   const growth=g('growth');const vAvg=viewersAvg(growth);
@@ -643,11 +658,12 @@ function calc(key,draw,override){
   const support=p('support')*H;
   const capacity=g('capacityCost')*p('cuUplift')/100*H;
   /* Aufbau (Jahr 0, ohne Lohnsteigerung), Rollout (Nachfrage wächst mit Viewern) */
-  const setup=p('setupH')*rate0, dev=p('devH')*rate0, build=S.types*p('firstH')*rate0;
+  const setup=p('setupH')*rate0, dev=p('devH')*rate0, build=S.types*p('firstH')*compMult*rate0;
   const reportsTotal=S.reports+(g('demand1000')*(vAvg/1000)+g('demandCreator')*S.creators)*H;
-  const rollout=reportsTotal*S.cpr*p('reuseH')*M.reuseF*rate0;
+  const chartsPerCreator=reportsTotal*S.cpr/Math.max(1,S.creators);const learnRoll=learnF(chartsPerCreator,p('learn'));
+  const rollout=reportsTotal*S.cpr*p('reuseH')*compMult*learnRoll*M.reuseF*rate0;
   /* Migration des Bestands: nur bei Wechsel weg vom heutigen Ansatz */
-  const switchCost=(S.baseline!=='none'&&S.baseline!==key&&S.existing>0)?S.existing*S.cpr*p('reuseH')*g('migFactor')*rate0:0;
+  const switchCost=(S.baseline!=='none'&&S.baseline!==key&&S.existing>0)?S.existing*S.cpr*p('reuseH')*compMult*g('migFactor')*rate0:0;
   /* Schulung nach Rollen: Owner tief, Nutzer flach, Fluktuation laufend */
   const owners=ownersOf();
   const train0=owners*(p('trainH')*rateInt0+p('course'))+(S.creators-owners)*p('lightH')*rateInt0;
@@ -673,8 +689,8 @@ function calc(key,draw,override){
   c.total=Object.values(c).reduce((a,b)=>a+b,0);
   c.invest=c.build+c.switch+c.rollout+train0+govOnce;
   c.yearly=(c.total-c.invest)/H;
-  c.firstReportH=p('setupH')+p('devH')+S.types*p('firstH')+S.cpr*p('reuseH');
-  c.nextReportH=S.cpr*p('reuseH')*M.reuseF;
+  c.firstReportH=p('setupH')+p('devH')+S.types*p('firstH')*compMult+S.cpr*p('reuseH')*compMult;
+  c.nextReportH=S.cpr*p('reuseH')*compMult*learnRoll*M.reuseF;c.compMult=compMult;c.learnRoll=learnRoll;
   c.vAvg=vAvg;c.owners=owners;c.reportsTotal=reportsTotal;c.variantEff=variantEff;c.licF=licF;c.pH=pH;c.licNoLic=c.total-lic;c.users=users;
   /* Harte Kosten (Auszahlungen: Lizenz, Support, Capacity, Kurse, extern beauftragte Stunden) vs. weiche Kosten (intern bewertete Stunden) */
   const hardFrac=rate0>0?(g('rateExt')*ext)/rate0:0;
@@ -701,6 +717,17 @@ function simulate(key,N){
   return out;
 }
 function expected(key,override){return calc(key,pertMean,override);}
+/* Null-Option: kein Standard. Kein Setup, keine Schulung, keine Freigabe, aber jedes Chart ad hoc, mehr Wartung, Leserzeit und Rückfragen */
+function calcSQ(draw){const G=S.g,H=S.horizon;const gd={};GLOBAL.forEach(q=>gd[q.id]=draw(G[q.id]));gd.intFactor=pertMean(G.intFactor);const g=id=>gd[id];
+  const rateInt0=g('rateInt')*g('intFactor')/100;const wageF=(()=>{const w=1+g('wageInfl')/100;let t=0;for(let y=0;y<H;y++)t+=Math.pow(w,y);return t/H;})();const rateInt=rateInt0*wageF;const vAvg=viewersAvg(g('growth'));
+  const reportsTotal=S.reports+(g('demand1000')*(vAvg/1000)+g('demandCreator')*S.creators)*H;
+  const build=reportsTotal*S.cpr*g('sqChartH')*rateInt0;
+  const decay=g('maintDecay')/100;let my=0;for(let y=0;y<H;y++)my+=Math.pow(decay,y);
+  const maint=build*(g('sqMaint')/100)*my*wageF;
+  const read=vAvg*g('sqReadMin')*52/60*H*rateInt;
+  const sup=(vAvg/100)*g('sqSupH100')*rateInt*H;
+  return {build,maint,read,sup,total:build+maint+read+sup,noRead:build+maint+sup,vAvg,readRate:vAvg*52/60*H*rateInt};}
+function simulateSQ(N){const t=[],nr=[];for(let i=0;i<N;i++){seed=(424242+i*7919)>>>0;const c=calcSQ(pert);t.push(c.total);nr.push(c.noRead);}const ex=calcSQ(pertMean);return {p10:q(t,.1),p50:q(t,.5),p90:q(t,.9),noRead50:q(nr,.5),ex};}
 
 /* ===================== Bewertung: K.O., Warnungen, Score ===================== */
 function allReqs(){return REQS.concat(S.custom);}
@@ -744,6 +771,7 @@ function fmtRange(t,unit){return fmtN(t[0],2)+' · '+fmtN(t[1],2)+' · '+fmtN(t[
 function renderStep1(){
   ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const el=document.getElementById(id);el.value=Math.min(+el.max,S[id]);const n=document.getElementById('n-'+id);if(n&&document.activeElement!==n)n.value=S[id];});
   document.getElementById('ss').value=S.ssShare;document.getElementById('v-ss').textContent=S.ssShare+' %';
+  {const ms=S.mix[0]+S.mix[1]+S.mix[2];document.getElementById('mix-sum').textContent=ms+' %'+(ms!==100?' (wird auf 100 normiert)':'');['mix-simple','mix-mid','mix-complex'].forEach((id,i)=>{const n=document.getElementById(id);if(document.activeElement!==n)n.value=S.mix[i];});}
   const rd=reportsDefault();document.getElementById('reports-hint').innerHTML='Reports, die nach dem Standard gebaut werden. Erfahrungswert für '+esc(modeParams().label)+' mit '+fmtN(S.creators)+' Erstellern: <b>'+fmtN(rd)+'</b> (Enterprise ≈ 6, Managed ≈ 4, Self-Service ≈ 2 je Ersteller, plus 2 je 1.000 Viewer; Daten-WG-Erfahrungswert) '+(rd!==S.reports?'<button class="hint-btn" id="btn-reports-default">übernehmen</button>':'<span style="color:var(--accent-text)">✓ übernommen</span>');
   const rb=document.getElementById('btn-reports-default');if(rb)rb.addEventListener('click',()=>{S.reports=reportsDefault();pendingToast='Reports auf Erfahrungswert '+S.reports+' gesetzt';update();});
   document.getElementById('baseline').value=S.baseline;
@@ -815,7 +843,7 @@ function perDivisor(){const v=viewersAvg(pertMean(S.g.growth));return (S.per==='
 function perLabel(){return 'je '+(S.per==='viewer'?'Viewer':'Nutzer')+' und Jahr';}
 function niceMax(v,n){n=n||4;if(!(v>0))return 1;const raw=v/n,mag=Math.pow(10,Math.floor(Math.log10(raw)));const step=[1,2,2.5,5,10].find(s=>s*mag>=raw)*mag;return step*n;}
 const safe=v=>isFinite(v)?v:0;
-let lastSim={},lastRank=[],lastExcluded=[],lastEv={},lastOrder=[],pendingToast=null;
+let lastSim={},lastRank=[],lastExcluded=[],lastEv={},lastOrder=[],pendingToast=null,lastSQ=null;
 function overlap(a,b){const lo=Math.max(a.p10,b.p10),hi=Math.min(a.p90,b.p90);if(hi<=lo)return 0;return (hi-lo)/Math.max(1,Math.min(a.p90-a.p10,b.p90-b.p10));}
 function update(){
   renderStep1();
@@ -856,6 +884,18 @@ function update(){
     if(!gaps.length)t+='<div class="insight" style="margin:0"><b>Kein Grund zur Abweichung.</b> Alle bewerteten Anforderungen erfüllen die Core Visuals mit mindestens „eingeschränkt“. Jeder andere Ansatz ist Kür: Er muss über Geschwindigkeit, Wiedererkennung oder Betriebskosten gewinnen, nicht über Funktion.</div>';
     else t+='<div class="insight" style="margin:0">'+(musts.length?'<b>Harte Gründe (Must):</b> '+musts.map(r=>esc(r.name)+' (Core: '+CAP_LBL[capOf(r,'core')]+')').join(' · ')+'. ':'<b>Kein hartes Must gegen Core.</b> ')+(shoulds.length?'<b>Weiche Gründe (Should):</b> '+shoulds.map(r=>esc(r.name)).join(' · ')+'. ':'')+(coulds.length?'<b>Nice-to-have (Could):</b> '+coulds.map(r=>esc(r.name)).join(' · ')+'. ':'')+(musts.length?'Damit ist die Abweichung fachlich begründet; der Vergleich unten zeigt, was sie kostet.':'Ohne Must-Grund ist die Abweichung eine Komfort- oder Kostenentscheidung. Prüft, ob die Should-Punkte den Mehrpreis rechtfertigen.')+'</div>';
     document.getElementById('premise').innerHTML=t;}
+  /* Null-Option: kein Standard */
+  {const sq=simulateSQ(1500);lastSQ=sq;const b=ranked.slice().sort((x,y)=>sim[x.key].p50-sim[y.key].p50)[0];const bc=b?sim[b.key].p50:null;const perDivSQ=Math.max(1,sq.ex.vAvg*S.horizon);const readOn=S.g.sqReadMin[1]>0||S.g.sqReadMin[2]>0;
+    let t='<h3>Null-Option: kein Standard <span class="eyebrow">Status quo als Vergleich, nicht in der Rangfolge</span></h3>';
+    t+='<div class="kpi-grid three" style="margin:8px 0 10px"><div class="kpi" style="--oc:var(--ink-soft)"><div class="eyebrow">Status quo über '+S.horizon+' Jahre</div><div class="big">'+fmtEur(sq.p50)+'</div><div class="range">P10–P90 '+fmtEur(sq.p10)+' – '+fmtEur(sq.p90)+' · '+fmtEur(sq.p50/perDivSQ)+' je Viewer und Jahr</div></div>';
+    t+='<div class="kpi" style="--oc:var(--ink-soft)"><div class="eyebrow">davon Leserzeit</div><div class="big">'+fmtEur(sq.ex.read)+'</div><div class="range">ohne Leserzeit '+fmtEur(sq.noRead50)+' · Annahme ohne Quelle</div></div>';
+    t+='<div class="kpi" style="--oc:var(--ink-soft)"><div class="eyebrow">Ad-hoc-Bau, Wartung, Rückfragen</div><div class="big">'+fmtEur(sq.ex.build+sq.ex.maint+sq.ex.sup)+'</div><div class="range">'+fmtEur(sq.ex.build)+' Bau · '+fmtEur(sq.ex.maint)+' Wartung · '+fmtEur(sq.ex.sup)+' Rückfragen</div></div></div>';
+    if(bc!==null){const needMin=(bc-sq.noRead50)/Math.max(1,sq.ex.readRate);
+      if(bc<sq.noRead50)t+='<p class="hint" style="margin:0"><b>'+esc(b.short)+'</b> ('+fmtEur(bc)+') liegt unter dem Status quo <b>auch ohne Leserzeit</b> ('+fmtEur(sq.noRead50)+'). Der Standard rechnet sich schon über Bau und Wartung; die Leserzeit ist Zugabe.</p>';
+      else if(bc<sq.p50)t+='<p class="hint" style="margin:0"><b>'+esc(b.short)+'</b> ('+fmtEur(bc)+') liegt unter dem Status quo ('+fmtEur(sq.p50)+') <b>nur, wenn die Leserzeit zählt</b>: ab '+fmtN(Math.max(0,needMin),1)+' Minuten je Viewer und Woche (eure Annahme: '+fmtN(S.g.sqReadMin[1],1)+'). Ohne Leserzeit ist der Status quo '+fmtEur(bc-sq.noRead50)+' günstiger. Diese Minuten sind der am wenigsten belegte Wert im ganzen Rechner.</p>';
+      else t+='<p class="hint" style="margin:0">Der Status quo ('+fmtEur(sq.p50)+') ist im Modell günstiger als der günstigste zulässige Ansatz <b>'+esc(b.short)+'</b> ('+fmtEur(bc)+'). Ein Standard braucht dann andere Gründe (Konsistenz, Prüfbarkeit, komplexe Charts, die ad hoc gar nicht entstehen) oder mehr Viewer'+(readOn?'; rechnerisch wären '+fmtN(Math.max(0,needMin),1)+' Minuten Leserzeit je Viewer und Woche nötig':'')+'.</p>';}
+    t+='<p class="hint" style="margin:8px 0 0">Die Null-Option baut dieselben Reports mit Core Visuals ohne Vorlage. Sie kann keine komplexen Charts (Wasserfall mit Szenario-Notation) liefern; dieser Nutzenverlust ist nicht bepreist. Annahmen unter Schritt 4, Präfix „Null-Option“.</p>';
+    document.getElementById('nulloption').innerHTML=t;}
   /* Konflikte */
   const cf=conflicts();document.getElementById('conflict-box').innerHTML=cf.map(c=>'<div class="conflict">'+c+'</div>').join('');
   /* KPI-Karten */
@@ -927,7 +967,7 @@ function drawTornado(best,ev){
   const key=S.tornado&&OK[S.tornado]!==undefined?S.tornado:(best?best.key:'paid');const o=OPTS[OK[key]];
   const base=expected(key).total;const items=[];
   const SRC=SRC_LBL;
-  GLOBAL.forEach(p=>{const t=S.g[p.id];if(t[2]===t[0])return;items.push({l:p.label,src:p.src,lo:expected(key,{[p.id]:t[0]}).total-base,hi:expected(key,{[p.id]:t[2]}).total-base});});
+  GLOBAL.forEach(p=>{const t=S.g[p.id];if(t[2]===t[0]||p.id.startsWith('sq'))return;items.push({l:p.label,src:p.src,lo:expected(key,{[p.id]:t[0]}).total-base,hi:expected(key,{[p.id]:t[2]}).total-base});});
   OPTP.forEach(p=>{const t=S.p[key][p.id];if(!t||t[2]===t[0])return;items.push({l:p.label,src:p.src,lo:expected(key,{[p.id]:t[0]}).total-base,hi:expected(key,{[p.id]:t[2]}).total-base});});
   items.sort((a,b)=>Math.abs(b.hi-b.lo)-Math.abs(a.hi-a.lo));const top=items.slice(0,8);
   const W=560,rowH=30,padL=215,padR=70,padT=22;const H=padT+top.length*rowH+36;
@@ -982,7 +1022,7 @@ function renderOptCards(sim,ev,order){
 /* ---------- Anhang / Footer ---------- */
 function renderSources(){
   document.getElementById('sources').innerHTML='<thead><tr><th>Quelle</th><th>Was drin steht</th><th>Status</th></tr></thead><tbody>'+SOURCES.map(([n,w,u,s])=>'<tr><td><a href="'+u+'" target="_blank" rel="noopener">'+esc(n)+'</a></td><td>'+esc(w)+'</td><td><span class="badge '+s+'">'+s+'</span></td></tr>').join('')+'</tbody>';
-  document.getElementById('footer').innerHTML='<b>Methodik:</b> Je Ansatz werden Lizenz und Support (Nutzer × Preis × Jahre), Aufbau (Setup, optionale Eigenentwicklung, Chart-Typen × Stunden × Stundensatz-Mix), Rollout (Reports × Charts × Wiederverwendungs-Stunden), Schulung (Ersteller × Stunden und Kurskosten, wiederkehrend über die Fluktuation), Lizenz mit Viewer-Wachstum und Preissteigerung je Jahr, Wartung (Quote × Aufbau + Rollout × Jahre plus Breaking-Updates) und Abkündigungsrisiko (Wahrscheinlichkeit × Migrationsanteil × Aufbau) addiert. Jede Annahme ist eine Dreipunkt-Schätzung, aus der per PERT-Verteilung 1.500 Szenarien gezogen werden; angezeigt werden P10, P50 und P90. Break-even und Sensitivität nutzen den PERT-Erwartungswert. K.O.-Kriterien (Must mit 0 Punkten, Governance-Schalter) filtern vor der Rangfolge; ausgeschlossene Ansätze bleiben zur Einordnung sichtbar. Der Anforderungs-Score ist eine Nutzwertanalyse (Must 3, Should 2, Could 1 als Gewicht, Erfüllungsgrad 1 bis 5) und bewusst nur über den Regler in die Rangfolge einbezogen. Governance und Anwender-Support wachsen mit der Viewer-Zahl (log-linear von 50 bis 5.000 Viewern), das Betriebsmodell trennt tief geschulte Vorlagen-Bauer von Vorlagen-Nutzern und skaliert Varianten, Support und Governance. Lizenzen wachsen mit Viewern und Preis, Stundensätze mit der Lohnsteigerung, die Wartung klingt ab. Das Abkündigungsrisiko wird als Jahresrate über den Horizont akkumuliert und in der Simulation als Ereignis gezogen. Der Barwert nutzt den Kalkulationszins auf den Zahlungsstrom je Jahr. Die Rangfolge nutzt das Kostenverhältnis zur günstigsten Option (auch ausgeschlossene), damit eine chancenlose dritte Option die Reihenfolge der anderen nicht verschiebt; Plätze mit überlappenden P10–P90-Bändern werden zusammengefasst. Beträge sind auf zwei signifikante Stellen gerundet. Audit 09/2026 (drei Opus- und drei Sonnet-Prüfungen, Blindschätzung, Web-Verifikation): Fluktuationsschulung rollendifferenziert, Abkündigungsrisiko inklusive 60 % des Rollouts, Freigabe je Visual-Paket statt je Chart-Typ, Lizenz-Administration degressiv und bei Site-Lizenz null, Staffel je Jahr, Governance log-linear, Bewertung interner Stunden als Konstante; 22 Defaults neu gesetzt, Herkunft je Wert im Badge. Details in der Markdown-Fassung. Die Monte-Carlo-Seite (Schritt 6) zieht zusätzlich das Mengengerüst je Szenario mit der gewählten Schwankungsbreite und wertet Verteilung, Rangfolge-Sicherheit, hart gegen weich, Erstellung gegen Nutzung, Rangkorrelationen (Spearman) und eine Skalen-Simulation bei festem Verhältnis Ersteller : Viewer aus. Power-BI-Grundlizenzen (Pro, PPU, Capacity-Grundpreis) fallen für alle Ansätze gleich an und sind nicht enthalten, ebenso die Nutzen-Seite (nur als Score und als „€ je Anforderungspunkt\“), Aktivierung/Abschreibung und steuerliche Fragen (z. B. § 50a EStG bei Lizenzen ausländischer Anbieter). <b>Alle Zahlen sind Indikationen unter Unsicherheit</b>, keine Angebote. Die Berechnung läuft lokal im Browser. Der Share-Link enthält eure Eingaben unverschlüsselt im URL-Fragment; wer den Link hat, sieht die Annahmen. Schriften werden von Google Fonts geladen; der Excel-Export lädt die Bibliothek SheetJS zuerst lokal, sonst von cdnjs.cloudflare.com (dabei sehen Google bzw. Cloudflare eure IP-Adresse, keine Eingaben).<div class="footer-version"><a href="md/visual-standards-rechner.md" style="color:var(--accent-text)">Markdown-Fassung (Modell, Annahmen, Quellen)</a> · Visual-Standards-Rechner v0.7 · Michael Tenner &amp; Diana Ackermann · Daten-WG Knowledge Kitchen · Stand 09/2026 · Pre-Conference „Visual Standards in Power BI für Controlling und Finance“</div>';
+  document.getElementById('footer').innerHTML='<b>Methodik:</b> Je Ansatz werden Lizenz und Support (Nutzer × Preis × Jahre), Aufbau (Setup, optionale Eigenentwicklung, Chart-Typen × Stunden × Stundensatz-Mix), Rollout (Reports × Charts × Wiederverwendungs-Stunden), Schulung (Ersteller × Stunden und Kurskosten, wiederkehrend über die Fluktuation), Lizenz mit Viewer-Wachstum und Preissteigerung je Jahr, Wartung (Quote × Aufbau + Rollout × Jahre plus Breaking-Updates) und Abkündigungsrisiko (Wahrscheinlichkeit × Migrationsanteil × Aufbau) addiert. Jede Annahme ist eine Dreipunkt-Schätzung, aus der per PERT-Verteilung 1.500 Szenarien gezogen werden; angezeigt werden P10, P50 und P90. Break-even und Sensitivität nutzen den PERT-Erwartungswert. K.O.-Kriterien (Must mit 0 Punkten, Governance-Schalter) filtern vor der Rangfolge; ausgeschlossene Ansätze bleiben zur Einordnung sichtbar. Der Anforderungs-Score ist eine Nutzwertanalyse (Must 3, Should 2, Could 1 als Gewicht, Erfüllungsgrad 1 bis 5) und bewusst nur über den Regler in die Rangfolge einbezogen. Governance und Anwender-Support wachsen mit der Viewer-Zahl (log-linear von 50 bis 5.000 Viewern), das Betriebsmodell trennt tief geschulte Vorlagen-Bauer von Vorlagen-Nutzern und skaliert Varianten, Support und Governance. Lizenzen wachsen mit Viewern und Preis, Stundensätze mit der Lohnsteigerung, die Wartung klingt ab. Das Abkündigungsrisiko wird als Jahresrate über den Horizont akkumuliert und in der Simulation als Ereignis gezogen. Der Barwert nutzt den Kalkulationszins auf den Zahlungsstrom je Jahr. Die Rangfolge nutzt das Kostenverhältnis zur günstigsten Option (auch ausgeschlossene), damit eine chancenlose dritte Option die Reihenfolge der anderen nicht verschiebt; Plätze mit überlappenden P10–P90-Bändern werden zusammengefasst. Beträge sind auf zwei signifikante Stellen gerundet. Audit 09/2026 (drei Opus- und drei Sonnet-Prüfungen, Blindschätzung, Web-Verifikation): Fluktuationsschulung rollendifferenziert, Abkündigungsrisiko inklusive 60 % des Rollouts, Freigabe je Visual-Paket statt je Chart-Typ, Lizenz-Administration degressiv und bei Site-Lizenz null, Staffel je Jahr, Governance log-linear, Bewertung interner Stunden als Konstante; 22 Defaults neu gesetzt, Herkunft je Wert im Badge. v0.8: Chart-Mix nach Komplexität (Faktoren je Ansatz, Panel-Stunden gelten für 50 / 35 / 15), Lernkurve nach Wright auf die Wiederverwendung (Panelwert = 10. Chart je Ersteller, Untergrenze 50 %), Null-Option „kein Standard“ als Vergleich außerhalb der Rangfolge mit getrennt ausgewiesener Leserzeit. Details in der Markdown-Fassung. Die Monte-Carlo-Seite (Schritt 6) zieht zusätzlich das Mengengerüst je Szenario mit der gewählten Schwankungsbreite und wertet Verteilung, Rangfolge-Sicherheit, hart gegen weich, Erstellung gegen Nutzung, Rangkorrelationen (Spearman) und eine Skalen-Simulation bei festem Verhältnis Ersteller : Viewer aus. Power-BI-Grundlizenzen (Pro, PPU, Capacity-Grundpreis) fallen für alle Ansätze gleich an und sind nicht enthalten, ebenso die Nutzen-Seite (nur als Score und als „€ je Anforderungspunkt\“), Aktivierung/Abschreibung und steuerliche Fragen (z. B. § 50a EStG bei Lizenzen ausländischer Anbieter). <b>Alle Zahlen sind Indikationen unter Unsicherheit</b>, keine Angebote. Die Berechnung läuft lokal im Browser. Der Share-Link enthält eure Eingaben unverschlüsselt im URL-Fragment; wer den Link hat, sieht die Annahmen. Schriften werden von Google Fonts geladen; der Excel-Export lädt die Bibliothek SheetJS zuerst lokal, sonst von cdnjs.cloudflare.com (dabei sehen Google bzw. Cloudflare eure IP-Adresse, keine Eingaben).<div class="footer-version"><a href="md/visual-standards-rechner.md" style="color:var(--accent-text)">Markdown-Fassung (Modell, Annahmen, Quellen)</a> · Visual-Standards-Rechner v0.8 · Michael Tenner &amp; Diana Ackermann · Daten-WG Knowledge Kitchen · Stand 09/2026 · Pre-Conference „Visual Standards in Power BI für Controlling und Finance“</div>';
 }
 
 /* ===================== Excel-Export ===================== */
@@ -1046,7 +1086,7 @@ function buildXlsx(){
   /* --- Ergebnis (Simulation) --- */
   const R=[['Posten',...OPTS.map(o=>o.name)]];CATS.forEach(([k,l])=>R.push([l+' (P50)',...OPTS.map(o=>Math.round(sim[o.key].cats[k]))]));
   R.push(['Gesamt P50',...OPTS.map(o=>Math.round(sim[o.key].p50))],['Gesamt P10',...OPTS.map(o=>Math.round(sim[o.key].p10))],['Gesamt P90',...OPTS.map(o=>Math.round(sim[o.key].p90))],['Barwert',...OPTS.map(o=>Math.round(sim[o.key].npv))],['Invest Jahr 0',...OPTS.map(o=>Math.round(sim[o.key].invest))],['Laufend je Jahr',...OPTS.map(o=>Math.round(sim[o.key].yearly))],[perLabel(),...OPTS.map(o=>Math.round(sim[o.key].p50/perDiv))],['Erster Standard-Report (h)',...OPTS.map(o=>Math.round(sim[o.key].firstReportH))],['Jeder weitere Report (h)',...OPTS.map(o=>+sim[o.key].nextReportH.toFixed(1))],['Anforderungs-Score %',...OPTS.map(o=>ev[o.key].scorePct)],['K.O.',...OPTS.map(o=>ev[o.key].ko.join(' | '))],['Warnungen',...OPTS.map(o=>ev[o.key].warn.join(' | '))]);
-  R.push([],['Mengengerüst'],['Ersteller',S.creators],['Viewer',S.viewers],['Reports',S.reports],['Charts je Report',S.cpr],['Chart-Typen',S.types],['Horizont (Jahre)',S.horizon],['Aktive Governance-Schalter',FLAGS.filter(f=>S.flags[f.id]).map(f=>f.label).join('; ')||'keine']);
+  R.push([],['Mengengerüst'],['Ersteller',S.creators],['Viewer',S.viewers],['Reports',S.reports],['Charts je Report',S.cpr],['Chart-Typen',S.types],['Horizont (Jahre)',S.horizon],['Chart-Mix einfach / mittel / komplex (%)',S.mix.join(' / ')],['Null-Option kein Standard P50',lastSQ?Math.round(lastSQ.p50):''],['Null-Option ohne Leserzeit P50',lastSQ?Math.round(lastSQ.noRead50):''],['Aktive Governance-Schalter',FLAGS.filter(f=>S.flags[f.id]).map(f=>f.label).join('; ')||'keine']);
   const wsR=X.utils.aoa_to_sheet(R);wsR['!cols']=[{wch:34},{wch:22},{wch:22},{wch:22},{wch:22}];X.utils.book_append_sheet(wb,wsR,'Ergebnis');
   /* --- Anforderungen --- */
   const Q=[['Anforderung','Erläuterung','Priorität',...OPTS.map(o=>o.name+' (1–5)')]];allReqs().forEach(r=>Q.push([r.name,r.sub,PRIO[S.prio[r.id]],...OPTS.map(o=>capOf(r,o.key))]));Q.push([],['Skala: 1 nicht möglich · 2 nur Workaround · 3 eingeschränkt · 4 gut · 5 sehr gut. Must + 1 = K.O.']);
@@ -1061,12 +1101,13 @@ function buildXlsx(){
 }
 
 /* ===================== Share-Link ===================== */
-function writeHash(){try{const st={sv:4,ss:S.ssShare,c:S.creators,v:S.viewers,r:S.reports,q:S.cpr,t:S.types,h:S.horizon,md:S.mode,lm:S.licModel,bl:S.baseline,ex:S.existing,tn:S.tornado,w:S.weight,pe:S.per,vw:S.view,pr:S.prio,cp:S.cap,cu:S.custom,f:S.flags,g:S.g,p:S.p,mc:S.mc};const enc=btoa(unescape(encodeURIComponent(JSON.stringify(st))));history.replaceState(null,'','#s='+enc);}catch(e){}}
+function writeHash(){try{const st={sv:4,ss:S.ssShare,c:S.creators,v:S.viewers,r:S.reports,q:S.cpr,t:S.types,h:S.horizon,md:S.mode,lm:S.licModel,bl:S.baseline,ex:S.existing,tn:S.tornado,w:S.weight,pe:S.per,vw:S.view,pr:S.prio,cp:S.cap,cu:S.custom,f:S.flags,g:S.g,p:S.p,mc:S.mc,mx:S.mix};const enc=btoa(unescape(encodeURIComponent(JSON.stringify(st))));history.replaceState(null,'','#s='+enc);}catch(e){}}
 function readHash(){try{const m=location.hash.match(/#s=(.+)/);if(!m)return false;const st=JSON.parse(decodeURIComponent(escape(atob(m[1]))));
   if(+st.sv!==4)setTimeout(()=>toast('Link aus einer älteren Version des Rechners: Annahmen und Rechenkern wurden im Audit 09/2026 geändert, gespeicherte Werte gelten als eigene Annahmen.'),600);
   const qty=(v,lo,hi,d)=>{const n=Math.round(+v);return isFinite(n)?Math.max(lo,Math.min(hi,n)):d;};
   S.creators=qty(st.c,1,100000,S.creators);S.viewers=qty(st.v,0,1e7,S.viewers);S.reports=qty(st.r,1,100000,S.reports);S.cpr=qty(st.q,1,200,S.cpr);S.types=qty(st.t,1,50,S.types);S.horizon=[3,5,10].includes(+st.h)?+st.h:5;S.weight=qty(st.w,0,100,70);S.per=st.pe==='user'?'user':'viewer';
   S.view=st.vw==='per'?'per':'abs';S.mode=['ent','man','ss'].includes(st.md)?st.md:'man';S.ssShare=st.ss!==undefined?qty(st.ss,0,100,25):MODE_PRESETS[S.mode];S.licModel=['peruser','staffel','site'].includes(st.lm)?st.lm:'staffel';S.baseline=['none','paid','oss','deneb','core'].includes(st.bl)?st.bl:'none';S.existing=qty(st.ex,0,100000,0);S.tornado=OK[st.tn]!==undefined?st.tn:null;
+  if(Array.isArray(st.mx)&&st.mx.length===3){const a=st.mx.map(x=>Math.max(0,Math.min(100,Math.round(+x)||0)));if(a[0]+a[1]+a[2]>0)S.mix=a;}
   if(st.mc&&typeof st.mc==='object'){S.mc={w:[5,10,15,20,25].includes(+st.mc.w)?+st.mc.w:15,n:[1000,2000,5000].includes(+st.mc.n)?+st.mc.n:2000,a:st.mc.a==='bands'?'bands':'pct'};}
   const cl=t=>{if(!Array.isArray(t)||t.length!==3)return null;const a=t.map(Number);if(!a.every(isFinite))return null;a.sort((x,y)=>x-y);return a.map(v=>Math.max(0,Math.min(1e9,v)));};
   if(Array.isArray(st.cu)){const caps=st.cp||{},pr=st.pr||{};S.custom=[];st.cu.filter(r=>r&&typeof r.name==='string').slice(0,20).forEach((r,i)=>{const id='c'+i;S.custom.push({id,name:String(r.name).slice(0,80),sub:String(r.sub||'').slice(0,120),cap:[0,0,0,0],custom:true});const oc=caps[r.id];S.cap[id]=Array.isArray(oc)&&oc.length===4&&oc.every(x=>isFinite(+x))?oc.map(x=>Math.min(5,Math.max(0,Math.round(+x)))):[0,0,0,0];S.prio[id]=PRIO[pr[r.id]]?pr[r.id]:'S';});}
@@ -1087,7 +1128,7 @@ function renderMc(){
 function runMonteCarlo(){
   const w=S.mc.w/100,N=S.mc.n,NS=Math.max(250,Math.round(N/4)),H=S.horizon;
   const keep={creators:S.creators,viewers:S.viewers,reports:S.reports,cpr:S.cpr,types:S.types,g:S.g,p:S.p,seed};
-  const base={creators:S.creators,viewers:S.viewers,reports:S.reports,cpr:S.cpr,types:S.types};
+  const base={creators:S.creators,viewers:S.viewers,reports:S.reports,cpr:S.cpr,types:S.types,mix:S.mix.slice()};
   const widen=t=>{const m=Math.min(t[2],Math.max(t[0],t[1]));return [m*(1-w),m,m*(1+w)];};
   if(S.mc.a==='pct'){const g={};GLOBAL.forEach(x=>g[x.id]=widen(keep.g[x.id]));S.g=g;const p={};OPTS.forEach(o=>{p[o.key]={};for(const id in keep.p[o.key])p[o.key][id]=widen(keep.p[o.key][id]);});S.p=p;}
   const LABEL={};GLOBAL.forEach(x=>LABEL[x.id]=x.label);OPTP.forEach(x=>LABEL[x.id]=x.label);Object.assign(LABEL,{creators:'Ersteller',viewers:'Viewer',reports:'Standard-Reports',cpr:'Charts je Report',types:'Chart-Typen'});
@@ -1186,7 +1227,7 @@ table.ph td{font-family:'IBM Plex Mono',monospace}table.ph td .ph-bar{height:6px
 @media print{body{background:#fff}.facet{break-inside:avoid}}</style></head><body><div class="wrap">
 <div class="eyebrow">Monte-Carlo-Seite zu eurem Szenario · ${R.N.toLocaleString('de-DE')} Ziehungen · Schwankungsbreite ±${R.w} % · Stand ${today}</div><h1>Wie stark schwanken die Kosten je Viewer, und woran liegt es?</h1>
 <div class="sub">Je Szenario werden Ersteller, Viewer, Reports, Charts je Report und Chart-Typen um eure Eingaben herum gezogen (PERT, ±${R.w} %), dazu ${R.a==='pct'?'alle Annahmen aus Schritt 4 mit derselben Schwankungsbreite um ihren wahrscheinlichen Wert':'alle Annahmen aus Schritt 4 mit ihren eigenen Bandbreiten'}. Globale Annahmen sind je Szenario für alle vier Ansätze identisch, deshalb sind Differenzen und Rangfolgen paarweise auswertbar. Reine Kostenrangfolge ohne Anforderungen und Red Flags. Erzeugt mit dem Visual-Standards-Rechner der Daten-WG Knowledge Kitchen.</div>
-<div class="inputs"><span>Ersteller <b>${R.base.creators}</b></span><span>Viewer <b>${R.base.viewers.toLocaleString('de-DE')}</b></span><span>Standard-Reports <b>${R.base.reports}</b></span><span>Charts je Report <b>${R.base.cpr}</b></span><span>Chart-Typen <b>${R.base.types}</b></span><span>Horizont <b>${R.horizon} Jahre</b></span><span>Betriebsmodell <b>${esc(R.mode)}</b></span><span>Lizenzmodell Paid <b>${LM[R.licModel]||R.licModel}</b></span>${R.baseline!=='none'&&R.existing>0?`<span>Migration <b>${R.existing} Bestands-Reports</b></span>`:''}</div>
+<div class="inputs"><span>Ersteller <b>${R.base.creators}</b></span><span>Viewer <b>${R.base.viewers.toLocaleString('de-DE')}</b></span><span>Standard-Reports <b>${R.base.reports}</b></span><span>Charts je Report <b>${R.base.cpr}</b></span><span>Chart-Typen <b>${R.base.types}</b></span><span>Chart-Mix <b>${R.base.mix.join(' / ')}</b></span><span>Horizont <b>${R.horizon} Jahre</b></span><span>Betriebsmodell <b>${esc(R.mode)}</b></span><span>Lizenzmodell Paid <b>${LM[R.licModel]||R.licModel}</b></span>${R.baseline!=='none'&&R.existing>0?`<span>Migration <b>${R.existing} Bestands-Reports</b></span>`:''}</div>
 ${excl.length?`<div class="note warn"><b>In Schritt 5 ausgeschlossen:</b> ${excl.map(o=>`<b style="color:${o.tc}">${o.n}</b>`).join(', ')} (K.O. durch Must-Anforderung oder Red Flag). Die Seite zeigt sie trotzdem, damit der Preis der Rahmenbedingung sichtbar bleibt.</div>`:''}
 <section class="facet"><div class="facet-head"><h2>Euer Szenario</h2><span>${R.base.creators} Ersteller · ${R.base.viewers.toLocaleString('de-DE')} Viewer · ${esc(R.mode)} · ${R.horizon} Jahre</span></div>
 <div class="kpis"><div class="kpi"><b style="color:${best.tc}">${best.n}</b><span>häufigster Platz 1 · ${pct(F.opts[best.k].rank[0])} der Szenarien</span></div><div class="kpi"><b>${pct(D.share)}</b><span>Szenarien, in denen Open Source günstiger als Paid ist</span></div><div class="kpi"><b>${(D.med>0?'+':'')+f0(D.med)} €</b><span>Median-Differenz Open Source − Paid, je Viewer und Jahr</span></div></div>
@@ -1221,6 +1262,7 @@ function bind(){
   ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const el=document.getElementById(id);el.addEventListener('input',e=>{S[id]=+e.target.value;renderStep1();scheduleUpdate();});el.addEventListener('change',()=>{clearTimeout(simTimer);update();});});
   document.querySelectorAll('#mode-seg button').forEach(b=>b.addEventListener('click',()=>{S.mode=b.dataset.mode;S.ssShare=MODE_PRESETS[S.mode];pendingToast='Betriebsmodell: '+modeParams().label;update();}));
   document.getElementById('ss').addEventListener('input',e=>{S.ssShare=+e.target.value;renderStep1();scheduleUpdate();});
+  ['mix-simple','mix-mid','mix-complex'].forEach((id,i)=>{const el=document.getElementById(id);el.addEventListener('change',e=>{let v=Math.round(+e.target.value);if(!isFinite(v))v=0;S.mix[i]=Math.max(0,Math.min(100,v));update();});});
   const LIM={creators:[1,100000],viewers:[0,10000000],reports:[1,100000],cpr:[1,200],types:[1,50],existing:[0,100000]};
   ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const n=document.getElementById('n-'+id);n.addEventListener('change',e=>{let v=Math.round(+e.target.value);if(!isFinite(v)){renderStep1();return;}v=Math.max(LIM[id][0],Math.min(LIM[id][1],v));S[id]=v;pendingToast=id==='viewers'?'Viewer: '+fmtN(v)+(v>2000&&S.licModel==='peruser'?' (ab 2.000 Nutzern Site-Lizenz prüfen)':''):null;update();});});
   document.getElementById('baseline').addEventListener('change',e=>{S.baseline=e.target.value;pendingToast='Bestand: '+e.target.options[e.target.selectedIndex].text;update();});
@@ -1236,7 +1278,7 @@ function bind(){
   document.getElementById('btn-reset-caps').addEventListener('click',resetCaps);
   document.getElementById('btn-xlsx').addEventListener('click',exportXlsx);
   document.getElementById('weight').addEventListener('input',e=>{S.weight=+e.target.value;update();});
-  document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{const p=PRESETS[b.dataset.preset];Object.assign(S,{creators:p.creators,viewers:p.viewers,reports:p.reports,cpr:p.cpr,types:p.types});if(p.mode){S.mode=p.mode;S.ssShare=MODE_PRESETS[p.mode];}if(p.licModel)S.licModel=p.licModel;FLAGS.forEach(f=>S.flags[f.id]=false);if(p.flags)Object.keys(p.flags).forEach(k=>S.flags[k]=true);document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('active',x===b));renderFlags();pendingToast='Preset geladen: '+b.textContent.trim()+(p.flags?' (setzt zusätzlich: '+Object.keys(p.flags).map(k=>FLAGS.find(f=>f.id===k).label).join(', ')+')':'');update();}));
+  document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{const p=PRESETS[b.dataset.preset];Object.assign(S,{creators:p.creators,viewers:p.viewers,reports:p.reports,cpr:p.cpr,types:p.types});if(p.mode){S.mode=p.mode;S.ssShare=MODE_PRESETS[p.mode];}S.licModel=p.licModel||'staffel';FLAGS.forEach(f=>S.flags[f.id]=false);if(p.flags)Object.keys(p.flags).forEach(k=>S.flags[k]=true);document.querySelectorAll('[data-preset]').forEach(x=>x.classList.toggle('active',x===b));renderFlags();pendingToast='Preset geladen: '+b.textContent.trim()+(p.flags?' (setzt zusätzlich: '+Object.keys(p.flags).map(k=>FLAGS.find(f=>f.id===k).label).join(', ')+')':'');update();}));
   document.querySelectorAll('[data-lic]').forEach(b=>b.addEventListener('click',()=>{S.p.paid.lic=LIC[b.dataset.lic].slice();document.querySelectorAll('[data-lic]').forEach(x=>x.classList.toggle('active',x===b));renderParams();update();toast('Lizenz-Indikation gesetzt: '+b.textContent.trim());}));
   document.getElementById('btn-reset').addEventListener('click',()=>{defaults();document.querySelectorAll('.preset-btn').forEach(x=>x.classList.remove('active'));renderReqs();renderFlags();renderParams();update();toast('Standardwerte wiederhergestellt.');});
   document.getElementById('btn-share').addEventListener('click',()=>{writeHash();const url=location.href;(navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(()=>toast('Link kopiert. Er enthält nur eure Einstellungen.'),()=>{prompt('Link kopieren:',url);});});
