@@ -3170,7 +3170,7 @@ DOKUMENT: https://datenwgknowledgekitchen.com/md/visual-standards-rechner.md
 - **Quelle:** https://datenwgknowledgekitchen.com/visual-standards-rechner.html
 - **Autor:innen:** Michael Tenner & Diana Ackermann · Daten-WG Knowledge Kitchen
 - **Anlass:** Pre-Conference „Visual Standards in Power BI für Controlling und Finance | Von Easy über Flexibel bis MacGyver", Daten-WG 2026, 14.10.2026, Köln
-- **Stand:** v0.9 · 09/2026 (drei Ebenen nach Shneiderman; Annahmen-Audit 11.09.2026; Chart-Mix, Lernkurve und Null-Option) · Sprache DE · rein clientseitig, keine Server-Anbindung
+- **Stand:** v0.10 · 09/2026 (drei Ebenen nach Shneiderman; Annahmen-Audit 11.09.2026; Chart-Mix, Lernkurve, Null-Option; Varianten-Anfaelligkeit, Vorlagenbibliothek und Lizenz-Anker sichtbar) · Sprache DE · rein clientseitig, keine Server-Anbindung
 - **Zitierhinweis:** Michael Tenner & Diana Ackermann, Daten-WG Knowledge Kitchen, https://datenwgknowledgekitchen.com/visual-standards-rechner.html — Abruf mit Datum angeben.
 - **Hinweis fuer Agenten:** Diese Markdown-Fassung beschreibt Modell, Voreinstellungen und Quellenlage. Regler, Simulation, Charts und Export sind nur in der HTML-Fassung nutzbar.
 - **Offenlegung:** ChartKitchen byDatenWG, das Beispiel fuer „Open Source / Eigenentwicklung", ist ein Projekt der Autor:innen.
@@ -3192,7 +3192,7 @@ Er ist eine **Indikation unter Unsicherheit**, kein Angebot und kein Business Ca
 
 ## Aufbau in drei Ebenen (Overview first, zoom and filter, details on demand)
 
-- **Ebene 1, Ueberblick:** drei Eingaben (Ersteller, Viewer, Betriebsmodell) oder ein Preset; ein Chart mit den Kosten je Viewer und Jahr als P10–P90-Band je Ansatz; ein Satz mit Rangfolge, Faktoren und der Viewer-Zahl, ab der die Lizenz je Kopf dominiert; zwei Zeilen dazu, was belastbar ist und was nicht.
+- **Ebene 1, Ueberblick:** drei Eingaben (Ersteller, Viewer, Betriebsmodell) oder ein Preset, dazu der Lizenz-Anker fuer Paid (Inforiver-Niveau 33 €, Mischpreis 80 €, Zebra-Liste 270 €) und der Schalter „Vorlagenbibliothek fuer Deneb und Core vorhanden“ (Default aus, weil der IBCS Chart Builder ein eigenes Projekt ist); der Satz nennt, wer bei allen drei Ankern mit und ohne Bibliothek vorn liegt; ein Chart mit den Kosten je Viewer und Jahr als P10–P90-Band je Ansatz; ein Satz mit Rangfolge, Faktoren und der Viewer-Zahl, ab der die Lizenz je Kopf dominiert; zwei Zeilen dazu, was belastbar ist und was nicht.
 - **Ebene 2, Eingrenzen:** Mengengeruest komplett, Anforderungen, Red Flags, Ergebnis mit Rangfolge, K.O.-Block und Null-Option.
 - **Ebene 3, Details:** Annahmen mit Badges, Charts und Kostentabelle, Einschaetzung je Ansatz, Monte-Carlo-Seite, Quellen; alles eingeklappt und einzeln zu oeffnen. Die Ebene steht im Share-Link.
 
@@ -3218,6 +3218,8 @@ Lernkurve   = mittlerer Faktor ueber n Charts je Ersteller nach Wright (Stunden 
 Null-Option = Reports × Charts × Stunden ad hoc + Wartung ad hoc + Leserzeit (Viewer × Minuten/Woche) + Rueckfragen; Vergleich ausserhalb der Rangfolge
 Schulung    = Vorlagen-Bauer × tiefe Schulung + Vorlagen-Nutzer × flache Schulung + Fluktuation × [Bauer × (tiefe Schulung + Einarbeitung) + Nutzer × (flache Schulung + 1/4 Einarbeitung)]
 Wartung     = (Setup + Entwicklung + Chart-Aufbau + 0,3 × Rollout) × Quote (geplante Anpassungen) × Abklingfaktor-Summe × Varianten-Effekt + Breaking-Updates × Fix-Stunden
+Varianten-Effekt = 1 + (Betriebsmodell-Faktor − 1) × Varianten-Anfaelligkeit je Ansatz (eigene Annahme, seit v0.10 nicht mehr aus dem Design-Score)
+Vorlagenbibliothek = Schalter; Stunden je Chart × Faktor je Ansatz, Schulung halb so stark
 Governance  = Freigabe je Visual-Paket (+20 % je weiterem Chart-Typ) + laufende Governance + Pruefnachweis (log-linear nach Organisationsgroesse, 50 bis 5.000 Viewer) + Zugriffs-Governance je 1.000 Viewer (ansatzunabhaengig) + Anwender-Support je 100 Viewer
 Risiko      = P(Abkuendigung ueber H) × (Aufbau + 0,6 × Rollout) × Migrationsanteil  (Jahresrate akkumuliert; in der Simulation als Ereignis)
 Barwert     = Zahlungsstrom je Jahr, abgezinst mit dem Kalkulationszins
@@ -3242,6 +3244,8 @@ Interne Stunden werden mit einem Bewertungsfaktor (60 = Kapazitaet frei, 100 = V
 | Breaking-Updates p.a. / Fix-Stunden | 0.2–1–2 / 0.5–1.5–3 / 1–2–3 / 2–3–5 · 3 / 7 / 6.5 / 9.5 h | P; Deneb 3 Vorfaelle in 24 Monaten, Core 3–4 SVG-Regressionen 2025 belegt |
 | Abkuendigungsrisiko p.a. (paid / oss / deneb / core) | 1–2–4 / 3–7–13 / 1–3–6 / 0,4–1–2 % | F: Charticulator 12/2023, Bing Maps Visual 10/2025, OKViz Synoptic v1 03/2026; Deneb gesenkt, weil Vega-Lite-Specs das Wirtsvisual ueberleben |
 | Anwender-Support je 100 Viewer und Jahr | 2–4–6 / 2.5–5.5–10 / 3–6–10 / 5–9.5–16 h | P: simuliertes Expertenpanel (20 Profile), Median; OSS im Audit gesenkt |
+| Varianten-Anfaelligkeit (0 Vorlagen erzwingen Einheitlichkeit, 1 jeder baut anders) | 0,25 / 0,5 / 0,75 / 0,85 | E: bis v0.9 still aus dem Design-Score abgeleitet, seit v0.10 eigene Annahme |
+| Wirkung einer Vorlagenbibliothek (× Stunden je Chart, nur bei Schalter) | 1 / 1 / 0,6 / 0,7 | E: IBCS Chart Builder, vegaviz, DenebIBCS, PowerofBI-UDFs; keine Messung |
 | Komplexitaetsfaktor einfach / komplex (× Stunden je Chart) | 0,7 / 1,4 (paid) · 0,7 / 1,6 (oss) · 0,5 / 2,5 (deneb) · 0,4 / 4 (core) | E: Autoren-Schaetzung, keine Quelle; Core + SVG beim Wasserfall am teuersten |
 | Lernrate je Verdopplung | 0–5–10 / 5–10–15 / 8–15–25 / 8–15–25 % | F: Wright-Lernkurve, 80–90 % bei manueller Arbeit; keine Messung fuer Power BI |
 | Null-Option: Stunden je Chart ad hoc, Wartung, Leserzeit, Rueckfragen | 1–2–4 h · 20–30–45 % · 0,5–2–6 min je Viewer und Woche · 6–12–20 h je 100 Viewer | E: Autoren-Schaetzung; Leserzeit ohne unabhaengige Quelle, deshalb getrennt ausgewiesen |
@@ -3251,7 +3255,7 @@ Interne Stunden werden mit einem Bewertungsfaktor (60 = Kapazitaet frei, 100 = V
 | Betriebsmodell-Faktoren (Enterprise → Self-Service) | Owner-Anteil 10 → 100 %, Varianten ×1 → ×3, Support ×0,8 → ×1,3, Governance ×1 → ×1,6 | E |
 | Reports je Ersteller (Erfahrungswert) | Enterprise ≈ 6, Managed ≈ 4, Self-Service ≈ 2, plus 2 je 1.000 Viewer | E |
 
-Quellenlage aller 44 Annahmen: 2 verifiziert (V), 8 Such-Snippet (S), 4 Faustregel (F), 9 simuliertes Expertenpanel (P), 21 Autoren-Schaetzung (E). Deshalb Bandbreiten statt Punktwerte, und deshalb steht die Herkunft an jedem Wert.
+Quellenlage aller 46 Annahmen: 2 verifiziert (V), 8 Such-Snippet (S), 4 Faustregel (F), 9 simuliertes Expertenpanel (P), 23 Autoren-Schaetzung (E). Deshalb Bandbreiten statt Punktwerte, und deshalb steht die Herkunft an jedem Wert.
 
 ## Rahmenbedingungen, die das Ergebnis kippen
 
