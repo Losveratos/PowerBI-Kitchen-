@@ -5,7 +5,7 @@
 - **Quelle:** https://datenwgknowledgekitchen.com/visual-standards-rechner.html
 - **Autor:innen:** Michael Tenner & Diana Ackermann · Daten-WG Knowledge Kitchen
 - **Anlass:** Pre-Conference „Visual Standards in Power BI für Controlling und Finance | Von Easy über Flexibel bis MacGyver", Daten-WG 2026, 14.10.2026, Köln
-- **Stand:** v0.8 · 09/2026 (Annahmen-Audit 11.09.2026; Chart-Mix, Lernkurve und Null-Option, siehe unten) · Sprache DE · rein clientseitig, keine Server-Anbindung
+- **Stand:** v0.9 · 09/2026 (drei Ebenen nach Shneiderman; Annahmen-Audit 11.09.2026; Chart-Mix, Lernkurve und Null-Option) · Sprache DE · rein clientseitig, keine Server-Anbindung
 - **Zitierhinweis:** Michael Tenner & Diana Ackermann, Daten-WG Knowledge Kitchen, https://datenwgknowledgekitchen.com/visual-standards-rechner.html — Abruf mit Datum angeben.
 - **Hinweis fuer Agenten:** Diese Markdown-Fassung beschreibt Modell, Voreinstellungen und Quellenlage. Regler, Simulation, Charts und Export sind nur in der HTML-Fassung nutzbar.
 - **Offenlegung:** ChartKitchen byDatenWG, das Beispiel fuer „Open Source / Eigenentwicklung", ist ein Projekt der Autor:innen.
@@ -25,7 +25,13 @@ Der Rechner vergleicht vier Ansaetze, IBCS-nahe Standard-Charts (Abweichung, Was
 
 Er ist eine **Indikation unter Unsicherheit**, kein Angebot und kein Business Case. Jede Annahme ist eine Dreipunkt-Schaetzung (min · wahrscheinlich · max), aus der per PERT-Verteilung 1.500 Szenarien gezogen werden. Ausgegeben werden P10, P50 und P90.
 
-## Klickpfad in sechs Schritten
+## Aufbau in drei Ebenen (Overview first, zoom and filter, details on demand)
+
+- **Ebene 1, Ueberblick:** drei Eingaben (Ersteller, Viewer, Betriebsmodell) oder ein Preset; ein Chart mit den Kosten je Viewer und Jahr als P10–P90-Band je Ansatz; ein Satz mit Rangfolge, Faktoren und der Viewer-Zahl, ab der die Lizenz je Kopf dominiert; zwei Zeilen dazu, was belastbar ist und was nicht.
+- **Ebene 2, Eingrenzen:** Mengengeruest komplett, Anforderungen, Red Flags, Ergebnis mit Rangfolge, K.O.-Block und Null-Option.
+- **Ebene 3, Details:** Annahmen mit Badges, Charts und Kostentabelle, Einschaetzung je Ansatz, Monte-Carlo-Seite, Quellen; alles eingeklappt und einzeln zu oeffnen. Die Ebene steht im Share-Link.
+
+## Klickpfad im Detail
 
 1. **Mengengeruest:** Ersteller, Viewer (bis 10.000+), Standard-Reports (mit Erfahrungswert je Betriebsmodell), Charts je Report, Chart-Typen, Chart-Mix nach Komplexitaet (einfach / mittel / komplex, Standard 50 / 35 / 15), Horizont 3/5/10 Jahre, Betriebsmodell (Enterprise BI, Managed Self-Service, Self-Service, stufenlos hybrid), heutiger Ansatz und Bestands-Reports fuer die Migration.
 2. **Anforderungen (MoSCoW):** 18 Kriterien mit Erfuellungsgrad 1 bis 5 je Ansatz, per Klick ueberschreibbar, eigene Zeilen moeglich (starten als „nicht geprueft"). Must mit Erfuellungsgrad 1 ist ein K.O.

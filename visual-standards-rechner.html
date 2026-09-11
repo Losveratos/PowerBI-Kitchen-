@@ -48,8 +48,24 @@ h1{font-family:var(--head);font-size:32px;line-height:1.15;margin:6px 0 8px;lett
 .btn.dark:hover{background:#000;}
 .toast{font-family:var(--mono);font-size:11.5px;color:var(--accent-text);min-height:16px;margin-bottom:10px;}
 
-.stepper{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:18px 0 26px;}
-@media(max-width:760px){.stepper{grid-template-columns:1fr 1fr;}}
+.stepper{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0 22px;}
+@media(max-width:760px){.stepper{grid-template-columns:1fr;}}
+button.step-chip{font:inherit;width:100%;text-align:left;cursor:pointer;}
+.step-chip.active{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);}
+.step-chip.active .n{background:var(--accent);}
+body.lv1 [data-lv="2"],body.lv1 [data-lv="3"],body.lv2 [data-lv="3"]{display:none!important;}
+body.lv1 .sticky-bar{display:none!important;}
+details.lvl3{border:1px solid var(--line);border-radius:var(--radius);background:#fff;margin-top:14px;padding:0 18px;}
+details.lvl3>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:14px 0;font-family:var(--head);font-size:15px;font-weight:600;}
+details.lvl3>summary::-webkit-details-marker{display:none;}
+details.lvl3>summary small{font-family:var(--mono);font-size:11px;color:var(--ink-soft);font-weight:500;text-align:right;}
+details.lvl3>summary::after{content:'+';font-family:var(--mono);font-size:16px;color:var(--ink-soft);margin-left:8px;}details.lvl3[open]>summary::after{content:'−';}
+details.lvl3>.section{margin-top:0;padding-bottom:16px;}
+.ov-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:22px;align-items:start;}@media(max-width:900px){.ov-grid{grid-template-columns:1fr;}}
+.ov-sentence{font-family:var(--head);font-size:17px;line-height:1.45;margin:2px 0 10px;}
+.ov-cert{font-size:12px;color:var(--ink-soft);line-height:1.55;margin-top:8px;}.ov-cert b{color:var(--ink);}
+.ov-inputs .field{margin-bottom:12px;}
+details.foot>summary{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px;}.ov-inputs .seg{flex-wrap:wrap;}
 .step-chip{display:flex;gap:10px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;text-decoration:none;color:var(--ink);font-size:12.5px;}
 .step-chip:hover{border-color:var(--accent);}
 .step-chip .n{font-family:var(--mono);font-weight:600;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--paper);display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex:0 0 auto;}
@@ -226,7 +242,7 @@ footer b{color:var(--ink);}
   <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
   <div class="eyebrow">Indikations-Rechner · Controlling &amp; Finance · Pre-Conference Daten-WG 2026</div>
   <h1>Visual-Standards-Rechner: Easy, Flexibel oder MacGyver?</h1>
-  <div class="sub">Was kostet die Umsetzung visueller Standards in Power BI mit <b>3rd-Party-Visuals</b>, <b>Open Source</b>, <b>Deneb</b> oder <b>Core Visuals</b>? Leitgedanke: <b>Standard zuerst, nur so individuell wie nötig.</b> Der Rechner prüft deshalb zuerst, ob es einen fachlichen Grund gibt, von den Core Visuals abzuweichen, und vergleicht dann in fünf Schritten Mengengerüst, Anforderungen, K.O.-Kriterien und Annahmen. Er liefert eine <b>Indikation</b> mit Bandbreiten, keine Preisauskunft: Alle Annahmen sind editierbar und mit ihrer Quellenlage markiert.</div>
+  <div class="sub">Was kostet die Umsetzung visueller Standards in Power BI mit <b>3rd-Party-Visuals</b>, <b>Open Source</b>, <b>Deneb</b> oder <b>Core Visuals</b>? Leitgedanke: <b>Standard zuerst, nur so individuell wie nötig.</b> Der Rechner prüft deshalb zuerst, ob es einen fachlichen Grund gibt, von den Core Visuals abzuweichen, und vergleicht dann in drei Ebenen: Überblick mit drei Eingaben, Eingrenzen über Anforderungen und Red Flags, Details mit allen Annahmen und Quellen. Er liefert eine <b>Indikation</b> mit Bandbreiten, keine Preisauskunft: Alle Annahmen sind editierbar und mit ihrer Quellenlage markiert.</div>
 
   <div class="toolbar">
     <button class="btn" id="btn-reset">↺ Auf Standard zurücksetzen</button>
@@ -236,19 +252,16 @@ footer b{color:var(--ink);}
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <nav class="stepper" aria-label="Schritte">
-    <a class="step-chip" href="#s1" data-goto="s1"><span class="n">1</span><span class="t">Mengengerüst<small>Ersteller, Viewer, Reports</small></span></a>
-    <a class="step-chip" href="#s2" data-goto="s2"><span class="n">2</span><span class="t">Anforderungen<small>Must · Should · Could</small></span></a>
-    <a class="step-chip" href="#s3" data-goto="s3"><span class="n">3</span><span class="t">Red Flags<small>Governance-Schalter</small></span></a>
-    <a class="step-chip" href="#s4" data-goto="s4"><span class="n">4</span><span class="t">Annahmen<small>Presets mit Bandbreiten</small></span></a>
-    <a class="step-chip" href="#s5" data-goto="s5"><span class="n">5</span><span class="t">Ergebnis<small>Kosten, K.O., Einschätzung</small></span></a>
-    <a class="step-chip" href="#s6" data-goto="s6"><span class="n">6</span><span class="t">Simulation<small>Monte-Carlo-Seite erzeugen</small></span></a>
+  <nav class="stepper" aria-label="Ebenen">
+    <button class="step-chip" data-level="1"><span class="n">1</span><span class="t">Überblick<small>3 Eingaben, 1 Chart, 1 Satz</small></span></button>
+    <button class="step-chip" data-level="2"><span class="n">2</span><span class="t">Eingrenzen<small>Mengengerüst, Anforderungen, Red Flags, Ergebnis</small></span></button>
+    <button class="step-chip" data-level="3"><span class="n">3</span><span class="t">Details<small>Annahmen, Charts, Simulation, Quellen</small></span></button>
   </nav>
 
-  <!-- ========== STEP 1 ========== -->
-  <section class="section" id="s1">
-    <div class="section-head"><span class="n">Schritt 1</span><h2 class="section-title">Mengengerüst</h2></div>
-    <p class="section-sub">Wer baut, wer liest, wie viel wird gebaut? Paid Visuals skalieren mit den <b>Viewern</b>, alle anderen Ansätze mit <b>Chart-Typen und Erstellern</b>. Dieses Verhältnis entscheidet mehr als jeder Listenpreis.</p>
+  <!-- ========== EBENE 1: ÜBERBLICK ========== -->
+  <section class="section" id="s0" style="margin-top:0">
+    <div class="section-head"><span class="n">Ebene 1</span><h2 class="section-title">Was kostet ein Standard bei euch, je Viewer und Jahr?</h2></div>
+    <p class="section-sub">Drei Eingaben, alles andere steht auf Standardwerten (5 Jahre, Volumenstaffel, mittlerer Chart-Mix). Genauer wird es auf Ebene 2 und 3.</p>
     <div class="card">
       <div class="preset-row"><span class="preset-lbl">Presets:</span>
         <button class="preset-btn" data-preset="pilot">Pilot · 1 Ersteller / 10 Viewer</button>
@@ -257,6 +270,27 @@ footer b{color:var(--ink);}
         <button class="preset-btn" data-preset="rs">Konzern mit Report Server · 15 / 400</button>
         <button class="preset-btn" data-preset="gross">Großkonzern · 200 / 10.000</button>
       </div>
+      <div class="ov-grid">
+        <div class="ov-inputs">
+          <div class="field"><label><span>Ersteller (Report-Autoren)</span><input type="number" class="valin" id="ov-creators" min="1" max="100000" aria-label="Ersteller"></label><div class="sub-hint">Personen, die Reports mit den Standard-Visuals bauen.</div></div>
+          <div class="field"><label><span>Viewer (lesen nur)</span><input type="number" class="valin" id="ov-viewers" min="0" max="10000000" aria-label="Viewer"></label><div class="sub-hint">Bei Paid Visuals braucht jeder Viewer eine Lizenz.</div></div>
+          <div class="field"><label><span>Betriebsmodell</span></label><div class="seg" id="ov-mode-seg"><button data-mode="ent">Enterprise BI</button><button data-mode="man">Managed Self-Service</button><button data-mode="ss">Self-Service</button></div><div class="sub-hint" id="ov-mode-hint"></div></div>
+        </div>
+        <div>
+          <div class="ov-sentence" id="ov-sentence">–</div>
+          <div id="ov-chart"></div>
+          <div class="ov-cert" id="ov-cert"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center"><button class="btn dark" data-level="2">Genauer machen: Anforderungen, Red Flags, Horizont →</button><button class="btn" data-level="3">Alle Details</button></div>
+    </div>
+  </section>
+
+  <!-- ========== STEP 1 ========== -->
+  <section class="section" id="s1" data-lv="2">
+    <div class="section-head"><span class="n">Ebene 2</span><h2 class="section-title">Mengengerüst</h2></div>
+    <p class="section-sub">Wer baut, wer liest, wie viel wird gebaut? Paid Visuals skalieren mit den <b>Viewern</b>, alle anderen Ansätze mit <b>Chart-Typen und Erstellern</b>. Dieses Verhältnis entscheidet mehr als jeder Listenpreis.</p>
+    <div class="card">
       <div class="grid3">
         <div>
           <div class="field"><label><span>Ersteller (Report-Autoren)</span><input type="number" class="valin" id="n-creators" min="1" max="100000" aria-label="Ersteller"></label><input type="range" id="creators" min="1" max="500" value="3"><div class="sub-hint">Personen, die Reports mit den Standard-Visuals bauen und warten.</div></div>
@@ -288,8 +322,8 @@ footer b{color:var(--ink);}
   </section>
 
   <!-- ========== STEP 2 ========== -->
-  <section class="section" id="s2">
-    <div class="section-head"><span class="n">Schritt 2</span><h2 class="section-title">Anforderungen bewerten</h2></div>
+  <section class="section" id="s2" data-lv="2">
+    <div class="section-head"><span class="n">Ebene 2</span><h2 class="section-title">Anforderungen bewerten</h2></div>
     <p class="section-sub">Priorisiert nach MoSCoW. Die Kästchen zeigen auf einer 5er-Skala, wie gut jeder Ansatz die Anforderung erfüllt. <b>Must + 1 = K.O.</b>, Must + 2 = nur per Workaround. Should und Could fließen in den Anforderungs-Score ein. <b>Klick auf ein Kästchen überschreibt die Bewertung</b> mit eurer eigenen Einschätzung.</p>
     <div class="card">
       <h3>Anforderungen und Erfüllungsgrad <span><button class="btn" id="btn-add-req" style="padding:6px 10px;font-size:11px">＋ Eigene Anforderung</button> <button class="btn" id="btn-reset-caps" style="padding:6px 10px;font-size:11px">↺ Bewertung zurücksetzen</button></span></h3>
@@ -299,8 +333,8 @@ footer b{color:var(--ink);}
   </section>
 
   <!-- ========== STEP 3 ========== -->
-  <section class="section" id="s3">
-    <div class="section-head"><span class="n">Schritt 3</span><h2 class="section-title">Red Flags und Governance-Schalter</h2></div>
+  <section class="section" id="s3" data-lv="2">
+    <div class="section-head"><span class="n">Ebene 2</span><h2 class="section-title">Red Flags und Governance-Schalter</h2></div>
     <p class="section-sub">Harte Rahmenbedingungen aus Tenant, IT-Security oder Einkauf. Sie wirken als K.O.-Filter vor dem Rechnen. Ausgeschlossene Optionen bleiben im Ergebnis sichtbar, unter dem Strich und mit Begründung.</p>
     <div class="card">
       <div class="check-list" id="flag-list"></div>
@@ -308,8 +342,9 @@ footer b{color:var(--ink);}
   </section>
 
   <!-- ========== STEP 4 ========== -->
+  <details class="lvl3" data-lv="3" id="d-s4"><summary>Annahmen mit Bandbreiten und Quellen-Badge<small id="sum-annahmen"></small></summary>
   <section class="section" id="s4">
-    <div class="section-head"><span class="n">Schritt 4</span><h2 class="section-title">Annahmen mit Bandbreiten</h2></div>
+    <div class="section-head"><span class="n">Ebene 3</span><h2 class="section-title">Annahmen mit Bandbreiten</h2></div>
     <p class="section-sub">Jede Annahme als Dreipunkt-Schätzung (min · wahrscheinlich · max). Das Ergebnis wird daraus per PERT-Verteilung und 1.500 Simulationsläufen als P10 / P50 / P90 berechnet. <b>Die Felder sind vorbelegt und müssen nicht angefasst werden.</b> Wenn ihr nur zwei Zahlen ändert, dann den Stundensatz intern und die Stunden je Chart-Typ. Quellenlage aller Annahmen: <span id="srcbar" class="srcbar"></span></p>
     <div class="grid2">
       <div class="card">
@@ -339,12 +374,14 @@ footer b{color:var(--ink);}
   </section>
 
   <!-- ========== STEP 5 ========== -->
-  <section class="section" id="s5">
-    <div class="section-head"><span class="n">Schritt 5</span><h2 class="section-title">Ergebnis und Einschätzung</h2></div>
-    <p class="section-sub">Gesamtkosten über den Horizont, Kosten je Viewer und Jahr, Invest gegen laufende Kosten. Die Rangfolge ist eine Indikation unter Unsicherheit der Eingaben.</p>
-    <details class="gloss"><summary>Begriffe kurz erklärt</summary><dl><dt>P10 / P50 / P90</dt><dd>In 10 %, 50 % bzw. 90 % der 1.500 Simulationsläufe lagen die Kosten unter diesem Wert. P50 ist die „mittlere“ Zahl, P10 bis P90 die Spanne, mit der ihr rechnen solltet.</dd><dt>PERT</dt><dd>Dreipunkt-Schätzung (min, wahrscheinlich, max), aus der eine Wahrscheinlichkeitsverteilung gebildet wird. Der Erwartungswert ist (min + 4·wahrscheinlich + max) / 6.</dd><dt>MoSCoW</dt><dd>Must (ohne geht es nicht), Should (wichtig), Could (schön), Won't (diesmal nicht). Must mit Erfüllungsgrad 1 ist ein K.O.</dd><dt>K.O.</dt><dd>Der Ansatz ist ausgeschlossen, bleibt aber mit Kosten sichtbar, damit der Preis der Rahmenbedingung erkennbar ist.</dd><dt>Barwert</dt><dd>Spätere Zahlungen mit dem Kalkulationszins abgezinst. Bei 10 Jahren macht das einen Unterschied, bei 3 kaum.</dd></dl></details>
+  </details>
 
-    <div class="card" id="premise" style="border-left:4px solid var(--o-core);margin-bottom:14px"></div>
+  <section class="section" id="s5" data-lv="2">
+    <div class="section-head"><span class="n">Ebene 2</span><h2 class="section-title">Ergebnis und Einschätzung</h2></div>
+    <p class="section-sub">Gesamtkosten über den Horizont, Kosten je Viewer und Jahr, Invest gegen laufende Kosten. Die Rangfolge ist eine Indikation unter Unsicherheit der Eingaben.</p>
+    <details class="gloss" data-lv="3"><summary>Begriffe kurz erklärt</summary><dl><dt>P10 / P50 / P90</dt><dd>In 10 %, 50 % bzw. 90 % der 1.500 Simulationsläufe lagen die Kosten unter diesem Wert. P50 ist die „mittlere“ Zahl, P10 bis P90 die Spanne, mit der ihr rechnen solltet.</dd><dt>PERT</dt><dd>Dreipunkt-Schätzung (min, wahrscheinlich, max), aus der eine Wahrscheinlichkeitsverteilung gebildet wird. Der Erwartungswert ist (min + 4·wahrscheinlich + max) / 6.</dd><dt>MoSCoW</dt><dd>Must (ohne geht es nicht), Should (wichtig), Could (schön), Won't (diesmal nicht). Must mit Erfüllungsgrad 1 ist ein K.O.</dd><dt>K.O.</dt><dd>Der Ansatz ist ausgeschlossen, bleibt aber mit Kosten sichtbar, damit der Preis der Rahmenbedingung erkennbar ist.</dd><dt>Barwert</dt><dd>Spätere Zahlungen mit dem Kalkulationszins abgezinst. Bei 10 Jahren macht das einen Unterschied, bei 3 kaum.</dd></dl></details>
+
+    <div class="card" id="premise" data-lv="3" style="border-left:4px solid var(--o-core);margin-bottom:14px"></div>
     <div class="result-headline" id="headline">–</div>
     <div id="conflict-box"></div>
     <div class="insight" style="margin:-8px 0 16px;font-size:12px">Diese Bandbreiten entstehen aus den gewählten Modellannahmen. Sie sind keine empirisch abgesicherte Prognose tatsächlicher Projektkosten. Die Rangfolge gilt nur für den beschriebenen Leistungsumfang (Standard-Charts, kein Datenmodell, keine Datenaufbereitung), die betrachteten Produktfamilien und die angezeigten Rahmenbedingungen. Wer die Annahmen ändert, sieht am Badge weiterhin die ursprüngliche Quellenlage.</div>
@@ -352,7 +389,7 @@ footer b{color:var(--ink);}
     <div class="card" style="padding:14px 18px">
       <div class="weight-row">
         <div class="field" style="margin:0"><label><span>Rangfolge: Kosten ⟷ Anforderungserfüllung</span><span class="val" id="v-weight"></span></label><input type="range" id="weight" min="0" max="100" value="100"><div class="sub-hint">100 % = reine Kostenrangfolge. Nach links verschieben, um weiche Nutzen (Should/Could-Erfüllung) mitzugewichten. Nutzwertanalyse-Warnung: Gewichte sind subjektiv, deshalb sichtbar und verschiebbar.</div></div>
-        <div class="field" style="margin:0"><label><span>Perspektive der Charts und Kennzahlen</span></label><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="seg" id="view-seg"><button data-view="abs" class="active">absolut</button><button data-view="per">je Nutzer und Jahr</button></div><div class="seg" id="per-seg"><button data-per="viewer" class="active">Viewer</button><button data-per="user">Ersteller + Viewer</button></div></div><div class="sub-hint">„je Nutzer und Jahr“ teilt alle Beträge durch die gewählte Nutzerbasis und den Horizont. Der Break-even zeigt dann, wie stark Aufbaukosten sich mit der Viewer-Zahl verteilen.</div></div>
+        <div class="field" data-lv="3" style="margin:0"><label><span>Perspektive der Charts und Kennzahlen</span></label><div style="display:flex;gap:8px;flex-wrap:wrap"><div class="seg" id="view-seg"><button data-view="abs" class="active">absolut</button><button data-view="per">je Nutzer und Jahr</button></div><div class="seg" id="per-seg"><button data-per="viewer" class="active">Viewer</button><button data-per="user">Ersteller + Viewer</button></div></div><div class="sub-hint">„je Nutzer und Jahr“ teilt alle Beträge durch die gewählte Nutzerbasis und den Horizont. Der Break-even zeigt dann, wie stark Aufbaukosten sich mit der Viewer-Zahl verteilen.</div></div>
       </div>
     </div>
 
@@ -360,7 +397,8 @@ footer b{color:var(--ink);}
     <div id="ko-block"></div>
     <div class="card" id="nulloption" style="border-left:4px solid var(--ink-soft);margin-bottom:16px"></div>
 
-    <div class="grid2 charts">
+    <details class="lvl3" data-lv="3" id="d-charts"><summary>Charts und Kostentabelle<small>Kostenstruktur · Break-even über Viewer · Sensitivität · kumuliert · Tabelle</small></summary>
+    <div class="grid2 charts" style="margin-top:4px">
       <div class="card chart-card">
         <h3>Kostenstruktur je Ansatz <span class="eyebrow" id="chart1-h"></span></h3>
         <p class="hint">Balken = Kategorien (Erwartungswerte), Beschriftung = P50, Strich darunter = P10–P90. Aufbau, Migration und Schulung sind Invest, Lizenz, Wartung und Governance laufen jedes Jahr.</p>
@@ -392,18 +430,22 @@ footer b{color:var(--ink);}
       <h3>Kostentabelle <span class="eyebrow">P50 · in €</span></h3>
       <div class="tbl-scroll"><table class="res" id="res-table"></table></div>
     </div>
+    </details>
 
-    <div class="section-head" style="margin-top:26px"><span class="n">Einschätzung</span><h2 class="section-title" style="font-size:18px">Vorteile, Nachteile und versteckte Kosten</h2></div>
+    <details class="lvl3" data-lv="3" id="d-text"><summary>Einschätzung je Ansatz<small>Vorteile, Nachteile, versteckte Kosten, Fabric-Ausblick</small></summary>
+    <div class="section-head" style="margin-top:8px"><span class="n">Einschätzung</span><h2 class="section-title" style="font-size:18px">Vorteile, Nachteile und versteckte Kosten</h2></div>
     <p class="section-sub">Textbausteine je Ansatz, ergänzt um eure Eingaben. Die versteckten Kosten sind die Posten, die in Lizenzvergleichen meist fehlen.</p>
     <div class="opt-cards" id="opt-cards"></div>
     <div class="card" style="margin-top:16px;border-left:4px solid var(--ink-soft)">
       <h3>Ausblick am Rand: Fabric Apps</h3>
       <p class="hint" style="margin:0">Seit Mai 2026 in Public Preview (Rayfin SDK und CLI seit Juni 2026): Datenmodelle in TypeScript erzeugen automatisch eine eigene SQL-Datenbank in Fabric plus GraphQL-API, darauf laufen React-Apps mit Copilot-Unterstützung beim Bauen. Es ist kein Reporting-Layer auf dem bestehenden Semantikmodell. Voraussetzung ist eine Fabric-Capacity, abgerechnet wird über Capacity Units. Microsoft positioniert Fabric Apps als Ergänzung zu Reports, nicht als Ersatz. Für visuelle Standards heißt das: ein fünfter Weg mit Entwicklungs- statt Lizenzkosten, der in diesem Rechner noch nicht modelliert ist. Quelle: <a href="https://learn.microsoft.com/fabric/apps/overview" target="_blank" rel="noopener" style="color:var(--accent-text)">Microsoft Learn, Fabric Apps overview</a>.</p>
     </div>
+  </details>
   </section>
 
+  <details class="lvl3" data-lv="3" id="d-s6"><summary>Monte-Carlo-Seite erzeugen<small>Schwankungsbreite wählen, eigene Auswertungsseite in neuem Tab</small></summary>
   <section class="section" id="s6">
-    <div class="section-head"><span class="n">Schritt 6</span><h2 class="section-title">Wie sicher ist das Ergebnis? Monte-Carlo-Seite erzeugen</h2></div>
+    <div class="section-head"><span class="n">Ebene 3</span><h2 class="section-title">Wie sicher ist das Ergebnis? Monte-Carlo-Seite erzeugen</h2></div>
     <p class="section-sub">Erzeugt aus euren Eingaben eine eigene Auswertungsseite: Verteilung der Kosten je Viewer, Sicherheit der Rangfolge, hart gegen weich, Erstellung gegen Nutzung, Sensitivität, Paid gegen Open Source und eine Skalen-Simulation bei eurem Verhältnis Ersteller : Viewer. Alles rechnet lokal im Browser, nichts wird übertragen.</p>
     <div class="card">
       <div class="mc-grid">
@@ -416,11 +458,16 @@ footer b{color:var(--ink);}
     </div>
   </section>
 
+  </details>
+
+  <details class="lvl3" data-lv="3" id="d-anhang"><summary>Quellen, Methodik, Ehrlichkeits-Hinweis<small>Anhang</small></summary>
   <section class="section">
     <div class="section-head"><span class="n">Anhang</span><h2 class="section-title" style="font-size:18px">Quellen, Annahmen, Methodik</h2></div>
     <div class="tbl-scroll"><table class="appendix-table" id="sources"></table></div>
     <div class="appendix-note"><b>Ehrlichkeits-Hinweis:</b> Für „Stunden je Chart“ existiert in Literatur und Blogs keine belastbare Zahl. Die Voreinstellungen für Aufbau, Wiederverwendung, Setup, Schulung, Wartung, Breaking-Updates und Anwender-Support stammen aus einem <b>simulierten Expertenpanel</b> (20 Rollenprofile von Consultant bis Revision, unabhängig per Sprachmodell geschätzt, Median je Wert; Rohdaten im Repository unter sessions/). Das ist eine strukturierte Meinung, keine Messung, und die wichtigste Stellschraube des Modells. Eigene Erfahrungswerte gehören hier hinein. Vendor-Zahlen wie „46 % schneller“ oder „10x“ wurden bewusst nicht als Voreinstellung übernommen, weil sie Lesegeschwindigkeit und Bauzeit vermischen. Preise stammen überwiegend aus Such-Auszügen der Herstellerseiten (Stand 09/2026) und sind vor einer Entscheidung beim Hersteller zu prüfen.</div>
   </section>
+
+  </details>
 
   <footer id="footer"></footer>
 </div>
@@ -592,7 +639,7 @@ const SOURCES=[
 ];
 
 /* ===================== State ===================== */
-const S={creators:3,viewers:40,reports:12,cpr:6,types:5,horizon:5,mode:'man',ssShare:25,licModel:'staffel',baseline:'none',existing:0,weight:70,per:'viewer',view:'abs',prio:{},cap:{},custom:[],flags:{},g:{},p:{},tornado:null,mc:{w:15,n:2000,a:'pct'},mix:[50,35,15]};
+const S={creators:3,viewers:40,reports:12,cpr:6,types:5,horizon:5,mode:'man',ssShare:25,licModel:'staffel',baseline:'none',existing:0,weight:70,per:'viewer',view:'abs',prio:{},cap:{},custom:[],flags:{},g:{},p:{},tornado:null,mc:{w:15,n:2000,a:'pct'},mix:[50,35,15],level:1};
 function defaults(){
   S.creators=3;S.viewers=40;S.reports=12;S.cpr=6;S.types=5;S.horizon=5;S.mode='man';S.ssShare=25;S.licModel='staffel';S.baseline='none';S.existing=0;S.weight=70;S.per='viewer';
   S.view='abs';S.prio={};S.cap={};S.custom=[];REQS.forEach(r=>{S.prio[r.id]=r.def;S.cap[r.id]=r.cap.slice();});
@@ -771,6 +818,8 @@ function fmtRange(t,unit){return fmtN(t[0],2)+' · '+fmtN(t[1],2)+' · '+fmtN(t[
 function renderStep1(){
   ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const el=document.getElementById(id);el.value=Math.min(+el.max,S[id]);const n=document.getElementById('n-'+id);if(n&&document.activeElement!==n)n.value=S[id];});
   document.getElementById('ss').value=S.ssShare;document.getElementById('v-ss').textContent=S.ssShare+' %';
+  [['ov-creators','creators'],['ov-viewers','viewers']].forEach(([id,k])=>{const n=document.getElementById(id);if(document.activeElement!==n)n.value=S[k];});
+  document.querySelectorAll('#ov-mode-seg button').forEach(b=>b.classList.toggle('active',MODE_PRESETS[b.dataset.mode]===S.ssShare));document.getElementById('ov-mode-hint').textContent=modeParams().hint;
   {const ms=S.mix[0]+S.mix[1]+S.mix[2];document.getElementById('mix-sum').textContent=ms+' %'+(ms!==100?' (wird auf 100 normiert)':'');['mix-simple','mix-mid','mix-complex'].forEach((id,i)=>{const n=document.getElementById(id);if(document.activeElement!==n)n.value=S.mix[i];});}
   const rd=reportsDefault();document.getElementById('reports-hint').innerHTML='Reports, die nach dem Standard gebaut werden. Erfahrungswert für '+esc(modeParams().label)+' mit '+fmtN(S.creators)+' Erstellern: <b>'+fmtN(rd)+'</b> (Enterprise ≈ 6, Managed ≈ 4, Self-Service ≈ 2 je Ersteller, plus 2 je 1.000 Viewer; Daten-WG-Erfahrungswert) '+(rd!==S.reports?'<button class="hint-btn" id="btn-reports-default">übernehmen</button>':'<span style="color:var(--accent-text)">✓ übernommen</span>');
   const rb=document.getElementById('btn-reports-default');if(rb)rb.addEventListener('click',()=>{S.reports=reportsDefault();pendingToast='Reports auf Erfahrungswert '+S.reports+' gesetzt';update();});
@@ -859,6 +908,7 @@ function update(){
   const place=[];ranked.forEach((o,i)=>{if(i>0&&overlap(sim[o.key],sim[ranked[i-1].key])>0.5&&Math.abs(sim[o.key].p50-sim[ranked[i-1].key].p50)/Math.max(1,sim[ranked[i-1].key].p50)<0.15)place.push(place[i-1]);else place.push(i+1);});
   const placeLabel=i=>{const p=place[i];const f=place.indexOf(p),l=place.lastIndexOf(p);return f===l?'Platz '+p:'Platz '+p+'–'+(p+(l-f));};
   const best=ranked[0];
+  drawOverview(sim,ev,ranked,excluded,place);
   /* Headline */
   const hl=document.getElementById('headline');
   if(!best){const bl=[];allReqs().forEach(rq=>{if(S.prio[rq.id]==='M'){const kos=OPTS.filter(o=>capOf(rq,o.key)<=1);if(kos.length)bl.push('Must „'+rq.name+'“ (schließt '+kos.map(o=>o.short).join(', ')+' aus)');}});
@@ -1022,7 +1072,7 @@ function renderOptCards(sim,ev,order){
 /* ---------- Anhang / Footer ---------- */
 function renderSources(){
   document.getElementById('sources').innerHTML='<thead><tr><th>Quelle</th><th>Was drin steht</th><th>Status</th></tr></thead><tbody>'+SOURCES.map(([n,w,u,s])=>'<tr><td><a href="'+u+'" target="_blank" rel="noopener">'+esc(n)+'</a></td><td>'+esc(w)+'</td><td><span class="badge '+s+'">'+s+'</span></td></tr>').join('')+'</tbody>';
-  document.getElementById('footer').innerHTML='<b>Methodik:</b> Je Ansatz werden Lizenz und Support (Nutzer × Preis × Jahre), Aufbau (Setup, optionale Eigenentwicklung, Chart-Typen × Stunden × Stundensatz-Mix), Rollout (Reports × Charts × Wiederverwendungs-Stunden), Schulung (Ersteller × Stunden und Kurskosten, wiederkehrend über die Fluktuation), Lizenz mit Viewer-Wachstum und Preissteigerung je Jahr, Wartung (Quote × Aufbau + Rollout × Jahre plus Breaking-Updates) und Abkündigungsrisiko (Wahrscheinlichkeit × Migrationsanteil × Aufbau) addiert. Jede Annahme ist eine Dreipunkt-Schätzung, aus der per PERT-Verteilung 1.500 Szenarien gezogen werden; angezeigt werden P10, P50 und P90. Break-even und Sensitivität nutzen den PERT-Erwartungswert. K.O.-Kriterien (Must mit 0 Punkten, Governance-Schalter) filtern vor der Rangfolge; ausgeschlossene Ansätze bleiben zur Einordnung sichtbar. Der Anforderungs-Score ist eine Nutzwertanalyse (Must 3, Should 2, Could 1 als Gewicht, Erfüllungsgrad 1 bis 5) und bewusst nur über den Regler in die Rangfolge einbezogen. Governance und Anwender-Support wachsen mit der Viewer-Zahl (log-linear von 50 bis 5.000 Viewern), das Betriebsmodell trennt tief geschulte Vorlagen-Bauer von Vorlagen-Nutzern und skaliert Varianten, Support und Governance. Lizenzen wachsen mit Viewern und Preis, Stundensätze mit der Lohnsteigerung, die Wartung klingt ab. Das Abkündigungsrisiko wird als Jahresrate über den Horizont akkumuliert und in der Simulation als Ereignis gezogen. Der Barwert nutzt den Kalkulationszins auf den Zahlungsstrom je Jahr. Die Rangfolge nutzt das Kostenverhältnis zur günstigsten Option (auch ausgeschlossene), damit eine chancenlose dritte Option die Reihenfolge der anderen nicht verschiebt; Plätze mit überlappenden P10–P90-Bändern werden zusammengefasst. Beträge sind auf zwei signifikante Stellen gerundet. Audit 09/2026 (drei Opus- und drei Sonnet-Prüfungen, Blindschätzung, Web-Verifikation): Fluktuationsschulung rollendifferenziert, Abkündigungsrisiko inklusive 60 % des Rollouts, Freigabe je Visual-Paket statt je Chart-Typ, Lizenz-Administration degressiv und bei Site-Lizenz null, Staffel je Jahr, Governance log-linear, Bewertung interner Stunden als Konstante; 22 Defaults neu gesetzt, Herkunft je Wert im Badge. v0.8: Chart-Mix nach Komplexität (Faktoren je Ansatz, Panel-Stunden gelten für 50 / 35 / 15), Lernkurve nach Wright auf die Wiederverwendung (Panelwert = 10. Chart je Ersteller, Untergrenze 50 %), Null-Option „kein Standard“ als Vergleich außerhalb der Rangfolge mit getrennt ausgewiesener Leserzeit. Details in der Markdown-Fassung. Die Monte-Carlo-Seite (Schritt 6) zieht zusätzlich das Mengengerüst je Szenario mit der gewählten Schwankungsbreite und wertet Verteilung, Rangfolge-Sicherheit, hart gegen weich, Erstellung gegen Nutzung, Rangkorrelationen (Spearman) und eine Skalen-Simulation bei festem Verhältnis Ersteller : Viewer aus. Power-BI-Grundlizenzen (Pro, PPU, Capacity-Grundpreis) fallen für alle Ansätze gleich an und sind nicht enthalten, ebenso die Nutzen-Seite (nur als Score und als „€ je Anforderungspunkt\“), Aktivierung/Abschreibung und steuerliche Fragen (z. B. § 50a EStG bei Lizenzen ausländischer Anbieter). <b>Alle Zahlen sind Indikationen unter Unsicherheit</b>, keine Angebote. Die Berechnung läuft lokal im Browser. Der Share-Link enthält eure Eingaben unverschlüsselt im URL-Fragment; wer den Link hat, sieht die Annahmen. Schriften werden von Google Fonts geladen; der Excel-Export lädt die Bibliothek SheetJS zuerst lokal, sonst von cdnjs.cloudflare.com (dabei sehen Google bzw. Cloudflare eure IP-Adresse, keine Eingaben).<div class="footer-version"><a href="md/visual-standards-rechner.md" style="color:var(--accent-text)">Markdown-Fassung (Modell, Annahmen, Quellen)</a> · Visual-Standards-Rechner v0.8 · Michael Tenner &amp; Diana Ackermann · Daten-WG Knowledge Kitchen · Stand 09/2026 · Pre-Conference „Visual Standards in Power BI für Controlling und Finance“</div>';
+  document.getElementById('footer').innerHTML='<details class="foot"><summary>Methodik, Grenzen, Datenschutz</summary><b>Methodik:</b> Je Ansatz werden Lizenz und Support (Nutzer × Preis × Jahre), Aufbau (Setup, optionale Eigenentwicklung, Chart-Typen × Stunden × Stundensatz-Mix), Rollout (Reports × Charts × Wiederverwendungs-Stunden), Schulung (Ersteller × Stunden und Kurskosten, wiederkehrend über die Fluktuation), Lizenz mit Viewer-Wachstum und Preissteigerung je Jahr, Wartung (Quote × Aufbau + Rollout × Jahre plus Breaking-Updates) und Abkündigungsrisiko (Wahrscheinlichkeit × Migrationsanteil × Aufbau) addiert. Jede Annahme ist eine Dreipunkt-Schätzung, aus der per PERT-Verteilung 1.500 Szenarien gezogen werden; angezeigt werden P10, P50 und P90. Break-even und Sensitivität nutzen den PERT-Erwartungswert. K.O.-Kriterien (Must mit 0 Punkten, Governance-Schalter) filtern vor der Rangfolge; ausgeschlossene Ansätze bleiben zur Einordnung sichtbar. Der Anforderungs-Score ist eine Nutzwertanalyse (Must 3, Should 2, Could 1 als Gewicht, Erfüllungsgrad 1 bis 5) und bewusst nur über den Regler in die Rangfolge einbezogen. Governance und Anwender-Support wachsen mit der Viewer-Zahl (log-linear von 50 bis 5.000 Viewern), das Betriebsmodell trennt tief geschulte Vorlagen-Bauer von Vorlagen-Nutzern und skaliert Varianten, Support und Governance. Lizenzen wachsen mit Viewern und Preis, Stundensätze mit der Lohnsteigerung, die Wartung klingt ab. Das Abkündigungsrisiko wird als Jahresrate über den Horizont akkumuliert und in der Simulation als Ereignis gezogen. Der Barwert nutzt den Kalkulationszins auf den Zahlungsstrom je Jahr. Die Rangfolge nutzt das Kostenverhältnis zur günstigsten Option (auch ausgeschlossene), damit eine chancenlose dritte Option die Reihenfolge der anderen nicht verschiebt; Plätze mit überlappenden P10–P90-Bändern werden zusammengefasst. Beträge sind auf zwei signifikante Stellen gerundet. Audit 09/2026 (drei Opus- und drei Sonnet-Prüfungen, Blindschätzung, Web-Verifikation): Fluktuationsschulung rollendifferenziert, Abkündigungsrisiko inklusive 60 % des Rollouts, Freigabe je Visual-Paket statt je Chart-Typ, Lizenz-Administration degressiv und bei Site-Lizenz null, Staffel je Jahr, Governance log-linear, Bewertung interner Stunden als Konstante; 22 Defaults neu gesetzt, Herkunft je Wert im Badge. v0.8: Chart-Mix nach Komplexität (Faktoren je Ansatz, Panel-Stunden gelten für 50 / 35 / 15), Lernkurve nach Wright auf die Wiederverwendung (Panelwert = 10. Chart je Ersteller, Untergrenze 50 %), Null-Option „kein Standard“ als Vergleich außerhalb der Rangfolge mit getrennt ausgewiesener Leserzeit. Details in der Markdown-Fassung. Die Monte-Carlo-Seite (Schritt 6) zieht zusätzlich das Mengengerüst je Szenario mit der gewählten Schwankungsbreite und wertet Verteilung, Rangfolge-Sicherheit, hart gegen weich, Erstellung gegen Nutzung, Rangkorrelationen (Spearman) und eine Skalen-Simulation bei festem Verhältnis Ersteller : Viewer aus. Power-BI-Grundlizenzen (Pro, PPU, Capacity-Grundpreis) fallen für alle Ansätze gleich an und sind nicht enthalten, ebenso die Nutzen-Seite (nur als Score und als „€ je Anforderungspunkt\“), Aktivierung/Abschreibung und steuerliche Fragen (z. B. § 50a EStG bei Lizenzen ausländischer Anbieter). <b>Alle Zahlen sind Indikationen unter Unsicherheit</b>, keine Angebote. Die Berechnung läuft lokal im Browser. Der Share-Link enthält eure Eingaben unverschlüsselt im URL-Fragment; wer den Link hat, sieht die Annahmen. Schriften werden von Google Fonts geladen; der Excel-Export lädt die Bibliothek SheetJS zuerst lokal, sonst von cdnjs.cloudflare.com (dabei sehen Google bzw. Cloudflare eure IP-Adresse, keine Eingaben).</details><div class="footer-version"><a href="md/visual-standards-rechner.md" style="color:var(--accent-text)">Markdown-Fassung (Modell, Annahmen, Quellen)</a> · Visual-Standards-Rechner v0.9 · Michael Tenner &amp; Diana Ackermann · Daten-WG Knowledge Kitchen · Stand 09/2026 · Pre-Conference „Visual Standards in Power BI für Controlling und Finance“</div>';
 }
 
 /* ===================== Excel-Export ===================== */
@@ -1101,12 +1151,13 @@ function buildXlsx(){
 }
 
 /* ===================== Share-Link ===================== */
-function writeHash(){try{const st={sv:4,ss:S.ssShare,c:S.creators,v:S.viewers,r:S.reports,q:S.cpr,t:S.types,h:S.horizon,md:S.mode,lm:S.licModel,bl:S.baseline,ex:S.existing,tn:S.tornado,w:S.weight,pe:S.per,vw:S.view,pr:S.prio,cp:S.cap,cu:S.custom,f:S.flags,g:S.g,p:S.p,mc:S.mc,mx:S.mix};const enc=btoa(unescape(encodeURIComponent(JSON.stringify(st))));history.replaceState(null,'','#s='+enc);}catch(e){}}
+function writeHash(){try{const st={sv:4,ss:S.ssShare,c:S.creators,v:S.viewers,r:S.reports,q:S.cpr,t:S.types,h:S.horizon,md:S.mode,lm:S.licModel,bl:S.baseline,ex:S.existing,tn:S.tornado,w:S.weight,pe:S.per,vw:S.view,pr:S.prio,cp:S.cap,cu:S.custom,f:S.flags,g:S.g,p:S.p,mc:S.mc,mx:S.mix,lv:S.level};const enc=btoa(unescape(encodeURIComponent(JSON.stringify(st))));history.replaceState(null,'','#s='+enc);}catch(e){}}
 function readHash(){try{const m=location.hash.match(/#s=(.+)/);if(!m)return false;const st=JSON.parse(decodeURIComponent(escape(atob(m[1]))));
   if(+st.sv!==4)setTimeout(()=>toast('Link aus einer älteren Version des Rechners: Annahmen und Rechenkern wurden im Audit 09/2026 geändert, gespeicherte Werte gelten als eigene Annahmen.'),600);
   const qty=(v,lo,hi,d)=>{const n=Math.round(+v);return isFinite(n)?Math.max(lo,Math.min(hi,n)):d;};
   S.creators=qty(st.c,1,100000,S.creators);S.viewers=qty(st.v,0,1e7,S.viewers);S.reports=qty(st.r,1,100000,S.reports);S.cpr=qty(st.q,1,200,S.cpr);S.types=qty(st.t,1,50,S.types);S.horizon=[3,5,10].includes(+st.h)?+st.h:5;S.weight=qty(st.w,0,100,70);S.per=st.pe==='user'?'user':'viewer';
   S.view=st.vw==='per'?'per':'abs';S.mode=['ent','man','ss'].includes(st.md)?st.md:'man';S.ssShare=st.ss!==undefined?qty(st.ss,0,100,25):MODE_PRESETS[S.mode];S.licModel=['peruser','staffel','site'].includes(st.lm)?st.lm:'staffel';S.baseline=['none','paid','oss','deneb','core'].includes(st.bl)?st.bl:'none';S.existing=qty(st.ex,0,100000,0);S.tornado=OK[st.tn]!==undefined?st.tn:null;
+  S.level=[1,2,3].includes(+st.lv)?+st.lv:2;
   if(Array.isArray(st.mx)&&st.mx.length===3){const a=st.mx.map(x=>Math.max(0,Math.min(100,Math.round(+x)||0)));if(a[0]+a[1]+a[2]>0)S.mix=a;}
   if(st.mc&&typeof st.mc==='object'){S.mc={w:[5,10,15,20,25].includes(+st.mc.w)?+st.mc.w:15,n:[1000,2000,5000].includes(+st.mc.n)?+st.mc.n:2000,a:st.mc.a==='bands'?'bands':'pct'};}
   const cl=t=>{if(!Array.isArray(t)||t.length!==3)return null;const a=t.map(Number);if(!a.every(isFinite))return null;a.sort((x,y)=>x-y);return a.map(v=>Math.max(0,Math.min(1e9,v)));};
@@ -1255,12 +1306,51 @@ function openMcPage(save){
   }catch(e){st.textContent='Simulation fehlgeschlagen: '+e.message;if(win)try{win.close();}catch(x){}}},40);
 }
 
+/* ===================== Ebenen (Overview first, zoom and filter, details on demand) ===================== */
+function setLevel(n,scroll){S.level=[1,2,3].includes(n)?n:1;document.body.classList.remove('lv1','lv2','lv3');document.body.classList.add('lv'+S.level);
+  document.querySelectorAll('.stepper [data-level]').forEach(b=>b.classList.toggle('active',+b.dataset.level===S.level));
+  if(S.level===3)['d-s4','d-charts'].forEach(id=>{const d=document.getElementById(id);if(d)d.open=true;});
+  writeHash();if(scroll){const t=document.getElementById(S.level===1?'s0':S.level===2?'s1':'d-s4');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});}}
+function srcCounts(){const c={V:0,S:0,F:0,P:0,E:0};GLOBAL.concat(OPTP).forEach(p=>{c[p.src]=(c[p.src]||0)+1;});return c;}
+function licenseBreakEven(){const save=S.viewers;const grid=[10,20,50,100,200,300,500,750,1000,1500,2000,3000,5000,7500,10000,15000,20000];let res=null,prev=null;
+  for(const v of grid){S.viewers=v;const d=expected('paid').total-Math.min(...['oss','deneb','core'].map(k=>expected(k).total));if(prev&&prev.d<=0&&d>0){res=Math.round(prev.v+(v-prev.v)*(-prev.d)/(d-prev.d));break;}if(!prev&&d>0){res=v;break;}prev={v,d};}
+  S.viewers=save;return res;}
+function drawOverview(sim,ev,ranked,excluded,place){
+  const H=S.horizon;const pv=o=>{const st=sim[o.key];const d=Math.max(1,st.vAvg*H);return {p10:st.p10/d,p50:st.p50/d,p90:st.p90/d};};
+  const order=ranked.concat(excluded);const rows=order.map(o=>({o,v:pv(o),ko:ev[o.key].ko.length>0}));
+  const ref=rows.filter(r=>!r.ko);const xmax=niceMax(Math.max(...(ref.length?ref:rows).map(r=>r.v.p90))*1.05,4);
+  const W=600,rowH=46,padL=150,padR=96,padT=24,padB=22;const Ht=padT+rows.length*rowH+padB;const x=v=>padL+Math.min(1,v/xmax)*(W-padL-padR);
+  let g='<svg viewBox="0 0 '+W+' '+Ht+'" role="img" aria-label="Kosten je Viewer und Jahr je Ansatz"><text x="'+padL+'" y="12" font-size="10.5" fill="var(--ink-soft)">€ je Viewer und Jahr über '+H+' Jahre · Band P10–P90 · Strich P50</text>';
+  for(let i=0;i<=4;i++){const v=xmax*i/4;g+='<line x1="'+x(v)+'" y1="'+padT+'" x2="'+x(v)+'" y2="'+(Ht-padB+4)+'" stroke="var(--line)"/><text x="'+x(v)+'" y="'+(Ht-6)+'" font-size="10" text-anchor="middle" fill="var(--ink-soft)">'+fmtN(v)+'</text>';}
+  rows.forEach((r,i)=>{const y=padT+i*rowH+8;const o=r.o;g+='<text x="'+(padL-10)+'" y="'+(y+13)+'" font-size="12.5" text-anchor="end" font-weight="600" fill="'+o.tcolor+'">'+esc(o.short)+'</text><text x="'+(padL-10)+'" y="'+(y+27)+'" font-size="10" text-anchor="end" fill="var(--ink-soft)">'+esc(o.tag)+'</text>';
+    if(r.ko){g+='<rect x="'+x(r.v.p10)+'" y="'+(y+6)+'" width="'+Math.max(2,x(r.v.p90)-x(r.v.p10))+'" height="18" fill="none" stroke="'+o.color+'" stroke-dasharray="4 3" rx="3"/><text x="'+(x(Math.min(r.v.p90,xmax))+8)+'" y="'+(y+19)+'" font-size="11" fill="var(--ink-soft)">K.O. · '+fmtN(Math.round(r.v.p50))+' €</text>';}
+    else{g+='<rect x="'+x(r.v.p10)+'" y="'+(y+6)+'" width="'+Math.max(2,x(r.v.p90)-x(r.v.p10))+'" height="18" fill="'+o.color+'" opacity=".35" rx="3"/><line x1="'+x(r.v.p50)+'" y1="'+(y+2)+'" x2="'+x(r.v.p50)+'" y2="'+(y+28)+'" stroke="'+o.tcolor+'" stroke-width="3"/><text x="'+(x(Math.min(r.v.p90,xmax))+8)+'" y="'+(y+19)+'" font-size="12" font-weight="600" fill="var(--ink)">'+fmtN(Math.round(r.v.p50))+' €</text>';}});
+  document.getElementById('ov-chart').innerHTML=g+'</svg>';
+  /* Ein Satz */
+  let t;const who='Bei '+fmtN(S.creators)+' Erstellern und '+fmtN(S.viewers)+' Viewern';
+  if(!ranked.length)t=who+' sind alle vier Ansätze durch Red Flags oder Must-Anforderungen ausgeschlossen. Ebene 2 zeigt, welche Bedingung das ist.';
+  else{const b=ranked[0];const pb=pv(b).p50;const tie=ranked.filter((o,i)=>place[i]===place[0]);const rest=ranked.filter(o=>!tie.includes(o)).sort((x,y)=>pv(x).p50-pv(y).p50);
+    const fx=o=>{const f=pv(o).p50/Math.max(1,pb);return f<1.15?'etwa gleich viel':'das '+fmtN(f,1)+'-fache';};
+    if(tie.length>1)t=who+' liegen <b>'+tie.map(o=>esc(o.short)).join(' und ')+'</b> gleichauf bei rund '+fmtN(Math.round(pb))+' € je Viewer und Jahr'+(rest.length?'; '+rest.map(o=>esc(o.short)+' kostet '+fx(o)).join(', '):'')+'.';
+    else t=who+' ist <b>'+esc(b.short)+'</b> am günstigsten mit rund '+fmtN(Math.round(pb))+' € je Viewer und Jahr'+(rest.length?'; '+rest.map(o=>esc(o.short)+' kostet '+fx(o)).join(', '):'')+'.';
+    if(excluded.length)t+=' '+excluded.map(o=>esc(o.short)).join(', ')+(excluded.length>1?' sind':' ist')+' ausgeschlossen (Red Flag oder Must).';
+    const be=licenseBreakEven();if(be===null)t+=' Auch bei 20.000 Viewern bleibt die Lizenz je Kopf im Modell günstiger als jeder Stunden-Ansatz.';else if(be<=10)t+=' Schon ab wenigen Viewern ist die Lizenz je Kopf teurer als der günstigste Stunden-Ansatz.';else if(be<=S.viewers)t+=' Ab etwa '+fmtN(be)+' Viewern ist die Lizenz je Kopf teurer als der günstigste Stunden-Ansatz, ihr seid darüber.';else t+=' Ab etwa <b>'+fmtN(be)+' Viewern</b> wird die Lizenz je Kopf teurer als der günstigste Stunden-Ansatz.';}
+  document.getElementById('ov-sentence').innerHTML=t;
+  /* Was belastbar ist */
+  const c=srcCounts();let cert='<b>Belastbar:</b> die Größenordnung je Viewer und die Viewer-Zahl, ab der die Lizenz dominiert (strukturell). <b>Nicht belastbar:</b> ';
+  if(ranked.length>1&&place[1]===place[0])cert+='die Reihenfolge von '+esc(ranked[0].short)+' und '+esc(ranked[1].short)+', sie hängt an ungemessenen Stundenannahmen; ';
+  cert+='Beträge auf mehr als eine Stelle, die Nutzenseite. Herkunft der '+(c.V+c.S+c.F+c.P+c.E)+' Annahmen: '+c.V+' verifiziert, '+c.S+' Such-Snippets, '+c.F+' Faustregeln, '+c.P+' simuliertes Panel, '+c.E+' Autoren-Schätzung (Ebene 3).';
+  document.getElementById('ov-cert').innerHTML=cert;
+  const sa=document.getElementById('sum-annahmen');if(sa)sa.textContent=(c.V+c.S+c.F+c.P+c.E)+' Werte · V '+c.V+' · S '+c.S+' · F '+c.F+' · P '+c.P+' · E '+c.E;
+}
 /* ===================== Events ===================== */
 function bind(){
   document.addEventListener('click',e=>{const a=e.target.closest('[data-goto]');if(!a)return;e.preventDefault();const el=document.getElementById(a.dataset.goto);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});
   let simTimer=null;const scheduleUpdate=()=>{clearTimeout(simTimer);simTimer=setTimeout(update,90);};
   ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const el=document.getElementById(id);el.addEventListener('input',e=>{S[id]=+e.target.value;renderStep1();scheduleUpdate();});el.addEventListener('change',()=>{clearTimeout(simTimer);update();});});
-  document.querySelectorAll('#mode-seg button').forEach(b=>b.addEventListener('click',()=>{S.mode=b.dataset.mode;S.ssShare=MODE_PRESETS[S.mode];pendingToast='Betriebsmodell: '+modeParams().label;update();}));
+  document.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>setLevel(+b.dataset.level,true)));
+  [['ov-creators','creators',1,100000],['ov-viewers','viewers',0,1e7]].forEach(([id,k,lo,hi])=>{const n=document.getElementById(id);n.addEventListener('change',e=>{let v=Math.round(+e.target.value);if(!isFinite(v))v=S[k];S[k]=Math.max(lo,Math.min(hi,v));update();});});
+  document.querySelectorAll('#mode-seg button, #ov-mode-seg button').forEach(b=>b.addEventListener('click',()=>{S.mode=b.dataset.mode;S.ssShare=MODE_PRESETS[S.mode];pendingToast='Betriebsmodell: '+modeParams().label;update();}));
   document.getElementById('ss').addEventListener('input',e=>{S.ssShare=+e.target.value;renderStep1();scheduleUpdate();});
   ['mix-simple','mix-mid','mix-complex'].forEach((id,i)=>{const el=document.getElementById(id);el.addEventListener('change',e=>{let v=Math.round(+e.target.value);if(!isFinite(v))v=0;S.mix[i]=Math.max(0,Math.min(100,v));update();});});
   const LIM={creators:[1,100000],viewers:[0,10000000],reports:[1,100000],cpr:[1,200],types:[1,50],existing:[0,100000]};
@@ -1291,7 +1381,7 @@ function bind(){
   const cnt={V:0,S:0,F:0,E:0};GLOBAL.concat(OPTP).forEach(p=>cnt[p.src]++);const tot=cnt.V+cnt.S+cnt.F+cnt.E;document.getElementById('srcbar').innerHTML=['V','S','F','E'].map(k=>'<i style="width:'+Math.max(4,Math.round(cnt[k]/tot*120))+'px;background:'+({V:'#3E9C8F',S:'#D98A3D',F:'#B4B2A2',E:'#7B8BC4'}[k])+'" title="'+k+': '+cnt[k]+'"></i>').join('')+' '+cnt.V+' verifiziert · '+cnt.S+' Snippet · '+cnt.F+' Faustregel · '+cnt.E+' Expertenschätzung, deshalb Bandbreiten statt Punktwerte.';
 }
 /* ===================== Init ===================== */
-readHash();renderReqs();renderFlags();renderParams();renderSources();renderMc();bind();update();
+readHash();renderReqs();renderFlags();renderParams();renderSources();renderMc();bind();setLevel(S.level,false);update();
 </script>
 <style media="print">
 .sticky-bar,.toolbar,.toast,.back-link,.stepper,input[type=range]{display:none!important;}
