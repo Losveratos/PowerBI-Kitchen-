@@ -541,13 +541,15 @@ const GLOBAL=[
   {id:'rateExt',label:'Stundensatz extern',sub:'Freelancer / Beratung, €/h',v:[90,118,210],src:'S',srcNote:'Erstmals ein Power-BI-spezifischer Wert: freelancermap Ø 98 €/h für Power BI. Freelancer-Kompass 2026: Ø 103 €/h, IT-Branche 95 €/h — erstmals seit Erhebungsbeginn kein Anstieg, 62 % planen keine Erhöhung. Beratungshaus 1.000–1.500 €/Tag, Big4 darüber; bimodal, die Spanne deckt beides ab (Audit 09/2026: 95·125·220 → 90·118·210)'},
   {id:'migShare',label:'Migrationskosten bei Abkündigung',sub:'% des Aufbaus, der neu entsteht',v:[50,80,100],src:'F',srcNote:'Charticulator, Bing-Maps-Visuals, OKViz: Neubau statt Migration'},
   {id:'churn',label:'Fluktuation der Ersteller',sub:'% pro Jahr; Vorlagen-Bauer lösen tiefe, Vorlagen-Nutzer flache Nachschulung aus',v:[5,11,22],src:'S',srcNote:'Finance-Abteilungen ~10 %/Jahr, IT-Dienstleister 20–22 % (ISG-Langzeit via bkv); 30 % für Deutschland gesamt ist Bruttofluktuation und hier unbrauchbar. Bis v0.6 zahlte jeder Abgang die volle Tiefschulung, das überschätzte den Posten um Faktor 5–9 (Audit 09/2026)'},
-  {id:'growth',label:'Viewer-Wachstum',sub:'% pro Jahr, treibt Lizenzen, Support und Nachfrage; negativ = Konsolidierung',v:[-5,10,30],src:'E',srcNote:'Keine Benchmark, unternehmensindividuell. Exponentiell ohne Sättigung: bei 10 Jahren Horizont Deckel prüfen (Viewer können nicht über die Belegschaft hinaus wachsen)'},
+  {id:'growth',label:'Viewer-Wachstum',sub:'% pro Jahr, treibt Lizenzen, Support und Nachfrage; negativ = Konsolidierung',v:[-5,10,30],min:-100,src:'E',srcNote:'Keine Benchmark, unternehmensindividuell. Exponentiell ohne Sättigung: bei 10 Jahren Horizont Deckel prüfen (Viewer können nicht über die Belegschaft hinaus wachsen)'},
   {id:'intFactor',label:'Bewertung interner Stunden',sub:'% des internen Satzes: 60 = Kapazität frei, 100 = Vollkosten, 150 = verdrängt Fachaufgaben. Bewertungskonvention: geht mit dem Erwartungswert ein, wird nicht zufällig gezogen',v:[60,100,150],src:'E',srcNote:'CFO-Frage Nr. 1: Sind interne Stunden Auszahlungen? Seit v0.7 konstant in der Simulation, damit die P10–P90-Bänder Sachunsicherheit zeigen und nicht die Bewertungskonvention (Audit 09/2026)'},
   {id:'demand1000',label:'Zusätzliche Reports je 1.000 Viewer und Jahr',sub:'Nachfrage wächst mit der Leserzahl, unabhängig vom Werkzeug',v:[1,2,4],src:'E',srcNote:'Autoren-Schätzung, keine Quelle'},
   {id:'demandCreator',label:'Neue Standard-Reports je Ersteller und Jahr',sub:'Nachfrage aus dem Fachbereich, unabhängig von der Leserzahl',v:[0.2,0.5,1],src:'E',srcNote:'Neu in v0.7: Audit 09/2026 fand, dass der Zuwachs nur an Viewern hing und im Mittelstand (40 Viewer) faktisch null war. Autoren-Schätzung, keine Quelle'},
   {id:'govPer1000',label:'Zugriffs-Governance je 1.000 Viewer und Jahr (ansatzunabhängig)',sub:'Stunden: Berechtigungsreviews, Rezertifizierung, Offboarding. Fällt für alle vier Ansätze gleich an, ändert die Rangfolge nicht',v:[4,10,24],src:'E',srcNote:'Autoren-Schätzung, keine Quelle. 10 h je 1.000 Viewer sind 36 Sekunden je Viewer und Jahr'},
   {id:'wageInfl',label:'Lohnsteigerung',sub:'% pro Jahr auf interne und externe Stundensätze (Gegenstück zur Lizenzpreis-Steigerung)',v:[1,3,4.5],src:'V',srcNote:'WSI-Tarifarchiv: Tariflöhne nominal 2025 +2,6 %, 2026 +3,1 %; BI-Fachkräfte eher darüber (Robert Half 2026, Sekundärzitat). Minimum im Audit 09/2026 von 2 % auf 1 % gesenkt: der Freelancer-Kompass 2026 zeigt erstmals keinen Anstieg der Stundensätze, 62 % planen keine Erhöhung — ein Jahr ohne Steigerung ist ein möglicher Fall'},
-  {id:'maintDecay',label:'Wartungs-Abklingfaktor',sub:'% je Jahr: nach dem ersten Jahr sinkt der Anpassungsbedarf (100 = konstant)',v:[80,90,97],src:'E',srcNote:'Modellierungs-Notlösung, keine Empirie: verhindert, dass ein fixer Template-Bestand über 10 Jahre dreimal neu gebaut wird. Literatur (Sekundärzitate) kennt bei wachsender Codebasis eher steigende Wartung, deshalb näher an „konstant“ (Audit 09/2026)'},
+  {id:'maintDecay',label:'Wartungs-Trend je Jahr (Kohortenalter)',sub:'% je Jahr auf eine bestehende Vorlagen-Kohorte: < 100 = Vorlagen stabilisieren sich, 100 = konstant, > 100 = Code-Decay. Der Bestand wächst getrennt davon, jede Jahresschicht altert ab ihrem eigenen Entstehungsjahr',v:[85,95,103],src:'E',srcNote:'Audit 09/2026 (Paket C1, B3 gekoppelt mit der Jahresschleife): der Faktor wirkte bis v0.11 auf den Endbestand ab Jahr 0 und war damit gleichzeitig Alterung und Mengengerüst. Seit v0.12 altert jede Rollout-Kohorte ab ihrem eigenen Jahr, der Bestand wächst separat — kohortenrichtig fällt die Wartung 5–21 % niedriger aus. Weil Lehman und die Code-Decay-Literatur (Sekundärzitate, 60–80 % Wartungsanteil im Lebenszyklus) eher steigende Wartung kennen, geht der Trend gleichzeitig von 80·90·97 auf 85·95·103: über 100 ist ausdrücklich zugelassen. Beides nur gemeinsam, einzeln wäre jede Richtung eine Verzerrung'},
+  {id:'rolloutYears',label:'Rollout-Dauer für den heutigen Bestand',sub:'Jahre, über die die vorhandenen Reports auf den Standard gehoben werden (1 = alles im ersten Jahr). Der Zuwachs entsteht ohnehin im jeweiligen Jahr',v:[1,2,3],src:'E',srcNote:'Autoren-Schätzung 09/2026, keine Quelle (Audit Paket C1, B22). Bis v0.11 landete der komplette Rollout in Jahr 0: im Großkonzern-Preset 1.200 Reports × 8 Charts, also zwischen 10.000 und 38.000 Stunden in einem Jahr mit 200 Erstellern — rechnerisch belastbar, betrieblich frei erfunden. Die nominale Summe ändert sich dadurch kaum, Barwert, Jahresprofil und die FTE-Zahl des ersten Jahres dagegen deutlich'},
+  {id:'teamSkill',label:'Streuung des gemeinsamen Team-Faktors',sub:'% Streuung eines Faktors, der je Szenario alle internen Stundenannahmen aller vier Ansätze gleichsinnig skaliert (0 = aus). Bewertungskonvention: geht mit dem Erwartungswert ein, wirkt nur in der Simulation, nicht im Erwartungswert',v:[5,12,20],src:'E',srcNote:'Autoren-Schätzung 09/2026 (Audit Paket C1, B28), kalibriert auf den Nachbau der Synthese: 15 unabhängig gezogene Stundenannahmen mitteln sich heute zu einem Portfolioeffekt, den es real nicht gibt — ein Team, das beim Setup trödelt, ist auch beim Wiederverwenden langsam. Der Nachbau misst mit einer Kopplung von ρ ≈ 0,6 ein um bis zu 18 % breiteres Niveau-Band bei praktisch unverändertem Differenz-Band; 12 % Streuung bilden das im Mittelstands-Preset nach (P90/P10 bei Open Source 1,62 → 1,87, bei Paid 1,50 → 1,58, Mediane unverändert). Der Faktor ist je Szenario für alle vier Ansätze identisch, deshalb bleibt „dieser Ansatz ist günstiger“ scharf und nur „so viel kostet es“ wird ehrlicher unsicher. Nicht auf die Lernrate angewandt: dort wäre „mehr“ besser, die Kopplung würde die Richtung drehen'},
   {id:'migFactor',label:'Nachbau-Faktor bei Migration',sub:'× Wiederverwendungs-Stunden je Bestands-Chart (Nachbau ist selten billiger als Erstbau)',v:[1.1,1.5,2.5],src:'E',srcNote:'Nachbau enthält Original verstehen, Abweichungen dokumentieren, Abnahme, Parallelbetrieb; Untergrenze 1,0 war unhaltbar. Charticulator, Bing Maps, OKViz: Neubau statt Migration'},
   {id:'capacityCost',label:'Jahreskosten eurer Fabric-Capacity',sub:'€, nur bei F-SKU/Premium eintragen, sonst 0 (Pro-Lizenzen: kein Capacity-Effekt). Presets unter der Tabelle',v:[0,0,0],src:'S',srcNote:'F2 ≈ 2–3 k€, F8 ≈ 8–13 k€, F64 ≈ 60–118 k€ je Jahr (reserved bis Pay-as-you-go, West Europe, Sekundärquellen 2026; Azure-Preisliste in der Prüfumgebung nicht abrufbar). Der prozentuale Mehrverbrauch ist eine lineare Näherung, real springt die SKU'},
   {id:'sqChartH',label:'Null-Option: Stunden je Chart ohne Standard',sub:'Jedes Chart wird einzeln formatiert und diskutiert, ohne Vorlage (Core Visuals ad hoc)',v:[1,2,4],src:'E',srcNote:'Autoren-Schätzung 09/2026, keine Quelle. Ohne Standard entfallen Setup, Schulung und Freigabe, aber jedes Chart kostet Formatierung, Abstimmung und Nacharbeit'},
@@ -583,8 +585,11 @@ const OPTP=[
   {id:'variantG',label:'Varianten-Anfälligkeit',sub:'0 = Vorlagen erzwingen Einheitlichkeit, 1 = jeder Ersteller baut anders. Skaliert den Varianten-Effekt des Betriebsmodells auf Wartung und Freigabe',unit:'×',v:{paid:[0.1,0.25,0.4],oss:[0.3,0.5,0.7],deneb:[0.5,0.75,1],core:[0.6,0.85,1]},src:'E',srcNote:'Autoren-Schätzung 09/2026. Bis v0.9 still aus dem Design-Score in Ebene 2 abgeleitet (Note 2 hieß voller Effekt, das schlug bei Deneb und Core 50 % auf die Wartung). Seit v0.10 eigene, sichtbare Annahme; Deneb leicht unter 1, weil Vorlagen auch Code-Ansätze bändigen'},
   {id:'libF',label:'Wirkung einer fertigen Vorlagenbibliothek',sub:'× Stunden je Chart (Erstbau und Wiederverwendung), Schulung halb so stark; nur aktiv, wenn der Schalter „Vorlagenbibliothek vorhanden“ gesetzt ist',unit:'×',v:{paid:[1,1,1],oss:[0.9,1,1],deneb:[0.4,0.6,0.8],core:[0.5,0.7,0.9]},src:'E',srcNote:'Autoren-Schätzung 09/2026, keine Messung. Beispiele: IBCS Chart Builder (Deneb-Templates der Daten-WG, eigenes Projekt), vegaviz, DenebIBCS; PowerofBI.IBCS und avatorl UDF-Bibliothek für SVG-Measures. Default aus, damit das eigene Projekt nicht still in die Rangfolge einfließt'},
   {id:'cxSimple',label:'Komplexitätsfaktor einfache Charts',sub:'× Stunden je Chart gegenüber der mittleren Klasse (Balken mit Abweichung, Linien, KPI-Karten)',unit:'×',v:{paid:[0.5,0.7,0.9],oss:[0.5,0.7,0.9],deneb:[0.3,0.5,0.7],core:[0.25,0.4,0.6]},src:'E',srcNote:'Autoren-Schätzung 09/2026, keine Quelle. Klick-Werkzeuge sparen bei einfachen Charts wenig gegenüber der Mitte, Code-Ansätze viel (ein Balken ist in DAX/SVG schnell, ein Wasserfall nicht)'},
-  {id:'cxComplex',label:'Komplexitätsfaktor komplexe Charts',sub:'× Stunden je Chart (Wasserfall mit Abweichungen, kombinierte Charts, Kommentierung, Drilldown)',unit:'×',v:{paid:[1.2,1.4,1.8],oss:[1.3,1.6,2.2],deneb:[1.8,2.5,3.5],core:[2.5,4,6]},src:'E',srcNote:'Autoren-Schätzung 09/2026, keine Quelle. Paid liefert den Chart-Typ fertig; Core + SVG baut den Wasserfall mit Szenario-Notation aus Measures von Hand. Der Chart-Mix (Schritt 1) gewichtet diese Faktoren, bei 50 / 35 / 15 gelten die Panel-Stunden unverändert'},
+  {id:'cxComplex',label:'Komplexitätsfaktor komplexe Charts',sub:'× Stunden je Chart (Wasserfall mit Abweichungen, kombinierte Charts, Kommentierung, Drilldown)',unit:'×',v:{paid:[1.2,1.4,1.8],oss:[1.4,1.9,2.9],deneb:[1.8,2.5,3.5],core:[2.2,3.5,5.5]},src:'E',srcNote:'Autoren-Schätzung 09/2026, keine Quelle. Paid liefert den Chart-Typ fertig; Core + SVG baut den Wasserfall mit Szenario-Notation aus Measures von Hand. Der Chart-Mix (Schritt 1) gewichtet diese Faktoren, bei 50 / 35 / 15 gelten die Panel-Stunden unverändert. Audit 09/2026 (Paket C1, B26): Mitte zwischen Autoren-Schätzung und unabhängiger Blindschätzung (oss 1,5 · 2,2 · 3,5; core 2,0 · 3,0 · 5,0) — oss von 1,3 · 1,6 · 2,2 auf 1,4 · 1,9 · 2,9 (der Featureschnitt fertiger OSS-Visuals endet meist vor Kommentierung und beliebigen Kombinationen, das belastet das eigene Projekt der Autoren), core von 2,5 · 4 · 6 auf 2,2 · 3,5 · 5,5'},
   {id:'learn',label:'Lernrate je Verdopplung',sub:'% weniger Stunden je Chart bei jeder Verdopplung der gebauten Charts je Ersteller; Panelwert gilt für den 10. Chart, Untergrenze 50 %',unit:'%',v:{paid:[0,5,10],oss:[5,10,15],deneb:[8,15,25],core:[8,15,25]},src:'F',srcNote:'Faustregel nach Wright: 80–90 % Lernkurve bei manueller Arbeit entspricht 10–20 % je Verdopplung. Code-Ansätze lernen mehr (Vorlagenbibliothek reift), Klick-Werkzeuge weniger. Kleine Teams mit wenigen Charts je Kopf liegen auf dem steilen Teil der Kurve und zahlen mehr als der Panelwert. Keine Messung für Power BI'},
+  {id:'prodGain',label:'Produktivitätsgewinn je Jahr (laufende interne Stunden)',sub:'% weniger Stunden je Jahr auf Wartung, Breaking-Fixes, Governance, Anwender-Support, Lizenz-Administration und Nachschulung — Gegenstück zur Lohnsteigerung. Negativ = Mehraufwand. Wirkt nicht auf Rollout, Aufbau und Schulung (dort rechnet die Lernkurve) und nicht auf Lizenzen',unit:'%',v:{paid:[-1,0,2],oss:[-1,0.5,3],deneb:[-2,1.5,6],core:[-2,1.5,6]},min:-50,src:'E',srcNote:'Autoren-Schätzung 09/2026 (Audit Paket C1, B2), Evidenz ausdrücklich widersprüchlich. Bis v0.11 stiegen die Löhne jährlich, die Stunden nie — das ist die implizite Annahme „Produktivität 0 %“, der unwahrscheinlichste aller Werte. Belege in beide Richtungen: METR-RCT 2025 (16 erfahrene Entwickler, 246 Aufgaben) misst −19 % bei +20 % Selbsteinschätzung, und zwar für Pflege an bestehendem Code — genau die Tätigkeit hier; METR-Update 02/2026 +4 bis +20 % für spätere Agenten; Peng et al. 2023 +55,8 % bei einer Greenfield-Aufgabe; DORA 2025 „Durchsatz rauf, Instabilität rauf“. Deshalb negatives Minimum, gedämpfter Modus und kein Effekt auf den Rollout (dort wirkt bereits die Lernkurve, deren Begründung wörtlich „Vorlagenbibliothek reift“ lautet — dieselbe Ursache zweimal wäre Doppelzählung). Bei 3 % Lohnsteigerung neutralisieren rund 4 % Produktivität die Lohnsteigerung, der Modus tut das etwa zur Hälfte'},
+  {id:'lockIn',label:'Bindungsgrad beim Ausstieg nach dem Horizont',sub:'Anteil des Bestands, der bei einem Wechsel nach dem Horizont tatsächlich neu entstehen muss. Wirkt nur auf die Kennzahl „Ausstieg“, nicht auf die Summe und nicht auf die Rangfolge',unit:'×',v:{paid:[0.8,0.95,1],oss:[0.6,0.8,0.95],deneb:[0.2,0.4,0.6],core:[0.3,0.5,0.7]},src:'E',srcNote:'Autoren-Schätzung 09/2026 (Audit Paket C1, B4), keine Messung. Der sachliche Grund steht in den eigenen Texten des Rechners: Report-Definitionen eines gekauften Visuals sind an das Visual gebunden, Vega-Lite-Specs überleben das Wirtsvisual, DAX-Measures bleiben im Modell. Die Annahme begünstigt damit Deneb und Core, also die Ansätze, zu denen die Autoren eigene Projekte betreiben — deshalb steht der Ausstieg als eigene Kennzahl unter dem Strich und ist bewusst nicht in der Rangfolge'},
+  {id:'minTerm',label:'Mindestvertragslaufzeit',sub:'Jahre je Vertragsperiode (1 = Jahresvertrag, 3 = 36 Monate). Die beim Ausstieg noch laufende Restlaufzeit wird in der Kennzahl „Ausstieg“ mitgezählt; bei Horizont 3 und Laufzeit 3 ohne Wirkung',unit:'Jahre',v:{paid:[1,1,3]},src:'E',srcNote:'Autoren-Schätzung 09/2026 (Audit Paket C1, B23), keine belastbare Quelle: die Nischen-Vendoren veröffentlichen Jahresabonnements, Rahmen- und Site-Verträge laufen erfahrungsgemäß 36 Monate. Der Rechner modellierte bis v0.11 nur, dass der Anbieter aufgibt (Abkündigungsrisiko), nicht dass wir aussteigen wollen. Der Modus 1 Jahr ist der belegte Normalfall und hat damit keine Wirkung — wer 36 Monate kontrahiert, trägt die 3 ein und sieht die Restlaufzeit in der Ausstiegs-Kennzahl'},
   {id:'support',label:'Support / Sponsoring pro Jahr',sub:'€ (Paid: im Preis enthalten)',unit:'€',v:{oss:[0,0,1000],deneb:[0,0,3000],core:[0,0,0]},src:'V',srcNote:'Freiwillig. Deneb GitHub Sponsors (verifiziert): 50 $ Bronze ≈ 1 h, 150 $ Silver, 250 $ Gold ≈ 3 h, 750 $ Platinum ≈ 15 h je Monat; Max = Gold. Achtung: der Erwartungswert von 0 · 0 · max ist max/6, nicht 0'},
 ];
 
@@ -703,13 +708,22 @@ const CATS=[['lic','Lizenz, Support & Capacity'],['build','Aufbau'],['switch','M
 function viewersAvg(gPct){const gr=1+gPct/100;const cap=S.viewerCap>0?S.viewerCap:Infinity;let t=0;for(let y=0;y<S.horizon;y++)t+=Math.min(S.viewers*Math.pow(gr,y),cap);return t/S.horizon;} /* A8: Viewer-Deckel */
 function ownersOf(){return Math.min(S.creators,Math.max(S.creators>1?2:1,Math.ceil(S.creators*modeParams().ownerShare)));}
 function reportsDefault(){const M=modeParams();return Math.max(1,Math.round(S.creators*M.reportsPerCreator+S.viewers/1000*2));}
+/* B28: Stundenannahmen, die ein gemeinsamer Team-Skill-Faktor je Szenario gleichsinnig skaliert. Die Lernrate steht bewusst nicht drin: dort waere "mehr" besser, die Kopplung wuerde die Richtung drehen. */
+const SKILLP=['setupH','devH','firstH','reuseH','trainH','lightH','rampH','fixH','supH100','govIntake','govRun','govAudit','licAdmH100','maint','events'];
 function calc(key,draw,override){
   const P=S.p[key],G=S.g,H=S.horizon,M=modeParams();const sim=draw===pert;const pairs=sim&&!!S.paired; /* A1 */
   /* T04: Snapshot je Szenario. Globale Annahmen werden in fester Reihenfolge zuerst gezogen (bei gleichem Seed für alle Optionen identisch), Options-Annahmen danach; jede Annahme genau einmal. */
   const gd={};GLOBAL.forEach(q=>gd[q.id]=override&&override[q.id]!==undefined?override[q.id]:drawId(pairs,'g:'+q.id,draw,G[q.id]));
   const pd={};OPTP.forEach(q=>{if(P[q.id]!==undefined)pd[q.id]=override&&override[q.id]!==undefined?override[q.id]:drawId(pairs,'p:'+q.id,draw,P[q.id]);});
   if(!(override&&override.intFactor!==undefined))gd.intFactor=pertMean(G.intFactor); /* Bewertungskonvention, keine Zufallsgröße (Audit 09/2026) */
+  if(!(override&&override.teamSkill!==undefined))gd.teamSkill=pertMean(G.teamSkill); /* B28: Streuung ist Konvention, keine Zufallsgröße */
   if(key==='oss'&&S.flags.osscert&&!(override&&override.govIntake!==undefined))pd.govIntake=drawId(pairs,'p:govIntake',draw,S.p.paid.govIntake); /* zertifiziertes OSS: Microsoft hat das Code-Review gemacht */
+  /* B28: ein Team, das beim Setup trödelt, ist auch beim Wiederverwenden langsam. Ein lognormaler Faktor um 1 je Szenario, für alle vier Ansätze identisch (eigener Zufallsstrom aus dem Szenario-Seed), skaliert alle internen Stundenannahmen gleichsinnig. Wirkt nur in der Simulation, nicht im Erwartungswert. */
+  gd.teamF=1;
+  if(sim){const sd=Math.max(0,gd.teamSkill)/100;
+    if(sd>0){const sv=seed;seed=(scenSeed^hashId('@skill'))>>>0;const z=gaussian();seed=sv;
+      const f=Math.min(2,Math.max(.5,Math.exp(sd*z)));gd.teamF=f;
+      SKILLP.forEach(id=>{if(pd[id]!==undefined&&!(override&&override[id]!==undefined))pd[id]*=f;});}}
   const g=id=>gd[id];
   const p=id=>pd[id]===undefined?0:pd[id];
   const users=S.creators+S.viewers;
@@ -718,98 +732,123 @@ function calc(key,draw,override){
   const mixS=(S.mix[0]+S.mix[1]+S.mix[2])||100;const mxs=S.mix.map(x=>x/mixS);const cx=[p('cxSimple'),1,p('cxComplex')];const cx0=[.5,.35,.15];
   const compMult=(mxs[0]*cx[0]+mxs[1]*cx[1]+mxs[2]*cx[2])/(cx0[0]*cx[0]+cx0[1]*cx[1]+cx0[2]*cx[2]);
   const libF=S.lib?p('libF'):1;const trainHe=p('trainH')*(S.lib?(0.5+0.5*libF):1); /* fertige Vorlagenbibliothek senkt Stunden je Chart und Schulung */
-  /* Lernkurve (Wright): Stunden je Chart fallen um learn % je Verdopplung; Panelwert = 10. Chart je Ersteller; mittlerer Faktor über alle Charts, Untergrenze 0,5 */
-  const learnF=(n,r)=>{if(n<=0||r<=0)return 1;const b=-Math.log(1-r/100)/Math.LN2,a=1-b;const avg=(Math.pow(n+.5,a)-Math.pow(.5,a))/(a*n);return avg*Math.pow(10,b);}; /* A10: ungedeckelt, die Untergrenze 0,5 gilt auf dem Produkt Bibliothek x Lernkurve */
+  /* B1: Lernkurve (Wright) als Segmentmittel zwischen zwei kumulierten Chart-Zahlen je Ersteller. learnSeg(0,n) ist identisch zum bisherigen learnF(n), die Summe über alle Jahrgänge ändert sich also nicht — nur das Zeitprofil wird richtig: der erste Jahrgang bekommt keinen Rabatt mehr, den niemand erarbeitet hat. Panelwert = 10. Chart je Ersteller. */
+  const lrn=p('learn');
+  const learnSeg=(a,b)=>{if(lrn<=0||b<=a)return 1;const be=-Math.log(1-lrn/100)/Math.LN2,al=1-be;return (Math.pow(b+.5,al)-Math.pow(a+.5,al))/(al*(b-a))*Math.pow(10,be);};
+  const libLearn=x=>Math.max(.5,libF*x); /* A10: Untergrenze auf das Produkt Bibliothek x Lernkurve */
   const rateInt0=g('rateInt')*g('intFactor')/100;
   const rate0=rateInt0*(1-ext)+g('rateExt')*ext;
   const growth=g('growth');const vAvg=viewersAvg(growth);
-  /* Lohn- und Lizenzsteigerung: mittlerer Jahresfaktor über den Horizont */
-  const wageF=(()=>{const w=1+g('wageInfl')/100;let t=0;for(let y=0;y<H;y++)t+=Math.pow(w,y);return t/H;})();
-  const rateInt=rateInt0*wageF, rate=rate0*wageF;           /* laufende Posten */
-  /* Lizenz: Viewer wachsen ab dem 2. Betriebsjahr, Autoren bleiben konstant, Preis steigt jährlich (T05) */
-  const inf=1+(P.licInfl?p('licInfl'):0)/100,gr=1+growth/100;
+  const w=1+g('wageInfl')/100;                                  /* Lohnfaktor je Jahr */
+  const inf=1+(P.licInfl?p('licInfl'):0)/100,gr=1+growth/100;   /* Lizenz-/Preisfaktor je Jahr */
   const vCap=S.viewerCap>0?S.viewerCap:Infinity;const vY=y=>Math.min(S.viewers*Math.pow(gr,y),vCap); /* A8: gedeckelte Viewer je Jahr */
-  let licFv=0,licFa=0;for(let yv=0;yv<H;yv++){licFv+=(S.viewers>0?vY(yv)/S.viewers:0)*Math.pow(inf,yv);licFa+=Math.pow(inf,yv);}
-  const userYears=S.viewers*licFv+S.creators*licFa;const licF=userYears/Math.max(users,1);
   const staffelD=u=>S.licModel==='staffel'?(u<=25?1:u<=100?.8:u<=500?.6:u<=2000?.45:u<=5000?.3:.2):1; /* Staffel je Jahr auf die dann gültige Nutzerzahl */
-  let lic=0;
-  if(key==='paid'){
-    if(S.licModel==='site')lic=p('licSite')*licFa;
-    else{for(let yv=0;yv<H;yv++){const u=vY(yv)+S.creators;lic+=u*Math.pow(inf,yv)*p('lic')*staffelD(u);}}
-  }
-  const licAdmin=(key==='paid'&&S.licModel!=='site')?Math.sqrt(users/100)*p('licAdmH100')*rateInt*H:0; /* degressiv, bei Site-Lizenz 0 */
-  const support=p('support')*H;
-  const capacity=g('capacityCost')*p('cuUplift')/100*H;
-  /* Aufbau (Jahr 0, ohne Lohnsteigerung), Rollout (Nachfrage wächst mit Viewern) */
+  /* B20: Mindestpakete. Zebra BI verkauft keine Einzelplätze: Team-Paket ab 5 Nutzern, danach Blöcke von 10 (größere Abschlüsse in 50er-Blöcken, dort ist die Aufrundung unter 1 % und deshalb nicht modelliert). Gilt nur für Staffel und Pro-Nutzer, nicht für die Site-Lizenz. */
+  const packU=u=>S.licModel==='site'?u:(u<=5?5:Math.ceil(u/10)*10);
+  /* Aufbau (Jahr 0, ohne Lohnsteigerung) */
+  const aH=p('setupH')+p('devH')+S.types*p('firstH')*compMult*libF;
   const setup=p('setupH')*rate0, dev=p('devH')*rate0, build=S.types*p('firstH')*compMult*libF*rate0;
-  const demandY=g('demand1000')*(vAvg/1000)+g('demandCreator')*S.creators;const growthAdd=demandY*H; /* A2: Zuwachs je Jahr, ueber H Jahre */
-  const reportsTotal=S.reports+growthAdd;
-  const chartsPerCreator=reportsTotal*S.cpr/Math.max(1,S.creators);const learnRoll=learnF(chartsPerCreator,p('learn'));
-  const libLearn=Math.max(.5,libF*learnRoll); /* A10: Untergrenze auf das Produkt Bibliothek x Lernkurve */
-  const rolloutH=reportsTotal*S.cpr*p('reuseH')*compMult*libLearn*M.reuseF;
-  /* A2: der Bestand entsteht zum Jahr-0-Satz, der ueber H Jahre entstehende Zuwachs zum lohn-eskalierten Satz */
-  const rollout=(S.reports*rate0+growthAdd*rate)*S.cpr*p('reuseH')*compMult*libLearn*M.reuseF;
+  const A=setup+dev+build;
   /* Migration des Bestands: nur bei Wechsel weg vom heutigen Ansatz */
-  const switchCost=(S.baseline!=='none'&&S.baseline!==key&&S.existing>0)?S.existing*S.cpr*p('reuseH')*compMult*libF*g('migFactor')*rate0:0;
+  const switchH=(S.baseline!=='none'&&S.baseline!==key&&S.existing>0)?S.existing*S.cpr*p('reuseH')*compMult*libF*g('migFactor'):0;
+  const switchCost=switchH*rate0;
   /* Schulung nach Rollen: Owner tief, Nutzer flach, Fluktuation laufend */
   const owners=ownersOf();
-  const train0=owners*(trainHe*rateInt0+p('course'))+(S.creators-owners)*p('lightH')*rateInt0;
-  const trainRun=(g('churn')/100)*H*rateInt*(owners*(trainHe+p('rampH'))+(S.creators-owners)*(p('lightH')+0.25*p('rampH'))); /* rollendifferenziert wie train0 */
-  const base=setup+dev+build+rollout;
-  /* Wartung: Vorlagen werden gewartet, Instanzen nur angefasst; degressiv; Varianten treiben */
+  const train0H=owners*trainHe+(S.creators-owners)*p('lightH');
+  const train0=train0H*rateInt0+owners*p('course');
+  /* Varianten und Governance-Größe */
   const guardrail=Math.min(1,Math.max(0,p('variantG'))); /* seit v0.10 eigene Annahme statt Kopplung an den Design-Score */
   const variantEff=1+(M.variantF-1)*guardrail;
-  const maintBase=setup+dev+build+0.3*rollout;
-  const decay=g('maintDecay')/100;let maintYears=0;for(let y=0;y<H;y++)maintYears+=Math.pow(decay,y);
-  const maint=maintBase*(p('maint')/100)*maintYears*variantEff*wageF;
-  const events=p('events')*p('fixH')*rate*H;
-  /* Governance und Anwender-Support */
-  const supUsers=(vAvg/100)*p('supH100')*rateInt*H*M.supF;
-  const sizeF=(()=>{const pts=[[50,.3],[250,.6],[1000,1],[5000,1.3]];if(vAvg<=50)return .3;if(vAvg>=5000)return 1.3;const x=Math.log10(vAvg);for(let i=1;i<pts.length;i++)if(vAvg<=pts[i][0]){const x0=Math.log10(pts[i-1][0]),x1=Math.log10(pts[i][0]);return pts[i-1][1]+(pts[i][1]-pts[i-1][1])*(x-x0)/(x1-x0);}return 1.3;})(); /* Governance log-linear nach Organisationsgröße */
-  const govOnce=p('govIntake')*(1+0.2*(S.types-1))*variantEff*rateInt0*M.govF*sizeF; /* je Visual-Paket, plus 20 % je weiterem Chart-Typ */
-  const gov=govOnce+((p('govRun')+p('govAudit'))*H*sizeF+g('govPer1000')*(vAvg/1000)*H)*rateInt*M.govF;
-  /* Abkündigung: Jahresrate über den Horizont; in der Simulation als Ereignis */
-  const pH=1-Math.pow(1-p('dep')/100,H);
-  const hit=sim?(rndId(pairs,'@dep')<pH?1:0):pH;
-  const risk=hit*(setup+dev+build+0.6*rollout)*(g('migShare')/100); /* Abkündigung trifft auch die ausgerollten Reports (60 % des Rollouts) */
-  /* A5: interne Stunden je Jahr, Konvention 1.500 h je FTE und Jahr */
-  const riskYear=Math.max(1,Math.ceil(H/2));
-  const hSwitchH=(S.baseline!=='none'&&S.baseline!==key&&S.existing>0)?S.existing*S.cpr*p('reuseH')*compMult*libF*g('migFactor'):0;
-  const hY0=(p('setupH')+p('devH')+S.types*p('firstH')*compMult*libF+rolloutH+hSwitchH)*(1-ext)+owners*trainHe+(S.creators-owners)*p('lightH')+p('govIntake')*(1+0.2*(S.types-1))*variantEff*M.govF*sizeF;
-  const hMaintY=(maint/Math.max(rate,1e-9)+p('events')*p('fixH')*H)*(1-ext)/H;
-  const hRunY=((g('churn')/100)*H*(owners*(trainHe+p('rampH'))+(S.creators-owners)*(p('lightH')+0.25*p('rampH')))+((p('govRun')+p('govAudit'))*H*sizeF+g('govPer1000')*(vAvg/1000)*H)*M.govF+(vAvg/100)*p('supH100')*H*M.supF+(key==='paid'&&S.licModel!=='site'?Math.sqrt(users/100)*p('licAdmH100')*H:0))/H;
-  const hRiskY=risk/Math.max(rate0,1e-9)*(1-ext);
-  const c={lic:lic+support+licAdmin+capacity,build:setup+dev+build,switch:switchCost,rollout,train:train0+trainRun,maint:maint+events,gov:gov+supUsers,risk};
-  c.total=Object.values(c).reduce((a,b)=>a+b,0);
-  c.invest=c.build+c.switch+c.rollout+train0+govOnce;
-  c.yearly=(c.total-c.invest)/H;
-  c.hoursIntY=[hY0];for(let yv=1;yv<=H;yv++)c.hoursIntY.push(hMaintY+hRunY+(yv===riskYear?hRiskY:0));
-  c.hoursInt=c.hoursIntY.reduce((a,b)=>a+b,0);c.fteY1=c.hoursIntY[0]/1500;c.capCreators=S.creators*1500*0.3;c.capWarn=c.hoursIntY[0]>c.capCreators;
-  /* A7: Ausstiegskosten, ausserhalb der Summe und ausserhalb der Rangfolge */
-  c.exitH=(S.existing+reportsTotal)*S.cpr*p('reuseH')*compMult*g('migFactor');c.exitCost=c.exitH*rate0;
-  c.firstReportH=p('setupH')+p('devH')+S.types*p('firstH')*compMult*libF+S.cpr*p('reuseH')*compMult*libF;
-  c.nextReportH=S.cpr*p('reuseH')*compMult*libLearn*M.reuseF;c.libF=libF;c.compMult=compMult;c.learnRoll=learnRoll;c.libLearn=libLearn;
-  c.vAvg=vAvg;c.owners=owners;c.reportsTotal=reportsTotal;c.variantEff=variantEff;c.licF=licF;c.pH=pH;c.licNoLic=c.total-lic;c.users=users;
-  /* Harte Kosten (Auszahlungen: Lizenz, Support, Capacity, Kurse, extern beauftragte Stunden) vs. weiche Kosten (intern bewertete Stunden) */
+  const sizeFv=v=>{const pts=[[50,.3],[250,.6],[1000,1],[5000,1.3]];if(v<=50)return .3;if(v>=5000)return 1.3;const x=Math.log10(v);for(let i=1;i<pts.length;i++)if(v<=pts[i][0]){const x0=Math.log10(pts[i-1][0]),x1=Math.log10(pts[i][0]);return pts[i-1][1]+(pts[i][1]-pts[i-1][1])*(x-x0)/(x1-x0);}return 1.3;}; /* Governance log-linear nach Organisationsgröße */
+  const sizeF=sizeFv(vAvg);
+  const govOnceH=p('govIntake')*(1+0.2*(S.types-1))*variantEff*M.govF*sizeF; /* je Visual-Paket, plus 20 % je weiterem Chart-Typ */
+  const govOnce=govOnceH*rateInt0;
+  const RY=Math.min(H,Math.max(1,Math.round(g('rolloutYears'))));  /* B22: der heutige Bestand wird über mehrere Jahre gehoben */
+  const prod=1-p('prodGain')/100;                                  /* B2: Produktivitätsgewinn je Jahr auf laufende interne Stunden */
+  const decay=g('maintDecay')/100;                                 /* B3: Trend je Kohortenalter */
+  /* B27: Abkündigung als Gefahrenrate. Im Erwartungswert Summe über die Jahre, in der Simulation ein gezogenes Ereignisjahr; der Schaden bemisst sich am Bestand dieses Jahres, nicht am Endbestand. */
+  const haz=Math.min(1,Math.max(0,p('dep')/100));
+  const pH=1-Math.pow(1-haz,H);
+  let depYear=-1;
+  if(sim&&haz>0){const u=Math.min(.999999,rndId(pairs,'@dep'));const yy=haz>=1?0:Math.floor(Math.log(1-u)/Math.log(1-haz));if(yy<H)depYear=yy;}
   const hardFrac=rate0>0?(g('rateExt')*ext)/rate0:0;
-  const rateBased=setup+dev+build+rollout+switchCost+maint+events+risk;
+  /* ---- B1: Jahr für Jahr ---- */
+  let K=0;const R=[];let surv=1,rollSum=0,maintSum=0,eventsSum=0,licSum=0,supportSum=0,capacitySum=0,licAdminSum=0,supUsersSum=0,govSum=0,trainRunSum=0,riskSum=0;
+  let rollout0=0,licLast=0,reportsTotal=0,licUserYears=0;
+  const cf=[],cfHard=[],cfSoft=[],hoursIntY=[];
+  for(let y=0;y<H;y++){
+    const wy=Math.pow(w,y),iy=Math.pow(inf,y),pf=Math.pow(prod,y);
+    const v=vY(y),u=v+S.creators,ue=packU(u);
+    const rateIntY=rateInt0*wy;
+    /* (a) Bestand zu Jahresbeginn und Zuwachs im Jahr */
+    const n=(y<RY?S.reports/RY:0)+g('demand1000')*(v/1000)+g('demandCreator')*S.creators;
+    reportsTotal+=n;
+    const Cy=n*S.cpr;const dK=Cy/Math.max(1,S.creators);
+    const lf=libLearn(learnSeg(K,K+dK));K+=dK;              /* Lernkurve auf die kumulierte Zahl gebauter Charts je Ersteller */
+    /* (b) Rollout dieses Jahrgangs, Stunden zu Preisen von Jahr 0, bewertet mit der Lohnsteigerung des Jahres */
+    const rollH=Cy*p('reuseH')*compMult*lf*M.reuseF;R.push(rollH);
+    const roll=rollH*rate0*wy;rollSum+=roll;if(y===0)rollout0=roll;
+    /* (c) Wartung nur auf dem vorhandenen Bestand; jede Kohorte altert ab ihrem eigenen Entstehungsjahr (B3) */
+    let mbH=aH*Math.pow(decay,y);for(let j=0;j<=y;j++)mbH+=0.3*R[j]*Math.pow(decay,y-j);
+    const maintH=mbH*(p('maint')/100)*variantEff*pf;const maintY=maintH*rate0*wy;maintSum+=maintY;
+    const eventsH=p('events')*p('fixH')*pf;const eventsY=eventsH*rate0*wy;eventsSum+=eventsY;
+    /* (d) Lizenz des Jahres: Staffel und Mindestpaket auf die dann gültige, gedeckelte Nutzerzahl */
+    let licY=0;
+    if(key==='paid')licY=(S.licModel==='site')?p('licSite')*iy:ue*iy*p('lic')*staffelD(ue);
+    licUserYears+=ue*iy;licSum+=licY;licLast=licY;
+    const supportY=p('support')*iy;supportSum+=supportY;
+    const capacityY=g('capacityCost')*p('cuUplift')/100*iy;capacitySum+=capacityY;
+    const licAdmH=(key==='paid'&&S.licModel!=='site')?Math.sqrt(ue/100)*p('licAdmH100')*pf:0; /* degressiv, jahresgenau auf die wachsende Nutzerzahl, bei Site-Lizenz 0 */
+    const licAdminY=licAdmH*rateIntY;licAdminSum+=licAdminY;
+    /* (e) Betrieb: Anwender-Support, Governance, Nachschulung */
+    const supUsersH=(v/100)*p('supH100')*M.supF*pf;const supUsersY=supUsersH*rateIntY;supUsersSum+=supUsersY;
+    const govH=((p('govRun')+p('govAudit'))*sizeFv(v)+g('govPer1000')*(v/1000))*M.govF*pf;const govY=govH*rateIntY;govSum+=govY;
+    const trainRunH=(g('churn')/100)*(owners*(trainHe+p('rampH'))+(S.creators-owners)*(p('lightH')+0.25*p('rampH')))*pf;
+    const trainRunY=trainRunH*rateIntY;trainRunSum+=trainRunY;
+    /* (f) Abkündigung auf den Bestand dieses Jahres */
+    let stockH=aH;for(let j=0;j<=y;j++)stockH+=0.6*R[j];
+    let riskH=0;
+    if(sim)riskH=(y===depYear)?stockH*(g('migShare')/100):0;
+    else{riskH=surv*haz*stockH*(g('migShare')/100);surv*=(1-haz);}
+    const riskY=riskH*rate0*wy;riskSum+=riskY;
+    /* Zahlungsstrom des Jahres, getrennt nach Auszahlung (hart) und intern bewerteter Zeit (weich) */
+    const one=(y===0)?A+switchCost+govOnce+train0:0;
+    const tot=roll+maintY+eventsY+licY+supportY+capacityY+licAdminY+supUsersY+govY+trainRunY+riskY+one;
+    const hardY=licY+supportY+capacityY+(y===0?owners*p('course'):0)+(roll+maintY+eventsY+riskY+(y===0?A+switchCost:0))*hardFrac;
+    cf.push(tot);cfHard.push(hardY);cfSoft.push(tot-hardY);
+    /* A5: interne Stunden je Jahr, Konvention 1.500 h je FTE und Jahr */
+    hoursIntY.push((rollH+maintH+eventsH+riskH+(y===0?aH+switchH:0))*(1-ext)+licAdmH+supUsersH+govH+trainRunH+(y===0?train0H+govOnceH:0));
+  }
+  const lic=licSum,support=supportSum,capacity=capacitySum,licAdmin=licAdminSum,rollout=rollSum,maint=maintSum,events=eventsSum,trainRun=trainRunSum,supUsers=supUsersSum,risk=riskSum;
+  const gov=govOnce+govSum;
+  const c={lic:lic+support+licAdmin+capacity,build:A,switch:switchCost,rollout,train:train0+trainRun,maint:maint+events,gov:gov+supUsers,risk};
+  c.total=Object.values(c).reduce((a,b)=>a+b,0);
+  c.invest=A+switchCost+govOnce+train0+rollout0;   /* nur der erste Rollout-Jahrgang */
+  c.yearly=(c.total-c.invest)/H;
+  c.cf=cf;c.cfHard=cfHard;c.cfSoft=cfSoft;         /* H Einträge: Jahr 1 (Index 0) bis Jahr H */
+  c.hoursIntY=hoursIntY;c.hoursInt=hoursIntY.reduce((a,b)=>a+b,0);c.fteY1=hoursIntY[0]/1500;c.capCreators=S.creators*1500*0.3;c.capWarn=hoursIntY[0]>c.capCreators;
+  /* A7 + B4 + B23: Ausstiegskosten, ausserhalb der Summe und ausserhalb der Rangfolge */
+  const mt=Math.min(10,Math.max(1,Math.round(pd.minTerm===undefined?1:p('minTerm'))));
+  const restT=(key==='paid')?((mt-(H%mt))%mt):0;
+  let exitLic=0;for(let k=1;k<=restT;k++)exitLic+=licLast*Math.pow(inf,k);
+  const lockIn=pd.lockIn===undefined?1:Math.min(1,Math.max(0,p('lockIn')));
+  c.exitH=lockIn*(S.existing+reportsTotal)*S.cpr*p('reuseH')*compMult*g('migFactor');
+  c.exitCost=c.exitH*rate0*Math.pow(w,H)+exitLic;c.exitLic=exitLic;c.exitRest=restT;c.exitLock=lockIn;c.minTerm=mt;
+  /* B29: Grenzaufwand am Bestand des letzten Jahres statt Horizontmittel */
+  c.firstReportH=p('setupH')+p('devH')+S.types*p('firstH')*compMult*libF+S.cpr*p('reuseH')*compMult*libF;
+  c.nextReportH=S.cpr*p('reuseH')*compMult*libLearn(learnSeg(K,K+S.cpr/Math.max(1,S.creators)))*M.reuseF;
+  c.learnRoll=learnSeg(0,K);c.libLearn=libLearn(c.learnRoll);c.libF=libF;c.compMult=compMult;c.rolloutYears=RY;c.prodF=Math.pow(prod,Math.max(0,H-1));
+  c.vAvg=vAvg;c.owners=owners;c.reportsTotal=reportsTotal;c.variantEff=variantEff;c.licF=licUserYears/Math.max(users,1);c.pH=pH;c.licNoLic=c.total-lic;c.users=users;c.depYear=depYear;
+  /* Harte Kosten (Auszahlungen: Lizenz, Support, Capacity, Kurse, extern beauftragte Stunden) vs. weiche Kosten (intern bewertete Stunden) */
+  const rateBased=A+rollout+switchCost+maint+events+risk;
   c.hard=lic+support+capacity+owners*p('course')+rateBased*hardFrac;
   c.soft=c.total-c.hard;
   /* Phasen: Erstellung (einmalig) vs. Nutzung/Betrieb (laufend), jeweils direkt (Auszahlung) vs. indirekt (interne Zeit) */
-  const creationRate=setup+dev+build+rollout+switchCost;const creation=creationRate+train0+govOnce;
+  const creationRate=A+rollout+switchCost;const creation=creationRate+train0+govOnce;
   const creationHard=creationRate*hardFrac+owners*p('course');
   c.phase={creation:{hard:creationHard,soft:creation-creationHard},usage:{hard:c.hard-creationHard,soft:(c.total-creation)-(c.hard-creationHard)}};
   c.gd=gd;c.pd=pd;
-  /* Zahlungsstrom je Jahr und Barwert */
-  /* A3: Cash-out je Jahr, getrennt nach Auszahlung (hart) und intern bewerteter Zeit (weich) */
-  c.cf=[c.invest];c.cfHard=[creationHard];c.cfSoft=[c.invest-creationHard];
-  {const runTot=c.total-c.invest-lic-risk;const runHard=support+capacity+(maint+events)*hardFrac;
-   const perYear=runTot/H,perHard=runHard/H,perSoft=(runTot-runHard)/H;
-   for(let yv=0;yv<H;yv++){let v=perYear,vh=perHard,vs=perSoft;
-     if(key==='paid'){let L=0;if(S.licModel==='site')L=p('licSite')*Math.pow(inf,yv);else{const u=vY(yv)+S.creators;L=u*Math.pow(inf,yv)*p('lic')*staffelD(u);}v+=L;vh+=L;}
-     if(yv+1===riskYear){v+=risk;vh+=risk*hardFrac;vs+=risk*(1-hardFrac);}
-     c.cf.push(v);c.cfHard.push(vh);c.cfSoft.push(vs);}}
-  const disc=1+g('disc')/100;c.npv=c.cf.reduce((a,v,y)=>a+v/Math.pow(disc,y),0);
+  const disc=1+g('disc')/100;c.npv=cf.reduce((a,v,y)=>a+v/Math.pow(disc,y),0);
   return c;
 }
 function simulate(key,N){
@@ -824,26 +863,28 @@ function simulate(key,N){
 function expected(key,override){return calc(key,pertMean,override);}
 /* Null-Option: kein Standard. Kein Setup, keine Schulung, keine Freigabe, aber jedes Chart ad hoc, mehr Wartung, Leserzeit und Rückfragen */
 function calcSQ(draw){const G=S.g,H=S.horizon;const gd={};GLOBAL.forEach(q=>gd[q.id]=draw(G[q.id]));gd.intFactor=pertMean(G.intFactor);const g=id=>gd[id];
-  const rateInt0=g('rateInt')*g('intFactor')/100;const wageF=(()=>{const w=1+g('wageInfl')/100;let t=0;for(let y=0;y<H;y++)t+=Math.pow(w,y);return t/H;})();const rateInt=rateInt0*wageF;const vAvg=viewersAvg(g('growth'));
+  const rateInt0=g('rateInt')*g('intFactor')/100;const w=1+g('wageInfl')/100;const gr=1+g('growth')/100;const vAvg=viewersAvg(g('growth'));
+  const vCap=S.viewerCap>0?S.viewerCap:Infinity;const vY=y=>Math.min(S.viewers*Math.pow(gr,y),vCap);
   /* A9: die Null-Option baut Core Visuals ad hoc, also gilt der Chart-Mix mit den Core-Komplexitaetsfaktoren, gleiche Normierung auf 50/35/15 */
   const cxs=draw(S.p.core.cxSimple),cxc=draw(S.p.core.cxComplex);
   const mixS=(S.mix[0]+S.mix[1]+S.mix[2])||100;const mxs=S.mix.map(x=>x/mixS);const cx=[cxs,1,cxc];const cx0=[.5,.35,.15];
   const compSQ=(mxs[0]*cx[0]+mxs[1]*cx[1]+mxs[2]*cx[2])/(cx0[0]*cx[0]+cx0[1]*cx[1]+cx0[2]*cx[2]);
-  const growthAdd=(g('demand1000')*(vAvg/1000)+g('demandCreator')*S.creators)*H;
-  const reportsTotal=S.reports+growthAdd;
   const hPerReport=S.cpr*g('sqChartH')*compSQ;
-  /* A2: Bestand zum Jahr-0-Satz, Zuwachs zum lohn-eskalierten Satz */
-  const build=(S.reports*rateInt0+growthAdd*rateInt)*hPerReport;
-  const decay=g('maintDecay')/100;let my=0;for(let y=0;y<H;y++)my+=Math.pow(decay,y);
-  const maint=build*(g('sqMaint')/100)*my*wageF;
-  const read=vAvg*g('sqReadMin')*52/60*H*rateInt;
-  const sup=(vAvg/100)*g('sqSupH100')*rateInt*H;
-  /* A4: Zahlungsstrom je Jahr. Bestand entsteht in Jahr 0, der Zuwachs gleichmaessig ueber die Jahre; Wartung, Leserzeit und Rueckfragen laufen */
-  const cf=[S.reports*hPerReport*rateInt0],cfNoRead=[S.reports*hPerReport*rateInt0];
-  for(let y=1;y<=H;y++){const grow=growthAdd/H*hPerReport*rateInt;cf.push(grow+(maint+read+sup)/H);cfNoRead.push(grow+(maint+sup)/H);}
-  return {build,maint,read,sup,total:build+maint+read+sup,noRead:build+maint+sup,vAvg,readRate:vAvg*52/60*H*rateInt,cf,cfNoRead,compSQ,reportsTotal};}
-/* A4: erstes Jahr, in dem die kumulierten Kosten des Ansatzes unter denen des Status quo liegen */
-function paybackYear(cfA,cfS,H){let a=0,s=0;for(let y=0;y<=H;y++){a+=cfA[y]||0;s+=cfS[y]||0;if(a<s)return y;}return null;}
+  /* B1: dieselbe Jahresschleife wie in calc() — sonst waere die Amortisation gegen zwei verschiedene Zeitachsen gerechnet. B22: der Bestand wird ueber dieselbe Rollout-Dauer ad hoc gebaut, B3: jede Kohorte altert ab ihrem eigenen Jahr */
+  const RY=Math.min(H,Math.max(1,Math.round(g('rolloutYears'))));const decay=g('maintDecay')/100;
+  let build=0,maint=0,read=0,sup=0,reportsTotal=0,readRate=0;const Rr=[],cf=[],cfNoRead=[];
+  for(let y=0;y<H;y++){
+    const wy=Math.pow(w,y),v=vY(y),rateIntY=rateInt0*wy;
+    const n=(y<RY?S.reports/RY:0)+g('demand1000')*(v/1000)+g('demandCreator')*S.creators;reportsTotal+=n;
+    const bH=n*hPerReport;Rr.push(bH);const bY=bH*rateIntY;build+=bY;
+    let mbH=0;for(let j=0;j<=y;j++)mbH+=Rr[j]*Math.pow(decay,y-j);
+    const mY=mbH*(g('sqMaint')/100)*rateIntY;maint+=mY;
+    const rY=v*g('sqReadMin')*52/60*rateIntY;read+=rY;readRate+=v*52/60*rateIntY;
+    const sY=(v/100)*g('sqSupH100')*rateIntY;sup+=sY;
+    cf.push(bY+mY+rY+sY);cfNoRead.push(bY+mY+sY);}
+  return {build,maint,read,sup,total:build+maint+read+sup,noRead:build+maint+sup,vAvg,readRate,cf,cfNoRead,compSQ,reportsTotal};}
+/* A4: erstes Jahr, in dem die kumulierten Kosten des Ansatzes unter denen des Status quo liegen (Index 0 = Jahr 1) */
+function paybackYear(cfA,cfS,H){let a=0,s=0;for(let y=0;y<H;y++){a+=cfA[y]||0;s+=cfS[y]||0;if(a<s)return y+1;}return null;}
 function simulateSQ(N){const t=[],nr=[];for(let i=0;i<N;i++){setScenario(424242+i*7919);const c=calcSQ(pert);t.push(c.total);nr.push(c.noRead);}const ex=calcSQ(pertMean);return {p10:q(t,.1),p50:q(t,.5),p90:q(t,.9),noRead50:q(nr,.5),ex};}
 
 /* ===================== Bewertung: K.O., Warnungen, Score ===================== */
@@ -936,11 +977,11 @@ let activeTab='paid';
 function paramRow(p,vals,scope){
   const def=scope==='g'?p.v:p.v[scope.slice(2)];const changed=def&&(def[0]!==vals[0]||def[1]!==vals[1]||def[2]!==vals[2]);
   const badge=changed?'<span class="badge N" title="'+esc('Eigene Annahme. Ursprung ('+SRC_LBL[p.src]+'): '+def.join(' · ')+(p.srcNote?' · '+p.srcNote:''))+'">N</span>':'<span class="badge '+p.src+'" title="'+esc(SRC_LBL[p.src]+(p.srcNote?': '+p.srcNote:''))+'">'+p.src+'</span>';
-  return '<div class="a-row"><div class="lbl">'+esc(p.label)+'<small>'+esc(p.sub)+'</small></div>'+[0,1,2].map(i=>'<input type="number" step="any" min="0" aria-label="'+esc(p.label)+' '+['min','wahrscheinlich','max'][i]+'" data-scope="'+scope+'" data-id="'+p.id+'" data-i="'+i+'" value="'+vals[i]+'">').join('')+badge+'</div>';
+  return '<div class="a-row"><div class="lbl">'+esc(p.label)+'<small>'+esc(p.sub)+'</small></div>'+[0,1,2].map(i=>'<input type="number" step="any" min="'+(p.min===undefined?0:p.min)+'" aria-label="'+esc(p.label)+' '+['min','wahrscheinlich','max'][i]+'" data-scope="'+scope+'" data-id="'+p.id+'" data-i="'+i+'" value="'+vals[i]+'">').join('')+badge+'</div>';
 }
 function paramBlock(key){
   const dev=key==='oss'?'<div class="preset-row"><span class="preset-lbl">Modus:</span><button class="preset-btn" data-dev="ready">Fertiges OSS-Visual (0 h)</button><button class="preset-btn" data-dev="ki">Eigenentwicklung KI-gestützt (40 · 200 · 600 h)</button><button class="preset-btn" data-dev="classic">Eigenentwicklung klassisch (800 · 2.000 · 3.000 h)</button></div>':'';
-  const lic=key==='paid'?'<div class="field" style="margin:10px 0 6px"><label><span>Lizenzmodell</span></label><div class="seg" id="lic-seg"><button data-lm="peruser"'+(S.licModel==='peruser'?' class="active"':'')+'>pro Nutzer (Liste)</button><button data-lm="staffel"'+(S.licModel==='staffel'?' class="active"':'')+'>Volumenstaffel</button><button data-lm="site"'+(S.licModel==='site'?' class="active"':'')+'>Site-Lizenz</button></div><div class="sub-hint">Staffel: −20 % ab 25, −40 % ab 100, −55 % ab 500, −70 % ab 2.000, −80 % ab 5.000 Nutzern, je Jahr auf die dann gültige Nutzerzahl (Faustregel: Zebra-Team-Paket ≈ −46 % ab 5 Nutzern, Inforiver Domain-wide ≈ −80 % ab 2.000). Site: Pauschale pro Jahr, Nutzerzahl egal, keine Lizenz-Administration.</div></div>'+(S.licModel==='site'?'<div class="preset-row"><span class="preset-lbl">Site-Indikation:</span><button class="preset-btn" data-site="inforiver">Inforiver Domain-wide · 12–90 k€</button><button class="preset-btn" data-site="zebra">Zebra Enterprise Site · 25–150 k€ (Schätzung)</button><button class="preset-btn" data-site="gross">Konzern-Rahmenvertrag · 80–300 k€ (Schätzung)</button></div>':''):'';
+  const lic=key==='paid'?'<div class="field" style="margin:10px 0 6px"><label><span>Lizenzmodell</span></label><div class="seg" id="lic-seg"><button data-lm="peruser"'+(S.licModel==='peruser'?' class="active"':'')+'>pro Nutzer (Liste)</button><button data-lm="staffel"'+(S.licModel==='staffel'?' class="active"':'')+'>Volumenstaffel</button><button data-lm="site"'+(S.licModel==='site'?' class="active"':'')+'>Site-Lizenz</button></div><div class="sub-hint">Staffel: −20 % ab 25, −40 % ab 100, −55 % ab 500, −70 % ab 2.000, −80 % ab 5.000 Nutzern, je Jahr auf die dann gültige Nutzerzahl (Faustregel: Zebra-Team-Paket ≈ −46 % ab 5 Nutzern, Inforiver Domain-wide ≈ −80 % ab 2.000). Mindestpakete: gekauft wird nicht je Kopf, sondern in Paketen — unter 5 Nutzern gilt das Team-Paket zu 5, darüber wird auf volle 10 aufgerundet (Zebra BI verkauft keine Einzelplätze). Bei kleinen Mengen verteuert das die Lizenz spürbar. Site: Pauschale pro Jahr, Nutzerzahl egal, keine Lizenz-Administration, keine Mindestpakete.</div></div>'+(S.licModel==='site'?'<div class="preset-row"><span class="preset-lbl">Site-Indikation:</span><button class="preset-btn" data-site="inforiver">Inforiver Domain-wide · 12–90 k€</button><button class="preset-btn" data-site="zebra">Zebra Enterprise Site · 25–150 k€ (Schätzung)</button><button class="preset-btn" data-site="gross">Konzern-Rahmenvertrag · 80–300 k€ (Schätzung)</button></div>':''):'';
   const rows=OPTP.filter(p=>S.p[key][p.id]!==undefined&&!(key==='paid'&&((S.licModel==='site'&&p.id==='lic')||(S.licModel!=='site'&&p.id==='licSite')))).map(p=>paramRow(p,S.p[key][p.id],'p:'+key)).join('');
   return dev+lic+'<div class="a-row head"><div>'+esc(OPTS[OK[key]].name)+'</div><div>min</div><div>wahrsch.</div><div>max</div><div></div></div>'+rows;
 }
@@ -954,7 +995,8 @@ function renderParams(){
   document.querySelectorAll('[data-dev]').forEach(b=>b.addEventListener('click',()=>{S.p.oss.devH=({ready:[0,0,0],ki:[40,200,600],classic:[800,2000,3000]})[b.dataset.dev].slice();pendingToast='Open Source: '+b.textContent;renderParams();update();}));
   document.querySelectorAll('#lic-seg button').forEach(b=>b.addEventListener('click',()=>{S.licModel=b.dataset.lm;pendingToast='Lizenzmodell: '+b.textContent;renderParams();update();}));
   document.querySelectorAll('.a-row input[type=number]').forEach(inp=>inp.addEventListener('change',()=>{
-    let v=parseFloat(inp.value);if(!isFinite(v)||v<0){toast('Bitte eine Zahl ≥ 0 eingeben.');renderParams();return;}v=Math.min(v,1e9);const sc=inp.dataset.scope,id=inp.dataset.id,i=+inp.dataset.i;
+    const sc=inp.dataset.scope,id=inp.dataset.id,i=+inp.dataset.i;const pdef=GLOBAL.concat(OPTP).find(x=>x.id===id)||{};const mn=pdef.min===undefined?0:pdef.min; /* C1: einzelne Annahmen duerfen negativ werden (Viewer-Wachstum, Produktivitaetsgewinn) */
+    let v=parseFloat(inp.value);if(!isFinite(v)||v<mn){toast('Bitte eine Zahl ≥ '+mn+' eingeben.');renderParams();return;}v=Math.min(v,1e9);
     const t=sc==='g'?S.g[id]:S.p[sc.slice(2)][id];const before=t.slice();t[i]=v;
     if(t[0]>t[1])t[1]=t[0];if(t[2]<t[1])t[2]=t[1];if(t[1]<t[0])t[0]=t[1];
     const lbl=(GLOBAL.concat(OPTP).find(p=>p.id===id)||{}).label||id;
@@ -1022,16 +1064,16 @@ function update(){
       if(bc<sq.noRead50)t+='<p class="hint" style="margin:0"><b>'+esc(b.short)+'</b> ('+fmtEur(bc)+') liegt unter dem Status quo <b>auch ohne Leserzeit</b> ('+fmtEur(sq.noRead50)+'). Der Standard rechnet sich schon über Bau und Wartung; die Leserzeit ist Zugabe.</p>';
       else if(bc<sq.p50)t+='<p class="hint" style="margin:0"><b>'+esc(b.short)+'</b> ('+fmtEur(bc)+') liegt unter dem Status quo ('+fmtEur(sq.p50)+') <b>nur, wenn die Leserzeit zählt</b>: ab '+fmtN(Math.max(0,needMin),1)+' Minuten je Viewer und Woche (eure Annahme: '+fmtN(S.g.sqReadMin[1],1)+'). Ohne Leserzeit ist der Status quo '+fmtEur(bc-sq.noRead50)+' günstiger. Diese Minuten sind der am wenigsten belegte Wert im ganzen Rechner.</p>';
       else t+='<p class="hint" style="margin:0">Der Status quo ('+fmtEur(sq.p50)+') ist im Modell günstiger als der günstigste zulässige Ansatz <b>'+esc(b.short)+'</b> ('+fmtEur(bc)+'). Ein Standard braucht dann andere Gründe (Konsistenz, Prüfbarkeit, komplexe Charts, die ad hoc gar nicht entstehen) oder mehr Viewer'+(readOn?'; rechnerisch wären '+fmtN(Math.max(0,needMin),1)+' Minuten Leserzeit je Viewer und Woche nötig':'')+'.</p>';}
-    {const H=S.horizon;const py=v=>v===null?'nie im Horizont':(v===0?'sofort (Jahr 0)':'nach '+v+' Jahr'+(v===1?'':'en'));
+    {const H=S.horizon;const py=v=>v===null?'nie im Horizont':'im Jahr '+v;
       const lines=order.map(o=>{const cfA=sim[o.key].ex.cf;return '<b>'+esc(o.short)+'</b> amortisiert gegen den Status quo '+py(paybackYear(cfA,sq.ex.cf,H))+', ohne Leserzeit '+py(paybackYear(cfA,sq.ex.cfNoRead,H));});
       t+='<p class="hint" style="margin:8px 0 0"><b>Amortisation gegen den Status quo</b> (kumulierte Kosten, Erwartungswerte): '+lines.join(' · ')+'. Ohne Leserzeit ist die zweite Zahl maßgeblich — sie ist der am schwächsten belegte Posten des Modells.</p>';}
     t+='<p class="hint" style="margin:8px 0 0">Die Null-Option baut dieselben Reports mit Core Visuals ohne Vorlage. Sie kann keine komplexen Charts (Wasserfall mit Szenario-Notation) liefern; dieser Nutzenverlust ist nicht bepreist. Annahmen unter Schritt 4, Präfix „Null-Option“.</p>';
     document.getElementById('nulloption').innerHTML=t;}
   /* A3: Cash-out je Jahr, hart gegen weich */
   {let t='<h3>Cash-out je Jahr <span class="eyebrow">hart = Auszahlung (Lizenz, Support, Capacity, Kurse, externe Stunden) · weich = intern bewertete Zeit</span></h3>';
-   t+='<p class="hint">Erwartungswerte je Ansatz. Jahr 0 ist der Aufbau (Setup, Entwicklung, Rollout, Erstschulung, Freigabe), ab Jahr 1 laufen Lizenz, Wartung, Governance und Support. Ein Betrag von 400 k€ Lizenzrechnungen ist ein anderer Antrag als 400 k€ Zeit eines Teams, das ohnehin auf der Payroll steht.</p>';
+   t+='<p class="hint">Erwartungswerte je Ansatz, Jahr für Jahr gerechnet. In Jahr 1 stehen der Aufbau (Setup, Entwicklung, Erstschulung, Freigabe) und der erste Rollout-Jahrgang, danach wächst der Bestand weiter und Lizenz, Wartung, Governance und Support laufen mit. Ein Betrag von 400 k€ Lizenzrechnungen ist ein anderer Antrag als 400 k€ Zeit eines Teams, das ohnehin auf der Payroll steht.</p>';
    t+='<div class="tbl-scroll"><table class="res" style="white-space:nowrap"><thead><tr><th>Jahr</th>'+order.map(o=>'<th style="color:'+o.tcolor+'" colspan="3">'+esc(o.short)+'</th>').join('')+'</tr><tr><th></th>'+order.map(()=>'<th>hart</th><th>weich</th><th>gesamt</th>').join('')+'</tr></thead><tbody>';
-   for(let y=0;y<=S.horizon;y++){t+='<tr><td>'+(y===0?'Jahr 0 (Aufbau)':'Jahr '+y)+'</td>'+order.map(o=>{const e=sim[o.key].ex;return '<td>'+fmtEur(e.cfHard[y]||0)+'</td><td>'+fmtEur(e.cfSoft[y]||0)+'</td><td>'+fmtEur(e.cf[y]||0)+'</td>';}).join('')+'</tr>';}
+   for(let y=0;y<S.horizon;y++){t+='<tr><td>'+(y===0?'Jahr 1 (Aufbau + Betrieb)':'Jahr '+(y+1))+'</td>'+order.map(o=>{const e=sim[o.key].ex;return '<td>'+fmtEur(e.cfHard[y]||0)+'</td><td>'+fmtEur(e.cfSoft[y]||0)+'</td><td>'+fmtEur(e.cf[y]||0)+'</td>';}).join('')+'</tr>';}
    t+='<tr class="total"><td>Summe über '+S.horizon+' Jahre</td>'+order.map(o=>{const e=sim[o.key].ex;const sh=e.cfHard.reduce((a,b)=>a+b,0),ss=e.cfSoft.reduce((a,b)=>a+b,0);return '<td>'+fmtEur(sh)+'</td><td>'+fmtEur(ss)+'</td><td>'+fmtEur(sh+ss)+'</td>';}).join('')+'</tr>';
    t+='</tbody></table></div>';
    document.getElementById('cashout').innerHTML=t;}
@@ -1039,7 +1081,7 @@ function update(){
   const cf=conflicts();document.getElementById('conflict-box').innerHTML=cf.map(c=>'<div class="conflict">'+c+'</div>').join('');
   /* KPI-Karten */
   const card=(o,lbl)=>{const s=sim[o.key],e=ev[o.key];const isBest=best&&o.key===best.key;
-    return '<div class="kpi'+(lbl===null?' excluded':'')+(isBest?' best':'')+'" style="--oc:'+o.color+';--oct:'+o.tcolor+'"><span class="rank">'+(lbl===null?'K.O.':lbl)+'</span><div class="eyebrow">'+esc(o.tag)+'</div><div class="name">'+esc(o.name)+'</div><div class="big">'+fmtEur(s[qk])+'<small>'+S.horizon+' J.</small></div><div class="range">'+QL+' · P10–P90 '+fmtEur(s.p10)+' – '+fmtEur(s.p90)+(pertMean(S.g.disc)>0?' · Barwert '+fmtEur(s.npv):'')+'</div><div class="per"><b>'+fmtEur(s[qk]/perDiv)+'</b> '+perLabel()+'</div><div class="per" style="font-size:11px;color:var(--ink-soft)">Invest '+fmtEur(s.invest)+' · laufend '+fmtEur(s.yearly)+'/Jahr<br>Erster Standard-Report ≈ '+fmtN(s.firstReportH,0)+' h · jeder weitere ≈ '+fmtN(s.nextReportH,1)+' h<br>'+fmtN(s.ex.hoursInt,0)+' h intern über '+S.horizon+' Jahre · im ersten Jahr '+fmtN(s.ex.hoursIntY[0],0)+' h = '+fmtN(s.ex.fteY1,1)+' FTE (1.500 h je FTE und Jahr)<br>Ausstieg nach '+S.horizon+' Jahren: '+fmtN(s.ex.exitH,0)+' h ≈ '+fmtEur(s.ex.exitCost)+' (nicht in der Summe)</div>'+(s.ex.capWarn?'<div class="ko-note" style="color:#8C5518">⚠ Das Team hat dafür keine Kapazität neben dem Tagesgeschäft: '+fmtN(s.ex.hoursIntY[0],0)+' h im ersten Jahr sind mehr als 30 % der Kapazität von '+fmtN(S.creators)+' Erstellern ('+fmtN(s.ex.capCreators,0)+' h).</div>':'')+'<div class="score">Anforderungs-Score '+e.scorePct+' %'+(lbl===null?' (enthält ein Must mit 1 Punkt)':'')+'<div class="bar"><i style="width:'+e.scorePct+'%"></i></div></div>'+(e.ko.length?'<div class="ko-note">✕ '+e.ko.map(esc).join('<br>✕ ')+'</div>':'')+(e.warn.length?'<div class="ko-note" style="color:#8C5518">⚠ '+e.warn.map(esc).join('<br>⚠ ')+'</div>':'')+'</div>';};
+    return '<div class="kpi'+(lbl===null?' excluded':'')+(isBest?' best':'')+'" style="--oc:'+o.color+';--oct:'+o.tcolor+'"><span class="rank">'+(lbl===null?'K.O.':lbl)+'</span><div class="eyebrow">'+esc(o.tag)+'</div><div class="name">'+esc(o.name)+'</div><div class="big">'+fmtEur(s[qk])+'<small>'+S.horizon+' J.</small></div><div class="range">'+QL+' · P10–P90 '+fmtEur(s.p10)+' – '+fmtEur(s.p90)+(pertMean(S.g.disc)>0?' · Barwert '+fmtEur(s.npv):'')+'</div><div class="per"><b>'+fmtEur(s[qk]/perDiv)+'</b> '+perLabel()+'</div><div class="per" style="font-size:11px;color:var(--ink-soft)">Invest '+fmtEur(s.invest)+' · laufend '+fmtEur(s.yearly)+'/Jahr<br>Erster Standard-Report ≈ '+fmtN(s.firstReportH,0)+' h · jeder weitere im letzten Jahr ≈ '+fmtN(s.nextReportH,1)+' h (Grenzaufwand)<br>'+fmtN(s.ex.hoursInt,0)+' h intern über '+S.horizon+' Jahre · im ersten Jahr '+fmtN(s.ex.hoursIntY[0],0)+' h = '+fmtN(s.ex.fteY1,1)+' FTE (1.500 h je FTE und Jahr)<br>Ausstieg nach '+S.horizon+' Jahren: '+fmtN(s.ex.exitH,0)+' h ≈ '+fmtEur(s.ex.exitCost)+' (Bindungsgrad '+fmtN(100*s.ex.exitLock,0)+' %'+(s.ex.exitLic>0?' · inkl. '+s.ex.exitRest+' Jahr'+(s.ex.exitRest===1?'':'e')+' Restlaufzeit '+fmtEur(s.ex.exitLic):'')+', nicht in der Summe)</div>'+(s.ex.capWarn?'<div class="ko-note" style="color:#8C5518">⚠ Das Team hat dafür keine Kapazität neben dem Tagesgeschäft: '+fmtN(s.ex.hoursIntY[0],0)+' h im ersten Jahr sind mehr als 30 % der Kapazität von '+fmtN(S.creators)+' Erstellern ('+fmtN(s.ex.capCreators,0)+' h).</div>':'')+'<div class="score">Anforderungs-Score '+e.scorePct+' %'+(lbl===null?' (enthält ein Must mit 1 Punkt)':'')+'<div class="bar"><i style="width:'+e.scorePct+'%"></i></div></div>'+(e.ko.length?'<div class="ko-note">✕ '+e.ko.map(esc).join('<br>✕ ')+'</div>':'')+(e.warn.length?'<div class="ko-note" style="color:#8C5518">⚠ '+e.warn.map(esc).join('<br>⚠ ')+'</div>':'')+'</div>';};
   document.getElementById('kpi-allowed').innerHTML=ranked.map((o,i)=>card(o,placeLabel(i))).join('');
   document.getElementById('ko-block').innerHTML=excluded.length?'<div class="divider">Ausgeschlossen durch K.O.-Kriterien</div><div class="kpi-grid">'+excluded.map(o=>card(o,null)).join('')+'</div><div class="ko-list"><b>Warum ausgeschlossen, und was die Rahmenbedingung kostet:</b><ul>'+excluded.map(o=>{const d=best?qv(o)-qv(best):0;return '<li><b style="color:'+o.tcolor+'">'+esc(o.name)+'</b>: '+ev[o.key].ko.map(esc).join('; ')+(best?' → wäre '+(d<0?fmtEur(-d)+' günstiger':fmtEur(d)+' teurer')+' als die beste zulässige Option.':'')+'</li>';}).join('')+'</ul></div>':'';
   /* Charts, Tabelle, Karten */
@@ -1122,14 +1164,14 @@ function drawTornado(best,ev){
 function drawCumulative(sim,ev,order){
   const W=560,H=260,padL=76,padR=120,padT=18,padB=34;const H_=S.horizon;
   const uf=S.view==='per'?1/(S.per==='viewer'?Math.max(viewersAvg(pertMean(S.g.growth)),1):S.creators+viewersAvg(pertMean(S.g.growth))):1;
-  const series=order.map(o=>{const cf=sim[o.key].cf;const pts=[];let acc=0;cf.forEach((v,yv)=>{acc+=v;pts.push([yv,acc*uf]);});return {o,pts};});
+  const series=order.map(o=>{const cf=sim[o.key].cf;const pts=[[0,0]];let acc=0;cf.forEach((v,yv)=>{acc+=v;pts.push([yv+1,acc*uf]);});return {o,pts};}); /* B1: Index 0 der Zahlungsreihe ist Jahr 1 */
   const ymax=niceMax(Math.max(...series.flatMap(s=>s.pts.map(p=>p[1]))),4);
   const x=v=>padL+v/H_*(W-padL-padR),y=c=>H-padB-safe(c)/ymax*(H-padT-padB);
   const labY=labelSpread(series.map(({o,pts})=>({k:o.key,y:y(pts[pts.length-1][1])})));
   let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Kumulierte Kosten">';
   for(let i=0;i<=4;i++){const c=ymax*i/4;s+='<line x1="'+padL+'" y1="'+y(c)+'" x2="'+(W-padR)+'" y2="'+y(c)+'" stroke="#E7E2D4"/><text x="'+(padL-6)+'" y="'+(y(c)+4)+'" font-size="12" text-anchor="end" fill="#5B5D52">'+fmtEur(c)+'</text>';}
   for(let yv=0;yv<=H_;yv++)s+='<text x="'+x(yv)+'" y="'+(H-padB+16)+'" font-size="12" text-anchor="middle" fill="#5B5D52">'+(yv===0?'Start':'Jahr '+yv)+'</text>';
-  series.forEach(({o,pts})=>{const ex=ev[o.key].ko.length>0;const d=pts.map((p,i)=>(i?'L':'M')+x(p[0])+' '+y(p[1])).join(' ');s+='<path d="'+d+'" fill="none" stroke="'+o.color+'" stroke-width="2.5"'+(ex?' stroke-dasharray="5 4" opacity=".55"':'')+'/>';pts.forEach(p=>s+='<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="3.5" fill="'+o.color+'" stroke="#fff" stroke-width="1.5"><title>'+esc(o.name)+' · '+(p[0]===0?'Invest':'bis Jahr '+p[0])+': '+fmtEur(p[1])+'</title></circle>');const last=pts[pts.length-1];s+='<text x="'+(x(last[0])+6)+'" y="'+(labY[o.key]+4)+'" font-size="12.5" fill="'+o.tcolor+'" font-weight="600">'+esc(o.short)+'</text>';});
+  series.forEach(({o,pts})=>{const ex=ev[o.key].ko.length>0;const d=pts.map((p,i)=>(i?'L':'M')+x(p[0])+' '+y(p[1])).join(' ');s+='<path d="'+d+'" fill="none" stroke="'+o.color+'" stroke-width="2.5"'+(ex?' stroke-dasharray="5 4" opacity=".55"':'')+'/>';pts.forEach(p=>s+='<circle cx="'+x(p[0])+'" cy="'+y(p[1])+'" r="3.5" fill="'+o.color+'" stroke="#fff" stroke-width="1.5"><title>'+esc(o.name)+' · '+(p[0]===0?'Start':'bis Jahr '+p[0])+': '+fmtEur(p[1])+'</title></circle>');const last=pts[pts.length-1];s+='<text x="'+(x(last[0])+6)+'" y="'+(labY[o.key]+4)+'" font-size="12.5" fill="'+o.tcolor+'" font-weight="600">'+esc(o.short)+'</text>';});
   s+='</svg>';document.getElementById('chart-cum').innerHTML=s;document.getElementById('chart4-h').textContent=(S.view==='per'?'je '+(S.per==='viewer'?'Viewer':'Nutzer')+', kumuliert':'absolut')+' · Lizenzen wachsen mit Viewern und Preis';
 }
 /* ---------- Tabelle ---------- */
@@ -1140,15 +1182,15 @@ function renderTable(sim,ev,perDiv,order){
   h+='<tr class="total"><td>Gesamt über '+S.horizon+' Jahre (P50)</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].p50)+'</td>').join('')+'</tr>';
   h+='<tr><td>Spanne P10 – P90</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].p10)+' – '+fmtEur(sim[o.key].p90)+'</td>').join('')+'</tr>';
   h+='<tr><td>Barwert bei '+fmtN(pertMean(S.g.disc),1)+' % Kalkulationszins</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].npv)+'</td>').join('')+'</tr>';
-  h+='<tr><td>Invest (Start)</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].invest)+'</td>').join('')+'</tr>';
+  h+='<tr><td>Invest (Aufbau, Migration, Freigabe, Erstschulung + erster Rollout-Jahrgang)</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].invest)+'</td>').join('')+'</tr>';
   h+='<tr><td>Laufend je Jahr (Mittel)</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].yearly)+'</td>').join('')+'</tr>';
   h+='<tr><td>'+perLabel().replace(/^je/,'Je')+'</td>'+order.map(o=>'<td>'+fmtEur(sim[o.key].p50/perDiv)+'</td>').join('')+'</tr>';
-  h+='<tr><td>Erster Standard-Report (h) · jeder weitere (h)</td>'+order.map(o=>'<td>'+fmtN(sim[o.key].firstReportH,0)+' · '+fmtN(sim[o.key].nextReportH,1)+'</td>').join('')+'</tr>';
+  h+='<tr><td>Erster Standard-Report (h) · jeder weitere im letzten Jahr (h, Grenzaufwand)</td>'+order.map(o=>'<td>'+fmtN(sim[o.key].firstReportH,0)+' · '+fmtN(sim[o.key].nextReportH,1)+'</td>').join('')+'</tr>';
   h+='<tr><td>Abkündigung: Wahrscheinlichkeit über '+S.horizon+' Jahre</td>'+order.map(o=>'<td>'+fmtN(sim[o.key].pH*100,0)+' %</td>').join('')+'</tr>';
   h+='<tr><td>Anforderungs-Score</td>'+order.map(o=>'<td>'+ev[o.key].scorePct+' %</td>').join('')+'</tr>';
-  h+='<tr><td>Ausstieg nach '+S.horizon+' Jahren (Nachbau des Bestands beim Verlassen)</td>'+order.map(o=>'<td>'+fmtN(sim[o.key].ex.exitH,0)+' h ≈ '+fmtEur(sim[o.key].ex.exitCost)+'</td>').join('')+'</tr>';
+  h+='<tr><td>Ausstieg nach '+S.horizon+' Jahren (Nachbau des Bestands beim Verlassen)</td>'+order.map(o=>'<td>'+fmtN(sim[o.key].ex.exitH,0)+' h ≈ '+fmtEur(sim[o.key].ex.exitCost)+(sim[o.key].ex.exitLic>0?'<br><span style="font-size:11px">davon '+fmtEur(sim[o.key].ex.exitLic)+' Restlaufzeit ('+sim[o.key].ex.exitRest+' Jahr'+(sim[o.key].ex.exitRest===1?'':'e')+')</span>':'')+'</td>').join('')+'</tr>';
   h+='<tr><td>Interne Stunden über '+S.horizon+' Jahre · erstes Jahr</td>'+order.map(o=>'<td>'+fmtN(sim[o.key].ex.hoursInt,0)+' h · '+fmtN(sim[o.key].ex.hoursIntY[0],0)+' h = '+fmtN(sim[o.key].ex.fteY1,1)+' FTE</td>').join('')+'</tr>';
-  h+='<tr><td colspan="'+(order.length+1)+'" style="text-align:left;font-family:var(--sans);font-size:11px;color:var(--ink-soft)">Kategorien sind Erwartungswerte, proportional auf den Median (P50) skaliert. Betriebsmodell '+esc(modeParams().label)+': '+ownersOf()+' von '+S.creators+' Erstellern bauen Vorlagen; Reports inkl. Nachfrage-Wachstum ≈ '+fmtN(sim.paid.reportsTotal,0)+'. Aktivierungsfähig wären Setup, Eigenentwicklung und Chart-Aufbau (§ 248 Abs. 2 HGB Wahlrecht, IAS 38); hier nicht modelliert. Die Ausstiegskosten stehen als eigene Kennzahl unter dem Strich: sie sind weder in der Summe noch in der Rangfolge enthalten und nähern den Nachbau von Bestand und ausgerollten Reports mit den Wiederverwendungs-Stunden des verlassenen Ansatzes. Interne Stunden zu 1.500 h je FTE und Jahr.</td></tr>';
+  h+='<tr><td colspan="'+(order.length+1)+'" style="text-align:left;font-family:var(--sans);font-size:11px;color:var(--ink-soft)">Kategorien sind Erwartungswerte, proportional auf den Median (P50) skaliert. Betriebsmodell '+esc(modeParams().label)+': '+ownersOf()+' von '+S.creators+' Erstellern bauen Vorlagen; Reports inkl. Nachfrage-Wachstum ≈ '+fmtN(sim.paid.reportsTotal,0)+'. Aktivierungsfähig wären Setup, Eigenentwicklung und Chart-Aufbau (§ 248 Abs. 2 HGB Wahlrecht, IAS 38); hier nicht modelliert. Die Ausstiegskosten stehen als eigene Kennzahl unter dem Strich: sie sind weder in der Summe noch in der Rangfolge enthalten und nähern den Nachbau von Bestand und ausgerollten Reports mit den Wiederverwendungs-Stunden des verlassenen Ansatzes, gewichtet mit dem Bindungsgrad je Ansatz (Annahme „Bindungsgrad beim Ausstieg“, begünstigt Deneb und Core) und bei Paid zuzüglich der Restlaufzeit des Vertrags. Interne Stunden zu 1.500 h je FTE und Jahr.</td></tr>';
   document.getElementById('res-table').innerHTML=h+'</tbody>';
 }
 /* ---------- Textbausteine ---------- */
@@ -1163,7 +1205,7 @@ function renderOptCards(sim,ev,order){
 /* ---------- Anhang / Footer ---------- */
 function renderSources(){
   document.getElementById('sources').innerHTML='<thead><tr><th>Quelle</th><th>Was drin steht</th><th>Status</th></tr></thead><tbody>'+SOURCES.map(([n,w,u,s])=>'<tr><td><a href="'+u+'" target="_blank" rel="noopener">'+esc(n)+'</a></td><td>'+esc(w)+'</td><td><span class="badge '+s+'">'+s+'</span></td></tr>').join('')+'</tbody>';
-  document.getElementById('footer').innerHTML='<details class="foot"><summary>Methodik, Grenzen, Datenschutz</summary><b>Methodik:</b> Je Ansatz werden Lizenz und Support (Nutzer × Preis × Jahre), Aufbau (Setup, optionale Eigenentwicklung, Chart-Typen × Stunden × Stundensatz-Mix), Rollout (Reports × Charts × Wiederverwendungs-Stunden), Schulung (Ersteller × Stunden und Kurskosten, wiederkehrend über die Fluktuation), Lizenz mit Viewer-Wachstum und Preissteigerung je Jahr, Wartung (Quote × Aufbau + Rollout × Jahre plus Breaking-Updates) und Abkündigungsrisiko (Wahrscheinlichkeit × Migrationsanteil × Aufbau) addiert. Jede Annahme ist eine Dreipunkt-Schätzung, aus der per PERT-Verteilung 1.500 Szenarien gezogen werden; angezeigt werden P10, P50 und P90. Break-even und Sensitivität nutzen den PERT-Erwartungswert. K.O.-Kriterien (Must mit 0 Punkten, Governance-Schalter) filtern vor der Rangfolge; ausgeschlossene Ansätze bleiben zur Einordnung sichtbar. Der Anforderungs-Score ist eine Nutzwertanalyse (Must 3, Should 2, Could 1 als Gewicht, Erfüllungsgrad 1 bis 5) und bewusst nur über den Regler in die Rangfolge einbezogen. Governance und Anwender-Support wachsen mit der Viewer-Zahl (log-linear von 50 bis 5.000 Viewern), das Betriebsmodell trennt tief geschulte Vorlagen-Bauer von Vorlagen-Nutzern und skaliert Varianten, Support und Governance. Lizenzen wachsen mit Viewern und Preis, Stundensätze mit der Lohnsteigerung, die Wartung klingt ab. Das Abkündigungsrisiko wird als Jahresrate über den Horizont akkumuliert und in der Simulation als Ereignis gezogen. Der Barwert nutzt den Kalkulationszins auf den Zahlungsstrom je Jahr. Die Rangfolge nutzt das Kostenverhältnis zur günstigsten Option (auch ausgeschlossene), damit eine chancenlose dritte Option die Reihenfolge der anderen nicht verschiebt; Plätze mit überlappenden P10–P90-Bändern werden zusammengefasst. Beträge sind auf zwei signifikante Stellen gerundet. Audit 09/2026 (drei Opus- und drei Sonnet-Prüfungen, Blindschätzung, Web-Verifikation): Fluktuationsschulung rollendifferenziert, Abkündigungsrisiko inklusive 60 % des Rollouts, Freigabe je Visual-Paket statt je Chart-Typ, Lizenz-Administration degressiv und bei Site-Lizenz null, Staffel je Jahr, Governance log-linear, Bewertung interner Stunden als Konstante; 22 Defaults neu gesetzt, Herkunft je Wert im Badge. v0.8: Chart-Mix nach Komplexität (Faktoren je Ansatz, Panel-Stunden gelten für 50 / 35 / 15), Lernkurve nach Wright auf die Wiederverwendung (Panelwert = 10. Chart je Ersteller, Untergrenze 50 %), Null-Option „kein Standard“ als Vergleich außerhalb der Rangfolge mit getrennt ausgewiesener Leserzeit. v0.10: Varianten-Anfälligkeit als eigene Annahme je Ansatz statt Kopplung an den Design-Score, Schalter „Vorlagenbibliothek vorhanden“ für Deneb und Core (Default aus, eigenes Projekt), Lizenz-Anker auf Ebene 1 mit Ausweis, wer bei allen drei Ankern vorn liegt. v0.11 (Annahmen-Audit Runde 2, Paket A): gepaarte Ziehung — je Parameter ein eigener Zufallsstrom, den alle vier Ansätze teilen, umschaltbar; Rollout trägt die Lohnsteigerung auf dem über den Horizont entstehenden Zuwachs; Cash-out je Jahr getrennt nach Auszahlung und interner Zeit (Tabelle und Excel-Blatt); Amortisation gegen die Null-Option mit und ohne Leserzeit; interne Stunden und FTE je Ansatz mit Kapazitätswarnung (1.500 h je FTE und Jahr); Entscheidungsgröße P50 / P75 / P90 umschaltbar (Rangfolge nach P90 = konservativ); Ausstiegskosten als eigene Kennzahl außerhalb der Summe; Viewer-Deckel gegen unbegrenztes Wachstum; Null-Option mit den Core-Komplexitätsfaktoren des Chart-Mix; Untergrenze 50 % auf dem Produkt Bibliothek × Lernkurve statt nur auf der Lernkurve; neue Defaults mit Quelle für Stundensätze, Lohnsteigerung, Lizenzpreis-Steigerung, Zebra-Anker (abgeleitet), Site-Lizenz, Abkündigungsrisiko Core und laufende Governance Deneb (2.0 am 08.09.2026). v0.11 (Paket B): Red Flag „nur zertifizierte Visuals“ präzisiert (das Tenant-Setting gilt für AppSource, nicht für den Organizational Store) und Modifier „OSS-Visual über den Organizational Store“ ergänzt, der den K.O. aufhebt, ohne die Freigabe-Stunden zu senken; drei neue Anforderungen (KI-gestützte Erstellung über PBIR / Agent-Skills, Barrierefreiheit, Datenexport aus dem Visual) und ein korrigiertes Kriterium „große Datenmengen“, weil das 30.000-Zeilen-Fenster das SDK-Limit jedes Custom Visuals ist; Quellen- und Hinweistexte richtiggestellt (Leserzeit-Studie blueforte / TU München 2019 statt Zebra BI, Währungsband statt „1 $ ≈ 1 € konservativ“, Preiserhöhung als Modellwechsel, kostenlose Desktop-Pfade, cx0 und Lernkurven-Anker benannt). Details in der Markdown-Fassung. Die Monte-Carlo-Seite (Schritt 6) zieht zusätzlich das Mengengerüst je Szenario mit der gewählten Schwankungsbreite und wertet Verteilung, Rangfolge-Sicherheit, hart gegen weich, Erstellung gegen Nutzung, Rangkorrelationen (Spearman) und eine Skalen-Simulation bei festem Verhältnis Ersteller : Viewer aus. Paginated Reports (RDL) sind nicht enthalten: Power-BI-Custom-Visuals existieren dort nicht, weder gekauft noch Deneb noch Core — ein gedrucktes Berichtsheft entsteht bei allen vier Ansätzen ein zweites Mal. Power-BI-Grundlizenzen (Pro, PPU, Capacity-Grundpreis) fallen für alle Ansätze gleich an und sind nicht enthalten, ebenso die Nutzen-Seite (nur als Score und als „€ je Anforderungspunkt\“), Aktivierung/Abschreibung und steuerliche Fragen (z. B. § 50a EStG bei Lizenzen ausländischer Anbieter). <b>Alle Zahlen sind Indikationen unter Unsicherheit</b>, keine Angebote. Die Berechnung läuft lokal im Browser. Der Share-Link enthält eure Eingaben unverschlüsselt im URL-Fragment; wer den Link hat, sieht die Annahmen. Schriften werden von Google Fonts geladen; der Excel-Export lädt die Bibliothek SheetJS zuerst lokal, sonst von cdnjs.cloudflare.com (dabei sehen Google bzw. Cloudflare eure IP-Adresse, keine Eingaben).</details><div class="footer-version"><a href="md/visual-standards-rechner.md" style="color:var(--accent-text)">Markdown-Fassung (Modell, Annahmen, Quellen)</a> · Visual-Standards-Rechner v0.11 · Michael Tenner &amp; Diana Ackermann · Daten-WG Knowledge Kitchen · Stand 09/2026 · Pre-Conference „Visual Standards in Power BI für Controlling und Finance“</div>';
+  document.getElementById('footer').innerHTML='<details class="foot"><summary>Methodik, Grenzen, Datenschutz</summary><b>Methodik:</b> Je Ansatz werden Lizenz und Support (Nutzer × Preis × Jahre), Aufbau (Setup, optionale Eigenentwicklung, Chart-Typen × Stunden × Stundensatz-Mix), Rollout (Reports × Charts × Wiederverwendungs-Stunden), Schulung (Ersteller × Stunden und Kurskosten, wiederkehrend über die Fluktuation), Lizenz mit Viewer-Wachstum und Preissteigerung je Jahr, Wartung (Quote × Aufbau + Rollout × Jahre plus Breaking-Updates) und Abkündigungsrisiko (Wahrscheinlichkeit × Migrationsanteil × Aufbau) addiert. Jede Annahme ist eine Dreipunkt-Schätzung, aus der per PERT-Verteilung 1.500 Szenarien gezogen werden; angezeigt werden P10, P50 und P90. Break-even und Sensitivität nutzen den PERT-Erwartungswert. K.O.-Kriterien (Must mit 0 Punkten, Governance-Schalter) filtern vor der Rangfolge; ausgeschlossene Ansätze bleiben zur Einordnung sichtbar. Der Anforderungs-Score ist eine Nutzwertanalyse (Must 3, Should 2, Could 1 als Gewicht, Erfüllungsgrad 1 bis 5) und bewusst nur über den Regler in die Rangfolge einbezogen. Governance und Anwender-Support wachsen mit der Viewer-Zahl (log-linear von 50 bis 5.000 Viewern), das Betriebsmodell trennt tief geschulte Vorlagen-Bauer von Vorlagen-Nutzern und skaliert Varianten, Support und Governance. Lizenzen wachsen mit Viewern und Preis, Stundensätze mit der Lohnsteigerung, die laufenden internen Stunden sinken mit dem Produktivitätsgewinn, die Wartung folgt dem Trend je Kohortenalter. Das Abkündigungsrisiko ist eine Gefahrenrate je Jahr: im Erwartungswert die Summe über die Jahre, in der Simulation ein gezogenes Ereignisjahr, der Schaden jeweils am Bestand dieses Jahres. Der Barwert nutzt den Kalkulationszins auf den Zahlungsstrom je Jahr. Die Rangfolge nutzt das Kostenverhältnis zur günstigsten Option (auch ausgeschlossene), damit eine chancenlose dritte Option die Reihenfolge der anderen nicht verschiebt; Plätze mit überlappenden P10–P90-Bändern werden zusammengefasst. Beträge sind auf zwei signifikante Stellen gerundet. Audit 09/2026 (drei Opus- und drei Sonnet-Prüfungen, Blindschätzung, Web-Verifikation): Fluktuationsschulung rollendifferenziert, Abkündigungsrisiko inklusive 60 % des Rollouts, Freigabe je Visual-Paket statt je Chart-Typ, Lizenz-Administration degressiv und bei Site-Lizenz null, Staffel je Jahr, Governance log-linear, Bewertung interner Stunden als Konstante; 22 Defaults neu gesetzt, Herkunft je Wert im Badge. v0.8: Chart-Mix nach Komplexität (Faktoren je Ansatz, Panel-Stunden gelten für 50 / 35 / 15), Lernkurve nach Wright auf die Wiederverwendung (Panelwert = 10. Chart je Ersteller, Untergrenze 50 %), Null-Option „kein Standard“ als Vergleich außerhalb der Rangfolge mit getrennt ausgewiesener Leserzeit. v0.10: Varianten-Anfälligkeit als eigene Annahme je Ansatz statt Kopplung an den Design-Score, Schalter „Vorlagenbibliothek vorhanden“ für Deneb und Core (Default aus, eigenes Projekt), Lizenz-Anker auf Ebene 1 mit Ausweis, wer bei allen drei Ankern vorn liegt. v0.11 (Annahmen-Audit Runde 2, Paket A): gepaarte Ziehung — je Parameter ein eigener Zufallsstrom, den alle vier Ansätze teilen, umschaltbar; Rollout trägt die Lohnsteigerung auf dem über den Horizont entstehenden Zuwachs; Cash-out je Jahr getrennt nach Auszahlung und interner Zeit (Tabelle und Excel-Blatt); Amortisation gegen die Null-Option mit und ohne Leserzeit; interne Stunden und FTE je Ansatz mit Kapazitätswarnung (1.500 h je FTE und Jahr); Entscheidungsgröße P50 / P75 / P90 umschaltbar (Rangfolge nach P90 = konservativ); Ausstiegskosten als eigene Kennzahl außerhalb der Summe; Viewer-Deckel gegen unbegrenztes Wachstum; Null-Option mit den Core-Komplexitätsfaktoren des Chart-Mix; Untergrenze 50 % auf dem Produkt Bibliothek × Lernkurve statt nur auf der Lernkurve; neue Defaults mit Quelle für Stundensätze, Lohnsteigerung, Lizenzpreis-Steigerung, Zebra-Anker (abgeleitet), Site-Lizenz, Abkündigungsrisiko Core und laufende Governance Deneb (2.0 am 08.09.2026). v0.11 (Paket B): Red Flag „nur zertifizierte Visuals“ präzisiert (das Tenant-Setting gilt für AppSource, nicht für den Organizational Store) und Modifier „OSS-Visual über den Organizational Store“ ergänzt, der den K.O. aufhebt, ohne die Freigabe-Stunden zu senken; drei neue Anforderungen (KI-gestützte Erstellung über PBIR / Agent-Skills, Barrierefreiheit, Datenexport aus dem Visual) und ein korrigiertes Kriterium „große Datenmengen“, weil das 30.000-Zeilen-Fenster das SDK-Limit jedes Custom Visuals ist; Quellen- und Hinweistexte richtiggestellt (Leserzeit-Studie blueforte / TU München 2019 statt Zebra BI, Währungsband statt „1 $ ≈ 1 € konservativ“, Preiserhöhung als Modellwechsel, kostenlose Desktop-Pfade, cx0 und Lernkurven-Anker benannt). v0.12 (Paket C1, Rechenkern): der Kern rechnet Jahr für Jahr statt mit Mittelwert-Produkten — Bestand und Rollout-Kohorten je Jahr, Wartung nur auf dem vorhandenen Bestand mit Alterung ab dem eigenen Entstehungsjahr, Lizenz mit Staffel, Mindestpaketen und Viewer-Deckel je Jahr, Lohnsteigerung und Produktivitätsgewinn je Jahr, Lernkurve auf die kumulierte Zahl gebauter Charts je Ersteller. Dadurch werden Barwert, Zahlungsstrom und das Kumulativ-Chart erstmals belastbar (die nominale Summe ändert sich nur um −4,5 bis +0,1 %, weil sich zu billiger Rollout und zu teure Wartung bisher gegenseitig aufgehoben haben). Neu dazu: Rollout-Dauer für den Bestand (nicht mehr alles in Jahr 1), Produktivitätsgewinn je Ansatz als Gegenstück zur Lohnsteigerung, Wartungs-Trend je Kohortenalter statt Abklingen am Kalenderjahr, Abkündigung als Gefahrenrate mit gezogenem Ereignisjahr, gemeinsamer Team-Faktor je Szenario über alle vier Ansätze (das Niveau-Band wird breiter, das Differenz-Band bleibt eng), Mindestpakete und Mindestvertragslaufzeit bei Paid, Bindungsgrad beim Ausstieg je Ansatz, angeglichene Komplexitätsfaktoren und der Grenzaufwand des letzten Jahres statt des Horizontmittels bei „jeder weitere Report“. Details in der Markdown-Fassung. Die Monte-Carlo-Seite (Schritt 6) zieht zusätzlich das Mengengerüst je Szenario mit der gewählten Schwankungsbreite und wertet Verteilung, Rangfolge-Sicherheit, hart gegen weich, Erstellung gegen Nutzung, Rangkorrelationen (Spearman) und eine Skalen-Simulation bei festem Verhältnis Ersteller : Viewer aus. Paginated Reports (RDL) sind nicht enthalten: Power-BI-Custom-Visuals existieren dort nicht, weder gekauft noch Deneb noch Core — ein gedrucktes Berichtsheft entsteht bei allen vier Ansätzen ein zweites Mal. Power-BI-Grundlizenzen (Pro, PPU, Capacity-Grundpreis) fallen für alle Ansätze gleich an und sind nicht enthalten, ebenso die Nutzen-Seite (nur als Score und als „€ je Anforderungspunkt\“), Aktivierung/Abschreibung und steuerliche Fragen (z. B. § 50a EStG bei Lizenzen ausländischer Anbieter). <b>Alle Zahlen sind Indikationen unter Unsicherheit</b>, keine Angebote. Die Berechnung läuft lokal im Browser. Der Share-Link enthält eure Eingaben unverschlüsselt im URL-Fragment; wer den Link hat, sieht die Annahmen. Schriften werden von Google Fonts geladen; der Excel-Export lädt die Bibliothek SheetJS zuerst lokal, sonst von cdnjs.cloudflare.com (dabei sehen Google bzw. Cloudflare eure IP-Adresse, keine Eingaben).</details><div class="footer-version"><a href="md/visual-standards-rechner.md" style="color:var(--accent-text)">Markdown-Fassung (Modell, Annahmen, Quellen)</a> · Visual-Standards-Rechner v0.12 · Michael Tenner &amp; Diana Ackermann · Daten-WG Knowledge Kitchen · Stand 09/2026 · Pre-Conference „Visual Standards in Power BI für Controlling und Finance“</div>';
 }
 
 /* ===================== Excel-Export ===================== */
@@ -1226,7 +1268,7 @@ function buildXlsx(){
   const wsM=X.utils.aoa_to_sheet(M);wsM['!cols']=[{wch:44},{wch:30},{wch:18},{wch:18},{wch:18},{wch:18}];X.utils.book_append_sheet(wb,wsM,'Modell');
   /* --- Ergebnis (Simulation) --- */
   const R=[['Posten',...OPTS.map(o=>o.name)]];CATS.forEach(([k,l])=>R.push([l+' (P50)',...OPTS.map(o=>Math.round(sim[o.key].cats[k]))]));
-  R.push(['Gesamt P50',...OPTS.map(o=>Math.round(sim[o.key].p50))],['Gesamt P10',...OPTS.map(o=>Math.round(sim[o.key].p10))],['Gesamt P90',...OPTS.map(o=>Math.round(sim[o.key].p90))],['Barwert',...OPTS.map(o=>Math.round(sim[o.key].npv))],['Invest Jahr 0',...OPTS.map(o=>Math.round(sim[o.key].invest))],['Laufend je Jahr',...OPTS.map(o=>Math.round(sim[o.key].yearly))],[perLabel(),...OPTS.map(o=>Math.round(sim[o.key].p50/perDiv))],['Erster Standard-Report (h)',...OPTS.map(o=>Math.round(sim[o.key].firstReportH))],['Jeder weitere Report (h)',...OPTS.map(o=>+sim[o.key].nextReportH.toFixed(1))],['Interne Stunden über den Horizont',...OPTS.map(o=>Math.round(sim[o.key].ex.hoursInt))],['Interne Stunden im ersten Jahr',...OPTS.map(o=>Math.round(sim[o.key].ex.hoursIntY[0]))],['FTE im ersten Jahr (1.500 h/Jahr)',...OPTS.map(o=>+sim[o.key].ex.fteY1.toFixed(2))],['Ausstieg nach dem Horizont (h)',...OPTS.map(o=>Math.round(sim[o.key].ex.exitH))],['Ausstieg nach dem Horizont (€, nicht in der Summe)',...OPTS.map(o=>Math.round(sim[o.key].ex.exitCost))],['Anforderungs-Score %',...OPTS.map(o=>ev[o.key].scorePct)],['K.O.',...OPTS.map(o=>ev[o.key].ko.join(' | '))],['Warnungen',...OPTS.map(o=>ev[o.key].warn.join(' | '))]);
+  R.push(['Gesamt P50',...OPTS.map(o=>Math.round(sim[o.key].p50))],['Gesamt P10',...OPTS.map(o=>Math.round(sim[o.key].p10))],['Gesamt P90',...OPTS.map(o=>Math.round(sim[o.key].p90))],['Barwert',...OPTS.map(o=>Math.round(sim[o.key].npv))],['Invest Jahr 0',...OPTS.map(o=>Math.round(sim[o.key].invest))],['Laufend je Jahr',...OPTS.map(o=>Math.round(sim[o.key].yearly))],[perLabel(),...OPTS.map(o=>Math.round(sim[o.key].p50/perDiv))],['Erster Standard-Report (h)',...OPTS.map(o=>Math.round(sim[o.key].firstReportH))],['Jeder weitere Report im letzten Jahr (h, Grenzaufwand)',...OPTS.map(o=>+sim[o.key].nextReportH.toFixed(1))],['Interne Stunden über den Horizont',...OPTS.map(o=>Math.round(sim[o.key].ex.hoursInt))],['Interne Stunden im ersten Jahr',...OPTS.map(o=>Math.round(sim[o.key].ex.hoursIntY[0]))],['FTE im ersten Jahr (1.500 h/Jahr)',...OPTS.map(o=>+sim[o.key].ex.fteY1.toFixed(2))],['Ausstieg nach dem Horizont (h)',...OPTS.map(o=>Math.round(sim[o.key].ex.exitH))],['Ausstieg nach dem Horizont (€, nicht in der Summe)',...OPTS.map(o=>Math.round(sim[o.key].ex.exitCost))],['davon Restlaufzeit Lizenz (€)',...OPTS.map(o=>Math.round(sim[o.key].ex.exitLic))],['Bindungsgrad beim Ausstieg',...OPTS.map(o=>+sim[o.key].ex.exitLock.toFixed(2))],['Anforderungs-Score %',...OPTS.map(o=>ev[o.key].scorePct)],['K.O.',...OPTS.map(o=>ev[o.key].ko.join(' | '))],['Warnungen',...OPTS.map(o=>ev[o.key].warn.join(' | '))]);
   R.push([],['Mengengerüst'],['Ersteller',S.creators],['Viewer',S.viewers],['Reports',S.reports],['Charts je Report',S.cpr],['Chart-Typen',S.types],['Horizont (Jahre)',S.horizon],['Chart-Mix einfach / mittel / komplex (%)',S.mix.join(' / ')],['Vorlagenbibliothek für Deneb und Core',S.lib?'ja':'nein'],['Viewer-Deckel',S.viewerCap>0?S.viewerCap:'kein Deckel'],['Entscheidungsgröße','P'+S.riskQ],['Ziehung der Annahmen',S.paired?'gepaart (je Parameter ein Strom für alle Ansätze)':'unabhängig je Ansatz'],['Null-Option kein Standard P50',lastSQ?Math.round(lastSQ.p50):''],['Null-Option ohne Leserzeit P50',lastSQ?Math.round(lastSQ.noRead50):''],['Aktive Governance-Schalter',FLAGS.filter(f=>S.flags[f.id]).map(f=>f.label).join('; ')||'keine']);
   const wsR=X.utils.aoa_to_sheet(R);wsR['!cols']=[{wch:34},{wch:22},{wch:22},{wch:22},{wch:22}];X.utils.book_append_sheet(wb,wsR,'Ergebnis');
   /* --- Cash-out je Jahr (A3) --- */
@@ -1258,13 +1300,13 @@ function readHash(){try{const m=location.hash.match(/#s=(.+)/);if(!m)return fals
   S.paired=st.pd===undefined?true:!!(+st.pd);S.riskQ=[50,75,90].includes(+st.rq)?+st.rq:50;S.viewerCap=st.vc===undefined?0:qty(st.vc,0,1e7,0);
   if(Array.isArray(st.mx)&&st.mx.length===3){const a=st.mx.map(x=>Math.max(0,Math.min(100,Math.round(+x)||0)));if(a[0]+a[1]+a[2]>0)S.mix=a;}
   if(st.mc&&typeof st.mc==='object'){S.mc={w:[5,10,15,20,25].includes(+st.mc.w)?+st.mc.w:15,n:[1000,2000,5000,10000].includes(+st.mc.n)?+st.mc.n:2000,a:st.mc.a==='bands'?'bands':'pct'};}
-  const cl=t=>{if(!Array.isArray(t)||t.length!==3)return null;const a=t.map(Number);if(!a.every(isFinite))return null;a.sort((x,y)=>x-y);return a.map(v=>Math.max(0,Math.min(1e9,v)));};
+  const cl=(t,mn)=>{if(!Array.isArray(t)||t.length!==3)return null;const a=t.map(Number);if(!a.every(isFinite))return null;a.sort((x,y)=>x-y);const lo=mn===undefined?0:mn;return a.map(v=>Math.max(lo,Math.min(1e9,v)));}; /* C1: Untergrenze je Annahme, damit negative Werte (Wachstum, Produktivitaetsgewinn) den Link ueberleben */
   if(Array.isArray(st.cu)){const caps=st.cp||{},pr=st.pr||{};S.custom=[];st.cu.filter(r=>r&&typeof r.name==='string').slice(0,20).forEach((r,i)=>{const id='c'+i;S.custom.push({id,name:String(r.name).slice(0,80),sub:String(r.sub||'').slice(0,120),cap:[0,0,0,0],custom:true});const oc=caps[r.id];S.cap[id]=Array.isArray(oc)&&oc.length===4&&oc.every(x=>isFinite(+x))?oc.map(x=>Math.min(5,Math.max(0,Math.round(+x)))):[0,0,0,0];S.prio[id]=PRIO[pr[r.id]]?pr[r.id]:'S';});}
   const ok4=t=>Array.isArray(t)&&t.length===4&&t.every(x=>isFinite(+x));
   if(st.cp)REQS.forEach(r=>{if(ok4(st.cp[r.id]))S.cap[r.id]=st.cp[r.id].map(x=>Math.min(5,Math.max(1,Math.round(+x))));});
   if(st.pr)REQS.forEach(r=>{if(PRIO[st.pr[r.id]])S.prio[r.id]=st.pr[r.id];});if(st.f)FLAGS.forEach(f=>S.flags[f.id]=!!st.f[f.id]);
-  if(st.g)GLOBAL.forEach(p=>{const t=cl(st.g[p.id]);if(t)S.g[p.id]=t;});
-  if(st.p)OPTS.forEach(o=>OPTP.forEach(p=>{if(S.p[o.key][p.id]&&st.p[o.key]){const t=cl(st.p[o.key][p.id]);if(t)S.p[o.key][p.id]=t;}}));return true;}catch(e){return false;}}
+  if(st.g)GLOBAL.forEach(p=>{const t=cl(st.g[p.id],p.min);if(t)S.g[p.id]=t;});
+  if(st.p)OPTS.forEach(o=>OPTP.forEach(p=>{if(S.p[o.key][p.id]&&st.p[o.key]){const t=cl(st.p[o.key][p.id],p.min);if(t)S.p[o.key][p.id]=t;}}));return true;}catch(e){return false;}}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;clearTimeout(t._t);t._t=setTimeout(()=>t.textContent='',3500);}
 
 /* ===================== Schritt 6: Monte-Carlo-Seite ===================== */
@@ -1280,7 +1322,7 @@ function runMonteCarlo(){
   const base={creators:S.creators,viewers:S.viewers,reports:S.reports,cpr:S.cpr,types:S.types,mix:S.mix.slice()};
   const widen=t=>{const m=Math.min(t[2],Math.max(t[0],t[1]));return [m*(1-w),m,m*(1+w)];};
   if(S.mc.a==='pct'){const g={};GLOBAL.forEach(x=>g[x.id]=widen(keep.g[x.id]));S.g=g;const p={};OPTS.forEach(o=>{p[o.key]={};for(const id in keep.p[o.key])p[o.key][id]=widen(keep.p[o.key][id]);});S.p=p;}
-  const LABEL={};GLOBAL.forEach(x=>LABEL[x.id]=x.label);OPTP.forEach(x=>LABEL[x.id]=x.label);Object.assign(LABEL,{creators:'Ersteller',viewers:'Viewer',reports:'Standard-Reports',cpr:'Charts je Report',types:'Chart-Typen'});
+  const LABEL={};GLOBAL.forEach(x=>LABEL[x.id]=x.label);OPTP.forEach(x=>LABEL[x.id]=x.label);Object.assign(LABEL,{creators:'Ersteller',viewers:'Viewer',reports:'Standard-Reports',cpr:'Charts je Report',types:'Chart-Typen',teamF:'Team-Faktor (gemeinsam, B28)'});
   const rankArr=a=>{const idx=a.map((v,i)=>[v,i]).sort((x,y)=>x[0]-y[0]);const r=new Array(a.length);let i=0;while(i<idx.length){let j=i;while(j+1<idx.length&&idx[j+1][0]===idx[i][0])j++;const avg=(i+j)/2+1;for(let k=i;k<=j;k++)r[idx[k][1]]=avg;i=j+1;}return r;};
   const corr=(a,b)=>{const n=a.length;const ma=a.reduce((x,y)=>x+y,0)/n,mb=b.reduce((x,y)=>x+y,0)/n;let sab=0,saa=0,sbb=0;for(let i=0;i<n;i++){const da=a[i]-ma,db=b[i]-mb;sab+=da*db;saa+=da*da;sbb+=db*db;}return saa>0&&sbb>0?sab/Math.sqrt(saa*sbb):0;};
   const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
