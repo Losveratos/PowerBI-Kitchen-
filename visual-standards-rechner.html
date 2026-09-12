@@ -63,7 +63,8 @@ details.lvl3>summary::after{content:'+';font-family:var(--mono);font-size:16px;c
 details.lvl3>.section{margin-top:0;padding-bottom:16px;}
 .ov-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:22px;align-items:start;}@media(max-width:900px){.ov-grid{grid-template-columns:1fr;}}
 .ov-sentence{font-family:var(--head);font-size:17px;line-height:1.45;margin:2px 0 10px;}
-.ov-cert{font-size:12px;color:var(--ink-soft);line-height:1.55;margin-top:8px;}.ov-cert b{color:var(--ink);}
+.ov-cert{font-size:12px;color:var(--ink-soft);line-height:1.55;margin-top:8px;}
+.ov-drivers{margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-size:12.5px;line-height:1.5}.ov-drivers .t{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-text);margin-bottom:4px}.ov-drivers div.d{margin:3px 0}.ov-drivers b{color:var(--ink)}.ov-cert b{color:var(--ink);}
 .ov-inputs .field{margin-bottom:12px;}
 details.foot>summary{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px;}.ov-inputs .seg{flex-wrap:wrap;}
 .step-chip{display:flex;gap:10px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;text-decoration:none;color:var(--ink);font-size:12.5px;}
@@ -292,6 +293,7 @@ footer b{color:var(--ink);}
         <div>
           <div class="ov-sentence" id="ov-sentence">–</div>
           <div id="ov-chart"></div>
+          <div class="ov-drivers" id="ov-drivers"></div>
           <div class="ov-cert" id="ov-cert"></div>
         </div>
       </div>
@@ -1668,6 +1670,19 @@ function drawOverview(sim,ev,ranked,excluded,place){
     t+=' <span style="color:var(--ink-soft)">Lizenz-Anker: '+(cur?AL[cur]:'eigener Wert '+fmtN(S.p.paid.lic[1])+' €')+(S.lib?' · mit Vorlagenbibliothek':' · ohne Vorlagenbibliothek')+' · Stunden-Anker: '+esc(S.hAnchor?HANCHOR[S.hAnchor].label:'eigene Werte')+'.</span>';}
   {const b=ranked[0];if(b){const sp=certSplit(sim[b.key]);t+=' <span style="color:var(--ink-soft)"><b>'+fmtN(Math.round(100*sp.b))+' %</b> der '+esc(b.short)+'-Kosten beruhen auf belegten Preisen, <b>'+fmtN(Math.round(100*sp.e))+' %</b> auf Schätzungen (Rest: Faustregeln). Die Leiste je Ansatz steht in Ebene 2.</span>';}}
   document.getElementById('ov-sentence').innerHTML=t;
+  /* Treiber: warum dieses Ergebnis, und was es dreht (Erwartungswerte, näherungsweise) */
+  {const ex=k=>sim[k].ex;const allowedK=OPTS.filter(o=>ev[o.key].ko.length===0).map(o=>o.key);const diyK=allowedK.filter(k=>k!=='paid').sort((a,b)=>ex(a).total-ex(b).total)[0];let d='<div class="t">Warum dieses Ergebnis, und was es dreht</div>';
+    const rh=k=>fmtN(S.p[k].reuseH[1],1);const ratio=Math.round(S.viewers/Math.max(1,S.creators));
+    if(diyK&&allowedK.includes('paid')){const ep=ex('paid'),ed=ex(diyK),dn=OPTS[OK[diyK]].short;const hoursDiff=ed.hoursInt-ep.hoursInt;const nonLic=(ed.total-ed.lic)-(ep.total-ep.lic);const qp=pv(OPTS[OK.paid]).q,qd=pv(OPTS[OK[diyK]]).q;const paidAhead=qp<=qd;const close=Math.abs(qp-qd)/Math.max(1,qd)<0.05;
+      d+='<div class="d"><b>1 · Verhältnis 1 : '+fmtN(ratio)+'.</b> Paid zahlt '+fmtEur(ep.lic)+' Lizenz über '+S.horizon+' Jahre. '+esc(dn)+' spart das, braucht aber '+fmtN(Math.round(hoursDiff))+' Stunden mehr, bewertet mit '+fmtEur(nonLic)+'. '+(close?'Beides wiegt hier etwa gleich, das Ergebnis ist ein Gleichstand.':paidAhead?'Die Stunden wiegen schwerer als die Lizenz.':'Die Lizenz wiegt schwerer als die Stunden.')+'</div>';
+      const indiff=S.p.paid.lic[1]*(1+(ed.total-ep.total)/Math.max(1,ep.lic));
+      d+='<div class="d"><b>2 · Lizenzpreis.</b> Anker '+fmtN(S.p.paid.lic[1])+' € je Nutzer und Jahr (vor Staffel). Gleichstand mit '+esc(dn)+' bei etwa <b>'+fmtN(Math.max(0,Math.round(indiff)))+' €</b>. Das ist die Verhandlungsgrenze, nicht der Listenpreis.</div>';
+      const pct=Math.round(100*(ed.total-ep.total)/Math.max(1,ed.total-ed.lic));
+      d+='<div class="d"><b>3 · Stunden je Chart.</b> Panelwerte je wiederverwendetem Chart: Paid '+rh('paid')+' h, Open Source '+rh('oss')+' h, Deneb '+rh('deneb')+' h, Core '+rh('core')+' h (ungemessen). '+(pct>0?esc(dn)+' müsste seine Stunden um etwa <b>'+pct+' %</b> senken, um gleichzuziehen'+(S.lib?' (Vorlagenbibliothek ist an).':'; der Schalter „Vorlagenbibliothek“ senkt Deneb und Core um 30 bis 40 %.'):'Paid müsste seine Stunden um etwa <b>'+(-pct)+' %</b> senken, um gleichzuziehen.')+'</div>';
+      d+='<div class="d" style="color:var(--ink-soft)">Belastbar ist die Richtung dieser drei Hebel, nicht die zweite Stelle. Viewer-Zahl, Lizenzpreis und Stunden je Chart erklären den Abstand fast vollständig; alles andere verschiebt ihn um Prozentpunkte. <a href="sessions/visual-standards-rechner-audit/kernaussagen.md" style="color:var(--accent-text)">Kernaussagen zur Diskussion</a></div>';}
+    else if(allowedK.length>=2){const a=allowedK.slice().sort((x,y)=>ex(x).total-ex(y).total);const a0=a[0],a1=a[1];d+='<div class="d"><b>Paid ist ausgeschlossen</b> oder nicht vergleichbar; der Vergleich läuft zwischen Stunden-Ansätzen. '+esc(OPTS[OK[a0]].short)+' braucht '+fmtN(Math.round(ex(a0).hoursInt))+' interne Stunden, '+esc(OPTS[OK[a1]].short)+' '+fmtN(Math.round(ex(a1).hoursInt))+'. Der Unterschied liegt in Stunden je Chart ('+rh(a0)+' gegen '+rh(a1)+' h) und Wartungsquote ('+fmtN(S.p[a0].maint[1])+' gegen '+fmtN(S.p[a1].maint[1])+' %), beides Panelwerte ohne Messung.</div>';}
+    else d+='<div class="d">Kein Vergleich möglich, weniger als zwei zulässige Ansätze.</div>';
+    document.getElementById('ov-drivers').innerHTML=d;}
   /* Was belastbar ist */
   const c=srcCounts();let cert='<b>Belastbar:</b> die Größenordnung je Viewer und die Viewer-Zahl, ab der die Lizenz dominiert (strukturell). <b>Nicht belastbar:</b> ';
   if(ranked.length>1&&place[1]===place[0])cert+='die Reihenfolge von '+esc(ranked[0].short)+' und '+esc(ranked[1].short)+', sie hängt an ungemessenen Stundenannahmen; ';
