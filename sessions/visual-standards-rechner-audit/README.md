@@ -134,3 +134,14 @@ Vor dem Audit: Klein Paid 100 %, Mittelstand Paid 75 %, Konzern OSS 84 %. Das Bi
 ## Rohdaten
 
 `presets-v06.json` und `presets-v07.json` enthalten P10/P50/P90, Kategorien und Rangfolge je Preset vor und nach dem Audit (Headless-Lauf mit 1.500 Ziehungen je Ansatz). Die sechs Prüfberichte stehen unverändert daneben, inklusive der Stellen, an denen die Prüfer einander widersprechen.
+
+## Nachtrag v0.8 (11.09.2026): Chart-Mix, Lernkurve, Null-Option
+
+Drei Punkte aus `grundannahmen-kritik.md` sind im Rechner umgesetzt:
+
+- **Chart-Mix nach Komplexität** (Schritt 1): Anteile einfach / mittel / komplex, Standard 50 / 35 / 15. Je Ansatz zwei Faktoren gegenüber der mittleren Klasse (Schritt 4): einfach 0,7 / 0,7 / 0,5 / 0,4 und komplex 1,4 / 1,6 / 2,5 / 4 für Paid / OSS / Deneb / Core. Normiert auf die Standardmischung, für die die Panel-Stunden gelten; bei 50 / 35 / 15 ändert sich nichts. Bei 20 / 30 / 50 steigt Core auf das 2,1-fache, Paid auf das 1,26-fache der Stunden.
+- **Lernkurve** nach Wright auf die Wiederverwendung: Stunden je Chart fallen um die Lernrate je Verdopplung der Charts je Ersteller (Paid 5 %, OSS 10 %, Deneb und Core 15 %), Panelwert entspricht dem 10. Chart, Untergrenze 50 %. Wirkung: Pilot 1,03 (steiler Teil), Mittelstand 0,99, Großkonzern Core 0,80 und Paid 0,93.
+- **Null-Option „kein Standard“** als Karte in Schritt 5, außerhalb der Rangfolge: Ad-hoc-Bau je Chart, Wartung ad hoc, Rückfragen, Leserzeit je Viewer und Woche (getrennt ausgewiesen, weil ohne Quelle). Der Text nennt die Minuten, ab denen sich der günstigste zulässige Ansatz gegenüber dem Status quo rechnet. Im Mittelstands-Preset rechnet sich Paid ohne Leserzeit nicht (Status quo 3.400 € günstiger), ab 0,2 Minuten je Viewer und Woche schon.
+- Nebenbei behoben: Preset-Klick setzt jetzt auch das Lizenzmodell zurück (vorher blieb „Site“ vom Großkonzern-Preset stehen); Standard-Mengengerüst beim Laden trägt 12 Reports statt 6, wie die eigene Heuristik.
+
+Presets v0.8 (`presets-v08.json`, P50, 5 Jahre): Mittelstand Paid 59 / OSS 76 / Deneb 98 / Core 139 k€; Konzern Paid 627 / OSS 548 (K.O.) / Deneb 678 / Core 1.026 k€; Großkonzern Paid 2,0 / OSS 3,6 (K.O.) / Deneb 4,2 / Core 6,5 Mio. €. Gegenüber v0.7 senkt die Lernkurve die Stunden-Ansätze bei großen Mengen um 8 bis 18 %, die Rangfolge bleibt.
