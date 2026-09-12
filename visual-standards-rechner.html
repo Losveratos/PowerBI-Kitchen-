@@ -1643,6 +1643,8 @@ function licenseBreakEven(){const save=S.viewers;const grid=[10,20,50,100,200,30
 function drawOverview(sim,ev,ranked,excluded,place){
   const H=S.horizon;const qk='p'+S.riskQ,QN={50:'P50',75:'P75',90:'P90'}[S.riskQ];
   const pv=o=>{const st=sim[o.key];const d=Math.max(1,st.vAvg*H);return {p10:st.p10/d,p50:st.p50/d,p90:st.p90/d,q:st[qk]/d};};
+  const rankedW=ranked;ranked=ranked.slice().sort((a,b)=>pv(a).q-pv(b).q); /* Ebene 1 sortiert rein nach Kosten; der gewichtete Rang (Kosten und Anforderungs-Score) steht in Ebene 2 */
+  {const pl=[];ranked.forEach((o,i)=>{if(i>0&&overlap(sim[o.key],sim[ranked[i-1].key])>0.5&&Math.abs(sim[o.key].p50-sim[ranked[i-1].key].p50)/Math.max(1,sim[ranked[i-1].key].p50)<0.15)pl.push(pl[i-1]);else pl.push(i+1);});place=pl;}
   const order=ranked.concat(excluded);const rows=order.map(o=>({o,v:pv(o),ko:ev[o.key].ko.length>0}));
   const ref=rows.filter(r=>!r.ko);const xmax=niceMax(Math.max(...(ref.length?ref:rows).map(r=>r.v.p90))*1.05,4);
   const W=600,rowH=46,padL=150,padR=96,padT=24,padB=22;const Ht=padT+rows.length*rowH+padB;const x=v=>padL+Math.min(1,v/xmax)*(W-padL-padR);
@@ -1660,6 +1662,7 @@ function drawOverview(sim,ev,ranked,excluded,place){
     if(tie.length>1)t=who+' liegen <b>'+tie.map(o=>esc(o.short)).join(' und ')+'</b> gleichauf bei rund '+fmtN(Math.round(pb))+' € je Viewer und Jahr ('+QN+')'+(rest.length?'; '+rest.map(o=>esc(o.short)+' kostet '+fx(o)).join(', '):'')+'.';
     else t=who+' ist <b>'+esc(b.short)+'</b> am günstigsten mit rund '+fmtN(Math.round(pb))+' € je Viewer und Jahr ('+QN+')'+(rest.length?'; '+rest.map(o=>esc(o.short)+' kostet '+fx(o)).join(', '):'')+'.';
     if(excluded.length)t+=' '+excluded.map(o=>esc(o.short)).join(', ')+(excluded.length>1?' sind':' ist')+' ausgeschlossen (Red Flag oder Must).';
+    if(rankedW.length&&rankedW[0]!==ranked[0])t+=' Reine Kostenrangfolge; mit Anforderungs-Score (Regler '+S.weight+' % Kosten) liegt in Ebene 2 <b>'+esc(rankedW[0].short)+'</b> vorn.';
     const be=licenseBreakEven();if(be===null)t+=' Auch bei 20.000 Viewern bleibt die Lizenz je Kopf im Modell günstiger als jeder Stunden-Ansatz.';else if(be<=10)t+=' Schon ab wenigen Viewern ist die Lizenz je Kopf teurer als der günstigste Stunden-Ansatz.';else if(be<=S.viewers)t+=' Ab etwa '+fmtN(be)+' Viewern ist die Lizenz je Kopf teurer als der günstigste Stunden-Ansatz, ihr seid darüber.';else t+=' Ab etwa <b>'+fmtN(be)+' Viewern</b> wird die Lizenz je Kopf teurer als der günstigste Stunden-Ansatz.';}
   {const cur=Object.keys(LIC).find(k=>LIC[k].join()===S.p.paid.lic.join());const AL={inforiver:'Inforiver-Niveau 33 €',enterprise:'Mischpreis 80 €',zebra:'Zebra-Niveau 170 € (abgeleitet)'};
     t+=' <span style="color:var(--ink-soft)">Lizenz-Anker: '+(cur?AL[cur]:'eigener Wert '+fmtN(S.p.paid.lic[1])+' €')+(S.lib?' · mit Vorlagenbibliothek':' · ohne Vorlagenbibliothek')+' · Stunden-Anker: '+esc(S.hAnchor?HANCHOR[S.hAnchor].label:'eigene Werte')+'.</span>';}
