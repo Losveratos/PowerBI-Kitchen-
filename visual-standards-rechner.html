@@ -1430,15 +1430,16 @@ function offerRows(){
   const list=validOffers();if(!list.length)return null;
   const alt={};['oss','deneb','core'].forEach(k=>alt[k]=expected(k).total);
   const altK=['oss','deneb','core'].slice().sort((a,b)=>alt[a]-alt[b])[0];
-  const save=S.offerOn;
-  const rows=list.map(({o,i})=>{S.offerOn=i;const e=expected('paid');
+  const save=S.offerOn;let rows;
+  try{
+  rows=list.map(({o,i})=>{S.offerOn=i;const e=expected('paid');
     const per=e.total/Math.max(1,e.vAvg*S.horizon);
     const rank=1+['oss','deneb','core'].filter(k=>alt[k]<e.total).length;
     const site=o.model==='site';
     const den=site?Math.max(1e-9,e.inflF):Math.max(1e-9,e.users*e.licF);
     const be=(alt[altK]-e.licNoLic)/den;
     return {o,i,total:e.total,per,rank,be,price:offerPrice(o),site};});
-  S.offerOn=save;
+  }finally{S.offerOn=save;}   /* der Schalter darf auch bei einem Fehler nicht stehen bleiben */
   return {rows,alt,altK,altName:OPTS[OK[altK]].short};
 }
 function renderOfferCmp(){
@@ -1823,7 +1824,7 @@ function drawBreakEven(ev,best,ranked){
   const alt=(best&&best.key!=='paid')?best:(ranked||[]).find(o=>o.key!=='paid');
   if(alt){const lm=licModelEff();const OFR=activeOffer();const exP=expected('paid');const altT=expected(alt.key).total;const d=lm==='staffel'?(exP.users<=100?1:exP.users<=500?.75:exP.users<=2000?.55:exP.users<=5000?.40:.30):1;const be=(altT-exP.licNoLic)/(exP.users*exP.licF*d);
     ins.push('<span class="be-neg"><b>Verhandlungsgrenze:</b> Paid rechnet sich gegen '+esc(alt.name)+' bis <b>'+(be>0?fmtN(Math.round(be))+' € je Nutzer und Jahr':'0 €, also nie')+'</b>'+(lm==='staffel'?' (Listenpreis vor Staffel)':lm==='site'?' (umgerechnet je Nutzer)':'')+'. Das ist die Zielmarke für das Einkaufsgespräch, nicht der Listenpreis des Herstellers.'+(OFR&&OFR.model!=='site'?' Euer Angebot '+esc(offerLabel(OFR))+' liegt bei '+fmtN(Math.round(offerPrice(OFR)*100)/100,2)+' € — '+(offerPrice(OFR)<=be?'es trägt.':'es müsste um rund '+fmtN(Math.max(0,Math.round(100*(1-Math.max(0,be)/offerPrice(OFR)))))+' % fallen.'):'')+'</span>');}
-  ins.push('<span style="color:var(--ink-soft)">'+(S.licModel==='staffel'?'Knicke in der Paid-Linie sind die Staffelgrenzen bei 25 / 100 / 500 / 2.000 / 5.000 Nutzern. ':'')+'Auch Open Source, Deneb und Core steigen mit der Viewer-Zahl: Anwender-Support, Nachfrage nach Reports und Zugriffs-Governance sind viewer-abhängig modelliert. Governance wächst log-linear zwischen 50 und 5.000 Viewern.</span>');
+  ins.push('<span style="color:var(--ink-soft)">'+(licModelEff()==='staffel'?'Knicke in der Paid-Linie sind die Staffelgrenzen bei 25 / 100 / 500 / 2.000 / 5.000 Nutzern. ':'')+'Auch Open Source, Deneb und Core steigen mit der Viewer-Zahl: Anwender-Support, Nachfrage nach Reports und Zugriffs-Governance sind viewer-abhängig modelliert. Governance wächst log-linear zwischen 50 und 5.000 Viewern.</span>');
   document.getElementById('be-insight').innerHTML=ins.join(' ')+(ev.paid.ko.length?' <span style="color:var(--warn)">Paid ist aktuell durch K.O. ausgeschlossen, die Linie zeigt den hypothetischen Verlauf.</span>':'');
 }
 /* ---------- Chart 3: Sensitivität ---------- */
@@ -2264,7 +2265,7 @@ function bind(){
   {const mo=document.getElementById('mixov-on');if(mo)mo.addEventListener('change',()=>{S.mixOv=mo.checked?rcDerivedMix():null;pendingToast=S.mixOv?'Experten-Override: globaler Chart-Mix '+S.mixOv.join(' / ')+' %':'Chart-Mix ergibt sich wieder aus den Report-Klassen';update();});
    [0,1,2].forEach(j=>{const el=document.getElementById('mixov-'+j);if(el)el.addEventListener('change',e=>{let v=Math.round(+e.target.value);if(!isFinite(v))v=0;const t=(S.mixOv||S.mix).slice();t[j]=Math.max(0,Math.min(100,v));S.mixOv=t;update();});});}
   const LIM={creators:[1,100000],viewers:[0,10000000],reports:[1,100000],cpr:[1,200],types:[1,50],existing:[0,100000]};
-  ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const n=document.getElementById('n-'+id);n.addEventListener('change',e=>{let v=Math.round(+e.target.value);if(!isFinite(v)){renderStep1();return;}v=Math.max(LIM[id][0],Math.min(LIM[id][1],v));S[id]=v;pendingToast=id==='viewers'?'Viewer: '+fmtN(v)+(v>2000&&S.licModel==='peruser'?' (ab 2.000 Nutzern Site-Lizenz prüfen)':''):null;update();});});
+  ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const n=document.getElementById('n-'+id);n.addEventListener('change',e=>{let v=Math.round(+e.target.value);if(!isFinite(v)){renderStep1();return;}v=Math.max(LIM[id][0],Math.min(LIM[id][1],v));S[id]=v;pendingToast=id==='viewers'?'Viewer: '+fmtN(v)+(v>2000&&licModelEff()==='peruser'&&!activeOffer()?' (ab 2.000 Nutzern Site-Lizenz prüfen)':''):null;update();});});
   document.getElementById('baseline').addEventListener('change',e=>{S.baseline=e.target.value;pendingToast='Bestand: '+e.target.options[e.target.selectedIndex].text;update();});
   document.querySelectorAll('#horizon-seg button').forEach(b=>b.addEventListener('click',()=>{S.horizon=+b.dataset.h;update();}));
   document.querySelectorAll('#mc-w-seg button').forEach(b=>b.addEventListener('click',()=>{S.mc.w=+b.dataset.w;renderMc();writeHash();}));
