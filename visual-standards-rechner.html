@@ -311,6 +311,70 @@ body.lv3 [data-lv2only]{display:none!important;}
 #decision-path,#kpi-allowed,#rclasses,#certainty,#s1b{scroll-margin-top:64px;}
 .goto-flash{animation:gotoflash 1.8s ease-out;}
 @keyframes gotoflash{0%,65%{box-shadow:0 0 0 3px var(--accent);}100%{box-shadow:0 0 0 3px rgba(62,156,143,0);}}
+
+/* ===== v0.17: Inhaltsverzeichnis als Seitenleiste, klickbarer Wirkungsgraph, Knoten-Popups ===== */
+#toc{display:none;}
+body.lv2 #toc,body.lv3 #toc{display:block;margin:0 0 22px;}
+.toc-toggle{width:100%;justify-content:space-between;font-family:var(--mono);font-size:11.5px;}
+.toc-panel{display:none;border:1px solid var(--line);border-radius:var(--radius);background:#fff;padding:12px 12px 10px;margin-top:8px;}
+#toc.open .toc-panel{display:block;}
+.toc-acts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.toc-acts .btn{flex:1 1 auto;justify-content:center;padding:7px 8px;font-size:11px;}
+.toc-where{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);line-height:1.4;margin-bottom:8px;overflow-wrap:anywhere;}
+.toc-list{list-style:none;margin:0;padding:0;}
+.toc-list li{margin:0;}
+.toc-list li.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);margin:11px 0 3px;padding:0 8px;}
+.toc-list li.toc-h:first-child{margin-top:0;}
+.toc-a{display:flex;gap:6px;align-items:baseline;width:100%;text-align:left;font:inherit;font-size:12.5px;line-height:1.35;background:none;border:0;border-left:2px solid transparent;border-radius:0 6px 6px 0;padding:5px 8px;cursor:pointer;color:var(--ink);}
+.toc-a:hover{background:var(--paper);border-left-color:var(--accent-soft);}
+.toc-a.on{background:var(--paper-2);border-left-color:var(--accent);font-weight:600;}
+.toc-a.sub{padding-left:20px;font-size:12px;color:var(--ink-soft);}
+.toc-a.sub.on{color:var(--ink);}
+.toc-a>span:first-child{min-width:0;overflow-wrap:anywhere;}
+.toc-a .lvc{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--ink-soft);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:auto;flex:0 0 auto;white-space:nowrap;}
+@media(min-width:1100px){
+  body.lv2 .wrap,body.lv3 .wrap{max-width:1464px;display:grid;grid-template-columns:214px minmax(0,1180px);column-gap:22px;row-gap:0;align-items:start;justify-content:center;}
+  body.lv2 .wrap>*,body.lv3 .wrap>*{grid-column:2;min-width:0;}
+  body.lv2 .wrap>#toc,body.lv3 .wrap>#toc{grid-column:1;grid-row:1/span 60;position:sticky;top:54px;align-self:start;margin:0;max-height:calc(100vh - 72px);overflow:auto;overscroll-behavior:contain;}
+  .toc-toggle{display:none;}
+  .toc-panel{display:block;margin-top:0;}
+}
+/* --- Wirkungsgraph: Auswahl und Hervorhebung --- */
+.graph-stage{position:relative;}
+#graph-svg .gr-node,#graph-svg .gr-item{cursor:pointer;}
+#graph-svg .g-dim{opacity:.13;}
+#graph-svg path[data-rib].g-hi{opacity:.62;}
+#graph-svg path.g-hi:not([data-rib]){stroke:#23261F;stroke-width:1.8;}
+#graph-svg .g-sel>rect{stroke:#23261F;stroke-width:2.4;}
+#graph-svg .gr-node:focus-visible>rect,#graph-svg .gr-item:focus-visible>rect{stroke:var(--accent-text);stroke-width:2.6;}
+.gx{margin:10px 0 0;padding:12px 14px;border-radius:8px;background:var(--paper-2);font-size:12.5px;line-height:1.55;}
+.gx ul{margin:6px 0 0;padding-left:18px;}
+.gx li{margin:2px 0;}
+.gx .gx-note{color:var(--ink-soft);font-size:11.5px;margin-top:7px;}
+.gx .gx-sens{margin-top:7px;font-family:var(--mono);font-size:11.5px;color:var(--accent-text);}
+/* --- Popup am Knoten --- */
+.gpop{position:absolute;z-index:40;width:340px;max-width:calc(100% - 8px);background:#fff;border:1px solid var(--ink);border-radius:var(--radius);box-shadow:0 14px 34px rgba(0,0,0,.18);padding:14px 16px;font-size:12.5px;}
+.gpop[hidden]{display:none;}
+.gpop h4{font-family:var(--head);font-size:14px;margin:0 0 2px;}
+.gpop .gpop-val{font-family:var(--mono);font-size:11.5px;color:var(--accent-text);margin-bottom:8px;overflow-wrap:anywhere;}
+.gpop .gpop-why{font-size:11.5px;color:var(--ink-soft);line-height:1.5;margin:0 0 10px;}
+.gpop-body{max-height:min(44vh,330px);overflow:auto;overscroll-behavior:contain;}
+.gpop-body .field{margin-bottom:10px;}
+.gpop-body .seg{flex-wrap:wrap;}
+.gpop .a-row{grid-template-columns:minmax(0,1fr) 48px 48px 48px 22px;gap:4px;padding:6px 0;}
+.gpop .a-row .lbl{font-size:11.5px;min-width:0;overflow-wrap:anywhere;}
+.gpop .a-row .badge{width:22px;height:20px;font-size:9px;}
+.gpop .a-row input[type=number]{padding:4px 4px;font-size:11px;}
+.gpop-eff{margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;}
+.gpop-eff table{width:100%;border-collapse:collapse;}
+.gpop-eff td{padding:2px 0;}
+.gpop-eff td+td{text-align:right;}
+.gpop-eff .up{color:var(--warn);}
+.gpop-eff .dn{color:var(--ok);}
+.gpop-eff .cap{color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;font-size:9.5px;}
+.gpop-foot{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.gpop-foot .btn{padding:6px 10px;font-size:11px;}
+@media(max-width:700px){.gpop{position:static!important;width:auto;max-width:none;margin-top:12px;box-shadow:none;left:auto!important;top:auto!important;}.gpop-body{max-height:none;}}
 </style>
 </head>
 <body>
@@ -326,6 +390,7 @@ body.lv3 [data-lv2only]{display:none!important;}
     <button class="btn dark" id="btn-share">🔗 Link mit Einstellungen kopieren</button>
     <button class="btn dark" id="btn-xlsx">📊 Excel-Modell exportieren</button>
     <button class="btn" id="btn-wizard">▶ Geführter Einstieg</button>
+    <button class="btn" id="btn-graph" title="Wirkungsgraph öffnen: links die Eingaben, in der Mitte die Annahmen-Gruppen, rechts die Kostenposten. Klick auf ein Element zeigt, wo es einfließt — und lässt es dort ändern.">🗺 Modell als Karte</button>
     <button class="btn" id="btn-print">🖨 Drucken / PDF</button>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -334,6 +399,19 @@ body.lv3 [data-lv2only]{display:none!important;}
     <button class="step-chip" data-level="1"><span class="n">1</span><span class="t">Überblick<small>3 Eingaben, 1 Chart, 1 Satz</small></span></button>
     <button class="step-chip" data-level="2"><span class="n">2</span><span class="t">Eingrenzen<small>Mengengerüst, Anforderungen, Red Flags, Ergebnis</small></span></button>
     <button class="step-chip" data-level="3"><span class="n">3</span><span class="t">Details<small>Annahmen, Charts, Simulation, Quellen</small></span></button>
+  </nav>
+
+  <!-- ========== v0.17: INHALTSVERZEICHNIS (Ebene 2 und 3) ========== -->
+  <nav id="toc" aria-label="Inhaltsverzeichnis">
+    <button class="btn toc-toggle" id="toc-toggle" type="button" aria-expanded="false" aria-controls="toc-panel"><span>☰ Inhalt und „alles anzeigen“</span><span aria-hidden="true">▾</span></button>
+    <div class="toc-panel" id="toc-panel">
+      <div class="toc-acts">
+        <button class="btn" type="button" id="toc-open-all" title="Wechselt auf Ebene 3 und klappt jeden Details-Block auf — zum Lesen am Stück und zum Drucken.">⇊ Alles aufklappen</button>
+        <button class="btn" type="button" id="toc-close-all" title="Klappt alle Details-Blöcke wieder zu. Die Ebene bleibt, wie sie ist.">⇈ Alles zuklappen</button>
+      </div>
+      <div class="toc-where" id="toc-where" role="status" aria-live="polite">–</div>
+      <ol class="toc-list" id="toc-list"></ol>
+    </div>
   </nav>
 
   <!-- ========== EBENE 0: GEFÜHRTER EINSTIEG (v0.16) ========== -->
@@ -611,8 +689,12 @@ body.lv3 [data-lv2only]{display:none!important;}
       <h3>Wirkungsgraph <span class="eyebrow">Banddicke = Anteil am P50</span></h3>
       <p class="hint">Links eure Eingaben, in der Mitte die Annahmen-Gruppen mit ihrer Herkunft (Farbe wie in der Sicherheits-Leiste), rechts die Kostenposten des gewählten Ansatzes. Dicke Bänder tragen Beträge und summieren sich zum P50; dünne Linien zeigen nur, welche Eingabe welche Gruppe füllt; gestrichelte Linien skalieren, ohne einen eigenen Betrag zu tragen. Beträge und Anteile per Maus auf dem Element.</p>
       <div class="tabs" id="graph-tabs"></div>
-      <div class="tbl-scroll" id="graph-svg"></div>
+      <div class="graph-stage" id="graph-stage">
+        <div class="tbl-scroll" id="graph-svg"></div>
+        <div class="gpop" id="graph-pop" role="dialog" aria-labelledby="gpop-title" hidden></div>
+      </div>
       <p class="hint" id="graph-note" style="margin:10px 0 0"></p>
+      <div class="gx" id="graph-explain" role="status" aria-live="polite"></div>
       <div class="dp-key" style="margin-top:8px"><span><b style="background:#3E9C8F"></b>belegt = Preisliste oder Snippet</span><span><b style="background:#B4B2A2"></b>Faustregel = Literatur ohne Messung</span><span><b style="background:#7B8BC4"></b>Meinung = Panel oder Autoren-Schätzung</span></div>
     </div>
     <div class="card">
@@ -1818,26 +1900,27 @@ function drawGraph(){
   s+='<text x="4" y="14" font-size="11" fill="#5B5D52">Eingaben</text><text x="'+X2+'" y="14" font-size="11" fill="#5B5D52">Annahmen-Gruppen · Farbe = Herkunft</text><text x="'+X4+'" y="14" font-size="11" fill="#5B5D52">Kostenposten '+esc(o.short)+' · Summe '+fmtEur(tot)+' (P50)</text>';
   /* Kanten links → Mitte: nur Zuordnung */
   GRAPH_IN.forEach(n=>{n.to.forEach(gid=>{const g=GRAPH_GRP.find(x=>x.id===gid);if(!g)return;const y1=n.y+lh/2,y2=g.y+gh/2;
-    s+='<path d="M'+X1+' '+y1+'C'+(X1+50)+' '+y1+' '+(X2-50)+' '+y2+' '+X2+' '+y2+'" fill="none" stroke="#B9B3A0" stroke-width="1"><title>'+esc(n.label+' treibt: '+g.label)+'</title></path>';});});
+    s+='<path class="gr-edge" data-ef="in:'+n.id+'" data-et="grp:'+g.id+'" d="M'+X1+' '+y1+'C'+(X1+50)+' '+y1+' '+(X2-50)+' '+y2+' '+X2+' '+y2+'" fill="none" stroke="#B9B3A0" stroke-width="1"><title>'+esc(n.label+' treibt: '+g.label)+'</title></path>';});});
   /* Kanten Mitte → rechts: Dicke proportional zum Posten */
   items.forEach(it=>{const g=GRAPH_GRP.find(x=>x.id===GRAPH_OWN[it.k]);if(!g||it.h<=0)return;
-    s+='<path d="'+ribbon(it.gy,it.gh,it.y+it.h/2,it.h)+'" fill="'+CERTCOL[g.src.kind]+'" opacity=".33"><title>'+esc(g.label+' → '+it.l+': '+fmtEur(it.v)+' ('+Math.round(100*it.v/tot)+' % der P50-Kosten)')+'</title></path>';});
+    s+='<path class="gr-edge" data-rib="1" data-ef="grp:'+g.id+'" data-et="item:'+it.k+'" d="'+ribbon(it.gy,it.gh,it.y+it.h/2,it.h)+'" fill="'+CERTCOL[g.src.kind]+'" opacity=".33"><title>'+esc(g.label+' → '+it.l+': '+fmtEur(it.v)+' ('+Math.round(100*it.v/tot)+' % der P50-Kosten)')+'</title></path>';});
   /* Stundensätze skalieren jeden Stundenposten, ohne einen eigenen Betrag zu tragen */
   {const g=GRAPH_GRP.find(x=>x.id==='rate');const y1=g.y+gh/2;
    items.forEach(it=>{if(GRAPH_SCALE.indexOf(it.k)<0)return;const y2=it.y+it.h/2;
-     s+='<path d="M'+X3+' '+y1+'C'+(X3+70)+' '+y1+' '+(X4-70)+' '+y2+' '+X4+' '+y2+'" fill="none" stroke="#8E8A7A" stroke-width="1" stroke-dasharray="3 3" opacity=".85"><title>'+esc('Stundensätze und Bewertung skalieren '+it.l+', ohne einen eigenen Betrag zu tragen')+'</title></path>';});}
+     s+='<path class="gr-edge" data-ef="grp:rate" data-et="item:'+it.k+'" d="M'+X3+' '+y1+'C'+(X3+70)+' '+y1+' '+(X4-70)+' '+y2+' '+X4+' '+y2+'" fill="none" stroke="#8E8A7A" stroke-width="1" stroke-dasharray="3 3" opacity=".85"><title>'+esc('Stundensätze und Bewertung skalieren '+it.l+', ohne einen eigenen Betrag zu tragen')+'</title></path>';});}
   /* Knoten */
-  GRAPH_IN.forEach(n=>{s+='<g><title>'+esc(n.label+': '+n.val())+'</title><rect x="4" y="'+n.y+'" width="132" height="'+lh+'" rx="6" fill="#fff" stroke="#D8D2C0"/><text x="12" y="'+(n.y+17)+'" font-size="10.5" fill="#23261F">'+esc(n.label)+'</text><text x="12" y="'+(n.y+32)+'" font-size="10.5" fill="#5B5D52">'+esc(n.val())+'</text></g>';});
+  GRAPH_IN.forEach(n=>{s+='<g class="gr-node" data-n="in:'+n.id+'" role="button" tabindex="0" aria-pressed="false" aria-label="'+esc('Eingabe '+n.label+': '+n.val()+'. Auswählen zeigt, wo sie einfließt, und öffnet das passende Eingabefeld.')+'"><title>'+esc(n.label+': '+n.val())+'</title><rect x="4" y="'+n.y+'" width="132" height="'+lh+'" rx="6" fill="#fff" stroke="#D8D2C0"/><text x="12" y="'+(n.y+17)+'" font-size="10.5" fill="#23261F">'+esc(n.label)+'</text><text x="12" y="'+(n.y+32)+'" font-size="10.5" fill="#5B5D52">'+esc(n.val())+'</text></g>';});
   GRAPH_GRP.forEach(g=>{const col=CERTCOL[g.src.kind];
-    s+='<g><title>'+esc(g.label+' — dominante Herkunft: '+g.src.kind+' ('+g.src.counts['belegt']+' belegt, '+g.src.counts['Faustregel']+' Faustregel, '+g.src.counts['Meinung']+' Panel oder Autoren)')+'</title>'
+    s+='<g class="gr-node" data-n="grp:'+g.id+'" role="button" tabindex="0" aria-pressed="false" aria-label="'+esc('Annahmen-Gruppe '+g.label+', '+g.ps.length+' Annahmen, überwiegend '+g.src.kind+'. Auswählen zeigt die Posten und öffnet die Annahmen zum Ändern.')+'"><title>'+esc(g.label+' — dominante Herkunft: '+g.src.kind+' ('+g.src.counts['belegt']+' belegt, '+g.src.counts['Faustregel']+' Faustregel, '+g.src.counts['Meinung']+' Panel oder Autoren)')+'</title>'
       +'<rect x="'+X2+'" y="'+g.y+'" width="196" height="'+gh+'" rx="6" fill="#fff" stroke="#D8D2C0"/><rect x="'+X2+'" y="'+g.y+'" width="5" height="'+gh+'" rx="2" fill="'+col+'"/>'
       +'<text x="'+(X2+14)+'" y="'+(g.y+20)+'" font-size="11" fill="#23261F">'+esc(g.label)+'</text>'
       +'<text x="'+(X2+14)+'" y="'+(g.y+35)+'" font-size="10" fill="'+col+'">'+g.src.kind+' · '+g.ps.length+' Annahmen</text></g>';});
   items.forEach(it=>{const g=GRAPH_GRP.find(x=>x.id===GRAPH_OWN[it.k]);const col=CERTCOL[g.src.kind];
-    s+='<g class="gr-item" data-k="'+it.k+'" data-v="'+Math.round(it.v)+'"><title>'+esc(it.l+': '+fmtEur(it.v)+' ('+Math.round(100*it.v/tot)+' % der P50-Kosten), getrieben von „'+g.label+'“ — '+g.src.kind)+'</title>'
+    s+='<g class="gr-item gr-node" data-n="item:'+it.k+'" data-k="'+it.k+'" data-v="'+Math.round(it.v)+'" role="button" tabindex="0" aria-pressed="false" aria-label="'+esc('Kostenposten '+it.l+': '+fmtEur(it.v)+', '+Math.round(100*it.v/tot)+' Prozent der P50-Kosten. Auswählen zeigt, woraus er entsteht.')+'"><title>'+esc(it.l+': '+fmtEur(it.v)+' ('+Math.round(100*it.v/tot)+' % der P50-Kosten), getrieben von „'+g.label+'“ — '+g.src.kind)+'</title>'
       +'<rect x="'+X4+'" y="'+it.y.toFixed(1)+'" width="15" height="'+Math.max(2,it.h).toFixed(1)+'" rx="3" fill="'+col+'"/>'
       +'<text x="'+(X4+22)+'" y="'+(it.y+it.h/2+4).toFixed(1)+'" font-size="11" fill="#23261F">'+esc(GRAPH_SHORT[it.k])+' '+fmtEur(it.v)+' · '+Math.round(100*it.v/tot)+' %</text></g>';});
   host.innerHTML=s+'</svg>';
+  graphBind();graphApplySel();graphExplain();gpopSync();   /* v0.17 */
   const dom=items.slice().sort((a,b)=>b.v-a.v)[0];const dg=GRAPH_GRP.find(x=>x.id===GRAPH_OWN[dom.k]);
   document.getElementById('graph-note').innerHTML='<b>'+esc(o.name)+':</b> Den Ansatz dominiert <b>'+esc(dom.l)+'</b> mit '+fmtEur(dom.v)+', das sind '+Math.round(100*dom.v/tot)+' % der P50-Kosten von '+fmtEur(tot)+'. Getrieben wird dieser Posten von der Gruppe „'+esc(dg.label)+'“, deren '+dg.ps.length+' Annahmen überwiegend <b>'+dg.src.kind+'</b> sind ('+dg.src.counts['belegt']+' belegt, '+dg.src.counts['Faustregel']+' Faustregel, '+dg.src.counts['Meinung']+' Panel oder Autoren-Schätzung).';
 }
@@ -2521,6 +2604,8 @@ if(!hadLink)wizStart();
 </script>
 <style media="print">
 .sticky-bar,.toolbar,.toast,.back-link,.stepper,input[type=range]{display:none!important;}
+#toc,.gpop{display:none!important;}
+.wrap{display:block!important;max-width:none!important;}
 body.lv0 .wrap>.section:not(#wizard),body.lv0 .wrap>details.lvl3,body.lv0 #footer{display:block!important;}
 #wizard{display:none!important;}
 body{background:#fff;}.wrap{padding:0;max-width:none;}
