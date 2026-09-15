@@ -426,7 +426,7 @@ body.lv3 [data-lv2only]{display:none!important;}
           <div class="sub-hint">Bleibt der heutige Ansatz, kostet der Wechsel 0 €. Jeder andere Ansatz trägt den Nachbau des Bestands.</div></div>
         <div class="field"><label><span>Bestands-Reports, die migriert werden müssten</span><input type="number" class="valin" id="n-existing" min="0" max="100000" aria-label="Bestands-Reports"></label><input type="range" id="existing" min="0" max="1000" value="0"><div class="sub-hint">Reports auf dem heutigen Ansatz, die beim Wechsel neu gebaut werden.</div></div>
       </div>
-      <div class="sub-hint" data-lv="2" data-lv2only style="margin-top:6px;padding-top:14px;border-top:1px solid var(--line)"><b>Vier Feineinstellungen sind nach Ebene 3 gewandert:</b> Semantikmodelle, Adoptionsgrad (Standardtreue), Unsicherheit im Mengengerüst und der Stunden-Anker. Sie sind nicht weg, nur eine Ebene tiefer — ihre Voreinstellungen rechnen unverändert mit.</div>
+      <p class="hint" data-lv="2" data-lv2only style="margin:6px 0 0;padding-top:14px;border-top:1px solid var(--line)"><b>Vier Feineinstellungen sind nach Ebene 3 gewandert:</b> Semantikmodelle, Adoptionsgrad (Standardtreue), Unsicherheit im Mengengerüst und der Stunden-Anker. Sie sind nicht weg, nur eine Ebene tiefer — ihre Voreinstellungen rechnen unverändert mit.</p>
       <div class="grid3" data-lv="3" style="margin-top:6px;padding-top:14px;border-top:1px solid var(--line)">
         <div class="field"><label><span>Semantikmodelle mit Standard-Charts</span><input type="number" class="valin" id="n-models" min="1" max="500" aria-label="Semantikmodelle"></label>
           <div class="sub-hint" id="models-hint">Ein Custom Visual wird einmal im Tenant registriert. Eine DAX-UDF liegt dagegen in <code>functions.tmdl</code> im Definitionsordner <b>jedes</b> Semantikmodells und muss dort einzeln ausgerollt und gepflegt werden: zwanzig Modelle heißen zwanzig Bibliotheken. Faktor auf Setup und Erstbau.</div></div>
@@ -2251,15 +2251,15 @@ function setLevel(n,scroll){S.level=[1,2,3].includes(n)?n:1;document.body.classL
    startet direkt im Rechner. */
 const WIZ_RC={op:[70,20,10],mix:RC_DEF.sh.slice(),mgmt:[20,40,40]};
 const WIZ_RC_LBL={op:'die meisten sind operative Listen',mix:'gemischt',mgmt:'fast alles ist Management-Reporting'};
-const WIZ_PRESET_LBL={pilot:'Pilot 1 / 10',mittelstand:'Mittelstand 3 / 40',konzern:'Konzern 25 / 1.500',rs:'Report Server 15 / 400',gross:'Grosskonzern 200 / 10.000'};
-const WIZ_FLAGS=[['certonly','Tenant erlaubt nur zertifizierte Visuals','Dann laedt ein nicht zertifiziertes Open-Source-Visual aus AppSource im Service nicht.'],
-  ['rs','Reports laufen (auch) im Report Server','Dort gibt es keine gekauften Custom Visuals \u2014 Paid faellt raus.'],
+const WIZ_PRESET_LBL={pilot:'Pilot 1 / 10',mittelstand:'Mittelstand 3 / 40',konzern:'Konzern 25 / 1.500',rs:'Report Server 15 / 400',gross:'Gro\u00dfkonzern 200 / 10.000'};
+const WIZ_FLAGS=[['certonly','Tenant erlaubt nur zertifizierte Visuals','Dann l\u00e4dt ein nicht zertifiziertes Open-Source-Visual aus AppSource im Service nicht.'],
+  ['rs','Reports laufen (auch) im Report Server','Dort gibt es keine gekauften Custom Visuals \u2014 Paid f\u00e4llt raus.'],
   ['nobudget','Kein externes Lizenzbudget','Nur interne Stunden sind bezahlbar, gekaufte Lizenzen sind ausgeschlossen.'],
-  ['ibcsAll','IBCS ist fuer alle Reports verbindlich','Dann laufen auch die operativen Listen ueber den gewaehlten Ansatz und jeder Report wird geprueft \u2014 im Enterprise der groesste einzelne Kostentreiber.'],
-  ['sovereign','Sovereign Cloud oder GCC','In souveraenen Umgebungen ist der Marketplace eingeschraenkt.']];
-const WIZ_LIC_LBL={inforiver:['Inforiver-Niveau \u2248 33 \u20ac','Guenstiger Einstiegsanker je Nutzer und Jahr (Suchsnippet).'],
+  ['ibcsAll','IBCS ist f\u00fcr alle Reports verbindlich','Dann laufen auch die operativen Listen \u00fcber den gew\u00e4hlten Ansatz und jeder Report wird gepr\u00fcft \u2014 im Enterprise der gr\u00f6\u00dfte einzelne Kostentreiber.'],
+  ['sovereign','Sovereign Cloud oder GCC','In souver\u00e4nen Umgebungen ist der Marketplace eingeschr\u00e4nkt.']];
+const WIZ_LIC_LBL={inforiver:['Inforiver-Niveau \u2248 33 \u20ac','G\u00fcnstiger Einstiegsanker je Nutzer und Jahr (Suchsnippet).'],
   enterprise:['Mischpreis \u2248 80 \u20ac','Voreinstellung: mittlerer Anker zwischen den Herstellern.'],
-  zebra:['Zebra-Niveau \u2248 170 \u20ac','Abgeleiteter oberer Anker fuer hochpreisige Pakete.']};
+  zebra:['Zebra-Niveau \u2248 170 \u20ac','Abgeleiteter oberer Anker f\u00fcr hochpreisige Pakete.']};
 let wizStep=0;
 function wizOn(){return document.body.classList.contains('lv0');}
 function wizRcKey(){const j=S.rc.sh.join();return Object.keys(WIZ_RC).find(k=>WIZ_RC[k].join()===j)||null;}
@@ -2425,10 +2425,10 @@ function drawOverview(sim,ev,ranked,excluded,place){
   /* Transparenz: wer liegt bei den drei Lizenz-Ankern vorn, mit und ohne Vorlagenbibliothek */
   {const OFR=activeOffer();
    if(OFR){lastAnchorWin=null; /* v0.15: mit aktivem Angebot sind die drei Anker wirkungslos, der Vergleich waere dreimal dieselbe Zahl */
-    cert+='<br><b>Statt Lizenz-Anker rechnet ein Angebot:</b> '+esc(offerLabel(OFR))+' · '+esc(offerPriceLabel(OFR))+'. Der Anker-Vergleich entfällt, solange das Angebot aktiv ist; der Lizenzanteil von Paid zählt in der Sicherheits-Leiste als belegt.';}
+    cert+='<span data-lv="2"><br><b>Statt Lizenz-Anker rechnet ein Angebot:</b> '+esc(offerLabel(OFR))+' · '+esc(offerPriceLabel(OFR))+'. Der Anker-Vergleich entfällt, solange das Angebot aktiv ist; der Lizenzanteil von Paid zählt in der Sicherheits-Leiste als belegt.</span>';}
    else{const save=S.p.paid.lic,saveLib=S.lib;const allowed=OPTS.filter(o=>ev[o.key].ko.length===0);const win=()=>{if(!allowed.length)return '–';return allowed.slice().sort((a,b)=>expected(a.key).total-expected(b.key).total)[0].short;};
     const cells=[];for(const lib of [false,true]){S.lib=lib;const row=[];for(const k of ['inforiver','enterprise','zebra']){S.p.paid.lic=LIC[k];row.push(win());}cells.push(row);}S.p.paid.lic=save;S.lib=saveLib;lastAnchorWin=cells; /* v0.13 */
-    cert+='<br><b>Wer vorn liegt, je nach Lizenz-Anker</b> (Inforiver / Mischpreis / Zebra): ohne Vorlagenbibliothek '+cells[0].map(esc).join(' / ')+', mit Vorlagenbibliothek '+cells[1].map(esc).join(' / ')+'. Erwartungswerte, reine Kosten. Wer ein echtes Angebot hat, trägt es in Ebene 2 ein und ersetzt damit den Anker.';}}
+    cert+='<span data-lv="2"><br><b>Wer vorn liegt, je nach Lizenz-Anker</b> (Inforiver / Mischpreis / Zebra): ohne Vorlagenbibliothek '+cells[0].map(esc).join(' / ')+', mit Vorlagenbibliothek '+cells[1].map(esc).join(' / ')+'. Erwartungswerte, reine Kosten. Wer ein echtes Angebot hat, trägt es in Ebene 2 ein und ersetzt damit den Anker.</span>';}}
   document.getElementById('ov-cert').innerHTML=cert;
   const sa=document.getElementById('sum-annahmen');if(sa)sa.textContent=(c.V+c.S+c.F+c.P+c.E)+' Werte · V '+c.V+' · S '+c.S+' · F '+c.F+' · P '+c.P+' · E '+c.E;
 }
@@ -2521,7 +2521,7 @@ if(!hadLink)wizStart();
 </script>
 <style media="print">
 .sticky-bar,.toolbar,.toast,.back-link,.stepper,input[type=range]{display:none!important;}
-body.lv0 .wrap>.section,body.lv0 .wrap>details.lvl3,body.lv0 #footer{display:block!important;}
+body.lv0 .wrap>.section:not(#wizard),body.lv0 .wrap>details.lvl3,body.lv0 #footer{display:block!important;}
 #wizard{display:none!important;}
 body{background:#fff;}.wrap{padding:0;max-width:none;}
 .card,.kpi,.opt-card{break-inside:avoid;}
