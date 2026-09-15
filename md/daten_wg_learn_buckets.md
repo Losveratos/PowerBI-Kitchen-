@@ -2,7 +2,7 @@
 
 > Markdown-Fassung von [daten_wg_learn_buckets.html](../daten_wg_learn_buckets.html) · https://datenwgknowledgekitchen.com/daten_wg_learn_buckets.html · generiert mit scripts/build_learn_md.py aus den Episodendaten — bei Abweichungen gilt die HTML-Fassung.
 
-Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **147 Folgen** insgesamt · Sprachverteilung: 126 DE / 21 EN.
+Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **159 Folgen** insgesamt · Sprachverteilung: 137 DE / 22 EN.
 
 ## Übersicht
 
@@ -13,10 +13,11 @@ Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **147 Folgen** insgesam
 | 03 · Datenmodellierung & Architektur | 28 |
 | 04 · Self-Service & Governance | 5 |
 | 05 · Visualisierung & IBCS | 12 |
-| 06 · Power BI · Deep Dive & Vergleiche | 29 |
+| 06 · Power BI · Deep Dive & Vergleiche | 30 |
 | 07 · Karriere & Community | 7 |
 | 08 · Digitalisierung & Strategie | 6 |
 | 09 · Daten-WG Konferenz | 9 |
+| 10 · 1 Minute Power BI | 11 |
 
 ## 01 · Quarterly · Updates & News
 
@@ -1560,6 +1561,31 @@ I will explain how and why behind my Power BI Sparkassen Dashboard.
 
 _Zehn Jahre Power BI sind durch — was hat sich wirklich verändert? Wie steht Power BI gegenüber Qlik, Tableau & Co.? Und wie skaliert man jenseits des PBIX-Files in echte Enterprise-Lösungen?_
 
+### Databricks Explained to a Power BI Guy | Daten-WG Podcast with Vitalija Bartusevičiūtė
+
+Gast: Vitalija Bartusevičiūtė · September 2026 · 33 min · EN · Tags: Databricks, Podcast, Lakehouse, EN
+
+YouTube: https://www.youtube.com/watch?v=E9kgWtTmwdE
+
+Vitalija Bartusevičiūtė, Databricks MVP and Senior Consultant at Capgemini, explains why so many people in the data community fall for the platform — and why "customizable" is both its biggest strength and its biggest hurdle. Plus what it really takes to let business users talk to their data with Genie: clean data, metadata, synonyms and a clear question to answer.
+
+Kapitel:
+- [00:00](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=0s) Intro: stepping out of the Microsoft comfort zone
+- [01:02](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=62s) From biologist and R to Databricks MVP
+- [02:18](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=138s) Why Databricks? Customization and the Unity Catalog moment
+- [04:05](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=245s) Only for big enterprises? Databricks Free for everyone
+- [05:39](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=339s) "I'm not married to a tool": solving the client's problem first
+- [08:05](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=485s) What Databricks actually is: Spark, SQL and the growing AI part
+- [09:06](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=546s) Genie: talking to your data in the Teams chat of a convenience store
+- [12:55](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=775s) Metadata, synonyms and how end users really talk about data
+- [14:13](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=853s) Benchmarks, joins and the 80% rule for a good Genie space
+- [16:44](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=1004s) Flat tables, Frankenstein tables and rethinking best practices for AI
+- [17:15](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=1035s) Metric views and the Open Semantic Interchange initiative
+- [19:44](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=1184s) Delta, SQL dialects and why semantic models are still black magic
+- [25:55](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=1555s) Governance, DirectQuery vs. import and the Excel loop
+- [30:42](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=1842s) Advice: try Databricks Free and focus on the problem, not the tool
+- [31:30](https://www.youtube.com/watch?v=E9kgWtTmwdE&t=1890s) Python pre-con at Daten-WG 2026 in Cologne
+
 ### Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen
 
 Mai 2026 · 2 min · DE · Tags: Unsortiert, DE
@@ -2305,3 +2331,95 @@ April 2025 · 1 min · DE · Tags: Community, Daten-WG, DE
 YouTube: https://www.youtube.com/watch?v=5atgv1IOijA
 
 Kurze Kanal-Vorstellung: Die Daten-WG-Community bleibt auch nach dem Event zusammen. Hier gibt es künftig Podcast-Folgen, Live-Streams und Tutorials rund um die Microsoft Data Platform.
+
+## 10 · 1 Minute Power BI
+
+_Marcus nimmt sich jede Woche eine Sache vor und erklärt sie in unter einer Minute: ein Handgriff, eine Fallstrick-Warnung, eine klare Antwort auf eine Frage, die immer wieder kommt. Kein Drumherum — wer wenig Zeit hat, fängt hier an._
+
+### #011 · Power BI ohne Fabric? Absolut!
+
+September 2026 · 33 s · DE · Tags: Fabric, Shorts, Lizenzen, DE
+
+YouTube: https://www.youtube.com/watch?v=gMYj9UTWeWk
+
+Braucht Power BI zwingend Microsoft Fabric? Marcus gibt die kurze Antwort: nein.
+
+### #010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?
+
+September 2026 · 28 s · DE · Tags: Direct Lake, Shorts, Performance, DE
+
+YouTube: https://www.youtube.com/watch?v=9u9YbdMUU-s
+
+Ist Direct Lake wirklich so schnell, wie alle sagen? Die drei Speichermodi im Kurzvergleich.
+
+### #009 · Lohnt es sich 2026 noch, Power BI zu lernen?
+
+August 2026 · 26 s · DE · Tags: Karriere, Shorts, KI, DE
+
+YouTube: https://www.youtube.com/watch?v=u_ezQyN3a_s
+
+Lohnt sich Power BI noch, wenn KI immer leistungsfähiger wird? Die Antwort in gut 25 Sekunden.
+
+### #008 · Suchst du unsere Tutorials? Hier sind sie!
+
+August 2026 · 31 s · DE · Tags: Kanal, Shorts, DE
+
+YouTube: https://www.youtube.com/watch?v=10jBGN2K52I
+
+Wegweiser durch den Kanal: wo die Power-BI- und Fabric-Tutorials zwischen all den Podcast-Folgen zu finden sind.
+
+### #007 · Mehr als Balkendiagramme! Power BI kann das auch
+
+August 2026 · 45 s · DE · Tags: Visualisierung, Shorts, Custom Visuals, DE
+
+YouTube: https://www.youtube.com/watch?v=KOT5KXIff8E
+
+Über den Marketplace lassen sich zertifizierte Custom Visuals nachrüsten — im Beispiel ein Violin Chart, den die Standarddiagramme nicht hergeben.
+
+### #006 · Power BI & Excel: Tabelle oder Tabellenblatt?
+
+August 2026 · 54 s · DE · Tags: Excel, Shorts, Power Query, DE
+
+YouTube: https://www.youtube.com/watch?v=hkUHetX61jA
+
+Beim Import aus Excel macht es einen Unterschied, ob eine formatierte Excel-Tabelle oder ein ganzes Tabellenblatt angebunden wird. Wann welches sinnvoll ist.
+
+### #005 · Bedingte Formatierung? Ich nutze fast immer Measures!
+
+August 2026 · 48 s · DE · Tags: Formatierung, Shorts, DAX, DE
+
+YouTube: https://www.youtube.com/watch?v=KCCs6e0MeWI
+
+Bedingte Formatierung geht in Power BI auf mehreren Wegen — warum Marcus dafür fast immer Measures nimmt.
+
+### #004 · Bidirektionale Filterung? Meistens ein Fehler!
+
+Juli 2026 · 61 s · DE · Tags: Modellierung, Shorts, Beziehungen, DE
+
+YouTube: https://www.youtube.com/watch?v=WLiGuGjE5m8
+
+Eine bidirektionale Beziehung klingt bequem, sorgt aber häufig für unerwartete Filtereffekte im Modell.
+
+### #003 · Das größte DAX-No-Go? FORMAT() im Measure!
+
+Juli 2026 · 76 s · DE · Tags: DAX, Shorts, Performance, DE
+
+YouTube: https://www.youtube.com/watch?v=YxS238qvD3s
+
+FORMAT() wirkt praktisch — bis das Measure plötzlich kein Zahlenwert mehr ist und Sortierung und Folgeberechnungen brechen.
+
+### #002 · Alle Farben im Bericht auf einmal ändern
+
+Juli 2026 · 63 s · DE · Tags: Theme, Shorts, Design, DE
+
+YouTube: https://www.youtube.com/watch?v=3mwlFE7TWuY
+
+Jedes Visual einzeln einfärben? Nicht nötig — wie sich die Farben eines ganzen Berichts in einem Rutsch umstellen lassen.
+
+### #001 · Power BI Desktop oder Web? Meine klare Antwort!
+
+Juli 2026 · 46 s · DE · Tags: Power BI, Shorts, DE
+
+YouTube: https://www.youtube.com/watch?v=4hap_ZZskzo
+
+Modellieren im Desktop oder direkt im Browser? Der Auftakt der Kurzserie mit einer klaren Empfehlung.

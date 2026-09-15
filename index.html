@@ -41,6 +41,7 @@
   --c-career:   #B8336A;  /* Pink - Karriere & Community */
   --c-strategy: #5B3B7A;  /* Purple - Digitalisierung */
   --c-event:    #B8860B;  /* Gold - Event */
+  --c-shorts:   #4A7C59;  /* Gruen - Shorts */
 
   /* Brand */
   --accent:        #117865;  /* Daten-WG · Petrolgrün */
@@ -2068,12 +2069,12 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <div>
     <div class="eyebrow">Daten-WG · Knowledge Kitchen</div>
     <h1 class="title">Power BI lernen,<br><em>strukturiert &amp; durchsuchbar.</em></h1>
-    <p class="subtitle">147 Folgen aus dem <strong>Daten-WG-Podcast</strong> — geclustert in 9 Themen-Buckets, mit Volltextsuche bis in die Auto-Transkripte und einem End-to-End-Einsteiger-Guide. Kein Chrono-Scroll, sondern Curriculum.</p>
+    <p class="subtitle">148 Folgen und 11 Shorts aus dem <strong>Daten-WG-Podcast</strong> — geclustert in 10 Themen-Buckets, mit Volltextsuche bis in die Auto-Transkripte und einem End-to-End-Einsteiger-Guide. Kein Chrono-Scroll, sondern Curriculum.</p>
     <div class="header-stats">
-      <span class="header-stat"><strong>147</strong>Folgen</span>
+      <span class="header-stat"><strong>159</strong>Folgen</span>
       <span class="header-stat"><strong>105</strong>Transkripte</span>
       <span class="header-stat"><strong>10</strong>Guide-Kapitel</span>
-      <span class="header-stat"><strong>9</strong>Buckets</span>
+      <span class="header-stat"><strong>10</strong>Buckets</span>
     </div>
   </div>
   <aside class="subscribe-card" aria-label="Abonnieren">
@@ -2109,7 +2110,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <div>
     <h2 class="start-here-title">Wie nutzt du diese Seite?</h2>
     <div class="start-here-text">
-      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 147 Folgen sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
+      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 148 Folgen und 11 Shorts sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
       <p>Jede Folge ist eine Karte mit Gast, Dauer, kurzer Zusammenfassung und Tags. Ein Klick auf die Karte zeigt die <strong>Kapitel-Timestamps</strong> (bei 60 Folgen detailliert eingepflegt) — du kannst direkt zur Stelle springen, die dich interessiert.</p>
       <p>Empfohlener Einstieg, wenn du den Kanal noch nicht kennst: Quarterly-Updates für die Tools-Lage, dann das Bucket, das gerade zu deiner Arbeit passt.</p>
     </div>
@@ -2439,7 +2440,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
       <div class="search-help-foot">Sucht in Titel, Gast, Beschreibung und (lazy geladen) Transkripten.</div>
     </div>
     <div class="filter-meta">
-      <span><strong id="result-count">147</strong> von 147 Folgen</span>
+      <span><strong id="result-count">159</strong> von 159 Folgen</span>
       <button class="filter-reset" id="reset-filters">Filter zurücksetzen</button>
       <button class="tags-peek" id="tags-peek" type="button" aria-expanded="true" aria-controls="tag-list" title="Tag-Filter ein-/ausblenden"><span id="tags-peek-label">Tags ausblenden</span><span class="tags-peek-badge" id="tags-peek-badge">0</span><span class="tags-peek-chevron" aria-hidden="true"></span></button>
     </div>
@@ -2493,7 +2494,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="bucket-tile-num">06 · TOOL</div>
     <div class="bucket-tile-name">Power BI Deep Dive</div>
     <div class="bucket-tile-teaser">Praxis-Tutorials, Vergleiche, Power BI von A bis Z.</div>
-    <div class="bucket-tile-count">29 Folgen</div>
+    <div class="bucket-tile-count">30 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-7" style="--bucket-color: var(--c-career);">
     <div class="bucket-tile-num">07 · MENSCH</div>
@@ -2512,6 +2513,12 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="bucket-tile-name">Daten-WG 2025</div>
     <div class="bucket-tile-teaser">Rückblicke und Vorschauen rund um die Daten-WG-Konferenz.</div>
     <div class="bucket-tile-count">9 Folgen</div>
+  </a>
+  <a class="bucket-tile" href="#bucket-10" style="--bucket-color: var(--c-shorts);">
+    <div class="bucket-tile-num">10 · SHORTS</div>
+    <div class="bucket-tile-name">1 Minute Power BI</div>
+    <div class="bucket-tile-teaser">Marcus' Wochenserie: ein Tipp, eine Warnung — in unter einer Minute.</div>
+    <div class="bucket-tile-count">11 Shorts</div>
   </a>
 </div>
 
@@ -2926,6 +2933,15 @@ const BUCKETS = [
     title: 'Daten-WG <em>Konferenz</em>',
     intro: 'Rückblicke und Eindrücke von der Daten-WG-Konferenz. Was wurde diskutiert, welche Sessions sind nachhörbar, was nehmen die Teilnehmer mit nach Hause?',
     hint: 'Köln · Community'
+  },
+  {
+    id: 'bucket-10',
+    num: '10',
+    color: 'var(--c-shorts)',
+    name: 'Shorts',
+    title: '1 Minute <em>Power BI</em>',
+    intro: 'Marcus nimmt sich jede Woche eine Sache vor und erklärt sie in unter einer Minute: ein Handgriff, eine Fallstrick-Warnung, eine klare Antwort auf eine Frage, die immer wieder kommt. Kein Drumherum — wer wenig Zeit hat, fängt hier an.',
+    hint: 'Wöchentlich · unter 1 Minute'
   }
 ];
 
@@ -4964,6 +4980,36 @@ const EPISODES = [
   /* ========== BUCKET 6: POWER BI DEEP DIVE ========== */
   {
     bucket: 'bucket-6',
+    title: 'Databricks Explained to a Power BI Guy | Daten-WG Podcast with Vitalija Bartusevičiūtė',
+    guest: 'Vitalija Bartusevičiūtė',
+    solo: false,
+    date: 'September 2026',
+    duration: '33 min',
+    lang: 'EN',
+    desc: 'Vitalija Bartusevičiūtė, Databricks MVP and Senior Consultant at Capgemini, explains why so many people in the data community fall for the platform — and why "customizable" is both its biggest strength and its biggest hurdle. Plus what it really takes to let business users talk to their data with Genie: clean data, metadata, synonyms and a clear question to answer.',
+    tags: ['Databricks', 'Podcast', 'Lakehouse', 'EN'],
+    podcastUrl: null,
+    ytId: 'E9kgWtTmwdE',
+    chapters: [
+      ['00:00', 'Intro: stepping out of the Microsoft comfort zone'],
+      ['01:02', 'From biologist and R to Databricks MVP'],
+      ['02:18', 'Why Databricks? Customization and the Unity Catalog moment'],
+      ['04:05', 'Only for big enterprises? Databricks Free for everyone'],
+      ['05:39', '"I\'m not married to a tool": solving the client\'s problem first'],
+      ['08:05', 'What Databricks actually is: Spark, SQL and the growing AI part'],
+      ['09:06', 'Genie: talking to your data in the Teams chat of a convenience store'],
+      ['12:55', 'Metadata, synonyms and how end users really talk about data'],
+      ['14:13', 'Benchmarks, joins and the 80% rule for a good Genie space'],
+      ['16:44', 'Flat tables, Frankenstein tables and rethinking best practices for AI'],
+      ['17:15', 'Metric views and the Open Semantic Interchange initiative'],
+      ['19:44', 'Delta, SQL dialects and why semantic models are still black magic'],
+      ['25:55', 'Governance, DirectQuery vs. import and the Excel loop'],
+      ['30:42', 'Advice: try Databricks Free and focus on the problem, not the tool'],
+      ['31:30', 'Python pre-con at Daten-WG 2026 in Cologne']
+    ]
+  },
+  {
+    bucket: 'bucket-6',
     title: 'Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen',
     guest: 'Solo',
     solo: true,
@@ -5974,6 +6020,162 @@ const EPISODES = [
     tags: ['Community', 'Daten-WG', 'DE'],
     podcastUrl: null,
     ytId: '5atgv1IOijA',
+    chapters: []
+  },
+
+  /* ========== BUCKET 10: SHORTS · 1 MINUTE POWER BI ========== */
+  {
+    bucket: 'bucket-10',
+    title: '#011 · Power BI ohne Fabric? Absolut!',
+    guest: 'Solo',
+    solo: true,
+    date: 'September 2026',
+    duration: '33 s',
+    lang: 'DE',
+    desc: 'Braucht Power BI zwingend Microsoft Fabric? Marcus gibt die kurze Antwort: nein.',
+    tags: ['Fabric', 'Shorts', 'Lizenzen', 'DE'],
+    podcastUrl: null,
+    ytId: 'gMYj9UTWeWk',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-10',
+    title: '#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?',
+    guest: 'Solo',
+    solo: true,
+    date: 'September 2026',
+    duration: '28 s',
+    lang: 'DE',
+    desc: 'Ist Direct Lake wirklich so schnell, wie alle sagen? Die drei Speichermodi im Kurzvergleich.',
+    tags: ['Direct Lake', 'Shorts', 'Performance', 'DE'],
+    podcastUrl: null,
+    ytId: '9u9YbdMUU-s',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-10',
+    title: '#009 · Lohnt es sich 2026 noch, Power BI zu lernen?',
+    guest: 'Solo',
+    solo: true,
+    date: 'August 2026',
+    duration: '26 s',
+    lang: 'DE',
+    desc: 'Lohnt sich Power BI noch, wenn KI immer leistungsfähiger wird? Die Antwort in gut 25 Sekunden.',
+    tags: ['Karriere', 'Shorts', 'KI', 'DE'],
+    podcastUrl: null,
+    ytId: 'u_ezQyN3a_s',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-10',
+    title: '#008 · Suchst du unsere Tutorials? Hier sind sie!',
+    guest: 'Solo',
+    solo: true,
+    date: 'August 2026',
+    duration: '31 s',
+    lang: 'DE',
+    desc: 'Wegweiser durch den Kanal: wo die Power-BI- und Fabric-Tutorials zwischen all den Podcast-Folgen zu finden sind.',
+    tags: ['Kanal', 'Shorts', 'DE'],
+    podcastUrl: null,
+    ytId: '10jBGN2K52I',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-10',
+    title: '#007 · Mehr als Balkendiagramme! Power BI kann das auch',
+    guest: 'Solo',
+    solo: true,
+    date: 'August 2026',
+    duration: '45 s',
+    lang: 'DE',
+    desc: 'Über den Marketplace lassen sich zertifizierte Custom Visuals nachrüsten — im Beispiel ein Violin Chart, den die Standarddiagramme nicht hergeben.',
+    tags: ['Visualisierung', 'Shorts', 'Custom Visuals', 'DE'],
+    podcastUrl: null,
+    ytId: 'KOT5KXIff8E',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-10',
+    title: '#006 · Power BI & Excel: Tabelle oder Tabellenblatt?',
+    guest: 'Solo',
+    solo: true,
+    date: 'August 2026',
+    duration: '54 s',
+    lang: 'DE',
+    desc: 'Beim Import aus Excel macht es einen Unterschied, ob eine formatierte Excel-Tabelle oder ein ganzes Tabellenblatt angebunden wird. Wann welches sinnvoll ist.',
+    tags: ['Excel', 'Shorts', 'Power Query', 'DE'],
+    podcastUrl: null,
+    ytId: 'hkUHetX61jA',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-10',
+    title: '#005 · Bedingte Formatierung? Ich nutze fast immer Measures!',
+    guest: 'Solo',
+    solo: true,
+    date: 'August 2026',
+    duration: '48 s',
+    lang: 'DE',
+    desc: 'Bedingte Formatierung geht in Power BI auf mehreren Wegen — warum Marcus dafür fast immer Measures nimmt.',
+    tags: ['Formatierung', 'Shorts', 'DAX', 'DE'],
+    podcastUrl: null,
+    ytId: 'KCCs6e0MeWI',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-10',
+    title: '#004 · Bidirektionale Filterung? Meistens ein Fehler!',
+    guest: 'Solo',
+    solo: true,
+    date: 'Juli 2026',
+    duration: '61 s',
+    lang: 'DE',
+    desc: 'Eine bidirektionale Beziehung klingt bequem, sorgt aber häufig für unerwartete Filtereffekte im Modell.',
+    tags: ['Modellierung', 'Shorts', 'Beziehungen', 'DE'],
+    podcastUrl: null,
+    ytId: 'WLiGuGjE5m8',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-10',
+    title: '#003 · Das größte DAX-No-Go? FORMAT() im Measure!',
+    guest: 'Solo',
+    solo: true,
+    date: 'Juli 2026',
+    duration: '76 s',
+    lang: 'DE',
+    desc: 'FORMAT() wirkt praktisch — bis das Measure plötzlich kein Zahlenwert mehr ist und Sortierung und Folgeberechnungen brechen.',
+    tags: ['DAX', 'Shorts', 'Performance', 'DE'],
+    podcastUrl: null,
+    ytId: 'YxS238qvD3s',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-10',
+    title: '#002 · Alle Farben im Bericht auf einmal ändern',
+    guest: 'Solo',
+    solo: true,
+    date: 'Juli 2026',
+    duration: '63 s',
+    lang: 'DE',
+    desc: 'Jedes Visual einzeln einfärben? Nicht nötig — wie sich die Farben eines ganzen Berichts in einem Rutsch umstellen lassen.',
+    tags: ['Theme', 'Shorts', 'Design', 'DE'],
+    podcastUrl: null,
+    ytId: '3mwlFE7TWuY',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-10',
+    title: '#001 · Power BI Desktop oder Web? Meine klare Antwort!',
+    guest: 'Solo',
+    solo: true,
+    date: 'Juli 2026',
+    duration: '46 s',
+    lang: 'DE',
+    desc: 'Modellieren im Desktop oder direkt im Browser? Der Auftakt der Kurzserie mit einer klaren Empfehlung.',
+    tags: ['Power BI', 'Shorts', 'DE'],
+    podcastUrl: null,
+    ytId: '4hap_ZZskzo',
     chapters: []
   }
 ];
