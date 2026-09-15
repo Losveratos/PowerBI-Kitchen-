@@ -3,14 +3,14 @@
  "name": "Self-Service BI",
  "typ": "thema",
  "slug": "self-service-bi",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/self-service-bi.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/self-service-bi.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/self-service-bi.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/self-service-bi.json",
- "dokumente_gesamt": 18,
+ "dokumente_gesamt": 20,
  "kernaussagen_gesamt": 43,
  "mit_kernaussagen": 16,
  "aliase": [
@@ -25,7 +25,7 @@
    "name": "Governance",
    "kantentyp": "gegensatz",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 4,
+   "gemeinsame_segmente": 6,
    "beleg": "dieses Spannungsfeld zwischen IT Chain und Selfsice nennen wir es einfach ITQ",
    "datei": "governance.md"
   },
@@ -34,7 +34,7 @@
    "name": "Governance",
    "kantentyp": "setzt-voraus",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 4,
+   "gemeinsame_segmente": 6,
    "beleg": "dass berechtigungskonzept sehen wir als gewisse leitplanken die quasi ein unsichtbares gerüst zur einhaltung von von ein paar spielregeln",
    "datei": "governance.md"
   },
@@ -52,9 +52,18 @@
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 13,
+   "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "excel.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "reporting.md"
   },
   {
    "id": "tool:microsoft-fabric",
@@ -66,13 +75,13 @@
    "datei": "microsoft-fabric.md"
   },
   {
-   "id": "topic:reporting",
-   "name": "Reporting",
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 11,
+   "gemeinsame_segmente": 9,
    "beleg": "",
-   "datei": "reporting.md"
+   "datei": "visualisierung.md"
   },
   {
    "id": "topic:performance",
@@ -82,15 +91,6 @@
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "performance.md"
-  },
-  {
-   "id": "topic:visualisierung",
-   "name": "Visualisierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 7,
-   "beleg": "",
-   "datei": "visualisierung.md"
   },
   {
    "id": "topic:datenmodellierung",
@@ -106,9 +106,18 @@
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 5,
+   "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "ki.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "sicherheit.md"
   },
   {
    "id": "topic:strategie",
@@ -120,6 +129,15 @@
    "datei": "strategie.md"
   },
   {
+   "id": "topic:schulung",
+   "name": "Schulung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "schulung.md"
+  },
+  {
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
@@ -127,24 +145,6 @@
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "warehouse.md"
-  },
-  {
-   "id": "topic:sicherheit",
-   "name": "Sicherheit",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
-   "beleg": "",
-   "datei": "sicherheit.md"
-  },
-  {
-   "id": "topic:schulung",
-   "name": "Schulung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
-   "beleg": "",
-   "datei": "schulung.md"
   },
   {
    "id": "tool:lakehouse",
@@ -687,6 +687,31 @@
    ]
   },
   {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.068,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.13%3A%20Entscheidungspfad%20und%20Wirkungsgraph",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
+    }
+   ]
+  },
+  {
    "id": "yt:-_4bfrjRCVo",
    "titel": "Objektive Daten gibt es nicht",
    "datum": "2026-06-01",
@@ -807,6 +832,21 @@
    ]
   },
   {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.031,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "19:37",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1177s",
+     "sekunde": 1177
+    }
+   ]
+  },
+  {
    "id": "yt:pOJpXxsfUt0",
    "titel": "BI Thinkers Talk n.73",
    "datum": "2026-02-01",
@@ -865,14 +905,14 @@
    "id": "yt:uxYFqwe_Wiw",
    "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
    "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.015,
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.018,
    "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
    "sprungmarken": [
     {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
+     "label": "04:46",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=286s",
+     "sekunde": 286
     }
    ]
   },

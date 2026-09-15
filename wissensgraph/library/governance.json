@@ -3,14 +3,14 @@
  "name": "Governance",
  "typ": "thema",
  "slug": "governance",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/governance.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/governance.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/governance.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/governance.json",
- "dokumente_gesamt": 27,
+ "dokumente_gesamt": 29,
  "kernaussagen_gesamt": 100,
  "mit_kernaussagen": 32,
  "aliase": [
@@ -25,7 +25,7 @@
    "name": "Self-Service BI",
    "kantentyp": "gegensatz",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 4,
+   "gemeinsame_segmente": 6,
    "beleg": "dieses Spannungsfeld zwischen IT Chain und Selfsice nennen wir es einfach ITQ",
    "datei": "self-service-bi.md"
   },
@@ -34,34 +34,34 @@
    "name": "Self-Service BI",
    "kantentyp": "setzt-voraus",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 4,
+   "gemeinsame_segmente": 6,
    "beleg": "dass berechtigungskonzept sehen wir als gewisse leitplanken die quasi ein unsichtbares gerüst zur einhaltung von von ein paar spielregeln",
    "datei": "self-service-bi.md"
-  },
-  {
-   "id": "tool:microsoft-fabric",
-   "name": "Microsoft Fabric",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 26,
-   "beleg": "",
-   "datei": "microsoft-fabric.md"
   },
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 25,
+   "gemeinsame_segmente": 30,
    "beleg": "",
    "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 28,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
   },
   {
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 15,
+   "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -70,9 +70,45 @@
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 13,
+   "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "sicherheit.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "lizenzen.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "workspace.md"
   },
   {
    "id": "tool:snowflake",
@@ -84,22 +120,13 @@
    "datei": "snowflake.md"
   },
   {
-   "id": "topic:performance",
-   "name": "Performance",
+   "id": "tool:excel",
+   "name": "Excel",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 12,
+   "gemeinsame_segmente": 10,
    "beleg": "",
-   "datei": "performance.md"
-  },
-  {
-   "id": "tool:workspace",
-   "name": "Workspace",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 11,
-   "beleg": "",
-   "datei": "workspace.md"
+   "datei": "excel.md"
   },
   {
    "id": "tool:onelake",
@@ -127,33 +154,6 @@
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "mirroring.md"
-  },
-  {
-   "id": "tool:excel",
-   "name": "Excel",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 9,
-   "beleg": "",
-   "datei": "excel.md"
-  },
-  {
-   "id": "topic:row-level-security",
-   "name": "Row-Level Security",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 9,
-   "beleg": "",
-   "datei": "row-level-security.md"
-  },
-  {
-   "id": "tool:directquery",
-   "name": "DirectQuery",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 7,
-   "beleg": "",
-   "datei": "directquery.md"
   }
  ],
  "kernaussagen": [
@@ -1060,6 +1060,31 @@
  ],
  "dokumente": [
   {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.227,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Was%20das%20Werkzeug%20rechnet",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
+    }
+   ]
+  },
+  {
    "id": "page:ki-entwicklung-zehn-tage",
    "titel": "Zehn Tage bis zum marktfähigen Stand",
    "datum": "2026-08-31",
@@ -1181,6 +1206,31 @@
      "label": "24:37",
      "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1477s",
      "sekunde": 1477
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.088,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "11:29",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=689s",
+     "sekunde": 689
+    },
+    {
+     "label": "39:46",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2386s",
+     "sekunde": 2386
+    },
+    {
+     "label": "41:32",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2492s",
+     "sekunde": 2492
     }
    ]
   },

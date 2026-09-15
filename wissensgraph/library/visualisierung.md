@@ -2,10 +2,10 @@
 id: "topic:visualisierung"
 name: "Visualisierung"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 83
+dokumente: 89
 kernaussagen: 39
 mit_kernaussagen: 18
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/visualisierung.html"
@@ -33,21 +33,21 @@ Visuals, Charts, Diagramme, Diagramm, Visualisierungen, Visual
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Power BI](power-bi.md) | Visualisierung und Power BI im selben Segment | Heuristik, gezählt |  | 185 |
-| [Reporting](reporting.md) | Visualisierung und Reporting im selben Segment | Heuristik, gezählt |  | 92 |
-| [Custom Visuals](custom-visuals.md) | Visualisierung und Custom Visuals im selben Segment | Heuristik, gezählt |  | 63 |
-| [KI](ki.md) | Visualisierung und KI im selben Segment | Heuristik, gezählt |  | 59 |
-| [IBCS](ibcs.md) | Visualisierung und IBCS im selben Segment | Heuristik, gezählt |  | 56 |
-| [DAX](dax.md) | Visualisierung und DAX im selben Segment | Heuristik, gezählt |  | 50 |
-| [Power BI Desktop](power-bi-desktop.md) | Visualisierung und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 47 |
+| [Power BI](power-bi.md) | Visualisierung und Power BI im selben Segment | Heuristik, gezählt |  | 201 |
+| [Reporting](reporting.md) | Visualisierung und Reporting im selben Segment | Heuristik, gezählt |  | 111 |
+| [Custom Visuals](custom-visuals.md) | Visualisierung und Custom Visuals im selben Segment | Heuristik, gezählt |  | 73 |
+| [IBCS](ibcs.md) | Visualisierung und IBCS im selben Segment | Heuristik, gezählt |  | 65 |
+| [KI](ki.md) | Visualisierung und KI im selben Segment | Heuristik, gezählt |  | 63 |
+| [DAX](dax.md) | Visualisierung und DAX im selben Segment | Heuristik, gezählt |  | 54 |
+| [Power BI Desktop](power-bi-desktop.md) | Visualisierung und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 52 |
+| [Datenmodellierung](datenmodellierung.md) | Visualisierung und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 40 |
 | [Performance](performance.md) | Visualisierung und Performance im selben Segment | Heuristik, gezählt |  | 37 |
-| [Datenmodellierung](datenmodellierung.md) | Visualisierung und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 35 |
-| [Microsoft Fabric](microsoft-fabric.md) | Visualisierung und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 33 |
-| [Excel](excel.md) | Visualisierung und Excel im selben Segment | Heuristik, gezählt |  | 32 |
-| [Visual Calculations](visual-calculations.md) | Visualisierung und Visual Calculations im selben Segment | Heuristik, gezählt |  | 27 |
-| [Planung](planung.md) | Visualisierung und Planung im selben Segment | Heuristik, gezählt |  | 25 |
-| [Daten-WG](daten-wg.md) | Visualisierung und Daten-WG im selben Segment | Heuristik, gezählt |  | 22 |
-| [Copilot](copilot.md) | Visualisierung und Copilot im selben Segment | Heuristik, gezählt |  | 20 |
+| [Excel](excel.md) | Visualisierung und Excel im selben Segment | Heuristik, gezählt |  | 36 |
+| [Microsoft Fabric](microsoft-fabric.md) | Visualisierung und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 36 |
+| [Deneb](deneb.md) | Visualisierung und Deneb im selben Segment | Heuristik, gezählt |  | 34 |
+| [Visual Calculations](visual-calculations.md) | Visualisierung und Visual Calculations im selben Segment | Heuristik, gezählt |  | 29 |
+| [Lizenzen](lizenzen.md) | Visualisierung und Lizenzen im selben Segment | Heuristik, gezählt |  | 27 |
+| [Daten-WG](daten-wg.md) | Visualisierung und Daten-WG im selben Segment | Heuristik, gezählt |  | 25 |
 
 ## Kernaussagen
 
@@ -100,11 +100,15 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
 | [175 Jahre Klimageschichte zum Anfassen — Waermestreifen 3D](https://datenwgknowledgekitchen.com/waermestreifen-3d.html) | 2026-08-04 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/waermestreifen-3d.html) · [Abschnitt](https://datenwgknowledgekitchen.com/waermestreifen-3d.html) · [Abschnitt](https://datenwgknowledgekitchen.com/waermestreifen-3d.html#:~:text=Interaktion%3A%20ein%20Visual%2C%20kein%20Film) |
-| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps) |
 | [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=01%20%C2%B7%20In%20drei%20Schritten%20loslegen) |
+| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps) |
+| [#007 · Mehr als Balkendiagramme! Power BI kann das auch](https://www.youtube.com/watch?v=KOT5KXIff8E) | 2026-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=KOT5KXIff8E&t=0s) |
+| [#002 · Alle Farben im Bericht auf einmal ändern](https://www.youtube.com/watch?v=3mwlFE7TWuY) | 2026-07-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=3mwlFE7TWuY&t=0s) |
+| [#001 · Power BI Desktop oder Web? Meine klare Antwort!](https://www.youtube.com/watch?v=4hap_ZZskzo) | 2026-07-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=4hap_ZZskzo&t=1s) |
 | [Power BI Update November 2025](https://www.youtube.com/watch?v=XJZxYNIeEVc) | 2025-11-01 | nur-zeitstempel | [00:16](https://www.youtube.com/watch?v=XJZxYNIeEVc&t=16s) · [01:17](https://www.youtube.com/watch?v=XJZxYNIeEVc&t=77s) · [03:31](https://www.youtube.com/watch?v=XJZxYNIeEVc&t=211s) |
 | [Power BI Update Oktober 2025](https://www.youtube.com/watch?v=LVSttJlhrqM) | 2025-10-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=LVSttJlhrqM&t=0s) · [01:01](https://www.youtube.com/watch?v=LVSttJlhrqM&t=61s) · [02:52](https://www.youtube.com/watch?v=LVSttJlhrqM&t=172s) |
 | [Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! \| Power BI Tutorial](https://www.youtube.com/watch?v=GsLfiuPlsQE) | 2025-10-01 | nur-zeitstempel | [00:41](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=41s) · [03:00](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=180s) · [04:30](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=270s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail) |
 | [Power BI Update Juli 2025](https://www.youtube.com/watch?v=TkxwcAyBGUM) | 2025-07-01 | nur-zeitstempel | [00:32](https://www.youtube.com/watch?v=TkxwcAyBGUM&t=32s) · [02:07](https://www.youtube.com/watch?v=TkxwcAyBGUM&t=127s) · [04:27](https://www.youtube.com/watch?v=TkxwcAyBGUM&t=267s) |
 | [The Power of User Groups](https://www.youtube.com/watch?v=SSUpe1JON9Y) | 2025-10-01 | nur-zeitstempel | [10:04](https://www.youtube.com/watch?v=SSUpe1JON9Y&t=604s) · [15:02](https://www.youtube.com/watch?v=SSUpe1JON9Y&t=902s) · [23:32](https://www.youtube.com/watch?v=SSUpe1JON9Y&t=1412s) |
 | [BI Thinkers Talk nr.76](https://www.youtube.com/watch?v=mlkP-6i5Kq8) | 2026-05-01 | kernaussagen+zeitstempel | [03:09](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=189s) · [08:04](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=484s) · [30:01](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1801s) |
@@ -135,12 +139,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Power BI Update April 2025](https://www.youtube.com/watch?v=lT-C7fPzxj4) | 2025-04-01 | nur-zeitstempel | [01:36](https://www.youtube.com/watch?v=lT-C7fPzxj4&t=96s) |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [08:02](https://www.youtube.com/watch?v=27rC2zefFOU&t=482s) · [14:04](https://www.youtube.com/watch?v=27rC2zefFOU&t=844s) · [32:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1925s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [07:02](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=422s) · [10:23](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=623s) · [11:16](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=676s) |
-| [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | kernaussagen+zeitstempel | [02:15](https://www.youtube.com/watch?v=e50qKdVn-24&t=135s) · [07:42](https://www.youtube.com/watch?v=e50qKdVn-24&t=462s) · [10:50](https://www.youtube.com/watch?v=e50qKdVn-24&t=650s) |
-| [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [24:40](https://www.youtube.com/watch?v=r416vanitYw&t=1480s) · [28:05](https://www.youtube.com/watch?v=r416vanitYw&t=1685s) · [41:10](https://www.youtube.com/watch?v=r416vanitYw&t=2470s) |
-| [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | kernaussagen+zeitstempel | [01:36](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=96s) · [03:12](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=192s) · [10:39](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=639s) |
-| [The Day After Tomorrow – Nach der Einführung geht es erst richtig los \| Power BI Summit 2023](https://www.youtube.com/watch?v=KwySyTxW_EI) | 2023-03-01 | nur-zeitstempel | [09:02](https://www.youtube.com/watch?v=KwySyTxW_EI&t=542s) · [30:07](https://www.youtube.com/watch?v=KwySyTxW_EI&t=1807s) · [48:10](https://www.youtube.com/watch?v=KwySyTxW_EI&t=2890s) |
 
-40 von 83 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/visualisierung.json).
+40 von 89 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/visualisierung.json).
 
 ## Hinweise
 

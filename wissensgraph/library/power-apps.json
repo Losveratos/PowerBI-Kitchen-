@@ -3,14 +3,14 @@
  "name": "Power Apps",
  "typ": "tool",
  "slug": "power-apps",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-apps.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-apps.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-apps.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-apps.json",
- "dokumente_gesamt": 8,
+ "dokumente_gesamt": 9,
  "kernaussagen_gesamt": 1,
  "mit_kernaussagen": 1,
  "aliase": [
@@ -24,9 +24,18 @@
    "name": "Power BI",
    "kantentyp": "setzt-voraus",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 6,
+   "gemeinsame_segmente": 7,
    "beleg": "die Eingabefunktion in den Power BI Bericht gebaut ... Rideback Funktionalität über Power App gebaut",
    "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
   },
   {
    "id": "tool:excel",
@@ -38,13 +47,13 @@
    "datei": "excel.md"
   },
   {
-   "id": "tool:microsoft-fabric",
-   "name": "Microsoft Fabric",
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
+   "gemeinsame_segmente": 3,
    "beleg": "",
-   "datei": "microsoft-fabric.md"
+   "datei": "lizenzen.md"
   },
   {
    "id": "topic:planung",
@@ -134,6 +143,21 @@
      "label": "40:30",
      "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2430s",
      "sekunde": 2430
+    }
+   ]
+  },
+  {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "12:22",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=742s",
+     "sekunde": 742
     }
    ]
   },

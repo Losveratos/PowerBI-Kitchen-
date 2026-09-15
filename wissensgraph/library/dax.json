@@ -3,14 +3,14 @@
  "name": "DAX",
  "typ": "tool",
  "slug": "dax",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/dax.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/dax.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/dax.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/dax.json",
- "dokumente_gesamt": 57,
+ "dokumente_gesamt": 59,
  "kernaussagen_gesamt": 62,
  "mit_kernaussagen": 26,
  "aliase": [
@@ -59,7 +59,7 @@
    "name": "TMDL",
    "kantentyp": "teil-von",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 6,
+   "gemeinsame_segmente": 7,
    "beleg": "alles im was Power Query, Datenmodell, Beziehung, DAX Measures, alles das, was darin embettet ist",
    "datei": "tmdl.md"
   },
@@ -82,22 +82,22 @@
    "datei": "qlik.md"
   },
   {
-   "id": "tool:power-bi",
-   "name": "Power BI",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 52,
-   "beleg": "",
-   "datei": "power-bi.md"
-  },
-  {
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 50,
+   "gemeinsame_segmente": 54,
    "beleg": "",
    "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 54,
+   "beleg": "",
+   "datei": "power-bi.md"
   },
   {
    "id": "topic:performance",
@@ -113,7 +113,7 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 32,
+   "gemeinsame_segmente": 34,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -122,7 +122,7 @@
    "name": "Sternschema",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 24,
+   "gemeinsame_segmente": 25,
    "beleg": "",
    "datei": "sternschema.md"
   },
@@ -136,6 +136,15 @@
    "datei": "dax-studio.md"
   },
   {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 17,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
@@ -143,15 +152,6 @@
    "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "microsoft-fabric.md"
-  },
-  {
-   "id": "topic:ki",
-   "name": "KI",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 16,
-   "beleg": "",
-   "datei": "ki.md"
   }
  ],
  "kernaussagen": [
@@ -716,6 +716,21 @@
  ],
  "dokumente": [
   {
+   "id": "yt:YxS238qvD3s",
+   "titel": "#003 · Das größte DAX-No-Go? FORMAT() im Measure!",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=YxS238qvD3s",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=YxS238qvD3s&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
    "id": "yt:LQQEn7IOb7w",
    "titel": "Expanded Tables in DAX verstehen – Beziehungen & Filter erklärt | Power BI Tutorial",
    "datum": "2025-12-01",
@@ -896,21 +911,6 @@
    ]
   },
   {
-   "id": "page:chartkitchen-schnellstart_en",
-   "titel": "ChartKitchen byDatenWG — Quick Start",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.2,
-   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:chartkitchen-schnellstart",
    "titel": "ChartKitchen byDatenWG — Schnellstart",
    "datum": "2026-08-31",
@@ -921,6 +921,21 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart_en",
+   "titel": "ChartKitchen byDatenWG — Quick Start",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
      "sekunde": null
     }
    ]
@@ -982,6 +997,31 @@
      "label": "06:21",
      "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=381s",
      "sekunde": 381
+    }
+   ]
+  },
+  {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.174,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "24:18",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1458s",
+     "sekunde": 1458
+    },
+    {
+     "label": "25:49",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1549s",
+     "sekunde": 1549
+    },
+    {
+     "label": "27:31",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1651s",
+     "sekunde": 1651
     }
    ]
   },
@@ -1156,6 +1196,31 @@
    ]
   },
   {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.127,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "1:08:51",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=4131s",
+     "sekunde": 4131
+    },
+    {
+     "label": "1:16:41",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=4601s",
+     "sekunde": 4601
+    }
+   ]
+  },
+  {
    "id": "yt:TkxwcAyBGUM",
    "titel": "Power BI Update Juli 2025",
    "datum": "2025-07-01",
@@ -1192,31 +1257,6 @@
      "label": "44:27",
      "url": "https://www.youtube.com/watch?v=r416vanitYw&t=2667s",
      "sekunde": 2667
-    }
-   ]
-  },
-  {
-   "id": "yt:uxYFqwe_Wiw",
-   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.108,
-   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
     }
    ]
   },
@@ -1297,6 +1337,31 @@
      "label": "33:36",
      "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2016s",
      "sekunde": 2016
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.091,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Was%20das%20Werkzeug%20rechnet",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben",
+     "sekunde": null
     }
    ]
   },
@@ -1812,15 +1877,6 @@
    "abdeckung": "nur-metadaten",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=nldG2mLwA30",
-   "sprungmarken": []
-  },
-  {
-   "id": "yt:c90oD4zR1Aw",
-   "titel": "More than PBIX",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
    "sprungmarken": []
   }
  ],

@@ -2,10 +2,10 @@
 id: "tool:lakehouse"
 name: "Lakehouse"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 39
+dokumente: 42
 kernaussagen: 45
 mit_kernaussagen: 19
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/lakehouse.html"
@@ -29,13 +29,13 @@ Lake House
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [Deployment Pipelines](deployment-pipelines.md) | Lakehouse gegensatz Deployment Pipelines | automatisch extrahiert, Quellenstelle vorhanden | „der Analytic Endpunkt vom Lake House wird nicht die Objekte da drin werden nicht übertragen“ (Daten-WG Life-Update \| Fabric Architekturen, 2026-08) | 9 |
-| [Warehouse](warehouse.md) | Warehouse ersetzt Lakehouse | automatisch extrahiert, Quellenstelle vorhanden | „wir müssen jetzt zu WHäusern... das neue Warehouse war halt leer, ist in wenigen Klicks angelegt“ (Microsoft Fabric — braucht das wirklich jemand?) | 71 |
-| [Warehouse](warehouse.md) | Warehouse gegensatz Lakehouse | automatisch extrahiert, Quellenstelle vorhanden | „Beim Warehouse hat man nur append und kann das auch nicht zurück umstellen. Beim Lake House habe ich nur replaced“ (Daten-WG Deep Dive Financial Reporting - part 6, 2025-08) | 71 |
-| [Warehouse](warehouse.md) | Warehouse setzt-voraus Lakehouse | automatisch extrahiert, Quellenstelle vorhanden | „mussten wir effektiv die Lake Houses replizieren, Shortcuts in diesen Lake Houses reinsetzen und dann vom Warehouse über fully qualified Links dieser Lakees anziehen“ (600 SQL-Tabellen in Fabric) | 71 |
+| [Warehouse](warehouse.md) | Warehouse ersetzt Lakehouse | automatisch extrahiert, Quellenstelle vorhanden | „wir müssen jetzt zu WHäusern... das neue Warehouse war halt leer, ist in wenigen Klicks angelegt“ (Microsoft Fabric — braucht das wirklich jemand?) | 72 |
+| [Warehouse](warehouse.md) | Warehouse gegensatz Lakehouse | automatisch extrahiert, Quellenstelle vorhanden | „Beim Warehouse hat man nur append und kann das auch nicht zurück umstellen. Beim Lake House habe ich nur replaced“ (Daten-WG Deep Dive Financial Reporting - part 6, 2025-08) | 72 |
+| [Warehouse](warehouse.md) | Warehouse setzt-voraus Lakehouse | automatisch extrahiert, Quellenstelle vorhanden | „mussten wir effektiv die Lake Houses replizieren, Shortcuts in diesen Lake Houses reinsetzen und dann vom Warehouse über fully qualified Links dieser Lakees anziehen“ (600 SQL-Tabellen in Fabric) | 72 |
 | [Direct Lake](direct-lake.md) | Direct Lake setzt-voraus Lakehouse | automatisch extrahiert, Quellenstelle vorhanden | „der Kunde hat einfach ein Direct Lake Modell letztendlich ... hier quasi ein Modell, was nach dem Deployment immer noch auf dem Lake House im Test hängt“ (BI Thinkers Talk n.73, 2026-02) | 40 |
 | [OneLake](onelake.md) | Lakehouse setzt-voraus OneLake | automatisch extrahiert, Quellenstelle vorhanden | „könnte ich sie in OneLake auslagern und in Lakehouse verwenden, um darauf aufbauend ein semantisches Modell zu erstellen“ (Why Passion Beats Niche, 2025-09) | 34 |
-| [Microsoft Fabric](microsoft-fabric.md) | Lakehouse und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 91 |
-| [Power BI](power-bi.md) | Lakehouse und Power BI im selben Segment | Heuristik, gezählt |  | 59 |
+| [Microsoft Fabric](microsoft-fabric.md) | Lakehouse und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 93 |
+| [Power BI](power-bi.md) | Lakehouse und Power BI im selben Segment | Heuristik, gezählt |  | 60 |
 | [Notebook](notebook.md) | Lakehouse und Notebook im selben Segment | Heuristik, gezählt |  | 51 |
 | [SQL](sql.md) | Lakehouse und SQL im selben Segment | Heuristik, gezählt |  | 49 |
 | [Dataflow](dataflow.md) | Lakehouse und Dataflow im selben Segment | Heuristik, gezählt |  | 48 |
@@ -107,11 +107,13 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Microsoft Fabric Shortcut Transformation erklärt: Updates im Praxistest](https://www.youtube.com/watch?v=Z6RZjkn_6lY) | 2026-07-01 | nur-zeitstempel | [00:28](https://www.youtube.com/watch?v=Z6RZjkn_6lY&t=28s) · [03:04](https://www.youtube.com/watch?v=Z6RZjkn_6lY&t=184s) |
 | [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [07:26](https://www.youtube.com/watch?v=mTVeZzshLzE&t=446s) · [23:00](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1380s) · [25:06](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1506s) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [08:28](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=508s) · [10:33](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=633s) · [15:50](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=950s) |
+| [Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen](https://www.youtube.com/watch?v=_AxvdCW0ST4) | 2026-07-01 | nur-zeitstempel | [00:45](https://www.youtube.com/watch?v=_AxvdCW0ST4&t=45s) |
 | [Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial](https://www.youtube.com/watch?v=5HhNQZlB-1E) | 2025-12-01 | kernaussagen+zeitstempel | [01:15](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=75s) · [08:20](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=500s) · [09:45](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=585s) |
 | [Power BI-Teams werden Fabric-Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc) | — | nur-zeitstempel | [02:40](https://www.youtube.com/watch?v=YzfcMurbWNc&t=160s) · [25:00](https://www.youtube.com/watch?v=YzfcMurbWNc&t=1500s) · [28:09](https://www.youtube.com/watch?v=YzfcMurbWNc&t=1689s) |
 | [BI Thinkers Talk n.73](https://www.youtube.com/watch?v=pOJpXxsfUt0) | 2026-02-01 | kernaussagen+zeitstempel | [35:44](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2144s) · [37:17](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2237s) · [38:59](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2339s) |
 | [Power BI Update August 2026](https://www.youtube.com/watch?v=GWCHNmLs72M) | 2026-08-01 | nur-zeitstempel | [05:57](https://www.youtube.com/watch?v=GWCHNmLs72M&t=357s) · [06:57](https://www.youtube.com/watch?v=GWCHNmLs72M&t=417s) |
 | [SharePoint direkt in Microsoft Fabric nutzen \| Lakehouse, Direct Lake & Power BI](https://www.youtube.com/watch?v=c-LWoo-O5PQ) | 2026-07-01 | nur-zeitstempel | [08:20](https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=500s) · [16:12](https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=972s) |
+| [Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)](https://www.youtube.com/watch?v=lp8xNX81R2w) | 2026-07-01 | nur-zeitstempel | [04:11](https://www.youtube.com/watch?v=lp8xNX81R2w&t=251s) |
 | [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [13:57](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=837s) · [29:00](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1740s) · [49:49](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2989s) |
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [01:38](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=98s) · [06:24](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=384s) · [11:34](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=694s) |
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [32:02](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1922s) · [33:41](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2021s) · [35:19](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2119s) |
@@ -121,6 +123,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Deep Dive Financial Reporting - part 5](https://www.youtube.com/watch?v=iymmxuXHh44) | 2025-07-01 | nur-zeitstempel | [17:41](https://www.youtube.com/watch?v=iymmxuXHh44&t=1061s) · [54:13](https://www.youtube.com/watch?v=iymmxuXHh44&t=3253s) · [57:38](https://www.youtube.com/watch?v=iymmxuXHh44&t=3458s) |
 | [Power BI Update Mai 2025](https://www.youtube.com/watch?v=zkfdfc5fo-E) | 2025-05-01 | nur-zeitstempel | [11:21](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=681s) |
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [19:28](https://www.youtube.com/watch?v=G8s96sHUHac&t=1168s) · [32:47](https://www.youtube.com/watch?v=G8s96sHUHac&t=1967s) · [41:02](https://www.youtube.com/watch?v=G8s96sHUHac&t=2462s) |
+| [Automatisierung gewinnt \| Daten-WG Podcast mit Reinhard Mense](https://www.youtube.com/watch?v=3-hXnNLKnAw) | 2026-07-01 | nur-zeitstempel | [07:05](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=425s) · [22:53](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1373s) |
 | [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | kernaussagen+zeitstempel | [18:59](https://www.youtube.com/watch?v=e50qKdVn-24&t=1139s) |
 | [Fabric Planning unboxing](https://www.youtube.com/watch?v=xCzKEIB4W5I) | 2026-03-01 | kernaussagen+zeitstempel | [20:19](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1219s) · [28:51](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1731s) · [34:04](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=2044s) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [37:07](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2227s) · [53:54](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3234s) |
@@ -130,15 +133,15 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Deep Dive Financial Reporting - part 6](https://www.youtube.com/watch?v=bt81POE-9Ig) | 2025-08-01 | kernaussagen+zeitstempel | [34:32](https://www.youtube.com/watch?v=bt81POE-9Ig&t=2072s) · [36:04](https://www.youtube.com/watch?v=bt81POE-9Ig&t=2164s) |
 | [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | kernaussagen+zeitstempel | [15:21](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=921s) |
 | [BI Thinkers Talk n.74](https://www.youtube.com/watch?v=rWE0gMx7v7I) | 2026-03-01 | kernaussagen+zeitstempel | [58:58](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=3538s) · [1:11:30](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=4290s) |
+| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-zeitstempel | [16:06](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=966s) |
 | [Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup](https://www.youtube.com/watch?v=BDnwlOqRElY) | 2025-06-01 | kernaussagen+zeitstempel | [20:57](https://www.youtube.com/watch?v=BDnwlOqRElY&t=1257s) |
 | [GxP Talk - KI im regulierten Umfeld?](https://www.youtube.com/watch?v=XtH4JqTwaqM) | 2026-05-01 | kernaussagen+zeitstempel | [23:24](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1404s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [28:14](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1694s) |
 | [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | kernaussagen+zeitstempel | [50:39](https://www.youtube.com/watch?v=TYmKrreMO3I&t=3039s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [24:38](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1478s) |
 | [Daten-WG Special: Power BI vs. Qlik -part2](https://www.youtube.com/watch?v=_Vh5fDfHWz4) | 2025-10-01 | nur-zeitstempel | [1:05:36](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=3936s) |
-| [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Fabric%20vs.%20klassisches%20Power%20BI) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20ist%20f%C3%BCr%20Power-BI-Nutzer%20relevant%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Soll%20man%20von%20Power%20BI%20Premium%20auf%20Fabric%20umstellen%3F) |
-| [BI Thinkers Talk Nr.62](https://www.youtube.com/watch?v=Wwvhv8WA2Qc) | 2025-05-01 | kernaussagen+zeitstempel | [12:58](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=778s) |
-| [Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)](https://www.youtube.com/watch?v=lp8xNX81R2w) | 2026-07-01 | nur-metadaten | — |
+
+40 von 42 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/lakehouse.json).
 
 ## Hinweise
 

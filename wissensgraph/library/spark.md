@@ -2,10 +2,10 @@
 id: "tool:spark"
 name: "Spark"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 12
+dokumente: 13
 kernaussagen: 3
 mit_kernaussagen: 2
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/spark.html"
@@ -28,9 +28,9 @@ PySpark
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Microsoft Fabric](microsoft-fabric.md) | Spark und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 29 |
+| [Microsoft Fabric](microsoft-fabric.md) | Spark und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 30 |
 | [Notebook](notebook.md) | Spark und Notebook im selben Segment | Heuristik, gezählt |  | 24 |
-| [SQL](sql.md) | Spark und SQL im selben Segment | Heuristik, gezählt |  | 23 |
+| [SQL](sql.md) | Spark und SQL im selben Segment | Heuristik, gezählt |  | 24 |
 | [Lakehouse](lakehouse.md) | Spark und Lakehouse im selben Segment | Heuristik, gezählt |  | 23 |
 | [Power BI](power-bi.md) | Spark und Power BI im selben Segment | Heuristik, gezählt |  | 21 |
 | [Warehouse](warehouse.md) | Spark und Warehouse im selben Segment | Heuristik, gezählt |  | 18 |
@@ -59,6 +59,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=01%20%C2%B7%20Einordnung%20von%20%2AMicrosoft%20Fabric%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=NotebookUtils%20%E2%80%94%20der%20Werkzeugkasten) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Notebook-Weg%20%28Code-First%29) |
+| [Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen](https://www.youtube.com/watch?v=_AxvdCW0ST4) | 2026-07-01 | nur-zeitstempel | [02:10](https://www.youtube.com/watch?v=_AxvdCW0ST4&t=130s) |
 | [Daten-WG Deep Dive Financial Reporting - part 5](https://www.youtube.com/watch?v=iymmxuXHh44) | 2025-07-01 | nur-zeitstempel | [24:14](https://www.youtube.com/watch?v=iymmxuXHh44&t=1454s) · [25:50](https://www.youtube.com/watch?v=iymmxuXHh44&t=1550s) · [29:15](https://www.youtube.com/watch?v=iymmxuXHh44&t=1755s) |
 | [Microsoft Fabric Dataflow Gen2 Kosten verstehen - CU-Verbrauch einfach erklärt](https://www.youtube.com/watch?v=z51gWRc0zVc) | 2026-07-01 | nur-zeitstempel | [03:05](https://www.youtube.com/watch?v=z51gWRc0zVc&t=185s) |
 | [Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL \| Fabric Tutorial](https://www.youtube.com/watch?v=7j34Ndng0Os) | 2026-01-01 | kernaussagen+zeitstempel | [02:40](https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s) |

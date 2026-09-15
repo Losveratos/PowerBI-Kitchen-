@@ -3,14 +3,14 @@
  "name": "Schulung",
  "typ": "thema",
  "slug": "schulung",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/schulung.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/schulung.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/schulung.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/schulung.json",
- "dokumente_gesamt": 34,
+ "dokumente_gesamt": 36,
  "kernaussagen_gesamt": 13,
  "mit_kernaussagen": 7,
  "aliase": [
@@ -28,7 +28,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 26,
+   "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -37,9 +37,27 @@
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 21,
+   "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "ki.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 18,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "reporting.md"
   },
   {
    "id": "tool:microsoft-fabric",
@@ -51,40 +69,31 @@
    "datei": "microsoft-fabric.md"
   },
   {
-   "id": "topic:visualisierung",
-   "name": "Visualisierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 13,
-   "beleg": "",
-   "datei": "visualisierung.md"
-  },
-  {
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 13,
+   "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "datenmodellierung.md"
-  },
-  {
-   "id": "topic:reporting",
-   "name": "Reporting",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 11,
-   "beleg": "",
-   "datei": "reporting.md"
   },
   {
    "id": "topic:community",
    "name": "Community",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 10,
+   "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "community.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "lizenzen.md"
   },
   {
    "id": "topic:performance",
@@ -105,6 +114,15 @@
    "datei": "projektmanagement.md"
   },
   {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "dax.md"
+  },
+  {
    "id": "topic:daten-wg",
    "name": "Daten-WG",
    "kantentyp": "ko-vorkommen",
@@ -114,13 +132,22 @@
    "datei": "daten-wg.md"
   },
   {
-   "id": "tool:dax",
-   "name": "DAX",
+   "id": "tool:excel",
+   "name": "Excel",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 6,
    "beleg": "",
-   "datei": "dax.md"
+   "datei": "excel.md"
+  },
+  {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "sql.md"
   },
   {
    "id": "tool:copilot",
@@ -130,33 +157,6 @@
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "copilot.md"
-  },
-  {
-   "id": "tool:python",
-   "name": "Python",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 5,
-   "beleg": "",
-   "datei": "python.md"
-  },
-  {
-   "id": "tool:sql",
-   "name": "SQL",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 5,
-   "beleg": "",
-   "datei": "sql.md"
-  },
-  {
-   "id": "tool:notebook",
-   "name": "Notebook",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 5,
-   "beleg": "",
-   "datei": "notebook.md"
   }
  ],
  "kernaussagen": [
@@ -370,6 +370,31 @@
    ]
   },
   {
+   "id": "yt:Me3a2QOx21I",
+   "titel": "Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.286,
+   "url": "https://www.youtube.com/watch?v=Me3a2QOx21I",
+   "sprungmarken": [
+    {
+     "label": "04:11",
+     "url": "https://www.youtube.com/watch?v=Me3a2QOx21I&t=251s",
+     "sekunde": 251
+    },
+    {
+     "label": "04:41",
+     "url": "https://www.youtube.com/watch?v=Me3a2QOx21I&t=281s",
+     "sekunde": 281
+    },
+    {
+     "label": "05:48",
+     "url": "https://www.youtube.com/watch?v=Me3a2QOx21I&t=348s",
+     "sekunde": 348
+    }
+   ]
+  },
+  {
    "id": "yt:jETxUNQSl-w",
    "titel": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
    "datum": "2026-02-01",
@@ -560,6 +585,31 @@
    ]
   },
   {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.114,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Grenzen",
+     "sekunde": null
+    }
+   ]
+  },
+  {
    "id": "yt:XtH4JqTwaqM",
    "titel": "GxP Talk - KI im regulierten Umfeld?",
    "datum": "2026-05-01",
@@ -741,6 +791,26 @@
      "label": "09:08",
      "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=548s",
      "sekunde": 548
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.059,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "18:08",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1088s",
+     "sekunde": 1088
+    },
+    {
+     "label": "24:14",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1454s",
+     "sekunde": 1454
     }
    ]
   },
@@ -938,15 +1008,6 @@
      "sekunde": 188
     }
    ]
-  },
-  {
-   "id": "yt:Me3a2QOx21I",
-   "titel": "Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug",
-   "datum": "2026-07-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=Me3a2QOx21I",
-   "sprungmarken": []
   }
  ],
  "hinweise": [

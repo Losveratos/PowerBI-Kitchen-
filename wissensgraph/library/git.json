@@ -3,14 +3,14 @@
  "name": "Git",
  "typ": "tool",
  "slug": "git",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/git.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/git.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/git.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/git.json",
- "dokumente_gesamt": 25,
+ "dokumente_gesamt": 26,
  "kernaussagen_gesamt": 6,
  "mit_kernaussagen": 6,
  "aliase": [
@@ -22,22 +22,22 @@
  "einordnung": "Im Juni 2024 wurden die Fabric Deployment Pipelines Git-kompatibel, was als Durchbruch für DevOps mit Fabric beschrieben wird. Die neue Variable Library kann sowohl in Dataflows bzw. Data Pipelines als auch im CI/CD-Kontext genutzt werden, um workspace-spezifische Zielwerte für Variablen abzulegen. (Stand 2025-04) Im Agent Hub lassen sich Fabric-Items, Dateien und PDFs per Prompt referenzieren, und ueber ein Branch-Out-Feature kann bei vorhandener Git-Integration im Workspace direkt in einem eigenen Feature-Workspace gearbeitet werden. (Stand 2026-08)",
  "nachbarn": [
   {
-   "id": "topic:visualisierung",
-   "name": "Visualisierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 14,
-   "beleg": "",
-   "datei": "visualisierung.md"
-  },
-  {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 13,
+   "gemeinsame_segmente": 15,
    "beleg": "",
    "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 15,
+   "beleg": "",
+   "datei": "visualisierung.md"
   },
   {
    "id": "topic:ki",
@@ -49,6 +49,24 @@
    "datei": "ki.md"
   },
   {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
    "id": "topic:daten-wg",
    "name": "Daten-WG",
    "kantentyp": "ko-vorkommen",
@@ -58,29 +76,11 @@
    "datei": "daten-wg.md"
   },
   {
-   "id": "tool:microsoft-fabric",
-   "name": "Microsoft Fabric",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 7,
-   "beleg": "",
-   "datei": "microsoft-fabric.md"
-  },
-  {
-   "id": "topic:reporting",
-   "name": "Reporting",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 7,
-   "beleg": "",
-   "datei": "reporting.md"
-  },
-  {
    "id": "tool:workspace",
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 6,
+   "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "workspace.md"
   },
@@ -89,7 +89,7 @@
    "name": "Azure DevOps",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
+   "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "azure-devops.md"
   },
@@ -467,6 +467,21 @@
    ]
   },
   {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "10:08",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=608s",
+     "sekunde": 608
+    }
+   ]
+  },
+  {
    "id": "yt:BDnwlOqRElY",
    "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
    "datum": "2025-06-01",
@@ -557,6 +572,21 @@
    ]
   },
   {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.023,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben",
+     "sekunde": null
+    }
+   ]
+  },
+  {
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
@@ -610,15 +640,6 @@
      "sekunde": null
     }
    ]
-  },
-  {
-   "id": "yt:c90oD4zR1Aw",
-   "titel": "More than PBIX",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
-   "sprungmarken": []
   }
  ],
  "hinweise": [

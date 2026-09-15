@@ -2,10 +2,10 @@
 id: "topic:reporting"
 name: "Reporting"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 44
+dokumente: 47
 kernaussagen: 33
 mit_kernaussagen: 17
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/reporting.html"
@@ -37,21 +37,21 @@ Berichtswesen, Controlling, Finance, Finanzen, P&L, GuV, Bericht, Berichte, Repo
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Power BI](power-bi.md) | Reporting und Power BI im selben Segment | Heuristik, gezählt |  | 154 |
-| [Visualisierung](visualisierung.md) | Reporting und Visualisierung im selben Segment | Heuristik, gezählt |  | 92 |
-| [Microsoft Fabric](microsoft-fabric.md) | Reporting und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 63 |
-| [KI](ki.md) | Reporting und KI im selben Segment | Heuristik, gezählt |  | 46 |
-| [IBCS](ibcs.md) | Reporting und IBCS im selben Segment | Heuristik, gezählt |  | 41 |
-| [Performance](performance.md) | Reporting und Performance im selben Segment | Heuristik, gezählt |  | 41 |
-| [Datenmodellierung](datenmodellierung.md) | Reporting und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 40 |
-| [Workspace](workspace.md) | Reporting und Workspace im selben Segment | Heuristik, gezählt |  | 33 |
-| [DAX](dax.md) | Reporting und DAX im selben Segment | Heuristik, gezählt |  | 32 |
-| [Planung](planung.md) | Reporting und Planung im selben Segment | Heuristik, gezählt |  | 29 |
+| [Power BI](power-bi.md) | Reporting und Power BI im selben Segment | Heuristik, gezählt |  | 163 |
+| [Visualisierung](visualisierung.md) | Reporting und Visualisierung im selben Segment | Heuristik, gezählt |  | 111 |
+| [Microsoft Fabric](microsoft-fabric.md) | Reporting und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 68 |
+| [KI](ki.md) | Reporting und KI im selben Segment | Heuristik, gezählt |  | 49 |
+| [IBCS](ibcs.md) | Reporting und IBCS im selben Segment | Heuristik, gezählt |  | 45 |
+| [Performance](performance.md) | Reporting und Performance im selben Segment | Heuristik, gezählt |  | 42 |
+| [Datenmodellierung](datenmodellierung.md) | Reporting und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 42 |
+| [Workspace](workspace.md) | Reporting und Workspace im selben Segment | Heuristik, gezählt |  | 35 |
+| [DAX](dax.md) | Reporting und DAX im selben Segment | Heuristik, gezählt |  | 34 |
+| [Lizenzen](lizenzen.md) | Reporting und Lizenzen im selben Segment | Heuristik, gezählt |  | 33 |
+| [Sicherheit](sicherheit.md) | Reporting und Sicherheit im selben Segment | Heuristik, gezählt |  | 31 |
+| [Planung](planung.md) | Reporting und Planung im selben Segment | Heuristik, gezählt |  | 31 |
 | [Warehouse](warehouse.md) | Reporting und Warehouse im selben Segment | Heuristik, gezählt |  | 29 |
 | [Sternschema](sternschema.md) | Reporting und Sternschema im selben Segment | Heuristik, gezählt |  | 29 |
-| [Sicherheit](sicherheit.md) | Reporting und Sicherheit im selben Segment | Heuristik, gezählt |  | 28 |
-| [SQL](sql.md) | Reporting und SQL im selben Segment | Heuristik, gezählt |  | 28 |
-| [Direct Lake](direct-lake.md) | Reporting und Direct Lake im selben Segment | Heuristik, gezählt |  | 28 |
+| [Power BI Desktop](power-bi-desktop.md) | Reporting und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 28 |
 
 ## Kernaussagen
 
@@ -103,6 +103,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [08:02](https://www.youtube.com/watch?v=27rC2zefFOU&t=482s) · [17:04](https://www.youtube.com/watch?v=27rC2zefFOU&t=1024s) · [35:06](https://www.youtube.com/watch?v=27rC2zefFOU&t=2106s) |
 | [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [09:22](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=562s) · [15:44](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=944s) · [53:04](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3184s) |
 | [ChartKitchen byDatenWG — Documentation](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=13%20%C2%B7%20P%26L%20statement) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=Data%20Labels) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=Field%20roles) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail) |
 | [ChartKitchen byDatenWG — Dokumentation](https://datenwgknowledgekitchen.com/chartkitchen-doku.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Finance-Format) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Cross-Filter%2C%20Tooltips%20%26%20Bookmarks) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Feldrollen) |
 | [Report-Design als Framework — ein Skill für Power BI](https://datenwgknowledgekitchen.com/powerbi-design-skill.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html) · [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=4%20%C2%B7%20Warten%20statt%20neu%20bauen%20%E2%80%94%20Bulk%20%C2%B7%20Linter%20%C2%B7%20Wireframes) · [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=F%C3%BCr%20wen%3A%20%2AMenschen%20und%20Agenten%2A) |
 | [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=02%20%C2%B7%20Weiter%20in%20der%20Dokumentation) |
@@ -112,6 +113,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Deep Dive Financial Reporting - part 6](https://www.youtube.com/watch?v=bt81POE-9Ig) | 2025-08-01 | kernaussagen+zeitstempel | [03:14](https://www.youtube.com/watch?v=bt81POE-9Ig&t=194s) · [13:26](https://www.youtube.com/watch?v=bt81POE-9Ig&t=806s) · [23:15](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1395s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=UNIFY%20%E2%80%94%20Apply%20semantic%20notation) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Sinnvolle%20Workspace-Struktur) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=DEV%2FTEST%2FPROD-Workspaces) |
 | [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | kernaussagen+zeitstempel | [00:04](https://www.youtube.com/watch?v=TYmKrreMO3I&t=4s) · [01:40](https://www.youtube.com/watch?v=TYmKrreMO3I&t=100s) · [18:01](https://www.youtube.com/watch?v=TYmKrreMO3I&t=1081s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [07:43](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=463s) · [13:55](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=835s) · [15:38](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=938s) |
 | [Ten Days to a Market-Ready State](https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html) · [Abschnitt](https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html#:~:text=What%20it%20means%20%2Aeconomically%2A) |
 | [BI Thinkers Talk nr.68](https://www.youtube.com/watch?v=VD1N68Fhoco) | 2025-10-01 | nur-zeitstempel | [17:42](https://www.youtube.com/watch?v=VD1N68Fhoco&t=1062s) · [19:18](https://www.youtube.com/watch?v=VD1N68Fhoco&t=1158s) · [22:28](https://www.youtube.com/watch?v=VD1N68Fhoco&t=1348s) |
 | [Daten-WG Deep Dive Financial Reporting - part 5](https://www.youtube.com/watch?v=iymmxuXHh44) | 2025-07-01 | nur-zeitstempel | [03:17](https://www.youtube.com/watch?v=iymmxuXHh44&t=197s) · [35:47](https://www.youtube.com/watch?v=iymmxuXHh44&t=2147s) · [37:19](https://www.youtube.com/watch?v=iymmxuXHh44&t=2239s) |
@@ -135,10 +137,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [01:34](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=94s) · [11:16](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=676s) · [19:49](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1189s) |
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [17:21](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1041s) · [43:40](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2620s) · [45:13](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2713s) |
 | [Die Schweiz faehrt Europa davon — Bahnnutzung 2024](https://datenwgknowledgekitchen.com/zugfahrten-infografik.html) | 2026-06-05 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/zugfahrten-infografik.html#:~:text=Br%C3%BCcke%20zu%20Power%20BI%3A%20%2Aals%20DAX-HTML-Visual%2A) |
-| [Datenmodellierung ist Governance](https://www.youtube.com/watch?v=lH_-A8NAQ-k) | 2025-11-01 | kernaussagen+zeitstempel | [05:02](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=302s) · [07:04](https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=424s) |
-| [Prinzipien oder Paragrafen](https://www.youtube.com/watch?v=6WhWLcuFvZE) | 2026-02-01 | kernaussagen+zeitstempel | [01:43](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=103s) · [13:05](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=785s) |
 
-40 von 44 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/reporting.json).
+40 von 47 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/reporting.json).
 
 ## Hinweise
 

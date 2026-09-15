@@ -2,10 +2,10 @@
 id: "tool:power-bi-pro"
 name: "Power BI Pro"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 8
+dokumente: 9
 kernaussagen: 6
 mit_kernaussagen: 6
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-pro.html"
@@ -30,8 +30,8 @@ Pro-Lizenz, Pro Lizenz
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [Workspace](workspace.md) | Power BI Pro setzt-voraus Workspace | automatisch extrahiert, Quellenstelle vorhanden | „eigene Workspaces, da braucht man eine Power BI Pro Lizenz“ (Daten-WG Special: Power BI vs. Qlik, 2025-10) | 0 |
-| [Power BI](power-bi.md) | Power BI Pro und Power BI im selben Segment | Heuristik, gezählt |  | 9 |
-| [Lizenzen](lizenzen.md) | Power BI Pro und Lizenzen im selben Segment | Heuristik, gezählt |  | 8 |
+| [Power BI](power-bi.md) | Power BI Pro und Power BI im selben Segment | Heuristik, gezählt |  | 10 |
+| [Lizenzen](lizenzen.md) | Power BI Pro und Lizenzen im selben Segment | Heuristik, gezählt |  | 9 |
 | [Fabric Capacity](fabric-capacity.md) | Power BI Pro und Fabric Capacity im selben Segment | Heuristik, gezählt |  | 6 |
 | [Premium](premium.md) | Power BI Pro und Premium im selben Segment | Heuristik, gezählt |  | 5 |
 | [Microsoft Fabric](microsoft-fabric.md) | Power BI Pro und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 5 |
@@ -62,6 +62,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [39:00](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2340s) |
 | [Daten-WG Special: Power BI vs. Qlik](https://www.youtube.com/watch?v=aYHk_V8n_CE) | 2025-10-01 | kernaussagen+zeitstempel | [09:43](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=583s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Plattform-Frage) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20sich%20f%C3%BCr%20Power-BI-Teams%20%C3%A4ndert) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20wichtigsten%20Regeln) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29) |
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [21:39](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1299s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Die%20wichtigsten%20Regeln) |
 

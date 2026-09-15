@@ -3,14 +3,14 @@
  "name": "SQL",
  "typ": "tool",
  "slug": "sql",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sql.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sql.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/sql.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/sql.json",
- "dokumente_gesamt": 50,
+ "dokumente_gesamt": 52,
  "kernaussagen_gesamt": 16,
  "mit_kernaussagen": 8,
  "aliase": [
@@ -33,7 +33,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 74,
+   "gemeinsame_segmente": 75,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -42,7 +42,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 67,
+   "gemeinsame_segmente": 69,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -128,6 +128,15 @@
    "datei": "echtzeit.md"
   },
   {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 25,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
    "id": "tool:onelake",
    "name": "OneLake",
    "kantentyp": "ko-vorkommen",
@@ -144,15 +153,6 @@
    "gemeinsame_segmente": 25,
    "beleg": "",
    "datei": "dataflow.md"
-  },
-  {
-   "id": "topic:ki",
-   "name": "KI",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 24,
-   "beleg": "",
-   "datei": "ki.md"
   }
  ],
  "kernaussagen": [
@@ -493,6 +493,31 @@
    ]
   },
   {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.217,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "24:18",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1458s",
+     "sekunde": 1458
+    },
+    {
+     "label": "25:49",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1549s",
+     "sekunde": 1549
+    },
+    {
+     "label": "30:34",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1834s",
+     "sekunde": 1834
+    }
+   ]
+  },
+  {
    "id": "yt:UUlPoJOhco8",
    "titel": "Metadaten als Superkraft",
    "datum": "",
@@ -514,6 +539,21 @@
      "label": "08:50",
      "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=530s",
      "sekunde": 530
+    }
+   ]
+  },
+  {
+   "id": "yt:_AxvdCW0ST4",
+   "titel": "Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4",
+   "sprungmarken": [
+    {
+     "label": "02:10",
+     "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4&t=130s",
+     "sekunde": 130
     }
    ]
   },
@@ -1133,6 +1173,21 @@
    ]
   },
   {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "18:08",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1088s",
+     "sekunde": 1088
+    }
+   ]
+  },
+  {
    "id": "yt:9VX4-lLa0EI",
    "titel": "BI Thinkers Talk nr.63",
    "datum": "2025-06-01",
@@ -1274,15 +1329,6 @@
    "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=l_aHydZyh4s",
-   "sprungmarken": []
-  },
-  {
-   "id": "yt:c90oD4zR1Aw",
-   "titel": "More than PBIX",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
    "sprungmarken": []
   }
  ],

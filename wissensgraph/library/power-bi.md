@@ -2,10 +2,10 @@
 id: "tool:power-bi"
 name: "Power BI"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 124
+dokumente: 137
 kernaussagen: 144
 mit_kernaussagen: 39
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi.html"
@@ -32,20 +32,20 @@ PowerBI, Power-BI, Power DI, PBI
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [Analysis Services](analysis-services.md) | Power BI setzt-voraus Analysis Services | automatisch extrahiert, Quellenstelle vorhanden | „diese Analyse Services drin sind und die Microsoft im Kontext von Power BI so stark verheiratet hat, dass es eben bedient werden muss“ (Denken in Tabellen, 2026-01) | 3 |
-| [Power Query](power-query.md) | Power Query teil-von Power BI | automatisch extrahiert, Quellenstelle vorhanden | „Bei Power BI ist das Power Query, was dann dabei ist und dann das Datenmodell.“ (Power BI vs. Qlik, 2026-01) | 53 |
-| [Microsoft Fabric](microsoft-fabric.md) | Power BI setzt-voraus Microsoft Fabric | automatisch extrahiert, Quellenstelle vorhanden | „irgendwann wird man bei Power VII in die Fabric wandern“ (Power BI vs. Qlik, 2026-01) | 216 |
+| [Power Query](power-query.md) | Power Query teil-von Power BI | automatisch extrahiert, Quellenstelle vorhanden | „Bei Power BI ist das Power Query, was dann dabei ist und dann das Datenmodell.“ (Power BI vs. Qlik, 2026-01) | 57 |
+| [Microsoft Fabric](microsoft-fabric.md) | Power BI setzt-voraus Microsoft Fabric | automatisch extrahiert, Quellenstelle vorhanden | „irgendwann wird man bei Power VII in die Fabric wandern“ (Power BI vs. Qlik, 2026-01) | 230 |
 | [Qlik](qlik.md) | Qlik gegensatz Power BI | automatisch extrahiert, Quellenstelle vorhanden | „Wir haben in Power BI ja immer zwei Modell und Report“ (Daten-WG Special: Power BI vs. Qlik, 2025-10) | 8 |
-| [Sternschema](sternschema.md) | Power BI setzt-voraus Sternschema | automatisch extrahiert, Quellenstelle vorhanden | „Power BI benötigt ein Sternschema, um die beste Leistung zu erzielen“ (Why Passion Beats Niche, 2025-09) | 43 |
+| [Sternschema](sternschema.md) | Power BI setzt-voraus Sternschema | automatisch extrahiert, Quellenstelle vorhanden | „Power BI benötigt ein Sternschema, um die beste Leistung zu erzielen“ (Why Passion Beats Niche, 2025-09) | 41 |
 | [Qlik](qlik.md) | Power BI ersetzt Qlik | automatisch extrahiert, Quellenstelle vorhanden | „wir hatten ursprünglich gedacht, klick Blick jetzt lass mal doch lieber Power BI als solches nehmen“ (Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?, 2026-02) | 8 |
 | [Tableau](tableau.md) | Tableau gegensatz Power BI | automatisch extrahiert, Quellenstelle vorhanden | „das war für mich viel einfacher, das war irgendwie Microsoft Kosmos, das war leichter zu lernen und so bin ich zu Power BI gekommen“ (10 Jahre Power BI, 2025-07) | 16 |
-| [Power Apps](power-apps.md) | Power BI setzt-voraus Power Apps | automatisch extrahiert, Quellenstelle vorhanden | „die Eingabefunktion in den Power BI Bericht gebaut ... Rideback Funktionalität über Power App gebaut“ (Wie war die Daten-WG 2025? (Teil 1), 2025-05) | 6 |
-| [Visualisierung](visualisierung.md) | Power BI und Visualisierung im selben Segment | Heuristik, gezählt |  | 185 |
-| [Reporting](reporting.md) | Power BI und Reporting im selben Segment | Heuristik, gezählt |  | 154 |
-| [KI](ki.md) | Power BI und KI im selben Segment | Heuristik, gezählt |  | 114 |
-| [Power BI Desktop](power-bi-desktop.md) | Power BI und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 108 |
-| [Performance](performance.md) | Power BI und Performance im selben Segment | Heuristik, gezählt |  | 90 |
-| [Excel](excel.md) | Power BI und Excel im selben Segment | Heuristik, gezählt |  | 88 |
-| [Datenmodellierung](datenmodellierung.md) | Power BI und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 85 |
+| [Power Apps](power-apps.md) | Power BI setzt-voraus Power Apps | automatisch extrahiert, Quellenstelle vorhanden | „die Eingabefunktion in den Power BI Bericht gebaut ... Rideback Funktionalität über Power App gebaut“ (Wie war die Daten-WG 2025? (Teil 1), 2025-05) | 7 |
+| [Visualisierung](visualisierung.md) | Power BI und Visualisierung im selben Segment | Heuristik, gezählt |  | 201 |
+| [Reporting](reporting.md) | Power BI und Reporting im selben Segment | Heuristik, gezählt |  | 163 |
+| [KI](ki.md) | Power BI und KI im selben Segment | Heuristik, gezählt |  | 118 |
+| [Power BI Desktop](power-bi-desktop.md) | Power BI und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 113 |
+| [Performance](performance.md) | Power BI und Performance im selben Segment | Heuristik, gezählt |  | 91 |
+| [Excel](excel.md) | Power BI und Excel im selben Segment | Heuristik, gezählt |  | 91 |
+| [Datenmodellierung](datenmodellierung.md) | Power BI und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 88 |
 
 ## Kernaussagen
 
@@ -202,6 +202,14 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [#011 · Power BI ohne Fabric? Absolut!](https://www.youtube.com/watch?v=gMYj9UTWeWk) | 2026-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=gMYj9UTWeWk&t=0s) |
+| [#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?](https://www.youtube.com/watch?v=9u9YbdMUU-s) | 2026-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=9u9YbdMUU-s&t=0s) |
+| [#007 · Mehr als Balkendiagramme! Power BI kann das auch](https://www.youtube.com/watch?v=KOT5KXIff8E) | 2026-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=KOT5KXIff8E&t=0s) |
+| [#009 · Lohnt es sich 2026 noch, Power BI zu lernen?](https://www.youtube.com/watch?v=u_ezQyN3a_s) | 2026-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=u_ezQyN3a_s&t=0s) |
+| [#006 · Power BI & Excel: Tabelle oder Tabellenblatt?](https://www.youtube.com/watch?v=hkUHetX61jA) | 2026-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=hkUHetX61jA&t=0s) |
+| [#005 · Bedingte Formatierung? Ich nutze fast immer Measures!](https://www.youtube.com/watch?v=KCCs6e0MeWI) | 2026-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=KCCs6e0MeWI&t=0s) |
+| [#008 · Suchst du unsere Tutorials? Hier sind sie!](https://www.youtube.com/watch?v=10jBGN2K52I) | 2026-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=10jBGN2K52I&t=0s) |
+| [#001 · Power BI Desktop oder Web? Meine klare Antwort!](https://www.youtube.com/watch?v=4hap_ZZskzo) | 2026-07-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=4hap_ZZskzo&t=1s) |
 | [Werbung \| Daten WG Offsite in Dortmund – Power BI Event am 29.10.](https://www.youtube.com/watch?v=H0ENBDQnVcs) | 2025-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=H0ENBDQnVcs&t=0s) |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [02:02](https://www.youtube.com/watch?v=27rC2zefFOU&t=122s) · [08:02](https://www.youtube.com/watch?v=27rC2zefFOU&t=482s) · [23:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1385s) |
 | [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=Download%20the%20visual) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps) |
@@ -219,12 +227,13 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Report-Design als Framework — ein Skill für Power BI](https://datenwgknowledgekitchen.com/powerbi-design-skill.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html) · [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=Skill%20ausprobieren) · [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=Mehr%20dazu) |
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [08:30](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=510s) · [28:09](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1689s) · [31:16](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1876s) |
 | [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=0s) · [04:14](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=254s) · [05:56](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=356s) |
+| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=0s) · [07:15](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=435s) · [10:08](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=608s) |
 | [Power BI-Teams werden Fabric-Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc) | — | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=YzfcMurbWNc&t=0s) · [20:36](https://www.youtube.com/watch?v=YzfcMurbWNc&t=1236s) · [29:52](https://www.youtube.com/watch?v=YzfcMurbWNc&t=1792s) |
 | [Power BI Update Mai 2025](https://www.youtube.com/watch?v=zkfdfc5fo-E) | 2025-05-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=0s) · [00:23](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=23s) · [13:04](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=784s) |
 | [Power BI Seiten per URL steuern - Sprechende URLs mit PBIP & VS Code \| Power BI Tutorial](https://www.youtube.com/watch?v=DcEfNIupEHM) | 2025-12-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=DcEfNIupEHM&t=1s) · [00:27](https://www.youtube.com/watch?v=DcEfNIupEHM&t=27s) · [01:29](https://www.youtube.com/watch?v=DcEfNIupEHM&t=89s) |
 | [Power BI Update Juli 2025](https://www.youtube.com/watch?v=TkxwcAyBGUM) | 2025-07-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=TkxwcAyBGUM&t=0s) · [02:07](https://www.youtube.com/watch?v=TkxwcAyBGUM&t=127s) · [06:09](https://www.youtube.com/watch?v=TkxwcAyBGUM&t=369s) |
-| [Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! \| Power BI Tutorial](https://www.youtube.com/watch?v=GsLfiuPlsQE) | 2025-10-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=1s) · [01:20](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=80s) · [04:30](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=270s) |
 | [Power BI Update Oktober 2025](https://www.youtube.com/watch?v=LVSttJlhrqM) | 2025-10-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=LVSttJlhrqM&t=0s) · [03:54](https://www.youtube.com/watch?v=LVSttJlhrqM&t=234s) · [04:21](https://www.youtube.com/watch?v=LVSttJlhrqM&t=261s) |
+| [Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! \| Power BI Tutorial](https://www.youtube.com/watch?v=GsLfiuPlsQE) | 2025-10-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=1s) · [01:20](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=80s) · [04:30](https://www.youtube.com/watch?v=GsLfiuPlsQE&t=270s) |
 | [Daten-WG Special: Power BI vs. Qlik](https://www.youtube.com/watch?v=aYHk_V8n_CE) | 2025-10-01 | kernaussagen+zeitstempel | [08:02](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=482s) · [09:43](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=583s) · [11:19](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=679s) |
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [03:20](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=200s) · [06:50](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=410s) · [33:37](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2017s) |
 | [Daten-WG Special: Power BI vs. Qlik -part2](https://www.youtube.com/watch?v=_Vh5fDfHWz4) | 2025-10-01 | nur-zeitstempel | [31:24](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=1884s) · [34:33](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=2073s) · [1:05:36](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=3936s) |
@@ -233,17 +242,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Power BI Update April 2026](https://www.youtube.com/watch?v=fbpu8zLG3cc) | 2026-04-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=0s) · [02:58](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=178s) · [04:22](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=262s) |
 | [Power BI Update August 2025](https://www.youtube.com/watch?v=jTXo4aEr07o) | 2025-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=jTXo4aEr07o&t=0s) · [02:46](https://www.youtube.com/watch?v=jTXo4aEr07o&t=166s) · [04:21](https://www.youtube.com/watch?v=jTXo4aEr07o&t=261s) |
 | [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [03:08](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=188s) · [36:20](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2180s) · [39:34](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2374s) |
-| [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [02:59](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=179s) · [09:46](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=586s) · [45:04](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2704s) |
-| [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [10:01](https://www.youtube.com/watch?v=mTVeZzshLzE&t=601s) · [17:22](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1042s) · [34:14](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2054s) |
-| [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Community%20%C2%B7%20Deutschsprachig%20%26%20Video) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20sich%20f%C3%BCr%20Power-BI-Teams%20%C3%A4ndert) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=01%20%C2%B7%20Einordnung%20von%20%2AMicrosoft%20Fabric%2A) |
-| [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Soll%20man%20von%20Power%20BI%20Premium%20auf%20Fabric%20umstellen%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Quellen%20%26%20%2Aweiterf%C3%BChrende%20Literatur%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Daten-WG-Community%20%C2%B7%20Eigene%20YouTube-Kan%C3%A4le) |
-| [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [11:00](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=660s) · [49:58](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2998s) · [53:23](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3203s) |
-| [Power BI Update März 2026](https://www.youtube.com/watch?v=ASwcPvbMRZc) | 2026-03-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=0s) · [00:16](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=16s) · [07:53](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=473s) |
-| [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [07:46](https://www.youtube.com/watch?v=lZvpCBMKASM&t=466s) · [26:33](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1593s) · [47:01](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2821s) |
-| [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [06:11](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=371s) · [13:57](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=837s) · [30:19](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1819s) |
-| [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [03:11](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=191s) · [05:30](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=330s) · [09:01](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=541s) |
 
-40 von 124 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi.json).
+40 von 137 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi.json).
 
 ## Hinweise
 

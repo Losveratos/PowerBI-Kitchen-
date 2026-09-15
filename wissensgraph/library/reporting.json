@@ -3,14 +3,14 @@
  "name": "Reporting",
  "typ": "thema",
  "slug": "reporting",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/reporting.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/reporting.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/reporting.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/reporting.json",
- "dokumente_gesamt": 44,
+ "dokumente_gesamt": 47,
  "kernaussagen_gesamt": 33,
  "mit_kernaussagen": 17,
  "aliase": [
@@ -32,7 +32,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 154,
+   "gemeinsame_segmente": 163,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -41,7 +41,7 @@
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 92,
+   "gemeinsame_segmente": 111,
    "beleg": "",
    "datei": "visualisierung.md"
   },
@@ -50,7 +50,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 63,
+   "gemeinsame_segmente": 68,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -59,7 +59,7 @@
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 46,
+   "gemeinsame_segmente": 49,
    "beleg": "",
    "datei": "ki.md"
   },
@@ -68,7 +68,7 @@
    "name": "IBCS",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 41,
+   "gemeinsame_segmente": 45,
    "beleg": "",
    "datei": "ibcs.md"
   },
@@ -77,7 +77,7 @@
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 41,
+   "gemeinsame_segmente": 42,
    "beleg": "",
    "datei": "performance.md"
   },
@@ -86,7 +86,7 @@
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 40,
+   "gemeinsame_segmente": 42,
    "beleg": "",
    "datei": "datenmodellierung.md"
   },
@@ -95,7 +95,7 @@
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 33,
+   "gemeinsame_segmente": 35,
    "beleg": "",
    "datei": "workspace.md"
   },
@@ -104,16 +104,34 @@
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 32,
+   "gemeinsame_segmente": 34,
    "beleg": "",
    "datei": "dax.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 33,
+   "beleg": "",
+   "datei": "lizenzen.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 31,
+   "beleg": "",
+   "datei": "sicherheit.md"
   },
   {
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 29,
+   "gemeinsame_segmente": 31,
    "beleg": "",
    "datei": "planung.md"
   },
@@ -136,31 +154,13 @@
    "datei": "sternschema.md"
   },
   {
-   "id": "topic:sicherheit",
-   "name": "Sicherheit",
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 28,
    "beleg": "",
-   "datei": "sicherheit.md"
-  },
-  {
-   "id": "tool:sql",
-   "name": "SQL",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 28,
-   "beleg": "",
-   "datei": "sql.md"
-  },
-  {
-   "id": "tool:direct-lake",
-   "name": "Direct Lake",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 28,
-   "beleg": "",
-   "datei": "direct-lake.md"
+   "datei": "power-bi-desktop.md"
   }
  ],
  "kernaussagen": [
@@ -614,6 +614,31 @@
    ]
   },
   {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.409,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
+    }
+   ]
+  },
+  {
    "id": "page:chartkitchen-doku",
    "titel": "ChartKitchen byDatenWG — Dokumentation",
    "datum": "2026-08-31",
@@ -825,6 +850,31 @@
      "label": "18:01",
      "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=1081s",
      "sekunde": 1081
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.294,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "07:43",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=463s",
+     "sekunde": 463
+    },
+    {
+     "label": "13:55",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=835s",
+     "sekunde": 835
+    },
+    {
+     "label": "15:38",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=938s",
+     "sekunde": 938
     }
    ]
   },
@@ -1405,6 +1455,26 @@
      "label": "13:05",
      "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=785s",
      "sekunde": 785
+    }
+   ]
+  },
+  {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "21:20",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1280s",
+     "sekunde": 1280
+    },
+    {
+     "label": "25:35",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1535s",
+     "sekunde": 1535
     }
    ]
   },

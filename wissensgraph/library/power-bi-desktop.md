@@ -2,10 +2,10 @@
 id: "tool:power-bi-desktop"
 name: "Power BI Desktop"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 38
+dokumente: 41
 kernaussagen: 47
 mit_kernaussagen: 19
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-desktop.html"
@@ -28,21 +28,21 @@ Desktop
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Power BI](power-bi.md) | Power BI Desktop und Power BI im selben Segment | Heuristik, gezählt |  | 108 |
-| [Visualisierung](visualisierung.md) | Power BI Desktop und Visualisierung im selben Segment | Heuristik, gezählt |  | 47 |
-| [Reporting](reporting.md) | Power BI Desktop und Reporting im selben Segment | Heuristik, gezählt |  | 25 |
+| [Power BI](power-bi.md) | Power BI Desktop und Power BI im selben Segment | Heuristik, gezählt |  | 113 |
+| [Visualisierung](visualisierung.md) | Power BI Desktop und Visualisierung im selben Segment | Heuristik, gezählt |  | 52 |
+| [Reporting](reporting.md) | Power BI Desktop und Reporting im selben Segment | Heuristik, gezählt |  | 28 |
 | [Performance](performance.md) | Power BI Desktop und Performance im selben Segment | Heuristik, gezählt |  | 22 |
 | [Direct Lake](direct-lake.md) | Power BI Desktop und Direct Lake im selben Segment | Heuristik, gezählt |  | 20 |
+| [Power Query](power-query.md) | Power BI Desktop und Power Query im selben Segment | Heuristik, gezählt |  | 20 |
 | [Microsoft Fabric](microsoft-fabric.md) | Power BI Desktop und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 20 |
-| [Power Query](power-query.md) | Power BI Desktop und Power Query im selben Segment | Heuristik, gezählt |  | 19 |
 | [Semantic Model](semantic-model.md) | Power BI Desktop und Semantic Model im selben Segment | Heuristik, gezählt |  | 18 |
 | [Refresh](refresh.md) | Power BI Desktop und Refresh im selben Segment | Heuristik, gezählt |  | 17 |
-| [Datenmodellierung](datenmodellierung.md) | Power BI Desktop und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 15 |
+| [Datenmodellierung](datenmodellierung.md) | Power BI Desktop und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 16 |
 | [DAX](dax.md) | Power BI Desktop und DAX im selben Segment | Heuristik, gezählt |  | 14 |
+| [Premium](premium.md) | Power BI Desktop und Premium im selben Segment | Heuristik, gezählt |  | 13 |
 | [DirectQuery](directquery.md) | Power BI Desktop und DirectQuery im selben Segment | Heuristik, gezählt |  | 13 |
-| [Premium](premium.md) | Power BI Desktop und Premium im selben Segment | Heuristik, gezählt |  | 12 |
 | [Excel](excel.md) | Power BI Desktop und Excel im selben Segment | Heuristik, gezählt |  | 12 |
-| [Sicherheit](sicherheit.md) | Power BI Desktop und Sicherheit im selben Segment | Heuristik, gezählt |  | 10 |
+| [Sicherheit](sicherheit.md) | Power BI Desktop und Sicherheit im selben Segment | Heuristik, gezählt |  | 11 |
 
 ## Kernaussagen
 
@@ -102,9 +102,10 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [#001 · Power BI Desktop oder Web? Meine klare Antwort!](https://www.youtube.com/watch?v=4hap_ZZskzo) | 2026-07-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=4hap_ZZskzo&t=1s) |
 | [Power BI Update April 2025](https://www.youtube.com/watch?v=lT-C7fPzxj4) | 2025-04-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=lT-C7fPzxj4&t=0s) · [01:36](https://www.youtube.com/watch?v=lT-C7fPzxj4&t=96s) |
-| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=Download%20the%20visual) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps) |
 | [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=Visual%20herunterladen) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=01%20%C2%B7%20In%20drei%20Schritten%20loslegen) |
+| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=Download%20the%20visual) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps) |
 | [Power BI Update Juni 2025](https://www.youtube.com/watch?v=LnNoXBIG7Lc) | 2025-06-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=0s) · [01:45](https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=105s) |
 | [So rettest du deine kaputte Power BI Theme Datei in 5 Minuten! \| Power BI Tutorial](https://www.youtube.com/watch?v=gspmWlVrNdA) | 2025-10-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=gspmWlVrNdA&t=1s) · [01:31](https://www.youtube.com/watch?v=gspmWlVrNdA&t=91s) · [07:00](https://www.youtube.com/watch?v=gspmWlVrNdA&t=420s) |
 | [Report-Design als Framework — ein Skill für Power BI](https://datenwgknowledgekitchen.com/powerbi-design-skill.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=4%20%C2%B7%20Warten%20statt%20neu%20bauen%20%E2%80%94%20Bulk%20%C2%B7%20Linter%20%C2%B7%20Wireframes) · [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=Der%20Praxistest%3A%20%2Adiese%20Webseite%20als%20Branding-Quelle%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=F%C3%BCr%20wen%3A%20%2AMenschen%20und%20Agenten%2A) |
@@ -127,6 +128,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [36:20](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2180s) · [46:11](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2771s) · [47:52](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2872s) |
 | [BI Thinkers Talk nr.68](https://www.youtube.com/watch?v=VD1N68Fhoco) | 2025-10-01 | nur-zeitstempel | [01:34](https://www.youtube.com/watch?v=VD1N68Fhoco&t=94s) · [16:06](https://www.youtube.com/watch?v=VD1N68Fhoco&t=966s) · [29:09](https://www.youtube.com/watch?v=VD1N68Fhoco&t=1749s) |
 | [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [02:59](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=179s) · [04:32](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=272s) · [06:09](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=369s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.11%3A%20Zeitdynamik%2C%20Cash-out%20und%20neue%20Anforderungen%20%28Annahmen-Audit%20Runde%202%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail) |
 | [BI Thinkers Talk n.74](https://www.youtube.com/watch?v=rWE0gMx7v7I) | 2026-03-01 | kernaussagen+zeitstempel | [05:02](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=302s) · [06:41](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=401s) · [11:17](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=677s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=03%20%C2%B7%20Semantische%20Modelle%20%26%20%2ADirect%20Lake%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Measures%20schreiben) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Konsum-Wege) |
 | [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | kernaussagen+zeitstempel | [07:42](https://www.youtube.com/watch?v=e50qKdVn-24&t=462s) |
@@ -137,9 +139,11 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [ChartKitchen byDatenWG — Documentation](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=1%20%C2%B7%20Import%20the%20visual) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=04%20%C2%B7%20ChartKitchen%20in%20action) |
 | [ChartKitchen byDatenWG — Dokumentation](https://datenwgknowledgekitchen.com/chartkitchen-doku.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=1%20%C2%B7%20Visual%20importieren) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=04%20%C2%B7%20ChartKitchen%20im%20Einsatz) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [08:28](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=508s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [07:43](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=463s) |
 | [BI Thinkers Talk nr.63](https://www.youtube.com/watch?v=9VX4-lLa0EI) | 2025-06-01 | nur-zeitstempel | [47:15](https://www.youtube.com/watch?v=9VX4-lLa0EI&t=2835s) |
 | [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | kernaussagen+zeitstempel | [33:57](https://www.youtube.com/watch?v=4VVNDNusq4U&t=2037s) |
-| [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | kernaussagen+zeitstempel | [03:06](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=186s) |
+
+40 von 41 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-desktop.json).
 
 ## Hinweise
 

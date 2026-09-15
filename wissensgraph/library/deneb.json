@@ -3,14 +3,14 @@
  "name": "Deneb",
  "typ": "tool",
  "slug": "deneb",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/deneb.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/deneb.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/deneb.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/deneb.json",
- "dokumente_gesamt": 11,
+ "dokumente_gesamt": 13,
  "kernaussagen_gesamt": 13,
  "mit_kernaussagen": 3,
  "aliase": [
@@ -25,7 +25,7 @@
    "name": "Custom Visuals",
    "kantentyp": "gegensatz",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 5,
+   "gemeinsame_segmente": 11,
    "beleg": "In Denb stößt er dann irgendwann an Grenzen ... In dem Power BI, also in den tatsächlichen Custom Visuals, ist er ziemlich frei.",
    "datei": "custom-visuals.md"
   },
@@ -34,7 +34,7 @@
    "name": "Custom Visuals",
    "kantentyp": "teil-von",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 5,
+   "gemeinsame_segmente": 11,
    "beleg": "dieses Custom Visual, mit dem ich über Vega Light bzw. Vega Aufgaben lösen kann",
    "datei": "custom-visuals.md"
   },
@@ -43,7 +43,7 @@
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 14,
+   "gemeinsame_segmente": 34,
    "beleg": "",
    "datei": "visualisierung.md"
   },
@@ -52,34 +52,106 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 13,
+   "gemeinsame_segmente": 23,
    "beleg": "",
    "datei": "power-bi.md"
   },
   {
-   "id": "topic:ki",
-   "name": "KI",
+   "id": "topic:reporting",
+   "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
+   "gemeinsame_segmente": 13,
    "beleg": "",
-   "datei": "ki.md"
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "lizenzen.md"
   },
   {
    "id": "topic:ibcs",
    "name": "IBCS",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
+   "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "ibcs.md"
+  },
+  {
+   "id": "topic:governance",
+   "name": "Governance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "governance.md"
+  },
+  {
+   "id": "topic:mittelstand",
+   "name": "Mittelstand",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "mittelstand.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "topic:open-source",
+   "name": "Open Source",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "open-source.md"
+  },
+  {
+   "id": "tool:zebra-bi",
+   "name": "Zebra BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "zebra-bi.md"
+  },
+  {
+   "id": "topic:schulung",
+   "name": "Schulung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "schulung.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sicherheit.md"
   },
   {
    "id": "tool:python",
    "name": "Python",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 3,
+   "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "python.md"
   }
@@ -230,6 +302,31 @@
    ]
   },
   {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.477,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Was%20das%20Werkzeug%20rechnet",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben",
+     "sekunde": null
+    }
+   ]
+  },
+  {
    "id": "yt:luk4S4ukKmg",
    "titel": "BI Thinkers Talk n.72",
    "datum": "2026-01-01",
@@ -326,6 +423,21 @@
      "label": "16:39",
      "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y&t=999s",
      "sekunde": 999
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "11:29",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=689s",
+     "sekunde": 689
     }
    ]
   },

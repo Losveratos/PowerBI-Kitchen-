@@ -2,10 +2,10 @@
 id: "topic:supply-chain"
 name: "Supply Chain"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 11
+dokumente: 12
 kernaussagen: 18
 mit_kernaussagen: 2
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/supply-chain.html"
@@ -32,7 +32,7 @@ Logistik, Lieferkette, Einkauf
 | --- | --- | --- | --- | --- |
 | [KI](ki.md) | Supply Chain und KI im selben Segment | Heuristik, gezählt |  | 7 |
 | [Performance](performance.md) | Supply Chain und Performance im selben Segment | Heuristik, gezählt |  | 5 |
-| [Reporting](reporting.md) | Supply Chain und Reporting im selben Segment | Heuristik, gezählt |  | 3 |
+| [Reporting](reporting.md) | Supply Chain und Reporting im selben Segment | Heuristik, gezählt |  | 4 |
 | [Strategie](strategie.md) | Supply Chain und Strategie im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
@@ -67,6 +67,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management](https://www.youtube.com/watch?v=DFw664hd1IE) | 2026-04-01 | kernaussagen+zeitstempel | [00:02](https://www.youtube.com/watch?v=DFw664hd1IE&t=2s) · [22:32](https://www.youtube.com/watch?v=DFw664hd1IE&t=1352s) · [27:23](https://www.youtube.com/watch?v=DFw664hd1IE&t=1643s) |
 | [Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite](https://www.youtube.com/watch?v=sq8AWk_yNWM) | 2026-03-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=sq8AWk_yNWM&t=0s) |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [26:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1565s) |
+| [Automatisierung gewinnt \| Daten-WG Podcast mit Reinhard Mense](https://www.youtube.com/watch?v=3-hXnNLKnAw) | 2026-07-01 | nur-zeitstempel | [17:53](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1073s) · [25:35](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1535s) |
 | [Was kostet ein klimaneutrales Stromsystem?](https://datenwgknowledgekitchen.com/strommix-story.html) | 2026-08-20 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/strommix-story.html#:~:text=Gegenpositionen%2C%20die%20mitlaufen%20muessen) |
 | [Was braucht ein gesunder Strommix — und was kostet er?](https://datenwgknowledgekitchen.com/whitepaper-strommix.html) | 2026-08-20 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/whitepaper-strommix.html#:~:text=Modell-Limitationen) · [Abschnitt](https://datenwgknowledgekitchen.com/whitepaper-strommix.html#:~:text=Dokumentierte%20Datenluecken) · [Abschnitt](https://datenwgknowledgekitchen.com/whitepaper-strommix.html#:~:text=7%20%C2%B7%20Quellenverzeichnis) |
 | [Von Patronen zu Prozessen (nur Ton)](https://www.youtube.com/watch?v=s3CveEVoDvo) | 2025-07-01 | nur-zeitstempel | [01:25](https://www.youtube.com/watch?v=s3CveEVoDvo&t=85s) |

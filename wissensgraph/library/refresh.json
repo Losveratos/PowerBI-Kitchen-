@@ -3,14 +3,14 @@
  "name": "Refresh",
  "typ": "thema",
  "slug": "refresh",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/refresh.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/refresh.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/refresh.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/refresh.json",
- "dokumente_gesamt": 38,
+ "dokumente_gesamt": 40,
  "kernaussagen_gesamt": 6,
  "mit_kernaussagen": 5,
  "aliase": [
@@ -25,7 +25,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 44,
+   "gemeinsame_segmente": 45,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -52,9 +52,27 @@
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 28,
+   "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "direct-lake.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 22,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:directquery",
+   "name": "DirectQuery",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 22,
+   "beleg": "",
+   "datei": "directquery.md"
   },
   {
    "id": "tool:power-query",
@@ -64,24 +82,6 @@
    "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "power-query.md"
-  },
-  {
-   "id": "tool:directquery",
-   "name": "DirectQuery",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 21,
-   "beleg": "",
-   "datei": "directquery.md"
-  },
-  {
-   "id": "topic:reporting",
-   "name": "Reporting",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 21,
-   "beleg": "",
-   "datei": "reporting.md"
   },
   {
    "id": "tool:lakehouse",
@@ -213,6 +213,21 @@
   }
  ],
  "dokumente": [
+  {
+   "id": "yt:9u9YbdMUU-s",
+   "titel": "#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?",
+   "datum": "2026-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=9u9YbdMUU-s",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=9u9YbdMUU-s&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
   {
    "id": "yt:Z6RZjkn_6lY",
    "titel": "Microsoft Fabric Shortcut Transformation erklärt: Updates im Praxistest",
@@ -840,6 +855,21 @@
      "label": "27:09",
      "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=1629s",
      "sekunde": 1629
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "49:42",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2982s",
+     "sekunde": 2982
     }
    ]
   },

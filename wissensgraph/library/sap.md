@@ -2,10 +2,10 @@
 id: "tool:sap"
 name: "SAP"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 31
+dokumente: 34
 kernaussagen: 8
 mit_kernaussagen: 7
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/sap.html"
@@ -31,7 +31,7 @@ SAP BW, SAC, SAP Analytics Cloud
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [Mirroring](mirroring.md) | SAP teil-von Mirroring | automatisch extrahiert, Quellenstelle vorhanden | „es gibt SAP Mirroring, hat wirklich auf der Febru sehr große Augen für sehr große Augen gesorgt und ist inzwischen ja da Preview“ (Fabric & Power BI Quarterly · 2026-1, 2026-01) | 7 |
-| [Microsoft Fabric](microsoft-fabric.md) | SAP und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 25 |
+| [Microsoft Fabric](microsoft-fabric.md) | SAP und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 26 |
 | [Power BI](power-bi.md) | SAP und Power BI im selben Segment | Heuristik, gezählt |  | 24 |
 | [Reporting](reporting.md) | SAP und Reporting im selben Segment | Heuristik, gezählt |  | 21 |
 | [Datenmodellierung](datenmodellierung.md) | SAP und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 11 |
@@ -39,10 +39,10 @@ SAP BW, SAC, SAP Analytics Cloud
 | [Snowflake](snowflake.md) | SAP und Snowflake im selben Segment | Heuristik, gezählt |  | 9 |
 | [Warehouse](warehouse.md) | SAP und Warehouse im selben Segment | Heuristik, gezählt |  | 9 |
 | [SQL](sql.md) | SAP und SQL im selben Segment | Heuristik, gezählt |  | 8 |
+| [Planung](planung.md) | SAP und Planung im selben Segment | Heuristik, gezählt |  | 8 |
 | [Excel](excel.md) | SAP und Excel im selben Segment | Heuristik, gezählt |  | 8 |
+| [Community](community.md) | SAP und Community im selben Segment | Heuristik, gezählt |  | 7 |
 | [Power Query](power-query.md) | SAP und Power Query im selben Segment | Heuristik, gezählt |  | 6 |
-| [Planung](planung.md) | SAP und Planung im selben Segment | Heuristik, gezählt |  | 6 |
-| [Community](community.md) | SAP und Community im selben Segment | Heuristik, gezählt |  | 6 |
 | [Visualisierung](visualisierung.md) | SAP und Visualisierung im selben Segment | Heuristik, gezählt |  | 6 |
 | [Azure](azure.md) | SAP und Azure im selben Segment | Heuristik, gezählt |  | 5 |
 
@@ -71,6 +71,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | kernaussagen+zeitstempel | [01:35](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=95s) · [09:42](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=582s) · [11:32](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=692s) |
 | [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | kernaussagen+zeitstempel | [04:55](https://www.youtube.com/watch?v=TYmKrreMO3I&t=295s) · [11:22](https://www.youtube.com/watch?v=TYmKrreMO3I&t=682s) · [16:11](https://www.youtube.com/watch?v=TYmKrreMO3I&t=971s) |
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [00:34](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=34s) · [42:07](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2527s) · [43:40](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2620s) |
+| [Data Projects like Iron Man [AI dubbed]](https://www.youtube.com/watch?v=svytHaNMTf0) | 2025-04-01 | nur-zeitstempel | [06:13](https://www.youtube.com/watch?v=svytHaNMTf0&t=373s) |
 | [Power BI Update Mai 2026](https://www.youtube.com/watch?v=psLPsI32sAs) | 2026-05-01 | nur-zeitstempel | [03:15](https://www.youtube.com/watch?v=psLPsI32sAs&t=195s) |
 | [Daten-WG Deep Dive Financial Reporting - part 7](https://www.youtube.com/watch?v=232JhS9vbQ0) | 2025-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=232JhS9vbQ0&t=0s) · [28:37](https://www.youtube.com/watch?v=232JhS9vbQ0&t=1717s) · [31:45](https://www.youtube.com/watch?v=232JhS9vbQ0&t=1905s) |
 | [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [23:07](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1387s) · [25:12](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1512s) |
@@ -79,7 +80,9 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Life-Update \| State of Power BI, Fabric & AI-Tools](https://www.youtube.com/watch?v=d3HdhRe_nK8) | 2026-06-01 | nur-zeitstempel | [00:44](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=44s) · [02:10](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=130s) · [18:34](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1114s) |
 | [GxP Talk - Validierung vs. Agilität](https://www.youtube.com/watch?v=KO_qFge77o8) | 2026-03-01 | kernaussagen+zeitstempel | [27:29](https://www.youtube.com/watch?v=KO_qFge77o8&t=1649s) · [38:25](https://www.youtube.com/watch?v=KO_qFge77o8&t=2305s) · [39:58](https://www.youtube.com/watch?v=KO_qFge77o8&t=2398s) |
 | [Fabric Planning unboxing](https://www.youtube.com/watch?v=xCzKEIB4W5I) | 2026-03-01 | kernaussagen+zeitstempel | [37:19](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=2239s) · [50:19](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3019s) · [1:14:06](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=4446s) |
+| [Interview bei der TDWI München 2026 \| Stefanie Welle und Dr. Christian Krug](https://www.youtube.com/watch?v=Me3a2QOx21I) | 2026-07-01 | nur-zeitstempel | [07:49](https://www.youtube.com/watch?v=Me3a2QOx21I&t=469s) |
 | [LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management](https://www.youtube.com/watch?v=DFw664hd1IE) | 2026-04-01 | kernaussagen+zeitstempel | [29:02](https://www.youtube.com/watch?v=DFw664hd1IE&t=1742s) · [30:36](https://www.youtube.com/watch?v=DFw664hd1IE&t=1836s) |
+| [Was machen die eigentlich? \| Daten-WG Podcast mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=_C69B0i-QQA) | 2026-08-01 | nur-zeitstempel | [17:58](https://www.youtube.com/watch?v=_C69B0i-QQA&t=1078s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [25:03](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s) · [28:14](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1694s) |
 | [The Day After Tomorrow – Nach der Einführung geht es erst richtig los \| Power BI Summit 2023](https://www.youtube.com/watch?v=KwySyTxW_EI) | 2023-03-01 | nur-zeitstempel | [51:11](https://www.youtube.com/watch?v=KwySyTxW_EI&t=3071s) |
 | [Daten-WG Deep Dive Financial Reporting - part 5](https://www.youtube.com/watch?v=iymmxuXHh44) | 2025-07-01 | nur-zeitstempel | [11:27](https://www.youtube.com/watch?v=iymmxuXHh44&t=687s) · [25:50](https://www.youtube.com/watch?v=iymmxuXHh44&t=1550s) |

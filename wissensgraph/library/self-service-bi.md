@@ -2,10 +2,10 @@
 id: "topic:self-service-bi"
 name: "Self-Service BI"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 18
+dokumente: 20
 kernaussagen: 43
 mit_kernaussagen: 16
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/self-service-bi.html"
@@ -30,20 +30,20 @@ Self-Service, Self Service, Selfservice
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Governance](governance.md) | Self-Service BI gegensatz Governance | automatisch extrahiert, Quellenstelle vorhanden | „dieses Spannungsfeld zwischen IT Chain und Selfsice nennen wir es einfach ITQ“ (Was ist Self-Service und warum ist das so schwer?) | 4 |
-| [Governance](governance.md) | Self-Service BI setzt-voraus Governance | automatisch extrahiert, Quellenstelle vorhanden | „dass berechtigungskonzept sehen wir als gewisse leitplanken die quasi ein unsichtbares gerüst zur einhaltung von von ein paar spielregeln“ (Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022, 2022-06) | 4 |
+| [Governance](governance.md) | Self-Service BI gegensatz Governance | automatisch extrahiert, Quellenstelle vorhanden | „dieses Spannungsfeld zwischen IT Chain und Selfsice nennen wir es einfach ITQ“ (Was ist Self-Service und warum ist das so schwer?) | 6 |
+| [Governance](governance.md) | Self-Service BI setzt-voraus Governance | automatisch extrahiert, Quellenstelle vorhanden | „dass berechtigungskonzept sehen wir als gewisse leitplanken die quasi ein unsichtbares gerüst zur einhaltung von von ein paar spielregeln“ (Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022, 2022-06) | 6 |
 | [Power BI](power-bi.md) | Self-Service BI und Power BI im selben Segment | Heuristik, gezählt |  | 22 |
-| [Excel](excel.md) | Self-Service BI und Excel im selben Segment | Heuristik, gezählt |  | 13 |
+| [Excel](excel.md) | Self-Service BI und Excel im selben Segment | Heuristik, gezählt |  | 14 |
+| [Reporting](reporting.md) | Self-Service BI und Reporting im selben Segment | Heuristik, gezählt |  | 13 |
 | [Microsoft Fabric](microsoft-fabric.md) | Self-Service BI und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 11 |
-| [Reporting](reporting.md) | Self-Service BI und Reporting im selben Segment | Heuristik, gezählt |  | 11 |
+| [Visualisierung](visualisierung.md) | Self-Service BI und Visualisierung im selben Segment | Heuristik, gezählt |  | 9 |
 | [Performance](performance.md) | Self-Service BI und Performance im selben Segment | Heuristik, gezählt |  | 8 |
-| [Visualisierung](visualisierung.md) | Self-Service BI und Visualisierung im selben Segment | Heuristik, gezählt |  | 7 |
 | [Datenmodellierung](datenmodellierung.md) | Self-Service BI und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 6 |
-| [KI](ki.md) | Self-Service BI und KI im selben Segment | Heuristik, gezählt |  | 5 |
+| [KI](ki.md) | Self-Service BI und KI im selben Segment | Heuristik, gezählt |  | 6 |
+| [Sicherheit](sicherheit.md) | Self-Service BI und Sicherheit im selben Segment | Heuristik, gezählt |  | 5 |
 | [Strategie](strategie.md) | Self-Service BI und Strategie im selben Segment | Heuristik, gezählt |  | 5 |
+| [Schulung](schulung.md) | Self-Service BI und Schulung im selben Segment | Heuristik, gezählt |  | 5 |
 | [Warehouse](warehouse.md) | Self-Service BI und Warehouse im selben Segment | Heuristik, gezählt |  | 4 |
-| [Sicherheit](sicherheit.md) | Self-Service BI und Sicherheit im selben Segment | Heuristik, gezählt |  | 4 |
-| [Schulung](schulung.md) | Self-Service BI und Schulung im selben Segment | Heuristik, gezählt |  | 4 |
 | [Lakehouse](lakehouse.md) | Self-Service BI und Lakehouse im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
@@ -106,6 +106,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [15:57](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=957s) · [18:01](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1081s) · [19:36](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1176s) |
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [18:58](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1138s) · [20:34](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1234s) · [22:06](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1326s) |
 | [Wie war die Daten-WG? · Im Gespräch mit Artur König](https://www.youtube.com/watch?v=z4ZeHPzIeeU) | 2025-03-01 | nur-zeitstempel | [30:02](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1802s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.13%3A%20Entscheidungspfad%20und%20Wirkungsgraph) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail) |
 | [Objektive Daten gibt es nicht](https://www.youtube.com/watch?v=-_4bfrjRCVo) | 2026-06-01 | nur-zeitstempel | [28:12](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=1692s) · [31:30](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=1890s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [07:02](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=422s) · [08:44](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=524s) |
 | [The Power of User Groups](https://www.youtube.com/watch?v=SSUpe1JON9Y) | 2025-10-01 | nur-zeitstempel | [20:30](https://www.youtube.com/watch?v=SSUpe1JON9Y&t=1230s) |
@@ -113,10 +114,11 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [00:12](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=12s) · [1:28:13](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5293s) |
 | [Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?](https://www.youtube.com/watch?v=jETxUNQSl-w) | 2026-02-01 | kernaussagen+zeitstempel | [43:12](https://www.youtube.com/watch?v=jETxUNQSl-w&t=2592s) |
 | [Starting with Microsft Fabric the Skills you need](https://www.youtube.com/watch?v=m3xNYfVih0Q) | 2024-08-01 | nur-zeitstempel | [30:25](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=1825s) |
+| [Automatisierung gewinnt \| Daten-WG Podcast mit Reinhard Mense](https://www.youtube.com/watch?v=3-hXnNLKnAw) | 2026-07-01 | nur-zeitstempel | [19:37](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1177s) |
 | [BI Thinkers Talk n.73](https://www.youtube.com/watch?v=pOJpXxsfUt0) | 2026-02-01 | kernaussagen+zeitstempel | [42:10](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2530s) |
 | [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [24:15](https://www.youtube.com/watch?v=DQENmzAkNqw&t=1455s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20ins%20Modell%20geh%C3%B6rt) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Einstellungen%20pr%C3%BCfen) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Governance-Perspektive) |
-| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
+| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-zeitstempel | [04:46](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=286s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Aus%20dem%20Kanal%20%C2%B7%20Modellierung%20praktisch%20durchgespielt) |
 
 ## Hinweise

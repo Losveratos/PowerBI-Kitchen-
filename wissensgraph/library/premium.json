@@ -3,14 +3,14 @@
  "name": "Premium",
  "typ": "tool",
  "slug": "premium",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/premium.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/premium.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/premium.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/premium.json",
- "dokumente_gesamt": 20,
+ "dokumente_gesamt": 23,
  "kernaussagen_gesamt": 5,
  "mit_kernaussagen": 5,
  "aliase": [
@@ -26,34 +26,34 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 31,
+   "gemeinsame_segmente": 33,
    "beleg": "",
    "datei": "microsoft-fabric.md"
-  },
-  {
-   "id": "tool:fabric-capacity",
-   "name": "Fabric Capacity",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 29,
-   "beleg": "",
-   "datei": "fabric-capacity.md"
   },
   {
    "id": "tool:power-bi",
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 29,
+   "gemeinsame_segmente": 33,
    "beleg": "",
    "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 32,
+   "beleg": "",
+   "datei": "fabric-capacity.md"
   },
   {
    "id": "topic:lizenzen",
    "name": "Lizenzen",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 19,
+   "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "lizenzen.md"
   },
@@ -76,6 +76,15 @@
    "datei": "reporting.md"
   },
   {
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "power-bi-desktop.md"
+  },
+  {
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
@@ -83,15 +92,6 @@
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "refresh.md"
-  },
-  {
-   "id": "tool:power-bi-desktop",
-   "name": "Power BI Desktop",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 12,
-   "beleg": "",
-   "datei": "power-bi-desktop.md"
   },
   {
    "id": "tool:data-pipeline",
@@ -121,6 +121,15 @@
    "datei": "performance.md"
   },
   {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
@@ -128,15 +137,6 @@
    "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "warehouse.md"
-  },
-  {
-   "id": "topic:visualisierung",
-   "name": "Visualisierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 7,
-   "beleg": "",
-   "datei": "visualisierung.md"
   },
   {
    "id": "tool:lakehouse",
@@ -205,6 +205,31 @@
   }
  ],
  "dokumente": [
+  {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.13,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "12:22",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=742s",
+     "sekunde": 742
+    },
+    {
+     "label": "20:52",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1252s",
+     "sekunde": 1252
+    },
+    {
+     "label": "22:31",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1351s",
+     "sekunde": 1351
+    }
+   ]
+  },
   {
    "id": "page:ki-co2-simulator",
    "titel": "Wie viel CO₂ steckt in einem Token? — KI-Energie-Simulator",
@@ -347,6 +372,21 @@
      "label": "14:21",
      "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=861s",
      "sekunde": 861
+    }
+   ]
+  },
+  {
+   "id": "yt:_C69B0i-QQA",
+   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
+   "sprungmarken": [
+    {
+     "label": "16:15",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=975s",
+     "sekunde": 975
     }
    ]
   },
@@ -507,6 +547,21 @@
      "label": "1:03:42",
      "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3822s",
      "sekunde": 3822
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.023,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.11%3A%20Zeitdynamik%2C%20Cash-out%20und%20neue%20Anforderungen%20%28Annahmen-Audit%20Runde%202%29",
+     "sekunde": null
     }
    ]
   },

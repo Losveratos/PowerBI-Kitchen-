@@ -2,10 +2,10 @@
 id: "topic:refresh"
 name: "Refresh"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 38
+dokumente: 40
 kernaussagen: 6
 mit_kernaussagen: 5
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/refresh.html"
@@ -30,13 +30,13 @@ Aktualisierung, Scheduled Refresh, aktualisieren
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Power BI](power-bi.md) | Refresh und Power BI im selben Segment | Heuristik, gezählt |  | 44 |
+| [Power BI](power-bi.md) | Refresh und Power BI im selben Segment | Heuristik, gezählt |  | 45 |
 | [Microsoft Fabric](microsoft-fabric.md) | Refresh und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 43 |
 | [Performance](performance.md) | Refresh und Performance im selben Segment | Heuristik, gezählt |  | 36 |
-| [Direct Lake](direct-lake.md) | Refresh und Direct Lake im selben Segment | Heuristik, gezählt |  | 28 |
+| [Direct Lake](direct-lake.md) | Refresh und Direct Lake im selben Segment | Heuristik, gezählt |  | 29 |
+| [Reporting](reporting.md) | Refresh und Reporting im selben Segment | Heuristik, gezählt |  | 22 |
+| [DirectQuery](directquery.md) | Refresh und DirectQuery im selben Segment | Heuristik, gezählt |  | 22 |
 | [Power Query](power-query.md) | Refresh und Power Query im selben Segment | Heuristik, gezählt |  | 21 |
-| [DirectQuery](directquery.md) | Refresh und DirectQuery im selben Segment | Heuristik, gezählt |  | 21 |
-| [Reporting](reporting.md) | Refresh und Reporting im selben Segment | Heuristik, gezählt |  | 21 |
 | [Lakehouse](lakehouse.md) | Refresh und Lakehouse im selben Segment | Heuristik, gezählt |  | 20 |
 | [Fabric Capacity](fabric-capacity.md) | Refresh und Fabric Capacity im selben Segment | Heuristik, gezählt |  | 19 |
 | [Incremental Refresh](incremental-refresh.md) | Refresh und Incremental Refresh im selben Segment | Heuristik, gezählt |  | 17 |
@@ -63,6 +63,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?](https://www.youtube.com/watch?v=9u9YbdMUU-s) | 2026-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=9u9YbdMUU-s&t=0s) |
 | [Microsoft Fabric Shortcut Transformation erklärt: Updates im Praxistest](https://www.youtube.com/watch?v=Z6RZjkn_6lY) | 2026-07-01 | nur-zeitstempel | [03:04](https://www.youtube.com/watch?v=Z6RZjkn_6lY&t=184s) · [04:09](https://www.youtube.com/watch?v=Z6RZjkn_6lY&t=249s) |
 | [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | kernaussagen+zeitstempel | [23:04](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1384s) · [49:14](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2954s) · [57:10](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3430s) |
 | [Power BI Update Juni 2025](https://www.youtube.com/watch?v=LnNoXBIG7Lc) | 2025-06-01 | nur-zeitstempel | [01:45](https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=105s) |
@@ -94,6 +95,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [BI Thinkers Talk nr.76](https://www.youtube.com/watch?v=mlkP-6i5Kq8) | 2026-05-01 | kernaussagen+zeitstempel | [36:19](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=2179s) · [1:01:42](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3702s) |
 | [Power BI Deep Dive: DAX UDF + TMDL](https://www.youtube.com/watch?v=0FPA1k5YiTs) | 2025-10-01 | nur-zeitstempel | [24:51](https://www.youtube.com/watch?v=0FPA1k5YiTs&t=1491s) |
 | [Starting with Microsft Fabric the Skills you need](https://www.youtube.com/watch?v=m3xNYfVih0Q) | 2024-08-01 | nur-zeitstempel | [27:09](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=1629s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [49:42](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2982s) |
 | [BI Thinkers Talk nr.63](https://www.youtube.com/watch?v=9VX4-lLa0EI) | 2025-06-01 | nur-zeitstempel | [48:51](https://www.youtube.com/watch?v=9VX4-lLa0EI&t=2931s) |
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [16:25](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=985s) |
 | [BI Thinkers Talk n.73](https://www.youtube.com/watch?v=pOJpXxsfUt0) | 2026-02-01 | kernaussagen+zeitstempel | [55:34](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3334s) |

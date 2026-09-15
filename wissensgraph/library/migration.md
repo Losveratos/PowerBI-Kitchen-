@@ -2,10 +2,10 @@
 id: "topic:migration"
 name: "Migration"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 14
+dokumente: 17
 kernaussagen: 10
 mit_kernaussagen: 5
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/migration.html"
@@ -31,21 +31,21 @@ migrieren, Ablösung, migriert, Umstieg
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Microsoft Fabric](microsoft-fabric.md) | Migration und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 18 |
-| [Power BI](power-bi.md) | Migration und Power BI im selben Segment | Heuristik, gezählt |  | 10 |
+| [Microsoft Fabric](microsoft-fabric.md) | Migration und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 19 |
+| [Power BI](power-bi.md) | Migration und Power BI im selben Segment | Heuristik, gezählt |  | 11 |
+| [Warehouse](warehouse.md) | Migration und Warehouse im selben Segment | Heuristik, gezählt |  | 10 |
+| [Lizenzen](lizenzen.md) | Migration und Lizenzen im selben Segment | Heuristik, gezählt |  | 8 |
+| [Reporting](reporting.md) | Migration und Reporting im selben Segment | Heuristik, gezählt |  | 7 |
 | [Premium](premium.md) | Migration und Premium im selben Segment | Heuristik, gezählt |  | 6 |
 | [Fabric Capacity](fabric-capacity.md) | Migration und Fabric Capacity im selben Segment | Heuristik, gezählt |  | 6 |
-| [Warehouse](warehouse.md) | Migration und Warehouse im selben Segment | Heuristik, gezählt |  | 6 |
 | [Lakehouse](lakehouse.md) | Migration und Lakehouse im selben Segment | Heuristik, gezählt |  | 6 |
-| [Reporting](reporting.md) | Migration und Reporting im selben Segment | Heuristik, gezählt |  | 6 |
-| [Lizenzen](lizenzen.md) | Migration und Lizenzen im selben Segment | Heuristik, gezählt |  | 6 |
 | [Dataflow](dataflow.md) | Migration und Dataflow im selben Segment | Heuristik, gezählt |  | 5 |
+| [Visualisierung](visualisierung.md) | Migration und Visualisierung im selben Segment | Heuristik, gezählt |  | 5 |
 | [SQL](sql.md) | Migration und SQL im selben Segment | Heuristik, gezählt |  | 5 |
+| [Excel](excel.md) | Migration und Excel im selben Segment | Heuristik, gezählt |  | 5 |
 | [Refresh](refresh.md) | Migration und Refresh im selben Segment | Heuristik, gezählt |  | 5 |
 | [Data Pipeline](data-pipeline.md) | Migration und Data Pipeline im selben Segment | Heuristik, gezählt |  | 5 |
 | [Projektmanagement](projektmanagement.md) | Migration und Projektmanagement im selben Segment | Heuristik, gezählt |  | 4 |
-| [Spark](spark.md) | Migration und Spark im selben Segment | Heuristik, gezählt |  | 4 |
-| [Visualisierung](visualisierung.md) | Migration und Visualisierung im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -69,14 +69,17 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [06:02](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=362s) · [14:21](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=861s) · [15:38](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=938s) |
+| [Automatisierung gewinnt \| Daten-WG Podcast mit Reinhard Mense](https://www.youtube.com/watch?v=3-hXnNLKnAw) | 2026-07-01 | nur-zeitstempel | [04:39](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=279s) · [35:32](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=2132s) · [37:30](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=2250s) |
 | [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [07:50](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=470s) · [09:31](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=571s) · [18:22](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1102s) |
 | [Power BI Update Mai 2025](https://www.youtube.com/watch?v=zkfdfc5fo-E) | 2025-05-01 | nur-zeitstempel | [14:21](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=861s) |
 | [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | kernaussagen+zeitstempel | [36:09](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2169s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20Fabric%20nicht%20ersetzt) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20wichtigsten%20Regeln) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Sicherheit%20%26%20Kosten) |
+| [Was machen die eigentlich? \| Daten-WG Podcast mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=_C69B0i-QQA) | 2026-08-01 | nur-zeitstempel | [06:32](https://www.youtube.com/watch?v=_C69B0i-QQA&t=392s) |
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [03:02](https://www.youtube.com/watch?v=lZvpCBMKASM&t=182s) · [52:08](https://www.youtube.com/watch?v=lZvpCBMKASM&t=3128s) |
 | [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [08:52](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=532s) |
 | [The Power of User Groups](https://www.youtube.com/watch?v=SSUpe1JON9Y) | 2025-10-01 | nur-zeitstempel | [16:39](https://www.youtube.com/watch?v=SSUpe1JON9Y&t=999s) |
 | [The Day After Tomorrow – Nach der Einführung geht es erst richtig los \| Power BI Summit 2023](https://www.youtube.com/watch?v=KwySyTxW_EI) | 2023-03-01 | nur-zeitstempel | [42:08](https://www.youtube.com/watch?v=KwySyTxW_EI&t=2528s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C1%29%3A%20der%20Rechenkern%20rechnet%20Jahr%20fuer%20Jahr) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail) |
 | [Prinzipien oder Paragrafen](https://www.youtube.com/watch?v=6WhWLcuFvZE) | 2026-02-01 | kernaussagen+zeitstempel | [03:56](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=236s) |
 | [GxP Talk - Testing im GxP-Umfeld](https://www.youtube.com/watch?v=B0_sSJQVG8w) | 2026-04-01 | kernaussagen+zeitstempel | [29:01](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1741s) |
 | [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [19:29](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1169s) |

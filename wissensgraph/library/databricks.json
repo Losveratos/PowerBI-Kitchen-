@@ -3,14 +3,14 @@
  "name": "Databricks",
  "typ": "tool",
  "slug": "databricks",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/databricks.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/databricks.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/databricks.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/databricks.json",
- "dokumente_gesamt": 6,
+ "dokumente_gesamt": 7,
  "kernaussagen_gesamt": 8,
  "mit_kernaussagen": 7,
  "aliase": [],
@@ -204,6 +204,15 @@
      "sekunde": null
     }
    ]
+  },
+  {
+   "id": "yt:E9kgWtTmwdE",
+   "titel": "Databricks Explained to a Power BI Guy | Daten-WG Podcast with Vitalija Bartusevičiūtė",
+   "datum": "2026-09-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=E9kgWtTmwdE",
+   "sprungmarken": []
   }
  ],
  "hinweise": [

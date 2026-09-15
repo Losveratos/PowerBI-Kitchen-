@@ -2,10 +2,10 @@
 id: "tool:directquery"
 name: "DirectQuery"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 18
+dokumente: 21
 kernaussagen: 11
 mit_kernaussagen: 8
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/directquery.html"
@@ -30,13 +30,13 @@ Direct Query
 | --- | --- | --- | --- | --- |
 | [Mirroring](mirroring.md) | Mirroring gegensatz DirectQuery | automatisch extrahiert, Quellenstelle vorhanden | „wenn Daten erstmal in Fabric sind gespiegelt, das ist schon besser als jetzt direct query auf irgendwelche großen Lake Systeme zu machen, die dann pro Computer halt berechnen und dann entsprechend teu“ (Fabric & Power BI Quarterly · 2026-1, 2026-01) | 8 |
 | [Sternschema](sternschema.md) | DirectQuery gegensatz Sternschema | automatisch extrahiert, Quellenstelle vorhanden | „dass äh Direct Query eigentlich kein Starschema [verträgt] (Segment 5)“ (BI Thinkers Talk nr.71, 2025-12) | 9 |
-| [Direct Lake](direct-lake.md) | Direct Lake gegensatz DirectQuery | automatisch extrahiert, Quellenstelle vorhanden | „glaube ich ja, dass wir da Direct Lake nicht hinbekommen, aber für so ein kleinen Use Case wird's ja Direct Query wahrscheinlich auch tun“ (BI Thinkers Talk Nr.62, 2025-05) | 34 |
-| [Power BI](power-bi.md) | DirectQuery und Power BI im selben Segment | Heuristik, gezählt |  | 32 |
+| [Direct Lake](direct-lake.md) | Direct Lake gegensatz DirectQuery | automatisch extrahiert, Quellenstelle vorhanden | „glaube ich ja, dass wir da Direct Lake nicht hinbekommen, aber für so ein kleinen Use Case wird's ja Direct Query wahrscheinlich auch tun“ (BI Thinkers Talk Nr.62, 2025-05) | 35 |
+| [Power BI](power-bi.md) | DirectQuery und Power BI im selben Segment | Heuristik, gezählt |  | 33 |
 | [Performance](performance.md) | DirectQuery und Performance im selben Segment | Heuristik, gezählt |  | 31 |
-| [Microsoft Fabric](microsoft-fabric.md) | DirectQuery und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 25 |
+| [Microsoft Fabric](microsoft-fabric.md) | DirectQuery und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 26 |
+| [Refresh](refresh.md) | DirectQuery und Refresh im selben Segment | Heuristik, gezählt |  | 22 |
 | [OneLake](onelake.md) | DirectQuery und OneLake im selben Segment | Heuristik, gezählt |  | 22 |
-| [Refresh](refresh.md) | DirectQuery und Refresh im selben Segment | Heuristik, gezählt |  | 21 |
-| [Snowflake](snowflake.md) | DirectQuery und Snowflake im selben Segment | Heuristik, gezählt |  | 16 |
+| [Snowflake](snowflake.md) | DirectQuery und Snowflake im selben Segment | Heuristik, gezählt |  | 17 |
 | [SQL](sql.md) | DirectQuery und SQL im selben Segment | Heuristik, gezählt |  | 16 |
 | [Reporting](reporting.md) | DirectQuery und Reporting im selben Segment | Heuristik, gezählt |  | 15 |
 | [Power BI Desktop](power-bi-desktop.md) | DirectQuery und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 13 |
@@ -66,6 +66,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?](https://www.youtube.com/watch?v=9u9YbdMUU-s) | 2026-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=9u9YbdMUU-s&t=0s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20zwei%20Dinge%2C%20die%20man%20wissen%20muss) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=03%20%C2%B7%20Semantische%20Modelle%20%26%20%2ADirect%20Lake%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Zwei%20Varianten%20%E2%80%94%20wichtig%20seit%202025) |
 | [BI Thinkers Talk Nr.62](https://www.youtube.com/watch?v=Wwvhv8WA2Qc) | 2025-05-01 | kernaussagen+zeitstempel | [35:10](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2110s) · [36:44](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2204s) · [1:00:53](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3653s) |
 | [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | kernaussagen+zeitstempel | [32:06](https://www.youtube.com/watch?v=4VVNDNusq4U&t=1926s) · [33:57](https://www.youtube.com/watch?v=4VVNDNusq4U&t=2037s) · [37:15](https://www.youtube.com/watch?v=4VVNDNusq4U&t=2235s) |
@@ -73,11 +74,13 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [44:27](https://www.youtube.com/watch?v=r416vanitYw&t=2667s) · [46:04](https://www.youtube.com/watch?v=r416vanitYw&t=2764s) · [50:55](https://www.youtube.com/watch?v=r416vanitYw&t=3055s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Dataflow%20Gen2%20%28Fabric%29) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Direct%20Lake%20%28Fabric%29) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datenbank-Quellen%20%C2%B7%20der%20Folding-Hebel) |
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [07:50](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=470s) · [25:07](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1507s) |
+| [Was machen die eigentlich? \| Daten-WG Podcast mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=_C69B0i-QQA) | 2026-08-01 | nur-zeitstempel | [16:15](https://www.youtube.com/watch?v=_C69B0i-QQA&t=975s) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [08:28](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=508s) · [39:28](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2368s) |
 | [BI Thinkers Talk nr.71](https://www.youtube.com/watch?v=LUrL8A5lNgI) | 2025-12-01 | kernaussagen+zeitstempel | [08:04](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=484s) · [09:41](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=581s) · [51:29](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=3089s) |
 | [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [24:33](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1473s) |
 | [Why Passion Beats Niche](https://www.youtube.com/watch?v=ihi7UiJ_TtQ) | 2025-09-01 | kernaussagen+zeitstempel | [21:22](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1282s) |
 | [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [28:04](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1684s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [31:49](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1909s) |
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [36:51](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2211s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [25:03](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s) |
 | [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | kernaussagen+zeitstempel | [30:38](https://www.youtube.com/watch?v=TYmKrreMO3I&t=1838s) |

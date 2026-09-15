@@ -3,14 +3,14 @@
  "name": "Power Automate",
  "typ": "tool",
  "slug": "power-automate",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-automate.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-automate.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-automate.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-automate.json",
- "dokumente_gesamt": 13,
+ "dokumente_gesamt": 14,
  "kernaussagen_gesamt": 18,
  "mit_kernaussagen": 5,
  "aliase": [
@@ -576,6 +576,21 @@
      "label": "52:27",
      "url": "https://www.youtube.com/watch?v=r416vanitYw&t=3147s",
      "sekunde": 3147
+    }
+   ]
+  },
+  {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "14:14",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=854s",
+     "sekunde": 854
     }
    ]
   },

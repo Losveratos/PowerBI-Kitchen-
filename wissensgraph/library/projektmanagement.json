@@ -3,8 +3,8 @@
  "name": "Projektmanagement",
  "typ": "thema",
  "slug": "projektmanagement",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/projektmanagement.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/projektmanagement.html",
@@ -69,6 +69,15 @@
    "datei": "schulung.md"
   },
   {
+   "id": "tool:excel",
+   "name": "Excel",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "excel.md"
+  },
+  {
    "id": "tool:sap",
    "name": "SAP",
    "kantentyp": "ko-vorkommen",
@@ -121,15 +130,6 @@
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "strategie.md"
-  },
-  {
-   "id": "tool:excel",
-   "name": "Excel",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
-   "beleg": "",
-   "datei": "excel.md"
   },
   {
    "id": "topic:community",
@@ -573,14 +573,14 @@
    "id": "yt:uxYFqwe_Wiw",
    "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
    "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.015,
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.018,
    "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
    "sprungmarken": [
     {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
+     "label": "37:40",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=2260s",
+     "sekunde": 2260
     }
    ]
   }

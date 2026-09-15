@@ -3,14 +3,14 @@
  "name": "DirectQuery",
  "typ": "tool",
  "slug": "directquery",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/directquery.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/directquery.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/directquery.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/directquery.json",
- "dokumente_gesamt": 18,
+ "dokumente_gesamt": 21,
  "kernaussagen_gesamt": 11,
  "mit_kernaussagen": 8,
  "aliase": [
@@ -41,7 +41,7 @@
    "name": "Direct Lake",
    "kantentyp": "gegensatz",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 34,
+   "gemeinsame_segmente": 35,
    "beleg": "glaube ich ja, dass wir da Direct Lake nicht hinbekommen, aber für so ein kleinen Use Case wird's ja Direct Query wahrscheinlich auch tun",
    "datei": "direct-lake.md"
   },
@@ -50,7 +50,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 32,
+   "gemeinsame_segmente": 33,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -68,9 +68,18 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 25,
+   "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 22,
+   "beleg": "",
+   "datei": "refresh.md"
   },
   {
    "id": "tool:onelake",
@@ -82,20 +91,11 @@
    "datei": "onelake.md"
   },
   {
-   "id": "topic:refresh",
-   "name": "Refresh",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 21,
-   "beleg": "",
-   "datei": "refresh.md"
-  },
-  {
    "id": "tool:snowflake",
    "name": "Snowflake",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 16,
+   "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "snowflake.md"
   },
@@ -257,6 +257,21 @@
  ],
  "dokumente": [
   {
+   "id": "yt:9u9YbdMUU-s",
+   "titel": "#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?",
+   "datum": "2026-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=9u9YbdMUU-s",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=9u9YbdMUU-s&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
    "id": "page:fabric_einsteiger_guide_v1",
    "titel": "Microsoft Fabric — Einsteiger-Guide",
    "datum": "2026-08-31",
@@ -417,6 +432,21 @@
    ]
   },
   {
+   "id": "yt:_C69B0i-QQA",
+   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
+   "sprungmarken": [
+    {
+     "label": "16:15",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=975s",
+     "sekunde": 975
+    }
+   ]
+  },
+  {
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
@@ -503,6 +533,21 @@
      "label": "28:04",
      "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1684s",
      "sekunde": 1684
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "31:49",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1909s",
+     "sekunde": 1909
     }
    ]
   },

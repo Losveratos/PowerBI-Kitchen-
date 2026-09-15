@@ -3,14 +3,14 @@
  "name": "Snowflake",
  "typ": "tool",
  "slug": "snowflake",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/snowflake.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/snowflake.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/snowflake.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/snowflake.json",
- "dokumente_gesamt": 21,
+ "dokumente_gesamt": 23,
  "kernaussagen_gesamt": 9,
  "mit_kernaussagen": 9,
  "aliase": [],
@@ -30,7 +30,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 45,
+   "gemeinsame_segmente": 46,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -39,7 +39,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 29,
+   "gemeinsame_segmente": 31,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -57,18 +57,9 @@
    "name": "DirectQuery",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 16,
+   "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "directquery.md"
-  },
-  {
-   "id": "tool:warehouse",
-   "name": "Warehouse",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 14,
-   "beleg": "",
-   "datei": "warehouse.md"
   },
   {
    "id": "topic:performance",
@@ -105,6 +96,15 @@
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "sql.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "warehouse.md"
   },
   {
    "id": "tool:direct-lake",
@@ -397,6 +397,41 @@
    ]
   },
   {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "04:39",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=279s",
+     "sekunde": 279
+    },
+    {
+     "label": "40:45",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=2445s",
+     "sekunde": 2445
+    }
+   ]
+  },
+  {
+   "id": "yt:_C69B0i-QQA",
+   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
+   "sprungmarken": [
+    {
+     "label": "16:15",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=975s",
+     "sekunde": 975
+    }
+   ]
+  },
+  {
    "id": "yt:Fqt4gP1xB5w",
    "titel": "Daten-WG Thinkers Talk nr.65",
    "datum": "2025-07-01",
@@ -597,6 +632,21 @@
    ]
   },
   {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "21:22",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1282s",
+     "sekunde": 1282
+    }
+   ]
+  },
+  {
    "id": "yt:LUrL8A5lNgI",
    "titel": "BI Thinkers Talk nr.71",
    "datum": "2025-12-01",
@@ -608,21 +658,6 @@
      "label": "08:04",
      "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=484s",
      "sekunde": 484
-    }
-   ]
-  },
-  {
-   "id": "yt:uxYFqwe_Wiw",
-   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.015,
-   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
     }
    ]
   }

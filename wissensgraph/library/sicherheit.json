@@ -3,14 +3,14 @@
  "name": "Sicherheit",
  "typ": "thema",
  "slug": "sicherheit",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sicherheit.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sicherheit.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/sicherheit.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/sicherheit.json",
- "dokumente_gesamt": 53,
+ "dokumente_gesamt": 55,
  "kernaussagen_gesamt": 39,
  "mit_kernaussagen": 22,
  "aliase": [
@@ -26,7 +26,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 41,
+   "gemeinsame_segmente": 43,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -35,9 +35,18 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 38,
+   "gemeinsame_segmente": 39,
    "beleg": "",
    "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 31,
+   "beleg": "",
+   "datei": "reporting.md"
   },
   {
    "id": "topic:ki",
@@ -47,15 +56,6 @@
    "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "ki.md"
-  },
-  {
-   "id": "topic:reporting",
-   "name": "Reporting",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 28,
-   "beleg": "",
-   "datei": "reporting.md"
   },
   {
    "id": "topic:row-level-security",
@@ -71,7 +71,7 @@
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 26,
+   "gemeinsame_segmente": 27,
    "beleg": "",
    "datei": "performance.md"
   },
@@ -80,9 +80,27 @@
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 17,
+   "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "workspace.md"
+  },
+  {
+   "id": "topic:governance",
+   "name": "Governance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 18,
+   "beleg": "",
+   "datei": "governance.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 15,
+   "beleg": "",
+   "datei": "visualisierung.md"
   },
   {
    "id": "tool:warehouse",
@@ -107,18 +125,9 @@
    "name": "Daten-WG",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 13,
+   "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "daten-wg.md"
-  },
-  {
-   "id": "topic:governance",
-   "name": "Governance",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 13,
-   "beleg": "",
-   "datei": "governance.md"
   },
   {
    "id": "tool:direct-lake",
@@ -130,24 +139,6 @@
    "datei": "direct-lake.md"
   },
   {
-   "id": "tool:semantic-model",
-   "name": "Semantic Model",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 12,
-   "beleg": "",
-   "datei": "semantic-model.md"
-  },
-  {
-   "id": "topic:visualisierung",
-   "name": "Visualisierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 12,
-   "beleg": "",
-   "datei": "visualisierung.md"
-  },
-  {
    "id": "tool:sql",
    "name": "SQL",
    "kantentyp": "ko-vorkommen",
@@ -155,6 +146,15 @@
    "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "sql.md"
+  },
+  {
+   "id": "topic:community",
+   "name": "Community",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "community.md"
   }
  ],
  "kernaussagen": [
@@ -587,26 +587,6 @@
    ]
   },
   {
-   "id": "yt:GKLxM3317Xk",
-   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
-   "datum": "2025-09-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.286,
-   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "yt:9TsHkV8sIRo",
    "titel": "Fabric & Power BI Quarterly · 2025 Q4",
    "datum": "",
@@ -732,6 +712,26 @@
    ]
   },
   {
+   "id": "yt:GKLxM3317Xk",
+   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "02:17",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk&t=137s",
+     "sekunde": 137
+    }
+   ]
+  },
+  {
    "id": "yt:9VX4-lLa0EI",
    "titel": "BI Thinkers Talk nr.63",
    "datum": "2025-06-01",
@@ -803,6 +803,56 @@
      "label": "24:33",
      "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1473s",
      "sekunde": 1473
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.118,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "36:35",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2195s",
+     "sekunde": 2195
+    },
+    {
+     "label": "38:12",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2292s",
+     "sekunde": 2292
+    },
+    {
+     "label": "39:46",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2386s",
+     "sekunde": 2386
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.114,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.13%3A%20Entscheidungspfad%20und%20Wirkungsgraph",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
     }
    ]
   },
@@ -1477,6 +1527,21 @@
    ]
   },
   {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "1:06:52",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=4012s",
+     "sekunde": 4012
+    }
+   ]
+  },
+  {
    "id": "yt:ZaDd1uxeLbI",
    "titel": "10 Jahre Power BI",
    "datum": "2025-07-01",
@@ -1503,21 +1568,6 @@
      "label": "48:16",
      "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2896s",
      "sekunde": 2896
-    }
-   ]
-  },
-  {
-   "id": "yt:uxYFqwe_Wiw",
-   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.015,
-   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
     }
    ]
   },

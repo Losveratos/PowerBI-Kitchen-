@@ -2,8 +2,8 @@
 id: "topic:datenkultur"
 name: "Datenkultur"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 9
 kernaussagen: 15
@@ -58,6 +58,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [Interview bei der TDWI München 2026 \| Stefanie Welle und Dr. Christian Krug](https://www.youtube.com/watch?v=Me3a2QOx21I) | 2026-07-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=Me3a2QOx21I&t=0s) · [00:48](https://www.youtube.com/watch?v=Me3a2QOx21I&t=48s) · [06:23](https://www.youtube.com/watch?v=Me3a2QOx21I&t=383s) |
 | [Wie war die Daten-WG? (2025, Teil 2)](https://www.youtube.com/watch?v=XxPFAQfLyuA) | 2025-04-01 | kernaussagen+zeitstempel | [27:28](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1648s) · [29:08](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1748s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [52:11](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=3131s) · [55:21](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=3321s) |
 | [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | kernaussagen+zeitstempel | [26:10](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1570s) |
@@ -65,7 +66,6 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | kernaussagen+zeitstempel | [22:42](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1362s) |
 | [GxP Talk - KI im regulierten Umfeld?](https://www.youtube.com/watch?v=XtH4JqTwaqM) | 2026-05-01 | kernaussagen+zeitstempel | [42:11](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2531s) |
 | [Daten-WG 2026 Lineup](https://www.youtube.com/watch?v=AX7b8_aNekw) | 2026-05-01 | nur-zeitstempel | [19:13](https://www.youtube.com/watch?v=AX7b8_aNekw&t=1153s) |
-| [Interview bei der TDWI München 2026 \| Stefanie Welle und Dr. Christian Krug](https://www.youtube.com/watch?v=Me3a2QOx21I) | 2026-07-01 | nur-metadaten | — |
 | [Datenmodellierung ist Governance](https://www.youtube.com/watch?v=lH_-A8NAQ-k) | 2025-11-01 | kernaussagen+zeitstempel | — |
 
 ## Hinweise

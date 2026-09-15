@@ -3,14 +3,14 @@
  "name": "Eventhouse",
  "typ": "tool",
  "slug": "eventhouse",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/eventhouse.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/eventhouse.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/eventhouse.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/eventhouse.json",
- "dokumente_gesamt": 10,
+ "dokumente_gesamt": 11,
  "kernaussagen_gesamt": 7,
  "mit_kernaussagen": 3,
  "aliase": [
@@ -36,7 +36,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "teil-von",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 19,
+   "gemeinsame_segmente": 20,
    "beleg": "das ist ein Eventhaus in Fabric",
    "datei": "microsoft-fabric.md"
   },
@@ -45,7 +45,7 @@
    "name": "Echtzeit",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 22,
+   "gemeinsame_segmente": 23,
    "beleg": "",
    "datei": "echtzeit.md"
   },
@@ -341,6 +341,21 @@
      "label": "42:49",
      "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2569s",
      "sekunde": 2569
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "42:42",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2562s",
+     "sekunde": 2562
     }
    ]
   },

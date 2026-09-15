@@ -2,10 +2,10 @@
 id: "tool:visual-calculations"
 name: "Visual Calculations"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 16
+dokumente: 17
 kernaussagen: 13
 mit_kernaussagen: 5
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/visual-calculations.html"
@@ -30,11 +30,13 @@ visuelle Berechnungen, Visual Calculation
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [DAX](dax.md) | DAX gegensatz Visual Calculations | automatisch extrahiert, Quellenstelle vorhanden | „Measure sind eigentlich ja besser zu kontrollieren als jetzt diese Visual Calculations“ (Daten-WG BI Thinkers Talk nr.66, 2025-08) | 8 |
-| [Visualisierung](visualisierung.md) | Visual Calculations und Visualisierung im selben Segment | Heuristik, gezählt |  | 27 |
-| [Power BI](power-bi.md) | Visual Calculations und Power BI im selben Segment | Heuristik, gezählt |  | 10 |
+| [Visualisierung](visualisierung.md) | Visual Calculations und Visualisierung im selben Segment | Heuristik, gezählt |  | 29 |
+| [Power BI](power-bi.md) | Visual Calculations und Power BI im selben Segment | Heuristik, gezählt |  | 11 |
 | [Excel](excel.md) | Visual Calculations und Excel im selben Segment | Heuristik, gezählt |  | 5 |
+| [Datenmodellierung](datenmodellierung.md) | Visual Calculations und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 4 |
+| [Power BI Desktop](power-bi-desktop.md) | Visual Calculations und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 3 |
+| [Reporting](reporting.md) | Visual Calculations und Reporting im selben Segment | Heuristik, gezählt |  | 3 |
 | [Schulung](schulung.md) | Visual Calculations und Schulung im selben Segment | Heuristik, gezählt |  | 3 |
-| [Datenmodellierung](datenmodellierung.md) | Visual Calculations und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -66,6 +68,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [08:07](https://www.youtube.com/watch?v=DQENmzAkNqw&t=487s) · [25:49](https://www.youtube.com/watch?v=DQENmzAkNqw&t=1549s) · [35:42](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2142s) |
 | [Power BI Update Mai 2026](https://www.youtube.com/watch?v=psLPsI32sAs) | 2026-05-01 | nur-zeitstempel | [01:05](https://www.youtube.com/watch?v=psLPsI32sAs&t=65s) |
 | [Power BI Update Mai 2025](https://www.youtube.com/watch?v=zkfdfc5fo-E) | 2025-05-01 | nur-zeitstempel | [00:23](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=23s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [06:11](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=371s) · [07:43](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=463s) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [23:06](https://www.youtube.com/watch?v=r416vanitYw&t=1386s) · [38:05](https://www.youtube.com/watch?v=r416vanitYw&t=2285s) |
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [40:41](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2441s) · [1:00:05](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3605s) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [04:30](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=270s) |

@@ -3,14 +3,14 @@
  "name": "Community",
  "typ": "thema",
  "slug": "community",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/community.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/community.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/community.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/community.json",
- "dokumente_gesamt": 52,
+ "dokumente_gesamt": 57,
  "kernaussagen_gesamt": 26,
  "mit_kernaussagen": 13,
  "aliase": [
@@ -27,7 +27,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 35,
+   "gemeinsame_segmente": 38,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -36,7 +36,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 22,
+   "gemeinsame_segmente": 23,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -45,7 +45,7 @@
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 20,
+   "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "ki.md"
   },
@@ -54,7 +54,7 @@
    "name": "Daten-WG",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 17,
+   "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "daten-wg.md"
   },
@@ -86,6 +86,15 @@
    "datei": "visualisierung.md"
   },
   {
+   "id": "topic:konferenz",
+   "name": "Konferenz",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "konferenz.md"
+  },
+  {
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
@@ -99,7 +108,7 @@
    "name": "Schulung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 10,
+   "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "schulung.md"
   },
@@ -113,6 +122,15 @@
    "datei": "performance.md"
   },
   {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  },
+  {
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
@@ -120,24 +138,6 @@
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "warehouse.md"
-  },
-  {
-   "id": "topic:konferenz",
-   "name": "Konferenz",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 7,
-   "beleg": "",
-   "datei": "konferenz.md"
-  },
-  {
-   "id": "topic:datenmodellierung",
-   "name": "Datenmodellierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 7,
-   "beleg": "",
-   "datei": "datenmodellierung.md"
   },
   {
    "id": "tool:power-bi-desktop",
@@ -149,13 +149,13 @@
    "datei": "power-bi-desktop.md"
   },
   {
-   "id": "tool:sql",
-   "name": "SQL",
+   "id": "tool:sap",
+   "name": "SAP",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
-   "datei": "sql.md"
+   "datei": "sap.md"
   }
  ],
  "kernaussagen": [
@@ -571,6 +571,26 @@
    ]
   },
   {
+   "id": "yt:svytHaNMTf0",
+   "titel": "Data Projects like Iron Man [AI dubbed]",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.25,
+   "url": "https://www.youtube.com/watch?v=svytHaNMTf0",
+   "sprungmarken": [
+    {
+     "label": "03:10",
+     "url": "https://www.youtube.com/watch?v=svytHaNMTf0&t=190s",
+     "sekunde": 190
+    },
+    {
+     "label": "06:13",
+     "url": "https://www.youtube.com/watch?v=svytHaNMTf0&t=373s",
+     "sekunde": 373
+    }
+   ]
+  },
+  {
    "id": "yt:aEXtFWW-pmo",
    "titel": "Wie war die Daten-WG 2025? (Teil 1)",
    "datum": "2025-05-01",
@@ -592,6 +612,31 @@
      "label": "21:13",
      "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1273s",
      "sekunde": 1273
+    }
+   ]
+  },
+  {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.174,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "32:42",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1962s",
+     "sekunde": 1962
+    },
+    {
+     "label": "37:49",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=2269s",
+     "sekunde": 2269
     }
    ]
   },
@@ -637,6 +682,26 @@
      "label": "29:05",
      "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1745s",
      "sekunde": 1745
+    }
+   ]
+  },
+  {
+   "id": "yt:Me3a2QOx21I",
+   "titel": "Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=Me3a2QOx21I",
+   "sprungmarken": [
+    {
+     "label": "03:03",
+     "url": "https://www.youtube.com/watch?v=Me3a2QOx21I&t=183s",
+     "sekunde": 183
+    },
+    {
+     "label": "04:41",
+     "url": "https://www.youtube.com/watch?v=Me3a2QOx21I&t=281s",
+     "sekunde": 281
     }
    ]
   },
@@ -957,6 +1022,26 @@
      "label": "1:11:34",
      "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=4294s",
      "sekunde": 4294
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.059,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:50",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=110s",
+     "sekunde": 110
     }
    ]
   },
@@ -1364,6 +1449,15 @@
      "sekunde": null
     }
    ]
+  },
+  {
+   "id": "yt:E9kgWtTmwdE",
+   "titel": "Databricks Explained to a Power BI Guy | Daten-WG Podcast with Vitalija Bartusevičiūtė",
+   "datum": "2026-09-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=E9kgWtTmwdE",
+   "sprungmarken": []
   },
   {
    "id": "yt:BDnwlOqRElY",

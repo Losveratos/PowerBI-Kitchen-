@@ -2,10 +2,10 @@
 id: "topic:datenqualitat"
 name: "Datenqualität"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 14
+dokumente: 15
 kernaussagen: 36
 mit_kernaussagen: 15
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenqualitat.html"
@@ -31,7 +31,7 @@ Data Quality, Qualität, Testing, Tests
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [KI](ki.md) | Datenqualität und KI im selben Segment | Heuristik, gezählt |  | 11 |
+| [KI](ki.md) | Datenqualität und KI im selben Segment | Heuristik, gezählt |  | 12 |
 | [Performance](performance.md) | Datenqualität und Performance im selben Segment | Heuristik, gezählt |  | 8 |
 | [Power BI](power-bi.md) | Datenqualität und Power BI im selben Segment | Heuristik, gezählt |  | 7 |
 | [Sicherheit](sicherheit.md) | Datenqualität und Sicherheit im selben Segment | Heuristik, gezählt |  | 6 |
@@ -97,6 +97,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Metadaten als Superkraft](https://www.youtube.com/watch?v=UUlPoJOhco8) | — | kernaussagen+zeitstempel | [03:41](https://www.youtube.com/watch?v=UUlPoJOhco8&t=221s) · [10:24](https://www.youtube.com/watch?v=UUlPoJOhco8&t=624s) · [13:30](https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s) |
 | [GxP Talk - Testing im GxP-Umfeld](https://www.youtube.com/watch?v=B0_sSJQVG8w) | 2026-04-01 | kernaussagen+zeitstempel | [04:53](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=293s) · [17:57](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1077s) · [33:56](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=2036s) |
 | [Was wir von Iron Man für Datenprojekte lernen können (data:unplugged Vortrag)](https://www.youtube.com/watch?v=qVZhboahaDE) | 2025-04-01 | nur-zeitstempel | [08:13](https://www.youtube.com/watch?v=qVZhboahaDE&t=493s) |
+| [Data Projects like Iron Man [AI dubbed]](https://www.youtube.com/watch?v=svytHaNMTf0) | 2025-04-01 | nur-zeitstempel | [07:49](https://www.youtube.com/watch?v=svytHaNMTf0&t=469s) |
 | [LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management](https://www.youtube.com/watch?v=DFw664hd1IE) | 2026-04-01 | kernaussagen+zeitstempel | [20:57](https://www.youtube.com/watch?v=DFw664hd1IE&t=1257s) · [33:41](https://www.youtube.com/watch?v=DFw664hd1IE&t=2021s) · [40:17](https://www.youtube.com/watch?v=DFw664hd1IE&t=2417s) |
 | [Von Patronen zu Prozessen](https://www.youtube.com/watch?v=0cHtxIm7fVw) | 2025-08-01 | nur-zeitstempel | [11:38](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=698s) · [14:01](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=841s) |
 | [Von Patronen zu Prozessen (nur Ton)](https://www.youtube.com/watch?v=s3CveEVoDvo) | 2025-07-01 | nur-zeitstempel | [11:38](https://www.youtube.com/watch?v=s3CveEVoDvo&t=698s) · [14:01](https://www.youtube.com/watch?v=s3CveEVoDvo&t=841s) |

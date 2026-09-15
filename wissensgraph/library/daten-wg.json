@@ -3,14 +3,14 @@
  "name": "Daten-WG",
  "typ": "thema",
  "slug": "daten-wg",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/daten-wg.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/daten-wg.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/daten-wg.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/daten-wg.json",
- "dokumente_gesamt": 80,
+ "dokumente_gesamt": 84,
  "kernaussagen_gesamt": 40,
  "mit_kernaussagen": 11,
  "aliase": [
@@ -24,7 +24,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 38,
+   "gemeinsame_segmente": 42,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -33,7 +33,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 29,
+   "gemeinsame_segmente": 33,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -42,7 +42,7 @@
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 22,
+   "gemeinsame_segmente": 25,
    "beleg": "",
    "datei": "visualisierung.md"
   },
@@ -51,7 +51,7 @@
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 22,
+   "gemeinsame_segmente": 24,
    "beleg": "",
    "datei": "ki.md"
   },
@@ -60,7 +60,7 @@
    "name": "Konferenz",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 17,
+   "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "konferenz.md"
   },
@@ -69,7 +69,7 @@
    "name": "Community",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 17,
+   "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "community.md"
   },
@@ -78,16 +78,25 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 15,
+   "gemeinsame_segmente": 17,
    "beleg": "",
    "datei": "reporting.md"
+  },
+  {
+   "id": "topic:planung",
+   "name": "Planung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "planung.md"
   },
   {
    "id": "topic:sicherheit",
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 13,
+   "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "sicherheit.md"
   },
@@ -101,22 +110,22 @@
    "datei": "lakehouse.md"
   },
   {
-   "id": "topic:planung",
-   "name": "Planung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 12,
-   "beleg": "",
-   "datei": "planung.md"
-  },
-  {
    "id": "tool:warehouse",
    "name": "Warehouse",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 12,
+   "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "warehouse.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
   },
   {
    "id": "tool:onelake",
@@ -126,15 +135,6 @@
    "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "onelake.md"
-  },
-  {
-   "id": "topic:datenmodellierung",
-   "name": "Datenmodellierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 11,
-   "beleg": "",
-   "datei": "datenmodellierung.md"
   },
   {
    "id": "tool:notebook",
@@ -519,6 +519,21 @@
  ],
  "dokumente": [
   {
+   "id": "yt:10jBGN2K52I",
+   "titel": "#008 · Suchst du unsere Tutorials? Hier sind sie!",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=10jBGN2K52I",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=10jBGN2K52I&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
    "id": "yt:l_aHydZyh4s",
    "titel": "MCP@Daten-WG@SQL Konferenz",
    "datum": "2026-03-01",
@@ -534,21 +549,6 @@
    ]
   },
   {
-   "id": "yt:H0ENBDQnVcs",
-   "titel": "Werbung | Daten WG Offsite in Dortmund – Power BI Event am 29.10.",
-   "datum": "2025-09-01",
-   "abdeckung": "nur-zeitstempel",
-   "anteil": 1.0,
-   "url": "https://www.youtube.com/watch?v=H0ENBDQnVcs",
-   "sprungmarken": [
-    {
-     "label": "00:00",
-     "url": "https://www.youtube.com/watch?v=H0ENBDQnVcs&t=0s",
-     "sekunde": 0
-    }
-   ]
-  },
-  {
    "id": "yt:UO6SpU-hKRs",
    "titel": "So #hackst du einen #PowerBI Bericht",
    "datum": "2025-09-01",
@@ -559,6 +559,21 @@
     {
      "label": "00:00",
      "url": "https://www.youtube.com/watch?v=UO6SpU-hKRs&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:H0ENBDQnVcs",
+   "titel": "Werbung | Daten WG Offsite in Dortmund – Power BI Event am 29.10.",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=H0ENBDQnVcs",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=H0ENBDQnVcs&t=0s",
      "sekunde": 0
     }
    ]
@@ -709,6 +724,31 @@
    ]
   },
   {
+   "id": "yt:_C69B0i-QQA",
+   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.188,
+   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "10:26",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=626s",
+     "sekunde": 626
+    },
+    {
+     "label": "19:05",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=1145s",
+     "sekunde": 1145
+    }
+   ]
+  },
+  {
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
@@ -815,6 +855,31 @@
      "label": "00:01",
      "url": "https://www.youtube.com/watch?v=LQQEn7IOb7w&t=1s",
      "sekunde": 1
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.118,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "06:11",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=371s",
+     "sekunde": 371
+    },
+    {
+     "label": "45:53",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2753s",
+     "sekunde": 2753
     }
    ]
   },
@@ -1125,6 +1190,31 @@
      "label": "15:03",
      "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=903s",
      "sekunde": 903
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.068,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29",
+     "sekunde": null
     }
    ]
   },
@@ -1549,6 +1639,21 @@
    ]
   },
   {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.031,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
    "id": "yt:d3HdhRe_nK8",
    "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
    "datum": "2026-06-01",
@@ -1729,30 +1834,12 @@
    ]
   },
   {
-   "id": "yt:_C69B0i-QQA",
-   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
-   "datum": "2026-08-01",
+   "id": "yt:E9kgWtTmwdE",
+   "titel": "Databricks Explained to a Power BI Guy | Daten-WG Podcast with Vitalija Bartusevičiūtė",
+   "datum": "2026-09-01",
    "abdeckung": "nur-metadaten",
    "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
-   "sprungmarken": []
-  },
-  {
-   "id": "yt:3-hXnNLKnAw",
-   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
-   "datum": "2026-07-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
-   "sprungmarken": []
-  },
-  {
-   "id": "yt:dKA-38gRD8Q",
-   "titel": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
-   "datum": "2026-05-01",
-   "abdeckung": "kernaussagen+zeitstempel",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q",
+   "url": "https://www.youtube.com/watch?v=E9kgWtTmwdE",
    "sprungmarken": []
   },
   {
@@ -1762,6 +1849,15 @@
    "abdeckung": "nur-metadaten",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=nldG2mLwA30",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:dKA-38gRD8Q",
+   "titel": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q",
    "sprungmarken": []
   },
   {
@@ -1783,21 +1879,21 @@
    "sprungmarken": []
   },
   {
-   "id": "yt:_Vh5fDfHWz4",
-   "titel": "Daten-WG Special: Power BI vs. Qlik -part2",
-   "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4",
-   "sprungmarken": []
-  },
-  {
    "id": "yt:aYHk_V8n_CE",
    "titel": "Daten-WG Special: Power BI vs. Qlik",
    "datum": "2025-10-01",
    "abdeckung": "kernaussagen+zeitstempel",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:_Vh5fDfHWz4",
+   "titel": "Daten-WG Special: Power BI vs. Qlik -part2",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4",
    "sprungmarken": []
   },
   {

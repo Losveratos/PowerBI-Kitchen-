@@ -2,10 +2,10 @@
 id: "tool:paginated-reports"
 name: "Paginated Reports"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 3
+dokumente: 4
 kernaussagen: 2
 mit_kernaussagen: 2
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/paginated-reports.html"
@@ -32,6 +32,8 @@ Paginierte Berichte, Report Builder, Paginated Report
 | --- | --- | --- | --- | --- |
 | [Planung](planung.md) | Planung gegensatz Paginated Reports | automatisch extrahiert, Quellenstelle vorhanden | „ist auch ein bisschen Konkurrenz zu Paginonated Reports an einigen Stellen“ (Fabric & Power BI Quarterly · 2026-2) | 0 |
 | [Power Automate](power-automate.md) | Paginated Reports setzt-voraus Power Automate | automatisch extrahiert, Quellenstelle vorhanden | „bei mir war es eben so bisschen dieses Power Automat, wie ich paginierte Berichte reinbringe“ (Wie war die Daten-WG 2025? (Teil 1), 2025-05) | 0 |
+| [Reporting](reporting.md) | Paginated Reports und Reporting im selben Segment | Heuristik, gezählt |  | 3 |
+| [Power BI](power-bi.md) | Paginated Reports und Power BI im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -47,6 +49,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
 | [Wie war die Daten-WG? · Im Gespräch mit Artur König](https://www.youtube.com/watch?v=z4ZeHPzIeeU) | 2025-03-01 | nur-zeitstempel | [22:25](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1345s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Grenzen) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben) |
 | [Wie war die Daten-WG 2025? (Teil 1)](https://www.youtube.com/watch?v=aEXtFWW-pmo) | 2025-05-01 | kernaussagen+zeitstempel | [23:09](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1389s) |
 | [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [53:04](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3184s) |
 

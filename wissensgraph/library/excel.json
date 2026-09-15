@@ -3,14 +3,14 @@
  "name": "Excel",
  "typ": "tool",
  "slug": "excel",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/excel.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/excel.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/excel.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/excel.json",
- "dokumente_gesamt": 75,
+ "dokumente_gesamt": 82,
  "kernaussagen_gesamt": 23,
  "mit_kernaussagen": 13,
  "aliase": [],
@@ -21,7 +21,7 @@
    "name": "SharePoint",
    "kantentyp": "ersetzt",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 17,
+   "gemeinsame_segmente": 20,
    "beleg": "Wir haben es da tatsächlich erstmal, weil es schneller ging mit Excel gelöst, aber ziel ist auch da Richtung SharePoint Liste zu gehen",
    "datei": "sharepoint.md"
   },
@@ -30,7 +30,7 @@
    "name": "Power Query",
    "kantentyp": "teil-von",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 23,
+   "gemeinsame_segmente": 24,
    "beleg": "dann unterstützt ja Excel mittlerweile Power Query",
    "datei": "power-query.md"
   },
@@ -39,7 +39,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 88,
+   "gemeinsame_segmente": 91,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -48,7 +48,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 42,
+   "gemeinsame_segmente": 44,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -57,7 +57,7 @@
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 32,
+   "gemeinsame_segmente": 36,
    "beleg": "",
    "datei": "visualisierung.md"
   },
@@ -66,7 +66,7 @@
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 32,
+   "gemeinsame_segmente": 34,
    "beleg": "",
    "datei": "ki.md"
   },
@@ -75,34 +75,34 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 21,
+   "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "reporting.md"
-  },
-  {
-   "id": "topic:performance",
-   "name": "Performance",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 20,
-   "beleg": "",
-   "datei": "performance.md"
   },
   {
    "id": "tool:sql",
    "name": "SQL",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 19,
+   "gemeinsame_segmente": 23,
    "beleg": "",
    "datei": "sql.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 21,
+   "beleg": "",
+   "datei": "performance.md"
   },
   {
    "id": "topic:planung",
    "name": "Planung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 19,
+   "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "planung.md"
   },
@@ -116,6 +116,15 @@
    "datei": "sternschema.md"
   },
   {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 17,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
@@ -125,20 +134,11 @@
    "datei": "datenmodellierung.md"
   },
   {
-   "id": "tool:warehouse",
-   "name": "Warehouse",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 14,
-   "beleg": "",
-   "datei": "warehouse.md"
-  },
-  {
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 13,
+   "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "lakehouse.md"
   },
@@ -147,7 +147,7 @@
    "name": "Self-Service BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 13,
+   "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "self-service-bi.md"
   }
@@ -363,6 +363,21 @@
  ],
  "dokumente": [
   {
+   "id": "yt:hkUHetX61jA",
+   "titel": "#006 · Power BI & Excel: Tabelle oder Tabellenblatt?",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=hkUHetX61jA",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=hkUHetX61jA&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
    "id": "yt:mTVeZzshLzE",
    "titel": "Microsoft Fabric — braucht das wirklich jemand?",
    "datum": "",
@@ -504,6 +519,51 @@
      "label": "19:36",
      "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1176s",
      "sekunde": 1176
+    }
+   ]
+  },
+  {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.25,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "05:33",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=333s",
+     "sekunde": 333
+    },
+    {
+     "label": "22:53",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1373s",
+     "sekunde": 1373
+    },
+    {
+     "label": "24:00",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1440s",
+     "sekunde": 1440
+    }
+   ]
+  },
+  {
+   "id": "yt:lp8xNX81R2w",
+   "titel": "Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.25,
+   "url": "https://www.youtube.com/watch?v=lp8xNX81R2w",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=lp8xNX81R2w&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "00:43",
+     "url": "https://www.youtube.com/watch?v=lp8xNX81R2w&t=43s",
+     "sekunde": 43
     }
    ]
   },
@@ -653,6 +713,21 @@
    ]
   },
   {
+   "id": "yt:_AxvdCW0ST4",
+   "titel": "Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4&t=1s",
+     "sekunde": 1
+    }
+   ]
+  },
+  {
    "id": "yt:J-lN5JN-F5I",
    "titel": "Daten-WG Life-Update | Fabric Architekturen",
    "datum": "2026-08-01",
@@ -728,6 +803,31 @@
    ]
   },
   {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.174,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "14:14",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=854s",
+     "sekunde": 854
+    },
+    {
+     "label": "24:18",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1458s",
+     "sekunde": 1458
+    },
+    {
+     "label": "30:34",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1834s",
+     "sekunde": 1834
+    }
+   ]
+  },
+  {
    "id": "yt:EVsJ6zyGUWc",
    "titel": "Was ist Self-Service und warum ist das so schwer?",
    "datum": "",
@@ -789,6 +889,31 @@
      "label": "33:48",
      "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2028s",
      "sekunde": 2028
+    }
+   ]
+  },
+  {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.145,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "13:38",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=818s",
+     "sekunde": 818
+    },
+    {
+     "label": "15:10",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=910s",
+     "sekunde": 910
+    },
+    {
+     "label": "37:40",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=2260s",
+     "sekunde": 2260
     }
    ]
   },
@@ -863,21 +988,6 @@
    ]
   },
   {
-   "id": "yt:GKLxM3317Xk",
-   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
-   "datum": "2025-09-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.143,
-   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "yt:qVZhboahaDE",
    "titel": "Was wir von Iron Man für Datenprojekte lernen können (data:unplugged Vortrag)",
    "datum": "2025-04-01",
@@ -914,6 +1024,31 @@
      "label": "37:41",
      "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=2261s",
      "sekunde": 2261
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.136,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
     }
    ]
   },
@@ -1003,27 +1138,17 @@
    ]
   },
   {
-   "id": "yt:uxYFqwe_Wiw",
-   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.123,
-   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "id": "yt:svytHaNMTf0",
+   "titel": "Data Projects like Iron Man [AI dubbed]",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=svytHaNMTf0",
    "sprungmarken": [
     {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
+     "label": "07:49",
+     "url": "https://www.youtube.com/watch?v=svytHaNMTf0&t=469s",
+     "sekunde": 469
     }
    ]
   },
@@ -1168,6 +1293,31 @@
    ]
   },
   {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.088,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "18:08",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1088s",
+     "sekunde": 1088
+    },
+    {
+     "label": "25:50",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1550s",
+     "sekunde": 1550
+    },
+    {
+     "label": "35:11",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2111s",
+     "sekunde": 2111
+    }
+   ]
+  },
+  {
    "id": "yt:B0_sSJQVG8w",
    "titel": "GxP Talk - Testing im GxP-Umfeld",
    "datum": "2026-04-01",
@@ -1264,6 +1414,21 @@
      "label": "39:34",
      "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2374s",
      "sekunde": 2374
+    }
+   ]
+  },
+  {
+   "id": "yt:GKLxM3317Xk",
+   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
+   "sprungmarken": [
+    {
+     "label": "04:26",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk&t=266s",
+     "sekunde": 266
     }
    ]
   },
@@ -1851,15 +2016,6 @@
      "sekunde": 2483
     }
    ]
-  },
-  {
-   "id": "yt:lp8xNX81R2w",
-   "titel": "Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)",
-   "datum": "2026-07-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=lp8xNX81R2w",
-   "sprungmarken": []
   }
  ],
  "hinweise": [

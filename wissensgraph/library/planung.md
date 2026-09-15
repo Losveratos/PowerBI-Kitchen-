@@ -2,10 +2,10 @@
 id: "topic:planung"
 name: "Planung"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 36
+dokumente: 42
 kernaussagen: 24
 mit_kernaussagen: 7
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/planung.html"
@@ -36,17 +36,17 @@ Planning, Forecast, Budget, Plan, Planwerte
 | [Paginated Reports](paginated-reports.md) | Planung gegensatz Paginated Reports | automatisch extrahiert, Quellenstelle vorhanden | „ist auch ein bisschen Konkurrenz zu Paginonated Reports an einigen Stellen“ (Fabric & Power BI Quarterly · 2026-2) | 0 |
 | [Fabric Capacity](fabric-capacity.md) | Planung setzt-voraus Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „es aber braucht einfach Kapazität, aber es gibt für mich, es gibt keine extra Lizenzen“ (Fabric Planning unboxing, 2026-03) | 8 |
 | [Semantic Model](semantic-model.md) | Planung setzt-voraus Semantic Model | automatisch extrahiert, Quellenstelle vorhanden | „muss ich ja schon die Zieltabellen einbinden und Bedarf auch ein bisschen mehr, also Datenmodellierung“ (Fabric Planning unboxing, 2026-03) | 9 |
-| [Power BI](power-bi.md) | Planung und Power BI im selben Segment | Heuristik, gezählt |  | 31 |
-| [Microsoft Fabric](microsoft-fabric.md) | Planung und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 29 |
-| [Reporting](reporting.md) | Planung und Reporting im selben Segment | Heuristik, gezählt |  | 29 |
+| [Microsoft Fabric](microsoft-fabric.md) | Planung und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 34 |
+| [Power BI](power-bi.md) | Planung und Power BI im selben Segment | Heuristik, gezählt |  | 32 |
+| [Reporting](reporting.md) | Planung und Reporting im selben Segment | Heuristik, gezählt |  | 31 |
 | [Visualisierung](visualisierung.md) | Planung und Visualisierung im selben Segment | Heuristik, gezählt |  | 25 |
-| [Excel](excel.md) | Planung und Excel im selben Segment | Heuristik, gezählt |  | 19 |
+| [Excel](excel.md) | Planung und Excel im selben Segment | Heuristik, gezählt |  | 20 |
 | [IBCS](ibcs.md) | Planung und IBCS im selben Segment | Heuristik, gezählt |  | 19 |
+| [Daten-WG](daten-wg.md) | Planung und Daten-WG im selben Segment | Heuristik, gezählt |  | 14 |
+| [Performance](performance.md) | Planung und Performance im selben Segment | Heuristik, gezählt |  | 13 |
 | [SQL](sql.md) | Planung und SQL im selben Segment | Heuristik, gezählt |  | 13 |
-| [Daten-WG](daten-wg.md) | Planung und Daten-WG im selben Segment | Heuristik, gezählt |  | 12 |
-| [Performance](performance.md) | Planung und Performance im selben Segment | Heuristik, gezählt |  | 12 |
-| [KI](ki.md) | Planung und KI im selben Segment | Heuristik, gezählt |  | 11 |
-| [Sternschema](sternschema.md) | Planung und Sternschema im selben Segment | Heuristik, gezählt |  | 10 |
+| [KI](ki.md) | Planung und KI im selben Segment | Heuristik, gezählt |  | 13 |
+| [Sternschema](sternschema.md) | Planung und Sternschema im selben Segment | Heuristik, gezählt |  | 12 |
 
 ## Kernaussagen
 
@@ -83,11 +83,15 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [#004 · Bidirektionale Filterung? Meistens ein Fehler!](https://www.youtube.com/watch?v=WLiGuGjE5m8) | 2026-07-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=WLiGuGjE5m8&t=0s) |
 | [Fabric Planning unboxing](https://www.youtube.com/watch?v=xCzKEIB4W5I) | 2026-03-01 | kernaussagen+zeitstempel | [07:46](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=466s) · [32:27](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1947s) · [48:35](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=2915s) |
 | [Was wir von Iron Man für Datenprojekte lernen können (data:unplugged Vortrag)](https://www.youtube.com/watch?v=qVZhboahaDE) | 2025-04-01 | nur-zeitstempel | [01:33](https://www.youtube.com/watch?v=qVZhboahaDE&t=93s) · [05:00](https://www.youtube.com/watch?v=qVZhboahaDE&t=300s) · [08:13](https://www.youtube.com/watch?v=qVZhboahaDE&t=493s) |
+| [Data Projects like Iron Man [AI dubbed]](https://www.youtube.com/watch?v=svytHaNMTf0) | 2025-04-01 | nur-zeitstempel | [01:33](https://www.youtube.com/watch?v=svytHaNMTf0&t=93s) · [06:13](https://www.youtube.com/watch?v=svytHaNMTf0&t=373s) · [07:49](https://www.youtube.com/watch?v=svytHaNMTf0&t=469s) |
 | [Business Chart Builder — Anleitung](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Abweichungen%20%26%20Szenarien%20%E2%80%94%20das%20Herzst%C3%BCck) · [Abschnitt](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Neu%20%E2%80%94%20inspiriert%20von%20der%20FT%20Visual%20Vocabulary) · [Abschnitt](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Export%20%E2%80%94%20der%20eigentliche%20Trick) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [42:00](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2520s) · [43:34](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2614s) · [53:23](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3203s) |
+| [Was machen die eigentlich? \| Daten-WG Podcast mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=_C69B0i-QQA) | 2026-08-01 | nur-zeitstempel | [10:26](https://www.youtube.com/watch?v=_C69B0i-QQA&t=626s) · [17:58](https://www.youtube.com/watch?v=_C69B0i-QQA&t=1078s) · [19:05](https://www.youtube.com/watch?v=_C69B0i-QQA&t=1145s) |
 | [Power BI Update März 2026](https://www.youtube.com/watch?v=ASwcPvbMRZc) | 2026-03-01 | kernaussagen+zeitstempel | [07:05](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=425s) · [07:53](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=473s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [22:43](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1363s) · [24:14](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1454s) · [27:34](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1654s) |
 | [GxP Talk - Testing im GxP-Umfeld](https://www.youtube.com/watch?v=B0_sSJQVG8w) | 2026-04-01 | kernaussagen+zeitstempel | [08:14](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=494s) · [09:51](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=591s) · [24:13](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1453s) |
 | [Wie war die Daten-WG? · Im Gespräch mit Artur König](https://www.youtube.com/watch?v=z4ZeHPzIeeU) | 2025-03-01 | nur-zeitstempel | [22:25](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1345s) · [33:02](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1982s) |
 | [ChartKitchen byDatenWG — Documentation](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=01%20%C2%B7%20What%20is%20ChartKitchen%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=Field%20roles) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=3%20%C2%B7%20First%20comparison%20with%20PY) |
@@ -101,6 +105,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Power BI Update September 2025](https://www.youtube.com/watch?v=6gQiIbyhWEc) | 2025-09-01 | nur-zeitstempel | [11:14](https://www.youtube.com/watch?v=6gQiIbyhWEc&t=674s) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [03:07](https://www.youtube.com/watch?v=luk4S4ukKmg&t=187s) · [32:17](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1937s) · [1:00:08](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3608s) |
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [22:07](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1327s) · [23:40](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1420s) |
+| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-zeitstempel | [24:00](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1440s) · [25:37](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1537s) · [33:14](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1994s) |
+| [Interview bei der TDWI München 2026 \| Stefanie Welle und Dr. Christian Krug](https://www.youtube.com/watch?v=Me3a2QOx21I) | 2026-07-01 | nur-zeitstempel | [05:48](https://www.youtube.com/watch?v=Me3a2QOx21I&t=348s) |
 | [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | kernaussagen+zeitstempel | [06:03](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=363s) |
 | [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [34:14](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2054s) · [36:01](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2161s) |
 | [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | kernaussagen+zeitstempel | [01:36](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=96s) · [46:02](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2762s) |
@@ -112,13 +118,13 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Von Patronen zu Prozessen](https://www.youtube.com/watch?v=0cHtxIm7fVw) | 2025-08-01 | nur-zeitstempel | [12:35](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=755s) |
 | [Von Patronen zu Prozessen (nur Ton)](https://www.youtube.com/watch?v=s3CveEVoDvo) | 2025-07-01 | nur-zeitstempel | [12:35](https://www.youtube.com/watch?v=s3CveEVoDvo&t=755s) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [47:43](https://www.youtube.com/watch?v=r416vanitYw&t=2863s) · [50:55](https://www.youtube.com/watch?v=r416vanitYw&t=3055s) |
-| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) · [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) · [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
+| [Automatisierung gewinnt \| Daten-WG Podcast mit Reinhard Mense](https://www.youtube.com/watch?v=3-hXnNLKnAw) | 2026-07-01 | nur-zeitstempel | [21:20](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1280s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [38:20](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2300s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Betriebs-Frage) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Lakehouse%20erstellen) |
 | [Fabric Planning Hands-On (2)](https://www.youtube.com/watch?v=mIQU6gtnwoA) | 2026-05-01 | nur-metadaten | — |
 | [Fabric Planning Hands-On (3)](https://www.youtube.com/watch?v=MmPs7IH0nBE) | 2026-05-01 | nur-metadaten | — |
-| [Fabric Planning Hands-On](https://www.youtube.com/watch?v=YRoJ_6t3VrE) | 2026-04-01 | nur-metadaten | — |
-| [How to Write Back](https://www.youtube.com/watch?v=HQaLWjA-E2E) | 2025-12-01 | nur-metadaten | — |
+
+40 von 42 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/planung.json).
 
 ## Hinweise
 

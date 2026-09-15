@@ -2,10 +2,10 @@
 id: "tool:databricks"
 name: "Databricks"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 6
+dokumente: 7
 kernaussagen: 8
 mit_kernaussagen: 7
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/databricks.html"
@@ -55,6 +55,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Deep Dive: AI on top of BI](https://www.youtube.com/watch?v=HXAP16trRc8) | 2025-07-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20ist%20das%3F) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datenbank-Quellen%20%C2%B7%20der%20Folding-Hebel) |
+| [Databricks Explained to a Power BI Guy \| Daten-WG Podcast with Vitalija Bartusevičiūtė](https://www.youtube.com/watch?v=E9kgWtTmwdE) | 2026-09-01 | nur-metadaten | — |
 
 ## Hinweise
 

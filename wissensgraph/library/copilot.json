@@ -3,14 +3,14 @@
  "name": "Copilot",
  "typ": "tool",
  "slug": "copilot",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/copilot.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/copilot.json",
- "dokumente_gesamt": 47,
+ "dokumente_gesamt": 49,
  "kernaussagen_gesamt": 38,
  "mit_kernaussagen": 19,
  "aliase": [
@@ -32,7 +32,7 @@
    "name": "GitHub",
    "kantentyp": "setzt-voraus",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 7,
+   "gemeinsame_segmente": 8,
    "beleg": "dass wir hier im Gittaub Copilet angemeldet sind",
    "datei": "github.md"
   },
@@ -68,7 +68,7 @@
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 62,
+   "gemeinsame_segmente": 64,
    "beleg": "",
    "datei": "ki.md"
   },
@@ -77,7 +77,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 40,
+   "gemeinsame_segmente": 41,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -86,34 +86,34 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 32,
+   "gemeinsame_segmente": 33,
    "beleg": "",
    "datei": "microsoft-fabric.md"
-  },
-  {
-   "id": "topic:visualisierung",
-   "name": "Visualisierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 20,
-   "beleg": "",
-   "datei": "visualisierung.md"
   },
   {
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 20,
+   "gemeinsame_segmente": 23,
    "beleg": "",
    "datei": "reporting.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 22,
+   "beleg": "",
+   "datei": "visualisierung.md"
   },
   {
    "id": "topic:datenmodellierung",
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 15,
+   "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "datenmodellierung.md"
   },
@@ -520,31 +520,6 @@
    ]
   },
   {
-   "id": "yt:WJXREKKx2yo",
-   "titel": "Vorbereiten der Daten für KI",
-   "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
-   "anteil": 0.667,
-   "url": "https://www.youtube.com/watch?v=WJXREKKx2yo",
-   "sprungmarken": [
-    {
-     "label": "00:01",
-     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=1s",
-     "sekunde": 1
-    },
-    {
-     "label": "01:35",
-     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=95s",
-     "sekunde": 95
-    },
-    {
-     "label": "04:42",
-     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=282s",
-     "sekunde": 282
-    }
-   ]
-  },
-  {
    "id": "yt:_MfM3rhJx58",
    "titel": "Copilot + Power Automate = Gamechanger",
    "datum": "2025-08-01",
@@ -566,6 +541,31 @@
      "label": "08:07",
      "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=487s",
      "sekunde": 487
+    }
+   ]
+  },
+  {
+   "id": "yt:WJXREKKx2yo",
+   "titel": "Vorbereiten der Daten für KI",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.667,
+   "url": "https://www.youtube.com/watch?v=WJXREKKx2yo",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "01:35",
+     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=95s",
+     "sekunde": 95
+    },
+    {
+     "label": "04:42",
+     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=282s",
+     "sekunde": 282
     }
    ]
   },
@@ -740,21 +740,6 @@
    ]
   },
   {
-   "id": "page:chartkitchen-schnellstart_en",
-   "titel": "ChartKitchen byDatenWG — Quick Start",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.2,
-   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:chartkitchen-schnellstart",
    "titel": "ChartKitchen byDatenWG — Schnellstart",
    "datum": "2026-08-31",
@@ -765,6 +750,21 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart_en",
+   "titel": "ChartKitchen byDatenWG — Quick Start",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
      "sekunde": null
     }
    ]
@@ -1155,6 +1155,26 @@
    ]
   },
   {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.045,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Rahmenbedingungen%2C%20die%20das%20Ergebnis%20kippen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29",
+     "sekunde": null
+    }
+   ]
+  },
+  {
    "id": "yt:YzfcMurbWNc",
    "titel": "Power BI-Teams werden Fabric-Datendienstleister",
    "datum": "",
@@ -1276,6 +1296,21 @@
      "label": "25:25",
      "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1525s",
      "sekunde": 1525
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "03:25",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=205s",
+     "sekunde": 205
     }
    ]
   },

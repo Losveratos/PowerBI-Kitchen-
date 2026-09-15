@@ -2,10 +2,10 @@
 id: "tool:dataflow"
 name: "Dataflow"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 30
+dokumente: 32
 kernaussagen: 31
 mit_kernaussagen: 14
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/dataflow.html"
@@ -34,13 +34,13 @@ Dataflows, Dataflow Gen2, Gen2, Datenfluss
 | [Data Pipeline](data-pipeline.md) | Dataflow setzt-voraus Data Pipeline | automatisch extrahiert, Quellenstelle vorhanden | „so eine Datenpipeline zu nehmen und die zwei Dataflows hintereinander zu hängen“ (Microsoft Fabric — braucht das wirklich jemand?) | 28 |
 | [Data Pipeline](data-pipeline.md) | Dataflow gegensatz Data Pipeline | automatisch extrahiert, Quellenstelle vorhanden | „Bei Dataflus geht's garantiert.“ (Daten-WG Deep Dive Financial Reporting, 2025-05) | 28 |
 | [Data Pipeline](data-pipeline.md) | Dataflow teil-von Data Pipeline | automatisch extrahiert, Quellenstelle vorhanden | „ich kann Dataflow nehmen und in der Pipeline einbauen“ (600 SQL-Tabellen in Fabric) | 28 |
-| [Notebook](notebook.md) | Dataflow empfiehlt Notebook | automatisch extrahiert, Quellenstelle vorhanden | „benutze ich Dataflows, um die Daten in meinem meinem Bronze zu stagen und von da aus dann die Weiterverarbeitung mit dem Notebook zu machen“ (BI Thinkers Talk n.74, 2026-03) | 54 |
-| [Notebook](notebook.md) | Dataflow gegensatz Notebook | automatisch extrahiert, Quellenstelle vorhanden | „einfach auch wartbar im Gegensatz zu Notebooks“ (BI Thinkers Talk nr.67, 2025-09) | 54 |
-| [Microsoft Fabric](microsoft-fabric.md) | Dataflow und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 54 |
+| [Notebook](notebook.md) | Dataflow empfiehlt Notebook | automatisch extrahiert, Quellenstelle vorhanden | „benutze ich Dataflows, um die Daten in meinem meinem Bronze zu stagen und von da aus dann die Weiterverarbeitung mit dem Notebook zu machen“ (BI Thinkers Talk n.74, 2026-03) | 56 |
+| [Notebook](notebook.md) | Dataflow gegensatz Notebook | automatisch extrahiert, Quellenstelle vorhanden | „einfach auch wartbar im Gegensatz zu Notebooks“ (BI Thinkers Talk nr.67, 2025-09) | 56 |
+| [Microsoft Fabric](microsoft-fabric.md) | Dataflow und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 57 |
 | [Lakehouse](lakehouse.md) | Dataflow und Lakehouse im selben Segment | Heuristik, gezählt |  | 48 |
-| [Power BI](power-bi.md) | Dataflow und Power BI im selben Segment | Heuristik, gezählt |  | 44 |
+| [Power BI](power-bi.md) | Dataflow und Power BI im selben Segment | Heuristik, gezählt |  | 45 |
 | [Warehouse](warehouse.md) | Dataflow und Warehouse im selben Segment | Heuristik, gezählt |  | 30 |
-| [Power Query](power-query.md) | Dataflow und Power Query im selben Segment | Heuristik, gezählt |  | 28 |
+| [Power Query](power-query.md) | Dataflow und Power Query im selben Segment | Heuristik, gezählt |  | 29 |
 | [Performance](performance.md) | Dataflow und Performance im selben Segment | Heuristik, gezählt |  | 26 |
 | [Workspace](workspace.md) | Dataflow und Workspace im selben Segment | Heuristik, gezählt |  | 26 |
 | [SQL](sql.md) | Dataflow und SQL im selben Segment | Heuristik, gezählt |  | 25 |
@@ -107,6 +107,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [01:38](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=98s) · [04:48](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=288s) · [44:27](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=2667s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [11:00](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=660s) · [12:50](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=770s) · [14:21](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=861s) |
 | [Daten-WG Deep Dive Financial Reporting - part 6](https://www.youtube.com/watch?v=bt81POE-9Ig) | 2025-08-01 | kernaussagen+zeitstempel | [06:51](https://www.youtube.com/watch?v=bt81POE-9Ig&t=411s) · [21:19](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1279s) · [26:22](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1582s) |
+| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-zeitstempel | [17:40](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1060s) · [22:31](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1351s) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [02:30](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=150s) · [29:17](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1757s) · [30:50](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1850s) |
 | [BI Thinkers Talk nr.77](https://www.youtube.com/watch?v=eWfTt93anl4) | — | nur-zeitstempel | [50:00](https://www.youtube.com/watch?v=eWfTt93anl4&t=3000s) · [56:49](https://www.youtube.com/watch?v=eWfTt93anl4&t=3409s) · [1:04:41](https://www.youtube.com/watch?v=eWfTt93anl4&t=3881s) |
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [03:02](https://www.youtube.com/watch?v=lZvpCBMKASM&t=182s) · [32:02](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1922s) |
@@ -114,6 +115,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [28:14](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1694s) · [31:33](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1893s) |
 | [Daten-WG Deep Dive Financial Reporting - part 7](https://www.youtube.com/watch?v=232JhS9vbQ0) | 2025-09-01 | nur-zeitstempel | [23:26](https://www.youtube.com/watch?v=232JhS9vbQ0&t=1406s) · [25:30](https://www.youtube.com/watch?v=232JhS9vbQ0&t=1530s) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [32:17](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1937s) · [47:00](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2820s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [51:13](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=3073s) |
 | [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | kernaussagen+zeitstempel | [57:04](https://www.youtube.com/watch?v=TYmKrreMO3I&t=3424s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wann%20lohnt%20sich%20ein%20Dataflow%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Dataflow%20Gen2%20%28Fabric%29) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Fabric-Bausteine) |
 | [Daten-WG 2026 Lineup](https://www.youtube.com/watch?v=AX7b8_aNekw) | 2026-05-01 | nur-zeitstempel | [02:51](https://www.youtube.com/watch?v=AX7b8_aNekw&t=171s) |

@@ -2,8 +2,8 @@
 id: "topic:projektmanagement"
 name: "Projektmanagement"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 12
 kernaussagen: 18
@@ -38,13 +38,13 @@ Scrum, agil, Agile, Projekt, Projekte, Sprint
 | [Power BI](power-bi.md) | Projektmanagement und Power BI im selben Segment | Heuristik, gezählt |  | 11 |
 | [Reporting](reporting.md) | Projektmanagement und Reporting im selben Segment | Heuristik, gezählt |  | 11 |
 | [Schulung](schulung.md) | Projektmanagement und Schulung im selben Segment | Heuristik, gezählt |  | 9 |
+| [Excel](excel.md) | Projektmanagement und Excel im selben Segment | Heuristik, gezählt |  | 5 |
 | [SAP](sap.md) | Projektmanagement und SAP im selben Segment | Heuristik, gezählt |  | 5 |
 | [Planung](planung.md) | Projektmanagement und Planung im selben Segment | Heuristik, gezählt |  | 5 |
 | [SQL](sql.md) | Projektmanagement und SQL im selben Segment | Heuristik, gezählt |  | 4 |
 | [Warehouse](warehouse.md) | Projektmanagement und Warehouse im selben Segment | Heuristik, gezählt |  | 4 |
 | [Migration](migration.md) | Projektmanagement und Migration im selben Segment | Heuristik, gezählt |  | 4 |
 | [Strategie](strategie.md) | Projektmanagement und Strategie im selben Segment | Heuristik, gezählt |  | 4 |
-| [Excel](excel.md) | Projektmanagement und Excel im selben Segment | Heuristik, gezählt |  | 4 |
 | [Community](community.md) | Projektmanagement und Community im selben Segment | Heuristik, gezählt |  | 3 |
 | [Sicherheit](sicherheit.md) | Projektmanagement und Sicherheit im selben Segment | Heuristik, gezählt |  | 3 |
 | [Lakehouse](lakehouse.md) | Projektmanagement und Lakehouse im selben Segment | Heuristik, gezählt |  | 3 |
@@ -89,7 +89,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [11:00](https://www.youtube.com/watch?v=lZvpCBMKASM&t=660s) · [13:35](https://www.youtube.com/watch?v=lZvpCBMKASM&t=815s) |
 | [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | kernaussagen+zeitstempel | [30:58](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1858s) |
 | [Daten-WG Special: Power BI vs. Qlik](https://www.youtube.com/watch?v=aYHk_V8n_CE) | 2025-10-01 | kernaussagen+zeitstempel | [16:01](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=961s) |
-| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
+| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-zeitstempel | [37:40](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=2260s) |
 
 ## Hinweise
 

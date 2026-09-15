@@ -2,10 +2,10 @@
 id: "tool:tmdl"
 name: "TMDL"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 10
+dokumente: 11
 kernaussagen: 30
 mit_kernaussagen: 11
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/tmdl.html"
@@ -32,13 +32,14 @@ Tabular Model Definition Language
 | [Power Query](power-query.md) | TMDL gegensatz Power Query | automatisch extrahiert, Quellenstelle vorhanden | „weil du ja in Tindel keine Power Query laden kannst“ (Daten-WG Thinkers Talk n61, 2025-04) | 3 |
 | [Copilot](copilot.md) | Copilot setzt-voraus TMDL | automatisch extrahiert, Quellenstelle vorhanden | „Du kannst halt alles nur verändern, was irgendwo im TMDL Model steht (Segment 30)“ (BI Thinkers Talk nr.71, 2025-12) | 0 |
 | [Power Query](power-query.md) | Power Query teil-von TMDL | automatisch extrahiert, Quellenstelle vorhanden | „alles im was Power Query, Datenmodell, Beziehung, DAX Measures, alles das, was darin embettet ist“ (Unboxing MCP Server for Power BI Modelling, 2025-12) | 3 |
-| [DAX](dax.md) | DAX teil-von TMDL | automatisch extrahiert, Quellenstelle vorhanden | „alles im was Power Query, Datenmodell, Beziehung, DAX Measures, alles das, was darin embettet ist“ (Unboxing MCP Server for Power BI Modelling, 2025-12) | 6 |
+| [DAX](dax.md) | DAX teil-von TMDL | automatisch extrahiert, Quellenstelle vorhanden | „alles im was Power Query, Datenmodell, Beziehung, DAX Measures, alles das, was darin embettet ist“ (Unboxing MCP Server for Power BI Modelling, 2025-12) | 7 |
 | [Power BI](power-bi.md) | TMDL und Power BI im selben Segment | Heuristik, gezählt |  | 9 |
 | [Performance](performance.md) | TMDL und Performance im selben Segment | Heuristik, gezählt |  | 6 |
+| [Reporting](reporting.md) | TMDL und Reporting im selben Segment | Heuristik, gezählt |  | 5 |
 | [Direct Lake](direct-lake.md) | TMDL und Direct Lake im selben Segment | Heuristik, gezählt |  | 4 |
-| [Reporting](reporting.md) | TMDL und Reporting im selben Segment | Heuristik, gezählt |  | 4 |
 | [Microsoft Fabric](microsoft-fabric.md) | TMDL und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 3 |
 | [Sicherheit](sicherheit.md) | TMDL und Sicherheit im selben Segment | Heuristik, gezählt |  | 3 |
+| [Visualisierung](visualisierung.md) | TMDL und Visualisierung im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -86,6 +87,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [BI Thinkers Talk nr.71](https://www.youtube.com/watch?v=LUrL8A5lNgI) | 2025-12-01 | kernaussagen+zeitstempel | [31:56](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1916s) · [48:16](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2896s) · [57:54](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=3474s) |
 | [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | kernaussagen+zeitstempel | [41:32](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2492s) · [43:13](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2593s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [09:01](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=541s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Einstellungen%20pr%C3%BCfen) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=XMLA%20%E2%80%94%20der%20Enterprise-Zugang) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Aus%20dem%20Kanal%20%C2%B7%20DAX-Konzepte%20am%20Beispiel) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Field%20Parameters%20f%C3%BCr%20Dimensionen) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Aus%20dem%20Kanal%20%C2%B7%20Interaktivit%C3%A4t%20konkret) |
 | [Power BI Update Juli 2026](https://www.youtube.com/watch?v=7xYgX6lWhuQ) | 2026-07-01 | nur-zeitstempel | — |

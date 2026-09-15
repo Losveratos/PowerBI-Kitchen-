@@ -2,10 +2,10 @@
 id: "topic:sicherheit"
 name: "Sicherheit"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 53
+dokumente: 55
 kernaussagen: 39
 mit_kernaussagen: 22
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/sicherheit.html"
@@ -31,21 +31,21 @@ Security, Datenschutz, DSGVO, Sensitivity Label
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Power BI](power-bi.md) | Sicherheit und Power BI im selben Segment | Heuristik, gezählt |  | 41 |
-| [Microsoft Fabric](microsoft-fabric.md) | Sicherheit und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 38 |
+| [Power BI](power-bi.md) | Sicherheit und Power BI im selben Segment | Heuristik, gezählt |  | 43 |
+| [Microsoft Fabric](microsoft-fabric.md) | Sicherheit und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 39 |
+| [Reporting](reporting.md) | Sicherheit und Reporting im selben Segment | Heuristik, gezählt |  | 31 |
 | [KI](ki.md) | Sicherheit und KI im selben Segment | Heuristik, gezählt |  | 29 |
-| [Reporting](reporting.md) | Sicherheit und Reporting im selben Segment | Heuristik, gezählt |  | 28 |
 | [Row-Level Security](row-level-security.md) | Sicherheit und Row-Level Security im selben Segment | Heuristik, gezählt |  | 28 |
-| [Performance](performance.md) | Sicherheit und Performance im selben Segment | Heuristik, gezählt |  | 26 |
-| [Workspace](workspace.md) | Sicherheit und Workspace im selben Segment | Heuristik, gezählt |  | 17 |
+| [Performance](performance.md) | Sicherheit und Performance im selben Segment | Heuristik, gezählt |  | 27 |
+| [Workspace](workspace.md) | Sicherheit und Workspace im selben Segment | Heuristik, gezählt |  | 19 |
+| [Governance](governance.md) | Sicherheit und Governance im selben Segment | Heuristik, gezählt |  | 18 |
+| [Visualisierung](visualisierung.md) | Sicherheit und Visualisierung im selben Segment | Heuristik, gezählt |  | 15 |
 | [Warehouse](warehouse.md) | Sicherheit und Warehouse im selben Segment | Heuristik, gezählt |  | 15 |
 | [Lakehouse](lakehouse.md) | Sicherheit und Lakehouse im selben Segment | Heuristik, gezählt |  | 15 |
-| [Daten-WG](daten-wg.md) | Sicherheit und Daten-WG im selben Segment | Heuristik, gezählt |  | 13 |
-| [Governance](governance.md) | Sicherheit und Governance im selben Segment | Heuristik, gezählt |  | 13 |
+| [Daten-WG](daten-wg.md) | Sicherheit und Daten-WG im selben Segment | Heuristik, gezählt |  | 14 |
 | [Direct Lake](direct-lake.md) | Sicherheit und Direct Lake im selben Segment | Heuristik, gezählt |  | 13 |
-| [Semantic Model](semantic-model.md) | Sicherheit und Semantic Model im selben Segment | Heuristik, gezählt |  | 12 |
-| [Visualisierung](visualisierung.md) | Sicherheit und Visualisierung im selben Segment | Heuristik, gezählt |  | 12 |
 | [SQL](sql.md) | Sicherheit und SQL im selben Segment | Heuristik, gezählt |  | 12 |
+| [Community](community.md) | Sicherheit und Community im selben Segment | Heuristik, gezählt |  | 12 |
 
 ## Kernaussagen
 
@@ -100,15 +100,17 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | kernaussagen+zeitstempel | [06:03](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=363s) · [36:09](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2169s) · [39:09](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2349s) |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [02:02](https://www.youtube.com/watch?v=27rC2zefFOU&t=122s) · [08:02](https://www.youtube.com/watch?v=27rC2zefFOU&t=482s) · [11:03](https://www.youtube.com/watch?v=27rC2zefFOU&t=663s) |
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [13:35](https://www.youtube.com/watch?v=lZvpCBMKASM&t=815s) · [15:35](https://www.youtube.com/watch?v=lZvpCBMKASM&t=935s) · [55:18](https://www.youtube.com/watch?v=lZvpCBMKASM&t=3318s) |
-| [So hackst du einen Power BI Bericht \| Power BI Tutorial](https://www.youtube.com/watch?v=GKLxM3317Xk) | 2025-09-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=GKLxM3317Xk) · [Abschnitt](https://www.youtube.com/watch?v=GKLxM3317Xk) |
 | [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [13:57](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=837s) · [54:44](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3284s) · [57:48](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3468s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [09:01](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=541s) · [20:50](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1250s) · [22:30](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1350s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [26:53](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1613s) · [30:27](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1827s) · [31:59](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1919s) |
 | [Prinzipien oder Paragrafen](https://www.youtube.com/watch?v=6WhWLcuFvZE) | 2026-02-01 | kernaussagen+zeitstempel | [09:56](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=596s) · [11:50](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=710s) · [14:37](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=877s) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [15:50](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=950s) · [17:31](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1051s) · [30:50](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1850s) |
+| [So hackst du einen Power BI Bericht \| Power BI Tutorial](https://www.youtube.com/watch?v=GKLxM3317Xk) | 2025-09-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=GKLxM3317Xk&t=1s) · [02:17](https://www.youtube.com/watch?v=GKLxM3317Xk&t=137s) |
 | [BI Thinkers Talk nr.63](https://www.youtube.com/watch?v=9VX4-lLa0EI) | 2025-06-01 | nur-zeitstempel | [40:40](https://www.youtube.com/watch?v=9VX4-lLa0EI&t=2440s) · [42:15](https://www.youtube.com/watch?v=9VX4-lLa0EI&t=2535s) · [43:55](https://www.youtube.com/watch?v=9VX4-lLa0EI&t=2635s) |
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [16:16](https://www.youtube.com/watch?v=G8s96sHUHac&t=976s) · [19:28](https://www.youtube.com/watch?v=G8s96sHUHac&t=1168s) · [59:02](https://www.youtube.com/watch?v=G8s96sHUHac&t=3542s) |
 | [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [21:17](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1277s) · [22:53](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1373s) · [24:33](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1473s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [36:35](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2195s) · [38:12](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2292s) · [39:46](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2386s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.13%3A%20Entscheidungspfad%20und%20Wirkungsgraph) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail) |
 | [Wie viel CO₂ steckt in einem Token? — KI-Energie-Simulator](https://datenwgknowledgekitchen.com/ki-co2-simulator.html) | 2026-07-03 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/ki-co2-simulator.html#:~:text=Anhang%3A%20Quellen%20%26%20Annahmen) |
 | [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [07:12](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=432s) · [10:48](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=648s) |
 | [The Day After Tomorrow – Nach der Einführung geht es erst richtig los \| Power BI Summit 2023](https://www.youtube.com/watch?v=KwySyTxW_EI) | 2023-03-01 | nur-zeitstempel | [21:05](https://www.youtube.com/watch?v=KwySyTxW_EI&t=1265s) · [51:11](https://www.youtube.com/watch?v=KwySyTxW_EI&t=3071s) |
@@ -135,10 +137,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup](https://www.youtube.com/watch?v=BDnwlOqRElY) | 2025-06-01 | kernaussagen+zeitstempel | [17:35](https://www.youtube.com/watch?v=BDnwlOqRElY&t=1055s) |
 | [Wie war die Daten-WG 2025? (Teil 1)](https://www.youtube.com/watch?v=aEXtFWW-pmo) | 2025-05-01 | kernaussagen+zeitstempel | [24:41](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1481s) |
 | [Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?](https://www.youtube.com/watch?v=jETxUNQSl-w) | 2026-02-01 | kernaussagen+zeitstempel | [23:36](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1416s) |
-| [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [23:12](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1392s) |
-| [BI Thinkers Talk n.73](https://www.youtube.com/watch?v=pOJpXxsfUt0) | 2026-02-01 | kernaussagen+zeitstempel | [45:23](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2723s) |
 
-40 von 53 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/sicherheit.json).
+40 von 55 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/sicherheit.json).
 
 ## Hinweise
 

@@ -3,14 +3,14 @@
  "name": "Power BI Pro",
  "typ": "tool",
  "slug": "power-bi-pro",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-pro.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-pro.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-pro.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-pro.json",
- "dokumente_gesamt": 8,
+ "dokumente_gesamt": 9,
  "kernaussagen_gesamt": 6,
  "mit_kernaussagen": 6,
  "aliase": [
@@ -33,7 +33,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 9,
+   "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -42,7 +42,7 @@
    "name": "Lizenzen",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 8,
+   "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "lizenzen.md"
   },
@@ -254,6 +254,21 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20wichtigsten%20Regeln",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.023,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
      "sekunde": null
     }
    ]

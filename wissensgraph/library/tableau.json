@@ -3,14 +3,14 @@
  "name": "Tableau",
  "typ": "tool",
  "slug": "tableau",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/tableau.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/tableau.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/tableau.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/tableau.json",
- "dokumente_gesamt": 16,
+ "dokumente_gesamt": 17,
  "kernaussagen_gesamt": 1,
  "mit_kernaussagen": 1,
  "aliase": [],
@@ -24,6 +24,15 @@
    "gemeinsame_segmente": 16,
    "beleg": "das war für mich viel einfacher, das war irgendwie Microsoft Kosmos, das war leichter zu lernen und so bin ich zu Power BI gekommen",
    "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "visualisierung.md"
   },
   {
    "id": "topic:ki",
@@ -44,13 +53,13 @@
    "datei": "excel.md"
   },
   {
-   "id": "topic:visualisierung",
-   "name": "Visualisierung",
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 5,
+   "gemeinsame_segmente": 4,
    "beleg": "",
-   "datei": "visualisierung.md"
+   "datei": "datenmodellierung.md"
   },
   {
    "id": "topic:schulung",
@@ -78,15 +87,6 @@
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "sap.md"
-  },
-  {
-   "id": "topic:datenmodellierung",
-   "name": "Datenmodellierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "datenmodellierung.md"
   },
   {
    "id": "tool:sql",
@@ -312,6 +312,21 @@
      "label": "04:47",
      "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=287s",
      "sekunde": 287
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "06:11",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=371s",
+     "sekunde": 371
     }
    ]
   },

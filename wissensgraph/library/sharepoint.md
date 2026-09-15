@@ -2,10 +2,10 @@
 id: "tool:sharepoint"
 name: "SharePoint"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 22
+dokumente: 24
 kernaussagen: 12
 mit_kernaussagen: 5
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/sharepoint.html"
@@ -28,11 +28,12 @@ Share Point
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Excel](excel.md) | SharePoint ersetzt Excel | automatisch extrahiert, Quellenstelle vorhanden | „Wir haben es da tatsächlich erstmal, weil es schneller ging mit Excel gelöst, aber ziel ist auch da Richtung SharePoint Liste zu gehen“ (Metadaten als Superkraft) | 17 |
+| [Excel](excel.md) | SharePoint ersetzt Excel | automatisch extrahiert, Quellenstelle vorhanden | „Wir haben es da tatsächlich erstmal, weil es schneller ging mit Excel gelöst, aber ziel ist auch da Richtung SharePoint Liste zu gehen“ (Metadaten als Superkraft) | 20 |
 | [Power Automate](power-automate.md) | Power Automate setzt-voraus SharePoint | automatisch extrahiert, Quellenstelle vorhanden | „ob ich Zugang sowohl zu SharePoint als auch Teams habe“ (Forms + Sharepoint + Powerautomate, 2025-08) | 7 |
-| [Microsoft Fabric](microsoft-fabric.md) | SharePoint und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 22 |
+| [Microsoft Fabric](microsoft-fabric.md) | SharePoint und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 26 |
 | [Power BI](power-bi.md) | SharePoint und Power BI im selben Segment | Heuristik, gezählt |  | 18 |
-| [Lakehouse](lakehouse.md) | SharePoint und Lakehouse im selben Segment | Heuristik, gezählt |  | 9 |
+| [Lakehouse](lakehouse.md) | SharePoint und Lakehouse im selben Segment | Heuristik, gezählt |  | 10 |
+| [Workspace](workspace.md) | SharePoint und Workspace im selben Segment | Heuristik, gezählt |  | 8 |
 | [Snowflake](snowflake.md) | SharePoint und Snowflake im selben Segment | Heuristik, gezählt |  | 8 |
 | [Teams](teams.md) | SharePoint und Teams im selben Segment | Heuristik, gezählt |  | 8 |
 | [Mirroring](mirroring.md) | SharePoint und Mirroring im selben Segment | Heuristik, gezählt |  | 7 |
@@ -40,9 +41,8 @@ Share Point
 | [Notebook](notebook.md) | SharePoint und Notebook im selben Segment | Heuristik, gezählt |  | 6 |
 | [Power Query](power-query.md) | SharePoint und Power Query im selben Segment | Heuristik, gezählt |  | 6 |
 | [Copilot](copilot.md) | SharePoint und Copilot im selben Segment | Heuristik, gezählt |  | 6 |
-| [Workspace](workspace.md) | SharePoint und Workspace im selben Segment | Heuristik, gezählt |  | 5 |
+| [SQL](sql.md) | SharePoint und SQL im selben Segment | Heuristik, gezählt |  | 5 |
 | [Refresh](refresh.md) | SharePoint und Refresh im selben Segment | Heuristik, gezählt |  | 5 |
-| [Warehouse](warehouse.md) | SharePoint und Warehouse im selben Segment | Heuristik, gezählt |  | 5 |
 
 ## Kernaussagen
 
@@ -70,6 +70,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Forms + Sharepoint + Powerautomate](https://www.youtube.com/watch?v=kP8YNW1XN_E) | 2025-08-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=kP8YNW1XN_E&t=0s) · [01:36](https://www.youtube.com/watch?v=kP8YNW1XN_E&t=96s) · [06:24](https://www.youtube.com/watch?v=kP8YNW1XN_E&t=384s) |
 | [Copilot + Power Automate = Gamechanger](https://www.youtube.com/watch?v=_MfM3rhJx58) | 2025-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=_MfM3rhJx58&t=0s) · [01:43](https://www.youtube.com/watch?v=_MfM3rhJx58&t=103s) · [03:16](https://www.youtube.com/watch?v=_MfM3rhJx58&t=196s) |
 | [SharePoint direkt in Microsoft Fabric nutzen \| Lakehouse, Direct Lake & Power BI](https://www.youtube.com/watch?v=c-LWoo-O5PQ) | 2026-07-01 | nur-zeitstempel | [00:02](https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=2s) · [02:05](https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=125s) · [15:14](https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=914s) |
+| [Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)](https://www.youtube.com/watch?v=lp8xNX81R2w) | 2026-07-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=lp8xNX81R2w&t=1s) · [02:02](https://www.youtube.com/watch?v=lp8xNX81R2w&t=122s) · [04:11](https://www.youtube.com/watch?v=lp8xNX81R2w&t=251s) |
+| [Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen](https://www.youtube.com/watch?v=_AxvdCW0ST4) | 2026-07-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=_AxvdCW0ST4&t=1s) · [02:10](https://www.youtube.com/watch?v=_AxvdCW0ST4&t=130s) |
 | [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [07:26](https://www.youtube.com/watch?v=mTVeZzshLzE&t=446s) · [08:27](https://www.youtube.com/watch?v=mTVeZzshLzE&t=507s) · [36:01](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2161s) |
 | [Microsoft Fabric Shortcut Transformation erklärt: Updates im Praxistest](https://www.youtube.com/watch?v=Z6RZjkn_6lY) | 2026-07-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=Z6RZjkn_6lY&t=1s) · [02:02](https://www.youtube.com/watch?v=Z6RZjkn_6lY&t=122s) |
 | [Daten-WG Special: Power BI vs. Qlik -part2](https://www.youtube.com/watch?v=_Vh5fDfHWz4) | 2025-10-01 | nur-zeitstempel | [10:27](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=627s) · [12:08](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=728s) · [22:02](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=1322s) |
@@ -79,6 +81,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | kernaussagen+zeitstempel | [09:04](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=544s) |
 | [Metadaten als Superkraft](https://www.youtube.com/watch?v=UUlPoJOhco8) | — | kernaussagen+zeitstempel | [11:57](https://www.youtube.com/watch?v=UUlPoJOhco8&t=717s) |
 | [Daten-WG Life-Update \| State of Power BI, Fabric & AI-Tools](https://www.youtube.com/watch?v=d3HdhRe_nK8) | 2026-06-01 | nur-zeitstempel | [04:47](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=287s) · [08:14](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=494s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [35:11](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2111s) · [36:35](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2195s) |
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [02:08](https://www.youtube.com/watch?v=lZvpCBMKASM&t=128s) · [32:02](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1922s) |
 | [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [07:12](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=432s) |
 | [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | kernaussagen+zeitstempel | [13:25](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=805s) · [16:45](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1005s) |
@@ -88,7 +91,6 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | kernaussagen+zeitstempel | [48:17](https://www.youtube.com/watch?v=4VVNDNusq4U&t=2897s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wohin%20Shortcuts%20zeigen%20k%C3%B6nnen) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Typische%20Nutzung) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Zwei%20Varianten%20%E2%80%94%20wichtig%20seit%202025) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wann%20brauche%20ich%20ein%20Gateway%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datei-Quellen%20%C2%B7%20CSV%20%C2%B7%20Excel%20%C2%B7%20JSON%20%C2%B7%20Parquet) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wo%20foldet%20was%3F) |
-| [Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)](https://www.youtube.com/watch?v=lp8xNX81R2w) | 2026-07-01 | nur-metadaten | — |
 
 ## Hinweise
 

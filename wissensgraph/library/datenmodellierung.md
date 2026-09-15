@@ -2,10 +2,10 @@
 id: "topic:datenmodellierung"
 name: "Datenmodellierung"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 80
+dokumente: 86
 kernaussagen: 84
 mit_kernaussagen: 25
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenmodellierung.html"
@@ -33,20 +33,20 @@ Datenmodell, Data Modeling, Modellierung, Datenmodelle, Data Model
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [Data Vault](data-vault.md) | Data Vault teil-von Datenmodellierung | automatisch extrahiert, Quellenstelle vorhanden | „Data W ist z.B. auch so eine entsprechende Modellierungsmethode... eine der Art, wie man erstmal Daten vormodellieren kann“ (BI Thinkers Talk - Data Modelling - Fabric Data Days Edition, 2025-11) | 0 |
-| [Sternschema](sternschema.md) | Sternschema teil-von Datenmodellierung | automatisch extrahiert, Quellenstelle vorhanden | „ein Sternschema ist das, was wir zum größten Teil favorisieren“ (BI Thinkers Talk - Data Modelling - Fabric Data Days Edition, 2025-11) | 31 |
+| [Sternschema](sternschema.md) | Sternschema teil-von Datenmodellierung | automatisch extrahiert, Quellenstelle vorhanden | „ein Sternschema ist das, was wir zum größten Teil favorisieren“ (BI Thinkers Talk - Data Modelling - Fabric Data Days Edition, 2025-11) | 30 |
 | [DAX](dax.md) | DAX setzt-voraus Datenmodellierung | automatisch extrahiert, Quellenstelle vorhanden | „je komplexer das datenmodell aussieht desto komplexer ist dann auch die berechnung der dax kennzahlen“ (Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022, 2022-06) | 19 |
-| [Power BI](power-bi.md) | Datenmodellierung und Power BI im selben Segment | Heuristik, gezählt |  | 85 |
-| [Reporting](reporting.md) | Datenmodellierung und Reporting im selben Segment | Heuristik, gezählt |  | 40 |
-| [Microsoft Fabric](microsoft-fabric.md) | Datenmodellierung und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 36 |
-| [Visualisierung](visualisierung.md) | Datenmodellierung und Visualisierung im selben Segment | Heuristik, gezählt |  | 35 |
-| [KI](ki.md) | Datenmodellierung und KI im selben Segment | Heuristik, gezählt |  | 32 |
-| [Performance](performance.md) | Datenmodellierung und Performance im selben Segment | Heuristik, gezählt |  | 31 |
-| [Power Query](power-query.md) | Datenmodellierung und Power Query im selben Segment | Heuristik, gezählt |  | 22 |
-| [Copilot](copilot.md) | Datenmodellierung und Copilot im selben Segment | Heuristik, gezählt |  | 15 |
-| [Power BI Desktop](power-bi-desktop.md) | Datenmodellierung und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 15 |
+| [Power BI](power-bi.md) | Datenmodellierung und Power BI im selben Segment | Heuristik, gezählt |  | 88 |
+| [Reporting](reporting.md) | Datenmodellierung und Reporting im selben Segment | Heuristik, gezählt |  | 42 |
+| [Visualisierung](visualisierung.md) | Datenmodellierung und Visualisierung im selben Segment | Heuristik, gezählt |  | 40 |
+| [Microsoft Fabric](microsoft-fabric.md) | Datenmodellierung und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 38 |
+| [KI](ki.md) | Datenmodellierung und KI im selben Segment | Heuristik, gezählt |  | 33 |
+| [Performance](performance.md) | Datenmodellierung und Performance im selben Segment | Heuristik, gezählt |  | 32 |
+| [Power Query](power-query.md) | Datenmodellierung und Power Query im selben Segment | Heuristik, gezählt |  | 24 |
+| [Copilot](copilot.md) | Datenmodellierung und Copilot im selben Segment | Heuristik, gezählt |  | 16 |
+| [Power BI Desktop](power-bi-desktop.md) | Datenmodellierung und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 16 |
 | [SQL](sql.md) | Datenmodellierung und SQL im selben Segment | Heuristik, gezählt |  | 15 |
 | [Excel](excel.md) | Datenmodellierung und Excel im selben Segment | Heuristik, gezählt |  | 15 |
-| [Lakehouse](lakehouse.md) | Datenmodellierung und Lakehouse im selben Segment | Heuristik, gezählt |  | 14 |
+| [Direct Lake](direct-lake.md) | Datenmodellierung und Direct Lake im selben Segment | Heuristik, gezählt |  | 14 |
 
 ## Kernaussagen
 
@@ -143,6 +143,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [#001 · Power BI Desktop oder Web? Meine klare Antwort!](https://www.youtube.com/watch?v=4hap_ZZskzo) | 2026-07-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=4hap_ZZskzo&t=1s) |
+| [#004 · Bidirektionale Filterung? Meistens ein Fehler!](https://www.youtube.com/watch?v=WLiGuGjE5m8) | 2026-07-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=WLiGuGjE5m8&t=0s) |
 | [Werbung \| Daten WG Offsite in Dortmund – Power BI Event am 29.10.](https://www.youtube.com/watch?v=H0ENBDQnVcs) | 2025-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=H0ENBDQnVcs&t=0s) |
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [08:37](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=517s) · [22:07](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1327s) · [37:00](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2220s) |
 | [27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite](https://www.youtube.com/watch?v=dKA-38gRD8Q) | 2026-05-01 | kernaussagen+zeitstempel | [06:29](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=389s) · [08:12](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s) |
@@ -156,15 +158,14 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | kernaussagen+zeitstempel | [18:05](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1085s) · [21:06](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1266s) · [24:07](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1447s) |
 | [Metadaten als Superkraft](https://www.youtube.com/watch?v=UUlPoJOhco8) | — | kernaussagen+zeitstempel | [00:01](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1s) · [15:47](https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s) · [21:03](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1263s) |
 | [TMDL Magie: Multi Parameter Tabelle - Feldparameter Next Level! \| Power BI Tutorial](https://www.youtube.com/watch?v=sShNdgnHjr4) | 2025-10-01 | nur-zeitstempel | [03:36](https://www.youtube.com/watch?v=sShNdgnHjr4&t=216s) · [06:42](https://www.youtube.com/watch?v=sShNdgnHjr4&t=402s) |
-| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
 | [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
+| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
 | [Analytics Speed Challenge \| Power BI vs. IBM Cognos Analytics](https://www.youtube.com/watch?v=g2Fijpqwcvw) | 2025-11-01 | nur-zeitstempel | [06:17](https://www.youtube.com/watch?v=g2Fijpqwcvw&t=377s) |
 | [Power BI Update Juni 2025](https://www.youtube.com/watch?v=LnNoXBIG7Lc) | 2025-06-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=0s) |
 | [Starting with Microsft Fabric the Skills you need](https://www.youtube.com/watch?v=m3xNYfVih0Q) | 2024-08-01 | nur-zeitstempel | [35:12](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2112s) · [36:48](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2208s) · [38:43](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2323s) |
 | [Power BI Update November 2025](https://www.youtube.com/watch?v=XJZxYNIeEVc) | 2025-11-01 | nur-zeitstempel | [03:31](https://www.youtube.com/watch?v=XJZxYNIeEVc&t=211s) |
 | [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [08:07](https://www.youtube.com/watch?v=DQENmzAkNqw&t=487s) · [35:42](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2142s) · [57:09](https://www.youtube.com/watch?v=DQENmzAkNqw&t=3429s) |
 | [Power BI Update Mai 2025](https://www.youtube.com/watch?v=zkfdfc5fo-E) | 2025-05-01 | nur-zeitstempel | [00:23](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=23s) · [13:04](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=784s) |
-| [So hackst du einen Power BI Bericht \| Power BI Tutorial](https://www.youtube.com/watch?v=GKLxM3317Xk) | 2025-09-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=GKLxM3317Xk) |
 | [Power BI Update August 2025](https://www.youtube.com/watch?v=jTXo4aEr07o) | 2025-08-01 | nur-zeitstempel | [02:46](https://www.youtube.com/watch?v=jTXo4aEr07o&t=166s) |
 | [Daten-WG Deep Dive Financial Reporting - part 6](https://www.youtube.com/watch?v=bt81POE-9Ig) | 2025-08-01 | kernaussagen+zeitstempel | [11:42](https://www.youtube.com/watch?v=bt81POE-9Ig&t=702s) · [13:26](https://www.youtube.com/watch?v=bt81POE-9Ig&t=806s) · [21:19](https://www.youtube.com/watch?v=bt81POE-9Ig&t=1279s) |
 | [BI Thinkers Talk - Data Modelling - Fabric Data Days Edition](https://www.youtube.com/watch?v=mUALlPmGcEk) | 2025-11-01 | kernaussagen+zeitstempel | [04:45](https://www.youtube.com/watch?v=mUALlPmGcEk&t=285s) · [07:56](https://www.youtube.com/watch?v=mUALlPmGcEk&t=476s) · [1:05:11](https://www.youtube.com/watch?v=mUALlPmGcEk&t=3911s) |
@@ -176,15 +177,14 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Fabric Planning unboxing](https://www.youtube.com/watch?v=xCzKEIB4W5I) | 2026-03-01 | kernaussagen+zeitstempel | [04:42](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=282s) · [07:46](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=466s) · [10:52](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=652s) |
 | [BI Thinkers Talk nr.68](https://www.youtube.com/watch?v=VD1N68Fhoco) | 2025-10-01 | nur-zeitstempel | [03:19](https://www.youtube.com/watch?v=VD1N68Fhoco&t=199s) · [27:20](https://www.youtube.com/watch?v=VD1N68Fhoco&t=1640s) · [53:20](https://www.youtube.com/watch?v=VD1N68Fhoco&t=3200s) |
 | [Power BI Update Juli 2025](https://www.youtube.com/watch?v=TkxwcAyBGUM) | 2025-07-01 | nur-zeitstempel | [06:09](https://www.youtube.com/watch?v=TkxwcAyBGUM&t=369s) |
-| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) · [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) · [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
 | [Why Passion Beats Niche](https://www.youtube.com/watch?v=ihi7UiJ_TtQ) | 2025-09-01 | kernaussagen+zeitstempel | [23:53](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1433s) · [25:05](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1505s) · [29:29](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1769s) |
+| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-zeitstempel | [07:38](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=458s) · [09:09](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=549s) · [13:38](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=818s) |
 | [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | kernaussagen+zeitstempel | [00:04](https://www.youtube.com/watch?v=TYmKrreMO3I&t=4s) · [01:40](https://www.youtube.com/watch?v=TYmKrreMO3I&t=100s) · [04:55](https://www.youtube.com/watch?v=TYmKrreMO3I&t=295s) |
 | [Daten-WG Deep Dive Financial Reporting - part 5](https://www.youtube.com/watch?v=iymmxuXHh44) | 2025-07-01 | nur-zeitstempel | [01:44](https://www.youtube.com/watch?v=iymmxuXHh44&t=104s) · [08:01](https://www.youtube.com/watch?v=iymmxuXHh44&t=481s) · [35:47](https://www.youtube.com/watch?v=iymmxuXHh44&t=2147s) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [01:34](https://www.youtube.com/watch?v=r416vanitYw&t=94s) · [41:10](https://www.youtube.com/watch?v=r416vanitYw&t=2470s) · [42:48](https://www.youtube.com/watch?v=r416vanitYw&t=2568s) |
 | [Power BI-Teams werden Fabric-Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc) | — | nur-zeitstempel | [04:13](https://www.youtube.com/watch?v=YzfcMurbWNc&t=253s) · [25:00](https://www.youtube.com/watch?v=YzfcMurbWNc&t=1500s) |
-| [Die Schweiz faehrt Europa davon — Bahnnutzung 2024](https://datenwgknowledgekitchen.com/zugfahrten-infografik.html) | 2026-06-05 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/zugfahrten-infografik.html#:~:text=Br%C3%BCcke%20zu%20Power%20BI%3A%20%2Aals%20DAX-HTML-Visual%2A) |
 
-40 von 80 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/datenmodellierung.json).
+40 von 86 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/datenmodellierung.json).
 
 ## Hinweise
 

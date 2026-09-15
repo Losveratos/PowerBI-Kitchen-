@@ -3,14 +3,14 @@
  "name": "Datenmodellierung",
  "typ": "thema",
  "slug": "datenmodellierung",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenmodellierung.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenmodellierung.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/datenmodellierung.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/datenmodellierung.json",
- "dokumente_gesamt": 80,
+ "dokumente_gesamt": 86,
  "kernaussagen_gesamt": 84,
  "mit_kernaussagen": 25,
  "aliase": [
@@ -36,7 +36,7 @@
    "name": "Sternschema",
    "kantentyp": "teil-von",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 31,
+   "gemeinsame_segmente": 30,
    "beleg": "ein Sternschema ist das, was wir zum größten Teil favorisieren",
    "datei": "sternschema.md"
   },
@@ -54,7 +54,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 85,
+   "gemeinsame_segmente": 88,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -63,34 +63,34 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 40,
+   "gemeinsame_segmente": 42,
    "beleg": "",
    "datei": "reporting.md"
-  },
-  {
-   "id": "tool:microsoft-fabric",
-   "name": "Microsoft Fabric",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 36,
-   "beleg": "",
-   "datei": "microsoft-fabric.md"
   },
   {
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 35,
+   "gemeinsame_segmente": 40,
    "beleg": "",
    "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 38,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
   },
   {
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 32,
+   "gemeinsame_segmente": 33,
    "beleg": "",
    "datei": "ki.md"
   },
@@ -99,7 +99,7 @@
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 31,
+   "gemeinsame_segmente": 32,
    "beleg": "",
    "datei": "performance.md"
   },
@@ -108,7 +108,7 @@
    "name": "Power Query",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 22,
+   "gemeinsame_segmente": 24,
    "beleg": "",
    "datei": "power-query.md"
   },
@@ -117,7 +117,7 @@
    "name": "Copilot",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 15,
+   "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "copilot.md"
   },
@@ -126,7 +126,7 @@
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 15,
+   "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "power-bi-desktop.md"
   },
@@ -149,13 +149,13 @@
    "datei": "excel.md"
   },
   {
-   "id": "tool:lakehouse",
-   "name": "Lakehouse",
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 14,
    "beleg": "",
-   "datei": "lakehouse.md"
+   "datei": "direct-lake.md"
   }
  ],
  "kernaussagen": [
@@ -918,6 +918,36 @@
  ],
  "dokumente": [
   {
+   "id": "yt:4hap_ZZskzo",
+   "titel": "#001 · Power BI Desktop oder Web? Meine klare Antwort!",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=4hap_ZZskzo",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=4hap_ZZskzo&t=1s",
+     "sekunde": 1
+    }
+   ]
+  },
+  {
+   "id": "yt:WLiGuGjE5m8",
+   "titel": "#004 · Bidirektionale Filterung? Meistens ein Fehler!",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=WLiGuGjE5m8",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=WLiGuGjE5m8&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
    "id": "yt:H0ENBDQnVcs",
    "titel": "Werbung | Daten WG Offsite in Dortmund – Power BI Event am 29.10.",
    "datum": "2025-09-01",
@@ -1208,21 +1238,6 @@
    ]
   },
   {
-   "id": "page:chartkitchen-schnellstart_en",
-   "titel": "ChartKitchen byDatenWG — Quick Start",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.2,
-   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:chartkitchen-schnellstart",
    "titel": "ChartKitchen byDatenWG — Schnellstart",
    "datum": "2026-08-31",
@@ -1233,6 +1248,21 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart_en",
+   "titel": "ChartKitchen byDatenWG — Quick Start",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
      "sekunde": null
     }
    ]
@@ -1349,21 +1379,6 @@
      "label": "13:04",
      "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=784s",
      "sekunde": 784
-    }
-   ]
-  },
-  {
-   "id": "yt:GKLxM3317Xk",
-   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
-   "datum": "2025-09-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.143,
-   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-     "sekunde": null
     }
    ]
   },
@@ -1618,31 +1633,6 @@
    ]
   },
   {
-   "id": "yt:uxYFqwe_Wiw",
-   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.123,
-   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "yt:ihi7UiJ_TtQ",
    "titel": "Why Passion Beats Niche",
    "datum": "2025-09-01",
@@ -1664,6 +1654,31 @@
      "label": "29:29",
      "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1769s",
      "sekunde": 1769
+    }
+   ]
+  },
+  {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.109,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "07:38",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=458s",
+     "sekunde": 458
+    },
+    {
+     "label": "09:09",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=549s",
+     "sekunde": 549
+    },
+    {
+     "label": "13:38",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=818s",
+     "sekunde": 818
     }
    ]
   },
@@ -1799,6 +1814,26 @@
      "label": "27:50",
      "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1670s",
      "sekunde": 1670
+    }
+   ]
+  },
+  {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "08:36",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=516s",
+     "sekunde": 516
     }
    ]
   },
@@ -1948,6 +1983,21 @@
    ]
   },
   {
+   "id": "yt:GKLxM3317Xk",
+   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
+   "sprungmarken": [
+    {
+     "label": "07:14",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk&t=434s",
+     "sekunde": 434
+    }
+   ]
+  },
+  {
    "id": "yt:z4ZeHPzIeeU",
    "titel": "Wie war die Daten-WG? · Im Gespräch mit Artur König",
    "datum": "2025-03-01",
@@ -1998,6 +2048,26 @@
    ]
   },
   {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "09:25",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=565s",
+     "sekunde": 565
+    },
+    {
+     "label": "15:21",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=921s",
+     "sekunde": 921
+    }
+   ]
+  },
+  {
    "id": "yt:mTVeZzshLzE",
    "titel": "Microsoft Fabric — braucht das wirklich jemand?",
    "datum": "",
@@ -2014,6 +2084,26 @@
      "label": "28:04",
      "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1684s",
      "sekunde": 1684
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.059,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "06:11",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=371s",
+     "sekunde": 371
+    },
+    {
+     "label": "27:34",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1654s",
+     "sekunde": 1654
     }
    ]
   },
@@ -2209,6 +2299,26 @@
      "label": "05:26",
      "url": "https://www.youtube.com/watch?v=s3CveEVoDvo&t=326s",
      "sekunde": 326
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.045,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Rahmenbedingungen%2C%20die%20das%20Ergebnis%20kippen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Grenzen",
+     "sekunde": null
     }
    ]
   },

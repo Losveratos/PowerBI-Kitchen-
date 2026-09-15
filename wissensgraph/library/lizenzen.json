@@ -3,14 +3,14 @@
  "name": "Lizenzen",
  "typ": "thema",
  "slug": "lizenzen",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/lizenzen.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/lizenzen.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/lizenzen.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/lizenzen.json",
- "dokumente_gesamt": 33,
+ "dokumente_gesamt": 37,
  "kernaussagen_gesamt": 21,
  "mit_kernaussagen": 14,
  "aliase": [
@@ -28,7 +28,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 36,
+   "gemeinsame_segmente": 44,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -37,7 +37,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 29,
+   "gemeinsame_segmente": 39,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -46,7 +46,7 @@
    "name": "Fabric Capacity",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 28,
+   "gemeinsame_segmente": 36,
    "beleg": "",
    "datei": "fabric-capacity.md"
   },
@@ -55,16 +55,25 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 21,
+   "gemeinsame_segmente": 33,
    "beleg": "",
    "datei": "reporting.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 27,
+   "beleg": "",
+   "datei": "visualisierung.md"
   },
   {
    "id": "tool:premium",
    "name": "Premium",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 19,
+   "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "premium.md"
   },
@@ -82,7 +91,7 @@
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 16,
+   "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "ki.md"
   },
@@ -96,6 +105,42 @@
    "datei": "performance.md"
   },
   {
+   "id": "topic:governance",
+   "name": "Governance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "governance.md"
+  },
+  {
+   "id": "tool:deneb",
+   "name": "Deneb",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "deneb.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "topic:mittelstand",
+   "name": "Mittelstand",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "mittelstand.md"
+  },
+  {
    "id": "topic:refresh",
    "name": "Refresh",
    "kantentyp": "ko-vorkommen",
@@ -105,58 +150,13 @@
    "datei": "refresh.md"
   },
   {
-   "id": "tool:onelake",
-   "name": "OneLake",
+   "id": "tool:dax",
+   "name": "DAX",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 11,
+   "gemeinsame_segmente": 12,
    "beleg": "",
-   "datei": "onelake.md"
-  },
-  {
-   "id": "topic:visualisierung",
-   "name": "Visualisierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 10,
-   "beleg": "",
-   "datei": "visualisierung.md"
-  },
-  {
-   "id": "tool:mirroring",
-   "name": "Mirroring",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 10,
-   "beleg": "",
-   "datei": "mirroring.md"
-  },
-  {
-   "id": "topic:sicherheit",
-   "name": "Sicherheit",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 9,
-   "beleg": "",
-   "datei": "sicherheit.md"
-  },
-  {
-   "id": "tool:warehouse",
-   "name": "Warehouse",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 9,
-   "beleg": "",
-   "datei": "warehouse.md"
-  },
-  {
-   "id": "tool:power-bi-pro",
-   "name": "Power BI Pro",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 8,
-   "beleg": "",
-   "datei": "power-bi-pro.md"
+   "datei": "dax.md"
   }
  ],
  "kernaussagen": [
@@ -352,6 +352,31 @@
  ],
  "dokumente": [
   {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.636,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Aufbau%20in%20drei%20Ebenen%20%28Overview%20first%2C%20zoom%20and%20filter%2C%20details%20on%20demand%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
+    }
+   ]
+  },
+  {
    "id": "page:laender-indikatoren-explorer",
    "titel": "Country Indicator Explorer — Lebenszufriedenheit und ihre Korrelate",
    "datum": "2026-08-14",
@@ -388,6 +413,31 @@
      "label": "Abschnitt",
      "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
      "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:_C69B0i-QQA",
+   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.188,
+   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
+   "sprungmarken": [
+    {
+     "label": "04:30",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=270s",
+     "sekunde": 270
+    },
+    {
+     "label": "06:32",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=392s",
+     "sekunde": 392
+    },
+    {
+     "label": "16:15",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=975s",
+     "sekunde": 975
     }
    ]
   },
@@ -453,6 +503,31 @@
      "label": "42:08",
      "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=2528s",
      "sekunde": 2528
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.147,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "20:13",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1213s",
+     "sekunde": 1213
+    },
+    {
+     "label": "21:05",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1265s",
+     "sekunde": 1265
+    },
+    {
+     "label": "24:14",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1454s",
+     "sekunde": 1454
     }
    ]
   },
@@ -862,6 +937,21 @@
    ]
   },
   {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "12:22",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=742s",
+     "sekunde": 742
+    }
+   ]
+  },
+  {
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
@@ -873,6 +963,26 @@
      "label": "02:39",
      "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=159s",
      "sekunde": 159
+    }
+   ]
+  },
+  {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.036,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "12:01",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=721s",
+     "sekunde": 721
+    },
+    {
+     "label": "42:05",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=2525s",
+     "sekunde": 2525
     }
    ]
   },
@@ -903,26 +1013,6 @@
      "label": "00:02",
      "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2s",
      "sekunde": 2
-    }
-   ]
-  },
-  {
-   "id": "yt:uxYFqwe_Wiw",
-   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.031,
-   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
     }
    ]
   },

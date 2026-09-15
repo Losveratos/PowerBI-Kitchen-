@@ -2,10 +2,10 @@
 id: "tool:drillthrough"
 name: "Drillthrough"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 7
+dokumente: 8
 kernaussagen: 6
 mit_kernaussagen: 4
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/drillthrough.html"
@@ -29,10 +29,10 @@ Drill-Through, Drill Through
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Reporting](reporting.md) | Drillthrough und Reporting im selben Segment | Heuristik, gezählt |  | 7 |
-| [Visualisierung](visualisierung.md) | Drillthrough und Visualisierung im selben Segment | Heuristik, gezählt |  | 6 |
+| [Reporting](reporting.md) | Drillthrough und Reporting im selben Segment | Heuristik, gezählt |  | 8 |
+| [Visualisierung](visualisierung.md) | Drillthrough und Visualisierung im selben Segment | Heuristik, gezählt |  | 7 |
+| [Power BI](power-bi.md) | Drillthrough und Power BI im selben Segment | Heuristik, gezählt |  | 6 |
 | [Bookmarks](bookmarks.md) | Drillthrough und Bookmarks im selben Segment | Heuristik, gezählt |  | 5 |
-| [Power BI](power-bi.md) | Drillthrough und Power BI im selben Segment | Heuristik, gezählt |  | 5 |
 | [Field Parameters](field-parameters.md) | Drillthrough und Field Parameters im selben Segment | Heuristik, gezählt |  | 4 |
 
 ## Kernaussagen
@@ -57,8 +57,9 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=07%20%C2%B7%20Interaktivit%C3%A4t%20%2A%C2%B7%20UX%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20passiert%20beim%20Drillthrough%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Cross-Report-Drillthrough) |
 | [Daten-WG Life-Update \| State of Power BI, Fabric & AI-Tools](https://www.youtube.com/watch?v=d3HdhRe_nK8) | 2026-06-01 | nur-zeitstempel | [31:41](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1901s) |
 | [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [19:23](https://www.youtube.com/watch?v=DQENmzAkNqw&t=1163s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben) |
+| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-zeitstempel | [1:03:36](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=3816s) |
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [1:11:57](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4317s) |
-| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
 
 ## Hinweise
 

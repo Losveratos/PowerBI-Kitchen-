@@ -3,14 +3,14 @@
  "name": "Import Mode",
  "typ": "tool",
  "slug": "import-mode",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/import-mode.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/import-mode.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/import-mode.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/import-mode.json",
- "dokumente_gesamt": 12,
+ "dokumente_gesamt": 13,
  "kernaussagen_gesamt": 18,
  "mit_kernaussagen": 12,
  "aliase": [
@@ -24,7 +24,7 @@
    "name": "Direct Lake",
    "kantentyp": "gegensatz",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 6,
+   "gemeinsame_segmente": 7,
    "beleg": "Aggregation kommt vor dem Laden in den Speicher, was natürlich auch extrem gut ist",
    "datei": "direct-lake.md"
   },
@@ -33,7 +33,7 @@
    "name": "Direct Lake",
    "kantentyp": "gegensatz",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 6,
+   "gemeinsame_segmente": 7,
    "beleg": "für Importmodelle gibt's ja Deployment Rules, für Direct Lake nicht",
    "datei": "direct-lake.md"
   },
@@ -42,7 +42,7 @@
    "name": "Direct Lake",
    "kantentyp": "ersetzt",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 6,
+   "gemeinsame_segmente": 7,
    "beleg": "Verbindung für den Bericht von dem Importmodell auf den Direct Lake Modell umgestellt",
    "datei": "direct-lake.md"
   },
@@ -51,9 +51,27 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 8,
+   "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "refresh.md"
+  },
+  {
+   "id": "tool:directquery",
+   "name": "DirectQuery",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "directquery.md"
   },
   {
    "id": "tool:microsoft-fabric",
@@ -74,15 +92,6 @@
    "datei": "performance.md"
   },
   {
-   "id": "topic:refresh",
-   "name": "Refresh",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 6,
-   "beleg": "",
-   "datei": "refresh.md"
-  },
-  {
    "id": "tool:lakehouse",
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
@@ -90,15 +99,6 @@
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "lakehouse.md"
-  },
-  {
-   "id": "tool:directquery",
-   "name": "DirectQuery",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 6,
-   "beleg": "",
-   "datei": "directquery.md"
   },
   {
    "id": "tool:warehouse",
@@ -320,6 +320,21 @@
   }
  ],
  "dokumente": [
+  {
+   "id": "yt:9u9YbdMUU-s",
+   "titel": "#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?",
+   "datum": "2026-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=9u9YbdMUU-s",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=9u9YbdMUU-s&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
   {
    "id": "yt:7xYgX6lWhuQ",
    "titel": "Power BI Update Juli 2026",

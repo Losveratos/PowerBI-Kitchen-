@@ -3,14 +3,14 @@
  "name": "Semantic Model",
  "typ": "tool",
  "slug": "semantic-model",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/semantic-model.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/semantic-model.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/semantic-model.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/semantic-model.json",
- "dokumente_gesamt": 30,
+ "dokumente_gesamt": 31,
  "kernaussagen_gesamt": 55,
  "mit_kernaussagen": 24,
  "aliase": [
@@ -108,7 +108,7 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 27,
+   "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -657,26 +657,6 @@
  ],
  "dokumente": [
   {
-   "id": "yt:GKLxM3317Xk",
-   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
-   "datum": "2025-09-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.286,
-   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "yt:xCzKEIB4W5I",
    "titel": "Fabric Planning unboxing",
    "datum": "2026-03-01",
@@ -748,6 +728,26 @@
      "label": "22:14",
      "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1334s",
      "sekunde": 1334
+    }
+   ]
+  },
+  {
+   "id": "yt:GKLxM3317Xk",
+   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
+   "sprungmarken": [
+    {
+     "label": "01:05",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk&t=65s",
+     "sekunde": 65
+    },
+    {
+     "label": "04:26",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk&t=266s",
+     "sekunde": 266
     }
    ]
   },
@@ -1238,6 +1238,21 @@
      "label": "30:27",
      "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1827s",
      "sekunde": 1827
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.023,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
     }
    ]
   },

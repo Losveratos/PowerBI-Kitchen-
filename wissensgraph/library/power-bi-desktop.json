@@ -3,14 +3,14 @@
  "name": "Power BI Desktop",
  "typ": "tool",
  "slug": "power-bi-desktop",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-desktop.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-desktop.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-desktop.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi-desktop.json",
- "dokumente_gesamt": 38,
+ "dokumente_gesamt": 41,
  "kernaussagen_gesamt": 47,
  "mit_kernaussagen": 19,
  "aliase": [
@@ -23,7 +23,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 108,
+   "gemeinsame_segmente": 113,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -32,7 +32,7 @@
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 47,
+   "gemeinsame_segmente": 52,
    "beleg": "",
    "datei": "visualisierung.md"
   },
@@ -41,7 +41,7 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 25,
+   "gemeinsame_segmente": 28,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -64,6 +64,15 @@
    "datei": "direct-lake.md"
   },
   {
+   "id": "tool:power-query",
+   "name": "Power Query",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 20,
+   "beleg": "",
+   "datei": "power-query.md"
+  },
+  {
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
@@ -71,15 +80,6 @@
    "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "microsoft-fabric.md"
-  },
-  {
-   "id": "tool:power-query",
-   "name": "Power Query",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 19,
-   "beleg": "",
-   "datei": "power-query.md"
   },
   {
    "id": "tool:semantic-model",
@@ -104,7 +104,7 @@
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 15,
+   "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "datenmodellierung.md"
   },
@@ -118,6 +118,15 @@
    "datei": "dax.md"
   },
   {
+   "id": "tool:premium",
+   "name": "Premium",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "premium.md"
+  },
+  {
    "id": "tool:directquery",
    "name": "DirectQuery",
    "kantentyp": "ko-vorkommen",
@@ -125,15 +134,6 @@
    "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "directquery.md"
-  },
-  {
-   "id": "tool:premium",
-   "name": "Premium",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 12,
-   "beleg": "",
-   "datei": "premium.md"
   },
   {
    "id": "tool:excel",
@@ -149,7 +149,7 @@
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 10,
+   "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "sicherheit.md"
   }
@@ -581,6 +581,21 @@
  ],
  "dokumente": [
   {
+   "id": "yt:4hap_ZZskzo",
+   "titel": "#001 · Power BI Desktop oder Web? Meine klare Antwort!",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=4hap_ZZskzo",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=4hap_ZZskzo&t=1s",
+     "sekunde": 1
+    }
+   ]
+  },
+  {
    "id": "yt:lT-C7fPzxj4",
    "titel": "Power BI Update April 2025",
    "datum": "2025-04-01",
@@ -601,26 +616,6 @@
    ]
   },
   {
-   "id": "page:chartkitchen-schnellstart_en",
-   "titel": "ChartKitchen byDatenWG — Quick Start",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.4,
-   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=Download%20the%20visual",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:chartkitchen-schnellstart",
    "titel": "ChartKitchen byDatenWG — Schnellstart",
    "datum": "2026-08-31",
@@ -636,6 +631,26 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=01%20%C2%B7%20In%20drei%20Schritten%20loslegen",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart_en",
+   "titel": "ChartKitchen byDatenWG — Quick Start",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.4,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=Download%20the%20visual",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps",
      "sekunde": null
     }
    ]
@@ -1146,6 +1161,31 @@
    ]
   },
   {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.068,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.11%3A%20Zeitdynamik%2C%20Cash-out%20und%20neue%20Anforderungen%20%28Annahmen-Audit%20Runde%202%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
+    }
+   ]
+  },
+  {
    "id": "yt:rWE0gMx7v7I",
    "titel": "BI Thinkers Talk n.74",
    "datum": "2026-03-01",
@@ -1342,6 +1382,21 @@
      "label": "08:28",
      "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=508s",
      "sekunde": 508
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "07:43",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=463s",
+     "sekunde": 463
     }
    ]
   },

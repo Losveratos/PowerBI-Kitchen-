@@ -2,8 +2,8 @@
 id: "tool:purview"
 name: "Purview"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 1
 kernaussagen: 1

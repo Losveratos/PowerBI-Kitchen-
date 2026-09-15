@@ -2,10 +2,10 @@
 id: "tool:onelake"
 name: "OneLake"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 14
+dokumente: 15
 kernaussagen: 36
 mit_kernaussagen: 15
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/onelake.html"
@@ -36,7 +36,7 @@ One Lake
 | [Microsoft Fabric](microsoft-fabric.md) | OneLake teil-von Microsoft Fabric | automatisch extrahiert, Quellenstelle vorhanden | „Wir bringen erstmal nur die EP Daten von mir aus auch täglich in ein Warehouse oder in ein Oneel, wie es hier“ (LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management, 2026-04) | 57 |
 | [Power BI](power-bi.md) | OneLake und Power BI im selben Segment | Heuristik, gezählt |  | 42 |
 | [Delta Lake](delta-lake.md) | OneLake und Delta Lake im selben Segment | Heuristik, gezählt |  | 31 |
-| [Reporting](reporting.md) | OneLake und Reporting im selben Segment | Heuristik, gezählt |  | 25 |
+| [Reporting](reporting.md) | OneLake und Reporting im selben Segment | Heuristik, gezählt |  | 26 |
 | [SQL](sql.md) | OneLake und SQL im selben Segment | Heuristik, gezählt |  | 25 |
 | [Warehouse](warehouse.md) | OneLake und Warehouse im selben Segment | Heuristik, gezählt |  | 25 |
 | [DirectQuery](directquery.md) | OneLake und DirectQuery im selben Segment | Heuristik, gezählt |  | 22 |
@@ -101,6 +101,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Power BI-Teams werden Fabric-Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc) | — | nur-zeitstempel | [01:10](https://www.youtube.com/watch?v=YzfcMurbWNc&t=70s) |
 | [Why Passion Beats Niche](https://www.youtube.com/watch?v=ihi7UiJ_TtQ) | 2025-09-01 | kernaussagen+zeitstempel | [26:46](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1606s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20Power-BI-Nutzer%20wissen%20m%C3%BCssen) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Fabric%20vs.%20klassisches%20Power%20BI) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Direct%20Lake%20%28Fabric%29) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [38:12](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2292s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [53:23](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3203s) |
 | [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | kernaussagen+zeitstempel | [23:47](https://www.youtube.com/watch?v=4VVNDNusq4U&t=1427s) |
 | [Daten-WG Deep Dive Financial Reporting - part 5](https://www.youtube.com/watch?v=iymmxuXHh44) | 2025-07-01 | nur-zeitstempel | [30:48](https://www.youtube.com/watch?v=iymmxuXHh44&t=1848s) |

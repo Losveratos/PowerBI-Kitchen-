@@ -2,10 +2,10 @@
 id: "tool:copilot"
 name: "Copilot"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 47
+dokumente: 49
 kernaussagen: 38
 mit_kernaussagen: 19
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot.html"
@@ -29,16 +29,16 @@ Co-Pilot
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [Fabric Capacity](fabric-capacity.md) | Copilot setzt-voraus Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „die Copilot Unterstützung nur ab F64 plus QIZE an der Stelle zur Verfügung gestellt war“ (Fabric & Power BI Quarterly \| 2025 Q2, 2025-04) | 12 |
-| [GitHub](github.md) | Copilot setzt-voraus GitHub | automatisch extrahiert, Quellenstelle vorhanden | „dass wir hier im Gittaub Copilet angemeldet sind“ (Fabric Workload Demo mit Alexander Korn und Lukasz Obst, 2026-08) | 7 |
+| [GitHub](github.md) | Copilot setzt-voraus GitHub | automatisch extrahiert, Quellenstelle vorhanden | „dass wir hier im Gittaub Copilet angemeldet sind“ (Fabric Workload Demo mit Alexander Korn und Lukasz Obst, 2026-08) | 8 |
 | [Semantic Model](semantic-model.md) | Copilot setzt-voraus Semantic Model | automatisch extrahiert, Quellenstelle vorhanden | „es gibt aber diese Einstellung für den Copilot nur an dem Dataset und von da aus wird's weiter vererbt“ (BI Thinkers Talk n.74, 2026-03) | 4 |
 | [TMDL](tmdl.md) | Copilot setzt-voraus TMDL | automatisch extrahiert, Quellenstelle vorhanden | „Du kannst halt alles nur verändern, was irgendwo im TMDL Model steht (Segment 30)“ (BI Thinkers Talk nr.71, 2025-12) | 0 |
 | [Fabric Capacity](fabric-capacity.md) | Copilot teil-von Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „Z.B. Copilot ist Backend.“ (BI Thinkers Talk nr.64, 2025-07) | 12 |
-| [KI](ki.md) | Copilot und KI im selben Segment | Heuristik, gezählt |  | 62 |
-| [Power BI](power-bi.md) | Copilot und Power BI im selben Segment | Heuristik, gezählt |  | 40 |
-| [Microsoft Fabric](microsoft-fabric.md) | Copilot und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 32 |
-| [Visualisierung](visualisierung.md) | Copilot und Visualisierung im selben Segment | Heuristik, gezählt |  | 20 |
-| [Reporting](reporting.md) | Copilot und Reporting im selben Segment | Heuristik, gezählt |  | 20 |
-| [Datenmodellierung](datenmodellierung.md) | Copilot und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 15 |
+| [KI](ki.md) | Copilot und KI im selben Segment | Heuristik, gezählt |  | 64 |
+| [Power BI](power-bi.md) | Copilot und Power BI im selben Segment | Heuristik, gezählt |  | 41 |
+| [Microsoft Fabric](microsoft-fabric.md) | Copilot und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 33 |
+| [Reporting](reporting.md) | Copilot und Reporting im selben Segment | Heuristik, gezählt |  | 23 |
+| [Visualisierung](visualisierung.md) | Copilot und Visualisierung im selben Segment | Heuristik, gezählt |  | 22 |
+| [Datenmodellierung](datenmodellierung.md) | Copilot und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 16 |
 | [Sicherheit](sicherheit.md) | Copilot und Sicherheit im selben Segment | Heuristik, gezählt |  | 12 |
 | [SQL](sql.md) | Copilot und SQL im selben Segment | Heuristik, gezählt |  | 12 |
 | [DAX](dax.md) | Copilot und DAX im selben Segment | Heuristik, gezählt |  | 12 |
@@ -94,8 +94,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
 | [Protokoll in 60 Sekunden! - So geht es mit Copilot!](https://www.youtube.com/watch?v=wuuPwUPQVxk) | 2025-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=wuuPwUPQVxk&t=0s) · [01:42](https://www.youtube.com/watch?v=wuuPwUPQVxk&t=102s) |
-| [Vorbereiten der Daten für KI](https://www.youtube.com/watch?v=WJXREKKx2yo) | 2025-08-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=WJXREKKx2yo&t=1s) · [01:35](https://www.youtube.com/watch?v=WJXREKKx2yo&t=95s) · [04:42](https://www.youtube.com/watch?v=WJXREKKx2yo&t=282s) |
 | [Copilot + Power Automate = Gamechanger](https://www.youtube.com/watch?v=_MfM3rhJx58) | 2025-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=_MfM3rhJx58&t=0s) · [03:16](https://www.youtube.com/watch?v=_MfM3rhJx58&t=196s) · [08:07](https://www.youtube.com/watch?v=_MfM3rhJx58&t=487s) |
+| [Vorbereiten der Daten für KI](https://www.youtube.com/watch?v=WJXREKKx2yo) | 2025-08-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=WJXREKKx2yo&t=1s) · [01:35](https://www.youtube.com/watch?v=WJXREKKx2yo&t=95s) · [04:42](https://www.youtube.com/watch?v=WJXREKKx2yo&t=282s) |
 | [Power BI Update Januar 2026](https://www.youtube.com/watch?v=TAM5AAZqh7k) | 2026-01-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s) · [00:40](https://www.youtube.com/watch?v=TAM5AAZqh7k&t=40s) · [03:19](https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s) |
 | [Forms + Power Automate = Feedback-Alarm!](https://www.youtube.com/watch?v=1mfhZw7bg_c) | 2025-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=1mfhZw7bg_c&t=0s) · [03:13](https://www.youtube.com/watch?v=1mfhZw7bg_c&t=193s) · [06:19](https://www.youtube.com/watch?v=1mfhZw7bg_c&t=379s) |
 | [Daten-WG Life-Update \| State of Power BI, Fabric & AI-Tools](https://www.youtube.com/watch?v=d3HdhRe_nK8) | 2026-06-01 | nur-zeitstempel | [06:26](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=386s) · [09:08](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=548s) · [15:14](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=914s) |
@@ -103,8 +103,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Forms + Sharepoint + Powerautomate](https://www.youtube.com/watch?v=kP8YNW1XN_E) | 2025-08-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=kP8YNW1XN_E&t=0s) · [08:12](https://www.youtube.com/watch?v=kP8YNW1XN_E&t=492s) |
 | [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | kernaussagen+zeitstempel | [00:50](https://www.youtube.com/watch?v=e50qKdVn-24&t=50s) · [10:50](https://www.youtube.com/watch?v=e50qKdVn-24&t=650s) · [13:04](https://www.youtube.com/watch?v=e50qKdVn-24&t=784s) |
 | [BI Thinkers Talk n.74](https://www.youtube.com/watch?v=rWE0gMx7v7I) | 2026-03-01 | kernaussagen+zeitstempel | [14:34](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=874s) · [22:42](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1362s) · [27:27](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1647s) |
-| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
 | [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
+| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
 | [Power BI Update November 2025](https://www.youtube.com/watch?v=XJZxYNIeEVc) | 2025-11-01 | nur-zeitstempel | [03:31](https://www.youtube.com/watch?v=XJZxYNIeEVc&t=211s) |
 | [Power BI Update August 2025](https://www.youtube.com/watch?v=jTXo4aEr07o) | 2025-08-01 | nur-zeitstempel | [02:46](https://www.youtube.com/watch?v=jTXo4aEr07o&t=166s) |
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [13:11](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=791s) · [21:32](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1292s) · [23:12](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1392s) |
@@ -123,6 +123,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | kernaussagen+zeitstempel | [29:35](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1775s) · [31:10](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1870s) · [32:58](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1978s) |
 | [Von Patronen zu Prozessen](https://www.youtube.com/watch?v=0cHtxIm7fVw) | 2025-08-01 | nur-zeitstempel | [17:12](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=1032s) |
 | [Von Patronen zu Prozessen (nur Ton)](https://www.youtube.com/watch?v=s3CveEVoDvo) | 2025-07-01 | nur-zeitstempel | [17:12](https://www.youtube.com/watch?v=s3CveEVoDvo&t=1032s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Rahmenbedingungen%2C%20die%20das%20Ergebnis%20kippen) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29) |
 | [Power BI-Teams werden Fabric-Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc) | — | nur-zeitstempel | [15:23](https://www.youtube.com/watch?v=YzfcMurbWNc&t=923s) |
 | [10 Jahre BI für alle? Was Power BI wirklich verändert hat](https://www.youtube.com/watch?v=9wl_PLvgvyc) | 2025-08-01 | nur-zeitstempel | [14:40](https://www.youtube.com/watch?v=9wl_PLvgvyc&t=880s) |
 | [Wie war die Daten-WG? (2025, Teil 2)](https://www.youtube.com/watch?v=XxPFAQfLyuA) | 2025-04-01 | kernaussagen+zeitstempel | [14:52](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=892s) |
@@ -131,10 +132,9 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [27:02](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1622s) |
 | [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [40:00](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2400s) |
 | [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | kernaussagen+zeitstempel | [25:25](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1525s) |
-| [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [33:52](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2032s) |
-| [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [01:48](https://www.youtube.com/watch?v=DQENmzAkNqw&t=108s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [03:25](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=205s) |
 
-40 von 47 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/copilot.json).
+40 von 49 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/copilot.json).
 
 ## Hinweise
 

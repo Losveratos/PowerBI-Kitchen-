@@ -2,10 +2,10 @@
 id: "topic:strategie"
 name: "Strategie"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 19
+dokumente: 21
 kernaussagen: 21
 mit_kernaussagen: 8
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/strategie.html"
@@ -30,21 +30,21 @@ BI-Strategie, Datenstrategie, strategisch
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [KI](ki.md) | Strategie und KI im selben Segment | Heuristik, gezählt |  | 20 |
-| [Power BI](power-bi.md) | Strategie und Power BI im selben Segment | Heuristik, gezählt |  | 19 |
-| [Reporting](reporting.md) | Strategie und Reporting im selben Segment | Heuristik, gezählt |  | 12 |
-| [Microsoft Fabric](microsoft-fabric.md) | Strategie und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 11 |
-| [Performance](performance.md) | Strategie und Performance im selben Segment | Heuristik, gezählt |  | 11 |
+| [KI](ki.md) | Strategie und KI im selben Segment | Heuristik, gezählt |  | 21 |
+| [Power BI](power-bi.md) | Strategie und Power BI im selben Segment | Heuristik, gezählt |  | 20 |
+| [Reporting](reporting.md) | Strategie und Reporting im selben Segment | Heuristik, gezählt |  | 13 |
+| [Microsoft Fabric](microsoft-fabric.md) | Strategie und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 12 |
+| [Performance](performance.md) | Strategie und Performance im selben Segment | Heuristik, gezählt |  | 12 |
 | [SQL](sql.md) | Strategie und SQL im selben Segment | Heuristik, gezählt |  | 10 |
 | [Sicherheit](sicherheit.md) | Strategie und Sicherheit im selben Segment | Heuristik, gezählt |  | 8 |
 | [Lizenzen](lizenzen.md) | Strategie und Lizenzen im selben Segment | Heuristik, gezählt |  | 6 |
 | [Visualisierung](visualisierung.md) | Strategie und Visualisierung im selben Segment | Heuristik, gezählt |  | 5 |
 | [Direct Lake](direct-lake.md) | Strategie und Direct Lake im selben Segment | Heuristik, gezählt |  | 5 |
 | [Self-Service BI](self-service-bi.md) | Strategie und Self-Service BI im selben Segment | Heuristik, gezählt |  | 5 |
+| [Copilot](copilot.md) | Strategie und Copilot im selben Segment | Heuristik, gezählt |  | 4 |
 | [Power BI Desktop](power-bi-desktop.md) | Strategie und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 4 |
 | [Planung](planung.md) | Strategie und Planung im selben Segment | Heuristik, gezählt |  | 4 |
-| [Governance](governance.md) | Strategie und Governance im selben Segment | Heuristik, gezählt |  | 4 |
-| [Projektmanagement](projektmanagement.md) | Strategie und Projektmanagement im selben Segment | Heuristik, gezählt |  | 4 |
+| [Excel](excel.md) | Strategie und Excel im selben Segment | Heuristik, gezählt |  | 4 |
 
 ## Kernaussagen
 
@@ -90,9 +90,11 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [GxP Talk - Testing im GxP-Umfeld](https://www.youtube.com/watch?v=B0_sSJQVG8w) | 2026-04-01 | kernaussagen+zeitstempel | [24:13](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1453s) · [29:01](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1741s) · [46:50](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=2810s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [28:37](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1717s) · [36:40](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2200s) · [38:12](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2292s) |
 | [Daten-WG Life-Update \| State of Power BI, Fabric & AI-Tools](https://www.youtube.com/watch?v=d3HdhRe_nK8) | 2026-06-01 | nur-zeitstempel | [20:30](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1230s) · [35:02](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=2102s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [03:25](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=205s) · [09:46](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=586s) |
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [07:46](https://www.youtube.com/watch?v=lZvpCBMKASM&t=466s) · [38:58](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2338s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Reise%20durch%20Microsoft%20Fabric) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Einstellungen%20pr%C3%BCfen) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Voraussetzungen%20%26%20Trade-offs) |
 | [10 Jahre BI für alle? Was Power BI wirklich verändert hat](https://www.youtube.com/watch?v=9wl_PLvgvyc) | 2025-08-01 | nur-zeitstempel | [11:07](https://www.youtube.com/watch?v=9wl_PLvgvyc&t=667s) |
+| [Automatisierung gewinnt \| Daten-WG Podcast mit Reinhard Mense](https://www.youtube.com/watch?v=3-hXnNLKnAw) | 2026-07-01 | nur-zeitstempel | [46:01](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=2761s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [36:46](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2206s) |
 | [GxP Talk - KI im regulierten Umfeld?](https://www.youtube.com/watch?v=XtH4JqTwaqM) | 2026-05-01 | kernaussagen+zeitstempel | [30:12](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1812s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [03:46](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=226s) |

@@ -2,10 +2,10 @@
 id: "tool:git"
 name: "Git"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 25
+dokumente: 26
 kernaussagen: 6
 mit_kernaussagen: 6
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/git.html"
@@ -31,14 +31,14 @@ Git Integration, Git-Integration, Versionierung, Source Control
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Visualisierung](visualisierung.md) | Git und Visualisierung im selben Segment | Heuristik, gezählt |  | 14 |
-| [Power BI](power-bi.md) | Git und Power BI im selben Segment | Heuristik, gezählt |  | 13 |
+| [Power BI](power-bi.md) | Git und Power BI im selben Segment | Heuristik, gezählt |  | 15 |
+| [Visualisierung](visualisierung.md) | Git und Visualisierung im selben Segment | Heuristik, gezählt |  | 15 |
 | [KI](ki.md) | Git und KI im selben Segment | Heuristik, gezählt |  | 11 |
+| [Microsoft Fabric](microsoft-fabric.md) | Git und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 8 |
+| [Reporting](reporting.md) | Git und Reporting im selben Segment | Heuristik, gezählt |  | 8 |
 | [Daten-WG](daten-wg.md) | Git und Daten-WG im selben Segment | Heuristik, gezählt |  | 8 |
-| [Microsoft Fabric](microsoft-fabric.md) | Git und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 7 |
-| [Reporting](reporting.md) | Git und Reporting im selben Segment | Heuristik, gezählt |  | 7 |
-| [Workspace](workspace.md) | Git und Workspace im selben Segment | Heuristik, gezählt |  | 6 |
-| [Azure DevOps](azure-devops.md) | Git und Azure DevOps im selben Segment | Heuristik, gezählt |  | 4 |
+| [Workspace](workspace.md) | Git und Workspace im selben Segment | Heuristik, gezählt |  | 7 |
+| [Azure DevOps](azure-devops.md) | Git und Azure DevOps im selben Segment | Heuristik, gezählt |  | 5 |
 | [Dataflow](dataflow.md) | Git und Dataflow im selben Segment | Heuristik, gezählt |  | 3 |
 | [Notebook](notebook.md) | Git und Notebook im selben Segment | Heuristik, gezählt |  | 3 |
 | [Semantic Model](semantic-model.md) | Git und Semantic Model im selben Segment | Heuristik, gezählt |  | 3 |
@@ -77,16 +77,17 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | kernaussagen+zeitstempel | [14:36](https://www.youtube.com/watch?v=e50qKdVn-24&t=876s) |
 | [GxP Talk - Validierung vs. Agilität](https://www.youtube.com/watch?v=KO_qFge77o8) | 2026-03-01 | kernaussagen+zeitstempel | [06:17](https://www.youtube.com/watch?v=KO_qFge77o8&t=377s) · [49:30](https://www.youtube.com/watch?v=KO_qFge77o8&t=2970s) |
 | [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [45:54](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2754s) · [47:25](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2845s) |
+| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-zeitstempel | [10:08](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=608s) |
 | [Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup](https://www.youtube.com/watch?v=BDnwlOqRElY) | 2025-06-01 | kernaussagen+zeitstempel | [34:03](https://www.youtube.com/watch?v=BDnwlOqRElY&t=2043s) |
 | [209 Jahre, ein Fluss, zwei Wahrheiten](https://datenwgknowledgekitchen.com/rhein-story.html) | 2026-08-16 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/rhein-story.html) |
 | [GxP Talk - Testing im GxP-Umfeld](https://www.youtube.com/watch?v=B0_sSJQVG8w) | 2026-04-01 | kernaussagen+zeitstempel | [19:34](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1174s) |
 | [Unboxing MCP Server for Power BI Modelling](https://www.youtube.com/watch?v=iinfiHxznOU) | 2025-12-01 | kernaussagen+zeitstempel | [07:46](https://www.youtube.com/watch?v=iinfiHxznOU&t=466s) |
 | [Daten-WG 2026 Lineup](https://www.youtube.com/watch?v=AX7b8_aNekw) | 2026-05-01 | nur-zeitstempel | [06:16](https://www.youtube.com/watch?v=AX7b8_aNekw&t=376s) |
 | [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | kernaussagen+zeitstempel | [55:50](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3350s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben) |
 | [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | kernaussagen+zeitstempel | [50:50](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3050s) |
 | [Was braucht ein gesunder Strommix — und was kostet er?](https://datenwgknowledgekitchen.com/whitepaper-strommix.html) | 2026-08-20 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/whitepaper-strommix.html) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Auto-Binding) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20ist%20f%C3%BCr%20Power-BI-Nutzer%20relevant%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Externe%20Tools%20aktivieren) |
-| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-metadaten | — |
 
 ## Hinweise
 

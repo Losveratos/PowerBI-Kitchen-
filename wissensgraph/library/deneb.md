@@ -2,10 +2,10 @@
 id: "tool:deneb"
 name: "Deneb"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 11
+dokumente: 13
 kernaussagen: 13
 mit_kernaussagen: 3
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/deneb.html"
@@ -30,13 +30,21 @@ Vega, Vega-Lite, Vega Lite
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Custom Visuals](custom-visuals.md) | Custom Visuals gegensatz Deneb | automatisch extrahiert, Quellenstelle vorhanden | „In Denb stößt er dann irgendwann an Grenzen ... In dem Power BI, also in den tatsächlichen Custom Visuals, ist er ziemlich frei.“ (BI Thinkers Talk nr.76, 2026-05) | 5 |
-| [Custom Visuals](custom-visuals.md) | Deneb teil-von Custom Visuals | automatisch extrahiert, Quellenstelle vorhanden | „dieses Custom Visual, mit dem ich über Vega Light bzw. Vega Aufgaben lösen kann“ (Was ist Self-Service und warum ist das so schwer?) | 5 |
-| [Visualisierung](visualisierung.md) | Deneb und Visualisierung im selben Segment | Heuristik, gezählt |  | 14 |
-| [Power BI](power-bi.md) | Deneb und Power BI im selben Segment | Heuristik, gezählt |  | 13 |
-| [KI](ki.md) | Deneb und KI im selben Segment | Heuristik, gezählt |  | 4 |
-| [IBCS](ibcs.md) | Deneb und IBCS im selben Segment | Heuristik, gezählt |  | 4 |
-| [Python](python.md) | Deneb und Python im selben Segment | Heuristik, gezählt |  | 3 |
+| [Custom Visuals](custom-visuals.md) | Custom Visuals gegensatz Deneb | automatisch extrahiert, Quellenstelle vorhanden | „In Denb stößt er dann irgendwann an Grenzen ... In dem Power BI, also in den tatsächlichen Custom Visuals, ist er ziemlich frei.“ (BI Thinkers Talk nr.76, 2026-05) | 11 |
+| [Custom Visuals](custom-visuals.md) | Deneb teil-von Custom Visuals | automatisch extrahiert, Quellenstelle vorhanden | „dieses Custom Visual, mit dem ich über Vega Light bzw. Vega Aufgaben lösen kann“ (Was ist Self-Service und warum ist das so schwer?) | 11 |
+| [Visualisierung](visualisierung.md) | Deneb und Visualisierung im selben Segment | Heuristik, gezählt |  | 34 |
+| [Power BI](power-bi.md) | Deneb und Power BI im selben Segment | Heuristik, gezählt |  | 23 |
+| [Reporting](reporting.md) | Deneb und Reporting im selben Segment | Heuristik, gezählt |  | 13 |
+| [Lizenzen](lizenzen.md) | Deneb und Lizenzen im selben Segment | Heuristik, gezählt |  | 13 |
+| [IBCS](ibcs.md) | Deneb und IBCS im selben Segment | Heuristik, gezählt |  | 10 |
+| [Governance](governance.md) | Deneb und Governance im selben Segment | Heuristik, gezählt |  | 8 |
+| [Mittelstand](mittelstand.md) | Deneb und Mittelstand im selben Segment | Heuristik, gezählt |  | 8 |
+| [KI](ki.md) | Deneb und KI im selben Segment | Heuristik, gezählt |  | 5 |
+| [Open Source](open-source.md) | Deneb und Open Source im selben Segment | Heuristik, gezählt |  | 5 |
+| [Zebra BI](zebra-bi.md) | Deneb und Zebra BI im selben Segment | Heuristik, gezählt |  | 5 |
+| [Schulung](schulung.md) | Deneb und Schulung im selben Segment | Heuristik, gezählt |  | 5 |
+| [Sicherheit](sicherheit.md) | Deneb und Sicherheit im selben Segment | Heuristik, gezählt |  | 4 |
+| [Python](python.md) | Deneb und Python im selben Segment | Heuristik, gezählt |  | 4 |
 
 ## Kernaussagen
 
@@ -63,11 +71,13 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
 | [Business Chart Builder — Anleitung](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html) · [Abschnitt](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Bonus%3A%20fertige%20Gantt-Vorlage%20%28Power%20BI%20%2F%20Deneb%29) · [Abschnitt](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Export%20%E2%80%94%20der%20eigentliche%20Trick) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Was%20das%20Werkzeug%20rechnet) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [14:06](https://www.youtube.com/watch?v=luk4S4ukKmg&t=846s) · [15:46](https://www.youtube.com/watch?v=luk4S4ukKmg&t=946s) · [17:36](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1056s) |
 | [Power BI Update Juni 2026](https://www.youtube.com/watch?v=5xB_oKdvAwQ) | 2026-06-01 | nur-zeitstempel | [05:43](https://www.youtube.com/watch?v=5xB_oKdvAwQ&t=343s) |
 | [BI Thinkers Talk nr.76](https://www.youtube.com/watch?v=mlkP-6i5Kq8) | 2026-05-01 | kernaussagen+zeitstempel | [03:09](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=189s) · [17:36](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1056s) · [19:11](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1151s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [07:02](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=422s) · [19:49](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1189s) |
 | [The Power of User Groups](https://www.youtube.com/watch?v=SSUpe1JON9Y) | 2025-10-01 | nur-zeitstempel | [16:39](https://www.youtube.com/watch?v=SSUpe1JON9Y&t=999s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [11:29](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=689s) |
 | [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [15:44](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=944s) |
 | [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [13:57](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=837s) |
 | [Fabric Planning unboxing](https://www.youtube.com/watch?v=xCzKEIB4W5I) | 2026-03-01 | kernaussagen+zeitstempel | [1:03:13](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3793s) |

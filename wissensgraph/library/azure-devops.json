@@ -3,14 +3,14 @@
  "name": "Azure DevOps",
  "typ": "tool",
  "slug": "azure-devops",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-devops.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-devops.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/azure-devops.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/azure-devops.json",
- "dokumente_gesamt": 3,
+ "dokumente_gesamt": 4,
  "kernaussagen_gesamt": 1,
  "mit_kernaussagen": 1,
  "aliase": [
@@ -23,9 +23,27 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 6,
+   "gemeinsame_segmente": 7,
    "beleg": "",
    "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:git",
+   "name": "Git",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "git.md"
   },
   {
    "id": "tool:lakehouse",
@@ -35,15 +53,6 @@
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "lakehouse.md"
-  },
-  {
-   "id": "tool:microsoft-fabric",
-   "name": "Microsoft Fabric",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
-   "beleg": "",
-   "datei": "microsoft-fabric.md"
   },
   {
    "id": "tool:workspace",
@@ -62,15 +71,6 @@
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "reporting.md"
-  },
-  {
-   "id": "tool:git",
-   "name": "Git",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
-   "beleg": "",
-   "datei": "git.md"
   },
   {
    "id": "tool:warehouse",
@@ -125,6 +125,21 @@
      "label": "13:37",
      "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s",
      "sekunde": 817
+    }
+   ]
+  },
+  {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "10:08",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=608s",
+     "sekunde": 608
     }
    ]
   },

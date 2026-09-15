@@ -3,8 +3,8 @@
  "name": "Row-Level Security",
  "typ": "thema",
  "slug": "row-level-security",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/row-level-security.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/row-level-security.html",
@@ -303,21 +303,6 @@
    ]
   },
   {
-   "id": "yt:GKLxM3317Xk",
-   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
-   "datum": "2025-09-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.143,
-   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "yt:TkxwcAyBGUM",
    "titel": "Power BI Update Juli 2025",
    "datum": "2025-07-01",
@@ -379,6 +364,21 @@
      "label": "15:50",
      "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=950s",
      "sekunde": 950
+    }
+   ]
+  },
+  {
+   "id": "yt:GKLxM3317Xk",
+   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
+   "sprungmarken": [
+    {
+     "label": "02:17",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk&t=137s",
+     "sekunde": 137
     }
    ]
   },

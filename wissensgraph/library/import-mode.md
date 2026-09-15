@@ -2,10 +2,10 @@
 id: "tool:import-mode"
 name: "Import Mode"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 12
+dokumente: 13
 kernaussagen: 18
 mit_kernaussagen: 12
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/import-mode.html"
@@ -29,15 +29,15 @@ Importmodus, Import-Modus
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Direct Lake](direct-lake.md) | Direct Lake gegensatz Import Mode | automatisch extrahiert, Quellenstelle vorhanden | „Aggregation kommt vor dem Laden in den Speicher, was natürlich auch extrem gut ist“ (Daten-WG Deep Dive Financial Reporting - part 6, 2025-08) | 6 |
-| [Direct Lake](direct-lake.md) | Import Mode gegensatz Direct Lake | automatisch extrahiert, Quellenstelle vorhanden | „für Importmodelle gibt's ja Deployment Rules, für Direct Lake nicht“ (BI Thinkers Talk n.72, 2026-01) | 6 |
-| [Direct Lake](direct-lake.md) | Direct Lake ersetzt Import Mode | automatisch extrahiert, Quellenstelle vorhanden | „Verbindung für den Bericht von dem Importmodell auf den Direct Lake Modell umgestellt“ (BI Thinkers Talk nr.67, 2025-09) | 6 |
-| [Power BI](power-bi.md) | Import Mode und Power BI im selben Segment | Heuristik, gezählt |  | 8 |
+| [Direct Lake](direct-lake.md) | Direct Lake gegensatz Import Mode | automatisch extrahiert, Quellenstelle vorhanden | „Aggregation kommt vor dem Laden in den Speicher, was natürlich auch extrem gut ist“ (Daten-WG Deep Dive Financial Reporting - part 6, 2025-08) | 7 |
+| [Direct Lake](direct-lake.md) | Import Mode gegensatz Direct Lake | automatisch extrahiert, Quellenstelle vorhanden | „für Importmodelle gibt's ja Deployment Rules, für Direct Lake nicht“ (BI Thinkers Talk n.72, 2026-01) | 7 |
+| [Direct Lake](direct-lake.md) | Direct Lake ersetzt Import Mode | automatisch extrahiert, Quellenstelle vorhanden | „Verbindung für den Bericht von dem Importmodell auf den Direct Lake Modell umgestellt“ (BI Thinkers Talk nr.67, 2025-09) | 7 |
+| [Power BI](power-bi.md) | Import Mode und Power BI im selben Segment | Heuristik, gezählt |  | 9 |
+| [Refresh](refresh.md) | Import Mode und Refresh im selben Segment | Heuristik, gezählt |  | 7 |
+| [DirectQuery](directquery.md) | Import Mode und DirectQuery im selben Segment | Heuristik, gezählt |  | 7 |
 | [Microsoft Fabric](microsoft-fabric.md) | Import Mode und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 6 |
 | [Performance](performance.md) | Import Mode und Performance im selben Segment | Heuristik, gezählt |  | 6 |
-| [Refresh](refresh.md) | Import Mode und Refresh im selben Segment | Heuristik, gezählt |  | 6 |
 | [Lakehouse](lakehouse.md) | Import Mode und Lakehouse im selben Segment | Heuristik, gezählt |  | 6 |
-| [DirectQuery](directquery.md) | Import Mode und DirectQuery im selben Segment | Heuristik, gezählt |  | 6 |
 | [Warehouse](warehouse.md) | Import Mode und Warehouse im selben Segment | Heuristik, gezählt |  | 5 |
 | [Power BI Desktop](power-bi-desktop.md) | Import Mode und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 4 |
 | [SQL](sql.md) | Import Mode und SQL im selben Segment | Heuristik, gezählt |  | 4 |
@@ -74,6 +74,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?](https://www.youtube.com/watch?v=9u9YbdMUU-s) | 2026-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=9u9YbdMUU-s&t=0s) |
 | [Power BI Update Juli 2026](https://www.youtube.com/watch?v=7xYgX6lWhuQ) | 2026-07-01 | nur-zeitstempel | [02:42](https://www.youtube.com/watch?v=7xYgX6lWhuQ&t=162s) |
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [08:20](https://www.youtube.com/watch?v=G8s96sHUHac&t=500s) · [19:28](https://www.youtube.com/watch?v=G8s96sHUHac&t=1168s) |
 | [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [21:17](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1277s) |

@@ -3,14 +3,14 @@
  "name": "Python",
  "typ": "tool",
  "slug": "python",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/python.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/python.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/python.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/python.json",
- "dokumente_gesamt": 37,
+ "dokumente_gesamt": 39,
  "kernaussagen_gesamt": 14,
  "mit_kernaussagen": 9,
  "aliase": [],
@@ -66,7 +66,7 @@
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 14,
+   "gemeinsame_segmente": 15,
    "beleg": "",
    "datei": "visualisierung.md"
   },
@@ -398,6 +398,21 @@
      "label": "24:59",
      "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1499s",
      "sekunde": 1499
+    }
+   ]
+  },
+  {
+   "id": "yt:lp8xNX81R2w",
+   "titel": "Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=lp8xNX81R2w",
+   "sprungmarken": [
+    {
+     "label": "09:23",
+     "url": "https://www.youtube.com/watch?v=lp8xNX81R2w&t=563s",
+     "sekunde": 563
     }
    ]
   },
@@ -1007,6 +1022,21 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Inkrementelle%20L%C3%A4ufe",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.023,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
      "sekunde": null
     }
    ]

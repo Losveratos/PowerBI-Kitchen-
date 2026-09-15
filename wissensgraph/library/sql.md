@@ -2,10 +2,10 @@
 id: "tool:sql"
 name: "SQL"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 50
+dokumente: 52
 kernaussagen: 16
 mit_kernaussagen: 8
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/sql.html"
@@ -30,8 +30,8 @@ SQL-Abfrage, SQL-Abfragen
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [Translytical Task Flows](translytical-task-flows.md) | Translytical Task Flows setzt-voraus SQL | automatisch extrahiert, Quellenstelle vorhanden | „auch da ein gewisser Vorlauf mit erst Sequel in Fabric GA, dann User Data Functions GA, dann Input Slicer GA und jetzt transitas, das auf all diesen Bausteinen aufbaut“ (Fabric & Power BI Quarterly · 2026-2) | 0 |
-| [Microsoft Fabric](microsoft-fabric.md) | SQL und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 74 |
-| [Power BI](power-bi.md) | SQL und Power BI im selben Segment | Heuristik, gezählt |  | 67 |
+| [Microsoft Fabric](microsoft-fabric.md) | SQL und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 75 |
+| [Power BI](power-bi.md) | SQL und Power BI im selben Segment | Heuristik, gezählt |  | 69 |
 | [Lakehouse](lakehouse.md) | SQL und Lakehouse im selben Segment | Heuristik, gezählt |  | 49 |
 | [Warehouse](warehouse.md) | SQL und Warehouse im selben Segment | Heuristik, gezählt |  | 46 |
 | [SQL Server](sql-server.md) | SQL und SQL Server im selben Segment | Heuristik, gezählt |  | 38 |
@@ -41,9 +41,9 @@ SQL-Abfrage, SQL-Abfragen
 | [Notebook](notebook.md) | SQL und Notebook im selben Segment | Heuristik, gezählt |  | 26 |
 | [Delta Lake](delta-lake.md) | SQL und Delta Lake im selben Segment | Heuristik, gezählt |  | 26 |
 | [Echtzeit](echtzeit.md) | SQL und Echtzeit im selben Segment | Heuristik, gezählt |  | 25 |
+| [KI](ki.md) | SQL und KI im selben Segment | Heuristik, gezählt |  | 25 |
 | [OneLake](onelake.md) | SQL und OneLake im selben Segment | Heuristik, gezählt |  | 25 |
 | [Dataflow](dataflow.md) | SQL und Dataflow im selben Segment | Heuristik, gezählt |  | 25 |
-| [KI](ki.md) | SQL und KI im selben Segment | Heuristik, gezählt |  | 24 |
 
 ## Kernaussagen
 
@@ -80,7 +80,9 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL \| Fabric Tutorial](https://www.youtube.com/watch?v=7j34Ndng0Os) | 2026-01-01 | kernaussagen+zeitstempel | [02:40](https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s) · [04:01](https://www.youtube.com/watch?v=7j34Ndng0Os&t=241s) · [08:39](https://www.youtube.com/watch?v=7j34Ndng0Os&t=519s) |
 | [Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial](https://www.youtube.com/watch?v=5HhNQZlB-1E) | 2025-12-01 | kernaussagen+zeitstempel | [00:41](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=41s) · [01:15](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=75s) · [04:13](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=253s) |
 | [BI Thinkers Talk Nr.62](https://www.youtube.com/watch?v=Wwvhv8WA2Qc) | 2025-05-01 | kernaussagen+zeitstempel | [12:58](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=778s) · [23:50](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1430s) · [31:47](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1907s) |
+| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-zeitstempel | [24:18](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1458s) · [25:49](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1549s) · [30:34](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1834s) |
 | [Metadaten als Superkraft](https://www.youtube.com/watch?v=UUlPoJOhco8) | — | kernaussagen+zeitstempel | [01:34](https://www.youtube.com/watch?v=UUlPoJOhco8&t=94s) · [03:41](https://www.youtube.com/watch?v=UUlPoJOhco8&t=221s) · [08:50](https://www.youtube.com/watch?v=UUlPoJOhco8&t=530s) |
+| [Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen](https://www.youtube.com/watch?v=_AxvdCW0ST4) | 2026-07-01 | nur-zeitstempel | [02:10](https://www.youtube.com/watch?v=_AxvdCW0ST4&t=130s) |
 | [Starting with Microsft Fabric the Skills you need](https://www.youtube.com/watch?v=m3xNYfVih0Q) | 2024-08-01 | nur-zeitstempel | [06:28](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=388s) · [32:03](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=1923s) · [33:34](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2014s) |
 | [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [07:50](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=470s) · [16:07](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=967s) · [19:55](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1195s) |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [20:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1205s) · [29:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1745s) |
@@ -110,10 +112,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [19:28](https://www.youtube.com/watch?v=G8s96sHUHac&t=1168s) · [54:26](https://www.youtube.com/watch?v=G8s96sHUHac&t=3266s) |
 | [Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup](https://www.youtube.com/watch?v=BDnwlOqRElY) | 2025-06-01 | kernaussagen+zeitstempel | [34:03](https://www.youtube.com/watch?v=BDnwlOqRElY&t=2043s) |
 | [Prinzipien oder Paragrafen](https://www.youtube.com/watch?v=6WhWLcuFvZE) | 2026-02-01 | kernaussagen+zeitstempel | [20:43](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1243s) |
-| [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [15:49](https://www.youtube.com/watch?v=mTVeZzshLzE&t=949s) |
-| [BI Thinkers Talk nr.63](https://www.youtube.com/watch?v=9VX4-lLa0EI) | 2025-06-01 | nur-zeitstempel | [26:18](https://www.youtube.com/watch?v=9VX4-lLa0EI&t=1578s) |
 
-40 von 50 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/sql.json).
+40 von 52 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/sql.json).
 
 ## Hinweise
 

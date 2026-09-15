@@ -3,14 +3,14 @@
  "name": "Power Query",
  "typ": "tool",
  "slug": "power-query",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-query.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-query.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-query.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-query.json",
- "dokumente_gesamt": 45,
+ "dokumente_gesamt": 48,
  "kernaussagen_gesamt": 33,
  "mit_kernaussagen": 15,
  "aliase": [
@@ -44,7 +44,7 @@
    "name": "Excel",
    "kantentyp": "teil-von",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 23,
+   "gemeinsame_segmente": 24,
    "beleg": "dann unterstützt ja Excel mittlerweile Power Query",
    "datei": "excel.md"
   },
@@ -53,7 +53,7 @@
    "name": "Power BI",
    "kantentyp": "teil-von",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 53,
+   "gemeinsame_segmente": 57,
    "beleg": "Bei Power BI ist das Power Query, was dann dabei ist und dann das Datenmodell.",
    "datei": "power-bi.md"
   },
@@ -89,7 +89,7 @@
    "name": "Dataflow",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 28,
+   "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "dataflow.md"
   },
@@ -107,7 +107,7 @@
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 22,
+   "gemeinsame_segmente": 24,
    "beleg": "",
    "datei": "datenmodellierung.md"
   },
@@ -125,7 +125,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 19,
+   "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -134,9 +134,18 @@
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 19,
+   "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "power-bi-desktop.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 18,
+   "beleg": "",
+   "datei": "notebook.md"
   },
   {
    "id": "topic:reporting",
@@ -146,15 +155,6 @@
    "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "reporting.md"
-  },
-  {
-   "id": "tool:sql",
-   "name": "SQL",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 17,
-   "beleg": "",
-   "datei": "sql.md"
   }
  ],
  "kernaussagen": [
@@ -458,6 +458,36 @@
  ],
  "dokumente": [
   {
+   "id": "yt:hkUHetX61jA",
+   "titel": "#006 · Power BI & Excel: Tabelle oder Tabellenblatt?",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=hkUHetX61jA",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=hkUHetX61jA&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:4hap_ZZskzo",
+   "titel": "#001 · Power BI Desktop oder Web? Meine klare Antwort!",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=4hap_ZZskzo",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=4hap_ZZskzo&t=1s",
+     "sekunde": 1
+    }
+   ]
+  },
+  {
    "id": "yt:LnNoXBIG7Lc",
    "titel": "Power BI Update Juni 2025",
    "datum": "2025-06-01",
@@ -669,6 +699,31 @@
      "label": "40:00",
      "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=2400s",
      "sekunde": 2400
+    }
+   ]
+  },
+  {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.174,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "19:13",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1153s",
+     "sekunde": 1153
+    },
+    {
+     "label": "20:52",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1252s",
+     "sekunde": 1252
     }
    ]
   },
@@ -1033,6 +1088,31 @@
    ]
   },
   {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.055,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "22:54",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1374s",
+     "sekunde": 1374
+    },
+    {
+     "label": "28:50",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1730s",
+     "sekunde": 1730
+    },
+    {
+     "label": "49:32",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=2972s",
+     "sekunde": 2972
+    }
+   ]
+  },
+  {
    "id": "yt:ZaDd1uxeLbI",
    "titel": "10 Jahre Power BI",
    "datum": "2025-07-01",
@@ -1154,31 +1234,6 @@
      "label": "1:08:50",
      "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=4130s",
      "sekunde": 4130
-    }
-   ]
-  },
-  {
-   "id": "yt:uxYFqwe_Wiw",
-   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.046,
-   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
     }
    ]
   },

@@ -2,10 +2,10 @@
 id: "tool:dax"
 name: "DAX"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 57
+dokumente: 59
 kernaussagen: 62
 mit_kernaussagen: 26
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/dax.html"
@@ -32,17 +32,17 @@ Data Analysis Expressions
 | [Field Parameters](field-parameters.md) | Field Parameters setzt-voraus DAX | automatisch extrahiert, Quellenstelle vorhanden | „In diesem Fall wird jetzt eine Parametertabelle angelegt... die ist per DAX erstellt“ (Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“, 2026-02) | 5 |
 | [Visual Calculations](visual-calculations.md) | DAX gegensatz Visual Calculations | automatisch extrahiert, Quellenstelle vorhanden | „Measure sind eigentlich ja besser zu kontrollieren als jetzt diese Visual Calculations“ (Daten-WG BI Thinkers Talk nr.66, 2025-08) | 8 |
 | [Azure Maps](azure-maps.md) | Azure Maps setzt-voraus DAX | automatisch extrahiert, Quellenstelle vorhanden | „Wenn ihr natürlich in euren Gebieten international arbeitet, habt ihr sowieso die Countryspalte mit drin. Dann braucht ihr die selbstverständlich nicht den DAX zu berechnen.“ (Power BI: (Vertriebs-) Regionen in Azure Maps, 2026-01) | 0 |
-| [TMDL](tmdl.md) | DAX teil-von TMDL | automatisch extrahiert, Quellenstelle vorhanden | „alles im was Power Query, Datenmodell, Beziehung, DAX Measures, alles das, was darin embettet ist“ (Unboxing MCP Server for Power BI Modelling, 2025-12) | 6 |
+| [TMDL](tmdl.md) | DAX teil-von TMDL | automatisch extrahiert, Quellenstelle vorhanden | „alles im was Power Query, Datenmodell, Beziehung, DAX Measures, alles das, was darin embettet ist“ (Unboxing MCP Server for Power BI Modelling, 2025-12) | 7 |
 | [Datenmodellierung](datenmodellierung.md) | DAX setzt-voraus Datenmodellierung | automatisch extrahiert, Quellenstelle vorhanden | „je komplexer das datenmodell aussieht desto komplexer ist dann auch die berechnung der dax kennzahlen“ (Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022, 2022-06) | 19 |
 | [Qlik](qlik.md) | DAX gegensatz Qlik | automatisch extrahiert, Quellenstelle vorhanden | „das war halt auch ganz cool, dass du mit diesem DAX viel mehr machen konntest aus meiner Sicht als in dieser Klicksprache mit Set Analysis“ (10 Jahre Power BI, 2025-07) | 0 |
-| [Power BI](power-bi.md) | DAX und Power BI im selben Segment | Heuristik, gezählt |  | 52 |
-| [Visualisierung](visualisierung.md) | DAX und Visualisierung im selben Segment | Heuristik, gezählt |  | 50 |
+| [Visualisierung](visualisierung.md) | DAX und Visualisierung im selben Segment | Heuristik, gezählt |  | 54 |
+| [Power BI](power-bi.md) | DAX und Power BI im selben Segment | Heuristik, gezählt |  | 54 |
 | [Performance](performance.md) | DAX und Performance im selben Segment | Heuristik, gezählt |  | 38 |
-| [Reporting](reporting.md) | DAX und Reporting im selben Segment | Heuristik, gezählt |  | 32 |
-| [Sternschema](sternschema.md) | DAX und Sternschema im selben Segment | Heuristik, gezählt |  | 24 |
+| [Reporting](reporting.md) | DAX und Reporting im selben Segment | Heuristik, gezählt |  | 34 |
+| [Sternschema](sternschema.md) | DAX und Sternschema im selben Segment | Heuristik, gezählt |  | 25 |
 | [DAX Studio](dax-studio.md) | DAX und DAX Studio im selben Segment | Heuristik, gezählt |  | 19 |
+| [KI](ki.md) | DAX und KI im selben Segment | Heuristik, gezählt |  | 17 |
 | [Microsoft Fabric](microsoft-fabric.md) | DAX und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 17 |
-| [KI](ki.md) | DAX und KI im selben Segment | Heuristik, gezählt |  | 16 |
 
 ## Kernaussagen
 
@@ -117,6 +117,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [#003 · Das größte DAX-No-Go? FORMAT() im Measure!](https://www.youtube.com/watch?v=YxS238qvD3s) | 2026-07-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=YxS238qvD3s&t=0s) |
 | [Expanded Tables in DAX verstehen – Beziehungen & Filter erklärt \| Power BI Tutorial](https://www.youtube.com/watch?v=LQQEn7IOb7w) | 2025-12-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=LQQEn7IOb7w&t=1s) · [04:04](https://www.youtube.com/watch?v=LQQEn7IOb7w&t=244s) · [05:40](https://www.youtube.com/watch?v=LQQEn7IOb7w&t=340s) |
 | [Power BI Update Februar 2026](https://www.youtube.com/watch?v=u-lgbDfIlLg) | 2026-02-01 | kernaussagen+zeitstempel | [01:21](https://www.youtube.com/watch?v=u-lgbDfIlLg&t=81s) · [02:18](https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s) |
 | [Power BI Update September 2025](https://www.youtube.com/watch?v=6gQiIbyhWEc) | 2025-09-01 | nur-zeitstempel | [01:47](https://www.youtube.com/watch?v=6gQiIbyhWEc&t=107s) · [02:45](https://www.youtube.com/watch?v=6gQiIbyhWEc&t=165s) · [07:23](https://www.youtube.com/watch?v=6gQiIbyhWEc&t=443s) |
@@ -125,11 +126,12 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Context%20Transition) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Klassifizierungen%20ableiten) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=05%20%C2%B7%20DAX%20%2A%C2%B7%20Formelsprache%2A) |
 | [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | kernaussagen+zeitstempel | [18:05](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1085s) · [21:06](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1266s) · [24:07](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1447s) |
 | [Visual Analytics with Power BI](https://www.youtube.com/watch?v=UxE0DPnLgIg) | 2021-09-01 | nur-zeitstempel | [09:44](https://www.youtube.com/watch?v=UxE0DPnLgIg&t=584s) · [21:54](https://www.youtube.com/watch?v=UxE0DPnLgIg&t=1314s) · [34:02](https://www.youtube.com/watch?v=UxE0DPnLgIg&t=2042s) |
-| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
 | [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
+| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
 | [Power BI Update Juni 2025](https://www.youtube.com/watch?v=LnNoXBIG7Lc) | 2025-06-01 | nur-zeitstempel | [02:30](https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=150s) |
 | [BI Thinkers Talk nr.71](https://www.youtube.com/watch?v=LUrL8A5lNgI) | 2025-12-01 | kernaussagen+zeitstempel | [19:17](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1157s) · [39:38](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2378s) · [41:40](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2500s) |
 | [Power BI Update März 2026](https://www.youtube.com/watch?v=ASwcPvbMRZc) | 2026-03-01 | kernaussagen+zeitstempel | [05:57](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=357s) · [06:21](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=381s) |
+| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-zeitstempel | [24:18](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1458s) · [25:49](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1549s) · [27:31](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1651s) |
 | [Data Binning and Lorenz Curve in DAX \| Alberto Ferrari & Michael Tenner, Berlin Power BI User Group](https://www.youtube.com/watch?v=183uLZ3GYDo) | 2023-01-01 | nur-zeitstempel | [11:33](https://www.youtube.com/watch?v=183uLZ3GYDo&t=693s) · [13:05](https://www.youtube.com/watch?v=183uLZ3GYDo&t=785s) · [1:11:45](https://www.youtube.com/watch?v=183uLZ3GYDo&t=4305s) |
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [18:22](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1102s) · [56:52](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3412s) · [1:05:00](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3900s) |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [20:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1205s) · [29:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1745s) |
@@ -137,13 +139,14 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | kernaussagen+zeitstempel | [33:31](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2011s) · [38:13](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2293s) · [51:06](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3066s) |
 | [Daten-WG Deep Dive Financial Reporting - part 6](https://www.youtube.com/watch?v=bt81POE-9Ig) | 2025-08-01 | kernaussagen+zeitstempel | [39:22](https://www.youtube.com/watch?v=bt81POE-9Ig&t=2362s) · [43:00](https://www.youtube.com/watch?v=bt81POE-9Ig&t=2580s) · [46:12](https://www.youtube.com/watch?v=bt81POE-9Ig&t=2772s) |
 | [BI Thinkers Talk - Data Modelling - Fabric Data Days Edition](https://www.youtube.com/watch?v=mUALlPmGcEk) | 2025-11-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=mUALlPmGcEk&t=0s) · [27:28](https://www.youtube.com/watch?v=mUALlPmGcEk&t=1648s) · [1:17:07](https://www.youtube.com/watch?v=mUALlPmGcEk&t=4627s) |
+| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=0s) · [1:08:51](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=4131s) · [1:16:41](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=4601s) |
 | [Power BI Update Juli 2025](https://www.youtube.com/watch?v=TkxwcAyBGUM) | 2025-07-01 | nur-zeitstempel | [03:39](https://www.youtube.com/watch?v=TkxwcAyBGUM&t=219s) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [20:00](https://www.youtube.com/watch?v=r416vanitYw&t=1200s) · [38:05](https://www.youtube.com/watch?v=r416vanitYw&t=2285s) · [44:27](https://www.youtube.com/watch?v=r416vanitYw&t=2667s) |
-| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) · [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) · [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
 | [Power BI Update Juni 2026](https://www.youtube.com/watch?v=5xB_oKdvAwQ) | 2026-06-01 | nur-zeitstempel | [04:28](https://www.youtube.com/watch?v=5xB_oKdvAwQ&t=268s) |
 | [Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“](https://www.youtube.com/watch?v=v8dvnqqa7f8) | 2026-02-01 | kernaussagen+zeitstempel | [01:11](https://www.youtube.com/watch?v=v8dvnqqa7f8&t=71s) |
 | [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [06:09](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=369s) · [08:05](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=485s) · [09:46](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=586s) |
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [30:19](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1819s) · [32:00](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1920s) · [33:36](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2016s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Was%20das%20Werkzeug%20rechnet) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben) |
 | [Die Schweiz faehrt Europa davon — Bahnnutzung 2024](https://datenwgknowledgekitchen.com/zugfahrten-infografik.html) | 2026-06-05 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/zugfahrten-infografik.html#:~:text=Br%C3%BCcke%20zu%20Power%20BI%3A%20%2Aals%20DAX-HTML-Visual%2A) |
 | [BI Thinkers Talk nr.76](https://www.youtube.com/watch?v=mlkP-6i5Kq8) | 2026-05-01 | kernaussagen+zeitstempel | [01:34](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=94s) · [25:29](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1529s) · [45:45](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=2745s) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [04:30](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=270s) · [06:04](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=364s) · [07:40](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=460s) |
@@ -154,11 +157,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Wie war die Daten-WG? · Im Gespräch mit Artur König](https://www.youtube.com/watch?v=z4ZeHPzIeeU) | 2025-03-01 | nur-zeitstempel | [25:27](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1527s) |
 | [Metadaten als Superkraft](https://www.youtube.com/watch?v=UUlPoJOhco8) | — | kernaussagen+zeitstempel | [11:57](https://www.youtube.com/watch?v=UUlPoJOhco8&t=717s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [05:13](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=313s) · [17:22](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1042s) |
-| [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [36:36](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=2196s) · [55:29](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=3329s) |
-| [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | kernaussagen+zeitstempel | [07:02](https://www.youtube.com/watch?v=e50qKdVn-24&t=422s) |
-| [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [30:45](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1845s) |
 
-40 von 57 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/dax.json).
+40 von 59 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/dax.json).
 
 ## Hinweise
 

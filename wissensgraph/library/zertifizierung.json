@@ -3,14 +3,14 @@
  "name": "Zertifizierung",
  "typ": "thema",
  "slug": "zertifizierung",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/zertifizierung.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/zertifizierung.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/zertifizierung.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/zertifizierung.json",
- "dokumente_gesamt": 4,
+ "dokumente_gesamt": 6,
  "kernaussagen_gesamt": 2,
  "mit_kernaussagen": 2,
  "aliase": [
@@ -27,9 +27,63 @@
    "name": "Sternschema",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
+   "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "sternschema.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "lizenzen.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:custom-visuals",
+   "name": "Custom Visuals",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "custom-visuals.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "visualisierung.md"
   }
  ],
  "kernaussagen": [
@@ -79,31 +133,6 @@
    ]
   },
   {
-   "id": "yt:uxYFqwe_Wiw",
-   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.077,
-   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "yt:6WhWLcuFvZE",
    "titel": "Prinzipien oder Paragrafen",
    "datum": "2026-02-01",
@@ -120,6 +149,71 @@
      "label": "33:46",
      "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2026s",
      "sekunde": 2026
+    }
+   ]
+  },
+  {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.073,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "01:34",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=94s",
+     "sekunde": 94
+    },
+    {
+     "label": "03:08",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=188s",
+     "sekunde": 188
+    },
+    {
+     "label": "1:23:19",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=4999s",
+     "sekunde": 4999
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.068,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Rahmenbedingungen%2C%20die%20das%20Ergebnis%20kippen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:_C69B0i-QQA",
+   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
+   "sprungmarken": [
+    {
+     "label": "08:12",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=492s",
+     "sekunde": 492
     }
    ]
   },

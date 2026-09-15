@@ -3,14 +3,14 @@
  "name": "Strategie",
  "typ": "thema",
  "slug": "strategie",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/strategie.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/strategie.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/strategie.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/strategie.json",
- "dokumente_gesamt": 19,
+ "dokumente_gesamt": 21,
  "kernaussagen_gesamt": 21,
  "mit_kernaussagen": 8,
  "aliase": [
@@ -25,7 +25,7 @@
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 20,
+   "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "ki.md"
   },
@@ -34,7 +34,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 19,
+   "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -43,7 +43,7 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 12,
+   "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -52,7 +52,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 11,
+   "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -61,7 +61,7 @@
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 11,
+   "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "performance.md"
   },
@@ -120,6 +120,15 @@
    "datei": "self-service-bi.md"
   },
   {
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "copilot.md"
+  },
+  {
    "id": "tool:power-bi-desktop",
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
@@ -138,22 +147,13 @@
    "datei": "planung.md"
   },
   {
-   "id": "topic:governance",
-   "name": "Governance",
+   "id": "tool:excel",
+   "name": "Excel",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 4,
    "beleg": "",
-   "datei": "governance.md"
-  },
-  {
-   "id": "topic:projektmanagement",
-   "name": "Projektmanagement",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
-   "beleg": "",
-   "datei": "projektmanagement.md"
+   "datei": "excel.md"
   }
  ],
  "kernaussagen": [
@@ -629,6 +629,26 @@
    ]
   },
   {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.059,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "03:25",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=205s",
+     "sekunde": 205
+    },
+    {
+     "label": "09:46",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=586s",
+     "sekunde": 586
+    }
+   ]
+  },
+  {
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
@@ -685,6 +705,21 @@
      "label": "11:07",
      "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=667s",
      "sekunde": 667
+    }
+   ]
+  },
+  {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.031,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "46:01",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=2761s",
+     "sekunde": 2761
     }
    ]
   },

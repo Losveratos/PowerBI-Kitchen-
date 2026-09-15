@@ -2,10 +2,10 @@
 id: "tool:custom-visuals"
 name: "Custom Visuals"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 19
+dokumente: 21
 kernaussagen: 25
 mit_kernaussagen: 11
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/custom-visuals.html"
@@ -31,21 +31,21 @@ Custom Visual, benutzerdefinierte Visuals, pbiviz, AppSource
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Deneb](deneb.md) | Custom Visuals gegensatz Deneb | automatisch extrahiert, Quellenstelle vorhanden | „In Denb stößt er dann irgendwann an Grenzen ... In dem Power BI, also in den tatsächlichen Custom Visuals, ist er ziemlich frei.“ (BI Thinkers Talk nr.76, 2026-05) | 5 |
-| [Zebra BI](zebra-bi.md) | Custom Visuals ersetzt Zebra BI | automatisch extrahiert, Quellenstelle vorhanden | „wie lange wird's jetzt dauern einfach Zebra BI nachzucoden“ (BI Thinkers Talk nr.76, 2026-05) | 5 |
-| [Deneb](deneb.md) | Deneb teil-von Custom Visuals | automatisch extrahiert, Quellenstelle vorhanden | „dieses Custom Visual, mit dem ich über Vega Light bzw. Vega Aufgaben lösen kann“ (Was ist Self-Service und warum ist das so schwer?) | 5 |
-| [IBCS](ibcs.md) | IBCS setzt-voraus Custom Visuals | automatisch extrahiert, Quellenstelle vorhanden | „wer mal versucht hat irgendwas nachzubauen, was Richtung IBCS geht und kein Custom nutzt, der ist ein absoluter Masochist“ (10 Jahre Power BI, 2025-07) | 14 |
-| [Visualisierung](visualisierung.md) | Custom Visuals und Visualisierung im selben Segment | Heuristik, gezählt |  | 63 |
-| [Power BI](power-bi.md) | Custom Visuals und Power BI im selben Segment | Heuristik, gezählt |  | 29 |
-| [Reporting](reporting.md) | Custom Visuals und Reporting im selben Segment | Heuristik, gezählt |  | 14 |
-| [KI](ki.md) | Custom Visuals und KI im selben Segment | Heuristik, gezählt |  | 10 |
-| [Power BI Desktop](power-bi-desktop.md) | Custom Visuals und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 8 |
-| [DAX](dax.md) | Custom Visuals und DAX im selben Segment | Heuristik, gezählt |  | 7 |
+| [Deneb](deneb.md) | Custom Visuals gegensatz Deneb | automatisch extrahiert, Quellenstelle vorhanden | „In Denb stößt er dann irgendwann an Grenzen ... In dem Power BI, also in den tatsächlichen Custom Visuals, ist er ziemlich frei.“ (BI Thinkers Talk nr.76, 2026-05) | 11 |
+| [Zebra BI](zebra-bi.md) | Custom Visuals ersetzt Zebra BI | automatisch extrahiert, Quellenstelle vorhanden | „wie lange wird's jetzt dauern einfach Zebra BI nachzucoden“ (BI Thinkers Talk nr.76, 2026-05) | 7 |
+| [Deneb](deneb.md) | Deneb teil-von Custom Visuals | automatisch extrahiert, Quellenstelle vorhanden | „dieses Custom Visual, mit dem ich über Vega Light bzw. Vega Aufgaben lösen kann“ (Was ist Self-Service und warum ist das so schwer?) | 11 |
+| [IBCS](ibcs.md) | IBCS setzt-voraus Custom Visuals | automatisch extrahiert, Quellenstelle vorhanden | „wer mal versucht hat irgendwas nachzubauen, was Richtung IBCS geht und kein Custom nutzt, der ist ein absoluter Masochist“ (10 Jahre Power BI, 2025-07) | 18 |
+| [Visualisierung](visualisierung.md) | Custom Visuals und Visualisierung im selben Segment | Heuristik, gezählt |  | 73 |
+| [Power BI](power-bi.md) | Custom Visuals und Power BI im selben Segment | Heuristik, gezählt |  | 34 |
+| [Reporting](reporting.md) | Custom Visuals und Reporting im selben Segment | Heuristik, gezählt |  | 23 |
+| [KI](ki.md) | Custom Visuals und KI im selben Segment | Heuristik, gezählt |  | 12 |
+| [Power BI Desktop](power-bi-desktop.md) | Custom Visuals und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 9 |
+| [DAX](dax.md) | Custom Visuals und DAX im selben Segment | Heuristik, gezählt |  | 9 |
+| [Microsoft Fabric](microsoft-fabric.md) | Custom Visuals und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 5 |
 | [Planung](planung.md) | Custom Visuals und Planung im selben Segment | Heuristik, gezählt |  | 5 |
 | [Performance](performance.md) | Custom Visuals und Performance im selben Segment | Heuristik, gezählt |  | 5 |
-| [Microsoft Fabric](microsoft-fabric.md) | Custom Visuals und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 4 |
-| [Python](python.md) | Custom Visuals und Python im selben Segment | Heuristik, gezählt |  | 4 |
-| [Datenmodellierung](datenmodellierung.md) | Custom Visuals und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 4 |
+| [Datenmodellierung](datenmodellierung.md) | Custom Visuals und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 5 |
+| [Lizenzen](lizenzen.md) | Custom Visuals und Lizenzen im selben Segment | Heuristik, gezählt |  | 5 |
 
 ## Kernaussagen
 
@@ -83,10 +83,12 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
-| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=Download%20the%20visual) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps) |
+| [#007 · Mehr als Balkendiagramme! Power BI kann das auch](https://www.youtube.com/watch?v=KOT5KXIff8E) | 2026-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=KOT5KXIff8E&t=0s) |
 | [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=Visual%20herunterladen) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=01%20%C2%B7%20In%20drei%20Schritten%20loslegen) |
+| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=Download%20the%20visual) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps) |
 | [BI Thinkers Talk nr.76](https://www.youtube.com/watch?v=mlkP-6i5Kq8) | 2026-05-01 | kernaussagen+zeitstempel | [28:30](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1710s) · [37:49](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=2269s) · [50:37](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3037s) |
 | [175 Jahre Klimageschichte zum Anfassen — Waermestreifen 3D](https://datenwgknowledgekitchen.com/waermestreifen-3d.html) | 2026-08-04 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/waermestreifen-3d.html) · [Abschnitt](https://datenwgknowledgekitchen.com/waermestreifen-3d.html) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [10:52](https://www.youtube.com/watch?v=luk4S4ukKmg&t=652s) · [12:30](https://www.youtube.com/watch?v=luk4S4ukKmg&t=750s) · [20:44](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1244s) |
 | [Power BI Update Juni 2026](https://www.youtube.com/watch?v=5xB_oKdvAwQ) | 2026-06-01 | nur-zeitstempel | [01:44](https://www.youtube.com/watch?v=5xB_oKdvAwQ&t=104s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [05:13](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=313s) · [12:51](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=771s) · [14:10](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=850s) |

@@ -2,10 +2,10 @@
 id: "tool:premium"
 name: "Premium"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 20
+dokumente: 23
 kernaussagen: 5
 mit_kernaussagen: 5
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/premium.html"
@@ -31,19 +31,19 @@ Power BI Premium, P1, PPU, Premium per User
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Microsoft Fabric](microsoft-fabric.md) | Premium und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 31 |
-| [Fabric Capacity](fabric-capacity.md) | Premium und Fabric Capacity im selben Segment | Heuristik, gezählt |  | 29 |
-| [Power BI](power-bi.md) | Premium und Power BI im selben Segment | Heuristik, gezählt |  | 29 |
-| [Lizenzen](lizenzen.md) | Premium und Lizenzen im selben Segment | Heuristik, gezählt |  | 19 |
+| [Microsoft Fabric](microsoft-fabric.md) | Premium und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 33 |
+| [Power BI](power-bi.md) | Premium und Power BI im selben Segment | Heuristik, gezählt |  | 33 |
+| [Fabric Capacity](fabric-capacity.md) | Premium und Fabric Capacity im selben Segment | Heuristik, gezählt |  | 32 |
+| [Lizenzen](lizenzen.md) | Premium und Lizenzen im selben Segment | Heuristik, gezählt |  | 22 |
 | [Workspace](workspace.md) | Premium und Workspace im selben Segment | Heuristik, gezählt |  | 16 |
 | [Reporting](reporting.md) | Premium und Reporting im selben Segment | Heuristik, gezählt |  | 14 |
+| [Power BI Desktop](power-bi-desktop.md) | Premium und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 13 |
 | [Refresh](refresh.md) | Premium und Refresh im selben Segment | Heuristik, gezählt |  | 13 |
-| [Power BI Desktop](power-bi-desktop.md) | Premium und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 12 |
 | [Data Pipeline](data-pipeline.md) | Premium und Data Pipeline im selben Segment | Heuristik, gezählt |  | 12 |
 | [SQL](sql.md) | Premium und SQL im selben Segment | Heuristik, gezählt |  | 11 |
 | [Performance](performance.md) | Premium und Performance im selben Segment | Heuristik, gezählt |  | 9 |
+| [Visualisierung](visualisierung.md) | Premium und Visualisierung im selben Segment | Heuristik, gezählt |  | 8 |
 | [Warehouse](warehouse.md) | Premium und Warehouse im selben Segment | Heuristik, gezählt |  | 7 |
-| [Visualisierung](visualisierung.md) | Premium und Visualisierung im selben Segment | Heuristik, gezählt |  | 7 |
 | [Lakehouse](lakehouse.md) | Premium und Lakehouse im selben Segment | Heuristik, gezählt |  | 7 |
 | [Direct Lake](direct-lake.md) | Premium und Direct Lake im selben Segment | Heuristik, gezählt |  | 7 |
 
@@ -63,6 +63,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-zeitstempel | [12:22](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=742s) · [20:52](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1252s) · [22:31](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1351s) |
 | [Wie viel CO₂ steckt in einem Token? — KI-Energie-Simulator](https://datenwgknowledgekitchen.com/ki-co2-simulator.html) | 2026-07-03 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/ki-co2-simulator.html#:~:text=Anhang%3A%20Quellen%20%26%20Annahmen) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [14:21](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=861s) · [15:38](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=938s) · [33:31](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2011s) |
 | [10 Jahre BI für alle? Was Power BI wirklich verändert hat](https://www.youtube.com/watch?v=9wl_PLvgvyc) | 2025-08-01 | nur-zeitstempel | [12:47](https://www.youtube.com/watch?v=9wl_PLvgvyc&t=767s) · [17:08](https://www.youtube.com/watch?v=9wl_PLvgvyc&t=1028s) |
@@ -70,6 +71,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [31:45](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s) · [35:27](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2127s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Die%20vier%20Lizenz-Stufen) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Die%20wichtigsten%20Regeln) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Soll%20man%20von%20Power%20BI%20Premium%20auf%20Fabric%20umstellen%3F) |
 | [Power BI Update Mai 2025](https://www.youtube.com/watch?v=zkfdfc5fo-E) | 2025-05-01 | nur-zeitstempel | [14:21](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=861s) |
+| [Was machen die eigentlich? \| Daten-WG Podcast mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=_C69B0i-QQA) | 2026-08-01 | nur-zeitstempel | [16:15](https://www.youtube.com/watch?v=_C69B0i-QQA&t=975s) |
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [04:43](https://www.youtube.com/watch?v=lZvpCBMKASM&t=283s) · [07:46](https://www.youtube.com/watch?v=lZvpCBMKASM&t=466s) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [57:16](https://www.youtube.com/watch?v=r416vanitYw&t=3436s) · [58:52](https://www.youtube.com/watch?v=r416vanitYw&t=3532s) |
 | [Power BI-Teams werden Fabric-Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc) | — | nur-zeitstempel | [16:59](https://www.youtube.com/watch?v=YzfcMurbWNc&t=1019s) |
@@ -80,6 +82,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Special: Power BI vs. Qlik](https://www.youtube.com/watch?v=aYHk_V8n_CE) | 2025-10-01 | kernaussagen+zeitstempel | [09:43](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=583s) |
 | [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | kernaussagen+zeitstempel | [25:29](https://www.youtube.com/watch?v=4VVNDNusq4U&t=1529s) |
 | [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | kernaussagen+zeitstempel | [1:03:42](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3822s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.11%3A%20Zeitdynamik%2C%20Cash-out%20und%20neue%20Anforderungen%20%28Annahmen-Audit%20Runde%202%29) |
 | [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | kernaussagen+zeitstempel | [34:31](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2071s) |
 | [Daten-WG Deep Dive: AI on top of BI](https://www.youtube.com/watch?v=HXAP16trRc8) | 2025-07-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) |
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [25:02](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1502s) |

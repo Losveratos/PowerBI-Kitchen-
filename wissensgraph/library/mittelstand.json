@@ -3,14 +3,14 @@
  "name": "Mittelstand",
  "typ": "thema",
  "slug": "mittelstand",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/mittelstand.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/mittelstand.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/mittelstand.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/mittelstand.json",
- "dokumente_gesamt": 17,
+ "dokumente_gesamt": 18,
  "kernaussagen_gesamt": 9,
  "mit_kernaussagen": 7,
  "aliase": [
@@ -21,6 +21,15 @@
  "einordnung": "Ein mittelständisches Dienstleistungsunternehmen beauftragte Peter Gluchowski 1988 mit einem System zur Erfassung von Warenströmen zwischen Automobilherstellern und Gießereien und zur Erstellung von Auswertungen. (Stand 2026-05) Mittelstandsunternehmen wird empfohlen, mit KI schnell und günstig das nachzuholen, was Konzerne vor zwei Jahren gemacht haben, statt sechsstellige Individualsoftware-Projekte zu beauftragen. (Stand 2026-08) Für kleinere und mittelständische Unternehmen wird empfohlen, eine Fabric-F2-Kapazität zu kaufen, da sie besser sei als eine reine Excel- oder SharePoint-Lösung. (Stand 2025-07)",
  "nachbarn": [
   {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "lizenzen.md"
+  },
+  {
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
@@ -28,6 +37,24 @@
    "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "ki.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:deneb",
+   "name": "Deneb",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "deneb.md"
   },
   {
    "id": "tool:power-bi",
@@ -39,13 +66,40 @@
    "datei": "power-bi.md"
   },
   {
-   "id": "tool:microsoft-fabric",
-   "name": "Microsoft Fabric",
+   "id": "topic:reporting",
+   "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 7,
    "beleg": "",
-   "datei": "microsoft-fabric.md"
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "topic:governance",
+   "name": "Governance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "governance.md"
   },
   {
    "id": "tool:warehouse",
@@ -55,6 +109,15 @@
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "warehouse.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sicherheit.md"
   },
   {
    "id": "topic:datenmodellierung",
@@ -75,6 +138,15 @@
    "datei": "performance.md"
   },
   {
+   "id": "tool:excel",
+   "name": "Excel",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "excel.md"
+  },
+  {
    "id": "tool:sap",
    "name": "SAP",
    "kantentyp": "ko-vorkommen",
@@ -82,24 +154,6 @@
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "sap.md"
-  },
-  {
-   "id": "topic:datenqualitat",
-   "name": "Datenqualität",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "datenqualitat.md"
-  },
-  {
-   "id": "topic:strategie",
-   "name": "Strategie",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 3,
-   "beleg": "",
-   "datei": "strategie.md"
   }
  ],
  "kernaussagen": [
@@ -203,6 +257,31 @@
      "label": "08:12",
      "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s",
      "sekunde": 492
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.295,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Modellunsicherheit%20je%20Ansatz%20%28v0.12%29",
+     "sekunde": null
     }
    ]
   },

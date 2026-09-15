@@ -3,14 +3,14 @@
  "name": "Echtzeit",
  "typ": "thema",
  "slug": "echtzeit",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/echtzeit.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/echtzeit.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/echtzeit.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/echtzeit.json",
- "dokumente_gesamt": 33,
+ "dokumente_gesamt": 34,
  "kernaussagen_gesamt": 11,
  "mit_kernaussagen": 6,
  "aliase": [
@@ -26,7 +26,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 52,
+   "gemeinsame_segmente": 53,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -53,7 +53,7 @@
    "name": "Eventhouse",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 22,
+   "gemeinsame_segmente": 23,
    "beleg": "",
    "datei": "eventhouse.md"
   },
@@ -62,7 +62,7 @@
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 17,
+   "gemeinsame_segmente": 18,
    "beleg": "",
    "datei": "ki.md"
   },
@@ -116,7 +116,7 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 10,
+   "gemeinsame_segmente": 11,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -606,6 +606,26 @@
      "label": "06:20",
      "url": "https://www.youtube.com/watch?v=0FPA1k5YiTs&t=380s",
      "sekunde": 380
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.059,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "42:42",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2562s",
+     "sekunde": 2562
+    },
+    {
+     "label": "44:22",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2662s",
+     "sekunde": 2662
     }
    ]
   },

@@ -2,10 +2,10 @@
 id: "tool:fabric-capacity"
 name: "Fabric Capacity"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 26
+dokumente: 27
 kernaussagen: 53
 mit_kernaussagen: 18
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/fabric-capacity.html"
@@ -37,16 +37,16 @@ Capacity, Kapazität, F-SKU, F2, F64, Capacities, Kapazitäten
 | [Copilot](copilot.md) | Copilot setzt-voraus Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „die Copilot Unterstützung nur ab F64 plus QIZE an der Stelle zur Verfügung gestellt war“ (Fabric & Power BI Quarterly \| 2025 Q2, 2025-04) | 12 |
 | [Direct Lake](direct-lake.md) | Direct Lake setzt-voraus Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „Also wir nutzen kein Direct Direct Query oder Direct Lake, also Direct Query ganz böse“ (Daten-WG Life-Update \| Fabric Architekturen, 2026-08) | 20 |
 | [Planung](planung.md) | Planung setzt-voraus Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „es aber braucht einfach Kapazität, aber es gibt für mich, es gibt keine extra Lizenzen“ (Fabric Planning unboxing, 2026-03) | 8 |
-| [Microsoft Fabric](microsoft-fabric.md) | Fabric Capacity teil-von Microsoft Fabric | automatisch extrahiert, Quellenstelle vorhanden | „wenn wir uns Fabric anschauen, haben wir zwei wesentliche Komponenten. Zum einen gibt es die Kapazität, das ist das, was wir in Asure buchen und wo die Rechenleistung stattfindet.“ (Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?, 2026-03) | 66 |
+| [Microsoft Fabric](microsoft-fabric.md) | Fabric Capacity teil-von Microsoft Fabric | automatisch extrahiert, Quellenstelle vorhanden | „wenn wir uns Fabric anschauen, haben wir zwei wesentliche Komponenten. Zum einen gibt es die Kapazität, das ist das, was wir in Asure buchen und wo die Rechenleistung stattfindet.“ (Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?, 2026-03) | 70 |
 | [Workspace](workspace.md) | Workspace setzt-voraus Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „ich habe einen Arbeitsbereich, den ordne ich einer Kapazität zu und innerhalb des Arbeitsbereichs werden dann meine Artefakte und die Daten dazu entsprechend auf den Onelake abgelegt.“ (Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?, 2026-03) | 28 |
 | [Mirroring](mirroring.md) | Mirroring teil-von Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „die Speicherkosten ... sind ja die Speicherkosten je nach äh Kapazität im Terabyte Bereich äh mit drin (Segment 8)“ (BI Thinkers Talk nr.71, 2025-12) | 10 |
 | [Copilot](copilot.md) | Copilot teil-von Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „Z.B. Copilot ist Backend.“ (BI Thinkers Talk nr.64, 2025-07) | 12 |
 | [Translytical Task Flows](translytical-task-flows.md) | Translytical Task Flows setzt-voraus Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „seit wir da am Bauen sind, quasi seit 4:20 Uhr, dass das so hochgeschossen ist, das ist jetzt kein Zufall“ (BI Thinkers Talk Nr.62, 2025-05) | 0 |
 | [Mirroring](mirroring.md) | Mirroring setzt-voraus Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „hast du je nachdem, was für eine Kapazität du bei Fabric gekauft hast, kostenlosen Mirror Speicher dabei“ (Daten-WG Thinkers Talk nr.65, 2025-07) | 10 |
-| [Power BI](power-bi.md) | Fabric Capacity und Power BI im selben Segment | Heuristik, gezählt |  | 52 |
-| [Premium](premium.md) | Fabric Capacity und Premium im selben Segment | Heuristik, gezählt |  | 29 |
-| [Lizenzen](lizenzen.md) | Fabric Capacity und Lizenzen im selben Segment | Heuristik, gezählt |  | 28 |
-| [Reporting](reporting.md) | Fabric Capacity und Reporting im selben Segment | Heuristik, gezählt |  | 22 |
+| [Power BI](power-bi.md) | Fabric Capacity und Power BI im selben Segment | Heuristik, gezählt |  | 57 |
+| [Lizenzen](lizenzen.md) | Fabric Capacity und Lizenzen im selben Segment | Heuristik, gezählt |  | 36 |
+| [Premium](premium.md) | Fabric Capacity und Premium im selben Segment | Heuristik, gezählt |  | 32 |
+| [Reporting](reporting.md) | Fabric Capacity und Reporting im selben Segment | Heuristik, gezählt |  | 24 |
 | [SQL](sql.md) | Fabric Capacity und SQL im selben Segment | Heuristik, gezählt |  | 21 |
 | [Performance](performance.md) | Fabric Capacity und Performance im selben Segment | Heuristik, gezählt |  | 21 |
 
@@ -118,9 +118,11 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Power BI-Teams werden Fabric-Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc) | — | nur-zeitstempel | [12:04](https://www.youtube.com/watch?v=YzfcMurbWNc&t=724s) · [13:41](https://www.youtube.com/watch?v=YzfcMurbWNc&t=821s) · [15:23](https://www.youtube.com/watch?v=YzfcMurbWNc&t=923s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20das%20konkret%20hei%C3%9Ft) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Workload-Landkarte%20%28Stand%202026%29) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20wichtigsten%20Regeln) |
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [04:16](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=256s) · [07:50](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=470s) · [39:00](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2340s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [44:26](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2666s) · [45:20](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2720s) · [46:54](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2814s) |
 | [Daten-WG Deep Dive Financial Reporting - part 5](https://www.youtube.com/watch?v=iymmxuXHh44) | 2025-07-01 | nur-zeitstempel | [22:25](https://www.youtube.com/watch?v=iymmxuXHh44&t=1345s) · [24:14](https://www.youtube.com/watch?v=iymmxuXHh44&t=1454s) · [32:28](https://www.youtube.com/watch?v=iymmxuXHh44&t=1948s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [17:22](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1042s) · [33:31](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2011s) · [43:34](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2614s) |
+| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-zeitstempel | [12:22](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=742s) · [20:52](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1252s) · [22:31](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1351s) |
 | [Why Passion Beats Niche](https://www.youtube.com/watch?v=ihi7UiJ_TtQ) | 2025-09-01 | kernaussagen+zeitstempel | [19:47](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1187s) · [21:22](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1282s) · [22:52](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1372s) |
 | [Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL \| Fabric Tutorial](https://www.youtube.com/watch?v=7j34Ndng0Os) | 2026-01-01 | kernaussagen+zeitstempel | [02:40](https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s) |
 | [BI Thinkers Talk Nr.62](https://www.youtube.com/watch?v=Wwvhv8WA2Qc) | 2025-05-01 | kernaussagen+zeitstempel | [11:27](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=687s) · [1:09:02](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=4142s) · [1:12:10](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=4330s) |
@@ -139,7 +141,6 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | kernaussagen+zeitstempel | [49:02](https://www.youtube.com/watch?v=TYmKrreMO3I&t=2942s) |
 | [BI Thinkers Talk nr.68](https://www.youtube.com/watch?v=VD1N68Fhoco) | 2025-10-01 | nur-zeitstempel | [57:54](https://www.youtube.com/watch?v=VD1N68Fhoco&t=3474s) |
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [55:58](https://www.youtube.com/watch?v=G8s96sHUHac&t=3358s) |
-| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-metadaten | — |
 
 ## Hinweise
 

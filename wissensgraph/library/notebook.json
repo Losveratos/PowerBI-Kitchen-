@@ -3,14 +3,14 @@
  "name": "Notebook",
  "typ": "tool",
  "slug": "notebook",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/notebook.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/notebook.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/notebook.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/notebook.json",
- "dokumente_gesamt": 43,
+ "dokumente_gesamt": 45,
  "kernaussagen_gesamt": 36,
  "mit_kernaussagen": 15,
  "aliase": [
@@ -51,7 +51,7 @@
    "name": "Dataflow",
    "kantentyp": "empfiehlt",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 54,
+   "gemeinsame_segmente": 56,
    "beleg": "benutze ich Dataflows, um die Daten in meinem meinem Bronze zu stagen und von da aus dann die Weiterverarbeitung mit dem Notebook zu machen",
    "datei": "dataflow.md"
   },
@@ -78,7 +78,7 @@
    "name": "Dataflow",
    "kantentyp": "gegensatz",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 54,
+   "gemeinsame_segmente": 56,
    "beleg": "einfach auch wartbar im Gegensatz zu Notebooks",
    "datei": "dataflow.md"
   },
@@ -96,7 +96,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "teil-von",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 70,
+   "gemeinsame_segmente": 72,
    "beleg": "weil ich Notebook in Fabric schreiben will",
    "datei": "microsoft-fabric.md"
   },
@@ -114,7 +114,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 42,
+   "gemeinsame_segmente": 43,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -698,6 +698,31 @@
    ]
   },
   {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.174,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "17:40",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1060s",
+     "sekunde": 1060
+    },
+    {
+     "label": "19:13",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1153s",
+     "sekunde": 1153
+    },
+    {
+     "label": "20:52",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1252s",
+     "sekunde": 1252
+    }
+   ]
+  },
+  {
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
@@ -1239,6 +1264,21 @@
      "label": "00:44",
      "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=44s",
      "sekunde": 44
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "51:13",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=3073s",
+     "sekunde": 3073
     }
    ]
   },

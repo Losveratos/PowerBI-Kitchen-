@@ -2,8 +2,8 @@
 id: "tool:dax-studio"
 name: "DAX Studio"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 5
 kernaussagen: 2

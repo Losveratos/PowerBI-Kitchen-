@@ -3,14 +3,14 @@
  "name": "Fabric Capacity",
  "typ": "tool",
  "slug": "fabric-capacity",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/fabric-capacity.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/fabric-capacity.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/fabric-capacity.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/fabric-capacity.json",
- "dokumente_gesamt": 26,
+ "dokumente_gesamt": 27,
  "kernaussagen_gesamt": 53,
  "mit_kernaussagen": 18,
  "aliase": [
@@ -56,7 +56,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "teil-von",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 66,
+   "gemeinsame_segmente": 70,
    "beleg": "wenn wir uns Fabric anschauen, haben wir zwei wesentliche Komponenten. Zum einen gibt es die Kapazität, das ist das, was wir in Asure buchen und wo die Rechenleistung stattfindet.",
    "datei": "microsoft-fabric.md"
   },
@@ -110,34 +110,34 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 52,
+   "gemeinsame_segmente": 57,
    "beleg": "",
    "datei": "power-bi.md"
-  },
-  {
-   "id": "tool:premium",
-   "name": "Premium",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 29,
-   "beleg": "",
-   "datei": "premium.md"
   },
   {
    "id": "topic:lizenzen",
    "name": "Lizenzen",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 28,
+   "gemeinsame_segmente": 36,
    "beleg": "",
    "datei": "lizenzen.md"
+  },
+  {
+   "id": "tool:premium",
+   "name": "Premium",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 32,
+   "beleg": "",
+   "datei": "premium.md"
   },
   {
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 22,
+   "gemeinsame_segmente": 24,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -741,6 +741,31 @@
    ]
   },
   {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.182,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
+    }
+   ]
+  },
+  {
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
@@ -812,6 +837,31 @@
      "label": "43:34",
      "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2614s",
      "sekunde": 2614
+    }
+   ]
+  },
+  {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.13,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "12:22",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=742s",
+     "sekunde": 742
+    },
+    {
+     "label": "20:52",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1252s",
+     "sekunde": 1252
+    },
+    {
+     "label": "22:31",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1351s",
+     "sekunde": 1351
     }
    ]
   },
@@ -1154,15 +1204,6 @@
      "sekunde": 3358
     }
    ]
-  },
-  {
-   "id": "yt:c90oD4zR1Aw",
-   "titel": "More than PBIX",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
-   "sprungmarken": []
   }
  ],
  "hinweise": [

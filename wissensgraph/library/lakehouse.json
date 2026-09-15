@@ -3,14 +3,14 @@
  "name": "Lakehouse",
  "typ": "tool",
  "slug": "lakehouse",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/lakehouse.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/lakehouse.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/lakehouse.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/lakehouse.json",
- "dokumente_gesamt": 39,
+ "dokumente_gesamt": 42,
  "kernaussagen_gesamt": 45,
  "mit_kernaussagen": 19,
  "aliase": [
@@ -32,7 +32,7 @@
    "name": "Warehouse",
    "kantentyp": "ersetzt",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 71,
+   "gemeinsame_segmente": 72,
    "beleg": "wir müssen jetzt zu WHäusern... das neue Warehouse war halt leer, ist in wenigen Klicks angelegt",
    "datei": "warehouse.md"
   },
@@ -41,7 +41,7 @@
    "name": "Warehouse",
    "kantentyp": "gegensatz",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 71,
+   "gemeinsame_segmente": 72,
    "beleg": "Beim Warehouse hat man nur append und kann das auch nicht zurück umstellen. Beim Lake House habe ich nur replaced",
    "datei": "warehouse.md"
   },
@@ -50,7 +50,7 @@
    "name": "Warehouse",
    "kantentyp": "setzt-voraus",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 71,
+   "gemeinsame_segmente": 72,
    "beleg": "mussten wir effektiv die Lake Houses replizieren, Shortcuts in diesen Lake Houses reinsetzen und dann vom Warehouse über fully qualified Links dieser Lakees anziehen",
    "datei": "warehouse.md"
   },
@@ -77,7 +77,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 91,
+   "gemeinsame_segmente": 93,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -86,7 +86,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 59,
+   "gemeinsame_segmente": 60,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -733,6 +733,21 @@
    ]
   },
   {
+   "id": "yt:_AxvdCW0ST4",
+   "titel": "Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4",
+   "sprungmarken": [
+    {
+     "label": "00:45",
+     "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4&t=45s",
+     "sekunde": 45
+    }
+   ]
+  },
+  {
    "id": "yt:5HhNQZlB-1E",
    "titel": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
    "datum": "2025-12-01",
@@ -844,6 +859,21 @@
      "label": "16:12",
      "url": "https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=972s",
      "sekunde": 972
+    }
+   ]
+  },
+  {
+   "id": "yt:lp8xNX81R2w",
+   "titel": "Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=lp8xNX81R2w",
+   "sprungmarken": [
+    {
+     "label": "04:11",
+     "url": "https://www.youtube.com/watch?v=lp8xNX81R2w&t=251s",
+     "sekunde": 251
     }
    ]
   },
@@ -1048,6 +1078,26 @@
    ]
   },
   {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "07:05",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=425s",
+     "sekunde": 425
+    },
+    {
+     "label": "22:53",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1373s",
+     "sekunde": 1373
+    }
+   ]
+  },
+  {
    "id": "yt:e50qKdVn-24",
    "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
    "datum": "2026-08-01",
@@ -1223,6 +1273,21 @@
    ]
   },
   {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "16:06",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=966s",
+     "sekunde": 966
+    }
+   ]
+  },
+  {
    "id": "yt:BDnwlOqRElY",
    "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
    "datum": "2025-06-01",
@@ -1351,15 +1416,6 @@
      "sekunde": 778
     }
    ]
-  },
-  {
-   "id": "yt:lp8xNX81R2w",
-   "titel": "Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)",
-   "datum": "2026-07-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=lp8xNX81R2w",
-   "sprungmarken": []
   }
  ],
  "hinweise": [

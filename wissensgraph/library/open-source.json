@@ -3,14 +3,14 @@
  "name": "Open Source",
  "typ": "thema",
  "slug": "open-source",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/open-source.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/open-source.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/open-source.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/open-source.json",
- "dokumente_gesamt": 9,
+ "dokumente_gesamt": 10,
  "kernaussagen_gesamt": 1,
  "mit_kernaussagen": 1,
  "aliase": [
@@ -24,9 +24,54 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 10,
+   "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "lizenzen.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "dax.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "reporting.md"
   },
   {
    "id": "tool:microsoft-fabric",
@@ -38,22 +83,22 @@
    "datei": "microsoft-fabric.md"
   },
   {
-   "id": "tool:dax",
-   "name": "DAX",
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
-   "datei": "dax.md"
+   "datei": "power-bi-desktop.md"
   },
   {
-   "id": "topic:ki",
-   "name": "KI",
+   "id": "tool:deneb",
+   "name": "Deneb",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
+   "gemeinsame_segmente": 5,
    "beleg": "",
-   "datei": "ki.md"
+   "datei": "deneb.md"
   },
   {
    "id": "topic:performance",
@@ -65,15 +110,6 @@
    "datei": "performance.md"
   },
   {
-   "id": "tool:power-bi-desktop",
-   "name": "Power BI Desktop",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
-   "beleg": "",
-   "datei": "power-bi-desktop.md"
-  },
-  {
    "id": "tool:tabular-editor",
    "name": "Tabular Editor",
    "kantentyp": "ko-vorkommen",
@@ -81,6 +117,24 @@
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "tabular-editor.md"
+  },
+  {
+   "id": "topic:ibcs",
+   "name": "IBCS",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "ibcs.md"
+  },
+  {
+   "id": "topic:governance",
+   "name": "Governance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "governance.md"
   },
   {
    "id": "topic:community",
@@ -92,13 +146,13 @@
    "datei": "community.md"
   },
   {
-   "id": "topic:visualisierung",
-   "name": "Visualisierung",
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 3,
    "beleg": "",
-   "datei": "visualisierung.md"
+   "datei": "sicherheit.md"
   }
  ],
  "kernaussagen": [
@@ -113,6 +167,31 @@
   }
  ],
  "dokumente": [
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.25,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Modellunsicherheit%20je%20Ansatz%20%28v0.12%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
+    }
+   ]
+  },
   {
    "id": "page:powerbi-design-skill",
    "titel": "Report-Design als Framework — ein Skill für Power BI",

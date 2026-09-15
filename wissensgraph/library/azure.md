@@ -2,10 +2,10 @@
 id: "tool:azure"
 name: "Azure"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 19
+dokumente: 20
 kernaussagen: 21
 mit_kernaussagen: 9
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure.html"
@@ -29,10 +29,10 @@ Microsoft Azure
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [SSIS](ssis.md) | SSIS setzt-voraus Azure | automatisch extrahiert, Quellenstelle vorhanden | „wir benötigen das Aure Feature Pack für Integration Services“ (Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial, 2025-12) | 5 |
-| [Microsoft Fabric](microsoft-fabric.md) | Azure und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 33 |
+| [Microsoft Fabric](microsoft-fabric.md) | Azure und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 34 |
 | [SQL](sql.md) | Azure und SQL im selben Segment | Heuristik, gezählt |  | 24 |
 | [Power BI](power-bi.md) | Azure und Power BI im selben Segment | Heuristik, gezählt |  | 19 |
-| [Warehouse](warehouse.md) | Azure und Warehouse im selben Segment | Heuristik, gezählt |  | 15 |
+| [Warehouse](warehouse.md) | Azure und Warehouse im selben Segment | Heuristik, gezählt |  | 16 |
 | [Lakehouse](lakehouse.md) | Azure und Lakehouse im selben Segment | Heuristik, gezählt |  | 14 |
 | [Data Pipeline](data-pipeline.md) | Azure und Data Pipeline im selben Segment | Heuristik, gezählt |  | 13 |
 | [SQL Server](sql-server.md) | Azure und SQL Server im selben Segment | Heuristik, gezählt |  | 12 |
@@ -85,6 +85,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Power BI: (Vertriebs-) Regionen in Azure Maps](https://www.youtube.com/watch?v=CvaOkO37HMU) | 2026-01-01 | kernaussagen+zeitstempel | [00:02](https://www.youtube.com/watch?v=CvaOkO37HMU&t=2s) · [24:49](https://www.youtube.com/watch?v=CvaOkO37HMU&t=1489s) |
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [48:46](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2926s) · [50:35](https://www.youtube.com/watch?v=lZvpCBMKASM&t=3035s) · [52:08](https://www.youtube.com/watch?v=lZvpCBMKASM&t=3128s) |
 | [Starting with Microsft Fabric the Skills you need](https://www.youtube.com/watch?v=m3xNYfVih0Q) | 2024-08-01 | nur-zeitstempel | [08:08](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=488s) · [14:29](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=869s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [31:49](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1909s) · [52:46](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=3166s) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [23:11](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1391s) · [37:56](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2276s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wann%20brauche%20ich%20ein%20Gateway%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datenbank-Quellen%20%C2%B7%20der%20Folding-Hebel) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=03%20%C2%B7%20Deep%20Dive%3A%20%2AQuery%20Folding%2A) |
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [00:34](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=34s) |

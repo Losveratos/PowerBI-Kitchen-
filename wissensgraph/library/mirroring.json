@@ -3,14 +3,14 @@
  "name": "Mirroring",
  "typ": "tool",
  "slug": "mirroring",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/mirroring.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/mirroring.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/mirroring.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/mirroring.json",
- "dokumente_gesamt": 17,
+ "dokumente_gesamt": 18,
  "kernaussagen_gesamt": 34,
  "mit_kernaussagen": 11,
  "aliase": [
@@ -79,7 +79,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 33,
+   "gemeinsame_segmente": 34,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -111,6 +111,15 @@
    "datei": "lizenzen.md"
   },
   {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
    "id": "topic:governance",
    "name": "Governance",
    "kantentyp": "ko-vorkommen",
@@ -129,6 +138,15 @@
    "datei": "delta-lake.md"
   },
   {
+   "id": "topic:echtzeit",
+   "name": "Echtzeit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "echtzeit.md"
+  },
+  {
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
@@ -136,24 +154,6 @@
    "gemeinsame_segmente": 8,
    "beleg": "",
    "datei": "direct-lake.md"
-  },
-  {
-   "id": "tool:lakehouse",
-   "name": "Lakehouse",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 8,
-   "beleg": "",
-   "datei": "lakehouse.md"
-  },
-  {
-   "id": "topic:performance",
-   "name": "Performance",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 8,
-   "beleg": "",
-   "datei": "performance.md"
   }
  ],
  "kernaussagen": [
@@ -742,6 +742,21 @@
      "label": "30:50",
      "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1850s",
      "sekunde": 1850
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "42:42",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2562s",
+     "sekunde": 2562
     }
    ]
   },

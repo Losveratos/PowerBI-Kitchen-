@@ -2,10 +2,10 @@
 id: "tool:teams"
 name: "Teams"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 25
+dokumente: 26
 kernaussagen: 3
 mit_kernaussagen: 1
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/teams.html"
@@ -31,7 +31,7 @@ Microsoft Teams, MS Teams
 | --- | --- | --- | --- | --- |
 | [Power Automate](power-automate.md) | Power Automate setzt-voraus Teams | automatisch extrahiert, Quellenstelle vorhanden | „ob ich Zugang sowohl zu SharePoint als auch Teams habe“ (Forms + Sharepoint + Powerautomate, 2025-08) | 3 |
 | [Power BI](power-bi.md) | Teams und Power BI im selben Segment | Heuristik, gezählt |  | 17 |
-| [Visualisierung](visualisierung.md) | Teams und Visualisierung im selben Segment | Heuristik, gezählt |  | 13 |
+| [Visualisierung](visualisierung.md) | Teams und Visualisierung im selben Segment | Heuristik, gezählt |  | 14 |
 | [Microsoft Fabric](microsoft-fabric.md) | Teams und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 11 |
 | [KI](ki.md) | Teams und KI im selben Segment | Heuristik, gezählt |  | 11 |
 | [Reporting](reporting.md) | Teams und Reporting im selben Segment | Heuristik, gezählt |  | 11 |
@@ -81,9 +81,10 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [GxP Talk - Validierung vs. Agilität](https://www.youtube.com/watch?v=KO_qFge77o8) | 2026-03-01 | kernaussagen+zeitstempel | [35:19](https://www.youtube.com/watch?v=KO_qFge77o8&t=2119s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [26:42](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1602s) |
 | [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [41:52](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2512s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.8%3A%20Chart-Mix%2C%20Lernkurve%2C%20Null-Option) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Embedded) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=UNIFY%20%E2%80%94%20Apply%20semantic%20notation) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Die%20wichtigsten%20Regeln) |
 | [Fabric Planning unboxing](https://www.youtube.com/watch?v=xCzKEIB4W5I) | 2026-03-01 | kernaussagen+zeitstempel | [01:33](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=93s) |
-| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-metadaten | — |
+| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-zeitstempel | — |
 
 ## Hinweise
 

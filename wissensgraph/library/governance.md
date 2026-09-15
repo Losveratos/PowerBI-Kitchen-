@@ -2,10 +2,10 @@
 id: "topic:governance"
 name: "Governance"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 27
+dokumente: 29
 kernaussagen: 100
 mit_kernaussagen: 32
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/governance.html"
@@ -30,21 +30,21 @@ Data Governance, Compliance, Richtlinien
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Self-Service BI](self-service-bi.md) | Self-Service BI gegensatz Governance | automatisch extrahiert, Quellenstelle vorhanden | „dieses Spannungsfeld zwischen IT Chain und Selfsice nennen wir es einfach ITQ“ (Was ist Self-Service und warum ist das so schwer?) | 4 |
-| [Self-Service BI](self-service-bi.md) | Self-Service BI setzt-voraus Governance | automatisch extrahiert, Quellenstelle vorhanden | „dass berechtigungskonzept sehen wir als gewisse leitplanken die quasi ein unsichtbares gerüst zur einhaltung von von ein paar spielregeln“ (Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022, 2022-06) | 4 |
-| [Microsoft Fabric](microsoft-fabric.md) | Governance und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 26 |
-| [Power BI](power-bi.md) | Governance und Power BI im selben Segment | Heuristik, gezählt |  | 25 |
-| [Reporting](reporting.md) | Governance und Reporting im selben Segment | Heuristik, gezählt |  | 15 |
-| [Sicherheit](sicherheit.md) | Governance und Sicherheit im selben Segment | Heuristik, gezählt |  | 13 |
+| [Self-Service BI](self-service-bi.md) | Self-Service BI gegensatz Governance | automatisch extrahiert, Quellenstelle vorhanden | „dieses Spannungsfeld zwischen IT Chain und Selfsice nennen wir es einfach ITQ“ (Was ist Self-Service und warum ist das so schwer?) | 6 |
+| [Self-Service BI](self-service-bi.md) | Self-Service BI setzt-voraus Governance | automatisch extrahiert, Quellenstelle vorhanden | „dass berechtigungskonzept sehen wir als gewisse leitplanken die quasi ein unsichtbares gerüst zur einhaltung von von ein paar spielregeln“ (Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022, 2022-06) | 6 |
+| [Power BI](power-bi.md) | Governance und Power BI im selben Segment | Heuristik, gezählt |  | 30 |
+| [Microsoft Fabric](microsoft-fabric.md) | Governance und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 28 |
+| [Reporting](reporting.md) | Governance und Reporting im selben Segment | Heuristik, gezählt |  | 21 |
+| [Sicherheit](sicherheit.md) | Governance und Sicherheit im selben Segment | Heuristik, gezählt |  | 18 |
+| [Performance](performance.md) | Governance und Performance im selben Segment | Heuristik, gezählt |  | 13 |
+| [Lizenzen](lizenzen.md) | Governance und Lizenzen im selben Segment | Heuristik, gezählt |  | 13 |
+| [Visualisierung](visualisierung.md) | Governance und Visualisierung im selben Segment | Heuristik, gezählt |  | 12 |
+| [Workspace](workspace.md) | Governance und Workspace im selben Segment | Heuristik, gezählt |  | 12 |
 | [Snowflake](snowflake.md) | Governance und Snowflake im selben Segment | Heuristik, gezählt |  | 12 |
-| [Performance](performance.md) | Governance und Performance im selben Segment | Heuristik, gezählt |  | 12 |
-| [Workspace](workspace.md) | Governance und Workspace im selben Segment | Heuristik, gezählt |  | 11 |
+| [Excel](excel.md) | Governance und Excel im selben Segment | Heuristik, gezählt |  | 10 |
 | [OneLake](onelake.md) | Governance und OneLake im selben Segment | Heuristik, gezählt |  | 10 |
 | [Warehouse](warehouse.md) | Governance und Warehouse im selben Segment | Heuristik, gezählt |  | 10 |
 | [Mirroring](mirroring.md) | Governance und Mirroring im selben Segment | Heuristik, gezählt |  | 9 |
-| [Excel](excel.md) | Governance und Excel im selben Segment | Heuristik, gezählt |  | 9 |
-| [Row-Level Security](row-level-security.md) | Governance und Row-Level Security im selben Segment | Heuristik, gezählt |  | 9 |
-| [DirectQuery](directquery.md) | Governance und DirectQuery im selben Segment | Heuristik, gezählt |  | 7 |
 
 ## Kernaussagen
 
@@ -157,12 +157,14 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Was%20das%20Werkzeug%20rechnet) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail) |
 | [Zehn Tage bis zum marktfähigen Stand](https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage.html#:~:text=Was%20das%20%2Awirtschaftlich%2A%20bedeutet) |
 | [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [03:41](https://www.youtube.com/watch?v=mTVeZzshLzE&t=221s) · [06:05](https://www.youtube.com/watch?v=mTVeZzshLzE&t=365s) · [37:38](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2258s) |
 | [The Day After Tomorrow – Nach der Einführung geht es erst richtig los \| Power BI Summit 2023](https://www.youtube.com/watch?v=KwySyTxW_EI) | 2023-03-01 | nur-zeitstempel | [12:03](https://www.youtube.com/watch?v=KwySyTxW_EI&t=723s) · [15:04](https://www.youtube.com/watch?v=KwySyTxW_EI&t=904s) · [45:10](https://www.youtube.com/watch?v=KwySyTxW_EI&t=2710s) |
 | [Ten Days to a Market-Ready State](https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html#:~:text=What%20it%20means%20%2Aeconomically%2A) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=01%20%C2%B7%20Einordnung%20von%20%2AMicrosoft%20Fabric%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20ist%20das%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20drei%20Plattform-Schichten%20unter%20den%20Workloads) |
 | [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | kernaussagen+zeitstempel | [16:10](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=970s) · [24:37](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1477s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [11:29](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=689s) · [39:46](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2386s) · [41:32](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2492s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [25:03](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s) · [52:25](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=3145s) · [54:03](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=3243s) |
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=0s) · [37:00](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2220s) |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [05:02](https://www.youtube.com/watch?v=27rC2zefFOU&t=302s) |

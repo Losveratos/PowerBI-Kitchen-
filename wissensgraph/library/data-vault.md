@@ -2,8 +2,8 @@
 id: "topic:data-vault"
 name: "Data Vault"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 3
 kernaussagen: 23
@@ -71,7 +71,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
 | [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | kernaussagen+zeitstempel | [07:44](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=464s) · [09:20](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=560s) · [12:07](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=727s) |
-| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) · [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
+| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-zeitstempel | [07:38](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=458s) · [09:09](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=549s) · [10:41](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=641s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Star%20vor%20Snowflake) |
 
 ## Hinweise

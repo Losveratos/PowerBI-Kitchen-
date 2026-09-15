@@ -2,10 +2,10 @@
 id: "topic:sternschema"
 name: "Sternschema"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 30
+dokumente: 31
 kernaussagen: 31
 mit_kernaussagen: 12
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/sternschema.html"
@@ -33,20 +33,20 @@ Star Schema, Faktentabelle, Dimensionstabelle, Fakten und Dimensionen, Star-Sche
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [DirectQuery](directquery.md) | DirectQuery gegensatz Sternschema | automatisch extrahiert, Quellenstelle vorhanden | „dass äh Direct Query eigentlich kein Starschema [verträgt] (Segment 5)“ (BI Thinkers Talk nr.71, 2025-12) | 9 |
-| [Datenmodellierung](datenmodellierung.md) | Sternschema teil-von Datenmodellierung | automatisch extrahiert, Quellenstelle vorhanden | „ein Sternschema ist das, was wir zum größten Teil favorisieren“ (BI Thinkers Talk - Data Modelling - Fabric Data Days Edition, 2025-11) | 31 |
+| [Datenmodellierung](datenmodellierung.md) | Sternschema teil-von Datenmodellierung | automatisch extrahiert, Quellenstelle vorhanden | „ein Sternschema ist das, was wir zum größten Teil favorisieren“ (BI Thinkers Talk - Data Modelling - Fabric Data Days Edition, 2025-11) | 30 |
 | [Data Vault](data-vault.md) | Data Vault gegensatz Sternschema | automatisch extrahiert, Quellenstelle vorhanden | „was ist ein Sternschema überhaupt für die Enduser ... Data World ist ja jetzt nicht unbedingt ein Modell“ (Mythos Data Vault und richtig große Modelle, 2025-07) | 0 |
 | [Performance](performance.md) | Performance setzt-voraus Sternschema | automatisch extrahiert, Quellenstelle vorhanden | „schon ab einem gewissen Level muss man einfach das Sternschema machen“ (Power BI vs. Qlik, 2026-01) | 43 |
-| [Power BI](power-bi.md) | Power BI setzt-voraus Sternschema | automatisch extrahiert, Quellenstelle vorhanden | „Power BI benötigt ein Sternschema, um die beste Leistung zu erzielen“ (Why Passion Beats Niche, 2025-09) | 43 |
+| [Power BI](power-bi.md) | Power BI setzt-voraus Sternschema | automatisch extrahiert, Quellenstelle vorhanden | „Power BI benötigt ein Sternschema, um die beste Leistung zu erzielen“ (Why Passion Beats Niche, 2025-09) | 41 |
 | [Reporting](reporting.md) | Sternschema und Reporting im selben Segment | Heuristik, gezählt |  | 29 |
 | [Power Query](power-query.md) | Sternschema und Power Query im selben Segment | Heuristik, gezählt |  | 26 |
-| [DAX](dax.md) | Sternschema und DAX im selben Segment | Heuristik, gezählt |  | 24 |
+| [DAX](dax.md) | Sternschema und DAX im selben Segment | Heuristik, gezählt |  | 25 |
 | [Microsoft Fabric](microsoft-fabric.md) | Sternschema und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 19 |
 | [Excel](excel.md) | Sternschema und Excel im selben Segment | Heuristik, gezählt |  | 19 |
 | [Lakehouse](lakehouse.md) | Sternschema und Lakehouse im selben Segment | Heuristik, gezählt |  | 14 |
+| [Planung](planung.md) | Sternschema und Planung im selben Segment | Heuristik, gezählt |  | 12 |
 | [Visualisierung](visualisierung.md) | Sternschema und Visualisierung im selben Segment | Heuristik, gezählt |  | 12 |
 | [SQL](sql.md) | Sternschema und SQL im selben Segment | Heuristik, gezählt |  | 11 |
 | [Direct Lake](direct-lake.md) | Sternschema und Direct Lake im selben Segment | Heuristik, gezählt |  | 10 |
-| [Planung](planung.md) | Sternschema und Planung im selben Segment | Heuristik, gezählt |  | 10 |
 
 ## Kernaussagen
 
@@ -90,7 +90,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
-| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) · [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) · [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
+| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-zeitstempel | [10:41](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=641s) · [33:14](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1994s) · [45:16](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=2716s) |
 | [BI Thinkers Talk - Data Modelling - Fabric Data Days Edition](https://www.youtube.com/watch?v=mUALlPmGcEk) | 2025-11-01 | kernaussagen+zeitstempel | [22:42](https://www.youtube.com/watch?v=mUALlPmGcEk&t=1362s) · [45:29](https://www.youtube.com/watch?v=mUALlPmGcEk&t=2729s) · [54:01](https://www.youtube.com/watch?v=mUALlPmGcEk&t=3241s) |
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [01:01](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=61s) · [04:19](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=259s) · [33:37](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2017s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Dimensionen%20extrahieren) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Beziehungen%201%3An) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Eine%20Granularit%C3%A4t%20pro%20Faktentabelle) |
@@ -105,6 +105,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | kernaussagen+zeitstempel | [01:40](https://www.youtube.com/watch?v=TYmKrreMO3I&t=100s) · [03:13](https://www.youtube.com/watch?v=TYmKrreMO3I&t=193s) · [16:11](https://www.youtube.com/watch?v=TYmKrreMO3I&t=971s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20ins%20Modell%20geh%C3%B6rt) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Beziehungen%20definieren) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Das%20Ziel-Schema) |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [17:04](https://www.youtube.com/watch?v=27rC2zefFOU&t=1024s) |
+| [Automatisierung gewinnt \| Daten-WG Podcast mit Reinhard Mense](https://www.youtube.com/watch?v=3-hXnNLKnAw) | 2026-07-01 | nur-zeitstempel | [15:21](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=921s) · [30:20](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1820s) |
 | [Daten-WG Deep Dive Financial Reporting - part 7](https://www.youtube.com/watch?v=232JhS9vbQ0) | 2025-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=232JhS9vbQ0&t=0s) · [03:25](https://www.youtube.com/watch?v=232JhS9vbQ0&t=205s) |
 | [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [06:35](https://www.youtube.com/watch?v=DQENmzAkNqw&t=395s) · [09:45](https://www.youtube.com/watch?v=DQENmzAkNqw&t=585s) |
 | [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [14:14](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=854s) · [22:02](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1322s) |

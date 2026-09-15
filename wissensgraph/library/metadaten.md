@@ -2,10 +2,10 @@
 id: "topic:metadaten"
 name: "Metadaten"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 25
+dokumente: 26
 kernaussagen: 28
 mit_kernaussagen: 9
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/metadaten.html"
@@ -108,7 +108,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Daten-WG Deep Dive: AI on top of BI](https://www.youtube.com/watch?v=HXAP16trRc8) | 2025-07-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) |
 | [BI Thinkers Talk n.74](https://www.youtube.com/watch?v=rWE0gMx7v7I) | 2026-03-01 | kernaussagen+zeitstempel | [24:19](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1459s) |
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [1:08:20](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4100s) |
-| [Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)](https://www.youtube.com/watch?v=lp8xNX81R2w) | 2026-07-01 | nur-metadaten | — |
+| [Databricks Explained to a Power BI Guy \| Daten-WG Podcast with Vitalija Bartusevičiūtė](https://www.youtube.com/watch?v=E9kgWtTmwdE) | 2026-09-01 | nur-metadaten | — |
+| [Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)](https://www.youtube.com/watch?v=lp8xNX81R2w) | 2026-07-01 | nur-zeitstempel | — |
 
 ## Hinweise
 

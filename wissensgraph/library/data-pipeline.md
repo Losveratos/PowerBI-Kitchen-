@@ -2,10 +2,10 @@
 id: "tool:data-pipeline"
 name: "Data Pipeline"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 9
+dokumente: 10
 kernaussagen: 13
 mit_kernaussagen: 10
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/data-pipeline.html"
@@ -34,17 +34,17 @@ Pipelines, Data Factory, Pipeline
 | [Dataflow](dataflow.md) | Dataflow gegensatz Data Pipeline | automatisch extrahiert, Quellenstelle vorhanden | „Bei Dataflus geht's garantiert.“ (Daten-WG Deep Dive Financial Reporting, 2025-05) | 28 |
 | [Dataflow](dataflow.md) | Dataflow teil-von Data Pipeline | automatisch extrahiert, Quellenstelle vorhanden | „ich kann Dataflow nehmen und in der Pipeline einbauen“ (600 SQL-Tabellen in Fabric) | 28 |
 | [Notebook](notebook.md) | Notebook setzt-voraus Data Pipeline | automatisch extrahiert, Quellenstelle vorhanden | „wenn ich aus der Pipeline heraus das anlege, dann geht's“ (BI Thinkers Talk n.72, 2026-01) | 33 |
-| [Microsoft Fabric](microsoft-fabric.md) | Data Pipeline und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 40 |
+| [Microsoft Fabric](microsoft-fabric.md) | Data Pipeline und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 42 |
 | [Power BI](power-bi.md) | Data Pipeline und Power BI im selben Segment | Heuristik, gezählt |  | 36 |
 | [Lakehouse](lakehouse.md) | Data Pipeline und Lakehouse im selben Segment | Heuristik, gezählt |  | 27 |
 | [SQL](sql.md) | Data Pipeline und SQL im selben Segment | Heuristik, gezählt |  | 24 |
 | [Warehouse](warehouse.md) | Data Pipeline und Warehouse im selben Segment | Heuristik, gezählt |  | 23 |
-| [Workspace](workspace.md) | Data Pipeline und Workspace im selben Segment | Heuristik, gezählt |  | 21 |
-| [Reporting](reporting.md) | Data Pipeline und Reporting im selben Segment | Heuristik, gezählt |  | 19 |
+| [Workspace](workspace.md) | Data Pipeline und Workspace im selben Segment | Heuristik, gezählt |  | 22 |
+| [Reporting](reporting.md) | Data Pipeline und Reporting im selben Segment | Heuristik, gezählt |  | 20 |
 | [OneLake](onelake.md) | Data Pipeline und OneLake im selben Segment | Heuristik, gezählt |  | 18 |
 | [Direct Lake](direct-lake.md) | Data Pipeline und Direct Lake im selben Segment | Heuristik, gezählt |  | 15 |
 | [Fabric Capacity](fabric-capacity.md) | Data Pipeline und Fabric Capacity im selben Segment | Heuristik, gezählt |  | 15 |
-| [Performance](performance.md) | Data Pipeline und Performance im selben Segment | Heuristik, gezählt |  | 13 |
+| [Performance](performance.md) | Data Pipeline und Performance im selben Segment | Heuristik, gezählt |  | 14 |
 
 ## Kernaussagen
 
@@ -75,6 +75,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [21:39](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1299s) · [28:42](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1722s) · [29:17](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1757s) |
 | [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | kernaussagen+zeitstempel | [44:08](https://www.youtube.com/watch?v=TYmKrreMO3I&t=2648s) · [45:48](https://www.youtube.com/watch?v=TYmKrreMO3I&t=2748s) · [52:11](https://www.youtube.com/watch?v=TYmKrreMO3I&t=3131s) |
 | [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [27:23](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1643s) · [30:41](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1841s) · [49:49](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2989s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [39:46](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2386s) · [47:55](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2875s) · [49:42](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2982s) |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [20:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1205s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wie%20es%20funktioniert) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Operationen%2C%20die%20NICHT%20foldet) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Hover%20f%C3%BCr%20Details) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [31:33](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1893s) · [50:46](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=3046s) |

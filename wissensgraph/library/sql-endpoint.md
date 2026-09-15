@@ -2,8 +2,8 @@
 id: "tool:sql-endpoint"
 name: "SQL Endpoint"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 4
 kernaussagen: 10

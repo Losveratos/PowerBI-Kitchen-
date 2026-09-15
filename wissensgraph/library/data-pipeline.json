@@ -3,14 +3,14 @@
  "name": "Data Pipeline",
  "typ": "tool",
  "slug": "data-pipeline",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/data-pipeline.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/data-pipeline.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/data-pipeline.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/data-pipeline.json",
- "dokumente_gesamt": 9,
+ "dokumente_gesamt": 10,
  "kernaussagen_gesamt": 13,
  "mit_kernaussagen": 10,
  "aliase": [
@@ -61,7 +61,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 40,
+   "gemeinsame_segmente": 42,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -106,7 +106,7 @@
    "name": "Workspace",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 21,
+   "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "workspace.md"
   },
@@ -115,7 +115,7 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 19,
+   "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -151,7 +151,7 @@
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 13,
+   "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "performance.md"
   }
@@ -398,6 +398,31 @@
      "label": "49:49",
      "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2989s",
      "sekunde": 2989
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.088,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "39:46",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2386s",
+     "sekunde": 2386
+    },
+    {
+     "label": "47:55",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2875s",
+     "sekunde": 2875
+    },
+    {
+     "label": "49:42",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2982s",
+     "sekunde": 2982
     }
    ]
   },

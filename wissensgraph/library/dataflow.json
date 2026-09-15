@@ -3,14 +3,14 @@
  "name": "Dataflow",
  "typ": "tool",
  "slug": "dataflow",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/dataflow.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/dataflow.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/dataflow.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/dataflow.json",
- "dokumente_gesamt": 30,
+ "dokumente_gesamt": 32,
  "kernaussagen_gesamt": 31,
  "mit_kernaussagen": 14,
  "aliase": [
@@ -53,7 +53,7 @@
    "name": "Notebook",
    "kantentyp": "empfiehlt",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 54,
+   "gemeinsame_segmente": 56,
    "beleg": "benutze ich Dataflows, um die Daten in meinem meinem Bronze zu stagen und von da aus dann die Weiterverarbeitung mit dem Notebook zu machen",
    "datei": "notebook.md"
   },
@@ -62,7 +62,7 @@
    "name": "Notebook",
    "kantentyp": "gegensatz",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 54,
+   "gemeinsame_segmente": 56,
    "beleg": "einfach auch wartbar im Gegensatz zu Notebooks",
    "datei": "notebook.md"
   },
@@ -71,7 +71,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 54,
+   "gemeinsame_segmente": 57,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -89,7 +89,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 44,
+   "gemeinsame_segmente": 45,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -107,7 +107,7 @@
    "name": "Power Query",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 28,
+   "gemeinsame_segmente": 29,
    "beleg": "",
    "datei": "power-query.md"
   },
@@ -865,6 +865,26 @@
    ]
   },
   {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "17:40",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1060s",
+     "sekunde": 1060
+    },
+    {
+     "label": "22:31",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1351s",
+     "sekunde": 1351
+    }
+   ]
+  },
+  {
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
@@ -1006,6 +1026,21 @@
      "label": "47:00",
      "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2820s",
      "sekunde": 2820
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "51:13",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=3073s",
+     "sekunde": 3073
     }
    ]
   },

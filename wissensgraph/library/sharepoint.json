@@ -3,14 +3,14 @@
  "name": "SharePoint",
  "typ": "tool",
  "slug": "sharepoint",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sharepoint.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sharepoint.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/sharepoint.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/sharepoint.json",
- "dokumente_gesamt": 22,
+ "dokumente_gesamt": 24,
  "kernaussagen_gesamt": 12,
  "mit_kernaussagen": 5,
  "aliase": [
@@ -23,7 +23,7 @@
    "name": "Excel",
    "kantentyp": "ersetzt",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 17,
+   "gemeinsame_segmente": 20,
    "beleg": "Wir haben es da tatsächlich erstmal, weil es schneller ging mit Excel gelöst, aber ziel ist auch da Richtung SharePoint Liste zu gehen",
    "datei": "excel.md"
   },
@@ -41,7 +41,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 22,
+   "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -59,9 +59,18 @@
    "name": "Lakehouse",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 9,
+   "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "workspace.md"
   },
   {
    "id": "tool:snowflake",
@@ -127,13 +136,13 @@
    "datei": "copilot.md"
   },
   {
-   "id": "tool:workspace",
-   "name": "Workspace",
+   "id": "tool:sql",
+   "name": "SQL",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
    "gemeinsame_segmente": 5,
    "beleg": "",
-   "datei": "workspace.md"
+   "datei": "sql.md"
   },
   {
    "id": "topic:refresh",
@@ -143,15 +152,6 @@
    "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "refresh.md"
-  },
-  {
-   "id": "tool:warehouse",
-   "name": "Warehouse",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 5,
-   "beleg": "",
-   "datei": "warehouse.md"
   }
  ],
  "kernaussagen": [
@@ -341,6 +341,51 @@
    ]
   },
   {
+   "id": "yt:lp8xNX81R2w",
+   "titel": "Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.5,
+   "url": "https://www.youtube.com/watch?v=lp8xNX81R2w",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=lp8xNX81R2w&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "02:02",
+     "url": "https://www.youtube.com/watch?v=lp8xNX81R2w&t=122s",
+     "sekunde": 122
+    },
+    {
+     "label": "04:11",
+     "url": "https://www.youtube.com/watch?v=lp8xNX81R2w&t=251s",
+     "sekunde": 251
+    }
+   ]
+  },
+  {
+   "id": "yt:_AxvdCW0ST4",
+   "titel": "Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.4,
+   "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "02:10",
+     "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4&t=130s",
+     "sekunde": 130
+    }
+   ]
+  },
+  {
    "id": "yt:mTVeZzshLzE",
    "titel": "Microsoft Fabric — braucht das wirklich jemand?",
    "datum": "",
@@ -526,6 +571,26 @@
    ]
   },
   {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.059,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "35:11",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2111s",
+     "sekunde": 2111
+    },
+    {
+     "label": "36:35",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2195s",
+     "sekunde": 2195
+    }
+   ]
+  },
+  {
    "id": "yt:lZvpCBMKASM",
    "titel": "Fabric & Power BI Quarterly · 2025 Q3",
    "datum": "",
@@ -694,15 +759,6 @@
      "sekunde": null
     }
    ]
-  },
-  {
-   "id": "yt:lp8xNX81R2w",
-   "titel": "Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)",
-   "datum": "2026-07-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=lp8xNX81R2w",
-   "sprungmarken": []
   }
  ],
  "hinweise": [

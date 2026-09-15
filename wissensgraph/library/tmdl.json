@@ -3,14 +3,14 @@
  "name": "TMDL",
  "typ": "tool",
  "slug": "tmdl",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/tmdl.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/tmdl.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/tmdl.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/tmdl.json",
- "dokumente_gesamt": 10,
+ "dokumente_gesamt": 11,
  "kernaussagen_gesamt": 30,
  "mit_kernaussagen": 11,
  "aliase": [
@@ -59,7 +59,7 @@
    "name": "DAX",
    "kantentyp": "teil-von",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 6,
+   "gemeinsame_segmente": 7,
    "beleg": "alles im was Power Query, Datenmodell, Beziehung, DAX Measures, alles das, was darin embettet ist",
    "datei": "dax.md"
   },
@@ -82,6 +82,15 @@
    "datei": "performance.md"
   },
   {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
@@ -89,15 +98,6 @@
    "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "direct-lake.md"
-  },
-  {
-   "id": "topic:reporting",
-   "name": "Reporting",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 4,
-   "beleg": "",
-   "datei": "reporting.md"
   },
   {
    "id": "tool:microsoft-fabric",
@@ -116,6 +116,15 @@
    "gemeinsame_segmente": 3,
    "beleg": "",
    "datei": "sicherheit.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "visualisierung.md"
   }
  ],
  "kernaussagen": [
@@ -498,6 +507,21 @@
      "label": "09:01",
      "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=541s",
      "sekunde": 541
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.023,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
     }
    ]
   },

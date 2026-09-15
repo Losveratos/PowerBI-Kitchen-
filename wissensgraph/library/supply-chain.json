@@ -3,14 +3,14 @@
  "name": "Supply Chain",
  "typ": "thema",
  "slug": "supply-chain",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/supply-chain.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/supply-chain.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/supply-chain.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/supply-chain.json",
- "dokumente_gesamt": 11,
+ "dokumente_gesamt": 12,
  "kernaussagen_gesamt": 18,
  "mit_kernaussagen": 2,
  "aliase": [
@@ -43,7 +43,7 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 3,
+   "gemeinsame_segmente": 4,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -274,6 +274,26 @@
      "label": "26:05",
      "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1565s",
      "sekunde": 1565
+    }
+   ]
+  },
+  {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "17:53",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1073s",
+     "sekunde": 1073
+    },
+    {
+     "label": "25:35",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1535s",
+     "sekunde": 1535
     }
    ]
   },

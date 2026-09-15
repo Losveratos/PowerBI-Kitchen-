@@ -2,10 +2,10 @@
 id: "tool:semantic-model"
 name: "Semantic Model"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 30
+dokumente: 31
 kernaussagen: 55
 mit_kernaussagen: 24
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/semantic-model.html"
@@ -41,7 +41,7 @@ Semantikmodell, Semantic Models, Dataset, Datasets, semantisches Modell
 | [Eventhouse](eventhouse.md) | Eventhouse gegensatz Semantic Model | automatisch extrahiert, Quellenstelle vorhanden | „die Abfrage wird dem Eventhaus zugerechnet und nicht dem Dataset“ (BI Thinkers Talk nr.64, 2025-07) | 0 |
 | [Power BI](power-bi.md) | Semantic Model und Power BI im selben Segment | Heuristik, gezählt |  | 46 |
 | [Microsoft Fabric](microsoft-fabric.md) | Semantic Model und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 34 |
-| [Reporting](reporting.md) | Semantic Model und Reporting im selben Segment | Heuristik, gezählt |  | 27 |
+| [Reporting](reporting.md) | Semantic Model und Reporting im selben Segment | Heuristik, gezählt |  | 28 |
 | [Direct Lake](direct-lake.md) | Semantic Model und Direct Lake im selben Segment | Heuristik, gezählt |  | 21 |
 | [Workspace](workspace.md) | Semantic Model und Workspace im selben Segment | Heuristik, gezählt |  | 20 |
 | [Lakehouse](lakehouse.md) | Semantic Model und Lakehouse im selben Segment | Heuristik, gezählt |  | 20 |
@@ -114,10 +114,10 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
-| [So hackst du einen Power BI Bericht \| Power BI Tutorial](https://www.youtube.com/watch?v=GKLxM3317Xk) | 2025-09-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=GKLxM3317Xk) · [Abschnitt](https://www.youtube.com/watch?v=GKLxM3317Xk) |
 | [Fabric Planning unboxing](https://www.youtube.com/watch?v=xCzKEIB4W5I) | 2026-03-01 | kernaussagen+zeitstempel | [10:52](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=652s) · [20:19](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1219s) · [34:04](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=2044s) |
 | [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [13:37](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s) · [18:22](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1102s) · [19:55](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1195s) |
 | [Daten-WG Life-Update \| State of Power BI, Fabric & AI-Tools](https://www.youtube.com/watch?v=d3HdhRe_nK8) | 2026-06-01 | nur-zeitstempel | [18:34](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1114s) · [21:35](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1295s) · [22:14](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1334s) |
+| [So hackst du einen Power BI Bericht \| Power BI Tutorial](https://www.youtube.com/watch?v=GKLxM3317Xk) | 2025-09-01 | nur-zeitstempel | [01:05](https://www.youtube.com/watch?v=GKLxM3317Xk&t=65s) · [04:26](https://www.youtube.com/watch?v=GKLxM3317Xk&t=266s) |
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [04:56](https://www.youtube.com/watch?v=G8s96sHUHac&t=296s) · [19:28](https://www.youtube.com/watch?v=G8s96sHUHac&t=1168s) · [21:03](https://www.youtube.com/watch?v=G8s96sHUHac&t=1263s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=03%20%C2%B7%20Semantische%20Modelle%20%26%20%2ADirect%20Lake%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Einstellungen%20pr%C3%BCfen) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Delta-Hygiene%20f%C3%BCr%20Direct%20Lake) |
 | [Power BI-Teams werden Fabric-Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc) | — | nur-zeitstempel | [05:02](https://www.youtube.com/watch?v=YzfcMurbWNc&t=302s) · [22:11](https://www.youtube.com/watch?v=YzfcMurbWNc&t=1331s) |
@@ -143,6 +143,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [BI Thinkers Talk n.73](https://www.youtube.com/watch?v=pOJpXxsfUt0) | 2026-02-01 | kernaussagen+zeitstempel | [48:33](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2913s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [47:15](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2835s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [30:27](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1827s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29) |
 | [Mensch bleiben, wenn Power BI geht](https://www.youtube.com/watch?v=iB4vHRvaErE) | 2025-11-01 | nur-zeitstempel | [15:11](https://www.youtube.com/watch?v=iB4vHRvaErE&t=911s) |
 
 ## Hinweise

@@ -3,14 +3,14 @@
  "name": "Sternschema",
  "typ": "thema",
  "slug": "sternschema",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sternschema.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sternschema.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/sternschema.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/sternschema.json",
- "dokumente_gesamt": 30,
+ "dokumente_gesamt": 31,
  "kernaussagen_gesamt": 31,
  "mit_kernaussagen": 12,
  "aliase": [
@@ -36,7 +36,7 @@
    "name": "Datenmodellierung",
    "kantentyp": "teil-von",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 31,
+   "gemeinsame_segmente": 30,
    "beleg": "ein Sternschema ist das, was wir zum größten Teil favorisieren",
    "datei": "datenmodellierung.md"
   },
@@ -63,7 +63,7 @@
    "name": "Power BI",
    "kantentyp": "setzt-voraus",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 43,
+   "gemeinsame_segmente": 41,
    "beleg": "Power BI benötigt ein Sternschema, um die beste Leistung zu erzielen",
    "datei": "power-bi.md"
   },
@@ -90,7 +90,7 @@
    "name": "DAX",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 24,
+   "gemeinsame_segmente": 25,
    "beleg": "",
    "datei": "dax.md"
   },
@@ -122,6 +122,15 @@
    "datei": "lakehouse.md"
   },
   {
+   "id": "topic:planung",
+   "name": "Planung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "planung.md"
+  },
+  {
    "id": "topic:visualisierung",
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
@@ -147,15 +156,6 @@
    "gemeinsame_segmente": 10,
    "beleg": "",
    "datei": "direct-lake.md"
-  },
-  {
-   "id": "topic:planung",
-   "name": "Planung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 10,
-   "beleg": "",
-   "datei": "planung.md"
   }
  ],
  "kernaussagen": [
@@ -444,24 +444,24 @@
    "id": "yt:uxYFqwe_Wiw",
    "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
    "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.385,
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.418,
    "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
    "sprungmarken": [
     {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
+     "label": "10:41",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=641s",
+     "sekunde": 641
     },
     {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
+     "label": "33:14",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1994s",
+     "sekunde": 1994
     },
     {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
+     "label": "45:16",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=2716s",
+     "sekunde": 2716
     }
    ]
   },
@@ -787,6 +787,26 @@
      "label": "17:04",
      "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1024s",
      "sekunde": 1024
+    }
+   ]
+  },
+  {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "15:21",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=921s",
+     "sekunde": 921
+    },
+    {
+     "label": "30:20",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1820s",
+     "sekunde": 1820
     }
    ]
   },

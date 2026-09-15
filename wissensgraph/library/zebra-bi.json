@@ -3,14 +3,14 @@
  "name": "Zebra BI",
  "typ": "tool",
  "slug": "zebra-bi",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/zebra-bi.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/zebra-bi.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/zebra-bi.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/zebra-bi.json",
- "dokumente_gesamt": 11,
+ "dokumente_gesamt": 12,
  "kernaussagen_gesamt": 4,
  "mit_kernaussagen": 3,
  "aliase": [
@@ -23,7 +23,7 @@
    "name": "Custom Visuals",
    "kantentyp": "ersetzt",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 5,
+   "gemeinsame_segmente": 7,
    "beleg": "wie lange wird's jetzt dauern einfach Zebra BI nachzucoden",
    "datei": "custom-visuals.md"
   },
@@ -32,7 +32,7 @@
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 15,
+   "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "visualisierung.md"
   },
@@ -41,7 +41,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 11,
+   "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -50,7 +50,7 @@
    "name": "IBCS",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 9,
+   "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "ibcs.md"
   },
@@ -59,9 +59,18 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 7,
+   "gemeinsame_segmente": 9,
    "beleg": "",
    "datei": "reporting.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "lizenzen.md"
   },
   {
    "id": "topic:planung",
@@ -77,9 +86,27 @@
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 3,
+   "gemeinsame_segmente": 5,
    "beleg": "",
    "datei": "ki.md"
+  },
+  {
+   "id": "tool:deneb",
+   "name": "Deneb",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "deneb.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "dax.md"
   }
  ],
  "kernaussagen": [
@@ -121,6 +148,31 @@
   }
  ],
  "dokumente": [
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.182,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.11%3A%20Zeitdynamik%2C%20Cash-out%20und%20neue%20Anforderungen%20%28Annahmen-Audit%20Runde%202%29",
+     "sekunde": null
+    }
+   ]
+  },
   {
    "id": "yt:DQENmzAkNqw",
    "titel": "Daten-WG BI Thinkers Talk nr.66",

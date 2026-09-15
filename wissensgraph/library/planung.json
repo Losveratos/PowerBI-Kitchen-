@@ -3,14 +3,14 @@
  "name": "Planung",
  "typ": "thema",
  "slug": "planung",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/planung.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/planung.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/planung.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/planung.json",
- "dokumente_gesamt": 36,
+ "dokumente_gesamt": 42,
  "kernaussagen_gesamt": 24,
  "mit_kernaussagen": 7,
  "aliase": [
@@ -59,29 +59,29 @@
    "datei": "semantic-model.md"
   },
   {
-   "id": "tool:power-bi",
-   "name": "Power BI",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 31,
-   "beleg": "",
-   "datei": "power-bi.md"
-  },
-  {
    "id": "tool:microsoft-fabric",
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 29,
+   "gemeinsame_segmente": 34,
    "beleg": "",
    "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 32,
+   "beleg": "",
+   "datei": "power-bi.md"
   },
   {
    "id": "topic:reporting",
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 29,
+   "gemeinsame_segmente": 31,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -99,7 +99,7 @@
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 19,
+   "gemeinsame_segmente": 20,
    "beleg": "",
    "datei": "excel.md"
   },
@@ -113,6 +113,24 @@
    "datei": "ibcs.md"
   },
   {
+   "id": "topic:daten-wg",
+   "name": "Daten-WG",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "daten-wg.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
    "id": "tool:sql",
    "name": "SQL",
    "kantentyp": "ko-vorkommen",
@@ -122,29 +140,11 @@
    "datei": "sql.md"
   },
   {
-   "id": "topic:daten-wg",
-   "name": "Daten-WG",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 12,
-   "beleg": "",
-   "datei": "daten-wg.md"
-  },
-  {
-   "id": "topic:performance",
-   "name": "Performance",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 12,
-   "beleg": "",
-   "datei": "performance.md"
-  },
-  {
    "id": "topic:ki",
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 11,
+   "gemeinsame_segmente": 13,
    "beleg": "",
    "datei": "ki.md"
   },
@@ -153,7 +153,7 @@
    "name": "Sternschema",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 10,
+   "gemeinsame_segmente": 12,
    "beleg": "",
    "datei": "sternschema.md"
   }
@@ -378,6 +378,21 @@
  ],
  "dokumente": [
   {
+   "id": "yt:WLiGuGjE5m8",
+   "titel": "#004 · Bidirektionale Filterung? Meistens ein Fehler!",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=WLiGuGjE5m8",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=WLiGuGjE5m8&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
    "id": "yt:xCzKEIB4W5I",
    "titel": "Fabric Planning unboxing",
    "datum": "2026-03-01",
@@ -424,6 +439,31 @@
      "label": "08:13",
      "url": "https://www.youtube.com/watch?v=qVZhboahaDE&t=493s",
      "sekunde": 493
+    }
+   ]
+  },
+  {
+   "id": "yt:svytHaNMTf0",
+   "titel": "Data Projects like Iron Man [AI dubbed]",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.375,
+   "url": "https://www.youtube.com/watch?v=svytHaNMTf0",
+   "sprungmarken": [
+    {
+     "label": "01:33",
+     "url": "https://www.youtube.com/watch?v=svytHaNMTf0&t=93s",
+     "sekunde": 93
+    },
+    {
+     "label": "06:13",
+     "url": "https://www.youtube.com/watch?v=svytHaNMTf0&t=373s",
+     "sekunde": 373
+    },
+    {
+     "label": "07:49",
+     "url": "https://www.youtube.com/watch?v=svytHaNMTf0&t=469s",
+     "sekunde": 469
     }
    ]
   },
@@ -478,6 +518,31 @@
    ]
   },
   {
+   "id": "yt:_C69B0i-QQA",
+   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.188,
+   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
+   "sprungmarken": [
+    {
+     "label": "10:26",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=626s",
+     "sekunde": 626
+    },
+    {
+     "label": "17:58",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=1078s",
+     "sekunde": 1078
+    },
+    {
+     "label": "19:05",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=1145s",
+     "sekunde": 1145
+    }
+   ]
+  },
+  {
    "id": "yt:ASwcPvbMRZc",
    "titel": "Power BI Update März 2026",
    "datum": "2026-03-01",
@@ -494,6 +559,31 @@
      "label": "07:53",
      "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=473s",
      "sekunde": 473
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.176,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "22:43",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1363s",
+     "sekunde": 1363
+    },
+    {
+     "label": "24:14",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1454s",
+     "sekunde": 1454
+    },
+    {
+     "label": "27:34",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1654s",
+     "sekunde": 1654
     }
    ]
   },
@@ -793,6 +883,46 @@
    ]
   },
   {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.073,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "24:00",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1440s",
+     "sekunde": 1440
+    },
+    {
+     "label": "25:37",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1537s",
+     "sekunde": 1537
+    },
+    {
+     "label": "33:14",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1994s",
+     "sekunde": 1994
+    }
+   ]
+  },
+  {
+   "id": "yt:Me3a2QOx21I",
+   "titel": "Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=Me3a2QOx21I",
+   "sprungmarken": [
+    {
+     "label": "05:48",
+     "url": "https://www.youtube.com/watch?v=Me3a2QOx21I&t=348s",
+     "sekunde": 348
+    }
+   ]
+  },
+  {
    "id": "yt:Z8vpSSOmG24",
    "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
    "datum": "2022-06-01",
@@ -998,27 +1128,17 @@
    ]
   },
   {
-   "id": "yt:uxYFqwe_Wiw",
-   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.046,
-   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.031,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
    "sprungmarken": [
     {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
+     "label": "21:20",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1280s",
+     "sekunde": 1280
     }
    ]
   },

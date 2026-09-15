@@ -3,14 +3,14 @@
  "name": "SAP",
  "typ": "tool",
  "slug": "sap",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sap.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sap.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/sap.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/sap.json",
- "dokumente_gesamt": 31,
+ "dokumente_gesamt": 34,
  "kernaussagen_gesamt": 8,
  "mit_kernaussagen": 7,
  "aliase": [
@@ -34,7 +34,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 25,
+   "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -102,6 +102,15 @@
    "datei": "sql.md"
   },
   {
+   "id": "topic:planung",
+   "name": "Planung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "planung.md"
+  },
+  {
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
@@ -111,6 +120,15 @@
    "datei": "excel.md"
   },
   {
+   "id": "topic:community",
+   "name": "Community",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "community.md"
+  },
+  {
    "id": "tool:power-query",
    "name": "Power Query",
    "kantentyp": "ko-vorkommen",
@@ -118,24 +136,6 @@
    "gemeinsame_segmente": 6,
    "beleg": "",
    "datei": "power-query.md"
-  },
-  {
-   "id": "topic:planung",
-   "name": "Planung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 6,
-   "beleg": "",
-   "datei": "planung.md"
-  },
-  {
-   "id": "topic:community",
-   "name": "Community",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 6,
-   "beleg": "",
-   "datei": "community.md"
   },
   {
    "id": "topic:visualisierung",
@@ -372,6 +372,21 @@
    ]
   },
   {
+   "id": "yt:svytHaNMTf0",
+   "titel": "Data Projects like Iron Man [AI dubbed]",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=svytHaNMTf0",
+   "sprungmarken": [
+    {
+     "label": "06:13",
+     "url": "https://www.youtube.com/watch?v=svytHaNMTf0&t=373s",
+     "sekunde": 373
+    }
+   ]
+  },
+  {
    "id": "yt:psLPsI32sAs",
    "titel": "Power BI Update Mai 2026",
    "datum": "2026-05-01",
@@ -552,6 +567,21 @@
    ]
   },
   {
+   "id": "yt:Me3a2QOx21I",
+   "titel": "Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=Me3a2QOx21I",
+   "sprungmarken": [
+    {
+     "label": "07:49",
+     "url": "https://www.youtube.com/watch?v=Me3a2QOx21I&t=469s",
+     "sekunde": 469
+    }
+   ]
+  },
+  {
    "id": "yt:DFw664hd1IE",
    "titel": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "datum": "2026-04-01",
@@ -568,6 +598,21 @@
      "label": "30:36",
      "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1836s",
      "sekunde": 1836
+    }
+   ]
+  },
+  {
+   "id": "yt:_C69B0i-QQA",
+   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
+   "sprungmarken": [
+    {
+     "label": "17:58",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=1078s",
+     "sekunde": 1078
     }
    ]
   },

@@ -3,14 +3,14 @@
  "name": "Warehouse",
  "typ": "tool",
  "slug": "warehouse",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/warehouse.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/warehouse.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/warehouse.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/warehouse.json",
- "dokumente_gesamt": 42,
+ "dokumente_gesamt": 45,
  "kernaussagen_gesamt": 33,
  "mit_kernaussagen": 15,
  "aliase": [
@@ -35,7 +35,7 @@
    "name": "Lakehouse",
    "kantentyp": "ersetzt",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 71,
+   "gemeinsame_segmente": 72,
    "beleg": "wir müssen jetzt zu WHäusern... das neue Warehouse war halt leer, ist in wenigen Klicks angelegt",
    "datei": "lakehouse.md"
   },
@@ -44,7 +44,7 @@
    "name": "Lakehouse",
    "kantentyp": "gegensatz",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 71,
+   "gemeinsame_segmente": 72,
    "beleg": "Beim Warehouse hat man nur append und kann das auch nicht zurück umstellen. Beim Lake House habe ich nur replaced",
    "datei": "lakehouse.md"
   },
@@ -53,7 +53,7 @@
    "name": "Lakehouse",
    "kantentyp": "setzt-voraus",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 71,
+   "gemeinsame_segmente": 72,
    "beleg": "mussten wir effektiv die Lake Houses replizieren, Shortcuts in diesen Lake Houses reinsetzen und dann vom Warehouse über fully qualified Links dieser Lakees anziehen",
    "datei": "lakehouse.md"
   },
@@ -71,7 +71,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 76,
+   "gemeinsame_segmente": 80,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -80,7 +80,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 59,
+   "gemeinsame_segmente": 62,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -152,7 +152,7 @@
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 20,
+   "gemeinsame_segmente": 21,
    "beleg": "",
    "datei": "performance.md"
   }
@@ -458,6 +458,21 @@
  ],
  "dokumente": [
   {
+   "id": "yt:gMYj9UTWeWk",
+   "titel": "#011 · Power BI ohne Fabric? Absolut!",
+   "datum": "2026-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=gMYj9UTWeWk",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=gMYj9UTWeWk&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
    "id": "yt:rrCi0lnGrCg",
    "titel": "Mythos Data Vault und richtig große Modelle",
    "datum": "2025-07-01",
@@ -554,6 +569,31 @@
      "label": "20:24",
      "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=1224s",
      "sekunde": 1224
+    }
+   ]
+  },
+  {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.25,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:55",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=115s",
+     "sekunde": 115
+    },
+    {
+     "label": "09:25",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=565s",
+     "sekunde": 565
     }
    ]
   },
@@ -968,6 +1008,21 @@
    ]
   },
   {
+   "id": "yt:_C69B0i-QQA",
+   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
+   "sprungmarken": [
+    {
+     "label": "06:32",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=392s",
+     "sekunde": 392
+    }
+   ]
+  },
+  {
    "id": "yt:d3HdhRe_nK8",
    "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
    "datum": "2026-06-01",
@@ -984,6 +1039,26 @@
      "label": "29:43",
      "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1783s",
      "sekunde": 1783
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.059,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "28:32",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1712s",
+     "sekunde": 1712
+    },
+    {
+     "label": "31:49",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1909s",
+     "sekunde": 1909
     }
    ]
   },
@@ -1094,6 +1169,21 @@
      "label": "1:02:14",
      "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3734s",
      "sekunde": 3734
+    }
+   ]
+  },
+  {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "16:06",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=966s",
+     "sekunde": 966
     }
    ]
   },
@@ -1251,34 +1341,16 @@
    "id": "yt:uxYFqwe_Wiw",
    "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
    "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.015,
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.018,
    "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
    "sprungmarken": [
     {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
+     "label": "22:54",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1374s",
+     "sekunde": 1374
     }
    ]
-  },
-  {
-   "id": "yt:3-hXnNLKnAw",
-   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
-   "datum": "2026-07-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
-   "sprungmarken": []
-  },
-  {
-   "id": "yt:PW6MP-SDmRk",
-   "titel": "Fabric & Power BI Quarterly · 2026-3",
-   "datum": "",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
-   "sprungmarken": []
   }
  ],
  "hinweise": [

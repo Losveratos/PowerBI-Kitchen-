@@ -3,14 +3,14 @@
  "name": "Performance",
  "typ": "thema",
  "slug": "performance",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/performance.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/performance.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/performance.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/performance.json",
- "dokumente_gesamt": 38,
+ "dokumente_gesamt": 39,
  "kernaussagen_gesamt": 42,
  "mit_kernaussagen": 23,
  "aliase": [
@@ -36,7 +36,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 90,
+   "gemeinsame_segmente": 91,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -45,7 +45,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 58,
+   "gemeinsame_segmente": 61,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -54,7 +54,7 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 41,
+   "gemeinsame_segmente": 42,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -104,6 +104,15 @@
    "datei": "power-query.md"
   },
   {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 32,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  },
+  {
    "id": "tool:direct-lake",
    "name": "Direct Lake",
    "kantentyp": "ko-vorkommen",
@@ -111,15 +120,6 @@
    "gemeinsame_segmente": 31,
    "beleg": "",
    "datei": "direct-lake.md"
-  },
-  {
-   "id": "topic:datenmodellierung",
-   "name": "Datenmodellierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 31,
-   "beleg": "",
-   "datei": "datenmodellierung.md"
   },
   {
    "id": "tool:directquery",
@@ -144,7 +144,7 @@
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 26,
+   "gemeinsame_segmente": 27,
    "beleg": "",
    "datei": "sicherheit.md"
   },
@@ -1276,6 +1276,31 @@
      "label": "51:29",
      "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=3089s",
      "sekunde": 3089
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.147,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "09:46",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=586s",
+     "sekunde": 586
+    },
+    {
+     "label": "25:50",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1550s",
+     "sekunde": 1550
+    },
+    {
+     "label": "27:34",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1654s",
+     "sekunde": 1654
     }
    ]
   },

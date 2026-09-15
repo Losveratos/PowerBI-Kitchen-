@@ -2,10 +2,10 @@
 id: "tool:direct-lake"
 name: "Direct Lake"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 32
+dokumente: 34
 kernaussagen: 32
 mit_kernaussagen: 16
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/direct-lake.html"
@@ -32,15 +32,15 @@ DirectLake, Direct-Lake
 | [OneLake](onelake.md) | Direct Lake setzt-voraus OneLake | automatisch extrahiert, Quellenstelle vorhanden | „Direct Lake on Oneel Lake, um noch mal kurz das Thema zurückzuspannen“ (Fabric & Power BI Quarterly · 2025 Q4) | 29 |
 | [Fabric Capacity](fabric-capacity.md) | Direct Lake setzt-voraus Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „Also wir nutzen kein Direct Direct Query oder Direct Lake, also Direct Query ganz böse“ (Daten-WG Life-Update \| Fabric Architekturen, 2026-08) | 20 |
 | [SQL Endpoint](sql-endpoint.md) | Direct Lake setzt-voraus SQL Endpoint | automatisch extrahiert, Quellenstelle vorhanden | „dem Sequel Endpoint verbundenen Direct Lake und und dem Lake verbundenen Direct Lake“ (Microsoft Fabric — braucht das wirklich jemand?) | 10 |
-| [Import Mode](import-mode.md) | Direct Lake gegensatz Import Mode | automatisch extrahiert, Quellenstelle vorhanden | „Aggregation kommt vor dem Laden in den Speicher, was natürlich auch extrem gut ist“ (Daten-WG Deep Dive Financial Reporting - part 6, 2025-08) | 6 |
+| [Import Mode](import-mode.md) | Direct Lake gegensatz Import Mode | automatisch extrahiert, Quellenstelle vorhanden | „Aggregation kommt vor dem Laden in den Speicher, was natürlich auch extrem gut ist“ (Daten-WG Deep Dive Financial Reporting - part 6, 2025-08) | 7 |
 | [Row-Level Security](row-level-security.md) | Row-Level Security gegensatz Direct Lake | automatisch extrahiert, Quellenstelle vorhanden | „dann sag mal tschüss zu Direct Lake. Das ist gerade aus dem Fenster“ (600 SQL-Tabellen in Fabric) | 13 |
 | [Notebook](notebook.md) | Direct Lake setzt-voraus Notebook | automatisch extrahiert, Quellenstelle vorhanden | „tut dann die Perspektive dann eben über das Notebook jeden Morgen um 7 Uhr äh laufen lassen“ (BI Thinkers Talk nr.75, 2026-04) | 18 |
 | [Lakehouse](lakehouse.md) | Direct Lake setzt-voraus Lakehouse | automatisch extrahiert, Quellenstelle vorhanden | „der Kunde hat einfach ein Direct Lake Modell letztendlich ... hier quasi ein Modell, was nach dem Deployment immer noch auf dem Lake House im Test hängt“ (BI Thinkers Talk n.73, 2026-02) | 40 |
-| [Import Mode](import-mode.md) | Import Mode gegensatz Direct Lake | automatisch extrahiert, Quellenstelle vorhanden | „für Importmodelle gibt's ja Deployment Rules, für Direct Lake nicht“ (BI Thinkers Talk n.72, 2026-01) | 6 |
-| [Import Mode](import-mode.md) | Direct Lake ersetzt Import Mode | automatisch extrahiert, Quellenstelle vorhanden | „Verbindung für den Bericht von dem Importmodell auf den Direct Lake Modell umgestellt“ (BI Thinkers Talk nr.67, 2025-09) | 6 |
+| [Import Mode](import-mode.md) | Import Mode gegensatz Direct Lake | automatisch extrahiert, Quellenstelle vorhanden | „für Importmodelle gibt's ja Deployment Rules, für Direct Lake nicht“ (BI Thinkers Talk n.72, 2026-01) | 7 |
+| [Import Mode](import-mode.md) | Direct Lake ersetzt Import Mode | automatisch extrahiert, Quellenstelle vorhanden | „Verbindung für den Bericht von dem Importmodell auf den Direct Lake Modell umgestellt“ (BI Thinkers Talk nr.67, 2025-09) | 7 |
 | [Composite Models](composite-models.md) | Direct Lake teil-von Composite Models | automatisch extrahiert, Quellenstelle vorhanden | „Direct Lake plus Import, dann eine Art stabiles Composite Modell“ (BI Thinkers Talk nr.67, 2025-09) | 5 |
-| [DirectQuery](directquery.md) | Direct Lake gegensatz DirectQuery | automatisch extrahiert, Quellenstelle vorhanden | „glaube ich ja, dass wir da Direct Lake nicht hinbekommen, aber für so ein kleinen Use Case wird's ja Direct Query wahrscheinlich auch tun“ (BI Thinkers Talk Nr.62, 2025-05) | 34 |
-| [Power BI](power-bi.md) | Direct Lake und Power BI im selben Segment | Heuristik, gezählt |  | 46 |
+| [DirectQuery](directquery.md) | Direct Lake gegensatz DirectQuery | automatisch extrahiert, Quellenstelle vorhanden | „glaube ich ja, dass wir da Direct Lake nicht hinbekommen, aber für so ein kleinen Use Case wird's ja Direct Query wahrscheinlich auch tun“ (BI Thinkers Talk Nr.62, 2025-05) | 35 |
+| [Power BI](power-bi.md) | Direct Lake und Power BI im selben Segment | Heuristik, gezählt |  | 47 |
 | [Microsoft Fabric](microsoft-fabric.md) | Direct Lake und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 45 |
 | [SQL](sql.md) | Direct Lake und SQL im selben Segment | Heuristik, gezählt |  | 31 |
 | [Performance](performance.md) | Direct Lake und Performance im selben Segment | Heuristik, gezählt |  | 31 |
@@ -88,6 +88,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?](https://www.youtube.com/watch?v=9u9YbdMUU-s) | 2026-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=9u9YbdMUU-s&t=0s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wann%20Import%20%28noch%29%20gewinnt) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Community%20%C2%B7%20Blogs%2C%20Benchmarks%20%26%20B%C3%BCcher) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Zwei%20Varianten%20%E2%80%94%20wichtig%20seit%202025) |
 | [Power BI Update April 2026](https://www.youtube.com/watch?v=fbpu8zLG3cc) | 2026-04-01 | kernaussagen+zeitstempel | [01:55](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=115s) · [02:58](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=178s) |
 | [Power BI Update Mai 2025](https://www.youtube.com/watch?v=zkfdfc5fo-E) | 2025-05-01 | nur-zeitstempel | [07:46](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=466s) · [09:19](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=559s) · [11:21](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=681s) |
@@ -111,6 +112,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Fabric Planning unboxing](https://www.youtube.com/watch?v=xCzKEIB4W5I) | 2026-03-01 | kernaussagen+zeitstempel | [03:06](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=186s) · [55:27](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3327s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Fabric%20vs.%20klassisches%20Power%20BI) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Soll%20man%20von%20Power%20BI%20Premium%20auf%20Fabric%20umstellen%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Direct%20Lake%20%28Fabric%29) |
 | [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [28:04](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1684s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [06:11](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=371s) |
 | [BI Thinkers Talk nr.63](https://www.youtube.com/watch?v=9VX4-lLa0EI) | 2025-06-01 | nur-zeitstempel | [52:09](https://www.youtube.com/watch?v=9VX4-lLa0EI&t=3129s) |
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [34:28](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=2068s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [09:01](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=541s) |

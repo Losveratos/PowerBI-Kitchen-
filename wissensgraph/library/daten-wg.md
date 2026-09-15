@@ -2,10 +2,10 @@
 id: "topic:daten-wg"
 name: "Daten-WG"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 80
+dokumente: 84
 kernaussagen: 40
 mit_kernaussagen: 11
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/daten-wg.html"
@@ -29,19 +29,19 @@ Daten WG, DatenWG
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Power BI](power-bi.md) | Daten-WG und Power BI im selben Segment | Heuristik, gezählt |  | 38 |
-| [Microsoft Fabric](microsoft-fabric.md) | Daten-WG und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 29 |
-| [Visualisierung](visualisierung.md) | Daten-WG und Visualisierung im selben Segment | Heuristik, gezählt |  | 22 |
-| [KI](ki.md) | Daten-WG und KI im selben Segment | Heuristik, gezählt |  | 22 |
-| [Konferenz](konferenz.md) | Daten-WG und Konferenz im selben Segment | Heuristik, gezählt |  | 17 |
-| [Community](community.md) | Daten-WG und Community im selben Segment | Heuristik, gezählt |  | 17 |
-| [Reporting](reporting.md) | Daten-WG und Reporting im selben Segment | Heuristik, gezählt |  | 15 |
-| [Sicherheit](sicherheit.md) | Daten-WG und Sicherheit im selben Segment | Heuristik, gezählt |  | 13 |
+| [Power BI](power-bi.md) | Daten-WG und Power BI im selben Segment | Heuristik, gezählt |  | 42 |
+| [Microsoft Fabric](microsoft-fabric.md) | Daten-WG und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 33 |
+| [Visualisierung](visualisierung.md) | Daten-WG und Visualisierung im selben Segment | Heuristik, gezählt |  | 25 |
+| [KI](ki.md) | Daten-WG und KI im selben Segment | Heuristik, gezählt |  | 24 |
+| [Konferenz](konferenz.md) | Daten-WG und Konferenz im selben Segment | Heuristik, gezählt |  | 19 |
+| [Community](community.md) | Daten-WG und Community im selben Segment | Heuristik, gezählt |  | 18 |
+| [Reporting](reporting.md) | Daten-WG und Reporting im selben Segment | Heuristik, gezählt |  | 17 |
+| [Planung](planung.md) | Daten-WG und Planung im selben Segment | Heuristik, gezählt |  | 14 |
+| [Sicherheit](sicherheit.md) | Daten-WG und Sicherheit im selben Segment | Heuristik, gezählt |  | 14 |
 | [Lakehouse](lakehouse.md) | Daten-WG und Lakehouse im selben Segment | Heuristik, gezählt |  | 13 |
-| [Planung](planung.md) | Daten-WG und Planung im selben Segment | Heuristik, gezählt |  | 12 |
-| [Warehouse](warehouse.md) | Daten-WG und Warehouse im selben Segment | Heuristik, gezählt |  | 12 |
+| [Warehouse](warehouse.md) | Daten-WG und Warehouse im selben Segment | Heuristik, gezählt |  | 13 |
+| [Datenmodellierung](datenmodellierung.md) | Daten-WG und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 12 |
 | [OneLake](onelake.md) | Daten-WG und OneLake im selben Segment | Heuristik, gezählt |  | 11 |
-| [Datenmodellierung](datenmodellierung.md) | Daten-WG und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 11 |
 | [Notebook](notebook.md) | Daten-WG und Notebook im selben Segment | Heuristik, gezählt |  | 11 |
 | [SQL](sql.md) | Daten-WG und SQL im selben Segment | Heuristik, gezählt |  | 10 |
 
@@ -96,9 +96,10 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [#008 · Suchst du unsere Tutorials? Hier sind sie!](https://www.youtube.com/watch?v=10jBGN2K52I) | 2026-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=10jBGN2K52I&t=0s) |
 | [MCP@Daten-WG@SQL Konferenz](https://www.youtube.com/watch?v=l_aHydZyh4s) | 2026-03-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s) |
-| [Werbung \| Daten WG Offsite in Dortmund – Power BI Event am 29.10.](https://www.youtube.com/watch?v=H0ENBDQnVcs) | 2025-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=H0ENBDQnVcs&t=0s) |
 | [So #hackst du einen #PowerBI Bericht](https://www.youtube.com/watch?v=UO6SpU-hKRs) | 2025-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=UO6SpU-hKRs&t=0s) |
+| [Werbung \| Daten WG Offsite in Dortmund – Power BI Event am 29.10.](https://www.youtube.com/watch?v=H0ENBDQnVcs) | 2025-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=H0ENBDQnVcs&t=0s) |
 | [Willkommen auf dem Daten-WG Kanal](https://www.youtube.com/watch?v=5atgv1IOijA) | 2025-04-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=5atgv1IOijA&t=0s) |
 | [Wie war die Daten-WG? · Im Gespräch mit Artur König](https://www.youtube.com/watch?v=z4ZeHPzIeeU) | 2025-03-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1s) · [06:26](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=386s) · [14:51](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=891s) |
 | [Wie war die Daten-WG 2025? (Teil 1)](https://www.youtube.com/watch?v=aEXtFWW-pmo) | 2025-05-01 | kernaussagen+zeitstempel | [00:01](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1s) · [01:40](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=100s) · [16:12](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=972s) |
@@ -106,12 +107,14 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Country Indicator Explorer — Lebenszufriedenheit und ihre Korrelate](https://datenwgknowledgekitchen.com/laender-indikatoren-explorer.html) | 2026-08-14 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/laender-indikatoren-explorer.html) |
 | [Power BI Update Juni 2025](https://www.youtube.com/watch?v=LnNoXBIG7Lc) | 2025-06-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=0s) |
 | [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=0s) · [01:34](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=94s) · [07:46](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=466s) |
+| [Was machen die eigentlich? \| Daten-WG Podcast mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=_C69B0i-QQA) | 2026-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=_C69B0i-QQA&t=0s) · [10:26](https://www.youtube.com/watch?v=_C69B0i-QQA&t=626s) · [19:05](https://www.youtube.com/watch?v=_C69B0i-QQA&t=1145s) |
 | [Wie war die Daten-WG? (2025, Teil 2)](https://www.youtube.com/watch?v=XxPFAQfLyuA) | 2025-04-01 | kernaussagen+zeitstempel | [00:01](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1s) · [12:38](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=758s) · [25:57](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1557s) |
 | [Power BI Update November 2025](https://www.youtube.com/watch?v=XJZxYNIeEVc) | 2025-11-01 | nur-zeitstempel | [01:17](https://www.youtube.com/watch?v=XJZxYNIeEVc&t=77s) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [01:33](https://www.youtube.com/watch?v=luk4S4ukKmg&t=93s) · [03:07](https://www.youtube.com/watch?v=luk4S4ukKmg&t=187s) · [45:26](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2726s) |
 | [Power BI Update April 2026](https://www.youtube.com/watch?v=fbpu8zLG3cc) | 2026-04-01 | kernaussagen+zeitstempel | [04:22](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=262s) |
 | [175 Jahre Klimageschichte zum Anfassen — Waermestreifen 3D](https://datenwgknowledgekitchen.com/waermestreifen-3d.html) | 2026-08-04 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/waermestreifen-3d.html) |
 | [Expanded Tables in DAX verstehen – Beziehungen & Filter erklärt \| Power BI Tutorial](https://www.youtube.com/watch?v=LQQEn7IOb7w) | 2025-12-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=LQQEn7IOb7w&t=1s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=0s) · [06:11](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=371s) · [45:53](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2753s) |
 | [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=e50qKdVn-24&t=0s) · [24:39](https://www.youtube.com/watch?v=e50qKdVn-24&t=1479s) |
 | [Wie viel CO₂ steckt in einem Token? — KI-Energie-Simulator](https://datenwgknowledgekitchen.com/ki-co2-simulator.html) | 2026-07-03 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/ki-co2-simulator.html) |
 | [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=0s) · [01:38](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=98s) |
@@ -128,16 +131,13 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=0s) · [25:15](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1515s) |
 | [Wie wahrscheinlich ist die KI-Apokalypse? — p(doom) im Ueberblick](https://datenwgknowledgekitchen.com/pdoom-ki-risiko.html) | 2026-06-08 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/pdoom-ki-risiko.html) |
 | [Power BI Update Mai 2025](https://www.youtube.com/watch?v=zkfdfc5fo-E) | 2025-05-01 | nur-zeitstempel | [15:03](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=903s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29) |
 | [Metadaten als Superkraft](https://www.youtube.com/watch?v=UUlPoJOhco8) | — | kernaussagen+zeitstempel | [00:01](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1s) |
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [00:01](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1s) · [09:27](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=567s) |
 | [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=mTVeZzshLzE&t=0s) · [46:22](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2782s) |
 | [Was kostet ein klimaneutrales Stromsystem?](https://datenwgknowledgekitchen.com/strommix-story.html) | 2026-08-20 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/strommix-story.html) |
-| [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=0s) · [35:32](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2132s) |
-| [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=0s) · [57:15](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=3435s) |
-| [BI Thinkers Talk n.73](https://www.youtube.com/watch?v=pOJpXxsfUt0) | 2026-02-01 | kernaussagen+zeitstempel | [50:24](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3024s) · [57:27](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3447s) |
-| [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [53:23](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3203s) · [56:00](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3360s) |
 
-40 von 80 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/daten-wg.json).
+40 von 84 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/daten-wg.json).
 
 ## Hinweise
 

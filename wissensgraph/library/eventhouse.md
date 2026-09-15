@@ -2,10 +2,10 @@
 id: "tool:eventhouse"
 name: "Eventhouse"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 10
+dokumente: 11
 kernaussagen: 7
 mit_kernaussagen: 3
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/eventhouse.html"
@@ -33,8 +33,8 @@ KQL, Kusto, Real-Time Intelligence, Eventstream, Realtime Intelligence
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [Semantic Model](semantic-model.md) | Eventhouse gegensatz Semantic Model | automatisch extrahiert, Quellenstelle vorhanden | „die Abfrage wird dem Eventhaus zugerechnet und nicht dem Dataset“ (BI Thinkers Talk nr.64, 2025-07) | 0 |
-| [Microsoft Fabric](microsoft-fabric.md) | Eventhouse teil-von Microsoft Fabric | automatisch extrahiert, Quellenstelle vorhanden | „das ist ein Eventhaus in Fabric“ (Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup, 2025-06) | 19 |
-| [Echtzeit](echtzeit.md) | Eventhouse und Echtzeit im selben Segment | Heuristik, gezählt |  | 22 |
+| [Microsoft Fabric](microsoft-fabric.md) | Eventhouse teil-von Microsoft Fabric | automatisch extrahiert, Quellenstelle vorhanden | „das ist ein Eventhaus in Fabric“ (Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup, 2025-06) | 20 |
+| [Echtzeit](echtzeit.md) | Eventhouse und Echtzeit im selben Segment | Heuristik, gezählt |  | 23 |
 | [Dataflow](dataflow.md) | Eventhouse und Dataflow im selben Segment | Heuristik, gezählt |  | 14 |
 | [Lakehouse](lakehouse.md) | Eventhouse und Lakehouse im selben Segment | Heuristik, gezählt |  | 14 |
 | [Power BI](power-bi.md) | Eventhouse und Power BI im selben Segment | Heuristik, gezählt |  | 14 |
@@ -71,6 +71,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wer%20geht%20wo%20auf%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Workload-Landkarte%20%28Stand%202026%29) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Real-Time-Kette) |
 | [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | kernaussagen+zeitstempel | [32:06](https://www.youtube.com/watch?v=4VVNDNusq4U&t=1926s) · [33:57](https://www.youtube.com/watch?v=4VVNDNusq4U&t=2037s) · [37:15](https://www.youtube.com/watch?v=4VVNDNusq4U&t=2235s) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [37:56](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2276s) · [42:49](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2569s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [42:42](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2562s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [28:14](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1694s) |
 | [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | kernaussagen+zeitstempel | [04:40](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=280s) |
 | [BI Thinkers Talk nr.77](https://www.youtube.com/watch?v=eWfTt93anl4) | — | nur-zeitstempel | [48:24](https://www.youtube.com/watch?v=eWfTt93anl4&t=2904s) |

@@ -2,10 +2,10 @@
 id: "tool:snowflake"
 name: "Snowflake"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 21
+dokumente: 23
 kernaussagen: 9
 mit_kernaussagen: 9
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/snowflake.html"
@@ -28,15 +28,15 @@ Keine weiteren Schreibweisen hinterlegt.
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [Mirroring](mirroring.md) | Snowflake teil-von Mirroring | automatisch extrahiert, Quellenstelle vorhanden | „für Snowflake komplett bidirektionale Geschichte“ (Fabric & Power BI Quarterly · 2026-1, 2026-01) | 25 |
-| [Microsoft Fabric](microsoft-fabric.md) | Snowflake und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 45 |
-| [Power BI](power-bi.md) | Snowflake und Power BI im selben Segment | Heuristik, gezählt |  | 29 |
+| [Microsoft Fabric](microsoft-fabric.md) | Snowflake und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 46 |
+| [Power BI](power-bi.md) | Snowflake und Power BI im selben Segment | Heuristik, gezählt |  | 31 |
 | [OneLake](onelake.md) | Snowflake und OneLake im selben Segment | Heuristik, gezählt |  | 18 |
-| [DirectQuery](directquery.md) | Snowflake und DirectQuery im selben Segment | Heuristik, gezählt |  | 16 |
-| [Warehouse](warehouse.md) | Snowflake und Warehouse im selben Segment | Heuristik, gezählt |  | 14 |
+| [DirectQuery](directquery.md) | Snowflake und DirectQuery im selben Segment | Heuristik, gezählt |  | 17 |
 | [Performance](performance.md) | Snowflake und Performance im selben Segment | Heuristik, gezählt |  | 14 |
 | [Reporting](reporting.md) | Snowflake und Reporting im selben Segment | Heuristik, gezählt |  | 14 |
 | [Lakehouse](lakehouse.md) | Snowflake und Lakehouse im selben Segment | Heuristik, gezählt |  | 13 |
 | [SQL](sql.md) | Snowflake und SQL im selben Segment | Heuristik, gezählt |  | 13 |
+| [Warehouse](warehouse.md) | Snowflake und Warehouse im selben Segment | Heuristik, gezählt |  | 13 |
 | [Direct Lake](direct-lake.md) | Snowflake und Direct Lake im selben Segment | Heuristik, gezählt |  | 13 |
 | [Governance](governance.md) | Snowflake und Governance im selben Segment | Heuristik, gezählt |  | 12 |
 | [Delta Lake](delta-lake.md) | Snowflake und Delta Lake im selben Segment | Heuristik, gezählt |  | 10 |
@@ -70,6 +70,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [22:30](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1350s) · [25:03](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s) · [26:42](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1602s) |
 | [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [22:42](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1362s) · [24:00](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1440s) · [25:36](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1536s) |
 | [Starting with Microsft Fabric the Skills you need](https://www.youtube.com/watch?v=m3xNYfVih0Q) | 2024-08-01 | nur-zeitstempel | [08:08](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=488s) · [09:42](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=582s) |
+| [Automatisierung gewinnt \| Daten-WG Podcast mit Reinhard Mense](https://www.youtube.com/watch?v=3-hXnNLKnAw) | 2026-07-01 | nur-zeitstempel | [04:39](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=279s) · [40:45](https://www.youtube.com/watch?v=3-hXnNLKnAw&t=2445s) |
+| [Was machen die eigentlich? \| Daten-WG Podcast mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=_C69B0i-QQA) | 2026-08-01 | nur-zeitstempel | [16:15](https://www.youtube.com/watch?v=_C69B0i-QQA&t=975s) |
 | [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | kernaussagen+zeitstempel | [13:25](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=805s) · [15:05](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=905s) |
 | [10 Jahre BI für alle? Was Power BI wirklich verändert hat](https://www.youtube.com/watch?v=9wl_PLvgvyc) | 2025-08-01 | nur-zeitstempel | [17:08](https://www.youtube.com/watch?v=9wl_PLvgvyc&t=1028s) |
 | [Why Passion Beats Niche](https://www.youtube.com/watch?v=ihi7UiJ_TtQ) | 2025-09-01 | kernaussagen+zeitstempel | [06:12](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=372s) |
@@ -82,8 +84,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [BI Thinkers Talk Nr.62](https://www.youtube.com/watch?v=Wwvhv8WA2Qc) | 2025-05-01 | kernaussagen+zeitstempel | [38:17](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2297s) |
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [24:50](https://www.youtube.com/watch?v=G8s96sHUHac&t=1490s) |
 | [BI Thinkers Talk - Data Modelling - Fabric Data Days Edition](https://www.youtube.com/watch?v=mUALlPmGcEk) | 2025-11-01 | kernaussagen+zeitstempel | [22:42](https://www.youtube.com/watch?v=mUALlPmGcEk&t=1362s) |
+| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-zeitstempel | [21:22](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1282s) |
 | [BI Thinkers Talk nr.71](https://www.youtube.com/watch?v=LUrL8A5lNgI) | 2025-12-01 | kernaussagen+zeitstempel | [08:04](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=484s) |
-| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
 
 ## Hinweise
 

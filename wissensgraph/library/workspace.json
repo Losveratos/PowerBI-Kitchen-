@@ -3,14 +3,14 @@
  "name": "Workspace",
  "typ": "tool",
  "slug": "workspace",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/workspace.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/workspace.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/workspace.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/workspace.json",
- "dokumente_gesamt": 45,
+ "dokumente_gesamt": 48,
  "kernaussagen_gesamt": 21,
  "mit_kernaussagen": 10,
  "aliase": [
@@ -52,7 +52,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 74,
+   "gemeinsame_segmente": 77,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -61,7 +61,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 58,
+   "gemeinsame_segmente": 59,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -79,7 +79,7 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 33,
+   "gemeinsame_segmente": 35,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -97,7 +97,7 @@
    "name": "Data Pipeline",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 21,
+   "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "data-pipeline.md"
   },
@@ -115,9 +115,18 @@
    "name": "Sicherheit",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 17,
+   "gemeinsame_segmente": 19,
    "beleg": "",
    "datei": "sicherheit.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 17,
+   "beleg": "",
+   "datei": "performance.md"
   },
   {
    "id": "tool:warehouse",
@@ -129,6 +138,15 @@
    "datei": "warehouse.md"
   },
   {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 16,
+   "beleg": "",
+   "datei": "onelake.md"
+  },
+  {
    "id": "tool:sql",
    "name": "SQL",
    "kantentyp": "ko-vorkommen",
@@ -136,24 +154,6 @@
    "gemeinsame_segmente": 16,
    "beleg": "",
    "datei": "sql.md"
-  },
-  {
-   "id": "tool:premium",
-   "name": "Premium",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 16,
-   "beleg": "",
-   "datei": "premium.md"
-  },
-  {
-   "id": "tool:direct-lake",
-   "name": "Direct Lake",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 16,
-   "beleg": "",
-   "datei": "direct-lake.md"
   }
  ],
  "kernaussagen": [
@@ -469,26 +469,6 @@
    ]
   },
   {
-   "id": "yt:GKLxM3317Xk",
-   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
-   "datum": "2025-09-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.286,
-   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "yt:YzfcMurbWNc",
    "titel": "Power BI-Teams werden Fabric-Datendienstleister",
    "datum": "",
@@ -609,6 +589,21 @@
    ]
   },
   {
+   "id": "yt:_AxvdCW0ST4",
+   "titel": "Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4&t=1s",
+     "sekunde": 1
+    }
+   ]
+  },
+  {
    "id": "yt:BDnwlOqRElY",
    "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
    "datum": "2025-06-01",
@@ -720,6 +715,51 @@
      "label": "37:15",
      "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2235s",
      "sekunde": 2235
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.147,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "09:46",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=586s",
+     "sekunde": 586
+    },
+    {
+     "label": "35:11",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2111s",
+     "sekunde": 2111
+    },
+    {
+     "label": "39:46",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2386s",
+     "sekunde": 2386
+    }
+   ]
+  },
+  {
+   "id": "yt:GKLxM3317Xk",
+   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
+   "sprungmarken": [
+    {
+     "label": "00:18",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk&t=18s",
+     "sekunde": 18
+    },
+    {
+     "label": "02:53",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk&t=173s",
+     "sekunde": 173
     }
    ]
   },
@@ -1275,6 +1315,21 @@
      "label": "06:26",
      "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=386s",
      "sekunde": 386
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.023,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben",
+     "sekunde": null
     }
    ]
   },

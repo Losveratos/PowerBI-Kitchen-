@@ -3,14 +3,14 @@
  "name": "Teams",
  "typ": "tool",
  "slug": "teams",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/teams.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/teams.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/teams.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/teams.json",
- "dokumente_gesamt": 25,
+ "dokumente_gesamt": 26,
  "kernaussagen_gesamt": 3,
  "mit_kernaussagen": 1,
  "aliase": [
@@ -42,7 +42,7 @@
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 13,
+   "gemeinsame_segmente": 14,
    "beleg": "",
    "datei": "visualisierung.md"
   },
@@ -571,6 +571,21 @@
    ]
   },
   {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.023,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.8%3A%20Chart-Mix%2C%20Lernkurve%2C%20Null-Option",
+     "sekunde": null
+    }
+   ]
+  },
+  {
    "id": "page:power_bi_einsteiger_guide_v4",
    "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
    "datum": "2026-08-31",
@@ -614,7 +629,7 @@
    "id": "yt:c90oD4zR1Aw",
    "titel": "More than PBIX",
    "datum": "2025-12-01",
-   "abdeckung": "nur-metadaten",
+   "abdeckung": "nur-zeitstempel",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
    "sprungmarken": []

@@ -2,10 +2,10 @@
 id: "topic:mittelstand"
 name: "Mittelstand"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 17
+dokumente: 18
 kernaussagen: 9
 mit_kernaussagen: 7
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/mittelstand.html"
@@ -30,15 +30,21 @@ KMU, mittelständisch, Mittelständler
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
+| [Lizenzen](lizenzen.md) | Mittelstand und Lizenzen im selben Segment | Heuristik, gezählt |  | 12 |
 | [KI](ki.md) | Mittelstand und KI im selben Segment | Heuristik, gezählt |  | 9 |
+| [Microsoft Fabric](microsoft-fabric.md) | Mittelstand und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 8 |
+| [Deneb](deneb.md) | Mittelstand und Deneb im selben Segment | Heuristik, gezählt |  | 8 |
 | [Power BI](power-bi.md) | Mittelstand und Power BI im selben Segment | Heuristik, gezählt |  | 7 |
-| [Microsoft Fabric](microsoft-fabric.md) | Mittelstand und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 7 |
+| [Reporting](reporting.md) | Mittelstand und Reporting im selben Segment | Heuristik, gezählt |  | 7 |
+| [Visualisierung](visualisierung.md) | Mittelstand und Visualisierung im selben Segment | Heuristik, gezählt |  | 6 |
+| [Fabric Capacity](fabric-capacity.md) | Mittelstand und Fabric Capacity im selben Segment | Heuristik, gezählt |  | 5 |
+| [Governance](governance.md) | Mittelstand und Governance im selben Segment | Heuristik, gezählt |  | 5 |
 | [Warehouse](warehouse.md) | Mittelstand und Warehouse im selben Segment | Heuristik, gezählt |  | 4 |
+| [Sicherheit](sicherheit.md) | Mittelstand und Sicherheit im selben Segment | Heuristik, gezählt |  | 4 |
 | [Datenmodellierung](datenmodellierung.md) | Mittelstand und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 3 |
 | [Performance](performance.md) | Mittelstand und Performance im selben Segment | Heuristik, gezählt |  | 3 |
+| [Excel](excel.md) | Mittelstand und Excel im selben Segment | Heuristik, gezählt |  | 3 |
 | [SAP](sap.md) | Mittelstand und SAP im selben Segment | Heuristik, gezählt |  | 3 |
-| [Datenqualität](datenqualitat.md) | Mittelstand und Datenqualität im selben Segment | Heuristik, gezählt |  | 3 |
-| [Strategie](strategie.md) | Mittelstand und Strategie im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -61,6 +67,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
 | [27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite](https://www.youtube.com/watch?v=dKA-38gRD8Q) | 2026-05-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=0s) · [08:12](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Modellunsicherheit%20je%20Ansatz%20%28v0.12%29) |
 | [LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management](https://www.youtube.com/watch?v=DFw664hd1IE) | 2026-04-01 | kernaussagen+zeitstempel | [01:40](https://www.youtube.com/watch?v=DFw664hd1IE&t=100s) · [03:17](https://www.youtube.com/watch?v=DFw664hd1IE&t=197s) · [06:24](https://www.youtube.com/watch?v=DFw664hd1IE&t=384s) |
 | [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [25:12](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1512s) · [26:51](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1611s) · [28:48](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1728s) |
 | [The Day After Tomorrow – Nach der Einführung geht es erst richtig los \| Power BI Summit 2023](https://www.youtube.com/watch?v=KwySyTxW_EI) | 2023-03-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=KwySyTxW_EI&t=0s) · [54:13](https://www.youtube.com/watch?v=KwySyTxW_EI&t=3253s) |

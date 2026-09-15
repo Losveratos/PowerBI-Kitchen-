@@ -2,10 +2,10 @@
 id: "tool:mirroring"
 name: "Mirroring"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 17
+dokumente: 18
 kernaussagen: 34
 mit_kernaussagen: 11
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/mirroring.html"
@@ -36,15 +36,15 @@ Mirrored Database, Spiegelung, gespiegelt
 | [OneLake](onelake.md) | Mirroring setzt-voraus OneLake | automatisch extrahiert, Quellenstelle vorhanden | „geben ihn mit dem entsprechenden Event als Row Marker in Oneel Lake und Fabric baut daraus auf der Fabricseite eine identische Tabelle“ (Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL \| Fabric Tutorial, 2026-01) | 16 |
 | [Fabric Capacity](fabric-capacity.md) | Mirroring teil-von Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „die Speicherkosten ... sind ja die Speicherkosten je nach äh Kapazität im Terabyte Bereich äh mit drin (Segment 8)“ (BI Thinkers Talk nr.71, 2025-12) | 10 |
 | [Fabric Capacity](fabric-capacity.md) | Mirroring setzt-voraus Fabric Capacity | automatisch extrahiert, Quellenstelle vorhanden | „hast du je nachdem, was für eine Kapazität du bei Fabric gekauft hast, kostenlosen Mirror Speicher dabei“ (Daten-WG Thinkers Talk nr.65, 2025-07) | 10 |
-| [Microsoft Fabric](microsoft-fabric.md) | Mirroring und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 33 |
+| [Microsoft Fabric](microsoft-fabric.md) | Mirroring und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 34 |
 | [Power BI](power-bi.md) | Mirroring und Power BI im selben Segment | Heuristik, gezählt |  | 16 |
 | [SQL](sql.md) | Mirroring und SQL im selben Segment | Heuristik, gezählt |  | 13 |
 | [Lizenzen](lizenzen.md) | Mirroring und Lizenzen im selben Segment | Heuristik, gezählt |  | 10 |
+| [Reporting](reporting.md) | Mirroring und Reporting im selben Segment | Heuristik, gezählt |  | 9 |
 | [Governance](governance.md) | Mirroring und Governance im selben Segment | Heuristik, gezählt |  | 9 |
 | [Delta Lake](delta-lake.md) | Mirroring und Delta Lake im selben Segment | Heuristik, gezählt |  | 9 |
+| [Echtzeit](echtzeit.md) | Mirroring und Echtzeit im selben Segment | Heuristik, gezählt |  | 8 |
 | [Direct Lake](direct-lake.md) | Mirroring und Direct Lake im selben Segment | Heuristik, gezählt |  | 8 |
-| [Lakehouse](lakehouse.md) | Mirroring und Lakehouse im selben Segment | Heuristik, gezählt |  | 8 |
-| [Performance](performance.md) | Mirroring und Performance im selben Segment | Heuristik, gezählt |  | 8 |
 
 ## Kernaussagen
 
@@ -105,6 +105,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [BI Thinkers Talk nr.71](https://www.youtube.com/watch?v=LUrL8A5lNgI) | 2025-12-01 | kernaussagen+zeitstempel | [11:31](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=691s) · [13:03](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=783s) |
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [09:27](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=567s) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [30:50](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1850s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [42:42](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2562s) |
 | [BI Thinkers Talk nr.68](https://www.youtube.com/watch?v=VD1N68Fhoco) | 2025-10-01 | nur-zeitstempel | [1:02:40](https://www.youtube.com/watch?v=VD1N68Fhoco&t=3760s) |
 | [Daten-WG Special: Power BI vs. Qlik -part2](https://www.youtube.com/watch?v=_Vh5fDfHWz4) | 2025-10-01 | nur-zeitstempel | [1:05:36](https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=3936s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Soll%20man%20von%20Power%20BI%20Premium%20auf%20Fabric%20umstellen%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Aus%20dem%20Kanal%20%C2%B7%20Fabric%20%26%20Tooling%20in%20der%20Praxis) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Joins%20%28Merges%29%20%C2%B7%20Tabellen%20verkn%C3%BCpfen) |

@@ -3,8 +3,8 @@
  "name": "Datenkultur",
  "typ": "thema",
  "slug": "datenkultur",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenkultur.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/datenkultur.html",
@@ -169,6 +169,31 @@
  ],
  "dokumente": [
   {
+   "id": "yt:Me3a2QOx21I",
+   "titel": "Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.214,
+   "url": "https://www.youtube.com/watch?v=Me3a2QOx21I",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=Me3a2QOx21I&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "00:48",
+     "url": "https://www.youtube.com/watch?v=Me3a2QOx21I&t=48s",
+     "sekunde": 48
+    },
+    {
+     "label": "06:23",
+     "url": "https://www.youtube.com/watch?v=Me3a2QOx21I&t=383s",
+     "sekunde": 383
+    }
+   ]
+  },
+  {
    "id": "yt:XxPFAQfLyuA",
    "titel": "Wie war die Daten-WG? (2025, Teil 2)",
    "datum": "2025-04-01",
@@ -282,15 +307,6 @@
      "sekunde": 1153
     }
    ]
-  },
-  {
-   "id": "yt:Me3a2QOx21I",
-   "titel": "Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug",
-   "datum": "2026-07-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=Me3a2QOx21I",
-   "sprungmarken": []
   },
   {
    "id": "yt:lH_-A8NAQ-k",

@@ -2,10 +2,10 @@
 id: "topic:ibcs"
 name: "IBCS"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 21
+dokumente: 22
 kernaussagen: 7
 mit_kernaussagen: 4
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/ibcs.html"
@@ -32,20 +32,20 @@ Hichert, Semantic Notation, SUCCESS, Notation
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [Semantic Model](semantic-model.md) | IBCS setzt-voraus Semantic Model | automatisch extrahiert, Quellenstelle vorhanden | „wir wollen eigentlich eine Berichtsänderung, aber dazu braucht Modeländerung“ (BI Thinkers Talk nr.75, 2026-04) | 0 |
-| [Custom Visuals](custom-visuals.md) | IBCS setzt-voraus Custom Visuals | automatisch extrahiert, Quellenstelle vorhanden | „wer mal versucht hat irgendwas nachzubauen, was Richtung IBCS geht und kein Custom nutzt, der ist ein absoluter Masochist“ (10 Jahre Power BI, 2025-07) | 14 |
-| [Visualisierung](visualisierung.md) | IBCS und Visualisierung im selben Segment | Heuristik, gezählt |  | 56 |
-| [Reporting](reporting.md) | IBCS und Reporting im selben Segment | Heuristik, gezählt |  | 41 |
-| [Power BI](power-bi.md) | IBCS und Power BI im selben Segment | Heuristik, gezählt |  | 38 |
+| [Custom Visuals](custom-visuals.md) | IBCS setzt-voraus Custom Visuals | automatisch extrahiert, Quellenstelle vorhanden | „wer mal versucht hat irgendwas nachzubauen, was Richtung IBCS geht und kein Custom nutzt, der ist ein absoluter Masochist“ (10 Jahre Power BI, 2025-07) | 18 |
+| [Visualisierung](visualisierung.md) | IBCS und Visualisierung im selben Segment | Heuristik, gezählt |  | 65 |
+| [Reporting](reporting.md) | IBCS und Reporting im selben Segment | Heuristik, gezählt |  | 45 |
+| [Power BI](power-bi.md) | IBCS und Power BI im selben Segment | Heuristik, gezählt |  | 42 |
 | [Planung](planung.md) | IBCS und Planung im selben Segment | Heuristik, gezählt |  | 19 |
-| [Zebra BI](zebra-bi.md) | IBCS und Zebra BI im selben Segment | Heuristik, gezählt |  | 9 |
-| [DAX](dax.md) | IBCS und DAX im selben Segment | Heuristik, gezählt |  | 7 |
-| [KI](ki.md) | IBCS und KI im selben Segment | Heuristik, gezählt |  | 6 |
-| [Power BI Desktop](power-bi-desktop.md) | IBCS und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 6 |
-| [Daten-WG](daten-wg.md) | IBCS und Daten-WG im selben Segment | Heuristik, gezählt |  | 5 |
+| [Zebra BI](zebra-bi.md) | IBCS und Zebra BI im selben Segment | Heuristik, gezählt |  | 14 |
+| [Deneb](deneb.md) | IBCS und Deneb im selben Segment | Heuristik, gezählt |  | 10 |
+| [DAX](dax.md) | IBCS und DAX im selben Segment | Heuristik, gezählt |  | 8 |
+| [Power BI Desktop](power-bi-desktop.md) | IBCS und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 8 |
+| [KI](ki.md) | IBCS und KI im selben Segment | Heuristik, gezählt |  | 7 |
+| [Daten-WG](daten-wg.md) | IBCS und Daten-WG im selben Segment | Heuristik, gezählt |  | 6 |
+| [Lizenzen](lizenzen.md) | IBCS und Lizenzen im selben Segment | Heuristik, gezählt |  | 6 |
+| [Microsoft Fabric](microsoft-fabric.md) | IBCS und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 4 |
 | [Power BI Service](power-bi-service.md) | IBCS und Power BI Service im selben Segment | Heuristik, gezählt |  | 4 |
-| [Deneb](deneb.md) | IBCS und Deneb im selben Segment | Heuristik, gezählt |  | 4 |
-| [SAP](sap.md) | IBCS und SAP im selben Segment | Heuristik, gezählt |  | 4 |
-| [Performance](performance.md) | IBCS und Performance im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -65,11 +65,12 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
-| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=02%20%C2%B7%20Continue%20in%20the%20documentation) |
 | [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=01%20%C2%B7%20In%20drei%20Schritten%20loslegen) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=02%20%C2%B7%20Weiter%20in%20der%20Dokumentation) |
+| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=02%20%C2%B7%20Continue%20in%20the%20documentation) |
 | [Business Chart Builder — Anleitung](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Abweichungen%20%26%20Szenarien%20%E2%80%94%20das%20Herzst%C3%BCck) · [Abschnitt](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=IBCS-Check%20%28eingebauter%20Linter%29) · [Abschnitt](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Auch%20ohne%20Power%20BI%3A%20schnell%20starten%2C%20annotieren%2C%20ausgeben%20%F0%9F%98%89) |
 | [ChartKitchen byDatenWG — Documentation](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=01%20%C2%B7%20What%20is%20ChartKitchen%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=Layout) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=A%20rounding%20note%20appears%20below%20the%20%CE%A3%20row.) |
 | [ChartKitchen byDatenWG — Dokumentation](https://datenwgknowledgekitchen.com/chartkitchen-doku.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=01%20%C2%B7%20Was%20ist%20ChartKitchen%3F) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Layout) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Unter%20der%20%CE%A3-Zeile%20erscheint%20ein%20Rundungshinweis.) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Rahmenbedingungen%2C%20die%20das%20Ergebnis%20kippen) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Was%20das%20Werkzeug%20rechnet) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29) |
 | [Report-Design als Framework — ein Skill für Power BI](https://datenwgknowledgekitchen.com/powerbi-design-skill.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=F%C3%BCr%20wen%3A%20%2AMenschen%20und%20Agenten%2A) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=06%20%C2%B7%20Deep%20Dive%3A%20%2AIBCS%2A%20%26%20Visualisierung) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=UNIFY%20%E2%80%94%20Apply%20semantic%20notation) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Hatched%20%C2%B7%20Forecast%20%2F%20Vorjahr%20%28FC%2C%20PY%29) |
 | [Objektive Daten gibt es nicht](https://www.youtube.com/watch?v=-_4bfrjRCVo) | 2026-06-01 | nur-zeitstempel | [16:30](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=990s) · [44:22](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2662s) · [45:55](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2755s) |

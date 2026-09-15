@@ -2,10 +2,10 @@
 id: "tool:power-automate"
 name: "Power Automate"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 13
+dokumente: 14
 kernaussagen: 18
 mit_kernaussagen: 5
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-automate.html"
@@ -85,6 +85,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Von Patronen zu Prozessen](https://www.youtube.com/watch?v=0cHtxIm7fVw) | 2025-08-01 | nur-zeitstempel | [17:12](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=1032s) |
 | [Von Patronen zu Prozessen (nur Ton)](https://www.youtube.com/watch?v=s3CveEVoDvo) | 2025-07-01 | nur-zeitstempel | [17:12](https://www.youtube.com/watch?v=s3CveEVoDvo&t=1032s) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [47:43](https://www.youtube.com/watch?v=r416vanitYw&t=2863s) · [52:27](https://www.youtube.com/watch?v=r416vanitYw&t=3147s) |
+| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-zeitstempel | [14:14](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=854s) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [50:30](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3030s) |
 
 ## Hinweise

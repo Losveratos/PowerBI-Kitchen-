@@ -2,10 +2,10 @@
 id: "tool:github"
 name: "GitHub"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 26
+dokumente: 28
 kernaussagen: 8
 mit_kernaussagen: 5
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/github.html"
@@ -28,21 +28,21 @@ Git Hub
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Copilot](copilot.md) | Copilot setzt-voraus GitHub | automatisch extrahiert, Quellenstelle vorhanden | „dass wir hier im Gittaub Copilet angemeldet sind“ (Fabric Workload Demo mit Alexander Korn und Lukasz Obst, 2026-08) | 7 |
+| [Copilot](copilot.md) | Copilot setzt-voraus GitHub | automatisch extrahiert, Quellenstelle vorhanden | „dass wir hier im Gittaub Copilet angemeldet sind“ (Fabric Workload Demo mit Alexander Korn und Lukasz Obst, 2026-08) | 8 |
 | [Notebook](notebook.md) | Notebook setzt-voraus GitHub | automatisch extrahiert, Quellenstelle vorhanden | „Wir laden die Report Definition hier über das Gitub Repository“ (Daten-WG BI Thinkers Talk nr.66, 2025-08) | 5 |
-| [Power BI](power-bi.md) | GitHub und Power BI im selben Segment | Heuristik, gezählt |  | 16 |
-| [Visualisierung](visualisierung.md) | GitHub und Visualisierung im selben Segment | Heuristik, gezählt |  | 12 |
-| [Microsoft Fabric](microsoft-fabric.md) | GitHub und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 11 |
+| [Power BI](power-bi.md) | GitHub und Power BI im selben Segment | Heuristik, gezählt |  | 17 |
+| [Microsoft Fabric](microsoft-fabric.md) | GitHub und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 13 |
+| [Visualisierung](visualisierung.md) | GitHub und Visualisierung im selben Segment | Heuristik, gezählt |  | 13 |
 | [KI](ki.md) | GitHub und KI im selben Segment | Heuristik, gezählt |  | 9 |
+| [Reporting](reporting.md) | GitHub und Reporting im selben Segment | Heuristik, gezählt |  | 6 |
 | [DAX](dax.md) | GitHub und DAX im selben Segment | Heuristik, gezählt |  | 6 |
 | [Performance](performance.md) | GitHub und Performance im selben Segment | Heuristik, gezählt |  | 6 |
 | [Workspace](workspace.md) | GitHub und Workspace im selben Segment | Heuristik, gezählt |  | 5 |
 | [Power Query](power-query.md) | GitHub und Power Query im selben Segment | Heuristik, gezählt |  | 5 |
+| [Custom Visuals](custom-visuals.md) | GitHub und Custom Visuals im selben Segment | Heuristik, gezählt |  | 5 |
 | [Tabular Editor](tabular-editor.md) | GitHub und Tabular Editor im selben Segment | Heuristik, gezählt |  | 5 |
 | [Community](community.md) | GitHub und Community im selben Segment | Heuristik, gezählt |  | 4 |
-| [Reporting](reporting.md) | GitHub und Reporting im selben Segment | Heuristik, gezählt |  | 4 |
 | [Power BI Desktop](power-bi-desktop.md) | GitHub und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 4 |
-| [Refresh](refresh.md) | GitHub und Refresh im selben Segment | Heuristik, gezählt |  | 4 |
 
 ## Kernaussagen
 
@@ -63,8 +63,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
-| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=Download%20the%20visual) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
 | [ChartKitchen byDatenWG — Schnellstart](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=Visual%20herunterladen) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide) |
+| [ChartKitchen byDatenWG — Quick Start](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=Download%20the%20visual) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide) |
 | [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | kernaussagen+zeitstempel | [00:50](https://www.youtube.com/watch?v=e50qKdVn-24&t=50s) · [03:48](https://www.youtube.com/watch?v=e50qKdVn-24&t=228s) · [22:51](https://www.youtube.com/watch?v=e50qKdVn-24&t=1371s) |
 | [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [11:20](https://www.youtube.com/watch?v=DQENmzAkNqw&t=680s) · [24:15](https://www.youtube.com/watch?v=DQENmzAkNqw&t=1455s) · [44:23](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2663s) |
 | [Was kostet ein klimaneutrales Stromsystem?](https://datenwgknowledgekitchen.com/strommix-story.html) | 2026-08-20 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/strommix-story.html#:~:text=Quellenverzeichnis) · [Abschnitt](https://datenwgknowledgekitchen.com/strommix-story.html#:~:text=Anmerkungen%20zu%20einzelnen%20Quellen) |
@@ -83,12 +83,14 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [BI Thinkers Talk nr.76](https://www.youtube.com/watch?v=mlkP-6i5Kq8) | 2026-05-01 | kernaussagen+zeitstempel | [1:07:56](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=4076s) · [1:17:15](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=4635s) |
 | [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=6.%20SUMX%20%C3%BCber%20die%20ganze%20Tabelle) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Auto-Binding) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Regelset%20herunterladen) |
 | [Daten-WG Life-Update \| State of Power BI, Fabric & AI-Tools](https://www.youtube.com/watch?v=d3HdhRe_nK8) | 2026-06-01 | nur-zeitstempel | [09:08](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=548s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [15:38](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=938s) |
 | [Daten-WG Deep Dive Financial Reporting](https://www.youtube.com/watch?v=TYmKrreMO3I) | 2025-05-01 | kernaussagen+zeitstempel | [13:02](https://www.youtube.com/watch?v=TYmKrreMO3I&t=782s) |
 | [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [17:24](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1044s) |
 | [BI Thinkers Talk nr.68](https://www.youtube.com/watch?v=VD1N68Fhoco) | 2025-10-01 | nur-zeitstempel | [54:51](https://www.youtube.com/watch?v=VD1N68Fhoco&t=3291s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29) |
 | [Daten-WG Deep Dive: AI on top of BI](https://www.youtube.com/watch?v=HXAP16trRc8) | 2025-07-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) |
 | [BI Thinkers Talk - Data Modelling - Fabric Data Days Edition](https://www.youtube.com/watch?v=mUALlPmGcEk) | 2025-11-01 | kernaussagen+zeitstempel | [24:18](https://www.youtube.com/watch?v=mUALlPmGcEk&t=1458s) |
-| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
+| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-zeitstempel | [24:00](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=1440s) |
 
 ## Hinweise
 

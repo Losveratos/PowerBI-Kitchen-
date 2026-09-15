@@ -2,10 +2,10 @@
 id: "topic:open-source"
 name: "Open Source"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 9
+dokumente: 10
 kernaussagen: 1
 mit_kernaussagen: 1
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/open-source.html"
@@ -29,15 +29,21 @@ Opensource, Open-Source
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Power BI](power-bi.md) | Open Source und Power BI im selben Segment | Heuristik, gezählt |  | 10 |
+| [Power BI](power-bi.md) | Open Source und Power BI im selben Segment | Heuristik, gezählt |  | 13 |
+| [Visualisierung](visualisierung.md) | Open Source und Visualisierung im selben Segment | Heuristik, gezählt |  | 11 |
+| [Lizenzen](lizenzen.md) | Open Source und Lizenzen im selben Segment | Heuristik, gezählt |  | 8 |
+| [KI](ki.md) | Open Source und KI im selben Segment | Heuristik, gezählt |  | 6 |
+| [DAX](dax.md) | Open Source und DAX im selben Segment | Heuristik, gezählt |  | 6 |
+| [Reporting](reporting.md) | Open Source und Reporting im selben Segment | Heuristik, gezählt |  | 6 |
 | [Microsoft Fabric](microsoft-fabric.md) | Open Source und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 5 |
-| [DAX](dax.md) | Open Source und DAX im selben Segment | Heuristik, gezählt |  | 5 |
-| [KI](ki.md) | Open Source und KI im selben Segment | Heuristik, gezählt |  | 4 |
+| [Power BI Desktop](power-bi-desktop.md) | Open Source und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 5 |
+| [Deneb](deneb.md) | Open Source und Deneb im selben Segment | Heuristik, gezählt |  | 5 |
 | [Performance](performance.md) | Open Source und Performance im selben Segment | Heuristik, gezählt |  | 4 |
-| [Power BI Desktop](power-bi-desktop.md) | Open Source und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 4 |
 | [Tabular Editor](tabular-editor.md) | Open Source und Tabular Editor im selben Segment | Heuristik, gezählt |  | 4 |
+| [IBCS](ibcs.md) | Open Source und IBCS im selben Segment | Heuristik, gezählt |  | 4 |
+| [Governance](governance.md) | Open Source und Governance im selben Segment | Heuristik, gezählt |  | 4 |
 | [Community](community.md) | Open Source und Community im selben Segment | Heuristik, gezählt |  | 3 |
-| [Visualisierung](visualisierung.md) | Open Source und Visualisierung im selben Segment | Heuristik, gezählt |  | 3 |
+| [Sicherheit](sicherheit.md) | Open Source und Sicherheit im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -51,6 +57,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Modellunsicherheit%20je%20Ansatz%20%28v0.12%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail) |
 | [Report-Design als Framework — ein Skill für Power BI](https://datenwgknowledgekitchen.com/powerbi-design-skill.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html) · [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=F%C3%BCr%20wen%3A%20%2AMenschen%20und%20Agenten%2A) |
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [09:26](https://www.youtube.com/watch?v=lZvpCBMKASM&t=566s) · [11:00](https://www.youtube.com/watch?v=lZvpCBMKASM&t=660s) |
 | [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [30:45](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1845s) |

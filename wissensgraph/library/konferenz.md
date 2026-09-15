@@ -2,10 +2,10 @@
 id: "topic:konferenz"
 name: "Konferenz"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 28
+dokumente: 31
 kernaussagen: 46
 mit_kernaussagen: 10
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/konferenz.html"
@@ -35,18 +35,21 @@ Conference, FabCon, Data Days, Summit, PASS, SQL Konferenz, Data Saturday, Konfe
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Daten-WG](daten-wg.md) | Konferenz und Daten-WG im selben Segment | Heuristik, gezählt |  | 17 |
-| [Microsoft Fabric](microsoft-fabric.md) | Konferenz und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 17 |
-| [Power BI](power-bi.md) | Konferenz und Power BI im selben Segment | Heuristik, gezählt |  | 16 |
+| [Daten-WG](daten-wg.md) | Konferenz und Daten-WG im selben Segment | Heuristik, gezählt |  | 19 |
+| [Power BI](power-bi.md) | Konferenz und Power BI im selben Segment | Heuristik, gezählt |  | 19 |
+| [Microsoft Fabric](microsoft-fabric.md) | Konferenz und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 18 |
+| [Community](community.md) | Konferenz und Community im selben Segment | Heuristik, gezählt |  | 11 |
 | [KI](ki.md) | Konferenz und KI im selben Segment | Heuristik, gezählt |  | 9 |
 | [SQL](sql.md) | Konferenz und SQL im selben Segment | Heuristik, gezählt |  | 8 |
-| [Community](community.md) | Konferenz und Community im selben Segment | Heuristik, gezählt |  | 7 |
+| [Sicherheit](sicherheit.md) | Konferenz und Sicherheit im selben Segment | Heuristik, gezählt |  | 6 |
 | [Planung](planung.md) | Konferenz und Planung im selben Segment | Heuristik, gezählt |  | 5 |
-| [Sicherheit](sicherheit.md) | Konferenz und Sicherheit im selben Segment | Heuristik, gezählt |  | 4 |
-| [Visualisierung](visualisierung.md) | Konferenz und Visualisierung im selben Segment | Heuristik, gezählt |  | 4 |
+| [Visualisierung](visualisierung.md) | Konferenz und Visualisierung im selben Segment | Heuristik, gezählt |  | 5 |
+| [Workspace](workspace.md) | Konferenz und Workspace im selben Segment | Heuristik, gezählt |  | 4 |
 | [Echtzeit](echtzeit.md) | Konferenz und Echtzeit im selben Segment | Heuristik, gezählt |  | 4 |
+| [Reporting](reporting.md) | Konferenz und Reporting im selben Segment | Heuristik, gezählt |  | 3 |
 | [Warehouse](warehouse.md) | Konferenz und Warehouse im selben Segment | Heuristik, gezählt |  | 3 |
-| [Workspace](workspace.md) | Konferenz und Workspace im selben Segment | Heuristik, gezählt |  | 3 |
+| [Excel](excel.md) | Konferenz und Excel im selben Segment | Heuristik, gezählt |  | 3 |
+| [Datenmodellierung](datenmodellierung.md) | Konferenz und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 3 |
 
 ## Kernaussagen
 
@@ -115,6 +118,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Microsoft Fabric Dataflow Gen2 Kosten verstehen - CU-Verbrauch einfach erklärt](https://www.youtube.com/watch?v=z51gWRc0zVc) | 2026-07-01 | nur-zeitstempel | [09:34](https://www.youtube.com/watch?v=z51gWRc0zVc&t=574s) |
 | [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | kernaussagen+zeitstempel | [04:40](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=280s) · [06:12](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=372s) · [22:11](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1331s) |
 | [Power BI-Teams werden Fabric-Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc) | — | nur-zeitstempel | [01:10](https://www.youtube.com/watch?v=YzfcMurbWNc&t=70s) · [28:09](https://www.youtube.com/watch?v=YzfcMurbWNc&t=1689s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=0s) · [01:50](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=110s) · [36:35](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2195s) |
+| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=0s) · [32:42](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1962s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [20:50](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1250s) · [22:30](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1350s) · [54:53](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=3293s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [09:47](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=587s) · [53:23](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3203s) · [56:00](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3360s) |
 | [Boring Charts, Better Insights](https://www.youtube.com/watch?v=inko8wG9jlY) | 2025-10-01 | nur-zeitstempel | [02:21](https://www.youtube.com/watch?v=inko8wG9jlY&t=141s) · [38:33](https://www.youtube.com/watch?v=inko8wG9jlY&t=2313s) |
@@ -130,9 +135,10 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Prinzipien oder Paragrafen](https://www.youtube.com/watch?v=6WhWLcuFvZE) | 2026-02-01 | kernaussagen+zeitstempel | [07:30](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=450s) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [51:20](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=3080s) |
 | [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | kernaussagen+zeitstempel | [08:35](https://www.youtube.com/watch?v=4VVNDNusq4U&t=515s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) |
 | [Daten-WG Deep Dive: AI on top of BI](https://www.youtube.com/watch?v=HXAP16trRc8) | 2025-07-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) |
 | [BI Thinkers Talk - Data Modelling - Fabric Data Days Edition](https://www.youtube.com/watch?v=mUALlPmGcEk) | 2025-11-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=mUALlPmGcEk&t=0s) |
-| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
+| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-zeitstempel | [01:34](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=94s) |
 
 ## Hinweise
 

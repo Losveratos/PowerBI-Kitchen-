@@ -2,10 +2,10 @@
 id: "topic:performance"
 name: "Performance"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 38
+dokumente: 39
 kernaussagen: 42
 mit_kernaussagen: 23
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/performance.html"
@@ -33,19 +33,19 @@ Performanz, Optimierung, Ladezeit, langsam, schnell
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
 | [Sternschema](sternschema.md) | Performance setzt-voraus Sternschema | automatisch extrahiert, Quellenstelle vorhanden | „schon ab einem gewissen Level muss man einfach das Sternschema machen“ (Power BI vs. Qlik, 2026-01) | 43 |
-| [Power BI](power-bi.md) | Performance und Power BI im selben Segment | Heuristik, gezählt |  | 90 |
-| [Microsoft Fabric](microsoft-fabric.md) | Performance und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 58 |
-| [Reporting](reporting.md) | Performance und Reporting im selben Segment | Heuristik, gezählt |  | 41 |
+| [Power BI](power-bi.md) | Performance und Power BI im selben Segment | Heuristik, gezählt |  | 91 |
+| [Microsoft Fabric](microsoft-fabric.md) | Performance und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 61 |
+| [Reporting](reporting.md) | Performance und Reporting im selben Segment | Heuristik, gezählt |  | 42 |
 | [DAX](dax.md) | Performance und DAX im selben Segment | Heuristik, gezählt |  | 38 |
 | [Visualisierung](visualisierung.md) | Performance und Visualisierung im selben Segment | Heuristik, gezählt |  | 37 |
 | [Refresh](refresh.md) | Performance und Refresh im selben Segment | Heuristik, gezählt |  | 36 |
 | [KI](ki.md) | Performance und KI im selben Segment | Heuristik, gezählt |  | 36 |
 | [Power Query](power-query.md) | Performance und Power Query im selben Segment | Heuristik, gezählt |  | 36 |
+| [Datenmodellierung](datenmodellierung.md) | Performance und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 32 |
 | [Direct Lake](direct-lake.md) | Performance und Direct Lake im selben Segment | Heuristik, gezählt |  | 31 |
-| [Datenmodellierung](datenmodellierung.md) | Performance und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 31 |
 | [DirectQuery](directquery.md) | Performance und DirectQuery im selben Segment | Heuristik, gezählt |  | 31 |
 | [SQL](sql.md) | Performance und SQL im selben Segment | Heuristik, gezählt |  | 31 |
-| [Sicherheit](sicherheit.md) | Performance und Sicherheit im selben Segment | Heuristik, gezählt |  | 26 |
+| [Sicherheit](sicherheit.md) | Performance und Sicherheit im selben Segment | Heuristik, gezählt |  | 27 |
 | [Dataflow](dataflow.md) | Performance und Dataflow im selben Segment | Heuristik, gezählt |  | 26 |
 
 ## Kernaussagen
@@ -131,6 +131,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [10:48](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=648s) · [12:25](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=745s) · [15:57](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=957s) |
 | [BI Thinkers Talk - Data Modelling - Fabric Data Days Edition](https://www.youtube.com/watch?v=mUALlPmGcEk) | 2025-11-01 | kernaussagen+zeitstempel | [09:34](https://www.youtube.com/watch?v=mUALlPmGcEk&t=574s) · [17:32](https://www.youtube.com/watch?v=mUALlPmGcEk&t=1052s) · [35:39](https://www.youtube.com/watch?v=mUALlPmGcEk&t=2139s) |
 | [BI Thinkers Talk nr.71](https://www.youtube.com/watch?v=LUrL8A5lNgI) | 2025-12-01 | kernaussagen+zeitstempel | [05:01](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=301s) · [09:41](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=581s) · [51:29](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=3089s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [09:46](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=586s) · [25:50](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1550s) · [27:34](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1654s) |
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [02:30](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=150s) · [13:39](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=819s) · [39:28](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2368s) |
 | [Visual Analytics with Power BI](https://www.youtube.com/watch?v=UxE0DPnLgIg) | 2021-09-01 | nur-zeitstempel | [15:50](https://www.youtube.com/watch?v=UxE0DPnLgIg&t=950s) · [31:00](https://www.youtube.com/watch?v=UxE0DPnLgIg&t=1860s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=03%20%C2%B7%20Semantische%20Modelle%20%26%20%2ADirect%20Lake%2A) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Zwei%20Varianten%20%E2%80%94%20wichtig%20seit%202025) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Der%20Vergleich) |

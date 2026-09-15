@@ -3,14 +3,14 @@
  "name": "OneLake",
  "typ": "tool",
  "slug": "onelake",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/onelake.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/onelake.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/onelake.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/onelake.json",
- "dokumente_gesamt": 14,
+ "dokumente_gesamt": 15,
  "kernaussagen_gesamt": 36,
  "mit_kernaussagen": 15,
  "aliase": [
@@ -95,7 +95,7 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 25,
+   "gemeinsame_segmente": 26,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -663,6 +663,21 @@
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Direct%20Lake%20%28Fabric%29",
      "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "38:12",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2292s",
+     "sekunde": 2292
     }
    ]
   },

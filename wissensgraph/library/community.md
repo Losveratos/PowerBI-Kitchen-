@@ -2,10 +2,10 @@
 id: "topic:community"
 name: "Community"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 52
+dokumente: 57
 kernaussagen: 26
 mit_kernaussagen: 13
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/community.html"
@@ -32,21 +32,21 @@ User Group, Meetup, MVP, Usergroup, Meetups
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Power BI](power-bi.md) | Community und Power BI im selben Segment | Heuristik, gezählt |  | 35 |
-| [Microsoft Fabric](microsoft-fabric.md) | Community und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 22 |
-| [KI](ki.md) | Community und KI im selben Segment | Heuristik, gezählt |  | 20 |
-| [Daten-WG](daten-wg.md) | Community und Daten-WG im selben Segment | Heuristik, gezählt |  | 17 |
+| [Power BI](power-bi.md) | Community und Power BI im selben Segment | Heuristik, gezählt |  | 38 |
+| [Microsoft Fabric](microsoft-fabric.md) | Community und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 23 |
+| [KI](ki.md) | Community und KI im selben Segment | Heuristik, gezählt |  | 21 |
+| [Daten-WG](daten-wg.md) | Community und Daten-WG im selben Segment | Heuristik, gezählt |  | 18 |
 | [Reporting](reporting.md) | Community und Reporting im selben Segment | Heuristik, gezählt |  | 14 |
 | [Sicherheit](sicherheit.md) | Community und Sicherheit im selben Segment | Heuristik, gezählt |  | 12 |
 | [Visualisierung](visualisierung.md) | Community und Visualisierung im selben Segment | Heuristik, gezählt |  | 12 |
+| [Konferenz](konferenz.md) | Community und Konferenz im selben Segment | Heuristik, gezählt |  | 11 |
 | [Excel](excel.md) | Community und Excel im selben Segment | Heuristik, gezählt |  | 11 |
-| [Schulung](schulung.md) | Community und Schulung im selben Segment | Heuristik, gezählt |  | 10 |
+| [Schulung](schulung.md) | Community und Schulung im selben Segment | Heuristik, gezählt |  | 11 |
 | [Performance](performance.md) | Community und Performance im selben Segment | Heuristik, gezählt |  | 9 |
+| [Datenmodellierung](datenmodellierung.md) | Community und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 8 |
 | [Warehouse](warehouse.md) | Community und Warehouse im selben Segment | Heuristik, gezählt |  | 8 |
-| [Konferenz](konferenz.md) | Community und Konferenz im selben Segment | Heuristik, gezählt |  | 7 |
-| [Datenmodellierung](datenmodellierung.md) | Community und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 7 |
 | [Power BI Desktop](power-bi-desktop.md) | Community und Power BI Desktop im selben Segment | Heuristik, gezählt |  | 7 |
-| [SQL](sql.md) | Community und SQL im selben Segment | Heuristik, gezählt |  | 7 |
+| [SAP](sap.md) | Community und SAP im selben Segment | Heuristik, gezählt |  | 7 |
 
 ## Kernaussagen
 
@@ -93,9 +93,12 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Wie war die Daten-WG? · Im Gespräch mit Artur König](https://www.youtube.com/watch?v=z4ZeHPzIeeU) | 2025-03-01 | nur-zeitstempel | [03:25](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=205s) · [06:26](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=386s) · [22:25](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1345s) |
 | [Was wir von Iron Man für Datenprojekte lernen können (data:unplugged Vortrag)](https://www.youtube.com/watch?v=qVZhboahaDE) | 2025-04-01 | nur-zeitstempel | [03:10](https://www.youtube.com/watch?v=qVZhboahaDE&t=190s) · [06:36](https://www.youtube.com/watch?v=qVZhboahaDE&t=396s) |
 | [The Power of User Groups](https://www.youtube.com/watch?v=SSUpe1JON9Y) | 2025-10-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=SSUpe1JON9Y&t=0s) · [02:12](https://www.youtube.com/watch?v=SSUpe1JON9Y&t=132s) · [07:03](https://www.youtube.com/watch?v=SSUpe1JON9Y&t=423s) |
+| [Data Projects like Iron Man [AI dubbed]](https://www.youtube.com/watch?v=svytHaNMTf0) | 2025-04-01 | nur-zeitstempel | [03:10](https://www.youtube.com/watch?v=svytHaNMTf0&t=190s) · [06:13](https://www.youtube.com/watch?v=svytHaNMTf0&t=373s) |
 | [Wie war die Daten-WG 2025? (Teil 1)](https://www.youtube.com/watch?v=aEXtFWW-pmo) | 2025-05-01 | kernaussagen+zeitstempel | [03:20](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=200s) · [08:02](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=482s) · [21:13](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1273s) |
+| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=0s) · [32:42](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1962s) · [37:49](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=2269s) |
 | [Why Passion Beats Niche](https://www.youtube.com/watch?v=ihi7UiJ_TtQ) | 2025-09-01 | kernaussagen+zeitstempel | [06:12](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=372s) · [07:44](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=464s) · [13:16](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=796s) |
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [14:04](https://www.youtube.com/watch?v=27rC2zefFOU&t=844s) · [29:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1745s) |
+| [Interview bei der TDWI München 2026 \| Stefanie Welle und Dr. Christian Krug](https://www.youtube.com/watch?v=Me3a2QOx21I) | 2026-07-01 | nur-zeitstempel | [03:03](https://www.youtube.com/watch?v=Me3a2QOx21I&t=183s) · [04:41](https://www.youtube.com/watch?v=Me3a2QOx21I&t=281s) |
 | [Daten-WG Special: Power BI vs. Qlik](https://www.youtube.com/watch?v=aYHk_V8n_CE) | 2025-10-01 | kernaussagen+zeitstempel | [01:33](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=93s) · [25:39](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=1539s) · [53:30](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=3210s) |
 | [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | kernaussagen+zeitstempel | [39:09](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2349s) · [42:10](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2530s) |
 | [BI Thinkers Talk nr.64](https://www.youtube.com/watch?v=4VVNDNusq4U) | 2025-07-01 | kernaussagen+zeitstempel | [01:45](https://www.youtube.com/watch?v=4VVNDNusq4U&t=105s) · [37:15](https://www.youtube.com/watch?v=4VVNDNusq4U&t=2235s) · [46:46](https://www.youtube.com/watch?v=4VVNDNusq4U&t=2806s) |
@@ -111,6 +114,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Mensch bleiben, wenn Power BI geht](https://www.youtube.com/watch?v=iB4vHRvaErE) | 2025-11-01 | nur-zeitstempel | [51:14](https://www.youtube.com/watch?v=iB4vHRvaErE&t=3074s) · [59:40](https://www.youtube.com/watch?v=iB4vHRvaErE&t=3580s) · [1:10:01](https://www.youtube.com/watch?v=iB4vHRvaErE&t=4201s) |
 | [Metadaten als Superkraft](https://www.youtube.com/watch?v=UUlPoJOhco8) | — | kernaussagen+zeitstempel | [10:24](https://www.youtube.com/watch?v=UUlPoJOhco8&t=624s) |
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [1:05:21](https://www.youtube.com/watch?v=G8s96sHUHac&t=3921s) · [1:10:03](https://www.youtube.com/watch?v=G8s96sHUHac&t=4203s) · [1:11:34](https://www.youtube.com/watch?v=G8s96sHUHac&t=4294s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=0s) · [01:50](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=110s) |
 | [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [47:15](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2835s) · [52:25](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=3145s) |
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [18:55](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1135s) · [56:00](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3360s) |
 | [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [01:36](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=96s) · [58:01](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3481s) |
@@ -121,12 +125,8 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [41:34](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2494s) |
 | [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | kernaussagen+zeitstempel | [32:03](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1923s) |
 | [BI Thinkers Talk nr.63](https://www.youtube.com/watch?v=9VX4-lLa0EI) | 2025-06-01 | nur-zeitstempel | [52:09](https://www.youtube.com/watch?v=9VX4-lLa0EI&t=3129s) |
-| [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [13:11](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=791s) |
-| [GxP Talk - Validierung vs. Agilität](https://www.youtube.com/watch?v=KO_qFge77o8) | 2026-03-01 | kernaussagen+zeitstempel | [03:10](https://www.youtube.com/watch?v=KO_qFge77o8&t=190s) |
-| [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [04:38](https://www.youtube.com/watch?v=luk4S4ukKmg&t=278s) |
-| [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [11:20](https://www.youtube.com/watch?v=DQENmzAkNqw&t=680s) |
 
-40 von 52 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/community.json).
+40 von 57 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/community.json).
 
 ## Hinweise
 

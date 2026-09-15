@@ -3,14 +3,14 @@
  "name": "Paginated Reports",
  "typ": "tool",
  "slug": "paginated-reports",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/paginated-reports.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/paginated-reports.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/paginated-reports.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/paginated-reports.json",
- "dokumente_gesamt": 3,
+ "dokumente_gesamt": 4,
  "kernaussagen_gesamt": 2,
  "mit_kernaussagen": 2,
  "aliase": [
@@ -37,6 +37,24 @@
    "gemeinsame_segmente": 0,
    "beleg": "bei mir war es eben so bisschen dieses Power Automat, wie ich paginierte Berichte reinbringe",
    "datei": "power-automate.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "power-bi.md"
   }
  ],
  "kernaussagen": [
@@ -72,6 +90,26 @@
      "label": "22:25",
      "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1345s",
      "sekunde": 1345
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.045,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Grenzen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben",
+     "sekunde": null
     }
    ]
   },

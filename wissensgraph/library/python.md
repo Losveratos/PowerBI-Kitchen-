@@ -2,10 +2,10 @@
 id: "tool:python"
 name: "Python"
 typ: tool
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 37
+dokumente: 39
 kernaussagen: 14
 mit_kernaussagen: 9
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/python.html"
@@ -32,7 +32,7 @@ Keine weiteren Schreibweisen hinterlegt.
 | [Power BI](power-bi.md) | Python und Power BI im selben Segment | Heuristik, gezählt |  | 26 |
 | [Notebook](notebook.md) | Python und Notebook im selben Segment | Heuristik, gezählt |  | 21 |
 | [SQL](sql.md) | Python und SQL im selben Segment | Heuristik, gezählt |  | 16 |
-| [Visualisierung](visualisierung.md) | Python und Visualisierung im selben Segment | Heuristik, gezählt |  | 14 |
+| [Visualisierung](visualisierung.md) | Python und Visualisierung im selben Segment | Heuristik, gezählt |  | 15 |
 | [Dataflow](dataflow.md) | Python und Dataflow im selben Segment | Heuristik, gezählt |  | 14 |
 | [Power Query](power-query.md) | Python und Power Query im selben Segment | Heuristik, gezählt |  | 12 |
 | [Reporting](reporting.md) | Python und Reporting im selben Segment | Heuristik, gezählt |  | 9 |
@@ -73,6 +73,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Realtalk zu Self Service mit Power BI](https://www.youtube.com/watch?v=27rC2zefFOU) | 2024-02-01 | nur-zeitstempel | [20:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1205s) · [26:05](https://www.youtube.com/watch?v=27rC2zefFOU&t=1565s) |
 | [Daten-WG Deep Dive Financial Reporting - part 5](https://www.youtube.com/watch?v=iymmxuXHh44) | 2025-07-01 | nur-zeitstempel | [32:28](https://www.youtube.com/watch?v=iymmxuXHh44&t=1948s) · [34:04](https://www.youtube.com/watch?v=iymmxuXHh44&t=2044s) · [1:05:42](https://www.youtube.com/watch?v=iymmxuXHh44&t=3942s) |
 | [Daten-WG Deep Dive Financial Reporting pt.4](https://www.youtube.com/watch?v=UnW4wHhw_IY) | 2025-05-01 | nur-zeitstempel | [04:48](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=288s) · [19:57](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1197s) · [24:59](https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1499s) |
+| [Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)](https://www.youtube.com/watch?v=lp8xNX81R2w) | 2026-07-01 | nur-zeitstempel | [09:23](https://www.youtube.com/watch?v=lp8xNX81R2w&t=563s) |
 | [Daten-WG Thinkers Talk nr.65](https://www.youtube.com/watch?v=Fqt4gP1xB5w) | 2025-07-01 | kernaussagen+zeitstempel | [21:31](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1291s) · [26:13](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1573s) · [28:03](https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1683s) |
 | [Mensch bleiben, wenn Power BI geht](https://www.youtube.com/watch?v=iB4vHRvaErE) | 2025-11-01 | nur-zeitstempel | [04:01](https://www.youtube.com/watch?v=iB4vHRvaErE&t=241s) · [08:50](https://www.youtube.com/watch?v=iB4vHRvaErE&t=530s) · [10:28](https://www.youtube.com/watch?v=iB4vHRvaErE&t=628s) |
 | [BI Thinkers Talk n.74](https://www.youtube.com/watch?v=rWE0gMx7v7I) | 2026-03-01 | kernaussagen+zeitstempel | [37:26](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2246s) · [54:15](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=3255s) · [1:00:34](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=3634s) |
@@ -103,6 +104,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Unboxing MCP Server for Power BI Modelling](https://www.youtube.com/watch?v=iinfiHxznOU) | 2025-12-01 | kernaussagen+zeitstempel | [59:37](https://www.youtube.com/watch?v=iinfiHxznOU&t=3577s) |
 | [Fabric & Power BI Quarterly · 2025 Q4](https://www.youtube.com/watch?v=9TsHkV8sIRo) | — | kernaussagen+zeitstempel | [17:15](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1035s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Drei-Fragen-Regel) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Schnell-Heuristik) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Inkrementelle%20L%C3%A4ufe) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29) |
 | [BI Thinkers Talk nr.69](https://www.youtube.com/watch?v=r416vanitYw) | 2025-11-01 | nur-zeitstempel | [52:27](https://www.youtube.com/watch?v=r416vanitYw&t=3147s) |
 | [BI Thinkers Talk nr.71](https://www.youtube.com/watch?v=LUrL8A5lNgI) | 2025-12-01 | kernaussagen+zeitstempel | [48:16](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2896s) |
 

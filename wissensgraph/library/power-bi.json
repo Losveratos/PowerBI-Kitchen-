@@ -3,14 +3,14 @@
  "name": "Power BI",
  "typ": "tool",
  "slug": "power-bi",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/power-bi.json",
- "dokumente_gesamt": 124,
+ "dokumente_gesamt": 137,
  "kernaussagen_gesamt": 144,
  "mit_kernaussagen": 39,
  "aliase": [
@@ -35,7 +35,7 @@
    "name": "Power Query",
    "kantentyp": "teil-von",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 53,
+   "gemeinsame_segmente": 57,
    "beleg": "Bei Power BI ist das Power Query, was dann dabei ist und dann das Datenmodell.",
    "datei": "power-query.md"
   },
@@ -44,7 +44,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "setzt-voraus",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 216,
+   "gemeinsame_segmente": 230,
    "beleg": "irgendwann wird man bei Power VII in die Fabric wandern",
    "datei": "microsoft-fabric.md"
   },
@@ -62,7 +62,7 @@
    "name": "Sternschema",
    "kantentyp": "setzt-voraus",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 43,
+   "gemeinsame_segmente": 41,
    "beleg": "Power BI benötigt ein Sternschema, um die beste Leistung zu erzielen",
    "datei": "sternschema.md"
   },
@@ -89,7 +89,7 @@
    "name": "Power Apps",
    "kantentyp": "setzt-voraus",
    "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
-   "gemeinsame_segmente": 6,
+   "gemeinsame_segmente": 7,
    "beleg": "die Eingabefunktion in den Power BI Bericht gebaut ... Rideback Funktionalität über Power App gebaut",
    "datei": "power-apps.md"
   },
@@ -98,7 +98,7 @@
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 185,
+   "gemeinsame_segmente": 201,
    "beleg": "",
    "datei": "visualisierung.md"
   },
@@ -107,7 +107,7 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 154,
+   "gemeinsame_segmente": 163,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -116,7 +116,7 @@
    "name": "KI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 114,
+   "gemeinsame_segmente": 118,
    "beleg": "",
    "datei": "ki.md"
   },
@@ -125,7 +125,7 @@
    "name": "Power BI Desktop",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 108,
+   "gemeinsame_segmente": 113,
    "beleg": "",
    "datei": "power-bi-desktop.md"
   },
@@ -134,7 +134,7 @@
    "name": "Performance",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 90,
+   "gemeinsame_segmente": 91,
    "beleg": "",
    "datei": "performance.md"
   },
@@ -143,7 +143,7 @@
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 88,
+   "gemeinsame_segmente": 91,
    "beleg": "",
    "datei": "excel.md"
   },
@@ -152,7 +152,7 @@
    "name": "Datenmodellierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 85,
+   "gemeinsame_segmente": 88,
    "beleg": "",
    "datei": "datenmodellierung.md"
   }
@@ -1457,6 +1457,126 @@
  ],
  "dokumente": [
   {
+   "id": "yt:gMYj9UTWeWk",
+   "titel": "#011 · Power BI ohne Fabric? Absolut!",
+   "datum": "2026-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=gMYj9UTWeWk",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=gMYj9UTWeWk&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:9u9YbdMUU-s",
+   "titel": "#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?",
+   "datum": "2026-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=9u9YbdMUU-s",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=9u9YbdMUU-s&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:KOT5KXIff8E",
+   "titel": "#007 · Mehr als Balkendiagramme! Power BI kann das auch",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=KOT5KXIff8E",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=KOT5KXIff8E&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:u_ezQyN3a_s",
+   "titel": "#009 · Lohnt es sich 2026 noch, Power BI zu lernen?",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=u_ezQyN3a_s",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=u_ezQyN3a_s&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:hkUHetX61jA",
+   "titel": "#006 · Power BI & Excel: Tabelle oder Tabellenblatt?",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=hkUHetX61jA",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=hkUHetX61jA&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:KCCs6e0MeWI",
+   "titel": "#005 · Bedingte Formatierung? Ich nutze fast immer Measures!",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=KCCs6e0MeWI",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=KCCs6e0MeWI&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:10jBGN2K52I",
+   "titel": "#008 · Suchst du unsere Tutorials? Hier sind sie!",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=10jBGN2K52I",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=10jBGN2K52I&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:4hap_ZZskzo",
+   "titel": "#001 · Power BI Desktop oder Web? Meine klare Antwort!",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=4hap_ZZskzo",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=4hap_ZZskzo&t=1s",
+     "sekunde": 1
+    }
+   ]
+  },
+  {
    "id": "yt:H0ENBDQnVcs",
    "titel": "Werbung | Daten WG Offsite in Dortmund – Power BI Event am 29.10.",
    "datum": "2025-09-01",
@@ -1872,6 +1992,31 @@
    ]
   },
   {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.522,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "07:15",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=435s",
+     "sekunde": 435
+    },
+    {
+     "label": "10:08",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=608s",
+     "sekunde": 608
+    }
+   ]
+  },
+  {
    "id": "yt:YzfcMurbWNc",
    "titel": "Power BI-Teams werden Fabric-Datendienstleister",
    "datum": "",
@@ -1972,31 +2117,6 @@
    ]
   },
   {
-   "id": "yt:GsLfiuPlsQE",
-   "titel": "Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! | Power BI Tutorial",
-   "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
-   "anteil": 0.5,
-   "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE",
-   "sprungmarken": [
-    {
-     "label": "00:01",
-     "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE&t=1s",
-     "sekunde": 1
-    },
-    {
-     "label": "01:20",
-     "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE&t=80s",
-     "sekunde": 80
-    },
-    {
-     "label": "04:30",
-     "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE&t=270s",
-     "sekunde": 270
-    }
-   ]
-  },
-  {
    "id": "yt:LVSttJlhrqM",
    "titel": "Power BI Update Oktober 2025",
    "datum": "2025-10-01",
@@ -2018,6 +2138,31 @@
      "label": "04:21",
      "url": "https://www.youtube.com/watch?v=LVSttJlhrqM&t=261s",
      "sekunde": 261
+    }
+   ]
+  },
+  {
+   "id": "yt:GsLfiuPlsQE",
+   "titel": "Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! | Power BI Tutorial",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.5,
+   "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "01:20",
+     "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE&t=80s",
+     "sekunde": 80
+    },
+    {
+     "label": "04:30",
+     "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE&t=270s",
+     "sekunde": 270
     }
    ]
   },
@@ -2542,26 +2687,6 @@
    ]
   },
   {
-   "id": "yt:8DsgIfWJkoI",
-   "titel": "Die 3 Zustände der sekundären Y-Achse: Auto, Aktiv & Deaktiviert einfach erklärt | Power BI Tutorial",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-zeitstempel",
-   "anteil": 0.333,
-   "url": "https://www.youtube.com/watch?v=8DsgIfWJkoI",
-   "sprungmarken": [
-    {
-     "label": "00:01",
-     "url": "https://www.youtube.com/watch?v=8DsgIfWJkoI&t=1s",
-     "sekunde": 1
-    },
-    {
-     "label": "02:16",
-     "url": "https://www.youtube.com/watch?v=8DsgIfWJkoI&t=136s",
-     "sekunde": 136
-    }
-   ]
-  },
-  {
    "id": "yt:0n8hZ6v_0Lc",
    "titel": "Drillthrough-Auswahl sortieren – So kontrollierst du die Reihenfolge! | Power BI Tutorial",
    "datum": "2025-12-01",
@@ -2578,6 +2703,26 @@
      "label": "05:16",
      "url": "https://www.youtube.com/watch?v=0n8hZ6v_0Lc&t=316s",
      "sekunde": 316
+    }
+   ]
+  },
+  {
+   "id": "yt:8DsgIfWJkoI",
+   "titel": "Die 3 Zustände der sekundären Y-Achse: Auto, Aktiv & Deaktiviert einfach erklärt | Power BI Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.333,
+   "url": "https://www.youtube.com/watch?v=8DsgIfWJkoI",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=8DsgIfWJkoI&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "02:16",
+     "url": "https://www.youtube.com/watch?v=8DsgIfWJkoI&t=136s",
+     "sekunde": 136
     }
    ]
   },
@@ -2777,26 +2922,6 @@
    ]
   },
   {
-   "id": "yt:GKLxM3317Xk",
-   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
-   "datum": "2025-09-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.286,
-   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "yt:LUrL8A5lNgI",
    "titel": "BI Thinkers Talk nr.71",
    "datum": "2025-12-01",
@@ -2893,6 +3018,31 @@
      "label": "27:50",
      "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1670s",
      "sekunde": 1670
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.25,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29",
+     "sekunde": null
     }
    ]
   },
@@ -3057,6 +3207,31 @@
    ]
   },
   {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.218,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "06:00",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=360s",
+     "sekunde": 360
+    },
+    {
+     "label": "07:38",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=458s",
+     "sekunde": 458
+    },
+    {
+     "label": "09:09",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=549s",
+     "sekunde": 549
+    }
+   ]
+  },
+  {
    "id": "yt:TYmKrreMO3I",
    "titel": "Daten-WG Deep Dive Financial Reporting",
    "datum": "2025-05-01",
@@ -3078,31 +3253,6 @@
      "label": "30:38",
      "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=1838s",
      "sekunde": 1838
-    }
-   ]
-  },
-  {
-   "id": "yt:uxYFqwe_Wiw",
-   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.215,
-   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
     }
    ]
   },
@@ -3253,6 +3403,31 @@
      "label": "17:12",
      "url": "https://www.youtube.com/watch?v=s3CveEVoDvo&t=1032s",
      "sekunde": 1032
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.176,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "05:11",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=311s",
+     "sekunde": 311
+    },
+    {
+     "label": "09:46",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=586s",
+     "sekunde": 586
+    },
+    {
+     "label": "11:29",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=689s",
+     "sekunde": 689
     }
    ]
   },
@@ -3422,6 +3597,26 @@
    ]
   },
   {
+   "id": "yt:GKLxM3317Xk",
+   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
+   "sprungmarken": [
+    {
+     "label": "03:24",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk&t=204s",
+     "sekunde": 204
+    },
+    {
+     "label": "05:30",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk&t=330s",
+     "sekunde": 330
+    }
+   ]
+  },
+  {
    "id": "yt:z4ZeHPzIeeU",
    "titel": "Wie war die Daten-WG? · Im Gespräch mit Artur König",
    "datum": "2025-03-01",
@@ -3563,6 +3758,26 @@
      "label": "12:49",
      "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=769s",
      "sekunde": 769
+    }
+   ]
+  },
+  {
+   "id": "yt:_C69B0i-QQA",
+   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
+   "sprungmarken": [
+    {
+     "label": "00:53",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=53s",
+     "sekunde": 53
+    },
+    {
+     "label": "19:05",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=1145s",
+     "sekunde": 1145
     }
    ]
   },
@@ -3862,6 +4077,31 @@
    ]
   },
   {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.094,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "17:53",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1073s",
+     "sekunde": 1073
+    },
+    {
+     "label": "39:03",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=2343s",
+     "sekunde": 2343
+    },
+    {
+     "label": "40:45",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=2445s",
+     "sekunde": 2445
+    }
+   ]
+  },
+  {
    "id": "page:zugfahrten-europa",
    "titel": "Die Schweiz faehrt Europa davon — Bahnnutzung 2024",
    "datum": "2026-06-05",
@@ -3948,6 +4188,21 @@
      "label": "43:44",
      "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2624s",
      "sekunde": 2624
+    }
+   ]
+  },
+  {
+   "id": "yt:Me3a2QOx21I",
+   "titel": "Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=Me3a2QOx21I",
+   "sprungmarken": [
+    {
+     "label": "03:03",
+     "url": "https://www.youtube.com/watch?v=Me3a2QOx21I&t=183s",
+     "sekunde": 183
     }
    ]
   },
@@ -4062,21 +4317,21 @@
    ]
   },
   {
+   "id": "yt:E9kgWtTmwdE",
+   "titel": "Databricks Explained to a Power BI Guy | Daten-WG Podcast with Vitalija Bartusevičiūtė",
+   "datum": "2026-09-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=E9kgWtTmwdE",
+   "sprungmarken": []
+  },
+  {
    "id": "yt:HQaLWjA-E2E",
    "titel": "How to Write Back",
    "datum": "2025-12-01",
    "abdeckung": "nur-metadaten",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=HQaLWjA-E2E",
-   "sprungmarken": []
-  },
-  {
-   "id": "yt:c90oD4zR1Aw",
-   "titel": "More than PBIX",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
    "sprungmarken": []
   },
   {
@@ -4149,15 +4404,6 @@
    "abdeckung": "nur-zeitstempel",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=UxE0DPnLgIg",
-   "sprungmarken": []
-  },
-  {
-   "id": "yt:PW6MP-SDmRk",
-   "titel": "Fabric & Power BI Quarterly · 2026-3",
-   "datum": "",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
    "sprungmarken": []
   }
  ],

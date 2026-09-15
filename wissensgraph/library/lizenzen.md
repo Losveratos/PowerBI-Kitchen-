@@ -2,10 +2,10 @@
 id: "topic:lizenzen"
 name: "Lizenzen"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 33
+dokumente: 37
 kernaussagen: 21
 mit_kernaussagen: 14
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/lizenzen.html"
@@ -33,21 +33,21 @@ Lizenz, Lizenzierung, Licensing, Kosten, Preise, Preis
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Power BI](power-bi.md) | Lizenzen und Power BI im selben Segment | Heuristik, gezählt |  | 36 |
-| [Microsoft Fabric](microsoft-fabric.md) | Lizenzen und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 29 |
-| [Fabric Capacity](fabric-capacity.md) | Lizenzen und Fabric Capacity im selben Segment | Heuristik, gezählt |  | 28 |
-| [Reporting](reporting.md) | Lizenzen und Reporting im selben Segment | Heuristik, gezählt |  | 21 |
-| [Premium](premium.md) | Lizenzen und Premium im selben Segment | Heuristik, gezählt |  | 19 |
+| [Power BI](power-bi.md) | Lizenzen und Power BI im selben Segment | Heuristik, gezählt |  | 44 |
+| [Microsoft Fabric](microsoft-fabric.md) | Lizenzen und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 39 |
+| [Fabric Capacity](fabric-capacity.md) | Lizenzen und Fabric Capacity im selben Segment | Heuristik, gezählt |  | 36 |
+| [Reporting](reporting.md) | Lizenzen und Reporting im selben Segment | Heuristik, gezählt |  | 33 |
+| [Visualisierung](visualisierung.md) | Lizenzen und Visualisierung im selben Segment | Heuristik, gezählt |  | 27 |
+| [Premium](premium.md) | Lizenzen und Premium im selben Segment | Heuristik, gezählt |  | 22 |
 | [SQL](sql.md) | Lizenzen und SQL im selben Segment | Heuristik, gezählt |  | 18 |
-| [KI](ki.md) | Lizenzen und KI im selben Segment | Heuristik, gezählt |  | 16 |
+| [KI](ki.md) | Lizenzen und KI im selben Segment | Heuristik, gezählt |  | 18 |
 | [Performance](performance.md) | Lizenzen und Performance im selben Segment | Heuristik, gezählt |  | 14 |
+| [Governance](governance.md) | Lizenzen und Governance im selben Segment | Heuristik, gezählt |  | 13 |
+| [Deneb](deneb.md) | Lizenzen und Deneb im selben Segment | Heuristik, gezählt |  | 13 |
+| [Sicherheit](sicherheit.md) | Lizenzen und Sicherheit im selben Segment | Heuristik, gezählt |  | 12 |
+| [Mittelstand](mittelstand.md) | Lizenzen und Mittelstand im selben Segment | Heuristik, gezählt |  | 12 |
 | [Refresh](refresh.md) | Lizenzen und Refresh im selben Segment | Heuristik, gezählt |  | 12 |
-| [OneLake](onelake.md) | Lizenzen und OneLake im selben Segment | Heuristik, gezählt |  | 11 |
-| [Visualisierung](visualisierung.md) | Lizenzen und Visualisierung im selben Segment | Heuristik, gezählt |  | 10 |
-| [Mirroring](mirroring.md) | Lizenzen und Mirroring im selben Segment | Heuristik, gezählt |  | 10 |
-| [Sicherheit](sicherheit.md) | Lizenzen und Sicherheit im selben Segment | Heuristik, gezählt |  | 9 |
-| [Warehouse](warehouse.md) | Lizenzen und Warehouse im selben Segment | Heuristik, gezählt |  | 9 |
-| [Power BI Pro](power-bi-pro.md) | Lizenzen und Power BI Pro im selben Segment | Heuristik, gezählt |  | 8 |
+| [DAX](dax.md) | Lizenzen und DAX im selben Segment | Heuristik, gezählt |  | 12 |
 
 ## Kernaussagen
 
@@ -81,11 +81,14 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 
 | Dokument | Datum | Abdeckung | Sprungmarken |
 | --- | --- | --- | --- |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Aufbau%20in%20drei%20Ebenen%20%28Overview%20first%2C%20zoom%20and%20filter%2C%20details%20on%20demand%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail) |
 | [Country Indicator Explorer — Lebenszufriedenheit und ihre Korrelate](https://datenwgknowledgekitchen.com/laender-indikatoren-explorer.html) | 2026-08-14 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/laender-indikatoren-explorer.html#:~:text=Quellen%20je%20Indikator) |
 | [Daten-WG Deep Dive: AI on top of BI](https://www.youtube.com/watch?v=HXAP16trRc8) | 2025-07-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) · [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) · [Abschnitt](https://www.youtube.com/watch?v=HXAP16trRc8) |
+| [Was machen die eigentlich? \| Daten-WG Podcast mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=_C69B0i-QQA) | 2026-08-01 | nur-zeitstempel | [04:30](https://www.youtube.com/watch?v=_C69B0i-QQA&t=270s) · [06:32](https://www.youtube.com/watch?v=_C69B0i-QQA&t=392s) · [16:15](https://www.youtube.com/watch?v=_C69B0i-QQA&t=975s) |
 | [Zehn Tage bis zum marktfähigen Stand](https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage.html#:~:text=Was%20das%20%2Awirtschaftlich%2A%20bedeutet) |
 | [Why Passion Beats Niche](https://www.youtube.com/watch?v=ihi7UiJ_TtQ) | 2025-09-01 | kernaussagen+zeitstempel | [19:47](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1187s) · [21:22](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1282s) · [25:05](https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1505s) |
 | [The Day After Tomorrow – Nach der Einführung geht es erst richtig los \| Power BI Summit 2023](https://www.youtube.com/watch?v=KwySyTxW_EI) | 2023-03-01 | nur-zeitstempel | [15:04](https://www.youtube.com/watch?v=KwySyTxW_EI&t=904s) · [39:08](https://www.youtube.com/watch?v=KwySyTxW_EI&t=2348s) · [42:08](https://www.youtube.com/watch?v=KwySyTxW_EI&t=2528s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [20:13](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1213s) · [21:05](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1265s) · [24:14](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=1454s) |
 | [Ten Days to a Market-Ready State](https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html#:~:text=What%20it%20means%20%2Aeconomically%2A) |
 | [Microsoft Power BI Einführung \| Florian Wiefel \| Hans-Ulrik Harnisch \| M365 Summit Mai 2022](https://www.youtube.com/watch?v=Z8vpSSOmG24) | 2022-06-01 | kernaussagen+zeitstempel | [03:03](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=183s) · [36:09](https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2169s) |
 | [10 Jahre BI für alle? Was Power BI wirklich verändert hat](https://www.youtube.com/watch?v=9wl_PLvgvyc) | 2025-08-01 | nur-zeitstempel | [03:10](https://www.youtube.com/watch?v=9wl_PLvgvyc&t=190s) · [11:07](https://www.youtube.com/watch?v=9wl_PLvgvyc&t=667s) · [20:24](https://www.youtube.com/watch?v=9wl_PLvgvyc&t=1224s) |
@@ -106,10 +109,11 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [Fabric & Power BI Quarterly \| 2025 Q2](https://www.youtube.com/watch?v=lAh9ajR2Nrw) | 2025-04-01 | kernaussagen+zeitstempel | [26:36](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1596s) · [46:54](https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2814s) |
 | [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [28:48](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1728s) |
 | [BI Thinkers Talk n.74](https://www.youtube.com/watch?v=rWE0gMx7v7I) | 2026-03-01 | kernaussagen+zeitstempel | [09:46](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=586s) · [11:17](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=677s) |
+| [More than PBIX](https://www.youtube.com/watch?v=c90oD4zR1Aw) | 2025-12-01 | nur-zeitstempel | [12:22](https://www.youtube.com/watch?v=c90oD4zR1Aw&t=742s) |
 | [600 SQL-Tabellen in Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg) | — | kernaussagen+zeitstempel | [02:39](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=159s) |
+| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-zeitstempel | [12:01](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=721s) · [42:05](https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=2525s) |
 | [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [39:00](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2340s) |
 | [Starting with Microsft Fabric the Skills you need](https://www.youtube.com/watch?v=m3xNYfVih0Q) | 2024-08-01 | nur-zeitstempel | [00:02](https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2s) |
-| [BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]](https://www.youtube.com/watch?v=uxYFqwe_Wiw) | 2025-12-01 | nur-text | [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) · [Abschnitt](https://www.youtube.com/watch?v=uxYFqwe_Wiw) |
 | [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [22:26](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1346s) |
 | [Daten-WG Deep Dive Financial Reporting - part 5](https://www.youtube.com/watch?v=iymmxuXHh44) | 2025-07-01 | nur-zeitstempel | [30:48](https://www.youtube.com/watch?v=iymmxuXHh44&t=1848s) |
 | [BI Thinkers Talk nr.67](https://www.youtube.com/watch?v=G8s96sHUHac) | 2025-09-01 | kernaussagen+zeitstempel | [57:28](https://www.youtube.com/watch?v=G8s96sHUHac&t=3448s) |

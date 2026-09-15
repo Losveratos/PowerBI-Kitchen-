@@ -2,10 +2,10 @@
 id: "topic:echtzeit"
 name: "Echtzeit"
 typ: thema
-stand: "2026-09-07"
-build: "20260907-1949"
+stand: "2026-09-15"
+build: "20260915-2009"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
-dokumente: 33
+dokumente: 34
 kernaussagen: 11
 mit_kernaussagen: 6
 url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/echtzeit.html"
@@ -31,17 +31,17 @@ Real-Time, Streaming, Realtime, Real Time
 
 | Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
 | --- | --- | --- | --- | --- |
-| [Microsoft Fabric](microsoft-fabric.md) | Echtzeit und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 52 |
+| [Microsoft Fabric](microsoft-fabric.md) | Echtzeit und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 53 |
 | [Power BI](power-bi.md) | Echtzeit und Power BI im selben Segment | Heuristik, gezählt |  | 35 |
 | [SQL](sql.md) | Echtzeit und SQL im selben Segment | Heuristik, gezählt |  | 25 |
-| [Eventhouse](eventhouse.md) | Echtzeit und Eventhouse im selben Segment | Heuristik, gezählt |  | 22 |
-| [KI](ki.md) | Echtzeit und KI im selben Segment | Heuristik, gezählt |  | 17 |
+| [Eventhouse](eventhouse.md) | Echtzeit und Eventhouse im selben Segment | Heuristik, gezählt |  | 23 |
+| [KI](ki.md) | Echtzeit und KI im selben Segment | Heuristik, gezählt |  | 18 |
 | [Lakehouse](lakehouse.md) | Echtzeit und Lakehouse im selben Segment | Heuristik, gezählt |  | 17 |
 | [Warehouse](warehouse.md) | Echtzeit und Warehouse im selben Segment | Heuristik, gezählt |  | 17 |
 | [Fabric Capacity](fabric-capacity.md) | Echtzeit und Fabric Capacity im selben Segment | Heuristik, gezählt |  | 15 |
 | [Performance](performance.md) | Echtzeit und Performance im selben Segment | Heuristik, gezählt |  | 14 |
 | [OneLake](onelake.md) | Echtzeit und OneLake im selben Segment | Heuristik, gezählt |  | 14 |
-| [Reporting](reporting.md) | Echtzeit und Reporting im selben Segment | Heuristik, gezählt |  | 10 |
+| [Reporting](reporting.md) | Echtzeit und Reporting im selben Segment | Heuristik, gezählt |  | 11 |
 | [Direct Lake](direct-lake.md) | Echtzeit und Direct Lake im selben Segment | Heuristik, gezählt |  | 10 |
 | [Notebook](notebook.md) | Echtzeit und Notebook im selben Segment | Heuristik, gezählt |  | 10 |
 | [Dataflow](dataflow.md) | Echtzeit und Dataflow im selben Segment | Heuristik, gezählt |  | 9 |
@@ -84,6 +84,7 @@ Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktion
 | [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [01:36](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=96s) · [53:04](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3184s) · [58:01](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3481s) |
 | [Power BI Update Mai 2025](https://www.youtube.com/watch?v=zkfdfc5fo-E) | 2025-05-01 | nur-zeitstempel | [09:19](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=559s) |
 | [Power BI Deep Dive: DAX UDF + TMDL](https://www.youtube.com/watch?v=0FPA1k5YiTs) | 2025-10-01 | nur-zeitstempel | [01:36](https://www.youtube.com/watch?v=0FPA1k5YiTs&t=96s) · [06:20](https://www.youtube.com/watch?v=0FPA1k5YiTs&t=380s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [42:42](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2562s) · [44:22](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2662s) |
 | [Was ist Self-Service und warum ist das so schwer?](https://www.youtube.com/watch?v=EVsJ6zyGUWc) | — | kernaussagen+zeitstempel | [46:30](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2790s) · [50:00](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=3000s) |
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | kernaussagen+zeitstempel | [15:35](https://www.youtube.com/watch?v=lZvpCBMKASM&t=935s) · [43:39](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2619s) |
 | [Daten-WG Special: Power BI vs. Qlik](https://www.youtube.com/watch?v=aYHk_V8n_CE) | 2025-10-01 | kernaussagen+zeitstempel | [27:12](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=1632s) · [56:43](https://www.youtube.com/watch?v=aYHk_V8n_CE&t=3403s) |

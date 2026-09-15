@@ -3,14 +3,14 @@
  "name": "KI",
  "typ": "thema",
  "slug": "ki",
- "stand": "2026-09-07",
- "build": "20260907-1949",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/ki.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/ki.html",
  "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/ki.md",
  "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/ki.json",
- "dokumente_gesamt": 90,
+ "dokumente_gesamt": 97,
  "kernaussagen_gesamt": 101,
  "mit_kernaussagen": 29,
  "aliase": [
@@ -31,7 +31,7 @@
    "name": "Power BI",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 114,
+   "gemeinsame_segmente": 118,
    "beleg": "",
    "datei": "power-bi.md"
   },
@@ -40,7 +40,7 @@
    "name": "Microsoft Fabric",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 65,
+   "gemeinsame_segmente": 67,
    "beleg": "",
    "datei": "microsoft-fabric.md"
   },
@@ -49,7 +49,7 @@
    "name": "Copilot",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 62,
+   "gemeinsame_segmente": 64,
    "beleg": "",
    "datei": "copilot.md"
   },
@@ -58,7 +58,7 @@
    "name": "Visualisierung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 59,
+   "gemeinsame_segmente": 63,
    "beleg": "",
    "datei": "visualisierung.md"
   },
@@ -67,7 +67,7 @@
    "name": "Reporting",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 46,
+   "gemeinsame_segmente": 49,
    "beleg": "",
    "datei": "reporting.md"
   },
@@ -81,22 +81,22 @@
    "datei": "performance.md"
   },
   {
-   "id": "topic:datenmodellierung",
-   "name": "Datenmodellierung",
-   "kantentyp": "ko-vorkommen",
-   "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 32,
-   "beleg": "",
-   "datei": "datenmodellierung.md"
-  },
-  {
    "id": "tool:excel",
    "name": "Excel",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 32,
+   "gemeinsame_segmente": 34,
    "beleg": "",
    "datei": "excel.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 33,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
   },
   {
    "id": "tool:python",
@@ -130,7 +130,7 @@
    "name": "SQL",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 24,
+   "gemeinsame_segmente": 25,
    "beleg": "",
    "datei": "sql.md"
   },
@@ -139,7 +139,7 @@
    "name": "Daten-WG",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 22,
+   "gemeinsame_segmente": 24,
    "beleg": "",
    "datei": "daten-wg.md"
   },
@@ -148,18 +148,18 @@
    "name": "Schulung",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 21,
+   "gemeinsame_segmente": 22,
    "beleg": "",
    "datei": "schulung.md"
   },
   {
-   "id": "topic:community",
-   "name": "Community",
+   "id": "topic:strategie",
+   "name": "Strategie",
    "kantentyp": "ko-vorkommen",
    "belastbarkeit": "Heuristik, gezählt",
-   "gemeinsame_segmente": 20,
+   "gemeinsame_segmente": 21,
    "beleg": "",
-   "datei": "community.md"
+   "datei": "strategie.md"
   }
  ],
  "kernaussagen": [
@@ -1075,6 +1075,36 @@
  ],
  "dokumente": [
   {
+   "id": "yt:gMYj9UTWeWk",
+   "titel": "#011 · Power BI ohne Fabric? Absolut!",
+   "datum": "2026-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=gMYj9UTWeWk",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=gMYj9UTWeWk&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:u_ezQyN3a_s",
+   "titel": "#009 · Lohnt es sich 2026 noch, Power BI zu lernen?",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=u_ezQyN3a_s",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=u_ezQyN3a_s&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
    "id": "yt:5atgv1IOijA",
    "titel": "Willkommen auf dem Daten-WG Kanal",
    "datum": "2025-04-01",
@@ -1415,27 +1445,27 @@
    ]
   },
   {
-   "id": "page:prototyping-pnl-treiberbaum",
-   "titel": "Ist KI das neue Papier — und Markdown der neue Stift?",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.429,
-   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
+   "id": "yt:svytHaNMTf0",
+   "titel": "Data Projects like Iron Man [AI dubbed]",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.5,
+   "url": "https://www.youtube.com/watch?v=svytHaNMTf0",
    "sprungmarken": [
     {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
-     "sekunde": null
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=svytHaNMTf0&t=0s",
+     "sekunde": 0
     },
     {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=M%C3%BCssen%20wir%20Prototyping%20%2Aneu%20denken%3F%2A",
-     "sekunde": null
+     "label": "01:33",
+     "url": "https://www.youtube.com/watch?v=svytHaNMTf0&t=93s",
+     "sekunde": 93
     },
     {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=LinkedIn-Post%20%C2%B7%20Original%20%28EN%29",
-     "sekunde": null
+     "label": "03:10",
+     "url": "https://www.youtube.com/watch?v=svytHaNMTf0&t=190s",
+     "sekunde": 190
     }
    ]
   },
@@ -1460,6 +1490,31 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=LinkedIn%20post%20%C2%B7%20Original%20%28EN%29",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:prototyping-pnl-treiberbaum",
+   "titel": "Ist KI das neue Papier — und Markdown der neue Stift?",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.429,
+   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=M%C3%BCssen%20wir%20Prototyping%20%2Aneu%20denken%3F%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=LinkedIn-Post%20%C2%B7%20Original%20%28EN%29",
      "sekunde": null
     }
    ]
@@ -1935,21 +1990,6 @@
    ]
   },
   {
-   "id": "page:chartkitchen-schnellstart_en",
-   "titel": "ChartKitchen byDatenWG — Quick Start",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.2,
-   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:chartkitchen-schnellstart",
    "titel": "ChartKitchen byDatenWG — Schnellstart",
    "datum": "2026-08-31",
@@ -1960,6 +2000,21 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart_en",
+   "titel": "ChartKitchen byDatenWG — Quick Start",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
      "sekunde": null
     }
    ]
@@ -2076,6 +2131,31 @@
      "label": "17:21",
      "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1041s",
      "sekunde": 1041
+    }
+   ]
+  },
+  {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.188,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "28:48",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1728s",
+     "sekunde": 1728
+    },
+    {
+     "label": "30:20",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1820s",
+     "sekunde": 1820
+    },
+    {
+     "label": "33:50",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=2030s",
+     "sekunde": 2030
     }
    ]
   },
@@ -2525,6 +2605,31 @@
    ]
   },
   {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.114,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
+    }
+   ]
+  },
+  {
    "id": "yt:lAh9ajR2Nrw",
    "titel": "Fabric & Power BI Quarterly | 2025 Q2",
    "datum": "2025-04-01",
@@ -2615,6 +2720,26 @@
    ]
   },
   {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "16:06",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=966s",
+     "sekunde": 966
+    },
+    {
+     "label": "25:49",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=1549s",
+     "sekunde": 1549
+    }
+   ]
+  },
+  {
    "id": "yt:RtUiF1J5XEg",
    "titel": "600 SQL-Tabellen in Fabric",
    "datum": "",
@@ -2655,6 +2780,21 @@
    ]
   },
   {
+   "id": "yt:Me3a2QOx21I",
+   "titel": "Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=Me3a2QOx21I",
+   "sprungmarken": [
+    {
+     "label": "01:17",
+     "url": "https://www.youtube.com/watch?v=Me3a2QOx21I&t=77s",
+     "sekunde": 77
+    }
+   ]
+  },
+  {
    "id": "yt:mTVeZzshLzE",
    "titel": "Microsoft Fabric — braucht das wirklich jemand?",
    "datum": "",
@@ -2671,6 +2811,41 @@
      "label": "40:00",
      "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=2400s",
      "sekunde": 2400
+    }
+   ]
+  },
+  {
+   "id": "yt:_C69B0i-QQA",
+   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
+   "sprungmarken": [
+    {
+     "label": "03:54",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=234s",
+     "sekunde": 234
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.059,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "03:25",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=205s",
+     "sekunde": 205
+    },
+    {
+     "label": "44:22",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2662s",
+     "sekunde": 2662
     }
    ]
   },
@@ -2835,6 +3010,26 @@
    ]
   },
   {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.036,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "39:13",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw&t=2353s",
+     "sekunde": 2353
+    }
+   ]
+  },
+  {
    "id": "yt:0FPA1k5YiTs",
    "titel": "Power BI Deep Dive: DAX UDF + TMDL",
    "datum": "2025-10-01",
@@ -2846,26 +3041,6 @@
      "label": "31:24",
      "url": "https://www.youtube.com/watch?v=0FPA1k5YiTs&t=1884s",
      "sekunde": 1884
-    }
-   ]
-  },
-  {
-   "id": "yt:uxYFqwe_Wiw",
-   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
-   "datum": "2025-12-01",
-   "abdeckung": "nur-text",
-   "anteil": 0.031,
-   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
-     "sekunde": null
     }
    ]
   },
@@ -2998,24 +3173,6 @@
      "sekunde": null
     }
    ]
-  },
-  {
-   "id": "yt:3-hXnNLKnAw",
-   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
-   "datum": "2026-07-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
-   "sprungmarken": []
-  },
-  {
-   "id": "yt:svytHaNMTf0",
-   "titel": "Data Projects like Iron Man [AI dubbed]",
-   "datum": "2025-04-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=svytHaNMTf0",
-   "sprungmarken": []
   },
   {
    "id": "yt:AxLQtBVAI9o",
