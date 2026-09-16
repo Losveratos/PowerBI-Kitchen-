@@ -323,7 +323,9 @@ markiert Punkte, die dort bereits (oder besser) gelöst sind.
 - [ ] **Design-Presets + fx-Farben** (M) — Stil-Dropdown (IBCS klassisch /
       Corporate hell / Dark / Kompakt) setzt Farben+Schriften+Labels als
       Paket; gut/schlecht-Farben per bedingter Formatierung (fx) aus dem
-      Modell steuerbar.
+      Modell steuerbar. *Teil erledigt in 1.43: Dark Mode als
+      Erscheinungsbild (Auto/Hell/Dunkel) mit Theme-Auto-Erkennung —
+      offen bleiben die Stil-Pakete und fx-Farben.*
 - [ ] **Measure-Umschalter-Chip** (M) — mehrere Kennzahlen im AC-Feld, im
       Chart per Chip durchschaltbar (Field Parameters light), persistiert
       und bookmarkfähig.

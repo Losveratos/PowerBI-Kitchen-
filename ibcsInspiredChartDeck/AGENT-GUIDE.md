@@ -8,7 +8,7 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.42.0.0** (13.08.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.43.0.0** (16.09.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -63,7 +63,7 @@ Geisterzeilen/Kreuzprodukte. Wächter-Muster:
 | KPI-Kacheln | `cards` | category + actual |
 | Pareto / Dumbbell / Slope | `pareto` / `dumbbell` / `slope` | category + actual (+ Basis) |
 
-## Settings-Referenz (aus capabilities.json generiert, 1.42.0.0)
+## Settings-Referenz (aus capabilities.json generiert, 1.43.0.0)
 
 PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String.
 
@@ -145,7 +145,8 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 
 | Property | Typ | Werte |
 | --- | --- | --- |
-| `variancePreset` | enum | `custom` · `blueOrange` (#2C7BB6/#E66101, übersteuert Picker) |
+| `appearance` | enum | `auto` (Default, erkennt dunkle Themes an der Hintergrund-Luminanz < 0,35) · `light` · `dark` — ab 1.43. Dark stellt Tinte/Achsen/Flächen auf helle Töne; Picker auf hellem Default werden automatisch ersetzt (AC/PL #404040→#D9D9D9, PY #B3B3B3→#8A8A8A, Gut #1E8F9E→#3FB3C2, Schlecht #D64541→#E4635F), eigene Farben bleiben |
+| `variancePreset` | enum | `custom` · `blueOrange` (#2C7BB6/#E66101, übersteuert Picker; im Dark Mode #5BA3DC/#F0821E) |
 | `useTheme` | bool | Theme-Farben vor Pickern |
 | `actualColor` / `previousYearColor` / `planColor` / `goodColor` / `badColor` | color | `{"solid":{"color":"#RRGGBB"}}` |
 
