@@ -5,7 +5,7 @@
 - **Quelle:** https://datenwgknowledgekitchen.com/visual-standards-rechner.html
 - **Autor:innen:** Michael Tenner & Diana Ackermann · Daten-WG Knowledge Kitchen
 - **Anlass:** Pre-Conference „Visual Standards in Power BI für Controlling und Finance | Von Paid über Flexibel bis MacGyver", Daten-WG 2026, 14.10.2026, Köln
-- **Stand:** v0.19 · 09/2026 (drei Ebenen nach Shneiderman plus ein gefuehrter Einstieg davor; Annahmen-Audit Runde 2 vom 11.09.2026. Pakete A und B: gepaarte Ziehung, Cash-out je Jahr, Amortisation, Stunden und FTE, P50/P75/P90, Ausstiegskosten, Viewer-Deckel, drei neue Anforderungen, Modifier „Organizational Store". Paket C1: Jahresschleife im Rechenkern mit fuenf neuen Annahmen. Paket C2: sieben neue Anforderungen, sechs neue Red Flags, Adoptionsgrad, Semantikmodelle, Verteilweg, Vorlaufzeit, CapEx/OpEx, Stunden-Anker, Unsicherheit im Mengengeruest und Sicherheits-Leiste. v0.13: Entscheidungspfad, Wirkungsgraph, Entscheidungsbaum, ohne die Rechenlogik zu aendern. v0.14: Report-Klassen und IBCS-Pflicht als eigener Kostentreiber. v0.15: Anbieter-Angebote als haerteste Evidenz im Modell. v0.16: gefuehrter Einstieg (Ebene 0) und Lesehilfe, dazu Vereinfachungen in Ebene 1 und 2 ohne Aenderung an Annahmen oder Rechenlogik. v0.17: Inhaltsverzeichnis als mitlaufende Seitenleiste und ein klickbarer Wirkungsgraph, der zugleich zweite Bedienoberflaeche ist. v0.18: die Lizenzmenge kennt die Report-Klassen — Korrektur aus einer unabhaengigen Pruefung, sie wirkt zugunsten von 3rd-Party paid. v0.19: der Wirkungsgraph steht vor den Eingaben statt am Seitenende, das Inhaltsverzeichnis gruppiert nach Seitenbereich) · Sprache DE · rein clientseitig, keine Server-Anbindung
+- **Stand:** v0.20 · 09/2026 (drei Ebenen nach Shneiderman plus ein gefuehrter Einstieg davor; Annahmen-Audit Runde 2 vom 11.09.2026. Pakete A und B: gepaarte Ziehung, Cash-out je Jahr, Amortisation, Stunden und FTE, P50/P75/P90, Ausstiegskosten, Viewer-Deckel, drei neue Anforderungen, Modifier „Organizational Store". Paket C1: Jahresschleife im Rechenkern mit fuenf neuen Annahmen. Paket C2: sieben neue Anforderungen, sechs neue Red Flags, Adoptionsgrad, Semantikmodelle, Verteilweg, Vorlaufzeit, CapEx/OpEx, Stunden-Anker, Unsicherheit im Mengengeruest und Sicherheits-Leiste. v0.13: Entscheidungspfad, Wirkungsgraph, Entscheidungsbaum, ohne die Rechenlogik zu aendern. v0.14: Report-Klassen und IBCS-Pflicht als eigener Kostentreiber. v0.15: Anbieter-Angebote als haerteste Evidenz im Modell. v0.16: gefuehrter Einstieg (Ebene 0) und Lesehilfe, dazu Vereinfachungen in Ebene 1 und 2 ohne Aenderung an Annahmen oder Rechenlogik. v0.17: Inhaltsverzeichnis als mitlaufende Seitenleiste und ein klickbarer Wirkungsgraph, der zugleich zweite Bedienoberflaeche ist. v0.18: die Lizenzmenge kennt die Report-Klassen — Korrektur aus einer unabhaengigen Pruefung, sie wirkt zugunsten von 3rd-Party paid. v0.19: der Wirkungsgraph steht vor den Eingaben statt am Seitenende, das Inhaltsverzeichnis gruppiert nach Seitenbereich. v0.20: Aufraeum-Durchgang vor der 1.0 — Barrierefreiheit, Grenzen-Abschnitt, Pruefinfrastruktur im Repository) · Sprache DE · rein clientseitig, keine Server-Anbindung
 - **Zitierhinweis:** Michael Tenner & Diana Ackermann, Daten-WG Knowledge Kitchen, https://datenwgknowledgekitchen.com/visual-standards-rechner.html — Abruf mit Datum angeben.
 - **Hinweis fuer Agenten:** Diese Markdown-Fassung beschreibt Modell, Voreinstellungen und Quellenlage. Regler, Simulation, Charts und Export sind nur in der HTML-Fassung nutzbar.
 - **Offenlegung:** ChartKitchen byDatenWG, das Beispiel fuer „Open Source / Eigenentwicklung", ist ein Projekt der Autor:innen.
@@ -347,6 +347,58 @@ Damit die Karte oben ruhig bleibt, ist der lange Erklaerabsatz unter den Graphen
 **Ein Fehler dabei gefunden und behoben:** Die Unterpunkte trugen 18 px Luecken, die Fuehrungslinie war zerhackt. Ursache war ein Namenskonflikt — die Eintraege nutzten die Klasse `sub`, die die Seite bereits fuer Untertitel vergibt, und erbten deren `margin-bottom`. Eigener Name `tsub`, Linie laeuft durch.
 
 **Optik der Seitenleiste:** durchgehende Fuehrungslinie statt grauer Kaesten, die aktive Stelle nur ueber Akzentfarbe und eingefaerbtes Linienstueck, der Ebenen-Vermerk ohne Rahmen, und „Alles aufklappen / zuklappen" als leise Fusszeile unter der Liste statt als zwei breite Knoepfe darueber. Die Navigation beginnt damit mit der Navigation.
+
+## v0.20: Aufraeumen vor der 1.0
+
+Keine neue Funktion. Dieser Durchgang hat geprueft, was nicht mehr stimmt, und das Werkzeug benutzbar gemacht.
+
+### Ein neuer Abschnitt: „Was dieser Rechner nicht kann"
+
+`#s-grenzen` steht auf Ebene 2 direkt hinter dem Ergebnis, offen, ohne Klick. Er nennt die Quellenlage (live aus `GLOBAL` und `OPTP` gezaehlt, damit der Absatz nicht veraltet: **58 Annahmen, 12 mit externer Quelle, 46 ohne**), legt offen, dass ChartKitchen byDatenWG und die Deneb-Vorlagen Projekte der Veranstalter sind, listet die **sechs offenen Luecken** aus der unabhaengigen Pruefung mit Groessenordnung und Wirkungsrichtung, sagt, was gar nicht enthalten ist, und schliesst mit der Warnung zum Kipp-Punkt. Der unbequemste Satz darin: **vier der sechs Luecken wirken zugunsten der Ansaetze, die die Autor:innen selbst vertreten** — das Modell ist nicht neutral, sondern hat eine bekannte Schlagseite.
+
+Wer eine Zahl mit Versionsnummer zitiert, soll auf derselben Seite lesen koennen, wo sie systematisch danebenliegt. Bis v0.19 stand das nur in einem Unterordner des Repositories.
+
+### Zwei echte Fehler
+
+- **Die Annahme `lic` war seit v0.18 falsch beschriftet** („Ersteller und Viewer zaehlen gleich"). Zusammen mit zehn weiteren Textstellen — Eingabefeld, gefuehrter Einstieg, Graph-Popup, Glossar, Nachteile von Paid, Methodiktext — und einer **Excel-Formel, die tatsaechlich mit allen Viewern rechnete**, nachgezogen.
+- **`licenseBreakEven()` filterte die K.O.-Kriterien nicht** und verglich gegen ausgeschlossene Ansaetze. Im Konzern-Preset verschiebt die Korrektur den Break-even von 692 auf **1.117 Viewer**, im Report-Server-Preset von 236 auf **370**. Die Richtung der Aussagen bleibt. Dieselbe Familie in `drawBreakEven()`: ausgeschlossene Ansaetze werden jetzt ausdruecklich als „nicht waehlbar, nur zum Vergleich" gekennzeichnet statt stillschweigend mitempfohlen; ist Paid selbst ausgeschlossen, steht der Vorbehalt vor den Zahlen statt dahinter.
+
+### Sieben veraltete Zahlen
+
+Unter anderem im statischen Entscheidungsbaum: Kipp-Punkt **1 : 10–1 : 20 → 1 : 12–1 : 26**, mit Zebra-Anker **1 : 15 → 1 : 5–1 : 9** (diese Zahl war nie richtig). Dazu eine Behauptung, die die Rechnung widerlegt: Die Lesehilfe nannte die IBCS-Pflicht „im Enterprise den groessten einzelnen Kostentreiber" — gemessen **senkt** sie die Kosten bei Paid (−4 bis −17 %), Open Source und Deneb und erhoeht sie nur bei Core + SVG (+1 bis +4 %), weil die operativen Reports aus der zweiten Werkzeugkette in den gewaehlten Ansatz wandern.
+
+### Barrierefreiheit und Bedienbarkeit
+
+Erstmals systematisch geprueft (`sessions/visual-standards-rechner-audit/barrierefreiheit-check.md`, alles mit Playwright gemessen). Behoben:
+
+| | vorher | nachher |
+|:--|--:|--:|
+| Tabulator-Halte gesamt | 1.066 | **604** |
+| davon Erfuellungsgrad-Punkte | 540 | **108** (roving tabindex, Pfeiltasten) |
+| Spaltenkopf-Kontraste der Anforderungs-Tabelle | 2,17–4,42 : 1 | **5,70–8,16 : 1** |
+| Flusstext unter 11 px | 414 Knoten | **2** |
+| verwaiste `<label>` ohne `for` | 20 | **0** |
+| offene Details im Ausdruck (Ebene 3) | 2 von 13 | **13 von 13** |
+| Ueberschriftenspruenge | 1 | **0** |
+
+Dazu: Segment-Schalter tragen `role="radiogroup"`/`aria-checked` statt nur einer CSS-Klasse und sind im Windows-Kontrastmodus wieder unterscheidbar (vorher alle drei weiss und rahmenlos — am Beamer war nicht erkennbar, ob mit 3, 5 oder 10 Jahren gerechnet wird). Sprungmarken setzen den Fokus ans Ziel; vorher blieb er am Verzeichnis stehen, teils ausserhalb des Bildes. Aenderungen an Horizont, Schiebereglern und Gewichtung werden ueber die vorhandene Live-Region angesagt.
+
+**Bewusst nicht gemacht:** die Umstellung der 128 px-Schriftgroessen auf relative Einheiten. Sie haengen an sieben Breakpoints und zwei `viewBox`-Koordinatensystemen; das Risiko, das Layout kurz vor 1.0 zu verschieben, steht gegen den Nutzen. Offen bleiben ausserdem: Schieberegler-Hoehe, `<main>`-Landmarke, Zahlen-Aequivalent fuer Break-even und Tornado, `<caption>` fuer die Tabellen, Reflow bei 320 px. Ungeprueft mangels Umgebung: echte Screenreader-Ausgabe, echter Windows-Kontrastmodus, Firefox und Safari.
+
+### Pruefinfrastruktur im Repository
+
+Bis v0.19 lagen alle Testskripte im fluechtigen Arbeitsverzeichnis einer Sitzung — und die damalige „grosse Regression" enthielt **keine einzige Zusicherung**: Sie hat Werte gedruckt und nie geurteilt. Jetzt: `node tests/run-all.js` startet **sieben Suiten mit 373 Pruefungen** (rund 5,5 Minuten) aus jedem Verzeichnis, mit Exit-Code ungleich null bei jedem Fehlschlag. Details in `tests/README.md`. `scripts/validate_html.js` behandelt sein Dateiargument und bricht ab, statt Erfolg fuer eine andere Datei zu melden.
+
+### Fussbereich entzerrt
+
+Der Methodiktext war ein einziger Absatz mit **2.368 Woertern**, in dem die gesamte Versionsgeschichte steckte. Methodik (jetzt 326 Woerter) und Aenderungshistorie (11 Eintraege, zugeklappt) sind getrennt.
+
+### Was fuer die 1.0 noch fehlt
+
+- Der **Rechenkern ist nirgends gegen eine unabhaengige Rechnung geprueft**. Alle Referenzwerte sind selbst gemessen; das faengt unbeabsichtigte Aenderungen, aber keinen systematischen Fehler. Ein von Hand durchgerechnetes Mini-Szenario waere die ehrliche Absicherung.
+- **Keine CI.** Nichts hindert einen Commit mit roten Tests.
+- Die **statischen Zahlen im Entscheidungsbaum** haelt keine Pruefung gegen den Rechenkern — genau der Fall, der zweimal veraltet ist.
+- Die **Monte-Carlo-Seite** und der **Inhalt des Excel-Exports** sind nicht abgedeckt.
 
 ## Modellunsicherheit je Ansatz (v0.12)
 
