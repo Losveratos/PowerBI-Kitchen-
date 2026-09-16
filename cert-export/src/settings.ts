@@ -135,7 +135,7 @@ const labelDensityItems: LocEnumMember[] = [
 
 /** resolve all enum-member labels once via the host's localization manager */
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
-    const lists: LocEnumMember[][] = [orientationItems, comparisonItems,
+    const lists: LocEnumMember[][] = [orientationItems, comparisonItems, appearanceItems,
         displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems,
         cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems,
         cardRefValueItems,
@@ -857,12 +857,28 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
     groups = [this.layoutGroup, this.analysisGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup];
 }
 
+const appearanceItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Auto (Theme erkennen)", key: "Enum_Appearance_Auto" },
+    { value: "light", displayName: "Hell", key: "Enum_Appearance_Light" },
+    { value: "dark", displayName: "Dunkel", key: "Enum_Appearance_Dark" }
+];
+
 const variancePresetItems: powerbi.IEnumMember[] = [
     { value: "custom", displayName: "Farbwähler unten (Teal/Rot)" },
     { value: "blueOrange", displayName: "Blau/Orange (ColorBrewer)" }
 ];
 
 export class ColorsCardSettings extends FormattingSettingsCard {
+    appearance = new formattingSettings.ItemDropdown({
+        name: "appearance",
+        displayName: "Erscheinungsbild",
+        displayNameKey: "Colors_Appearance",
+        description: "„Auto\" erkennt dunkle Berichts-Themes an der Hintergrundfarbe und stellt Schrift, Achsen und Flächen auf helle Töne um. Bei manuell dunkel eingefärbten Seiten (ohne dunkles Theme) „Dunkel\" wählen.",
+        descriptionKey: "Desc_Colors_Appearance",
+        items: appearanceItems,
+        value: appearanceItems[0]
+    });
+
     variancePreset = new formattingSettings.ItemDropdown({
         name: "variancePreset",
         displayName: "Variance color preset",
@@ -923,6 +939,7 @@ export class ColorsCardSettings extends FormattingSettingsCard {
     displayName: string = "IBCS colors";
     displayNameKey: string = "Card_Colors";
     slices: Array<FormattingSettingsSlice> = [
+        this.appearance,
         this.variancePreset,
         this.useTheme,
         this.actualColor,

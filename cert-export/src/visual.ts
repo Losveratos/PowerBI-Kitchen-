@@ -34,6 +34,41 @@ import { VisualFormattingSettingsModel, localizeEnumItems } from "./settings";
 const SVG_NS = "http://www.w3.org/2000/svg";
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const INK = "#404040";
+/** dark-mode neutrals: mirrored light palette for dark report themes. The visual
+ *  paints no opaque background, so "paper" must match the (dark) page behind it —
+ *  halos and hollow marks are filled with it. Text tones keep WCAG-AA contrast
+ *  against DARK_PAPER (ink ≈ 12:1, subtle ≈ 6:1). */
+const DARK_INK = "#E0E0E0";
+const DARK_PAPER = "#1E1E1E";
+const DARK_SUBTLE = "#A6A6A6";
+/** light-mode UI neutrals with their dark counterparts: card borders/separators,
+ *  emphasized-card fill, bullet band — resolved once into cfg (faint/wash/band) */
+const FAINT = "#DDDDD8", DARK_FAINT = "#3F3F3F";
+const WASH = "#F4F4F0", DARK_WASH = "#30302C";
+const BAND = "#EFEFEA", DARK_BAND = "#3A3A36";
+/** pane color-picker defaults → dark-legible stand-ins. Only applied while the
+ *  picker still holds its light default, so user-chosen colors always win. */
+const DARK_COLOR_SWAP: Record<string, string> = {
+    "#404040": "#D9D9D9",   // AC / PL outline: near-black → light grey
+    "#B3B3B3": "#8A8A8A",   // PY: stays the dimmer grey relative to AC
+    "#1E8F9E": "#3FB3C2",   // good: DatenWG teal, brightened for dark ground
+    "#D64541": "#E4635F"    // bad: red, brightened for dark ground
+};
+/** WCAG relative luminance of a #rgb/#rrggbb color; unparseable → 1 (treat as light) */
+function relLuminance(hex: string): number {
+    let m = /^#?([0-9a-f]{6})$/i.exec((hex || "").trim());
+    if (!m) {
+        const m3 = /^#?([0-9a-f]{3})$/i.exec((hex || "").trim());
+        if (!m3) { return 1; }
+        m = [m3[0], m3[1].split("").map(c => c + c).join("")] as unknown as RegExpExecArray;
+    }
+    const n = parseInt(m[1], 16);
+    const ch = (v: number) => {
+        const c = v / 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * ch((n >> 16) & 255) + 0.7152 * ch((n >> 8) & 255) + 0.0722 * ch(n & 255);
+}
 /** small-multiples grid cap — shared-scale maxima must only span rendered tiles */
 const MULT_MAX_CELLS = 24;
 
@@ -245,9 +280,17 @@ interface ChartConfig {
     isMaterial: (p: DataPoint | null | undefined, vAbs?: number | null, vRel?: number | null) => boolean;
     /** high-contrast mode: only foreground/background colors, outlines for distinction */
     hc: boolean;
+    /** dark mode: light text/marks on a dark report page (forced or auto-detected) */
+    dark: boolean;
     ink: string;
     paper: string;
     subtle: string;
+    /** faint UI lines: card borders, separators (light #DDDDD8/#E0E0E0 family) */
+    faint: string;
+    /** emphasized-card background wash (light #F4F4F0) */
+    wash: string;
+    /** bullet-graph band fill (light #EFEFEA) */
+    band: string;
     /** lower-cased category labels to emphasize (IBCS EMPHASIZE) */
     highlight: Set<string>;
     /** hard scale maximum: larger base values are capped with a break marker */
@@ -425,6 +468,9 @@ export class Visual implements IVisual {
      *  (unlike types, which erase) are not available at runtime — same reason settings.ts
      *  spells out ValidatorType as raw numbers instead of importing the enum */
     private viewMode: powerbi.ViewMode | null = null;
+    /** dark mode resolved per update (pane setting or theme luminance) — also
+     *  drives the landing gallery and the HTML overlays outside of cfg */
+    private uiDark = false;
     /** rowType / colgroup role bound at all (Smart-Start rules a/b), independent of the
      *  current orientation's own filtering of those fields */
     private paneHasRowType = false;
@@ -506,6 +552,8 @@ export class Visual implements IVisual {
                 .populateFormattingSettingsModel(VisualFormattingSettingsModel, dataView);
             // Smart-Start gates on the edit context — save the raw ViewMode every update
             this.viewMode = options.viewMode ?? null;
+            // resolve dark mode before any branch renders (landing gallery included)
+            this.uiDark = this.resolveDarkMode();
             // one-click-P&L lists: a just-persisted value must survive a stale
             // metadata update that arrives before the host echoes it back
             for (const [prop, val] of [...this.pendingListProps]) {
@@ -1206,6 +1254,37 @@ export class Visual implements IVisual {
         return sign + nf.format(Math.abs(v)) + "%";
     }
 
+    /** shared colors for the small HTML overlays (search box, structure menu,
+     *  comment editor) — they float over the report page, so they follow uiDark */
+    private popupColors(): { bg: string; ink: string; border: string; subtle: string } {
+        return this.uiDark
+            ? { bg: "#2B2B2B", ink: "#E8E8E8", border: "#5A5A5A", subtle: DARK_SUBTLE }
+            : { bg: "#FFFFFF", ink: "#252423", border: "#8A8A8A", subtle: "#6E6E6E" };
+    }
+
+    /** dark mode: the pane's appearance dropdown wins; "auto" sniffs the report
+     *  theme's background luminance. High contrast keeps its own palette path.
+     *  Themes that never set a background report white here, so auto only
+     *  triggers on genuinely dark themes — pages painted dark by hand need the
+     *  explicit "dark" choice. */
+    private resolveDarkMode(): boolean {
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette;
+        if (palette && palette.isHighContrast) { return false; }
+        const mode = String(this.formattingSettings?.colorsCard?.appearance?.value?.value ?? "auto");
+        if (mode === "dark") { return true; }
+        if (mode === "light") { return false; }
+        const bg = palette?.background?.value;
+        return !!bg && relLuminance(bg) < 0.35;
+    }
+
+    /** paper tone while dark: keep the theme's own background if it is dark, so
+     *  halos and hollow marks blend into the page instead of a near-miss grey */
+    private darkPaper(): string {
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette;
+        const bg = palette?.background?.value;
+        return bg && relLuminance(bg) < 0.35 ? bg : DARK_PAPER;
+    }
+
     // --------------------------------------------------------------- landing
 
     /** landing page renders a live sample chart instead of a text hint */
@@ -1220,8 +1299,15 @@ export class Visual implements IVisual {
         this.compareCats = [];
         this.svg.style.display = "block";
         while (this.svg.firstChild) { this.svg.removeChild(this.svg.firstChild); }
-        const ink = "#404040", grey = "#B3B3B3", teal = "#1E8F9E", red = "#D64541";
-        const subtle = "#6E6E6E", paper = "#FFFFFF";
+        // brand palette with dark-mode stand-ins — same tones the chart uses
+        const dk = this.uiDark;
+        const ink = dk ? DARK_INK : "#404040", grey = dk ? "#8A8A8A" : "#B3B3B3",
+            teal = dk ? "#3FB3C2" : "#1E8F9E", red = dk ? "#E4635F" : "#D64541";
+        const subtle = dk ? DARK_SUBTLE : "#6E6E6E", paper = dk ? this.darkPaper() : "#FFFFFF";
+        // landing surfaces: tile fills, borders and the secondary text tone
+        const tile = dk ? "#262624" : "#FAFAF8", tileOn = dk ? "#1E3236" : "#EEF6F7";
+        const edge = dk ? DARK_FAINT : "#E4E4DF", edge2 = dk ? DARK_FAINT : "#DDDDD8";
+        const soft = dk ? "#BFBFBF" : "#5A5A5A";
         const hint = this.missingHint
             || this.locStr("Demo_Hint", "Sample data — add Category and Actual (AC)");
 
@@ -1387,8 +1473,8 @@ export class Visual implements IVisual {
                 tip.textContent = `${label} — ${m.use}`;
                 this.el("rect", {
                     x, y, width: entryW, height: entryH, rx: 6,
-                    fill: on ? "#EEF6F7" : "#FAFAF8",
-                    stroke: on ? teal : "#E4E4DF", "stroke-width": on ? 1.6 : 1
+                    fill: on ? tileOn : tile,
+                    stroke: on ? teal : edge, "stroke-width": on ? 1.6 : 1
                 }, g);
                 if (listOk) {
                     // small preview tile left, text block right
@@ -1396,7 +1482,7 @@ export class Visual implements IVisual {
                     const px = x + 8, py2 = y + 7;
                     this.el("rect", {
                         x: px - 2, y: py2 - 2, width: tw + 4, height: th + 4, rx: 4,
-                        fill: paper, stroke: on ? teal : "#DDDDD8", "stroke-width": on ? 1.6 : 1
+                        fill: paper, stroke: on ? teal : edge2, "stroke-width": on ? 1.6 : 1
                     }, g);
                     this.drawModeMini(g, m.v, px + 4, py2 + 4, tw - 8, th - 8, { ink, grey, teal, red, paper });
                     const tx = px + tw + 12;
@@ -1410,7 +1496,7 @@ export class Visual implements IVisual {
                     t1.textContent = this.truncate(`${on ? "✓ " : ""}${label}`, tmax, f1);
                     ty += lineH;
                     const t2 = this.el("text", {
-                        x: tx, y: ty, "font-size": f2, fill: "#5A5A5A", "font-family": FONT
+                        x: tx, y: ty, "font-size": f2, fill: soft, "font-family": FONT
                     }, g);
                     t2.textContent = this.truncate(m.use, tmax, f2);
                     ty += lineH;
@@ -1471,7 +1557,7 @@ export class Visual implements IVisual {
             if (textH >= 54 * tf) {
                 const t2 = this.el("text", {
                     x: hx + hw / 2, y: hy2 + hh + 34 * tf, "text-anchor": "middle",
-                    "font-size": f2, fill: "#5A5A5A", "font-family": FONT
+                    "font-size": f2, fill: soft, "font-family": FONT
                 }, g);
                 t2.textContent = this.truncate(m.use, availW - 8, f2);
                 const t3 = this.el("text", {
@@ -1490,7 +1576,7 @@ export class Visual implements IVisual {
                     tip.textContent = nLabel;
                     this.el("circle", {
                         cx: ax, cy: hy2 + hh / 2, r: 12,
-                        fill: "#FAFAF8", stroke: "#DDDDD8", "stroke-width": 1
+                        fill: tile, stroke: edge2, "stroke-width": 1
                     }, a);
                     const t = this.el("text", {
                         x: ax, y: hy2 + hh / 2 + 4.5, "text-anchor": "middle",
@@ -1547,13 +1633,13 @@ export class Visual implements IVisual {
                 tip.textContent = `${selTip}: ${this.locStr(p.key, p.en)}`;
                 this.el("rect", {
                     x: sx, y: sy, width: wds[i], height: segH, rx: segH / 2,
-                    fill: on ? teal : "#FAFAF8",
-                    stroke: on ? teal : "#DDDDD8", "stroke-width": 1
+                    fill: on ? teal : tile,
+                    stroke: on ? teal : edge2, "stroke-width": 1
                 }, g);
                 const t = this.el("text", {
                     x: sx + wds[i] / 2, y: sy + segH / 2 + 0.36 * segF, "text-anchor": "middle",
                     "font-size": segF, "font-weight": on ? 700 : 400,
-                    fill: on ? "#FFFFFF" : ink, "font-family": FONT
+                    fill: on ? (dk ? "#1A1A1A" : "#FFFFFF") : ink, "font-family": FONT
                 }, g);
                 t.textContent = labels[i];
                 g.style.cursor = "pointer";
@@ -1948,14 +2034,19 @@ export class Visual implements IVisual {
 
         const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette;
         const hc: boolean = !!(palette && palette.isHighContrast);
-        const fg: string = hc ? palette.foreground.value : INK;
-        const bgc: string = hc ? palette.background.value : "#FFFFFF";
+        const dark: boolean = this.uiDark;
+        const fg: string = hc ? palette.foreground.value : dark ? DARK_INK : INK;
+        const bgc: string = hc ? palette.background.value : dark ? this.darkPaper() : "#FFFFFF";
 
         // report theme colors: sentiment + neutral tones from the palette,
         // falling back to the color pickers when the theme doesn't define them
         const useTheme = s.colorsCard.useTheme.value && !hc && !!palette;
         const themed = (info: { value: string } | undefined, fallback: string) =>
             useTheme && info && info.value ? info.value : fallback;
+        // dark mode: pickers still on their light defaults flip to the dark
+        // stand-ins; any user-chosen color passes through untouched
+        const darkable = (v: string): string =>
+            dark ? (DARK_COLOR_SWAP[(v || "").toUpperCase()] ?? v) : v;
 
         const cfg: ChartConfig = {
             orientation,
@@ -1976,18 +2067,24 @@ export class Visual implements IVisual {
                 // Helligkeitsdifferenz; Theme-Farben behalten Vorrang
                 const bo = String(s.colorsCard.variancePreset.value.value) === "blueOrange";
                 return {
-                    ac: themed(palette?.foregroundNeutralDark, s.colorsCard.actualColor.value.value),
-                    py: themed(palette?.foregroundNeutralTertiary, s.colorsCard.previousYearColor.value.value),
-                    pl: themed(palette?.foregroundNeutralDark, s.colorsCard.planColor.value.value),
-                    good: themed(palette?.positive, bo ? "#2C7BB6" : s.colorsCard.goodColor.value.value),
-                    bad: themed(palette?.negative, bo ? "#E66101" : s.colorsCard.badColor.value.value)
+                    ac: themed(palette?.foregroundNeutralDark, darkable(s.colorsCard.actualColor.value.value)),
+                    py: themed(palette?.foregroundNeutralTertiary, darkable(s.colorsCard.previousYearColor.value.value)),
+                    pl: themed(palette?.foregroundNeutralDark, darkable(s.colorsCard.planColor.value.value)),
+                    good: themed(palette?.positive, bo ? (dark ? "#5BA3DC" : "#2C7BB6")
+                        : darkable(s.colorsCard.goodColor.value.value)),
+                    bad: themed(palette?.negative, bo ? (dark ? "#F0821E" : "#E66101")
+                        : darkable(s.colorsCard.badColor.value.value))
                 };
             })(),
             hc,
+            dark,
             ink: fg,
             paper: bgc,
             // #6E6E6E statt #8A8A8A: hebt Sekundärtexte auf WCAG-AA-Kontrast (≥4,5:1)
-            subtle: hc ? fg : "#6E6E6E",
+            subtle: hc ? fg : dark ? DARK_SUBTLE : "#6E6E6E",
+            faint: hc ? fg : dark ? DARK_FAINT : FAINT,
+            wash: hc ? bgc : dark ? DARK_WASH : WASH,
+            band: hc ? bgc : dark ? DARK_BAND : BAND,
             highlight: new Set(String(s.chartCard.highlight.value || "")
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
             capMax: (s.scaleCard.capOverflow.value && (s.scaleCard.fixedMax.value ?? 0) > 0)
@@ -6187,8 +6284,8 @@ export class Visual implements IVisual {
             const emph = cfg.highlight.has(p.cat.toLowerCase());
             this.el("rect", {
                 x, y, width: w, height: h, rx: Math.round(6 * k),
-                fill: cfg.hc ? cfg.paper : (emph ? "#F4F4F0" : cfg.paper),
-                stroke: emph ? cfg.ink : (cfg.hc ? cfg.ink : "#DDDDD8"),
+                fill: emph ? cfg.wash : cfg.paper,
+                stroke: emph ? cfg.ink : cfg.faint,
                 "stroke-width": emph ? 1.6 : 1
             }, g);
             // status source: the variance basis (ΔPL/ΔPY) or the bound benchmark —
@@ -6359,7 +6456,7 @@ export class Visual implements IVisual {
                 const sc = linearScale(lo, hi, bx + 2, bx + bw2 - 2);
                 this.el("rect", {
                     x: bx, y: byMid - bh2 / 2, width: bw2, height: bh2, rx: 1.5,
-                    fill: cfg.hc ? cfg.paper : "#EFEFEA",
+                    fill: cfg.band,
                     stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 0.8 : 0
                 }, g);
                 const from = zoom ? bx + 2 : sc(0);
@@ -8128,7 +8225,7 @@ export class Visual implements IVisual {
         // subtle divider between chart and comments
         this.el("line", {
             x1: region.x + 4, y1: region.y + 6, x2: region.x + 4, y2: region.y + region.h - 6,
-            stroke: cfg.hc ? cfg.ink : "#E0E0E0", "stroke-width": 1
+            stroke: cfg.faint, "stroke-width": 1
         }, this.svg);
 
         let y = region.y + font + 6;
@@ -9032,9 +9129,10 @@ export class Visual implements IVisual {
         input.type = "text";
         input.value = this.tableSearch;
         input.placeholder = this.locStr("Table_Search", "Search rows");
+        const pc = this.popupColors();
         input.style.cssText = `position:absolute;left:${left}px;top:${top}px;z-index:10;`
-            + "width:170px;box-sizing:border-box;background:#FFFFFF;color:#252423;"
-            + "border:1px solid #8A8A8A;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.2);"
+            + `width:170px;box-sizing:border-box;background:${pc.bg};color:${pc.ink};`
+            + `border:1px solid ${pc.border};border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.2);`
             + "padding:4px 6px;font-family:'Segoe UI',sans-serif;font-size:12px;";
         input.addEventListener("mousedown", ev => ev.stopPropagation());
         let deb: number | null = null;
@@ -9245,9 +9343,10 @@ export class Visual implements IVisual {
 
         const box = document.createElement("div");
         this.structEditor = box;
+        const pc = this.popupColors();
         box.style.cssText = `position:absolute;left:${left}px;top:${top}px;z-index:10;`
-            + `width:${boxW}px;box-sizing:border-box;background:#FFFFFF;color:#252423;`
-            + "border:1px solid #8A8A8A;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,0.25);"
+            + `width:${boxW}px;box-sizing:border-box;background:${pc.bg};color:${pc.ink};`
+            + `border:1px solid ${pc.border};border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,0.25);`
             + "padding:8px;font-family:'Segoe UI',sans-serif;font-size:12px;";
         box.addEventListener("click", ev => ev.stopPropagation());
         box.addEventListener("contextmenu", ev => ev.stopPropagation());
@@ -9292,7 +9391,7 @@ export class Visual implements IVisual {
             // comma names cannot round-trip the comma lists — disable the menu
             box.querySelectorAll("input").forEach(i => { (i as HTMLInputElement).disabled = true; });
             const hint = document.createElement("div");
-            hint.style.cssText = "margin-top:4px;color:#6E6E6E;font-style:italic;";
+            hint.style.cssText = `margin-top:4px;color:${pc.subtle};font-style:italic;`;
             hint.textContent = this.locStr("Struct_CommaHint",
                 "Name contains a comma — use the Waterfall Type role instead");
             box.appendChild(hint);
@@ -9326,9 +9425,10 @@ export class Visual implements IVisual {
 
         const box = document.createElement("div");
         this.commentEditor = box;
+        const pc = this.popupColors();
         box.style.cssText = `position:absolute;left:${left}px;top:${top}px;z-index:10;`
-            + `width:${boxW}px;box-sizing:border-box;background:#FFFFFF;color:#252423;`
-            + "border:1px solid #8A8A8A;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,0.25);"
+            + `width:${boxW}px;box-sizing:border-box;background:${pc.bg};color:${pc.ink};`
+            + `border:1px solid ${pc.border};border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,0.25);`
             + "padding:8px;font-family:'Segoe UI',sans-serif;font-size:12px;";
         box.addEventListener("click", ev => ev.stopPropagation());
         box.addEventListener("contextmenu", ev => ev.stopPropagation());
@@ -9342,7 +9442,8 @@ export class Visual implements IVisual {
         const ta = document.createElement("textarea");
         ta.rows = 3;
         ta.style.cssText = "width:100%;box-sizing:border-box;resize:vertical;"
-            + "font-family:inherit;font-size:12px;padding:4px;";
+            + "font-family:inherit;font-size:12px;padding:4px;"
+            + `background:${pc.bg};color:${pc.ink};border:1px solid ${pc.border};`;
         ta.value = this.userComments.get(key) ?? "";
         ta.addEventListener("keydown", ev => {
             ev.stopPropagation();
@@ -9358,8 +9459,8 @@ export class Visual implements IVisual {
             b.textContent = label;
             b.style.cssText = "font-size:12px;padding:3px 10px;cursor:pointer;border-radius:3px;"
                 + (primary
-                    ? "background:#252423;color:#FFFFFF;border:1px solid #252423;"
-                    : "background:#FFFFFF;color:#252423;border:1px solid #8A8A8A;");
+                    ? `background:${pc.ink};color:${pc.bg};border:1px solid ${pc.ink};`
+                    : `background:${pc.bg};color:${pc.ink};border:1px solid ${pc.border};`);
             b.addEventListener("click", ev => { ev.stopPropagation(); onClick(); });
             row.appendChild(b);
         };

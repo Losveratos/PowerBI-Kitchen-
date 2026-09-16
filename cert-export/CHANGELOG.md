@@ -1,5 +1,36 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.43.0.0 (2026-09-16)
+
+**Dark Mode: lesbar auf dunklen Berichtsseiten.**
+Kundenfeedback: Auf dunklen Report-Themes blieben Schrift und Achsen
+dunkel und damit kaum lesbar. Jetzt:
+
+- **Neues Setting „Erscheinungsbild"** (IBCS-Farben → Auto · Hell ·
+  Dunkel). *Auto* erkennt dunkle Berichts-Themes an der Luminanz der
+  Theme-Hintergrundfarbe (< 0,35) und kippt selbstständig; für manuell
+  dunkel eingefärbte Seiten ohne dunkles Theme gibt es *Dunkel* als
+  expliziten Schalter.
+- **Zentrale Dark-Token:** Tinte, Papier, Sekundärgrau plus die neuen
+  cfg-Töne `faint` (Karten-Rahmen/Separatoren), `wash`
+  (Emphasis-Kartenfüllung) und `band` (Bullet-Band) — alle bisher
+  hart verdrahteten hellen Hex-Werte laufen jetzt über diese Token.
+  Halos und hohle Marker füllen mit dem dunklen Papier (Theme-Hintergrund,
+  Fallback #1E1E1E), damit sie mit der Seite verschmelzen.
+- **Farbwähler-Defaults dark-tauglich:** Steht ein Picker noch auf seinem
+  hellen Standard (AC/PL #404040, PY #B3B3B3, Gut #1E8F9E, Schlecht
+  #D64541), wird im Dark Mode automatisch die helle bzw. aufgehellte
+  Entsprechung gerendert (#D9D9D9 / #8A8A8A / #3FB3C2 / #E4635F) — vom
+  Nutzer gewählte Farben bleiben unangetastet. Das Blau/Orange-Preset
+  hellt analog auf (#5BA3DC / #F0821E).
+- **Landing-Gallery und HTML-Overlays** (Zeilensuche, Struktur-Menü,
+  Kommentar-Editor) folgen dem Erscheinungsbild ebenfalls.
+- Hochkontrast-Modus bleibt unverändert der eigene Pfad (Palette
+  erzwingt Farben); Zebra/Emphasis-Bänder tönen weiter mit `ink` und
+  funktionieren dadurch in beiden Modi ohne Sonderfall.
+- Testfälle c131–c136 (erzwungen, Auto-Erkennung, Tabelle+Zebra,
+  KPI-Karten, Landing, Hell-Regression). 5 neue String-Keys × 4 Sprachen.
+
 ## 1.42.0.0 (2026-08-13)
 
 **Quick-Win-Paket: schneller starten, schneller Auffälligkeiten sehen.**
