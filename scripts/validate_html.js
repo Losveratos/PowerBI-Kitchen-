@@ -1,16 +1,46 @@
-// Validiert, dass der EPISODES-Array im HTML weiterhin parsbar ist
-// und dass die Karten-Anzahl pro Bucket stimmt.
+// Validiert eine Kitchen-Seite: der EPISODES-Array im HTML muss parsbar sein,
+// das Episoden-Schema vollstaendig und die ytId eindeutig.
+//
+//   node scripts/validate_html.js                 prueft daten_wg_learn_buckets.html
+//   node scripts/validate_html.js <datei.html>    prueft die angegebene Datei
+//
+// Achtung: Diese Pruefungen sind Kitchen-spezifisch (Episoden, Buckets, ytId).
+// Eine HTML-Datei ohne EPISODES-Array wird NICHT geprueft, sondern abgelehnt —
+// frueher hat das Skript sein Argument stillschweigend ignoriert und immer
+// daten_wg_learn_buckets.html geprueft, was fuer jede andere Datei ein
+// falsches "ALL CHECKS PASSED" ergeben hat.
+// Fuer visual-standards-rechner.html gelten stattdessen die Playwright-Suiten
+// unter tests/rechner/ (Start: node tests/run-all.js).
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-const HTML = path.resolve(__dirname, '..', 'daten_wg_learn_buckets.html');
+const DEFAULT_HTML = path.resolve(__dirname, '..', 'daten_wg_learn_buckets.html');
+const arg = process.argv[2];
+if (arg === '-h' || arg === '--help') {
+  console.log('Aufruf: node scripts/validate_html.js [datei.html]');
+  console.log('Prueft den EPISODES-Array einer Kitchen-Seite (Schema, Buckets, ytId-Duplikate).');
+  console.log('Ohne Argument: ' + path.relative(process.cwd(), DEFAULT_HTML));
+  process.exit(0);
+}
+const HTML = arg ? path.resolve(process.cwd(), arg) : DEFAULT_HTML;
+
+if (!fs.existsSync(HTML)) {
+  console.error('FAIL: Datei nicht gefunden: ' + HTML);
+  process.exit(1);
+}
+console.log('Pruefe: ' + HTML);
 const html = fs.readFileSync(HTML, 'utf-8');
 
 // Re-Extraktion mit derselben Klammer-Logik
 const startMarker = 'const EPISODES = [';
 const startIdx = html.indexOf(startMarker);
-if (startIdx === -1) { console.error('FAIL: EPISODES nicht gefunden'); process.exit(1); }
+if (startIdx === -1) {
+  console.error('FAIL: kein EPISODES-Array in dieser Datei — sie ist keine Kitchen-Seite.');
+  console.error('      Dieses Skript prueft ausschliesslich Kitchen-Seiten (Episoden, Buckets, ytId).');
+  console.error('      Fuer visual-standards-rechner.html: node tests/run-all.js');
+  process.exit(1);
+}
 const arrStart = html.indexOf('[', startIdx);
 
 let depth = 0, inStr = null, inLineComment = false, inBlockComment = false, escape = false;

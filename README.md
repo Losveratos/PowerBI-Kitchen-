@@ -46,6 +46,15 @@ git push
 GitHub Pages liefert nach dem Push automatisch die neue Version aus
 (meist innerhalb 1–2 Minuten).
 
+## Prüfungen
+
+```
+node scripts/validate_html.js      # Kitchen-Seite: EPISODES, Buckets, ytId-Duplikate
+node tests/run-all.js              # Visual-Standards-Rechner: Playwright-Regressionen
+```
+
+Details und Voraussetzungen: [tests/README.md](tests/README.md).
+
 ## Pipeline-Details
 
 Siehe [PowerBIhub.md](PowerBIhub.md) für die komplette Doku der Build-Pipeline:
