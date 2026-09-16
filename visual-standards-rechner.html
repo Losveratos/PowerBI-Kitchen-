@@ -316,28 +316,35 @@ body.lv3 [data-lv2only]{display:none!important;}
 #toc{display:none;}
 body.lv2 #toc,body.lv3 #toc{display:block;margin:0 0 22px;}
 .toc-toggle{width:100%;justify-content:space-between;font-family:var(--mono);font-size:11.5px;}
-.toc-panel{display:none;border:1px solid var(--line);border-radius:var(--radius);background:#fff;padding:12px 12px 10px;margin-top:8px;}
+.toc-panel{display:none;border:1px solid var(--line);border-radius:var(--radius);background:#fff;padding:12px 12px 11px;margin-top:8px;}
 #toc.open .toc-panel{display:block;}
-.toc-acts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
-.toc-acts .btn{flex:1 1 auto;justify-content:center;padding:7px 8px;font-size:11px;}
-.toc-where{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);line-height:1.4;margin-bottom:8px;overflow-wrap:anywhere;}
+.toc-acts{display:none;}
 .toc-list{list-style:none;margin:0;padding:0;}
 .toc-list li{margin:0;}
-.toc-list li.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);margin:11px 0 3px;padding:0 8px;}
+/* v0.19: Kopfzeile je Seitenbereich — klein, ohne Kasten, mit Luft davor statt Trennlinie. */
+.toc-list li.toc-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-soft);opacity:.72;margin:14px 0 4px;padding:0 0 0 11px;}
 .toc-list li.toc-h:first-child{margin-top:0;}
-.toc-a{display:flex;gap:6px;align-items:baseline;width:100%;text-align:left;font:inherit;font-size:12.5px;line-height:1.35;background:none;border:0;border-left:2px solid transparent;border-radius:0 6px 6px 0;padding:5px 8px;cursor:pointer;color:var(--ink);}
-.toc-a:hover{background:var(--paper);border-left-color:var(--accent-soft);}
-.toc-a.on{background:var(--paper-2);border-left-color:var(--accent);font-weight:600;}
-.toc-a.sub{padding-left:20px;font-size:12px;color:var(--ink-soft);}
-.toc-a.sub.on{color:var(--ink);}
+/* Durchgehende Fuehrungslinie: jeder Eintrag traegt sie, die aktive Stelle faerbt ihr Stueck ein. Kein Kasten, kein Fettsprung im Layout. */
+.toc-a{display:flex;gap:7px;align-items:baseline;width:100%;text-align:left;font:inherit;font-size:12.5px;line-height:1.3;background:none;border:0;border-left:2px solid var(--line);border-radius:0;padding:4px 4px 4px 11px;cursor:pointer;color:var(--ink);transition:color .12s,border-color .12s;}
+.toc-a:hover{color:var(--accent);border-left-color:var(--accent-soft);}
+.toc-a.on{border-left-color:var(--accent);color:var(--accent);font-weight:600;}
+.toc-a:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+/* v0.19: eigener Klassenname — die Seite hat bereits eine globale .sub (Untertitel), deren margin-bottom sonst die Fuehrungslinie aufreisst. */
+.toc-a.tsub{padding-left:22px;font-size:11.5px;color:var(--ink-soft);}
+.toc-a.tsub:hover,.toc-a.tsub.on{color:var(--accent);}
 .toc-a>span:first-child{min-width:0;overflow-wrap:anywhere;}
-.toc-a .lvc{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--ink-soft);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:auto;flex:0 0 auto;white-space:nowrap;}
+/* Ebenen-Hinweis: nur ein leiser Vermerk, kein Chip mit Rahmen. */
+.toc-a .lvc{font-family:var(--mono);font-size:9px;letter-spacing:.04em;color:var(--ink-soft);opacity:.75;margin-left:auto;flex:0 0 auto;white-space:nowrap;align-self:center;}
+.toc-a.on .lvc,.toc-a:hover .lvc{opacity:1;}
+.toc-foot{margin:14px 0 0;padding-top:9px;border-top:1px solid var(--line);font-family:var(--mono);font-size:10px;color:var(--ink-soft);display:flex;gap:5px;align-items:baseline;flex-wrap:wrap;}
+.toc-foot button{background:none;border:0;padding:0;font:inherit;color:var(--ink-soft);cursor:pointer;text-decoration:underline;text-underline-offset:2px;text-decoration-color:var(--line);}
+.toc-foot button:hover{color:var(--accent);text-decoration-color:currentColor;}
 @media(min-width:1100px){
   body.lv2 .wrap,body.lv3 .wrap{max-width:1464px;display:grid;grid-template-columns:214px minmax(0,1180px);column-gap:22px;row-gap:0;align-items:start;justify-content:center;}
   body.lv2 .wrap>*,body.lv3 .wrap>*{grid-column:2;min-width:0;}
   body.lv2 .wrap>#toc,body.lv3 .wrap>#toc{grid-column:1;grid-row:1/span 60;position:sticky;top:54px;align-self:start;margin:0;max-height:calc(100vh - 72px);overflow:auto;overscroll-behavior:contain;}
   .toc-toggle{display:none;}
-  .toc-panel{display:block;margin-top:0;}
+  .toc-panel{display:block;margin-top:0;border:0;background:none;padding:2px 4px 6px 0;}
 }
 /* Schmalere Inhaltsspalte neben der Seitenleiste: die Annahmen-Zeilen duerfen die Beschriftungsspalte schrumpfen lassen, statt die Seite zu verbreitern. */
 .a-row>.lbl{min-width:0;overflow-wrap:anywhere;}
@@ -411,12 +418,17 @@ body.lv2 #toc,body.lv3 #toc{display:block;margin:0 0 22px;}
   <nav id="toc" aria-label="Inhaltsverzeichnis">
     <button class="btn toc-toggle" id="toc-toggle" type="button" aria-expanded="false" aria-controls="toc-panel"><span>☰ Inhalt und „alles anzeigen“</span><span aria-hidden="true">▾</span></button>
     <div class="toc-panel" id="toc-panel">
-      <div class="toc-acts">
-        <button class="btn" type="button" id="toc-open-all" title="Wechselt auf Ebene 3 und klappt jeden Details-Block auf — zum Lesen am Stück und zum Drucken.">⇊ Alles aufklappen</button>
-        <button class="btn" type="button" id="toc-close-all" title="Klappt alle Details-Blöcke wieder zu. Die Ebene bleibt, wie sie ist.">⇈ Alles zuklappen</button>
+      <div class="toc-acts" hidden>
+        <button class="btn" type="button" id="toc-open-all-x" hidden></button>
+        <button class="btn" type="button" id="toc-close-all-x" hidden></button>
       </div>
-      <div class="toc-where" id="toc-where" role="status" aria-live="polite">–</div>
+      <div class="toc-where sr-only" id="toc-where" role="status" aria-live="polite">–</div>
       <ol class="toc-list" id="toc-list"></ol>
+      <div class="toc-foot">
+        <button type="button" id="toc-open-all" title="Wechselt auf Ebene 3 und klappt jeden Details-Block auf — zum Lesen am Stück und zum Drucken.">Alles aufklappen</button>
+        <span aria-hidden="true">·</span>
+        <button type="button" id="toc-close-all" title="Klappt alle Details-Blöcke wieder zu. Die Ebene bleibt, wie sie ist.">zuklappen</button>
+      </div>
     </div>
   </nav>
 
@@ -2662,15 +2674,17 @@ function gotoTarget(id,noflash){
    blendet nur an, er wirft nichts weg, und eine tote Zeile im Verzeichnis waere vor Publikum eine
    Sackgasse. Das Chip "Ebene 3" sagt vorher, dass der Klick die Ebene hebt. */
 const TOC_H={0:'Einstieg',1:'Ebene 1 · Überblick',2:'Ebene 2 · Eingrenzen',3:'Ebene 3 · Details'};
+/* v0.19: Die Kopfzeilen folgen dem Seitenbereich, nicht der Ebene. Nach Ebene sortiert sprang die Liste (Ebene 2 → 3 → 2), weil die Annahmen auf Ebene 3 liegen, inhaltlich aber zu den Eingaben gehoeren. */
+const TOC_G={ein:'Einstieg',ueb:'Überblick',inp:'Eingaben',erg:'Ergebnis',det:'Details'};
 const TOC_ITEMS=[
- {id:'wizard',t:'Geführter Einstieg',lv:0,wiz:1},
- {id:'s0',t:'Überblick',lv:1},
- {id:'s1',t:'Mengengerüst',lv:2},
- {id:'s1b',t:'Anbieter-Angebote',lv:2},
- {id:'s2',t:'Anforderungen',lv:2},
- {id:'s3',t:'Red Flags und Governance',lv:2},
- {id:'d-s4',t:'Annahmen mit Bandbreiten',lv:3},
- {id:'s5',t:'Ergebnis und Einschätzung',lv:2},
+ {id:'wizard',t:'Geführter Einstieg',lv:0,wiz:1,grp:'ein'},
+ {id:'s0',t:'Überblick',lv:1,grp:'ueb'},
+ {id:'s1',t:'Mengengerüst',lv:2,grp:'inp'},
+ {id:'s1b',t:'Anbieter-Angebote',lv:2,grp:'inp'},
+ {id:'s2',t:'Anforderungen',lv:2,grp:'inp'},
+ {id:'s3',t:'Red Flags und Governance',lv:2,grp:'inp'},
+ {id:'d-s4',t:'Annahmen mit Bandbreiten',lv:3,grp:'inp'},
+ {id:'s5',t:'Ergebnis und Einschätzung',lv:2,grp:'erg'},
  {id:'readguide',t:'Lesehilfe',lv:2,sub:1},
  {id:'decision-path',t:'Entscheidungspfad',lv:2,sub:1},
  {id:'kpi-allowed',t:'Rangfolge mit Bändern',lv:2,sub:1},
@@ -2682,18 +2696,18 @@ const TOC_ITEMS=[
  {id:'d-charts',t:'Charts und Kostentabelle',lv:3,sub:1},
  {id:'d-graph',t:'Wirkungsgraph (Modell als Karte)',lv:3,sub:1},
  {id:'d-text',t:'Einschätzung je Ansatz',lv:3,sub:1},
- {id:'d-s6',t:'Monte-Carlo-Seite',lv:3},
- {id:'d-anhang',t:'Quellen, Methodik, Anhang',lv:3}];
+ {id:'d-s6',t:'Monte-Carlo-Seite',lv:3,grp:'det'},
+ {id:'d-anhang',t:'Quellen, Methodik, Anhang',lv:3,grp:'det'}];
 let tocVis={},tocIO=null,tocCur=null;
 function tocBuild(){
   const ul=document.getElementById('toc-list');if(!ul)return;
-  let h='',cur=-1;
+  let h='',cur='';
   TOC_ITEMS.forEach(it=>{
     if(!document.getElementById(it.id))return;
-    if(!it.sub&&it.lv!==cur){cur=it.lv;h+='<li class="toc-h">'+esc(TOC_H[it.lv])+'</li>';}
+    if(!it.sub&&it.grp!==cur){cur=it.grp;h+='<li class="toc-h">'+esc(TOC_G[it.grp])+'</li>';}
     const hid=it.wiz?'Einstieg':(it.lv>S.level?'Ebene '+it.lv:'');
     const tip=it.wiz?'Startet den geführten Einstieg (Ebene 0).':(hid?'Liegt auf Ebene '+it.lv+' — der Klick wechselt die Ebene und öffnet den Block.':'');
-    h+='<li><button type="button" class="toc-a'+(it.sub?' sub':'')+'" data-toc="'+it.id+'"'+(tip?' title="'+esc(tip)+'"':'')+'><span>'+esc(it.t)+'</span>'+(hid?'<span class="lvc">'+esc(hid)+'</span>':'')+'</button></li>';});
+    h+='<li><button type="button" class="toc-a'+(it.sub?' tsub':'')+'" data-toc="'+it.id+'"'+(tip?' title="'+esc(tip)+'"':'')+'><span>'+esc(it.t)+'</span>'+(hid?'<span class="lvc">'+esc(hid)+'</span>':'')+'</button></li>';});
   ul.innerHTML=h;
   tocMark();
 }
