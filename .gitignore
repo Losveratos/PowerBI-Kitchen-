@@ -63,3 +63,6 @@ downloads/*.pbiviz
 _*.json
 _*.txt
 scripts/_*
+
+# Playwright-Artefakte der Rechner-Pruefsuiten (Screenshots, PDF, XLSX)
+tests/rechner/.artifacts/
