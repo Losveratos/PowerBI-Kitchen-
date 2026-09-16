@@ -311,6 +311,76 @@ body.lv3 [data-lv2only]{display:none!important;}
 #decision-path,#kpi-allowed,#rclasses,#certainty,#s1b{scroll-margin-top:64px;}
 .goto-flash{animation:gotoflash 1.8s ease-out;}
 @keyframes gotoflash{0%,65%{box-shadow:0 0 0 3px var(--accent);}100%{box-shadow:0 0 0 3px rgba(62,156,143,0);}}
+
+/* ===== v0.17: Inhaltsverzeichnis als Seitenleiste, klickbarer Wirkungsgraph, Knoten-Popups ===== */
+#toc{display:none;}
+body.lv2 #toc,body.lv3 #toc{display:block;margin:0 0 22px;}
+.toc-toggle{width:100%;justify-content:space-between;font-family:var(--mono);font-size:11.5px;}
+.toc-panel{display:none;border:1px solid var(--line);border-radius:var(--radius);background:#fff;padding:12px 12px 10px;margin-top:8px;}
+#toc.open .toc-panel{display:block;}
+.toc-acts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.toc-acts .btn{flex:1 1 auto;justify-content:center;padding:7px 8px;font-size:11px;}
+.toc-where{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);line-height:1.4;margin-bottom:8px;overflow-wrap:anywhere;}
+.toc-list{list-style:none;margin:0;padding:0;}
+.toc-list li{margin:0;}
+.toc-list li.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);margin:11px 0 3px;padding:0 8px;}
+.toc-list li.toc-h:first-child{margin-top:0;}
+.toc-a{display:flex;gap:6px;align-items:baseline;width:100%;text-align:left;font:inherit;font-size:12.5px;line-height:1.35;background:none;border:0;border-left:2px solid transparent;border-radius:0 6px 6px 0;padding:5px 8px;cursor:pointer;color:var(--ink);}
+.toc-a:hover{background:var(--paper);border-left-color:var(--accent-soft);}
+.toc-a.on{background:var(--paper-2);border-left-color:var(--accent);font-weight:600;}
+.toc-a.sub{padding-left:20px;font-size:12px;color:var(--ink-soft);}
+.toc-a.sub.on{color:var(--ink);}
+.toc-a>span:first-child{min-width:0;overflow-wrap:anywhere;}
+.toc-a .lvc{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--ink-soft);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:auto;flex:0 0 auto;white-space:nowrap;}
+@media(min-width:1100px){
+  body.lv2 .wrap,body.lv3 .wrap{max-width:1464px;display:grid;grid-template-columns:214px minmax(0,1180px);column-gap:22px;row-gap:0;align-items:start;justify-content:center;}
+  body.lv2 .wrap>*,body.lv3 .wrap>*{grid-column:2;min-width:0;}
+  body.lv2 .wrap>#toc,body.lv3 .wrap>#toc{grid-column:1;grid-row:1/span 60;position:sticky;top:54px;align-self:start;margin:0;max-height:calc(100vh - 72px);overflow:auto;overscroll-behavior:contain;}
+  .toc-toggle{display:none;}
+  .toc-panel{display:block;margin-top:0;}
+}
+/* Schmalere Inhaltsspalte neben der Seitenleiste: die Annahmen-Zeilen duerfen die Beschriftungsspalte schrumpfen lassen, statt die Seite zu verbreitern. */
+.a-row>.lbl{min-width:0;overflow-wrap:anywhere;}
+/* --- Wirkungsgraph: Auswahl und Hervorhebung --- */
+.graph-stage{position:relative;}
+#graph-svg .gr-node,#graph-svg .gr-item{cursor:pointer;}
+#graph-svg .g-dim{opacity:.13;}
+#graph-svg path[data-rib].g-hi{opacity:.62;}
+#graph-svg path.g-hi:not([data-rib]){stroke:#23261F;stroke-width:1.8;}
+#graph-svg .g-sel>rect{stroke:#23261F;stroke-width:2.4;}
+#graph-svg .gr-node:focus-visible>rect,#graph-svg .gr-item:focus-visible>rect{stroke:var(--accent-text);stroke-width:2.6;}
+.gx{margin:10px 0 0;padding:12px 14px;border-radius:8px;background:var(--paper-2);font-size:12.5px;line-height:1.55;}
+.gx ul{margin:6px 0 0;padding-left:18px;}
+.gx li{margin:2px 0;}
+.gx .gx-note{color:var(--ink-soft);font-size:11.5px;margin-top:7px;}
+.gx .gx-sens{margin-top:7px;font-family:var(--mono);font-size:11.5px;color:var(--accent-text);}
+/* --- Popup am Knoten --- */
+.gpop{position:absolute;z-index:40;width:382px;max-width:calc(100% - 8px);background:#fff;border:1px solid var(--ink);border-radius:var(--radius);box-shadow:0 14px 34px rgba(0,0,0,.18);padding:14px 16px;font-size:12.5px;}
+.gpop[hidden]{display:none;}
+.gpop h4{font-family:var(--head);font-size:14px;margin:0 0 2px;}
+.gpop .gpop-val{font-family:var(--mono);font-size:11.5px;color:var(--accent-text);margin-bottom:8px;overflow-wrap:anywhere;}
+.gpop .gpop-why{font-size:11.5px;color:var(--ink-soft);line-height:1.5;margin:0 0 10px;}
+.gpop-body{max-height:min(44vh,330px);overflow:auto;overscroll-behavior:contain;}
+.gpop-body .field{margin-bottom:10px;}
+.gpop-body .seg{flex-wrap:wrap;}
+.gpop .a-row{grid-template-columns:minmax(0,1fr) 46px 46px 46px 22px;gap:4px;padding:6px 0;}
+.gpop .a-row .lbl{font-size:11.5px;min-width:0;overflow-wrap:anywhere;}
+.gpop .a-row .badge{width:22px;height:20px;font-size:9px;}
+.gpop .a-row.head>div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gpop .a-row input[type=number]{padding:4px 4px;font-size:11px;}
+.gpop-eff{margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;}
+.gpop-eff table{width:100%;border-collapse:collapse;}
+.gpop-eff td{padding:2px 0;}
+.gpop-eff td+td{text-align:right;}
+.gpop-eff .up{color:var(--warn);}
+.gpop-eff .dn{color:var(--ok);}
+.gpop-eff .gcap{color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;font-size:9.5px;}
+.gpop-eff td:first-child{text-align:left;}
+.gpop-foot{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.gpop-foot .btn{padding:6px 10px;font-size:11px;}
+@media(max-width:700px){.gpop{position:static!important;width:auto;max-width:none;margin-top:12px;box-shadow:none;left:auto!important;top:auto!important;}.gpop-body{max-height:none;}.gpop .a-row{grid-template-columns:minmax(0,1fr) 54px 54px 54px 24px;}}
+/* Schmale Geraete: Beschriftung auf eine eigene Zeile, darunter min · wahrsch. · max */
+@media(max-width:620px){.gpop .a-row{grid-template-columns:repeat(3,minmax(0,1fr)) 26px;row-gap:5px;}.gpop .a-row>.lbl,.gpop .a-row.head>div:first-child{grid-column:1/-1;}.gpop .a-row>.lbl{overflow-wrap:break-word;}.gpop .a-row input[type=number]{width:100%;}}
 </style>
 </head>
 <body>
@@ -326,6 +396,7 @@ body.lv3 [data-lv2only]{display:none!important;}
     <button class="btn dark" id="btn-share">🔗 Link mit Einstellungen kopieren</button>
     <button class="btn dark" id="btn-xlsx">📊 Excel-Modell exportieren</button>
     <button class="btn" id="btn-wizard">▶ Geführter Einstieg</button>
+    <button class="btn" id="btn-graph" title="Wirkungsgraph öffnen: links die Eingaben, in der Mitte die Annahmen-Gruppen, rechts die Kostenposten. Klick auf ein Element zeigt, wo es einfließt — und lässt es dort ändern.">🗺 Modell als Karte</button>
     <button class="btn" id="btn-print">🖨 Drucken / PDF</button>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -334,6 +405,19 @@ body.lv3 [data-lv2only]{display:none!important;}
     <button class="step-chip" data-level="1"><span class="n">1</span><span class="t">Überblick<small>3 Eingaben, 1 Chart, 1 Satz</small></span></button>
     <button class="step-chip" data-level="2"><span class="n">2</span><span class="t">Eingrenzen<small>Mengengerüst, Anforderungen, Red Flags, Ergebnis</small></span></button>
     <button class="step-chip" data-level="3"><span class="n">3</span><span class="t">Details<small>Annahmen, Charts, Simulation, Quellen</small></span></button>
+  </nav>
+
+  <!-- ========== v0.17: INHALTSVERZEICHNIS (Ebene 2 und 3) ========== -->
+  <nav id="toc" aria-label="Inhaltsverzeichnis">
+    <button class="btn toc-toggle" id="toc-toggle" type="button" aria-expanded="false" aria-controls="toc-panel"><span>☰ Inhalt und „alles anzeigen“</span><span aria-hidden="true">▾</span></button>
+    <div class="toc-panel" id="toc-panel">
+      <div class="toc-acts">
+        <button class="btn" type="button" id="toc-open-all" title="Wechselt auf Ebene 3 und klappt jeden Details-Block auf — zum Lesen am Stück und zum Drucken.">⇊ Alles aufklappen</button>
+        <button class="btn" type="button" id="toc-close-all" title="Klappt alle Details-Blöcke wieder zu. Die Ebene bleibt, wie sie ist.">⇈ Alles zuklappen</button>
+      </div>
+      <div class="toc-where" id="toc-where" role="status" aria-live="polite">–</div>
+      <ol class="toc-list" id="toc-list"></ol>
+    </div>
   </nav>
 
   <!-- ========== EBENE 0: GEFÜHRTER EINSTIEG (v0.16) ========== -->
@@ -611,8 +695,12 @@ body.lv3 [data-lv2only]{display:none!important;}
       <h3>Wirkungsgraph <span class="eyebrow">Banddicke = Anteil am P50</span></h3>
       <p class="hint">Links eure Eingaben, in der Mitte die Annahmen-Gruppen mit ihrer Herkunft (Farbe wie in der Sicherheits-Leiste), rechts die Kostenposten des gewählten Ansatzes. Dicke Bänder tragen Beträge und summieren sich zum P50; dünne Linien zeigen nur, welche Eingabe welche Gruppe füllt; gestrichelte Linien skalieren, ohne einen eigenen Betrag zu tragen. Beträge und Anteile per Maus auf dem Element.</p>
       <div class="tabs" id="graph-tabs"></div>
-      <div class="tbl-scroll" id="graph-svg"></div>
+      <div class="graph-stage" id="graph-stage">
+        <div class="tbl-scroll" id="graph-svg"></div>
+        <div class="gpop" id="graph-pop" role="dialog" aria-labelledby="gpop-title" hidden></div>
+      </div>
       <p class="hint" id="graph-note" style="margin:10px 0 0"></p>
+      <div class="gx" id="graph-explain" role="status" aria-live="polite"></div>
       <div class="dp-key" style="margin-top:8px"><span><b style="background:#3E9C8F"></b>belegt = Preisliste oder Snippet</span><span><b style="background:#B4B2A2"></b>Faustregel = Literatur ohne Messung</span><span><b style="background:#7B8BC4"></b>Meinung = Panel oder Autoren-Schätzung</span></div>
     </div>
     <div class="card">
@@ -736,6 +824,7 @@ const GLOBAL=[
   {id:'migShare',label:'Migrationskosten bei Abkündigung',sub:'% des Aufbaus, der neu entsteht',v:[50,80,100],src:'F',srcNote:'Charticulator, Bing-Maps-Visuals, OKViz: Neubau statt Migration'},
   {id:'churn',label:'Fluktuation der Ersteller',sub:'% pro Jahr; Vorlagen-Bauer lösen tiefe, Vorlagen-Nutzer flache Nachschulung aus',v:[5,11,22],src:'S',srcNote:'Finance-Abteilungen ~10 %/Jahr, IT-Dienstleister 20–22 % (ISG-Langzeit via bkv); 30 % für Deutschland gesamt ist Bruttofluktuation und hier unbrauchbar. Bis v0.6 zahlte jeder Abgang die volle Tiefschulung, das überschätzte den Posten um Faktor 5–9 (Audit 09/2026)'},
   {id:'growth',label:'Viewer-Wachstum',sub:'% pro Jahr, treibt Lizenzen, Support und Nachfrage; negativ = Konsolidierung',v:[-5,10,30],min:-100,src:'E',srcNote:'Keine Benchmark, unternehmensindividuell. Exponentiell ohne Sättigung: bei 10 Jahren Horizont Deckel prüfen (Viewer können nicht über die Belegschaft hinaus wachsen)'},
+  {id:'licViewerShare',label:'Anteil der Viewer mit Zugriff auf Standard-Reports',sub:'% der Leser, die mindestens einen Report der Klassen B oder C öffnen. Nur sie brauchen bei 3rd-Party paid eine Lizenz; Governance, Anwender-Support und Leserzeit bleiben an der vollen Viewer-Zahl',unit:'%',v:[60,85,100],min:0,max:100,src:'E',srcNote:'Die Mechanik ist per Such-Snippet belegt, die Höhe ist Autoren-Schätzung. Zebra BI beschreibt den Lizenzumfang als „any designer of Zebra BI reports and any end-user, who might access the Zebra BI reports“, Inforiver als „all unique users who would create, or view reports created with Inforiver“ — der Umfang hängt am Zugriff auf die Reports, nicht am Tenant. Die Herstellerseiten selbst waren in der Prüfumgebung blockiert, belegt ist nur der Snippet. Zur Höhe, in beide Richtungen: der Anteil ist ausdrücklich nicht 1 − 45 % (Anteil der Klasse A). Wer mehrere Reports öffnet, trifft fast sicher auf einen der Klassen B oder C; nennenswert unter 85 % kommt nur, wer klar getrennte Lesergruppen hat (Lager- und Betriebsteams gegen Controlling) — daher das Minimum von 60 %. Nach oben ist „might access“ weit gefasst, ein unlizenzierter Leser bekommt statt des Charts ein Wasserzeichen, und Einkauf und Revision neigen zur Vollabdeckung — daher das Maximum von 100 %, und genau dort saß das Modell bis v0.17 ohne Regler. Mit dem Schalter „IBCS verbindlich für alle Reports“ ist der Wert zwingend 100 %. Neu in v0.18 aus einer unabhängigen Prüfung (Wirkbeziehungs-Check 09/2026, Fund 1); die Korrektur wirkt zugunsten von 3rd-Party paid'},
   {id:'intFactor',label:'Bewertung interner Stunden',sub:'% des internen Satzes: 60 = Kapazität frei, 100 = Vollkosten, 150 = verdrängt Fachaufgaben. Bewertungskonvention: geht mit dem Erwartungswert ein, wird nicht zufällig gezogen',v:[60,100,150],src:'E',srcNote:'CFO-Frage Nr. 1: Sind interne Stunden Auszahlungen? Seit v0.7 konstant in der Simulation, damit die P10–P90-Bänder Sachunsicherheit zeigen und nicht die Bewertungskonvention (Audit 09/2026)'},
   {id:'demand1000',label:'Zusätzliche Reports je 1.000 Viewer und Jahr',sub:'Nachfrage wächst mit der Leserzahl, unabhängig vom Werkzeug',v:[1,2,4],src:'E',srcNote:'Autoren-Schätzung, keine Quelle'},
   {id:'demandCreator',label:'Neue Standard-Reports je Ersteller und Jahr',sub:'Nachfrage aus dem Fachbereich, unabhängig von der Leserzahl',v:[0.2,0.5,1],src:'E',srcNote:'Neu in v0.7: Audit 09/2026 fand, dass der Zuwachs nur an Viewern hing und im Mittelstand (40 Viewer) faktisch null war. Autoren-Schätzung, keine Quelle'},
@@ -989,6 +1078,18 @@ function gammaS(a){ // Marsaglia-Tsang, a>=1 via boost
 function betaS(a,b){const x=gammaS(a),y=gammaS(b);return x/(x+y);}
 function pert(t){const lo=t[0],hi=t[2],m=Math.min(hi,Math.max(lo,t[1]));if(hi<=lo)return lo;const a=1+4*(m-lo)/(hi-lo),b=1+4*(hi-m)/(hi-lo);return lo+betaS(a,b)*(hi-lo);}
 function pertMean(t){const lo=t[0],hi=t[2],m=Math.min(hi,Math.max(lo,t[1]));return (lo+4*m+hi)/6;}
+/* v0.18: Anteil der Viewer, die bei 3rd-Party paid eine Lizenz brauchen — fuer die Anzeige als Erwartungswert (PERT-Mittel), wie ihn der Rechenkern im Erwartungswert verwendet. Mit IBCS-Pflicht zwingend 100 %. */
+function licShareEff(){return S.ibcsAll?1:Math.min(1,Math.max(0,pertMean(S.g.licViewerShare||[100,100,100])/100));}
+function licBaseUsers(){return Math.round(S.viewers*licShareEff())+S.creators;}
+/* v0.18: Staffelklippe. Eine Volumenstaffel belohnt Masse — deshalb kann die kleinere Lizenzbasis in einem Jahr in eine schlechtere Rabattstufe fallen als die volle und dadurch MEHR kosten. Der Fall ist real (Staffelgrenzen 25 / 100 / 500 / 2.000 / 5.000) und sieht ohne Hinweis wie ein Rechenfehler aus. Gibt das erste betroffene Jahr zurueck, sonst 0. */
+function staffelCliff(){
+  if(licModelEff()!=='staffel'||licShareEff()>=1)return 0;
+  const gr=1+pertMean(S.g.growth)/100,cap=S.viewerCap>0?S.viewerCap:Infinity;
+  const pk=u=>u<=5?5:Math.ceil(u/10)*10,st=u=>u<=25?1:u<=100?.8:u<=500?.6:u<=2000?.45:u<=5000?.3:.2;
+  for(let y=0;y<S.horizon;y++){const v=Math.min(S.viewers*Math.pow(gr,y),cap);
+    const uF=pk(v+S.creators),uR=pk(v*licShareEff()+S.creators);
+    if(uR*st(uR)>uF*st(uF)+1e-9)return y+1;}
+  return 0;}
 function q(arr,p){const a=arr.slice().sort((x,y)=>x-y);const i=(a.length-1)*p;const lo=Math.floor(i),hi=Math.ceil(i);return a[lo]+(a[hi]-a[lo])*(i-lo);}
 
 /* ===================== Kostenkern ===================== */
@@ -1064,6 +1165,10 @@ function calc(key,draw,override){
   const staffelD=u=>lmEff==='staffel'?(u<=25?1:u<=100?.8:u<=500?.6:u<=2000?.45:u<=5000?.3:.2):1; /* Staffel je Jahr auf die dann gültige Nutzerzahl */
   /* B20: Mindestpakete. Zebra BI verkauft keine Einzelplätze: Team-Paket ab 5 Nutzern, danach Blöcke von 10 (größere Abschlüsse in 50er-Blöcken, dort ist die Aufrundung unter 1 % und deshalb nicht modelliert). Gilt nur für Staffel und Pro-Nutzer, nicht für die Site-Lizenz. */
   const packU=u=>lmEff==='site'?u:(u<=5?5:Math.ceil(u/10)*10);
+  /* v0.18 (Wirkbeziehungs-Check 09/2026, Fund 1): eigene Lizenzbasis. Seit v0.14 entstehen die Reports der Klasse A in jedem Ansatz mit Core Visuals — wer nur solche Reports liest, braucht bei 3rd-Party paid keine Lizenz. Bis v0.17 lief die Lizenz trotzdem über alle Viewer.
+     Der Anteil wirkt ausschliesslich auf die Lizenz und ihre Verwaltung; Governance, Anwender-Support und Leserzeit bleiben an der vollen Viewer-Zahl. Die Ersteller zaehlen immer voll, weil sie mit dem Werkzeug bauen.
+     Wesentliche Kopplung: mit „IBCS verbindlich fuer alle Reports“ laeuft jeder Report ueber den gewaehlten Ansatz, also braucht jeder Leser eine Lizenz — der Anteil ist dann zwingend 1. Das ist die zweite Haelfte des Preises der IBCS-Pflicht. */
+  const lvs=ibcsAll?1:Math.min(1,Math.max(0,g('licViewerShare')/100));
   /* Aufbau (Jahr 0, ohne Lohnsteigerung) */
   /* B6: Setup und Erstbau je Semantikmodell. Ein Custom Visual wird einmal im Tenant registriert, eine DAX-UDF liegt in functions.tmdl je Modell und muss in jedes ausgerollt und dort gepflegt werden. Die Eigenentwicklung des Visuals (devH) bleibt einmalig. */
   const modF=1+(MODELF[key]||0)*(Math.max(1,Math.round(S.models))-1);
@@ -1119,6 +1224,8 @@ function calc(key,draw,override){
     if(ye<0){cf.push(0);cfHard.push(0);cfSoft.push(0);hoursIntY.push(0);continue;}
     const wy=Math.pow(w,y),iy=Math.pow(inf,y),pf=Math.pow(prod,ye);
     const v=vY(y),u=v+S.creators,ue=packU(u);
+    /* v0.18: reduzierte Lizenzbasis. Staffel und Mindestpaket greifen bewusst auf der kleineren Zahl — weniger Nutzer heissen eine schlechtere Staffelstufe und eine relativ groessere Aufrundung auf das Mindestpaket; das ist ein realer Nebeneffekt der Korrektur, kein Rechenfehler. Bei der Site-Lizenz ist die Nutzerzahl fuer den Preis irrelevant und die Lizenz deckt ohnehin alle ab: dort bleibt die volle Zahl stehen, damit sich rechnerisch nichts aendert. */
+    const ueL=(lmEff==='site')?ue:packU(v*lvs+S.creators);
     const rateIntY=rateInt0*wy;
     /* (a) Bestand zu Jahresbeginn und Zuwachs im Jahr */
     const n=(ye<RY?S.reports/RY:0)+g('demand1000')*(v/1000)+g('demandCreator')*S.creators;
@@ -1142,11 +1249,11 @@ function calc(key,draw,override){
     const eventsH=p('events')*D.ev*p('fixH')*pf;const eventsY=eventsH*rate0*wy;eventsSum+=eventsY;
     /* (d) Lizenz des Jahres: Staffel und Mindestpaket auf die dann gültige, gedeckelte Nutzerzahl */
     let licY=0;
-    if(key==='paid')licY=((lmEff==='site')?p('licSite')*iy:ue*iy*p('lic')*staffelD(ue))*vatF;
-    licUserYears+=ue*iy;inflYears+=iy;licSum+=licY;licLast=licY;
+    if(key==='paid')licY=((lmEff==='site')?p('licSite')*iy:ueL*iy*p('lic')*staffelD(ueL))*vatF;
+    licUserYears+=ueL*iy;inflYears+=iy;licSum+=licY;licLast=licY;
     const supportY=p('support')*iy*vatF;supportSum+=supportY;
     const capacityY=g('capacityCost')*p('cuUplift')/100*iy*capF*vatF;capacitySum+=capacityY;
-    const licAdmH=(key==='paid'&&lmEff!=='site')?Math.sqrt(ue/100)*p('licAdmH100')*pf:0; /* degressiv, jahresgenau auf die wachsende Nutzerzahl, bei Site-Lizenz 0 */
+    const licAdmH=(key==='paid'&&lmEff!=='site')?Math.sqrt(ueL/100)*p('licAdmH100')*pf:0; /* v0.18: verwaltet werden die vergebenen Lizenzen, also die reduzierte Basis; degressiv, jahresgenau auf die wachsende Nutzerzahl, bei Site-Lizenz 0 */
     const licAdminY=licAdmH*rateIntY;licAdminSum+=licAdminY;
     /* (e) Betrieb: Anwender-Support, Governance, Nachschulung */
     const supUsersH=(v/100)*(ad*p('supH100')+(1-ad)*sqS)*M.supF*pf;const supUsersY=supUsersH*rateIntY;supUsersSum+=supUsersY;
@@ -1197,9 +1304,9 @@ function calc(key,draw,override){
   c.leadWeeks=(pd.leadWeeks===undefined?0:p('leadWeeks'))*D.lead;   /* B8: Vorlaufzeit, bewusst nicht in den Kosten */
   /* B21: CapEx/OpEx. Aktivierungsfaehig sind nur selbst erstellte Entwicklungsleistungen (Setup, Eigenentwicklung, Erstbau der Chart-Typen); alles andere ist sofort Aufwand. */
   c.capexBase=A;c.opexBase=c.total-A;
-  c.vAvg=vAvg;c.owners=owners;c.reportsTotal=reportsTotal;c.variantEff=variantEff;c.licF=licUserYears/Math.max(users,1);c.pH=pH;c.licNoLic=c.total-lic;c.users=users;c.depYear=depYear;
+  c.vAvg=vAvg;c.owners=owners;c.reportsTotal=reportsTotal;c.variantEff=variantEff;c.licF=licUserYears/Math.max(users,1);/* v0.18: traegt die reduzierte Lizenzbasis — Nutzer-Jahre je Kopf der Gesamtbelegschaft */c.pH=pH;c.licNoLic=c.total-lic;c.users=users;c.depYear=depYear;
   /* v0.15: Lizenzblock getrennt ausgewiesen — die Sicherheits-Leiste bewertet den Preis anders als die Nebenkosten, der Angebotsvergleich rechnet die Verhandlungsgrenze daraus. */
-  c.licPrice=lic;c.licSupport=support;c.licAdminC=licAdmin;c.capacityC=capacity;c.inflF=inflYears;c.licModelEff=lmEff;c.offer=OFR?offerLabel(OFR):null;
+  c.licPrice=lic;c.licViewerShare=lvs;c.licSupport=support;c.licAdminC=licAdmin;c.capacityC=capacity;c.inflF=inflYears;c.licModelEff=lmEff;c.offer=OFR?offerLabel(OFR):null;
   /* Harte Kosten (Auszahlungen: Lizenz, Support, Capacity, Kurse, extern beauftragte Stunden) vs. weiche Kosten (intern bewertete Stunden) */
   const rateBased=A+rollout+switchCost+maint+events+risk;
   c.hard=lic+support+capacity+owners*p('course')+rateBased*hardFrac;
@@ -1323,7 +1430,11 @@ function renderStep1(){
    const rs=document.getElementById('rc-sum');if(rs)rs.textContent=Math.round(sum)+' %'+(Math.round(sum)!==100?' (wird auf 100 normiert)':'');
    const ib=document.getElementById('ibcs-all');if(ib)ib.checked=!!S.ibcsAll;
    const rh=document.getElementById('rc-hint');
-   if(rh)rh.innerHTML=(S.ibcsAll?'<b>IBCS ist verbindlich:</b> auch die '+fmtN(Math.round(f[0]*100))+' % Klasse-A-Reports werden mit dem gewählten Ansatz gebaut, und jeder Report braucht eine Konformitätsprüfung. ':'<b>'+fmtN(Math.round(f[0]*100))+' % der Reports (Klasse A) brauchen keine IBCS-Spezialgrafik:</b> sie entstehen in jedem Ansatz mit Core Visuals und kosten überall dasselbe. Über den gewählten Ansatz laufen '+fmtN(Math.round(100*(f[1]+f[2])))+' % der Reports; nur sie werden auf Konformität geprüft. ')+'Ergibt <b>'+fmtN(S.cpr,1)+' Charts je Report</b> und den Chart-Mix <b>'+S.mix.join(' / ')+' %</b>.';
+   /* v0.18: die Lizenzbasis ist die zweite Haelfte derselben Frage — sie stand bis v0.17 unsichtbar bei 100 % der Viewer. */
+   const lvsTxt=S.ibcsAll
+     ?' <b>Die Pflicht hebt die Lizenzbasis auf alle Viewer:</b> jeder Report läuft über den gewählten Ansatz, also braucht bei 3rd-Party paid jeder Leser eine Lizenz — '+fmtN(S.viewers)+' Viewer plus '+fmtN(S.creators)+' Ersteller.'
+     :' <b>Lizenzbasis bei 3rd-Party paid:</b> '+fmtN(Math.round(S.viewers*licShareEff()))+' von '+fmtN(S.viewers)+' Viewern plus '+fmtN(S.creators)+' Ersteller — nur wer einen Report der Klassen B oder C öffnet, braucht eine Lizenz (Anteil in Ebene 3, Voreinstellung '+fmtN(S.g.licViewerShare[1])+' %). Governance, Anwender-Support und Leserzeit laufen weiter über alle '+fmtN(S.viewers)+' Viewer.'+(staffelCliff()?' <span class="rh-warn">Achtung, Staffelklippe:</span> ab Jahr '+staffelCliff()+' liegt die volle Nutzerzahl über einer Staffelgrenze und bekommt dort einen höheren Nachlass als die kleinere Lizenzbasis — die Lizenz wird in diesen Jahren mit weniger Lizenzen <b>teurer</b>. Das ist kein Rechenfehler, sondern die Mechanik jeder Volumenstaffel (Grenzen bei 25 / 100 / 500 / 2.000 / 5.000 Nutzern) und im Einkaufsgespräch ein Argument, das gegen euch läuft.':'');
+   if(rh)rh.innerHTML=(S.ibcsAll?'<b>IBCS ist verbindlich:</b> auch die '+fmtN(Math.round(f[0]*100))+' % Klasse-A-Reports werden mit dem gewählten Ansatz gebaut, und jeder Report braucht eine Konformitätsprüfung. ':'<b>'+fmtN(Math.round(f[0]*100))+' % der Reports (Klasse A) brauchen keine IBCS-Spezialgrafik:</b> sie entstehen in jedem Ansatz mit Core Visuals und kosten überall dasselbe. Über den gewählten Ansatz laufen '+fmtN(Math.round(100*(f[1]+f[2])))+' % der Reports; nur sie werden auf Konformität geprüft. ')+'Ergibt <b>'+fmtN(S.cpr,1)+' Charts je Report</b> und den Chart-Mix <b>'+S.mix.join(' / ')+' %</b>.'+lvsTxt;
    const mo=document.getElementById('mixov-on');if(mo)mo.checked=!!S.mixOv;
    const mr=document.getElementById('mixov-row');if(mr)mr.style.display=S.mixOv?'':'none';
    [0,1,2].forEach(j=>{const el=document.getElementById('mixov-'+j);if(el&&document.activeElement!==el)el.value=(S.mixOv||S.mix)[j];});
@@ -1390,7 +1501,7 @@ function paramRow(p,vals,scope){
    if(o&&[(o.model==='site'?'licSite':'lic'),'minTerm','support'].concat(o.infl!==''?['licInfl']:[]).includes(p.id))
      return '<div class="a-row"><div class="lbl">'+esc(p.label)+'<small>'+esc(p.sub)+'</small></div>'+[0,1,2].map(i=>'<input type="number" step="any" disabled aria-label="'+esc(p.label)+' '+['min','wahrscheinlich','max'][i]+'" value="'+fmtN(offerPatch(o)[p.id==='licSite'?'licSite':p.id],2)+'">').join('')+'<span class="badge A" title="'+esc('Anbieter-Angebot '+offerLabel(o)+': '+offerSets(o).join(' · ')+'. Punktwert statt Dreipunkt-Schätzung — ein Angebot hat keine Bandbreite. Das Angebot steht in Ebene 2.')+'">A</span></div>';}
   const badge=changed?'<span class="badge N" title="'+esc('Eigene Annahme. Ursprung ('+SRC_LBL[p.src]+'): '+def.join(' · ')+(p.srcNote?' · '+p.srcNote:''))+'">N</span>':'<span class="badge '+p.src+'" title="'+esc(SRC_LBL[p.src]+(p.srcNote?': '+p.srcNote:''))+'">'+p.src+'</span>';
-  return '<div class="a-row"><div class="lbl">'+esc(p.label)+'<small>'+esc(p.sub)+'</small></div>'+[0,1,2].map(i=>'<input type="number" step="any" min="'+(p.min===undefined?0:p.min)+'" aria-label="'+esc(p.label)+' '+['min','wahrscheinlich','max'][i]+'" data-scope="'+scope+'" data-id="'+p.id+'" data-i="'+i+'" value="'+vals[i]+'">').join('')+badge+'</div>';
+  return '<div class="a-row"><div class="lbl">'+esc(p.label)+'<small>'+esc(p.sub)+'</small></div>'+[0,1,2].map(i=>'<input type="number" step="any" min="'+(p.min===undefined?0:p.min)+'"'+(p.max===undefined?'':' max="'+p.max+'"')+' aria-label="'+esc(p.label)+' '+['min','wahrscheinlich','max'][i]+'" data-scope="'+scope+'" data-id="'+p.id+'" data-i="'+i+'" value="'+vals[i]+'">').join('')+badge+'</div>';
 }
 function paramBlock(key){
   const dev=key==='oss'?'<div class="preset-row"><span class="preset-lbl">Modus:</span><button class="preset-btn" data-dev="ready">Fertiges OSS-Visual (0 h)</button><button class="preset-btn" data-dev="ki">Eigenentwicklung KI-gestützt (40 · 200 · 600 h)</button><button class="preset-btn" data-dev="classic">Eigenentwicklung klassisch (800 · 2.000 · 3.000 h)</button></div>':'';
@@ -1398,6 +1509,17 @@ function paramBlock(key){
   const lic=key==='paid'?(ofr?'<div class="sub-hint" style="margin:10px 0 6px"><span class="badge A">A</span> <b>Angebot '+esc(offerLabel(ofr))+' aktiv.</b> Lizenzmodell, Preis, Mindestlaufzeit, Support und Preisgleitklausel kommen aus dem Angebot (Ebene 2); die Schalter und Anker unten wirken erst wieder, wenn das Angebot abgeschaltet ist.</div>':'')+'<div class="field" style="margin:10px 0 6px"><label><span>Lizenzmodell</span></label><div class="seg" id="lic-seg"><button data-lm="peruser"'+(S.licModel==='peruser'?' class="active"':'')+'>pro Nutzer (Liste)</button><button data-lm="staffel"'+(S.licModel==='staffel'?' class="active"':'')+'>Volumenstaffel</button><button data-lm="site"'+(S.licModel==='site'?' class="active"':'')+'>Site-Lizenz</button></div><div class="sub-hint">Staffel: −20 % ab 25, −40 % ab 100, −55 % ab 500, −70 % ab 2.000, −80 % ab 5.000 Nutzern, je Jahr auf die dann gültige Nutzerzahl (Faustregel: Zebra-Team-Paket ≈ −46 % ab 5 Nutzern, Inforiver Domain-wide ≈ −80 % ab 2.000). Mindestpakete: gekauft wird nicht je Kopf, sondern in Paketen — unter 5 Nutzern gilt das Team-Paket zu 5, darüber wird auf volle 10 aufgerundet (Zebra BI verkauft keine Einzelplätze). Bei kleinen Mengen verteuert das die Lizenz spürbar. Site: Pauschale pro Jahr, Nutzerzahl egal, keine Lizenz-Administration, keine Mindestpakete.</div></div>'+(S.licModel==='site'?'<div class="preset-row"><span class="preset-lbl">Site-Indikation:</span><button class="preset-btn" data-site="inforiver">Inforiver Domain-wide · 12–90 k€</button><button class="preset-btn" data-site="zebra">Zebra Enterprise Site · 25–150 k€ (Schätzung)</button><button class="preset-btn" data-site="gross">Konzern-Rahmenvertrag · 80–300 k€ (Schätzung)</button></div>':''):'';
   const rows=OPTP.filter(p=>S.p[key][p.id]!==undefined&&!(key==='paid'&&((licModelEff()==='site'&&p.id==='lic')||(licModelEff()!=='site'&&p.id==='licSite')))).map(p=>paramRow(p,S.p[key][p.id],'p:'+key)).join('');
   return dev+lic+'<div class="a-row head"><div>'+esc(OPTS[OK[key]].name)+'</div><div>min</div><div>wahrsch.</div><div>max</div><div></div></div>'+rows;
+}
+/* v0.17: aus dem Ebene-3-Handler herausgezogen, damit das Graph-Popup exakt denselben Weg nimmt.
+   Keine neue Rechenlogik — identischer Code, nur als Funktion. */
+function applyParamEdit(sc,id,i,raw){
+  const pdef=GLOBAL.concat(OPTP).find(x=>x.id===id)||{};const mn=pdef.min===undefined?0:pdef.min; /* C1: einzelne Annahmen duerfen negativ werden (Viewer-Wachstum, Produktivitaetsgewinn) */
+  let v=parseFloat(raw);if(!isFinite(v)||v<mn){toast('Bitte eine Zahl ≥ '+mn+' eingeben.');renderParams();return false;}v=Math.min(v,1e9);
+  const t=sc==='g'?S.g[id]:S.p[sc.slice(2)][id];if(!t){renderParams();return false;}const before=t.slice();t[i]=v;
+  if(t[0]>t[1])t[1]=t[0];if(t[2]<t[1])t[2]=t[1];if(t[1]<t[0])t[0]=t[1];
+  const lbl=pdef.label||id;
+  pendingToast='„'+lbl+'“ = '+t.join(' · ')+(before.some((x,j)=>j!==i&&x!==t[j])?' (Nachbarwerte angepasst, damit min ≤ wahrsch. ≤ max)':'');
+  renderParams();update();return true;
 }
 function renderParams(){
   document.getElementById('global-params').innerHTML='<div class="a-row head"><div>Annahme</div><div>min</div><div>wahrsch.</div><div>max</div><div></div></div>'+GLOBAL.map(p=>paramRow(p,S.g[p.id],'g')).join('')+'<div class="preset-row" style="margin-top:8px"><span class="preset-lbl">Fabric-Capacity:</span><button class="preset-btn" data-capsku="none">keine (Pro/PPU)</button><button class="preset-btn" data-capsku="f2">F2 · ~2,2–3,7 k€/Jahr</button><button class="preset-btn" data-capsku="f8">F8 · ~8,7–14,8 k€/Jahr</button><button class="preset-btn" data-capsku="f64">F64 · ~70–119 k€/Jahr</button></div>';
@@ -1409,13 +1531,7 @@ function renderParams(){
   document.querySelectorAll('[data-dev]').forEach(b=>b.addEventListener('click',()=>{S.p.oss.devH=({ready:[0,0,0],ki:[40,200,600],classic:[800,2000,3000]})[b.dataset.dev].slice();pendingToast='Open Source: '+b.textContent;renderParams();update();}));
   document.querySelectorAll('#lic-seg button').forEach(b=>b.addEventListener('click',()=>{S.licModel=b.dataset.lm;pendingToast='Lizenzmodell: '+b.textContent;renderParams();update();}));
   document.querySelectorAll('.a-row input[type=number]').forEach(inp=>inp.addEventListener('change',()=>{
-    const sc=inp.dataset.scope,id=inp.dataset.id,i=+inp.dataset.i;const pdef=GLOBAL.concat(OPTP).find(x=>x.id===id)||{};const mn=pdef.min===undefined?0:pdef.min; /* C1: einzelne Annahmen duerfen negativ werden (Viewer-Wachstum, Produktivitaetsgewinn) */
-    let v=parseFloat(inp.value);if(!isFinite(v)||v<mn){toast('Bitte eine Zahl ≥ '+mn+' eingeben.');renderParams();return;}v=Math.min(v,1e9);
-    const t=sc==='g'?S.g[id]:S.p[sc.slice(2)][id];const before=t.slice();t[i]=v;
-    if(t[0]>t[1])t[1]=t[0];if(t[2]<t[1])t[2]=t[1];if(t[1]<t[0])t[0]=t[1];
-    const lbl=(GLOBAL.concat(OPTP).find(p=>p.id===id)||{}).label||id;
-    pendingToast='„'+lbl+'“ = '+t.join(' · ')+(before.some((x,j)=>j!==i&&x!==t[j])?' (Nachbarwerte angepasst, damit min ≤ wahrsch. ≤ max)':'');
-    renderParams();update();}));
+    applyParamEdit(inp.dataset.scope,inp.dataset.id,+inp.dataset.i,inp.value);}));
   document.querySelectorAll('.a-row').forEach(r=>{const ins=r.querySelectorAll('input');if(ins.length===3){const v=[...ins].map(i=>parseFloat(i.value));ins.forEach(i=>i.classList.toggle('bad',!(v[0]<=v[1]&&v[1]<=v[2])));}});
 }
 
@@ -1512,10 +1628,10 @@ function renderOfferCmp(){
   if(!r||r.rows.length<2){el.innerHTML='';return;}
   const H=S.horizon;
   let t='<h3 style="margin-top:18px">Angebote im Vergleich <span class="eyebrow">Erwartungswerte · '+H+' Jahre · '+fmtN(S.creators+S.viewers)+' Nutzer</span></h3>';
-  t+='<p class="hint">Je Angebot die Paid-Gesamtkosten über den Horizont, die Kosten je Viewer und Jahr, der Rang unter allen vier Ansätzen und die <b>Verhandlungsgrenze</b>: der Preis, bei dem Paid mit dem günstigsten Stunden-Ansatz ('+esc(r.altName)+', '+fmtEur(r.alt[r.altK])+') gleichzieht. Alles darüber ist im Modell teurer als selber bauen.</p>';
+  t+='<p class="hint">Je Angebot die Paid-Gesamtkosten über den Horizont, die Kosten je Viewer und Jahr, der Rang unter allen vier Ansätzen und die <b>Verhandlungsgrenze</b>: der Preis je <b>lizenziertem</b> Nutzer und Jahr, bei dem Paid mit dem günstigsten Stunden-Ansatz ('+esc(r.altName)+', '+fmtEur(r.alt[r.altK])+') gleichzieht. Alles darüber ist im Modell teurer als selber bauen.</p>';
   t+='<div class="tbl-scroll"><table class="res" style="white-space:nowrap"><thead><tr><th>Angebot</th><th>Modell</th><th>Preis</th><th>Paid gesamt</th><th>je Viewer/Jahr</th><th>Rang</th><th>Verhandlungsgrenze</th><th>Abstand</th></tr></thead><tbody>';
   r.rows.forEach(x=>{const on=S.offerOn===x.i;
-    const beTxt=x.be>0?(x.site?fmtEur(x.be)+' / Jahr':fmtN(Math.round(x.be))+' € / Nutzer'):'0 €, also nie';
+    const beTxt=x.be>0?(x.site?fmtEur(x.be)+' / Jahr':fmtN(Math.round(x.be))+' € / lizenz. Nutzer'):'0 €, also nie';
     const gap=x.be>0?(x.price<=x.be?'trägt, '+fmtN(Math.round(100*(1-x.price/x.be)))+' % Luft':'muss '+fmtN(Math.round(100*(1-x.be/x.price)))+' % fallen'):'trägt nicht';
     t+='<tr'+(on?' class="total"':'')+'><td>'+esc(offerLabel(x.o))+(on?' <span class="badge A" title="aktiv, ersetzt den Lizenz-Anker">A</span>':'')+'</td><td>'+esc(OFFER_MODEL[x.o.model])+'</td><td>'+(x.site?fmtEur(x.price)+'/J':fmtN(Math.round(x.price*100)/100,2)+' €')+'</td><td>'+fmtEur(x.total)+'</td><td>'+fmtN(Math.round(x.per))+' €</td><td>'+x.rank+' von 4</td><td>'+beTxt+'</td><td>'+gap+'</td></tr>';});
   t+='</tbody></table></div>';
@@ -1781,7 +1897,7 @@ const GRAPH_IN=[
 const GRAPH_GRP=[
   {id:'rate',label:'Stundensätze und Bewertung',ps:['g:rateInt','g:rateExt','g:intFactor','g:wageInfl','p:ext']},
   {id:'hours',label:'Stunden je Chart',ps:['p:setupH','p:devH','p:firstH','p:reuseH','p:cxSimple','p:cxComplex','p:learn','p:libF']},
-  {id:'lic',label:'Lizenzpreis und Staffel',ps:['p:lic','p:licSite','p:licInfl','p:licAdmH100','p:cuUplift','p:support','g:capacityCost']},
+  {id:'lic',label:'Lizenzpreis und Staffel',ps:['p:lic','p:licSite','p:licInfl','g:licViewerShare','p:licAdmH100','p:cuUplift','p:support','g:capacityCost']},
   {id:'train',label:'Schulung und Fluktuation',ps:['p:trainH','p:lightH','p:rampH','p:course','g:churn']},
   {id:'maint',label:'Wartung und Updates',ps:['p:maint','p:events','p:fixH','g:maintDecay','p:prodGain']},
   {id:'gov',label:'Governance und Support',ps:['p:govIntake','p:govRun','p:govAudit','p:supH100','g:govPer1000','g:ibcsCheckH','g:ibcsSample']},
@@ -1818,26 +1934,27 @@ function drawGraph(){
   s+='<text x="4" y="14" font-size="11" fill="#5B5D52">Eingaben</text><text x="'+X2+'" y="14" font-size="11" fill="#5B5D52">Annahmen-Gruppen · Farbe = Herkunft</text><text x="'+X4+'" y="14" font-size="11" fill="#5B5D52">Kostenposten '+esc(o.short)+' · Summe '+fmtEur(tot)+' (P50)</text>';
   /* Kanten links → Mitte: nur Zuordnung */
   GRAPH_IN.forEach(n=>{n.to.forEach(gid=>{const g=GRAPH_GRP.find(x=>x.id===gid);if(!g)return;const y1=n.y+lh/2,y2=g.y+gh/2;
-    s+='<path d="M'+X1+' '+y1+'C'+(X1+50)+' '+y1+' '+(X2-50)+' '+y2+' '+X2+' '+y2+'" fill="none" stroke="#B9B3A0" stroke-width="1"><title>'+esc(n.label+' treibt: '+g.label)+'</title></path>';});});
+    s+='<path class="gr-edge" data-ef="in:'+n.id+'" data-et="grp:'+g.id+'" d="M'+X1+' '+y1+'C'+(X1+50)+' '+y1+' '+(X2-50)+' '+y2+' '+X2+' '+y2+'" fill="none" stroke="#B9B3A0" stroke-width="1"><title>'+esc(n.label+' treibt: '+g.label)+'</title></path>';});});
   /* Kanten Mitte → rechts: Dicke proportional zum Posten */
   items.forEach(it=>{const g=GRAPH_GRP.find(x=>x.id===GRAPH_OWN[it.k]);if(!g||it.h<=0)return;
-    s+='<path d="'+ribbon(it.gy,it.gh,it.y+it.h/2,it.h)+'" fill="'+CERTCOL[g.src.kind]+'" opacity=".33"><title>'+esc(g.label+' → '+it.l+': '+fmtEur(it.v)+' ('+Math.round(100*it.v/tot)+' % der P50-Kosten)')+'</title></path>';});
+    s+='<path class="gr-edge" data-rib="1" data-ef="grp:'+g.id+'" data-et="item:'+it.k+'" d="'+ribbon(it.gy,it.gh,it.y+it.h/2,it.h)+'" fill="'+CERTCOL[g.src.kind]+'" opacity=".33"><title>'+esc(g.label+' → '+it.l+': '+fmtEur(it.v)+' ('+Math.round(100*it.v/tot)+' % der P50-Kosten)')+'</title></path>';});
   /* Stundensätze skalieren jeden Stundenposten, ohne einen eigenen Betrag zu tragen */
   {const g=GRAPH_GRP.find(x=>x.id==='rate');const y1=g.y+gh/2;
    items.forEach(it=>{if(GRAPH_SCALE.indexOf(it.k)<0)return;const y2=it.y+it.h/2;
-     s+='<path d="M'+X3+' '+y1+'C'+(X3+70)+' '+y1+' '+(X4-70)+' '+y2+' '+X4+' '+y2+'" fill="none" stroke="#8E8A7A" stroke-width="1" stroke-dasharray="3 3" opacity=".85"><title>'+esc('Stundensätze und Bewertung skalieren '+it.l+', ohne einen eigenen Betrag zu tragen')+'</title></path>';});}
+     s+='<path class="gr-edge" data-ef="grp:rate" data-et="item:'+it.k+'" d="M'+X3+' '+y1+'C'+(X3+70)+' '+y1+' '+(X4-70)+' '+y2+' '+X4+' '+y2+'" fill="none" stroke="#8E8A7A" stroke-width="1" stroke-dasharray="3 3" opacity=".85"><title>'+esc('Stundensätze und Bewertung skalieren '+it.l+', ohne einen eigenen Betrag zu tragen')+'</title></path>';});}
   /* Knoten */
-  GRAPH_IN.forEach(n=>{s+='<g><title>'+esc(n.label+': '+n.val())+'</title><rect x="4" y="'+n.y+'" width="132" height="'+lh+'" rx="6" fill="#fff" stroke="#D8D2C0"/><text x="12" y="'+(n.y+17)+'" font-size="10.5" fill="#23261F">'+esc(n.label)+'</text><text x="12" y="'+(n.y+32)+'" font-size="10.5" fill="#5B5D52">'+esc(n.val())+'</text></g>';});
+  GRAPH_IN.forEach(n=>{s+='<g class="gr-node" data-n="in:'+n.id+'" role="button" tabindex="0" aria-pressed="false" aria-label="'+esc('Eingabe '+n.label+': '+n.val()+'. Auswählen zeigt, wo sie einfließt, und öffnet das passende Eingabefeld.')+'"><title>'+esc(n.label+': '+n.val())+'</title><rect x="4" y="'+n.y+'" width="132" height="'+lh+'" rx="6" fill="#fff" stroke="#D8D2C0"/><text x="12" y="'+(n.y+17)+'" font-size="10.5" fill="#23261F">'+esc(n.label)+'</text><text x="12" y="'+(n.y+32)+'" font-size="10.5" fill="#5B5D52">'+esc(n.val())+'</text></g>';});
   GRAPH_GRP.forEach(g=>{const col=CERTCOL[g.src.kind];
-    s+='<g><title>'+esc(g.label+' — dominante Herkunft: '+g.src.kind+' ('+g.src.counts['belegt']+' belegt, '+g.src.counts['Faustregel']+' Faustregel, '+g.src.counts['Meinung']+' Panel oder Autoren)')+'</title>'
+    s+='<g class="gr-node" data-n="grp:'+g.id+'" role="button" tabindex="0" aria-pressed="false" aria-label="'+esc('Annahmen-Gruppe '+g.label+', '+g.ps.length+' Annahmen, überwiegend '+g.src.kind+'. Auswählen zeigt die Posten und öffnet die Annahmen zum Ändern.')+'"><title>'+esc(g.label+' — dominante Herkunft: '+g.src.kind+' ('+g.src.counts['belegt']+' belegt, '+g.src.counts['Faustregel']+' Faustregel, '+g.src.counts['Meinung']+' Panel oder Autoren)')+'</title>'
       +'<rect x="'+X2+'" y="'+g.y+'" width="196" height="'+gh+'" rx="6" fill="#fff" stroke="#D8D2C0"/><rect x="'+X2+'" y="'+g.y+'" width="5" height="'+gh+'" rx="2" fill="'+col+'"/>'
       +'<text x="'+(X2+14)+'" y="'+(g.y+20)+'" font-size="11" fill="#23261F">'+esc(g.label)+'</text>'
       +'<text x="'+(X2+14)+'" y="'+(g.y+35)+'" font-size="10" fill="'+col+'">'+g.src.kind+' · '+g.ps.length+' Annahmen</text></g>';});
   items.forEach(it=>{const g=GRAPH_GRP.find(x=>x.id===GRAPH_OWN[it.k]);const col=CERTCOL[g.src.kind];
-    s+='<g class="gr-item" data-k="'+it.k+'" data-v="'+Math.round(it.v)+'"><title>'+esc(it.l+': '+fmtEur(it.v)+' ('+Math.round(100*it.v/tot)+' % der P50-Kosten), getrieben von „'+g.label+'“ — '+g.src.kind)+'</title>'
+    s+='<g class="gr-item gr-node" data-n="item:'+it.k+'" data-k="'+it.k+'" data-v="'+Math.round(it.v)+'" role="button" tabindex="0" aria-pressed="false" aria-label="'+esc('Kostenposten '+it.l+': '+fmtEur(it.v)+', '+Math.round(100*it.v/tot)+' Prozent der P50-Kosten. Auswählen zeigt, woraus er entsteht.')+'"><title>'+esc(it.l+': '+fmtEur(it.v)+' ('+Math.round(100*it.v/tot)+' % der P50-Kosten), getrieben von „'+g.label+'“ — '+g.src.kind)+'</title>'
       +'<rect x="'+X4+'" y="'+it.y.toFixed(1)+'" width="15" height="'+Math.max(2,it.h).toFixed(1)+'" rx="3" fill="'+col+'"/>'
       +'<text x="'+(X4+22)+'" y="'+(it.y+it.h/2+4).toFixed(1)+'" font-size="11" fill="#23261F">'+esc(GRAPH_SHORT[it.k])+' '+fmtEur(it.v)+' · '+Math.round(100*it.v/tot)+' %</text></g>';});
   host.innerHTML=s+'</svg>';
+  graphBind();graphApplySel();graphExplain();gpopSync();   /* v0.17 */
   const dom=items.slice().sort((a,b)=>b.v-a.v)[0];const dg=GRAPH_GRP.find(x=>x.id===GRAPH_OWN[dom.k]);
   document.getElementById('graph-note').innerHTML='<b>'+esc(o.name)+':</b> Den Ansatz dominiert <b>'+esc(dom.l)+'</b> mit '+fmtEur(dom.v)+', das sind '+Math.round(100*dom.v/tot)+' % der P50-Kosten von '+fmtEur(tot)+'. Getrieben wird dieser Posten von der Gruppe „'+esc(dg.label)+'“, deren '+dg.ps.length+' Annahmen überwiegend <b>'+dg.src.kind+'</b> sind ('+dg.src.counts['belegt']+' belegt, '+dg.src.counts['Faustregel']+' Faustregel, '+dg.src.counts['Meinung']+' Panel oder Autoren-Schätzung).';
 }
@@ -1888,7 +2005,7 @@ function drawBreakEven(ev,best,ranked){
   /* Verhandlungsgrenze */
   const alt=(best&&best.key!=='paid')?best:(ranked||[]).find(o=>o.key!=='paid');
   if(alt){const lm=licModelEff();const OFR=activeOffer();const exP=expected('paid');const altT=expected(alt.key).total;const d=lm==='staffel'?(exP.users<=100?1:exP.users<=500?.75:exP.users<=2000?.55:exP.users<=5000?.40:.30):1;const be=(altT-exP.licNoLic)/(exP.users*exP.licF*d);
-    ins.push('<span class="be-neg"><b>Verhandlungsgrenze:</b> Paid rechnet sich gegen '+esc(alt.name)+' bis <b>'+(be>0?fmtN(Math.round(be))+' € je Nutzer und Jahr':'0 €, also nie')+'</b>'+(lm==='staffel'?' (Listenpreis vor Staffel)':lm==='site'?' (umgerechnet je Nutzer)':'')+'. Das ist die Zielmarke für das Einkaufsgespräch, nicht der Listenpreis des Herstellers.'+(OFR&&OFR.model!=='site'?' Euer Angebot '+esc(offerLabel(OFR))+' liegt bei '+fmtN(Math.round(offerPrice(OFR)*100)/100,2)+' € — '+(offerPrice(OFR)<=be?'es trägt.':'es müsste um rund '+fmtN(Math.max(0,Math.round(100*(1-Math.max(0,be)/offerPrice(OFR)))))+' % fallen.'):'')+'</span>');}
+    ins.push('<span class="be-neg"><b>Verhandlungsgrenze:</b> Paid rechnet sich gegen '+esc(alt.name)+' bis <b>'+(be>0?fmtN(Math.round(be))+' € je lizenziertem Nutzer und Jahr':'0 €, also nie')+'</b>'+(lm==='staffel'?' (Listenpreis vor Staffel)':lm==='site'?' (umgerechnet je Nutzer)':'')+'. Das ist die Zielmarke für das Einkaufsgespräch, nicht der Listenpreis des Herstellers.'+(OFR&&OFR.model!=='site'?' Euer Angebot '+esc(offerLabel(OFR))+' liegt bei '+fmtN(Math.round(offerPrice(OFR)*100)/100,2)+' € — '+(offerPrice(OFR)<=be?'es trägt.':'es müsste um rund '+fmtN(Math.max(0,Math.round(100*(1-Math.max(0,be)/offerPrice(OFR)))))+' % fallen.'):'')+'</span>');}
   ins.push('<span style="color:var(--ink-soft)">'+(licModelEff()==='staffel'?'Knicke in der Paid-Linie sind die Staffelgrenzen bei 25 / 100 / 500 / 2.000 / 5.000 Nutzern. ':'')+'Auch Open Source, Deneb und Core steigen mit der Viewer-Zahl: Anwender-Support, Nachfrage nach Reports und Zugriffs-Governance sind viewer-abhängig modelliert. Governance wächst log-linear zwischen 50 und 5.000 Viewern.</span>');
   document.getElementById('be-insight').innerHTML=ins.join(' ')+(ev.paid.ko.length?' <span style="color:var(--warn)">Paid ist aktuell durch K.O. ausgeschlossen, die Linie zeigt den hypothetischen Verlauf.</span>':'');
 }
@@ -1955,7 +2072,7 @@ function renderOptCards(sim,ev,order){
 /* ---------- Anhang / Footer ---------- */
 function renderSources(){
   document.getElementById('sources').innerHTML='<thead><tr><th>Quelle</th><th>Was drin steht</th><th>Status</th></tr></thead><tbody>'+SOURCES.map(([n,w,u,s])=>'<tr><td><a href="'+u+'" target="_blank" rel="noopener">'+esc(n)+'</a></td><td>'+esc(w)+'</td><td><span class="badge '+s+'">'+s+'</span></td></tr>').join('')+'</tbody>';
-  document.getElementById('footer').innerHTML='<details class="foot"><summary>Methodik, Grenzen, Datenschutz</summary><b>Methodik:</b> Je Ansatz werden Lizenz und Support (Nutzer × Preis × Jahre), Aufbau (Setup, optionale Eigenentwicklung, Chart-Typen × Stunden × Stundensatz-Mix), Rollout (Reports × Charts × Wiederverwendungs-Stunden), Schulung (Ersteller × Stunden und Kurskosten, wiederkehrend über die Fluktuation), Lizenz mit Viewer-Wachstum und Preissteigerung je Jahr, Wartung (Quote × Aufbau + Rollout × Jahre plus Breaking-Updates) und Abkündigungsrisiko (Wahrscheinlichkeit × Migrationsanteil × Aufbau) addiert. Jede Annahme ist eine Dreipunkt-Schätzung, aus der per PERT-Verteilung 1.500 Szenarien gezogen werden; angezeigt werden P10, P50 und P90. Break-even und Sensitivität nutzen den PERT-Erwartungswert. K.O.-Kriterien (Must mit 0 Punkten, Governance-Schalter) filtern vor der Rangfolge; ausgeschlossene Ansätze bleiben zur Einordnung sichtbar. Der Anforderungs-Score ist eine Nutzwertanalyse (Must 3, Should 2, Could 1 als Gewicht, Erfüllungsgrad 1 bis 5) und bewusst nur über den Regler in die Rangfolge einbezogen. Governance und Anwender-Support wachsen mit der Viewer-Zahl (log-linear von 50 bis 5.000 Viewern), das Betriebsmodell trennt tief geschulte Vorlagen-Bauer von Vorlagen-Nutzern und skaliert Varianten, Support und Governance. Lizenzen wachsen mit Viewern und Preis, Stundensätze mit der Lohnsteigerung, die laufenden internen Stunden sinken mit dem Produktivitätsgewinn, die Wartung folgt dem Trend je Kohortenalter. Das Abkündigungsrisiko ist eine Gefahrenrate je Jahr: im Erwartungswert die Summe über die Jahre, in der Simulation ein gezogenes Ereignisjahr, der Schaden jeweils am Bestand dieses Jahres. Der Barwert nutzt den Kalkulationszins auf den Zahlungsstrom je Jahr. Die Rangfolge nutzt das Kostenverhältnis zur günstigsten Option (auch ausgeschlossene), damit eine chancenlose dritte Option die Reihenfolge der anderen nicht verschiebt; Plätze mit überlappenden P10–P90-Bändern werden zusammengefasst. Beträge sind auf zwei signifikante Stellen gerundet. Audit 09/2026 (drei Opus- und drei Sonnet-Prüfungen, Blindschätzung, Web-Verifikation): Fluktuationsschulung rollendifferenziert, Abkündigungsrisiko inklusive 60 % des Rollouts, Freigabe je Visual-Paket statt je Chart-Typ, Lizenz-Administration degressiv und bei Site-Lizenz null, Staffel je Jahr, Governance log-linear, Bewertung interner Stunden als Konstante; 22 Defaults neu gesetzt, Herkunft je Wert im Badge. v0.8: Chart-Mix nach Komplexität (Faktoren je Ansatz, Panel-Stunden gelten für 50 / 35 / 15), Lernkurve nach Wright auf die Wiederverwendung (Panelwert = 10. Chart je Ersteller, Untergrenze 50 %), Null-Option „kein Standard“ als Vergleich außerhalb der Rangfolge mit getrennt ausgewiesener Leserzeit. v0.10: Varianten-Anfälligkeit als eigene Annahme je Ansatz statt Kopplung an den Design-Score, Schalter „Vorlagenbibliothek vorhanden“ für Deneb und Core (Default aus, eigenes Projekt), Lizenz-Anker auf Ebene 1 mit Ausweis, wer bei allen drei Ankern vorn liegt. v0.11 (Annahmen-Audit Runde 2, Paket A): gepaarte Ziehung — je Parameter ein eigener Zufallsstrom, den alle vier Ansätze teilen, umschaltbar; Rollout trägt die Lohnsteigerung auf dem über den Horizont entstehenden Zuwachs; Cash-out je Jahr getrennt nach Auszahlung und interner Zeit (Tabelle und Excel-Blatt); Amortisation gegen die Null-Option mit und ohne Leserzeit; interne Stunden und FTE je Ansatz mit Kapazitätswarnung (1.500 h je FTE und Jahr); Entscheidungsgröße P50 / P75 / P90 umschaltbar (Rangfolge nach P90 = konservativ); Ausstiegskosten als eigene Kennzahl außerhalb der Summe; Viewer-Deckel gegen unbegrenztes Wachstum; Null-Option mit den Core-Komplexitätsfaktoren des Chart-Mix; Untergrenze 50 % auf dem Produkt Bibliothek × Lernkurve statt nur auf der Lernkurve; neue Defaults mit Quelle für Stundensätze, Lohnsteigerung, Lizenzpreis-Steigerung, Zebra-Anker (abgeleitet), Site-Lizenz, Abkündigungsrisiko Core und laufende Governance Deneb (2.0 am 08.09.2026). v0.11 (Paket B): Red Flag „nur zertifizierte Visuals“ präzisiert (das Tenant-Setting gilt für AppSource, nicht für den Organizational Store) und Modifier „OSS-Visual über den Organizational Store“ ergänzt, der den K.O. aufhebt, ohne die Freigabe-Stunden zu senken; drei neue Anforderungen (KI-gestützte Erstellung über PBIR / Agent-Skills, Barrierefreiheit, Datenexport aus dem Visual) und ein korrigiertes Kriterium „große Datenmengen“, weil das 30.000-Zeilen-Fenster das SDK-Limit jedes Custom Visuals ist; Quellen- und Hinweistexte richtiggestellt (Leserzeit-Studie blueforte / TU München 2019 statt Zebra BI, Währungsband statt „1 $ ≈ 1 € konservativ“, Preiserhöhung als Modellwechsel, kostenlose Desktop-Pfade, cx0 und Lernkurven-Anker benannt). v0.12 (Paket C1, Rechenkern): der Kern rechnet Jahr für Jahr statt mit Mittelwert-Produkten — Bestand und Rollout-Kohorten je Jahr, Wartung nur auf dem vorhandenen Bestand mit Alterung ab dem eigenen Entstehungsjahr, Lizenz mit Staffel, Mindestpaketen und Viewer-Deckel je Jahr, Lohnsteigerung und Produktivitätsgewinn je Jahr, Lernkurve auf die kumulierte Zahl gebauter Charts je Ersteller. Dadurch werden Barwert, Zahlungsstrom und das Kumulativ-Chart erstmals belastbar (die nominale Summe ändert sich nur um −4,5 bis +0,1 %, weil sich zu billiger Rollout und zu teure Wartung bisher gegenseitig aufgehoben haben). Neu dazu: Rollout-Dauer für den Bestand (nicht mehr alles in Jahr 1), Produktivitätsgewinn je Ansatz als Gegenstück zur Lohnsteigerung, Wartungs-Trend je Kohortenalter statt Abklingen am Kalenderjahr, Abkündigung als Gefahrenrate mit gezogenem Ereignisjahr, gemeinsamer Team-Faktor je Szenario über alle vier Ansätze (das Niveau-Band wird breiter, das Differenz-Band bleibt eng), Mindestpakete und Mindestvertragslaufzeit bei Paid, Bindungsgrad beim Ausstieg je Ansatz, angeglichene Komplexitätsfaktoren und der Grenzaufwand des letzten Jahres statt des Horizontmittels bei „jeder weitere Report“. v0.12 (Paket C2, Anforderungen und Ausgaben): sieben neue Anforderungen (Versionshoheit über das Visual, Reisen mit Git und Deployment-Pipeline, Theme-Steuerbarkeit, Drilldown/Drillthrough/Berichtsseiten-Tooltip als eigene Zeile neben der auf Auswahl und Cross-Highlight verengten Interaktivität, Mobile, Kopieren nach PowerPoint, Paginated Reports) — zusammen 27 Kriterien; sechs neue Red Flags (deutsche Beschaffung, Mitbestimmung nach § 87 Abs. 1 Nr. 6 BetrVG und Einsicht der Revision in die Rechenlogik als Warnung; kein voller Vorsteuerabzug, Budgetfreigabe erst im Folgejahr und Capacity am Limit als Modifier mit Kostenwirkung im Rechenkern); vier neue Eingaben (Adoptionsgrad je Ansatz mit Abrechnung des nicht standardkonformen Rests zu Null-Options-Sätzen, Semantikmodelle als Multiplikator auf Setup und Erstbau, Verteilweg AppSource / Organizational Store / Datei-Import mit Faktoren auf Freigabe, laufende Governance, Breaking-Updates und Vorlaufzeit, sowie die Vorlaufzeit bis zur Produktivfreigabe als Anzeige ohne Kostenwirkung); vier neue Ausgaben (CapEx-/OpEx-Split mit Abschreibung und GuV-Wirkung nach § 248 Abs. 2 HGB, IAS 38 und § 5 Abs. 2 EStG; Stunden-Anker Panel / Blindschätzung / Konservativ + 50 % für die vier ungemessenen Stundengrößen; umschaltbare Unsicherheit im Mengengerüst von ± 10 oder ± 20 %, gepaart über alle Ansätze; Sicherheits-Leiste, die die P50-Kosten je Ansatz nach der Herkunft der treibenden Annahmen in belegt, Faustregel und Schätzung teilt). Aktualisiert: Fabric-SKU-Presets F2/F8/F64. Details in der Markdown-Fassung. Die Monte-Carlo-Seite (Schritt 6) zieht zusätzlich das Mengengerüst je Szenario mit der gewählten Schwankungsbreite und wertet Verteilung, Rangfolge-Sicherheit, hart gegen weich, Erstellung gegen Nutzung, Rangkorrelationen (Spearman) und eine Skalen-Simulation bei festem Verhältnis Ersteller : Viewer aus. Paginated Reports (RDL) sind nicht enthalten: Power-BI-Custom-Visuals existieren dort nicht, weder gekauft noch Deneb noch Core — ein gedrucktes Berichtsheft entsteht bei allen vier Ansätzen ein zweites Mal. Power-BI-Grundlizenzen (Pro, PPU, Capacity-Grundpreis) fallen für alle Ansätze gleich an und sind nicht enthalten, ebenso die Nutzen-Seite (nur als Score und als „€ je Anforderungspunkt\“) und steuerliche Fragen (z. B. § 50a EStG bei Lizenzen ausländischer Anbieter). Aktivierung und Abschreibung sind seit v0.12 als eigene Ausgabe enthalten — als Einordnung, nicht als Bilanz- oder Steuerberatung. v0.13: Entscheidungspfad, Wirkungsgraph, Entscheidungsbaum. v0.14: Report-Klassen — die Reports werden in drei Klassen geteilt (A operativ ohne IBCS-Bedarf, B IBCS-Standard, C IBCS anspruchsvoll), jede mit eigenem Anteil, eigener Zahl Charts je Report und eigenem Chart-Mix. Charts je Report und globaler Chart-Mix sind seitdem abgeleitete Größen; ein Experten-Override kann weiterhin einen einzigen globalen Mix erzwingen. Reports der Klasse A werden mit Core Visuals gebaut und kosten deshalb in jedem Ansatz die Core-Stunden (Erstbau der Chart-Typen anteilig, Rollout, Wartung, Migration); sie treiben Lizenz, Governance und Anwender-Support weiter mit, aber nicht die ansatzspezifischen Chart-Stunden. Der Schalter „IBCS verbindlich für alle Reports“ zieht auch die Klasse A in den gewählten Ansatz und macht die Konformitätsprüfung für jeden Report zur Pflicht; ohne ihn wird nur geprüft, was zu den Klassen B und C gehört. Die Prüfung ist eine neue globale Annahme (Stunden je Report und Prüfung, plus eine jährliche Stichprobe aus dem Bestand), für alle vier Ansätze gleich, weil der Abgleich eines Reports gegen die IBCS-Regeln ein menschlicher Durchgang ist und nicht davon abhängt, womit der Chart gebaut wurde — beide Werte sind Autoren-Schätzungen ohne Quelle. Die Null-Option kennt die Klassen ebenfalls (ohne Standard entsteht jeder Report ad hoc, die Klassen-Mixe bestimmen nur noch die Komplexität) und hat keine Konformitätsprüfung: ohne Standard gibt es nichts zu prüfen. v0.15: Anbieter-Angebote — bis zu drei echte Angebote lassen sich in Ebene 2 erfassen (Anbieter, Modell pro Nutzer / Volumenstaffel / Site-Pauschale, Preis, Nutzerzahl, Mindestlaufzeit, Rabatt, Support, Preisgleitklausel, Notiz). Genau eines kann aktiv sein; es ersetzt für Paid den Lizenz-Anker, setzt Lizenzmodell, Preis bzw. Site-Pauschale, Mindestvertragslaufzeit, Preisgleitklausel und Support als Punktwerte und schaltet die Volumenstaffel ab, weil ein Angebotspreis bereits verhandelt ist (die Staffel obendrauf wäre ein zweiter Rabatt). Neue Rechenwege entstehen dadurch nicht. Ab zwei Angeboten vergleicht eine Tabelle Gesamtkosten, Kosten je Viewer und Jahr, Rang unter den vier Ansätzen und die Verhandlungsgrenze gegen den günstigsten Stunden-Ansatz. Ein Angebot ist die härteste Evidenz im Modell und bekommt ein eigenes Quellen-Badge (A); in der Sicherheits-Leiste zählt der Lizenzpreis seitdem nur mit Angebot als belegt — die drei Lizenz-Anker sind Such-Snippets und laufen ohne Angebot in der mittleren Klasse, was den belegten Anteil von Paid ohne Angebot senkt und mit Angebot deutlich hebt. v0.16: geführter Einstieg — ein Modus vor Ebene 1 (sieben Fragen: Ersteller und Viewer bzw. ein Preset, Zahl der Standard-Reports und Anteil der Reports mit IBCS-Bedarf über drei Report-Klassen-Vorlagen, Betriebsmodell, fünf häufige Red Flags, Lizenz-Anker oder Anbieter-Angebot, Horizont, Abschluss), der ausschließlich vorhandene Felder setzt und die vorhandenen Bedienelemente anklickt; keine neue Rechenlogik, keine geänderten Annahmen, kein eigener Zwischenzustand — jede Antwort landet sofort in den Eingaben, das Ergebnis rechnet live mit. Dazu eine Lesehilfe im Ergebnis-Abschnitt der Ebene 2, die in vier Schritten zu Entscheidungspfad, Rangfolge mit Bändern, Report-Klassen und Sicherheits-Leiste springt, sowie Vereinfachungen der Ebenen 1 und 2: Fachbegriffe (P50, PERT, MoSCoW, K.O., Volumenstaffel, Barwert, Red Flag, Lizenz-Anker) werden beim ersten Auftreten in einem Halbsatz erklärt, das Glossar „Begriffe kurz erklärt“ ist von Ebene 3 auf Ebene 2 vorgezogen, Charts je Report werden im Fließtext auf eine Nachkommastelle gerundet, und vier Feineinstellungen (Semantikmodelle, Adoptionsgrad, Unsicherheit im Mengengerüst, Stunden-Anker) sind von Ebene 2 nach Ebene 3 gewandert — mit Hinweis an ihrer alten Stelle, unveränderten Voreinstellungen und unveränderter Rechnung. Ein Link mit Einstellungen überspringt den Einstieg; der Einstieg selbst wird nicht im Link gespeichert (sv bleibt 4) und erscheint nicht im Ausdruck. <b>Alle Zahlen sind Indikationen unter Unsicherheit</b>, keine Angebote — mit einer Ausnahme: die Zahlen, die ihr selbst aus einem Anbieter-Angebot eingetragen habt. Die Berechnung läuft lokal im Browser. Der Share-Link enthält eure Eingaben unverschlüsselt im URL-Fragment; wer den Link hat, sieht die Annahmen — <b>einschließlich der eingegebenen Anbieter-Angebote mit Anbieter, Preis, Konditionen und Notiz, die auch im Excel-Blatt „Angebote“ stehen</b>. Schriften werden von Google Fonts geladen; der Excel-Export lädt die Bibliothek SheetJS zuerst lokal, sonst von cdnjs.cloudflare.com (dabei sehen Google bzw. Cloudflare eure IP-Adresse, keine Eingaben).</details><div class="footer-version"><a href="md/visual-standards-rechner.md" style="color:var(--accent-text)">Markdown-Fassung (Modell, Annahmen, Quellen)</a> · Visual-Standards-Rechner v0.16 · Michael Tenner &amp; Diana Ackermann · Daten-WG Knowledge Kitchen · Stand 09/2026 · Pre-Conference „Visual Standards in Power BI für Controlling und Finance“</div>';
+  document.getElementById('footer').innerHTML='<details class="foot"><summary>Methodik, Grenzen, Datenschutz</summary><b>Methodik:</b> Je Ansatz werden Lizenz und Support (Nutzer × Preis × Jahre), Aufbau (Setup, optionale Eigenentwicklung, Chart-Typen × Stunden × Stundensatz-Mix), Rollout (Reports × Charts × Wiederverwendungs-Stunden), Schulung (Ersteller × Stunden und Kurskosten, wiederkehrend über die Fluktuation), Lizenz mit Viewer-Wachstum und Preissteigerung je Jahr, Wartung (Quote × Aufbau + Rollout × Jahre plus Breaking-Updates) und Abkündigungsrisiko (Wahrscheinlichkeit × Migrationsanteil × Aufbau) addiert. Jede Annahme ist eine Dreipunkt-Schätzung, aus der per PERT-Verteilung 1.500 Szenarien gezogen werden; angezeigt werden P10, P50 und P90. Break-even und Sensitivität nutzen den PERT-Erwartungswert. K.O.-Kriterien (Must mit 0 Punkten, Governance-Schalter) filtern vor der Rangfolge; ausgeschlossene Ansätze bleiben zur Einordnung sichtbar. Der Anforderungs-Score ist eine Nutzwertanalyse (Must 3, Should 2, Could 1 als Gewicht, Erfüllungsgrad 1 bis 5) und bewusst nur über den Regler in die Rangfolge einbezogen. Governance und Anwender-Support wachsen mit der Viewer-Zahl (log-linear von 50 bis 5.000 Viewern), das Betriebsmodell trennt tief geschulte Vorlagen-Bauer von Vorlagen-Nutzern und skaliert Varianten, Support und Governance. Lizenzen wachsen mit Viewern und Preis, Stundensätze mit der Lohnsteigerung, die laufenden internen Stunden sinken mit dem Produktivitätsgewinn, die Wartung folgt dem Trend je Kohortenalter. Das Abkündigungsrisiko ist eine Gefahrenrate je Jahr: im Erwartungswert die Summe über die Jahre, in der Simulation ein gezogenes Ereignisjahr, der Schaden jeweils am Bestand dieses Jahres. Der Barwert nutzt den Kalkulationszins auf den Zahlungsstrom je Jahr. Die Rangfolge nutzt das Kostenverhältnis zur günstigsten Option (auch ausgeschlossene), damit eine chancenlose dritte Option die Reihenfolge der anderen nicht verschiebt; Plätze mit überlappenden P10–P90-Bändern werden zusammengefasst. Beträge sind auf zwei signifikante Stellen gerundet. Audit 09/2026 (drei Opus- und drei Sonnet-Prüfungen, Blindschätzung, Web-Verifikation): Fluktuationsschulung rollendifferenziert, Abkündigungsrisiko inklusive 60 % des Rollouts, Freigabe je Visual-Paket statt je Chart-Typ, Lizenz-Administration degressiv und bei Site-Lizenz null, Staffel je Jahr, Governance log-linear, Bewertung interner Stunden als Konstante; 22 Defaults neu gesetzt, Herkunft je Wert im Badge. v0.8: Chart-Mix nach Komplexität (Faktoren je Ansatz, Panel-Stunden gelten für 50 / 35 / 15), Lernkurve nach Wright auf die Wiederverwendung (Panelwert = 10. Chart je Ersteller, Untergrenze 50 %), Null-Option „kein Standard“ als Vergleich außerhalb der Rangfolge mit getrennt ausgewiesener Leserzeit. v0.10: Varianten-Anfälligkeit als eigene Annahme je Ansatz statt Kopplung an den Design-Score, Schalter „Vorlagenbibliothek vorhanden“ für Deneb und Core (Default aus, eigenes Projekt), Lizenz-Anker auf Ebene 1 mit Ausweis, wer bei allen drei Ankern vorn liegt. v0.11 (Annahmen-Audit Runde 2, Paket A): gepaarte Ziehung — je Parameter ein eigener Zufallsstrom, den alle vier Ansätze teilen, umschaltbar; Rollout trägt die Lohnsteigerung auf dem über den Horizont entstehenden Zuwachs; Cash-out je Jahr getrennt nach Auszahlung und interner Zeit (Tabelle und Excel-Blatt); Amortisation gegen die Null-Option mit und ohne Leserzeit; interne Stunden und FTE je Ansatz mit Kapazitätswarnung (1.500 h je FTE und Jahr); Entscheidungsgröße P50 / P75 / P90 umschaltbar (Rangfolge nach P90 = konservativ); Ausstiegskosten als eigene Kennzahl außerhalb der Summe; Viewer-Deckel gegen unbegrenztes Wachstum; Null-Option mit den Core-Komplexitätsfaktoren des Chart-Mix; Untergrenze 50 % auf dem Produkt Bibliothek × Lernkurve statt nur auf der Lernkurve; neue Defaults mit Quelle für Stundensätze, Lohnsteigerung, Lizenzpreis-Steigerung, Zebra-Anker (abgeleitet), Site-Lizenz, Abkündigungsrisiko Core und laufende Governance Deneb (2.0 am 08.09.2026). v0.11 (Paket B): Red Flag „nur zertifizierte Visuals“ präzisiert (das Tenant-Setting gilt für AppSource, nicht für den Organizational Store) und Modifier „OSS-Visual über den Organizational Store“ ergänzt, der den K.O. aufhebt, ohne die Freigabe-Stunden zu senken; drei neue Anforderungen (KI-gestützte Erstellung über PBIR / Agent-Skills, Barrierefreiheit, Datenexport aus dem Visual) und ein korrigiertes Kriterium „große Datenmengen“, weil das 30.000-Zeilen-Fenster das SDK-Limit jedes Custom Visuals ist; Quellen- und Hinweistexte richtiggestellt (Leserzeit-Studie blueforte / TU München 2019 statt Zebra BI, Währungsband statt „1 $ ≈ 1 € konservativ“, Preiserhöhung als Modellwechsel, kostenlose Desktop-Pfade, cx0 und Lernkurven-Anker benannt). v0.12 (Paket C1, Rechenkern): der Kern rechnet Jahr für Jahr statt mit Mittelwert-Produkten — Bestand und Rollout-Kohorten je Jahr, Wartung nur auf dem vorhandenen Bestand mit Alterung ab dem eigenen Entstehungsjahr, Lizenz mit Staffel, Mindestpaketen und Viewer-Deckel je Jahr, Lohnsteigerung und Produktivitätsgewinn je Jahr, Lernkurve auf die kumulierte Zahl gebauter Charts je Ersteller. Dadurch werden Barwert, Zahlungsstrom und das Kumulativ-Chart erstmals belastbar (die nominale Summe ändert sich nur um −4,5 bis +0,1 %, weil sich zu billiger Rollout und zu teure Wartung bisher gegenseitig aufgehoben haben). Neu dazu: Rollout-Dauer für den Bestand (nicht mehr alles in Jahr 1), Produktivitätsgewinn je Ansatz als Gegenstück zur Lohnsteigerung, Wartungs-Trend je Kohortenalter statt Abklingen am Kalenderjahr, Abkündigung als Gefahrenrate mit gezogenem Ereignisjahr, gemeinsamer Team-Faktor je Szenario über alle vier Ansätze (das Niveau-Band wird breiter, das Differenz-Band bleibt eng), Mindestpakete und Mindestvertragslaufzeit bei Paid, Bindungsgrad beim Ausstieg je Ansatz, angeglichene Komplexitätsfaktoren und der Grenzaufwand des letzten Jahres statt des Horizontmittels bei „jeder weitere Report“. v0.12 (Paket C2, Anforderungen und Ausgaben): sieben neue Anforderungen (Versionshoheit über das Visual, Reisen mit Git und Deployment-Pipeline, Theme-Steuerbarkeit, Drilldown/Drillthrough/Berichtsseiten-Tooltip als eigene Zeile neben der auf Auswahl und Cross-Highlight verengten Interaktivität, Mobile, Kopieren nach PowerPoint, Paginated Reports) — zusammen 27 Kriterien; sechs neue Red Flags (deutsche Beschaffung, Mitbestimmung nach § 87 Abs. 1 Nr. 6 BetrVG und Einsicht der Revision in die Rechenlogik als Warnung; kein voller Vorsteuerabzug, Budgetfreigabe erst im Folgejahr und Capacity am Limit als Modifier mit Kostenwirkung im Rechenkern); vier neue Eingaben (Adoptionsgrad je Ansatz mit Abrechnung des nicht standardkonformen Rests zu Null-Options-Sätzen, Semantikmodelle als Multiplikator auf Setup und Erstbau, Verteilweg AppSource / Organizational Store / Datei-Import mit Faktoren auf Freigabe, laufende Governance, Breaking-Updates und Vorlaufzeit, sowie die Vorlaufzeit bis zur Produktivfreigabe als Anzeige ohne Kostenwirkung); vier neue Ausgaben (CapEx-/OpEx-Split mit Abschreibung und GuV-Wirkung nach § 248 Abs. 2 HGB, IAS 38 und § 5 Abs. 2 EStG; Stunden-Anker Panel / Blindschätzung / Konservativ + 50 % für die vier ungemessenen Stundengrößen; umschaltbare Unsicherheit im Mengengerüst von ± 10 oder ± 20 %, gepaart über alle Ansätze; Sicherheits-Leiste, die die P50-Kosten je Ansatz nach der Herkunft der treibenden Annahmen in belegt, Faustregel und Schätzung teilt). Aktualisiert: Fabric-SKU-Presets F2/F8/F64. Details in der Markdown-Fassung. Die Monte-Carlo-Seite (Schritt 6) zieht zusätzlich das Mengengerüst je Szenario mit der gewählten Schwankungsbreite und wertet Verteilung, Rangfolge-Sicherheit, hart gegen weich, Erstellung gegen Nutzung, Rangkorrelationen (Spearman) und eine Skalen-Simulation bei festem Verhältnis Ersteller : Viewer aus. Paginated Reports (RDL) sind nicht enthalten: Power-BI-Custom-Visuals existieren dort nicht, weder gekauft noch Deneb noch Core — ein gedrucktes Berichtsheft entsteht bei allen vier Ansätzen ein zweites Mal. Power-BI-Grundlizenzen (Pro, PPU, Capacity-Grundpreis) fallen für alle Ansätze gleich an und sind nicht enthalten, ebenso die Nutzen-Seite (nur als Score und als „€ je Anforderungspunkt\“) und steuerliche Fragen (z. B. § 50a EStG bei Lizenzen ausländischer Anbieter). Aktivierung und Abschreibung sind seit v0.12 als eigene Ausgabe enthalten — als Einordnung, nicht als Bilanz- oder Steuerberatung. v0.13: Entscheidungspfad, Wirkungsgraph, Entscheidungsbaum. v0.14: Report-Klassen — die Reports werden in drei Klassen geteilt (A operativ ohne IBCS-Bedarf, B IBCS-Standard, C IBCS anspruchsvoll), jede mit eigenem Anteil, eigener Zahl Charts je Report und eigenem Chart-Mix. Charts je Report und globaler Chart-Mix sind seitdem abgeleitete Größen; ein Experten-Override kann weiterhin einen einzigen globalen Mix erzwingen. Reports der Klasse A werden mit Core Visuals gebaut und kosten deshalb in jedem Ansatz die Core-Stunden (Erstbau der Chart-Typen anteilig, Rollout, Wartung, Migration); sie treiben Lizenz, Governance und Anwender-Support weiter mit, aber nicht die ansatzspezifischen Chart-Stunden. Der Schalter „IBCS verbindlich für alle Reports“ zieht auch die Klasse A in den gewählten Ansatz und macht die Konformitätsprüfung für jeden Report zur Pflicht; ohne ihn wird nur geprüft, was zu den Klassen B und C gehört. Die Prüfung ist eine neue globale Annahme (Stunden je Report und Prüfung, plus eine jährliche Stichprobe aus dem Bestand), für alle vier Ansätze gleich, weil der Abgleich eines Reports gegen die IBCS-Regeln ein menschlicher Durchgang ist und nicht davon abhängt, womit der Chart gebaut wurde — beide Werte sind Autoren-Schätzungen ohne Quelle. Die Null-Option kennt die Klassen ebenfalls (ohne Standard entsteht jeder Report ad hoc, die Klassen-Mixe bestimmen nur noch die Komplexität) und hat keine Konformitätsprüfung: ohne Standard gibt es nichts zu prüfen. v0.15: Anbieter-Angebote — bis zu drei echte Angebote lassen sich in Ebene 2 erfassen (Anbieter, Modell pro Nutzer / Volumenstaffel / Site-Pauschale, Preis, Nutzerzahl, Mindestlaufzeit, Rabatt, Support, Preisgleitklausel, Notiz). Genau eines kann aktiv sein; es ersetzt für Paid den Lizenz-Anker, setzt Lizenzmodell, Preis bzw. Site-Pauschale, Mindestvertragslaufzeit, Preisgleitklausel und Support als Punktwerte und schaltet die Volumenstaffel ab, weil ein Angebotspreis bereits verhandelt ist (die Staffel obendrauf wäre ein zweiter Rabatt). Neue Rechenwege entstehen dadurch nicht. Ab zwei Angeboten vergleicht eine Tabelle Gesamtkosten, Kosten je Viewer und Jahr, Rang unter den vier Ansätzen und die Verhandlungsgrenze gegen den günstigsten Stunden-Ansatz. Ein Angebot ist die härteste Evidenz im Modell und bekommt ein eigenes Quellen-Badge (A); in der Sicherheits-Leiste zählt der Lizenzpreis seitdem nur mit Angebot als belegt — die drei Lizenz-Anker sind Such-Snippets und laufen ohne Angebot in der mittleren Klasse, was den belegten Anteil von Paid ohne Angebot senkt und mit Angebot deutlich hebt. v0.16: geführter Einstieg — ein Modus vor Ebene 1 (sieben Fragen: Ersteller und Viewer bzw. ein Preset, Zahl der Standard-Reports und Anteil der Reports mit IBCS-Bedarf über drei Report-Klassen-Vorlagen, Betriebsmodell, fünf häufige Red Flags, Lizenz-Anker oder Anbieter-Angebot, Horizont, Abschluss), der ausschließlich vorhandene Felder setzt und die vorhandenen Bedienelemente anklickt; keine neue Rechenlogik, keine geänderten Annahmen, kein eigener Zwischenzustand — jede Antwort landet sofort in den Eingaben, das Ergebnis rechnet live mit. Dazu eine Lesehilfe im Ergebnis-Abschnitt der Ebene 2, die in vier Schritten zu Entscheidungspfad, Rangfolge mit Bändern, Report-Klassen und Sicherheits-Leiste springt, sowie Vereinfachungen der Ebenen 1 und 2: Fachbegriffe (P50, PERT, MoSCoW, K.O., Volumenstaffel, Barwert, Red Flag, Lizenz-Anker) werden beim ersten Auftreten in einem Halbsatz erklärt, das Glossar „Begriffe kurz erklärt“ ist von Ebene 3 auf Ebene 2 vorgezogen, Charts je Report werden im Fließtext auf eine Nachkommastelle gerundet, und vier Feineinstellungen (Semantikmodelle, Adoptionsgrad, Unsicherheit im Mengengerüst, Stunden-Anker) sind von Ebene 2 nach Ebene 3 gewandert — mit Hinweis an ihrer alten Stelle, unveränderten Voreinstellungen und unveränderter Rechnung. Ein Link mit Einstellungen überspringt den Einstieg; der Einstieg selbst wird nicht im Link gespeichert (sv bleibt 4) und erscheint nicht im Ausdruck. v0.17: Inhaltsverzeichnis als mitlaufende Seitenleiste ab Ebene 2 (alle Abschnitte und die wichtigsten Blöcke des Ergebnisses, gruppiert nach Ebene, aktive Stelle per IntersectionObserver; Einträge tieferer Ebenen wechseln beim Klick die Ebene statt auszugrauen und öffnen geschlossene Details) mit den Schaltern „Alles aufklappen“ und „Alles zuklappen“ zum Lesen am Stück und zum Drucken; klickbarer Wirkungsgraph — Eingabe, Annahmen-Gruppe oder Kostenposten auswählen hebt die verbundenen Pfade hervor, blendet den Rest zurück und erklärt darunter, wo die Auswahl einfließt und wie viel sie ausmacht (Beträge und Anteile aus denselben Kategorien wie bisher, Herkunft der Annahmen wie in der Sicherheits-Leiste); die Sensitivitätsangabe „alle Annahmen der Gruppe 10 % höher ≈ x €“ nutzt expected(key, override), also den Weg des Tornados, und wird für Mengengerüst-Eingaben bewusst nicht ausgegeben, weil es dafür keinen sauberen Weg gibt. Dazu wird der Graph zur zweiten Bedienoberfläche: Ein Klick auf einen Knoten öffnet ein an das Element angedocktes Popup — bei Eingaben das passende vorhandene Bedienelement (Zahlenfeld, Segment-Schalter, Report-Klassen), bei Annahmen-Gruppen die Annahmen dieser Gruppe mit min · wahrscheinlich · max, Quellen-Badge und Kurzbegründung wie in Ebene 3, bei Kostenposten nur die Zusammensetzung; abgeleitete Größen (Charts je Report, Chart-Mix) bleiben unveränderlich und verweisen auf die Report-Klassen. Jedes Popup zeigt die Wirkung als Ergebnis vorher und jetzt für den gewählten und den günstigsten zulässigen Ansatz und hat einen Knopf „zurücksetzen“ auf den Stand beim Öffnen. Bedient werden ausschließlich die vorhandenen Felder und Handler; es entsteht keine neue Rechenlogik, kein neuer Zustand und kein neuer Share-Link-Eintrag (sv bleibt 4). Der Graph ist zusätzlich über das Inhaltsverzeichnis, den Knopf „Modell als Karte“ in der Werkzeugleiste und eine dritte Option am Ende des geführten Einstiegs direkt erreichbar. v0.18: Lizenzbasis getrennt vom Mengengerüst — eine unabhängige Gegenlesung (Wirkbeziehungs-Check 09/2026, Fund 1) hat gefunden, dass seit v0.14 zwar die Stunden der Report-Klassen getrennt gerechnet werden, die Lizenzmenge von 3rd-Party paid aber unverändert über alle Viewer lief, obwohl ein Teil der Leser nie einen Report mit dem gekauften Visual öffnet. Neu ist dafür die globale Annahme „Anteil der Viewer mit Zugriff auf Standard-Reports“ (60 · 85 · 100 %): nur dieser Anteil der Viewer plus alle Ersteller bilden die Lizenzbasis, auf ihr greifen auch Volumenstaffel und Mindestpaket; Governance, Anwender-Support, Zugriffs-Governance und Leserzeit bleiben an der vollen Viewer-Zahl, und die Site-Lizenz bleibt unberührt. Mit dem Schalter „IBCS verbindlich für alle Reports“ steht der Anteil zwingend bei 100 % — die Pflicht hebt die Lizenzbasis wieder auf alle Leser, und das ist die zweite, bisher unsichtbare Hälfte ihres Preises. Die Mechanik ist per Such-Snippet belegt (Zebra BI und Inforiver binden den Lizenzumfang an den Zugriff auf die mit dem Werkzeug gebauten Reports, nicht an den Tenant), die Höhe ist Autoren-Schätzung. <b>Die Korrektur wirkt zugunsten von 3rd-Party paid und gegen die Ansätze, die die Autor:innen selbst betreiben</b>: der Lizenzblock von Paid und damit der Kipp-Punkt verschieben sich in der Größenordnung des herausgerechneten Viewer-Anteils; die Verhandlungsgrenze ist seitdem als Preis je <b>lizenziertem</b> Nutzer und Jahr beschriftet und liegt entsprechend höher. Links aus älteren Fassungen (sv 4 und davor) rechnen unverändert weiter, weil sie beim Laden auf 100 % gesetzt werden. <b>Alle Zahlen sind Indikationen unter Unsicherheit</b>, keine Angebote — mit einer Ausnahme: die Zahlen, die ihr selbst aus einem Anbieter-Angebot eingetragen habt. Die Berechnung läuft lokal im Browser. Der Share-Link enthält eure Eingaben unverschlüsselt im URL-Fragment; wer den Link hat, sieht die Annahmen — <b>einschließlich der eingegebenen Anbieter-Angebote mit Anbieter, Preis, Konditionen und Notiz, die auch im Excel-Blatt „Angebote“ stehen</b>. Schriften werden von Google Fonts geladen; der Excel-Export lädt die Bibliothek SheetJS zuerst lokal, sonst von cdnjs.cloudflare.com (dabei sehen Google bzw. Cloudflare eure IP-Adresse, keine Eingaben).</details><div class="footer-version"><a href="md/visual-standards-rechner.md" style="color:var(--accent-text)">Markdown-Fassung (Modell, Annahmen, Quellen)</a> · Visual-Standards-Rechner v0.18 · Michael Tenner &amp; Diana Ackermann · Daten-WG Knowledge Kitchen · Stand 09/2026 · Pre-Conference „Visual Standards in Power BI für Controlling und Finance“</div>';
 }
 
 /* ===================== Excel-Export ===================== */
@@ -1988,7 +2105,7 @@ function buildXlsx(){
    else S.offers.forEach((o,i)=>{const r=byI[i];
      O.push([o.vendor||'(ohne Anbieternamen)',OFFER_MODEL[o.model],o.price,o.disc,offerPrice(o),o.model==='site'?'':(o.users||S.creators+S.viewers),o.term,o.supInc?'im Preis enthalten':o.sup,o.infl===''?'(Annahme des Rechners)':o.infl,o.note,S.offerOn===i?'ja':'nein',
        r?Math.round(r.total):'',r?Math.round(r.per):'',r?r.rank+' von 4':'',r?(r.be>0?Math.round(r.be*100)/100:0):'']);});
-   if(cmp)O.push([],['Verhandlungsgrenze: Preis, bei dem Paid mit dem günstigsten Stunden-Ansatz gleichzieht ('+cmp.altName+', '+Math.round(cmp.alt[cmp.altK])+' €). Bei Site-Angeboten als Pauschale je Jahr, sonst je Nutzer und Jahr.']);
+   if(cmp)O.push([],['Verhandlungsgrenze: Preis, bei dem Paid mit dem günstigsten Stunden-Ansatz gleichzieht ('+cmp.altName+', '+Math.round(cmp.alt[cmp.altK])+' €). Bei Site-Angeboten als Pauschale je Jahr, sonst je lizenziertem Nutzer und Jahr (Lizenzbasis: Ersteller plus die Viewer mit Zugriff auf Standard-Reports).']);
    const wsO=X.utils.aoa_to_sheet(O);wsO['!cols']=[{wch:26},{wch:16},{wch:16},{wch:10},{wch:15},{wch:14},{wch:18},{wch:20},{wch:20},{wch:34},{wch:8},{wch:22},{wch:18},{wch:22},{wch:20}];X.utils.book_append_sheet(wb,wsO,'Angebote');}
   /* --- Annahmen: Dreipunkt --- */
   const A=[['Annahme','Einheit','Quelle']];OPTS.forEach(o=>A[0].push(o.name+' min',o.name+' wahrsch.',o.name+' max'));
@@ -2031,7 +2148,7 @@ function buildXlsx(){
   /* --- Ergebnis (Simulation) --- */
   const R=[['Posten',...OPTS.map(o=>o.name)]];CATS.forEach(([k,l])=>R.push([l+' (P50)',...OPTS.map(o=>Math.round(sim[o.key].cats[k]))]));
   R.push(['Gesamt P50',...OPTS.map(o=>Math.round(sim[o.key].p50))],['Gesamt P10',...OPTS.map(o=>Math.round(sim[o.key].p10))],['Gesamt P90',...OPTS.map(o=>Math.round(sim[o.key].p90))],['Barwert',...OPTS.map(o=>Math.round(sim[o.key].npv))],['Invest Jahr 0',...OPTS.map(o=>Math.round(sim[o.key].invest))],['Laufend je Jahr',...OPTS.map(o=>Math.round(sim[o.key].yearly))],[perLabel(),...OPTS.map(o=>Math.round(sim[o.key].p50/perDiv))],['Erster Standard-Report (h)',...OPTS.map(o=>Math.round(sim[o.key].firstReportH))],['Jeder weitere Report im letzten Jahr (h, Grenzaufwand)',...OPTS.map(o=>+sim[o.key].nextReportH.toFixed(1))],['Interne Stunden über den Horizont',...OPTS.map(o=>Math.round(sim[o.key].ex.hoursInt))],['Interne Stunden im ersten Jahr',...OPTS.map(o=>Math.round(sim[o.key].ex.hoursIntY[0]))],['FTE im ersten Jahr (1.500 h/Jahr)',...OPTS.map(o=>+sim[o.key].ex.fteY1.toFixed(2))],['Ausstieg nach dem Horizont (h)',...OPTS.map(o=>Math.round(sim[o.key].ex.exitH))],['Ausstieg nach dem Horizont (€, nicht in der Summe)',...OPTS.map(o=>Math.round(sim[o.key].ex.exitCost))],['davon Restlaufzeit Lizenz (€)',...OPTS.map(o=>Math.round(sim[o.key].ex.exitLic))],['Bindungsgrad beim Ausstieg',...OPTS.map(o=>+sim[o.key].ex.exitLock.toFixed(2))],['Anforderungs-Score %',...OPTS.map(o=>ev[o.key].scorePct)],['K.O.',...OPTS.map(o=>ev[o.key].ko.join(' | '))],['Warnungen',...OPTS.map(o=>ev[o.key].warn.join(' | '))]);
-  R.push([],['Mengengerüst'],['Ersteller',S.creators],['Viewer',S.viewers],['Reports',S.reports],['Charts je Report (berechnet aus den Report-Klassen)',S.cpr],['Chart-Typen',S.types],['Horizont (Jahre)',S.horizon],['Chart-Mix einfach / mittel / komplex (%, berechnet)',S.mix.join(' / ')],['Report-Klassen Anteile (%)',S.rc.sh.join(' / ')],['Report-Klassen Charts je Report',S.rc.cpr.join(' / ')],['Chart-Mix je Klasse (%)',S.rc.mix.map(m=>m.join('/')).join(' | ')],['Experten-Override Chart-Mix',S.mixOv?S.mixOv.join(' / ')+' % für alle Klassen':'aus'],['IBCS verbindlich für alle Reports',S.ibcsAll?'ja':'nein'],['Ansatzunabhängige Kosten (Klasse A) je Ansatz',OPTS.map(o=>o.short+' '+Math.round(sim[o.key].ex.indep)).join(' · ')],['Konformitätsprüfung IBCS je Ansatz',OPTS.map(o=>o.short+' '+Math.round(sim[o.key].ex.ibcsCheck)).join(' · ')],['Vorlagenbibliothek für Deneb und Core',S.lib?'ja':'nein'],['Viewer-Deckel',S.viewerCap>0?S.viewerCap:'kein Deckel'],['Entscheidungsgröße','P'+S.riskQ],['Ziehung der Annahmen',S.paired?'gepaart (je Parameter ein Strom für alle Ansätze)':'unabhängig je Ansatz'],['Null-Option kein Standard P50',lastSQ?Math.round(lastSQ.p50):''],['Null-Option ohne Leserzeit P50',lastSQ?Math.round(lastSQ.noRead50):''],['Semantikmodelle mit Standard-Charts',S.models],['Verteilweg',(DIST[S.dist]||DIST.none).label],['Stunden-Anker',S.hAnchor?HANCHOR[S.hAnchor].label:'eigene Werte'],['Adoptionsgrad je Ansatz (%)',OPTS.map(o=>o.short+' '+Math.round(pertMean(S.p[o.key].adopt||[100,100,100]))).join(' · ')],['Unsicherheit im Mengengerüst',S.mUnc?'± '+S.mUnc+' % auf Ersteller, Viewer, Reports, Charts je Report, Chart-Typen':'aus'],['Vorlaufzeit bis Produktivfreigabe (Wochen)',OPTS.map(o=>o.short+' '+Math.round(sim[o.key].ex.leadWeeks)).join(' · ')],['Aktive Governance-Schalter',FLAGS.filter(f=>S.flags[f.id]).map(f=>f.label).join('; ')||'keine']);
+  R.push([],['Mengengerüst'],['Ersteller',S.creators],['Viewer',S.viewers],['Reports',S.reports],['Charts je Report (berechnet aus den Report-Klassen)',S.cpr],['Chart-Typen',S.types],['Horizont (Jahre)',S.horizon],['Chart-Mix einfach / mittel / komplex (%, berechnet)',S.mix.join(' / ')],['Report-Klassen Anteile (%)',S.rc.sh.join(' / ')],['Report-Klassen Charts je Report',S.rc.cpr.join(' / ')],['Chart-Mix je Klasse (%)',S.rc.mix.map(m=>m.join('/')).join(' | ')],['Experten-Override Chart-Mix',S.mixOv?S.mixOv.join(' / ')+' % für alle Klassen':'aus'],['IBCS verbindlich für alle Reports',S.ibcsAll?'ja':'nein'],['Anteil der Viewer mit Zugriff auf Standard-Reports',(S.ibcsAll?'100 % (IBCS-Pflicht: jeder Leser braucht eine Lizenz)':Math.round(100*licShareEff())+' %')+' · Lizenzbasis bei 3rd-Party paid: '+Math.round(S.viewers*licShareEff())+' von '+S.viewers+' Viewern plus '+S.creators+' Erstellern = '+licBaseUsers()+' Nutzer (Governance, Anwender-Support und Leserzeit laufen über alle '+S.viewers+' Viewer)'],['Ansatzunabhängige Kosten (Klasse A) je Ansatz',OPTS.map(o=>o.short+' '+Math.round(sim[o.key].ex.indep)).join(' · ')],['Konformitätsprüfung IBCS je Ansatz',OPTS.map(o=>o.short+' '+Math.round(sim[o.key].ex.ibcsCheck)).join(' · ')],['Vorlagenbibliothek für Deneb und Core',S.lib?'ja':'nein'],['Viewer-Deckel',S.viewerCap>0?S.viewerCap:'kein Deckel'],['Entscheidungsgröße','P'+S.riskQ],['Ziehung der Annahmen',S.paired?'gepaart (je Parameter ein Strom für alle Ansätze)':'unabhängig je Ansatz'],['Null-Option kein Standard P50',lastSQ?Math.round(lastSQ.p50):''],['Null-Option ohne Leserzeit P50',lastSQ?Math.round(lastSQ.noRead50):''],['Semantikmodelle mit Standard-Charts',S.models],['Verteilweg',(DIST[S.dist]||DIST.none).label],['Stunden-Anker',S.hAnchor?HANCHOR[S.hAnchor].label:'eigene Werte'],['Adoptionsgrad je Ansatz (%)',OPTS.map(o=>o.short+' '+Math.round(pertMean(S.p[o.key].adopt||[100,100,100]))).join(' · ')],['Unsicherheit im Mengengerüst',S.mUnc?'± '+S.mUnc+' % auf Ersteller, Viewer, Reports, Charts je Report, Chart-Typen':'aus'],['Vorlaufzeit bis Produktivfreigabe (Wochen)',OPTS.map(o=>o.short+' '+Math.round(sim[o.key].ex.leadWeeks)).join(' · ')],['Aktive Governance-Schalter',FLAGS.filter(f=>S.flags[f.id]).map(f=>f.label).join('; ')||'keine']);
   R.push([],['Wie sicher sind diese Kosten? Anteile der P50-Kosten nach Herkunft der treibenden Annahmen'],['Ansatz','belegt (Preisliste/Snippet)','Faustregel (Literatur ohne Messung)','Schätzung (Panel oder Autoren)']);
   OPTS.forEach(o=>{const sp=certSplit(sim[o.key]);R.push([o.name,Math.round(100*sp.b)/100,Math.round(100*sp.f)/100,Math.round(100*sp.e)/100]);});
   R.push(['Zuordnung: Lizenz, Support, Capacity und Kurskosten = belegt; Abkündigungsrisiko = Faustregel; alle Stundenposten, Governance und Wartungsquote = Schätzung. Der extern beauftragte Anteil der Stundenposten zählt als belegt (Marktpreis externer Stunden).']);
@@ -2062,9 +2179,10 @@ function buildXlsx(){
 }
 
 /* ===================== Share-Link ===================== */
-function writeHash(){try{const st={sv:4,ss:S.ssShare,c:S.creators,v:S.viewers,r:S.reports,q:S.cpr,t:S.types,h:S.horizon,md:S.mode,lm:S.licModel,bl:S.baseline,ex:S.existing,tn:S.tornado,w:S.weight,pe:S.per,vw:S.view,pr:S.prio,cp:S.cap,cu:S.custom,f:S.flags,g:S.g,p:S.p,mc:S.mc,mx:S.mix,lv:S.level,lib:S.lib?1:0,pd:S.paired?1:0,rq:S.riskQ,vc:S.viewerCap,mo:S.models,dv:S.dist,ha:S.hAnchor,mu:S.mUnc,cx:(S.capex.on?1:0)*100+S.capex.life,rc:{s:S.rc.sh,c:S.rc.cpr,m:S.rc.mix},ia:S.ibcsAll?1:0,mv:S.mixOv,of:S.offers.map(o=>({v:o.vendor,m:o.model,p:o.price,u:o.users,t:o.term,d:o.disc,si:o.supInc?1:0,s:o.sup,i:o.infl,n:o.note})),oa:S.offerOn};const enc=btoa(unescape(encodeURIComponent(JSON.stringify(st))));history.replaceState(null,'','#s='+enc);}catch(e){}}
+function writeHash(){try{const st={sv:5,ss:S.ssShare,c:S.creators,v:S.viewers,r:S.reports,q:S.cpr,t:S.types,h:S.horizon,md:S.mode,lm:S.licModel,bl:S.baseline,ex:S.existing,tn:S.tornado,w:S.weight,pe:S.per,vw:S.view,pr:S.prio,cp:S.cap,cu:S.custom,f:S.flags,g:S.g,p:S.p,mc:S.mc,mx:S.mix,lv:S.level,lib:S.lib?1:0,pd:S.paired?1:0,rq:S.riskQ,vc:S.viewerCap,mo:S.models,dv:S.dist,ha:S.hAnchor,mu:S.mUnc,cx:(S.capex.on?1:0)*100+S.capex.life,rc:{s:S.rc.sh,c:S.rc.cpr,m:S.rc.mix},ia:S.ibcsAll?1:0,mv:S.mixOv,of:S.offers.map(o=>({v:o.vendor,m:o.model,p:o.price,u:o.users,t:o.term,d:o.disc,si:o.supInc?1:0,s:o.sup,i:o.infl,n:o.note})),oa:S.offerOn};const enc=btoa(unescape(encodeURIComponent(JSON.stringify(st))));history.replaceState(null,'','#s='+enc);}catch(e){}}
 function readHash(){try{const m=location.hash.match(/#s=(.+)/);if(!m)return false;const st=JSON.parse(decodeURIComponent(escape(atob(m[1]))));
-  if(+st.sv!==4)setTimeout(()=>toast('Link aus einer älteren Version des Rechners: Annahmen und Rechenkern wurden im Audit 09/2026 geändert, gespeicherte Werte gelten als eigene Annahmen.'),600);
+  const sv=+st.sv;
+  if(sv!==5)setTimeout(()=>toast('Link aus einer älteren Version des Rechners: Annahmen und Rechenkern wurden im Audit 09/2026 geändert, gespeicherte Werte gelten als eigene Annahmen.'),600);
   const qty=(v,lo,hi,d)=>{const n=Math.round(+v);return isFinite(n)?Math.max(lo,Math.min(hi,n)):d;};
   S.creators=qty(st.c,1,100000,S.creators);S.viewers=qty(st.v,0,1e7,S.viewers);S.reports=qty(st.r,1,100000,S.reports);S.cpr=qty(st.q,1,200,S.cpr);S.types=qty(st.t,1,50,S.types);S.horizon=[3,5,10].includes(+st.h)?+st.h:5;S.weight=qty(st.w,0,100,70);S.per=st.pe==='user'?'user':'viewer';
   S.view=st.vw==='per'?'per':'abs';S.mode=['ent','man','ss'].includes(st.md)?st.md:'man';S.ssShare=st.ss!==undefined?qty(st.ss,0,100,25):MODE_PRESETS[S.mode];S.licModel=['peruser','staffel','site'].includes(st.lm)?st.lm:'staffel';S.baseline=['none','paid','oss','deneb','core'].includes(st.bl)?st.bl:'none';S.existing=qty(st.ex,0,100000,0);S.tornado=OK[st.tn]!==undefined?st.tn:null;
@@ -2096,6 +2214,8 @@ function readHash(){try{const m=location.hash.match(/#s=(.+)/);if(!m)return fals
   if(st.cp)REQS.forEach(r=>{if(ok4(st.cp[r.id]))S.cap[r.id]=st.cp[r.id].map(x=>Math.min(5,Math.max(1,Math.round(+x))));});
   if(st.pr)REQS.forEach(r=>{if(PRIO[st.pr[r.id]])S.prio[r.id]=st.pr[r.id];});if(st.f)FLAGS.forEach(f=>S.flags[f.id]=!!st.f[f.id]);
   if(st.g)GLOBAL.forEach(p=>{const t=cl(st.g[p.id],p.min);if(t)S.g[p.id]=t;});
+  /* v0.18: Links vor sv 5 kennen die Lizenzbasis nicht und haben mit 100 % der Viewer gerechnet. Der Wert wird gesetzt, damit ein alter Link exakt dieselben Zahlen zeigt wie in v0.17 — derselbe Weg wie beim Chart-Mix-Override alter v0.14-Links. */
+  if(!(sv>=5)){S.g.licViewerShare=[100,100,100];setTimeout(()=>toast('Alter Link: die Lizenzbasis bleibt bei 100 % der Viewer, damit die Zahlen unverändert bleiben. Der neue Regler steht in Ebene 3 unter „Anteil der Viewer mit Zugriff auf Standard-Reports“.'),1500);}
   if(st.p)OPTS.forEach(o=>OPTP.forEach(p=>{if(S.p[o.key][p.id]&&st.p[o.key]){const t=cl(st.p[o.key][p.id],p.min);if(t)S.p[o.key][p.id]=t;}}));
   S.hAnchor=detectAnchor();return true;}catch(e){return false;}}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;clearTimeout(t._t);t._t=setTimeout(()=>t.textContent='',3500);}
@@ -2242,6 +2362,7 @@ function openMcPage(save){
 function setLevel(n,scroll){S.level=[1,2,3].includes(n)?n:1;document.body.classList.remove('lv0','lv1','lv2','lv3');document.body.classList.add('lv'+S.level);
   document.querySelectorAll('.stepper [data-level]').forEach(b=>b.classList.toggle('active',+b.dataset.level===S.level));
   if(S.level===3)['d-s4','d-charts'].forEach(id=>{const d=document.getElementById(id);if(d)d.open=true;});
+  if(typeof tocBuild==='function')tocBuild();   /* v0.17 */
   writeHash();if(scroll){const t=document.getElementById(S.level===1?'s0':S.level===2?'s1':'d-s4');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});}}
 /* ===================== v0.16: Gefuehrter Einstieg (Ebene 0) =====================
    Keine neue Rechenlogik. Jeder Schritt setzt ausschliesslich vorhandene Felder oder klickt die
@@ -2302,7 +2423,8 @@ const WIZ_STEPS=[
   why:'Alle Antworten stehen jetzt in den Feldern der Ebenen 2 und 3 und sind dort einzeln \u00e4nderbar. \u201eLink mit Einstellungen kopieren\u201c oben gibt genau diesen Stand weiter.',
   body:()=>'<div class="wiz-sum" id="wiz-summary"></div>'+
     '<button class="btn" type="button" data-wact="done" data-wval="3">Alles einstellen: Annahmen, Charts, Quellen (Ebene 3) \u2192</button>'+
-    '<div class="wiz-hint">\u201eErgebnis ansehen\u201c f\u00fchrt nach Ebene 2 \u2014 dort steht oben im Ergebnis-Abschnitt eine Lesehilfe, die in vier Schritten durch die Bl\u00f6cke f\u00fchrt.</div>'}];
+    '<button class="btn" type="button" data-wact="graph" style="margin-top:6px">Modell als Karte \u00f6ffnen: woher jede Zahl kommt \u2192</button>'+
+    '<div class="wiz-hint">\u201eModell als Karte\u201c \u00f6ffnet den Wirkungsgraph in Ebene 3: links eure Eingaben, in der Mitte die Annahmen-Gruppen mit ihrer Herkunft, rechts die Kostenposten. Ein Klick auf ein Element zeigt, wo es einflie\u00dft \u2014 und l\u00e4sst es dort \u00e4ndern. \u201eErgebnis ansehen\u201c f\u00fchrt nach Ebene 2 \u2014 dort steht oben im Ergebnis-Abschnitt eine Lesehilfe, die in vier Schritten durch die Bl\u00f6cke f\u00fchrt.</div>'}];
 function flashEl(el){if(!el)return;el.classList.remove('goto-flash');void el.offsetWidth;el.classList.add('goto-flash');setTimeout(()=>el.classList.remove('goto-flash'),1900);}
 function wizLive(){const el=document.getElementById('wiz-live');if(!el)return;
   const b=lastRank[0];
@@ -2350,6 +2472,7 @@ function wizAct(a,v){
   else if(a==='hor'){const b=document.querySelector('#horizon-seg button[data-h="'+v+'"]');if(b)b.click();}
   else if(a==='offer'){wizExit(2);const add=document.getElementById('btn-add-offer');if(!S.offers.length&&add)add.click();
     setTimeout(()=>{const el=document.getElementById('s1b');if(el){el.scrollIntoView({behavior:'smooth',block:'start'});flashEl(el.querySelector('#offers-card')||el);}},80);return;}
+  else if(a==='graph'){wizExit(3);setTimeout(()=>gotoTarget('d-graph'),60);return;}   /* v0.17 */
   else if(a==='done'){wizExit(+v||2);return;}
   wizSync();}
 function wizBind(){const p=document.getElementById('wiz-pane');if(!p)return;
@@ -2410,8 +2533,8 @@ function drawOverview(sim,ev,ranked,excluded,place){
       /* v0.15: mit aktivem Angebot ist der Angebotspreis der Anker */
       const OFR2=activeOffer();const pNow=OFR2?offerPrice(OFR2):S.p.paid.lic[1];
       const indiff=pNow*(1+(ed.total-ep.total)/Math.max(1,ep.lic));
-      const unit=(OFR2&&OFR2.model==='site')?' € Pauschale je Jahr':' € je Nutzer und Jahr';
-      d+='<div class="d"><b>2 · Lizenzpreis.</b> '+(OFR2?'Angebot '+esc(offerLabel(OFR2))+': '+fmtN(Math.round(pNow*100)/100,2)+unit:'Anker '+fmtN(pNow)+' € je Nutzer und Jahr (vor Staffel)')+'. Gleichstand mit '+esc(dn)+' bei etwa <b>'+fmtN(Math.max(0,Math.round(indiff)))+(OFR2?unit:' €')+'</b>. Das ist die Verhandlungsgrenze, nicht der Listenpreis.'+(OFR2?' Euer Angebot liegt '+(pNow<=indiff?'darunter, es trägt.':'darüber: es müsste um rund '+fmtN(Math.max(0,Math.round(100*(1-Math.max(0,indiff)/pNow))))+' % fallen.'):'')+'</div>';
+      const unit=(OFR2&&OFR2.model==='site')?' € Pauschale je Jahr':' € je lizenziertem Nutzer und Jahr';
+      d+='<div class="d"><b>2 · Lizenzpreis.</b> '+(OFR2?'Angebot '+esc(offerLabel(OFR2))+': '+fmtN(Math.round(pNow*100)/100,2)+unit:'Anker '+fmtN(pNow)+' € je lizenziertem Nutzer und Jahr (vor Staffel)')+'. Gleichstand mit '+esc(dn)+' bei etwa <b>'+fmtN(Math.max(0,Math.round(indiff)))+(OFR2?unit:' €')+'</b>. Das ist die Verhandlungsgrenze, nicht der Listenpreis.'+(OFR2?' Euer Angebot liegt '+(pNow<=indiff?'darunter, es trägt.':'darüber: es müsste um rund '+fmtN(Math.max(0,Math.round(100*(1-Math.max(0,indiff)/pNow))))+' % fallen.'):'')+'</div>';
       const pct=Math.round(100*(ed.total-ep.total)/Math.max(1,ed.total-ed.lic));
       d+='<div class="d"><b>3 · Stunden je Chart.</b> Panelwerte je wiederverwendetem Chart: Paid '+rh('paid')+' h, Open Source '+rh('oss')+' h, Deneb '+rh('deneb')+' h, Core '+rh('core')+' h (ungemessen). '+(pct>0?esc(dn)+' müsste seine Stunden um etwa <b>'+pct+' %</b> senken, um gleichzuziehen'+(S.lib?' (Vorlagenbibliothek ist an).':'; der Schalter „Vorlagenbibliothek“ senkt Deneb und Core um 30 bis 40 %.'):'Paid müsste seine Stunden um etwa <b>'+(-pct)+' %</b> senken, um gleichzuziehen.')+'</div>';
       d+='<div class="d" style="color:var(--ink-soft)">Belastbar ist die Richtung dieser drei Hebel, nicht die zweite Stelle. Viewer-Zahl, Lizenzpreis und Stunden je Chart erklären den Abstand fast vollständig; alles andere verschiebt ihn um Prozentpunkte. <a href="sessions/visual-standards-rechner-audit/kernaussagen.md" style="color:var(--accent-text)">Kernaussagen zur Diskussion</a></div>';}
@@ -2434,7 +2557,7 @@ function drawOverview(sim,ev,ranked,excluded,place){
 }
 /* ===================== Events ===================== */
 function bind(){
-  document.addEventListener('click',e=>{const a=e.target.closest('[data-goto]');if(!a)return;e.preventDefault();const el=document.getElementById(a.dataset.goto);if(el){el.scrollIntoView({behavior:'smooth',block:'start'});flashEl(el);}});
+  document.addEventListener('click',e=>{const a=e.target.closest('[data-goto]');if(!a)return;e.preventDefault();gotoTarget(a.dataset.goto);}); /* v0.17: gotoTarget wechselt die Ebene und oeffnet geschlossene Details */
   let simTimer=null;const scheduleUpdate=()=>{clearTimeout(simTimer);simTimer=setTimeout(update,90);};
   ['creators','viewers','reports','cpr','types','existing'].forEach(id=>{const el=document.getElementById(id);el.addEventListener('input',e=>{S[id]=+e.target.value;renderStep1();scheduleUpdate();});el.addEventListener('change',()=>{clearTimeout(simTimer);update();});});
   document.querySelectorAll('[data-level]').forEach(b=>b.addEventListener('click',()=>setLevel(+b.dataset.level,true)));
@@ -2514,13 +2637,414 @@ function bind(){
   window.addEventListener('afterprint',renderParams);
   const cnt={V:0,S:0,F:0,E:0};GLOBAL.concat(OPTP).forEach(p=>cnt[p.src]++);const tot=cnt.V+cnt.S+cnt.F+cnt.E;document.getElementById('srcbar').innerHTML=['V','S','F','E'].map(k=>'<i style="width:'+Math.max(4,Math.round(cnt[k]/tot*120))+'px;background:'+({V:'#3E9C8F',S:'#D98A3D',F:'#B4B2A2',E:'#7B8BC4'}[k])+'" title="'+k+': '+cnt[k]+'"></i>').join('')+' '+cnt.V+' verifiziert · '+cnt.S+' Snippet · '+cnt.F+' Faustregel · '+cnt.E+' Expertenschätzung, deshalb Bandbreiten statt Punktwerte.';
 }
+/* ===================== v0.17: Inhaltsverzeichnis, klickbarer Wirkungsgraph, Knoten-Popups =====================
+   Keine neue Rechenlogik, keine geaenderten Annahmen. Das Inhaltsverzeichnis spiegelt nur vorhandene
+   Abschnitte. Der Graph liest weiterhin lastSim / lastEv / CATS. Die Popups bedienen ausschliesslich die
+   vorhandenen Felder und Handler (#n-creators, #n-viewers, #n-reports, #n-types, #rc-sh-*, #ibcs-all,
+   #horizon-seg, #ov-mode-seg, applyParamEdit) — wie es der gefuehrte Einstieg mit data-wact macht.
+   Die Sensitivitaetsangabe nutzt expected(key, override), also denselben Weg wie drawTornado.
+   Der Share-Link bleibt unveraendert (sv = 4); "alles aufgeklappt" wird nicht gespeichert. */
+
+/* ---------- Sprungziele: Ebene wechseln, geschlossene Details oeffnen ---------- */
+function openAncestors(el){let p=el;while(p&&p!==document.body){if(p.tagName==='DETAILS'&&!p.open)p.open=true;p=p.parentElement;}}
+function neededLevel(el){const h=el.closest('[data-lv]');return h?(+h.dataset.lv||0):0;}
+function gotoTarget(id,noflash){
+  const el=document.getElementById(id);if(!el)return false;
+  const need=neededLevel(el);if(need>S.level)setLevel(need,false);
+  openAncestors(el);
+  const go=()=>{try{el.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){try{el.scrollIntoView();}catch(e2){}}if(!noflash)flashEl(el);tocMark();};
+  if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>requestAnimationFrame(go));else go();
+  return true;
+}
+
+/* ---------- Inhaltsverzeichnis ----------
+   Ausgeblendete Eintraege werden nicht ausgegraut, sondern wechseln beim Klick die Ebene: der Rechner
+   blendet nur an, er wirft nichts weg, und eine tote Zeile im Verzeichnis waere vor Publikum eine
+   Sackgasse. Das Chip "Ebene 3" sagt vorher, dass der Klick die Ebene hebt. */
+const TOC_H={0:'Einstieg',1:'Ebene 1 · Überblick',2:'Ebene 2 · Eingrenzen',3:'Ebene 3 · Details'};
+const TOC_ITEMS=[
+ {id:'wizard',t:'Geführter Einstieg',lv:0,wiz:1},
+ {id:'s0',t:'Überblick',lv:1},
+ {id:'s1',t:'Mengengerüst',lv:2},
+ {id:'s1b',t:'Anbieter-Angebote',lv:2},
+ {id:'s2',t:'Anforderungen',lv:2},
+ {id:'s3',t:'Red Flags und Governance',lv:2},
+ {id:'d-s4',t:'Annahmen mit Bandbreiten',lv:3},
+ {id:'s5',t:'Ergebnis und Einschätzung',lv:2},
+ {id:'readguide',t:'Lesehilfe',lv:2,sub:1},
+ {id:'decision-path',t:'Entscheidungspfad',lv:2,sub:1},
+ {id:'kpi-allowed',t:'Rangfolge mit Bändern',lv:2,sub:1},
+ {id:'certainty',t:'Sicherheits-Leiste',lv:2,sub:1},
+ {id:'rclasses',t:'Report-Klassen',lv:2,sub:1},
+ {id:'nulloption',t:'Null-Option',lv:2,sub:1},
+ {id:'cashout',t:'Cash-out je Jahr',lv:2,sub:1},
+ {id:'capex',t:'CapEx, OpEx und GuV',lv:2,sub:1},
+ {id:'d-charts',t:'Charts und Kostentabelle',lv:3,sub:1},
+ {id:'d-graph',t:'Wirkungsgraph (Modell als Karte)',lv:3,sub:1},
+ {id:'d-text',t:'Einschätzung je Ansatz',lv:3,sub:1},
+ {id:'d-s6',t:'Monte-Carlo-Seite',lv:3},
+ {id:'d-anhang',t:'Quellen, Methodik, Anhang',lv:3}];
+let tocVis={},tocIO=null,tocCur=null;
+function tocBuild(){
+  const ul=document.getElementById('toc-list');if(!ul)return;
+  let h='',cur=-1;
+  TOC_ITEMS.forEach(it=>{
+    if(!document.getElementById(it.id))return;
+    if(!it.sub&&it.lv!==cur){cur=it.lv;h+='<li class="toc-h">'+esc(TOC_H[it.lv])+'</li>';}
+    const hid=it.wiz?'Einstieg':(it.lv>S.level?'Ebene '+it.lv:'');
+    const tip=it.wiz?'Startet den geführten Einstieg (Ebene 0).':(hid?'Liegt auf Ebene '+it.lv+' — der Klick wechselt die Ebene und öffnet den Block.':'');
+    h+='<li><button type="button" class="toc-a'+(it.sub?' sub':'')+'" data-toc="'+it.id+'"'+(tip?' title="'+esc(tip)+'"':'')+'><span>'+esc(it.t)+'</span>'+(hid?'<span class="lvc">'+esc(hid)+'</span>':'')+'</button></li>';});
+  ul.innerHTML=h;
+  tocMark();
+}
+function tocMark(){
+  const ul=document.getElementById('toc-list');if(!ul)return;
+  const vis=TOC_ITEMS.filter(it=>tocVis[it.id]);
+  if(vis.length)tocCur=vis[vis.length-1].id;
+  ul.querySelectorAll('[data-toc]').forEach(b=>{const on=b.dataset.toc===tocCur;
+    b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');});
+  const w=document.getElementById('toc-where');
+  if(w){const it=TOC_ITEMS.find(x=>x.id===tocCur);w.innerHTML=it?'Gerade sichtbar: <b>'+esc(it.t)+'</b>':'Ebene '+S.level;}
+}
+function tocObserve(){
+  if(!('IntersectionObserver' in window))return;
+  if(tocIO)tocIO.disconnect();
+  tocVis={};
+  tocIO=new IntersectionObserver(es=>{es.forEach(e=>{tocVis[e.target.id]=e.isIntersecting;});tocMark();},{rootMargin:'-60px 0px -58% 0px',threshold:0});
+  TOC_ITEMS.forEach(it=>{const el=document.getElementById(it.id);if(el)tocIO.observe(el);});
+}
+function tocExpandAll(on){
+  if(on&&S.level<3)setLevel(3,false);
+  document.querySelectorAll('.wrap details').forEach(d=>{if(d.closest('#toc'))return;d.open=on;});
+  tocBuild();
+  toast(on?'Alles aufgeklappt: Ebene 3, jeder Details-Block offen — zum Lesen am Stück und zum Drucken.':'Alle Details-Blöcke zugeklappt. Die Ebene bleibt, wie sie ist.');
+}
+
+/* ---------- Wirkungsgraph: Auswahl, Hervorhebung, Erklaertext ---------- */
+let graphSel=null,graphBound=false;
+function ggrp(id){return GRAPH_GRP.find(x=>x.id===id);}
+function gin(id){return GRAPH_IN.find(x=>x.id===id);}
+function gsplit(nid){const i=nid.indexOf(':');return [nid.slice(0,i),nid.slice(i+1)];}
+function graphData(){const key=graphOpt,st=key?lastSim[key]:null;if(!st)return null;
+  const tot=CATS.reduce((a,c)=>a+st.cats[c[0]],0)||1;
+  return {key,o:OPTS[OK[key]],st,tot,items:CATS.map(c=>({k:c[0],l:c[1],v:st.cats[c[0]]}))};}
+function graphNeighbors(nid){
+  const nodes=new Set([nid]),edges=new Set();
+  const add=(f,t)=>{edges.add(f+'>'+t);nodes.add(f);nodes.add(t);};
+  const grpOut=gid=>{CATS.forEach(c=>{if(GRAPH_OWN[c[0]]===gid)add('grp:'+gid,'item:'+c[0]);});
+    if(gid==='rate')GRAPH_SCALE.forEach(k=>add('grp:rate','item:'+k));};
+  const grpIn=gid=>{GRAPH_IN.forEach(n=>{if(n.to.indexOf(gid)>=0)add('in:'+n.id,'grp:'+gid);});};
+  const [ty,id]=gsplit(nid);
+  if(ty==='in'){const n=gin(id);if(n)n.to.forEach(gid=>{add('in:'+id,'grp:'+gid);grpOut(gid);});}
+  else if(ty==='grp'){grpIn(id);grpOut(id);}
+  else {const gid=GRAPH_OWN[id];if(gid){add('grp:'+gid,'item:'+id);grpIn(gid);}
+    if(GRAPH_SCALE.indexOf(id)>=0){add('grp:rate','item:'+id);grpIn('rate');}}
+  return {nodes,edges};
+}
+function graphApplySel(){
+  const host=document.getElementById('graph-svg');if(!host)return;
+  const nb=graphSel?graphNeighbors(graphSel):null;
+  host.querySelectorAll('[data-n]').forEach(g=>{
+    const on=!nb||nb.nodes.has(g.dataset.n);
+    g.classList.toggle('g-dim',!!nb&&!on);
+    g.classList.toggle('g-sel',g.dataset.n===graphSel);
+    g.setAttribute('aria-pressed',g.dataset.n===graphSel?'true':'false');});
+  host.querySelectorAll('[data-ef]').forEach(p=>{
+    const on=!nb||nb.edges.has(p.dataset.ef+'>'+p.dataset.et);
+    p.classList.toggle('g-dim',!!nb&&!on);
+    p.classList.toggle('g-hi',!!nb&&on);});
+}
+function graphBind(){
+  if(graphBound)return;const host=document.getElementById('graph-svg');if(!host)return;graphBound=true;
+  host.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest('[data-n]');if(!g)return;e.preventDefault();graphPick(g.dataset.n,g);});
+  host.addEventListener('keydown',e=>{const g=e.target.closest&&e.target.closest('[data-n]');if(!g)return;
+    if(e.key==='Enter'||e.key===' '||e.key==='Spacebar'){e.preventDefault();graphPick(g.dataset.n,g);}});
+}
+function graphPick(nid,el){
+  if(graphSel===nid){graphClear(true);return;}
+  graphSel=nid;graphApplySel();graphExplain();gpopOpenFor(nid,el);
+}
+function graphClear(focusBack){gpopClose(focusBack);graphSel=null;graphApplySel();graphExplain();}
+function gShare(v,tot){return Math.round(100*v/tot)+' %';}
+function gList(items,tot){return '<ul>'+items.map(it=>'<li><b>'+esc(it.l)+'</b> — '+fmtEur(it.v)+' · '+gShare(it.v,tot)+'</li>').join('')+'</ul>';}
+/* Sensitivitaet: alle Annahmen einer Gruppe zugleich 10 % hoeher, gerechnet mit expected(key, override)
+   — derselbe Weg wie drawTornado. Fuer Mengengeruest-Eingaben gibt es keinen sauberen Weg, also auch keine Zahl. */
+function graphSens(gid){
+  const d=graphData();if(!d)return null;const g=ggrp(gid);if(!g)return null;
+  const ov={};let n=0;
+  g.ps.forEach(pk=>{const sc=pk.slice(0,1),id=pk.slice(2);
+    const t=sc==='g'?S.g[id]:(S.p[d.key]||{})[id];
+    if(!t||!isFinite(t[1]))return;
+    if(id==='libF'&&!S.lib)return;
+    const m=pertMean(t);if(!isFinite(m)||Math.abs(m)<=0)return;
+    ov[id]=m*1.1;n++;});
+  if(!n)return null;
+  const base=expected(d.key).total,hi=expected(d.key,ov).total;
+  if(!isFinite(base)||!isFinite(hi))return null;
+  return {n,base,delta:hi-base};
+}
+function graphSensLine(gid){
+  const d=graphData();if(!d)return '';
+  const r=graphSens(gid);const g=ggrp(gid);
+  if(!r)return '<div class="gx-sens">Sensitivität: für diese Gruppe lässt sie sich bei '+esc(d.o.short)+' nicht sauber angeben — der Ansatz hat hier keine eigenen Annahmen mit Bandbreite.</div>';
+  const s=r.delta>=0?'+':'−';
+  return '<div class="gx-sens">Sensitivität: '+r.n+' Annahme'+(r.n===1?'':'n')+' der Gruppe „'+esc(g.label)+'“ zugleich <b>10 % höher</b> → Gesamtkosten '+esc(d.o.short)+' '+s+fmtEur(Math.abs(r.delta))+' (Referenzrechnung mit mittleren Annahmen, Basis '+fmtEur(r.base)+' — derselbe Weg wie im Tornado).</div>';
+}
+const GX_HINT='<b>Klick auf ein Element im Graphen</b> — eine Eingabe links, eine Annahmen-Gruppe in der Mitte oder einen Kostenposten rechts — zeigt hier, <b>wo sie einfließt und wie viel sie ausmacht</b>, hebt die verbundenen Pfade hervor und öffnet daneben ein Feld zum Ändern. Mit der Tastatur: Tab auf das Element, dann Enter oder Leertaste. Ein zweiter Klick oder Escape hebt die Auswahl auf.';
+function graphExplain(){
+  const el=document.getElementById('graph-explain');if(!el)return;
+  const d=graphData();
+  if(!d||!graphSel){el.innerHTML=GX_HINT;return;}
+  const [ty,id]=gsplit(graphSel);let h='';
+  if(ty==='in'){
+    const n=gin(id);if(!n){el.innerHTML=GX_HINT;return;}
+    const gids=n.to.slice();
+    const own=d.items.filter(it=>gids.indexOf(GRAPH_OWN[it.k])>=0);
+    const scal=gids.indexOf('rate')>=0?d.items.filter(it=>GRAPH_SCALE.indexOf(it.k)>=0&&own.indexOf(it)<0):[];
+    const sum=own.reduce((a,b)=>a+b.v,0);
+    h='<b>Eingabe „'+esc(n.label)+'“ = '+esc(n.val())+'.</b> Sie füllt '+gids.length+' Annahmen-Gruppe'+(gids.length===1?'':'n')+': '+gids.map(g=>'„'+esc(ggrp(g)?ggrp(g).label:g)+'“').join(', ')+'.';
+    h+=own.length?' Über diese Gruppen hängen bei <b>'+esc(d.o.name)+'</b> folgende Posten an ihr:'+gList(own,d.tot)+'Zusammen <b>'+fmtEur(sum)+'</b> = '+gShare(sum,d.tot)+' der P50-Kosten von '+fmtEur(d.tot)+'.'
+      :' Bei '+esc(d.o.short)+' trägt keine dieser Gruppen einen eigenen Betrag.';
+    if(scal.length)h+='<div class="gx-note">Zusätzlich skaliert (ohne eigenen Betrag): '+scal.map(x=>esc(x.l)).join(', ')+'.</div>';
+    h+='<div class="gx-sens">Sensitivität: für Mengengerüst-Größen gibt der Rechner hier <b>bewusst keine Zahl</b> aus — der Tornado variiert Annahmen, nicht die Menge. Wie stark Ersteller, Viewer, Reports und Chart-Typen streuen, rechnet die Monte-Carlo-Seite (Ebene 3) mit „nur Mengengerüst“.</div>';
+  } else if(ty==='grp'){
+    const g=ggrp(id);if(!g){el.innerHTML=GX_HINT;return;}
+    const src=g.src||grpSrc(g);
+    const own=d.items.filter(it=>GRAPH_OWN[it.k]===id);
+    const scal=id==='rate'?d.items.filter(it=>GRAPH_SCALE.indexOf(it.k)>=0):[];
+    const ins=GRAPH_IN.filter(n=>n.to.indexOf(id)>=0);
+    const sum=own.reduce((a,b)=>a+b.v,0),ssum=scal.reduce((a,b)=>a+b.v,0);
+    h='<b>Annahmen-Gruppe „'+esc(g.label)+'“</b> · '+g.ps.length+' Annahmen · Herkunft überwiegend <b>'+esc(src.kind)+'</b> ('+src.counts['belegt']+' belegt, '+src.counts['Faustregel']+' Faustregel, '+src.counts['Meinung']+' Panel oder Autoren-Schätzung).';
+    if(own.length)h+=' Sie füllt bei <b>'+esc(d.o.name)+'</b> diese Posten:'+gList(own,d.tot)+'Zusammen <b>'+fmtEur(sum)+'</b> = '+gShare(sum,d.tot)+' der P50-Kosten von '+fmtEur(d.tot)+'.';
+    if(scal.length)h+=' Sie trägt <b>keinen eigenen Betrag</b>, sondern skaliert die Stundenposten '+scal.map(x=>esc(x.l)).join(', ')+' — zusammen '+fmtEur(ssum)+' = '+gShare(ssum,d.tot)+' der P50-Kosten von '+fmtEur(d.tot)+'.';
+    if(!own.length&&!scal.length)h+=' Bei '+esc(d.o.short)+' füllt sie keinen Posten.';
+    h+='<div class="gx-note">Gefüllt wird sie von den Eingaben: '+(ins.length?ins.map(n=>esc(n.label)+' ('+esc(n.val())+')').join(', '):'keiner der Eingaben links — sie wirkt allein über ihre Annahmen')+'.</div>';
+    h+=graphSensLine(id);
+  } else {
+    const it=d.items.find(x=>x.k===id);if(!it){el.innerHTML=GX_HINT;return;}
+    const g=ggrp(GRAPH_OWN[id]);
+    const scal=GRAPH_SCALE.indexOf(id)>=0;
+    const ins=g?GRAPH_IN.filter(n=>n.to.indexOf(g.id)>=0):[];
+    h='<b>Kostenposten „'+esc(it.l)+'“ bei '+esc(d.o.name)+': '+fmtEur(it.v)+'</b> = '+gShare(it.v,d.tot)+' der P50-Kosten von '+fmtEur(d.tot)+'.';
+    if(g){const src=g.src||grpSrc(g);
+      h+=' Er entsteht aus der Gruppe <b>„'+esc(g.label)+'“</b> ('+g.ps.length+' Annahmen, überwiegend '+esc(src.kind)+': '+src.counts['belegt']+' belegt, '+src.counts['Faustregel']+' Faustregel, '+src.counts['Meinung']+' Panel oder Autoren-Schätzung).';}
+    if(scal)h+=' Zusätzlich skaliert ihn die Gruppe „Stundensätze und Bewertung“, ohne einen eigenen Betrag zu tragen.';
+    h+='<div class="gx-note">Die Menge dahinter kommt aus den Eingaben: '+(ins.length?ins.map(n=>esc(n.label)+' ('+esc(n.val())+')').join(', '):'—')+'.</div>';
+    if(g)h+=graphSensLine(g.id);
+  }
+  el.innerHTML=h;
+}
+
+/* ---------- Popup am Knoten: bearbeiten mit den vorhandenen Bedienelementen ---------- */
+let gpopCtx=null,gpopReturn=null,gpopBound=false;
+function gpopTotals(){const qk='p'+S.riskQ,o={};OPTS.forEach(x=>{o[x.key]=lastSim[x.key]?lastSim[x.key][qk]:NaN;});return o;}
+function gpopProxyNum(id,v){const t=document.getElementById(id);if(!t)return;t.value=v;t.dispatchEvent(new Event('change',{bubbles:true}));}
+function gpopProxyClick(sel){const t=document.querySelector(sel);if(t)t.click();}
+function gpNum(target,lbl,v,mn,mx,hint){return '<div class="field"><label><span>'+esc(lbl)+'</span><input type="number" class="valin" data-gpnum="'+target+'" min="'+mn+'" max="'+mx+'" value="'+v+'" aria-label="'+esc(lbl)+'"></label><div class="sub-hint">'+(hint||'Ändert dasselbe Feld wie in Ebene 2. Ergebnis, Graph und Link mit Einstellungen ziehen sofort nach.')+'</div></div>';}
+function gpSeg(opts){return '<div class="seg">'+opts.map(o=>'<button type="button" data-gpclick="'+esc(o[1])+'"'+(o[2]?' class="active"':'')+'>'+esc(o[0])+'</button>').join('')+'</div>';}
+const GPOP_IN={
+ creators:{t:'Ersteller (Report-Autoren)',why:'Personen, die Reports mit den Standard-Visuals bauen und warten. Sie treiben Stunden je Chart, Schulung — und bei Paid auch Lizenzen.',
+   val:()=>fmtN(S.creators)+' Ersteller',body:()=>gpNum('n-creators','Ersteller',S.creators,1,100000)},
+ viewers:{t:'Viewer (lesen nur)',why:'Bei gekauften Visuals braucht jeder Viewer eine Lizenz; bei allen anderen Ansätzen wachsen mit den Viewern Governance und Anwender-Support.',
+   val:()=>fmtN(S.viewers)+' Viewer',body:()=>gpNum('n-viewers','Viewer',S.viewers,0,10000000)},
+ reports:{t:'Standard-Reports',why:'Reports, die nach dem Standard gebaut werden. Sie treiben Rollout und Wartung.',
+   val:()=>fmtN(S.reports)+' Reports',body:()=>gpNum('n-reports','Standard-Reports',S.reports,1,100000)},
+ types:{t:'Chart-Typen',why:'Zahl der Chart-Typen im Standard. Jeder Typ wird einmal gebaut, freigegeben und gewartet.',
+   val:()=>fmtN(S.types)+' Typen',body:()=>gpNum('n-types','Chart-Typen',S.types,1,50)},
+ rc:{t:'Report-Klassen',why:'A operativ ohne IBCS-Bedarf, B IBCS-Standard, C IBCS anspruchsvoll. Nur B und C laufen über den gewählten Ansatz — der Anteil ist der eigentliche Mengentreiber.',
+   val:()=>'A / B / C = '+S.rc.sh.map(x=>Math.round(x)).join(' / ')+' %'+(S.ibcsAll?' · IBCS-Pflicht für alle':''),
+   body:()=>'<div class="field"><label><span>Anteile in % (A operativ · B Standard · C anspruchsvoll)</span></label><div style="display:flex;gap:6px">'
+     +[0,1,2].map(i=>'<input type="number" class="valin" data-gpnum="rc-sh-'+i+'" min="0" max="100" value="'+Math.round(S.rc.sh[i])+'" aria-label="'+esc(['Klasse A','Klasse B','Klasse C'][i])+'" style="text-align:right">').join('')
+     +'</div><div class="sub-hint">Die Anteile werden auf 100 % normiert. Charts je Report und Chart-Mix ergeben sich daraus.</div></div>'
+     +'<label class="check-item"><input type="checkbox" data-gpcheck="ibcs-all"'+(S.ibcsAll?' checked':'')+'><span>IBCS verbindlich für alle Reports<small>Zieht auch die operative Klasse A in den gewählten Ansatz und macht die Konformitätsprüfung für jeden Report zur Pflicht.</small></span></label>'},
+ cpr:{t:'Charts je Report',why:'Abgeleitete Größe — hier nicht editierbar.',
+   val:()=>fmtN(S.cpr,2)+' Charts je Report (berechnet)',
+   body:()=>'<p class="gpop-why" style="margin:0">Dieser Wert wird seit v0.14 <b>aus den Report-Klassen berechnet</b>: Anteil je Klasse × Charts je Report der Klasse. Geändert wird er dort, nicht hier.<br>Aktuell: Anteile '+esc(S.rc.sh.map(x=>Math.round(x)).join(' / '))+' % bei '+esc(S.rc.cpr.join(' / '))+' Charts je Report.</p>'
+     +'<div class="gpop-foot"><button type="button" class="btn" data-gpgoto="rclasses">→ Zu den Report-Klassen</button></div>'},
+ mix:{t:'Chart-Mix',why:'Abgeleitete Größe — hier nicht editierbar.',
+   val:()=>S.mix.join(' / ')+' % (einfach / mittel / komplex, berechnet)',
+   body:()=>'<p class="gpop-why" style="margin:0">Der globale Chart-Mix entsteht aus den <b>Klassen-Mixen der drei Report-Klassen</b>, gewichtet mit deren Anteilen'+(S.mixOv?' — derzeit überschrieben durch den Experten-Override in Ebene 2':'')+'. Geändert wird er über die Klassen, nicht hier.</p>'
+     +'<div class="gpop-foot"><button type="button" class="btn" data-gpgoto="rclasses">→ Zu den Report-Klassen</button></div>'},
+ horizon:{t:'Horizont',why:'Über wie viele Jahre gerechnet wird. Kurz: der Aufbau dominiert. Lang: Lizenz und Wartung überholen den Invest.',
+   val:()=>S.horizon+' Jahre',
+   body:()=>'<div class="field"><label><span>Betrachtungszeitraum</span></label>'+gpSeg([3,5,10].map(h=>[h+' Jahre','#horizon-seg button[data-h=\''+h+'\']',S.horizon===h]))+'<div class="sub-hint">Klickt denselben Schalter wie in Ebene 2.</div></div>'},
+ mode:{t:'Betriebsmodell',why:'Bestimmt, wie viele Ersteller tief geschult werden, wie viele Chart-Varianten entstehen und wie viel Governance nötig ist.',
+   val:()=>modeParams().label,
+   body:()=>'<div class="field"><label><span>Wer baut die Vorlagen?</span></label>'+gpSeg([['Enterprise BI','#ov-mode-seg button[data-mode=\'ent\']',S.mode==='ent'],['Managed Self-Service','#ov-mode-seg button[data-mode=\'man\']',S.mode==='man'],['Self-Service','#ov-mode-seg button[data-mode=\'ss\']',S.mode==='ss']])+'<div class="sub-hint">Klickt denselben Schalter wie in Ebene 1 und 2.</div></div>'}};
+function gpopTitle(nid){const [ty,id]=gsplit(nid);
+  if(ty==='in')return (GPOP_IN[id]&&GPOP_IN[id].t)||(gin(id)?gin(id).label:id);
+  if(ty==='grp')return ggrp(id)?ggrp(id).label:id;
+  const c=CATS.find(c=>c[0]===id);return c?c[1]:id;}
+function gpopValLine(nid){const [ty,id]=gsplit(nid);const d=graphData();
+  if(ty==='in')return GPOP_IN[id]?esc(GPOP_IN[id].val()):esc(gin(id)?gin(id).val():'');
+  if(ty==='grp'){const g=ggrp(id);if(!g)return '';const src=g.src||grpSrc(g);
+    return g.ps.length+' Annahmen · überwiegend '+esc(src.kind)+' · Ansatz '+esc(d?d.o.short:'');}
+  if(!d)return '';const it=d.items.find(x=>x.k===id);
+  return it?fmtEur(it.v)+' · '+gShare(it.v,d.tot)+' der P50-Kosten · '+esc(d.o.short):'';}
+function gpopWhy(nid){const [ty,id]=gsplit(nid);
+  if(ty==='in')return GPOP_IN[id]?GPOP_IN[id].why:'';
+  if(ty==='grp')return 'Die Annahmen dieser Gruppe, mit min · wahrscheinlich · max wie in Ebene 3. Badge = Quellenlage, Text darunter = Kurzbegründung.';
+  return 'Kostenposten sind Ergebnisse — sie werden nicht eingestellt, sondern entstehen aus den Gruppen darunter.';}
+function gpopBodyHtml(nid){
+  const [ty,id]=gsplit(nid);const d=graphData();
+  if(ty==='in')return GPOP_IN[id]?GPOP_IN[id].body():'<p class="gpop-why" style="margin:0">Für diese Eingabe gibt es hier kein Feld.</p>';
+  if(ty==='grp'){
+    const g=ggrp(id);if(!g||!d)return '';
+    const key=d.key;const rows=[];const globals=[];
+    g.ps.forEach(pk=>{const sc=pk.slice(0,1),pid=pk.slice(2);
+      const def=(sc==='g'?GLOBAL:OPTP).find(x=>x.id===pid);if(!def)return;
+      const t=sc==='g'?S.g[pid]:(S.p[key]||{})[pid];if(!t)return;
+      rows.push(paramRow(def,t,sc==='g'?'g':'p:'+key));
+      if(sc==='g')globals.push(def.label);});
+    if(!rows.length)return '<p class="gpop-why" style="margin:0">'+esc(OPTS[OK[key]].name)+' hat in dieser Gruppe keine eigenen Annahmen.</p>';
+    return '<div class="a-row head"><div>'+esc(OPTS[OK[key]].name)+'</div><div>min</div><div>wahr.</div><div>max</div><div></div></div>'+rows.join('')
+      +(globals.length?'<p class="gpop-why" style="margin:8px 0 0"><b>Global — gilt für alle vier Ansätze:</b> '+esc(globals.join(', '))+'. Eine Änderung dort verschiebt alle Ansätze zugleich.</p>':'');
+  }
+  if(!d)return '';
+  const it=d.items.find(x=>x.k===id);if(!it)return '';
+  const g=ggrp(GRAPH_OWN[id]);const scal=GRAPH_SCALE.indexOf(id)>=0;
+  const ins=g?GRAPH_IN.filter(n=>n.to.indexOf(g.id)>=0):[];
+  let h='<p class="gpop-why" style="margin:0 0 8px">Zusammensetzung bei <b>'+esc(d.o.name)+'</b>: '+fmtEur(it.v)+' = '+gShare(it.v,d.tot)+' der P50-Kosten von '+fmtEur(d.tot)+'.</p>';
+  h+='<p class="gpop-why" style="margin:6px 0 0"><b>Gruppe:</b> '+(g?esc(g.label)+' — '+g.ps.length+' Annahmen, überwiegend '+esc((g.src||grpSrc(g)).kind):'—')+'.'
+    +(scal?'<br><b>Zusätzlich skaliert von:</b> Stundensätze und Bewertung (ohne eigenen Betrag).':'')
+    +'<br><b>Menge aus:</b> '+(ins.length?esc(ins.map(n=>n.label).join(', ')):'—')+'.</p>';
+  h+='<div class="gpop-foot">'+(g?'<button type="button" class="btn" data-gpsel="grp:'+esc(g.id)+'">→ Annahmen dieser Gruppe</button>':'')
+    +'<button type="button" class="btn" data-gpgoto="res-table">→ Kostentabelle</button></div>';
+  return h;
+}
+function gpopEffHtml(){
+  if(!gpopCtx)return '';
+  const qk='p'+S.riskQ,keys=[];
+  if(graphOpt)keys.push(graphOpt);
+  const best=lastCostOrder[0]||lastRank[0];if(best&&keys.indexOf(best.key)<0)keys.push(best.key);
+  let h='<table><tr><td class="gcap">Ansatz</td><td class="gcap">vorher</td><td class="gcap">jetzt</td><td class="gcap">Δ</td></tr>';
+  keys.forEach(k=>{const o=OPTS[OK[k]];const now=lastSim[k]?lastSim[k][qk]:NaN,was=gpopCtx.base[k];
+    const dv=(isFinite(now)&&isFinite(was))?now-was:NaN;
+    h+='<tr><td style="color:'+o.tcolor+'">'+esc(o.short)+'</td><td>'+fmtEur(was)+'</td><td>'+fmtEur(now)+'</td><td class="'+(dv>0?'up':dv<0?'dn':'')+'">'+(!isFinite(dv)?'–':Math.abs(dv)<1?'±0':(dv>0?'+':'−')+fmtEur(Math.abs(dv)))+'</td></tr>';});
+  h+='</table><div style="margin-top:5px;color:var(--ink-soft)">P'+S.riskQ+' über '+S.horizon+' Jahre · „vorher“ = Stand beim Öffnen'+(keys.length>1?' · zweite Zeile: günstigster zulässiger Ansatz':'')+'.</div>';
+  return h;
+}
+function gpopSnap(nid){
+  const [ty,id]=gsplit(nid);
+  if(ty==='in'){
+    if(id==='rc')return {t:'rc',sh:S.rc.sh.slice(),ibcs:!!S.ibcsAll};
+    if(id==='horizon')return {t:'hor',v:S.horizon};
+    if(id==='mode')return {t:'mode',v:S.mode};
+    if(['creators','viewers','reports','types'].indexOf(id)>=0)return {t:'num',k:id,v:S[id]};
+    return null;}
+  if(ty==='grp'){const g=ggrp(id);if(!g)return null;const vals=[];
+    g.ps.forEach(pk=>{const sc=pk.slice(0,1),pid=pk.slice(2);
+      const t=sc==='g'?S.g[pid]:(S.p[graphOpt]||{})[pid];if(t)vals.push([sc==='g'?'g':'p:'+graphOpt,pid,t.slice()]);});
+    return {t:'par',vals};}
+  return null;
+}
+function gpopRestore(){
+  const s=gpopCtx&&gpopCtx.snap;if(!s)return;
+  if(s.t==='num')gpopProxyNum('n-'+s.k,s.v);
+  else if(s.t==='hor')gpopProxyClick('#horizon-seg button[data-h="'+s.v+'"]');
+  else if(s.t==='mode')gpopProxyClick('#ov-mode-seg button[data-mode="'+s.v+'"]');
+  else if(s.t==='rc'){[0,1,2].forEach(i=>gpopProxyNum('rc-sh-'+i,Math.round(s.sh[i])));
+    const ib=document.getElementById('ibcs-all');if(ib&&ib.checked!==s.ibcs){ib.checked=s.ibcs;ib.dispatchEvent(new Event('change',{bubbles:true}));}}
+  else if(s.t==='par'){s.vals.forEach(v=>{const tgt=v[0]==='g'?S.g:S.p[v[0].slice(2)];if(tgt&&tgt[v[1]])tgt[v[1]]=v[2].slice();});renderParams();update();}
+  else return;
+  toast('Zurückgesetzt auf den Wert vor dem Öffnen.');
+}
+function gpopOpenFor(nid,el){
+  const p=document.getElementById('graph-pop');if(!p)return;
+  gpopReturn=el||null;
+  gpopCtx={nid,snap:gpopSnap(nid),base:gpopTotals()};
+  p.innerHTML='<h4 id="gpop-title">'+esc(gpopTitle(nid))+'</h4>'
+    +'<div class="gpop-val" id="gpop-val">'+gpopValLine(nid)+'</div>'
+    +'<p class="gpop-why">'+gpopWhy(nid)+'</p>'
+    +'<div class="gpop-body" id="gpop-body">'+gpopBodyHtml(nid)+'</div>'
+    +'<div class="gpop-eff" id="gpop-eff">'+gpopEffHtml()+'</div>'
+    +'<div class="gpop-foot">'+(gpopCtx.snap?'<button type="button" class="btn" id="gpop-reset">↺ Zurücksetzen</button>':'')+'<button type="button" class="btn dark" id="gpop-close">Schließen</button></div>';
+  p.hidden=false;
+  gpopPlace(el);
+  const f=p.querySelector('input:not([disabled]),select,button');if(f){try{f.focus({preventScroll:true});}catch(e){try{f.focus();}catch(e2){}}}
+}
+function gpopPlace(el){
+  const p=document.getElementById('graph-pop'),st=document.getElementById('graph-stage');
+  if(!p||!st)return;
+  if(window.innerWidth<=700){p.style.left='';p.style.top='';return;}
+  if(!el||!el.getBoundingClientRect){p.style.left='8px';p.style.top='8px';return;}
+  const r=el.getBoundingClientRect(),sr=st.getBoundingClientRect();
+  const w=p.offsetWidth||382,hgt=p.offsetHeight||300;
+  let left=r.right-sr.left+14;
+  if(left+w>st.clientWidth-4)left=r.left-sr.left-w-14;
+  if(left<4)left=Math.max(4,(st.clientWidth-w)/2);
+  let top=r.top-sr.top-10;
+  const maxTop=Math.max(0,st.clientHeight-hgt-4);
+  if(top>maxTop)top=maxTop;if(top<0)top=0;
+  p.style.left=Math.round(left)+'px';p.style.top=Math.round(top)+'px';
+}
+function gpopClose(focusBack){
+  const p=document.getElementById('graph-pop');if(!p||p.hidden)return;
+  p.hidden=true;p.innerHTML='';p.style.left='';p.style.top='';
+  const el=gpopReturn;gpopReturn=null;gpopCtx=null;
+  if(focusBack&&el&&el.isConnected){try{el.focus();}catch(e){}}
+}
+function gpopSync(){
+  const p=document.getElementById('graph-pop');if(!p||p.hidden||!gpopCtx)return;
+  const v=document.getElementById('gpop-val');if(v)v.innerHTML=gpopValLine(gpopCtx.nid);
+  const e=document.getElementById('gpop-eff');if(e)e.innerHTML=gpopEffHtml();
+  if(!p.contains(document.activeElement)){const b=document.getElementById('gpop-body');if(b)b.innerHTML=gpopBodyHtml(gpopCtx.nid);}
+}
+function gpopBind(){
+  const p=document.getElementById('graph-pop');if(!p||gpopBound)return;gpopBound=true;
+  p.addEventListener('change',ev=>{const t=ev.target;if(!t||!t.dataset)return;
+    if(t.dataset.gpnum){gpopProxyNum(t.dataset.gpnum,t.value);return;}
+    if(t.dataset.gpcheck){const c=document.getElementById(t.dataset.gpcheck);if(c&&c.checked!==t.checked){c.checked=t.checked;c.dispatchEvent(new Event('change',{bubbles:true}));}return;}
+    if(t.matches&&t.matches('.a-row input[type=number]')&&t.dataset.scope){applyParamEdit(t.dataset.scope,t.dataset.id,+t.dataset.i,t.value);gpopSync();}});
+  p.addEventListener('click',ev=>{
+    const c=ev.target.closest('[data-gpclick]');if(c){ev.preventDefault();gpopProxyClick(c.dataset.gpclick);return;}
+    if(ev.target.closest('#gpop-reset')){ev.preventDefault();gpopRestore();return;}
+    if(ev.target.closest('#gpop-close')){ev.preventDefault();graphClear(true);return;}
+    const sl=ev.target.closest('[data-gpsel]');if(sl){ev.preventDefault();const nid=sl.dataset.gpsel;
+      const node=document.querySelector('#graph-svg [data-n="'+nid+'"]');graphSel=null;graphPick(nid,node);return;}
+    const gt=ev.target.closest('[data-gpgoto]');if(gt){ev.preventDefault();const id=gt.dataset.gpgoto;graphClear(false);gotoTarget(id);return;}});
+  p.addEventListener('keydown',ev=>{
+    if(ev.key!=='Tab')return;
+    const f=[...p.querySelectorAll('button,input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])')].filter(x=>x.offsetParent!==null||x===document.activeElement);
+    if(!f.length)return;const first=f[0],last=f[f.length-1];
+    if(ev.shiftKey&&document.activeElement===first){ev.preventDefault();last.focus();}
+    else if(!ev.shiftKey&&document.activeElement===last){ev.preventDefault();first.focus();}});
+}
+
+/* ---------- Bindung ---------- */
+function v17Init(){
+  const tg=document.getElementById('toc-toggle'),toc=document.getElementById('toc');
+  if(tg&&toc)tg.addEventListener('click',()=>{const on=!toc.classList.contains('open');toc.classList.toggle('open',on);tg.setAttribute('aria-expanded',on?'true':'false');});
+  const ul=document.getElementById('toc-list');
+  if(ul)ul.addEventListener('click',e=>{const b=e.target.closest('[data-toc]');if(!b)return;e.preventDefault();
+    const id=b.dataset.toc;
+    if(id==='wizard'){wizStart();return;}
+    gotoTarget(id);});
+  const oa=document.getElementById('toc-open-all');if(oa)oa.addEventListener('click',()=>tocExpandAll(true));
+  const ca=document.getElementById('toc-close-all');if(ca)ca.addEventListener('click',()=>tocExpandAll(false));
+  const bg=document.getElementById('btn-graph');if(bg)bg.addEventListener('click',()=>gotoTarget('d-graph'));
+  gpopBind();
+  document.addEventListener('keydown',e=>{if(e.key!=='Escape'&&e.key!=='Esc')return;
+    const p=document.getElementById('graph-pop');
+    if(graphSel||(p&&!p.hidden)){e.preventDefault();graphClear(true);}});
+  document.addEventListener('click',e=>{
+    const p=document.getElementById('graph-pop');if(!p||p.hidden)return;
+    if(e.target.closest('#graph-pop'))return;
+    if(e.target.closest('#graph-svg [data-n]'))return;
+    graphClear(false);});
+  window.addEventListener('resize',()=>{if(gpopCtx&&gpopReturn)gpopPlace(gpopReturn);},{passive:true});
+  tocBuild();tocObserve();
+}
+
 /* ===================== Init ===================== */
-const hadLink=readHash();renderReqs();renderFlags();renderParams();renderSources();renderMc();bind();wizBind();setLevel(S.level,false);update();
+const hadLink=readHash();renderReqs();renderFlags();renderParams();renderSources();renderMc();bind();wizBind();setLevel(S.level,false);update();v17Init(); /* v0.17 */
 /* v0.16: Ohne Einstellungen im Link startet der gefuehrte Einstieg. Ein Link mit Einstellungen laedt direkt in den Rechner. */
 if(!hadLink)wizStart();
 </script>
 <style media="print">
 .sticky-bar,.toolbar,.toast,.back-link,.stepper,input[type=range]{display:none!important;}
+#toc,.gpop{display:none!important;}
+.wrap{display:block!important;max-width:none!important;}
 body.lv0 .wrap>.section:not(#wizard),body.lv0 .wrap>details.lvl3,body.lv0 #footer{display:block!important;}
 #wizard{display:none!important;}
 body{background:#fff;}.wrap{padding:0;max-width:none;}
