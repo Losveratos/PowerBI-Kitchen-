@@ -137,3 +137,56 @@ gebräuchliche Begriff, nicht die wörtliche Übersetzung.
 - Zahlenformat bleibt deutsch im deutschen, englisch im englischen: 1.500 € → €1,500; 5,2 % → 5.2%.
 - Währung: € bleibt €, aber Position nach englischer Konvention (€1,500 statt 1.500 €).
 - „Indikation, kein Angebot" → "an indication, not a quote".
+
+---
+
+## Nachtrag: festgelegt bei den Fragmenten 02 und 03
+
+**Konventionen für die gesamte englische Fassung:**
+- **Britisches Englisch** (licence, fulfilment, organisation, amortisation).
+  Ausnahme: Microsoft- und Produktbegriffe bleiben US (Organizational Store,
+  admin center).
+- **Typografie:** `„…"` → `“…”`; Apostroph immer U+2019 (`authors’ estimate`),
+  nie ASCII — dadurch kein `\'`-Escaping in JS-Strings nötig.
+- **Zahlen:** `1.500` → `1,500`; `2,6 %` → `2.6%` (ohne Leerzeichen);
+  `76.500 €` → `€76,500`; `299 $/Jahr` → `$299/year`. In Code-Werten nichts ändern.
+- **Datum:** `08.09.2026` → `8 September 2026` (deutsches Kurzformat ist
+  mehrdeutig). `MM/YYYY` (`09/2026`) bleibt.
+- **Badge-Buchstaben `V S F E P N A`** bleiben unverändert — sie sind
+  Datenwerte (`src:'F'`) und CSS-Klassen, keine Wörter. Die Legende erklärt sie.
+
+| DE | EN | Anmerkung |
+|---|---|---|
+| Herkunft (einer Annahme) | provenance | „source" kollidiert mit Quelle |
+| Erstbau | initial build | Gegenstück zu build-out |
+| Kostenposten | cost items | |
+| Annahmen-Gruppe | assumption group | |
+| Vorlagenbibliothek | template library | |
+| Betrachtungshorizont | time horizon | |
+| Stunden-Anker | hours anchor | |
+| Blindschätzung | blind estimate | |
+| Entscheidungsgröße | decision measure | das Quantil P50/P75/P90 |
+| Rückfragen (Null-Option) | follow-up queries | |
+| Wartungsquote | maintenance rate | |
+| Amortisation (Dauer) | payback | bilanziell dagegen: amortisation |
+| Wirkkette | causal chain | |
+| Schlagseite | bias | |
+| Berichtsheft | printed report pack | |
+| Mischpreis | blended price | |
+| Prüfumgebung | review environment | Sandbox der Quellenprüfung |
+| AVV | data processing agreement | |
+| Fachbereich | business department | |
+| Wirtsvisual | host visual | Deneb-Terminologie |
+| Versionshoheit | control over the visual version | wird referenziert, exakt so |
+| Vorlaufzeit / Produktivfreigabe | lead time / production release | |
+| Nachbau | rebuild | |
+| Mitbestimmung / Betriebsrat | co-determination / works council | |
+| Varianten-Anfälligkeit | susceptibility to variants | |
+| Kohorte | annual layer / cohort | |
+| Landkarte des Modells | the map of the model | |
+| Presets | Pilot · Mid-market · Corporate · Large corporate | kurz für Knöpfe |
+
+**Deutsch bleiben:** Eigennamen (Daten-WG, ChartKitchen byDatenWG), Quellentitel
+(Robert Half Gehälter 2026, Freelancer-Kompass), Rechtsnormen (§ 87 Abs. 1 Nr. 6
+BetrVG, § 50a EStG, § 248 Abs. 2 HGB) — bei Normen eine erklärende Klammer
+ergänzen, wo der deutsche Text das auch tut.
