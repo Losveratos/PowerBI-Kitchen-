@@ -3565,6 +3565,31 @@ Der Methodiktext war ein einziger Absatz mit **2.368 Woertern**, in dem die gesa
 - Die **statischen Zahlen im Entscheidungsbaum** haelt keine Pruefung gegen den Rechenkern — genau der Fall, der zweimal veraltet ist.
 - Die **Monte-Carlo-Seite** und der **Inhalt des Excel-Exports** sind nicht abgedeckt.
 
+## v0.20 (Nachtrag): Ein Fehler, den nur eine unabhaengige Rechnung finden konnte
+
+Alle 373 Pruefungen des Aufraeum-Durchgangs vergleichen gegen **selbst gemessene** Referenzwerte. Das faengt unbeabsichtigte Aenderungen, aber keinen systematischen Fehler: Rechnet der Kern seit jeher falsch, sind alle Referenzen genauso falsch. Deshalb wurde ein Mini-Szenario (1 Ersteller, 10 Viewer, 4 Reports, 3 Jahre) **allein aus dieser Modellbeschreibung** von Hand durchgerechnet, ohne Blick in den Rechencode — nachvollziehbar dokumentiert in `tests/rechner/handrechnung.md`, abgesichert durch `tests/rechner/handrechnung.test.js`.
+
+**Ergebnis: Alle sieben Kostenposten stimmen in beiden geprueften Ansaetzen auf den Cent.** Der Rechenkern rechnet die dokumentierte Logik korrekt. Zwei Abweichungen ausserhalb der Kostensumme kamen dabei ans Licht:
+
+**Der Zahlungsstrom enthielt die Konformitaetspruefung nicht.** Sie steckt ueber `gov` in der Gesamtsumme und ueber `chkH` in den internen Stunden, fehlte aber in der Jahressumme `tot` — in allen Presets und Ansaetzen war die Differenz zwischen Summe und Zahlungsstrom **exakt** ihr Betrag. Betroffen waren Barwert, Cash-out je Jahr, das Excel-Blatt dazu, das Kumulativ-Chart und die Amortisation gegen die Null-Option. Behoben; die Gesamtkosten aendern sich dadurch nicht, der Barwert steigt:
+
+| Preset | Barwert vorher | nachher |
+|:--|--:|--:|
+| Mittelstand | 57.543 € | **59.788 €** (+3,9 %) |
+| Mittelstand mit IBCS-Pflicht | 52.963 € | **57.046 €** (+7,7 %) |
+| Konzern | 601.706 € | **621.880 €** (+3,4 %) |
+| Konzern mit IBCS-Pflicht | 530.816 € | **567.495 €** (+6,9 %) |
+
+**Die Kurskosten trugen die Umsatzsteuer nur an einer von zwei Stellen.** Ohne vollen Vorsteuerabzug rechnete die Cash-out-Tabelle sie brutto, die Kennzahl der harten Kosten netto. Die Beschreibung stuetzt die Bruttofassung (Kurse sind Auszahlungen wie Lizenz, Support und Capacity); beide Stellen rechnen jetzt gleich.
+
+**Die Doku selbst ist der groesste Befund.** Von sieben Kostenposten ist genau einer — die Lizenz — aus dieser Beschreibung vollstaendig herleitbar. **Vierzehn Parameter** stehen in den Formeln des Kostenkerns, aber in keiner Annahmen-Tabelle (darunter der Anteil extern beauftragter Stunden, Kurskosten, Setup- und Entwicklungsstunden, Zugriffs-Governance, Migrationsanteil). **Drei Rechenkonventionen fehlen ganz:**
+
+1. Der **Erwartungswert ist das PERT-Mittel** `(min + 4·wahrscheinlich + max)/6`, nicht der wahrscheinlichste Wert. Konkret: Stundensatz 83 statt 82 €, Lizenzpreis 85 statt 80 €, Preissteigerung 6 statt 5 %. Wer eine Zahl zitiert, kann aus der Beschreibung nicht ableiten, welche Groesse er zitiert — fuer eine zitierfaehige Fassung die gravierendste Luecke.
+2. Es gibt **zwei Stundensaetze**: einen Mischsatz mit externem Anteil fuer Aufbau, Rollout, Wartung, Migration und Risiko, und den reinen internen Satz fuer alle Betriebsposten. Der Unterschied betraegt 26 bis 41 %.
+3. Der **Bewertungsfaktor interner Stunden** laeuft als Dreipunkt-Annahme mit und hebt im Erwartungswert jeden Stundenposten still um 1,67 %.
+
+Dazu mehrere Stellen, an denen die Beschreibung in die Irre fuehrt: ein fuenfter Betriebsmodell-Faktor auf die Wiederverwendungs-Stunden fehlt in der Tabelle; die Untergrenze von einem bzw. zwei Vorlagen-Bauern steht nirgends (in kleinen Szenarien verzehnfacht sie die Schulung); mehrere als Punktwerte gefuehrte Groessen sind in Wahrheit Dreipunkt-Annahmen mit abweichendem Erwartungswert. Die vollstaendige, nach Gewicht sortierte Liste steht in Abschnitt 14 der `handrechnung.md` und ist vor einer 1.0 abzuarbeiten.
+
 ## Modellunsicherheit je Ansatz (v0.12)
 
 Die Simulation zog bis v0.12 nur das Niveau der Kosten zufaellig: gemeinsame Stundensaetze, Viewer, Team-Faktor und die PERT-Baender je Annahme. Das Verhaeltnis der Stunden zwischen den Ansaetzen (Panel: 1 : 2 : 2,5 : 4 je Chart) blieb dabei fest, und die Rangfolgen wirkten schaerfer, als die Evidenz hergibt (Mittelstand: Paid Platz 1 in 88 % der Szenarien, Deneb in 0 %). Seit v0.12 zieht die Simulation zusaetzlich je Szenario und je Ansatz einen unabhaengigen lognormalen Faktor auf alle Stundenannahmen dieses Ansatzes (Annahme „Modellunsicherheit je Ansatz“, 10 · 25 · 40 %, Autoren-Schaetzung; Blindschaetzung, Panel und Pruefer weichen je Ansatz um Faktor 1,5 bis 2 voneinander ab). Wirkung im Mittelstands-Preset: Paid Platz 1 in 60 % statt 88 %, Open Source 29 % statt 12 %, Deneb 9 % statt 0 %; Konzern ohne Red Flags: Open Source 59 % statt 88 %, Deneb 24 % statt 3 %. Die Mediane aendern sich nicht. Wer die alte Schaerfe sehen will, setzt die Annahme auf 0.

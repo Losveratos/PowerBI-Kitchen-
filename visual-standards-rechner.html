@@ -1390,7 +1390,11 @@ function calc(key,draw,override){
     const riskY=riskH*rate0*wy;riskSum+=riskY;
     /* Zahlungsstrom des Jahres, getrennt nach Auszahlung (hart) und intern bewerteter Zeit (weich) */
     const one=(ye===0)?A+switchCost+govOnce+train0:0;
-    const tot=roll+maintY+eventsY+licY+supportY+capacityY+licAdminY+supUsersY+govY+trainRunY+riskY+one;
+    /* chkY gehoert in den Zahlungsstrom: die Konformitaetspruefung steckt ueber gov in der Summe und
+       ueber chkH in den internen Stunden. Bis v0.20 fehlte sie hier — dadurch waren Barwert, Cash-out,
+       Kumulativ-Chart und Amortisation um genau ihren Betrag zu niedrig (Konzern mit IBCS-Pflicht:
+       41.648 EUR, 6,4 % der Gesamtkosten). Gefunden durch die unabhaengige Handrechnung, tests/rechner/handrechnung.md. */
+    const tot=roll+maintY+eventsY+licY+supportY+capacityY+licAdminY+supUsersY+govY+trainRunY+chkY+riskY+one;
     const hardY=licY+supportY+capacityY+(ye===0?owners*p('course')*vatF:0)+(roll+maintY+eventsY+riskY+(ye===0?A+switchCost:0))*hardFrac;
     cf.push(tot);cfHard.push(hardY);cfSoft.push(tot-hardY);
     /* A5: interne Stunden je Jahr, Konvention 1.500 h je FTE und Jahr */
@@ -1427,11 +1431,11 @@ function calc(key,draw,override){
   c.licPrice=lic;c.licViewerShare=lvs;c.licSupport=support;c.licAdminC=licAdmin;c.capacityC=capacity;c.inflF=inflYears;c.licModelEff=lmEff;c.offer=OFR?offerLabel(OFR):null;
   /* Harte Kosten (Auszahlungen: Lizenz, Support, Capacity, Kurse, extern beauftragte Stunden) vs. weiche Kosten (intern bewertete Stunden) */
   const rateBased=A+rollout+switchCost+maint+events+risk;
-  c.hard=lic+support+capacity+owners*p('course')+rateBased*hardFrac;
+  c.hard=lic+support+capacity+owners*p('course')*vatF+rateBased*hardFrac;   /* v0.20: Kurskosten sind Auszahlungen und tragen die Umsatzsteuer wie Lizenz, Support und Capacity — die Cash-out-Tabelle rechnete sie schon immer so, diese Kennzahl nicht */
   c.soft=c.total-c.hard;
   /* Phasen: Erstellung (einmalig) vs. Nutzung/Betrieb (laufend), jeweils direkt (Auszahlung) vs. indirekt (interne Zeit) */
   const creationRate=A+rollout+switchCost;const creation=creationRate+train0+govOnce;
-  const creationHard=creationRate*hardFrac+owners*p('course');
+  const creationHard=creationRate*hardFrac+owners*p('course')*vatF;   /* wie c.hard */
   c.phase={creation:{hard:creationHard,soft:creation-creationHard},usage:{hard:c.hard-creationHard,soft:(c.total-creation)-(c.hard-creationHard)}};
   c.gd=gd;c.pd=pd;
   const disc=1+g('disc')/100;c.npv=cf.reduce((a,v,y)=>a+v/Math.pow(disc,y),0);

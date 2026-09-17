@@ -48,6 +48,30 @@ async function skipWizard(page) {
   await page.waitForTimeout(200);
 }
 
+/* Wartet, bis das Layout zur Ruhe gekommen ist: Scroll-Position und Dokumenthoehe
+   aendern sich ueber mehrere Frames nicht mehr.
+
+   Warum das noetig ist: Ein Sprung ueber gotoTarget() kann die Ebene wechseln,
+   zugeklappte Bloecke oeffnen und den Wirkungsgraph neu zeichnen. Das verschiebt
+   das Layout NACH dem Scrollen weiter. Eine feste Wartezeit reicht auf einer
+   schnellen Maschine und versagt auf einer langsamen — im GitHub-Runner sind
+   genau daran vier Pruefungen gescheitert, die lokal gruen waren. Die Toleranzen
+   der Pruefungen bleiben unveraendert scharf; nur der Messzeitpunkt stimmt jetzt. */
+async function waitStable(page, { stableFrames = 3, timeout = 4000 } = {}) {
+  await page.evaluate(({ stableFrames, timeout }) => new Promise(resolve => {
+    const start = performance.now();
+    let last = null, same = 0;
+    const tick = () => {
+      const now = [Math.round(window.scrollY), Math.round(document.documentElement.scrollHeight)].join(':');
+      same = (now === last) ? same + 1 : 0;
+      last = now;
+      if (same >= stableFrames || performance.now() - start > timeout) return resolve();
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }), { stableFrames, timeout });
+}
+
 /* Seite oeffnen + Wizard ueberspringen in einem Schritt. */
 async function openPage(browserOrContext, { viewport, hash = '', wait = 1000 } = {}) {
   const page = await browserOrContext.newPage(viewport ? { viewport } : {});
@@ -92,5 +116,5 @@ function reporter(suite) {
 module.exports = {
   playwright, chromium: playwright.chromium,
   REPO, HTML, URL, XLSX_ASSET,
-  artifactDir, skipWizard, openPage, reporter,
+  artifactDir, skipWizard, waitStable, openPage, reporter,
 };

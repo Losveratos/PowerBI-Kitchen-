@@ -174,21 +174,21 @@ for (const key of ['paid', 'deneb']) {
    die Konformitaetspruefung nicht, obwohl sie in der Summe und im Posten „Governance
    und Support" steckt. Der Rechner wurde bewusst NICHT geaendert.
 
-   Die Zusicherung haelt die Groesse des Lochs exakt fest. Wird der Fehler behoben,
-   schlaegt sie an — das ist beabsichtigt. Dann ist sie zu ersetzen durch:
-       ok('Zahlungsstrom = Summe', near(cfSum, total))
-   und dieser Kommentar samt Abschnitt 13 der handrechnung.md nachzuziehen. */
+   BEHOBEN in v0.20: chkY ist in die Summe des Zahlungsstroms aufgenommen. Die
+   Zusicherung haelt jetzt den korrigierten Zustand fest — Summe und Zahlungsstrom
+   stimmen ueberein, die Pruefung steckt in beiden. Wirkung der Behebung auf den
+   Barwert: Mittelstand +3,9 %, mit IBCS-Pflicht +7,7 %; Konzern +3,4 % bzw. +6,9 %.
+   Die Gesamtkosten haben sich dabei nicht bewegt. */
 for (const key of ['paid', 'deneb']) {
   const d = await p.evaluate(k => {
     const e = expected(k);
     return { total: e.total, cf: e.cf.reduce((a, v) => a + v, 0), chk: e.ibcsCheck, jahre: e.cf.length };
   }, key);
   ok('[' + key + '] Zahlungsstrom hat H = 3 Eintraege (Jahr 1 bis 3, kein Jahr 0)', d.jahre === 3, d.jahre);
-  ok('[' + key + '] BEKANNTE ABWEICHUNG: Summe − Zahlungsstrom = Konformitaetspruefung ('
-     + eur(d.chk) + ' EUR fehlt in Barwert und Cash-out)',
-     near(d.total - d.cf, d.chk),
+  ok('[' + key + '] Zahlungsstrom = Summe (Konformitaetspruefung ist enthalten)',
+     near(d.cf, d.total),
      'Summe ' + eur(d.total) + ' − Σcf ' + eur(d.cf) + ' = ' + eur(d.total - d.cf)
-     + ' | Konformitaetspruefung ' + eur(d.chk));
+     + ' | darin Konformitaetspruefung ' + eur(d.chk));
 }
 
 /* ---------- 5) Benannte Abweichung: Kurskosten ohne Vorsteuer in der Kennzahl ----------
@@ -196,16 +196,17 @@ for (const key of ['paid', 'deneb']) {
    mit „kein voller Vorsteuerabzug" rechnet die Kennzahl der harten Kosten die
    Kurskosten OHNE Umsatzsteuer, die Cash-out-Tabelle dagegen MIT. Die Beschreibung
    („alle harten Auszahlungen … Kurse … x (1 + Satz)") stuetzt die Cash-out-Tabelle.
-   Auch hier haelt die Zusicherung die exakte Groesse fest und schlaegt bei Behebung an. */
+   BEHOBEN in v0.20: c.hard und creationHard rechnen die Kurskosten jetzt ebenfalls
+   brutto. Die Zusicherung haelt den korrigierten Zustand fest. */
 await p.evaluate(() => { S.flags.novat = true; update(); }); await p.waitForTimeout(500);
 for (const key of ['paid', 'deneb']) {
   const d = await p.evaluate(k => {
     const e = expected(k);
     return { hard: e.hard, cfHard: e.cfHard.reduce((a, v) => a + v, 0), course: e.courseCost, vat: e.vat };
   }, key);
-  ok('[' + key + '] BEKANNTE ABWEICHUNG: harte Kosten − Cash-out = 19 % der Kurskosten',
-     near(d.cfHard - d.hard, d.course * d.vat / (1 + d.vat)),
-     'Δ ' + eur(d.cfHard - d.hard) + ' | 19 % der Kurskosten ' + eur(d.course * d.vat / (1 + d.vat)));
+  ok('[' + key + '] harte Kosten = Cash-out, Kurskosten tragen die Umsatzsteuer in beiden',
+     near(d.cfHard - d.hard, 0),
+     'Δ ' + eur(d.cfHard - d.hard) + ' | Kurskosten brutto ' + eur(d.course));
 }
 await p.evaluate(() => { S.flags.novat = false; update(); }); await p.waitForTimeout(400);
 

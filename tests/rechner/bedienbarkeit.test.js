@@ -7,7 +7,7 @@
    Herkunft: Scratchpad-Skript test_a11y.js.
    Start:  node tests/rechner/bedienbarkeit.test.js
    Laeuft aus jedem Verzeichnis — Pfade kommen aus lib/harness.js. */
-const { chromium, URL: U, artifactDir, skipWizard, reporter } = require('./lib/harness');
+const { chromium, URL: U, artifactDir, skipWizard, waitStable, reporter } = require('./lib/harness');
 const DIR = artifactDir('bedienbarkeit');
 const R = reporter('bedienbarkeit');
 const ok = R.ok, watch = R.watch, errs = R.errs;
@@ -111,7 +111,7 @@ await p.click('.stepper [data-level="3"]');await p.waitForTimeout(700);
 const jump=async(sel,name)=>{
   const el=await p.$(sel);if(!el){ok('A2 '+name,false,'Element '+sel+' fehlt');return;}
   await p.evaluate(s=>document.querySelector(s).focus(),sel);
-  await p.keyboard.press('Enter');await p.waitForTimeout(1300);
+  await p.keyboard.press('Enter');await p.waitForTimeout(500);await waitStable(p);
   const r=await p.evaluate(()=>{const a=document.activeElement;if(!a)return null;
     const b=a.getBoundingClientRect();
     return {tag:a.tagName+'.'+String(a.className).slice(0,28),id:a.id,y:Math.round(b.top),
