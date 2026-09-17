@@ -78,11 +78,16 @@ const ok = R.ok, watch = R.watch;
         const t = n.textContent.trim();
         if (t.length < 4) continue;
         if (!n.parentElement || !n.parentElement.offsetParent) continue;
-        if (/[äöüÄÖÜß]/.test(t)) out.push(t.slice(0, 80));
+        if (!/[äöüÄÖÜß]/.test(t)) continue;
+        /* Den Umlaut MIT Umgebung melden, nicht den Satzanfang: eine Kuerzung auf die ersten
+           80 Zeichen schneidet "Daten-WG" zu "Daten-W" und die Ausnahmeliste greift nicht mehr.
+           Der volle Text wird zurueckgegeben, das Fenster dient nur der Anzeige. */
+        const i = t.search(/[äöüÄÖÜß]/);
+        out.push({ voll: t, stelle: t.slice(Math.max(0, i - 30), i + 30) });
       }
       return out;
     });
-    const echte = treffer.filter(t => !ERLAUBT.test(t));
+    const echte = treffer.filter(x => !ERLAUBT.test(x.voll)).map(x => x.stelle);
     ok('Level ' + lv + ': keine deutschen Umlaute im sichtbaren Text (ausser Eigennamen)',
        echte.length === 0, echte.length ? echte.slice(0, 3).join(' | ') : 'sauber');
   }

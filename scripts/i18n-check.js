@@ -27,7 +27,12 @@ const OUT = path.join(REPO, 'i18n', 'reste.json');
  * beidem zutrifft: ein deutsches Sonderzeichen, oder ein Wort aus der Stoppliste. Reine
  * Zahlen, IDs, CSS-Werte, Selektoren und Dateinamen fallen damit heraus. */
 const UMLAUT = /[äöüÄÖÜß]/;
-const DE_WORDS = /\b(der|die|das|und|oder|nicht|mit|von|für|auf|aus|ist|sind|wird|werden|kann|können|ein|eine|einen|einem|einer|dem|den|des|im|in|zu|zum|zur|bei|über|unter|nach|vor|durch|ohne|gegen|je|pro|als|wie|wenn|dann|noch|nur|auch|schon|mehr|weniger|alle|jeder|kein|keine|man|sich|ihr|euer|eure|hier|dort|damit|dafür|daran|Kosten|Jahr|Jahre|Stunden|Ansatz|Ansätze|Report|Reports|Viewer|Ersteller|Lizenz|Annahme|Annahmen|Ebene|Chart|Charts)\b/i;
+const DE_WORDS = /\b(der|die|das|und|oder|nicht|mit|von|für|auf|aus|ist|sind|wird|werden|kann|können|ein|eine|einen|einem|einer|dem|den|des|im|zu|zum|zur|bei|über|unter|nach|vor|durch|ohne|gegen|je|als|wie|wenn|dann|noch|nur|auch|schon|mehr|weniger|alle|jeder|kein|keine|man|sich|ihr|euer|eure|hier|dort|damit|dafür|daran|nichts|etwas|beim|vom|zwei|drei|vier|Kosten|Jahre|Jahren|Stunden|Ansatz|Ansätze|Annahme|Annahmen|Ebene|Ersteller|Lizenz|Nutzer|Aufwand|Auswahl|Eingabe|Ergebnis|Gesamt|Anteil|Bereich|Werte|Zahlen|Seite|Punkte)\b/;
+/* Wichtig: Woerter, die in beiden Sprachen gleich lauten, duerfen hier NICHT stehen.
+   Die erste Fassung fuehrte Report, Chart, Viewer und Ebene als "deutsch" - das Werkzeug meldete
+   daraufhin 421 Treffer in einer sauber uebersetzten Datei, darunter "Report authors" und
+   "Chart types". Ein Pruefer mit dieser Fehlalarmquote wird nicht gelesen und ist damit wertlos.
+   Ebenso nicht aufnehmen: "in", "an", "so", "war" - englische Wortformen kollidieren. */
 
 const looksGerman = s => /[A-Za-zÄÖÜäöüß]{3}/.test(s) && (UMLAUT.test(s) || DE_WORDS.test(s));
 
