@@ -324,4 +324,57 @@ for(const pr of ['pilot','mittelstand','gross','konzern','rs']){
 await p.close();
 }
 
+
+/* ---------- Freeze im Graph-Popup (aus dem Test gemeldet, v0.21) ----------
+   Eine Aenderung im Annahmen-Gruppen-Popup loeste renderParams() aus, und das hing seine
+   change-Listener per document.querySelectorAll an ALLE .a-row-Felder - auch an die im Popup, das
+   dieselbe Struktur benutzt. Jede Aenderung verdoppelte damit die Zahl der Handler: gemessen
+   1, 2, 4, 8, 16 Aufrufe; beim zehnten Klick waeren es 512 und die Seite stand minutenlang.
+   Diese Pruefung haelt beides fest: genau ein Aufruf je Aenderung, und schnelle Folgen bleiben
+   dank Entprellung im Millisekundenbereich. */
+{
+  const p2 = await b.newPage({ viewport: { width: 1280, height: 900 } });
+  watch(p2);
+  await p2.goto(U, { waitUntil: 'load' });
+  await skipWizard(p2);
+  await p2.evaluate(() => setLevel(2)); await p2.waitForTimeout(700);
+  await p2.evaluate(() => document.getElementById('s-map').scrollIntoView({ block: 'start' }));
+  await p2.waitForTimeout(400);
+  /* Annahmen-Gruppe oeffnen: der Knoten mit den meisten Feldern im Popup */
+  await p2.evaluate(() => {
+    const gs = [...document.querySelectorAll('#graph-svg g[role="button"]')];
+    const g = gs.find(x => /Annahmen-Gruppe|assumption group/i.test(x.getAttribute('aria-label') || ''));
+    if (g) g.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+  });
+  await p2.waitForTimeout(600);
+
+  const mess = await p2.evaluate(() => {
+    const i = document.querySelector('#graph-pop .a-row input[type=number]');
+    if (!i) return { fehler: 'kein Annahmen-Feld im Popup' };
+    let n = 0; const echt = window.applyParamEdit;
+    window.applyParamEdit = function (...a) { n++; return echt.apply(this, a); };
+    const aufrufe = [];
+    for (let k = 0; k < 5; k++) {
+      n = 0;
+      i.value = String(+i.value + 1);
+      i.dispatchEvent(new Event('change', { bubbles: true }));
+      aufrufe.push(n);
+    }
+    const t = performance.now();
+    for (let k = 0; k < 25; k++) { i.value = String(+i.value + 1); i.dispatchEvent(new Event('change', { bubbles: true })); }
+    const schnell = performance.now() - t;
+    window.applyParamEdit = echt;
+    return { aufrufe, schnell: Math.round(schnell), felder: document.querySelectorAll('#graph-pop .a-row input[type=number]').length };
+  });
+
+  ok('Freeze: Annahmen-Gruppen-Popup hat editierbare Felder', !mess.fehler && mess.felder > 0, mess.fehler || mess.felder + ' Felder');
+  if (!mess.fehler) {
+    ok('Freeze: genau ein applyParamEdit je Aenderung (kein Listener-Leck)',
+       mess.aufrufe.every(x => x === 1), mess.aufrufe.join(', ') + ' (vor v0.21: 1, 2, 4, 8, 16)');
+    ok('Freeze: 25 schnelle Aenderungen bleiben unter 1 s (Entprellung greift)',
+       mess.schnell < 1000, mess.schnell + ' ms (vor v0.21: 5.260 ms)');
+  }
+  await p2.close();
+}
+
 await R.finish(b);})();

@@ -1645,20 +1645,45 @@ function applyParamEdit(sc,id,i,raw){
   if(t[0]>t[1])t[1]=t[0];if(t[2]<t[1])t[2]=t[1];if(t[1]<t[0])t[0]=t[1];
   const lbl=pdef.label||id;
   pendingToast='“'+lbl+'” = '+t.join(' · ')+(before.some((x,j)=>j!==i&&x!==t[j])?' (neighbouring values adjusted so that min ≤ likely ≤ max)':'');
-  renderParams();update();return true;
+  scheduleRecalc();return true;   /* v0.21: debounced instead of immediate - see scheduleRecalc */
+}
+/* v0.21: Debounced recalculation for the assumption fields. One change costs about 210 ms (Monte
+   Carlo plus redrawing all 58 assumption rows). Holding down a spinner fires roughly 20 events per
+   second - without batching that piles up into seconds. The value itself is applied immediately,
+   only the expensive follow-up work waits. Same 90 ms as the volume fields, so the page feels the
+   same everywhere. */
+let recalcTimer=null;
+function scheduleRecalc(){
+  clearTimeout(recalcTimer);
+  recalcTimer=setTimeout(()=>{recalcTimer=null;renderParams();update();},90);
+}
+function flushRecalc(){ if(recalcTimer){clearTimeout(recalcTimer);recalcTimer=null;renderParams();update();} }
+/* v0.21: The controls of the assumption table are looked up only WITHIN their own containers.
+   Previously these selectors ran across the whole document - and therefore also caught the
+   assumption rows in the graph popup, which uses the same .a-row structure. Every change there made
+   renderParams() attach another change listener to the same fields: one click triggered two
+   recalculations, the next four, then eight. By the tenth click it was 512 and the page froze for
+   minutes. Reported from testing, reproduced and measured (1/2/4/8/16 calls). */
+function paramEls(sel){
+  const out=[];
+  ['global-params','opt-params','opt-tabs','lic-seg'].forEach(id=>{
+    const c=document.getElementById(id);
+    if(c)c.querySelectorAll(sel).forEach(e=>out.push(e));
+  });
+  return out;
 }
 function renderParams(){
   document.getElementById('global-params').innerHTML='<div class="a-row head"><div>Assumption</div><div>min</div><div>likely</div><div>max</div><div></div></div>'+GLOBAL.map(p=>paramRow(p,S.g[p.id],'g')).join('')+'<div class="preset-row" style="margin-top:8px"><span class="preset-lbl">Fabric capacity:</span><button class="preset-btn" data-capsku="none">none (Pro/PPU)</button><button class="preset-btn" data-capsku="f2">F2 · ~€2.2–3.7k/year</button><button class="preset-btn" data-capsku="f8">F8 · ~€8.7–14.8k/year</button><button class="preset-btn" data-capsku="f64">F64 · ~€70–119k/year</button></div>';
-  document.querySelectorAll('[data-capsku]').forEach(b=>b.addEventListener('click',()=>{S.g.capacityCost=b.dataset.capsku==='none'?[0,0,0]:CAP_SKU[b.dataset.capsku].slice();pendingToast='Capacity: '+b.textContent;renderParams();update();}));
+  paramEls('[data-capsku]').forEach(b=>b.addEventListener('click',()=>{S.g.capacityCost=b.dataset.capsku==='none'?[0,0,0]:CAP_SKU[b.dataset.capsku].slice();pendingToast='Capacity: '+b.textContent;renderParams();update();}));
   document.getElementById('opt-tabs').innerHTML=OPTS.map(o=>'<button class="tab'+(activeTab===o.key?' active':'')+'" data-tab="'+o.key+'"><i style="background:'+o.color+'"></i>'+esc(o.tag)+'</button>').join('');
-  document.querySelectorAll('#opt-tabs .tab').forEach(b=>b.addEventListener('click',()=>{activeTab=b.dataset.tab;renderParams();}));
+  paramEls('.tab').forEach(b=>b.addEventListener('click',()=>{activeTab=b.dataset.tab;renderParams();}));
   document.getElementById('opt-params').innerHTML=paramBlock(activeTab);
-  document.querySelectorAll('[data-site]').forEach(b=>b.addEventListener('click',()=>{S.p.paid.licSite=({inforiver:[12000,35000,90000],zebra:[25000,70000,150000],gross:[80000,150000,300000]})[b.dataset.site].slice();pendingToast='Site licence: '+b.textContent;renderParams();update();}));
-  document.querySelectorAll('[data-dev]').forEach(b=>b.addEventListener('click',()=>{S.p.oss.devH=({ready:[0,0,0],ki:[40,200,600],classic:[800,2000,3000]})[b.dataset.dev].slice();pendingToast='Open source: '+b.textContent;renderParams();update();}));
-  document.querySelectorAll('#lic-seg button').forEach(b=>b.addEventListener('click',()=>{S.licModel=b.dataset.lm;pendingToast='Licence model: '+b.textContent;renderParams();update();}));
-  document.querySelectorAll('.a-row input[type=number]').forEach(inp=>inp.addEventListener('change',()=>{
+  paramEls('[data-site]').forEach(b=>b.addEventListener('click',()=>{S.p.paid.licSite=({inforiver:[12000,35000,90000],zebra:[25000,70000,150000],gross:[80000,150000,300000]})[b.dataset.site].slice();pendingToast='Site licence: '+b.textContent;renderParams();update();}));
+  paramEls('[data-dev]').forEach(b=>b.addEventListener('click',()=>{S.p.oss.devH=({ready:[0,0,0],ki:[40,200,600],classic:[800,2000,3000]})[b.dataset.dev].slice();pendingToast='Open source: '+b.textContent;renderParams();update();}));
+  paramEls('button[data-lm]').forEach(b=>b.addEventListener('click',()=>{S.licModel=b.dataset.lm;pendingToast='Licence model: '+b.textContent;renderParams();update();}));
+  paramEls('.a-row input[type=number]').forEach(inp=>inp.addEventListener('change',()=>{
     applyParamEdit(inp.dataset.scope,inp.dataset.id,+inp.dataset.i,inp.value);}));
-  document.querySelectorAll('.a-row').forEach(r=>{const ins=r.querySelectorAll('input');if(ins.length===3){const v=[...ins].map(i=>parseFloat(i.value));ins.forEach(i=>i.classList.toggle('bad',!(v[0]<=v[1]&&v[1]<=v[2])));}});
+  paramEls('.a-row').forEach(r=>{const ins=r.querySelectorAll('input');if(ins.length===3){const v=[...ins].map(i=>parseFloat(i.value));ins.forEach(i=>i.classList.toggle('bad',!(v[0]<=v[1]&&v[1]<=v[2])));}});
 }
 
 /* ===================== Rendering: result ===================== */

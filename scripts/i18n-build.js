@@ -27,15 +27,22 @@ const FRAG = path.join(REPO, 'i18n', 'frag');
 const OUT = path.join(REPO, 'visual-standards-calculator.html');
 
 /* Zeilenbereiche der Fragmente in der deutschen Datei (1-basiert, Ende einschliesslich).
-   Muss zu dem passen, womit die Fragmente geschnitten wurden. */
+   Muss zu dem passen, womit die Fragmente geschnitten wurden.
+
+   SCHWAECHE, die man kennen muss: Diese Grenzen sind Zeilennummern. Fuegt eine Aenderung in der
+   deutschen Datei Zeilen hinzu, verschieben sich alle nachfolgenden Fragmente, und ihre
+   Uebersetzungen passen nicht mehr in ihren Rahmen - obwohl inhaltlich nichts an ihnen falsch ist.
+   Die Pruefung unten faengt das zuverlaessig ab (sie bricht ab, statt eine kaputte Datei zu
+   schreiben), aber die Grenzen sind dann von Hand nachzuziehen. Beim Freeze-Fix in v0.21 kamen
+   25 Zeilen dazu; die Grenzen ab 04 wurden entsprechend um 25 verschoben. */
 const CUTS = [
   [1, 430, '01-head-css'],
   [431, 870, '02-markup'],
   [871, 1110, '03-daten'],
-  [1111, 1700, '04-kern'],
-  [1701, 2300, '05-ausgabe'],
-  [2301, 2900, '06-bedienung'],
-  [2901, null, '07-rest'],
+  [1111, 1725, '04-kern'],
+  [1726, 2325, '05-ausgabe'],
+  [2326, 2925, '06-bedienung'],
+  [2926, null, '07-rest'],
 ];
 
 const deLines = fs.readFileSync(DE, 'utf8').split('\n');
