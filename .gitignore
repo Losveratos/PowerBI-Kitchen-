@@ -66,3 +66,8 @@ scripts/_*
 
 # Playwright-Artefakte der Rechner-Pruefsuiten (Screenshots, PDF, XLSX)
 tests/rechner/.artifacts/
+
+# i18n: Zwischenprodukte der Uebersetzung (Fragmente werden aus der deutschen Fassung erzeugt)
+i18n/frag/
+i18n/strings.json
+i18n/reste.json

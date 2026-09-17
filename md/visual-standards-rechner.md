@@ -53,24 +53,42 @@ Konformitaet= Konformitaetspruefung je neu gebautem Report der Klassen B/C (ohne
 Angebot     = ein aktives Anbieter-Angebot ersetzt bei Paid Lizenzmodell, Lizenzpreis bzw. Site-Pauschale, Mindestlaufzeit, Preisgleitklausel und Support als Punktwerte; die Volumenstaffel entfaellt (ein verhandelter Preis wird nicht zweimal rabattiert)
 Lizenz      = Summe je Jahr: Nutzer × Preis × Staffelfaktor des Jahres  (Viewer wachsen ab Jahr 2, Autoren konstant, Preis steigt jaehrlich)
               oder Site-Lizenz × Jahre; plus Lizenz-Administration (degressiv, bei Site 0), Support/Sponsoring, Capacity-Aufschlag
-Aufbau      = (Setup + Eigenentwicklung + Chart-Typen × Stunden erstmalig × Komplexitaetsfaktor) × Stundensatz-Mix
-Migration   = Bestands-Reports × Charts/Report × Wiederverwendungs-Stunden × Nachbau-Faktor (nur bei Wechsel)
-Rollout     = (Reports + Nachfrage je 1.000 Viewer + Nachfrage je Ersteller) × Charts/Report × Wiederverwendungs-Stunden × Komplexitaetsfaktor × Lernkurven-Faktor × Betriebsmodell-Faktor
+Aufbau      = ((Setup + Chart-Typen × Stunden erstmalig × Komplexitaetsfaktor × Bibliotheks-Faktor) × Modelle-Faktor + Eigenentwicklung) × Stundensatz-Mix
+              faellt vollstaendig in Jahr 1 an und traegt keine Lohnsteigerung; dieselbe Stundenzahl ist Bemessungsgrundlage fuer Wartung, CapEx und Risiko
+Migration   = Bestands-Reports × Charts/Report × Wiederverwendungs-Stunden × Komplexitaetsfaktor × Bibliotheks-Faktor × Nachbau-Faktor × Stundensatz-Mix (nur bei Wechsel)
+Rollout     = je Jahr: (Bestands-Reports / Rollout-Dauer, solange sie laeuft + Nachfrage je 1.000 Viewer × Viewer/1.000 + Nachfrage je Ersteller × Ersteller)
+              × Charts/Report × Wiederverwendungs-Stunden × Komplexitaetsfaktor × max(0,5 ; Bibliotheks-Faktor × Lernkurven-Faktor)
+              × Wiederverwendungs-Faktor des Betriebsmodells (0,8 Enterprise bis 1,4 Self-Service — nicht der Varianten-Faktor) × Stundensatz-Mix × Lohnfaktor des Jahres
 Komplexitaet= (Mix einfach × f_einfach + Mix mittel × 1 + Mix komplex × f_komplex) / (0,5 × f_einfach + 0,35 + 0,15 × f_komplex)  je Ansatz; bei 50/35/15 gleich 1
-Lernkurve   = mittlerer Faktor ueber n Charts je Ersteller nach Wright (Stunden fallen um Lernrate je Verdopplung), Panelwert = 10. Chart, Untergrenze 0,5
+Lernkurve   = Wright: f(n) = (n/10)^beta mit beta = log2(1 − Lernrate); der Panelwert gilt fuer den 10. Chart je Ersteller
+              learnSeg(a, b) = Integralmittel von f ueber [a + 0,5 ; b + 0,5]; a und b sind die kumulierten Charts je Ersteller vor und nach dem Jahrgang,
+              gezaehlt als (neue Reports × Charts/Report × Adoptionsgrad) / Ersteller. Untergrenze 0,5 auf dem Produkt Bibliotheks-Faktor × Lernkurven-Faktor, nicht auf der Lernkurve allein
 Null-Option = Reports × Charts × Stunden ad hoc + Wartung ad hoc + Leserzeit (Viewer × Minuten/Woche) + Rueckfragen; Vergleich ausserhalb der Rangfolge
-Schulung    = Vorlagen-Bauer × tiefe Schulung + Vorlagen-Nutzer × flache Schulung + Fluktuation × [Bauer × (tiefe Schulung + Einarbeitung) + Nutzer × (flache Schulung + 1/4 Einarbeitung)]
-Wartung     = (Setup + Entwicklung + Chart-Aufbau + 0,3 × Rollout) × Quote (geplante Anpassungen) × Abklingfaktor-Summe × Varianten-Effekt + Breaking-Updates × Fix-Stunden
-Varianten-Effekt = 1 + (Betriebsmodell-Faktor − 1) × Varianten-Anfaelligkeit je Ansatz (eigene Annahme, seit v0.10 nicht mehr aus dem Design-Score)
+Schulung    = [einmalig in Jahr 1] Vorlagen-Bauer × tiefe Schulung + Vorlagen-Nutzer × flache Schulung + Vorlagen-Bauer × Kurskosten
+            + [jedes Jahr] Fluktuation × [Bauer × (tiefe Schulung + Einarbeitung) + Nutzer × (flache Schulung + 1/4 Einarbeitung)] × Produktivitaetsfaktor × Lohnfaktor
+Vorlagen-Bauer = min(Ersteller ; max(Untergrenze ; aufgerundet(Ersteller × Owner-Anteil))), Untergrenze 1, ab zwei Erstellern 2; Vorlagen-Nutzer = Ersteller − Vorlagen-Bauer
+              Alle Schulungsposten rechnen mit dem internen Satz, nicht mit dem Stundensatz-Mix
+Wartung     = Summe ueber die Jahrgaenge [(Aufbau-Stunden fuer Jahrgang 1 bzw. 0,3 × Rollout-Stunden des Jahrgangs) × Wartungs-Trend^Kohortenalter]
+              × Quote (geplante Anpassungen) × Varianten-Effekt + Breaking-Updates × Verteilweg-Faktor × Fix-Stunden; beides × Produktivitaetsfaktor × Stundensatz-Mix × Lohnfaktor
+Varianten-Effekt = 1 + (Varianten-Faktor des Betriebsmodells − 1) × Varianten-Anfaelligkeit je Ansatz (eigene Annahme, seit v0.10 nicht mehr aus dem Design-Score); wirkt auf Wartung und Freigabe, nicht auf den Rollout
 Vorlagenbibliothek = Schalter; Stunden je Chart × Faktor je Ansatz, Schulung halb so stark
-Governance  = Freigabe je Visual-Paket (+20 % je weiterem Chart-Typ) + laufende Governance + Pruefnachweis (log-linear nach Organisationsgroesse, 50 bis 5.000 Viewer) + Zugriffs-Governance je 1.000 Viewer (ansatzunabhaengig) + Anwender-Support je 100 Viewer + Konformitaetspruefung IBCS (siehe Report-Klassen)
-Risiko      = Gefahrenrate je Jahr: Summe_y (1−dep)^y × dep × (Aufbau + 0,6 × bis dahin gebauter Rollout) × Migrationsanteil; in der Simulation ein gezogenes Ereignisjahr
+Governance  = [einmalig Jahr 1] Freigabe je Visual-Paket × (1 + 0,2 × (Chart-Typen − 1)) × Varianten-Effekt × Governance-Faktor × Organisationsgroessen-Faktor × Verteilweg-Faktor
+            + [je Jahr] ((laufende Governance × Verteilweg-Faktor + Pruefnachweis) × Organisationsgroessen-Faktor + Zugriffs-Governance je 1.000 Viewer × Viewer/1.000) × Governance-Faktor
+            + [je Jahr] Anwender-Support je 100 Viewer × Viewer/100 × Support-Faktor
+            + [je Jahr] Konformitaetspruefung IBCS (siehe Report-Klassen)
+              Alle Governance-Posten rechnen mit dem internen Satz; die laufenden zusaetzlich × Produktivitaetsfaktor × Lohnfaktor. Die Zugriffs-Governance traegt den Governance-Faktor, aber nicht den Organisationsgroessen-Faktor
+Organisationsgroessen-Faktor = log-linear ueber die Viewer-Zahl: 50 → 0,3 · 250 → 0,6 · 1.000 → 1,0 · 5.000 → 1,3; **unter 50 Viewern auf 0,3 geklemmt**, ab 5.000 auf 1,3
+              Die einmalige Freigabe nimmt den Mittelwert der Viewer ueber den Horizont, die laufenden Posten die Viewer-Zahl des jeweiligen Jahres
+Risiko      = Gefahrenrate je Jahr: Summe ueber y = 0 bis H − 1 von (1−dep)^y × dep × (Aufbau-Stunden + 0,6 × bis dahin gebauter Rollout) × Migrationsanteil
+              × Stundensatz-Mix × Lohnfaktor des Jahres. y beginnt bei 0, das erste Jahr ist also unrabattiert; in der Simulation ein gezogenes Ereignisjahr
 Adoption    = Anteil der Charts nach Standard; der Rest kostet Stunden je Chart, Wartungsquote und Rueckfragen der Null-Option (Voreinstellung 100 %, dann wirkungslos)
 Modelle     = Setup und Erstbau × (1 + Faktor × (Semantikmodelle − 1)); Faktor paid/oss 0,05 · deneb 0,15 · core 0,5
 Verteilweg  = Faktoren auf Freigabe / laufende Governance / Breaking-Updates / Vorlaufzeit: AppSource 0,5 / 0,7 / 1,0 / 1,0 · Org-Store 1,0 / 1,0 / 0,8 / 1,2 · Datei-Import 0,4 / 1,6 / 1,3 / 0,6 · offen 1,0
 Vorsteuer   = mit Schalter „kein voller Vorsteuerabzug“: alle harten Auszahlungen (Lizenz, Support, Capacity, Kurse, externe Stunden) × (1 + Satz); interne Zeit bleibt unberuehrt
 Budget      = mit Schalter „Freigabe erst im Folgejahr“: das erste Jahr bleibt leer, der Betrieb beginnt ein Jahr spaeter, der Horizont bleibt gleich
 CapEx/OpEx  = aktivierungsfaehig: Setup + Eigenentwicklung + Erstbau der Chart-Typen; alles Uebrige sofort Aufwand. Abschreibung linear ueber 3 oder 5 Jahre
+Stundensatz-Mix    = interner Satz × Bewertungsfaktor/100 × (1 − Anteil extern) + externer Satz × (1 + Vorsteuersatz) × Anteil extern
+Stundensatz intern = interner Satz × Bewertungsfaktor/100; beide × Lohnfaktor (1 + Lohnsteigerung)^(Jahr − 1). Welcher Posten welchen Satz nimmt: siehe Rechenkonvention 2
 Barwert     = Zahlungsstrom je Jahr, abgezinst mit dem Kalkulationszins
 ```
 
