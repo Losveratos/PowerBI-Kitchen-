@@ -25,7 +25,8 @@ export interface GanttTask {
     key: string;           // eindeutiger Schlüssel (i. d. R. Task-Name)
     name: string;
     projekt?: string | null;   // oberste Ebene (Portfolio): Projektzeile über den Phasen
-    phase: string | null;
+    phase: string | null;      // = path[0] — hält Altverhalten bei genau einem Ebenen-Feld
+    path?: string[];           // Ebenen-Pfad (Rolle "phase", mehrere Felder), leere Stufen verdichtet
     s: number;             // Start als UTC-Mitternacht (ms)
     e: number | null;      // Ende (ms); null → Meilenstein
     pct: number | null;    // 0..100 oder null (nicht gebunden)
@@ -44,6 +45,7 @@ export interface GanttOptions {
     abhaengigkeiten: boolean;
     heuteLinie: boolean;
     tabellenBreite: number;             // 0 = Tabelle ausblenden
+    spalten?: Record<string, boolean>;  // Tabellenspalten einzeln ein-/ausblenden (Schlüssel = ColDef.key)
     basisplan?: boolean;                // Plan-Balken zeichnen (default true)
     deltaSpalte?: boolean;              // Δ-Spalte in der Tabelle (default true)
     verzugZeilen?: boolean;             // Zeilen mit Verzug rot hinterlegen (default true)
@@ -52,6 +54,8 @@ export interface GanttOptions {
     tageEinheit?: string;               // 't' | 'd' | 'ohne'
     msAufPhase?: boolean;               // Meilensteine auf zugeklappten Phasenzeilen zeigen (default true)
     msDatum?: boolean;                  // Datum am Meilenstein anzeigen (default true)
+    msNamen?: boolean;                  // Name am Meilenstein anzeigen (default true)
+    msBeschriftung?: string;            // 'nurDatum' | 'nurName' | 'beides' — Rauten auf zugeklappten Zeilen
     msEndeGleichStart?: boolean;        // Ende = Start ebenfalls als Meilenstein werten (default false)
     fontFamily: string;
     fontSize: number;                   // Basisgröße in px (Referenz-Design: 13)
@@ -148,6 +152,7 @@ interface Theme {
 interface RenderItem {
     id: string;
     kind: 'proj' | 'phase' | 'task' | 'ms';   // proj = Projektzeile (Portfolio-Ebene)
+    depth: number;         // Hierarchietiefe (0 = oberste Ebene) — steuert die Einrückung
     name: string;
     s: number;
     e: number;
@@ -163,7 +168,19 @@ interface RenderItem {
     ps: number | null;      // Basisplan-Start
     pe: number | null;      // Basisplan-Ende
     delta: number | null;   // Ist-Ende minus Plan-Ende in Tagen (+ = Verzug)
-    msKids: GanttTask[];    // Meilensteine einer ZUGEKLAPPTEN Phase (Kompakt-Anzeige)
+    msKids: GanttTask[];    // Meilensteine einer ZUGEKLAPPTEN Gruppe (Kompakt-Anzeige)
+}
+
+// Knoten des Gruppenbaums. Kinder liegen in EINER geordneten Liste aus
+// Untergruppen und direkten Vorgängen — nur so bleibt die Reihenfolge der
+// Rolle "sort" erhalten, wenn Gruppen und gruppenlose Zeilen sich abwechseln.
+interface GNode {
+    name: string;
+    ck: string;                 // Collapse-Schlüssel = voller Pfad
+    isProj: boolean;
+    children: { node: GNode | null; task: GanttTask | null }[];
+    idx: Map<string, number>;   // Kindname → Position in children
+    all: GanttTask[];           // alle Nachfahren-Vorgänge (Aggregat, Meilensteine)
 }
 
 // Skalierte Layout-Metriken (alles relativ zur Basis-Schriftgröße 13px)
@@ -215,8 +232,10 @@ export class GanttRenderer {
     private timer = 0;
     private pending = false;
     private m: Metrics = { s: 1, rowH: ROW_H, axisH: AXIS_H, headerH: HEADER_H, barH: 20, phBarH: 9, dia: 14 };
-    private phaseKeys: string[] = [];
+    private phaseKeys: string[] = [];       // Collapse-Schlüssel ALLER Ebenen-Gruppen (jede Tiefe)
     private projKeys: string[] = [];        // Collapse-Schlüssel der Projekt-Ebene ("P:<Name>")
+    private levelCount = 0;                 // Anzahl gebundener Ebenen-Felder (Rolle "phase")
+    private sammelN = 0;                    // ausgelassene Sammelvorgangs-Zeilen (Kopfzeile)
     private hasProj = false;                // Projekt-Rolle gebunden → 3-Ebenen-Hierarchie
     private lastItems: RenderItem[] = [];   // Items des letzten Renders (für Koordinaten-Treffer)
     private hasPlan = false;                // mindestens ein Task mit Basisplan-Daten
@@ -389,6 +408,11 @@ export class GanttRenderer {
     public setData(tasks: GanttTask[]): void {
         this.tasks = tasks;
         this.byKey = new Map(tasks.map(t => [t.key, t]));
+        // Der Schlüssel ist jetzt der Pfad (Vorgangsnamen sind in großen Plänen
+        // nicht eindeutig), Abhängigkeiten werden aber weiter über Namen gepflegt.
+        // Namen daher als Zweitindex ergänzen — Pfad-Schlüssel haben Vorrang.
+        tasks.forEach(t => { if (!this.byKey.has(t.name)) this.byKey.set(t.name, t); });
+        this.levelCount = tasks.reduce((mx, t) => Math.max(mx, t.path ? t.path.length : (t.phase !== null ? 1 : 0)), 0);
         // Nur neu einpassen, wenn sich die Task-Menge wirklich ändert —
         // sonst springt die Ansicht bei jeder Crossfilter-Interaktion.
         const sig = tasks.map(t => t.key).join('|');
@@ -471,6 +495,18 @@ export class GanttRenderer {
 
     private chartItemAtY(clientY: number): RenderItem | null {
         return this.itemAt(this.bodyClip.getBoundingClientRect(), clientY);
+    }
+
+    // Nur die Zeilen im Sichtfenster (plus Puffer) bekommen DOM-Knoten. Ohne das
+    // entstehen bei 30.000 Zeilen ~460.000 Knoten und der erste Frame dauert
+    // Sekunden. Position und Treffererkennung rechnen weiter über den vollen
+    // Index (this.lastItems), daher ändert sich am Verhalten sonst nichts.
+    private sichtbar(len: number, sy: number, viewH: number): [number, number] {
+        const rh = this.m.rowH;
+        const puffer = 8;
+        const a = Math.max(0, Math.floor(sy / rh) - puffer);
+        const b = Math.min(len, Math.ceil((sy + Math.max(0, viewH)) / rh) + puffer);
+        return [a, b];
     }
 
     private itemAt(r: DOMRect, clientY: number): RenderItem | null {
@@ -666,97 +702,143 @@ export class GanttRenderer {
         return { s, e, pct: anyPct ? Math.round(wp / wd) : null, ps, pe, delta: pe === null ? null : Math.round((e - pe) / DAY) };
     }
 
+    // Gruppenpfad einer Zeile: optionale Projektebene, danach die Ebenen-Felder
+    // der Rolle "phase" in Feldbrunnen-Reihenfolge. Leere Stufen werden verdichtet
+    // (§ "ungleich tiefe Zweige") — sonst entstünden namenlose Zwischengruppen und
+    // eine Zeile, die auf Ebene 2 endet, bekäme leere Hüllen bis Ebene 5.
+    private groupPath(t: GanttTask): { name: string; proj: boolean }[] {
+        const segs: { name: string; proj: boolean }[] = [];
+        if (this.hasProj && t.projekt !== undefined && t.projekt !== null && t.projekt !== '') {
+            segs.push({ name: t.projekt, proj: true });
+        }
+        const lv = t.path && t.path.length ? t.path : (t.phase !== null ? [t.phase] : []);
+        lv.forEach(v => {
+            if (v === null || v === undefined) return;
+            const n = String(v).trim();
+            if (n !== '') segs.push({ name: n, proj: false });
+        });
+        return segs;
+    }
+
     private buildItems(dark: boolean, ibcs: boolean): RenderItem[] {
         const pal = dark ? PHASE_HEX_DARK : PHASE_HEX_LIGHT;
         const msOn = !this.opts || this.opts.msAufPhase !== false;
-
-        // Ebene 0 (optional): Projekt — Portfolio-Sicht mit einer Zeile je Projekt
-        this.hasProj = this.tasks.some(t => t.projekt !== undefined && t.projekt !== null);
-        const projOrder: (string | null)[] = [];
-        const projGroups = new Map<string | null, GanttTask[]>();
-        this.tasks.forEach(t => {
-            const pk = this.hasProj ? (t.projekt !== undefined && t.projekt !== null ? t.projekt : null) : null;
-            if (!projGroups.has(pk)) { projGroups.set(pk, []); projOrder.push(pk); }
-            (projGroups.get(pk) as GanttTask[]).push(t);
-        });
-
-        this.phaseKeys = [];
-        this.projKeys = [];
-        const items: RenderItem[] = [];
-        let phaseColorIdx = 0;
         const projColor = ibcs ? IBCS_AC : (dark ? '#C6C9CF' : '#454851');
+        this.hasProj = this.tasks.some(t => t.projekt !== undefined && t.projekt !== null);
 
-        projOrder.forEach(pk => {
-            const projKids = projGroups.get(pk) as GanttTask[];
-            let projCollapsed = false;
-            if (pk !== null) {
-                const ck = 'P:' + pk;   // Collapse-Schlüssel der Projekt-Ebene
-                this.projKeys.push(ck);
-                projCollapsed = !!this.collapsed[ck];
-                const a = GanttRenderer.aggOf(projKids);
-                items.push({
-                    id: 'pr:' + pk, kind: 'proj', name: pk, s: a.s, e: a.e, pct: a.pct,
-                    st: null, ow: '', color: projColor,
-                    soft: ibcs ? '#FFFFFF' : hexA(projColor, 0.16),
-                    laneTint: ibcs ? 'transparent' : hexA(projColor, 0.05),
-                    phaseKey: ck, task: null, depTasks: [],
-                    ps: a.ps, pe: a.pe, delta: a.delta,
-                    // Projektzeile trägt IMMER alle Meilensteine des Projekts —
-                    // die Meilensteinübersicht des Portfolios (Option "Meilensteine")
-                    msKids: msOn ? projKids.filter(c => this.isMs(c)) : []
-                });
-                if (projCollapsed) return;
-            }
+        // ---- Baum aufbauen; Reihenfolge = Erstauftritt und damit die der Rolle
+        // "sort", nach der parseData() bereits sortiert hat.
+        const mk = (name: string, ck: string, proj: boolean): GNode =>
+            ({ name, ck, isProj: proj, children: [], idx: new Map(), all: [] });
+        const root = mk('', '', false);
+        const projNodes: GNode[] = [];
+        const grpNodes: GNode[] = [];
 
-            // Ebene 1: Phasen innerhalb des Projekts (bzw. flach ohne Projekt-Rolle)
-            const order: (string | null)[] = [];
-            const groups = new Map<string | null, GanttTask[]>();
-            projKids.forEach(t => {
-                if (!groups.has(t.phase)) { groups.set(t.phase, []); order.push(t.phase); }
-                (groups.get(t.phase) as GanttTask[]).push(t);
-            });
-
-            order.forEach(key => {
-                const kids = groups.get(key);
-                if (!kids) return;
-                // IBCS: monochrom (solid dark = Ist, outlined = Plan); individuelle
-                // Task-Farben werden im IBCS-Modus bewusst ignoriert.
-                const phaseHex = pal[phaseColorIdx % pal.length];
-                if (key !== null) phaseColorIdx++;
-                const color = ibcs ? IBCS_AC : phaseHex;
-                const soft = ibcs ? '#FFFFFF' : hexA(phaseHex, 0.18);
-                const laneTint = ibcs ? 'transparent' : hexA(phaseHex, 0.06);
-                if (key !== null) {
-                    // Collapse-Schlüssel je (Projekt, Phase) — gleiche Phasennamen
-                    // in verschiedenen Projekten klappen unabhängig
-                    const ck = (pk !== null ? pk + '¦' : '') + key;
-                    this.phaseKeys.push(ck);
-                    const collapsedNow = !!this.collapsed[ck];
-                    const a = GanttRenderer.aggOf(kids);
-                    items.push({
-                        id: 'ph:' + ck, kind: 'phase', name: key, s: a.s, e: a.e, pct: a.pct,
-                        st: null, ow: '', color, soft, laneTint,
-                        phaseKey: ck, task: null, depTasks: [],
-                        ps: a.ps, pe: a.pe, delta: a.delta,
-                        // Zugeklappte Phase: Meilensteine kompakt auf der Summenzeile
-                        msKids: collapsedNow && msOn ? kids.filter(c => this.isMs(c)) : []
-                    });
-                    if (collapsedNow) return;
-                }
-                kids.forEach(c => {
-                    const tColor = !ibcs && c.color ? c.color : color;
-                    const tSoft = !ibcs && c.color ? hexA(c.color, 0.18) : soft;
-                    const plan = GanttRenderer.planOf(c);
-                    items.push({
-                        id: c.key, kind: this.isMs(c) ? 'ms' : 'task', name: c.name,
-                        s: c.s, e: c.e === null ? c.s : c.e, pct: c.pct, st: c.st, ow: c.ow,
-                        color: tColor, soft: tSoft, laneTint, phaseKey: (pk !== null ? pk + '¦' : '') + (key === null ? '' : key), task: c,
-                        depTasks: c.deps.map(d => this.byKey.get(d)).filter(Boolean) as GanttTask[],
-                        ps: plan.ps, pe: plan.pe, delta: plan.delta, msKids: []
-                    });
-                });
-            });
+        // Sammelvorgänge: MS-Project-Exporte liefern für jeden Knoten ZUSÄTZLICH
+        // eine eigene Zeile, deren letzte Ebene den eigenen Namen trägt. Sie würde
+        // als namensgleiche Zeile unter ihrer eigenen Gruppe erscheinen. Erkennbar
+        // daran, dass unter demselben Pfad noch weitere Zeilen liegen — ein echter
+        // Einzelvorgang, der zufällig wie seine Gruppe heißt, bleibt damit erhalten.
+        // Ihre Spanne leitet die Gruppe ohnehin aus den Kindern ab.
+        const pfade = this.tasks.map(t => this.groupPath(t));
+        const proPfad = new Map<string, number>();
+        pfade.forEach(segs => {
+            const k = segs.map(x => x.name).join('¦');
+            proPfad.set(k, (proPfad.get(k) || 0) + 1);
         });
+        const istSammel = (t: GanttTask, segs: { name: string; proj: boolean }[]): boolean =>
+            segs.length > 0
+            && !segs[segs.length - 1].proj
+            && segs[segs.length - 1].name === t.name
+            && (proPfad.get(segs.map(x => x.name).join('¦')) || 0) > 1;
+
+        this.sammelN = 0;
+        this.tasks.forEach((t, ti) => {
+            const segs = pfade[ti];
+            if (istSammel(t, segs)) { this.sammelN++; return; }
+            let n = root;
+            for (let d = 0; d < segs.length; d++) {
+                const seg = segs[d];
+                // Projekt- und Ebenenknoten getrennt indizieren, damit ein Projekt
+                // und eine Phase gleichen Namens nicht zusammenfallen
+                const ik = (seg.proj ? 'P\u0000' : 'G\u0000') + seg.name;
+                let pos = n.idx.get(ik);
+                if (pos === undefined) {
+                    const ck = (seg.proj ? 'P:' : '') + segs.slice(0, d + 1).map(x => x.name).join('¦');
+                    const node = mk(seg.name, ck, seg.proj);
+                    pos = n.children.length;
+                    n.idx.set(ik, pos);
+                    n.children.push({ node, task: null });
+                    (seg.proj ? projNodes : grpNodes).push(node);
+                }
+                n = n.children[pos].node as GNode;
+                n.all.push(t);
+            }
+            n.children.push({ node: null, task: t });
+        });
+
+        // "Alles auf/zu" muss auch zugeklappte Teilbäume erreichen — deshalb ALLE
+        // Knoten sammeln, nicht nur die gerade sichtbaren.
+        this.projKeys = projNodes.map(n => n.ck);
+        this.phaseKeys = grpNodes.map(n => n.ck);
+
+        // ---- Zeilen erzeugen
+        const items: RenderItem[] = [];
+        let colorIdx = 0;
+        const emitLeaf = (c: GanttTask, depth: number, hex: string | null, parentCk: string): void => {
+            const base = hex !== null ? hex : pal[colorIdx % pal.length];
+            // IBCS: monochrom (solid dark = Ist, outlined = Plan); individuelle
+            // Task-Farben werden im IBCS-Modus bewusst ignoriert.
+            const tColor = !ibcs && c.color ? c.color : (ibcs ? IBCS_AC : base);
+            const tSoft = !ibcs && c.color ? hexA(c.color, 0.18) : (ibcs ? '#FFFFFF' : hexA(base, 0.18));
+            const plan = GanttRenderer.planOf(c);
+            items.push({
+                id: c.key, kind: this.isMs(c) ? 'ms' : 'task',
+                depth, name: c.name,
+                s: c.s, e: c.e === null ? c.s : c.e, pct: c.pct, st: c.st, ow: c.ow,
+                color: tColor, soft: tSoft,
+                laneTint: ibcs ? 'transparent' : hexA(base, 0.06),
+                phaseKey: parentCk, task: c,
+                depTasks: c.deps.map(d => this.byKey.get(d)).filter(Boolean) as GanttTask[],
+                ps: plan.ps, pe: plan.pe, delta: plan.delta, msKids: []
+            });
+        };
+
+        const emit = (n: GNode, depth: number, hex: string | null): void => {
+            n.children.forEach(ch => {
+                if (ch.node) {
+                    const g = ch.node;
+                    // Farbe fällt auf der OBERSTEN Ebenen-Stufe und wird nach unten
+                    // vererbt: ein Zweig trägt durchgängig eine Farbe. Die Projekt-
+                    // ebene bleibt neutral und startet die Vererbung neu.
+                    const myHex = g.isProj ? null : (hex !== null ? hex : pal[(colorIdx++) % pal.length]);
+                    const base = g.isProj ? projColor : (myHex as string);
+                    const zu = !!this.collapsed[g.ck];
+                    const a = GanttRenderer.aggOf(g.all);
+                    items.push({
+                        id: (g.isProj ? 'pr:' : 'ph:') + g.ck,
+                        kind: g.isProj ? 'proj' : 'phase',
+                        depth, name: g.name, s: a.s, e: a.e, pct: a.pct,
+                        st: null, ow: '',
+                        color: ibcs ? IBCS_AC : base,
+                        soft: ibcs ? '#FFFFFF' : hexA(base, g.isProj ? 0.16 : 0.18),
+                        laneTint: ibcs ? 'transparent' : hexA(base, g.isProj ? 0.05 : 0.06),
+                        phaseKey: g.ck, task: null, depTasks: [],
+                        ps: a.ps, pe: a.pe, delta: a.delta,
+                        // Projektzeile trägt IMMER alle Meilensteine des Projekts
+                        // (Portfolio-Übersicht); jede andere Gruppe zeigt sie,
+                        // sobald sie zugeklappt ist — auf JEDER Tiefe.
+                        msKids: msOn && (g.isProj || zu) ? g.all.filter(c => this.isMs(c)) : []
+                    });
+                    if (zu) return;
+                    emit(g, depth + 1, myHex);
+                } else {
+                    emitLeaf(ch.task as GanttTask, depth, hex, n.ck);
+                }
+            });
+        };
+        emit(root, 0, null);
+
         this.hasPlan = this.tasks.some(c => (c.ps !== undefined && c.ps !== null) || (c.pe !== undefined && c.pe !== null));
         return items;
     }
@@ -769,6 +851,7 @@ export class GanttRenderer {
         const o = this.opts;
         const showDelta = this.hasPlan && (!o || o.basisplan !== false) && (!o || o.deltaSpalte !== false);
         let cols = ALL_COLS
+            .filter(c => (!o || !o.spalten || o.spalten[c.key] !== false))
             .filter(c => (c.key !== 'status' || hasStatus) && (c.key !== 'pct' || hasPct) && (c.key !== 'ow' || hasOw) && (c.key !== 'delta' || showDelta))
             .map(c => ({ ...c, w: Math.round(c.w * s) }));
         for (const dropKey of DROP_ORDER) {
@@ -876,14 +959,18 @@ export class GanttRenderer {
         const sel = o.selectedKeys && o.selectedKeys.size ? o.selectedKeys : null;
 
         const nMs = this.tasks.filter(tk => this.isMs(tk)).length;
-        const nPh = new Set(this.tasks.map(tk => tk.phase).filter(p => p !== null)).size;
+        const nPh = this.phaseKeys.length;   // Gruppen über ALLE Ebenen
         const nPr = new Set(this.tasks.map(tk => tk.projekt).filter(p => p !== undefined && p !== null)).size;
+        // Sammelvorgangs-Zeilen sind keine eigenen Vorgänge — sie werden als
+        // Gruppenzeile gerendert und dürfen den Zähler nicht aufblähen.
+        const nVg = this.tasks.length - nMs - this.sammelN;
+        const pl = (n: number, ein: string, viele: string) => n + ' ' + (n === 1 ? ein : viele);
         this.toolbarInfo.style.color = t.sub;
         this.toolbarInfo.textContent =
-            (nPr ? nPr + ' Projekte · ' : '') +
-            (this.tasks.length - nMs) + ' Vorgänge' +
-            (nPh ? ' · ' + nPh + ' Phasen' : '') +
-            (nMs ? ' · ' + nMs + ' Meilensteine' : '');
+            (nPr ? pl(nPr, 'Projekt', 'Projekte') + ' · ' : '') +
+            pl(nVg, 'Vorgang', 'Vorgänge') +
+            (nPh ? ' · ' + (this.levelCount > 1 ? pl(nPh, 'Gruppe', 'Gruppen') : pl(nPh, 'Phase', 'Phasen')) : '') +
+            (nMs ? ' · ' + pl(nMs, 'Meilenstein', 'Meilensteine') : '');
 
         this.renderToolbar(t);
         this.renderTable(t, items, topOf, sy, tableW, sel, o.ibcs);
@@ -942,7 +1029,8 @@ export class GanttRenderer {
         }
         if (this.phaseKeys.length) {
             const anyOpen = this.phaseKeys.some(k => !this.collapsed[k]);
-            mkBtn(anyOpen ? '▾ Phasen' : '▸ Phasen', () => {
+            const lbl = this.levelCount > 1 ? 'Ebenen' : 'Phasen';
+            mkBtn((anyOpen ? '▾ ' : '▸ ') + lbl, () => {
                 this.phaseKeys.forEach(k => this.collapsed[k] = anyOpen);
                 this.invalidate();
             }, true);
@@ -966,6 +1054,7 @@ export class GanttRenderer {
 
         this.rowsLayer.style.transform = 'translateY(-' + sy + 'px)';
         this.rowsLayer.replaceChildren();
+        const [vA, vB] = this.sichtbar(items.length, sy, this.rowsViewport.clientHeight);
 
         const o = this.opts;
         const verzugOn = (!o || o.basisplan !== false) && (!o || o.verzugZeilen !== false);
@@ -973,7 +1062,7 @@ export class GanttRenderer {
         const lateTint = hexA(IBCS_RED, dark ? 0.13 : 0.07);
         const u = unitSuffix(o ? o.tageEinheit : undefined);
 
-        items.forEach(it => {
+        items.slice(vA, vB).forEach(it => {
             const isProj = it.kind === 'proj';
             const isP = it.kind === 'phase' || isProj;   // Gruppenzeile (Projekt oder Phase)
             const isM = it.kind === 'ms';
@@ -987,9 +1076,12 @@ export class GanttRenderer {
                 'cursor:pointer;opacity:' + (dim ? 0.45 : 1));
             if (it.task) row.setAttribute('data-task', it.task.key);
 
-            // Task-Zelle: Caret (Gruppe), Farb-Punkt, Name — Einrückung je Ebene
-            // (Projekt 0 · Phase 1 · Vorgang 2; ohne Projekt-Rolle wie bisher)
-            const indent = isProj ? 0 : (it.kind === 'phase' ? (this.hasProj ? 16 : 0) : (this.hasProj ? 32 : 14));
+            // Task-Zelle: Caret (Gruppe), Farb-Punkt, Name — Einrückung je Tiefe.
+            // Der flache Fall (eine Ebene, keine Projektrolle) behält die 14 px
+            // aus 1.10, damit bestehende Berichte pixelgleich bleiben.
+            const indent = (this.hasProj || this.levelCount > 1)
+                ? it.depth * Math.round(16 * m.s)
+                : (isP ? 0 : 14);
             const dot = Math.max(6, Math.round(9 * m.s));
             const nameCell = el('div', 'display:flex;align-items:center;gap:8px;padding-left:' + indent + 'px;font-weight:' + (isP ? 700 : (isM ? 600 : 400)) + ';min-width:0');
             nameCell.appendChild(el('div',
@@ -1073,6 +1165,8 @@ export class GanttRenderer {
         const ibcs = o.ibcs;
         const u = unitSuffix(o.tageEinheit);
         const msDatum = o.msDatum !== false;
+        const msNamen = o.msNamen !== false;
+        const msLblMode = o.msBeschriftung || 'nurDatum';
 
         // --- Achse (Monats-Ticks + Tages-/Wochen-Subticks) ---
         this.axisHost.style.borderBottom = '1px solid ' + t.border;
@@ -1155,7 +1249,8 @@ export class GanttRenderer {
         const planOn = o.basisplan !== false && this.hasPlan;
         const verzugOn = o.basisplan !== false && o.verzugZeilen !== false;
         const lateTint = hexA(IBCS_RED, t.panel === '#1E2023' ? 0.13 : 0.07);
-        items.forEach(it => {
+        const [vA, vB] = this.sichtbar(items.length, sy, chH);
+        items.slice(vA, vB).forEach(it => {
             const hov = this.hover === it.id;
             const late = verzugOn && it.delta !== null && it.delta > 0;
             const isGrp = it.kind === 'phase' || it.kind === 'proj';
@@ -1182,6 +1277,8 @@ export class GanttRenderer {
                     const fy = topOf[srcId] + half;
                     const tx = it.kind === 'ms' ? x(it.s) + this.pxd / 2 - 9 : x(it.s) - 3;
                     const ty = topOf[it.id] + half;
+                    // außerhalb des Sichtfensters liegende Pfeile gar nicht erst bauen
+                    if (Math.max(fy, ty) < sy - m.rowH || Math.min(fy, ty) > sy + chH + m.rowH) return;
                     const hl = this.hover === srcId || this.hover === it.id;
                     const selDim = sel && !(sel.has(srcId) || (it.task && sel.has(it.task.key)));
                     let line: string;
@@ -1222,7 +1319,7 @@ export class GanttRenderer {
             'position:absolute;left:' + x(ps) + 'px;top:' + topPx + 'px;width:' + Math.max(2, x(pe + DAY) - x(ps)) + 'px;height:' + planH + 'px;' +
             'border-radius:' + rad(3) + ';background:transparent;box-shadow:inset 0 0 0 1px ' + planStroke + ';' +
             'pointer-events:none;opacity:' + (dimmed ? 0.25 : 0.85));
-        items.forEach(it => {
+        items.slice(vA, vB).forEach(it => {
             const top = topOf[it.id];
             const hov = this.hover === it.id;
             const dim = sel && it.task && !sel.has(it.task.key);
@@ -1243,7 +1340,12 @@ export class GanttRenderer {
                 if (it.msKids.length) {
                     const dia2 = Math.max(8, Math.round(m.dia * 0.75));
                     const diaTop2 = Math.round((m.rowH - dia2) / 2);
-                    it.msKids.forEach(ms => {
+                    // Beschriftung nach Zeit sortiert setzen und überlappende
+                    // Labels auslassen: bei ~48 Meilensteinen je Projekt wäre
+                    // sonst keines mehr lesbar.
+                    let lastRight = -Infinity;
+                    const lblFs = 8.5 * m.s;
+                    it.msKids.slice().sort((a, b) => a.s - b.s).forEach(ms => {
                         const msDim = sel && !sel.has(ms.key);
                         const dEl = el('div',
                             'position:absolute;left:' + (x(ms.s) + this.pxd / 2 - dia2 / 2) + 'px;top:' + (top + diaTop2) + 'px;width:' + dia2 + 'px;height:' + dia2 + 'px;' +
@@ -1253,10 +1355,20 @@ export class GanttRenderer {
                         dEl.setAttribute('data-task', ms.key);
                         dEl.setAttribute('title', ms.name + ' · ' + fmtDate(ms.s));
                         this.scrollLayer.appendChild(dEl);
-                        if (msDatum) this.scrollLayer.appendChild(el('div',
-                            'position:absolute;left:' + (x(ms.s) + this.pxd / 2) + 'px;top:' + (top + diaTop2 + dia2 + 1) + 'px;transform:translateX(-50%);' +
-                            'font-size:' + this.fs(8.5) + ';color:' + t.sub + ';font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none;opacity:' + (msDim ? 0.3 : 1),
-                            fmtDate(ms.s)));
+                        const lbl = msLblMode === 'nurName' ? ms.name
+                            : msLblMode === 'beides' ? ms.name + ' · ' + fmtDate(ms.s)
+                                : (msDatum ? fmtDate(ms.s) : '');
+                        if (lbl) {
+                            const cx = x(ms.s) + this.pxd / 2;
+                            const w = lbl.length * lblFs * 0.55;   // Breitenschätzung, reicht zur Kollisionsprüfung
+                            if (cx - w / 2 > lastRight + 4) {
+                                lastRight = cx + w / 2;
+                                this.scrollLayer.appendChild(el('div',
+                                    'position:absolute;left:' + cx + 'px;top:' + (top + diaTop2 + dia2 + 1) + 'px;transform:translateX(-50%);' +
+                                    'font-size:' + this.fs(8.5) + ';color:' + t.sub + ';font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none;opacity:' + (msDim ? 0.3 : 1),
+                                    lbl));
+                            }
+                        }
                     });
                 }
             } else if (it.kind === 'ms') {
@@ -1280,7 +1392,7 @@ export class GanttRenderer {
                 const msLbl = el('div',
                     'position:absolute;left:' + (x(it.s) + this.pxd / 2 + 14) + 'px;top:' + (top + diaTop) + 'px;height:' + m.dia + 'px;' +
                     'display:flex;align-items:center;font-size:' + this.fs(11) + ';font-weight:600;color:' + t.text + ';white-space:nowrap;pointer-events:none;opacity:' + (dim ? 0.3 : 1),
-                    it.name + (msDatum ? ' · ' + fmtDate(it.s) : ''));
+                    [msNamen ? it.name : '', msDatum ? fmtDate(it.s) : ''].filter(v => v !== '').join(' · '));
                 if (planOn && it.delta !== null && it.delta !== 0) {
                     msLbl.appendChild(el('span',
                         'margin-left:6px;font-weight:700;font-variant-numeric:tabular-nums;color:' + (it.delta > 0 ? IBCS_RED : (ibcs ? t.text : IBCS_GREEN)),

@@ -27,6 +27,12 @@ const TAGE_EINHEIT_ITEMS: powerbi.IEnumMember[] = [
     { value: "ohne", displayName: "Ohne Einheit" }
 ];
 
+const MS_BESCHRIFTUNG_ITEMS: powerbi.IEnumMember[] = [
+    { value: "nurDatum", displayName: "Nur Datum" },
+    { value: "nurName", displayName: "Nur Name" },
+    { value: "beides", displayName: "Name und Datum" }
+];
+
 class DarstellungCardSettings extends FormattingSettingsCard {
     theme = new formattingSettings.ItemDropdown({
         name: "theme",
@@ -88,6 +94,19 @@ class DarstellungCardSettings extends FormattingSettingsCard {
     slices: Array<FormattingSettingsSlice> = [this.theme, this.zeiteinheit, this.tageEinheit, this.wochenenden, this.abhaengigkeiten, this.heuteLinie, this.tabellenBreite, this.ibcs];
 }
 
+class SpaltenCardSettings extends FormattingSettingsCard {
+    start = new formattingSettings.ToggleSwitch({ name: "start", displayName: "Start", value: true });
+    ende = new formattingSettings.ToggleSwitch({ name: "ende", displayName: "Ende", value: true });
+    tage = new formattingSettings.ToggleSwitch({ name: "tage", displayName: "Dauer (Tage)", value: true });
+    status = new formattingSettings.ToggleSwitch({ name: "status", displayName: "Status", value: true });
+    fortschritt = new formattingSettings.ToggleSwitch({ name: "fortschritt", displayName: "Fortschritt", value: true });
+    wer = new formattingSettings.ToggleSwitch({ name: "wer", displayName: "Wer (Owner)", value: true });
+
+    name: string = "spalten";
+    displayName: string = "Tabellenspalten";
+    slices: Array<FormattingSettingsSlice> = [this.start, this.ende, this.tage, this.status, this.fortschritt, this.wer];
+}
+
 class MeilensteineCardSettings extends FormattingSettingsCard {
     aufPhasenzeile = new formattingSettings.ToggleSwitch({
         name: "aufPhasenzeile",
@@ -107,9 +126,25 @@ class MeilensteineCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    // Name an der Raute einer normalen Meilenstein-Zeile (bisheriges Verhalten: immer an)
+    namenAnzeigen = new formattingSettings.ToggleSwitch({
+        name: "namenAnzeigen",
+        displayName: "Name am Meilenstein",
+        value: true
+    });
+
+    // Auf ZUGEKLAPPTEN Gruppenzeilen stand bisher nur das Datum — bei ~48
+    // Meilensteinen je Projekt ist damit nicht erkennbar, welcher gemeint ist.
+    beschriftung = new formattingSettings.ItemDropdown({
+        name: "beschriftung",
+        displayName: "Beschriftung auf zugeklappten Zeilen",
+        items: MS_BESCHRIFTUNG_ITEMS,
+        value: MS_BESCHRIFTUNG_ITEMS[0]
+    });
+
     name: string = "meilensteine";
     displayName: string = "Meilensteine";
-    slices: Array<FormattingSettingsSlice> = [this.aufPhasenzeile, this.datumAnzeigen, this.endeGleichStart];
+    slices: Array<FormattingSettingsSlice> = [this.aufPhasenzeile, this.datumAnzeigen, this.namenAnzeigen, this.beschriftung, this.endeGleichStart];
 }
 
 class BasisplanCardSettings extends FormattingSettingsCard {
@@ -161,9 +196,10 @@ class SchriftCardSettings extends FormattingSettingsCard {
 
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     darstellungCard = new DarstellungCardSettings();
+    spaltenCard = new SpaltenCardSettings();
     basisplanCard = new BasisplanCardSettings();
     meilensteineCard = new MeilensteineCardSettings();
     schriftCard = new SchriftCardSettings();
 
-    cards = [this.darstellungCard, this.basisplanCard, this.meilensteineCard, this.schriftCard];
+    cards = [this.darstellungCard, this.spaltenCard, this.basisplanCard, this.meilensteineCard, this.schriftCard];
 }

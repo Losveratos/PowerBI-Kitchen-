@@ -18,7 +18,7 @@
             "kind": "Grouping"
         },
         {
-            "displayName": "Phase (Gruppe)",
+            "displayName": "Ebenen (Gruppierung, mehrere möglich)",
             "name": "phase",
             "kind": "Grouping"
         },
@@ -126,6 +126,36 @@
                 }
             }
         },
+        "spalten": {
+            "displayName": "Tabellenspalten",
+            "description": "Spalten der Task-Tabelle einzeln ein-/ausblenden. Spalten ohne gebundene Daten bleiben ohnehin leer; bei zu schmaler Tabelle weichen sie zusätzlich automatisch. Die Δ-Plan-Spalte wird in der Karte „Basisplan“ geschaltet.",
+            "properties": {
+                "start": {
+                    "displayName": "Start",
+                    "type": { "bool": true }
+                },
+                "ende": {
+                    "displayName": "Ende",
+                    "type": { "bool": true }
+                },
+                "tage": {
+                    "displayName": "Dauer (Tage)",
+                    "type": { "bool": true }
+                },
+                "status": {
+                    "displayName": "Status",
+                    "type": { "bool": true }
+                },
+                "fortschritt": {
+                    "displayName": "Fortschritt",
+                    "type": { "bool": true }
+                },
+                "wer": {
+                    "displayName": "Wer (Owner)",
+                    "type": { "bool": true }
+                }
+            }
+        },
         "meilensteine": {
             "displayName": "Meilensteine",
             "properties": {
@@ -140,6 +170,21 @@
                 "endeGleichStart": {
                     "displayName": "Ende = Start als Meilenstein",
                     "type": { "bool": true }
+                },
+                "namenAnzeigen": {
+                    "displayName": "Name am Meilenstein",
+                    "type": { "bool": true }
+                },
+                "beschriftung": {
+                    "displayName": "Beschriftung auf zugeklappten Zeilen",
+                    "description": "Was an den Rauten einer zugeklappten Gruppenzeile steht. „Nur Datum“ entspricht dem bisherigen Verhalten; bei vielen Meilensteinen je Projekt macht der Name sie erst unterscheidbar.",
+                    "type": {
+                        "enumeration": [
+                            { "value": "nurDatum", "displayName": "Nur Datum" },
+                            { "value": "nurName", "displayName": "Nur Name" },
+                            { "value": "beides", "displayName": "Name und Datum" }
+                        ]
+                    }
                 }
             }
         },
@@ -190,7 +235,7 @@
                     "task": { "max": 1 },
                     "start": { "max": 1 },
                     "end": { "max": 1 },
-                    "phase": { "max": 1 },
+                    "phase": { "max": 5 },
                     "projekt": { "max": 1 },
                     "progress": { "max": 1 },
                     "status": { "max": 1 },

@@ -58,6 +58,20 @@ function parseData(dataView: DataView | undefined, host: IVisualHost): TaskWithI
     const byRole = (role: string): DataViewCategoryColumn | undefined =>
         cat.categories.find(c => c.source.roles && c.source.roles[role]);
 
+    // Mehrfeld-Rolle (aktuell nur "phase"): ALLE gebundenen Spalten, in der
+    // Reihenfolge des Feldbrunnens. categories folgt ihr in der Regel schon,
+    // source.index stabilisiert es auch dann, wenn nicht.
+    const allByRole = (role: string): DataViewCategoryColumn[] =>
+        cat.categories
+            .filter(c => c.source.roles && c.source.roles[role])
+            .map((c, i) => ({ c, i }))
+            .sort((a, b) => {
+                const ai = typeof a.c.source.index === 'number' ? a.c.source.index : a.i;
+                const bi = typeof b.c.source.index === 'number' ? b.c.source.index : b.i;
+                return ai !== bi ? ai - bi : a.i - b.i;
+            })
+            .map(x => x.c);
+
     // GroupingOrMeasure-Rollen können als Kategorie-Spalte ODER als Measure
     // ankommen (z. B. Plan-Termine aus [Anfang/Ende (Basisplan)]-Measures,
     // die den Stand-Filter per REMOVEFILTERS ignorieren)
@@ -72,7 +86,7 @@ function parseData(dataView: DataView | undefined, host: IVisualHost): TaskWithI
     const startCol = byRole('start');
     if (!taskCol || !startCol) return [];
     const endCol = byRole('end');
-    const phaseCol = byRole('phase');
+    const phaseCols = allByRole('phase');
     const projektCol = byRole('projekt');
     const statusCol = byRole('status');
     const ownerCol = byRole('owner');
@@ -117,8 +131,16 @@ function parseData(dataView: DataView | undefined, host: IVisualHost): TaskWithI
             }
         }
 
-        const phaseRaw = phaseCol ? phaseCol.values[i] : null;
-        const phase = phaseRaw === null || phaseRaw === undefined || String(phaseRaw).trim() === '' ? null : String(phaseRaw).trim();
+        // Ebenen-Pfad: leere Stufen werden verdichtet, damit ein Zweig, der
+        // früher endet, keine namenlosen Zwischengruppen erzeugt.
+        const path: string[] = [];
+        for (const pc of phaseCols) {
+            const v = pc.values[i];
+            if (v === null || v === undefined) continue;
+            const sv = String(v).trim();
+            if (sv !== '') path.push(sv);
+        }
+        const phase = path.length ? path[0] : null;
         const projektRaw = projektCol ? projektCol.values[i] : null;
         const projekt = projektRaw === null || projektRaw === undefined || String(projektRaw).trim() === '' ? null : String(projektRaw).trim();
         const stRaw = statusCol ? statusCol.values[i] : null;
@@ -135,13 +157,17 @@ function parseData(dataView: DataView | undefined, host: IVisualHost): TaskWithI
         const fillObj = rowObjs && rowObjs.dataPoint ? (rowObjs.dataPoint.fill as powerbi.Fill) : undefined;
         const color = fillObj && fillObj.solid && fillObj.solid.color ? fillObj.solid.color : null;
 
-        // Schlüssel = Task-Name; bei Duplikaten Suffix, damit Rows eindeutig bleiben
-        let key = name;
+        // Schlüssel = Pfad + Name. Vorgangsnamen sind in MS-Project-Plänen nicht
+        // eindeutig (derselbe Name taucht in mehreren Zweigen auf); der Pfad ist es.
+        // Für echte Dubletten innerhalb desselben Zweigs bleibt das Suffix.
+        let key = (projekt !== null ? projekt + '¦' : '')
+            + (path.length ? path.join('¦') + '¦' : '')
+            + name;
         while (usedKeys.has(key)) key = key + '⁣';
         usedKeys.add(key);
 
         tasks.push({
-            key, name, phase, projekt, s, e, pct, st, ow, deps, color, ps, pe,
+            key, name, phase, path, projekt, s, e, pct, st, ow, deps, color, ps, pe,
             selectionId: host.createSelectionIdBuilder().withCategory(taskCol, i).createSelectionId()
         });
         sortKeys.push(sortVals ? sortVals[i] : null);
@@ -215,6 +241,7 @@ export class Visual implements IVisual {
 
     private pushOptions(): void {
         const d = this.formattingSettings.darstellungCard;
+        const sp = this.formattingSettings.spaltenCard;
         const b = this.formattingSettings.basisplanCard;
         const ms = this.formattingSettings.meilensteineCard;
         const f = this.formattingSettings.schriftCard.font;
@@ -226,6 +253,10 @@ export class Visual implements IVisual {
             abhaengigkeiten: d.abhaengigkeiten.value,
             heuteLinie: d.heuteLinie.value,
             tabellenBreite: d.tabellenBreite.value,
+            spalten: {
+                start: sp.start.value, end: sp.ende.value, days: sp.tage.value,
+                status: sp.status.value, pct: sp.fortschritt.value, ow: sp.wer.value
+            },
             basisplan: b.anzeigen.value,
             deltaSpalte: b.deltaSpalte.value,
             verzugZeilen: b.verzugZeilen.value,
@@ -234,6 +265,8 @@ export class Visual implements IVisual {
             tageEinheit: String(d.tageEinheit.value.value),
             msAufPhase: ms.aufPhasenzeile.value,
             msDatum: ms.datumAnzeigen.value,
+            msNamen: ms.namenAnzeigen.value,
+            msBeschriftung: String(ms.beschriftung.value.value),
             msEndeGleichStart: ms.endeGleichStart.value,
             fontFamily: f.fontFamily.value,
             fontSize: f.fontSize.value,
