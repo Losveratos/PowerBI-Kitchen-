@@ -12,8 +12,9 @@
 
   // ------------------------------------------------------------------ Zustand
   function defaultState() {
+    // Achtung: S ist hier noch null; die Feldreferenzen der Vorlage löst load() nach dem Zuweisen auf.
     const tpl = CAT.templates.find(t => t.id === 'kpi4-main-detail');
-    const p1 = { id: uid(), name: 'Übersicht', notes: '', layout: ensureIds(tpl.tree()) };
+    const p1 = { id: uid(), name: 'Übersicht', notes: '', layout: tpl.tree() };
     return {
       version: 2, name: 'Neuer Bericht',
       canvas: { w: 1280, h: 720, preset: '1280x720' },
@@ -27,7 +28,7 @@
       },
       design: { radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D' },
       pages: [p1], cur: p1.id,
-      model: { tables: [], source: null },
+      model: JSON.parse(JSON.stringify(CAT.demoModel)),
       newFields: [],
     };
   }
@@ -85,7 +86,7 @@
 
   function load() {
     try { const raw = localStorage.getItem(LS_KEY); if (raw) { S = migrate(JSON.parse(raw)); return; } } catch (e) { /* ignorieren */ }
-    S = defaultState();
+    S = defaultState(); S.pages.forEach(p => ensureIds(p.layout));   // erst jetzt ist S gesetzt → Vorlagenfelder werden gebunden
   }
   function persist() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { /* voll oder blockiert */ } }
   let snap = null;
@@ -567,13 +568,27 @@
     list.innerHTML = html;
   }
   $('#modelList').addEventListener('click', e => {
-    const rm = e.target.closest('[data-rmnew]'); if (rm) { S.newFields.splice(+rm.dataset.rmnew, 1); commit(); return; }
+    const rm = e.target.closest('[data-rmnew]');
+    if (rm) {
+      const f = S.newFields[+rm.dataset.rmnew]; if (!f) return;
+      const same = x => x.table === f.table && x.name === f.name;
+      // erst zählen, dann fragen, dann entfernen (sonst wäre der Zustand bei „Abbrechen" schon verändert)
+      let n = S.chrome.filter.fields.filter(same).length;
+      S.pages.forEach(p => visuals(p).forEach(l => Object.values(l.visual.roles).forEach(list => { n += list.filter(same).length; })));
+      if (n && !confirm(`„${f.name}" ist ${n}× gebunden. Feld und alle Bindungen entfernen?`)) return;
+      S.pages.forEach(p => visuals(p).forEach(l => Object.keys(l.visual.roles).forEach(k => { l.visual.roles[k] = l.visual.roles[k].filter(x => !same(x)); })));
+      S.chrome.filter.fields = S.chrome.filter.fields.filter(x => !same(x));
+      S.newFields.splice(+rm.dataset.rmnew, 1); commit(); if (n) toast(`„${f.name}" samt ${n} Bindung(en) entfernt`); return;
+    }
     const h = e.target.closest('.table-head'); if (!h) return; const blk = h.parentElement; const nm = blk.dataset.table; if (!nm) return;
     blk.classList.toggle('open'); if (blk.classList.contains('open')) openTables.add(nm); else openTables.delete(nm);
   });
   $('#modelList').addEventListener('dragstart', e => { const c = e.target.closest('[data-field]'); if (!c) return; e.dataTransfer.setData('application/mk-field', c.dataset.field); e.dataTransfer.effectAllowed = 'copy'; });
   $('#modelSearch').addEventListener('input', renderModel); $('#onlyUsed').addEventListener('change', renderModel);
-  $('#btnNewMeasure').onclick = () => { $('#nmName').value = ''; $('#nmDesc').value = ''; $('#nmOpen').value = ''; $('#nmTable').value = $('#nmTable').value || (S.model.tables[0] ? S.model.tables[0].name : '_Measures'); $('#dlgNewMeasure').showModal(); $('#nmName').focus(); };
+  // Standardtabelle: Measures in die Measure-Tabelle (erste mit Measures, sonst „_Measures"), Dimensionen in die erste Dimensionstabelle
+  const defaultTableFor = kind => { const t = kind === 'measure' ? S.model.tables.find(x => x.measures.length) : S.model.tables.find(x => x.columns.length && !x.measures.length); return t ? t.name : (kind === 'measure' ? '_Measures' : 'DimNeu'); };
+  $('#btnNewMeasure').onclick = () => { $('#nmName').value = ''; $('#nmDesc').value = ''; $('#nmOpen').value = ''; $('#nmTable').value = defaultTableFor($('#nmKind').value); $('#dlgNewMeasure').showModal(); $('#nmName').focus(); };
+  $('#nmKind').addEventListener('change', () => { $('#nmTable').value = defaultTableFor($('#nmKind').value); });
   $('#nmOk').onclick = () => {
     const name = $('#nmName').value.trim(); if (!name) return $('#nmName').focus();
     const kind = $('#nmKind').value;

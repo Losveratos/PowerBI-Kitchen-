@@ -1493,7 +1493,7 @@
     var titleH = (!c.small && kpiLabel) ? c.fs + 3 : 0;
     // Ausnahme zur 8–10-px-Regel: die Kennzahl selbst ist das Erkennungsmerkmal.
     // Der Grad richtet sich auch nach der Textbreite, sonst läuft sie heraus.
-    var num = lbl(124.6);
+    var num = lbl(Math.round((40 + c.rnd() * 900) * 10) / 10);   // je Kachel andere Demo-Zahl (deterministisch über seed)
     var big = clamp(Math.min((P.h - titleH) * 0.5, iw / (num.length * 0.62)), 4, 40);
     var dH = Math.min(c.fs + 6, big * 0.62) + c.fs * 0.3;
     // Block aus Titel, Zahl und Δ-Zeile vertikal zentrieren.
@@ -1576,7 +1576,7 @@
     var P = area(c, {});
     // Ausnahme zur 8–10-px-Regel: die Zahl ist der Inhalt der Karte.
     // Der Grad richtet sich auch nach der Textbreite, sonst läuft sie heraus.
-    var cnum = lbl(84.2);
+    var cnum = lbl(Math.round((20 + c.rnd() * 300) * 10) / 10);
     var big = clamp(Math.min(P.h * 0.46, P.w / (cnum.length * 0.62)), 4, 30);
     var cx = P.x + P.w / 2, cy = P.y + P.h / 2;
     b += txt(cx, cy + big * 0.28, cnum, big, AC, 'middle', '600');
