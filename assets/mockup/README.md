@@ -1,4 +1,24 @@
-# MockupKitchen · Bauplan (v0.2)
+# MockupKitchen · Bauplan (v0.3)
+
+Positionierung (aus dem Review): kein Report-Generator, sondern ein **Anforderungswerkzeug mit deterministischem
+Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau ist eine Ableitung.
+
+## Neu in v0.3 (Roadmap aus dem Sechs-Personen-Review, `REVIEW-2026-09-18.md`)
+
+- **Spec v3:** stabile Visual-IDs (`mk_<Knoten-ID>`), `meta.specHash`, `report` (Berichtskopf), `analysis` je Kachel
+  (Polarität, Δ-Basis/-Art, Einheit, Anzeige-Einheit, Dezimalen, Sortierung, Top-N, Zeitgranularität, kumuliert,
+  Skalengruppe, Kernaussage), `workshop` (Priorität, Status, offene Frage), `content` bei Text/Button, `fields`
+  (Steckbrief je gebundenem Feld: Alias, bestätigt, Owner, Quelle, Ziel, Einheit, Anmerkung), `links[].drillField`,
+  `slicers[].default`, strukturierte `issues[]`.
+- **Tool:** Reiter „Bericht" (Zielgruppe, Ziel, Entscheidung, Version, Datenstand, Teilnehmende, Sprache), Fragestellung
+  je Seite, Rollenmenü statt Raten bei mehrdeutiger Feldzuweisung, Klick-Fallback (Chip anklicken → gewählte Kachel),
+  Kacheln per Tastatur (Tab/Enter), Präsentiermodus (Taste P, Panels weg, Zoom ~100 %), Undo/Redo-Buttons,
+  gegenskalierte Editier-Controls, rote Markierung leerer Pflichtrollen, Anti-Pattern-Überzug (Kreis, Tacho),
+  Engine-Whitelist (Typen ohne ChartKitchen-Modus bekommen keine ck-Engine), Steckbrief per Doppelklick auf ein Feld.
+- **Skizzen:** `polarity`, `scenarios`/`deltaBasis`, `lang`, `unit`, `antiPattern` als Optionen.
+- **Export:** Seitenbilder als PNG (`render-png.js`), Native Visuals mit leeren Pflichtrollen werden nicht mehr in
+  `pbir-visuals` geschrieben, Text-Kacheln tragen `content`.
+- **Sprache:** `i18n.js`, Umschalter DE/EN; Skizzen-Beschriftungen und Export-Dokumente folgen `S.lang`.
 
 Mockup-Tool für Power-BI-Berichte mit mehreren Seiten. Einstieg: `mockup-kitchen.html` im Repo-Root, lokal über
 `python -m http.server 8022` (launch.json „static") öffnen. Kein Build, keine Abhängigkeiten. Doppelklick auf die

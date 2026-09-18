@@ -2,6 +2,8 @@
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
+  const I18N = window.MK_I18N;
+  const t = (key, vars) => I18N.t(key, vars);          // Kurzform für Übersetzungen in der UI-Sprache
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const uid = () => Math.random().toString(36).slice(2, 9);
@@ -14,21 +16,21 @@
   function defaultState() {
     // Achtung: S ist hier noch null; die Feldreferenzen der Vorlage löst load() nach dem Zuweisen auf.
     const tpl = CAT.templates.find(t => t.id === 'kpi4-main-detail');
-    const p1 = { id: uid(), name: 'Übersicht', notes: '', layout: tpl.tree() };
+    const p1 = { id: uid(), name: t('state.firstPage'), notes: '', layout: tpl.tree() };
     return {
-      version: 2, name: 'Neuer Bericht',
+      version: 2, name: t('state.newReport'),
       canvas: { w: 1280, h: 720, preset: '1280x720' },
       spacing: { margin: 16, gutter: 12, pad: 8 },
       defScenario: 'AC/PL',
       chrome: {
-        header: { on: true, h: 56, logoPos: 'left', title: 'Management Report', sub: 'in T€ · YTD 2026', navAuto: true, nav: [] },
+        header: { on: true, h: 56, logoPos: 'left', title: t('state.headerTitle'), sub: t('state.headerSub'), navAuto: true, nav: [] },
         nav: { on: false, w: 64 },
         filter: { on: true, side: 'right', w: 200, topH: 56, collapsible: false, fields: [] },
-        footer: { on: true, h: 24, text: 'Stand: 18.09.2026 · Quelle: DWH · Kontakt: Controlling' },
+        footer: { on: true, h: 24, text: t('state.footerText') },
       },
       design: { radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D' },
       report: { audience: '', purpose: '', decision: '', participants: '', version: '0.1', dataDate: '' },
-      lang: 'de',
+      lang: I18N.lang,
       fieldMeta: {},
       pages: [p1], cur: p1.id,
       model: JSON.parse(JSON.stringify(CAT.demoModel)),
@@ -37,9 +39,9 @@
   }
   function migrate(s) {
     s.report = Object.assign({ audience: '', purpose: '', decision: '', participants: '', version: '0.1', dataDate: '' }, s.report || {});
-    s.lang = s.lang || 'de'; s.fieldMeta = s.fieldMeta || {};
+    s.lang = (s.lang === 'en' || s.lang === 'de') ? s.lang : I18N.lang; s.fieldMeta = s.fieldMeta || {};
     if (!s.version || s.version < 2) {
-      const p = { id: uid(), name: s.pageName || 'Übersicht', notes: s.notes || '', layout: s.layout || ensureIds(CAT.templates[0].tree()) };
+      const p = { id: uid(), name: s.pageName || t('state.firstPage'), notes: s.notes || '', layout: s.layout || ensureIds(CAT.templates[0].tree()) };
       s.pages = [p]; s.cur = p.id; delete s.layout; delete s.pageName; delete s.notes;
       const h = s.chrome.header; h.logoPos = h.logo === false ? 'none' : 'left'; h.navAuto = true; delete h.logo;
       s.design = { radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D' };
@@ -105,7 +107,8 @@
   }
 
   function load() {
-    try { const raw = localStorage.getItem(LS_KEY); if (raw) { S = migrate(JSON.parse(raw)); return; } } catch (e) { /* ignorieren */ }
+    // Die Sprache des Projekts gewinnt über die zuletzt gemerkte UI-Sprache; ein neues Projekt erbt die UI-Sprache.
+    try { const raw = localStorage.getItem(LS_KEY); if (raw) { S = migrate(JSON.parse(raw)); I18N.set(S.lang); return; } } catch (e) { /* ignorieren */ }
     S = defaultState(); S.pages.forEach(p => ensureIds(p.layout));   // erst jetzt ist S gesetzt → Vorlagenfelder werden gebunden
   }
   function persist() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { /* voll oder blockiert */ } }
@@ -117,14 +120,14 @@
   }
   function mark() { if (snap !== null) { undoStack.push(snap); if (undoStack.length > 40) undoStack.shift(); redoStack = []; } snap = JSON.stringify(S); persist(); }
   function undo() {
-    if (!undoStack.length) return toast('Nichts rückgängig zu machen');
+    if (!undoStack.length) return toast(t('toast.nothingUndo'));
     redoStack.push(JSON.stringify(S));
-    S = migrate(JSON.parse(undoStack.pop())); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast('Rückgängig');
+    S = migrate(JSON.parse(undoStack.pop())); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast(t('toast.undone'));
   }
   function redo() {
-    if (!redoStack.length) return toast('Nichts zu wiederholen');
+    if (!redoStack.length) return toast(t('toast.nothingRedo'));
     undoStack.push(JSON.stringify(S));
-    S = migrate(JSON.parse(redoStack.pop())); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast('Wiederholt');
+    S = migrate(JSON.parse(redoStack.pop())); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast(t('toast.redone'));
   }
 
   // ------------------------------------------------------------------ Baum-Helfer (aktuelle Seite)
@@ -166,23 +169,23 @@
   }
   function applyTemplate(tplId) {
     const tpl = CAT.templates.find(t => t.id === tplId); if (!tpl) return;
-    if (visuals().length && !confirm(`Vorlage „${tpl.label}" ersetzt die ${visuals().length} Kachel(n) dieser Seite. Fortfahren? (Strg+Z macht es rückgängig)`)) return;
-    if (!S.model.tables.length) { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); openMeasureTable(); toast('Demo-Modell geladen, Vorlage gebunden'); }
-    page().layout = ensureIds(tpl.tree()); sel = null; commit(); toast('Vorlage „' + tpl.label + '" gesetzt');
+    if (visuals().length && !confirm(t('ask.tplReplace', { t: tpl.label, n: visuals().length }))) return;
+    if (!S.model.tables.length) { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); openMeasureTable(); toast(t('toast.demoLoadedTpl')); }
+    page().layout = ensureIds(tpl.tree()); sel = null; commit(); toast(t('toast.tplSet', { t: tpl.label }));
   }
 
   // ------------------------------------------------------------------ Seiten
   function addPage(name, tplId) {
     const tpl = CAT.templates.find(t => t.id === (tplId || 'empty'));
-    const p = { id: uid(), name: name || ('Seite ' + (S.pages.length + 1)), notes: '', layout: ensureIds(tpl.tree()) };
+    const p = { id: uid(), name: name || t('state.pageN', { n: S.pages.length + 1 }), notes: '', layout: ensureIds(tpl.tree()) };
     S.pages.push(p); S.cur = p.id; sel = null; commit(); return p;
   }
-  function dupPage() { const src = page(); const p = JSON.parse(JSON.stringify(src)); p.id = uid(); p.name = src.name + ' (Kopie)'; reId(p.layout); S.pages.splice(S.pages.indexOf(src) + 1, 0, p); S.cur = p.id; sel = null; commit(); }
+  function dupPage() { const src = page(); const p = JSON.parse(JSON.stringify(src)); p.id = uid(); p.name = src.name + t('state.copySuffix'); reId(p.layout); S.pages.splice(S.pages.indexOf(src) + 1, 0, p); S.cur = p.id; sel = null; commit(); }
   function reId(n) { n.id = uid(); if (n.type === 'split') n.children.forEach(c => reId(c.node)); }
   function delPage(pid) {
     const p = S.pages.find(x => x.id === pid) || page();
-    if (S.pages.length === 1) return toast('Die letzte Seite bleibt');
-    if (!confirm('Seite „' + p.name + '" löschen?')) return;
+    if (S.pages.length === 1) return toast(t('toast.lastPage'));
+    if (!confirm(t('ask.delPage', { n: p.name }))) return;
     const i = S.pages.indexOf(p); const id = p.id; S.pages.splice(i, 1); S.cur = S.pages[Math.max(0, i - 1)].id; sel = null;
     S.pages.forEach(p => visuals(p).forEach(l => { if (l.visual.link === id) l.visual.link = ''; }));
     commit();
@@ -190,18 +193,18 @@
   function movePage(d) { const i = S.pages.indexOf(page()); const j = i + d; if (j < 0 || j >= S.pages.length) return; const [p] = S.pages.splice(i, 1); S.pages.splice(j, 0, p); commit(); }
   function renderPages() {
     const bar = $('#pagebar');
-    bar.innerHTML = S.pages.map((p, i) => `<span class="ptab${p.id === S.cur ? ' act' : ''}" data-page="${p.id}"><span class="n">${i + 1}</span>${esc(p.name)}${p.id === S.cur ? `<span class="x" data-renpage="${p.id}" title="Seite umbenennen">✎</span>` : ''}<span class="x" data-delpage="${p.id}" title="Seite löschen">×</span></span>`).join('')
-      + `<button class="padd" id="btnAddPage">+ Seite</button><span class="ptools"><button class="btn sm ghost" id="btnPageLeft" title="Seite nach links">‹</button><button class="btn sm ghost" id="btnPageRight" title="Seite nach rechts">›</button></span>`;
+    bar.innerHTML = S.pages.map((p, i) => `<span class="ptab${p.id === S.cur ? ' act' : ''}" data-page="${p.id}"><span class="n">${i + 1}</span>${esc(p.name)}${p.id === S.cur ? `<span class="x" data-renpage="${p.id}" title="${esc(t('tip.pageRename'))}">✎</span>` : ''}<span class="x" data-delpage="${p.id}" title="${esc(t('tip.pageDelete'))}">×</span></span>`).join('')
+      + `<button class="padd" id="btnAddPage">${esc(t('btn.addPage'))}</button><span class="ptools"><button class="btn sm ghost" id="btnPageLeft" title="${esc(t('tip.pageLeft'))}">‹</button><button class="btn sm ghost" id="btnPageRight" title="${esc(t('tip.pageRight'))}">›</button></span>`;
   }
   $('#pagebar').addEventListener('click', e => {
     const del = e.target.closest('[data-delpage]'); if (del) { delPage(del.dataset.delpage); return; }
-    const ren = e.target.closest('[data-renpage]'); if (ren) { const p = S.pages.find(x => x.id === ren.dataset.renpage); const n = prompt('Seitenname', p.name); if (n && n.trim()) { p.name = n.trim(); commit(); } return; }
-    const t = e.target.closest('[data-page]'); if (t) { if (t.dataset.page !== S.cur) { S.cur = t.dataset.page; sel = null; commit({ noUndo: true }); } return; }
+    const ren = e.target.closest('[data-renpage]'); if (ren) { const p = S.pages.find(x => x.id === ren.dataset.renpage); const n = prompt(t('ask.pageName'), p.name); if (n && n.trim()) { p.name = n.trim(); commit(); } return; }
+    const tab = e.target.closest('[data-page]'); if (tab) { if (tab.dataset.page !== S.cur) { S.cur = tab.dataset.page; sel = null; commit({ noUndo: true }); } return; }
     if (e.target.id === 'btnAddPage') addPage();
     if (e.target.id === 'btnPageLeft') movePage(-1);
     if (e.target.id === 'btnPageRight') movePage(1);
   });
-  $('#pagebar').addEventListener('dblclick', e => { const t = e.target.closest('[data-page]'); if (!t) return; const p = S.pages.find(x => x.id === t.dataset.page); const n = prompt('Seitenname', p.name); if (n && n.trim()) { p.name = n.trim(); commit(); } });
+  $('#pagebar').addEventListener('dblclick', e => { const el = e.target.closest('[data-page]'); if (!el) return; const p = S.pages.find(x => x.id === el.dataset.page); const n = prompt(t('ask.pageName'), p.name); if (n && n.trim()) { p.name = n.trim(); commit(); } });
 
   // ------------------------------------------------------------------ Geometrie
   function zones() {
@@ -255,18 +258,18 @@
       const cur = c.header.navAuto ? page().name : names[0];
       const nav = names.map(n => `<span class="${n === cur ? 'act' : ''}">${esc(n)}</span>`).join('');
       const logo = pos => c.header.logoPos === pos ? `<div class="logo${pos === 'right' ? ' right' : ''}">LOGO</div>` : '';
-      const burger = c.filter.on && c.filter.side === 'burger' ? `<div class="burger" title="Filter-Menü (Bookmark)"><i></i><i></i><i></i>${c.filter.fields.length ? `<b>${c.filter.fields.length}</b>` : ''}</div>` : '';
-      html += `<div class="zone header ${d.header || 'light'}" style="${css(z.header)}">${burger}${logo('left')}<div style="min-width:0"><div class="ttl">${esc(c.header.title || 'Seitentitel')}</div>${c.header.sub ? `<div class="sub">${esc(c.header.sub)}</div>` : ''}</div>${nav ? `<div class="nav${c.header.logoPos === 'right' ? ' noauto' : ''}" style="${c.header.logoPos === 'right' ? 'margin-left:auto' : ''}">${nav}</div>` : ''}${logo('right')}</div>`;
+      const burger = c.filter.on && c.filter.side === 'burger' ? `<div class="burger" title="${esc(t('tip.filterMenu'))}"><i></i><i></i><i></i>${c.filter.fields.length ? `<b>${c.filter.fields.length}</b>` : ''}</div>` : '';
+      html += `<div class="zone header ${d.header || 'light'}" style="${css(z.header)}">${burger}${logo('left')}<div style="min-width:0"><div class="ttl">${esc(c.header.title || t('canvas.pageTitle'))}</div>${c.header.sub ? `<div class="sub">${esc(c.header.sub)}</div>` : ''}</div>${nav ? `<div class="nav${c.header.logoPos === 'right' ? ' noauto' : ''}" style="${c.header.logoPos === 'right' ? 'margin-left:auto' : ''}">${nav}</div>` : ''}${logo('right')}</div>`;
     }
     if (z.footer) html += `<div class="zone footer" style="${css(z.footer)}">${esc(c.footer.text || '')}</div>`;
     if (z.filter) {
-      const sl = (c.filter.fields || []).map((f, i) => `<div class="sl"><span class="nm">${esc(f.name)}</span><span class="x" data-rmfilter="${i}" title="Slicer entfernen">✕</span></div>`).join('');
-      html += `<div class="zone filter ${c.filter.side}" style="${css(z.filter)}" data-dropfilter="1"><h4>Filter${c.filter.collapsible && c.filter.side !== 'top' ? ' ⧉' : ''}</h4>${sl}<div class="sl ph">+ Feld hierher ziehen</div></div>`;
+      const sl = (c.filter.fields || []).map((f, i) => `<div class="sl"><span class="nm">${esc(f.name)}</span><span class="x" data-rmfilter="${i}" title="${esc(t('tip.slicerRemove'))}">✕</span></div>`).join('');
+      html += `<div class="zone filter ${c.filter.side}" style="${css(z.filter)}" data-dropfilter="1"><h4>${esc(t('canvas.filter'))}${c.filter.collapsible && c.filter.side !== 'top' ? ' ⧉' : ''}</h4>${sl}<div class="sl ph">${esc(t('canvas.dropField'))}</div></div>`;
     }
     all.leaves.forEach(({ node, rect }) => { html += tileHtml(node, rect); });
     all.gutters.forEach((g, i) => { html += `<div class="gutter ${g.dir === 'row' ? 'v' : 'h'}" data-gutter="${i}" style="${css(g.rect)}"></div>`; });
     pageEl.innerHTML = html;
-    $('#stageInfo').textContent = `${w} × ${h} px · Inhalt ${z.content.w} × ${z.content.h} · Skalierung ×${k.toFixed(2)} · Zoom ${Math.round(zoom * 100)} %`;
+    $('#stageInfo').textContent = t('canvas.info', { w, h, cw: z.content.w, ch: z.content.h, k: k.toFixed(2), z: Math.round(zoom * 100) });
     renderPages(); renderInspector(); renderModel(); syncPageInputs();
   }
   function css(r) { return `left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px`; }
@@ -274,21 +277,21 @@
   function tileHtml(node, rect) {
     const v = node.visual; const selc = sel === node.id ? ' sel' : ''; const k = ui();
     const tiny = rect.h < 70 * k || rect.w < 110 * k;
-    const acts = `<div class="t-actions"><button data-act="row" title="In Spalten teilen">⇔</button><button data-act="col" title="In Zeilen teilen">⇕</button><button data-act="rm" title="Kachel entfernen">✕</button></div>`;
-    if (!v) return `<div class="tile empty${selc}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="Leere Kachel" style="${css(rect)}"><span class="plus">+</span><span class="lbl">${tiny ? '' : 'Visual wählen oder Feld ablegen'}</span>${acts}</div>`;
+    const acts = `<div class="t-actions"><button data-act="row" title="${esc(t('tip.splitRow'))}">⇔</button><button data-act="col" title="${esc(t('tip.splitCol'))}">⇕</button><button data-act="rm" title="${esc(t('tip.tileRemove'))}">✕</button></div>`;
+    if (!v) return `<div class="tile empty${selc}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="${esc(t('canvas.emptyTile'))}" style="${css(rect)}"><span class="plus">+</span><span class="lbl">${tiny ? '' : esc(t('canvas.emptyHint'))}</span>${acts}</div>`;
     const def = CAT.byId[v.kind] || {}; const pad = Math.round(S.spacing.pad * k);
     const link = v.link ? S.pages.find(p => p.id === v.link) : null;
-    const chips = roleChips(v) + (link ? `<span class="rchip link" title="Springt zu Seite">↗ ${esc(link.name)}</span>` : '');
+    const chips = roleChips(v) + (link ? `<span class="rchip link" title="${esc(t('tip.linkTo'))}">↗ ${esc(link.name)}</span>` : '');
     const headH = v.title || v.sub ? (tiny ? 18 : 24) * k : 0;
     const footH = chips && !tiny ? 18 * k : 0;
     const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - footH - pad - 6);
     const an = analysisOf(v);
     const svg = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, bw, bh, { scenario: v.scenario, seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, antiPattern: !!ANTI[v.kind] }) : '';
-    const note = v.notes ? `<span class="note-ico" title="Notiz${v.openQuestion ? ' (offene Frage)' : ''}">${v.openQuestion ? '?' : '✎'}</span><div class="note-pop">${esc(v.notes)}</div>` : (v.openQuestion ? `<span class="note-ico" title="Offene Frage">?</span><div class="note-pop">Offene Frage (noch ohne Text)</div>` : '');
+    const note = v.notes ? `<span class="note-ico" title="${esc(v.openQuestion ? t('canvas.noteOpen') : t('canvas.note'))}">${v.openQuestion ? '?' : '✎'}</span><div class="note-pop">${esc(v.notes)}</div>` : (v.openQuestion ? `<span class="note-ico" title="${esc(t('canvas.openQuestion'))}">?</span><div class="note-pop">${esc(t('canvas.openQuestionEmpty'))}</div>` : '');
     const missing = (def.roles || []).filter(r => r.req && !(v.roles[r.key] || []).length).map(r => r.label);
-    const req = missing.length ? `<span class="reqdot" title="Pflichtrolle leer: ${esc(missing.join(', '))}"></span>` : '';
-    const pri = v.priority ? `<span class="pri ${v.priority}" title="Priorität ${v.priority}">${{ must: 'M', should: 'S', could: 'C' }[v.priority] || ''}</span>` : '';
-    const st = v.status && v.status !== 'open' ? `<span class="st ${v.status}" title="Status: ${v.status === 'agreed' ? 'abgestimmt' : 'abgenommen'}"></span>` : '';
+    const req = missing.length ? `<span class="reqdot" title="${esc(t('canvas.reqEmpty', { roles: missing.join(', ') }))}"></span>` : '';
+    const pri = v.priority ? `<span class="pri ${v.priority}" title="${esc(t('canvas.priority', { p: t('opt.pri.' + v.priority) }))}">${{ must: 'M', should: 'S', could: 'C' }[v.priority] || ''}</span>` : '';
+    const st = v.status && v.status !== 'open' ? `<span class="st ${v.status}" title="${esc(t('canvas.status', { s: t('opt.status.' + v.status) }))}"></span>` : '';
     return `<div class="tile${selc}${tiny ? ' tiny' : ''}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="${esc(v.title || def.label)}" style="${css(rect)};padding:${Math.max(0, pad - 6)}px">
       ${headH ? `<div class="t-head"><span class="t-title">${esc(v.title || def.label)}</span>${v.sub ? `<span class="t-sub">${esc(v.sub)}</span>` : ''}</div>` : ''}
       <div class="t-body">${svg}${ANTI[v.kind] ? '<div class="ap"></div>' : ''}</div>
@@ -383,10 +386,10 @@
       const free = fitting.filter(r => (v.roles[r.key] || []).length < r.max);
       if (free.length === 1 && fitting.length === 1) role = free[0];
       else if (fitting.length) { showRoleMenu(id, f, fitting, v); return; }
-      else return toast(`Kein Platz für ein Feld vom Typ „${f.kind === 'measure' ? 'Measure' : 'Spalte'}" in dieser Kachel`);
+      else return toast(t('toast.noRoom', { kind: f.kind === 'measure' ? t('kind.measure') : t('kind.column') }));
     }
     const list = v.roles[role.key] = v.roles[role.key] || [];
-    if (list.some(x => x.table === f.table && x.name === f.name)) return toast('Feld ist schon zugewiesen');
+    if (list.some(x => x.table === f.table && x.name === f.name)) return toast(t('toast.fieldAssigned'));
     if (list.length >= role.max) list.shift();
     list.push({ table: f.table, name: f.name, kind: f.kind, type: f.type || '', isNew: !!f.isNew });
     if (!v.title && role.key !== 'category' && role.key !== 'field') v.title = f.name;
@@ -399,7 +402,7 @@
   function showRoleMenu(id, f, roles, v) {
     closeRoleMenu();
     const m = document.createElement('div'); m.className = 'rolemenu'; roleMenu = m;
-    m.innerHTML = `<div class="rm-head">„${esc(f.name)}" zuordnen als …</div>` + roles.map(r => { const cur = v.roles[r.key] || []; const full = cur.length >= r.max; return `<button data-rk="${r.key}"><b>${esc(r.label)}</b><small>${cur.length ? esc(cur.map(x => x.name).join(', ')) + (full ? ' · ersetzt ' + esc(cur[0].name) : '') : 'frei'}</small></button>`; }).join('') + `<button data-rk="">Abbrechen</button>`;
+    m.innerHTML = `<div class="rm-head">${esc(t('role.menuHead', { f: f.name }))}</div>` + roles.map(r => { const cur = v.roles[r.key] || []; const full = cur.length >= r.max; return `<button data-rk="${r.key}"><b>${esc(r.label)}</b><small>${cur.length ? esc(cur.map(x => x.name).join(', ')) + (full ? esc(t('role.replaces', { n: cur[0].name })) : '') : esc(t('role.free'))}</small></button>`; }).join('') + `<button data-rk="">${esc(t('btn.cancel'))}</button>`;
     document.body.appendChild(m);
     const tile = document.querySelector(`.tile[data-leaf="${id}"]`); const r = tile ? tile.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };
     m.style.left = Math.min(innerWidth - 280, Math.max(8, r.left + r.width / 2 - 130)) + 'px'; m.style.top = Math.min(innerHeight - 260, Math.max(8, r.top + r.height / 2 - 40)) + 'px';
@@ -408,68 +411,69 @@
   }
   function outsideRoleMenu(e) { if (roleMenu && !roleMenu.contains(e.target)) closeRoleMenu(); }
   function closeRoleMenu() { if (roleMenu) { roleMenu.remove(); roleMenu = null; document.removeEventListener('mousedown', outsideRoleMenu); } }
-  function addFilterField(f) { const list = S.chrome.filter.fields; if (list.some(x => x.table === f.table && x.name === f.name)) return toast('Slicer existiert schon'); list.push({ table: f.table, name: f.name, kind: f.kind, isNew: !!f.isNew }); commit(); }
+  function addFilterField(f) { const list = S.chrome.filter.fields; if (list.some(x => x.table === f.table && x.name === f.name)) return toast(t('toast.slicerExists')); list.push({ table: f.table, name: f.name, kind: f.kind, isNew: !!f.isNew }); commit(); }
 
   // ------------------------------------------------------------------ Inspector · Element
   const insEl = $('#insEl');
   function renderInspector() {
     const f = sel ? findNode(sel) : null;
-    if (!f) { insEl.innerHTML = `<p class="hint">Kachel anklicken, um Typ, Titel, Datenrollen, Notizen und Sprungziel zu setzen.</p><div class="section"><h3>Schnellstart</h3><ol class="list-dense hint"><li>„Vorlagen" oben wählen (lädt bei Bedarf das Demo-Modell)</li><li>Rechts „Rahmen" und „Design" einstellen</li><li>Kachel teilen (⇔ ⇕), Trennlinien ziehen</li><li>Doppelklick auf Kachel → Visual wählen</li><li>Felder aus dem Modell auf Kacheln ziehen</li><li>Weitere Seiten über „+ Seite", Export für Claude Code</li></ol></div>`; return; }
+    if (!f) { insEl.innerHTML = `<p class="hint">${esc(t('hint.pickTile'))}</p><div class="section"><h3>${esc(t('sec.quickstart'))}</h3><ol class="list-dense hint">${[1, 2, 3, 4, 5, 6].map(i => `<li>${esc(t('quickstart.s' + i))}</li>`).join('')}</ol></div>`; return; }
     const n = f.node, v = n.visual; const rect = (lastRects.leaves.find(l => l.node.id === n.id) || {}).rect || { x: 0, y: 0, w: 0, h: 0 };
-    const dims = `<div class="kv" style="margin-top:8px"><span class="k">x · y</span><span>${rect.x} · ${rect.y}</span><span class="k">w × h</span><span>${rect.w} × ${rect.h} px</span></div>`;
-    if (!v) { insEl.innerHTML = `<button class="typebtn" id="btnPickType"><div class="pv"></div><div><b>Visual wählen …</b><small>ChartKitchen oder nativ</small></div></button><p class="hint">Oder ein Feld aus dem Modell auf die Kachel ziehen: Kennzahl → KPI, Spalte → Slicer.</p>${dims}<div class="section"><button class="btn sm" data-ins="rm">Kachel entfernen</button></div>`; bindInspector(n); return; }
+    const dims = `<div class="kv" style="margin-top:8px"><span class="k">${esc(t('canvas.dims.xy'))}</span><span>${rect.x} · ${rect.y}</span><span class="k">${esc(t('canvas.dims.wh'))}</span><span>${rect.w} × ${rect.h} px</span></div>`;
+    if (!v) { insEl.innerHTML = `<button class="typebtn" id="btnPickType"><div class="pv"></div><div><b>${esc(t('btn.pickType'))}</b><small>${esc(t('hint.pickTypeSub'))}</small></div></button><p class="hint">${esc(t('hint.dragField'))}</p>${dims}<div class="section"><button class="btn sm" data-ins="rm">${esc(t('btn.removeTile'))}</button></div>`; bindInspector(n); return; }
     const def = CAT.byId[v.kind] || { label: v.kind, roles: [], engines: ['native'] };
     const pv = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, 64, 36, { scenario: v.scenario, seed: 3 }) : '';
     const engines = def.engines.map(e => `<button data-engine="${e}" class="${v.engine === e ? 'on ' + e : ''}">${CAT.engineLabel[e]}</button>`).join('');
     const hasRef = def.roles.some(r => r.key === 'ref');
     const roles = def.roles.map(r => {
       const list = v.roles[r.key] || [];
-      const chips = list.map((x, i) => `<span class="fchip ${x.kind === 'measure' ? 'm' : 'c'}${x.isNew ? ' new' : ''}" draggable="false"><span class="ico">${x.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(x.name)}</span><button class="x" data-rmrole="${r.key}" data-i="${i}" title="entfernen">×</button></span>`).join('');
-      return `<div class="role" data-role="${r.key}"><div class="rl">${esc(r.label)}${r.req ? '<span class="req">*</span>' : ''}<span class="k">${r.kind === 'any' ? 'Feld' : r.kind === 'measure' ? 'Measure' : 'Spalte'} · max ${r.max}</span></div>${chips ? `<div class="chips">${chips}</div>` : ''}${list.length < r.max ? `<div class="drop">Feld hierher ziehen</div>` : ''}</div>`;
+      const chips = list.map((x, i) => `<span class="fchip ${x.kind === 'measure' ? 'm' : 'c'}${x.isNew ? ' new' : ''}" draggable="false"><span class="ico">${x.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(x.name)}</span><button class="x" data-rmrole="${r.key}" data-i="${i}" title="${esc(t('tip.remove'))}">×</button></span>`).join('');
+      const kindLbl = r.kind === 'any' ? t('kind.any') : r.kind === 'measure' ? t('kind.measure') : t('kind.column');
+      return `<div class="role" data-role="${r.key}"><div class="rl">${esc(r.label)}${r.req ? '<span class="req">*</span>' : ''}<span class="k">${esc(kindLbl)} · ${esc(t('canvas.maxN', { n: r.max }))}</span></div>${chips ? `<div class="chips">${chips}</div>` : ''}${list.length < r.max ? `<div class="drop">${esc(t('canvas.dropFieldRole'))}</div>` : ''}</div>`;
     }).join('');
-    const links = `<option value="">– keins –</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
+    const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
     const an = analysisOf(v); const a = v.analysis || {};
     const hasMeasure = def.roles.some(r => ['ac', 'indicator', 'values', 'y'].includes(r.key));
     const opt = (list, cur, labels) => list.map(x => `<option value="${x}" ${String(cur) === String(x) ? 'selected' : ''}>${labels ? labels[x] : x}</option>`).join('');
-    const analysis = hasMeasure ? `<div class="section"><h3>Analyse (wandert in die Spec)</h3>
+    const analysis = hasMeasure ? `<div class="section"><h3>${esc(t('sec.analysis'))}</h3>
       <div class="grid2">
-        <div class="field"><label>Polarität</label><select class="ctl" data-an="polarity">${opt(['', 'higher', 'lower'], a.polarity || '', { '': `auto (${an.polarity === 'lower' ? 'kleiner = besser' : 'größer = besser'})`, higher: 'größer = besser', lower: 'kleiner = besser' })}</select></div>
-        ${hasRef ? `<div class="field"><label>Δ-Basis</label><select class="ctl" data-an="deltaBasis">${opt(['', 'PL', 'PY', 'BU', 'FC'], a.deltaBasis || '', { '': `auto (${an.deltaBasis})`, PL: 'PL', PY: 'PY', BU: 'BU', FC: 'FC' })}</select></div>` : '<div></div>'}
-        <div class="field"><label>Einheit</label><input class="ctl" data-an="unit" value="${esc(an.unit)}" placeholder="T€, %, Stück"></div>
-        <div class="field"><label>Anzeige-Einheit</label><select class="ctl" data-an="displayUnits">${opt(['auto', 'none', 'K', 'M'], an.displayUnits, { auto: 'auto', none: 'keine', K: 'Tausend (K)', M: 'Millionen (M)' })}</select></div>
-        <div class="field"><label>Dezimalstellen</label><input class="ctl" type="number" min="0" max="4" data-an="decimals" value="${an.decimals == null ? '' : an.decimals}" placeholder="auto"></div>
-        <div class="field"><label>Δ-Art</label><div class="row"><label class="toggle" style="padding:0"><input type="checkbox" data-ank="abs" ${an.deltaKind.includes('abs') ? 'checked' : ''}> abs</label><label class="toggle" style="padding:0"><input type="checkbox" data-ank="rel" ${an.deltaKind.includes('rel') ? 'checked' : ''}> %</label></div></div>
-        <div class="field"><label>Sortierung</label><select class="ctl" data-an="sortBy">${opt(['', 'value', 'delta', 'category'], an.sort ? an.sort.by : '', { '': 'wie im Modell', value: 'nach Wert', delta: 'nach Δ', category: 'nach Kategorie' })}</select></div>
-        <div class="field"><label>Richtung</label><select class="ctl" data-an="sortDir">${opt(['desc', 'asc'], an.sort ? an.sort.dir : 'desc', { desc: 'absteigend', asc: 'aufsteigend' })}</select></div>
-        <div class="field"><label>Top N</label><input class="ctl" type="number" min="1" max="100" data-an="topN" value="${an.topN || ''}" placeholder="alle"></div>
-        <div class="field"><label>Zeitgranularität</label><select class="ctl" data-an="timeGrain">${opt(['', 'day', 'week', 'month', 'quarter', 'year'], an.timeGrain || '', { '': 'wie gebunden', day: 'Tag', week: 'Woche', month: 'Monat', quarter: 'Quartal', year: 'Jahr' })}</select></div>
-        <div class="field"><label>Gemeinsame Skala (Gruppe)</label><input class="ctl" data-an="scaleGroup" value="${esc(an.scaleGroup)}" placeholder="z. B. A"></div>
-        <div class="field"><label class="toggle" style="text-transform:none;letter-spacing:0"><input type="checkbox" data-an="cumulative" ${an.cumulative ? 'checked' : ''}> kumuliert (YTD)</label></div>
+        <div class="field"><label>${esc(t('lbl.polarity'))}</label><select class="ctl" data-an="polarity">${opt(['', 'higher', 'lower'], a.polarity || '', { '': t('opt.polarity.auto', { v: t('opt.polarity.' + an.polarity) }), higher: t('opt.polarity.higher'), lower: t('opt.polarity.lower') })}</select></div>
+        ${hasRef ? `<div class="field"><label>${esc(t('lbl.deltaBasis'))}</label><select class="ctl" data-an="deltaBasis">${opt(['', 'PL', 'PY', 'BU', 'FC'], a.deltaBasis || '', { '': t('opt.autoBase', { v: an.deltaBasis }), PL: 'PL', PY: 'PY', BU: 'BU', FC: 'FC' })}</select></div>` : '<div></div>'}
+        <div class="field"><label>${esc(t('lbl.unit'))}</label><input class="ctl" data-an="unit" value="${esc(an.unit)}" placeholder="${esc(t('ph.anUnit'))}"></div>
+        <div class="field"><label>${esc(t('lbl.displayUnits'))}</label><select class="ctl" data-an="displayUnits">${opt(['auto', 'none', 'K', 'M'], an.displayUnits, { auto: t('opt.du.auto'), none: t('opt.du.none'), K: t('opt.du.K'), M: t('opt.du.M') })}</select></div>
+        <div class="field"><label>${esc(t('lbl.decimals'))}</label><input class="ctl" type="number" min="0" max="4" data-an="decimals" value="${an.decimals == null ? '' : an.decimals}" placeholder="${esc(t('ph.anDecimals'))}"></div>
+        <div class="field"><label>${esc(t('lbl.deltaKind'))}</label><div class="row"><label class="toggle" style="padding:0"><input type="checkbox" data-ank="abs" ${an.deltaKind.includes('abs') ? 'checked' : ''}> abs</label><label class="toggle" style="padding:0"><input type="checkbox" data-ank="rel" ${an.deltaKind.includes('rel') ? 'checked' : ''}> %</label></div></div>
+        <div class="field"><label>${esc(t('lbl.sort'))}</label><select class="ctl" data-an="sortBy">${opt(['', 'value', 'delta', 'category'], an.sort ? an.sort.by : '', { '': t('opt.sort.none'), value: t('opt.sort.value'), delta: t('opt.sort.delta'), category: t('opt.sort.category') })}</select></div>
+        <div class="field"><label>${esc(t('lbl.sortDir'))}</label><select class="ctl" data-an="sortDir">${opt(['desc', 'asc'], an.sort ? an.sort.dir : 'desc', { desc: t('opt.sort.desc'), asc: t('opt.sort.asc') })}</select></div>
+        <div class="field"><label>${esc(t('lbl.topN'))}</label><input class="ctl" type="number" min="1" max="100" data-an="topN" value="${an.topN || ''}" placeholder="${esc(t('ph.anTopN'))}"></div>
+        <div class="field"><label>${esc(t('lbl.timeGrain'))}</label><select class="ctl" data-an="timeGrain">${opt(['', 'day', 'week', 'month', 'quarter', 'year'], an.timeGrain || '', { '': t('opt.grain.none'), day: t('opt.grain.day'), week: t('opt.grain.week'), month: t('opt.grain.month'), quarter: t('opt.grain.quarter'), year: t('opt.grain.year') })}</select></div>
+        <div class="field"><label>${esc(t('lbl.scaleGroup'))}</label><input class="ctl" data-an="scaleGroup" value="${esc(an.scaleGroup)}" placeholder="${esc(t('ph.anScaleGroup'))}"></div>
+        <div class="field"><label class="toggle" style="text-transform:none;letter-spacing:0"><input type="checkbox" data-an="cumulative" ${an.cumulative ? 'checked' : ''}> ${esc(t('lbl.cumulative'))}</label></div>
       </div>
-      <div class="field"><label>Kernaussage (Message-Titel)</label><input class="ctl" data-an="message" value="${esc(an.message)}" placeholder="z. B. Umsatz 8 % über Plan, Süd unter Plan"></div>
+      <div class="field"><label>${esc(t('lbl.message'))}</label><input class="ctl" data-an="message" value="${esc(an.message)}" placeholder="${esc(t('ph.anMessage'))}"></div>
     </div>` : '';
     const isText = v.kind === 'text' || v.kind === 'button';
     insEl.innerHTML = `
-      <button class="typebtn" id="btnPickType"><div class="pv">${pv}</div><div><b>${esc(def.label)}</b><small>${esc(def.group)} · Typ ändern</small></div></button>
-      ${def.note ? `<p class="${/nicht ibcs/i.test(def.note) ? 'warn' : 'hint'}" style="margin-top:8px">${esc(def.note)}</p>` : ''}
-      <div class="field" style="margin-top:10px"><label>Engine</label><div class="engine">${engines}</div></div>
-      <div class="field"><label>Titel</label><input class="ctl" data-vk="title" value="${esc(v.title)}" placeholder="${esc(def.label)}"></div>
-      <div class="field"><label>Untertitel / Einheit</label><input class="ctl" data-vk="sub" value="${esc(v.sub)}" placeholder="z. B. in T€, 2026 YTD"></div>
-      ${isText ? `<div class="field"><label>${v.kind === 'button' ? 'Beschriftung' : 'Text der Kachel'}</label><textarea class="ctl" data-vk="content" placeholder="Kommentar, Kernbotschaft, Platzhaltertext …">${esc(v.content || '')}</textarea></div>` : ''}
-      ${hasRef ? `<div class="field"><label>Szenario</label><select class="ctl" data-vk="scenario">${['AC/PL', 'AC/PY', 'AC/PL/FC', 'AC/PL/PY', 'AC/BU', 'PL/FC', 'AC'].map(s => `<option ${v.scenario === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>` : ''}
-      <div class="section"><h3>Datenrollen <span class="k" style="font-weight:400;text-transform:none;letter-spacing:0">(Doppelklick auf Feld = Steckbrief)</span></h3>${roles || '<p class="hint">Keine Datenrollen (statisches Element).</p>'}</div>
+      <button class="typebtn" id="btnPickType"><div class="pv">${pv}</div><div><b>${esc(def.label)}</b><small>${esc(t('hint.changeType', { group: def.group || '' }))}</small></div></button>
+      ${def.note ? `<p class="${def.warnNote ? 'warn' : 'hint'}" style="margin-top:8px">${esc(def.note)}</p>` : ''}
+      <div class="field" style="margin-top:10px"><label>${esc(t('lbl.engine'))}</label><div class="engine">${engines}</div></div>
+      <div class="field"><label>${esc(t('lbl.vizTitle'))}</label><input class="ctl" data-vk="title" value="${esc(v.title)}" placeholder="${esc(def.label)}"></div>
+      <div class="field"><label>${esc(t('lbl.vizSub'))}</label><input class="ctl" data-vk="sub" value="${esc(v.sub)}" placeholder="${esc(t('ph.vizSub'))}"></div>
+      ${isText ? `<div class="field"><label>${esc(v.kind === 'button' ? t('lbl.btnCaption') : t('lbl.tileText'))}</label><textarea class="ctl" data-vk="content" placeholder="${esc(t('ph.tileText'))}">${esc(v.content || '')}</textarea></div>` : ''}
+      ${hasRef ? `<div class="field"><label>${esc(t('lbl.scenario'))}</label><select class="ctl" data-vk="scenario">${['AC/PL', 'AC/PY', 'AC/PL/FC', 'AC/PL/PY', 'AC/BU', 'PL/FC', 'AC'].map(s => `<option ${v.scenario === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>` : ''}
+      <div class="section"><h3>${esc(t('sec.roles'))} <span class="k" style="font-weight:400;text-transform:none;letter-spacing:0">${esc(t('sec.rolesHint'))}</span></h3>${roles || `<p class="hint">${esc(t('hint.noRoles'))}</p>`}</div>
       ${analysis}
-      <div class="section"><h3>Workshop</h3>
+      <div class="section"><h3>${esc(t('sec.workshop'))}</h3>
         <div class="grid2">
-          <div class="field"><label>Priorität</label><select class="ctl" data-vk="priority">${opt(['', 'must', 'should', 'could'], v.priority || '', { '': '–', must: 'Must', should: 'Should', could: 'Could' })}</select></div>
-          <div class="field"><label>Status</label><select class="ctl" data-vk="status">${opt(['open', 'agreed', 'approved'], v.status || 'open', { open: 'offen', agreed: 'abgestimmt', approved: 'abgenommen' })}</select></div>
+          <div class="field"><label>${esc(t('lbl.priority'))}</label><select class="ctl" data-vk="priority">${opt(['', 'must', 'should', 'could'], v.priority || '', { '': t('opt.pri.none'), must: t('opt.pri.must'), should: t('opt.pri.should'), could: t('opt.pri.could') })}</select></div>
+          <div class="field"><label>${esc(t('lbl.status'))}</label><select class="ctl" data-vk="status">${opt(['open', 'agreed', 'approved'], v.status || 'open', { open: t('opt.status.open'), agreed: t('opt.status.agreed'), approved: t('opt.status.approved') })}</select></div>
         </div>
-        <div class="field"><label>Notiz (✎ auf der Kachel)</label><textarea class="ctl" data-vk="notes" placeholder="Drill, Bedingte Formatierung, Kommentar …">${esc(v.notes)}</textarea></div>
-        <label class="toggle"><input type="checkbox" data-vkb="openQuestion" ${v.openQuestion ? 'checked' : ''}> offene Frage (landet in der Doku unter „Offene Punkte")</label>
-        <div class="field"><label>Springt zu (Seite, Drill / Navigation)</label><select class="ctl" data-vk="link">${links}</select></div>
+        <div class="field"><label>${esc(t('lbl.notes'))}</label><textarea class="ctl" data-vk="notes" placeholder="${esc(t('ph.notes'))}">${esc(v.notes)}</textarea></div>
+        <label class="toggle"><input type="checkbox" data-vkb="openQuestion" ${v.openQuestion ? 'checked' : ''}> ${esc(t('lbl.openQuestion'))}</label>
+        <div class="field"><label>${esc(t('lbl.link'))}</label><select class="ctl" data-vk="link">${links}</select></div>
       </div>
       ${dims}
-      <div class="section row wrap"><button class="btn sm" data-ins="clear">Kachel leeren</button><button class="btn sm" data-ins="rm">Kachel entfernen</button></div>`;
+      <div class="section row wrap"><button class="btn sm" data-ins="clear">${esc(t('btn.clearTile'))}</button><button class="btn sm" data-ins="rm">${esc(t('btn.removeTile'))}</button></div>`;
     bindInspector(n);
   }
   function bindInspector(n) {
@@ -507,7 +511,7 @@
   }
   function renderPageOnly() { const act = document.activeElement; render(); if (act && act.dataset && act.dataset.vk) { const again = $(`[data-vk="${act.dataset.vk}"]`, insEl); if (again) { again.focus(); if (again.setSelectionRange && act.selectionStart != null) try { again.setSelectionRange(act.selectionStart, act.selectionEnd); } catch (e) { /* select */ } } } }
 
-  $$('.tab').forEach(t => t.onclick = () => { $$('.tab').forEach(x => x.classList.toggle('active', x === t)); ['el', 'page', 'report', 'chrome', 'design'].forEach(k => { $('#ins' + k[0].toUpperCase() + k.slice(1)).hidden = t.dataset.tab !== k; }); });
+  $$('.tab').forEach(tb => tb.onclick = () => { $$('.tab').forEach(x => x.classList.toggle('active', x === tb)); ['el', 'page', 'report', 'chrome', 'design'].forEach(k => { $('#ins' + k[0].toUpperCase() + k.slice(1)).hidden = tb.dataset.tab !== k; }); });
 
   // ------------------------------------------------------------------ Inspector · Seite / Rahmen / Design
   const bind = (id, set, ev) => {
@@ -521,13 +525,13 @@
     $('#projName').value = S.name; $('#rpName').value = S.name; $('#pageName').value = p.name; $('#pageNotes').value = p.notes || ''; $('#pageQuestion').value = p.question || '';
     const rp = S.report; $('#rpAudience').value = rp.audience; $('#rpPurpose').value = rp.purpose; $('#rpDecision').value = rp.decision; $('#rpVersion').value = rp.version; $('#rpDataDate').value = rp.dataDate; $('#rpParticipants').value = rp.participants; $('#rpLang').value = S.lang || 'de';
     $('#canvasPreset').value = S.canvas.preset; $('#customSize').hidden = S.canvas.preset !== 'custom'; $('#canvasW').value = S.canvas.w; $('#canvasH').value = S.canvas.h;
-    $('#uiScaleInfo').textContent = `Skalierung ×${ui().toFixed(2)}: Schriften, Rahmenhöhen und Abstände werden aus HD-Basiswerten hochgerechnet.`;
+    $('#uiScaleInfo').textContent = t('hint.uiScaleInfo', { k: ui().toFixed(2) });
     $('#spMargin').value = S.spacing.margin; $('#spGutter').value = S.spacing.gutter; $('#spPad').value = S.spacing.pad; $('#defScenario').value = S.defScenario;
     $('#hdOn').checked = c.header.on; $('#hdH').value = c.header.h; $('#hdLogoPos').value = c.header.logoPos || 'left'; $('#hdTitle').value = c.header.title; $('#hdSub').value = c.header.sub; $('#hdNavAuto').checked = !!c.header.navAuto; $('#hdNav').value = (c.header.nav || []).join(', '); $('#hdNav').disabled = !!c.header.navAuto;
     $('#nvOn').checked = c.nav.on; $('#nvW').value = c.nav.w;
-    $('#ftOn').checked = c.filter.on; $('#ftSide').value = c.filter.side; $('#ftW').value = c.filter.side === 'top' ? (c.filter.topH || 56) : c.filter.w; $('#ftWHint').textContent = c.filter.side === 'top' ? 'Höhe' : 'Breite'; $('#ftW').disabled = c.filter.side === 'burger';
+    $('#ftOn').checked = c.filter.on; $('#ftSide').value = c.filter.side; $('#ftW').value = c.filter.side === 'top' ? (c.filter.topH || 56) : c.filter.w; $('#ftWHint').textContent = c.filter.side === 'top' ? t('hint.height') : t('hint.width'); $('#ftW').disabled = c.filter.side === 'burger';
     $('#ftCollapsible').checked = c.filter.collapsible; $('#ftCollapsibleRow').style.display = (c.filter.side === 'left' || c.filter.side === 'right') ? '' : 'none';
-    $('#ftFieldList').innerHTML = (c.filter.fields || []).map((f, i) => `<div class="row" style="margin-bottom:4px"><span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}" draggable="false" style="margin:0;flex:1;min-width:0"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span><button class="x" data-rmfilter2="${i}">×</button></span><input class="ctl" data-ftdef="${i}" value="${esc(f.default || '')}" placeholder="Vorauswahl" style="width:110px;padding:3px 6px;font-size:11.5px"></div>`).join('') || '<span class="hint">Noch keine Slicer. Feld aus dem Modell hierher ziehen.</span>';
+    $('#ftFieldList').innerHTML = (c.filter.fields || []).map((f, i) => `<div class="row" style="margin-bottom:4px"><span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}" draggable="false" style="margin:0;flex:1;min-width:0"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span><button class="x" data-rmfilter2="${i}">×</button></span><input class="ctl" data-ftdef="${i}" value="${esc(f.default || '')}" placeholder="${esc(t('ph.slicerDefault'))}" style="width:110px;padding:3px 6px;font-size:11.5px"></div>`).join('') || `<span class="hint">${esc(t('hint.noSlicers'))}</span>`;
     $('#ffOn').checked = c.footer.on; $('#ffH').value = c.footer.h; $('#ffText').value = c.footer.text;
     $('#dsRadius').value = String(d.radius); $('#dsTile').value = d.tile; $('#dsPageBg').value = d.pageBg; $('#dsHeader').value = d.header; $('#dsAccent').value = d.accent; $('#dsAccentTxt').textContent = d.accent;
   }
@@ -536,7 +540,14 @@
   bind('pageNotes', v => page().notes = v, 'input'); bind('pageQuestion', v => page().question = v, 'input');
   bind('rpAudience', v => S.report.audience = v, 'input'); bind('rpPurpose', v => S.report.purpose = v, 'input'); bind('rpDecision', v => S.report.decision = v, 'input');
   bind('rpVersion', v => S.report.version = v, 'input'); bind('rpDataDate', v => S.report.dataDate = v, 'input'); bind('rpParticipants', v => S.report.participants = v, 'input');
-  bind('rpLang', v => S.lang = v);
+  // Sprache: Auswahlfeld im Reiter „Bericht" und der kleine Umschalter oben führen auf denselben Weg
+  function setLang(lang) {
+    S.lang = I18N.set(lang);
+    I18N.apply(document);
+    persist(); render(); toast(t('toast.langSwitched'));
+  }
+  bind('rpLang', v => { S.lang = v; setLang(v); });
+  $('#btnLang').onclick = () => setLang(I18N.lang === 'de' ? 'en' : 'de');
   $('#ftFieldList').addEventListener('input', e => { const inp = e.target.closest('[data-ftdef]'); if (inp) { S.chrome.filter.fields[+inp.dataset.ftdef].default = inp.value; persist(); } });
   $('#ftFieldList').addEventListener('change', e => { if (e.target.closest('[data-ftdef]')) mark(); });
   $('#btnPageDup').onclick = dupPage; $('#btnPageDel').onclick = delPage;
@@ -556,8 +567,8 @@
   function fieldInfo(ref) { const i = ref.indexOf('.'); const t = S.model.tables.find(x => x.name === ref.slice(0, i)); if (!t) return null; return t.measures.find(x => x.name === ref.slice(i + 1)) || t.columns.find(x => x.name === ref.slice(i + 1)) || null; }
   function openFieldMeta(f) {
     fmRef = f.table + '.' + f.name; const m = S.fieldMeta[fmRef] || {}; const info = fieldInfo(fmRef); const nf = S.newFields.find(x => x.table === f.table && x.name === f.name);
-    $('#fmRef').textContent = fmRef + (f.isNew ? ' · neu (noch nicht im Modell)' : '');
-    $('#fmModel').innerHTML = info ? `<span class="k">Typ</span><span>${esc(info.kind === 'measure' ? 'Measure' : 'Spalte ' + (info.type || ''))}</span><span class="k">Format</span><span>${esc(info.format || '–')}</span><span class="k">Beschreibung</span><span>${esc(info.desc || '– (im Modell keine Beschreibung hinterlegt)')}</span>` : (nf ? `<span class="k">Beschreibung</span><span>${esc(nf.desc || '–')}</span>` : '');
+    $('#fmRef').textContent = fmRef + (f.isNew ? t('model.isNew') : '');
+    $('#fmModel').innerHTML = info ? `<span class="k">${esc(t('model.type'))}</span><span>${esc(info.kind === 'measure' ? t('kind.measure') : t('model.colOf', { t: info.type || '' }))}</span><span class="k">${esc(t('model.format'))}</span><span>${esc(info.format || '–')}</span><span class="k">${esc(t('model.description'))}</span><span>${esc(info.desc || t('model.noDesc'))}</span>` : (nf ? `<span class="k">${esc(t('model.description'))}</span><span>${esc(nf.desc || '–')}</span>` : '');
     $('#fmAlias').value = m.alias || ''; $('#fmConfirmed').checked = !!m.confirmed; $('#fmRename').checked = !!m.rename; $('#fmOwner').value = m.owner || (nf ? nf.owner || '' : ''); $('#fmSource').value = m.source || (nf ? nf.source || '' : ''); $('#fmTarget').value = m.target || (nf ? nf.target || '' : ''); $('#fmUnit').value = m.unit || (nf ? nf.unit || '' : ''); $('#fmNote').value = m.note || '';
     $('#dlgFieldMeta').showModal();
   }
@@ -565,7 +576,7 @@
     if (!fmRef) return;
     const m = { alias: $('#fmAlias').value.trim(), confirmed: $('#fmConfirmed').checked, rename: $('#fmRename').checked, owner: $('#fmOwner').value.trim(), source: $('#fmSource').value.trim(), target: $('#fmTarget').value.trim(), unit: $('#fmUnit').value.trim(), note: $('#fmNote').value.trim() };
     if (Object.values(m).some(v => v === true || (typeof v === 'string' && v))) S.fieldMeta[fmRef] = m; else delete S.fieldMeta[fmRef];
-    $('#dlgFieldMeta').close(); commit(); toast('Steckbrief gespeichert');
+    $('#dlgFieldMeta').close(); commit(); toast(t('toast.metaSaved'));
   };
   $('#ftFieldList').addEventListener('dragover', e => { if (e.dataTransfer.types.includes('application/mk-field')) e.preventDefault(); });
   $('#ftFieldList').addEventListener('drop', e => { e.preventDefault(); const d = e.dataTransfer.getData('application/mk-field'); if (d) addFilterField(JSON.parse(d)); });
@@ -577,7 +588,7 @@
 
   // ------------------------------------------------------------------ Katalog-Dialog
   const dlgCat = $('#dlgCatalog');
-  function openCatalog() { if (!sel) return toast('Erst eine Kachel wählen'); renderCatalog(''); dlgCat.showModal(); $('#catSearch').value = ''; $('#catSearch').focus(); }
+  function openCatalog() { if (!sel) return toast(t('toast.pickTileFirst')); renderCatalog(''); dlgCat.showModal(); $('#catSearch').value = ''; $('#catSearch').focus(); }
   function renderCatalog(q) {
     q = (q || '').toLowerCase(); const cur = sel ? (findNode(sel).node.visual || {}).kind : null; let html = '';
     CAT.groups.forEach(g => {
@@ -585,17 +596,17 @@
       if (!items.length) return;
       html += `<h3>${esc(g)}</h3><div class="cat-grid">` + items.map(k => `<button class="cat-item${k.id === cur ? ' cur' : ''}" data-kind="${k.id}" draggable="true" title="${esc(k.note || '')}"><div class="pv">${window.MK_SKETCH ? window.MK_SKETCH(k.sketch, 130, 56, { scenario: 'AC/PL', seed: 5 }) : ''}</div><b>${esc(k.label)}</b><small>${k.engines.map(e => CAT.engineLabel[e]).join(' · ')}</small></button>`).join('') + '</div>';
     });
-    $('#catBody').innerHTML = html || '<p class="hint">Kein Typ passt zur Suche.</p>';
+    $('#catBody').innerHTML = html || `<p class="hint">${esc(t('hint.noTypeMatch'))}</p>`;
   }
   $('#catSearch').addEventListener('input', e => renderCatalog(e.target.value));
   $('#catBody').addEventListener('click', e => { const b = e.target.closest('[data-kind]'); if (!b) return; setKind(sel, b.dataset.kind); dlgCat.close(); });
   $('#catBody').addEventListener('dragstart', e => { const b = e.target.closest('[data-kind]'); if (!b) return; e.dataTransfer.setData('application/mk-kind', b.dataset.kind); dlgCat.close(); });
 
   // ------------------------------------------------------------------ Vorlagen-Dialog
-  $('#btnTemplates').onclick = () => { $('#tplGrid').innerHTML = CAT.templates.map(t => `<div class="tpl" data-tpl="${t.id}"><div class="pv">${templateSvg(t)}</div><b>${esc(t.label)}</b><small>${esc(t.desc)}</small></div>`).join(''); $('#dlgTemplates').showModal(); };
-  $('#tplGrid').addEventListener('click', e => { const t = e.target.closest('[data-tpl]'); if (!t) return; applyTemplate(t.dataset.tpl); $('#dlgTemplates').close(); });
-  function templateSvg(t) {
-    const tree = t.tree(); const out = { leaves: [], gutters: [] }; layoutRects(tree, { x: 2, y: 2, w: 196, h: 92 }, out, 3);
+  $('#btnTemplates').onclick = () => { $('#tplGrid').innerHTML = CAT.templates.map(tp => `<div class="tpl" data-tpl="${tp.id}"><div class="pv">${templateSvg(tp)}</div><b>${esc(tp.label)}</b><small>${esc(tp.desc)}</small></div>`).join(''); $('#dlgTemplates').showModal(); };
+  $('#tplGrid').addEventListener('click', e => { const el = e.target.closest('[data-tpl]'); if (!el) return; applyTemplate(el.dataset.tpl); $('#dlgTemplates').close(); });
+  function templateSvg(tp) {
+    const tree = tp.tree(); const out = { leaves: [], gutters: [] }; layoutRects(tree, { x: 2, y: 2, w: 196, h: 92 }, out, 3);
     return `<svg viewBox="0 0 200 96">${out.leaves.map(l => `<rect x="${l.rect.x}" y="${l.rect.y}" width="${l.rect.w}" height="${l.rect.h}" rx="2" fill="${l.node.visual ? '#E9EEF5' : '#fff'}" stroke="#C9C6BA" stroke-dasharray="${l.node.visual ? '' : '3 2'}"/>${l.node.visual ? `<text x="${l.rect.x + 4}" y="${l.rect.y + 11}" font-size="7" fill="#475569" font-family="Geist,system-ui">${esc((CAT.byId[l.node.visual.kind] || {}).label || '').slice(0, Math.max(3, l.rect.w / 5))}</text>` : ''}`).join('')}</svg>`;
   }
 
@@ -636,21 +647,21 @@
   }
   function ingestTmdlFiles(files) {
     const tmdl = files.filter(f => /\.tmdl$/i.test(f.name) && !/^(model|database|relationships|expressions|cultures)\.tmdl$/i.test(f.name));
-    if (!tmdl.length) return toast('Keine Tabellen-.tmdl gefunden (erwartet: definition/tables/*.tmdl, ' + files.length + ' Dateien geprüft)');
+    if (!tmdl.length) return toast(t('toast.noTmdl', { n: files.length }));
     Promise.all(tmdl.map(f => f.text())).then(texts => {
-      const tables = []; texts.forEach(t => parseTmdl(t).forEach(tb => tables.push(tb)));
-      const rel = tmdl[0].webkitRelativePath || ''; const src = rel.includes('/') ? rel.split('/')[0] : `TMDL (${tmdl.length} Dateien)`;
-      const good = tables.filter(t => t.columns.length || t.measures.length);
-      if (!good.length) return toast('TMDL gelesen, aber keine Spalten/Measures erkannt. Datei ist vermutlich kein Tabellen-TMDL.');
+      const tables = []; texts.forEach(txt => parseTmdl(txt).forEach(tb => tables.push(tb)));
+      const rel = tmdl[0].webkitRelativePath || ''; const src = rel.includes('/') ? rel.split('/')[0] : t('model.tmdlSrc', { n: tmdl.length });
+      const good = tables.filter(tb => tb.columns.length || tb.measures.length);
+      if (!good.length) return toast(t('toast.tmdlEmpty'));
       S.model = { tables: good, source: src, loadedAt: new Date().toISOString() }; openMeasureTable(); commit();
-      toast(`${good.length} Tabellen, ${good.reduce((a, t) => a + t.measures.length, 0)} Measures, ${good.reduce((a, t) => a + t.columns.length, 0)} Spalten geladen`);
-    }).catch(err => toast('Lesen fehlgeschlagen: ' + err.message));
+      toast(t('toast.tmdlOk', { tables: good.length, measures: good.reduce((a, tb) => a + tb.measures.length, 0), columns: good.reduce((a, tb) => a + tb.columns.length, 0) }));
+    }).catch(err => toast(t('toast.readFailed', { msg: err.message })));
   }
   $('#btnImportTmdl').onclick = () => $('#fileTmdl').click();
   $('#fileTmdl').addEventListener('change', e => { ingestTmdlFiles(Array.from(e.target.files)); e.target.value = ''; });
   $('#fileTmdlSingle').addEventListener('change', e => { ingestTmdlFiles(Array.from(e.target.files)); e.target.value = ''; });
-  $('#btnDemoModel').onclick = () => { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); openMeasureTable(); commit(); toast('Demo-Modell geladen'); };
-  function openMeasureTable() { const t = S.model.tables.find(x => x.measures.length); if (t) openTables.add(t.name); }
+  $('#btnDemoModel').onclick = () => { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); openMeasureTable(); commit(); toast(t('toast.demoLoaded')); };
+  function openMeasureTable() { const tb = S.model.tables.find(x => x.measures.length); if (tb) openTables.add(tb.name); }
   const mdrop = $('#modelDrop');
   mdrop.addEventListener('click', () => $('#fileTmdlSingle').click());
   mdrop.addEventListener('dragover', e => { if (e.dataTransfer.types.includes('Files')) { e.preventDefault(); mdrop.classList.add('over'); } });
@@ -680,19 +691,19 @@
   const openTables = new Set();
   function renderModel() {
     const list = $('#modelList'); const q = ($('#modelSearch').value || '').toLowerCase(); const onlyUsed = $('#onlyUsed').checked; const used = usedFieldKeys(); const m = S.model;
-    $('#modelMeta').textContent = m.tables.length ? `${m.source || 'Modell'} · ${m.tables.length} Tabellen · ${m.tables.reduce((a, t) => a + t.measures.length, 0)} Measures` : 'Kein Modell geladen';
-    $('#nmTables').innerHTML = m.tables.map(t => `<option value="${esc(t.name)}">`).join('');
+    $('#modelMeta').textContent = m.tables.length ? t('model.meta', { src: m.source || t('model.fallbackSrc'), tables: m.tables.length, measures: m.tables.reduce((a, tb) => a + tb.measures.length, 0) }) : t('model.none');
+    $('#nmTables').innerHTML = m.tables.map(tb => `<option value="${esc(tb.name)}">`).join('');
     const chip = (f, table, extra) => {
       const key = table + '|' + f.name; if (onlyUsed && !used.has(key)) return ''; if (q && !(f.name + ' ' + table).toLowerCase().includes(q)) return '';
       return `<span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}${used.has(key) ? ' used' : ''}" draggable="true" data-field='${esc(JSON.stringify({ table, name: f.name, kind: f.kind, type: f.type || '', isNew: !!f.isNew }))}' title="${esc((f.desc || '') + (f.type ? ' · ' + f.type : '') + (f.open ? ' · offen: ' + f.open : ''))}"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span>${extra || ''}</span>`;
     };
     let html = '';
-    if (S.newFields.length) html += `<div class="table-block open"><div class="table-head"><span class="car">▸</span>Neu · zu erstellen<span class="cnt">${S.newFields.length}</span></div><div class="table-body">${S.newFields.map((f, i) => chip(f, f.table, `<button class="x" data-rmnew="${i}" title="Entfernen">×</button>`)).join('')}</div></div>`;
-    if (!m.tables.length && !S.newFields.length) html += `<div class="empty-model"><strong>Noch kein Modell</strong>TMDL-Ordner laden, „Demo-Modell" klicken oder Kennzahlen/Dimensionen manuell anlegen.</div>`;
-    m.tables.forEach(t => {
-      const inner = t.measures.map(f => chip(f, t.name)).join('') + t.columns.filter(c => !c.hidden || used.has(t.name + '|' + c.name)).map(f => chip(f, t.name)).join('');
-      if (!inner) return; const open = openTables.has(t.name) || !!q || onlyUsed;
-      html += `<div class="table-block${open ? ' open' : ''}" data-table="${esc(t.name)}"><div class="table-head"><span class="car">▸</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.name)}</span><span class="cnt">${t.measures.length}Σ ${t.columns.length}≡</span></div><div class="table-body">${inner}</div></div>`;
+    if (S.newFields.length) html += `<div class="table-block open"><div class="table-head"><span class="car">▸</span>${esc(t('model.newGroup'))}<span class="cnt">${S.newFields.length}</span></div><div class="table-body">${S.newFields.map((f, i) => chip(f, f.table, `<button class="x" data-rmnew="${i}" title="${esc(t('tip.rmNewField'))}">×</button>`)).join('')}</div></div>`;
+    if (!m.tables.length && !S.newFields.length) html += `<div class="empty-model"><strong>${esc(t('model.emptyTitle'))}</strong>${esc(t('model.emptyText'))}</div>`;
+    m.tables.forEach(tb => {
+      const inner = tb.measures.map(f => chip(f, tb.name)).join('') + tb.columns.filter(c => !c.hidden || used.has(tb.name + '|' + c.name)).map(f => chip(f, tb.name)).join('');
+      if (!inner) return; const open = openTables.has(tb.name) || !!q || onlyUsed;
+      html += `<div class="table-block${open ? ' open' : ''}" data-table="${esc(tb.name)}"><div class="table-head"><span class="car">▸</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tb.name)}</span><span class="cnt">${tb.measures.length}Σ ${tb.columns.length}≡</span></div><div class="table-body">${inner}</div></div>`;
     });
     list.innerHTML = html;
   }
@@ -708,10 +719,10 @@
       // erst zählen, dann fragen, dann entfernen (sonst wäre der Zustand bei „Abbrechen" schon verändert)
       let n = S.chrome.filter.fields.filter(same).length;
       S.pages.forEach(p => visuals(p).forEach(l => Object.values(l.visual.roles).forEach(list => { n += list.filter(same).length; })));
-      if (n && !confirm(`„${f.name}" ist ${n}× gebunden. Feld und alle Bindungen entfernen?`)) return;
+      if (n && !confirm(t('ask.rmField', { n: f.name, c: n }))) return;
       S.pages.forEach(p => visuals(p).forEach(l => Object.keys(l.visual.roles).forEach(k => { l.visual.roles[k] = l.visual.roles[k].filter(x => !same(x)); })));
       S.chrome.filter.fields = S.chrome.filter.fields.filter(x => !same(x));
-      S.newFields.splice(+rm.dataset.rmnew, 1); commit(); if (n) toast(`„${f.name}" samt ${n} Bindung(en) entfernt`); return;
+      S.newFields.splice(+rm.dataset.rmnew, 1); commit(); if (n) toast(t('toast.fieldRemoved', { n: f.name, c: n })); return;
     }
     const h = e.target.closest('.table-head'); if (!h) return; const blk = h.parentElement; const nm = blk.dataset.table; if (!nm) return;
     blk.classList.toggle('open'); if (blk.classList.contains('open')) openTables.add(nm); else openTables.delete(nm);
@@ -719,7 +730,7 @@
   $('#modelList').addEventListener('dragstart', e => { const c = e.target.closest('[data-field]'); if (!c) return; e.dataTransfer.setData('application/mk-field', c.dataset.field); e.dataTransfer.effectAllowed = 'copy'; });
   $('#modelSearch').addEventListener('input', renderModel); $('#onlyUsed').addEventListener('change', renderModel);
   // Standardtabelle: Measures in die Measure-Tabelle (erste mit Measures, sonst „_Measures"), Dimensionen in die erste Dimensionstabelle
-  const defaultTableFor = kind => { const t = kind === 'measure' ? S.model.tables.find(x => x.measures.length) : S.model.tables.find(x => x.columns.length && !x.measures.length); return t ? t.name : (kind === 'measure' ? '_Measures' : 'DimNeu'); };
+  const defaultTableFor = kind => { const tb = kind === 'measure' ? S.model.tables.find(x => x.measures.length) : S.model.tables.find(x => x.columns.length && !x.measures.length); return tb ? tb.name : (kind === 'measure' ? '_Measures' : 'DimNeu'); };
   $('#btnNewMeasure').onclick = () => { $('#nmName').value = ''; $('#nmDesc').value = ''; $('#nmOpen').value = ''; $('#nmTable').value = defaultTableFor($('#nmKind').value); $('#dlgNewMeasure').showModal(); $('#nmName').focus(); };
   $('#nmKind').addEventListener('change', () => { $('#nmTable').value = defaultTableFor($('#nmKind').value); });
   $('#nmOk').onclick = () => {
@@ -727,7 +738,7 @@
     const kind = $('#nmKind').value;
     S.newFields.push({ id: uid(), name, table: $('#nmTable').value.trim() || (kind === 'measure' ? '_Measures' : 'DimNeu'), kind, desc: $('#nmDesc').value.trim(), open: $('#nmOpen').value.trim(), unit: $('#nmUnit').value.trim(), target: $('#nmTarget').value.trim(), owner: $('#nmOwner').value.trim(), source: $('#nmSource').value.trim(), isNew: true, type: kind === 'measure' ? 'measure' : '' });
     ['nmUnit', 'nmTarget', 'nmOwner', 'nmSource'].forEach(id => { $('#' + id).value = ''; });
-    $('#dlgNewMeasure').close(); commit(); toast('„' + name + '" angelegt · jetzt auf eine Kachel ziehen');
+    $('#dlgNewMeasure').close(); commit(); toast(t('toast.fieldCreated', { n: name }));
   };
 
   // ------------------------------------------------------------------ Zoom, Toolbar, Tastatur
@@ -738,30 +749,32 @@
   window.addEventListener('resize', () => { fitZoom(); render(); });
   $('#btnHelp').onclick = () => $('#dlgHelp').showModal();
   $('#btnUndo').onclick = undo; $('#btnRedo').onclick = redo;
-  function togglePresent(on) { document.body.classList.toggle('present', on); $('#btnPresent').textContent = document.body.classList.contains('present') ? '✕ Präsentation beenden' : '▶ Präsentieren'; setTimeout(() => { fitZoom(); render(); }, 30); }
+  function togglePresent(on) { document.body.classList.toggle('present', on); const p = document.body.classList.contains('present'); const b = $('#btnPresent'); b.textContent = p ? t('btn.presentEnd') : t('btn.present'); b.setAttribute('data-i18n', p ? 'btn.presentEnd' : 'btn.present'); setTimeout(() => { fitZoom(); render(); }, 30); }
   $('#btnPresent').onclick = () => togglePresent();
   $$('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
   window.addEventListener('keydown', e => {
-    const t = e.target;
+    const tgt = e.target;
     if (document.querySelector('dialog[open]')) return;                       // Dialoge behalten Fokusfang und Esc
-    if (t && t.matches && t.matches('input,textarea,select')) { if (e.key === 'Escape' && t.blur) t.blur(); return; }
+    if (tgt && tgt.matches && tgt.matches('input,textarea,select')) { if (e.key === 'Escape' && tgt.blur) tgt.blur(); return; }
     if (e.key === 'Escape') { if (document.body.classList.contains('present')) togglePresent(false); else { sel = null; render(); } }
     else if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey && !e.altKey) togglePresent();
     else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) { e.preventDefault(); redo(); }
-    else if ((e.key === 'Delete' || e.key === 'Backspace') && sel) { const n = findNode(sel).node; if (n.visual) { n.visual = null; commit(); toast('Kachel geleert · Strg+Z macht es rückgängig'); } else removeLeaf(sel); }
+    else if ((e.key === 'Delete' || e.key === 'Backspace') && sel) { const n = findNode(sel).node; if (n.visual) { n.visual = null; commit(); toast(t('toast.tileCleared')); } else removeLeaf(sel); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); $('#btnSave').click(); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') { e.preventDefault(); $('#btnExport').click(); }
   });
   let toastT = null;
-  function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 3200); }
+  function toast(msg) { const el = $('#toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 3200); }
 
   // Öffentliche API für export.js
   window.MK = {
     get state() { return S; }, set state(v) { S = migrate(v); sel = null; commit(); },
     page, visuals, leaves, zones, computeAll, ui, toast, findNode, catalog: CAT, persist, pageBg: PAGE_BG, analysisOf, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
-    reset() { S = defaultState(); sel = null; undoStack = []; commit(); },
+    setLang, get lang() { return I18N.lang; },
+    // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
+    reset() { S = defaultState(); S.pages.forEach(p => ensureIds(p.layout)); sel = null; undoStack = []; commit(); },
   };
 
-  load(); snap = JSON.stringify(S); fitZoom(); render();
+  load(); I18N.apply(document); snap = JSON.stringify(S); fitZoom(); render();
 })();

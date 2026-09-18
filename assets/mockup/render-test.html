@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>MockupKitchen · Test: SVG/PNG-Rendering</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{--bg:#FAFAF7;--card:#fff;--ink:#0F1E2E;--soft:#475569;--mute:#8A94A6;--line:#E4E2DA;--accent:#C25A2D;--ok:#2E7D5B;--bad:#B8392F}
+  *{box-sizing:border-box}
+  body{margin:0;padding:18px 22px;background:var(--bg);color:var(--ink);font:13px/1.5 system-ui,'Segoe UI',Arial,sans-serif}
+  h1{font-size:19px;margin:0 0 2px}
+  p.lead{margin:0 0 14px;color:var(--soft)}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  button{border:1px solid #C9C6BA;background:#fff;border-radius:6px;padding:6px 12px;font:inherit;cursor:pointer}
+  button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+  label{color:var(--soft)}
+  input[type=number]{width:60px;border:1px solid #C9C6BA;border-radius:6px;padding:4px 6px;font:inherit}
+  .res{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:14px}
+  .res ul{margin:0;padding-left:18px}
+  .res li{margin:2px 0;font-family:ui-monospace,Consolas,monospace;font-size:12px}
+  .ok::marker{color:var(--ok)} .fail::marker{color:var(--bad)}
+  .ok{color:var(--ok)} .fail{color:var(--bad);font-weight:600}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(460px,1fr));gap:14px}
+  figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px}
+  figcaption{font-size:12px;color:var(--soft);margin-bottom:6px;display:flex;gap:8px;align-items:center}
+  figcaption b{color:var(--ink)}
+  figure img,figure .svgbox svg{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:4px;background:#fff}
+  iframe{width:1340px;height:820px;border:1px solid var(--line);border-radius:8px;background:#fff;transform:scale(.42);transform-origin:top left}
+  .tool{height:350px;overflow:hidden;margin-top:18px}
+  .note{color:var(--mute);font-size:12px}
+</style>
+</head>
+<body>
+<h1>MockupKitchen · Test: Seite als SVG und PNG</h1>
+<p class="lead">Lädt <code>mockup-kitchen.html</code> in einen Rahmen und ruft dort <code>MK_PNG</code> auf.
+Das Tool bindet <code>assets/mockup/render-png.js</code> selbst ein (nach <code>app.js</code>); fehlt es, hängt der Test es nach.</p>
+
+<div class="row">
+  <button class="primary" id="run">Test starten</button>
+  <label>PNG-Skalierung <input type="number" id="scale" value="2" min="1" max="4" step="1"></label>
+  <label><input type="checkbox" id="badges"> Engine-Badges</label>
+  <label><input type="checkbox" id="chips" checked> Rollen-Chips</label>
+  <button id="dl" disabled>Alle Seiten als PNG herunterladen</button>
+</div>
+
+<div class="res" id="res"><span class="note">Noch nicht gelaufen.</span></div>
+<div class="grid" id="out"></div>
+
+<div class="tool"><iframe id="tool" src="../../mockup-kitchen.html"></iframe></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const res = $('#res'), out = $('#out');
+let lastPngs = null;
+
+function log(list){ res.innerHTML = '<ul>' + list.map(l => `<li class="${l.ok?'ok':'fail'}">${l.ok?'OK  ':'FEHL'} · ${l.t}</li>`).join('') + '</ul>'; }
+
+let injected = false;
+function inject(win){
+  return new Promise((ok, err) => {
+    if (win.MK_PNG) return ok(win.MK_PNG);
+    injected = true;
+    const s = win.document.createElement('script');
+    s.src = 'assets/mockup/render-png.js?t=' + Date.now();
+    s.onload = () => win.MK_PNG ? ok(win.MK_PNG) : err(new Error('render-png.js geladen, aber window.MK_PNG fehlt'));
+    s.onerror = () => err(new Error('render-png.js konnte nicht geladen werden'));
+    win.document.head.appendChild(s);
+  });
+}
+
+async function run(){
+  const checks = [];
+  out.innerHTML = ''; lastPngs = null; $('#dl').disabled = true;
+  const win = $('#tool').contentWindow;
+  const opts = { scale: +$('#scale').value || 2, badges: $('#badges').checked, chips: $('#chips').checked };
+  try {
+    for (let i = 0; i < 60 && !(win.MK && win.MK.state); i++) await new Promise(r => setTimeout(r, 100));
+    checks.push({ ok: !!win.MK, t: 'window.MK im Tool vorhanden' });
+    const API = await inject(win);
+    checks.push({ ok: !!API, t: 'window.MK_PNG gesetzt' + (injected ? ' (vom Test nachgeladen — Tool bindet render-png.js nicht ein)' : ' (vom Tool selbst geladen, nach app.js)') });
+    checks.push({ ok: ['pageSvg','pagePng','allPagesPng','download'].every(k => typeof API[k] === 'function'), t: 'API vollständig (pageSvg, pagePng, allPagesPng, download)' });
+
+    const S = win.MK.state, pages = S.pages;
+    checks.push({ ok: pages.length > 0, t: `${pages.length} Seite(n) im Zustand` });
+
+    for (const p of pages){
+      const svg = API.pageSvg(p.id, opts);
+      const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
+      const perr = doc.querySelector('parsererror');
+      checks.push({ ok: !perr, t: `„${p.name}": SVG parst${perr ? ' NICHT: ' + perr.textContent.slice(0,120) : ''}` });
+      checks.push({ ok: !/foreignObject/.test(svg), t: `„${p.name}": kein <foreignObject>` });
+      checks.push({ ok: !/Fraunces|Geist|JetBrains|fonts\.googleapis/.test(svg), t: `„${p.name}": keine externen Fonts referenziert` });
+      const ids = [...svg.matchAll(/\sid="([^"]+)"/g)].map(m => m[1]);
+      checks.push({ ok: new Set(ids).size === ids.length, t: `„${p.name}": ${ids.length} IDs (inkl. Skizzen-Pattern), alle eindeutig` });
+      const refs = [...svg.matchAll(/url\(#([^)]+)\)/g)].map(m => m[1]);
+      checks.push({ ok: refs.every(r => ids.includes(r)), t: `„${p.name}": ${refs.length} url(#…)-Verweise zeigen auf vorhandene IDs` });
+      const norm = s => s.replace(/mkp\d+_/g, 'X_');
+      checks.push({ ok: norm(API.pageSvg(p.id, opts)) === norm(svg), t: `„${p.name}": zweiter Aufruf liefert dasselbe SVG (Seeds stabil)` });
+      checks.push({ ok: doc.documentElement.getAttribute('viewBox') === `0 0 ${S.canvas.w} ${S.canvas.h}`, t: `„${p.name}": viewBox = 0 0 ${S.canvas.w} ${S.canvas.h}` });
+
+      const blob = await API.pagePng(p.id, opts);
+      const url = URL.createObjectURL(blob);
+      const dim = await new Promise(r => { const i = new Image(); i.onload = () => r([i.naturalWidth, i.naturalHeight]); i.src = url; });
+      checks.push({ ok: blob.size > 20*1024, t: `„${p.name}": PNG ${(blob.size/1024).toFixed(1)} KB (> 20 KB)` });
+      checks.push({ ok: dim[0] === Math.round(S.canvas.w*opts.scale) && dim[1] === Math.round(S.canvas.h*opts.scale),
+                    t: `„${p.name}": PNG ${dim[0]}×${dim[1]} = Canvas × ${opts.scale}` });
+
+      const fig = document.createElement('figure');
+      fig.innerHTML = `<figcaption><b>${p.name}</b> · PNG ${dim[0]}×${dim[1]} · ${(blob.size/1024).toFixed(1)} KB</figcaption>`;
+      const img = new Image(); img.src = url; fig.appendChild(img);
+      const box = document.createElement('div'); box.className = 'svgbox';
+      box.innerHTML = `<figcaption style="margin-top:8px">Inline-SVG derselben Seite</figcaption>` + svg;
+      fig.appendChild(box);
+      out.appendChild(fig);
+    }
+    const all = await API.allPagesPng(opts);
+    lastPngs = { API, all };
+    checks.push({ ok: all.length === pages.length && all.every(a => /^page-\d+-[a-z0-9-]+\.png$/.test(a.fileName)),
+                  t: 'allPagesPng: ' + all.map(a => a.fileName).join(', ') });
+    $('#dl').disabled = false;
+  } catch (e) {
+    checks.push({ ok: false, t: 'Abbruch: ' + e.message });
+  }
+  log(checks);
+}
+
+$('#run').onclick = run;
+$('#dl').onclick = () => { if (lastPngs) lastPngs.all.forEach((a,i) => setTimeout(() => lastPngs.API.download(a.blob, a.fileName), i*350)); };
+</script>
+</body>
+</html>

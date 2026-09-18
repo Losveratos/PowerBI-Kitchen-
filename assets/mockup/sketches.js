@@ -6,7 +6,13 @@
      window.MK_SKETCHES[kind](w, h, o)  ->  SVG-String
      window.MK_SKETCH(kind, w, h, o)    ->  Dispatcher, Fallback 'generic'
 
-   o = { scenario:'AC/PY'|'AC/PL'|'AC/PL/FC'|'AC',
+   o = { scenario:'AC/PY'|'AC/PL'|'AC/PL/FC'|'AC',   // Kurzform, abwärtskompatibel
+         scenarios:['AC','PL','PY'],                // Langform, hat Vorrang
+         deltaBasis:'PL'|'PY'|'BU',                 // Bezug der Δ-Ebenen
+         polarity:'higher'|'lower',                 // 'lower' = kleiner ist besser
+         lang:'de'|'en',                            // Sprache der Beschriftungen
+         unit:String,                               // nur kpi/card, hinter der Zahl
+         antiPattern:Boolean,                       // Warnüberzug (Kreis, Tacho)
          variance:{abs:Boolean, rel:Boolean},
          seed:Number, dense:Boolean, scale:Number,
          label:String (nur kpi/card: '' = keine Beschriftung) }
@@ -31,8 +37,16 @@
      unverändert in Entwurfseinheiten.
 
    Szenario-Notation (wie im ChartKitchen-Visual):
-     AC dunkel gefüllt · PY grau gefüllt · PL weiß mit dunkler Kontur,
+     AC dunkel gefüllt · PY grau gefüllt · PL und BU weiß mit dunkler Kontur,
      versetzt hinter AC · FC schraffiert mit Kontur.
+   - Mehr als zwei Szenarien: die erste Reihe ist die Hauptreihe (AC, sonst FC),
+     das Δ-Bezugsszenario (deltaBasis) steht als Referenzsäule daneben, ein
+     drittes Szenario erscheint als Szenario-Marke (Dreieck, IBCS UN 4.1).
+
+   Polarität (o.polarity):
+     'higher' (Default) = mehr ist günstig, 'lower' = weniger ist günstig
+     (Kosten, Ausschuss, Durchlaufzeit). Sämtliche Δ-Färbungen laufen über
+     dcol(); es gibt keine Stelle mehr, die das Vorzeichen selbst auswertet.
    ========================================================================== */
 (function (root) {
   'use strict';
@@ -54,8 +68,29 @@
   var G3   = '#C9C9C9';   // Hellgrau für Stapel
   var FONT = 'Geist, system-ui, sans-serif';
 
-  var MON = ['Jan', 'Feb', 'Mrz', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
-  var CAT = ['Nord', 'Süd', 'Ost', 'West', 'Mitte', 'Export', 'Online', 'Handel', 'Service'];
+  /* ------------------------------------------------------------- Sprachen */
+  /* Alle sichtbaren Wörter stehen hier. Szenario-Codes (AC, PL, PY, BU, FC),
+     Δ-Ebenentitel (ΔPL, ΔPL %) und Σ bleiben in beiden Sprachen IBCS-Notation. */
+  var L10N = {
+    de: {
+      mon: ['Jan', 'Feb', 'Mrz', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
+      cat: ['Nord', 'Süd', 'Ost', 'West', 'Mitte', 'Export', 'Online', 'Handel', 'Service'],
+      rows: ['Umsatz', 'Marge', 'Menge', 'Kunden', 'Aufträge'],
+      dec: ',', grp: '.',
+      vs: 'vs', total: 'gesamt', sum: 'Summe', target: 'Ziel', trend: 'Verlauf',
+      cumul: 'kumuliert', margin: 'Marge %', revenue: 'Umsatz', apply: 'Anwenden',
+      spec: 'Vega-Spec'
+    },
+    en: {
+      mon: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      cat: ['North', 'South', 'East', 'West', 'Central', 'Export', 'Online', 'Retail', 'Service'],
+      rows: ['Revenue', 'Margin', 'Volume', 'Customers', 'Orders'],
+      dec: '.', grp: ',',
+      vs: 'vs', total: 'total', sum: 'Total', target: 'Target', trend: 'Trend',
+      cumul: 'cumulative', margin: 'Margin %', revenue: 'Revenue', apply: 'Apply',
+      spec: 'Vega spec'
+    }
+  };
 
   var uid = 0;   // laufende Nummer für eindeutige Pattern-IDs
 
@@ -73,11 +108,23 @@
     for (i = 0; i < a.length; i++) { v = Math.abs(+a[i]); if (isFinite(v) && v > m) m = v; }
     return m || 1;
   }
-  // Deutsche Dummy-Zahl, z. B. "12,4"
-  function lbl(v, d) { return n(v).toFixed(d == null ? 1 : d).replace('.', ','); }
-  function plbl(v) { return (n(v) >= 0 ? '+' : '') + lbl(v, 0) + '%'; }
+  /* Dummy-Zahl in der Sprache des Kontexts:
+     de "1.234,6" · en "1,234.6". Ohne Kontext (Altaufruf) gilt Deutsch. */
+  function lbl(c, v, d) {
+    var t = (c && c.t) || L10N.de;
+    var neg = n(v) < 0;
+    var s = Math.abs(n(v)).toFixed(d == null ? 1 : d).split('.');
+    var ip = s[0].replace(/\B(?=(\d{3})+(?!\d))/g, t.grp);
+    return (neg ? '-' : '') + ip + (s[1] ? t.dec + s[1] : '');
+  }
+  function plbl(c, v) { return (n(v) >= 0 ? '+' : '') + lbl(c, v, 0) + '%'; }
   // Vorzeichenbehafteter Δ-Wert, z. B. "+12" / "-8"
-  function dlbl(v) { return (n(v) >= 0 ? '+' : '') + lbl(v, 0); }
+  function dlbl(c, v) { return (n(v) >= 0 ? '+' : '') + lbl(c, v, 0); }
+
+  /* Einzige Stelle, an der ein Δ-Vorzeichen zu einer Farbe wird.
+     c.pol ist +1 ('higher') oder -1 ('lower'); bei 'lower' ist eine negative
+     Abweichung die günstige. Δ = 0 gilt in beiden Fällen als günstig. */
+  function dcol(c, d) { return n(d) * ((c && c.pol) || 1) >= 0 ? GOOD : BAD; }
 
   // Kleiner deterministischer PRNG.
   function mulberry32(a) {
@@ -159,6 +206,63 @@
   // Textplatzhalter (graue Balken) — wo echte Schrift zu klein wäre.
   function ghost(x, y, w, h, fill) { return rect(x, y, w, h || 2, fill || '#D4D4D4'); }
 
+  /* Kürzt eine Beschriftung auf die reservierte Spaltenbreite.
+     Nötig, seit die Demo-Namen aus dem Wörterbuch kommen: 'Central' und
+     'Service' sind länger als 'Mitte' und würden sonst aus der Kachel laufen. */
+  function fit(c, s, w, size) {
+    s = String(s == null ? '' : s);
+    var cw = (size || c.fs) * 0.62;
+    if (!(w > 0) || !(cw > 0)) return '';
+    var max = Math.floor(w / cw);
+    if (max >= s.length) return s;
+    if (max < 2) return '';
+    return s.slice(0, max - 1) + '…';
+  }
+
+  /* --------------------------------------------------------- Szenario-Satz */
+
+  var SCEN_OK = { AC: 1, PY: 1, PL: 1, BU: 1, FC: 1 };
+
+  /* Normalisiert beide Schreibweisen zu einem Satz:
+       o.scenarios (Array, hat Vorrang)  ->  ['AC','PL','PY']
+       o.scenario  (String, Altform)     ->  'AC/PL/FC' wird zerlegt
+     Ergebnis:
+       main  = gefüllte Hauptreihe (AC, ersatzweise FC)
+       basis = Bezug der Δ-Ebenen (o.deltaBasis, sonst PL vor PY vor BU)
+       sec   = übriges Szenario, wird als Dreieck-Marke gezeichnet
+       fc    = Forecast-Anteil vorhanden                                    */
+  function scenSet(o) {
+    var list = [], seen = {}, i, parts, str;
+    function add(x) {
+      x = String(x == null ? '' : x).toUpperCase().replace(/[^A-Z]/g, '');
+      if (SCEN_OK[x] && !seen[x]) { seen[x] = 1; list.push(x); }
+    }
+    if (o.scenarios && typeof o.scenarios !== 'string' && o.scenarios.length) {
+      for (i = 0; i < o.scenarios.length; i++) add(o.scenarios[i]);
+    } else {
+      str = (typeof o.scenarios === 'string' && o.scenarios) || o.scenario || 'AC/PL';
+      parts = String(str).split(/[^A-Za-z]+/);
+      for (i = 0; i < parts.length; i++) add(parts[i]);
+    }
+    if (!list.length) list.push('AC');
+    var main = list.indexOf('AC') >= 0 ? 'AC' : (list.indexOf('FC') >= 0 ? 'FC' : list[0]);
+    var refs = [];
+    for (i = 0; i < list.length; i++) {
+      if (list[i] !== main && list[i] !== 'FC') refs.push(list[i]);
+    }
+    var want = String(o.deltaBasis == null ? '' : o.deltaBasis).toUpperCase();
+    var basis = null, order = [want, 'PL', 'PY', 'BU'];
+    for (i = 0; i < order.length && !basis; i++) {
+      if (order[i] && refs.indexOf(order[i]) >= 0) basis = order[i];
+    }
+    var sec = null;
+    for (i = 0; i < refs.length && !sec; i++) if (refs[i] !== basis) sec = refs[i];
+    return {
+      list: list, main: main, basis: basis, sec: sec,
+      fc: list.indexOf('FC') >= 0, scen: list.join('/')
+    };
+  }
+
   /* ------------------------------------------------------------- Kontext */
 
   /* ctx() ist die einzige Stelle, an der o.scale ausgewertet wird.
@@ -180,6 +284,8 @@
     var W = Math.floor(W0 / k * 100) / 100;
     var H = Math.floor(H0 / k * 100) / 100;
     var v = o.variance || {};
+    var lang = (o.lang === 'en') ? 'en' : 'de';
+    var sn = scenSet(o);
     var pad = 4;
     var c = {
       w: W, h: H, pad: pad,
@@ -189,18 +295,51 @@
       ih: Math.max(4, n(H - 2 * pad)),
       small: (W < 120 || H < 50),          // reduzierte Variante
       tiny:  (W < 90  || H < 34),          // Extremfall: nur noch Silhouette
-      scen: o.scenario || 'AC/PL',
+      scen: sn.scen,                       // Kurzform, für Altcode
+      scens: sn.list,                      // ['AC','PL','PY'] …
+      main: sn.main,                       // gefüllte Hauptreihe: 'AC' oder 'FC'
+      basis: sn.basis,                     // Δ-Bezug: 'PL' | 'PY' | 'BU' | null
+      sec: sn.sec,                         // drittes Szenario als Marke
+      fc: sn.fc,                           // Forecast-Anteil vorhanden
+      pol: (o.polarity === 'lower') ? -1 : 1,
+      lang: lang,
+      t: L10N[lang],
+      unit: (o.unit == null) ? '' : String(o.unit),
+      anti: !!o.antiPattern,
       vAbs: v.abs !== false,
       vRel: v.rel !== false,
       dense: !!o.dense,
       rnd: mulberry32(o.seed == null ? 1 : o.seed)
     };
+    c.mon = c.t.mon;
+    c.cat = c.t.cat;
     c.lab = (!c.small && W >= 170 && H >= 90);   // Beschriftung nur wenn Platz
     c.fs  = W < 240 ? 8 : 9;
     return c;
   }
 
+  /* Anti-Pattern-Überzug: diagonale Schraffur in hellem Rot plus „!"-Plakette
+     oben rechts. Das Tool setzt o.antiPattern bei Typen, die nicht IBCS-konform
+     sind (Kreis, Tacho) — im Workshop soll man das auf der Skizze sehen. */
+  function antiLayer(c) {
+    var id = 'mkap' + (++uid);
+    var s = '<defs><pattern id="' + id + '" width="7" height="7" patternUnits="userSpaceOnUse" ' +
+            'patternTransform="rotate(45 0 0)"><line x1="0" y1="0" x2="0" y2="7" stroke="' + BAD +
+            '" stroke-width="1.1"/></pattern></defs>';
+    s += '<rect x="0" y="0" width="' + n(c.w) + '" height="' + n(c.h) + '" fill="url(#' + id +
+         ')" fill-opacity="0.14"/>';
+    // Plakette nur, wenn sie nicht mehr als ein Viertel der Kachel frisst.
+    var r = clamp(Math.min(c.w, c.h) * 0.11, 3.4, 7.5);
+    if (c.w >= r * 4 && c.h >= r * 4) {
+      var bx = n(c.w - r - 1.4), by = n(r + 1.4);
+      s += circ(bx, by, r, '#FFFFFF', BAD, 1.2);
+      s += txt(bx, by + r * 0.62, '!', r * 1.55, BAD, 'middle', '700');
+    }
+    return s;
+  }
+
   function wrap(c, body) {
+    if (c.anti) body += antiLayer(c);
     var g = c.k === 1 ? body : '<g transform="scale(' + c.k + ')">' + body + '</g>';
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + c.ow + ' ' + c.oh +
            '" width="100%" height="100%" font-family="' + FONT + '">' + g + '</svg>';
@@ -257,15 +396,18 @@
 
   /* ---------------------------------------------------- Szenario-Werkzeuge */
 
-  function refKind(c) {
-    if (c.scen.indexOf('PY') >= 0) return 'PY';
-    if (c.scen.indexOf('PL') >= 0) return 'PL';
-    return null;                       // reines 'AC'
-  }
-  function hasFC(c) { return c.scen.indexOf('FC') >= 0; }
+  // Referenz-/Δ-Bezugsszenario (null bei reinem 'AC').
+  function refKind(c) { return c.basis; }
+  function hasFC(c) { return !!c.fc; }
+  // PL und BU werden gleich gezeichnet: weiß mit Kontur, versetzt hinter AC.
+  function isOutline(kind) { return kind === 'PL' || kind === 'BU'; }
 
-  // Ab diesem Index gelten Säulen als Forecast.
-  function fcStart(c, cnt) { return hasFC(c) ? Math.max(1, Math.round(cnt * 0.68)) : cnt + 1; }
+  /* Ab diesem Index gelten Säulen als Forecast. Ist FC die Hauptreihe
+     (z. B. scenarios:['PL','FC']), ist die ganze Reihe schraffiert. */
+  function fcStart(c, cnt) {
+    if (c.main === 'FC') return 0;
+    return hasFC(c) ? Math.max(1, Math.round(cnt * 0.68)) : cnt + 1;
+  }
 
   // Schraffur-Definition für Forecast (Raster wie im ChartKitchen-Visual).
   function hatch() {
@@ -283,7 +425,7 @@
   function refShape(x, y, w, h, kind, hh) {
     if (kind === 'PY') return rect(x, y, w, h, PY);
     if (kind === 'FC') return rect(x, y, w, h, fcFill(hh, w), AC, 0.8);
-    return rect(x, y, w, h, PLF, PLS, 1);          // PL: weiß mit Kontur
+    return rect(x, y, w, h, PLF, PLS, 1);          // PL und BU: weiß mit Kontur
   }
 
   /* ------------------------------------------------------ Datengeneratoren */
@@ -332,9 +474,10 @@
   // Szenario-Legende mit Mini-Swatches, oben links — nur wenn Platz ist.
   function scenLegend(c, x, y, kind, hh) {
     if (!c.lab || c.w < 250) return '';
-    var items = ['AC'], b = '', cx = x, sw = n(c.fs * 0.78), i, key, sy;
+    var items = [c.main], b = '', cx = x, sw = n(c.fs * 0.78), i, key, sy;
     if (kind) items.push(kind);
-    if (hasFC(c)) items.push('FC');
+    if (c.sec) items.push(c.sec);
+    if (hasFC(c) && c.main !== 'FC') items.push('FC');
     for (i = 0; i < items.length; i++) {
       key = items[i]; sy = y - sw;
       if (key === 'AC') b += rect(cx, sy, sw, sw, AC);
@@ -344,14 +487,27 @@
       cx += sw + 1.8;
       b += txt(cx, y, key, c.fs, SUB, 'start');
       cx += key.length * c.fs * 0.62 + 5;
+      if (cx > c.x1 - sw) break;                  // Rest passt nicht mehr
     }
     return b;
   }
 
-  // Szenario-Marke: kleines Dreieck, Spitze auf dem Referenzwert (UN 4.1).
-  function triDown(x, y, size) {
+  /* Szenario-Marke: kleines Dreieck, Spitze auf dem Wert (IBCS UN 4.1).
+     Für das dritte Szenario (c.sec), damit z. B. AC gegen PL *und* PY
+     nebeneinander lesbar bleibt, ohne eine dritte Säule zu brauchen.
+     triDown: Spitze unten, Marke liegt über dem Wert (Säulen).
+     triLeft: Spitze links, Marke liegt rechts vom Wert (Balken).           */
+  function markFill(kind) { return kind === 'PY' ? PY : PLF; }
+  function markLine(kind) { return kind === 'PY' ? null : PLS; }
+  function triDown(x, y, size, kind) {
     var s2 = Math.max(1.2, n(size));
-    return polygonEl([[x, y], [x - s2 * 0.62, y - s2], [x + s2 * 0.62, y - s2]], PY);
+    return polygonEl([[x, y], [x - s2 * 0.62, y - s2], [x + s2 * 0.62, y - s2]],
+                     markFill(kind || 'PY'), markLine(kind || 'PY'), 0.8);
+  }
+  function triLeft(x, y, size, kind) {
+    var s2 = Math.max(1.2, n(size));
+    return polygonEl([[x, y], [x + s2, y - s2 * 0.62], [x + s2, y + s2 * 0.62]],
+                     markFill(kind || 'PY'), markLine(kind || 'PY'), 0.8);
   }
 
   // Gestrichelte Trennlinie zwischen Ist- und Forecast-Bereich.
@@ -375,13 +531,13 @@
     var fcAt = fcStart(c, d.length);
     b += ln(sl[0].x - 1, zero, sl[sl.length - 1].x + sl[sl.length - 1].w + 1, zero, AXIS, 1);
     for (i = 0; i < d.length; i++) {
-      var yy = s(d[i]), col = d[i] >= 0 ? GOOD : BAD, isFC = (i + 1) >= fcAt;
+      var yy = s(d[i]), col = dcol(c, d[i]), isFC = (i + 1) >= fcAt;
       var top = Math.min(zero, yy), hgt = Math.max(0.9, Math.abs(zero - yy));
       b += isFC ? rect(sl[i].x, top, sl[i].w, hgt, fcFill(hh, sl[i].w), col, 0.8)
                 : rect(sl[i].x, top, sl[i].w, hgt, col);
       if (showLbl) {
         b += txt(sl[i].cx, d[i] >= 0 ? top - c.fs * 0.42 : top + hgt + c.fs * 0.95,
-                 dlbl(d[i]), c.fs, col, 'middle');
+                 dlbl(c, d[i]), c.fs, col, 'middle');
       }
     }
     return b;
@@ -400,12 +556,12 @@
     b += ln(sl[0].cx - sl[0].w * 0.6, zero,
             sl[sl.length - 1].cx + sl[sl.length - 1].w * 0.6, zero, AXIS, 1);
     for (i = 0; i < d.length; i++) {
-      var yy = s(d[i]), col = d[i] >= 0 ? GOOD : BAD, isFC = (i + 1) >= fcAt;
+      var yy = s(d[i]), col = dcol(c, d[i]), isFC = (i + 1) >= fcAt;
       b += ln(sl[i].cx, zero, sl[i].cx, yy, col, 1.3);
       b += isFC ? circ(sl[i].cx, yy, r, '#FFFFFF', col, 1) : circ(sl[i].cx, yy, r, col);
       if (showLbl) {
         b += txt(sl[i].cx, d[i] >= 0 ? yy - r - c.fs * 0.4 : yy + r + c.fs * 0.95,
-                 plbl(d[i]), c.fs, col, 'middle');
+                 plbl(c, d[i]), c.fs, col, 'middle');
       }
     }
     return b;
@@ -421,13 +577,13 @@
     var fcAt = fcStart(c, d.length);
     b += ln(zero, rows[0].y - 1, zero, rows[rows.length - 1].y + rows[rows.length - 1].h + 1, AXIS, 1);
     for (i = 0; i < d.length; i++) {
-      var xx = s(d[i]), col = d[i] >= 0 ? GOOD : BAD, isFC = (i + 1) >= fcAt;
+      var xx = s(d[i]), col = dcol(c, d[i]), isFC = (i + 1) >= fcAt;
       var bx = Math.min(zero, xx), bw = Math.max(0.9, Math.abs(xx - zero));
       b += isFC ? rect(bx, rows[i].y, bw, rows[i].h, fcFill(hh, bw), col, 0.8)
                 : rect(bx, rows[i].y, bw, rows[i].h, col);
       if (showLbl) {
         b += txt(d[i] >= 0 ? xx + 2.2 : xx - 2.2, rows[i].cy + c.fs * 0.34,
-                 dlbl(d[i]), c.fs, col, d[i] >= 0 ? 'start' : 'end');
+                 dlbl(c, d[i]), c.fs, col, d[i] >= 0 ? 'start' : 'end');
       }
     }
     return b;
@@ -444,12 +600,12 @@
     var r = clamp(rows[0].h * 0.24, 1.1, 2.6);
     b += ln(zero, rows[0].y - 1, zero, rows[rows.length - 1].y + rows[rows.length - 1].h + 1, AXIS, 1);
     for (i = 0; i < d.length; i++) {
-      var xx = s(d[i]), col = d[i] >= 0 ? GOOD : BAD, cy = rows[i].cy, isFC = (i + 1) >= fcAt;
+      var xx = s(d[i]), col = dcol(c, d[i]), cy = rows[i].cy, isFC = (i + 1) >= fcAt;
       b += ln(zero, cy, xx, cy, col, 1.3);
       b += isFC ? circ(xx, cy, r, '#FFFFFF', col, 1) : circ(xx, cy, r, col);
       if (showLbl) {
         b += txt(d[i] >= 0 ? xx + r + 1.8 : xx - r - 1.8, cy + c.fs * 0.34,
-                 plbl(d[i]), c.fs, col, d[i] >= 0 ? 'start' : 'end');
+                 plbl(c, d[i]), c.fs, col, d[i] >= 0 ? 'start' : 'end');
       }
     }
     return b;
@@ -472,16 +628,19 @@
     opt = opt || {};
     var cnt = ac.length, i;
     var step = sl.length ? sl[0].step : P.w;
-    var off = !!rf && kind === 'PL';
+    var off = !!rf && isOutline(kind);
     var pw  = off ? step * 0.42 : (rf && kind ? step * 0.44 : step * 0.6);
     var rw  = off ? step * 0.42 : step * 0.66;
     var dx  = off ? step * 0.115 : 0;
     var showLbl = opt.labels !== false && c.lab &&
                   step >= c.fs * 2.6 && P.h >= c.fs * 4.2;
     var lh = showLbl ? c.fs * 1.35 : c.fs * 0.2;
-    var mx = Math.max(maxOf(ac), rf ? maxOf(rf) : 0) * 1.04;
+    // Drittes Szenario (c.sec) als Marke: eigene Reihe, gleiche Skala.
+    var sec = (opt.sec !== false && c.sec && rf) ? derive(c, ac, 0.86, 1.14) : null;
+    var mx = Math.max(maxOf(ac), rf ? maxOf(rf) : 0, sec ? maxOf(sec) : 0) * 1.04;
     var s = sc(0, mx, P.y + P.h, P.y + lh);
     var fcAt = fcStart(c, cnt), b = '';
+    var ms = clamp(step * 0.16, 1.6, 4.2);        // Kantenlänge der Marke
     for (i = 0; i < cnt; i++) {
       var cxR = sl[i].cx - dx, cxP = sl[i].cx + dx;
       if (rf && kind) {
@@ -492,10 +651,15 @@
       b += isFC
         ? rect(cxP - pw / 2, yT, pw, Math.max(0.9, P.y + P.h - yT), fcFill(hh, pw), AC, 0.8)
         : rect(cxP - pw / 2, yT, pw, Math.max(0.9, P.y + P.h - yT), AC);
+      if (sec) {
+        // Spitze auf dem Wert, Körper darüber — bleibt innerhalb der Fläche.
+        var yS = clamp(s(sec[i]), P.y + ms + 0.4, P.y + P.h);
+        b += triDown(sl[i].cx, yS, ms, c.sec);
+      }
       if (showLbl) {
-        // Halo, wenn die Referenzsäule über dem Wertelabel liegt.
-        var ovl = !!rf && !!kind && rf[i] > ac[i];
-        b += txt(cxP, yT - c.fs * 0.42, lbl(ac[i], 0), c.fs, isFC ? TXT : AC, 'middle', null, ovl);
+        // Halo, wenn Referenzsäule oder Marke über dem Wertelabel liegt.
+        var ovl = (!!rf && !!kind && rf[i] > ac[i]) || (!!sec && sec[i] > ac[i]);
+        b += txt(cxP, yT - c.fs * 0.42, lbl(c, ac[i], 0), c.fs, isFC ? TXT : AC, 'middle', null, ovl);
       }
     }
     b += fcSplit(c, sl, P.y, P.y + P.h);
@@ -506,7 +670,7 @@
   // Kategorie-Beschriftung unter einer Säulenreihe (bleibt im viewBox).
   function monLabels(c, sl, y, names) {
     if (!c.lab) return '';
-    var b = '', i, nm = names || MON, t, tw, cx;
+    var b = '', i, nm = names || c.mon, t, tw, cx;
     for (i = 0; i < sl.length; i++) {
       if (sl[i].step < c.fs * 2.3) continue;
       t = nm[i % nm.length];
@@ -572,7 +736,7 @@
     for (i = 0; i < cnt; i++) pts.push([sl[i].cx, s2(q[i])]);
     b += polyline(pts, AC, c.small ? 1.2 : 1.7);
     if (!c.small) for (i = 0; i < pts.length; i++) b += circ(pts[i][0], pts[i][1], 1.9, '#FFFFFF', AC, 1.1);
-    if (c.lab) b += txt(P.x, c.y0 + c.fs - 1, 'Marge %', c.fs, SUB, 'start');
+    if (c.lab) b += txt(P.x, c.y0 + c.fs - 1, c.t.margin, c.fs, SUB, 'start');
     b += monLabels(c, sl, c.y1 - 0.5);
     return wrap(c, b);
   };
@@ -586,8 +750,16 @@
     var labH = c.lab ? c.fs + 4 : 0;
     var sl = slots(c.x0, c.iw, cnt, 0.55);
     if (c.small) {
+      // Klein: nur eine Δ-Ebene, absolut hat Vorrang. Ohne beide Schalter
+      // bleibt die Säulenebene allein und bekommt die ganze Höhe.
+      if (!c.vAbs && !c.vRel) {
+        b += colBlock(c, { x: c.x0, y: c.y0, w: c.iw, h: c.ih - labH }, ac, rf, kind, hh, sl).body;
+        return wrap(c, b);
+      }
       var bs = bands(c.y0, c.ih - labH, [34, 66], 2);
-      b += deltaCols(c, diffs(ac, rf), sl, bs[0].y, bs[0].h, hh, { labels: false });
+      b += c.vAbs
+        ? deltaCols(c, diffs(ac, rf), sl, bs[0].y, bs[0].h, hh, { labels: false })
+        : deltaPins(c, rels(ac, rf), sl, bs[0].y, bs[0].h, hh, { labels: false });
       b += colBlock(c, { x: c.x0, y: bs[1].y, w: c.iw, h: bs[1].h }, ac, rf, kind, hh, sl).body;
       return wrap(c, b);
     }
@@ -655,18 +827,24 @@
     var refDark = (kind === 'PY') ? PY : AC;
     var rightW = c.lab ? c.fs * 4.2 : 0;
     var P = area(c, { bottom: c.lab ? c.fs + 4 : 0, top: c.lab ? c.fs * 0.6 : 0, right: rightW });
-    var mx = Math.max(maxOf(ac), rf ? maxOf(rf) : 0) * 1.14;
+    var sec = c.sec ? derive(c, ac, 0.86, 1.14) : null;
+    var mx = Math.max(maxOf(ac), rf ? maxOf(rf) : 0, sec ? maxOf(sec) : 0) * 1.14;
     var s = sc(0, mx, P.y + P.h, P.y);
-    var step = P.w / Math.max(1, cnt - 1), pa = [], pr = [], sl = [], i;
+    var step = P.w / Math.max(1, cnt - 1), pa = [], pr = [], ps = [], sl = [], i;
     for (i = 0; i < cnt; i++) {
       pa.push([P.x + step * i, s(ac[i])]);
       if (rf) pr.push([P.x + step * i, s(rf[i])]);
+      if (sec) ps.push([P.x + step * i, s(sec[i])]);
       sl.push({ cx: n(P.x + step * i), step: n(step), w: n(step) });
     }
     b += ln(P.x, P.y + P.h, P.x + P.w, P.y + P.h, AXIS, 1.2);
+    // Drittes Szenario als dünne Hilfslinie, damit AC gegen PL und PY geht.
+    if (sec) b += polyline(ps, c.sec === 'PY' ? PY : HAIR, c.small ? 0.9 : 1.1, '2 2');
     if (rf) b += polyline(pr, refDark, kind === 'PY' ? (c.small ? 1.2 : 1.7) : (c.small ? 0.9 : 1.2));
     var fcAt = fcStart(c, cnt);
-    if (hasFC(c) && fcAt >= 1 && fcAt < cnt) {
+    if (hasFC(c) && fcAt < 1) {
+      b += polyline(pa, AC, c.small ? 1.2 : 1.6, '3 2');      // reine FC-Reihe
+    } else if (hasFC(c) && fcAt < cnt) {
       b += polyline(pa.slice(0, fcAt), AC, c.small ? 1.4 : 2);
       b += polyline(pa.slice(fcAt - 1), AC, c.small ? 1.2 : 1.6, '3 2');
       b += ln(pa[fcAt - 1][0], P.y, pa[fcAt - 1][0], P.y + P.h, HAIR, 0.8, '2 2');
@@ -682,8 +860,8 @@
       }
     }
     if (c.lab) {
-      b += txt(pa[cnt - 1][0] + 3.4, pa[cnt - 1][1] + c.fs * 0.34, lbl(ac[cnt - 1], 0) + ' AC', c.fs, AC, 'start');
-      if (rf) b += txt(pr[cnt - 1][0] + 3.4, pr[cnt - 1][1] + c.fs * 0.34, lbl(rf[cnt - 1], 0) + ' ' + kind, c.fs, kind === 'PY' ? TXT : AC, 'start');
+      b += txt(pa[cnt - 1][0] + 3.4, pa[cnt - 1][1] + c.fs * 0.34, lbl(c, ac[cnt - 1], 0) + ' ' + c.main, c.fs, AC, 'start');
+      if (rf) b += txt(pr[cnt - 1][0] + 3.4, pr[cnt - 1][1] + c.fs * 0.34, lbl(c, rf[cnt - 1], 0) + ' ' + kind, c.fs, kind === 'PY' ? TXT : AC, 'start');
     }
     b += monLabels(c, sl, c.y1 - 0.5);
     return wrap(c, b);
@@ -705,13 +883,13 @@
       b += ln(P.x, y1, P.x + P.w, y2, col, c.small ? 1.1 : 1.5);
       b += circ(P.x, y1, c.small ? 1.4 : 2, col) + circ(P.x + P.w, y2, c.small ? 1.4 : 2, col);
       if (c.lab) {
-        b += txt(P.x - 3, y1 + 3, lbl(a[i], 0), c.fs, TXT, 'end');
-        b += txt(P.x + P.w + 3, y2 + 3, lbl(z[i], 0), c.fs, TXT, 'start');
+        b += txt(P.x - 3, y1 + 3, lbl(c, a[i], 0), c.fs, TXT, 'end');
+        b += txt(P.x + P.w + 3, y2 + 3, lbl(c, z[i], 0), c.fs, TXT, 'start');
       }
     }
     if (c.lab) {
-      b += txt(P.x, c.y1 - 0.5, 'PY', c.fs, TXT, 'middle');
-      b += txt(P.x + P.w, c.y1 - 0.5, 'AC', c.fs, TXT, 'middle');
+      b += txt(P.x, c.y1 - 0.5, refKind(c) || 'PY', c.fs, TXT, 'middle');
+      b += txt(P.x + P.w, c.y1 - 0.5, c.main, c.fs, TXT, 'middle');
     }
     return wrap(c, b);
   };
@@ -761,7 +939,7 @@
     b += polyline(cum, AC, c.small ? 1.4 : 1.9);
     if (c.lab) {
       b += txt(P.x + 2, mat[1][1] - 3, 'MAT 12', c.fs, TXT, 'start');
-      b += txt(P.x + P.w - 2, cum[cnt - 1][1] - 3, 'kumuliert', c.fs, TXT, 'end');
+      b += txt(P.x + P.w - 2, cum[cnt - 1][1] - 3, c.t.cumul, c.fs, TXT, 'end');
     }
     return wrap(c, b);
   };
@@ -790,7 +968,7 @@
         if (j) b += ln(sl[i].x, y1, sl[i].x + sl[i].w, y1, '#FFFFFF', 0.7);
         acc += parts[i][j];
       }
-      if (showLbl) b += txt(sl[i].cx, s(tot[i]) - c.fs * 0.42, lbl(tot[i], 0), c.fs, AC, 'middle');
+      if (showLbl) b += txt(sl[i].cx, s(tot[i]) - c.fs * 0.42, lbl(c, tot[i], 0), c.fs, AC, 'middle');
     }
     b += ln(P.x, P.y + P.h, P.x + P.w, P.y + P.h, AXIS, 1.2);
     b += monLabels(c, sl, c.y1 - 0.5);
@@ -813,22 +991,22 @@
     var s = sc(low, Math.max(peak, start, end) * 1.04, P.y + P.h, P.y + lh);
     var zero = s(0), cur = start;
     b += rect(sl[0].x, s(start), sl[0].w, Math.max(0.9, zero - s(start)), AC);
-    if (showLbl) b += txt(sl[0].cx, s(start) - c.fs * 0.42, lbl(start, 0), c.fs, AC, 'middle', '600');
+    if (showLbl) b += txt(sl[0].cx, s(start) - c.fs * 0.42, lbl(c, start, 0), c.fs, AC, 'middle', '600');
     for (i = 0; i < mids; i++) {
       var from = cur, to = n(cur + steps[i]);
       var yTop = s(Math.max(from, to)), yBot = s(Math.min(from, to));
       b += ln(sl[i].x + sl[i].w, s(from), sl[i + 1].x, s(from), HAIR, 0.9);
-      b += rect(sl[i + 1].x, yTop, sl[i + 1].w, Math.max(0.9, yBot - yTop), steps[i] >= 0 ? GOOD : BAD);
-      if (showLbl) b += txt(sl[i + 1].cx, yTop - c.fs * 0.42, dlbl(steps[i]), c.fs, steps[i] >= 0 ? GOOD : BAD, 'middle');
+      b += rect(sl[i + 1].x, yTop, sl[i + 1].w, Math.max(0.9, yBot - yTop), dcol(c, steps[i]));
+      if (showLbl) b += txt(sl[i + 1].cx, yTop - c.fs * 0.42, dlbl(c, steps[i]), c.fs, dcol(c, steps[i]), 'middle');
       cur = to;
     }
     b += ln(sl[mids].x + sl[mids].w, s(cur), sl[cnt - 1].x, s(cur), HAIR, 0.9);
     b += rect(sl[cnt - 1].x, s(end), sl[cnt - 1].w, Math.max(0.9, zero - s(end)), AC);
-    if (showLbl) b += txt(sl[cnt - 1].cx, s(end) - c.fs * 0.42, lbl(end, 0), c.fs, AC, 'middle', '600');
+    if (showLbl) b += txt(sl[cnt - 1].cx, s(end) - c.fs * 0.42, lbl(c, end, 0), c.fs, AC, 'middle', '600');
     b += ln(P.x, zero, P.x + P.w, zero, AXIS, 1.2);
     if (c.lab) {
       var nm = ['Σ'];
-      for (i = 0; i < mids; i++) nm.push(CAT[i % CAT.length]);
+      for (i = 0; i < mids; i++) nm.push(c.cat[i % c.cat.length]);
       nm.push('Σ');
       b += monLabels(c, sl, c.y1 - 0.5, nm);
     }
@@ -851,23 +1029,23 @@
     var s = sc(low, Math.max(peak, start, end) * 1.04, P.y + P.h, P.y + lh);
     var zero = s(0), cur = start;
     b += rect(sl[0].x, s(start), sl[0].w, Math.max(0.9, zero - s(start)), PY);
-    if (showLbl) b += txt(sl[0].cx, s(start) - c.fs * 0.42, lbl(start, 0), c.fs, TXT, 'middle', '600');
+    if (showLbl) b += txt(sl[0].cx, s(start) - c.fs * 0.42, lbl(c, start, 0), c.fs, TXT, 'middle', '600');
     for (i = 0; i < mids; i++) {
       var to = n(cur + steps[i]);
       var yTop = s(Math.max(cur, to)), yBot = s(Math.min(cur, to));
       b += ln(sl[i].x + sl[i].w, s(cur), sl[i + 1].x, s(cur), HAIR, 0.9);
-      b += rect(sl[i + 1].x, yTop, sl[i + 1].w, Math.max(0.9, yBot - yTop), steps[i] >= 0 ? GOOD : BAD);
-      if (showLbl) b += txt(sl[i + 1].cx, yTop - c.fs * 0.42, dlbl(steps[i]), c.fs, steps[i] >= 0 ? GOOD : BAD, 'middle');
+      b += rect(sl[i + 1].x, yTop, sl[i + 1].w, Math.max(0.9, yBot - yTop), dcol(c, steps[i]));
+      if (showLbl) b += txt(sl[i + 1].cx, yTop - c.fs * 0.42, dlbl(c, steps[i]), c.fs, dcol(c, steps[i]), 'middle');
       cur = to;
     }
     b += ln(sl[mids].x + sl[mids].w, s(cur), sl[cnt - 1].x, s(cur), HAIR, 0.9);
     b += rect(sl[cnt - 1].x, s(end), sl[cnt - 1].w, Math.max(0.9, zero - s(end)), AC);
-    if (showLbl) b += txt(sl[cnt - 1].cx, s(end) - c.fs * 0.42, lbl(end, 0), c.fs, AC, 'middle', '600');
+    if (showLbl) b += txt(sl[cnt - 1].cx, s(end) - c.fs * 0.42, lbl(c, end, 0), c.fs, AC, 'middle', '600');
     b += ln(P.x, zero, P.x + P.w, zero, AXIS, 1.2);
     if (c.lab) {
-      var nm2 = ['PY'];
-      for (i = 0; i < mids; i++) nm2.push(CAT[i % CAT.length]);
-      nm2.push('AC');
+      var nm2 = [refKind(c) || 'PY'];
+      for (i = 0; i < mids; i++) nm2.push(c.cat[i % c.cat.length]);
+      nm2.push(c.main);
       b += monLabels(c, sl, c.y1 - 0.5, nm2);
     }
     return wrap(c, b);
@@ -884,9 +1062,15 @@
     for (i = 0; i < cnt; i++) { run = n(run * 0.6 + dRel[i] * 0.5); ytd.push(run); }
     var labH = c.lab ? c.fs + 4 : 0;
     if (c.small) {
-      var bs = bands(c.y0, c.ih - labH, [36, 64], 2);
       var slS = slots(c.x0, c.iw, cnt, 0.55);
-      b += deltaPins(c, dRel, slS, bs[0].y, bs[0].h, hh, { labels: false });
+      if (!c.vAbs && !c.vRel) {
+        b += colBlock(c, { x: c.x0, y: c.y0, w: c.iw, h: c.ih - labH }, ac, pl, kind, hh, slS).body;
+        return wrap(c, b);
+      }
+      var bs = bands(c.y0, c.ih - labH, [36, 64], 2);
+      b += c.vRel
+        ? deltaPins(c, dRel, slS, bs[0].y, bs[0].h, hh, { labels: false })
+        : deltaCols(c, dAbs, slS, bs[0].y, bs[0].h, hh, { labels: false });
       b += colBlock(c, { x: c.x0, y: bs[1].y, w: c.iw, h: bs[1].h }, ac, pl, kind, hh, slS).body;
       return wrap(c, b);
     }
@@ -894,36 +1078,46 @@
     var totW = (c.lab && c.w >= 300) ? Math.min(34, c.iw * 0.12) : 0;
     var plotW = c.iw - (totW ? totW + c.fs : 0);
     var capH = c.lab ? c.fs + 1 : 0;
-    // Bei knapper Höhe entfällt die YTD-Ebene, damit die übrigen atmen können.
+    /* Ebenen nach o.variance: Δ% YTD und Δ% hängen an 'rel', die kumulierte
+       Δ-Brücke an 'abs'. Ohne beide bleibt nur die Säulenebene.
+       Bei knapper Höhe entfällt die YTD-Ebene, damit die übrigen atmen.     */
     var tall = c.h >= 165;
-    var bd = bands(c.y0, c.ih - labH, tall ? [17, 17, 24, 42] : [22, 26, 52], c.fs * 0.6);
-    var iB = tall ? 1 : 0;                     // Index der Δ%-Ebene
+    var parts = [], keys = [];
+    if (c.vRel && tall) { parts.push(17); keys.push('ytd'); }
+    if (c.vRel) { parts.push(tall ? 17 : 22); keys.push('rel'); }
+    if (c.vAbs) { parts.push(tall ? 24 : 26); keys.push('cum'); }
+    parts.push(keys.length ? (tall ? 42 : 52) : 100); keys.push('col');
+    var bd = bands(c.y0, c.ih - labH, parts, c.fs * 0.6);
     var sl = slots(c.x0, plotW, cnt, 0.55);
-    if (tall) {
-      b += layerCap(c, c.x0, bd[0].y + c.fs - 1, 'Δ' + kind + ' % YTD');
-      b += deltaPins(c, ytd, sl, bd[0].y + capH, Math.max(5, bd[0].h - capH), hh, { labels: false });
+    var P = { x: c.x0, y: bd[keys.length - 1].y, w: plotW, h: bd[keys.length - 1].h };
+    for (i = 0; i < keys.length - 1; i++) {
+      var yL = bd[i].y + capH, hL = Math.max(5, bd[i].h - capH);
+      if (keys[i] === 'ytd') {
+        b += layerCap(c, c.x0, bd[i].y + c.fs - 1, 'Δ' + kind + ' % YTD');
+        b += deltaPins(c, ytd, sl, yL, hL, hh, { labels: false });
+      } else if (keys[i] === 'rel') {
+        b += layerCap(c, c.x0, bd[i].y + c.fs - 1, 'Δ' + kind + ' %');
+        b += deltaPins(c, dRel, sl, yL, hL, hh, { labels: false });
+      } else {
+        // Δ-Brücke: aufgelaufene Abweichung gegen die Δ-Nulllinie
+        b += layerCap(c, c.x0, bd[i].y + c.fs - 1, 'Δ' + kind + ' ' + c.t.cumul);
+        var accs = [], acc = 0, j;
+        for (j = 0; j < cnt; j++) { accs.push(acc); acc = n(acc + dAbs[j]); }
+        var hiA = 0, loA = 0;
+        for (j = 0; j < cnt; j++) {
+          hiA = Math.max(hiA, accs[j], accs[j] + dAbs[j]);
+          loA = Math.min(loA, accs[j], accs[j] + dAbs[j]);
+        }
+        var s3 = sc(loA * 1.1 - 1, hiA * 1.1 + 1, yL + hL, yL), z3 = s3(0);
+        b += ln(c.x0, z3, c.x0 + plotW, z3, AXIS, 1);
+        for (j = 0; j < cnt; j++) {
+          var yT = s3(Math.max(accs[j], accs[j] + dAbs[j]));
+          var yB = s3(Math.min(accs[j], accs[j] + dAbs[j]));
+          b += rect(sl[j].x, yT, sl[j].w, Math.max(0.9, yB - yT), dcol(c, dAbs[j]));
+        }
+      }
     }
-    b += layerCap(c, c.x0, bd[iB].y + c.fs - 1, 'Δ' + kind + ' %');
-    b += deltaPins(c, dRel, sl, bd[iB].y + capH, Math.max(5, bd[iB].h - capH), hh, { labels: false });
-    // Nächste Ebene: Δ-Brücke (aufgelaufene Abweichung)
-    b += layerCap(c, c.x0, bd[iB + 1].y + c.fs - 1, 'Δ' + kind + ' kumuliert');
-    var y3 = bd[iB + 1].y + capH, h3 = Math.max(6, bd[iB + 1].h - capH);
-    var accs = [], acc = 0;
-    for (i = 0; i < cnt; i++) { accs.push(acc); acc = n(acc + dAbs[i]); }
-    var hiA = 0, loA = 0;
-    for (i = 0; i < cnt; i++) {
-      hiA = Math.max(hiA, accs[i], accs[i] + dAbs[i]);
-      loA = Math.min(loA, accs[i], accs[i] + dAbs[i]);
-    }
-    var s3 = sc(loA * 1.1 - 1, hiA * 1.1 + 1, y3 + h3, y3), z3 = s3(0);
-    b += ln(c.x0, z3, c.x0 + plotW, z3, AXIS, 1);
-    for (i = 0; i < cnt; i++) {
-      var yT = s3(Math.max(accs[i], accs[i] + dAbs[i]));
-      var yB = s3(Math.min(accs[i], accs[i] + dAbs[i]));
-      b += rect(sl[i].x, yT, sl[i].w, Math.max(0.9, yB - yT), dAbs[i] >= 0 ? GOOD : BAD);
-    }
-    // Letzte Ebene: Säulen AC gegen Referenz
-    var P = { x: c.x0, y: bd[iB + 2].y, w: plotW, h: bd[iB + 2].h };
+    // Letzte Ebene: Säulen der Hauptreihe gegen die Referenz
     var blk = colBlock(c, P, ac, pl, kind, hh, sl);
     b += blk.body + monLabels(c, sl, c.y1 - 0.5);
     if (totW) {
@@ -933,9 +1127,9 @@
       var tx = c.x1 - totW, tw = totW;
       b += rect(tx, scT(sAC), tw, Math.max(0.9, P.y + P.h - scT(sAC)), AC);
       if (sFC) b += rect(tx, scT(sAC + sFC), tw, Math.max(0.9, scT(sAC) - scT(sAC + sFC)), fcFill(hh, tw), AC, 0.8);
-      b += txt(tx + tw / 2, scT(sAC + sFC) - c.fs * 0.42, lbl(sAC + sFC, 0), c.fs, AC, 'middle', '600');
+      b += txt(tx + tw / 2, scT(sAC + sFC) - c.fs * 0.42, lbl(c, sAC + sFC, 0), c.fs, AC, 'middle', '600');
       b += ln(tx, P.y + P.h, tx + tw, P.y + P.h, AXIS, 1.2);
-      b += txt(tx + tw / 2, c.y1 - 0.5, sFC ? 'AC+FC' : 'Σ AC', c.fs, TXT, 'middle');
+      b += txt(tx + tw / 2, c.y1 - 0.5, (sFC && c.main !== 'FC') ? c.main + '+FC' : 'Σ ' + c.main, c.fs, TXT, 'middle');
     }
     return wrap(c, b);
   };
@@ -946,14 +1140,21 @@
     var cnt = c.small ? 3 : (c.dense ? 8 : 5);
     var kind = refKind(c);
     var ac = sortDesc(vals(c, cnt, 68, 50)), rf = kind ? derive(c, ac, 0.78, 1.2) : null;
+    var sec = (kind && c.sec) ? derive(c, ac, 0.86, 1.14) : null;
+    // Δ-Spalte am rechten Rand, gesteuert über o.variance (Δ% vor Δ absolut).
+    var dOn = !!rf && c.lab && (c.vAbs || c.vRel);
+    var dRel = dOn && c.vRel, dW = dOn ? c.fs * 3.4 : 0;
     var labW = c.lab ? Math.min(40, c.iw * 0.2) : 0;
     var valW = c.lab ? c.fs * 2.8 : 0;
     var headH = c.lab ? c.fs + 4 : 0;
-    var P = area(c, { left: labW, right: valW, top: headH });
-    var mx = Math.max(maxOf(ac), rf ? maxOf(rf) : 0) * 1.04;
+    var P = area(c, { left: labW, right: valW + dW, top: headH });
+    var mx = Math.max(maxOf(ac), rf ? maxOf(rf) : 0, sec ? maxOf(sec) : 0) * 1.04;
     var s = sc(0, mx, P.x, P.x + P.w);
     var rw = rowsOf(P.y, P.h, cnt, c.small ? 0.36 : 0.26), i;
-    var off = !!rf && kind === 'PL';
+    var off = !!rf && isOutline(kind);
+    // Kategorien sind keine Zeitachse: schraffiert wird nur, wenn die ganze
+    // Hauptreihe Forecast ist (scenarios:['PL','FC']).
+    var allFC = (c.main === 'FC');
     for (i = 0; i < cnt; i++) {
       var step = rw[i].step;
       var bh = off ? step * 0.40 : (rf ? step * 0.42 : step * 0.6);
@@ -962,13 +1163,25 @@
         var hR = off ? bh : step * 0.66;
         b += refShape(P.x, rw[i].cy - dy - hR / 2, Math.max(0.9, s(rf[i]) - P.x), hR, kind, hh);
       }
-      b += rect(P.x, rw[i].cy + dy - bh / 2, Math.max(0.9, s(ac[i]) - P.x), bh, AC);
+      var bw = Math.max(0.9, s(ac[i]) - P.x), by = rw[i].cy + dy - bh / 2;
+      b += allFC
+        ? rect(P.x, by, bw, bh, fcFill(hh, bh), AC, 0.8)
+        : rect(P.x, by, bw, bh, AC);
+      // Drittes Szenario als Marke, Spitze auf dem Wert.
+      if (sec) b += triLeft(clamp(s(sec[i]), P.x, P.x + P.w - clamp(step * 0.2, 1.6, 4)),
+                            rw[i].cy, clamp(step * 0.2, 1.6, 4), c.sec);
       if (c.lab) {
-        b += txt(Math.max(s(ac[i]), rf ? s(rf[i]) : 0) + 2.5, rw[i].cy + c.fs * 0.34, lbl(ac[i], 0), c.fs, AC, 'start');
-        b += txt(P.x - 3, rw[i].cy + c.fs * 0.34, CAT[i % CAT.length], c.fs, TXT, 'end');
+        b += txt(Math.max(s(ac[i]), rf ? s(rf[i]) : 0) + 2.5, rw[i].cy + c.fs * 0.34, lbl(c, ac[i], 0), c.fs, AC, 'start');
+        b += txt(P.x - 3, rw[i].cy + c.fs * 0.34, fit(c, c.cat[i % c.cat.length], labW - 3), c.fs, TXT, 'end');
+      }
+      if (dOn) {
+        var dv = dRel ? n(rf[i] ? (ac[i] - rf[i]) / Math.abs(rf[i]) * 100 : 0) : n(ac[i] - rf[i]);
+        b += txt(c.x1, rw[i].cy + c.fs * 0.34, dRel ? plbl(c, dv) : dlbl(c, dv),
+                 c.fs, dcol(c, dv), 'end');
       }
     }
-    if (c.lab) b += txt(P.x, c.y0 + c.fs, 'AC' + (kind ? ' · ' + kind : ''), c.fs, SUB, 'start');
+    if (dOn) b += txt(c.x1, c.y0 + c.fs, 'Δ' + kind + (dRel ? ' %' : ''), c.fs, SUB, 'end');
+    if (c.lab) b += txt(P.x, c.y0 + c.fs, c.main + (kind ? ' ' + c.t.vs + ' ' + kind : ''), c.fs, SUB, 'start');
     b += ln(P.x, P.y, P.x, P.y + P.h, AXIS, 1.2);
     return wrap(c, b);
   };
@@ -990,12 +1203,16 @@
       b += rect(P.x, rw[i].cy - bh / 2, Math.max(0.9, P.w * Math.min(1, v)), bh, AC);
       b += ln(P.x + P.w * Math.min(1, t), rw[i].y - 0.6, P.x + P.w * Math.min(1, t), rw[i].y + rw[i].h + 0.6, AXIS, 1.6);
       if (c.lab) {
-        var d = n((v / t - 1) * 100);
-        b += txt(P.x - 3, rw[i].cy + c.fs * 0.34, CAT[i % CAT.length], c.fs, TXT, 'end');
-        b += txt(P.x + P.w + 2.5, rw[i].cy + c.fs * 0.34, plbl(d), c.fs, d >= 0 ? GOOD : BAD, 'start');
+        // Δ zur Zielmarke laut o.variance (Δ% vor Δ absolut).
+        var d = c.vRel ? n((v / t - 1) * 100) : n((v - t) * 100);
+        b += txt(P.x - 3, rw[i].cy + c.fs * 0.34, fit(c, c.cat[i % c.cat.length], labW - 3), c.fs, TXT, 'end');
+        if (c.vRel || c.vAbs) {
+          b += txt(P.x + P.w + 2.5, rw[i].cy + c.fs * 0.34, c.vRel ? plbl(c, d) : dlbl(c, d),
+                   c.fs, dcol(c, d), 'start');
+        }
       }
     }
-    if (c.lab) b += txt(P.x, c.y0 + c.fs, 'AC · Ziel', c.fs, SUB, 'start');
+    if (c.lab) b += txt(P.x, c.y0 + c.fs, 'AC ' + c.t.vs + ' ' + c.t.target, c.fs, SUB, 'start');
     b += ln(P.x, P.y, P.x, P.y + P.h, AXIS, 1.2);
     return wrap(c, b);
   };
@@ -1035,7 +1252,7 @@
       var a = 0.25 + c.rnd() * 0.65, p = 0.2 + c.rnd() * 0.6;
       if (refKind(c)) b += circ(P.x + P.w * p, rw[i].cy, r, PY);
       b += circ(P.x + P.w * a, rw[i].cy, r, AC);
-      if (c.lab) b += txt(P.x - 3, rw[i].cy + c.fs * 0.35, CAT[i % CAT.length], c.fs, TXT, 'end');
+      if (c.lab) b += txt(P.x - 3, rw[i].cy + c.fs * 0.35, fit(c, c.cat[i % c.cat.length], labW - 3), c.fs, TXT, 'end');
     }
     b += ln(P.x, P.y, P.x, P.y + P.h, AXIS, 1);
     return wrap(c, b);
@@ -1065,33 +1282,42 @@
     var cnt = c.small ? 3 : (c.dense ? 8 : 5);
     var kind = refKind(c) || 'PL';
     var ac = sortDesc(vals(c, cnt, 68, 46)), pl = derive(c, ac, 0.8, 1.2);
+    var sec = c.sec ? derive(c, ac, 0.86, 1.14) : null;
+    var allFC = (c.main === 'FC');
     var labW = c.lab ? Math.min(34, c.iw * 0.16) : 0;
     var headH = c.lab ? c.fs + 4 : 0;
     var P = area(c, { left: labW, top: headH });
     var gap = c.small ? 3 : c.fs * 1.1;
+    var noD = !c.vAbs && !c.vRel;        // ohne Δ-Ebene bekommt die Balkenebene alles
     var wide = c.small || !c.vRel || c.w < 260;
-    var w1 = wide ? P.w * 0.60 : P.w * 0.46;
+    var w1 = noD ? P.w : (wide ? P.w * 0.60 : P.w * 0.46);
     var w2 = Math.max(6, (wide ? P.w * 0.40 : P.w * 0.29) - gap);
     var w3 = wide ? 0 : Math.max(6, P.w * 0.25 - gap);
     var rw = rowsOf(P.y, P.h, cnt, c.small ? 0.36 : 0.26), i;
     var valW = c.lab ? c.fs * 2.4 : 0;
-    var mx = Math.max(maxOf(ac), maxOf(pl)) * 1.04;
+    var mx = Math.max(maxOf(ac), maxOf(pl), sec ? maxOf(sec) : 0) * 1.04;
     var s = sc(0, mx, P.x, P.x + Math.max(4, w1 - valW));
-    var off = kind === 'PL';
+    var off = isOutline(kind);
     for (i = 0; i < cnt; i++) {
       var step = rw[i].step;
       var bh = off ? step * 0.40 : step * 0.42;
       var dy = off ? step * 0.13 : 0;
       var hR = off ? bh : step * 0.66;
       b += refShape(P.x, rw[i].cy - dy - hR / 2, Math.max(0.9, s(pl[i]) - P.x), hR, kind, hh);
-      b += rect(P.x, rw[i].cy + dy - bh / 2, Math.max(0.9, s(ac[i]) - P.x), bh, AC);
+      var by = rw[i].cy + dy - bh / 2, bwv = Math.max(0.9, s(ac[i]) - P.x);
+      b += allFC ? rect(P.x, by, bwv, bh, fcFill(hh, bh), AC, 0.8)
+                 : rect(P.x, by, bwv, bh, AC);
+      if (sec) {
+        var ms = clamp(step * 0.2, 1.6, 4);
+        b += triLeft(clamp(s(sec[i]), P.x, P.x + Math.max(4, w1 - valW) - ms), rw[i].cy, ms, c.sec);
+      }
       if (c.lab) {
-        b += txt(Math.max(s(ac[i]), s(pl[i])) + 2.2, rw[i].cy + c.fs * 0.34, lbl(ac[i], 0), c.fs, AC, 'start');
-        b += txt(P.x - 3, rw[i].cy + c.fs * 0.34, CAT[i % CAT.length], c.fs, TXT, 'end');
+        b += txt(Math.max(s(ac[i]), s(pl[i])) + 2.2, rw[i].cy + c.fs * 0.34, lbl(c, ac[i], 0), c.fs, AC, 'start');
+        b += txt(P.x - 3, rw[i].cy + c.fs * 0.34, fit(c, c.cat[i % c.cat.length], labW - 3), c.fs, TXT, 'end');
       }
     }
     b += ln(P.x, P.y, P.x, P.y + P.h, AXIS, 1.2);
-    if (c.lab) b += txt(P.x, c.y0 + c.fs, 'AC · ' + kind, c.fs, SUB, 'start');
+    if (c.lab) b += txt(P.x, c.y0 + c.fs, c.main + ' ' + c.t.vs + ' ' + kind, c.fs, SUB, 'start');
     var x2 = P.x + w1 + gap;
     if (c.vAbs) {
       if (c.lab) b += txt(x2 + w2 / 2, c.y0 + c.fs, 'Δ' + kind, c.fs, SUB, 'middle');
@@ -1122,14 +1348,20 @@
     }
     sAC = n(sAC); sRF = n(sRF);
     var dS = n(sAC - sRF), relS = n(sRF ? dS / sRF * 100 : 0);
+    /* Spaltenaufteilung folgt o.variance: ohne Δ-Spalten wächst der
+       In-Zellen-Balken, mit nur einer Δ-Spalte bekommt diese den ganzen Block. */
+    var dOn = c.vAbs, rOn = c.vRel, anyD = dOn || rOn;
     var acR   = P.x + P.w * (wide ? 0.25 : 0.34);
-    var cellX = P.x + P.w * 0.27, cellW = P.w * 0.15;
-    var dX    = P.x + P.w * (wide ? 0.46 : 0.38), dW = P.w * (wide ? 0.31 : 0.36);
-    var rX    = P.x + P.w * (wide ? 0.79 : 0.76), rW = P.w * (wide ? 0.21 : 0.24);
+    var cellX = P.x + P.w * 0.27, cellW = P.w * (anyD ? 0.15 : 0.68);
+    var blkX  = P.x + P.w * (wide ? 0.46 : 0.38), blkW = Math.max(0, P.x + P.w - blkX);
+    var dX = blkX, dW = 0, rX = blkX, rW = 0;
+    if (dOn && rOn) { dW = blkW * 0.58; rX = blkX + dW; rW = blkW * 0.42; }
+    else if (dOn)   { dW = blkW; rX = blkX + blkW; }
+    else if (rOn)   { rW = blkW; }
     var dA = dX + dW / 2, rA = rX + rW / 2;
     // Labelrand aus der tatsächlichen Textbreite, damit nichts herausläuft.
-    var wD = dlbl(dS).length, wR = plbl(relS).length;
-    for (i = 0; i < rows; i++) { wD = Math.max(wD, dlbl(d[i]).length); wR = Math.max(wR, plbl(rel[i]).length); }
+    var wD = dlbl(c, dS).length, wR = plbl(c, relS).length;
+    for (i = 0; i < rows; i++) { wD = Math.max(wD, dlbl(c, d[i]).length); wR = Math.max(wR, plbl(c, rel[i]).length); }
     var lwD = c.lab ? Math.min(dW * 0.42, wD * c.fs * 0.62 + 3) : 0;
     var lwR = c.lab ? Math.min(rW * 0.42, wR * c.fs * 0.62 + 4) : 0;
     var sD = sc(-maxOf(d.concat([dS])) * 1.06, maxOf(d.concat([dS])) * 1.06, dX + lwD, dX + dW - lwD);
@@ -1138,19 +1370,19 @@
     var mxAC = maxOf(ac.concat(rf)) || 1;
     // Kopfzeile
     if (c.lab) {
-      b += txt(acR, P.y + headH - 4, 'AC', c.fs, AC, 'end', '600');
+      b += txt(acR, P.y + headH - 4, c.main, c.fs, AC, 'end', '600');
       if (wide) b += txt(cellX + cellW, P.y + headH - 4, kind, c.fs, SUB, 'end', '600');
-      b += txt(dA, P.y + headH - 4, 'Δ' + kind, c.fs, SUB, 'middle', '600');
-      b += txt(rA, P.y + headH - 4, 'Δ' + kind + ' %', c.fs, SUB, 'middle', '600');
+      if (dOn) b += txt(dA, P.y + headH - 4, 'Δ' + kind, c.fs, SUB, 'middle', '600');
+      if (rOn) b += txt(rA, P.y + headH - 4, 'Δ' + kind + ' %', c.fs, SUB, 'middle', '600');
     }
     b += ln(P.x, P.y + headH, P.x + P.w, P.y + headH, AXIS, 1.2);
-    b += ln(dA, P.y + headH, dA, P.y + P.h, AXIS, 0.8);
-    b += ln(rA, P.y + headH, rA, P.y + P.h, GRID, 0.9);
+    if (dOn) b += ln(dA, P.y + headH, dA, P.y + P.h, AXIS, 0.8);
+    if (rOn) b += ln(rA, P.y + headH, rA, P.y + P.h, GRID, 0.9);
     function tRow(label, a, p, dv, rv, y, bold, mxr) {
-      var s = '', cy = y + rh * 0.66, bh = Math.max(1.6, rh * 0.42), col = dv >= 0 ? GOOD : BAD;
+      var s = '', cy = y + rh * 0.66, bh = Math.max(1.6, rh * 0.42), col = dcol(c, dv);
       if (c.lab) {
-        s += txt(P.x, cy, label, c.fs, bold ? AC : TXT, 'start', bold ? '600' : null);
-        s += txt(acR, cy, lbl(a, 0), c.fs, AC, 'end', bold ? '600' : null);
+        s += txt(P.x, cy, fit(c, label, acR - P.x - c.fs * 2.2), c.fs, bold ? AC : TXT, 'start', bold ? '600' : null);
+        s += txt(acR, cy, lbl(c, a, 0), c.fs, AC, 'end', bold ? '600' : null);
       } else {
         s += ghost(P.x, y + rh * 0.34, P.w * 0.18, Math.max(1.3, rh * 0.2));
         s += ghost(P.x + P.w * 0.22, y + rh * 0.34, P.w * 0.1, Math.max(1.3, rh * 0.2), '#8A8A8A');
@@ -1161,20 +1393,24 @@
         s += rect(cellX, y + rh * 0.5 - bh / 2, Math.max(0.8, cellW * (a / mxr)), bh, AC);
       }
       // Δ absolut: Balken an der eigenen Nulllinie plus Wert
-      var xx = sD(dv);
-      s += rect(Math.min(dA, xx), y + rh * 0.5 - bh * 0.4, Math.max(0.8, Math.abs(xx - dA)), bh * 0.8, col);
-      if (c.lab) s += txt(dv >= 0 ? xx + 2 : xx - 2, cy, dlbl(dv), c.fs, col, dv >= 0 ? 'start' : 'end', bold ? '600' : null);
+      if (dOn) {
+        var xx = sD(dv);
+        s += rect(Math.min(dA, xx), y + rh * 0.5 - bh * 0.4, Math.max(0.8, Math.abs(xx - dA)), bh * 0.8, col);
+        if (c.lab) s += txt(dv >= 0 ? xx + 2 : xx - 2, cy, dlbl(c, dv), c.fs, col, dv >= 0 ? 'start' : 'end', bold ? '600' : null);
+      }
       // Δ relativ: Pin mit Kopf
-      var xr = sR(rv), cy2 = y + rh * 0.5;
-      s += ln(rA, cy2, xr, cy2, col, 1.3);
-      s += circ(xr, cy2, clamp(rh * 0.15, 1.1, 2.4), col);
-      if (c.lab) s += txt(rv >= 0 ? xr + 3 : xr - 3, cy, plbl(rv), c.fs, col, rv >= 0 ? 'start' : 'end', bold ? '600' : null);
+      if (rOn) {
+        var xr = sR(rv), cy2 = y + rh * 0.5;
+        s += ln(rA, cy2, xr, cy2, col, 1.3);
+        s += circ(xr, cy2, clamp(rh * 0.15, 1.1, 2.4), col);
+        if (c.lab) s += txt(rv >= 0 ? xr + 3 : xr - 3, cy, plbl(c, rv), c.fs, col, rv >= 0 ? 'start' : 'end', bold ? '600' : null);
+      }
       return s;
     }
     for (i = 0; i < rows; i++) {
       var y = P.y + headH + rh * i;
       if (i) b += ln(P.x, y, P.x + P.w, y, GRID, 0.9);
-      b += tRow(CAT[i % CAT.length], ac[i], rf[i], d[i], rel[i], y, false, mxAC);
+      b += tRow(c.cat[i % c.cat.length], ac[i], rf[i], d[i], rel[i], y, false, mxAC);
     }
     var ys = P.y + headH + rh * rows;
     b += ln(P.x, ys, P.x + P.w, ys, AXIS, 1);
@@ -1190,7 +1426,9 @@
     var start = 70, steps = [], i;
     for (i = 0; i < mids; i++) steps.push(n((c.rnd() - 0.38) * 32));
     var labH = c.lab ? c.fs + 4 : 0, capH = c.lab ? c.fs + 1 : 0;
-    var bd = bands(c.y0, c.ih - labH, [64, 36], c.fs * 0.8);
+    // Δ-Ebene nur, wenn o.variance sie verlangt — sonst atmet der Wasserfall.
+    var dOn = c.vAbs || c.vRel;
+    var bd = bands(c.y0, c.ih - labH, dOn ? [64, 36] : [100], c.fs * 0.8);
     var P = { x: c.x0, y: bd[0].y, w: c.iw, h: bd[0].h };
     var acc = start, peak = start, low = Math.min(0, start);
     for (i = 0; i < mids; i++) { acc += steps[i]; if (acc > peak) peak = acc; if (acc < low) low = acc; }
@@ -1201,26 +1439,30 @@
     var s = sc(low, Math.max(peak, start, end) * 1.04, P.y + P.h, P.y + lh);
     var zero = s(0), cur = start;
     b += rect(sl[0].x, s(start), sl[0].w, Math.max(0.9, zero - s(start)), AC);
-    if (showLbl) b += txt(sl[0].cx, s(start) - c.fs * 0.42, lbl(start, 0), c.fs, AC, 'middle', '600');
+    if (showLbl) b += txt(sl[0].cx, s(start) - c.fs * 0.42, lbl(c, start, 0), c.fs, AC, 'middle', '600');
     for (i = 0; i < mids; i++) {
       var to = n(cur + steps[i]);
       var yT = s(Math.max(cur, to)), yB = s(Math.min(cur, to));
       b += ln(sl[i].x + sl[i].w, s(cur), sl[i + 1].x, s(cur), HAIR, 0.9);
-      b += rect(sl[i + 1].x, yT, sl[i + 1].w, Math.max(0.9, yB - yT), steps[i] >= 0 ? GOOD : BAD);
-      if (showLbl) b += txt(sl[i + 1].cx, yT - c.fs * 0.42, dlbl(steps[i]), c.fs, steps[i] >= 0 ? GOOD : BAD, 'middle');
+      b += rect(sl[i + 1].x, yT, sl[i + 1].w, Math.max(0.9, yB - yT), dcol(c, steps[i]));
+      if (showLbl) b += txt(sl[i + 1].cx, yT - c.fs * 0.42, dlbl(c, steps[i]), c.fs, dcol(c, steps[i]), 'middle');
       cur = to;
     }
     b += ln(sl[mids].x + sl[mids].w, s(cur), sl[cnt - 1].x, s(cur), HAIR, 0.9);
     b += rect(sl[cnt - 1].x, s(end), sl[cnt - 1].w, Math.max(0.9, zero - s(end)), AC);
-    if (showLbl) b += txt(sl[cnt - 1].cx, s(end) - c.fs * 0.42, lbl(end, 0), c.fs, AC, 'middle', '600');
+    if (showLbl) b += txt(sl[cnt - 1].cx, s(end) - c.fs * 0.42, lbl(c, end, 0), c.fs, AC, 'middle', '600');
     b += ln(P.x, zero, P.x + P.w, zero, AXIS, 1.2);
-    var d = [], k;
-    for (k = 0; k < cnt; k++) d.push(n((c.rnd() - 0.45) * 26));
-    b += layerCap(c, c.x0, bd[1].y + c.fs - 1, 'Δ' + kind);
-    b += deltaCols(c, d, sl, bd[1].y + capH, Math.max(6, bd[1].h - capH), hh);
+    if (dOn) {
+      var d = [], k;
+      for (k = 0; k < cnt; k++) d.push(n((c.rnd() - 0.45) * 26));
+      b += layerCap(c, c.x0, bd[1].y + c.fs - 1, 'Δ' + kind + (c.vAbs ? '' : ' %'));
+      b += c.vAbs
+        ? deltaCols(c, d, sl, bd[1].y + capH, Math.max(6, bd[1].h - capH), hh)
+        : deltaPins(c, d, sl, bd[1].y + capH, Math.max(6, bd[1].h - capH), hh);
+    }
     if (c.lab) {
       var nm = ['Σ'];
-      for (i = 0; i < mids; i++) nm.push(CAT[i % CAT.length]);
+      for (i = 0; i < mids; i++) nm.push(c.cat[i % c.cat.length]);
       nm.push('Σ');
       b += monLabels(c, sl, c.y1 - 0.5, nm);
     }
@@ -1234,7 +1476,8 @@
     var kind = refKind(c) || 'PY';
     var labW = c.lab ? Math.min(32, c.iw * 0.17) : 0;
     var headH = c.lab ? c.fs + 4 : 0;
-    var dW = c.small ? 0 : Math.max(14, c.iw * (c.lab ? 0.24 : 0.18));
+    var dOn = c.vAbs || c.vRel;
+    var dW = (c.small || !dOn) ? 0 : Math.max(14, c.iw * (c.lab ? 0.24 : 0.18));
     var P = area(c, { left: labW, right: dW ? dW + c.fs : 0, top: headH });
     var start = 66, steps = [], i;
     for (i = 0; i < mids; i++) steps.push(n((c.rnd() - 0.38) * 28));
@@ -1248,33 +1491,34 @@
     var zero = s(0), cur = start;
     // Kopfzeile Σ Referenz
     b += refShape(zero, rw[0].y, Math.max(0.9, s(start) - zero), rw[0].h, kind, hh);
-    if (showLbl) b += txt(s(start) + 2.2, rw[0].cy + c.fs * 0.34, lbl(start, 0), c.fs, TXT, 'start');
+    if (showLbl) b += txt(s(start) + 2.2, rw[0].cy + c.fs * 0.34, lbl(c, start, 0), c.fs, TXT, 'start');
     for (i = 0; i < mids; i++) {
       var to = n(cur + steps[i]);
       var xL = s(Math.min(cur, to)), xR = s(Math.max(cur, to));
       b += ln(s(cur), rw[i].y + rw[i].h, s(cur), rw[i + 1].y, HAIR, 0.9);
-      b += rect(xL, rw[i + 1].y, Math.max(0.9, xR - xL), rw[i + 1].h, steps[i] >= 0 ? GOOD : BAD);
+      b += rect(xL, rw[i + 1].y, Math.max(0.9, xR - xL), rw[i + 1].h, dcol(c, steps[i]));
       if (showLbl) {
-        b += txt(steps[i] >= 0 ? xR + 2.2 : xL - 2.2, rw[i + 1].cy + c.fs * 0.34, dlbl(steps[i]),
-                 c.fs, steps[i] >= 0 ? GOOD : BAD, steps[i] >= 0 ? 'start' : 'end');
+        b += txt(steps[i] >= 0 ? xR + 2.2 : xL - 2.2, rw[i + 1].cy + c.fs * 0.34, dlbl(c, steps[i]),
+                 c.fs, dcol(c, steps[i]), steps[i] >= 0 ? 'start' : 'end');
       }
       cur = to;
     }
     b += ln(s(cur), rw[mids].y + rw[mids].h, s(cur), rw[cnt - 1].y, HAIR, 0.9);
     b += rect(zero, rw[cnt - 1].y, Math.max(0.9, s(end) - zero), rw[cnt - 1].h, AC);
-    if (showLbl) b += txt(s(end) + 2.2, rw[cnt - 1].cy + c.fs * 0.34, lbl(end, 0), c.fs, AC, 'start');
+    if (showLbl) b += txt(s(end) + 2.2, rw[cnt - 1].cy + c.fs * 0.34, lbl(c, end, 0), c.fs, AC, 'start');
     b += ln(zero, P.y, zero, P.y + P.h, AXIS, 1.2);
     if (c.lab) {
       b += txt(P.x - 3, rw[0].cy + c.fs * 0.34, kind, c.fs, TXT, 'end');
-      b += txt(P.x - 3, rw[cnt - 1].cy + c.fs * 0.34, 'AC', c.fs, AC, 'end', '600');
-      for (i = 0; i < mids; i++) b += txt(P.x - 3, rw[i + 1].cy + c.fs * 0.34, CAT[i % CAT.length], c.fs, TXT, 'end');
-      b += txt(P.x, c.y0 + c.fs, kind + ' → AC', c.fs, SUB, 'start');
+      b += txt(P.x - 3, rw[cnt - 1].cy + c.fs * 0.34, c.main, c.fs, AC, 'end', '600');
+      for (i = 0; i < mids; i++) b += txt(P.x - 3, rw[i + 1].cy + c.fs * 0.34, fit(c, c.cat[i % c.cat.length], labW - 3), c.fs, TXT, 'end');
+      b += txt(P.x, c.y0 + c.fs, kind + ' → ' + c.main, c.fs, SUB, 'start');
     }
     if (dW) {
       var d = [], k;
       for (k = 0; k < cnt; k++) d.push(n((c.rnd() - 0.45) * 22));
-      if (c.lab) b += txt(c.x1 - dW / 2, c.y0 + c.fs, 'Δ' + kind, c.fs, SUB, 'middle');
-      b += deltaBarsH(c, d, rw, c.x1 - dW, dW, hh);
+      if (c.lab) b += txt(c.x1 - dW / 2, c.y0 + c.fs, 'Δ' + kind + (c.vAbs ? '' : ' %'), c.fs, SUB, 'middle');
+      b += c.vAbs ? deltaBarsH(c, d, rw, c.x1 - dW, dW, hh)
+                  : deltaPinsH(c, d, rw, c.x1 - dW, dW);
     }
     return wrap(c, b);
   };
@@ -1300,8 +1544,8 @@
         x += sw2;
       }
       if (c.lab) {
-        b += txt(P.x - 3, rw[i].cy + c.fs * 0.34, CAT[i % CAT.length], c.fs, TXT, 'end');
-        b += txt(x + 2.2, rw[i].cy + c.fs * 0.34, lbl(tot * 100, 0), c.fs, AC, 'start');
+        b += txt(P.x - 3, rw[i].cy + c.fs * 0.34, fit(c, c.cat[i % c.cat.length], labW - 3), c.fs, TXT, 'end');
+        b += txt(x + 2.2, rw[i].cy + c.fs * 0.34, lbl(c, tot * 100, 0), c.fs, AC, 'start');
       }
     }
     b += ln(P.x, P.y, P.x, P.y + P.h, AXIS, 1.2);
@@ -1324,9 +1568,12 @@
         var P = { x: px, y: py + hd, w: cw, h: Math.max(3, ch - hd) };
         var v = vals(c, 4, 60, 40), rf = kind ? derive(c, v, 0.8, 1.2) : null;
         if (c.lab) {
-          var dd = rf ? n((v[3] - rf[3]) / (rf[3] || 1) * 100) : 0;
-          b += txt(px, py + c.fs - 1, CAT[(i * cols + j) % CAT.length], c.fs, TXT, 'start', '600');
-          if (rf && cw >= c.fs * 7) b += txt(px + cw, py + c.fs - 1, plbl(dd), c.fs, dd >= 0 ? GOOD : BAD, 'end');
+          // Δ-Badge laut o.variance: Δ% hat Vorrang, sonst Δ absolut.
+          var dd = rf ? (c.vRel ? n((v[3] - rf[3]) / (rf[3] || 1) * 100) : n(v[3] - rf[3])) : 0;
+          b += txt(px, py + c.fs - 1, fit(c, c.cat[(i * cols + j) % c.cat.length], cw * 0.6), c.fs, TXT, 'start', '600');
+          if (rf && (c.vRel || c.vAbs) && cw >= c.fs * 7) {
+            b += txt(px + cw, py + c.fs - 1, c.vRel ? plbl(c, dd) : dlbl(c, dd), c.fs, dcol(c, dd), 'end');
+          }
         }
         var sl = slots(P.x, P.w, 4, 0.5);
         b += colBlock(c, P, v, rf, kind, hh, sl, { labels: false }).body;
@@ -1348,9 +1595,10 @@
     var valW = c.lab ? P.w * 0.18 : P.w * 0.14;
     var spX = P.x + labW + numW + 3, spW = Math.max(6, P.w - labW - numW - valW - 6);
     var i;
+    var dOn = c.vRel || c.vAbs, dRel = c.vRel;
     if (c.lab) {
-      b += txt(P.x, P.y + headH - 4, 'AC · Verlauf', c.fs, SUB, 'start', '600');
-      b += txt(P.x + P.w, P.y + headH - 4, 'Δ' + kind + ' %', c.fs, SUB, 'end', '600');
+      b += txt(P.x, P.y + headH - 4, c.main + ' · ' + c.t.trend, c.fs, SUB, 'start', '600');
+      if (dOn) b += txt(P.x + P.w, P.y + headH - 4, 'Δ' + kind + (dRel ? ' %' : ''), c.fs, SUB, 'end', '600');
       b += ln(P.x, P.y + headH, P.x + P.w, P.y + headH, AXIS, 1.2);
     }
     for (i = 0; i < rows; i++) {
@@ -1363,12 +1611,12 @@
       b += circ(pts[7][0], pts[7][1], 1.5, AC);
       var d = n((c.rnd() - 0.42) * 20);
       if (c.lab) {
-        b += txt(P.x, cy, CAT[i % CAT.length], c.fs, TXT, 'start');
-        b += txt(P.x + labW + numW - 4, cy, lbl(40 + c.rnd() * 60, 0), c.fs, AC, 'end');
-        b += txt(P.x + P.w, cy, plbl(d), c.fs, d >= 0 ? GOOD : BAD, 'end');
+        b += txt(P.x, cy, fit(c, c.cat[i % c.cat.length], labW - 2), c.fs, TXT, 'start');
+        b += txt(P.x + labW + numW - 4, cy, lbl(c, 40 + c.rnd() * 60, 0), c.fs, AC, 'end');
+        if (dOn) b += txt(P.x + P.w, cy, dRel ? plbl(c, d) : dlbl(c, d), c.fs, dcol(c, d), 'end');
       } else {
         b += ghost(P.x, y + rh * 0.4, labW * 0.8, Math.max(1.4, rh * 0.18));
-        b += ghost(P.x + P.w - valW * 0.7, y + rh * 0.4, valW * 0.7, Math.max(1.4, rh * 0.18), d >= 0 ? GOOD : BAD);
+        if (dOn) b += ghost(P.x + P.w - valW * 0.7, y + rh * 0.4, valW * 0.7, Math.max(1.4, rh * 0.18), dcol(c, d));
       }
     }
     return wrap(c, b);
@@ -1386,17 +1634,17 @@
       for (j = 0; j < cols; j++) {
         var v = c.rnd() * 2 - 1;
         var a = Math.min(0.92, Math.abs(v) * 0.95 + 0.06);
-        var fill = Math.abs(v) < 0.14 ? GRID : (v >= 0 ? GOOD : BAD);
+        var fill = Math.abs(v) < 0.14 ? GRID : dcol(c, v);
         var x = P.x + cw * j, y = P.y + ch * i;
         b += '<rect x="' + n(x + 0.4) + '" y="' + n(y + 0.4) + '" width="' + n(Math.max(0.8, cw - 0.8)) +
              '" height="' + n(Math.max(0.8, ch - 0.8)) + '" fill="' + fill +
              '" fill-opacity="' + n(Math.abs(v) < 0.14 ? 1 : a) + '"/>';
       }
-      if (c.lab) b += txt(P.x - 3, P.y + ch * i + ch * 0.66, CAT[i % CAT.length], c.fs, TXT, 'end');
+      if (c.lab) b += txt(P.x - 3, P.y + ch * i + ch * 0.66, fit(c, c.cat[i % c.cat.length], labW - 3), c.fs, TXT, 'end');
     }
     if (c.lab) for (j = 0; j < cols && j < 12; j++) {
       if (cw < 12) break;
-      b += txt(P.x + cw * j + cw / 2, P.y - 2, MON[j % 12], c.fs, TXT, 'middle');
+      b += txt(P.x + cw * j + cw / 2, P.y - 2, c.mon[j % 12], c.fs, TXT, 'middle');
     }
     return wrap(c, b);
   };
@@ -1420,7 +1668,7 @@
         y -= sh; rest -= frac;
         if (rest < 0.05) rest = 0.05;
       }
-      if (c.lab && cw >= 14) b += txt(x + cw / 2, c.y1 - 0.5, CAT[i % CAT.length], c.fs, TXT, 'middle');
+      if (c.lab && cw >= 14) b += txt(x + cw / 2, c.y1 - 0.5, fit(c, c.cat[i % c.cat.length], cw), c.fs, TXT, 'middle');
       x += cw + gap;
     }
     b += ln(P.x, P.y + P.h, P.x + P.w, P.y + P.h, AXIS, 1);
@@ -1447,7 +1695,7 @@
       b += ln(mid, ky + bh / 2, cx, ky + bh / 2, GRID, 1);
       b += rrect(cx, ky, bw, bh, 2, PLF, PY, 1);
       b += rect(cx + 3, ky + bh * 0.58, Math.max(1, bw * (0.3 + c.rnd() * 0.5)), Math.max(1.2, bh * 0.16), i === 0 ? AC : PY);
-      if (c.lab) b += txt(cx + 3, ky + bh * 0.42, CAT[i % CAT.length], c.fs, TXT, 'start');
+      if (c.lab) b += txt(cx + 3, ky + bh * 0.42, fit(c, c.cat[i % c.cat.length], bw - 6), c.fs, TXT, 'start');
     }
     return wrap(c, b);
   };
@@ -1481,7 +1729,7 @@
     var P = area(c, {});
     var kind = refKind(c) || 'PL';
     var d = n((c.rnd() - 0.35) * 18);
-    var col = d >= 0 ? GOOD : BAD;
+    var col = dcol(c, d);
     // Status-Akzent am linken Rand
     var accOK = P.w >= 46 && P.h >= 24;
     var accW = clamp(P.w * 0.022, 1.6, 4);
@@ -1489,27 +1737,43 @@
     var L = P.x + (accOK ? accW + Math.min(7, P.w * 0.05) : 0);
     var R = P.x + P.w, iw = Math.max(6, R - L);
     // Beschriftung: o.label (leer = keine, weil die Kachel den Titel schon trägt)
-    var kpiLabel = (o && o.label !== undefined) ? String(o.label) : 'Umsatz';
+    var kpiLabel = (o && o.label !== undefined) ? String(o.label) : c.t.revenue;
     var titleH = (!c.small && kpiLabel) ? c.fs + 3 : 0;
+    // Einheit (o.unit) steht hinter der Zahl; ohne Angabe bleibt es bei 'M'.
+    var uStr = c.unit || 'M';
+    var uFs = Math.min(10, c.fs + 1);
+    var uW = uStr.length * uFs * 0.62 + 3;
     // Ausnahme zur 8–10-px-Regel: die Kennzahl selbst ist das Erkennungsmerkmal.
     // Der Grad richtet sich auch nach der Textbreite, sonst läuft sie heraus.
-    var num = lbl(Math.round((40 + c.rnd() * 900) * 10) / 10);   // je Kachel andere Demo-Zahl (deterministisch über seed)
-    var big = clamp(Math.min((P.h - titleH) * 0.5, iw / (num.length * 0.62)), 4, 40);
+    var num = lbl(c, Math.round((40 + c.rnd() * 900) * 10) / 10);   // je Kachel andere Demo-Zahl (deterministisch über seed)
+    var showU = (!c.small && iw >= 78);
+    var big = clamp(Math.min((P.h - titleH) * 0.5,
+                             (iw - (showU ? uW : 0)) / (num.length * 0.62)), 4, 40);
+    if (num.length * big * 0.62 > iw) big = iw / (num.length * 0.62);   // harte Breitengrenze
     var dH = Math.min(c.fs + 6, big * 0.62) + c.fs * 0.3;
     // Block aus Titel, Zahl und Δ-Zeile vertikal zentrieren.
     var T = P.y + Math.max(0, (P.h - (titleH + big * 0.82 + dH)) / 2);
     if (titleH) b += txt(L, T + c.fs - 1, kpiLabel, Math.min(9, c.fs), SUB, 'start', '600');
     var yBig = T + titleH + big * 0.82;
     b += txt(L, yBig, num, big, AC, 'start', '700');
-    if (!c.small && iw >= 78) b += txt(L + num.length * big * 0.56 + 3, yBig, 'M', Math.min(10, c.fs + 1), SUB, 'start');
-    // Δ-Zeile: Pfeil, Wert, Referenz
+    if (showU && L + num.length * big * 0.56 + uW <= R) {
+      b += txt(L + num.length * big * 0.56 + 3, yBig, uStr, uFs, SUB, 'start');
+    }
+    // Δ-Zeile: Pfeil, Wert, Referenz — Art laut o.variance (Δ% vor Δ absolut)
+    var dRelOn = c.vRel, dOn = c.vRel || c.vAbs;
     var yD = yBig + Math.min(c.fs + 6, big * 0.62);
-    if (yD <= P.y + P.h - 1) {
-      var ah = Math.min(5, c.fs * 0.66);
-      b += pathEl(d >= 0
-        ? 'M' + n(L) + ' ' + n(yD - 1) + ' l' + n(ah) + ' ' + n(-ah) + ' l' + n(ah) + ' ' + n(ah) + ' z'
-        : 'M' + n(L) + ' ' + n(yD - ah - 1) + ' l' + n(ah) + ' ' + n(ah) + ' l' + n(ah) + ' ' + n(-ah) + ' z', col);
-      b += txt(L + ah * 2 + 3, yD, plbl(d) + (c.small ? '' : ' Δ' + kind), Math.min(9, c.fs), col, 'start', '600');
+    var ah = Math.min(5, c.fs * 0.66), dFs = Math.min(9, c.fs);
+    var dTxt = (dRelOn ? plbl(c, d) : dlbl(c, d)) + (c.small ? '' : ' Δ' + kind);
+    // Pfeil nur, wenn Pfeil und Wert nebeneinander passen — sonst bleibt der Wert.
+    var withArrow = (L + ah * 2 + 3 + dTxt.length * dFs * 0.62) <= R;
+    var tx0 = withArrow ? L + ah * 2 + 3 : L;
+    if (dOn && yD <= P.y + P.h - 1 && tx0 + dFs * 1.3 <= R) {
+      if (withArrow) {
+        b += pathEl(d >= 0
+          ? 'M' + n(L) + ' ' + n(yD - 1) + ' l' + n(ah) + ' ' + n(-ah) + ' l' + n(ah) + ' ' + n(ah) + ' z'
+          : 'M' + n(L) + ' ' + n(yD - ah - 1) + ' l' + n(ah) + ' ' + n(ah) + ' l' + n(ah) + ' ' + n(-ah) + ' z', col);
+      }
+      b += txt(tx0, yD, fit(c, dTxt, R - tx0, dFs), dFs, col, 'start', '600');
     }
     // Mini-Sparkline rechts oben, mit heller Fläche wie im Visual
     if (iw >= 66 && P.h >= 38) {
@@ -1559,7 +1823,7 @@
       var st = c.rnd() * 0.5, len = 0.18 + c.rnd() * 0.42;
       if (st + len > 0.98) len = 0.98 - st;
       b += rect(P.x + P.w * st, rw[i].y, Math.max(1.2, P.w * len), rw[i].h, i % 3 === 0 ? AC : PY);
-      if (c.lab) b += txt(P.x - 3, rw[i].cy + c.fs * 0.35, CAT[i % CAT.length], c.fs, TXT, 'end');
+      if (c.lab) b += txt(P.x - 3, rw[i].cy + c.fs * 0.35, fit(c, c.cat[i % c.cat.length], labW - 3), c.fs, TXT, 'end');
     }
     b += ln(P.x + P.w * 0.62, P.y - 1, P.x + P.w * 0.62, P.y + P.h + 1, BAD, 1, '3 2');
     b += ln(P.x, P.y, P.x, P.y + P.h, AXIS, 1);
@@ -1576,11 +1840,19 @@
     var P = area(c, {});
     // Ausnahme zur 8–10-px-Regel: die Zahl ist der Inhalt der Karte.
     // Der Grad richtet sich auch nach der Textbreite, sonst läuft sie heraus.
-    var cnum = lbl(Math.round((20 + c.rnd() * 300) * 10) / 10);
-    var big = clamp(Math.min(P.h * 0.46, P.w / (cnum.length * 0.62)), 4, 30);
+    var cnum = lbl(c, Math.round((20 + c.rnd() * 300) * 10) / 10);
+    // Einheit (o.unit) hinter der Zahl; die Gruppe bleibt zusammen zentriert.
+    var uFs0 = Math.min(10, c.fs + 1);
+    var uW = c.unit ? c.unit.length * uFs0 * 0.62 + 3 : 0;
+    var big = clamp(Math.min(P.h * 0.46, (P.w - uW) / (cnum.length * 0.62)), 4, 30);
     var cx = P.x + P.w / 2, cy = P.y + P.h / 2;
-    b += txt(cx, cy + big * 0.28, cnum, big, AC, 'middle', '600');
-    var cardLabel = (o && o.label !== undefined) ? String(o.label) : 'Umsatz gesamt';
+    var numW = cnum.length * big * 0.56;
+    var cxn = cx - uW / 2;
+    b += txt(cxn, cy + big * 0.28, cnum, big, AC, 'middle', '600');
+    if (uW && cxn + numW / 2 + uW <= P.x + P.w) {
+      b += txt(cxn + numW / 2 + 3, cy + big * 0.28, c.unit, uFs0, SUB, 'start');
+    }
+    var cardLabel = (o && o.label !== undefined) ? String(o.label) : (c.t.revenue + ' ' + c.t.total);
     if (!c.small && P.h >= 30 && cardLabel) b += txt(cx, cy + big * 0.28 + Math.min(11, c.fs + 3), cardLabel, Math.min(9, c.fs), TXT, 'middle');
     return wrap(c, b);
   };
@@ -1591,15 +1863,15 @@
     var rows = c.small ? 2 : (c.dense ? 5 : 3);
     var P = area(c, {});
     var rh = P.h / rows, i;
-    var names = ['Umsatz', 'Marge', 'Menge', 'Kunden', 'Aufträge'];
+    var names = c.t.rows;
     var nums = [84.2, 31.7, 12.4, 268, 41];
     for (i = 0; i < rows; i++) {
       var y = P.y + rh * i;
       if (i) b += ln(P.x, y, P.x + P.w, y, GRID, 1);
       var vs = clamp(rh * 0.42, 9, 14);
       if (!c.small && P.w >= 90 && rh >= 16) {
-        b += txt(P.x, y + rh * 0.42, names[i % names.length], Math.min(9, c.fs), TXT, 'start');
-        b += txt(P.x, y + rh * 0.88, lbl(nums[i % nums.length]), vs, AC, 'start', '600');
+        b += txt(P.x, y + rh * 0.42, fit(c, names[i % names.length], P.w, Math.min(9, c.fs)), Math.min(9, c.fs), TXT, 'start');
+        b += txt(P.x, y + rh * 0.88, lbl(c, nums[i % nums.length]), vs, AC, 'start', '600');
       } else {
         b += ghost(P.x, y + rh * 0.28, P.w * 0.44, Math.max(1.3, rh * 0.14));
         b += rect(P.x, y + rh * 0.55, Math.max(1.2, P.w * 0.3), Math.max(1.6, rh * 0.22), AC);
@@ -1622,17 +1894,17 @@
     b += ln(P.x + hw, P.y, P.x + hw, P.y + P.h, GRID, 1);
     for (j = 0; j < cols; j++) {
       if (j) b += ln(P.x + hw + cw * j, P.y, P.x + hw + cw * j, P.y + P.h, GRID, 1);
-      if (c.lab && cw >= 20) b += txt(P.x + hw + cw * (j + 1) - 2, P.y + hh2 - 3, MON[j % 12], c.fs, TXT, 'end');
+      if (c.lab && cw >= 20) b += txt(P.x + hw + cw * (j + 1) - 2, P.y + hh2 - 3, c.mon[j % 12], c.fs, TXT, 'end');
       else b += ghost(P.x + hw + cw * j + cw * 0.2, P.y + hh2 * 0.42, cw * 0.6, Math.max(1.2, hh2 * 0.2), '#9E9E9E');
     }
     for (i = 0; i < rows; i++) {
       var y = P.y + hh2 + rh * i;
       if (i) b += ln(P.x, y, P.x + P.w, y, GRID, 1);
-      if (c.lab) b += txt(P.x + 1, y + rh * 0.68, CAT[i % CAT.length], c.fs, TXT, 'start');
+      if (c.lab) b += txt(P.x + 1, y + rh * 0.68, fit(c, c.cat[i % c.cat.length], hw - 2), c.fs, TXT, 'start');
       else b += ghost(P.x + 1, y + rh * 0.38, hw * 0.7, Math.max(1.2, rh * 0.2));
       for (j = 0; j < cols; j++) {
         var vx = P.x + hw + cw * (j + 1) - 2;
-        if (c.lab && cw >= 20) b += txt(vx, y + rh * 0.68, lbl(20 + c.rnd() * 70, 0), c.fs, AC, 'end');
+        if (c.lab && cw >= 20) b += txt(vx, y + rh * 0.68, lbl(c, 20 + c.rnd() * 70, 0), c.fs, AC, 'end');
         else b += ghost(vx - cw * 0.5, y + rh * 0.38, cw * 0.44, Math.max(1.2, rh * 0.2), '#8A8A8A');
       }
     }
@@ -1658,7 +1930,7 @@
       var by = y + (rh - bs) / 2;
       b += rect(P.x, by, bs, bs, i === 0 ? AC : PLF, AC, 1);
       if (i === 0) b += pathEl('M' + n(P.x + bs * 0.22) + ' ' + n(by + bs * 0.52) + ' l' + n(bs * 0.24) + ' ' + n(bs * 0.26) + ' l' + n(bs * 0.5) + ' -' + n(bs * 0.52), 'none', '#FFFFFF', 1.2);
-      if (c.lab) b += txt(P.x + bs + 4, y + rh * 0.62, CAT[i % CAT.length], c.fs, TXT, 'start');
+      if (c.lab) b += txt(P.x + bs + 4, y + rh * 0.62, fit(c, c.cat[i % c.cat.length], P.w - bs - 4), c.fs, TXT, 'start');
       else b += ghost(P.x + bs + 4, by + bs * 0.32, P.w * 0.5, Math.max(1.2, bs * 0.24));
     }
     return wrap(c, b);
@@ -1697,7 +1969,7 @@
     var bw = Math.min(P.w, Math.max(30, P.w * 0.7));
     var bx = P.x + (P.w - bw) / 2, by = P.y + (P.h - bh) / 2;
     b += rrect(bx, by, bw, bh, Math.min(4, bh / 2), '#F2F2F2', AC, 1);
-    if (!c.small && bh >= 14 && bw >= 44) b += txt(bx + bw / 2, by + bh / 2 + c.fs * 0.35, 'Anwenden', Math.min(9, c.fs), AC, 'middle');
+    if (!c.small && bh >= 14 && bw >= 44) b += txt(bx + bw / 2, by + bh / 2 + c.fs * 0.35, c.t.apply, Math.min(9, c.fs), AC, 'middle');
     else b += ghost(bx + bw * 0.28, by + bh / 2 - 1, bw * 0.44, 2, '#8A8A8A');
     return wrap(c, b);
   };
@@ -1760,7 +2032,7 @@
       b += rect(rx + rw2 * 0.55, P.y + P.h * 0.48, rw2 * 0.45, P.h * 0.3 - g, G3);
       b += rect(rx + rw2 * 0.55, P.y + P.h * 0.78, rw2 * 0.45, P.h * 0.22, '#E0E0E0');
     }
-    if (c.lab) b += txt(P.x + 4, P.y + c.fs + 2, 'Nord', c.fs, '#FFFFFF', 'start');
+    if (c.lab) b += txt(P.x + 4, P.y + c.fs + 2, fit(c, c.cat[0], lw - 8), c.fs, '#FFFFFF', 'start');
     return wrap(c, b);
   };
 
@@ -1778,7 +2050,7 @@
         var x = P.x + cw * i, y = P.y + step * j + (step - bh) / 2;
         b += rrect(x, y, bw, bh, 2, PLF, i === 0 ? AC : PY, 1);
         b += rect(x + 3, y + bh * 0.6, Math.max(1, bw * (0.25 + c.rnd() * 0.5)), Math.max(1.2, bh * 0.18), i === 0 ? AC : PY);
-        if (c.lab && bh >= 14) b += txt(x + 3, y + bh * 0.42, i === 0 ? 'Summe' : CAT[(i + j) % CAT.length], c.fs, TXT, 'start');
+        if (c.lab && bh >= 14) b += txt(x + 3, y + bh * 0.42, fit(c, i === 0 ? c.t.sum : c.cat[(i + j) % c.cat.length], bw - 6), c.fs, TXT, 'start');
         if (i > 0) {
           var pStep = P.h / counts[i - 1], pBh = Math.min(pStep * 0.62, 20);
           var pIdx = Math.min(counts[i - 1] - 1, 0);
@@ -1846,7 +2118,7 @@
     b += rrect(P.x, P.y, P.w, P.h, 3, '#FFFFFF', PY, 1);
     var fs = clamp(Math.min(P.h * 0.4, P.w * 0.3), 10, 24);
     b += txt(P.x + P.w / 2, P.y + P.h / 2 + fs * 0.34, '{ }', fs, AC, 'middle', '600');
-    if (!c.small && P.h >= 52) b += txt(P.x + P.w / 2, P.y + P.h - 3, 'Vega-Spec', Math.min(9, c.fs), TXT, 'middle');
+    if (!c.small && P.h >= 52) b += txt(P.x + P.w / 2, P.y + P.h - 3, c.t.spec, Math.min(9, c.fs), TXT, 'middle');
     return wrap(c, b);
   };
 

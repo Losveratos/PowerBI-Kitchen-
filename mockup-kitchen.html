@@ -281,33 +281,34 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 <div class="app">
   <header class="topbar">
     <div class="brand"><h1>MockupKitchen</h1><small>byDatenWG · v0.2</small></div>
-    <input class="name" id="projName" value="Neuer Bericht" title="Name des Berichts / Mockups" spellcheck="false">
-    <button class="btn hide-present" id="btnTemplates" title="Seitenvorlage wählen">▦ Vorlagen</button>
-    <button class="btn hide-present" id="btnImportTmdl" title="TMDL-Ordner oder -Dateien laden">⇪ TMDL laden</button>
-    <button class="btn ghost" id="btnUndo" title="Rückgängig (Strg+Z)">↶</button>
-    <button class="btn ghost" id="btnRedo" title="Wiederholen (Strg+Y)">↷</button>
+    <input class="name" id="projName" value="Neuer Bericht" data-i18n-title="tip.projName" spellcheck="false">
+    <button class="btn hide-present" id="btnTemplates" data-i18n="btn.templates" data-i18n-title="tip.templates">▦ Vorlagen</button>
+    <button class="btn hide-present" id="btnImportTmdl" data-i18n="btn.importTmdl" data-i18n-title="tip.importTmdl">⇪ TMDL laden</button>
+    <button class="btn ghost" id="btnUndo" data-i18n-title="tip.undo">↶</button>
+    <button class="btn ghost" id="btnRedo" data-i18n-title="tip.redo">↷</button>
     <span class="spacer"></span>
-    <button class="btn" id="btnPresent" title="Präsentieren: Panels ausblenden, Seite groß (Taste P)">▶ Präsentieren</button>
-    <button class="btn ghost" id="btnHelp" title="Hilfe">?</button>
-    <button class="btn" id="btnOpen" title="Mockup-Datei öffnen (.mockup.json)">Öffnen</button>
-    <button class="btn" id="btnSave" title="Als .mockup.json speichern">Speichern</button>
-    <button class="btn accent" id="btnExport">Export für Claude Code</button>
+    <button class="btn ghost" id="btnLang" data-i18n="btn.lang" data-i18n-title="tip.lang">EN</button>
+    <button class="btn" id="btnPresent" data-i18n="btn.present" data-i18n-title="tip.present">▶ Präsentieren</button>
+    <button class="btn ghost" id="btnHelp" data-i18n-title="tip.help">?</button>
+    <button class="btn" id="btnOpen" data-i18n="btn.open" data-i18n-title="tip.open">Öffnen</button>
+    <button class="btn" id="btnSave" data-i18n="btn.save" data-i18n-title="tip.save">Speichern</button>
+    <button class="btn accent" id="btnExport" data-i18n="btn.export">Export für Claude Code</button>
   </header>
 
   <aside class="panel left">
     <div class="panel-head">
-      <h2>Datenmodell</h2>
+      <h2 data-i18n="panel.model">Datenmodell</h2>
       <p id="modelMeta">Kein Modell geladen</p>
     </div>
     <div class="panel-body">
-      <div class="dropzone-model" id="modelDrop">TMDL-Ordner oder .tmdl-Dateien hierher ziehen<br><span class="mono">tables/*.tmdl</span></div>
+      <div class="dropzone-model" id="modelDrop" data-i18n-html="drop.tmdl">TMDL-Ordner oder .tmdl-Dateien hierher ziehen<br><span class="mono">tables/*.tmdl</span></div>
       <div class="row" style="margin-bottom:8px">
-        <button class="btn sm" id="btnDemoModel" title="Kleines Beispielmodell (Datum, Produkt, Region, Kennzahlen) laden">Demo-Modell</button>
+        <button class="btn sm" id="btnDemoModel" data-i18n="btn.demoModel" data-i18n-title="tip.demoModel">Demo-Modell</button>
         <span class="spacer"></span>
-        <button class="btn sm" id="btnNewMeasure">+ Kennzahl / Dimension</button>
+        <button class="btn sm" id="btnNewMeasure" data-i18n="btn.newMeasure">+ Kennzahl / Dimension</button>
       </div>
-      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="ctl" id="modelSearch" placeholder="Feld suchen …"></div>
-      <label class="toggle" style="padding:0 0 8px"><input type="checkbox" id="onlyUsed"> nur verwendete Felder</label>
+      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="ctl" id="modelSearch" data-i18n-ph="ph.searchField" placeholder="Feld suchen …"></div>
+      <label class="toggle" style="padding:0 0 8px"><input type="checkbox" id="onlyUsed"> <span data-i18n="lbl.onlyUsed">nur verwendete Felder</span></label>
       <div id="modelList"></div>
     </div>
   </aside>
@@ -318,205 +319,205 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       <div class="stage-inner" id="stageInner"><div class="page" id="page"></div></div>
       <div class="stage-info" id="stageInfo"></div>
       <div class="stage-tools">
-        <button class="btn sm" id="btnZoomOut" title="Verkleinern">−</button>
-        <button class="btn sm" id="btnZoomFit" title="Einpassen">Fit</button>
-        <button class="btn sm" id="btnZoomIn" title="Vergrößern">+</button>
+        <button class="btn sm" id="btnZoomOut" data-i18n-title="tip.zoomOut">−</button>
+        <button class="btn sm" id="btnZoomFit" data-i18n-title="tip.zoomFit">Fit</button>
+        <button class="btn sm" id="btnZoomIn" data-i18n-title="tip.zoomIn">+</button>
       </div>
     </div>
   </main>
 
   <aside class="panel right">
     <div class="tabs">
-      <button class="tab active" data-tab="el">Kachel</button>
-      <button class="tab" data-tab="page">Seite</button>
-      <button class="tab" data-tab="report">Bericht</button>
-      <button class="tab" data-tab="chrome">Rahmen</button>
-      <button class="tab" data-tab="design">Design</button>
+      <button class="tab active" data-tab="el" data-i18n="tab.el">Kachel</button>
+      <button class="tab" data-tab="page" data-i18n="tab.page">Seite</button>
+      <button class="tab" data-tab="report" data-i18n="tab.report">Bericht</button>
+      <button class="tab" data-tab="chrome" data-i18n="tab.chrome">Rahmen</button>
+      <button class="tab" data-tab="design" data-i18n="tab.design">Design</button>
     </div>
     <div class="panel-body" id="insEl"></div>
     <div class="panel-body" id="insReport" hidden>
-      <p class="hint" style="margin:0 0 8px">Der Berichtskopf wandert in Brief, Workshop-Doku und PowerPoint. Ohne Zielgruppe und Entscheidung bleibt die Doku ein Bilderbuch.</p>
-      <div class="field"><label>Berichtsname</label><input class="ctl" id="rpName"></div>
-      <div class="field"><label>Zielgruppe</label><input class="ctl" id="rpAudience" placeholder="z. B. Geschäftsführung, Vertriebsleitung"></div>
-      <div class="field"><label>Ziel des Berichts</label><textarea class="ctl" id="rpPurpose" placeholder="Welche Frage beantwortet der Bericht?"></textarea></div>
-      <div class="field"><label>Entscheidung, die er auslösen soll</label><textarea class="ctl" id="rpDecision" placeholder="Was wird anhand des Berichts entschieden?"></textarea></div>
+      <p class="hint" style="margin:0 0 8px" data-i18n="hint.report">Der Berichtskopf wandert in Brief, Workshop-Doku und PowerPoint. Ohne Zielgruppe und Entscheidung bleibt die Doku ein Bilderbuch.</p>
+      <div class="field"><label data-i18n="lbl.reportName">Berichtsname</label><input class="ctl" id="rpName"></div>
+      <div class="field"><label data-i18n="lbl.audience">Zielgruppe</label><input class="ctl" id="rpAudience" data-i18n-ph="ph.audience" placeholder="z. B. Geschäftsführung, Vertriebsleitung"></div>
+      <div class="field"><label data-i18n="lbl.purpose">Ziel des Berichts</label><textarea class="ctl" id="rpPurpose" data-i18n-ph="ph.purpose" placeholder="Welche Frage beantwortet der Bericht?"></textarea></div>
+      <div class="field"><label data-i18n="lbl.decision">Entscheidung, die er auslösen soll</label><textarea class="ctl" id="rpDecision" data-i18n-ph="ph.decision" placeholder="Was wird anhand des Berichts entschieden?"></textarea></div>
       <div class="grid2">
-        <div class="field"><label>Version</label><input class="ctl" id="rpVersion" placeholder="0.1"></div>
-        <div class="field"><label>Datenstand / Aktualisierung</label><input class="ctl" id="rpDataDate" placeholder="täglich 6:00, Stand T-1"></div>
+        <div class="field"><label data-i18n="lbl.version">Version</label><input class="ctl" id="rpVersion" data-i18n-ph="ph.version" placeholder="0.1"></div>
+        <div class="field"><label data-i18n="lbl.dataDate">Datenstand / Aktualisierung</label><input class="ctl" id="rpDataDate" data-i18n-ph="ph.dataDate" placeholder="täglich 6:00, Stand T-1"></div>
       </div>
-      <div class="field"><label>Teilnehmende Workshop</label><input class="ctl" id="rpParticipants" placeholder="Namen, Rollen"></div>
-      <div class="field"><label>Sprache der Ausgaben</label><select class="ctl" id="rpLang"><option value="de">Deutsch</option><option value="en">English</option></select><p class="hint">Gilt für Skizzen-Beschriftungen und Export-Dokumente.</p></div>
+      <div class="field"><label data-i18n="lbl.participants">Teilnehmende Workshop</label><input class="ctl" id="rpParticipants" data-i18n-ph="ph.participants" placeholder="Namen, Rollen"></div>
+      <div class="field"><label data-i18n="lbl.lang">Sprache der Ausgaben</label><select class="ctl" id="rpLang"><option value="de">Deutsch</option><option value="en">English</option></select><p class="hint" data-i18n="hint.lang">Gilt für Skizzen-Beschriftungen und Export-Dokumente.</p></div>
     </div>
     <div class="panel-body" id="insPage" hidden>
-      <div class="field"><label>Diese Seite</label><input class="ctl" id="pageName" placeholder="z. B. Übersicht"></div>
-      <div class="field"><label>Fragestellung / Kernbotschaft der Seite</label><input class="ctl" id="pageQuestion" placeholder="z. B. Liegen wir im Plan, und wo nicht?"></div>
-      <div class="field"><label>Zweck / Notizen zur Seite</label><textarea class="ctl" id="pageNotes" placeholder="Zielgruppe, Drill-Wege, Interaktionen …"></textarea></div>
-      <div class="row wrap" style="margin-bottom:10px"><button class="btn sm" id="btnPageDup">Seite duplizieren</button><button class="btn sm" id="btnPageDel">Seite löschen</button></div>
-      <div class="section"><h3>Canvas (alle Seiten)</h3>
+      <div class="field"><label data-i18n="lbl.thisPage">Diese Seite</label><input class="ctl" id="pageName" data-i18n-ph="ph.pageName" placeholder="z. B. Übersicht"></div>
+      <div class="field"><label data-i18n="lbl.pageQuestion">Fragestellung / Kernbotschaft der Seite</label><input class="ctl" id="pageQuestion" data-i18n-ph="ph.pageQuestion" placeholder="z. B. Liegen wir im Plan, und wo nicht?"></div>
+      <div class="field"><label data-i18n="lbl.pageNotes">Zweck / Notizen zur Seite</label><textarea class="ctl" id="pageNotes" data-i18n-ph="ph.pageNotes" placeholder="Zielgruppe, Drill-Wege, Interaktionen …"></textarea></div>
+      <div class="row wrap" style="margin-bottom:10px"><button class="btn sm" id="btnPageDup" data-i18n="btn.pageDup">Seite duplizieren</button><button class="btn sm" id="btnPageDel" data-i18n="btn.pageDel">Seite löschen</button></div>
+      <div class="section"><h3 data-i18n="sec.canvas">Canvas (alle Seiten)</h3>
         <select class="ctl" id="canvasPreset">
-          <option value="1280x720">HD · 1280 × 720 (Standard)</option>
-          <option value="1920x1080">Full HD · 1920 × 1080</option>
-          <option value="3840x2160">Ultra HD · 3840 × 2160</option>
-          <option value="1280x960">4:3 · 1280 × 960</option>
-          <option value="1080x1920">Hochformat · 1080 × 1920</option>
-          <option value="custom">Benutzerdefiniert …</option>
+          <option value="1280x720" data-i18n="opt.canvas.hd">HD · 1280 × 720 (Standard)</option>
+          <option value="1920x1080" data-i18n="opt.canvas.fhd">Full HD · 1920 × 1080</option>
+          <option value="3840x2160" data-i18n="opt.canvas.uhd">Ultra HD · 3840 × 2160</option>
+          <option value="1280x960" data-i18n="opt.canvas.r43">4:3 · 1280 × 960</option>
+          <option value="1080x1920" data-i18n="opt.canvas.portrait">Hochformat · 1080 × 1920</option>
+          <option value="custom" data-i18n="opt.canvas.custom">Benutzerdefiniert …</option>
         </select>
         <div class="grid2" style="margin-top:6px" id="customSize" hidden>
-          <input class="ctl" type="number" id="canvasW" min="320" max="4000" step="1" placeholder="Breite">
-          <input class="ctl" type="number" id="canvasH" min="200" max="4000" step="1" placeholder="Höhe">
+          <input class="ctl" type="number" id="canvasW" min="320" max="4000" step="1" data-i18n-ph="ph.width" placeholder="Breite">
+          <input class="ctl" type="number" id="canvasH" min="200" max="4000" step="1" data-i18n-ph="ph.height" placeholder="Höhe">
         </div>
         <p class="hint" id="uiScaleInfo">Schriften und Abstände skalieren automatisch mit der Canvas-Breite.</p>
       </div>
-      <div class="field" style="margin-top:10px"><label>Abstände (px, skalieren mit)</label>
+      <div class="field" style="margin-top:10px"><label data-i18n="lbl.spacing">Abstände (px, skalieren mit)</label>
         <div class="grid3">
-          <div><input class="ctl" type="number" id="spMargin" min="0" max="64" step="4"><p class="hint">Rand</p></div>
-          <div><input class="ctl" type="number" id="spGutter" min="0" max="48" step="2"><p class="hint">Zwischenraum</p></div>
-          <div><input class="ctl" type="number" id="spPad" min="0" max="32" step="2"><p class="hint">Kachel innen</p></div>
+          <div><input class="ctl" type="number" id="spMargin" min="0" max="64" step="4"><p class="hint" data-i18n="hint.margin">Rand</p></div>
+          <div><input class="ctl" type="number" id="spGutter" min="0" max="48" step="2"><p class="hint" data-i18n="hint.gutter">Zwischenraum</p></div>
+          <div><input class="ctl" type="number" id="spPad" min="0" max="32" step="2"><p class="hint" data-i18n="hint.pad">Kachel innen</p></div>
         </div>
       </div>
-      <div class="field"><label>Standard-Szenario neuer Charts</label>
+      <div class="field"><label data-i18n="lbl.defScenario">Standard-Szenario neuer Charts</label>
         <select class="ctl" id="defScenario">
-          <option value="AC/PL">AC vs PL (Ist vs Plan)</option>
-          <option value="AC/PY">AC vs PY (Ist vs Vorjahr)</option>
-          <option value="AC/PL/FC">AC + FC vs PL</option>
-          <option value="AC">nur AC</option>
+          <option value="AC/PL" data-i18n="opt.scen.acpl">AC vs PL (Ist vs Plan)</option>
+          <option value="AC/PY" data-i18n="opt.scen.acpy">AC vs PY (Ist vs Vorjahr)</option>
+          <option value="AC/PL/FC" data-i18n="opt.scen.acplfc">AC + FC vs PL</option>
+          <option value="AC" data-i18n="opt.scen.ac">nur AC</option>
         </select>
       </div>
-      <div class="section"><h3>Raster</h3>
-        <button class="btn sm" id="btnSplitRoot">Inhalt neu aufteilen …</button>
-        <p class="hint">Setzt den Inhaltsbereich dieser Seite auf ein neues Raster (Zeilen × Spalten). Bestehende Visuals werden der Reihe nach wieder eingesetzt.</p>
+      <div class="section"><h3 data-i18n="sec.grid">Raster</h3>
+        <button class="btn sm" id="btnSplitRoot" data-i18n="btn.splitRoot">Inhalt neu aufteilen …</button>
+        <p class="hint" data-i18n="hint.splitRoot">Setzt den Inhaltsbereich dieser Seite auf ein neues Raster (Zeilen × Spalten). Bestehende Visuals werden der Reihe nach wieder eingesetzt.</p>
       </div>
     </div>
     <div class="panel-body" id="insChrome" hidden>
-      <p class="hint" style="margin:0 0 6px">Rahmen gilt für alle Seiten.</p>
-      <div class="section" style="border-top:0;margin-top:0;padding-top:0"><h3>Kopfband</h3>
-        <label class="toggle"><input type="checkbox" id="hdOn"> Kopfband anzeigen</label>
+      <p class="hint" style="margin:0 0 6px" data-i18n="hint.chrome">Rahmen gilt für alle Seiten.</p>
+      <div class="section" style="border-top:0;margin-top:0;padding-top:0"><h3 data-i18n="sec.header">Kopfband</h3>
+        <label class="toggle"><input type="checkbox" id="hdOn"> <span data-i18n="lbl.headerOn">Kopfband anzeigen</span></label>
         <div class="grid2">
-          <div><input class="ctl" type="number" id="hdH" min="32" max="120" step="4"><p class="hint">Höhe</p></div>
-          <div><select class="ctl" id="hdLogoPos"><option value="left">Logo links</option><option value="right">Logo rechts</option><option value="none">kein Logo</option></select><p class="hint">Logo</p></div>
+          <div><input class="ctl" type="number" id="hdH" min="32" max="120" step="4"><p class="hint" data-i18n="hint.height">Höhe</p></div>
+          <div><select class="ctl" id="hdLogoPos"><option value="left" data-i18n="opt.logo.left">Logo links</option><option value="right" data-i18n="opt.logo.right">Logo rechts</option><option value="none" data-i18n="opt.logo.none">kein Logo</option></select><p class="hint" data-i18n="hint.logo">Logo</p></div>
         </div>
-        <div class="field"><label>Titel</label><input class="ctl" id="hdTitle"></div>
-        <div class="field"><label>Untertitel</label><input class="ctl" id="hdSub" placeholder="z. B. Zeitraum, Einheit"></div>
-        <label class="toggle"><input type="checkbox" id="hdNavAuto"> Navigation aus den Seitennamen</label>
-        <div class="field"><label>Navigation manuell (kommagetrennt)</label><input class="ctl" id="hdNav" placeholder="Übersicht, Umsatz, Kosten"></div>
+        <div class="field"><label data-i18n="lbl.title">Titel</label><input class="ctl" id="hdTitle"></div>
+        <div class="field"><label data-i18n="lbl.subtitle">Untertitel</label><input class="ctl" id="hdSub" data-i18n-ph="ph.headerSub" placeholder="z. B. Zeitraum, Einheit"></div>
+        <label class="toggle"><input type="checkbox" id="hdNavAuto"> <span data-i18n="lbl.navAuto">Navigation aus den Seitennamen</span></label>
+        <div class="field"><label data-i18n="lbl.navManual">Navigation manuell (kommagetrennt)</label><input class="ctl" id="hdNav" data-i18n-ph="ph.navManual" placeholder="Übersicht, Umsatz, Kosten"></div>
       </div>
-      <div class="section"><h3>Linke Nav-Leiste</h3>
-        <label class="toggle"><input type="checkbox" id="nvOn"> Nav-Leiste anzeigen (App-Stil)</label>
-        <div class="grid2"><div><input class="ctl" type="number" id="nvW" min="40" max="120" step="4"><p class="hint">Breite</p></div></div>
+      <div class="section"><h3 data-i18n="sec.nav">Linke Nav-Leiste</h3>
+        <label class="toggle"><input type="checkbox" id="nvOn"> <span data-i18n="lbl.navOn">Nav-Leiste anzeigen (App-Stil)</span></label>
+        <div class="grid2"><div><input class="ctl" type="number" id="nvW" min="40" max="120" step="4"><p class="hint" data-i18n="hint.width">Breite</p></div></div>
       </div>
-      <div class="section"><h3>Filter / Slicer</h3>
-        <label class="toggle"><input type="checkbox" id="ftOn"> Filter anzeigen</label>
+      <div class="section"><h3 data-i18n="sec.filter">Filter / Slicer</h3>
+        <label class="toggle"><input type="checkbox" id="ftOn"> <span data-i18n="lbl.filterOn">Filter anzeigen</span></label>
         <div class="grid2">
-          <div><select class="ctl" id="ftSide"><option value="right">Panel rechts</option><option value="left">Panel links</option><option value="top">Leiste oben</option><option value="burger">Burger-Menü (Bookmark)</option></select><p class="hint">Position</p></div>
+          <div><select class="ctl" id="ftSide"><option value="right" data-i18n="opt.filter.right">Panel rechts</option><option value="left" data-i18n="opt.filter.left">Panel links</option><option value="top" data-i18n="opt.filter.top">Leiste oben</option><option value="burger" data-i18n="opt.filter.burger">Burger-Menü (Bookmark)</option></select><p class="hint" data-i18n="hint.position">Position</p></div>
           <div><input class="ctl" type="number" id="ftW" min="48" max="360" step="8"><p class="hint" id="ftWHint">Breite</p></div>
         </div>
-        <label class="toggle" id="ftCollapsibleRow"><input type="checkbox" id="ftCollapsible"> Panel ausklappbar (Bookmark)</label>
-        <p class="hint">Felder aus dem Modell direkt aufs Panel ziehen, um Slicer anzulegen. Beim Burger-Menü entsteht im Export ein Bookmark-Paar „Filter öffnen / schließen" plus Button im Kopfband. Vorauswahl je Slicer eintragen, damit „mein Excel sagt was anderes" gar nicht erst entsteht.</p>
+        <label class="toggle" id="ftCollapsibleRow"><input type="checkbox" id="ftCollapsible"> <span data-i18n="lbl.filterCollapsible">Panel ausklappbar (Bookmark)</span></label>
+        <p class="hint" data-i18n="hint.filter">Felder aus dem Modell direkt aufs Panel ziehen, um Slicer anzulegen. Beim Burger-Menü entsteht im Export ein Bookmark-Paar „Filter öffnen / schließen" plus Button im Kopfband. Vorauswahl je Slicer eintragen, damit „mein Excel sagt was anderes" gar nicht erst entsteht.</p>
         <div id="ftFieldList" style="margin-top:6px"></div>
       </div>
-      <div class="section"><h3>Fußleiste</h3>
-        <label class="toggle"><input type="checkbox" id="ffOn"> Fußleiste anzeigen</label>
-        <div class="grid2"><div><input class="ctl" type="number" id="ffH" min="16" max="48" step="4"><p class="hint">Höhe</p></div></div>
-        <div class="field"><label>Text</label><input class="ctl" id="ffText"></div>
+      <div class="section"><h3 data-i18n="sec.footer">Fußleiste</h3>
+        <label class="toggle"><input type="checkbox" id="ffOn"> <span data-i18n="lbl.footerOn">Fußleiste anzeigen</span></label>
+        <div class="grid2"><div><input class="ctl" type="number" id="ffH" min="16" max="48" step="4"><p class="hint" data-i18n="hint.height">Höhe</p></div></div>
+        <div class="field"><label data-i18n="lbl.text">Text</label><input class="ctl" id="ffText"></div>
       </div>
     </div>
     <div class="panel-body" id="insDesign" hidden>
-      <p class="hint" style="margin:0 0 6px">Gestaltung gilt für alle Seiten und wandert als Design-Entscheidung in den Export.</p>
-      <div class="field"><label>Kachel-Ecken</label>
-        <select class="ctl" id="dsRadius"><option value="0">eckig</option><option value="4">leicht gerundet (4 px)</option><option value="8">gerundet (8 px)</option><option value="12">stark gerundet (12 px)</option></select>
+      <p class="hint" style="margin:0 0 6px" data-i18n="hint.design">Gestaltung gilt für alle Seiten und wandert als Design-Entscheidung in den Export.</p>
+      <div class="field"><label data-i18n="lbl.radius">Kachel-Ecken</label>
+        <select class="ctl" id="dsRadius"><option value="0" data-i18n="opt.radius.r0">eckig</option><option value="4" data-i18n="opt.radius.r4">leicht gerundet (4 px)</option><option value="8" data-i18n="opt.radius.r8">gerundet (8 px)</option><option value="12" data-i18n="opt.radius.r12">stark gerundet (12 px)</option></select>
       </div>
-      <div class="field"><label>Kachel-Stil</label>
-        <select class="ctl" id="dsTile"><option value="border">weiß mit feinem Rahmen</option><option value="shadow">weiß mit weichem Schatten</option><option value="flat">flach, ohne Rahmen</option></select>
+      <div class="field"><label data-i18n="lbl.tileStyle">Kachel-Stil</label>
+        <select class="ctl" id="dsTile"><option value="border" data-i18n="opt.tile.border">weiß mit feinem Rahmen</option><option value="shadow" data-i18n="opt.tile.shadow">weiß mit weichem Schatten</option><option value="flat" data-i18n="opt.tile.flat">flach, ohne Rahmen</option></select>
       </div>
-      <div class="field"><label>Seitenhintergrund</label>
-        <select class="ctl" id="dsPageBg"><option value="light">hell strukturiert (#F4F4F1)</option><option value="soft">kühl strukturiert (#EEF1F5)</option><option value="white">weiß</option></select>
+      <div class="field"><label data-i18n="lbl.pageBg">Seitenhintergrund</label>
+        <select class="ctl" id="dsPageBg"><option value="light" data-i18n="opt.bg.light">hell strukturiert (#F4F4F1)</option><option value="soft" data-i18n="opt.bg.soft">kühl strukturiert (#EEF1F5)</option><option value="white" data-i18n="opt.bg.white">weiß</option></select>
       </div>
-      <div class="field"><label>Kopfband-Stil</label>
-        <select class="ctl" id="dsHeader"><option value="light">hell (weiß, dunkle Schrift)</option><option value="dark">dunkel (Ink)</option><option value="accent">Akzentfarbe</option></select>
+      <div class="field"><label data-i18n="lbl.headerStyle">Kopfband-Stil</label>
+        <select class="ctl" id="dsHeader"><option value="light" data-i18n="opt.hdr.light">hell (weiß, dunkle Schrift)</option><option value="dark" data-i18n="opt.hdr.dark">dunkel (Ink)</option><option value="accent" data-i18n="opt.hdr.accent">Akzentfarbe</option></select>
       </div>
-      <div class="field"><label>Akzentfarbe</label><div class="row"><input type="color" id="dsAccent" value="#C25A2D" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsAccentTxt">#C25A2D</span></div></div>
-      <label class="toggle off"><input type="checkbox" id="dsDark" disabled> Dark Mode (Backlog)</label>
-      <p class="hint">Farben und Schriften für Power BI kommen aus dem Theme (Design-Framework-Skill). Hier geht es um Struktur: Ecken, Flächen, Kopfband.</p>
+      <div class="field"><label data-i18n="lbl.accent">Akzentfarbe</label><div class="row"><input type="color" id="dsAccent" value="#C25A2D" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsAccentTxt">#C25A2D</span></div></div>
+      <label class="toggle off"><input type="checkbox" id="dsDark" disabled> <span data-i18n="lbl.dark">Dark Mode (Backlog)</span></label>
+      <p class="hint" data-i18n="hint.theme">Farben und Schriften für Power BI kommen aus dem Theme (Design-Framework-Skill). Hier geht es um Struktur: Ecken, Flächen, Kopfband.</p>
     </div>
   </aside>
 </div>
 
 <dialog id="dlgCatalog">
-  <div class="dlg-head"><div><h2>Visual wählen</h2><p>ChartKitchen-Typen im IBCS-Look und native Power-BI-Visuals. Klicken setzt den Typ der gewählten Kachel.</p></div><span class="spacer"></span><input class="ctl" id="catSearch" placeholder="Typ suchen …" style="width:200px"><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-head"><div><h2 data-i18n="dlg.cat.h">Visual wählen</h2><p data-i18n="dlg.cat.p">ChartKitchen-Typen im IBCS-Look und native Power-BI-Visuals. Klicken setzt den Typ der gewählten Kachel.</p></div><span class="spacer"></span><input class="ctl" id="catSearch" data-i18n-ph="ph.searchType" placeholder="Typ suchen …" style="width:200px"><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body cat-groups" id="catBody"></div>
 </dialog>
 
 <dialog id="dlgTemplates">
-  <div class="dlg-head"><div><h2>Seitenvorlagen</h2><p>Startpunkt für den Inhaltsbereich der aktuellen Seite. Vorlagen bringen Feldbindungen aus dem Demo-Modell mit; ohne geladenes Modell wird es automatisch geladen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-head"><div><h2 data-i18n="dlg.tpl.h">Seitenvorlagen</h2><p data-i18n="dlg.tpl.p">Startpunkt für den Inhaltsbereich der aktuellen Seite. Vorlagen bringen Feldbindungen aus dem Demo-Modell mit; ohne geladenes Modell wird es automatisch geladen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body"><div class="tpl-grid" id="tplGrid"></div></div>
 </dialog>
 
 <dialog id="dlgExport">
-  <div class="dlg-head"><div><h2>Export für Claude Code</h2><p>Dateien in den PBIP-Projektordner legen, dann den Skill <span class="mono">mockup-to-powerbi</span> aufrufen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-head"><div><h2 data-i18n="dlg.exp.h">Export für Claude Code</h2><p data-i18n-html="dlg.exp.p">Dateien in den PBIP-Projektordner legen, dann den Skill <span class="mono">mockup-to-powerbi</span> aufrufen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body">
     <div id="expChecks"></div>
     <div class="exp-tabs" id="expTabs">
       <button data-exp="json" class="on">mockup-spec.json</button>
       <button data-exp="brief">AGENT-BRIEF.md</button>
       <button data-exp="docs">WORKSHOP-DOKU.md</button>
-      <button data-exp="pbir">pbir-visuals (aktuelle Seite)</button>
-      <button data-exp="prompt">Prompt für Claude Code</button>
+      <button data-exp="pbir" data-i18n="tabexp.pbir">pbir-visuals (aktuelle Seite)</button>
+      <button data-exp="prompt" data-i18n="tabexp.prompt">Prompt für Claude Code</button>
     </div>
     <pre class="code" id="expOut"></pre>
   </div>
-  <div class="dlg-foot"><span class="hint" id="expHint" style="margin-right:auto"></span><button class="btn" id="btnExpCopy">Kopieren</button><button class="btn" id="btnExpDownload">Datei herunterladen</button><button class="btn primary" id="btnExpAll">Alle Dateien herunterladen</button></div>
+  <div class="dlg-foot"><span class="hint" id="expHint" style="margin-right:auto"></span><button class="btn" id="btnExpCopy" data-i18n="btn.copy">Kopieren</button><button class="btn" id="btnExpDownload" data-i18n="btn.download">Datei herunterladen</button><button class="btn primary" id="btnExpAll" data-i18n="btn.downloadAll">Alle Dateien herunterladen</button></div>
 </dialog>
 
 <dialog id="dlgNewMeasure" class="narrow">
-  <div class="dlg-head"><div><h2>Neue Kennzahl oder Dimension</h2><p>Existiert noch nicht im Modell. Wird im Export als „zu erstellen" markiert und in der Workshop-Doku beschrieben.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-head"><div><h2 data-i18n="dlg.nm.h">Neue Kennzahl oder Dimension</h2><p data-i18n="dlg.nm.p">Existiert noch nicht im Modell. Wird im Export als „zu erstellen" markiert und in der Workshop-Doku beschrieben.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body">
-    <div class="field"><label>Name</label><input class="ctl" id="nmName" placeholder="z. B. Deckungsbeitrag"></div>
+    <div class="field"><label data-i18n="lbl.name">Name</label><input class="ctl" id="nmName" data-i18n-ph="ph.nmName" placeholder="z. B. Deckungsbeitrag"></div>
     <div class="grid2">
-      <div class="field"><label>Tabelle</label><input class="ctl" id="nmTable" list="nmTables" placeholder="_Measures"><datalist id="nmTables"></datalist></div>
-      <div class="field"><label>Art</label><select class="ctl" id="nmKind"><option value="measure">Kennzahl (Measure)</option><option value="column">Dimension / Spalte</option></select></div>
+      <div class="field"><label data-i18n="lbl.table">Tabelle</label><input class="ctl" id="nmTable" list="nmTables" data-i18n-ph="ph.nmTable" placeholder="_Measures"><datalist id="nmTables"></datalist></div>
+      <div class="field"><label data-i18n="lbl.fieldKind">Art</label><select class="ctl" id="nmKind"><option value="measure" data-i18n="opt.nmKind.measure">Kennzahl (Measure)</option><option value="column" data-i18n="opt.nmKind.column">Dimension / Spalte</option></select></div>
     </div>
-    <div class="field"><label>Beschreibung / Rechenlogik für den Agenten</label><textarea class="ctl" id="nmDesc" placeholder="Umsatz minus variable Kosten"></textarea></div>
+    <div class="field"><label data-i18n="lbl.descLogic">Beschreibung / Rechenlogik für den Agenten</label><textarea class="ctl" id="nmDesc" data-i18n-ph="ph.nmDesc" placeholder="Umsatz minus variable Kosten"></textarea></div>
     <div class="grid2">
-      <div class="field"><label>Einheit / Format</label><input class="ctl" id="nmUnit" placeholder="T€ · #,##0"></div>
-      <div class="field"><label>Zielwert</label><input class="ctl" id="nmTarget" placeholder="z. B. ≥ 12 % Marge"></div>
-      <div class="field"><label>Owner (fachlich)</label><input class="ctl" id="nmOwner" placeholder="Name, Bereich"></div>
-      <div class="field"><label>Quelle / Vorsystem</label><input class="ctl" id="nmSource" placeholder="SAP FI, CRM …"></div>
+      <div class="field"><label data-i18n="lbl.unitFormat">Einheit / Format</label><input class="ctl" id="nmUnit" data-i18n-ph="ph.nmUnit" placeholder="T€ · #,##0"></div>
+      <div class="field"><label data-i18n="lbl.target">Zielwert</label><input class="ctl" id="nmTarget" data-i18n-ph="ph.nmTarget" placeholder="z. B. ≥ 12 % Marge"></div>
+      <div class="field"><label data-i18n="lbl.owner">Owner (fachlich)</label><input class="ctl" id="nmOwner" data-i18n-ph="ph.nmOwner" placeholder="Name, Bereich"></div>
+      <div class="field"><label data-i18n="lbl.source">Quelle / Vorsystem</label><input class="ctl" id="nmSource" data-i18n-ph="ph.nmSource" placeholder="SAP FI, CRM …"></div>
     </div>
-    <div class="field"><label>Offene Frage (optional)</label><input class="ctl" id="nmOpen" placeholder="z. B. Wer liefert die Planwerte?"></div>
+    <div class="field"><label data-i18n="lbl.openQ">Offene Frage (optional)</label><input class="ctl" id="nmOpen" data-i18n-ph="ph.nmOpen" placeholder="z. B. Wer liefert die Planwerte?"></div>
   </div>
-  <div class="dlg-foot"><button class="btn" data-close>Abbrechen</button><button class="btn primary" id="nmOk">Anlegen</button></div>
+  <div class="dlg-foot"><button class="btn" data-close data-i18n="btn.cancel">Abbrechen</button><button class="btn primary" id="nmOk" data-i18n="btn.create">Anlegen</button></div>
 </dialog>
 
 <dialog id="dlgFieldMeta" class="narrow">
-  <div class="dlg-head"><div><h2>Kennzahlen-Steckbrief</h2><p id="fmRef" class="mono"></p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-head"><div><h2 data-i18n="dlg.fm.h">Kennzahlen-Steckbrief</h2><p id="fmRef" class="mono"></p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body">
     <div class="kv" id="fmModel" style="margin-bottom:10px"></div>
-    <div class="field"><label>Heißt beim Fachbereich (Alias)</label><input class="ctl" id="fmAlias" placeholder="z. B. Nettoerlös"></div>
-    <label class="toggle"><input type="checkbox" id="fmConfirmed"> Definition im Workshop bestätigt</label>
-    <label class="toggle"><input type="checkbox" id="fmRename"> im Modell umbenennen (Alias wird neuer Name)</label>
+    <div class="field"><label data-i18n="lbl.alias">Heißt beim Fachbereich (Alias)</label><input class="ctl" id="fmAlias" data-i18n-ph="ph.fmAlias" placeholder="z. B. Nettoerlös"></div>
+    <label class="toggle"><input type="checkbox" id="fmConfirmed"> <span data-i18n="lbl.confirmed">Definition im Workshop bestätigt</span></label>
+    <label class="toggle"><input type="checkbox" id="fmRename"> <span data-i18n="lbl.renameInModel">im Modell umbenennen (Alias wird neuer Name)</span></label>
     <div class="grid2">
-      <div class="field"><label>Owner (fachlich)</label><input class="ctl" id="fmOwner"></div>
-      <div class="field"><label>Quelle / Vorsystem</label><input class="ctl" id="fmSource"></div>
-      <div class="field"><label>Zielwert</label><input class="ctl" id="fmTarget"></div>
-      <div class="field"><label>Einheit</label><input class="ctl" id="fmUnit" placeholder="T€, %, Stück"></div>
+      <div class="field"><label data-i18n="lbl.owner">Owner (fachlich)</label><input class="ctl" id="fmOwner"></div>
+      <div class="field"><label data-i18n="lbl.source">Quelle / Vorsystem</label><input class="ctl" id="fmSource"></div>
+      <div class="field"><label data-i18n="lbl.target">Zielwert</label><input class="ctl" id="fmTarget"></div>
+      <div class="field"><label data-i18n="lbl.unit">Einheit</label><input class="ctl" id="fmUnit" data-i18n-ph="ph.fmUnit" placeholder="T€, %, Stück"></div>
     </div>
-    <div class="field"><label>Anmerkung / abweichende Definition (z. B. „so rechne ich es heute in Excel")</label><textarea class="ctl" id="fmNote"></textarea></div>
+    <div class="field"><label data-i18n="lbl.fmNote">Anmerkung / abweichende Definition (z. B. „so rechne ich es heute in Excel")</label><textarea class="ctl" id="fmNote"></textarea></div>
   </div>
-  <div class="dlg-foot"><button class="btn" data-close>Abbrechen</button><button class="btn primary" id="fmOk">Speichern</button></div>
+  <div class="dlg-foot"><button class="btn" data-close data-i18n="btn.cancel">Abbrechen</button><button class="btn primary" id="fmOk" data-i18n="btn.save2">Speichern</button></div>
 </dialog>
 
 <dialog id="dlgSplit" class="narrow">
-  <div class="dlg-head"><div><h2>Inhalt neu aufteilen</h2><p>Zeilen × Spalten als Startraster. Danach jede Zelle weiter teilen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-head"><div><h2 data-i18n="dlg.split.h">Inhalt neu aufteilen</h2><p data-i18n="dlg.split.p">Zeilen × Spalten als Startraster. Danach jede Zelle weiter teilen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body"><div class="grid2">
-    <div class="field"><label>Zeilen</label><input class="ctl" type="number" id="spRows" value="2" min="1" max="6"></div>
-    <div class="field"><label>Spalten</label><input class="ctl" type="number" id="spCols" value="2" min="1" max="6"></div>
-  </div><p class="hint">Bestehende Visuals werden der Reihe nach in die neuen Zellen gesetzt; überzählige gehen verloren.</p></div>
-  <div class="dlg-foot"><button class="btn" data-close>Abbrechen</button><button class="btn primary" id="spOk">Aufteilen</button></div>
+    <div class="field"><label data-i18n="lbl.rows">Zeilen</label><input class="ctl" type="number" id="spRows" value="2" min="1" max="6"></div>
+    <div class="field"><label data-i18n="lbl.cols">Spalten</label><input class="ctl" type="number" id="spCols" value="2" min="1" max="6"></div>
+  </div><p class="hint" data-i18n="hint.splitDlg">Bestehende Visuals werden der Reihe nach in die neuen Zellen gesetzt; überzählige gehen verloren.</p></div>
+  <div class="dlg-foot"><button class="btn" data-close data-i18n="btn.cancel">Abbrechen</button><button class="btn primary" id="spOk" data-i18n="btn.split">Aufteilen</button></div>
 </dialog>
 
 <dialog id="dlgHelp" class="narrow">
-  <div class="dlg-head"><div><h2>So funktioniert MockupKitchen</h2><p>Vom Workshop-Skizzenblatt zur Power-BI-Seite.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
-  <div class="dlg-body help">
+  <div class="dlg-head"><div><h2 data-i18n="dlg.help.h">So funktioniert MockupKitchen</h2><p data-i18n="dlg.help.p">Vom Workshop-Skizzenblatt zur Power-BI-Seite.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-body help" data-i18n-html="help.body">
     <h3>1 · Rahmen, Design, Raster</h3>
     <p>Rechts unter „Rahmen" Kopfband, Nav, Filter (Panel links/rechts, Leiste oben oder Burger-Menü) und Fußleiste zuschalten. Unter „Design" Ecken, Kachel-Stil, Hintergrund und Kopfband-Stil. Unter „Seite" Canvas-Größe (HD, Full HD, Ultra HD) und Abstände. Schriften skalieren mit.</p>
     <h3>2 · Seiten</h3>
@@ -539,6 +540,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 <input type="file" id="fileOpen" accept=".json" hidden>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="assets/mockup/i18n.js"></script>
 <script src="assets/mockup/sketches.js"></script>
 <script src="assets/mockup/catalog.js"></script>
 <script src="assets/mockup/app.js"></script>

@@ -28,10 +28,11 @@
     font-size: 12px; color: var(--ink-soft);
   }
   .bar label { display: flex; gap: 5px; align-items: center; }
-  select, input[type=number] {
+  select, input[type=number], input[type=text] {
     font: inherit; font-size: 12px; padding: 3px 5px;
     border: 1px solid var(--border); border-radius: 4px; background: #fff;
   }
+  input[type=text] { font-family: 'JetBrains Mono', ui-monospace, monospace; }
   .grid { display: flex; flex-direction: column; gap: 14px; }
   .row {
     display: grid; grid-template-columns: 130px 110px 240px 500px;
@@ -85,10 +86,39 @@
   <label><input id="vabs" type="checkbox" checked> Δ abs</label>
   <label><input id="vrel" type="checkbox" checked> Δ %</label>
   <label><input id="dense" type="checkbox"> dense</label>
+  <label>Polarität
+    <select id="pol">
+      <option value="higher">higher · mehr ist gut</option>
+      <option value="lower">lower · weniger ist gut</option>
+    </select>
+  </label>
+  <label>Sprache
+    <select id="lang">
+      <option value="de">de</option>
+      <option value="en">en</option>
+    </select>
+  </label>
+  <label>Einheit <input id="unit" type="text" value="" placeholder="T€" style="width:56px"></label>
+  <label title="Leer = Szenario-Kurzform oben. Sonst z. B. AC,PL,PY oder PL,FC">scenarios
+    <input id="scens" type="text" value="" placeholder="AC,PL,PY" style="width:104px">
+  </label>
+  <label>Δ-Basis
+    <select id="basis">
+      <option value="">auto</option>
+      <option value="PL">PL</option>
+      <option value="PY">PY</option>
+      <option value="BU">BU</option>
+    </select>
+  </label>
+  <label><input id="anti" type="checkbox"> Anti-Pattern</label>
   <span id="stat"></span>
 </div>
 
-<p class="legend">Rote Umrandung = Rückgabe enthält <code>NaN</code>/<code>undefined</code> oder ist kein SVG.</p>
+<p class="legend">Rote Umrandung = Rückgabe enthält <code>NaN</code>/<code>undefined</code> oder ist kein SVG.
+<br><code>polarity: lower</code> dreht alle Δ-Farben (Kosten, Ausschuss).
+<code>scenarios</code> überschreibt die Szenario-Kurzform, <code>Δ-Basis</code> wählt den Bezug der Δ-Ebenen,
+<code>Einheit</code> greift nur bei <code>kpi</code> und <code>card</code>,
+<code>Anti-Pattern</code> legt den Warnüberzug über jede Skizze (im Tool nur bei Kreis und Tacho).</p>
 
 <div class="grid" id="grid"></div>
 
@@ -99,8 +129,12 @@
   var grid = document.getElementById('grid');
   var stat = document.getElementById('stat');
 
+  function val(id) { return document.getElementById(id).value.trim(); }
+
   function opts() {
-    return {
+    // scenarios-Feld hat Vorrang vor der Szenario-Kurzform — genau wie in der API.
+    var list = val('scens').split(/[^A-Za-z]+/).filter(Boolean);
+    var o = {
       scenario: document.getElementById('scen').value,
       seed: parseInt(document.getElementById('seed').value, 10) || 0,
       variance: {
@@ -108,8 +142,15 @@
         rel: document.getElementById('vrel').checked
       },
       dense: document.getElementById('dense').checked,
-      scale: parseFloat(document.getElementById('scale').value) || 1
+      scale: parseFloat(document.getElementById('scale').value) || 1,
+      polarity: val('pol'),
+      lang: val('lang'),
+      antiPattern: document.getElementById('anti').checked
     };
+    if (list.length) o.scenarios = list;
+    if (val('basis')) o.deltaBasis = val('basis');
+    if (val('unit')) o.unit = val('unit');
+    return o;
   }
 
   function render() {
@@ -129,11 +170,15 @@
       html += '<div class="row"><div class="key">' + k + '</div>' + cells + '</div>';
     });
     grid.innerHTML = html;
-    stat.innerHTML = keys.length + ' Typen · scale ' + String(o.scale).replace('.', ',') + ' · ' +
+    stat.innerHTML = keys.length + ' Typen · scale ' + String(o.scale).replace('.', ',') +
+      ' · ' + (o.scenarios ? o.scenarios.join('/') : o.scenario) +
+      ' · Δ-Basis ' + (o.deltaBasis || 'auto') +
+      ' · ' + o.polarity + ' · ' + o.lang + ' · ' +
       (bad ? '<span class="warn">' + bad + ' fehlerhaft</span>' : 'alle sauber');
   }
 
-  ['scen', 'scale', 'seed', 'vabs', 'vrel', 'dense'].forEach(function (id) {
+  ['scen', 'scale', 'seed', 'vabs', 'vrel', 'dense',
+   'pol', 'lang', 'unit', 'scens', 'basis', 'anti'].forEach(function (id) {
     document.getElementById(id).addEventListener('change', render);
     document.getElementById(id).addEventListener('input', render);
   });
