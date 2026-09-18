@@ -19,6 +19,7 @@ As of: <datum> · Version 0.1 · Spec hash `4d42e99d` · created with MockupKitc
 - Filter as a burger menu (bookmark): Year (default 2026), Region.
 - Footer „Stand: <datum> · Quelle: DWH · Kontakt: Controlling".
 - Tiles rounded (12 px), with a soft shadow, page background #EEF1F5, accent #C25A2D.
+- Variance palette teal (petrol / red): good #1E8F9E, bad #D64541. Text colour #0F1E2E.
 
 ## Page 1 · Übersicht
 

@@ -1,0 +1,122 @@
+{
+  "version": 2,
+  "name": "mockup delta · Projekt & GuV",
+  "root": "Test.Report",
+  "stop_on_error": false,
+  "steps": [
+    {
+      "id": "move-mk_card1",
+      "op": "move",
+      "select": "Projekt & GuV.Page/mk_card1.Visual",
+      "x": 648,
+      "y": 384,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_card1",
+      "op": "resize",
+      "select": "Projekt & GuV.Page/mk_card1.Visual",
+      "width": 616,
+      "height": 296,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_card1",
+      "op": "bind",
+      "select": "Projekt & GuV.Page/mk_card1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_card1",
+      "op": "bind",
+      "select": "Projekt & GuV.Page/mk_card1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:_Measures.AC"
+      ]
+    },
+    {
+      "id": "move-chrome_header_bg",
+      "op": "move",
+      "select": "Projekt & GuV.Page/chrome_header_bg.Visual",
+      "x": 0,
+      "y": 0,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_bg",
+      "op": "resize",
+      "select": "Projekt & GuV.Page/chrome_header_bg.Visual",
+      "width": 1280,
+      "height": 56,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_nav_1",
+      "op": "move",
+      "select": "Projekt & GuV.Page/chrome_nav_1.Visual",
+      "x": 1152,
+      "y": 12,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_nav_1",
+      "op": "resize",
+      "select": "Projekt & GuV.Page/chrome_nav_1.Visual",
+      "width": 112,
+      "height": 32,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_title",
+      "op": "move",
+      "select": "Projekt & GuV.Page/chrome_header_title.Visual",
+      "x": 16,
+      "y": 6,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_title",
+      "op": "resize",
+      "select": "Projekt & GuV.Page/chrome_header_title.Visual",
+      "width": 1120,
+      "height": 26,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_subtitle",
+      "op": "move",
+      "select": "Projekt & GuV.Page/chrome_header_subtitle.Visual",
+      "x": 16,
+      "y": 32,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_subtitle",
+      "op": "resize",
+      "select": "Projekt & GuV.Page/chrome_header_subtitle.Visual",
+      "width": 1120,
+      "height": 18,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_text",
+      "op": "move",
+      "select": "Projekt & GuV.Page/chrome_footer_text.Visual",
+      "x": 16,
+      "y": 696,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_text",
+      "op": "resize",
+      "select": "Projekt & GuV.Page/chrome_footer_text.Visual",
+      "width": 1248,
+      "height": 24,
+      "continue_on_error": true
+    }
+  ]
+}

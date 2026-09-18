@@ -16,7 +16,8 @@ Mockup: **Management Report · Beispiel** · specVersion 2 (gelesen als v3) · H
 
 - Kacheln: Stil `border`, Ecken 8 px, Hintergrund #FFFFFF
 - Seitenhintergrund #F4F4F1 · Akzent #C25A2D
-- Kopfband-Stil `light` · Schriftfaktor ×1.0 (Visual-Titel ≈ 12 pt)
+- Kopfband-Stil `light` (Fläche #FFFFFF, Text #0F1E2E) · Schriftfaktor ×1.0 (Visual-Titel ≈ 12 pt)
+- Varianz-Palette `teal`: gut #1E8F9E · schlecht #D64541 · Ink #0F1E2E · dunkler Modus nein
 
 ## Umfang
 
@@ -24,10 +25,10 @@ Mockup: **Management Report · Beispiel** · specVersion 2 (gelesen als v3) · H
 - Slicer je Seite: 2 (Filter-Modus `burger`)
 - Verknüpfungen: 1 (1 Drill-through, 0 Seitenwechsel)
 
-| Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb |
-|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | – | 4 | 1 | 12 | 4 | 0 |
-| Detail Produktlinie | `Detail_Produktlinie/` | – | 4 | 1 | 12 | 2 | 0 |
+| Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
+|---|---|---|---|---|---|---|---|---|
+| Übersicht | `Ubersicht/` | – | 4 | 1 | 12 | 4 | 0 | 0 |
+| Detail Produktlinie | `Detail_Produktlinie/` | – | 4 | 1 | 12 | 2 | 0 | 0 |
 
 ## Offene Punkte aus der Spec (`issues`)
 

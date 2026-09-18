@@ -16,7 +16,8 @@ Mockup: **Management Report · Beispiel** · specVersion 1 (gelesen als v3) · H
 
 - Kacheln: Stil `border`, Ecken 0 px, Hintergrund #FFFFFF
 - Seitenhintergrund #F4F4F1 · Akzent #C25A2D
-- Kopfband-Stil `dark` · Schriftfaktor ×1.0 (Visual-Titel ≈ 12 pt)
+- Kopfband-Stil `dark` (Fläche #0F1E2E, Text #FFFFFF) · Schriftfaktor ×1.0 (Visual-Titel ≈ 12 pt)
+- Varianz-Palette `teal`: gut #1E8F9E · schlecht #D64541 · Ink #0F1E2E · dunkler Modus nein
 
 ## Umfang
 
@@ -24,9 +25,9 @@ Mockup: **Management Report · Beispiel** · specVersion 1 (gelesen als v3) · H
 - Slicer je Seite: 2 (Filter-Modus `right`)
 - Verknüpfungen: 0 (0 Drill-through, 0 Seitenwechsel)
 
-| Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb |
-|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | – | 4 | 0 | 10 | 4 | 0 |
+| Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
+|---|---|---|---|---|---|---|---|---|
+| Übersicht | `Ubersicht/` | – | 4 | 0 | 10 | 4 | 0 | 0 |
 
 ## Offene Punkte aus der Spec (`issues`)
 

@@ -268,5 +268,7 @@
       "title": "Kosten",
       "text": "Polaritaet „kleiner = besser\": natives Visual faerbt nicht automatisch um. ChartKitchen: `chart.invert = true`; nativ: bedingte Formatierung oder Farbe pruefen. (aus dem Kennzahlnamen abgeleitet)"
     }
-  ]
+  ],
+  "issues": [],
+  "customVisuals": []
 }

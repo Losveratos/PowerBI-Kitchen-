@@ -1,0 +1,265 @@
+{
+  "generated": "<zeitstempel>",
+  "tool": "mockup_to_pbir.py",
+  "spec": {
+    "name": "Custom-Visual-Testfall",
+    "specVersion": 3,
+    "specHash": "customvis",
+    "lang": "de"
+  },
+  "report": "Test.Report",
+  "model": "Test.SemanticModel",
+  "canvas": {
+    "width": 1280,
+    "height": 720
+  },
+  "pages": [
+    {
+      "name": "Projekt & GuV",
+      "dir": "Projekt_GuV",
+      "slug": "Projekt_GuV",
+      "visuals": 1,
+      "chrome": 5,
+      "ck": 0,
+      "deneb": 0
+    }
+  ],
+  "rules": [
+    "Visualname = `id` aus der Spec (stabil über Läufe).",
+    "Vorhandene Visuals werden aktualisiert (delta-batch.json), nie neu angelegt.",
+    "Was im Bericht steht, aber nicht mehr im Mockup: nur melden, nie löschen.",
+    "Kein Schritt schreibt, bevor der Mensch den Plan freigegeben hat."
+  ],
+  "steps": [
+    {
+      "id": "backup",
+      "op": "backup",
+      "page": null,
+      "idempotent": "Legt eine weitere Sicherung an; mehrfach ausführen schadet nicht.",
+      "delta": "immer vor dem ersten schreibenden Schritt",
+      "commands": [
+        "pbir backup \"Test.Report\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "model",
+      "op": "model",
+      "page": null,
+      "idempotent": "`te add --if-not-exists` legt nichts doppelt an.",
+      "delta": "neue Kennzahlen zuerst, sonst lehnt --from-json die ganze Datei ab",
+      "commands": [
+        "# siehe model-todos.md — DAX bestätigen lassen",
+        "te validate -m \"Test.SemanticModel\" --errors-only"
+      ],
+      "batch": null
+    },
+    {
+      "id": "page:Projekt_GuV",
+      "op": "add_page",
+      "page": "Projekt & GuV",
+      "idempotent": "Seite existiert bereits → diesen Schritt überspringen und stattdessen `pbir pages resize \"Test.Report/Projekt & GuV.Page\" -w 1280 -h 720`.",
+      "delta": "vorhandene Seite wird nie gelöscht",
+      "commands": [
+        "pbir add page \"Test.Report/Projekt_GuV.Page\" -n \"Projekt & GuV\" -w 1280 -h 720",
+        "pbir rm \"Test.Report/Projekt & GuV.Page/Title.Visual\" -f"
+      ],
+      "batch": null
+    },
+    {
+      "id": "chrome:Projekt_GuV",
+      "op": "add_visuals",
+      "page": "Projekt & GuV",
+      "idempotent": "Schlägt fehl, wenn die Chrome-Visuals schon existieren → dann delta-batch.json statt dieses Schritts.",
+      "delta": "delta-batch.json aktualisiert Position/Größe",
+      "commands": [
+        "pbir add visual \"Test.Report/Projekt & GuV.Page\" --from-json \"<out>/Projekt_GuV/chrome-visuals.json\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "visuals:Projekt_GuV",
+      "op": "add_visuals",
+      "page": "Projekt & GuV",
+      "idempotent": "Namen sind stabil; ein zweiter Lauf legt nichts doppelt an, sondern scheitert → delta-batch.json.",
+      "delta": "delta-batch.json aktualisiert Position, Größe und Bindung",
+      "commands": [
+        "pbir add visual \"Test.Report/Projekt & GuV.Page\" --from-json \"<out>/Projekt_GuV/pbir-visuals.json\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "background:Projekt_GuV",
+      "op": "page_background",
+      "page": "Projekt & GuV",
+      "idempotent": "Setzt eine feste Farbe — beliebig oft ausfuehrbar.",
+      "delta": "unveraendert im zweiten Lauf",
+      "commands": [
+        "pbir pages background \"Test.Report/Projekt & GuV.Page\" --color \"#F7F4EF\" --transparency 0"
+      ],
+      "batch": null
+    },
+    {
+      "id": "format:Projekt_GuV",
+      "op": "batch",
+      "page": "Projekt & GuV",
+      "idempotent": "Setzt Eigenschaften auf feste Werte — beliebig oft ausführbar.",
+      "delta": "unverändert im zweiten Lauf",
+      "commands": [
+        "pbir batch validate \"<out>/Projekt_GuV/chrome-batch.json\"",
+        "pbir batch plan \"<out>/Projekt_GuV/chrome-batch.json\" --root \"Test.Report\"",
+        "pbir batch run \"<out>/Projekt_GuV/chrome-batch.json\" --root \"Test.Report\""
+      ],
+      "batch": "Projekt_GuV/chrome-batch.json"
+    },
+    {
+      "id": "analysis:Projekt_GuV",
+      "op": "commands",
+      "page": "Projekt & GuV",
+      "idempotent": "Sortierung und Untertitel ja; `pbir add filter` legt bei erneutem Lauf ggf. einen zweiten Filter an — vorher `pbir filters list` prüfen.",
+      "delta": "Top-N/Vorauswahl vor dem zweiten Lauf prüfen",
+      "commands": [
+        "bash \"<out>/Projekt_GuV/analysis-commands.sh\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "custom:Projekt_GuV",
+      "op": "custom_visuals",
+      "page": "Projekt & GuV",
+      "idempotent": "Platzhalter-Shape schlägt beim zweiten Mal fehl (Name existiert); das Kopieren der visual.json ist beliebig wiederholbar.",
+      "delta": "Im Delta-Lauf reicht das Kopieren der neu erzeugten visual.json — sie enthält Position, Größe, Bindung und Container-Formatierung vollständig.",
+      "commands": [
+        "# .pbiviz zuerst in den Bericht importieren (Desktop): dataKitchenGantt/dist/*.pbiviz, pnlByDatenWG/dist/*.pbiviz",
+        "bash \"<out>/Projekt_GuV/custom-commands.sh\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "navigation",
+      "op": "commands",
+      "page": null,
+      "idempotent": "`pbir add bookmark` legt bei gleichem Namen keinen zweiten an (prüfen mit `pbir bookmarks list`).",
+      "delta": "Lesezeichen nur ergänzen, nie löschen",
+      "commands": [
+        "# Befehle in navigation.md — erst wenn alle Seiten stehen"
+      ],
+      "batch": null
+    },
+    {
+      "id": "annotate",
+      "op": "annotation",
+      "page": null,
+      "idempotent": "Gleicher Name überschreibt den Wert.",
+      "delta": "Beim nächsten Lauf mit `pbir annotations list \"Test.Report\" --json` vergleichen: gleicher Hash = nichts zu tun.",
+      "commands": [
+        "pbir add annotation \"Test.Report\" --name mockup-spec-hash --value \"customvis\"",
+        "pbir add annotation \"Test.Report\" --name mockup-spec-name --value \"Custom-Visual-Testfall\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "verify",
+      "op": "verify",
+      "page": null,
+      "idempotent": "reine Prüfung",
+      "delta": "immer",
+      "commands": [
+        "pbir validate \"Test.Report\" --fields",
+        "te validate -m \"Test.SemanticModel\" --errors-only",
+        "python .claude/skills/mockup-to-powerbi/scripts/mockup_verify.py \"Test.Report\" \"<out>/acceptance.json\""
+      ],
+      "batch": null
+    }
+  ],
+  "todos": [
+    {
+      "code": "DISPLAY_UNITS_SLOT",
+      "page": "Projekt & GuV",
+      "visual": "mk_pnl1",
+      "title": "GuV nach Ebenen",
+      "text": "Anzeigeeinheit K / 0 Dezimalstellen im Format-Bereich des Custom Visuals (Desktop) setzen."
+    }
+  ],
+  "issues": [
+    {
+      "level": "warn",
+      "code": "CUSTOM_VISUAL",
+      "text": "[Projekt & GuV / mk_gantt2] Pflichtrolle `start` ist leer — dataKitchenGantt byDatenWG zeichnet ohne sie nichts. Feld im Mockup nachtragen oder im Bericht nachbinden."
+    }
+  ],
+  "customVisuals": [
+    {
+      "page": "Projekt & GuV",
+      "visual": "mk_gantt1",
+      "name": "dataKitchenGantt",
+      "guid": "dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44",
+      "pbiviz": "dataKitchenGantt/dist/*.pbiviz",
+      "file": "<out>/Projekt_GuV/custom-visuals/mk_gantt1.visual.json",
+      "buckets": {
+        "task": [
+          "DimTask.Task"
+        ],
+        "start": [
+          "DimTask.Start"
+        ],
+        "end": [
+          "DimTask.Ende"
+        ],
+        "phase": [
+          "DimTask.Phase"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "page": "Projekt & GuV",
+      "visual": "mk_pnl1",
+      "name": "pnlByDatenWG",
+      "guid": "pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358",
+      "pbiviz": "pnlByDatenWG/dist/*.pbiviz",
+      "file": "<out>/Projekt_GuV/custom-visuals/mk_pnl1.visual.json",
+      "buckets": {
+        "levels": [
+          "DimAccount.L1",
+          "DimAccount.L2"
+        ],
+        "ac": [
+          "_Measures.AC"
+        ],
+        "py": [
+          "_Measures.PY"
+        ],
+        "pl": [
+          "_Measures.PL"
+        ],
+        "fc": [
+          "_Measures.FC"
+        ],
+        "rowType": [
+          "DimAccount.RowType"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "page": "Projekt & GuV",
+      "visual": "mk_gantt2",
+      "name": "dataKitchenGantt",
+      "guid": "dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44",
+      "pbiviz": "dataKitchenGantt/dist/*.pbiviz",
+      "file": "<out>/Projekt_GuV/custom-visuals/mk_gantt2.visual.json",
+      "buckets": {
+        "task": [
+          "DimTask.Task"
+        ],
+        "phase": [
+          "DimTask.Meilenstein"
+        ]
+      },
+      "warnings": [
+        "Pflichtrolle `start` ist leer — dataKitchenGantt byDatenWG zeichnet ohne sie nichts. Feld im Mockup nachtragen oder im Bericht nachbinden."
+      ]
+    }
+  ]
+}

@@ -16,7 +16,8 @@ Mockup: **Nur ChartKitchen** · specVersion 3 (gelesen als v3) · Hash `ckhash` 
 
 - Kacheln: Stil `shadow`, Ecken 12 px, Hintergrund #FFFFFF
 - Seitenhintergrund #EEF1F5 · Akzent #C25A2D
-- Kopfband-Stil `light` · Schriftfaktor ×1.0 (Visual-Titel ≈ 12 pt)
+- Kopfband-Stil `light` (Fläche #FFFFFF, Text #0F1E2E) · Schriftfaktor ×1.0 (Visual-Titel ≈ 12 pt)
+- Varianz-Palette `teal`: gut #1E8F9E · schlecht #D64541 · Ink #0F1E2E · dunkler Modus nein
 
 ## Umfang
 
@@ -24,9 +25,9 @@ Mockup: **Nur ChartKitchen** · specVersion 3 (gelesen als v3) · Hash `ckhash` 
 - Slicer je Seite: 2 (Filter-Modus `burger`)
 - Verknüpfungen: 0 (0 Drill-through, 0 Seitenwechsel)
 
-| Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb |
-|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 4 | 0 | 11 | 5 | 0 |
+| Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
+|---|---|---|---|---|---|---|---|---|
+| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 4 | 0 | 11 | 5 | 0 | 0 |
 
 ## Offene Punkte aus der Spec (`issues`)
 

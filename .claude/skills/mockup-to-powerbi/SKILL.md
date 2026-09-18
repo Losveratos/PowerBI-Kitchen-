@@ -12,7 +12,9 @@ description: >
   mit ihrem Inhalt setzen, Gestaltung aus `design` als Theme-Fragment oder
   Container-Formatierung übernehmen, Analyse-Angaben (Polarität, Sortierung,
   Top-N, Einheiten) umsetzen, Nav-Buttons, Drill-through und Filter-Lesezeichen
-  einrichten, ChartKitchen- und Deneb-Slots vorbereiten, dann `pbir validate
+  einrichten, ChartKitchen- und Deneb-Slots vorbereiten, **Custom Visuals**
+  (`dataKitchenGantt` für Gantt-Kacheln, `pnlByDatenWG` für GuV-Kacheln) als
+  fertige `visual.json` einspielen, dann `pbir validate
   --fields`, `te validate --errors-only`, Abnahme-Check, Design-Linter und
   Wireframe. Erzeugt auf Wunsch auch die **Workshop-Doku als Markdown und
   PowerPoint** (deutsch oder englisch, mit den PNG-Seitenbildern) aus demselben
@@ -99,7 +101,14 @@ geht auch allein, ohne PBIP.
        natives Gegenstück kennt — `varint`, `wfint`, `marimekko`, `gantt` &c.
        haben keines). Gut für eine lauffähige erste Fassung, aber es ist nicht
        IBCS und muss später ersetzt werden.
-6. **Desktop geschlossen?** Kurz nachfragen, bevor geschrieben wird.
+6. **Custom Visuals in der Spec?** Wenn `engine == "custom"` vorkommt (Kachel-Typ
+   `gantt` → `dataKitchenGantt`, `pnl` → `pnlByDatenWG`): Die `.pbiviz` muss
+   **vor** dem Bauen in den Bericht importiert sein, sonst bleibt die Kachel leer.
+   Builds im Repo: `dataKitchenGantt/dist/*.pbiviz` und `pnlByDatenWG/dist/*.pbiviz`
+   — fehlt einer, im Visual-Ordner `pbiviz package` laufen lassen. `pbir` kann
+   diese Visuals **nicht anlegen**; das Skript schreibt sie als fertige
+   `visual.json` (Schritt 6a).
+7. **Desktop geschlossen?** Kurz nachfragen, bevor geschrieben wird.
 
 ## Schritt 1 · Spec prüfen und Bausteine erzeugen
 
@@ -134,6 +143,9 @@ mockup-out/
 │                  chrome-commands.sh · chrome-commands.ps1
 │                  analysis-commands.sh · analysis-commands.ps1
 │                  zones.json · chartkitchen-slots.json · deneb-slots.json
+│                  custom-visuals.json  (Index der Custom Visuals)
+│                  custom-visuals/<id>.visual.json · custom-commands.sh/.ps1
+│                                    (nur wenn die Seite Custom Visuals hat)
 ├── model-todos.md      neue Felder mit DAX-Vorschlag, Umbenennungswünsche
 ├── checklist.md        Berichtskopf, Umfang, Issues, Kennzahlen-Steckbrief
 ├── navigation.md       Nav-Buttons, Drill-through, Filter-Lesezeichen
@@ -203,6 +215,11 @@ sich bei Wiederholung verhält (`idempotent`) und was beim zweiten Lauf gilt
 - Navigation: Nav-Buttons, Drill-through-Ziele mit Drill-Feld, Lesezeichen
 - ChartKitchen-Slots: Anzahl, Typ → `chartKitchenMode`, Referenz-Instanz ja/nein
 - Deneb-Slots: Anzahl
+- Custom Visuals: welche (`dataKitchenGantt`, `pnlByDatenWG`), welche `.pbiviz`
+  importiert werden muss, und ob eine Pflichtrolle leer ist (`plan.json` →
+  `issues`, `customVisuals`)
+- Gestaltung zusätzlich: Varianz-Palette (`teal`/`ibcs`) mit gut/schlecht-Farbe,
+  Farbsatz aus `design.colors` (Ink, Kopfband) — beides steht im Theme-Fragment
 - Modelländerungen: jede neue Kennzahl mit DAX-Vorschlag, jeder Umbenennungswunsch
 - Offene Punkte aus `mockup-out/checklist.md` (Issues nach `error`/`warn`/`info`)
 
@@ -271,7 +288,13 @@ pbir batch plan     "$O/chrome-batch.json" --root "<Name>.Report"
 pbir batch run      "$O/chrome-batch.json" --root "<Name>.Report"
 
 bash "$O/analysis-commands.sh"                              # 5 Rest (CLI-only)
+bash "$O/custom-commands.sh"                                # 6 Custom Visuals
 ```
+
+**`custom-commands.sh` läuft zuletzt.** Es legt je Custom Visual einen
+Platzhalter an und kopiert dann die fertige `visual.json` darüber — die Kopie
+würde vorher gesetzte Formatierung überschreiben (sie steckt bereits vollständig
+in der Datei).
 
 **`pbir batch` ist der Hauptweg** (Schritt 4): Texte, Farben, Kachel-Container,
 Anzeigeeinheiten und z-Order in **einem** Prozess — gemessen ~1,8 s je Seite
@@ -296,7 +319,13 @@ Dateien aus `mockup-out/`.
 
 **Gestaltung: Theme vor Overrides.** `mockup-out/theme-fragment.json` enthält die
 Kachel-Optik aus `design` als `visualStyles`-`*`-Eintrag (Hintergrund, Rahmen
-oder Schatten, Eckenradius, Titelgröße). Wer ein Theme pflegt, merged das
+oder Schatten, Eckenradius, Titelgröße) und dazu die Farbrollen des Themes:
+`background` (Seitenhintergrund), `foreground` (Ink aus `design.colors`),
+`tableAccent` (Akzent) sowie `good`/`bad` aus `design.varianceColors` — also die
+Abweichungsfarben der gewählten Palette (`teal` = Petrol/Rot, `ibcs` = Grün/Rot).
+Kopfband-Fläche und -Text kommen aus `design.colors` und landen direkt in den
+Chrome-Shapes; `headerStyle: "custom"` heißt: die Farben stehen in der Spec und
+werden **nicht** aus light/dark/accent hergeleitet. Wer ein Theme pflegt, merged das
 Fragment dorthin — Skill `reports:modifying-theme-json` bzw.
 [`powerbi-design-framework`](../powerbi-design-framework/SKILL.md) — und
 lässt die `background`/`border`/`dropShadow`-Schritte aus `chrome-batch.json`
@@ -404,6 +433,45 @@ Die `warnings` je Slot sind die Stellen, an denen das Mapping aufpassen muss:
 - **Deneb-Slots** (`deneb-slots.json`): über den Skill
   [`deploy-to-powerbi`](../deploy-to-powerbi/SKILL.md) bzw. `pbir visuals deneb`.
 
+### Schritt 6a · Custom Visuals (`engine: "custom"`)
+
+Kacheln vom Typ `gantt` (`dataKitchenGantt`) und `pnl` (`pnlByDatenWG`) sind
+Custom Visuals aus diesem Repo. `pbir` kennt ihre GUIDs nicht
+(`Unknown visual type '<GUID>'`), und in einer `--from-json`-Datei reißt so ein
+Eintrag die **ganze Datei** mit. Deshalb stehen sie **nicht** in
+`pbir-visuals.json`, sondern als fertige PBIR-`visual.json` in
+`<Seitenslug>/custom-visuals/` — mit `visual.visualType` = GUID und
+`visual.query.queryState` je Bucket aus `customVisual.buckets`.
+
+1. **`.pbiviz` importieren** (Power BI Desktop → Visualisierungen → … → *Visual
+   aus Datei importieren*). Ohne Import bleibt die Kachel leer, auch wenn die
+   JSON stimmt:
+   `dataKitchenGantt/dist/*.pbiviz`, `pnlByDatenWG/dist/*.pbiviz` — fehlt der
+   Build, im Visual-Ordner `pbiviz package` laufen lassen.
+2. **Platzhalter + Kopie** — erledigt `custom-commands.sh` je Seite:
+   ```bash
+   pbir add visual shape "$P" -n "<id>" -x .. -y .. -w .. -h .. -t "<Titel>"
+   D=$(find "<Name>.Report/definition/pages" -type d -name "<id>" | head -1)
+   cp "$O/custom-visuals/<id>.visual.json" "$D/visual.json"
+   pbir validate "<Name>.Report" --fields
+   ```
+   Der Platzhalter sorgt dafür, dass pbir Ordner, Visualname und Seiteneintrag
+   korrekt anlegt; die Kopie tauscht danach nur den Inhalt.
+   (`pbir ls "<Seite>.Page" --json` nennt zu jedem Visual auch seinen `path` —
+   Alternative zu `find`.)
+3. **Pflichtrollen prüfen.** `checklist.md` und `plan.json → issues` melden leere
+   Pflichtrollen: `dataKitchenGantt` braucht `task` und `start`, `pnlByDatenWG`
+   braucht `levels` (oder `account`) und `ac`. Ohne sie zeichnet das Visual
+   nichts — im Workshop nachtragen, nicht raten.
+4. **Zweiter Lauf:** nur kopieren, der Platzhalter existiert schon.
+   `delta-batch.json` fasst Custom Visuals bewusst nicht an — die neu erzeugte
+   `visual.json` enthält Position, Größe, Bindung und Formatierung vollständig.
+
+`pbir visuals bind` kann bei einem Custom Visual nur Rollen bedienen, die in der
+`queryState` bereits stehen. Deshalb enthält die erzeugte Datei alle Rollen der
+Spec von Anfang an; weitere Rollen aus der `capabilities.json` (z. B. `progress`,
+`planStart`, `period`, `signConvention`) in Desktop nachbinden.
+
 ## Schritt 7 · Verifizieren
 
 ```bash
@@ -503,7 +571,9 @@ an den Skill `anthropic-skills:pptx` geben.
 - **Was liegt wo:** Seiten, Anzahl Visuals je Engine und Seite, Dateien in
   `mockup-out/`, Doku-Dateien, Ergebnis der Abnahme (`mockup_verify.py`).
 - **Offene Punkte:** leere Pflichtrollen (die Kacheln stehen **nicht** im
-  Bericht), ChartKitchen-Slots ohne Referenz-Instanz, Analyse-To-dos, neu
+  Bericht), leere Pflichtrollen von Custom Visuals (`plan.json → issues`),
+  nicht importierte `.pbiviz`, ChartKitchen-Slots ohne Referenz-Instanz,
+  Analyse-To-dos, neu
   angelegte Kennzahlen (DAX bestätigt?), nicht aufgelöste Felder, nicht
   bestätigte Steckbriefe, Hinweise aus `checklist.md`.
 - **Nächste Schritte in Desktop:** Projekt öffnen, Theme prüfen, ChartKitchen-
@@ -520,7 +590,8 @@ python .claude/skills/mockup-to-powerbi/tests/run_tests.py
 ```
 
 Golden-Vergleich über sechs Fixtures (specVersion 1, 2, 3, Burger-Filter,
-ChartKitchen ohne Referenz-Instanz, voller Analyse-Block), Negativtests der
+ChartKitchen ohne Referenz-Instanz, voller Analyse-Block, Custom Visuals),
+Negativtests der
 Validierung (kaputte Spec, unbekannte Hauptversion, doppelte Seitennamen — je
 einmal mit dem Paket `jsonschema` und einmal mit dem eingebauten Validator) und
 Einheitenprüfungen. Reine Standardbibliothek, kein Power BI nötig. Nach
@@ -537,6 +608,10 @@ ansehen.
 | `shape.tileShape` = `roundedRectangle` | `Validation error: … not in [...]`, und mit `set -euo pipefail` bricht das ganze Chrome-Skript ab | Der Enum heißt **`rectangleRounded`**; Radius über `shape.rectangleRoundedCurve` |
 | `title` bei einer Textbox | landet im Container-Titel, **nicht** im Textinhalt | Textzeilen und Text-Kacheln als `shape` bauen (siehe `chrome-build.md`) |
 | `pbir set …general.paragraphs` | wird als String-Literal geschrieben statt als Array — die Textbox bleibt leer, `pbir validate` meckert **nicht** | Nicht benutzen. Text über `shape` + `text.text`, oder `pbir add title`/`add subtitle` (schreiben korrekte `paragraphs`, sind aber auf 24 pt/14 pt und (20, 20) fest und müssen per `pbir visuals position` verschoben werden) |
+| Custom Visual per `pbir` anlegen | `pbir add visual <GUID>` und `--from-json` mit einer GUID melden beide `Unknown visual type '<GUID>'`; in `--from-json` fällt die **ganze Datei** aus (auch mit `--rawdog`) | Platzhalter-`shape` anlegen, dann die erzeugte `visual.json` daraufkopieren (`custom-commands.sh`). `pbir validate --fields` und `pbir ls --json` nehmen sie an |
+| `pbir visuals bind` am Custom Visual | `Role 'rowType' not valid for <GUID>. Available: levels, ac` — es gehen nur Rollen, die in der `queryState` schon stehen | Alle Rollen von Anfang an in die `visual.json` schreiben (macht das Skript); Rest in Desktop binden |
+| `visualContainerObjects` von Hand | `title: {...} is not of type 'array'` — `pbir batch`/`set` bricht daran ab | Container-Objekte sind **Arrays** von `{properties: …}`, Zahlen Literale mit D-Suffix (`"12D"`). Das Skript schreibt genau die Form, die `pbir add visual` selbst erzeugt |
+| Custom Visual kopiert, aber leer | die `.pbiviz` ist nicht im Bericht importiert | `dataKitchenGantt/dist/*.pbiviz` bzw. `pnlByDatenWG/dist/*.pbiviz` in Desktop importieren; fehlt der Build: `pbiviz package` |
 | `pbir add page --no-title` | Option existiert nicht, steht aber im Hilfetext | Seite anlegen, dann `pbir rm "<Seite>.Page/Title.Visual" -f` |
 | `pbir rm visual <pfad>` | „Got unexpected extra argument(s)" | Richtig ist `pbir rm "<pfad>" -f` |
 | z-Order | `--from-json` setzt immer `z = 0`; Chrome-Flächen und Inhalt liegen gleichauf | `pbir visuals position … --z`, im Batch `set` auf `position.z` (beides verifiziert) |
@@ -560,6 +635,9 @@ ansehen.
   ist der Übergabepunkt, Plan + Freigabe + Backup gehen voraus.
 - Nie ein ChartKitchen-`visual.json` raten. Ohne Referenz-Instanz nur Platzhalter
   oder `--ck-fallback`.
+- Custom Visuals nur über die erzeugte `visual.json` einspielen — nie eine GUID
+  in `pbir-visuals.json` schreiben, das killt die ganze Datei. Rollennamen
+  ausschließlich aus der `capabilities.json` des Visuals.
 - Keine `.pbix` anfassen.
 - Bei mehrdeutigem Feld-Mapping oder unklarer Property: **offene Entscheidung**
   vorlegen, nicht raten.
@@ -573,9 +651,11 @@ ansehen.
 
 ## Referenzen
 - [`references/spec-format.md`](references/spec-format.md) — `mockup-spec.json`
-  vollständig (specVersion 1, 2 und 3): Berichtskopf, Seiten, Design, Zonen,
+  vollständig (specVersion 1, 2 und 3, dazu die Erweiterungen aus Tool 0.4):
+  Berichtskopf, Seiten, Design mit Varianz-Palette und Farbsatz, Zonen,
   Filter-Modi, Links, Analyse-Block, Steckbriefe, Issues, Rollen-Vokabular,
-  Engines, Rollen → pbir-Buckets, Rollen → ChartKitchen.
+  Engines, Rollen → pbir-Buckets, Rollen → ChartKitchen, **Custom Visuals**
+  (GUIDs, Datenrollen, Pflichtrollen, Einspielweg).
 - [`references/mockup-spec.schema.json`](references/mockup-spec.schema.json) —
   Prüfschema (Draft 2020-12) für `--validate`.
 - [`references/chrome-build.md`](references/chrome-build.md) — wie Kopfband,

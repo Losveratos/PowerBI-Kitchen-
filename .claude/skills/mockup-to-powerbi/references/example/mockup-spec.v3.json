@@ -42,7 +42,19 @@
     "headerStyle": "light",
     "accent": "#C25A2D",
     "darkMode": false,
-    "fontScale": 1
+    "fontScale": 1,
+    "variancePalette": "ibcs",
+    "varianceColors": {
+      "good": "#3A9A5B",
+      "bad": "#C8412F"
+    },
+    "colors": {
+      "pageBackground": "#EEF1F5",
+      "tileBackground": "#FFFFFF",
+      "ink": "#0F1E2E",
+      "headerBackground": "#FFFFFF",
+      "headerInk": "#0F1E2E"
+    }
   },
   "zones": {
     "header": {
@@ -56,7 +68,8 @@
       "subtitle": "in T€ · YTD 2026",
       "nav": [
         "Übersicht",
-        "Detail Produktlinie"
+        "Detail Produktlinie",
+        "Projekt & GuV"
       ],
       "navAuto": true,
       "burger": true
@@ -1194,6 +1207,360 @@
           }
         ]
       }
+    },
+    {
+      "id": "p3",
+      "index": 3,
+      "name": "Projekt & GuV",
+      "question": "Liegt das Rollout im Plan und was kostet es?",
+      "notes": "Gantt links, GuV rechts — beides Custom Visuals (Tool 0.4).",
+      "contentRect": {
+        "x": 16,
+        "y": 72,
+        "w": 1248,
+        "h": 608
+      },
+      "visuals": [
+        {
+          "id": "mk_q4prj01",
+          "stableId": "q4prj01",
+          "slug": "Rollout_Plan",
+          "page": "Projekt & GuV",
+          "kind": "gantt",
+          "label": "Gantt (dataKitchenGantt)",
+          "engine": "custom",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": null,
+          "customVisual": {
+            "name": "dataKitchenGantt",
+            "guid": "dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44",
+            "buckets": {
+              "task": [
+                {
+                  "ref": "DimTask.Task",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "start": [
+                {
+                  "ref": "DimTask.Start",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "end": [
+                {
+                  "ref": "DimTask.Ende",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "phase": [
+                {
+                  "ref": "DimTask.Phase",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "title": "Rollout-Plan",
+          "subtitle": "Phasen und Meilensteine",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": "should",
+            "status": "agreed",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 16,
+            "y": 72,
+            "w": 616,
+            "h": 296
+          },
+          "roles": {
+            "category": [
+              {
+                "table": "DimTask",
+                "name": "Task",
+                "kind": "column",
+                "ref": "DimTask.Task",
+                "isNew": false
+              }
+            ],
+            "start": [
+              {
+                "table": "DimTask",
+                "name": "Start",
+                "kind": "column",
+                "ref": "DimTask.Start",
+                "isNew": false
+              }
+            ],
+            "end": [
+              {
+                "table": "DimTask",
+                "name": "Ende",
+                "kind": "column",
+                "ref": "DimTask.Ende",
+                "isNew": false
+              }
+            ],
+            "series": [
+              {
+                "table": "DimTask",
+                "name": "Phase",
+                "kind": "column",
+                "ref": "DimTask.Phase",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "Basisplan spaeter ueber planStart/planEnd erganzen.",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_q4txt01",
+          "stableId": "q4txt01",
+          "slug": "Hinweis",
+          "page": "Projekt & GuV",
+          "kind": "text",
+          "label": "Textkachel",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "textbox",
+            "buckets": {}
+          },
+          "customVisual": null,
+          "title": "Hinweis",
+          "subtitle": "",
+          "scenario": null,
+          "content": "Beide Kacheln sind Custom Visuals aus dem Repository — die .pbiviz muss vor dem Bauen importiert sein.",
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 16,
+            "y": 384,
+            "w": 616,
+            "h": 296
+          },
+          "roles": {},
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_q4pnl01",
+          "stableId": "q4pnl01",
+          "slug": "GuV",
+          "page": "Projekt & GuV",
+          "kind": "pnl",
+          "label": "GuV (pnlByDatenWG)",
+          "engine": "custom",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": null,
+          "customVisual": {
+            "name": "pnlByDatenWG",
+            "guid": "pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358",
+            "buckets": {
+              "levels": [
+                {
+                  "ref": "DimAccount.L1",
+                  "kind": "column",
+                  "isNew": false
+                },
+                {
+                  "ref": "DimAccount.L2",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "ac": [
+                {
+                  "ref": "_Measures.AC",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ],
+              "py": [
+                {
+                  "ref": "_Measures.PY",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ],
+              "pl": [
+                {
+                  "ref": "_Measures.PL",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ],
+              "fc": [
+                {
+                  "ref": "_Measures.FC",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ],
+              "rowType": [
+                {
+                  "ref": "DimAccount.RowType",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "title": "GuV nach Ebenen",
+          "subtitle": "",
+          "content": "",
+          "scenario": "AC/PY/PL/FC",
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": false,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": "T€",
+            "displayUnits": "K",
+            "decimals": 0,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": "must",
+            "status": "agreed",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 648,
+            "y": 72,
+            "w": 616,
+            "h": 608
+          },
+          "roles": {
+            "rows": [
+              {
+                "table": "DimAccount",
+                "name": "L1",
+                "kind": "column",
+                "ref": "DimAccount.L1",
+                "isNew": false
+              },
+              {
+                "table": "DimAccount",
+                "name": "L2",
+                "kind": "column",
+                "ref": "DimAccount.L2",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              }
+            ],
+            "ref": [
+              {
+                "table": "_Measures",
+                "name": "PY",
+                "kind": "measure",
+                "ref": "_Measures.PY",
+                "isNew": false
+              },
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ],
+            "fc": [
+              {
+                "table": "_Measures",
+                "name": "FC",
+                "kind": "measure",
+                "ref": "_Measures.FC",
+                "isNew": false
+              }
+            ],
+            "rowType": [
+              {
+                "table": "DimAccount",
+                "name": "RowType",
+                "kind": "column",
+                "ref": "DimAccount.RowType",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        }
+      ],
+      "layoutTree": null
     }
   ],
   "links": [
@@ -1214,6 +1581,7 @@
       "DimRegion",
       "DimCustomer",
       "DimAccount",
+      "DimTask",
       "_Measures"
     ],
     "usedFields": [
@@ -1451,6 +1819,150 @@
         "source": "",
         "target": "",
         "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimTask",
+        "name": "Task",
+        "kind": "column",
+        "ref": "DimTask.Task",
+        "isNew": false,
+        "description": "Vorgang im Rollout-Plan",
+        "formatString": "",
+        "dataType": "string",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimTask",
+        "name": "Start",
+        "kind": "column",
+        "ref": "DimTask.Start",
+        "isNew": false,
+        "description": "Geplanter Beginn",
+        "formatString": "",
+        "dataType": "dateTime",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimTask",
+        "name": "Ende",
+        "kind": "column",
+        "ref": "DimTask.Ende",
+        "isNew": false,
+        "description": "Geplantes Ende (leer = Meilenstein)",
+        "formatString": "",
+        "dataType": "dateTime",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimTask",
+        "name": "Phase",
+        "kind": "column",
+        "ref": "DimTask.Phase",
+        "isNew": false,
+        "description": "Projektphase",
+        "formatString": "",
+        "dataType": "string",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimAccount",
+        "name": "L1",
+        "kind": "column",
+        "ref": "DimAccount.L1",
+        "isNew": false,
+        "description": "GuV-Ebene 1",
+        "formatString": "",
+        "dataType": "string",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimAccount",
+        "name": "L2",
+        "kind": "column",
+        "ref": "DimAccount.L2",
+        "isNew": false,
+        "description": "GuV-Ebene 2",
+        "formatString": "",
+        "dataType": "string",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimAccount",
+        "name": "RowType",
+        "kind": "column",
+        "ref": "DimAccount.RowType",
+        "isNew": false,
+        "description": "Zeilentyp: Position, Summe oder Formel",
+        "formatString": "",
+        "dataType": "string",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "_Measures",
+        "name": "FC",
+        "kind": "measure",
+        "ref": "_Measures.FC",
+        "isNew": false,
+        "description": "Forecast laufendes Jahr",
+        "formatString": "#,##0",
+        "dataType": "",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "T€",
         "note": ""
       }
     ]
@@ -1690,6 +2202,150 @@
       "source": "",
       "target": "",
       "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimTask",
+      "name": "Task",
+      "kind": "column",
+      "ref": "DimTask.Task",
+      "isNew": false,
+      "description": "Vorgang im Rollout-Plan",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimTask",
+      "name": "Start",
+      "kind": "column",
+      "ref": "DimTask.Start",
+      "isNew": false,
+      "description": "Geplanter Beginn",
+      "formatString": "",
+      "dataType": "dateTime",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimTask",
+      "name": "Ende",
+      "kind": "column",
+      "ref": "DimTask.Ende",
+      "isNew": false,
+      "description": "Geplantes Ende (leer = Meilenstein)",
+      "formatString": "",
+      "dataType": "dateTime",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimTask",
+      "name": "Phase",
+      "kind": "column",
+      "ref": "DimTask.Phase",
+      "isNew": false,
+      "description": "Projektphase",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimAccount",
+      "name": "L1",
+      "kind": "column",
+      "ref": "DimAccount.L1",
+      "isNew": false,
+      "description": "GuV-Ebene 1",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimAccount",
+      "name": "L2",
+      "kind": "column",
+      "ref": "DimAccount.L2",
+      "isNew": false,
+      "description": "GuV-Ebene 2",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimAccount",
+      "name": "RowType",
+      "kind": "column",
+      "ref": "DimAccount.RowType",
+      "isNew": false,
+      "description": "Zeilentyp: Position, Summe oder Formel",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "FC",
+      "kind": "measure",
+      "ref": "_Measures.FC",
+      "isNew": false,
+      "description": "Forecast laufendes Jahr",
+      "formatString": "#,##0",
+      "dataType": "",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "T€",
       "note": ""
     }
   ],

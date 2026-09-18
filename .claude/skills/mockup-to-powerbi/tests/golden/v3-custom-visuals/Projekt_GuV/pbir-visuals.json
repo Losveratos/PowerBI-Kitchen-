@@ -1,0 +1,14 @@
+[
+  {
+    "visual_type": "card",
+    "name": "mk_card1",
+    "title": "Umsatz AC",
+    "x": 648,
+    "y": 384,
+    "width": 616,
+    "height": 296,
+    "fields": {
+      "Values": "_Measures.AC"
+    }
+  }
+]

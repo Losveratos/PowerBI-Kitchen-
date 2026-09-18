@@ -111,8 +111,15 @@ ein Visual. Ergebnis mit `pbir cat "<Seite>.Page"` prüfen, nicht raten.
 | `headerStyle` | Fläche | Schrift | zusätzlich |
 |---|---|---|---|
 | `light` | `#FFFFFF` | Ink | 1-px-Shape `chrome_header_rule` als Unterkante |
-| `dark` | Ink (`--ink`) | Weiß | – |
+| `dark` | Ink | Weiß | – |
 | `accent` | `design.accent` | Weiß | – |
+| `custom` | `design.colors.headerBackground` | `design.colors.headerInk` | Unterkante nur, wenn die Fläche hell ist (Luminanz > 150) |
+
+Ab Tool 0.4 kommen Fläche und Schrift **immer** aus `design.colors`
+(`headerBackground`, `headerInk`); für `light`/`dark`/`accent` füllt
+`mockup_spec.normalise_design()` sie genau mit den Werten aus der Tabelle, wenn
+die Spec sie nicht mitliefert. `Ink` ist `design.colors.ink` (Vorgabe
+`#0F1E2E`), per `--ink` überschreibbar.
 
 Schriftgrößen werden mit `design.fontScale` (= `canvas.uiScale`) multipliziert und
 auf 6–45 pt begrenzt — außerhalb lehnt `pbir set` ab.

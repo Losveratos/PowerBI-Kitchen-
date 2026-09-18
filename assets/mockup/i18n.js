@@ -213,6 +213,7 @@
 
     role: {
       rowType: 'Zeilentyp (Summe / Formel / Position)',
+      fcM: 'FC (Forecast-Measure)',
       menuHead: '„{f}" zuordnen als …', free: 'frei', replaces: ' · ersetzt {n}',
       category: 'Kategorie / Achse', category2: 'Unterkategorie', time: 'Zeit / Periode', series: 'Reihe / Legende',
       ac: 'AC · Ist-Wert', ref: 'Referenz (PL / PY / BU)', fc: 'FC-Flag (1/0)', values: 'Werte', valuesAny: 'Felder',
@@ -636,6 +637,7 @@
 
     role: {
       rowType: 'Row type (subtotal / formula / item)',
+      fcM: 'FC (forecast measure)',
       menuHead: 'Assign “{f}” as …', free: 'free', replaces: ' · replaces {n}',
       category: 'Category / axis', category2: 'Subcategory', time: 'Time / period', series: 'Series / legend',
       ac: 'AC · actual', ref: 'Reference (PL / PY / BU)', fc: 'FC flag (1/0)', values: 'Values', valuesAny: 'Fields',

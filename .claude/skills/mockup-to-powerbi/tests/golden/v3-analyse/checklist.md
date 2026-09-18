@@ -16,7 +16,8 @@ Mockup: **Analyse-Testfall** · specVersion 3 (gelesen als v3) · Hash `testhash
 
 - Kacheln: Stil `shadow`, Ecken 12 px, Hintergrund #FFFFFF
 - Seitenhintergrund #EEF1F5 · Akzent #C25A2D
-- Kopfband-Stil `light` · Schriftfaktor ×1.0 (Visual-Titel ≈ 12 pt)
+- Kopfband-Stil `light` (Fläche #FFFFFF, Text #0F1E2E) · Schriftfaktor ×1.0 (Visual-Titel ≈ 12 pt)
+- Varianz-Palette `teal`: gut #1E8F9E · schlecht #D64541 · Ink #0F1E2E · dunkler Modus nein
 
 ## Umfang
 
@@ -24,10 +25,10 @@ Mockup: **Analyse-Testfall** · specVersion 3 (gelesen als v3) · Hash `testhash
 - Slicer je Seite: 2 (Filter-Modus `right`)
 - Verknüpfungen: 2 (1 Drill-through, 1 Seitenwechsel)
 
-| Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb |
-|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 4 | 1 | 10 | 6 | 0 |
-| Detail Produktlinie | `Detail_Produktlinie/` | – | 2 | 2 | 10 | 5 | 0 |
+| Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
+|---|---|---|---|---|---|---|---|---|
+| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 4 | 1 | 10 | 6 | 0 | 0 |
+| Detail Produktlinie | `Detail_Produktlinie/` | – | 2 | 2 | 10 | 5 | 0 | 0 |
 
 ## Offene Punkte aus der Spec (`issues`)
 

@@ -12,7 +12,8 @@ Drei Arten von Tests:
 
 1. **Golden-Vergleich** — `mockup_to_pbir.py` und `mockup_to_docs.py` laufen ueber
    die Fixtures in `tests/fixtures/` (specVersion 1, 2, 3, Burger-Filter,
-   ChartKitchen ohne Referenz-Instanz, voller Analyse-Block). Jede erzeugte Datei
+   ChartKitchen ohne Referenz-Instanz, voller Analyse-Block, Custom Visuals).
+   Jede erzeugte Datei
    wird gegen `tests/golden/<Fall>/` verglichen. `.ps1` bleibt aussen vor — sie
    entsteht aus demselben Renderer wie die `.sh`.
 2. **Negativtests der Validierung** — kaputte Spec, unbekannte Hauptversion,
@@ -59,6 +60,7 @@ CASES = [
     {"name": "v3-analyse", "spec": "v3-analyse.json", "docs": True},
     {"name": "v3-ck-ohne-instanz", "spec": "v3-ck-ohne-instanz.json",
      "extra": ["--ck-fallback"], "docs": False},
+    {"name": "v3-custom-visuals", "spec": "v3-custom-visuals.json", "docs": True},
 ]
 
 DATE_RX = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
@@ -160,7 +162,9 @@ def golden_case(case, tmp: Path, res: Results, update: bool):
         for rel, text in produced.items():
             target = gold_dir / rel
             target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text(text, encoding="utf-8")
+            # newline='\n': sonst schreibt Windows CRLF und jede Golden-Datei
+            # taucht im Diff auf, obwohl sich inhaltlich nichts geaendert hat.
+            target.write_text(text, encoding="utf-8", newline="\n")
         res.check("%s · Golden geschrieben (%d Dateien)" % (case["name"], len(produced)),
                   True)
         return
@@ -275,9 +279,96 @@ def unit_tests(res: Results):
     res.check("doppelte Seitennamen fallen auf",
               any("mehrfach" in m for m in M.structural_errors(dup)))
 
+    # --- Custom Visuals (Tool 0.4) ---------------------------------------- #
+    import mockup_to_pbir as P
+
+    cvs = M.upgrade(M.load(FIXTURES / "v3-custom-visuals.json"))
+    res.check("Custom-Spec Schema sauber", M.validate(M.as_document(cvs)) == [])
+    res.check("Custom-Spec Struktur sauber", M.structural_errors(cvs) == [])
+    tiles = {v["id"]: v for v in cvs["pages"][0]["visuals"]}
+    res.check("engine `custom` bleibt erhalten",
+              tiles["mk_pnl1"]["engine"] == "custom")
+    res.check("customVisual wird durchgereicht",
+              (tiles["mk_pnl1"].get("customVisual") or {}).get("guid")
+              == "pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358")
+    name, info = M.custom_visual_info(tiles["mk_gantt1"]["customVisual"])
+    res.check("Registry findet dataKitchenGantt ueber den Namen",
+              name == "dataKitchenGantt" and "task" in info["roles"])
+    name2, _ = M.custom_visual_info({"guid": "pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358"})
+    res.check("Registry findet pnlByDatenWG ueber die GUID", name2 == "pnlByDatenWG")
+
+    qs = P.custom_query_state(tiles["mk_pnl1"]["customVisual"]["buckets"])
+    res.check("queryState hat eine Projektion je Rolle",
+              sorted(qs) == ["ac", "fc", "levels", "pl", "py", "rowType"])
+    res.check("Spalten werden als Column projiziert",
+              "Column" in qs["levels"]["projections"][0]["field"])
+    res.check("Measures werden als Measure projiziert",
+              "Measure" in qs["ac"]["projections"][0]["field"])
+    res.check("queryRef bleibt Tabelle.Feld",
+              qs["ac"]["projections"][0]["queryRef"] == "_Measures.AC"
+              and qs["ac"]["projections"][0]["nativeQueryRef"] == "AC")
+    res.check("erste Spaltenprojektion ist aktiv",
+              qs["levels"]["projections"][0].get("active") is True
+              and "active" not in qs["levels"]["projections"][1])
+
+    class _Opt:
+        ink = None
+        on_ink = "#FFFFFF"
+        muted_on_ink = "#C8CDD4"
+        muted = "#6B7280"
+        panel = "#F1F3F5"
+        tile_border = "#E5E7EB"
+
+    st = P.Style(cvs, _Opt())
+    res.check("Kopfband `custom` nimmt die Spec-Farben",
+              st.header_bg == "#123B4F" and st.header_fg == "#F7FAFC")
+    res.check("Ink kommt aus design.colors", st.ink == "#1F2933")
+    res.check("IBCS-Palette wird uebernommen",
+              (st.good, st.bad) == ("#3A9A5B", "#C8412F"))
+    doc = P.custom_visual_json(tiles["mk_pnl1"], st)
+    res.check("visualType ist die GUID",
+              doc["visual"]["visualType"] == "pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358")
+    res.check("visual.json traegt das pbir-Schema 2.9.0",
+              doc["$schema"].endswith("visualContainer/2.9.0/schema.json"))
+    res.check("visualContainerObjects sind Arrays",
+              all(isinstance(x, list)
+                  for x in doc["visual"]["visualContainerObjects"].values()))
+    slots, warn = P.build_custom_visuals(cvs, cvs["pages"][0], st)
+    res.check("drei Custom-Slots erkannt", len(slots) == 3)
+    res.check("leere Pflichtrolle wird gemeldet",
+              any("`start`" in w for w in warn), "; ".join(warn)[:120])
+    res.check("belegte Pflichtrollen melden nichts",
+              not any(s_["id"] == "mk_pnl1" and s_["warnings"] for s_ in slots))
+    res.check("Custom Visuals stehen nicht in pbir-visuals.json",
+              not any(i["name"].startswith("mk_gantt")
+                      for i in P.build_pbir_visuals(cvs, cvs["pages"][0])[0]))
+
+    theme = P.build_theme_fragment(cvs, st)
+    res.check("Theme-Fragment traegt die Varianzfarben",
+              theme["good"] == "#3A9A5B" and theme["bad"] == "#C8412F")
+    res.check("Theme-Fragment traegt Hintergrund und Ink",
+              theme["background"] == "#F7F4EF" and theme["foreground"] == "#1F2933")
+
+    plain = M.upgrade(M.load(FIXTURES / "v3-analyse.json"))
+    res.check("alte Spec bekommt die Teal-Palette",
+              plain["design"]["variancePalette"] == "teal"
+              and plain["design"]["varianceColors"]["good"] == "#1E8F9E")
+    res.check("alte Spec bekommt den Farbsatz",
+              plain["design"]["colors"]["ink"] == "#0F1E2E"
+              and plain["design"]["colors"]["headerBackground"] == "#FFFFFF")
+    res.check("rowType hat eine ChartKitchen-Rolle", M.CK_ROLE.get("rowType") == "rowType")
+
+    broken = json.loads((FIXTURES / "v3-custom-visuals.json").read_text(encoding="utf-8"))
+    broken["pages"][0]["visuals"][0]["customVisual"] = None
+    res.check("engine custom ohne customVisual faellt auf",
+              any("customVisual" in m for m in M.structural_errors(M.upgrade(broken))))
+
     res.check("near() haelt Toleranz ein", V.near(100, 101, 1) and not V.near(100, 102, 1))
     res.check("type_ok() erlaubt Alternativen",
               V.type_ok("chartKitchen|shape", "shape") and not V.type_ok("card", "slicer"))
+    res.check("type_ok() erkennt eine Custom-Visual-GUID",
+              V.type_ok("pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358|shape",
+                        "pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358"))
     demo = {"report": REPORT, "specHash": "abc", "tolerance": 1,
             "pages": [{"name": "S1", "status": "ok",
                        "rows": [{"visual": "v1", "role": "content", "status": "ok",

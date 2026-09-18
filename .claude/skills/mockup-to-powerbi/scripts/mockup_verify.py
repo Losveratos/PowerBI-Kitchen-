@@ -20,6 +20,12 @@ Spec-Hash als Report-Annotation.
 Was im Bericht steht, aber nicht im Sollbild: wird **nur gemeldet**, nie
 geloescht ("nur im Bericht"). Exit-Code 0 = abgenommen, 1 = Abweichungen,
 2 = Aufruf- oder CLI-Fehler.
+
+ChartKitchen-, Deneb- und Custom-Visual-Slots sind `optional`: fehlen sie noch,
+gilt das als "offen", nicht als Abweichung. Custom Visuals (dataKitchenGantt,
+pnlByDatenWG) melden sich in `pbir ls --json` mit ihrer GUID als `type`, und
+`pbir cat` liefert die queryState — Typ und Buckets werden deshalb ganz normal
+geprueft, sobald die visual.json kopiert wurde.
 """
 
 from __future__ import annotations

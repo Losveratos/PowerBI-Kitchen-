@@ -19,6 +19,7 @@ Stand: <datum> · Version 0.1 · Spec-Hash `testhash` · erstellt mit MockupKitc
 - Filter als Panel rechts: Year (Vorauswahl 2026), Region.
 - Fußleiste „Stand: <datum> · Quelle: DWH · Kontakt: Controlling".
 - Kacheln gerundet (12 px), mit weichem Schatten, Seitenhintergrund #EEF1F5, Akzent #C25A2D.
+- Varianz-Palette Teal (Petrol / Rot): gut #1E8F9E, schlecht #D64541. Schriftfarbe #0F1E2E.
 
 ## Seite 1 · Übersicht
 

@@ -33,6 +33,12 @@ Erzeugt im Ausgabeordner je Seite:
   <Seitenslug>/zones.json             Content-Zone fuer Linter und Wireframe
   <Seitenslug>/chartkitchen-slots.json ChartKitchen-Slots inkl. Rollen-Vorschlag
   <Seitenslug>/deneb-slots.json       Deneb-Slots
+  <Seitenslug>/custom-visuals.json    Custom Visuals (engine "custom") als Index
+  <Seitenslug>/custom-visuals/<id>.visual.json   je Custom Visual eine fertige
+                                      PBIR-visual.json (visualType = GUID,
+                                      queryState = Buckets aus der Spec)
+  <Seitenslug>/custom-commands.sh     Platzhalter anlegen + visual.json kopieren
+  <Seitenslug>/custom-commands.ps1    (nur wenn die Seite Custom Visuals hat)
 
 und im Wurzelordner:
 
@@ -61,6 +67,17 @@ Verifizierte CLI-Fakten, auf denen die Ausgabe beruht (pbir 0.9.32):
     jeden Visual-Typ — `pbir schema describe <typ> border`).
   * Ein fehlendes Feld laesst `--from-json` komplett scheitern ("no visuals were
     created") — neue Kennzahlen also zuerst mit `te add` anlegen.
+  * Custom Visuals (dataKitchenGantt, pnlByDatenWG) kann pbir NICHT anlegen:
+    `pbir add visual <GUID>` und `--from-json` mit einer GUID melden beide
+    "Unknown visual type '<GUID>'", und in einer --from-json-Datei reisst der
+    Eintrag die ganze Datei mit. Deshalb: Platzhalter-`shape` mit pbir anlegen
+    (dann stimmen Ordner, Visualname und Seiteneintrag) und danach die
+    visual.json durch die hier erzeugte Fassung ersetzen. `pbir validate
+    --fields` und `pbir ls --json` nehmen sie an (beides verifiziert;
+    `pbir ls --json` nennt zu jedem Visual auch seinen `path`).
+  * `pbir visuals bind` kann bei einem Custom Visual nur Rollen bedienen, die in
+    der queryState bereits stehen ("Role 'x' not valid ... Available: ...").
+    Die erzeugte Datei enthaelt deshalb alle Rollen der Spec von Anfang an.
 """
 
 from __future__ import annotations
@@ -74,9 +91,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mockup_spec import (                                     # noqa: E402
     CK_ORIENTATION, CK_ROLE, CK_ROLE_UNSUPPORTED, DRILL_ROLE_ORDER,
-    MEASURE_ROLE_ORDER, SpecError, as_document, load, slug, split_ref,
-    structural_errors, upgrade, validate,
+    MEASURE_ROLE_ORDER, SpecError, as_document,
+    custom_visual_info, is_light, load, slug, split_ref, structural_errors,
+    upgrade, validate,
 )
+
+# PBIR-Schema, das `pbir add visual` in 0.9.32 schreibt. Custom Visuals kann die
+# CLI nicht anlegen (`Unknown visual type '<GUID>'`), deshalb erzeugt dieses
+# Skript die visual.json selbst — aber exakt in der Form, die pbir schreibt.
+VISUAL_SCHEMA = ("https://developer.microsoft.com/json-schemas/fabric/item/report/"
+                 "definition/visualContainer/2.9.0/schema.json")
 
 # Ebenen. --from-json vergibt immer z = 0, deshalb wird alles explizit gesetzt.
 Z = {"bg": 0, "text": 4, "button": 5, "content": 10,
@@ -344,6 +368,222 @@ def build_pbir_visuals(nspec: dict, page: dict, ck_fallback: bool = False):
 
 
 # --------------------------------------------------------------------------- #
+# Custom Visuals (engine: "custom") — pbir kann sie nicht anlegen
+# --------------------------------------------------------------------------- #
+# Verifiziert mit pbir 0.9.32:
+#   pbir add visual <GUID> ...            -> "Unknown visual type '<GUID>'"
+#   pbir add visual --from-json           -> dieselbe Meldung, und die GANZE Datei
+#                                            wird abgelehnt ("no visuals were created")
+#   pbir visuals bind --add <rolle>:...   -> nur Rollen, die in der queryState schon
+#                                            stehen ("Role 'x' not valid ... Available:")
+# Deshalb: Platzhalter-`shape` mit pbir anlegen (dann stimmen Ordner, Name und
+# Seiteneintrag) und die visual.json anschliessend durch die hier erzeugte
+# Fassung ersetzen. `pbir validate --fields` nimmt sie an (verifiziert).
+def _lit(value) -> dict:
+    """Literal-Ausdruck in der Form, die pbir schreibt (Zahlen mit D-Suffix)."""
+    if isinstance(value, bool):
+        text = "true" if value else "false"
+    elif isinstance(value, int):
+        text = "%dD" % value
+    elif isinstance(value, float):
+        text = "%gD" % value
+    else:
+        text = "'%s'" % str(value).replace("'", "''")
+    return {"expr": {"Literal": {"Value": text}}}
+
+
+def _solid(color: str) -> dict:
+    return {"solid": {"color": _lit(color)}}
+
+
+def _container(props: dict) -> list:
+    return [{"properties": props}]
+
+
+def custom_query_state(buckets: dict) -> dict:
+    """`customVisual.buckets` -> `visual.query.queryState` (wie bei nativen Visuals)."""
+    state = {}
+    for role, entries in (buckets or {}).items():
+        projections = []
+        for i, entry in enumerate(entries or []):
+            ref = entry.get("ref") or ""
+            table, prop = split_ref(ref)
+            is_measure = entry.get("kind") == "measure"
+            node = "Measure" if is_measure else "Column"
+            proj = {"field": {node: {"Expression": {"SourceRef": {"Entity": table}},
+                                     "Property": prop}},
+                    "queryRef": ref,
+                    "nativeQueryRef": prop}
+            if i == 0 and not is_measure:
+                proj["active"] = True          # wie bei Gruppierungsrollen ueblich
+            projections.append(proj)
+        if projections:
+            state[role] = {"projections": projections}
+    return state
+
+
+def custom_visual_json(v: dict, st) -> dict:
+    """Vollstaendige PBIR-visual.json einer Custom-Visual-Kachel."""
+    cv = v.get("customVisual") or {}
+    x, y, w, h = rect(v["rect"])
+    title = v.get("title") or ""
+    subtitle = (v.get("subtitle") or "").strip()
+    container = {
+        "title": _container({"show": _lit(bool(title)), "text": _lit(title)}),
+        "subTitle": _container({"show": _lit(bool(subtitle)), "text": _lit(subtitle)}),
+        "background": _container({"show": _lit(True), "color": _solid(st.tile_bg),
+                                  "transparency": _lit(0)}),
+    }
+    border = {"show": _lit(st.tile_style == "border")}
+    if st.tile_style == "border":
+        border["color"] = _solid(st.tile_border)
+    if st.radius:
+        border["radius"] = _lit(st.radius)
+    container["border"] = _container(border)
+    if st.tile_style == "shadow":
+        container["dropShadow"] = _container(
+            {"show": _lit(True), "preset": _lit("BottomRight"),
+             "color": _solid(st.ink), "transparency": _lit(85)})
+    else:
+        container["dropShadow"] = _container({"show": _lit(False)})
+    return {
+        "$schema": VISUAL_SCHEMA,
+        "name": v["id"],
+        "position": {"x": x, "y": y, "z": Z["content"],
+                     "width": w, "height": h, "tabOrder": 0},
+        "visual": {
+            "visualType": cv.get("guid"),
+            "query": {"queryState": custom_query_state(cv.get("buckets"))},
+            "objects": {},
+            "drillFilterOtherVisuals": True,
+            "visualContainerObjects": container,
+        },
+    }
+
+
+def custom_bucket_warnings(v: dict, info, buckets: dict):
+    """Leere Pflichtrollen des Custom Visuals — das Mockup erzwingt sie nicht."""
+    cv = v.get("customVisual") or {}
+    warn = []
+    if not info:
+        warn.append("Custom Visual `%s` (GUID `%s`) steht nicht in der Registry des "
+                    "Skills — Pflichtrollen ungeprueft. capabilities.json des Visuals "
+                    "gegenlesen." % (cv.get("name") or "?", cv.get("guid") or "?"))
+        return warn
+    for group in info.get("required") or []:
+        if not any(buckets.get(role) for role in group):
+            warn.append("Pflichtrolle %s ist leer — %s zeichnet ohne sie nichts. "
+                        "Feld im Mockup nachtragen oder im Bericht nachbinden."
+                        % (" bzw. ".join("`%s`" % r for r in group), info["label"]))
+    unknown = [r for r in (buckets or {}) if r not in (info.get("roles") or [])]
+    if unknown:
+        warn.append("Rolle(n) %s stehen nicht in der capabilities.json von %s — "
+                    "Power BI ignoriert sie."
+                    % (", ".join("`%s`" % r for r in sorted(unknown)), info["label"]))
+    return warn
+
+
+def build_custom_visuals(nspec: dict, page: dict, st):
+    """(Slot-Liste, Warnungen) fuer alle Kacheln mit `engine: "custom"`."""
+    slots, warn = [], []
+    for v in page["visuals"]:
+        if v.get("engine") != "custom":
+            continue
+        cv = v.get("customVisual") or {}
+        name, info = custom_visual_info(cv)
+        buckets = {role: [f.get("ref") for f in entries]
+                   for role, entries in (cv.get("buckets") or {}).items() if entries}
+        w = custom_bucket_warnings(v, info, cv.get("buckets") or {})
+        x, y, cw, ch = rect(v["rect"])
+        slots.append({
+            "id": v["id"], "stableId": v.get("stableId"), "page": page["name"],
+            "kind": v.get("kind"), "label": v.get("label"),
+            "title": v.get("title", ""), "subtitle": v.get("subtitle", ""),
+            "visualName": cv.get("name"), "guid": cv.get("guid"),
+            "registryName": name,
+            "pbiviz": (info or {}).get("pbiviz"),
+            "source": (info or {}).get("source"),
+            "rect": {"x": x, "y": y, "w": cw, "h": ch},
+            "buckets": buckets,
+            "mockupRoles": {k: [f["ref"] for f in fl]
+                            for k, fl in (v.get("roles") or {}).items()},
+            "analysis": v.get("analysis"), "workshop": v.get("workshop"),
+            "notes": v.get("notes", ""),
+            "file": "custom-visuals/%s.visual.json" % v["id"],
+            "warnings": w,
+            "visualJson": custom_visual_json(v, st),
+        })
+        warn.extend("[%s / %s] %s" % (page["name"], v["id"], m) for m in w)
+    return slots, warn
+
+
+CUSTOM_HEAD = {
+    "sh": """#!/usr/bin/env bash
+# Custom Visuals dieser Seite. `pbir add visual` kennt die GUIDs nicht
+# ("Unknown visual type"), und `--from-json` lehnt dann die GANZE Datei ab.
+# Deshalb: Platzhalter-Shape mit pbir anlegen (Ordner, Visualname und
+# Seiteneintrag entstehen korrekt), dann die visual.json ersetzen.
+# ZULETZT ausfuehren — nach chrome-batch.json, sonst ueberschreibt die Kopie
+# die Formatierung wieder (sie steckt bereits in der erzeugten Datei).
+# Voraussetzung: die .pbiviz ist im Bericht importiert (Desktop-Schritt).
+set -uo pipefail
+""",
+    "ps1": """# Custom Visuals dieser Seite. `pbir add visual` kennt die GUIDs nicht
+# ("Unknown visual type"), und `--from-json` lehnt dann die ganze Datei ab.
+# Deshalb: Platzhalter-Shape mit pbir anlegen, dann die visual.json ersetzen.
+# ZULETZT ausfuehren - nach chrome-batch.json.
+# Voraussetzung: die .pbiviz ist im Bericht importiert (Desktop-Schritt).
+$ErrorActionPreference = 'Continue'
+""",
+}
+
+
+def render_custom_commands(slots, report: str, page: dict, out_dir: str,
+                           flavour: str) -> str:
+    """Platzhalter anlegen und die erzeugte visual.json daruebersetzen."""
+    q = q_sh if flavour == "sh" else q_ps
+    L = [CUSTOM_HEAD[flavour]]
+    if flavour == "sh":
+        L += ['REPORT=%s' % q(report),
+              'PAGE=%s' % q(page["name"]),
+              'OUT=%s' % q(out_dir),
+              'P="$REPORT/$PAGE.Page"', ""]
+    else:
+        L += ['$Report = %s' % q(report),
+              '$Page = %s' % q(page["name"]),
+              '$Out = %s' % q(out_dir),
+              '$P = "$Report/$Page.Page"', ""]
+    for slot in slots:
+        r = slot["rect"]
+        L.append("# %s — %s (%s)"
+                 % (slot["title"] or slot["id"], slot["visualName"], slot["guid"]))
+        for w in slot["warnings"]:
+            L.append("#   ! %s" % w)
+        title = slot["title"] or slot["id"]
+        if flavour == "sh":
+            L.append('pbir add visual shape "$P" -n %s -x %d -y %d -w %d -h %d -t %s'
+                     % (q(slot["id"]), r["x"], r["y"], r["w"], r["h"], q(title)))
+            L.append('D=$(find "$REPORT/definition/pages" -type d -name %s | head -1)'
+                     % q(slot["id"]))
+            L.append('if [ -n "$D" ]; then cp "$OUT/%s" "$D/visual.json"; '
+                     'else echo "%s: Visualordner nicht gefunden"; fi'
+                     % (slot["file"], slot["id"]))
+        else:
+            L.append('pbir add visual shape "$P" -n %s -x %d -y %d -w %d -h %d -t %s'
+                     % (q(slot["id"]), r["x"], r["y"], r["w"], r["h"], q(title)))
+            L.append('$D = Get-ChildItem -Path "$Report/definition/pages" -Directory '
+                     '-Recurse -Filter %s | Select-Object -First 1' % q(slot["id"]))
+            L.append('if ($D) { Copy-Item "$Out/%s" (Join-Path $D.FullName '
+                     '"visual.json") -Force }' % slot["file"])
+        L.append("")
+    if flavour == "sh":
+        L += ['pbir validate "$REPORT" --fields', ""]
+    else:
+        L += ['pbir validate "$Report" --fields', ""]
+    return "\n".join(L)
+
+
+# --------------------------------------------------------------------------- #
 # Farben und Schriftgroessen aus `design`
 # --------------------------------------------------------------------------- #
 class Style:
@@ -351,35 +591,44 @@ class Style:
 
     def __init__(self, nspec: dict, opt) -> None:
         d = nspec["design"]
+        c = d["colors"]                      # von mockup_spec.normalise_design gefuellt
         self.design = d
         self.scale = d["fontScale"]
-        self.ink = opt.ink
+        # `--ink` ueberschreibt `design.colors.ink`; ohne Flag gewinnt die Spec.
+        self.ink = opt.ink or c["ink"]
         self.on_ink = opt.on_ink
         self.muted_on_ink = opt.muted_on_ink
         self.muted = opt.muted
         self.panel = opt.panel
         self.tile_border = opt.tile_border
-        self.accent = d["accent"] or opt.ink
-        self.tile_bg = d["tileBackground"] or "#FFFFFF"
-        self.page_bg = d["pageBackground"] or "#FFFFFF"
+        self.accent = d["accent"] or self.ink
+        self.tile_bg = c["tileBackground"]
+        self.page_bg = c["pageBackground"]
         self.radius = int(d["cornerRadius"] or 0)
         self.tile_style = d["tileStyle"] or "border"
+        self.palette = d["variancePalette"]
+        self.good = d["varianceColors"]["good"]
+        self.bad = d["varianceColors"]["bad"]
+        self.dark_mode = bool(d["darkMode"])
 
         style = (d["headerStyle"] or "dark").lower()
         self.header_style = style
+        # Grundfarben kommen aus `design.colors` — fuer die Stile light/dark/accent
+        # sind die Vorgaben identisch mit der frueheren Herleitung, `custom` traegt
+        # seine Farben selbst.
+        self.header_bg = c["headerBackground"]
+        self.header_fg = c["headerInk"]
         if style == "light":
-            self.header_bg = "#FFFFFF"
-            self.header_fg = self.ink
             self.header_muted = self.muted
             self.header_rule = self.tile_border
         elif style == "accent":
-            self.header_bg = self.accent
-            self.header_fg = self.on_ink
             self.header_muted = self.on_ink
             self.header_rule = None
+        elif style == "custom":
+            light = is_light(self.header_bg)
+            self.header_muted = self.muted if light else self.muted_on_ink
+            self.header_rule = self.tile_border if light else None
         else:
-            self.header_bg = self.ink
-            self.header_fg = self.on_ink
             self.header_muted = self.muted_on_ink
             self.header_rule = None
 
@@ -833,10 +1082,11 @@ def analysis_actions(nspec: dict, page: dict, built_names, lang: str):
                      "Sortierung nach %s verlangt ein Feld, die Kachel hat keines "
                      "gebunden." % by)
         elif sort and not in_report:
+            where = ("das Custom Visual regelt" if v.get("engine") == "custom"
+                     else "ChartKitchen/Deneb regeln")
             todo(v, "SORT_NOT_NATIVE",
                  "Sortierung %s %s: Kachel ist kein natives Visual im Bericht "
-                 "(ChartKitchen/Deneb regeln das selbst)."
-                 % (sort.get("by"), sort.get("dir")))
+                 "(%s das selbst)." % (sort.get("by"), sort.get("dir"), where))
 
         # --- Top N --------------------------------------------------------- #
         if a.get("topN"):
@@ -877,9 +1127,12 @@ def analysis_actions(nspec: dict, page: dict, built_names, lang: str):
                     cmds.add("pbir", "visuals", "labels", path,
                              "--labelPrecision", str(int(dec)))
         elif du or dec is not None:
+            where = ("im Format-Bereich des Custom Visuals (Desktop)"
+                     if v.get("engine") == "custom"
+                     else "im ChartKitchen- bzw. Deneb-Slot")
             todo(v, "DISPLAY_UNITS_SLOT",
-                 "Anzeigeeinheit %s / %s Dezimalstellen im ChartKitchen- bzw. "
-                 "Deneb-Slot setzen." % (du or "auto", dec if dec is not None else "auto"))
+                 "Anzeigeeinheit %s / %s Dezimalstellen %s setzen."
+                 % (du or "auto", dec if dec is not None else "auto", where))
 
         # --- Einheit als Untertitel ----------------------------------------- #
         unit = a.get("unit")
@@ -1389,7 +1642,8 @@ def build_analysis_todos(nspec: dict, todos, report: str) -> str:
     return "\n".join(L)
 
 
-def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos) -> str:
+def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos,
+                    custom_warn=()) -> str:
     canvas = nspec["canvas"]
     d = nspec["design"]
     meta = nspec["meta"]
@@ -1412,8 +1666,13 @@ def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos) -> st
          "- Kacheln: Stil `%s`, Ecken %s px, Hintergrund %s"
          % (d["tileStyle"], d["cornerRadius"], d["tileBackground"]),
          "- Seitenhintergrund %s · Akzent %s" % (d["pageBackground"], d["accent"]),
-         "- Kopfband-Stil `%s` · Schriftfaktor ×%s (Visual-Titel ≈ %d pt)"
-         % (d["headerStyle"], d["fontScale"], int(round(12 * d["fontScale"]))), ""]
+         "- Kopfband-Stil `%s` (Fläche %s, Text %s) · Schriftfaktor ×%s "
+         "(Visual-Titel ≈ %d pt)"
+         % (d["headerStyle"], d["colors"]["headerBackground"], d["colors"]["headerInk"],
+            d["fontScale"], int(round(12 * d["fontScale"]))),
+         "- Varianz-Palette `%s`: gut %s · schlecht %s · Ink %s · dunkler Modus %s"
+         % (d["variancePalette"], d["varianceColors"]["good"], d["varianceColors"]["bad"],
+            d["colors"]["ink"], "ja" if d["darkMode"] else "nein"), ""]
 
     counts = {}
     for p in nspec["pages"]:
@@ -1432,11 +1691,13 @@ def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos) -> st
              sum(1 for l in nspec["links"] if l.get("kind") == "drillthrough"),
              sum(1 for l in nspec["links"] if l.get("kind") == "navigation")),
           "", "| Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button "
-          "| Chrome | CK | Deneb |", "|---|---|---|---|---|---|---|---|"]
+          "| Chrome | CK | Deneb | Custom |",
+          "|---|---|---|---|---|---|---|---|---|"]
     for e in per_page:
-        L.append("| %s | `%s/` | %s | %d | %d | %d | %d | %d |"
+        L.append("| %s | `%s/` | %s | %d | %d | %d | %d | %d | %d |"
                  % (e["name"], e["dir"], e["question"] or "–", len(e["pbir"]),
-                    len(e["text"]), len(e["chrome"]), len(e["ck"]), len(e["deneb"])))
+                    len(e["text"]), len(e["chrome"]), len(e["ck"]), len(e["deneb"]),
+                    len(e["custom"])))
     L.append("")
 
     # ---- Issues aus der Spec --------------------------------------------- #
@@ -1474,6 +1735,30 @@ def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos) -> st
     L += ["## ChartKitchen-Rollen-Mapping", ""]
     L += ["- [ ] %s" % w for w in slot_warn] or ["- keine Auffälligkeiten"]
     L.append("")
+
+    # ---- Custom Visuals ---------------------------------------------------- #
+    custom_all = [(e["name"], sl) for e in per_page for sl in e["custom"]]
+    if custom_all:
+        L += ["## Custom Visuals (`engine: \"custom\"`)", "",
+              "`pbir add visual` kennt diese GUIDs nicht — die Kacheln stehen deshalb "
+              "**nicht** in `pbir-visuals.json`, sondern als fertige `visual.json` in "
+              "`<Seitenslug>/custom-visuals/`. Die `.pbiviz` muss **vorher** im Bericht "
+              "importiert sein, sonst lädt das Visual nicht.", "",
+              "| Seite | Kachel | Visual | GUID | .pbiviz | Rollen |",
+              "|---|---|---|---|---|---|"]
+        for page_name, sl in custom_all:
+            roles = ", ".join("`%s`: %s" % (r, ", ".join(refs))
+                              for r, refs in sorted(sl["buckets"].items())) or "–"
+            L.append("| %s | %s (`%s`) | %s | `%s` | `%s` | %s |"
+                     % (page_name, sl["title"] or sl["id"], sl["id"],
+                        sl["visualName"] or "?", sl["guid"] or "?",
+                        sl["pbiviz"] or "selbst bauen: `pbiviz package`", roles))
+        L.append("")
+        if custom_warn:
+            L += ["- [ ] %s" % w for w in custom_warn] + [""]
+        else:
+            L += ["- Pflichtrollen aller Custom Visuals belegt.", ""]
+
     if todos:
         L += ["## Analyse-Angaben ohne direkten pbir-Befehl", "",
               "Vollständig in [`analysis-todos.md`](analysis-todos.md) — hier nur die "
@@ -1564,8 +1849,13 @@ def build_commands_md(nspec: dict, report: str, out_dir: Path, per_page,
               % (o, e["dir"]),
               "",
               "# Analyse: Sortierung, Top-N, Slicer-Vorauswahl, Annotationen",
-              'bash "%s/%s/analysis-commands.sh"' % (o, e["dir"]),
-              "```", ""]
+              'bash "%s/%s/analysis-commands.sh"' % (o, e["dir"])]
+        if e["custom"]:
+            L += ["",
+                  "# Custom Visuals ZULETZT (Platzhalter + visual.json kopieren);",
+                  "# die .pbiviz muss vorher im Bericht importiert sein",
+                  'bash "%s/%s/custom-commands.sh"' % (o, e["dir"])]
+        L += ["```", ""]
         if e["notes_block"]:
             L += ["> %s" % n for n in e["notes_block"]] + [""]
 
@@ -1588,6 +1878,46 @@ def build_commands_md(nspec: dict, report: str, out_dir: Path, per_page,
           "## Navigation, Drill-through, Lesezeichen", "",
           "Erst wenn **alle** Seiten stehen — Ziele müssen existieren. "
           "Befehle in [`navigation.md`](navigation.md).", ""]
+
+    custom_all = [(e["name"], sl) for e in per_page for sl in e["custom"]]
+    if custom_all:
+        pbivizes = sorted({sl["pbiviz"] or "" for _, sl in custom_all})
+        L += ["## Custom Visuals (dataKitchenGantt, pnlByDatenWG …)", "",
+              "`pbir add visual` kennt die GUIDs dieser Visuals **nicht** "
+              "(`Unknown visual type '<GUID>'`), und in `--from-json` würde ein "
+              "solcher Eintrag die **ganze Datei** ablehnen. Deshalb stehen die "
+              "Kacheln nicht in `pbir-visuals.json`, sondern als fertige "
+              "`visual.json` unter `<Seitenslug>/custom-visuals/`.", "",
+              "**Schritt 1 — `.pbiviz` in den Bericht importieren** (Power BI Desktop: "
+              "Visualisierungen → … → *Visual aus Datei importieren*). Ohne Import "
+              "bleibt die Kachel leer, auch wenn die JSON stimmt:", ""]
+        for path in pbivizes:
+            L.append("- `%s`" % (path or "kein Build im Repo — mit `pbiviz package` "
+                                         "im Visual-Ordner erzeugen"))
+        L += ["", "**Schritt 2 — Platzhalter anlegen und Datei ersetzen** "
+              "(erledigt `custom-commands.sh` je Seite):", "", "```bash"]
+        for page_name, sl in custom_all:
+            r = sl["rect"]
+            pp = "%s/%s.Page" % (report, page_name)
+            L.append("# %s · %s — %s" % (page_name, sl["title"] or sl["id"],
+                                           sl["visualName"]))
+            L.append('pbir add visual shape "%s" -n "%s" -x %s -y %s -w %s -h %s -t "%s"'
+                     % (pp, sl["id"], r["x"], r["y"], r["w"], r["h"],
+                        sl["title"] or sl["id"]))
+            L.append('D=$(find "%s/definition/pages" -type d -name "%s" | head -1)'
+                     % (report, sl["id"]))
+            L.append('cp "%s/%s/%s" "$D/visual.json"' % (o, next(
+                e["dir"] for e in per_page if e["name"] == page_name), sl["file"]))
+        L += ["```", "",
+              "Danach `pbir validate \"%s\" --fields` — die erzeugte `visual.json` "
+              "ist in der Form geschrieben, die `pbir add visual` selbst verwendet "
+              "(Schema 2.9.0, `visualContainerObjects` als Arrays) und wird "
+              "angenommen. **Reihenfolge:** erst `chrome-batch.json`, dann kopieren "
+              "— die Kopie überschreibt sonst die Formatierung (sie steckt bereits "
+              "in der Datei)." % report, "",
+              "Im **zweiten Lauf** entfällt der Platzhalter-Schritt: nur die neu "
+              "erzeugte `visual.json` erneut kopieren. `delta-batch.json` fasst "
+              "Custom Visuals bewusst nicht an.", ""]
 
     ck_all = [(e["name"], s) for e in per_page for s in e["ck"]]
     if ck_all:
@@ -1661,13 +1991,23 @@ def build_theme_fragment(nspec: dict, st: Style) -> dict:
     }
     return {
         "name": "%s · Mockup-Fragment" % (nspec["meta"].get("name") or "Mockup"),
-        "$comment": ("Kachel-Optik aus `design` als Theme-Fragment. In ein bestehendes "
-                     "Theme mergen (Skill reports:modifying-theme-json bzw. "
+        "$comment": ("Kachel-Optik und Farben aus `design` als Theme-Fragment. In ein "
+                     "bestehendes Theme mergen (Skill reports:modifying-theme-json bzw. "
                      "powerbi-design-framework), danach die background/border/"
                      "dropShadow-Schritte aus chrome-batch.json weglassen. "
                      "Seitenhintergrund %s setzt `pbir pages background`, "
-                     "Akzentfarbe %s steckt in Nav-Buttons und Burger."
-                     % (st.page_bg, st.accent)),
+                     "Akzentfarbe %s steckt in Nav-Buttons und Burger. "
+                     "good/bad kommen aus der Varianz-Palette `%s`%s."
+                     % (st.page_bg, st.accent, st.palette,
+                        " (dunkler Modus)" if st.dark_mode else "")),
+        # Farbrollen des Themes: Hintergrund = Seitenhintergrund, Vordergrund = Ink,
+        # good/bad = Varianzfarben (Abweichung positiv/negativ), tableAccent = Akzent.
+        "background": st.page_bg,
+        "foreground": st.ink,
+        "tableAccent": st.accent,
+        "good": st.good,
+        "bad": st.bad,
+        "neutral": st.muted,
         "visualStyles": {"*": {"*": star}},
     }
 
@@ -1676,7 +2016,7 @@ def build_theme_fragment(nspec: dict, st: Style) -> dict:
 # Plan und Abnahme
 # --------------------------------------------------------------------------- #
 def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: str,
-               todos) -> dict:
+               todos, custom_warn=()) -> dict:
     o = out_dir.as_posix()
     canvas = nspec["canvas"]
     w, h = canvas.get("width", 1280), canvas.get("height", 720)
@@ -1748,6 +2088,19 @@ def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: st
                         "erneutem Lauf ggf. einen zweiten Filter an — vorher "
                         "`pbir filters list` prüfen.",
              delta="Top-N/Vorauswahl vor dem zweiten Lauf prüfen")
+        if e["custom"]:
+            step("custom:%s" % e["dir"], "custom_visuals",
+                 ['# .pbiviz zuerst in den Bericht importieren (Desktop): %s'
+                  % ", ".join(sorted({sl["pbiviz"] or "pbiviz package"
+                                      for sl in e["custom"]})),
+                  'bash "%s/%s/custom-commands.sh"' % (o, e["dir"])],
+                 page=e["name"],
+                 idempotent="Platzhalter-Shape schlägt beim zweiten Mal fehl "
+                            "(Name existiert); das Kopieren der visual.json ist "
+                            "beliebig wiederholbar.",
+                 delta="Im Delta-Lauf reicht das Kopieren der neu erzeugten "
+                       "visual.json — sie enthält Position, Größe, Bindung und "
+                       "Container-Formatierung vollständig.")
 
     step("navigation", "commands", ["# Befehle in navigation.md — erst wenn alle "
                                     "Seiten stehen"],
@@ -1790,6 +2143,14 @@ def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: st
         ],
         "steps": steps,
         "todos": todos,
+        "issues": [{"level": "warn", "code": "CUSTOM_VISUAL", "text": w}
+                   for w in custom_warn],
+        "customVisuals": [
+            {"page": e["name"], "visual": sl["id"], "name": sl["visualName"],
+             "guid": sl["guid"], "pbiviz": sl["pbiviz"],
+             "file": "%s/%s/%s" % (o, e["dir"], sl["file"]),
+             "buckets": sl["buckets"], "warnings": sl["warnings"]}
+            for e in per_page for sl in e["custom"]],
     }
 
 
@@ -1827,6 +2188,16 @@ def build_acceptance(nspec: dict, report: str, per_page, st: Style) -> dict:
             expected.append({"name": s["id"], "type": "deneb|shape",
                              "rect": {"x": r["x"], "y": r["y"], "w": r["w"], "h": r["h"]},
                              "role": "deneb", "optional": True, "fields": {}})
+        for s in e["custom"]:
+            r = s["rect"]
+            # `optional`, weil der Platzhalter noch ein `shape` sein kann, solange
+            # die visual.json nicht kopiert wurde. Ist sie kopiert, pruefen Typ
+            # (GUID) und Buckets ganz normal.
+            expected.append({"name": s["id"],
+                             "type": "%s|shape" % (s["guid"] or "custom"),
+                             "rect": {"x": r["x"], "y": r["y"], "w": r["w"], "h": r["h"]},
+                             "role": "custom", "optional": True,
+                             "fields": dict(s["buckets"])})
         pages.append({"name": e["name"], "background": st.page_bg,
                       "canvas": {"width": nspec["canvas"].get("width"),
                                  "height": nspec["canvas"].get("height")},
@@ -1912,7 +2283,9 @@ def main() -> int:
                    help="Sprache der erzeugten Texte (Default: meta.lang, sonst de)")
     p.add_argument("--force", action="store_true",
                    help="trotz Schemafehlern weitermachen (Notausgang, nicht empfohlen)")
-    p.add_argument("--ink", default="#0F1E2E", help="Farbe für Nav-Leiste/dunkles Kopfband")
+    p.add_argument("--ink", default=None,
+                   help="Farbe für Nav-Leiste/dunkles Kopfband "
+                        "(Vorgabe: design.colors.ink, sonst #0F1E2E)")
     p.add_argument("--on-ink", dest="on_ink", default="#FFFFFF", help="Textfarbe auf Ink")
     p.add_argument("--muted-on-ink", dest="muted_on_ink", default="#C8CDD4",
                    help="Untertitelfarbe im dunklen Kopfband")
@@ -1976,6 +2349,7 @@ def main() -> int:
 
     all_chrome_notes = []
     all_slot_warn = []
+    all_custom_warn = []
     all_todos = []
     per_page = []
     written = []
@@ -1997,6 +2371,7 @@ def main() -> int:
                                                     batch_props, lang)
         notes += text_notes
         ck_slots, deneb_slots, slot_warn = build_slots(page)
+        custom_slots, custom_warn = build_custom_visuals(nspec, page, st)
 
         slicers = slicer_names(nspec, page)
         content_names = ([i["name"] for i in pbir_visuals if i["name"] not in slicers]
@@ -2059,8 +2434,11 @@ def main() -> int:
                                   cr.get("w", 0), cr.get("h", 0)],
                       "ignorePages": []}
 
+        custom_index = [{k: v for k, v in slot.items() if k != "visualJson"}
+                        for slot in custom_slots]
         files = [
             ("pbir-visuals.json", json.dumps(pbir_visuals, ensure_ascii=False, indent=2) + "\n"),
+            ("custom-visuals.json", json.dumps(custom_index, ensure_ascii=False, indent=2) + "\n"),
             ("text-visuals.json", json.dumps(text_visuals, ensure_ascii=False, indent=2) + "\n"),
             ("chrome-visuals.json", json.dumps(chrome_visuals, ensure_ascii=False, indent=2) + "\n"),
             ("chrome-batch.json", chrome_batch.dump()),
@@ -2073,22 +2451,38 @@ def main() -> int:
             ("chartkitchen-slots.json", json.dumps(ck_slots, ensure_ascii=False, indent=2) + "\n"),
             ("deneb-slots.json", json.dumps(deneb_slots, ensure_ascii=False, indent=2) + "\n"),
         ]
+        if custom_slots:
+            out_expr = (pout.as_posix() if opt.report else "<Ausgabeordner>/%s" % pdir)
+            files.append(("custom-commands.sh",
+                          render_custom_commands(custom_slots, report, page,
+                                                 out_expr, "sh")))
+            files.append(("custom-commands.ps1",
+                          render_custom_commands(custom_slots, report, page,
+                                                 out_expr, "ps1")))
+            for slot in custom_slots:
+                files.append((slot["file"],
+                              json.dumps(slot["visualJson"], ensure_ascii=False,
+                                         indent=2) + "\n"))
         for name, text in files:
-            (pout / name).write_text(text, encoding="utf-8")
+            target = pout / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(text, encoding="utf-8")
             written.append("%s/%s" % (pdir, name))
 
         all_chrome_notes += notes
         all_slot_warn += slot_warn
+        all_custom_warn += custom_warn
         per_page.append({"name": page["name"], "dir": pdir, "question": page.get("question"),
                          "page_bg": st.page_bg,
                          "pbir": pbir_visuals, "text": text_visuals,
                          "chrome": chrome_visuals, "ck": ck_slots, "deneb": deneb_slots,
+                         "custom": custom_slots,
                          "slicers": slicers, "skipped": skipped, "notes_block": notes})
 
     root_files = [
         ("model-todos.md", build_model_todos(nspec, model_name)),
         ("checklist.md", build_checklist(nspec, per_page, all_chrome_notes,
-                                         all_slot_warn, all_todos)),
+                                         all_slot_warn, all_todos, all_custom_warn)),
         ("navigation.md", build_navigation_md(nspec, opt.report or "")),
         ("analysis-todos.md", build_analysis_todos(nspec, all_todos, report)),
         ("theme-fragment.json",
@@ -2100,7 +2494,8 @@ def main() -> int:
     if opt.plan:
         root_files.append(("plan.json",
                            json.dumps(build_plan(nspec, report, out, per_page,
-                                                 model_name, all_todos),
+                                                 model_name, all_todos,
+                                                 all_custom_warn),
                                       ensure_ascii=False, indent=2) + "\n"))
         root_files.append(("acceptance.json",
                            json.dumps(build_acceptance(nspec, report, per_page, st),
@@ -2120,9 +2515,9 @@ def main() -> int:
         print("   %s" % name)
     for e in per_page:
         print("\nSeite '%s': native Visuals + Slicer %d · Text/Button %d · Chrome %d · "
-              "ChartKitchen %d · Deneb %d%s"
+              "ChartKitchen %d · Deneb %d · Custom %d%s"
               % (e["name"], len(e["pbir"]), len(e["text"]), len(e["chrome"]),
-                 len(e["ck"]), len(e["deneb"]),
+                 len(e["ck"]), len(e["deneb"]), len(e["custom"]),
                  " · %d wegen leerer Pflichtrolle ausgelassen" % len(e["skipped"])
                  if e["skipped"] else ""))
     print("\nVerknüpfungen: %d · neue Felder: %d · Analyse-To-dos: %d"
@@ -2130,7 +2525,8 @@ def main() -> int:
     open_points = (sum(len(v.get("warnings") or [])
                        for p in nspec["pages"] for v in p["visuals"])
                    + len([i for i in nspec["issues"] if i.get("level") != "info"])
-                   + len(set(all_chrome_notes)) + len(all_slot_warn))
+                   + len(set(all_chrome_notes)) + len(all_slot_warn)
+                   + len(all_custom_warn))
     if open_points:
         print("%d offene(r) Punkt(e) — siehe checklist.md" % open_points)
     return 0

@@ -59,10 +59,28 @@
         "tileStyle": { "enum": ["border", "shadow", "flat"] },
         "pageBackground": { "$ref": "#/$defs/hex" },
         "tileBackground": { "$ref": "#/$defs/hex" },
-        "headerStyle": { "enum": ["light", "dark", "accent"] },
+        "headerStyle": { "enum": ["light", "dark", "accent", "custom"] },
         "accent": { "$ref": "#/$defs/hex" },
         "darkMode": { "type": "boolean" },
-        "fontScale": { "type": "number", "minimum": 0.1, "maximum": 8 }
+        "fontScale": { "type": "number", "minimum": 0.1, "maximum": 8 },
+        "variancePalette": { "enum": ["teal", "ibcs"] },
+        "varianceColors": {
+          "type": ["object", "null"],
+          "properties": {
+            "good": { "$ref": "#/$defs/hex" },
+            "bad": { "$ref": "#/$defs/hex" }
+          }
+        },
+        "colors": {
+          "type": ["object", "null"],
+          "properties": {
+            "pageBackground": { "$ref": "#/$defs/hex" },
+            "tileBackground": { "$ref": "#/$defs/hex" },
+            "ink": { "$ref": "#/$defs/hex" },
+            "headerBackground": { "$ref": "#/$defs/hex" },
+            "headerInk": { "$ref": "#/$defs/hex" }
+          }
+        }
       }
     },
     "zones": {
@@ -114,7 +132,7 @@
     "headerZone": {
       "allOf": [{ "$ref": "#/$defs/zone" }],
       "properties": {
-        "style": { "enum": ["light", "dark", "accent"] },
+        "style": { "enum": ["light", "dark", "accent", "custom"] },
         "logoPos": { "enum": ["left", "right", "none"] },
         "title": { "type": ["string", "null"] },
         "subtitle": { "type": ["string", "null"] },
@@ -185,10 +203,11 @@
         "page": { "type": "string" },
         "kind": { "type": "string", "minLength": 1 },
         "label": { "type": ["string", "null"] },
-        "engine": { "enum": ["native", "ck", "deneb"] },
+        "engine": { "enum": ["native", "ck", "deneb", "custom"] },
         "chartKitchenType": { "type": ["string", "null"] },
         "chartKitchenMode": { "type": ["string", "null"] },
         "native": { "$ref": "#/$defs/native" },
+        "customVisual": { "$ref": "#/$defs/customVisual" },
         "title": { "type": ["string", "null"] },
         "subtitle": { "type": ["string", "null"] },
         "content": { "type": ["string", "null"] },
@@ -216,6 +235,16 @@
       "type": ["object", "null"],
       "properties": {
         "type": { "type": "string", "minLength": 1 },
+        "buckets": { "type": "object" }
+      }
+    },
+    "customVisual": {
+      "type": ["object", "null"],
+      "description": "Nur bei engine: \"custom\". `buckets` ist wie `native.buckets` aufgebaut, die Schluessel sind aber die Datenrollen des Custom Visuals aus seiner capabilities.json (dataKitchenGantt: task, start, end, phase, ...; pnlByDatenWG: levels, ac, py, pl, fc, rowType, ...).",
+      "required": ["name", "guid"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "guid": { "type": "string", "pattern": "^[A-Za-z0-9]+$" },
         "buckets": { "type": "object" }
       }
     },

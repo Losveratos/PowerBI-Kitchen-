@@ -1,0 +1,214 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "mk_gantt1",
+  "position": {
+    "x": 16,
+    "y": 72,
+    "z": 10,
+    "width": 616,
+    "height": 296,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44",
+    "query": {
+      "queryState": {
+        "task": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimTask"
+                    }
+                  },
+                  "Property": "Task"
+                }
+              },
+              "queryRef": "DimTask.Task",
+              "nativeQueryRef": "Task",
+              "active": true
+            }
+          ]
+        },
+        "start": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimTask"
+                    }
+                  },
+                  "Property": "Start"
+                }
+              },
+              "queryRef": "DimTask.Start",
+              "nativeQueryRef": "Start",
+              "active": true
+            }
+          ]
+        },
+        "end": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimTask"
+                    }
+                  },
+                  "Property": "Ende"
+                }
+              },
+              "queryRef": "DimTask.Ende",
+              "nativeQueryRef": "Ende",
+              "active": true
+            }
+          ]
+        },
+        "phase": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimTask"
+                    }
+                  },
+                  "Property": "Phase"
+                }
+              },
+              "queryRef": "DimTask.Phase",
+              "nativeQueryRef": "Phase",
+              "active": true
+            }
+          ]
+        }
+      }
+    },
+    "objects": {},
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Projektplan'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Rollout 2026'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#E5E7EB'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropShadow": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

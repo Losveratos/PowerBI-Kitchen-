@@ -53,16 +53,26 @@ ROLE_LABEL = {
            "values": "Werte", "rows": "Zeilen", "columns": "Spalten",
            "x": "X-Wert", "y": "Y-Wert", "size": "Größe",
            "indicator": "Kennzahl", "goal": "Ziel / Referenz",
-           "start": "Start", "end": "Ende", "field": "Feld", "text": "Text"},
+           "start": "Start", "end": "Ende", "field": "Feld", "text": "Text",
+           "rowType": "Zeilentyp (Position / Summe / Formel)"},
     "en": {"category": "Category / time", "subcategory": "Sub-category",
            "series": "Series / legend", "ac": "AC · actual",
            "ref": "Reference (PL / PY / BU)", "fc": "FC flag (1/0)",
            "values": "Values", "rows": "Rows", "columns": "Columns",
            "x": "X value", "y": "Y value", "size": "Size",
            "indicator": "Measure", "goal": "Target / reference",
-           "start": "Start", "end": "End", "field": "Field", "text": "Text"},
+           "start": "Start", "end": "End", "field": "Field", "text": "Text",
+           "rowType": "Row type (item / subtotal / formula)"},
 }
-ENGINE_LABEL = {"ck": "ChartKitchen", "native": "Nativ", "deneb": "Deneb"}
+ENGINE_LABEL = {"ck": "ChartKitchen", "native": "Nativ", "deneb": "Deneb",
+                "custom": "Custom Visual"}
+
+
+def engine_label(v: dict) -> str:
+    """Engine einer Kachel als Text — Custom Visuals mit ihrem Namen."""
+    if v.get("engine") == "custom":
+        return (v.get("customVisual") or {}).get("name") or ENGINE_LABEL["custom"]
+    return ENGINE_LABEL.get(v.get("engine"), v.get("engine"))
 PRIORITY = {"de": {"must": "Must", "should": "Should", "could": "Could"},
             "en": {"must": "Must", "should": "Should", "could": "Could"}}
 STATUS = {"de": {"open": "offen", "agreed": "abgestimmt", "approved": "abgenommen"},
@@ -76,6 +86,8 @@ FILTER_MODE = {"de": {"right": "als Panel rechts", "left": "als Panel links",
                "en": {"right": "as a panel on the right", "left": "as a panel on the left",
                       "top": "as a bar on top", "burger": "as a burger menu (bookmark)"}}
 PRESET_LABEL = {"1280x720": "HD", "1920x1080": "Full HD", "3840x2160": "Ultra HD"}
+PALETTE_LABEL = {"de": {"teal": "Teal (Petrol / Rot)", "ibcs": "IBCS (Gruen / Rot)"},
+                 "en": {"teal": "teal (petrol / red)", "ibcs": "IBCS (green / red)"}}
 
 TXT = {
     "de": {
@@ -132,6 +144,11 @@ TXT = {
         "theme_check": "Formatierung gegen das Theme prüfen",
         "lower_better": "kleiner = besser", "sorted_by": "sortiert nach",
         "top": "Top", "cum": "kumuliert", "scale": "Skalengruppe",
+        "palette": "Varianz-Palette", "good": "gut", "bad": "schlecht",
+        "ink": "Schriftfarbe", "custom_visuals": "Custom Visuals",
+        "custom_hint": "Diese Kacheln sind Custom Visuals aus dem Repository. "
+                       "Die passende `.pbiviz` muss im Bericht importiert sein, "
+                       "sonst bleibt die Kachel leer.",
     },
     "en": {
         "doc_title": "Workshop documentation", "as_of": "As of", "version": "Version",
@@ -186,6 +203,11 @@ TXT = {
         "theme_check": "Check formatting against the theme",
         "lower_better": "lower is better", "sorted_by": "sorted by",
         "top": "Top", "cum": "cumulative", "scale": "scale group",
+        "palette": "Variance palette", "good": "good", "bad": "bad",
+        "ink": "Text colour", "custom_visuals": "Custom visuals",
+        "custom_hint": "These tiles are custom visuals from the repository. "
+                       "The matching `.pbiviz` has to be imported into the report, "
+                       "otherwise the tile stays empty.",
     },
 }
 
@@ -331,7 +353,13 @@ def build_docs_md(nspec: dict, lang: str) -> str:
              ("%s (%s px)" % (t["rounded"], d["cornerRadius"])) if d["cornerRadius"]
              else t["square"],
              TILE_STYLE[lang].get(d["tileStyle"], d["tileStyle"]),
-             t["page_bg"], d["pageBackground"], t["accent"], d["accent"]), ""]
+             t["page_bg"], d["pageBackground"], t["accent"], d["accent"]),
+          "- %s %s: %s %s, %s %s. %s %s."
+          % (t["palette"], PALETTE_LABEL[lang].get(d["variancePalette"],
+                                                   d["variancePalette"]),
+             t["good"], d["varianceColors"]["good"],
+             t["bad"], d["varianceColors"]["bad"],
+             t["ink"], d["colors"]["ink"]), ""]
 
     for p in nspec["pages"]:
         L += ["## %s %s · %s" % (t["page"], p["index"], p["name"]), "",
@@ -345,10 +373,9 @@ def build_docs_md(nspec: dict, lang: str) -> str:
                 render = (v.get("label") or v.get("kind", ""))
                 if v.get("scenario"):
                     render += ", %s" % v["scenario"]
-                if v.get("engine") == "ck":
-                    render += ", ChartKitchen"
-                elif v.get("engine") == "deneb":
-                    render += ", Deneb"
+                eng = engine_label(v) if v.get("engine") != "native" else ""
+                if eng and eng not in render:
+                    render += ", %s" % eng
                 w = v.get("workshop") or {}
                 a = v.get("analysis") or {}
                 title = v.get("title", "")
@@ -378,6 +405,22 @@ def build_docs_md(nspec: dict, lang: str) -> str:
             L.append("- %s „%s\" (%s) %s „%s\" (%s)"
                      % (t["from"], l["fromPage"], l["fromVisual"], t["to"],
                         l["toPage"], kind))
+        L.append("")
+
+    custom = [(pg, v) for pg in nspec["pages"] for v in pg["visuals"]
+              if v.get("engine") == "custom"]
+    if custom:
+        L += ["## %s" % t["custom_visuals"], "", t["custom_hint"], ""]
+        for pg, v in custom:
+            cv = v.get("customVisual") or {}
+            roles = ", ".join(
+                "`%s`: %s" % (role, ", ".join(e.get("ref", "") for e in entries))
+                for role, entries in sorted((cv.get("buckets") or {}).items()))
+            L.append("- %s %s · **%s** — `%s` (%s)"
+                     % (t["page"], pg["index"], v.get("title") or v["id"],
+                        cv.get("name") or "?", cv.get("guid") or "?"))
+            if roles:
+                L.append("  - %s" % roles)
         L.append("")
 
     L += ["## %s" % t["profile"], "",
@@ -589,6 +632,12 @@ def build_pptx(nspec: dict, target: Path, lang: str, images: Path):
                     if d["cornerRadius"] else t["square"],
                     TILE_STYLE[lang].get(d["tileStyle"], d["tileStyle"]),
                     t["page_bg"], d["pageBackground"], t["accent"], d["accent"]))
+    items.append("%s %s: %s %s · %s %s · %s %s"
+                 % (t["palette"],
+                    PALETTE_LABEL[lang].get(d["variancePalette"], d["variancePalette"]),
+                    t["good"], d["varianceColors"]["good"],
+                    t["bad"], d["varianceColors"]["bad"],
+                    t["ink"], d["colors"]["ink"]))
     s = slide_frame(t["design"])
     bullets(s, items)
 
@@ -668,10 +717,9 @@ def build_pptx(nspec: dict, target: Path, lang: str, images: Path):
             if not r:
                 continue
             sub = (v.get("label") or v.get("kind", ""))
-            if v.get("engine") == "ck":
-                sub += " · ChartKitchen"
-            elif v.get("engine") == "deneb":
-                sub += " · Deneb"
+            eng = engine_label(v) if v.get("engine") != "native" else ""
+            if eng and eng not in sub:
+                sub += " · %s" % eng
             box(r["x"], r["y"], r["w"], r["h"], fill=tile_bg, outline=line,
                 text="%s.%s  %s" % (page["index"], i, v.get("title", "")), sub=sub,
                 size=9, bold=True)
@@ -704,8 +752,9 @@ def build_pptx(nspec: dict, target: Path, lang: str, images: Path):
             render = v.get("label") or v.get("kind", "")
             if v.get("scenario"):
                 render += ", %s" % v["scenario"]
-            if v.get("engine") != "native":
-                render += " · %s" % ENGINE_LABEL.get(v.get("engine"), v.get("engine"))
+            eng = engine_label(v) if v.get("engine") != "native" else ""
+            if eng and eng not in render:
+                render += " · %s" % eng
             w = v.get("workshop") or {}
             note = " · ".join(x for x in [
                 ("Text: %s" % v["content"]) if v.get("content") else "",

@@ -19,6 +19,7 @@ Stand: <datum> · Version 0.1 · Spec-Hash `02f4ddc3` · erstellt mit MockupKitc
 - Filter als Burger-Menü (Bookmark): Year, Region.
 - Fußleiste „Stand: <datum> · Quelle: DWH · Kontakt: Controlling".
 - Kacheln gerundet (8 px), mit feinem Rahmen, Seitenhintergrund #F4F4F1, Akzent #C25A2D.
+- Varianz-Palette Teal (Petrol / Rot): gut #1E8F9E, schlecht #D64541. Schriftfarbe #0F1E2E.
 
 ## Seite 1 · Übersicht
 

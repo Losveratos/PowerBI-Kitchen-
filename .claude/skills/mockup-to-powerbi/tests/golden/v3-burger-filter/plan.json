@@ -277,5 +277,7 @@
       "title": "Year",
       "text": "Vorauswahl DimDate.Year = 2026: `pbir add filter` legt einen kategorialen Visual-Filter an. In Desktop pruefen, ob die Auswahl im Slicer sichtbar ist — sonst dort einmal klicken und speichern."
     }
-  ]
+  ],
+  "issues": [],
+  "customVisuals": []
 }

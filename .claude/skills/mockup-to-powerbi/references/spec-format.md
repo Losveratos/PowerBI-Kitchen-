@@ -51,6 +51,24 @@ zweiter Lauf an einem alten Bericht Dubletten anlegen.
 Eine **höhere** Hauptversion bricht ab (`Spec-Version 4 wird von diesem Skill
 nicht unterstützt`). Dann ist MockupKitchen neuer als der Skill; raten wäre falsch.
 
+### Tool 0.4 (specVersion bleibt 3)
+
+MockupKitchen 0.4 erweitert die v3-Form abwärtskompatibel — ältere Specs laufen
+unverändert weiter:
+
+| Neu | Wo |
+|---|---|
+| Engine `custom` und `visuals[].customVisual` | Kacheln, die ein **Custom Visual** aus dem Repository sind (Gantt, GuV) — siehe [Custom Visuals](#custom-visuals) |
+| Rolle `rowType` | Rollen-Vokabular (Spalte: Position / Summe / Formel) |
+| `design.variancePalette`, `design.varianceColors` | Abweichungsfarben (gut / schlecht) |
+| `design.colors` | Farbsatz: Seite, Kachel, Ink, Kopfband-Fläche, Kopfband-Text |
+| `design.headerStyle: "custom"` | frei gewählte Kopfband-Farben statt light/dark/accent |
+
+Fehlen die Schlüssel, setzt `mockup_spec.normalise_design()` genau die Werte,
+die der Skill vorher fest verdrahtet hatte (Teal-Palette, weiße Kacheln,
+Ink `#0F1E2E`, Kopfbandfarben aus `headerStyle`). Die Ausgabe eines alten
+Mockups ändert sich dadurch nicht.
+
 ## Oberste Ebene (specVersion 3)
 
 | Schlüssel | Inhalt |
@@ -143,7 +161,11 @@ ein Theme (Theme macht der Skill `powerbi-design-framework`).
 | `headerStyle` | `light` · `dark` · `accent` | Füllung der Kopfband-Shape: weiß + Trennlinie unten · Ink · Akzentfarbe; Textfarbe entsprechend |
 | `accent` | Hex | aktiver Nav-Button, Burger-Button, Akzentlinie |
 | `fontScale` | = `uiScale` | alle Schriftgrößen multiplizieren (Visual-Titel ≈ 12 · `fontScale` pt, Kopfband-Titel ≈ 16 ·, Fußleiste ≈ 9 ·); `pbir` akzeptiert 6–45 pt |
-| `darkMode` | derzeit immer `false` | – |
+| `headerStyle: "custom"` | ab 0.4 | Kopfbandfarben kommen aus `colors.headerBackground` / `colors.headerInk`; Trennlinie nur, wenn die Fläche hell ist |
+| `variancePalette` | `teal` · `ibcs` | wählt die Abweichungsfarben: `teal` = `#1E8F9E`/`#D64541`, `ibcs` = `#3A9A5B`/`#C8412F` |
+| `varianceColors` | `{good, bad}` | die konkreten Farben (das Tool schreibt sie passend zur Palette mit); gehen ins Theme-Fragment als `good` / `bad` |
+| `colors` | `{pageBackground, tileBackground, ink, headerBackground, headerInk}` | vollständiger Farbsatz. `ink` ist die Vordergrundfarbe (Theme `foreground`, Titel, Fußleiste), die Kopfbandfarben ersetzen die Herleitung aus `headerStyle` |
+| `darkMode` | bool | `true`, wenn die Kachelfarbe dunkel ist; steht in `checklist.md` und im Theme-Kommentar. Farben kommen trotzdem aus `colors` — es wird nichts umgerechnet |
 
 > Der Enum-Wert für abgerundete Shapes heißt `rectangleRounded`
 > (nicht `roundedRectangle`) — `pbir set` lehnt den falschen Namen ab und
@@ -225,6 +247,7 @@ wird `pbir pages drillthrough "<Ziel>.Page" --table <Tabelle> --field <Feld>`.
 | `analysis` | Analyse-Entscheidungen, siehe unten (ab v3) |
 | `workshop` | `{priority: must\|should\|could\|null, status: open\|agreed\|approved, openQuestion: bool}` (ab v3) — landet als Annotation am Visual und in der Doku |
 | `native` | `{ type, buckets }` — natives Power-BI-Visual und die fertig gemappten pbir-Datenrollen. Wird **auch bei `engine: "ck"`** befüllt, sofern der Typ ein natives Gegenstück hat → brauchbar als Ersatzvisual |
+| `customVisual` | `{ name, guid, buckets }` — nur bei `engine: "custom"`, sonst `null`. `buckets` ist genauso aufgebaut wie `native.buckets`, die Schlüssel sind aber die Datenrollen des Custom Visuals aus seiner `capabilities.json`. Siehe [Custom Visuals](#custom-visuals) |
 | `title`, `subtitle` | Visual-Titel und Untertitel/Einheit |
 | `scenario` | z. B. `AC/PL`, `AC/PY`, `AC/PL/FC` — nur bei Typen mit Referenz-Rolle, sonst `null` |
 | `rect` | `{x, y, w, h}` — exakt übernehmen |
@@ -284,6 +307,7 @@ Code in `mockup-out/analysis-todos.md`.
 | `start`, `end` | Start / Ende (Gantt) | Spalte | 1 |
 | `field` | Feld (Slicer) | Spalte | 1 |
 | `text` | Text (statisch oder Measure) | beliebig | 1 |
+| `rowType` | Zeilentyp (Position / Summe / Formel) — ab 0.4, für GuV und Wasserfall | Spalte | 1 |
 
 ## Engines
 
@@ -292,6 +316,7 @@ Code in `mockup-out/analysis-todos.md`.
 | `native` | Standard-Power-BI-Visual | `pbir add visual "<Seite>.Page" --from-json <Seitenslug>/pbir-visuals.json` |
 | `ck` | ChartKitchen byDatenWG (Custom Visual) | Referenz-Instanz replizieren; ohne Instanz Platzhalter |
 | `deneb` | Deneb/Vega | Skill `deploy-to-powerbi`, `pbir visuals deneb` |
+| `custom` | anderes Custom Visual aus dem Repository (ab 0.4) | fertige `visual.json` aus `<Seitenslug>/custom-visuals/` über einen Platzhalter kopieren — siehe unten |
 
 `buildPbir` im Tool exportiert **nur** `engine == "native"` plus die Slicer. Das
 Skript `mockup_to_pbir.py` macht es genauso; mit `--ck-fallback` nimmt es
@@ -348,6 +373,7 @@ Das Skript schlägt vor, die Referenz-Instanz entscheidet.
 | `ref` (1./2. Feld) | `plan` bzw. `previousYear` | Reihenfolge aus `scenario`: `PL`/`BU` → `plan`, `PY` → `previousYear`; überzählige Referenzen → `benchmark` |
 | `goal` | `plan` | bei Monitoring-Zielwerten ggf. `benchmark` — nachfragen |
 | `fc` | `fcFlag` | **Zahl 1/0**, nicht Boolean |
+| `rowType` | `rowType` | Pflicht bei `orientation` `waterfall` und `pnl` (`sum`/`delta` je Zeile) |
 | `x`, `y`, `size`, `start`, `end`, `field`, `text` | – | kein Gegenstück; diese Typen kann ChartKitchen nicht |
 
 ### Kachel-Typ → `chart.orientation`
@@ -370,10 +396,92 @@ Das Skript schlägt vor, die Referenz-Instanz entscheidet.
 | `table`, `sparktable`, `heatmap` | `table` |
 | `marimekko`, `tree`, `scatter`, `boxplot`, `gantt` | kein Modus → Deneb oder natives Visual |
 
-Für GuV-Seiten gibt es zusätzlich `pnl` (Skill `pnl-report`); das Mockup-Tool
-kennt dafür keinen eigenen Typ — beim Menschen nachfragen, wenn die Kachel
-„GuV" heißt.
+Für GuV-Seiten gibt es in ChartKitchen zusätzlich `pnl` (Skill `pnl-report`).
+Ab Tool 0.4 hat das Mockup dafür einen **eigenen Typ** `pnl` — der läuft aber
+nicht über ChartKitchen, sondern über das Custom Visual `pnlByDatenWG`
+(`engine: "custom"`, siehe unten).
 
+
+## Custom Visuals
+
+Kacheln mit `engine: "custom"` sind Custom Visuals aus diesem Repository. Sie
+tragen den Block:
+
+```json
+"customVisual": {
+  "name": "pnlByDatenWG",
+  "guid": "pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358",
+  "buckets": {
+    "levels": [{ "ref": "DimAccount.L1", "kind": "column", "isNew": false }],
+    "ac":     [{ "ref": "_Measures.AC",  "kind": "measure", "isNew": false }]
+  }
+}
+```
+
+| Kachel-Typ | `name` | GUID | Datenrollen (`buckets`) |
+|---|---|---|---|
+| `gantt` | `dataKitchenGantt` | `dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44` | `task`, `start`, `end`, `phase`, `projekt`, `progress`, `status`, `owner`, `deps`, `planStart`, `planEnd`, `sort`, `statusDate` |
+| `pnl` | `pnlByDatenWG` | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` | `account`, `accountName`, `levels`, `parent`, `sortOrder`, `rowType`, `formulaDef`, `signConvention`, `displayInvert`, `varianceInvert`, `period`, `comment`, `ac`, `py`, `pl`, `fc`, `fcFy`, `plFy` |
+
+Vollständig stehen die Rollen in der `capabilities.json` des jeweiligen Visuals
+(`dataKitchenGantt/capabilities.json`, `pnlByDatenWG/capabilities.json` im
+Repo-Wurzelverzeichnis). Das Mockup bindet nur eine Auswahl; der Rest wird in
+Desktop nachgezogen.
+
+**Pflichtrollen** (ohne sie zeichnet das Visual nichts) prüft
+`mockup_to_pbir.py` und meldet sie als Warnung in `checklist.md` und unter
+`issues` in `plan.json`:
+
+| Visual | Pflicht |
+|---|---|
+| `dataKitchenGantt` | `task` **und** `start` |
+| `pnlByDatenWG` | `levels` **oder** `account`, dazu `ac` |
+
+### Warum nicht in `pbir-visuals.json`
+
+`pbir` kann Custom Visuals **nicht anlegen** (verifiziert, 0.9.32):
+
+```
+pbir add visual pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358 "<Seite>.Page"
+  -> Unknown visual type 'pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358'
+```
+
+In einer `--from-json`-Datei reißt so ein Eintrag die **ganze Datei** mit
+(„no visuals were created"). Deshalb stehen Custom Visuals nicht in
+`pbir-visuals.json`, sondern als fertige PBIR-`visual.json` in
+`mockup-out/<Seitenslug>/custom-visuals/<id>.visual.json`, dazu ein Index
+`custom-visuals.json` und `custom-commands.sh`/`.ps1`.
+
+Die erzeugte Datei hat genau die Form, die `pbir add visual` selbst schreibt
+(Schema `…/visualContainer/2.9.0/schema.json`, `visualContainerObjects` als
+Arrays, Zahlen als `"12D"`), mit zwei Custom-Teilen:
+
+- `visual.visualType` = die **GUID**
+- `visual.query.queryState` = je Bucket ein Eintrag mit `projections`; Spalten
+  als `Column`, Measures als `Measure`, `queryRef` = `Tabelle.Feld`,
+  `nativeQueryRef` = Feldname. Die erste Projektion einer Spaltenrolle bekommt
+  `"active": true`.
+
+Ablauf (steht fertig in `custom-commands.sh`):
+
+1. `.pbiviz` in den Bericht importieren (Desktop) — sonst bleibt die Kachel leer:
+   `dataKitchenGantt/dist/*.pbiviz`, `pnlByDatenWG/dist/*.pbiviz`; fehlt der
+   Build, im Visual-Ordner `pbiviz package` laufen lassen.
+2. Platzhalter anlegen: `pbir add visual shape "<Seite>.Page" -n "<id>" -x … -y …`
+   — damit schreibt pbir Ordner, Visualname und Seiteneintrag korrekt.
+3. Die erzeugte `visual.json` über die des Platzhalters kopieren. Den Ordner
+   liefert `find "<Report>/definition/pages" -type d -name "<id>"`; `pbir ls
+   "<Seite>.Page" --json` nennt zu jedem Visual ebenfalls seinen `path`.
+4. `pbir validate "<Report>" --fields` — die Datei wird angenommen (verifiziert).
+
+**Reihenfolge:** erst `chrome-batch.json`, dann kopieren. Die Kopie überschreibt
+sonst die Formatierung — sie steckt bereits vollständig in der Datei
+(Hintergrund, Rahmen/Schatten, Eckenradius, Titel, z-Order).
+
+`pbir visuals bind` kann bei einem Custom Visual nur Rollen bedienen, die in der
+`queryState` schon stehen („Role 'x' not valid … Available: …"). Die erzeugte
+Datei enthält deshalb alle Rollen der Spec von Anfang an. Im **zweiten Lauf**
+reicht Schritt 3 allein; `delta-batch.json` fasst Custom Visuals bewusst nicht an.
 
 ## `pbir-visuals.<Seitenslug>.json` (Tool-Ausgabe, eine Datei je Seite)
 

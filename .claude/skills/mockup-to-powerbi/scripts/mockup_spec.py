@@ -49,6 +49,7 @@ CK_ROLE = {
     "rows": "category",
     "columns": "colgroup",
     "values": "actual",
+    "rowType": "rowType",
 }
 CK_ROLE_UNSUPPORTED = {"x", "y", "size", "start", "end", "field", "text"}
 
@@ -68,6 +69,58 @@ CK_ORIENTATION = {
     "table": "table", "sparktable": "table", "heatmap": "table",
 }
 
+# --------------------------------------------------------------------------- #
+# Custom Visuals (Quelle: assets/mockup/catalog.js -> K(...).customVisual und
+# die capabilities.json der Visuals im Repository)
+# --------------------------------------------------------------------------- #
+CUSTOM_VISUALS = {
+    "dataKitchenGantt": {
+        "guid": "dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44",
+        "kinds": ["gantt"],
+        "label": "dataKitchenGantt byDatenWG",
+        # capabilities.json -> dataRoles[].name
+        "roles": ["task", "start", "end", "phase", "projekt", "progress", "status",
+                  "owner", "deps", "planStart", "planEnd", "sort", "statusDate"],
+        # ohne diese Rollen zeichnet das Visual nichts
+        "required": [["task"], ["start"]],
+        "source": "dataKitchenGantt/",
+        "pbiviz": "dataKitchenGantt/dist/*.pbiviz",
+    },
+    "pnlByDatenWG": {
+        "guid": "pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358",
+        "kinds": ["pnl"],
+        "label": "pnlByDatenWG (GuV)",
+        "roles": ["account", "accountName", "levels", "parent", "sortOrder", "rowType",
+                  "formulaDef", "signConvention", "displayInvert", "varianceInvert",
+                  "period", "comment", "ac", "py", "pl", "fc", "fcFy", "plFy"],
+        # entweder die Ebenenspalten oder ein Kontoschluessel, dazu immer AC
+        "required": [["levels", "account"], ["ac"]],
+        "source": "pnlByDatenWG/",
+        "pbiviz": "pnlByDatenWG/dist/*.pbiviz",
+    },
+}
+CUSTOM_BY_GUID = {v["guid"]: k for k, v in CUSTOM_VISUALS.items()}
+
+
+def custom_visual_info(cv: dict):
+    """Registry-Eintrag zu einem `customVisual`-Block — ueber Name oder GUID."""
+    if not isinstance(cv, dict):
+        return None, None
+    name = cv.get("name")
+    if name in CUSTOM_VISUALS:
+        return name, CUSTOM_VISUALS[name]
+    name = CUSTOM_BY_GUID.get(cv.get("guid"))
+    return (name, CUSTOM_VISUALS[name]) if name else (None, None)
+
+
+# Varianz-Paletten (Quelle: assets/mockup/export.js -> design.varianceColors)
+VARIANCE_PALETTES = {
+    "teal": {"good": "#1E8F9E", "bad": "#D64541"},
+    "ibcs": {"good": "#3A9A5B", "bad": "#C8412F"},
+}
+HEADER_STYLES = ("light", "dark", "accent", "custom")
+HEX_RX = re.compile(r"^#[0-9A-Fa-f]{6}$")
+
 # Rollen, aus denen sich das Drill-through-Feld einer Quellkachel ergibt
 DRILL_ROLE_ORDER = ("category", "rows", "subcategory", "series")
 # Rollen, aus denen sich die fuehrende Kennzahl ergibt (Sortierung, Top-N)
@@ -82,7 +135,12 @@ DEFAULT_DESIGN = {
     "accent": "#C25A2D",
     "darkMode": False,
     "fontScale": 1.0,
+    # ab Tool 0.4; aeltere Specs bekommen genau diese Vorgaben
+    "variancePalette": "teal",
+    "varianceColors": None,
+    "colors": None,
 }
+DEFAULT_INK = "#0F1E2E"
 
 DEFAULT_REPORT = {"name": "", "audience": "", "purpose": "", "decision": "",
                   "participants": "", "version": "0.1", "dataDate": ""}
@@ -105,6 +163,62 @@ LOWER_IS_BETTER = re.compile(
 # --------------------------------------------------------------------------- #
 # Helfer
 # --------------------------------------------------------------------------- #
+def hex_or(value, fallback):
+    """Hexfarbe uebernehmen, sonst den Ersatzwert — nie None weiterreichen."""
+    return value if isinstance(value, str) and HEX_RX.match(value) else fallback
+
+
+def is_light(color: str) -> bool:
+    """Grobe Helligkeit einer Hexfarbe (fuer den Kopfband-Stil `custom`)."""
+    c = hex_or(color, DEFAULT_INK).lstrip("#")
+    r, g, b = int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16)
+    return (0.299 * r + 0.587 * g + 0.114 * b) > 150
+
+
+def normalise_design(design: dict) -> dict:
+    """`design` auf die v3/0.4-Form bringen: Palette, Varianzfarben, Farbsatz.
+
+    Specs ohne die neuen Schluessel bekommen genau die Werte, die der Skill
+    vorher fest verdrahtet hatte (Teal-Palette, weisse Kacheln, Ink #0F1E2E) —
+    die Ausgabe aelterer Mockups aendert sich dadurch nicht.
+    """
+    palette = design.get("variancePalette")
+    if palette not in VARIANCE_PALETTES:
+        palette = "teal"
+    design["variancePalette"] = palette
+    given_vc = design.get("varianceColors") if isinstance(design.get("varianceColors"), dict) else {}
+    design["varianceColors"] = {
+        key: hex_or(given_vc.get(key), VARIANCE_PALETTES[palette][key])
+        for key in ("good", "bad")}
+
+    style = str(design.get("headerStyle") or "dark").lower()
+    if style not in HEADER_STYLES:
+        style = "dark"
+    design["headerStyle"] = style
+
+    given = design.get("colors") if isinstance(design.get("colors"), dict) else {}
+    ink = hex_or(given.get("ink"), DEFAULT_INK)
+    accent = hex_or(design.get("accent"), "#C25A2D")
+    page_bg = hex_or(given.get("pageBackground"),
+                     hex_or(design.get("pageBackground"), "#F4F4F1"))
+    tile_bg = hex_or(given.get("tileBackground"),
+                     hex_or(design.get("tileBackground"), "#FFFFFF"))
+    head_bg = {"dark": ink, "accent": accent, "light": "#FFFFFF"}.get(style, ink)
+    head_ink = ink if style == "light" else "#FFFFFF"
+    design["colors"] = {
+        "pageBackground": page_bg,
+        "tileBackground": tile_bg,
+        "ink": ink,
+        "headerBackground": hex_or(given.get("headerBackground"), head_bg),
+        "headerInk": hex_or(given.get("headerInk"), head_ink),
+    }
+    design["accent"] = accent
+    design["pageBackground"] = page_bg
+    design["tileBackground"] = tile_bg
+    design["darkMode"] = bool(design.get("darkMode"))
+    return design
+
+
 def slug(text, limit: int = 40) -> str:
     """Identisch zur slug()-Funktion in assets/mockup/export.js."""
     s = unicodedata.normalize("NFD", str(text or "seite"))
@@ -151,12 +265,20 @@ def _canon(obj) -> str:
     return json.dumps(obj, ensure_ascii=False)
 
 
+# Schluessel, die `normalise_design` ergaenzt. Sie bleiben aus dem Hash heraus,
+# damit ein v1/v2-Mockup denselben Hash behaelt wie vor Tool 0.4 — sonst meldete
+# der naechste Lauf an einem bereits gebauten Bericht faelschlich eine Aenderung.
+# Fuer Specs aus dem Tool zaehlt ohnehin `meta.specHash` aus export.js.
+HASH_SKIP_DESIGN = ("variancePalette", "varianceColors", "colors")
+
+
 def spec_hash(spec: dict) -> str:
     """FNV-1a ueber den bau-relevanten Kern — gleiche Felder wie export.js."""
     core = {
         "canvas": {"width": (spec.get("canvas") or {}).get("width"),
                    "height": (spec.get("canvas") or {}).get("height")},
-        "design": spec.get("design") or {},
+        "design": {k: v for k, v in (spec.get("design") or {}).items()
+                   if k not in HASH_SKIP_DESIGN},
         "zones": spec.get("zones") or {},
         "pages": [{
             "name": p.get("name"), "question": p.get("question") or "",
@@ -269,6 +391,7 @@ def upgrade(raw: dict, page_name_override=None) -> dict:
     if not (spec.get("design") or {}).get("fontScale"):
         design["fontScale"] = ui_scale
     design["fontScale"] = float(design["fontScale"] or 1) or 1.0
+    normalise_design(design)
 
     # ---- Seiten ---------------------------------------------------------- #
     if version >= 2:
@@ -315,6 +438,10 @@ def upgrade(raw: dict, page_name_override=None) -> dict:
             v.setdefault("notes", "")
             v.setdefault("subtitle", "")
             v.setdefault("roles", {})
+            # `customVisual` gibt es erst ab Tool 0.4; aeltere Specs kennen die
+            # Engine `custom` nicht, deshalb reicht der Vorgabewert None.
+            if not isinstance(v.get("customVisual"), dict):
+                v["customVisual"] = None
             if version < 3:
                 v.setdefault("stableId", str(v.get("id") or ""))
                 v.setdefault("slug", slug(v.get("title") or v.get("kind") or "Kachel"))
@@ -593,6 +720,17 @@ def structural_errors(nspec: dict) -> list:
                 out.append("pages[%s].visuals: „%s\" ist kein brauchbarer "
                            "PBIR-Visualname (nur Buchstaben, Ziffern, _ . -)."
                            % (p.get("index"), vid))
+            if v.get("engine") == "custom":
+                cv = v.get("customVisual")
+                if not isinstance(cv, dict) or not cv.get("guid"):
+                    out.append("pages[%s].visuals: „%s\" hat engine „custom\", "
+                               "aber keinen `customVisual`-Block mit `guid`. Ohne GUID "
+                               "laesst sich kein Visual bauen."
+                               % (p.get("index"), vid))
+                elif not re.fullmatch(r"[A-Za-z0-9]+", str(cv.get("guid"))):
+                    out.append("pages[%s].visuals: `customVisual.guid` „%s\" ist keine "
+                               "PBIR-Visual-GUID (nur Buchstaben und Ziffern)."
+                               % (p.get("index"), cv.get("guid")))
     names = {p.get("name") for p in nspec["pages"]}
     for l in nspec["links"]:
         if l.get("toPage") not in names:

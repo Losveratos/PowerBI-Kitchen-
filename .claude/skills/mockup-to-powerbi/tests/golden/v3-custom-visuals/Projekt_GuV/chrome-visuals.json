@@ -1,0 +1,47 @@
+[
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_bg",
+    "title": "Kopfband",
+    "x": 0,
+    "y": 0,
+    "width": 1280,
+    "height": 56
+  },
+  {
+    "visual_type": "actionButton",
+    "name": "chrome_nav_1",
+    "title": "Projekt & GuV",
+    "x": 1152,
+    "y": 12,
+    "width": 112,
+    "height": 32
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_title",
+    "title": "Kopfband-Titel",
+    "x": 16,
+    "y": 6,
+    "width": 1120,
+    "height": 26
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_subtitle",
+    "title": "Kopfband-Untertitel",
+    "x": 16,
+    "y": 32,
+    "width": 1120,
+    "height": 18
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_footer_text",
+    "title": "Fußleiste",
+    "x": 16,
+    "y": 696,
+    "width": 1248,
+    "height": 24
+  }
+]

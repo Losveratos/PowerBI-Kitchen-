@@ -1,0 +1,229 @@
+[
+  {
+    "id": "mk_gantt1",
+    "stableId": "gantt1",
+    "page": "Projekt & GuV",
+    "kind": "gantt",
+    "label": "Gantt (dataKitchenGantt)",
+    "title": "Projektplan",
+    "subtitle": "Rollout 2026",
+    "visualName": "dataKitchenGantt",
+    "guid": "dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44",
+    "registryName": "dataKitchenGantt",
+    "pbiviz": "dataKitchenGantt/dist/*.pbiviz",
+    "source": "dataKitchenGantt/",
+    "rect": {
+      "x": 16,
+      "y": 72,
+      "w": 616,
+      "h": 296
+    },
+    "buckets": {
+      "task": [
+        "DimTask.Task"
+      ],
+      "start": [
+        "DimTask.Start"
+      ],
+      "end": [
+        "DimTask.Ende"
+      ],
+      "phase": [
+        "DimTask.Phase"
+      ]
+    },
+    "mockupRoles": {
+      "category": [
+        "DimTask.Task"
+      ],
+      "start": [
+        "DimTask.Start"
+      ],
+      "end": [
+        "DimTask.Ende"
+      ],
+      "series": [
+        "DimTask.Phase"
+      ]
+    },
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": null,
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "notes": "Basisplan spaeter als planStart/planEnd nachziehen.",
+    "file": "custom-visuals/mk_gantt1.visual.json",
+    "warnings": []
+  },
+  {
+    "id": "mk_pnl1",
+    "stableId": "pnl1",
+    "page": "Projekt & GuV",
+    "kind": "pnl",
+    "label": "GuV (pnlByDatenWG)",
+    "title": "GuV nach Ebenen",
+    "subtitle": "",
+    "visualName": "pnlByDatenWG",
+    "guid": "pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358",
+    "registryName": "pnlByDatenWG",
+    "pbiviz": "pnlByDatenWG/dist/*.pbiviz",
+    "source": "pnlByDatenWG/",
+    "rect": {
+      "x": 648,
+      "y": 72,
+      "w": 616,
+      "h": 296
+    },
+    "buckets": {
+      "levels": [
+        "DimAccount.L1",
+        "DimAccount.L2"
+      ],
+      "ac": [
+        "_Measures.AC"
+      ],
+      "py": [
+        "_Measures.PY"
+      ],
+      "pl": [
+        "_Measures.PL"
+      ],
+      "fc": [
+        "_Measures.FC"
+      ],
+      "rowType": [
+        "DimAccount.RowType"
+      ]
+    },
+    "mockupRoles": {
+      "rows": [
+        "DimAccount.L1",
+        "DimAccount.L2"
+      ],
+      "ac": [
+        "_Measures.AC"
+      ],
+      "ref": [
+        "_Measures.PY",
+        "_Measures.PL"
+      ],
+      "fc": [
+        "_Measures.FC"
+      ],
+      "rowType": [
+        "DimAccount.RowType"
+      ]
+    },
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": false,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": "T€",
+      "displayUnits": "K",
+      "decimals": 0,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": "must",
+      "status": "agreed",
+      "openQuestion": false
+    },
+    "notes": "",
+    "file": "custom-visuals/mk_pnl1.visual.json",
+    "warnings": []
+  },
+  {
+    "id": "mk_gantt2",
+    "stableId": "gantt2",
+    "page": "Projekt & GuV",
+    "kind": "gantt",
+    "label": "Gantt (dataKitchenGantt)",
+    "title": "Meilensteine",
+    "subtitle": "",
+    "visualName": "dataKitchenGantt",
+    "guid": "dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44",
+    "registryName": "dataKitchenGantt",
+    "pbiviz": "dataKitchenGantt/dist/*.pbiviz",
+    "source": "dataKitchenGantt/",
+    "rect": {
+      "x": 16,
+      "y": 384,
+      "w": 616,
+      "h": 296
+    },
+    "buckets": {
+      "task": [
+        "DimTask.Task"
+      ],
+      "phase": [
+        "DimTask.Meilenstein"
+      ]
+    },
+    "mockupRoles": {
+      "category": [
+        "DimTask.Task"
+      ],
+      "series": [
+        "DimTask.Meilenstein"
+      ]
+    },
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": null,
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "notes": "",
+    "file": "custom-visuals/mk_gantt2.visual.json",
+    "warnings": [
+      "Pflichtrolle `start` ist leer — dataKitchenGantt byDatenWG zeichnet ohne sie nichts. Feld im Mockup nachtragen oder im Bericht nachbinden."
+    ]
+  }
+]
