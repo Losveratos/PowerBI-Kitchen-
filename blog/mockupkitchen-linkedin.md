@@ -28,7 +28,7 @@ Kein Report-Generator. Ein Anforderungswerkzeug mit deterministischem Ausgang.
 Ist online zum Testen, ohne Installation, nichts verlässt den Browser:
 https://datenwgknowledgekitchen.com/mockup-kitchen.html
 
-Was dahinter steckt und was das Sechs-Personen-Review dazu gesagt hat:
+Was dahinter steckt und was das Sechs-Perspektiven-Review dazu gesagt hat:
 https://datenwgknowledgekitchen.com/mockupkitchen-post.html
 
 #PowerBI #IBCS #Reporting #Controlling #ClaudeCode #DatenWG
