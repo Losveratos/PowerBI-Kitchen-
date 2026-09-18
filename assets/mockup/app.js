@@ -152,22 +152,24 @@
   }
   function dupPage() { const src = page(); const p = JSON.parse(JSON.stringify(src)); p.id = uid(); p.name = src.name + ' (Kopie)'; reId(p.layout); S.pages.splice(S.pages.indexOf(src) + 1, 0, p); S.cur = p.id; sel = null; commit(); }
   function reId(n) { n.id = uid(); if (n.type === 'split') n.children.forEach(c => reId(c.node)); }
-  function delPage() {
+  function delPage(pid) {
+    const p = S.pages.find(x => x.id === pid) || page();
     if (S.pages.length === 1) return toast('Die letzte Seite bleibt');
-    if (!confirm('Seite „' + page().name + '" löschen?')) return;
-    const i = S.pages.indexOf(page()); const id = page().id; S.pages.splice(i, 1); S.cur = S.pages[Math.max(0, i - 1)].id; sel = null;
+    if (!confirm('Seite „' + p.name + '" löschen?')) return;
+    const i = S.pages.indexOf(p); const id = p.id; S.pages.splice(i, 1); S.cur = S.pages[Math.max(0, i - 1)].id; sel = null;
     S.pages.forEach(p => visuals(p).forEach(l => { if (l.visual.link === id) l.visual.link = ''; }));
     commit();
   }
   function movePage(d) { const i = S.pages.indexOf(page()); const j = i + d; if (j < 0 || j >= S.pages.length) return; const [p] = S.pages.splice(i, 1); S.pages.splice(j, 0, p); commit(); }
   function renderPages() {
     const bar = $('#pagebar');
-    bar.innerHTML = S.pages.map((p, i) => `<span class="ptab${p.id === S.cur ? ' act' : ''}" data-page="${p.id}" title="Doppelklick: umbenennen"><span class="n">${i + 1}</span>${esc(p.name)}<span class="x" data-delpage="${p.id}" title="Seite löschen">×</span></span>`).join('')
+    bar.innerHTML = S.pages.map((p, i) => `<span class="ptab${p.id === S.cur ? ' act' : ''}" data-page="${p.id}"><span class="n">${i + 1}</span>${esc(p.name)}${p.id === S.cur ? `<span class="x" data-renpage="${p.id}" title="Seite umbenennen">✎</span>` : ''}<span class="x" data-delpage="${p.id}" title="Seite löschen">×</span></span>`).join('')
       + `<button class="padd" id="btnAddPage">+ Seite</button><span class="ptools"><button class="btn sm ghost" id="btnPageLeft" title="Seite nach links">‹</button><button class="btn sm ghost" id="btnPageRight" title="Seite nach rechts">›</button></span>`;
   }
   $('#pagebar').addEventListener('click', e => {
-    const del = e.target.closest('[data-delpage]'); if (del) { S.cur = del.dataset.delpage; delPage(); return; }
-    const t = e.target.closest('[data-page]'); if (t) { S.cur = t.dataset.page; sel = null; commit({ noUndo: true }); return; }
+    const del = e.target.closest('[data-delpage]'); if (del) { delPage(del.dataset.delpage); return; }
+    const ren = e.target.closest('[data-renpage]'); if (ren) { const p = S.pages.find(x => x.id === ren.dataset.renpage); const n = prompt('Seitenname', p.name); if (n && n.trim()) { p.name = n.trim(); commit(); } return; }
+    const t = e.target.closest('[data-page]'); if (t) { if (t.dataset.page !== S.cur) { S.cur = t.dataset.page; sel = null; commit({ noUndo: true }); } return; }
     if (e.target.id === 'btnAddPage') addPage();
     if (e.target.id === 'btnPageLeft') movePage(-1);
     if (e.target.id === 'btnPageRight') movePage(1);
@@ -274,9 +276,11 @@
     if (rm) { S.chrome.filter.fields.splice(+rm.dataset.rmfilter, 1); commit(); return; }
     if (act && tile) { e.stopPropagation(); const id = tile.dataset.leaf; if (act.dataset.act === 'rm') removeLeaf(id); else splitLeaf(id, act.dataset.act); return; }
     if (e.target.closest('.note-ico')) { const pop = e.target.closest('.tile').querySelector('.note-pop'); pop.classList.toggle('pinned'); return; }
-    if (tile) { sel = tile.dataset.leaf; render(); return; }
+    if (tile) { selectTile(tile.dataset.leaf); return; }
     sel = null; render();
   });
+  // Auswahl ohne Neu-Rendern der Seite, sonst geht das Zielelement zwischen zwei Klicks verloren (Doppelklick)
+  function selectTile(id) { sel = id; $$('.tile', pageEl).forEach(t => t.classList.toggle('sel', t.dataset.leaf === id)); renderInspector(); }
   pageEl.addEventListener('dblclick', e => { const tile = e.target.closest('[data-leaf]'); if (tile && !e.target.closest('[data-act]')) { sel = tile.dataset.leaf; openCatalog(); } });
   stage.addEventListener('click', e => { if (e.target === stage || e.target.id === 'stageInner') { sel = null; render(); } });
 
@@ -606,9 +610,10 @@
   $$('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
   window.addEventListener('keydown', e => {
     const t = e.target;
-    if ((t && t.matches && t.matches('input,textarea,select')) || document.querySelector('dialog[open]')) { if (e.key === 'Escape' && t && t.blur) t.blur(); return; }
+    if (document.querySelector('dialog[open]')) return;                       // Dialoge behalten Fokusfang und Esc
+    if (t && t.matches && t.matches('input,textarea,select')) { if (e.key === 'Escape' && t.blur) t.blur(); return; }
     if (e.key === 'Escape') { sel = null; render(); }
-    else if ((e.key === 'Delete' || e.key === 'Backspace') && sel) { const n = findNode(sel).node; if (n.visual) { n.visual = null; commit(); } else removeLeaf(sel); }
+    else if ((e.key === 'Delete' || e.key === 'Backspace') && sel) { const n = findNode(sel).node; if (n.visual) { n.visual = null; commit(); toast('Kachel geleert · Strg+Z macht es rückgängig'); } else removeLeaf(sel); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); $('#btnSave').click(); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') { e.preventDefault(); $('#btnExport').click(); }
