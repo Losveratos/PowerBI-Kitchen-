@@ -53,6 +53,7 @@
     field:       role('field',       'field',      'column',  true,  1),
     text:        role('text',        'text',       'any',     false, 1),
     geo:         role('category',    'geo',        'column',  true,  1),
+    rowType:     role('rowType',     'rowType',    'column',  false, 1),
   };
 
   // Kurzform: K(id, groupId, {engines, ck, native:{type, map}, roles, warnNote, sketch})
@@ -105,13 +106,14 @@
     K('heatmap', 'struct', { roles: [R.category, RX(R.category2, { req: true }), R.ac, R.ref], engines: ['ck', 'deneb', 'native'], native: { type: 'pivotTable', map: { category: 'Rows', subcategory: 'Columns', ac: 'Values' } } }),
     K('scatter', 'struct', { roles: [R.category, R.x, R.y, R.size], native: { type: 'scatterChart', map: { category: 'Category', x: 'X', y: 'Y', size: 'Size' } } }),
     K('boxplot', 'struct', { roles: [R.category, RX(R.ac, { labelKey: 'valueCol', kind: 'any' })], engines: ['ck', 'deneb'], native: null }),
-    K('gantt', 'struct', { roles: [R.category, R.start, R.end, R.series], engines: ['ck', 'deneb'], native: null }),
+    K('gantt', 'struct', { roles: [R.category, R.start, R.end, R.series], engines: ['custom', 'deneb'], engine: 'custom', ck: null, native: null, customVisual: { name: 'dataKitchenGantt', guid: 'dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44', map: { category: 'task', start: 'start', end: 'end', series: 'phase' } } }),
 
     // ---------- Tabellen & KPI ----------
     K('kpi', 'table', { roles: [R.indicator, R.goal, RX(R.time, { req: false, labelKey: 'timeSpark' })], native: { type: 'card', map: { indicator: 'Values' } } }),
     K('card', 'table', { roles: [R.indicator], engines: ['native'], engine: 'native', ck: null, native: { type: 'card', map: { indicator: 'Values' } } }),
     K('multirow', 'table', { roles: [R.values], engines: ['native'], engine: 'native', ck: null, native: { type: 'multiRowCard', map: { values: 'Values' } } }),
     K('table', 'table', { roles: [R.rows, R.ac, R.ref], native: { type: 'tableEx', map: { rows: 'Values', ac: 'Values', ref: 'Values' } } }),
+    K('pnl', 'table', { roles: [R.rows, R.ac, RX(R.ref, { max: 3 }), R.fc, R.rowType], engines: ['custom'], engine: 'custom', ck: null, native: null, customVisual: { name: 'pnlByDatenWG', guid: 'pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358', map: { rows: 'levels', ac: 'ac', ref: { py: /(py|vj|vorjahr|prior|previous|ly)/i, pl: /(pl|bu|budget|plan|target)/i }, fc: 'fc', rowType: 'rowType' } } }),
     K('sparktable', 'table', { roles: [R.rows, R.time, R.ac, R.ref], engines: ['ck', 'deneb'], native: { type: 'tableEx', map: { rows: 'Values', ac: 'Values' } } }),
     K('matrix', 'table', { roles: [R.rows, R.cols, R.values], engines: ['native'], engine: 'native', ck: null, native: { type: 'pivotTable', map: { rows: 'Rows', columns: 'Columns', values: 'Values' } } }),
     K('gauge', 'table', { roles: [R.indicator, R.goal], engines: ['native'], engine: 'native', ck: null, warnNote: true, native: { type: 'gauge', map: { indicator: 'Y', goal: 'TargetValue' } } }),
@@ -159,28 +161,53 @@
 
   // Engine-Beschriftungen sprachabhängig (die Schlüssel ck/native/deneb bleiben)
   const ENGINE_LABEL = {};
-  ['ck', 'native', 'deneb'].forEach(e => lazy(ENGINE_LABEL, e, () => T('engine.' + e)));
+  ['ck', 'native', 'deneb', 'custom'].forEach(e => lazy(ENGINE_LABEL, e, () => T('engine.' + e)));
 
   // Demo-Modell: kleines Beispielmodell für Workshops ohne TMDL. Gleiche Struktur wie der TMDL-Parser liefert.
   const col_ = (name, type, desc) => ({ name, kind: 'column', type, desc: desc || '', hidden: false, format: '' });
   const mea_ = (name, format, desc) => ({ name, kind: 'measure', type: 'measure', desc: desc || '', hidden: false, format: format || '#,##0' });
-  // Als Funktion, damit die Beschreibungen in der aktuell gewählten Sprache entstehen.
-  function demoModel() {
-    return {
-      source: T('demo.source'),
-      tables: [
-        { name: 'DimDate', desc: T('demo.date'), columns: [col_('Date', 'dateTime'), col_('Year', 'int64'), col_('Quarter', 'string'), col_('Month', 'string', T('demo.month')), col_('MonthKey', 'int64'), col_('IsForecast', 'int64', T('demo.isForecast'))], measures: [] },
-        { name: 'DimProduct', desc: T('demo.products'), columns: [col_('Product', 'string'), col_('Category', 'string', T('demo.productLine')), col_('Brand', 'string')], measures: [] },
-        { name: 'DimRegion', desc: T('demo.regions'), columns: [col_('Region', 'string'), col_('Country', 'string'), col_('SalesOffice', 'string')], measures: [] },
-        { name: 'DimCustomer', desc: T('demo.customers'), columns: [col_('Customer', 'string'), col_('Segment', 'string'), col_('KeyAccount', 'string')], measures: [] },
-        { name: 'DimAccount', desc: T('demo.accounts'), columns: [col_('Account', 'string', T('demo.accountItem')), col_('AccountGroup', 'string'), col_('SortKey', 'int64')], measures: [] },
-        { name: '_Measures', desc: T('demo.measures'), columns: [], measures: [
-          mea_('AC', '#,##0', T('demo.ac')), mea_('PY', '#,##0', T('demo.py')), mea_('PL', '#,##0', T('demo.pl')), mea_('FC', '#,##0', T('demo.fc')), mea_('BU', '#,##0', T('demo.bu')),
-          mea_('ΔPL', '#,##0', 'AC − PL'), mea_('ΔPL%', '0.0%', '(AC − PL) / PL'), mea_('ΔPY', '#,##0', 'AC − PY'), mea_('ΔPY%', '0.0%', '(AC − PY) / PY'),
-          mea_('Umsatz', '#,##0'), mea_('Kosten', '#,##0'), mea_('Marge', '#,##0', T('demo.margin')), mea_('Marge%', '0.0%'), mea_('Menge', '#,##0'), mea_('Aufträge', '#,##0'), mea_('Kunden', '#,##0'), mea_('Ø Auftragswert', '#,##0', T('demo.avgOrder')),
-        ] },
-      ],
-    };
+  // Als Funktion, damit die Beschreibungen in der aktuell gewählten Sprache entstehen. Fünf typische Modelle.
+  const DEMO_IDS = ['controlling', 'sales', 'hr', 'marketing', 'pnl'];
+  const dimDate = () => ({ name: 'DimDate', desc: T('demo.date'), columns: [col_('Date', 'dateTime'), col_('Year', 'int64'), col_('Quarter', 'string'), col_('Month', 'string', T('demo.month')), col_('MonthKey', 'int64'), col_('IsForecast', 'int64', T('demo.isForecast'))], measures: [] });
+  const scen = () => [mea_('AC', '#,##0', T('demo.ac')), mea_('PY', '#,##0', T('demo.py')), mea_('PL', '#,##0', T('demo.pl')), mea_('FC', '#,##0', T('demo.fc')), mea_('BU', '#,##0', T('demo.bu')), mea_('ΔPL', '#,##0', 'AC − PL'), mea_('ΔPL%', '0.0%', '(AC − PL) / PL'), mea_('ΔPY', '#,##0', 'AC − PY'), mea_('ΔPY%', '0.0%', '(AC − PY) / PY')];
+  function demoModel(id) {
+    id = DEMO_IDS.includes(id) ? id : 'controlling';
+    const src = T('demo.sourceOf', { m: T('demo.models.' + id) });
+    if (id === 'sales') return { source: src, tables: [
+      dimDate(),
+      { name: 'DimProduct', desc: T('demo.products'), columns: [col_('Product', 'string'), col_('Category', 'string', T('demo.productLine')), col_('Brand', 'string')], measures: [] },
+      { name: 'DimRegion', desc: T('demo.regions'), columns: [col_('Region', 'string'), col_('Country', 'string'), col_('SalesOffice', 'string')], measures: [] },
+      { name: 'DimCustomer', desc: T('demo.customers'), columns: [col_('Customer', 'string'), col_('Segment', 'string'), col_('KeyAccount', 'string'), col_('Industry', 'string')], measures: [] },
+      { name: 'DimSalesRep', desc: T('demo.salesReps'), columns: [col_('SalesRep', 'string'), col_('Team', 'string')], measures: [] },
+      { name: '_Measures', desc: T('demo.measures'), columns: [], measures: scen().concat([mea_('Umsatz', '#,##0'), mea_('Auftragseingang', '#,##0'), mea_('Aufträge', '#,##0'), mea_('Ø Auftragswert', '#,##0', T('demo.avgOrder')), mea_('Marge', '#,##0', T('demo.margin')), mea_('Marge%', '0.0%'), mea_('Menge', '#,##0'), mea_('Kunden', '#,##0'), mea_('Neukunden', '#,##0'), mea_('Pipeline', '#,##0'), mea_('Win-Rate%', '0.0%'), mea_('Retouren%', '0.0%'), mea_('Rabatt%', '0.0%')]) },
+    ] };
+    if (id === 'hr') return { source: src, tables: [
+      dimDate(),
+      { name: 'DimEmployee', desc: T('demo.employees'), columns: [col_('Employee', 'string'), col_('Department', 'string'), col_('Location', 'string'), col_('ContractType', 'string'), col_('Gender', 'string'), col_('AgeGroup', 'string'), col_('Tenure', 'string')], measures: [] },
+      { name: 'DimOrgUnit', desc: T('demo.orgUnits'), columns: [col_('OrgUnit', 'string'), col_('Division', 'string'), col_('CostCenter', 'string')], measures: [] },
+      { name: '_Measures', desc: T('demo.measures'), columns: [], measures: [mea_('Headcount', '#,##0'), mea_('FTE', '#,##0.0'), mea_('Eintritte', '#,##0'), mea_('Austritte', '#,##0'), mea_('Fluktuation%', '0.0%'), mea_('Krankenquote%', '0.0%'), mea_('Überstunden', '#,##0'), mea_('Personalkosten AC', '#,##0'), mea_('Personalkosten PL', '#,##0'), mea_('Personalkosten PY', '#,##0'), mea_('Vakanzen', '#,##0'), mea_('Time-to-Hire', '#,##0'), mea_('Weiterbildungstage', '#,##0.0'), mea_('Frauenanteil%', '0.0%'), mea_('Ø Alter', '#,##0.0')] },
+    ] };
+    if (id === 'marketing') return { source: src, tables: [
+      dimDate(),
+      { name: 'DimChannel', desc: T('demo.channels'), columns: [col_('Channel', 'string'), col_('Campaign', 'string'), col_('Source', 'string'), col_('Medium', 'string'), col_('Device', 'string')], measures: [] },
+      { name: 'DimLanding', desc: T('demo.landing'), columns: [col_('LandingPage', 'string'), col_('Funnel', 'string'), col_('Country', 'string')], measures: [] },
+      { name: '_Measures', desc: T('demo.measures'), columns: [], measures: [mea_('Sessions', '#,##0'), mea_('Visitors', '#,##0'), mea_('Impressions', '#,##0'), mea_('Clicks', '#,##0'), mea_('CTR%', '0.00%'), mea_('Conversions', '#,##0'), mea_('Conversion-Rate%', '0.00%'), mea_('Bounce-Rate%', '0.0%'), mea_('Ad Spend', '#,##0'), mea_('Ad Spend PL', '#,##0'), mea_('CPC', '#,##0.00'), mea_('CPA', '#,##0.00'), mea_('ROAS', '#,##0.0'), mea_('Umsatz', '#,##0'), mea_('Umsatz PY', '#,##0'), mea_('Newsletter-Anmeldungen', '#,##0'), mea_('Ø Sitzungsdauer', '#,##0')] },
+    ] };
+    if (id === 'pnl') return { source: src, tables: [
+      dimDate(),
+      { name: 'DimAccount', desc: T('demo.pnlAccounts'), columns: [col_('L1', 'string'), col_('L2', 'string'), col_('L3', 'string'), col_('Account', 'string', T('demo.accountItem')), col_('RowType', 'string', T('demo.rowType')), col_('Sign', 'int64', T('demo.sign')), col_('SortKey', 'int64')], measures: [] },
+      { name: 'DimCostCenter', desc: T('demo.costCenters'), columns: [col_('CostCenter', 'string'), col_('Area', 'string')], measures: [] },
+      { name: 'DimCompany', desc: T('demo.companies'), columns: [col_('Company', 'string'), col_('Country', 'string'), col_('Currency', 'string')], measures: [] },
+      { name: '_Measures', desc: T('demo.measures'), columns: [], measures: scen().concat([mea_('Umsatzerlöse', '#,##0'), mea_('Materialaufwand', '#,##0'), mea_('Rohertrag', '#,##0'), mea_('Personalaufwand', '#,##0'), mea_('Sonstige Aufwendungen', '#,##0'), mea_('EBITDA', '#,##0'), mea_('Abschreibungen', '#,##0'), mea_('EBIT', '#,##0'), mea_('Finanzergebnis', '#,##0'), mea_('Steuern', '#,##0'), mea_('Jahresüberschuss', '#,##0'), mea_('EBITDA-Marge%', '0.0%')]) },
+    ] };
+    return { source: src, tables: [
+      dimDate(),
+      { name: 'DimProduct', desc: T('demo.products'), columns: [col_('Product', 'string'), col_('Category', 'string', T('demo.productLine')), col_('Brand', 'string')], measures: [] },
+      { name: 'DimRegion', desc: T('demo.regions'), columns: [col_('Region', 'string'), col_('Country', 'string'), col_('SalesOffice', 'string')], measures: [] },
+      { name: 'DimCustomer', desc: T('demo.customers'), columns: [col_('Customer', 'string'), col_('Segment', 'string'), col_('KeyAccount', 'string')], measures: [] },
+      { name: 'DimAccount', desc: T('demo.accounts'), columns: [col_('Account', 'string', T('demo.accountItem')), col_('AccountGroup', 'string'), col_('SortKey', 'int64')], measures: [] },
+      { name: '_Measures', desc: T('demo.measures'), columns: [], measures: scen().concat([mea_('Umsatz', '#,##0'), mea_('Kosten', '#,##0'), mea_('Marge', '#,##0', T('demo.margin')), mea_('Marge%', '0.0%'), mea_('Menge', '#,##0'), mea_('Aufträge', '#,##0'), mea_('Kunden', '#,##0'), mea_('Ø Auftragswert', '#,##0', T('demo.avgOrder'))]) },
+    ] };
   }
 
   // Seitenvorlagen: Layout-Bäume für den Inhaltsbereich. leaf(kind, title, roles, opts) / row([...]) / col([...]) mit Gewichten.
@@ -239,6 +266,7 @@
   const API = { list: CATALOG, byId: BY_ID, engineLabel: ENGINE_LABEL, templates: TEMPLATES, roleDefs: R, ckMode: CK_MODE, polarityFor, groupIds: GROUP_IDS };
   // groups = Anzeige-Namen in der aktuellen Sprache; k.group liefert denselben String, damit der Filter weiter greift
   lazy(API, 'groups', () => GROUP_IDS.map(id => T('group.' + id)));
-  lazy(API, 'demoModel', () => demoModel());
+  lazy(API, 'demoModel', () => demoModel('controlling'));
+  API.demoModels = DEMO_IDS.map(id => { const m = { id, build: () => demoModel(id) }; lazy(m, 'label', () => T('demo.models.' + id)); return m; });
   window.MK_CATALOG = API;
 })();

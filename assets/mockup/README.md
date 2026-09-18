@@ -1,7 +1,21 @@
-# MockupKitchen · Bauplan (v0.3)
+# MockupKitchen · Bauplan (v0.4)
 
 Positionierung (aus dem Review): kein Report-Generator, sondern ein **Anforderungswerkzeug mit deterministischem
 Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau ist eine Ableitung.
+
+## Neu in v0.4 (erstes Nutzer-Feedback)
+
+- **Skizzen:** Δ-Ebene in `varint` als echte kumulierte Brücke (`deltaBridge()`, Verbinder, Labels, Σ-Spalte); Balkenbreiten
+  zentral über `colGeom()/rowGeom()`; Optionen `palette` (`teal` Standard = ChartKitchen-Farben `#1E8F9E/#D64541`, `ibcs` =
+  Grün/Rot), `ink`, `dark`, `paper` (Kachelgrund); keine globalen Farbkonstanten mehr (`theme(o)`); neuer Typ `pnl`.
+- **Custom Visuals:** Engine `custom` mit `customVisual {name, guid, map}` im Katalog; `gantt` → `dataKitchenGantt`
+  (Rollen task/start/end/phase), `pnl` → `pnlByDatenWG` (levels/ac/py/pl/fc/rowType, Referenz-Measures nach Namen auf
+  py/pl verteilt). GUIDs aus den `pbiviz.json` im Repo. Export: `visuals[].customVisual.buckets`, Badge „CV".
+- **Design:** Palette-Umschalter, eigene Farben für Seite (`pageBg: custom` + Hex), Kachelgrund, Schrift und Kopfband
+  (`header: custom` + zwei Farben). Dunkler Kachelgrund schaltet Skizzen und PNG-Renderer auf helle Schrift.
+  Export: `design.variancePalette`, `varianceColors`, `colors{…}`, `darkMode`.
+- **Demo-Modelle:** fünf typische Modelle (Controlling, Sales, HR, Online-Marketing, GuV) über `CAT.demoModels`, Auswahl
+  im Modell-Panel; `S.demoId` merkt sich die Wahl.
 
 ## Neu in v0.3 (Roadmap aus dem Sechs-Personen-Review, `REVIEW-2026-09-18.md`)
 
@@ -29,8 +43,8 @@ Datei (file://) funktioniert ebenfalls.
 | Datei | Aufgabe |
 |---|---|
 | `../../mockup-kitchen.html` | Markup + CSS (Topbar, Modell-Panel, Seitenleiste, Zeichenfläche, Inspector mit Element / Seite / Rahmen / Design, Dialoge) |
-| `catalog.js` | Visual-Katalog: 46 Typen (ChartKitchen-IBCS + native PBI), Datenrollen, Engines, Mapping auf pbir-Buckets, Demo-Modell, Seitenvorlagen mit Feldbindungen |
-| `sketches.js` | SVG-Skizzen je Typ, `MK_SKETCH(kind, w, h, {scenario, seed, variance, dense, label, scale})`, IBCS-Farben hart kodiert |
+| `catalog.js` | Visual-Katalog: 47 Typen (ChartKitchen-IBCS, native PBI, Custom Visuals Gantt/P&L), Datenrollen, Engines, Mapping auf pbir- und Custom-Visual-Buckets, fünf Demo-Modelle, Seitenvorlagen mit Feldbindungen |
+| `sketches.js` | SVG-Skizzen je Typ, `MK_SKETCH(kind, w, h, {scenario, seed, variance, dense, label, scale, polarity, lang, unit, palette, ink, dark, paper})`, Farben je Aufruf aus `theme(o)` |
 | `app.js` | Zustand v2 (Seiten, Design, Chrome), Container-Split-Layout → Canvas-Pixel, Skalierung (`ui = canvas.w / 1280`), Drag-and-drop, TMDL-Parser (BOM-fest), Inspector, Undo |
 | `export.js` | `mockup-spec.json` (specVersion 2), `AGENT-BRIEF.md`, `WORKSHOP-DOKU.md`, `pbir-visuals.<Seite>.json`, Prompt; Speichern/Öffnen als `.mockup.json` |
 | `sketches-test.html` | Testblatt: alle Skizzen in drei Größen und Skalierungen, meldet NaN/undefined |

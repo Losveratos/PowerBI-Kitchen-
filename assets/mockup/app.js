@@ -11,6 +11,8 @@
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const LS_KEY = 'mockupkitchen.state.v1';
   const PAGE_BG = { light: '#F4F4F1', soft: '#EEF1F5', white: '#FFFFFF' };
+  const pageBgOf = d => d.pageBg === 'custom' ? (d.pageBgHex || '#F4F4F1') : (PAGE_BG[d.pageBg] || PAGE_BG.light);
+  const isDark = hex => { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return false; const n = parseInt(m[1], 16); const r = n >> 16, g = (n >> 8) & 255, b = n & 255; return (0.299 * r + 0.587 * g + 0.114 * b) < 128; };
 
   // ------------------------------------------------------------------ Zustand
   function defaultState() {
@@ -28,12 +30,12 @@
         filter: { on: true, side: 'right', w: 200, topH: 56, collapsible: false, fields: [] },
         footer: { on: true, h: 24, text: t('state.footerText') },
       },
-      design: { radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D' },
+      design: { radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D', palette: 'teal', pageBgHex: '#F4F4F1', tileBg: '#FFFFFF', ink: '#0F1E2E', headerBg: '#0F1E2E', headerInk: '#FFFFFF' },
       report: { audience: '', purpose: '', decision: '', participants: '', version: '0.1', dataDate: '' },
       lang: I18N.lang,
       fieldMeta: {},
       pages: [p1], cur: p1.id,
-      model: JSON.parse(JSON.stringify(CAT.demoModel)),
+      model: CAT.demoModel,
       newFields: [],
     };
   }
@@ -48,7 +50,7 @@
       s.chrome.filter.topH = 56;
       s.version = 2;
     }
-    s.design = Object.assign({ radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D' }, s.design || {});
+    s.design = Object.assign({ radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D', palette: 'teal', pageBgHex: '#F4F4F1', tileBg: '#FFFFFF', ink: '#0F1E2E', headerBg: '#0F1E2E', headerInk: '#FFFFFF' }, s.design || {});
     s.pages.forEach(p => ensureIds(p.layout));
     if (!s.pages.find(p => p.id === s.cur)) s.cur = s.pages[0].id;
     return s;
@@ -246,7 +248,7 @@
   function render() {
     const { w, h } = S.canvas; const c = S.chrome; const d = S.design; const k = ui();
     pageEl.style.width = w + 'px'; pageEl.style.height = h + 'px'; pageEl.style.transform = 'scale(' + zoom + ')';
-    pageEl.style.setProperty('--ui', k); pageEl.style.setProperty('--zoom', zoom); pageEl.style.setProperty('--tile-r', Math.round(d.radius * k) + 'px'); pageEl.style.setProperty('--page-bg', PAGE_BG[d.pageBg] || PAGE_BG.light); pageEl.style.setProperty('--accent', d.accent || '#C25A2D');
+    pageEl.style.setProperty('--ui', k); pageEl.style.setProperty('--zoom', zoom); pageEl.style.setProperty('--tile-r', Math.round(d.radius * k) + 'px'); pageEl.style.setProperty('--page-bg', pageBgOf(d)); pageEl.style.setProperty('--accent', d.accent || '#C25A2D'); pageEl.style.setProperty('--tile-bg', d.tileBg || '#FFFFFF'); pageEl.style.setProperty('--ink-page', d.ink || '#0F1E2E'); pageEl.style.setProperty('--hdr-bg', d.headerBg || '#0F1E2E'); pageEl.style.setProperty('--hdr-ink', d.headerInk || '#FFFFFF');
     pageEl.className = 'page tile-' + (d.tile || 'border');
     $('#stageInner').style.minWidth = `max(100%, ${Math.round(w * zoom + 56)}px)`; $('#stageInner').style.minHeight = `max(100%, ${Math.round(h * zoom + 56)}px)`;
     pageEl.style.marginRight = (w * zoom - w) + 'px'; pageEl.style.marginBottom = (h * zoom - h) + 'px';
@@ -286,7 +288,7 @@
     const footH = chips && !tiny ? 18 * k : 0;
     const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - footH - pad - 6);
     const an = analysisOf(v);
-    const svg = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, bw, bh, { scenario: v.scenario, seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, antiPattern: !!ANTI[v.kind] }) : '';
+    const svg = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, bw, bh, { scenario: v.scenario, seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: isDark(S.design.tileBg) ? '#E6E6E6' : (S.design.ink || '#404040'), dark: isDark(S.design.tileBg), paper: S.design.tileBg || '#FFFFFF' }) : '';
     const note = v.notes ? `<span class="note-ico" title="${esc(v.openQuestion ? t('canvas.noteOpen') : t('canvas.note'))}">${v.openQuestion ? '?' : '✎'}</span><div class="note-pop">${esc(v.notes)}</div>` : (v.openQuestion ? `<span class="note-ico" title="${esc(t('canvas.openQuestion'))}">?</span><div class="note-pop">${esc(t('canvas.openQuestionEmpty'))}</div>` : '');
     const missing = (def.roles || []).filter(r => r.req && !(v.roles[r.key] || []).length).map(r => r.label);
     const req = missing.length ? `<span class="reqdot" title="${esc(t('canvas.reqEmpty', { roles: missing.join(', ') }))}"></span>` : '';
@@ -296,7 +298,7 @@
       ${headH ? `<div class="t-head"><span class="t-title">${esc(v.title || def.label)}</span>${v.sub ? `<span class="t-sub">${esc(v.sub)}</span>` : ''}</div>` : ''}
       <div class="t-body">${svg}${ANTI[v.kind] ? '<div class="ap"></div>' : ''}</div>
       ${footH ? `<div class="t-foot">${chips}</div>` : ''}
-      <div class="badges">${req}${st}${pri}${note}<span class="badge${v.engine === 'ck' ? ' ck' : ''}">${v.engine === 'ck' ? 'CK' : (v.engine === 'deneb' ? 'Deneb' : 'PBI')}</span></div>${acts}</div>`;
+      <div class="badges">${req}${st}${pri}${note}<span class="badge${v.engine === 'ck' ? ' ck' : (v.engine === 'custom' ? ' cv' : '')}">${v.engine === 'ck' ? 'CK' : v.engine === 'deneb' ? 'Deneb' : v.engine === 'custom' ? 'CV' : 'PBI'}</span></div>${acts}</div>`;
   }
   function roleChips(v) {
     const out = [];
@@ -534,6 +536,10 @@
     $('#ftFieldList').innerHTML = (c.filter.fields || []).map((f, i) => `<div class="row" style="margin-bottom:4px"><span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}" draggable="false" style="margin:0;flex:1;min-width:0"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span><button class="x" data-rmfilter2="${i}">×</button></span><input class="ctl" data-ftdef="${i}" value="${esc(f.default || '')}" placeholder="${esc(t('ph.slicerDefault'))}" style="width:110px;padding:3px 6px;font-size:11.5px"></div>`).join('') || `<span class="hint">${esc(t('hint.noSlicers'))}</span>`;
     $('#ffOn').checked = c.footer.on; $('#ffH').value = c.footer.h; $('#ffText').value = c.footer.text;
     $('#dsRadius').value = String(d.radius); $('#dsTile').value = d.tile; $('#dsPageBg').value = d.pageBg; $('#dsHeader').value = d.header; $('#dsAccent').value = d.accent; $('#dsAccentTxt').textContent = d.accent;
+    $('#dsPalette').value = d.palette || 'teal'; $('#dsPageBgRow').hidden = d.pageBg !== 'custom'; $('#dsPageBgHex').value = d.pageBgHex || '#F4F4F1'; $('#dsPageBgHexTxt').textContent = d.pageBgHex || '#F4F4F1';
+    $('#dsTileBg').value = d.tileBg || '#FFFFFF'; $('#dsTileBgTxt').textContent = d.tileBg || '#FFFFFF'; $('#dsInk').value = d.ink || '#0F1E2E'; $('#dsInkTxt').textContent = d.ink || '#0F1E2E';
+    $('#dsHeaderRow').hidden = d.header !== 'custom'; $('#dsHeaderBg').value = d.headerBg || '#0F1E2E'; $('#dsHeaderBgTxt').textContent = d.headerBg || '#0F1E2E'; $('#dsHeaderInk').value = d.headerInk || '#FFFFFF'; $('#dsHeaderInkTxt').textContent = d.headerInk || '#FFFFFF';
+    const dsel = $('#demoModelSel'); if (!dsel.options.length || dsel.dataset.lang !== S.lang) { dsel.innerHTML = CAT.demoModels.map(m => `<option value="${m.id}">${esc(m.label)}</option>`).join(''); dsel.dataset.lang = S.lang; dsel.value = S.demoId || 'controlling'; }
   }
   bind('projName', v => S.name = v, 'input'); bind('rpName', v => S.name = v, 'input');
   bind('pageName', v => page().name = v, 'input');
@@ -582,7 +588,8 @@
   $('#ftFieldList').addEventListener('drop', e => { e.preventDefault(); const d = e.dataTransfer.getData('application/mk-field'); if (d) addFilterField(JSON.parse(d)); });
   bind('ffOn', v => S.chrome.footer.on = v); bind('ffH', v => S.chrome.footer.h = clamp(+v, 16, 48), 'input'); bind('ffText', v => S.chrome.footer.text = v, 'input');
   bind('dsRadius', v => S.design.radius = +v); bind('dsTile', v => S.design.tile = v); bind('dsPageBg', v => S.design.pageBg = v); bind('dsHeader', v => S.design.header = v);
-  bind('dsAccent', v => S.design.accent = v, 'input');
+  bind('dsAccent', v => S.design.accent = v, 'input'); bind('dsPalette', v => S.design.palette = v);
+  bind('dsPageBgHex', v => S.design.pageBgHex = v, 'input'); bind('dsTileBg', v => S.design.tileBg = v, 'input'); bind('dsInk', v => S.design.ink = v, 'input'); bind('dsHeaderBg', v => S.design.headerBg = v, 'input'); bind('dsHeaderInk', v => S.design.headerInk = v, 'input');
   $('#btnSplitRoot').onclick = () => $('#dlgSplit').showModal();
   $('#spOk').onclick = () => { rebuildGrid(clamp(+$('#spRows').value || 1, 1, 6), clamp(+$('#spCols').value || 1, 1, 6)); $('#dlgSplit').close(); };
 
@@ -660,7 +667,7 @@
   $('#btnImportTmdl').onclick = () => $('#fileTmdl').click();
   $('#fileTmdl').addEventListener('change', e => { ingestTmdlFiles(Array.from(e.target.files)); e.target.value = ''; });
   $('#fileTmdlSingle').addEventListener('change', e => { ingestTmdlFiles(Array.from(e.target.files)); e.target.value = ''; });
-  $('#btnDemoModel').onclick = () => { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); openMeasureTable(); commit(); toast(t('toast.demoLoaded')); };
+  $('#btnDemoModel').onclick = () => { const id = $('#demoModelSel').value || 'controlling'; const m = CAT.demoModels.find(x => x.id === id); S.demoId = id; S.model = m ? m.build() : CAT.demoModel; openMeasureTable(); commit(); toast(t('toast.demoLoaded')); };
   function openMeasureTable() { const tb = S.model.tables.find(x => x.measures.length); if (tb) openTables.add(tb.name); }
   const mdrop = $('#modelDrop');
   mdrop.addEventListener('click', () => $('#fileTmdlSingle').click());
@@ -770,7 +777,7 @@
   // Öffentliche API für export.js
   window.MK = {
     get state() { return S; }, set state(v) { S = migrate(v); sel = null; commit(); },
-    page, visuals, leaves, zones, computeAll, ui, toast, findNode, catalog: CAT, persist, pageBg: PAGE_BG, analysisOf, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
+    page, visuals, leaves, zones, computeAll, ui, toast, findNode, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     setLang, get lang() { return I18N.lang; },
     // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
     reset() { S = defaultState(); S.pages.forEach(p => ensureIds(p.layout)); sel = null; undoStack = []; commit(); },

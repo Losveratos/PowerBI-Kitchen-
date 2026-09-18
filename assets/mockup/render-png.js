@@ -185,12 +185,15 @@
     var ctx = {
       S: S, p: p, k: k, d: d, c: c, o: o, accent: accent, P: P,
       radius: Math.round((d.radius || 0) * k),
+      tileBg: d.tileBg || '#FFFFFF', ink: d.ink || '#0F1E2E',
+      dark: !!(M.isDark && M.isDark(d.tileBg)),
+      palette: d.palette || 'teal',
       pad: Math.round((S.spacing ? S.spacing.pad : 8) * k),
       cat: (M.catalog && M.catalog.byId) || {}
     };
 
     /* Seitenhintergrund */
-    var bg = o.background != null ? o.background : (PB[d.pageBg] || PB.light);
+    var bg = o.background != null ? o.background : (M.pageBgOf ? M.pageBgOf(d) : (PB[d.pageBg] || PB.light));
     if (bg && bg !== 'transparent') body += rc(0, 0, W, H, { fill: bg });
 
     /* Zonen */
@@ -245,8 +248,8 @@
   function headerZone(ctx, zones) {
     var z = zones.header, k = ctx.k, c = ctx.c.header, d = ctx.d, S = ctx.S;
     var style = d.header || 'light', light = style === 'light';
-    var bgc = style === 'dark' ? '#0F1E2E' : style === 'accent' ? ctx.accent : '#FFFFFF';
-    var fg = light ? '#0F1E2E' : '#FFFFFF';
+    var bgc = style === 'dark' ? '#0F1E2E' : style === 'accent' ? ctx.accent : style === 'custom' ? (d.headerBg || '#0F1E2E') : '#FFFFFF';
+    var fg = style === 'custom' ? (d.headerInk || '#FFFFFF') : light ? '#0F1E2E' : '#FFFFFF';
     var out = rc(z.x, z.y, z.w, z.h, { fill: bgc });
     if (light) out += ln(z.x, z.y + z.h - 0.5, z.x + z.w, z.y + z.h - 0.5, '#E3E1D8', 1);
 
@@ -393,8 +396,8 @@
 
     /* Kachelflaeche */
     var out = rc(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1, {
-      r: tr, fill: '#FFFFFF',
-      stroke: style === 'border' ? '#E1DFD6' : null, sw: 1,
+      r: tr, fill: ctx.tileBg,
+      stroke: style === 'border' ? (ctx.dark ? '#3A4756' : '#E1DFD6') : null, sw: 1,
       filter: style === 'shadow' ? ctx.P + 'sh' : null
     });
 
@@ -406,10 +409,10 @@
       var availW = Math.max(10, r.x + r.w - 1 - ip - reserve - tx0);
       var base = r.y + 1 + ip + 6 * k + tfs * ASC;
       var title = fit(v.title || def.label || v.kind, availW, tfs, 600);
-      out += tx(tx0, base, title, { size: tfs, weight: 600, fill: '#0F1E2E' });
+      out += tx(tx0, base, title, { size: tfs, weight: 600, fill: ctx.dark ? '#E6E6E6' : ctx.ink });
       if (v.sub && !tiny) {
         var used = textW(title, tfs, 600) + 6 * k;
-        out += tx(tx0 + used, base, fit(v.sub, availW - used, sfs), { size: sfs, fill: '#6B7280' });
+        out += tx(tx0 + used, base, fit(v.sub, availW - used, sfs), { size: sfs, fill: ctx.dark ? '#A8B0BC' : '#6B7280' });
       }
     }
 
@@ -420,10 +423,20 @@
     var by = r.y + 1 + ip + headH + 2;
     var bottom = r.y + r.h - 1 - ip - footH - 4;
     if (by + bh > bottom) by = Math.max(r.y + 1 + ip + headH, bottom - bh);
-    out += sketchAt(def.sketch || v.kind, bx, by, bw, bh, {
+    var sopt = {
       scenario: v.scenario, seed: (seedOf(leaf.node.id) + o.seedBase) % 1000,
-      label: v.sub || '', scale: k
-    }, P);
+      label: v.sub || '', scale: k, lang: ctx.S.lang,
+      palette: ctx.palette, ink: ctx.dark ? '#E6E6E6' : (ctx.d.ink || '#404040'), dark: ctx.dark, paper: ctx.tileBg,
+      antiPattern: !!(mk().anti && mk().anti[v.kind])
+    };
+    try {
+      var an = mk().analysisOf ? mk().analysisOf(v) : null;
+      if (an) {
+        sopt.polarity = an.polarity; sopt.deltaBasis = an.deltaBasis; sopt.unit = an.unit;
+        sopt.variance = { abs: (an.deltaKind || []).indexOf('abs') >= 0, rel: (an.deltaKind || []).indexOf('rel') >= 0 };
+      }
+    } catch (e) { /* Analyse optional */ }
+    out += sketchAt(def.sketch || v.kind, bx, by, bw, bh, sopt, P);
 
     /* Fusszeile mit Rollen-Chips */
     if (footH) {
@@ -435,10 +448,10 @@
         if (cx2 + w2 > limit) return;
         out += rc(cx2, cy2 - ch / 2, w2, ch, c2.kind === 'new'
           ? { r: 3 * k, fill: '#FFFFFF', stroke: ctx.accent, sw: 1, dash: nm(2.5 * k) + ' ' + nm(2 * k) }
-          : { r: 3 * k, fill: c2.kind === 'link' ? '#E3ECFA' : '#F1F0EA' });
+          : { r: 3 * k, fill: c2.kind === 'link' ? (ctx.dark ? '#28405E' : '#E3ECFA') : (ctx.dark ? '#2A3646' : '#F1F0EA') });
         out += tx(cx2 + 5 * k, cy2 + cfs * MID, c2.t, {
           size: cfs, mono: true,
-          fill: c2.kind === 'new' ? ctx.accent : (c2.kind === 'link' ? '#1F5FBF' : '#475569')
+          fill: c2.kind === 'new' ? ctx.accent : (c2.kind === 'link' ? (ctx.dark ? '#9CC0F5' : '#1F5FBF') : (ctx.dark ? '#C9D1DB' : '#475569'))
         });
         cx2 += w2 + 3 * k;
       });
@@ -448,9 +461,9 @@
     var rx = r.x + r.w - 1 - ip - 6 * k, ty = r.y + 1 + ip + 5 * k;
     if (hasBadge) {
       var bfs = 8.5 * k, bh3 = Math.round(bfs * LH + 2);
-      var lab = v.engine === 'ck' ? 'CK' : (v.engine === 'deneb' ? 'Deneb' : 'PBI');
+      var lab = v.engine === 'ck' ? 'CK' : (v.engine === 'deneb' ? 'Deneb' : (v.engine === 'custom' ? 'CV' : 'PBI'));
       var bw3 = textW(lab, bfs, null, true) + 10 * k + 2;
-      out += rc(rx - bw3, ty, bw3, bh3, { r: 3 * k, fill: v.engine === 'ck' ? ctx.accent : '#0F1E2E', opacity: 0.75 });
+      out += rc(rx - bw3, ty, bw3, bh3, { r: 3 * k, fill: v.engine === 'ck' ? ctx.accent : (v.engine === 'custom' ? '#1E8F9E' : '#0F1E2E'), opacity: 0.75 });
       out += tx(rx - bw3 / 2, ty + bh3 / 2 + bfs * MID, lab, { size: bfs, mono: true, anchor: 'middle', fill: '#FFFFFF' });
       rx -= bw3 + 3 * k;
     }

@@ -51,6 +51,7 @@
     font-size: 10px; color: var(--ink-soft);
   }
   .box { border: 1px dashed var(--border); background: #fff; }
+  body.on-dark .box { background: #1E1E1E; border-color: #3C3C3C; }
   .bad { outline: 2px solid #C8412F; }
   .legend { font-size: 12px; color: var(--ink-soft); margin: 0 0 12px; }
   .warn { color: #C8412F; font-weight: 600; }
@@ -111,6 +112,20 @@
     </select>
   </label>
   <label><input id="anti" type="checkbox"> Anti-Pattern</label>
+  <label>Palette
+    <select id="pal">
+      <option value="teal">teal · ChartKitchen</option>
+      <option value="ibcs">ibcs · Grün/Rot</option>
+    </select>
+  </label>
+  <label>Ink <input id="ink" type="text" value="" placeholder="#404040" style="width:76px"></label>
+  <label>Modus
+    <select id="mode">
+      <option value="">auto (aus Ink)</option>
+      <option value="light">hell</option>
+      <option value="dark">dunkel</option>
+    </select>
+  </label>
   <span id="stat"></span>
 </div>
 
@@ -118,7 +133,10 @@
 <br><code>polarity: lower</code> dreht alle Δ-Farben (Kosten, Ausschuss).
 <code>scenarios</code> überschreibt die Szenario-Kurzform, <code>Δ-Basis</code> wählt den Bezug der Δ-Ebenen,
 <code>Einheit</code> greift nur bei <code>kpi</code> und <code>card</code>,
-<code>Anti-Pattern</code> legt den Warnüberzug über jede Skizze (im Tool nur bei Kreis und Tacho).</p>
+<code>Anti-Pattern</code> legt den Warnüberzug über jede Skizze (im Tool nur bei Kreis und Tacho).
+<br><code>Palette</code> schaltet die Abweichungsfarben, <code>Ink</code> färbt Texte und Achsen,
+<code>Modus</code> setzt hell/dunkel — auf „auto" entscheidet die Helligkeit von Ink.
+Bei dunklen Skizzen bekommt die Kachelfläche hier denselben dunklen Grund wie im Tool.</p>
 
 <div class="grid" id="grid"></div>
 
@@ -130,6 +148,15 @@
   var stat = document.getElementById('stat');
 
   function val(id) { return document.getElementById(id).value.trim(); }
+
+  // Dieselbe Regel wie theme() in sketches.js: ohne o.dark entscheidet o.ink.
+  function isDark(o) {
+    if (o.dark != null) return o.dark;
+    if (!/^#[0-9a-fA-F]{6}$/.test(o.ink || '')) return false;
+    var h = o.ink.slice(1);
+    var r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55;
+  }
 
   function opts() {
     // scenarios-Feld hat Vorrang vor der Szenario-Kurzform — genau wie in der API.
@@ -145,8 +172,11 @@
       scale: parseFloat(document.getElementById('scale').value) || 1,
       polarity: val('pol'),
       lang: val('lang'),
+      palette: val('pal'),
       antiPattern: document.getElementById('anti').checked
     };
+    if (val('ink')) o.ink = val('ink');
+    if (val('mode')) o.dark = (val('mode') === 'dark');
     if (list.length) o.scenarios = list;
     if (val('basis')) o.deltaBasis = val('basis');
     if (val('unit')) o.unit = val('unit');
@@ -173,12 +203,16 @@
     stat.innerHTML = keys.length + ' Typen · scale ' + String(o.scale).replace('.', ',') +
       ' · ' + (o.scenarios ? o.scenarios.join('/') : o.scenario) +
       ' · Δ-Basis ' + (o.deltaBasis || 'auto') +
-      ' · ' + o.polarity + ' · ' + o.lang + ' · ' +
+      ' · ' + o.polarity + ' · ' + o.lang + ' · ' + o.palette +
+      (o.dark === true ? ' · dunkel' : (o.dark === false ? ' · hell' : '')) + ' · ' +
       (bad ? '<span class="warn">' + bad + ' fehlerhaft</span>' : 'alle sauber');
+    // Dunkle Skizzen brauchen einen dunklen Kachelgrund, sonst sieht man nichts.
+    document.body.classList.toggle('on-dark', isDark(o));
   }
 
   ['scen', 'scale', 'seed', 'vabs', 'vrel', 'dense',
-   'pol', 'lang', 'unit', 'scens', 'basis', 'anti'].forEach(function (id) {
+   'pol', 'lang', 'unit', 'scens', 'basis', 'anti',
+   'pal', 'ink', 'mode'].forEach(function (id) {
     document.getElementById(id).addEventListener('change', render);
     document.getElementById(id).addEventListener('input', render);
   });

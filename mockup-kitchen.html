@@ -120,6 +120,14 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .zone.header{background:#fff;color:#0F1E2E;border-bottom:1px solid #E3E1D8;display:flex;align-items:center;padding:0 calc(16px * var(--ui));gap:calc(14px * var(--ui))}
 .zone.header.dark{background:#0F1E2E;color:#fff;border-bottom:0}
 .zone.header.accent{background:var(--accent);color:#fff;border-bottom:0}
+.zone.header.custom{background:var(--hdr-bg);color:var(--hdr-ink);border-bottom:0}
+.zone.header.custom .logo{border-color:currentColor;color:inherit;opacity:.75}
+.zone.header.custom .nav span{border-color:currentColor;opacity:.9}
+.zone.header.custom .burger{border-color:currentColor}
+.zone.header.custom{background:var(--hdr-bg);color:var(--hdr-ink);border-bottom:0}
+.zone.header.custom .logo{border-color:currentColor;color:inherit;opacity:.75}
+.zone.header.custom .nav span{border-color:currentColor;opacity:.9}
+.zone.header.custom .burger{border-color:currentColor}
 .zone.header .logo{width:calc(88px * var(--ui));height:calc(30px * var(--ui));border:1.5px dashed rgba(15,30,46,.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--ff-mono);font-size:calc(10px * var(--ui));letter-spacing:.06em;color:rgba(15,30,46,.6);flex:none}
 .zone.header.dark .logo,.zone.header.accent .logo{border-color:rgba(255,255,255,.55);color:rgba(255,255,255,.75)}
 .zone.header .logo.right{margin-left:auto}
@@ -152,7 +160,7 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .zone.nav i.act{background:var(--accent);border-color:var(--accent)}
 .zone.nav i.logo{border-style:dashed;margin-bottom:6px}
 .zone.filter.over{outline:2px dashed var(--sel);background:var(--sel-soft)}
-.tile{position:absolute;background:#fff;border:1px solid #E1DFD6;border-radius:var(--tile-r);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;transition:box-shadow .12s}
+.tile{position:absolute;background:var(--tile-bg,#fff);border:1px solid #E1DFD6;border-radius:var(--tile-r);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;transition:box-shadow .12s}
 .page.tile-shadow .tile{border-color:transparent;box-shadow:0 1px 2px rgba(15,30,46,.06),0 3px 10px rgba(15,30,46,.07)}
 .page.tile-flat .tile{border-color:transparent}
 .tile:hover{box-shadow:0 0 0 2px rgba(31,95,191,.25)}
@@ -163,8 +171,8 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .tile.over{background:var(--sel-soft);border-color:var(--sel)}
 .tile.dragging{opacity:.4}
 .tile .t-head{padding:calc(6px * var(--ui)) calc(9px * var(--ui)) calc(2px * var(--ui));display:flex;align-items:baseline;gap:calc(6px * var(--ui));min-height:0;padding-right:calc(60px * var(--ui))}
-.tile .t-title{font-weight:600;font-size:calc(12px * var(--ui));color:#0F1E2E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tile .t-sub{font-size:calc(9.5px * var(--ui));color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .t-title{font-weight:600;font-size:calc(12px * var(--ui));color:var(--ink-page,#0F1E2E);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .t-sub{font-size:calc(9.5px * var(--ui));color:var(--ink-page,#6B7280);opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tile .t-body{flex:1;min-height:0;position:relative;padding:2px calc(8px * var(--ui)) 4px}
 .tile .t-body svg{width:100%;height:100%;display:block}
 .tile .t-foot{padding:0 calc(8px * var(--ui)) calc(5px * var(--ui));display:flex;flex-wrap:wrap;gap:3px;min-height:0;overflow:hidden}
@@ -180,6 +188,8 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .tile .ap{position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(200,65,47,.08) 0 6px,transparent 6px 14px);pointer-events:none}
 .tile .badge{font-family:var(--ff-mono);font-size:calc(8.5px * var(--ui));padding:1px calc(5px * var(--ui));border-radius:3px;background:#0F1E2E;color:#fff;opacity:.75}
 .tile .badge.ck{background:var(--accent)}
+.tile .badge.cv{background:#1E8F9E}
+.tile .badge.cv{background:#1E8F9E}
 .tile .note-ico{width:18px;height:18px;border-radius:50%;background:#FDE7D9;color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1;cursor:pointer}
 .tile .badge{font-size:9px;padding:1px 5px}
 .tile .reqdot{width:10px;height:10px}
@@ -280,7 +290,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><h1>MockupKitchen</h1><small>byDatenWG · v0.3</small></div>
+    <div class="brand"><h1>MockupKitchen</h1><small>byDatenWG · v0.4</small></div>
     <input class="name" id="projName" value="Neuer Bericht" data-i18n-title="tip.projName" spellcheck="false">
     <button class="btn hide-present" id="btnTemplates" data-i18n="btn.templates" data-i18n-title="tip.templates">▦ Vorlagen</button>
     <button class="btn hide-present" id="btnImportTmdl" data-i18n="btn.importTmdl" data-i18n-title="tip.importTmdl">⇪ TMDL laden</button>
@@ -303,7 +313,8 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
     <div class="panel-body">
       <div class="dropzone-model" id="modelDrop" data-i18n-html="drop.tmdl">TMDL-Ordner oder .tmdl-Dateien hierher ziehen<br><span class="mono">tables/*.tmdl</span></div>
       <div class="row" style="margin-bottom:8px">
-        <button class="btn sm" id="btnDemoModel" data-i18n="btn.demoModel" data-i18n-title="tip.demoModel">Demo-Modell</button>
+        <select class="ctl" id="demoModelSel" style="width:auto;flex:1;min-width:0;padding:3px 6px;font-size:11.5px" data-i18n-title="tip.demoModel"></select>
+        <button class="btn sm" id="btnDemoModel" data-i18n="btn.demoModel" data-i18n-title="tip.demoModel">Demo-Modell laden</button>
         <span class="spacer"></span>
         <button class="btn sm" id="btnNewMeasure" data-i18n="btn.newMeasure">+ Kennzahl / Dimension</button>
       </div>
@@ -430,10 +441,22 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
         <select class="ctl" id="dsTile"><option value="border" data-i18n="opt.tile.border">weiß mit feinem Rahmen</option><option value="shadow" data-i18n="opt.tile.shadow">weiß mit weichem Schatten</option><option value="flat" data-i18n="opt.tile.flat">flach, ohne Rahmen</option></select>
       </div>
       <div class="field"><label data-i18n="lbl.pageBg">Seitenhintergrund</label>
-        <select class="ctl" id="dsPageBg"><option value="light" data-i18n="opt.bg.light">hell strukturiert (#F4F4F1)</option><option value="soft" data-i18n="opt.bg.soft">kühl strukturiert (#EEF1F5)</option><option value="white" data-i18n="opt.bg.white">weiß</option></select>
+        <select class="ctl" id="dsPageBg"><option value="light" data-i18n="opt.bg.light">hell strukturiert (#F4F4F1)</option><option value="soft" data-i18n="opt.bg.soft">kühl strukturiert (#EEF1F5)</option><option value="white" data-i18n="opt.bg.white">weiß</option><option value="custom" data-i18n="opt.bg.custom">eigene Farbe …</option></select>
+        <div class="row" id="dsPageBgRow" style="margin-top:6px" hidden><input type="color" id="dsPageBgHex" value="#F4F4F1" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsPageBgHexTxt">#F4F4F1</span></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label data-i18n="lbl.tileBg">Kachelhintergrund</label><div class="row"><input type="color" id="dsTileBg" value="#FFFFFF" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsTileBgTxt">#FFFFFF</span></div></div>
+        <div class="field"><label data-i18n="lbl.ink">Schriftfarbe der Kacheln</label><div class="row"><input type="color" id="dsInk" value="#0F1E2E" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsInkTxt">#0F1E2E</span></div></div>
       </div>
       <div class="field"><label data-i18n="lbl.headerStyle">Kopfband-Stil</label>
-        <select class="ctl" id="dsHeader"><option value="light" data-i18n="opt.hdr.light">hell (weiß, dunkle Schrift)</option><option value="dark" data-i18n="opt.hdr.dark">dunkel (Ink)</option><option value="accent" data-i18n="opt.hdr.accent">Akzentfarbe</option></select>
+        <select class="ctl" id="dsHeader"><option value="light" data-i18n="opt.hdr.light">hell (weiß, dunkle Schrift)</option><option value="dark" data-i18n="opt.hdr.dark">dunkel (Ink)</option><option value="accent" data-i18n="opt.hdr.accent">Akzentfarbe</option><option value="custom" data-i18n="opt.hdr.custom">eigene Farben …</option></select>
+        <div class="grid2" id="dsHeaderRow" style="margin-top:6px" hidden>
+          <div><div class="row"><input type="color" id="dsHeaderBg" value="#0F1E2E" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsHeaderBgTxt">#0F1E2E</span></div><p class="hint" data-i18n="lbl.headerBg">Kopfband-Hintergrund</p></div>
+          <div><div class="row"><input type="color" id="dsHeaderInk" value="#FFFFFF" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsHeaderInkTxt">#FFFFFF</span></div><p class="hint" data-i18n="lbl.headerInk">Kopfband-Schrift</p></div>
+        </div>
+      </div>
+      <div class="field"><label data-i18n="lbl.palette">Abweichungsfarben (Δ)</label>
+        <select class="ctl" id="dsPalette"><option value="teal" data-i18n="opt.pal.teal">Teal / Rot (ChartKitchen-Standard)</option><option value="ibcs" data-i18n="opt.pal.ibcs">Grün / Rot (IBCS klassisch)</option></select>
       </div>
       <div class="field"><label data-i18n="lbl.accent">Akzentfarbe</label><div class="row"><input type="color" id="dsAccent" value="#C25A2D" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsAccentTxt">#C25A2D</span></div></div>
       <label class="toggle off"><input type="checkbox" id="dsDark" disabled> <span data-i18n="lbl.dark">Dark Mode (Backlog)</span></label>

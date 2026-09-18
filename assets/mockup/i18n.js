@@ -15,7 +15,7 @@
 
     btn: {
       templates: '▦ Vorlagen', importTmdl: '⇪ TMDL laden', present: '▶ Präsentieren', presentEnd: '✕ Präsentation beenden',
-      open: 'Öffnen', save: 'Speichern', export: 'Export für Claude Code', demoModel: 'Demo-Modell',
+      open: 'Öffnen', save: 'Speichern', export: 'Export für Claude Code', demoModel: 'Demo-Modell laden',
       newMeasure: '+ Kennzahl / Dimension', copy: 'Kopieren', download: 'Datei herunterladen', downloadAll: 'Alle Dateien herunterladen',
       cancel: 'Abbrechen', create: 'Anlegen', split: 'Aufteilen', save2: 'Speichern',
       pageDup: 'Seite duplizieren', pageDel: 'Seite löschen', splitRoot: 'Inhalt neu aufteilen …', addPage: '+ Seite',
@@ -26,7 +26,7 @@
       projName: 'Name des Berichts / Mockups', templates: 'Seitenvorlage wählen', importTmdl: 'TMDL-Ordner oder -Dateien laden',
       undo: 'Rückgängig (Strg+Z)', redo: 'Wiederholen (Strg+Y)', present: 'Präsentieren: Panels ausblenden, Seite groß (Taste P)',
       help: 'Hilfe', open: 'Mockup-Datei öffnen (.mockup.json)', save: 'Als .mockup.json speichern',
-      demoModel: 'Kleines Beispielmodell (Datum, Produkt, Region, Kennzahlen) laden',
+      demoModel: 'Beispielmodell laden: Controlling, Sales, HR, Online-Marketing oder GuV',
       zoomOut: 'Verkleinern', zoomFit: 'Einpassen', zoomIn: 'Vergrößern', lang: 'Sprache umschalten: Deutsch / English',
       pageRename: 'Seite umbenennen', pageDelete: 'Seite löschen', pageLeft: 'Seite nach links', pageRight: 'Seite nach rechts',
       splitRow: 'In Spalten teilen', splitCol: 'In Zeilen teilen', tileRemove: 'Kachel entfernen',
@@ -38,7 +38,7 @@
     drop: { tmdl: 'TMDL-Ordner oder .tmdl-Dateien hierher ziehen<br><span class="mono">tables/*.tmdl</span>' },
     tab: { el: 'Kachel', page: 'Seite', report: 'Bericht', chrome: 'Rahmen', design: 'Design' },
     kind: { measure: 'Measure', column: 'Spalte', any: 'Feld' },
-    engine: { ck: 'ChartKitchen', native: 'Nativ', deneb: 'Deneb' },
+    engine: { ck: 'ChartKitchen', native: 'Nativ', deneb: 'Deneb', custom: 'Custom Visual byDatenWG' },
 
     sec: {
       canvas: 'Canvas (alle Seiten)', grid: 'Raster', header: 'Kopfband', nav: 'Linke Nav-Leiste', filter: 'Filter / Slicer',
@@ -56,7 +56,7 @@
       navManual: 'Navigation manuell (kommagetrennt)', navOn: 'Nav-Leiste anzeigen (App-Stil)',
       filterOn: 'Filter anzeigen', filterCollapsible: 'Panel ausklappbar (Bookmark)', footerOn: 'Fußleiste anzeigen', text: 'Text',
       radius: 'Kachel-Ecken', tileStyle: 'Kachel-Stil', pageBg: 'Seitenhintergrund', headerStyle: 'Kopfband-Stil',
-      accent: 'Akzentfarbe', dark: 'Dark Mode (Backlog)',
+      accent: 'Akzentfarbe', palette: 'Abweichungsfarben (Δ)', pageBgHex: 'Eigene Seitenfarbe', tileBg: 'Kachelhintergrund', ink: 'Schriftfarbe der Kacheln', headerBg: 'Kopfband-Hintergrund', headerInk: 'Kopfband-Schrift', demoModel: 'Demo-Modell', dark: 'Dark Mode (Backlog)',
       name: 'Name', table: 'Tabelle', fieldKind: 'Art', descLogic: 'Beschreibung / Rechenlogik für den Agenten',
       unitFormat: 'Einheit / Format', target: 'Zielwert', owner: 'Owner (fachlich)', source: 'Quelle / Vorsystem',
       openQ: 'Offene Frage (optional)', alias: 'Heißt beim Fachbereich (Alias)', confirmed: 'Definition im Workshop bestätigt',
@@ -119,8 +119,9 @@
       filter: { right: 'Panel rechts', left: 'Panel links', top: 'Leiste oben', burger: 'Burger-Menü (Bookmark)' },
       radius: { r0: 'eckig', r4: 'leicht gerundet (4 px)', r8: 'gerundet (8 px)', r12: 'stark gerundet (12 px)' },
       tile: { border: 'weiß mit feinem Rahmen', shadow: 'weiß mit weichem Schatten', flat: 'flach, ohne Rahmen' },
-      bg: { light: 'hell strukturiert (#F4F4F1)', soft: 'kühl strukturiert (#EEF1F5)', white: 'weiß' },
-      hdr: { light: 'hell (weiß, dunkle Schrift)', dark: 'dunkel (Ink)', accent: 'Akzentfarbe' },
+      bg: { light: 'hell strukturiert (#F4F4F1)', soft: 'kühl strukturiert (#EEF1F5)', white: 'weiß', custom: 'eigene Farbe …' },
+      hdr: { light: 'hell (weiß, dunkle Schrift)', dark: 'dunkel (Ink)', accent: 'Akzentfarbe', custom: 'eigene Farben …' },
+      pal: { teal: 'Teal / Rot (ChartKitchen-Standard)', ibcs: 'Grün / Rot (IBCS klassisch)' },
       nmKind: { measure: 'Kennzahl (Measure)', column: 'Dimension / Spalte' },
       polarity: { auto: 'auto ({v})', higher: 'größer = besser', lower: 'kleiner = besser' },
       du: { auto: 'auto', none: 'keine', K: 'Tausend (K)', M: 'Millionen (M)' },
@@ -211,6 +212,7 @@
     },
 
     role: {
+      rowType: 'Zeilentyp (Summe / Formel / Position)',
       menuHead: '„{f}" zuordnen als …', free: 'frei', replaces: ' · ersetzt {n}',
       category: 'Kategorie / Achse', category2: 'Unterkategorie', time: 'Zeit / Periode', series: 'Reihe / Legende',
       ac: 'AC · Ist-Wert', ref: 'Referenz (PL / PY / BU)', fc: 'FC-Flag (1/0)', values: 'Werte', valuesAny: 'Felder',
@@ -236,7 +238,8 @@
       multiples: { label: 'Small Multiples' }, area: { label: 'Fläche (nativ)', note: 'Nicht IBCS-typisch; Linie bevorzugen.' },
       waterfall: { label: 'Wasserfall (vertikal)' }, wfint: { label: 'Wasserfall horizontal + Varianz' }, wfkombi: { label: 'Wasserfall + Δ' },
       bridge: { label: 'Brücke (Σ Ref → Δ → Σ AC)' }, tree: { label: 'Baum / Zerlegung' }, heatmap: { label: 'Heatmap (divergierend)' },
-      scatter: { label: 'Streudiagramm' }, boxplot: { label: 'Boxplot' }, gantt: { label: 'Gantt' },
+      scatter: { label: 'Streudiagramm' }, boxplot: { label: 'Boxplot' }, gantt: { label: 'Gantt (dataKitchenGantt)', note: 'Custom Visual dataKitchenGantt byDatenWG aus dem Repository.' },
+      pnl: { label: 'GuV-Statement (P&L byDatenWG)', note: 'Custom Visual P&L Statement byDatenWG: Kontenhierarchie, Summen- und Formelzeilen, Szenarien AC · PY · PL · FC mit Δ-Balken.' },
       kpi: { label: 'KPI-Kachel (IBCS)', note: 'Große Zahl, Δ-Zeile grün/rot, optional Sparkline.' },
       card: { label: 'Karte (nativ)' }, multirow: { label: 'Mehrzeilen-Karte' },
       table: { label: 'IBCS-Tabelle', note: 'Spalten AC · Ref · Δ · Δ% mit Mini-Balken.' },
@@ -279,7 +282,9 @@
     },
 
     demo: {
-      source: 'Demo-Modell', date: 'Kalender', month: 'Monatsname, sortiert nach MonthKey', isForecast: '1 = Forecast-Monat, 0 = Ist',
+      source: 'Demo-Modell', sourceOf: 'Demo · {m}', models: { controlling: 'Controlling', sales: 'Sales', hr: 'HR / People', marketing: 'Online-Marketing', pnl: 'GuV (P&L)' },
+      employees: 'Mitarbeitende', orgUnits: 'Organisationseinheiten', channels: 'Kanäle und Kampagnen', landing: 'Landingpages', salesReps: 'Vertriebsmitarbeitende', costCenters: 'Kostenstellen', companies: 'Gesellschaften', pnlAccounts: 'GuV-Kontenhierarchie (L1 bis L3)', rowType: 'Zeilentyp: Position, Summe oder Formel', sign: 'Vorzeichen: Ertrag +1, Aufwand −1',
+      date: 'Kalender', month: 'Monatsname, sortiert nach MonthKey', isForecast: '1 = Forecast-Monat, 0 = Ist',
       products: 'Produkte', productLine: 'Produktlinie', regions: 'Regionen', customers: 'Kunden',
       accounts: 'GuV-Konten', accountItem: 'GuV-Position', measures: 'Kennzahlen',
       ac: 'Ist', py: 'Vorjahr', pl: 'Plan', fc: 'Forecast', bu: 'Budget',
@@ -434,7 +439,7 @@
 
     btn: {
       templates: '▦ Templates', importTmdl: '⇪ Load TMDL', present: '▶ Present', presentEnd: '✕ Exit presentation',
-      open: 'Open', save: 'Save', export: 'Export for Claude Code', demoModel: 'Demo model',
+      open: 'Open', save: 'Save', export: 'Export for Claude Code', demoModel: 'Load demo model',
       newMeasure: '+ Measure / dimension', copy: 'Copy', download: 'Download file', downloadAll: 'Download all files',
       cancel: 'Cancel', create: 'Create', split: 'Split', save2: 'Save',
       pageDup: 'Duplicate page', pageDel: 'Delete page', splitRoot: 'Re-split content …', addPage: '+ Page',
@@ -445,7 +450,7 @@
       projName: 'Name of the report / mockup', templates: 'Choose a page template', importTmdl: 'Load a TMDL folder or files',
       undo: 'Undo (Ctrl+Z)', redo: 'Redo (Ctrl+Y)', present: 'Present: hide the panels, page large (key P)',
       help: 'Help', open: 'Open a mockup file (.mockup.json)', save: 'Save as .mockup.json',
-      demoModel: 'Load a small sample model (date, product, region, measures)',
+      demoModel: 'Load a sample model: controlling, sales, HR, online marketing or P&L',
       zoomOut: 'Zoom out', zoomFit: 'Fit to view', zoomIn: 'Zoom in', lang: 'Switch language: German / English',
       pageRename: 'Rename page', pageDelete: 'Delete page', pageLeft: 'Move page left', pageRight: 'Move page right',
       splitRow: 'Split into columns', splitCol: 'Split into rows', tileRemove: 'Remove tile',
@@ -457,7 +462,7 @@
     drop: { tmdl: 'Drop a TMDL folder or .tmdl files here<br><span class="mono">tables/*.tmdl</span>' },
     tab: { el: 'Tile', page: 'Page', report: 'Report', chrome: 'Frame', design: 'Design' },
     kind: { measure: 'Measure', column: 'Column', any: 'Field' },
-    engine: { ck: 'ChartKitchen', native: 'Native', deneb: 'Deneb' },
+    engine: { ck: 'ChartKitchen', native: 'Native', deneb: 'Deneb', custom: 'Custom visual byDatenWG' },
 
     sec: {
       canvas: 'Canvas (all pages)', grid: 'Grid', header: 'Header band', nav: 'Left nav bar', filter: 'Filters / slicers',
@@ -475,7 +480,7 @@
       navManual: 'Navigation manually (comma separated)', navOn: 'Show nav bar (app style)',
       filterOn: 'Show filters', filterCollapsible: 'Panel collapsible (bookmark)', footerOn: 'Show footer', text: 'Text',
       radius: 'Tile corners', tileStyle: 'Tile style', pageBg: 'Page background', headerStyle: 'Header style',
-      accent: 'Accent colour', dark: 'Dark mode (backlog)',
+      accent: 'Accent colour', palette: 'Variance colours (Δ)', pageBgHex: 'Custom page colour', tileBg: 'Tile background', ink: 'Tile text colour', headerBg: 'Header background', headerInk: 'Header text', demoModel: 'Demo model', dark: 'Dark mode (backlog)',
       name: 'Name', table: 'Table', fieldKind: 'Kind', descLogic: 'Description / calculation logic for the agent',
       unitFormat: 'Unit / format', target: 'Target value', owner: 'Owner (business)', source: 'Source / feeding system',
       openQ: 'Open question (optional)', alias: 'Called by the business (alias)', confirmed: 'Definition confirmed in the workshop',
@@ -538,8 +543,9 @@
       filter: { right: 'Panel right', left: 'Panel left', top: 'Bar on top', burger: 'Burger menu (bookmark)' },
       radius: { r0: 'square', r4: 'slightly rounded (4 px)', r8: 'rounded (8 px)', r12: 'strongly rounded (12 px)' },
       tile: { border: 'white with a fine border', shadow: 'white with a soft shadow', flat: 'flat, no border' },
-      bg: { light: 'light textured (#F4F4F1)', soft: 'cool textured (#EEF1F5)', white: 'white' },
-      hdr: { light: 'light (white, dark type)', dark: 'dark (ink)', accent: 'accent colour' },
+      bg: { light: 'light textured (#F4F4F1)', soft: 'cool textured (#EEF1F5)', white: 'white', custom: 'custom colour …' },
+      hdr: { light: 'light (white, dark type)', dark: 'dark (ink)', accent: 'accent colour', custom: 'custom colours …' },
+      pal: { teal: 'Teal / red (ChartKitchen default)', ibcs: 'Green / red (classic IBCS)' },
       nmKind: { measure: 'Measure', column: 'Dimension / column' },
       polarity: { auto: 'auto ({v})', higher: 'higher is better', lower: 'lower is better' },
       du: { auto: 'auto', none: 'none', K: 'thousands (K)', M: 'millions (M)' },
@@ -629,6 +635,7 @@
     },
 
     role: {
+      rowType: 'Row type (subtotal / formula / item)',
       menuHead: 'Assign “{f}” as …', free: 'free', replaces: ' · replaces {n}',
       category: 'Category / axis', category2: 'Subcategory', time: 'Time / period', series: 'Series / legend',
       ac: 'AC · actual', ref: 'Reference (PL / PY / BU)', fc: 'FC flag (1/0)', values: 'Values', valuesAny: 'Fields',
@@ -654,7 +661,8 @@
       multiples: { label: 'Small multiples' }, area: { label: 'Area (native)', note: 'Not typical for IBCS; prefer a line.' },
       waterfall: { label: 'Waterfall (vertical)' }, wfint: { label: 'Waterfall horizontal + variance' }, wfkombi: { label: 'Waterfall + Δ' },
       bridge: { label: 'Bridge (Σ ref → Δ → Σ AC)' }, tree: { label: 'Tree / decomposition' }, heatmap: { label: 'Heatmap (diverging)' },
-      scatter: { label: 'Scatter plot' }, boxplot: { label: 'Box plot' }, gantt: { label: 'Gantt' },
+      scatter: { label: 'Scatter plot' }, boxplot: { label: 'Box plot' }, gantt: { label: 'Gantt (dataKitchenGantt)', note: 'Custom visual dataKitchenGantt byDatenWG from the repository.' },
+      pnl: { label: 'P&L statement (P&L byDatenWG)', note: 'Custom visual P&L Statement byDatenWG: account hierarchy, subtotal and formula rows, scenarios AC · PY · PL · FC with Δ bars.' },
       kpi: { label: 'KPI tile (IBCS)', note: 'Large number, Δ row green/red, optional sparkline.' },
       card: { label: 'Card (native)' }, multirow: { label: 'Multi-row card' },
       table: { label: 'IBCS table', note: 'Columns AC · ref · Δ · Δ% with mini bars.' },
@@ -697,7 +705,9 @@
     },
 
     demo: {
-      source: 'Demo model', date: 'Calendar', month: 'Month name, sorted by MonthKey', isForecast: '1 = forecast month, 0 = actual',
+      source: 'Demo model', sourceOf: 'Demo · {m}', models: { controlling: 'Controlling', sales: 'Sales', hr: 'HR / People', marketing: 'Online marketing', pnl: 'P&L' },
+      employees: 'Employees', orgUnits: 'Org units', channels: 'Channels and campaigns', landing: 'Landing pages', salesReps: 'Sales reps', costCenters: 'Cost centres', companies: 'Legal entities', pnlAccounts: 'P&L account hierarchy (L1 to L3)', rowType: 'Row type: item, subtotal or formula', sign: 'Sign: revenue +1, expense −1',
+      date: 'Calendar', month: 'Month name, sorted by MonthKey', isForecast: '1 = forecast month, 0 = actual',
       products: 'Products', productLine: 'Product line', regions: 'Regions', customers: 'Customers',
       accounts: 'P&L accounts', accountItem: 'P&L line item', measures: 'Measures',
       ac: 'Actual', py: 'Previous year', pl: 'Plan', fc: 'Forecast', bu: 'Budget',

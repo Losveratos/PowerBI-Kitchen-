@@ -54,6 +54,7 @@
         return {
           id, stableId: l.node.id, slug: slug(title), page: p.name, kind: v.kind, label: def.label, engine: v.engine,
           chartKitchenType: v.engine === 'ck' ? def.ck : null, chartKitchenMode: v.engine === 'ck' ? def.ckMode : null, native,
+          customVisual: v.engine === 'custom' && def.customVisual ? { name: def.customVisual.name, guid: def.customVisual.guid, buckets: customBuckets(def, v) } : null,
           title, subtitle: v.sub || '', content: v.content || '', scenario: def.roles.some(r => r.key === 'ref') ? v.scenario : null,
           analysis: { polarity: an.polarity, polarityAuto: an.polarityAuto, deltaBasis: an.deltaBasis, deltaBasisAuto: an.deltaBasisAuto, deltaKind: an.deltaKind, unit: an.unit || null, displayUnits: an.displayUnits === 'auto' ? null : an.displayUnits, decimals: an.decimals, sort: an.sort, topN: an.topN, timeGrain: an.timeGrain, cumulative: an.cumulative, scaleGroup: an.scaleGroup || null, message: an.message || null },
           workshop: { priority: v.priority || null, status: v.status || 'open', openQuestion: !!v.openQuestion },
@@ -99,7 +100,7 @@
       report: Object.assign({ name: S.name }, S.report),
       canvas: { width: S.canvas.w, height: S.canvas.h, preset: S.canvas.preset, uiScale: +k.toFixed(3) },
       spacing: { margin: Math.round(S.spacing.margin * k), gutter: Math.round(S.spacing.gutter * k), tilePadding: Math.round(S.spacing.pad * k), base: { margin: S.spacing.margin, gutter: S.spacing.gutter, tilePadding: S.spacing.pad } },
-      design: { cornerRadius: Math.round(d.radius * k), tileStyle: d.tile, pageBackground: MK.pageBg[d.pageBg] || '#F4F4F1', tileBackground: '#FFFFFF', headerStyle: d.header, accent: d.accent, darkMode: false, fontScale: +k.toFixed(3) },
+      design: { cornerRadius: Math.round(d.radius * k), tileStyle: d.tile, pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', headerStyle: d.header, accent: d.accent, variancePalette: d.palette || 'teal', varianceColors: (d.palette || 'teal') === 'ibcs' ? { good: '#3A9A5B', bad: '#C8412F' } : { good: '#1E8F9E', bad: '#D64541' }, colors: { pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', ink: d.ink || '#0F1E2E', headerBackground: d.header === 'custom' ? d.headerBg : (d.header === 'dark' ? '#0F1E2E' : d.header === 'accent' ? d.accent : '#FFFFFF'), headerInk: d.header === 'custom' ? d.headerInk : (d.header === 'light' ? '#0F1E2E' : '#FFFFFF') }, darkMode: MK.isDark(d.tileBg), fontScale: +k.toFixed(3) },
       zones: zonesOut, pages, links,
       model: { source: S.model.source || null, tables: S.model.tables.map(t => t.name), usedFields: fields },
       fields, newFields, issues,
@@ -109,6 +110,18 @@
   function bucketsFor(def, v) {
     const b = {}; if (!def.native) return b;
     Object.keys(def.native.map).forEach(roleKey => { const bucket = def.native.map[roleKey]; const list = v.roles[roleKey] || []; if (!list.length) return; b[bucket] = (b[bucket] || []).concat(list.map(f => ({ ref: fieldRef(f), kind: f.kind, isNew: !!f.isNew }))); });
+    return b;
+  }
+  function customBuckets(def, v) {
+    // map-Wert ist ein Rollenname des Custom Visuals oder ein Objekt { rolle: /Namensmuster/ }:
+    // dann entscheidet der Feldname (z. B. PY -> py, PL -> pl); ohne Treffer die erste noch freie Rolle.
+    const b = {}; const push = (bucket, f) => { (b[bucket] = b[bucket] || []).push({ ref: fieldRef(f), kind: f.kind, isNew: !!f.isNew }); };
+    Object.keys(def.customVisual.map).forEach(roleKey => {
+      const bucket = def.customVisual.map[roleKey]; const list = v.roles[roleKey] || []; if (!list.length) return;
+      if (typeof bucket === 'string') { list.forEach(f => push(bucket, f)); return; }
+      const keys = Object.keys(bucket);
+      list.forEach(f => { const hit = keys.find(k => bucket[k].test(f.name)) || keys.find(k => !b[k]) || keys[keys.length - 1]; push(hit, f); });
+    });
     return b;
   }
   function stripTree(n) { return n.type === 'leaf' ? { leaf: n.visual ? (n.visual.title || n.visual.kind) : null, stableId: n.id } : { split: n.dir, children: n.children.map(c => ({ size: +c.size.toFixed(3), node: stripTree(c.node) })) }; }

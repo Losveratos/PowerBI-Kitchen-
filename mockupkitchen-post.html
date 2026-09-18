@@ -93,12 +93,12 @@ a { color:inherit; }
 
   <header>
     <div class="post-eyebrow">Post · Tool &amp; KI</div>
-    <h1 class="post-title">Vom Whiteboard zur <em>Power-BI-Seite</em><span class="beta-badge">v0.3 · Test</span></h1>
+    <h1 class="post-title">Vom Whiteboard zur <em>Power-BI-Seite</em><span class="beta-badge">v0.4 · Test</span></h1>
     <p class="post-dek">Jeder Reporting-Workshop endet mit einem Foto vom Whiteboard oder einer PowerPoint voller Rechtecke. Beides muss danach jemand in Power BI nachbauen, und beim Nachbauen geht verloren, was besprochen wurde. <strong>MockupKitchen</strong> macht aus der Skizze eine Spezifikation: exakte Kacheln, echte Felder aus dem Datenmodell, Entscheidungen als Daten. Ein KI-Agent baut daraus die Seiten.</p>
     <div class="post-meta">
       <span>Von <strong>Michael Tenner</strong></span>
       <span>Stand · <strong>September 2026</strong></span>
-      <span>Version · <strong>0.3 (Testphase)</strong></span>
+      <span>Version · <strong>0.4 (Testphase)</strong></span>
       <span>Lesezeit · <strong>~3 min</strong></span>
     </div>
   </header>
@@ -127,6 +127,9 @@ a { color:inherit; }
     <p>Power BI speichert jedes Visual als Rechteck in Pixeln. Ein Container-Layout liefert genau diese Rechtecke, ohne Nachmessen. Felder heißen im Export so, wie sie im Modell heißen, also gibt es keine Rückfragerunde „welcher Umsatz". Was im Workshop entschieden wurde, steht strukturiert in der Spec statt in Prosa, und der zweite Lauf ist ein Delta, kein Neubau: Visual-IDs bleiben stabil, jede Spec trägt einen Hash. Die Strecke vom Workshop zum ersten klickbaren Bericht schrumpft von Tagen auf Stunden, und die Doku entsteht nebenbei.</p>
     <p>Der Punkt dahinter: Es ist kein Report-Generator. Generieren kann Copilot bald selbst. Es ist ein Anforderungswerkzeug mit deterministischem Ausgang. Der Mensch legt fest, die Maschine leitet ab, und beides ist nachprüfbar.</p>
 
+    <h2>Neu in <em>v0.4</em></h2>
+    <p>Aus dem ersten Testen: Die Abweichungsebene der integrierten Varianz ist jetzt eine echte kumulierte Brücke, jeder Balken setzt auf dem Stand des vorigen auf, mit Verbindern, Wertlabels und Σ-Spalte. Abweichungsfarben sind standardmäßig Teal und Rot wie im ChartKitchen-Visual, umschaltbar auf das klassische Grün/Rot. Zwei Custom Visuals aus dem Repo sind als Kacheltypen dabei, das Gantt (Projektplan) und das P&amp;L-Statement, beide mit den echten Datenrollen des Visuals im Export. Seiten-, Kachel-, Schrift- und Kopfbandfarben lassen sich zusätzlich zu den Presets frei wählen, dunkle Kacheln passen die Skizzen automatisch an. Und statt eines Demo-Modells gibt es fünf: Controlling, Sales, HR, Online-Marketing und GuV.</p>
+
     <h2>Wie es <em>entstanden</em> ist</h2>
     <p>An einem Tag, KI-gestützt in Claude Code, mit Agenten für Skizzen, Sprachfassung, Seitenbilder und den Übersetzungs-Skill. Danach haben sechs Reviewer-Agenten mit unterschiedlichen Perspektiven das Tool auseinandergenommen: eine Fullstack-Sicht mit Fokus auf Vertrauen, eine Plattform- und Agenten-Sicht, UX, Data Visualization nach IBCS, ein Reporting-Berater und ein Agenten-Architekt. Die Roadmap aus diesem Review ist die Version 0.3, die jetzt zum Testen online ist.</p>
 
@@ -137,7 +140,7 @@ a { color:inherit; }
 
     <div class="cta-card">
       <div class="cta-card-text">
-        <span class="k">MockupKitchen · v0.3</span>
+        <span class="k">MockupKitchen · v0.4</span>
         <h3>Ausprobieren und widersprechen</h3>
         <p>Vorlage wählen, Demo-Modell ist schon geladen, „Export für Claude Code" ansehen. Für den Ernstfall das eigene TMDL-Verzeichnis ziehen.</p>
       </div>
