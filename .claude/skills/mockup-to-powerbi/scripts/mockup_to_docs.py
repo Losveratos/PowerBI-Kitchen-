@@ -2,19 +2,25 @@
 """mockup_to_docs.py — Workshop-Doku und PowerPoint aus der MockupKitchen-Spec.
 
 Zweiter Ausgang des Skills `mockup-to-powerbi`: nicht der Bericht, sondern das
-Protokoll. Aus `mockup-spec.json` (specVersion 1 oder 2) entstehen
+Protokoll. Aus `mockup-spec.json` (specVersion 1, 2 oder 3) entstehen
 
   WORKSHOP-DOKU.md    gleiche Struktur wie `buildDocs` in assets/mockup/export.js
-                      (wird übersprungen, wenn die Datei schon neben der Spec
+                      (wird uebersprungen, wenn die Datei schon neben der Spec
                       liegt — das Tool schreibt sie selbst; mit --force-md
                       trotzdem neu erzeugen)
-  WORKSHOP-DOKU.pptx  Folien: Titel · Gestaltungsentscheidungen · je Seite ein
-                      maßstäbliches Wireframe aus nativen Shapes + eine
-                      Kachel-Tabelle · Navigation/Drill · neue Kennzahlen ·
-                      offene Punkte · nächste Schritte
+  WORKSHOP-DOKU.pptx  Folien: Titel · Berichtskopf · Gestaltung · je Seite ein
+                      Seitenbild (PNG aus dem Tool, sonst massstaebliches
+                      Wireframe aus Shapes) + eine Kachel-Tabelle ·
+                      Navigation/Drill · Kennzahlen-Steckbrief · neue Kennzahlen
+                      · offene Punkte · naechste Schritte
 
     python mockup_to_docs.py mockup-spec.json [--out .] [--no-pptx] [--force-md]
-                             [--docs WORKSHOP-DOKU.md]
+                             [--lang de|en] [--docs WORKSHOP-DOKU.md]
+                             [--images <Ordner mit page-<i>-<slug>.png>]
+
+Liegen neben der Spec Seitenbilder `page-<Index>-<Slug>.png` (Export „Alle
+Dateien" im Tool), werden sie in die Folien eingebettet; sonst zeichnet das
+Skript das Wireframe aus nativen Shapes.
 
 Die PowerPoint braucht `python-pptx`:
 
@@ -31,34 +37,157 @@ import argparse
 import json
 import re
 import sys
-import unicodedata
 from datetime import date
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from mockup_spec import SpecError, load, slug, upgrade                # noqa: E402
+
 # --------------------------------------------------------------------------- #
-# Rollen-Labels aus assets/mockup/catalog.js (R). Nur zur Anzeige.
+# Beschriftungen (Quelle: assets/mockup/catalog.js), zweisprachig
 # --------------------------------------------------------------------------- #
 ROLE_LABEL = {
-    "category": "Kategorie / Zeit",
-    "subcategory": "Unterkategorie",
-    "series": "Reihe / Legende",
-    "ac": "AC · Ist-Wert",
-    "ref": "Referenz (PL / PY / BU)",
-    "fc": "FC-Flag (1/0)",
-    "values": "Werte",
-    "rows": "Zeilen",
-    "columns": "Spalten",
-    "x": "X-Wert", "y": "Y-Wert", "size": "Größe",
-    "indicator": "Kennzahl", "goal": "Ziel / Referenz",
-    "start": "Start", "end": "Ende",
-    "field": "Feld", "text": "Text",
+    "de": {"category": "Kategorie / Zeit", "subcategory": "Unterkategorie",
+           "series": "Reihe / Legende", "ac": "AC · Ist-Wert",
+           "ref": "Referenz (PL / PY / BU)", "fc": "FC-Flag (1/0)",
+           "values": "Werte", "rows": "Zeilen", "columns": "Spalten",
+           "x": "X-Wert", "y": "Y-Wert", "size": "Größe",
+           "indicator": "Kennzahl", "goal": "Ziel / Referenz",
+           "start": "Start", "end": "Ende", "field": "Feld", "text": "Text"},
+    "en": {"category": "Category / time", "subcategory": "Sub-category",
+           "series": "Series / legend", "ac": "AC · actual",
+           "ref": "Reference (PL / PY / BU)", "fc": "FC flag (1/0)",
+           "values": "Values", "rows": "Rows", "columns": "Columns",
+           "x": "X value", "y": "Y value", "size": "Size",
+           "indicator": "Measure", "goal": "Target / reference",
+           "start": "Start", "end": "End", "field": "Field", "text": "Text"},
 }
 ENGINE_LABEL = {"ck": "ChartKitchen", "native": "Nativ", "deneb": "Deneb"}
-TILE_STYLE = {"border": "mit feinem Rahmen", "shadow": "mit weichem Schatten",
-              "flat": "flach"}
-FILTER_MODE = {"right": "als Panel rechts", "left": "als Panel links",
-               "top": "als Leiste oben", "burger": "als Burger-Menü (Bookmark)"}
+PRIORITY = {"de": {"must": "Must", "should": "Should", "could": "Could"},
+            "en": {"must": "Must", "should": "Should", "could": "Could"}}
+STATUS = {"de": {"open": "offen", "agreed": "abgestimmt", "approved": "abgenommen"},
+          "en": {"open": "open", "agreed": "agreed", "approved": "approved"}}
+TILE_STYLE = {"de": {"border": "mit feinem Rahmen", "shadow": "mit weichem Schatten",
+                     "flat": "flach"},
+              "en": {"border": "with a hairline border", "shadow": "with a soft shadow",
+                     "flat": "flat"}}
+FILTER_MODE = {"de": {"right": "als Panel rechts", "left": "als Panel links",
+                      "top": "als Leiste oben", "burger": "als Burger-Menü (Bookmark)"},
+               "en": {"right": "as a panel on the right", "left": "as a panel on the left",
+                      "top": "as a bar on top", "burger": "as a burger menu (bookmark)"}}
 PRESET_LABEL = {"1280x720": "HD", "1920x1080": "Full HD", "3840x2160": "Ultra HD"}
+
+TXT = {
+    "de": {
+        "doc_title": "Workshop-Dokumentation", "as_of": "Stand", "version": "Version",
+        "hash": "Spec-Hash", "made_with": "erstellt mit",
+        "participants": "Teilnehmende", "audience": "Zielgruppe",
+        "purpose": "Ziel des Berichts", "decision": "Entscheidung",
+        "data_date": "Datenstand / Aktualisierung", "pages": "Seiten",
+        "model": "Datenmodell", "fill_in": "[ausfüllen]",
+        "not_connected": "noch nicht angebunden", "tables": "Tabellen",
+        "design": "Entscheidungen zur Gestaltung", "format": "Format",
+        "header": "Kopfband", "style": "Stil", "logo": "Logo",
+        "logo_none": "ohne", "logo_right": "rechts", "logo_left": "links",
+        "filter": "Filter", "no_filter": "keine", "no_fields": "noch ohne Felder",
+        "footer": "Fußleiste", "without": "ohne", "tiles": "Kacheln",
+        "rounded": "gerundet", "square": "eckig", "page_bg": "Seitenhintergrund",
+        "accent": "Akzent", "page": "Seite", "question": "Fragestellung",
+        "notes": "Notizen", "no_tiles": "_Noch keine Kacheln._",
+        "th": ["#", "Kachel", "Darstellung", "Felder", "Analyse", "Prio", "Status",
+               "Notizen"],
+        "nav": "Navigation und Drill-Wege", "from": "Von", "to": "nach",
+        "pagechange": "Seitenwechsel", "drill": "Drill-through",
+        "profile": "Kennzahlen-Steckbrief",
+        "profile_th": ["Feld", "Heißt beim Fachbereich", "Definition laut Modell",
+                       "Einheit", "Ziel", "Owner", "Quelle", "bestätigt"],
+        "new_fields": "Neu zu erstellen",
+        "new_th": ["Feld", "Art", "Tabelle", "Beschreibung / Logik", "Einheit",
+                   "Ziel", "Owner", "Quelle", "Offene Frage"],
+        "measure": "Kennzahl", "dimension": "Dimension",
+        "open": "Offene Punkte", "none_open": "keine offenen Punkte erfasst",
+        "hints": "Hinweise", "next": "Nächste Schritte",
+        "next_items": [
+            "Kennzahlen-Definitionen bestätigen (Steckbrief), fehlende Kennzahlen im "
+            "Semantikmodell anlegen",
+            "Seiten mit dem Skill `mockup-to-powerbi` ins PBIP übertragen",
+            "Review der gebauten Seiten mit den Teilnehmenden, Status auf "
+            "„abgenommen\" setzen"],
+        "slide_sub": "Workshop-Dokumentation zur Berichtsskizze",
+        "slide_report": "Berichtskopf", "slide_tiles": "Kacheln",
+        "slide_new": "Neue Kennzahlen und Felder",
+        "no_new": "Keine neuen Felder — alles kommt aus dem bestehenden Modell.",
+        "no_nav": "Keine Navigations- oder Drill-Wege im Mockup festgelegt.",
+        "nav_header": "Nav-Buttons im Kopfband",
+        "nav_left": "Linke Nav-Leiste mit einem Button je Seite",
+        "bookmarks": "Filter-Panel über zwei Lesezeichen (öffnen / schließen); "
+                     "Lesezeichen erfassen nur die Sichtbarkeit, nicht die Auswahl",
+        "no_open": "Keine offenen Punkte erfasst.",
+        "pptx_next": [
+            "Fehlende Kennzahlen im Semantikmodell anlegen (te add, DAX bestätigen)",
+            "Seiten mit dem Skill `mockup-to-powerbi` ins PBIP übertragen",
+            "ChartKitchen-Slots über die Referenz-Instanz füllen",
+            "Navigation, Drill-through und Filter-Lesezeichen in Desktop testen",
+            "Review der gebauten Seiten mit den Teilnehmenden"],
+        "theme_check": "Formatierung gegen das Theme prüfen",
+        "lower_better": "kleiner = besser", "sorted_by": "sortiert nach",
+        "top": "Top", "cum": "kumuliert", "scale": "Skalengruppe",
+    },
+    "en": {
+        "doc_title": "Workshop documentation", "as_of": "As of", "version": "Version",
+        "hash": "Spec hash", "made_with": "created with",
+        "participants": "Participants", "audience": "Audience",
+        "purpose": "Purpose of the report", "decision": "Decision",
+        "data_date": "Data as of / refresh", "pages": "Pages",
+        "model": "Semantic model", "fill_in": "[to be filled in]",
+        "not_connected": "not connected yet", "tables": "tables",
+        "design": "Design decisions", "format": "Format",
+        "header": "Header band", "style": "style", "logo": "logo",
+        "logo_none": "none", "logo_right": "right", "logo_left": "left",
+        "filter": "Filter", "no_filter": "none", "no_fields": "no fields yet",
+        "footer": "Footer", "without": "none", "tiles": "Tiles",
+        "rounded": "rounded", "square": "square", "page_bg": "page background",
+        "accent": "accent", "page": "Page", "question": "Question",
+        "notes": "Notes", "no_tiles": "_No tiles yet._",
+        "th": ["#", "Tile", "Rendering", "Fields", "Analysis", "Prio", "Status",
+               "Notes"],
+        "nav": "Navigation and drill paths", "from": "From", "to": "to",
+        "pagechange": "page navigation", "drill": "drill-through",
+        "profile": "Measure profile",
+        "profile_th": ["Field", "Business name", "Definition in the model", "Unit",
+                       "Target", "Owner", "Source", "confirmed"],
+        "new_fields": "To be created",
+        "new_th": ["Field", "Kind", "Table", "Description / logic", "Unit",
+                   "Target", "Owner", "Source", "Open question"],
+        "measure": "Measure", "dimension": "Dimension",
+        "open": "Open points", "none_open": "no open points recorded",
+        "hints": "Notes", "next": "Next steps",
+        "next_items": [
+            "Confirm measure definitions (profile), create missing measures in the "
+            "semantic model",
+            "Build the pages with the `mockup-to-powerbi` skill",
+            "Review the built pages with the participants, set status to „approved\""],
+        "slide_sub": "Workshop documentation for the report sketch",
+        "slide_report": "Report brief", "slide_tiles": "Tiles",
+        "slide_new": "New measures and fields",
+        "no_new": "No new fields — everything comes from the existing model.",
+        "no_nav": "No navigation or drill paths defined in the mockup.",
+        "nav_header": "Navigation buttons in the header band",
+        "nav_left": "Left navigation rail with one button per page",
+        "bookmarks": "Filter panel via two bookmarks (open / close); bookmarks capture "
+                     "visibility only, not the selection",
+        "no_open": "No open points recorded.",
+        "pptx_next": [
+            "Create missing measures in the semantic model (te add, confirm DAX)",
+            "Build the pages with the `mockup-to-powerbi` skill",
+            "Fill the ChartKitchen slots from the reference instance",
+            "Test navigation, drill-through and filter bookmarks in Desktop",
+            "Review the built pages with the participants"],
+        "theme_check": "Check formatting against the theme",
+        "lower_better": "lower is better", "sorted_by": "sorted by",
+        "top": "Top", "cum": "cumulative", "scale": "scale group",
+    },
+}
 
 INK = "0F1E2E"
 INK_SOFT = "475569"
@@ -66,187 +195,225 @@ LINE = "D5D8DC"
 PAPER = "FFFFFF"
 
 
-def slug(text: str, limit: int = 40) -> str:
-    s = unicodedata.normalize("NFD", str(text or "seite"))
-    s = "".join(c for c in s if unicodedata.category(c) != "Mn")
-    s = re.sub(r"[^A-Za-z0-9]+", "_", s).strip("_")[:limit]
-    return s or "Seite"
+def role_label(key: str, lang: str) -> str:
+    return ROLE_LABEL.get(lang, ROLE_LABEL["de"]).get(key, key)
 
 
-def role_label(key: str) -> str:
-    return ROLE_LABEL.get(key, key)
-
-
-# --------------------------------------------------------------------------- #
-# Spec normalisieren (identisch zur Logik in mockup_to_pbir.py)
-# --------------------------------------------------------------------------- #
-DEFAULT_DESIGN = {
-    "cornerRadius": 0, "tileStyle": "border", "pageBackground": "#F4F4F1",
-    "tileBackground": "#FFFFFF", "headerStyle": "dark", "accent": "#C25A2D",
-    "fontScale": 1.0,
-}
-
-
-def normalize(spec: dict) -> dict:
-    meta = spec.get("meta") or {}
-    version = int(meta.get("specVersion") or (2 if isinstance(spec.get("pages"), list) else 1))
-    canvas = spec.get("canvas") or {}
-    zones = spec.get("zones") or {}
-    ui_scale = float(canvas.get("uiScale") or 1) or 1.0
-
-    design = dict(DEFAULT_DESIGN)
-    design.update({k: v for k, v in (spec.get("design") or {}).items() if v is not None})
-    design["fontScale"] = float(design.get("fontScale") or ui_scale or 1)
-
-    if version >= 2:
-        pages = [{
-            "id": p.get("id") or f"p{i + 1}", "index": int(p.get("index") or i + 1),
-            "name": p.get("name") or f"Seite {i + 1}", "notes": p.get("notes") or "",
-            "contentRect": p.get("contentRect") or zones.get("content") or {},
-            "visuals": p.get("visuals") or [],
-        } for i, p in enumerate(spec.get("pages") or [])]
-        links = spec.get("links") or []
-    else:
-        name = (spec.get("page") or {}).get("name") or "Seite"
-        pages = [{"id": "p1", "index": 1, "name": name,
-                  "notes": (spec.get("page") or {}).get("notes") or "",
-                  "contentRect": zones.get("content") or {},
-                  "visuals": spec.get("visuals") or []}]
-        links = []
-        filt = zones.get("filter")
-        if filt and not filt.get("mode"):
-            filt["mode"] = filt.get("side") or "right"
-    return {"version": version, "canvas": canvas, "uiScale": ui_scale,
-            "design": design, "zones": zones, "pages": pages, "links": links,
-            "meta": meta}
-
-
-def fields_summary(v: dict) -> str:
+def fields_summary(v: dict, lang: str) -> str:
     roles = v.get("roles") or {}
     parts = []
     for key, fl in roles.items():
         names = ", ".join(f["name"] + (" (neu)" if f.get("isNew") else "") for f in fl)
-        parts.append(f"{role_label(key)}: {names}")
+        parts.append("%s: %s" % (role_label(key, lang), names))
     return "; ".join(parts) or "–"
 
 
-def open_points(spec: dict, n: dict) -> list[str]:
-    out: list[str] = []
-    for f in spec.get("newFields") or []:
+def analysis_summary(v: dict, lang: str) -> str:
+    """Analyse-Kurzform fuer die Kachel-Tabelle (wie analysisLine in export.js)."""
+    t = TXT[lang]
+    a = v.get("analysis") or {}
+    if not (v.get("roles") or {}) or v.get("kind") in ("slicer", "text", "button"):
+        return "–"
+    parts = []
+    if a.get("polarity") == "lower":
+        parts.append(t["lower_better"])
+    if a.get("sort"):
+        parts.append("%s %s" % (t["sorted_by"], a["sort"].get("by")))
+    if a.get("topN"):
+        parts.append("%s %s" % (t["top"], a["topN"]))
+    if a.get("unit"):
+        parts.append(a["unit"])
+    if a.get("displayUnits"):
+        parts.append(str(a["displayUnits"]))
+    if a.get("decimals") is not None:
+        parts.append("%s dec" % a["decimals"])
+    if a.get("timeGrain"):
+        parts.append(str(a["timeGrain"]))
+    if a.get("cumulative"):
+        parts.append(t["cum"])
+    if a.get("scaleGroup"):
+        parts.append("%s %s" % (t["scale"], a["scaleGroup"]))
+    return ", ".join(parts) or "–"
+
+
+def open_points(nspec: dict, lang: str):
+    out = []
+    for f in nspec["newFields"]:
         if f.get("openQuestion"):
-            out.append(f"{f['name']}: {f['openQuestion']}")
-    for p in n["pages"]:
+            out.append("%s: %s" % (f["name"], f["openQuestion"]))
+    for p in nspec["pages"]:
         for v in p["visuals"]:
-            if "?" in (v.get("notes") or ""):
-                out.append(f"{p['name']} / {v.get('title')}: {v['notes']}")
-            for w in (v.get("warnings") or []):
-                if w.startswith("Pflichtrolle"):
-                    out.append(f"{p['name']} / {v.get('title')}: {w}")
-    out += list(spec.get("warnings") or [])
-    return out
+            if (v.get("workshop") or {}).get("openQuestion"):
+                out.append("%s / %s: %s" % (p["name"], v.get("title"),
+                                            v.get("notes") or "offene Frage ohne Text"))
+    for i in nspec["issues"]:
+        if i.get("level") != "info":
+            out.append(("%s: " % i["page"] if i.get("page") else "") + i.get("text", ""))
+    for f in nspec["fields"]:
+        if f.get("note"):
+            out.append("%s: %s" % (f["ref"], f["note"]))
+    seen, uniq = set(), []
+    for o in out:
+        if o not in seen:
+            seen.add(o)
+            uniq.append(o)
+    return uniq
+
+
+def page_image(nspec: dict, page: dict, folder: Path):
+    """`page-<Index>-<Slug>.png` neben der Spec, falls exportiert."""
+    if not folder:
+        return None
+    cand = folder / ("page-%d-%s.png" % (page["index"], slug(page["name"])))
+    return cand if cand.is_file() else None
 
 
 # --------------------------------------------------------------------------- #
-# WORKSHOP-DOKU.md  (Struktur wie buildDocs in assets/mockup/export.js)
+# WORKSHOP-DOKU.md  (Struktur wie buildDocs in assets/mockup/export.js, v3)
 # --------------------------------------------------------------------------- #
-def build_docs_md(spec: dict, n: dict) -> str:
-    z, d = n["zones"], n["design"]
-    meta = n["meta"]
-    canvas = n["canvas"]
-    model = spec.get("model") or {}
-    L: list[str] = []
-    L += [f"# Workshop-Dokumentation · {meta.get('name', 'Mockup')}", "",
-          f"Stand: {date.today().isoformat()} · erstellt mit "
-          f"{meta.get('tool', 'MockupKitchen byDatenWG')} {meta.get('version', '')}".rstrip(),
-          "", "| | |", "|---|---|",
-          "| Teilnehmende | [ausfüllen] |",
-          "| Ziel des Berichts | [ausfüllen] |",
-          "| Zielgruppe | [ausfüllen] |",
-          f"| Seiten | {' · '.join(p['name'] for p in n['pages'])} |",
-          f"| Datenmodell | {model.get('source') or 'noch nicht angebunden'} "
-          f"({len(model.get('tables') or [])} Tabellen) |", ""]
+def build_docs_md(nspec: dict, lang: str) -> str:
+    t = TXT[lang]
+    z, d = nspec["zones"], nspec["design"]
+    meta, rp = nspec["meta"], nspec["report"]
+    canvas = nspec["canvas"]
+    model = nspec["model"]
+    L = ["# %s · %s" % (t["doc_title"], meta.get("name", "Mockup")), "",
+         ("%s: %s · %s %s · %s `%s` · %s %s %s"
+          % (t["as_of"], date.today().isoformat(), t["version"],
+             rp.get("version") or "0.1", t["hash"], meta.get("specHash") or "–",
+             t["made_with"], meta.get("tool", "MockupKitchen byDatenWG"),
+             meta.get("version", ""))).rstrip(),
+         "", "| | |", "|---|---|",
+         "| %s | %s |" % (t["participants"], rp.get("participants") or t["fill_in"]),
+         "| %s | %s |" % (t["audience"], rp.get("audience") or t["fill_in"]),
+         "| %s | %s |" % (t["purpose"], rp.get("purpose") or t["fill_in"]),
+         "| %s | %s |" % (t["decision"], rp.get("decision") or t["fill_in"]),
+         "| %s | %s |" % (t["data_date"], rp.get("dataDate") or t["fill_in"]),
+         "| %s | %s |" % (t["pages"], " · ".join(p["name"] for p in nspec["pages"])),
+         "| %s | %s (%d %s) |" % (t["model"], model.get("source") or t["not_connected"],
+                                  len(model.get("tables") or []), t["tables"]), ""]
 
     preset = canvas.get("preset")
-    fmt = f"- Format {canvas.get('width')} × {canvas.get('height')} px"
+    fmt = "- %s %s × %s px" % (t["format"], canvas.get("width"), canvas.get("height"))
     if preset and preset != "custom":
-        fmt += f" ({PRESET_LABEL.get(preset, preset)})"
+        fmt += " (%s)" % PRESET_LABEL.get(preset, preset)
     header = z.get("header")
     if header:
-        h = (f"„{header.get('title', '')}\""
-             + (f" · {header['subtitle']}" if header.get("subtitle") else "")
-             + f", Stil {header.get('style', d['headerStyle'])}")
+        h = ("„%s\"" % (header.get("title") or "")
+             + (" · %s" % header["subtitle"] if header.get("subtitle") else "")
+             + ", %s %s" % (t["style"], header.get("style", d["headerStyle"])))
         logo = header.get("logoPos") or ("left" if header.get("logo") else "none")
-        h += ", Logo " + {"none": "ohne", "right": "rechts"}.get(logo, "links")
+        h += ", %s %s" % (t["logo"], {"none": t["logo_none"], "right": t["logo_right"]}
+                          .get(logo, t["logo_left"]))
     else:
-        h = "ohne"
+        h = t["without"]
     filt = z.get("filter")
     if filt:
         mode = filt.get("mode") or filt.get("side") or "right"
-        f_txt = FILTER_MODE.get(mode, mode)
+        f_txt = FILTER_MODE[lang].get(mode, mode)
         sl = filt.get("slicers") or []
-        f_txt += (": " + ", ".join(s["name"] for s in sl)) if sl else ", noch ohne Felder"
+        if sl:
+            f_txt += ": " + ", ".join(
+                s["name"] + ((" (%s %s)" % ("Vorauswahl" if lang == "de" else "default",
+                                            s["default"])) if s.get("default") else "")
+                for s in sl)
+        else:
+            f_txt += ", " + t["no_fields"]
     else:
-        f_txt = "keine"
-    L += ["## Entscheidungen zur Gestaltung", "", fmt + ".",
-          f"- Kopfband {h}.",
-          f"- Filter {f_txt}.",
-          f"- Fußleiste " + (f"„{z['footer'].get('text', '')}\"." if z.get("footer") else "ohne."),
-          f"- Kacheln " + (f"gerundet ({d['cornerRadius']} px)" if d["cornerRadius"] else "eckig")
-          + f", {TILE_STYLE.get(d['tileStyle'], d['tileStyle'])}, Seitenhintergrund "
-          f"{d['pageBackground']}, Akzent {d['accent']}.", ""]
+        f_txt = t["no_filter"]
+    L += ["## %s" % t["design"], "", fmt + ".",
+          "- %s %s." % (t["header"], h),
+          "- %s %s." % (t["filter"], f_txt),
+          "- %s %s." % (t["footer"], ("„%s\"" % z["footer"].get("text", ""))
+                        if z.get("footer") else t["without"]),
+          "- %s %s, %s, %s %s, %s %s."
+          % (t["tiles"],
+             ("%s (%s px)" % (t["rounded"], d["cornerRadius"])) if d["cornerRadius"]
+             else t["square"],
+             TILE_STYLE[lang].get(d["tileStyle"], d["tileStyle"]),
+             t["page_bg"], d["pageBackground"], t["accent"], d["accent"]), ""]
 
-    for p in n["pages"]:
-        L += [f"## Seite {p['index']} · {p['name']}", "",
-              f"**Zweck:** {p['notes']}" if p["notes"] else "**Zweck:** [ausfüllen]", ""]
+    for p in nspec["pages"]:
+        L += ["## %s %s · %s" % (t["page"], p["index"], p["name"]), "",
+              "**%s:** %s" % (t["question"], p.get("question") or t["fill_in"]), ""]
+        if p.get("notes"):
+            L += ["**%s:** %s" % (t["notes"], p["notes"]), ""]
         if p["visuals"]:
-            L += ["| # | Kachel | Darstellung | Felder | Notizen |", "|---|---|---|---|---|"]
+            L += ["| " + " | ".join(t["th"]) + " |",
+                  "|" + "---|" * len(t["th"])]
             for i, v in enumerate(p["visuals"], start=1):
                 render = (v.get("label") or v.get("kind", ""))
                 if v.get("scenario"):
-                    render += f", {v['scenario']}"
+                    render += ", %s" % v["scenario"]
                 if v.get("engine") == "ck":
                     render += ", ChartKitchen"
-                note = " · ".join(x for x in [v.get("notes") or "",
-                                              f"→ {v['link']['pageName']}" if v.get("link") else ""] if x)
+                elif v.get("engine") == "deneb":
+                    render += ", Deneb"
+                w = v.get("workshop") or {}
+                a = v.get("analysis") or {}
                 title = v.get("title", "")
                 if v.get("subtitle"):
-                    title += f" ({v['subtitle']})"
-                L.append(f"| {p['index']}.{i} | {title} | {render} | "
-                         f"{fields_summary(v)} | {note or '–'} |")
+                    title += " (%s)" % v["subtitle"]
+                if a.get("message"):
+                    title += "<br>_%s_" % a["message"]
+                note = " · ".join(x for x in [
+                    ("Text: %s" % v["content"]) if v.get("content") else "",
+                    v.get("notes") or "",
+                    ("→ %s" % v["link"]["pageName"]) if v.get("link") else ""] if x)
+                L.append("| %s.%s | %s | %s | %s | %s | %s | %s | %s |"
+                         % (p["index"], i, title, render, fields_summary(v, lang),
+                            analysis_summary(v, lang),
+                            PRIORITY[lang].get(w.get("priority"), "–"),
+                            STATUS[lang].get(w.get("status", "open"), "–"),
+                            note or "–"))
         else:
-            L.append("_Noch keine Kacheln._")
+            L.append(t["no_tiles"])
         L.append("")
 
-    if n["links"]:
-        L += ["## Navigation und Drill-Wege", ""]
-        for l in n["links"]:
-            kind = "Seitenwechsel" if l.get("kind") == "navigation" else "Drill-through"
-            L.append(f"- Von „{l['fromPage']}\" ({l['fromVisual']}) nach "
-                     f"„{l['toPage']}\" ({kind})")
+    if nspec["links"]:
+        L += ["## %s" % t["nav"], ""]
+        for l in nspec["links"]:
+            kind = (t["pagechange"] if l.get("kind") == "navigation"
+                    else t["drill"] + (" (%s)" % l["drillField"] if l.get("drillField") else ""))
+            L.append("- %s „%s\" (%s) %s „%s\" (%s)"
+                     % (t["from"], l["fromPage"], l["fromVisual"], t["to"],
+                        l["toPage"], kind))
         L.append("")
 
-    L += ["## Kennzahlen und Felder", ""]
-    used = [f for f in (model.get("usedFields") or []) if not f.get("isNew")]
-    L += [("Verwendet aus dem Modell: " + ", ".join(f"`{f['ref']}`" for f in used))
-          if used else "Noch keine Modellfelder gebunden.", ""]
-    if spec.get("newFields"):
-        L += ["### Neu zu erstellen", "",
-              "| Feld | Art | Tabelle | Beschreibung / Logik | Offene Frage |",
-              "|---|---|---|---|---|"]
-        for f in spec["newFields"]:
-            L.append(f"| {f['name']} | "
-                     f"{'Kennzahl' if f.get('kind') == 'measure' else 'Dimension'} | "
-                     f"{f['table']} | {f.get('description') or '[ausfüllen]'} | "
-                     f"{f.get('openQuestion') or '–'} |")
+    L += ["## %s" % t["profile"], "",
+          "| " + " | ".join(t["profile_th"]) + " |",
+          "|" + "---|" * len(t["profile_th"])]
+    for f in nspec["fields"]:
+        L.append("| %s%s | %s | %s | %s | %s | %s | %s | %s |"
+                 % (f["ref"], " (neu)" if f.get("isNew") else "",
+                    f.get("alias") or "–", f.get("description") or t["fill_in"],
+                    f.get("unit") or f.get("formatString") or "–",
+                    f.get("target") or "–", f.get("owner") or "–",
+                    f.get("source") or "–", "☑" if f.get("confirmed") else "☐"))
+    L.append("")
+
+    if nspec["newFields"]:
+        L += ["### %s" % t["new_fields"], "",
+              "| " + " | ".join(t["new_th"]) + " |",
+              "|" + "---|" * len(t["new_th"])]
+        for f in nspec["newFields"]:
+            L.append("| %s | %s | %s | %s | %s | %s | %s | %s | %s |"
+                     % (f["name"],
+                        t["measure"] if f.get("kind") == "measure" else t["dimension"],
+                        f["table"], f.get("description") or t["fill_in"],
+                        f.get("unit") or "–", f.get("target") or "–",
+                        f.get("owner") or "–", f.get("source") or "–",
+                        f.get("openQuestion") or "–"))
         L.append("")
 
-    op = open_points(spec, n)
-    L += ["## Offene Punkte", ""]
-    L += [f"- [ ] {o}" for o in op] or ["- [ ] keine offenen Punkte erfasst"]
-    L += ["", "## Nächste Schritte", "",
-          "- [ ] Fehlende Kennzahlen im Semantikmodell anlegen (siehe oben)",
-          "- [ ] Seiten mit dem Skill `mockup-to-powerbi` ins PBIP übertragen",
-          "- [ ] Review der gebauten Seiten mit den Teilnehmenden", ""]
+    op = open_points(nspec, lang)
+    L += ["## %s" % t["open"], ""]
+    L += ["- [ ] %s" % o for o in op] or ["- [ ] %s" % t["none_open"]]
+    L.append("")
+    hints = [i for i in nspec["issues"] if i.get("level") == "info"]
+    if hints:
+        L += ["## %s" % t["hints"], ""] + ["- %s" % i["text"] for i in hints] + [""]
+    L += ["## %s" % t["next"], ""] + ["- [ ] %s" % s for s in t["next_items"]] + [""]
     return "\n".join(L)
 
 
@@ -258,7 +425,7 @@ def hexcolor(value: str, fallback: str = INK):
     return v.upper() if re.fullmatch(r"[0-9A-Fa-f]{6}", v or "") else fallback
 
 
-def build_pptx(spec: dict, n: dict, target: Path) -> tuple[bool, str]:
+def build_pptx(nspec: dict, target: Path, lang: str, images: Path):
     try:
         from pptx import Presentation
         from pptx.dml.color import RGBColor
@@ -271,7 +438,9 @@ def build_pptx(spec: dict, n: dict, target: Path) -> tuple[bool, str]:
                        "  Alternative:   WORKSHOP-DOKU.md an den Skill "
                        "`anthropic-skills:pptx` geben.")
 
-    d = n["design"]
+    t = TXT[lang]
+    d = nspec["design"]
+    rp = nspec["report"]
     accent = RGBColor.from_string(hexcolor(d["accent"], "C25A2D"))
     ink = RGBColor.from_string(INK)
     ink_soft = RGBColor.from_string(INK_SOFT)
@@ -290,8 +459,7 @@ def build_pptx(spec: dict, n: dict, target: Path) -> tuple[bool, str]:
         tf = box.text_frame
         tf.word_wrap = wrap
         tf.vertical_anchor = anchor
-        lines = str(text).split("\n")
-        for i, ln in enumerate(lines):
+        for i, ln in enumerate(str(text).split("\n")):
             para = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
             para.alignment = align
             run = para.add_run()
@@ -301,7 +469,7 @@ def build_pptx(spec: dict, n: dict, target: Path) -> tuple[bool, str]:
             run.font.color.rgb = color
         return box
 
-    def slide_frame(title: str, kicker: str = "") -> object:
+    def slide_frame(title: str, kicker: str = ""):
         s = prs.slides.add_slide(blank)
         bar = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, SW, Emu(45720 * 22))
         bar.fill.solid()
@@ -327,6 +495,28 @@ def build_pptx(spec: dict, n: dict, target: Path) -> tuple[bool, str]:
         for i, it in enumerate(items):
             textbox(slide, Emu(x), Emu(y + i * gap), w, Emu(gap), "•  " + it, size=size)
 
+    def table(slide, heads, rows, widths, *, top=1350000, head_size=11, size=9):
+        n = len(rows) + 1
+        tbl = slide.shapes.add_table(n, len(heads), Emu(457200), Emu(top),
+                                     SW - Emu(914400),
+                                     Emu(min(4600000, 340000 * n))).table
+        for c, wdt in enumerate(widths):
+            tbl.columns[c].width = Emu(wdt)
+        for c, head in enumerate(heads):
+            cell = tbl.cell(0, c)
+            cell.text = head
+            run = cell.text_frame.paragraphs[0].runs[0]
+            run.font.size, run.font.bold, run.font.color.rgb = Pt(head_size), True, ink
+        for r, values in enumerate(rows, start=1):
+            for c, txt in enumerate(values):
+                cell = tbl.cell(r, c)
+                cell.text = str(txt)
+                for para in cell.text_frame.paragraphs:
+                    for run in para.runs:
+                        run.font.size = Pt(size)
+                        run.font.color.rgb = ink if c == 0 else ink_soft
+        return tbl
+
     # ---------------------------------------------------------------- Titel
     s = prs.slides.add_slide(blank)
     band = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, SW, SH)
@@ -341,61 +531,72 @@ def build_pptx(spec: dict, n: dict, target: Path) -> tuple[bool, str]:
     stripe.line.fill.background()
     stripe.shadow.inherit = False
     textbox(s, Emu(700000), Emu(2150000), SW - Emu(1400000), Emu(700000),
-            n["meta"].get("name", "Mockup"), size=40, bold=True)
+            nspec["meta"].get("name", "Mockup"), size=40, bold=True)
     textbox(s, Emu(700000), Emu(2900000), SW - Emu(1400000), Emu(500000),
-            "Workshop-Dokumentation zur Berichtsskizze", size=20, color=ink_soft)
-    model = spec.get("model") or {}
+            t["slide_sub"], size=20, color=ink_soft)
+    model = nspec["model"]
     textbox(s, Emu(700000), Emu(3500000), SW - Emu(1400000), Emu(900000),
-            f"{len(n['pages'])} Seite(n) · {sum(len(p['visuals']) for p in n['pages'])} Kacheln"
-            f" · {n['canvas'].get('width')} × {n['canvas'].get('height')} px\n"
-            f"Datenmodell: {model.get('source') or 'noch nicht angebunden'}\n"
-            f"Stand: {date.today().strftime('%d.%m.%Y')} · "
-            f"{n['meta'].get('tool', 'MockupKitchen byDatenWG')} "
-            f"{n['meta'].get('version', '')}".rstrip(),
+            "%d %s · %d %s · %s × %s px\n%s: %s\n%s: %s · %s %s · %s %s"
+            % (len(nspec["pages"]), t["pages"],
+               sum(len(p["visuals"]) for p in nspec["pages"]), t["tiles"],
+               nspec["canvas"].get("width"), nspec["canvas"].get("height"),
+               t["model"], model.get("source") or t["not_connected"],
+               t["as_of"], date.today().strftime("%d.%m.%Y"),
+               t["hash"], nspec["meta"].get("specHash") or "–",
+               t["made_with"], nspec["meta"].get("tool", "MockupKitchen byDatenWG")),
             size=14, color=ink_soft)
 
+    # ------------------------------------------------------------ Berichtskopf
+    s = slide_frame(t["slide_report"])
+    bullets(s, ["%s: %s" % (t["audience"], rp.get("audience") or t["fill_in"]),
+                "%s: %s" % (t["purpose"], rp.get("purpose") or t["fill_in"]),
+                "%s: %s" % (t["decision"], rp.get("decision") or t["fill_in"]),
+                "%s: %s" % (t["participants"], rp.get("participants") or t["fill_in"]),
+                "%s: %s · %s %s" % (t["data_date"], rp.get("dataDate") or t["fill_in"],
+                                    t["version"], rp.get("version") or "0.1")], size=16)
+
     # ------------------------------------------------- Gestaltungsentscheidungen
-    z = n["zones"]
+    z = nspec["zones"]
     header = z.get("header")
     filt = z.get("filter")
-    items = [f"Format {n['canvas'].get('width')} × {n['canvas'].get('height')} px"
-             + (f" ({PRESET_LABEL.get(n['canvas'].get('preset'), '')})"
-                if PRESET_LABEL.get(n["canvas"].get("preset")) else "")
-             + f", Skalierung ×{n['uiScale']}"]
+    items = ["%s %s × %s px%s, ×%s"
+             % (t["format"], nspec["canvas"].get("width"), nspec["canvas"].get("height"),
+                (" (%s)" % PRESET_LABEL.get(nspec["canvas"].get("preset"), ""))
+                if PRESET_LABEL.get(nspec["canvas"].get("preset")) else "",
+                nspec["uiScale"])]
     if header:
         logo = header.get("logoPos") or ("left" if header.get("logo") else "none")
-        items.append(f"Kopfband „{header.get('title', '')}\", Stil "
-                     f"{header.get('style', d['headerStyle'])}, Logo "
-                     + {"none": "ohne", "right": "rechts"}.get(logo, "links")
-                     + (f", Nav: {' · '.join(header.get('nav') or [])}"
+        items.append("%s „%s\", %s %s, %s %s%s"
+                     % (t["header"], header.get("title", ""), t["style"],
+                        header.get("style", d["headerStyle"]), t["logo"],
+                        {"none": t["logo_none"], "right": t["logo_right"]}
+                        .get(logo, t["logo_left"]),
+                        (", Nav: %s" % " · ".join(header.get("nav") or []))
                         if header.get("nav") else ""))
-    else:
-        items.append("Kein Kopfband")
     if z.get("nav"):
-        items.append("Linke Nav-Leiste mit Icon je Seite")
+        items.append(t["nav_left"])
     if filt:
         mode = filt.get("mode") or filt.get("side") or "right"
-        sl = ", ".join(s_["name"] for s_ in (filt.get("slicers") or [])) or "noch ohne Felder"
-        items.append(f"Filter {FILTER_MODE.get(mode, mode)}: {sl}"
-                     + (" · ein-/ausblendbar über Lesezeichen"
-                        if filt.get("collapsible") or mode == "burger" else ""))
-    else:
-        items.append("Kein Filter-Panel")
+        sl = ", ".join(x["name"] for x in (filt.get("slicers") or [])) or t["no_fields"]
+        items.append("%s %s: %s%s" % (t["filter"], FILTER_MODE[lang].get(mode, mode), sl,
+                                      (" · " + t["bookmarks"])
+                                      if filt.get("collapsible") or mode == "burger" else ""))
     if z.get("footer"):
-        items.append(f"Fußleiste: {z['footer'].get('text', '')}")
-    items.append(f"Kacheln {'gerundet (%d px)' % d['cornerRadius'] if d['cornerRadius'] else 'eckig'}"
-                 f", {TILE_STYLE.get(d['tileStyle'], d['tileStyle'])}, "
-                 f"Hintergrund {d['tileBackground']}")
-    items.append(f"Seitenhintergrund {d['pageBackground']} · Akzent {d['accent']} · "
-                 f"Schriftfaktor ×{d['fontScale']}")
-    s = slide_frame("Entscheidungen zur Gestaltung")
+        items.append("%s: %s" % (t["footer"], z["footer"].get("text", "")))
+    items.append("%s %s, %s, %s %s · %s %s"
+                 % (t["tiles"],
+                    ("%s (%s px)" % (t["rounded"], d["cornerRadius"]))
+                    if d["cornerRadius"] else t["square"],
+                    TILE_STYLE[lang].get(d["tileStyle"], d["tileStyle"]),
+                    t["page_bg"], d["pageBackground"], t["accent"], d["accent"]))
+    s = slide_frame(t["design"])
     bullets(s, items)
 
     # ---------------------------------------------------------- Seiten
     def wireframe(slide, page):
-        """Zeichnet die Zonen und Kacheln maßstäblich in die Folie."""
-        cw = int(n["canvas"].get("width") or 1280)
-        ch = int(n["canvas"].get("height") or 720)
+        """Zeichnet die Zonen und Kacheln massstaeblich in die Folie."""
+        cw = int(nspec["canvas"].get("width") or 1280)
+        ch = int(nspec["canvas"].get("height") or 720)
         margin_x, top = 700000, 1450000
         avail_w = SW - 2 * margin_x
         avail_h = SH - top - 700000
@@ -435,9 +636,8 @@ def build_pptx(spec: dict, n: dict, target: Path) -> tuple[bool, str]:
                 r1.font.color.rgb = ink_soft
             return shp
 
-        # Seitenfläche
         box(0, 0, cw, ch, fill=page_bg, outline=line)
-        zz = n["zones"]
+        zz = nspec["zones"]
         if zz.get("nav"):
             r = zz["nav"]
             box(r["x"], r["y"], r["w"], r["h"], fill=ink, text="Nav",
@@ -458,7 +658,7 @@ def build_pptx(spec: dict, n: dict, target: Path) -> tuple[bool, str]:
             sl = ", ".join(x["name"] for x in (r.get("slicers") or []))
             box(r["x"], r["y"], r["w"], r["h"],
                 fill=RGBColor.from_string("EDEFF2"), outline=line,
-                text=f"Filter ({mode})", sub=sl, size=8)
+                text="%s (%s)" % (t["filter"], mode), sub=sl, size=8)
         if zz.get("footer"):
             r = zz["footer"]
             box(r["x"], r["y"], r["w"], r["h"], fill=page_bg, outline=line,
@@ -473,130 +673,123 @@ def build_pptx(spec: dict, n: dict, target: Path) -> tuple[bool, str]:
             elif v.get("engine") == "deneb":
                 sub += " · Deneb"
             box(r["x"], r["y"], r["w"], r["h"], fill=tile_bg, outline=line,
-                text=f"{page['index']}.{i}  {v.get('title', '')}", sub=sub,
+                text="%s.%s  %s" % (page["index"], i, v.get("title", "")), sub=sub,
                 size=9, bold=True)
 
-    for page in n["pages"]:
-        s = slide_frame(f"Seite {page['index']} · {page['name']}",
-                        page["notes"][:90] if page["notes"] else "")
-        wireframe(s, page)
+    for page in nspec["pages"]:
+        kicker = (page.get("question") or page.get("notes") or "")[:90]
+        s = slide_frame("%s %s · %s" % (t["page"], page["index"], page["name"]), kicker)
+        png = page_image(nspec, page, images)
+        if png:
+            cw = int(nspec["canvas"].get("width") or 1280)
+            ch = int(nspec["canvas"].get("height") or 720)
+            top = 1450000
+            avail_w = SW - 2 * 700000
+            avail_h = SH - top - 500000
+            scale = min(avail_w / cw, avail_h / ch)
+            w_emu, h_emu = int(cw * scale), int(ch * scale)
+            s.shapes.add_picture(str(png), Emu(int((SW - w_emu) / 2)), Emu(top),
+                                 width=Emu(w_emu), height=Emu(h_emu))
+        else:
+            wireframe(s, page)
 
-        # Kachel-Tabelle
-        s = slide_frame(f"Seite {page['index']} · {page['name']} — Kacheln")
-        rows = len(page["visuals"]) + 1
-        if rows == 1:
+        s = slide_frame("%s %s · %s — %s" % (t["page"], page["index"], page["name"],
+                                             t["slide_tiles"]))
+        if not page["visuals"]:
             textbox(s, Emu(457200), Emu(1400000), SW - Emu(914400), Emu(400000),
-                    "Noch keine Kacheln auf dieser Seite.", size=14, color=ink_soft)
+                    t["no_tiles"].strip("_"), size=14, color=ink_soft)
             continue
-        left, top = Emu(457200), Emu(1350000)
-        width, height = SW - Emu(914400), Emu(min(4600000, 340000 * rows))
-        table = s.shapes.add_table(rows, 4, left, top, width, height).table
-        table.columns[0].width = Emu(3100000)
-        table.columns[1].width = Emu(2500000)
-        table.columns[2].width = Emu(3600000)
-        table.columns[3].width = Emu(width - Emu(3100000) - Emu(2500000) - Emu(3600000))
-        heads = ["Kachel", "Darstellung", "Felder", "Notizen"]
-        for c, head in enumerate(heads):
-            cell = table.cell(0, c)
-            cell.text = head
-            para = cell.text_frame.paragraphs[0]
-            para.runs[0].font.size = Pt(11)
-            para.runs[0].font.bold = True
-            para.runs[0].font.color.rgb = ink
+        rows = []
         for r_i, v in enumerate(page["visuals"], start=1):
             render = v.get("label") or v.get("kind", "")
             if v.get("scenario"):
-                render += f", {v['scenario']}"
+                render += ", %s" % v["scenario"]
             if v.get("engine") != "native":
-                render += f" · {ENGINE_LABEL.get(v.get('engine'), v.get('engine'))}"
+                render += " · %s" % ENGINE_LABEL.get(v.get("engine"), v.get("engine"))
+            w = v.get("workshop") or {}
             note = " · ".join(x for x in [
+                ("Text: %s" % v["content"]) if v.get("content") else "",
                 v.get("notes") or "",
-                f"→ {v['link']['pageName']}" if v.get("link") else ""] if x)
+                ("→ %s" % v["link"]["pageName"]) if v.get("link") else ""] if x)
             title = v.get("title", "")
             if v.get("subtitle"):
-                title += f"\n{v['subtitle']}"
-            for c, txt in enumerate([f"{page['index']}.{r_i}  {title}", render,
-                                     fields_summary(v), note or "–"]):
-                cell = table.cell(r_i, c)
-                cell.text = str(txt)
-                for para in cell.text_frame.paragraphs:
-                    for run in para.runs:
-                        run.font.size = Pt(9)
-                        run.font.color.rgb = ink if c == 0 else ink_soft
+                title += "\n%s" % v["subtitle"]
+            rows.append(["%s.%s  %s" % (page["index"], r_i, title), render,
+                         fields_summary(v, lang), analysis_summary(v, lang),
+                         "%s / %s" % (PRIORITY[lang].get(w.get("priority"), "–"),
+                                      STATUS[lang].get(w.get("status", "open"), "–")),
+                         note or "–"])
+        table(s, [t["th"][1], t["th"][2], t["th"][3], t["th"][4], "Prio / Status",
+                  t["th"][7]], rows,
+              [2500000, 1900000, 2700000, 1800000, 1300000,
+               SW - Emu(914400) - 2500000 - 1900000 - 2700000 - 1800000 - 1300000])
 
     # ---------------------------------------------------------- Navigation
-    s = slide_frame("Navigation und Drill-Wege")
+    s = slide_frame(t["nav"])
     items = []
     if header and header.get("nav"):
-        items.append("Nav-Buttons im Kopfband: " + " · ".join(header["nav"])
-                     + " (auf jeder Seite, aktive Seite als Akzent-Button ohne Aktion)")
+        items.append("%s: %s" % (t["nav_header"], " · ".join(header["nav"])))
     if z.get("nav"):
-        items.append("Linke Nav-Leiste mit einem Button je Seite")
-    for l in n["links"]:
-        kind = ("Seitenwechsel per Button-Aktion" if l.get("kind") == "navigation"
-                else "Drill-through auf das Kategorie-Feld der Quellkachel")
-        items.append(f"„{l['fromPage']}\" ({l['fromVisual']}) → „{l['toPage']}\": {kind}")
+        items.append(t["nav_left"])
+    for l in nspec["links"]:
+        kind = (t["pagechange"] if l.get("kind") == "navigation"
+                else t["drill"] + (" · %s" % l["drillField"] if l.get("drillField") else ""))
+        items.append("„%s\" (%s) → „%s\": %s"
+                     % (l["fromPage"], l["fromVisual"], l["toPage"], kind))
     if filt and (filt.get("collapsible") or (filt.get("mode") == "burger")):
-        items.append("Filter-Panel über zwei Lesezeichen (öffnen / schließen); "
-                     "Lesezeichen erfassen nur die Sichtbarkeit, nicht die Auswahl")
+        items.append(t["bookmarks"])
     if not items:
-        items = ["Keine Navigations- oder Drill-Wege im Mockup festgelegt."]
+        items = [t["no_nav"]]
     bullets(s, items)
 
+    # ---------------------------------------------------------- Steckbrief
+    if nspec["fields"]:
+        s = slide_frame(t["profile"])
+        rows = [[f["ref"] + (" (neu)" if f.get("isNew") else ""),
+                 f.get("alias") or "–", (f.get("description") or t["fill_in"])[:70],
+                 f.get("unit") or f.get("formatString") or "–",
+                 f.get("owner") or "–", "☑" if f.get("confirmed") else "☐"]
+                for f in nspec["fields"][:12]]
+        table(s, [t["profile_th"][0], t["profile_th"][1], t["profile_th"][2],
+                  t["profile_th"][3], t["profile_th"][5], t["profile_th"][7]], rows,
+              [2600000, 1800000, 3800000, 1200000, 1400000,
+               SW - Emu(914400) - 2600000 - 1800000 - 3800000 - 1200000 - 1400000])
+        if len(nspec["fields"]) > 12:
+            textbox(s, Emu(457200), SH - Emu(700000), SW - Emu(914400), Emu(300000),
+                    "… %d weitere Felder in WORKSHOP-DOKU.md"
+                    % (len(nspec["fields"]) - 12), size=11, color=ink_soft)
+
     # ---------------------------------------------------------- Kennzahlen
-    new = spec.get("newFields") or []
-    s = slide_frame("Neue Kennzahlen und Felder")
+    new = nspec["newFields"]
+    s = slide_frame(t["slide_new"])
     if not new:
         textbox(s, Emu(457200), Emu(1400000), SW - Emu(914400), Emu(400000),
-                "Keine neuen Felder — alles kommt aus dem bestehenden Modell.",
-                size=15, color=ink_soft)
+                t["no_new"], size=15, color=ink_soft)
     else:
-        rows = len(new) + 1
-        table = s.shapes.add_table(rows, 4, Emu(457200), Emu(1350000),
-                                   SW - Emu(914400),
-                                   Emu(min(4600000, 400000 * rows))).table
-        table.columns[0].width = Emu(2600000)
-        table.columns[1].width = Emu(1500000)
-        table.columns[2].width = Emu(4000000)
-        table.columns[3].width = Emu(SW - Emu(914400) - Emu(2600000) - Emu(1500000) - Emu(4000000))
-        for c, head in enumerate(["Feld", "Art", "Beschreibung / Logik", "Offene Frage"]):
-            cell = table.cell(0, c)
-            cell.text = head
-            run = cell.text_frame.paragraphs[0].runs[0]
-            run.font.size, run.font.bold, run.font.color.rgb = Pt(11), True, ink
-        for i, f in enumerate(new, start=1):
-            vals = [f"{f['table']}.{f['name']}",
-                    "Kennzahl" if f.get("kind") == "measure" else "Dimension",
-                    f.get("description") or "[ausfüllen]",
-                    f.get("openQuestion") or "–"]
-            for c, txt in enumerate(vals):
-                cell = table.cell(i, c)
-                cell.text = str(txt)
-                for para in cell.text_frame.paragraphs:
-                    for run in para.runs:
-                        run.font.size = Pt(10)
-                        run.font.color.rgb = ink if c == 0 else ink_soft
+        rows = [["%s.%s" % (f["table"], f["name"]),
+                 t["measure"] if f.get("kind") == "measure" else t["dimension"],
+                 f.get("description") or t["fill_in"], f.get("openQuestion") or "–"]
+                for f in new]
+        table(s, [t["new_th"][0], t["new_th"][1], t["new_th"][3], t["new_th"][8]], rows,
+              [2600000, 1500000, 4000000,
+               SW - Emu(914400) - 2600000 - 1500000 - 4000000], size=10)
 
     # ---------------------------------------------------------- Offene Punkte
-    op = open_points(spec, n)
-    s = slide_frame("Offene Punkte")
-    bullets(s, op or ["Keine offenen Punkte erfasst."], size=14, gap=400000)
+    op = open_points(nspec, lang)
+    s = slide_frame(t["open"])
+    bullets(s, op[:10] or [t["no_open"]], size=14, gap=400000)
 
-    # ---------------------------------------------------------- Nächste Schritte
-    s = slide_frame("Nächste Schritte")
-    bullets(s, [
-        "Fehlende Kennzahlen im Semantikmodell anlegen (te add, DAX bestätigen)",
-        "Seiten mit dem Skill `mockup-to-powerbi` ins PBIP übertragen",
-        "ChartKitchen-Slots über die Referenz-Instanz füllen"
-        if any(v.get("engine") == "ck" for p in n["pages"] for v in p["visuals"])
-        else "Formatierung gegen das Theme prüfen",
-        "Navigation, Drill-through und Filter-Lesezeichen in Desktop testen",
-        "Review der gebauten Seiten mit den Teilnehmenden",
-    ], size=15)
+    # ---------------------------------------------------------- Naechste Schritte
+    s = slide_frame(t["next"])
+    steps = list(t["pptx_next"])
+    if not any(v.get("engine") == "ck" for p in nspec["pages"] for v in p["visuals"]):
+        steps[2] = t["theme_check"]
+    s_items = steps
+    bullets(s, s_items, size=15)
 
     target.parent.mkdir(parents=True, exist_ok=True)
     prs.save(str(target))
-    return True, f"{target}  ({len(prs.slides)} Folien)"
+    return True, "%s  (%d Folien)" % (target, len(prs.slides))
 
 
 # --------------------------------------------------------------------------- #
@@ -610,6 +803,10 @@ def main() -> int:
                    help="Ausgabeordner (Default: Ordner der Spec)")
     p.add_argument("--docs", default=None,
                    help="vorhandene WORKSHOP-DOKU.md (Default: neben der Spec)")
+    p.add_argument("--images", default=None,
+                   help="Ordner mit page-<Index>-<Slug>.png (Default: neben der Spec)")
+    p.add_argument("--lang", choices=("de", "en"), default=None,
+                   help="Sprache der erzeugten Texte (Default: meta.lang, sonst de)")
     p.add_argument("--force-md", action="store_true",
                    help="WORKSHOP-DOKU.md auch dann schreiben, wenn sie schon existiert")
     p.add_argument("--no-pptx", action="store_true", help="nur Markdown erzeugen")
@@ -621,44 +818,50 @@ def main() -> int:
         except Exception:
             pass
 
-    spec_path = Path(opt.spec).expanduser()
-    if not spec_path.is_file():
-        print(f"Spec nicht gefunden: {spec_path}", file=sys.stderr)
-        return 2
     try:
-        spec = json.loads(spec_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as e:
-        print(f"mockup-spec.json ist kein gültiges JSON: {e}", file=sys.stderr)
-        return 2
-    if "zones" not in spec or "canvas" not in spec:
-        print("Das sieht nicht nach einer MockupKitchen-Spec aus "
-              "(zones/canvas fehlen).", file=sys.stderr)
+        raw = load(opt.spec)
+        nspec = upgrade(raw)
+    except SpecError as e:
+        print("Fehler: %s" % e, file=sys.stderr)
         return 2
 
-    n = normalize(spec)
+    spec_path = Path(opt.spec).expanduser()
+    lang = opt.lang or (nspec["meta"].get("lang") or "de")
+    if lang not in TXT:
+        lang = "de"
     out = Path(opt.out).expanduser() if opt.out else spec_path.parent
     out.mkdir(parents=True, exist_ok=True)
+    images = Path(opt.images).expanduser() if opt.images else spec_path.parent
 
-    md_path = Path(opt.docs).expanduser() if opt.docs else (out / "WORKSHOP-DOKU.md")
+    suffix = "" if lang == "de" else ".en"
+    md_path = (Path(opt.docs).expanduser() if opt.docs
+               else (out / ("WORKSHOP-DOKU%s.md" % suffix)))
     if md_path.is_file() and not opt.force_md:
-        print(f"WORKSHOP-DOKU.md vorhanden, bleibt unverändert: {md_path}")
+        print("WORKSHOP-DOKU%s.md vorhanden, bleibt unverändert: %s" % (suffix, md_path))
     else:
-        md_path.write_text(build_docs_md(spec, n), encoding="utf-8")
-        print(f"WORKSHOP-DOKU.md geschrieben: {md_path}")
+        md_path.write_text(build_docs_md(nspec, lang), encoding="utf-8")
+        print("WORKSHOP-DOKU%s.md geschrieben: %s" % (suffix, md_path))
 
+    found = [page_image(nspec, p, images) for p in nspec["pages"]]
+    n_png = len([f for f in found if f])
     rc = 0
     if opt.no_pptx:
         print("PowerPoint übersprungen (--no-pptx).")
     else:
-        ok, msg = build_pptx(spec, n, out / "WORKSHOP-DOKU.pptx")
+        ok, msg = build_pptx(nspec, out / ("WORKSHOP-DOKU%s.pptx" % suffix), lang, images)
         print(("PowerPoint: " if ok else "") + msg)
+        if ok:
+            print("Seitenbilder: %d von %d als PNG eingebettet%s"
+                  % (n_png, len(nspec["pages"]),
+                     "" if n_png else " (Wireframe aus Shapes gezeichnet)"))
         if not ok:
             rc = 1
 
-    print(f"\n{len(n['pages'])} Seite(n) · "
-          f"{sum(len(p['visuals']) for p in n['pages'])} Kacheln · "
-          f"{len(spec.get('newFields') or [])} neue Felder · "
-          f"{len(open_points(spec, n))} offene Punkte")
+    print("\nspecVersion %d (gelesen als v%d) · %d Seite(n) · %d Kacheln · "
+          "%d neue Felder · %d offene Punkte · Sprache %s"
+          % (nspec["sourceVersion"], nspec["version"], len(nspec["pages"]),
+             sum(len(p["visuals"]) for p in nspec["pages"]),
+             len(nspec["newFields"]), len(open_points(nspec, lang)), lang))
     return rc
 
 

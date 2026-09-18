@@ -1,0 +1,152 @@
+[
+  {
+    "id": "p2_v02_Umsatz",
+    "stableId": "p2_v02_Umsatz",
+    "page": "Detail Produktlinie",
+    "title": "Umsatz",
+    "subtitle": "",
+    "kind": "kpi",
+    "label": "KPI-Kachel (IBCS)",
+    "rect": {
+      "x": 640,
+      "y": 72,
+      "w": 306,
+      "h": 149
+    },
+    "scenario": null,
+    "notes": "",
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": null,
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "mockupRoles": {
+      "indicator": [
+        "_Measures.Umsatz"
+      ],
+      "goal": [
+        "_Measures.PL"
+      ]
+    },
+    "chartKitchenType": "kpi",
+    "orientation": "cards",
+    "chartProps": {
+      "orientation": "cards"
+    },
+    "chartKitchenRoles": {
+      "actual": [
+        "_Measures.Umsatz"
+      ],
+      "plan": [
+        "_Measures.PL"
+      ]
+    },
+    "nativeFallback": {
+      "type": "card",
+      "buckets": {
+        "Values": [
+          {
+            "ref": "_Measures.Umsatz",
+            "kind": "measure",
+            "isNew": false
+          }
+        ]
+      }
+    },
+    "warnings": []
+  },
+  {
+    "id": "p2_v03_Marge",
+    "stableId": "p2_v03_Marge",
+    "page": "Detail Produktlinie",
+    "title": "Marge %",
+    "subtitle": "",
+    "kind": "kpi",
+    "label": "KPI-Kachel (IBCS)",
+    "rect": {
+      "x": 958,
+      "y": 72,
+      "w": 306,
+      "h": 149
+    },
+    "scenario": null,
+    "notes": "",
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": null,
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "mockupRoles": {
+      "indicator": [
+        "_Measures.Marge%"
+      ],
+      "goal": [
+        "_Measures.PL"
+      ]
+    },
+    "chartKitchenType": "kpi",
+    "orientation": "cards",
+    "chartProps": {
+      "orientation": "cards"
+    },
+    "chartKitchenRoles": {
+      "actual": [
+        "_Measures.Marge%"
+      ],
+      "plan": [
+        "_Measures.PL"
+      ]
+    },
+    "nativeFallback": {
+      "type": "card",
+      "buckets": {
+        "Values": [
+          {
+            "ref": "_Measures.Marge%",
+            "kind": "measure",
+            "isNew": false
+          }
+        ]
+      }
+    },
+    "warnings": []
+  }
+]

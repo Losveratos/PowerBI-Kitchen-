@@ -1,0 +1,256 @@
+{
+  "version": 2,
+  "name": "mockup · Übersicht",
+  "root": "Test.Report",
+  "stop_on_error": false,
+  "steps": [
+    {
+      "id": "format",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_burger.Visual",
+      "set": {
+        "fill.show": true,
+        "fill.fillColor": "#C25A2D",
+        "outline.show": false,
+        "text.text": "☰ Filter",
+        "text.fontSize": 10,
+        "text.fontColor": "#FFFFFF",
+        "text.horizontalAlignment": "center",
+        "text.verticalAlignment": "middle",
+        "position.z": 5
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-2",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_filter_bg.Visual",
+      "set": {
+        "shape.tileShape": "rectangleRounded",
+        "shape.rectangleRoundedCurve": 12,
+        "fill.show": true,
+        "fill.fillColor": "#F1F3F5",
+        "outline.show": false,
+        "position.z": 20
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-3",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_filter_close.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "✕",
+        "text.fontSize": 11,
+        "text.fontColor": "#0F1E2E",
+        "text.horizontalAlignment": "center",
+        "text.verticalAlignment": "middle",
+        "position.z": 24
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-4",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_filter_title.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "Filter",
+        "text.fontSize": 11,
+        "text.fontColor": "#0F1E2E",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "middle",
+        "text.bold": true,
+        "position.z": 22
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-5",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_footer_text.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "Stand: <datum> · Quelle: DWH · Kontakt: Controlling",
+        "text.fontSize": 9,
+        "text.fontColor": "#6B7280",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "middle",
+        "position.z": 4
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-6",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_header_bg.Visual",
+      "set": {
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#FFFFFF",
+        "outline.show": false,
+        "position.z": 0
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-7",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_header_rule.Visual",
+      "set": {
+        "fill.show": true,
+        "fill.fillColor": "#E5E7EB",
+        "outline.show": false,
+        "position.z": 1
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-8",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_header_subtitle.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "in T€ · YTD 2026",
+        "text.fontSize": 10,
+        "text.fontColor": "#6B7280",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "middle",
+        "position.z": 4
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-9",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_header_title.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "Management Report",
+        "text.fontSize": 16,
+        "text.fontColor": "#0F1E2E",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "middle",
+        "text.bold": true,
+        "position.z": 4
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-10",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_logo.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": true,
+        "outline.lineColor": "#0F1E2E",
+        "text.text": "LOGO",
+        "text.fontSize": 8,
+        "text.fontColor": "#0F1E2E",
+        "text.horizontalAlignment": "center",
+        "position.z": 4
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-11",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_nav_1.Visual",
+      "set": {
+        "fill.show": true,
+        "fill.fillColor": "#C25A2D",
+        "text.fontColor": "#FFFFFF",
+        "outline.show": false,
+        "text.text": "Übersicht",
+        "text.fontSize": 10,
+        "text.horizontalAlignment": "center",
+        "text.verticalAlignment": "middle",
+        "position.z": 5
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-12",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_nav_2.Visual",
+      "set": {
+        "fill.show": false,
+        "text.fontColor": "#0F1E2E",
+        "outline.show": false,
+        "text.text": "Detail Produktlinie",
+        "text.fontSize": 10,
+        "text.horizontalAlignment": "center",
+        "text.verticalAlignment": "middle",
+        "position.z": 5
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-13",
+      "op": "set",
+      "select": "Übersicht.Page/mk_98ziklb.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "Umsatz 8 % über Plan, Süd unter Plan wegen Lieferverzug.",
+        "text.fontSize": 11,
+        "text.fontColor": "#0F1E2E",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "top",
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": false,
+        "dropShadow.show": true,
+        "dropShadow.preset": "BottomRight",
+        "dropShadow.color": "#0F1E2E",
+        "dropShadow.transparency": 85,
+        "border.radius": 12,
+        "position.z": 10
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-14",
+      "op": "set",
+      "select": "Übersicht.Page/mk_9rdsrnj.Visual",
+      "set": {
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": false,
+        "dropShadow.show": true,
+        "dropShadow.preset": "BottomRight",
+        "dropShadow.color": "#0F1E2E",
+        "dropShadow.transparency": 85,
+        "border.radius": 12,
+        "position.z": 10
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-15",
+      "op": "set",
+      "select": "Übersicht.Page/mk_slicer_Region_p1.Visual",
+      "set": {
+        "position.z": 24
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-16",
+      "op": "set",
+      "select": "Übersicht.Page/mk_slicer_Year_p1.Visual",
+      "set": {
+        "position.z": 24
+      },
+      "continue_on_error": true
+    }
+  ]
+}

@@ -4,10 +4,17 @@
 millimetergenau; hier steht, aus welchen nativen Elementen sie entstehen und
 welche Befehle dafür verifiziert sind (pbir 0.9.32, echtes PBIP).
 
-`scripts/mockup_to_pbir.py` erzeugt daraus **je Seite** zwei Dateien in
-`mockup-out/<Seitenslug>/`: `chrome-visuals.json` (Geometrie) und
-`chrome-commands.sh` / `.ps1` (Seitenhintergrund, Text, Farbe,
-Kachel-Container, Aktion, z-Order).
+`scripts/mockup_to_pbir.py` erzeugt daraus **je Seite** in
+`mockup-out/<Seitenslug>/`:
+
+| Datei | Inhalt |
+|---|---|
+| `chrome-visuals.json` | Geometrie (Flächen, Textrahmen, Buttons) für `pbir add visual --from-json` |
+| `text-visuals.json` | Text- und Button-Kacheln der Seite, ebenfalls als `shape`/`actionButton` |
+| `chrome-batch.json` | **Hauptweg**: alle Setzungen als `pbir batch`-Spec (Version 2) |
+| `chrome-commands.sh` / `.ps1` | dieselben Setzungen als Einzelaufrufe — Fallback |
+| `analysis-commands.sh` / `.ps1` | was `batch` nicht kann: Button-Aktionen, Sortierung, Top-N, Slicer-Vorauswahl, Annotationen |
+| `delta-batch.json` | zweiter Lauf: Position, Größe und Bindung vorhandener Visuals |
 
 Die Zonen sind auf allen Seiten identisch, deshalb heißen die Chrome-Elemente
 auf jeder Seite gleich (`chrome_header_bg`, `chrome_nav_1`, …) — Visualnamen
@@ -43,6 +50,14 @@ pbir visuals position "<Seite>.Page/Title.Visual" --x 16 --y 696 --width 800 --h
 Mehrfaches `pbir add title` auf derselben Seite erzeugt `Title`, `Title_1`,
 `Title_2` — die Namen sind eindeutig, aber nicht sprechend.
 
+Dasselbe gilt für **Text-Kacheln aus der Spec** (`kind: text|button` mit
+`content`, ab specVersion 3). Das Tool exportiert sie in seiner eigenen
+`pbir-visuals.<Seite>.json` als `textbox` — dort kämen sie leer an. Der Skill
+baut sie deshalb in `text-visuals.json` als `shape` (Text linksbündig oben, 11 pt)
+bzw. als `actionButton` (zentriert, Akzentfüllung, plus `PageNavigation`, wenn
+die Kachel verknüpft ist). Die Kachel-Container-Formatierung bekommen sie wie
+jedes andere Inhalts-Visual.
+
 ## Verifizierte Property-Namen
 
 Ermittelt mit `pbir schema describe <typ> <objekt>` — nur diese verwenden.
@@ -63,7 +78,7 @@ Farbwerte als Hex übergeben (`--value "#0F1E2E"`); `pbir` kodiert sie selbst al
 `{ solid: { color: … } }`. Geschrieben wird nach
 `visual.visualContainerObjects.<objekt>` in der `visual.json`.
 
-## Gestaltung aus `design` (specVersion 2)
+## Gestaltung aus `design` (ab specVersion 2)
 
 `design` beschreibt die Kachel-Optik. Sie gehört in die **Container-Formatierung**
 jedes Inhalts-Visuals (nicht der Slicer, nicht der Chrome-Shapes) und in den
@@ -133,7 +148,7 @@ Fläche in Ink. Das Kopfband behält Titel und Untertitel.
 | Fläche | `chrome_filter_bg` | Zone 1:1, `fill.fillColor` eine Stufe heller/dunkler als der Seitenhintergrund |
 | Überschrift | `chrome_filter_title` | seitliches Panel: `x+8`, `y+8`, `w-16`, 24 px · Leiste oben: `x+8`, `y`, 56 px breit, volle Höhe. Text „Filter", 11 pt, fett |
 | Schließen | `chrome_filter_close` | `x+w-36`, `y+8`, 28×24, Text `✕` — nur bei `collapsible` oder Overlay |
-| Slicer | `p<Seite>_slicer1_<Feld>` … | seitlich gestapelt `x+8k`, `y+40k+i·64k`, `w-16k`, `56k` · oben nebeneinander `x+8k+i·168k`, `y+8k`, `160k`, `h-16k` — stehen bereits in `pbir-visuals.json` |
+| Slicer | v3 `mk_slicer_<Feld>_p<Seite>`, v2 `p<Seite>_slicer<i>_<Feld>`, v1 `slicer<i>_<Feld>` | seitlich gestapelt `x+8k`, `y+40k+i·64k`, `w-16k`, `56k` · oben nebeneinander `x+8k+i·168k`, `y+8k`, `160k`, `h-16k` — stehen bereits in `pbir-visuals.json` |
 
 Die Modi im Einzelnen:
 
@@ -151,7 +166,7 @@ fertigen Befehle stehen in `mockup-out/navigation.md`:
 ```bash
 pbir add bookmark "<Report>.Report" "Filter öffnen · <Seite>" --no-data --no-current-page
 pbir bookmarks visuals "<Report>.Report" "Filter öffnen · <Seite>" \
-  "chrome_filter_bg" "chrome_filter_title" "chrome_filter_close" "p1_slicer1_Year" …
+  "chrome_filter_bg" "chrome_filter_title" "chrome_filter_close" "mk_slicer_Year_p1" …
 # dito "Filter schließen · <Seite>"
 pbir visuals hide "<Report>.Report/<Seite>.Page/chrome_filter_bg.Visual"   # Grundzustand
 pbir visuals action "<Report>.Report/<Seite>.Page/chrome_burger.Visual" \
@@ -183,8 +198,12 @@ Je Seite:
 1. `pbir add page …` + `pbir rm "<Seite>.Page/Title.Visual" -f`
 2. `pbir add visual "<Seite>.Page" --from-json <Seitenslug>/chrome-visuals.json`
 3. `pbir add visual "<Seite>.Page" --from-json <Seitenslug>/pbir-visuals.json`
-4. `bash <Seitenslug>/chrome-commands.sh` — Seitenhintergrund, Texte, Farben,
-   Kachel-Container, Aktionen, und zum Schluss die z-Ebenen
+4. `pbir add visual "<Seite>.Page" --from-json <Seitenslug>/text-visuals.json`
+5. `pbir pages background "<Seite>.Page" --color <design.pageBackground> --transparency 0`
+6. `pbir batch run <Seitenslug>/chrome-batch.json --root "<Report>.Report"` —
+   Texte, Farben, Kachel-Container, Anzeigeeinheiten und z-Ebenen
+7. `bash <Seitenslug>/analysis-commands.sh` — Button-Aktionen, Sortierung,
+   Top-N, Untertitel, Slicer-Vorauswahl, Annotationen
 
 Erst wenn **alle** Seiten stehen: Nav-Ziele, Drill-through und Lesezeichen
 (`navigation.md`) — vorher existieren die Zielseiten nicht.
@@ -193,16 +212,88 @@ Vergebene Ebenen: Chrome-Flächen `0` (Kopfband-Unterkante `1`), Chrome-Texte `4
 Buttons `5`, Inhalt `10`, Overlay-Filterpanel `20`, dessen Text `22`, dessen
 Slicer und Schließen-Button `24`.
 
-Schritt 4 dauert: jede Property ist ein eigener `pbir`-Prozessstart, gemessen
-rund 1,5 s. Kopfband, Filter-Panel, Fußleiste **und** Kachel-Formatierung
-ergeben im zweiseitigen Beispiel 121 Setzungen je Seite — also gut drei
-Minuten pro Seite. Im Hintergrund laufen lassen und nicht abbrechen.
-Wer es kürzer will, gießt dieselben Setzungen in eine `pbir batch`-Spec
-(`pbir batch schema --version 2` zeigt das Format, dann `validate` → `plan` →
-`run`) — ein Prozess statt hundertdreißig.
+## Warum Batch statt hundert Einzelaufrufe
 
-`chrome-commands.sh` startet mit `set -euo pipefail`: ein einziger abgelehnter
-Wert bricht den Rest ab. Der Exit-Code sagt also verlässlich, ob alles saß.
+Jede Property als eigener `pbir`-Aufruf ist ein eigener Prozessstart, gemessen
+rund 1,5 s. Kopfband, Filter-Panel, Fußleiste **und** Kachel-Formatierung ergeben
+im zweiseitigen Beispiel über 120 Setzungen je Seite — gut drei Minuten. Dieselben
+Setzungen als `pbir batch`-Spec (Version 2) liefen im Testbed in **1,8 s je
+Seite**.
+
+`chrome-batch.json` sieht so aus (gekürzt):
+
+```json
+{
+  "version": 2,
+  "name": "mockup · Übersicht",
+  "root": "PBI-IBCS-Testbed.Report",
+  "stop_on_error": false,
+  "steps": [
+    { "id": "format", "op": "set", "select": "Übersicht.Page/chrome_header_bg.Visual",
+      "set": { "shape.tileShape": "rectangle", "fill.show": true,
+               "fill.fillColor": "#FFFFFF", "outline.show": false,
+               "position.z": 0 },
+      "continue_on_error": true }
+  ]
+}
+```
+
+Ablauf: `pbir batch validate <Datei>` → `pbir batch plan <Datei> --root …` →
+`pbir batch run <Datei> --root …`. Das Format zeigt `pbir batch schema
+--version 2`, Vorlagen `pbir batch examples` / `pbir batch example brand-format`.
+
+Verifiziert und wichtig:
+
+- **Keine Zusatzschlüssel.** Die Spec hat `additionalProperties: false` — schon
+  ein `$comment` lässt `pbir batch validate` die Datei ablehnen. Erklärungen
+  gehören nach `commands.md`.
+- **z-Order über `set` → `position.z`.** Der Op `zorder` kennt nur
+  `action: front|back`, keine Zahl.
+- **Seitenhintergrund geht nicht.** `set` kennt auf Seitenebene nur
+  `display_name`, `display_option`, `height`, `is_hidden`, `page_type`,
+  `visibility`, `width`. Ein Versuch mit `background.color` bricht den **ganzen**
+  Lauf ab, auch mit `continue_on_error`. Deshalb vorher
+  `pbir pages background … --color`.
+- **Kein Op für Button-Aktionen, Sortierung, Filter oder Annotationen.** Die
+  stehen in `analysis-commands.sh`.
+- **Exit-Code.** Mit `continue_on_error: true` laufen die übrigen Schritte
+  weiter, der Gesamt-Exit ist trotzdem ≠ 0. Die Ergebnistabelle lesen.
+
+`chrome-commands.sh` bleibt als Fallback und startet mit `set -euo pipefail`: ein
+einziger abgelehnter Wert bricht den Rest ab. Der Exit-Code sagt also
+verlässlich, ob alles saß. `analysis-commands.sh` läuft bewusst **ohne** `set -e`
+— ein Visualtyp ohne Datenbeschriftung darf den Rest nicht mitreißen.
+
+## Zweiter Lauf (Delta)
+
+Ab specVersion 3 sind die Visualnamen stabil (`mk_<stableId>`). Ein zweiter
+`pbir add visual --from-json` scheitert deshalb an den vorhandenen Namen.
+Stattdessen `delta-batch.json`: je Visual `move` + `resize`, für gebundene
+Buckets `bind` mit `clear` und anschließendem `add`. Verifiziert: zweimal
+hintereinander ausgeführt entstehen **keine** doppelten Projektionen, und ein
+von Hand verschobenes Visual landet wieder auf seiner Position aus dem Mockup.
+Visuals, die es noch nicht gibt, melden schlicht `targets=0`.
+
+## Theme statt Overrides
+
+`mockup-out/theme-fragment.json` enthält dieselbe Kachel-Optik als
+`visualStyles`-`*`-Eintrag:
+
+```json
+{ "visualStyles": { "*": { "*": {
+  "background": [{ "show": true, "color": { "solid": { "color": "#FFFFFF" } }, "transparency": 0 }],
+  "border":     [{ "show": false, "color": { "solid": { "color": "#E5E7EB" } }, "radius": 12 }],
+  "dropShadow": [{ "show": true, "preset": "BottomRight", "color": { "solid": { "color": "#0F1E2E" } }, "transparency": 85 }],
+  "title":      [{ "show": true, "fontSize": 12, "fontColor": { "solid": { "color": "#0F1E2E" } } }]
+} } } }
+```
+
+Wer ein Theme pflegt, merged das Fragment dorthin (Skill
+`reports:modifying-theme-json` bzw. `powerbi-design-framework`) und lässt die
+`background`/`border`/`dropShadow`-Schritte in `chrome-batch.json` weg — dann
+steht die Gestaltung an **einer** Stelle statt an jedem Visual. Per Visual nur
+noch Ausnahmen. Seitenhintergrund und Akzentfarbe bleiben außerhalb des
+Fragments (Seiten-Objekt bzw. Nav-Buttons).
 
 ## Fallstricke
 

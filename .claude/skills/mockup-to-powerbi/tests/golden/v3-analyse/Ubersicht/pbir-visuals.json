@@ -1,0 +1,54 @@
+[
+  {
+    "visual_type": "card",
+    "name": "mk_9rdsrnj",
+    "title": "Kosten",
+    "x": 345,
+    "y": 72,
+    "width": 312,
+    "height": 119,
+    "fields": {
+      "Values": "_Measures.Kosten"
+    }
+  },
+  {
+    "visual_type": "clusteredBarChart",
+    "name": "mk_bars01",
+    "title": "Umsatz je Region",
+    "x": 16,
+    "y": 200,
+    "width": 500,
+    "height": 240,
+    "fields": {
+      "Category": "DimRegion.Region",
+      "Y": [
+        "_Measures.Umsatz",
+        "_Measures.PL"
+      ]
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Year_p1",
+    "title": "Year",
+    "x": 1072,
+    "y": 96,
+    "width": 200,
+    "height": 56,
+    "fields": {
+      "Values": "DimDate.Year"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Region_p1",
+    "title": "Region",
+    "x": 1072,
+    "y": 160,
+    "width": 200,
+    "height": 56,
+    "fields": {
+      "Values": "DimRegion.Region"
+    }
+  }
+]

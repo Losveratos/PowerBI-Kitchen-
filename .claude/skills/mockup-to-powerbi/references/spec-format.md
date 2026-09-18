@@ -4,9 +4,13 @@ Abgeleitet aus `assets/mockup/export.js` (`buildSpec`, `bucketsFor`, `buildPbir`
 `buildDocs`) und `assets/mockup/catalog.js` (Typen, Rollen, Engines, native
 Mappings) des Tools **MockupKitchen byDatenWG**.
 
-Beispiele: [`example/mockup-spec.v2.json`](example/mockup-spec.v2.json) (aktuell,
-zwei Seiten, Drill-through, Burger-Filter) und
+Beispiele: [`example/mockup-spec.v3.json`](example/mockup-spec.v3.json) (aktuell,
+zwei Seiten, Drill-through, Burger-Filter, Analyse-Block, Steckbriefe) mit den
+zugehörigen Tool-Ausgaben [`example/AGENT-BRIEF.v3.md`](example/AGENT-BRIEF.v3.md)
+und [`example/WORKSHOP-DOKU.v3.md`](example/WORKSHOP-DOKU.v3.md), dazu
+[`example/mockup-spec.v2.json`](example/mockup-spec.v2.json) und
 [`example/mockup-spec.json`](example/mockup-spec.json) (alte einseitige Fassung).
+Geprüft wird gegen [`mockup-spec.schema.json`](mockup-spec.schema.json).
 
 Alle Koordinaten sind absolute Canvas-Pixel, `x`/`y` = linke obere Ecke, und
 **bereits mit `canvas.uiScale` multipliziert**. Nichts nachrechnen.
@@ -15,28 +19,46 @@ Alle Koordinaten sind absolute Canvas-Pixel, `x`/`y` = linke obere Ecke, und
 
 `meta.specVersion` sagt, welche Form vorliegt:
 
-| | specVersion 1 (Tool 0.1) | specVersion 2 (Tool 0.2, aktuell) |
-|---|---|---|
-| Seiten | eine, `page: {name, notes}` | viele, `pages[]` |
-| Visuals | `visuals[]` oben | `pages[].visuals[]` |
-| Visual-IDs | `v05_Titel` | `p1_v05_Titel` (seitenpräfixiert) |
-| Gestaltung | keine | `design` (Ecken, Kachelstil, Farben, Kopfbandstil) |
-| Skalierung | keine | `canvas.uiScale`, `design.fontScale` |
-| Verknüpfungen | keine | `links[]`, `pages[].visuals[].link` |
-| Filter | `side: left|right` | `mode: right|left|top|burger` (+ `overlay`, `bookmarks`) |
-| pbir-Datei | eine `pbir-visuals.json` | eine je Seite: `pbir-visuals.<Seitenslug>.json` |
-| Doku | – | zusätzlich `WORKSHOP-DOKU.md` |
+| | specVersion 1 (Tool 0.1) | specVersion 2 (Tool 0.2) | specVersion 3 (Tool 0.3, aktuell) |
+|---|---|---|---|
+| Seiten | eine, `page: {name, notes}` | viele, `pages[]` | wie v2, zusätzlich `pages[].question` |
+| Visuals | `visuals[]` oben | `pages[].visuals[]` | wie v2 |
+| Visual-IDs | `v05_Titel` | `p1_v05_Titel` (Position + Titel) | **`mk_<stableId>`, stabil** — unabhängig von Position und Titel |
+| Gestaltung | keine | `design` | wie v2 |
+| Skalierung | keine | `canvas.uiScale`, `design.fontScale` | wie v2 |
+| Verknüpfungen | keine | `links[]`, `visuals[].link` | zusätzlich `links[].drillField` |
+| Filter | `side: left\|right` | `mode: right\|left\|top\|burger` | zusätzlich `slicers[].default` |
+| Berichtskopf | – | – | `report {audience, purpose, decision, …}` |
+| Analyse je Kachel | – | – | `visuals[].analysis` (Polarität, Δ-Basis, Sortierung, Top-N, Einheiten …) |
+| Workshop-Status | – | – | `visuals[].workshop {priority, status, openQuestion}` |
+| Text-Kacheln | nur Titel | nur Titel | `visuals[].content` (der echte Text) |
+| Kennzahlen | `model.usedFields` | `model.usedFields` | `fields[]` mit Steckbrief (Alias, Owner, Quelle, Ziel, bestätigt) |
+| Befunde | `warnings[]` (Strings) | `warnings[]` | zusätzlich `issues[]` mit `level`/`code`/`page`/`visual` |
+| Provenienz | – | – | `meta.specHash` (FNV-1a über den Bau-Kern), `meta.lang` |
+| pbir-Datei | eine `pbir-visuals.json` | eine je Seite | eine je Seite, **ohne** Visuals mit leerer Pflichtrolle |
+| Seitenbilder | – | – | `page-<Index>-<Slug>.png` bei „Alle Dateien" |
 
-`mockup_to_pbir.py` und `mockup_to_docs.py` lesen **beide** Versionen; v1 wird
-intern auf genau eine Seite normalisiert (Seitenname aus `page.name`, per
-`--page-name` überschreibbar, `design` auf Vorgaben mit Kopfband-Stil `dark` —
-so bleibt das Ergebnis identisch zu vorher).
+`mockup_to_pbir.py` und `mockup_to_docs.py` lesen **alle drei** Versionen und
+heben v1/v2 intern auf die v3-Form (`scripts/mockup_spec.py → upgrade()`):
+Analyse-Block mit Vorgaben, `workshop` auf „offen", `content` leer, `fields` aus
+`model.usedFields`, `issues` aus den vorhandenen `warnings`, `drillField` aus dem
+Kategorie-Feld der Quellkachel, `specHash` nachgerechnet. v1 wird zusätzlich auf
+genau eine Seite normalisiert (Seitenname aus `page.name`, per `--page-name`
+überschreibbar, `design` auf Vorgaben mit Kopfband-Stil `dark`). Die
+**Visualnamen bleiben, wie die jeweilige Version sie vergibt** — sonst würde ein
+zweiter Lauf an einem alten Bericht Dubletten anlegen.
 
-## Oberste Ebene (specVersion 2)
+Eine **höhere** Hauptversion bricht ab (`Spec-Version 4 wird von diesem Skill
+nicht unterstützt`). Dann ist MockupKitchen neuer als der Skill; raten wäre falsch.
+
+## Oberste Ebene (specVersion 3)
 
 | Schlüssel | Inhalt |
 |---|---|
-| `meta` | `tool`, `version`, `specVersion`, `name` (Mockup-Name), `exportedAt` (ISO), `skill: "mockup-to-powerbi"` |
+| `meta` | `tool`, `version`, `specVersion`, `specHash`, `name` (Mockup-Name), `lang` (`de`/`en`), `exportedAt` (ISO), `skill: "mockup-to-powerbi"` |
+| `report` | Berichtskopf, siehe unten |
+| `fields` | Kennzahlen-Steckbriefe (identisch zu `model.usedFields`), siehe unten |
+| `issues` | strukturierte Befunde, siehe unten |
 | `canvas` | `width`, `height`, `preset` (`1280x720` · `1920x1080` · `3840x2160` · `custom`), `uiScale` (1 · 1.5 · 3) |
 | `spacing` | `margin`, `gutter`, `tilePadding` — schon skaliert und in die Rechtecke eingerechnet; `base` hält die HD-Ausgangswerte |
 | `design` | Gestaltungsentscheidungen, siehe unten |
@@ -44,8 +66,67 @@ so bleibt das Ergebnis identisch zu vorher).
 | `pages` | die Seiten, siehe unten |
 | `links` | Seitenverknüpfungen, siehe unten |
 | `model` | `source` (Ordnername des Semantikmodells), `tables` (Namen), `usedFields` (alle gebundenen Felder, dedupliziert) |
-| `newFields` | im Mockup neu erfundene Felder: `table`, `name`, `kind`, `ref`, `description`, `openQuestion`, `used` |
-| `warnings` | Hinweise aus dem Tool, z. B. leere Kacheln (mit Seitenname) |
+| `newFields` | im Mockup neu erfundene Felder: `table`, `name`, `kind`, `ref`, `description`, **`unit`, `target`, `owner`, `source`**, `openQuestion`, `used` |
+| `warnings` | dieselben Befunde wie `issues` (ohne `info`) als fertige Sätze — bleibt für ältere Leser erhalten |
+
+## `report` (Berichtskopf, ab v3)
+
+Der Kopf des Workshops: wofür der Bericht da ist. Gehört in Plan, Doku und
+Abschlussbericht, nicht in den PBIR.
+
+| Schlüssel | Bedeutung |
+|---|---|
+| `name` | Berichtsname (= `meta.name`) |
+| `audience` | Zielgruppe (z. B. „GF", „Vertriebsleitung") |
+| `purpose` | Ziel des Berichts in einem Satz |
+| `decision` | Welche Entscheidung damit getroffen wird — die härteste Frage im Workshop |
+| `participants` | Wer dabei war |
+| `version` | Stand des Mockups (`0.1`, `0.2` …) |
+| `dataDate` | Datenstand / Aktualisierungsrhythmus |
+
+Fehlen `audience` oder `decision`, meldet das Tool das als `issues`-Eintrag
+(`REPORT_NO_AUDIENCE`, `REPORT_NO_DECISION`) — Hinweis, kein Fehler.
+
+## `fields[]` (Kennzahlen-Steckbrief, ab v3)
+
+Alle gebundenen Felder (Kacheln **und** Slicer), dedupliziert; inhaltsgleich zu
+`model.usedFields`. Über die Herkunft hinaus steht hier, was der Fachbereich
+dazu gesagt hat:
+
+| Schlüssel | Bedeutung |
+|---|---|
+| `table`, `name`, `kind`, `ref`, `isNew` | wie in den Rollen |
+| `description` | Definition laut Modell (oder aus dem Workshop, wenn neu) |
+| `formatString`, `dataType` | aus dem Modell, sofern angebunden |
+| `alias` | wie der Fachbereich das Feld nennt |
+| `renameInModel` | **Wunsch**, das Feld im Modell umzubenennen — erst nach Freigabe, danach `pbir fields replace` + `pbir validate --fields` |
+| `confirmed` | Definition im Workshop bestätigt (☑/☐) |
+| `owner`, `source`, `target`, `unit`, `note` | fachlicher Owner, Quelle, Zielwert, Einheit, freie Notiz |
+
+`checklist.md` und die Workshop-Doku zeigen die Tabelle vollständig. Nicht
+bestätigte Definitionen sind der häufigste Grund für „die Zahl stimmt nicht".
+
+## `issues[]` (ab v3)
+
+`{level, code, text, page, visual}` — `level` ist `error`, `warn` oder `info`.
+
+| Code | Bedeutung |
+|---|---|
+| `ROLE_EMPTY` | Pflichtrolle leer (bei `engine: native` ein `error`, sonst `warn`) |
+| `ANTI_PATTERN` | Typ ist nicht IBCS-konform (Torte, 3-D …) |
+| `CK_NO_MODE` | ChartKitchen kennt für diesen Typ keinen Modus |
+| `NO_NATIVE` | kein natives Power-BI-Visual für diesen Typ |
+| `TEXT_EMPTY` | Text-/Button-Kachel ohne `content` — käme leer im Bericht an |
+| `DELTA_NO_REF` | Titel verspricht eine Abweichung, es ist aber keine Referenz gebunden |
+| `EMPTY_TILE` | leere Kachel im Layout |
+| `PAGE_NO_QUESTION` | Seite ohne Fragestellung |
+| `NAV_OVERFLOW` | zu viele Nav-Buttons im Kopfband (ab ~6 Seiten) |
+| `RENAME_REQUEST` | Umbenennungswunsch aus dem Fachbereich |
+| `NEW_FIELD_UNUSED` | neues Feld auf keiner Kachel gebunden |
+| `REPORT_NO_AUDIENCE`, `REPORT_NO_DECISION` | Berichtskopf unvollständig |
+
+`error` zuerst klären: Kacheln mit leerer Pflichtrolle stehen **nicht** in
+`pbir-visuals.json`, sonst würde `--from-json` die ganze Datei ablehnen.
 
 ## `design`
 
@@ -104,8 +185,9 @@ schreibt `mockup_to_pbir.py` nach `mockup-out/navigation.md`.
 | Schlüssel | Bedeutung |
 |---|---|
 | `id` | interne Tool-ID, Ziel von `links[].toPageId` |
-| `index` | 1-basiert, steckt auch im Visual-Präfix (`p2_v01_…`) |
-| `name` | Seitenname in Power BI (`pbir add page -n`) |
+| `index` | 1-basiert; steckt im Slicer-Namen und im PNG-Dateinamen |
+| `name` | Seitenname in Power BI (`pbir add page -n`) — muss eindeutig sein |
+| `question` | Fragestellung / Kernbotschaft der Seite (ab v3) |
 | `notes` | Zweck der Seite, Freitext aus dem Workshop |
 | `contentRect` | Inhaltsbereich dieser Seite (identisch zu `zones.content`, solange das Tool die Zonen global hält) |
 | `visuals` | Kachel-Slots, siehe unten |
@@ -119,21 +201,29 @@ schreibt `mockup_to_pbir.py` nach `mockup-out/navigation.md`.
 | `fromPage` / `toPage` | Seitennamen |
 | `toPageId` | `pages[].id` des Ziels |
 | `kind` | `navigation` (Quelle ist eine Button-Kachel → `pbir visuals action --type PageNavigation`) oder `drillthrough` (jede andere Kachel → Zielseite bekommt ein Drill-through-Feld) |
+| `drillField` | ab v3: das Drill-Feld als `Tabelle.Feld` (bei `navigation` `null`) |
 
 Beim Drill-through ist das Drill-Feld das **Kategorie-Feld der Quellkachel** —
-in dieser Reihenfolge: `category`, `rows`, `subcategory`, `series`. Daraus wird
-`pbir pages drillthrough "<Ziel>.Page" --table <Tabelle> --field <Feld>`.
+in dieser Reihenfolge: `category`, `rows`, `subcategory`, `series`. In v3 steht
+es fertig in `drillField`; bei v1/v2 leitet der Konverter es genauso ab. Daraus
+wird `pbir pages drillthrough "<Ziel>.Page" --table <Tabelle> --field <Feld>`.
 
 ## `visuals[]` (je Seite)
 
 | Schlüssel | Bedeutung |
 |---|---|
-| `id` | eindeutiger Name, z. B. `p1_v05_Umsatz_AC_FC_vs_PL_je_Monat` — wird 1:1 der `name` des PBIR-Visuals |
+| `id` | eindeutiger Name — wird 1:1 der `name` des PBIR-Visuals. Ab v3 `mk_<stableId>` und **stabil**: verschieben, umbenennen oder Typwechsel ändern die ID nicht. Deshalb ist ein zweiter Lauf ein Delta, kein Neubau |
+| `stableId` | die rohe Tool-ID ohne Präfix (ab v3) |
+| `slug` | ASCII-Kurzform des Titels (ab v3) |
 | `page` | Seitenname (redundant, praktisch beim Filtern) |
 | `kind` | Katalog-Typ (`kombi`, `varint`, `bars`, `kpi`, …) |
 | `label` | Anzeigename des Typs |
 | `engine` | `ck` · `native` · `deneb` |
 | `chartKitchenType` | ChartKitchen-Typ-ID (nur bei `engine: "ck"`, sonst `null`) |
+| `chartKitchenMode` | der `chart.orientation`-Wert aus dem Katalog (ab v3) — **diesen nehmen**, die Tabelle weiter unten ist nur der Ersatz für v1/v2 |
+| `content` | Text einer Text- oder Button-Kachel (ab v3). Wird als `shape`/`actionButton` mit `text.text` gebaut, **nicht** als Textbox |
+| `analysis` | Analyse-Entscheidungen, siehe unten (ab v3) |
+| `workshop` | `{priority: must\|should\|could\|null, status: open\|agreed\|approved, openQuestion: bool}` (ab v3) — landet als Annotation am Visual und in der Doku |
 | `native` | `{ type, buckets }` — natives Power-BI-Visual und die fertig gemappten pbir-Datenrollen. Wird **auch bei `engine: "ck"`** befüllt, sofern der Typ ein natives Gegenstück hat → brauchbar als Ersatzvisual |
 | `title`, `subtitle` | Visual-Titel und Untertitel/Einheit |
 | `scenario` | z. B. `AC/PL`, `AC/PY`, `AC/PL/FC` — nur bei Typen mit Referenz-Rolle, sonst `null` |
@@ -144,6 +234,35 @@ in dieser Reihenfolge: `category`, `rows`, `subcategory`, `series`. Daraus wird
 | `warnings` | z. B. „Pflichtrolle … ist leer", „Nicht IBCS-konform" |
 
 `ref` ist immer `Tabelle.Feld` — in `te` entspricht das `Tabelle/Feld`.
+
+`scenario` kennt ab v3 auch `AC/PL/PY`, `AC/BU` und `PL/FC`.
+
+## `visuals[].analysis` (ab v3)
+
+Was der Mensch über die **Aussage** der Kachel entschieden hat. `…Auto: true`
+heißt: aus Namen oder Szenario abgeleitet — ein Vorschlag, keine Entscheidung.
+
+| Schlüssel | Werte | Umsetzung |
+|---|---|---|
+| `polarity` | `higher` · `lower` | ChartKitchen `chart.invert = true` bei `lower`; nativ nur als To-do (Power BI färbt nicht von selbst um) |
+| `polarityAuto` | bool | aus dem Kennzahlnamen abgeleitet (Kosten, Ausschuss, Retouren …) |
+| `deltaBasis` | `PL` · `PY` · `BU` · `FC` · `null` | bestimmt, welche ChartKitchen-Rolle die Referenz bekommt (`plan` / `previousYear` / `forecast`) |
+| `deltaBasisAuto` | bool | aus `scenario` abgeleitet |
+| `deltaKind` | `["abs"]` · `["rel"]` · beides | welche Abweichungen gezeigt werden |
+| `unit` | Freitext (`T€`) | wird Untertitel, wenn die Kachel keinen hat |
+| `displayUnits` | `none` · `K` · `M` · `null` (auto) | `pbir visuals labels --labelDisplayUnits None/Thousands/Millions`, im Batch `labels.labelDisplayUnits` = `1` / `1000` / `1000000` |
+| `decimals` | 0–6 · `null` | `--labelPrecision` bzw. `labels.labelPrecision` |
+| `sort` | `{by: value\|delta\|category, dir: asc\|desc}` | `pbir visuals sort --field <führende Kennzahl bzw. Kategorie> --direction Ascending/Descending`; `delta` geht nicht (das Modell hat keine Delta-Spalte) → To-do |
+| `topN` | 1–100 · `null` | `pbir add filter <Kategorie-Tabelle> <Feld> -v "<Visual>" --type TopN --n N --by-table/--by-field <führende Kennzahl>` |
+| `timeGrain` | `day` … `year` | nur als To-do: das Kategorie-Feld muss auf dieser Ebene gebunden sein |
+| `cumulative` | bool | nur als To-do: braucht eine YTD-Kennzahl im Modell |
+| `scaleGroup` | Freitext | nur als To-do: gleiche Wertachse auf allen Kacheln der Gruppe (`pbir visuals axis … value --min --max`) |
+| `message` | Freitext | Kernaussage für die Titelzeile — To-do, weil sie den Titel aus dem Mockup überschreiben würde |
+
+Visualtypen ohne Datenbeschriftung (`tableEx`, `pivotTable`,
+`decompositionTreeVisual`, Slicer, Shapes) bekommen keine Anzeigeeinheiten —
+dort wird daraus ein To-do. Alles, was nicht gesetzt werden konnte, steht mit
+Code in `mockup-out/analysis-todos.md`.
 
 ## Rollen-Vokabular
 
@@ -233,6 +352,9 @@ Das Skript schlägt vor, die Referenz-Instanz entscheidet.
 
 ### Kachel-Typ → `chart.orientation`
 
+> Ab specVersion 3 steht der Wert bereits in `visuals[].chartKitchenMode` — diese
+> Tabelle ist die Rückfallebene für v1/v2 und zum Nachschlagen.
+
 | Typen | `orientation` |
 |---|---|
 | `columns`, `kombi`, `colline`, `absvar`, `relvar`, `stackcol`, `multiples` | `columns` |
@@ -268,19 +390,55 @@ bricht den kompletten Import ab:
 ```
 
 `title` setzt den **Container-Titel** (`visualContainerObjects.title.text`), nicht
-den Inhalt einer Textbox. Slicer heißen `p<Seitenindex>_slicer<i>_<Feld>` (in
-specVersion 1: `slicer<i>_<Feld>`).
+den Inhalt einer Textbox. Slicer heißen je nach Quellversion:
 
-`mockup_to_pbir.py` erzeugt diese Dateien inhaltsgleich neu — als
-`mockup-out/<Seitenslug>/pbir-visuals.json`. Die Tool-Originale sind also
-entbehrlich; wer sie trotzdem nimmt, nimmt die passende Seitendatei.
+| specVersion | Slicer-Name |
+|---|---|
+| 3 | `mk_slicer_<Feld>_p<Seitenindex>` |
+| 2 | `p<Seitenindex>_slicer<i>_<Feld>` |
+| 1 | `slicer<i>_<Feld>` |
 
-## `WORKSHOP-DOKU.md` (Tool-Ausgabe)
+Ab v3 lässt das Tool Visuals mit **leerer Pflichtrolle** weg — sonst würde
+`--from-json` die ganze Datei ablehnen.
 
-Das Workshop-Protokoll aus `buildDocs`: Kopftabelle (Teilnehmende, Ziel,
-Zielgruppe, Seiten, Datenmodell), Gestaltungsentscheidungen, je Seite eine
-Kachel-Tabelle, Navigation/Drill, Kennzahlen (verwendet + neu), offene Punkte,
-nächste Schritte. Felder in eckigen Klammern (`[ausfüllen]`) füllt der Mensch.
+`mockup_to_pbir.py` erzeugt diese Dateien neu — als
+`mockup-out/<Seitenslug>/pbir-visuals.json` — mit zwei bewussten Unterschieden:
 
-`mockup_to_docs.py` erzeugt dieselbe Struktur, falls die Datei fehlt, und macht
-daraus eine PowerPoint — Details im Skill-Schritt „Doku und PowerPoint".
+- **Text- und Button-Kacheln** stehen dort **nicht** drin, sondern in
+  `text-visuals.json` als `shape` bzw. `actionButton`. In der Tool-Datei landen
+  sie als `textbox`, und eine Textbox bleibt über die CLI leer (siehe
+  `chrome-build.md`).
+- Mit `--ck-fallback` kommen zusätzlich die ChartKitchen-Kacheln als natives
+  Ersatzvisual hinein, sofern die Spec eines kennt.
+
+Wer die Tool-Originale nimmt, nimmt die passende Seitendatei — und baut die
+Text-Kacheln von Hand nach.
+
+## `AGENT-BRIEF.md` und `WORKSHOP-DOKU.md` (Tool-Ausgaben)
+
+Beide sind die menschenlesbaren Fassungen derselben Daten — lesen, aber nicht als
+zweite Wahrheit behandeln. Maßgeblich ist `mockup-spec.json`.
+
+- **`AGENT-BRIEF.md`** (`buildBrief`): Berichtskopf, Canvas und Gestaltung,
+  Zonen-Tabelle mit Maßen, je Kachel Typ/Engine/Position/stabile ID/Rollen/
+  pbir-Buckets/Analyse/Workshop-Status, Navigation und Drill mit Drill-Feld,
+  Kennzahlen-Steckbrief, neue Felder, Regeln für die Umsetzung, offene Punkte.
+  Beispiel: [`example/AGENT-BRIEF.v3.md`](example/AGENT-BRIEF.v3.md).
+- **`WORKSHOP-DOKU.md`** (`buildDocs`): das Protokoll — Kopftabelle
+  (Teilnehmende, Zielgruppe, Ziel, Entscheidung, Datenstand, Seiten,
+  Datenmodell), Gestaltungsentscheidungen, je Seite Fragestellung und
+  Kachel-Tabelle (Felder, Analyse, Prio, Status), Navigation/Drill,
+  Kennzahlen-Steckbrief, neue Felder, offene Punkte, Hinweise, nächste Schritte.
+  Felder in eckigen Klammern (`[ausfüllen]`) füllt der Mensch. Beispiel:
+  [`example/WORKSHOP-DOKU.v3.md`](example/WORKSHOP-DOKU.v3.md).
+
+`mockup_to_docs.py` erzeugt die Workshop-Doku in derselben Struktur, falls die
+Datei fehlt, auf Wunsch englisch (`--lang en`), und macht daraus eine PowerPoint
+— Details im Skill-Schritt „Doku und PowerPoint".
+
+## `page-<Index>-<Seitenslug>.png` (Tool-Ausgabe, ab v3)
+
+Wählt der Mensch im Export „Alle Dateien", legt das Tool je Seite ein
+Seitenbild daneben (Rendering des Mockups, Faktor 2). `mockup_to_docs.py`
+bettet es in die Seitenfolie ein, wenn es im selben Ordner wie die Spec liegt;
+sonst zeichnet es das Wireframe aus nativen Shapes.

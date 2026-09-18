@@ -1,0 +1,26 @@
+[
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Year_p2",
+    "title": "Year",
+    "x": 1072,
+    "y": 96,
+    "width": 200,
+    "height": 56,
+    "fields": {
+      "Values": "DimDate.Year"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Region_p2",
+    "title": "Region",
+    "x": 1072,
+    "y": 160,
+    "width": 200,
+    "height": 56,
+    "fields": {
+      "Values": "DimRegion.Region"
+    }
+  }
+]

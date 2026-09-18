@@ -1,0 +1,2113 @@
+{
+  "meta": {
+    "tool": "MockupKitchen byDatenWG",
+    "version": "0.3",
+    "specVersion": 3,
+    "specHash": "testhash",
+    "name": "Analyse-Testfall",
+    "lang": "de",
+    "exportedAt": "2026-09-18T19:12:48.127Z",
+    "skill": "mockup-to-powerbi"
+  },
+  "report": {
+    "name": "Management Report · Beispiel",
+    "audience": "Vertriebsleitung",
+    "purpose": "Monatliche Steuerung Umsatz und Marge",
+    "decision": "Maßnahmen bei Planabweichung > 5 %",
+    "participants": "M. Tenner, Controlling, Vertrieb",
+    "version": "0.1",
+    "dataDate": ""
+  },
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "preset": "1280x720",
+    "uiScale": 1
+  },
+  "spacing": {
+    "margin": 16,
+    "gutter": 12,
+    "tilePadding": 8,
+    "base": {
+      "margin": 16,
+      "gutter": 12,
+      "tilePadding": 8
+    }
+  },
+  "design": {
+    "cornerRadius": 12,
+    "tileStyle": "shadow",
+    "pageBackground": "#EEF1F5",
+    "tileBackground": "#FFFFFF",
+    "headerStyle": "light",
+    "accent": "#C25A2D",
+    "darkMode": false,
+    "fontScale": 1
+  },
+  "zones": {
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 56,
+      "style": "light",
+      "logoPos": "right",
+      "title": "Management Report",
+      "subtitle": "in T€ · YTD 2026",
+      "nav": [
+        "Übersicht",
+        "Detail Produktlinie"
+      ],
+      "navAuto": true,
+      "burger": false
+    },
+    "footer": {
+      "x": 0,
+      "y": 696,
+      "w": 1280,
+      "h": 24,
+      "text": "Stand: 18.09.2026 · Quelle: DWH · Kontakt: Controlling"
+    },
+    "content": {
+      "x": 16,
+      "y": 72,
+      "w": 1248,
+      "h": 608
+    },
+    "filter": {
+      "mode": "right",
+      "side": "right",
+      "collapsible": false,
+      "slicers": [
+        {
+          "table": "DimDate",
+          "name": "Year",
+          "kind": "column",
+          "ref": "DimDate.Year",
+          "isNew": false,
+          "default": "2026"
+        },
+        {
+          "table": "DimRegion",
+          "name": "Region",
+          "kind": "column",
+          "ref": "DimRegion.Region",
+          "isNew": false,
+          "default": null
+        }
+      ],
+      "x": 1064,
+      "y": 56,
+      "w": 216,
+      "h": 640,
+      "overlay": false
+    }
+  },
+  "pages": [
+    {
+      "id": "moy8ibm",
+      "index": 1,
+      "name": "Übersicht",
+      "question": "Liegen wir im Plan?",
+      "notes": "",
+      "contentRect": {
+        "x": 16,
+        "y": 72,
+        "w": 1248,
+        "h": 608
+      },
+      "visuals": [
+        {
+          "id": "mk_5z33e3b",
+          "stableId": "5z33e3b",
+          "slug": "Umsatz",
+          "page": "Übersicht",
+          "kind": "kpi",
+          "label": "KPI-Kachel (IBCS)",
+          "engine": "ck",
+          "chartKitchenType": "kpi",
+          "chartKitchenMode": "cards",
+          "native": {
+            "type": "card",
+            "buckets": {
+              "Values": [
+                {
+                  "ref": "_Measures.Kosten",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "title": "Umsatz",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "lower",
+            "polarityAuto": false,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 16,
+            "y": 72,
+            "w": 317,
+            "h": 119
+          },
+          "roles": {
+            "indicator": [
+              {
+                "table": "_Measures",
+                "name": "Kosten",
+                "kind": "measure",
+                "ref": "_Measures.Kosten",
+                "isNew": false
+              }
+            ],
+            "goal": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_9rdsrnj",
+          "stableId": "9rdsrnj",
+          "slug": "Kosten",
+          "page": "Übersicht",
+          "kind": "card",
+          "label": "Karte (nativ)",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "card",
+            "buckets": {
+              "Values": [
+                {
+                  "ref": "_Measures.Kosten",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "title": "Kosten",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "lower",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 345,
+            "y": 72,
+            "w": 312,
+            "h": 119
+          },
+          "roles": {
+            "indicator": [
+              {
+                "table": "_Measures",
+                "name": "Kosten",
+                "kind": "measure",
+                "ref": "_Measures.Kosten",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_7ixiebk",
+          "stableId": "7ixiebk",
+          "slug": "Deckungsbeitrag",
+          "page": "Übersicht",
+          "kind": "kpi",
+          "label": "KPI-Kachel (IBCS)",
+          "engine": "ck",
+          "chartKitchenType": "kpi",
+          "chartKitchenMode": "cards",
+          "native": {
+            "type": "card",
+            "buckets": {}
+          },
+          "title": "Deckungsbeitrag",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 669,
+            "y": 72,
+            "w": 330,
+            "h": 119
+          },
+          "roles": {
+            "goal": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": [
+            "Pflichtrolle „Kennzahl\" ist leer"
+          ]
+        },
+        {
+          "id": "mk_ldc3xxy",
+          "stableId": "ldc3xxy",
+          "slug": "Marge",
+          "page": "Übersicht",
+          "kind": "kpi",
+          "label": "KPI-Kachel (IBCS)",
+          "engine": "ck",
+          "chartKitchenType": "kpi",
+          "chartKitchenMode": "cards",
+          "native": {
+            "type": "card",
+            "buckets": {
+              "Values": [
+                {
+                  "ref": "_Measures.Marge",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "title": "Marge",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 1011,
+            "y": 72,
+            "w": 253,
+            "h": 119
+          },
+          "roles": {
+            "indicator": [
+              {
+                "table": "_Measures",
+                "name": "Marge",
+                "kind": "measure",
+                "ref": "_Measures.Marge",
+                "isNew": false
+              }
+            ],
+            "goal": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_7rbkjp5",
+          "stableId": "7rbkjp5",
+          "slug": "PL_je_Produktlinie",
+          "page": "Übersicht",
+          "kind": "wfint",
+          "label": "Wasserfall horizontal + Varianz",
+          "engine": "ck",
+          "chartKitchenType": "wfint",
+          "chartKitchenMode": "intwaterfall",
+          "native": null,
+          "title": "Δ PL je Produktlinie",
+          "subtitle": "",
+          "content": "",
+          "scenario": "AC/PL",
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 16,
+            "y": 203,
+            "w": 782,
+            "h": 477
+          },
+          "roles": {
+            "category": [
+              {
+                "table": "DimProduct",
+                "name": "Category",
+                "kind": "column",
+                "ref": "DimProduct.Category",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              }
+            ],
+            "ref": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "Klick auf eine Kategorie springt in die Detailseite. Offen: Sortierung nach Δ oder AC?",
+          "link": {
+            "pageId": "ubdeiby",
+            "pageName": "Detail Produktlinie"
+          },
+          "warnings": []
+        },
+        {
+          "id": "mk_kv12rex",
+          "stableId": "kv12rex",
+          "slug": "Umsatz_AC_FC_vs_PL_je_Monat",
+          "page": "Übersicht",
+          "kind": "varint",
+          "label": "Integrierte Varianzanalyse",
+          "engine": "ck",
+          "chartKitchenType": "varint",
+          "chartKitchenMode": "intwaterfall",
+          "native": null,
+          "title": "Umsatz AC/FC vs PL je Monat",
+          "subtitle": "in T€",
+          "content": "",
+          "scenario": "AC/PL/FC",
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 810,
+            "y": 203,
+            "w": 454,
+            "h": 233
+          },
+          "roles": {
+            "category": [
+              {
+                "table": "DimDate",
+                "name": "Month",
+                "kind": "column",
+                "ref": "DimDate.Month",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              }
+            ],
+            "ref": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ],
+            "fc": [
+              {
+                "table": "DimDate",
+                "name": "IsForecast",
+                "kind": "column",
+                "ref": "DimDate.IsForecast",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_98ziklb",
+          "stableId": "98ziklb",
+          "slug": "Kommentar",
+          "page": "Übersicht",
+          "kind": "text",
+          "label": "Textfeld",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "textbox",
+            "buckets": {}
+          },
+          "title": "Kommentar",
+          "subtitle": "",
+          "content": "Umsatz 8 % über Plan, Süd unter Plan wegen Lieferverzug.",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 810,
+            "y": 448,
+            "w": 454,
+            "h": 232
+          },
+          "roles": {},
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_bars01",
+          "stableId": "bars01",
+          "slug": "Umsatz_je_Region",
+          "page": "Übersicht",
+          "kind": "bars",
+          "label": "Balken (Struktur)",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "clusteredBarChart",
+            "buckets": {
+              "Category": [
+                {
+                  "ref": "DimRegion.Region",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "Y": [
+                {
+                  "ref": "_Measures.Umsatz",
+                  "kind": "measure",
+                  "isNew": false
+                },
+                {
+                  "ref": "_Measures.PL",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "title": "Umsatz je Region",
+          "subtitle": "",
+          "content": "",
+          "scenario": "AC/PL",
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": false,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": false,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": "T€",
+            "displayUnits": "K",
+            "decimals": 1,
+            "sort": {
+              "by": "value",
+              "dir": "desc"
+            },
+            "topN": 5,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": "A",
+            "message": "Süd liegt 8 % unter Plan."
+          },
+          "workshop": {
+            "priority": "must",
+            "status": "agreed",
+            "openQuestion": true
+          },
+          "rect": {
+            "x": 16,
+            "y": 200,
+            "w": 500,
+            "h": 240
+          },
+          "roles": {
+            "category": [
+              {
+                "table": "DimRegion",
+                "name": "Region",
+                "kind": "column",
+                "ref": "DimRegion.Region",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "Umsatz",
+                "kind": "measure",
+                "ref": "_Measures.Umsatz",
+                "isNew": false
+              }
+            ],
+            "ref": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "Absteigend nach AC sortieren.",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_wf01",
+          "stableId": "wf01",
+          "slug": "Bruecke",
+          "page": "Übersicht",
+          "kind": "waterfall",
+          "label": "Wasserfall / Brücke",
+          "engine": "ck",
+          "chartKitchenType": "waterfall",
+          "chartKitchenMode": "waterfall",
+          "native": {
+            "type": "waterfallChart",
+            "buckets": {
+              "Category": [
+                {
+                  "ref": "DimProduct.Category",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "Y": [
+                {
+                  "ref": "_Measures.AC",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "title": "Brücke AC vs PL",
+          "subtitle": "",
+          "content": "",
+          "scenario": "AC/PL/FC",
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "FC",
+            "deltaBasisAuto": false,
+            "deltaKind": [
+              "abs"
+            ],
+            "unit": null,
+            "displayUnits": "M",
+            "decimals": 0,
+            "sort": {
+              "by": "delta",
+              "dir": "desc"
+            },
+            "topN": null,
+            "timeGrain": "quarter",
+            "cumulative": true,
+            "scaleGroup": "A",
+            "message": null
+          },
+          "workshop": {
+            "priority": "should",
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 532,
+            "y": 200,
+            "w": 480,
+            "h": 240
+          },
+          "roles": {
+            "category": [
+              {
+                "table": "DimProduct",
+                "name": "Category",
+                "kind": "column",
+                "ref": "DimProduct.Category",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              }
+            ],
+            "ref": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        }
+      ],
+      "layoutTree": {
+        "split": "col",
+        "children": [
+          {
+            "size": 1,
+            "node": {
+              "split": "row",
+              "children": [
+                {
+                  "size": 0.915,
+                  "node": {
+                    "leaf": "Umsatz",
+                    "stableId": "5z33e3b"
+                  }
+                },
+                {
+                  "size": 0.901,
+                  "node": {
+                    "leaf": "Kosten",
+                    "stableId": "9rdsrnj"
+                  }
+                },
+                {
+                  "size": 0.955,
+                  "node": {
+                    "leaf": "Deckungsbeitrag",
+                    "stableId": "7ixiebk"
+                  }
+                },
+                {
+                  "size": 0.729,
+                  "node": {
+                    "leaf": "Marge",
+                    "stableId": "ldc3xxy"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "size": 4,
+            "node": {
+              "split": "row",
+              "children": [
+                {
+                  "size": 1.186,
+                  "node": {
+                    "leaf": "Δ PL je Produktlinie",
+                    "stableId": "7rbkjp5"
+                  }
+                },
+                {
+                  "size": 0.688,
+                  "node": {
+                    "split": "col",
+                    "children": [
+                      {
+                        "size": 1,
+                        "node": {
+                          "leaf": "Umsatz AC/FC vs PL je Monat",
+                          "stableId": "kv12rex"
+                        }
+                      },
+                      {
+                        "size": 1,
+                        "node": {
+                          "leaf": "Kommentar",
+                          "stableId": "98ziklb"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "ubdeiby",
+      "index": 2,
+      "name": "Detail Produktlinie",
+      "question": "",
+      "notes": "",
+      "contentRect": {
+        "x": 16,
+        "y": 72,
+        "w": 1248,
+        "h": 608
+      },
+      "visuals": [
+        {
+          "id": "mk_p6km182",
+          "stableId": "p6km182",
+          "slug": "Detail_gewahlte_Produktlinie",
+          "page": "Detail Produktlinie",
+          "kind": "text",
+          "label": "Textfeld",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "textbox",
+            "buckets": {}
+          },
+          "title": "Detail: gewählte Produktlinie",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 16,
+            "y": 72,
+            "w": 612,
+            "h": 149
+          },
+          "roles": {},
+          "notes": "Drill-through-Ziel. Titel zeigt den gefilterten Wert (SELECTEDVALUE).",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_nav2msq",
+          "stableId": "nav2msq",
+          "slug": "Umsatz",
+          "page": "Detail Produktlinie",
+          "kind": "kpi",
+          "label": "KPI-Kachel (IBCS)",
+          "engine": "ck",
+          "chartKitchenType": "kpi",
+          "chartKitchenMode": "cards",
+          "native": {
+            "type": "card",
+            "buckets": {
+              "Values": [
+                {
+                  "ref": "_Measures.Umsatz",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "title": "Umsatz",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 640,
+            "y": 72,
+            "w": 306,
+            "h": 149
+          },
+          "roles": {
+            "indicator": [
+              {
+                "table": "_Measures",
+                "name": "Umsatz",
+                "kind": "measure",
+                "ref": "_Measures.Umsatz",
+                "isNew": false
+              }
+            ],
+            "goal": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_ap1p6su",
+          "stableId": "ap1p6su",
+          "slug": "Marge",
+          "page": "Detail Produktlinie",
+          "kind": "kpi",
+          "label": "KPI-Kachel (IBCS)",
+          "engine": "ck",
+          "chartKitchenType": "kpi",
+          "chartKitchenMode": "cards",
+          "native": {
+            "type": "card",
+            "buckets": {
+              "Values": [
+                {
+                  "ref": "_Measures.Marge%",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "title": "Marge %",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 958,
+            "y": 72,
+            "w": 306,
+            "h": 149
+          },
+          "roles": {
+            "indicator": [
+              {
+                "table": "_Measures",
+                "name": "Marge%",
+                "kind": "measure",
+                "ref": "_Measures.Marge%",
+                "isNew": false
+              }
+            ],
+            "goal": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_hw8ifcv",
+          "stableId": "hw8ifcv",
+          "slug": "Einzelpositionen",
+          "page": "Detail Produktlinie",
+          "kind": "table",
+          "label": "IBCS-Tabelle",
+          "engine": "ck",
+          "chartKitchenType": "table",
+          "chartKitchenMode": "table",
+          "native": {
+            "type": "tableEx",
+            "buckets": {
+              "Values": [
+                {
+                  "ref": "DimProduct.Product",
+                  "kind": "column",
+                  "isNew": false
+                },
+                {
+                  "ref": "_Measures.AC",
+                  "kind": "measure",
+                  "isNew": false
+                },
+                {
+                  "ref": "_Measures.PL",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "title": "Einzelpositionen",
+          "subtitle": "",
+          "content": "",
+          "scenario": "AC/PL",
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 16,
+            "y": 233,
+            "w": 742,
+            "h": 447
+          },
+          "roles": {
+            "rows": [
+              {
+                "table": "DimProduct",
+                "name": "Product",
+                "kind": "column",
+                "ref": "DimProduct.Product",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              }
+            ],
+            "ref": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_6g7nfw6",
+          "stableId": "6g7nfw6",
+          "slug": "Verlauf_24_Monate",
+          "page": "Detail Produktlinie",
+          "kind": "line",
+          "label": "Linie (AC vs Referenz)",
+          "engine": "ck",
+          "chartKitchenType": "line",
+          "chartKitchenMode": "line",
+          "native": {
+            "type": "lineChart",
+            "buckets": {
+              "Y": [
+                {
+                  "ref": "_Measures.AC",
+                  "kind": "measure",
+                  "isNew": false
+                },
+                {
+                  "ref": "_Measures.PY",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "title": "Verlauf 24 Monate",
+          "subtitle": "",
+          "content": "",
+          "scenario": "AC/PY",
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PY",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 770,
+            "y": 233,
+            "w": 494,
+            "h": 447
+          },
+          "roles": {
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              }
+            ],
+            "ref": [
+              {
+                "table": "_Measures",
+                "name": "PY",
+                "kind": "measure",
+                "ref": "_Measures.PY",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": [
+            "Pflichtrolle „Zeit / Periode\" ist leer"
+          ]
+        },
+        {
+          "id": "mk_cl01",
+          "stableId": "cl01",
+          "slug": "Umsatz_und_Marge",
+          "page": "Detail Produktlinie",
+          "kind": "colline",
+          "label": "Säulen + Linie",
+          "engine": "ck",
+          "chartKitchenType": "colline",
+          "chartKitchenMode": "columns",
+          "native": {
+            "type": "lineClusteredColumnComboChart",
+            "buckets": {
+              "Category": [
+                {
+                  "ref": "DimDate.Year",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "Y": [
+                {
+                  "ref": "_Measures.Umsatz",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ],
+              "Y2": [
+                {
+                  "ref": "_Measures.Marge%",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "title": "Umsatz und Marge",
+          "subtitle": "in T€ / %",
+          "content": "",
+          "scenario": "AC/PY",
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PY",
+            "deltaBasisAuto": false,
+            "deltaKind": [
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": {
+              "by": "category",
+              "dir": "asc"
+            },
+            "topN": null,
+            "timeGrain": "month",
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": "could",
+            "status": "approved",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 16,
+            "y": 440,
+            "w": 500,
+            "h": 240
+          },
+          "roles": {
+            "category": [
+              {
+                "table": "DimDate",
+                "name": "Year",
+                "kind": "column",
+                "ref": "DimDate.Year",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "Umsatz",
+                "kind": "measure",
+                "ref": "_Measures.Umsatz",
+                "isNew": false
+              }
+            ],
+            "ref": [
+              {
+                "table": "_Measures",
+                "name": "Marge%",
+                "kind": "measure",
+                "ref": "_Measures.Marge%",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_btn01",
+          "stableId": "btn01",
+          "slug": "Zur_Uebersicht",
+          "page": "Detail Produktlinie",
+          "kind": "button",
+          "label": "Button",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "actionButton",
+            "buckets": {}
+          },
+          "title": "Zur Übersicht",
+          "subtitle": "",
+          "content": "← Übersicht",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 532,
+            "y": 440,
+            "w": 200,
+            "h": 56
+          },
+          "roles": {},
+          "notes": "",
+          "link": {
+            "pageId": "moy8ibm",
+            "pageName": "Übersicht"
+          },
+          "warnings": []
+        }
+      ],
+      "layoutTree": {
+        "split": "col",
+        "children": [
+          {
+            "size": 1,
+            "node": {
+              "split": "row",
+              "children": [
+                {
+                  "size": 2,
+                  "node": {
+                    "leaf": "Detail: gewählte Produktlinie",
+                    "stableId": "p6km182"
+                  }
+                },
+                {
+                  "size": 1,
+                  "node": {
+                    "leaf": "Umsatz",
+                    "stableId": "nav2msq"
+                  }
+                },
+                {
+                  "size": 1,
+                  "node": {
+                    "leaf": "Marge %",
+                    "stableId": "ap1p6su"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "size": 3,
+            "node": {
+              "split": "row",
+              "children": [
+                {
+                  "size": 3,
+                  "node": {
+                    "leaf": "Einzelpositionen",
+                    "stableId": "hw8ifcv"
+                  }
+                },
+                {
+                  "size": 2,
+                  "node": {
+                    "leaf": "Verlauf 24 Monate",
+                    "stableId": "6g7nfw6"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "links": [
+    {
+      "fromVisual": "mk_7rbkjp5",
+      "fromPage": "Übersicht",
+      "toPage": "Detail Produktlinie",
+      "toPageId": "ubdeiby",
+      "kind": "drillthrough",
+      "drillField": "DimProduct.Category"
+    },
+    {
+      "fromVisual": "mk_btn01",
+      "fromPage": "Detail Produktlinie",
+      "toPage": "Übersicht",
+      "toPageId": "moy8ibm",
+      "kind": "navigation",
+      "drillField": null
+    }
+  ],
+  "model": {
+    "source": "Demo-Modell",
+    "tables": [
+      "DimDate",
+      "DimProduct",
+      "DimRegion",
+      "DimCustomer",
+      "DimAccount",
+      "_Measures"
+    ],
+    "usedFields": [
+      {
+        "table": "_Measures",
+        "name": "Kosten",
+        "kind": "measure",
+        "ref": "_Measures.Kosten",
+        "isNew": false,
+        "description": "",
+        "formatString": "#,##0",
+        "dataType": "measure",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "_Measures",
+        "name": "PL",
+        "kind": "measure",
+        "ref": "_Measures.PL",
+        "isNew": false,
+        "description": "Plan",
+        "formatString": "#,##0",
+        "dataType": "measure",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "_Measures",
+        "name": "Marge",
+        "kind": "measure",
+        "ref": "_Measures.Marge",
+        "isNew": false,
+        "description": "Umsatz − Kosten",
+        "formatString": "#,##0",
+        "dataType": "measure",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimProduct",
+        "name": "Category",
+        "kind": "column",
+        "ref": "DimProduct.Category",
+        "isNew": false,
+        "description": "Produktlinie",
+        "formatString": "",
+        "dataType": "string",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "_Measures",
+        "name": "AC",
+        "kind": "measure",
+        "ref": "_Measures.AC",
+        "isNew": false,
+        "description": "Ist",
+        "formatString": "#,##0",
+        "dataType": "measure",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimDate",
+        "name": "Month",
+        "kind": "column",
+        "ref": "DimDate.Month",
+        "isNew": false,
+        "description": "Monatsname, sortiert nach MonthKey",
+        "formatString": "",
+        "dataType": "string",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimDate",
+        "name": "IsForecast",
+        "kind": "column",
+        "ref": "DimDate.IsForecast",
+        "isNew": false,
+        "description": "1 = Forecast-Monat, 0 = Ist",
+        "formatString": "",
+        "dataType": "int64",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "_Measures",
+        "name": "Umsatz",
+        "kind": "measure",
+        "ref": "_Measures.Umsatz",
+        "isNew": false,
+        "description": "",
+        "formatString": "#,##0",
+        "dataType": "measure",
+        "alias": "Nettoerlös",
+        "renameInModel": false,
+        "confirmed": true,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "_Measures",
+        "name": "Marge%",
+        "kind": "measure",
+        "ref": "_Measures.Marge%",
+        "isNew": false,
+        "description": "",
+        "formatString": "0.0%",
+        "dataType": "measure",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimProduct",
+        "name": "Product",
+        "kind": "column",
+        "ref": "DimProduct.Product",
+        "isNew": false,
+        "description": "",
+        "formatString": "",
+        "dataType": "string",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "_Measures",
+        "name": "PY",
+        "kind": "measure",
+        "ref": "_Measures.PY",
+        "isNew": false,
+        "description": "Vorjahr",
+        "formatString": "#,##0",
+        "dataType": "measure",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimDate",
+        "name": "Year",
+        "kind": "column",
+        "ref": "DimDate.Year",
+        "isNew": false,
+        "default": "2026",
+        "description": "",
+        "formatString": "",
+        "dataType": "int64",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimRegion",
+        "name": "Region",
+        "kind": "column",
+        "ref": "DimRegion.Region",
+        "isNew": false,
+        "default": null,
+        "description": "",
+        "formatString": "",
+        "dataType": "string",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      }
+    ]
+  },
+  "fields": [
+    {
+      "table": "_Measures",
+      "name": "Kosten",
+      "kind": "measure",
+      "ref": "_Measures.Kosten",
+      "isNew": false,
+      "description": "",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "PL",
+      "kind": "measure",
+      "ref": "_Measures.PL",
+      "isNew": false,
+      "description": "Plan",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "Marge",
+      "kind": "measure",
+      "ref": "_Measures.Marge",
+      "isNew": false,
+      "description": "Umsatz − Kosten",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimProduct",
+      "name": "Category",
+      "kind": "column",
+      "ref": "DimProduct.Category",
+      "isNew": false,
+      "description": "Produktlinie",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "AC",
+      "kind": "measure",
+      "ref": "_Measures.AC",
+      "isNew": false,
+      "description": "Ist",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimDate",
+      "name": "Month",
+      "kind": "column",
+      "ref": "DimDate.Month",
+      "isNew": false,
+      "description": "Monatsname, sortiert nach MonthKey",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimDate",
+      "name": "IsForecast",
+      "kind": "column",
+      "ref": "DimDate.IsForecast",
+      "isNew": false,
+      "description": "1 = Forecast-Monat, 0 = Ist",
+      "formatString": "",
+      "dataType": "int64",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "Umsatz",
+      "kind": "measure",
+      "ref": "_Measures.Umsatz",
+      "isNew": false,
+      "description": "",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "Nettoerlös",
+      "renameInModel": true,
+      "confirmed": true,
+      "owner": "Controlling",
+      "source": "DWH",
+      "target": "+5 % vs PL",
+      "unit": "T€",
+      "note": "Definition mit Vertrieb abgleichen"
+    },
+    {
+      "table": "_Measures",
+      "name": "Marge%",
+      "kind": "measure",
+      "ref": "_Measures.Marge%",
+      "isNew": false,
+      "description": "",
+      "formatString": "0.0%",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimProduct",
+      "name": "Product",
+      "kind": "column",
+      "ref": "DimProduct.Product",
+      "isNew": false,
+      "description": "",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "PY",
+      "kind": "measure",
+      "ref": "_Measures.PY",
+      "isNew": false,
+      "description": "Vorjahr",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimDate",
+      "name": "Year",
+      "kind": "column",
+      "ref": "DimDate.Year",
+      "isNew": false,
+      "default": "2026",
+      "description": "",
+      "formatString": "",
+      "dataType": "int64",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimRegion",
+      "name": "Region",
+      "kind": "column",
+      "ref": "DimRegion.Region",
+      "isNew": false,
+      "default": null,
+      "description": "",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    }
+  ],
+  "newFields": [
+    {
+      "table": "_Measures",
+      "name": "Deckungsbeitrag",
+      "kind": "measure",
+      "ref": "_Measures.Deckungsbeitrag",
+      "description": "Umsatz minus Kosten",
+      "unit": "T€",
+      "target": "> 30 %",
+      "owner": "Controlling",
+      "source": "DWH",
+      "openQuestion": "Inklusive Boni?",
+      "used": false
+    }
+  ],
+  "issues": [
+    {
+      "level": "warn",
+      "code": "ROLE_EMPTY",
+      "text": "Pflichtrolle „Kennzahl\" leer",
+      "page": "Übersicht",
+      "visual": "mk_7ixiebk"
+    },
+    {
+      "level": "warn",
+      "code": "TEXT_EMPTY",
+      "text": "„Detail: gewählte Produktlinie\" hat keinen Text; Kachel käme leer im Bericht an",
+      "page": "Detail Produktlinie",
+      "visual": "mk_p6km182"
+    },
+    {
+      "level": "warn",
+      "code": "ROLE_EMPTY",
+      "text": "Pflichtrolle „Zeit / Periode\" leer",
+      "page": "Detail Produktlinie",
+      "visual": "mk_6g7nfw6"
+    },
+    {
+      "level": "info",
+      "code": "PAGE_NO_QUESTION",
+      "text": "Seite ohne Fragestellung / Kernbotschaft",
+      "page": "Detail Produktlinie",
+      "visual": null
+    },
+    {
+      "level": "info",
+      "code": "RENAME_REQUEST",
+      "text": "Fachbereich möchte „Umsatz\" in „Nettoerlös\" umbenennen",
+      "page": null,
+      "visual": null
+    }
+  ],
+  "warnings": [
+    "Seite „Übersicht\": Pflichtrolle „Kennzahl\" leer",
+    "Seite „Detail Produktlinie\": „Detail: gewählte Produktlinie\" hat keinen Text; Kachel käme leer im Bericht an",
+    "Seite „Detail Produktlinie\": Pflichtrolle „Zeit / Periode\" leer"
+  ]
+}

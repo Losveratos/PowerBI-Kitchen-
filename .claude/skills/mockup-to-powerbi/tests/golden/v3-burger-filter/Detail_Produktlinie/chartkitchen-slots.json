@@ -1,0 +1,323 @@
+[
+  {
+    "id": "mk_nav2msq",
+    "stableId": "nav2msq",
+    "page": "Detail Produktlinie",
+    "title": "Umsatz",
+    "subtitle": "",
+    "kind": "kpi",
+    "label": "KPI-Kachel (IBCS)",
+    "rect": {
+      "x": 640,
+      "y": 72,
+      "w": 306,
+      "h": 149
+    },
+    "scenario": null,
+    "notes": "",
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "mockupRoles": {
+      "indicator": [
+        "_Measures.Umsatz"
+      ],
+      "goal": [
+        "_Measures.PL"
+      ]
+    },
+    "chartKitchenType": "kpi",
+    "orientation": "cards",
+    "chartProps": {
+      "orientation": "cards"
+    },
+    "chartKitchenRoles": {
+      "actual": [
+        "_Measures.Umsatz"
+      ],
+      "plan": [
+        "_Measures.PL"
+      ]
+    },
+    "nativeFallback": {
+      "type": "card",
+      "buckets": {
+        "Values": [
+          {
+            "ref": "_Measures.Umsatz",
+            "kind": "measure",
+            "isNew": false
+          }
+        ]
+      }
+    },
+    "warnings": []
+  },
+  {
+    "id": "mk_ap1p6su",
+    "stableId": "ap1p6su",
+    "page": "Detail Produktlinie",
+    "title": "Marge %",
+    "subtitle": "",
+    "kind": "kpi",
+    "label": "KPI-Kachel (IBCS)",
+    "rect": {
+      "x": 958,
+      "y": 72,
+      "w": 306,
+      "h": 149
+    },
+    "scenario": null,
+    "notes": "",
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "mockupRoles": {
+      "indicator": [
+        "_Measures.Marge%"
+      ],
+      "goal": [
+        "_Measures.PL"
+      ]
+    },
+    "chartKitchenType": "kpi",
+    "orientation": "cards",
+    "chartProps": {
+      "orientation": "cards"
+    },
+    "chartKitchenRoles": {
+      "actual": [
+        "_Measures.Marge%"
+      ],
+      "plan": [
+        "_Measures.PL"
+      ]
+    },
+    "nativeFallback": {
+      "type": "card",
+      "buckets": {
+        "Values": [
+          {
+            "ref": "_Measures.Marge%",
+            "kind": "measure",
+            "isNew": false
+          }
+        ]
+      }
+    },
+    "warnings": []
+  },
+  {
+    "id": "mk_hw8ifcv",
+    "stableId": "hw8ifcv",
+    "page": "Detail Produktlinie",
+    "title": "Einzelpositionen",
+    "subtitle": "",
+    "kind": "table",
+    "label": "IBCS-Tabelle",
+    "rect": {
+      "x": 16,
+      "y": 233,
+      "w": 742,
+      "h": 447
+    },
+    "scenario": "AC/PL",
+    "notes": "",
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "mockupRoles": {
+      "rows": [
+        "DimProduct.Product"
+      ],
+      "ac": [
+        "_Measures.AC"
+      ],
+      "ref": [
+        "_Measures.PL"
+      ]
+    },
+    "chartKitchenType": "table",
+    "orientation": "table",
+    "chartProps": {
+      "orientation": "table"
+    },
+    "chartKitchenRoles": {
+      "category": [
+        "DimProduct.Product"
+      ],
+      "actual": [
+        "_Measures.AC"
+      ],
+      "plan": [
+        "_Measures.PL"
+      ]
+    },
+    "nativeFallback": {
+      "type": "tableEx",
+      "buckets": {
+        "Values": [
+          {
+            "ref": "DimProduct.Product",
+            "kind": "column",
+            "isNew": false
+          },
+          {
+            "ref": "_Measures.AC",
+            "kind": "measure",
+            "isNew": false
+          },
+          {
+            "ref": "_Measures.PL",
+            "kind": "measure",
+            "isNew": false
+          }
+        ]
+      }
+    },
+    "warnings": []
+  },
+  {
+    "id": "mk_6g7nfw6",
+    "stableId": "6g7nfw6",
+    "page": "Detail Produktlinie",
+    "title": "Verlauf 24 Monate",
+    "subtitle": "",
+    "kind": "line",
+    "label": "Linie (AC vs Referenz)",
+    "rect": {
+      "x": 770,
+      "y": 233,
+      "w": 494,
+      "h": 447
+    },
+    "scenario": "AC/PY",
+    "notes": "",
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PY",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "mockupRoles": {
+      "ac": [
+        "_Measures.AC"
+      ],
+      "ref": [
+        "_Measures.PY"
+      ]
+    },
+    "chartKitchenType": "line",
+    "orientation": "line",
+    "chartProps": {
+      "orientation": "line"
+    },
+    "chartKitchenRoles": {
+      "actual": [
+        "_Measures.AC"
+      ],
+      "previousYear": [
+        "_Measures.PY"
+      ]
+    },
+    "nativeFallback": {
+      "type": "lineChart",
+      "buckets": {
+        "Y": [
+          {
+            "ref": "_Measures.AC",
+            "kind": "measure",
+            "isNew": false
+          },
+          {
+            "ref": "_Measures.PY",
+            "kind": "measure",
+            "isNew": false
+          }
+        ]
+      }
+    },
+    "warnings": []
+  }
+]

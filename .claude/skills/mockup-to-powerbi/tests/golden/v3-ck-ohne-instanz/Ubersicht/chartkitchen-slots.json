@@ -1,0 +1,362 @@
+[
+  {
+    "id": "mk_5z33e3b",
+    "stableId": "5z33e3b",
+    "page": "Übersicht",
+    "title": "Umsatz",
+    "subtitle": "",
+    "kind": "kpi",
+    "label": "KPI-Kachel (IBCS)",
+    "rect": {
+      "x": 16,
+      "y": 72,
+      "w": 317,
+      "h": 119
+    },
+    "scenario": null,
+    "notes": "",
+    "analysis": {
+      "polarity": "lower",
+      "polarityAuto": false,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "mockupRoles": {
+      "indicator": [
+        "_Measures.Kosten"
+      ],
+      "goal": [
+        "_Measures.PL"
+      ]
+    },
+    "chartKitchenType": "kpi",
+    "orientation": "cards",
+    "chartProps": {
+      "orientation": "cards",
+      "invert": true
+    },
+    "chartKitchenRoles": {
+      "actual": [
+        "_Measures.Kosten"
+      ],
+      "plan": [
+        "_Measures.PL"
+      ]
+    },
+    "nativeFallback": {
+      "type": "card",
+      "buckets": {
+        "Values": [
+          {
+            "ref": "_Measures.Kosten",
+            "kind": "measure",
+            "isNew": false
+          }
+        ]
+      }
+    },
+    "warnings": []
+  },
+  {
+    "id": "mk_7ixiebk",
+    "stableId": "7ixiebk",
+    "page": "Übersicht",
+    "title": "Deckungsbeitrag",
+    "subtitle": "",
+    "kind": "kpi",
+    "label": "KPI-Kachel (IBCS)",
+    "rect": {
+      "x": 669,
+      "y": 72,
+      "w": 330,
+      "h": 119
+    },
+    "scenario": null,
+    "notes": "",
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "mockupRoles": {
+      "goal": [
+        "_Measures.PL"
+      ]
+    },
+    "chartKitchenType": "kpi",
+    "orientation": "cards",
+    "chartProps": {
+      "orientation": "cards"
+    },
+    "chartKitchenRoles": {
+      "plan": [
+        "_Measures.PL"
+      ]
+    },
+    "nativeFallback": {
+      "type": "card",
+      "buckets": {}
+    },
+    "warnings": []
+  },
+  {
+    "id": "mk_ldc3xxy",
+    "stableId": "ldc3xxy",
+    "page": "Übersicht",
+    "title": "Marge",
+    "subtitle": "",
+    "kind": "kpi",
+    "label": "KPI-Kachel (IBCS)",
+    "rect": {
+      "x": 1011,
+      "y": 72,
+      "w": 253,
+      "h": 119
+    },
+    "scenario": null,
+    "notes": "",
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "mockupRoles": {
+      "indicator": [
+        "_Measures.Marge"
+      ],
+      "goal": [
+        "_Measures.PL"
+      ]
+    },
+    "chartKitchenType": "kpi",
+    "orientation": "cards",
+    "chartProps": {
+      "orientation": "cards"
+    },
+    "chartKitchenRoles": {
+      "actual": [
+        "_Measures.Marge"
+      ],
+      "plan": [
+        "_Measures.PL"
+      ]
+    },
+    "nativeFallback": {
+      "type": "card",
+      "buckets": {
+        "Values": [
+          {
+            "ref": "_Measures.Marge",
+            "kind": "measure",
+            "isNew": false
+          }
+        ]
+      }
+    },
+    "warnings": []
+  },
+  {
+    "id": "mk_7rbkjp5",
+    "stableId": "7rbkjp5",
+    "page": "Übersicht",
+    "title": "Δ PL je Produktlinie",
+    "subtitle": "",
+    "kind": "wfint",
+    "label": "Wasserfall horizontal + Varianz",
+    "rect": {
+      "x": 16,
+      "y": 203,
+      "w": 782,
+      "h": 477
+    },
+    "scenario": "AC/PL",
+    "notes": "Klick auf eine Kategorie springt in die Detailseite. Offen: Sortierung nach Δ oder AC?",
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "mockupRoles": {
+      "category": [
+        "DimProduct.Category"
+      ],
+      "ac": [
+        "_Measures.AC"
+      ],
+      "ref": [
+        "_Measures.PL"
+      ]
+    },
+    "chartKitchenType": "wfint",
+    "orientation": "intwaterfall",
+    "chartProps": {
+      "orientation": "intwaterfall"
+    },
+    "chartKitchenRoles": {
+      "category": [
+        "DimProduct.Category"
+      ],
+      "actual": [
+        "_Measures.AC"
+      ],
+      "plan": [
+        "_Measures.PL"
+      ]
+    },
+    "nativeFallback": null,
+    "warnings": []
+  },
+  {
+    "id": "mk_kv12rex",
+    "stableId": "kv12rex",
+    "page": "Übersicht",
+    "title": "Umsatz AC/FC vs PL je Monat",
+    "subtitle": "in T€",
+    "kind": "varint",
+    "label": "Integrierte Varianzanalyse",
+    "rect": {
+      "x": 810,
+      "y": 203,
+      "w": 454,
+      "h": 233
+    },
+    "scenario": "AC/PL/FC",
+    "notes": "",
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "mockupRoles": {
+      "category": [
+        "DimDate.Month"
+      ],
+      "ac": [
+        "_Measures.AC"
+      ],
+      "ref": [
+        "_Measures.PL"
+      ],
+      "fc": [
+        "DimDate.IsForecast"
+      ]
+    },
+    "chartKitchenType": "varint",
+    "orientation": "intwaterfall",
+    "chartProps": {
+      "orientation": "intwaterfall"
+    },
+    "chartKitchenRoles": {
+      "category": [
+        "DimDate.Month"
+      ],
+      "actual": [
+        "_Measures.AC"
+      ],
+      "plan": [
+        "_Measures.PL"
+      ],
+      "fcFlag": [
+        "DimDate.IsForecast"
+      ]
+    },
+    "nativeFallback": null,
+    "warnings": [
+      "`fcFlag` muss die **Zahl** 1/0 liefern, kein Boolean (DimDate.IsForecast pruefen)."
+    ]
+  }
+]

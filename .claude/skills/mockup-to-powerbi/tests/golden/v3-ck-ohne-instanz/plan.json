@@ -1,0 +1,167 @@
+{
+  "generated": "<zeitstempel>",
+  "tool": "mockup_to_pbir.py",
+  "spec": {
+    "name": "Nur ChartKitchen",
+    "specVersion": 3,
+    "specHash": "ckhash",
+    "lang": "de"
+  },
+  "report": "Test.Report",
+  "model": "Demo-Modell",
+  "canvas": {
+    "width": 1280,
+    "height": 720
+  },
+  "pages": [
+    {
+      "name": "Übersicht",
+      "dir": "Ubersicht",
+      "slug": "Ubersicht",
+      "visuals": 4,
+      "chrome": 11,
+      "ck": 5,
+      "deneb": 0
+    }
+  ],
+  "rules": [
+    "Visualname = `id` aus der Spec (stabil über Läufe).",
+    "Vorhandene Visuals werden aktualisiert (delta-batch.json), nie neu angelegt.",
+    "Was im Bericht steht, aber nicht mehr im Mockup: nur melden, nie löschen.",
+    "Kein Schritt schreibt, bevor der Mensch den Plan freigegeben hat."
+  ],
+  "steps": [
+    {
+      "id": "backup",
+      "op": "backup",
+      "page": null,
+      "idempotent": "Legt eine weitere Sicherung an; mehrfach ausführen schadet nicht.",
+      "delta": "immer vor dem ersten schreibenden Schritt",
+      "commands": [
+        "pbir backup \"Test.Report\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "page:Ubersicht",
+      "op": "add_page",
+      "page": "Übersicht",
+      "idempotent": "Seite existiert bereits → diesen Schritt überspringen und stattdessen `pbir pages resize \"Test.Report/Übersicht.Page\" -w 1280 -h 720`.",
+      "delta": "vorhandene Seite wird nie gelöscht",
+      "commands": [
+        "pbir add page \"Test.Report/Ubersicht.Page\" -n \"Übersicht\" -w 1280 -h 720",
+        "pbir rm \"Test.Report/Übersicht.Page/Title.Visual\" -f"
+      ],
+      "batch": null
+    },
+    {
+      "id": "chrome:Ubersicht",
+      "op": "add_visuals",
+      "page": "Übersicht",
+      "idempotent": "Schlägt fehl, wenn die Chrome-Visuals schon existieren → dann delta-batch.json statt dieses Schritts.",
+      "delta": "delta-batch.json aktualisiert Position/Größe",
+      "commands": [
+        "pbir add visual \"Test.Report/Übersicht.Page\" --from-json \"<out>/Ubersicht/chrome-visuals.json\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "visuals:Ubersicht",
+      "op": "add_visuals",
+      "page": "Übersicht",
+      "idempotent": "Namen sind stabil; ein zweiter Lauf legt nichts doppelt an, sondern scheitert → delta-batch.json.",
+      "delta": "delta-batch.json aktualisiert Position, Größe und Bindung",
+      "commands": [
+        "pbir add visual \"Test.Report/Übersicht.Page\" --from-json \"<out>/Ubersicht/pbir-visuals.json\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "background:Ubersicht",
+      "op": "page_background",
+      "page": "Übersicht",
+      "idempotent": "Setzt eine feste Farbe — beliebig oft ausfuehrbar.",
+      "delta": "unveraendert im zweiten Lauf",
+      "commands": [
+        "pbir pages background \"Test.Report/Übersicht.Page\" --color \"#EEF1F5\" --transparency 0"
+      ],
+      "batch": null
+    },
+    {
+      "id": "format:Ubersicht",
+      "op": "batch",
+      "page": "Übersicht",
+      "idempotent": "Setzt Eigenschaften auf feste Werte — beliebig oft ausführbar.",
+      "delta": "unverändert im zweiten Lauf",
+      "commands": [
+        "pbir batch validate \"<out>/Ubersicht/chrome-batch.json\"",
+        "pbir batch plan \"<out>/Ubersicht/chrome-batch.json\" --root \"Test.Report\"",
+        "pbir batch run \"<out>/Ubersicht/chrome-batch.json\" --root \"Test.Report\""
+      ],
+      "batch": "Ubersicht/chrome-batch.json"
+    },
+    {
+      "id": "analysis:Ubersicht",
+      "op": "commands",
+      "page": "Übersicht",
+      "idempotent": "Sortierung und Untertitel ja; `pbir add filter` legt bei erneutem Lauf ggf. einen zweiten Filter an — vorher `pbir filters list` prüfen.",
+      "delta": "Top-N/Vorauswahl vor dem zweiten Lauf prüfen",
+      "commands": [
+        "bash \"<out>/Ubersicht/analysis-commands.sh\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "navigation",
+      "op": "commands",
+      "page": null,
+      "idempotent": "`pbir add bookmark` legt bei gleichem Namen keinen zweiten an (prüfen mit `pbir bookmarks list`).",
+      "delta": "Lesezeichen nur ergänzen, nie löschen",
+      "commands": [
+        "# Befehle in navigation.md — erst wenn alle Seiten stehen"
+      ],
+      "batch": null
+    },
+    {
+      "id": "annotate",
+      "op": "annotation",
+      "page": null,
+      "idempotent": "Gleicher Name überschreibt den Wert.",
+      "delta": "Beim nächsten Lauf mit `pbir annotations list \"Test.Report\" --json` vergleichen: gleicher Hash = nichts zu tun.",
+      "commands": [
+        "pbir add annotation \"Test.Report\" --name mockup-spec-hash --value \"ckhash\"",
+        "pbir add annotation \"Test.Report\" --name mockup-spec-name --value \"Nur ChartKitchen\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "verify",
+      "op": "verify",
+      "page": null,
+      "idempotent": "reine Prüfung",
+      "delta": "immer",
+      "commands": [
+        "pbir validate \"Test.Report\" --fields",
+        "te validate -m \"Demo-Modell\" --errors-only",
+        "python .claude/skills/mockup-to-powerbi/scripts/mockup_verify.py \"Test.Report\" \"<out>/acceptance.json\""
+      ],
+      "batch": null
+    }
+  ],
+  "todos": [
+    {
+      "code": "CK_INVERT",
+      "page": "Übersicht",
+      "visual": "mk_5z33e3b",
+      "title": "Umsatz",
+      "text": "ChartKitchen-Slot: `chart.invert = true` setzen (kleiner = besser)."
+    },
+    {
+      "code": "SLICER_DEFAULT",
+      "page": "Übersicht",
+      "visual": "mk_slicer_Year_p1",
+      "title": "Year",
+      "text": "Vorauswahl DimDate.Year = 2026: `pbir add filter` legt einen kategorialen Visual-Filter an. In Desktop pruefen, ob die Auswahl im Slicer sichtbar ist — sonst dort einmal klicken und speichern."
+    }
+  ]
+}

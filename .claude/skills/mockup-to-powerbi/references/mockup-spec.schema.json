@@ -1,0 +1,319 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://datenwg.de/schemas/mockup-spec/v3.json",
+  "title": "MockupKitchen byDatenWG - mockup-spec.json (specVersion 3)",
+  "description": "Pruefschema fuer die Spec aus assets/mockup/export.js. Geprueft wird die auf v3 gehobene Fassung: mockup_to_pbir.py hebt specVersion 1 und 2 intern auf diese Form, bevor validiert wird. Absichtlich permissiv gegenueber zusaetzlichen Schluesseln (das Tool darf wachsen), streng bei Typen, Enums und Pflichtfeldern.",
+  "type": "object",
+  "required": ["meta", "canvas", "zones", "pages"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["specVersion", "name"],
+      "properties": {
+        "tool": { "type": "string" },
+        "version": { "type": "string" },
+        "specVersion": { "type": "integer", "minimum": 1, "maximum": 3 },
+        "sourceSpecVersion": { "type": "integer", "minimum": 1, "maximum": 3 },
+        "specHash": { "type": ["string", "null"] },
+        "name": { "type": "string" },
+        "lang": { "enum": ["de", "en"] },
+        "exportedAt": { "type": "string" },
+        "skill": { "type": "string" }
+      }
+    },
+    "report": {
+      "type": "object",
+      "properties": {
+        "name": { "type": ["string", "null"] },
+        "audience": { "type": ["string", "null"] },
+        "purpose": { "type": ["string", "null"] },
+        "decision": { "type": ["string", "null"] },
+        "participants": { "type": ["string", "null"] },
+        "version": { "type": ["string", "null"] },
+        "dataDate": { "type": ["string", "null"] }
+      }
+    },
+    "canvas": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "preset": { "type": ["string", "null"] },
+        "uiScale": { "type": "number", "minimum": 0.1, "maximum": 8 }
+      }
+    },
+    "spacing": {
+      "type": "object",
+      "properties": {
+        "margin": { "type": "integer", "minimum": 0 },
+        "gutter": { "type": "integer", "minimum": 0 },
+        "tilePadding": { "type": "integer", "minimum": 0 },
+        "base": { "type": "object" }
+      }
+    },
+    "design": {
+      "type": "object",
+      "properties": {
+        "cornerRadius": { "type": "integer", "minimum": 0 },
+        "tileStyle": { "enum": ["border", "shadow", "flat"] },
+        "pageBackground": { "$ref": "#/$defs/hex" },
+        "tileBackground": { "$ref": "#/$defs/hex" },
+        "headerStyle": { "enum": ["light", "dark", "accent"] },
+        "accent": { "$ref": "#/$defs/hex" },
+        "darkMode": { "type": "boolean" },
+        "fontScale": { "type": "number", "minimum": 0.1, "maximum": 8 }
+      }
+    },
+    "zones": {
+      "type": "object",
+      "required": ["content"],
+      "properties": {
+        "content": { "$ref": "#/$defs/zone" },
+        "nav": { "$ref": "#/$defs/navZone" },
+        "header": { "$ref": "#/$defs/headerZone" },
+        "filter": { "$ref": "#/$defs/filterZone" },
+        "footer": { "$ref": "#/$defs/footerZone" }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/page" }
+    },
+    "links": { "type": "array", "items": { "$ref": "#/$defs/link" } },
+    "model": {
+      "type": "object",
+      "properties": {
+        "source": { "type": ["string", "null"] },
+        "tables": { "type": "array", "items": { "type": "string" } },
+        "usedFields": { "type": "array", "items": { "$ref": "#/$defs/field" } }
+      }
+    },
+    "fields": { "type": "array", "items": { "$ref": "#/$defs/field" } },
+    "newFields": { "type": "array", "items": { "$ref": "#/$defs/newField" } },
+    "issues": { "type": "array", "items": { "$ref": "#/$defs/issue" } },
+    "warnings": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "hex": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+    "zone": {
+      "type": "object",
+      "required": ["x", "y", "w", "h"],
+      "properties": {
+        "x": { "type": "integer" },
+        "y": { "type": "integer" },
+        "w": { "type": "integer", "minimum": 0 },
+        "h": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "navZone": {
+      "allOf": [{ "$ref": "#/$defs/zone" }],
+      "properties": { "pages": { "type": "array", "items": { "type": "string" } } }
+    },
+    "headerZone": {
+      "allOf": [{ "$ref": "#/$defs/zone" }],
+      "properties": {
+        "style": { "enum": ["light", "dark", "accent"] },
+        "logoPos": { "enum": ["left", "right", "none"] },
+        "title": { "type": ["string", "null"] },
+        "subtitle": { "type": ["string", "null"] },
+        "nav": { "type": "array", "items": { "type": "string" } },
+        "navAuto": { "type": "boolean" },
+        "burger": { "type": "boolean" }
+      }
+    },
+    "filterZone": {
+      "allOf": [{ "$ref": "#/$defs/zone" }],
+      "properties": {
+        "mode": { "enum": ["right", "left", "top", "burger"] },
+        "side": { "type": "string" },
+        "collapsible": { "type": "boolean" },
+        "overlay": { "type": "boolean" },
+        "note": { "type": ["string", "null"] },
+        "slicers": { "type": "array", "items": { "$ref": "#/$defs/slicer" } },
+        "bookmarks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "showsPanel": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "footerZone": {
+      "allOf": [{ "$ref": "#/$defs/zone" }],
+      "properties": { "text": { "type": ["string", "null"] } }
+    },
+    "slicer": {
+      "type": "object",
+      "required": ["table", "name", "ref"],
+      "properties": {
+        "table": { "type": "string" },
+        "name": { "type": "string" },
+        "kind": { "enum": ["column", "measure"] },
+        "ref": { "type": "string", "pattern": "^[^.]+\\..+$" },
+        "isNew": { "type": "boolean" },
+        "default": { "type": ["string", "number", "boolean", "null"] }
+      }
+    },
+    "page": {
+      "type": "object",
+      "required": ["name", "visuals"],
+      "properties": {
+        "id": { "type": "string" },
+        "index": { "type": "integer", "minimum": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "question": { "type": ["string", "null"] },
+        "notes": { "type": ["string", "null"] },
+        "contentRect": { "$ref": "#/$defs/zone" },
+        "visuals": { "type": "array", "items": { "$ref": "#/$defs/visual" } },
+        "layoutTree": { "type": ["object", "null"] }
+      }
+    },
+    "visual": {
+      "type": "object",
+      "required": ["id", "kind", "engine", "rect"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "stableId": { "type": "string" },
+        "slug": { "type": "string" },
+        "page": { "type": "string" },
+        "kind": { "type": "string", "minLength": 1 },
+        "label": { "type": ["string", "null"] },
+        "engine": { "enum": ["native", "ck", "deneb"] },
+        "chartKitchenType": { "type": ["string", "null"] },
+        "chartKitchenMode": { "type": ["string", "null"] },
+        "native": { "$ref": "#/$defs/native" },
+        "title": { "type": ["string", "null"] },
+        "subtitle": { "type": ["string", "null"] },
+        "content": { "type": ["string", "null"] },
+        "scenario": { "type": ["string", "null"] },
+        "analysis": { "$ref": "#/$defs/analysis" },
+        "workshop": { "$ref": "#/$defs/workshop" },
+        "rect": { "$ref": "#/$defs/rect" },
+        "roles": { "type": "object" },
+        "notes": { "type": ["string", "null"] },
+        "link": { "type": ["object", "null"] },
+        "warnings": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "rect": {
+      "type": "object",
+      "required": ["x", "y", "w", "h"],
+      "properties": {
+        "x": { "type": "integer" },
+        "y": { "type": "integer" },
+        "w": { "type": "integer", "minimum": 1 },
+        "h": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "native": {
+      "type": ["object", "null"],
+      "properties": {
+        "type": { "type": "string", "minLength": 1 },
+        "buckets": { "type": "object" }
+      }
+    },
+    "analysis": {
+      "type": ["object", "null"],
+      "properties": {
+        "polarity": { "enum": ["higher", "lower"] },
+        "polarityAuto": { "type": "boolean" },
+        "deltaBasis": { "type": ["string", "null"], "enum": ["PL", "PY", "BU", "FC", null] },
+        "deltaBasisAuto": { "type": "boolean" },
+        "deltaKind": { "type": "array", "items": { "enum": ["abs", "rel"] } },
+        "unit": { "type": ["string", "null"] },
+        "displayUnits": { "type": ["string", "null"], "enum": ["none", "K", "M", null] },
+        "decimals": { "type": ["integer", "null"], "minimum": 0, "maximum": 6 },
+        "sort": {
+          "type": ["object", "null"],
+          "required": ["by", "dir"],
+          "properties": {
+            "by": { "enum": ["value", "delta", "category"] },
+            "dir": { "enum": ["asc", "desc"] }
+          }
+        },
+        "topN": { "type": ["integer", "null"], "minimum": 1, "maximum": 100 },
+        "timeGrain": { "type": ["string", "null"], "enum": ["day", "week", "month", "quarter", "year", null] },
+        "cumulative": { "type": "boolean" },
+        "scaleGroup": { "type": ["string", "null"] },
+        "message": { "type": ["string", "null"] }
+      }
+    },
+    "workshop": {
+      "type": ["object", "null"],
+      "properties": {
+        "priority": { "type": ["string", "null"], "enum": ["must", "should", "could", null] },
+        "status": { "enum": ["open", "agreed", "approved"] },
+        "openQuestion": { "type": "boolean" }
+      }
+    },
+    "link": {
+      "type": "object",
+      "required": ["fromVisual", "fromPage", "toPage", "kind"],
+      "properties": {
+        "fromVisual": { "type": "string" },
+        "fromPage": { "type": "string" },
+        "toPage": { "type": "string" },
+        "toPageId": { "type": ["string", "null"] },
+        "kind": { "enum": ["navigation", "drillthrough"] },
+        "drillField": { "type": ["string", "null"] }
+      }
+    },
+    "field": {
+      "type": "object",
+      "required": ["table", "name", "ref"],
+      "properties": {
+        "table": { "type": "string" },
+        "name": { "type": "string" },
+        "kind": { "enum": ["column", "measure"] },
+        "ref": { "type": "string", "pattern": "^[^.]+\\..+$" },
+        "isNew": { "type": "boolean" },
+        "description": { "type": ["string", "null"] },
+        "formatString": { "type": ["string", "null"] },
+        "dataType": { "type": ["string", "null"] },
+        "alias": { "type": ["string", "null"] },
+        "renameInModel": { "type": "boolean" },
+        "confirmed": { "type": "boolean" },
+        "owner": { "type": ["string", "null"] },
+        "source": { "type": ["string", "null"] },
+        "target": { "type": ["string", "null"] },
+        "unit": { "type": ["string", "null"] },
+        "note": { "type": ["string", "null"] }
+      }
+    },
+    "newField": {
+      "type": "object",
+      "required": ["table", "name", "ref"],
+      "properties": {
+        "table": { "type": "string" },
+        "name": { "type": "string" },
+        "kind": { "enum": ["column", "measure"] },
+        "ref": { "type": "string", "pattern": "^[^.]+\\..+$" },
+        "description": { "type": ["string", "null"] },
+        "unit": { "type": ["string", "null"] },
+        "target": { "type": ["string", "null"] },
+        "owner": { "type": ["string", "null"] },
+        "source": { "type": ["string", "null"] },
+        "openQuestion": { "type": ["string", "null"] },
+        "used": { "type": "boolean" }
+      }
+    },
+    "issue": {
+      "type": "object",
+      "required": ["level", "code", "text"],
+      "properties": {
+        "level": { "enum": ["error", "warn", "info"] },
+        "code": { "type": "string", "minLength": 1 },
+        "text": { "type": "string" },
+        "page": { "type": ["string", "null"] },
+        "visual": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

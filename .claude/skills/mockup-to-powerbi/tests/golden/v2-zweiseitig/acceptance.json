@@ -1,0 +1,573 @@
+{
+  "generated": "<zeitstempel>",
+  "report": "Test.Report",
+  "specHash": "02f4ddc3",
+  "specName": "Management Report · Beispiel",
+  "tolerance": 1,
+  "pages": [
+    {
+      "name": "Übersicht",
+      "background": "#F4F4F1",
+      "canvas": {
+        "width": 1280,
+        "height": 720
+      },
+      "visuals": [
+        {
+          "name": "chrome_header_bg",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 56
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_header_rule",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 55,
+            "w": 1280,
+            "h": 1
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_burger",
+          "type": "actionButton",
+          "rect": {
+            "x": 16,
+            "y": 14,
+            "w": 84,
+            "h": 28
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_logo",
+          "type": "shape",
+          "rect": {
+            "x": 1144,
+            "y": 12,
+            "w": 120,
+            "h": 32
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_nav_1",
+          "type": "actionButton",
+          "rect": {
+            "x": 896,
+            "y": 12,
+            "w": 112,
+            "h": 32
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_nav_2",
+          "type": "actionButton",
+          "rect": {
+            "x": 1016,
+            "y": 12,
+            "w": 112,
+            "h": 32
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_header_title",
+          "type": "shape",
+          "rect": {
+            "x": 112,
+            "y": 6,
+            "w": 768,
+            "h": 26
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_header_subtitle",
+          "type": "shape",
+          "rect": {
+            "x": 112,
+            "y": 32,
+            "w": 768,
+            "h": 18
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_bg",
+          "type": "shape",
+          "rect": {
+            "x": 1080,
+            "y": 56,
+            "w": 200,
+            "h": 640
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_title",
+          "type": "shape",
+          "rect": {
+            "x": 1088,
+            "y": 64,
+            "w": 184,
+            "h": 24
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_close",
+          "type": "actionButton",
+          "rect": {
+            "x": 1244,
+            "y": 64,
+            "w": 28,
+            "h": 24
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_text",
+          "type": "shape",
+          "rect": {
+            "x": 16,
+            "y": 696,
+            "w": 1248,
+            "h": 24
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "p1_v07_Kommentar",
+          "type": "shape",
+          "rect": {
+            "x": 810,
+            "y": 448,
+            "w": 454,
+            "h": 232
+          },
+          "role": "text",
+          "fields": {}
+        },
+        {
+          "name": "p1_v02_Kosten",
+          "type": "card",
+          "rect": {
+            "x": 345,
+            "y": 72,
+            "w": 312,
+            "h": 119
+          },
+          "role": "content",
+          "fields": {
+            "Values": [
+              "_Measures.Kosten"
+            ]
+          }
+        },
+        {
+          "name": "p1_v05_PL_je_Produktlinie",
+          "type": "clusteredBarChart",
+          "rect": {
+            "x": 16,
+            "y": 203,
+            "w": 782,
+            "h": 477
+          },
+          "role": "content",
+          "fields": {
+            "Category": [
+              "DimProduct.Category"
+            ],
+            "Y": [
+              "_Measures.AC",
+              "_Measures.PL"
+            ]
+          }
+        },
+        {
+          "name": "p1_slicer1_Year",
+          "type": "slicer",
+          "rect": {
+            "x": 1088,
+            "y": 96,
+            "w": 184,
+            "h": 56
+          },
+          "role": "slicer",
+          "fields": {
+            "Values": [
+              "DimDate.Year"
+            ]
+          }
+        },
+        {
+          "name": "p1_slicer2_Region",
+          "type": "slicer",
+          "rect": {
+            "x": 1088,
+            "y": 160,
+            "w": 184,
+            "h": 56
+          },
+          "role": "slicer",
+          "fields": {
+            "Values": [
+              "DimRegion.Region"
+            ]
+          }
+        },
+        {
+          "name": "p1_v01_Umsatz",
+          "type": "chartKitchen|shape",
+          "rect": {
+            "x": 16,
+            "y": 72,
+            "w": 317,
+            "h": 119
+          },
+          "role": "chartkitchen",
+          "optional": true,
+          "fields": {}
+        },
+        {
+          "name": "p1_v03_Deckungsbeitrag",
+          "type": "chartKitchen|shape",
+          "rect": {
+            "x": 669,
+            "y": 72,
+            "w": 330,
+            "h": 119
+          },
+          "role": "chartkitchen",
+          "optional": true,
+          "fields": {}
+        },
+        {
+          "name": "p1_v04_Marge",
+          "type": "chartKitchen|shape",
+          "rect": {
+            "x": 1011,
+            "y": 72,
+            "w": 253,
+            "h": 119
+          },
+          "role": "chartkitchen",
+          "optional": true,
+          "fields": {}
+        },
+        {
+          "name": "p1_v06_Umsatz_AC_FC_vs_PL_je_Monat",
+          "type": "chartKitchen|shape",
+          "rect": {
+            "x": 810,
+            "y": 203,
+            "w": 454,
+            "h": 233
+          },
+          "role": "chartkitchen",
+          "optional": true,
+          "fields": {}
+        }
+      ]
+    },
+    {
+      "name": "Detail Produktlinie",
+      "background": "#F4F4F1",
+      "canvas": {
+        "width": 1280,
+        "height": 720
+      },
+      "visuals": [
+        {
+          "name": "chrome_header_bg",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 56
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_header_rule",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 55,
+            "w": 1280,
+            "h": 1
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_burger",
+          "type": "actionButton",
+          "rect": {
+            "x": 16,
+            "y": 14,
+            "w": 84,
+            "h": 28
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_logo",
+          "type": "shape",
+          "rect": {
+            "x": 1144,
+            "y": 12,
+            "w": 120,
+            "h": 32
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_nav_1",
+          "type": "actionButton",
+          "rect": {
+            "x": 896,
+            "y": 12,
+            "w": 112,
+            "h": 32
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_nav_2",
+          "type": "actionButton",
+          "rect": {
+            "x": 1016,
+            "y": 12,
+            "w": 112,
+            "h": 32
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_header_title",
+          "type": "shape",
+          "rect": {
+            "x": 112,
+            "y": 6,
+            "w": 768,
+            "h": 26
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_header_subtitle",
+          "type": "shape",
+          "rect": {
+            "x": 112,
+            "y": 32,
+            "w": 768,
+            "h": 18
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_bg",
+          "type": "shape",
+          "rect": {
+            "x": 1080,
+            "y": 56,
+            "w": 200,
+            "h": 640
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_title",
+          "type": "shape",
+          "rect": {
+            "x": 1088,
+            "y": 64,
+            "w": 184,
+            "h": 24
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_close",
+          "type": "actionButton",
+          "rect": {
+            "x": 1244,
+            "y": 64,
+            "w": 28,
+            "h": 24
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_text",
+          "type": "shape",
+          "rect": {
+            "x": 16,
+            "y": 696,
+            "w": 1248,
+            "h": 24
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "p2_v01_Detail_gewahlte_Produktlinie",
+          "type": "shape",
+          "rect": {
+            "x": 16,
+            "y": 72,
+            "w": 612,
+            "h": 149
+          },
+          "role": "text",
+          "fields": {}
+        },
+        {
+          "name": "p2_v04_Einzelpositionen",
+          "type": "tableEx",
+          "rect": {
+            "x": 16,
+            "y": 233,
+            "w": 742,
+            "h": 447
+          },
+          "role": "content",
+          "fields": {
+            "Values": [
+              "DimProduct.Product",
+              "_Measures.AC",
+              "_Measures.PL"
+            ]
+          }
+        },
+        {
+          "name": "p2_v05_Verlauf_24_Monate",
+          "type": "lineChart",
+          "rect": {
+            "x": 770,
+            "y": 233,
+            "w": 494,
+            "h": 447
+          },
+          "role": "content",
+          "fields": {
+            "Category": [
+              "DimDate.Month"
+            ],
+            "Y": [
+              "_Measures.AC",
+              "_Measures.PY"
+            ]
+          }
+        },
+        {
+          "name": "p2_slicer1_Year",
+          "type": "slicer",
+          "rect": {
+            "x": 1088,
+            "y": 96,
+            "w": 184,
+            "h": 56
+          },
+          "role": "slicer",
+          "fields": {
+            "Values": [
+              "DimDate.Year"
+            ]
+          }
+        },
+        {
+          "name": "p2_slicer2_Region",
+          "type": "slicer",
+          "rect": {
+            "x": 1088,
+            "y": 160,
+            "w": 184,
+            "h": 56
+          },
+          "role": "slicer",
+          "fields": {
+            "Values": [
+              "DimRegion.Region"
+            ]
+          }
+        },
+        {
+          "name": "p2_v02_Umsatz",
+          "type": "chartKitchen|shape",
+          "rect": {
+            "x": 640,
+            "y": 72,
+            "w": 306,
+            "h": 149
+          },
+          "role": "chartkitchen",
+          "optional": true,
+          "fields": {}
+        },
+        {
+          "name": "p2_v03_Marge",
+          "type": "chartKitchen|shape",
+          "rect": {
+            "x": 958,
+            "y": 72,
+            "w": 306,
+            "h": 149
+          },
+          "role": "chartkitchen",
+          "optional": true,
+          "fields": {}
+        }
+      ]
+    }
+  ],
+  "bookmarks": [
+    "Filter schließen · Detail Produktlinie",
+    "Filter schließen · Übersicht",
+    "Filter öffnen · Detail Produktlinie",
+    "Filter öffnen · Übersicht"
+  ],
+  "drillthrough": [
+    {
+      "page": "Detail Produktlinie",
+      "table": "DimProduct",
+      "field": "Category"
+    }
+  ],
+  "annotations": {
+    "mockup-spec-hash": "02f4ddc3"
+  }
+}

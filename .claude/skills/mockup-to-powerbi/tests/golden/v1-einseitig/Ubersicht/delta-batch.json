@@ -1,0 +1,323 @@
+{
+  "version": 2,
+  "name": "mockup delta · Übersicht",
+  "root": "Test.Report",
+  "stop_on_error": false,
+  "steps": [
+    {
+      "id": "move-v03_Kosten",
+      "op": "move",
+      "select": "Übersicht.Page/v03_Kosten.Visual",
+      "x": 546,
+      "y": 72,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-v03_Kosten",
+      "op": "resize",
+      "select": "Übersicht.Page/v03_Kosten.Visual",
+      "width": 253,
+      "height": 119,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-v03_Kosten",
+      "op": "bind",
+      "select": "Übersicht.Page/v03_Kosten.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-v03_Kosten",
+      "op": "bind",
+      "select": "Übersicht.Page/v03_Kosten.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:_Measures.Kosten"
+      ]
+    },
+    {
+      "id": "move-v06_PL_je_Produktlinie",
+      "op": "move",
+      "select": "Übersicht.Page/v06_PL_je_Produktlinie.Visual",
+      "x": 719,
+      "y": 203,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-v06_PL_je_Produktlinie",
+      "op": "resize",
+      "select": "Übersicht.Page/v06_PL_je_Produktlinie.Visual",
+      "width": 345,
+      "height": 477,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-v06_PL_je_Produktlinie",
+      "op": "bind",
+      "select": "Übersicht.Page/v06_PL_je_Produktlinie.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Category"
+      ]
+    },
+    {
+      "id": "bind-v06_PL_je_Produktlinie",
+      "op": "bind",
+      "select": "Übersicht.Page/v06_PL_je_Produktlinie.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Category:DimProduct.Category"
+      ]
+    },
+    {
+      "id": "clear-v06_PL_je_Produktlinie-2",
+      "op": "bind",
+      "select": "Übersicht.Page/v06_PL_je_Produktlinie.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Y"
+      ]
+    },
+    {
+      "id": "bind-v06_PL_je_Produktlinie-2",
+      "op": "bind",
+      "select": "Übersicht.Page/v06_PL_je_Produktlinie.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Y:_Measures.AC",
+        "Y:_Measures.PL"
+      ]
+    },
+    {
+      "id": "move-slicer1_Year",
+      "op": "move",
+      "select": "Übersicht.Page/slicer1_Year.Visual",
+      "x": 1088,
+      "y": 96,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-slicer1_Year",
+      "op": "resize",
+      "select": "Übersicht.Page/slicer1_Year.Visual",
+      "width": 184,
+      "height": 56,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-slicer1_Year",
+      "op": "bind",
+      "select": "Übersicht.Page/slicer1_Year.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-slicer1_Year",
+      "op": "bind",
+      "select": "Übersicht.Page/slicer1_Year.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimDate.Year"
+      ]
+    },
+    {
+      "id": "move-slicer2_Region",
+      "op": "move",
+      "select": "Übersicht.Page/slicer2_Region.Visual",
+      "x": 1088,
+      "y": 160,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-slicer2_Region",
+      "op": "resize",
+      "select": "Übersicht.Page/slicer2_Region.Visual",
+      "width": 184,
+      "height": 56,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-slicer2_Region",
+      "op": "bind",
+      "select": "Übersicht.Page/slicer2_Region.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-slicer2_Region",
+      "op": "bind",
+      "select": "Übersicht.Page/slicer2_Region.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimRegion.Region"
+      ]
+    },
+    {
+      "id": "move-chrome_header_bg",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_header_bg.Visual",
+      "x": 0,
+      "y": 0,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_bg",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_header_bg.Visual",
+      "width": 1280,
+      "height": 56,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_logo",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_logo.Visual",
+      "x": 16,
+      "y": 12,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_logo",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_logo.Visual",
+      "width": 120,
+      "height": 32,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_nav_1",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_nav_1.Visual",
+      "x": 912,
+      "y": 12,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_nav_1",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_nav_1.Visual",
+      "width": 112,
+      "height": 32,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_nav_2",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_nav_2.Visual",
+      "x": 1032,
+      "y": 12,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_nav_2",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_nav_2.Visual",
+      "width": 112,
+      "height": 32,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_nav_3",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_nav_3.Visual",
+      "x": 1152,
+      "y": 12,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_nav_3",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_nav_3.Visual",
+      "width": 112,
+      "height": 32,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_title",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_header_title.Visual",
+      "x": 152,
+      "y": 6,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_title",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_header_title.Visual",
+      "width": 744,
+      "height": 26,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_subtitle",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_header_subtitle.Visual",
+      "x": 152,
+      "y": 32,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_subtitle",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_header_subtitle.Visual",
+      "width": 744,
+      "height": 18,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_bg",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_filter_bg.Visual",
+      "x": 1080,
+      "y": 56,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_bg",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_filter_bg.Visual",
+      "width": 200,
+      "height": 640,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_title",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_filter_title.Visual",
+      "x": 1088,
+      "y": 64,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_title",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_filter_title.Visual",
+      "width": 184,
+      "height": 24,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_text",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_footer_text.Visual",
+      "x": 16,
+      "y": 696,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_text",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_footer_text.Visual",
+      "width": 1248,
+      "height": 24,
+      "continue_on_error": true
+    }
+  ]
+}
