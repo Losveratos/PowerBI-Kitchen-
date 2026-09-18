@@ -1,50 +1,135 @@
 # `mockup-spec.json` — Format
 
-Abgeleitet aus `assets/mockup/export.js` (`buildSpec`, `bucketsFor`, `buildPbir`)
-und `assets/mockup/catalog.js` (Typen, Rollen, Engines, native Mappings) des
-Tools **MockupKitchen byDatenWG**. Beispiel: [`example/mockup-spec.json`](example/mockup-spec.json).
+Abgeleitet aus `assets/mockup/export.js` (`buildSpec`, `bucketsFor`, `buildPbir`,
+`buildDocs`) und `assets/mockup/catalog.js` (Typen, Rollen, Engines, native
+Mappings) des Tools **MockupKitchen byDatenWG**.
 
-Alle Koordinaten sind absolute Canvas-Pixel, `x`/`y` = linke obere Ecke.
+Beispiele: [`example/mockup-spec.v2.json`](example/mockup-spec.v2.json) (aktuell,
+zwei Seiten, Drill-through, Burger-Filter) und
+[`example/mockup-spec.json`](example/mockup-spec.json) (alte einseitige Fassung).
 
-## Oberste Ebene
+Alle Koordinaten sind absolute Canvas-Pixel, `x`/`y` = linke obere Ecke, und
+**bereits mit `canvas.uiScale` multipliziert**. Nichts nachrechnen.
+
+## Versionen
+
+`meta.specVersion` sagt, welche Form vorliegt:
+
+| | specVersion 1 (Tool 0.1) | specVersion 2 (Tool 0.2, aktuell) |
+|---|---|---|
+| Seiten | eine, `page: {name, notes}` | viele, `pages[]` |
+| Visuals | `visuals[]` oben | `pages[].visuals[]` |
+| Visual-IDs | `v05_Titel` | `p1_v05_Titel` (seitenpräfixiert) |
+| Gestaltung | keine | `design` (Ecken, Kachelstil, Farben, Kopfbandstil) |
+| Skalierung | keine | `canvas.uiScale`, `design.fontScale` |
+| Verknüpfungen | keine | `links[]`, `pages[].visuals[].link` |
+| Filter | `side: left|right` | `mode: right|left|top|burger` (+ `overlay`, `bookmarks`) |
+| pbir-Datei | eine `pbir-visuals.json` | eine je Seite: `pbir-visuals.<Seitenslug>.json` |
+| Doku | – | zusätzlich `WORKSHOP-DOKU.md` |
+
+`mockup_to_pbir.py` und `mockup_to_docs.py` lesen **beide** Versionen; v1 wird
+intern auf genau eine Seite normalisiert (Seitenname aus `page.name`, per
+`--page-name` überschreibbar, `design` auf Vorgaben mit Kopfband-Stil `dark` —
+so bleibt das Ergebnis identisch zu vorher).
+
+## Oberste Ebene (specVersion 2)
 
 | Schlüssel | Inhalt |
 |---|---|
-| `meta` | `tool`, `version`, `name` (Mockup-Name), `exportedAt` (ISO), `skill: "mockup-to-powerbi"` |
-| `page` | `name` (Seitenname in Power BI), `notes` (Freitext des Menschen) |
-| `canvas` | `width`, `height` — direkt für `pbir add page -w -h` bzw. `pbir pages resize` |
-| `spacing` | `margin`, `gutter`, `tilePadding` — schon in die Rechtecke eingerechnet, nur informativ |
-| `zones` | Chrome + Inhaltsbereich, siehe unten |
-| `visuals` | Kachel-Slots, siehe unten |
+| `meta` | `tool`, `version`, `specVersion`, `name` (Mockup-Name), `exportedAt` (ISO), `skill: "mockup-to-powerbi"` |
+| `canvas` | `width`, `height`, `preset` (`1280x720` · `1920x1080` · `3840x2160` · `custom`), `uiScale` (1 · 1.5 · 3) |
+| `spacing` | `margin`, `gutter`, `tilePadding` — schon skaliert und in die Rechtecke eingerechnet; `base` hält die HD-Ausgangswerte |
+| `design` | Gestaltungsentscheidungen, siehe unten |
+| `zones` | Chrome + Inhaltsbereich, auf **allen** Seiten gleich, siehe unten |
+| `pages` | die Seiten, siehe unten |
+| `links` | Seitenverknüpfungen, siehe unten |
 | `model` | `source` (Ordnername des Semantikmodells), `tables` (Namen), `usedFields` (alle gebundenen Felder, dedupliziert) |
-| `newFields` | im Mockup neu erfundene Felder: `table`, `name`, `kind`, `ref`, `description`, `used` |
-| `layoutTree` | der Container-Baum (`split`/`children`/`leaf`) — nur zur Orientierung, die Rechtecke in `visuals[].rect` sind maßgeblich |
-| `warnings` | Hinweise aus dem Tool, z. B. leere Kacheln |
+| `newFields` | im Mockup neu erfundene Felder: `table`, `name`, `kind`, `ref`, `description`, `openQuestion`, `used` |
+| `warnings` | Hinweise aus dem Tool, z. B. leere Kacheln (mit Seitenname) |
+
+## `design`
+
+Das sind die Gestaltungsentscheidungen aus dem Workshop. Sie gehören in die
+**Container-Formatierung** der Visuals und in den Seitenhintergrund, nicht in
+ein Theme (Theme macht der Skill `powerbi-design-framework`).
+
+| Schlüssel | Werte | Umsetzung mit `pbir` |
+|---|---|---|
+| `cornerRadius` | px, schon skaliert | `border.radius` je Kachel; bei Chrome-Overlay-Shapes `shape.tileShape=rectangleRounded` + `shape.rectangleRoundedCurve` |
+| `tileStyle` | `border` · `shadow` · `flat` | `border.show/color/width` bzw. `dropShadow.show/preset/color/transparency`, jeweils das andere aus |
+| `tileBackground` | Hex | `background.show=true`, `background.color` |
+| `pageBackground` | Hex | `pbir pages background "<Seite>.Page" --color <Hex> --transparency 0` |
+| `headerStyle` | `light` · `dark` · `accent` | Füllung der Kopfband-Shape: weiß + Trennlinie unten · Ink · Akzentfarbe; Textfarbe entsprechend |
+| `accent` | Hex | aktiver Nav-Button, Burger-Button, Akzentlinie |
+| `fontScale` | = `uiScale` | alle Schriftgrößen multiplizieren (Visual-Titel ≈ 12 · `fontScale` pt, Kopfband-Titel ≈ 16 ·, Fußleiste ≈ 9 ·); `pbir` akzeptiert 6–45 pt |
+| `darkMode` | derzeit immer `false` | – |
+
+> Der Enum-Wert für abgerundete Shapes heißt `rectangleRounded`
+> (nicht `roundedRectangle`) — `pbir set` lehnt den falschen Namen ab und
+> `set -euo pipefail` bricht dann das ganze Chrome-Skript ab.
 
 ## `zones`
 
 Alle Zonen haben `x`, `y`, `w`, `h`. Vorhanden ist nur, was der Mensch
-eingeschaltet hat — `content` immer.
+eingeschaltet hat — `content` immer. Die Zonen gelten für **jede** Seite.
 
 | Zone | Zusätzliche Felder |
 |---|---|
-| `nav` | – (linke Leiste über die volle Höhe) |
-| `header` | `logo` (bool), `title`, `subtitle`, `nav` (Liste von Seitennamen für Buttons) |
-| `filter` | `side` (`left`/`right`), `collapsible` (bool), `slicers` (Liste von Feldern mit `table`, `name`, `kind`, `ref`, `isNew`) |
+| `nav` | `pages` (Namen aller Seiten — ein Button je Seite in der linken Leiste) |
+| `header` | `style` (= `design.headerStyle`), `logoPos` (`left`/`right`/`none`), `title`, `subtitle`, `nav` (Seitennamen für die Buttons), `navAuto` (Nav folgt automatisch den Seiten), `burger` (Burger-Button fürs Filter-Overlay) |
+| `filter` | `mode`, `side`, `collapsible`, `slicers[]`, bei Overlay zusätzlich `overlay: true`, `note`, `bookmarks[]` |
 | `footer` | `text` |
 | `content` | – (hier und nur hier liegen die Visuals) |
 
 Geometrie-Logik des Tools (`app.js` → `zones()`): Nav-Leiste nimmt links Platz
-weg, danach Kopfband und Fußleiste oben/unten, dann das Filter-Panel seitlich;
-der Rest minus `margin` ist `content`. Die Slicer im Filter-Panel werden beim
-Export gestapelt bei `x = filter.x + 8`, `y = filter.y + 40 + i·64`,
-`w = filter.w - 16`, `h = 56`.
+weg, danach Kopfband und Fußleiste oben/unten, dann das Filter-Panel seitlich
+oder oben; der Rest minus `margin` ist `content`.
 
-## `visuals[]`
+### Filter-Modi
+
+| `mode` | Zone | Slicer-Platzierung (`k` = `uiScale`) | Besonderheit |
+|---|---|---|---|
+| `right` | rechte Spalte zwischen Kopf und Fuß | gestapelt: `x+8k`, `y+40k+i·64k`, `w-16k`, `56k` | Inhalt wird schmaler |
+| `left` | linke Spalte | wie `right` | Inhalt wird schmaler |
+| `top` | Leiste unter dem Kopfband, volle Breite | nebeneinander: `x+8k+i·168k`, `y+8k`, `160k`, `h-16k` | Inhalt wird niedriger |
+| `burger` | **keine** eigene Zone im Layout; Panel liegt rechts **über** dem Inhalt | wie `right` | `overlay: true`, Burger-Button im Kopfband, zwei Lesezeichen |
+
+`bookmarks` steht bei `mode: "burger"` **und** bei `collapsible: true`:
+`[{name: "Filter öffnen", showsPanel: true}, {name: "Filter schließen", showsPanel: false}]`.
+Rezept dazu in [`chrome-build.md`](chrome-build.md); die fertigen Befehle
+schreibt `mockup_to_pbir.py` nach `mockup-out/navigation.md`.
+
+## `pages[]`
 
 | Schlüssel | Bedeutung |
 |---|---|
-| `id` | eindeutiger Name, z. B. `v05_Umsatz_AC_FC_vs_PL_je_Monat` — wird 1:1 der `name` des PBIR-Visuals |
+| `id` | interne Tool-ID, Ziel von `links[].toPageId` |
+| `index` | 1-basiert, steckt auch im Visual-Präfix (`p2_v01_…`) |
+| `name` | Seitenname in Power BI (`pbir add page -n`) |
+| `notes` | Zweck der Seite, Freitext aus dem Workshop |
+| `contentRect` | Inhaltsbereich dieser Seite (identisch zu `zones.content`, solange das Tool die Zonen global hält) |
+| `visuals` | Kachel-Slots, siehe unten |
+| `layoutTree` | Container-Baum (`split`/`children`/`leaf`) — nur zur Orientierung, maßgeblich sind die Rechtecke |
+
+## `links[]`
+
+| Schlüssel | Bedeutung |
+|---|---|
+| `fromVisual` | ID der Quellkachel |
+| `fromPage` / `toPage` | Seitennamen |
+| `toPageId` | `pages[].id` des Ziels |
+| `kind` | `navigation` (Quelle ist eine Button-Kachel → `pbir visuals action --type PageNavigation`) oder `drillthrough` (jede andere Kachel → Zielseite bekommt ein Drill-through-Feld) |
+
+Beim Drill-through ist das Drill-Feld das **Kategorie-Feld der Quellkachel** —
+in dieser Reihenfolge: `category`, `rows`, `subcategory`, `series`. Daraus wird
+`pbir pages drillthrough "<Ziel>.Page" --table <Tabelle> --field <Feld>`.
+
+## `visuals[]` (je Seite)
+
+| Schlüssel | Bedeutung |
+|---|---|
+| `id` | eindeutiger Name, z. B. `p1_v05_Umsatz_AC_FC_vs_PL_je_Monat` — wird 1:1 der `name` des PBIR-Visuals |
+| `page` | Seitenname (redundant, praktisch beim Filtern) |
 | `kind` | Katalog-Typ (`kombi`, `varint`, `bars`, `kpi`, …) |
 | `label` | Anzeigename des Typs |
 | `engine` | `ck` · `native` · `deneb` |
@@ -55,6 +140,7 @@ Export gestapelt bei `x = filter.x + 8`, `y = filter.y + 40 + i·64`,
 | `rect` | `{x, y, w, h}` — exakt übernehmen |
 | `roles` | Mockup-Rolle → Liste von Feldern (`table`, `name`, `kind`, `ref`, `isNew`) |
 | `notes` | Freitext des Menschen (→ Annotation im Bericht) |
+| `link` | `{pageId, pageName}` oder `null` — Ziel des Sprungs |
 | `warnings` | z. B. „Pflichtrolle … ist leer", „Nicht IBCS-konform" |
 
 `ref` ist immer `Tabelle.Feld` — in `te` entspricht das `Tabelle/Feld`.
@@ -84,7 +170,7 @@ Export gestapelt bei `x = filter.x + 8`, `y = filter.y + 40 + i·64`,
 
 | `engine` | Bedeutung | Umsetzung |
 |---|---|---|
-| `native` | Standard-Power-BI-Visual | `pbir add visual --from-json pbir-visuals.json` |
+| `native` | Standard-Power-BI-Visual | `pbir add visual "<Seite>.Page" --from-json <Seitenslug>/pbir-visuals.json` |
 | `ck` | ChartKitchen byDatenWG (Custom Visual) | Referenz-Instanz replizieren; ohne Instanz Platzhalter |
 | `deneb` | Deneb/Vega | Skill `deploy-to-powerbi`, `pbir visuals deneb` |
 
@@ -166,19 +252,35 @@ Für GuV-Seiten gibt es zusätzlich `pnl` (Skill `pnl-report`); das Mockup-Tool
 kennt dafür keinen eigenen Typ — beim Menschen nachfragen, wenn die Kachel
 „GuV" heißt.
 
-## `pbir-visuals.json` (Tool-Ausgabe)
 
-Liste im `--from-json`-Format von `pbir add visual`. **Nur diese Schlüssel sind
-erlaubt**, jeder weitere bricht den kompletten Import ab:
+## `pbir-visuals.<Seitenslug>.json` (Tool-Ausgabe, eine Datei je Seite)
+
+Liste im `--from-json`-Format von `pbir add visual`, **nur die nativen Visuals
+und die Slicer dieser Seite**. Nur diese Schlüssel sind erlaubt, jeder weitere
+bricht den kompletten Import ab:
 
 ```json
 [
-  { "visual_type": "card", "name": "v03_Kosten", "title": "Kosten",
-    "x": 546, "y": 72, "width": 253, "height": 119,
+  { "visual_type": "card", "name": "p1_v02_Kosten", "title": "Kosten",
+    "x": 345, "y": 72, "width": 312, "height": 119,
     "fields": { "Values": "_Measures.Kosten" } }
 ]
 ```
 
 `title` setzt den **Container-Titel** (`visualContainerObjects.title.text`), nicht
-den Inhalt einer Textbox. `mockup_to_pbir.py` erzeugt diese Datei inhaltsgleich
-neu, das Tool-Original ist also entbehrlich.
+den Inhalt einer Textbox. Slicer heißen `p<Seitenindex>_slicer<i>_<Feld>` (in
+specVersion 1: `slicer<i>_<Feld>`).
+
+`mockup_to_pbir.py` erzeugt diese Dateien inhaltsgleich neu — als
+`mockup-out/<Seitenslug>/pbir-visuals.json`. Die Tool-Originale sind also
+entbehrlich; wer sie trotzdem nimmt, nimmt die passende Seitendatei.
+
+## `WORKSHOP-DOKU.md` (Tool-Ausgabe)
+
+Das Workshop-Protokoll aus `buildDocs`: Kopftabelle (Teilnehmende, Ziel,
+Zielgruppe, Seiten, Datenmodell), Gestaltungsentscheidungen, je Seite eine
+Kachel-Tabelle, Navigation/Drill, Kennzahlen (verwendet + neu), offene Punkte,
+nächste Schritte. Felder in eckigen Klammern (`[ausfüllen]`) füllt der Mensch.
+
+`mockup_to_docs.py` erzeugt dieselbe Struktur, falls die Datei fehlt, und macht
+daraus eine PowerPoint — Details im Skill-Schritt „Doku und PowerPoint".
