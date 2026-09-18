@@ -10,8 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-soft:#F1F0EA; --ink:#0F1E2E; --ink-soft:#475569; --ink-mute:#8A94A6;
-  --line:#E4E2DA; --line-strong:#C9C6BA; --accent:#C25A2D; --accent-soft:#F6E7DF;
+  --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-soft:#F1F0EA; --ink:#0F1E2E; --ink-soft:#475569; --ink-mute:#66707F;
+  --line:#E4E2DA; --line-strong:#B5B2A6; --accent:#C25A2D; --accent-soft:#F6E7DF;
   --ok:#2E7D5B; --bad:#B8392F; --sel:#1F5FBF; --sel-soft:#E3ECFA;
   --ff-serif:'Fraunces',Georgia,serif; --ff-sans:'Geist',system-ui,sans-serif; --ff-mono:'JetBrains Mono',Consolas,monospace;
   --r:8px; --sh:0 1px 2px rgba(15,30,46,.06),0 4px 14px rgba(15,30,46,.06);
@@ -21,10 +21,16 @@ html,body{height:100%;margin:0}
 body{font-family:var(--ff-sans);color:var(--ink);background:var(--bg);font-size:13px;line-height:1.45;overflow:hidden}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
+:focus-visible{outline:2px solid var(--sel);outline-offset:1px}
+.tile:focus-visible{outline:none;box-shadow:0 0 0 3px var(--sel)}
+body.present .app{grid-template-columns:0 1fr 0}
+body.present .panel{display:none}
+body.present .topbar .hide-present{display:none}
 .mono{font-family:var(--ff-mono);font-size:11px}
 .app{display:grid;grid-template-rows:52px 1fr;grid-template-columns:280px 1fr 320px;height:100vh}
 /* ---------- Topbar ---------- */
-.topbar{grid-column:1/4;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--bg-card);border-bottom:1px solid var(--line)}
+.topbar{grid-column:1/4;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--bg-card);border-bottom:1px solid var(--line);flex-wrap:wrap;row-gap:4px;min-height:52px;height:auto}
+.app{grid-template-rows:auto 1fr}
 .brand{display:flex;align-items:baseline;gap:8px;margin-right:6px}
 .brand h1{font-family:var(--ff-serif);font-weight:600;font-size:19px;margin:0;letter-spacing:-.01em}
 .brand small{font-family:var(--ff-mono);font-size:10px;color:var(--ink-mute);letter-spacing:.04em;text-transform:uppercase}
@@ -93,7 +99,8 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .dropzone-model{border:2px dashed var(--line-strong);border-radius:var(--r);padding:10px;text-align:center;color:var(--ink-mute);font-size:11.5px;margin-bottom:10px;transition:.15s;cursor:pointer}
 .dropzone-model.over{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
 /* ---------- Stage + Seitenleiste ---------- */
-.stagewrap{display:flex;flex-direction:column;min-height:0;min-width:0}
+.stagewrap{display:flex;flex-direction:column;min-height:0;min-width:0;grid-column:2}
+.panel.left{grid-column:1}.panel.right{grid-column:3}
 .pagebar{display:flex;align-items:center;gap:4px;padding:6px 12px;background:var(--bg-card);border-bottom:1px solid var(--line);overflow-x:auto;flex:none}
 .pagebar .ptab{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;user-select:none}
 .pagebar .ptab.act{background:var(--ink);color:#fff;border-color:var(--ink)}
@@ -165,17 +172,35 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .tile .rchip.new{outline:1px dashed var(--accent);color:var(--accent);background:#fff}
 .tile .rchip.link{background:#E3ECFA;color:var(--sel)}
 .tile .badges{position:absolute;top:calc(5px * var(--ui));right:calc(6px * var(--ui));display:flex;gap:3px;align-items:center}
+.tile .reqdot{width:calc(9px * var(--ui));height:calc(9px * var(--ui));border-radius:50%;background:var(--bad);box-shadow:0 0 0 2px #fff;cursor:help}
+.tile .pri{font-family:var(--ff-mono);font-size:calc(8.5px * var(--ui));padding:1px calc(4px * var(--ui));border-radius:3px;background:#E3ECFA;color:var(--sel);font-weight:600}
+.tile .pri.must{background:#FDE7D9;color:var(--accent)}
+.tile .st{width:calc(9px * var(--ui));height:calc(9px * var(--ui));border-radius:2px;background:#C9C6BA}
+.tile .st.agreed{background:#E4B94E}.tile .st.approved{background:var(--ok)}
+.tile .ap{position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(200,65,47,.08) 0 6px,transparent 6px 14px);pointer-events:none}
 .tile .badge{font-family:var(--ff-mono);font-size:calc(8.5px * var(--ui));padding:1px calc(5px * var(--ui));border-radius:3px;background:#0F1E2E;color:#fff;opacity:.75}
 .tile .badge.ck{background:var(--accent)}
-.tile .note-ico{width:calc(16px * var(--ui));height:calc(16px * var(--ui));border-radius:50%;background:#FDE7D9;color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:calc(10px * var(--ui));line-height:1;cursor:help}
+.tile .note-ico{width:18px;height:18px;border-radius:50%;background:#FDE7D9;color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1;cursor:pointer}
+.tile .badge{font-size:9px;padding:1px 5px}
+.tile .reqdot{width:10px;height:10px}
+.tile .pri{font-size:9px}
+.tile .st{width:10px;height:10px}
 .tile .note-pop{display:none;position:absolute;top:calc(24px * var(--ui));right:calc(6px * var(--ui));max-width:70%;background:#FFFBEA;border:1px solid #F3D9A4;color:#5B4300;border-radius:6px;padding:calc(6px * var(--ui)) calc(8px * var(--ui));font-size:calc(10px * var(--ui));line-height:1.35;white-space:pre-wrap;z-index:4;box-shadow:0 4px 14px rgba(15,30,46,.15)}
-.tile .note-ico:hover + .note-pop,.tile.sel .note-pop.pinned{display:block}
+.tile .note-ico:hover + .note-pop,.tile .note-pop.pinned{display:block}
+.tile .note-pop{top:calc(28px / var(--zoom));font-size:calc(11px / var(--zoom));max-width:80%}
 .tile.tiny .t-foot,.tile.tiny .t-sub,.tile.tiny .badge{display:none}
 .tile .t-actions{position:absolute;bottom:4px;right:4px;display:none;gap:2px}
 .tile:hover .t-actions,.tile.sel .t-actions{display:flex}
-.t-actions button{border:1px solid var(--line-strong);background:#fff;border-radius:4px;width:calc(20px * var(--ui));height:calc(20px * var(--ui));padding:0;font-size:calc(11px * var(--ui));line-height:1;color:var(--ink-soft)}
+/* Editier-Controls werden gegen den Zoom skaliert, damit sie am Beamer bedienbar bleiben (WCAG 2.5.8) */
+.page{--zoom:1}
+.t-actions{transform:scale(calc(1 / var(--zoom)));transform-origin:bottom right}
+.t-actions button{border:1px solid var(--line-strong);background:#fff;border-radius:4px;width:22px;height:22px;padding:0;font-size:12px;line-height:1;color:var(--ink-soft)}
 .t-actions button:hover{background:var(--sel-soft);color:var(--sel);border-color:var(--sel)}
+.tile .badges{transform:scale(calc(1 / var(--zoom)));transform-origin:top right}
 .gutter{position:absolute;z-index:3}
+.gutter::before{content:"";position:absolute;inset:0}
+.gutter.v::before{left:calc(-8px / var(--zoom));right:calc(-8px / var(--zoom))}
+.gutter.h::before{top:calc(-8px / var(--zoom));bottom:calc(-8px / var(--zoom))}
 .gutter.v{cursor:col-resize}
 .gutter.h{cursor:row-resize}
 .gutter::after{content:"";position:absolute;inset:0;margin:auto;background:transparent;border-radius:2px;transition:background .12s}
@@ -237,6 +262,11 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 .help h3{font-family:var(--ff-serif);font-size:15px;margin:14px 0 4px}
 .help p,.help li{font-size:12.5px;color:var(--ink-soft)}
 .help kbd{font-family:var(--ff-mono);font-size:10.5px;border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--bg)}
+.rolemenu{position:fixed;z-index:60;width:260px;background:var(--bg-card);border:1px solid var(--line-strong);border-radius:8px;box-shadow:0 12px 32px rgba(15,30,46,.22);padding:6px;display:flex;flex-direction:column;gap:3px}
+.rolemenu .rm-head{font-size:11px;color:var(--ink-mute);padding:4px 6px 2px}
+.rolemenu button{text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:6px 8px;display:flex;flex-direction:column;gap:1px}
+.rolemenu button:hover{border-color:var(--sel);background:var(--sel-soft)}
+.rolemenu button b{font-size:12px}.rolemenu button small{font-size:10.5px;color:var(--ink-mute)}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px;font-size:12.5px;opacity:0;transition:.2s;pointer-events:none;z-index:50}
 .toast.show{opacity:1;transform:translateX(-50%)}
 .warn{background:#FFF7E6;border:1px solid #F3D9A4;color:#7A4B00;border-radius:6px;padding:6px 9px;font-size:11.5px;margin-bottom:8px}
@@ -252,9 +282,12 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
   <header class="topbar">
     <div class="brand"><h1>MockupKitchen</h1><small>byDatenWG · v0.2</small></div>
     <input class="name" id="projName" value="Neuer Bericht" title="Name des Berichts / Mockups" spellcheck="false">
-    <button class="btn" id="btnTemplates" title="Seitenvorlage wählen">▦ Vorlagen</button>
-    <button class="btn" id="btnImportTmdl" title="TMDL-Ordner oder -Dateien laden">⇪ TMDL laden</button>
+    <button class="btn hide-present" id="btnTemplates" title="Seitenvorlage wählen">▦ Vorlagen</button>
+    <button class="btn hide-present" id="btnImportTmdl" title="TMDL-Ordner oder -Dateien laden">⇪ TMDL laden</button>
+    <button class="btn ghost" id="btnUndo" title="Rückgängig (Strg+Z)">↶</button>
+    <button class="btn ghost" id="btnRedo" title="Wiederholen (Strg+Y)">↷</button>
     <span class="spacer"></span>
+    <button class="btn" id="btnPresent" title="Präsentieren: Panels ausblenden, Seite groß (Taste P)">▶ Präsentieren</button>
     <button class="btn ghost" id="btnHelp" title="Hilfe">?</button>
     <button class="btn" id="btnOpen" title="Mockup-Datei öffnen (.mockup.json)">Öffnen</button>
     <button class="btn" id="btnSave" title="Als .mockup.json speichern">Speichern</button>
@@ -294,15 +327,30 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 
   <aside class="panel right">
     <div class="tabs">
-      <button class="tab active" data-tab="el">Element</button>
+      <button class="tab active" data-tab="el">Kachel</button>
       <button class="tab" data-tab="page">Seite</button>
+      <button class="tab" data-tab="report">Bericht</button>
       <button class="tab" data-tab="chrome">Rahmen</button>
       <button class="tab" data-tab="design">Design</button>
     </div>
     <div class="panel-body" id="insEl"></div>
+    <div class="panel-body" id="insReport" hidden>
+      <p class="hint" style="margin:0 0 8px">Der Berichtskopf wandert in Brief, Workshop-Doku und PowerPoint. Ohne Zielgruppe und Entscheidung bleibt die Doku ein Bilderbuch.</p>
+      <div class="field"><label>Berichtsname</label><input class="ctl" id="rpName"></div>
+      <div class="field"><label>Zielgruppe</label><input class="ctl" id="rpAudience" placeholder="z. B. Geschäftsführung, Vertriebsleitung"></div>
+      <div class="field"><label>Ziel des Berichts</label><textarea class="ctl" id="rpPurpose" placeholder="Welche Frage beantwortet der Bericht?"></textarea></div>
+      <div class="field"><label>Entscheidung, die er auslösen soll</label><textarea class="ctl" id="rpDecision" placeholder="Was wird anhand des Berichts entschieden?"></textarea></div>
+      <div class="grid2">
+        <div class="field"><label>Version</label><input class="ctl" id="rpVersion" placeholder="0.1"></div>
+        <div class="field"><label>Datenstand / Aktualisierung</label><input class="ctl" id="rpDataDate" placeholder="täglich 6:00, Stand T-1"></div>
+      </div>
+      <div class="field"><label>Teilnehmende Workshop</label><input class="ctl" id="rpParticipants" placeholder="Namen, Rollen"></div>
+      <div class="field"><label>Sprache der Ausgaben</label><select class="ctl" id="rpLang"><option value="de">Deutsch</option><option value="en">English</option></select><p class="hint">Gilt für Skizzen-Beschriftungen und Export-Dokumente.</p></div>
+    </div>
     <div class="panel-body" id="insPage" hidden>
       <div class="field"><label>Diese Seite</label><input class="ctl" id="pageName" placeholder="z. B. Übersicht"></div>
-      <div class="field"><label>Zweck / Notizen zur Seite</label><textarea class="ctl" id="pageNotes" placeholder="Zielgruppe, Kernfrage, Drill-Wege, Interaktionen …"></textarea></div>
+      <div class="field"><label>Fragestellung / Kernbotschaft der Seite</label><input class="ctl" id="pageQuestion" placeholder="z. B. Liegen wir im Plan, und wo nicht?"></div>
+      <div class="field"><label>Zweck / Notizen zur Seite</label><textarea class="ctl" id="pageNotes" placeholder="Zielgruppe, Drill-Wege, Interaktionen …"></textarea></div>
       <div class="row wrap" style="margin-bottom:10px"><button class="btn sm" id="btnPageDup">Seite duplizieren</button><button class="btn sm" id="btnPageDel">Seite löschen</button></div>
       <div class="section"><h3>Canvas (alle Seiten)</h3>
         <select class="ctl" id="canvasPreset">
@@ -363,8 +411,8 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
           <div><input class="ctl" type="number" id="ftW" min="48" max="360" step="8"><p class="hint" id="ftWHint">Breite</p></div>
         </div>
         <label class="toggle" id="ftCollapsibleRow"><input type="checkbox" id="ftCollapsible"> Panel ausklappbar (Bookmark)</label>
-        <p class="hint">Felder aus dem Modell direkt aufs Panel ziehen, um Slicer anzulegen. Beim Burger-Menü entsteht im Export ein Bookmark-Paar „Filter öffnen / schließen" plus Button im Kopfband.</p>
-        <div id="ftFieldList" class="row wrap" style="margin-top:6px"></div>
+        <p class="hint">Felder aus dem Modell direkt aufs Panel ziehen, um Slicer anzulegen. Beim Burger-Menü entsteht im Export ein Bookmark-Paar „Filter öffnen / schließen" plus Button im Kopfband. Vorauswahl je Slicer eintragen, damit „mein Excel sagt was anderes" gar nicht erst entsteht.</p>
+        <div id="ftFieldList" style="margin-top:6px"></div>
       </div>
       <div class="section"><h3>Fußleiste</h3>
         <label class="toggle"><input type="checkbox" id="ffOn"> Fußleiste anzeigen</label>
@@ -427,10 +475,34 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       <div class="field"><label>Tabelle</label><input class="ctl" id="nmTable" list="nmTables" placeholder="_Measures"><datalist id="nmTables"></datalist></div>
       <div class="field"><label>Art</label><select class="ctl" id="nmKind"><option value="measure">Kennzahl (Measure)</option><option value="column">Dimension / Spalte</option></select></div>
     </div>
-    <div class="field"><label>Beschreibung / Rechenlogik für den Agenten</label><textarea class="ctl" id="nmDesc" placeholder="Umsatz minus variable Kosten; Format #,##0; Einheit T€; Quelle: Tabelle X"></textarea></div>
+    <div class="field"><label>Beschreibung / Rechenlogik für den Agenten</label><textarea class="ctl" id="nmDesc" placeholder="Umsatz minus variable Kosten"></textarea></div>
+    <div class="grid2">
+      <div class="field"><label>Einheit / Format</label><input class="ctl" id="nmUnit" placeholder="T€ · #,##0"></div>
+      <div class="field"><label>Zielwert</label><input class="ctl" id="nmTarget" placeholder="z. B. ≥ 12 % Marge"></div>
+      <div class="field"><label>Owner (fachlich)</label><input class="ctl" id="nmOwner" placeholder="Name, Bereich"></div>
+      <div class="field"><label>Quelle / Vorsystem</label><input class="ctl" id="nmSource" placeholder="SAP FI, CRM …"></div>
+    </div>
     <div class="field"><label>Offene Frage (optional)</label><input class="ctl" id="nmOpen" placeholder="z. B. Wer liefert die Planwerte?"></div>
   </div>
   <div class="dlg-foot"><button class="btn" data-close>Abbrechen</button><button class="btn primary" id="nmOk">Anlegen</button></div>
+</dialog>
+
+<dialog id="dlgFieldMeta" class="narrow">
+  <div class="dlg-head"><div><h2>Kennzahlen-Steckbrief</h2><p id="fmRef" class="mono"></p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-body">
+    <div class="kv" id="fmModel" style="margin-bottom:10px"></div>
+    <div class="field"><label>Heißt beim Fachbereich (Alias)</label><input class="ctl" id="fmAlias" placeholder="z. B. Nettoerlös"></div>
+    <label class="toggle"><input type="checkbox" id="fmConfirmed"> Definition im Workshop bestätigt</label>
+    <label class="toggle"><input type="checkbox" id="fmRename"> im Modell umbenennen (Alias wird neuer Name)</label>
+    <div class="grid2">
+      <div class="field"><label>Owner (fachlich)</label><input class="ctl" id="fmOwner"></div>
+      <div class="field"><label>Quelle / Vorsystem</label><input class="ctl" id="fmSource"></div>
+      <div class="field"><label>Zielwert</label><input class="ctl" id="fmTarget"></div>
+      <div class="field"><label>Einheit</label><input class="ctl" id="fmUnit" placeholder="T€, %, Stück"></div>
+    </div>
+    <div class="field"><label>Anmerkung / abweichende Definition (z. B. „so rechne ich es heute in Excel")</label><textarea class="ctl" id="fmNote"></textarea></div>
+  </div>
+  <div class="dlg-foot"><button class="btn" data-close>Abbrechen</button><button class="btn primary" id="fmOk">Speichern</button></div>
 </dialog>
 
 <dialog id="dlgSplit" class="narrow">
@@ -465,11 +537,12 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 <input type="file" id="fileTmdl" webkitdirectory multiple hidden>
 <input type="file" id="fileTmdlSingle" accept=".tmdl,.txt,.json" multiple hidden>
 <input type="file" id="fileOpen" accept=".json" hidden>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="assets/mockup/sketches.js"></script>
 <script src="assets/mockup/catalog.js"></script>
 <script src="assets/mockup/app.js"></script>
+<script src="assets/mockup/render-png.js"></script>
 <script src="assets/mockup/export.js"></script>
 </body>
 </html>

@@ -27,12 +27,17 @@
         footer: { on: true, h: 24, text: 'Stand: 18.09.2026 · Quelle: DWH · Kontakt: Controlling' },
       },
       design: { radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D' },
+      report: { audience: '', purpose: '', decision: '', participants: '', version: '0.1', dataDate: '' },
+      lang: 'de',
+      fieldMeta: {},
       pages: [p1], cur: p1.id,
       model: JSON.parse(JSON.stringify(CAT.demoModel)),
       newFields: [],
     };
   }
   function migrate(s) {
+    s.report = Object.assign({ audience: '', purpose: '', decision: '', participants: '', version: '0.1', dataDate: '' }, s.report || {});
+    s.lang = s.lang || 'de'; s.fieldMeta = s.fieldMeta || {};
     if (!s.version || s.version < 2) {
       const p = { id: uid(), name: s.pageName || 'Übersicht', notes: s.notes || '', layout: s.layout || ensureIds(CAT.templates[0].tree()) };
       s.pages = [p]; s.cur = p.id; delete s.layout; delete s.pageName; delete s.notes;
@@ -54,9 +59,9 @@
   }
   function normVisual(v) {
     const def = CAT.byId[v.kind];
-    const out = Object.assign({ kind: v.kind, engine: def ? def.engine : 'native', title: '', sub: '', scenario: S ? S.defScenario : 'AC/PL', roles: {}, notes: '', link: '' }, v);
+    const out = Object.assign({ kind: v.kind, engine: def ? def.engine : 'native', title: '', sub: '', scenario: S ? S.defScenario : 'AC/PL', roles: {}, notes: '', link: '', content: '', priority: '', status: 'open', openQuestion: false, analysis: {} }, v);
     if (def && !def.engines.includes(out.engine)) out.engine = def.engine;
-    out.roles = out.roles || {};
+    out.roles = out.roles || {}; out.analysis = out.analysis || {};
     if (out.roleRefs) { out.roles = resolveRoleRefs(out.roleRefs, def); delete out.roleRefs; }
     return out;
   }
@@ -80,9 +85,24 @@
     return null;
   }
 
-  let S = null, sel = null, zoom = 1, undoStack = [], lastRects = { leaves: [], gutters: [] };
+  let S = null, sel = null, zoom = 1, undoStack = [], redoStack = [], lastRects = { leaves: [], gutters: [] };
   const page = () => S.pages.find(p => p.id === S.cur) || S.pages[0];
   const ui = () => clamp(S.canvas.w / 1280, 0.6, 3.2);           // Skalierungsfaktor für Schriften/Abstände
+  const ANTI = { pie: true, gauge: true };                         // nicht IBCS-konforme Typen: Skizze wird markiert
+  // Analyse-Angaben einer Kachel mit Defaults auflösen (Vertrag v3): alles Entschiedene steht in v.analysis, Rest wird sichtbar abgeleitet
+  function primaryMeasure(v) { const r = v.roles || {}; const list = r.ac || r.indicator || r.values || r.y || []; return list[0] || null; }
+  function analysisOf(v) {
+    const a = v.analysis || {}; const pm = primaryMeasure(v); const refs = (v.roles && v.roles.ref) || []; const goal = (v.roles && v.roles.goal) || [];
+    const scen = String(v.scenario || 'AC/PL');
+    const basisAuto = refs[0] ? (/PY|VJ|Vorjahr/i.test(refs[0].name) ? 'PY' : /BU|Budget/i.test(refs[0].name) ? 'BU' : /FC|Forecast/i.test(refs[0].name) ? 'FC' : 'PL') : (goal[0] ? (/PY/i.test(goal[0].name) ? 'PY' : 'PL') : (scen.includes('PY') ? 'PY' : 'PL'));
+    return {
+      polarity: a.polarity || CAT.polarityFor(pm ? pm.name : v.title), polarityAuto: !a.polarity,
+      deltaBasis: a.deltaBasis || basisAuto, deltaBasisAuto: !a.deltaBasis,
+      deltaKind: a.deltaKind || ['abs', 'rel'],
+      unit: a.unit || '', displayUnits: a.displayUnits || 'auto', decimals: a.decimals == null ? null : a.decimals,
+      sort: a.sort || null, topN: a.topN || null, timeGrain: a.timeGrain || null, cumulative: !!a.cumulative, scaleGroup: a.scaleGroup || '', message: a.message || '',
+    };
+  }
 
   function load() {
     try { const raw = localStorage.getItem(LS_KEY); if (raw) { S = migrate(JSON.parse(raw)); return; } } catch (e) { /* ignorieren */ }
@@ -91,14 +111,20 @@
   function persist() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { /* voll oder blockiert */ } }
   let snap = null;
   function commit(opts) {
-    if (!(opts && opts.noUndo)) { if (snap !== null) { undoStack.push(snap); if (undoStack.length > 40) undoStack.shift(); } snap = null; }
+    if (!(opts && opts.noUndo)) { if (snap !== null) { undoStack.push(snap); if (undoStack.length > 40) undoStack.shift(); redoStack = []; } snap = null; }
     persist(); render();
     if (snap === null) snap = JSON.stringify(S);
   }
-  function mark() { if (snap !== null) { undoStack.push(snap); if (undoStack.length > 40) undoStack.shift(); } snap = JSON.stringify(S); persist(); }
+  function mark() { if (snap !== null) { undoStack.push(snap); if (undoStack.length > 40) undoStack.shift(); redoStack = []; } snap = JSON.stringify(S); persist(); }
   function undo() {
     if (!undoStack.length) return toast('Nichts rückgängig zu machen');
+    redoStack.push(JSON.stringify(S));
     S = migrate(JSON.parse(undoStack.pop())); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast('Rückgängig');
+  }
+  function redo() {
+    if (!redoStack.length) return toast('Nichts zu wiederholen');
+    undoStack.push(JSON.stringify(S));
+    S = migrate(JSON.parse(redoStack.pop())); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast('Wiederholt');
   }
 
   // ------------------------------------------------------------------ Baum-Helfer (aktuelle Seite)
@@ -140,7 +166,8 @@
   }
   function applyTemplate(tplId) {
     const tpl = CAT.templates.find(t => t.id === tplId); if (!tpl) return;
-    if (!S.model.tables.length) { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); toast('Demo-Modell geladen, Vorlage gebunden'); }
+    if (visuals().length && !confirm(`Vorlage „${tpl.label}" ersetzt die ${visuals().length} Kachel(n) dieser Seite. Fortfahren? (Strg+Z macht es rückgängig)`)) return;
+    if (!S.model.tables.length) { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); openMeasureTable(); toast('Demo-Modell geladen, Vorlage gebunden'); }
     page().layout = ensureIds(tpl.tree()); sel = null; commit(); toast('Vorlage „' + tpl.label + '" gesetzt');
   }
 
@@ -216,7 +243,7 @@
   function render() {
     const { w, h } = S.canvas; const c = S.chrome; const d = S.design; const k = ui();
     pageEl.style.width = w + 'px'; pageEl.style.height = h + 'px'; pageEl.style.transform = 'scale(' + zoom + ')';
-    pageEl.style.setProperty('--ui', k); pageEl.style.setProperty('--tile-r', Math.round(d.radius * k) + 'px'); pageEl.style.setProperty('--page-bg', PAGE_BG[d.pageBg] || PAGE_BG.light); pageEl.style.setProperty('--accent', d.accent || '#C25A2D');
+    pageEl.style.setProperty('--ui', k); pageEl.style.setProperty('--zoom', zoom); pageEl.style.setProperty('--tile-r', Math.round(d.radius * k) + 'px'); pageEl.style.setProperty('--page-bg', PAGE_BG[d.pageBg] || PAGE_BG.light); pageEl.style.setProperty('--accent', d.accent || '#C25A2D');
     pageEl.className = 'page tile-' + (d.tile || 'border');
     $('#stageInner').style.minWidth = `max(100%, ${Math.round(w * zoom + 56)}px)`; $('#stageInner').style.minHeight = `max(100%, ${Math.round(h * zoom + 56)}px)`;
     pageEl.style.marginRight = (w * zoom - w) + 'px'; pageEl.style.marginBottom = (h * zoom - h) + 'px';
@@ -248,20 +275,25 @@
     const v = node.visual; const selc = sel === node.id ? ' sel' : ''; const k = ui();
     const tiny = rect.h < 70 * k || rect.w < 110 * k;
     const acts = `<div class="t-actions"><button data-act="row" title="In Spalten teilen">⇔</button><button data-act="col" title="In Zeilen teilen">⇕</button><button data-act="rm" title="Kachel entfernen">✕</button></div>`;
-    if (!v) return `<div class="tile empty${selc}" data-leaf="${node.id}" draggable="true" style="${css(rect)}"><span class="plus">+</span><span class="lbl">${tiny ? '' : 'Visual wählen oder Feld ablegen'}</span>${acts}</div>`;
+    if (!v) return `<div class="tile empty${selc}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="Leere Kachel" style="${css(rect)}"><span class="plus">+</span><span class="lbl">${tiny ? '' : 'Visual wählen oder Feld ablegen'}</span>${acts}</div>`;
     const def = CAT.byId[v.kind] || {}; const pad = Math.round(S.spacing.pad * k);
     const link = v.link ? S.pages.find(p => p.id === v.link) : null;
     const chips = roleChips(v) + (link ? `<span class="rchip link" title="Springt zu Seite">↗ ${esc(link.name)}</span>` : '');
     const headH = v.title || v.sub ? (tiny ? 18 : 24) * k : 0;
     const footH = chips && !tiny ? 18 * k : 0;
     const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - footH - pad - 6);
-    const svg = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, bw, bh, { scenario: v.scenario, seed: seedOf(node.id), label: v.sub || '', scale: k }) : '';
-    const note = v.notes ? `<span class="note-ico" title="Notiz">✎</span><div class="note-pop">${esc(v.notes)}</div>` : '';
-    return `<div class="tile${selc}${tiny ? ' tiny' : ''}" data-leaf="${node.id}" draggable="true" style="${css(rect)};padding:${Math.max(0, pad - 6)}px">
+    const an = analysisOf(v);
+    const svg = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, bw, bh, { scenario: v.scenario, seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, antiPattern: !!ANTI[v.kind] }) : '';
+    const note = v.notes ? `<span class="note-ico" title="Notiz${v.openQuestion ? ' (offene Frage)' : ''}">${v.openQuestion ? '?' : '✎'}</span><div class="note-pop">${esc(v.notes)}</div>` : (v.openQuestion ? `<span class="note-ico" title="Offene Frage">?</span><div class="note-pop">Offene Frage (noch ohne Text)</div>` : '');
+    const missing = (def.roles || []).filter(r => r.req && !(v.roles[r.key] || []).length).map(r => r.label);
+    const req = missing.length ? `<span class="reqdot" title="Pflichtrolle leer: ${esc(missing.join(', '))}"></span>` : '';
+    const pri = v.priority ? `<span class="pri ${v.priority}" title="Priorität ${v.priority}">${{ must: 'M', should: 'S', could: 'C' }[v.priority] || ''}</span>` : '';
+    const st = v.status && v.status !== 'open' ? `<span class="st ${v.status}" title="Status: ${v.status === 'agreed' ? 'abgestimmt' : 'abgenommen'}"></span>` : '';
+    return `<div class="tile${selc}${tiny ? ' tiny' : ''}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="${esc(v.title || def.label)}" style="${css(rect)};padding:${Math.max(0, pad - 6)}px">
       ${headH ? `<div class="t-head"><span class="t-title">${esc(v.title || def.label)}</span>${v.sub ? `<span class="t-sub">${esc(v.sub)}</span>` : ''}</div>` : ''}
-      <div class="t-body">${svg}</div>
+      <div class="t-body">${svg}${ANTI[v.kind] ? '<div class="ap"></div>' : ''}</div>
       ${footH ? `<div class="t-foot">${chips}</div>` : ''}
-      <div class="badges">${note}<span class="badge${v.engine === 'ck' ? ' ck' : ''}">${v.engine === 'ck' ? 'CK' : (v.engine === 'deneb' ? 'Deneb' : 'PBI')}</span></div>${acts}</div>`;
+      <div class="badges">${req}${st}${pri}${note}<span class="badge${v.engine === 'ck' ? ' ck' : ''}">${v.engine === 'ck' ? 'CK' : (v.engine === 'deneb' ? 'Deneb' : 'PBI')}</span></div>${acts}</div>`;
   }
   function roleChips(v) {
     const out = [];
@@ -275,9 +307,13 @@
     const act = e.target.closest('[data-act]'); const tile = e.target.closest('[data-leaf]'); const rm = e.target.closest('[data-rmfilter]');
     if (rm) { S.chrome.filter.fields.splice(+rm.dataset.rmfilter, 1); commit(); return; }
     if (act && tile) { e.stopPropagation(); const id = tile.dataset.leaf; if (act.dataset.act === 'rm') removeLeaf(id); else splitLeaf(id, act.dataset.act); return; }
-    if (e.target.closest('.note-ico')) { const pop = e.target.closest('.tile').querySelector('.note-pop'); pop.classList.toggle('pinned'); return; }
+    if (e.target.closest('.note-ico')) { const pop = e.target.closest('.tile').querySelector('.note-pop'); if (pop) pop.classList.toggle('pinned'); return; }
     if (tile) { selectTile(tile.dataset.leaf); return; }
     sel = null; render();
+  });
+  pageEl.addEventListener('keydown', e => {
+    const tile = e.target.closest && e.target.closest('[data-leaf]'); if (!tile) return;
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTile(tile.dataset.leaf); if (e.key === 'Enter' && !findNode(sel).node.visual) openCatalog(); }
   });
   // Auswahl ohne Neu-Rendern der Seite, sonst geht das Zielelement zwischen zwei Klicks verloren (Doppelklick)
   function selectTile(id) { sel = id; $$('.tile', pageEl).forEach(t => t.classList.toggle('sel', t.dataset.leaf === id)); renderInspector(); }
@@ -341,9 +377,14 @@
     if (!n.visual) { const kind = f.kind === 'measure' ? 'kpi' : 'slicer'; n.visual = normVisual({ kind, engine: CAT.byId[kind].engine, roles: {} }); if (!n.visual.title) n.visual.title = f.name; }
     const v = n.visual; const def = CAT.byId[v.kind];
     let role = roleKey ? def.roles.find(r => r.key === roleKey) : null;
-    if (!role) role = def.roles.find(r => (r.kind === 'any' || r.kind === f.kind) && (v.roles[r.key] || []).length < r.max);
-    if (!role) role = def.roles.find(r => (v.roles[r.key] || []).length < r.max);
-    if (!role) return toast('Keine freie Datenrolle in dieser Kachel');
+    if (!role) {
+      // passende Rollen (gleiche Feldart oder „any"); genau eine frei → direkt, sonst Menü statt raten (Review Valerie: Rollenzuweisung rät)
+      const fitting = def.roles.filter(r => r.kind === 'any' || r.kind === f.kind);
+      const free = fitting.filter(r => (v.roles[r.key] || []).length < r.max);
+      if (free.length === 1 && fitting.length === 1) role = free[0];
+      else if (fitting.length) { showRoleMenu(id, f, fitting, v); return; }
+      else return toast(`Kein Platz für ein Feld vom Typ „${f.kind === 'measure' ? 'Measure' : 'Spalte'}" in dieser Kachel`);
+    }
     const list = v.roles[role.key] = v.roles[role.key] || [];
     if (list.some(x => x.table === f.table && x.name === f.name)) return toast('Feld ist schon zugewiesen');
     if (list.length >= role.max) list.shift();
@@ -353,6 +394,20 @@
     sel = id; commit();
   }
   function removeField(id, roleKey, idx) { const v = findNode(id).node.visual; if (!v) return; v.roles[roleKey].splice(idx, 1); commit(); }
+  // Kleines Rollenmenü: erscheint, wenn mehrere Datenrollen zum Feld passen (ersetzt bei vollen Rollen den ältesten Eintrag)
+  let roleMenu = null;
+  function showRoleMenu(id, f, roles, v) {
+    closeRoleMenu();
+    const m = document.createElement('div'); m.className = 'rolemenu'; roleMenu = m;
+    m.innerHTML = `<div class="rm-head">„${esc(f.name)}" zuordnen als …</div>` + roles.map(r => { const cur = v.roles[r.key] || []; const full = cur.length >= r.max; return `<button data-rk="${r.key}"><b>${esc(r.label)}</b><small>${cur.length ? esc(cur.map(x => x.name).join(', ')) + (full ? ' · ersetzt ' + esc(cur[0].name) : '') : 'frei'}</small></button>`; }).join('') + `<button data-rk="">Abbrechen</button>`;
+    document.body.appendChild(m);
+    const tile = document.querySelector(`.tile[data-leaf="${id}"]`); const r = tile ? tile.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };
+    m.style.left = Math.min(innerWidth - 280, Math.max(8, r.left + r.width / 2 - 130)) + 'px'; m.style.top = Math.min(innerHeight - 260, Math.max(8, r.top + r.height / 2 - 40)) + 'px';
+    m.addEventListener('click', e => { const b = e.target.closest('[data-rk]'); if (!b) return; const key = b.dataset.rk; closeRoleMenu(); if (key) assignField(id, f, key); });
+    setTimeout(() => document.addEventListener('mousedown', outsideRoleMenu), 0);
+  }
+  function outsideRoleMenu(e) { if (roleMenu && !roleMenu.contains(e.target)) closeRoleMenu(); }
+  function closeRoleMenu() { if (roleMenu) { roleMenu.remove(); roleMenu = null; document.removeEventListener('mousedown', outsideRoleMenu); } }
   function addFilterField(f) { const list = S.chrome.filter.fields; if (list.some(x => x.table === f.table && x.name === f.name)) return toast('Slicer existiert schon'); list.push({ table: f.table, name: f.name, kind: f.kind, isNew: !!f.isNew }); commit(); }
 
   // ------------------------------------------------------------------ Inspector · Element
@@ -373,16 +428,46 @@
       return `<div class="role" data-role="${r.key}"><div class="rl">${esc(r.label)}${r.req ? '<span class="req">*</span>' : ''}<span class="k">${r.kind === 'any' ? 'Feld' : r.kind === 'measure' ? 'Measure' : 'Spalte'} · max ${r.max}</span></div>${chips ? `<div class="chips">${chips}</div>` : ''}${list.length < r.max ? `<div class="drop">Feld hierher ziehen</div>` : ''}</div>`;
     }).join('');
     const links = `<option value="">– keins –</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
+    const an = analysisOf(v); const a = v.analysis || {};
+    const hasMeasure = def.roles.some(r => ['ac', 'indicator', 'values', 'y'].includes(r.key));
+    const opt = (list, cur, labels) => list.map(x => `<option value="${x}" ${String(cur) === String(x) ? 'selected' : ''}>${labels ? labels[x] : x}</option>`).join('');
+    const analysis = hasMeasure ? `<div class="section"><h3>Analyse (wandert in die Spec)</h3>
+      <div class="grid2">
+        <div class="field"><label>Polarität</label><select class="ctl" data-an="polarity">${opt(['', 'higher', 'lower'], a.polarity || '', { '': `auto (${an.polarity === 'lower' ? 'kleiner = besser' : 'größer = besser'})`, higher: 'größer = besser', lower: 'kleiner = besser' })}</select></div>
+        ${hasRef ? `<div class="field"><label>Δ-Basis</label><select class="ctl" data-an="deltaBasis">${opt(['', 'PL', 'PY', 'BU', 'FC'], a.deltaBasis || '', { '': `auto (${an.deltaBasis})`, PL: 'PL', PY: 'PY', BU: 'BU', FC: 'FC' })}</select></div>` : '<div></div>'}
+        <div class="field"><label>Einheit</label><input class="ctl" data-an="unit" value="${esc(an.unit)}" placeholder="T€, %, Stück"></div>
+        <div class="field"><label>Anzeige-Einheit</label><select class="ctl" data-an="displayUnits">${opt(['auto', 'none', 'K', 'M'], an.displayUnits, { auto: 'auto', none: 'keine', K: 'Tausend (K)', M: 'Millionen (M)' })}</select></div>
+        <div class="field"><label>Dezimalstellen</label><input class="ctl" type="number" min="0" max="4" data-an="decimals" value="${an.decimals == null ? '' : an.decimals}" placeholder="auto"></div>
+        <div class="field"><label>Δ-Art</label><div class="row"><label class="toggle" style="padding:0"><input type="checkbox" data-ank="abs" ${an.deltaKind.includes('abs') ? 'checked' : ''}> abs</label><label class="toggle" style="padding:0"><input type="checkbox" data-ank="rel" ${an.deltaKind.includes('rel') ? 'checked' : ''}> %</label></div></div>
+        <div class="field"><label>Sortierung</label><select class="ctl" data-an="sortBy">${opt(['', 'value', 'delta', 'category'], an.sort ? an.sort.by : '', { '': 'wie im Modell', value: 'nach Wert', delta: 'nach Δ', category: 'nach Kategorie' })}</select></div>
+        <div class="field"><label>Richtung</label><select class="ctl" data-an="sortDir">${opt(['desc', 'asc'], an.sort ? an.sort.dir : 'desc', { desc: 'absteigend', asc: 'aufsteigend' })}</select></div>
+        <div class="field"><label>Top N</label><input class="ctl" type="number" min="1" max="100" data-an="topN" value="${an.topN || ''}" placeholder="alle"></div>
+        <div class="field"><label>Zeitgranularität</label><select class="ctl" data-an="timeGrain">${opt(['', 'day', 'week', 'month', 'quarter', 'year'], an.timeGrain || '', { '': 'wie gebunden', day: 'Tag', week: 'Woche', month: 'Monat', quarter: 'Quartal', year: 'Jahr' })}</select></div>
+        <div class="field"><label>Gemeinsame Skala (Gruppe)</label><input class="ctl" data-an="scaleGroup" value="${esc(an.scaleGroup)}" placeholder="z. B. A"></div>
+        <div class="field"><label class="toggle" style="text-transform:none;letter-spacing:0"><input type="checkbox" data-an="cumulative" ${an.cumulative ? 'checked' : ''}> kumuliert (YTD)</label></div>
+      </div>
+      <div class="field"><label>Kernaussage (Message-Titel)</label><input class="ctl" data-an="message" value="${esc(an.message)}" placeholder="z. B. Umsatz 8 % über Plan, Süd unter Plan"></div>
+    </div>` : '';
+    const isText = v.kind === 'text' || v.kind === 'button';
     insEl.innerHTML = `
       <button class="typebtn" id="btnPickType"><div class="pv">${pv}</div><div><b>${esc(def.label)}</b><small>${esc(def.group)} · Typ ändern</small></div></button>
-      ${def.note ? `<p class="hint">${esc(def.note)}</p>` : ''}
+      ${def.note ? `<p class="${/nicht ibcs/i.test(def.note) ? 'warn' : 'hint'}" style="margin-top:8px">${esc(def.note)}</p>` : ''}
       <div class="field" style="margin-top:10px"><label>Engine</label><div class="engine">${engines}</div></div>
       <div class="field"><label>Titel</label><input class="ctl" data-vk="title" value="${esc(v.title)}" placeholder="${esc(def.label)}"></div>
       <div class="field"><label>Untertitel / Einheit</label><input class="ctl" data-vk="sub" value="${esc(v.sub)}" placeholder="z. B. in T€, 2026 YTD"></div>
-      ${hasRef ? `<div class="field"><label>Szenario</label><select class="ctl" data-vk="scenario">${['AC/PL', 'AC/PY', 'AC/PL/FC', 'AC'].map(s => `<option ${v.scenario === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>` : ''}
-      <div class="section"><h3>Datenrollen</h3>${roles || '<p class="hint">Keine Datenrollen (statisches Element).</p>'}</div>
-      <div class="field" style="margin-top:10px"><label>Workshop-Notiz (✎ auf der Kachel)</label><textarea class="ctl" data-vk="notes" placeholder="Sortierung, Drill, Bedingte Formatierung, Kommentar, offene Frage …">${esc(v.notes)}</textarea></div>
-      <div class="field"><label>Springt zu (Seite, Drill / Navigation)</label><select class="ctl" data-vk="link">${links}</select></div>
+      ${isText ? `<div class="field"><label>${v.kind === 'button' ? 'Beschriftung' : 'Text der Kachel'}</label><textarea class="ctl" data-vk="content" placeholder="Kommentar, Kernbotschaft, Platzhaltertext …">${esc(v.content || '')}</textarea></div>` : ''}
+      ${hasRef ? `<div class="field"><label>Szenario</label><select class="ctl" data-vk="scenario">${['AC/PL', 'AC/PY', 'AC/PL/FC', 'AC/PL/PY', 'AC/BU', 'PL/FC', 'AC'].map(s => `<option ${v.scenario === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>` : ''}
+      <div class="section"><h3>Datenrollen <span class="k" style="font-weight:400;text-transform:none;letter-spacing:0">(Doppelklick auf Feld = Steckbrief)</span></h3>${roles || '<p class="hint">Keine Datenrollen (statisches Element).</p>'}</div>
+      ${analysis}
+      <div class="section"><h3>Workshop</h3>
+        <div class="grid2">
+          <div class="field"><label>Priorität</label><select class="ctl" data-vk="priority">${opt(['', 'must', 'should', 'could'], v.priority || '', { '': '–', must: 'Must', should: 'Should', could: 'Could' })}</select></div>
+          <div class="field"><label>Status</label><select class="ctl" data-vk="status">${opt(['open', 'agreed', 'approved'], v.status || 'open', { open: 'offen', agreed: 'abgestimmt', approved: 'abgenommen' })}</select></div>
+        </div>
+        <div class="field"><label>Notiz (✎ auf der Kachel)</label><textarea class="ctl" data-vk="notes" placeholder="Drill, Bedingte Formatierung, Kommentar …">${esc(v.notes)}</textarea></div>
+        <label class="toggle"><input type="checkbox" data-vkb="openQuestion" ${v.openQuestion ? 'checked' : ''}> offene Frage (landet in der Doku unter „Offene Punkte")</label>
+        <div class="field"><label>Springt zu (Seite, Drill / Navigation)</label><select class="ctl" data-vk="link">${links}</select></div>
+      </div>
       ${dims}
       <div class="section row wrap"><button class="btn sm" data-ins="clear">Kachel leeren</button><button class="btn sm" data-ins="rm">Kachel entfernen</button></div>`;
     bindInspector(n);
@@ -396,7 +481,24 @@
       x.addEventListener('input', () => { n.visual[x.dataset.vk] = x.value; persist(); if (!isSel && x.dataset.vk !== 'notes') renderPageOnly(); });
       x.addEventListener('change', () => { n.visual[x.dataset.vk] = x.value; mark(); if (isSel || x.dataset.vk === 'notes') render(); });
     });
+    $$('[data-vkb]', insEl).forEach(x => x.addEventListener('change', () => { n.visual[x.dataset.vkb] = x.checked; commit(); }));
+    // Analyse-Block: leer = nicht entschieden (Schlüssel wird entfernt), sonst Wert speichern
+    const setAn = (key, val) => { const a = n.visual.analysis = n.visual.analysis || {}; if (val === '' || val === null || val === undefined) delete a[key]; else a[key] = val; };
+    $$('[data-an]', insEl).forEach(x => {
+      const apply = () => {
+        const k = x.dataset.an; let val = x.type === 'checkbox' ? x.checked : x.value;
+        if (k === 'sortBy' || k === 'sortDir') { const by = $('[data-an="sortBy"]', insEl).value; const dir = $('[data-an="sortDir"]', insEl).value; setAn('sort', by ? { by, dir } : ''); }
+        else if (k === 'topN' || k === 'decimals') setAn(k, val === '' ? '' : +val);
+        else if (k === 'cumulative') setAn(k, val ? true : '');
+        else if (k === 'displayUnits') setAn(k, val === 'auto' ? '' : val);
+        else setAn(k, val);
+      };
+      x.addEventListener('input', () => { apply(); persist(); if (x.tagName !== 'INPUT' || x.type === 'checkbox') render(); else renderPageOnly(); });
+      x.addEventListener('change', () => { apply(); mark(); if (x.tagName === 'SELECT') render(); });
+    });
+    $$('[data-ank]', insEl).forEach(x => x.addEventListener('change', () => { const kinds = $$('[data-ank]', insEl).filter(c => c.checked).map(c => c.dataset.ank); setAn('deltaKind', kinds.length === 2 ? '' : kinds); commit(); }));
     $$('[data-rmrole]', insEl).forEach(x => x.onclick = () => removeField(n.id, x.dataset.rmrole, +x.dataset.i));
+    $$('.role .fchip', insEl).forEach(chip => chip.addEventListener('dblclick', () => { const key = chip.closest('.role').dataset.role; const i = +chip.querySelector('[data-i]').dataset.i; const f = n.visual.roles[key][i]; if (f) openFieldMeta(f); }));
     $$('.role', insEl).forEach(r => {
       r.addEventListener('dragover', e => { if (e.dataTransfer.types.includes('application/mk-field')) { e.preventDefault(); r.classList.add('over'); } });
       r.addEventListener('dragleave', () => r.classList.remove('over'));
@@ -405,7 +507,7 @@
   }
   function renderPageOnly() { const act = document.activeElement; render(); if (act && act.dataset && act.dataset.vk) { const again = $(`[data-vk="${act.dataset.vk}"]`, insEl); if (again) { again.focus(); if (again.setSelectionRange && act.selectionStart != null) try { again.setSelectionRange(act.selectionStart, act.selectionEnd); } catch (e) { /* select */ } } } }
 
-  $$('.tab').forEach(t => t.onclick = () => { $$('.tab').forEach(x => x.classList.toggle('active', x === t)); ['el', 'page', 'chrome', 'design'].forEach(k => { $('#ins' + k[0].toUpperCase() + k.slice(1)).hidden = t.dataset.tab !== k; }); });
+  $$('.tab').forEach(t => t.onclick = () => { $$('.tab').forEach(x => x.classList.toggle('active', x === t)); ['el', 'page', 'report', 'chrome', 'design'].forEach(k => { $('#ins' + k[0].toUpperCase() + k.slice(1)).hidden = t.dataset.tab !== k; }); });
 
   // ------------------------------------------------------------------ Inspector · Seite / Rahmen / Design
   const bind = (id, set, ev) => {
@@ -416,7 +518,8 @@
   };
   function syncPageInputs() {
     const c = S.chrome, d = S.design, p = page();
-    $('#projName').value = S.name; $('#pageName').value = p.name; $('#pageNotes').value = p.notes || '';
+    $('#projName').value = S.name; $('#rpName').value = S.name; $('#pageName').value = p.name; $('#pageNotes').value = p.notes || ''; $('#pageQuestion').value = p.question || '';
+    const rp = S.report; $('#rpAudience').value = rp.audience; $('#rpPurpose').value = rp.purpose; $('#rpDecision').value = rp.decision; $('#rpVersion').value = rp.version; $('#rpDataDate').value = rp.dataDate; $('#rpParticipants').value = rp.participants; $('#rpLang').value = S.lang || 'de';
     $('#canvasPreset').value = S.canvas.preset; $('#customSize').hidden = S.canvas.preset !== 'custom'; $('#canvasW').value = S.canvas.w; $('#canvasH').value = S.canvas.h;
     $('#uiScaleInfo').textContent = `Skalierung ×${ui().toFixed(2)}: Schriften, Rahmenhöhen und Abstände werden aus HD-Basiswerten hochgerechnet.`;
     $('#spMargin').value = S.spacing.margin; $('#spGutter').value = S.spacing.gutter; $('#spPad').value = S.spacing.pad; $('#defScenario').value = S.defScenario;
@@ -424,13 +527,18 @@
     $('#nvOn').checked = c.nav.on; $('#nvW').value = c.nav.w;
     $('#ftOn').checked = c.filter.on; $('#ftSide').value = c.filter.side; $('#ftW').value = c.filter.side === 'top' ? (c.filter.topH || 56) : c.filter.w; $('#ftWHint').textContent = c.filter.side === 'top' ? 'Höhe' : 'Breite'; $('#ftW').disabled = c.filter.side === 'burger';
     $('#ftCollapsible').checked = c.filter.collapsible; $('#ftCollapsibleRow').style.display = (c.filter.side === 'left' || c.filter.side === 'right') ? '' : 'none';
-    $('#ftFieldList').innerHTML = (c.filter.fields || []).map((f, i) => `<span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}" draggable="false"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span><button class="x" data-rmfilter2="${i}">×</button></span>`).join('') || '<span class="hint">Noch keine Slicer. Feld aus dem Modell hierher ziehen.</span>';
+    $('#ftFieldList').innerHTML = (c.filter.fields || []).map((f, i) => `<div class="row" style="margin-bottom:4px"><span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}" draggable="false" style="margin:0;flex:1;min-width:0"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span><button class="x" data-rmfilter2="${i}">×</button></span><input class="ctl" data-ftdef="${i}" value="${esc(f.default || '')}" placeholder="Vorauswahl" style="width:110px;padding:3px 6px;font-size:11.5px"></div>`).join('') || '<span class="hint">Noch keine Slicer. Feld aus dem Modell hierher ziehen.</span>';
     $('#ffOn').checked = c.footer.on; $('#ffH').value = c.footer.h; $('#ffText').value = c.footer.text;
     $('#dsRadius').value = String(d.radius); $('#dsTile').value = d.tile; $('#dsPageBg').value = d.pageBg; $('#dsHeader').value = d.header; $('#dsAccent').value = d.accent; $('#dsAccentTxt').textContent = d.accent;
   }
-  bind('projName', v => S.name = v, 'input');
+  bind('projName', v => S.name = v, 'input'); bind('rpName', v => S.name = v, 'input');
   bind('pageName', v => page().name = v, 'input');
-  bind('pageNotes', v => page().notes = v, 'input');
+  bind('pageNotes', v => page().notes = v, 'input'); bind('pageQuestion', v => page().question = v, 'input');
+  bind('rpAudience', v => S.report.audience = v, 'input'); bind('rpPurpose', v => S.report.purpose = v, 'input'); bind('rpDecision', v => S.report.decision = v, 'input');
+  bind('rpVersion', v => S.report.version = v, 'input'); bind('rpDataDate', v => S.report.dataDate = v, 'input'); bind('rpParticipants', v => S.report.participants = v, 'input');
+  bind('rpLang', v => S.lang = v);
+  $('#ftFieldList').addEventListener('input', e => { const inp = e.target.closest('[data-ftdef]'); if (inp) { S.chrome.filter.fields[+inp.dataset.ftdef].default = inp.value; persist(); } });
+  $('#ftFieldList').addEventListener('change', e => { if (e.target.closest('[data-ftdef]')) mark(); });
   $('#btnPageDup').onclick = dupPage; $('#btnPageDel').onclick = delPage;
   bind('canvasPreset', v => { S.canvas.preset = v; if (v !== 'custom') { const [w, h] = v.split('x').map(Number); S.canvas.w = w; S.canvas.h = h; fitZoom(); } });
   bind('canvasW', v => { S.canvas.w = clamp(+v || 1280, 320, 4000); fitZoom(); }); bind('canvasH', v => { S.canvas.h = clamp(+v || 720, 200, 4000); fitZoom(); });
@@ -443,6 +551,22 @@
   bind('ftOn', v => S.chrome.filter.on = v); bind('ftSide', v => S.chrome.filter.side = v); bind('ftCollapsible', v => S.chrome.filter.collapsible = v);
   bind('ftW', v => { if (S.chrome.filter.side === 'top') S.chrome.filter.topH = clamp(+v, 40, 160); else S.chrome.filter.w = clamp(+v, 120, 360); }, 'input');
   $('#ftFieldList').addEventListener('click', e => { const b = e.target.closest('[data-rmfilter2]'); if (b) { S.chrome.filter.fields.splice(+b.dataset.rmfilter2, 1); commit(); } });
+  // ---------------------------------------------------------------- Kennzahlen-Steckbrief (fieldMeta je Tabelle.Feld)
+  let fmRef = null;
+  function fieldInfo(ref) { const i = ref.indexOf('.'); const t = S.model.tables.find(x => x.name === ref.slice(0, i)); if (!t) return null; return t.measures.find(x => x.name === ref.slice(i + 1)) || t.columns.find(x => x.name === ref.slice(i + 1)) || null; }
+  function openFieldMeta(f) {
+    fmRef = f.table + '.' + f.name; const m = S.fieldMeta[fmRef] || {}; const info = fieldInfo(fmRef); const nf = S.newFields.find(x => x.table === f.table && x.name === f.name);
+    $('#fmRef').textContent = fmRef + (f.isNew ? ' · neu (noch nicht im Modell)' : '');
+    $('#fmModel').innerHTML = info ? `<span class="k">Typ</span><span>${esc(info.kind === 'measure' ? 'Measure' : 'Spalte ' + (info.type || ''))}</span><span class="k">Format</span><span>${esc(info.format || '–')}</span><span class="k">Beschreibung</span><span>${esc(info.desc || '– (im Modell keine Beschreibung hinterlegt)')}</span>` : (nf ? `<span class="k">Beschreibung</span><span>${esc(nf.desc || '–')}</span>` : '');
+    $('#fmAlias').value = m.alias || ''; $('#fmConfirmed').checked = !!m.confirmed; $('#fmRename').checked = !!m.rename; $('#fmOwner').value = m.owner || (nf ? nf.owner || '' : ''); $('#fmSource').value = m.source || (nf ? nf.source || '' : ''); $('#fmTarget').value = m.target || (nf ? nf.target || '' : ''); $('#fmUnit').value = m.unit || (nf ? nf.unit || '' : ''); $('#fmNote').value = m.note || '';
+    $('#dlgFieldMeta').showModal();
+  }
+  $('#fmOk').onclick = () => {
+    if (!fmRef) return;
+    const m = { alias: $('#fmAlias').value.trim(), confirmed: $('#fmConfirmed').checked, rename: $('#fmRename').checked, owner: $('#fmOwner').value.trim(), source: $('#fmSource').value.trim(), target: $('#fmTarget').value.trim(), unit: $('#fmUnit').value.trim(), note: $('#fmNote').value.trim() };
+    if (Object.values(m).some(v => v === true || (typeof v === 'string' && v))) S.fieldMeta[fmRef] = m; else delete S.fieldMeta[fmRef];
+    $('#dlgFieldMeta').close(); commit(); toast('Steckbrief gespeichert');
+  };
   $('#ftFieldList').addEventListener('dragover', e => { if (e.dataTransfer.types.includes('application/mk-field')) e.preventDefault(); });
   $('#ftFieldList').addEventListener('drop', e => { e.preventDefault(); const d = e.dataTransfer.getData('application/mk-field'); if (d) addFilterField(JSON.parse(d)); });
   bind('ffOn', v => S.chrome.footer.on = v); bind('ffH', v => S.chrome.footer.h = clamp(+v, 16, 48), 'input'); bind('ffText', v => S.chrome.footer.text = v, 'input');
@@ -518,14 +642,15 @@
       const rel = tmdl[0].webkitRelativePath || ''; const src = rel.includes('/') ? rel.split('/')[0] : `TMDL (${tmdl.length} Dateien)`;
       const good = tables.filter(t => t.columns.length || t.measures.length);
       if (!good.length) return toast('TMDL gelesen, aber keine Spalten/Measures erkannt. Datei ist vermutlich kein Tabellen-TMDL.');
-      S.model = { tables: good, source: src, loadedAt: new Date().toISOString() }; commit();
+      S.model = { tables: good, source: src, loadedAt: new Date().toISOString() }; openMeasureTable(); commit();
       toast(`${good.length} Tabellen, ${good.reduce((a, t) => a + t.measures.length, 0)} Measures, ${good.reduce((a, t) => a + t.columns.length, 0)} Spalten geladen`);
     }).catch(err => toast('Lesen fehlgeschlagen: ' + err.message));
   }
   $('#btnImportTmdl').onclick = () => $('#fileTmdl').click();
   $('#fileTmdl').addEventListener('change', e => { ingestTmdlFiles(Array.from(e.target.files)); e.target.value = ''; });
   $('#fileTmdlSingle').addEventListener('change', e => { ingestTmdlFiles(Array.from(e.target.files)); e.target.value = ''; });
-  $('#btnDemoModel').onclick = () => { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); commit(); toast('Demo-Modell geladen'); };
+  $('#btnDemoModel').onclick = () => { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); openMeasureTable(); commit(); toast('Demo-Modell geladen'); };
+  function openMeasureTable() { const t = S.model.tables.find(x => x.measures.length); if (t) openTables.add(t.name); }
   const mdrop = $('#modelDrop');
   mdrop.addEventListener('click', () => $('#fileTmdlSingle').click());
   mdrop.addEventListener('dragover', e => { if (e.dataTransfer.types.includes('Files')) { e.preventDefault(); mdrop.classList.add('over'); } });
@@ -571,7 +696,11 @@
     });
     list.innerHTML = html;
   }
+  $('#modelList').addEventListener('dblclick', e => { const c = e.target.closest('[data-field]'); if (c) openFieldMeta(JSON.parse(c.dataset.field)); });
   $('#modelList').addEventListener('click', e => {
+    // Klick-Fallback zur Feldzuweisung (Tastatur/Touch): Chip anklicken → gewählte Kachel
+    const chip = e.target.closest('[data-field]');
+    if (chip && !e.target.closest('.x') && sel) { assignField(sel, JSON.parse(chip.dataset.field)); return; }
     const rm = e.target.closest('[data-rmnew]');
     if (rm) {
       const f = S.newFields[+rm.dataset.rmnew]; if (!f) return;
@@ -596,7 +725,8 @@
   $('#nmOk').onclick = () => {
     const name = $('#nmName').value.trim(); if (!name) return $('#nmName').focus();
     const kind = $('#nmKind').value;
-    S.newFields.push({ id: uid(), name, table: $('#nmTable').value.trim() || (kind === 'measure' ? '_Measures' : 'DimNeu'), kind, desc: $('#nmDesc').value.trim(), open: $('#nmOpen').value.trim(), isNew: true, type: kind === 'measure' ? 'measure' : '' });
+    S.newFields.push({ id: uid(), name, table: $('#nmTable').value.trim() || (kind === 'measure' ? '_Measures' : 'DimNeu'), kind, desc: $('#nmDesc').value.trim(), open: $('#nmOpen').value.trim(), unit: $('#nmUnit').value.trim(), target: $('#nmTarget').value.trim(), owner: $('#nmOwner').value.trim(), source: $('#nmSource').value.trim(), isNew: true, type: kind === 'measure' ? 'measure' : '' });
+    ['nmUnit', 'nmTarget', 'nmOwner', 'nmSource'].forEach(id => { $('#' + id).value = ''; });
     $('#dlgNewMeasure').close(); commit(); toast('„' + name + '" angelegt · jetzt auf eine Kachel ziehen');
   };
 
@@ -607,12 +737,17 @@
   $('#btnZoomOut').onclick = () => { zoom = clamp(zoom / 1.15, 0.1, 3); render(); };
   window.addEventListener('resize', () => { fitZoom(); render(); });
   $('#btnHelp').onclick = () => $('#dlgHelp').showModal();
+  $('#btnUndo').onclick = undo; $('#btnRedo').onclick = redo;
+  function togglePresent(on) { document.body.classList.toggle('present', on); $('#btnPresent').textContent = document.body.classList.contains('present') ? '✕ Präsentation beenden' : '▶ Präsentieren'; setTimeout(() => { fitZoom(); render(); }, 30); }
+  $('#btnPresent').onclick = () => togglePresent();
   $$('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
   window.addEventListener('keydown', e => {
     const t = e.target;
     if (document.querySelector('dialog[open]')) return;                       // Dialoge behalten Fokusfang und Esc
     if (t && t.matches && t.matches('input,textarea,select')) { if (e.key === 'Escape' && t.blur) t.blur(); return; }
-    if (e.key === 'Escape') { sel = null; render(); }
+    if (e.key === 'Escape') { if (document.body.classList.contains('present')) togglePresent(false); else { sel = null; render(); } }
+    else if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey && !e.altKey) togglePresent();
+    else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) { e.preventDefault(); redo(); }
     else if ((e.key === 'Delete' || e.key === 'Backspace') && sel) { const n = findNode(sel).node; if (n.visual) { n.visual = null; commit(); toast('Kachel geleert · Strg+Z macht es rückgängig'); } else removeLeaf(sel); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); $('#btnSave').click(); }
@@ -624,7 +759,7 @@
   // Öffentliche API für export.js
   window.MK = {
     get state() { return S; }, set state(v) { S = migrate(v); sel = null; commit(); },
-    page, visuals, leaves, zones, computeAll, ui, toast, findNode, catalog: CAT, persist, pageBg: PAGE_BG,
+    page, visuals, leaves, zones, computeAll, ui, toast, findNode, catalog: CAT, persist, pageBg: PAGE_BG, analysisOf, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     reset() { S = defaultState(); sel = null; undoStack = []; commit(); },
   };
 

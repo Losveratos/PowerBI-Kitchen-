@@ -98,6 +98,27 @@
     K('button', 'Schaltfläche', 'Steuerung & Text', { roles: [], engines: ['native'], engine: 'native', ck: null, native: { type: 'actionButton', map: {} } }),
   ];
 
+  // ChartKitchen-Modi (chart.orientation laut Feldvertrag). Typen ohne Modus bekommen keine ck-Engine (Review: Engine-Whitelist).
+  const CK_MODE = {
+    columns: 'columns', kombi: 'columns', colline: 'columns', absvar: 'columns', relvar: 'columns', stackcol: 'columns', multiples: 'columns',
+    bars: 'bars', barskombi: 'bars', bullet: 'bars', tornado: 'bars', stackbar: 'bars',
+    dotplot: 'dumbbell', pareto: 'pareto', line: 'line', fan: 'line', zchart: 'line', slope: 'slope',
+    varint: 'intwaterfall', wfint: 'intwaterfall', waterfall: 'waterfall', wfkombi: 'waterfall', bridge: 'catbridge',
+    kpi: 'cards', table: 'table', sparktable: 'table', heatmap: 'table',
+  };
+  CATALOG.forEach(k => {
+    k.ckMode = CK_MODE[k.id] || null;
+    if (!k.ckMode) {
+      k.ck = null; k.engines = k.engines.filter(e => e !== 'ck');
+      if (!k.engines.length) k.engines = k.native ? ['native'] : ['deneb'];
+      if (!k.engines.includes(k.engine)) k.engine = k.engines[0];
+      if (!k.note) k.note = 'ChartKitchen hat keinen Modus für diesen Typ; Umsetzung als ' + (k.engines[0] === 'deneb' ? 'Deneb-Template' : 'natives Visual') + '.';
+    }
+  });
+  // Polarität raten: Kennzahlen, bei denen „kleiner = besser" gilt (Review Data-Viz: Kostenüberschreitung darf nicht grün sein)
+  const LOWER_RX = /kosten|cost|aufwand|expense|ausgaben|churn|fehler|defect|reklamation|retour|return|verlust|loss|dso|durchlauf|lead ?time|risiko|risk|ausfall|downtime|abgang|attrition|schulden|debt/i;
+  const polarityFor = name => LOWER_RX.test(String(name || '')) ? 'lower' : 'higher';
+
   const BY_ID = {};
   CATALOG.forEach(k => { BY_ID[k.id] = k; });
   const GROUPS = [];
@@ -131,7 +152,7 @@
   const TEMPLATES = [
     { id: 'kpi4-main-detail', label: 'Management-Übersicht', desc: 'KPI-Reihe, große integrierte Varianzanalyse, Δ je Produktlinie rechts.', tree: () => col([
         [1, row([[1, KPI('Umsatz', 'Umsatz', 'PL')], [1, KPI('Marge', 'Marge', 'PL')], [1, KPI('Kosten', 'Kosten', 'PL')], [1, KPI('Aufträge', 'Aufträge', 'PY')]])],
-        [4, row([[2, leaf('varint', 'Umsatz AC/FC vs PL je Monat', { category: ['DimDate.Month'], ac: [M('AC')], ref: [M('PL')], fc: ['DimDate.IsForecast'] }, { scenario: 'AC/PL/FC', sub: 'in T€' })], [1, leaf('bars', 'Δ PL je Produktlinie', { category: ['DimProduct.Category'], ac: [M('AC')], ref: [M('PL')] }, { notes: 'Absteigend nach Δ sortieren.' })]])]
+        [4, row([[2, leaf('varint', 'Umsatz AC/FC vs PL je Monat', { category: ['DimDate.Month'], ac: [M('AC')], ref: [M('PL')], fc: ['DimDate.IsForecast'] }, { scenario: 'AC/PL/FC', sub: 'in T€' })], [1, leaf('bars', 'Δ PL je Produktlinie', { category: ['DimProduct.Category'], ac: [M('AC')], ref: [M('PL')] }, { analysis: { sort: { by: 'delta', dir: 'desc' } } })]])]
       ]) },
     { id: 'exec', label: 'Executive One-Pager', desc: 'KPIs, Umsatz-Brücke PY → AC, Kernbotschaft als Text.', tree: () => col([
         [1, row([[1, KPI('Umsatz', 'Umsatz', 'PY')], [1, KPI('Marge %', 'Marge%', 'PL')], [1, KPI('Kunden', 'Kunden', 'PY')], [1, KPI('Ø Auftragswert', 'Ø Auftragswert', 'PY')]])],
@@ -148,7 +169,7 @@
       ]) },
     { id: 'sales', label: 'Sales-Analyse', desc: 'Brücke oben, drei Detailanalysen unten.', tree: () => col([
         [1, leaf('bridge', 'Umsatz-Brücke PY → AC je Produktlinie', { category: ['DimProduct.Category'], ac: [M('AC')], ref: [M('PY')] }, { scenario: 'AC/PY' })],
-        [1, row([[1, leaf('bars', 'Umsatz je Kunde (Top 10)', { category: ['DimCustomer.Customer'], ac: [M('AC')], ref: [M('PY')] }, { notes: 'Top-N-Filter: 10' })], [1, leaf('scatter', 'Menge vs Marge je Produkt', { category: ['DimProduct.Product'], x: [M('Menge')], y: [M('Marge%')], size: [M('Umsatz')] })], [1, leaf('heatmap', 'Region × Produktlinie', { category: ['DimRegion.Region'], subcategory: ['DimProduct.Category'], ac: [M('AC')], ref: [M('PL')] })]])]
+        [1, row([[1, leaf('bars', 'Umsatz je Kunde (Top 10)', { category: ['DimCustomer.Customer'], ac: [M('AC')], ref: [M('PY')] }, { scenario: 'AC/PY', analysis: { topN: 10, sort: { by: 'value', dir: 'desc' } } })], [1, leaf('scatter', 'Menge vs Marge je Produkt', { category: ['DimProduct.Product'], x: [M('Menge')], y: [M('Marge%')], size: [M('Umsatz')] })], [1, leaf('heatmap', 'Region × Produktlinie', { category: ['DimRegion.Region'], subcategory: ['DimProduct.Category'], ac: [M('AC')], ref: [M('PL')] })]])]
       ]) },
     { id: 'drill', label: 'Detailseite (Drill)', desc: 'Zielseite für Drill-through: Filterhinweis, Kennzahlen, Detailtabelle, Verlauf.', tree: () => col([
         [1, row([[2, leaf('text', 'Detail: gewählte Produktlinie', {}, { notes: 'Drill-through-Ziel. Titel zeigt den gefilterten Wert (SELECTEDVALUE).' })], [1, KPI('Umsatz', 'Umsatz', 'PL')], [1, KPI('Marge %', 'Marge%', 'PL')]])],
@@ -169,5 +190,5 @@
   function row(children) { return { type: 'split', dir: 'row', children: children.map(([size, node]) => ({ size, node })) }; }
   function col(children) { return { type: 'split', dir: 'col', children: children.map(([size, node]) => ({ size, node })) }; }
 
-  window.MK_CATALOG = { list: CATALOG, byId: BY_ID, groups: GROUPS, engineLabel: ENGINE_LABEL, templates: TEMPLATES, roleDefs: R, demoModel: DEMO_MODEL };
+  window.MK_CATALOG = { list: CATALOG, byId: BY_ID, groups: GROUPS, engineLabel: ENGINE_LABEL, templates: TEMPLATES, roleDefs: R, demoModel: DEMO_MODEL, ckMode: CK_MODE, polarityFor };
 })();
