@@ -105,34 +105,69 @@
 
   const ENGINE_LABEL = { ck: 'ChartKitchen', native: 'Nativ', deneb: 'Deneb' };
 
-  // Seitenvorlagen: Layout-Bäume für den Inhaltsbereich. leaf(kind, title) / row([...]) / col([...]) mit Gewichten.
+  // Demo-Modell: kleines Beispielmodell für Workshops ohne TMDL. Gleiche Struktur wie der TMDL-Parser liefert.
+  const col_ = (name, type, desc) => ({ name, kind: 'column', type, desc: desc || '', hidden: false, format: '' });
+  const mea_ = (name, format, desc) => ({ name, kind: 'measure', type: 'measure', desc: desc || '', hidden: false, format: format || '#,##0' });
+  const DEMO_MODEL = {
+    source: 'Demo-Modell',
+    tables: [
+      { name: 'DimDate', desc: 'Kalender', columns: [col_('Date', 'dateTime'), col_('Year', 'int64'), col_('Quarter', 'string'), col_('Month', 'string', 'Monatsname, sortiert nach MonthKey'), col_('MonthKey', 'int64'), col_('IsForecast', 'int64', '1 = Forecast-Monat, 0 = Ist')], measures: [] },
+      { name: 'DimProduct', desc: 'Produkte', columns: [col_('Product', 'string'), col_('Category', 'string', 'Produktlinie'), col_('Brand', 'string')], measures: [] },
+      { name: 'DimRegion', desc: 'Regionen', columns: [col_('Region', 'string'), col_('Country', 'string'), col_('SalesOffice', 'string')], measures: [] },
+      { name: 'DimCustomer', desc: 'Kunden', columns: [col_('Customer', 'string'), col_('Segment', 'string'), col_('KeyAccount', 'string')], measures: [] },
+      { name: 'DimAccount', desc: 'GuV-Konten', columns: [col_('Account', 'string', 'GuV-Position'), col_('AccountGroup', 'string'), col_('SortKey', 'int64')], measures: [] },
+      { name: '_Measures', desc: 'Kennzahlen', columns: [], measures: [
+        mea_('AC', '#,##0', 'Ist'), mea_('PY', '#,##0', 'Vorjahr'), mea_('PL', '#,##0', 'Plan'), mea_('FC', '#,##0', 'Forecast'), mea_('BU', '#,##0', 'Budget'),
+        mea_('ΔPL', '#,##0', 'AC − PL'), mea_('ΔPL%', '0.0%', '(AC − PL) / PL'), mea_('ΔPY', '#,##0', 'AC − PY'), mea_('ΔPY%', '0.0%', '(AC − PY) / PY'),
+        mea_('Umsatz', '#,##0'), mea_('Kosten', '#,##0'), mea_('Marge', '#,##0', 'Umsatz − Kosten'), mea_('Marge%', '0.0%'), mea_('Menge', '#,##0'), mea_('Aufträge', '#,##0'), mea_('Kunden', '#,##0'), mea_('Ø Auftragswert', '#,##0', 'Umsatz / Aufträge'),
+      ] },
+    ],
+  };
+
+  // Seitenvorlagen: Layout-Bäume für den Inhaltsbereich. leaf(kind, title, roles, opts) / row([...]) / col([...]) mit Gewichten.
+  // roles: { roleKey: ['Tabelle.Feld', ...] } – wird beim Anwenden gegen das geladene Modell aufgelöst (fehlende Felder bleiben leer).
+  const M = f => '_Measures.' + f;
+  const KPI = (title, ac, ref) => leaf('kpi', title, { indicator: [M(ac)], goal: ref ? [M(ref)] : [], category: ['DimDate.Month'] });
   const TEMPLATES = [
-    { id: 'kpi4-2x2', label: 'KPI-Reihe + 2×2', desc: '4 KPI-Kacheln oben, darunter vier Analysen.', tree: () => col([
-        [1, row([[1, leaf('kpi', 'Umsatz')], [1, leaf('kpi', 'Marge')], [1, leaf('kpi', 'Kosten')], [1, leaf('kpi', 'Aufträge')]])],
-        [4, col([[1, row([[1, leaf('kombi', 'Umsatz je Monat')], [1, leaf('bars', 'Umsatz je Region')]])], [1, row([[1, leaf('line', 'Trend 12 Monate')], [1, leaf('table', 'Top-Produkte')]])]])]
+    { id: 'kpi4-main-detail', label: 'Management-Übersicht', desc: 'KPI-Reihe, große integrierte Varianzanalyse, Δ je Produktlinie rechts.', tree: () => col([
+        [1, row([[1, KPI('Umsatz', 'Umsatz', 'PL')], [1, KPI('Marge', 'Marge', 'PL')], [1, KPI('Kosten', 'Kosten', 'PL')], [1, KPI('Aufträge', 'Aufträge', 'PY')]])],
+        [4, row([[2, leaf('varint', 'Umsatz AC/FC vs PL je Monat', { category: ['DimDate.Month'], ac: [M('AC')], ref: [M('PL')], fc: ['DimDate.IsForecast'] }, { scenario: 'AC/PL/FC', sub: 'in T€' })], [1, leaf('bars', 'Δ PL je Produktlinie', { category: ['DimProduct.Category'], ac: [M('AC')], ref: [M('PL')] }, { notes: 'Absteigend nach Δ sortieren.' })]])]
       ]) },
-    { id: 'kpi4-main-detail', label: 'KPI-Reihe + Haupt/Detail', desc: 'Klassiker aus dem Design-Framework: KPIs, großes Hauptvisual, Detail rechts.', tree: () => col([
-        [1, row([[1, leaf('kpi', 'Umsatz')], [1, leaf('kpi', 'Marge')], [1, leaf('kpi', 'Kosten')], [1, leaf('kpi', 'Aufträge')]])],
-        [4, row([[2, leaf('varint', 'Umsatz AC/FC vs PL je Monat')], [1, leaf('bars', 'Δ PL je Produktlinie')]])]
+    { id: 'exec', label: 'Executive One-Pager', desc: 'KPIs, Umsatz-Brücke PY → AC, Kernbotschaft als Text.', tree: () => col([
+        [1, row([[1, KPI('Umsatz', 'Umsatz', 'PY')], [1, KPI('Marge %', 'Marge%', 'PL')], [1, KPI('Kunden', 'Kunden', 'PY')], [1, KPI('Ø Auftragswert', 'Ø Auftragswert', 'PY')]])],
+        [3, row([[2, leaf('bridge', 'Umsatz-Brücke PY → AC je Region', { category: ['DimRegion.Region'], ac: [M('AC')], ref: [M('PY')] }, { scenario: 'AC/PY' })], [1, leaf('text', 'Kernbotschaft', {}, { notes: 'Drei Sätze: Was, warum, was tun wir.' })]])],
+        [2, row([[1, leaf('kombi', 'Umsatz je Monat AC vs PL', { category: ['DimDate.Month'], ac: [M('AC')], ref: [M('PL')] })], [1, leaf('table', 'Top-Produkte', { rows: ['DimProduct.Product'], ac: [M('AC')], ref: [M('PL')] })]])]
       ]) },
-    { id: 'pnl', label: 'Monatsreport GuV', desc: 'Wasserfall links, Tabelle rechts, Kommentarzeile unten.', tree: () => col([
-        [4, row([[1, leaf('waterfall', 'GuV-Wasserfall')], [1, leaf('table', 'GuV-Positionen AC vs PL')]])],
-        [1, leaf('text', 'Kommentar / Kernbotschaft')]
+    { id: 'kpi4-2x2', label: 'KPI-Reihe + 2×2', desc: 'Vier KPIs oben, darunter vier Analysen.', tree: () => col([
+        [1, row([[1, KPI('Umsatz', 'Umsatz', 'PL')], [1, KPI('Marge', 'Marge', 'PL')], [1, KPI('Kosten', 'Kosten', 'PL')], [1, KPI('Aufträge', 'Aufträge', 'PY')]])],
+        [4, col([[1, row([[1, leaf('kombi', 'Umsatz je Monat', { category: ['DimDate.Month'], ac: [M('AC')], ref: [M('PL')] })], [1, leaf('bars', 'Umsatz je Region', { category: ['DimRegion.Region'], ac: [M('AC')], ref: [M('PL')] })]])], [1, row([[1, leaf('line', 'Trend 12 Monate', { category: ['DimDate.Month'], ac: [M('AC')], ref: [M('PY')] }, { scenario: 'AC/PY' })], [1, leaf('table', 'Top-Produkte', { rows: ['DimProduct.Product'], ac: [M('AC')], ref: [M('PL')] })]])]])]
       ]) },
-    { id: 'monitoring', label: 'Monitoring · 3×2', desc: 'Sechs gleich große Kacheln für Small Multiples oder Monitoring.', tree: () => col([
-        [1, row([[1, leaf('kpi', 'KPI 1')], [1, leaf('kpi', 'KPI 2')], [1, leaf('kpi', 'KPI 3')]])],
-        [1, row([[1, leaf('line', 'Verlauf 1')], [1, leaf('line', 'Verlauf 2')], [1, leaf('line', 'Verlauf 3')]])]
+    { id: 'pnl', label: 'Monatsreport GuV', desc: 'GuV-Wasserfall links, Positionen als IBCS-Tabelle rechts, Kommentarzeile unten.', tree: () => col([
+        [4, row([[1, leaf('waterfall', 'GuV-Wasserfall', { category: ['DimAccount.Account'], ac: [M('AC')] })], [1, leaf('table', 'GuV-Positionen AC vs PL', { rows: ['DimAccount.Account'], ac: [M('AC')], ref: [M('PL')] })]])],
+        [1, leaf('text', 'Kommentar / Kernbotschaft', {}, { notes: 'Kommentar-Modus: Controller pflegt den Text monatlich.' })]
       ]) },
     { id: 'sales', label: 'Sales-Analyse', desc: 'Brücke oben, drei Detailanalysen unten.', tree: () => col([
-        [1, leaf('bridge', 'Umsatz-Brücke PY → AC')],
-        [1, row([[1, leaf('bars', 'Umsatz je Kunde')], [1, leaf('scatter', 'Menge vs Marge')], [1, leaf('heatmap', 'Region × Produkt')]])]
+        [1, leaf('bridge', 'Umsatz-Brücke PY → AC je Produktlinie', { category: ['DimProduct.Category'], ac: [M('AC')], ref: [M('PY')] }, { scenario: 'AC/PY' })],
+        [1, row([[1, leaf('bars', 'Umsatz je Kunde (Top 10)', { category: ['DimCustomer.Customer'], ac: [M('AC')], ref: [M('PY')] }, { notes: 'Top-N-Filter: 10' })], [1, leaf('scatter', 'Menge vs Marge je Produkt', { category: ['DimProduct.Product'], x: [M('Menge')], y: [M('Marge%')], size: [M('Umsatz')] })], [1, leaf('heatmap', 'Region × Produktlinie', { category: ['DimRegion.Region'], subcategory: ['DimProduct.Category'], ac: [M('AC')], ref: [M('PL')] })]])]
+      ]) },
+    { id: 'drill', label: 'Detailseite (Drill)', desc: 'Zielseite für Drill-through: Filterhinweis, Kennzahlen, Detailtabelle, Verlauf.', tree: () => col([
+        [1, row([[2, leaf('text', 'Detail: gewählte Produktlinie', {}, { notes: 'Drill-through-Ziel. Titel zeigt den gefilterten Wert (SELECTEDVALUE).' })], [1, KPI('Umsatz', 'Umsatz', 'PL')], [1, KPI('Marge %', 'Marge%', 'PL')]])],
+        [3, row([[3, leaf('table', 'Einzelpositionen', { rows: ['DimProduct.Product', 'DimCustomer.Customer'], ac: [M('AC')], ref: [M('PL')] })], [2, leaf('line', 'Verlauf 24 Monate', { category: ['DimDate.Month'], ac: [M('AC')], ref: [M('PY')] }, { scenario: 'AC/PY' })]])]
+      ]) },
+    { id: 'cost', label: 'Kosten-Monitoring', desc: 'Small Multiples je Kostenart, Tornado der Abweichungen, KPI-Reihe.', tree: () => col([
+        [1, row([[1, KPI('Kosten', 'Kosten', 'PL')], [1, KPI('Δ PL', 'ΔPL', null)], [1, KPI('Δ PL %', 'ΔPL%', null)]])],
+        [3, row([[2, leaf('multiples', 'Kosten je Konto und Monat', { category: ['DimDate.Month'], series: ['DimAccount.AccountGroup'], ac: [M('AC')], ref: [M('PL')] })], [1, leaf('tornado', 'Δ PL je Konto', { category: ['DimAccount.Account'], ac: [M('AC')], ref: [M('PL')] })]])]
+      ]) },
+    { id: 'monitoring', label: 'Monitoring · 3×2', desc: 'Sechs gleich große Kacheln: KPIs oben, Verläufe unten.', tree: () => col([
+        [1, row([[1, KPI('Umsatz', 'Umsatz', 'PL')], [1, KPI('Aufträge', 'Aufträge', 'PY')], [1, KPI('Kunden', 'Kunden', 'PY')]])],
+        [1, row([[1, leaf('line', 'Umsatz-Verlauf', { category: ['DimDate.Month'], ac: [M('Umsatz')], ref: [M('PY')] }, { scenario: 'AC/PY' })], [1, leaf('line', 'Aufträge-Verlauf', { category: ['DimDate.Month'], ac: [M('Aufträge')], ref: [M('PY')] }, { scenario: 'AC/PY' })], [1, leaf('line', 'Kunden-Verlauf', { category: ['DimDate.Month'], ac: [M('Kunden')], ref: [M('PY')] }, { scenario: 'AC/PY' })]])]
       ]) },
     { id: 'empty', label: 'Leer (2×2)', desc: 'Vier leere Kacheln zum Selbstbauen.', tree: () => col([[1, row([[1, leaf()], [1, leaf()]])], [1, row([[1, leaf()], [1, leaf()]])]]) },
     { id: 'single', label: 'Eine Kachel', desc: 'Ganzer Inhaltsbereich, danach teilen.', tree: () => leaf() },
   ];
-  function leaf(kind, title) { return { type: 'leaf', visual: kind ? { kind, title: title || '' } : null }; }
+  function leaf(kind, title, roles, opts) { return { type: 'leaf', visual: kind ? Object.assign({ kind, title: title || '', roleRefs: roles || {} }, opts || {}) : null }; }
   function row(children) { return { type: 'split', dir: 'row', children: children.map(([size, node]) => ({ size, node })) }; }
   function col(children) { return { type: 'split', dir: 'col', children: children.map(([size, node]) => ({ size, node })) }; }
 
-  window.MK_CATALOG = { list: CATALOG, byId: BY_ID, groups: GROUPS, engineLabel: ENGINE_LABEL, templates: TEMPLATES, roleDefs: R };
+  window.MK_CATALOG = { list: CATALOG, byId: BY_ID, groups: GROUPS, engineLabel: ENGINE_LABEL, templates: TEMPLATES, roleDefs: R, demoModel: DEMO_MODEL };
 })();

@@ -61,7 +61,9 @@
 <body>
 
 <h1>MockupKitchen · Skizzen-Testblatt</h1>
-<p class="sub">Alle Schlüssel aus <code>window.MK_SKETCHES</code> in drei Größen: 100×50, 220×130, 480×260.</p>
+<p class="sub">Alle Schlüssel aus <code>window.MK_SKETCHES</code> in drei Größen: 100×50, 220×130, 480×260.
+<br><code>scale</code> bildet die Canvas-Auflösung ab (canvas.width/1280): bei 3 verhält sich eine
+480×260-Kachel wie eine 160×87-Kachel in HD — Schrift, Striche und Marker wachsen mit.</p>
 
 <div class="bar">
   <label>Szenario
@@ -70,6 +72,13 @@
       <option>AC/PY</option>
       <option>AC/PL/FC</option>
       <option>AC</option>
+    </select>
+  </label>
+  <label>Scale
+    <select id="scale">
+      <option value="1">1 · HD (1280)</option>
+      <option value="1.5">1,5 · Full HD (1920)</option>
+      <option value="3">3 · Ultra HD (3840)</option>
     </select>
   </label>
   <label>Seed <input id="seed" type="number" value="1" min="0" max="9999" style="width:70px"></label>
@@ -98,7 +107,8 @@
         abs: document.getElementById('vabs').checked,
         rel: document.getElementById('vrel').checked
       },
-      dense: document.getElementById('dense').checked
+      dense: document.getElementById('dense').checked,
+      scale: parseFloat(document.getElementById('scale').value) || 1
     };
   }
 
@@ -119,11 +129,11 @@
       html += '<div class="row"><div class="key">' + k + '</div>' + cells + '</div>';
     });
     grid.innerHTML = html;
-    stat.innerHTML = keys.length + ' Typen · ' +
+    stat.innerHTML = keys.length + ' Typen · scale ' + String(o.scale).replace('.', ',') + ' · ' +
       (bad ? '<span class="warn">' + bad + ' fehlerhaft</span>' : 'alle sauber');
   }
 
-  ['scen', 'seed', 'vabs', 'vrel', 'dense'].forEach(function (id) {
+  ['scen', 'scale', 'seed', 'vabs', 'vrel', 'dense'].forEach(function (id) {
     document.getElementById(id).addEventListener('change', render);
     document.getElementById(id).addEventListener('input', render);
   });

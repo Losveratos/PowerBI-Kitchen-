@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MockupKitchen · Power-BI-Seiten skizzieren</title>
-<meta name="description" content="Mockup-Tool für Power-BI-Berichtsseiten: Container-Layout, TMDL-Felder per Drag-and-drop, IBCS-Skizzen, Export als JSON-Spec + Agent-Brief für Claude Code.">
+<meta name="description" content="Mockup-Tool für Power-BI-Berichtsseiten: Container-Layout, mehrere Seiten, TMDL-Felder per Drag-and-drop, IBCS-Skizzen, Export als JSON-Spec + Agent-Brief + Workshop-Doku für Claude Code.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -63,6 +63,7 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .section h3{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);margin:0 0 8px;font-weight:600}
 .toggle{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;user-select:none}
 .toggle input{accent-color:var(--accent);width:15px;height:15px;margin:0}
+.toggle.off{opacity:.55}
 .tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:0 14px;background:var(--bg-card);position:sticky;top:0;z-index:2}
 .tab{padding:9px 10px;border-bottom:2px solid transparent;font-weight:500;color:var(--ink-soft);background:none;border-top:0;border-left:0;border-right:0}
 .tab.active{color:var(--ink);border-bottom-color:var(--accent)}
@@ -89,58 +90,90 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .fchip .x:hover{color:var(--bad)}
 .empty-model{border:1px dashed var(--line-strong);border-radius:var(--r);padding:14px;text-align:center;color:var(--ink-mute)}
 .empty-model strong{color:var(--ink);display:block;margin-bottom:4px}
-.dropzone-model{border:2px dashed var(--line-strong);border-radius:var(--r);padding:10px;text-align:center;color:var(--ink-mute);font-size:11.5px;margin-bottom:10px;transition:.15s}
+.dropzone-model{border:2px dashed var(--line-strong);border-radius:var(--r);padding:10px;text-align:center;color:var(--ink-mute);font-size:11.5px;margin-bottom:10px;transition:.15s;cursor:pointer}
 .dropzone-model.over{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
-/* ---------- Stage ---------- */
-.stage{position:relative;overflow:auto;background:
+/* ---------- Stage + Seitenleiste ---------- */
+.stagewrap{display:flex;flex-direction:column;min-height:0;min-width:0}
+.pagebar{display:flex;align-items:center;gap:4px;padding:6px 12px;background:var(--bg-card);border-bottom:1px solid var(--line);overflow-x:auto;flex:none}
+.pagebar .ptab{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;user-select:none}
+.pagebar .ptab.act{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pagebar .ptab .n{font-family:var(--ff-mono);font-size:10px;opacity:.6}
+.pagebar .ptab .x{opacity:.5;padding-left:2px}
+.pagebar .ptab .x:hover{opacity:1;color:var(--bad)}
+.pagebar .ptab.act .x:hover{color:#ffb4a8}
+.pagebar .padd{border:1px dashed var(--line-strong);background:transparent;border-radius:6px;padding:4px 10px;font-size:12px;color:var(--ink-mute)}
+.pagebar .padd:hover{color:var(--ink);border-color:var(--ink-soft)}
+.pagebar .ptools{margin-left:auto;display:flex;gap:4px}
+.stage{position:relative;overflow:auto;flex:1;min-height:0;background:
   radial-gradient(circle at 1px 1px, rgba(15,30,46,.09) 1px, transparent 1px) 0 0/16px 16px, var(--bg)}
 .stage-inner{min-width:100%;min-height:100%;display:flex;align-items:center;justify-content:center;padding:28px}
-.page{position:relative;background:#fff;box-shadow:0 2px 6px rgba(15,30,46,.08),0 18px 44px rgba(15,30,46,.12);transform-origin:top left;outline:1px solid var(--line)}
+.page{--ui:1;--tile-r:8px;--page-bg:#F4F4F1;position:relative;background:var(--page-bg);box-shadow:0 2px 6px rgba(15,30,46,.08),0 18px 44px rgba(15,30,46,.12);transform-origin:top left;outline:1px solid var(--line);font-family:var(--ff-sans)}
 .page *{box-sizing:border-box}
 .zone{position:absolute;overflow:hidden}
-.zone.header{background:#0F1E2E;color:#fff;display:flex;align-items:center;padding:0 16px;gap:14px}
-.zone.header .logo{width:88px;height:30px;border:1.5px dashed rgba(255,255,255,.55);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--ff-mono);font-size:10px;letter-spacing:.06em;color:rgba(255,255,255,.75);flex:none}
-.zone.header .ttl{font-family:var(--ff-sans);font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.zone.header .sub{font-size:11px;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.zone.header .nav{margin-left:auto;display:flex;gap:6px}
-.zone.header .nav span{padding:5px 12px;border:1px solid rgba(255,255,255,.35);border-radius:4px;font-size:11.5px;white-space:nowrap}
-.zone.header .nav span.act{background:var(--accent);border-color:var(--accent)}
-.zone.footer{background:#F4F3EE;border-top:1px solid #E6E4DC;color:#6B7280;font-size:10px;display:flex;align-items:center;padding:0 16px;white-space:nowrap;overflow:hidden}
-.zone.filter{background:#F4F3EE;border-left:1px solid #E6E4DC;padding:12px 10px}
-.zone.filter.left{border-left:0;border-right:1px solid #E6E4DC}
-.zone.filter h4{margin:0 0 8px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6B7280}
-.zone.filter .sl{border:1px solid #D9D6CC;background:#fff;border-radius:4px;padding:5px 7px;font-size:10.5px;margin-bottom:7px;display:flex;justify-content:space-between;color:#374151;gap:6px}
+.zone.header{background:#fff;color:#0F1E2E;border-bottom:1px solid #E3E1D8;display:flex;align-items:center;padding:0 calc(16px * var(--ui));gap:calc(14px * var(--ui))}
+.zone.header.dark{background:#0F1E2E;color:#fff;border-bottom:0}
+.zone.header.accent{background:var(--accent);color:#fff;border-bottom:0}
+.zone.header .logo{width:calc(88px * var(--ui));height:calc(30px * var(--ui));border:1.5px dashed rgba(15,30,46,.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--ff-mono);font-size:calc(10px * var(--ui));letter-spacing:.06em;color:rgba(15,30,46,.6);flex:none}
+.zone.header.dark .logo,.zone.header.accent .logo{border-color:rgba(255,255,255,.55);color:rgba(255,255,255,.75)}
+.zone.header .logo.right{margin-left:auto}
+.zone.header .ttl{font-weight:600;font-size:calc(17px * var(--ui));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zone.header .sub{font-size:calc(11px * var(--ui));opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zone.header .nav{margin-left:auto;display:flex;gap:calc(6px * var(--ui))}
+.zone.header .nav.noauto{margin-left:0}
+.zone.header .nav span{padding:calc(5px * var(--ui)) calc(12px * var(--ui));border:1px solid rgba(15,30,46,.3);border-radius:4px;font-size:calc(11.5px * var(--ui));white-space:nowrap}
+.zone.header.dark .nav span,.zone.header.accent .nav span{border-color:rgba(255,255,255,.35)}
+.zone.header .nav span.act{background:var(--accent);border-color:var(--accent);color:#fff}
+.zone.header.accent .nav span.act{background:#0F1E2E;border-color:#0F1E2E}
+.zone.header .burger{width:calc(32px * var(--ui));height:calc(32px * var(--ui));border:1px solid rgba(15,30,46,.3);border-radius:4px;display:flex;flex-direction:column;justify-content:center;gap:calc(4px * var(--ui));padding:0 calc(7px * var(--ui));flex:none;position:relative}
+.zone.header .burger i{display:block;height:2px;background:currentColor;border-radius:1px}
+.zone.header .burger b{position:absolute;top:-6px;right:-6px;background:var(--accent);color:#fff;font-size:calc(9px * var(--ui));border-radius:8px;padding:0 5px;font-weight:500}
+.zone.header.dark .burger,.zone.header.accent .burger{border-color:rgba(255,255,255,.4)}
+.zone.footer{background:transparent;border-top:1px solid #E3E1D8;color:#6B7280;font-size:calc(10px * var(--ui));display:flex;align-items:center;padding:0 calc(16px * var(--ui));white-space:nowrap;overflow:hidden}
+.zone.filter{background:#ECEBE5;border-left:1px solid #E3E1D8;padding:calc(12px * var(--ui)) calc(10px * var(--ui))}
+.zone.filter.left{border-left:0;border-right:1px solid #E3E1D8}
+.zone.filter.top{border-left:0;border-bottom:1px solid #E3E1D8;display:flex;align-items:center;gap:calc(8px * var(--ui));padding:0 calc(16px * var(--ui))}
+.zone.filter.top h4{margin:0;flex:none}
+.zone.filter.top .sl{margin:0;width:calc(160px * var(--ui));flex:none}
+.zone.filter h4{margin:0 0 calc(8px * var(--ui));font-size:calc(11px * var(--ui));letter-spacing:.06em;text-transform:uppercase;color:#6B7280}
+.zone.filter .sl{border:1px solid #D9D6CC;background:#fff;border-radius:4px;padding:calc(5px * var(--ui)) calc(7px * var(--ui));font-size:calc(10.5px * var(--ui));margin-bottom:calc(7px * var(--ui));display:flex;justify-content:space-between;color:#374151;gap:6px}
 .zone.filter .sl .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .zone.filter .sl .x{color:#9CA3AF;cursor:pointer}
 .zone.filter .sl .x:hover{color:var(--bad)}
 .zone.filter .sl.ph{border-style:dashed;color:#9CA3AF;justify-content:center}
-.zone.nav{background:#0F1E2E;display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:12px}
-.zone.nav i{width:28px;height:28px;border-radius:6px;border:1.5px solid rgba(255,255,255,.35);display:block}
+.zone.nav{background:#0F1E2E;display:flex;flex-direction:column;align-items:center;gap:calc(10px * var(--ui));padding-top:calc(12px * var(--ui))}
+.zone.nav i{width:calc(28px * var(--ui));height:calc(28px * var(--ui));border-radius:6px;border:1.5px solid rgba(255,255,255,.35);display:block}
 .zone.nav i.act{background:var(--accent);border-color:var(--accent)}
 .zone.nav i.logo{border-style:dashed;margin-bottom:6px}
 .zone.filter.over{outline:2px dashed var(--sel);background:var(--sel-soft)}
-.tile{position:absolute;background:#fff;border:1px solid #E1DFD6;border-radius:6px;display:flex;flex-direction:column;overflow:hidden;cursor:pointer;transition:box-shadow .12s}
+.tile{position:absolute;background:#fff;border:1px solid #E1DFD6;border-radius:var(--tile-r);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;transition:box-shadow .12s}
+.page.tile-shadow .tile{border-color:transparent;box-shadow:0 1px 2px rgba(15,30,46,.06),0 3px 10px rgba(15,30,46,.07)}
+.page.tile-flat .tile{border-color:transparent}
 .tile:hover{box-shadow:0 0 0 2px rgba(31,95,191,.25)}
 .tile.sel{box-shadow:0 0 0 2px var(--sel)}
 .tile.empty{border-style:dashed;border-color:#C9C6BA;background:repeating-linear-gradient(135deg,#fff 0 10px,#FAFAF7 10px 20px);align-items:center;justify-content:center;color:var(--ink-mute);gap:6px}
-.tile.empty .plus{font-size:22px;line-height:1;color:var(--line-strong)}
-.tile.empty .lbl{font-size:11px}
+.tile.empty .plus{font-size:calc(22px * var(--ui));line-height:1;color:var(--line-strong)}
+.tile.empty .lbl{font-size:calc(11px * var(--ui))}
 .tile.over{background:var(--sel-soft);border-color:var(--sel)}
 .tile.dragging{opacity:.4}
-.tile .t-head{padding:6px 9px 2px;display:flex;align-items:baseline;gap:6px;min-height:0}
-.tile .t-title{font-weight:600;font-size:12px;color:#0F1E2E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tile .t-sub{font-size:9.5px;color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tile .t-body{flex:1;min-height:0;position:relative;padding:2px 8px 4px}
+.tile .t-head{padding:calc(6px * var(--ui)) calc(9px * var(--ui)) calc(2px * var(--ui));display:flex;align-items:baseline;gap:calc(6px * var(--ui));min-height:0;padding-right:calc(60px * var(--ui))}
+.tile .t-title{font-weight:600;font-size:calc(12px * var(--ui));color:#0F1E2E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .t-sub{font-size:calc(9.5px * var(--ui));color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .t-body{flex:1;min-height:0;position:relative;padding:2px calc(8px * var(--ui)) 4px}
 .tile .t-body svg{width:100%;height:100%;display:block}
-.tile .t-foot{padding:0 8px 5px;display:flex;flex-wrap:wrap;gap:3px;min-height:0;overflow:hidden}
-.tile .rchip{font-family:var(--ff-mono);font-size:8.5px;padding:1px 5px;border-radius:3px;background:#F1F0EA;color:#475569;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.tile .t-foot{padding:0 calc(8px * var(--ui)) calc(5px * var(--ui));display:flex;flex-wrap:wrap;gap:3px;min-height:0;overflow:hidden}
+.tile .rchip{font-family:var(--ff-mono);font-size:calc(8.5px * var(--ui));padding:1px calc(5px * var(--ui));border-radius:3px;background:#F1F0EA;color:#475569;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .tile .rchip.new{outline:1px dashed var(--accent);color:var(--accent);background:#fff}
-.tile .badge{position:absolute;top:5px;right:6px;font-family:var(--ff-mono);font-size:8.5px;padding:1px 5px;border-radius:3px;background:#0F1E2E;color:#fff;opacity:.75}
+.tile .rchip.link{background:#E3ECFA;color:var(--sel)}
+.tile .badges{position:absolute;top:calc(5px * var(--ui));right:calc(6px * var(--ui));display:flex;gap:3px;align-items:center}
+.tile .badge{font-family:var(--ff-mono);font-size:calc(8.5px * var(--ui));padding:1px calc(5px * var(--ui));border-radius:3px;background:#0F1E2E;color:#fff;opacity:.75}
 .tile .badge.ck{background:var(--accent)}
+.tile .note-ico{width:calc(16px * var(--ui));height:calc(16px * var(--ui));border-radius:50%;background:#FDE7D9;color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:calc(10px * var(--ui));line-height:1;cursor:help}
+.tile .note-pop{display:none;position:absolute;top:calc(24px * var(--ui));right:calc(6px * var(--ui));max-width:70%;background:#FFFBEA;border:1px solid #F3D9A4;color:#5B4300;border-radius:6px;padding:calc(6px * var(--ui)) calc(8px * var(--ui));font-size:calc(10px * var(--ui));line-height:1.35;white-space:pre-wrap;z-index:4;box-shadow:0 4px 14px rgba(15,30,46,.15)}
+.tile .note-ico:hover + .note-pop,.tile.sel .note-pop.pinned{display:block}
 .tile.tiny .t-foot,.tile.tiny .t-sub,.tile.tiny .badge{display:none}
 .tile .t-actions{position:absolute;bottom:4px;right:4px;display:none;gap:2px}
 .tile:hover .t-actions,.tile.sel .t-actions{display:flex}
-.t-actions button{border:1px solid var(--line-strong);background:#fff;border-radius:4px;width:20px;height:20px;padding:0;font-size:11px;line-height:1;color:var(--ink-soft)}
+.t-actions button{border:1px solid var(--line-strong);background:#fff;border-radius:4px;width:calc(20px * var(--ui));height:calc(20px * var(--ui));padding:0;font-size:calc(11px * var(--ui));line-height:1;color:var(--ink-soft)}
 .t-actions button:hover{background:var(--sel-soft);color:var(--sel);border-color:var(--sel)}
 .gutter{position:absolute;z-index:3}
 .gutter.v{cursor:col-resize}
@@ -217,8 +250,8 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><h1>MockupKitchen</h1><small>byDatenWG · v0.1</small></div>
-    <input class="name" id="projName" value="Neue Berichtsseite" title="Name des Mockups" spellcheck="false">
+    <div class="brand"><h1>MockupKitchen</h1><small>byDatenWG · v0.2</small></div>
+    <input class="name" id="projName" value="Neuer Bericht" title="Name des Berichts / Mockups" spellcheck="false">
     <button class="btn" id="btnTemplates" title="Seitenvorlage wählen">▦ Vorlagen</button>
     <button class="btn" id="btnImportTmdl" title="TMDL-Ordner oder -Dateien laden">⇪ TMDL laden</button>
     <span class="spacer"></span>
@@ -235,23 +268,27 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
     </div>
     <div class="panel-body">
       <div class="dropzone-model" id="modelDrop">TMDL-Ordner oder .tmdl-Dateien hierher ziehen<br><span class="mono">tables/*.tmdl</span></div>
-      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="ctl" id="modelSearch" placeholder="Feld suchen …"></div>
       <div class="row" style="margin-bottom:8px">
-        <label class="toggle" style="padding:0"><input type="checkbox" id="onlyUsed"> nur verwendete</label>
+        <button class="btn sm" id="btnDemoModel" title="Kleines Beispielmodell (Datum, Produkt, Region, Kennzahlen) laden">Demo-Modell</button>
         <span class="spacer"></span>
-        <button class="btn sm" id="btnNewMeasure">+ Neue Kennzahl</button>
+        <button class="btn sm" id="btnNewMeasure">+ Kennzahl / Dimension</button>
       </div>
+      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="ctl" id="modelSearch" placeholder="Feld suchen …"></div>
+      <label class="toggle" style="padding:0 0 8px"><input type="checkbox" id="onlyUsed"> nur verwendete Felder</label>
       <div id="modelList"></div>
     </div>
   </aside>
 
-  <main class="stage" id="stage">
-    <div class="stage-inner" id="stageInner"><div class="page" id="page"></div></div>
-    <div class="stage-info" id="stageInfo"></div>
-    <div class="stage-tools">
-      <button class="btn sm" id="btnZoomOut" title="Verkleinern">−</button>
-      <button class="btn sm" id="btnZoomFit" title="Einpassen">Fit</button>
-      <button class="btn sm" id="btnZoomIn" title="Vergrößern">+</button>
+  <main class="stagewrap">
+    <div class="pagebar" id="pagebar"></div>
+    <div class="stage" id="stage">
+      <div class="stage-inner" id="stageInner"><div class="page" id="page"></div></div>
+      <div class="stage-info" id="stageInfo"></div>
+      <div class="stage-tools">
+        <button class="btn sm" id="btnZoomOut" title="Verkleinern">−</button>
+        <button class="btn sm" id="btnZoomFit" title="Einpassen">Fit</button>
+        <button class="btn sm" id="btnZoomIn" title="Vergrößern">+</button>
+      </div>
     </div>
   </main>
 
@@ -260,23 +297,29 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       <button class="tab active" data-tab="el">Element</button>
       <button class="tab" data-tab="page">Seite</button>
       <button class="tab" data-tab="chrome">Rahmen</button>
+      <button class="tab" data-tab="design">Design</button>
     </div>
     <div class="panel-body" id="insEl"></div>
     <div class="panel-body" id="insPage" hidden>
-      <div class="field"><label>Canvas</label>
+      <div class="field"><label>Diese Seite</label><input class="ctl" id="pageName" placeholder="z. B. Übersicht"></div>
+      <div class="field"><label>Zweck / Notizen zur Seite</label><textarea class="ctl" id="pageNotes" placeholder="Zielgruppe, Kernfrage, Drill-Wege, Interaktionen …"></textarea></div>
+      <div class="row wrap" style="margin-bottom:10px"><button class="btn sm" id="btnPageDup">Seite duplizieren</button><button class="btn sm" id="btnPageDel">Seite löschen</button></div>
+      <div class="section"><h3>Canvas (alle Seiten)</h3>
         <select class="ctl" id="canvasPreset">
-          <option value="1280x720">1280 × 720 (16:9, Standard)</option>
-          <option value="1920x1080">1920 × 1080 (16:9, groß)</option>
-          <option value="1280x960">1280 × 960 (4:3)</option>
-          <option value="1080x1920">1080 × 1920 (Hochformat / Mobil)</option>
+          <option value="1280x720">HD · 1280 × 720 (Standard)</option>
+          <option value="1920x1080">Full HD · 1920 × 1080</option>
+          <option value="3840x2160">Ultra HD · 3840 × 2160</option>
+          <option value="1280x960">4:3 · 1280 × 960</option>
+          <option value="1080x1920">Hochformat · 1080 × 1920</option>
           <option value="custom">Benutzerdefiniert …</option>
         </select>
         <div class="grid2" style="margin-top:6px" id="customSize" hidden>
           <input class="ctl" type="number" id="canvasW" min="320" max="4000" step="1" placeholder="Breite">
           <input class="ctl" type="number" id="canvasH" min="200" max="4000" step="1" placeholder="Höhe">
         </div>
+        <p class="hint" id="uiScaleInfo">Schriften und Abstände skalieren automatisch mit der Canvas-Breite.</p>
       </div>
-      <div class="field"><label>Abstände (px)</label>
+      <div class="field" style="margin-top:10px"><label>Abstände (px, skalieren mit)</label>
         <div class="grid3">
           <div><input class="ctl" type="number" id="spMargin" min="0" max="64" step="4"><p class="hint">Rand</p></div>
           <div><input class="ctl" type="number" id="spGutter" min="0" max="48" step="2"><p class="hint">Zwischenraum</p></div>
@@ -291,40 +334,61 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
           <option value="AC">nur AC</option>
         </select>
       </div>
-      <div class="field"><label>Seitenname (Power BI)</label><input class="ctl" id="pageName" placeholder="z. B. Übersicht"></div>
-      <div class="field"><label>Notizen zur Seite</label><textarea class="ctl" id="pageNotes" placeholder="Zweck, Zielgruppe, Interaktionen, Drill-Wege …"></textarea></div>
-      <div class="section"><h3>Ebenen</h3>
+      <div class="section"><h3>Raster</h3>
         <button class="btn sm" id="btnSplitRoot">Inhalt neu aufteilen …</button>
-        <p class="hint">Setzt den Inhaltsbereich auf ein neues Raster (Zeilen × Spalten). Bestehende Visuals werden der Reihe nach wieder eingesetzt.</p>
+        <p class="hint">Setzt den Inhaltsbereich dieser Seite auf ein neues Raster (Zeilen × Spalten). Bestehende Visuals werden der Reihe nach wieder eingesetzt.</p>
       </div>
     </div>
     <div class="panel-body" id="insChrome" hidden>
+      <p class="hint" style="margin:0 0 6px">Rahmen gilt für alle Seiten.</p>
       <div class="section" style="border-top:0;margin-top:0;padding-top:0"><h3>Kopfband</h3>
         <label class="toggle"><input type="checkbox" id="hdOn"> Kopfband anzeigen</label>
-        <div class="grid2"><div><input class="ctl" type="number" id="hdH" min="32" max="120" step="4"><p class="hint">Höhe</p></div>
-          <div><label class="toggle"><input type="checkbox" id="hdLogo"> Logo links</label></div></div>
+        <div class="grid2">
+          <div><input class="ctl" type="number" id="hdH" min="32" max="120" step="4"><p class="hint">Höhe</p></div>
+          <div><select class="ctl" id="hdLogoPos"><option value="left">Logo links</option><option value="right">Logo rechts</option><option value="none">kein Logo</option></select><p class="hint">Logo</p></div>
+        </div>
         <div class="field"><label>Titel</label><input class="ctl" id="hdTitle"></div>
         <div class="field"><label>Untertitel</label><input class="ctl" id="hdSub" placeholder="z. B. Zeitraum, Einheit"></div>
-        <div class="field"><label>Navigation (Seiten, kommagetrennt)</label><input class="ctl" id="hdNav" placeholder="Übersicht, Umsatz, Kosten"></div>
+        <label class="toggle"><input type="checkbox" id="hdNavAuto"> Navigation aus den Seitennamen</label>
+        <div class="field"><label>Navigation manuell (kommagetrennt)</label><input class="ctl" id="hdNav" placeholder="Übersicht, Umsatz, Kosten"></div>
       </div>
       <div class="section"><h3>Linke Nav-Leiste</h3>
         <label class="toggle"><input type="checkbox" id="nvOn"> Nav-Leiste anzeigen (App-Stil)</label>
         <div class="grid2"><div><input class="ctl" type="number" id="nvW" min="40" max="120" step="4"><p class="hint">Breite</p></div></div>
       </div>
-      <div class="section"><h3>Filter-Panel</h3>
-        <label class="toggle"><input type="checkbox" id="ftOn"> Filter-Panel anzeigen</label>
+      <div class="section"><h3>Filter / Slicer</h3>
+        <label class="toggle"><input type="checkbox" id="ftOn"> Filter anzeigen</label>
         <div class="grid2">
-          <div><select class="ctl" id="ftSide"><option value="right">rechts</option><option value="left">links</option></select><p class="hint">Seite</p></div>
-          <div><input class="ctl" type="number" id="ftW" min="120" max="360" step="8"><p class="hint">Breite</p></div>
+          <div><select class="ctl" id="ftSide"><option value="right">Panel rechts</option><option value="left">Panel links</option><option value="top">Leiste oben</option><option value="burger">Burger-Menü (Bookmark)</option></select><p class="hint">Position</p></div>
+          <div><input class="ctl" type="number" id="ftW" min="48" max="360" step="8"><p class="hint" id="ftWHint">Breite</p></div>
         </div>
-        <label class="toggle"><input type="checkbox" id="ftCollapsible"> ausklappbar (Bookmark)</label>
-        <p class="hint">Felder aus dem Modell direkt aufs Panel ziehen, um Slicer anzulegen.</p>
+        <label class="toggle" id="ftCollapsibleRow"><input type="checkbox" id="ftCollapsible"> Panel ausklappbar (Bookmark)</label>
+        <p class="hint">Felder aus dem Modell direkt aufs Panel ziehen, um Slicer anzulegen. Beim Burger-Menü entsteht im Export ein Bookmark-Paar „Filter öffnen / schließen" plus Button im Kopfband.</p>
+        <div id="ftFieldList" class="row wrap" style="margin-top:6px"></div>
       </div>
       <div class="section"><h3>Fußleiste</h3>
         <label class="toggle"><input type="checkbox" id="ffOn"> Fußleiste anzeigen</label>
         <div class="grid2"><div><input class="ctl" type="number" id="ffH" min="16" max="48" step="4"><p class="hint">Höhe</p></div></div>
         <div class="field"><label>Text</label><input class="ctl" id="ffText"></div>
       </div>
+    </div>
+    <div class="panel-body" id="insDesign" hidden>
+      <p class="hint" style="margin:0 0 6px">Gestaltung gilt für alle Seiten und wandert als Design-Entscheidung in den Export.</p>
+      <div class="field"><label>Kachel-Ecken</label>
+        <select class="ctl" id="dsRadius"><option value="0">eckig</option><option value="4">leicht gerundet (4 px)</option><option value="8">gerundet (8 px)</option><option value="12">stark gerundet (12 px)</option></select>
+      </div>
+      <div class="field"><label>Kachel-Stil</label>
+        <select class="ctl" id="dsTile"><option value="border">weiß mit feinem Rahmen</option><option value="shadow">weiß mit weichem Schatten</option><option value="flat">flach, ohne Rahmen</option></select>
+      </div>
+      <div class="field"><label>Seitenhintergrund</label>
+        <select class="ctl" id="dsPageBg"><option value="light">hell strukturiert (#F4F4F1)</option><option value="soft">kühl strukturiert (#EEF1F5)</option><option value="white">weiß</option></select>
+      </div>
+      <div class="field"><label>Kopfband-Stil</label>
+        <select class="ctl" id="dsHeader"><option value="light">hell (weiß, dunkle Schrift)</option><option value="dark">dunkel (Ink)</option><option value="accent">Akzentfarbe</option></select>
+      </div>
+      <div class="field"><label>Akzentfarbe</label><div class="row"><input type="color" id="dsAccent" value="#C25A2D" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsAccentTxt">#C25A2D</span></div></div>
+      <label class="toggle off"><input type="checkbox" id="dsDark" disabled> Dark Mode (Backlog)</label>
+      <p class="hint">Farben und Schriften für Power BI kommen aus dem Theme (Design-Framework-Skill). Hier geht es um Struktur: Ecken, Flächen, Kopfband.</p>
     </div>
   </aside>
 </div>
@@ -335,34 +399,36 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 </dialog>
 
 <dialog id="dlgTemplates">
-  <div class="dlg-head"><div><h2>Seitenvorlagen</h2><p>Startpunkt für den Inhaltsbereich. Kopfband, Filter und Fußleiste bleiben wie eingestellt.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-head"><div><h2>Seitenvorlagen</h2><p>Startpunkt für den Inhaltsbereich der aktuellen Seite. Vorlagen bringen Feldbindungen aus dem Demo-Modell mit; ohne geladenes Modell wird es automatisch geladen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body"><div class="tpl-grid" id="tplGrid"></div></div>
 </dialog>
 
 <dialog id="dlgExport">
-  <div class="dlg-head"><div><h2>Export für Claude Code</h2><p>Spec + Brief in den Projektordner legen, dann den Skill <span class="mono">mockup-to-powerbi</span> aufrufen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-head"><div><h2>Export für Claude Code</h2><p>Dateien in den PBIP-Projektordner legen, dann den Skill <span class="mono">mockup-to-powerbi</span> aufrufen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body">
     <div id="expChecks"></div>
     <div class="exp-tabs" id="expTabs">
       <button data-exp="json" class="on">mockup-spec.json</button>
       <button data-exp="brief">AGENT-BRIEF.md</button>
-      <button data-exp="pbir">pbir-visuals.json</button>
+      <button data-exp="docs">WORKSHOP-DOKU.md</button>
+      <button data-exp="pbir">pbir-visuals (aktuelle Seite)</button>
       <button data-exp="prompt">Prompt für Claude Code</button>
     </div>
     <pre class="code" id="expOut"></pre>
   </div>
-  <div class="dlg-foot"><span class="hint" id="expHint" style="margin-right:auto"></span><button class="btn" id="btnExpCopy">Kopieren</button><button class="btn" id="btnExpDownload">Datei herunterladen</button><button class="btn primary" id="btnExpAll">Alle 3 Dateien herunterladen</button></div>
+  <div class="dlg-foot"><span class="hint" id="expHint" style="margin-right:auto"></span><button class="btn" id="btnExpCopy">Kopieren</button><button class="btn" id="btnExpDownload">Datei herunterladen</button><button class="btn primary" id="btnExpAll">Alle Dateien herunterladen</button></div>
 </dialog>
 
 <dialog id="dlgNewMeasure" class="narrow">
-  <div class="dlg-head"><div><h2>Neue Kennzahl</h2><p>Existiert noch nicht im Modell. Wird im Export als „zu erstellen" markiert.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-head"><div><h2>Neue Kennzahl oder Dimension</h2><p>Existiert noch nicht im Modell. Wird im Export als „zu erstellen" markiert und in der Workshop-Doku beschrieben.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body">
     <div class="field"><label>Name</label><input class="ctl" id="nmName" placeholder="z. B. Deckungsbeitrag"></div>
     <div class="grid2">
       <div class="field"><label>Tabelle</label><input class="ctl" id="nmTable" list="nmTables" placeholder="_Measures"><datalist id="nmTables"></datalist></div>
-      <div class="field"><label>Art</label><select class="ctl" id="nmKind"><option value="measure">Measure</option><option value="column">Spalte / Dimension</option></select></div>
+      <div class="field"><label>Art</label><select class="ctl" id="nmKind"><option value="measure">Kennzahl (Measure)</option><option value="column">Dimension / Spalte</option></select></div>
     </div>
-    <div class="field"><label>Beschreibung / Rechenlogik</label><textarea class="ctl" id="nmDesc" placeholder="Umsatz minus variable Kosten; Format #,##0; Einheit T€"></textarea></div>
+    <div class="field"><label>Beschreibung / Rechenlogik für den Agenten</label><textarea class="ctl" id="nmDesc" placeholder="Umsatz minus variable Kosten; Format #,##0; Einheit T€; Quelle: Tabelle X"></textarea></div>
+    <div class="field"><label>Offene Frage (optional)</label><input class="ctl" id="nmOpen" placeholder="z. B. Wer liefert die Planwerte?"></div>
   </div>
   <div class="dlg-foot"><button class="btn" data-close>Abbrechen</button><button class="btn primary" id="nmOk">Anlegen</button></div>
 </dialog>
@@ -379,18 +445,20 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 <dialog id="dlgHelp" class="narrow">
   <div class="dlg-head"><div><h2>So funktioniert MockupKitchen</h2><p>Vom Workshop-Skizzenblatt zur Power-BI-Seite.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body help">
-    <h3>1 · Rahmen und Raster</h3>
-    <p>Rechts unter „Rahmen" Kopfband, Nav, Filter-Panel und Fußleiste zuschalten. Unter „Seite" Canvas-Größe und Abstände setzen. Der Inhaltsbereich ergibt sich daraus automatisch.</p>
-    <h3>2 · Container teilen</h3>
-    <p>Jede Kachel lässt sich per <kbd>⇔</kbd> / <kbd>⇕</kbd> in Spalten oder Zeilen teilen, per <kbd>✕</kbd> entfernen. Die Trennlinien zwischen Kacheln ziehen, um Verhältnisse zu ändern. Alle Abstände bleiben dabei konsistent.</p>
-    <h3>3 · Visual und Felder</h3>
-    <p>Kachel anklicken → Typ wählen (ChartKitchen-IBCS-Typen oder native Visuals). Felder aus dem Datenmodell links per Drag-and-drop auf die Kachel oder gezielt auf eine Datenrolle im Inspector ziehen. Kachel auf Kachel ziehen tauscht die Inhalte. Fehlt eine Kennzahl im Modell: „+ Neue Kennzahl" anlegen, sie wird im Export als To-do markiert.</p>
-    <h3>4 · TMDL laden</h3>
-    <p>Den Ordner <span class="mono">*.SemanticModel/definition/tables</span> (oder einzelne .tmdl-Dateien) auf die Ablagefläche ziehen. Gelesen werden nur Tabellen-, Spalten- und Measure-Namen sowie Datentypen und Beschreibungen. Nichts wird hochgeladen, alles bleibt im Browser.</p>
-    <h3>5 · Export</h3>
-    <p>„Export für Claude Code" erzeugt <span class="mono">mockup-spec.json</span> (Layout in Canvas-Pixeln, Zonen, Visuals mit Feldbindungen), <span class="mono">AGENT-BRIEF.md</span> (Regelsatz, kompatibel zum Design-Framework-Skill) und <span class="mono">pbir-visuals.json</span> (direkt für <span class="mono">pbir add visual --from-json</span>). Dateien in den PBIP-Projektordner legen und den Skill <span class="mono">mockup-to-powerbi</span> starten.</p>
+    <h3>1 · Rahmen, Design, Raster</h3>
+    <p>Rechts unter „Rahmen" Kopfband, Nav, Filter (Panel links/rechts, Leiste oben oder Burger-Menü) und Fußleiste zuschalten. Unter „Design" Ecken, Kachel-Stil, Hintergrund und Kopfband-Stil. Unter „Seite" Canvas-Größe (HD, Full HD, Ultra HD) und Abstände. Schriften skalieren mit.</p>
+    <h3>2 · Seiten</h3>
+    <p>Über der Zeichenfläche liegen die Seiten. „+ Seite" legt eine neue an, Doppelklick benennt um, Duplizieren und Löschen unter „Seite". Ein Visual kann auf eine Zielseite verweisen (Element → „Springt zu"), das wird als Drill/Navigation exportiert.</p>
+    <h3>3 · Container teilen</h3>
+    <p>Jede Kachel lässt sich per <kbd>⇔</kbd> / <kbd>⇕</kbd> in Spalten oder Zeilen teilen, per <kbd>✕</kbd> entfernen. Trennlinien ziehen, um Verhältnisse zu ändern.</p>
+    <h3>4 · Visual, Felder, Notizen</h3>
+    <p>Doppelklick auf eine Kachel → Typ wählen. Felder aus dem Modell auf die Kachel oder gezielt auf eine Datenrolle ziehen. Kachel auf Kachel ziehen tauscht die Inhalte. Notizen zur Kachel erscheinen als ✎-Symbol auf der Karte und beim Darüberfahren. Fehlt eine Kennzahl: „+ Kennzahl / Dimension" mit Beschreibung anlegen, sie wird im Export als To-do geführt.</p>
+    <h3>5 · Modell</h3>
+    <p>TMDL-Ordner (<span class="mono">*.SemanticModel/definition/tables</span>) auf die Ablagefläche ziehen, oder „Demo-Modell" für einen schnellen Start. Es werden nur Namen, Typen und Beschreibungen gelesen; nichts verlässt den Browser.</p>
+    <h3>6 · Export</h3>
+    <p>„Export für Claude Code" erzeugt <span class="mono">mockup-spec.json</span>, <span class="mono">AGENT-BRIEF.md</span>, <span class="mono">WORKSHOP-DOKU.md</span> und je Seite eine <span class="mono">pbir-visuals.&lt;Seite&gt;.json</span>. Dateien in den PBIP-Ordner legen und den Skill <span class="mono">mockup-to-powerbi</span> starten; er baut die Seiten und kann Doku und PowerPoint daraus erzeugen.</p>
     <h3>Tastatur</h3>
-    <p><kbd>Entf</kbd> leert die Kachel · <kbd>Esc</kbd> Auswahl aufheben · <kbd>Strg</kbd>+<kbd>S</kbd> speichern · <kbd>Strg</kbd>+<kbd>E</kbd> Export · Zustand wird automatisch im Browser gemerkt.</p>
+    <p><kbd>Entf</kbd> leert die Kachel · <kbd>Esc</kbd> Auswahl aufheben · <kbd>Strg</kbd>+<kbd>Z</kbd> rückgängig · <kbd>Strg</kbd>+<kbd>S</kbd> speichern · <kbd>Strg</kbd>+<kbd>E</kbd> Export. Der Stand wird automatisch im Browser gemerkt.</p>
   </div>
 </dialog>
 
