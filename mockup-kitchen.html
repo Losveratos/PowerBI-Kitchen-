@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MockupKitchen · Power-BI-Seiten skizzieren</title>
+<meta name="description" content="Mockup-Tool für Power-BI-Berichtsseiten: Container-Layout, TMDL-Felder per Drag-and-drop, IBCS-Skizzen, Export als JSON-Spec + Agent-Brief für Claude Code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-soft:#F1F0EA; --ink:#0F1E2E; --ink-soft:#475569; --ink-mute:#8A94A6;
+  --line:#E4E2DA; --line-strong:#C9C6BA; --accent:#C25A2D; --accent-soft:#F6E7DF;
+  --ok:#2E7D5B; --bad:#B8392F; --sel:#1F5FBF; --sel-soft:#E3ECFA;
+  --ff-serif:'Fraunces',Georgia,serif; --ff-sans:'Geist',system-ui,sans-serif; --ff-mono:'JetBrains Mono',Consolas,monospace;
+  --r:8px; --sh:0 1px 2px rgba(15,30,46,.06),0 4px 14px rgba(15,30,46,.06);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:var(--ff-sans);color:var(--ink);background:var(--bg);font-size:13px;line-height:1.45;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.mono{font-family:var(--ff-mono);font-size:11px}
+.app{display:grid;grid-template-rows:52px 1fr;grid-template-columns:280px 1fr 320px;height:100vh}
+/* ---------- Topbar ---------- */
+.topbar{grid-column:1/4;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--bg-card);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:baseline;gap:8px;margin-right:6px}
+.brand h1{font-family:var(--ff-serif);font-weight:600;font-size:19px;margin:0;letter-spacing:-.01em}
+.brand small{font-family:var(--ff-mono);font-size:10px;color:var(--ink-mute);letter-spacing:.04em;text-transform:uppercase}
+.topbar input.name{border:1px solid transparent;background:transparent;padding:6px 8px;border-radius:6px;font-weight:500;min-width:220px}
+.topbar input.name:hover,.topbar input.name:focus{border-color:var(--line);background:var(--bg);outline:none}
+.spacer{flex:1}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-strong);background:var(--bg-card);padding:6px 11px;border-radius:6px;font-weight:500;font-size:12.5px;white-space:nowrap}
+.btn:hover{background:var(--bg-soft)}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.primary:hover{background:#1c3047}
+.btn.accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.accent:hover{filter:brightness(1.08)}
+.btn.sm{padding:3px 8px;font-size:11.5px}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--bg-soft)}
+.btn[disabled]{opacity:.45;cursor:default}
+select.ctl,input.ctl,textarea.ctl{border:1px solid var(--line-strong);background:var(--bg-card);border-radius:6px;padding:5px 8px;font-size:12.5px;width:100%}
+input.ctl:focus,select.ctl:focus,textarea.ctl:focus{outline:2px solid var(--sel-soft);border-color:var(--sel)}
+textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
+/* ---------- Panels ---------- */
+.panel{background:var(--bg-card);overflow:auto;display:flex;flex-direction:column;min-height:0}
+.panel.left{border-right:1px solid var(--line)}
+.panel.right{border-left:1px solid var(--line)}
+.panel-head{padding:10px 14px 8px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg-card);z-index:2}
+.panel-head h2{font-family:var(--ff-serif);font-size:15px;font-weight:600;margin:0 0 2px}
+.panel-head p{margin:0;color:var(--ink-mute);font-size:11.5px}
+.panel-body{padding:10px 14px 24px;flex:1}
+.row{display:flex;gap:8px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.hint{color:var(--ink-mute);font-size:11.5px;margin:4px 0 0}
+.section{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}
+.section h3{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);margin:0 0 8px;font-weight:600}
+.toggle{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--accent);width:15px;height:15px;margin:0}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:0 14px;background:var(--bg-card);position:sticky;top:0;z-index:2}
+.tab{padding:9px 10px;border-bottom:2px solid transparent;font-weight:500;color:var(--ink-soft);background:none;border-top:0;border-left:0;border-right:0}
+.tab.active{color:var(--ink);border-bottom-color:var(--accent)}
+/* ---------- Model panel ---------- */
+.search{position:relative;margin-bottom:8px}
+.search input{padding-left:28px}
+.search svg{position:absolute;left:9px;top:8px;width:13px;height:13px;color:var(--ink-mute)}
+.table-block{margin-bottom:6px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.table-head{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bg-soft);cursor:pointer;font-weight:600;font-size:12px}
+.table-head .cnt{margin-left:auto;color:var(--ink-mute);font-weight:400;font-family:var(--ff-mono);font-size:10.5px}
+.table-head .car{transition:transform .15s;color:var(--ink-mute)}
+.table-block.open .car{transform:rotate(90deg)}
+.table-body{display:none;padding:6px 6px 4px}
+.table-block.open .table-body{display:block}
+.fchip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line-strong);background:var(--bg-card);border-radius:5px;padding:3px 7px 3px 5px;margin:0 4px 4px 0;font-size:11.5px;cursor:grab;max-width:100%;user-select:none}
+.fchip:active{cursor:grabbing}
+.fchip .ico{width:14px;height:14px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--ff-mono);font-size:9px;font-weight:600;flex:none}
+.fchip.m .ico{background:#FDE7D9;color:var(--accent)}
+.fchip.c .ico{background:#E3ECFA;color:var(--sel)}
+.fchip.new{border-style:dashed;border-color:var(--accent)}
+.fchip .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fchip.used{background:var(--bg-soft)}
+.fchip .x{border:0;background:none;padding:0 0 0 2px;color:var(--ink-mute);line-height:1;font-size:13px}
+.fchip .x:hover{color:var(--bad)}
+.empty-model{border:1px dashed var(--line-strong);border-radius:var(--r);padding:14px;text-align:center;color:var(--ink-mute)}
+.empty-model strong{color:var(--ink);display:block;margin-bottom:4px}
+.dropzone-model{border:2px dashed var(--line-strong);border-radius:var(--r);padding:10px;text-align:center;color:var(--ink-mute);font-size:11.5px;margin-bottom:10px;transition:.15s}
+.dropzone-model.over{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+/* ---------- Stage ---------- */
+.stage{position:relative;overflow:auto;background:
+  radial-gradient(circle at 1px 1px, rgba(15,30,46,.09) 1px, transparent 1px) 0 0/16px 16px, var(--bg)}
+.stage-inner{min-width:100%;min-height:100%;display:flex;align-items:center;justify-content:center;padding:28px}
+.page{position:relative;background:#fff;box-shadow:0 2px 6px rgba(15,30,46,.08),0 18px 44px rgba(15,30,46,.12);transform-origin:top left;outline:1px solid var(--line)}
+.page *{box-sizing:border-box}
+.zone{position:absolute;overflow:hidden}
+.zone.header{background:#0F1E2E;color:#fff;display:flex;align-items:center;padding:0 16px;gap:14px}
+.zone.header .logo{width:88px;height:30px;border:1.5px dashed rgba(255,255,255,.55);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--ff-mono);font-size:10px;letter-spacing:.06em;color:rgba(255,255,255,.75);flex:none}
+.zone.header .ttl{font-family:var(--ff-sans);font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zone.header .sub{font-size:11px;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zone.header .nav{margin-left:auto;display:flex;gap:6px}
+.zone.header .nav span{padding:5px 12px;border:1px solid rgba(255,255,255,.35);border-radius:4px;font-size:11.5px;white-space:nowrap}
+.zone.header .nav span.act{background:var(--accent);border-color:var(--accent)}
+.zone.footer{background:#F4F3EE;border-top:1px solid #E6E4DC;color:#6B7280;font-size:10px;display:flex;align-items:center;padding:0 16px;white-space:nowrap;overflow:hidden}
+.zone.filter{background:#F4F3EE;border-left:1px solid #E6E4DC;padding:12px 10px}
+.zone.filter.left{border-left:0;border-right:1px solid #E6E4DC}
+.zone.filter h4{margin:0 0 8px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6B7280}
+.zone.filter .sl{border:1px solid #D9D6CC;background:#fff;border-radius:4px;padding:5px 7px;font-size:10.5px;margin-bottom:7px;display:flex;justify-content:space-between;color:#374151;gap:6px}
+.zone.filter .sl .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.zone.filter .sl .x{color:#9CA3AF;cursor:pointer}
+.zone.filter .sl .x:hover{color:var(--bad)}
+.zone.filter .sl.ph{border-style:dashed;color:#9CA3AF;justify-content:center}
+.zone.nav{background:#0F1E2E;display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:12px}
+.zone.nav i{width:28px;height:28px;border-radius:6px;border:1.5px solid rgba(255,255,255,.35);display:block}
+.zone.nav i.act{background:var(--accent);border-color:var(--accent)}
+.zone.nav i.logo{border-style:dashed;margin-bottom:6px}
+.zone.filter.over{outline:2px dashed var(--sel);background:var(--sel-soft)}
+.tile{position:absolute;background:#fff;border:1px solid #E1DFD6;border-radius:6px;display:flex;flex-direction:column;overflow:hidden;cursor:pointer;transition:box-shadow .12s}
+.tile:hover{box-shadow:0 0 0 2px rgba(31,95,191,.25)}
+.tile.sel{box-shadow:0 0 0 2px var(--sel)}
+.tile.empty{border-style:dashed;border-color:#C9C6BA;background:repeating-linear-gradient(135deg,#fff 0 10px,#FAFAF7 10px 20px);align-items:center;justify-content:center;color:var(--ink-mute);gap:6px}
+.tile.empty .plus{font-size:22px;line-height:1;color:var(--line-strong)}
+.tile.empty .lbl{font-size:11px}
+.tile.over{background:var(--sel-soft);border-color:var(--sel)}
+.tile.dragging{opacity:.4}
+.tile .t-head{padding:6px 9px 2px;display:flex;align-items:baseline;gap:6px;min-height:0}
+.tile .t-title{font-weight:600;font-size:12px;color:#0F1E2E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .t-sub{font-size:9.5px;color:#6B7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .t-body{flex:1;min-height:0;position:relative;padding:2px 8px 4px}
+.tile .t-body svg{width:100%;height:100%;display:block}
+.tile .t-foot{padding:0 8px 5px;display:flex;flex-wrap:wrap;gap:3px;min-height:0;overflow:hidden}
+.tile .rchip{font-family:var(--ff-mono);font-size:8.5px;padding:1px 5px;border-radius:3px;background:#F1F0EA;color:#475569;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.tile .rchip.new{outline:1px dashed var(--accent);color:var(--accent);background:#fff}
+.tile .badge{position:absolute;top:5px;right:6px;font-family:var(--ff-mono);font-size:8.5px;padding:1px 5px;border-radius:3px;background:#0F1E2E;color:#fff;opacity:.75}
+.tile .badge.ck{background:var(--accent)}
+.tile.tiny .t-foot,.tile.tiny .t-sub,.tile.tiny .badge{display:none}
+.tile .t-actions{position:absolute;bottom:4px;right:4px;display:none;gap:2px}
+.tile:hover .t-actions,.tile.sel .t-actions{display:flex}
+.t-actions button{border:1px solid var(--line-strong);background:#fff;border-radius:4px;width:20px;height:20px;padding:0;font-size:11px;line-height:1;color:var(--ink-soft)}
+.t-actions button:hover{background:var(--sel-soft);color:var(--sel);border-color:var(--sel)}
+.gutter{position:absolute;z-index:3}
+.gutter.v{cursor:col-resize}
+.gutter.h{cursor:row-resize}
+.gutter::after{content:"";position:absolute;inset:0;margin:auto;background:transparent;border-radius:2px;transition:background .12s}
+.gutter.v::after{width:3px}
+.gutter.h::after{height:3px}
+.gutter:hover::after,.gutter.active::after{background:var(--sel)}
+.stage-tools{position:absolute;right:14px;bottom:12px;display:flex;gap:6px;z-index:5}
+.stage-tools .btn{box-shadow:var(--sh)}
+.stage-info{position:absolute;left:14px;bottom:12px;font-family:var(--ff-mono);font-size:10.5px;color:var(--ink-mute);background:rgba(250,250,247,.85);padding:3px 7px;border-radius:4px;z-index:5}
+/* ---------- Inspector ---------- */
+.role{border:1px solid var(--line);border-radius:6px;padding:6px 8px;margin-bottom:6px;background:var(--bg)}
+.role.over{border-color:var(--sel);background:var(--sel-soft)}
+.role .rl{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:4px}
+.role .rl .k{font-family:var(--ff-mono);font-weight:400;font-size:9.5px;color:var(--ink-mute);margin-left:auto}
+.role .rl .req{color:var(--accent)}
+.role .drop{font-size:11px;color:var(--ink-mute);border:1px dashed var(--line-strong);border-radius:4px;padding:4px 6px;text-align:center}
+.role .chips{display:flex;flex-wrap:wrap}
+.typebtn{display:flex;align-items:center;gap:10px;width:100%;border:1px solid var(--line-strong);background:var(--bg-card);border-radius:var(--r);padding:8px;text-align:left}
+.typebtn:hover{border-color:var(--sel)}
+.typebtn .pv{width:64px;height:40px;flex:none;border:1px solid var(--line);border-radius:4px;background:#fff;padding:3px}
+.typebtn .pv svg{width:100%;height:100%}
+.typebtn b{display:block;font-size:12.5px}
+.typebtn small{color:var(--ink-mute);font-size:11px}
+.engine{display:flex;gap:4px}
+.engine button{flex:1;border:1px solid var(--line-strong);background:var(--bg-card);border-radius:5px;padding:4px 0;font-size:11.5px}
+.engine button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.engine button.on.ck{background:var(--accent);border-color:var(--accent)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:11.5px}
+.kv .k{color:var(--ink-mute);font-family:var(--ff-mono);font-size:10.5px}
+/* ---------- Dialogs ---------- */
+dialog{border:0;border-radius:12px;box-shadow:0 24px 70px rgba(15,30,46,.28);padding:0;max-width:min(96vw,980px);width:920px;color:var(--ink);background:var(--bg-card)}
+dialog::backdrop{background:rgba(15,30,46,.45)}
+dialog.narrow{width:520px}
+.dlg-head{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.dlg-head h2{font-family:var(--ff-serif);font-weight:600;font-size:18px;margin:0}
+.dlg-head p{margin:0;color:var(--ink-mute);font-size:12px}
+.dlg-body{padding:14px 18px;max-height:70vh;overflow:auto}
+.dlg-foot{padding:10px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.cat-groups h3{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);margin:12px 0 6px}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.cat-item{border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--bg-card);cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px}
+.cat-item:hover{border-color:var(--sel);box-shadow:0 0 0 2px var(--sel-soft)}
+.cat-item.cur{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.cat-item .pv{height:64px;border:1px solid var(--line);border-radius:4px;padding:4px;background:#fff}
+.cat-item .pv svg{width:100%;height:100%}
+.cat-item b{font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-item small{color:var(--ink-mute);font-size:10.5px;font-family:var(--ff-mono)}
+.exp-tabs{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}
+.exp-tabs button{border:1px solid var(--line-strong);background:var(--bg-card);border-radius:6px;padding:5px 10px;font-size:12px}
+.exp-tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:11px;line-height:1.5;padding:12px 14px;border-radius:8px;overflow:auto;max-height:52vh;margin:0;white-space:pre-wrap;word-break:break-word}
+.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.tpl{border:1px solid var(--line);border-radius:8px;padding:8px;cursor:pointer;background:var(--bg-card)}
+.tpl:hover{border-color:var(--sel);box-shadow:0 0 0 2px var(--sel-soft)}
+.tpl .pv{height:96px;border:1px solid var(--line);border-radius:4px;background:#fff;margin-bottom:6px}
+.tpl .pv svg{width:100%;height:100%}
+.tpl b{font-size:12.5px;display:block}
+.tpl small{color:var(--ink-mute);font-size:11px}
+.help h3{font-family:var(--ff-serif);font-size:15px;margin:14px 0 4px}
+.help p,.help li{font-size:12.5px;color:var(--ink-soft)}
+.help kbd{font-family:var(--ff-mono);font-size:10.5px;border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--bg)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px;font-size:12.5px;opacity:0;transition:.2s;pointer-events:none;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.warn{background:#FFF7E6;border:1px solid #F3D9A4;color:#7A4B00;border-radius:6px;padding:6px 9px;font-size:11.5px;margin-bottom:8px}
+.ok{background:#E8F5EE;border:1px solid #BFE3CD;color:#1E5A3A;border-radius:6px;padding:6px 9px;font-size:11.5px;margin-bottom:8px}
+.pill{display:inline-block;font-family:var(--ff-mono);font-size:10px;padding:1px 6px;border-radius:10px;background:var(--bg-soft);color:var(--ink-soft)}
+.list-dense{margin:0;padding-left:16px}
+.list-dense li{margin:2px 0}
+@media (max-width:1100px){.app{grid-template-columns:240px 1fr 280px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><h1>MockupKitchen</h1><small>byDatenWG · v0.1</small></div>
+    <input class="name" id="projName" value="Neue Berichtsseite" title="Name des Mockups" spellcheck="false">
+    <button class="btn" id="btnTemplates" title="Seitenvorlage wählen">▦ Vorlagen</button>
+    <button class="btn" id="btnImportTmdl" title="TMDL-Ordner oder -Dateien laden">⇪ TMDL laden</button>
+    <span class="spacer"></span>
+    <button class="btn ghost" id="btnHelp" title="Hilfe">?</button>
+    <button class="btn" id="btnOpen" title="Mockup-Datei öffnen (.mockup.json)">Öffnen</button>
+    <button class="btn" id="btnSave" title="Als .mockup.json speichern">Speichern</button>
+    <button class="btn accent" id="btnExport">Export für Claude Code</button>
+  </header>
+
+  <aside class="panel left">
+    <div class="panel-head">
+      <h2>Datenmodell</h2>
+      <p id="modelMeta">Kein Modell geladen</p>
+    </div>
+    <div class="panel-body">
+      <div class="dropzone-model" id="modelDrop">TMDL-Ordner oder .tmdl-Dateien hierher ziehen<br><span class="mono">tables/*.tmdl</span></div>
+      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="ctl" id="modelSearch" placeholder="Feld suchen …"></div>
+      <div class="row" style="margin-bottom:8px">
+        <label class="toggle" style="padding:0"><input type="checkbox" id="onlyUsed"> nur verwendete</label>
+        <span class="spacer"></span>
+        <button class="btn sm" id="btnNewMeasure">+ Neue Kennzahl</button>
+      </div>
+      <div id="modelList"></div>
+    </div>
+  </aside>
+
+  <main class="stage" id="stage">
+    <div class="stage-inner" id="stageInner"><div class="page" id="page"></div></div>
+    <div class="stage-info" id="stageInfo"></div>
+    <div class="stage-tools">
+      <button class="btn sm" id="btnZoomOut" title="Verkleinern">−</button>
+      <button class="btn sm" id="btnZoomFit" title="Einpassen">Fit</button>
+      <button class="btn sm" id="btnZoomIn" title="Vergrößern">+</button>
+    </div>
+  </main>
+
+  <aside class="panel right">
+    <div class="tabs">
+      <button class="tab active" data-tab="el">Element</button>
+      <button class="tab" data-tab="page">Seite</button>
+      <button class="tab" data-tab="chrome">Rahmen</button>
+    </div>
+    <div class="panel-body" id="insEl"></div>
+    <div class="panel-body" id="insPage" hidden>
+      <div class="field"><label>Canvas</label>
+        <select class="ctl" id="canvasPreset">
+          <option value="1280x720">1280 × 720 (16:9, Standard)</option>
+          <option value="1920x1080">1920 × 1080 (16:9, groß)</option>
+          <option value="1280x960">1280 × 960 (4:3)</option>
+          <option value="1080x1920">1080 × 1920 (Hochformat / Mobil)</option>
+          <option value="custom">Benutzerdefiniert …</option>
+        </select>
+        <div class="grid2" style="margin-top:6px" id="customSize" hidden>
+          <input class="ctl" type="number" id="canvasW" min="320" max="4000" step="1" placeholder="Breite">
+          <input class="ctl" type="number" id="canvasH" min="200" max="4000" step="1" placeholder="Höhe">
+        </div>
+      </div>
+      <div class="field"><label>Abstände (px)</label>
+        <div class="grid3">
+          <div><input class="ctl" type="number" id="spMargin" min="0" max="64" step="4"><p class="hint">Rand</p></div>
+          <div><input class="ctl" type="number" id="spGutter" min="0" max="48" step="2"><p class="hint">Zwischenraum</p></div>
+          <div><input class="ctl" type="number" id="spPad" min="0" max="32" step="2"><p class="hint">Kachel innen</p></div>
+        </div>
+      </div>
+      <div class="field"><label>Standard-Szenario neuer Charts</label>
+        <select class="ctl" id="defScenario">
+          <option value="AC/PL">AC vs PL (Ist vs Plan)</option>
+          <option value="AC/PY">AC vs PY (Ist vs Vorjahr)</option>
+          <option value="AC/PL/FC">AC + FC vs PL</option>
+          <option value="AC">nur AC</option>
+        </select>
+      </div>
+      <div class="field"><label>Seitenname (Power BI)</label><input class="ctl" id="pageName" placeholder="z. B. Übersicht"></div>
+      <div class="field"><label>Notizen zur Seite</label><textarea class="ctl" id="pageNotes" placeholder="Zweck, Zielgruppe, Interaktionen, Drill-Wege …"></textarea></div>
+      <div class="section"><h3>Ebenen</h3>
+        <button class="btn sm" id="btnSplitRoot">Inhalt neu aufteilen …</button>
+        <p class="hint">Setzt den Inhaltsbereich auf ein neues Raster (Zeilen × Spalten). Bestehende Visuals werden der Reihe nach wieder eingesetzt.</p>
+      </div>
+    </div>
+    <div class="panel-body" id="insChrome" hidden>
+      <div class="section" style="border-top:0;margin-top:0;padding-top:0"><h3>Kopfband</h3>
+        <label class="toggle"><input type="checkbox" id="hdOn"> Kopfband anzeigen</label>
+        <div class="grid2"><div><input class="ctl" type="number" id="hdH" min="32" max="120" step="4"><p class="hint">Höhe</p></div>
+          <div><label class="toggle"><input type="checkbox" id="hdLogo"> Logo links</label></div></div>
+        <div class="field"><label>Titel</label><input class="ctl" id="hdTitle"></div>
+        <div class="field"><label>Untertitel</label><input class="ctl" id="hdSub" placeholder="z. B. Zeitraum, Einheit"></div>
+        <div class="field"><label>Navigation (Seiten, kommagetrennt)</label><input class="ctl" id="hdNav" placeholder="Übersicht, Umsatz, Kosten"></div>
+      </div>
+      <div class="section"><h3>Linke Nav-Leiste</h3>
+        <label class="toggle"><input type="checkbox" id="nvOn"> Nav-Leiste anzeigen (App-Stil)</label>
+        <div class="grid2"><div><input class="ctl" type="number" id="nvW" min="40" max="120" step="4"><p class="hint">Breite</p></div></div>
+      </div>
+      <div class="section"><h3>Filter-Panel</h3>
+        <label class="toggle"><input type="checkbox" id="ftOn"> Filter-Panel anzeigen</label>
+        <div class="grid2">
+          <div><select class="ctl" id="ftSide"><option value="right">rechts</option><option value="left">links</option></select><p class="hint">Seite</p></div>
+          <div><input class="ctl" type="number" id="ftW" min="120" max="360" step="8"><p class="hint">Breite</p></div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="ftCollapsible"> ausklappbar (Bookmark)</label>
+        <p class="hint">Felder aus dem Modell direkt aufs Panel ziehen, um Slicer anzulegen.</p>
+      </div>
+      <div class="section"><h3>Fußleiste</h3>
+        <label class="toggle"><input type="checkbox" id="ffOn"> Fußleiste anzeigen</label>
+        <div class="grid2"><div><input class="ctl" type="number" id="ffH" min="16" max="48" step="4"><p class="hint">Höhe</p></div></div>
+        <div class="field"><label>Text</label><input class="ctl" id="ffText"></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<dialog id="dlgCatalog">
+  <div class="dlg-head"><div><h2>Visual wählen</h2><p>ChartKitchen-Typen im IBCS-Look und native Power-BI-Visuals. Klicken setzt den Typ der gewählten Kachel.</p></div><span class="spacer"></span><input class="ctl" id="catSearch" placeholder="Typ suchen …" style="width:200px"><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-body cat-groups" id="catBody"></div>
+</dialog>
+
+<dialog id="dlgTemplates">
+  <div class="dlg-head"><div><h2>Seitenvorlagen</h2><p>Startpunkt für den Inhaltsbereich. Kopfband, Filter und Fußleiste bleiben wie eingestellt.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-body"><div class="tpl-grid" id="tplGrid"></div></div>
+</dialog>
+
+<dialog id="dlgExport">
+  <div class="dlg-head"><div><h2>Export für Claude Code</h2><p>Spec + Brief in den Projektordner legen, dann den Skill <span class="mono">mockup-to-powerbi</span> aufrufen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-body">
+    <div id="expChecks"></div>
+    <div class="exp-tabs" id="expTabs">
+      <button data-exp="json" class="on">mockup-spec.json</button>
+      <button data-exp="brief">AGENT-BRIEF.md</button>
+      <button data-exp="pbir">pbir-visuals.json</button>
+      <button data-exp="prompt">Prompt für Claude Code</button>
+    </div>
+    <pre class="code" id="expOut"></pre>
+  </div>
+  <div class="dlg-foot"><span class="hint" id="expHint" style="margin-right:auto"></span><button class="btn" id="btnExpCopy">Kopieren</button><button class="btn" id="btnExpDownload">Datei herunterladen</button><button class="btn primary" id="btnExpAll">Alle 3 Dateien herunterladen</button></div>
+</dialog>
+
+<dialog id="dlgNewMeasure" class="narrow">
+  <div class="dlg-head"><div><h2>Neue Kennzahl</h2><p>Existiert noch nicht im Modell. Wird im Export als „zu erstellen" markiert.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-body">
+    <div class="field"><label>Name</label><input class="ctl" id="nmName" placeholder="z. B. Deckungsbeitrag"></div>
+    <div class="grid2">
+      <div class="field"><label>Tabelle</label><input class="ctl" id="nmTable" list="nmTables" placeholder="_Measures"><datalist id="nmTables"></datalist></div>
+      <div class="field"><label>Art</label><select class="ctl" id="nmKind"><option value="measure">Measure</option><option value="column">Spalte / Dimension</option></select></div>
+    </div>
+    <div class="field"><label>Beschreibung / Rechenlogik</label><textarea class="ctl" id="nmDesc" placeholder="Umsatz minus variable Kosten; Format #,##0; Einheit T€"></textarea></div>
+  </div>
+  <div class="dlg-foot"><button class="btn" data-close>Abbrechen</button><button class="btn primary" id="nmOk">Anlegen</button></div>
+</dialog>
+
+<dialog id="dlgSplit" class="narrow">
+  <div class="dlg-head"><div><h2>Inhalt neu aufteilen</h2><p>Zeilen × Spalten als Startraster. Danach jede Zelle weiter teilen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-body"><div class="grid2">
+    <div class="field"><label>Zeilen</label><input class="ctl" type="number" id="spRows" value="2" min="1" max="6"></div>
+    <div class="field"><label>Spalten</label><input class="ctl" type="number" id="spCols" value="2" min="1" max="6"></div>
+  </div><p class="hint">Bestehende Visuals werden der Reihe nach in die neuen Zellen gesetzt; überzählige gehen verloren.</p></div>
+  <div class="dlg-foot"><button class="btn" data-close>Abbrechen</button><button class="btn primary" id="spOk">Aufteilen</button></div>
+</dialog>
+
+<dialog id="dlgHelp" class="narrow">
+  <div class="dlg-head"><div><h2>So funktioniert MockupKitchen</h2><p>Vom Workshop-Skizzenblatt zur Power-BI-Seite.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-body help">
+    <h3>1 · Rahmen und Raster</h3>
+    <p>Rechts unter „Rahmen" Kopfband, Nav, Filter-Panel und Fußleiste zuschalten. Unter „Seite" Canvas-Größe und Abstände setzen. Der Inhaltsbereich ergibt sich daraus automatisch.</p>
+    <h3>2 · Container teilen</h3>
+    <p>Jede Kachel lässt sich per <kbd>⇔</kbd> / <kbd>⇕</kbd> in Spalten oder Zeilen teilen, per <kbd>✕</kbd> entfernen. Die Trennlinien zwischen Kacheln ziehen, um Verhältnisse zu ändern. Alle Abstände bleiben dabei konsistent.</p>
+    <h3>3 · Visual und Felder</h3>
+    <p>Kachel anklicken → Typ wählen (ChartKitchen-IBCS-Typen oder native Visuals). Felder aus dem Datenmodell links per Drag-and-drop auf die Kachel oder gezielt auf eine Datenrolle im Inspector ziehen. Kachel auf Kachel ziehen tauscht die Inhalte. Fehlt eine Kennzahl im Modell: „+ Neue Kennzahl" anlegen, sie wird im Export als To-do markiert.</p>
+    <h3>4 · TMDL laden</h3>
+    <p>Den Ordner <span class="mono">*.SemanticModel/definition/tables</span> (oder einzelne .tmdl-Dateien) auf die Ablagefläche ziehen. Gelesen werden nur Tabellen-, Spalten- und Measure-Namen sowie Datentypen und Beschreibungen. Nichts wird hochgeladen, alles bleibt im Browser.</p>
+    <h3>5 · Export</h3>
+    <p>„Export für Claude Code" erzeugt <span class="mono">mockup-spec.json</span> (Layout in Canvas-Pixeln, Zonen, Visuals mit Feldbindungen), <span class="mono">AGENT-BRIEF.md</span> (Regelsatz, kompatibel zum Design-Framework-Skill) und <span class="mono">pbir-visuals.json</span> (direkt für <span class="mono">pbir add visual --from-json</span>). Dateien in den PBIP-Projektordner legen und den Skill <span class="mono">mockup-to-powerbi</span> starten.</p>
+    <h3>Tastatur</h3>
+    <p><kbd>Entf</kbd> leert die Kachel · <kbd>Esc</kbd> Auswahl aufheben · <kbd>Strg</kbd>+<kbd>S</kbd> speichern · <kbd>Strg</kbd>+<kbd>E</kbd> Export · Zustand wird automatisch im Browser gemerkt.</p>
+  </div>
+</dialog>
+
+<input type="file" id="fileTmdl" webkitdirectory multiple hidden>
+<input type="file" id="fileTmdlSingle" accept=".tmdl,.txt,.json" multiple hidden>
+<input type="file" id="fileOpen" accept=".json" hidden>
+<div class="toast" id="toast"></div>
+
+<script src="assets/mockup/sketches.js"></script>
+<script src="assets/mockup/catalog.js"></script>
+<script src="assets/mockup/app.js"></script>
+<script src="assets/mockup/export.js"></script>
+</body>
+</html>

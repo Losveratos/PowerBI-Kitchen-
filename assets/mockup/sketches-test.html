@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MockupKitchen · Skizzen-Testblatt</title>
+<style>
+  :root {
+    --bg: #FAFAF7;
+    --bg-card: #FFFFFF;
+    --ink: #0F1E2E;
+    --ink-soft: #475569;
+    --accent: #C25A2D;
+    --border: #E5E5E5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 20px 64px;
+    background: var(--bg); color: var(--ink);
+    font-family: Geist, system-ui, -apple-system, sans-serif;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--ink-soft); font-size: 13px; margin: 0 0 18px; }
+  .bar {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px; margin-bottom: 20px;
+    font-size: 12px; color: var(--ink-soft);
+  }
+  .bar label { display: flex; gap: 5px; align-items: center; }
+  select, input[type=number] {
+    font: inherit; font-size: 12px; padding: 3px 5px;
+    border: 1px solid var(--border); border-radius: 4px; background: #fff;
+  }
+  .grid { display: flex; flex-direction: column; gap: 14px; }
+  .row {
+    display: grid; grid-template-columns: 130px 110px 240px 500px;
+    gap: 14px; align-items: end;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px;
+  }
+  .key {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px; color: var(--accent); padding-bottom: 4px;
+    word-break: break-all;
+  }
+  .cell { display: flex; flex-direction: column; gap: 3px; }
+  .cell .cap {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; color: var(--ink-soft);
+  }
+  .box { border: 1px dashed var(--border); background: #fff; }
+  .bad { outline: 2px solid #C8412F; }
+  .legend { font-size: 12px; color: var(--ink-soft); margin: 0 0 12px; }
+  .warn { color: #C8412F; font-weight: 600; }
+  @media (max-width: 1040px) {
+    .row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<h1>MockupKitchen · Skizzen-Testblatt</h1>
+<p class="sub">Alle Schlüssel aus <code>window.MK_SKETCHES</code> in drei Größen: 100×50, 220×130, 480×260.</p>
+
+<div class="bar">
+  <label>Szenario
+    <select id="scen">
+      <option>AC/PL</option>
+      <option>AC/PY</option>
+      <option>AC/PL/FC</option>
+      <option>AC</option>
+    </select>
+  </label>
+  <label>Seed <input id="seed" type="number" value="1" min="0" max="9999" style="width:70px"></label>
+  <label><input id="vabs" type="checkbox" checked> Δ abs</label>
+  <label><input id="vrel" type="checkbox" checked> Δ %</label>
+  <label><input id="dense" type="checkbox"> dense</label>
+  <span id="stat"></span>
+</div>
+
+<p class="legend">Rote Umrandung = Rückgabe enthält <code>NaN</code>/<code>undefined</code> oder ist kein SVG.</p>
+
+<div class="grid" id="grid"></div>
+
+<script src="sketches.js"></script>
+<script>
+(function () {
+  var SIZES = [[100, 50], [220, 130], [480, 260]];
+  var grid = document.getElementById('grid');
+  var stat = document.getElementById('stat');
+
+  function opts() {
+    return {
+      scenario: document.getElementById('scen').value,
+      seed: parseInt(document.getElementById('seed').value, 10) || 0,
+      variance: {
+        abs: document.getElementById('vabs').checked,
+        rel: document.getElementById('vrel').checked
+      },
+      dense: document.getElementById('dense').checked
+    };
+  }
+
+  function render() {
+    var keys = Object.keys(window.MK_SKETCHES).sort();
+    var o = opts(), bad = 0, html = '';
+    keys.forEach(function (k) {
+      var cells = '';
+      SIZES.forEach(function (s) {
+        var svg = window.MK_SKETCH(k, s[0], s[1], o);
+        var ok = typeof svg === 'string' && svg.indexOf('<svg') === 0 &&
+                 svg.indexOf('NaN') < 0 && svg.indexOf('undefined') < 0;
+        if (!ok) bad++;
+        cells += '<div class="cell"><span class="cap">' + s[0] + '×' + s[1] + '</span>' +
+                 '<div class="box' + (ok ? '' : ' bad') + '" style="width:' + s[0] + 'px;height:' + s[1] + 'px">' +
+                 (svg || '') + '</div></div>';
+      });
+      html += '<div class="row"><div class="key">' + k + '</div>' + cells + '</div>';
+    });
+    grid.innerHTML = html;
+    stat.innerHTML = keys.length + ' Typen · ' +
+      (bad ? '<span class="warn">' + bad + ' fehlerhaft</span>' : 'alle sauber');
+  }
+
+  ['scen', 'seed', 'vabs', 'vrel', 'dense'].forEach(function (id) {
+    document.getElementById(id).addEventListener('change', render);
+    document.getElementById(id).addEventListener('input', render);
+  });
+  render();
+}());
+</script>
+</body>
+</html>
