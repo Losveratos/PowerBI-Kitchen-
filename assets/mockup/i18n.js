@@ -133,7 +133,7 @@
     },
 
     dlg: {
-      cat: { h: 'Visual wählen', p: 'ChartKitchen-Typen mit semantischer Notation (an IBCS angelehnt, nicht zertifiziert) und native Power-BI-Visuals. Klicken setzt den Typ der gewählten Kachel.' },
+      cat: { h: 'Visual wählen', p: 'ChartKitchen-Typen mit semantischer Notation und native Power-BI-Visuals. Klicken setzt den Typ der gewählten Kachel.' },
       tpl: { h: 'Seitenvorlagen', p: 'Startpunkt für den Inhaltsbereich der aktuellen Seite. Vorlagen bringen Feldbindungen aus dem Demo-Modell mit; ohne geladenes Modell wird es automatisch geladen.' },
       exp: { h: 'Export für Claude Code', p: 'Dateien in den PBIP-Projektordner legen, dann den Skill <span class="mono">mockup-to-powerbi</span> aufrufen.' },
       nm: { h: 'Neue Kennzahl oder Dimension', p: 'Existiert noch nicht im Modell. Wird im Export als „zu erstellen" markiert und in der Workshop-Doku beschrieben.' },
@@ -158,7 +158,7 @@
         '<p>TMDL-Ordner (<span class="mono">*.SemanticModel/definition/tables</span>) auf die Ablagefläche ziehen, oder „Demo-Modell" für einen schnellen Start. Es werden nur Namen, Typen und Beschreibungen gelesen; nichts verlässt den Browser.</p>',
         '<h3>6 · Export</h3>',
         '<p>„Export für Claude Code" erzeugt <span class="mono">mockup-spec.json</span>, <span class="mono">AGENT-BRIEF.md</span>, <span class="mono">WORKSHOP-DOKU.md</span> und je Seite eine <span class="mono">pbir-visuals.&lt;Seite&gt;.json</span>. Dateien in den PBIP-Ordner legen und den Skill <span class="mono">mockup-to-powerbi</span> starten; er baut die Seiten und kann Doku und PowerPoint daraus erzeugen.</p>',
-        '<p class="hint">Hinweis: Die Skizzen der ChartKitchen-Typen folgen einer semantischen Notation, die an die IBCS®-Standards angelehnt ist. MockupKitchen ist nicht von der IBCS Association zertifiziert oder mit ihr verbunden; IBCS® ist eine eingetragene Marke der IBCS Association.</p>',
+        '<p class="hint">Hinweis: Die ChartKitchen-Skizzen nutzen eine semantische Notation; einzelne Konzepte (Szenario-Kennzeichnung, Abweichungsdarstellung) sind an IBCS® angelehnt. MockupKitchen ist weder zertifiziert noch mit der IBCS Association verbunden; IBCS® ist eine eingetragene Marke der IBCS Association.</p>',
         '<h3>Tastatur</h3>',
         '<p><kbd>Entf</kbd> leert die Kachel · <kbd>Esc</kbd> Auswahl aufheben · <kbd>Strg</kbd>+<kbd>Z</kbd> rückgängig · <kbd>Strg</kbd>+<kbd>S</kbd> speichern · <kbd>Strg</kbd>+<kbd>E</kbd> Export. Der Stand wird automatisch im Browser gemerkt.</p>',
       ].join(''),
@@ -237,7 +237,7 @@
       marimekko: { label: 'Marimekko' }, line: { label: 'Linie (AC vs Referenz)' },
       varint: { label: 'Integrierte Varianzanalyse', note: '4 Ebenen: Δ%_YTD · Δ% · Δ-Brücke · Säulen AC/FC vs PL.' },
       slope: { label: 'Slope (2 Zeitpunkte)' }, fan: { label: 'Forecast-Korridor' }, zchart: { label: 'Z-Chart (Monat · YTD · gleitend)' },
-      multiples: { label: 'Small Multiples' }, area: { label: 'Fläche (nativ)', note: 'Nach IBCS-Regeln unüblich; Linie bevorzugen.' },
+      multiples: { label: 'Small Multiples' }, area: { label: 'Fläche (nativ)', note: 'Flächen überdecken sich schnell; Linie bevorzugen.' },
       waterfall: { label: 'Wasserfall (vertikal)' }, wfint: { label: 'Wasserfall horizontal + Varianz' }, wfkombi: { label: 'Wasserfall + Δ' },
       bridge: { label: 'Brücke (Σ Ref → Δ → Σ AC)' }, tree: { label: 'Baum / Zerlegung' }, heatmap: { label: 'Heatmap (divergierend)' },
       scatter: { label: 'Streudiagramm' }, boxplot: { label: 'Boxplot' }, gantt: { label: 'Gantt (dataKitchenGantt)', note: 'Custom Visual dataKitchenGantt byDatenWG aus dem Repository.' },
@@ -246,8 +246,8 @@
       card: { label: 'Karte (nativ)' }, multirow: { label: 'Mehrzeilen-Karte' },
       table: { label: 'Berichtstabelle (ChartKitchen)', note: 'Spalten AC · Ref · Δ · Δ% mit Mini-Balken.' },
       sparktable: { label: 'Tabelle mit Sparklines' }, matrix: { label: 'Matrix (nativ)' },
-      gauge: { label: 'Tacho (nativ)', note: 'Widerspricht IBCS-Regeln; Bullet oder KPI bevorzugen.' },
-      pie: { label: 'Kreis (nativ)', note: 'Widerspricht IBCS-Regeln; Balken bevorzugen.' },
+      gauge: { label: 'Tacho (nativ)', note: 'Tacho verbraucht viel Fläche für einen Wert; Bullet oder KPI bevorzugen.' },
+      pie: { label: 'Kreis (nativ)', note: 'Anteile lassen sich als Balken besser vergleichen; Balken bevorzugen.' },
       treemap: { label: 'Treemap (nativ)' }, decomp: { label: 'Zerlegungsbaum (nativ)' }, map: { label: 'Karte (Geo, nativ)' },
       deneb: { label: 'Deneb / Vega (eigenes Spec)', note: 'Spec später aus ChartKitchen exportieren oder selbst schreiben.' },
       slicer: { label: 'Slicer' }, text: { label: 'Textfeld' }, image: { label: 'Bild / Logo' }, button: { label: 'Schaltfläche' },
@@ -401,7 +401,7 @@
 
       issue: {
         roleEmptyShort: 'Pflichtrolle „{r}" ist leer', roleEmpty: 'Pflichtrolle „{r}" leer',
-        antiShort: 'Widerspricht IBCS-Regeln', anti: '{label}: {note}', antiFallback: 'widerspricht IBCS-Regeln',
+        antiShort: 'Ungünstiger Diagrammtyp', anti: '{label}: {note}', antiFallback: 'ungünstiger Diagrammtyp',
         ckNoModeShort: 'ChartKitchen hat keinen Modus für diesen Typ', ckNoMode: 'ChartKitchen kann „{label}" nicht; Engine auf nativ oder Deneb stellen',
         noNativeShort: 'Kein natives Power-BI-Visual für diesen Typ', noNative: 'Kein natives Visual für „{label}"',
         textEmpty: '„{t}" hat keinen Text; Kachel käme leer im Bericht an',
@@ -559,7 +559,7 @@
     },
 
     dlg: {
-      cat: { h: 'Choose a visual', p: 'ChartKitchen types with semantic notation (inspired by IBCS, not certified) and native Power BI visuals. Clicking sets the type of the selected tile.' },
+      cat: { h: 'Choose a visual', p: 'ChartKitchen types with semantic notation and native Power BI visuals. Clicking sets the type of the selected tile.' },
       tpl: { h: 'Page templates', p: 'Starting point for the content area of the current page. Templates bring field bindings from the demo model; without a loaded model it is loaded automatically.' },
       exp: { h: 'Export for Claude Code', p: 'Put the files into the PBIP project folder, then call the <span class="mono">mockup-to-powerbi</span> skill.' },
       nm: { h: 'New measure or dimension', p: 'Does not exist in the model yet. It is marked “to be created” in the export and described in the workshop documentation.' },
@@ -584,7 +584,7 @@
         '<p>Drag a TMDL folder (<span class="mono">*.SemanticModel/definition/tables</span>) onto the drop area, or click “Demo model” for a quick start. Only names, types and descriptions are read; nothing leaves the browser.</p>',
         '<h3>6 · Export</h3>',
         '<p>“Export for Claude Code” produces <span class="mono">mockup-spec.json</span>, <span class="mono">AGENT-BRIEF.md</span>, <span class="mono">WORKSHOP-DOKU.md</span> and one <span class="mono">pbir-visuals.&lt;page&gt;.json</span> per page. Put the files into the PBIP folder and start the <span class="mono">mockup-to-powerbi</span> skill; it builds the pages and can create the documentation and a PowerPoint from them.</p>',
-        '<p class="hint">Note: The ChartKitchen sketches follow a semantic notation inspired by the IBCS® standards. MockupKitchen is not certified by or affiliated with the IBCS Association; IBCS® is a registered trademark of the IBCS Association.</p>',
+        '<p class="hint">Note: The ChartKitchen sketches use a semantic notation; some concepts (scenario marking, variance display) are inspired by IBCS®. MockupKitchen is neither certified by nor affiliated with the IBCS Association; IBCS® is a registered trademark of the IBCS Association.</p>',
         '<h3>Keyboard</h3>',
         '<p><kbd>Del</kbd> clears the tile · <kbd>Esc</kbd> clears the selection · <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo · <kbd>Ctrl</kbd>+<kbd>S</kbd> save · <kbd>Ctrl</kbd>+<kbd>E</kbd> export. The state is remembered in the browser automatically.</p>',
       ].join(''),
@@ -662,7 +662,7 @@
       marimekko: { label: 'Marimekko' }, line: { label: 'Line (AC vs reference)' },
       varint: { label: 'Integrated variance analysis', note: '4 tiers: Δ%_YTD · Δ% · Δ bridge · columns AC/FC vs PL.' },
       slope: { label: 'Slope (2 points in time)' }, fan: { label: 'Forecast corridor' }, zchart: { label: 'Z-chart (month · YTD · moving)' },
-      multiples: { label: 'Small multiples' }, area: { label: 'Area (native)', note: 'Unusual under IBCS rules; prefer a line.' },
+      multiples: { label: 'Small multiples' }, area: { label: 'Area (native)', note: 'Areas quickly overlap; prefer a line.' },
       waterfall: { label: 'Waterfall (vertical)' }, wfint: { label: 'Waterfall horizontal + variance' }, wfkombi: { label: 'Waterfall + Δ' },
       bridge: { label: 'Bridge (Σ ref → Δ → Σ AC)' }, tree: { label: 'Tree / decomposition' }, heatmap: { label: 'Heatmap (diverging)' },
       scatter: { label: 'Scatter plot' }, boxplot: { label: 'Box plot' }, gantt: { label: 'Gantt (dataKitchenGantt)', note: 'Custom visual dataKitchenGantt byDatenWG from the repository.' },
@@ -671,8 +671,8 @@
       card: { label: 'Card (native)' }, multirow: { label: 'Multi-row card' },
       table: { label: 'Report table (ChartKitchen)', note: 'Columns AC · ref · Δ · Δ% with mini bars.' },
       sparktable: { label: 'Table with sparklines' }, matrix: { label: 'Matrix (native)' },
-      gauge: { label: 'Gauge (native)', note: 'Conflicts with IBCS rules; prefer a bullet or a KPI.' },
-      pie: { label: 'Pie (native)', note: 'Conflicts with IBCS rules; prefer bars.' },
+      gauge: { label: 'Gauge (native)', note: 'A gauge spends a lot of space on one value; prefer a bullet or a KPI.' },
+      pie: { label: 'Pie (native)', note: 'Shares compare better as bars; prefer bars.' },
       treemap: { label: 'Treemap (native)' }, decomp: { label: 'Decomposition tree (native)' }, map: { label: 'Map (geo, native)' },
       deneb: { label: 'Deneb / Vega (own spec)', note: 'Export the spec from ChartKitchen later or write it yourself.' },
       slicer: { label: 'Slicer' }, text: { label: 'Text box' }, image: { label: 'Image / logo' }, button: { label: 'Button' },
@@ -826,7 +826,7 @@
 
       issue: {
         roleEmptyShort: 'Required role “{r}” is empty', roleEmpty: 'Required role “{r}” empty',
-        antiShort: 'Conflicts with IBCS rules', anti: '{label}: {note}', antiFallback: 'conflicts with IBCS rules',
+        antiShort: 'Unfavourable chart type', anti: '{label}: {note}', antiFallback: 'unfavourable chart type',
         ckNoModeShort: 'ChartKitchen has no mode for this type', ckNoMode: 'ChartKitchen cannot do “{label}”; switch the engine to native or Deneb',
         noNativeShort: 'No native Power BI visual for this type', noNative: 'No native visual for “{label}”',
         textEmpty: '“{t}” has no text; the tile would arrive empty in the report',

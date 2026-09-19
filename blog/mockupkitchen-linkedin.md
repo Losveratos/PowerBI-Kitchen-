@@ -15,7 +15,7 @@ Jeder Reporting-Workshop endet mit einem Whiteboard-Foto. Und dann baut es jeman
 
 Wir haben ein Werkzeug gebaut, das den Umweg spart: MockupKitchen.
 
-Man zieht das TMDL-Verzeichnis des Semantikmodells in den Browser, alle Felder sind da. Die Seite wird aus Containern gebaut statt frei gemalt, Kopfband, Filter und Fußleiste sind Zonen. 47 Kacheltypen, davon die ChartKitchen-Typen mit semantischer Notation (an IBCS angelehnt), die nativen Power-BI-Visuals und zwei Custom Visuals aus dem Repo (Gantt, P&L), jede als Skizze mit AC · PY · PL · FC.
+Man zieht das TMDL-Verzeichnis des Semantikmodells in den Browser, alle Felder sind da. Die Seite wird aus Containern gebaut statt frei gemalt, Kopfband, Filter und Fußleiste sind Zonen. 47 Kacheltypen, davon die ChartKitchen-Typen mit semantischer Notation (einzelne Konzepte an IBCS angelehnt), die nativen Power-BI-Visuals und zwei Custom Visuals aus dem Repo (Gantt, P&L), jede als Skizze mit AC · PY · PL · FC.
 
 Der Unterschied zu PowerPoint: Der Export ist keine Grafik, sondern eine Spezifikation. Exakte Rechtecke in Power-BI-Pixeln, echte Feldnamen, und die Entscheidungen aus dem Workshop als Daten: Zielgruppe, Entscheidung, Polarität, Sortierung, Kennzahl-Steckbriefe mit „bestätigt".
 
@@ -44,7 +44,7 @@ Every reporting workshop ends with a photo of a whiteboard. Then someone rebuild
 
 We built a tool that skips the detour: MockupKitchen.
 
-Drop the TMDL folder of your semantic model into the browser and every table, column and measure is ready to use. Pages are built from containers, not drawn freehand; header, filter panel and footer are zones. 47 tile types, including the ChartKitchen types with semantic notation (inspired by IBCS), the native Power BI visuals and two custom visuals from the repo (Gantt, P&L), each as a sketch with AC · PY · PL · FC notation.
+Drop the TMDL folder of your semantic model into the browser and every table, column and measure is ready to use. Pages are built from containers, not drawn freehand; header, filter panel and footer are zones. 47 tile types, including the ChartKitchen types with semantic notation (some concepts inspired by IBCS), the native Power BI visuals and two custom visuals from the repo (Gantt, P&L), each as a sketch with AC · PY · PL · FC notation.
 
 The difference to PowerPoint: the export is not a picture, it is a specification. Exact rectangles in Power BI pixels, real field names, and the workshop decisions as data: audience, decision, polarity, sort order, KPI fact sheets with a "confirmed" checkbox.
 
