@@ -313,7 +313,9 @@
     const act = e.target.closest('[data-act]'); const tile = e.target.closest('[data-leaf]'); const rm = e.target.closest('[data-rmfilter]');
     if (rm) { S.chrome.filter.fields.splice(+rm.dataset.rmfilter, 1); commit(); return; }
     if (act && tile) { e.stopPropagation(); const id = tile.dataset.leaf; if (act.dataset.act === 'rm') removeLeaf(id); else splitLeaf(id, act.dataset.act); return; }
-    if (e.target.closest('.note-ico')) { const pop = e.target.closest('.tile').querySelector('.note-pop'); if (pop) pop.classList.toggle('pinned'); return; }
+    const ico = e.target.closest('.note-ico');
+    $$('.note-pop.pinned', pageEl).forEach(p => { if (!ico || p !== ico.nextElementSibling) p.classList.remove('pinned'); });
+    if (ico) { const pop = ico.nextElementSibling; if (pop) pop.classList.toggle('pinned'); return; }
     if (tile) { selectTile(tile.dataset.leaf); return; }
     sel = null; render();
   });
@@ -521,10 +523,14 @@
     $$('[data-ti]', body).forEach(x => x.addEventListener('change', () => { const o = v.interaction = v.interaction || {}; if (x.dataset.ti === 'crossFilter') { if (x.checked) delete o.crossFilter; else o.crossFilter = false; } else { if (x.checked) o[x.dataset.ti] = true; else delete o[x.dataset.ti]; } if (!Object.keys(o).length) delete v.interaction; persist(); }));
     $$('[data-ta]', body).forEach(x => x.addEventListener('change', () => { if (x.type === 'checkbox') { setAn(x.dataset.ta, x.checked); if (x.dataset.ta === 'fieldParam') { const r = $('[data-fpname]', body); if (r) r.hidden = !x.checked; } } else setAn(x.dataset.ta, x.value); persist(); }));
     const dlg = $('#dlgTile'); mark();
-    dlg.onclose = () => { dlg.onclose = null; commit({ noUndo: true }); };
+    // Schließen über ✕, Esc oder Klick auf den Hintergrund: erst schließen, dann Zustand übernehmen und neu zeichnen.
+    // Nicht am close-Ereignis hängen, das feuert nicht in jedem Browser zuverlässig (Oberfläche blieb sonst stehen).
+    let done = false; const finish = () => { if (done) return; done = true; if (dlg.open) dlg.close(); commit({ noUndo: true }); };
+    dlg.onclose = finish; dlg.oncancel = e => { e.preventDefault(); finish(); };
+    dlg.onclick = e => { if (e.target === dlg) finish(); };
+    $('#dlgTileClose').onclick = finish;
     dlg.showModal();
   }
-  $('#dlgTileClose').onclick = () => $('#dlgTile').close();
   function bindInspector(n) {
     const b = $('#btnPickType'); if (b) b.onclick = openCatalog;
     $$('[data-ins]', insEl).forEach(x => x.onclick = () => { if (x.dataset.ins === 'rm') removeLeaf(n.id); else { n.visual = null; commit(); } });
@@ -810,7 +816,7 @@
     const tgt = e.target;
     if (document.querySelector('dialog[open]')) return;                       // Dialoge behalten Fokusfang und Esc
     if (tgt && tgt.matches && tgt.matches('input,textarea,select')) { if (e.key === 'Escape' && tgt.blur) tgt.blur(); return; }
-    if (e.key === 'Escape') { if (document.body.classList.contains('present')) togglePresent(false); else { sel = null; render(); } }
+    if (e.key === 'Escape') { const pinned = $$('.note-pop.pinned', pageEl); if (pinned.length) { pinned.forEach(p => p.classList.remove('pinned')); return; } if (document.body.classList.contains('present')) togglePresent(false); else { sel = null; render(); } }
     else if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey && !e.altKey) togglePresent();
     else if (e.key.toLowerCase() === 'n' && sel && !e.ctrlKey && !e.metaKey && !e.altKey) { const hit = findNode(sel); if (hit && hit.node.visual) openTileDialog(sel); }
     else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) { e.preventDefault(); redo(); }
