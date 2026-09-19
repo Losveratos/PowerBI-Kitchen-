@@ -79,8 +79,10 @@ geht auch allein, ohne PBIP.
    Liegen `page-<Index>-<Seitenslug>.png` daneben (Export „Alle Dateien"),
    wandern sie in Schritt 8 in die PowerPoint.
 3. **Welche Spec-Version?** `meta.specVersion`. 3 = aktuell (stabile IDs, Hash,
-   Berichtskopf, Analyse-Block, Issues), 2 = mehrseitig mit `design`/`links`,
-   1 = alte einseitige Fassung. Alle drei werden gelesen; v1/v2 werden intern
+   Berichtskopf, Analyse-Block, Issues; ab Tool 0.4.1 zusätzlich Small
+   Multiples, Achse per Feldparameter, die nativen Klassiker `ncolumn`/`nbar`/
+   `nline`/`ndonut` und `zones.header.navOn`), 2 = mehrseitig mit
+   `design`/`links`, 1 = alte einseitige Fassung. Alle drei werden gelesen; v1/v2 werden intern
    auf v3 gehoben. Eine **höhere** Hauptversion bricht ab — dann ist das Tool
    neuer als der Skill, und Raten wäre falsch. Unterschiede in
    [`references/spec-format.md`](references/spec-format.md).
@@ -331,6 +333,27 @@ Fragment dorthin — Skill `reports:modifying-theme-json` bzw.
 lässt die `background`/`border`/`dropShadow`-Schritte aus `chrome-batch.json`
 weg. Dann steht die Gestaltung an einer Stelle statt an jedem Visual; per Visual
 nur noch Ausnahmen.
+
+**Darstellungsvarianten** (Tool 0.4.1) stecken schon in den erzeugten Dateien:
+
+- **Small Multiples** (`analysis.smallMultiples`) gehen in den PBIR-Bucket
+  **`Rows`** — verifiziert mit `pbir schema roles clusteredColumnChart` und einer
+  Probebindung; `donutChart` lehnt die Rolle ab, und `pivotTable` meint mit
+  `Rows` etwas anderes. Bei ChartKitchen, Deneb und Typen ohne diesen Bucket
+  (`waterfallChart`, `card`, `treemap`, `map` …) wird daraus ein To-do
+  (`SM_NOT_NATIVE` / `SM_NO_BUCKET`): nativ bauen oder ein Raster aus
+  Einzelkacheln. Fehlt das Aufteilungsfeld, steht `SM_NO_FIELD` in
+  `checklist.md` und `analysis-todos.md`.
+- **Achse per Feldparameter** (`analysis.fieldParam`) heißt: **zuerst das
+  Modell.** `model-todos.md` liefert das `te script`-Skript für die berechnete
+  Tabelle (`NAMEOF`-Muster, `ParameterMetadata` auf der versteckten Spalte) —
+  **prüfen lassen, nicht ungefragt ausführen**. Danach bindet
+  `pbir-visuals.json` die Achse auf `<Name>.<Name>`. Ohne die Tabelle lehnt
+  `--from-json` die **ganze** Datei ab. Den Slicer auf den Parameter schlägt
+  `analysis-commands.sh` auskommentiert vor — das Mockup sieht die Kachel nicht
+  vor, also entscheidet der Mensch.
+- **`zones.header.navOn: false`** — keine `chrome_nav_*`-Buttons im Kopfband.
+  Steht als Hinweis in `checklist.md` und `navigation.md`.
 
 **Analyse-Angaben** aus `visuals[].analysis` setzt `analysis-commands.sh`, soweit
 `pbir` das kann: `sort` → `pbir visuals sort --field … --direction`, `topN` →
@@ -589,9 +612,9 @@ an den Skill `anthropic-skills:pptx` geben.
 python .claude/skills/mockup-to-powerbi/tests/run_tests.py
 ```
 
-Golden-Vergleich über sechs Fixtures (specVersion 1, 2, 3, Burger-Filter,
-ChartKitchen ohne Referenz-Instanz, voller Analyse-Block, Custom Visuals),
-Negativtests der
+Golden-Vergleich über sieben Fixtures (specVersion 1, 2, 3, Burger-Filter,
+ChartKitchen ohne Referenz-Instanz, voller Analyse-Block, Custom Visuals,
+Darstellungsvarianten aus 0.4.1), Negativtests der
 Validierung (kaputte Spec, unbekannte Hauptversion, doppelte Seitennamen — je
 einmal mit dem Paket `jsonschema` und einmal mit dem eingebauten Validator) und
 Einheitenprüfungen. Reine Standardbibliothek, kein Power BI nötig. Nach
@@ -651,18 +674,22 @@ ansehen.
 
 ## Referenzen
 - [`references/spec-format.md`](references/spec-format.md) — `mockup-spec.json`
-  vollständig (specVersion 1, 2 und 3, dazu die Erweiterungen aus Tool 0.4):
-  Berichtskopf, Seiten, Design mit Varianz-Palette und Farbsatz, Zonen,
-  Filter-Modi, Links, Analyse-Block, Steckbriefe, Issues, Rollen-Vokabular,
-  Engines, Rollen → pbir-Buckets, Rollen → ChartKitchen, **Custom Visuals**
-  (GUIDs, Datenrollen, Pflichtrollen, Einspielweg).
+  vollständig (specVersion 1, 2 und 3, dazu die Erweiterungen aus Tool 0.4 und
+  0.4.1): Berichtskopf, Seiten, Design mit Varianz-Palette und Farbsatz, Zonen,
+  Filter-Modi, `header.navOn`, Links, Analyse-Block, **Darstellungsvarianten**
+  (Small Multiples → Bucket `Rows`, Achse per Feldparameter), Steckbriefe,
+  Issues, Rollen-Vokabular, Engines, Rollen → pbir-Buckets, Rollen →
+  ChartKitchen, **Custom Visuals** (GUIDs, Datenrollen, Pflichtrollen,
+  Einspielweg).
 - [`references/mockup-spec.schema.json`](references/mockup-spec.schema.json) —
   Prüfschema (Draft 2020-12) für `--validate`.
 - [`references/chrome-build.md`](references/chrome-build.md) — wie Kopfband,
   Nav-Leiste, Filter-Panel und Fußleiste als native Elemente entstehen, mit
   verifizierten Befehlen, dazu der Batch-Weg und die z-Ordnung.
-- [`references/example/`](references/example/) — `mockup-spec.v3.json` mit
-  `AGENT-BRIEF.v3.md` und `WORKSHOP-DOKU.v3.md` (so sieht der Tool-Export aus),
+- [`references/example/`](references/example/) — `mockup-spec.v3.json` (von Hand
+  um die Seiten „Projekt & GuV" und „Varianten" erweitert, siehe dortige
+  README) mit `AGENT-BRIEF.v3.md` und `WORKSHOP-DOKU.v3.md` (Tool-Export, noch
+  im 0.3-Stand),
   `mockup-spec.v2.json` (mehrseitig) und `mockup-spec.json` (v1) zum Trockenlauf,
   dazu die daraus erzeugte `pbir-visuals.json`.
 - Skripte: `scripts/mockup_spec.py` (lesen, heben, prüfen — gemeinsamer

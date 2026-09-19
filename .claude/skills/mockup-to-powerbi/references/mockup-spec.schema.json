@@ -137,6 +137,7 @@
         "title": { "type": ["string", "null"] },
         "subtitle": { "type": ["string", "null"] },
         "nav": { "type": "array", "items": { "type": "string" } },
+        "navOn": { "type": "boolean" },
         "navAuto": { "type": "boolean" },
         "burger": { "type": "boolean" }
       }
@@ -201,7 +202,21 @@
         "stableId": { "type": "string" },
         "slug": { "type": "string" },
         "page": { "type": "string" },
-        "kind": { "type": "string", "minLength": 1 },
+        "kind": {
+          "description": "Katalog-Typ aus assets/mockup/catalog.js. Die Gruppe `native` (ncolumn, nbar, nline, ndonut) kam mit Tool 0.4.1 dazu.",
+          "enum": [
+            "columns", "kombi", "colline", "absvar", "relvar", "bars", "barskombi",
+            "bullet", "tornado", "dotplot", "pareto", "stackcol", "stackbar",
+            "marimekko",
+            "line", "varint", "slope", "fan", "zchart", "multiples", "area",
+            "waterfall", "wfint", "wfkombi", "bridge", "tree", "heatmap", "scatter",
+            "boxplot", "gantt",
+            "kpi", "card", "multirow", "table", "pnl", "sparktable", "matrix", "gauge",
+            "ncolumn", "nbar", "nline", "ndonut", "pie", "treemap", "decomp", "map",
+            "deneb",
+            "slicer", "text", "image", "button"
+          ]
+        },
         "label": { "type": ["string", "null"] },
         "engine": { "enum": ["native", "ck", "deneb", "custom"] },
         "chartKitchenType": { "type": ["string", "null"] },
@@ -271,7 +286,29 @@
         "timeGrain": { "type": ["string", "null"], "enum": ["day", "week", "month", "quarter", "year", null] },
         "cumulative": { "type": "boolean" },
         "scaleGroup": { "type": ["string", "null"] },
-        "message": { "type": ["string", "null"] }
+        "message": { "type": ["string", "null"] },
+        "smallMultiples": { "$ref": "#/$defs/smallMultiples" },
+        "fieldParam": { "$ref": "#/$defs/fieldParam" }
+      }
+    },
+    "smallMultiples": {
+      "type": ["object", "null"],
+      "description": "Ab Tool 0.4.1. `null` = aus. `field` ist das Aufteilungsfeld und steht zusaetzlich in roles.multiples; ist es null, meldet das Tool das Issue SM_NO_FIELD. In PBIR ist das der Bucket `Rows` der kartesischen Visuals (verifiziert mit `pbir schema roles`).",
+      "properties": {
+        "field": { "type": ["string", "null"], "pattern": "^[^.]+\\..+$" }
+      }
+    },
+    "fieldParam": {
+      "type": ["object", "null"],
+      "description": "Ab Tool 0.4.1. `null` = aus. Die Kategorieachse kommt aus einem Feldparameter (berechnete Tabelle mit dem NAMEOF-Muster); ein Slicer auf '<name>'[<name>] schaltet sie um. Weniger als zwei Felder meldet das Tool als Issue FIELDPARAM_FEW.",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "role": { "enum": ["category"] },
+        "fields": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[^.]+\\..+$" }
+        }
       }
     },
     "workshop": {

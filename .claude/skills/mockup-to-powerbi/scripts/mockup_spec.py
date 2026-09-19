@@ -50,8 +50,17 @@ CK_ROLE = {
     "columns": "colgroup",
     "values": "actual",
     "rowType": "rowType",
+    # ab Tool 0.4.1: Aufteilungsfeld der Small Multiples
+    "multiples": "multiples",
 }
 CK_ROLE_UNSUPPORTED = {"x", "y", "size", "start", "end", "field", "text"}
+
+# Vollstaendiges Rollen-Vokabular (Quelle: assets/mockup/catalog.js -> R und R_MULT).
+# Nur zum Nachschlagen und Dokumentieren — unbekannte Rollen brechen nichts ab,
+# das Tool darf wachsen.
+ROLE_KEYS = ("category", "subcategory", "series", "multiples", "ac", "ref", "fc",
+             "values", "rows", "columns", "x", "y", "size", "indicator", "goal",
+             "start", "end", "field", "text", "rowType")
 
 CK_ORIENTATION = {
     "columns": "columns", "kombi": "columns", "colline": "columns",
@@ -68,6 +77,39 @@ CK_ORIENTATION = {
     "kpi": "cards",
     "table": "table", "sparktable": "table", "heatmap": "table",
 }
+
+# --------------------------------------------------------------------------- #
+# Darstellungsvarianten (Tool 0.4.1): Small Multiples und Achse per Feldparameter
+# Quelle: assets/mockup/catalog.js -> NO_VARIANTS / variantsFor / R_MULT
+# --------------------------------------------------------------------------- #
+# Kachel-Typen ohne Kategorieachse — dort bietet das Tool keine Variante an.
+NO_VARIANT_KINDS = frozenset(
+    {"multiples", "map", "treemap", "decomp", "pie", "gauge", "ndonut"})
+
+# Native Klassiker (Gruppe `native`, engine nur `native`) aus Tool 0.4.1.
+# Quelle: catalog.js -> K('ncolumn'|'nbar'|'nline'|'ndonut', 'native', ...)
+NATIVE_PLAIN_KINDS = {
+    "ncolumn": "clusteredColumnChart",
+    "nbar": "clusteredBarChart",
+    "nline": "lineChart",
+    "ndonut": "donutChart",
+}
+
+# PBIR-Datenrolle des Small-Multiples-Buckets. VERIFIZIERT mit pbir 0.9.32:
+#   pbir schema roles clusteredColumnChart -> Category, Y, Series, Rows, Tooltips
+#   `Rows` angelegt per --from-json und in der visual.json als eigene
+#   queryState-Projektion wiedergefunden; `pbir validate --fields` nimmt sie an.
+#   Gegenprobe: bei donutChart lehnt pbir sie ab
+#   ("Role 'Rows' not valid for donutChart. Available: Category, Y, Series, Tooltips").
+SMALL_MULTIPLES_BUCKET = "Rows"
+
+# Native Visualtypen mit einem Small-Multiples-Bucket. Bewusst eine Positivliste:
+# `pivotTable` hat zwar auch eine Rolle `Rows`, das ist dort aber der
+# Matrix-Zeilenbereich und NICHT Small Multiples.
+SMALL_MULTIPLES_TYPES = frozenset({
+    "clusteredColumnChart", "clusteredBarChart", "columnChart", "barChart",
+    "lineChart", "areaChart", "lineClusteredColumnComboChart",
+})
 
 # --------------------------------------------------------------------------- #
 # Custom Visuals (Quelle: assets/mockup/catalog.js -> K(...).customVisual und
@@ -151,7 +193,10 @@ DEFAULT_ANALYSIS = {
     "unit": None, "displayUnits": None, "decimals": None,
     "sort": None, "topN": None, "timeGrain": None, "cumulative": False,
     "scaleGroup": None, "message": None,
+    # ab Tool 0.4.1 — `None` heisst „Variante aus"
+    "smallMultiples": None, "fieldParam": None,
 }
+DEFAULT_FIELD_PARAM = {"name": "Achse", "role": "category", "fields": []}
 DEFAULT_WORKSHOP = {"priority": None, "status": "open", "openQuestion": False}
 
 # Kennzahl-Namen, die „kleiner ist besser" bedeuten (wie CAT.polarityFor)
@@ -271,6 +316,20 @@ def _canon(obj) -> str:
 # Fuer Specs aus dem Tool zaehlt ohnehin `meta.specHash` aus export.js.
 HASH_SKIP_DESIGN = ("variancePalette", "varianceColors", "colors")
 
+# Analyse-Schluessel, die es erst ab Tool 0.4.1 gibt. Sind sie **nicht benutzt**
+# (`None`), bleiben sie aus dem Hash heraus — sonst bekaeme ein v1/v2-Mockup
+# einen anderen Hash als vor 0.4.1 und der naechste Lauf meldete faelschlich eine
+# Aenderung an einem bereits gebauten Bericht. Ist die Variante gesetzt, zaehlt
+# sie ganz normal mit, damit zwei Mockups sich nicht denselben Hash teilen.
+HASH_SKIP_ANALYSIS_IF_NULL = ("smallMultiples", "fieldParam")
+
+
+def _hash_analysis(analysis):
+    if not isinstance(analysis, dict):
+        return analysis
+    return {k: v for k, v in analysis.items()
+            if not (k in HASH_SKIP_ANALYSIS_IF_NULL and v is None)}
+
 
 def spec_hash(spec: dict) -> str:
     """FNV-1a ueber den bau-relevanten Kern — gleiche Felder wie export.js."""
@@ -286,7 +345,8 @@ def spec_hash(spec: dict) -> str:
                          "engine": v.get("engine"), "title": v.get("title"),
                          "content": v.get("content") or "", "rect": v.get("rect"),
                          "roles": v.get("roles") or {},
-                         "analysis": v.get("analysis"), "link": v.get("link")}
+                         "analysis": _hash_analysis(v.get("analysis")),
+                         "link": v.get("link")}
                         for v in (p.get("visuals") or [])],
         } for p in (spec.get("pages") or [])],
         "fields": spec.get("fields") or [],
@@ -346,6 +406,48 @@ def _analysis_for(visual: dict) -> dict:
     if LOWER_IS_BETTER.search(str(name)):
         a["polarity"] = "lower"
     return a
+
+
+def normalise_variants(analysis: dict, visual: dict) -> dict:
+    """`smallMultiples` und `fieldParam` auf die 0.4.1-Form bringen.
+
+    Beide Bloecke sind entweder `None` (Variante aus) oder ein Objekt. Das Tool
+    schreibt sie vollstaendig; hier werden nur fehlende Schluessel ergaenzt und
+    aus den Rollen abgeleitet, was abgeleitet werden kann — damit aeltere oder
+    von Hand geschriebene Specs dieselbe Form haben.
+    """
+    roles = visual.get("roles") or {}
+    sm = analysis.get("smallMultiples")
+    if isinstance(sm, dict):
+        field = sm.get("field")
+        if not field:                       # Rolle kennt das Feld, der Block nicht
+            first = (roles.get("multiples") or [{}])[0]
+            field = first.get("ref") or None
+        analysis["smallMultiples"] = {"field": field}
+    elif sm:                                # `true` als Kurzform
+        first = (roles.get("multiples") or [{}])[0]
+        analysis["smallMultiples"] = {"field": first.get("ref") or None}
+    else:
+        analysis["smallMultiples"] = None
+
+    fp = analysis.get("fieldParam")
+    if isinstance(fp, dict):
+        out = dict(DEFAULT_FIELD_PARAM)
+        out.update({k: val for k, val in fp.items() if val is not None})
+        out["name"] = str(out.get("name") or DEFAULT_FIELD_PARAM["name"]).strip() \
+            or DEFAULT_FIELD_PARAM["name"]
+        out["role"] = out.get("role") or "category"
+        if not out.get("fields"):
+            out["fields"] = [f.get("ref") for f in (roles.get(out["role"]) or [])
+                             if f.get("ref")]
+        analysis["fieldParam"] = out
+    elif fp:                                # `true` als Kurzform
+        analysis["fieldParam"] = dict(
+            DEFAULT_FIELD_PARAM,
+            fields=[f.get("ref") for f in (roles.get("category") or []) if f.get("ref")])
+    else:
+        analysis["fieldParam"] = None
+    return analysis
 
 
 def _drill_field_ref(visual: dict):
@@ -461,7 +563,7 @@ def upgrade(raw: dict, page_name_override=None) -> dict:
                     v["workshop"] = dict(DEFAULT_WORKSHOP)
             a = dict(DEFAULT_ANALYSIS)
             a.update({k: val for k, val in (v.get("analysis") or {}).items()})
-            v["analysis"] = a
+            v["analysis"] = normalise_variants(a, v)
             w = dict(DEFAULT_WORKSHOP)
             w.update({k: val for k, val in (v.get("workshop") or {}).items()})
             v["workshop"] = w
@@ -720,6 +822,20 @@ def structural_errors(nspec: dict) -> list:
                 out.append("pages[%s].visuals: „%s\" ist kein brauchbarer "
                            "PBIR-Visualname (nur Buchstaben, Ziffern, _ . -)."
                            % (p.get("index"), vid))
+            # Der Name des Feldparameters wird zum Tabellen- UND Spaltennamen
+            # ('<Name>'[<Name>]) — Anfuehrungszeichen und Klammern zerlegen
+            # sowohl das DAX als auch den PBIR-Feldverweis `Tabelle.Feld`.
+            fp = (v.get("analysis") or {}).get("fieldParam")
+            if isinstance(fp, dict):
+                name = str(fp.get("name") or "")
+                if not name.strip():
+                    out.append("pages[%s].visuals: „%s\" hat einen Feldparameter "
+                               "ohne Namen." % (p.get("index"), vid))
+                elif re.search(r"[\'\"\[\]\.]", name):
+                    out.append("pages[%s].visuals: Feldparameter-Name „%s\" (%s) "
+                               "enthaelt ' \" [ ] oder . — daraus laesst sich kein "
+                               "Tabellenname und kein Feldverweis Tabelle.Feld "
+                               "bauen." % (p.get("index"), name, vid))
             if v.get("engine") == "custom":
                 cv = v.get("customVisual")
                 if not isinstance(cv, dict) or not cv.get("guid"):

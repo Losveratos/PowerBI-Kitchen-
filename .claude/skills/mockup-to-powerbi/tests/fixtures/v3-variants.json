@@ -1,0 +1,851 @@
+{
+  "meta": {
+    "tool": "MockupKitchen byDatenWG",
+    "version": "0.4.1",
+    "specVersion": 3,
+    "specHash": "variants1",
+    "name": "Darstellungsvarianten-Testfall",
+    "lang": "de",
+    "exportedAt": "2026-09-19T08:30:00.000Z",
+    "skill": "mockup-to-powerbi"
+  },
+  "report": {
+    "name": "Darstellungsvarianten-Testfall",
+    "audience": "Vertriebsleitung",
+    "purpose": "Umsatz je Region vergleichbar zeigen, Achse umschaltbar",
+    "decision": "Welche Region bekommt das zusaetzliche Budget?",
+    "participants": "Vertrieb, Controlling",
+    "version": "0.4.1",
+    "dataDate": "taeglich, 6 Uhr"
+  },
+  "canvas": {
+    "width": 1280,
+    "height": 720,
+    "preset": "1280x720",
+    "uiScale": 1
+  },
+  "spacing": {
+    "margin": 16,
+    "gutter": 16,
+    "tilePadding": 12,
+    "base": { "margin": 16, "gutter": 16, "tilePadding": 12 }
+  },
+  "design": {
+    "cornerRadius": 4,
+    "tileStyle": "flat",
+    "pageBackground": "#F4F4F1",
+    "tileBackground": "#FFFFFF",
+    "headerStyle": "light",
+    "accent": "#C25A2D",
+    "variancePalette": "teal",
+    "varianceColors": { "good": "#1E8F9E", "bad": "#D64541" },
+    "colors": {
+      "pageBackground": "#F4F4F1",
+      "tileBackground": "#FFFFFF",
+      "ink": "#0F1E2E",
+      "headerBackground": "#FFFFFF",
+      "headerInk": "#0F1E2E"
+    },
+    "darkMode": false,
+    "fontScale": 1
+  },
+  "zones": {
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 56,
+      "style": "light",
+      "logoPos": "left",
+      "title": "Vertrieb 2026",
+      "subtitle": "Umsatz und Kosten je Region",
+      "nav": [],
+      "navOn": false,
+      "navAuto": true,
+      "burger": false
+    },
+    "filter": {
+      "x": 1064,
+      "y": 56,
+      "w": 200,
+      "h": 640,
+      "mode": "right",
+      "side": "right",
+      "collapsible": false,
+      "slicers": [
+        {
+          "table": "DimDate",
+          "name": "Year",
+          "kind": "column",
+          "ref": "DimDate.Year",
+          "isNew": false,
+          "default": null
+        }
+      ]
+    },
+    "footer": {
+      "x": 0,
+      "y": 696,
+      "w": 1280,
+      "h": 24,
+      "text": "Stand: taeglich 6 Uhr · Quelle: DWH"
+    },
+    "content": { "x": 16, "y": 72, "w": 1032, "h": 608 }
+  },
+  "pages": [
+    {
+      "id": "p1",
+      "index": 1,
+      "name": "Varianten",
+      "question": "Wo steht der Umsatz je Region und wie entwickelt er sich?",
+      "notes": "Testfall fuer Small Multiples, Feldparameter und die nativen Klassiker.",
+      "contentRect": { "x": 16, "y": 72, "w": 1032, "h": 608 },
+      "visuals": [
+        {
+          "id": "mk_col1",
+          "stableId": "col1",
+          "slug": "Umsatz_je_Produktlinie",
+          "page": "Varianten",
+          "kind": "ncolumn",
+          "label": "Säulendiagramm (nativ)",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "clusteredColumnChart",
+            "buckets": {
+              "Category": [
+                { "ref": "DimProduct.Category", "kind": "column", "isNew": false }
+              ],
+              "Y": [
+                { "ref": "_Measures.Umsatz", "kind": "measure", "isNew": false }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Umsatz je Produktlinie",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": ["abs", "rel"],
+            "unit": null,
+            "displayUnits": "K",
+            "decimals": 0,
+            "sort": { "by": "value", "dir": "desc" },
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": { "field": "DimRegion.Region" },
+            "fieldParam": null
+          },
+          "workshop": { "priority": "must", "status": "agreed", "openQuestion": false },
+          "rect": { "x": 16, "y": 72, "w": 508, "h": 296 },
+          "roles": {
+            "category": [
+              {
+                "table": "DimProduct",
+                "name": "Category",
+                "kind": "column",
+                "ref": "DimProduct.Category",
+                "isNew": false
+              }
+            ],
+            "values": [
+              {
+                "table": "_Measures",
+                "name": "Umsatz",
+                "kind": "measure",
+                "ref": "_Measures.Umsatz",
+                "isNew": false
+              }
+            ],
+            "multiples": [
+              {
+                "table": "DimRegion",
+                "name": "Region",
+                "kind": "column",
+                "ref": "DimRegion.Region",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "Ein Mini-Chart je Region.",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_bar1",
+          "stableId": "bar1",
+          "slug": "Umsatz_und_Kosten",
+          "page": "Varianten",
+          "kind": "nbar",
+          "label": "Balkendiagramm (nativ)",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "clusteredBarChart",
+            "buckets": {
+              "Category": [
+                { "ref": "DimRegion.Region", "kind": "column", "isNew": false },
+                { "ref": "DimProduct.Category", "kind": "column", "isNew": false },
+                { "ref": "DimCustomer.Segment", "kind": "column", "isNew": false }
+              ],
+              "Series": [
+                { "ref": "DimProduct.Brand", "kind": "column", "isNew": false }
+              ],
+              "Y": [
+                { "ref": "_Measures.Umsatz", "kind": "measure", "isNew": false },
+                { "ref": "_Measures.Kosten", "kind": "measure", "isNew": false }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Umsatz und Kosten",
+          "subtitle": "Achse umschaltbar",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": ["abs", "rel"],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": null,
+            "fieldParam": {
+              "name": "Achse",
+              "role": "category",
+              "fields": [
+                "DimRegion.Region",
+                "DimProduct.Category",
+                "DimCustomer.Segment"
+              ]
+            }
+          },
+          "workshop": { "priority": "should", "status": "open", "openQuestion": false },
+          "rect": { "x": 540, "y": 72, "w": 508, "h": 296 },
+          "roles": {
+            "category": [
+              {
+                "table": "DimRegion",
+                "name": "Region",
+                "kind": "column",
+                "ref": "DimRegion.Region",
+                "isNew": false
+              },
+              {
+                "table": "DimProduct",
+                "name": "Category",
+                "kind": "column",
+                "ref": "DimProduct.Category",
+                "isNew": false
+              },
+              {
+                "table": "DimCustomer",
+                "name": "Segment",
+                "kind": "column",
+                "ref": "DimCustomer.Segment",
+                "isNew": false
+              }
+            ],
+            "series": [
+              {
+                "table": "DimProduct",
+                "name": "Brand",
+                "kind": "column",
+                "ref": "DimProduct.Brand",
+                "isNew": false
+              }
+            ],
+            "values": [
+              {
+                "table": "_Measures",
+                "name": "Umsatz",
+                "kind": "measure",
+                "ref": "_Measures.Umsatz",
+                "isNew": false
+              },
+              {
+                "table": "_Measures",
+                "name": "Kosten",
+                "kind": "measure",
+                "ref": "_Measures.Kosten",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "Slicer auf den Parameter nicht vergessen.",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_line1",
+          "stableId": "line1",
+          "slug": "Verlauf",
+          "page": "Varianten",
+          "kind": "nline",
+          "label": "Liniendiagramm (nativ)",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "lineChart",
+            "buckets": {
+              "Category": [
+                { "ref": "DimDate.Month", "kind": "column", "isNew": false }
+              ],
+              "Series": [
+                { "ref": "DimProduct.Category", "kind": "column", "isNew": false }
+              ],
+              "Y": [
+                { "ref": "_Measures.Umsatz", "kind": "measure", "isNew": false }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Verlauf je Monat",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": ["abs", "rel"],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": "month",
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": { "field": null },
+            "fieldParam": null
+          },
+          "workshop": { "priority": null, "status": "open", "openQuestion": true },
+          "rect": { "x": 16, "y": 384, "w": 248, "h": 296 },
+          "roles": {
+            "category": [
+              {
+                "table": "DimDate",
+                "name": "Month",
+                "kind": "column",
+                "ref": "DimDate.Month",
+                "isNew": false
+              }
+            ],
+            "series": [
+              {
+                "table": "DimProduct",
+                "name": "Category",
+                "kind": "column",
+                "ref": "DimProduct.Category",
+                "isNew": false
+              }
+            ],
+            "values": [
+              {
+                "table": "_Measures",
+                "name": "Umsatz",
+                "kind": "measure",
+                "ref": "_Measures.Umsatz",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "Aufteilungsfeld fehlt noch.",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_donut1",
+          "stableId": "donut1",
+          "slug": "Anteile",
+          "page": "Varianten",
+          "kind": "ndonut",
+          "label": "Donut (nativ)",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "donutChart",
+            "buckets": {
+              "Category": [
+                { "ref": "DimProduct.Category", "kind": "column", "isNew": false }
+              ],
+              "Y": [
+                { "ref": "_Measures.Umsatz", "kind": "measure", "isNew": false }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Anteile je Produktlinie",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": ["abs", "rel"],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": null,
+            "fieldParam": null
+          },
+          "workshop": { "priority": "could", "status": "open", "openQuestion": false },
+          "rect": { "x": 280, "y": 384, "w": 248, "h": 296 },
+          "roles": {
+            "category": [
+              {
+                "table": "DimProduct",
+                "name": "Category",
+                "kind": "column",
+                "ref": "DimProduct.Category",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "Umsatz",
+                "kind": "measure",
+                "ref": "_Measures.Umsatz",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_wf1",
+          "stableId": "wf1",
+          "slug": "Brueckendiagramm",
+          "page": "Varianten",
+          "kind": "waterfall",
+          "label": "Wasserfall",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "waterfallChart",
+            "buckets": {
+              "Category": [
+                { "ref": "DimAccount.Account", "kind": "column", "isNew": false }
+              ],
+              "Y": [
+                { "ref": "_Measures.AC", "kind": "measure", "isNew": false }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Ergebnisbruecke",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": ["abs", "rel"],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": { "field": "DimRegion.Region" },
+            "fieldParam": null
+          },
+          "workshop": { "priority": null, "status": "open", "openQuestion": false },
+          "rect": { "x": 544, "y": 384, "w": 248, "h": 296 },
+          "roles": {
+            "category": [
+              {
+                "table": "DimAccount",
+                "name": "Account",
+                "kind": "column",
+                "ref": "DimAccount.Account",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              }
+            ],
+            "multiples": [
+              {
+                "table": "DimRegion",
+                "name": "Region",
+                "kind": "column",
+                "ref": "DimRegion.Region",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "waterfallChart hat keinen Small-Multiples-Bucket.",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_ck1",
+          "stableId": "ck1",
+          "slug": "AC_PL_je_Monat",
+          "page": "Varianten",
+          "kind": "kombi",
+          "label": "Säulen + Referenz",
+          "engine": "ck",
+          "chartKitchenType": "kombi",
+          "chartKitchenMode": "columns",
+          "native": {
+            "type": "clusteredColumnChart",
+            "buckets": {
+              "Category": [
+                { "ref": "DimDate.Month", "kind": "column", "isNew": false }
+              ],
+              "Y": [
+                { "ref": "_Measures.AC", "kind": "measure", "isNew": false },
+                { "ref": "_Measures.PL", "kind": "measure", "isNew": false }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "AC/PL je Monat",
+          "subtitle": "",
+          "content": "",
+          "scenario": "AC/PL",
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": ["abs", "rel"],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": { "field": "DimRegion.Region" },
+            "fieldParam": {
+              "name": "CK-Achse",
+              "role": "category",
+              "fields": ["DimDate.Month"]
+            }
+          },
+          "workshop": { "priority": null, "status": "open", "openQuestion": false },
+          "rect": { "x": 808, "y": 384, "w": 240, "h": 296 },
+          "roles": {
+            "category": [
+              {
+                "table": "DimDate",
+                "name": "Month",
+                "kind": "column",
+                "ref": "DimDate.Month",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              }
+            ],
+            "ref": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ],
+            "multiples": [
+              {
+                "table": "DimRegion",
+                "name": "Region",
+                "kind": "column",
+                "ref": "DimRegion.Region",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "ChartKitchen kann weder Small Multiples noch den Feldparameter.",
+          "link": null,
+          "warnings": []
+        }
+      ],
+      "layoutTree": null
+    }
+  ],
+  "links": [],
+  "model": {
+    "source": "Vertrieb.SemanticModel",
+    "tables": ["DimDate", "DimProduct", "DimRegion", "DimCustomer", "DimAccount", "_Measures"],
+    "usedFields": []
+  },
+  "fields": [
+    {
+      "table": "DimProduct",
+      "name": "Category",
+      "kind": "column",
+      "ref": "DimProduct.Category",
+      "isNew": false,
+      "description": "Produktlinie",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "Produktlinie",
+      "renameInModel": false,
+      "confirmed": true,
+      "owner": "Vertrieb",
+      "source": "DWH",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimProduct",
+      "name": "Brand",
+      "kind": "column",
+      "ref": "DimProduct.Brand",
+      "isNew": false,
+      "description": "Marke",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimRegion",
+      "name": "Region",
+      "kind": "column",
+      "ref": "DimRegion.Region",
+      "isNew": false,
+      "description": "Vertriebsregion",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": true,
+      "owner": "Vertrieb",
+      "source": "DWH",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimCustomer",
+      "name": "Segment",
+      "kind": "column",
+      "ref": "DimCustomer.Segment",
+      "isNew": false,
+      "description": "Kundensegment",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimDate",
+      "name": "Month",
+      "kind": "column",
+      "ref": "DimDate.Month",
+      "isNew": false,
+      "description": "Monat",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": true,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimDate",
+      "name": "Year",
+      "kind": "column",
+      "ref": "DimDate.Year",
+      "isNew": false,
+      "description": "Jahr",
+      "formatString": "0",
+      "dataType": "int64",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": true,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimAccount",
+      "name": "Account",
+      "kind": "column",
+      "ref": "DimAccount.Account",
+      "isNew": false,
+      "description": "GuV-Position",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "Umsatz",
+      "kind": "measure",
+      "ref": "_Measures.Umsatz",
+      "isNew": false,
+      "description": "Nettoumsatz",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": true,
+      "owner": "Controlling",
+      "source": "DWH",
+      "target": "",
+      "unit": "EUR",
+      "note": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "Kosten",
+      "kind": "measure",
+      "ref": "_Measures.Kosten",
+      "isNew": false,
+      "description": "Variable Kosten",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "Controlling",
+      "source": "DWH",
+      "target": "",
+      "unit": "EUR",
+      "note": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "AC",
+      "kind": "measure",
+      "ref": "_Measures.AC",
+      "isNew": false,
+      "description": "Ist-Wert",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": true,
+      "owner": "Controlling",
+      "source": "DWH",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "PL",
+      "kind": "measure",
+      "ref": "_Measures.PL",
+      "isNew": false,
+      "description": "Plan",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": true,
+      "owner": "Controlling",
+      "source": "DWH",
+      "target": "",
+      "unit": "",
+      "note": ""
+    }
+  ],
+  "newFields": [],
+  "issues": [
+    {
+      "level": "warn",
+      "code": "SM_NO_FIELD",
+      "text": "„Verlauf je Monat\": Small Multiples aktiv, aber kein Aufteilungsfeld gebunden",
+      "page": "Varianten",
+      "visual": "mk_line1"
+    },
+    {
+      "level": "info",
+      "code": "FIELDPARAM_FEW",
+      "text": "„AC/PL je Monat\": Feldparameter „CK-Achse\" hat nur 1 Feld(er); mindestens zwei sind sinnvoll",
+      "page": "Varianten",
+      "visual": "mk_ck1"
+    }
+  ],
+  "warnings": [
+    "Seite „Varianten\": „Verlauf je Monat\": Small Multiples aktiv, aber kein Aufteilungsfeld gebunden"
+  ]
+}

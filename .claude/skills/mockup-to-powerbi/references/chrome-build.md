@@ -140,9 +140,23 @@ der Spec, die Elemente darin werden relativ dazu gesetzt.
 | Logo | `chrome_logo` | `logoPos: left` → hinter Burger/Rand; `right` → `x+w-16-120`; vertikal zentriert, 120×32 | Platzhalter-Shape mit Kontur und Text `LOGO`; ersetzen durch `pbir add visual image "<Seite>.Page" -n chrome_logo -x … --image "<Pfad|URL|Table.Measure>"` |
 | Titel | `chrome_header_title` | hinter Burger/Logo, Breite bis vor die Nav-Buttons | `fill.show=false`, `outline.show=false`, `text.text=<title>`, `fontSize 16·fontScale`, `bold`, `fontColor` je `headerStyle`, `verticalAlignment=middle`, `--z 4` |
 | Untertitel | `chrome_header_subtitle` | unter dem Titel, nur wenn das Band ≥ 48 px hoch ist | wie Titel, `fontSize 10·fontScale`, gedämpfte Farbe |
-| Nav-Buttons | `chrome_nav_1…n` | rechtsbündig, je 112×32, Lücke 8 (alle skaliert) | **inaktiv:** `fill.show=false`, `text.fontColor=<Kopfbandschrift>`, `pbir visuals action … --type PageNavigation --target "<Seite>"`; **aktive Seite:** `fill.fillColor=<Akzent>`, weiße Schrift, **keine** Aktion; `--z 5` |
+| Nav-Buttons | `chrome_nav_1…n` | rechtsbündig, je 112×32, Lücke 8 (alle skaliert) — **nur wenn `header.navOn` nicht `false` ist** | **inaktiv:** `fill.show=false`, `text.fontColor=<Kopfbandschrift>`, `pbir visuals action … --type PageNavigation --target "<Seite>"`; **aktive Seite:** `fill.fillColor=<Akzent>`, weiße Schrift, **keine** Aktion; `--z 5` |
+
+**`header.navOn: false`** (ab Tool 0.4.1): das Kopfband bekommt **keine**
+Seitennavigation. Es entsteht kein einziges `chrome_nav_*` und keine
+`PageNavigation`-Aktion; Titel, Untertitel, Logo und Burger bleiben, und der
+Titel darf die volle Breite bis zum rechten Rand nutzen. Das Tool liefert
+`header.nav` dann ohnehin leer — der Skill wertet die Flagge trotzdem
+ausdrücklich aus, damit eine von Hand geschriebene Spec mit `navOn: false`
+**und** gefüllter `nav`-Liste nicht heimlich doch Buttons bekommt. Der Hinweis
+steht in `checklist.md` („Hinweise aus dem Chrome-Aufbau") und in
+`navigation.md`. Fehlt der Schlüssel, gilt `true` — ältere Specs verhalten sich
+unverändert.
 
 ### Linke Nav-Leiste (`zones.nav`)
+
+`navOn` betrifft sie **nicht**: die linke Leiste ist eine eigene Zone und
+existiert nur, wenn der Mensch sie eingeschaltet hat.
 
 Existiert die Zone, wandern Logo (40×40 oben) und ein Button je Seite
 (`zones.nav.pages`) dorthin — gestapelt bei `x+8`, Höhe 40, Abstand 48 px,

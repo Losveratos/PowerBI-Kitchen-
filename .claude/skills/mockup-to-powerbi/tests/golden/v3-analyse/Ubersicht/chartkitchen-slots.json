@@ -32,7 +32,9 @@
       "timeGrain": null,
       "cumulative": false,
       "scaleGroup": null,
-      "message": null
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
     },
     "workshop": {
       "priority": null,
@@ -108,7 +110,9 @@
       "timeGrain": null,
       "cumulative": false,
       "scaleGroup": null,
-      "message": null
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
     },
     "workshop": {
       "priority": null,
@@ -169,7 +173,9 @@
       "timeGrain": null,
       "cumulative": false,
       "scaleGroup": null,
-      "message": null
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
     },
     "workshop": {
       "priority": null,
@@ -244,7 +250,9 @@
       "timeGrain": null,
       "cumulative": false,
       "scaleGroup": null,
-      "message": null
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
     },
     "workshop": {
       "priority": null,
@@ -314,7 +322,9 @@
       "timeGrain": null,
       "cumulative": false,
       "scaleGroup": null,
-      "message": null
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
     },
     "workshop": {
       "priority": null,
@@ -394,7 +404,9 @@
       "timeGrain": "quarter",
       "cumulative": true,
       "scaleGroup": "A",
-      "message": null
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
     },
     "workshop": {
       "priority": "should",

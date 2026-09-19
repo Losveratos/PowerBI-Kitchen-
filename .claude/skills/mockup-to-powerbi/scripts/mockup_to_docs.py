@@ -48,7 +48,8 @@ from mockup_spec import SpecError, load, slug, upgrade                # noqa: E4
 # --------------------------------------------------------------------------- #
 ROLE_LABEL = {
     "de": {"category": "Kategorie / Zeit", "subcategory": "Unterkategorie",
-           "series": "Reihe / Legende", "ac": "AC · Ist-Wert",
+           "series": "Reihe / Legende", "multiples": "Small Multiples nach",
+           "ac": "AC · Ist-Wert",
            "ref": "Referenz (PL / PY / BU)", "fc": "FC-Flag (1/0)",
            "values": "Werte", "rows": "Zeilen", "columns": "Spalten",
            "x": "X-Wert", "y": "Y-Wert", "size": "Größe",
@@ -56,7 +57,8 @@ ROLE_LABEL = {
            "start": "Start", "end": "Ende", "field": "Feld", "text": "Text",
            "rowType": "Zeilentyp (Position / Summe / Formel)"},
     "en": {"category": "Category / time", "subcategory": "Sub-category",
-           "series": "Series / legend", "ac": "AC · actual",
+           "series": "Series / legend", "multiples": "Small multiples by",
+           "ac": "AC · actual",
            "ref": "Reference (PL / PY / BU)", "fc": "FC flag (1/0)",
            "values": "Values", "rows": "Rows", "columns": "Columns",
            "x": "X value", "y": "Y value", "size": "Size",
@@ -144,6 +146,9 @@ TXT = {
         "theme_check": "Formatierung gegen das Theme prüfen",
         "lower_better": "kleiner = besser", "sorted_by": "sortiert nach",
         "top": "Top", "cum": "kumuliert", "scale": "Skalengruppe",
+        # Wortlaut wie im Tool (assets/mockup/i18n.js -> exp.an.*)
+        "small_multiples": "Small Multiples nach %s",
+        "field_param": "Achse per Feldparameter „%s\" (%s)",
         "palette": "Varianz-Palette", "good": "gut", "bad": "schlecht",
         "ink": "Schriftfarbe", "custom_visuals": "Custom Visuals",
         "custom_hint": "Diese Kacheln sind Custom Visuals aus dem Repository. "
@@ -203,6 +208,8 @@ TXT = {
         "theme_check": "Check formatting against the theme",
         "lower_better": "lower is better", "sorted_by": "sorted by",
         "top": "Top", "cum": "cumulative", "scale": "scale group",
+        "small_multiples": "Small multiples by %s",
+        "field_param": "Axis via field parameter “%s” (%s)",
         "palette": "Variance palette", "good": "good", "bad": "bad",
         "ink": "Text colour", "custom_visuals": "Custom visuals",
         "custom_hint": "These tiles are custom visuals from the repository. "
@@ -255,6 +262,17 @@ def analysis_summary(v: dict, lang: str) -> str:
         parts.append(t["cum"])
     if a.get("scaleGroup"):
         parts.append("%s %s" % (t["scale"], a["scaleGroup"]))
+    # Darstellungsvarianten (Tool 0.4.1) — Wortlaut wie analysisLine in export.js
+    sm = a.get("smallMultiples")
+    if isinstance(sm, dict):
+        field = sm.get("field")
+        if not field:
+            field = ((v.get("roles") or {}).get("multiples") or [{}])[0].get("ref")
+        parts.append(t["small_multiples"] % (field or "?"))
+    fp = a.get("fieldParam")
+    if isinstance(fp, dict) and fp.get("name"):
+        parts.append(t["field_param"]
+                     % (fp["name"], ", ".join(fp.get("fields") or []) or "–"))
     return ", ".join(parts) or "–"
 
 

@@ -69,6 +69,25 @@ die der Skill vorher fest verdrahtet hatte (Teal-Palette, weiße Kacheln,
 Ink `#0F1E2E`, Kopfbandfarben aus `headerStyle`). Die Ausgabe eines alten
 Mockups ändert sich dadurch nicht.
 
+### Tool 0.4.1 (specVersion bleibt 3)
+
+Wieder abwärtskompatibel. Fehlen die Schlüssel, ist die jeweilige Variante aus.
+
+| Neu | Wo |
+|---|---|
+| `visuals[].analysis.smallMultiples` | Small Multiples je Kachel — siehe [Darstellungsvarianten](#darstellungsvarianten-tool-041) |
+| `visuals[].analysis.fieldParam` | Kategorieachse aus einem **Feldparameter** — ebenda |
+| Rolle `multiples` | Aufteilungsfeld der Small Multiples (Spalte, max. 1) |
+| Kachel-Typen `ncolumn`, `nbar`, `nline`, `ndonut` | Gruppe „Native Klassiker": Säule, Balken, Linie, Donut ohne Szenario-Notation, Engine **nur** `native` |
+| `zones.header.navOn` | bool, Vorgabe `true`. `false` = **keine** Seitennavigation im Kopfband |
+| Issue-Codes `SM_NO_FIELD`, `FIELDPARAM_FEW` | siehe [`issues[]`](#issues-ab-v3) |
+
+> **Hash-Stabilität:** `smallMultiples` und `fieldParam` zählen nur dann in
+> `meta.specHash` mit, wenn sie **gesetzt** sind. Ein v1/v2-Mockup behält so
+> denselben Hash wie vor 0.4.1 — sonst meldete der nächste Lauf an einem
+> bereits gebauten Bericht fälschlich eine Änderung
+> (`mockup_spec.HASH_SKIP_ANALYSIS_IF_NULL`, dieselbe Idee wie bei `design`).
+
 ## Oberste Ebene (specVersion 3)
 
 | Schlüssel | Inhalt |
@@ -142,6 +161,8 @@ bestätigte Definitionen sind der häufigste Grund für „die Zahl stimmt nicht
 | `RENAME_REQUEST` | Umbenennungswunsch aus dem Fachbereich |
 | `NEW_FIELD_UNUSED` | neues Feld auf keiner Kachel gebunden |
 | `REPORT_NO_AUDIENCE`, `REPORT_NO_DECISION` | Berichtskopf unvollständig |
+| `SM_NO_FIELD` | Small Multiples eingeschaltet, aber kein Aufteilungsfeld gebunden (`warn`, ab 0.4.1) — die Kachel wird trotzdem gebaut, nur ohne Aufteilung |
+| `FIELDPARAM_FEW` | Feldparameter mit weniger als zwei Feldern (`info`, ab 0.4.1) — zum Umschalten braucht es mindestens zwei |
 
 `error` zuerst klären: Kacheln mit leerer Pflichtrolle stehen **nicht** in
 `pbir-visuals.json`, sonst würde `--from-json` die ganze Datei ablehnen.
@@ -179,7 +200,7 @@ eingeschaltet hat — `content` immer. Die Zonen gelten für **jede** Seite.
 | Zone | Zusätzliche Felder |
 |---|---|
 | `nav` | `pages` (Namen aller Seiten — ein Button je Seite in der linken Leiste) |
-| `header` | `style` (= `design.headerStyle`), `logoPos` (`left`/`right`/`none`), `title`, `subtitle`, `nav` (Seitennamen für die Buttons), `navAuto` (Nav folgt automatisch den Seiten), `burger` (Burger-Button fürs Filter-Overlay) |
+| `header` | `style` (= `design.headerStyle`), `logoPos` (`left`/`right`/`none`), `title`, `subtitle`, `nav` (Seitennamen für die Buttons), **`navOn`** (ab 0.4.1, Vorgabe `true`), `navAuto` (Nav folgt automatisch den Seiten), `burger` (Burger-Button fürs Filter-Overlay) |
 | `filter` | `mode`, `side`, `collapsible`, `slicers[]`, bei Overlay zusätzlich `overlay: true`, `note`, `bookmarks[]` |
 | `footer` | `text` |
 | `content` | – (hier und nur hier liegen die Visuals) |
@@ -187,6 +208,15 @@ eingeschaltet hat — `content` immer. Die Zonen gelten für **jede** Seite.
 Geometrie-Logik des Tools (`app.js` → `zones()`): Nav-Leiste nimmt links Platz
 weg, danach Kopfband und Fußleiste oben/unten, dann das Filter-Panel seitlich
 oder oben; der Rest minus `margin` ist `content`.
+
+**`header.navOn: false`** (ab 0.4.1) heißt: das Kopfband bekommt **keine**
+Seitennavigation. `nav` ist dann ohnehin leer, weil `buildSpec` die Liste
+verwirft — der Skill wertet die Flagge trotzdem aus, damit eine von Hand
+geschriebene Spec mit `navOn: false` **und** gefüllter `nav`-Liste nicht
+heimlich doch Buttons bekommt. Es entstehen keine `chrome_nav_*`; der
+Seitenwechsel läuft über die Registerkarten (oder über die linke Nav-Leiste
+`zones.nav`, die `navOn` **nicht** betrifft — sie ist eine eigene Zone).
+`chrome-commands.sh`, `checklist.md` und `navigation.md` sagen das ausdrücklich.
 
 ### Filter-Modi
 
@@ -281,19 +311,109 @@ heißt: aus Namen oder Szenario abgeleitet — ein Vorschlag, keine Entscheidung
 | `cumulative` | bool | nur als To-do: braucht eine YTD-Kennzahl im Modell |
 | `scaleGroup` | Freitext | nur als To-do: gleiche Wertachse auf allen Kacheln der Gruppe (`pbir visuals axis … value --min --max`) |
 | `message` | Freitext | Kernaussage für die Titelzeile — To-do, weil sie den Titel aus dem Mockup überschreiben würde |
+| `smallMultiples` | `{field}` · `null` | ab 0.4.1 — ein Mini-Chart je Ausprägung, siehe unten |
+| `fieldParam` | `{name, role, fields}` · `null` | ab 0.4.1 — Achse per Feldparameter, siehe unten |
 
 Visualtypen ohne Datenbeschriftung (`tableEx`, `pivotTable`,
 `decompositionTreeVisual`, Slicer, Shapes) bekommen keine Anzeigeeinheiten —
 dort wird daraus ein To-do. Alles, was nicht gesetzt werden konnte, steht mit
 Code in `mockup-out/analysis-todos.md`.
 
+## Darstellungsvarianten (Tool 0.4.1)
+
+Zwei Schalter je Kachel, die der Katalog nur für Typen mit **Kategorieachse**
+anbietet (`catalog.js` → `variantsFor`). Ausgenommen sind `multiples`, `map`,
+`treemap`, `decomp`, `pie`, `gauge` und `ndonut` (`NO_VARIANT_KINDS`).
+
+### `analysis.smallMultiples`
+
+```json
+"smallMultiples": { "field": "DimRegion.Region" }
+```
+
+`null` heißt aus. Das Aufteilungsfeld steht **doppelt** in der Spec: hier und
+als Rolle `multiples`. Ist `field` `null`, hat der Mensch die Variante
+eingeschaltet, aber kein Feld gezogen → Tool-Issue `SM_NO_FIELD`; die Kachel
+wird trotzdem gebaut, nur ohne Aufteilung.
+
+| Fall | Was der Skill macht |
+|---|---|
+| natives kartesisches Visual, Feld gebunden | Projektion in den PBIR-Bucket **`Rows`** von `pbir-visuals.json` |
+| Feld fehlt | Kachel bleibt, To-do `SM_NO_FIELD` in `analysis-todos.md` |
+| natives Visual **ohne** den Bucket (`waterfallChart`, `scatterChart`, `card`, `donutChart`, `pieChart`, `treemap`, `map`, `tableEx`, `pivotTable`, `gauge`, `decompositionTreeVisual`) | To-do `SM_NO_BUCKET` — anderen Typ wählen oder ein Raster aus Einzelkacheln bauen |
+| `engine: ck` / `deneb` / `custom` | To-do `SM_NOT_NATIVE` — ChartKitchen und Deneb haben keinen Small-Multiples-Bucket |
+
+> **`Rows` ist verifiziert, nicht geraten** (pbir 0.9.32):
+> `pbir schema roles clusteredColumnChart` nennt `Category, Y, Series, Rows,
+> Tooltips`; eine per `--from-json` gesetzte `Rows`-Bindung steht danach als
+> eigene `queryState`-Projektion in der `visual.json` und `pbir validate
+> --fields` nimmt sie an. Gegenprobe: `donutChart` lehnt sie ab
+> („Role 'Rows' not valid for donutChart"). Dasselbe Mapping benutzt der
+> Katalog schon länger für den Kachel-Typ `multiples` (`series` → `Rows`).
+>
+> **`pivotTable` hat zwar auch eine Rolle `Rows`** — das ist dort aber der
+> Matrix-Zeilenbereich, **nicht** Small Multiples. Deshalb führt der Skill eine
+> Positivliste (`mockup_spec.SMALL_MULTIPLES_TYPES`), keine „hat `Rows`"-Prüfung.
+
+### `analysis.fieldParam`
+
+```json
+"fieldParam": {
+  "name": "Achse",
+  "role": "category",
+  "fields": ["DimRegion.Region", "DimProduct.Category", "DimCustomer.Segment"]
+}
+```
+
+Die Kategorieachse kommt aus einem **Feldparameter**: einer berechneten Tabelle
+mit dem `NAMEOF`-Muster
+(`Achse = { ("Region", NAMEOF('DimRegion'[Region]), 0), … }`). Tabelle und
+sichtbare Spalte heißen gleich, deshalb ist der Feldverweis `'<Name>'[<Name>]`
+bzw. im pbir-Format **`<Name>.<Name>`**. Weniger als zwei Felder → Tool-Issue
+`FIELDPARAM_FEW`.
+
+Der Skill macht daraus dreierlei:
+
+1. **Modell-To-do** in `model-todos.md`: das fertige C#-Skript für
+   `te script … --save`, die Prüfbefehle und die erwartete TMDL, ausdrücklich
+   mit **prüfen** markiert. Die Parametertabelle muss **vor** dem Bauen
+   existieren — ein fehlendes Feld lässt `pbir add visual --from-json` die
+   **ganze** Datei ablehnen. Im Plan steht sie als eigener Schritt
+   `fieldparams`.
+2. **Bindung** in `pbir-visuals.json`: die Kategorie-Felder der Kachel werden
+   durch `<Name>.<Name>` ersetzt. Welcher Bucket das ist, wird **gesucht**, nicht
+   geraten — der Katalog mappt `category` je nach Typ auf `Category`, `Rows`
+   oder `ExplainBy` (`mockup_to_pbir.param_bucket`). Andere Buckets (`Series`,
+   `Y`) bleiben unangetastet.
+3. **Slicer-Vorschlag**: ohne Slicer kann niemand umschalten. Der fertige
+   Aufruf steht **auskommentiert** in `<Seitenslug>/analysis-commands.sh` (Platz
+   in der nächsten freien Zeile des Filter-Panels, sonst links oben im
+   Inhaltsbereich) und als To-do `FIELDPARAM_SLICER`. Er wird **nicht**
+   ausgeführt: das Mockup sieht diese Kachel nicht vor, also entscheidet der
+   Mensch.
+
+Bei `engine: ck`/`deneb`/`custom` gehört der Parameter trotzdem ins Modell, die
+Achsenbindung zieht man im Slot nach (To-do `FIELDPARAM_SLOT`).
+
+> Drei Dinge brechen still: `ParameterMetadata` (`{"version":3,"kind":2}`) muss
+> auf der **versteckten** `NAMEOF`-Spalte liegen, `sortByColumn` auf die
+> Order-Spalte zeigen, und `Value3` eine dichte Folge 0, 1, 2 … sein. Ein
+> Feldparameter taugt außerdem **nicht** als Drill-through- oder Tooltip-Feld.
+> Deshalb schreibt der Skill das DAX nicht mit `te add` zusammen, sondern nimmt
+> die headless-Fassung des Makros „Create Field Parameter"
+> (`tabular-editor:c-sharp-scripting` → `examples/tables/add-field-parameter.csx`).
+> Verifiziert: `Model.AddCalculatedTable` legt die drei Spalten im `te`-CLI
+> **nicht** von selbst an (anders als in Tabular Editor 3) — das Skript ruft
+> deshalb `AddCalculatedTableColumn` auf.
+
 ## Rollen-Vokabular
 
 | Rolle | Label im Tool | Art | max |
 |---|---|---|---|
-| `category` | Kategorie / Achse bzw. Zeit / Periode bzw. Geo-Feld | Spalte | 1 |
+| `category` | Kategorie / Achse bzw. Zeit / Periode bzw. Geo-Feld | Spalte | 1 (mit `fieldParam` bis 8) |
 | `subcategory` | Unterkategorie | Spalte | 1 |
-| `series` | Reihe / Legende (bei Small Multiples: Facette) | Spalte | 1 |
+| `series` | Reihe / Legende (bei Kachel-Typ `multiples`: Facette) | Spalte | 1 |
+| `multiples` | Small Multiples nach — ab 0.4.1, Aufteilungsfeld | Spalte | 1 |
 | `ac` | AC · Ist-Wert | Measure | 1 |
 | `ref` | Referenz (PL / PY / BU) | Measure | 2 |
 | `fc` | FC-Flag (1/0) | Spalte | 1 |
@@ -346,6 +466,10 @@ optionale in Klammern).
 | `multirow` | `multiRowCard` | values→`Values` |
 | `table`, `sparktable` | `tableEx` | rows/ac/ref→alle nach `Values` |
 | `gauge` | `gauge` | indicator→`Y`, goal→`TargetValue` |
+| `ncolumn` | `clusteredColumnChart` | category/time→`Category`, series→`Series`, values→`Y` (bis 5) |
+| `nbar` | `clusteredBarChart` | category→`Category`, series→`Series`, values→`Y` (bis 5) |
+| `nline` | `lineChart` | time→`Category`, series→`Series`, values→`Y` (bis 5) |
+| `ndonut` | `donutChart` | category→`Category`, ac→`Y` |
 | `pie` | `pieChart` | category→`Category`, ac→`Y` |
 | `treemap` | `treemap` | category→`Group`, ac→`Values` |
 | `map` | `map` | category→`Category`, size→`Size` |
@@ -356,6 +480,18 @@ optionale in Klammern).
 Im JSON stehen diese Mappings bereits fertig unter `visuals[].native.buckets`.
 Mehrere Felder pro Bucket (z. B. AC und PL beide in `Y`) werden im
 `--from-json`-Format zu einer Liste: `"Y": ["_Measures.AC", "_Measures.PL"]`.
+
+Die Gruppe **„Native Klassiker"** (`ncolumn`, `nbar`, `nline`, `ndonut`, ab
+0.4.1) kennt als Engine **nur** `native` — kein ChartKitchen, kein Deneb, keine
+Szenario-Notation. Sie ist für Berichte gedacht, die bewusst bei den
+Standard-Visuals bleiben: Legende optional (`series`), bis zu fünf Kennzahlen
+(`values`). `ndonut` hat stattdessen `category` + `ac` und bietet **keine**
+Darstellungsvarianten an.
+
+Zwei Buckets stehen **nicht** im Katalog-Mapping und setzt der Skill selbst:
+`Rows` bei Small Multiples und die Parameterspalte anstelle der Kategorie-Felder
+bei einem Feldparameter — siehe
+[Darstellungsvarianten](#darstellungsvarianten-tool-041).
 
 ## Rollen → ChartKitchen-Datenrollen
 
@@ -368,6 +504,7 @@ Das Skript schlägt vor, die Referenz-Instanz entscheidet.
 | `category` | `category` | |
 | `rows` | `category` | Tabelle |
 | `series` | `series` | bei `kind: "multiples"` stattdessen `multiples` |
+| `multiples` | `multiples` | ab 0.4.1 — dieselbe Zielrolle wie beim Kachel-Typ `multiples`. **Vorschlag, nicht bestätigt:** ob die gewählte `orientation` daraus wirklich Small Multiples zeichnet, entscheidet die Referenz-Instanz. Der Skill meldet dazu `SM_NOT_NATIVE` |
 | `subcategory`, `columns` | `colgroup` | nur Tabelle, max. 2 Ebenen |
 | `ac`, `indicator`, `values` | `actual` | |
 | `ref` (1./2. Feld) | `plan` bzw. `previousYear` | Reihenfolge aus `scenario`: `PL`/`BU` → `plan`, `PY` → `previousYear`; überzählige Referenzen → `benchmark` |

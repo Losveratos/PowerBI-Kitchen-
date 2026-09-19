@@ -91,7 +91,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mockup_spec import (                                     # noqa: E402
     CK_ORIENTATION, CK_ROLE, CK_ROLE_UNSUPPORTED, DRILL_ROLE_ORDER,
-    MEASURE_ROLE_ORDER, SpecError, as_document,
+    MEASURE_ROLE_ORDER, NO_VARIANT_KINDS, SMALL_MULTIPLES_BUCKET,
+    SMALL_MULTIPLES_TYPES, SpecError, as_document,
     custom_visual_info, is_light, load, slug, split_ref, structural_errors,
     upgrade, validate,
 )
@@ -133,6 +134,29 @@ T = {
                          "nicht automatisch um. ChartKitchen: `chart.invert = true`; "
                          "nativ: bedingte Formatierung oder Farbe pruefen.",
         "todo_unit": "Einheit „%s\" als Untertitel gesetzt — im Bericht gegenlesen.",
+        "todo_sm_no_field": "Small Multiples sind eingeschaltet, aber kein "
+                            "Aufteilungsfeld gebunden (Tool-Issue `SM_NO_FIELD`). "
+                            "Feld in die Rolle „Small Multiples nach\" ziehen und neu "
+                            "exportieren — die Kachel bleibt sonst ein normales Visual.",
+        "todo_sm_not_native": "Small Multiples: %s hat keinen Small-Multiples-Bucket. "
+                              "Als natives Visual bauen oder als Raster aus einer "
+                              "Kachel je Auspraegung.",
+        "todo_sm_no_bucket": "Small Multiples nach `%s`: `%s` kennt die PBIR-Rolle "
+                             "`%s` nicht. Anderen Visualtyp waehlen oder ein Raster "
+                             "aus Einzelkacheln bauen.",
+        "todo_fieldparam": "Achse per Feldparameter „%s\" (%s): erst die berechnete "
+                           "Tabelle anlegen (model-todos.md), dann bindet die Achse "
+                           "auf `%s`. Ohne die Tabelle lehnt `--from-json` die "
+                           "**ganze** Datei ab.",
+        "todo_fieldparam_slicer": "Slicer auf `%s` einplanen — ohne ihn kann niemand "
+                                  "die Achse umschalten. Vorschlag steht in "
+                                  "analysis-commands.sh (auskommentiert).",
+        "todo_fieldparam_few": "Feldparameter „%s\" hat nur %d Feld(er) "
+                               "(Tool-Issue `FIELDPARAM_FEW`). Zum Umschalten braucht "
+                               "es mindestens zwei — im Workshop nachtragen.",
+        "todo_fieldparam_slot": "Achse per Feldparameter „%s\": die Kachel ist kein "
+                                "natives Visual. Der Feldparameter gehoert trotzdem "
+                                "ins Modell; die Achsenbindung im Slot nachziehen.",
     },
     "en": {
         "todo_delta_sort": "pbir cannot sort by delta (the model has no delta column). "
@@ -148,6 +172,23 @@ T = {
         "todo_polarity": "Polarity „lower is better\": native visuals do not "
                          "recolour by themselves. ChartKitchen: `chart.invert = true`.",
         "todo_unit": "Unit „%s\" set as subtitle — proofread in the report.",
+        "todo_sm_no_field": "Small multiples are enabled but no split field is bound "
+                            "(tool issue `SM_NO_FIELD`). Bind the field and export "
+                            "again.",
+        "todo_sm_not_native": "Small multiples: %s has no small-multiples bucket. "
+                              "Build it as a native visual or as a grid of tiles.",
+        "todo_sm_no_bucket": "Small multiples by `%s`: `%s` has no PBIR role `%s`. "
+                             "Pick another visual type or build a grid of tiles.",
+        "todo_fieldparam": "Axis via field parameter „%s\" (%s): create the "
+                           "calculated table first (model-todos.md), then the axis "
+                           "binds to `%s`.",
+        "todo_fieldparam_slicer": "Plan a slicer on `%s` — without it nobody can "
+                                  "switch the axis.",
+        "todo_fieldparam_few": "Field parameter „%s\" has only %d field(s) "
+                               "(tool issue `FIELDPARAM_FEW`); at least two make sense.",
+        "todo_fieldparam_slot": "Axis via field parameter „%s\": the tile is not a "
+                                "native visual. The parameter still belongs in the "
+                                "model; bind the axis inside the slot.",
     },
 }
 
@@ -219,6 +260,93 @@ def lead_category(v: dict):
         if roles.get(key):
             return roles[key][0]
     return None
+
+
+# --------------------------------------------------------------------------- #
+# Darstellungsvarianten (Tool 0.4.1)
+# --------------------------------------------------------------------------- #
+def sm_field(v: dict):
+    """Aufteilungsfeld der Small Multiples, oder None (Variante aus / Feld fehlt).
+
+    Das Tool schreibt es doppelt: als `analysis.smallMultiples.field` und als
+    Rolle `multiples`. Beides wird gelesen, die Rolle gewinnt nur, wenn der
+    Analyse-Block leer bleibt.
+    """
+    a = v.get("analysis") or {}
+    sm = a.get("smallMultiples")
+    if not isinstance(sm, dict):
+        return None
+    if sm.get("field"):
+        return sm["field"]
+    first = ((v.get("roles") or {}).get("multiples") or [{}])[0]
+    return first.get("ref") or None
+
+
+def field_param(v: dict):
+    """`analysis.fieldParam` als Dict, oder None."""
+    fp = (v.get("analysis") or {}).get("fieldParam")
+    return fp if isinstance(fp, dict) and fp.get("name") else None
+
+
+def param_ref(fp: dict) -> str:
+    """Feldverweis auf die Parameterspalte — Tabelle und Spalte heissen gleich.
+
+    In DAX ist das `'<Name>'[<Name>]`, im pbir-Format `<Name>.<Name>`
+    (verifiziert: `pbir add visual --from-json` mit `"Category": "Achse.Achse"`
+    legt die Projektion an, `pbir validate --fields` nimmt sie an).
+    """
+    name = str(fp.get("name") or "").strip()
+    return "%s.%s" % (name, name)
+
+
+def param_slicer_name(fp: dict, page: dict) -> str:
+    return "mk_param_%s_p%d" % (slug(fp.get("name")), page.get("index") or 1)
+
+
+def param_slicer_hint(nspec: dict, page: dict, fp: dict, offset: int = 0) -> str:
+    """Fertiger `pbir add visual slicer`-Aufruf als Kommentarzeile.
+
+    Bewusst nur ein Vorschlag: das Mockup kennt diese Kachel nicht, sie taucht
+    deshalb weder in `pbir-visuals.json` noch im Sollbild auf. Liegt ein
+    Filter-Panel auf der Seite, wird darin die naechste freie Zeile berechnet,
+    sonst die linke obere Ecke des Inhaltsbereichs.
+    """
+    k = nspec["uiScale"]
+    filt = (nspec["zones"] or {}).get("filter") or {}
+    n = len(filt.get("slicers") or []) + offset
+    if filt:
+        fx, fy, fw, fh = rect(filt)
+        if (filt.get("mode") or filt.get("side")) == "top":
+            x, y = fx + round(8 * k) + n * round(168 * k), fy + round(8 * k)
+            w, h = round(160 * k), fh - 2 * round(8 * k)
+        else:
+            x, y = fx + round(8 * k), fy + round(40 * k) + n * round(64 * k)
+            w, h = fw - 2 * round(8 * k), round(56 * k)
+    else:
+        cr = page.get("contentRect") or {}
+        x = int(cr.get("x", 16))
+        y = int(cr.get("y", 72)) + n * round(64 * k)
+        w, h = round(160 * k), round(56 * k)
+    return ('  pbir add visual slicer "{page}" -n %s -x %d -y %d -w %d -h %d '
+            '-t "%s" && pbir visuals bind "{page}/%s.Visual" -a "Values:%s"'
+            % (param_slicer_name(fp, page), x, y, w, h, fp.get("name"),
+               param_slicer_name(fp, page), param_ref(fp)))
+
+
+def param_bucket(v: dict, buckets: dict):
+    """In welchem pbir-Bucket die Kategorie-Felder der Kachel gelandet sind.
+
+    Der Katalog mappt `category` je nach Typ auf `Category`, `Rows` oder
+    `ExplainBy` — deshalb wird nicht geraten, sondern das erste Kategorie-Feld
+    in den fertigen Buckets gesucht.
+    """
+    cat_refs = [f.get("ref") for f in ((v.get("roles") or {}).get("category") or [])]
+    if not cat_refs:
+        return None, []
+    for bucket, entries in (buckets or {}).items():
+        if any(f.get("ref") == cat_refs[0] for f in entries or []):
+            return bucket, cat_refs
+    return None, cat_refs
 
 
 class Commands:
@@ -342,10 +470,29 @@ def build_pbir_visuals(nspec: dict, page: dict, ck_fallback: bool = False):
         if has_empty_required_role(v):
             skipped.append(v)
             continue
+        buckets = native.get("buckets") or {}
+
+        # --- Achse per Feldparameter: Kategorie-Felder durch die Parameterspalte
+        #     ersetzen. Der Bucket wird gesucht, nicht geraten (siehe param_bucket).
+        fp = field_param(v)
+        fp_bucket, fp_refs = (param_bucket(v, buckets) if fp else (None, []))
+
         fields = {}
-        for bucket, entries in (native.get("buckets") or {}).items():
+        for bucket, entries in buckets.items():
             refs = [f["ref"] for f in entries]
+            if fp and bucket == fp_bucket:
+                keep = [r for r in refs if r not in fp_refs]
+                refs = [param_ref(fp)] + keep
             fields[bucket] = refs[0] if len(refs) == 1 else refs
+
+        # --- Small Multiples: eigener Bucket, den das Katalog-Mapping nicht kennt.
+        #     `Rows` gibt es nur bei den kartesischen Typen (verifiziert mit
+        #     `pbir schema roles`); alles andere bleibt ein To-do.
+        smf = sm_field(v)
+        if (smf and native["type"] in SMALL_MULTIPLES_TYPES
+                and SMALL_MULTIPLES_BUCKET not in fields):
+            fields[SMALL_MULTIPLES_BUCKET] = smf
+
         out.append(vis(native["type"], v["id"], v.get("title") or v.get("label", ""),
                        *rect(v["rect"]), fields=fields or None))
 
@@ -738,7 +885,19 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
 
     header = zones.get("header") or {}
     nav_zone = zones.get("nav")
-    nav_entries = [str(n) for n in (header.get("nav") or []) if str(n).strip()]
+    # `zones.header.navOn` (ab Tool 0.4.1, Vorgabe true): ist es false, gehoeren
+    # KEINE Seitennavigations-Buttons ins Kopfband. Das Tool liefert `nav` dann
+    # ohnehin leer — die Flagge wird trotzdem ausgewertet, damit eine von Hand
+    # geschriebene Spec mit `navOn: false` und gefuellter `nav`-Liste nicht
+    # heimlich doch Buttons bekommt.
+    header_nav_on = header.get("navOn", True) is not False
+    nav_entries = ([str(n) for n in (header.get("nav") or []) if str(n).strip()]
+                   if header_nav_on else [])
+    if header and not header_nav_on:
+        notes.append("Kopfband ohne Seitennavigation (`zones.header.navOn: false`) — "
+                     "es werden keine `chrome_nav_*`-Buttons angelegt. Seitenwechsel "
+                     "laeuft ueber die Registerkarten"
+                     + (" bzw. die linke Nav-Leiste." if nav_zone else "."))
 
     # ---- Nav-Leiste (links) --------------------------------------------- #
     if nav_zone:
@@ -1040,6 +1199,7 @@ def analysis_actions(nspec: dict, page: dict, built_names, lang: str):
     todos = []
     tr = T.get(lang, T["de"])
     label_props = {}
+    seen_params = []                 # je Parameter nur ein Slicer-Vorschlag
 
     def todo(v, code, text):
         todos.append({"code": code, "page": page["name"], "visual": v["id"],
@@ -1051,6 +1211,47 @@ def analysis_actions(nspec: dict, page: dict, built_names, lang: str):
         vtype = native.get("type") or ""
         in_report = v["id"] in built_names
         path = "{page}/%s.Visual" % v["id"]
+
+        # --- Small Multiples (Tool 0.4.1) ----------------------------------- #
+        if isinstance(a.get("smallMultiples"), dict):
+            smf = sm_field(v)
+            engine = v.get("engine")
+            if not smf:
+                todo(v, "SM_NO_FIELD", tr["todo_sm_no_field"])
+            elif engine in ("ck", "deneb", "custom"):
+                todo(v, "SM_NOT_NATIVE", tr["todo_sm_not_native"]
+                     % ("Ein ChartKitchen-Visual" if engine == "ck"
+                        else "Deneb" if engine == "deneb" else "Das Custom Visual"))
+            elif vtype and vtype not in SMALL_MULTIPLES_TYPES:
+                todo(v, "SM_NO_BUCKET", tr["todo_sm_no_bucket"]
+                     % (smf, vtype, SMALL_MULTIPLES_BUCKET))
+            if smf and v.get("kind") in NO_VARIANT_KINDS:
+                todo(v, "SM_KIND",
+                     "Typ `%s` bietet im Mockup gar keine Small Multiples an — die "
+                     "Angabe stammt nicht aus dem Tool. Beim Menschen nachfragen."
+                     % v.get("kind"))
+
+        # --- Achse per Feldparameter (Tool 0.4.1) --------------------------- #
+        fp = field_param(v)
+        if fp:
+            pref = param_ref(fp)
+            flds = fp.get("fields") or []
+            if in_report:
+                todo(v, "FIELDPARAM", tr["todo_fieldparam"]
+                     % (fp["name"], ", ".join("`%s`" % f for f in flds) or "–", pref))
+            else:
+                todo(v, "FIELDPARAM_SLOT", tr["todo_fieldparam_slot"] % fp["name"])
+            if len(flds) < 2:
+                todo(v, "FIELDPARAM_FEW", tr["todo_fieldparam_few"]
+                     % (fp["name"], len(flds)))
+            todo(v, "FIELDPARAM_SLICER", tr["todo_fieldparam_slicer"] % pref)
+            if fp["name"] not in seen_params:
+                cmds.note("Slicer auf den Feldparameter „%s\" — Vorschlag, nicht "
+                          "ausgefuehrt: das Mockup sieht diese Kachel nicht vor."
+                          % fp["name"])
+                cmds.note(param_slicer_hint(nspec, page, fp, len(seen_params)))
+                cmds.note("")
+                seen_params.append(fp["name"])
 
         # --- Polaritaet ---------------------------------------------------- #
         if a.get("polarity") == "lower":
@@ -1365,8 +1566,10 @@ def build_navigation_md(nspec: dict, report: str) -> str:
     zones = nspec["zones"] or {}
     header = zones.get("header") or {}
     nav_zone = zones.get("nav")
+    header_nav_on = header.get("navOn", True) is not False
     nav_entries = [str(n) for n in ((nav_zone or {}).get("pages")
-                                    or header.get("nav") or []) if str(n).strip()]
+                                    or (header.get("nav") if header_nav_on else [])
+                                    or []) if str(n).strip()]
 
     L = ["# Navigation, Drill-through und Lesezeichen", "",
          "Erzeugt aus `mockup-spec.json`. Alle Befehle laufen **nach** dem Anlegen "
@@ -1381,7 +1584,12 @@ def build_navigation_md(nspec: dict, report: str) -> str:
 
     # ---- Nav-Buttons ----------------------------------------------------- #
     L += ["## Nav-Buttons (auf jeder Seite)", ""]
-    if not nav_entries:
+    if not nav_entries and header and not header_nav_on:
+        L += ["`zones.header.navOn: false` — das Kopfband bekommt **keine** "
+              "Seitennavigation. Es entstehen keine `chrome_nav_*`-Buttons; "
+              "Seitenwechsel läuft über die Registerkarten"
+              + (" bzw. die linke Nav-Leiste." if nav_zone else "."), ""]
+    elif not nav_entries:
         L += ["Keine Nav-Leiste im Mockup — Seitenwechsel läuft über die Registerkarten.", ""]
     else:
         unknown = [n for n in nav_entries if n not in by_name]
@@ -1551,6 +1759,146 @@ def dax_suggestion(field: dict) -> str:
     return "// TODO: DAX ergänzen"
 
 
+def collect_field_params(nspec: dict):
+    """Feldparameter der Spec, je Name einmal (mehrere Kacheln teilen sich einen)."""
+    out = {}
+    for page in nspec["pages"]:
+        for v in page["visuals"]:
+            fp = field_param(v)
+            if not fp:
+                continue
+            entry = out.setdefault(fp["name"], {
+                "name": fp["name"], "role": fp.get("role") or "category",
+                "fields": [], "visuals": []})
+            for ref in fp.get("fields") or []:
+                if ref not in entry["fields"]:
+                    entry["fields"].append(ref)
+            entry["visuals"].append({"page": page["name"], "visual": v["id"],
+                                     "title": v.get("title") or v["id"]})
+    return list(out.values())
+
+
+def field_param_script(fp: dict) -> list:
+    """Headless-Fassung des Tabular-Editor-Makros „Create Field Parameter".
+
+    Das Original in `tabular-editor:c-sharp-scripting`
+    (`examples/tables/add-field-parameter.csx`) arbeitet mit `Selected.*`, also
+    mit der Auswahl in der Oberflaeche — auf der Kommandozeile gibt es die nicht.
+    Deshalb stehen die Felder hier als Liste im Skript. Verifiziert mit
+    `te script <Modell> --script <Datei> --save` (te-Preview, Sept. 2026):
+    `Model.AddCalculatedTable` legt die drei Spalten **nicht** von selbst an
+    (anders als in Tabular Editor 3), deshalb `AddCalculatedTableColumn`.
+    """
+    refs = ", ".join('"%s"' % r for r in (fp.get("fields") or []))
+    return [
+        '// Feldparameter "%s" — Achse per Slicer umschalten.' % fp["name"],
+        '// Headless-Fassung des Makros "Create Field Parameter"',
+        '// (Skill tabular-editor:c-sharp-scripting, examples/tables/'
+        'add-field-parameter.csx).',
+        'var name = "%s";' % fp["name"],
+        'var refs = new[] { %s };' % refs,
+        'var parts = new System.Collections.Generic.List<string>();',
+        'for (var i = 0; i < refs.Length; i++) {',
+        '    var t = refs[i].Substring(0, refs[i].IndexOf(\'.\'));',
+        '    var c = refs[i].Substring(refs[i].IndexOf(\'.\') + 1);',
+        '    parts.Add(string.Format("(\\"{0}\\", NAMEOF(\'{1}\'[{2}]), {3})", c, t, c, i));',
+        '}',
+        'var table = Model.AddCalculatedTable(name, "{\\n    " '
+        '+ string.Join(",\\n    ", parts) + "\\n}");',
+        'var nameCol  = table.AddCalculatedTableColumn(name, "[Value1]");',
+        'var fieldCol = table.AddCalculatedTableColumn(name + " Fields", "[Value2]");',
+        'var orderCol = table.AddCalculatedTableColumn(name + " Order", "[Value3]");',
+        'nameCol.SortByColumn = orderCol;',
+        'nameCol.GroupByColumns.Add(fieldCol);',
+        'nameCol.SummarizeBy = AggregateFunction.None;',
+        'fieldCol.SortByColumn = orderCol;',
+        'fieldCol.SetExtendedProperty("ParameterMetadata", '
+        '"{\\"version\\":3,\\"kind\\":2}", ExtendedPropertyType.Json);',
+        'fieldCol.IsHidden = true; fieldCol.SummarizeBy = AggregateFunction.None;',
+        'orderCol.IsHidden = true; orderCol.FormatString = "0";',
+    ]
+
+
+def build_field_param_md(nspec: dict, model_name: str) -> list:
+    """Abschnitt „Feldparameter" für `model-todos.md` (leer, wenn keiner da ist)."""
+    params = collect_field_params(nspec)
+    if not params:
+        return []
+    model = model_name or "<Name>.SemanticModel"
+    L = ["## Feldparameter (Achse per Slicer umschalten)", "",
+         "Diese Kacheln holen ihre Kategorieachse aus einem **Feldparameter** — "
+         "einer berechneten Tabelle mit dem `NAMEOF`-Muster. Tabelle und Spalte "
+         "heißen gleich, deshalb bindet der Bericht die Achse auf "
+         "`'<Name>'[<Name>]` (im pbir-Format `<Name>.<Name>`). **Die Tabelle muss "
+         "vor dem Bauen existieren** — ein fehlendes Feld lässt "
+         "`pbir add visual --from-json` die ganze Datei ablehnen.", "",
+         "| Parameter | Felder | Kacheln |", "|---|---|---|"]
+    for fp in params:
+        L.append("| `%s` | %s | %s |"
+                 % (fp["name"],
+                    ", ".join("`%s`" % f for f in fp["fields"]) or "**keine**",
+                    ", ".join("%s / %s" % (x["page"], x["title"]) for x in fp["visuals"])))
+    L += ["", "**Nicht von Hand bauen.** Der Skill `tabular-editor:te-cli` nennt das "
+          "Zusammenschreiben von DAX und Annotationen über `te add`/`te set` "
+          "ausdrücklich fehleranfällig; die `ParameterMetadata` gehört auf die "
+          "versteckte `NAMEOF`-Spalte, sonst schaltet der Slicer nichts um. Also "
+          "das Makro laufen lassen — **prüfen**, bevor es gespeichert wird:", ""]
+    for fp in params:
+        fname = "field-parameter-%s.csx" % slug(fp["name"])
+        L += ["```bash", "cat > %s <<'CSX'" % fname]
+        L += field_param_script(fp)
+        L += ["CSX",
+              'te script "%s" --script %s --save' % (model, fname),
+              'te get "%s" -m "%s" --output-format tmdl   # ParameterMetadata prüfen'
+              % (fp["name"], model),
+              'te validate -m "%s" --errors-only' % model,
+              "```", ""]
+    L += ["So sieht die erzeugte Tabelle aus (gekürzt, **prüfen**):", "",
+          "```tmdl",
+          "table %s" % params[0]["name"],
+          "\tcolumn %s" % params[0]["name"],
+          "\t\tsummarizeBy: none",
+          "\t\tsourceColumn: [Value1]",
+          "\t\tsortByColumn: '%s Order'" % params[0]["name"],
+          "",
+          "\t\trelatedColumnDetails",
+          "\t\t\tgroupByColumn: '%s Fields'" % params[0]["name"],
+          "",
+          "\tcolumn '%s Fields'" % params[0]["name"],
+          "\t\tisHidden",
+          "\t\tsummarizeBy: none",
+          "\t\tsourceColumn: [Value2]",
+          "\t\tsortByColumn: '%s Order'" % params[0]["name"],
+          "",
+          "\t\textendedProperty ParameterMetadata = {\"version\":3,\"kind\":2}",
+          "",
+          "\tcolumn '%s Order'" % params[0]["name"],
+          "\t\tisHidden",
+          "\t\tformatString: 0",
+          "\t\tsourceColumn: [Value3]",
+          "",
+          "\tpartition %s = calculated" % params[0]["name"],
+          "\t\tmode: import",
+          "\t\tsource =",
+          "\t\t\t\t{"]
+    for i, ref in enumerate(params[0]["fields"] or ["<Tabelle>.<Spalte>"]):
+        table, field = split_ref(ref)
+        L.append("\t\t\t\t    (\"%s\", NAMEOF('%s'[%s]), %d)%s"
+                 % (field, table, field, i,
+                    "," if i < len(params[0]["fields"]) - 1 else ""))
+    L += ["\t\t\t\t}", "```", "",
+          "> Drei Dinge brechen still, wenn sie fehlen: `ParameterMetadata` auf der "
+          "versteckten Spalte (sonst schaltet der Slicer nicht), `sortByColumn` auf "
+          "die Order-Spalte (sonst steht die Liste alphabetisch) und eine dichte "
+          "Zahlenfolge 0, 1, 2 … in `Value3`. Ein Feldparameter taugt außerdem "
+          "**nicht** als Drill-through- oder Tooltip-Feld.", "",
+          "Danach je Kachel einen **Slicer** auf die Parameterspalte einplanen — "
+          "ohne ihn kann niemand umschalten. Der Vorschlag steht auskommentiert in "
+          "`<Seitenslug>/analysis-commands.sh`; das Mockup sieht diese Kachel nicht "
+          "vor, deshalb wird sie nicht ungefragt gebaut.", ""]
+    return L
+
+
 def build_model_todos(nspec: dict, model_name: str) -> str:
     new = nspec["newFields"]
     meta = nspec["meta"]
@@ -1558,12 +1906,17 @@ def build_model_todos(nspec: dict, model_name: str) -> str:
          "Quelle: `%s` · Modell: `%s`"
          % (meta.get("name", "Mockup"), model_name or "<Name>.SemanticModel"), ""]
     renames = [f for f in nspec["fields"] if f.get("renameInModel") and f.get("alias")]
-    if not new and not renames:
+    params = build_field_param_md(nspec, model_name)
+    if not new and not renames and not params:
         L += ["Keine neuen Felder und keine Umbenennungswünsche im Mockup. Trotzdem vor "
               "dem Bauen prüfen, dass jede `ref` aus der Spec im Modell existiert "
               "(`te list`), sonst bricht `pbir add visual --from-json` die **ganze** "
               "Datei ab.", ""]
         return "\n".join(L)
+    if not new and not renames:
+        L += ["Keine neuen Felder und keine Umbenennungswünsche im Mockup — aber ein "
+              "Feldparameter (siehe unten). Trotzdem vor dem Bauen jede `ref` aus der "
+              "Spec gegen `te list` prüfen.", ""]
     if new:
         has_q = any(f.get("openQuestion") for f in new)
         L += ["## Neu anzulegen", "",
@@ -1621,6 +1974,7 @@ def build_model_todos(nspec: dict, model_name: str) -> str:
             L.append('te rename "%s/%s" "%s" -m "%s" --save'
                      % (table, field, f["alias"], model_name or "<Name>.SemanticModel"))
         L += ["```", ""]
+    L += params
     return "\n".join(L)
 
 
@@ -1728,6 +2082,47 @@ def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos,
                      % (v["id"], v.get("title") or "", v.get("kind"),
                         "; ".join(v.get("warnings") or [])))
         L.append("")
+
+    # ---- Darstellungsvarianten (Tool 0.4.1) -------------------------------- #
+    variants = []
+    for p in nspec["pages"]:
+        for v in p["visuals"]:
+            smf = sm_field(v)
+            has_sm = isinstance((v.get("analysis") or {}).get("smallMultiples"), dict)
+            fp = field_param(v)
+            if not has_sm and not fp:
+                continue
+            vtype = (v.get("native") or {}).get("type") or "–"
+            sm_txt = "–"
+            if has_sm:
+                if not smf:
+                    sm_txt = "**Feld fehlt** (`SM_NO_FIELD`)"
+                elif v.get("engine") != "native":
+                    sm_txt = "`%s` — %s kann es nicht" % (smf, v.get("engine"))
+                elif vtype in SMALL_MULTIPLES_TYPES:
+                    sm_txt = "`%s` → Bucket `%s`" % (smf, SMALL_MULTIPLES_BUCKET)
+                else:
+                    sm_txt = "`%s` — `%s` hat keinen Bucket" % (smf, vtype)
+            fp_txt = ("`%s` ← %s" % (param_ref(fp),
+                                     ", ".join("`%s`" % f for f in fp.get("fields") or [])
+                                     or "**keine Felder**")
+                      if fp else "–")
+            variants.append("| %s | %s (`%s`) | %s | %s | %s |"
+                            % (p["name"], v.get("title") or v["id"], v["id"],
+                               vtype, sm_txt, fp_txt))
+    if variants:
+        L += ["## Darstellungsvarianten (Small Multiples, Feldparameter)", "",
+              "Small Multiples gehen in PBIR in den Bucket `%s` der kartesischen "
+              "Visuals (verifiziert mit `pbir schema roles`); `donutChart`, "
+              "`pieChart`, `card`, `treemap`, `map` und `waterfallChart` haben ihn "
+              "nicht. ChartKitchen und Deneb haben ihn ebenfalls nicht — dort "
+              "entweder nativ bauen oder ein Raster aus Einzelkacheln. Der "
+              "Feldparameter ist eine **berechnete Tabelle im Modell** und muss vor "
+              "dem Bauen existieren (siehe [`model-todos.md`](model-todos.md)); "
+              "dazu gehört ein Slicer, sonst schaltet niemand um."
+              % SMALL_MULTIPLES_BUCKET, "",
+              "| Seite | Kachel | natives Visual | Small Multiples | Feldparameter |",
+              "|---|---|---|---|---|"] + variants + [""]
 
     L += ["## Hinweise aus dem Chrome-Aufbau", ""]
     L += ["- [ ] %s" % n for n in dict.fromkeys(chrome_notes)] or ["- keine"]
@@ -2036,6 +2431,18 @@ def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: st
                                 % (model_name or "<Name>.SemanticModel")],
              idempotent="`te add --if-not-exists` legt nichts doppelt an.",
              delta="neue Kennzahlen zuerst, sonst lehnt --from-json die ganze Datei ab")
+    params = collect_field_params(nspec)
+    if params:
+        step("fieldparams", "model",
+             ["# Feldparameter anlegen — Skript und Prüfschritte in model-todos.md: %s"
+              % ", ".join("'%s' (%d Feld(er))" % (fp["name"], len(fp["fields"]))
+                          for fp in params),
+              'te validate -m "%s" --errors-only'
+              % (model_name or "<Name>.SemanticModel")],
+             idempotent="`Model.AddCalculatedTable` wirft bei gleichem Namen — vorher "
+                        "`te list` prüfen und den Schritt sonst überspringen.",
+             delta="Die Parametertabelle muss **vor** `pbir add visual --from-json` "
+                   "stehen, sonst wird die ganze Datei abgelehnt.")
 
     for e in per_page:
         page_path = "%s/%s.Page" % (report, e["name"])
@@ -2144,7 +2551,27 @@ def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: st
         "steps": steps,
         "todos": todos,
         "issues": [{"level": "warn", "code": "CUSTOM_VISUAL", "text": w}
-                   for w in custom_warn],
+                   for w in custom_warn]
+        + [{"level": "info" if len(fp["fields"]) >= 2 else "warn",
+            "code": "FIELDPARAM" if len(fp["fields"]) >= 2 else "FIELDPARAM_FEW",
+            "text": ("Feldparameter „%s\" mit %d Feld(ern) (%s) — berechnete Tabelle "
+                     "im Modell anlegen, dann bindet die Achse auf `%s`. Dazu einen "
+                     "Slicer einplanen."
+                     % (fp["name"], len(fp["fields"]),
+                        ", ".join(fp["fields"]) or "keine", param_ref(fp)))}
+           for fp in collect_field_params(nspec)],
+        "fieldParams": [
+            {"name": fp["name"], "role": fp["role"], "fields": fp["fields"],
+             "ref": param_ref(fp), "visuals": fp["visuals"]}
+            for fp in collect_field_params(nspec)],
+        "smallMultiples": [
+            {"page": p["name"], "visual": v["id"],
+             "field": sm_field(v), "bucket": SMALL_MULTIPLES_BUCKET,
+             "nativeType": (v.get("native") or {}).get("type"),
+             "supported": bool(sm_field(v)) and v.get("engine") == "native"
+             and (v.get("native") or {}).get("type") in SMALL_MULTIPLES_TYPES}
+            for p in nspec["pages"] for v in p["visuals"]
+            if isinstance((v.get("analysis") or {}).get("smallMultiples"), dict)],
         "customVisuals": [
             {"page": e["name"], "visual": sl["id"], "name": sl["visualName"],
              "guid": sl["guid"], "pbiviz": sl["pbiviz"],

@@ -1,13 +1,22 @@
 # Beispiele — echte Tool-Ausgaben zum Trockenlauf
 
 Alles hier ist **Original-Export aus MockupKitchen byDatenWG** — mit einer
-benannten Ausnahme: `mockup-spec.v3.json` wurde um eine dritte Seite mit den
-beiden Custom Visuals aus Tool 0.4 ergänzt (siehe Tabelle). Damit lässt sich der
-Skill ohne PBIP ausprobieren und die Spec-Beschreibung gegenlesen.
+benannten Ausnahme: `mockup-spec.v3.json` ist **von Hand erweitert**. Der
+0.3-Export hatte zwei Seiten; dazugekommen sind eine dritte Seite mit den beiden
+Custom Visuals aus Tool 0.4 und eine vierte Seite „Varianten" mit den
+Neuerungen aus Tool 0.4.1 (siehe Tabelle). Damit lässt sich der Skill ohne PBIP
+ausprobieren und die Spec-Beschreibung gegenlesen.
+
+> Weil die Datei von Hand gewachsen ist, passt `meta.specHash` (`4d42e99d`)
+> **nicht mehr** zum Inhalt — er stammt noch vom 0.3-Export. Für einen echten
+> Delta-Lauf zählt immer der Hash aus dem Tool; hier ist er nur Dekoration.
+> Auch `AGENT-BRIEF.v3.md` und `WORKSHOP-DOKU.v3.md` stehen weiter im
+> 0.3-Stand und kennen die Seiten 3 und 4 nicht.
 
 | Datei | Was es ist |
 |---|---|
-| [`mockup-spec.v3.json`](mockup-spec.v3.json) | **Aktueller Stand (specVersion 3).** „Management Report · Beispiel": drei Seiten (Übersicht, Detail Produktlinie, Projekt & GuV), helles Kopfband mit Logo rechts, Burger-Filter mit zwei Slicern (Year mit Vorauswahl 2026), Fußleiste, Drill-through von der Brücke auf die Detailseite, 15 Kacheln (9 ChartKitchen, 4 nativ, **2 Custom Visuals**), Berichtskopf, Analyse-Block je Kachel, Kennzahlen-Steckbriefe, vier `issues`. Die dritte Seite und die `design`-Schlüssel `variancePalette`/`varianceColors`/`colors` sind **von Hand ergänzt**, um die Neuerungen aus Tool 0.4 zu zeigen; `meta.specHash` (`4d42e99d`) stammt noch vom 0.3-Export und passt deshalb nicht mehr zum Inhalt. |
+| [`mockup-spec.v3.json`](mockup-spec.v3.json) | **Aktueller Stand (specVersion 3).** „Management Report · Beispiel": vier Seiten (Übersicht, Detail Produktlinie, Projekt & GuV, Varianten), helles Kopfband mit Logo rechts, Burger-Filter mit zwei Slicern (Year mit Vorauswahl 2026), Fußleiste, Drill-through von der Brücke auf die Detailseite, 18 Kacheln (9 ChartKitchen, 7 nativ, **2 Custom Visuals**), Berichtskopf, Analyse-Block je Kachel, Kennzahlen-Steckbriefe, fünf `issues`. **Von Hand ergänzt:** Seite 3 mit den Custom Visuals und die `design`-Schlüssel `variancePalette`/`varianceColors`/`colors` (Tool 0.4), dazu Seite 4 „Varianten" und `zones.header.navOn` (Tool 0.4.1). |
+| Seite 4 „Varianten" im Detail | Drei native Klassiker nebeneinander: `mk_q5col01` (`ncolumn`) als schlichtes Säulendiagramm, `mk_q5line01` (`nline`) mit **Small Multiples** nach `DimRegion.Region` (landet im PBIR-Bucket `Rows`) und `mk_q5bar01` (`nbar`) mit **Feldparameter** „Achse" über Region / Produktlinie / Produkt (die Achse bindet auf `Achse.Achse`, die berechnete Tabelle steht als To-do in `model-todos.md`). |
 | [`AGENT-BRIEF.v3.md`](AGENT-BRIEF.v3.md) | Die menschenlesbare Fassung der Spec **im 0.3-Stand** (ohne die dritte Seite) (`buildBrief`): Berichtskopf, Zonen-Tabelle mit Maßen, je Kachel Typ, Engine, Position, stabile ID, Rollen, pbir-Buckets, Analyse und Workshop-Status, Navigation mit Drill-Feld, Steckbrief-Tabelle, Umsetzungsregeln, offene Punkte. |
 | [`WORKSHOP-DOKU.v3.md`](WORKSHOP-DOKU.v3.md) | Das Workshop-Protokoll (`buildDocs`) im 0.3-Stand: Kopftabelle, Gestaltungsentscheidungen, je Seite Fragestellung und Kachel-Tabelle mit Analyse/Prio/Status, Steckbrief, offene Punkte, nächste Schritte. So sieht die Datei aus, die `mockup_to_docs.py` erzeugt, wenn sie fehlt. |
 | [`mockup-spec.v2.json`](mockup-spec.v2.json) | Vorgängerformat: mehrseitig, mit `design` und `links`, aber ohne stabile IDs, Analyse-Block und Steckbriefe. Der Konverter hebt sie intern auf v3 — gut, um die Übernahme zu prüfen. |
@@ -47,8 +56,16 @@ Was dabei auffällt und so gewollt ist:
   `visual.json` unter `Projekt_GuV/custom-visuals/` — `pbir add visual` kennt
   diese GUIDs nicht. Der Ablauf steht in `Projekt_GuV/custom-commands.sh`; die
   `.pbiviz` muss vorher im Bericht importiert sein.
+- Auf der Seite „Varianten" steht `Varianten/pbir-visuals.json` beim
+  Linien-Diagramm auf `"Rows": "DimRegion.Region"` (Small Multiples) und beim
+  Balken-Diagramm auf `"Category": "Achse.Achse"` (Feldparameter). Die Tabelle
+  `Achse` gibt es im Modell **noch nicht** — `model-todos.md` liefert das
+  `te script`-Skript dafür, und ohne sie lehnt `--from-json` die ganze Datei ab.
+  Der Slicer auf den Parameter steht auskommentiert in
+  `Varianten/analysis-commands.sh`.
 
 Dieselben Dateien liegen als Fixtures unter [`../../tests/fixtures/`](../../tests/fixtures/),
-zusammen mit vier zusätzlichen Fällen (voller Analyse-Block, ChartKitchen ohne
+zusammen mit fünf zusätzlichen Fällen (voller Analyse-Block, ChartKitchen ohne
 Referenz-Instanz, Custom Visuals mit `variancePalette: "ibcs"` und
-`headerStyle: "custom"`, kaputte Spec) für `tests/run_tests.py`.
+`headerStyle: "custom"`, Darstellungsvarianten mit `navOn: false`, kaputte Spec)
+für `tests/run_tests.py`.

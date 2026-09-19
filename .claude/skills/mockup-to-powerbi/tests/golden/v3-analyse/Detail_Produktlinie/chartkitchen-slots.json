@@ -32,7 +32,9 @@
       "timeGrain": null,
       "cumulative": false,
       "scaleGroup": null,
-      "message": null
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
     },
     "workshop": {
       "priority": null,
@@ -107,7 +109,9 @@
       "timeGrain": null,
       "cumulative": false,
       "scaleGroup": null,
-      "message": null
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
     },
     "workshop": {
       "priority": null,
@@ -182,7 +186,9 @@
       "timeGrain": null,
       "cumulative": false,
       "scaleGroup": null,
-      "message": null
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
     },
     "workshop": {
       "priority": null,
@@ -273,7 +279,9 @@
       "timeGrain": null,
       "cumulative": false,
       "scaleGroup": null,
-      "message": null
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
     },
     "workshop": {
       "priority": null,
@@ -355,7 +363,9 @@
       "timeGrain": "month",
       "cumulative": false,
       "scaleGroup": null,
-      "message": null
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
     },
     "workshop": {
       "priority": "could",

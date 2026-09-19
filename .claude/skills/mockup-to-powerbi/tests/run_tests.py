@@ -12,7 +12,8 @@ Drei Arten von Tests:
 
 1. **Golden-Vergleich** — `mockup_to_pbir.py` und `mockup_to_docs.py` laufen ueber
    die Fixtures in `tests/fixtures/` (specVersion 1, 2, 3, Burger-Filter,
-   ChartKitchen ohne Referenz-Instanz, voller Analyse-Block, Custom Visuals).
+   ChartKitchen ohne Referenz-Instanz, voller Analyse-Block, Custom Visuals,
+   Darstellungsvarianten aus Tool 0.4.1).
    Jede erzeugte Datei
    wird gegen `tests/golden/<Fall>/` verglichen. `.ps1` bleibt aussen vor — sie
    entsteht aus demselben Renderer wie die `.sh`.
@@ -61,6 +62,8 @@ CASES = [
     {"name": "v3-ck-ohne-instanz", "spec": "v3-ck-ohne-instanz.json",
      "extra": ["--ck-fallback"], "docs": False},
     {"name": "v3-custom-visuals", "spec": "v3-custom-visuals.json", "docs": True},
+    {"name": "v3-variants", "spec": "v3-variants.json", "docs": True,
+     "docs_lang": "en"},
 ]
 
 DATE_RX = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
@@ -362,6 +365,151 @@ def unit_tests(res: Results):
     broken["pages"][0]["visuals"][0]["customVisual"] = None
     res.check("engine custom ohne customVisual faellt auf",
               any("customVisual" in m for m in M.structural_errors(M.upgrade(broken))))
+
+    # --- Darstellungsvarianten (Tool 0.4.1) -------------------------------- #
+    import mockup_to_docs as D
+
+    var = M.upgrade(M.load(FIXTURES / "v3-variants.json"))
+    res.check("Varianten-Spec Schema sauber", M.validate(M.as_document(var)) == [])
+    res.check("Varianten-Spec Struktur sauber", M.structural_errors(var) == [])
+    vt = {v["id"]: v for v in var["pages"][0]["visuals"]}
+
+    res.check("Small-Multiples-Bucket ist `Rows`", M.SMALL_MULTIPLES_BUCKET == "Rows")
+    res.check("pivotTable zaehlt NICHT als Small-Multiples-Typ",
+              "pivotTable" not in M.SMALL_MULTIPLES_TYPES
+              and "clusteredColumnChart" in M.SMALL_MULTIPLES_TYPES)
+    res.check("donutChart hat keinen Small-Multiples-Bucket",
+              "donutChart" not in M.SMALL_MULTIPLES_TYPES)
+    res.check("ndonut bietet keine Varianten an", "ndonut" in M.NO_VARIANT_KINDS)
+    res.check("Rolle `multiples` hat eine ChartKitchen-Entsprechung",
+              M.CK_ROLE.get("multiples") == "multiples")
+    for key in ("series", "values", "multiples"):
+        res.check("Rollen-Vokabular kennt `%s`" % key, key in M.ROLE_KEYS)
+
+    res.check("smallMultiples wird durchgereicht",
+              vt["mk_col1"]["analysis"]["smallMultiples"] == {"field": "DimRegion.Region"})
+    res.check("smallMultiples ohne Feld bleibt ein Objekt",
+              vt["mk_line1"]["analysis"]["smallMultiples"] == {"field": None})
+    res.check("P.sm_field liest das Aufteilungsfeld",
+              P.sm_field(vt["mk_col1"]) == "DimRegion.Region"
+              and P.sm_field(vt["mk_line1"]) is None
+              and P.sm_field(vt["mk_donut1"]) is None)
+
+    fp = P.field_param(vt["mk_bar1"])
+    res.check("fieldParam wird durchgereicht",
+              fp and fp["name"] == "Achse" and len(fp["fields"]) == 3)
+    res.check("param_ref() ist Tabelle.Feld mit gleichem Namen",
+              P.param_ref(fp) == "Achse.Achse")
+    res.check("Kacheln ohne Feldparameter liefern None",
+              P.field_param(vt["mk_col1"]) is None)
+
+    items, _ = P.build_pbir_visuals(var, var["pages"][0])
+    by_name = {i["name"]: i for i in items}
+    res.check("Small Multiples landen im Bucket `Rows`",
+              by_name["mk_col1"]["fields"].get("Rows") == "DimRegion.Region")
+    res.check("ohne Aufteilungsfeld kein `Rows`",
+              "Rows" not in by_name["mk_line1"]["fields"])
+    res.check("Typ ohne Bucket bekommt kein `Rows`",
+              "Rows" not in by_name["mk_wf1"]["fields"])
+    res.check("Feldparameter ersetzt die Kategorie-Felder",
+              by_name["mk_bar1"]["fields"]["Category"] == "Achse.Achse")
+    res.check("Feldparameter laesst die uebrigen Buckets in Ruhe",
+              by_name["mk_bar1"]["fields"]["Series"] == "DimProduct.Brand"
+              and by_name["mk_bar1"]["fields"]["Y"]
+              == ["_Measures.Umsatz", "_Measures.Kosten"])
+    res.check("ChartKitchen-Kachel steht nicht in pbir-visuals.json",
+              "mk_ck1" not in by_name)
+    res.check("native Klassiker behalten ihren Typ",
+              by_name["mk_donut1"]["visual_type"] == "donutChart"
+              and by_name["mk_line1"]["visual_type"] == "lineChart"
+              and by_name["mk_col1"]["visual_type"] == "clusteredColumnChart"
+              and by_name["mk_bar1"]["visual_type"] == "clusteredBarChart")
+
+    built = {i["name"] for i in items}
+    _, var_todos, _ = P.analysis_actions(var, var["pages"][0], built, "de")
+    codes = {t["code"] for t in var_todos}
+    for code in ("SM_NO_FIELD", "SM_NO_BUCKET", "SM_NOT_NATIVE",
+                 "FIELDPARAM", "FIELDPARAM_FEW", "FIELDPARAM_SLICER"):
+        res.check("Analyse-To-do `%s` entsteht" % code, code in codes,
+                  ", ".join(sorted(codes)))
+
+    params = P.collect_field_params(var)
+    res.check("zwei Feldparameter gesammelt", len(params) == 2)
+    script = "\n".join(P.field_param_script(params[0]))
+    res.check("Feldparameter-Skript nutzt NAMEOF", "NAMEOF" in script)
+    res.check("Feldparameter-Skript setzt ParameterMetadata",
+              'SetExtendedProperty("ParameterMetadata"' in script
+              and '\\"version\\":3,\\"kind\\":2' in script)
+    res.check("Feldparameter-Skript legt die drei Spalten selbst an "
+              "(te legt sie nicht automatisch an)",
+              script.count("AddCalculatedTableColumn") == 3)
+    res.check("Feldparameter-Skript bindet Sortierung und Gruppierung",
+              "SortByColumn" in script and "GroupByColumns.Add" in script)
+    md = P.build_model_todos(var, "Vertrieb.SemanticModel")
+    res.check("model-todos.md nennt den Feldparameter",
+              "## Feldparameter" in md and "te script" in md and "prüfen" in md)
+
+    # navOn: false -> keine chrome_nav_*-Buttons im Kopfband
+    class _Opt2(_Opt):
+        pass
+
+    st_var = P.Style(var, _Opt2())
+    chrome, _, _, notes_var, _ = P.build_chrome(var, var["pages"][0], st_var, _Opt2())
+    res.check("navOn: false legt keine Nav-Buttons an",
+              not any(c["name"].startswith("chrome_nav_") for c in chrome),
+              ", ".join(c["name"] for c in chrome))
+    res.check("navOn: false wird als Hinweis gemeldet",
+              any("navOn" in n for n in notes_var), "; ".join(notes_var)[:120])
+
+    nav_md = P.build_navigation_md(var, "Test.Report")
+    res.check("navigation.md erklaert navOn: false", "navOn" in nav_md)
+
+    with_nav = json.loads((FIXTURES / "v3-variants.json").read_text(encoding="utf-8"))
+    with_nav["zones"]["header"]["navOn"] = True
+    with_nav["zones"]["header"]["nav"] = ["Varianten"]
+    nspec_nav = M.upgrade(with_nav)
+    chrome2, _, _, _, _ = P.build_chrome(nspec_nav, nspec_nav["pages"][0],
+                                         P.Style(nspec_nav, _Opt2()), _Opt2())
+    res.check("navOn: true legt die Nav-Buttons wieder an",
+              any(c["name"] == "chrome_nav_1" for c in chrome2))
+
+    # Doku: Analyse-Zeile wie analysisLine in export.js
+    line = D.analysis_summary(vt["mk_col1"], "de")
+    res.check("Doku nennt Small Multiples",
+              "Small Multiples nach DimRegion.Region" in line, line)
+    line_fp = D.analysis_summary(vt["mk_bar1"], "de")
+    res.check("Doku nennt den Feldparameter",
+              "Achse per Feldparameter „Achse\"" in line_fp
+              and "DimRegion.Region" in line_fp, line_fp)
+    line_en = D.analysis_summary(vt["mk_col1"], "en")
+    res.check("Doku englisch: small multiples",
+              "Small multiples by DimRegion.Region" in line_en, line_en)
+    res.check("Doku kennt das Rollen-Label `multiples`",
+              D.role_label("multiples", "de") == "Small Multiples nach"
+              and D.role_label("multiples", "en") == "Small multiples by")
+
+    # Hash bleibt stabil: die neuen Schluessel zaehlen nur, wenn sie benutzt werden
+    v1_hash = M.upgrade(M.load(FIXTURES / "v1-einseitig.json"))["meta"]["specHash"]
+    plain_a = M.upgrade(M.load(FIXTURES / "v1-einseitig.json"))
+    for pg in plain_a["pages"]:
+        for tile in pg["visuals"]:
+            res.check("v1 bekommt die neuen Analyse-Schluessel als None",
+                      tile["analysis"]["smallMultiples"] is None
+                      and tile["analysis"]["fieldParam"] is None)
+            break
+        break
+    res.check("ungenutzte Varianten aendern den Hash nicht",
+              v1_hash == M.spec_hash(plain_a), v1_hash)
+    used = json.loads(json.dumps(plain_a["pages"][0]["visuals"][0]["analysis"]))
+    used["smallMultiples"] = {"field": "DimRegion.Region"}
+    plain_a["pages"][0]["visuals"][0]["analysis"] = used
+    res.check("benutzte Varianten aendern den Hash", v1_hash != M.spec_hash(plain_a))
+
+    bad_name = json.loads((FIXTURES / "v3-variants.json").read_text(encoding="utf-8"))
+    bad_name["pages"][0]["visuals"][1]["analysis"]["fieldParam"]["name"] = "Ach'se[x]"
+    res.check("kaputter Feldparameter-Name faellt auf",
+              any("Feldparameter-Name" in m
+                  for m in M.structural_errors(M.upgrade(bad_name))))
 
     res.check("near() haelt Toleranz ein", V.near(100, 101, 1) and not V.near(100, 102, 1))
     res.check("type_ok() erlaubt Alternativen",

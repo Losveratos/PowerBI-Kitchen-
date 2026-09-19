@@ -188,6 +188,8 @@
       "text": "[Projekt & GuV / mk_gantt2] Pflichtrolle `start` ist leer — dataKitchenGantt byDatenWG zeichnet ohne sie nichts. Feld im Mockup nachtragen oder im Bericht nachbinden."
     }
   ],
+  "fieldParams": [],
+  "smallMultiples": [],
   "customVisuals": [
     {
       "page": "Projekt & GuV",

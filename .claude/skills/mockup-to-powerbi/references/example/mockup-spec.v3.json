@@ -69,8 +69,10 @@
       "nav": [
         "Übersicht",
         "Detail Produktlinie",
-        "Projekt & GuV"
+        "Projekt & GuV",
+        "Varianten"
       ],
+      "navOn": true,
       "navAuto": true,
       "burger": true
     },
@@ -1561,6 +1563,350 @@
         }
       ],
       "layoutTree": null
+    },
+    {
+      "id": "varianten",
+      "index": 4,
+      "name": "Varianten",
+      "question": "Wie sieht dieselbe Zahl je Region, Produktlinie und Produkt aus?",
+      "notes": "Von Hand ergänzt: zeigt Small Multiples, Feldparameter und die nativen Klassiker aus Tool 0.4.1.",
+      "contentRect": {
+        "x": 16,
+        "y": 72,
+        "w": 1248,
+        "h": 608
+      },
+      "visuals": [
+        {
+          "id": "mk_q5col01",
+          "stableId": "q5col01",
+          "slug": "Umsatz_je_Produktlinie",
+          "page": "Varianten",
+          "kind": "ncolumn",
+          "label": "Säulendiagramm (nativ)",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "clusteredColumnChart",
+            "buckets": {
+              "Category": [
+                {
+                  "ref": "DimProduct.Category",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "Y": [
+                {
+                  "ref": "_Measures.AC",
+                  "kind": "measure",
+                  "isNew": false
+                },
+                {
+                  "ref": "_Measures.PL",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Umsatz je Produktlinie",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": "K",
+            "decimals": 0,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": null,
+            "fieldParam": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 16,
+            "y": 72,
+            "w": 405,
+            "h": 608
+          },
+          "roles": {
+            "category": [
+              {
+                "table": "DimProduct",
+                "name": "Category",
+                "kind": "column",
+                "ref": "DimProduct.Category",
+                "isNew": false
+              }
+            ],
+            "values": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              },
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "Nativer Klassiker ohne Szenario-Notation — bis zu fünf Werte.",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_q5line01",
+          "stableId": "q5line01",
+          "slug": "Verlauf_je_Region",
+          "page": "Varianten",
+          "kind": "nline",
+          "label": "Liniendiagramm (nativ)",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "lineChart",
+            "buckets": {
+              "Category": [
+                {
+                  "ref": "DimDate.Month",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "Y": [
+                {
+                  "ref": "_Measures.AC",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Verlauf je Region",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": "month",
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": {
+              "field": "DimRegion.Region"
+            },
+            "fieldParam": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 437,
+            "y": 72,
+            "w": 406,
+            "h": 608
+          },
+          "roles": {
+            "category": [
+              {
+                "table": "DimDate",
+                "name": "Month",
+                "kind": "column",
+                "ref": "DimDate.Month",
+                "isNew": false
+              }
+            ],
+            "values": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              }
+            ],
+            "multiples": [
+              {
+                "table": "DimRegion",
+                "name": "Region",
+                "kind": "column",
+                "ref": "DimRegion.Region",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "Ein Mini-Chart je Region — in PBIR der Bucket `Rows`.",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_q5bar01",
+          "stableId": "q5bar01",
+          "slug": "Rangliste",
+          "page": "Varianten",
+          "kind": "nbar",
+          "label": "Balkendiagramm (nativ)",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "clusteredBarChart",
+            "buckets": {
+              "Category": [
+                {
+                  "ref": "DimRegion.Region",
+                  "kind": "column",
+                  "isNew": false
+                },
+                {
+                  "ref": "DimProduct.Category",
+                  "kind": "column",
+                  "isNew": false
+                },
+                {
+                  "ref": "DimProduct.Product",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "Y": [
+                {
+                  "ref": "_Measures.AC",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Rangliste",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": {
+              "by": "value",
+              "dir": "desc"
+            },
+            "topN": 10,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": null,
+            "fieldParam": {
+              "name": "Achse",
+              "role": "category",
+              "fields": [
+                "DimRegion.Region",
+                "DimProduct.Category",
+                "DimProduct.Product"
+              ]
+            }
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "rect": {
+            "x": 859,
+            "y": 72,
+            "w": 405,
+            "h": 608
+          },
+          "roles": {
+            "category": [
+              {
+                "table": "DimRegion",
+                "name": "Region",
+                "kind": "column",
+                "ref": "DimRegion.Region",
+                "isNew": false
+              },
+              {
+                "table": "DimProduct",
+                "name": "Category",
+                "kind": "column",
+                "ref": "DimProduct.Category",
+                "isNew": false
+              },
+              {
+                "table": "DimProduct",
+                "name": "Product",
+                "kind": "column",
+                "ref": "DimProduct.Product",
+                "isNew": false
+              }
+            ],
+            "values": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "Achse per Slicer umschaltbar — braucht die Parametertabelle im Modell.",
+          "link": null,
+          "warnings": []
+        }
+      ],
+      "layoutTree": null
     }
   ],
   "links": [
@@ -2377,6 +2723,13 @@
       "code": "PAGE_NO_QUESTION",
       "text": "Seite ohne Fragestellung / Kernbotschaft",
       "page": "Detail Produktlinie",
+      "visual": null
+    },
+    {
+      "level": "info",
+      "code": "NAV_OVERFLOW",
+      "text": "4 Nav-Buttons im Kopfband — ab etwa 6 Seiten wird es eng.",
+      "page": null,
       "visual": null
     }
   ],

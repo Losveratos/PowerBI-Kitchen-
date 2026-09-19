@@ -1,0 +1,254 @@
+{
+  "generated": "<zeitstempel>",
+  "report": "Test.Report",
+  "specHash": "variants1",
+  "specName": "Darstellungsvarianten-Testfall",
+  "tolerance": 1,
+  "pages": [
+    {
+      "name": "Varianten",
+      "background": "#F4F4F1",
+      "canvas": {
+        "width": 1280,
+        "height": 720
+      },
+      "visuals": [
+        {
+          "name": "chrome_header_bg",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 56
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_header_rule",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 55,
+            "w": 1280,
+            "h": 1
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_logo",
+          "type": "shape",
+          "rect": {
+            "x": 16,
+            "y": 12,
+            "w": 120,
+            "h": 32
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_header_title",
+          "type": "shape",
+          "rect": {
+            "x": 152,
+            "y": 6,
+            "w": 1112,
+            "h": 26
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_header_subtitle",
+          "type": "shape",
+          "rect": {
+            "x": 152,
+            "y": 32,
+            "w": 1112,
+            "h": 18
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_bg",
+          "type": "shape",
+          "rect": {
+            "x": 1064,
+            "y": 56,
+            "w": 200,
+            "h": 640
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_title",
+          "type": "shape",
+          "rect": {
+            "x": 1072,
+            "y": 64,
+            "w": 184,
+            "h": 24
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_text",
+          "type": "shape",
+          "rect": {
+            "x": 16,
+            "y": 696,
+            "w": 1248,
+            "h": 24
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "mk_col1",
+          "type": "clusteredColumnChart",
+          "rect": {
+            "x": 16,
+            "y": 72,
+            "w": 508,
+            "h": 296
+          },
+          "role": "content",
+          "fields": {
+            "Category": [
+              "DimProduct.Category"
+            ],
+            "Y": [
+              "_Measures.Umsatz"
+            ],
+            "Rows": [
+              "DimRegion.Region"
+            ]
+          }
+        },
+        {
+          "name": "mk_bar1",
+          "type": "clusteredBarChart",
+          "rect": {
+            "x": 540,
+            "y": 72,
+            "w": 508,
+            "h": 296
+          },
+          "role": "content",
+          "fields": {
+            "Category": [
+              "Achse.Achse"
+            ],
+            "Series": [
+              "DimProduct.Brand"
+            ],
+            "Y": [
+              "_Measures.Umsatz",
+              "_Measures.Kosten"
+            ]
+          }
+        },
+        {
+          "name": "mk_line1",
+          "type": "lineChart",
+          "rect": {
+            "x": 16,
+            "y": 384,
+            "w": 248,
+            "h": 296
+          },
+          "role": "content",
+          "fields": {
+            "Category": [
+              "DimDate.Month"
+            ],
+            "Series": [
+              "DimProduct.Category"
+            ],
+            "Y": [
+              "_Measures.Umsatz"
+            ]
+          }
+        },
+        {
+          "name": "mk_donut1",
+          "type": "donutChart",
+          "rect": {
+            "x": 280,
+            "y": 384,
+            "w": 248,
+            "h": 296
+          },
+          "role": "content",
+          "fields": {
+            "Category": [
+              "DimProduct.Category"
+            ],
+            "Y": [
+              "_Measures.Umsatz"
+            ]
+          }
+        },
+        {
+          "name": "mk_wf1",
+          "type": "waterfallChart",
+          "rect": {
+            "x": 544,
+            "y": 384,
+            "w": 248,
+            "h": 296
+          },
+          "role": "content",
+          "fields": {
+            "Category": [
+              "DimAccount.Account"
+            ],
+            "Y": [
+              "_Measures.AC"
+            ]
+          }
+        },
+        {
+          "name": "mk_slicer_Year_p1",
+          "type": "slicer",
+          "rect": {
+            "x": 1072,
+            "y": 96,
+            "w": 184,
+            "h": 56
+          },
+          "role": "slicer",
+          "fields": {
+            "Values": [
+              "DimDate.Year"
+            ]
+          }
+        },
+        {
+          "name": "mk_ck1",
+          "type": "chartKitchen|shape",
+          "rect": {
+            "x": 808,
+            "y": 384,
+            "w": 240,
+            "h": 296
+          },
+          "role": "chartkitchen",
+          "optional": true,
+          "fields": {}
+        }
+      ]
+    }
+  ],
+  "bookmarks": [],
+  "drillthrough": [],
+  "annotations": {
+    "mockup-spec-hash": "variants1"
+  }
+}
