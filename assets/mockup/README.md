@@ -17,6 +17,15 @@ Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau i
 - **Demo-Modelle:** fünf typische Modelle (Controlling, Sales, HR, Online-Marketing, GuV) über `CAT.demoModels`, Auswahl
   im Modell-Panel; `S.demoId` merkt sich die Wahl.
 
+- **Darstellungsvarianten je Kachel (v0.4.1):** Checkbox *Small Multiples* (Zusatzrolle „Small Multiples nach", Skizze als
+  2×2/3×2-Raster über `MK_SKETCH.small`, Export `analysis.smallMultiples.field`) und *Achse per Feldparameter* (Achsenrolle nimmt
+  bis zu acht Felder, Name des Parameters, Export `analysis.fieldParam {name, role, fields}`); Rollen je Kachel über
+  `CAT.rolesFor(def, v)`. Issues `SM_NO_FIELD`, `FIELDPARAM_FEW`.
+- **Native Klassiker (v0.4.1):** `ncolumn`, `nbar`, `nline`, `ndonut` (Gruppe „Native Klassiker & Sonstige") ohne
+  Szenario-Notation (`plain: true` → Skizze mit Szenario AC), Rollen Kategorie/Legende/Werte, Donut-Skizze `S.donut`.
+- **Kopfband (v0.4.1):** Seitennavigation abschaltbar (`chrome.header.navOn`, Export `zones.header.navOn`);
+  Pille „← Knowledge Kitchen" unten links (im Präsentiermodus ausgeblendet).
+
 ## Neu in v0.3 (Roadmap aus dem Sechs-Personen-Review, `REVIEW-2026-09-18.md`)
 
 - **Spec v3:** stabile Visual-IDs (`mk_<Knoten-ID>`), `meta.specHash`, `report` (Berichtskopf), `analysis` je Kachel

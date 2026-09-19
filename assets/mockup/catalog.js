@@ -56,6 +56,20 @@
     rowType:     role('rowType',     'rowType',    'column',  false, 1),
   };
 
+  // Rollen einer konkreten Kachel: Katalogrollen plus Darstellungsvarianten.
+  // Small Multiples → Zusatzrolle „Small Multiples nach"; Feldparameter → die Achsenrolle nimmt mehrere Felder (die Optionen des Parameters).
+  const R_MULT = role('multiples', 'multiples', 'column', false, 1);
+  const NO_VARIANTS = ['multiples', 'map', 'treemap', 'decomp', 'pie', 'gauge', 'ndonut'];
+  const hasCategory = def => !!(def && def.roles && def.roles.some(r => r.key === 'category' && r.kind === 'column'));
+  const variantsFor = def => !!(def && hasCategory(def) && !NO_VARIANTS.includes(def.id));
+  function rolesFor(def, v) {
+    const base = (def && def.roles) || []; const a = (v && v.analysis) || {};
+    if (!variantsFor(def) || (!a.smallMultiples && !a.fieldParam)) return base;
+    const out = base.map(r => (a.fieldParam && r.key === 'category' && r.kind === 'column') ? RX(r, { max: Math.max(r.max, 8) }) : r);
+    if (a.smallMultiples && !out.some(r => r.key === 'multiples')) out.push(R_MULT);
+    return out;
+  }
+
   // Kurzform: K(id, groupId, {engines, ck, native:{type, map}, roles, warnNote, sketch})
   // label kommt aus i18n (viz.<id>.label), note aus viz.<id>.note (falls vorhanden).
   function K(id, groupId, o) {
@@ -119,6 +133,11 @@
     K('gauge', 'table', { roles: [R.indicator, R.goal], engines: ['native'], engine: 'native', ck: null, warnNote: true, native: { type: 'gauge', map: { indicator: 'Y', goal: 'TargetValue' } } }),
 
     // ---------- Native Sonstige ----------
+    // Klassiker für Berichte, die nur mit nativen Visuals arbeiten: ohne Szenario-Notation, Legende optional
+    K('ncolumn', 'native', { roles: [R.category, R.series, RX(R.values, { max: 5 })], engines: ['native'], engine: 'native', ck: null, plain: true, sketch: 'columns', native: { type: 'clusteredColumnChart', map: { category: 'Category', series: 'Series', values: 'Y' } } }),
+    K('nbar', 'native', { roles: [R.category, R.series, RX(R.values, { max: 5 })], engines: ['native'], engine: 'native', ck: null, plain: true, sketch: 'bars', native: { type: 'clusteredBarChart', map: { category: 'Category', series: 'Series', values: 'Y' } } }),
+    K('nline', 'native', { roles: [R.time, R.series, RX(R.values, { max: 5 })], engines: ['native'], engine: 'native', ck: null, plain: true, sketch: 'line', native: { type: 'lineChart', map: { category: 'Category', series: 'Series', values: 'Y' } } }),
+    K('ndonut', 'native', { roles: [R.category, R.ac], engines: ['native'], engine: 'native', ck: null, plain: true, sketch: 'donut', native: { type: 'donutChart', map: { category: 'Category', ac: 'Y' } } }),
     K('pie', 'native', { roles: [R.category, R.ac], engines: ['native'], engine: 'native', ck: null, warnNote: true, native: { type: 'pieChart', map: { category: 'Category', ac: 'Y' } } }),
     K('treemap', 'native', { roles: [R.category, R.ac], engines: ['native'], engine: 'native', ck: null, native: { type: 'treemap', map: { category: 'Group', ac: 'Values' } } }),
     K('decomp', 'native', { roles: [R.ac, RX(R.category, { key: 'category', labelKey: 'explainBy', max: 6 })], engines: ['native'], engine: 'native', ck: null, native: { type: 'decompositionTreeVisual', map: { ac: 'Analyze', category: 'ExplainBy' } } }),
@@ -263,7 +282,7 @@
   function row(children) { return { type: 'split', dir: 'row', children: children.map(([size, node]) => ({ size, node })) }; }
   function col(children) { return { type: 'split', dir: 'col', children: children.map(([size, node]) => ({ size, node })) }; }
 
-  const API = { list: CATALOG, byId: BY_ID, engineLabel: ENGINE_LABEL, templates: TEMPLATES, roleDefs: R, ckMode: CK_MODE, polarityFor, groupIds: GROUP_IDS };
+  const API = { list: CATALOG, byId: BY_ID, engineLabel: ENGINE_LABEL, templates: TEMPLATES, roleDefs: R, ckMode: CK_MODE, polarityFor, groupIds: GROUP_IDS, rolesFor, variantsFor };
   // groups = Anzeige-Namen in der aktuellen Sprache; k.group liefert denselben String, damit der Filter weiter greift
   lazy(API, 'groups', () => GROUP_IDS.map(id => T('group.' + id)));
   lazy(API, 'demoModel', () => demoModel('controlling'));

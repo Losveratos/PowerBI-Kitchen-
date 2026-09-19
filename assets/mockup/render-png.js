@@ -148,7 +148,7 @@
   function sketchAt(kind, x, y, w, h, sopt, prefix) {
     if (!root.MK_SKETCH || !(w > 0) || !(h > 0)) return '';
     var s;
-    try { s = root.MK_SKETCH(kind, w, h, sopt); } catch (e) { s = ''; }
+    try { s = (sopt && sopt.small && root.MK_SKETCH.small ? root.MK_SKETCH.small : root.MK_SKETCH)(kind, w, h, sopt); } catch (e) { s = ''; }
     if (typeof s !== 'string' || s.indexOf('<svg') !== 0) return '';
     var open = /^<svg\b[^>]*>/.exec(s);
     if (!open) return '';
@@ -277,7 +277,7 @@
     var rightX = z.x + z.w - padX;
     if (c.logoPos === 'right') { rightX -= lw; out += logoBox(rightX, cy - lh / 2, lw, lh, light, k); rightX -= gap; }
 
-    var names = c.navAuto ? S.pages.map(function (pg) { return pg.name; }) : (c.nav || []).slice();
+    var names = c.navOn === false ? [] : (c.navAuto ? S.pages.map(function (pg) { return pg.name; }) : (c.nav || []).slice());
     var cur = c.navAuto ? ctx.p.name : names[0];
     var navW = 0, items = [];
     if (names.length) {
@@ -424,7 +424,7 @@
     var bottom = r.y + r.h - 1 - ip - footH - 4;
     if (by + bh > bottom) by = Math.max(r.y + 1 + ip + headH, bottom - bh);
     var sopt = {
-      scenario: v.scenario, seed: (seedOf(leaf.node.id) + o.seedBase) % 1000,
+      scenario: def.plain ? 'AC' : v.scenario, seed: (seedOf(leaf.node.id) + o.seedBase) % 1000,
       label: v.sub || '', scale: k, lang: ctx.S.lang,
       palette: ctx.palette, ink: ctx.dark ? '#E6E6E6' : (ctx.d.ink || '#404040'), dark: ctx.dark, paper: ctx.tileBg,
       antiPattern: !!(mk().anti && mk().anti[v.kind])
@@ -432,7 +432,7 @@
     try {
       var an = mk().analysisOf ? mk().analysisOf(v) : null;
       if (an) {
-        sopt.polarity = an.polarity; sopt.deltaBasis = an.deltaBasis; sopt.unit = an.unit;
+        sopt.polarity = an.polarity; sopt.deltaBasis = an.deltaBasis; sopt.unit = an.unit; sopt.small = !!an.smallMultiples;
         sopt.variance = { abs: (an.deltaKind || []).indexOf('abs') >= 0, rel: (an.deltaKind || []).indexOf('rel') >= 0 };
       }
     } catch (e) { /* Analyse optional */ }

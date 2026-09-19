@@ -2336,6 +2336,28 @@
     return wrap(c, b);
   };
 
+  /* ---- Donut (nativer Klassiker): Ring statt Kreis, gleiche Anteile ------ */
+  S.donut = function (w, h, o) {
+    var c = ctx(w, h, o), b = '';
+    var P = area(c, {});
+    var r = Math.max(4, Math.min(P.w, P.h) / 2 - 1), ri = r * 0.55;
+    var cx = P.x + P.w / 2, cy = P.y + P.h / 2;
+    var fr = c.small ? [0.45, 0.3, 0.25] : [0.38, 0.27, 0.2, 0.15];
+    var cols = [c.C.ac, c.C.g2, c.C.py, c.C.g3];
+    var a0 = -Math.PI / 2, i;
+    for (i = 0; i < fr.length; i++) {
+      var a1 = a0 + fr[i] * Math.PI * 2;
+      var x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0), x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+      var u0 = cx + ri * Math.cos(a0), v0 = cy + ri * Math.sin(a0), u1 = cx + ri * Math.cos(a1), v1 = cy + ri * Math.sin(a1);
+      var lrg = (a1 - a0) > Math.PI ? 1 : 0;
+      b += pathEl('M' + n(x0) + ' ' + n(y0) + ' A' + n(r) + ' ' + n(r) + ' 0 ' + lrg + ' 1 ' + n(x1) + ' ' + n(y1) +
+                  ' L' + n(u1) + ' ' + n(v1) + ' A' + n(ri) + ' ' + n(ri) + ' 0 ' + lrg + ' 0 ' + n(u0) + ' ' + n(v0) + ' Z',
+                  cols[i % cols.length], c.C.paper, 1);
+      a0 = a1;
+    }
+    return wrap(c, b);
+  };
+
   /* ---- Treemap ------------------------------------------------------------ */
   S.treemap = function (w, h, o) {
     var c = ctx(w, h, o), b = '';
@@ -2471,6 +2493,28 @@
       try { out = S.generic(w, h, o); } catch (e2) { out = ''; }
     }
     return out;
+  };
+
+  // Small Multiples: dieselbe Skizze als 2×2- oder 3×2-Raster mit Gruppenbeschriftung (Tool und PNG-Renderer nutzen das).
+  root.MK_SKETCH.small = function (kind, w, h, o) {
+    o = o || {}; var k = o.scale || 1;
+    var cols = w / h > 1.7 ? 3 : 2, rows = 2, n = cols * rows;
+    var lab = o.multiplesLabels || (o.lang === 'en' ? ['North', 'South', 'West', 'East', 'Central', 'Other'] : ['Nord', 'Süd', 'West', 'Ost', 'Mitte', 'Sonstige']);
+    var gap = 8 * k, lh = 12 * k, fs = 9 * k;
+    var cw = (w - gap * (cols - 1)) / cols, ch = (h - gap * (rows - 1)) / rows;
+    var ink = /^#[0-9a-fA-F]{6}$/.test(String(o.ink || '')) ? o.ink : (o.dark ? '#E6E6E6' : '#404040');
+    var out = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%">';
+    for (var i = 0; i < n; i++) {
+      var cx = (i % cols) * (cw + gap), cy = Math.floor(i / cols) * (ch + gap);
+      var iw = Math.max(20, cw), ih = Math.max(12, ch - lh);
+      var s = root.MK_SKETCH(kind, iw, ih, Object.assign({}, o, { seed: ((o.seed || 0) + i * 7) % 1000, label: '' }));
+      var open = /^<svg\b[^>]*>/.exec(s); if (!open) continue;
+      var vb = /viewBox="([^"]*)"/.exec(open[0]);
+      var inner = s.slice(open[0].length, s.lastIndexOf('</svg>'));
+      out += '<text x="' + (cx + 2 * k) + '" y="' + (cy + fs) + '" font-size="' + fs + '" font-weight="600" fill="' + ink + '">' + lab[i % lab.length] + '</text>';
+      out += '<svg x="' + cx + '" y="' + (cy + lh) + '" width="' + cw + '" height="' + (ch - lh) + '" viewBox="' + (vb ? vb[1] : '0 0 ' + iw + ' ' + ih) + '" preserveAspectRatio="none">' + inner + '</svg>';
+    }
+    return out + '</svg>';
   };
 
   // Liste aller Schlüssel — praktisch für Kataloge und Tests.

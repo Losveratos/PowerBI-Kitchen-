@@ -23,6 +23,7 @@
     },
 
     tip: {
+      backHome: 'Zurück zur Startseite der Knowledge Kitchen',
       projName: 'Name des Berichts / Mockups', templates: 'Seitenvorlage wählen', importTmdl: 'TMDL-Ordner oder -Dateien laden',
       undo: 'Rückgängig (Strg+Z)', redo: 'Wiederholen (Strg+Y)', present: 'Präsentieren: Panels ausblenden, Seite groß (Taste P)',
       help: 'Hilfe', open: 'Mockup-Datei öffnen (.mockup.json)', save: 'Als .mockup.json speichern',
@@ -43,7 +44,7 @@
     sec: {
       canvas: 'Canvas (alle Seiten)', grid: 'Raster', header: 'Kopfband', nav: 'Linke Nav-Leiste', filter: 'Filter / Slicer',
       footer: 'Fußleiste', roles: 'Datenrollen', rolesHint: '(Doppelklick auf Feld = Steckbrief)', analysis: 'Analyse (wandert in die Spec)',
-      workshop: 'Workshop', quickstart: 'Schnellstart',
+      workshop: 'Workshop', quickstart: 'Schnellstart', variants: 'Darstellung',
     },
 
     lbl: {
@@ -52,7 +53,10 @@
       participants: 'Teilnehmende Workshop', lang: 'Sprache der Ausgaben',
       thisPage: 'Diese Seite', pageQuestion: 'Fragestellung / Kernbotschaft der Seite', pageNotes: 'Zweck / Notizen zur Seite',
       spacing: 'Abstände (px, skalieren mit)', defScenario: 'Standard-Szenario neuer Charts',
-      headerOn: 'Kopfband anzeigen', title: 'Titel', subtitle: 'Untertitel', navAuto: 'Navigation aus den Seitennamen',
+      headerOn: 'Kopfband anzeigen', title: 'Titel', subtitle: 'Untertitel', navAuto: 'Navigation aus den Seitennamen', backHome: '← Knowledge Kitchen', navOn: 'Seitennavigation im Kopfband anzeigen',
+      smallMultiples: 'Small Multiples (je Kategorie ein Mini-Chart)', smHint: 'Aufteilungsfeld in die Rolle „Small Multiples nach" ziehen.',
+      fieldParam: 'Achse per Feldparameter (umschaltbare Felder)', fieldParamName: 'Name des Feldparameters', fieldParamPh: 'z. B. Achse',
+      fieldParamHint: 'Alle Felder in der Achsen-Rolle werden Optionen des Feldparameters; ein Slicer im Bericht schaltet die Achse um.',
       navManual: 'Navigation manuell (kommagetrennt)', navOn: 'Nav-Leiste anzeigen (App-Stil)',
       filterOn: 'Filter anzeigen', filterCollapsible: 'Panel ausklappbar (Bookmark)', footerOn: 'Fußleiste anzeigen', text: 'Text',
       radius: 'Kachel-Ecken', tileStyle: 'Kachel-Stil', pageBg: 'Seitenhintergrund', headerStyle: 'Kopfband-Stil',
@@ -215,6 +219,7 @@
     role: {
       rowType: 'Zeilentyp (Summe / Formel / Position)',
       fcM: 'FC (Forecast-Measure)',
+      multiples: 'Small Multiples nach',
       menuHead: '„{f}" zuordnen als …', free: 'frei', replaces: ' · ersetzt {n}',
       category: 'Kategorie / Achse', category2: 'Unterkategorie', time: 'Zeit / Periode', series: 'Reihe / Legende',
       ac: 'AC · Ist-Wert', ref: 'Referenz (PL / PY / BU)', fc: 'FC-Flag (1/0)', values: 'Werte', valuesAny: 'Felder',
@@ -225,7 +230,7 @@
 
     group: {
       cols: 'ChartKitchen · Säulen & Balken', time: 'ChartKitchen · Zeitverlauf', struct: 'ChartKitchen · Wasserfall & Struktur',
-      table: 'Tabellen & KPI', native: 'Native Sonstige', ctrl: 'Steuerung & Text',
+      table: 'Tabellen & KPI', native: 'Native Klassiker & Sonstige', ctrl: 'Steuerung & Text',
     },
 
     viz: {
@@ -247,6 +252,10 @@
       table: { label: 'Berichtstabelle (ChartKitchen)', note: 'Spalten AC · Ref · Δ · Δ% mit Mini-Balken.' },
       sparktable: { label: 'Tabelle mit Sparklines' }, matrix: { label: 'Matrix (nativ)' },
       gauge: { label: 'Tacho (nativ)', note: 'Tacho verbraucht viel Fläche für einen Wert; Bullet oder KPI bevorzugen.' },
+      ncolumn: { label: 'Säulendiagramm (nativ)', note: 'Klassisches Power-BI-Säulendiagramm ohne Szenario-Notation; Legende optional, bis zu fünf Werte.' },
+      nbar: { label: 'Balkendiagramm (nativ)', note: 'Klassisches Power-BI-Balkendiagramm ohne Szenario-Notation; Legende optional, bis zu fünf Werte.' },
+      nline: { label: 'Liniendiagramm (nativ)', note: 'Klassisches Power-BI-Liniendiagramm über die Zeit; Legende optional, bis zu fünf Werte.' },
+      ndonut: { label: 'Donut (nativ)', note: 'Anteile als Ring; sinnvoll bei wenigen Kategorien (bis etwa fünf).' },
       pie: { label: 'Kreis (nativ)', note: 'Anteile lassen sich als Balken besser vergleichen; Balken bevorzugen.' },
       treemap: { label: 'Treemap (nativ)' }, decomp: { label: 'Zerlegungsbaum (nativ)' }, map: { label: 'Karte (Geo, nativ)' },
       deneb: { label: 'Deneb / Vega (eigenes Spec)', note: 'Spec später aus ChartKitchen exportieren oder selbst schreiben.' },
@@ -397,6 +406,7 @@
         polarity: 'Polarität {v}', higher: 'größer = besser', lower: 'kleiner = besser', auto: ' (auto)',
         basis: 'Δ-Basis {b}{auto}, Δ {kinds}', unit: 'Einheit {u}', display: 'Anzeige {d}', decimals: '{n} Dezimalstellen',
         sort: 'Sortierung {by} {dir}', topN: 'Top {n}', grain: 'Granularität {g}', cumulative: 'kumuliert', scaleGroup: 'Skalengruppe {g}',
+        smallMultiples: 'Small Multiples nach {f}', fieldParam: 'Achse per Feldparameter „{n}" ({fields})',
       },
 
       issue: {
@@ -406,6 +416,8 @@
         noNativeShort: 'Kein natives Power-BI-Visual für diesen Typ', noNative: 'Kein natives Visual für „{label}"',
         textEmpty: '„{t}" hat keinen Text; Kachel käme leer im Bericht an',
         deltaNoRef: '„{t}" verspricht eine Abweichung, hat aber keine Referenz gebunden',
+        smNoField: '„{t}": Small Multiples aktiv, aber kein Aufteilungsfeld gebunden',
+        fieldParamFew: '„{t}": Feldparameter „{n}" hat nur {k} Feld(er); mindestens zwei sind sinnvoll',
         emptyTile: 'Leere Kachel bei x={x}, y={y} ({w}×{h})',
         pageNoQuestion: 'Seite ohne Fragestellung / Kernbotschaft',
         navOverflow: '{n} Nav-Buttons im Kopfband; ab etwa 6 Seiten wird es eng, linke Nav-Leiste prüfen',
@@ -449,6 +461,7 @@
     },
 
     tip: {
+      backHome: 'Back to the Knowledge Kitchen start page',
       projName: 'Name of the report / mockup', templates: 'Choose a page template', importTmdl: 'Load a TMDL folder or files',
       undo: 'Undo (Ctrl+Z)', redo: 'Redo (Ctrl+Y)', present: 'Present: hide the panels, page large (key P)',
       help: 'Help', open: 'Open a mockup file (.mockup.json)', save: 'Save as .mockup.json',
@@ -469,7 +482,7 @@
     sec: {
       canvas: 'Canvas (all pages)', grid: 'Grid', header: 'Header band', nav: 'Left nav bar', filter: 'Filters / slicers',
       footer: 'Footer', roles: 'Data roles', rolesHint: '(double-click a field for the fact sheet)', analysis: 'Analysis (goes into the spec)',
-      workshop: 'Workshop', quickstart: 'Quick start',
+      workshop: 'Workshop', quickstart: 'Quick start', variants: 'Presentation',
     },
 
     lbl: {
@@ -478,7 +491,10 @@
       participants: 'Workshop participants', lang: 'Language of the outputs',
       thisPage: 'This page', pageQuestion: 'Question / key message of the page', pageNotes: 'Purpose / notes on the page',
       spacing: 'Spacing (px, scales along)', defScenario: 'Default scenario for new charts',
-      headerOn: 'Show header band', title: 'Title', subtitle: 'Subtitle', navAuto: 'Navigation from the page names',
+      headerOn: 'Show header band', title: 'Title', subtitle: 'Subtitle', navAuto: 'Navigation from the page names', backHome: '← Knowledge Kitchen', navOn: 'Show page navigation in the header band',
+      smallMultiples: 'Small multiples (one mini chart per category)', smHint: 'Drag the split field into the “Small multiples by” role.',
+      fieldParam: 'Axis via field parameter (switchable fields)', fieldParamName: 'Field parameter name', fieldParamPh: 'e.g. Axis',
+      fieldParamHint: 'All fields in the axis role become options of the field parameter; a slicer in the report switches the axis.',
       navManual: 'Navigation manually (comma separated)', navOn: 'Show nav bar (app style)',
       filterOn: 'Show filters', filterCollapsible: 'Panel collapsible (bookmark)', footerOn: 'Show footer', text: 'Text',
       radius: 'Tile corners', tileStyle: 'Tile style', pageBg: 'Page background', headerStyle: 'Header style',
@@ -640,6 +656,7 @@
     role: {
       rowType: 'Row type (subtotal / formula / item)',
       fcM: 'FC (forecast measure)',
+      multiples: 'Small multiples by',
       menuHead: 'Assign “{f}” as …', free: 'free', replaces: ' · replaces {n}',
       category: 'Category / axis', category2: 'Subcategory', time: 'Time / period', series: 'Series / legend',
       ac: 'AC · actual', ref: 'Reference (PL / PY / BU)', fc: 'FC flag (1/0)', values: 'Values', valuesAny: 'Fields',
@@ -650,7 +667,7 @@
 
     group: {
       cols: 'ChartKitchen · Columns & bars', time: 'ChartKitchen · Time series', struct: 'ChartKitchen · Waterfall & structure',
-      table: 'Tables & KPI', native: 'Native misc', ctrl: 'Controls & text',
+      table: 'Tables & KPI', native: 'Native classics & misc', ctrl: 'Controls & text',
     },
 
     viz: {
@@ -672,6 +689,10 @@
       table: { label: 'Report table (ChartKitchen)', note: 'Columns AC · ref · Δ · Δ% with mini bars.' },
       sparktable: { label: 'Table with sparklines' }, matrix: { label: 'Matrix (native)' },
       gauge: { label: 'Gauge (native)', note: 'A gauge spends a lot of space on one value; prefer a bullet or a KPI.' },
+      ncolumn: { label: 'Column chart (native)', note: 'Classic Power BI column chart without scenario notation; optional legend, up to five values.' },
+      nbar: { label: 'Bar chart (native)', note: 'Classic Power BI bar chart without scenario notation; optional legend, up to five values.' },
+      nline: { label: 'Line chart (native)', note: 'Classic Power BI line chart over time; optional legend, up to five values.' },
+      ndonut: { label: 'Donut (native)', note: 'Shares as a ring; useful with few categories (up to about five).' },
       pie: { label: 'Pie (native)', note: 'Shares compare better as bars; prefer bars.' },
       treemap: { label: 'Treemap (native)' }, decomp: { label: 'Decomposition tree (native)' }, map: { label: 'Map (geo, native)' },
       deneb: { label: 'Deneb / Vega (own spec)', note: 'Export the spec from ChartKitchen later or write it yourself.' },
@@ -822,6 +843,7 @@
         polarity: 'Polarity {v}', higher: 'higher is better', lower: 'lower is better', auto: ' (auto)',
         basis: 'Δ base {b}{auto}, Δ {kinds}', unit: 'Unit {u}', display: 'Display {d}', decimals: '{n} decimals',
         sort: 'Sorting {by} {dir}', topN: 'Top {n}', grain: 'Grain {g}', cumulative: 'cumulative', scaleGroup: 'Scale group {g}',
+        smallMultiples: 'Small multiples by {f}', fieldParam: 'Axis via field parameter “{n}” ({fields})',
       },
 
       issue: {
@@ -831,6 +853,8 @@
         noNativeShort: 'No native Power BI visual for this type', noNative: 'No native visual for “{label}”',
         textEmpty: '“{t}” has no text; the tile would arrive empty in the report',
         deltaNoRef: '“{t}” promises a variance but has no reference bound',
+        smNoField: '“{t}”: small multiples enabled but no split field bound',
+        fieldParamFew: '“{t}”: field parameter “{n}” has only {k} field(s); at least two make sense',
         emptyTile: 'Empty tile at x={x}, y={y} ({w}×{h})',
         pageNoQuestion: 'Page without a question / key message',
         navOverflow: '{n} nav buttons in the header band; from about 6 pages on it gets tight, consider the left nav bar',

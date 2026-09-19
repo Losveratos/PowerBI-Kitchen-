@@ -26,6 +26,7 @@ button{cursor:pointer}
 body.present .app{grid-template-columns:0 1fr 0}
 body.present .panel{display:none}
 body.present .topbar .hide-present{display:none}
+body.present .pill-home{display:none}
 .mono{font-family:var(--ff-mono);font-size:11px}
 .app{display:grid;grid-template-rows:52px 1fr;grid-template-columns:280px 1fr 340px;height:100vh}
 /* ---------- Topbar ---------- */
@@ -219,7 +220,10 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .gutter:hover::after,.gutter.active::after{background:var(--sel)}
 .stage-tools{position:absolute;right:14px;bottom:12px;display:flex;gap:6px;z-index:5}
 .stage-tools .btn{box-shadow:var(--sh)}
-.stage-info{position:absolute;left:14px;bottom:12px;font-family:var(--ff-mono);font-size:10.5px;color:var(--ink-mute);background:rgba(250,250,247,.85);padding:3px 7px;border-radius:4px;z-index:5}
+.stage-foot{position:absolute;left:14px;bottom:12px;display:flex;align-items:center;gap:8px;z-index:5}
+.stage-info{font-family:var(--ff-mono);font-size:10.5px;color:var(--ink-mute);background:rgba(250,250,247,.85);padding:3px 7px;border-radius:4px}
+.pill-home{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:500;color:var(--ink-soft);background:var(--bg-card);border:1px solid var(--line-strong);border-radius:999px;padding:3px 10px;text-decoration:none;white-space:nowrap}
+.pill-home:hover{color:var(--accent);border-color:var(--accent)}
 /* ---------- Inspector ---------- */
 .role{border:1px solid var(--line);border-radius:6px;padding:6px 8px;margin-bottom:6px;background:var(--bg)}
 .role.over{border-color:var(--sel);background:var(--sel-soft)}
@@ -327,7 +331,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
     <div class="pagebar" id="pagebar"></div>
     <div class="stage" id="stage">
       <div class="stage-inner" id="stageInner"><div class="page" id="page"></div></div>
-      <div class="stage-info" id="stageInfo"></div>
+      <div class="stage-foot"><a class="pill-home hide-present" href="https://datenwgknowledgekitchen.com/" data-i18n="lbl.backHome" data-i18n-title="tip.backHome" title="Zurück zur Knowledge Kitchen">← Knowledge Kitchen</a><div class="stage-info" id="stageInfo"></div></div>
       <div class="stage-tools">
         <button class="btn sm" id="btnZoomOut" data-i18n-title="tip.zoomOut">−</button>
         <button class="btn sm" id="btnZoomFit" data-i18n-title="tip.zoomFit">Fit</button>
@@ -408,6 +412,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
         </div>
         <div class="field"><label data-i18n="lbl.title">Titel</label><input class="ctl" id="hdTitle"></div>
         <div class="field"><label data-i18n="lbl.subtitle">Untertitel</label><input class="ctl" id="hdSub" data-i18n-ph="ph.headerSub" placeholder="z. B. Zeitraum, Einheit"></div>
+        <label class="toggle"><input type="checkbox" id="hdNavOn"> <span data-i18n="lbl.navOn">Seitennavigation im Kopfband anzeigen</span></label>
         <label class="toggle"><input type="checkbox" id="hdNavAuto"> <span data-i18n="lbl.navAuto">Navigation aus den Seitennamen</span></label>
         <div class="field"><label data-i18n="lbl.navManual">Navigation manuell (kommagetrennt)</label><input class="ctl" id="hdNav" data-i18n-ph="ph.navManual" placeholder="Übersicht, Umsatz, Kosten"></div>
       </div>

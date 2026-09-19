@@ -25,7 +25,7 @@
   // Kachel hat leere Pflichtrollen? (früher über den Wortlaut der Warnung geprüft – das ging mit zwei Sprachen nicht mehr)
   function missingRequired(v) {
     const def = CAT.byId[v.kind]; if (!def) return false;
-    return (def.roles || []).some(r => r.req && !((v.roles || {})[r.key] || []).length);
+    return CAT.rolesFor(def, v).some(r => r.req && !((v.roles || {})[r.key] || []).length);
   }
 
   // ------------------------------------------------------------------ Spec
@@ -40,7 +40,7 @@
       const visuals = all.leaves.filter(l => l.node.visual).map(l => {
         const v = l.node.visual; const def = CAT.byId[v.kind] || { label: v.kind, roles: [], native: null, ck: null, ckMode: null };
         const roles = {}; const vw = []; const id = 'mk_' + l.node.id; const title = v.title || def.label;
-        def.roles.forEach(r => { const list = v.roles[r.key] || []; if (list.length) roles[r.key] = list.map(fieldOut); if (r.req && !list.length) { vw.push(T('exp.issue.roleEmptyShort', { r: r.label })); issue(v.engine === 'native' ? 'error' : 'warn', 'ROLE_EMPTY', T('exp.issue.roleEmpty', { r: r.label }), p.name, id); } });
+        CAT.rolesFor(def, v).forEach(r => { const list = v.roles[r.key] || []; if (list.length) roles[r.key] = list.map(fieldOut); if (r.req && !list.length) { vw.push(T('exp.issue.roleEmptyShort', { r: r.label })); issue(v.engine === 'native' ? 'error' : 'warn', 'ROLE_EMPTY', T('exp.issue.roleEmpty', { r: r.label }), p.name, id); } });
         if (MK.anti[v.kind]) { vw.push(def.note || T('exp.issue.antiShort')); issue('warn', 'ANTI_PATTERN', T('exp.issue.anti', { label: def.label, note: def.note || T('exp.issue.antiFallback') }), p.name, id); }
         if (v.engine === 'ck' && !def.ckMode) { vw.push(T('exp.issue.ckNoModeShort')); issue('error', 'CK_NO_MODE', T('exp.issue.ckNoMode', { label: def.label }), p.name, id); }
         if (v.engine === 'native' && !def.native) { vw.push(T('exp.issue.noNativeShort')); issue('error', 'NO_NATIVE', T('exp.issue.noNative', { label: def.label }), p.name, id); }
@@ -51,12 +51,16 @@
         const cat = (v.roles.category || v.roles.rows || [])[0] || null;
         if (target) links.push({ fromVisual: id, fromPage: p.name, toPage: target.name, toPageId: target.id, kind: v.kind === 'button' ? 'navigation' : 'drillthrough', drillField: v.kind === 'button' ? null : (cat ? fieldRef(cat) : null) });
         const an = MK.analysisOf(v);
+        if (an.smallMultiples && !(v.roles.multiples || []).length) issue('warn', 'SM_NO_FIELD', T('exp.issue.smNoField', { t: title }), p.name, id);
+        if (an.fieldParam && (v.roles.category || []).length < 2) issue('info', 'FIELDPARAM_FEW', T('exp.issue.fieldParamFew', { t: title, n: an.fieldParamName || 'Achse', k: (v.roles.category || []).length }), p.name, id);
         return {
           id, stableId: l.node.id, slug: slug(title), page: p.name, kind: v.kind, label: def.label, engine: v.engine,
           chartKitchenType: v.engine === 'ck' ? def.ck : null, chartKitchenMode: v.engine === 'ck' ? def.ckMode : null, native,
           customVisual: v.engine === 'custom' && def.customVisual ? { name: def.customVisual.name, guid: def.customVisual.guid, buckets: customBuckets(def, v) } : null,
           title, subtitle: v.sub || '', content: v.content || '', scenario: def.roles.some(r => r.key === 'ref') ? v.scenario : null,
-          analysis: { polarity: an.polarity, polarityAuto: an.polarityAuto, deltaBasis: an.deltaBasis, deltaBasisAuto: an.deltaBasisAuto, deltaKind: an.deltaKind, unit: an.unit || null, displayUnits: an.displayUnits === 'auto' ? null : an.displayUnits, decimals: an.decimals, sort: an.sort, topN: an.topN, timeGrain: an.timeGrain, cumulative: an.cumulative, scaleGroup: an.scaleGroup || null, message: an.message || null },
+          analysis: { polarity: an.polarity, polarityAuto: an.polarityAuto, deltaBasis: an.deltaBasis, deltaBasisAuto: an.deltaBasisAuto, deltaKind: an.deltaKind, unit: an.unit || null, displayUnits: an.displayUnits === 'auto' ? null : an.displayUnits, decimals: an.decimals, sort: an.sort, topN: an.topN, timeGrain: an.timeGrain, cumulative: an.cumulative, scaleGroup: an.scaleGroup || null, message: an.message || null,
+            smallMultiples: an.smallMultiples ? { field: (v.roles.multiples || [])[0] ? fieldRef(v.roles.multiples[0]) : null } : null,
+            fieldParam: an.fieldParam ? { name: an.fieldParamName || 'Achse', role: 'category', fields: (v.roles.category || []).map(fieldRef) } : null },
           workshop: { priority: v.priority || null, status: v.status || 'open', openQuestion: !!v.openQuestion },
           rect: l.rect, roles, notes: v.notes || '', link: target ? { pageId: target.id, pageName: target.name } : null, warnings: vw,
         };
@@ -67,8 +71,8 @@
     });
     const zonesOut = {};
     Object.keys(z).forEach(key => { zonesOut[key] = Object.assign({}, z[key]); });
-    const navNames = c.header.navAuto ? S.pages.map(p => p.name) : (c.header.nav || []);
-    if (z.header) Object.assign(zonesOut.header, { style: d.header, logoPos: c.header.logoPos, title: c.header.title, subtitle: c.header.sub, nav: navNames, navAuto: !!c.header.navAuto, burger: c.filter.on && c.filter.side === 'burger' });
+    const navNames = c.header.navOn === false ? [] : (c.header.navAuto ? S.pages.map(p => p.name) : (c.header.nav || []));
+    if (z.header) Object.assign(zonesOut.header, { style: d.header, logoPos: c.header.logoPos, title: c.header.title, subtitle: c.header.sub, nav: navNames, navOn: c.header.navOn !== false, navAuto: !!c.header.navAuto, burger: c.filter.on && c.filter.side === 'burger' });
     if (z.nav) zonesOut.nav.pages = S.pages.map(p => p.name);
     if (z.footer) zonesOut.footer.text = c.footer.text;
     const slicers = (c.filter.fields || []).map(f => Object.assign(fieldOut(f), { default: f.default || null }));
@@ -134,6 +138,8 @@
     if (a.unit) parts.push(T('exp.an.unit', { u: a.unit })); if (a.displayUnits) parts.push(T('exp.an.display', { d: a.displayUnits })); if (a.decimals != null) parts.push(T('exp.an.decimals', { n: a.decimals }));
     if (a.sort) parts.push(T('exp.an.sort', { by: a.sort.by, dir: a.sort.dir })); if (a.topN) parts.push(T('exp.an.topN', { n: a.topN })); if (a.timeGrain) parts.push(T('exp.an.grain', { g: a.timeGrain })); if (a.cumulative) parts.push(T('exp.an.cumulative'));
     if (a.scaleGroup) parts.push(T('exp.an.scaleGroup', { g: a.scaleGroup }));
+    if (a.smallMultiples) parts.push(T('exp.an.smallMultiples', { f: a.smallMultiples.field || '?' }));
+    if (a.fieldParam) parts.push(T('exp.an.fieldParam', { n: a.fieldParam.name, fields: (a.fieldParam.fields || []).join(', ') || '–' }));
     return parts.join(' · ');
   }
 

@@ -25,7 +25,7 @@
       spacing: { margin: 16, gutter: 12, pad: 8 },
       defScenario: 'AC/PL',
       chrome: {
-        header: { on: true, h: 56, logoPos: 'left', title: t('state.headerTitle'), sub: t('state.headerSub'), navAuto: true, nav: [] },
+        header: { on: true, h: 56, logoPos: 'left', title: t('state.headerTitle'), sub: t('state.headerSub'), navAuto: true, navOn: true, nav: [] },
         nav: { on: false, w: 64 },
         filter: { on: true, side: 'right', w: 200, topH: 56, collapsible: false, fields: [] },
         footer: { on: true, h: 24, text: t('state.footerText') },
@@ -105,6 +105,7 @@
       deltaKind: a.deltaKind || ['abs', 'rel'],
       unit: a.unit || '', displayUnits: a.displayUnits || 'auto', decimals: a.decimals == null ? null : a.decimals,
       sort: a.sort || null, topN: a.topN || null, timeGrain: a.timeGrain || null, cumulative: !!a.cumulative, scaleGroup: a.scaleGroup || '', message: a.message || '',
+      smallMultiples: !!a.smallMultiples, fieldParam: !!a.fieldParam, fieldParamName: a.fieldParamName || '',
     };
   }
 
@@ -256,7 +257,7 @@
     let html = '';
     if (z.nav) html += `<div class="zone nav" style="${css(z.nav)}"><i class="logo"></i>${S.pages.map(p => `<i class="${p.id === S.cur ? 'act' : ''}" title="${esc(p.name)}"></i>`).join('')}</div>`;
     if (z.header) {
-      const names = c.header.navAuto ? S.pages.map(p => p.name) : (c.header.nav || []);
+      const names = c.header.navOn === false ? [] : (c.header.navAuto ? S.pages.map(p => p.name) : (c.header.nav || []));
       const cur = c.header.navAuto ? page().name : names[0];
       const nav = names.map(n => `<span class="${n === cur ? 'act' : ''}">${esc(n)}</span>`).join('');
       const logo = pos => c.header.logoPos === pos ? `<div class="logo${pos === 'right' ? ' right' : ''}">LOGO</div>` : '';
@@ -288,9 +289,9 @@
     const footH = chips && !tiny ? 18 * k : 0;
     const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - footH - pad - 6);
     const an = analysisOf(v);
-    const svg = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, bw, bh, { scenario: v.scenario, seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: isDark(S.design.tileBg) ? '#E6E6E6' : (S.design.ink || '#404040'), dark: isDark(S.design.tileBg), paper: S.design.tileBg || '#FFFFFF' }) : '';
+    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, { scenario: def.plain ? 'AC' : v.scenario, seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: isDark(S.design.tileBg) ? '#E6E6E6' : (S.design.ink || '#404040'), dark: isDark(S.design.tileBg), paper: S.design.tileBg || '#FFFFFF' }) : '';
     const note = v.notes ? `<span class="note-ico" title="${esc(v.openQuestion ? t('canvas.noteOpen') : t('canvas.note'))}">${v.openQuestion ? '?' : '✎'}</span><div class="note-pop">${esc(v.notes)}</div>` : (v.openQuestion ? `<span class="note-ico" title="${esc(t('canvas.openQuestion'))}">?</span><div class="note-pop">${esc(t('canvas.openQuestionEmpty'))}</div>` : '');
-    const missing = (def.roles || []).filter(r => r.req && !(v.roles[r.key] || []).length).map(r => r.label);
+    const missing = CAT.rolesFor(def, v).filter(r => r.req && !(v.roles[r.key] || []).length).map(r => r.label);
     const req = missing.length ? `<span class="reqdot" title="${esc(t('canvas.reqEmpty', { roles: missing.join(', ') }))}"></span>` : '';
     const pri = v.priority ? `<span class="pri ${v.priority}" title="${esc(t('canvas.priority', { p: t('opt.pri.' + v.priority) }))}">${{ must: 'M', should: 'S', could: 'C' }[v.priority] || ''}</span>` : '';
     const st = v.status && v.status !== 'open' ? `<span class="st ${v.status}" title="${esc(t('canvas.status', { s: t('opt.status.' + v.status) }))}"></span>` : '';
@@ -381,10 +382,11 @@
     const n = findNode(id).node;
     if (!n.visual) { const kind = f.kind === 'measure' ? 'kpi' : 'slicer'; n.visual = normVisual({ kind, engine: CAT.byId[kind].engine, roles: {} }); if (!n.visual.title) n.visual.title = f.name; }
     const v = n.visual; const def = CAT.byId[v.kind];
-    let role = roleKey ? def.roles.find(r => r.key === roleKey) : null;
+    const rolesDef = CAT.rolesFor(def, v);
+    let role = roleKey ? rolesDef.find(r => r.key === roleKey) : null;
     if (!role) {
       // passende Rollen (gleiche Feldart oder „any"); genau eine frei → direkt, sonst Menü statt raten (Review Valerie: Rollenzuweisung rät)
-      const fitting = def.roles.filter(r => r.kind === 'any' || r.kind === f.kind);
+      const fitting = rolesDef.filter(r => r.kind === 'any' || r.kind === f.kind);
       const free = fitting.filter(r => (v.roles[r.key] || []).length < r.max);
       if (free.length === 1 && fitting.length === 1) role = free[0];
       else if (fitting.length) { showRoleMenu(id, f, fitting, v); return; }
@@ -424,10 +426,10 @@
     const dims = `<div class="kv" style="margin-top:8px"><span class="k">${esc(t('canvas.dims.xy'))}</span><span>${rect.x} · ${rect.y}</span><span class="k">${esc(t('canvas.dims.wh'))}</span><span>${rect.w} × ${rect.h} px</span></div>`;
     if (!v) { insEl.innerHTML = `<button class="typebtn" id="btnPickType"><div class="pv"></div><div><b>${esc(t('btn.pickType'))}</b><small>${esc(t('hint.pickTypeSub'))}</small></div></button><p class="hint">${esc(t('hint.dragField'))}</p>${dims}<div class="section"><button class="btn sm" data-ins="rm">${esc(t('btn.removeTile'))}</button></div>`; bindInspector(n); return; }
     const def = CAT.byId[v.kind] || { label: v.kind, roles: [], engines: ['native'] };
-    const pv = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, 64, 36, { scenario: v.scenario, seed: 3 }) : '';
+    const pv = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, 64, 36, { scenario: def.plain ? 'AC' : v.scenario, seed: 3 }) : '';
     const engines = def.engines.map(e => `<button data-engine="${e}" class="${v.engine === e ? 'on ' + e : ''}">${CAT.engineLabel[e]}</button>`).join('');
-    const hasRef = def.roles.some(r => r.key === 'ref');
-    const roles = def.roles.map(r => {
+    const rolesDef = CAT.rolesFor(def, v); const hasRef = rolesDef.some(r => r.key === 'ref');
+    const roles = rolesDef.map(r => {
       const list = v.roles[r.key] || [];
       const chips = list.map((x, i) => `<span class="fchip ${x.kind === 'measure' ? 'm' : 'c'}${x.isNew ? ' new' : ''}" draggable="false"><span class="ico">${x.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(x.name)}</span><button class="x" data-rmrole="${r.key}" data-i="${i}" title="${esc(t('tip.remove'))}">×</button></span>`).join('');
       const kindLbl = r.kind === 'any' ? t('kind.any') : r.kind === 'measure' ? t('kind.measure') : t('kind.column');
@@ -435,7 +437,13 @@
     }).join('');
     const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
     const an = analysisOf(v); const a = v.analysis || {};
-    const hasMeasure = def.roles.some(r => ['ac', 'indicator', 'values', 'y'].includes(r.key));
+    const hasMeasure = rolesDef.some(r => ['ac', 'indicator', 'values', 'y'].includes(r.key));
+    const variants = CAT.variantsFor(def) ? `<div class="section"><h3>${esc(t('sec.variants'))}</h3>
+      <label class="toggle" style="padding:0 0 6px"><input type="checkbox" data-an="smallMultiples" ${an.smallMultiples ? 'checked' : ''}> ${esc(t('lbl.smallMultiples'))}</label>
+      ${an.smallMultiples && !(v.roles.multiples || []).length ? `<p class="hint" style="margin:0 0 8px">${esc(t('lbl.smHint'))}</p>` : ''}
+      <label class="toggle" style="padding:0 0 6px"><input type="checkbox" data-an="fieldParam" ${an.fieldParam ? 'checked' : ''}> ${esc(t('lbl.fieldParam'))}</label>
+      ${an.fieldParam ? `<div class="field"><label>${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-an="fieldParamName" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div><p class="hint" style="margin:0 0 8px">${esc(t('lbl.fieldParamHint'))}</p>` : ''}
+    </div>` : '';
     const opt = (list, cur, labels) => list.map(x => `<option value="${x}" ${String(cur) === String(x) ? 'selected' : ''}>${labels ? labels[x] : x}</option>`).join('');
     const analysis = hasMeasure ? `<div class="section"><h3>${esc(t('sec.analysis'))}</h3>
       <div class="grid2">
@@ -463,6 +471,7 @@
       <div class="field"><label>${esc(t('lbl.vizSub'))}</label><input class="ctl" data-vk="sub" value="${esc(v.sub)}" placeholder="${esc(t('ph.vizSub'))}"></div>
       ${isText ? `<div class="field"><label>${esc(v.kind === 'button' ? t('lbl.btnCaption') : t('lbl.tileText'))}</label><textarea class="ctl" data-vk="content" placeholder="${esc(t('ph.tileText'))}">${esc(v.content || '')}</textarea></div>` : ''}
       ${hasRef ? `<div class="field"><label>${esc(t('lbl.scenario'))}</label><select class="ctl" data-vk="scenario">${['AC/PL', 'AC/PY', 'AC/PL/FC', 'AC/PL/PY', 'AC/BU', 'PL/FC', 'AC'].map(s => `<option ${v.scenario === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>` : ''}
+      ${variants}
       <div class="section"><h3>${esc(t('sec.roles'))} <span class="k" style="font-weight:400;text-transform:none;letter-spacing:0">${esc(t('sec.rolesHint'))}</span></h3>${roles || `<p class="hint">${esc(t('hint.noRoles'))}</p>`}</div>
       ${analysis}
       <div class="section"><h3>${esc(t('sec.workshop'))}</h3>
@@ -495,7 +504,7 @@
         const k = x.dataset.an; let val = x.type === 'checkbox' ? x.checked : x.value;
         if (k === 'sortBy' || k === 'sortDir') { const by = $('[data-an="sortBy"]', insEl).value; const dir = $('[data-an="sortDir"]', insEl).value; setAn('sort', by ? { by, dir } : ''); }
         else if (k === 'topN' || k === 'decimals') setAn(k, val === '' ? '' : +val);
-        else if (k === 'cumulative') setAn(k, val ? true : '');
+        else if (k === 'cumulative' || k === 'smallMultiples' || k === 'fieldParam') setAn(k, val ? true : '');
         else if (k === 'displayUnits') setAn(k, val === 'auto' ? '' : val);
         else setAn(k, val);
       };
@@ -529,7 +538,7 @@
     $('#canvasPreset').value = S.canvas.preset; $('#customSize').hidden = S.canvas.preset !== 'custom'; $('#canvasW').value = S.canvas.w; $('#canvasH').value = S.canvas.h;
     $('#uiScaleInfo').textContent = t('hint.uiScaleInfo', { k: ui().toFixed(2) });
     $('#spMargin').value = S.spacing.margin; $('#spGutter').value = S.spacing.gutter; $('#spPad').value = S.spacing.pad; $('#defScenario').value = S.defScenario;
-    $('#hdOn').checked = c.header.on; $('#hdH').value = c.header.h; $('#hdLogoPos').value = c.header.logoPos || 'left'; $('#hdTitle').value = c.header.title; $('#hdSub').value = c.header.sub; $('#hdNavAuto').checked = !!c.header.navAuto; $('#hdNav').value = (c.header.nav || []).join(', '); $('#hdNav').disabled = !!c.header.navAuto;
+    $('#hdOn').checked = c.header.on; $('#hdH').value = c.header.h; $('#hdLogoPos').value = c.header.logoPos || 'left'; $('#hdTitle').value = c.header.title; $('#hdSub').value = c.header.sub; $('#hdNavOn').checked = c.header.navOn !== false; $('#hdNavAuto').checked = !!c.header.navAuto; $('#hdNav').value = (c.header.nav || []).join(', '); $('#hdNav').disabled = !!c.header.navAuto;
     $('#nvOn').checked = c.nav.on; $('#nvW').value = c.nav.w;
     $('#ftOn').checked = c.filter.on; $('#ftSide').value = c.filter.side; $('#ftW').value = c.filter.side === 'top' ? (c.filter.topH || 56) : c.filter.w; $('#ftWHint').textContent = c.filter.side === 'top' ? t('hint.height') : t('hint.width'); $('#ftW').disabled = c.filter.side === 'burger';
     $('#ftCollapsible').checked = c.filter.collapsible; $('#ftCollapsibleRow').style.display = (c.filter.side === 'left' || c.filter.side === 'right') ? '' : 'none';
@@ -562,7 +571,7 @@
   bind('spMargin', v => S.spacing.margin = clamp(+v, 0, 64), 'input'); bind('spGutter', v => S.spacing.gutter = clamp(+v, 0, 48), 'input'); bind('spPad', v => S.spacing.pad = clamp(+v, 0, 32), 'input');
   bind('defScenario', v => S.defScenario = v);
   bind('hdOn', v => S.chrome.header.on = v); bind('hdH', v => S.chrome.header.h = clamp(+v, 32, 120), 'input'); bind('hdLogoPos', v => S.chrome.header.logoPos = v);
-  bind('hdTitle', v => S.chrome.header.title = v, 'input'); bind('hdSub', v => S.chrome.header.sub = v, 'input'); bind('hdNavAuto', v => S.chrome.header.navAuto = v);
+  bind('hdTitle', v => S.chrome.header.title = v, 'input'); bind('hdSub', v => S.chrome.header.sub = v, 'input'); bind('hdNavOn', v => S.chrome.header.navOn = v); bind('hdNavAuto', v => S.chrome.header.navAuto = v);
   bind('hdNav', v => S.chrome.header.nav = v.split(',').map(s => s.trim()).filter(Boolean), 'input');
   bind('nvOn', v => S.chrome.nav.on = v); bind('nvW', v => S.chrome.nav.w = clamp(+v, 40, 120), 'input');
   bind('ftOn', v => S.chrome.filter.on = v); bind('ftSide', v => S.chrome.filter.side = v); bind('ftCollapsible', v => S.chrome.filter.collapsible = v);
