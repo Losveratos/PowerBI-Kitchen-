@@ -7,13 +7,13 @@
 <meta name="description" content="Mockup-Tool für Power-BI-Berichtsseiten: Container-Layout, mehrere Seiten, TMDL-Felder per Drag-and-drop, Skizzen mit semantischer Notation, Export als JSON-Spec + Agent-Brief + Workshop-Doku für Claude Code.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-soft:#F1F0EA; --ink:#0F1E2E; --ink-soft:#475569; --ink-mute:#66707F;
   --line:#E4E2DA; --line-strong:#B5B2A6; --accent:#C25A2D; --accent-soft:#F6E7DF;
   --ok:#2E7D5B; --bad:#B8392F; --sel:#1F5FBF; --sel-soft:#E3ECFA;
-  --ff-serif:'Fraunces',Georgia,serif; --ff-sans:'Geist',system-ui,sans-serif; --ff-mono:'JetBrains Mono',Consolas,monospace;
+  --ff-sans:'Geist',system-ui,sans-serif; --ff-serif:var(--ff-sans); --ff-mono:'JetBrains Mono',Consolas,monospace;
   --r:8px; --sh:0 1px 2px rgba(15,30,46,.06),0 4px 14px rgba(15,30,46,.06);
 }
 *{box-sizing:border-box}
@@ -33,7 +33,7 @@ body.present .pill-home{display:none}
 .topbar{grid-column:1/4;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--bg-card);border-bottom:1px solid var(--line);flex-wrap:wrap;row-gap:4px;min-height:52px;height:auto}
 .app{grid-template-rows:auto 1fr}
 .brand{display:flex;align-items:baseline;gap:8px;margin-right:6px}
-.brand h1{font-family:var(--ff-serif);font-weight:600;font-size:19px;margin:0;letter-spacing:-.01em}
+.brand h1{font-family:var(--ff-sans);font-weight:700;font-size:18px;margin:0;letter-spacing:-.01em}
 .brand small{font-family:var(--ff-mono);font-size:10px;color:var(--ink-mute);letter-spacing:.04em;text-transform:uppercase}
 .topbar input.name{border:1px solid transparent;background:transparent;padding:6px 8px;border-radius:6px;font-weight:500;min-width:150px;width:200px;flex:0 1 200px}
 .topbar input.name:hover,.topbar input.name:focus{border-color:var(--line);background:var(--bg);outline:none}
@@ -56,7 +56,7 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .panel.left{border-right:1px solid var(--line)}
 .panel.right{border-left:1px solid var(--line)}
 .panel-head{padding:10px 14px 8px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg-card);z-index:2}
-.panel-head h2{font-family:var(--ff-serif);font-size:15px;font-weight:600;margin:0 0 2px}
+.panel-head h2{font-family:var(--ff-sans);font-size:15px;font-weight:600;margin:0 0 2px}
 .panel-head p{margin:0;color:var(--ink-mute);font-size:11.5px}
 .panel-body{padding:10px 14px 24px;flex:1}
 .row{display:flex;gap:8px;align-items:center}
@@ -232,8 +232,24 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .role .rl .req{color:var(--accent)}
 .role .drop{font-size:11px;color:var(--ink-mute);border:1px dashed var(--line-strong);border-radius:4px;padding:4px 6px;text-align:center}
 .role .chips{display:flex;flex-wrap:wrap}
-#dlgTileBody textarea.big{min-height:170px;resize:vertical}
-#dlgTileBody h3{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);margin:14px 0 6px}
+#dlgTile{width:96vw;max-width:96vw;height:94vh;max-height:94vh;display:flex;flex-direction:column}
+#dlgTile[open]{display:flex}
+#dlgTile .dlg-head h2{font-size:22px}
+#dlgTile .dlg-head p{font-size:13px}
+#dlgTile .dlg-body{max-height:none;flex:1;min-height:0;overflow:auto;padding:18px 24px 24px;font-size:14px}
+#dlgTile .field label{font-size:12px}
+#dlgTile .ctl{font-size:14px;padding:8px 10px}
+#dlgTile .toggle{font-size:14px;padding:6px 0}
+.tw-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(300px,2fr);gap:28px;height:100%}
+@media (max-width:900px){.tw-grid{grid-template-columns:1fr}}
+.tw-left{display:flex;flex-direction:column;min-height:0}
+.tw-left .field.grow{flex:1;display:flex;flex-direction:column;min-height:0}
+#dlgTileBody textarea.big{flex:1;min-height:46vh;resize:vertical;font-size:15px;line-height:1.5}
+#dlgTileBody h3{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);margin:16px 0 6px;font-weight:600}
+.tw-right .box{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:12px}
+.tw-right .box h3{margin:0 0 8px}
+.tilewin-btn{width:100%;justify-content:center;background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;padding:8px 10px;margin-bottom:8px}
+.tilewin-btn:hover{filter:brightness(1.08);background:var(--accent)}
 .typebtn{display:flex;align-items:center;gap:10px;width:100%;border:1px solid var(--line-strong);background:var(--bg-card);border-radius:var(--r);padding:8px;text-align:left}
 .typebtn:hover{border-color:var(--sel)}
 .typebtn .pv{width:64px;height:40px;flex:none;border:1px solid var(--line);border-radius:4px;background:#fff;padding:3px}
@@ -251,7 +267,7 @@ dialog{border:0;border-radius:12px;box-shadow:0 24px 70px rgba(15,30,46,.28);pad
 dialog::backdrop{background:rgba(15,30,46,.45)}
 dialog.narrow{width:520px}
 .dlg-head{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
-.dlg-head h2{font-family:var(--ff-serif);font-weight:600;font-size:18px;margin:0}
+.dlg-head h2{font-family:var(--ff-sans);font-weight:600;font-size:18px;margin:0}
 .dlg-head p{margin:0;color:var(--ink-mute);font-size:12px}
 .dlg-body{padding:14px 18px;max-height:70vh;overflow:auto}
 .dlg-foot{padding:10px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;align-items:center}
@@ -275,7 +291,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 .tpl .pv svg{width:100%;height:100%}
 .tpl b{font-size:12.5px;display:block}
 .tpl small{color:var(--ink-mute);font-size:11px}
-.help h3{font-family:var(--ff-serif);font-size:15px;margin:14px 0 4px}
+.help h3{font-family:var(--ff-sans);font-size:15px;margin:14px 0 4px}
 .help p,.help li{font-size:12.5px;color:var(--ink-soft)}
 .help kbd{font-family:var(--ff-mono);font-size:10.5px;border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--bg)}
 .rolemenu{position:fixed;z-index:60;width:260px;background:var(--bg-card);border:1px solid var(--line-strong);border-radius:8px;box-shadow:0 12px 32px rgba(15,30,46,.22);padding:6px;display:flex;flex-direction:column;gap:3px}

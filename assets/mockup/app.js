@@ -464,7 +464,7 @@
     </div>` : '';
     const isText = v.kind === 'text' || v.kind === 'button';
     insEl.innerHTML = `
-      <div class="row" style="justify-content:flex-end;margin-bottom:6px"><button class="btn sm" data-tilewin="1" title="${esc(t('tip.tileWindow'))}">⤢ ${esc(t('lbl.tileWindow'))}</button></div>
+      <button class="btn tilewin-btn" data-tilewin="1" title="${esc(t('tip.tileWindow'))}">⤢ ${esc(t('lbl.tileWindow'))}</button>
       <button class="typebtn" id="btnPickType"><div class="pv">${pv}</div><div><b>${esc(def.label)}</b><small>${esc(t('hint.changeType', { group: def.group || '' }))}</small></div></button>
       ${def.note ? `<p class="${def.warnNote ? 'warn' : 'hint'}" style="margin-top:8px">${esc(def.note)}</p>` : ''}
       <div class="field" style="margin-top:10px"><label>${esc(t('lbl.engine'))}</label><div class="engine">${engines}</div></div>
@@ -497,22 +497,23 @@
     const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
     const hasCat = CAT.rolesFor(def, v).some(r => r.key === 'category'); const canVar = CAT.variantsFor(def); const isText = v.kind === 'text' || v.kind === 'button' || v.kind === 'image';
     $('#dlgTileH').textContent = v.title || def.label;
-    $('#dlgTileBody').innerHTML = `
+    $('#dlgTileBody').innerHTML = `<div class="tw-grid"><div class="tw-left">
       <div class="field"><label>${esc(t('lbl.vizTitle'))}</label><input class="ctl" data-tk="title" value="${esc(v.title)}" placeholder="${esc(def.label)}"></div>
+      <div class="field grow"><label>${esc(t('lbl.notes'))}</label><textarea class="ctl big" data-tk="notes" placeholder="${esc(t('ph.notes'))}">${esc(v.notes || '')}</textarea></div>
+      </div><div class="tw-right"><div class="box"><h3>${esc(t('sec.workshop'))}</h3>
       <div class="grid2">
         <div class="field"><label>${esc(t('lbl.priority'))}</label><select class="ctl" data-tk="priority">${opt(['', 'must', 'should', 'could'], v.priority || '', { '': t('opt.pri.none'), must: t('opt.pri.must'), should: t('opt.pri.should'), could: t('opt.pri.could') })}</select></div>
         <div class="field"><label>${esc(t('lbl.status'))}</label><select class="ctl" data-tk="status">${opt(['open', 'agreed', 'approved'], v.status || 'open', { open: t('opt.status.open'), agreed: t('opt.status.agreed'), approved: t('opt.status.approved') })}</select></div>
       </div>
-      <label class="toggle"><input type="checkbox" data-tkb="openQuestion" ${v.openQuestion ? 'checked' : ''}> ${esc(t('lbl.openQuestion'))}</label>
-      <div class="field"><label>${esc(t('lbl.notes'))}</label><textarea class="ctl big" data-tk="notes" placeholder="${esc(t('ph.notes'))}">${esc(v.notes || '')}</textarea></div>
-      ${isText ? '' : `<h3>${esc(t('sec.behaviour'))}</h3>
+      <label class="toggle"><input type="checkbox" data-tkb="openQuestion" ${v.openQuestion ? 'checked' : ''}> ${esc(t('lbl.openQuestion'))}</label></div>
+      ${isText ? '' : `<div class="box"><h3>${esc(t('sec.behaviour'))}</h3>
       ${hasCat ? `<label class="toggle"><input type="checkbox" data-ti="drillDown" ${it.drillDown ? 'checked' : ''}> ${esc(t('lbl.drillDown'))}</label>` : ''}
       <label class="toggle"><input type="checkbox" data-ti="crossFilter" ${it.crossFilter === false ? '' : 'checked'}> ${esc(t('lbl.crossFilter'))}</label>
-      <div class="field"><label>${esc(t('lbl.drillThrough'))}</label><select class="ctl" data-tk="link">${links}</select></div>`}
-      ${canVar ? `<h3>${esc(t('sec.variants'))}</h3>
+      <div class="field"><label>${esc(t('lbl.drillThrough'))}</label><select class="ctl" data-tk="link">${links}</select></div></div>`}
+      ${canVar ? `<div class="box"><h3>${esc(t('sec.variants'))}</h3>
       <label class="toggle"><input type="checkbox" data-ta="smallMultiples" ${an.smallMultiples ? 'checked' : ''}> ${esc(t('lbl.smallMultiples'))}</label>
       <label class="toggle"><input type="checkbox" data-ta="fieldParam" ${an.fieldParam ? 'checked' : ''}> ${esc(t('lbl.fieldParam'))}</label>
-      <div class="field" ${an.fieldParam ? '' : 'hidden'} data-fpname><label>${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-ta="fieldParamName" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div>` : ''}`;
+      <div class="field" ${an.fieldParam ? '' : 'hidden'} data-fpname><label>${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-ta="fieldParamName" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div></div>` : ''}</div></div>`;
     const body = $('#dlgTileBody');
     const setAn = (key, val) => { const a = v.analysis = v.analysis || {}; if (val === '' || val === null || val === undefined || val === false) delete a[key]; else a[key] = val; };
     $$('[data-tk]', body).forEach(x => { const f = () => { v[x.dataset.tk] = x.value; persist(); }; x.addEventListener('input', f); x.addEventListener('change', f); });
