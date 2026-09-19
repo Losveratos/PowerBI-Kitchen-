@@ -23,6 +23,10 @@ Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau i
   `CAT.rolesFor(def, v)`. Issues `SM_NO_FIELD`, `FIELDPARAM_FEW`.
 - **Native Klassiker (v0.4.1):** `ncolumn`, `nbar`, `nline`, `ndonut` (Gruppe „Native Klassiker & Sonstige") ohne
   Szenario-Notation (`plain: true` → Skizze mit Szenario AC), Rollen Kategorie/Legende/Werte, Donut-Skizze `S.donut`.
+- **Kachel-Fenster (v0.4.2):** Button „Notiz & Einstellungen" oben im Inspector (Taste N) öffnet einen Dialog mit Titel,
+  Priorität, Status, offener Frage, großer Notiz, Verhalten (Drill-down, Cross-Filter, Drill-through-Ziel) und
+  Darstellung (Small Multiples, Feldparameter). Export `visuals[].interaction {drillDown, crossFilter, drillThrough}`,
+  Brief-Zeile „Verhalten: …". Tooltips von Öffnen/Speichern erklären den Weiterarbeiten-Weg (.mockup.json).
 - **Kopfband (v0.4.1):** Seitennavigation abschaltbar (`chrome.header.navOn`, Export `zones.header.navOn`);
   Pille „← Knowledge Kitchen" unten links (im Präsentiermodus ausgeblendet).
 

@@ -232,6 +232,8 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .role .rl .req{color:var(--accent)}
 .role .drop{font-size:11px;color:var(--ink-mute);border:1px dashed var(--line-strong);border-radius:4px;padding:4px 6px;text-align:center}
 .role .chips{display:flex;flex-wrap:wrap}
+#dlgTileBody textarea.big{min-height:170px;resize:vertical}
+#dlgTileBody h3{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);margin:14px 0 6px}
 .typebtn{display:flex;align-items:center;gap:10px;width:100%;border:1px solid var(--line-strong);background:var(--bg-card);border-radius:var(--r);padding:8px;text-align:left}
 .typebtn:hover{border-color:var(--sel)}
 .typebtn .pv{width:64px;height:40px;flex:none;border:1px solid var(--line);border-radius:4px;background:#fff;padding:3px}
@@ -542,6 +544,10 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
   <div class="dlg-foot"><button class="btn" data-close data-i18n="btn.cancel">Abbrechen</button><button class="btn primary" id="spOk" data-i18n="btn.split">Aufteilen</button></div>
 </dialog>
 
+<dialog id="dlgTile" class="narrow">
+  <div class="dlg-head"><div><h2 id="dlgTileH">Kachel</h2><p data-i18n="dlg.tile.p">Notiz, Workshop-Status und Verhalten der Kachel in einem Fenster. Änderungen gelten sofort.</p></div><span class="spacer"></span><button class="btn ghost" id="dlgTileClose">✕</button></div>
+  <div class="dlg-body" id="dlgTileBody"></div>
+</dialog>
 <dialog id="dlgHelp" class="narrow">
   <div class="dlg-head"><div><h2 data-i18n="dlg.help.h">So funktioniert MockupKitchen</h2><p data-i18n="dlg.help.p">Vom Workshop-Skizzenblatt zur Power-BI-Seite.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body help" data-i18n-html="help.body">

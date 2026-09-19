@@ -26,7 +26,8 @@
       backHome: 'Zurück zur Startseite der Knowledge Kitchen',
       projName: 'Name des Berichts / Mockups', templates: 'Seitenvorlage wählen', importTmdl: 'TMDL-Ordner oder -Dateien laden',
       undo: 'Rückgängig (Strg+Z)', redo: 'Wiederholen (Strg+Y)', present: 'Präsentieren: Panels ausblenden, Seite groß (Taste P)',
-      help: 'Hilfe', open: 'Mockup-Datei öffnen (.mockup.json)', save: 'Als .mockup.json speichern',
+      help: 'Hilfe', open: 'Weiterarbeiten: gespeicherten Stand öffnen (.mockup.json aus „Speichern")', save: 'Stand als .mockup.json sichern – mit „Öffnen" lässt er sich später wieder laden und weiterbearbeiten',
+      tileWindow: 'Notiz, Priorität, Status, Drill und Varianten in einem größeren Fenster (Taste N)',
       demoModel: 'Beispielmodell laden: Controlling, Sales, HR, Online-Marketing oder GuV',
       zoomOut: 'Verkleinern', zoomFit: 'Einpassen', zoomIn: 'Vergrößern', lang: 'Sprache umschalten: Deutsch / English',
       pageRename: 'Seite umbenennen', pageDelete: 'Seite löschen', pageLeft: 'Seite nach links', pageRight: 'Seite nach rechts',
@@ -44,7 +45,7 @@
     sec: {
       canvas: 'Canvas (alle Seiten)', grid: 'Raster', header: 'Kopfband', nav: 'Linke Nav-Leiste', filter: 'Filter / Slicer',
       footer: 'Fußleiste', roles: 'Datenrollen', rolesHint: '(Doppelklick auf Feld = Steckbrief)', analysis: 'Analyse (wandert in die Spec)',
-      workshop: 'Workshop', quickstart: 'Schnellstart', variants: 'Darstellung',
+      workshop: 'Workshop', quickstart: 'Schnellstart', variants: 'Darstellung', behaviour: 'Verhalten',
     },
 
     lbl: {
@@ -54,6 +55,7 @@
       thisPage: 'Diese Seite', pageQuestion: 'Fragestellung / Kernbotschaft der Seite', pageNotes: 'Zweck / Notizen zur Seite',
       spacing: 'Abstände (px, skalieren mit)', defScenario: 'Standard-Szenario neuer Charts',
       headerOn: 'Kopfband anzeigen', title: 'Titel', subtitle: 'Untertitel', navAuto: 'Navigation aus den Seitennamen', backHome: '← Knowledge Kitchen', navOn: 'Seitennavigation im Kopfband anzeigen',
+      tileWindow: 'Notiz & Einstellungen', drillDown: 'Drill-down in der Kachel (Hierarchie aufklappen)', crossFilter: 'Klick filtert andere Kacheln (Cross-Filter)', drillThrough: 'Drill-through: Zielseite',
       smallMultiples: 'Small Multiples (je Kategorie ein Mini-Chart)', smHint: 'Aufteilungsfeld in die Rolle „Small Multiples nach" ziehen.',
       fieldParam: 'Achse per Feldparameter (umschaltbare Felder)', fieldParamName: 'Name des Feldparameters', fieldParamPh: 'z. B. Achse',
       fieldParamHint: 'Alle Felder in der Achsen-Rolle werden Optionen des Feldparameters; ein Slicer im Bericht schaltet die Achse um.',
@@ -144,6 +146,7 @@
       fm: { h: 'Kennzahlen-Steckbrief' },
       split: { h: 'Inhalt neu aufteilen', p: 'Zeilen × Spalten als Startraster. Danach jede Zelle weiter teilen.' },
       help: { h: 'So funktioniert MockupKitchen', p: 'Vom Workshop-Skizzenblatt zur Power-BI-Seite.' },
+      tile: { p: 'Notiz, Workshop-Status und Verhalten der Kachel in einem Fenster. Änderungen gelten sofort.' },
     },
 
     tabexp: { pbir: 'pbir-visuals (aktuelle Seite)', prompt: 'Prompt für Claude Code' },
@@ -162,6 +165,7 @@
         '<p>TMDL-Ordner (<span class="mono">*.SemanticModel/definition/tables</span>) auf die Ablagefläche ziehen, oder „Demo-Modell" für einen schnellen Start. Es werden nur Namen, Typen und Beschreibungen gelesen; nichts verlässt den Browser.</p>',
         '<h3>6 · Export</h3>',
         '<p>„Export für Claude Code" erzeugt <span class="mono">mockup-spec.json</span>, <span class="mono">AGENT-BRIEF.md</span>, <span class="mono">WORKSHOP-DOKU.md</span> und je Seite eine <span class="mono">pbir-visuals.&lt;Seite&gt;.json</span>. Dateien in den PBIP-Ordner legen und den Skill <span class="mono">mockup-to-powerbi</span> starten; er baut die Seiten und kann Doku und PowerPoint daraus erzeugen.</p>',
+        '<p>Zum Weiterarbeiten <b>Speichern</b> (<span class="mono">.mockup.json</span>) und später <b>Öffnen</b>; die Export-Dateien sind für den Bau gedacht, nicht zum Zurückladen.</p>',
         '<p class="hint">Hinweis: Die ChartKitchen-Skizzen nutzen eine semantische Notation; einzelne Konzepte (Szenario-Kennzeichnung, Abweichungsdarstellung) sind an IBCS® angelehnt. MockupKitchen ist weder zertifiziert noch mit der IBCS Association verbunden; IBCS® ist eine eingetragene Marke der IBCS Association.</p>',
         '<h3>Tastatur</h3>',
         '<p><kbd>Entf</kbd> leert die Kachel · <kbd>Esc</kbd> Auswahl aufheben · <kbd>Strg</kbd>+<kbd>Z</kbd> rückgängig · <kbd>Strg</kbd>+<kbd>S</kbd> speichern · <kbd>Strg</kbd>+<kbd>E</kbd> Export. Der Stand wird automatisch im Browser gemerkt.</p>',
@@ -407,6 +411,7 @@
         basis: 'Δ-Basis {b}{auto}, Δ {kinds}', unit: 'Einheit {u}', display: 'Anzeige {d}', decimals: '{n} Dezimalstellen',
         sort: 'Sortierung {by} {dir}', topN: 'Top {n}', grain: 'Granularität {g}', cumulative: 'kumuliert', scaleGroup: 'Skalengruppe {g}',
         smallMultiples: 'Small Multiples nach {f}', fieldParam: 'Achse per Feldparameter „{n}" ({fields})',
+        behaviour: 'Verhalten: {list}', drillDown: 'Drill-down', noCross: 'kein Cross-Filter', drillThrough: 'Drill-through → {p}',
       },
 
       issue: {
@@ -464,7 +469,8 @@
       backHome: 'Back to the Knowledge Kitchen start page',
       projName: 'Name of the report / mockup', templates: 'Choose a page template', importTmdl: 'Load a TMDL folder or files',
       undo: 'Undo (Ctrl+Z)', redo: 'Redo (Ctrl+Y)', present: 'Present: hide the panels, page large (key P)',
-      help: 'Help', open: 'Open a mockup file (.mockup.json)', save: 'Save as .mockup.json',
+      help: 'Help', open: 'Continue working: open a saved state (.mockup.json from “Save”)', save: 'Save the state as .mockup.json – “Open” loads it again for further work',
+      tileWindow: 'Note, priority, status, drill and variants in a larger window (key N)',
       demoModel: 'Load a sample model: controlling, sales, HR, online marketing or P&L',
       zoomOut: 'Zoom out', zoomFit: 'Fit to view', zoomIn: 'Zoom in', lang: 'Switch language: German / English',
       pageRename: 'Rename page', pageDelete: 'Delete page', pageLeft: 'Move page left', pageRight: 'Move page right',
@@ -482,7 +488,7 @@
     sec: {
       canvas: 'Canvas (all pages)', grid: 'Grid', header: 'Header band', nav: 'Left nav bar', filter: 'Filters / slicers',
       footer: 'Footer', roles: 'Data roles', rolesHint: '(double-click a field for the fact sheet)', analysis: 'Analysis (goes into the spec)',
-      workshop: 'Workshop', quickstart: 'Quick start', variants: 'Presentation',
+      workshop: 'Workshop', quickstart: 'Quick start', variants: 'Presentation', behaviour: 'Behaviour',
     },
 
     lbl: {
@@ -492,6 +498,7 @@
       thisPage: 'This page', pageQuestion: 'Question / key message of the page', pageNotes: 'Purpose / notes on the page',
       spacing: 'Spacing (px, scales along)', defScenario: 'Default scenario for new charts',
       headerOn: 'Show header band', title: 'Title', subtitle: 'Subtitle', navAuto: 'Navigation from the page names', backHome: '← Knowledge Kitchen', navOn: 'Show page navigation in the header band',
+      tileWindow: 'Note & settings', drillDown: 'Drill-down inside the tile (expand hierarchy)', crossFilter: 'Click filters other tiles (cross-filter)', drillThrough: 'Drill-through: target page',
       smallMultiples: 'Small multiples (one mini chart per category)', smHint: 'Drag the split field into the “Small multiples by” role.',
       fieldParam: 'Axis via field parameter (switchable fields)', fieldParamName: 'Field parameter name', fieldParamPh: 'e.g. Axis',
       fieldParamHint: 'All fields in the axis role become options of the field parameter; a slicer in the report switches the axis.',
@@ -582,6 +589,7 @@
       fm: { h: 'KPI fact sheet' },
       split: { h: 'Re-split content', p: 'Rows × columns as the starting grid. Split each cell further afterwards.' },
       help: { h: 'How MockupKitchen works', p: 'From the workshop sketch pad to the Power BI page.' },
+      tile: { p: 'Note, workshop status and behaviour of the tile in one window. Changes apply immediately.' },
     },
 
     tabexp: { pbir: 'pbir-visuals (current page)', prompt: 'Prompt for Claude Code' },
@@ -600,6 +608,7 @@
         '<p>Drag a TMDL folder (<span class="mono">*.SemanticModel/definition/tables</span>) onto the drop area, or click “Demo model” for a quick start. Only names, types and descriptions are read; nothing leaves the browser.</p>',
         '<h3>6 · Export</h3>',
         '<p>“Export for Claude Code” produces <span class="mono">mockup-spec.json</span>, <span class="mono">AGENT-BRIEF.md</span>, <span class="mono">WORKSHOP-DOKU.md</span> and one <span class="mono">pbir-visuals.&lt;page&gt;.json</span> per page. Put the files into the PBIP folder and start the <span class="mono">mockup-to-powerbi</span> skill; it builds the pages and can create the documentation and a PowerPoint from them.</p>',
+        '<p>To continue later use <b>Save</b> (<span class="mono">.mockup.json</span>) and <b>Open</b>; the export files are meant for the build, not for loading back.</p>',
         '<p class="hint">Note: The ChartKitchen sketches use a semantic notation; some concepts (scenario marking, variance display) are inspired by IBCS®. MockupKitchen is neither certified by nor affiliated with the IBCS Association; IBCS® is a registered trademark of the IBCS Association.</p>',
         '<h3>Keyboard</h3>',
         '<p><kbd>Del</kbd> clears the tile · <kbd>Esc</kbd> clears the selection · <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo · <kbd>Ctrl</kbd>+<kbd>S</kbd> save · <kbd>Ctrl</kbd>+<kbd>E</kbd> export. The state is remembered in the browser automatically.</p>',
@@ -844,6 +853,7 @@
         basis: 'Δ base {b}{auto}, Δ {kinds}', unit: 'Unit {u}', display: 'Display {d}', decimals: '{n} decimals',
         sort: 'Sorting {by} {dir}', topN: 'Top {n}', grain: 'Grain {g}', cumulative: 'cumulative', scaleGroup: 'Scale group {g}',
         smallMultiples: 'Small multiples by {f}', fieldParam: 'Axis via field parameter “{n}” ({fields})',
+        behaviour: 'Behaviour: {list}', drillDown: 'drill-down', noCross: 'no cross-filter', drillThrough: 'drill-through → {p}',
       },
 
       issue: {

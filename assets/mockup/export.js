@@ -62,6 +62,7 @@
             smallMultiples: an.smallMultiples ? { field: (v.roles.multiples || [])[0] ? fieldRef(v.roles.multiples[0]) : null } : null,
             fieldParam: an.fieldParam ? { name: an.fieldParamName || 'Achse', role: 'category', fields: (v.roles.category || []).map(fieldRef) } : null },
           workshop: { priority: v.priority || null, status: v.status || 'open', openQuestion: !!v.openQuestion },
+          interaction: { drillDown: !!(v.interaction || {}).drillDown, crossFilter: (v.interaction || {}).crossFilter !== false, drillThrough: target && v.kind !== 'button' ? { pageId: target.id, pageName: target.name, field: cat ? fieldRef(cat) : null } : null },
           rect: l.rect, roles, notes: v.notes || '', link: target ? { pageId: target.id, pageName: target.name } : null, warnings: vw,
         };
       });
@@ -189,6 +190,7 @@
         out.push(roleLines.length ? B('vRoles') : B('vRolesNone'), ...roleLines);
         if (v.native && Object.keys(v.native.buckets).length) out.push(B('vBuckets', { type: v.native.type }) + Object.keys(v.native.buckets).map(b => `${b} ← ${v.native.buckets[b].map(f => f.ref).join(', ')}`).join(' · '));
         if (Object.keys(v.roles).length && v.kind !== 'slicer' && v.kind !== 'text') out.push(B('vAnalysis', { a: analysisLine(v.analysis, L) }));
+        { const it = v.interaction || {}; const beh = []; if (it.drillDown) beh.push(T('exp.an.drillDown')); if (it.crossFilter === false) beh.push(T('exp.an.noCross')); if (it.drillThrough) beh.push(T('exp.an.drillThrough', { p: it.drillThrough.pageName })); if (beh.length) out.push(T('exp.an.behaviour', { list: beh.join(' · ') })); }
         if (v.analysis.message) out.push(B('vMessage', { m: v.analysis.message }));
         if (v.workshop.priority || v.workshop.status !== 'open') out.push(B('vWorkshop', { p: v.workshop.priority ? T('exp.pri.' + v.workshop.priority) + ' · ' : '', s: T('exp.status.' + v.workshop.status) }));
         if (v.link) out.push(B('vLink', { p: v.link.pageName, how: v.kind === 'button' ? B('linkNav') : B('linkDrill') }));

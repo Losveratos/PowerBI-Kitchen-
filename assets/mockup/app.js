@@ -464,6 +464,7 @@
     </div>` : '';
     const isText = v.kind === 'text' || v.kind === 'button';
     insEl.innerHTML = `
+      <div class="row" style="justify-content:flex-end;margin-bottom:6px"><button class="btn sm" data-tilewin="1" title="${esc(t('tip.tileWindow'))}">⤢ ${esc(t('lbl.tileWindow'))}</button></div>
       <button class="typebtn" id="btnPickType"><div class="pv">${pv}</div><div><b>${esc(def.label)}</b><small>${esc(t('hint.changeType', { group: def.group || '' }))}</small></div></button>
       ${def.note ? `<p class="${def.warnNote ? 'warn' : 'hint'}" style="margin-top:8px">${esc(def.note)}</p>` : ''}
       <div class="field" style="margin-top:10px"><label>${esc(t('lbl.engine'))}</label><div class="engine">${engines}</div></div>
@@ -486,7 +487,43 @@
       ${dims}
       <div class="section row wrap"><button class="btn sm" data-ins="clear">${esc(t('btn.clearTile'))}</button><button class="btn sm" data-ins="rm">${esc(t('btn.removeTile'))}</button></div>`;
     bindInspector(n);
+    const wb = $('[data-tilewin]', insEl); if (wb) wb.onclick = () => openTileDialog(n.id);
   }
+  // Kachel-Fenster: Notiz, Workshop-Status und Verhalten groß in einem Dialog; schreibt direkt in den Zustand
+  function openTileDialog(id) {
+    const hit = findNode(id); const n = hit && hit.node; if (!n || !n.visual) return;
+    const v = n.visual; const def = CAT.byId[v.kind] || { label: v.kind, roles: [] }; const an = analysisOf(v); const it = v.interaction || {};
+    const opt = (list, cur, labels) => list.map(x => `<option value="${x}" ${String(cur) === String(x) ? 'selected' : ''}>${labels ? labels[x] : x}</option>`).join('');
+    const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
+    const hasCat = CAT.rolesFor(def, v).some(r => r.key === 'category'); const canVar = CAT.variantsFor(def); const isText = v.kind === 'text' || v.kind === 'button' || v.kind === 'image';
+    $('#dlgTileH').textContent = v.title || def.label;
+    $('#dlgTileBody').innerHTML = `
+      <div class="field"><label>${esc(t('lbl.vizTitle'))}</label><input class="ctl" data-tk="title" value="${esc(v.title)}" placeholder="${esc(def.label)}"></div>
+      <div class="grid2">
+        <div class="field"><label>${esc(t('lbl.priority'))}</label><select class="ctl" data-tk="priority">${opt(['', 'must', 'should', 'could'], v.priority || '', { '': t('opt.pri.none'), must: t('opt.pri.must'), should: t('opt.pri.should'), could: t('opt.pri.could') })}</select></div>
+        <div class="field"><label>${esc(t('lbl.status'))}</label><select class="ctl" data-tk="status">${opt(['open', 'agreed', 'approved'], v.status || 'open', { open: t('opt.status.open'), agreed: t('opt.status.agreed'), approved: t('opt.status.approved') })}</select></div>
+      </div>
+      <label class="toggle"><input type="checkbox" data-tkb="openQuestion" ${v.openQuestion ? 'checked' : ''}> ${esc(t('lbl.openQuestion'))}</label>
+      <div class="field"><label>${esc(t('lbl.notes'))}</label><textarea class="ctl big" data-tk="notes" placeholder="${esc(t('ph.notes'))}">${esc(v.notes || '')}</textarea></div>
+      ${isText ? '' : `<h3>${esc(t('sec.behaviour'))}</h3>
+      ${hasCat ? `<label class="toggle"><input type="checkbox" data-ti="drillDown" ${it.drillDown ? 'checked' : ''}> ${esc(t('lbl.drillDown'))}</label>` : ''}
+      <label class="toggle"><input type="checkbox" data-ti="crossFilter" ${it.crossFilter === false ? '' : 'checked'}> ${esc(t('lbl.crossFilter'))}</label>
+      <div class="field"><label>${esc(t('lbl.drillThrough'))}</label><select class="ctl" data-tk="link">${links}</select></div>`}
+      ${canVar ? `<h3>${esc(t('sec.variants'))}</h3>
+      <label class="toggle"><input type="checkbox" data-ta="smallMultiples" ${an.smallMultiples ? 'checked' : ''}> ${esc(t('lbl.smallMultiples'))}</label>
+      <label class="toggle"><input type="checkbox" data-ta="fieldParam" ${an.fieldParam ? 'checked' : ''}> ${esc(t('lbl.fieldParam'))}</label>
+      <div class="field" ${an.fieldParam ? '' : 'hidden'} data-fpname><label>${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-ta="fieldParamName" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div>` : ''}`;
+    const body = $('#dlgTileBody');
+    const setAn = (key, val) => { const a = v.analysis = v.analysis || {}; if (val === '' || val === null || val === undefined || val === false) delete a[key]; else a[key] = val; };
+    $$('[data-tk]', body).forEach(x => { const f = () => { v[x.dataset.tk] = x.value; persist(); }; x.addEventListener('input', f); x.addEventListener('change', f); });
+    $$('[data-tkb]', body).forEach(x => x.addEventListener('change', () => { v[x.dataset.tkb] = x.checked; persist(); }));
+    $$('[data-ti]', body).forEach(x => x.addEventListener('change', () => { const o = v.interaction = v.interaction || {}; if (x.dataset.ti === 'crossFilter') { if (x.checked) delete o.crossFilter; else o.crossFilter = false; } else { if (x.checked) o[x.dataset.ti] = true; else delete o[x.dataset.ti]; } if (!Object.keys(o).length) delete v.interaction; persist(); }));
+    $$('[data-ta]', body).forEach(x => x.addEventListener('change', () => { if (x.type === 'checkbox') { setAn(x.dataset.ta, x.checked); if (x.dataset.ta === 'fieldParam') { const r = $('[data-fpname]', body); if (r) r.hidden = !x.checked; } } else setAn(x.dataset.ta, x.value); persist(); }));
+    const dlg = $('#dlgTile'); mark();
+    dlg.onclose = () => { dlg.onclose = null; commit({ noUndo: true }); };
+    dlg.showModal();
+  }
+  $('#dlgTileClose').onclick = () => $('#dlgTile').close();
   function bindInspector(n) {
     const b = $('#btnPickType'); if (b) b.onclick = openCatalog;
     $$('[data-ins]', insEl).forEach(x => x.onclick = () => { if (x.dataset.ins === 'rm') removeLeaf(n.id); else { n.visual = null; commit(); } });
@@ -774,6 +811,7 @@
     if (tgt && tgt.matches && tgt.matches('input,textarea,select')) { if (e.key === 'Escape' && tgt.blur) tgt.blur(); return; }
     if (e.key === 'Escape') { if (document.body.classList.contains('present')) togglePresent(false); else { sel = null; render(); } }
     else if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey && !e.altKey) togglePresent();
+    else if (e.key.toLowerCase() === 'n' && sel && !e.ctrlKey && !e.metaKey && !e.altKey) { const hit = findNode(sel); if (hit && hit.node.visual) openTileDialog(sel); }
     else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) { e.preventDefault(); redo(); }
     else if ((e.key === 'Delete' || e.key === 'Backspace') && sel) { const n = findNode(sel).node; if (n.visual) { n.visual = null; commit(); toast(t('toast.tileCleared')); } else removeLeaf(sel); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }

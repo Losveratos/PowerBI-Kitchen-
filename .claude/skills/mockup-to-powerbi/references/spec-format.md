@@ -681,6 +681,29 @@ zweite Wahrheit behandeln. Maßgeblich ist `mockup-spec.json`.
 Datei fehlt, auf Wunsch englisch (`--lang en`), und macht daraus eine PowerPoint
 — Details im Skill-Schritt „Doku und PowerPoint".
 
+## `visuals[].interaction` (Tool 0.4.2)
+
+Verhalten der Kachel, im Tool über das Kachel-Fenster (Button „Notiz & Einstellungen", Taste N) gesetzt:
+
+```json
+"interaction": {
+  "drillDown": true,
+  "crossFilter": false,
+  "drillThrough": { "pageId": "bne8qqd", "pageName": "Detail", "field": "DimRegion.Region" }
+}
+```
+
+- `drillDown` (Vorgabe `false`): Hierarchie in der Kachel aufklappbar; im Bericht Drill-Modus des Visuals
+  erlauben, die Kategorie-Rolle trägt dann mehrere Ebenen.
+- `crossFilter` (Vorgabe `true`): `false` heißt, ein Klick auf diese Kachel filtert die anderen Kacheln der
+  Seite nicht (Interaktionen im Bericht auf „Keine" stellen).
+- `drillThrough`: identisch mit `links[]` (Drill-through auf die Zielseite mit `field` als Drill-Feld), hier
+  nur zusätzlich je Kachel notiert; `null`, wenn kein Ziel gesetzt ist. Buttons führen Navigation, kein
+  Drill-through.
+
+Der Agent-Brief fasst das je Kachel als Zeile „Verhalten: Drill-down · kein Cross-Filter · Drill-through → Seite"
+zusammen. Fehlt der Block (ältere Specs), gelten die Vorgaben.
+
 ## `page-<Index>-<Seitenslug>.png` (Tool-Ausgabe, ab v3)
 
 Wählt der Mensch im Export „Alle Dateien", legt das Tool je Seite ein
