@@ -663,6 +663,7 @@
   $('#catBody').addEventListener('dragstart', e => { const b = e.target.closest('[data-kind]'); if (!b) return; e.dataTransfer.setData('application/mk-kind', b.dataset.kind); dlgCat.close(); });
 
   // ------------------------------------------------------------------ Vorlagen-Dialog
+  $('#btnNew').onclick = () => { const n = S.pages.reduce((a, p) => a + leaves(p.layout).filter(l => l.visual).length, 0); if ((n || S.pages.length > 1) && !confirm(t('ask.newReplace', { n, p: S.pages.length }))) return; window.MK.reset(); toast(t('toast.newProject')); };
   $('#btnTemplates').onclick = () => { $('#tplGrid').innerHTML = CAT.templates.map(tp => `<div class="tpl" data-tpl="${tp.id}"><div class="pv">${templateSvg(tp)}</div><b>${esc(tp.label)}</b><small>${esc(tp.desc)}</small></div>`).join(''); $('#dlgTemplates').showModal(); };
   $('#tplGrid').addEventListener('click', e => { const el = e.target.closest('[data-tpl]'); if (!el) return; applyTemplate(el.dataset.tpl); $('#dlgTemplates').close(); });
   function templateSvg(tp) {
