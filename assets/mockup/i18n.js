@@ -181,7 +181,7 @@
 
     canvas: {
       emptyTile: 'Leere Kachel', emptyHint: 'Visual wählen oder Feld ablegen', pageTitle: 'Seitentitel',
-      filter: 'Filter', dropField: '+ Feld hierher ziehen', dropFieldRole: 'Feld hierher ziehen',
+      filter: 'Filter', dropField: '+ Feld hierher ziehen', dropFieldRole: 'Feld hierher ziehen', orCreate: 'oder', createHere: 'neu anlegen', createHereTip: 'Kennzahl oder Dimension, die es im Modell noch nicht gibt, hier anlegen und direkt an diese Rolle binden',
       note: 'Notiz', noteOpen: 'Notiz (offene Frage)', openQuestion: 'Offene Frage', openQuestionEmpty: 'Offene Frage (noch ohne Text)',
       reqEmpty: 'Pflichtrolle leer: {roles}', priority: 'Priorität {p}', status: 'Status: {s}',
       info: '{w} × {h} px · Inhalt {cw} × {ch} · Skalierung ×{k} · Zoom {z} %',
@@ -626,7 +626,7 @@
 
     canvas: {
       emptyTile: 'Empty tile', emptyHint: 'Choose a visual or drop a field', pageTitle: 'Page title',
-      filter: 'Filters', dropField: '+ Drag a field here', dropFieldRole: 'Drag a field here',
+      filter: 'Filters', dropField: '+ Drag a field here', dropFieldRole: 'Drag a field here', orCreate: 'or', createHere: 'create new', createHereTip: 'Create a measure or dimension that does not exist in the model yet and bind it to this role right away',
       note: 'Note', noteOpen: 'Note (open question)', openQuestion: 'Open question', openQuestionEmpty: 'Open question (no text yet)',
       reqEmpty: 'Required role empty: {roles}', priority: 'Priority {p}', status: 'Status: {s}',
       info: '{w} × {h} px · content {cw} × {ch} · scale ×{k} · zoom {z} %',

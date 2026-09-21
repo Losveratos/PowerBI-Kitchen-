@@ -435,7 +435,7 @@
       const list = v.roles[r.key] || [];
       const chips = list.map((x, i) => `<span class="fchip ${x.kind === 'measure' ? 'm' : 'c'}${x.isNew ? ' new' : ''}" draggable="false"><span class="ico">${x.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(x.name)}</span><button class="x" data-rmrole="${r.key}" data-i="${i}" title="${esc(t('tip.remove'))}">×</button></span>`).join('');
       const kindLbl = r.kind === 'any' ? t('kind.any') : r.kind === 'measure' ? t('kind.measure') : t('kind.column');
-      return `<div class="role" data-role="${r.key}"><div class="rl">${esc(r.label)}${r.req ? '<span class="req">*</span>' : ''}<span class="k">${esc(kindLbl)} · ${esc(t('canvas.maxN', { n: r.max }))}</span></div>${chips ? `<div class="chips">${chips}</div>` : ''}${list.length < r.max ? `<div class="drop">${esc(t('canvas.dropFieldRole'))}</div>` : ''}</div>`;
+      return `<div class="role" data-role="${r.key}"><div class="rl">${esc(r.label)}${r.req ? '<span class="req">*</span>' : ''}<span class="k">${esc(kindLbl)} · ${esc(t('canvas.maxN', { n: r.max }))}</span></div>${chips ? `<div class="chips">${chips}</div>` : ''}${list.length < r.max ? `<div class="drop">${esc(t('canvas.dropFieldRole'))} ${esc(t('canvas.orCreate'))} <button type="button" class="lnk" data-newfield="${r.key}" data-newkind="${r.kind}" title="${esc(t('canvas.createHereTip'))}">+ ${esc(t('canvas.createHere'))}</button></div>` : ''}</div>`;
     }).join('');
     const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
     const an = analysisOf(v); const a = v.analysis || {};
@@ -557,6 +557,7 @@
     });
     $$('[data-ank]', insEl).forEach(x => x.addEventListener('change', () => { const kinds = $$('[data-ank]', insEl).filter(c => c.checked).map(c => c.dataset.ank); setAn('deltaKind', kinds.length === 2 ? '' : kinds); commit(); }));
     $$('[data-rmrole]', insEl).forEach(x => x.onclick = () => removeField(n.id, x.dataset.rmrole, +x.dataset.i));
+    $$('[data-newfield]', insEl).forEach(b => b.onclick = e => { e.stopPropagation(); openNewFieldFor(n.id, b.dataset.newfield, b.dataset.newkind); });
     $$('.role .fchip', insEl).forEach(chip => chip.addEventListener('dblclick', () => { const key = chip.closest('.role').dataset.role; const i = +chip.querySelector('[data-i]').dataset.i; const f = n.visual.roles[key][i]; if (f) openFieldMeta(f); }));
     $$('.role', insEl).forEach(r => {
       r.addEventListener('dragover', e => { if (e.dataTransfer.types.includes('application/mk-field')) { e.preventDefault(); r.classList.add('over'); } });
@@ -792,14 +793,25 @@
   $('#modelSearch').addEventListener('input', renderModel); $('#onlyUsed').addEventListener('change', renderModel);
   // Standardtabelle: Measures in die Measure-Tabelle (erste mit Measures, sonst „_Measures"), Dimensionen in die erste Dimensionstabelle
   const defaultTableFor = kind => { const tb = kind === 'measure' ? S.model.tables.find(x => x.measures.length) : S.model.tables.find(x => x.columns.length && !x.measures.length); return tb ? tb.name : (kind === 'measure' ? '_Measures' : 'DimNeu'); };
-  $('#btnNewMeasure').onclick = () => { $('#nmName').value = ''; $('#nmDesc').value = ''; $('#nmOpen').value = ''; $('#nmTable').value = defaultTableFor($('#nmKind').value); $('#dlgNewMeasure').showModal(); $('#nmName').focus(); };
+  // Neues Feld direkt aus einer Datenrolle heraus anlegen (erster Workshop: Kennzahlen fehlen oft noch) und sofort binden
+  let pendingNewField = null;
+  function openNewFieldFor(tileId, roleKey, roleKind) {
+    pendingNewField = { tileId, roleKey };
+    $('#nmKind').value = roleKind === 'column' ? 'column' : 'measure';
+    $('#nmName').value = ''; $('#nmDesc').value = ''; $('#nmOpen').value = ''; $('#nmTable').value = defaultTableFor($('#nmKind').value);
+    $('#dlgNewMeasure').showModal(); $('#nmName').focus();
+  }
+  $('#btnNewMeasure').onclick = () => { pendingNewField = null; $('#nmName').value = ''; $('#nmDesc').value = ''; $('#nmOpen').value = ''; $('#nmTable').value = defaultTableFor($('#nmKind').value); $('#dlgNewMeasure').showModal(); $('#nmName').focus(); };
   $('#nmKind').addEventListener('change', () => { $('#nmTable').value = defaultTableFor($('#nmKind').value); });
   $('#nmOk').onclick = () => {
     const name = $('#nmName').value.trim(); if (!name) return $('#nmName').focus();
     const kind = $('#nmKind').value;
-    S.newFields.push({ id: uid(), name, table: $('#nmTable').value.trim() || (kind === 'measure' ? '_Measures' : 'DimNeu'), kind, desc: $('#nmDesc').value.trim(), open: $('#nmOpen').value.trim(), unit: $('#nmUnit').value.trim(), target: $('#nmTarget').value.trim(), owner: $('#nmOwner').value.trim(), source: $('#nmSource').value.trim(), isNew: true, type: kind === 'measure' ? 'measure' : '' });
+    const nf = { id: uid(), name, table: $('#nmTable').value.trim() || (kind === 'measure' ? '_Measures' : 'DimNeu'), kind, desc: $('#nmDesc').value.trim(), open: $('#nmOpen').value.trim(), unit: $('#nmUnit').value.trim(), target: $('#nmTarget').value.trim(), owner: $('#nmOwner').value.trim(), source: $('#nmSource').value.trim(), isNew: true, type: kind === 'measure' ? 'measure' : '' };
+    S.newFields.push(nf);
     ['nmUnit', 'nmTarget', 'nmOwner', 'nmSource'].forEach(id => { $('#' + id).value = ''; });
-    $('#dlgNewMeasure').close(); commit(); toast(t('toast.fieldCreated', { n: name }));
+    $('#dlgNewMeasure').close();
+    if (pendingNewField && findNode(pendingNewField.tileId)) { const { tileId, roleKey } = pendingNewField; pendingNewField = null; sel = tileId; assignField(tileId, { table: nf.table, name: nf.name, kind: nf.kind, type: nf.type, isNew: true }, roleKey); toast(t('toast.fieldCreated', { n: name })); return; }
+    commit(); toast(t('toast.fieldCreated', { n: name }));
   };
 
   // ------------------------------------------------------------------ Zoom, Toolbar, Tastatur
