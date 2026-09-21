@@ -23,7 +23,7 @@ def main() -> None:
             raise SystemExit(f"{rel} enthält '</script>' und kann nicht inline eingebettet werden")
         return f"<script>/* {rel} */\n{js}\n</script>"
 
-    out, n = re.subn(r'<script src="(assets/mockup/[^"]+\.js)"></script>', inline, html)
+    out, n = re.subn(r'<script src="(assets/mockup/[^"?]+\.js)(?:\?v=[^"]*)?"></script>', inline, html)
     if n == 0:
         raise SystemExit("Keine Script-Tags gefunden, Vorlage geändert?")
     out = out.replace("<title>MockupKitchen · Power-BI-Seiten skizzieren</title>",
