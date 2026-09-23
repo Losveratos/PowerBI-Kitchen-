@@ -6,7 +6,7 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const MK = window.MK, CAT = window.MK_CATALOG, I18N = window.MK_I18N;
-  const TOOL = 'MockupKitchen byDatenWG', VER = '0.3', SPEC_VERSION = 3;
+  const TOOL = 'MockupKitchen byDatenWG', VER = '0.4', SPEC_VERSION = 3;
   const fieldRef = f => `${f.table}.${f.name}`;
   const slug = s => String(s || 'seite').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'Seite';
   const today = () => new Date().toISOString().slice(0, 10);
