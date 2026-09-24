@@ -23,6 +23,14 @@ Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau i
   `CAT.rolesFor(def, v)`. Issues `SM_NO_FIELD`, `FIELDPARAM_FEW`.
 - **Native Klassiker (v0.4.1):** `ncolumn`, `nbar`, `nline`, `ndonut` (Gruppe „Native Klassiker & Sonstige") ohne
   Szenario-Notation (`plain: true` → Skizze mit Szenario AC), Rollen Kategorie/Legende/Werte, Donut-Skizze `S.donut`.
+- **Typografie, Filter, Barrierefreiheit (v0.4.4):** zentrale Schriftgrößen im Design-Reiter (`design.typo {scale,title,sub,chart}`,
+  Basis 1280 px, skaliert mit der Seite; CSS-Variablen `--fs-title/--fs-sub`, Skizzen-Option `fontScale`/`fonts`), je Kachel
+  übersteuerbar (`visual.typo.scale`, Kachel-Fenster). Filterbereich: Überschrift auto/immer/nie mit eigenem Titel, Freitext,
+  Slicer-Art je Feld (dropdown, list, tile, between, date, search) mit Glyphe auf der Seite; Export `zones.filter.heading/text`,
+  `slicers[].type`, `design.typography`, `visuals[].typography`. Reiter „Rahmen" heißt „Zonen". Modul `a11y.js`
+  (`MK_A11Y.check/summary/guide/renderList/renderGuide`, Node-Test `a11y-test.js`): Kontrast, Schriftgrößen, Kachelgrößen,
+  fehlende Titel, Dichte, Lesereihenfolge, Navigation, Slicer-Namen; Ergebnis im Design-Reiter und als `A11Y_*`-Issues im
+  Export. Neue Projekte starten in Full HD (1920 × 1080).
 - **Layout und Zonen (v0.4.3):** gleiche Kachelbreiten (Pixelrest an den Rand), Nachbarn verbinden über „+" im
   Zwischenraum (`mergeGutter`), Zahnrad je Zone und Doppelklick auf Kopfband/Filter/Fußleiste öffnen den passenden
   Abschnitt im Reiter „Rahmen" (`openFrameSection`), Seitennavigation im Kopfband, in der Fußleiste oder aus

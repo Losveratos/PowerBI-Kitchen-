@@ -41,14 +41,14 @@
 
     panel: { model: 'Datenmodell' },
     drop: { tmdl: 'TMDL-Ordner oder .tmdl-Dateien hierher ziehen<br><span class="mono">tables/*.tmdl</span>' },
-    tab: { el: 'Kachel', page: 'Seite', report: 'Bericht', chrome: 'Rahmen', design: 'Design' },
+    tab: { el: 'Kachel', page: 'Seite', report: 'Bericht', chrome: 'Zonen', design: 'Design' },
     kind: { measure: 'Measure', column: 'Spalte', any: 'Feld' },
     engine: { ck: 'ChartKitchen', native: 'Nativ', deneb: 'Deneb', custom: 'Custom Visual byDatenWG' },
 
     sec: {
       canvas: 'Canvas (alle Seiten)', grid: 'Raster', header: 'Kopfband', nav: 'Linke Nav-Leiste', filter: 'Filter / Slicer',
       footer: 'Fußleiste', roles: 'Datenrollen', rolesHint: '(Doppelklick auf Feld = Steckbrief)', analysis: 'Analyse (wandert in die Spec)',
-      workshop: 'Workshop', quickstart: 'Schnellstart', variants: 'Darstellung', behaviour: 'Verhalten',
+      workshop: 'Workshop', quickstart: 'Schnellstart', variants: 'Darstellung', behaviour: 'Verhalten', typo: 'Typografie', typoDetails: 'Typografie (Details)', a11y: 'Barrierefreiheit', a11yGuide: 'Kurzleitfaden',
     },
 
     lbl: {
@@ -58,7 +58,7 @@
       thisPage: 'Diese Seite', pageQuestion: 'Fragestellung / Kernbotschaft der Seite', pageNotes: 'Zweck / Notizen zur Seite',
       spacing: 'Abstände (px, skalieren mit)', defScenario: 'Standard-Szenario neuer Charts',
       headerOn: 'Kopfband anzeigen', title: 'Titel', subtitle: 'Untertitel', navAuto: 'Navigation aus den Seitennamen', backHome: '← Knowledge Kitchen', navOn: 'Seitennavigation im Kopfband anzeigen', navBarOn: 'Nav-Leiste anzeigen (App-Stil)', navPos: 'Seitennavigation',
-      tileWindow: 'Notiz & Einstellungen', drillDown: 'Drill-down in der Kachel (Hierarchie aufklappen)', crossFilter: 'Klick filtert andere Kacheln (Cross-Filter)', drillThrough: 'Drill-through: Zielseite',
+      tileWindow: 'Notiz & Einstellungen', tileFont: 'Schriftgröße dieser Kachel', slicerType: 'Slicer-Art', filterText: 'Text im Filterbereich (optional)', drillDown: 'Drill-down in der Kachel (Hierarchie aufklappen)', crossFilter: 'Klick filtert andere Kacheln (Cross-Filter)', drillThrough: 'Drill-through: Zielseite',
       smallMultiples: 'Small Multiples (je Kategorie ein Mini-Chart)', smHint: 'Aufteilungsfeld in die Rolle „Small Multiples nach" ziehen.',
       fieldParam: 'Achse per Feldparameter (umschaltbare Felder)', fieldParamName: 'Name des Feldparameters', fieldParamPh: 'z. B. Achse',
       fieldParamHint: 'Alle Felder in der Achsen-Rolle werden Optionen des Feldparameters; ein Slicer im Bericht schaltet die Achse um.',
@@ -81,6 +81,7 @@
     },
 
     ph: {
+      fhText: 'Filter', filterText: 'z. B. Hinweis: Zeitraum wählen, dann Region',
       searchField: 'Feld suchen …', searchType: 'Typ suchen …', audience: 'z. B. Geschäftsführung, Vertriebsleitung',
       purpose: 'Welche Frage beantwortet der Bericht?', decision: 'Was wird anhand des Berichts entschieden?',
       version: '0.1', dataDate: 'täglich 6:00, Stand T-1', participants: 'Namen, Rollen',
@@ -101,7 +102,9 @@
       uiScale: 'Schriften und Abstände skalieren automatisch mit der Canvas-Breite.',
       margin: 'Rand', gutter: 'Zwischenraum', pad: 'Kachel innen', height: 'Höhe', width: 'Breite', logo: 'Logo', position: 'Position',
       splitRoot: 'Setzt den Inhaltsbereich dieser Seite auf ein neues Raster (Zeilen × Spalten). Bestehende Visuals werden der Reihe nach wieder eingesetzt.',
-      chrome: 'Rahmen gilt für alle Seiten.',
+      chrome: 'Kopfband, Nav-Leiste, Filter und Fußleiste gelten für alle Seiten. Zahnrad oder Doppelklick auf eine Zone springt hierher.',
+      typo: 'Basisgrößen in px bei 1280 px Seitenbreite, sie skalieren mit der Seite. Je Kachel im Kachel-Fenster übersteuerbar.', tyScale: 'Skalierung gesamt', tyTitle: 'Kacheltitel', tySub: 'Untertitel', tyChart: 'Diagrammbeschriftung',
+      fhShow: 'Überschrift', fhText: 'Eigener Titel', a11yPending: 'Prüfung wird geladen …',
       filter: 'Felder aus dem Modell direkt aufs Panel ziehen, um Slicer anzulegen. Beim Burger-Menü entsteht im Export ein Bookmark-Paar „Filter öffnen / schließen" plus Button im Kopfband. Vorauswahl je Slicer eintragen, damit „mein Excel sagt was anderes" gar nicht erst entsteht.',
       design: 'Gestaltung gilt für alle Seiten und wandert als Design-Entscheidung in den Export.',
       theme: 'Farben und Schriften für Power BI kommen aus dem Theme (Design-Framework-Skill). Hier geht es um Struktur: Ecken, Flächen, Kopfband.',
@@ -129,6 +132,9 @@
       radius: { r0: 'eckig', r4: 'leicht gerundet (4 px)', r8: 'gerundet (8 px)', r12: 'stark gerundet (12 px)' },
       tile: { border: 'weiß mit feinem Rahmen', shadow: 'weiß mit weichem Schatten', flat: 'flach, ohne Rahmen' },
       navPos: { header: 'im Kopfband', footer: 'in der Fußleiste', off: 'aus' },
+      fh: { auto: 'Überschrift solange leer', on: 'Überschrift immer', off: 'keine Überschrift' },
+      slicer: { dropdown: 'Dropdown', list: 'Liste', tile: 'Kacheln', between: 'Bereich (von – bis)', date: 'Datum', search: 'Suche' },
+      tileFont: { auto: 'wie Design' },
       bg: { light: 'hell strukturiert (#F4F4F1)', soft: 'kühl strukturiert (#EEF1F5)', white: 'weiß', custom: 'eigene Farbe …' },
       hdr: { light: 'hell (weiß, dunkle Schrift)', dark: 'dunkel (Ink)', accent: 'Akzentfarbe', custom: 'eigene Farben …' },
       pal: { teal: 'Teal / Rot (ChartKitchen-Standard)', ibcs: 'Grün / Rot (klassisch)' },
@@ -492,14 +498,14 @@
 
     panel: { model: 'Data model' },
     drop: { tmdl: 'Drop a TMDL folder or .tmdl files here<br><span class="mono">tables/*.tmdl</span>' },
-    tab: { el: 'Tile', page: 'Page', report: 'Report', chrome: 'Frame', design: 'Design' },
+    tab: { el: 'Tile', page: 'Page', report: 'Report', chrome: 'Zones', design: 'Design' },
     kind: { measure: 'Measure', column: 'Column', any: 'Field' },
     engine: { ck: 'ChartKitchen', native: 'Native', deneb: 'Deneb', custom: 'Custom visual byDatenWG' },
 
     sec: {
       canvas: 'Canvas (all pages)', grid: 'Grid', header: 'Header band', nav: 'Left nav bar', filter: 'Filters / slicers',
       footer: 'Footer', roles: 'Data roles', rolesHint: '(double-click a field for the fact sheet)', analysis: 'Analysis (goes into the spec)',
-      workshop: 'Workshop', quickstart: 'Quick start', variants: 'Presentation', behaviour: 'Behaviour',
+      workshop: 'Workshop', quickstart: 'Quick start', variants: 'Presentation', behaviour: 'Behaviour', typo: 'Typography', typoDetails: 'Typography (details)', a11y: 'Accessibility', a11yGuide: 'Quick guide',
     },
 
     lbl: {
@@ -509,7 +515,7 @@
       thisPage: 'This page', pageQuestion: 'Question / key message of the page', pageNotes: 'Purpose / notes on the page',
       spacing: 'Spacing (px, scales along)', defScenario: 'Default scenario for new charts',
       headerOn: 'Show header band', title: 'Title', subtitle: 'Subtitle', navAuto: 'Navigation from the page names', backHome: '← Knowledge Kitchen', navOn: 'Show page navigation in the header band', navBarOn: 'Show nav bar (app style)', navPos: 'Page navigation',
-      tileWindow: 'Note & settings', drillDown: 'Drill-down inside the tile (expand hierarchy)', crossFilter: 'Click filters other tiles (cross-filter)', drillThrough: 'Drill-through: target page',
+      tileWindow: 'Note & settings', tileFont: 'Font size of this tile', slicerType: 'Slicer type', filterText: 'Text in the filter area (optional)', drillDown: 'Drill-down inside the tile (expand hierarchy)', crossFilter: 'Click filters other tiles (cross-filter)', drillThrough: 'Drill-through: target page',
       smallMultiples: 'Small multiples (one mini chart per category)', smHint: 'Drag the split field into the “Small multiples by” role.',
       fieldParam: 'Axis via field parameter (switchable fields)', fieldParamName: 'Field parameter name', fieldParamPh: 'e.g. Axis',
       fieldParamHint: 'All fields in the axis role become options of the field parameter; a slicer in the report switches the axis.',
@@ -532,6 +538,7 @@
     },
 
     ph: {
+      fhText: 'Filters', filterText: 'e.g. Pick the period first, then the region',
       searchField: 'Search field …', searchType: 'Search type …', audience: 'e.g. executive board, sales management',
       purpose: 'Which question does the report answer?', decision: 'What is decided based on the report?',
       version: '0.1', dataDate: 'daily 6:00, as of T-1', participants: 'Names, roles',
@@ -552,7 +559,9 @@
       uiScale: 'Fonts and spacing scale automatically with the canvas width.',
       margin: 'Margin', gutter: 'Gutter', pad: 'Tile padding', height: 'Height', width: 'Width', logo: 'Logo', position: 'Position',
       splitRoot: 'Resets the content area of this page to a new grid (rows × columns). Existing visuals are placed back in order.',
-      chrome: 'The frame applies to all pages.',
+      chrome: 'Header band, nav bar, filters and footer apply to all pages. The gear icon or a double-click on a zone jumps here.',
+      typo: 'Base sizes in px at 1280 px page width, they scale with the page. Override per tile in the tile window.', tyScale: 'Overall scale', tyTitle: 'Tile title', tySub: 'Subtitle', tyChart: 'Chart labels',
+      fhShow: 'Heading', fhText: 'Custom title', a11yPending: 'Loading check …',
       filter: 'Drag fields from the model straight onto the panel to create slicers. With the burger menu the export gets a bookmark pair “Open / close filters” plus a button in the header band. Enter a preselection per slicer so that “my Excel says something else” never comes up.',
       design: 'The design applies to all pages and travels into the export as a design decision.',
       theme: 'Colours and fonts for Power BI come from the theme (design framework skill). This is about structure: corners, surfaces, header band.',
@@ -580,6 +589,9 @@
       radius: { r0: 'square', r4: 'slightly rounded (4 px)', r8: 'rounded (8 px)', r12: 'strongly rounded (12 px)' },
       tile: { border: 'white with a fine border', shadow: 'white with a soft shadow', flat: 'flat, no border' },
       navPos: { header: 'in the header band', footer: 'in the footer', off: 'off' },
+      fh: { auto: 'Heading while empty', on: 'Heading always', off: 'No heading' },
+      slicer: { dropdown: 'Dropdown', list: 'List', tile: 'Tiles', between: 'Range (from – to)', date: 'Date', search: 'Search' },
+      tileFont: { auto: 'as in design' },
       bg: { light: 'light textured (#F4F4F1)', soft: 'cool textured (#EEF1F5)', white: 'white', custom: 'custom colour …' },
       hdr: { light: 'light (white, dark type)', dark: 'dark (ink)', accent: 'accent colour', custom: 'custom colours …' },
       pal: { teal: 'Teal / red (ChartKitchen default)', ibcs: 'Green / red (classic)' },

@@ -421,7 +421,8 @@
 
     /* Kopfzeile */
     if (headH) {
-      var tfs = 12 * k, sfs = 9.5 * k;
+      var ty = (mk().typo ? mk().typo() : { scale: 1, title: 12, sub: 9.5, chart: 9 }), tfk = ty.scale * ((v.typo && v.typo.scale) || 1);
+      var tfs = ty.title * tfk * k, sfs = ty.sub * tfk * k;
       var tx0 = r.x + 1 + ip + 9 * k;
       var reserve = (hasBadge || hasNote) ? 58 * k : 12 * k;
       var availW = Math.max(10, r.x + r.w - 1 - ip - reserve - tx0);
@@ -445,6 +446,7 @@
       scenario: def.plain ? 'AC' : v.scenario, seed: (seedOf(leaf.node.id) + o.seedBase) % 1000,
       label: v.sub || '', scale: k, lang: ctx.S.lang,
       palette: ctx.palette, ink: ctx.dark ? '#E6E6E6' : (ctx.d.ink || '#404040'), dark: ctx.dark, paper: ctx.tileBg,
+      fontScale: (mk().typo ? mk().typo().scale : 1) * ((v.typo && v.typo.scale) || 1), fonts: { label: mk().typo ? mk().typo().chart : 9 },
       antiPattern: !!(mk().anti && mk().anti[v.kind])
     };
     try {

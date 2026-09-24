@@ -161,6 +161,11 @@ body.present .zcfg{display:none}
 .zone.filter h4{margin:0 0 calc(8px * var(--ui));font-size:calc(11px * var(--ui));letter-spacing:.06em;text-transform:uppercase;color:#6B7280}
 .zone.filter .sl{border:1px solid #D9D6CC;background:#fff;border-radius:4px;padding:calc(5px * var(--ui)) calc(7px * var(--ui));font-size:calc(10.5px * var(--ui));margin-bottom:calc(7px * var(--ui));display:flex;justify-content:space-between;color:#374151;gap:6px}
 .zone.filter .sl .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.zone.filter .sl .ty{color:#9CA3AF;margin-right:calc(5px * var(--ui));flex:none}
+.zone.filter .txt{margin:0 0 calc(8px * var(--ui));font-size:calc(9.5px * var(--ui));color:#6B7280;line-height:1.35;white-space:normal}
+.zone.filter.top .txt{margin:0;flex:none;max-width:calc(220px * var(--ui));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+details.sub{border:1px solid var(--line);border-radius:var(--r);padding:6px 10px;margin-top:10px}details.sub>summary{cursor:pointer;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}details.sub[open]>summary{margin-bottom:6px}
+#a11yPanel ul{margin:0;padding-left:0;list-style:none}#a11yPanel li{font-size:11.5px;padding:4px 0 4px 16px;position:relative;border-bottom:1px solid var(--line)}#a11yPanel li::before{content:'';position:absolute;left:2px;top:9px;width:8px;height:8px;border-radius:50%;background:#9CA3AF}#a11yPanel li.a11y-err::before{background:var(--bad)}#a11yPanel li.a11y-warn::before{background:#D69E2E}#a11yPanel li.a11y-info::before{background:var(--sel)}#a11yPanel small{display:block;color:var(--ink-mute)}#a11yGuide details{margin:4px 0}#a11yGuide summary{font-size:11.5px;font-weight:600;cursor:pointer}#a11yGuide p{font-size:11.5px;margin:4px 0 8px;color:var(--ink-soft)}
 .zone.filter .sl .x{color:#9CA3AF;cursor:pointer}
 .zone.filter .sl .x:hover{color:var(--bad)}
 .zone.filter .sl.ph{border-style:dashed;color:#9CA3AF;justify-content:center}
@@ -180,8 +185,8 @@ body.present .zcfg{display:none}
 .tile.over{background:var(--sel-soft);border-color:var(--sel)}
 .tile.dragging{opacity:.4}
 .tile .t-head{padding:calc(6px * var(--ui)) calc(9px * var(--ui)) calc(2px * var(--ui));display:flex;align-items:baseline;gap:calc(6px * var(--ui));min-height:0;padding-right:calc(60px * var(--ui))}
-.tile .t-title{font-weight:600;font-size:calc(12px * var(--ui));color:var(--ink-page,#0F1E2E);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tile .t-sub{font-size:calc(9.5px * var(--ui));color:var(--ink-page,#6B7280);opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .t-title{font-weight:600;font-size:calc(var(--fs-title,12px) * var(--ui) * var(--tf,1));color:var(--ink-page,#0F1E2E);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .t-sub{font-size:calc(var(--fs-sub,9.5px) * var(--ui) * var(--tf,1));color:var(--ink-page,#6B7280);opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tile .t-body{flex:1;min-height:0;position:relative;padding:2px calc(8px * var(--ui)) 4px}
 .tile .t-body svg{width:100%;height:100%;display:block}
 .tile .t-foot{padding:0 calc(8px * var(--ui)) calc(5px * var(--ui));display:flex;flex-wrap:wrap;gap:3px;min-height:0;overflow:hidden}
@@ -461,6 +466,11 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
           <div><select class="ctl" id="ftSide"><option value="right" data-i18n="opt.filter.right">Panel rechts</option><option value="left" data-i18n="opt.filter.left">Panel links</option><option value="top" data-i18n="opt.filter.top">Leiste oben</option><option value="burger" data-i18n="opt.filter.burger">Burger-Menü (Bookmark)</option></select><p class="hint" data-i18n="hint.position">Position</p></div>
           <div><input class="ctl" type="number" id="ftW" min="48" max="360" step="8"><p class="hint" id="ftWHint">Breite</p></div>
         </div>
+        <div class="grid2">
+          <div><select class="ctl" id="ftHeadShow"><option value="auto" data-i18n="opt.fh.auto">Überschrift solange leer</option><option value="on" data-i18n="opt.fh.on">Überschrift immer</option><option value="off" data-i18n="opt.fh.off">keine Überschrift</option></select><p class="hint" data-i18n="hint.fhShow">Überschrift</p></div>
+          <div><input class="ctl" id="ftHeadText" data-i18n-ph="ph.fhText" placeholder="Filter"><p class="hint" data-i18n="hint.fhText">Eigener Titel</p></div>
+        </div>
+        <div class="field"><label data-i18n="lbl.filterText">Text im Filterbereich (optional)</label><textarea class="ctl" id="ftText" rows="2" data-i18n-ph="ph.filterText" placeholder="z. B. Hinweis: Zeitraum wählen, dann Region"></textarea></div>
         <label class="toggle" id="ftCollapsibleRow"><input type="checkbox" id="ftCollapsible"> <span data-i18n="lbl.filterCollapsible">Panel ausklappbar (Bookmark)</span></label>
         <p class="hint" data-i18n="hint.filter">Felder aus dem Modell direkt aufs Panel ziehen, um Slicer anzulegen. Beim Burger-Menü entsteht im Export ein Bookmark-Paar „Filter öffnen / schließen" plus Button im Kopfband. Vorauswahl je Slicer eintragen, damit „mein Excel sagt was anderes" gar nicht erst entsteht.</p>
         <div id="ftFieldList" style="margin-top:6px"></div>
@@ -498,6 +508,19 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
         <select class="ctl" id="dsPalette"><option value="teal" data-i18n="opt.pal.teal">Teal / Rot (ChartKitchen-Standard)</option><option value="ibcs" data-i18n="opt.pal.ibcs">Grün / Rot (klassisch)</option></select>
       </div>
       <div class="field"><label data-i18n="lbl.accent">Akzentfarbe</label><div class="row"><input type="color" id="dsAccent" value="#C25A2D" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsAccentTxt">#C25A2D</span></div></div>
+      <details class="sub" id="dsTypo"><summary data-i18n="sec.typoDetails">Typografie (Details)</summary>
+        <p class="hint" data-i18n="hint.typo">Basisgrößen in px bei 1280 px Seitenbreite, sie skalieren mit der Seite. Je Kachel im Kachel-Fenster übersteuerbar.</p>
+        <div class="grid2">
+          <div><select class="ctl" id="tyScale"><option value="0.85">85 %</option><option value="1">100 %</option><option value="1.15">115 %</option><option value="1.3">130 %</option><option value="1.5">150 %</option></select><p class="hint" data-i18n="hint.tyScale">Skalierung gesamt</p></div>
+          <div><input class="ctl" type="number" id="tyTitle" min="8" max="24" step="0.5"><p class="hint" data-i18n="hint.tyTitle">Kacheltitel</p></div>
+          <div><input class="ctl" type="number" id="tySub" min="7" max="18" step="0.5"><p class="hint" data-i18n="hint.tySub">Untertitel</p></div>
+          <div><input class="ctl" type="number" id="tyChart" min="6" max="16" step="0.5"><p class="hint" data-i18n="hint.tyChart">Diagrammbeschriftung</p></div>
+        </div>
+      </details>
+      <details class="sub" id="dsA11y" open><summary data-i18n="sec.a11y">Barrierefreiheit</summary>
+        <div id="a11yPanel"><p class="hint" data-i18n="hint.a11yPending">Prüfung wird geladen …</p></div>
+        <details class="sub" style="margin-top:8px"><summary data-i18n="sec.a11yGuide">Kurzleitfaden</summary><div id="a11yGuide"></div></details>
+      </details>
       <label class="toggle off"><input type="checkbox" id="dsDark" disabled> <span data-i18n="lbl.dark">Dark Mode (Backlog)</span></label>
       <p class="hint" data-i18n="hint.theme">Farben und Schriften für Power BI kommen aus dem Theme (Design-Framework-Skill). Hier geht es um Struktur: Ecken, Flächen, Kopfband.</p>
     </div>
@@ -606,11 +629,12 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 <input type="file" id="fileOpen" accept=".json" hidden>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="assets/mockup/i18n.js?v=20260924b"></script>
-<script src="assets/mockup/sketches.js?v=20260924b"></script>
-<script src="assets/mockup/catalog.js?v=20260924b"></script>
-<script src="assets/mockup/app.js?v=20260924b"></script>
-<script src="assets/mockup/render-png.js?v=20260924b"></script>
-<script src="assets/mockup/export.js?v=20260924b"></script>
+<script src="assets/mockup/i18n.js?v=20260924c"></script>
+<script src="assets/mockup/sketches.js?v=20260924c"></script>
+<script src="assets/mockup/catalog.js?v=20260924c"></script>
+<script src="assets/mockup/a11y.js?v=20260924c"></script>
+<script src="assets/mockup/app.js?v=20260924c"></script>
+<script src="assets/mockup/render-png.js?v=20260924c"></script>
+<script src="assets/mockup/export.js?v=20260924c"></script>
 </body>
 </html>

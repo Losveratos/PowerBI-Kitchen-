@@ -62,6 +62,7 @@
             smallMultiples: an.smallMultiples ? { field: (v.roles.multiples || [])[0] ? fieldRef(v.roles.multiples[0]) : null } : null,
             fieldParam: an.fieldParam ? { name: an.fieldParamName || 'Achse', role: 'category', fields: (v.roles.category || []).map(fieldRef) } : null },
           workshop: { priority: v.priority || null, status: v.status || 'open', openQuestion: !!v.openQuestion },
+          typography: v.typo && v.typo.scale ? { scale: v.typo.scale } : null,
           interaction: { drillDown: !!(v.interaction || {}).drillDown, crossFilter: (v.interaction || {}).crossFilter !== false, drillThrough: target && v.kind !== 'button' ? { pageId: target.id, pageName: target.name, field: cat ? fieldRef(cat) : null } : null },
           rect: l.rect, roles, notes: v.notes || '', link: target ? { pageId: target.id, pageName: target.name } : null, warnings: vw,
         };
@@ -76,10 +77,11 @@
     if (z.header) Object.assign(zonesOut.header, { style: d.header, logoPos: c.header.logoPos, title: c.header.title, subtitle: c.header.sub, nav: navNames, navOn: navPos === 'header', navPosition: navPos, navAuto: !!c.header.navAuto, burger: c.filter.on && c.filter.side === 'burger' });
     if (z.nav) zonesOut.nav.pages = S.pages.map(p => p.name);
     if (z.footer) { zonesOut.footer.text = c.footer.text; zonesOut.footer.nav = navPos === 'footer' ? navList : []; zonesOut.footer.navPosition = navPos; }
-    const slicers = (c.filter.fields || []).map(f => Object.assign(fieldOut(f), { default: f.default || null }));
+    const slicers = (c.filter.fields || []).map(f => Object.assign(fieldOut(f), { default: f.default || null, type: f.type || 'dropdown' }));
     if (c.filter.on) {
       const mode = c.filter.side; const fl = zonesOut.filter || {};
-      Object.assign(fl, { mode, side: mode, collapsible: mode === 'burger' ? true : !!c.filter.collapsible, slicers });
+      const fh = c.filter.heading || {}; const headingShown = fh.show === 'on' || (fh.show !== 'off' && !slicers.length) || (fh.show == null && !!fh.text);
+      Object.assign(fl, { mode, side: mode, collapsible: mode === 'burger' ? true : !!c.filter.collapsible, heading: headingShown ? (fh.text || (L === 'en' ? 'Filters' : 'Filter')) : null, text: c.filter.text || null, slicers });
       if (mode === 'burger') Object.assign(fl, { x: S.canvas.w - Math.round(c.filter.w * k), y: z.header ? z.header.h : 0, w: Math.round(c.filter.w * k), h: S.canvas.h - (z.header ? z.header.h : 0) - (z.footer ? z.footer.h : 0), overlay: true, note: T('exp.bm.overlayNote') });
       if (mode === 'burger' || c.filter.collapsible) fl.bookmarks = [{ name: T('exp.bm.open'), showsPanel: true }, { name: T('exp.bm.close'), showsPanel: false }];
       zonesOut.filter = fl;
@@ -96,6 +98,8 @@
     fields.filter(f => f.renameInModel && f.alias).forEach(f => issue('info', 'RENAME_REQUEST', T('exp.issue.renameRequest', { n: f.name, a: f.alias })));
     const newFields = S.newFields.map(f => ({ table: f.table, name: f.name, kind: f.kind, ref: fieldRef(f), description: f.desc || '', unit: f.unit || '', target: f.target || '', owner: f.owner || '', source: f.source || '', openQuestion: f.open || '', used: used.has(fieldRef(f)) }));
     newFields.filter(f => !f.used).forEach(f => issue('info', 'NEW_FIELD_UNUSED', T('exp.issue.newFieldUnused', { n: f.name })));
+    // Barrierefreiheit (Modul a11y.js): Kontrast, Schriftgrößen, Kachelgrößen, Titel, Dichte, Navigation
+    if (MK.a11yFindings) MK.a11yFindings().forEach(f => issue(f.level, f.code, f.text + (f.hint ? ' (' + f.hint + ')' : ''), f.page, f.visual ? 'mk_' + f.visual : null));
     if (!S.report.audience) issue('info', 'REPORT_NO_AUDIENCE', T('exp.issue.noAudience'));
     if (!S.report.decision) issue('info', 'REPORT_NO_DECISION', T('exp.issue.noDecision'));
     const core = { canvas: { width: S.canvas.w, height: S.canvas.h }, design: d, zones: zonesOut, pages: pages.map(p => ({ name: p.name, question: p.question, visuals: p.visuals.map(v => ({ id: v.id, kind: v.kind, engine: v.engine, title: v.title, content: v.content, rect: v.rect, roles: v.roles, analysis: v.analysis, link: v.link })) })), fields, newFields, links };
@@ -105,7 +109,7 @@
       report: Object.assign({ name: S.name }, S.report),
       canvas: { width: S.canvas.w, height: S.canvas.h, preset: S.canvas.preset, uiScale: +k.toFixed(3) },
       spacing: { margin: Math.round(S.spacing.margin * k), gutter: Math.round(S.spacing.gutter * k), tilePadding: Math.round(S.spacing.pad * k), base: { margin: S.spacing.margin, gutter: S.spacing.gutter, tilePadding: S.spacing.pad } },
-      design: { cornerRadius: Math.round(d.radius * k), tileStyle: d.tile, pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', headerStyle: d.header, accent: d.accent, variancePalette: d.palette || 'teal', varianceColors: (d.palette || 'teal') === 'ibcs' ? { good: '#3A9A5B', bad: '#C8412F' } : { good: '#1E8F9E', bad: '#D64541' }, colors: { pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', ink: d.ink || '#0F1E2E', headerBackground: d.header === 'custom' ? d.headerBg : (d.header === 'dark' ? '#0F1E2E' : d.header === 'accent' ? d.accent : '#FFFFFF'), headerInk: d.header === 'custom' ? d.headerInk : (d.header === 'light' ? '#0F1E2E' : '#FFFFFF') }, darkMode: MK.isDark(d.tileBg), fontScale: +k.toFixed(3) },
+      design: { cornerRadius: Math.round(d.radius * k), tileStyle: d.tile, pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', headerStyle: d.header, accent: d.accent, variancePalette: d.palette || 'teal', varianceColors: (d.palette || 'teal') === 'ibcs' ? { good: '#3A9A5B', bad: '#C8412F' } : { good: '#1E8F9E', bad: '#D64541' }, colors: { pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', ink: d.ink || '#0F1E2E', headerBackground: d.header === 'custom' ? d.headerBg : (d.header === 'dark' ? '#0F1E2E' : d.header === 'accent' ? d.accent : '#FFFFFF'), headerInk: d.header === 'custom' ? d.headerInk : (d.header === 'light' ? '#0F1E2E' : '#FFFFFF') }, darkMode: MK.isDark(d.tileBg), fontScale: +k.toFixed(3), typography: Object.assign({ basis: '1280px' }, MK.typo()) },
       zones: zonesOut, pages, links,
       model: { source: S.model.source || null, tables: S.model.tables.map(t => t.name), usedFields: fields },
       fields, newFields, issues,
