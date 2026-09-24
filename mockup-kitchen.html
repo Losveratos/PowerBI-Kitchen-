@@ -144,7 +144,15 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .zone.header .burger i{display:block;height:2px;background:currentColor;border-radius:1px}
 .zone.header .burger b{position:absolute;top:-6px;right:-6px;background:var(--accent);color:#fff;font-size:calc(9px * var(--ui));border-radius:8px;padding:0 5px;font-weight:500}
 .zone.header.dark .burger,.zone.header.accent .burger{border-color:rgba(255,255,255,.4)}
-.zone.footer{background:transparent;border-top:1px solid #E3E1D8;color:#6B7280;font-size:calc(10px * var(--ui));display:flex;align-items:center;padding:0 calc(16px * var(--ui));white-space:nowrap;overflow:hidden}
+.zone.footer{background:transparent;border-top:1px solid #E3E1D8;color:#6B7280;font-size:calc(10px * var(--ui));display:flex;align-items:center;gap:calc(12px * var(--ui));padding:0 calc(16px * var(--ui));white-space:nowrap;overflow:hidden}
+.zone.footer .ft{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.zone.footer .nav{margin-left:auto;display:flex;gap:calc(5px * var(--ui));flex:none}
+.zone.footer .nav span{padding:calc(3px * var(--ui)) calc(9px * var(--ui));border:1px solid rgba(15,30,46,.3);border-radius:3px;font-size:calc(9.5px * var(--ui));color:#475569;white-space:nowrap}
+.zone.footer .nav span.act{background:var(--accent);border-color:var(--accent);color:#fff}
+.zcfg{position:absolute;z-index:6;width:calc(18px * var(--ui));height:calc(18px * var(--ui));border-radius:50%;background:var(--bg-card);border:1px solid var(--line-strong);color:var(--ink-soft);font-size:calc(12px * var(--ui));line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .12s}
+.page:hover .zcfg{opacity:.55}.zcfg:hover{opacity:1;background:var(--accent);color:#fff;border-color:var(--accent)}
+body.present .zcfg{display:none}
+.section.flash{animation:secflash 1.2s ease}@keyframes secflash{0%{background:var(--accent-soft)}100%{background:transparent}}
 .zone.filter{background:#ECEBE5;border-left:1px solid #E3E1D8;padding:calc(12px * var(--ui)) calc(10px * var(--ui))}
 .zone.filter.left{border-left:0;border-right:1px solid #E3E1D8}
 .zone.filter.top{border-left:0;border-bottom:1px solid #E3E1D8;display:flex;align-items:center;gap:calc(8px * var(--ui));padding:0 calc(16px * var(--ui))}
@@ -431,7 +439,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
     </div>
     <div class="panel-body" id="insChrome" hidden>
       <p class="hint" style="margin:0 0 6px" data-i18n="hint.chrome">Rahmen gilt für alle Seiten.</p>
-      <div class="section" style="border-top:0;margin-top:0;padding-top:0"><h3 data-i18n="sec.header">Kopfband</h3>
+      <div class="section" id="secHeader" style="border-top:0;margin-top:0;padding-top:0"><h3 data-i18n="sec.header">Kopfband</h3>
         <label class="toggle"><input type="checkbox" id="hdOn"> <span data-i18n="lbl.headerOn">Kopfband anzeigen</span></label>
         <div class="grid2">
           <div><input class="ctl" type="number" id="hdH" min="32" max="120" step="4"><p class="hint" data-i18n="hint.height">Höhe</p></div>
@@ -439,15 +447,15 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
         </div>
         <div class="field"><label data-i18n="lbl.title">Titel</label><input class="ctl" id="hdTitle"></div>
         <div class="field"><label data-i18n="lbl.subtitle">Untertitel</label><input class="ctl" id="hdSub" data-i18n-ph="ph.headerSub" placeholder="z. B. Zeitraum, Einheit"></div>
-        <label class="toggle"><input type="checkbox" id="hdNavOn"> <span data-i18n="lbl.navOn">Seitennavigation im Kopfband anzeigen</span></label>
+        <div class="field"><label data-i18n="lbl.navPos">Seitennavigation</label><select class="ctl" id="hdNavPos"><option value="header" data-i18n="opt.navPos.header">im Kopfband</option><option value="footer" data-i18n="opt.navPos.footer">in der Fußleiste</option><option value="off" data-i18n="opt.navPos.off">aus</option></select></div>
         <label class="toggle"><input type="checkbox" id="hdNavAuto"> <span data-i18n="lbl.navAuto">Navigation aus den Seitennamen</span></label>
         <div class="field"><label data-i18n="lbl.navManual">Navigation manuell (kommagetrennt)</label><input class="ctl" id="hdNav" data-i18n-ph="ph.navManual" placeholder="Übersicht, Umsatz, Kosten"></div>
       </div>
-      <div class="section"><h3 data-i18n="sec.nav">Linke Nav-Leiste</h3>
-        <label class="toggle"><input type="checkbox" id="nvOn"> <span data-i18n="lbl.navOn">Nav-Leiste anzeigen (App-Stil)</span></label>
+      <div class="section" id="secNav"><h3 data-i18n="sec.nav">Linke Nav-Leiste</h3>
+        <label class="toggle"><input type="checkbox" id="nvOn"> <span data-i18n="lbl.navBarOn">Nav-Leiste anzeigen (App-Stil)</span></label>
         <div class="grid2"><div><input class="ctl" type="number" id="nvW" min="40" max="120" step="4"><p class="hint" data-i18n="hint.width">Breite</p></div></div>
       </div>
-      <div class="section"><h3 data-i18n="sec.filter">Filter / Slicer</h3>
+      <div class="section" id="secFilter"><h3 data-i18n="sec.filter">Filter / Slicer</h3>
         <label class="toggle"><input type="checkbox" id="ftOn"> <span data-i18n="lbl.filterOn">Filter anzeigen</span></label>
         <div class="grid2">
           <div><select class="ctl" id="ftSide"><option value="right" data-i18n="opt.filter.right">Panel rechts</option><option value="left" data-i18n="opt.filter.left">Panel links</option><option value="top" data-i18n="opt.filter.top">Leiste oben</option><option value="burger" data-i18n="opt.filter.burger">Burger-Menü (Bookmark)</option></select><p class="hint" data-i18n="hint.position">Position</p></div>
@@ -457,7 +465,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
         <p class="hint" data-i18n="hint.filter">Felder aus dem Modell direkt aufs Panel ziehen, um Slicer anzulegen. Beim Burger-Menü entsteht im Export ein Bookmark-Paar „Filter öffnen / schließen" plus Button im Kopfband. Vorauswahl je Slicer eintragen, damit „mein Excel sagt was anderes" gar nicht erst entsteht.</p>
         <div id="ftFieldList" style="margin-top:6px"></div>
       </div>
-      <div class="section"><h3 data-i18n="sec.footer">Fußleiste</h3>
+      <div class="section" id="secFooter"><h3 data-i18n="sec.footer">Fußleiste</h3>
         <label class="toggle"><input type="checkbox" id="ffOn"> <span data-i18n="lbl.footerOn">Fußleiste anzeigen</span></label>
         <div class="grid2"><div><input class="ctl" type="number" id="ffH" min="16" max="48" step="4"><p class="hint" data-i18n="hint.height">Höhe</p></div></div>
         <div class="field"><label data-i18n="lbl.text">Text</label><input class="ctl" id="ffText"></div>
@@ -598,11 +606,11 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 <input type="file" id="fileOpen" accept=".json" hidden>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="assets/mockup/i18n.js?v=20260924a"></script>
-<script src="assets/mockup/sketches.js?v=20260924a"></script>
-<script src="assets/mockup/catalog.js?v=20260924a"></script>
-<script src="assets/mockup/app.js?v=20260924a"></script>
-<script src="assets/mockup/render-png.js?v=20260924a"></script>
-<script src="assets/mockup/export.js?v=20260924a"></script>
+<script src="assets/mockup/i18n.js?v=20260924b"></script>
+<script src="assets/mockup/sketches.js?v=20260924b"></script>
+<script src="assets/mockup/catalog.js?v=20260924b"></script>
+<script src="assets/mockup/app.js?v=20260924b"></script>
+<script src="assets/mockup/render-png.js?v=20260924b"></script>
+<script src="assets/mockup/export.js?v=20260924b"></script>
 </body>
 </html>

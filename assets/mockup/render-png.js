@@ -277,7 +277,8 @@
     var rightX = z.x + z.w - padX;
     if (c.logoPos === 'right') { rightX -= lw; out += logoBox(rightX, cy - lh / 2, lw, lh, light, k); rightX -= gap; }
 
-    var names = c.navOn === false ? [] : (c.navAuto ? S.pages.map(function (pg) { return pg.name; }) : (c.nav || []).slice());
+    var navPos = (ctx.S.chrome && ctx.S.chrome.navPos) || (c.navOn === false ? 'off' : 'header');
+    var names = navPos !== 'header' ? [] : (c.navAuto ? S.pages.map(function (pg) { return pg.name; }) : (c.nav || []).slice());
     var cur = c.navAuto ? ctx.p.name : names[0];
     var navW = 0, items = [];
     if (names.length) {
@@ -316,9 +317,26 @@
 
   /* ------------------------------------------------------------ Fusszeile */
   function footerZone(ctx, z) {
-    var k = ctx.k, fs = 10 * k;
-    return ln(z.x, z.y + 0.5, z.x + z.w, z.y + 0.5, '#E3E1D8', 1) +
-      tx(z.x + 16 * k, z.y + z.h / 2 + fs * MID, fit(ctx.c.footer.text || '', z.w - 32 * k, fs), { size: fs, fill: '#6B7280' });
+    var k = ctx.k, fs = 10 * k, S = ctx.S, c = ctx.c;
+    var out = ln(z.x, z.y + 0.5, z.x + z.w, z.y + 0.5, '#E3E1D8', 1);
+    /* Seitennavigation in der Fussleiste (rechts), wenn so eingestellt */
+    var navPos = (S.chrome && S.chrome.navPos) || (c.header.navOn === false ? 'off' : 'header');
+    var navW = 0;
+    if (navPos === 'footer') {
+      var names = c.header.navAuto ? S.pages.map(function (pg) { return pg.name; }) : (c.header.nav || []).slice();
+      var nfs = 9.5 * k, bh = Math.round(nfs * LH + 6 * k), g = 5 * k, items = [];
+      names.forEach(function (nme) { items.push({ t: nme, w: Math.round(textW(nme, nfs) + 16 * k) }); });
+      navW = items.reduce(function (a, it) { return a + it.w; }, 0) + g * Math.max(0, items.length - 1);
+      var nx = z.x + z.w - 16 * k - navW, cy = z.y + z.h / 2;
+      items.forEach(function (it) {
+        var act = it.t === ctx.p.name;
+        out += rc(nx, cy - bh / 2, it.w, bh, act ? { r: 3 * k, fill: ctx.accent } : { r: 3 * k, stroke: 'rgba(15,30,46,.3)', sw: 1 });
+        out += tx(nx + it.w / 2, cy + nfs * MID, it.t, { size: nfs, anchor: 'middle', fill: act ? '#FFFFFF' : '#475569' });
+        nx += it.w + g;
+      });
+      navW += 16 * k;
+    }
+    return out + tx(z.x + 16 * k, z.y + z.h / 2 + fs * MID, fit(c.footer.text || '', z.w - 32 * k - navW, fs), { size: fs, fill: '#6B7280' });
   }
 
   /* --------------------------------------------------------- Filter-Panel */

@@ -681,6 +681,13 @@ zweite Wahrheit behandeln. Maßgeblich ist `mockup-spec.json`.
 Datei fehlt, auf Wunsch englisch (`--lang en`), und macht daraus eine PowerPoint
 — Details im Skill-Schritt „Doku und PowerPoint".
 
+## `zones.header.navPosition` und `zones.footer.nav` (Tool 0.4.3)
+
+Die Seitennavigation kann im Kopfband (`navPosition: "header"`, wie bisher, `zones.header.nav` gefüllt), in der
+Fußleiste (`navPosition: "footer"`, dann steht die Liste in `zones.footer.nav`, `zones.header.nav` ist leer) oder
+aus sein (`"off"`). `zones.header.navOn` bleibt als Kurzform `navPosition === "header"` erhalten. Beim Bau in der
+Fußleiste gehören die Nav-Buttons rechts in die Fußzone, kleiner als im Kopfband (Schrift ca. 9,5 px × Skalierung).
+
 ## `visuals[].interaction` (Tool 0.4.2)
 
 Verhalten der Kachel, im Tool über das Kachel-Fenster (Button „Notiz & Einstellungen", Taste N) gesetzt:

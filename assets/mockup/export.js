@@ -72,10 +72,10 @@
     });
     const zonesOut = {};
     Object.keys(z).forEach(key => { zonesOut[key] = Object.assign({}, z[key]); });
-    const navNames = c.header.navOn === false ? [] : (c.header.navAuto ? S.pages.map(p => p.name) : (c.header.nav || []));
-    if (z.header) Object.assign(zonesOut.header, { style: d.header, logoPos: c.header.logoPos, title: c.header.title, subtitle: c.header.sub, nav: navNames, navOn: c.header.navOn !== false, navAuto: !!c.header.navAuto, burger: c.filter.on && c.filter.side === 'burger' });
+    const navPos = MK.navPosOf(c), navList = MK.navNames(c); const navNames = navPos === 'header' ? navList : [];
+    if (z.header) Object.assign(zonesOut.header, { style: d.header, logoPos: c.header.logoPos, title: c.header.title, subtitle: c.header.sub, nav: navNames, navOn: navPos === 'header', navPosition: navPos, navAuto: !!c.header.navAuto, burger: c.filter.on && c.filter.side === 'burger' });
     if (z.nav) zonesOut.nav.pages = S.pages.map(p => p.name);
-    if (z.footer) zonesOut.footer.text = c.footer.text;
+    if (z.footer) { zonesOut.footer.text = c.footer.text; zonesOut.footer.nav = navPos === 'footer' ? navList : []; zonesOut.footer.navPosition = navPos; }
     const slicers = (c.filter.fields || []).map(f => Object.assign(fieldOut(f), { default: f.default || null }));
     if (c.filter.on) {
       const mode = c.filter.side; const fl = zonesOut.filter || {};
