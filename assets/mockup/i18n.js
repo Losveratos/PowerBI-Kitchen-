@@ -27,6 +27,7 @@
       projName: 'Name des Berichts / Mockups', templates: 'Seitenvorlage wählen', importTmdl: 'TMDL-Ordner oder -Dateien laden',
       undo: 'Rückgängig (Strg+Z)', redo: 'Wiederholen (Strg+Y)', present: 'Präsentieren: Panels ausblenden, Seite groß (Taste P)',
       new: 'Neues Mockup anlegen: leere Seite, Demo-Modell, Standard-Design (der aktuelle Stand wird verworfen, vorher Speichern)',
+      merge: 'Nachbarn verbinden: leere Kachel geht im Nachbarn auf, zwei Kacheln werden eine (links/oben behält das Visual)',
       help: 'Hilfe', open: 'Weiterarbeiten: gespeicherten Stand öffnen (.mockup.json aus „Speichern")', save: 'Stand als .mockup.json sichern – mit „Öffnen" lässt er sich später wieder laden und weiterbearbeiten',
       tileWindow: 'Notiz, Priorität, Status, Drill und Varianten in einem größeren Fenster (Taste N)',
       demoModel: 'Beispielmodell laden: Controlling, Sales, HR, Online-Marketing oder GuV',
@@ -199,6 +200,7 @@
 
     toast: {
       newProject: 'Neues Mockup angelegt. Über „Vorlagen" geht es schnell weiter.',
+      merged: 'Kacheln verbunden', mergeNotPossible: 'Verbinden geht nur, wenn mindestens eine Seite eine einzelne Kachel ist',
       nothingUndo: 'Nichts rückgängig zu machen', undone: 'Rückgängig', nothingRedo: 'Nichts zu wiederholen', redone: 'Wiederholt',
       demoLoadedTpl: 'Demo-Modell geladen, Vorlage gebunden', tplSet: 'Vorlage „{t}" gesetzt', demoLoaded: 'Demo-Modell geladen',
       lastPage: 'Die letzte Seite bleibt', pickTileFirst: 'Erst eine Kachel wählen',
@@ -221,6 +223,7 @@
       rmField: '„{n}" ist {c}× gebunden. Feld und alle Bindungen entfernen?',
       openReplace: 'Öffnen ersetzt das aktuelle Mockup. Vorher speichern? (Abbrechen = zurück)',
       newReplace: 'Neues Mockup anlegen? Der aktuelle Stand ({n} Kachel(n), {p} Seite(n)) wird verworfen. Vorher mit „Speichern" sichern. (Abbrechen = zurück)',
+      mergeReplace: 'Beide Kacheln haben ein Visual. Verbinden entfernt „{t}". Fortfahren? (Strg+Z macht es rückgängig)',
     },
 
     role: {
@@ -473,6 +476,7 @@
       projName: 'Name of the report / mockup', templates: 'Choose a page template', importTmdl: 'Load a TMDL folder or files',
       undo: 'Undo (Ctrl+Z)', redo: 'Redo (Ctrl+Y)', present: 'Present: hide the panels, page large (key P)',
       new: 'Start a new mockup: empty page, demo model, default design (the current state is discarded, save first)',
+      merge: 'Merge neighbours: an empty tile is absorbed, two tiles become one (left/top keeps its visual)',
       help: 'Help', open: 'Continue working: open a saved state (.mockup.json from “Save”)', save: 'Save the state as .mockup.json – “Open” loads it again for further work',
       tileWindow: 'Note, priority, status, drill and variants in a larger window (key N)',
       demoModel: 'Load a sample model: controlling, sales, HR, online marketing or P&L',
@@ -644,6 +648,7 @@
 
     toast: {
       newProject: 'New mockup started. Templates give you a quick start.',
+      merged: 'Tiles merged', mergeNotPossible: 'Merging needs at least one side to be a single tile',
       nothingUndo: 'Nothing to undo', undone: 'Undone', nothingRedo: 'Nothing to redo', redone: 'Redone',
       demoLoadedTpl: 'Demo model loaded, template bound', tplSet: 'Template “{t}” applied', demoLoaded: 'Demo model loaded',
       lastPage: 'The last page stays', pickTileFirst: 'Select a tile first',
@@ -666,6 +671,7 @@
       rmField: '“{n}” is bound {c}×. Remove the field and all its bindings?',
       openReplace: 'Opening replaces the current mockup. Save it first? (Cancel = go back)',
       newReplace: 'Start a new mockup? The current state ({n} tile(s), {p} page(s)) will be discarded. Use “Save” first. (Cancel = go back)',
+      mergeReplace: 'Both tiles have a visual. Merging removes “{t}”. Continue? (Ctrl+Z undoes it)',
     },
 
     role: {

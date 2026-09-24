@@ -155,6 +155,21 @@
     }
     commit();
   }
+  // Zwei Nachbarn im selben Split verbinden: leere Kachel geht im Nachbarn auf, zwei Leaves werden eines (linke/obere Kachel behaelt ihr Visual)
+  function mergeGutter(gi) {
+    const p = gi.parent, i = gi.index; const A = p.children[i], B = p.children[i + 1]; if (!A || !B) return;
+    const isLeaf = c => c.node.type === 'leaf', empty = c => isLeaf(c) && !c.node.visual;
+    let keep, drop;
+    if (isLeaf(A) && isLeaf(B)) {
+      if (A.node.visual && B.node.visual && !confirm(t('ask.mergeReplace', { t: B.node.visual.title || CAT.byId[B.node.visual.kind].label }))) return;
+      keep = A; drop = B; if (!A.node.visual && B.node.visual) { keep = B; drop = A; }
+    } else if (empty(A)) { keep = B; drop = A; }
+    else if (empty(B)) { keep = A; drop = B; }
+    else return toast(t('toast.mergeNotPossible'));
+    keep.size += drop.size; p.children.splice(p.children.indexOf(drop), 1);
+    if (p.children.length === 1) { const only = p.children[0].node; const pf = findNode(p.id); if (pf.parent) pf.parent.children[pf.idx].node = only; else page().layout = only; }
+    sel = keep.node.type === 'leaf' ? keep.node.id : sel; commit(); toast(t('toast.merged'));
+  }
   function removeLeaf(id) {
     const f = findNode(id); if (!f) return;
     if (!f.parent) { f.node.visual = null; commit(); return; }
@@ -229,11 +244,12 @@
     if (node.type === 'leaf') { out.leaves.push({ node, rect: roundRect(rect) }); return; }
     const g = gutter, n = node.children.length; const total = node.children.reduce((a, c) => a + c.size, 0) || 1;
     const span = (node.dir === 'row' ? rect.w : rect.h) - g * (n - 1);
-    let pos = node.dir === 'row' ? rect.x : rect.y, acc = 0;
+    // Groessen abrunden; der Pixelrest wandert an den Rand (halb links/oben, halb rechts/unten) statt in die letzte Kachel
+    const sizes = node.children.map(ch => Math.max(8, Math.floor(span * ch.size / total)));
+    const rest = Math.max(0, span - sizes.reduce((a, b) => a + b, 0));
+    let pos = (node.dir === 'row' ? rect.x : rect.y) + Math.floor(rest / 2);
     node.children.forEach((ch, i) => {
-      acc += ch.size;
-      const end = (node.dir === 'row' ? rect.x : rect.y) + Math.round(span * acc / total) + g * i;
-      const sz = Math.max(8, end - pos);
+      const sz = sizes[i];
       const r = node.dir === 'row' ? { x: pos, y: rect.y, w: sz, h: rect.h } : { x: rect.x, y: pos, w: rect.w, h: sz };
       layoutRects(ch.node, r, out, gutter);
       pos += sz + g;
@@ -270,7 +286,7 @@
       html += `<div class="zone filter ${c.filter.side}" style="${css(z.filter)}" data-dropfilter="1"><h4>${esc(t('canvas.filter'))}${c.filter.collapsible && c.filter.side !== 'top' ? ' ⧉' : ''}</h4>${sl}<div class="sl ph">${esc(t('canvas.dropField'))}</div></div>`;
     }
     all.leaves.forEach(({ node, rect }) => { html += tileHtml(node, rect); });
-    all.gutters.forEach((g, i) => { html += `<div class="gutter ${g.dir === 'row' ? 'v' : 'h'}" data-gutter="${i}" style="${css(g.rect)}"></div>`; });
+    all.gutters.forEach((g, i) => { html += `<div class="gutter ${g.dir === 'row' ? 'v' : 'h'}" data-gutter="${i}" style="${css(g.rect)}"><button type="button" class="gmerge" data-merge="${i}" title="${esc(t('tip.merge'))}">+</button></div>`; });
     pageEl.innerHTML = html;
     $('#stageInfo').textContent = t('canvas.info', { w, h, cw: z.content.w, ch: z.content.h, k: k.toFixed(2), z: Math.round(zoom * 100) });
     renderPages(); renderInspector(); renderModel(); syncPageInputs();
@@ -330,6 +346,7 @@
 
   let gdrag = null;
   pageEl.addEventListener('mousedown', e => {
+    if (e.target.closest('[data-merge]')) { e.preventDefault(); e.stopPropagation(); const gi = lastRects.gutters[+e.target.closest('[data-merge]').dataset.merge]; if (gi) mergeGutter(gi); return; }
     const g = e.target.closest('[data-gutter]'); if (!g) return;
     const gi = lastRects.gutters[+g.dataset.gutter]; if (!gi) return;
     e.preventDefault();
