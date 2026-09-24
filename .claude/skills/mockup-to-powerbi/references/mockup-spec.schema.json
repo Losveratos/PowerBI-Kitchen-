@@ -81,7 +81,8 @@
             "headerInk": { "$ref": "#/$defs/hex" }
           }
         },
-        "typography": { "$ref": "#/$defs/typography" }
+        "typography": { "$ref": "#/$defs/typography" },
+        "nativePalette": { "description": "Ab Tool 0.4.7. Farbschema der Skizzen fuer native Visuals: neutral | pbi | kitchen (nur Skizze; im Bericht regelt das Theme die Datenfarben).", "enum": ["neutral", "pbi", "kitchen"] }
       }
     },
     "zones": {
@@ -284,6 +285,15 @@
         "workshop": { "$ref": "#/$defs/workshop" },
         "typography": { "$ref": "#/$defs/visualTypography" },
         "interaction": { "$ref": "#/$defs/interaction" },
+        "samples": {
+          "description": "Ab Tool 0.4.7. Beispielwerte aus dem Workshop (nur Anschauung fuer Skizze und Doku, keine Daten fuer den Bericht).",
+          "type": ["object", "null"],
+          "properties": {
+            "categories": { "type": "array", "items": { "type": "string" } },
+            "values": { "type": "array", "items": { "type": "number" } },
+            "refValues": { "type": "array", "items": { "type": "number" } }
+          }
+        },
         "rect": { "$ref": "#/$defs/rect" },
         "roles": { "type": "object" },
         "notes": { "type": ["string", "null"] },

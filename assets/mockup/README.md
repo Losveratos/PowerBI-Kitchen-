@@ -23,6 +23,7 @@ Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau i
   `CAT.rolesFor(def, v)`. Issues `SM_NO_FIELD`, `FIELDPARAM_FEW`.
 - **Native Klassiker (v0.4.1):** `ncolumn`, `nbar`, `nline`, `ndonut` (Gruppe „Native Klassiker & Sonstige") ohne
   Szenario-Notation (`plain: true` → Skizze mit Szenario AC), Rollen Kategorie/Legende/Werte, Donut-Skizze `S.donut`.
+- **Beispielwerte, Farbschema, Vergleich (v0.4.7):** Kachel-Fenster mit Box „Beispielwerte" (Kategorien, Werte, Vergleich als Text, `v.samples`, Export `visuals[].samples {categories, values, refValues}`), Skizzen zeigen die Namen und formatierte Zahlen; Design „Farbschema native Visuals" (`design.nativePalette` neutral/pbi/kitchen, Vorgabe neutral); Reiter „Bericht" → „Stände vergleichen": gespeicherte Datei oder Export gegen den aktuellen Stand (`diff.js`, `MK_DIFF.compare`), Dialog + Markdown-Kopie; Tooltip an Kacheln erklärt Tauschen per Drag.
 - **Einfügen am Rand, neue Slicer-Arten (v0.4.6):** „+" an den vier Seitenrändern fügt eine Kachel auf der obersten Ebene ein und verteilt alle Kacheln dieser Ebene gleich (aus 2 gleichen werden 3 gleiche; `MK.insertEdge(side)`); Slicer-Arten `relative` (relatives Datum, `data.mode = Relative`) und `button` (Button-Slicer = `advancedSlicerVisual`), im Skill mit pbir am Testbed verifiziert.
 - **Skizzen näher an ChartKitchen und Power BI (v0.4.5):** `sketches.js` überarbeitet (53 Skizzenarten, Node-Matrix 13.804 Renderings): Varianzanalyse mit drei Ebenen (Δ%, Δ-Brücke, Säulen AC/FC vs PL), Kombi, Tabelle, KPI-Kacheln; native Klassiker mit eigenem Look (`ncolumn`, `nbar`, `nline`); GuV-Skizze mit Darstellungsmodi (`mode: full|acref|dall|acpydpy|acpldpl|dpct`, `treeCard`, `density`); Skizzen übernehmen `fontScale`/`fonts` aus der Typografie und den dunklen Kachelgrund. Fix: Barrierefreiheits-Check warf bei Fußleisten-Navigation einen Fehler.
 - **Typografie, Filter, Barrierefreiheit (v0.4.4):** zentrale Schriftgrößen im Design-Reiter (`design.typo {scale,title,sub,chart}`,
@@ -120,3 +121,4 @@ indicator, goal, start, end, field, text`. Mapping auf pbir-Buckets steht je Typ
 - Dark Mode (Schalter ist angelegt, Skizzen und Zonen brauchen eine dunkle Palette).
 - Echte ChartKitchen-Renderings statt Skizzen.
 - Mehrere Berichte / Mockup-Bibliothek.
+- Teilen per Link (Zustand komprimiert in der URL, ohne Server).

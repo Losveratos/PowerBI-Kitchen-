@@ -22,6 +22,23 @@
       lang: 'EN', clearTile: 'Kachel leeren', removeTile: 'Kachel entfernen', pickType: 'Visual wählen …',
     },
 
+    smp: {
+      sec: 'Beispielwerte', hint: 'Nur Eingaben: Namen und Zahlen erscheinen so in der Skizze (auch aus Excel einfügen: eine je Zeile).',
+      cats: 'Kategorien', catsPh: 'Nord, Süd, Ost, West', values: 'Werte', valuesPh: '1250000; 980000; 640000', ref: 'Vergleich (PY/PL)', refPh: 'optional',
+      tileDrag: 'Ziehen: Kachel auf eine andere ziehen tauscht beide · Taste N: Notiz & Einstellungen',
+      nativePal: 'Farbschema native Visuals', neutral: 'Neutral (Grau mit einem Akzent)', pbi: 'Power-BI-Standardpalette', kitchen: 'ChartKitchen (Teal)'
+    },
+    diffui: {
+      sec: 'Stände vergleichen', hint: 'Gespeicherte Datei (Speichern oder Export) gegen den aktuellen Stand: neue, entfernte, geänderte Kacheln, Seiten, Zonen, Design.',
+      btn: 'Datei vergleichen …', copy: 'Als Markdown kopieren', h: 'Was hat sich geändert?', p: '{a} → aktueller Stand · {n} Änderung(en)', copied: 'Vergleich als Markdown kopiert'
+    },
+    diff: {
+      added: 'neu', removed: 'entfernt', changed: 'geändert', renamed: 'umbenannt', none: 'Keine Unterschiede.', page: 'Seite', pages: 'Seiten', zones: 'Zonen', design: 'Design',
+      mdTitle: 'Änderungen am Mockup', current: 'aktueller Stand', title: 'Titel', kind: 'Visual-Typ', engine: 'Engine', fields: 'Felder', analysis: 'Analyse', priority: 'Priorität',
+      status: 'Status', notes: 'Notiz', openQuestion: 'offene Frage', interaction: 'Verhalten', link: 'Drill-through', content: 'Inhalt', position: 'Position', samples: 'Beispielwerte',
+      header: 'Kopfband', nav: 'Nav-Leiste', filter: 'Filter', footer: 'Fußleiste', palette: 'Abweichungsfarben', nativePalette: 'Farbschema native Visuals', tile: 'Kachel-Stil',
+      pageBg: 'Seitenhintergrund', accent: 'Akzentfarbe', typo: 'Typografie', canvas: 'Seitengröße'
+    },
     tip: {
       backHome: 'Zurück zur Startseite der Knowledge Kitchen',
       projName: 'Name des Berichts / Mockups', templates: 'Seitenvorlage wählen', importTmdl: 'TMDL-Ordner oder -Dateien laden',
@@ -480,6 +497,23 @@
       lang: 'DE', clearTile: 'Clear tile', removeTile: 'Remove tile', pickType: 'Choose a visual …',
     },
 
+    smp: {
+      sec: 'Sample values', hint: 'Plain inputs: names and numbers show up like this in the sketch (paste from Excel, one per line).',
+      cats: 'Categories', catsPh: 'North, South, East, West', values: 'Values', valuesPh: '1250000; 980000; 640000', ref: 'Reference (PY/PL)', refPh: 'optional',
+      tileDrag: 'Drag: drop a tile onto another to swap them · key N: note & settings',
+      nativePal: 'Colour scheme for native visuals', neutral: 'Neutral (greys with one accent)', pbi: 'Power BI default palette', kitchen: 'ChartKitchen (teal)'
+    },
+    diffui: {
+      sec: 'Compare versions', hint: 'A saved file (Save or export) against the current state: added, removed and changed tiles, pages, zones, design.',
+      btn: 'Compare file …', copy: 'Copy as Markdown', h: 'What changed?', p: '{a} → current state · {n} change(s)', copied: 'Comparison copied as Markdown'
+    },
+    diff: {
+      added: 'added', removed: 'removed', changed: 'changed', renamed: 'renamed', none: 'No differences.', page: 'Page', pages: 'Pages', zones: 'Zones', design: 'Design',
+      mdTitle: 'Mockup changes', current: 'current state', title: 'Title', kind: 'Visual type', engine: 'Engine', fields: 'Fields', analysis: 'Analysis', priority: 'Priority',
+      status: 'Status', notes: 'Note', openQuestion: 'open question', interaction: 'Behaviour', link: 'Drill-through', content: 'Content', position: 'Position', samples: 'Sample values',
+      header: 'Header', nav: 'Nav bar', filter: 'Filters', footer: 'Footer', palette: 'Variance colours', nativePalette: 'Native visual colour scheme', tile: 'Tile style',
+      pageBg: 'Page background', accent: 'Accent colour', typo: 'Typography', canvas: 'Page size'
+    },
     tip: {
       backHome: 'Back to the Knowledge Kitchen start page',
       projName: 'Name of the report / mockup', templates: 'Choose a page template', importTmdl: 'Load a TMDL folder or files',

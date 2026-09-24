@@ -30,7 +30,7 @@
         filter: { on: true, side: 'right', w: 200, topH: 56, collapsible: false, fields: [] },
         footer: { on: true, h: 24, text: t('state.footerText') },
       },
-      design: { radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D', palette: 'teal', pageBgHex: '#F4F4F1', tileBg: '#FFFFFF', ink: '#0F1E2E', headerBg: '#0F1E2E', headerInk: '#FFFFFF' },
+      design: { radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D', palette: 'teal', nativePalette: 'neutral', pageBgHex: '#F4F4F1', tileBg: '#FFFFFF', ink: '#0F1E2E', headerBg: '#0F1E2E', headerInk: '#FFFFFF' },
       report: { audience: '', purpose: '', decision: '', participants: '', version: '0.1', dataDate: '' },
       lang: I18N.lang,
       fieldMeta: {},
@@ -50,7 +50,7 @@
       s.chrome.filter.topH = 56;
       s.version = 2;
     }
-    s.design = Object.assign({ radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D', palette: 'teal', pageBgHex: '#F4F4F1', tileBg: '#FFFFFF', ink: '#0F1E2E', headerBg: '#0F1E2E', headerInk: '#FFFFFF' }, s.design || {});
+    s.design = Object.assign({ radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D', palette: 'teal', nativePalette: 'neutral', pageBgHex: '#F4F4F1', tileBg: '#FFFFFF', ink: '#0F1E2E', headerBg: '#0F1E2E', headerInk: '#FFFFFF' }, s.design || {});
     s.pages.forEach(p => ensureIds(p.layout));
     if (!s.pages.find(p => p.id === s.cur)) s.cur = s.pages[0].id;
     return s;
@@ -102,6 +102,25 @@
   function tileScale(v) { return (v && v.typo && v.typo.scale) || 1; }
   function navPosOf(c) { c = c || S.chrome; return c.navPos || (c.header.navOn === false ? 'off' : 'header'); }
   function navNames(c) { c = c || S.chrome; return c.header.navAuto ? S.pages.map(p => p.name) : (c.header.nav || []); }
+  // Beispielwerte je Kachel (v0.4.7): v.samples = { cats, values, ref } als Rohtext; hier geparst.
+  // Zahlen: eine je Zeile, Semikolon oder Tab; bei einer Zeile auch Leerzeichen. Tausenderpunkte/-kommas nach Sprache.
+  function parseNums(txt) {
+    if (!txt) return [];
+    let toks = String(txt).split(/[\n;\t]+/).map(x => x.trim()).filter(Boolean);
+    if (toks.length === 1) toks = toks[0].split(/\s+/).filter(Boolean);
+    return toks.map(x => { let s = x.replace(/[^0-9,.\-]/g, ''); if (S.lang === 'en') s = s.replace(/,/g, ''); else s = s.replace(/\./g, '').replace(',', '.'); const n = parseFloat(s); return isFinite(n) ? n : null; }).filter(n => n !== null);
+  }
+  function parseCats(txt) { return String(txt || '').split(/[\n;\t,]+/).map(x => x.trim()).filter(Boolean); }
+  function samplesOf(v) {
+    const s = v && v.samples; if (!s) return null;
+    const o = { categories: parseCats(s.cats), values: parseNums(s.values), refValues: parseNums(s.ref) };
+    return (o.categories.length || o.values.length || o.refValues.length) ? o : null;
+  }
+  function samplesOpt(v) {
+    const s = samplesOf(v); const o = {}; if (!s) return o;
+    if (s.categories.length) o.cats = s.categories; if (s.values.length) o.values = s.values; if (s.refValues.length) o.refValues = s.refValues;
+    return o;
+  }
   function analysisOf(v) {
     const a = v.analysis || {}; const pm = primaryMeasure(v); const refs = (v.roles && v.roles.ref) || []; const goal = (v.roles && v.roles.goal) || [];
     const scen = String(v.scenario || 'AC/PL');
@@ -332,13 +351,13 @@
     const footH = chips && !tiny ? 18 * k : 0;
     const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - footH - pad - 6);
     const an = analysisOf(v);
-    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, { scenario: def.plain ? 'AC' : v.scenario, seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: isDark(S.design.tileBg) ? '#E6E6E6' : (S.design.ink || '#404040'), dark: isDark(S.design.tileBg), paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart } }) : '';
+    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: def.plain ? 'AC' : v.scenario, seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: isDark(S.design.tileBg) ? '#E6E6E6' : (S.design.ink || '#404040'), dark: isDark(S.design.tileBg), paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral' }, samplesOpt(v))) : '';
     const note = v.notes ? `<span class="note-ico" title="${esc(v.openQuestion ? t('canvas.noteOpen') : t('canvas.note'))}">${v.openQuestion ? '?' : '✎'}</span><div class="note-pop">${esc(v.notes)}</div>` : (v.openQuestion ? `<span class="note-ico" title="${esc(t('canvas.openQuestion'))}">?</span><div class="note-pop">${esc(t('canvas.openQuestionEmpty'))}</div>` : '');
     const missing = CAT.rolesFor(def, v).filter(r => r.req && !(v.roles[r.key] || []).length).map(r => r.label);
     const req = missing.length ? `<span class="reqdot" title="${esc(t('canvas.reqEmpty', { roles: missing.join(', ') }))}"></span>` : '';
     const pri = v.priority ? `<span class="pri ${v.priority}" title="${esc(t('canvas.priority', { p: t('opt.pri.' + v.priority) }))}">${{ must: 'M', should: 'S', could: 'C' }[v.priority] || ''}</span>` : '';
     const st = v.status && v.status !== 'open' ? `<span class="st ${v.status}" title="${esc(t('canvas.status', { s: t('opt.status.' + v.status) }))}"></span>` : '';
-    return `<div class="tile${selc}${tiny ? ' tiny' : ''}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="${esc(v.title || def.label)}" style="${css(rect)};padding:${Math.max(0, pad - 6)}px">
+    return `<div class="tile${selc}${tiny ? ' tiny' : ''}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="${esc(v.title || def.label)}" title="${esc(t('smp.tileDrag'))}" style="${css(rect)};padding:${Math.max(0, pad - 6)}px">
       ${headH ? `<div class="t-head" style="--tf:${tileScale(v)}"><span class="t-title">${esc(v.title || def.label)}</span>${v.sub ? `<span class="t-sub">${esc(v.sub)}</span>` : ''}</div>` : ''}
       <div class="t-body">${svg}${ANTI[v.kind] ? '<div class="ap"></div>' : ''}</div>
       ${footH ? `<div class="t-foot">${chips}</div>` : ''}
@@ -567,12 +586,16 @@
       ${canVar ? `<div class="box"><h3>${esc(t('sec.variants'))}</h3>
       <label class="toggle"><input type="checkbox" data-ta="smallMultiples" ${an.smallMultiples ? 'checked' : ''}> ${esc(t('lbl.smallMultiples'))}</label>
       <label class="toggle"><input type="checkbox" data-ta="fieldParam" ${an.fieldParam ? 'checked' : ''}> ${esc(t('lbl.fieldParam'))}</label>
-      <div class="field" ${an.fieldParam ? '' : 'hidden'} data-fpname><label>${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-ta="fieldParamName" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div></div>` : ''}<div class="box"><h3>${esc(t('sec.typo'))}</h3><div class="field"><label>${esc(t('lbl.tileFont'))}</label><select class="ctl" data-ty="scale">${[['', t('opt.tileFont.auto')], ['0.85', '85 %'], ['1', '100 %'], ['1.15', '115 %'], ['1.3', '130 %'], ['1.5', '150 %']].map(([k, l]) => `<option value="${k}" ${String(tileScale(v)) === k || (k === '' && !(v.typo && v.typo.scale)) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></div></div></div></div>`;
+      <div class="field" ${an.fieldParam ? '' : 'hidden'} data-fpname><label>${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-ta="fieldParamName" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div></div>` : ''}${isText ? '' : `<div class="box"><h3>${esc(t('smp.sec'))}</h3><p class="hint" style="margin:0 0 6px">${esc(t('smp.hint'))}</p>
+      <div class="field"><label>${esc(t('smp.cats'))}</label><input class="ctl" data-ts="cats" value="${esc((v.samples || {}).cats || '')}" placeholder="${esc(t('smp.catsPh'))}"></div>
+      <div class="grid2"><div class="field"><label>${esc(t('smp.values'))}</label><input class="ctl" data-ts="values" value="${esc((v.samples || {}).values || '')}" placeholder="${esc(t('smp.valuesPh'))}"></div>
+      <div class="field"><label>${esc(t('smp.ref'))}</label><input class="ctl" data-ts="ref" value="${esc((v.samples || {}).ref || '')}" placeholder="${esc(t('smp.refPh'))}"></div></div></div>`}<div class="box"><h3>${esc(t('sec.typo'))}</h3><div class="field"><label>${esc(t('lbl.tileFont'))}</label><select class="ctl" data-ty="scale">${[['', t('opt.tileFont.auto')], ['0.85', '85 %'], ['1', '100 %'], ['1.15', '115 %'], ['1.3', '130 %'], ['1.5', '150 %']].map(([k, l]) => `<option value="${k}" ${String(tileScale(v)) === k || (k === '' && !(v.typo && v.typo.scale)) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></div></div></div></div>`;
     const body = $('#dlgTileBody');
     const setAn = (key, val) => { const a = v.analysis = v.analysis || {}; if (val === '' || val === null || val === undefined || val === false) delete a[key]; else a[key] = val; };
     $$('[data-tk]', body).forEach(x => { const f = () => { v[x.dataset.tk] = x.value; persist(); }; x.addEventListener('input', f); x.addEventListener('change', f); });
     $$('[data-tkb]', body).forEach(x => x.addEventListener('change', () => { v[x.dataset.tkb] = x.checked; persist(); }));
     $$('[data-ti]', body).forEach(x => x.addEventListener('change', () => { const o = v.interaction = v.interaction || {}; if (x.dataset.ti === 'crossFilter') { if (x.checked) delete o.crossFilter; else o.crossFilter = false; } else { if (x.checked) o[x.dataset.ti] = true; else delete o[x.dataset.ti]; } if (!Object.keys(o).length) delete v.interaction; persist(); }));
+    $$('[data-ts]', body).forEach(x => x.addEventListener('input', () => { const o = v.samples = v.samples || {}; if (x.value.trim()) o[x.dataset.ts] = x.value; else delete o[x.dataset.ts]; if (!Object.keys(o).length) delete v.samples; persist(); }));
     $$('[data-ty]', body).forEach(x => x.addEventListener('change', () => { const o = v.typo = v.typo || {}; if (x.value === '' || +x.value === 1) delete o.scale; else o.scale = +x.value; if (!Object.keys(o).length) delete v.typo; persist(); }));
     $$('[data-ta]', body).forEach(x => x.addEventListener('change', () => { if (x.type === 'checkbox') { setAn(x.dataset.ta, x.checked); if (x.dataset.ta === 'fieldParam') { const r = $('[data-fpname]', body); if (r) r.hidden = !x.checked; } } else setAn(x.dataset.ta, x.value); persist(); }));
     const dlg = $('#dlgTile'); mark();
@@ -653,7 +676,7 @@
     $('#ftFieldList').innerHTML = (c.filter.fields || []).map((f, i) => `<div class="row" style="margin-bottom:4px"><span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}" draggable="false" style="margin:0;flex:1;min-width:0"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span><button class="x" data-rmfilter2="${i}">×</button></span><select class="ctl" data-fttype="${i}" title="${esc(t('lbl.slicerType'))}" style="width:96px;padding:3px 4px;font-size:11px">${['dropdown', 'list', 'tile', 'button', 'between', 'date', 'relative', 'search'].map(k => `<option value="${k}" ${(f.type || 'dropdown') === k ? 'selected' : ''}>${esc(t('opt.slicer.' + k))}</option>`).join('')}</select><input class="ctl" data-ftdef="${i}" value="${esc(f.default || '')}" placeholder="${esc(t('ph.slicerDefault'))}" style="width:90px;padding:3px 6px;font-size:11.5px"></div>`).join('') || `<span class="hint">${esc(t('hint.noSlicers'))}</span>`;
     $('#ffOn').checked = c.footer.on; $('#ffH').value = c.footer.h; $('#ffText').value = c.footer.text;
     $('#dsRadius').value = String(d.radius); $('#dsTile').value = d.tile; $('#dsPageBg').value = d.pageBg; $('#dsHeader').value = d.header; $('#dsAccent').value = d.accent; $('#dsAccentTxt').textContent = d.accent;
-    $('#dsPalette').value = d.palette || 'teal'; $('#dsPageBgRow').hidden = d.pageBg !== 'custom'; $('#dsPageBgHex').value = d.pageBgHex || '#F4F4F1'; $('#dsPageBgHexTxt').textContent = d.pageBgHex || '#F4F4F1';
+    $('#dsPalette').value = d.palette || 'teal'; $('#dsNative').value = d.nativePalette || 'neutral'; $('#dsPageBgRow').hidden = d.pageBg !== 'custom'; $('#dsPageBgHex').value = d.pageBgHex || '#F4F4F1'; $('#dsPageBgHexTxt').textContent = d.pageBgHex || '#F4F4F1';
     $('#dsTileBg').value = d.tileBg || '#FFFFFF'; $('#dsTileBgTxt').textContent = d.tileBg || '#FFFFFF'; $('#dsInk').value = d.ink || '#0F1E2E'; $('#dsInkTxt').textContent = d.ink || '#0F1E2E';
     $('#dsHeaderRow').hidden = d.header !== 'custom'; $('#dsHeaderBg').value = d.headerBg || '#0F1E2E'; $('#dsHeaderBgTxt').textContent = d.headerBg || '#0F1E2E'; $('#dsHeaderInk').value = d.headerInk || '#FFFFFF'; $('#dsHeaderInkTxt').textContent = d.headerInk || '#FFFFFF';
     const dsel = $('#demoModelSel'); if (!dsel.options.length || dsel.dataset.lang !== S.lang) { dsel.innerHTML = CAT.demoModels.map(m => `<option value="${m.id}">${esc(m.label)}</option>`).join(''); dsel.dataset.lang = S.lang; dsel.value = S.demoId || 'controlling'; }
@@ -707,7 +730,7 @@
   $('#ftFieldList').addEventListener('drop', e => { e.preventDefault(); const d = e.dataTransfer.getData('application/mk-field'); if (d) addFilterField(JSON.parse(d)); });
   bind('ffOn', v => S.chrome.footer.on = v); bind('ffH', v => S.chrome.footer.h = clamp(+v, 16, 48), 'input'); bind('ffText', v => S.chrome.footer.text = v, 'input');
   bind('dsRadius', v => S.design.radius = +v); bind('dsTile', v => S.design.tile = v); bind('dsPageBg', v => S.design.pageBg = v); bind('dsHeader', v => S.design.header = v);
-  bind('dsAccent', v => S.design.accent = v, 'input'); bind('dsPalette', v => S.design.palette = v);
+  bind('dsAccent', v => S.design.accent = v, 'input'); bind('dsPalette', v => S.design.palette = v); bind('dsNative', v => S.design.nativePalette = v);
   bind('dsPageBgHex', v => S.design.pageBgHex = v, 'input'); bind('dsTileBg', v => S.design.tileBg = v, 'input'); bind('dsInk', v => S.design.ink = v, 'input'); bind('dsHeaderBg', v => S.design.headerBg = v, 'input'); bind('dsHeaderInk', v => S.design.headerInk = v, 'input');
   $('#btnSplitRoot').onclick = () => $('#dlgSplit').showModal();
   $('#spOk').onclick = () => { rebuildGrid(clamp(+$('#spRows').value || 1, 1, 6), clamp(+$('#spCols').value || 1, 1, 6)); $('#dlgSplit').close(); };
@@ -886,6 +909,22 @@
   $('#btnZoomOut').onclick = () => { zoom = clamp(zoom / 1.15, 0.1, 3); render(); };
   window.addEventListener('resize', () => { fitZoom(); render(); });
   $('#btnHelp').onclick = () => $('#dlgHelp').showModal();
+  // Staende vergleichen (v0.4.7): gespeicherte Datei (Zustand oder Spec) gegen den aktuellen Stand
+  let lastDiff = null;
+  $('#btnDiff').onclick = () => $('#fileDiff').click();
+  $('#fileDiff').addEventListener('change', e => {
+    const f = e.target.files[0]; if (!f) return;
+    f.text().then(txt => {
+      try {
+        const other = window.MK_DIFF.from(JSON.parse(txt)); if (!other) throw new Error('kein Mockup');
+        const cur = other.source === 'spec' ? window.MK_DIFF.fromSpec(window.MK_EXPORT.buildSpec()) : window.MK_DIFF.fromState(S);
+        const res = window.MK_DIFF.compare(other, cur); lastDiff = { res, names: { older: f.name, newer: t('diff.current') } };
+        $('#dlgDiffP').textContent = t('diffui.p', { a: f.name, n: res.counts.total }); $('#dlgDiffBody').innerHTML = window.MK_DIFF.render(res, t); $('#dlgDiff').showModal();
+      } catch (err) { toast(t('toast.notAMockup')); }
+      e.target.value = '';
+    });
+  });
+  $('#btnDiffCopy').onclick = () => { if (!lastDiff) return; navigator.clipboard.writeText(window.MK_DIFF.markdown(lastDiff.res, t, lastDiff.names)).then(() => toast(t('diffui.copied'))); };
   $('#btnUndo').onclick = undo; $('#btnRedo').onclick = redo;
   function togglePresent(on) { document.body.classList.toggle('present', on); const p = document.body.classList.contains('present'); const b = $('#btnPresent'); b.textContent = p ? t('btn.presentEnd') : t('btn.present'); b.setAttribute('data-i18n', p ? 'btn.presentEnd' : 'btn.present'); setTimeout(() => { fitZoom(); render(); }, 30); }
   $('#btnPresent').onclick = () => togglePresent();
@@ -909,7 +948,7 @@
   // Öffentliche API für export.js
   window.MK = {
     get state() { return S; }, set state(v) { S = migrate(v); sel = null; commit(); },
-    page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
+    page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     setLang, get lang() { return I18N.lang; },
     // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
     reset() { S = defaultState(); S.pages.forEach(p => ensureIds(p.layout)); sel = null; undoStack = []; commit(); },

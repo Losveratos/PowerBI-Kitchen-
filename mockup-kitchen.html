@@ -239,6 +239,22 @@ body.present .gutter .gmerge{display:none}
 .page:hover .gedge{opacity:.45}
 .gedge:hover{opacity:1;background:var(--accent);color:#fff;border-color:var(--accent);border-style:solid}
 body.present .gedge{display:none}
+#dlgDiff{width:820px}
+.dlg-body.diff{max-height:70vh;overflow:auto;font-size:13px}
+.dlg-body.diff h3{font-size:13px;margin:14px 0 6px;font-family:var(--ff-sans)}
+.dlg-body.diff .mono{font-family:var(--ff-mono);font-size:11px;color:var(--ink-mute)}
+.diff-sum{display:flex;gap:8px;flex-wrap:wrap}
+.diff-pill,.diff-tag{display:inline-block;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:600;background:var(--line);color:var(--ink)}
+.diff-pill.added,.diff-tag.added{background:#DDEFE6;color:#1F5A3F}
+.diff-pill.removed,.diff-tag.removed{background:#F6DCD7;color:#8A2E1C}
+.diff-pill.changed,.diff-tag.changed{background:#FBEBD6;color:#8A4E10}
+.diff-list{list-style:none;padding:0;margin:0}
+.diff-list>li{padding:6px 0;border-bottom:1px solid var(--line)}
+.diff-det{margin:4px 0 0 0;padding-left:18px;color:var(--ink-soft)}
+.diff-det em{font-style:normal;font-weight:600;color:var(--ink)}
+.diff-det s{color:var(--ink-mute)}
+.diff-mute{color:var(--ink-mute)}
+.diff-none{color:var(--ink-soft)}
 .stage-tools{position:absolute;right:14px;bottom:12px;display:flex;gap:6px;z-index:5}
 .stage-tools .btn{box-shadow:var(--sh)}
 .stage-foot{position:absolute;left:14px;bottom:12px;display:flex;align-items:center;gap:8px;z-index:5}
@@ -397,6 +413,10 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       <p class="hint" style="margin:0 0 8px" data-i18n="hint.report">Der Berichtskopf wandert in Brief, Workshop-Doku und PowerPoint. Ohne Zielgruppe und Entscheidung bleibt die Doku ein Bilderbuch.</p>
       <div class="field"><label data-i18n="lbl.reportName">Berichtsname</label><input class="ctl" id="rpName"></div>
       <div class="field"><label data-i18n="lbl.audience">Zielgruppe</label><input class="ctl" id="rpAudience" data-i18n-ph="ph.audience" placeholder="z. B. Geschäftsführung, Vertriebsleitung"></div>
+      <div class="section"><h3 data-i18n="diffui.sec">Stände vergleichen</h3>
+        <p class="hint" data-i18n="diffui.hint">Gespeicherte Datei (Speichern oder Export) gegen den aktuellen Stand: neue, entfernte, geänderte Kacheln, Seiten, Zonen, Design.</p>
+        <button class="btn" id="btnDiff" data-i18n="diffui.btn" style="margin-top:6px">Datei vergleichen …</button>
+      </div>
       <div class="field"><label data-i18n="lbl.purpose">Ziel des Berichts</label><textarea class="ctl" id="rpPurpose" data-i18n-ph="ph.purpose" placeholder="Welche Frage beantwortet der Bericht?"></textarea></div>
       <div class="field"><label data-i18n="lbl.decision">Entscheidung, die er auslösen soll</label><textarea class="ctl" id="rpDecision" data-i18n-ph="ph.decision" placeholder="Was wird anhand des Berichts entschieden?"></textarea></div>
       <div class="grid2">
@@ -511,6 +531,9 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       <div class="field"><label data-i18n="lbl.palette">Abweichungsfarben (Δ)</label>
         <select class="ctl" id="dsPalette"><option value="teal" data-i18n="opt.pal.teal">Teal / Rot (ChartKitchen-Standard)</option><option value="ibcs" data-i18n="opt.pal.ibcs">Grün / Rot (klassisch)</option></select>
       </div>
+      <div class="field"><label data-i18n="smp.nativePal">Farbschema native Visuals</label>
+        <select class="ctl" id="dsNative"><option value="neutral" data-i18n="smp.neutral">Neutral (Grau mit einem Akzent)</option><option value="pbi" data-i18n="smp.pbi">Power-BI-Standardpalette</option><option value="kitchen" data-i18n="smp.kitchen">ChartKitchen (Teal)</option></select>
+      </div>
       <div class="field"><label data-i18n="lbl.accent">Akzentfarbe</label><div class="row"><input type="color" id="dsAccent" value="#C25A2D" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsAccentTxt">#C25A2D</span></div></div>
       <details class="sub" id="dsTypo"><summary data-i18n="sec.typoDetails">Typografie (Details)</summary>
         <p class="hint" data-i18n="hint.typo">Basisgrößen in px bei 1280 px Seitenbreite, sie skalieren mit der Seite. Je Kachel im Kachel-Fenster übersteuerbar.</p>
@@ -608,6 +631,10 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
   <div class="dlg-head"><div><h2 id="dlgTileH">Kachel</h2><p data-i18n="dlg.tile.p">Notiz, Workshop-Status und Verhalten der Kachel in einem Fenster. Änderungen gelten sofort.</p></div><span class="spacer"></span><button class="btn ghost" id="dlgTileClose">✕</button></div>
   <div class="dlg-body" id="dlgTileBody"></div>
 </dialog>
+<dialog id="dlgDiff">
+  <div class="dlg-head"><div><h2 data-i18n="diffui.h">Was hat sich geändert?</h2><p id="dlgDiffP"></p></div><span class="spacer"></span><button class="btn" id="btnDiffCopy" data-i18n="diffui.copy">Als Markdown kopieren</button><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-body diff" id="dlgDiffBody"></div>
+</dialog>
 <dialog id="dlgHelp" class="narrow">
   <div class="dlg-head"><div><h2 data-i18n="dlg.help.h">So funktioniert MockupKitchen</h2><p data-i18n="dlg.help.p">Vom Workshop-Skizzenblatt zur Power-BI-Seite.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body help" data-i18n-html="help.body">
@@ -631,14 +658,16 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 <input type="file" id="fileTmdl" webkitdirectory multiple hidden>
 <input type="file" id="fileTmdlSingle" accept=".tmdl,.txt,.json" multiple hidden>
 <input type="file" id="fileOpen" accept=".json" hidden>
+<input type="file" id="fileDiff" accept=".json" hidden>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="assets/mockup/i18n.js?v=20260924f"></script>
-<script src="assets/mockup/sketches.js?v=20260924f"></script>
-<script src="assets/mockup/catalog.js?v=20260924f"></script>
-<script src="assets/mockup/a11y.js?v=20260924f"></script>
-<script src="assets/mockup/app.js?v=20260924f"></script>
-<script src="assets/mockup/render-png.js?v=20260924f"></script>
-<script src="assets/mockup/export.js?v=20260924f"></script>
+<script src="assets/mockup/i18n.js?v=20260925a"></script>
+<script src="assets/mockup/sketches.js?v=20260925a"></script>
+<script src="assets/mockup/catalog.js?v=20260925a"></script>
+<script src="assets/mockup/a11y.js?v=20260925a"></script>
+<script src="assets/mockup/diff.js?v=20260925a"></script>
+<script src="assets/mockup/app.js?v=20260925a"></script>
+<script src="assets/mockup/render-png.js?v=20260925a"></script>
+<script src="assets/mockup/export.js?v=20260925a"></script>
 </body>
 </html>

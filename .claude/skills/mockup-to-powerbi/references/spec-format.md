@@ -100,6 +100,7 @@ Wieder abwärtskompatibel: fehlt ein Schlüssel, baut der Skill genau wie vorher
 | `zones.header.navPosition`, `zones.footer.nav`, `zones.footer.navPosition` | 0.4.3 | Seitennavigation im Kopfband, in der Fußleiste oder aus |
 | `design.typography`, `visuals[].typography` | 0.4.3 | Schriftgrößen (Titel, Untertitel, Diagramm) und Kachel-Faktor |
 | `zones.filter.heading`, `zones.filter.text` | 0.4.4 | Überschrift (oder keine) und Hinweistext im Filterbereich |
+| `visuals[].samples`, `design.nativePalette` | 0.4.7 | Beispielwerte je Kachel (`categories`, `values`, `refValues`, nur Anschauung) und Farbschema der Skizzen für native Visuals (`neutral`/`pbi`/`kitchen`). Beides ist **kein** Bauauftrag: keine Daten in den Bericht schreiben, Datenfarben regelt das Theme |
 | `zones.filter.slicers[].type` | 0.4.4 / 0.4.6 | Slicer-Art `dropdown` · `list` · `tile` · `between` · `date` · `search` · ab 0.4.6 `relative` · `button` |
 | Issue-Codes `A11Y_*` | 0.4.4 | Befunde der Barrierefreiheits-Prüfung |
 

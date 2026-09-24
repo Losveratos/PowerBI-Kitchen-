@@ -447,8 +447,10 @@
       label: v.sub || '', scale: k, lang: ctx.S.lang,
       palette: ctx.palette, ink: ctx.dark ? '#E6E6E6' : (ctx.d.ink || '#404040'), dark: ctx.dark, paper: ctx.tileBg,
       fontScale: (mk().typo ? mk().typo().scale : 1) * ((v.typo && v.typo.scale) || 1), fonts: { label: mk().typo ? mk().typo().chart : 9 },
-      antiPattern: !!(mk().anti && mk().anti[v.kind])
+      antiPattern: !!(mk().anti && mk().anti[v.kind]),
+      nativePalette: (ctx.d && ctx.d.nativePalette) || 'neutral'
     };
+    if (mk().samplesOpt) { try { Object.assign(sopt, mk().samplesOpt(v)); } catch (e) { /* ohne Beispielwerte */ } }
     try {
       var an = mk().analysisOf ? mk().analysisOf(v) : null;
       if (an) {
