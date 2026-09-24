@@ -63,6 +63,7 @@
   .box { border: 1px dashed var(--border); background: #fff; }
   body.on-dark .box { background: #1E1E1E; border-color: #3C3C3C; }
   .bad { outline: 2px solid #C8412F; }
+  .dk .box { background: #1E1E1E; border-color: #3C3C3C; }
   .legend { font-size: 12px; color: var(--ink-soft); margin: 0 0 12px; }
   .warn { color: #C8412F; font-weight: 600; }
   @media (max-width: 1040px) {
@@ -179,6 +180,22 @@
     </select>
   </label>
   <label><input id="anti" type="checkbox"> Anti-Pattern</label>
+  <label title="Datenfarben der nativen Skizzen (look native, ncolumn/nbar/nline/ndonut, Treemap, Karte …)">nativePalette
+    <select id="npal">
+      <option value="">— (pbi)</option>
+      <option value="pbi">pbi · Standard</option>
+      <option value="neutral">neutral · Grau + Akzent</option>
+      <option value="kitchen">kitchen · Teal</option>
+    </select>
+  </label>
+
+  <span class="grp">Eigene Daten</span>
+  <label title="Kategorien, getrennt mit ; oder ,">cats
+    <input id="cats" type="text" value="" placeholder="Nord; Süd; Ost" style="width:150px"></label>
+  <label title="Werte der Hauptreihe (AC), getrennt mit ; — Dezimal mit . oder ,">values
+    <input id="vals" type="text" value="" placeholder="1250000; 980000; 640000" style="width:170px"></label>
+  <label title="Werte der Referenz (PY/PL je nach Δ-Basis), getrennt mit ;">refValues
+    <input id="refs" type="text" value="" placeholder="1100000; 1000000; 700000" style="width:170px"></label>
   <span id="stat"></span>
 </div>
 
@@ -187,6 +204,15 @@
 <code>fonts</code> ersetzt einzelne Grundgrade (px bei scale 1) — Beschriftungen, die nicht mehr passen,
 werden ausgeblendet statt zu überlappen. Die GuV-Presets entsprechen dem Spalten-Preset des Visuals,
 <code>treeCard</code> wählt die Mini-Grafik je Zeile.</p>
+
+<h2>Eigene Daten · <code>cats</code> / <code>values</code> / <code>refValues</code> (feste Beispiele)</h2>
+<p class="legend">Jede Kachel nutzt die Einstellungen der Leiste oben (Sprache, Szenario, Palette …), aber ihre eigenen
+Kategorien und Werte. Große Zahlen werden gekürzt (de: Tsd./Mio./Mrd., en: K/M/B), Tausender- und Dezimaltrenner
+folgen der Sprache, Dezimalstellen der Eingabe bleiben erhalten (höchstens 2). Negative Werte bekommen eine eigene Nulllinie.</p>
+<div class="focus" id="data"></div>
+
+<h2>Native Paletten · <code>nativePalette</code> pbi / neutral / kitchen, hell und dunkel</h2>
+<div class="focus" id="pals"></div>
 
 <h2>Überarbeitete Typen · 480×260</h2>
 <div class="focus" id="focus"></div>
@@ -208,7 +234,39 @@ werden ausgeblendet statt zu überlappen. Die GuV-Presets entsprechen dem Spalte
   var grid = document.getElementById('grid');
   var focus = document.getElementById('focus');
   var pnl = document.getElementById('pnl');
+  var data = document.getElementById('data');
+  var pals = document.getElementById('pals');
   var stat = document.getElementById('stat');
+  var LONG = 'Nordrhein-Westfalen Süd-Ost';
+  // [Typ, Breite, Höhe, eigene Optionen, Beschriftung]
+  var DATA = [
+    ['ncolumn', 480, 260, { cats: ['Nord', 'Süd', 'Ost'], values: [1250000, 980000, 640000] }, 'ncolumn · 3 Kategorien, Mio./Tsd.'],
+    ['ncolumn', 480, 260, { cats: ['Nord', 'Süd', 'Ost', 'West'], values: [1200, -800, 450, -150], refValues: [1000, -500, 700, 100] }, 'ncolumn · negativ, Referenz'],
+    ['columns', 480, 260, { cats: ['Nord', 'Süd', 'Ost', 'West', 'Mitte'], values: [1250000, 980000, 640000, 2100000, 330000], refValues: [1100000, 1000000, 700000, 1900000, 400000] }, 'columns · AC gegen Referenz'],
+    ['kombi', 480, 260, { cats: ['Nord', 'Süd', 'Ost', 'West', 'Mitte', 'Export'], values: [12.5, 8.25, 3.75, 19.99, 0.5, 7], refValues: [11, 9.5, 4, 18, 1, 6.5] }, 'kombi · Dezimalwerte'],
+    ['bars', 480, 260, { cats: ['Nord', 'Süd', 'Ost', 'West', 'Mitte', 'Export', LONG], values: [1200, -800, 450, -2000, 950, 600, -150] }, 'bars · 7 Kategorien, gemischt negativ'],
+    ['nbar', 480, 260, { cats: ['Nord', 'Süd', 'Ost', LONG], values: [3.2e9, -1.1e9, 7.5e8, 4e9] }, 'nbar · Mrd., negativ'],
+    ['table', 560, 300, { cats: ['Nord', 'Süd', 'Ost', 'West', LONG], values: [1250000, 980000, 640000, 2100000, 330000], refValues: [1000000, 1000000, 700000, 1900000, 400000] }, 'table · Δ und Δ% aus AC − Referenz'],
+    ['line', 480, 260, { cats: ['Q1', 'Q2', 'Q3', 'Q4'], values: [420, 515, 480, 610], refValues: [400, 450, 500, 560] }, 'line · 4 Kategorien'],
+    ['nline', 480, 260, { values: [12, 15, 14, 18, 21, 19, 24, 26, 23, 28, 30, 33] }, 'nline · 12 Monatswerte ohne cats'],
+    ['waterfall', 480, 260, { cats: ['Nord', 'Süd', 'Ost', 'West'], values: [1200, -800, 450, -300] }, 'waterfall · Beiträge mit Vorzeichen'],
+    ['bridge', 480, 260, { cats: ['Nord', 'Süd', 'Ost', 'West'], values: [520, 380, 290, 150], refValues: [480, 400, 250, 170] }, 'bridge · Σ Bezug → Δ → Σ AC'],
+    ['varint', 560, 300, { cats: ['Nord', 'Süd', 'Ost', 'West', 'Mitte', 'Export'], values: [820, 760, 910, 640, 700, 880], refValues: [800, 800, 850, 700, 690, 900] }, 'varint · Kategorien statt Monate'],
+    ['kpi', 320, 160, { values: [1250000], refValues: [1100000] }, 'kpi · values[0] groß, Δ aus refValues[0]'],
+    ['card', 320, 160, { values: [3.2e9], unit: '€' }, 'card · Mrd. + Einheit'],
+    ['multirow', 320, 200, { cats: ['Umsatz', 'Marge', 'Kunden'], values: [1250000, 0.23, 1840] }, 'multirow · Namen und Werte'],
+    ['gauge', 320, 200, { values: [68.5], refValues: [80] }, 'gauge · Wert und Ziel'],
+    ['donut', 480, 260, { cats: ['Nord', 'Süd', 'Ost', 'West', 'Mitte'], values: [50, 30, 20, 12, 8], nativePalette: 'neutral' }, 'donut · neutral, 5 Segmente'],
+    ['treemap', 480, 260, { cats: ['Nord', 'Süd', 'Ost', 'West', 'Mitte', 'Export', 'Online', 'Handel'], values: [420, 310, 250, 180, 120, 90, 60, 40], nativePalette: 'kitchen' }, 'treemap · kitchen, squarified'],
+    ['matrix', 480, 260, { cats: ['Nord', 'Süd', 'Ost', LONG], values: [1250000, 980000, 640000, 330000] }, 'matrix · Zeilensummen'],
+    ['slicer', 220, 200, { cats: ['Alpha', 'Beta', 'Gamma', LONG] }, 'slicer · eigene Einträge'],
+    ['multiples', 560, 300, { cats: ['Nord', 'Süd', 'Ost', 'West'], values: [1250000, 980000, 640000, 330000], refValues: [1100000, 1000000, 700000, 400000] }, 'multiples · Panel je Kategorie'],
+    ['decomp', 480, 260, { cats: ['Nord', 'Süd', 'Ost', 'West', 'Mitte'], values: [520, 380, 290, 150, 90] }, 'decomp · Ebene 1 = cats'],
+    ['slope', 480, 260, { cats: ['Nord', 'Süd', 'Ost', 'West'], values: [520, 380, 290, 150], refValues: [480, 400, 250, 170] }, 'slope · Bezug → AC'],
+    ['sparktable', 480, 260, { cats: ['Nord', 'Süd', 'Ost', 'West'], values: [1250000, 980000, 640000, 330000], refValues: [1100000, 1000000, 700000, 400000] }, 'sparktable · Zahl und Δ'],
+    ['small:ncolumn', 600, 320, { cats: ['Nord', 'Süd', 'Ost', 'West'], values: [1250000, 980000, 640000] }, 'MK_SKETCH.small · Kacheltitel = cats'],
+    ['stackcol', 480, 260, { cats: ['Online', 'Handel', 'Service'], values: [420, 260, 120] }, 'stackcol · Segmente = cats, Monate bleiben']
+  ];
 
   function el(id) { return document.getElementById(id); }
   function val(id) { return el(id).value.trim(); }
@@ -248,15 +306,28 @@ werden ausgeblendet statt zu überlappen. Die GuV-Presets entsprechen dem Spalte
     if (list.length) o.scenarios = list;
     if (val('basis')) o.deltaBasis = val('basis');
     if (val('unit')) o.unit = val('unit');
+    if (val('npal')) o.nativePalette = val('npal');
+    var cats = val('cats').split(/\s*[;,]\s*/).filter(Boolean);
+    var vs = nums(val('vals')), rs = nums(val('refs'));
+    if (cats.length) o.cats = cats;
+    if (vs.length) o.values = vs;
+    if (rs.length) o.refValues = rs;
     return o;
+  }
+  // „1250000; 980000" bzw. „12,5; 8,25" → Zahlen
+  function nums(s) {
+    return s.split(/\s*;\s*/).filter(function (t) { return t !== ''; })
+            .map(function (t) { return parseFloat(t.replace(',', '.')); })
+            .filter(function (v) { return isFinite(v); });
   }
 
   var bad = 0;
   function tile(kind, w, h, o, cap) {
     var s = o.scale || 1;
-    var svg = window.MK_SKETCH(kind, w * s, h * s, o);
+    var small = kind.indexOf('small:') === 0;
+    var svg = small ? window.MK_SKETCH.small(kind.slice(6), w * s, h * s, o) : window.MK_SKETCH(kind, w * s, h * s, o);
     var ok = typeof svg === 'string' && svg.indexOf('<svg') === 0 &&
-             svg.indexOf('NaN') < 0 && svg.indexOf('undefined') < 0;
+             svg.indexOf('NaN') < 0 && svg.indexOf('undefined') < 0 && svg.indexOf('Infinity') < 0;
     if (!ok) bad++;
     return '<div class="cell"><span class="cap">' + (cap || (kind + ' · ' + w + '×' + h)) + '</span>' +
            '<div class="box' + (ok ? '' : ' bad') + '" style="width:' + w + 'px;height:' + h + 'px">' +
@@ -267,6 +338,31 @@ werden ausgeblendet statt zu überlappen. Die GuV-Presets entsprechen dem Spalte
     var o = opts(), html = '';
     bad = 0;
     el('fscaleV').textContent = o.fontScale.toFixed(2).replace('.', ',');
+
+    // feste Datenbeispiele: Leisten-Einstellungen plus eigene cats/values
+    var base = Object.assign({}, o);
+    delete base.cats; delete base.values; delete base.refValues;
+    html = '';
+    DATA.forEach(function (d) {
+      var od = Object.assign({}, base, d[3]);
+      if (!d[3].nativePalette && o.nativePalette) od.nativePalette = o.nativePalette;
+      html += '<div class="card">' + tile(d[0], d[1], d[2], od, d[4] + ' · ' + d[1] + '×' + d[2]) + '</div>';
+    });
+    data.innerHTML = html;
+
+    html = '';
+    ['pbi', 'neutral', 'kitchen'].forEach(function (p) {
+      [false, true].forEach(function (dk) {
+        var op = Object.assign({}, base, { nativePalette: p, dark: dk, cats: ['Nord', 'Süd', 'Ost', 'West', 'Mitte', 'Export'] });
+        if (dk) { op.ink = '#E6E6E6'; op.paper = '#1E1E1E'; }
+        var cell = '';
+        ['ncolumn', 'ndonut', 'treemap'].forEach(function (k) {
+          cell += '<div class="' + (dk ? 'dk' : '') + '">' + tile(k, 240, 150, op, k + ' · ' + p + (dk ? ' · dunkel' : '')) + '</div>';
+        });
+        html += '<div class="card" style="display:flex;gap:10px">' + cell + '</div>';
+      });
+    });
+    pals.innerHTML = html;
 
     html = '';
     FOCUS.forEach(function (k) { html += '<div class="card">' + tile(k, 480, 260, o) + '</div>'; });
@@ -298,7 +394,8 @@ werden ausgeblendet statt zu überlappen. Die GuV-Presets entsprechen dem Spalte
   }
 
   ['scen', 'scale', 'seed', 'vabs', 'vrel', 'dense', 'pol', 'lang', 'unit', 'scens', 'basis', 'anti',
-   'pal', 'ink', 'mode', 'fscale', 'fLabel', 'fAxis', 'fTitle', 'fValue', 'pmode', 'ptree', 'pdens', 'look'
+   'pal', 'ink', 'mode', 'fscale', 'fLabel', 'fAxis', 'fTitle', 'fValue', 'pmode', 'ptree', 'pdens', 'look',
+   'npal', 'cats', 'vals', 'refs'
   ].forEach(function (id) {
     el(id).addEventListener('change', render);
     el(id).addEventListener('input', render);
