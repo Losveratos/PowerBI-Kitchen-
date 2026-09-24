@@ -10,6 +10,12 @@
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const LS_KEY = 'mockupkitchen.state.v1';
+  // Klappgruppen im rechten Panel (v0.4.8): Zustand je Gruppe im Browser merken (reine Bedienhilfe, kein Projektzustand)
+  const PANEL_LS = 'mockupkitchen.panels.v1'; let panelOpen = {};
+  try { panelOpen = JSON.parse(localStorage.getItem(PANEL_LS) || '{}') || {}; } catch (e) { panelOpen = {}; }
+  function grpState(key, def) { return key in panelOpen ? !!panelOpen[key] : def; }
+  function grpRemember(key, open) { panelOpen[key] = open; try { localStorage.setItem(PANEL_LS, JSON.stringify(panelOpen)); } catch (e) { /* blockiert */ } }
+  function grp(key, title, inner, def, badge) { return `<details class="sub" data-grp="${key}"${grpState(key, def) ? ' open' : ''}><summary>${esc(title)}${badge ? `<span class="cnt">${esc(badge)}</span>` : ''}</summary>${inner}</details>`; }
   const PAGE_BG = { light: '#F4F4F1', soft: '#EEF1F5', white: '#FFFFFF' };
   const pageBgOf = d => d.pageBg === 'custom' ? (d.pageBgHex || '#F4F4F1') : (PAGE_BG[d.pageBg] || PAGE_BG.light);
   const isDark = hex => { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return false; const n = parseInt(m[1], 16); const r = n >> 16, g = (n >> 8) & 255, b = n & 255; return (0.299 * r + 0.587 * g + 0.114 * b) < 128; };
@@ -391,6 +397,7 @@
   function openFrameSection(key) {
     const tab = $('.tab[data-tab="chrome"]'); if (tab) tab.click();
     const sec = $('#sec' + key.charAt(0).toUpperCase() + key.slice(1)); if (!sec) return;
+    if (sec.tagName === 'DETAILS') sec.open = true;
     sec.scrollIntoView({ block: 'start', behavior: 'smooth' }); sec.classList.remove('flash'); void sec.offsetWidth; sec.classList.add('flash');
     const first = sec.querySelector('input:not([type=checkbox]), select'); if (first) first.focus({ preventScroll: true });
   }
@@ -511,14 +518,14 @@
     const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
     const an = analysisOf(v); const a = v.analysis || {};
     const hasMeasure = rolesDef.some(r => ['ac', 'indicator', 'values', 'y'].includes(r.key));
-    const variants = CAT.variantsFor(def) ? `<div class="section"><h3>${esc(t('sec.variants'))}</h3>
+    const variants = CAT.variantsFor(def) ? grp('variants', t('sec.variants'), `
       <label class="toggle" style="padding:0 0 6px"><input type="checkbox" data-an="smallMultiples" ${an.smallMultiples ? 'checked' : ''}> ${esc(t('lbl.smallMultiples'))}</label>
       ${an.smallMultiples && !(v.roles.multiples || []).length ? `<p class="hint" style="margin:0 0 8px">${esc(t('lbl.smHint'))}</p>` : ''}
       <label class="toggle" style="padding:0 0 6px"><input type="checkbox" data-an="fieldParam" ${an.fieldParam ? 'checked' : ''}> ${esc(t('lbl.fieldParam'))}</label>
       ${an.fieldParam ? `<div class="field"><label>${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-an="fieldParamName" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div><p class="hint" style="margin:0 0 8px">${esc(t('lbl.fieldParamHint'))}</p>` : ''}
-    </div>` : '';
+    `, false, [an.smallMultiples, an.fieldParam].filter(Boolean).length ? t('grp.on', { n: [an.smallMultiples, an.fieldParam].filter(Boolean).length }) : '') : '';
     const opt = (list, cur, labels) => list.map(x => `<option value="${x}" ${String(cur) === String(x) ? 'selected' : ''}>${labels ? labels[x] : x}</option>`).join('');
-    const analysis = hasMeasure ? `<div class="section"><h3>${esc(t('sec.analysis'))}</h3>
+    const analysis = hasMeasure ? grp('analysis', t('sec.analysis'), `
       <div class="grid2">
         <div class="field"><label>${esc(t('lbl.polarity'))}</label><select class="ctl" data-an="polarity">${opt(['', 'higher', 'lower'], a.polarity || '', { '': t('opt.polarity.auto', { v: t('opt.polarity.' + an.polarity) }), higher: t('opt.polarity.higher'), lower: t('opt.polarity.lower') })}</select></div>
         ${hasRef ? `<div class="field"><label>${esc(t('lbl.deltaBasis'))}</label><select class="ctl" data-an="deltaBasis">${opt(['', 'PL', 'PY', 'BU', 'FC'], a.deltaBasis || '', { '': t('opt.autoBase', { v: an.deltaBasis }), PL: 'PL', PY: 'PY', BU: 'BU', FC: 'FC' })}</select></div>` : '<div></div>'}
@@ -534,7 +541,7 @@
         <div class="field"><label class="toggle" style="text-transform:none;letter-spacing:0"><input type="checkbox" data-an="cumulative" ${an.cumulative ? 'checked' : ''}> ${esc(t('lbl.cumulative'))}</label></div>
       </div>
       <div class="field"><label>${esc(t('lbl.message'))}</label><input class="ctl" data-an="message" value="${esc(an.message)}" placeholder="${esc(t('ph.anMessage'))}"></div>
-    </div>` : '';
+    `, false, Object.keys(a).length ? t('grp.set', { n: Object.keys(a).length }) : '') : '';
     const isText = v.kind === 'text' || v.kind === 'button';
     insEl.innerHTML = `
       <button class="btn tilewin-btn" data-tilewin="1" title="${esc(t('tip.tileWindow'))}">⤢ ${esc(t('lbl.tileWindow'))}</button>
@@ -548,7 +555,7 @@
       ${variants}
       <div class="section"><h3>${esc(t('sec.roles'))} <span class="k" style="font-weight:400;text-transform:none;letter-spacing:0">${esc(t('sec.rolesHint'))}</span></h3>${roles || `<p class="hint">${esc(t('hint.noRoles'))}</p>`}</div>
       ${analysis}
-      <div class="section"><h3>${esc(t('sec.workshop'))}</h3>
+      ${grp('workshop', t('sec.workshop'), `
         <div class="grid2">
           <div class="field"><label>${esc(t('lbl.priority'))}</label><select class="ctl" data-vk="priority">${opt(['', 'must', 'should', 'could'], v.priority || '', { '': t('opt.pri.none'), must: t('opt.pri.must'), should: t('opt.pri.should'), could: t('opt.pri.could') })}</select></div>
           <div class="field"><label>${esc(t('lbl.status'))}</label><select class="ctl" data-vk="status">${opt(['open', 'agreed', 'approved'], v.status || 'open', { open: t('opt.status.open'), agreed: t('opt.status.agreed'), approved: t('opt.status.approved') })}</select></div>
@@ -556,7 +563,7 @@
         <div class="field"><label>${esc(t('lbl.notes'))}</label><textarea class="ctl" data-vk="notes" placeholder="${esc(t('ph.notes'))}">${esc(v.notes)}</textarea></div>
         <label class="toggle"><input type="checkbox" data-vkb="openQuestion" ${v.openQuestion ? 'checked' : ''}> ${esc(t('lbl.openQuestion'))}</label>
         <div class="field"><label>${esc(t('lbl.link'))}</label><select class="ctl" data-vk="link">${links}</select></div>
-      </div>
+      `, true, v.priority ? t('opt.pri.' + v.priority) : (v.openQuestion ? '?' : ''))}
       ${dims}
       <div class="section row wrap"><button class="btn sm" data-ins="clear">${esc(t('btn.clearTile'))}</button><button class="btn sm" data-ins="rm">${esc(t('btn.removeTile'))}</button></div>`;
     bindInspector(n);
@@ -643,6 +650,8 @@
   }
   function renderPageOnly() { const act = document.activeElement; render(); if (act && act.dataset && act.dataset.vk) { const again = $(`[data-vk="${act.dataset.vk}"]`, insEl); if (again) { again.focus(); if (again.setSelectionRange && act.selectionStart != null) try { again.setSelectionRange(act.selectionStart, act.selectionEnd); } catch (e) { /* select */ } } } }
 
+  $$('.panel.right details.sub[id]').forEach(d => { if (d.id in panelOpen) d.open = !!panelOpen[d.id]; });
+  $('.panel.right').addEventListener('toggle', e => { const d = e.target; if (d && d.matches && d.matches('details.sub')) { const key = d.dataset.grp || d.id; if (key) grpRemember(key, d.open); } }, true);
   $$('.tab').forEach(tb => tb.onclick = () => { $$('.tab').forEach(x => x.classList.toggle('active', x === tb)); ['el', 'page', 'report', 'chrome', 'design'].forEach(k => { $('#ins' + k[0].toUpperCase() + k.slice(1)).hidden = tb.dataset.tab !== k; }); });
 
   // ------------------------------------------------------------------ Inspector · Seite / Rahmen / Design

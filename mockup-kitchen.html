@@ -152,7 +152,7 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .zcfg{position:absolute;z-index:6;width:calc(18px * var(--ui));height:calc(18px * var(--ui));border-radius:50%;background:var(--bg-card);border:1px solid var(--line-strong);color:var(--ink-soft);font-size:calc(12px * var(--ui));line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .12s}
 .page:hover .zcfg{opacity:.55}.zcfg:hover{opacity:1;background:var(--accent);color:#fff;border-color:var(--accent)}
 body.present .zcfg{display:none}
-.section.flash{animation:secflash 1.2s ease}@keyframes secflash{0%{background:var(--accent-soft)}100%{background:transparent}}
+.section.flash,details.sub.flash{animation:secflash 1.2s ease}@keyframes secflash{0%{background:var(--accent-soft)}100%{background:transparent}}
 .zone.filter{background:#ECEBE5;border-left:1px solid #E3E1D8;padding:calc(12px * var(--ui)) calc(10px * var(--ui))}
 .zone.filter.left{border-left:0;border-right:1px solid #E3E1D8}
 .zone.filter.top{border-left:0;border-bottom:1px solid #E3E1D8;display:flex;align-items:center;gap:calc(8px * var(--ui));padding:0 calc(16px * var(--ui))}
@@ -239,6 +239,14 @@ body.present .gutter .gmerge{display:none}
 .page:hover .gedge{opacity:.45}
 .gedge:hover{opacity:1;background:var(--accent);color:#fff;border-color:var(--accent);border-style:solid}
 body.present .gedge{display:none}
+details.sub>summary .cnt{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--line);color:var(--ink-soft);font-size:10.5px;letter-spacing:0;text-transform:none;font-weight:600}
+details.sub>summary{list-style:none;display:flex;align-items:center}
+details.sub>summary::-webkit-details-marker{display:none}
+details.sub>summary::before{content:"▸";display:inline-block;width:12px;font-size:10px;color:var(--ink-mute);transition:transform .12s}
+details.sub[open]>summary::before{transform:rotate(90deg)}
+details.sub[open]>summary{margin-bottom:6px}
+details.sub .section{border-top:0;margin-top:6px;padding-top:0}
+.panel.right details.sub{padding:6px 10px 8px}
 #dlgDiff{width:820px}
 .dlg-body.diff{max-height:70vh;overflow:auto;font-size:13px}
 .dlg-body.diff h3{font-size:13px;margin:14px 0 6px;font-family:var(--ff-sans)}
@@ -413,10 +421,6 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       <p class="hint" style="margin:0 0 8px" data-i18n="hint.report">Der Berichtskopf wandert in Brief, Workshop-Doku und PowerPoint. Ohne Zielgruppe und Entscheidung bleibt die Doku ein Bilderbuch.</p>
       <div class="field"><label data-i18n="lbl.reportName">Berichtsname</label><input class="ctl" id="rpName"></div>
       <div class="field"><label data-i18n="lbl.audience">Zielgruppe</label><input class="ctl" id="rpAudience" data-i18n-ph="ph.audience" placeholder="z. B. Geschäftsführung, Vertriebsleitung"></div>
-      <div class="section"><h3 data-i18n="diffui.sec">Stände vergleichen</h3>
-        <p class="hint" data-i18n="diffui.hint">Gespeicherte Datei (Speichern oder Export) gegen den aktuellen Stand: neue, entfernte, geänderte Kacheln, Seiten, Zonen, Design.</p>
-        <button class="btn" id="btnDiff" data-i18n="diffui.btn" style="margin-top:6px">Datei vergleichen …</button>
-      </div>
       <div class="field"><label data-i18n="lbl.purpose">Ziel des Berichts</label><textarea class="ctl" id="rpPurpose" data-i18n-ph="ph.purpose" placeholder="Welche Frage beantwortet der Bericht?"></textarea></div>
       <div class="field"><label data-i18n="lbl.decision">Entscheidung, die er auslösen soll</label><textarea class="ctl" id="rpDecision" data-i18n-ph="ph.decision" placeholder="Was wird anhand des Berichts entschieden?"></textarea></div>
       <div class="grid2">
@@ -425,13 +429,64 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       </div>
       <div class="field"><label data-i18n="lbl.participants">Teilnehmende Workshop</label><input class="ctl" id="rpParticipants" data-i18n-ph="ph.participants" placeholder="Namen, Rollen"></div>
       <div class="field"><label data-i18n="lbl.lang">Sprache der Ausgaben</label><select class="ctl" id="rpLang"><option value="de">Deutsch</option><option value="en">English</option></select><p class="hint" data-i18n="hint.lang">Gilt für Skizzen-Beschriftungen und Export-Dokumente.</p></div>
+      <div class="section"><h3 data-i18n="diffui.sec">Stände vergleichen</h3>
+        <p class="hint" data-i18n="diffui.hint">Gespeicherte Datei (Speichern oder Export) gegen den aktuellen Stand: neue, entfernte, geänderte Kacheln, Seiten, Zonen, Design.</p>
+        <button class="btn" id="btnDiff" data-i18n="diffui.btn" style="margin-top:6px">Datei vergleichen …</button>
+      </div>
     </div>
     <div class="panel-body" id="insPage" hidden>
       <div class="field"><label data-i18n="lbl.thisPage">Diese Seite</label><input class="ctl" id="pageName" data-i18n-ph="ph.pageName" placeholder="z. B. Übersicht"></div>
       <div class="field"><label data-i18n="lbl.pageQuestion">Fragestellung / Kernbotschaft der Seite</label><input class="ctl" id="pageQuestion" data-i18n-ph="ph.pageQuestion" placeholder="z. B. Liegen wir im Plan, und wo nicht?"></div>
       <div class="field"><label data-i18n="lbl.pageNotes">Zweck / Notizen zur Seite</label><textarea class="ctl" id="pageNotes" data-i18n-ph="ph.pageNotes" placeholder="Zielgruppe, Drill-Wege, Interaktionen …"></textarea></div>
       <div class="row wrap" style="margin-bottom:10px"><button class="btn sm" id="btnPageDup" data-i18n="btn.pageDup">Seite duplizieren</button><button class="btn sm" id="btnPageDel" data-i18n="btn.pageDel">Seite löschen</button></div>
-      <div class="section"><h3 data-i18n="sec.canvas">Canvas (alle Seiten)</h3>
+      <div class="section"><h3 data-i18n="sec.grid">Raster</h3>
+        <button class="btn sm" id="btnSplitRoot" data-i18n="btn.splitRoot">Inhalt neu aufteilen …</button>
+        <p class="hint" data-i18n="hint.splitRoot">Setzt den Inhaltsbereich dieser Seite auf ein neues Raster (Zeilen × Spalten). Bestehende Visuals werden der Reihe nach wieder eingesetzt.</p>
+      </div>
+    </div>
+    <div class="panel-body" id="insChrome" hidden>
+      <p class="hint" style="margin:0 0 6px" data-i18n="hint.chrome">Rahmen gilt für alle Seiten.</p>
+      <details class="sub" id="secHeader" open><summary data-i18n="sec.header">Kopfband</summary>
+        <label class="toggle"><input type="checkbox" id="hdOn"> <span data-i18n="lbl.headerOn">Kopfband anzeigen</span></label>
+        <div class="grid2">
+          <div><input class="ctl" type="number" id="hdH" min="32" max="120" step="4"><p class="hint" data-i18n="hint.height">Höhe</p></div>
+          <div><select class="ctl" id="hdLogoPos"><option value="left" data-i18n="opt.logo.left">Logo links</option><option value="right" data-i18n="opt.logo.right">Logo rechts</option><option value="none" data-i18n="opt.logo.none">kein Logo</option></select><p class="hint" data-i18n="hint.logo">Logo</p></div>
+        </div>
+        <div class="field"><label data-i18n="lbl.title">Titel</label><input class="ctl" id="hdTitle"></div>
+        <div class="field"><label data-i18n="lbl.subtitle">Untertitel</label><input class="ctl" id="hdSub" data-i18n-ph="ph.headerSub" placeholder="z. B. Zeitraum, Einheit"></div>
+        <div class="field"><label data-i18n="lbl.navPos">Seitennavigation</label><select class="ctl" id="hdNavPos"><option value="header" data-i18n="opt.navPos.header">im Kopfband</option><option value="footer" data-i18n="opt.navPos.footer">in der Fußleiste</option><option value="off" data-i18n="opt.navPos.off">aus</option></select></div>
+        <label class="toggle"><input type="checkbox" id="hdNavAuto"> <span data-i18n="lbl.navAuto">Navigation aus den Seitennamen</span></label>
+        <div class="field"><label data-i18n="lbl.navManual">Navigation manuell (kommagetrennt)</label><input class="ctl" id="hdNav" data-i18n-ph="ph.navManual" placeholder="Übersicht, Umsatz, Kosten"></div>
+      </details>
+      <details class="sub" id="secNav"><summary data-i18n="sec.nav">Linke Nav-Leiste</summary>
+        <label class="toggle"><input type="checkbox" id="nvOn"> <span data-i18n="lbl.navBarOn">Nav-Leiste anzeigen (App-Stil)</span></label>
+        <div class="grid2"><div><input class="ctl" type="number" id="nvW" min="40" max="120" step="4"><p class="hint" data-i18n="hint.width">Breite</p></div></div>
+      </details>
+      <details class="sub" id="secFilter" open><summary data-i18n="sec.filter">Filter / Slicer</summary>
+        <label class="toggle"><input type="checkbox" id="ftOn"> <span data-i18n="lbl.filterOn">Filter anzeigen</span></label>
+        <div class="grid2">
+          <div><select class="ctl" id="ftSide"><option value="right" data-i18n="opt.filter.right">Panel rechts</option><option value="left" data-i18n="opt.filter.left">Panel links</option><option value="top" data-i18n="opt.filter.top">Leiste oben</option><option value="burger" data-i18n="opt.filter.burger">Burger-Menü (Bookmark)</option></select><p class="hint" data-i18n="hint.position">Position</p></div>
+          <div><input class="ctl" type="number" id="ftW" min="48" max="360" step="8"><p class="hint" id="ftWHint">Breite</p></div>
+        </div>
+        <div class="grid2">
+          <div><select class="ctl" id="ftHeadShow"><option value="auto" data-i18n="opt.fh.auto">Überschrift solange leer</option><option value="on" data-i18n="opt.fh.on">Überschrift immer</option><option value="off" data-i18n="opt.fh.off">keine Überschrift</option></select><p class="hint" data-i18n="hint.fhShow">Überschrift</p></div>
+          <div><input class="ctl" id="ftHeadText" data-i18n-ph="ph.fhText" placeholder="Filter"><p class="hint" data-i18n="hint.fhText">Eigener Titel</p></div>
+        </div>
+        <div class="field"><label data-i18n="lbl.filterText">Text im Filterbereich (optional)</label><textarea class="ctl" id="ftText" rows="2" data-i18n-ph="ph.filterText" placeholder="z. B. Hinweis: Zeitraum wählen, dann Region"></textarea></div>
+        <label class="toggle" id="ftCollapsibleRow"><input type="checkbox" id="ftCollapsible"> <span data-i18n="lbl.filterCollapsible">Panel ausklappbar (Bookmark)</span></label>
+        <p class="hint" data-i18n="hint.filter">Felder aus dem Modell direkt aufs Panel ziehen, um Slicer anzulegen. Beim Burger-Menü entsteht im Export ein Bookmark-Paar „Filter öffnen / schließen" plus Button im Kopfband. Vorauswahl je Slicer eintragen, damit „mein Excel sagt was anderes" gar nicht erst entsteht.</p>
+        <div id="ftFieldList" style="margin-top:6px"></div>
+      </details>
+      <details class="sub" id="secFooter"><summary data-i18n="sec.footer">Fußleiste</summary>
+        <label class="toggle"><input type="checkbox" id="ffOn"> <span data-i18n="lbl.footerOn">Fußleiste anzeigen</span></label>
+        <div class="grid2"><div><input class="ctl" type="number" id="ffH" min="16" max="48" step="4"><p class="hint" data-i18n="hint.height">Höhe</p></div></div>
+        <div class="field"><label data-i18n="lbl.text">Text</label><input class="ctl" id="ffText"></div>
+      </details>
+    </div>
+    <div class="panel-body" id="insDesign" hidden>
+      <p class="hint" style="margin:0 0 6px" data-i18n="hint.design">Gestaltung gilt für alle Seiten und wandert als Design-Entscheidung in den Export.</p>
+      <details class="sub" id="dsFormat" open><summary data-i18n="sec.canvas">Canvas (alle Seiten)</summary>
+      <div>
         <select class="ctl" id="canvasPreset">
           <option value="1280x720" data-i18n="opt.canvas.hd">HD · 1280 × 720 (Standard)</option>
           <option value="1920x1080" data-i18n="opt.canvas.fhd">Full HD · 1920 × 1080</option>
@@ -461,52 +516,8 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
           <option value="AC" data-i18n="opt.scen.ac">nur AC</option>
         </select>
       </div>
-      <div class="section"><h3 data-i18n="sec.grid">Raster</h3>
-        <button class="btn sm" id="btnSplitRoot" data-i18n="btn.splitRoot">Inhalt neu aufteilen …</button>
-        <p class="hint" data-i18n="hint.splitRoot">Setzt den Inhaltsbereich dieser Seite auf ein neues Raster (Zeilen × Spalten). Bestehende Visuals werden der Reihe nach wieder eingesetzt.</p>
-      </div>
-    </div>
-    <div class="panel-body" id="insChrome" hidden>
-      <p class="hint" style="margin:0 0 6px" data-i18n="hint.chrome">Rahmen gilt für alle Seiten.</p>
-      <div class="section" id="secHeader" style="border-top:0;margin-top:0;padding-top:0"><h3 data-i18n="sec.header">Kopfband</h3>
-        <label class="toggle"><input type="checkbox" id="hdOn"> <span data-i18n="lbl.headerOn">Kopfband anzeigen</span></label>
-        <div class="grid2">
-          <div><input class="ctl" type="number" id="hdH" min="32" max="120" step="4"><p class="hint" data-i18n="hint.height">Höhe</p></div>
-          <div><select class="ctl" id="hdLogoPos"><option value="left" data-i18n="opt.logo.left">Logo links</option><option value="right" data-i18n="opt.logo.right">Logo rechts</option><option value="none" data-i18n="opt.logo.none">kein Logo</option></select><p class="hint" data-i18n="hint.logo">Logo</p></div>
-        </div>
-        <div class="field"><label data-i18n="lbl.title">Titel</label><input class="ctl" id="hdTitle"></div>
-        <div class="field"><label data-i18n="lbl.subtitle">Untertitel</label><input class="ctl" id="hdSub" data-i18n-ph="ph.headerSub" placeholder="z. B. Zeitraum, Einheit"></div>
-        <div class="field"><label data-i18n="lbl.navPos">Seitennavigation</label><select class="ctl" id="hdNavPos"><option value="header" data-i18n="opt.navPos.header">im Kopfband</option><option value="footer" data-i18n="opt.navPos.footer">in der Fußleiste</option><option value="off" data-i18n="opt.navPos.off">aus</option></select></div>
-        <label class="toggle"><input type="checkbox" id="hdNavAuto"> <span data-i18n="lbl.navAuto">Navigation aus den Seitennamen</span></label>
-        <div class="field"><label data-i18n="lbl.navManual">Navigation manuell (kommagetrennt)</label><input class="ctl" id="hdNav" data-i18n-ph="ph.navManual" placeholder="Übersicht, Umsatz, Kosten"></div>
-      </div>
-      <div class="section" id="secNav"><h3 data-i18n="sec.nav">Linke Nav-Leiste</h3>
-        <label class="toggle"><input type="checkbox" id="nvOn"> <span data-i18n="lbl.navBarOn">Nav-Leiste anzeigen (App-Stil)</span></label>
-        <div class="grid2"><div><input class="ctl" type="number" id="nvW" min="40" max="120" step="4"><p class="hint" data-i18n="hint.width">Breite</p></div></div>
-      </div>
-      <div class="section" id="secFilter"><h3 data-i18n="sec.filter">Filter / Slicer</h3>
-        <label class="toggle"><input type="checkbox" id="ftOn"> <span data-i18n="lbl.filterOn">Filter anzeigen</span></label>
-        <div class="grid2">
-          <div><select class="ctl" id="ftSide"><option value="right" data-i18n="opt.filter.right">Panel rechts</option><option value="left" data-i18n="opt.filter.left">Panel links</option><option value="top" data-i18n="opt.filter.top">Leiste oben</option><option value="burger" data-i18n="opt.filter.burger">Burger-Menü (Bookmark)</option></select><p class="hint" data-i18n="hint.position">Position</p></div>
-          <div><input class="ctl" type="number" id="ftW" min="48" max="360" step="8"><p class="hint" id="ftWHint">Breite</p></div>
-        </div>
-        <div class="grid2">
-          <div><select class="ctl" id="ftHeadShow"><option value="auto" data-i18n="opt.fh.auto">Überschrift solange leer</option><option value="on" data-i18n="opt.fh.on">Überschrift immer</option><option value="off" data-i18n="opt.fh.off">keine Überschrift</option></select><p class="hint" data-i18n="hint.fhShow">Überschrift</p></div>
-          <div><input class="ctl" id="ftHeadText" data-i18n-ph="ph.fhText" placeholder="Filter"><p class="hint" data-i18n="hint.fhText">Eigener Titel</p></div>
-        </div>
-        <div class="field"><label data-i18n="lbl.filterText">Text im Filterbereich (optional)</label><textarea class="ctl" id="ftText" rows="2" data-i18n-ph="ph.filterText" placeholder="z. B. Hinweis: Zeitraum wählen, dann Region"></textarea></div>
-        <label class="toggle" id="ftCollapsibleRow"><input type="checkbox" id="ftCollapsible"> <span data-i18n="lbl.filterCollapsible">Panel ausklappbar (Bookmark)</span></label>
-        <p class="hint" data-i18n="hint.filter">Felder aus dem Modell direkt aufs Panel ziehen, um Slicer anzulegen. Beim Burger-Menü entsteht im Export ein Bookmark-Paar „Filter öffnen / schließen" plus Button im Kopfband. Vorauswahl je Slicer eintragen, damit „mein Excel sagt was anderes" gar nicht erst entsteht.</p>
-        <div id="ftFieldList" style="margin-top:6px"></div>
-      </div>
-      <div class="section" id="secFooter"><h3 data-i18n="sec.footer">Fußleiste</h3>
-        <label class="toggle"><input type="checkbox" id="ffOn"> <span data-i18n="lbl.footerOn">Fußleiste anzeigen</span></label>
-        <div class="grid2"><div><input class="ctl" type="number" id="ffH" min="16" max="48" step="4"><p class="hint" data-i18n="hint.height">Höhe</p></div></div>
-        <div class="field"><label data-i18n="lbl.text">Text</label><input class="ctl" id="ffText"></div>
-      </div>
-    </div>
-    <div class="panel-body" id="insDesign" hidden>
-      <p class="hint" style="margin:0 0 6px" data-i18n="hint.design">Gestaltung gilt für alle Seiten und wandert als Design-Entscheidung in den Export.</p>
+      </details>
+      <details class="sub" id="dsSurface" open><summary data-i18n="grp.surfaces">Kacheln &amp; Flächen</summary>
       <div class="field"><label data-i18n="lbl.radius">Kachel-Ecken</label>
         <select class="ctl" id="dsRadius"><option value="0" data-i18n="opt.radius.r0">eckig</option><option value="4" data-i18n="opt.radius.r4">leicht gerundet (4 px)</option><option value="8" data-i18n="opt.radius.r8">gerundet (8 px)</option><option value="12" data-i18n="opt.radius.r12">stark gerundet (12 px)</option></select>
       </div>
@@ -521,6 +532,8 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
         <div class="field"><label data-i18n="lbl.tileBg">Kachelhintergrund</label><div class="row"><input type="color" id="dsTileBg" value="#FFFFFF" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsTileBgTxt">#FFFFFF</span></div></div>
         <div class="field"><label data-i18n="lbl.ink">Schriftfarbe der Kacheln</label><div class="row"><input type="color" id="dsInk" value="#0F1E2E" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsInkTxt">#0F1E2E</span></div></div>
       </div>
+      </details>
+      <details class="sub" id="dsColors" open><summary data-i18n="grp.colors">Farben</summary>
       <div class="field"><label data-i18n="lbl.headerStyle">Kopfband-Stil</label>
         <select class="ctl" id="dsHeader"><option value="light" data-i18n="opt.hdr.light">hell (weiß, dunkle Schrift)</option><option value="dark" data-i18n="opt.hdr.dark">dunkel (Ink)</option><option value="accent" data-i18n="opt.hdr.accent">Akzentfarbe</option><option value="custom" data-i18n="opt.hdr.custom">eigene Farben …</option></select>
         <div class="grid2" id="dsHeaderRow" style="margin-top:6px" hidden>
@@ -535,6 +548,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
         <select class="ctl" id="dsNative"><option value="neutral" data-i18n="smp.neutral">Neutral (Grau mit einem Akzent)</option><option value="pbi" data-i18n="smp.pbi">Power-BI-Standardpalette</option><option value="kitchen" data-i18n="smp.kitchen">ChartKitchen (Teal)</option></select>
       </div>
       <div class="field"><label data-i18n="lbl.accent">Akzentfarbe</label><div class="row"><input type="color" id="dsAccent" value="#C25A2D" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsAccentTxt">#C25A2D</span></div></div>
+      </details>
       <details class="sub" id="dsTypo"><summary data-i18n="sec.typoDetails">Typografie (Details)</summary>
         <p class="hint" data-i18n="hint.typo">Basisgrößen in px bei 1280 px Seitenbreite, sie skalieren mit der Seite. Je Kachel im Kachel-Fenster übersteuerbar.</p>
         <div class="grid2">
@@ -544,7 +558,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
           <div><input class="ctl" type="number" id="tyChart" min="6" max="16" step="0.5"><p class="hint" data-i18n="hint.tyChart">Diagrammbeschriftung</p></div>
         </div>
       </details>
-      <details class="sub" id="dsA11y" open><summary data-i18n="sec.a11y">Barrierefreiheit</summary>
+      <details class="sub" id="dsA11y"><summary data-i18n="sec.a11y">Barrierefreiheit</summary>
         <div id="a11yPanel"><p class="hint" data-i18n="hint.a11yPending">Prüfung wird geladen …</p></div>
         <details class="sub" style="margin-top:8px"><summary data-i18n="sec.a11yGuide">Kurzleitfaden</summary><div id="a11yGuide"></div></details>
       </details>
@@ -661,13 +675,13 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 <input type="file" id="fileDiff" accept=".json" hidden>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="assets/mockup/i18n.js?v=20260925b"></script>
-<script src="assets/mockup/sketches.js?v=20260925b"></script>
-<script src="assets/mockup/catalog.js?v=20260925b"></script>
-<script src="assets/mockup/a11y.js?v=20260925b"></script>
-<script src="assets/mockup/diff.js?v=20260925b"></script>
-<script src="assets/mockup/app.js?v=20260925b"></script>
-<script src="assets/mockup/render-png.js?v=20260925b"></script>
-<script src="assets/mockup/export.js?v=20260925b"></script>
+<script src="assets/mockup/i18n.js?v=20260925c"></script>
+<script src="assets/mockup/sketches.js?v=20260925c"></script>
+<script src="assets/mockup/catalog.js?v=20260925c"></script>
+<script src="assets/mockup/a11y.js?v=20260925c"></script>
+<script src="assets/mockup/diff.js?v=20260925c"></script>
+<script src="assets/mockup/app.js?v=20260925c"></script>
+<script src="assets/mockup/render-png.js?v=20260925c"></script>
+<script src="assets/mockup/export.js?v=20260925c"></script>
 </body>
 </html>

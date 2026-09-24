@@ -22,6 +22,7 @@
       lang: 'EN', clearTile: 'Kachel leeren', removeTile: 'Kachel entfernen', pickType: 'Visual wählen …',
     },
 
+    grp: { surfaces: 'Kacheln & Flächen', colors: 'Farben', set: '{n} gesetzt', on: '{n} aktiv' },
     smp: {
       sec: 'Beispielwerte', hint: 'Nur Eingaben: Namen und Zahlen erscheinen so in der Skizze (auch aus Excel einfügen: eine je Zeile).',
       cats: 'Kategorien', catsPh: 'Nord, Süd, Ost, West', values: 'Werte', valuesPh: '1250000; 980000; 640000', ref: 'Vergleich (PY/PL)', refPh: 'optional',
@@ -137,7 +138,7 @@
     },
 
     quickstart: {
-      s1: '„Vorlagen" oben wählen (lädt bei Bedarf das Demo-Modell)', s2: 'Rechts „Rahmen" und „Design" einstellen',
+      s1: '„Vorlagen" oben wählen (lädt bei Bedarf das Demo-Modell)', s2: 'Rechts „Zonen" und „Design" einstellen',
       s3: 'Kachel teilen (⇔ ⇕), Trennlinien ziehen', s4: 'Doppelklick auf Kachel → Visual wählen',
       s5: 'Felder aus dem Modell auf Kacheln ziehen', s6: 'Weitere Seiten über „+ Seite", Export für Claude Code',
     },
@@ -182,7 +183,7 @@
     help: {
       body: [
         '<h3>1 · Rahmen, Design, Raster</h3>',
-        '<p>Rechts unter „Rahmen" Kopfband, Nav, Filter (Panel links/rechts, Leiste oben oder Burger-Menü) und Fußleiste zuschalten. Unter „Design" Ecken, Kachel-Stil, Hintergrund und Kopfband-Stil. Unter „Seite" Canvas-Größe (HD, Full HD, Ultra HD) und Abstände. Schriften skalieren mit.</p>',
+        '<p>Rechts unter „Zonen" Kopfband, Nav, Filter (Panel links/rechts, Leiste oben oder Burger-Menü) und Fußleiste zuschalten (oder Zahnrad bzw. Doppelklick auf die Zone). Unter „Design" Canvas-Größe (HD, Full HD, Ultra HD), Abstände, Ecken, Kachel-Stil, Hintergrund, Farben und Typografie. Die Gruppen lassen sich auf- und zuklappen, der Zustand bleibt gemerkt. Schriften skalieren mit.</p>',
         '<h3>2 · Seiten</h3>',
         '<p>Über der Zeichenfläche liegen die Seiten. „+ Seite" legt eine neue an, Doppelklick benennt um, Duplizieren und Löschen unter „Seite". Ein Visual kann auf eine Zielseite verweisen (Element → „Springt zu"), das wird als Drill/Navigation exportiert.</p>',
         '<h3>3 · Container teilen</h3>',
@@ -497,6 +498,7 @@
       lang: 'DE', clearTile: 'Clear tile', removeTile: 'Remove tile', pickType: 'Choose a visual …',
     },
 
+    grp: { surfaces: 'Tiles & surfaces', colors: 'Colours', set: '{n} set', on: '{n} on' },
     smp: {
       sec: 'Sample values', hint: 'Plain inputs: names and numbers show up like this in the sketch (paste from Excel, one per line).',
       cats: 'Categories', catsPh: 'North, South, East, West', values: 'Values', valuesPh: '1250000; 980000; 640000', ref: 'Reference (PY/PL)', refPh: 'optional',
@@ -612,7 +614,7 @@
     },
 
     quickstart: {
-      s1: 'Choose “Templates” at the top (loads the demo model if needed)', s2: 'Set “Frame” and “Design” on the right',
+      s1: 'Choose “Templates” at the top (loads the demo model if needed)', s2: 'Set “Zones” and “Design” on the right',
       s3: 'Split a tile (⇔ ⇕), drag the dividers', s4: 'Double-click a tile → choose a visual',
       s5: 'Drag fields from the model onto tiles', s6: 'More pages via “+ Page”, then export for Claude Code',
     },
@@ -657,7 +659,7 @@
     help: {
       body: [
         '<h3>1 · Frame, design, grid</h3>',
-        '<p>On the right under “Frame” switch on the header band, the nav bar, the filters (panel left/right, bar on top or burger menu) and the footer. Under “Design” set corners, tile style, background and header style. Under “Page” set the canvas size (HD, Full HD, Ultra HD) and the spacing. Fonts scale along.</p>',
+        '<p>On the right under “Zones” switch on the header band, the nav bar, the filters (panel left/right, bar on top or burger menu) and the footer (or use the gear or double-click on the zone). Under “Design” set the canvas size (HD, Full HD, Ultra HD), spacing, corners, tile style, background, colours and typography. Groups collapse and remember their state. Fonts scale along.</p>',
         '<h3>2 · Pages</h3>',
         '<p>The pages sit above the drawing area. “+ Page” adds one, a double-click renames it, duplicating and deleting live under “Page”. A visual can point to a target page (element → “Jumps to”); that is exported as drill / navigation.</p>',
         '<h3>3 · Splitting containers</h3>',
