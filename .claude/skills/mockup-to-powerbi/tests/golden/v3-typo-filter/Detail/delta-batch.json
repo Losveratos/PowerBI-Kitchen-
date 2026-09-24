@@ -1,0 +1,323 @@
+{
+  "version": 2,
+  "name": "mockup delta · Detail",
+  "root": "Test.Report",
+  "stop_on_error": false,
+  "steps": [
+    {
+      "id": "move-mk_tab1",
+      "op": "move",
+      "select": "Detail.Page/mk_tab1.Visual",
+      "x": 24,
+      "y": 582,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_tab1",
+      "op": "resize",
+      "select": "Detail.Page/mk_tab1.Visual",
+      "width": 1572,
+      "height": 438,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_tab1",
+      "op": "bind",
+      "select": "Detail.Page/mk_tab1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Rows"
+      ]
+    },
+    {
+      "id": "bind-mk_tab1",
+      "op": "bind",
+      "select": "Detail.Page/mk_tab1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Rows:DimRegion.Region"
+      ]
+    },
+    {
+      "id": "clear-mk_tab1-2",
+      "op": "bind",
+      "select": "Detail.Page/mk_tab1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_tab1-2",
+      "op": "bind",
+      "select": "Detail.Page/mk_tab1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:_Measures.AC",
+        "Values:_Measures.PL"
+      ]
+    },
+    {
+      "id": "move-mk_slicer_Year_p2",
+      "op": "move",
+      "select": "Detail.Page/mk_slicer_Year_p2.Visual",
+      "x": 1632,
+      "y": 199,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_slicer_Year_p2",
+      "op": "resize",
+      "select": "Detail.Page/mk_slicer_Year_p2.Visual",
+      "width": 276,
+      "height": 84,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_slicer_Year_p2",
+      "op": "bind",
+      "select": "Detail.Page/mk_slicer_Year_p2.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_slicer_Year_p2",
+      "op": "bind",
+      "select": "Detail.Page/mk_slicer_Year_p2.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimDate.Year"
+      ]
+    },
+    {
+      "id": "move-mk_slicer_Region_p2",
+      "op": "move",
+      "select": "Detail.Page/mk_slicer_Region_p2.Visual",
+      "x": 1632,
+      "y": 295,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_slicer_Region_p2",
+      "op": "resize",
+      "select": "Detail.Page/mk_slicer_Region_p2.Visual",
+      "width": 276,
+      "height": 84,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_slicer_Region_p2",
+      "op": "bind",
+      "select": "Detail.Page/mk_slicer_Region_p2.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_slicer_Region_p2",
+      "op": "bind",
+      "select": "Detail.Page/mk_slicer_Region_p2.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimRegion.Region"
+      ]
+    },
+    {
+      "id": "move-mk_slicer_Date_p2",
+      "op": "move",
+      "select": "Detail.Page/mk_slicer_Date_p2.Visual",
+      "x": 1632,
+      "y": 391,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_slicer_Date_p2",
+      "op": "resize",
+      "select": "Detail.Page/mk_slicer_Date_p2.Visual",
+      "width": 276,
+      "height": 84,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_slicer_Date_p2",
+      "op": "bind",
+      "select": "Detail.Page/mk_slicer_Date_p2.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_slicer_Date_p2",
+      "op": "bind",
+      "select": "Detail.Page/mk_slicer_Date_p2.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimDate.Date"
+      ]
+    },
+    {
+      "id": "move-chrome_header_bg",
+      "op": "move",
+      "select": "Detail.Page/chrome_header_bg.Visual",
+      "x": 0,
+      "y": 0,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_bg",
+      "op": "resize",
+      "select": "Detail.Page/chrome_header_bg.Visual",
+      "width": 1920,
+      "height": 84,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_logo",
+      "op": "move",
+      "select": "Detail.Page/chrome_logo.Visual",
+      "x": 24,
+      "y": 18,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_logo",
+      "op": "resize",
+      "select": "Detail.Page/chrome_logo.Visual",
+      "width": 180,
+      "height": 48,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_title",
+      "op": "move",
+      "select": "Detail.Page/chrome_header_title.Visual",
+      "x": 228,
+      "y": 9,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_title",
+      "op": "resize",
+      "select": "Detail.Page/chrome_header_title.Visual",
+      "width": 1668,
+      "height": 39,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_subtitle",
+      "op": "move",
+      "select": "Detail.Page/chrome_header_subtitle.Visual",
+      "x": 228,
+      "y": 48,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_subtitle",
+      "op": "resize",
+      "select": "Detail.Page/chrome_header_subtitle.Visual",
+      "width": 1668,
+      "height": 27,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_bg",
+      "op": "move",
+      "select": "Detail.Page/chrome_filter_bg.Visual",
+      "x": 1620,
+      "y": 84,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_bg",
+      "op": "resize",
+      "select": "Detail.Page/chrome_filter_bg.Visual",
+      "width": 300,
+      "height": 960,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_title",
+      "op": "move",
+      "select": "Detail.Page/chrome_filter_title.Visual",
+      "x": 1632,
+      "y": 96,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_title",
+      "op": "resize",
+      "select": "Detail.Page/chrome_filter_title.Visual",
+      "width": 276,
+      "height": 36,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_text",
+      "op": "move",
+      "select": "Detail.Page/chrome_filter_text.Visual",
+      "x": 1632,
+      "y": 144,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_text",
+      "op": "resize",
+      "select": "Detail.Page/chrome_filter_text.Visual",
+      "width": 276,
+      "height": 43,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_nav_1",
+      "op": "move",
+      "select": "Detail.Page/chrome_nav_1.Visual",
+      "x": 1720,
+      "y": 1047,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_nav_1",
+      "op": "resize",
+      "select": "Detail.Page/chrome_nav_1.Visual",
+      "width": 96,
+      "height": 30,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_nav_2",
+      "op": "move",
+      "select": "Detail.Page/chrome_nav_2.Visual",
+      "x": 1824,
+      "y": 1047,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_nav_2",
+      "op": "resize",
+      "select": "Detail.Page/chrome_nav_2.Visual",
+      "width": 72,
+      "height": 30,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_text",
+      "op": "move",
+      "select": "Detail.Page/chrome_footer_text.Visual",
+      "x": 24,
+      "y": 1044,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_text",
+      "op": "resize",
+      "select": "Detail.Page/chrome_footer_text.Visual",
+      "width": 1672,
+      "height": 36,
+      "continue_on_error": true
+    }
+  ]
+}

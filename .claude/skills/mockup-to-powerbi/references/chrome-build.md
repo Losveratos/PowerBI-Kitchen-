@@ -73,6 +73,8 @@ Ermittelt mit `pbir schema describe <typ> <objekt>` — nur diese verwenden.
 | `background` | `show`, `color`, `transparency` | jedes Visual (Container) |
 | `border` | `show`, `color`, `width`, `radius` | jedes Visual (Container) |
 | `dropShadow` | `show`, `preset` (`BottomRight` …), `position` (`Outer`/`Inner`), `color`, `transparency`, `shadowBlur`, `shadowDistance`, `shadowSpread`, `angle` | jedes Visual (Container) |
+| `data` | `mode` (Enum: `Dropdown`, `Basic`, `Between`, `Before`, `After`, `Relative`, `Single`, …) | slicer |
+| `general` | `orientation` (`0` Liste, `1` Kacheln), `selfFilterEnabled` (Suchfeld) | slicer |
 
 Farbwerte als Hex übergeben (`--value "#0F1E2E"`); `pbir` kodiert sie selbst als
 `{ solid: { color: … } }`. Geschrieben wird nach
@@ -168,8 +170,15 @@ Fläche in Ink. Das Kopfband behält Titel und Untertitel.
 |---|---|---|
 | Fläche | `chrome_filter_bg` | Zone 1:1, `fill.fillColor` eine Stufe heller/dunkler als der Seitenhintergrund |
 | Überschrift | `chrome_filter_title` | seitliches Panel: `x+8`, `y+8`, `w-16`, 24 px · Leiste oben: `x+8`, `y`, 56 px breit, volle Höhe. Text „Filter", 11 pt, fett |
+| Hinweistext | `chrome_filter_text` | nur mit `zones.filter.text` (Tool 0.4.4): unter der Überschrift, `w-16`, Höhe nach Zeilen; Leiste oben rechts neben der Überschrift, höchstens 220 px. 9,5 pt, grau, oben bündig |
 | Schließen | `chrome_filter_close` | `x+w-36`, `y+8`, 28×24, Text `✕` — nur bei `collapsible` oder Overlay |
 | Slicer | v3 `mk_slicer_<Feld>_p<Seite>`, v2 `p<Seite>_slicer<i>_<Feld>`, v1 `slicer<i>_<Feld>` | seitlich gestapelt `x+8k`, `y+40k+i·64k`, `w-16k`, `56k` · oben nebeneinander `x+8k+i·168k`, `y+8k`, `160k`, `h-16k` — stehen bereits in `pbir-visuals.json` |
+
+Ab Tool 0.4.4 steht der Überschriftstext in `zones.filter.heading` (`null` =
+keine Überschrift, dann kein `chrome_filter_title`); die Slicer rücken unter
+Überschrift und Hinweistext. Die Slicer-Art (`slicers[].type`) setzt
+`chrome-batch.json` über `data.mode` / `general.orientation` /
+`general.selfFilterEnabled` — Tabelle in `spec-format.md` → Tool 0.4.4.
 
 Die Modi im Einzelnen:
 
@@ -207,6 +216,14 @@ erst, wenn das Lesezeichen in Desktop einmal aktualisiert wird
 
 Ein `shape` ohne Füllung über die Zone, `x+16`, `w-32`, Text aus `footer.text`,
 9 pt, gedämpftes Grau, `verticalAlignment=middle`.
+
+**Seitennavigation in der Fußleiste** (Tool 0.4.3, `navPosition: "footer"`,
+Liste in `zones.footer.nav`): `actionButton`s `chrome_nav_<i>` rechtsbündig
+(Rand 16 × k, Abstand 5 × k, Höhe ≤ 20 × k, Breite nach Text), Schrift
+9,5 × k — kleiner als im Kopfband. Aktive Seite: Akzentfüllung, keine Aktion;
+die anderen: Rahmen (`outline.show/lineColor/weight`) und `PageNavigation`.
+Der Fußzeilentext wird entsprechend schmaler. Das Kopfband bekommt dann keine
+Nav-Buttons.
 
 ## Reihenfolge und z-Order
 

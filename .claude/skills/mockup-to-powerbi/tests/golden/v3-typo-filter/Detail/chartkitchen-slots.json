@@ -1,0 +1,104 @@
+[
+  {
+    "id": "mk_ck1",
+    "stableId": "ck1",
+    "page": "Detail",
+    "title": "AC vs. PL je Monat",
+    "subtitle": "",
+    "kind": "columns",
+    "label": "Säulen (IBCS)",
+    "rect": {
+      "x": 24,
+      "y": 108,
+      "w": 1572,
+      "h": 450
+    },
+    "scenario": "AC/PL",
+    "notes": "",
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "mockupRoles": {
+      "category": [
+        "DimDate.Month"
+      ],
+      "ac": [
+        "_Measures.AC"
+      ],
+      "ref": [
+        "_Measures.PL"
+      ]
+    },
+    "typography": {
+      "titlePt": 13.5,
+      "subtitlePt": 10.5,
+      "labelPt": 9.5,
+      "labelPx": 12.62,
+      "tileScale": 0.85
+    },
+    "chartKitchenType": "columns",
+    "orientation": "columns",
+    "chartProps": {
+      "orientation": "columns"
+    },
+    "chartKitchenRoles": {
+      "category": [
+        "DimDate.Month"
+      ],
+      "actual": [
+        "_Measures.AC"
+      ],
+      "plan": [
+        "_Measures.PL"
+      ]
+    },
+    "nativeFallback": {
+      "type": "clusteredColumnChart",
+      "buckets": {
+        "Category": [
+          {
+            "ref": "DimDate.Month",
+            "kind": "column",
+            "isNew": false
+          }
+        ],
+        "Y": [
+          {
+            "ref": "_Measures.AC",
+            "kind": "measure",
+            "isNew": false
+          },
+          {
+            "ref": "_Measures.PL",
+            "kind": "measure",
+            "isNew": false
+          }
+        ]
+      }
+    },
+    "warnings": []
+  }
+]

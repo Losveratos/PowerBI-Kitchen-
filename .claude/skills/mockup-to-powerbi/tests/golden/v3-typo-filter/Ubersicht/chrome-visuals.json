@@ -1,0 +1,92 @@
+[
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_bg",
+    "title": "Kopfband",
+    "x": 0,
+    "y": 0,
+    "width": 1920,
+    "height": 84
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_logo",
+    "title": "Logo",
+    "x": 24,
+    "y": 18,
+    "width": 180,
+    "height": 48
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_title",
+    "title": "Kopfband-Titel",
+    "x": 228,
+    "y": 9,
+    "width": 1668,
+    "height": 39
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_subtitle",
+    "title": "Kopfband-Untertitel",
+    "x": 228,
+    "y": 48,
+    "width": 1668,
+    "height": 27
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_filter_bg",
+    "title": "Filter-Panel",
+    "x": 1620,
+    "y": 84,
+    "width": 300,
+    "height": 960
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_filter_title",
+    "title": "Filter-Überschrift",
+    "x": 1632,
+    "y": 96,
+    "width": 276,
+    "height": 36
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_filter_text",
+    "title": "Filter-Hinweistext",
+    "x": 1632,
+    "y": 144,
+    "width": 276,
+    "height": 43
+  },
+  {
+    "visual_type": "actionButton",
+    "name": "chrome_nav_1",
+    "title": "Übersicht",
+    "x": 1720,
+    "y": 1047,
+    "width": 96,
+    "height": 30
+  },
+  {
+    "visual_type": "actionButton",
+    "name": "chrome_nav_2",
+    "title": "Detail",
+    "x": 1824,
+    "y": 1047,
+    "width": 72,
+    "height": 30
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_footer_text",
+    "title": "Fußleiste",
+    "x": 24,
+    "y": 1044,
+    "width": 1672,
+    "height": 36
+  }
+]

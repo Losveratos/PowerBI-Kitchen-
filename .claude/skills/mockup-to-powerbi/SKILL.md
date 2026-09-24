@@ -81,7 +81,9 @@ geht auch allein, ohne PBIP.
 3. **Welche Spec-Version?** `meta.specVersion`. 3 = aktuell (stabile IDs, Hash,
    Berichtskopf, Analyse-Block, Issues; ab Tool 0.4.1 zusätzlich Small
    Multiples, Achse per Feldparameter, die nativen Klassiker `ncolumn`/`nbar`/
-   `nline`/`ndonut` und `zones.header.navOn`), 2 = mehrseitig mit
+   `nline`/`ndonut` und `zones.header.navOn`; ab 0.4.3/0.4.4 Typografie,
+   Fußleisten-Navigation, Filter-Überschrift/-Hinweis, Slicer-Art und
+   `A11Y_*`-Befunde), 2 = mehrseitig mit
    `design`/`links`, 1 = alte einseitige Fassung. Alle drei werden gelesen; v1/v2 werden intern
    auf v3 gehoben. Eine **höhere** Hauptversion bricht ab — dann ist das Tool
    neuer als der Skill, und Raten wäre falsch. Unterschiede in
@@ -224,6 +226,13 @@ sich bei Wiederholung verhält (`idempotent`) und was beim zweiten Lauf gilt
   Farbsatz aus `design.colors` (Ink, Kopfband) — beides steht im Theme-Fragment
 - Modelländerungen: jede neue Kennzahl mit DAX-Vorschlag, jeder Umbenennungswunsch
 - Offene Punkte aus `mockup-out/checklist.md` (Issues nach `error`/`warn`/`info`)
+- **Barrierefreiheit** (Tool 0.4.4, Issues `A11Y_*`): eigener Block in
+  `checklist.md` und erster Plan-Schritt `accessibility`. `error` ist ein
+  **Blocker** — im Mockup beheben oder vom Menschen ausdrücklich akzeptieren
+  lassen, bevor gebaut wird (`plan.json → accessibility.acceptBeforeBuild`).
+- Typografie (wirksame Titel-/Untertitel-/Diagrammgrößen in pt, Kacheln mit
+  eigenem Faktor), Filterbereich (Überschrift, Hinweis, Slicer-Arten) und
+  Position der Seitennavigation — stehen in `checklist.md` und `plan.json`
 
 Dann **warten**. Nach Freigabe sichern:
 
@@ -354,6 +363,24 @@ nur noch Ausnahmen.
   vor, also entscheidet der Mensch.
 - **`zones.header.navOn: false`** — keine `chrome_nav_*`-Buttons im Kopfband.
   Steht als Hinweis in `checklist.md` und `navigation.md`.
+
+**Tool 0.4.3/0.4.4** stecken ebenfalls schon in den erzeugten Dateien
+(Details: [`spec-format.md` → Tool 0.4.4](references/spec-format.md#tool-044-typografie-filterbereich-slicer-art-barrierefreiheit)):
+
+- **Typografie** (`design.typography`, `visuals[].typography.scale`): je natives
+  Visual `title.fontSize`/`subTitle.fontSize` in pt (px × 0,75, auf 0,5) in
+  `chrome-batch.json`, im Theme-Fragment dazu `textClasses` (`largeTitle`,
+  `title`, `label`). Nicht in `pbir-visuals.json` — `--from-json` kennt keinen
+  Schriftschlüssel.
+- **Seitennavigation in der Fußleiste** (`navPosition: "footer"`): die
+  `chrome_nav_*`-Buttons sitzen rechtsbündig in der Fußzone, Schrift 9,5 × k,
+  das Kopfband bleibt ohne Nav.
+- **Filterbereich**: `heading` (oder keine Überschrift) und `text` als Shapes
+  `chrome_filter_title`/`chrome_filter_text`, die Slicer rücken darunter.
+  **Slicer-Art** → `data.mode` (`Dropdown`, `Basic`, `Between`),
+  `general.orientation` (0 Liste, 1 Kacheln), Suche über
+  `general.selfFilterEnabled` — mit `pbir schema describe slicer` und einem
+  Probe-Report verifiziert.
 
 **Analyse-Angaben** aus `visuals[].analysis` setzt `analysis-commands.sh`, soweit
 `pbir` das kann: `sort` → `pbir visuals sort --field … --direction`, `topN` →
@@ -612,9 +639,10 @@ an den Skill `anthropic-skills:pptx` geben.
 python .claude/skills/mockup-to-powerbi/tests/run_tests.py
 ```
 
-Golden-Vergleich über sieben Fixtures (specVersion 1, 2, 3, Burger-Filter,
+Golden-Vergleich über acht Fixtures (specVersion 1, 2, 3, Burger-Filter,
 ChartKitchen ohne Referenz-Instanz, voller Analyse-Block, Custom Visuals,
-Darstellungsvarianten aus 0.4.1), Negativtests der
+Darstellungsvarianten aus 0.4.1, Typografie/Filterbereich/Fußleisten-Nav/
+Barrierefreiheit aus 0.4.4), Negativtests der
 Validierung (kaputte Spec, unbekannte Hauptversion, doppelte Seitennamen — je
 einmal mit dem Paket `jsonschema` und einmal mit dem eingebauten Validator) und
 Einheitenprüfungen. Reine Standardbibliothek, kein Power BI nötig. Nach
@@ -677,7 +705,9 @@ ansehen.
   vollständig (specVersion 1, 2 und 3, dazu die Erweiterungen aus Tool 0.4 und
   0.4.1): Berichtskopf, Seiten, Design mit Varianz-Palette und Farbsatz, Zonen,
   Filter-Modi, `header.navOn`, Links, Analyse-Block, **Darstellungsvarianten**
-  (Small Multiples → Bucket `Rows`, Achse per Feldparameter), Steckbriefe,
+  (0.4.1), **Typografie, Fußleisten-Navigation, Filterbereich mit Slicer-Art und
+  Barrierefreiheit** (0.4.3/0.4.4)
+  — Small Multiples → Bucket `Rows`, Achse per Feldparameter —, Steckbriefe,
   Issues, Rollen-Vokabular, Engines, Rollen → pbir-Buckets, Rollen →
   ChartKitchen, **Custom Visuals** (GUIDs, Datenrollen, Pflichtrollen,
   Einspielweg).
@@ -687,8 +717,8 @@ ansehen.
   Nav-Leiste, Filter-Panel und Fußleiste als native Elemente entstehen, mit
   verifizierten Befehlen, dazu der Batch-Weg und die z-Ordnung.
 - [`references/example/`](references/example/) — `mockup-spec.v3.json` (von Hand
-  um die Seiten „Projekt & GuV" und „Varianten" erweitert, siehe dortige
-  README) mit `AGENT-BRIEF.v3.md` und `WORKSHOP-DOKU.v3.md` (Tool-Export, noch
+  um die Seiten „Projekt & GuV" und „Varianten" sowie die 0.4.4-Schlüssel
+  erweitert, siehe dortige README) mit `AGENT-BRIEF.v3.md` und `WORKSHOP-DOKU.v3.md` (Tool-Export, noch
   im 0.3-Stand),
   `mockup-spec.v2.json` (mehrseitig) und `mockup-spec.json` (v1) zum Trockenlauf,
   dazu die daraus erzeugte `pbir-visuals.json`.

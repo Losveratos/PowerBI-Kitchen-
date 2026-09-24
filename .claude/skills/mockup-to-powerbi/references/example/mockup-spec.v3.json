@@ -54,6 +54,13 @@
       "ink": "#0F1E2E",
       "headerBackground": "#FFFFFF",
       "headerInk": "#0F1E2E"
+    },
+    "typography": {
+      "basis": "1280px",
+      "scale": 1,
+      "title": 12,
+      "sub": 9.5,
+      "chart": 9
     }
   },
   "zones": {
@@ -73,6 +80,7 @@
         "Varianten"
       ],
       "navOn": true,
+      "navPosition": "header",
       "navAuto": true,
       "burger": true
     },
@@ -81,7 +89,9 @@
       "y": 696,
       "w": 1280,
       "h": 24,
-      "text": "Stand: 18.09.2026 · Quelle: DWH · Kontakt: Controlling"
+      "text": "Stand: 18.09.2026 · Quelle: DWH · Kontakt: Controlling",
+      "nav": [],
+      "navPosition": "header"
     },
     "content": {
       "x": 16,
@@ -93,6 +103,8 @@
       "mode": "burger",
       "side": "burger",
       "collapsible": true,
+      "heading": "Auswahl",
+      "text": "Werte in T€, YTD. Die Auswahl gilt für alle Seiten.",
       "slicers": [
         {
           "table": "DimDate",
@@ -100,7 +112,8 @@
           "kind": "column",
           "ref": "DimDate.Year",
           "isNew": false,
-          "default": "2026"
+          "default": "2026",
+          "type": "dropdown"
         },
         {
           "table": "DimRegion",
@@ -108,7 +121,8 @@
           "kind": "column",
           "ref": "DimRegion.Region",
           "isNew": false,
-          "default": null
+          "default": null,
+          "type": "search"
         }
       ],
       "x": 1080,
@@ -1642,6 +1656,9 @@
             "status": "open",
             "openQuestion": false
           },
+          "typography": {
+            "scale": 1.15
+          },
           "rect": {
             "x": 16,
             "y": 72,
@@ -2146,7 +2163,8 @@
         "source": "",
         "target": "",
         "unit": "",
-        "note": ""
+        "note": "",
+        "type": "dropdown"
       },
       {
         "table": "DimRegion",
@@ -2165,7 +2183,8 @@
         "source": "",
         "target": "",
         "unit": "",
-        "note": ""
+        "note": "",
+        "type": "search"
       },
       {
         "table": "DimTask",
@@ -2529,7 +2548,8 @@
       "source": "",
       "target": "",
       "unit": "",
-      "note": ""
+      "note": "",
+      "type": "dropdown"
     },
     {
       "table": "DimRegion",
@@ -2548,7 +2568,8 @@
       "source": "",
       "target": "",
       "unit": "",
-      "note": ""
+      "note": "",
+      "type": "search"
     },
     {
       "table": "DimTask",
@@ -2719,6 +2740,20 @@
       "visual": "mk_6g7nfw6"
     },
     {
+      "level": "warn",
+      "code": "A11Y_TILE_SMALL",
+      "text": "Kachel „Kosten\" ist knapp bemessen (312×119px) (Unter ca. 320×140px wird ein Diagramm schwer lesbar. Mehr Platz geben oder Inhalt vereinfachen.)",
+      "page": "Übersicht",
+      "visual": "mk_9rdsrnj"
+    },
+    {
+      "level": "info",
+      "code": "A11Y_PALETTE_COLOUR_ONLY",
+      "text": "Varianzfarben folgen Grün/Rot (IBCS-Palette) (Rot-Grün-Schwäche betrifft ca. 8% aller Männer. Die Skizzen tragen zusätzlich Vorzeichen und Labels — sicherstellen, dass diese im Export erhalten bleiben, oder auf Teal/Rot wechseln.)",
+      "page": null,
+      "visual": null
+    },
+    {
       "level": "info",
       "code": "PAGE_NO_QUESTION",
       "text": "Seite ohne Fragestellung / Kernbotschaft",
@@ -2736,6 +2771,7 @@
   "warnings": [
     "Seite „Übersicht\": Pflichtrolle „Kennzahl\" leer",
     "Seite „Detail Produktlinie\": „Detail: gewählte Produktlinie\" hat keinen Text; Kachel käme leer im Bericht an",
-    "Seite „Detail Produktlinie\": Pflichtrolle „Zeit / Periode\" leer"
+    "Seite „Detail Produktlinie\": Pflichtrolle „Zeit / Periode\" leer",
+    "Seite „Übersicht\": Kachel „Kosten\" ist knapp bemessen (312×119px) (Unter ca. 320×140px wird ein Diagramm schwer lesbar. Mehr Platz geben oder Inhalt vereinfachen.)"
   ]
 }

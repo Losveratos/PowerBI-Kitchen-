@@ -1,0 +1,469 @@
+{
+  "generated": "<zeitstempel>",
+  "report": "Test.Report",
+  "specHash": "typofilter1",
+  "specName": "Typografie- und Filter-Testfall",
+  "tolerance": 1,
+  "pages": [
+    {
+      "name": "Übersicht",
+      "background": "#F4F4F1",
+      "canvas": {
+        "width": 1920,
+        "height": 1080
+      },
+      "visuals": [
+        {
+          "name": "chrome_header_bg",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 1920,
+            "h": 84
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_logo",
+          "type": "shape",
+          "rect": {
+            "x": 24,
+            "y": 18,
+            "w": 180,
+            "h": 48
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_header_title",
+          "type": "shape",
+          "rect": {
+            "x": 228,
+            "y": 9,
+            "w": 1668,
+            "h": 39
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_header_subtitle",
+          "type": "shape",
+          "rect": {
+            "x": 228,
+            "y": 48,
+            "w": 1668,
+            "h": 27
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_bg",
+          "type": "shape",
+          "rect": {
+            "x": 1620,
+            "y": 84,
+            "w": 300,
+            "h": 960
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_title",
+          "type": "shape",
+          "rect": {
+            "x": 1632,
+            "y": 96,
+            "w": 276,
+            "h": 36
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_text",
+          "type": "shape",
+          "rect": {
+            "x": 1632,
+            "y": 144,
+            "w": 276,
+            "h": 43
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_nav_1",
+          "type": "actionButton",
+          "rect": {
+            "x": 1720,
+            "y": 1047,
+            "w": 96,
+            "h": 30
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_nav_2",
+          "type": "actionButton",
+          "rect": {
+            "x": 1824,
+            "y": 1047,
+            "w": 72,
+            "h": 30
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_text",
+          "type": "shape",
+          "rect": {
+            "x": 24,
+            "y": 1044,
+            "w": 1672,
+            "h": 36
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "mk_txt1",
+          "type": "shape",
+          "rect": {
+            "x": 24,
+            "y": 312,
+            "w": 516,
+            "h": 336
+          },
+          "role": "text",
+          "fields": {}
+        },
+        {
+          "name": "mk_kpi1",
+          "type": "card",
+          "rect": {
+            "x": 24,
+            "y": 108,
+            "w": 516,
+            "h": 180
+          },
+          "role": "content",
+          "fields": {
+            "Values": [
+              "_Measures.Umsatz"
+            ]
+          }
+        },
+        {
+          "name": "mk_col1",
+          "type": "clusteredColumnChart",
+          "rect": {
+            "x": 564,
+            "y": 108,
+            "w": 1032,
+            "h": 540
+          },
+          "role": "content",
+          "fields": {
+            "Category": [
+              "DimRegion.Region"
+            ],
+            "Y": [
+              "_Measures.Umsatz"
+            ]
+          }
+        },
+        {
+          "name": "mk_bar1",
+          "type": "clusteredBarChart",
+          "rect": {
+            "x": 24,
+            "y": 672,
+            "w": 1572,
+            "h": 348
+          },
+          "role": "content",
+          "fields": {
+            "Category": [
+              "DimRegion.Region"
+            ],
+            "Y": [
+              "_Measures.Kosten"
+            ]
+          }
+        },
+        {
+          "name": "mk_slicer_Year_p1",
+          "type": "slicer",
+          "rect": {
+            "x": 1632,
+            "y": 199,
+            "w": 276,
+            "h": 84
+          },
+          "role": "slicer",
+          "fields": {
+            "Values": [
+              "DimDate.Year"
+            ]
+          }
+        },
+        {
+          "name": "mk_slicer_Region_p1",
+          "type": "slicer",
+          "rect": {
+            "x": 1632,
+            "y": 295,
+            "w": 276,
+            "h": 84
+          },
+          "role": "slicer",
+          "fields": {
+            "Values": [
+              "DimRegion.Region"
+            ]
+          }
+        },
+        {
+          "name": "mk_slicer_Date_p1",
+          "type": "slicer",
+          "rect": {
+            "x": 1632,
+            "y": 391,
+            "w": 276,
+            "h": 84
+          },
+          "role": "slicer",
+          "fields": {
+            "Values": [
+              "DimDate.Date"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Detail",
+      "background": "#F4F4F1",
+      "canvas": {
+        "width": 1920,
+        "height": 1080
+      },
+      "visuals": [
+        {
+          "name": "chrome_header_bg",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 1920,
+            "h": 84
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_logo",
+          "type": "shape",
+          "rect": {
+            "x": 24,
+            "y": 18,
+            "w": 180,
+            "h": 48
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_header_title",
+          "type": "shape",
+          "rect": {
+            "x": 228,
+            "y": 9,
+            "w": 1668,
+            "h": 39
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_header_subtitle",
+          "type": "shape",
+          "rect": {
+            "x": 228,
+            "y": 48,
+            "w": 1668,
+            "h": 27
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_bg",
+          "type": "shape",
+          "rect": {
+            "x": 1620,
+            "y": 84,
+            "w": 300,
+            "h": 960
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_title",
+          "type": "shape",
+          "rect": {
+            "x": 1632,
+            "y": 96,
+            "w": 276,
+            "h": 36
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_filter_text",
+          "type": "shape",
+          "rect": {
+            "x": 1632,
+            "y": 144,
+            "w": 276,
+            "h": 43
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_nav_1",
+          "type": "actionButton",
+          "rect": {
+            "x": 1720,
+            "y": 1047,
+            "w": 96,
+            "h": 30
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_nav_2",
+          "type": "actionButton",
+          "rect": {
+            "x": 1824,
+            "y": 1047,
+            "w": 72,
+            "h": 30
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_text",
+          "type": "shape",
+          "rect": {
+            "x": 24,
+            "y": 1044,
+            "w": 1672,
+            "h": 36
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "mk_tab1",
+          "type": "pivotTable",
+          "rect": {
+            "x": 24,
+            "y": 582,
+            "w": 1572,
+            "h": 438
+          },
+          "role": "content",
+          "fields": {
+            "Rows": [
+              "DimRegion.Region"
+            ],
+            "Values": [
+              "_Measures.AC",
+              "_Measures.PL"
+            ]
+          }
+        },
+        {
+          "name": "mk_slicer_Year_p2",
+          "type": "slicer",
+          "rect": {
+            "x": 1632,
+            "y": 199,
+            "w": 276,
+            "h": 84
+          },
+          "role": "slicer",
+          "fields": {
+            "Values": [
+              "DimDate.Year"
+            ]
+          }
+        },
+        {
+          "name": "mk_slicer_Region_p2",
+          "type": "slicer",
+          "rect": {
+            "x": 1632,
+            "y": 295,
+            "w": 276,
+            "h": 84
+          },
+          "role": "slicer",
+          "fields": {
+            "Values": [
+              "DimRegion.Region"
+            ]
+          }
+        },
+        {
+          "name": "mk_slicer_Date_p2",
+          "type": "slicer",
+          "rect": {
+            "x": 1632,
+            "y": 391,
+            "w": 276,
+            "h": 84
+          },
+          "role": "slicer",
+          "fields": {
+            "Values": [
+              "DimDate.Date"
+            ]
+          }
+        },
+        {
+          "name": "mk_ck1",
+          "type": "chartKitchen|shape",
+          "rect": {
+            "x": 24,
+            "y": 108,
+            "w": 1572,
+            "h": 450
+          },
+          "role": "chartkitchen",
+          "optional": true,
+          "fields": {}
+        }
+      ]
+    }
+  ],
+  "bookmarks": [],
+  "drillthrough": [],
+  "annotations": {
+    "mockup-spec-hash": "typofilter1"
+  }
+}

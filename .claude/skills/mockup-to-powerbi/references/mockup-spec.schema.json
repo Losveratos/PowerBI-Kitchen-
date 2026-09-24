@@ -80,7 +80,8 @@
             "headerBackground": { "$ref": "#/$defs/hex" },
             "headerInk": { "$ref": "#/$defs/hex" }
           }
-        }
+        },
+        "typography": { "$ref": "#/$defs/typography" }
       }
     },
     "zones": {
@@ -138,6 +139,7 @@
         "subtitle": { "type": ["string", "null"] },
         "nav": { "type": "array", "items": { "type": "string" } },
         "navOn": { "type": "boolean" },
+        "navPosition": { "$ref": "#/$defs/navPosition" },
         "navAuto": { "type": "boolean" },
         "burger": { "type": "boolean" }
       }
@@ -148,6 +150,14 @@
         "mode": { "enum": ["right", "left", "top", "burger"] },
         "side": { "type": "string" },
         "collapsible": { "type": "boolean" },
+        "heading": {
+          "type": ["string", "null"],
+          "description": "Ab Tool 0.4.4. Sichtbare Ueberschrift des Filterbereichs; null = keine Ueberschrift. Fehlt der Schluessel (aeltere Specs), baut der Skill wie bisher die Ueberschrift \"Filter\"."
+        },
+        "text": {
+          "type": ["string", "null"],
+          "description": "Ab Tool 0.4.4. Freier Hinweistext im Filterbereich (unter der Ueberschrift, in der Leiste oben daneben); null = keiner."
+        },
         "overlay": { "type": "boolean" },
         "note": { "type": ["string", "null"] },
         "slicers": { "type": "array", "items": { "$ref": "#/$defs/slicer" } },
@@ -166,7 +176,46 @@
     },
     "footerZone": {
       "allOf": [{ "$ref": "#/$defs/zone" }],
-      "properties": { "text": { "type": ["string", "null"] } }
+      "properties": {
+        "text": { "type": ["string", "null"] },
+        "nav": {
+          "description": "Ab Tool 0.4.3. Seitennamen der Navigation, wenn navPosition \"footer\" ist; sonst leer.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "navPosition": { "$ref": "#/$defs/navPosition" }
+      }
+    },
+    "navPosition": {
+      "description": "Ab Tool 0.4.3. Wo die Seitennavigation sitzt. `zones.header.navOn` ist die Kurzform fuer navPosition == \"header\".",
+      "enum": ["header", "footer", "off"]
+    },
+    "typography": {
+      "type": ["object", "null"],
+      "description": "Ab Tool 0.4.3. Basisgroessen in px bei 1280 px Seitenbreite; die Seite skaliert mit k = canvas.width / 1280 (= design.fontScale). Wirksam: Titel = title x scale x k, Untertitel = sub x scale x k, Diagrammbeschriftung = chart x scale x k; im Bericht in pt = px x 0,75.",
+      "properties": {
+        "basis": { "type": "string" },
+        "scale": { "type": "number", "exclusiveMinimum": 0, "maximum": 8 },
+        "title": { "type": "number", "exclusiveMinimum": 0, "maximum": 96 },
+        "sub": { "type": "number", "exclusiveMinimum": 0, "maximum": 96 },
+        "chart": { "type": "number", "exclusiveMinimum": 0, "maximum": 96 }
+      }
+    },
+    "visualTypography": {
+      "type": ["object", "null"],
+      "description": "Ab Tool 0.4.3. Kachel-Override: `scale` multipliziert die globale Typografie fuer diese Kachel; null = wie global.",
+      "properties": {
+        "scale": { "type": "number", "exclusiveMinimum": 0, "maximum": 8 }
+      }
+    },
+    "interaction": {
+      "type": ["object", "null"],
+      "description": "Ab Tool 0.4.2. Verhalten der Kachel.",
+      "properties": {
+        "drillDown": { "type": "boolean" },
+        "crossFilter": { "type": "boolean" },
+        "drillThrough": { "type": ["object", "null"] }
+      }
     },
     "slicer": {
       "type": "object",
@@ -177,7 +226,11 @@
         "kind": { "enum": ["column", "measure"] },
         "ref": { "type": "string", "pattern": "^[^.]+\\..+$" },
         "isNew": { "type": "boolean" },
-        "default": { "type": ["string", "number", "boolean", "null"] }
+        "default": { "type": ["string", "number", "boolean", "null"] },
+        "type": {
+          "description": "Ab Tool 0.4.4. Slicer-Art; fehlt sie (aeltere Specs), bleibt der Slicer wie pbir ihn anlegt.",
+          "enum": ["dropdown", "list", "tile", "between", "date", "search"]
+        }
       }
     },
     "page": {
@@ -229,6 +282,8 @@
         "scenario": { "type": ["string", "null"] },
         "analysis": { "$ref": "#/$defs/analysis" },
         "workshop": { "$ref": "#/$defs/workshop" },
+        "typography": { "$ref": "#/$defs/visualTypography" },
+        "interaction": { "$ref": "#/$defs/interaction" },
         "rect": { "$ref": "#/$defs/rect" },
         "roles": { "type": "object" },
         "notes": { "type": ["string", "null"] },
@@ -375,7 +430,10 @@
       "required": ["level", "code", "text"],
       "properties": {
         "level": { "enum": ["error", "warn", "info"] },
-        "code": { "type": "string", "minLength": 1 },
+        "code": {
+          "type": "string", "minLength": 1,
+          "description": "Freier Code. Ab Tool 0.4.4 beginnen die Befunde der Barrierefreiheits-Pruefung mit A11Y_ (A11Y_CONTRAST_TEXT, A11Y_CONTRAST_HEADER, A11Y_CONTRAST_ACCENT, A11Y_PALETTE_COLOUR_ONLY, A11Y_FONT_MIN, A11Y_TILE_SMALL, A11Y_TITLE_MISSING, A11Y_DENSITY, A11Y_READING_ORDER, A11Y_NAV_OFF, A11Y_SLICER_LABEL)."
+        },
         "text": { "type": "string" },
         "page": { "type": ["string", "null"] },
         "visual": { "type": ["string", "null"] }

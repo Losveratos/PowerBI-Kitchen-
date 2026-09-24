@@ -1,0 +1,54 @@
+[
+  {
+    "visual_type": "pivotTable",
+    "name": "mk_tab1",
+    "title": "Regionen im Detail",
+    "x": 24,
+    "y": 582,
+    "width": 1572,
+    "height": 438,
+    "fields": {
+      "Rows": "DimRegion.Region",
+      "Values": [
+        "_Measures.AC",
+        "_Measures.PL"
+      ]
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Year_p2",
+    "title": "Year",
+    "x": 1632,
+    "y": 199,
+    "width": 276,
+    "height": 84,
+    "fields": {
+      "Values": "DimDate.Year"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Region_p2",
+    "title": "Region",
+    "x": 1632,
+    "y": 295,
+    "width": 276,
+    "height": 84,
+    "fields": {
+      "Values": "DimRegion.Region"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Date_p2",
+    "title": "Date",
+    "x": 1632,
+    "y": 391,
+    "width": 276,
+    "height": 84,
+    "fields": {
+      "Values": "DimDate.Date"
+    }
+  }
+]

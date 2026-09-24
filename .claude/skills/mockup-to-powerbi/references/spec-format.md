@@ -88,6 +88,21 @@ Wieder abwärtskompatibel. Fehlen die Schlüssel, ist die jeweilige Variante aus
 > bereits gebauten Bericht fälschlich eine Änderung
 > (`mockup_spec.HASH_SKIP_ANALYSIS_IF_NULL`, dieselbe Idee wie bei `design`).
 
+### Tool 0.4.2 bis 0.4.4 (specVersion bleibt 3)
+
+Wieder abwärtskompatibel: fehlt ein Schlüssel, baut der Skill genau wie vorher
+(alle alten Goldens bleiben unverändert). Details im Abschnitt
+[Tool 0.4.4](#tool-044-typografie-filterbereich-slicer-art-barrierefreiheit).
+
+| Neu | Tool | Wo |
+|---|---|---|
+| `visuals[].interaction` | 0.4.2 | Drill-down, Cross-Filter, Drill-through je Kachel |
+| `zones.header.navPosition`, `zones.footer.nav`, `zones.footer.navPosition` | 0.4.3 | Seitennavigation im Kopfband, in der Fußleiste oder aus |
+| `design.typography`, `visuals[].typography` | 0.4.3 | Schriftgrößen (Titel, Untertitel, Diagramm) und Kachel-Faktor |
+| `zones.filter.heading`, `zones.filter.text` | 0.4.4 | Überschrift (oder keine) und Hinweistext im Filterbereich |
+| `zones.filter.slicers[].type` | 0.4.4 | Slicer-Art `dropdown` · `list` · `tile` · `between` · `date` · `search` |
+| Issue-Codes `A11Y_*` | 0.4.4 | Befunde der Barrierefreiheits-Prüfung |
+
 ## Oberste Ebene (specVersion 3)
 
 | Schlüssel | Inhalt |
@@ -163,6 +178,7 @@ bestätigte Definitionen sind der häufigste Grund für „die Zahl stimmt nicht
 | `REPORT_NO_AUDIENCE`, `REPORT_NO_DECISION` | Berichtskopf unvollständig |
 | `SM_NO_FIELD` | Small Multiples eingeschaltet, aber kein Aufteilungsfeld gebunden (`warn`, ab 0.4.1) — die Kachel wird trotzdem gebaut, nur ohne Aufteilung |
 | `FIELDPARAM_FEW` | Feldparameter mit weniger als zwei Feldern (`info`, ab 0.4.1) — zum Umschalten braucht es mindestens zwei |
+| `A11Y_*` | Barrierefreiheit (ab 0.4.4): `A11Y_CONTRAST_TEXT`, `A11Y_CONTRAST_HEADER`, `A11Y_CONTRAST_ACCENT`, `A11Y_PALETTE_COLOUR_ONLY`, `A11Y_FONT_MIN`, `A11Y_TILE_SMALL`, `A11Y_TITLE_MISSING`, `A11Y_DENSITY`, `A11Y_READING_ORDER`, `A11Y_NAV_OFF`, `A11Y_SLICER_LABEL` — eigener Block, siehe [Tool 0.4.4](#barrierefreiheit-issues-mit-a11y_) |
 
 `error` zuerst klären: Kacheln mit leerer Pflichtrolle stehen **nicht** in
 `pbir-visuals.json`, sonst würde `--from-json` die ganze Datei ablehnen.
@@ -186,6 +202,7 @@ ein Theme (Theme macht der Skill `powerbi-design-framework`).
 | `variancePalette` | `teal` · `ibcs` | wählt die Abweichungsfarben: `teal` = `#1E8F9E`/`#D64541`, `ibcs` = `#3A9A5B`/`#C8412F` |
 | `varianceColors` | `{good, bad}` | die konkreten Farben (das Tool schreibt sie passend zur Palette mit); gehen ins Theme-Fragment als `good` / `bad` |
 | `colors` | `{pageBackground, tileBackground, ink, headerBackground, headerInk}` | vollständiger Farbsatz. `ink` ist die Vordergrundfarbe (Theme `foreground`, Titel, Fußleiste), die Kopfbandfarben ersetzen die Herleitung aus `headerStyle` |
+| `typography` | ab 0.4.3: `{basis, scale, title, sub, chart}` | Schriftgrößen in px bei 1280 px Breite; wirksam `× scale × fontScale`, im Bericht `× 0,75` in pt. Siehe [Tool 0.4.4](#typografie-designtypography-visualstypography) |
 | `darkMode` | bool | `true`, wenn die Kachelfarbe dunkel ist; steht in `checklist.md` und im Theme-Kommentar. Farben kommen trotzdem aus `colors` — es wird nichts umgerechnet |
 
 > Der Enum-Wert für abgerundete Shapes heißt `rectangleRounded`
@@ -200,9 +217,9 @@ eingeschaltet hat — `content` immer. Die Zonen gelten für **jede** Seite.
 | Zone | Zusätzliche Felder |
 |---|---|
 | `nav` | `pages` (Namen aller Seiten — ein Button je Seite in der linken Leiste) |
-| `header` | `style` (= `design.headerStyle`), `logoPos` (`left`/`right`/`none`), `title`, `subtitle`, `nav` (Seitennamen für die Buttons), **`navOn`** (ab 0.4.1, Vorgabe `true`), `navAuto` (Nav folgt automatisch den Seiten), `burger` (Burger-Button fürs Filter-Overlay) |
-| `filter` | `mode`, `side`, `collapsible`, `slicers[]`, bei Overlay zusätzlich `overlay: true`, `note`, `bookmarks[]` |
-| `footer` | `text` |
+| `header` | `style` (= `design.headerStyle`), `logoPos` (`left`/`right`/`none`), `title`, `subtitle`, `nav` (Seitennamen für die Buttons), **`navOn`** (ab 0.4.1, Vorgabe `true`), **`navPosition`** (ab 0.4.3: `header`/`footer`/`off`), `navAuto` (Nav folgt automatisch den Seiten), `burger` (Burger-Button fürs Filter-Overlay) |
+| `filter` | `mode`, `side`, `collapsible`, `slicers[]` (ab 0.4.4 mit `type`), **`heading`** und **`text`** (ab 0.4.4), bei Overlay zusätzlich `overlay: true`, `note`, `bookmarks[]` |
+| `footer` | `text`, **`nav`** und **`navPosition`** (ab 0.4.3) |
 | `content` | – (hier und nur hier liegen die Visuals) |
 
 Geometrie-Logik des Tools (`app.js` → `zones()`): Nav-Leiste nimmt links Platz
@@ -226,6 +243,11 @@ Seitenwechsel läuft über die Registerkarten (oder über die linke Nav-Leiste
 | `left` | linke Spalte | wie `right` | Inhalt wird schmaler |
 | `top` | Leiste unter dem Kopfband, volle Breite | nebeneinander: `x+8k+i·168k`, `y+8k`, `160k`, `h-16k` | Inhalt wird niedriger |
 | `burger` | **keine** eigene Zone im Layout; Panel liegt rechts **über** dem Inhalt | wie `right` | `overlay: true`, Burger-Button im Kopfband, zwei Lesezeichen |
+
+Das sind die Maße **ohne** `heading`/`text` (Specs vor 0.4.4). Mit den neuen
+Schlüsseln beginnen die Slicer unter der Überschrift und dem Hinweistext (bzw.
+in der Leiste oben rechts daneben) — `mockup_to_pbir.filter_layout()`, siehe
+[Filterbereich](#filterbereich-zonesfilterheading-text-slicerstype).
 
 `bookmarks` steht bei `mode: "burger"` **und** bei `collapsible: true`:
 `[{name: "Filter öffnen", showsPanel: true}, {name: "Filter schließen", showsPanel: false}]`.
@@ -688,6 +710,20 @@ Fußleiste (`navPosition: "footer"`, dann steht die Liste in `zones.footer.nav`,
 aus sein (`"off"`). `zones.header.navOn` bleibt als Kurzform `navPosition === "header"` erhalten. Beim Bau in der
 Fußleiste gehören die Nav-Buttons rechts in die Fußzone, kleiner als im Kopfband (Schrift ca. 9,5 px × Skalierung).
 
+**So baut es der Skill** (`build_chrome`, ab dieser Fassung):
+
+- `mockup_spec.nav_position(zones)` liest `navPosition` aus Kopfband oder Fußleiste; ältere Specs ohne den
+  Schlüssel fallen auf `navOn` zurück (`false` → `off`, sonst `header`).
+- `header`: wie bisher, `chrome_nav_<i>` rechtsbündig im Kopfband (Schrift 10 × k).
+- `footer`: dieselben Namen `chrome_nav_<i>` (damit `navigation.md`, Lesezeichen und Abnahme gleich bleiben),
+  aber als `actionButton` **rechtsbündig in der Fußzone**: Rand rechts 16 × k, Abstand 5 × k, Höhe höchstens
+  20 × k, Breite nach Textlänge (mindestens 48 × k), Schrift 9,5 × k auf 0,5 gerundet (bei k = 1,5 also 14,5
+  gegenüber 15 im Kopfband). Die aktive Seite bekommt Akzentfüllung und keine Aktion, die anderen einen
+  dünnen Rahmen (`outline.show/lineColor/weight`, mit `pbir schema describe actionButton outline` geprüft) und
+  `PageNavigation`. Der Fußzeilentext `chrome_footer_text` endet links vor den Buttons.
+- `footer`, aber Fußleiste aus: keine Buttons, Hinweis in `checklist.md`.
+- `off`: keine Buttons, Hinweis in `checklist.md` und `navigation.md` (wie `navOn: false`).
+
 ## `visuals[].interaction` (Tool 0.4.2)
 
 Verhalten der Kachel, im Tool über das Kachel-Fenster (Button „Notiz & Einstellungen", Taste N) gesetzt:
@@ -710,6 +746,135 @@ Verhalten der Kachel, im Tool über das Kachel-Fenster (Button „Notiz & Einste
 
 Der Agent-Brief fasst das je Kachel als Zeile „Verhalten: Drill-down · kein Cross-Filter · Drill-through → Seite"
 zusammen. Fehlt der Block (ältere Specs), gelten die Vorgaben.
+
+## Tool 0.4.4: Typografie, Filterbereich, Slicer-Art, Barrierefreiheit
+
+Alle vier Erweiterungen sind optional. Fehlen die Schlüssel, entstehen dieselben
+Dateien wie vorher (die Goldens der älteren Fixtures sind unverändert).
+Testfall: `tests/fixtures/v3-typo-filter.json` (Full HD, Fußleisten-Navigation,
+Typografie mit Kachel-Override, Filterbereich mit Überschrift, Hinweis und drei
+Slicer-Arten, zwei `A11Y_*`-Befunde).
+
+### Typografie (`design.typography`, `visuals[].typography`)
+
+```json
+"design": { "fontScale": 1.5,
+            "typography": { "basis": "1280px", "scale": 1.1, "title": 13, "sub": 10, "chart": 9 } },
+"visuals": [ { "id": "mk_col1", "typography": { "scale": 1.3 } }, { "id": "mk_kpi1", "typography": null } ]
+```
+
+Basisgrößen in px bei 1280 px Seitenbreite (Tool-Vorgabe 12 / 9,5 / 9, `scale` 1).
+Die Seite skaliert mit `k = canvas.width / 1280` (steht als `design.fontScale`
+in der Spec). Wirksam — wie im Tool (`render-png.js`: `ty.scale × tileScale × k`):
+
+| Größe | Formel | im Bericht |
+|---|---|---|
+| Visual-Titel | `title × scale × tile × k` | pt = px × 0,75, auf 0,5 gerundet, 6–45 |
+| Untertitel | `sub × scale × tile × k` | dito |
+| Diagrammbeschriftung | `chart × scale × tile × k` | dito |
+
+`tile` ist `visuals[].typography.scale` (fehlt/`null` = 1). Beispiel oben:
+Titel 13 × 1,1 × 1,5 = 21,45 px → **16 pt**, mit Kachel-Faktor 1,3 → **21 pt**.
+`mockup_spec.type_sizes(nspec, visual)` rechnet das; ohne `design.typography`
+liefert es `None`, und der Skill bleibt bei den alten festen Größen.
+
+Wohin es geht:
+
+- **`chrome-batch.json`** (und `chrome-commands.sh`): je nativem Visual
+  `title.fontSize` und `subTitle.fontSize` in pt (Container-Objekte, von `pbir`
+  als `"16D"` geschrieben — geprüft mit `pbir batch run` und `pbir visuals
+  json`). Text-Kacheln und Slicer bleiben außen vor.
+  **Nicht** in `pbir-visuals.json`: `--from-json` erlaubt nur `visual_type,
+  name, title, x, y, width, height, fields`; jeder weitere Schlüssel verwirft
+  die ganze Datei.
+- **`theme-fragment.json`**: `visualStyles.*.*.title.fontSize` (Titel global)
+  und `subTitle.fontSize`, dazu `textClasses` — `largeTitle` = Visual-Titel,
+  `title` = Achsentitel/Slicer-Kopf und `label` = Werte und Beschriftungen,
+  beide aus der Diagrammbeschriftung. `callout` (KPI-Werte) kennt das Mockup
+  nicht und bleibt dem Theme überlassen. Farben in `textClasses` als reiner
+  Hex-String (nicht `{solid: …}`), `title` bekommt Ink ausdrücklich.
+- **Custom Visuals**: `title`/`subTitle.fontSize` direkt in der erzeugten
+  `visual.json`.
+- **ChartKitchen-/Deneb-Slots**: Block `typography` (`titlePt`, `subtitlePt`,
+  `labelPt`, `labelPx`, `tileScale`) — im Format-Bereich des Visuals setzen.
+- **`checklist.md`, `plan.json` (`typography`), Workshop-Doku**: die wirksamen
+  Größen und die Kacheln mit eigenem Faktor.
+
+> Die Chrome-Texte (Kopfband, Fußleiste, Filter-Überschrift) behalten die
+> bisherige Konvention des Skills: Basiswert × k, **ohne** px→pt-Umrechnung.
+
+### Filterbereich (`zones.filter.heading`, `text`, `slicers[].type`)
+
+```json
+"filter": { "mode": "right", "heading": "Auswahl", "text": "Alle Werte in Tsd. EUR.",
+            "slicers": [ { "ref": "DimDate.Year", "type": "dropdown" },
+                         { "ref": "DimRegion.Region", "type": "tile" },
+                         { "ref": "DimDate.Date", "type": "date" } ] }
+```
+
+- `heading`: sichtbarer Überschriftstext; `null` = keine Überschrift (das Tool
+  blendet sie bei „auto" aus, sobald Slicer da sind). Wird als Shape
+  `chrome_filter_title` gebaut; fehlt der Schlüssel ganz (alte Spec), bleibt es
+  bei „Filter".
+- `text`: Hinweistext oder `null`. Shape `chrome_filter_text` (Schrift 9,5 × k,
+  grau) unter der Überschrift, in der Leiste oben rechts daneben (höchstens
+  220 × k breit).
+- Die Slicer rücken nach: Panel = unter Überschrift (32 × k) und Text
+  (Zeilen × 13 × k), Leiste oben = rechts neben beiden. Ohne Überschrift und
+  Text beginnen sie 8 × k unter der Oberkante.
+- Lesezeichen „Filter öffnen/schließen" nehmen `chrome_filter_title` und
+  `chrome_filter_text` nur auf, wenn es sie gibt.
+
+**Slicer-Art → PBIR-Formatierung** (in `chrome-batch.json`/`chrome-commands.sh`;
+`mockup_to_pbir.SLICER_FORMAT`). **Verifiziert mit pbir 0.9.32** an einem
+Probe-Report (sechs Slicer, `pbir batch run`, danach `pbir validate --fields`
+ohne Befund und `pbir visuals json` gelesen):
+
+| `type` | Setzung | Quelle / Prüfung |
+|---|---|---|
+| `dropdown` | `data.mode = Dropdown` | Enum aus `pbir schema describe slicer data --json`; Vorgabe im Microsoft-Theme Fluent2 |
+| `list` | `data.mode = Basic`, `general.orientation = 0` | Fluent2-Stilvorlage „List" (`visualStyles.slicer.List`) |
+| `tile` | `data.mode = Basic`, `general.orientation = 1` | Fluent2-Stilvorlage „Tile" |
+| `between` | `data.mode = Between` | Enum; Feld muss numerisch oder Datum sein |
+| `date` | `data.mode = Between` | wie `between`, Feld muss `Date`/`DateTime` sein (Hinweis in `checklist.md`) |
+| `search` | `data.mode = Basic`, `general.orientation = 0`, `general.selfFilterEnabled = true` | `selfFilterEnabled` ist das Suchfeld-Flag des Slicers; `pbir` nimmt es an — **in Desktop gegenprüfen** |
+
+`data.mode` ist ein Enum (`VerticalList, HorizontalList, Between, Before, After,
+Basic, Dropdown, Relative, Single, RelativeTime, RelativeDatePicker`);
+`pbir set … data.mode --value List` wird abgelehnt. Specs ohne `type` bekommen
+nichts gesetzt.
+
+### Barrierefreiheit (`issues[]` mit `A11Y_*`)
+
+Das Tool (Modul `a11y.js`) schreibt seine Befunde als ganz normale Issues mit
+`code` = `A11Y_…` und `level` `error`/`warn`/`info`; der Text enthält den
+Hinweis in Klammern. Der Skill zieht sie aus der allgemeinen Issue-Tabelle
+heraus und zeigt sie in einem eigenen Block:
+
+- **`checklist.md`** → „Barrierefreiheit": Tabelle mit Schwere, Code, Seite,
+  Kachel, Befund; `error` ist als **Blocker** markiert.
+- **`plan.json`** → erster Schritt `accessibility` (op `confirm`, listet die
+  Blocker) und Block `accessibility` mit `acceptBeforeBuild`, `blockers`,
+  `findings`. Fehler muss der Mensch **vor** dem Bau im Mockup beheben oder
+  ausdrücklich akzeptieren; Warnungen und Hinweise werden vorgelegt.
+- **Workshop-Doku** (`mockup_to_docs.py`, deutsch und englisch): Abschnitt
+  „Barrierefreiheit" / „Accessibility" vor den offenen Punkten, in der
+  PowerPoint eine eigene Folie. Unter „Offene Punkte" stehen sie nicht noch
+  einmal.
+
+| Code | Level im Tool | Worum es geht |
+|---|---|---|
+| `A11Y_CONTRAST_TEXT` | error | Text gegen Kachelgrund unter 4,5:1 |
+| `A11Y_CONTRAST_HEADER` | error | Kopfband-Text gegen Kopfband-Fläche unter 4,5:1 |
+| `A11Y_CONTRAST_ACCENT` | warn | Akzent gegen Kachelgrund unter 3:1 |
+| `A11Y_PALETTE_COLOUR_ONLY` | info | Grün/Rot-Palette (Rot-Grün-Schwäche) |
+| `A11Y_FONT_MIN` | warn | Titel/Untertitel auf dieser Leinwand zu klein |
+| `A11Y_TILE_SMALL` | error/warn | Kachel zu klein bzw. knapp |
+| `A11Y_TITLE_MISSING` | warn | Kachel ohne Titel (Screenreader) |
+| `A11Y_DENSITY` | info | viele Kacheln auf einer Seite |
+| `A11Y_READING_ORDER` | info | Layout tief verschachtelt (Tab-Reihenfolge) |
+| `A11Y_NAV_OFF` | info | Seitennavigation aus |
+| `A11Y_SLICER_LABEL` | warn | Slicer ohne Feldnamen |
 
 ## `page-<Index>-<Seitenslug>.png` (Tool-Ausgabe, ab v3)
 

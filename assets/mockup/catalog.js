@@ -134,9 +134,9 @@
 
     // ---------- Native Sonstige ----------
     // Klassiker für Berichte, die nur mit nativen Visuals arbeiten: ohne Szenario-Notation, Legende optional
-    K('ncolumn', 'native', { roles: [R.category, R.series, RX(R.values, { max: 5 })], engines: ['native'], engine: 'native', ck: null, plain: true, sketch: 'columns', native: { type: 'clusteredColumnChart', map: { category: 'Category', series: 'Series', values: 'Y' } } }),
-    K('nbar', 'native', { roles: [R.category, R.series, RX(R.values, { max: 5 })], engines: ['native'], engine: 'native', ck: null, plain: true, sketch: 'bars', native: { type: 'clusteredBarChart', map: { category: 'Category', series: 'Series', values: 'Y' } } }),
-    K('nline', 'native', { roles: [R.time, R.series, RX(R.values, { max: 5 })], engines: ['native'], engine: 'native', ck: null, plain: true, sketch: 'line', native: { type: 'lineChart', map: { category: 'Category', series: 'Series', values: 'Y' } } }),
+    K('ncolumn', 'native', { roles: [R.category, R.series, RX(R.values, { max: 5 })], engines: ['native'], engine: 'native', ck: null, plain: true, sketch: 'ncolumn', native: { type: 'clusteredColumnChart', map: { category: 'Category', series: 'Series', values: 'Y' } } }),
+    K('nbar', 'native', { roles: [R.category, R.series, RX(R.values, { max: 5 })], engines: ['native'], engine: 'native', ck: null, plain: true, sketch: 'nbar', native: { type: 'clusteredBarChart', map: { category: 'Category', series: 'Series', values: 'Y' } } }),
+    K('nline', 'native', { roles: [R.time, R.series, RX(R.values, { max: 5 })], engines: ['native'], engine: 'native', ck: null, plain: true, sketch: 'nline', native: { type: 'lineChart', map: { category: 'Category', series: 'Series', values: 'Y' } } }),
     K('ndonut', 'native', { roles: [R.category, R.ac], engines: ['native'], engine: 'native', ck: null, plain: true, sketch: 'donut', native: { type: 'donutChart', map: { category: 'Category', ac: 'Y' } } }),
     K('pie', 'native', { roles: [R.category, R.ac], engines: ['native'], engine: 'native', ck: null, warnNote: true, native: { type: 'pieChart', map: { category: 'Category', ac: 'Y' } } }),
     K('treemap', 'native', { roles: [R.category, R.ac], engines: ['native'], engine: 'native', ck: null, native: { type: 'treemap', map: { category: 'Group', ac: 'Values' } } }),

@@ -1,0 +1,76 @@
+[
+  {
+    "visual_type": "card",
+    "name": "mk_kpi1",
+    "title": "Umsatz",
+    "x": 24,
+    "y": 108,
+    "width": 516,
+    "height": 180,
+    "fields": {
+      "Values": "_Measures.Umsatz"
+    }
+  },
+  {
+    "visual_type": "clusteredColumnChart",
+    "name": "mk_col1",
+    "title": "Umsatz je Region",
+    "x": 564,
+    "y": 108,
+    "width": 1032,
+    "height": 540,
+    "fields": {
+      "Category": "DimRegion.Region",
+      "Y": "_Measures.Umsatz"
+    }
+  },
+  {
+    "visual_type": "clusteredBarChart",
+    "name": "mk_bar1",
+    "title": "Kosten je Region",
+    "x": 24,
+    "y": 672,
+    "width": 1572,
+    "height": 348,
+    "fields": {
+      "Category": "DimRegion.Region",
+      "Y": "_Measures.Kosten"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Year_p1",
+    "title": "Year",
+    "x": 1632,
+    "y": 199,
+    "width": 276,
+    "height": 84,
+    "fields": {
+      "Values": "DimDate.Year"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Region_p1",
+    "title": "Region",
+    "x": 1632,
+    "y": 295,
+    "width": 276,
+    "height": 84,
+    "fields": {
+      "Values": "DimRegion.Region"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Date_p1",
+    "title": "Date",
+    "x": 1632,
+    "y": 391,
+    "width": 276,
+    "height": 84,
+    "fields": {
+      "Values": "DimDate.Date"
+    }
+  }
+]

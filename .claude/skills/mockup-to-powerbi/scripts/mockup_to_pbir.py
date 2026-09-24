@@ -93,8 +93,9 @@ from mockup_spec import (                                     # noqa: E402
     CK_ORIENTATION, CK_ROLE, CK_ROLE_UNSUPPORTED, DRILL_ROLE_ORDER,
     MEASURE_ROLE_ORDER, NO_VARIANT_KINDS, SMALL_MULTIPLES_BUCKET,
     SMALL_MULTIPLES_TYPES, SpecError, as_document,
-    custom_visual_info, is_light, load, slug, split_ref, structural_errors,
-    upgrade, validate,
+    a11y_issues, custom_visual_info, footer_nav_entries, half_pt, is_a11y_issue,
+    is_light, load, nav_position, slug, split_ref, structural_errors,
+    type_sizes, upgrade, validate,
 )
 
 # PBIR-Schema, das `pbir add visual` in 0.9.32 schreibt. Custom Visuals kann die
@@ -110,6 +111,36 @@ Z = {"bg": 0, "text": 4, "button": 5, "content": 10,
 # analysis.displayUnits -> Enumwert von labels.labelDisplayUnits
 DISPLAY_UNITS = {"none": 1, "K": 1000, "M": 1000000}
 DISPLAY_UNITS_CLI = {"none": "None", "K": "Thousands", "M": "Millions"}
+
+# Slicer-Art (`zones.filter.slicers[].type`, Tool 0.4.4) -> PBIR-Formatierung.
+# VERIFIZIERT mit pbir 0.9.32 (Probe-Report, `pbir batch run` + `pbir validate
+# --fields` ohne Befund, danach `pbir visuals json` gelesen):
+#   pbir schema describe slicer data --json -> data.mode ist ein Enum:
+#     VerticalList, HorizontalList, Between, Before, After, Basic, Dropdown,
+#     Relative, Single, RelativeTime, RelativeDatePicker
+#     (`pbir set ... data.mode --value List` wird abgelehnt)
+#   pbir schema describe slicer general    -> orientation (Enum 0 | 1),
+#     selfFilterEnabled (boolean)
+#   Die Stil-Vorlagen des Microsoft-Themes Fluent2 (visualStyles.slicer) nutzen
+#   genau diese Paare: "List" = data.mode Basic + general.orientation 0,
+#   "Tile" = data.mode Basic + general.orientation 1, Vorgabe = Dropdown.
+# `search` = Liste mit Suchfeld: das Suchfeld schaltet Power BI ueber
+# general.selfFilterEnabled (pbir nimmt es an; in Desktop gegenpruefen).
+# `date` = Bereich auf einer Datumsspalte — gleicher Modus wie `between`, das
+# Feld muss aber vom Typ Date/DateTime sein, sonst zeigt Power BI keinen Kalender.
+SLICER_FORMAT = {
+    "dropdown": {"data.mode": "Dropdown"},
+    "list": {"data.mode": "Basic", "general.orientation": 0},
+    "tile": {"data.mode": "Basic", "general.orientation": 1},
+    "between": {"data.mode": "Between"},
+    "date": {"data.mode": "Between"},
+    "search": {"data.mode": "Basic", "general.orientation": 0,
+               "general.selfFilterEnabled": True},
+}
+SLICER_TYPE_LABEL = {
+    "dropdown": "Dropdown", "list": "Liste", "tile": "Kacheln (horizontal)",
+    "between": "Bereich von–bis", "date": "Datumsbereich", "search": "Liste mit Suche",
+}
 
 # Visual-Typen ohne Datenbeschriftung — dort keine Anzeigeeinheiten setzen
 NO_LABELS = {"slicer", "shape", "actionButton", "textbox", "image",
@@ -316,11 +347,12 @@ def param_slicer_hint(nspec: dict, page: dict, fp: dict, offset: int = 0) -> str
     n = len(filt.get("slicers") or []) + offset
     if filt:
         fx, fy, fw, fh = rect(filt)
+        ox, oy = filter_layout(nspec)["origin"]
         if (filt.get("mode") or filt.get("side")) == "top":
-            x, y = fx + round(8 * k) + n * round(168 * k), fy + round(8 * k)
+            x, y = ox + n * round(168 * k), fy + round(8 * k)
             w, h = round(160 * k), fh - 2 * round(8 * k)
         else:
-            x, y = fx + round(8 * k), fy + round(40 * k) + n * round(64 * k)
+            x, y = fx + round(8 * k), oy + n * round(64 * k)
             w, h = fw - 2 * round(8 * k), round(56 * k)
     else:
         cr = page.get("contentRect") or {}
@@ -456,6 +488,81 @@ def slicer_names(nspec: dict, page: dict):
 
 
 # --------------------------------------------------------------------------- #
+# Filterbereich: Ueberschrift, Hinweistext, Slicer-Ursprung (Tool 0.4.4)
+# --------------------------------------------------------------------------- #
+def filter_layout(nspec: dict):
+    """Aufteilung des Filterbereichs — oder None ohne Filterzone.
+
+    Specs vor Tool 0.4.4 kennen weder `heading` noch `text`: dann bleibt alles
+    wie bisher (Ueberschrift „Filter", Slicer ab 40 px unter der Oberkante bzw.
+    ab dem linken Rand der Leiste). Mit den neuen Schluesseln gilt:
+
+    * `heading` (Text oder null): Ueberschrift oben, null = keine
+    * `text` (Text oder null): Hinweistext unter der Ueberschrift (Panel) bzw.
+      rechts daneben (Leiste oben, hoechstens 220 px breit wie im Tool)
+    * die Slicer beginnen unter bzw. rechts neben beidem.
+    """
+    filt = (nspec["zones"] or {}).get("filter")
+    if not filt:
+        return None
+    k = nspec["uiScale"]
+
+    def px(base: float) -> int:
+        return int(round(base * k))
+
+    fx, fy, fw, fh = rect(filt)
+    mode = filt.get("mode") or filt.get("side") or "right"
+    new = "heading" in filt or "text" in filt
+    if new:
+        heading = filt.get("heading")
+        heading = (str(heading).strip() or None) if heading is not None else None
+        text = str(filt.get("text") or "").strip() or None
+    else:
+        heading, text = "Filter", None
+    out = {"new": new, "mode": mode, "heading": heading, "text": text,
+           "title": None, "textRect": None}
+    if mode == "top":
+        if not new:
+            out["title"] = (fx + px(8), fy, px(56), fh)
+            out["origin"] = (fx + px(8), fy + px(8))
+            return out
+        x = fx + px(8)
+        if heading:
+            w = max(px(56), px(len(heading) * 11 * 0.62 + 8))
+            out["title"] = (x, fy, w, fh)
+            x += w + px(8)
+        if text:
+            w = min(px(220), max(px(80), px(len(text) * 9.5 * 0.55)))
+            out["textRect"] = (x, fy, w, fh)
+            x += w + px(8)
+        out["origin"] = (x, fy + px(8))
+        return out
+    if not new:
+        out["title"] = (fx + px(8), fy + px(8), fw - px(16), px(24))
+        out["origin"] = (fx + px(8), fy + px(40))
+        return out
+    y = fy + px(8)
+    if heading:
+        out["title"] = (fx + px(8), y, fw - px(16), px(24))
+        y += px(32)
+    if text:
+        inner = max(1, fw - px(16))
+        per_line = max(1, int(inner / max(1.0, 9.5 * 0.55 * k)))
+        lines = min(6, max(1, -(-len(text) // per_line)))
+        h = lines * px(13) + px(2)
+        out["textRect"] = (fx + px(8), y, inner, h)
+        y += h + px(8)
+    out["origin"] = (fx + px(8), y)
+    return out
+
+
+def slicer_type(s: dict):
+    """Slicer-Art aus der Spec, oder None (aeltere Specs: nichts setzen)."""
+    t = str((s or {}).get("type") or "").strip().lower()
+    return t if t in SLICER_FORMAT else None
+
+
+# --------------------------------------------------------------------------- #
 # Native Visuals + Slicer  (wie export.js -> buildPbir, aber je Seite)
 # --------------------------------------------------------------------------- #
 def build_pbir_visuals(nspec: dict, page: dict, ck_fallback: bool = False):
@@ -501,13 +608,14 @@ def build_pbir_visuals(nspec: dict, page: dict, ck_fallback: bool = False):
         k = nspec["uiScale"]
         pad = round(8 * k)
         fx, fy, fw, fh = rect(filt)
+        ox, oy = filter_layout(nspec)["origin"]
         names = slicer_names(nspec, page)
         for i, s in enumerate(filt.get("slicers") or []):
             if filt.get("mode") == "top":
-                x, y = fx + pad + i * round(168 * k), fy + pad
+                x, y = ox + i * round(168 * k), fy + pad
                 w, h = round(160 * k), fh - 2 * pad
             else:
-                x, y = fx + pad, fy + round(40 * k) + i * round(64 * k)
+                x, y = fx + pad, oy + i * round(64 * k)
                 w, h = fw - 2 * pad, round(56 * k)
             out.append(vis("slicer", names[i], s["name"], x, y, w, h,
                            fields={"Values": s["ref"]}))
@@ -575,9 +683,15 @@ def custom_visual_json(v: dict, st) -> dict:
     x, y, w, h = rect(v["rect"])
     title = v.get("title") or ""
     subtitle = (v.get("subtitle") or "").strip()
+    title_props = {"show": _lit(bool(title)), "text": _lit(title)}
+    sub_props = {"show": _lit(bool(subtitle)), "text": _lit(subtitle)}
+    ts = st.typo(v) if hasattr(st, "typo") else None
+    if ts:                                   # Tool 0.4.3: design.typography
+        title_props["fontSize"] = _lit(ts["titlePt"])
+        sub_props["fontSize"] = _lit(ts["subPt"])
     container = {
-        "title": _container({"show": _lit(bool(title)), "text": _lit(title)}),
-        "subTitle": _container({"show": _lit(bool(subtitle)), "text": _lit(subtitle)}),
+        "title": _container(title_props),
+        "subTitle": _container(sub_props),
         "background": _container({"show": _lit(True), "color": _solid(st.tile_bg),
                                   "transparency": _lit(0)}),
     }
@@ -739,6 +853,7 @@ class Style:
     def __init__(self, nspec: dict, opt) -> None:
         d = nspec["design"]
         c = d["colors"]                      # von mockup_spec.normalise_design gefuellt
+        self.nspec = nspec
         self.design = d
         self.scale = d["fontScale"]
         # `--ink` ueberschreibt `design.colors.ink`; ohne Flag gewinnt die Spec.
@@ -782,6 +897,14 @@ class Style:
     def sz(self, base: float) -> int:
         """Schriftgroesse skaliert, auf den pbir-Bereich 6-45 begrenzt."""
         return max(6, min(45, int(round(base * self.scale))))
+
+    def fsz(self, base: float):
+        """Wie sz(), aber auf 0,5 genau (fuer die kleinen 9,5-px-Texte aus 0.4.3/0.4.4)."""
+        return half_pt(base * self.scale)
+
+    def typo(self, visual=None):
+        """Wirksame Schriftgroessen aus `design.typography` (None = alte Spec)."""
+        return type_sizes(self.nspec, visual)
 
     def px(self, base: float) -> int:
         return int(round(base * self.scale))
@@ -849,7 +972,7 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
     hinted = []
 
     def nav_button(name: str, text: str, x, y, w, h, target: str, *,
-                   active: bool, fg: str) -> None:
+                   active: bool, fg: str, size=None, outline=None) -> None:
         visuals.append(vis("actionButton", name, text, x, y, w, h))
         if not hinted:
             hinted.append("x")
@@ -864,8 +987,15 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
                      ("text.fontColor", st.on_ink)]
         else:
             props = [("fill.show", False), ("text.fontColor", fg)]
-        props += [("outline.show", False), ("text.text", text),
-                  ("text.fontSize", st.sz(10)),
+        if outline and not active:
+            # Fussleisten-Navigation: duenner Rahmen wie im Tool
+            # (actionButton outline.show/lineColor/weight — pbir schema describe)
+            props += [("outline.show", True), ("outline.lineColor", outline),
+                      ("outline.weight", 1)]
+        else:
+            props += [("outline.show", False)]
+        props += [("text.text", text),
+                  ("text.fontSize", st.sz(10) if size is None else size),
                   ("text.horizontalAlignment", "center"),
                   ("text.verticalAlignment", "middle")]
         for prop, value in props:
@@ -890,13 +1020,21 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
     # ohnehin leer — die Flagge wird trotzdem ausgewertet, damit eine von Hand
     # geschriebene Spec mit `navOn: false` und gefuellter `nav`-Liste nicht
     # heimlich doch Buttons bekommt.
-    header_nav_on = header.get("navOn", True) is not False
+    # Ab Tool 0.4.3 entscheidet `navPosition` (header | footer | off); navOn ist
+    # dann nur noch die Kurzform fuer navPosition == "header".
+    nav_pos = nav_position(zones)
+    has_nav_pos = any("navPosition" in (zones.get(key) or {})
+                      for key in ("header", "footer"))
+    header_nav_on = nav_pos == "header"
     nav_entries = ([str(n) for n in (header.get("nav") or []) if str(n).strip()]
                    if header_nav_on else [])
-    if header and not header_nav_on:
-        notes.append("Kopfband ohne Seitennavigation (`zones.header.navOn: false`) — "
+    footer_entries = footer_nav_entries(zones)
+    if header and nav_pos == "off":
+        notes.append("Kopfband ohne Seitennavigation (%s) — "
                      "es werden keine `chrome_nav_*`-Buttons angelegt. Seitenwechsel "
                      "laeuft ueber die Registerkarten"
+                     % ('`navPosition: "off"`' if has_nav_pos
+                        else "`zones.header.navOn: false`")
                      + (" bzw. die linke Nav-Leiste." if nav_zone else "."))
 
     # ---- Nav-Leiste (links) --------------------------------------------- #
@@ -1050,16 +1188,37 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
         z_bt = Z["overlayButton"] if overlay else Z["button"]
         band("chrome_filter_bg", "Filter-Panel", fx, fy, fw, fh, st.panel,
              z=z_bg, rounded=overlay)
+        fl = filter_layout(nspec)
+        if not fl["new"]:
+            if mode == "top":
+                label("chrome_filter_title", "Filter-Überschrift", fx + st.px(8), fy,
+                      st.px(56), fh, "Filter", size=st.sz(11), color=st.ink, bold=True,
+                      z=z_tx)
+            else:
+                label("chrome_filter_title", "Filter-Überschrift", fx + st.px(8),
+                      fy + st.px(8), fw - st.px(16), st.px(24), "Filter",
+                      size=st.sz(11), color=st.ink, bold=True, z=z_tx)
+        else:
+            # Tool 0.4.4: Ueberschrift frei oder aus, dazu ein Hinweistext —
+            # beides als Shape mit Text wie die uebrigen Chrome-Texte.
+            if fl["heading"]:
+                label("chrome_filter_title", "Filter-Überschrift", *fl["title"],
+                      fl["heading"], size=st.sz(11), color=st.ink, bold=True,
+                      z=z_tx)
+            else:
+                notes.append("Filterbereich ohne Überschrift (`zones.filter.heading: "
+                             "null`) — es entsteht kein `chrome_filter_title`.")
+            if fl["text"]:
+                label("chrome_filter_text", "Filter-Hinweistext", *fl["textRect"],
+                      fl["text"], size=st.fsz(9.5), color=st.muted,
+                      valign="middle" if mode == "top" else "top", z=z_tx)
+                if mode != "top" and len(fl["text"]) > 240:
+                    notes.append("Der Hinweistext im Filterbereich ist lang (%d Zeichen) "
+                                 "— `chrome_filter_text` ist auf höchstens sechs Zeilen "
+                                 "bemessen; in Desktop gegenlesen." % len(fl["text"]))
         if mode == "top":
-            label("chrome_filter_title", "Filter-Überschrift", fx + st.px(8), fy,
-                  st.px(56), fh, "Filter", size=st.sz(11), color=st.ink, bold=True,
-                  z=z_tx)
             notes.append("Filter als Leiste oben: die Slicer stehen nebeneinander "
                          "(%d px breit, Abstand %d px)." % (st.px(160), st.px(8)))
-        else:
-            label("chrome_filter_title", "Filter-Überschrift", fx + st.px(8),
-                  fy + st.px(8), fw - st.px(16), st.px(24), "Filter",
-                  size=st.sz(11), color=st.ink, bold=True, z=z_tx)
 
         if overlay or filt.get("collapsible"):
             cw = st.px(28)
@@ -1091,23 +1250,56 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
                          "(Panel ein/aus) — Rezept in navigation.md.")
 
         n_slicers = len(filt.get("slicers") or [])
-        if mode != "top" and n_slicers and st.px(40) + n_slicers * st.px(64) > fh:
+        off_y = fl["origin"][1] - fy if fl["new"] else st.px(40)
+        off_x = fl["origin"][0] - fx if fl["new"] else st.px(8)
+        if mode != "top" and n_slicers and off_y + n_slicers * st.px(64) > fh:
             notes.append("%d Slicer passen rechnerisch nicht in das %d px hohe "
                          "Filter-Panel (%d + n*%d px)."
-                         % (n_slicers, fh, st.px(40), st.px(64)))
-        if mode == "top" and n_slicers and st.px(8) + n_slicers * st.px(168) > fw:
+                         % (n_slicers, fh, off_y, st.px(64)))
+        if mode == "top" and n_slicers and off_x + n_slicers * st.px(168) > fw:
             notes.append("%d Slicer passen rechnerisch nicht in die %d px breite "
                          "Filter-Leiste (%d + n*%d px)."
-                         % (n_slicers, fw, st.px(8), st.px(168)))
+                         % (n_slicers, fw, off_x, st.px(168)))
 
     # ---- Fussleiste ------------------------------------------------------ #
     footer = zones.get("footer")
     if footer:
         gx, gy, gw, gh = rect(footer)
         text = footer.get("text") or ""
+        # Tool 0.4.3: Seitennavigation rechtsbuendig in der Fussleiste, kleiner als
+        # im Kopfband (Schrift 9,5 px x Skalierung, Abstand 5 px, Rand rechts
+        # 16 px — wie render-png.js -> footerZone). Namen wie im Kopfband
+        # (`chrome_nav_<i>`), damit navigation.md und Lesezeichen gleich bleiben.
+        nav_w = 0
+        if footer_entries:
+            nfs = st.fsz(9.5)
+            gap = st.px(5)
+            bh = max(12, min(gh - st.px(4), st.px(20)))
+            by = gy + (gh - bh) // 2
+            widths = [max(st.px(48), st.px(len(e) * 9.5 * 0.56 + 16))
+                      for e in footer_entries]
+            block = sum(widths) + gap * (len(widths) - 1)
+            x = gx + gw - st.px(16) - block
+            for i, (entry, bw) in enumerate(zip(footer_entries, widths)):
+                nav_button("chrome_nav_%d" % (i + 1), entry, x, by, bw, bh, entry,
+                           active=(entry == page["name"]), fg=st.ink,
+                           size=nfs, outline=st.tile_border)
+                x += bw + gap
+            nav_w = block + st.px(16)
         if text:
             label("chrome_footer_text", "Fußleiste", gx + st.px(16), gy,
-                  gw - st.px(32), gh, text, size=st.sz(9), color=st.muted)
+                  max(st.px(40), gw - st.px(32) - nav_w), gh, text,
+                  size=st.sz(9), color=st.muted)
+    if nav_pos == "footer" and not footer:
+        notes.append('Seitennavigation steht auf `navPosition: "footer"`, die '
+                     "Fußleiste ist aber aus — es entstehen keine Nav-Buttons. "
+                     "Fußleiste im Mockup einschalten oder die Navigation ins "
+                     "Kopfband legen.")
+    elif footer_entries:
+        notes.append('Seitennavigation in der Fußleiste (`navPosition: "footer"`): '
+                     "%d Buttons `chrome_nav_*` rechtsbündig, Schrift %s pt; "
+                     "das Kopfband bleibt ohne Nav." % (len(footer_entries),
+                                                       st.fsz(9.5)))
 
     return visuals, cmds, acts, notes, batch_props
 
@@ -1159,6 +1351,72 @@ def build_text_tiles(nspec: dict, page: dict, st: Style, cmds: Commands,
                       "--type", "PageNavigation", "--target", v["link"]["pageName"])
                 c.note("")
     return visuals, notes
+
+
+def add_slicer_formatting(nspec: dict, page: dict, cmds: Commands,
+                          batch_props: dict):
+    """Slicer-Art (Tool 0.4.4) -> data.mode / general.orientation / Suche.
+
+    Liefert Hinweise fuer checklist.md. Aeltere Specs ohne `type` bekommen
+    nichts gesetzt (der Slicer bleibt, wie pbir ihn anlegt).
+    """
+    filt = (nspec["zones"] or {}).get("filter") or {}
+    names = slicer_names(nspec, page)
+    notes = []
+    for i, s_ in enumerate(filt.get("slicers") or []):
+        t = slicer_type(s_)
+        if not t:
+            continue
+        name = names[i]
+        cmds.note("Slicer „%s\" als %s (zones.filter.slicers[%d].type = %s)"
+                  % (s_.get("name"), SLICER_TYPE_LABEL[t], i, t))
+        for prop, value in SLICER_FORMAT[t].items():
+            cmds.set_prop(name, prop,
+                          str(value).lower() if isinstance(value, bool) else value)
+            batch_props.setdefault(name, {})[prop] = value
+        cmds.note("")
+        if t == "date":
+            notes.append("Slicer „%s\" ist ein Datumsbereich: `%s` muss vom Typ "
+                         "Date/DateTime sein, sonst zeigt Power BI keinen Kalender "
+                         "(`te get`)." % (s_.get("name"), s_.get("ref")))
+        if t == "between" and s_.get("kind") != "measure":
+            notes.append("Slicer „%s\" als Bereich von–bis: `%s` muss numerisch oder "
+                         "ein Datum sein." % (s_.get("name"), s_.get("ref")))
+        if t == "search":
+            notes.append("Slicer „%s\": Suchfeld über `general.selfFilterEnabled` — "
+                         "in Desktop prüfen, ob die Suche erscheint." % s_.get("name"))
+    return notes
+
+
+def add_typography(cmds: Commands, st: Style, page: dict, names) -> None:
+    """Visual-Titel und -Untertitel aus `design.typography` (Tool 0.4.3).
+
+    Nur bei Specs mit Typografie-Block; sonst regelt das Theme-Fragment die
+    Titelgroesse wie bisher. Groessen in pt = px x 0,75, auf 0,5 gerundet.
+    """
+    if not st.typo():
+        return {}
+    by_id = {v["id"]: v for v in page["visuals"]}
+    out = {}
+    wrote_note = False
+    for name in names:
+        v = by_id.get(name)
+        if not v or is_text_tile(v):
+            continue
+        ts = st.typo(v)
+        if not wrote_note:
+            base = st.typo()
+            cmds.note("Typografie aus design.typography: Titel %s pt, Untertitel %s pt "
+                      "(Kacheln mit eigener Skalierung weichen ab)"
+                      % (base["titlePt"], base["subPt"]))
+            wrote_note = True
+        props = {"title.fontSize": ts["titlePt"], "subTitle.fontSize": ts["subPt"]}
+        for prop, value in props.items():
+            cmds.set_prop(name, prop, value)
+        out[name] = props
+    if wrote_note:
+        cmds.note("")
+    return out
 
 
 def add_tile_formatting(cmds: Commands, st: Style, names, batch_props: dict) -> None:
@@ -1473,7 +1731,7 @@ def ck_contract_warnings(v: dict, orientation, roles: dict):
     return warn
 
 
-def build_slots(page: dict):
+def build_slots(page: dict, nspec=None):
     ck, deneb, warn = [], [], []
     for v in page["visuals"]:
         base = {"id": v["id"], "stableId": v.get("stableId"), "page": page["name"],
@@ -1483,6 +1741,13 @@ def build_slots(page: dict):
                 "analysis": v.get("analysis"), "workshop": v.get("workshop"),
                 "mockupRoles": {k: [f["ref"] for f in fl]
                                 for k, fl in (v.get("roles") or {}).items()}}
+        ts = type_sizes(nspec, v) if nspec else None
+        if ts:
+            # Tool 0.4.3: Schriftgroessen fuer den Slot (ChartKitchen/Deneb setzen
+            # sie im eigenen Format-Bereich — pt fuer Titel, px fuer das Spec).
+            base["typography"] = {"titlePt": ts["titlePt"], "subtitlePt": ts["subPt"],
+                                  "labelPt": ts["chartPt"], "labelPx": ts["chartPx"],
+                                  "tileScale": ts["tile"]}
         if v.get("engine") == "ck":
             roles, w = ck_roles_for(v)
             orientation = v.get("chartKitchenMode") or CK_ORIENTATION.get(v.get("kind"))
@@ -1536,7 +1801,13 @@ def panel_visual_names(nspec: dict, page: dict):
     filt = (nspec["zones"] or {}).get("filter") or {}
     if not filt:
         return []
-    names = ["chrome_filter_bg", "chrome_filter_title", "chrome_filter_close"]
+    fl = filter_layout(nspec)
+    names = ["chrome_filter_bg"]
+    if fl["heading"]:
+        names.append("chrome_filter_title")
+    if fl["text"]:
+        names.append("chrome_filter_text")
+    names.append("chrome_filter_close")
     return names + slicer_names(nspec, page)
 
 
@@ -1566,9 +1837,12 @@ def build_navigation_md(nspec: dict, report: str) -> str:
     zones = nspec["zones"] or {}
     header = zones.get("header") or {}
     nav_zone = zones.get("nav")
-    header_nav_on = header.get("navOn", True) is not False
+    nav_pos = nav_position(zones)
+    header_nav_on = nav_pos == "header"
+    footer_entries = footer_nav_entries(zones) if zones.get("footer") else []
     nav_entries = [str(n) for n in ((nav_zone or {}).get("pages")
                                     or (header.get("nav") if header_nav_on else [])
+                                    or footer_entries
                                     or []) if str(n).strip()]
 
     L = ["# Navigation, Drill-through und Lesezeichen", "",
@@ -1584,7 +1858,12 @@ def build_navigation_md(nspec: dict, report: str) -> str:
 
     # ---- Nav-Buttons ----------------------------------------------------- #
     L += ["## Nav-Buttons (auf jeder Seite)", ""]
-    if not nav_entries and header and not header_nav_on:
+    if footer_entries and not nav_zone:
+        L += ['Seitennavigation **in der Fußleiste** (`navPosition: "footer"`, '
+              "Tool 0.4.3): die Buttons stehen rechtsbündig in der Fußzone, kleiner "
+              "als im Kopfband (Schrift ca. 9,5 px × Skalierung); das Kopfband "
+              "bleibt ohne Nav.", ""]
+    if not nav_entries and header and nav_pos == "off":
         L += ["`zones.header.navOn: false` — das Kopfband bekommt **keine** "
               "Seitennavigation. Es entstehen keine `chrome_nav_*`-Buttons; "
               "Seitenwechsel läuft über die Registerkarten"
@@ -2021,12 +2300,31 @@ def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos,
          % (d["tileStyle"], d["cornerRadius"], d["tileBackground"]),
          "- Seitenhintergrund %s · Akzent %s" % (d["pageBackground"], d["accent"]),
          "- Kopfband-Stil `%s` (Fläche %s, Text %s) · Schriftfaktor ×%s "
-         "(Visual-Titel ≈ %d pt)"
+         "(%s)"
          % (d["headerStyle"], d["colors"]["headerBackground"], d["colors"]["headerInk"],
-            d["fontScale"], int(round(12 * d["fontScale"]))),
+            d["fontScale"],
+            "Visual-Titel ≈ %d pt" % int(round(12 * d["fontScale"]))
+            if not type_sizes(nspec) else "Visual-Titel siehe Typografie"),
          "- Varianz-Palette `%s`: gut %s · schlecht %s · Ink %s · dunkler Modus %s"
          % (d["variancePalette"], d["varianceColors"]["good"], d["varianceColors"]["bad"],
-            d["colors"]["ink"], "ja" if d["darkMode"] else "nein"), ""]
+            d["colors"]["ink"], "ja" if d["darkMode"] else "nein")]
+    ts = type_sizes(nspec)
+    if ts:
+        ty = d["typography"]
+        overrides = ["`%s` ×%s (Titel %s pt)" % (v["id"], type_sizes(nspec, v)["tile"],
+                                                  type_sizes(nspec, v)["titlePt"])
+                     for p in nspec["pages"] for v in p["visuals"]
+                     if type_sizes(nspec, v)["tile"] != 1]
+        L += ["- Typografie (`design.typography`, Basis %s, Skalierung ×%s, k = %s): "
+              "Titel %s px → **%s pt**, Untertitel %s px → **%s pt**, "
+              "Diagrammbeschriftung %s px → **%s pt** (pt = px × 0,75). Geht als "
+              "`title`/`subTitle.fontSize` in `chrome-batch.json` und als "
+              "`textClasses` in `theme-fragment.json`."
+              % (ty.get("basis"), ty["scale"], ts["k"], ts["titlePx"], ts["titlePt"],
+                 ts["subPx"], ts["subPt"], ts["chartPx"], ts["chartPt"])]
+        if overrides:
+            L.append("- Kacheln mit eigener Schrift-Skalierung: " + ", ".join(overrides))
+    L.append("")
 
     counts = {}
     for p in nspec["pages"]:
@@ -2039,7 +2337,29 @@ def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos,
           % (total, counts.get("ck", 0), counts.get("native", 0), counts.get("deneb", 0)),
           "- Slicer je Seite: %d (Filter-Modus `%s`)"
           % (len(filt.get("slicers") or []),
-             filt.get("mode") or filt.get("side") or "–"),
+             filt.get("mode") or filt.get("side") or "–")]
+    fl = filter_layout(nspec)
+    if fl and fl["new"]:
+        L.append("- Filterbereich: Überschrift %s · Hinweistext %s"
+                 % ("„%s\"" % fl["heading"] if fl["heading"] else "**keine**",
+                    "„%s\"" % fl["text"] if fl["text"] else "keiner"))
+    typed = [(s_, slicer_type(s_)) for s_ in (filt.get("slicers") or [])]
+    if any(t for _, t in typed):
+        L.append("- Slicer-Arten: " + " · ".join(
+            "%s → %s (%s)" % (s_.get("name"), SLICER_TYPE_LABEL[t],
+                              ", ".join("`%s = %s`" % (k_, str(v_).lower()
+                                                       if isinstance(v_, bool) else v_)
+                                        for k_, v_ in SLICER_FORMAT[t].items()))
+            if t else "%s → wie angelegt" % s_.get("name")
+            for s_, t in typed))
+    pos = nav_position(nspec["zones"] or {})
+    if any("navPosition" in ((nspec["zones"] or {}).get(z_) or {})
+           for z_ in ("header", "footer")):
+        L.append("- Seitennavigation: %s"
+                 % {"header": "im Kopfband",
+                    "footer": "in der Fußleiste (rechtsbündig, Schrift ca. 9,5 px × k)",
+                    "off": "aus"}[pos])
+    L += [
           "- Verknüpfungen: %d (%d Drill-through, %d Seitenwechsel)"
           % (len(nspec["links"]),
              sum(1 for l in nspec["links"] if l.get("kind") == "drillthrough"),
@@ -2054,9 +2374,33 @@ def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos,
                     len(e["custom"])))
     L.append("")
 
+    # ---- Barrierefreiheit (Tool 0.4.4, Codes A11Y_*) ------------------------ #
+    a11y = a11y_issues(nspec)
+    if a11y:
+        blockers = [i for i in a11y if i.get("level") == "error"]
+        L += ["## Barrierefreiheit", "",
+              "Befunde der Barrierefreiheits-Prüfung im Tool (Kontrast, Schriftgrößen, "
+              "Kachelgrößen, Titel, Dichte, Lesereihenfolge, Navigation, "
+              "Slicer-Beschriftung)."
+              + (" **%s:** vor dem Bau im Mockup beheben oder "
+                 "vom Menschen ausdrücklich akzeptieren lassen (Begründung notieren)."
+                 % ("1 Fehler ist ein Blocker" if len(blockers) == 1
+                    else "%d Fehler sind Blocker" % len(blockers))
+                 if blockers else ""), "",
+              "| | Schwere | Code | Seite | Kachel | Befund |", "|---|---|---|---|---|---|"]
+        for i in a11y:
+            L.append("| %s | %s | `%s` | %s | %s | %s |"
+                     % ("☐ **Blocker**" if i.get("level") == "error" else
+                        "☐" if i.get("level") == "warn" else "–",
+                        i.get("level"), i.get("code"), i.get("page") or "–",
+                        i.get("visual") or "–", i.get("text", "").replace("|", "\\|")))
+        L.append("")
+
     # ---- Issues aus der Spec --------------------------------------------- #
     levels = {"error": [], "warn": [], "info": []}
     for i in nspec["issues"]:
+        if is_a11y_issue(i):
+            continue                      # stehen oben im eigenen Block
         levels.setdefault(i.get("level", "warn"), []).append(i)
     L += ["## Offene Punkte aus der Spec (`issues`)", ""]
     if not any(levels.values()):
@@ -2384,7 +2728,36 @@ def build_theme_fragment(nspec: dict, st: Style) -> dict:
         "title": [{"show": True, "fontSize": st.sz(12),
                    "fontColor": {"solid": {"color": st.ink}}}],
     }
-    return {
+    ts = st.typo()
+    extra = {}
+    if ts:
+        # Tool 0.4.3: design.typography. Groessen in pt (px x 0,75, auf 0,5
+        # gerundet). textClasses nach reports:modifying-theme-json und
+        # powerbi-report-authoring/references/theming.md: `largeTitle` = Visual-
+        # Titel, `title` = Achsentitel / Slicer-Kopf, `label` = Werte und
+        # Beschriftungen (die kleinen Klassen smallLightLabel & Co. leiten sich
+        # daraus ab). Die Diagrammbeschriftung des Mockups gilt fuer `title` und
+        # `label`. `callout` (KPI-Werte) kennt das Mockup nicht — bleibt dem
+        # Theme ueberlassen. Farben in textClasses als reiner Hex-String; `title`
+        # bekommt Ink ausdruecklich, sonst leitet Power BI sie aus dataColors[0] ab.
+        star["title"] = [{"show": True, "fontSize": ts["titlePt"],
+                          "fontColor": {"solid": {"color": st.ink}}}]
+        star["subTitle"] = [{"fontSize": ts["subPt"]}]
+        extra["textClasses"] = {
+            "largeTitle": {"fontSize": ts["titlePt"], "color": st.ink},
+            "title": {"fontSize": ts["chartPt"], "color": st.ink},
+            "label": {"fontSize": ts["chartPt"]},
+        }
+    typo_note = ""
+    if ts:
+        typo_note = (" Typografie aus design.typography (Basis 1280 px, ×%s, k %s): "
+                     "Titel %s px = %s pt, Untertitel %s px = %s pt, "
+                     "Diagrammbeschriftung %s px = %s pt; Kacheln mit eigener "
+                     "Skalierung stehen als title/subTitle.fontSize in "
+                     "chrome-batch.json."
+                     % (ts["scale"], ts["k"], ts["titlePx"], ts["titlePt"],
+                        ts["subPx"], ts["subPt"], ts["chartPx"], ts["chartPt"]))
+    return dict({
         "name": "%s · Mockup-Fragment" % (nspec["meta"].get("name") or "Mockup"),
         "$comment": ("Kachel-Optik und Farben aus `design` als Theme-Fragment. In ein "
                      "bestehendes Theme mergen (Skill reports:modifying-theme-json bzw. "
@@ -2394,7 +2767,7 @@ def build_theme_fragment(nspec: dict, st: Style) -> dict:
                      "Akzentfarbe %s steckt in Nav-Buttons und Burger. "
                      "good/bad kommen aus der Varianz-Palette `%s`%s."
                      % (st.page_bg, st.accent, st.palette,
-                        " (dunkler Modus)" if st.dark_mode else "")),
+                        " (dunkler Modus)" if st.dark_mode else "")) + typo_note,
         # Farbrollen des Themes: Hintergrund = Seitenhintergrund, Vordergrund = Ink,
         # good/bad = Varianzfarben (Abweichung positiv/negativ), tableAccent = Akzent.
         "background": st.page_bg,
@@ -2404,7 +2777,7 @@ def build_theme_fragment(nspec: dict, st: Style) -> dict:
         "bad": st.bad,
         "neutral": st.muted,
         "visualStyles": {"*": {"*": star}},
-    }
+    }, **extra)
 
 
 # --------------------------------------------------------------------------- #
@@ -2422,6 +2795,23 @@ def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: st
                       "idempotent": idempotent, "delta": delta,
                       "commands": commands, "batch": batch})
 
+    a11y = a11y_issues(nspec)
+    a11y_block = []
+    if a11y:
+        blockers = [i for i in a11y if i.get("level") == "error"]
+        step("accessibility", "confirm",
+             ["# Barrierefreiheit: %d Befund(e), davon %d Fehler — siehe "
+              "checklist.md, Abschnitt „Barrierefreiheit\"" % (len(a11y), len(blockers))]
+             + ["# BLOCKER %s%s: %s" % (i.get("code"),
+                                         " (%s)" % i["page"] if i.get("page") else "",
+                                         i.get("text", "")) for i in blockers],
+             idempotent="reine Freigabe, schreibt nichts",
+             delta="Fehler (`error`) müssen vor dem Bau im Mockup behoben oder vom "
+                   "Menschen ausdrücklich akzeptiert sein; Warnungen vorlegen.")
+        a11y_block = [{"level": i.get("level"), "code": i.get("code"),
+                       "page": i.get("page"), "visual": i.get("visual"),
+                       "text": i.get("text"),
+                       "blocker": i.get("level") == "error"} for i in a11y]
     step("backup", "backup", ['pbir backup "%s"' % report],
          idempotent="Legt eine weitere Sicherung an; mehrfach ausführen schadet nicht.",
          delta="immer vor dem ersten schreibenden Schritt")
@@ -2529,7 +2919,39 @@ def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: st
           % (report, o)],
          idempotent="reine Prüfung", delta="immer")
 
-    return {
+    extra = {}
+    if a11y_block:
+        extra["accessibility"] = {
+            "acceptBeforeBuild": any(i["blocker"] for i in a11y_block),
+            "blockers": sum(1 for i in a11y_block if i["blocker"]),
+            "findings": a11y_block,
+        }
+    ts = type_sizes(nspec)
+    if ts:
+        extra["typography"] = {
+            "basis": nspec["design"]["typography"].get("basis"),
+            "scale": ts["scale"], "k": ts["k"],
+            "titlePt": ts["titlePt"], "subtitlePt": ts["subPt"],
+            "labelPt": ts["chartPt"],
+            "tileOverrides": [{"page": p["name"], "visual": v["id"],
+                               "scale": type_sizes(nspec, v)["tile"],
+                               "titlePt": type_sizes(nspec, v)["titlePt"]}
+                              for p in nspec["pages"] for v in p["visuals"]
+                              if type_sizes(nspec, v)["tile"] != 1]}
+    filt = (nspec["zones"] or {}).get("filter") or {}
+    fl = filter_layout(nspec)
+    if fl and (fl["new"] or any(slicer_type(s_) for s_ in filt.get("slicers") or [])):
+        extra["filter"] = {
+            "heading": fl["heading"], "text": fl["text"],
+            "slicers": [{"name": s_.get("name"), "ref": s_.get("ref"),
+                         "type": slicer_type(s_),
+                         "format": SLICER_FORMAT.get(slicer_type(s_) or "", {})}
+                        for s_ in filt.get("slicers") or []]}
+    if any("navPosition" in ((nspec["zones"] or {}).get(z_) or {})
+           for z_ in ("header", "footer")):
+        extra["navigation"] = {"position": nav_position(nspec["zones"] or {}),
+                               "footer": footer_nav_entries(nspec["zones"] or {})}
+    return dict({
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "tool": "mockup_to_pbir.py",
         "spec": {"name": nspec["meta"].get("name"),
@@ -2578,7 +3000,7 @@ def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: st
              "file": "%s/%s/%s" % (o, e["dir"], sl["file"]),
              "buckets": sl["buckets"], "warnings": sl["warnings"]}
             for e in per_page for sl in e["custom"]],
-    }
+    }, **extra)
 
 
 def build_acceptance(nspec: dict, report: str, per_page, st: Style) -> dict:
@@ -2797,13 +3219,16 @@ def main() -> int:
         text_visuals, text_notes = build_text_tiles(nspec, page, st, cmds, acts,
                                                     batch_props, lang)
         notes += text_notes
-        ck_slots, deneb_slots, slot_warn = build_slots(page)
+        ck_slots, deneb_slots, slot_warn = build_slots(page, nspec)
         custom_slots, custom_warn = build_custom_visuals(nspec, page, st)
 
         slicers = slicer_names(nspec, page)
         content_names = ([i["name"] for i in pbir_visuals if i["name"] not in slicers]
                          + [i["name"] for i in text_visuals])
         add_tile_formatting(cmds, st, content_names, batch_props)
+        for name, props in add_typography(cmds, st, page, content_names).items():
+            batch_props.setdefault(name, {}).update(props)
+        notes += add_slicer_formatting(nspec, page, cmds, batch_props)
         if content_names:
             cmds.note("Inhalt ueber die Chrome-Flaechen legen "
                       "(--from-json vergibt immer z=0)")

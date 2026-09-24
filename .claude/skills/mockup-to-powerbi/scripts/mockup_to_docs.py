@@ -41,7 +41,9 @@ from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from mockup_spec import SpecError, load, slug, upgrade                # noqa: E402
+from mockup_spec import (SpecError, a11y_issues, footer_nav_entries,  # noqa: E402
+                         is_a11y_issue, load, nav_position, slug, type_sizes,
+                         upgrade)
 
 # --------------------------------------------------------------------------- #
 # Beschriftungen (Quelle: assets/mockup/catalog.js), zweisprachig
@@ -90,6 +92,15 @@ FILTER_MODE = {"de": {"right": "als Panel rechts", "left": "als Panel links",
 PRESET_LABEL = {"1280x720": "HD", "1920x1080": "Full HD", "3840x2160": "Ultra HD"}
 PALETTE_LABEL = {"de": {"teal": "Teal (Petrol / Rot)", "ibcs": "IBCS (Gruen / Rot)"},
                  "en": {"teal": "teal (petrol / red)", "ibcs": "IBCS (green / red)"}}
+# Slicer-Art (Tool 0.4.4, zones.filter.slicers[].type)
+SLICER_TYPE = {"de": {"dropdown": "Dropdown", "list": "Liste", "tile": "Kacheln",
+                      "between": "Bereich von–bis", "date": "Datumsbereich",
+                      "search": "Liste mit Suche"},
+               "en": {"dropdown": "dropdown", "list": "list", "tile": "tiles",
+                      "between": "range (between)", "date": "date range",
+                      "search": "list with search"}}
+LEVEL = {"de": {"error": "Fehler", "warn": "Warnung", "info": "Hinweis"},
+         "en": {"error": "error", "warn": "warning", "info": "note"}}
 
 TXT = {
     "de": {
@@ -154,6 +165,24 @@ TXT = {
         "custom_hint": "Diese Kacheln sind Custom Visuals aus dem Repository. "
                        "Die passende `.pbiviz` muss im Bericht importiert sein, "
                        "sonst bleibt die Kachel leer.",
+        # Tool 0.4.3 / 0.4.4
+        "typo": "Typografie",
+        "typo_line": "Basis %s, Skalierung ×%s: Kacheltitel %s px (%s pt), "
+                     "Untertitel %s px (%s pt), Diagrammbeschriftung %s px (%s pt) "
+                     "bei %s px Seitenbreite",
+        "typo_tiles": "eigene Skalierung",
+        "filter_heading": "Überschrift", "filter_no_heading": "ohne Überschrift",
+        "filter_text": "Hinweis",
+        "nav_pos": "Seitennavigation",
+        "nav_pos_val": {"header": "im Kopfband", "footer": "in der Fußleiste (rechts)",
+                        "off": "aus"},
+        "nav_footer": "Nav-Buttons in der Fußleiste",
+        "a11y": "Barrierefreiheit",
+        "a11y_intro": "Befunde der Barrierefreiheits-Prüfung aus dem Mockup-Tool.",
+        "a11y_blockers": "**%s:** vor dem Bau beheben oder "
+                         "ausdrücklich akzeptieren (mit Begründung).",
+        "a11y_blocker": "Blocker",
+        "a11y_none": "Keine Befunde.",
     },
     "en": {
         "doc_title": "Workshop documentation", "as_of": "As of", "version": "Version",
@@ -215,6 +244,24 @@ TXT = {
         "custom_hint": "These tiles are custom visuals from the repository. "
                        "The matching `.pbiviz` has to be imported into the report, "
                        "otherwise the tile stays empty.",
+        # tool 0.4.3 / 0.4.4
+        "typo": "Typography",
+        "typo_line": "basis %s, scale ×%s: tile title %s px (%s pt), subtitle "
+                     "%s px (%s pt), chart labels %s px (%s pt) at a page width of "
+                     "%s px",
+        "typo_tiles": "own scale",
+        "filter_heading": "heading", "filter_no_heading": "no heading",
+        "filter_text": "note",
+        "nav_pos": "Page navigation",
+        "nav_pos_val": {"header": "in the header band",
+                        "footer": "in the footer (right-aligned)", "off": "off"},
+        "nav_footer": "Navigation buttons in the footer",
+        "a11y": "Accessibility",
+        "a11y_intro": "Findings of the accessibility check in the mockup tool.",
+        "a11y_blockers": "**%s:** fix them before the build or "
+                         "accept them explicitly (with a reason).",
+        "a11y_blocker": "blocker",
+        "a11y_none": "No findings.",
     },
 }
 
@@ -287,7 +334,7 @@ def open_points(nspec: dict, lang: str):
                 out.append("%s / %s: %s" % (p["name"], v.get("title"),
                                             v.get("notes") or "offene Frage ohne Text"))
     for i in nspec["issues"]:
-        if i.get("level") != "info":
+        if i.get("level") != "info" and not is_a11y_issue(i):
             out.append(("%s: " % i["page"] if i.get("page") else "") + i.get("text", ""))
     for f in nspec["fields"]:
         if f.get("note"):
@@ -298,6 +345,59 @@ def open_points(nspec: dict, lang: str):
             seen.add(o)
             uniq.append(o)
     return uniq
+
+
+def typography_line(nspec: dict, lang: str):
+    """Zeile zur Typografie (Tool 0.4.3) — None bei aelteren Specs."""
+    ts = type_sizes(nspec)
+    if not ts:
+        return None
+    t = TXT[lang]
+    ty = nspec["design"]["typography"]
+    line = t["typo_line"] % (ty.get("basis"), ty["scale"], ts["titlePx"], ts["titlePt"],
+                             ts["subPx"], ts["subPt"], ts["chartPx"], ts["chartPt"],
+                             nspec["canvas"].get("width"))
+    tiles = ["%s ×%s" % (v.get("title") or v["id"], type_sizes(nspec, v)["tile"])
+             for p in nspec["pages"] for v in p["visuals"]
+             if type_sizes(nspec, v)["tile"] != 1]
+    if tiles:
+        line += "; %s: %s" % (t["typo_tiles"], ", ".join(tiles))
+    return line
+
+
+def slicer_label(s: dict, lang: str) -> str:
+    """Slicer-Name mit Vorauswahl und Art (Art erst ab Tool 0.4.4)."""
+    extra = []
+    kind = SLICER_TYPE[lang].get(str(s.get("type") or ""))
+    if kind:
+        extra.append(kind)
+    if s.get("default"):
+        extra.append("%s %s" % ("Vorauswahl" if lang == "de" else "default",
+                                s["default"]))
+    return s["name"] + (" (%s)" % ", ".join(extra) if extra else "")
+
+
+def filter_extras(filt: dict, lang: str) -> str:
+    """Ueberschrift und Hinweistext des Filterbereichs (Tool 0.4.4)."""
+    if not filt or not ("heading" in filt or "text" in filt):
+        return ""
+    t = TXT[lang]
+    parts = [("%s „%s\"" % (t["filter_heading"], filt["heading"]))
+             if filt.get("heading") else t["filter_no_heading"]]
+    if filt.get("text"):
+        parts.append("%s „%s\"" % (t["filter_text"], filt["text"]))
+    return "; " + ", ".join(parts)
+
+
+def blocker_count(n: int, lang: str) -> str:
+    if lang == "de":
+        return "1 Fehler ist ein Blocker" if n == 1 else "%d Fehler sind Blocker" % n
+    return "1 error is a blocker" if n == 1 else "%d errors are blockers" % n
+
+
+def has_nav_position(nspec: dict) -> bool:
+    z = nspec["zones"] or {}
+    return any("navPosition" in (z.get(k) or {}) for k in ("header", "footer"))
 
 
 def page_image(nspec: dict, page: dict, folder: Path):
@@ -353,12 +453,10 @@ def build_docs_md(nspec: dict, lang: str) -> str:
         f_txt = FILTER_MODE[lang].get(mode, mode)
         sl = filt.get("slicers") or []
         if sl:
-            f_txt += ": " + ", ".join(
-                s["name"] + ((" (%s %s)" % ("Vorauswahl" if lang == "de" else "default",
-                                            s["default"])) if s.get("default") else "")
-                for s in sl)
+            f_txt += ": " + ", ".join(slicer_label(s, lang) for s in sl)
         else:
             f_txt += ", " + t["no_fields"]
+        f_txt += filter_extras(filt, lang)
     else:
         f_txt = t["no_filter"]
     L += ["## %s" % t["design"], "", fmt + ".",
@@ -377,7 +475,16 @@ def build_docs_md(nspec: dict, lang: str) -> str:
                                                    d["variancePalette"]),
              t["good"], d["varianceColors"]["good"],
              t["bad"], d["varianceColors"]["bad"],
-             t["ink"], d["colors"]["ink"]), ""]
+             t["ink"], d["colors"]["ink"])]
+    tl = typography_line(nspec, lang)
+    if tl:
+        L.append("- %s: %s." % (t["typo"], tl))
+    if has_nav_position(nspec):
+        pos = nav_position(z)
+        L.append("- %s %s%s." % (t["nav_pos"], t["nav_pos_val"][pos],
+                                 (": " + " · ".join(footer_nav_entries(z)))
+                                 if pos == "footer" and footer_nav_entries(z) else ""))
+    L.append("")
 
     for p in nspec["pages"]:
         L += ["## %s %s · %s" % (t["page"], p["index"], p["name"]), "",
@@ -467,11 +574,27 @@ def build_docs_md(nspec: dict, lang: str) -> str:
                         f.get("openQuestion") or "–"))
         L.append("")
 
+    a11y = a11y_issues(nspec)
+    if a11y:
+        blockers = [i for i in a11y if i.get("level") == "error"]
+        L += ["## %s" % t["a11y"], "", t["a11y_intro"]
+              + ((" " + t["a11y_blockers"] % blocker_count(len(blockers), lang))
+                 if blockers else ""), ""]
+        for i in a11y:
+            where = " · ".join(x for x in (i.get("page"), i.get("visual")) if x)
+            L.append("- [ ] %s`%s` (%s)%s: %s"
+                     % (("**%s** · " % t["a11y_blocker"]) if i.get("level") == "error"
+                        else "",
+                        i.get("code"), LEVEL[lang].get(i.get("level"), i.get("level")),
+                        (" · " + where) if where else "", i.get("text", "")))
+        L.append("")
+
     op = open_points(nspec, lang)
     L += ["## %s" % t["open"], ""]
     L += ["- [ ] %s" % o for o in op] or ["- [ ] %s" % t["none_open"]]
     L.append("")
-    hints = [i for i in nspec["issues"] if i.get("level") == "info"]
+    hints = [i for i in nspec["issues"]
+             if i.get("level") == "info" and not is_a11y_issue(i)]
     if hints:
         L += ["## %s" % t["hints"], ""] + ["- %s" % i["text"] for i in hints] + [""]
     L += ["## %s" % t["next"], ""] + ["- [ ] %s" % s for s in t["next_items"]] + [""]
@@ -638,10 +761,13 @@ def build_pptx(nspec: dict, target: Path, lang: str, images: Path):
         items.append(t["nav_left"])
     if filt:
         mode = filt.get("mode") or filt.get("side") or "right"
-        sl = ", ".join(x["name"] for x in (filt.get("slicers") or [])) or t["no_fields"]
-        items.append("%s %s: %s%s" % (t["filter"], FILTER_MODE[lang].get(mode, mode), sl,
-                                      (" · " + t["bookmarks"])
-                                      if filt.get("collapsible") or mode == "burger" else ""))
+        sl = (", ".join(slicer_label(x, lang) for x in (filt.get("slicers") or []))
+              or t["no_fields"])
+        items.append("%s %s: %s%s%s" % (t["filter"], FILTER_MODE[lang].get(mode, mode), sl,
+                                        filter_extras(filt, lang),
+                                        (" · " + t["bookmarks"])
+                                        if filt.get("collapsible") or mode == "burger"
+                                        else ""))
     if z.get("footer"):
         items.append("%s: %s" % (t["footer"], z["footer"].get("text", "")))
     items.append("%s %s, %s, %s %s · %s %s"
@@ -656,8 +782,11 @@ def build_pptx(nspec: dict, target: Path, lang: str, images: Path):
                     t["good"], d["varianceColors"]["good"],
                     t["bad"], d["varianceColors"]["bad"],
                     t["ink"], d["colors"]["ink"]))
+    tl = typography_line(nspec, lang)
+    if tl:
+        items.append("%s: %s" % (t["typo"], tl))
     s = slide_frame(t["design"])
-    bullets(s, items)
+    bullets(s, items, gap=380000 if len(items) > 7 else 430000)
 
     # ---------------------------------------------------------- Seiten
     def wireframe(slide, page):
@@ -796,6 +925,8 @@ def build_pptx(nspec: dict, target: Path, lang: str, images: Path):
     items = []
     if header and header.get("nav"):
         items.append("%s: %s" % (t["nav_header"], " · ".join(header["nav"])))
+    if footer_nav_entries(z) and z.get("footer"):
+        items.append("%s: %s" % (t["nav_footer"], " · ".join(footer_nav_entries(z))))
     if z.get("nav"):
         items.append(t["nav_left"])
     for l in nspec["links"]:
@@ -840,6 +971,22 @@ def build_pptx(nspec: dict, target: Path, lang: str, images: Path):
         table(s, [t["new_th"][0], t["new_th"][1], t["new_th"][3], t["new_th"][8]], rows,
               [2600000, 1500000, 4000000,
                SW - Emu(914400) - 2600000 - 1500000 - 4000000], size=10)
+
+    # ---------------------------------------------------------- Barrierefreiheit
+    a11y = a11y_issues(nspec)
+    if a11y:
+        n_block = sum(1 for i in a11y if i.get("level") == "error")
+        s = slide_frame(t["a11y"], ("%d Befund(e) · %d Blocker" if lang == "de"
+                                    else "%d finding(s) · %d blocker(s)")
+                        % (len(a11y), n_block))
+        rows = [[("■ " + t["a11y_blocker"]) if i.get("level") == "error"
+                 else LEVEL[lang].get(i.get("level"), i.get("level")),
+                 i.get("code", ""), i.get("page") or "–", i.get("text", "")[:140]]
+                for i in a11y[:12]]
+        table(s, ["Schwere" if lang == "de" else "Level", "Code", t["page"],
+                  t["a11y"]], rows,
+              [1500000, 2600000, 1500000,
+               SW - Emu(914400) - 1500000 - 2600000 - 1500000], size=9)
 
     # ---------------------------------------------------------- Offene Punkte
     op = open_points(nspec, lang)

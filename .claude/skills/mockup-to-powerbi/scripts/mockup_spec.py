@@ -163,6 +163,129 @@ VARIANCE_PALETTES = {
 HEADER_STYLES = ("light", "dark", "accent", "custom")
 HEX_RX = re.compile(r"^#[0-9A-Fa-f]{6}$")
 
+# --------------------------------------------------------------------------- #
+# Typografie, Filterbereich, Seitennavigation, Barrierefreiheit (Tool 0.4.3/0.4.4)
+# Quelle: assets/mockup/app.js -> TYPO_DEF, typo(), navPosOf(); export.js -> buildSpec
+# --------------------------------------------------------------------------- #
+# Basisgroessen in px bei 1280 px Seitenbreite (app.js -> TYPO_DEF)
+TYPO_DEFAULT = {"basis": "1280px", "scale": 1.0, "title": 12.0, "sub": 9.5, "chart": 9.0}
+TYPO_BASIS_WIDTH = 1280
+# px -> pt fuer die Schriftgroessen im Bericht (Power BI rechnet in pt, 1 pt = 4/3 px)
+PX_TO_PT = 0.75
+# `zones.filter.slicers[].type` (export.js: `f.type || 'dropdown'`)
+SLICER_TYPES = ("dropdown", "list", "tile", "between", "date", "search")
+# `zones.header.navPosition` / `zones.footer.navPosition` (app.js -> navPosOf)
+NAV_POSITIONS = ("header", "footer", "off")
+# Codes der Barrierefreiheits-Pruefung beginnen alle mit diesem Praefix (a11y.js)
+A11Y_PREFIX = "A11Y_"
+
+
+def half_pt(value: float) -> float:
+    """Auf 0,5 pt runden (kaufmaennisch, nicht Banker's Rounding) und begrenzen.
+
+    Ganze Werte kommen als int zurueck, damit JSON `9` statt `9.0` schreibt.
+    Der Bereich 6-45 ist der, den pbir fuer Schriftgroessen annimmt.
+    """
+    v = int(float(value) * 2 + 0.5) / 2.0
+    v = max(6.0, min(45.0, v))
+    return int(v) if v == int(v) else v
+
+
+def px_to_pt(px: float) -> float:
+    return half_pt(float(px) * PX_TO_PT)
+
+
+def normalise_typography(value):
+    """`design.typography` auf die 0.4.4-Form bringen — oder None, wenn es fehlt.
+
+    Fehlt der Block (Specs vor Tool 0.4.3), bleibt er fehlend: dann gelten die
+    bisherigen, fest verdrahteten Schriftgroessen des Skills, und aeltere
+    Mockups erzeugen unveraenderte Ausgaben.
+    """
+    if not isinstance(value, dict):
+        return None
+    out = dict(TYPO_DEFAULT)
+    for key in ("scale", "title", "sub", "chart"):
+        try:
+            num = float(value.get(key))
+        except (TypeError, ValueError):
+            continue
+        if num > 0:
+            out[key] = num
+    if isinstance(value.get("basis"), str) and value["basis"].strip():
+        out["basis"] = value["basis"].strip()
+    return out
+
+
+def tile_scale(visual: dict) -> float:
+    """`visuals[].typography.scale` (Kachel-Override), sonst 1."""
+    ty = (visual or {}).get("typography")
+    if isinstance(ty, dict):
+        try:
+            num = float(ty.get("scale"))
+            if num > 0:
+                return num
+        except (TypeError, ValueError):
+            pass
+    return 1.0
+
+
+def type_sizes(nspec: dict, visual=None):
+    """Wirksame Schriftgroessen (px und pt) — oder None ohne `design.typography`.
+
+    Titel = title x scale x k, Untertitel = sub x scale x k, Diagramm = chart x
+    scale x k, mit k = Seitenbreite / 1280 (steht als `design.fontScale` in der
+    Spec). Mit `visual` kommt der Kachel-Faktor `visuals[].typography.scale`
+    dazu — wie im Tool (render-png.js: tfk = ty.scale * tileScale).
+    """
+    ty = (nspec.get("design") or {}).get("typography")
+    if not isinstance(ty, dict):
+        return None
+    k = float((nspec.get("design") or {}).get("fontScale") or 0) or         (float((nspec.get("canvas") or {}).get("width") or TYPO_BASIS_WIDTH)
+         / TYPO_BASIS_WIDTH)
+    tile = tile_scale(visual) if visual is not None else 1.0
+    f = float(ty["scale"]) * tile * k
+    px = {key: round(float(ty[key]) * f, 2) for key in ("title", "sub", "chart")}
+    return {"k": round(k, 3), "scale": ty["scale"], "tile": tile,
+            "titlePx": px["title"], "subPx": px["sub"], "chartPx": px["chart"],
+            "titlePt": px_to_pt(px["title"]), "subPt": px_to_pt(px["sub"]),
+            "chartPt": px_to_pt(px["chart"])}
+
+
+def nav_position(zones: dict) -> str:
+    """Wo die Seitennavigation sitzt: `header`, `footer` oder `off`.
+
+    Ab Tool 0.4.3 steht `navPosition` im Kopfband und in der Fussleiste. Aeltere
+    Specs kennen nur `zones.header.navOn` (ab 0.4.1, Vorgabe true).
+    """
+    zones = zones or {}
+    for key in ("header", "footer"):
+        pos = (zones.get(key) or {}).get("navPosition")
+        if pos in NAV_POSITIONS:
+            return pos
+    header = zones.get("header") or {}
+    return "off" if header and header.get("navOn", True) is False else "header"
+
+
+def footer_nav_entries(zones: dict) -> list:
+    """Seitennamen der Fussleisten-Navigation (nur bei navPosition `footer`)."""
+    if nav_position(zones) != "footer":
+        return []
+    footer = (zones or {}).get("footer") or {}
+    return [str(n) for n in (footer.get("nav") or []) if str(n).strip()]
+
+
+def is_a11y_issue(issue: dict) -> bool:
+    return str((issue or {}).get("code") or "").startswith(A11Y_PREFIX)
+
+
+def a11y_issues(nspec: dict) -> list:
+    """Befunde der Barrierefreiheits-Pruefung, Fehler zuerst."""
+    order = {"error": 0, "warn": 1, "info": 2}
+    found = [i for i in (nspec.get("issues") or []) if is_a11y_issue(i)]
+    return sorted(found, key=lambda i: order.get(i.get("level"), 1))
+
+
 # Rollen, aus denen sich das Drill-through-Feld einer Quellkachel ergibt
 DRILL_ROLE_ORDER = ("category", "rows", "subcategory", "series")
 # Rollen, aus denen sich die fuehrende Kennzahl ergibt (Sortierung, Top-N)
@@ -494,6 +617,12 @@ def upgrade(raw: dict, page_name_override=None) -> dict:
         design["fontScale"] = ui_scale
     design["fontScale"] = float(design["fontScale"] or 1) or 1.0
     normalise_design(design)
+    # ab Tool 0.4.3; fehlt der Block, bleibt er fehlend (alte Ausgaben unveraendert)
+    typo = normalise_typography(design.get("typography"))
+    if typo:
+        design["typography"] = typo
+    else:
+        design.pop("typography", None)
 
     # ---- Seiten ---------------------------------------------------------- #
     if version >= 2:

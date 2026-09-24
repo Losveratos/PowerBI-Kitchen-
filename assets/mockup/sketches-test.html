@@ -20,19 +20,24 @@
     font-family: Geist, system-ui, -apple-system, sans-serif;
   }
   h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 28px 0 10px; }
   .sub { color: var(--ink-soft); font-size: 13px; margin: 0 0 18px; }
   .bar {
     display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
     background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: 8px; padding: 10px 12px; margin-bottom: 20px;
+    border-radius: 8px; padding: 10px 12px; margin-bottom: 12px;
     font-size: 12px; color: var(--ink-soft);
+    position: sticky; top: 0; z-index: 2;
   }
   .bar label { display: flex; gap: 5px; align-items: center; }
+  .bar .grp { font-weight: 600; color: var(--ink); }
   select, input[type=number], input[type=text] {
     font: inherit; font-size: 12px; padding: 3px 5px;
     border: 1px solid var(--border); border-radius: 4px; background: #fff;
   }
   input[type=text] { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  input[type=range] { width: 120px; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
   .grid { display: flex; flex-direction: column; gap: 14px; }
   .row {
     display: grid; grid-template-columns: 130px 110px 240px 500px;
@@ -40,13 +45,18 @@
     background: var(--bg-card); border: 1px solid var(--border);
     border-radius: 8px; padding: 10px 12px;
   }
+  .focus { display: flex; flex-wrap: wrap; gap: 14px; }
+  .focus .card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px 10px;
+  }
   .key {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 12px; color: var(--accent); padding-bottom: 4px;
     word-break: break-all;
   }
   .cell { display: flex; flex-direction: column; gap: 3px; }
-  .cell .cap {
+  .cap {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 10px; color: var(--ink-soft);
   }
@@ -63,45 +73,23 @@
 <body>
 
 <h1>MockupKitchen · Skizzen-Testblatt</h1>
-<p class="sub">Alle Schlüssel aus <code>window.MK_SKETCHES</code> in drei Größen: 100×50, 220×130, 480×260.
-<br><code>scale</code> bildet die Canvas-Auflösung ab (canvas.width/1280): bei 3 verhält sich eine
-480×260-Kachel wie eine 160×87-Kachel in HD — Schrift, Striche und Marker wachsen mit.</p>
+<p class="sub">Oben die überarbeiteten ChartKitchen-Typen groß, darunter die GuV-Presets des Visuals
+<code>pnlByDatenWG</code>, am Ende alle Schlüssel aus <code>window.MK_SKETCHES</code> in drei Größen
+(100×50, 220×130, 480×260). <code>scale</code> bildet die Canvas-Auflösung ab (canvas.width/1280),
+<code>fontScale</code> und <code>fonts</code> sind die Typografie-Haken für das Tool.</p>
 
 <div class="bar">
+  <span class="grp">Daten</span>
   <label>Szenario
     <select id="scen">
       <option>AC/PL</option>
       <option>AC/PY</option>
-      <option>AC/PL/FC</option>
+      <option selected>AC/PL/FC</option>
       <option>AC</option>
     </select>
   </label>
-  <label>Scale
-    <select id="scale">
-      <option value="1">1 · HD (1280)</option>
-      <option value="1.5">1,5 · Full HD (1920)</option>
-      <option value="3">3 · Ultra HD (3840)</option>
-    </select>
-  </label>
-  <label>Seed <input id="seed" type="number" value="1" min="0" max="9999" style="width:70px"></label>
-  <label><input id="vabs" type="checkbox" checked> Δ abs</label>
-  <label><input id="vrel" type="checkbox" checked> Δ %</label>
-  <label><input id="dense" type="checkbox"> dense</label>
-  <label>Polarität
-    <select id="pol">
-      <option value="higher">higher · mehr ist gut</option>
-      <option value="lower">lower · weniger ist gut</option>
-    </select>
-  </label>
-  <label>Sprache
-    <select id="lang">
-      <option value="de">de</option>
-      <option value="en">en</option>
-    </select>
-  </label>
-  <label>Einheit <input id="unit" type="text" value="" placeholder="T€" style="width:56px"></label>
-  <label title="Leer = Szenario-Kurzform oben. Sonst z. B. AC,PL,PY oder PL,FC">scenarios
-    <input id="scens" type="text" value="" placeholder="AC,PL,PY" style="width:104px">
+  <label title="Leer = Szenario-Kurzform. Sonst z. B. AC,PL,PY oder PL,FC">scenarios
+    <input id="scens" type="text" value="" placeholder="AC,PL,PY" style="width:96px">
   </label>
   <label>Δ-Basis
     <select id="basis">
@@ -111,14 +99,78 @@
       <option value="BU">BU</option>
     </select>
   </label>
-  <label><input id="anti" type="checkbox"> Anti-Pattern</label>
+  <label>Seed <input id="seed" type="number" value="1" min="0" max="9999" style="width:64px"></label>
+  <label><input id="vabs" type="checkbox" checked> Δ abs</label>
+  <label><input id="vrel" type="checkbox" checked> Δ %</label>
+  <label><input id="dense" type="checkbox"> dense</label>
+  <label>Polarität
+    <select id="pol">
+      <option value="higher">higher</option>
+      <option value="lower">lower</option>
+    </select>
+  </label>
+  <label>Sprache
+    <select id="lang">
+      <option value="de">de</option>
+      <option value="en">en</option>
+    </select>
+  </label>
+  <label>Einheit <input id="unit" type="text" value="" placeholder="T€" style="width:50px"></label>
+
+  <span class="grp">Typografie</span>
+  <label>fontScale <input id="fscale" type="range" min="0.6" max="1.6" step="0.05" value="1">
+    <span id="fscaleV" class="mono">1,00</span></label>
+  <label title="px bei scale 1; leer = automatisch">fonts label <input id="fLabel" type="number" min="4" max="40" step="0.5" style="width:52px"></label>
+  <label>axis <input id="fAxis" type="number" min="4" max="40" step="0.5" style="width:52px"></label>
+  <label>title <input id="fTitle" type="number" min="4" max="40" step="0.5" style="width:52px"></label>
+  <label>value <input id="fValue" type="number" min="6" max="80" step="1" style="width:52px"></label>
+  <label>Scale
+    <select id="scale">
+      <option value="1">1 · HD</option>
+      <option value="1.5">1,5 · Full HD</option>
+      <option value="3">3 · Ultra HD</option>
+    </select>
+  </label>
+
+  <span class="grp">GuV</span>
+  <label>mode
+    <select id="pmode">
+      <option value="full">full · AC·PY·ΔPY·PL·ΔPL·ΔPL%</option>
+      <option value="acref">acref · AC·Ref·ΔRef·ΔRef%</option>
+      <option value="dall">dall · alle Δ</option>
+      <option value="acpydpy">acpydpy · AC·PY·ΔPY</option>
+      <option value="acpldpl">acpldpl · AC·PL·ΔPL</option>
+      <option value="dpct">dpct · ΔPY% · ΔPL%</option>
+    </select>
+  </label>
+  <label>treeCard
+    <select id="ptree">
+      <option value="bridge">bridge</option>
+      <option value="months">months</option>
+      <option value="delta">delta</option>
+    </select>
+  </label>
+  <label>density
+    <select id="pdens">
+      <option value="normal">normal</option>
+      <option value="compact">compact</option>
+    </select>
+  </label>
+
+  <span class="grp">Look</span>
   <label>Palette
     <select id="pal">
       <option value="teal">teal · ChartKitchen</option>
       <option value="ibcs">ibcs · Grün/Rot</option>
     </select>
   </label>
-  <label>Ink <input id="ink" type="text" value="" placeholder="#404040" style="width:76px"></label>
+  <label title="columns/bars/line als Power-BI-Klassiker">look
+    <select id="look">
+      <option value="">ibcs</option>
+      <option value="native">native</option>
+    </select>
+  </label>
+  <label>Ink <input id="ink" type="text" value="" placeholder="#404040" style="width:72px"></label>
   <label>Modus
     <select id="mode">
       <option value="">auto (aus Ink)</option>
@@ -126,30 +178,41 @@
       <option value="dark">dunkel</option>
     </select>
   </label>
+  <label><input id="anti" type="checkbox"> Anti-Pattern</label>
   <span id="stat"></span>
 </div>
 
 <p class="legend">Rote Umrandung = Rückgabe enthält <code>NaN</code>/<code>undefined</code> oder ist kein SVG.
-<br><code>polarity: lower</code> dreht alle Δ-Farben (Kosten, Ausschuss).
-<code>scenarios</code> überschreibt die Szenario-Kurzform, <code>Δ-Basis</code> wählt den Bezug der Δ-Ebenen,
-<code>Einheit</code> greift nur bei <code>kpi</code> und <code>card</code>,
-<code>Anti-Pattern</code> legt den Warnüberzug über jede Skizze (im Tool nur bei Kreis und Tacho).
-<br><code>Palette</code> schaltet die Abweichungsfarben, <code>Ink</code> färbt Texte und Achsen,
-<code>Modus</code> setzt hell/dunkel — auf „auto" entscheidet die Helligkeit von Ink.
-Bei dunklen Skizzen bekommt die Kachelfläche hier denselben dunklen Grund wie im Tool.</p>
+<code>polarity: lower</code> dreht alle Δ-Farben. <code>fontScale</code> multipliziert alle Schriftgrade,
+<code>fonts</code> ersetzt einzelne Grundgrade (px bei scale 1) — Beschriftungen, die nicht mehr passen,
+werden ausgeblendet statt zu überlappen. Die GuV-Presets entsprechen dem Spalten-Preset des Visuals,
+<code>treeCard</code> wählt die Mini-Grafik je Zeile.</p>
 
+<h2>Überarbeitete Typen · 480×260</h2>
+<div class="focus" id="focus"></div>
+
+<h2>GuV · Spalten-Presets (560×300) und Größen</h2>
+<div class="focus" id="pnl"></div>
+
+<h2>Alle Typen</h2>
 <div class="grid" id="grid"></div>
 
 <script src="sketches.js"></script>
 <script>
 (function () {
   var SIZES = [[100, 50], [220, 130], [480, 260]];
+  var FOCUS = ['varint', 'kombi', 'columns', 'barskombi', 'absvar', 'relvar', 'waterfall', 'wfint', 'wfkombi',
+               'bridge', 'kpi', 'table', 'sparktable', 'multiples', 'line', 'colline', 'fan', 'zchart', 'slope',
+               'ncolumn', 'nline', 'donut', 'matrix', 'slicer'];
+  var PNL_MODES = ['full', 'acref', 'dall', 'acpydpy', 'acpldpl', 'dpct'];
   var grid = document.getElementById('grid');
+  var focus = document.getElementById('focus');
+  var pnl = document.getElementById('pnl');
   var stat = document.getElementById('stat');
 
-  function val(id) { return document.getElementById(id).value.trim(); }
+  function el(id) { return document.getElementById(id); }
+  function val(id) { return el(id).value.trim(); }
 
-  // Dieselbe Regel wie theme() in sketches.js: ohne o.dark entscheidet o.ink.
   function isDark(o) {
     if (o.dark != null) return o.dark;
     if (!/^#[0-9a-fA-F]{6}$/.test(o.ink || '')) return false;
@@ -159,22 +222,27 @@ Bei dunklen Skizzen bekommt die Kachelfläche hier denselben dunklen Grund wie i
   }
 
   function opts() {
-    // scenarios-Feld hat Vorrang vor der Szenario-Kurzform — genau wie in der API.
     var list = val('scens').split(/[^A-Za-z]+/).filter(Boolean);
     var o = {
-      scenario: document.getElementById('scen').value,
-      seed: parseInt(document.getElementById('seed').value, 10) || 0,
-      variance: {
-        abs: document.getElementById('vabs').checked,
-        rel: document.getElementById('vrel').checked
-      },
-      dense: document.getElementById('dense').checked,
-      scale: parseFloat(document.getElementById('scale').value) || 1,
+      scenario: el('scen').value,
+      seed: parseInt(el('seed').value, 10) || 0,
+      variance: { abs: el('vabs').checked, rel: el('vrel').checked },
+      dense: el('dense').checked,
+      scale: parseFloat(el('scale').value) || 1,
       polarity: val('pol'),
       lang: val('lang'),
       palette: val('pal'),
-      antiPattern: document.getElementById('anti').checked
+      antiPattern: el('anti').checked,
+      fontScale: parseFloat(el('fscale').value) || 1,
+      mode: val('pmode'), treeCard: val('ptree'), density: val('pdens')
     };
+    var f = {}, any = false;
+    [['label', 'fLabel'], ['axis', 'fAxis'], ['title', 'fTitle'], ['value', 'fValue']].forEach(function (p) {
+      var v = parseFloat(el(p[1]).value);
+      if (v > 0) { f[p[0]] = v; any = true; }
+    });
+    if (any) o.fonts = f;
+    if (val('look')) o.look = val('look');
     if (val('ink')) o.ink = val('ink');
     if (val('mode')) o.dark = (val('mode') === 'dark');
     if (list.length) o.scenarios = list;
@@ -183,38 +251,57 @@ Bei dunklen Skizzen bekommt die Kachelfläche hier denselben dunklen Grund wie i
     return o;
   }
 
+  var bad = 0;
+  function tile(kind, w, h, o, cap) {
+    var s = o.scale || 1;
+    var svg = window.MK_SKETCH(kind, w * s, h * s, o);
+    var ok = typeof svg === 'string' && svg.indexOf('<svg') === 0 &&
+             svg.indexOf('NaN') < 0 && svg.indexOf('undefined') < 0;
+    if (!ok) bad++;
+    return '<div class="cell"><span class="cap">' + (cap || (kind + ' · ' + w + '×' + h)) + '</span>' +
+           '<div class="box' + (ok ? '' : ' bad') + '" style="width:' + w + 'px;height:' + h + 'px">' +
+           (svg || '') + '</div></div>';
+  }
+
   function render() {
+    var o = opts(), html = '';
+    bad = 0;
+    el('fscaleV').textContent = o.fontScale.toFixed(2).replace('.', ',');
+
+    html = '';
+    FOCUS.forEach(function (k) { html += '<div class="card">' + tile(k, 480, 260, o) + '</div>'; });
+    focus.innerHTML = html;
+
+    html = '';
+    PNL_MODES.forEach(function (m) {
+      html += '<div class="card">' + tile('pnl', 560, 300, Object.assign({}, o, { mode: m }),
+              'pnl · mode ' + m + ' · treeCard ' + o.treeCard + ' · ' + o.density) + '</div>';
+    });
+    [[420, 240], [300, 180], [200, 120]].forEach(function (s) {
+      html += '<div class="card">' + tile('pnl', s[0], s[1], o, 'pnl · ' + o.mode + ' · ' + s[0] + '×' + s[1]) + '</div>';
+    });
+    pnl.innerHTML = html;
+
     var keys = Object.keys(window.MK_SKETCHES).sort();
-    var o = opts(), bad = 0, html = '';
+    html = '';
     keys.forEach(function (k) {
       var cells = '';
-      SIZES.forEach(function (s) {
-        var svg = window.MK_SKETCH(k, s[0], s[1], o);
-        var ok = typeof svg === 'string' && svg.indexOf('<svg') === 0 &&
-                 svg.indexOf('NaN') < 0 && svg.indexOf('undefined') < 0;
-        if (!ok) bad++;
-        cells += '<div class="cell"><span class="cap">' + s[0] + '×' + s[1] + '</span>' +
-                 '<div class="box' + (ok ? '' : ' bad') + '" style="width:' + s[0] + 'px;height:' + s[1] + 'px">' +
-                 (svg || '') + '</div></div>';
-      });
+      SIZES.forEach(function (s) { cells += tile(k, s[0], s[1], o, s[0] + '×' + s[1]); });
       html += '<div class="row"><div class="key">' + k + '</div>' + cells + '</div>';
     });
     grid.innerHTML = html;
-    stat.innerHTML = keys.length + ' Typen · scale ' + String(o.scale).replace('.', ',') +
-      ' · ' + (o.scenarios ? o.scenarios.join('/') : o.scenario) +
-      ' · Δ-Basis ' + (o.deltaBasis || 'auto') +
-      ' · ' + o.polarity + ' · ' + o.lang + ' · ' + o.palette +
-      (o.dark === true ? ' · dunkel' : (o.dark === false ? ' · hell' : '')) + ' · ' +
+
+    stat.innerHTML = keys.length + ' Typen · ' + (o.scenarios ? o.scenarios.join('/') : o.scenario) +
+      ' · fontScale ' + o.fontScale.toFixed(2).replace('.', ',') + ' · ' +
       (bad ? '<span class="warn">' + bad + ' fehlerhaft</span>' : 'alle sauber');
-    // Dunkle Skizzen brauchen einen dunklen Kachelgrund, sonst sieht man nichts.
     document.body.classList.toggle('on-dark', isDark(o));
   }
 
-  ['scen', 'scale', 'seed', 'vabs', 'vrel', 'dense',
-   'pol', 'lang', 'unit', 'scens', 'basis', 'anti',
-   'pal', 'ink', 'mode'].forEach(function (id) {
-    document.getElementById(id).addEventListener('change', render);
-    document.getElementById(id).addEventListener('input', render);
+  ['scen', 'scale', 'seed', 'vabs', 'vrel', 'dense', 'pol', 'lang', 'unit', 'scens', 'basis', 'anti',
+   'pal', 'ink', 'mode', 'fscale', 'fLabel', 'fAxis', 'fTitle', 'fValue', 'pmode', 'ptree', 'pdens', 'look'
+  ].forEach(function (id) {
+    el(id).addEventListener('change', render);
+    el(id).addEventListener('input', render);
   });
   render();
 }());

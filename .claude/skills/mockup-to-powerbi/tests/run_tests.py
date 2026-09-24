@@ -13,7 +13,8 @@ Drei Arten von Tests:
 1. **Golden-Vergleich** — `mockup_to_pbir.py` und `mockup_to_docs.py` laufen ueber
    die Fixtures in `tests/fixtures/` (specVersion 1, 2, 3, Burger-Filter,
    ChartKitchen ohne Referenz-Instanz, voller Analyse-Block, Custom Visuals,
-   Darstellungsvarianten aus Tool 0.4.1).
+   Darstellungsvarianten aus Tool 0.4.1, Typografie/Filterbereich/Fussleisten-
+   Navigation/Barrierefreiheit aus Tool 0.4.3/0.4.4).
    Jede erzeugte Datei
    wird gegen `tests/golden/<Fall>/` verglichen. `.ps1` bleibt aussen vor — sie
    entsteht aus demselben Renderer wie die `.sh`.
@@ -63,6 +64,8 @@ CASES = [
      "extra": ["--ck-fallback"], "docs": False},
     {"name": "v3-custom-visuals", "spec": "v3-custom-visuals.json", "docs": True},
     {"name": "v3-variants", "spec": "v3-variants.json", "docs": True,
+     "docs_lang": "en"},
+    {"name": "v3-typo-filter", "spec": "v3-typo-filter.json", "docs": True,
      "docs_lang": "en"},
 ]
 
@@ -511,6 +514,8 @@ def unit_tests(res: Results):
               any("Feldparameter-Name" in m
                   for m in M.structural_errors(M.upgrade(bad_name))))
 
+    typo_filter_tests(res, P, M, D, _Opt)
+
     res.check("near() haelt Toleranz ein", V.near(100, 101, 1) and not V.near(100, 102, 1))
     res.check("type_ok() erlaubt Alternativen",
               V.type_ok("chartKitchen|shape", "shape") and not V.type_ok("card", "slicer"))
@@ -528,6 +533,233 @@ def unit_tests(res: Results):
     res.check("verify-Bericht nennt das Ergebnis", "abgenommen" in text)
     res.check("verify-Bericht meldet Zusatzvisuals", "nur im Bericht" in text.lower()
               or "Nur im Bericht" in text)
+
+
+# --------------------------------------------------------------------------- #
+# 3b · Typografie, Filterbereich, Fussleisten-Navigation, Barrierefreiheit
+#      (Tool 0.4.3 / 0.4.4)
+# --------------------------------------------------------------------------- #
+def typo_filter_tests(res: Results, P, M, D, Opt):
+    raw = json.loads((FIXTURES / "v3-typo-filter.json").read_text(encoding="utf-8"))
+    tf = M.upgrade(raw)
+    res.check("0.4.4-Spec Schema sauber (jsonschema bzw. Standard)",
+              M.validate(M.as_document(tf)) == [])
+    bad = json.loads(json.dumps(raw))
+    bad["zones"]["filter"]["slicers"][0]["type"] = "karussell"
+    bad["zones"]["header"]["navPosition"] = "sidebar"
+    os.environ["MOCKUP_NO_JSONSCHEMA"] = "1"
+    try:
+        res.check("0.4.4-Spec Schema sauber (eigener Validator)",
+                  M.validate(M.as_document(tf)) == [])
+        msgs = M.validate(M.as_document(M.upgrade(bad)))
+        res.check("unbekannte Slicer-Art faellt auf (eigener Validator)",
+                  any("slicers[0].type" in m for m in msgs), "; ".join(msgs)[:160])
+        res.check("unbekannte navPosition faellt auf (eigener Validator)",
+                  any("navPosition" in m for m in msgs), "; ".join(msgs)[:160])
+    finally:
+        os.environ.pop("MOCKUP_NO_JSONSCHEMA", None)
+    msgs = M.validate(M.as_document(M.upgrade(bad)))
+    res.check("unbekannte Slicer-Art faellt auf (jsonschema bzw. Standard)",
+              any("slicers" in m for m in msgs), "; ".join(msgs)[:160])
+    res.check("Struktur sauber (0.4.4)", M.structural_errors(tf) == [])
+
+    # --- Typografie -------------------------------------------------------- #
+    res.check("half_pt rundet auf 0,5 (kaufmaennisch)",
+              M.half_pt(16.0875) == 16 and M.half_pt(12.375) == 12.5
+              and M.half_pt(14.25) == 14.5 and M.half_pt(2) == 6)
+    res.check("px_to_pt: 12 px = 9 pt", M.px_to_pt(12) == 9)
+    ts = M.type_sizes(tf)
+    res.check("Typografie: Titel 13 x 1,1 x 1,5 px = 16 pt",
+              ts["titlePx"] == 21.45 and ts["titlePt"] == 16, str(ts))
+    res.check("Typografie: Untertitel 12,5 pt, Diagramm 11 pt",
+              ts["subPt"] == 12.5 and ts["chartPt"] == 11, str(ts))
+    tiles = {v["id"]: v for pg in tf["pages"] for v in pg["visuals"]}
+    res.check("Kachel-Override x1,3 hebt den Titel auf 21 pt",
+              M.type_sizes(tf, tiles["mk_col1"])["titlePt"] == 21)
+    res.check("Kachel ohne Override bleibt bei 16 pt",
+              M.type_sizes(tf, tiles["mk_kpi1"])["titlePt"] == 16)
+    old = M.upgrade(M.load(FIXTURES / "v3-analyse.json"))
+    res.check("alte Spec hat keine Typografie", M.type_sizes(old) is None
+              and "typography" not in old["design"])
+    res.check("Typografie-Vorgaben werden ergaenzt",
+              M.normalise_typography({"scale": 1.2}) ==
+              {"basis": "1280px", "scale": 1.2, "title": 12.0, "sub": 9.5, "chart": 9.0})
+
+    st = P.Style(tf, Opt())
+    page1, page2 = tf["pages"]
+    chrome1, _, _, _, batch1 = P.build_chrome(tf, page1, st, Opt())
+    typo_props = P.add_typography(P.Commands(), st, page1,
+                                  ["mk_kpi1", "mk_col1", "mk_txt1"])
+    res.check("title/subTitle.fontSize je Visual",
+              typo_props.get("mk_kpi1") == {"title.fontSize": 16,
+                                            "subTitle.fontSize": 12.5}
+              and typo_props["mk_col1"]["title.fontSize"] == 21, str(typo_props))
+    res.check("Text-Kachel bekommt keine Titelgroesse", "mk_txt1" not in typo_props)
+    res.check("alte Spec: keine Titelgroessen je Visual",
+              P.add_typography(P.Commands(), P.Style(old, Opt()), old["pages"][0],
+                               [v["id"] for v in old["pages"][0]["visuals"]]) == {})
+    theme = P.build_theme_fragment(tf, st)
+    res.check("Theme-Fragment: Titel 16 pt, Untertitel 12,5 pt",
+              theme["visualStyles"]["*"]["*"]["title"][0]["fontSize"] == 16
+              and theme["visualStyles"]["*"]["*"]["subTitle"][0]["fontSize"] == 12.5)
+    res.check("Theme-Fragment: textClasses largeTitle/title/label",
+              theme.get("textClasses", {}).get("largeTitle", {}).get("fontSize") == 16
+              and theme["textClasses"]["title"]["fontSize"] == 11
+              and theme["textClasses"]["label"]["fontSize"] == 11
+              and "callout" not in theme["textClasses"])
+    res.check("alte Spec: Theme-Fragment ohne textClasses",
+              "textClasses" not in P.build_theme_fragment(old, P.Style(old, Opt())))
+    cvs_raw = json.loads((FIXTURES / "v3-custom-visuals.json").read_text(encoding="utf-8"))
+    cvs_raw["design"]["typography"] = {"basis": "1280px", "scale": 1, "title": 12,
+                                       "sub": 9.5, "chart": 9}
+    cvs = M.upgrade(cvs_raw)
+    doc = P.custom_visual_json(cvs["pages"][0]["visuals"][0], P.Style(cvs, Opt()))
+    vco = doc["visual"]["visualContainerObjects"]
+    res.check("Custom Visual: Titel 9 pt als Literal 9D",
+              vco["title"][0]["properties"]["fontSize"]["expr"]["Literal"]["Value"]
+              == "9D", json.dumps(vco["title"])[:120])
+    ck, _, _ = P.build_slots(page2, tf)
+    res.check("ChartKitchen-Slot traegt die Typografie (x0,85)",
+              bool(ck) and ck[0].get("typography", {}).get("titlePt") == 13.5
+              and ck[0]["typography"]["tileScale"] == 0.85)
+
+    # --- Fussleisten-Navigation ------------------------------------------- #
+    res.check("nav_position: footer", M.nav_position(tf["zones"]) == "footer")
+    res.check("nav_position: alte Spec mit navOn false -> off",
+              M.nav_position({"header": {"navOn": False}}) == "off"
+              and M.nav_position({"header": {}}) == "header")
+    footer = tf["zones"]["footer"]
+    navs = [c for c in chrome1 if c["name"].startswith("chrome_nav_")]
+    res.check("zwei Nav-Buttons in der Fussleiste",
+              len(navs) == 2 and all(footer["y"] <= c["y"] and
+                                     c["y"] + c["height"] <= footer["y"] + footer["h"]
+                                     for c in navs), str(navs)[:160])
+    res.check("Fussleisten-Nav ist rechtsbuendig (16 px x k Rand)",
+              max(c["x"] + c["width"] for c in navs)
+              == footer["x"] + footer["w"] - st.px(16))
+    res.check("kein Nav-Button im Kopfband",
+              not any(c["y"] < tf["zones"]["header"]["h"] for c in navs))
+    res.check("Fussleisten-Nav kleiner als im Kopfband (14,5 < 15 pt)",
+              batch1["chrome_nav_1"]["text.fontSize"] == 14.5 and st.sz(10) == 15)
+    res.check("aktive Seite gefuellt, andere mit Rahmen",
+              batch1["chrome_nav_1"]["fill.show"] is True
+              and batch1["chrome_nav_2"]["outline.show"] is True)
+    ftext = next(c for c in chrome1 if c["name"] == "chrome_footer_text")
+    res.check("Fusszeilentext endet vor der Navigation",
+              ftext["x"] + ftext["width"] <= min(c["x"] for c in navs))
+    _, _, _, _, batch2 = P.build_chrome(tf, page2, st, Opt())
+    res.check("auf Seite 2 ist Button 2 aktiv",
+              batch2["chrome_nav_2"]["fill.show"] is True
+              and batch2["chrome_nav_1"]["fill.show"] is False)
+    no_footer = json.loads(json.dumps(raw))
+    del no_footer["zones"]["footer"]
+    nf = M.upgrade(no_footer)
+    ch_nf, _, _, notes_nf, _ = P.build_chrome(nf, nf["pages"][0], P.Style(nf, Opt()),
+                                              Opt())
+    res.check("navPosition footer ohne Fussleiste: keine Buttons, aber Hinweis",
+              not any(c["name"].startswith("chrome_nav_") for c in ch_nf)
+              and any("Fußleiste ist aber aus" in n for n in notes_nf))
+    nav_md = P.build_navigation_md(tf, "Test.Report")
+    res.check("navigation.md nennt die Fussleiste",
+              "in der Fußleiste" in nav_md and "`chrome_nav_2`" in nav_md)
+
+    # --- Filterbereich ---------------------------------------------------- #
+    title = next(c for c in chrome1 if c["name"] == "chrome_filter_title")
+    res.check("Filter-Ueberschrift aus der Spec",
+              batch1["chrome_filter_title"]["text.text"] == "Auswahl")
+    ftx = next((c for c in chrome1 if c["name"] == "chrome_filter_text"), None)
+    res.check("Filter-Hinweistext als Shape unter der Ueberschrift",
+              ftx is not None and ftx["y"] >= title["y"] + title["height"]
+              and batch1["chrome_filter_text"]["text.text"].startswith("Alle Werte"))
+    items, _ = P.build_pbir_visuals(tf, page1)
+    sl = [i for i in items if i["visual_type"] == "slicer"]
+    res.check("Slicer beginnen unter dem Hinweistext",
+              bool(sl) and min(i["y"] for i in sl) >= ftx["y"] + ftx["height"])
+    bp = {}
+    P.add_slicer_formatting(tf, page1, P.Commands(), bp)
+    res.check("Slicer-Art dropdown -> data.mode Dropdown",
+              bp.get("mk_slicer_Year_p1") == {"data.mode": "Dropdown"})
+    res.check("Slicer-Art tile -> Basic + orientation 1",
+              bp.get("mk_slicer_Region_p1") == {"data.mode": "Basic",
+                                                "general.orientation": 1})
+    res.check("Slicer-Art date -> Between",
+              bp.get("mk_slicer_Date_p1") == {"data.mode": "Between"})
+    res.check("Slicer-Art list/search: Basic + orientation 0 (+ Suche)",
+              P.SLICER_FORMAT["list"] == {"data.mode": "Basic", "general.orientation": 0}
+              and P.SLICER_FORMAT["search"].get("general.selfFilterEnabled") is True
+              and P.SLICER_FORMAT["between"] == {"data.mode": "Between"})
+    res.check("Slicer-Arten decken das Schema-Enum ab",
+              set(P.SLICER_FORMAT) == set(M.SLICER_TYPES))
+    bp_old = {}
+    P.add_slicer_formatting(old, old["pages"][0], P.Commands(), bp_old)
+    res.check("alte Spec: Slicer ohne Art bleiben unformatiert",
+              bp_old == {} and P.slicer_type({"name": "x"}) is None)
+    no_head = json.loads(json.dumps(raw))
+    no_head["zones"]["filter"]["heading"] = None
+    no_head["zones"]["filter"]["text"] = None
+    nh = M.upgrade(no_head)
+    ch_nh, _, _, _, _ = P.build_chrome(nh, nh["pages"][0], P.Style(nh, Opt()), Opt())
+    res.check("heading null: keine Filter-Ueberschrift, kein Hinweistext",
+              not any(c["name"] in ("chrome_filter_title", "chrome_filter_text")
+                      for c in ch_nh))
+    res.check("heading null: Slicer rutschen nach oben",
+              min(i["y"] for i in P.build_pbir_visuals(nh, nh["pages"][0])[0]
+                  if i["visual_type"] == "slicer")
+              == nh["zones"]["filter"]["y"] + round(8 * nh["uiScale"]))
+    res.check("Lesezeichen-Liste folgt Ueberschrift/Hinweis",
+              "chrome_filter_text" in P.panel_visual_names(tf, page1)
+              and "chrome_filter_title" not in P.panel_visual_names(nh, nh["pages"][0]))
+    old_fl = P.filter_layout(old)
+    res.check("alte Spec: Ueberschrift „Filter“, Slicer ab 40 px",
+              old_fl["heading"] == "Filter" and not old_fl["new"]
+              and old_fl["origin"][1] == old["zones"]["filter"]["y"]
+              + round(40 * old["uiScale"]))
+    top = json.loads(json.dumps(raw))
+    top["zones"]["filter"].update({"mode": "top", "side": "top", "x": 0, "y": 84,
+                                   "w": 1920, "h": 84})
+    tl = P.filter_layout(M.upgrade(top))
+    res.check("Leiste oben: Hinweistext hoechstens 220 px x k, Slicer rechts daneben",
+              tl["textRect"][2] <= round(220 * 1.5)
+              and tl["origin"][0] >= tl["textRect"][0] + tl["textRect"][2])
+
+    # --- Barrierefreiheit ------------------------------------------------- #
+    a11y = M.a11y_issues(tf)
+    res.check("A11Y-Befunde erkannt, Fehler zuerst",
+              [i["code"] for i in a11y] == ["A11Y_TILE_SMALL", "A11Y_CONTRAST_ACCENT"])
+    cl = P.build_checklist(tf, [], [], [], [])
+    block = cl.split("## Barrierefreiheit", 1)[-1].split("\n## ", 1)[0]
+    res.check("checklist.md hat den Block Barrierefreiheit mit Blocker",
+              "## Barrierefreiheit" in cl and "**Blocker**" in block
+              and "1 Fehler ist ein Blocker" in block)
+    rest = cl.split("## Offene Punkte aus der Spec", 1)[-1].split("## Kennzahlen", 1)[0]
+    res.check("A11Y-Befunde stehen nicht doppelt in der Issue-Tabelle",
+              "A11Y_" not in rest)
+    plan = P.build_plan(tf, "Test.Report", Path("out"), [], "", [])
+    res.check("plan.json: Barrierefreiheit als erster Schritt",
+              plan["steps"][0]["id"] == "accessibility"
+              and plan["accessibility"]["acceptBeforeBuild"] is True
+              and plan["accessibility"]["blockers"] == 1)
+    res.check("plan.json: Typografie, Filter und Navigation",
+              plan["typography"]["titlePt"] == 16
+              and plan["filter"]["slicers"][1]["type"] == "tile"
+              and plan["navigation"]["position"] == "footer")
+    plan_old = P.build_plan(old, "Test.Report", Path("out"), [], "", [])
+    res.check("alte Spec: plan.json ohne die neuen Bloecke",
+              not any(k in plan_old for k in ("accessibility", "typography",
+                                              "filter", "navigation")))
+    md_de = D.build_docs_md(tf, "de")
+    md_en = D.build_docs_md(tf, "en")
+    res.check("Doku (de): Barrierefreiheit mit Blocker",
+              "## Barrierefreiheit" in md_de and "**Blocker**" in md_de)
+    res.check("Doku (en): Accessibility mit blocker",
+              "## Accessibility" in md_en and "**blocker**" in md_en
+              and "1 error is a blocker" in md_en)
+    res.check("Doku: A11Y nicht doppelt unter Offene Punkte",
+              "A11Y" not in md_de.split("## Offene Punkte", 1)[-1])
+    res.check("Doku nennt Typografie, Slicer-Art und Fussleisten-Nav",
+              "Typografie: Basis 1280px" in md_de and "Region (Kacheln)" in md_de
+              and "Seitennavigation in der Fußleiste" in md_de
+              and "Region (tiles)" in md_en)
 
 
 # --------------------------------------------------------------------------- #

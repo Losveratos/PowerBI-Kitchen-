@@ -3,19 +3,22 @@
 Alles hier ist **Original-Export aus MockupKitchen byDatenWG** — mit einer
 benannten Ausnahme: `mockup-spec.v3.json` ist **von Hand erweitert**. Der
 0.3-Export hatte zwei Seiten; dazugekommen sind eine dritte Seite mit den beiden
-Custom Visuals aus Tool 0.4 und eine vierte Seite „Varianten" mit den
-Neuerungen aus Tool 0.4.1 (siehe Tabelle). Damit lässt sich der Skill ohne PBIP
+Custom Visuals aus Tool 0.4, eine vierte Seite „Varianten" mit den
+Neuerungen aus Tool 0.4.1 und die Schlüssel aus Tool 0.4.3/0.4.4
+(Typografie, Filterbereich, Slicer-Art, Navigationsposition, Barrierefreiheit;
+siehe Tabelle). Damit lässt sich der Skill ohne PBIP
 ausprobieren und die Spec-Beschreibung gegenlesen.
 
 > Weil die Datei von Hand gewachsen ist, passt `meta.specHash` (`4d42e99d`)
 > **nicht mehr** zum Inhalt — er stammt noch vom 0.3-Export. Für einen echten
 > Delta-Lauf zählt immer der Hash aus dem Tool; hier ist er nur Dekoration.
 > Auch `AGENT-BRIEF.v3.md` und `WORKSHOP-DOKU.v3.md` stehen weiter im
-> 0.3-Stand und kennen die Seiten 3 und 4 nicht.
+> 0.3-Stand und kennen die Seiten 3 und 4 und die 0.4.4-Schlüssel nicht.
 
 | Datei | Was es ist |
 |---|---|
-| [`mockup-spec.v3.json`](mockup-spec.v3.json) | **Aktueller Stand (specVersion 3).** „Management Report · Beispiel": vier Seiten (Übersicht, Detail Produktlinie, Projekt & GuV, Varianten), helles Kopfband mit Logo rechts, Burger-Filter mit zwei Slicern (Year mit Vorauswahl 2026), Fußleiste, Drill-through von der Brücke auf die Detailseite, 18 Kacheln (9 ChartKitchen, 7 nativ, **2 Custom Visuals**), Berichtskopf, Analyse-Block je Kachel, Kennzahlen-Steckbriefe, fünf `issues`. **Von Hand ergänzt:** Seite 3 mit den Custom Visuals und die `design`-Schlüssel `variancePalette`/`varianceColors`/`colors` (Tool 0.4), dazu Seite 4 „Varianten" und `zones.header.navOn` (Tool 0.4.1). |
+| [`mockup-spec.v3.json`](mockup-spec.v3.json) | **Aktueller Stand (specVersion 3).** „Management Report · Beispiel": vier Seiten (Übersicht, Detail Produktlinie, Projekt & GuV, Varianten), helles Kopfband mit Logo rechts, Burger-Filter mit zwei Slicern (Year mit Vorauswahl 2026), Fußleiste, Drill-through von der Brücke auf die Detailseite, 18 Kacheln (9 ChartKitchen, 7 nativ, **2 Custom Visuals**), Berichtskopf, Analyse-Block je Kachel, Kennzahlen-Steckbriefe, fünf `issues`. **Von Hand ergänzt:** Seite 3 mit den Custom Visuals und die `design`-Schlüssel `variancePalette`/`varianceColors`/`colors` (Tool 0.4), dazu Seite 4 „Varianten" und `zones.header.navOn` (Tool 0.4.1), dazu die 0.4.3/0.4.4-Schlüssel (nächste Zeile). |
+| 0.4.3/0.4.4 im Detail | `design.typography` mit den Tool-Vorgaben (12 / 9,5 / 9 px, `scale` 1) und ein Kachel-Override `typography: {scale: 1.15}` an `mk_q5col01`; `navPosition: "header"` im Kopfband und in der Fußleiste (Fußleiste mit leerer `nav`); Filterbereich mit `heading` „Auswahl" und einem Hinweistext; Slicer-Arten `dropdown` (Year) und `search` (Region); zwei `A11Y_*`-Issues (`A11Y_TILE_SMALL` als `warn` an der Kachel „Kosten", `A11Y_PALETTE_COLOUR_ONLY` als `info`, weil die Spec die Grün/Rot-Palette nutzt). Fußleisten-Navigation und ein Blocker (`error`) stehen im Test-Fixture `v3-typo-filter.json`. |
 | Seite 4 „Varianten" im Detail | Drei native Klassiker nebeneinander: `mk_q5col01` (`ncolumn`) als schlichtes Säulendiagramm, `mk_q5line01` (`nline`) mit **Small Multiples** nach `DimRegion.Region` (landet im PBIR-Bucket `Rows`) und `mk_q5bar01` (`nbar`) mit **Feldparameter** „Achse" über Region / Produktlinie / Produkt (die Achse bindet auf `Achse.Achse`, die berechnete Tabelle steht als To-do in `model-todos.md`). |
 | [`AGENT-BRIEF.v3.md`](AGENT-BRIEF.v3.md) | Die menschenlesbare Fassung der Spec **im 0.3-Stand** (ohne die dritte Seite) (`buildBrief`): Berichtskopf, Zonen-Tabelle mit Maßen, je Kachel Typ, Engine, Position, stabile ID, Rollen, pbir-Buckets, Analyse und Workshop-Status, Navigation mit Drill-Feld, Steckbrief-Tabelle, Umsetzungsregeln, offene Punkte. |
 | [`WORKSHOP-DOKU.v3.md`](WORKSHOP-DOKU.v3.md) | Das Workshop-Protokoll (`buildDocs`) im 0.3-Stand: Kopftabelle, Gestaltungsentscheidungen, je Seite Fragestellung und Kachel-Tabelle mit Analyse/Prio/Status, Steckbrief, offene Punkte, nächste Schritte. So sieht die Datei aus, die `mockup_to_docs.py` erzeugt, wenn sie fehlt. |
@@ -56,6 +59,18 @@ Was dabei auffällt und so gewollt ist:
   `visual.json` unter `Projekt_GuV/custom-visuals/` — `pbir add visual` kennt
   diese GUIDs nicht. Der Ablauf steht in `Projekt_GuV/custom-commands.sh`; die
   `.pbiviz` muss vorher im Bericht importiert sein.
+- Der Filterbereich bekommt die Überschrift „Auswahl" und den Hinweistext als
+  Shapes `chrome_filter_title`/`chrome_filter_text`; beide stehen in den
+  Lesezeichen „Filter öffnen/schließen". In `chrome-batch.json` steht der
+  Year-Slicer auf `data.mode = Dropdown`, der Region-Slicer auf `Basic` mit
+  `general.selfFilterEnabled = true` (Liste mit Suche).
+- `checklist.md` hat einen eigenen Block „Barrierefreiheit" mit den beiden
+  `A11Y_*`-Befunden; `plan.json` beginnt mit dem Schritt `accessibility`
+  (hier ohne Blocker, weil kein Befund `error` ist).
+- Mit `design.typography` stehen je nativem Visual `title.fontSize` 9 pt und
+  `subTitle.fontSize` 7 pt in `chrome-batch.json` (12 px bzw. 9,5 px × 0,75),
+  bei `mk_q5col01` wegen des Faktors 1,15 entsprechend 10,5 / 8 pt; das
+  Theme-Fragment bekommt `textClasses`.
 - Auf der Seite „Varianten" steht `Varianten/pbir-visuals.json` beim
   Linien-Diagramm auf `"Rows": "DimRegion.Region"` (Small Multiples) und beim
   Balken-Diagramm auf `"Category": "Achse.Achse"` (Feldparameter). Die Tabelle
@@ -65,7 +80,8 @@ Was dabei auffällt und so gewollt ist:
   `Varianten/analysis-commands.sh`.
 
 Dieselben Dateien liegen als Fixtures unter [`../../tests/fixtures/`](../../tests/fixtures/),
-zusammen mit fünf zusätzlichen Fällen (voller Analyse-Block, ChartKitchen ohne
+zusammen mit sechs zusätzlichen Fällen (voller Analyse-Block, ChartKitchen ohne
 Referenz-Instanz, Custom Visuals mit `variancePalette: "ibcs"` und
-`headerStyle: "custom"`, Darstellungsvarianten mit `navOn: false`, kaputte Spec)
-für `tests/run_tests.py`.
+`headerStyle: "custom"`, Darstellungsvarianten mit `navOn: false`,
+Typografie/Filterbereich/Fußleisten-Navigation/Barrierefreiheit aus 0.4.4 auf
+Full HD, kaputte Spec) für `tests/run_tests.py`.

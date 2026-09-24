@@ -261,7 +261,7 @@
     // --- Navigation abgeschaltet
     var pages = S.pages || [];
     var chrome = S.chrome || {};
-    var navOff = chrome.navPos === 'off' || (!navPos && chrome.header && chrome.header.navOn === false);
+    var navOff = chrome.navPos === 'off' || (!chrome.navPos && chrome.header && chrome.header.navOn === false);
     if (navOff && pages.length > 1) {
       findings.push(build(lang, 'A11Y_NAV_OFF', {}, 'info'));
     }

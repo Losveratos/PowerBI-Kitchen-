@@ -23,6 +23,7 @@ Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau i
   `CAT.rolesFor(def, v)`. Issues `SM_NO_FIELD`, `FIELDPARAM_FEW`.
 - **Native Klassiker (v0.4.1):** `ncolumn`, `nbar`, `nline`, `ndonut` (Gruppe „Native Klassiker & Sonstige") ohne
   Szenario-Notation (`plain: true` → Skizze mit Szenario AC), Rollen Kategorie/Legende/Werte, Donut-Skizze `S.donut`.
+- **Skizzen näher an ChartKitchen und Power BI (v0.4.5):** `sketches.js` überarbeitet (53 Skizzenarten, Node-Matrix 13.804 Renderings): Varianzanalyse mit drei Ebenen (Δ%, Δ-Brücke, Säulen AC/FC vs PL), Kombi, Tabelle, KPI-Kacheln; native Klassiker mit eigenem Look (`ncolumn`, `nbar`, `nline`); GuV-Skizze mit Darstellungsmodi (`mode: full|acref|dall|acpydpy|acpldpl|dpct`, `treeCard`, `density`); Skizzen übernehmen `fontScale`/`fonts` aus der Typografie und den dunklen Kachelgrund. Fix: Barrierefreiheits-Check warf bei Fußleisten-Navigation einen Fehler.
 - **Typografie, Filter, Barrierefreiheit (v0.4.4):** zentrale Schriftgrößen im Design-Reiter (`design.typo {scale,title,sub,chart}`,
   Basis 1280 px, skaliert mit der Seite; CSS-Variablen `--fs-title/--fs-sub`, Skizzen-Option `fontScale`/`fonts`), je Kachel
   übersteuerbar (`visual.typo.scale`, Kachel-Fenster). Filterbereich: Überschrift auto/immer/nie mit eigenem Titel, Freitext,
