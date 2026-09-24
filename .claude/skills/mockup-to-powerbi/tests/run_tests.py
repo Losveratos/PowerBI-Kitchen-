@@ -690,6 +690,26 @@ def typo_filter_tests(res: Results, P, M, D, Opt):
               and P.SLICER_FORMAT["between"] == {"data.mode": "Between"})
     res.check("Slicer-Arten decken das Schema-Enum ab",
               set(P.SLICER_FORMAT) == set(M.SLICER_TYPES))
+    # Tool 0.4.6: relatives Datum + Button-Slicer
+    rb = json.loads(json.dumps(raw))
+    rb["zones"]["filter"]["slicers"][0]["type"] = "button"
+    rb["zones"]["filter"]["slicers"][2]["type"] = "relative"
+    trb = M.upgrade(rb)
+    items_rb, _ = P.build_pbir_visuals(trb, trb["pages"][0])
+    btn = next((i for i in items_rb if i["name"] == "mk_slicer_Year_p1"), None)
+    res.check("Slicer-Art button -> Visual advancedSlicerVisual mit Feld in Values",
+              btn is not None and btn["visual_type"] == "advancedSlicerVisual"
+              and btn["fields"] == {"Values": "DimDate.Year"}
+              and P.SLICER_VISUAL_TYPE["button"] == "advancedSlicerVisual")
+    bp_rb = {}
+    notes_rb = P.add_slicer_formatting(trb, trb["pages"][0], P.Commands(), bp_rb)
+    res.check("Slicer-Art relative -> data.mode Relative, button ohne Slicer-Formatierung",
+              bp_rb.get("mk_slicer_Date_p1") == {"data.mode": "Relative"}
+              and "mk_slicer_Year_p1" not in bp_rb
+              and any("advancedSlicerVisual" in n for n in notes_rb)
+              and any("Relative" in n for n in notes_rb))
+    res.check("Schema kennt relative und button",
+              {"relative", "button"} <= set(M.SLICER_TYPES))
     bp_old = {}
     P.add_slicer_formatting(old, old["pages"][0], P.Commands(), bp_old)
     res.check("alte Spec: Slicer ohne Art bleiben unformatiert",

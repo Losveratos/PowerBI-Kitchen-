@@ -173,7 +173,8 @@ TYPO_BASIS_WIDTH = 1280
 # px -> pt fuer die Schriftgroessen im Bericht (Power BI rechnet in pt, 1 pt = 4/3 px)
 PX_TO_PT = 0.75
 # `zones.filter.slicers[].type` (export.js: `f.type || 'dropdown'`)
-SLICER_TYPES = ("dropdown", "list", "tile", "between", "date", "search")
+SLICER_TYPES = ("dropdown", "list", "tile", "between", "date", "search",
+                "relative", "button")  # relative/button ab Tool 0.4.6
 # `zones.header.navPosition` / `zones.footer.navPosition` (app.js -> navPosOf)
 NAV_POSITIONS = ("header", "footer", "off")
 # Codes der Barrierefreiheits-Pruefung beginnen alle mit diesem Praefix (a11y.js)

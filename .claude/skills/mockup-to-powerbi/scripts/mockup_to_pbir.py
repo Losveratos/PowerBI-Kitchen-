@@ -136,14 +136,23 @@ SLICER_FORMAT = {
     "date": {"data.mode": "Between"},
     "search": {"data.mode": "Basic", "general.orientation": 0,
                "general.selfFilterEnabled": True},
+    # Tool 0.4.6 — verifiziert mit pbir 0.9.32 am Testbed-Report (Probe-Kopie,
+    # `pbir add visual --from-json` + `pbir set … data.mode --value Relative`,
+    # `pbir validate --fields` ohne Befund):
+    "relative": {"data.mode": "Relative"},   # relatives Datum (letzte N Tage/Monate)
+    "button": {},                            # Button-Slicer = eigenes Visual, s. SLICER_VISUAL_TYPE
 }
+# Slicer-Arten, die ein anderes Visual sind als `slicer`: der Button-Slicer ist
+# `advancedSlicerVisual` (Rollen Values/Label/Tooltips; das Feld kommt in Values).
+SLICER_VISUAL_TYPE = {"button": "advancedSlicerVisual"}
 SLICER_TYPE_LABEL = {
     "dropdown": "Dropdown", "list": "Liste", "tile": "Kacheln (horizontal)",
     "between": "Bereich von–bis", "date": "Datumsbereich", "search": "Liste mit Suche",
+    "relative": "Relatives Datum", "button": "Button-Slicer (advancedSlicerVisual)",
 }
 
 # Visual-Typen ohne Datenbeschriftung — dort keine Anzeigeeinheiten setzen
-NO_LABELS = {"slicer", "shape", "actionButton", "textbox", "image",
+NO_LABELS = {"slicer", "advancedSlicerVisual", "shape", "actionButton", "textbox", "image",
              "tableEx", "pivotTable", "decompositionTreeVisual"}
 
 T = {
@@ -617,7 +626,8 @@ def build_pbir_visuals(nspec: dict, page: dict, ck_fallback: bool = False):
             else:
                 x, y = fx + pad, oy + i * round(64 * k)
                 w, h = fw - 2 * pad, round(56 * k)
-            out.append(vis("slicer", names[i], s["name"], x, y, w, h,
+            out.append(vis(SLICER_VISUAL_TYPE.get(slicer_type(s) or "", "slicer"),
+                           names[i], s["name"], x, y, w, h,
                            fields={"Values": s["ref"]}))
     return out, skipped
 
@@ -1385,6 +1395,14 @@ def add_slicer_formatting(nspec: dict, page: dict, cmds: Commands,
         if t == "search":
             notes.append("Slicer „%s\": Suchfeld über `general.selfFilterEnabled` — "
                          "in Desktop prüfen, ob die Suche erscheint." % s_.get("name"))
+        if t == "relative":
+            notes.append("Slicer „%s\" ist ein relatives Datum (`data.mode = Relative`): "
+                         "`%s` muss vom Typ Date/DateTime sein; Zeitraum (letzte N "
+                         "Tage/Monate) in Desktop einstellen." % (s_.get("name"), s_.get("ref")))
+        if t == "button":
+            notes.append("Slicer „%s\" ist ein Button-Slicer (`advancedSlicerVisual`, "
+                         "Feld in Rolle Values): Spalten/Zeilen, Bilder und Stil in "
+                         "Desktop unter „Layout\" einstellen." % s_.get("name"))
     return notes
 
 

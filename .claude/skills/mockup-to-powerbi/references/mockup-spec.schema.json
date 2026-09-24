@@ -229,7 +229,7 @@
         "default": { "type": ["string", "number", "boolean", "null"] },
         "type": {
           "description": "Ab Tool 0.4.4. Slicer-Art; fehlt sie (aeltere Specs), bleibt der Slicer wie pbir ihn anlegt.",
-          "enum": ["dropdown", "list", "tile", "between", "date", "search"]
+          "enum": ["dropdown", "list", "tile", "between", "date", "search", "relative", "button"]
         }
       }
     },

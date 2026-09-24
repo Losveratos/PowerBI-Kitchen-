@@ -235,6 +235,10 @@ details.sub{border:1px solid var(--line);border-radius:var(--r);padding:6px 10px
 .gutter:hover .gmerge,.page:hover .gutter .gmerge{opacity:.55}
 .gutter .gmerge:hover{opacity:1;background:var(--accent);color:#fff;border-color:var(--accent)}
 body.present .gutter .gmerge{display:none}
+.gedge{position:absolute;z-index:4;width:calc(22px / var(--zoom));height:calc(22px / var(--zoom));transform:translate(-50%,-50%);border-radius:50%;border:1px dashed var(--line-strong);background:var(--bg-card);color:var(--ink-soft);font-size:calc(15px / var(--zoom));line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .12s;padding:0}
+.page:hover .gedge{opacity:.45}
+.gedge:hover{opacity:1;background:var(--accent);color:#fff;border-color:var(--accent);border-style:solid}
+body.present .gedge{display:none}
 .stage-tools{position:absolute;right:14px;bottom:12px;display:flex;gap:6px;z-index:5}
 .stage-tools .btn{box-shadow:var(--sh)}
 .stage-foot{position:absolute;left:14px;bottom:12px;display:flex;align-items:center;gap:8px;z-index:5}
@@ -629,12 +633,12 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 <input type="file" id="fileOpen" accept=".json" hidden>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="assets/mockup/i18n.js?v=20260924e"></script>
-<script src="assets/mockup/sketches.js?v=20260924e"></script>
-<script src="assets/mockup/catalog.js?v=20260924e"></script>
-<script src="assets/mockup/a11y.js?v=20260924e"></script>
-<script src="assets/mockup/app.js?v=20260924e"></script>
-<script src="assets/mockup/render-png.js?v=20260924e"></script>
-<script src="assets/mockup/export.js?v=20260924e"></script>
+<script src="assets/mockup/i18n.js?v=20260924f"></script>
+<script src="assets/mockup/sketches.js?v=20260924f"></script>
+<script src="assets/mockup/catalog.js?v=20260924f"></script>
+<script src="assets/mockup/a11y.js?v=20260924f"></script>
+<script src="assets/mockup/app.js?v=20260924f"></script>
+<script src="assets/mockup/render-png.js?v=20260924f"></script>
+<script src="assets/mockup/export.js?v=20260924f"></script>
 </body>
 </html>

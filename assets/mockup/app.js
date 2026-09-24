@@ -177,6 +177,19 @@
     if (p.children.length === 1) { const only = p.children[0].node; const pf = findNode(p.id); if (pf.parent) pf.parent.children[pf.idx].node = only; else page().layout = only; }
     sel = keep.node.type === 'leaf' ? keep.node.id : sel; commit(); toast(t('toast.merged'));
   }
+  // „+" am Seitenrand: neue Kachel auf der obersten Ebene einfuegen, alle Kacheln dieser Ebene gleich verteilen (aus 2 gleichen werden 3 gleiche)
+  function insertEdge(side) {
+    const dir = (side === 'left' || side === 'right') ? 'row' : 'col'; const atStart = side === 'left' || side === 'top';
+    const root = page().layout; const fresh = { id: uid(), type: 'leaf', visual: null };
+    if (root.type === 'split' && root.dir === dir) {
+      root.children.splice(atStart ? 0 : root.children.length, 0, { size: 1, node: fresh });
+      root.children.forEach(c => { c.size = 1; });
+    } else {
+      const ch = [{ size: 1, node: root }, { size: 1, node: fresh }]; if (atStart) ch.reverse();
+      page().layout = { id: uid(), type: 'split', dir, children: ch };
+    }
+    sel = fresh.id; commit(); toast(t('toast.inserted'));
+  }
   function removeLeaf(id) {
     const f = findNode(id); if (!f) return;
     if (!f.parent) { f.node.visual = null; commit(); return; }
@@ -291,7 +304,7 @@
     // Zahnrad je Zone: oeffnet den passenden Abschnitt im Reiter Rahmen (Doppelklick auf die Zone tut dasselbe)
     ['header', 'nav', 'filter', 'footer'].forEach(key => { const r = z[key]; if (!r) return; const gx = r.x + r.w - 22 * k, gy = key === 'footer' ? r.y + (r.h - 18 * k) / 2 : r.y + 4 * k; html += `<div class="zcfg" data-zcfg="${key}" title="${esc(t('tip.zoneCfg'))}" style="left:${gx}px;top:${gy}px">⚙</div>`; });
     if (z.filter) {
-      const SLG = { dropdown: '▾', list: '☰', tile: '▦', between: '⟷', date: '▤', search: '⌕' };
+      const SLG = { dropdown: '▾', list: '☰', tile: '▦', between: '⟷', date: '▤', search: '⌕', relative: '◷', button: '▣' };
       const sl = (c.filter.fields || []).map((f, i) => `<div class="sl"><span class="ty" title="${esc(t('opt.slicer.' + (f.type || 'dropdown')))}">${SLG[f.type || 'dropdown'] || '▾'}</span><span class="nm">${esc(f.name)}</span><span class="x" data-rmfilter="${i}" title="${esc(t('tip.slicerRemove'))}">✕</span></div>`).join('');
       const fh = c.filter.heading || {}; const showHead = fh.show === 'on' || (fh.show !== 'off' && !(c.filter.fields || []).length) || (fh.show == null && !!fh.text);
       const headTxt = fh.text || t('canvas.filter'); const ftxt = c.filter.text ? `<p class="txt">${esc(c.filter.text)}</p>` : '';
@@ -299,6 +312,8 @@
     }
     all.leaves.forEach(({ node, rect }) => { html += tileHtml(node, rect); });
     all.gutters.forEach((g, i) => { html += `<div class="gutter ${g.dir === 'row' ? 'v' : 'h'}" data-gutter="${i}" style="${css(g.rect)}"><button type="button" class="gmerge" data-merge="${i}" title="${esc(t('tip.merge'))}">+</button></div>`; });
+    { const c0 = z.content, eb = (side, st) => `<button type="button" class="gedge ${side}" data-edge="${side}" style="${st}" title="${esc(t('tip.edge'))}">+</button>`;
+      html += eb('left', `left:${c0.x}px;top:${c0.y + c0.h / 2}px`) + eb('right', `left:${c0.x + c0.w}px;top:${c0.y + c0.h / 2}px`) + eb('top', `left:${c0.x + c0.w / 2}px;top:${c0.y}px`) + eb('bottom', `left:${c0.x + c0.w / 2}px;top:${c0.y + c0.h}px`); }
     pageEl.innerHTML = html;
     $('#stageInfo').textContent = t('canvas.info', { w, h, cw: z.content.w, ch: z.content.h, k: k.toFixed(2), z: Math.round(zoom * 100) });
     renderPages(); renderInspector(); renderModel(); syncPageInputs();
@@ -365,6 +380,7 @@
 
   let gdrag = null;
   pageEl.addEventListener('mousedown', e => {
+    if (e.target.closest('[data-edge]')) { e.preventDefault(); e.stopPropagation(); insertEdge(e.target.closest('[data-edge]').dataset.edge); return; }
     if (e.target.closest('[data-merge]')) { e.preventDefault(); e.stopPropagation(); const gi = lastRects.gutters[+e.target.closest('[data-merge]').dataset.merge]; if (gi) mergeGutter(gi); return; }
     const g = e.target.closest('[data-gutter]'); if (!g) return;
     const gi = lastRects.gutters[+g.dataset.gutter]; if (!gi) return;
@@ -634,7 +650,7 @@
     $('#nvOn').checked = c.nav.on; $('#nvW').value = c.nav.w;
     $('#ftOn').checked = c.filter.on; $('#ftSide').value = c.filter.side; const fh0 = c.filter.heading || {}; $('#ftHeadShow').value = fh0.show || 'auto'; $('#ftHeadText').value = fh0.text || ''; $('#ftText').value = c.filter.text || ''; const ty0 = typo(); $('#tyScale').value = String(ty0.scale); $('#tyTitle').value = ty0.title; $('#tySub').value = ty0.sub; $('#tyChart').value = ty0.chart; $('#ftW').value = c.filter.side === 'top' ? (c.filter.topH || 56) : c.filter.w; $('#ftWHint').textContent = c.filter.side === 'top' ? t('hint.height') : t('hint.width'); $('#ftW').disabled = c.filter.side === 'burger';
     $('#ftCollapsible').checked = c.filter.collapsible; $('#ftCollapsibleRow').style.display = (c.filter.side === 'left' || c.filter.side === 'right') ? '' : 'none';
-    $('#ftFieldList').innerHTML = (c.filter.fields || []).map((f, i) => `<div class="row" style="margin-bottom:4px"><span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}" draggable="false" style="margin:0;flex:1;min-width:0"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span><button class="x" data-rmfilter2="${i}">×</button></span><select class="ctl" data-fttype="${i}" title="${esc(t('lbl.slicerType'))}" style="width:96px;padding:3px 4px;font-size:11px">${['dropdown', 'list', 'tile', 'between', 'date', 'search'].map(k => `<option value="${k}" ${(f.type || 'dropdown') === k ? 'selected' : ''}>${esc(t('opt.slicer.' + k))}</option>`).join('')}</select><input class="ctl" data-ftdef="${i}" value="${esc(f.default || '')}" placeholder="${esc(t('ph.slicerDefault'))}" style="width:90px;padding:3px 6px;font-size:11.5px"></div>`).join('') || `<span class="hint">${esc(t('hint.noSlicers'))}</span>`;
+    $('#ftFieldList').innerHTML = (c.filter.fields || []).map((f, i) => `<div class="row" style="margin-bottom:4px"><span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}" draggable="false" style="margin:0;flex:1;min-width:0"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span><button class="x" data-rmfilter2="${i}">×</button></span><select class="ctl" data-fttype="${i}" title="${esc(t('lbl.slicerType'))}" style="width:96px;padding:3px 4px;font-size:11px">${['dropdown', 'list', 'tile', 'button', 'between', 'date', 'relative', 'search'].map(k => `<option value="${k}" ${(f.type || 'dropdown') === k ? 'selected' : ''}>${esc(t('opt.slicer.' + k))}</option>`).join('')}</select><input class="ctl" data-ftdef="${i}" value="${esc(f.default || '')}" placeholder="${esc(t('ph.slicerDefault'))}" style="width:90px;padding:3px 6px;font-size:11.5px"></div>`).join('') || `<span class="hint">${esc(t('hint.noSlicers'))}</span>`;
     $('#ffOn').checked = c.footer.on; $('#ffH').value = c.footer.h; $('#ffText').value = c.footer.text;
     $('#dsRadius').value = String(d.radius); $('#dsTile').value = d.tile; $('#dsPageBg').value = d.pageBg; $('#dsHeader').value = d.header; $('#dsAccent').value = d.accent; $('#dsAccentTxt').textContent = d.accent;
     $('#dsPalette').value = d.palette || 'teal'; $('#dsPageBgRow').hidden = d.pageBg !== 'custom'; $('#dsPageBgHex').value = d.pageBgHex || '#F4F4F1'; $('#dsPageBgHexTxt').textContent = d.pageBgHex || '#F4F4F1';
@@ -893,7 +909,7 @@
   // Öffentliche API für export.js
   window.MK = {
     get state() { return S; }, set state(v) { S = migrate(v); sel = null; commit(); },
-    page, visuals, leaves, zones, computeAll, ui, toast, findNode, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
+    page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     setLang, get lang() { return I18N.lang; },
     // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
     reset() { S = defaultState(); S.pages.forEach(p => ensureIds(p.layout)); sel = null; undoStack = []; commit(); },

@@ -28,6 +28,7 @@
       undo: 'Rückgängig (Strg+Z)', redo: 'Wiederholen (Strg+Y)', present: 'Präsentieren: Panels ausblenden, Seite groß (Taste P)',
       new: 'Neues Mockup anlegen: leere Seite, Demo-Modell, Standard-Design (der aktuelle Stand wird verworfen, vorher Speichern)',
       merge: 'Nachbarn verbinden: leere Kachel geht im Nachbarn auf, zwei Kacheln werden eine (links/oben behält das Visual)',
+      edge: 'Kachel am Rand einfügen: alle Kacheln dieser Ebene werden gleich verteilt (aus 2 gleichen werden 3 gleiche)',
       zoneCfg: 'Einstellungen zu diesem Bereich öffnen (Doppelklick auf den Bereich geht auch)',
       help: 'Hilfe', open: 'Weiterarbeiten: gespeicherten Stand öffnen (.mockup.json aus „Speichern")', save: 'Stand als .mockup.json sichern – mit „Öffnen" lässt er sich später wieder laden und weiterbearbeiten',
       tileWindow: 'Notiz, Priorität, Status, Drill und Varianten in einem größeren Fenster (Taste N)',
@@ -133,7 +134,7 @@
       tile: { border: 'weiß mit feinem Rahmen', shadow: 'weiß mit weichem Schatten', flat: 'flach, ohne Rahmen' },
       navPos: { header: 'im Kopfband', footer: 'in der Fußleiste', off: 'aus' },
       fh: { auto: 'Überschrift solange leer', on: 'Überschrift immer', off: 'keine Überschrift' },
-      slicer: { dropdown: 'Dropdown', list: 'Liste', tile: 'Kacheln', between: 'Bereich (von – bis)', date: 'Datum', search: 'Suche' },
+      slicer: { dropdown: 'Dropdown', list: 'Liste', tile: 'Kacheln', between: 'Bereich (von – bis)', date: 'Datum', search: 'Suche', relative: 'Relatives Datum (letzte N Tage/Monate)', button: 'Button-Slicer (neuer Slicer)' },
       tileFont: { auto: 'wie Design' },
       bg: { light: 'hell strukturiert (#F4F4F1)', soft: 'kühl strukturiert (#EEF1F5)', white: 'weiß', custom: 'eigene Farbe …' },
       hdr: { light: 'hell (weiß, dunkle Schrift)', dark: 'dunkel (Ink)', accent: 'Akzentfarbe', custom: 'eigene Farben …' },
@@ -208,7 +209,7 @@
 
     toast: {
       newProject: 'Neues Mockup angelegt. Über „Vorlagen" geht es schnell weiter.',
-      merged: 'Kacheln verbunden', mergeNotPossible: 'Verbinden geht nur, wenn mindestens eine Seite eine einzelne Kachel ist',
+      merged: 'Kacheln verbunden', inserted: 'Kachel eingefügt, Ebene gleich verteilt', mergeNotPossible: 'Verbinden geht nur, wenn mindestens eine Seite eine einzelne Kachel ist',
       nothingUndo: 'Nichts rückgängig zu machen', undone: 'Rückgängig', nothingRedo: 'Nichts zu wiederholen', redone: 'Wiederholt',
       demoLoadedTpl: 'Demo-Modell geladen, Vorlage gebunden', tplSet: 'Vorlage „{t}" gesetzt', demoLoaded: 'Demo-Modell geladen',
       lastPage: 'Die letzte Seite bleibt', pickTileFirst: 'Erst eine Kachel wählen',
@@ -485,6 +486,7 @@
       undo: 'Undo (Ctrl+Z)', redo: 'Redo (Ctrl+Y)', present: 'Present: hide the panels, page large (key P)',
       new: 'Start a new mockup: empty page, demo model, default design (the current state is discarded, save first)',
       merge: 'Merge neighbours: an empty tile is absorbed, two tiles become one (left/top keeps its visual)',
+      edge: 'Insert a tile at the edge: all tiles on this level are distributed evenly (2 equal tiles become 3)',
       zoneCfg: 'Open the settings of this zone (double-click on the zone works too)',
       help: 'Help', open: 'Continue working: open a saved state (.mockup.json from “Save”)', save: 'Save the state as .mockup.json – “Open” loads it again for further work',
       tileWindow: 'Note, priority, status, drill and variants in a larger window (key N)',
@@ -590,7 +592,7 @@
       tile: { border: 'white with a fine border', shadow: 'white with a soft shadow', flat: 'flat, no border' },
       navPos: { header: 'in the header band', footer: 'in the footer', off: 'off' },
       fh: { auto: 'Heading while empty', on: 'Heading always', off: 'No heading' },
-      slicer: { dropdown: 'Dropdown', list: 'List', tile: 'Tiles', between: 'Range (from – to)', date: 'Date', search: 'Search' },
+      slicer: { dropdown: 'Dropdown', list: 'List', tile: 'Tiles', between: 'Range (from – to)', date: 'Date', search: 'Search', relative: 'Relative date (last N days/months)', button: 'Button slicer (new slicer)' },
       tileFont: { auto: 'as in design' },
       bg: { light: 'light textured (#F4F4F1)', soft: 'cool textured (#EEF1F5)', white: 'white', custom: 'custom colour …' },
       hdr: { light: 'light (white, dark type)', dark: 'dark (ink)', accent: 'accent colour', custom: 'custom colours …' },
@@ -664,7 +666,7 @@
 
     toast: {
       newProject: 'New mockup started. Templates give you a quick start.',
-      merged: 'Tiles merged', mergeNotPossible: 'Merging needs at least one side to be a single tile',
+      merged: 'Tiles merged', inserted: 'Tile inserted, level distributed evenly', mergeNotPossible: 'Merging needs at least one side to be a single tile',
       nothingUndo: 'Nothing to undo', undone: 'Undone', nothingRedo: 'Nothing to redo', redone: 'Redone',
       demoLoadedTpl: 'Demo model loaded, template bound', tplSet: 'Template “{t}” applied', demoLoaded: 'Demo model loaded',
       lastPage: 'The last page stays', pickTileFirst: 'Select a tile first',

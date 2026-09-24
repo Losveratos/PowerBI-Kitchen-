@@ -100,7 +100,7 @@ Wieder abwärtskompatibel: fehlt ein Schlüssel, baut der Skill genau wie vorher
 | `zones.header.navPosition`, `zones.footer.nav`, `zones.footer.navPosition` | 0.4.3 | Seitennavigation im Kopfband, in der Fußleiste oder aus |
 | `design.typography`, `visuals[].typography` | 0.4.3 | Schriftgrößen (Titel, Untertitel, Diagramm) und Kachel-Faktor |
 | `zones.filter.heading`, `zones.filter.text` | 0.4.4 | Überschrift (oder keine) und Hinweistext im Filterbereich |
-| `zones.filter.slicers[].type` | 0.4.4 | Slicer-Art `dropdown` · `list` · `tile` · `between` · `date` · `search` |
+| `zones.filter.slicers[].type` | 0.4.4 / 0.4.6 | Slicer-Art `dropdown` · `list` · `tile` · `between` · `date` · `search` · ab 0.4.6 `relative` · `button` |
 | Issue-Codes `A11Y_*` | 0.4.4 | Befunde der Barrierefreiheits-Prüfung |
 
 ## Oberste Ebene (specVersion 3)
@@ -838,6 +838,8 @@ ohne Befund und `pbir visuals json` gelesen):
 | `between` | `data.mode = Between` | Enum; Feld muss numerisch oder Datum sein |
 | `date` | `data.mode = Between` | wie `between`, Feld muss `Date`/`DateTime` sein (Hinweis in `checklist.md`) |
 | `search` | `data.mode = Basic`, `general.orientation = 0`, `general.selfFilterEnabled = true` | `selfFilterEnabled` ist das Suchfeld-Flag des Slicers; `pbir` nimmt es an — **in Desktop gegenprüfen** |
+| `relative` (0.4.6) | `data.mode = Relative` | relatives Datum (letzte N Tage/Monate); Feld muss `Date`/`DateTime` sein; Zeitraum in Desktop wählen. Verifiziert am Testbed-Report |
+| `button` (0.4.6) | eigenes Visual `advancedSlicerVisual`, Feld in Rolle `Values` (`SLICER_VISUAL_TYPE`) | der neue Button-Slicer; Layout (Spalten/Zeilen, Bilder) in Desktop. `pbir add visual --from-json` legt ihn an, `validate --fields` ohne Befund |
 
 `data.mode` ist ein Enum (`VerticalList, HorizontalList, Between, Before, After,
 Basic, Dropdown, Relative, Single, RelativeTime, RelativeDatePicker`);
