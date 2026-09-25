@@ -984,7 +984,7 @@
     if (!$('#dlgGrid').open) $('#dlgGrid').showModal();
   }
   $('#btnGridCheck').onclick = openGridCheck; $('#btnGridCheck2').onclick = openGridCheck;
-  $('#gcSnap').onclick = () => { const r = window.MK_GRIDCHECK.snap(page().layout, uid); if (r.layout !== page().layout) page().layout = r.layout; if (r.changed.length) { commit(); toast(t('gc.snapped')); } openGridCheck(); };
+  $('#gcSnap').onclick = () => { const cz = computeAll().zones.content; const r = window.MK_GRIDCHECK.snap(page().layout, uid, { w: cz.w, h: cz.h, g: Math.round(S.spacing.gutter * ui()) }); if (r.layout !== page().layout) page().layout = r.layout; if (r.changed.length) { commit(); toast(t('gc.snapped')); } openGridCheck(); };
   $('#gcMargin').onclick = () => { const fix = gridFix(); if (!fix) return; const k = ui(); S.spacing.margin = clamp(Math.round(((Math.round(S.spacing.margin * k) + fix.margin) / k) * 100) / 100, 0, 64); S.spacing.gutter = clamp(Math.round(((Math.round(S.spacing.gutter * k) + fix.gutter) / k) * 100) / 100, 0, 48); commit(); toast(t('gc.marginSet')); openGridCheck(); };
   // Staende vergleichen (v0.4.7): gespeicherte Datei (Zustand oder Spec) gegen den aktuellen Stand
   let lastDiff = null;

@@ -6,6 +6,7 @@
   'use strict';
   var TOL = 3;          // Kantenabstand bis 3 px gilt als „fast fluchtend" (größere Abstände sind Absicht)
   var NEAR = 0.05;      // Spuren, die sich um weniger als 5 % unterscheiden, sollen gleich sein
+  var SNAPF = 0.012;    // Kanten verschiedener Zeilen, die weniger als 1,2 % der Breite auseinanderliegen, gelten als gemeint fluchtend
 
   function sum(a) { return a.reduce(function (x, y) { return x + y; }, 0); }
   function uniqSorted(a) { return a.slice().sort(function (x, y) { return x - y; }).filter(function (v, i, arr) { return i === 0 || v !== arr[i - 1]; }); }
@@ -27,19 +28,40 @@
     var n = Math.max.apply(null, counts); if (n < 2 && layout.children.length < 2) return null;
     return { outer: outer, inner: inner, n: n, counts: counts };
   }
-  function treeToGrid(layout, uid) {
+  function treeToGrid(layout, uid, dims) {
+    // Pixelgenaue Überführung (v0.5.1): Jede Linie wird wie im Baum in Pixeln ausgelegt (Spanne S, Zwischenraum g).
+    // Spalten entstehen zwischen den Zwischenräumen aller Linien; Zwischenräume, die weniger als tol px auseinanderliegen,
+    // werden zu einem zusammengelegt. Spurgewichte = Spurbreiten in px -> das Raster legt jede Kachel wieder auf dieselben Pixel.
+    // Ohne dims (Tests): S = 1, g = 0, also reine Anteile.
     var sh = treeShape(layout); if (!sh) return null;
+    var S = dims ? (sh.outer === 'col' ? dims.w : dims.h) : 1, g = dims ? dims.g : 0;
+    var tol = dims ? Math.max(3, SNAPF * S) : SNAPF;
     var lines = layout.children.map(function (ch) { return ch.size; });
-    var totalL = sum(lines) || 1; var lineW = lines.map(function (s) { return s / totalL; });
-    // Spurgewichte quer: Mittel der Zeilen mit voller Spaltenzahl
-    var acc = null;
-    layout.children.forEach(function (ch, i) { if (sh.counts[i] === sh.n && ch.node.type === 'split') { var t = sum(ch.node.children.map(function (c) { return c.size; })) || 1; var w = ch.node.children.map(function (c) { return c.size / t; }); acc = acc ? acc.map(function (v, k) { return v + w[k]; }) : w; } });
-    var cross = acc ? acc.map(function (v) { return v / layout.children.filter(function (ch, i) { return sh.counts[i] === sh.n; }).length; }) : Array.apply(null, Array(sh.n)).map(function () { return 1; });
-    var cells = [];
-    layout.children.forEach(function (ch, i) {
-      if (ch.node.type === 'leaf') { cells.push(sh.outer === 'col' ? { r: i, c: 0, rs: 1, cs: sh.n, node: ch.node } : { r: 0, c: i, rs: sh.n, cs: 1, node: ch.node }); }
-      else ch.node.children.forEach(function (c, k) { cells.push(sh.outer === 'col' ? { r: i, c: k, rs: 1, cs: 1, node: c.node } : { r: k, c: i, rs: 1, cs: 1, node: c.node }); });
+    var totalL = sum(lines) || 1; var lineW = lines.map(function (v) { return v / totalL; });
+    var ends = layout.children.map(function (ch) {
+      if (ch.node.type === 'leaf') return [];
+      var sz = ch.node.children.map(function (c) { return c.size; }); var t = sum(sz) || 1, inner = S - g * (sz.length - 1), x = 0, out = [];
+      sz.forEach(function (v, i) { x += inner * v / t; if (i < sz.length - 1) { out.push(x); x += g; } });
+      return out;
     });
+    var all = []; ends.forEach(function (e) { all = all.concat(e); }); all.sort(function (x, y) { return x - y; });
+    var clusters = [];
+    all.forEach(function (v) { var last = clusters[clusters.length - 1]; if (last && v - last.max <= tol) { last.max = v; last.vals.push(v); } else clusters.push({ min: v, max: v, vals: [v] }); });
+    var reps = clusters.map(function (c) { return sum(c.vals) / c.vals.length; });
+    var idx = function (v) { for (var i = 0; i < clusters.length; i++) if (v >= clusters[i].min - 1e-9 && v <= clusters[i].max + 1e-9) return i; return -1; };
+    var m = reps.length, cross = [];
+    for (var j = 0; j <= m; j++) cross.push((j === m ? S : reps[j]) - (j === 0 ? 0 : reps[j - 1] + g));
+    if (cross.some(function (w) { return !(w > 0); })) return null;
+    var cells = [], ok = true;
+    layout.children.forEach(function (ch, i) {
+      var e = ends[i], nodes = ch.node.type === 'leaf' ? [ch.node] : ch.node.children.map(function (c) { return c.node; });
+      nodes.forEach(function (nd, k) {
+        var c0 = k === 0 ? 0 : idx(e[k - 1]) + 1, c1 = k === nodes.length - 1 ? m : idx(e[k]);
+        if (c0 < 0 || c1 < c0) { ok = false; return; }
+        cells.push(sh.outer === 'col' ? { r: i, c: c0, rs: 1, cs: c1 - c0 + 1, node: nd } : { r: c0, c: i, rs: c1 - c0 + 1, cs: 1, node: nd });
+      });
+    });
+    if (!ok) return null;
     var grid = { id: uid ? uid() : layout.id, type: 'grid', children: cells };
     if (sh.outer === 'col') { grid.rows = lineW; grid.cols = cross; } else { grid.cols = lineW; grid.rows = cross; }
     return grid;
@@ -103,9 +125,9 @@
 
   // ---- Ausrichten -------------------------------------------------------------
   // Liefert { layout, changed:[codes] }: Baum -> Raster, Spuren angleichen. Mutiert das Raster in place.
-  function snap(layout, uid) {
+  function snap(layout, uid, dims) {
     var changed = [];
-    if (layout && layout.type === 'split') { var g = treeToGrid(layout, uid); if (g) { layout = g; changed.push('TREE_TO_GRID'); } }
+    if (layout && layout.type === 'split') { var g = treeToGrid(layout, uid, dims); if (g) { layout = g; changed.push('TREE_TO_GRID'); } }
     if (layout && layout.type === 'grid') {
       ['cols', 'rows'].forEach(function (k) { var eq = equalizeNearGroups(layout[k]); if (layout[k].some(function (v, i) { return Math.abs(v - eq[i]) > 1e-9; })) { layout[k] = eq; changed.push('TRACKS_' + k.toUpperCase()); } });
     }
