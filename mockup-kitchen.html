@@ -248,6 +248,12 @@ details.sub[open]>summary{margin-bottom:6px}
 details.sub .section{border-top:0;margin-top:6px;padding-top:0}
 .panel.right details.sub{padding:6px 10px 8px}
 #dlgDiff{width:820px}
+#dlgGrid{width:600px}
+.gc-list{list-style:none;padding:0;margin:0;font-size:13px}
+.gc-list li{padding:7px 0;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:flex-start}
+.gc-tag{flex:none;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:600;background:var(--line);color:var(--ink-soft)}
+.gc-tag.warn{background:#FBEBD6;color:#8A4E10}
+.gc-ok{color:#1F5A3F;font-weight:600;font-size:14px;margin:6px 0}
 .dlg-body.diff{max-height:70vh;overflow:auto;font-size:13px}
 .dlg-body.diff h3{font-size:13px;margin:14px 0 6px;font-family:var(--ff-sans)}
 .dlg-body.diff .mono{font-family:var(--ff-mono);font-size:11px;color:var(--ink-mute)}
@@ -402,6 +408,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       <div class="stage-foot"><a class="pill-home hide-present" href="https://datenwgknowledgekitchen.com/" data-i18n="lbl.backHome" data-i18n-title="tip.backHome" title="Zurück zur Knowledge Kitchen">← Knowledge Kitchen</a><div class="stage-info" id="stageInfo"></div></div>
       <div class="stage-tools">
         <button class="btn sm" id="btnZoomOut" data-i18n-title="tip.zoomOut">−</button>
+        <button class="btn sm" id="btnGridCheck2" data-i18n-title="gc.h" title="Pixelgenau prüfen">⌗</button>
         <button class="btn sm" id="btnZoomFit" data-i18n-title="tip.zoomFit">Fit</button>
         <button class="btn sm" id="btnZoomIn" data-i18n-title="tip.zoomIn">+</button>
       </div>
@@ -440,7 +447,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       <div class="field"><label data-i18n="lbl.pageNotes">Zweck / Notizen zur Seite</label><textarea class="ctl" id="pageNotes" data-i18n-ph="ph.pageNotes" placeholder="Zielgruppe, Drill-Wege, Interaktionen …"></textarea></div>
       <div class="row wrap" style="margin-bottom:10px"><button class="btn sm" id="btnPageDup" data-i18n="btn.pageDup">Seite duplizieren</button><button class="btn sm" id="btnPageDel" data-i18n="btn.pageDel">Seite löschen</button></div>
       <div class="section"><h3 data-i18n="sec.grid">Raster</h3>
-        <button class="btn sm" id="btnSplitRoot" data-i18n="btn.splitRoot">Inhalt neu aufteilen …</button>
+        <button class="btn sm" id="btnSplitRoot" data-i18n="btn.splitRoot">Inhalt neu aufteilen …</button> <button class="btn sm" id="btnGridCheck" data-i18n="gc.btn">Pixelgenau prüfen …</button>
         <p class="hint" data-i18n="hint.splitRoot">Setzt den Inhaltsbereich dieser Seite auf ein neues Raster (Zeilen × Spalten). Bestehende Visuals werden der Reihe nach wieder eingesetzt.</p>
       </div>
     </div>
@@ -645,6 +652,11 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
   <div class="dlg-head"><div><h2 id="dlgTileH">Kachel</h2><p data-i18n="dlg.tile.p">Notiz, Workshop-Status und Verhalten der Kachel in einem Fenster. Änderungen gelten sofort.</p></div><span class="spacer"></span><button class="btn ghost" id="dlgTileClose">✕</button></div>
   <div class="dlg-body" id="dlgTileBody"></div>
 </dialog>
+<dialog id="dlgGrid" class="narrow">
+  <div class="dlg-head"><div><h2 data-i18n="gc.h">Pixelgenau prüfen</h2><p id="dlgGridP"></p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+  <div class="dlg-body" id="dlgGridBody"></div>
+  <div class="dlg-foot"><button class="btn" id="gcMargin" hidden>Rand anpassen</button><button class="btn primary" id="gcSnap" data-i18n="gc.snap">Ausrichten</button><button class="btn" data-close data-i18n="btn.close">Schließen</button></div>
+</dialog>
 <dialog id="dlgDiff">
   <div class="dlg-head"><div><h2 data-i18n="diffui.h">Was hat sich geändert?</h2><p id="dlgDiffP"></p></div><span class="spacer"></span><button class="btn" id="btnDiffCopy" data-i18n="diffui.copy">Als Markdown kopieren</button><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body diff" id="dlgDiffBody"></div>
@@ -675,13 +687,14 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 <input type="file" id="fileDiff" accept=".json" hidden>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="assets/mockup/i18n.js?v=20260925d"></script>
-<script src="assets/mockup/sketches.js?v=20260925d"></script>
-<script src="assets/mockup/catalog.js?v=20260925d"></script>
-<script src="assets/mockup/a11y.js?v=20260925d"></script>
-<script src="assets/mockup/diff.js?v=20260925d"></script>
-<script src="assets/mockup/app.js?v=20260925d"></script>
-<script src="assets/mockup/render-png.js?v=20260925d"></script>
-<script src="assets/mockup/export.js?v=20260925d"></script>
+<script src="assets/mockup/i18n.js?v=20260925e"></script>
+<script src="assets/mockup/sketches.js?v=20260925e"></script>
+<script src="assets/mockup/catalog.js?v=20260925e"></script>
+<script src="assets/mockup/a11y.js?v=20260925e"></script>
+<script src="assets/mockup/diff.js?v=20260925e"></script>
+<script src="assets/mockup/gridcheck.js?v=20260925e"></script>
+<script src="assets/mockup/app.js?v=20260925e"></script>
+<script src="assets/mockup/render-png.js?v=20260925e"></script>
+<script src="assets/mockup/export.js?v=20260925e"></script>
 </body>
 </html>

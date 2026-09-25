@@ -100,6 +100,7 @@
     const newFields = S.newFields.map(f => ({ table: f.table, name: f.name, kind: f.kind, ref: fieldRef(f), description: f.desc || '', unit: f.unit || '', target: f.target || '', owner: f.owner || '', source: f.source || '', openQuestion: f.open || '', used: used.has(fieldRef(f)) }));
     newFields.filter(f => !f.used).forEach(f => issue('info', 'NEW_FIELD_UNUSED', T('exp.issue.newFieldUnused', { n: f.name })));
     // Barrierefreiheit (Modul a11y.js): Kontrast, Schriftgrößen, Kachelgrößen, Titel, Dichte, Navigation
+    if (MK.gridCheck) S.pages.forEach(p => { const gc = MK.gridCheck(p); const n = gc.findings.filter(f => f.level === 'warn').length; if (n) issue('info', 'LAYOUT_NOT_PIXEL_PERFECT', T('exp.issue.gridCheck', { page: p.name, n }), p.name, null); });
     if (MK.a11yFindings) MK.a11yFindings().forEach(f => issue(f.level, f.code, f.text + (f.hint ? ' (' + f.hint + ')' : ''), f.page, f.visual ? 'mk_' + f.visual : null));
     if (!S.report.audience) issue('info', 'REPORT_NO_AUDIENCE', T('exp.issue.noAudience'));
     if (!S.report.decision) issue('info', 'REPORT_NO_DECISION', T('exp.issue.noDecision'));

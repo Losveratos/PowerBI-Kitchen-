@@ -18,10 +18,23 @@
       open: 'Öffnen', save: 'Speichern', export: 'Export für Claude Code', demoModel: 'Demo-Modell laden', new: '＋ Neu',
       newMeasure: '+ Kennzahl / Dimension', copy: 'Kopieren', download: 'Datei herunterladen', downloadAll: 'Alle Dateien herunterladen',
       cancel: 'Abbrechen', create: 'Anlegen', split: 'Aufteilen', save2: 'Speichern',
-      pageDup: 'Seite duplizieren', pageDel: 'Seite löschen', splitRoot: 'Inhalt neu aufteilen …', addPage: '+ Seite',
+      close: 'Schließen', pageDup: 'Seite duplizieren', pageDel: 'Seite löschen', splitRoot: 'Inhalt neu aufteilen …', addPage: '+ Seite',
       lang: 'EN', clearTile: 'Kachel leeren', removeTile: 'Kachel entfernen', pickType: 'Visual wählen …',
     },
 
+    gc: {
+      btn: 'Pixelgenau prüfen …', h: 'Pixelgenau prüfen', p: '{n} Befund(e) auf dieser Seite: Kanten, Zwischenräume, Spuren', ok: 'Pixelgenau: alle Kanten fluchten, jeder Zwischenraum ist {g} px, kein Rest am Rand.',
+      snap: 'Ausrichten', snapped: 'Raster ausgerichtet', marginBtn: 'Rand {d} px, Zwischenraum {g} px', marginSet: 'Rand und Zwischenraum angepasst', warn: 'Abweichung', info: 'Hinweis', cols: 'Spalten', rows: 'Zeilen',
+      f: {
+        EDGE_NEAR_X: '{n} senkrechte Kante(n) liegen fast, aber nicht exakt auf einer Linie (x: {values})',
+        EDGE_NEAR_Y: '{n} waagerechte Kante(n) liegen fast, aber nicht exakt auf einer Linie (y: {values})',
+        GUTTER_MISMATCH: 'Zwischenräume von {values} px statt {gutter} px',
+        TRACK_NEAR: '{axis} fast gleich, aber nicht exakt: {values}',
+        REST_PX: 'Pixelrest am Rand: {cols} px in der Breite, {rows} px in der Höhe. „Rand anpassen" macht es rund.',
+        TREE_CONVERTIBLE: 'Die Seite ist noch ein Teilungsbaum (Vorlage). „Ausrichten" überführt sie in ein echtes Raster mit fluchtenden Spuren.',
+        TREE_IRREGULAR: 'Unregelmäßiger Teilungsbaum: erst „Inhalt neu aufteilen", dann Kacheln über „+" verbinden.'
+      }
+    },
     grp: { surfaces: 'Kacheln & Flächen', colors: 'Farben', set: '{n} gesetzt', on: '{n} aktiv' },
     smp: {
       sec: 'Beispielwerte', hint: 'Nur Eingaben: Namen und Zahlen erscheinen so in der Skizze (auch aus Excel einfügen: eine je Zeile).',
@@ -453,6 +466,7 @@
         ckNoModeShort: 'ChartKitchen hat keinen Modus für diesen Typ', ckNoMode: 'ChartKitchen kann „{label}" nicht; Engine auf nativ oder Deneb stellen',
         noNativeShort: 'Kein natives Power-BI-Visual für diesen Typ', noNative: 'Kein natives Visual für „{label}"',
         textEmpty: '„{t}" hat keinen Text; Kachel käme leer im Bericht an',
+        gridCheck: 'Seite „{page}": {n} Abweichung(en) vom pixelgenauen Raster (im Tool: Seite → „Pixelgenau prüfen").',
         deltaNoRef: '„{t}" verspricht eine Abweichung, hat aber keine Referenz gebunden',
         smNoField: '„{t}": Small Multiples aktiv, aber kein Aufteilungsfeld gebunden',
         fieldParamFew: '„{t}": Feldparameter „{n}" hat nur {k} Feld(er); mindestens zwei sind sinnvoll',
@@ -494,10 +508,23 @@
       open: 'Open', save: 'Save', export: 'Export for Claude Code', demoModel: 'Load demo model', new: '＋ New',
       newMeasure: '+ Measure / dimension', copy: 'Copy', download: 'Download file', downloadAll: 'Download all files',
       cancel: 'Cancel', create: 'Create', split: 'Split', save2: 'Save',
-      pageDup: 'Duplicate page', pageDel: 'Delete page', splitRoot: 'Re-split content …', addPage: '+ Page',
+      close: 'Close', pageDup: 'Duplicate page', pageDel: 'Delete page', splitRoot: 'Re-split content …', addPage: '+ Page',
       lang: 'DE', clearTile: 'Clear tile', removeTile: 'Remove tile', pickType: 'Choose a visual …',
     },
 
+    gc: {
+      btn: 'Pixel-perfect check …', h: 'Pixel-perfect check', p: '{n} finding(s) on this page: edges, gutters, tracks', ok: 'Pixel-perfect: all edges align, every gutter is {g} px, no remainder at the edges.',
+      snap: 'Align', snapped: 'Grid aligned', marginBtn: 'Margin {d} px, gutter {g} px', marginSet: 'Margin and gutter adjusted', warn: 'Deviation', info: 'Note', cols: 'Columns', rows: 'Rows',
+      f: {
+        EDGE_NEAR_X: '{n} vertical edge group(s) almost, but not exactly, on one line (x: {values})',
+        EDGE_NEAR_Y: '{n} horizontal edge group(s) almost, but not exactly, on one line (y: {values})',
+        GUTTER_MISMATCH: 'Gutters of {values} px instead of {gutter} px',
+        TRACK_NEAR: '{axis} almost equal, but not exactly: {values}',
+        REST_PX: 'Pixel remainder at the edges: {cols} px in width, {rows} px in height. “Adjust margin” makes it exact.',
+        TREE_CONVERTIBLE: 'This page is still a split tree (template). “Align” converts it into a true grid with aligned tracks.',
+        TREE_IRREGULAR: 'Irregular split tree: use “Re-split content” first, then merge tiles via “+”.'
+      }
+    },
     grp: { surfaces: 'Tiles & surfaces', colors: 'Colours', set: '{n} set', on: '{n} on' },
     smp: {
       sec: 'Sample values', hint: 'Plain inputs: names and numbers show up like this in the sketch (paste from Excel, one per line).',
@@ -928,6 +955,7 @@
         ckNoModeShort: 'ChartKitchen has no mode for this type', ckNoMode: 'ChartKitchen cannot do “{label}”; switch the engine to native or Deneb',
         noNativeShort: 'No native Power BI visual for this type', noNative: 'No native visual for “{label}”',
         textEmpty: '“{t}” has no text; the tile would arrive empty in the report',
+        gridCheck: 'Page “{page}”: {n} deviation(s) from a pixel-perfect grid (in the tool: Page → “Pixel-perfect check”).',
         deltaNoRef: '“{t}” promises a variance but has no reference bound',
         smNoField: '“{t}”: small multiples enabled but no split field bound',
         fieldParamFew: '“{t}”: field parameter “{n}” has only {k} field(s); at least two make sense',

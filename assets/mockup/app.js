@@ -968,6 +968,24 @@
   $('#btnZoomOut').onclick = () => { zoom = clamp(zoom / 1.15, 0.1, 3); render(); };
   window.addEventListener('resize', () => { fitZoom(); render(); });
   $('#btnHelp').onclick = () => $('#dlgHelp').showModal();
+  // Pixelgenau pruefen (v0.5.0): Befunde je Seite, Ausrichten, Rand/Zwischenraum anpassen
+  function gridCheck(p) { p = p || page(); const geo = computeAll(p); return window.MK_GRIDCHECK ? window.MK_GRIDCHECK.check(p.layout, geo, Math.round(S.spacing.gutter * ui())) : { ok: true, findings: [] }; }
+  function gridFix() { const geo = computeAll(); return window.MK_GRIDCHECK ? window.MK_GRIDCHECK.marginFix(page().layout, geo.zones.content, Math.round(S.spacing.gutter * ui()), 8) : null; }
+  function openGridCheck() {
+    const res = gridCheck(); const fix = gridFix(); const g = Math.round(S.spacing.gutter * ui());
+    const axisName = a => t(a === 'cols' ? 'gc.cols' : 'gc.rows');
+    const txt = f => t('gc.f.' + f.code, Object.assign({}, f, { axis: f.axis ? axisName(f.axis) : '' }));
+    const body = $('#dlgGridBody');
+    body.innerHTML = res.findings.length ? `<ul class="gc-list">${res.findings.map(f => `<li class="${f.level}"><span class="gc-tag ${f.level}">${esc(t('gc.' + f.level))}</span> ${esc(txt(f))}</li>`).join('')}</ul>` : `<p class="gc-ok">✓ ${esc(t('gc.ok', { g }))}</p>`;
+    $('#dlgGridP').textContent = t('gc.p', { n: res.findings.filter(f => f.level === 'warn').length });
+    $('#gcSnap').hidden = !res.findings.some(f => ['TREE_CONVERTIBLE', 'TRACK_NEAR', 'EDGE_NEAR_X', 'EDGE_NEAR_Y', 'GUTTER_MISMATCH'].includes(f.code)) || res.layoutType === 'leaf';
+    const needFix = fix && (fix.margin || fix.gutter) && res.findings.some(f => f.code === 'REST_PX');
+    $('#gcMargin').hidden = !needFix; if (needFix) $('#gcMargin').textContent = t('gc.marginBtn', { d: (fix.margin > 0 ? '+' : '') + fix.margin, g: (fix.gutter > 0 ? '+' : '') + fix.gutter });
+    if (!$('#dlgGrid').open) $('#dlgGrid').showModal();
+  }
+  $('#btnGridCheck').onclick = openGridCheck; $('#btnGridCheck2').onclick = openGridCheck;
+  $('#gcSnap').onclick = () => { const r = window.MK_GRIDCHECK.snap(page().layout, uid); if (r.layout !== page().layout) page().layout = r.layout; if (r.changed.length) { commit(); toast(t('gc.snapped')); } openGridCheck(); };
+  $('#gcMargin').onclick = () => { const fix = gridFix(); if (!fix) return; const k = ui(); S.spacing.margin = clamp(Math.round(((Math.round(S.spacing.margin * k) + fix.margin) / k) * 100) / 100, 0, 64); S.spacing.gutter = clamp(Math.round(((Math.round(S.spacing.gutter * k) + fix.gutter) / k) * 100) / 100, 0, 48); commit(); toast(t('gc.marginSet')); openGridCheck(); };
   // Staende vergleichen (v0.4.7): gespeicherte Datei (Zustand oder Spec) gegen den aktuellen Stand
   let lastDiff = null;
   $('#btnDiff').onclick = () => $('#fileDiff').click();
@@ -1007,7 +1025,7 @@
   // Öffentliche API für export.js
   window.MK = {
     get state() { return S; }, set state(v) { S = migrate(v); sel = null; commit(); },
-    page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, rebuildGrid, splitLeaf, removeLeaf, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
+    page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     setLang, get lang() { return I18N.lang; },
     // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
     reset() { S = defaultState(); S.pages.forEach(p => ensureIds(p.layout)); sel = null; undoStack = []; commit(); },
