@@ -1,0 +1,3 @@
+# Rohdaten liegen gepackt als .csv.gz im Repo; entpackte CSV und die DB werden per Skript erzeugt
+data/raw/Geschwindigkeitsueberwachung_Koeln_Gesamt_2025.csv
+data/raser_2025.sqlite
