@@ -143,7 +143,8 @@ def main():
     for line in broken:
         got[int(line.split(";")[1])] = got.get(int(line.split(";")[1]), 0) + 1
     bad = {m: (got.get(m), c) for m, c in counts.items() if got.get(m) != c}
-    print(f"✓ {n:,} Verstöße geladen, {skipped} Nicht-Datenzeilen übersprungen, {ns} Standorte")
+    print(f"✓ {n:,} Verstöße geladen, {skipped + len(counts)} Nicht-Datenzeilen übersprungen "
+          f"(davon {len(counts)} Zählzeilen), {ns} Standorte")
     print(f"  {len(broken)} unvollständige Zeile(n) verworfen: {broken}")
     print(f"  Kontrollsumme je Monat: {'OK' if not bad else 'ABWEICHUNG ' + str(bad)}")
     con.close()
