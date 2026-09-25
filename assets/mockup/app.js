@@ -169,7 +169,7 @@
   function findNode(id, node, parent, idx) {
     node = node || page().layout;
     if (node.id === id) return { node, parent, idx };
-    if (node.type === 'split') for (let i = 0; i < node.children.length; i++) { const r = findNode(id, node.children[i].node, node, i); if (r) return r; }
+    if (node.type !== 'leaf') for (let i = 0; i < node.children.length; i++) { const r = findNode(id, node.children[i].node, node, i); if (r) return r; }
     return null;
   }
   function leaves(node, out) { node = node || page().layout; out = out || []; if (node.type === 'leaf') out.push(node); else node.children.forEach(c => leaves(c.node, out)); return out; }
@@ -178,6 +178,15 @@
   function splitLeaf(id, dir) {
     const f = findNode(id); if (!f) return;
     const leaf = f.node; const fresh = { id: uid(), type: 'leaf', visual: null }; const keep = { id: leaf.id, type: 'leaf', visual: leaf.visual };
+    if (f.parent && f.parent.type === 'grid') {
+      // Rasterzelle: ueber mehrere Spuren verbunden -> wieder in einzelne Zellen zerlegen (erste behaelt das Visual); sonst innerhalb der Zelle teilen
+      const cell = f.parent.children[f.idx]; const span = dir === 'row' ? cell.cs : cell.rs;
+      if (span > 1) {
+        const cells = [];
+        for (let k = 0; k < span; k++) { const nd = k === 0 ? cell.node : { id: uid(), type: 'leaf', visual: null }; cells.push(dir === 'row' ? { r: cell.r, c: cell.c + k, rs: cell.rs, cs: 1, node: nd } : { r: cell.r + k, c: cell.c, rs: 1, cs: cell.cs, node: nd }); }
+        f.parent.children.splice(f.idx, 1, ...cells); commit(); return;
+      }
+    }
     if (f.parent && f.parent.dir === dir) { const ch = f.parent.children[f.idx]; const half = ch.size / 2; ch.size = half; f.parent.children.splice(f.idx + 1, 0, { size: half, node: fresh }); }
     else {
       const split = { id: uid(), type: 'split', dir, children: [{ size: 1, node: keep }, { size: 1, node: fresh }] };
@@ -188,7 +197,20 @@
     commit();
   }
   // Zwei Nachbarn im selben Split verbinden: leere Kachel geht im Nachbarn auf, zwei Leaves werden eines (linke/obere Kachel behaelt ihr Visual)
+  function mergeGridGutter(gi) {
+    const grid = gi.grid, A = gi.cells[0], B = gi.cells[1];
+    const ok = gi.axis === 'col' ? (A.r === B.r && A.rs === B.rs) : (A.c === B.c && A.cs === B.cs);
+    if (!ok) return toast(t('toast.mergeNotRect'));
+    const has = c => c.node.type !== 'leaf' || !!c.node.visual;
+    const lbl = c => c.node.type === 'leaf' && c.node.visual ? (c.node.visual.title || CAT.byId[c.node.visual.kind].label) : t('tab.el');
+    if (has(A) && has(B) && !confirm(t('ask.mergeReplace', { t: lbl(B) }))) return;
+    const keepNode = (has(A) || !has(B)) ? A.node : B.node;
+    const merged = { r: A.r, c: A.c, rs: gi.axis === 'col' ? A.rs : A.rs + B.rs, cs: gi.axis === 'col' ? A.cs + B.cs : A.cs, node: keepNode };
+    grid.children.splice(grid.children.indexOf(A), 1, merged); grid.children.splice(grid.children.indexOf(B), 1);
+    sel = keepNode.type === 'leaf' ? keepNode.id : sel; commit(); toast(t('toast.merged'));
+  }
   function mergeGutter(gi) {
+    if (gi.grid) return mergeGridGutter(gi);
     const p = gi.parent, i = gi.index; const A = p.children[i], B = p.children[i + 1]; if (!A || !B) return;
     const isLeaf = c => c.node.type === 'leaf', empty = c => isLeaf(c) && !c.node.visual;
     let keep, drop;
@@ -206,6 +228,14 @@
   function insertEdge(side) {
     const dir = (side === 'left' || side === 'right') ? 'row' : 'col'; const atStart = side === 'left' || side === 'top';
     const root = page().layout; const fresh = { id: uid(), type: 'leaf', visual: null };
+    if (root.type === 'grid') {
+      const tracks = dir === 'row' ? root.cols : root.rows; const key = dir === 'row' ? 'c' : 'r'; const at = atStart ? 0 : tracks.length;
+      if (atStart) root.children.forEach(c => { c[key] += 1; });
+      tracks.splice(at, 0, 1); tracks.forEach((v, i) => { tracks[i] = 1; });
+      const other = dir === 'row' ? root.rows.length : root.cols.length; let first = null;
+      for (let k = 0; k < other; k++) { const nd = k === 0 ? fresh : { id: uid(), type: 'leaf', visual: null }; if (!first) first = nd; root.children.push(dir === 'row' ? { r: k, c: at, rs: 1, cs: 1, node: nd } : { r: at, c: k, rs: 1, cs: 1, node: nd }); }
+      sel = fresh.id; commit(); toast(t('toast.inserted')); return;
+    }
     if (root.type === 'split' && root.dir === dir) {
       root.children.splice(atStart ? 0 : root.children.length, 0, { size: 1, node: fresh });
       root.children.forEach(c => { c.size = 1; });
@@ -217,7 +247,7 @@
   }
   function removeLeaf(id) {
     const f = findNode(id); if (!f) return;
-    if (!f.parent) { f.node.visual = null; commit(); return; }
+    if (!f.parent || f.parent.type === 'grid') { f.node.visual = null; commit(); return; }
     f.parent.children.splice(f.idx, 1);
     if (f.parent.children.length === 1) { const only = f.parent.children[0].node; const pf = findNode(f.parent.id); if (pf.parent) pf.parent.children[pf.idx].node = only; else page().layout = only; }
     if (sel === id) sel = null;
@@ -225,9 +255,9 @@
   }
   function rebuildGrid(rows, cols) {
     const olds = visuals().map(l => l.visual);
-    const mk = () => ({ id: uid(), type: 'leaf', visual: olds.shift() || null });
-    const rowNode = () => cols === 1 ? mk() : { id: uid(), type: 'split', dir: 'row', children: Array.from({ length: cols }, () => ({ size: 1, node: mk() })) };
-    page().layout = rows === 1 ? rowNode() : { id: uid(), type: 'split', dir: 'col', children: Array.from({ length: rows }, () => ({ size: 1, node: rowNode() })) };
+    const cells = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) cells.push({ r, c, rs: 1, cs: 1, node: { id: uid(), type: 'leaf', visual: olds.shift() || null } });
+    page().layout = { id: uid(), type: 'grid', cols: Array.from({ length: cols }, () => 1), rows: Array.from({ length: rows }, () => 1), children: cells };
     sel = null; commit();
   }
   function applyTemplate(tplId) {
@@ -244,7 +274,7 @@
     S.pages.push(p); S.cur = p.id; sel = null; commit(); return p;
   }
   function dupPage() { const src = page(); const p = JSON.parse(JSON.stringify(src)); p.id = uid(); p.name = src.name + t('state.copySuffix'); reId(p.layout); S.pages.splice(S.pages.indexOf(src) + 1, 0, p); S.cur = p.id; sel = null; commit(); }
-  function reId(n) { n.id = uid(); if (n.type === 'split') n.children.forEach(c => reId(c.node)); }
+  function reId(n) { n.id = uid(); if (n.type !== 'leaf') n.children.forEach(c => reId(c.node)); }
   function delPage(pid) {
     const p = S.pages.find(x => x.id === pid) || page();
     if (S.pages.length === 1) return toast(t('toast.lastPage'));
@@ -287,6 +317,20 @@
   }
   function layoutRects(node, rect, out, gutter) {
     if (node.type === 'leaf') { out.leaves.push({ node, rect: roundRect(rect) }); return; }
+    if (node.type === 'grid') {
+      // Spuren einmal berechnen -> alle Zellen einer Spalte/Zeile liegen exakt auf einer Linie; Pixelrest an den Rand
+      const gg = gutter;
+      const tracks = (arr, start, span) => { const total = arr.reduce((a, b) => a + b, 0) || 1; const inner = span - gg * (arr.length - 1); const sizes = arr.map(s => Math.max(8, Math.floor(inner * s / total))); const rest = Math.max(0, inner - sizes.reduce((a, b) => a + b, 0)); let pos = start + Math.floor(rest / 2); return sizes.map(sz => { const tr = { pos, sz }; pos += sz + gg; return tr; }); };
+      const X = tracks(node.cols, rect.x, rect.w), Y = tracks(node.rows, rect.y, rect.h);
+      const x0 = c => X[c.c].pos, x1 = c => X[Math.min(X.length - 1, c.c + c.cs - 1)].pos + X[Math.min(X.length - 1, c.c + c.cs - 1)].sz;
+      const y0 = c => Y[c.r].pos, y1 = c => Y[Math.min(Y.length - 1, c.r + c.rs - 1)].pos + Y[Math.min(Y.length - 1, c.r + c.rs - 1)].sz;
+      node.children.forEach(cell => layoutRects(cell.node, { x: x0(cell), y: y0(cell), w: x1(cell) - x0(cell), h: y1(cell) - y0(cell) }, out, gutter));
+      node.children.forEach(A => node.children.forEach(B => {
+        if (A.c + A.cs === B.c) { const t0 = Math.max(y0(A), y0(B)), t1 = Math.min(y1(A), y1(B)); if (t1 > t0) out.gutters.push({ grid: node, axis: 'col', boundary: B.c, cells: [A, B], dir: 'row', rect: { x: x0(B) - gg, y: t0, w: gg, h: t1 - t0 } }); }
+        if (A.r + A.rs === B.r) { const t0 = Math.max(x0(A), x0(B)), t1 = Math.min(x1(A), x1(B)); if (t1 > t0) out.gutters.push({ grid: node, axis: 'row', boundary: B.r, cells: [A, B], dir: 'col', rect: { x: t0, y: y0(B) - gg, w: t1 - t0, h: gg } }); }
+      }));
+      return;
+    }
     const g = gutter, n = node.children.length; const total = node.children.reduce((a, c) => a + c.size, 0) || 1;
     const span = (node.dir === 'row' ? rect.w : rect.h) - g * (n - 1);
     // Groessen abrunden; der Pixelrest wandert an den Rand (halb links/oben, halb rechts/unten) statt in die letzte Kachel
@@ -411,6 +455,11 @@
     const g = e.target.closest('[data-gutter]'); if (!g) return;
     const gi = lastRects.gutters[+g.dataset.gutter]; if (!gi) return;
     e.preventDefault();
+    if (gi.grid) {
+      const arr = gi.axis === 'col' ? gi.grid.cols : gi.grid.rows; const i = gi.boundary - 1; const total = arr.reduce((s, v) => s + v, 0); const cz = lastRects.zones.content;
+      const spanPx = (gi.axis === 'col' ? cz.w : cz.h) - Math.round(S.spacing.gutter * ui()) * (arr.length - 1);
+      gdrag = { gi, arr, i, a0: arr[i], b0: arr[i + 1], unitPerPx: total / spanPx, x0: e.clientX, y0: e.clientY }; g.classList.add('active'); return;
+    }
     const p = gi.parent, a = p.children[gi.index], b = p.children[gi.index + 1]; const total = p.children.reduce((s, c) => s + c.size, 0);
     const kids = lastRects.leaves; const firstLeaf = leaves(p.children[0].node)[0], lastLeaf = leaves(p.children[p.children.length - 1].node).slice(-1)[0];
     const r0 = kids.find(l => l.node.id === firstLeaf.id).rect, r1 = kids.find(l => l.node.id === lastLeaf.id).rect;
@@ -424,7 +473,8 @@
     const d = dpx * gdrag.unitPerPx; const minU = 48 * ui() * gdrag.unitPerPx;
     let na = gdrag.a0 + d, nb = gdrag.b0 - d;
     if (na < minU) { nb -= (minU - na); na = minU; } if (nb < minU) { na -= (minU - nb); nb = minU; }
-    gdrag.a.size = na; gdrag.b.size = nb; commit({ noUndo: true });
+    if (gdrag.arr) { gdrag.arr[gdrag.i] = na; gdrag.arr[gdrag.i + 1] = nb; } else { gdrag.a.size = na; gdrag.b.size = nb; }
+    commit({ noUndo: true });
   });
   window.addEventListener('mouseup', () => { if (gdrag) { gdrag = null; mark(); render(); } });
 
@@ -957,7 +1007,7 @@
   // Öffentliche API für export.js
   window.MK = {
     get state() { return S; }, set state(v) { S = migrate(v); sel = null; commit(); },
-    page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
+    page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, rebuildGrid, splitLeaf, removeLeaf, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     setLang, get lang() { return I18N.lang; },
     // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
     reset() { S = defaultState(); S.pages.forEach(p => ensureIds(p.layout)); sel = null; undoStack = []; commit(); },

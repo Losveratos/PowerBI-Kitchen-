@@ -120,7 +120,7 @@
       lang: 'Gilt für Skizzen-Beschriftungen und Export-Dokumente.',
       uiScale: 'Schriften und Abstände skalieren automatisch mit der Canvas-Breite.',
       margin: 'Rand', gutter: 'Zwischenraum', pad: 'Kachel innen', height: 'Höhe', width: 'Breite', logo: 'Logo', position: 'Position',
-      splitRoot: 'Setzt den Inhaltsbereich dieser Seite auf ein neues Raster (Zeilen × Spalten). Bestehende Visuals werden der Reihe nach wieder eingesetzt.',
+      splitRoot: 'Setzt den Inhaltsbereich dieser Seite auf ein echtes Raster (Zeilen × Spalten): Spalten und Zeilen bleiben über alle Kacheln ausgerichtet, Verbinden hält das Raster ein. Bestehende Visuals werden der Reihe nach wieder eingesetzt.',
       chrome: 'Kopfband, Nav-Leiste, Filter und Fußleiste gelten für alle Seiten. Zahnrad oder Doppelklick auf eine Zone springt hierher.',
       typo: 'Basisgrößen in px bei 1280 px Seitenbreite, sie skalieren mit der Seite. Je Kachel im Kachel-Fenster übersteuerbar.', tyScale: 'Skalierung gesamt', tyTitle: 'Kacheltitel', tySub: 'Untertitel', tyChart: 'Diagrammbeschriftung',
       fhShow: 'Überschrift', fhText: 'Eigener Titel', a11yPending: 'Prüfung wird geladen …',
@@ -173,7 +173,7 @@
       exp: { h: 'Export für Claude Code', p: 'Dateien in den PBIP-Projektordner legen, dann den Skill <span class="mono">mockup-to-powerbi</span> aufrufen.' },
       nm: { h: 'Neue Kennzahl oder Dimension', p: 'Existiert noch nicht im Modell. Wird im Export als „zu erstellen" markiert und in der Workshop-Doku beschrieben.' },
       fm: { h: 'Kennzahlen-Steckbrief' },
-      split: { h: 'Inhalt neu aufteilen', p: 'Zeilen × Spalten als Startraster. Danach jede Zelle weiter teilen.' },
+      split: { h: 'Inhalt neu aufteilen', p: 'Zeilen × Spalten als echtes Raster: Zwischenräume gelten für die ganze Spalte bzw. Zeile, Kacheln lassen sich über „+" waagerecht und senkrecht verbinden und per Teilen wieder trennen.' },
       help: { h: 'So funktioniert MockupKitchen', p: 'Vom Workshop-Skizzenblatt zur Power-BI-Seite.' },
       tile: { p: 'Notiz, Workshop-Status und Verhalten der Kachel in einem Fenster. Änderungen gelten sofort.' },
     },
@@ -227,7 +227,7 @@
 
     toast: {
       newProject: 'Neues Mockup angelegt. Über „Vorlagen" geht es schnell weiter.',
-      merged: 'Kacheln verbunden', inserted: 'Kachel eingefügt, Ebene gleich verteilt', mergeNotPossible: 'Verbinden geht nur, wenn mindestens eine Seite eine einzelne Kachel ist',
+      merged: 'Kacheln verbunden', inserted: 'Kachel eingefügt, Ebene gleich verteilt', mergeNotPossible: 'Verbinden geht nur, wenn mindestens eine Seite eine einzelne Kachel ist', mergeNotRect: 'Verbinden geht nur mit einem Nachbarn gleicher Höhe bzw. Breite. Erst die Nachbarn angleichen.',
       nothingUndo: 'Nichts rückgängig zu machen', undone: 'Rückgängig', nothingRedo: 'Nichts zu wiederholen', redone: 'Wiederholt',
       demoLoadedTpl: 'Demo-Modell geladen, Vorlage gebunden', tplSet: 'Vorlage „{t}" gesetzt', demoLoaded: 'Demo-Modell geladen',
       lastPage: 'Die letzte Seite bleibt', pickTileFirst: 'Erst eine Kachel wählen',
@@ -596,7 +596,7 @@
       lang: 'Applies to sketch labels and the export documents.',
       uiScale: 'Fonts and spacing scale automatically with the canvas width.',
       margin: 'Margin', gutter: 'Gutter', pad: 'Tile padding', height: 'Height', width: 'Width', logo: 'Logo', position: 'Position',
-      splitRoot: 'Resets the content area of this page to a new grid (rows × columns). Existing visuals are placed back in order.',
+      splitRoot: 'Resets the content area of this page to a true grid (rows × columns): columns and rows stay aligned across all tiles, merging keeps the grid. Existing visuals are placed back in order.',
       chrome: 'Header band, nav bar, filters and footer apply to all pages. The gear icon or a double-click on a zone jumps here.',
       typo: 'Base sizes in px at 1280 px page width, they scale with the page. Override per tile in the tile window.', tyScale: 'Overall scale', tyTitle: 'Tile title', tySub: 'Subtitle', tyChart: 'Chart labels',
       fhShow: 'Heading', fhText: 'Custom title', a11yPending: 'Loading check …',
@@ -649,7 +649,7 @@
       exp: { h: 'Export for Claude Code', p: 'Put the files into the PBIP project folder, then call the <span class="mono">mockup-to-powerbi</span> skill.' },
       nm: { h: 'New measure or dimension', p: 'Does not exist in the model yet. It is marked “to be created” in the export and described in the workshop documentation.' },
       fm: { h: 'KPI fact sheet' },
-      split: { h: 'Re-split content', p: 'Rows × columns as the starting grid. Split each cell further afterwards.' },
+      split: { h: 'Re-split content', p: 'Rows × columns as a true grid: gutters apply to the whole column or row, tiles merge horizontally and vertically via “+” and split apart again.' },
       help: { h: 'How MockupKitchen works', p: 'From the workshop sketch pad to the Power BI page.' },
       tile: { p: 'Note, workshop status and behaviour of the tile in one window. Changes apply immediately.' },
     },
@@ -702,7 +702,7 @@
 
     toast: {
       newProject: 'New mockup started. Templates give you a quick start.',
-      merged: 'Tiles merged', inserted: 'Tile inserted, level distributed evenly', mergeNotPossible: 'Merging needs at least one side to be a single tile',
+      merged: 'Tiles merged', inserted: 'Tile inserted, level distributed evenly', mergeNotPossible: 'Merging needs at least one side to be a single tile', mergeNotRect: 'Merging needs a neighbour of the same height or width. Align the neighbours first.',
       nothingUndo: 'Nothing to undo', undone: 'Undone', nothingRedo: 'Nothing to redo', redone: 'Redone',
       demoLoadedTpl: 'Demo model loaded, template bound', tplSet: 'Template “{t}” applied', demoLoaded: 'Demo model loaded',
       lastPage: 'The last page stays', pickTileFirst: 'Select a tile first',

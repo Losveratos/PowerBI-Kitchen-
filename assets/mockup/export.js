@@ -134,7 +134,11 @@
     });
     return b;
   }
-  function stripTree(n) { return n.type === 'leaf' ? { leaf: n.visual ? (n.visual.title || n.visual.kind) : null, stableId: n.id } : { split: n.dir, children: n.children.map(c => ({ size: +c.size.toFixed(3), node: stripTree(c.node) })) }; }
+  function stripTree(n) {
+    if (n.type === 'leaf') return { leaf: n.visual ? (n.visual.title || n.visual.kind) : null, stableId: n.id };
+    if (n.type === 'grid') return { grid: { cols: n.cols.map(x => +x.toFixed(3)), rows: n.rows.map(x => +x.toFixed(3)) }, cells: n.children.map(c => ({ row: c.r, col: c.c, rowSpan: c.rs, colSpan: c.cs, node: stripTree(c.node) })) };
+    return { split: n.dir, children: n.children.map(c => ({ size: +c.size.toFixed(3), node: stripTree(c.node) })) };
+  }
   const roleLabel = (kind, key) => { const def = (CAT.byId[kind] || { roles: [] }).roles.find(x => x.key === key); return def ? def.label : key; };
   const r = o => `x=${o.x}, y=${o.y}, w=${o.w}, h=${o.h}`;
   function analysisLine(a, L) {
