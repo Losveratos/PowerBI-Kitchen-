@@ -667,20 +667,23 @@ den Inhalt einer Textbox. Slicer heißen je nach Quellversion:
 | 1 | `slicer<i>_<Feld>` |
 
 Ab v3 lässt das Tool Visuals mit **leerer Pflichtrolle** weg — sonst würde
-`--from-json` die ganze Datei ablehnen.
+`--from-json` die ganze Datei ablehnen. ChartKitchen-, Custom- und
+Deneb-Kacheln stehen nie in der Tool-Datei; eine Seite nur aus solchen Kacheln
+ergibt `[]`, das ist kein Fehler (der Export-Dialog nennt die Anzahl je Seite).
 
 `mockup_to_pbir.py` erzeugt diese Dateien neu — als
-`mockup-out/<Seitenslug>/pbir-visuals.json` — mit zwei bewussten Unterschieden:
+`mockup-out/<Seitenslug>/pbir-visuals.json` — und legt daneben ab:
 
-- **Text- und Button-Kacheln** stehen dort **nicht** drin, sondern in
-  `text-visuals.json` als `shape` bzw. `actionButton`. In der Tool-Datei landen
-  sie als `textbox`, und eine Textbox bleibt über die CLI leer (siehe
-  `chrome-build.md`).
+- **Text- und Button-Kacheln** stehen in `text-visuals.json` als `shape` bzw.
+  `actionButton` mit echtem Text. Ab Tool 0.5.2 lässt auch die Tool-Datei sie
+  weg; ältere Exporte führen sie noch als `textbox`, und eine Textbox bleibt
+  über die CLI leer (siehe `chrome-build.md`).
 - Mit `--ck-fallback` kommen zusätzlich die ChartKitchen-Kacheln als natives
-  Ersatzvisual hinein, sofern die Spec eines kennt.
+  Ersatzvisual hinein, sofern die Spec eines kennt. Das ist der einzige
+  Unterschied zur Tool-Datei ab 0.5.2.
 
 Wer die Tool-Originale nimmt, nimmt die passende Seitendatei — und baut die
-Text-Kacheln von Hand nach.
+Text-Kacheln aus `text-visuals.json` (oder von Hand) nach.
 
 ## `AGENT-BRIEF.md` und `WORKSHOP-DOKU.md` (Tool-Ausgaben)
 

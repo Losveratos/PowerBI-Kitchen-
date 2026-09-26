@@ -6,7 +6,8 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const MK = window.MK, CAT = window.MK_CATALOG, I18N = window.MK_I18N;
-  const TOOL = 'MockupKitchen byDatenWG', VER = '0.4', SPEC_VERSION = 3;
+  // Version kommt aus der einen Konstante in app.js (window.MK_VERSION), nicht mehr als eigenes Literal
+  const TOOL = 'MockupKitchen byDatenWG', VER = window.MK_VERSION || '?', SPEC_VERSION = 3;
   const fieldRef = f => `${f.table}.${f.name}`;
   const slug = s => String(s || 'seite').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'Seite';
   const today = () => new Date().toISOString().slice(0, 10);
@@ -26,6 +27,36 @@
   function missingRequired(v) {
     const def = CAT.byId[v.kind]; if (!def) return false;
     return CAT.rolesFor(def, v).some(r => r.req && !((v.roles || {})[r.key] || []).length);
+  }
+  // Text- und Button-Kacheln baut der Skill als shape/actionButton mit echtem Text (text-visuals.json), nie als Textbox
+  const isTextTile = v => v.kind === 'text' || v.kind === 'button';
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // Markdown-Exporte (Brief, Doku): Nutzertext entschärfen, ohne ihn unlesbar zu machen.
+  // Nur was Markdown als HTML, Link oder Tabellengrenze deuten würde, wird geändert:
+  // „<" vor einem Tag-Anfang (<b>, </i>, <!--, <svg …>, <http:…>) wird &lt; (wirkt in jedem Markdown-Dialekt,
+  // ein Backslash nicht), „[" vor „…](…)" und „|" bekommen einen Backslash. „< 4,5" bleibt, wie es ist.
+  // Backslashes direkt davor werden verdoppelt, damit ein „\" aus dem Text das Escape nicht aufhebt.
+  function mdText(s) {
+    return String(s)
+      .replace(/<(?=[A-Za-z\/!?])/g, '&lt;')
+      .replace(/(\\*)\[(?=[^\]\n]*\]\()/g, (m, bs) => bs + bs + '\\[')
+      .replace(/(\\*)\|/g, (m, bs) => bs + bs + '\\|');
+  }
+  // Kopie der Spec mit entschärften Texten (Schlüssel, Zahlen, Wahrheitswerte bleiben unverändert)
+  function mdSafe(o) {
+    if (typeof o === 'string') return mdText(o);
+    if (Array.isArray(o)) return o.map(mdSafe);
+    if (o && typeof o === 'object') { const r = {}; Object.keys(o).forEach(k => { r[k] = mdSafe(o[k]); }); return r; }
+    return o;
+  }
+  // Tabellenzeile: Zeilenumbrüche aus Notizen/Beschreibungen würden die Tabelle zerreißen
+  const row = s => s.replace(/\r?\n/g, '<br>');
+  // Hinweis mit Seitenname, außer der Text nennt die Seite schon in Anführungszeichen
+  function withPage(i, L) {
+    if (!i.page) return i.text;
+    const named = [TL(L, 'exp.quote', { t: i.page }), '„' + i.page + '"', '"' + i.page + '"', '“' + i.page + '”'].some(q => i.text.includes(q));
+    return named ? i.text : `${i.page}: ${i.text}`;
   }
 
   // ------------------------------------------------------------------ Spec
@@ -156,6 +187,7 @@
 
   // ------------------------------------------------------------------ Agent-Brief
   function buildBrief(spec) {
+    spec = mdSafe(spec);
     const L = spec.meta.lang === 'en' ? 'en' : 'de'; const T = (k, v) => TL(L, k, v);
     const B = (k, v) => TL(L, 'exp.brief.' + k, v);
     const out = []; const z = spec.zones; const d = spec.design; const rp = spec.report;
@@ -169,29 +201,29 @@
       B('cHeader', { s: d.headerStyle, a: d.accent, pt: Math.round(12 * spec.canvas.uiScale) }),
       B('cTheme'));
     out.push('', B('hZones'), '', B('zoneTable'), B('zoneSep'));
-    if (z.nav) out.push(`| ${B('zNav')} | ${z.nav.x} | ${z.nav.y} | ${z.nav.w} | ${z.nav.h} | ${B('zNavTxt', { pages: z.nav.pages.join(' · ') })} |`);
+    if (z.nav) out.push(row(`| ${B('zNav')} | ${z.nav.x} | ${z.nav.y} | ${z.nav.w} | ${z.nav.h} | ${B('zNavTxt', { pages: z.nav.pages.join(' · ') })} |`));
     if (z.header) {
       const style = z.header.style === 'light' ? B('hdrLight') : z.header.style === 'dark' ? B('hdrDark') : B('hdrAccent');
       const logo = z.header.logoPos !== 'none' ? B('hdrLogo', { side: z.header.logoPos === 'right' ? B('sideRight') : B('sideLeft'), h: Math.round(32 * spec.canvas.uiScale) }) : '';
       const nav = z.header.nav && z.header.nav.length ? B('hdrNav', { nav: z.header.nav.join(' · ') }) : '';
-      out.push(`| ${B('zHeader')} (${z.header.style}) | ${z.header.x} | ${z.header.y} | ${z.header.w} | ${z.header.h} | ${style}${logo}${B('hdrTitle', { t: z.header.title })}${z.header.subtitle ? B('hdrSub', { s: z.header.subtitle }) : ''}${nav}${z.header.burger ? B('hdrBurger') : ''} |`);
+      out.push(row(`| ${B('zHeader')} (${z.header.style}) | ${z.header.x} | ${z.header.y} | ${z.header.w} | ${z.header.h} | ${style}${logo}${B('hdrTitle', { t: z.header.title })}${z.header.subtitle ? B('hdrSub', { s: z.header.subtitle }) : ''}${nav}${z.header.burger ? B('hdrBurger') : ''} |`));
     }
     if (z.filter) {
       const mode = B('fMode.' + z.filter.mode);
       const list = z.filter.slicers.length ? z.filter.slicers.map(s => `\`${s.ref}\`${s.default ? ` = ${s.default}` : ''}${s.isNew ? ` ${T('exp.new')}` : ''}`).join(', ') : B('fNone');
       const slicers = B('fSlicers', { arr: z.filter.mode === 'top' ? B('fArrRow') : B('fArrCol'), list });
       const bm = z.filter.bookmarks ? B('fBookmarks', { list: z.filter.bookmarks.map(b => T('exp.quote', { t: b.name })).join(' / ') }) : '';
-      out.push(`| ${B('zFilter', { mode, coll: z.filter.collapsible ? B('filterColl') : '' })} | ${z.filter.x} | ${z.filter.y} | ${z.filter.w} | ${z.filter.h} | ${slicers}${bm} |`);
+      out.push(row(`| ${B('zFilter', { mode, coll: z.filter.collapsible ? B('filterColl') : '' })} | ${z.filter.x} | ${z.filter.y} | ${z.filter.w} | ${z.filter.h} | ${slicers}${bm} |`));
     }
-    if (z.footer) out.push(`| ${B('zFooter')} | ${z.footer.x} | ${z.footer.y} | ${z.footer.w} | ${z.footer.h} | ${B('zFooterTxt', { pt: Math.round(9 * spec.canvas.uiScale), text: z.footer.text })} |`);
-    out.push(`| ${B('zContent')} | ${z.content.x} | ${z.content.y} | ${z.content.w} | ${z.content.h} | ${B('zContentTxt')} |`);
+    if (z.footer) out.push(row(`| ${B('zFooter')} | ${z.footer.x} | ${z.footer.y} | ${z.footer.w} | ${z.footer.h} | ${B('zFooterTxt', { pt: Math.round(9 * spec.canvas.uiScale), text: z.footer.text })} |`));
+    out.push(row(`| ${B('zContent')} | ${z.content.x} | ${z.content.y} | ${z.content.w} | ${z.content.h} | ${B('zContentTxt')} |`));
     spec.pages.forEach(p => {
       out.push('', B('hPage', { i: p.index, name: p.name }), '');
       if (p.question) out.push(B('pQuestion', { q: p.question }), ''); if (p.notes) out.push(B('pNotes', { n: p.notes }), '');
       if (!p.visuals.length) out.push(B('pEmpty'));
       p.visuals.forEach((v, i) => {
         out.push(`### ${p.index}.${i + 1} ${v.title} \`${v.id}\``, '',
-          B('vType', { label: v.label, kind: v.kind, engine: ENGINE[v.engine] }) + (v.chartKitchenMode ? B('vCkMode', { m: v.chartKitchenMode }) : '') + (v.native ? B('vNative', { t: v.native.type }) : ''),
+          B('vType', { label: v.label, kind: v.kind, engine: ENGINE[v.engine] }) + (v.chartKitchenMode ? B('vCkMode', { m: v.chartKitchenMode }) : '') + (v.native ? B('vNative', { t: v.kind === 'text' ? 'shape' : v.native.type }) : ''),
           B('vPos', { rect: r(v.rect), id: v.stableId }));
         if (v.subtitle) out.push(B('vSub', { s: v.subtitle }));
         if (v.content) out.push(B('vText', { t: v.content }));
@@ -200,7 +232,7 @@
         out.push(roleLines.length ? B('vRoles') : B('vRolesNone'), ...roleLines);
         if (v.native && Object.keys(v.native.buckets).length) out.push(B('vBuckets', { type: v.native.type }) + Object.keys(v.native.buckets).map(b => `${b} ← ${v.native.buckets[b].map(f => f.ref).join(', ')}`).join(' · '));
         if (Object.keys(v.roles).length && v.kind !== 'slicer' && v.kind !== 'text') out.push(B('vAnalysis', { a: analysisLine(v.analysis, L) }));
-        { const it = v.interaction || {}; const beh = []; if (it.drillDown) beh.push(T('exp.an.drillDown')); if (it.crossFilter === false) beh.push(T('exp.an.noCross')); if (it.drillThrough) beh.push(T('exp.an.drillThrough', { p: it.drillThrough.pageName })); if (beh.length) out.push(T('exp.an.behaviour', { list: beh.join(' · ') })); }
+        { const it = v.interaction || {}; const beh = []; if (it.drillDown) beh.push(T('exp.an.drillDown')); if (it.crossFilter === false) beh.push(T('exp.an.noCross')); if (it.drillThrough) beh.push(T('exp.an.drillThrough', { p: it.drillThrough.pageName })); if (beh.length) out.push(B('vBehaviour', { list: beh.join(' · ') })); }
         if (v.analysis.message) out.push(B('vMessage', { m: v.analysis.message }));
         if (v.workshop.priority || v.workshop.status !== 'open') out.push(B('vWorkshop', { p: v.workshop.priority ? T('exp.pri.' + v.workshop.priority) + ' · ' : '', s: T('exp.status.' + v.workshop.status) }));
         if (v.link) out.push(B('vLink', { p: v.link.pageName, how: v.kind === 'button' ? B('linkNav') : B('linkDrill') }));
@@ -209,13 +241,13 @@
         out.push('');
       });
     });
-    if (spec.links.length) { out.push(B('hLinks'), '', B('linkTable'), '|---|---|---|---|---|'); spec.links.forEach(l => out.push(`| \`${l.fromVisual}\` | ${l.fromPage} | ${l.toPage} | ${l.kind} | ${l.drillField ? `\`${l.drillField}\`` : '–'} |`)); out.push(''); }
+    if (spec.links.length) { out.push(B('hLinks'), '', B('linkTable'), '|---|---|---|---|---|'); spec.links.forEach(l => out.push(row(`| \`${l.fromVisual}\` | ${l.fromPage} | ${l.toPage} | ${l.kind} | ${l.drillField ? `\`${l.drillField}\`` : '–'} |`))); out.push(''); }
     out.push(B('hFields'), '', B('fieldTable'), '|---|---|---|---|---|---|---|---|---|');
-    spec.fields.forEach(f => out.push(`| \`${f.ref}\`${f.isNew ? ` ${T('exp.new')}` : ''} | ${f.alias || '–'}${f.renameInModel ? ` ${T('exp.rename')}` : ''} | ${f.description || '–'} | ${f.formatString || '–'} | ${f.unit || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.target || '–'} | ${f.confirmed ? T('exp.yes') : T('exp.no')} |`));
+    spec.fields.forEach(f => out.push(row(`| \`${f.ref}\`${f.isNew ? ` ${T('exp.new')}` : ''} | ${f.alias || '–'}${f.renameInModel ? ` ${T('exp.rename')}` : ''} | ${f.description || '–'} | ${f.formatString || '–'} | ${f.unit || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.target || '–'} | ${f.confirmed ? T('exp.yes') : T('exp.no')} |`)));
     out.push('');
     if (spec.newFields.length) {
       out.push(B('hNewFields'), '', B('newFieldTable'), '|---|---|---|---|---|---|---|---|---|---|');
-      spec.newFields.forEach(f => out.push(`| \`${f.name}\` | ${f.kind === 'measure' ? T('exp.measure') : T('exp.column')} | ${f.table} | ${f.description || '–'} | ${f.unit || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.openQuestion || '–'} | ${f.used ? T('exp.yes') : T('exp.no')} |`));
+      spec.newFields.forEach(f => out.push(row(`| \`${f.name}\` | ${f.kind === 'measure' ? T('exp.measure') : T('exp.column')} | ${f.table} | ${f.description || '–'} | ${f.unit || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.openQuestion || '–'} | ${f.used ? T('exp.yes') : T('exp.no')} |`)));
       out.push('');
     }
     out.push(B('hRules'), '', B('r1'), B('r2'), B('r3'), B('r4'), B('r5'), B('r6'), B('r7'), B('r8'), B('r9'), B('r10'));
@@ -226,13 +258,14 @@
 
   // ------------------------------------------------------------------ Workshop-Doku
   function buildDocs(spec) {
+    spec = mdSafe(spec);
     const L = spec.meta.lang === 'en' ? 'en' : 'de'; const T = (k, v) => TL(L, k, v);
     const D = (k, v) => TL(L, 'exp.docs.' + k, v);
     const out = []; const z = spec.zones; const d = spec.design; const rp = spec.report; const FILL = T('exp.fill');
     out.push(D('h1', { name: spec.meta.name }), '', D('head', { date: today(), v: rp.version || '0.1', hash: spec.meta.specHash, tool: spec.meta.tool, ver: spec.meta.version }), '', '| | |', '|---|---|',
-      `| ${D('kParticipants')} | ${rp.participants || FILL} |`, `| ${D('kAudience')} | ${rp.audience || FILL} |`, `| ${D('kPurpose')} | ${rp.purpose || FILL} |`,
-      `| ${D('kDecision')} | ${rp.decision || FILL} |`, `| ${D('kDataDate')} | ${rp.dataDate || FILL} |`, `| ${D('kPages')} | ${spec.pages.map(p => p.name).join(' · ')} |`,
-      `| ${D('kModel')} | ${spec.model.source || D('modelNone')} ${D('modelTables', { n: spec.model.tables.length })} |`, '');
+      ...[`| ${D('kParticipants')} | ${rp.participants || FILL} |`, `| ${D('kAudience')} | ${rp.audience || FILL} |`, `| ${D('kPurpose')} | ${rp.purpose || FILL} |`,
+        `| ${D('kDecision')} | ${rp.decision || FILL} |`, `| ${D('kDataDate')} | ${rp.dataDate || FILL} |`, `| ${D('kPages')} | ${spec.pages.map(p => p.name).join(' · ')} |`,
+        `| ${D('kModel')} | ${spec.model.source || D('modelNone')} ${D('modelTables', { n: spec.model.tables.length })} |`].map(row), '');
     const preset = spec.canvas.preset && spec.canvas.preset !== 'custom' ? ` (${tr(L, 'exp.presetName.' + spec.canvas.preset, spec.canvas.preset)})` : '';
     const headerTxt = z.header ? D('dHeaderOn', { t: z.header.title, sub: z.header.subtitle ? D('dHeaderSub', { s: z.header.subtitle }) : '', style: z.header.style, logo: z.header.logoPos === 'none' ? D('logoNone') : z.header.logoPos === 'right' ? D('logoRight') : D('logoLeft') }) : D('off');
     const fMode = z.filter ? { right: D('fRight'), left: D('fLeft'), top: D('fTop'), burger: D('fBurger') }[z.filter.mode] : '';
@@ -251,33 +284,37 @@
         p.visuals.forEach((v, i) => {
           const fields = Object.keys(v.roles).map(key => `${roleLabel(v.kind, key)}: ${v.roles[key].map(f => f.name + (f.isNew ? ` ${T('exp.new')}` : '')).join(', ')}`).join('; ') || '–';
           const an = Object.keys(v.roles).length && v.kind !== 'slicer' ? [v.analysis.polarity === 'lower' ? D('anLower') : '', v.analysis.sort ? D('anSort', { by: v.analysis.sort.by }) : '', v.analysis.topN ? D('anTop', { n: v.analysis.topN }) : '', v.analysis.unit || ''].filter(Boolean).join(', ') || '–' : '–';
-          out.push(`| ${p.index}.${i + 1} | ${v.title}${v.subtitle ? ` (${v.subtitle})` : ''}${v.analysis.message ? `<br>_${v.analysis.message}_` : ''} | ${v.label}${v.scenario ? `, ${v.scenario}` : ''}${v.engine === 'ck' ? ', ChartKitchen' : ''} | ${fields} | ${an} | ${v.workshop.priority ? T('exp.pri.' + v.workshop.priority) : '–'} | ${T('exp.status.' + v.workshop.status)} | ${[v.content ? D('txtPrefix', { t: v.content }) : '', v.notes, v.link ? `→ ${v.link.pageName}` : ''].filter(Boolean).join(' · ') || '–'} |`);
+          out.push(row(`| ${p.index}.${i + 1} | ${v.title}${v.subtitle ? ` (${v.subtitle})` : ''}${v.analysis.message ? `<br>_${v.analysis.message}_` : ''} | ${v.label}${v.scenario ? `, ${v.scenario}` : ''}${v.engine === 'ck' ? ', ChartKitchen' : ''} | ${fields} | ${an} | ${v.workshop.priority ? T('exp.pri.' + v.workshop.priority) : '–'} | ${T('exp.status.' + v.workshop.status)} | ${[v.content ? D('txtPrefix', { t: v.content }) : '', v.notes, v.link ? `→ ${v.link.pageName}` : ''].filter(Boolean).join(' · ') || '–'} |`));
         });
       } else out.push(D('pEmpty'));
       out.push('');
     });
     if (spec.links.length) { out.push(D('hLinks'), ''); spec.links.forEach(l => out.push(D('link', { from: l.fromPage, id: l.fromVisual, to: l.toPage, kind: l.kind === 'navigation' ? D('linkNav') : (l.drillField ? D('linkDrillOn', { f: l.drillField }) : D('linkDrill')) }))); out.push(''); }
     out.push(D('hFields'), '', D('fieldTable'), D('fieldSep'));
-    spec.fields.forEach(f => out.push(`| ${f.ref}${f.isNew ? ` ${T('exp.new')}` : ''} | ${f.alias || '–'} | ${f.description || FILL} | ${f.unit || f.formatString || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.confirmed ? '☑' : '☐'} |`));
+    spec.fields.forEach(f => out.push(row(`| ${f.ref}${f.isNew ? ` ${T('exp.new')}` : ''} | ${f.alias || '–'} | ${f.description || FILL} | ${f.unit || f.formatString || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.confirmed ? '☑' : '☐'} |`)));
     out.push('');
-    if (spec.newFields.length) { out.push(D('hNew'), '', D('newTable'), D('newSep')); spec.newFields.forEach(f => out.push(`| ${f.name} | ${f.kind === 'measure' ? T('exp.measureLong') : T('exp.dimension')} | ${f.table} | ${f.description || FILL} | ${f.unit || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.openQuestion || '–'} |`)); out.push(''); }
+    if (spec.newFields.length) { out.push(D('hNew'), '', D('newTable'), D('newSep')); spec.newFields.forEach(f => out.push(row(`| ${f.name} | ${f.kind === 'measure' ? T('exp.measureLong') : T('exp.dimension')} | ${f.table} | ${f.description || FILL} | ${f.unit || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.openQuestion || '–'} |`))); out.push(''); }
     const open = [];
     spec.newFields.forEach(f => { if (f.openQuestion) open.push(`${f.name}: ${f.openQuestion}`); });
     spec.pages.forEach(p => p.visuals.forEach(v => { if (v.workshop.openQuestion) open.push(`${p.name} / ${v.title}: ${v.notes || D('openQNoText')}`); }));
-    spec.issues.filter(i => i.level !== 'info').forEach(i => open.push(`${i.page ? i.page + ': ' : ''}${i.text}`));
+    spec.issues.filter(i => i.level !== 'info').forEach(i => open.push(withPage(i, L)));
     spec.fields.filter(f => f.note).forEach(f => open.push(`${f.ref}: ${f.note}`));
     out.push(D('hOpen'), '', ...(open.length ? open.map(o => `- [ ] ${o}`) : [D('openNone')]), '');
+    // Hinweise mit Seitenname (sonst stünde bei zwei Seiten zweimal dieselbe Zeile da)
     const hints = spec.issues.filter(i => i.level === 'info');
-    if (hints.length) out.push(D('hHints'), '', ...hints.map(i => `- ${i.text}`), '');
+    if (hints.length) out.push(D('hHints'), '', ...hints.map(i => `- ${withPage(i, L)}`), '');
     out.push(D('hNext'), '', D('n1'), D('n2'), D('n3'), '');
     return out.join('\n');
   }
 
   // ------------------------------------------------------------------ pbir-visuals je Seite (native Visuals mit vollständigen Pflichtrollen + Slicer)
+  // Wie mockup_to_pbir.py (build_pbir_visuals): ChartKitchen/Custom/Deneb stehen nur in der Spec, Text- und Button-Kacheln
+  // baut der Skill als shape/actionButton mit Text (text-visuals.json). Eine leere Datei [] ist deshalb oft gewollt.
   function buildPbir(spec, pageId) {
     const p = spec.pages.find(x => x.id === pageId) || spec.pages[0]; const out = [];
     p.visuals.forEach(v => {
       if (v.engine !== 'native' || !v.native) return;
+      if (isTextTile(v)) return;                      // sonst leere Textbox und Namenskollision mit text-visuals.json (Brief-Regel zu Text-Kacheln)
       if (missingRequired(v)) return;                 // unvollständige Visuals nicht emittieren (Import würde die ganze Datei ablehnen)
       const fields = {}; Object.keys(v.native.buckets).forEach(b => { const refs = v.native.buckets[b].map(f => f.ref); fields[b] = refs.length === 1 ? refs[0] : refs; });
       const item = { visual_type: v.native.type, name: v.id, title: v.title, x: v.rect.x, y: v.rect.y, width: v.rect.w, height: v.rect.h };
@@ -319,6 +356,23 @@
   let cur = 'json', spec = null;
   const texts = () => ({ json: JSON.stringify(spec, null, 2), brief: buildBrief(spec), docs: buildDocs(spec), pbir: JSON.stringify(buildPbir(spec, MK.page().id), null, 2), prompt: buildPrompt(spec) });
   const fileNames = () => ({ json: 'mockup-spec.json', brief: 'AGENT-BRIEF.md', docs: 'WORKSHOP-DOKU.md', pbir: pbirName(MK.page()), prompt: 'claude-prompt.txt' });
+  // Was steht je Seite in pbir-visuals.<Seite>.json und was nicht (und warum)?
+  function pbirStats(sp, p) {
+    const out = buildPbir(sp, p.id); const vs = p.visuals;
+    const slicers = sp.zones.filter ? sp.zones.filter.slicers.length : 0;
+    const nat = out.length - slicers, ck = vs.filter(v => v.engine === 'ck').length, text = vs.filter(isTextTile).length;
+    const incomplete = vs.filter(v => v.engine === 'native' && v.native && !isTextTile(v) && missingRequired(v)).length;
+    return { page: p, file: pbirName(p), all: vs.length, nat, slicers, ck, text, incomplete, other: Math.max(0, vs.length - nat - ck - text - incomplete), empty: !out.length };
+  }
+  function pbirCheck(sp) {
+    const stats = sp.pages.map(p => pbirStats(sp, p)); if (!stats.some(s => s.all)) return null;
+    const lines = stats.map(s => {
+      const skip = [s.ck ? UI('exp.check.pbirCk', { n: s.ck }) : '', s.text ? UI('exp.check.pbirText', { n: s.text }) : '', s.incomplete ? UI('exp.check.pbirIncomplete', { n: s.incomplete }) : '', s.other ? UI('exp.check.pbirOther', { n: s.other }) : ''].filter(Boolean);
+      return UI('exp.check.pbirPage', { p: s.page.name, nat: s.nat, all: s.all, file: s.file, sl: s.slicers ? UI('exp.check.pbirSlicers', { n: s.slicers }) : '', skip: skip.length ? UI('exp.check.pbirSkip', { list: skip.join(', ') }) : '' });
+    });
+    if (stats.some(s => s.empty && s.all)) lines.push(UI('exp.check.pbirEmpty'));
+    return lines;
+  }
   function openExport() {
     spec = buildSpec(); const checks = []; const all = spec.pages.flatMap(p => p.visuals);
     const errs = spec.issues.filter(i => i.level === 'error'), warns = spec.issues.filter(i => i.level === 'warn'), infos = spec.issues.filter(i => i.level === 'info');
@@ -327,23 +381,27 @@
     if (warns.length) checks.push(['warn', UI('exp.check.warns', { n: warns.length, list: warns.slice(0, 3).map(i => i.text).join(' · '), more: warns.length > 3 ? ' …' : '' })]);
     if (infos.length) checks.push(['ok', UI('exp.check.infos', { n: infos.length, first: infos[0].text })]);
     if (!checks.length) checks.push(['ok', UI('exp.check.ready', { p: spec.pages.length, v: all.length, hash: spec.meta.specHash })]);
-    $('#expChecks').innerHTML = checks.map(([k, txt]) => `<div class="${k}">${txt}</div>`).join('');
+    const pc = pbirCheck(spec); if (pc) checks.push(['ok', pc]);
+    // Texte enthalten Titel und Seitennamen aus Nutzereingaben: escapen, Zeilen einer Box mit <br>
+    $('#expChecks').innerHTML = checks.map(([k, txt]) => `<div class="${k}">${[].concat(txt).map(esc).join('<br>')}</div>`).join('');
     showExp(cur); $('#dlgExport').showModal();
   }
   function showExp(k) {
     cur = k; $$('#expTabs button').forEach(b => b.classList.toggle('on', b.dataset.exp === k));
     $('#expOut').textContent = texts()[k];
+    const ps = k === 'pbir' ? pbirStats(spec, spec.pages.find(x => x.id === MK.page().id) || spec.pages[0]) : null;
     $('#expHint').textContent = {
-      json: UI('exp.hint.json', { sv: SPEC_VERSION }),
-      brief: UI('exp.hint.brief'),
-      docs: UI('exp.hint.docs'),
-      pbir: UI('exp.hint.pbir', { p: MK.page().name, file: pbirName(MK.page()) }),
-      prompt: UI('exp.hint.prompt'),
-    }[k];
+      json: () => UI('exp.hint.json', { sv: SPEC_VERSION }),
+      brief: () => UI('exp.hint.brief'),
+      docs: () => UI('exp.hint.docs'),
+      pbir: () => UI('exp.hint.pbir', { p: MK.page().name, file: pbirName(MK.page()), nat: ps.nat, all: ps.all, s: ps.slicers, empty: ps.empty ? UI('exp.hint.pbirEmpty') : '' }),
+      prompt: () => UI('exp.hint.prompt'),
+    }[k]();
   }
   $('#btnExport').onclick = openExport;
   $('#expTabs').addEventListener('click', e => { const b = e.target.closest('[data-exp]'); if (b) showExp(b.dataset.exp); });
-  $('#btnExpCopy').onclick = () => navigator.clipboard.writeText(texts()[cur]).then(() => MK.toast(UI('toast.copied', { n: fileNames()[cur] })));
+  // Zwischenablage kann verweigert werden (Rechte, unfokussiert, iframe): dann Hinweis statt stiller Fehler
+  $('#btnExpCopy').onclick = () => MK.copyText(texts()[cur]).then(() => MK.toast(UI('toast.copied', { n: fileNames()[cur] })), () => MK.toast(UI('toast.copyFailed')));
   $('#btnExpDownload').onclick = () => download(fileNames()[cur], texts()[cur]);
   $('#btnExpAll').onclick = async () => {
     const txt = texts(); const files = [['mockup-spec.json', txt.json], ['AGENT-BRIEF.md', txt.brief], ['WORKSHOP-DOKU.md', txt.docs]];

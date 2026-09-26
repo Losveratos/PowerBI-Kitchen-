@@ -44,14 +44,19 @@
     },
     diffui: {
       sec: 'Stände vergleichen', hint: 'Gespeicherte Datei (Speichern oder Export) gegen den aktuellen Stand: neue, entfernte, geänderte Kacheln, Seiten, Zonen, Design.',
-      btn: 'Datei vergleichen …', copy: 'Als Markdown kopieren', h: 'Was hat sich geändert?', p: '{a} → aktueller Stand · {n} Änderung(en)', copied: 'Vergleich als Markdown kopiert'
+      btn: 'Datei vergleichen …', copy: 'Als Markdown kopieren', h: 'Was hat sich geändert?', p: '{a} → aktueller Stand · {n} Änderung(en)', copied: 'Vergleich als Markdown kopiert',
+      copyFailed: 'Kopieren nicht möglich, der Browser gibt die Zwischenablage nicht frei.'
     },
     diff: {
       added: 'neu', removed: 'entfernt', changed: 'geändert', renamed: 'umbenannt', none: 'Keine Unterschiede.', page: 'Seite', pages: 'Seiten', zones: 'Zonen', design: 'Design',
       mdTitle: 'Änderungen am Mockup', current: 'aktueller Stand', title: 'Titel', kind: 'Visual-Typ', engine: 'Engine', fields: 'Felder', analysis: 'Analyse', priority: 'Priorität',
-      status: 'Status', notes: 'Notiz', openQuestion: 'offene Frage', interaction: 'Verhalten', link: 'Drill-through', content: 'Inhalt', position: 'Position', samples: 'Beispielwerte',
+      status: 'Status', notes: 'Notiz', openQuestion: 'offene Frage', interaction: 'Verhalten', link: 'Drill-through', content: 'Inhalt', position: 'Position und Größe', samples: 'Beispielwerte',
       header: 'Kopfband', nav: 'Nav-Leiste', filter: 'Filter', footer: 'Fußleiste', palette: 'Abweichungsfarben', nativePalette: 'Farbschema native Visuals', tile: 'Kachel-Stil',
-      pageBg: 'Seitenhintergrund', accent: 'Akzentfarbe', typo: 'Typografie', canvas: 'Seitengröße'
+      pageBg: 'Seitenhintergrund', accent: 'Akzentfarbe', typo: 'Typografie', canvas: 'Seitengröße',
+      radius: 'Kachel-Ecken', tileBg: 'Kachelhintergrund', ink: 'Schriftfarbe der Kacheln', headerStyle: 'Kopfband-Stil', headerBg: 'Kopfband-Hintergrund', headerInk: 'Kopfband-Schrift',
+      margin: 'Rand', gutter: 'Zwischenraum', pad: 'Kachel-Innenabstand', typoScale: 'Typografie, Skalierung gesamt', typoTitle: 'Typografie, Kacheltitel', typoSub: 'Typografie, Untertitel',
+      typoChart: 'Typografie, Diagrammbeschriftung', navPos: 'Seitennavigation', on: 'an', off: 'aus',
+      reflow: '{n} Kachel(n) durch neue oder entfernte Kacheln verschoben oder in der Größe geändert'
     },
     tip: {
       backHome: 'Zurück zur Startseite der Knowledge Kitchen',
@@ -253,7 +258,7 @@
       fieldCreated: '„{n}" angelegt · jetzt auf eine Kachel ziehen',
       fieldRemoved: '„{n}" samt {c} Bindung(en) entfernt',
       saved: 'Mockup gespeichert', loaded: '„{n}" geladen', notAMockup: 'Datei ist kein MockupKitchen-Mockup',
-      copied: '{n} kopiert', pngFailed: 'PNG-Export fehlgeschlagen: {msg}', filesPng: '{f} Dateien + {p} Seitenbilder',
+      copied: '{n} kopiert', copyFailed: 'Kopieren nicht möglich, der Browser gibt die Zwischenablage nicht frei. Bitte „Datei herunterladen" nutzen.', pngFailed: 'PNG-Export fehlgeschlagen: {msg}', filesPng: '{f} Dateien + {p} Seitenbilder',
       langSwitched: 'Sprache: Deutsch',
     },
 
@@ -389,7 +394,7 @@
         vScenario: '- **Szenario:** {s}', vRoles: '- **Datenrollen:**', vRolesNone: '- **Datenrollen:** keine gebunden',
         vNew: ' **(neu anlegen)**', vBuckets: '- **pbir-Buckets ({type}):** ', vAnalysis: '- **Analyse:** {a}',
         vMessage: '- **Kernaussage (Titelzeile):** {m}', vWorkshop: '- **Workshop:** {p}Status {s}',
-        vLink: '- **Springt zu:** Seite „{p}" ({how})',
+        vLink: '- **Springt zu:** Seite „{p}" ({how})', vBehaviour: '- **Verhalten:** {list}',
         linkNav: 'Seitennavigation per Button-Aktion', linkDrill: 'Drill-through; Zielseite mit Drill-through-Feld aus der Kategorie dieses Visuals',
         vNotes: '- **Notizen:** {n}', vOpenQ: ' **(offene Frage)**',
         hLinks: '## Navigation und Drill', linkTable: '| Von (Visual) | Seite | Nach Seite | Art | Drill-Feld |',
@@ -405,7 +410,7 @@
         r5: '- Text-Kacheln mit `content` als Shape mit Text bauen (Textbox per CLI bleibt leer).',
         r6: '- Analyse-Angaben je Kachel umsetzen: Polarität (invert), Δ-Basis, Sortierung, Top-N, Einheit/Dezimalen, Granularität; `auto`-Werte sind Vorschläge, keine Entscheidungen.',
         r7: '- ChartKitchen-Visuals nur über eine vorhandene Referenz-Instanz replizieren, nie visual.json raten. Fehlt die Instanz: Platzhalter und Hinweis.',
-        r8: '- Native Visuals je Seite mit `pbir add visual "<Report>.Report/<Seite>.Page" --from-json pbir-visuals.<Seite>.json` anlegen; Visuals mit leeren Pflichtrollen sind dort nicht enthalten.',
+        r8: '- Native Visuals je Seite mit `pbir add visual "<Report>.Report/<Seite>.Page" --from-json pbir-visuals.<Seite>.json` anlegen. Dort stehen nur native Visuals mit vollständigen Pflichtrollen und die Slicer. ChartKitchen-, Custom- und Deneb-Visuals sowie Text- und Button-Kacheln fehlen bewusst, eine leere Datei `[]` ist also kein Fehler. Nativen Ersatz für ChartKitchen-Kacheln erzeugt der Konverter mit `--ck-fallback`.',
         r9: '- Neue Felder zuerst im Semantikmodell anlegen (`te`), dann `te validate --errors-only`, erst danach binden. Umbenennungswünsche (Alias) nur nach Freigabe umsetzen.',
         r10: '- Farben/Schrift kommen aus dem Theme; dieser Brief regelt Struktur, Bindung und Design-Entscheidungen.',
         hOpen: '## Offene Punkte aus dem Mockup', openPage: 'Seite „{p}"',
@@ -484,13 +489,17 @@
         noVisual: 'Noch kein Visual auf den Seiten.', errors: '{n} Fehler: {list}{more}', warns: '{n} Warnung(en): {list}{more}',
         infos: '{n} Hinweis(e) für die Doku (z. B. {first}).',
         ready: 'Bereit: {p} Seite(n), {v} Visuals, alle Pflichtrollen gebunden. Hash {hash}.',
+        pbirPage: 'Seite „{p}": {nat} von {all} Visual(s) nativ in {file}{sl}.{skip}', pbirSlicers: ', dazu {n} Slicer', pbirSkip: ' Nicht darin: {list}.',
+        pbirCk: '{n} ChartKitchen', pbirText: '{n} Text/Button (baut der Skill als Shape)', pbirIncomplete: '{n} nativ mit leerer Pflichtrolle', pbirOther: '{n} Custom Visual oder Deneb',
+        pbirEmpty: 'Eine leere pbir-visuals-Datei ([]) ist so vorgesehen: ChartKitchen-, Custom- und Deneb-Visuals baut der Skill aus mockup-spec.json, Text- und Button-Kacheln als Shape mit Text. Nativer Ersatz: an der Kachel die Engine „Nativ" wählen oder den Skill mockup-to-powerbi mit --ck-fallback aufrufen.',
       },
 
       hint: {
         json: 'Spec v{sv}: Berichtskopf, Design, Zonen, Seiten mit Visuals (stabile IDs, Rechtecke, Rollen, Analyse, Workshop-Status), Verknüpfungen, Steckbriefe, Issues, Hash.',
         brief: 'Für Menschen und Agenten lesbar; Format wie AGENT-BRIEF des Design-Framework-Skills.',
         docs: 'Workshop-Protokoll: Berichtskopf, Entscheidungen, Seiten, Steckbriefe, offene Punkte. Der Skill macht daraus auch eine PowerPoint.',
-        pbir: 'Native Visuals mit vollständigen Pflichtrollen + Slicer der Seite „{p}". Verwenden: pbir add visual "Report.Report/{p}.Page" --from-json {file}',
+        pbir: 'Seite „{p}": {nat} von {all} Visual(s) nativ mit vollständigen Pflichtrollen, dazu {s} Slicer.{empty} Verwenden: pbir add visual "Report.Report/{p}.Page" --from-json {file}',
+        pbirEmpty: ' Die Datei bleibt leer ([]), das ist so vorgesehen (siehe Hinweis oben).',
         prompt: 'In Claude Code einfügen, nachdem die Dateien im PBIP-Ordner liegen.',
       },
 
@@ -534,14 +543,19 @@
     },
     diffui: {
       sec: 'Compare versions', hint: 'A saved file (Save or export) against the current state: added, removed and changed tiles, pages, zones, design.',
-      btn: 'Compare file …', copy: 'Copy as Markdown', h: 'What changed?', p: '{a} → current state · {n} change(s)', copied: 'Comparison copied as Markdown'
+      btn: 'Compare file …', copy: 'Copy as Markdown', h: 'What changed?', p: '{a} → current state · {n} change(s)', copied: 'Comparison copied as Markdown',
+      copyFailed: 'Could not copy, the browser does not allow clipboard access.'
     },
     diff: {
       added: 'added', removed: 'removed', changed: 'changed', renamed: 'renamed', none: 'No differences.', page: 'Page', pages: 'Pages', zones: 'Zones', design: 'Design',
       mdTitle: 'Mockup changes', current: 'current state', title: 'Title', kind: 'Visual type', engine: 'Engine', fields: 'Fields', analysis: 'Analysis', priority: 'Priority',
-      status: 'Status', notes: 'Note', openQuestion: 'open question', interaction: 'Behaviour', link: 'Drill-through', content: 'Content', position: 'Position', samples: 'Sample values',
+      status: 'Status', notes: 'Note', openQuestion: 'open question', interaction: 'Behaviour', link: 'Drill-through', content: 'Content', position: 'Position and size', samples: 'Sample values',
       header: 'Header', nav: 'Nav bar', filter: 'Filters', footer: 'Footer', palette: 'Variance colours', nativePalette: 'Native visual colour scheme', tile: 'Tile style',
-      pageBg: 'Page background', accent: 'Accent colour', typo: 'Typography', canvas: 'Page size'
+      pageBg: 'Page background', accent: 'Accent colour', typo: 'Typography', canvas: 'Page size',
+      radius: 'Tile corners', tileBg: 'Tile background', ink: 'Tile text colour', headerStyle: 'Header style', headerBg: 'Header background', headerInk: 'Header text',
+      margin: 'Margin', gutter: 'Gutter', pad: 'Tile padding', typoScale: 'Typography, overall scale', typoTitle: 'Typography, tile title', typoSub: 'Typography, subtitle',
+      typoChart: 'Typography, chart labels', navPos: 'Page navigation', on: 'on', off: 'off',
+      reflow: '{n} tile(s) moved or resized because tiles were added or removed'
     },
     tip: {
       backHome: 'Back to the Knowledge Kitchen start page',
@@ -742,7 +756,7 @@
       fieldCreated: '“{n}” created · now drag it onto a tile',
       fieldRemoved: '“{n}” and {c} binding(s) removed',
       saved: 'Mockup saved', loaded: '“{n}” loaded', notAMockup: 'The file is not a MockupKitchen mockup',
-      copied: '{n} copied', pngFailed: 'PNG export failed: {msg}', filesPng: '{f} files + {p} page images',
+      copied: '{n} copied', copyFailed: 'Could not copy, the browser does not allow clipboard access. Please use “Download file”.', pngFailed: 'PNG export failed: {msg}', filesPng: '{f} files + {p} page images',
       langSwitched: 'Language: English',
     },
 
@@ -878,7 +892,7 @@
         vScenario: '- **Scenario:** {s}', vRoles: '- **Data roles:**', vRolesNone: '- **Data roles:** none bound',
         vNew: ' **(to be created)**', vBuckets: '- **pbir buckets ({type}):** ', vAnalysis: '- **Analysis:** {a}',
         vMessage: '- **Key message (title line):** {m}', vWorkshop: '- **Workshop:** {p}status {s}',
-        vLink: '- **Jumps to:** page “{p}” ({how})',
+        vLink: '- **Jumps to:** page “{p}” ({how})', vBehaviour: '- **Behaviour:** {list}',
         linkNav: 'page navigation via button action', linkDrill: 'drill-through; target page with a drill-through field from the category of this visual',
         vNotes: '- **Notes:** {n}', vOpenQ: ' **(open question)**',
         hLinks: '## Navigation and drill', linkTable: '| From (visual) | Page | To page | Kind | Drill field |',
@@ -894,7 +908,7 @@
         r5: '- Build text tiles that have `content` as a shape with text (a textbox created via CLI stays empty).',
         r6: '- Implement the analysis settings per tile: polarity (invert), Δ base, sorting, top N, unit/decimals, grain; `auto` values are proposals, not decisions.',
         r7: '- Replicate ChartKitchen visuals only from an existing reference instance, never guess visual.json. If the instance is missing: placeholder plus a note.',
-        r8: '- Create native visuals per page with `pbir add visual "<Report>.Report/<Page>.Page" --from-json pbir-visuals.<Page>.json`; visuals with empty required roles are not contained there.',
+        r8: '- Create native visuals per page with `pbir add visual "<Report>.Report/<Page>.Page" --from-json pbir-visuals.<Page>.json`. That file only holds native visuals with complete required roles plus the slicers. ChartKitchen, custom and Deneb visuals as well as text and button tiles are left out on purpose, so an empty file `[]` is not an error. The converter creates native substitutes for ChartKitchen tiles with `--ck-fallback`.',
         r9: '- Create new fields in the semantic model first (`te`), then `te validate --errors-only`, and only bind them afterwards. Implement rename requests (alias) only after approval.',
         r10: '- Colours and fonts come from the theme; this brief governs structure, binding and design decisions.',
         hOpen: '## Open items from the mockup', openPage: 'page “{p}”',
@@ -973,13 +987,17 @@
         noVisual: 'No visual on the pages yet.', errors: '{n} error(s): {list}{more}', warns: '{n} warning(s): {list}{more}',
         infos: '{n} note(s) for the documentation (e.g. {first}).',
         ready: 'Ready: {p} page(s), {v} visuals, all required roles bound. Hash {hash}.',
+        pbirPage: 'Page “{p}”: {nat} of {all} visual(s) native in {file}{sl}.{skip}', pbirSlicers: ', plus {n} slicer(s)', pbirSkip: ' Not included: {list}.',
+        pbirCk: '{n} ChartKitchen', pbirText: '{n} text/button (the skill builds them as shapes)', pbirIncomplete: '{n} native with an empty required role', pbirOther: '{n} custom visual or Deneb',
+        pbirEmpty: 'An empty pbir-visuals file ([]) is expected: the skill builds ChartKitchen, custom and Deneb visuals from mockup-spec.json and text and button tiles as shapes with text. For a native substitute, choose the engine “Native” on the tile or run the mockup-to-powerbi skill with --ck-fallback.',
       },
 
       hint: {
         json: 'Spec v{sv}: report header, design, zones, pages with visuals (stable IDs, rectangles, roles, analysis, workshop status), links, fact sheets, issues, hash.',
         brief: 'Readable for humans and agents; same format as the AGENT-BRIEF of the design framework skill.',
         docs: 'Workshop minutes: report header, decisions, pages, fact sheets, open items. The skill also turns this into a PowerPoint.',
-        pbir: 'Native visuals with complete required roles plus the slicers of page “{p}”. Use: pbir add visual "Report.Report/{p}.Page" --from-json {file}',
+        pbir: 'Page “{p}”: {nat} of {all} visual(s) native with complete required roles, plus {s} slicer(s).{empty} Use: pbir add visual "Report.Report/{p}.Page" --from-json {file}',
+        pbirEmpty: ' The file stays empty ([]), which is expected (see the note above).',
         prompt: 'Paste into Claude Code once the files are in the PBIP folder.',
       },
 
