@@ -20,6 +20,7 @@
       cancel: 'Abbrechen', create: 'Anlegen', split: 'Aufteilen', save2: 'Speichern',
       close: 'Schließen', pageDup: 'Seite duplizieren', pageDel: 'Seite löschen', splitRoot: 'Inhalt neu aufteilen …', addPage: '+ Seite',
       lang: 'EN', clearTile: 'Kachel leeren', removeTile: 'Kachel entfernen', pickType: 'Visual wählen …',
+      openSave: 'Speichern und öffnen …', openDiscard: 'Verwerfen und öffnen …',
     },
 
     gc: {
@@ -56,8 +57,8 @@
     tip: {
       backHome: 'Zurück zur Startseite der Knowledge Kitchen',
       projName: 'Name des Berichts / Mockups', templates: 'Seitenvorlage wählen', importTmdl: 'TMDL-Ordner oder -Dateien laden',
-      undo: 'Rückgängig (Strg+Z)', redo: 'Wiederholen (Strg+Y)', present: 'Präsentieren: Panels ausblenden, Seite groß (Taste P)',
-      new: 'Neues Mockup anlegen: leere Seite, Demo-Modell, Standard-Design (der aktuelle Stand wird verworfen, vorher Speichern)',
+      undo: 'Rückgängig (Strg+Z, bis zu 200 Schritte)', redo: 'Wiederholen (Strg+Y)', present: 'Präsentieren: Panels ausblenden, Seite groß (Taste P)',
+      new: 'Neues Mockup anlegen: Startseite mit Beispielkacheln (4 KPIs, 2 Diagramme), Demo-Modell, Standard-Design. Der aktuelle Stand wird verworfen, vorher Speichern. Leere Seite: Vorlagen > Leer (2×2)',
       merge: 'Nachbarn verbinden: leere Kachel geht im Nachbarn auf, zwei Kacheln werden eine (links/oben behält das Visual)',
       edge: 'Kachel am Rand einfügen: alle Kacheln dieser Ebene werden gleich verteilt (aus 2 gleichen werden 3 gleiche)',
       zoneCfg: 'Einstellungen zu diesem Bereich öffnen (Doppelklick auf den Bereich geht auch)',
@@ -189,6 +190,7 @@
       split: { h: 'Inhalt neu aufteilen', p: 'Zeilen × Spalten als echtes Raster: Zwischenräume gelten für die ganze Spalte bzw. Zeile, Kacheln lassen sich über „+" waagerecht und senkrecht verbinden und per Teilen wieder trennen.' },
       help: { h: 'So funktioniert MockupKitchen', p: 'Vom Workshop-Skizzenblatt zur Power-BI-Seite.' },
       tile: { p: 'Notiz, Workshop-Status und Verhalten der Kachel in einem Fenster. Änderungen gelten sofort.' },
+      open: { h: 'Mockup öffnen', p: 'Öffnen ersetzt den aktuellen Stand ({n} Kachel(n), {p} Seite(n)) und auch den automatisch im Browser gemerkten Stand. Strg+Z holt ihn nur in dieser Sitzung zurück. Wer ihn behalten will, speichert ihn vorher als .mockup.json.' },
     },
 
     tabexp: { pbir: 'pbir-visuals (aktuelle Seite)', prompt: 'Prompt für Claude Code' },
@@ -241,7 +243,7 @@
     toast: {
       newProject: 'Neues Mockup angelegt. Über „Vorlagen" geht es schnell weiter.',
       merged: 'Kacheln verbunden', inserted: 'Kachel eingefügt, Ebene gleich verteilt', mergeNotPossible: 'Verbinden geht nur, wenn mindestens eine Seite eine einzelne Kachel ist', mergeNotRect: 'Verbinden geht nur mit einem Nachbarn gleicher Höhe bzw. Breite. Erst die Nachbarn angleichen.',
-      nothingUndo: 'Nichts rückgängig zu machen', undone: 'Rückgängig', nothingRedo: 'Nichts zu wiederholen', redone: 'Wiederholt',
+      nothingUndo: 'Nichts rückgängig zu machen', undoLimit: 'Nichts mehr rückgängig zu machen: Der Verlauf fasst {n} Schritte, ältere wurden verworfen.', undone: 'Rückgängig', nothingRedo: 'Nichts zu wiederholen', redone: 'Wiederholt',
       demoLoadedTpl: 'Demo-Modell geladen, Vorlage gebunden', tplSet: 'Vorlage „{t}" gesetzt', demoLoaded: 'Demo-Modell geladen',
       lastPage: 'Die letzte Seite bleibt', pickTileFirst: 'Erst eine Kachel wählen',
       fieldAssigned: 'Feld ist schon zugewiesen', slicerExists: 'Slicer existiert schon',
@@ -254,14 +256,13 @@
       fieldRemoved: '„{n}" samt {c} Bindung(en) entfernt',
       saved: 'Mockup gespeichert', loaded: '„{n}" geladen', notAMockup: 'Datei ist kein MockupKitchen-Mockup',
       copied: '{n} kopiert', pngFailed: 'PNG-Export fehlgeschlagen: {msg}', filesPng: '{f} Dateien + {p} Seitenbilder',
-      langSwitched: 'Sprache: Deutsch',
+      langSwitched: 'Sprache: Deutsch', langSwitchedN: 'Sprache: Deutsch · {n} unveränderte Standardtexte übersetzt',
     },
 
     ask: {
       pageName: 'Seitenname', delPage: 'Seite „{n}" löschen?',
       tplReplace: 'Vorlage „{t}" ersetzt die {n} Kachel(n) dieser Seite. Fortfahren? (Strg+Z macht es rückgängig)',
       rmField: '„{n}" ist {c}× gebunden. Feld und alle Bindungen entfernen?',
-      openReplace: 'Öffnen ersetzt das aktuelle Mockup. Vorher speichern? (Abbrechen = zurück)',
       newReplace: 'Neues Mockup anlegen? Der aktuelle Stand ({n} Kachel(n), {p} Seite(n)) wird verworfen. Vorher mit „Speichern" sichern. (Abbrechen = zurück)',
       mergeReplace: 'Beide Kacheln haben ein Visual. Verbinden entfernt „{t}". Fortfahren? (Strg+Z macht es rückgängig)',
     },
@@ -339,6 +340,7 @@
         detailLine: 'Detail: gewählte Produktlinie', detailLineNote: 'Drill-through-Ziel. Titel zeigt den gefilterten Wert (SELECTEDVALUE).',
         lineItems: 'Einzelpositionen', trend24: 'Verlauf 24 Monate', costByAccountMonth: 'Kosten je Konto und Monat',
         dPlByAccount: 'Δ PL je Konto', revTrend: 'Umsatz-Verlauf', orderTrend: 'Aufträge-Verlauf', customerTrend: 'Kunden-Verlauf',
+        kpiRevenue: 'Umsatz', kpiMargin: 'Marge', kpiMarginPct: 'Marge %', kpiCost: 'Kosten', kpiOrders: 'Aufträge', kpiCustomers: 'Kunden', kpiAvgOrder: 'Ø Auftragswert',
       },
     },
 
@@ -350,6 +352,17 @@
       accounts: 'GuV-Konten', accountItem: 'GuV-Position', measures: 'Kennzahlen',
       ac: 'Ist', py: 'Vorjahr', pl: 'Plan', fc: 'Forecast', bu: 'Budget',
       margin: 'Umsatz − Kosten', avgOrder: 'Umsatz / Aufträge',
+      // Measure-Namen der Demo-Modelle je Sprache (Schlüssel stabil; bestehende Projekte behalten ihre gespeicherten Namen)
+      mn: {
+        revenue: 'Umsatz', cost: 'Kosten', margin: 'Marge', marginPct: 'Marge%', qty: 'Menge', orders: 'Aufträge', customers: 'Kunden', avgOrder: 'Ø Auftragswert',
+        orderIntake: 'Auftragseingang', newCustomers: 'Neukunden', winRate: 'Win-Rate%', returnsPct: 'Retouren%', discountPct: 'Rabatt%',
+        hires: 'Eintritte', leavers: 'Austritte', turnoverPct: 'Fluktuation%', sickPct: 'Krankenquote%', overtime: 'Überstunden',
+        persCostAc: 'Personalkosten AC', persCostPl: 'Personalkosten PL', persCostPy: 'Personalkosten PY', vacancies: 'Vakanzen',
+        trainingDays: 'Weiterbildungstage', womenPct: 'Frauenanteil%', avgAge: 'Ø Alter',
+        revenuePy: 'Umsatz PY', newsletter: 'Newsletter-Anmeldungen', avgSession: 'Ø Sitzungsdauer',
+        netSales: 'Umsatzerlöse', material: 'Materialaufwand', grossProfit: 'Rohertrag', personnel: 'Personalaufwand', otherExp: 'Sonstige Aufwendungen',
+        depreciation: 'Abschreibungen', finResult: 'Finanzergebnis', taxes: 'Steuern', netIncome: 'Jahresüberschuss', ebitdaMarginPct: 'EBITDA-Marge%',
+      },
     },
 
     // ------------------------------------------------ Export (Brief, Doku, Prompt, Preflight)
@@ -510,6 +523,7 @@
       cancel: 'Cancel', create: 'Create', split: 'Split', save2: 'Save',
       close: 'Close', pageDup: 'Duplicate page', pageDel: 'Delete page', splitRoot: 'Re-split content …', addPage: '+ Page',
       lang: 'DE', clearTile: 'Clear tile', removeTile: 'Remove tile', pickType: 'Choose a visual …',
+      openSave: 'Save, then open …', openDiscard: 'Discard and open …',
     },
 
     gc: {
@@ -546,8 +560,8 @@
     tip: {
       backHome: 'Back to the Knowledge Kitchen start page',
       projName: 'Name of the report / mockup', templates: 'Choose a page template', importTmdl: 'Load a TMDL folder or files',
-      undo: 'Undo (Ctrl+Z)', redo: 'Redo (Ctrl+Y)', present: 'Present: hide the panels, page large (key P)',
-      new: 'Start a new mockup: empty page, demo model, default design (the current state is discarded, save first)',
+      undo: 'Undo (Ctrl+Z, up to 200 steps)', redo: 'Redo (Ctrl+Y)', present: 'Present: hide the panels, page large (key P)',
+      new: 'Start a new mockup: starter page with sample tiles (4 KPIs, 2 charts), demo model, default design. The current state is discarded, save first. Empty page: Templates > Empty (2×2)',
       merge: 'Merge neighbours: an empty tile is absorbed, two tiles become one (left/top keeps its visual)',
       edge: 'Insert a tile at the edge: all tiles on this level are distributed evenly (2 equal tiles become 3)',
       zoneCfg: 'Open the settings of this zone (double-click on the zone works too)',
@@ -679,6 +693,7 @@
       split: { h: 'Re-split content', p: 'Rows × columns as a true grid: gutters apply to the whole column or row, tiles merge horizontally and vertically via “+” and split apart again.' },
       help: { h: 'How MockupKitchen works', p: 'From the workshop sketch pad to the Power BI page.' },
       tile: { p: 'Note, workshop status and behaviour of the tile in one window. Changes apply immediately.' },
+      open: { h: 'Open a mockup', p: 'Opening replaces the current state ({n} tile(s), {p} page(s)) and also the copy the browser keeps automatically. Ctrl+Z brings it back only within this session. To keep it, save it as .mockup.json first.' },
     },
 
     tabexp: { pbir: 'pbir-visuals (current page)', prompt: 'Prompt for Claude Code' },
@@ -730,7 +745,7 @@
     toast: {
       newProject: 'New mockup started. Templates give you a quick start.',
       merged: 'Tiles merged', inserted: 'Tile inserted, level distributed evenly', mergeNotPossible: 'Merging needs at least one side to be a single tile', mergeNotRect: 'Merging needs a neighbour of the same height or width. Align the neighbours first.',
-      nothingUndo: 'Nothing to undo', undone: 'Undone', nothingRedo: 'Nothing to redo', redone: 'Redone',
+      nothingUndo: 'Nothing to undo', undoLimit: 'Nothing more to undo: the history holds {n} steps, older ones were discarded.', undone: 'Undone', nothingRedo: 'Nothing to redo', redone: 'Redone',
       demoLoadedTpl: 'Demo model loaded, template bound', tplSet: 'Template “{t}” applied', demoLoaded: 'Demo model loaded',
       lastPage: 'The last page stays', pickTileFirst: 'Select a tile first',
       fieldAssigned: 'The field is already assigned', slicerExists: 'That slicer already exists',
@@ -743,14 +758,13 @@
       fieldRemoved: '“{n}” and {c} binding(s) removed',
       saved: 'Mockup saved', loaded: '“{n}” loaded', notAMockup: 'The file is not a MockupKitchen mockup',
       copied: '{n} copied', pngFailed: 'PNG export failed: {msg}', filesPng: '{f} files + {p} page images',
-      langSwitched: 'Language: English',
+      langSwitched: 'Language: English', langSwitchedN: 'Language: English · {n} untouched default texts translated',
     },
 
     ask: {
       pageName: 'Page name', delPage: 'Delete page “{n}”?',
       tplReplace: 'The template “{t}” replaces the {n} tile(s) of this page. Continue? (Ctrl+Z undoes it)',
       rmField: '“{n}” is bound {c}×. Remove the field and all its bindings?',
-      openReplace: 'Opening replaces the current mockup. Save it first? (Cancel = go back)',
       newReplace: 'Start a new mockup? The current state ({n} tile(s), {p} page(s)) will be discarded. Use “Save” first. (Cancel = go back)',
       mergeReplace: 'Both tiles have a visual. Merging removes “{t}”. Continue? (Ctrl+Z undoes it)',
     },
@@ -828,6 +842,7 @@
         detailLine: 'Detail: selected product line', detailLineNote: 'Drill-through target. The title shows the filtered value (SELECTEDVALUE).',
         lineItems: 'Line items', trend24: 'Trend 24 months', costByAccountMonth: 'Cost by account and month',
         dPlByAccount: 'Δ PL by account', revTrend: 'Revenue trend', orderTrend: 'Order trend', customerTrend: 'Customer trend',
+        kpiRevenue: 'Revenue', kpiMargin: 'Margin', kpiMarginPct: 'Margin %', kpiCost: 'Cost', kpiOrders: 'Orders', kpiCustomers: 'Customers', kpiAvgOrder: 'Avg. order value',
       },
     },
 
@@ -839,6 +854,16 @@
       accounts: 'P&L accounts', accountItem: 'P&L line item', measures: 'Measures',
       ac: 'Actual', py: 'Previous year', pl: 'Plan', fc: 'Forecast', bu: 'Budget',
       margin: 'Revenue − cost', avgOrder: 'Revenue / orders',
+      mn: {
+        revenue: 'Revenue', cost: 'Cost', margin: 'Margin', marginPct: 'Margin%', qty: 'Quantity', orders: 'Orders', customers: 'Customers', avgOrder: 'Avg. order value',
+        orderIntake: 'Order intake', newCustomers: 'New customers', winRate: 'Win rate%', returnsPct: 'Returns%', discountPct: 'Discount%',
+        hires: 'Hires', leavers: 'Leavers', turnoverPct: 'Employee turnover%', sickPct: 'Sick leave rate%', overtime: 'Overtime hours',
+        persCostAc: 'Personnel cost AC', persCostPl: 'Personnel cost PL', persCostPy: 'Personnel cost PY', vacancies: 'Vacancies',
+        trainingDays: 'Training days', womenPct: 'Share of women%', avgAge: 'Avg. age',
+        revenuePy: 'Revenue PY', newsletter: 'Newsletter sign-ups', avgSession: 'Avg. session duration',
+        netSales: 'Net sales', material: 'Cost of materials', grossProfit: 'Gross profit', personnel: 'Personnel expenses', otherExp: 'Other expenses',
+        depreciation: 'Depreciation', finResult: 'Financial result', taxes: 'Taxes', netIncome: 'Net income', ebitdaMarginPct: 'EBITDA margin%',
+      },
     },
 
     exp: {

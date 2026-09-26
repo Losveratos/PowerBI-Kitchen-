@@ -20,6 +20,8 @@
          variance:{abs:Boolean, rel:Boolean},
          seed:Number, dense:Boolean, scale:Number,
          label:String (nur kpi/card: '' = keine Beschriftung),
+         content:String (nur text: Text der Kachel, umbrochen; nur button:
+                         Beschriftung; leer = Platzhalter wie bisher),
          // Typografie
          fontScale:Number,                          // Default 1, multipliziert jede Schrift
          fonts:{ label, value, axis, title },       // px bei scale 1, ersetzt den Grundgrad
@@ -3550,10 +3552,59 @@
     return wrap(c, b);
   };
 
+  /* Fließtext in Zeilen umbrechen (Wortgrenzen, Absätze per Zeilenumbruch, überlange Wörter hart
+     getrennt). Höchstens maxRows Zeilen; passt der Rest nicht, endet die letzte Zeile mit „…".
+     Breiten über tw() geschätzt (eher zu breit), damit nichts über den viewBox hinausläuft.        */
+  function wrapLines(s, w, size, maxRows) {
+    var max = Math.max(1, Math.floor(w / (size * CW))), out = [], cut = false, i, j;
+    var paras = String(s).replace(/\r/g, '').split('\n');
+    for (i = 0; i < paras.length && !cut; i++) {
+      var words = paras[i].split(/\s+/).filter(Boolean), line = '';
+      if (!words.length) { if (out.length) out.push(''); continue; }
+      for (j = 0; j < words.length; j++) {
+        var wd = words[j];
+        while (wd.length > max) {                       // überlanges Wort: hart trennen
+          if (line) { out.push(line); line = ''; }
+          out.push(wd.slice(0, max)); wd = wd.slice(max);
+        }
+        var cand = line ? line + ' ' + wd : wd;
+        if (cand.length <= max) line = cand;
+        else { out.push(line); line = wd; }
+      }
+      if (line) out.push(line);
+      if (out.length > maxRows) cut = true;
+    }
+    while (out.length && out[out.length - 1] === '') out.pop();
+    if (out.length > maxRows) { out = out.slice(0, maxRows); cut = true; }
+    if (cut && out.length) {
+      var last = out[out.length - 1];
+      out[out.length - 1] = (last.length >= max ? last.slice(0, Math.max(0, max - 1)) : last).replace(/\s+$/, '') + '…';
+    }
+    return out;
+  }
+
   /* ---- Textfeld ---------------------------------------------------------- */
+  /* o.content = Text der Kachel: wird umbrochen gezeichnet (Schrift wird bei
+     langem Text kleiner, zuletzt „…"). Ohne Inhalt oder bei winziger Kachel
+     die bisherigen Platzhalterzeilen (sichtbar „noch nicht ausgefüllt").    */
   S.text = function (w, h, o) {
     var c = ctx(w, h, o), b = '';
     var P = area(c, {});
+    var content = String(o && o.content != null ? o.content : '').trim();
+    if (content && !c.tiny) {
+      var sizes = [n(c.fsT * 1.3), n(c.fsT * 1.12), n(c.fs)], fs = sizes[0], lh, lines, si;
+      for (si = 0; si < sizes.length; si++) {
+        fs = sizes[si]; lh = n(fs * 1.35);
+        var rowsFit = Math.max(1, Math.floor((P.h - fs * 0.25) / lh));
+        lines = wrapLines(content, P.w, fs, rowsFit);
+        if (lines.length && lines[lines.length - 1].slice(-1) !== '…') break;
+        if (si === sizes.length - 1) break;
+      }
+      for (si = 0; si < lines.length; si++) {
+        if (lines[si]) b += txt(P.x, P.y + fs * 0.95 + lh * si, lines[si], fs, c.C.nTitle, 'start');
+      }
+      return wrap(c, b);
+    }
     var rows = Math.max(2, Math.min(6, Math.floor(P.h / 7)));
     var lh = P.h / rows, i;
     var wfrac = [0.6, 0.97, 0.92, 0.86, 0.94, 0.55];
@@ -3584,7 +3635,11 @@
     var bw = Math.min(P.w, Math.max(30, P.w * 0.8));
     var bx = P.x + (P.w - bw) / 2, by = P.y + (P.h - bh) / 2;
     b += rrect(bx, by, bw, bh, Math.min(4, bh / 2), c.C.pane, c.C.edge, 1);
-    if (!c.small && bh >= c.fsT + 4 && bw >= tw(c.t.apply, c.fsT) + 8) b += txt(bx + bw / 2, by + bh / 2 + c.fsT * 0.34, c.t.apply, c.fsT, c.C.nTitle, 'middle', '600');
+    // o.content = eigene Beschriftung der Schaltfläche (gekürzt mit „…"); ohne sie wie bisher „Anwenden"/„Apply"
+    var cap = String(o && o.content != null ? o.content : '').replace(/\s+/g, ' ').trim();
+    var capFit = cap ? fit(c, cap, bw - 8, c.fsT) : '';
+    if (cap && !c.small && bh >= c.fsT + 4 && capFit) b += txt(bx + bw / 2, by + bh / 2 + c.fsT * 0.34, capFit, c.fsT, c.C.nTitle, 'middle', '600');
+    else if (!cap && !c.small && bh >= c.fsT + 4 && bw >= tw(c.t.apply, c.fsT) + 8) b += txt(bx + bw / 2, by + bh / 2 + c.fsT * 0.34, c.t.apply, c.fsT, c.C.nTitle, 'middle', '600');
     else b += ghost(c, bx + bw * 0.28, by + bh / 2 - 1, bw * 0.44, 2, c.C.ghost2);
     return wrap(c, b);
   };

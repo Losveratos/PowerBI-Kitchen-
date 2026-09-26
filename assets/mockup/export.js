@@ -359,8 +359,18 @@
   }
 
   // ------------------------------------------------------------------ Speichern / Öffnen
-  $('#btnSave').onclick = () => { const S = MK.state; download(slug(S.name) + '.mockup.json', JSON.stringify(S, null, 2)); MK.toast(UI('toast.saved')); };
-  $('#btnOpen').onclick = () => { if (MK.visuals().length && !confirm(UI('ask.openReplace'))) return; $('#fileOpen').click(); };
+  function saveFile() { const S = MK.state; download(slug(S.name) + '.mockup.json', JSON.stringify(S, null, 2)); MK.toast(UI('toast.saved')); }
+  $('#btnSave').onclick = saveFile;
+  // Öffnen ersetzt den Stand samt Autosave. Statt confirm(„Vorher speichern?"), dessen OK nie speicherte (B8), ein Dialog mit
+  // drei ehrlichen Wegen: Speichern und öffnen · Verwerfen und öffnen · Abbrechen. Ersetzt wird erst, wenn eine Datei gewählt ist.
+  $('#btnOpen').onclick = () => {
+    const S = MK.state; const n = S.pages.reduce((a, p) => a + MK.visuals(p).length, 0);
+    if (!n && S.pages.length < 2) { $('#fileOpen').click(); return; }
+    $('#dlgOpenP').textContent = UI('dlg.open.p', { n, p: S.pages.length });
+    $('#dlgOpen').showModal(); $('#opSave').focus();
+  };
+  $('#opSave').onclick = () => { saveFile(); $('#dlgOpen').close(); $('#fileOpen').click(); };
+  $('#opDiscard').onclick = () => { $('#dlgOpen').close(); $('#fileOpen').click(); };
   $('#fileOpen').addEventListener('change', e => {
     const f = e.target.files[0]; if (!f) return;
     f.text().then(txt => { try { const s = JSON.parse(txt); if (!(s.pages || s.layout) || !s.canvas) throw new Error('kein Mockup'); MK.state = s; if (s.lang && s.lang !== MK.lang) MK.setLang(s.lang); MK.toast(UI('toast.loaded', { n: s.name || f.name })); } catch (err) { MK.toast(UI('toast.notAMockup')); } e.target.value = ''; });
