@@ -89,7 +89,11 @@ window.MK_VERSION = '0.5.2';
   }
   function findField(ref) {
     const i = ref.indexOf('.'); if (i < 0) return null;
-    return lookupField(ref.slice(0, i), ref.slice(i + 1));
+    const table = ref.slice(0, i);
+    // Demo-Measures gibt es je Sprache unter anderem Namen (Umsatz / Revenue): erst den Namen selbst, dann seine Entsprechungen probieren
+    const names = [ref.slice(i + 1)].concat(CAT.fieldAliases ? CAT.fieldAliases(ref.slice(i + 1)) : []);
+    for (const name of names) { const f = lookupField(table, name); if (f) return f; }
+    return null;
   }
   // Feld live im geladenen Modell bzw. unter den neu angelegten Feldern suchen (Tabelle und Name getrennt, Punkte im Namen sind erlaubt)
   function lookupField(table, name) {
@@ -225,26 +229,70 @@ window.MK_VERSION = '0.5.2';
 
   function load() {
     // Die Sprache des Projekts gewinnt über die zuletzt gemerkte UI-Sprache; ein neues Projekt erbt die UI-Sprache.
-    try { const raw = localStorage.getItem(LS_KEY); if (raw) { S = migrate(JSON.parse(raw)); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Laden nie verhindern */ } I18N.set(S.lang); return; } } catch (e) { /* ignorieren */ }
+    // Gemerkte Stände aus der Zeit vor B27 (EN gewählt, Standardtexte noch deutsch) beim Laden in die Projektsprache heilen.
+    try { const raw = localStorage.getItem(LS_KEY); if (raw) { S = migrate(JSON.parse(raw)); I18N.set(S.lang); try { relabelDefaults(S.lang); } catch (e) { /* Stand bleibt wie gespeichert */ } try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Laden nie verhindern */ } return; } } catch (e) { /* ignorieren */ }
     S = defaultState(); S.pages.forEach(p => ensureIds(p.layout));   // erst jetzt ist S gesetzt → Vorlagenfelder werden gebunden
   }
   function persist() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { /* voll oder blockiert */ } }
+  // Verlauf: höchstens UNDO_MAX Schritte (Tooltip tip.undo nennt dieselbe Zahl). Fällt ein alter Schritt heraus, merkt sich
+  // undoDropped das, damit Strg+Z am Ende ehrlich „Verlauf voll, ältere verworfen" meldet statt „nichts rückgängig zu machen".
+  const UNDO_MAX = 200; let undoDropped = false;
+  function pushUndo(s) { undoStack.push(s); if (undoStack.length > UNDO_MAX) { undoStack.shift(); undoDropped = true; } redoStack = []; }
   let snap = null;
   function commit(opts) {
-    if (!(opts && opts.noUndo)) { if (snap !== null) { undoStack.push(snap); if (undoStack.length > 40) undoStack.shift(); redoStack = []; } snap = null; }
-    persist(); render();
+    if (!(opts && opts.noUndo)) { if (snap !== null) pushUndo(snap); snap = null; }
+    persist(); if (opts && opts.soon) renderSoon(); else render();
     if (snap === null) snap = JSON.stringify(S);
   }
-  function mark() { if (snap !== null) { undoStack.push(snap); if (undoStack.length > 40) undoStack.shift(); redoStack = []; } snap = JSON.stringify(S); persist(); }
+  function mark() { if (snap !== null) pushUndo(snap); snap = JSON.stringify(S); persist(); }
+  // Wiederhergestellte Stände in die aktuelle UI-Sprache bringen (die Sprache ist eine Ansichtseinstellung, kein Bearbeitungsschritt)
+  function syncLang() { if (S.lang !== I18N.lang) { relabelDefaults(I18N.lang); S.lang = I18N.lang; } }
   function undo() {
-    if (!undoStack.length) return toast(t('toast.nothingUndo'));
+    if (!undoStack.length) return toast(undoDropped ? t('toast.undoLimit', { n: UNDO_MAX }) : t('toast.nothingUndo'));
     redoStack.push(JSON.stringify(S));
-    S = migrate(JSON.parse(undoStack.pop())); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast(t('toast.undone'));
+    S = migrate(JSON.parse(undoStack.pop())); syncLang(); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast(t('toast.undone'));
   }
   function redo() {
     if (!redoStack.length) return toast(t('toast.nothingRedo'));
     undoStack.push(JSON.stringify(S));
-    S = migrate(JSON.parse(redoStack.pop())); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast(t('toast.redone'));
+    S = migrate(JSON.parse(redoStack.pop())); syncLang(); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast(t('toast.redone'));
+  }
+  // Sprachwechsel (B27): Standardtexte, die noch unverändert sind (Berichtsname, Seitennamen, Kopfband, Fußzeile,
+  // Vorlagentitel und -notizen) und ein unverändertes Demo-Modell samt Bindungen in die Zielsprache übertragen.
+  // Erkannt wird über den Wortlaut der anderen Sprache; eigene Texte bleiben unangetastet. Liefert die Anzahl der Änderungen.
+  function relabelDefaults(to) {
+    const others = I18N.langs.filter(l => l !== to); let n = 0;
+    const swap = (val, key, vars) => {
+      if (typeof val !== 'string' || !val) return val;
+      for (const l of others) if (val === I18N.tl(l, key, vars)) { const nv = I18N.tl(to, key, vars); if (nv !== val) n++; return nv; }
+      return val;
+    };
+    const pageName = name => { let nv = swap(name, 'state.firstPage'); for (let k = 1; nv === name && k <= Math.max(99, S.pages.length); k++) nv = swap(name, 'state.pageN', { n: k }); return nv; };
+    const tplKeys = Object.keys(I18N.dict.de).filter(k => k.indexOf('tpl.t.') === 0);
+    const tplSwap = val => { for (const k of tplKeys) { const nv = swap(val, k); if (nv !== val) return nv; } return val; };
+    S.name = swap(S.name, 'state.newReport');
+    S.pages.forEach(p => { p.name = pageName(p.name); });
+    const ch = S.chrome || {};
+    if (ch.header) { ch.header.title = swap(ch.header.title, 'state.headerTitle'); ch.header.sub = swap(ch.header.sub, 'state.headerSub'); }
+    if (ch.footer) ch.footer.text = swap(ch.footer.text, 'state.footerText');
+    const allVis = []; S.pages.forEach(p => visuals(p).forEach(l => allVis.push(l.visual)));
+    // Ein Titel, der genau einem gebundenen Feld entspricht (Umsatz auf Umsatz), folgt dem Feld und nicht dem Wörterbuch:
+    // bei einem eigenen Modell bleibt er stehen, beim Demo-Modell benennt ihn der Block unten zusammen mit dem Feld um.
+    const boundNames = v => { const s = new Set(); Object.values(v.roles || {}).forEach(list => list.forEach(f => s.add(f.name))); return s; };
+    allVis.forEach(v => { if (!boundNames(v).has(v.title)) v.title = tplSwap(v.title); v.sub = tplSwap(v.sub); v.notes = tplSwap(v.notes); });
+    // Demo-Modell: nur wenn es exakt dem Demo-Modell der anderen Sprache entspricht (nichts geladen, nichts ergänzt)
+    const cur = JSON.stringify(S.model); let demo = null;
+    if (S.model && (S.model.tables || []).length) CAT.demoModels.some(m => others.some(l => { if (JSON.stringify(m.build(l)) === cur) { demo = m; return true; } return false; }));
+    if (demo) {
+      const fresh = demo.build(to); const ren = {};
+      S.model.tables.forEach((tb, ti) => { const nt = fresh.tables[ti]; ['measures', 'columns'].forEach(kind => tb[kind].forEach((f, i) => { const nf = nt && nt[kind][i]; if (nf && nf.name !== f.name) ren[tb.name + '|' + f.name] = nf.name; })); });
+      S.model = fresh; n++;
+      const re = f => { const nn = !f.isNew && ren[f.table + '|' + f.name]; if (nn) f.name = nn; return nn; };
+      allVis.forEach(v => Object.values(v.roles || {}).forEach(list => list.forEach(f => { const old = f.name, nn = re(f); if (nn && v.title === old) v.title = nn; })));
+      ((ch.filter && ch.filter.fields) || []).forEach(re);
+      Object.keys(S.fieldMeta || {}).forEach(k => { const i = k.indexOf('.'); const nn = ren[k.slice(0, i) + '|' + k.slice(i + 1)]; if (nn) { S.fieldMeta[k.slice(0, i) + '.' + nn] = S.fieldMeta[k]; delete S.fieldMeta[k]; } });
+    }
+    return n;
   }
 
   // ------------------------------------------------------------------ Baum-Helfer (aktuelle Seite)
@@ -482,6 +530,23 @@ window.MK_VERSION = '0.5.2';
     renderPages(); renderInspector(); renderModel(); syncPageInputs();
   }
   function css(r) { return `left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px`; }
+  // Klick nicht verschlucken (B12): Verlässt man ein Feld per Mausklick auf eine andere Kachel, feuert dessen change-Ereignis
+  // mitten in diesem Klick. Ein sofortiges render() ersetzt das Klickziel zwischen mousedown und mouseup, der Klick ginge verloren
+  // (und N öffnete die alte Kachel). Solange eine Maustaste gedrückt ist, wird deshalb erst nach dem Loslassen neu gezeichnet.
+  let pointerDown = false, renderPending = false;
+  window.addEventListener('pointerdown', () => { pointerDown = true; }, true);
+  const pointerDone = () => { pointerDown = false; if (renderPending) { renderPending = false; setTimeout(renderKeepFocus, 0); } };
+  window.addEventListener('pointerup', pointerDone, true); window.addEventListener('pointercancel', pointerDone, true);
+  function renderSoon() { if (pointerDown) renderPending = true; else render(); }
+  // Wurde mit dem Klick ein anderes Feld im Kachel-Panel fokussiert, steht der Cursor nach dem Neuzeichnen wieder dort
+  function renderKeepFocus() {
+    const a = document.activeElement; const inIns = a && a.closest && a.closest('#insEl') && a.dataset;
+    const key = inIns ? (a.dataset.vk ? `[data-vk="${a.dataset.vk}"]` : (a.dataset.an ? `[data-an="${a.dataset.an}"]` : null)) : null;
+    const s0 = key && a.selectionStart != null ? [a.selectionStart, a.selectionEnd] : null;
+    render();
+    const b = key ? $(key, insEl) : null;
+    if (b) { b.focus({ preventScroll: true }); if (s0 && b.setSelectionRange) try { b.setSelectionRange(s0[0], s0[1]); } catch (e) { /* select/number */ } }
+  }
 
   function tileHtml(node, rect) {
     const v = node.visual; const selc = sel === node.id ? ' sel' : ''; const k = ui();
@@ -497,7 +562,7 @@ window.MK_VERSION = '0.5.2';
     const footH = chips && !tiny ? 18 * k : 0;
     const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - footH - pad - 6);
     const an = analysisOf(v);
-    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: sketchScenario(v, an), seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: isDark(S.design.tileBg) ? '#E6E6E6' : (S.design.ink || '#404040'), dark: isDark(S.design.tileBg), paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral' }, samplesOpt(v))) : '';
+    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: sketchScenario(v, an), seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '', antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: isDark(S.design.tileBg) ? '#E6E6E6' : (S.design.ink || '#404040'), dark: isDark(S.design.tileBg), paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral' }, samplesOpt(v))) : '';
     // Notiz: Symbol in der Badge-Zeile, das Popup als eigenes Element der Seite rechtsbündig unter dem Kachelkopf (B47).
     // In .badges schrumpfte es auf deren Breite (ca. 33 px) und wurde vom overflow:hidden der Kachel abgeschnitten.
     const noteTxt = v.notes ? v.notes : (v.openQuestion ? t('canvas.openQuestionEmpty') : '');
@@ -717,7 +782,7 @@ window.MK_VERSION = '0.5.2';
     if (!v) { insEl.innerHTML = `<button class="typebtn" id="btnPickType"><div class="pv"></div><div><b>${esc(t('btn.pickType'))}</b><small>${esc(t('hint.pickTypeSub'))}</small></div></button><p class="hint">${esc(t('hint.dragField'))}</p>${dims}<div class="section"><button class="btn sm" data-ins="rm">${esc(t('btn.removeTile'))}</button></div>`; bindInspector(n); return; }
     const def = CAT.byId[v.kind] || { label: v.kind, roles: [], engines: ['native'] };
     const an = analysisOf(v); const a = v.analysis || {};
-    const pv = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, 64, 36, { scenario: sketchScenario(v, an), deltaBasis: an.deltaBasis, seed: 3 }) : '';
+    const pv = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, 64, 36, { scenario: sketchScenario(v, an), deltaBasis: an.deltaBasis, seed: 3, lang: S.lang }) : '';
     const engines = def.engines.map(e => `<button data-engine="${e}" class="${v.engine === e ? 'on ' + e : ''}">${CAT.engineLabel[e]}</button>`).join('');
     const rolesDef = CAT.rolesFor(def, v); const hasRef = rolesDef.some(r => r.key === 'ref');
     // Δ-Basis auch bei Typen mit Ziel-Rolle (KPI, Tacho) zeigen: dort folgt das Szenario der gebundenen Referenz (Review B13)
@@ -836,7 +901,7 @@ window.MK_VERSION = '0.5.2';
       const isSel = x.tagName === 'SELECT';
       x.addEventListener('input', () => { n.visual[x.dataset.vk] = x.value; persist(); if (!isSel && x.dataset.vk !== 'notes') renderPageOnly(); });
       x.addEventListener('change', () => {
-        n.visual[x.dataset.vk] = x.value; mark(); if (isSel || x.dataset.vk === 'notes') render();
+        n.visual[x.dataset.vk] = x.value; mark(); if (isSel || x.dataset.vk === 'notes') renderSoon();
         // Szenario gewechselt, gebundene Referenz passt nicht mehr: nicht still weiterrechnen, sondern melden (Review B2). Getauscht wird nur auf Klick im Panel.
         if (x.dataset.vk === 'scenario') { const mm = refMismatch(n.visual); if (mm && mm.kind === 'scenario') toast(t('scen.toast', { s: n.visual.scenario, f: mm.field.name, b: mm.note })); }
       });
@@ -885,7 +950,8 @@ window.MK_VERSION = '0.5.2';
   const bind = (id, set, ev) => {
     const el = $('#' + id); if (!el) return; const val = () => el.type === 'checkbox' ? el.checked : el.value;
     if (ev === 'input') { el.addEventListener('input', () => { set(val()); commit({ noUndo: true }); }); el.addEventListener('change', () => { set(val()); mark(); }); }
-    else el.addEventListener('change', () => { set(val()); commit(); });
+    // Text- und Zahlenfelder melden change beim Verlassen, oft mitten im Klick auf eine Kachel: erst nach dem Klick zeichnen (B12)
+    else el.addEventListener('change', () => { set(val()); commit(el.tagName === 'INPUT' && el.type !== 'checkbox' ? { soon: true } : undefined); });
     return el;
   };
   // Barrierefreiheit: Prüfung über alle Seiten, Ergebnis im Design-Reiter (Modul a11y.js)
@@ -926,12 +992,16 @@ window.MK_VERSION = '0.5.2';
   bind('rpAudience', v => S.report.audience = v, 'input'); bind('rpPurpose', v => S.report.purpose = v, 'input'); bind('rpDecision', v => S.report.decision = v, 'input');
   bind('rpVersion', v => S.report.version = v, 'input'); bind('rpDataDate', v => S.report.dataDate = v, 'input'); bind('rpParticipants', v => S.report.participants = v, 'input');
   // Sprache: Auswahlfeld im Reiter „Bericht" und der kleine Umschalter oben führen auf denselben Weg
+  // Unveränderte Standardinhalte ziehen mit um (relabelDefaults); der Wechsel selbst ist kein Rückgängig-Schritt.
   function setLang(lang) {
-    S.lang = I18N.set(lang);
+    const to = lang === 'en' ? 'en' : 'de';
+    const n = relabelDefaults(to);
+    S.lang = I18N.set(to);
     I18N.apply(document);
-    persist(); render(); toast(t('toast.langSwitched'));
+    persist(); render(); snap = JSON.stringify(S);
+    toast(n ? t('toast.langSwitchedN', { n }) : t('toast.langSwitched'));
   }
-  bind('rpLang', v => { S.lang = v; setLang(v); });
+  $('#rpLang').addEventListener('change', e => setLang(e.target.value));
   $('#btnLang').onclick = () => setLang(I18N.lang === 'de' ? 'en' : 'de');
   $('#ftFieldList').addEventListener('input', e => { const inp = e.target.closest('[data-ftdef]'); if (inp) { S.chrome.filter.fields[+inp.dataset.ftdef].default = inp.value; persist(); } });
   $('#ftFieldList').addEventListener('change', e => { if (e.target.closest('[data-ftdef]')) mark(); const ts = e.target.closest('[data-fttype]'); if (ts) { S.chrome.filter.fields[+ts.dataset.fttype].type = ts.value; commit(); } });
@@ -1002,7 +1072,7 @@ window.MK_VERSION = '0.5.2';
     CAT.groups.forEach(g => {
       const items = CAT.list.filter(k => k.group === g && (!q || (k.label + ' ' + k.id + ' ' + g).toLowerCase().includes(q)));
       if (!items.length) return;
-      html += `<h3>${esc(g)}</h3><div class="cat-grid">` + items.map(k => `<button class="cat-item${k.id === cur ? ' cur' : ''}" data-kind="${k.id}" draggable="true" title="${esc(k.note || '')}"><div class="pv">${window.MK_SKETCH ? window.MK_SKETCH(k.sketch, 130, 56, { scenario: 'AC/PL', seed: 5 }) : ''}</div><b>${esc(k.label)}</b><small>${k.engines.map(e => CAT.engineLabel[e]).join(' · ')}</small></button>`).join('') + '</div>';
+      html += `<h3>${esc(g)}</h3><div class="cat-grid">` + items.map(k => `<button class="cat-item${k.id === cur ? ' cur' : ''}" data-kind="${k.id}" draggable="true" title="${esc(k.note || '')}"><div class="pv">${window.MK_SKETCH ? window.MK_SKETCH(k.sketch, 130, 56, { scenario: 'AC/PL', seed: 5, lang: S.lang }) : ''}</div><b>${esc(k.label)}</b><small>${k.engines.map(e => CAT.engineLabel[e]).join(' · ')}</small></button>`).join('') + '</div>';
     });
     $('#catBody').innerHTML = html || `<p class="hint">${esc(t('hint.noTypeMatch'))}</p>`;
   }
@@ -1331,7 +1401,8 @@ window.MK_VERSION = '0.5.2';
     fieldStatus, refMismatch, sketchScenario, basisOfName, syncFieldFlags,
     setLang, get lang() { return I18N.lang; }, copyText,
     // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
-    reset() { S = defaultState(); S.pages.forEach(p => ensureIds(p.layout)); sel = null; undoStack = []; commit(); },
+    // Der Verlauf beginnt neu; commit() legt danach den Stand vor „Neu" als einen Schritt ab, Strg+Z holt ihn also zurück.
+    reset() { S = defaultState(); S.pages.forEach(p => ensureIds(p.layout)); sel = null; undoStack = []; undoDropped = false; commit(); },
   };
 
   { const vEl = $('#mkVersion'); if (vEl) vEl.textContent = window.MK_VERSION; }

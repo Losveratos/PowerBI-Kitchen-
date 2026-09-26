@@ -119,6 +119,11 @@
     return String(s || 'seite').normalize('NFD').replace(/[̀-ͯ]/g, '')
       .replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40).toLowerCase() || 'seite';
   }
+  // Texte des Bildes in der Sprache des Mockups (= aktuelle UI-Sprache, setLang hält beide gleich), wie im Canvas
+  function L(ctx, key) {
+    var I = root.MK_I18N; if (!I) return key;
+    return I.tl((ctx && ctx.S && ctx.S.lang) || I.lang, key);
+  }
   function mk() {
     var M = root.MK;
     if (!M || !M.state) throw new Error('MK_PNG: window.MK fehlt — render-png.js nach app.js laden.');
@@ -215,7 +220,7 @@
     var svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"' +
       ' viewBox="0 0 ' + W + ' ' + H + '" width="' + nm(outW == null ? W : outW) + '" height="' + nm(outH == null ? H : outH) + '"' +
       ' font-family="' + SANS + '" text-rendering="optimizeLegibility">' +
-      '<title>' + esc((S.name || 'Mockup') + ' · ' + (p.name || 'Seite')) + '</title>' +
+      '<title>' + esc((S.name || 'Mockup') + (p.name ? ' · ' + p.name : '')) + '</title>' +
       defs + body + '</svg>';
 
     return { svg: svg, page: p, w: W, h: H };
@@ -307,7 +312,7 @@
     /* Titelblock */
     var tfs = 17 * k, sfs = 11 * k;
     var maxW = Math.max(20, rightX - x);
-    var title = fit(c.title || 'Seitentitel', maxW, tfs, 600);
+    var title = fit(c.title || L(ctx, 'canvas.pageTitle'), maxW, tfs, 600);
     var blockH = tfs * LH + (c.sub ? sfs * LH : 0);
     var top = cy - blockH / 2;
     out += tx(x, top + tfs * ASC, title, { size: tfs, weight: 600, fill: fg });
@@ -350,12 +355,17 @@
     var hfs = 11 * k, sfs = 10.5 * k;
     var slH = Math.round(sfs * LH + 10 * k + 2);
     var fields = f.fields || [];
-    var head = 'FILTER';
+    // Überschrift wie im Canvas: eigener Text oder „Filter"/„Filters", Großbuchstaben (CSS text-transform), gleiche Ein-/Ausblend-Regel
+    var fh = f.heading || {};
+    var showHead = fh.show === 'on' || (fh.show !== 'off' && !fields.length) || (fh.show == null && !!fh.text);
+    var head = showHead ? String(fh.text || L(ctx, 'canvas.filter')).toUpperCase() : '';
 
     if (side === 'top') {
       var x = z.x + 16 * k, cy = z.y + z.h / 2;
-      out += tx(x, cy + hfs * MID, head, { size: hfs, fill: '#6B7280', ls: 0.66 * k });
-      x += textW(head, hfs, null, false, 0.66 * k) + 8 * k;
+      if (head) {
+        out += tx(x, cy + hfs * MID, head, { size: hfs, fill: '#6B7280', ls: 0.66 * k });
+        x += textW(head, hfs, null, false, 0.66 * k) + 8 * k;
+      }
       var bw = 160 * k;
       fields.forEach(function (fl) {
         if (x + bw > z.x + z.w - 16 * k) return;
@@ -365,8 +375,10 @@
       return out;
     }
     var px = z.x + 10 * k, pw = Math.max(20, z.w - 20 * k), y = z.y + 12 * k;
-    out += tx(px, y + hfs * ASC, head, { size: hfs, fill: '#6B7280', ls: 0.66 * k });
-    y += hfs * LH + 8 * k;
+    if (head) {
+      out += tx(px, y + hfs * ASC, fit(head, pw, hfs, null, false, 0.66 * k), { size: hfs, fill: '#6B7280', ls: 0.66 * k });
+      y += hfs * LH + 8 * k;
+    }
     fields.forEach(function (fl) {
       if (y + slH > z.y + z.h - 6 * k) return;
       out += slicer(ctx, px, y, pw, slH, fl.name, sfs);
@@ -393,7 +405,7 @@
         r: tr, fill: 'url(#' + ctx.P + 'empty)', stroke: '#C9C6BA', sw: 1, dash: nm(5 * k) + ' ' + nm(4 * k)
       });
       out0 += tx(r.x + r.w / 2, r.y + r.h / 2 + (tinyE ? 22 * k * MID : -2 * k), '+', { size: 22 * k, anchor: 'middle', fill: '#C9C6BA' });
-      if (!tinyE) out0 += tx(r.x + r.w / 2, r.y + r.h / 2 + 16 * k, fit('Visual wählen oder Feld ablegen', r.w - 16 * k, 11 * k), { size: 11 * k, anchor: 'middle', fill: '#8A94A6' });
+      if (!tinyE) out0 += tx(r.x + r.w / 2, r.y + r.h / 2 + 16 * k, fit(L(ctx, 'canvas.emptyHint'), r.w - 16 * k, 11 * k), { size: 11 * k, anchor: 'middle', fill: '#8A94A6' });
       return out0;
     }
 
@@ -449,7 +461,7 @@
     if (by + bh > bottom) by = Math.max(r.y + 1 + ip + headH, bottom - bh);
     var sopt = {
       scenario: mk().sketchScenario ? mk().sketchScenario(v) : (def.plain ? 'AC' : v.scenario), seed: (seedOf(leaf.node.id) + o.seedBase) % 1000,
-      label: v.sub || '', scale: k, lang: ctx.S.lang,
+      label: v.sub || '', scale: k, lang: ctx.S.lang, content: v.content || '',
       palette: ctx.palette, ink: ctx.dark ? '#E6E6E6' : (ctx.d.ink || '#404040'), dark: ctx.dark, paper: ctx.tileBg,
       fontScale: (mk().typo ? mk().typo().scale : 1) * ((v.typo && v.typo.scale) || 1), fonts: { label: mk().typo ? mk().typo().chart : 9 },
       antiPattern: !!(mk().anti && mk().anti[v.kind]),
