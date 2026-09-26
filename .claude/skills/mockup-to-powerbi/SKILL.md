@@ -78,6 +78,20 @@ geht auch allein, ohne PBIP.
    `pbir-visuals.<Seite>.json` sind optional — das Skript erzeugt sie neu.
    Liegen `page-<Index>-<Seitenslug>.png` daneben (Export „Alle Dateien"),
    wandern sie in Schritt 8 in die PowerPoint.
+   **Leere `pbir-visuals.<Seite>.json` (`[]`) sind kein Fehler.** Die Tool-Datei
+   enthält nur native Visuals mit vollständigen Pflichtrollen und die Slicer.
+   ChartKitchen-, Custom- und Deneb-Kacheln stehen nur in `mockup-spec.json`,
+   Text- und Button-Kacheln baut der Skill als `shape`/`actionButton` mit Text
+   (ab Tool 0.5.2 fehlen sie in der Tool-Datei, ältere Exporte führen sie noch als
+   `textbox`). Die Vorlagen setzen für Diagramme `engine: "ck"`, eine Seite nur
+   aus Vorlagen ergibt deshalb oft `[]`. Nativen Ersatz für die ChartKitchen-Kacheln liefert der
+   Konverter mit **`--ck-fallback`** (siehe Punkt 5):
+   ```bash
+   python .claude/skills/mockup-to-powerbi/scripts/mockup_to_pbir.py \
+     "<Projekt>/mockup-spec.json" --ck-fallback
+   ```
+   Das Tool zeigt die Anzahl nativer und ChartKitchen-Visuals je Seite im
+   Export-Dialog an.
 3. **Welche Spec-Version?** `meta.specVersion`. 3 = aktuell (stabile IDs, Hash,
    Berichtskopf, Analyse-Block, Issues; ab Tool 0.4.1 zusätzlich Small
    Multiples, Achse per Feldparameter, die nativen Klassiker `ncolumn`/`nbar`/
@@ -325,8 +339,9 @@ Zwei Dinge kann `batch` nicht, deshalb stehen sie daneben:
 **Text- und Button-Kacheln** (`kind: text|button` mit `content`) baut der Skill
 als `shape` bzw. `actionButton` mit echtem `text.text` — **nicht** als Textbox.
 Eine Textbox bliebe über die CLI leer (siehe Stolpersteine). Die Tool-Datei
-`pbir-visuals.<Seite>.json` enthält sie noch als `textbox`; nimm deshalb die
-Dateien aus `mockup-out/`.
+`pbir-visuals.<Seite>.json` lässt sie ab Tool 0.5.2 weg (ältere Exporte
+enthalten sie noch als `textbox`); nimm in jedem Fall die Dateien aus
+`mockup-out/`.
 
 **Gestaltung: Theme vor Overrides.** `mockup-out/theme-fragment.json` enthält die
 Kachel-Optik aus `design` als `visualStyles`-`*`-Eintrag (Hintergrund, Rahmen

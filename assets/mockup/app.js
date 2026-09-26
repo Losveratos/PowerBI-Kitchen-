@@ -1,4 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
+// Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
+window.MK_VERSION = '0.5.2';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
@@ -1250,20 +1252,25 @@
   };
   // Staende vergleichen (v0.4.7): gespeicherte Datei (Zustand oder Spec) gegen den aktuellen Stand
   let lastDiff = null;
+  // Kachel-Rechtecke für den Vergleich: beide Stände mit dem aktuellen Chrome und Canvas rechnen, damit eine
+  // Zonenänderung (steht einmal unter „Zonen") nicht jede Kachel als verschoben meldet.
+  const diffRects = p => { const m = {}; computeAll(p).leaves.forEach(l => { m[l.node.id] = l.rect; }); return m; };
   $('#btnDiff').onclick = () => $('#fileDiff').click();
   $('#fileDiff').addEventListener('change', e => {
     const f = e.target.files[0]; if (!f) return;
     f.text().then(txt => {
       try {
-        const other = window.MK_DIFF.from(JSON.parse(txt)); if (!other) throw new Error('kein Mockup');
-        const cur = other.source === 'spec' ? window.MK_DIFF.fromSpec(window.MK_EXPORT.buildSpec()) : window.MK_DIFF.fromState(S);
+        const other = window.MK_DIFF.from(JSON.parse(txt), { rects: diffRects }); if (!other) throw new Error('kein Mockup');
+        const cur = other.source === 'spec' ? window.MK_DIFF.fromSpec(window.MK_EXPORT.buildSpec()) : window.MK_DIFF.fromState(S, { rects: diffRects });
         const res = window.MK_DIFF.compare(other, cur); lastDiff = { res, names: { older: f.name, newer: t('diff.current') } };
         $('#dlgDiffP').textContent = t('diffui.p', { a: f.name, n: res.counts.total }); $('#dlgDiffBody').innerHTML = window.MK_DIFF.render(res, t); $('#dlgDiff').showModal();
       } catch (err) { toast(t('toast.notAMockup')); }
       e.target.value = '';
     });
   });
-  $('#btnDiffCopy').onclick = () => { if (!lastDiff) return; navigator.clipboard.writeText(window.MK_DIFF.markdown(lastDiff.res, t, lastDiff.names)).then(() => toast(t('diffui.copied'))); };
+  $('#btnDiffCopy').onclick = () => { if (!lastDiff) return; copyText(window.MK_DIFF.markdown(lastDiff.res, t, lastDiff.names)).then(() => toast(t('diffui.copied')), () => toast(t('diffui.copyFailed'))); };
+  // Zwischenablage: verweigert der Browser (Rechte, unfokussiertes Dokument, iframe, alter Browser), gibt es eine Meldung statt eines stillen Fehlers
+  function copyText(text) { try { return navigator.clipboard.writeText(text); } catch (err) { return Promise.reject(err); } }
   $('#btnUndo').onclick = undo; $('#btnRedo').onclick = redo;
   function togglePresent(on) { document.body.classList.toggle('present', on); const p = document.body.classList.contains('present'); const b = $('#btnPresent'); b.textContent = p ? t('btn.presentEnd') : t('btn.present'); b.setAttribute('data-i18n', p ? 'btn.presentEnd' : 'btn.present'); setTimeout(() => { fitZoom(); render(); }, 30); }
   $('#btnPresent').onclick = () => togglePresent();
@@ -1322,10 +1329,11 @@
     get state() { return S; }, set state(v) { S = migrate(v); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Öffnen nie verhindern */ } sel = null; commit(); },
     page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     fieldStatus, refMismatch, sketchScenario, basisOfName, syncFieldFlags,
-    setLang, get lang() { return I18N.lang; },
+    setLang, get lang() { return I18N.lang; }, copyText,
     // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
     reset() { S = defaultState(); S.pages.forEach(p => ensureIds(p.layout)); sel = null; undoStack = []; commit(); },
   };
 
+  { const vEl = $('#mkVersion'); if (vEl) vEl.textContent = window.MK_VERSION; }
   load(); I18N.apply(document); snap = JSON.stringify(S); fitZoom(); render();
 })();
