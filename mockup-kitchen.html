@@ -48,6 +48,8 @@ body.present .pill-home{display:none}
 .btn.ghost{border-color:transparent;background:transparent}
 .btn.ghost:hover{background:var(--bg-soft)}
 .btn[disabled]{opacity:.45;cursor:default}
+/* hidden gilt immer: Klassen mit display (.btn, .row, .grid2 …) dürfen ein verstecktes Element nicht wieder sichtbar machen */
+[hidden]{display:none!important}
 select.ctl,input.ctl,textarea.ctl{border:1px solid var(--line-strong);background:var(--bg-card);border-radius:6px;padding:5px 8px;font-size:12.5px;width:100%}
 input.ctl:focus,select.ctl:focus,textarea.ctl:focus{outline:2px solid var(--sel-soft);border-color:var(--sel)}
 textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
@@ -234,6 +236,7 @@ details.sub{border:1px solid var(--line);border-radius:var(--r);padding:6px 10px
 .gutter .gmerge{position:absolute;left:50%;top:50%;width:calc(22px / var(--zoom));height:calc(22px / var(--zoom));margin:calc(-11px / var(--zoom)) 0 0 calc(-11px / var(--zoom));border-radius:50%;border:1px solid var(--line-strong);background:var(--bg-card);color:var(--ink-soft);font-size:calc(15px / var(--zoom));line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .12s;z-index:4;padding:0}
 .gutter:hover .gmerge,.page:hover .gutter .gmerge{opacity:.55}
 .gutter .gmerge:hover{opacity:1;background:var(--accent);color:#fff;border-color:var(--accent)}
+.page .gutter .gmerge:focus-visible{opacity:1}
 body.present .gutter .gmerge{display:none}
 .gedge{position:absolute;z-index:4;width:calc(22px / var(--zoom));height:calc(22px / var(--zoom));transform:translate(-50%,-50%);border-radius:50%;border:1px dashed var(--line-strong);background:var(--bg-card);color:var(--ink-soft);font-size:calc(15px / var(--zoom));line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .12s;padding:0}
 .page:hover .gedge{opacity:.45}
@@ -254,6 +257,11 @@ details.sub .section{border-top:0;margin-top:6px;padding-top:0}
 .gc-tag{flex:none;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:600;background:var(--line);color:var(--ink-soft)}
 .gc-tag.warn{background:#FBEBD6;color:#8A4E10}
 .gc-ok{color:#1F5A3F;font-weight:600;font-size:14px;margin:6px 0}
+.gc-note{border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:0 0 10px;font-size:12.5px;background:#EEF6F1;color:#1F5A3F}
+.gc-note.warn{background:#FBEBD6;color:#6B3C0C;border-color:#F1D3AE}
+.gc-note ul{margin:4px 0 0;padding-left:18px}
+.hint.err{color:var(--bad);font-weight:500}
+input.ctl[aria-invalid="true"],input.ctl[aria-invalid="true"]:focus{border-color:var(--bad);outline:2px solid #F6D5D1}
 .dlg-body.diff{max-height:70vh;overflow:auto;font-size:13px}
 .dlg-body.diff h3{font-size:13px;margin:14px 0 6px;font-family:var(--ff-sans)}
 .dlg-body.diff .mono{font-family:var(--ff-mono);font-size:11px;color:var(--ink-mute)}
@@ -644,7 +652,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
   <div class="dlg-body"><div class="grid2">
     <div class="field"><label data-i18n="lbl.rows">Zeilen</label><input class="ctl" type="number" id="spRows" value="2" min="1" max="6"></div>
     <div class="field"><label data-i18n="lbl.cols">Spalten</label><input class="ctl" type="number" id="spCols" value="2" min="1" max="6"></div>
-  </div><p class="hint" data-i18n="hint.splitDlg">Bestehende Visuals werden der Reihe nach in die neuen Zellen gesetzt; überzählige gehen verloren.</p></div>
+  </div><p class="hint" data-i18n="hint.splitDlg">Bestehende Visuals werden der Reihe nach in die neuen Zellen gesetzt; überzählige gehen verloren.</p><p class="hint err" id="spErr" role="alert" hidden></p></div>
   <div class="dlg-foot"><button class="btn" data-close data-i18n="btn.cancel">Abbrechen</button><button class="btn primary" id="spOk" data-i18n="btn.split">Aufteilen</button></div>
 </dialog>
 
@@ -655,7 +663,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 <dialog id="dlgGrid" class="narrow">
   <div class="dlg-head"><div><h2 data-i18n="gc.h">Pixelgenau prüfen</h2><p id="dlgGridP"></p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
   <div class="dlg-body" id="dlgGridBody"></div>
-  <div class="dlg-foot"><button class="btn" id="gcMargin" hidden>Rand anpassen</button><button class="btn primary" id="gcSnap" data-i18n="gc.snap">Ausrichten</button><button class="btn" data-close data-i18n="btn.close">Schließen</button></div>
+  <div class="dlg-foot"><button class="btn" id="gcMargin" data-i18n="gc.margin" data-i18n-title="gc.marginTip" title="Rand und Zwischenraum gelten für alle Seiten. Nach dem Anpassen werden alle Seiten neu geprüft." hidden>Rand anpassen</button><button class="btn primary" id="gcSnap" data-i18n="gc.snap">Ausrichten</button><button class="btn" data-close data-i18n="btn.close">Schließen</button></div>
 </dialog>
 <dialog id="dlgDiff">
   <div class="dlg-head"><div><h2 data-i18n="diffui.h">Was hat sich geändert?</h2><p id="dlgDiffP"></p></div><span class="spacer"></span><button class="btn" id="btnDiffCopy" data-i18n="diffui.copy">Als Markdown kopieren</button><button class="btn ghost" data-close>✕</button></div>
