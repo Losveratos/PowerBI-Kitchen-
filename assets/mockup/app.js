@@ -87,12 +87,92 @@
   }
   function findField(ref) {
     const i = ref.indexOf('.'); if (i < 0) return null;
-    const table = ref.slice(0, i), name = ref.slice(i + 1);
+    return lookupField(ref.slice(0, i), ref.slice(i + 1));
+  }
+  // Feld live im geladenen Modell bzw. unter den neu angelegten Feldern suchen (Tabelle und Name getrennt, Punkte im Namen sind erlaubt)
+  function lookupField(table, name) {
     const t = S.model.tables.find(x => x.name === table);
     if (t) { const f = t.measures.find(x => x.name === name) || t.columns.find(x => x.name === name); if (f) return { table, name, kind: f.kind, type: f.type || '', isNew: false }; }
     const nf = S.newFields.find(x => x.table === table && x.name === name);
     if (nf) return { table, name, kind: nf.kind, type: nf.type || '', isNew: true };
     return null;
+  }
+  // Status einer Bindung, immer gegen den aktuellen Stand (Review B3): 'model' | 'new' | 'missing'.
+  // Ohne geladenes Modell gibt es nichts zu prüfen; dann gilt das gespeicherte isNew.
+  function fieldStatus(f) {
+    if (!f || !S) return 'model';
+    const hit = lookupField(f.table, f.name); if (hit) return hit.isNew ? 'new' : 'model';
+    return S.model.tables.length ? 'missing' : (f.isNew ? 'new' : 'model');
+  }
+  function eachBinding(fn) {
+    S.pages.forEach(p => visuals(p).forEach(l => Object.keys(l.visual.roles || {}).forEach(key => (l.visual.roles[key] || []).forEach(f => fn(f, l.visual, key, p)))));
+    ((S.chrome.filter || {}).fields || []).forEach(f => fn(f, null, 'filter', null));
+  }
+  // Nach jedem Modellwechsel: isNew wahrheitsgemäß nachziehen und fehlende Felder markieren. Liefert die Zahl fehlender Felder.
+  function syncFieldFlags() {
+    const miss = new Set();
+    eachBinding(f => { const st = fieldStatus(f); f.isNew = st === 'new'; if (st === 'missing') { f.missing = true; miss.add(f.table + '|' + f.name); } else delete f.missing; });
+    return miss.size;
+  }
+  // Szenario-Kürzel aus einem Feldnamen (Review B2/B13). Erkannt werden Kürzel (PL, Umsatz_PY, PYTD) und Wörter (Vorjahr, Budget, Forecast, Plan).
+  // strict: null, wenn nichts eindeutig ist (für Widerspruchsprüfungen); sonst die bisherige lose Erkennung mit PL als Rückfall.
+  const BASIS_RX = [
+    ['PY', /(^|[^A-Z])(PY|VJ)(TD|YTD)?(?![A-Z])|Vorjahr|[Pp]rior ?[Yy]ear|[Pp]revious ?[Yy]ear|[Ll]ast ?[Yy]ear/],
+    ['BU', /(^|[^A-Z])BU(?![A-Z])|Budget/],
+    ['FC', /(^|[^A-Z])FC(?![A-Z])|Forecast|Prognose|Hochrechnung/],
+    ['PL', /(^|[^A-Z])PL(?![A-Z])|Plan/],
+  ];
+  function basisOfName(name, strict) {
+    const s = String(name || ''); const hit = BASIS_RX.find(x => x[1].test(s)); if (hit) return hit[0];
+    if (strict) return null;
+    return /PY|VJ|Vorjahr/i.test(s) ? 'PY' : /BU|Budget/i.test(s) ? 'BU' : /FC|Forecast/i.test(s) ? 'FC' : 'PL';
+  }
+  // Vergleichsszenarien eines Szenario-Strings (alles außer AC): 'AC/PL/FC' → ['PL', 'FC']
+  const SCEN_OPTIONS = ['AC/PL', 'AC/PY', 'AC/PL/FC', 'AC/PL/PY', 'AC/BU', 'PL/FC', 'AC'];
+  function scenRefs(scen) { return String(scen || '').toUpperCase().split(/[^A-Z]+/).filter(x => ['PY', 'PL', 'BU', 'FC'].includes(x)); }
+  // Die Rolle, die bei diesem Typ die Referenz trägt: 'ref' (mit Szenario-Wahl) oder 'goal' (KPI, Tacho; Szenario folgt dem Feld)
+  function refRoleOf(def, v) { const rd = def ? CAT.rolesFor(def, v || { roles: {} }) : []; return rd.some(r => r.key === 'ref') ? 'ref' : (rd.some(r => r.key === 'goal') ? 'goal' : null); }
+  // Widerspruch zwischen Szenario bzw. Δ-Basis und gebundener Referenz (Review B2). null, wenn alles passt oder nichts eindeutig ist.
+  function refMismatch(v) {
+    const def = v && CAT.byId[v.kind]; if (!def || def.plain) return null;
+    const key = refRoleOf(def, v); if (!key) return null;
+    const bound = ((v.roles || {})[key] || []).map((f, idx) => ({ f, idx, b: basisOfName(f.name, true) })).filter(x => x.b);
+    if (!bound.length) return null;
+    // note: „ (PL)" hinter dem Feldnamen, außer der Name ist schon das Kürzel selbst
+    const hit = (x, want, kind) => ({ kind, roleKey: key, idx: x.idx, field: x.f, fieldBasis: x.b, want, scenario: v.scenario, note: String(x.f.name).trim().toUpperCase() === x.b ? '' : ' (' + x.b + ')' });
+    if (key === 'ref') {
+      const want = scenRefs(v.scenario);
+      const off = want.length ? bound.find(x => !want.includes(x.b)) : null;
+      if (off) {
+        // extra: alle Kürzel des Szenarios sind schon gebunden, das Feld ist zusätzlich (z. B. AC/PL mit PL und PY). Dann kein Tausch, nur Szenario erweitern.
+        const free = want.filter(w => !bound.some(x => x.b === w)); const m = hit(off, free[0] || want[0], 'scenario'); if (!free.length) m.extra = true; return m;
+      }
+    }
+    const a = v.analysis || {};
+    if (a.deltaBasis && !bound.some(x => x.b === a.deltaBasis)) return hit(bound[0], a.deltaBasis, 'basis');
+    return null;
+  }
+  // Tauschvorschlag: dasselbe Feld mit getauschtem Kürzel (PL → PY, Umsatz_PL → Umsatz_PY), zuerst in derselben Tabelle. Kein Raten über andere Namen.
+  function swapCandidate(f, want) {
+    const from = basisOfName(f.name, true); if (!from || !want || from === want) return null;
+    const rx = new RegExp('(^|[^A-Z])' + from + '(?![A-Z])'); if (!rx.test(f.name)) return null;
+    const name = f.name.replace(rx, '$1' + want); if (name === f.name) return null;
+    const same = lookupField(f.table, name); if (same && same.kind === f.kind) return same;
+    for (const tb of S.model.tables) { const hit = lookupField(tb.name, name); if (hit && hit.kind === f.kind) return hit; }
+    const nf = S.newFields.find(x => x.name === name && x.kind === f.kind); return nf ? lookupField(nf.table, nf.name) : null;
+  }
+  // Passendes Szenario zur gebundenen Referenz: das aktuelle mit getauschtem Kürzel, sonst die erste Auswahl, die alle gebundenen Kürzel enthält
+  function scenarioFor(v, mm) {
+    const bases = (((v.roles || {})[mm.roleKey]) || []).map(f => basisOfName(f.name, true)).filter(Boolean);
+    const swapped = String(v.scenario || 'AC/PL').split('/').map(x => x === mm.want ? mm.fieldBasis : x).join('/');
+    if (SCEN_OPTIONS.includes(swapped) && bases.every(b => scenRefs(swapped).includes(b))) return swapped;
+    return SCEN_OPTIONS.find(s => s !== 'AC' && bases.every(b => scenRefs(s).includes(b))) || null;
+  }
+  // Szenario, mit dem die Skizze gezeichnet wird: Typen ohne Szenario-Wahl (KPI, Tacho) folgen der gebundenen Referenz bzw. der Δ-Basis (Review B13)
+  function sketchScenario(v, an) {
+    const def = CAT.byId[v.kind] || {}; if (def.plain) return 'AC';
+    if (refRoleOf(def, v) === 'goal' && (((v.roles || {}).goal || []).length || (v.analysis || {}).deltaBasis)) return 'AC/' + (an || analysisOf(v)).deltaBasis;
+    return v.scenario;
   }
 
   let S = null, sel = null, zoom = 1, undoStack = [], redoStack = [], lastRects = { leaves: [], gutters: [] };
@@ -130,7 +210,7 @@
   function analysisOf(v) {
     const a = v.analysis || {}; const pm = primaryMeasure(v); const refs = (v.roles && v.roles.ref) || []; const goal = (v.roles && v.roles.goal) || [];
     const scen = String(v.scenario || 'AC/PL');
-    const basisAuto = refs[0] ? (/PY|VJ|Vorjahr/i.test(refs[0].name) ? 'PY' : /BU|Budget/i.test(refs[0].name) ? 'BU' : /FC|Forecast/i.test(refs[0].name) ? 'FC' : 'PL') : (goal[0] ? (/PY/i.test(goal[0].name) ? 'PY' : 'PL') : (scen.includes('PY') ? 'PY' : 'PL'));
+    const basisAuto = refs[0] ? basisOfName(refs[0].name) : (goal[0] ? (basisOfName(goal[0].name, true) || (/PY/i.test(goal[0].name) ? 'PY' : 'PL')) : (scen.includes('PY') ? 'PY' : 'PL'));
     return {
       polarity: a.polarity || CAT.polarityFor(pm ? pm.name : v.title), polarityAuto: !a.polarity,
       deltaBasis: a.deltaBasis || basisAuto, deltaBasisAuto: !a.deltaBasis,
@@ -143,7 +223,7 @@
 
   function load() {
     // Die Sprache des Projekts gewinnt über die zuletzt gemerkte UI-Sprache; ein neues Projekt erbt die UI-Sprache.
-    try { const raw = localStorage.getItem(LS_KEY); if (raw) { S = migrate(JSON.parse(raw)); I18N.set(S.lang); return; } } catch (e) { /* ignorieren */ }
+    try { const raw = localStorage.getItem(LS_KEY); if (raw) { S = migrate(JSON.parse(raw)); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Laden nie verhindern */ } I18N.set(S.lang); return; } } catch (e) { /* ignorieren */ }
     S = defaultState(); S.pages.forEach(p => ensureIds(p.layout));   // erst jetzt ist S gesetzt → Vorlagenfelder werden gebunden
   }
   function persist() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { /* voll oder blockiert */ } }
@@ -263,7 +343,7 @@
   function applyTemplate(tplId) {
     const tpl = CAT.templates.find(t => t.id === tplId); if (!tpl) return;
     if (visuals().length && !confirm(t('ask.tplReplace', { t: tpl.label, n: visuals().length }))) return;
-    if (!S.model.tables.length) { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); openMeasureTable(); toast(t('toast.demoLoadedTpl')); }
+    if (!S.model.tables.length) { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); syncFieldFlags(); openMeasureTable(); toast(t('toast.demoLoadedTpl')); }
     page().layout = ensureIds(tpl.tree()); sel = null; commit(); toast(t('toast.tplSet', { t: tpl.label }));
   }
 
@@ -374,7 +454,7 @@
     ['header', 'nav', 'filter', 'footer'].forEach(key => { const r = z[key]; if (!r) return; const gx = r.x + r.w - 22 * k, gy = key === 'footer' ? r.y + (r.h - 18 * k) / 2 : r.y + 4 * k; html += `<div class="zcfg" data-zcfg="${key}" title="${esc(t('tip.zoneCfg'))}" style="left:${gx}px;top:${gy}px">⚙</div>`; });
     if (z.filter) {
       const SLG = { dropdown: '▾', list: '☰', tile: '▦', between: '⟷', date: '▤', search: '⌕', relative: '◷', button: '▣' };
-      const sl = (c.filter.fields || []).map((f, i) => `<div class="sl"><span class="ty" title="${esc(t('opt.slicer.' + (f.type || 'dropdown')))}">${SLG[f.type || 'dropdown'] || '▾'}</span><span class="nm">${esc(f.name)}</span><span class="x" data-rmfilter="${i}" title="${esc(t('tip.slicerRemove'))}">✕</span></div>`).join('');
+      const sl = (c.filter.fields || []).map((f, i) => { const miss = fieldStatus(f) === 'missing'; return `<div class="sl${miss ? ' missing' : ''}"${miss ? ` title="${esc(f.name + ' · ' + t('model.missingTip', { r: f.table + '.' + f.name }))}"` : ''}><span class="ty" title="${esc(t('opt.slicer.' + (f.type || 'dropdown')))}">${SLG[f.type || 'dropdown'] || '▾'}</span><span class="nm">${esc(f.name)}</span><span class="x" data-rmfilter="${i}" title="${esc(t('tip.slicerRemove'))}">✕</span></div>`; }).join('');
       const fh = c.filter.heading || {}; const showHead = fh.show === 'on' || (fh.show !== 'off' && !(c.filter.fields || []).length) || (fh.show == null && !!fh.text);
       const headTxt = fh.text || t('canvas.filter'); const ftxt = c.filter.text ? `<p class="txt">${esc(c.filter.text)}</p>` : '';
       html += `<div class="zone filter ${c.filter.side}" style="${css(z.filter)}" data-dropfilter="1">${showHead ? `<h4>${esc(headTxt)}${c.filter.collapsible && c.filter.side !== 'top' ? ' ⧉' : ''}</h4>` : ''}${ftxt}${sl}<div class="sl ph">${esc(t('canvas.dropField'))}</div></div>`;
@@ -401,10 +481,13 @@
     const footH = chips && !tiny ? 18 * k : 0;
     const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - footH - pad - 6);
     const an = analysisOf(v);
-    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: def.plain ? 'AC' : v.scenario, seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: isDark(S.design.tileBg) ? '#E6E6E6' : (S.design.ink || '#404040'), dark: isDark(S.design.tileBg), paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral' }, samplesOpt(v))) : '';
+    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: sketchScenario(v, an), seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: isDark(S.design.tileBg) ? '#E6E6E6' : (S.design.ink || '#404040'), dark: isDark(S.design.tileBg), paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral' }, samplesOpt(v))) : '';
     const note = v.notes ? `<span class="note-ico" title="${esc(v.openQuestion ? t('canvas.noteOpen') : t('canvas.note'))}">${v.openQuestion ? '?' : '✎'}</span><div class="note-pop">${esc(v.notes)}</div>` : (v.openQuestion ? `<span class="note-ico" title="${esc(t('canvas.openQuestion'))}">?</span><div class="note-pop">${esc(t('canvas.openQuestionEmpty'))}</div>` : '');
     const missing = CAT.rolesFor(def, v).filter(r => r.req && !(v.roles[r.key] || []).length).map(r => r.label);
-    const req = missing.length ? `<span class="reqdot" title="${esc(t('canvas.reqEmpty', { roles: missing.join(', ') }))}"></span>` : '';
+    // Gebundene Felder, die das geladene Modell nicht kennt (Review B3): roter Punkt auch dann, wenn die Kachel zu klein für Chips ist
+    const gone = []; Object.keys(v.roles || {}).forEach(key => (v.roles[key] || []).forEach(f => { if (fieldStatus(f) === 'missing' && !gone.includes(f.name)) gone.push(f.name); }));
+    const reqTip = [missing.length ? t('canvas.reqEmpty', { roles: missing.join(', ') }) : '', gone.length ? t('canvas.fieldMissing', { f: gone.join(', ') }) : ''].filter(Boolean).join(' · ');
+    const req = reqTip ? `<span class="reqdot" title="${esc(reqTip)}"></span>` : '';
     const pri = v.priority ? `<span class="pri ${v.priority}" title="${esc(t('canvas.priority', { p: t('opt.pri.' + v.priority) }))}">${{ must: 'M', should: 'S', could: 'C' }[v.priority] || ''}</span>` : '';
     const st = v.status && v.status !== 'open' ? `<span class="st ${v.status}" title="${esc(t('canvas.status', { s: t('opt.status.' + v.status) }))}"></span>` : '';
     return `<div class="tile${selc}${tiny ? ' tiny' : ''}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="${esc(v.title || def.label)}" title="${esc(t('smp.tileDrag'))}" style="${css(rect)};padding:${Math.max(0, pad - 6)}px">
@@ -414,10 +497,27 @@
       <div class="badges">${req}${st}${pri}${note}<span class="badge${v.engine === 'ck' ? ' ck' : (v.engine === 'custom' ? ' cv' : '')}">${v.engine === 'ck' ? 'CK' : v.engine === 'deneb' ? 'Deneb' : v.engine === 'custom' ? 'CV' : 'PBI'}</span></div>${acts}</div>`;
   }
   function roleChips(v) {
-    const out = [];
-    (CAT.byId[v.kind] ? CAT.byId[v.kind].roles : []).forEach(r => (v.roles[r.key] || []).forEach(f => out.push(`<span class="rchip${f.isNew ? ' new' : ''}" title="${esc(r.label)}">${esc(f.name)}</span>`)));
+    const out = []; const mm = refMismatch(v);
+    (CAT.byId[v.kind] ? CAT.byId[v.kind].roles : []).forEach(r => (v.roles[r.key] || []).forEach((f, i) => { const c = chipState(f, mm && mm.roleKey === r.key && mm.idx === i ? mm : null, v); out.push(`<span class="rchip${c.cls}" title="${esc(r.label + c.tip)}">${esc(f.name)}</span>`); }));
     return out.join('');
   }
+  // Darstellung eines gebundenen Felds: neu (gestrichelt), fehlt im Modell (rot), passt nicht zum Szenario (gelb) samt Tooltip-Zusatz
+  function chipState(f, mm, v) {
+    const st = fieldStatus(f);
+    if (st === 'missing') return { cls: ' missing', tip: ' · ' + t('model.missingTip', { r: f.table + '.' + f.name }) };
+    if (mm) return { cls: (st === 'new' ? ' new' : '') + ' warn', tip: ' · ' + mismatchText(mm, v) };
+    return { cls: st === 'new' ? ' new' : '', tip: '' };
+  }
+  // Hinweis im Kachel-Panel samt Angebot: passendes Feld binden (nur bei eindeutigem Namen), Szenario angleichen bzw. Δ-Basis zurück auf automatisch
+  function mismatchHtml(v, mm) {
+    if (!mm) return '';
+    const cand = mm.extra ? null : swapCandidate(mm.field, mm.want); const btns = [];
+    if (cand) btns.push(`<button type="button" class="btn sm" data-mm="swap">${esc(t('scen.swap', { n: cand.name }))}</button>`);
+    if (mm.kind === 'scenario') { const s2 = scenarioFor(v, mm); if (s2) btns.push(`<button type="button" class="btn sm" data-mm="scen" data-s="${esc(s2)}">${esc(t('scen.fixScenario', { s: s2 }))}</button>`); }
+    else btns.push(`<button type="button" class="btn sm" data-mm="auto">${esc(t('scen.autoBasis', { b: mm.fieldBasis }))}</button>`);
+    return `<div class="warn mm" role="status">${esc(mismatchText(mm, v))}${cand || mm.extra ? '' : ' ' + esc(t('scen.noCandidate', { b: mm.want }))}${btns.length ? `<div class="row wrap mm-acts">${btns.join('')}</div>` : ''}</div>`;
+  }
+  function mismatchText(mm, v) { return mm.kind === 'scenario' ? t(mm.extra ? 'scen.mismatchExtra' : 'scen.mismatch', { s: mm.scenario || (v && v.scenario) || '', f: mm.field.name, b: mm.note }) : t('scen.mismatchBasis', { d: mm.want, f: mm.field.name, b: mm.note }); }
   function seedOf(id) { let h = 7; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % 1000; }
 
   // ------------------------------------------------------------------ Interaktion: Seite
@@ -509,19 +609,23 @@
     sel = id; commit();
   }
   function assignField(id, f, roleKey) {
-    const n = findNode(id).node;
-    if (!n.visual) { const kind = f.kind === 'measure' ? 'kpi' : 'slicer'; n.visual = normVisual({ kind, engine: CAT.byId[kind].engine, roles: {} }); if (!n.visual.title) n.visual.title = f.name; }
-    const v = n.visual; const def = CAT.byId[v.kind];
-    const rolesDef = CAT.rolesFor(def, v);
+    const hit = findNode(id); if (!hit) return; const n = hit.node;
+    // Leere Kachel: das Visual erst anlegen, wenn die Rolle feststeht (Review B15). Bis dahin nur ein Probe-Stand ohne Schreibzugriff auf den Baum,
+    // sonst bliebe nach „Abbrechen", Esc oder Klick neben das Menü eine ungebundene Geister-Kachel zurück.
+    const newKind = f.kind === 'measure' ? 'kpi' : 'slicer';
+    const probe = n.visual || { kind: newKind, roles: {} }; const def = CAT.byId[probe.kind];
+    const rolesDef = CAT.rolesFor(def, probe);
     let role = roleKey ? rolesDef.find(r => r.key === roleKey) : null;
     if (!role) {
       // passende Rollen (gleiche Feldart oder „any"); genau eine frei → direkt, sonst Menü statt raten (Review Valerie: Rollenzuweisung rät)
       const fitting = rolesDef.filter(r => r.kind === 'any' || r.kind === f.kind);
-      const free = fitting.filter(r => (v.roles[r.key] || []).length < r.max);
+      const free = fitting.filter(r => (probe.roles[r.key] || []).length < r.max);
       if (free.length === 1 && fitting.length === 1) role = free[0];
-      else if (fitting.length) { showRoleMenu(id, f, fitting, v); return; }
+      else if (fitting.length) { showRoleMenu(id, f, fitting, probe); return; }
       else return toast(t('toast.noRoom', { kind: f.kind === 'measure' ? t('kind.measure') : t('kind.column') }));
     }
+    if (!n.visual) { n.visual = normVisual({ kind: newKind, engine: CAT.byId[newKind].engine, roles: {} }); if (!n.visual.title) n.visual.title = f.name; }
+    const v = n.visual;
     const list = v.roles[role.key] = v.roles[role.key] || [];
     if (list.some(x => x.table === f.table && x.name === f.name)) return toast(t('toast.fieldAssigned'));
     if (list.length >= role.max) list.shift();
@@ -541,10 +645,16 @@
     const tile = document.querySelector(`.tile[data-leaf="${id}"]`); const r = tile ? tile.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };
     m.style.left = Math.min(innerWidth - 280, Math.max(8, r.left + r.width / 2 - 130)) + 'px'; m.style.top = Math.min(innerHeight - 260, Math.max(8, r.top + r.height / 2 - 40)) + 'px';
     m.addEventListener('click', e => { const b = e.target.closest('[data-rk]'); if (!b) return; const key = b.dataset.rk; closeRoleMenu(); if (key) assignField(id, f, key); });
+    m.setAttribute('role', 'group'); m.setAttribute('aria-label', t('role.menuHead', { f: f.name })); m.dataset.leaf = id;
+    const first = m.querySelector('button'); if (first) first.focus({ preventScroll: true });
     setTimeout(() => document.addEventListener('mousedown', outsideRoleMenu), 0);
   }
   function outsideRoleMenu(e) { if (roleMenu && !roleMenu.contains(e.target)) closeRoleMenu(); }
-  function closeRoleMenu() { if (roleMenu) { roleMenu.remove(); roleMenu = null; document.removeEventListener('mousedown', outsideRoleMenu); } }
+  function closeRoleMenu(refocus) {
+    if (!roleMenu) return;
+    const id = roleMenu.dataset.leaf; roleMenu.remove(); roleMenu = null; document.removeEventListener('mousedown', outsideRoleMenu);
+    if (refocus) { const tile = id && document.querySelector(`.tile[data-leaf="${id}"]`); if (tile) tile.focus({ preventScroll: true }); }
+  }
   function addFilterField(f) { const list = S.chrome.filter.fields; if (list.some(x => x.table === f.table && x.name === f.name)) return toast(t('toast.slicerExists')); list.push({ table: f.table, name: f.name, kind: f.kind, isNew: !!f.isNew }); commit(); }
 
   // ------------------------------------------------------------------ Inspector · Element
@@ -556,17 +666,20 @@
     const dims = `<div class="kv" style="margin-top:8px"><span class="k">${esc(t('canvas.dims.xy'))}</span><span>${rect.x} · ${rect.y}</span><span class="k">${esc(t('canvas.dims.wh'))}</span><span>${rect.w} × ${rect.h} px</span></div>`;
     if (!v) { insEl.innerHTML = `<button class="typebtn" id="btnPickType"><div class="pv"></div><div><b>${esc(t('btn.pickType'))}</b><small>${esc(t('hint.pickTypeSub'))}</small></div></button><p class="hint">${esc(t('hint.dragField'))}</p>${dims}<div class="section"><button class="btn sm" data-ins="rm">${esc(t('btn.removeTile'))}</button></div>`; bindInspector(n); return; }
     const def = CAT.byId[v.kind] || { label: v.kind, roles: [], engines: ['native'] };
-    const pv = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, 64, 36, { scenario: def.plain ? 'AC' : v.scenario, seed: 3 }) : '';
+    const an = analysisOf(v); const a = v.analysis || {};
+    const pv = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, 64, 36, { scenario: sketchScenario(v, an), deltaBasis: an.deltaBasis, seed: 3 }) : '';
     const engines = def.engines.map(e => `<button data-engine="${e}" class="${v.engine === e ? 'on ' + e : ''}">${CAT.engineLabel[e]}</button>`).join('');
     const rolesDef = CAT.rolesFor(def, v); const hasRef = rolesDef.some(r => r.key === 'ref');
+    // Δ-Basis auch bei Typen mit Ziel-Rolle (KPI, Tacho) zeigen: dort folgt das Szenario der gebundenen Referenz (Review B13)
+    const hasBasis = hasRef || rolesDef.some(r => r.key === 'goal');
+    const mm = refMismatch(v);
     const roles = rolesDef.map(r => {
       const list = v.roles[r.key] || [];
-      const chips = list.map((x, i) => `<span class="fchip ${x.kind === 'measure' ? 'm' : 'c'}${x.isNew ? ' new' : ''}" draggable="false"><span class="ico">${x.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(x.name)}</span><button class="x" data-rmrole="${r.key}" data-i="${i}" title="${esc(t('tip.remove'))}">×</button></span>`).join('');
+      const chips = list.map((x, i) => { const c = chipState(x, mm && mm.roleKey === r.key && mm.idx === i ? mm : null, v); return `<span class="fchip ${x.kind === 'measure' ? 'm' : 'c'}${c.cls}" draggable="false"${c.tip ? ` title="${esc(c.tip.replace(/^ · /, ''))}"` : ''}><span class="ico">${x.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(x.name)}</span><button class="x" data-rmrole="${r.key}" data-i="${i}" title="${esc(t('tip.remove'))}">×</button></span>`; }).join('');
       const kindLbl = r.kind === 'any' ? t('kind.any') : r.kind === 'measure' ? t('kind.measure') : t('kind.column');
       return `<div class="role" data-role="${r.key}"><div class="rl">${esc(r.label)}${r.req ? '<span class="req">*</span>' : ''}<span class="k">${esc(kindLbl)} · ${esc(t('canvas.maxN', { n: r.max }))}</span></div>${chips ? `<div class="chips">${chips}</div>` : ''}${list.length < r.max ? `<div class="drop">${esc(t('canvas.dropFieldRole'))} ${esc(t('canvas.orCreate'))} <button type="button" class="lnk" data-newfield="${r.key}" data-newkind="${r.kind}" title="${esc(t('canvas.createHereTip'))}">+ ${esc(t('canvas.createHere'))}</button></div>` : ''}</div>`;
     }).join('');
     const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
-    const an = analysisOf(v); const a = v.analysis || {};
     const hasMeasure = rolesDef.some(r => ['ac', 'indicator', 'values', 'y'].includes(r.key));
     const variants = CAT.variantsFor(def) ? grp('variants', t('sec.variants'), `
       <label class="toggle" style="padding:0 0 6px"><input type="checkbox" data-an="smallMultiples" ${an.smallMultiples ? 'checked' : ''}> ${esc(t('lbl.smallMultiples'))}</label>
@@ -578,7 +691,7 @@
     const analysis = hasMeasure ? grp('analysis', t('sec.analysis'), `
       <div class="grid2">
         <div class="field"><label>${esc(t('lbl.polarity'))}</label><select class="ctl" data-an="polarity">${opt(['', 'higher', 'lower'], a.polarity || '', { '': t('opt.polarity.auto', { v: t('opt.polarity.' + an.polarity) }), higher: t('opt.polarity.higher'), lower: t('opt.polarity.lower') })}</select></div>
-        ${hasRef ? `<div class="field"><label>${esc(t('lbl.deltaBasis'))}</label><select class="ctl" data-an="deltaBasis">${opt(['', 'PL', 'PY', 'BU', 'FC'], a.deltaBasis || '', { '': t('opt.autoBase', { v: an.deltaBasis }), PL: 'PL', PY: 'PY', BU: 'BU', FC: 'FC' })}</select></div>` : '<div></div>'}
+        ${hasBasis ? `<div class="field"><label>${esc(t('lbl.deltaBasis'))}</label><select class="ctl" data-an="deltaBasis">${opt(['', 'PL', 'PY', 'BU', 'FC'], a.deltaBasis || '', { '': t('opt.autoBase', { v: an.deltaBasis }), PL: 'PL', PY: 'PY', BU: 'BU', FC: 'FC' })}</select></div>` : '<div></div>'}
         <div class="field"><label>${esc(t('lbl.unit'))}</label><input class="ctl" data-an="unit" value="${esc(an.unit)}" placeholder="${esc(t('ph.anUnit'))}"></div>
         <div class="field"><label>${esc(t('lbl.displayUnits'))}</label><select class="ctl" data-an="displayUnits">${opt(['auto', 'none', 'K', 'M'], an.displayUnits, { auto: t('opt.du.auto'), none: t('opt.du.none'), K: t('opt.du.K'), M: t('opt.du.M') })}</select></div>
         <div class="field"><label>${esc(t('lbl.decimals'))}</label><input class="ctl" type="number" min="0" max="4" data-an="decimals" value="${an.decimals == null ? '' : an.decimals}" placeholder="${esc(t('ph.anDecimals'))}"></div>
@@ -601,7 +714,8 @@
       <div class="field"><label>${esc(t('lbl.vizTitle'))}</label><input class="ctl" data-vk="title" value="${esc(v.title)}" placeholder="${esc(def.label)}"></div>
       <div class="field"><label>${esc(t('lbl.vizSub'))}</label><input class="ctl" data-vk="sub" value="${esc(v.sub)}" placeholder="${esc(t('ph.vizSub'))}"></div>
       ${isText ? `<div class="field"><label>${esc(v.kind === 'button' ? t('lbl.btnCaption') : t('lbl.tileText'))}</label><textarea class="ctl" data-vk="content" placeholder="${esc(t('ph.tileText'))}">${esc(v.content || '')}</textarea></div>` : ''}
-      ${hasRef ? `<div class="field"><label>${esc(t('lbl.scenario'))}</label><select class="ctl" data-vk="scenario">${['AC/PL', 'AC/PY', 'AC/PL/FC', 'AC/PL/PY', 'AC/BU', 'PL/FC', 'AC'].map(s => `<option ${v.scenario === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>` : ''}
+      ${hasRef ? `<div class="field"><label>${esc(t('lbl.scenario'))}</label><select class="ctl" data-vk="scenario">${SCEN_OPTIONS.map(s => `<option ${v.scenario === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>` : ''}
+      ${mismatchHtml(v, mm)}
       ${variants}
       <div class="section"><h3>${esc(t('sec.roles'))} <span class="k" style="font-weight:400;text-transform:none;letter-spacing:0">${esc(t('sec.rolesHint'))}</span></h3>${roles || `<p class="hint">${esc(t('hint.noRoles'))}</p>`}</div>
       ${analysis}
@@ -671,7 +785,20 @@
     $$('[data-vk]', insEl).forEach(x => {
       const isSel = x.tagName === 'SELECT';
       x.addEventListener('input', () => { n.visual[x.dataset.vk] = x.value; persist(); if (!isSel && x.dataset.vk !== 'notes') renderPageOnly(); });
-      x.addEventListener('change', () => { n.visual[x.dataset.vk] = x.value; mark(); if (isSel || x.dataset.vk === 'notes') render(); });
+      x.addEventListener('change', () => {
+        n.visual[x.dataset.vk] = x.value; mark(); if (isSel || x.dataset.vk === 'notes') render();
+        // Szenario gewechselt, gebundene Referenz passt nicht mehr: nicht still weiterrechnen, sondern melden (Review B2). Getauscht wird nur auf Klick im Panel.
+        if (x.dataset.vk === 'scenario') { const mm = refMismatch(n.visual); if (mm && mm.kind === 'scenario') toast(t('scen.toast', { s: n.visual.scenario, f: mm.field.name, b: mm.note })); }
+      });
+    });
+    $$('[data-mm]', insEl).forEach(b => b.onclick = () => {
+      const v = n.visual; const mm = v && refMismatch(v); if (!mm) return render();
+      if (b.dataset.mm === 'swap') {
+        const c = swapCandidate(mm.field, mm.want); if (!c) return render();
+        v.roles[mm.roleKey][mm.idx] = { table: c.table, name: c.name, kind: c.kind, type: c.type || '', isNew: !!c.isNew };
+        commit(); toast(t('toast.refSwapped', { o: mm.field.name, n: c.name }));
+      } else if (b.dataset.mm === 'scen') { v.scenario = b.dataset.s; commit(); toast(t('toast.scenAdjusted', { s: v.scenario })); }
+      else if (b.dataset.mm === 'auto') { if (v.analysis) delete v.analysis.deltaBasis; commit(); toast(t('toast.basisAuto', { b: analysisOf(v).deltaBasis })); }
     });
     $$('[data-vkb]', insEl).forEach(x => x.addEventListener('change', () => { n.visual[x.dataset.vkb] = x.checked; commit(); }));
     // Analyse-Block: leer = nicht entschieden (Schlüssel wird entfernt), sonst Wert speichern
@@ -732,7 +859,7 @@
     $('#nvOn').checked = c.nav.on; $('#nvW').value = c.nav.w;
     $('#ftOn').checked = c.filter.on; $('#ftSide').value = c.filter.side; const fh0 = c.filter.heading || {}; $('#ftHeadShow').value = fh0.show || 'auto'; $('#ftHeadText').value = fh0.text || ''; $('#ftText').value = c.filter.text || ''; const ty0 = typo(); $('#tyScale').value = String(ty0.scale); $('#tyTitle').value = ty0.title; $('#tySub').value = ty0.sub; $('#tyChart').value = ty0.chart; $('#ftW').value = c.filter.side === 'top' ? (c.filter.topH || 56) : c.filter.w; $('#ftWHint').textContent = c.filter.side === 'top' ? t('hint.height') : t('hint.width'); $('#ftW').disabled = c.filter.side === 'burger';
     $('#ftCollapsible').checked = c.filter.collapsible; $('#ftCollapsibleRow').style.display = (c.filter.side === 'left' || c.filter.side === 'right') ? '' : 'none';
-    $('#ftFieldList').innerHTML = (c.filter.fields || []).map((f, i) => `<div class="row" style="margin-bottom:4px"><span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}" draggable="false" style="margin:0;flex:1;min-width:0"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span><button class="x" data-rmfilter2="${i}">×</button></span><select class="ctl" data-fttype="${i}" title="${esc(t('lbl.slicerType'))}" style="width:96px;padding:3px 4px;font-size:11px">${['dropdown', 'list', 'tile', 'button', 'between', 'date', 'relative', 'search'].map(k => `<option value="${k}" ${(f.type || 'dropdown') === k ? 'selected' : ''}>${esc(t('opt.slicer.' + k))}</option>`).join('')}</select><input class="ctl" data-ftdef="${i}" value="${esc(f.default || '')}" placeholder="${esc(t('ph.slicerDefault'))}" style="width:90px;padding:3px 6px;font-size:11.5px"></div>`).join('') || `<span class="hint">${esc(t('hint.noSlicers'))}</span>`;
+    $('#ftFieldList').innerHTML = (c.filter.fields || []).map((f, i) => { const cs = chipState(f, null); return `<div class="row" style="margin-bottom:4px"><span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${cs.cls}" draggable="false" style="margin:0;flex:1;min-width:0"${cs.tip ? ` title="${esc(f.name + cs.tip)}"` : ''}><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span><button class="x" data-rmfilter2="${i}">×</button></span><select class="ctl" data-fttype="${i}" title="${esc(t('lbl.slicerType'))}" style="width:96px;padding:3px 4px;font-size:11px">${['dropdown', 'list', 'tile', 'button', 'between', 'date', 'relative', 'search'].map(k => `<option value="${k}" ${(f.type || 'dropdown') === k ? 'selected' : ''}>${esc(t('opt.slicer.' + k))}</option>`).join('')}</select><input class="ctl" data-ftdef="${i}" value="${esc(f.default || '')}" placeholder="${esc(t('ph.slicerDefault'))}" style="width:90px;padding:3px 6px;font-size:11.5px"></div>`; }).join('') || `<span class="hint">${esc(t('hint.noSlicers'))}</span>`;
     $('#ffOn').checked = c.footer.on; $('#ffH').value = c.footer.h; $('#ffText').value = c.footer.text;
     $('#dsRadius').value = String(d.radius); $('#dsTile').value = d.tile; $('#dsPageBg').value = d.pageBg; $('#dsHeader').value = d.header; $('#dsAccent').value = d.accent; $('#dsAccentTxt').textContent = d.accent;
     $('#dsPalette').value = d.palette || 'teal'; $('#dsNative').value = d.nativePalette || 'neutral'; $('#dsPageBgRow').hidden = d.pageBg !== 'custom'; $('#dsPageBgHex').value = d.pageBgHex || '#F4F4F1'; $('#dsPageBgHexTxt').textContent = d.pageBgHex || '#F4F4F1';
@@ -774,8 +901,10 @@
   function fieldInfo(ref) { const i = ref.indexOf('.'); const t = S.model.tables.find(x => x.name === ref.slice(0, i)); if (!t) return null; return t.measures.find(x => x.name === ref.slice(i + 1)) || t.columns.find(x => x.name === ref.slice(i + 1)) || null; }
   function openFieldMeta(f) {
     fmRef = f.table + '.' + f.name; const m = S.fieldMeta[fmRef] || {}; const info = fieldInfo(fmRef); const nf = S.newFields.find(x => x.table === f.table && x.name === f.name);
-    $('#fmRef').textContent = fmRef + (f.isNew ? t('model.isNew') : '');
-    $('#fmModel').innerHTML = info ? `<span class="k">${esc(t('model.type'))}</span><span>${esc(info.kind === 'measure' ? t('kind.measure') : t('model.colOf', { t: info.type || '' }))}</span><span class="k">${esc(t('model.format'))}</span><span>${esc(info.format || '–')}</span><span class="k">${esc(t('model.description'))}</span><span>${esc(info.desc || t('model.noDesc'))}</span>` : (nf ? `<span class="k">${esc(t('model.description'))}</span><span>${esc(nf.desc || '–')}</span>` : '');
+    // Status live bestimmen (Review B3): ein Feld, das es im geladenen Modell nicht mehr gibt, meldet das hier statt still leer zu bleiben
+    const st = fieldStatus(f);
+    $('#fmRef').textContent = fmRef + (st === 'new' ? t('model.isNew') : st === 'missing' ? t('model.isMissing') : '');
+    $('#fmModel').innerHTML = info ? `<span class="k">${esc(t('model.type'))}</span><span>${esc(info.kind === 'measure' ? t('kind.measure') : t('model.colOf', { t: info.type || '' }))}</span><span class="k">${esc(t('model.format'))}</span><span>${esc(info.format || '–')}</span><span class="k">${esc(t('model.description'))}</span><span>${esc(info.desc || t('model.noDesc'))}</span>` : (nf ? `<span class="k">${esc(t('model.description'))}</span><span>${esc(nf.desc || '–')}</span>` : (st === 'missing' ? `<span class="k">${esc(t('model.status'))}</span><span class="fm-missing">${esc(t('model.missingInfo'))}</span>` : ''));
     $('#fmAlias').value = m.alias || ''; $('#fmConfirmed').checked = !!m.confirmed; $('#fmRename').checked = !!m.rename; $('#fmOwner').value = m.owner || (nf ? nf.owner || '' : ''); $('#fmSource').value = m.source || (nf ? nf.source || '' : ''); $('#fmTarget').value = m.target || (nf ? nf.target || '' : ''); $('#fmUnit').value = m.unit || (nf ? nf.unit || '' : ''); $('#fmNote').value = m.note || '';
     $('#dlgFieldMeta').showModal();
   }
@@ -862,14 +991,14 @@
       const rel = tmdl[0].webkitRelativePath || ''; const src = rel.includes('/') ? rel.split('/')[0] : t('model.tmdlSrc', { n: tmdl.length });
       const good = tables.filter(tb => tb.columns.length || tb.measures.length);
       if (!good.length) return toast(t('toast.tmdlEmpty'));
-      S.model = { tables: good, source: src, loadedAt: new Date().toISOString() }; openMeasureTable(); commit();
-      toast(t('toast.tmdlOk', { tables: good.length, measures: good.reduce((a, tb) => a + tb.measures.length, 0), columns: good.reduce((a, tb) => a + tb.columns.length, 0) }));
+      S.model = { tables: good, source: src, loadedAt: new Date().toISOString() }; const miss = syncFieldFlags(); openMeasureTable(); commit();
+      toast(t('toast.tmdlOk', { tables: good.length, measures: good.reduce((a, tb) => a + tb.measures.length, 0), columns: good.reduce((a, tb) => a + tb.columns.length, 0) }) + (miss ? ' · ' + t('toast.fieldsMissing', { n: miss }) : ''));
     }).catch(err => toast(t('toast.readFailed', { msg: err.message })));
   }
   $('#btnImportTmdl').onclick = () => $('#fileTmdl').click();
   $('#fileTmdl').addEventListener('change', e => { ingestTmdlFiles(Array.from(e.target.files)); e.target.value = ''; });
   $('#fileTmdlSingle').addEventListener('change', e => { ingestTmdlFiles(Array.from(e.target.files)); e.target.value = ''; });
-  $('#btnDemoModel').onclick = () => { const id = $('#demoModelSel').value || 'controlling'; const m = CAT.demoModels.find(x => x.id === id); S.demoId = id; S.model = m ? m.build() : CAT.demoModel; openMeasureTable(); commit(); toast(t('toast.demoLoaded')); };
+  $('#btnDemoModel').onclick = () => { const id = $('#demoModelSel').value || 'controlling'; const m = CAT.demoModels.find(x => x.id === id); S.demoId = id; S.model = m ? m.build() : CAT.demoModel; const miss = syncFieldFlags(); openMeasureTable(); commit(); toast(t('toast.demoLoaded') + (miss ? ' · ' + t('toast.fieldsMissing', { n: miss }) : '')); };
   function openMeasureTable() { const tb = S.model.tables.find(x => x.measures.length); if (tb) openTables.add(tb.name); }
   const mdrop = $('#modelDrop');
   mdrop.addEventListener('click', () => $('#fileTmdlSingle').click());
@@ -901,12 +1030,16 @@
   function renderModel() {
     const list = $('#modelList'); const q = ($('#modelSearch').value || '').toLowerCase(); const onlyUsed = $('#onlyUsed').checked; const used = usedFieldKeys(); const m = S.model;
     $('#modelMeta').textContent = m.tables.length ? t('model.meta', { src: m.source || t('model.fallbackSrc'), tables: m.tables.length, measures: m.tables.reduce((a, tb) => a + tb.measures.length, 0) }) : t('model.none');
-    $('#nmTables').innerHTML = m.tables.map(tb => `<option value="${esc(tb.name)}">`).join('');
+    $('#nmTables').innerHTML = Array.from(new Set(m.tables.map(tb => tb.name).concat(S.newFields.map(f => f.table)))).map(n => `<option value="${esc(n)}">`).join('');
     const chip = (f, table, extra) => {
       const key = table + '|' + f.name; if (onlyUsed && !used.has(key)) return ''; if (q && !(f.name + ' ' + table).toLowerCase().includes(q)) return '';
-      return `<span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}${used.has(key) ? ' used' : ''}" draggable="true" data-field='${esc(JSON.stringify({ table, name: f.name, kind: f.kind, type: f.type || '', isNew: !!f.isNew }))}' title="${esc((f.desc || '') + (f.type ? ' · ' + f.type : '') + (f.open ? ' · offen: ' + f.open : ''))}"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span>${extra || ''}</span>`;
+      return `<span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}${f.missing ? ' missing' : ''}${used.has(key) ? ' used' : ''}" draggable="${f.missing ? 'false' : 'true'}"${f.missing ? ' data-missing="1"' : ''} data-field='${esc(JSON.stringify({ table, name: f.name, kind: f.kind, type: f.type || '', isNew: !!f.isNew }))}' title="${esc((f.desc || '') + (f.type ? ' · ' + f.type : '') + (f.open ? ' · offen: ' + f.open : ''))}"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span>${extra || ''}</span>`;
     };
     let html = '';
+    // Gebundene Felder, die das geladene Modell nicht kennt (Review B3): sichtbar oben, damit die Suche sie findet
+    const missing = []; const seenMissing = new Set();
+    eachBinding(f => { const k = f.table + '|' + f.name; if (!seenMissing.has(k) && fieldStatus(f) === 'missing') { seenMissing.add(k); missing.push(f); } });
+    if (missing.length) html += `<div class="table-block open missing"><div class="table-head"><span class="car">▸</span>${esc(t('model.missingGroup'))}<span class="cnt">${missing.length}</span></div><div class="table-body">${missing.map(f => chip({ name: f.name, kind: f.kind, type: f.type, missing: true, desc: f.name + ' · ' + t('model.missingTip', { r: f.table + '.' + f.name }) }, f.table)).join('')}</div></div>`;
     if (S.newFields.length) html += `<div class="table-block open"><div class="table-head"><span class="car">▸</span>${esc(t('model.newGroup'))}<span class="cnt">${S.newFields.length}</span></div><div class="table-body">${S.newFields.map((f, i) => chip(f, f.table, `<button class="x" data-rmnew="${i}" title="${esc(t('tip.rmNewField'))}">×</button>`)).join('')}</div></div>`;
     if (!m.tables.length && !S.newFields.length) html += `<div class="empty-model"><strong>${esc(t('model.emptyTitle'))}</strong>${esc(t('model.emptyText'))}</div>`;
     m.tables.forEach(tb => {
@@ -920,7 +1053,7 @@
   $('#modelList').addEventListener('click', e => {
     // Klick-Fallback zur Feldzuweisung (Tastatur/Touch): Chip anklicken → gewählte Kachel
     const chip = e.target.closest('[data-field]');
-    if (chip && !e.target.closest('.x') && sel) { assignField(sel, JSON.parse(chip.dataset.field)); return; }
+    if (chip && !e.target.closest('.x') && sel && !chip.dataset.missing) { assignField(sel, JSON.parse(chip.dataset.field)); return; }
     const rm = e.target.closest('[data-rmnew]');
     if (rm) {
       const f = S.newFields[+rm.dataset.rmnew]; if (!f) return;
@@ -945,16 +1078,41 @@
   function openNewFieldFor(tileId, roleKey, roleKind) {
     pendingNewField = { tileId, roleKey };
     $('#nmKind').value = roleKind === 'column' ? 'column' : 'measure';
-    $('#nmName').value = ''; $('#nmDesc').value = ''; $('#nmOpen').value = ''; $('#nmTable').value = defaultTableFor($('#nmKind').value);
+    $('#nmName').value = ''; $('#nmDesc').value = ''; $('#nmOpen').value = ''; $('#nmTable').value = defaultTableFor($('#nmKind').value); nmTableReset();
     $('#dlgNewMeasure').showModal(); $('#nmName').focus();
   }
-  $('#btnNewMeasure').onclick = () => { pendingNewField = null; $('#nmName').value = ''; $('#nmDesc').value = ''; $('#nmOpen').value = ''; $('#nmTable').value = defaultTableFor($('#nmKind').value); $('#dlgNewMeasure').showModal(); $('#nmName').focus(); };
-  $('#nmKind').addEventListener('change', () => { $('#nmTable').value = defaultTableFor($('#nmKind').value); });
+  $('#btnNewMeasure').onclick = () => { pendingNewField = null; $('#nmName').value = ''; $('#nmDesc').value = ''; $('#nmOpen').value = ''; $('#nmTable').value = defaultTableFor($('#nmKind').value); nmTableReset(); $('#dlgNewMeasure').showModal(); $('#nmName').focus(); };
+  $('#nmKind').addEventListener('change', () => { $('#nmTable').value = defaultTableFor($('#nmKind').value); nmTableReset(); });
+  // Tabellenname gegen das Modell prüfen (Review B26): vorhandene Tabelle, schon vorgemerkte neue Tabelle, unbekannt (nur mit Häkchen) oder unzulässig (Punkt)
+  const nmTableOf = kind => $('#nmTable').value.trim() || (kind === 'measure' ? '_Measures' : 'DimNeu');
+  function nmTableCheck(strict) {
+    const tb = nmTableOf($('#nmKind').value); const names = S.model.tables.map(x => x.name);
+    const state = tb.includes('.') ? 'dot' : (!names.length || names.includes(tb)) ? 'ok' : S.newFields.some(x => x.table === tb) ? 'staged' : 'unknown';
+    const box = $('#nmTableCheck'), msg = $('#nmTableMsg'), near = $('#nmTableNear');
+    box.hidden = state === 'ok'; $('#nmNewTableRow').hidden = state !== 'unknown'; near.hidden = true;
+    const blocked = state === 'dot' || (strict && state === 'unknown' && !$('#nmNewTable').checked);
+    box.classList.toggle('bad', blocked); $('#nmTable').setAttribute('aria-invalid', blocked ? 'true' : 'false');
+    if (state === 'dot') msg.textContent = t('nm.tableDot');
+    else if (state === 'staged') msg.textContent = t('nm.tableStaged', { tb });
+    else if (state === 'unknown') {
+      msg.textContent = t('nm.tableUnknown', { tb }) + (blocked ? ' ' + t('nm.tableConfirm') : '');
+      const flat = s => s.toLowerCase().replace(/[^a-z0-9äöüß]/g, '');
+      const hit = names.find(n => n.toLowerCase() === tb.toLowerCase()) || names.find(n => flat(n) === flat(tb));
+      if (hit) { near.hidden = false; near.textContent = t('nm.tableNear', { tb: hit }); near.dataset.tb = hit; }
+    }
+    return { state, tb, blocked };
+  }
+  function nmTableReset() { $('#nmNewTable').checked = false; nmTableCheck(false); }
+  $('#nmTable').addEventListener('input', nmTableReset);
+  $('#nmNewTable').addEventListener('change', () => nmTableCheck(false));
+  $('#nmTableNear').addEventListener('click', e => { $('#nmTable').value = e.currentTarget.dataset.tb || ''; nmTableReset(); $('#nmTable').focus(); });
   $('#nmOk').onclick = () => {
     const name = $('#nmName').value.trim(); if (!name) return $('#nmName').focus();
     const kind = $('#nmKind').value;
-    const nf = { id: uid(), name, table: $('#nmTable').value.trim() || (kind === 'measure' ? '_Measures' : 'DimNeu'), kind, desc: $('#nmDesc').value.trim(), open: $('#nmOpen').value.trim(), unit: $('#nmUnit').value.trim(), target: $('#nmTarget').value.trim(), owner: $('#nmOwner').value.trim(), source: $('#nmSource').value.trim(), isNew: true, type: kind === 'measure' ? 'measure' : '' };
-    S.newFields.push(nf);
+    const chk = nmTableCheck(true); if (chk.blocked) return $('#nmTable').focus();
+    const nf = { id: uid(), name, table: chk.tb, kind, desc: $('#nmDesc').value.trim(), open: $('#nmOpen').value.trim(), unit: $('#nmUnit').value.trim(), target: $('#nmTarget').value.trim(), owner: $('#nmOwner').value.trim(), source: $('#nmSource').value.trim(), isNew: true, type: kind === 'measure' ? 'measure' : '' };
+    if (chk.state === 'unknown' || chk.state === 'staged') nf.newTable = true;   // ausdrücklich bestätigt: die Tabelle entsteht neu
+    S.newFields.push(nf); syncFieldFlags();
     ['nmUnit', 'nmTarget', 'nmOwner', 'nmSource'].forEach(id => { $('#' + id).value = ''; });
     $('#dlgNewMeasure').close();
     if (pendingNewField && findNode(pendingNewField.tileId)) { const { tileId, roleKey } = pendingNewField; pendingNewField = null; sel = tileId; assignField(tileId, { table: nf.table, name: nf.name, kind: nf.kind, type: nf.type, isNew: true }, roleKey); toast(t('toast.fieldCreated', { n: name })); return; }
@@ -1008,6 +1166,8 @@
   $$('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
   window.addEventListener('keydown', e => {
     const tgt = e.target;
+    // Offenes Rollen-Menü: Esc schließt es, nichts wird zugeordnet (Review B36); andere Kürzel wirken solange nicht auf die Seite
+    if (roleMenu) { if (e.key === 'Escape') { e.preventDefault(); closeRoleMenu(true); } return; }
     if (document.querySelector('dialog[open]')) return;                       // Dialoge behalten Fokusfang und Esc
     if (tgt && tgt.matches && tgt.matches('input,textarea,select')) { if (e.key === 'Escape' && tgt.blur) tgt.blur(); return; }
     if (e.key === 'Escape') { const pinned = $$('.note-pop.pinned', pageEl); if (pinned.length) { pinned.forEach(p => p.classList.remove('pinned')); return; } if (document.body.classList.contains('present')) togglePresent(false); else { sel = null; render(); } }
@@ -1024,8 +1184,9 @@
 
   // Öffentliche API für export.js
   window.MK = {
-    get state() { return S; }, set state(v) { S = migrate(v); sel = null; commit(); },
+    get state() { return S; }, set state(v) { S = migrate(v); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Öffnen nie verhindern */ } sel = null; commit(); },
     page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
+    fieldStatus, refMismatch, sketchScenario, basisOfName, syncFieldFlags,
     setLang, get lang() { return I18N.lang; },
     // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
     reset() { S = defaultState(); S.pages.forEach(p => ensureIds(p.layout)); sel = null; undoStack = []; commit(); },

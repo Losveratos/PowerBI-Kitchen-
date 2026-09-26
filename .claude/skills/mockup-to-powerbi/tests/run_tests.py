@@ -452,6 +452,39 @@ def unit_tests(res: Results):
     res.check("model-todos.md nennt den Feldparameter",
               "## Feldparameter" in md and "te script" in md and "prüfen" in md)
 
+    # --- Modellvertrag (Tool-Review 2026-09-25, B3 und B26) ----------------- #
+    import copy
+    gone = copy.deepcopy(var)
+    gtiles = {v["id"]: v for v in gone["pages"][0]["visuals"]}
+    gtiles["mk_donut1"]["roles"]["ac"][0]["missing"] = True
+    g_items, g_skipped = P.build_pbir_visuals(gone, gone["pages"][0])
+    res.check("Kachel mit fehlendem Feld (missing) steht nicht in pbir-visuals.json",
+              "mk_donut1" not in {i["name"] for i in g_items}
+              and "mk_donut1" in {v["id"] for v in g_skipped})
+    res.check("uebrige Kacheln bleiben in pbir-visuals.json",
+              {"mk_col1", "mk_bar1", "mk_line1", "mk_wf1"} <= {i["name"] for i in g_items})
+    res.check("has_missing_field() erkennt nur markierte Felder",
+              P.has_missing_field(gtiles["mk_donut1"])
+              and not P.has_missing_field(gtiles["mk_col1"]))
+
+    nt = copy.deepcopy(var)
+    nt["newFields"] = [
+        {"table": "_Measures", "name": "Umsatz FC", "kind": "measure", "ref": "_Measures.Umsatz FC",
+         "description": "", "unit": "", "target": "", "owner": "", "source": "", "openQuestion": "", "used": True},
+        {"table": "Forecast-Umsatz aus Planungstool, monatlich, T€", "name": "Umsatz FC2", "kind": "measure",
+         "ref": "Forecast-Umsatz aus Planungstool, monatlich, T€.Umsatz FC2", "description": "", "unit": "",
+         "target": "", "owner": "", "source": "", "openQuestion": "", "used": True, "newTable": True},
+    ]
+    md_nt = P.build_model_todos(nt, "Vertrieb.SemanticModel")
+    res.check("model-todos.md warnt vor einer Tabelle, die das Modell nicht kennt",
+              "## Achtung: Tabelle fehlt im Modell" in md_nt
+              and "`Forecast-Umsatz aus Planungstool, monatlich, T€`" in md_nt)
+    res.check("te add fuer die unbekannte Tabelle ist auskommentiert",
+              '# te add "Forecast-Umsatz aus Planungstool, monatlich, T€/Umsatz FC2"' in md_nt
+              and '\nte add "Forecast-Umsatz' not in md_nt)
+    res.check("te add fuer eine bekannte Tabelle bleibt aktiv",
+              '\nte add "_Measures/Umsatz FC"' in md_nt)
+
     # navOn: false -> keine chrome_nav_*-Buttons im Kopfband
     class _Opt2(_Opt):
         pass

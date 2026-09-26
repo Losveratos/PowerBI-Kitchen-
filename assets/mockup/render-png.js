@@ -403,7 +403,12 @@
     var chips = [];
     if (o.chips) {
       (def.roles || []).forEach(function (role) {
-        ((v.roles || {})[role.key] || []).forEach(function (fl) { chips.push({ t: fl.name, kind: fl.isNew ? 'new' : 'plain' }); });
+        // Status live wie im Tool (Review B2, B3): fehlt im Modell = rot, passt nicht zum Szenario = gelb
+        var mm = mk().refMismatch ? mk().refMismatch(v) : null;
+        ((v.roles || {})[role.key] || []).forEach(function (fl, fi) {
+          var st = mk().fieldStatus ? mk().fieldStatus(fl) : (fl.isNew ? 'new' : 'model');
+          chips.push({ t: fl.name, kind: st === 'missing' ? 'missing' : (mm && mm.roleKey === role.key && mm.idx === fi ? 'warn' : (st === 'new' ? 'new' : 'plain')) });
+        });
       });
       if (link) chips.push({ t: '↗ ' + link.name, kind: 'link' });
     }
@@ -443,7 +448,7 @@
     var bottom = r.y + r.h - 1 - ip - footH - 4;
     if (by + bh > bottom) by = Math.max(r.y + 1 + ip + headH, bottom - bh);
     var sopt = {
-      scenario: def.plain ? 'AC' : v.scenario, seed: (seedOf(leaf.node.id) + o.seedBase) % 1000,
+      scenario: mk().sketchScenario ? mk().sketchScenario(v) : (def.plain ? 'AC' : v.scenario), seed: (seedOf(leaf.node.id) + o.seedBase) % 1000,
       label: v.sub || '', scale: k, lang: ctx.S.lang,
       palette: ctx.palette, ink: ctx.dark ? '#E6E6E6' : (ctx.d.ink || '#404040'), dark: ctx.dark, paper: ctx.tileBg,
       fontScale: (mk().typo ? mk().typo().scale : 1) * ((v.typo && v.typo.scale) || 1), fonts: { label: mk().typo ? mk().typo().chart : 9 },
@@ -470,10 +475,12 @@
         if (cx2 + w2 > limit) return;
         out += rc(cx2, cy2 - ch / 2, w2, ch, c2.kind === 'new'
           ? { r: 3 * k, fill: '#FFFFFF', stroke: ctx.accent, sw: 1, dash: nm(2.5 * k) + ' ' + nm(2 * k) }
+          : c2.kind === 'missing' ? { r: 3 * k, fill: '#FDECEA', stroke: '#B8392F', sw: 1 }
+          : c2.kind === 'warn' ? { r: 3 * k, fill: '#FFF7E6', stroke: '#B7791F', sw: 1, dash: nm(2.5 * k) + ' ' + nm(2 * k) }
           : { r: 3 * k, fill: c2.kind === 'link' ? (ctx.dark ? '#28405E' : '#E3ECFA') : (ctx.dark ? '#2A3646' : '#F1F0EA') });
         out += tx(cx2 + 5 * k, cy2 + cfs * MID, c2.t, {
           size: cfs, mono: true,
-          fill: c2.kind === 'new' ? ctx.accent : (c2.kind === 'link' ? (ctx.dark ? '#9CC0F5' : '#1F5FBF') : (ctx.dark ? '#C9D1DB' : '#475569'))
+          fill: c2.kind === 'new' ? ctx.accent : c2.kind === 'missing' ? '#B8392F' : c2.kind === 'warn' ? '#7A4B00' : (c2.kind === 'link' ? (ctx.dark ? '#9CC0F5' : '#1F5FBF') : (ctx.dark ? '#C9D1DB' : '#475569'))
         });
         cx2 += w2 + 3 * k;
       });

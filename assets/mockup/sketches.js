@@ -3011,7 +3011,9 @@
   S.kpi = function (w, h, o) {
     var c = ctx(w, h, o), b = '';
     var P = area(c, {});
-    var kind = refKind(c) || 'PL';
+    // Ohne Referenz im Szenario (z. B. KPI gegen FC) trägt die übergebene Δ-Basis das Label (Review B13)
+    var wantK = String(o && o.deltaBasis != null ? o.deltaBasis : '').toUpperCase();
+    var kind = refKind(c) || (SCEN_OK[wantK] && wantK !== 'AC' ? wantK : '') || 'PL';
     var d = n((c.rnd() - 0.35) * 18);
     var vv = Math.round((40 + c.rnd() * 900) * 10) / 10;
     var dAbs = n(vv * d / 100);

@@ -358,6 +358,20 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 .toast.show{opacity:1;transform:translateX(-50%)}
 .warn{background:#FFF7E6;border:1px solid #F3D9A4;color:#7A4B00;border-radius:6px;padding:6px 9px;font-size:11.5px;margin-bottom:8px}
 .ok{background:#E8F5EE;border:1px solid #BFE3CD;color:#1E5A3A;border-radius:6px;padding:6px 9px;font-size:11.5px;margin-bottom:8px}
+/* Modellvertrag (Review B2, B3, B26): Feld fehlt im Modell (rot), Referenz passt nicht zum Szenario (gelb), Tabellenprüfung im Dialog „Neues Feld" */
+.fchip.missing{border-color:var(--bad);background:#FDECEA}.fchip.missing .nm{color:var(--bad)}.fchip.missing[draggable=false]{cursor:help}
+.fchip.warn{border-color:#D69E2E;background:#FFF7E6}
+.tile .rchip.missing{outline:1px solid var(--bad);color:var(--bad);background:#FDECEA}
+.tile .rchip.warn{outline:1px dashed #B7791F;color:#7A4B00;background:#FFF7E6}
+.zone.filter .sl.missing{border-color:var(--bad);color:var(--bad);background:#FDECEA}
+.table-block.missing .table-head{color:var(--bad)}
+.fm-missing{color:var(--bad);font-weight:500}
+.warn.mm .mm-acts{margin-top:6px;gap:6px}
+.nm-check{margin:-2px 0 10px;padding:6px 9px;border-radius:6px;font-size:11.5px;background:#FFF7E6;border:1px solid #F3D9A4;color:#7A4B00}
+.nm-check.bad{background:#FDECEA;border-color:#F0B8B2;color:var(--bad)}
+.nm-check[hidden],.nm-check [hidden]{display:none!important}
+.nm-check .lnk{border:0;background:none;padding:0;font:inherit;font-weight:600;color:var(--accent);cursor:pointer;text-decoration:underline dotted}
+.nm-check .toggle{padding:4px 0 0;color:var(--ink)}
 .pill{display:inline-block;font-family:var(--ff-mono);font-size:10px;padding:1px 6px;border-radius:10px;background:var(--bg-soft);color:var(--ink-soft)}
 .list-dense{margin:0;padding-left:16px}
 .list-dense li{margin:2px 0}
@@ -609,6 +623,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       <div class="field"><label data-i18n="lbl.table">Tabelle</label><input class="ctl" id="nmTable" list="nmTables" data-i18n-ph="ph.nmTable" placeholder="_Measures"><datalist id="nmTables"></datalist></div>
       <div class="field"><label data-i18n="lbl.fieldKind">Art</label><select class="ctl" id="nmKind"><option value="measure" data-i18n="opt.nmKind.measure">Kennzahl (Measure)</option><option value="column" data-i18n="opt.nmKind.column">Dimension / Spalte</option></select></div>
     </div>
+    <div class="nm-check" id="nmTableCheck" role="status" aria-live="polite" hidden><span id="nmTableMsg"></span> <button type="button" class="lnk" id="nmTableNear" hidden></button><label class="toggle" id="nmNewTableRow" hidden><input type="checkbox" id="nmNewTable"> <span data-i18n="nm.tableNew">als neue Tabelle anlegen</span></label></div>
     <div class="field"><label data-i18n="lbl.descLogic">Beschreibung / Rechenlogik für den Agenten</label><textarea class="ctl" id="nmDesc" data-i18n-ph="ph.nmDesc" placeholder="Umsatz minus variable Kosten"></textarea></div>
     <div class="grid2">
       <div class="field"><label data-i18n="lbl.unitFormat">Einheit / Format</label><input class="ctl" id="nmUnit" data-i18n-ph="ph.nmUnit" placeholder="T€ · #,##0"></div>
