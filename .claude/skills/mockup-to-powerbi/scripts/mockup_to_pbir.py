@@ -288,6 +288,23 @@ def has_missing_field(v: dict) -> bool:
     return any(f.get("missing") for l in ((v.get("roles") or {}).values()) for f in (l or []))
 
 
+def drop_missing_slicers(nspec: dict):
+    """Slicer, deren Feld im geladenen Modell fehlt (`missing: true`, Issue
+    FIELD_NOT_IN_MODEL, Tool 0.5.2), aus dem Filterbereich nehmen.
+
+    Wie `buildPbir` im Tool: ein Slicer auf ein unbekanntes Feld liesse `pbir add
+    visual` scheitern. Entfernt wird vor allem anderen, damit Namen, Positionen
+    (ohne Luecke), Formatierung und Batches dieselbe Liste sehen. Die ausgelassenen
+    Slicer stehen in `nspec["droppedSlicers"]` fuer checklist.md.
+    """
+    filt = (nspec.get("zones") or {}).get("filter")
+    gone = [s for s in ((filt or {}).get("slicers") or []) if s.get("missing")]
+    if gone:
+        filt["slicers"] = [s for s in filt["slicers"] if not s.get("missing")]
+        nspec["droppedSlicers"] = gone
+    return gone
+
+
 def is_text_tile(v: dict) -> bool:
     return v.get("kind") in ("text", "button")
 
@@ -625,16 +642,20 @@ def build_pbir_visuals(nspec: dict, page: dict, ck_fallback: bool = False):
         fx, fy, fw, fh = rect(filt)
         ox, oy = filter_layout(nspec)["origin"]
         names = slicer_names(nspec, page)
+        j = 0                       # laufende Position: fehlende Felder lassen keine Luecke
         for i, s in enumerate(filt.get("slicers") or []):
+            if s.get("missing"):    # Feld fehlt im Modell (main() nimmt sie vorher heraus)
+                continue
             if filt.get("mode") == "top":
-                x, y = ox + i * round(168 * k), fy + pad
+                x, y = ox + j * round(168 * k), fy + pad
                 w, h = round(160 * k), fh - 2 * pad
             else:
-                x, y = fx + pad, oy + i * round(64 * k)
+                x, y = fx + pad, oy + j * round(64 * k)
                 w, h = fw - 2 * pad, round(56 * k)
             out.append(vis(SLICER_VISUAL_TYPE.get(slicer_type(s) or "", "slicer"),
                            names[i], s["name"], x, y, w, h,
                            fields={"Values": s["ref"]}))
+            j += 1
     return out, skipped
 
 
@@ -2461,6 +2482,14 @@ def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos,
                   "landen nicht in `pbir-visuals.json` — sonst würde `--from-json` die "
                   "ganze Datei ablehnen.", ""]
 
+    gone = nspec.get("droppedSlicers") or []
+    if gone:
+        L += ["## Nicht gebaute Slicer (Feld fehlt im Modell)", ""]
+        for s_ in gone:
+            L.append("- [ ] `%s`: Feld im Modell anlegen oder den Slicer im Mockup "
+                     "entfernen, dann neu exportieren" % s_.get("ref", s_.get("name", "?")))
+        L.append("")
+
     skipped = [s for e in per_page for s in e["skipped"]]
     if skipped:
         L += ["## Nicht gebaute Kacheln (leere Pflichtrolle%s)"
@@ -3223,6 +3252,7 @@ def main() -> int:
         if dropped:
             print("  Ohne brauchbares Rechteck und deshalb ausgelassen: %s"
                   % ", ".join(dropped), file=sys.stderr)
+    dropped_slicers = drop_missing_slicers(nspec)
     if opt.validate:
         print("Spec in Ordnung: specVersion %d (gelesen als v%d) · %d Seite(n) · "
               "%d Kachel(n) · Hash %s"
@@ -3418,6 +3448,9 @@ def main() -> int:
                  % (len(e["skipped"]), " bzw. fehlendem Feld"
                     if any(has_missing_field(v) for v in e["skipped"]) else "")
                  if e["skipped"] else ""))
+    if dropped_slicers:
+        print("\nSlicer ohne Feld im Modell ausgelassen: %s"
+              % ", ".join(s_.get("ref", s_.get("name", "?")) for s_ in dropped_slicers))
     print("\nVerknüpfungen: %d · neue Felder: %d · Analyse-To-dos: %d"
           % (len(nspec["links"]), len(nspec["newFields"]), len(all_todos)))
     open_points = (sum(len(v.get("warnings") or [])

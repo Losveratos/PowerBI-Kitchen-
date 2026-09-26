@@ -12,10 +12,11 @@
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   // Markdown-Kopie: Nutzertext entschärfen (kein rohes HTML, kein Link), lesbar bleiben; wie mdText in export.js
+  // (jede „]" vor „(", „[" oder „:" bekommt einen Backslash: Inline-Links, Referenzen und Definitionen greifen nicht)
   function md(s) {
     return String(s == null ? '' : s)
       .replace(/<(?=[A-Za-z\/!?])/g, '&lt;')
-      .replace(/(\\*)\[(?=[^\]\n]*\]\()/g, function (m, bs) { return bs + bs + '\\['; });
+      .replace(/(\\*)\](?=[(\[:])/g, function (m, bs) { return bs + bs + '\\]'; });
   }
   function same(a, b) { return JSON.stringify(a === undefined ? null : a) === JSON.stringify(b === undefined ? null : b); }
   function refOf(f) {
@@ -84,10 +85,23 @@
     });
   }
   function pct(r) { return { x: Math.round(r.x * 100), y: Math.round(r.y * 100), w: Math.round(r.w * 100), h: Math.round(r.h * 100), unit: '%' }; }
-  function walk(node, fn) {
-    if (!node) return;
-    if (node.type === 'leaf') { fn(node); return; }
-    (node.children || []).forEach(function (ch) { walk(ch.node, fn); });
+  // anc: IDs der umschließenden Container (außen → innen), für die Zuordnung von Folgeverschiebungen in compare()
+  function walk(node, fn, anc) {
+    if (!node) return; anc = anc || [];
+    if (node.type === 'leaf') { fn(node, anc); return; }
+    var next = anc.concat([node.id || '']);
+    (node.children || []).forEach(function (ch) { walk(ch.node, fn, next); });
+  }
+  // Dasselbe für den layoutTree einer Spec (Container ohne ID): Pfad aus Positionen, r.0.1 …
+  function specAnc(tree) {
+    var out = {};
+    (function rec(n, path, anc) {
+      if (!n) return;
+      if ('leaf' in n) { if (n.stableId != null) out[n.stableId] = anc; return; }
+      var next = anc.concat([path]);
+      (n.children || n.cells || []).forEach(function (c, i) { rec(c.node, path + '.' + i, next); });
+    })(tree, 'r', []);
+    return out;
   }
   // opts.rects(page) → { leafId: {x,y,w,h} } in px (app.js: computeAll mit dem aktuellen Chrome, damit Zonenänderungen
   // nicht jede Kachel verschieben); ohne opts oder bei Fehler: Anteile in %.
@@ -102,7 +116,7 @@
       if (typeof opts.rects === 'function') { try { rects = opts.rects(p); } catch (e) { rects = null; } }
       var frac = null;
       if (!rects) { frac = {}; fracRects(p.layout, { x: 0, y: 0, w: 1, h: 1 }, frac); }
-      walk(p.layout, function (leaf) {
+      walk(p.layout, function (leaf, anc) {
         if (!leaf.visual) return; var v = leaf.visual;
         var r = rects ? rects[leaf.id] : frac[leaf.id];
         var target = v.link && pageName[v.link] != null ? v.link : '';
@@ -111,7 +125,7 @@
           fields: flatRoles(v.roles), analysis: normAnalysis(v.analysis, false), priority: v.priority || '', status: v.status || 'open',
           notes: v.notes || '', openQuestion: !!v.openQuestion, interaction: normInteraction(v.interaction),
           link: target, linkName: target ? pageName[target] : '', content: v.content || '',
-          pos: r ? (rects ? { x: r.x, y: r.y, w: r.w, h: r.h, unit: 'px' } : pct(r)) : null, samples: samplesOf(v.samples)
+          pos: r ? (rects ? { x: r.x, y: r.y, w: r.w, h: r.h, unit: 'px' } : pct(r)) : null, samples: samplesOf(v.samples), anc: anc
         });
       });
     });
@@ -142,6 +156,7 @@
     var pages = (spec.pages || []).map(function (p) { return { id: p.id || p.name, name: p.name }; });
     var items = [];
     (spec.pages || []).forEach(function (p) {
+      var ancOf = p.layoutTree ? specAnc(p.layoutTree) : {};
       (p.visuals || []).forEach(function (v) {
         var w = v.workshop || {}; var r = v.rect || {}; var lk = linkOf(v.link);
         items.push({
@@ -149,7 +164,7 @@
           fields: flatRoles(v.roles), analysis: normAnalysis(v.analysis, true), priority: w.priority || v.priority || '', status: w.status || v.status || 'open',
           notes: v.notes || w.notes || '', openQuestion: !!(w.openQuestion || v.openQuestion), interaction: normInteraction(v.interaction),
           link: lk.id, linkName: lk.name, content: v.content || '',
-          pos: (r.x != null) ? { x: r.x, y: r.y, w: r.w, h: r.h, unit: 'px' } : null, samples: samplesOf(v.samples)
+          pos: (r.x != null) ? { x: r.x, y: r.y, w: r.w, h: r.h, unit: 'px' } : null, samples: samplesOf(v.samples), anc: ancOf[v.stableId]
         });
       });
     });
@@ -209,14 +224,25 @@
       if (det.length) res.changed.push({ item: it, before: o, details: det });
     });
     older.items.forEach(function (it) { if (!seen[it.id]) res.removed.push(it); });
-    // Kommt auf einer Seite eine Kachel dazu oder fällt weg, verteilt sich der Rest neu. Diese Folgeverschiebung ist keine
-    // eigene Änderung der Nachbarn: je Seite nur gezählt (res.reflow), nicht als „geändert" gelistet.
-    var structural = {}; res.added.forEach(function (it) { structural[it.pageId] = true; }); res.removed.forEach(function (it) { structural[it.pageId] = true; });
-    res.reflow = {};
+    // Kommt auf einer Seite eine Kachel dazu oder fällt weg, verteilt sich der Rest ihres Containers neu. Diese Folgeverschiebung ist
+    // keine eigene Änderung der Nachbarn: je Seite nur gezählt (res.reflow), nicht als „geändert" gelistet. Nur Kacheln im selben
+    // Container wie die neue bzw. entfernte (auch tiefer darin) zählen dazu; eine gezogene Trennlinie woanders bleibt eine Änderung.
+    // Ohne Containerangabe (alte Dateien) gilt wie bisher die ganze Seite.
+    var structural = {};
+    var addRoot = function (it) { var a = it.anc; var k = a && a.length ? a[a.length - 1] : ''; (structural[it.pageId] = structural[it.pageId] || []).push(k || '*'); };
+    res.added.forEach(addRoot); res.removed.forEach(addRoot);
+    var reflows = function (c) {
+      var roots = structural[c.item.pageId]; if (!roots) return false;
+      if (roots.indexOf('*') >= 0) return true;
+      var anc = (c.before.anc || []).concat(c.item.anc || []);
+      return roots.some(function (k) { return anc.indexOf(k) >= 0; });
+    };
+    res.reflow = {}; res.reflowById = {};
     res.changed = res.changed.filter(function (c) {
-      if (!structural[c.item.pageId] || !c.details.some(function (d) { return d.what === 'position'; })) return true;
+      if (!c.details.some(function (d) { return d.what === 'position'; }) || !reflows(c)) return true;
       c.details = c.details.filter(function (d) { return d.what !== 'position'; });
       res.reflow[c.item.page] = (res.reflow[c.item.page] || 0) + 1;
+      res.reflowById[c.item.pageId] = (res.reflowById[c.item.pageId] || 0) + 1;
       return c.details.length > 0;
     });
     // Seiten
@@ -224,6 +250,8 @@
     var np = {}; newer.pages.forEach(function (p) { np[p.id] = p; });
     newer.pages.forEach(function (p) { if (!op[p.id]) res.pages.push({ type: 'added', name: p.name }); else if (op[p.id].name !== p.name) res.pages.push({ type: 'renamed', name: p.name, before: op[p.id].name }); });
     older.pages.forEach(function (p) { if (!np[p.id]) res.pages.push({ type: 'removed', name: p.name }); });
+    // Überschrift je Seite: der aktuelle Name (eine umbenannte Seite steht nur einmal da), bei entfernten Seiten der alte
+    res.pageNames = {}; older.pages.forEach(function (p) { res.pageNames[p.id] = p.name; }); newer.pages.forEach(function (p) { res.pageNames[p.id] = p.name; });
     // Zonen und Design
     Object.keys(newer.zones).forEach(function (k) { if (!same(older.zones[k], newer.zones[k])) res.zones.push({ what: k, before: older.zones[k], after: newer.zones[k] }); });
     Object.keys(newer.design).forEach(function (k) { if (!same(older.design[k], newer.design[k])) res.design.push({ what: k, before: older.design[k], after: newer.design[k] }); });
@@ -324,16 +352,20 @@
     list.forEach(function (x) { var p = getPage(x); if (!g[p]) { g[p] = []; order.push(p); } g[p].push(x); });
     return order.map(function (p) { return { page: p, items: g[p] }; });
   }
+  // Gruppiert über die Seiten-ID, beschriftet mit dem aktuellen Namen (entfernte Kacheln einer umbenannten Seite nicht unter dem alten)
   function entries(res) {
-    var all = [];
-    res.added.forEach(function (it) { all.push({ page: it.page, type: 'added', it: it }); });
-    res.removed.forEach(function (it) { all.push({ page: it.page, type: 'removed', it: it }); });
-    res.changed.forEach(function (c) { all.push({ page: c.item.page, type: 'changed', it: c.item, details: c.details }); });
-    var groups = groupByPage(all, function (x) { return x.page; });
-    Object.keys(res.reflow || {}).forEach(function (p) {
-      var g = groups.filter(function (x) { return x.page === p; })[0];
-      if (!g) { g = { page: p, items: [] }; groups.push(g); }
-      g.reflow = res.reflow[p];
+    var all = []; var names = res.pageNames || {};
+    var pid = function (it) { return it.pageId != null ? it.pageId : it.page; };
+    res.added.forEach(function (it) { all.push({ pid: pid(it), type: 'added', it: it }); });
+    res.removed.forEach(function (it) { all.push({ pid: pid(it), type: 'removed', it: it }); });
+    res.changed.forEach(function (c) { all.push({ pid: pid(c.item), type: 'changed', it: c.item, details: c.details }); });
+    var label = {}; all.forEach(function (x) { if (!(x.pid in label)) label[x.pid] = names[x.pid] != null ? names[x.pid] : x.it.page; });
+    var groups = groupByPage(all, function (x) { return x.pid; }).map(function (g) { return { pid: g.page, page: label[g.page], items: g.items }; });
+    var byId = res.reflowById || null;
+    Object.keys(byId || res.reflow || {}).forEach(function (k) {
+      var g = groups.filter(function (x) { return byId ? x.pid === k : x.page === k; })[0];
+      if (!g) { g = { pid: k, page: byId ? (names[k] != null ? names[k] : k) : k, items: [] }; groups.push(g); }
+      g.reflow = (byId || res.reflow)[k];
     });
     return groups;
   }

@@ -111,6 +111,9 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .pagebar .ptab.act{background:var(--ink);color:#fff;border-color:var(--ink)}
 .pagebar .ptab .n{font-family:var(--ff-mono);font-size:10px;opacity:.6}
 .pagebar .ptab .x{opacity:.5;padding-left:2px}
+.pagebar .ptab button{border:0;background:none;color:inherit;font:inherit;padding:0;margin:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border-radius:3px}
+.pagebar .ptab button.x{padding:0 2px}
+.pagebar .ptab button:focus-visible{outline:2px solid var(--sel);outline-offset:2px;opacity:1}
 .pagebar .ptab .x:hover{opacity:1;color:var(--bad)}
 .pagebar .ptab.act .x:hover{color:#ffb4a8}
 .pagebar .padd{border:1px dashed var(--line-strong);background:transparent;border-radius:6px;padding:4px 10px;font-size:12px;color:var(--ink-mute)}
@@ -248,6 +251,7 @@ details.sub{border:1px solid var(--line);border-radius:var(--r);padding:6px 10px
 body.present .gutter .gmerge{display:none}
 .gedge{position:absolute;z-index:4;width:calc(22px / var(--zoom));height:calc(22px / var(--zoom));transform:translate(-50%,-50%);border-radius:50%;border:1px dashed var(--line-strong);background:var(--bg-card);color:var(--ink-soft);font-size:calc(15px / var(--zoom));line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .12s;padding:0}
 .page:hover .gedge{opacity:.45}
+.page .gedge:hover,.page .gedge:focus-visible{opacity:1}
 .gedge:hover{opacity:1;background:var(--accent);color:#fff;border-color:var(--accent);border-style:solid}
 body.present .gedge{display:none}
 details.sub>summary .cnt{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--line);color:var(--ink-soft);font-size:10.5px;letter-spacing:0;text-transform:none;font-weight:600}
@@ -411,7 +415,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 .mobile-note{display:none}
 @media (max-width:640px){
   body:not(.mobile-ok) .mobile-note{display:flex;position:fixed;inset:0;z-index:100;flex-direction:column;justify-content:center;gap:14px;padding:24px 20px;background:var(--bg);overflow:auto}
-  body:not(.mobile-ok) .app{visibility:hidden}
+  body:not(.mobile-ok) .app{display:none}
   .mobile-note h2{font-family:var(--ff-sans);font-size:22px;font-weight:600;margin:0;line-height:1.25}
   .mobile-note p{margin:0;font-size:15px;line-height:1.5;color:var(--ink-soft)}
   .mobile-note .mn-brand{font-family:var(--ff-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute)}

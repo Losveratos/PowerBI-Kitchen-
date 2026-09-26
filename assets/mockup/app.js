@@ -21,22 +21,36 @@ window.MK_VERSION = '0.5.2';
   const PAGE_BG = { light: '#F4F4F1', soft: '#EEF1F5', white: '#FFFFFF' };
   const pageBgOf = d => d.pageBg === 'custom' ? (d.pageBgHex || '#F4F4F1') : (PAGE_BG[d.pageBg] || PAGE_BG.light);
   const isDark = hex => { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return false; const n = parseInt(m[1], 16); const r = n >> 16, g = (n >> 8) & 255, b = n & 255; return (0.299 * r + 0.587 * g + 0.114 * b) < 128; };
+  // WCAG-Kontrast wie in a11y.js (relative Leuchtdichte), für die Schrift auf dem Kachelgrund
+  const relLum = hex => { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return 1; const n = parseInt(m[1], 16); return [n >> 16, (n >> 8) & 255, n & 255].map(c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }).reduce((a, c, i) => a + c * [0.2126, 0.7152, 0.0722][i], 0); };
+  const contrastOf = (a, b) => { const x = relLum(a), y = relLum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  // Schrift, die auf der Kachel tatsächlich gezeichnet wird (Kacheltitel, Skizze, PNG): die gewählte, solange sie 4,5:1 erreicht,
+  // sonst das helle #E6E6E6, wenn das besser lesbar ist. Nach Kontrast statt nach isDark(), sonst bekämen mittlere Töne
+  // (Power-BI-Blau #118DFF, Grün #1AAB40) helle Schrift mit 2,7:1 statt der gewählten dunklen mit 5:1 (B5).
+  // dark: die Schrift ist heller als der Grund, die Skizze nimmt dann ihre Farben für dunkles Papier.
+  const LIGHT_INK = '#E6E6E6';
+  function tileInk(d) {
+    const bg = (d && d.tileBg) || '#FFFFFF', ink = (d && d.ink) || '#0F1E2E'; const r = contrastOf(ink, bg), rl = contrastOf(LIGHT_INK, bg);
+    const light = r < 4.5 && rl > r; const col = light ? LIGHT_INK : ink;
+    return { ink: col, chosen: !light, ratio: r, rendered: light ? rl : r, dark: relLum(col) > relLum(bg) };
+  }
 
   // ------------------------------------------------------------------ Zustand
   function defaultState() {
     // Achtung: S ist hier noch null; die Feldreferenzen der Vorlage löst load() nach dem Zuweisen auf.
     const tpl = CAT.templates.find(t => t.id === 'kpi4-main-detail');
-    const p1 = { id: uid(), name: t('state.firstPage'), notes: '', layout: tpl.tree() };
+    // dflt: Merker für unveränderte Standardtexte (B27, siehe relabelTexts); die Vorlagen-Visuals markiert markTemplate()
+    const p1 = { id: uid(), name: t('state.firstPage'), notes: '', layout: tpl.tree(), dflt: { name: 'state.firstPage' } };
     return {
-      version: 2, name: t('state.newReport'),
+      version: 2, dfltV: DFLT_V, name: t('state.newReport'), dflt: { name: 'state.newReport' },
       canvas: { w: 1920, h: 1080, preset: '1920x1080' },   // Full HD als Vorgabe; HD/UHD/… über die Auswahl
       spacing: { margin: 16, gutter: 12, pad: 8 },
       defScenario: 'AC/PL',
       chrome: {
-        header: { on: true, h: 56, logoPos: 'left', title: t('state.headerTitle'), sub: t('state.headerSub'), navAuto: true, navOn: true, nav: [] },
+        header: { on: true, h: 56, logoPos: 'left', title: t('state.headerTitle'), sub: t('state.headerSub'), navAuto: true, navOn: true, nav: [], dflt: { title: 'state.headerTitle', sub: 'state.headerSub' } },
         nav: { on: false, w: 64 },
         filter: { on: true, side: 'right', w: 200, topH: 56, collapsible: false, fields: [] },
-        footer: { on: true, h: 24, text: t('state.footerText') },
+        footer: { on: true, h: 24, text: t('state.footerText'), dflt: { text: 'state.footerText' } },
       },
       design: { radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D', palette: 'teal', nativePalette: 'neutral', pageBgHex: '#F4F4F1', tileBg: '#FFFFFF', ink: '#0F1E2E', headerBg: '#0F1E2E', headerInk: '#FFFFFF' },
       report: { audience: '', purpose: '', decision: '', participants: '', version: '0.1', dataDate: '' },
@@ -61,6 +75,8 @@ window.MK_VERSION = '0.5.2';
     s.design = Object.assign({ radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D', palette: 'teal', nativePalette: 'neutral', pageBgHex: '#F4F4F1', tileBg: '#FFFFFF', ink: '#0F1E2E', headerBg: '#0F1E2E', headerInk: '#FFFFFF' }, s.design || {});
     s.pages.forEach(p => ensureIds(p.layout));
     if (!s.pages.find(p => p.id === s.cur)) s.cur = s.pages[0].id;
+    // Stände ohne Merker (vor 0.5.2): einmal markieren und, wo eindeutig, in die Projektsprache heilen (B27)
+    if (!s.dfltV) { try { markLegacy(s); relabelTexts(s.lang, s); relabelDemo(s.lang, s); } catch (e) { /* Stand bleibt wie gespeichert */ } s.dfltV = DFLT_V; }
     return s;
   }
   function ensureIds(node) {
@@ -167,6 +183,15 @@ window.MK_VERSION = '0.5.2';
     for (const tb of S.model.tables) { const hit = lookupField(tb.name, name); if (hit && hit.kind === f.kind) return hit; }
     const nf = S.newFields.find(x => x.name === name && x.kind === f.kind); return nf ? lookupField(nf.table, nf.name) : null;
   }
+  // Tausch nur anbieten, wenn danach nichts mehr widerspricht. Fordert das getauschte Feld ein anderes Szenario (Δ-Basis BU, Szenario AC/PL,
+  // gebunden PL → BU), zieht das Szenario mit (AC/BU). Sonst endete der Tausch im Gegenhinweis, dessen Tausch wieder zurückführt (B2).
+  function swapPlan(v, mm) {
+    const cand = mm.extra ? null : swapCandidate(mm.field, mm.want); if (!cand) return null;
+    const probe = JSON.parse(JSON.stringify(v)); probe.roles[mm.roleKey][mm.idx] = { table: cand.table, name: cand.name, kind: cand.kind, type: cand.type || '', isNew: !!cand.isNew };
+    let after = refMismatch(probe), scen = null;
+    if (after && after.kind === 'scenario' && !after.extra) { scen = scenarioFor(probe, after); if (scen) { probe.scenario = scen; after = refMismatch(probe); } }
+    return after ? { cand, blocked: true } : { cand, scen };
+  }
   // Passendes Szenario zur gebundenen Referenz: das aktuelle mit getauschtem Kürzel, sonst die erste Auswahl, die alle gebundenen Kürzel enthält
   function scenarioFor(v, mm) {
     const bases = (((v.roles || {})[mm.roleKey]) || []).map(f => basisOfName(f.name, true)).filter(Boolean);
@@ -229,26 +254,27 @@ window.MK_VERSION = '0.5.2';
 
   function load() {
     // Die Sprache des Projekts gewinnt über die zuletzt gemerkte UI-Sprache; ein neues Projekt erbt die UI-Sprache.
-    // Gemerkte Stände aus der Zeit vor B27 (EN gewählt, Standardtexte noch deutsch) beim Laden in die Projektsprache heilen.
-    try { const raw = localStorage.getItem(LS_KEY); if (raw) { S = migrate(JSON.parse(raw)); I18N.set(S.lang); try { relabelDefaults(S.lang); } catch (e) { /* Stand bleibt wie gespeichert */ } try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Laden nie verhindern */ } return; } } catch (e) { /* ignorieren */ }
-    S = defaultState(); S.pages.forEach(p => ensureIds(p.layout));   // erst jetzt ist S gesetzt → Vorlagenfelder werden gebunden
+    // Beim Laden wird nichts umbenannt: Stände ohne Merker heilt migrate() einmal (dfltV), danach folgen nur markierte Standardtexte einem Sprachwechsel.
+    try { const raw = localStorage.getItem(LS_KEY); if (raw) { S = migrate(JSON.parse(raw)); I18N.set(S.lang); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Laden nie verhindern */ } return; } } catch (e) { /* ignorieren */ }
+    S = defaultState(); S.pages.forEach(p => markTemplate(ensureIds(p.layout)));   // erst jetzt ist S gesetzt → Vorlagenfelder werden gebunden
   }
   function persist() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { /* voll oder blockiert */ } }
   // Verlauf: höchstens UNDO_MAX Schritte (Tooltip tip.undo nennt dieselbe Zahl). Fällt ein alter Schritt heraus, merkt sich
   // undoDropped das, damit Strg+Z am Ende ehrlich „Verlauf voll, ältere verworfen" meldet statt „nichts rückgängig zu machen".
+  // undoDropped: false | 'limit' (Verlauf voll) | 'new' („Neu" hat den älteren Verlauf verworfen)
   const UNDO_MAX = 200; let undoDropped = false;
-  function pushUndo(s) { undoStack.push(s); if (undoStack.length > UNDO_MAX) { undoStack.shift(); undoDropped = true; } redoStack = []; }
+  function pushUndo(s) { undoStack.push(s); if (undoStack.length > UNDO_MAX) { undoStack.shift(); if (undoDropped !== 'new') undoDropped = 'limit'; } redoStack = []; }
   let snap = null;
   function commit(opts) {
     if (!(opts && opts.noUndo)) { if (snap !== null) pushUndo(snap); snap = null; }
-    persist(); if (opts && opts.soon) renderSoon(); else render();
+    persist(); if (opts && opts.keep) renderFocusSoon(); else if (opts && opts.soon) renderSoon(); else render();
     if (snap === null) snap = JSON.stringify(S);
   }
   function mark() { if (snap !== null) pushUndo(snap); snap = JSON.stringify(S); persist(); }
   // Wiederhergestellte Stände in die aktuelle UI-Sprache bringen (die Sprache ist eine Ansichtseinstellung, kein Bearbeitungsschritt)
   function syncLang() { if (S.lang !== I18N.lang) { relabelDefaults(I18N.lang); S.lang = I18N.lang; } }
   function undo() {
-    if (!undoStack.length) return toast(undoDropped ? t('toast.undoLimit', { n: UNDO_MAX }) : t('toast.nothingUndo'));
+    if (!undoStack.length) return toast(undoDropped === 'new' ? t('toast.undoAfterNew') : undoDropped ? t('toast.undoLimit', { n: UNDO_MAX }) : t('toast.nothingUndo'));
     redoStack.push(JSON.stringify(S));
     S = migrate(JSON.parse(undoStack.pop())); syncLang(); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast(t('toast.undone'));
   }
@@ -257,42 +283,72 @@ window.MK_VERSION = '0.5.2';
     undoStack.push(JSON.stringify(S));
     S = migrate(JSON.parse(redoStack.pop())); syncLang(); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast(t('toast.redone'));
   }
-  // Sprachwechsel (B27): Standardtexte, die noch unverändert sind (Berichtsname, Seitennamen, Kopfband, Fußzeile,
-  // Vorlagentitel und -notizen) und ein unverändertes Demo-Modell samt Bindungen in die Zielsprache übertragen.
-  // Erkannt wird über den Wortlaut der anderen Sprache; eigene Texte bleiben unangetastet. Liefert die Anzahl der Änderungen.
-  function relabelDefaults(to) {
-    const others = I18N.langs.filter(l => l !== to); let n = 0;
-    const swap = (val, key, vars) => {
-      if (typeof val !== 'string' || !val) return val;
-      for (const l of others) if (val === I18N.tl(l, key, vars)) { const nv = I18N.tl(to, key, vars); if (nv !== val) n++; return nv; }
-      return val;
+  // ---- Standardtexte und Sprachwechsel (B27) -----------------------------------------------------------------
+  // Ein Standardtext trägt seinen i18n-Schlüssel als Merker: obj.dflt[prop] = 'state.newReport' (Seitenzahlen: ['state.pageN', { n: 2 }]).
+  // Nur markierte Texte folgen einem Sprachwechsel; wer den Text bearbeitet, löscht den Merker (dropDefault). Früher wurde am Wortlaut
+  // geraten, dann wurde ein eigener Text wie „Overview" in einem deutschen Bericht beim Neuladen still zu „Übersicht".
+  const DFLT_V = 1;
+  function setDefault(obj, prop, key, vars) { if (obj) (obj.dflt = obj.dflt || {})[prop] = vars ? [key, vars] : key; }
+  function dropDefault(obj, prop) { if (obj && obj.dflt && prop in obj.dflt) { delete obj.dflt[prop]; if (!Object.keys(obj.dflt).length) delete obj.dflt; } }
+  const tplKeys = () => Object.keys(I18N.dict.de).filter(k => k.indexOf('tpl.t.') === 0);
+  // Vorlagen-Visuals: Titel, Untertitel und Notiz kommen aus tpl.t.* in der UI-Sprache (catalog.js); gleich nach dem Anlegen markieren
+  function markTemplate(node) {
+    const keys = tplKeys();
+    leaves(node).forEach(l => { const v = l.visual; if (!v) return; ['title', 'sub', 'notes'].forEach(prop => { const k = v[prop] ? keys.find(x => I18N.t(x) === v[prop]) : null; if (k) setDefault(v, prop, k); }); });
+    return node;
+  }
+  const boundNames = v => { const s = new Set(); Object.values(v.roles || {}).forEach(list => (list || []).forEach(f => s.add(f.name))); return s; };
+  const allVisuals = st => { const out = []; st.pages.forEach(p => leaves(p.layout).forEach(l => { if (l.visual) out.push(l.visual); })); return out; };
+  // Markierte Texte in die Zielsprache. Ein Merker gilt nur, solange der Text noch einem Wortlaut seines Schlüssels entspricht
+  // (sonst wurde er auf einem Weg ohne dropDefault bearbeitet): dann fällt der Merker weg und der Text bleibt.
+  function relabelTexts(to, st) {
+    st = st || S; let n = 0;
+    const swap = (obj, prop) => {
+      const m = obj && obj.dflt && obj.dflt[prop]; if (!m) return;
+      const key = Array.isArray(m) ? m[0] : m, vars = Array.isArray(m) ? m[1] : undefined, val = obj[prop];
+      if (!I18N.langs.some(l => I18N.tl(l, key, vars) === val)) { dropDefault(obj, prop); return; }
+      const nv = I18N.tl(to, key, vars); if (nv !== val) { obj[prop] = nv; n++; }
     };
-    const pageName = name => { let nv = swap(name, 'state.firstPage'); for (let k = 1; nv === name && k <= Math.max(99, S.pages.length); k++) nv = swap(name, 'state.pageN', { n: k }); return nv; };
-    const tplKeys = Object.keys(I18N.dict.de).filter(k => k.indexOf('tpl.t.') === 0);
-    const tplSwap = val => { for (const k of tplKeys) { const nv = swap(val, k); if (nv !== val) return nv; } return val; };
-    S.name = swap(S.name, 'state.newReport');
-    S.pages.forEach(p => { p.name = pageName(p.name); });
-    const ch = S.chrome || {};
-    if (ch.header) { ch.header.title = swap(ch.header.title, 'state.headerTitle'); ch.header.sub = swap(ch.header.sub, 'state.headerSub'); }
-    if (ch.footer) ch.footer.text = swap(ch.footer.text, 'state.footerText');
-    const allVis = []; S.pages.forEach(p => visuals(p).forEach(l => allVis.push(l.visual)));
+    swap(st, 'name'); st.pages.forEach(p => swap(p, 'name'));
+    const ch = st.chrome || {}; if (ch.header) { swap(ch.header, 'title'); swap(ch.header, 'sub'); } if (ch.footer) swap(ch.footer, 'text');
     // Ein Titel, der genau einem gebundenen Feld entspricht (Umsatz auf Umsatz), folgt dem Feld und nicht dem Wörterbuch:
-    // bei einem eigenen Modell bleibt er stehen, beim Demo-Modell benennt ihn der Block unten zusammen mit dem Feld um.
-    const boundNames = v => { const s = new Set(); Object.values(v.roles || {}).forEach(list => list.forEach(f => s.add(f.name))); return s; };
-    allVis.forEach(v => { if (!boundNames(v).has(v.title)) v.title = tplSwap(v.title); v.sub = tplSwap(v.sub); v.notes = tplSwap(v.notes); });
-    // Demo-Modell: nur wenn es exakt dem Demo-Modell der anderen Sprache entspricht (nichts geladen, nichts ergänzt)
-    const cur = JSON.stringify(S.model); let demo = null;
-    if (S.model && (S.model.tables || []).length) CAT.demoModels.some(m => others.some(l => { if (JSON.stringify(m.build(l)) === cur) { demo = m; return true; } return false; }));
-    if (demo) {
-      const fresh = demo.build(to); const ren = {};
-      S.model.tables.forEach((tb, ti) => { const nt = fresh.tables[ti]; ['measures', 'columns'].forEach(kind => tb[kind].forEach((f, i) => { const nf = nt && nt[kind][i]; if (nf && nf.name !== f.name) ren[tb.name + '|' + f.name] = nf.name; })); });
-      S.model = fresh; n++;
-      const re = f => { const nn = !f.isNew && ren[f.table + '|' + f.name]; if (nn) f.name = nn; return nn; };
-      allVis.forEach(v => Object.values(v.roles || {}).forEach(list => list.forEach(f => { const old = f.name, nn = re(f); if (nn && v.title === old) v.title = nn; })));
-      ((ch.filter && ch.filter.fields) || []).forEach(re);
-      Object.keys(S.fieldMeta || {}).forEach(k => { const i = k.indexOf('.'); const nn = ren[k.slice(0, i) + '|' + k.slice(i + 1)]; if (nn) { S.fieldMeta[k.slice(0, i) + '.' + nn] = S.fieldMeta[k]; delete S.fieldMeta[k]; } });
-    }
+    // bei einem eigenen Modell bleibt er stehen, beim Demo-Modell benennt ihn relabelDemo zusammen mit dem Feld um.
+    allVisuals(st).forEach(v => { if (!boundNames(v).has(v.title)) swap(v, 'title'); swap(v, 'sub'); swap(v, 'notes'); });
     return n;
+  }
+  // Demo-Modell: nur wenn es exakt dem Demo-Modell einer anderen Sprache entspricht (nichts geladen, nichts ergänzt)
+  function relabelDemo(to, st) {
+    st = st || S; const others = I18N.langs.filter(l => l !== to);
+    const cur = JSON.stringify(st.model); let demo = null;
+    if (st.model && (st.model.tables || []).length) CAT.demoModels.some(m => others.some(l => { if (JSON.stringify(m.build(l)) === cur) { demo = m; return true; } return false; }));
+    if (!demo) return 0;
+    const fresh = demo.build(to); const ren = {}; const ch = st.chrome || {};
+    st.model.tables.forEach((tb, ti) => { const nt = fresh.tables[ti]; ['measures', 'columns'].forEach(kind => tb[kind].forEach((f, i) => { const nf = nt && nt[kind][i]; if (nf && nf.name !== f.name) ren[tb.name + '|' + f.name] = nf.name; })); });
+    st.model = fresh;
+    const re = f => { const nn = !f.isNew && ren[f.table + '|' + f.name]; if (nn) f.name = nn; return nn; };
+    allVisuals(st).forEach(v => Object.values(v.roles || {}).forEach(list => list.forEach(f => { const old = f.name, nn = re(f); if (nn && v.title === old) v.title = nn; })));
+    ((ch.filter && ch.filter.fields) || []).forEach(re);
+    Object.keys(st.fieldMeta || {}).forEach(k => { const i = k.indexOf('.'); const nn = ren[k.slice(0, i) + '|' + k.slice(i + 1)]; if (nn) { st.fieldMeta[k.slice(0, i) + '.' + nn] = st.fieldMeta[k]; delete st.fieldMeta[k]; } });
+    return 1;
+  }
+  // Sprachwechsel, Rückgängig über einen Sprachwechsel hinweg, Öffnen einer Datei in der anderen Sprache. Liefert die Anzahl der Änderungen.
+  function relabelDefaults(to) { return relabelTexts(to) + relabelDemo(to); }
+  // Einmal für Stände ohne Merker: Texte, die wörtlich ein Standardtext der Projektsprache sind, bekommen den Merker. Texte in der
+  // anderen Sprache nur, wenn der Stand erkennbar dort angelegt wurde (Berichtsname, Kopfband-Untertitel oder Fußzeile lauten wie ihr
+  // Standard, keiner wie der der Projektsprache). Dann heilt relabelTexts sie; ein eigener Text in einem sonst deutschen Stand bleibt.
+  function markLegacy(st) {
+    const L = st.lang === 'en' ? 'en' : 'de', O = L === 'en' ? 'de' : 'en'; const ch = st.chrome || {};
+    const ev = [[st, 'name', 'state.newReport'], [ch.header, 'sub', 'state.headerSub'], [ch.footer, 'text', 'state.footerText']].filter(x => x[0]);
+    const own = ev.filter(([o, p, k]) => o[p] === I18N.tl(L, k)).length, oth = ev.filter(([o, p, k]) => o[p] === I18N.tl(O, k) && o[p] !== I18N.tl(L, k)).length;
+    const heal = oth > 0 && own === 0;
+    const mark = (o, p, k, vars) => { if (!o || typeof o[p] !== 'string' || !o[p]) return false; if (o[p] === I18N.tl(L, k, vars) || (heal && o[p] === I18N.tl(O, k, vars))) { setDefault(o, p, k, vars); return true; } return false; };
+    mark(st, 'name', 'state.newReport');
+    st.pages.forEach(p => { if (!mark(p, 'name', 'state.firstPage')) for (let n = 1; n <= Math.max(99, st.pages.length); n++) if (mark(p, 'name', 'state.pageN', { n })) break; });
+    if (ch.header) { mark(ch.header, 'title', 'state.headerTitle'); mark(ch.header, 'sub', 'state.headerSub'); }
+    if (ch.footer) mark(ch.footer, 'text', 'state.footerText');
+    const keys = tplKeys();
+    allVisuals(st).forEach(v => ['title', 'sub', 'notes'].forEach(prop => keys.some(k => mark(v, prop, k))));
+    return heal;
   }
 
   // ------------------------------------------------------------------ Baum-Helfer (aktuelle Seite)
@@ -400,16 +456,17 @@ window.MK_VERSION = '0.5.2';
     const tpl = CAT.templates.find(t => t.id === tplId); if (!tpl) return;
     if (visuals().length && !confirm(t('ask.tplReplace', { t: tpl.label, n: visuals().length }))) return;
     if (!S.model.tables.length) { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); syncFieldFlags(); openMeasureTable(); toast(t('toast.demoLoadedTpl')); }
-    page().layout = ensureIds(tpl.tree()); sel = null; commit(); toast(t('toast.tplSet', { t: tpl.label }));
+    page().layout = markTemplate(ensureIds(tpl.tree())); sel = null; commit(); toast(t('toast.tplSet', { t: tpl.label }));
   }
 
   // ------------------------------------------------------------------ Seiten
   function addPage(name, tplId) {
     const tpl = CAT.templates.find(t => t.id === (tplId || 'empty'));
-    const p = { id: uid(), name: name || t('state.pageN', { n: S.pages.length + 1 }), notes: '', layout: ensureIds(tpl.tree()) };
+    const p = { id: uid(), name: name || t('state.pageN', { n: S.pages.length + 1 }), notes: '', layout: markTemplate(ensureIds(tpl.tree())) };
+    if (!name) setDefault(p, 'name', 'state.pageN', { n: S.pages.length + 1 });
     S.pages.push(p); S.cur = p.id; sel = null; commit(); return p;
   }
-  function dupPage() { const src = page(); const p = JSON.parse(JSON.stringify(src)); p.id = uid(); p.name = src.name + t('state.copySuffix'); reId(p.layout); S.pages.splice(S.pages.indexOf(src) + 1, 0, p); S.cur = p.id; sel = null; commit(); }
+  function dupPage() { const src = page(); const p = JSON.parse(JSON.stringify(src)); p.id = uid(); p.name = src.name + t('state.copySuffix'); dropDefault(p, 'name'); reId(p.layout); S.pages.splice(S.pages.indexOf(src) + 1, 0, p); S.cur = p.id; sel = null; commit(); }
   function reId(n) { n.id = uid(); if (n.type !== 'leaf') n.children.forEach(c => reId(c.node)); }
   function delPage(pid) {
     const p = S.pages.find(x => x.id === pid) || page();
@@ -420,20 +477,24 @@ window.MK_VERSION = '0.5.2';
     commit();
   }
   function movePage(d) { const i = S.pages.indexOf(page()); const j = i + d; if (j < 0 || j >= S.pages.length) return; const [p] = S.pages.splice(i, 1); S.pages.splice(j, 0, p); commit(); }
+  // Seitenreiter sind Knöpfe (Tastatur: Tab, Enter/Leertaste), ✎ und × ebenso, mit Namen im aria-label.
+  // Nach dem Neuzeichnen steht der Fokus wieder auf demselben Knopf, sonst fiele er nach jedem Seitenwechsel auf <body>.
   function renderPages() {
-    const bar = $('#pagebar');
-    bar.innerHTML = S.pages.map((p, i) => `<span class="ptab${p.id === S.cur ? ' act' : ''}" data-page="${p.id}"><span class="n">${i + 1}</span>${esc(p.name)}${p.id === S.cur ? `<span class="x" data-renpage="${p.id}" title="${esc(t('tip.pageRename'))}">✎</span>` : ''}<span class="x" data-delpage="${p.id}" title="${esc(t('tip.pageDelete'))}">×</span></span>`).join('')
+    const bar = $('#pagebar'); const fa = document.activeElement;
+    const keep = fa && fa !== bar && bar.contains(fa) ? (fa.id ? '#' + fa.id : ['go', 'renpage', 'delpage'].filter(k => fa.dataset[k]).map(k => `[data-${k}="${CSS.escape(fa.dataset[k])}"]`)[0]) : null;
+    bar.innerHTML = S.pages.map((p, i) => { const act = p.id === S.cur; return `<span class="ptab${act ? ' act' : ''}" data-page="${p.id}"><button type="button" class="pt-go" data-go="${p.id}"${act ? ' aria-current="page"' : ''}><span class="n">${i + 1}</span>${esc(p.name)}</button>${act ? `<button type="button" class="x" data-renpage="${p.id}" title="${esc(t('tip.pageRename'))}" aria-label="${esc(t('tip.pageRenameN', { n: p.name }))}">✎</button>` : ''}<button type="button" class="x" data-delpage="${p.id}" title="${esc(t('tip.pageDelete'))}" aria-label="${esc(t('tip.pageDeleteN', { n: p.name }))}">×</button></span>`; }).join('')
       + `<button class="padd" id="btnAddPage">${esc(t('btn.addPage'))}</button><span class="ptools"><button class="btn sm ghost" id="btnPageLeft" title="${esc(t('tip.pageLeft'))}" aria-label="${esc(t('tip.pageLeft'))}">‹</button><button class="btn sm ghost" id="btnPageRight" title="${esc(t('tip.pageRight'))}" aria-label="${esc(t('tip.pageRight'))}">›</button></span>`;
+    if (keep) { const el = $(keep, bar) || $(`[data-go="${CSS.escape(S.cur)}"]`, bar); if (el) el.focus({ preventScroll: true }); }
   }
   $('#pagebar').addEventListener('click', e => {
     const del = e.target.closest('[data-delpage]'); if (del) { delPage(del.dataset.delpage); return; }
-    const ren = e.target.closest('[data-renpage]'); if (ren) { const p = S.pages.find(x => x.id === ren.dataset.renpage); const n = prompt(t('ask.pageName'), p.name); if (n && n.trim()) { p.name = n.trim(); commit(); } return; }
+    const ren = e.target.closest('[data-renpage]'); if (ren) { const p = S.pages.find(x => x.id === ren.dataset.renpage); const n = prompt(t('ask.pageName'), p.name); if (n && n.trim()) { p.name = n.trim(); dropDefault(p, 'name'); commit(); } return; }
     const tab = e.target.closest('[data-page]'); if (tab) { if (tab.dataset.page !== S.cur) { S.cur = tab.dataset.page; sel = null; commit({ noUndo: true }); } return; }
     if (e.target.id === 'btnAddPage') addPage();
     if (e.target.id === 'btnPageLeft') movePage(-1);
     if (e.target.id === 'btnPageRight') movePage(1);
   });
-  $('#pagebar').addEventListener('dblclick', e => { const el = e.target.closest('[data-page]'); if (!el) return; const p = S.pages.find(x => x.id === el.dataset.page); const n = prompt(t('ask.pageName'), p.name); if (n && n.trim()) { p.name = n.trim(); commit(); } });
+  $('#pagebar').addEventListener('dblclick', e => { const el = e.target.closest('[data-page]'); if (!el || e.target.closest('[data-delpage]')) return; const p = S.pages.find(x => x.id === el.dataset.page); const n = prompt(t('ask.pageName'), p.name); if (n && n.trim()) { p.name = n.trim(); dropDefault(p, 'name'); commit(); } });
 
   // ------------------------------------------------------------------ Geometrie
   function zones() {
@@ -488,14 +549,16 @@ window.MK_VERSION = '0.5.2';
   // ------------------------------------------------------------------ Rendering: Seite
   const pageEl = $('#page'), stage = $('#stage');
   // Fokus in der Zeichenfläche halten (B42): Kachel mit dieser id, sonst die Seite selbst (tabindex=-1)
-  function focusCanvas(leafId) { const el = leafId ? pageEl.querySelector(`[data-leaf="${CSS.escape(leafId)}"]`) : null; (el || pageEl).focus({ preventScroll: true }); }
-  function render() {
+  // fallback: gibt es die Kachel nicht mehr (geteilt, eingefügt über „+"), die gewählte Kachel
+  function focusCanvas(leafId, fallback) { const q = id => id ? pageEl.querySelector(`[data-leaf="${CSS.escape(id)}"]`) : null; (q(leafId) || q(fallback) || pageEl).focus({ preventScroll: true }); }
+  // opts.inspector === false: das Kachel-Panel stehen lassen (Tippen im Panel, renderPageOnly)
+  function render(opts) {
     const { w, h } = S.canvas; const c = S.chrome; const d = S.design; const k = ui();
     // innerHTML ersetzt unten alle Kacheln; lag der Fokus darin, fiele er sonst auf <body> und der nächste Tab begänne oben
     const fa = document.activeElement, faIn = !!fa && fa !== pageEl && pageEl.contains(fa), faTile = faIn && fa.closest('[data-leaf]');
     pageEl.style.width = w + 'px'; pageEl.style.height = h + 'px'; pageEl.style.transform = 'scale(' + zoom + ')';
-    // Kacheltitel und Eyebrow folgen derselben Hell/Dunkel-Regel wie die Skizze (tileHtml, render-png), sonst 1:1-Kontrast auf dunklem Kachelgrund (B5)
-    pageEl.style.setProperty('--ui', k); pageEl.style.setProperty('--zoom', zoom); pageEl.style.setProperty('--tile-r', Math.round(d.radius * k) + 'px'); pageEl.style.setProperty('--page-bg', pageBgOf(d)); pageEl.style.setProperty('--accent', d.accent || '#C25A2D'); pageEl.style.setProperty('--tile-bg', d.tileBg || '#FFFFFF'); pageEl.style.setProperty('--ink-page', isDark(d.tileBg) ? '#E6E6E6' : (d.ink || '#0F1E2E')); pageEl.style.setProperty('--hdr-bg', d.headerBg || '#0F1E2E'); pageEl.style.setProperty('--hdr-ink', d.headerInk || '#FFFFFF'); const ty = typo(); pageEl.style.setProperty('--fs-title', (ty.title * ty.scale) + 'px'); pageEl.style.setProperty('--fs-sub', (ty.sub * ty.scale) + 'px');
+    // Kacheltitel und Eyebrow folgen derselben Kontrast-Regel wie die Skizze (tileInk: tileHtml, render-png), sonst 1:1 auf dunklem Kachelgrund (B5)
+    pageEl.style.setProperty('--ui', k); pageEl.style.setProperty('--zoom', zoom); pageEl.style.setProperty('--tile-r', Math.round(d.radius * k) + 'px'); pageEl.style.setProperty('--page-bg', pageBgOf(d)); pageEl.style.setProperty('--accent', d.accent || '#C25A2D'); pageEl.style.setProperty('--tile-bg', d.tileBg || '#FFFFFF'); pageEl.style.setProperty('--ink-page', tileInk(d).ink); pageEl.style.setProperty('--hdr-bg', d.headerBg || '#0F1E2E'); pageEl.style.setProperty('--hdr-ink', d.headerInk || '#FFFFFF'); const ty = typo(); pageEl.style.setProperty('--fs-title', (ty.title * ty.scale) + 'px'); pageEl.style.setProperty('--fs-sub', (ty.sub * ty.scale) + 'px');
     pageEl.className = 'page tile-' + (d.tile || 'border');
     $('#stageInner').style.minWidth = `max(100%, ${Math.round(w * zoom + 56)}px)`; $('#stageInner').style.minHeight = `max(100%, ${Math.round(h * zoom + 56)}px)`;
     pageEl.style.marginRight = (w * zoom - w) + 'px'; pageEl.style.marginBottom = (h * zoom - h) + 'px';
@@ -525,9 +588,9 @@ window.MK_VERSION = '0.5.2';
     { const c0 = z.content, eb = (side, st) => `<button type="button" class="gedge ${side}" data-edge="${side}" style="${st}" title="${esc(t('tip.edge'))}" aria-label="${esc(t('tip.edge'))}">+</button>`;
       html += eb('left', `left:${c0.x}px;top:${c0.y + c0.h / 2}px`) + eb('right', `left:${c0.x + c0.w}px;top:${c0.y + c0.h / 2}px`) + eb('top', `left:${c0.x + c0.w / 2}px;top:${c0.y}px`) + eb('bottom', `left:${c0.x + c0.w / 2}px;top:${c0.y + c0.h}px`); }
     pageEl.innerHTML = html;
-    if (faIn) focusCanvas(faTile ? faTile.dataset.leaf : null);
+    if (faIn) focusCanvas(faTile ? faTile.dataset.leaf : null, sel);
     $('#stageInfo').textContent = t('canvas.info', { w, h, cw: z.content.w, ch: z.content.h, k: k.toFixed(2), z: Math.round(zoom * 100) });
-    renderPages(); renderInspector(); renderModel(); syncPageInputs();
+    renderPages(); if (!(opts && opts.inspector === false)) renderInspector(); renderModel(); syncPageInputs();
   }
   function css(r) { return `left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px`; }
   // Klick nicht verschlucken (B12): Verlässt man ein Feld per Mausklick auf eine andere Kachel, feuert dessen change-Ereignis
@@ -535,13 +598,20 @@ window.MK_VERSION = '0.5.2';
   // (und N öffnete die alte Kachel). Solange eine Maustaste gedrückt ist, wird deshalb erst nach dem Loslassen neu gezeichnet.
   let pointerDown = false, renderPending = false;
   window.addEventListener('pointerdown', () => { pointerDown = true; }, true);
-  const pointerDone = () => { pointerDown = false; if (renderPending) { renderPending = false; setTimeout(renderKeepFocus, 0); } };
+  // Der Zeitgeber läuft erst nach dem nächsten Ereignis. Ist bis dahin schon der zweite Druck eines Doppelklicks da, wartet das
+  // Neuzeichnen bis zu dessen Loslassen, sonst ersetzt render() die Kachel zwischen pointerdown und pointerup und click/dblclick fehlen.
+  const pointerDone = () => { pointerDown = false; if (renderPending) { renderPending = false; setTimeout(() => { if (pointerDown) { renderPending = true; return; } renderKeepFocus(); }, 0); } };
   window.addEventListener('pointerup', pointerDone, true); window.addEventListener('pointercancel', pointerDone, true);
   function renderSoon() { if (pointerDown) renderPending = true; else render(); }
-  // Wurde mit dem Klick ein anderes Feld im Kachel-Panel fokussiert, steht der Cursor nach dem Neuzeichnen wieder dort
+  // Wie renderSoon, hält aber den Fokus auf dem Bedienelement im Kachel-Panel (Auswahllisten, Häkchen per Tastatur)
+  function renderFocusSoon() { if (pointerDown) renderPending = true; else renderKeepFocus(); }
+  // Wurde mit dem Klick ein anderes Feld im Kachel-Panel fokussiert, steht der Cursor nach dem Neuzeichnen wieder dort.
+  // Dasselbe für Auswahllisten und Häkchen, die per Tastatur geändert wurden: sonst fiele der Fokus nach jeder Änderung auf <body>.
+  const KEEP_ATTR = ['vk', 'an', 'vkb', 'ank', 'engine'];
   function renderKeepFocus() {
     const a = document.activeElement; const inIns = a && a.closest && a.closest('#insEl') && a.dataset;
-    const key = inIns ? (a.dataset.vk ? `[data-vk="${a.dataset.vk}"]` : (a.dataset.an ? `[data-an="${a.dataset.an}"]` : null)) : null;
+    const attr = inIns ? KEEP_ATTR.find(x => a.dataset[x] != null) : null;
+    const key = attr ? `[data-${attr}="${CSS.escape(a.dataset[attr])}"]` : null;
     const s0 = key && a.selectionStart != null ? [a.selectionStart, a.selectionEnd] : null;
     render();
     const b = key ? $(key, insEl) : null;
@@ -562,12 +632,17 @@ window.MK_VERSION = '0.5.2';
     const footH = chips && !tiny ? 18 * k : 0;
     const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - footH - pad - 6);
     const an = analysisOf(v);
-    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: sketchScenario(v, an), seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '', antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: isDark(S.design.tileBg) ? '#E6E6E6' : (S.design.ink || '#404040'), dark: isDark(S.design.tileBg), paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral' }, samplesOpt(v))) : '';
+    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: sketchScenario(v, an), seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '', antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: tileInk(S.design).ink, dark: tileInk(S.design).dark, paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral' }, samplesOpt(v))) : '';
     // Notiz: Symbol in der Badge-Zeile, das Popup als eigenes Element der Seite rechtsbündig unter dem Kachelkopf (B47).
     // In .badges schrumpfte es auf deren Breite (ca. 33 px) und wurde vom overflow:hidden der Kachel abgeschnitten.
     const noteTxt = v.notes ? v.notes : (v.openQuestion ? t('canvas.openQuestionEmpty') : '');
     const note = noteTxt ? `<span class="note-ico" data-note="${node.id}" title="${esc(v.notes ? (v.openQuestion ? t('canvas.noteOpen') : t('canvas.note')) : t('canvas.openQuestion'))}">${v.openQuestion ? '?' : '✎'}</span>` : '';
-    const notePop = noteTxt ? `<div class="note-pop" data-note-for="${node.id}" style="top:calc(${rect.y}px + 28px / var(--zoom));right:calc(${S.canvas.w - rect.x - rect.w}px + 6px / var(--zoom));max-width:min(calc(320px / var(--zoom)), ${Math.max(40, rect.x + rect.w - 8)}px)">${esc(noteTxt)}</div>` : '';
+    // Rechtsbündig öffnet es nach links. Reicht der Platz bis zum linken Seitenrand nicht für die volle Breite (schmale Kachel
+    // links außen), öffnet es linksbündig nach rechts, statt zu einer schmalen Spalte zu schrumpfen. Abstände in Bildschirm-px.
+    const gapP = 6 / zoom, edgeP = 8 / zoom, roomL = Math.floor(rect.x + rect.w - gapP - edgeP), roomR = Math.floor(S.canvas.w - rect.x - gapP - edgeP);
+    const popRight = roomL < 320 / zoom && roomR > roomL;
+    const popPos = popRight ? `left:calc(${rect.x}px + 6px / var(--zoom))` : `right:calc(${S.canvas.w - rect.x - rect.w}px + 6px / var(--zoom))`;
+    const notePop = noteTxt ? `<div class="note-pop" data-note-for="${node.id}" style="top:calc(${rect.y}px + 28px / var(--zoom));${popPos};max-width:min(calc(320px / var(--zoom)), ${Math.max(40, popRight ? roomR : roomL)}px)">${esc(noteTxt)}</div>` : '';
     const missing = CAT.rolesFor(def, v).filter(r => r.req && !(v.roles[r.key] || []).length).map(r => r.label);
     // Gebundene Felder, die das geladene Modell nicht kennt (Review B3): roter Punkt auch dann, wenn die Kachel zu klein für Chips ist
     const gone = []; Object.keys(v.roles || {}).forEach(key => (v.roles[key] || []).forEach(f => { if (fieldStatus(f) === 'missing' && !gone.includes(f.name)) gone.push(f.name); }));
@@ -597,11 +672,11 @@ window.MK_VERSION = '0.5.2';
   // Hinweis im Kachel-Panel samt Angebot: passendes Feld binden (nur bei eindeutigem Namen), Szenario angleichen bzw. Δ-Basis zurück auf automatisch
   function mismatchHtml(v, mm) {
     if (!mm) return '';
-    const cand = mm.extra ? null : swapCandidate(mm.field, mm.want); const btns = [];
-    if (cand) btns.push(`<button type="button" class="btn sm" data-mm="swap">${esc(t('scen.swap', { n: cand.name }))}</button>`);
+    const plan = swapPlan(v, mm); const btns = [];
+    if (plan && !plan.blocked) btns.push(`<button type="button" class="btn sm" data-mm="swap">${esc(plan.scen ? t('scen.swapScen', { n: plan.cand.name, s: plan.scen }) : t('scen.swap', { n: plan.cand.name }))}</button>`);
     if (mm.kind === 'scenario') { const s2 = scenarioFor(v, mm); if (s2) btns.push(`<button type="button" class="btn sm" data-mm="scen" data-s="${esc(s2)}">${esc(t('scen.fixScenario', { s: s2 }))}</button>`); }
     else btns.push(`<button type="button" class="btn sm" data-mm="auto">${esc(t('scen.autoBasis', { b: mm.fieldBasis }))}</button>`);
-    return `<div class="warn mm" role="status">${esc(mismatchText(mm, v))}${cand || mm.extra ? '' : ' ' + esc(t('scen.noCandidate', { b: mm.want }))}${btns.length ? `<div class="row wrap mm-acts">${btns.join('')}</div>` : ''}</div>`;
+    return `<div class="warn mm" role="status">${esc(mismatchText(mm, v))}${plan || mm.extra ? '' : ' ' + esc(t('scen.noCandidate', { b: mm.want }))}${btns.length ? `<div class="row wrap mm-acts">${btns.join('')}</div>` : ''}</div>`;
   }
   function mismatchText(mm, v) { return mm.kind === 'scenario' ? t(mm.extra ? 'scen.mismatchExtra' : 'scen.mismatch', { s: mm.scenario || (v && v.scenario) || '', f: mm.field.name, b: mm.note }) : t('scen.mismatchBasis', { d: mm.want, f: mm.field.name, b: mm.note }); }
   function seedOf(id) { let h = 7; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % 1000; }
@@ -615,6 +690,9 @@ window.MK_VERSION = '0.5.2';
       if (e.detail && (!press || press.moved)) return;
       const gi = lastRects.gutters[+mg.dataset.merge]; if (gi) mergeGutter(gi); return;
     }
+    // Rand-„+": die Maus fügt schon beim Drücken ein (mousedown). Enter/Leertaste lösen nur click aus (e.detail === 0), daher hier.
+    const edge = e.target.closest('[data-edge]');
+    if (edge) { e.stopPropagation(); if (!e.detail) insertEdge(edge.dataset.edge); return; }
     const act = e.target.closest('[data-act]'); const tile = e.target.closest('[data-leaf]'); const rm = e.target.closest('[data-rmfilter]');
     if (rm) { S.chrome.filter.fields.splice(+rm.dataset.rmfilter, 1); commit(); return; }
     if (act && tile) { e.stopPropagation(); const id = tile.dataset.leaf; if (act.dataset.act === 'rm') removeLeaf(id); else splitLeaf(id, act.dataset.act); return; }
@@ -629,8 +707,9 @@ window.MK_VERSION = '0.5.2';
   // Notiz beim Darüberfahren zeigen (das Popup ist kein Geschwister des Symbols mehr, daher per Klasse statt :hover + )
   pageEl.addEventListener('mouseover', e => { const ico = e.target.closest && e.target.closest('.note-ico'); if (ico) { const p = notePopFor(ico); if (p) p.classList.add('hover'); } });
   pageEl.addEventListener('mouseout', e => { const ico = e.target.closest && e.target.closest('.note-ico'); if (ico && !ico.contains(e.relatedTarget)) { const p = notePopFor(ico); if (p) p.classList.remove('hover'); } });
+  // Nur die Kachel selbst: Knöpfe darin (⇔ ⇕ ✕) bekommen Enter/Leertaste als eigenen Klick
   pageEl.addEventListener('keydown', e => {
-    const tile = e.target.closest && e.target.closest('[data-leaf]'); if (!tile) return;
+    const tile = e.target.closest && e.target.closest('[data-leaf]'); if (!tile || e.target !== tile) return;
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTile(tile.dataset.leaf); if (e.key === 'Enter' && !findNode(sel).node.visual) openCatalog(); }
   });
   // Auswahl ohne Neu-Rendern der Seite, sonst geht das Zielelement zwischen zwei Klicks verloren (Doppelklick)
@@ -720,7 +799,7 @@ window.MK_VERSION = '0.5.2';
     const old = n.visual || {}; const roles = {};
     const ALIAS = { ac: ['indicator', 'values', 'y'], indicator: ['ac', 'values'], ref: ['goal'], goal: ['ref'], values: ['ac', 'indicator'], category: ['rows', 'field'], rows: ['category'], field: ['category'] };
     def.roles.forEach(r => { const src = [r.key].concat(ALIAS[r.key] || []).find(k => old.roles && old.roles[k] && old.roles[k].length); if (src) roles[r.key] = old.roles[src].filter(f => r.kind === 'any' || f.kind === r.kind).slice(0, r.max); });
-    n.visual = normVisual({ kind, engine: def.engine, title: old.title || '', sub: old.sub || '', scenario: old.scenario || S.defScenario, roles, notes: old.notes || '', link: old.link || '' });
+    n.visual = normVisual(Object.assign({ kind, engine: def.engine, title: old.title || '', sub: old.sub || '', scenario: old.scenario || S.defScenario, roles, notes: old.notes || '', link: old.link || '' }, old.dflt ? { dflt: JSON.parse(JSON.stringify(old.dflt)) } : {}));
     sel = id; commit();
   }
   function assignField(id, f, roleKey) {
@@ -759,7 +838,8 @@ window.MK_VERSION = '0.5.2';
     document.body.appendChild(m);
     const tile = document.querySelector(`.tile[data-leaf="${id}"]`); const r = tile ? tile.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };
     m.style.left = Math.min(innerWidth - 280, Math.max(8, r.left + r.width / 2 - 130)) + 'px'; m.style.top = Math.min(innerHeight - 260, Math.max(8, r.top + r.height / 2 - 40)) + 'px';
-    m.addEventListener('click', e => { const b = e.target.closest('[data-rk]'); if (!b) return; const key = b.dataset.rk; closeRoleMenu(); if (key) assignField(id, f, key); });
+    // Nach der Wahl (auch Abbrechen) steht der Fokus wieder auf der Kachel, nicht auf <body>
+    m.addEventListener('click', e => { const b = e.target.closest('[data-rk]'); if (!b) return; const key = b.dataset.rk; closeRoleMenu(true); if (key) assignField(id, f, key); });
     m.setAttribute('role', 'group'); m.setAttribute('aria-label', t('role.menuHead', { f: f.name })); m.dataset.leaf = id;
     const first = m.querySelector('button'); if (first) first.focus({ preventScroll: true });
     setTimeout(() => document.addEventListener('mousedown', outsideRoleMenu), 0);
@@ -878,7 +958,7 @@ window.MK_VERSION = '0.5.2';
       <div class="field"><label>${esc(t('smp.ref'))}</label><input class="ctl" data-ts="ref" value="${esc((v.samples || {}).ref || '')}" placeholder="${esc(t('smp.refPh'))}"></div></div></div>`}<div class="box"><h3>${esc(t('sec.typo'))}</h3><div class="field"><label>${esc(t('lbl.tileFont'))}</label><select class="ctl" data-ty="scale">${[['', t('opt.tileFont.auto')], ['0.85', '85 %'], ['1', '100 %'], ['1.15', '115 %'], ['1.3', '130 %'], ['1.5', '150 %']].map(([k, l]) => `<option value="${k}" ${String(tileScale(v)) === k || (k === '' && !(v.typo && v.typo.scale)) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></div></div></div></div>`;
     const body = $('#dlgTileBody');
     const setAn = (key, val) => { const a = v.analysis = v.analysis || {}; if (val === '' || val === null || val === undefined || val === false) delete a[key]; else a[key] = val; };
-    $$('[data-tk]', body).forEach(x => { const f = () => { v[x.dataset.tk] = x.value; persist(); }; x.addEventListener('input', f); x.addEventListener('change', f); });
+    $$('[data-tk]', body).forEach(x => { const f = () => { v[x.dataset.tk] = x.value; dropDefault(v, x.dataset.tk); persist(); }; x.addEventListener('input', f); x.addEventListener('change', f); });
     $$('[data-tkb]', body).forEach(x => x.addEventListener('change', () => { v[x.dataset.tkb] = x.checked; persist(); }));
     $$('[data-ti]', body).forEach(x => x.addEventListener('change', () => { const o = v.interaction = v.interaction || {}; if (x.dataset.ti === 'crossFilter') { if (x.checked) delete o.crossFilter; else o.crossFilter = false; } else { if (x.checked) o[x.dataset.ti] = true; else delete o[x.dataset.ti]; } if (!Object.keys(o).length) delete v.interaction; persist(); }));
     $$('[data-ts]', body).forEach(x => x.addEventListener('input', () => { const o = v.samples = v.samples || {}; if (x.value.trim()) o[x.dataset.ts] = x.value; else delete o[x.dataset.ts]; if (!Object.keys(o).length) delete v.samples; persist(); }));
@@ -896,12 +976,14 @@ window.MK_VERSION = '0.5.2';
   function bindInspector(n) {
     const b = $('#btnPickType'); if (b) b.onclick = openCatalog;
     $$('[data-ins]', insEl).forEach(x => x.onclick = () => { if (x.dataset.ins === 'rm') removeLeaf(n.id); else { n.visual = null; commit(); } });
-    $$('[data-engine]', insEl).forEach(x => x.onclick = () => { n.visual.engine = x.dataset.engine; commit(); });
+    $$('[data-engine]', insEl).forEach(x => x.onclick = () => { n.visual.engine = x.dataset.engine; commit({ keep: true }); });
     $$('[data-vk]', insEl).forEach(x => {
       const isSel = x.tagName === 'SELECT';
-      x.addEventListener('input', () => { n.visual[x.dataset.vk] = x.value; persist(); if (!isSel && x.dataset.vk !== 'notes') renderPageOnly(); });
+      // Text: beim Tippen nur die Seite neu zeichnen, das Feld selbst bleibt stehen. Sonst ersetzte jeder Anschlag das Feld,
+      // das alte meldete change und legte je Buchstabe einen Rückgängig-Schritt an. Ein Schritt entsteht jetzt beim Verlassen.
+      x.addEventListener('input', () => { n.visual[x.dataset.vk] = x.value; dropDefault(n.visual, x.dataset.vk); persist(); if (!isSel) renderPageOnly(); });
       x.addEventListener('change', () => {
-        n.visual[x.dataset.vk] = x.value; mark(); if (isSel || x.dataset.vk === 'notes') renderSoon();
+        n.visual[x.dataset.vk] = x.value; dropDefault(n.visual, x.dataset.vk); mark(); if (isSel) renderFocusSoon();
         // Szenario gewechselt, gebundene Referenz passt nicht mehr: nicht still weiterrechnen, sondern melden (Review B2). Getauscht wird nur auf Klick im Panel.
         if (x.dataset.vk === 'scenario') { const mm = refMismatch(n.visual); if (mm && mm.kind === 'scenario') toast(t('scen.toast', { s: n.visual.scenario, f: mm.field.name, b: mm.note })); }
       });
@@ -909,13 +991,14 @@ window.MK_VERSION = '0.5.2';
     $$('[data-mm]', insEl).forEach(b => b.onclick = () => {
       const v = n.visual; const mm = v && refMismatch(v); if (!mm) return render();
       if (b.dataset.mm === 'swap') {
-        const c = swapCandidate(mm.field, mm.want); if (!c) return render();
+        const plan = swapPlan(v, mm); if (!plan || plan.blocked) return render(); const c = plan.cand;
         v.roles[mm.roleKey][mm.idx] = { table: c.table, name: c.name, kind: c.kind, type: c.type || '', isNew: !!c.isNew };
-        commit(); toast(t('toast.refSwapped', { o: mm.field.name, n: c.name }));
+        if (plan.scen) v.scenario = plan.scen;
+        commit(); toast(t('toast.refSwapped', { o: mm.field.name, n: c.name }) + (plan.scen ? ' · ' + t('toast.scenAdjusted', { s: plan.scen }) : ''));
       } else if (b.dataset.mm === 'scen') { v.scenario = b.dataset.s; commit(); toast(t('toast.scenAdjusted', { s: v.scenario })); }
       else if (b.dataset.mm === 'auto') { if (v.analysis) delete v.analysis.deltaBasis; commit(); toast(t('toast.basisAuto', { b: analysisOf(v).deltaBasis })); }
     });
-    $$('[data-vkb]', insEl).forEach(x => x.addEventListener('change', () => { n.visual[x.dataset.vkb] = x.checked; commit(); }));
+    $$('[data-vkb]', insEl).forEach(x => x.addEventListener('change', () => { n.visual[x.dataset.vkb] = x.checked; commit({ keep: true }); }));
     // Analyse-Block: leer = nicht entschieden (Schlüssel wird entfernt), sonst Wert speichern
     const setAn = (key, val) => { const a = n.visual.analysis = n.visual.analysis || {}; if (val === '' || val === null || val === undefined) delete a[key]; else a[key] = val; };
     $$('[data-an]', insEl).forEach(x => {
@@ -927,10 +1010,10 @@ window.MK_VERSION = '0.5.2';
         else if (k === 'displayUnits') setAn(k, val === 'auto' ? '' : val);
         else setAn(k, val);
       };
-      x.addEventListener('input', () => { apply(); persist(); if (x.tagName !== 'INPUT' || x.type === 'checkbox') render(); else renderPageOnly(); });
-      x.addEventListener('change', () => { apply(); mark(); if (x.tagName === 'SELECT') render(); });
+      x.addEventListener('input', () => { apply(); persist(); if (x.tagName !== 'INPUT' || x.type === 'checkbox') renderFocusSoon(); else renderPageOnly(); });
+      x.addEventListener('change', () => { apply(); mark(); if (x.tagName === 'SELECT') renderFocusSoon(); });
     });
-    $$('[data-ank]', insEl).forEach(x => x.addEventListener('change', () => { const kinds = $$('[data-ank]', insEl).filter(c => c.checked).map(c => c.dataset.ank); setAn('deltaKind', kinds.length === 2 ? '' : kinds); commit(); }));
+    $$('[data-ank]', insEl).forEach(x => x.addEventListener('change', () => { const kinds = $$('[data-ank]', insEl).filter(c => c.checked).map(c => c.dataset.ank); setAn('deltaKind', kinds.length === 2 ? '' : kinds); commit({ keep: true }); }));
     $$('[data-rmrole]', insEl).forEach(x => x.onclick = () => removeField(n.id, x.dataset.rmrole, +x.dataset.i));
     $$('[data-newfield]', insEl).forEach(b => b.onclick = e => { e.stopPropagation(); openNewFieldFor(n.id, b.dataset.newfield, b.dataset.newkind); });
     $$('.role .fchip', insEl).forEach(chip => chip.addEventListener('dblclick', () => { const key = chip.closest('.role').dataset.role; const i = +chip.querySelector('[data-i]').dataset.i; const f = n.visual.roles[key][i]; if (f) openFieldMeta(f); }));
@@ -940,7 +1023,8 @@ window.MK_VERSION = '0.5.2';
       r.addEventListener('drop', e => { e.preventDefault(); r.classList.remove('over'); const d = e.dataTransfer.getData('application/mk-field'); if (d) assignField(n.id, JSON.parse(d), r.dataset.role); });
     });
   }
-  function renderPageOnly() { const act = document.activeElement; render(); if (act && act.dataset && act.dataset.vk) { const again = $(`[data-vk="${act.dataset.vk}"]`, insEl); if (again) { again.focus(); if (again.setSelectionRange && act.selectionStart != null) try { again.setSelectionRange(act.selectionStart, act.selectionEnd); } catch (e) { /* select */ } } } }
+  // Beim Tippen im Kachel-Panel: Seite, Seitenleiste und Prüfungen neu zeichnen, das Panel selbst nicht (das Feld behält Fokus und Cursor)
+  function renderPageOnly() { render({ inspector: false }); }
 
   $$('.panel.right details.sub[id]').forEach(d => { if (d.id in panelOpen) d.open = !!panelOpen[d.id]; });
   $('.panel.right').addEventListener('toggle', e => { const d = e.target; if (d && d.matches && d.matches('details.sub')) { const key = d.dataset.grp || d.id; if (key) grpRemember(key, d.open); } }, true);
@@ -981,13 +1065,15 @@ window.MK_VERSION = '0.5.2';
     $('#dsPalette').value = d.palette || 'teal'; $('#dsNative').value = d.nativePalette || 'neutral'; $('#dsPageBgRow').hidden = d.pageBg !== 'custom'; $('#dsPageBgHex').value = d.pageBgHex || '#F4F4F1'; $('#dsPageBgHexTxt').textContent = d.pageBgHex || '#F4F4F1';
     $('#dsTileBg').value = d.tileBg || '#FFFFFF'; $('#dsTileBgTxt').textContent = d.tileBg || '#FFFFFF'; $('#dsInk').value = d.ink || '#0F1E2E'; $('#dsInkTxt').textContent = d.ink || '#0F1E2E';
     // Kontrast direkt am Farbwähler zeigen (B5), nicht nur im eingeklappten Kontrast-Check weiter unten
-    { const r = window.MK_A11Y ? window.MK_A11Y.contrastRatio(d.ink || '#0F1E2E', d.tileBg || '#FFFFFF') : null; const warn = $('#dsInkWarn'); const low = r != null && r < 4.5; warn.hidden = !low;
-      if (low) warn.textContent = t('hint.inkContrast', { r: (Math.round(r * 10) / 10).toLocaleString(I18N.lang === 'en' ? 'en' : 'de') }) + (isDark(d.tileBg) ? ' ' + t('hint.inkAuto') : ''); }
+    // Die Zahl ist der Kontrast der gewählten Farbe (die übernimmt der Export). Zeichnet die Skizze stattdessen hell (tileInk), sagt der Zusatz das.
+    { const ti = tileInk(d); const warn = $('#dsInkWarn'); const low = ti.ratio < 4.5; warn.hidden = !low;
+      if (low) warn.textContent = t('hint.inkContrast', { r: (Math.round(ti.ratio * 10) / 10).toLocaleString(I18N.lang === 'en' ? 'en' : 'de') }) + (ti.chosen ? '' : ' ' + t('hint.inkAuto')); }
     $('#dsHeaderRow').hidden = d.header !== 'custom'; $('#dsHeaderBg').value = d.headerBg || '#0F1E2E'; $('#dsHeaderBgTxt').textContent = d.headerBg || '#0F1E2E'; $('#dsHeaderInk').value = d.headerInk || '#FFFFFF'; $('#dsHeaderInkTxt').textContent = d.headerInk || '#FFFFFF';
     const dsel = $('#demoModelSel'); if (!dsel.options.length || dsel.dataset.lang !== S.lang) { dsel.innerHTML = CAT.demoModels.map(m => `<option value="${m.id}">${esc(m.label)}</option>`).join(''); dsel.dataset.lang = S.lang; dsel.value = S.demoId || 'controlling'; }
   }
-  bind('projName', v => S.name = v, 'input'); bind('rpName', v => S.name = v, 'input');
-  bind('pageName', v => page().name = v, 'input');
+  // Eigene Eingabe löscht den Standardtext-Merker (B27): der Text folgt dann keinem Sprachwechsel mehr
+  bind('projName', v => { S.name = v; dropDefault(S, 'name'); }, 'input'); bind('rpName', v => { S.name = v; dropDefault(S, 'name'); }, 'input');
+  bind('pageName', v => { page().name = v; dropDefault(page(), 'name'); }, 'input');
   bind('pageNotes', v => page().notes = v, 'input'); bind('pageQuestion', v => page().question = v, 'input');
   bind('rpAudience', v => S.report.audience = v, 'input'); bind('rpPurpose', v => S.report.purpose = v, 'input'); bind('rpDecision', v => S.report.decision = v, 'input');
   bind('rpVersion', v => S.report.version = v, 'input'); bind('rpDataDate', v => S.report.dataDate = v, 'input'); bind('rpParticipants', v => S.report.participants = v, 'input');
@@ -1013,7 +1099,7 @@ window.MK_VERSION = '0.5.2';
   bind('hdOn', v => S.chrome.header.on = v); bind('hdH', v => S.chrome.header.h = clamp(+v, 32, 120), 'input'); bind('hdLogoPos', v => S.chrome.header.logoPos = v);
   bind('ftHeadShow', v => { S.chrome.filter.heading = Object.assign({}, S.chrome.filter.heading, { show: v }); }); bind('ftHeadText', v => { S.chrome.filter.heading = Object.assign({}, S.chrome.filter.heading, { text: v }); }, 'input'); bind('ftText', v => S.chrome.filter.text = v, 'input');
   bind('tyScale', v => { S.design.typo = Object.assign({}, S.design.typo, { scale: +v || 1 }); }); bind('tyTitle', v => { S.design.typo = Object.assign({}, S.design.typo, { title: +v || 12 }); }); bind('tySub', v => { S.design.typo = Object.assign({}, S.design.typo, { sub: +v || 9.5 }); }); bind('tyChart', v => { S.design.typo = Object.assign({}, S.design.typo, { chart: +v || 9 }); });
-  bind('hdTitle', v => S.chrome.header.title = v, 'input'); bind('hdSub', v => S.chrome.header.sub = v, 'input'); bind('hdNavPos', v => { S.chrome.navPos = v; S.chrome.header.navOn = v === 'header'; }); bind('hdNavAuto', v => S.chrome.header.navAuto = v);
+  bind('hdTitle', v => { S.chrome.header.title = v; dropDefault(S.chrome.header, 'title'); }, 'input'); bind('hdSub', v => { S.chrome.header.sub = v; dropDefault(S.chrome.header, 'sub'); }, 'input'); bind('hdNavPos', v => { S.chrome.navPos = v; S.chrome.header.navOn = v === 'header'; }); bind('hdNavAuto', v => S.chrome.header.navAuto = v);
   bind('hdNav', v => S.chrome.header.nav = v.split(',').map(s => s.trim()).filter(Boolean), 'input');
   bind('nvOn', v => S.chrome.nav.on = v); bind('nvW', v => S.chrome.nav.w = clamp(+v, 40, 120), 'input');
   bind('ftOn', v => S.chrome.filter.on = v); bind('ftSide', v => S.chrome.filter.side = v); bind('ftCollapsible', v => S.chrome.filter.collapsible = v);
@@ -1039,26 +1125,27 @@ window.MK_VERSION = '0.5.2';
   };
   $('#ftFieldList').addEventListener('dragover', e => { if (e.dataTransfer.types.includes('application/mk-field')) e.preventDefault(); });
   $('#ftFieldList').addEventListener('drop', e => { e.preventDefault(); const d = e.dataTransfer.getData('application/mk-field'); if (d) addFilterField(JSON.parse(d)); });
-  bind('ffOn', v => S.chrome.footer.on = v); bind('ffH', v => S.chrome.footer.h = clamp(+v, 16, 48), 'input'); bind('ffText', v => S.chrome.footer.text = v, 'input');
+  bind('ffOn', v => S.chrome.footer.on = v); bind('ffH', v => S.chrome.footer.h = clamp(+v, 16, 48), 'input'); bind('ffText', v => { S.chrome.footer.text = v; dropDefault(S.chrome.footer, 'text'); }, 'input');
   bind('dsRadius', v => S.design.radius = +v); bind('dsTile', v => S.design.tile = v); bind('dsPageBg', v => S.design.pageBg = v); bind('dsHeader', v => S.design.header = v);
   bind('dsAccent', v => S.design.accent = v, 'input'); bind('dsPalette', v => S.design.palette = v); bind('dsNative', v => S.design.nativePalette = v);
   bind('dsPageBgHex', v => S.design.pageBgHex = v, 'input'); bind('dsTileBg', v => S.design.tileBg = v, 'input'); bind('dsInk', v => S.design.ink = v, 'input'); bind('dsHeaderBg', v => S.design.headerBg = v, 'input'); bind('dsHeaderInk', v => S.design.headerInk = v, 'input');
   // Inhalt neu aufteilen: Eingaben prüfen statt still zu klemmen (B32), vor dem Verwerfen überzähliger Visuals fragen (B16)
-  function splitErr(bad) {
+  function splitErr(bad, keepFocus) {
     const p = $('#spErr'); p.textContent = bad.length ? t('hint.splitInvalid') : ''; p.hidden = !bad.length;
     [$('#spRows'), $('#spCols')].forEach(el => { if (bad.includes(el)) { el.setAttribute('aria-invalid', 'true'); el.setAttribute('aria-describedby', 'spErr'); } else { el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby'); } });
-    if (bad.length) { bad[0].focus(); bad[0].select(); }
+    if (bad.length && !keepFocus) { bad[0].focus(); bad[0].select(); }
   }
-  ['#spRows', '#spCols'].forEach(s => $(s).addEventListener('input', () => splitErr([])));
+  const spOkNum = el => el.value.trim() !== '' && Number.isInteger(+el.value) && el.checkValidity();
+  // Beim Tippen: nur Felder, die schon als ungültig markiert sind und es noch sind, bleiben markiert (nicht beide auf einmal freigeben)
+  ['#spRows', '#spCols'].forEach(s => $(s).addEventListener('input', () => splitErr([$('#spRows'), $('#spCols')].filter(el => el.getAttribute('aria-invalid') === 'true' && !spOkNum(el)), true)));
   $('#btnSplitRoot').onclick = () => { splitErr([]); $('#dlgSplit').showModal(); };
   $('#spOk').onclick = () => {
-    const okNum = el => el.value.trim() !== '' && Number.isInteger(+el.value) && el.checkValidity();
-    const bad = [$('#spRows'), $('#spCols')].filter(el => !okNum(el)); if (bad.length) return splitErr(bad);
+    const bad = [$('#spRows'), $('#spCols')].filter(el => !spOkNum(el)); if (bad.length) return splitErr(bad);
     const rows = +$('#spRows').value, cols = +$('#spCols').value;
     const vs = visuals(), lost = vs.slice(rows * cols);
     if (lost.length) {
       const names = lost.map(l => l.visual.title || (CAT.byId[l.visual.kind] || {}).label || l.visual.kind);
-      const list = names.slice(0, 8).join(', ') + (names.length > 8 ? ', …' : '');
+      const list = names.slice(0, 8).join(', ') + (names.length > 8 ? ' ' + t('ask.splitMore', { n: names.length - 8 }) : '');
       if (!confirm(t('ask.splitReplace', { c: rows * cols, k: vs.length, n: lost.length, t: list }))) return;
     }
     rebuildGrid(rows, cols); $('#dlgSplit').close();
@@ -1325,13 +1412,25 @@ window.MK_VERSION = '0.5.2';
   // Kachel-Rechtecke für den Vergleich: beide Stände mit dem aktuellen Chrome und Canvas rechnen, damit eine
   // Zonenänderung (steht einmal unter „Zonen") nicht jede Kachel als verschoben meldet.
   const diffRects = p => { const m = {}; computeAll(p).leaves.forEach(l => { m[l.node.id] = l.rect; }); return m; };
+  // Gegen eine exportierte Spec: deren Rechtecke sind fest. Den aktuellen Stand deshalb mit Inhaltsbereich und Zwischenraum der Datei
+  // rechnen, sonst meldet eine Rand- oder Zonenänderung jede Kachel als verschoben (sie steht einmal unter Design bzw. Zonen).
+  function specForDiff(old) {
+    const spec = window.MK_EXPORT.buildSpec(); const g = old && old.spacing ? old.spacing.gutter : null; if (typeof g !== 'number') return spec;
+    const byId = {}; ((old && old.pages) || []).forEach(p => { if (p && p.id) byId[p.id] = p; });
+    spec.pages.forEach(sp => {
+      const cr = byId[sp.id] && byId[sp.id].contentRect; const src = S.pages.find(x => x.id === sp.id); if (!src || !cr || !(cr.w > 0) || !(cr.h > 0)) return;
+      const out = { leaves: [], gutters: [] }; layoutRects(src.layout, cr, out, g); const m = {}; out.leaves.forEach(l => { m[l.node.id] = l.rect; });
+      sp.visuals.forEach(v => { if (m[v.stableId]) v.rect = m[v.stableId]; });
+    });
+    return spec;
+  }
   $('#btnDiff').onclick = () => $('#fileDiff').click();
   $('#fileDiff').addEventListener('change', e => {
     const f = e.target.files[0]; if (!f) return;
     f.text().then(txt => {
       try {
-        const other = window.MK_DIFF.from(JSON.parse(txt), { rects: diffRects }); if (!other) throw new Error('kein Mockup');
-        const cur = other.source === 'spec' ? window.MK_DIFF.fromSpec(window.MK_EXPORT.buildSpec()) : window.MK_DIFF.fromState(S, { rects: diffRects });
+        const json = JSON.parse(txt); const other = window.MK_DIFF.from(json, { rects: diffRects }); if (!other) throw new Error('kein Mockup');
+        const cur = other.source === 'spec' ? window.MK_DIFF.fromSpec(specForDiff(json)) : window.MK_DIFF.fromState(S, { rects: diffRects });
         const res = window.MK_DIFF.compare(other, cur); lastDiff = { res, names: { older: f.name, newer: t('diff.current') } };
         $('#dlgDiffP').textContent = t('diffui.p', { a: f.name, n: res.counts.total }); $('#dlgDiffBody').innerHTML = window.MK_DIFF.render(res, t); $('#dlgDiff').showModal();
       } catch (err) { toast(t('toast.notAMockup')); }
@@ -1375,10 +1474,18 @@ window.MK_VERSION = '0.5.2';
   $$('dialog').forEach(d => d.addEventListener('close', () => setTimeout(() => { const a = document.activeElement; if ((!a || a === document.body) && !openDialog()) focusCanvas(sel); }, 0)));
   window.addEventListener('keydown', e => {
     const tgt = e.target;
+    // Handy-Hinweis sichtbar (B6): die App dahinter ist ausgeblendet, ihre Kürzel (Strg+E, P, N …) wirken nicht
+    if (!document.body.classList.contains('mobile-ok') && getComputedStyle($('#mobileNote')).display !== 'none') return;
     // Offenes Rollen-Menü: Esc schließt es, nichts wird zugeordnet (Review B36); andere Kürzel wirken solange nicht auf die Seite
-    if (roleMenu) { if (e.key === 'Escape') { e.preventDefault(); closeRoleMenu(true); } return; }
+    // Tab bleibt im Menü (sonst wanderte der Fokus hinaus, das Menü bliebe offen und hielte alle Tasten fest)
+    if (roleMenu) {
+      if (e.key === 'Escape') { e.preventDefault(); closeRoleMenu(true); }
+      else if (e.key === 'Tab') { e.preventDefault(); const bs = $$('button', roleMenu); const i = bs.indexOf(document.activeElement); if (bs.length) bs[i < 0 ? (e.shiftKey ? bs.length - 1 : 0) : (i + (e.shiftKey ? -1 : 1) + bs.length) % bs.length].focus(); }
+      return;
+    }
     const dlgOpen = openDialog(); if (dlgOpen) { if (e.key === 'Tab' && !e.altKey && !e.ctrlKey && !e.metaKey) trapTab(e, dlgOpen); return; }   // Esc schließt nativ
-    if (tgt && tgt.matches && tgt.matches('input,textarea,select')) { if (e.key === 'Escape' && tgt.blur) tgt.blur(); return; }
+    // Esc in einem Feld: Feld verlassen, Fokus auf die gewählte Kachel (sonst stünde er auf <body>, ohne sichtbaren Ring)
+    if (tgt && tgt.matches && tgt.matches('input,textarea,select')) { if (e.key === 'Escape' && tgt.blur) { tgt.blur(); focusCanvas(sel); } return; }
     if (e.key === 'Escape') { const pinned = $$('.note-pop.pinned', pageEl); if (pinned.length) { pinned.forEach(p => p.classList.remove('pinned')); return; } if (document.body.classList.contains('present')) togglePresent(false); else { const was = sel; sel = null; render(); const a = document.activeElement; if (!a || a === document.body) focusCanvas(was); } }
     else if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey && !e.altKey) togglePresent();
     else if (e.key.toLowerCase() === 'n' && sel && !e.ctrlKey && !e.metaKey && !e.altKey) { const hit = findNode(sel); if (hit && hit.node.visual) openTileDialog(sel); }
@@ -1388,21 +1495,32 @@ window.MK_VERSION = '0.5.2';
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); $('#btnSave').click(); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') { e.preventDefault(); $('#btnExport').click(); }
   });
-  // Handy-Hinweis (B6): „Trotzdem ansehen" blendet ihn für diese Sitzung aus, die Seite ist dann seitlich scrollbar
-  $('#mobileGo').onclick = () => { document.body.classList.add('mobile-ok'); fitZoom(); render(); };
+  // Handy-Hinweis (B6): „Trotzdem ansehen" blendet ihn für diese Sitzung aus, die Seite ist dann seitlich scrollbar.
+  // Die Wahl gilt bis zum Schließen des Tabs (sessionStorage), sonst käme der Hinweis nach jedem Neuladen wieder,
+  // z. B. am Desktop mit 200 % Browser-Zoom.
+  const MOBILE_OK = 'mockupkitchen.mobileOk';
+  try { if (sessionStorage.getItem(MOBILE_OK) === '1') document.body.classList.add('mobile-ok'); } catch (e) { /* blockiert */ }
+  $('#mobileGo').onclick = () => { document.body.classList.add('mobile-ok'); try { sessionStorage.setItem(MOBILE_OK, '1'); } catch (e) { /* blockiert */ } fitZoom(); render(); };
   $('#mobileLang').onclick = () => setLang(I18N.lang === 'de' ? 'en' : 'de');
   let toastT = null;
   function toast(msg) { const el = $('#toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 3200); }
+
+  // Öffnen fragt nur, wenn etwas verloren ginge (B8): nicht bei einem frischen Projekt und nicht, wenn der Stand dem zuletzt
+  // gespeicherten oder geöffneten entspricht. Verglichen wird ohne IDs (die sind je Anlage zufällig).
+  function fingerprint(o) { if (Array.isArray(o)) return '[' + o.map(fingerprint).join(',') + ']'; if (o && typeof o === 'object') return '{' + Object.keys(o).filter(k => k !== 'id' && k !== 'cur' && o[k] !== undefined).sort().map(k => JSON.stringify(k) + ':' + fingerprint(o[k])).join(',') + '}'; return JSON.stringify(o); }
+  function isPristine() { const cur = S; let fresh = null; try { S = defaultState(); S.pages.forEach(p => markTemplate(ensureIds(p.layout))); fresh = S; } catch (e) { fresh = null; } finally { S = cur; } return !!fresh && fingerprint(fresh) === fingerprint(S); }
+  let cleanPrint = null;
 
   // Öffentliche API für export.js
   window.MK = {
     get state() { return S; }, set state(v) { S = migrate(v); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Öffnen nie verhindern */ } sel = null; commit(); },
     page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     fieldStatus, refMismatch, sketchScenario, basisOfName, syncFieldFlags,
-    setLang, get lang() { return I18N.lang; }, copyText,
+    setLang, get lang() { return I18N.lang; }, copyText, tileInk,
+    markClean() { cleanPrint = fingerprint(S); }, isUnchanged() { return (cleanPrint !== null && cleanPrint === fingerprint(S)) || isPristine(); },
     // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
     // Der Verlauf beginnt neu; commit() legt danach den Stand vor „Neu" als einen Schritt ab, Strg+Z holt ihn also zurück.
-    reset() { S = defaultState(); S.pages.forEach(p => ensureIds(p.layout)); sel = null; undoStack = []; undoDropped = false; commit(); },
+    reset() { S = defaultState(); S.pages.forEach(p => markTemplate(ensureIds(p.layout))); sel = null; undoDropped = undoStack.length ? 'new' : undoDropped; undoStack = []; commit(); },
   };
 
   { const vEl = $('#mkVersion'); if (vEl) vEl.textContent = window.MK_VERSION; }

@@ -187,11 +187,13 @@
     var P = 'mkp' + (++SEQ) + '_';
     var body = '';
 
+    // Schrift auf der Kachel wie im Canvas (MK.tileInk, B5): gewählte Farbe ab 4,5:1, sonst hell, wenn das besser lesbar ist
+    var ti = M.tileInk ? M.tileInk(d) : { ink: (M.isDark && M.isDark(d.tileBg)) ? '#E6E6E6' : (d.ink || '#0F1E2E'), dark: !!(M.isDark && M.isDark(d.tileBg)) };
     var ctx = {
       S: S, p: p, k: k, d: d, c: c, o: o, accent: accent, P: P,
       radius: Math.round((d.radius || 0) * k),
-      tileBg: d.tileBg || '#FFFFFF', ink: d.ink || '#0F1E2E',
-      dark: !!(M.isDark && M.isDark(d.tileBg)),
+      tileBg: d.tileBg || '#FFFFFF', ink: ti.ink,
+      dark: !!ti.dark,
       palette: d.palette || 'teal',
       pad: Math.round((S.spacing ? S.spacing.pad : 8) * k),
       cat: (M.catalog && M.catalog.byId) || {}
@@ -359,12 +361,19 @@
     var fh = f.heading || {};
     var showHead = fh.show === 'on' || (fh.show !== 'off' && !fields.length) || (fh.show == null && !!fh.text);
     var head = showHead ? String(fh.text || L(ctx, 'canvas.filter')).toUpperCase() : '';
+    // Hinweistext im Filterbereich wie im Canvas (<p class="txt">): 9,5 px grau, im Panel umbrochen, in der Leiste oben einzeilig
+    var note = String(f.text || '').trim(), nfs = 9.5 * k;
 
     if (side === 'top') {
       var x = z.x + 16 * k, cy = z.y + z.h / 2;
       if (head) {
         out += tx(x, cy + hfs * MID, head, { size: hfs, fill: '#6B7280', ls: 0.66 * k });
         x += textW(head, hfs, null, false, 0.66 * k) + 8 * k;
+      }
+      if (note) {
+        var one = fit(note.replace(/\s+/g, ' '), 220 * k, nfs);
+        out += tx(x, cy + nfs * MID, one, { size: nfs, fill: '#6B7280' });
+        x += textW(one, nfs) + 8 * k;
       }
       var bw = 160 * k;
       fields.forEach(function (fl) {
@@ -379,11 +388,32 @@
       out += tx(px, y + hfs * ASC, fit(head, pw, hfs, null, false, 0.66 * k), { size: hfs, fill: '#6B7280', ls: 0.66 * k });
       y += hfs * LH + 8 * k;
     }
+    if (note) {
+      var nl = nfs * 1.35;
+      wrapLines(note, pw, nfs).forEach(function (line) {
+        if (y + nl > z.y + z.h - 6 * k) return;
+        out += tx(px, y + nfs * (ASC - 0.05), line, { size: nfs, fill: '#6B7280' });
+        y += nl;
+      });
+      y += 8 * k;
+    }
     fields.forEach(function (fl) {
       if (y + slH > z.y + z.h - 6 * k) return;
       out += slicer(ctx, px, y, pw, slH, fl.name, sfs);
       y += slH + 7 * k;
     });
+    return out;
+  }
+  // Text an Wortgrenzen in Zeilen bis maxW umbrechen, Zeilenumbrüche wie im Canvas (white-space:normal) als Leerzeichen;
+  // ein einzelnes zu langes Wort wird gekürzt
+  function wrapLines(str, maxW, fs) {
+    var out = [], line = '';
+    String(str).split(/\s+/).filter(Boolean).forEach(function (w) {
+      var next = line ? line + ' ' + w : w;
+      if (!line || textW(next, fs) <= maxW) { line = next; return; }
+      out.push(fit(line, maxW, fs)); line = w;
+    });
+    if (line) out.push(fit(line, maxW, fs));
     return out;
   }
   function slicer(ctx, x, y, w, h, name, fs) {
@@ -445,10 +475,11 @@
       var availW = Math.max(10, r.x + r.w - 1 - ip - reserve - tx0);
       var base = r.y + 1 + ip + 6 * k + tfs * ASC;
       var title = fit(v.title || def.label || v.kind, availW, tfs, 600);
-      out += tx(tx0, base, title, { size: tfs, weight: 600, fill: ctx.dark ? '#E6E6E6' : ctx.ink });
+      out += tx(tx0, base, title, { size: tfs, weight: 600, fill: ctx.ink });
       if (v.sub && !tiny) {
         var used = textW(title, tfs, 600) + 6 * k;
-        out += tx(tx0 + used, base, fit(v.sub, availW - used, sfs), { size: sfs, fill: ctx.dark ? '#A8B0BC' : '#6B7280' });
+        // Untertitel wie im Canvas (.t-sub): Schriftfarbe der Kachel mit 70 % Deckkraft
+        out += tx(tx0 + used, base, fit(v.sub, availW - used, sfs), { size: sfs, fill: ctx.ink, opacity: 0.7 });
       }
     }
 
@@ -462,7 +493,7 @@
     var sopt = {
       scenario: mk().sketchScenario ? mk().sketchScenario(v) : (def.plain ? 'AC' : v.scenario), seed: (seedOf(leaf.node.id) + o.seedBase) % 1000,
       label: v.sub || '', scale: k, lang: ctx.S.lang, content: v.content || '',
-      palette: ctx.palette, ink: ctx.dark ? '#E6E6E6' : (ctx.d.ink || '#404040'), dark: ctx.dark, paper: ctx.tileBg,
+      palette: ctx.palette, ink: ctx.ink, dark: ctx.dark, paper: ctx.tileBg,
       fontScale: (mk().typo ? mk().typo().scale : 1) * ((v.typo && v.typo.scale) || 1), fonts: { label: mk().typo ? mk().typo().chart : 9 },
       antiPattern: !!(mk().anti && mk().anti[v.kind]),
       nativePalette: (ctx.d && ctx.d.nativePalette) || 'neutral'

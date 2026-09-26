@@ -38,12 +38,15 @@
   // Markdown-Exporte (Brief, Doku): Nutzertext entschärfen, ohne ihn unlesbar zu machen.
   // Nur was Markdown als HTML, Link oder Tabellengrenze deuten würde, wird geändert:
   // „<" vor einem Tag-Anfang (<b>, </i>, <!--, <svg …>, <http:…>) wird &lt; (wirkt in jedem Markdown-Dialekt,
-  // ein Backslash nicht), „[" vor „…](…)" und „|" bekommen einen Backslash. „< 4,5" bleibt, wie es ist.
+  // ein Backslash nicht), „|" bekommt einen Backslash. „< 4,5" bleibt, wie es ist.
+  // Links: jede schließende Klammer, auf die „(", „[" oder „:" folgt, bekommt einen Backslash. Das trifft Inline-Links auch mit
+  // verschachtelten Klammern oder Text über mehrere Zeilen ([a[b]](…), [z⏎w](…)), Referenzen ([t][r]) und Definitionen ([r]: url).
+  // Ohne Definition bleibt auch ein kurzes [r] Text. Feldnamen wie „Umsatz [€]" bleiben unverändert.
   // Backslashes direkt davor werden verdoppelt, damit ein „\" aus dem Text das Escape nicht aufhebt.
   function mdText(s) {
     return String(s)
       .replace(/<(?=[A-Za-z\/!?])/g, '&lt;')
-      .replace(/(\\*)\[(?=[^\]\n]*\]\()/g, (m, bs) => bs + bs + '\\[')
+      .replace(/(\\*)\](?=[(\[:])/g, (m, bs) => bs + bs + '\\]')
       .replace(/(\\*)\|/g, (m, bs) => bs + bs + '\\|');
   }
   // Kopie der Spec mit entschärften Texten (Schlüssel, Zahlen, Wahrheitswerte bleiben unverändert)
@@ -339,16 +342,36 @@
       if (Object.keys(fields).length) item.fields = fields;
       out.push(item);
     });
+    // Slicer ab derselben Stelle wie im Skill (filter_layout in mockup_to_pbir.py): unter bzw. neben Überschrift und Hinweistext,
+    // ohne Überschrift also direkt oben. Slicer, deren Feld im Modell fehlt, fallen weg und lassen keine Lücke (wie im Skill).
     const z = spec.zones.filter;
-    if (z) z.slicers.forEach((s, i) => {
-      if (s.missing) return;
-      const k = spec.canvas.uiScale; const pad = Math.round(8 * k);
-      const item = { visual_type: 'slicer', name: 'mk_slicer_' + slug(s.name) + '_p' + p.index, title: s.name, fields: { Values: s.ref } };
-      if (z.mode === 'top') Object.assign(item, { x: z.x + pad + i * Math.round(168 * k), y: z.y + pad, width: Math.round(160 * k), height: z.h - 2 * pad });
-      else Object.assign(item, { x: z.x + pad, y: z.y + Math.round(40 * k) + i * Math.round(64 * k), width: z.w - 2 * pad, height: Math.round(56 * k) });
-      out.push(item);
-    });
+    if (z) {
+      const k = spec.canvas.uiScale; const pad = Math.round(8 * k); const o = slicerOrigin(z, k); let j = 0;
+      z.slicers.forEach(s => {
+        if (s.missing) return;
+        const item = { visual_type: 'slicer', name: 'mk_slicer_' + slug(s.name) + '_p' + p.index, title: s.name, fields: { Values: s.ref } };
+        if (z.mode === 'top') Object.assign(item, { x: o.x + j * Math.round(168 * k), y: z.y + pad, width: Math.round(160 * k), height: z.h - 2 * pad });
+        else Object.assign(item, { x: z.x + pad, y: o.y + j * Math.round(64 * k), width: z.w - 2 * pad, height: Math.round(56 * k) });
+        out.push(item); j++;
+      });
+    }
     return out;
+  }
+  // Ursprung der Slicer im Filterbereich, gerechnet wie filter_layout() im Skill (Tool ab 0.4.4: heading/text stehen in der Spec).
+  // Einziger möglicher Unterschied: Python rundet genau halbe Werte zur geraden Zahl, Math.round nach oben (dann 1 px).
+  function slicerOrigin(z, k) {
+    const px = b => Math.round(b * k); const len = s => Array.from(s).length;
+    const heading = z.heading != null ? (String(z.heading).trim() || null) : null; const text = String(z.text || '').trim() || null;
+    if (z.mode === 'top') {
+      let x = z.x + px(8);
+      if (heading) x += Math.max(px(56), px(len(heading) * 11 * 0.62 + 8)) + px(8);
+      if (text) x += Math.min(px(220), Math.max(px(80), px(len(text) * 9.5 * 0.55))) + px(8);
+      return { x, y: z.y + px(8) };
+    }
+    let y = z.y + px(8);
+    if (heading) y += px(32);
+    if (text) { const inner = Math.max(1, z.w - px(16)); const perLine = Math.max(1, Math.floor(inner / Math.max(1, 9.5 * 0.55 * k))); const lines = Math.min(6, Math.max(1, Math.ceil(len(text) / perLine))); y += lines * px(13) + px(2) + px(8); }
+    return { x: z.x + px(8), y };
   }
   const pbirName = p => `pbir-visuals.${slug(p.name)}.json`;
 
@@ -376,17 +399,24 @@
   const texts = () => ({ json: JSON.stringify(spec, null, 2), brief: buildBrief(spec), docs: buildDocs(spec), pbir: JSON.stringify(buildPbir(spec, MK.page().id), null, 2), prompt: buildPrompt(spec) });
   const fileNames = () => ({ json: 'mockup-spec.json', brief: 'AGENT-BRIEF.md', docs: 'WORKSHOP-DOKU.md', pbir: pbirName(MK.page()), prompt: 'claude-prompt.txt' });
   // Was steht je Seite in pbir-visuals.<Seite>.json und was nicht (und warum)?
+  // Gezählt wird, was buildPbir tatsächlich schreibt, und jede übrige Kachel genau einmal mit ihrem Grund (B1)
   function pbirStats(sp, p) {
     const out = buildPbir(sp, p.id); const vs = p.visuals;
-    const slicers = sp.zones.filter ? sp.zones.filter.slicers.length : 0;
-    const nat = out.length - slicers, ck = vs.filter(v => v.engine === 'ck').length, text = vs.filter(isTextTile).length;
-    const incomplete = vs.filter(v => v.engine === 'native' && v.native && !isTextTile(v) && missingRequired(v)).length;
-    return { page: p, file: pbirName(p), all: vs.length, nat, slicers, ck, text, incomplete, other: Math.max(0, vs.length - nat - ck - text - incomplete), empty: !out.length };
+    const slicers = out.filter(x => x.visual_type === 'slicer' && /^mk_slicer_/.test(x.name)).length, nat = out.length - slicers;
+    const slicersMissing = sp.zones.filter ? sp.zones.filter.slicers.filter(s => s.missing).length : 0;
+    const c = { ck: 0, text: 0, incomplete: 0, missing: 0, noNative: 0, other: 0 };
+    vs.forEach(v => {
+      if (isTextTile(v)) c.text++;
+      else if (v.engine === 'ck') c.ck++;
+      else if (v.engine === 'native') { if (!v.native) c.noNative++; else if (missingRequired(v)) c.incomplete++; else if (Object.values(v.native.buckets).some(l => l.some(f => f.missing))) c.missing++; }
+      else c.other++;                                 // Custom Visual, Deneb
+    });
+    return Object.assign({ page: p, file: pbirName(p), all: vs.length, nat, slicers, slicersMissing, empty: !out.length }, c);
   }
   function pbirCheck(sp) {
     const stats = sp.pages.map(p => pbirStats(sp, p)); if (!stats.some(s => s.all)) return null;
     const lines = stats.map(s => {
-      const skip = [s.ck ? UI('exp.check.pbirCk', { n: s.ck }) : '', s.text ? UI('exp.check.pbirText', { n: s.text }) : '', s.incomplete ? UI('exp.check.pbirIncomplete', { n: s.incomplete }) : '', s.other ? UI('exp.check.pbirOther', { n: s.other }) : ''].filter(Boolean);
+      const skip = [s.ck ? UI('exp.check.pbirCk', { n: s.ck }) : '', s.text ? UI('exp.check.pbirText', { n: s.text }) : '', s.incomplete ? UI('exp.check.pbirIncomplete', { n: s.incomplete }) : '', s.missing ? UI('exp.check.pbirMissing', { n: s.missing }) : '', s.noNative ? UI('exp.check.pbirNoNative', { n: s.noNative }) : '', s.other ? UI('exp.check.pbirOther', { n: s.other }) : '', s.slicersMissing ? UI('exp.check.pbirSlicerMissing', { n: s.slicersMissing }) : ''].filter(Boolean);
       return UI('exp.check.pbirPage', { p: s.page.name, nat: s.nat, all: s.all, file: s.file, sl: s.slicers ? UI('exp.check.pbirSlicers', { n: s.slicers }) : '', skip: skip.length ? UI('exp.check.pbirSkip', { list: skip.join(', ') }) : '' });
     });
     if (stats.some(s => s.empty && s.all)) lines.push(UI('exp.check.pbirEmpty'));
@@ -436,13 +466,15 @@
   }
 
   // ------------------------------------------------------------------ Speichern / Öffnen
-  function saveFile() { const S = MK.state; download(slug(S.name) + '.mockup.json', JSON.stringify(S, null, 2)); MK.toast(UI('toast.saved')); }
+  function saveFile() { const S = MK.state; download(slug(S.name) + '.mockup.json', JSON.stringify(S, null, 2)); if (MK.markClean) MK.markClean(); MK.toast(UI('toast.saved')); }
   $('#btnSave').onclick = saveFile;
   // Öffnen ersetzt den Stand samt Autosave. Statt confirm(„Vorher speichern?"), dessen OK nie speicherte (B8), ein Dialog mit
   // drei ehrlichen Wegen: Speichern und öffnen · Verwerfen und öffnen · Abbrechen. Ersetzt wird erst, wenn eine Datei gewählt ist.
+  // Gefragt wird, sobald etwas verloren ginge: auch leere Kacheln, Namen, Berichtsangaben oder ein anderes Modell zählen.
+  // Ohne Frage nur bei einem frischen Projekt oder einem Stand, der dem zuletzt gespeicherten bzw. geöffneten entspricht.
   $('#btnOpen').onclick = () => {
-    const S = MK.state; const n = S.pages.reduce((a, p) => a + MK.visuals(p).length, 0);
-    if (!n && S.pages.length < 2) { $('#fileOpen').click(); return; }
+    const S = MK.state; const n = S.pages.reduce((a, p) => a + MK.leaves(p.layout).length, 0);
+    if (MK.isUnchanged ? MK.isUnchanged() : (!S.pages.reduce((a, p) => a + MK.visuals(p).length, 0) && S.pages.length < 2)) { $('#fileOpen').click(); return; }
     $('#dlgOpenP').textContent = UI('dlg.open.p', { n, p: S.pages.length });
     $('#dlgOpen').showModal(); $('#opSave').focus();
   };
@@ -450,7 +482,7 @@
   $('#opDiscard').onclick = () => { $('#dlgOpen').close(); $('#fileOpen').click(); };
   $('#fileOpen').addEventListener('change', e => {
     const f = e.target.files[0]; if (!f) return;
-    f.text().then(txt => { try { const s = JSON.parse(txt); if (!(s.pages || s.layout) || !s.canvas) throw new Error('kein Mockup'); MK.state = s; if (s.lang && s.lang !== MK.lang) MK.setLang(s.lang); MK.toast(UI('toast.loaded', { n: s.name || f.name })); } catch (err) { MK.toast(UI('toast.notAMockup')); } e.target.value = ''; });
+    f.text().then(txt => { try { const s = JSON.parse(txt); if (!(s.pages || s.layout) || !s.canvas) throw new Error('kein Mockup'); MK.state = s; if (s.lang && s.lang !== MK.lang) MK.setLang(s.lang); if (MK.markClean) MK.markClean(); MK.toast(UI('toast.loaded', { n: MK.state.name || f.name })); } catch (err) { MK.toast(UI('toast.notAMockup')); } e.target.value = ''; });
   });
 
   window.MK_EXPORT = { buildSpec, buildBrief, buildDocs, buildPbir, buildPrompt, pbirName, specVersion: SPEC_VERSION, lang };

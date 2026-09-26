@@ -723,6 +723,27 @@ def typo_filter_tests(res: Results, P, M, D, Opt):
               and P.SLICER_FORMAT["between"] == {"data.mode": "Between"})
     res.check("Slicer-Arten decken das Schema-Enum ab",
               set(P.SLICER_FORMAT) == set(M.SLICER_TYPES))
+    # Tool 0.5.2: Slicer-Feld fehlt im Modell (missing, FIELD_NOT_IN_MODEL) -> nicht bauen, ohne Luecke
+    ms = json.loads(json.dumps(raw))
+    ms["zones"]["filter"]["slicers"][1]["missing"] = True
+    tms = M.upgrade(ms)
+    items_ms, _ = P.build_pbir_visuals(tms, tms["pages"][0])
+    sl_ms = [i for i in items_ms if i["visual_type"] != "shape" and i["name"].startswith("mk_slicer_")]
+    res.check("Slicer mit fehlendem Feld steht nicht in pbir-visuals.json",
+              "mk_slicer_Region_p1" not in {i["name"] for i in sl_ms}
+              and {"mk_slicer_Year_p1", "mk_slicer_Date_p1"} <= {i["name"] for i in sl_ms})
+    res.check("nachfolgender Slicer rueckt ohne Luecke nach",
+              len(sl_ms) == 2 and sl_ms[1]["y"] - sl_ms[0]["y"] == round(64 * tms["uiScale"]),
+              str([(i["name"], i["y"]) for i in sl_ms]))
+    gone = P.drop_missing_slicers(tms)
+    res.check("drop_missing_slicers nimmt ihn aus der Spec und merkt ihn fuer die Checkliste",
+              [s_["ref"] for s_ in gone] == ["DimRegion.Region"]
+              and [s_["ref"] for s_ in tms["zones"]["filter"]["slicers"]] == ["DimDate.Year", "DimDate.Date"]
+              and tms.get("droppedSlicers") == gone)
+    res.check("danach kennt kein Baustein den Slicer mehr (Namen, Formatierung)",
+              "mk_slicer_Region_p1" not in P.slicer_names(tms, tms["pages"][0]))
+    res.check("ohne fehlende Slicer bleibt die Spec unveraendert",
+              P.drop_missing_slicers(M.upgrade(json.loads(json.dumps(raw)))) == [])
     # Tool 0.4.6: relatives Datum + Button-Slicer
     rb = json.loads(json.dumps(raw))
     rb["zones"]["filter"]["slicers"][0]["type"] = "button"
