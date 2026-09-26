@@ -12,6 +12,8 @@
 :root{
   --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-soft:#F1F0EA; --ink:#0F1E2E; --ink-soft:#475569; --ink-mute:#66707F;
   --line:#E4E2DA; --line-strong:#B5B2A6; --accent:#C25A2D; --accent-soft:#F6E7DF;
+  /* Akzentfläche mit weißer Schrift in normaler Größe: minimal dunkler als --accent, damit WCAG AA (≥ 4,5:1) hält (4,6:1, Hover 5,6:1) */
+  --accent-strong:#BD572B; --accent-strong-hover:#A94C25;
   --ok:#2E7D5B; --bad:#B8392F; --sel:#1F5FBF; --sel-soft:#E3ECFA;
   --ff-sans:'Geist',system-ui,sans-serif; --ff-serif:var(--ff-sans); --ff-mono:'JetBrains Mono',Consolas,monospace;
   --r:8px; --sh:0 1px 2px rgba(15,30,46,.06),0 4px 14px rgba(15,30,46,.06);
@@ -42,8 +44,8 @@ body.present .pill-home{display:none}
 .btn:hover{background:var(--bg-soft)}
 .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
 .btn.primary:hover{background:#1c3047}
-.btn.accent{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn.accent:hover{filter:brightness(1.08)}
+.btn.accent{background:var(--accent-strong);color:#fff;border-color:var(--accent-strong)}
+.btn.accent:hover{background:var(--accent-strong-hover);border-color:var(--accent-strong-hover)}
 .btn.sm{padding:3px 8px;font-size:11.5px}
 .btn.ghost{border-color:transparent;background:transparent}
 .btn.ghost:hover{background:var(--bg-soft)}
@@ -117,6 +119,9 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .stage-inner{min-width:100%;min-height:100%;display:flex;align-items:center;justify-content:center;padding:28px}
 .page{--ui:1;--tile-r:8px;--page-bg:#F4F4F1;position:relative;background:var(--page-bg);box-shadow:0 2px 6px rgba(15,30,46,.08),0 18px 44px rgba(15,30,46,.12);transform-origin:top left;outline:1px solid var(--line);font-family:var(--ff-sans)}
 .page *{box-sizing:border-box}
+/* Die Seite selbst nimmt den Fokus auf, wenn die fokussierte Kachel beim Neuzeichnen verschwindet (Esc, Klick ins Leere) */
+.page:focus{outline:1px solid var(--line)}
+.page:focus-visible{outline:calc(2px / var(--zoom, 1)) solid var(--sel);outline-offset:calc(2px / var(--zoom, 1))}
 .zone{position:absolute;overflow:hidden}
 .zone.header{background:#fff;color:#0F1E2E;border-bottom:1px solid #E3E1D8;display:flex;align-items:center;padding:0 calc(16px * var(--ui));gap:calc(14px * var(--ui))}
 .zone.header.dark{background:#0F1E2E;color:#fff;border-bottom:0}
@@ -209,9 +214,11 @@ details.sub{border:1px solid var(--line);border-radius:var(--r);padding:6px 10px
 .tile .reqdot{width:10px;height:10px}
 .tile .pri{font-size:9px}
 .tile .st{width:10px;height:10px}
-.tile .note-pop{display:none;position:absolute;top:calc(24px * var(--ui));right:calc(6px * var(--ui));max-width:70%;background:#FFFBEA;border:1px solid #F3D9A4;color:#5B4300;border-radius:6px;padding:calc(6px * var(--ui)) calc(8px * var(--ui));font-size:calc(10px * var(--ui));line-height:1.35;white-space:pre-wrap;z-index:4;box-shadow:0 4px 14px rgba(15,30,46,.15)}
-.tile .note-ico:hover + .note-pop,.tile .note-pop.pinned{display:block}
-.tile .note-pop{top:calc(28px / var(--zoom));font-size:calc(11px / var(--zoom));max-width:80%}
+/* Notiz-Popup (B47): liegt neben den Kacheln direkt in der Seite, nicht in .badges, damit es nicht auf die Breite
+   der Badge-Zeile schrumpft und nicht am Kachelrand abgeschnitten wird. Lage und Breite kommen aus tileHtml(). */
+.page .note-pop{display:none;position:absolute;width:max-content;background:#FFFBEA;border:1px solid #F3D9A4;color:#5B4300;border-radius:calc(6px / var(--zoom));padding:calc(6px / var(--zoom)) calc(8px / var(--zoom));font-size:calc(11px / var(--zoom));line-height:1.35;white-space:pre-wrap;overflow-wrap:break-word;z-index:7;box-shadow:0 4px 14px rgba(15,30,46,.15);pointer-events:none}
+.page .note-pop.hover,.page .note-pop.pinned{display:block}
+.page .note-pop.pinned{pointer-events:auto}
 .tile.tiny .t-foot,.tile.tiny .t-sub,.tile.tiny .badge{display:none}
 .tile .t-actions{position:absolute;bottom:4px;right:4px;display:none;gap:2px}
 .tile:hover .t-actions,.tile.sel .t-actions{display:flex}
@@ -234,6 +241,7 @@ details.sub{border:1px solid var(--line);border-radius:var(--r);padding:6px 10px
 .gutter .gmerge{position:absolute;left:50%;top:50%;width:calc(22px / var(--zoom));height:calc(22px / var(--zoom));margin:calc(-11px / var(--zoom)) 0 0 calc(-11px / var(--zoom));border-radius:50%;border:1px solid var(--line-strong);background:var(--bg-card);color:var(--ink-soft);font-size:calc(15px / var(--zoom));line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .12s;z-index:4;padding:0}
 .gutter:hover .gmerge,.page:hover .gutter .gmerge{opacity:.55}
 .gutter .gmerge:hover{opacity:1;background:var(--accent);color:#fff;border-color:var(--accent)}
+.gutter .gmerge:focus-visible,.gedge:focus-visible{opacity:1}
 body.present .gutter .gmerge{display:none}
 .gedge{position:absolute;z-index:4;width:calc(22px / var(--zoom));height:calc(22px / var(--zoom));transform:translate(-50%,-50%);border-radius:50%;border:1px dashed var(--line-strong);background:var(--bg-card);color:var(--ink-soft);font-size:calc(15px / var(--zoom));line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .12s;padding:0}
 .page:hover .gedge{opacity:.45}
@@ -269,10 +277,15 @@ details.sub .section{border-top:0;margin-top:6px;padding-top:0}
 .diff-det s{color:var(--ink-mute)}
 .diff-mute{color:var(--ink-mute)}
 .diff-none{color:var(--ink-soft)}
-.stage-tools{position:absolute;right:14px;bottom:12px;display:flex;gap:6px;z-index:5}
+/* Fußleiste der Zeichenfläche (B39): Statuszeile links und Zoom-Knöpfe rechts teilen sich eine Zeile,
+   die Statuszeile bricht bei schmaler Fläche um, statt unter den Knöpfen zu verschwinden */
+.stage-bar{position:absolute;left:14px;right:14px;bottom:12px;display:flex;align-items:flex-end;gap:12px;z-index:5;pointer-events:none}
+.stage-bar>*{pointer-events:auto}
+.stage-tools{display:flex;gap:6px;flex:none;margin-left:auto}
 .stage-tools .btn{box-shadow:var(--sh)}
-.stage-foot{position:absolute;left:14px;bottom:12px;display:flex;align-items:center;gap:8px;z-index:5}
-.stage-info{font-family:var(--ff-mono);font-size:10.5px;color:var(--ink-mute);background:rgba(250,250,247,.85);padding:3px 7px;border-radius:4px}
+.stage-foot{display:flex;align-items:flex-end;gap:8px;min-width:0}
+.stage-foot .pill-home{flex:none}
+.stage-info{font-family:var(--ff-mono);font-size:10.5px;color:var(--ink-mute);background:rgba(250,250,247,.85);padding:3px 7px;border-radius:4px;min-width:0}
 .pill-home{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:500;color:var(--ink-soft);background:var(--bg-card);border:1px solid var(--line-strong);border-radius:999px;padding:3px 10px;text-decoration:none;white-space:nowrap}
 .pill-home:hover{color:var(--accent);border-color:var(--accent)}
 /* ---------- Inspector ---------- */
@@ -303,8 +316,8 @@ details.sub .section{border-top:0;margin-top:6px;padding-top:0}
 .tw-right .box{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;margin-bottom:8px}
 .tw-right .box .field{margin-bottom:6px}
 .tw-right .box h3{margin:0 0 8px}
-.tilewin-btn{width:100%;justify-content:center;background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;padding:8px 10px;margin-bottom:8px}
-.tilewin-btn:hover{filter:brightness(1.08);background:var(--accent)}
+.tilewin-btn{width:100%;justify-content:center;background:var(--accent-strong);color:#fff;border-color:var(--accent-strong);font-weight:600;padding:8px 10px;margin-bottom:8px}
+.tilewin-btn:hover{background:var(--accent-strong-hover);border-color:var(--accent-strong-hover)}
 .typebtn{display:flex;align-items:center;gap:10px;width:100%;border:1px solid var(--line-strong);background:var(--bg-card);border-radius:var(--r);padding:8px;text-align:left}
 .typebtn:hover{border-color:var(--sel)}
 .typebtn .pv{width:64px;height:40px;flex:none;border:1px solid var(--line);border-radius:4px;background:#fff;padding:3px}
@@ -314,7 +327,7 @@ details.sub .section{border-top:0;margin-top:6px;padding-top:0}
 .engine{display:flex;gap:4px}
 .engine button{flex:1;border:1px solid var(--line-strong);background:var(--bg-card);border-radius:5px;padding:4px 0;font-size:11.5px}
 .engine button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-.engine button.on.ck{background:var(--accent);border-color:var(--accent)}
+.engine button.on.ck{background:var(--accent-strong);border-color:var(--accent-strong)}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:11.5px}
 .kv .k{color:var(--ink-mute);font-family:var(--ff-mono);font-size:11px}
 /* ---------- Dialogs ---------- */
@@ -325,6 +338,9 @@ dialog.narrow{width:520px}
 .dlg-head h2{font-family:var(--ff-sans);font-weight:600;font-size:18px;margin:0}
 .dlg-head p{margin:0;color:var(--ink-mute);font-size:12px}
 .dlg-body{padding:14px 18px;max-height:70vh;overflow:auto}
+/* Scrollbare Dialogflächen ohne eigene Bedienelemente sind ein Tab-Stopp (Scrollen per Tastatur), mit sichtbarem Ring */
+.dlg-body:focus-visible,pre.code:focus-visible{outline:2px solid var(--sel);outline-offset:-2px}
+.tpl:focus-visible{outline:2px solid var(--sel);outline-offset:1px;border-color:var(--sel)}
 .dlg-foot{padding:10px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;align-items:center}
 .cat-groups h3{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);margin:12px 0 6px}
 .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
@@ -376,9 +392,44 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 .list-dense{margin:0;padding-left:16px}
 .list-dense li{margin:2px 0}
 @media (max-width:1100px){.app{grid-template-columns:240px 1fr 300px}}
+/* Topbar (B38): bis 1400 px etwas enger, damit die deutsche Leiste bei 1366 und 1280 px einzeilig bleibt */
+@media (max-width:1400px){
+  .topbar{gap:6px}
+  .topbar input.name{flex:0 1 140px;width:140px;min-width:110px}
+  .topbar .btn{padding-left:8px;padding-right:8px}
+  .brand{margin-right:0}
+}
+/* Handy-Breite (B6): drei Spalten passen nicht, statt einer leeren Zeichenfläche ein klarer Hinweis */
+.mobile-note{display:none}
+@media (max-width:640px){
+  body:not(.mobile-ok) .mobile-note{display:flex;position:fixed;inset:0;z-index:100;flex-direction:column;justify-content:center;gap:14px;padding:24px 20px;background:var(--bg);overflow:auto}
+  body:not(.mobile-ok) .app{visibility:hidden}
+  .mobile-note h2{font-family:var(--ff-sans);font-size:22px;font-weight:600;margin:0;line-height:1.25}
+  .mobile-note p{margin:0;font-size:15px;line-height:1.5;color:var(--ink-soft)}
+  .mobile-note .mn-brand{font-family:var(--ff-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute)}
+  .mobile-note .mn-sketch{display:grid;grid-template-columns:1fr 2.2fr 1.2fr;gap:6px;height:96px;max-width:360px}
+  .mobile-note .mn-sketch span{border:1px solid var(--line-strong);border-radius:6px;background:var(--bg-card);display:flex;align-items:flex-end;padding:5px 6px;font-size:11px;color:var(--ink-mute)}
+  .mobile-note .mn-sketch span:nth-child(2){background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+  .mobile-note .mn-act{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .mobile-note .btn{font-size:14px;padding:9px 14px}
+  body.mobile-ok{overflow:auto}
+  body.mobile-ok .app{grid-template-columns:240px minmax(480px,1fr) 300px;width:max-content;min-width:100%}
+}
 </style>
 </head>
 <body>
+<section class="mobile-note" id="mobileNote" aria-labelledby="mobileNoteH">
+  <div class="mn-brand">MockupKitchen · byDatenWG</div>
+  <h2 id="mobileNoteH" data-i18n="mobile.h">Bitte am Desktop öffnen</h2>
+  <p data-i18n="mobile.p">MockupKitchen braucht Platz für drei Bereiche nebeneinander: links das Datenmodell, in der Mitte die Berichtsseite, rechts die Eigenschaften. Auf dem Handy bleibt für die Seite nichts übrig.</p>
+  <div class="mn-sketch" aria-hidden="true"><span data-i18n="mobile.colModel">Modell</span><span data-i18n="mobile.colPage">Berichtsseite</span><span data-i18n="mobile.colProps">Eigenschaften</span></div>
+  <p data-i18n="mobile.p2">Öffne den Link am Laptop oder Desktop, am besten ab 1280 px Breite.</p>
+  <div class="mn-act">
+    <button class="btn" id="mobileGo" data-i18n="mobile.go">Trotzdem ansehen</button>
+    <button class="btn ghost" id="mobileLang" data-i18n="btn.lang" data-i18n-title="tip.lang">EN</button>
+    <a class="pill-home" href="https://datenwgknowledgekitchen.com/" data-i18n="lbl.backHome" data-i18n-title="tip.backHome">← Knowledge Kitchen</a>
+  </div>
+</section>
 <div class="app">
   <header class="topbar">
     <div class="brand"><h1>MockupKitchen</h1><small>byDatenWG · v0.4</small></div>
@@ -386,12 +437,12 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
     <button class="btn hide-present" id="btnNew" data-i18n="btn.new" data-i18n-title="tip.new">＋ Neu</button>
     <button class="btn hide-present" id="btnTemplates" data-i18n="btn.templates" data-i18n-title="tip.templates">▦ Vorlagen</button>
     <button class="btn hide-present" id="btnImportTmdl" data-i18n="btn.importTmdl" data-i18n-title="tip.importTmdl">⇪ TMDL laden</button>
-    <button class="btn ghost" id="btnUndo" data-i18n-title="tip.undo">↶</button>
-    <button class="btn ghost" id="btnRedo" data-i18n-title="tip.redo">↷</button>
+    <button class="btn ghost" id="btnUndo" data-i18n-title="tip.undo" data-i18n-aria="tip.undo">↶</button>
+    <button class="btn ghost" id="btnRedo" data-i18n-title="tip.redo" data-i18n-aria="tip.redo">↷</button>
     <span class="spacer"></span>
     <button class="btn ghost" id="btnLang" data-i18n="btn.lang" data-i18n-title="tip.lang">EN</button>
     <button class="btn" id="btnPresent" data-i18n="btn.present" data-i18n-title="tip.present">▶ Präsentieren</button>
-    <button class="btn ghost" id="btnHelp" data-i18n-title="tip.help">?</button>
+    <button class="btn ghost" id="btnHelp" data-i18n-title="tip.help" data-i18n-aria="tip.help">?</button>
     <button class="btn" id="btnOpen" data-i18n="btn.open" data-i18n-title="tip.open">Öffnen</button>
     <button class="btn" id="btnSave" data-i18n="btn.save" data-i18n-title="tip.save">Speichern</button>
     <button class="btn accent" id="btnExport" data-i18n="btn.export">Export für Claude Code</button>
@@ -418,13 +469,15 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
   <main class="stagewrap">
     <div class="pagebar" id="pagebar"></div>
     <div class="stage" id="stage">
-      <div class="stage-inner" id="stageInner"><div class="page" id="page"></div></div>
+      <div class="stage-inner" id="stageInner"><div class="page" id="page" tabindex="-1"></div></div>
+      <div class="stage-bar">
       <div class="stage-foot"><a class="pill-home hide-present" href="https://datenwgknowledgekitchen.com/" data-i18n="lbl.backHome" data-i18n-title="tip.backHome" title="Zurück zur Knowledge Kitchen">← Knowledge Kitchen</a><div class="stage-info" id="stageInfo"></div></div>
       <div class="stage-tools">
-        <button class="btn sm" id="btnZoomOut" data-i18n-title="tip.zoomOut">−</button>
-        <button class="btn sm" id="btnGridCheck2" data-i18n-title="gc.h" title="Pixelgenau prüfen">⌗</button>
+        <button class="btn sm" id="btnZoomOut" data-i18n-title="tip.zoomOut" data-i18n-aria="tip.zoomOut">−</button>
+        <button class="btn sm" id="btnGridCheck2" data-i18n-title="gc.h" data-i18n-aria="gc.h" title="Pixelgenau prüfen">⌗</button>
         <button class="btn sm" id="btnZoomFit" data-i18n-title="tip.zoomFit">Fit</button>
-        <button class="btn sm" id="btnZoomIn" data-i18n-title="tip.zoomIn">+</button>
+        <button class="btn sm" id="btnZoomIn" data-i18n-title="tip.zoomIn" data-i18n-aria="tip.zoomIn">+</button>
+      </div>
       </div>
     </div>
   </main>
@@ -550,9 +603,10 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
         <div class="row" id="dsPageBgRow" style="margin-top:6px" hidden><input type="color" id="dsPageBgHex" value="#F4F4F1" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsPageBgHexTxt">#F4F4F1</span></div>
       </div>
       <div class="grid2">
-        <div class="field"><label data-i18n="lbl.tileBg">Kachelhintergrund</label><div class="row"><input type="color" id="dsTileBg" value="#FFFFFF" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsTileBgTxt">#FFFFFF</span></div></div>
-        <div class="field"><label data-i18n="lbl.ink">Schriftfarbe der Kacheln</label><div class="row"><input type="color" id="dsInk" value="#0F1E2E" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsInkTxt">#0F1E2E</span></div></div>
+        <div class="field"><label data-i18n="lbl.tileBg">Kachelhintergrund</label><div class="row"><input type="color" id="dsTileBg" aria-describedby="dsInkWarn" value="#FFFFFF" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsTileBgTxt">#FFFFFF</span></div></div>
+        <div class="field"><label data-i18n="lbl.ink">Schriftfarbe der Kacheln</label><div class="row"><input type="color" id="dsInk" aria-describedby="dsInkWarn" value="#0F1E2E" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsInkTxt">#0F1E2E</span></div></div>
       </div>
+      <p class="warn" id="dsInkWarn" hidden></p>
       </details>
       <details class="sub" id="dsColors" open><summary data-i18n="grp.colors">Farben</summary>
       <div class="field"><label data-i18n="lbl.headerStyle">Kopfband-Stil</label>
@@ -589,18 +643,18 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
   </aside>
 </div>
 
-<dialog id="dlgCatalog">
-  <div class="dlg-head"><div><h2 data-i18n="dlg.cat.h">Visual wählen</h2><p data-i18n="dlg.cat.p">ChartKitchen-Typen mit semantischer Notation und native Power-BI-Visuals. Klicken setzt den Typ der gewählten Kachel.</p></div><span class="spacer"></span><input class="ctl" id="catSearch" data-i18n-ph="ph.searchType" placeholder="Typ suchen …" style="width:200px"><button class="btn ghost" data-close>✕</button></div>
+<dialog id="dlgCatalog" aria-labelledby="dlgCatalogH">
+  <div class="dlg-head"><div><h2 id="dlgCatalogH" data-i18n="dlg.cat.h">Visual wählen</h2><p data-i18n="dlg.cat.p">ChartKitchen-Typen mit semantischer Notation und native Power-BI-Visuals. Klicken setzt den Typ der gewählten Kachel.</p></div><span class="spacer"></span><input class="ctl" id="catSearch" data-i18n-ph="ph.searchType" placeholder="Typ suchen …" style="width:200px"><button class="btn ghost" data-close data-i18n-title="btn.close" data-i18n-aria="btn.close">✕</button></div>
   <div class="dlg-body cat-groups" id="catBody"></div>
 </dialog>
 
-<dialog id="dlgTemplates">
-  <div class="dlg-head"><div><h2 data-i18n="dlg.tpl.h">Seitenvorlagen</h2><p data-i18n="dlg.tpl.p">Startpunkt für den Inhaltsbereich der aktuellen Seite. Vorlagen bringen Feldbindungen aus dem Demo-Modell mit; ohne geladenes Modell wird es automatisch geladen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+<dialog id="dlgTemplates" aria-labelledby="dlgTemplatesH">
+  <div class="dlg-head"><div><h2 id="dlgTemplatesH" data-i18n="dlg.tpl.h">Seitenvorlagen</h2><p data-i18n="dlg.tpl.p">Startpunkt für den Inhaltsbereich der aktuellen Seite. Vorlagen bringen Feldbindungen aus dem Demo-Modell mit; ohne geladenes Modell wird es automatisch geladen.</p></div><span class="spacer"></span><button class="btn ghost" data-close data-i18n-title="btn.close" data-i18n-aria="btn.close">✕</button></div>
   <div class="dlg-body"><div class="tpl-grid" id="tplGrid"></div></div>
 </dialog>
 
-<dialog id="dlgExport">
-  <div class="dlg-head"><div><h2 data-i18n="dlg.exp.h">Export für Claude Code</h2><p data-i18n-html="dlg.exp.p">Dateien in den PBIP-Projektordner legen, dann den Skill <span class="mono">mockup-to-powerbi</span> aufrufen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+<dialog id="dlgExport" aria-labelledby="dlgExportH">
+  <div class="dlg-head"><div><h2 id="dlgExportH" data-i18n="dlg.exp.h">Export für Claude Code</h2><p data-i18n-html="dlg.exp.p">Dateien in den PBIP-Projektordner legen, dann den Skill <span class="mono">mockup-to-powerbi</span> aufrufen.</p></div><span class="spacer"></span><button class="btn ghost" data-close data-i18n-title="btn.close" data-i18n-aria="btn.close">✕</button></div>
   <div class="dlg-body">
     <div id="expChecks"></div>
     <div class="exp-tabs" id="expTabs">
@@ -615,8 +669,8 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
   <div class="dlg-foot"><span class="hint" id="expHint" style="margin-right:auto"></span><button class="btn" id="btnExpCopy" data-i18n="btn.copy">Kopieren</button><button class="btn" id="btnExpDownload" data-i18n="btn.download">Datei herunterladen</button><button class="btn primary" id="btnExpAll" data-i18n="btn.downloadAll">Alle Dateien herunterladen</button></div>
 </dialog>
 
-<dialog id="dlgNewMeasure" class="narrow">
-  <div class="dlg-head"><div><h2 data-i18n="dlg.nm.h">Neue Kennzahl oder Dimension</h2><p data-i18n="dlg.nm.p">Existiert noch nicht im Modell. Wird im Export als „zu erstellen" markiert und in der Workshop-Doku beschrieben.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+<dialog id="dlgNewMeasure" class="narrow" aria-labelledby="dlgNewMeasureH">
+  <div class="dlg-head"><div><h2 id="dlgNewMeasureH" data-i18n="dlg.nm.h">Neue Kennzahl oder Dimension</h2><p data-i18n="dlg.nm.p">Existiert noch nicht im Modell. Wird im Export als „zu erstellen" markiert und in der Workshop-Doku beschrieben.</p></div><span class="spacer"></span><button class="btn ghost" data-close data-i18n-title="btn.close" data-i18n-aria="btn.close">✕</button></div>
   <div class="dlg-body">
     <div class="field"><label data-i18n="lbl.name">Name</label><input class="ctl" id="nmName" data-i18n-ph="ph.nmName" placeholder="z. B. Deckungsbeitrag"></div>
     <div class="grid2">
@@ -636,8 +690,8 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
   <div class="dlg-foot"><button class="btn" data-close data-i18n="btn.cancel">Abbrechen</button><button class="btn primary" id="nmOk" data-i18n="btn.create">Anlegen</button></div>
 </dialog>
 
-<dialog id="dlgFieldMeta" class="narrow">
-  <div class="dlg-head"><div><h2 data-i18n="dlg.fm.h">Kennzahlen-Steckbrief</h2><p id="fmRef" class="mono"></p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+<dialog id="dlgFieldMeta" class="narrow" aria-labelledby="dlgFieldMetaH" aria-describedby="fmRef">
+  <div class="dlg-head"><div><h2 id="dlgFieldMetaH" data-i18n="dlg.fm.h">Kennzahlen-Steckbrief</h2><p id="fmRef" class="mono"></p></div><span class="spacer"></span><button class="btn ghost" data-close data-i18n-title="btn.close" data-i18n-aria="btn.close">✕</button></div>
   <div class="dlg-body">
     <div class="kv" id="fmModel" style="margin-bottom:10px"></div>
     <div class="field"><label data-i18n="lbl.alias">Heißt beim Fachbereich (Alias)</label><input class="ctl" id="fmAlias" data-i18n-ph="ph.fmAlias" placeholder="z. B. Nettoerlös"></div>
@@ -654,8 +708,8 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
   <div class="dlg-foot"><button class="btn" data-close data-i18n="btn.cancel">Abbrechen</button><button class="btn primary" id="fmOk" data-i18n="btn.save2">Speichern</button></div>
 </dialog>
 
-<dialog id="dlgSplit" class="narrow">
-  <div class="dlg-head"><div><h2 data-i18n="dlg.split.h">Inhalt neu aufteilen</h2><p data-i18n="dlg.split.p">Zeilen × Spalten als Startraster. Danach jede Zelle weiter teilen.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+<dialog id="dlgSplit" class="narrow" aria-labelledby="dlgSplitH">
+  <div class="dlg-head"><div><h2 id="dlgSplitH" data-i18n="dlg.split.h">Inhalt neu aufteilen</h2><p data-i18n="dlg.split.p">Zeilen × Spalten als Startraster. Danach jede Zelle weiter teilen.</p></div><span class="spacer"></span><button class="btn ghost" data-close data-i18n-title="btn.close" data-i18n-aria="btn.close">✕</button></div>
   <div class="dlg-body"><div class="grid2">
     <div class="field"><label data-i18n="lbl.rows">Zeilen</label><input class="ctl" type="number" id="spRows" value="2" min="1" max="6"></div>
     <div class="field"><label data-i18n="lbl.cols">Spalten</label><input class="ctl" type="number" id="spCols" value="2" min="1" max="6"></div>
@@ -663,21 +717,21 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
   <div class="dlg-foot"><button class="btn" data-close data-i18n="btn.cancel">Abbrechen</button><button class="btn primary" id="spOk" data-i18n="btn.split">Aufteilen</button></div>
 </dialog>
 
-<dialog id="dlgTile" class="narrow">
-  <div class="dlg-head"><div><h2 id="dlgTileH">Kachel</h2><p data-i18n="dlg.tile.p">Notiz, Workshop-Status und Verhalten der Kachel in einem Fenster. Änderungen gelten sofort.</p></div><span class="spacer"></span><button class="btn ghost" id="dlgTileClose">✕</button></div>
+<dialog id="dlgTile" class="narrow" aria-labelledby="dlgTileH">
+  <div class="dlg-head"><div><h2 id="dlgTileH">Kachel</h2><p data-i18n="dlg.tile.p">Notiz, Workshop-Status und Verhalten der Kachel in einem Fenster. Änderungen gelten sofort.</p></div><span class="spacer"></span><button class="btn ghost" id="dlgTileClose" data-i18n-title="btn.close" data-i18n-aria="btn.close">✕</button></div>
   <div class="dlg-body" id="dlgTileBody"></div>
 </dialog>
-<dialog id="dlgGrid" class="narrow">
-  <div class="dlg-head"><div><h2 data-i18n="gc.h">Pixelgenau prüfen</h2><p id="dlgGridP"></p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+<dialog id="dlgGrid" class="narrow" aria-labelledby="dlgGridH" aria-describedby="dlgGridP">
+  <div class="dlg-head"><div><h2 id="dlgGridH" data-i18n="gc.h">Pixelgenau prüfen</h2><p id="dlgGridP"></p></div><span class="spacer"></span><button class="btn ghost" data-close data-i18n-title="btn.close" data-i18n-aria="btn.close">✕</button></div>
   <div class="dlg-body" id="dlgGridBody"></div>
   <div class="dlg-foot"><button class="btn" id="gcMargin" hidden>Rand anpassen</button><button class="btn primary" id="gcSnap" data-i18n="gc.snap">Ausrichten</button><button class="btn" data-close data-i18n="btn.close">Schließen</button></div>
 </dialog>
-<dialog id="dlgDiff">
-  <div class="dlg-head"><div><h2 data-i18n="diffui.h">Was hat sich geändert?</h2><p id="dlgDiffP"></p></div><span class="spacer"></span><button class="btn" id="btnDiffCopy" data-i18n="diffui.copy">Als Markdown kopieren</button><button class="btn ghost" data-close>✕</button></div>
+<dialog id="dlgDiff" aria-labelledby="dlgDiffH" aria-describedby="dlgDiffP">
+  <div class="dlg-head"><div><h2 id="dlgDiffH" data-i18n="diffui.h">Was hat sich geändert?</h2><p id="dlgDiffP"></p></div><span class="spacer"></span><button class="btn" id="btnDiffCopy" data-i18n="diffui.copy">Als Markdown kopieren</button><button class="btn ghost" data-close data-i18n-title="btn.close" data-i18n-aria="btn.close">✕</button></div>
   <div class="dlg-body diff" id="dlgDiffBody"></div>
 </dialog>
-<dialog id="dlgHelp" class="narrow">
-  <div class="dlg-head"><div><h2 data-i18n="dlg.help.h">So funktioniert MockupKitchen</h2><p data-i18n="dlg.help.p">Vom Workshop-Skizzenblatt zur Power-BI-Seite.</p></div><span class="spacer"></span><button class="btn ghost" data-close>✕</button></div>
+<dialog id="dlgHelp" class="narrow" aria-labelledby="dlgHelpH">
+  <div class="dlg-head"><div><h2 id="dlgHelpH" data-i18n="dlg.help.h">So funktioniert MockupKitchen</h2><p data-i18n="dlg.help.p">Vom Workshop-Skizzenblatt zur Power-BI-Seite.</p></div><span class="spacer"></span><button class="btn ghost" data-close data-i18n-title="btn.close" data-i18n-aria="btn.close">✕</button></div>
   <div class="dlg-body help" data-i18n-html="help.body">
     <h3>1 · Rahmen, Design, Raster</h3>
     <p>Rechts unter „Rahmen" Kopfband, Nav, Filter (Panel links/rechts, Leiste oben oder Burger-Menü) und Fußleiste zuschalten. Unter „Design" Ecken, Kachel-Stil, Hintergrund und Kopfband-Stil. Unter „Seite" Canvas-Größe (HD, Full HD, Ultra HD) und Abstände. Schriften skalieren mit.</p>
