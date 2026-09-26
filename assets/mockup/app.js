@@ -305,25 +305,31 @@
     sel = keep.node.type === 'leaf' ? keep.node.id : sel; commit(); toast(t('toast.merged'));
   }
   // „+" am Seitenrand: neue Kachel auf der obersten Ebene einfuegen, alle Kacheln dieser Ebene gleich verteilen (aus 2 gleichen werden 3 gleiche)
+  // Erst an einer Kopie einfügen und nachrechnen: wird dabei eine Kachel schmaler (bzw. niedriger) als die Mindestgröße, bleibt die
+  // Seite unverändert und ein Hinweis sagt warum (B49). Mindestgröße wie die Fehlergrenze in a11y.js (100 × 60 px bei 1280 px Breite).
   function insertEdge(side) {
     const dir = (side === 'left' || side === 'right') ? 'row' : 'col'; const atStart = side === 'left' || side === 'top';
-    const root = page().layout; const fresh = { id: uid(), type: 'leaf', visual: null };
+    const pg = page(); const root = JSON.parse(JSON.stringify(pg.layout)); const fresh = { id: uid(), type: 'leaf', visual: null };
+    let next = root;
     if (root.type === 'grid') {
       const tracks = dir === 'row' ? root.cols : root.rows; const key = dir === 'row' ? 'c' : 'r'; const at = atStart ? 0 : tracks.length;
       if (atStart) root.children.forEach(c => { c[key] += 1; });
       tracks.splice(at, 0, 1); tracks.forEach((v, i) => { tracks[i] = 1; });
-      const other = dir === 'row' ? root.rows.length : root.cols.length; let first = null;
-      for (let k = 0; k < other; k++) { const nd = k === 0 ? fresh : { id: uid(), type: 'leaf', visual: null }; if (!first) first = nd; root.children.push(dir === 'row' ? { r: k, c: at, rs: 1, cs: 1, node: nd } : { r: at, c: k, rs: 1, cs: 1, node: nd }); }
-      sel = fresh.id; commit(); toast(t('toast.inserted')); return;
-    }
-    if (root.type === 'split' && root.dir === dir) {
+      const other = dir === 'row' ? root.rows.length : root.cols.length;
+      for (let k = 0; k < other; k++) { const nd = k === 0 ? fresh : { id: uid(), type: 'leaf', visual: null }; root.children.push(dir === 'row' ? { r: k, c: at, rs: 1, cs: 1, node: nd } : { r: at, c: k, rs: 1, cs: 1, node: nd }); }
+    } else if (root.type === 'split' && root.dir === dir) {
       root.children.splice(atStart ? 0 : root.children.length, 0, { size: 1, node: fresh });
       root.children.forEach(c => { c.size = 1; });
     } else {
       const ch = [{ size: 1, node: root }, { size: 1, node: fresh }]; if (atStart) ch.reverse();
-      page().layout = { id: uid(), type: 'split', dir, children: ch };
+      next = { id: uid(), type: 'split', dir, children: ch };
     }
-    sel = fresh.id; commit(); toast(t('toast.inserted'));
+    const k = ui(), dim = dir === 'row' ? 'w' : 'h', min = Math.round((dir === 'row' ? 100 : 60) * k * 10) / 10;
+    const before = {}; computeAll(pg).leaves.forEach(l => { before[l.node.id] = l.rect[dim]; });
+    const out = { leaves: [], gutters: [] }; layoutRects(next, zones().content, out, Math.round(S.spacing.gutter * k));
+    const shrunk = out.leaves.map(l => l.rect[dim]).filter((v, i) => { const b = before[out.leaves[i].node.id]; return v < min && (b == null || v < b); });
+    if (shrunk.length) return toast(t(dir === 'row' ? 'toast.edgeTooNarrow' : 'toast.edgeTooLow', { v: Math.min(...shrunk), min: Math.round(min) }));
+    pg.layout = next; sel = fresh.id; commit(); toast(t('toast.inserted'));
   }
   function removeLeaf(id) {
     const f = findNode(id); if (!f) return;
@@ -535,6 +541,13 @@
 
   // ------------------------------------------------------------------ Interaktion: Seite
   pageEl.addEventListener('click', e => {
+    const mg = e.target.closest('[data-merge]');
+    if (mg) {
+      // Verbinden erst beim Klick (B17): Maus ohne Bewegung losgelassen, oder Tastatur (Enter/Leertaste, e.detail === 0)
+      e.stopPropagation(); const press = mergePress; mergePress = null;
+      if (e.detail && (!press || press.moved)) return;
+      const gi = lastRects.gutters[+mg.dataset.merge]; if (gi) mergeGutter(gi); return;
+    }
     const act = e.target.closest('[data-act]'); const tile = e.target.closest('[data-leaf]'); const rm = e.target.closest('[data-rmfilter]');
     if (rm) { S.chrome.filter.fields.splice(+rm.dataset.rmfilter, 1); commit(); return; }
     if (act && tile) { e.stopPropagation(); const id = tile.dataset.leaf; if (act.dataset.act === 'rm') removeLeaf(id); else splitLeaf(id, act.dataset.act); return; }
@@ -565,27 +578,39 @@
   pageEl.addEventListener('dblclick', e => { const zn = e.target.closest('.zone'); if (zn && !e.target.closest('[data-leaf]')) { const key = ['header', 'nav', 'filter', 'footer'].find(k => zn.classList.contains(k)); if (key) { openFrameSection(key); return; } } const tile = e.target.closest('[data-leaf]'); if (tile && !e.target.closest('[data-act]')) { sel = tile.dataset.leaf; openCatalog(); } });
   stage.addEventListener('click', e => { if (e.target === stage || e.target.id === 'stageInner') { sel = null; render(); } });
 
-  let gdrag = null;
-  pageEl.addEventListener('mousedown', e => {
-    if (e.target.closest('[data-edge]')) { e.preventDefault(); e.stopPropagation(); insertEdge(e.target.closest('[data-edge]').dataset.edge); return; }
-    if (e.target.closest('[data-merge]')) { e.preventDefault(); e.stopPropagation(); const gi = lastRects.gutters[+e.target.closest('[data-merge]').dataset.merge]; if (gi) mergeGutter(gi); return; }
-    const g = e.target.closest('[data-gutter]'); if (!g) return;
-    const gi = lastRects.gutters[+g.dataset.gutter]; if (!gi) return;
-    e.preventDefault();
+  // Zwischenraum ziehen. Das Verbinden-„+" sitzt genau am Griffpunkt: ein Druck darauf merkt sich nur den Kandidaten.
+  // Bewegt sich die Maus mehr als DRAG_PX, wird daraus normales Ziehen; nur ein Klick ohne Bewegung verbindet (B17, im click-Handler).
+  let gdrag = null, mergePress = null;
+  const DRAG_PX = 4;
+  function gutterDrag(gi, e, el) {
     if (gi.grid) {
       const arr = gi.axis === 'col' ? gi.grid.cols : gi.grid.rows; const i = gi.boundary - 1; const total = arr.reduce((s, v) => s + v, 0); const cz = lastRects.zones.content;
       const spanPx = (gi.axis === 'col' ? cz.w : cz.h) - Math.round(S.spacing.gutter * ui()) * (arr.length - 1);
-      gdrag = { gi, arr, i, a0: arr[i], b0: arr[i + 1], unitPerPx: total / spanPx, x0: e.clientX, y0: e.clientY }; g.classList.add('active'); return;
+      if (el) el.classList.add('active');
+      return { gi, arr, i, a0: arr[i], b0: arr[i + 1], unitPerPx: total / spanPx, x0: e.clientX, y0: e.clientY };
     }
     const p = gi.parent, a = p.children[gi.index], b = p.children[gi.index + 1]; const total = p.children.reduce((s, c) => s + c.size, 0);
     const kids = lastRects.leaves; const firstLeaf = leaves(p.children[0].node)[0], lastLeaf = leaves(p.children[p.children.length - 1].node).slice(-1)[0];
     const r0 = kids.find(l => l.node.id === firstLeaf.id).rect, r1 = kids.find(l => l.node.id === lastLeaf.id).rect;
     const spanPx = (gi.dir === 'row' ? (r1.x + r1.w - r0.x) : (r1.y + r1.h - r0.y)) - Math.round(S.spacing.gutter * ui()) * (p.children.length - 1);
-    gdrag = { gi, a, b, a0: a.size, b0: b.size, unitPerPx: total / spanPx, x0: e.clientX, y0: e.clientY };
-    g.classList.add('active');
+    if (el) el.classList.add('active');
+    return { gi, a, b, a0: a.size, b0: b.size, unitPerPx: total / spanPx, x0: e.clientX, y0: e.clientY };
+  }
+  pageEl.addEventListener('mousedown', e => {
+    if (e.target.closest('[data-edge]')) { e.preventDefault(); e.stopPropagation(); insertEdge(e.target.closest('[data-edge]').dataset.edge); return; }
+    const mg = e.target.closest('[data-merge]');
+    if (mg) {
+      e.preventDefault(); e.stopPropagation(); mergePress = { moved: false };
+      const gi = lastRects.gutters[+mg.dataset.merge]; if (gi) { gdrag = gutterDrag(gi, e, mg.closest('[data-gutter]')); gdrag.pending = true; }
+      return;
+    }
+    const g = e.target.closest('[data-gutter]'); if (!g) return;
+    const gi = lastRects.gutters[+g.dataset.gutter]; if (!gi) return;
+    e.preventDefault(); gdrag = gutterDrag(gi, e, g);
   });
   window.addEventListener('mousemove', e => {
     if (!gdrag) return;
+    if (gdrag.pending) { if (Math.hypot(e.clientX - gdrag.x0, e.clientY - gdrag.y0) < DRAG_PX) return; gdrag.pending = false; if (mergePress) mergePress.moved = true; }
     const dpx = (gdrag.gi.dir === 'row' ? e.clientX - gdrag.x0 : e.clientY - gdrag.y0) / zoom;
     const d = dpx * gdrag.unitPerPx; const minU = 48 * ui() * gdrag.unitPerPx;
     let na = gdrag.a0 + d, nb = gdrag.b0 - d;
@@ -593,7 +618,13 @@
     if (gdrag.arr) { gdrag.arr[gdrag.i] = na; gdrag.arr[gdrag.i + 1] = nb; } else { gdrag.a.size = na; gdrag.b.size = nb; }
     commit({ noUndo: true });
   });
-  window.addEventListener('mouseup', () => { if (gdrag) { gdrag = null; mark(); render(); } });
+  window.addEventListener('mouseup', () => {
+    if (!gdrag) return;
+    const pending = gdrag.pending; gdrag = null;
+    // Druck ohne Bewegung: nichts geändert, nicht neu zeichnen (sonst verliert der folgende click sein Ziel, das „+")
+    if (pending) { $$('.gutter.active', pageEl).forEach(x => x.classList.remove('active')); return; }
+    mark(); render();
+  });
 
   let dragTile = null;
   pageEl.addEventListener('dragstart', e => { const tile = e.target.closest('[data-leaf]'); if (!tile) return; dragTile = tile.dataset.leaf; e.dataTransfer.setData('application/mk-tile', dragTile); e.dataTransfer.effectAllowed = 'move'; setTimeout(() => tile.classList.add('dragging'), 0); });
@@ -940,8 +971,26 @@
   bind('dsRadius', v => S.design.radius = +v); bind('dsTile', v => S.design.tile = v); bind('dsPageBg', v => S.design.pageBg = v); bind('dsHeader', v => S.design.header = v);
   bind('dsAccent', v => S.design.accent = v, 'input'); bind('dsPalette', v => S.design.palette = v); bind('dsNative', v => S.design.nativePalette = v);
   bind('dsPageBgHex', v => S.design.pageBgHex = v, 'input'); bind('dsTileBg', v => S.design.tileBg = v, 'input'); bind('dsInk', v => S.design.ink = v, 'input'); bind('dsHeaderBg', v => S.design.headerBg = v, 'input'); bind('dsHeaderInk', v => S.design.headerInk = v, 'input');
-  $('#btnSplitRoot').onclick = () => $('#dlgSplit').showModal();
-  $('#spOk').onclick = () => { rebuildGrid(clamp(+$('#spRows').value || 1, 1, 6), clamp(+$('#spCols').value || 1, 1, 6)); $('#dlgSplit').close(); };
+  // Inhalt neu aufteilen: Eingaben prüfen statt still zu klemmen (B32), vor dem Verwerfen überzähliger Visuals fragen (B16)
+  function splitErr(bad) {
+    const p = $('#spErr'); p.textContent = bad.length ? t('hint.splitInvalid') : ''; p.hidden = !bad.length;
+    [$('#spRows'), $('#spCols')].forEach(el => { if (bad.includes(el)) { el.setAttribute('aria-invalid', 'true'); el.setAttribute('aria-describedby', 'spErr'); } else { el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby'); } });
+    if (bad.length) { bad[0].focus(); bad[0].select(); }
+  }
+  ['#spRows', '#spCols'].forEach(s => $(s).addEventListener('input', () => splitErr([])));
+  $('#btnSplitRoot').onclick = () => { splitErr([]); $('#dlgSplit').showModal(); };
+  $('#spOk').onclick = () => {
+    const okNum = el => el.value.trim() !== '' && Number.isInteger(+el.value) && el.checkValidity();
+    const bad = [$('#spRows'), $('#spCols')].filter(el => !okNum(el)); if (bad.length) return splitErr(bad);
+    const rows = +$('#spRows').value, cols = +$('#spCols').value;
+    const vs = visuals(), lost = vs.slice(rows * cols);
+    if (lost.length) {
+      const names = lost.map(l => l.visual.title || (CAT.byId[l.visual.kind] || {}).label || l.visual.kind);
+      const list = names.slice(0, 8).join(', ') + (names.length > 8 ? ', …' : '');
+      if (!confirm(t('ask.splitReplace', { c: rows * cols, k: vs.length, n: lost.length, t: list }))) return;
+    }
+    rebuildGrid(rows, cols); $('#dlgSplit').close();
+  };
 
   // ------------------------------------------------------------------ Katalog-Dialog
   const dlgCat = $('#dlgCatalog');
@@ -1151,21 +1200,54 @@
   // Pixelgenau pruefen (v0.5.0): Befunde je Seite, Ausrichten, Rand/Zwischenraum anpassen
   function gridCheck(p) { p = p || page(); const geo = computeAll(p); return window.MK_GRIDCHECK ? window.MK_GRIDCHECK.check(p.layout, geo, Math.round(S.spacing.gutter * ui())) : { ok: true, findings: [] }; }
   function gridFix() { const geo = computeAll(); return window.MK_GRIDCHECK ? window.MK_GRIDCHECK.marginFix(page().layout, geo.zones.content, Math.round(S.spacing.gutter * ui()), 8) : null; }
-  function openGridCheck() {
+  const gcAxis = a => t(a === 'cols' ? 'gc.cols' : 'gc.rows');
+  const gcText = f => t('gc.f.' + f.code, Object.assign({}, f, { axis: f.axis ? gcAxis(f.axis) : '' }));
+  const signed = v => (v > 0 ? '+' : '') + v;
+  function openGridCheck(note) {
     const res = gridCheck(); const fix = gridFix(); const g = Math.round(S.spacing.gutter * ui());
-    const axisName = a => t(a === 'cols' ? 'gc.cols' : 'gc.rows');
-    const txt = f => t('gc.f.' + f.code, Object.assign({}, f, { axis: f.axis ? axisName(f.axis) : '' }));
     const body = $('#dlgGridBody');
-    body.innerHTML = res.findings.length ? `<ul class="gc-list">${res.findings.map(f => `<li class="${f.level}"><span class="gc-tag ${f.level}">${esc(t('gc.' + f.level))}</span> ${esc(txt(f))}</li>`).join('')}</ul>` : `<p class="gc-ok">✓ ${esc(t('gc.ok', { g }))}</p>`;
+    body.innerHTML = (note || '') + (res.findings.length ? `<ul class="gc-list">${res.findings.map(f => `<li class="${f.level}"><span class="gc-tag ${f.level}">${esc(t('gc.' + f.level))}</span> ${esc(gcText(f))}</li>`).join('')}</ul>` : `<p class="gc-ok">✓ ${esc(t('gc.ok', { g }))}</p>`);
     $('#dlgGridP').textContent = t('gc.p', { n: res.findings.filter(f => f.level === 'warn').length });
     $('#gcSnap').hidden = !res.findings.some(f => ['TREE_CONVERTIBLE', 'TRACK_NEAR', 'EDGE_NEAR_X', 'EDGE_NEAR_Y', 'GUTTER_MISMATCH'].includes(f.code)) || res.layoutType === 'leaf';
-    const needFix = fix && (fix.margin || fix.gutter) && res.findings.some(f => f.code === 'REST_PX');
-    $('#gcMargin').hidden = !needFix; if (needFix) $('#gcMargin').textContent = t('gc.marginBtn', { d: (fix.margin > 0 ? '+' : '') + fix.margin, g: (fix.gutter > 0 ? '+' : '') + fix.gutter });
+    // Label immer setzen (sonst bleibt ein veralteter oder anderssprachiger Text stehen, B10); nur Teile nennen, die sich ändern
+    const needFix = !!(fix && (fix.margin || fix.gutter) && res.findings.some(f => f.code === 'REST_PX'));
+    const what = !needFix ? '' : fix.gutter ? [fix.margin ? t('gc.dMargin', { d: signed(fix.margin) }) : '', t('gc.dGutter', { g: signed(fix.gutter) })].filter(Boolean).join(', ') : signed(fix.margin) + ' px';
+    $('#gcMargin').hidden = !needFix; $('#gcMargin').textContent = needFix ? t('gc.marginBtn', { what }) : t('gc.margin'); $('#gcMargin').title = t('gc.marginTip');
     if (!$('#dlgGrid').open) $('#dlgGrid').showModal();
   }
-  $('#btnGridCheck').onclick = openGridCheck; $('#btnGridCheck2').onclick = openGridCheck;
+  $('#btnGridCheck').onclick = () => openGridCheck(); $('#btnGridCheck2').onclick = () => openGridCheck();
   $('#gcSnap').onclick = () => { const cz = computeAll().zones.content; const r = window.MK_GRIDCHECK.snap(page().layout, uid, { w: cz.w, h: cz.h, g: Math.round(S.spacing.gutter * ui()) }); if (r.layout !== page().layout) page().layout = r.layout; if (r.changed.length) { commit(); toast(t('gc.snapped')); } openGridCheck(); };
-  $('#gcMargin').onclick = () => { const fix = gridFix(); if (!fix) return; const k = ui(); S.spacing.margin = clamp(Math.round(((Math.round(S.spacing.margin * k) + fix.margin) / k) * 100) / 100, 0, 64); S.spacing.gutter = clamp(Math.round(((Math.round(S.spacing.gutter * k) + fix.gutter) / k) * 100) / 100, 0, 48); commit(); toast(t('gc.marginSet')); openGridCheck(); };
+  // „Rand anpassen" (B21): Rand und Zwischenraum sind global. Vorher warnen (mit der voraussichtlichen Wirkung auf die anderen Seiten),
+  // danach alle Seiten neu prüfen und das Ergebnis im Dialog zeigen, statt andere Seiten still zu verschieben.
+  const pageStates = () => S.pages.map(p => ({ p, geo: computeAll(p), gc: gridCheck(p) }));
+  function spacingImpact(before, after) {
+    return before.map((b, i) => {
+      const a = after[i]; if (b.p === page()) return null;
+      const lines = []; const reg = window.MK_GRIDCHECK.regressions(b.geo, a.geo);
+      if (reg.n) lines.push(t('gc.impactTiles', { n: reg.n, v: reg.values ? ` (${reg.values} px)` : '' }));
+      a.gc.findings.filter(f => (f.level === 'warn' || f.code === 'REST_PX') && !b.gc.findings.some(x => x.code === f.code)).forEach(f => lines.push(gcText(f)));
+      return lines.length ? t('gc.impactPage', { p: b.p.name, list: lines.join('; ') }) : null;
+    }).filter(Boolean);
+  }
+  $('#gcMargin').onclick = () => {
+    const fix = gridFix(); if (!fix || (!fix.margin && !fix.gutter)) return;
+    const k = ui(), sp = S.spacing;
+    const m = clamp(Math.round(((Math.round(sp.margin * k) + fix.margin) / k) * 100) / 100, 0, 64), gu = clamp(Math.round(((Math.round(sp.gutter * k) + fix.gutter) / k) * 100) / 100, 0, 48);
+    const before = pageStates();
+    if (S.pages.length > 1) {
+      // Vorschau: mit den neuen Werten rechnen, dann zurückstellen (nichts wird gespeichert)
+      const old = { margin: sp.margin, gutter: sp.gutter }; sp.margin = m; sp.gutter = gu; const guess = spacingImpact(before, pageStates()); sp.margin = old.margin; sp.gutter = old.gutter; computeAll();
+      const more = '\n\n' + (guess.length ? t('ask.marginAffected') + '\n' + guess.join('\n') : t('ask.marginNone'));
+      if (!confirm(t('ask.marginAll', { n: S.pages.length, more }))) return;
+    }
+    sp.margin = m; sp.gutter = gu; commit();
+    const hit = spacingImpact(before, pageStates());
+    toast(hit.length ? t('gc.marginSetWarn', { k: hit.length }) : (S.pages.length > 1 ? t('gc.marginSetAll', { n: S.pages.length }) : t('gc.marginSet')));
+    const note = S.pages.length < 2 ? '' : hit.length
+      ? `<div class="gc-note warn" role="status">${esc(t('gc.allWarn', { n: S.pages.length, k: hit.length }))}<ul>${hit.map(h => `<li>${esc(h)}</li>`).join('')}</ul></div>`
+      : `<div class="gc-note" role="status">✓ ${esc(t('gc.allOk', { n: S.pages.length }))}</div>`;
+    openGridCheck(note);
+  };
   // Staende vergleichen (v0.4.7): gespeicherte Datei (Zustand oder Spec) gegen den aktuellen Stand
   let lastDiff = null;
   $('#btnDiff').onclick = () => $('#fileDiff').click();

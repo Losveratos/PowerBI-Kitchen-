@@ -24,7 +24,13 @@
 
     gc: {
       btn: 'Pixelgenau prüfen …', h: 'Pixelgenau prüfen', p: '{n} Befund(e) auf dieser Seite: Kanten, Zwischenräume, Spuren', ok: 'Pixelgenau: alle Kanten fluchten, jeder Zwischenraum ist {g} px, kein Rest am Rand.',
-      snap: 'Ausrichten', snapped: 'Raster ausgerichtet', marginBtn: 'Rand {d} px, Zwischenraum {g} px', marginSet: 'Rand und Zwischenraum angepasst', warn: 'Abweichung', info: 'Hinweis', cols: 'Spalten', rows: 'Zeilen',
+      snap: 'Ausrichten', snapped: 'Raster ausgerichtet', marginBtn: 'Rand anpassen ({what})', margin: 'Rand anpassen', dMargin: 'Rand {d} px', dGutter: 'Zwischenraum {g} px', marginSet: 'Rand und Zwischenraum angepasst',
+      marginTip: 'Rand und Zwischenraum gelten für alle Seiten. Nach dem Anpassen werden alle Seiten neu geprüft.',
+      allOk: 'Rand und Zwischenraum gelten für alle Seiten. Alle {n} Seiten neu geprüft: keine neuen Abweichungen.',
+      allWarn: 'Rand und Zwischenraum gelten für alle Seiten. Alle {n} Seiten neu geprüft, {k} weitere Seite(n) haben jetzt Abweichungen (Strg+Z macht es rückgängig):',
+      impactPage: '„{p}": {list}', impactTiles: '{n} Kachel(n) nicht mehr gleich groß oder bündig{v}',
+      marginSetAll: 'Rand und Zwischenraum angepasst · alle {n} Seiten geprüft, keine neuen Abweichungen',
+      marginSetWarn: 'Rand und Zwischenraum angepasst · {k} weitere Seite(n) mit neuen Abweichungen, Details im Dialog', warn: 'Abweichung', info: 'Hinweis', cols: 'Spalten', rows: 'Zeilen',
       f: {
         EDGE_NEAR_X: '{n} senkrechte Kante(n) liegen fast, aber nicht exakt auf einer Linie (x: {values})',
         EDGE_NEAR_Y: '{n} waagerechte Kante(n) liegen fast, aber nicht exakt auf einer Linie (y: {values})',
@@ -58,7 +64,7 @@
       projName: 'Name des Berichts / Mockups', templates: 'Seitenvorlage wählen', importTmdl: 'TMDL-Ordner oder -Dateien laden',
       undo: 'Rückgängig (Strg+Z)', redo: 'Wiederholen (Strg+Y)', present: 'Präsentieren: Panels ausblenden, Seite groß (Taste P)',
       new: 'Neues Mockup anlegen: leere Seite, Demo-Modell, Standard-Design (der aktuelle Stand wird verworfen, vorher Speichern)',
-      merge: 'Nachbarn verbinden: leere Kachel geht im Nachbarn auf, zwei Kacheln werden eine (links/oben behält das Visual)',
+      merge: 'Klicken: Nachbarn verbinden (leere Kachel geht im Nachbarn auf, zwei Kacheln werden eine, links/oben behält das Visual). Ziehen: Zwischenraum verschieben.',
       edge: 'Kachel am Rand einfügen: alle Kacheln dieser Ebene werden gleich verteilt (aus 2 gleichen werden 3 gleiche)',
       zoneCfg: 'Einstellungen zu diesem Bereich öffnen (Doppelklick auf den Bereich geht auch)',
       help: 'Hilfe', open: 'Weiterarbeiten: gespeicherten Stand öffnen (.mockup.json aus „Speichern")', save: 'Stand als .mockup.json sichern – mit „Öffnen" lässt er sich später wieder laden und weiterbearbeiten',
@@ -143,6 +149,7 @@
       design: 'Gestaltung gilt für alle Seiten und wandert als Design-Entscheidung in den Export.',
       theme: 'Farben und Schriften für Power BI kommen aus dem Theme (Design-Framework-Skill). Hier geht es um Struktur: Ecken, Flächen, Kopfband.',
       splitDlg: 'Bestehende Visuals werden der Reihe nach in die neuen Zellen gesetzt; überzählige gehen verloren.',
+      splitInvalid: 'Zeilen und Spalten: je eine ganze Zahl von 1 bis 6.',
       noSlicers: 'Noch keine Slicer. Feld aus dem Modell hierher ziehen.',
       noRoles: 'Keine Datenrollen (statisches Element).',
       pickTile: 'Kachel anklicken, um Typ, Titel, Datenrollen, Notizen und Sprungziel zu setzen.',
@@ -272,7 +279,10 @@
 
     toast: {
       newProject: 'Neues Mockup angelegt. Über „Vorlagen" geht es schnell weiter.',
-      merged: 'Kacheln verbunden', inserted: 'Kachel eingefügt, Ebene gleich verteilt', mergeNotPossible: 'Verbinden geht nur, wenn mindestens eine Seite eine einzelne Kachel ist', mergeNotRect: 'Verbinden geht nur mit einem Nachbarn gleicher Höhe bzw. Breite. Erst die Nachbarn angleichen.',
+      merged: 'Kacheln verbunden', inserted: 'Kachel eingefügt, Ebene gleich verteilt',
+      edgeTooNarrow: 'Nicht eingefügt: Kacheln wären nur {v} px breit (Minimum {min} px, sonst kaum lesbar). Erst Kacheln verbinden oder entfernen.',
+      edgeTooLow: 'Nicht eingefügt: Kacheln wären nur {v} px hoch (Minimum {min} px, sonst kaum lesbar). Erst Kacheln verbinden oder entfernen.',
+      mergeNotPossible: 'Verbinden geht nur, wenn mindestens eine Seite eine einzelne Kachel ist', mergeNotRect: 'Verbinden geht nur mit einem Nachbarn gleicher Höhe bzw. Breite. Erst die Nachbarn angleichen.',
       nothingUndo: 'Nichts rückgängig zu machen', undone: 'Rückgängig', nothingRedo: 'Nichts zu wiederholen', redone: 'Wiederholt',
       demoLoadedTpl: 'Demo-Modell geladen, Vorlage gebunden', tplSet: 'Vorlage „{t}" gesetzt', demoLoaded: 'Demo-Modell geladen',
       lastPage: 'Die letzte Seite bleibt', pickTileFirst: 'Erst eine Kachel wählen',
@@ -298,6 +308,9 @@
       openReplace: 'Öffnen ersetzt das aktuelle Mockup. Vorher speichern? (Abbrechen = zurück)',
       newReplace: 'Neues Mockup anlegen? Der aktuelle Stand ({n} Kachel(n), {p} Seite(n)) wird verworfen. Vorher mit „Speichern" sichern. (Abbrechen = zurück)',
       mergeReplace: 'Beide Kacheln haben ein Visual. Verbinden entfernt „{t}". Fortfahren? (Strg+Z macht es rückgängig)',
+      splitReplace: 'Das neue Raster hat {c} Zelle(n), die Seite aber {k} Visual(s). Diese {n} gehen verloren: {t}. Fortfahren? (Strg+Z macht es rückgängig)',
+      marginAll: 'Rand und Zwischenraum gelten für alle {n} Seiten, nicht nur für diese. Danach werden alle Seiten neu geprüft.{more}\n\nAnpassen? (Strg+Z macht es rückgängig)',
+      marginAffected: 'Voraussichtlich betroffen:', marginNone: 'Auf den anderen Seiten entstehen voraussichtlich keine neuen Abweichungen.',
     },
 
     role: {
@@ -557,7 +570,13 @@
 
     gc: {
       btn: 'Pixel-perfect check …', h: 'Pixel-perfect check', p: '{n} finding(s) on this page: edges, gutters, tracks', ok: 'Pixel-perfect: all edges align, every gutter is {g} px, no remainder at the edges.',
-      snap: 'Align', snapped: 'Grid aligned', marginBtn: 'Margin {d} px, gutter {g} px', marginSet: 'Margin and gutter adjusted', warn: 'Deviation', info: 'Note', cols: 'Columns', rows: 'Rows',
+      snap: 'Align', snapped: 'Grid aligned', marginBtn: 'Adjust margin ({what})', margin: 'Adjust margin', dMargin: 'margin {d} px', dGutter: 'gutter {g} px', marginSet: 'Margin and gutter adjusted',
+      marginTip: 'Margin and gutter apply to all pages. After adjusting, every page is checked again.',
+      allOk: 'Margin and gutter apply to all pages. All {n} pages checked again: no new deviations.',
+      allWarn: 'Margin and gutter apply to all pages. All {n} pages checked again, {k} other page(s) now have deviations (Ctrl+Z undoes it):',
+      impactPage: '“{p}”: {list}', impactTiles: '{n} tile(s) no longer equal in size or aligned{v}',
+      marginSetAll: 'Margin and gutter adjusted · all {n} pages checked, no new deviations',
+      marginSetWarn: 'Margin and gutter adjusted · {k} other page(s) with new deviations, details in the dialog', warn: 'Deviation', info: 'Note', cols: 'Columns', rows: 'Rows',
       f: {
         EDGE_NEAR_X: '{n} vertical edge group(s) almost, but not exactly, on one line (x: {values})',
         EDGE_NEAR_Y: '{n} horizontal edge group(s) almost, but not exactly, on one line (y: {values})',
@@ -591,7 +610,7 @@
       projName: 'Name of the report / mockup', templates: 'Choose a page template', importTmdl: 'Load a TMDL folder or files',
       undo: 'Undo (Ctrl+Z)', redo: 'Redo (Ctrl+Y)', present: 'Present: hide the panels, page large (key P)',
       new: 'Start a new mockup: empty page, demo model, default design (the current state is discarded, save first)',
-      merge: 'Merge neighbours: an empty tile is absorbed, two tiles become one (left/top keeps its visual)',
+      merge: 'Click: merge neighbours (an empty tile is absorbed, two tiles become one, left/top keeps its visual). Drag: move the gutter.',
       edge: 'Insert a tile at the edge: all tiles on this level are distributed evenly (2 equal tiles become 3)',
       zoneCfg: 'Open the settings of this zone (double-click on the zone works too)',
       help: 'Help', open: 'Continue working: open a saved state (.mockup.json from “Save”)', save: 'Save the state as .mockup.json – “Open” loads it again for further work',
@@ -676,6 +695,7 @@
       design: 'The design applies to all pages and travels into the export as a design decision.',
       theme: 'Colours and fonts for Power BI come from the theme (design framework skill). This is about structure: corners, surfaces, header band.',
       splitDlg: 'Existing visuals are placed into the new cells in order; surplus ones are lost.',
+      splitInvalid: 'Rows and columns: a whole number from 1 to 6 each.',
       noSlicers: 'No slicers yet. Drag a field from the model here.',
       noRoles: 'No data roles (static element).',
       pickTile: 'Click a tile to set type, title, data roles, notes and jump target.',
@@ -803,7 +823,10 @@
 
     toast: {
       newProject: 'New mockup started. Templates give you a quick start.',
-      merged: 'Tiles merged', inserted: 'Tile inserted, level distributed evenly', mergeNotPossible: 'Merging needs at least one side to be a single tile', mergeNotRect: 'Merging needs a neighbour of the same height or width. Align the neighbours first.',
+      merged: 'Tiles merged', inserted: 'Tile inserted, level distributed evenly',
+      edgeTooNarrow: 'Not inserted: tiles would be only {v} px wide (minimum {min} px, otherwise hard to read). Merge or remove tiles first.',
+      edgeTooLow: 'Not inserted: tiles would be only {v} px high (minimum {min} px, otherwise hard to read). Merge or remove tiles first.',
+      mergeNotPossible: 'Merging needs at least one side to be a single tile', mergeNotRect: 'Merging needs a neighbour of the same height or width. Align the neighbours first.',
       nothingUndo: 'Nothing to undo', undone: 'Undone', nothingRedo: 'Nothing to redo', redone: 'Redone',
       demoLoadedTpl: 'Demo model loaded, template bound', tplSet: 'Template “{t}” applied', demoLoaded: 'Demo model loaded',
       lastPage: 'The last page stays', pickTileFirst: 'Select a tile first',
@@ -829,6 +852,9 @@
       openReplace: 'Opening replaces the current mockup. Save it first? (Cancel = go back)',
       newReplace: 'Start a new mockup? The current state ({n} tile(s), {p} page(s)) will be discarded. Use “Save” first. (Cancel = go back)',
       mergeReplace: 'Both tiles have a visual. Merging removes “{t}”. Continue? (Ctrl+Z undoes it)',
+      splitReplace: 'The new grid has {c} cell(s), but the page has {k} visual(s). These {n} will be lost: {t}. Continue? (Ctrl+Z undoes it)',
+      marginAll: 'Margin and gutter apply to all {n} pages, not just this one. Afterwards every page is checked again.{more}\n\nAdjust? (Ctrl+Z undoes it)',
+      marginAffected: 'Likely affected:', marginNone: 'No new deviations are expected on the other pages.',
     },
 
     role: {

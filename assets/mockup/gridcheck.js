@@ -1,7 +1,8 @@
 /* MockupKitchen · Raster prüfen & ausrichten (v0.5.0)
    Pixelgenau heißt: alle Kanten fluchten exakt, jeder Zwischenraum ist genau g px, kein Pixelrest am Rand.
    check(): Befunde aus Layout + berechneten Rechtecken. snap(): Baum → Raster (wenn regelmäßig), fast gleiche Spuren angleichen.
-   marginFix(): Rand so verschieben, dass Spalten und Zeilen ohne Rest aufgehen. Reine Funktionen, Node-testbar. */
+   marginFix(): Rand so verschieben, dass Spalten und Zeilen ohne Rest aufgehen. regressions(): was eine Änderung an Rand oder
+   Zwischenraum auf einer Seite kaputt macht (der Rand gilt für alle Seiten). Reine Funktionen, Node-testbar. */
 (function (root) {
   'use strict';
   var TOL = 3;          // Kantenabstand bis 3 px gilt als „fast fluchtend" (größere Abstände sind Absicht)
@@ -83,6 +84,16 @@
     flush();
     return equalize(out);
   }
+  function r3(v) { return Math.round(v * 1000) / 1000; }
+  function shares(a) { var s = sum(a) || 1; return a.map(function (v) { return v / s; }); }
+  // Befund „fast gleich": nur, wenn Angleichen die Anteile wirklich ändert. Verglichen wird auf 3 Nachkommastellen wie in equalize(),
+  // sonst gilt jedes von Hand gezogene Gewicht (1.4949 · 0.5051) wegen Rundungsrauschen als „fast gleich" (B23).
+  // Anteile statt Rohwerte: exakt gleiche Spuren in px (400 · 400 · 400) sind kein Befund, auch wenn equalize() sie zu 1 · 1 · 1 macht.
+  function tracksNear(w) {
+    if (!w || w.length < 2) return false;
+    var a = shares(w.map(r3)), b = shares(equalizeNearGroups(w));
+    return a.some(function (v, i) { return Math.abs(v - b[i]) > 1e-6; });
+  }
 
   // ---- Prüfung ---------------------------------------------------------------
   // geo: { leaves: [{node, rect}], zones: { content } }, gutter: px, layout: Seitenlayout
@@ -109,8 +120,8 @@
     var ct = geo.zones && geo.zones.content;
     if (layout && layout.type === 'grid') {
       ['cols', 'rows'].forEach(function (k) {
-        var w = layout[k]; var eq = equalizeNearGroups(w);
-        if (w.some(function (v, i) { return Math.abs(v - eq[i]) > 1e-9; })) f.push({ code: 'TRACK_NEAR', level: 'warn', axis: k, values: w.map(function (v) { return Math.round(v * 100) / 100; }).join(' · ') });
+        var w = layout[k];
+        if (tracksNear(w)) f.push({ code: 'TRACK_NEAR', level: 'warn', axis: k, values: w.map(function (v) { return Math.round(v * 100) / 100; }).join(' · ') });
       });
       if (ct) {
         var restC = (ct.w - gutter * (layout.cols.length - 1)) % layout.cols.length, restR = (ct.h - gutter * (layout.rows.length - 1)) % layout.rows.length;
@@ -147,7 +158,29 @@
     return null;
   }
 
-  var api = { check: check, snap: snap, marginFix: marginFix, treeToGrid: treeToGrid, treeShape: treeShape, equalizeNearGroups: equalizeNearGroups, TOL: TOL };
+  // ---- Vorher/nachher (B21) ------------------------------------------------------
+  // Rand und Zwischenraum gelten für alle Seiten. regressions() vergleicht die Geometrie derselben Seite vor und nach einer Änderung
+  // ({ leaves: [{ node: { id }, rect }] }) und zählt Kacheln, die vorher gleich breit (in derselben Zeile) bzw. gleich hoch
+  // (in derselben Spalte) waren oder bündige Kanten hatten und es danach nicht mehr sind. Liefert { n, values, edges }.
+  function regressions(before, after) {
+    var A = {}, B = {}, ids = [];
+    ((before && before.leaves) || []).forEach(function (l) { A[l.node.id] = l.rect; });
+    ((after && after.leaves) || []).forEach(function (l) { if (A[l.node.id]) { B[l.node.id] = l.rect; ids.push(l.node.id); } });
+    var tiles = {}, sizes = [], edges = 0;
+    var ovY = function (a, b) { return Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y) > 0; };
+    var ovX = function (a, b) { return Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x) > 0; };
+    var EDGE = [function (r) { return r.x; }, function (r) { return r.x + r.w; }, function (r) { return r.y; }, function (r) { return r.y + r.h; }];
+    for (var i = 0; i < ids.length; i++) for (var j = i + 1; j < ids.length; j++) {
+      var a0 = A[ids[i]], b0 = A[ids[j]], a1 = B[ids[i]], b1 = B[ids[j]], hit = false;
+      if (ovY(a0, b0) && a0.w === b0.w && a1.w !== b1.w) { hit = true; sizes.push(a1.w, b1.w); }
+      if (ovX(a0, b0) && a0.h === b0.h && a1.h !== b1.h) { hit = true; sizes.push(a1.h, b1.h); }
+      EDGE.forEach(function (e) { if (e(a0) === e(b0) && e(a1) !== e(b1)) { hit = true; edges++; } });
+      if (hit) { tiles[ids[i]] = 1; tiles[ids[j]] = 1; }
+    }
+    return { n: Object.keys(tiles).length, values: sizes.length ? uniqSorted(sizes).join('/') : '', edges: edges };
+  }
+
+  var api = { check: check, snap: snap, marginFix: marginFix, regressions: regressions, treeToGrid: treeToGrid, treeShape: treeShape, equalizeNearGroups: equalizeNearGroups, tracksNear: tracksNear, TOL: TOL };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.MK_GRIDCHECK = api;
 })(typeof window !== 'undefined' ? window : globalThis);
