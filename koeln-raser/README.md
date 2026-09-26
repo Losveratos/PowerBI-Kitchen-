@@ -13,7 +13,8 @@ Frühere Fassungen bleiben unverändert im Repo liegen, damit die Entwicklung si
 |---|---|---|
 | v1 | [`/koelner-raser-story-v1.html`](../koelner-raser-story-v1.html) | 25.09.2026 · sechs Akte, Ausreißer, Atlas; Hero mit Blitzpunkten |
 | v2 | [`/koelner-raser-story-v2.html`](../koelner-raser-story-v2.html) | 26.09.2026 · Hero „Lichtspuren“ (Stichprobe echter Fälle als Langzeitbelichtung) |
-| v3 | [`/koelner-raser-story.html`](../koelner-raser-story.html) | laufend · Karten-Akt „Köln bei Nacht“ (Akt 4): alle Messstellen an ihren Orten, 24-Stunden-Zeitraffer, Stadtteil-Karte; Akte 4–6 → 5–7 |
+| v3 | Commit `92d571e` | 26.09.2026 · Karten-Akt „Köln bei Nacht“ (Akt 4): alle Messstellen an ihren Orten, 24-Stunden-Zeitraffer, Stadtteil-Karte; Akte 4–6 → 5–7 |
+| v3.1 | [`/koelner-raser-story.html`](../koelner-raser-story.html) | laufend · überarbeitet nach Peer-Review aus sieben Perspektiven ([research/peer-review-v3.md](research/peer-review-v3.md)): Rotlicht-Zeilen raus (445.483 Tempofälle), Lernkurve mit Kontrollreihe, Nacht/Tag je Anlage bereinigt, Stadtteil-Karte ohne Rangliste, Datenschutz im Atlas, Zahlen-Prüfskript; Blogbeitrag und LinkedIn-Karussell |
 
 ## Pipeline
 
@@ -21,6 +22,14 @@ Frühere Fassungen bleiben unverändert im Repo liegen, damit die Entwicklung si
 python3 koeln-raser/scripts/build_db.py          # Rohdaten → data/raser_2025.sqlite
 python3 koeln-raser/scripts/build_story_data.py  # SQL-Abfragen + Karte (build_map_data.py) → data/story_data.json
 python3 koeln-raser/scripts/build_story_html.py  # story_template.html + JSON → ../koelner-raser-story.html
+python3 koeln-raser/scripts/check_numbers.py     # prüft die im Text ausgeschriebenen Zahlen gegen story_data.json
+```
+
+Veröffentlichung (Blog, LinkedIn):
+
+```bash
+python3 koeln-raser/scripts/build_social.py      # Karussell-Folien 1080×1350 + PDF → ../blog/assets/ (Headless-Chrome)
+python3 koeln-raser/scripts/build_post.py        # ../blog/koeln-blitzt.md → ../koelner-raser-post.html
 ```
 
 Die Karte baut nur aus Dateien in `data/geo/` (kein Netz). Diese Geodaten entstehen einmalig **lokal**:
@@ -64,9 +73,9 @@ Tabellen: `verstoss` (451.676 Zeilen), `standort` (2.504), `monat_kontrolle`.
 
 ## Bereinigung (Kurzfassung)
 
-- 47 Export-Artefaktzeilen (Kopf, Trennlinie, „N Zeile(n) betroffen“) übersprungen; Monats-Kontrollsummen stimmen
-- 5.911 Zeilen ohne Kennzeichen-Feld und einige zweiteilige Sonderkennzeichen normalisiert, 1 unvollständige Zeile verworfen
-- K-04 (Kreuzungsanlagen): nur Zeilen mit plausiblem Limit 50/70 als Tempofall (6.016 vermutliche Rotlichtfälle ausgeschlossen) → 445.660 Tempofälle
+- 59 Nicht-Datenzeilen übersprungen: 47 Kopf-, Trenn- und Leerzeilen plus 12 Zählzeilen „(N Zeile(n) betroffen)“; die Monats-Kontrollsummen stimmen
+- 5.905 Zeilen ohne Kennzeichen-Feld und 5 zweiteilige Sonderkennzeichen normalisiert, 1 unvollständige Zeile verworfen
+- K-04 (Kreuzungsanlagen): nur Zeilen mit plausiblem Limit 50/70 und einer Überschreitung > 0 als Tempofall (6.193 vermutliche Rotlichtfälle ausgeschlossen) → 445.483 Tempofälle
 - Tempolimit = gemessen − Überschreitung − Toleranz (3 km/h bis 100, sonst 3 %)
 
 ## Karte & Geocodierung (v3, Kurzfassung)

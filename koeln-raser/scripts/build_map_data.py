@@ -33,7 +33,7 @@ STORY = ROOT / "data" / "story_data.json"
 
 UNIT = 10                      # Meter je Karteneinheit
 TOL = {"stadt": 1.2, "teile": 1.6, "rhein": 1.2, "strassen": 1.6}   # Douglas-Peucker in Einheiten (12–16 m)
-MIN_FAELLE = 300               # ab so vielen mobilen Fällen wird der Anteil je Stadtteil ausgewiesen
+MIN_SCHWER, MIN_MS = 30, 3     # Anteil je Stadtteil nur ab 30 schweren Fällen an mindestens 3 Messstellen (Peer-Review)
 RECHTS = {"Porz", "Kalk", "Mülheim"}   # rechtsrheinische Stadtbezirke (+ Stadtteil Deutz aus „Innenstadt“)
 ACC = {"hausnummer": "h", "strasse": "s", "manuell": "m"}
 ORIENTIERUNG = {"Dom": (6.95811, 50.94133)}     # Orientierungspunkt auf der Karte (lon, lat, OSM)
@@ -136,6 +136,13 @@ def load_coords():
     return coords, notes
 
 
+def strasse(site):
+    """Lesbarer Straßenname einer Messstelle (Adress-Bereinigung aus fetch_geo.py, ohne Netz)."""
+    import fetch_geo
+    st = fetch_geo.parse_lage(site["lage"])[0] if site["lage"] else None
+    return st or site["lage"] or site["ort"]
+
+
 def build_karte(con, data):
     grenzen = load_json_gz("koeln_grenzen_osm.json.gz")
     osm = load_json_gz("osm_koeln.json.gz")
@@ -199,12 +206,15 @@ def build_karte(con, data):
         WHERE dienststelle='S-02' AND standort!='0000' GROUP BY 1"""):
         per[code] = (n, n21, su, k)
     agg = defaultdict(lambda: [0, 0, 0, 0, 0])            # Fälle, ≥21, Summe zu viel, K, Messstellen
+    top = {}                                              # Messstelle mit den meisten schweren Fällen je Stadtteil
     for s in data["standorte"]:
         if s["d"] != "S-02" or not st_of.get(key(s)):
             continue
         a = agg[st_of[key(s)]]
         n, n21, su, k = per[s["c"]]
         a[0] += n; a[1] += n21; a[2] += su; a[3] += k; a[4] += 1
+        if n21 > top.get(st_of[key(s)], (0, None))[0]:
+            top[st_of[key(s)]] = (n21, s)
     fest = Counter(st_of[key(s)] for s in data["standorte"] if s["d"] != "S-02" and st_of.get(key(s)))
     K["stadtteile"] = []
     for f in teile:
@@ -213,10 +223,12 @@ def build_karte(con, data):
         K["stadtteile"].append({
             "name": f["name"], "bezirk": bez_of[f["name"]], "c": [round(cx), round(cy)],
             "d": encode([simplify(proj(r), TOL["teile"]) for r in f["outer"] + f["inner"]], True),
-            "n": n, "ms": ms, "fest": fest.get(f["name"], 0),
-            "p21": round(100 * n21 / n, 1) if n >= MIN_FAELLE else None,
+            "n": n, "ms": ms, "fest": fest.get(f["name"], 0), "n21": n21,
+            "p21": round(100 * n21 / n, 1) if n21 >= MIN_SCHWER and ms >= MIN_MS else None,
+            "top": ({"anteil": round(100 * top[f["name"]][0] / n21), "lage": strasse(top[f["name"]][1]),
+                     "lim": top[f["name"]][1]["lim"]} if n21 else None),
             "avg": round(su / n, 1) if n else None, "k": round(100 * k / n, 1) if n else None})
-    K["min_faelle"] = MIN_FAELLE
+    K["min_schwer"], K["min_ms"] = MIN_SCHWER, MIN_MS
 
     # ---- Kennzahlen für die Texte des Karten-Akts ----------------------------------
     rechts = lambda name: name and (bez_of.get(name) in RECHTS or name == "Deutz")

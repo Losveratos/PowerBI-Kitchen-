@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Köln blitzt · Raser-Atlas 2025</title>
-<meta name="description" content="445.660 Tempoverstöße in einem Jahr: eine Scrollytelling-Datenstory über die Geschwindigkeitsüberwachung der Stadt Köln 2025 — wann, wo, wie schnell und wer.">
+<meta name="description" content="445.483 Tempoverstöße in einem Jahr: eine Scrollytelling-Datenstory über die Geschwindigkeitsüberwachung der Stadt Köln 2025. Wann, wo, wie schnell, und wie schnell ein neuer Blitzer wirkt.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -152,6 +152,7 @@ path.draw{transition:stroke-dashoffset 2s cubic-bezier(.4,0,.2,1)}
 #g5 .kln{stroke:var(--o1);stroke-width:2.5}
 #g5 .aus{stroke:var(--muted-chart);stroke-width:2.5}
 #g5 .ik{stroke:var(--amber-soft);stroke-width:2;stroke-dasharray:6 5}
+#g5 .ctl{stroke:var(--muted-chart);stroke-width:2;stroke-dasharray:2 4}
 #g5 .s1{opacity:0}
 #g5 .s2{opacity:.12}
 #g5[data-step="1"] .s0t{opacity:.18}
@@ -245,6 +246,11 @@ details.gloss>summary:hover{color:var(--amber-soft)}
 .gloss-body ul{margin:10px 0 0;padding-left:18px}
 .gloss-body li{margin-bottom:6px}
 .gloss-body code,.gloss-body .m{font-family:var(--mono);font-size:12.5px;color:var(--ink)}
+.mini-wrap{overflow-x:auto;margin-top:10px}
+table.mini{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+table.mini th{text-align:left;color:var(--muted);font-weight:400;border-bottom:1px solid var(--axis);padding:5px 6px}
+table.mini td{padding:4px 6px;border-bottom:1px solid var(--grid);color:var(--ink-2);font-variant-numeric:tabular-nums}
+table.mini .num{text-align:right;white-space:nowrap}
 .gloss-formula{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--bg);border:1px solid var(--grid);padding:10px 12px;margin-top:12px;overflow-x:auto;white-space:nowrap}
 a.gl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--muted)}
 a.gl:hover,a.gl:focus-visible{color:var(--ink);border-bottom-color:var(--ink-2)}
@@ -275,6 +281,7 @@ footer a{color:var(--ink-2)}
   #tip{white-space:normal;max-width:calc(100vw - 16px)}
 }
 @media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
   *{animation:none!important;transition:none!important}
   path.draw{stroke-dasharray:none!important;stroke-dashoffset:0!important}
 }
@@ -289,10 +296,10 @@ footer a{color:var(--ink-2)}
   <a class="home-pill" href="index.html#posts-talks" rel="noopener">← Daten-WG Knowledge Kitchen</a>
   <div class="hero-inner">
     <div class="hero-eyebrow">Kölner Raser-Atlas · Geschwindigkeitsüberwachung 2025</div>
-    <h1>Köln blitzt.<br><em>445.660</em> Mal.</h1>
+    <h1>Köln blitzt.<br><em>445.483</em> Mal.</h1>
     <p class="hero-sub">Ein Jahr Tempoverstöße, jeder einzelne mit Uhrzeit, Ort und Herkunft.
-    Die Daten erzählen, wann Köln rast, wo die Stadt hinschaut —
-    und wie schnell ein neuer Blitzer seltener auslöst: an der B 55a nach gut drei Monaten <b style="color:var(--ink)">nur noch ein Fünftel</b> so oft.</p>
+    Die Daten erzählen, wann und wo in Köln geblitzt wird, wer ins Netz geht und wie schnell ein neuer Blitzer wirkt:
+    An der B 55a löste er nach drei Monaten <b style="color:var(--ink)">nur noch gut ein Viertel</b> so oft aus.</p>
     <div class="hero-meta">
       <span><b>1.221</b> Fälle pro Tag</span>
       <span><b>655</b> Messstellen</span>
@@ -308,20 +315,20 @@ footer a{color:var(--ink-2)}
 <section class="prose">
   <div class="kicker">Prolog</div>
   <h2>Alle 71 Sekunden</h2>
-  <p class="lede">So oft hat es 2025 in Köln im Schnitt geblitzt — Tag und Nacht, das ganze Jahr.
+  <p class="lede">So oft hat es 2025 in Köln im Schnitt geblitzt, Tag und Nacht, das ganze Jahr.
   Seit Sie diese Seite geöffnet haben, statistisch: <span class="ticker" id="since">0</span> Fälle.</p>
   <p>Die Stadt Köln veröffentlicht ihre Geschwindigkeitsüberwachung als offene Daten: jede Verwarnung
   und jedes Bußgeldverfahren eine Zeile. Mit Datum und Uhrzeit, gemessener Geschwindigkeit,
-  vorwerfbarer Überschreitung, Fahrzeugart, Messstelle — und dem Kürzel des Zulassungsbezirks.
+  vorwerfbarer Überschreitung, Fahrzeugart, Messstelle und dem Kürzel des Zulassungsbezirks.
   <b>451.676 Zeilen</b> sind es für 2025. Wir haben sie in eine kleine SQLite-Datenbank geladen, bereinigt
-  und befragt.</p>
+  und befragt. Es geht um die Verkehrsüberwachung der Stadt; Messungen der Polizei sind nicht enthalten.</p>
   <p>Vorweg die wichtigste Regel für alles, was folgt: <b>Ein Blitz zählt nicht die Raser. Er zählt die
   Raser, die dort vorbeikommen, wo die Stadt gerade misst.</b> Wer das vergisst, liest aus diesen Daten
-  vor allem den Dienstplan der Messtrupps heraus. Genau damit fängt Akt 1 an.</p>
+  vor allem heraus, wann und wo gemessen wird. Genau damit fängt Akt 1 an.</p>
 </section>
 
 <!-- ================= AKT 1 ================= -->
-<section class="scrolly" data-act="1">
+<section class="scrolly" data-act="1" id="akt-1">
   <div class="graphic">
     <div class="fig" id="g1" data-step="-1">
       <svg id="svg1" viewBox="0 0 1060 600" role="img" aria-label="Kalender 2025: Tempofälle pro Tag, getrennt nach festen Anlagen und mobiler Messung"></svg>
@@ -332,9 +339,9 @@ footer a{color:var(--ink-2)}
     <div class="step" data-idx="0"><div class="step-card">
       <span class="n">Akt 1 / Schritt 1</span>
       <h3>Die festen Blitzer schlafen nie</h3>
-      <p><span class="sw" style="background:var(--amber)"></span>43 feste Anlagen erzeugen <span class="big">231.143</span> Fälle — rund um die Uhr, an jedem Tag des Jahres.
+      <p><span class="sw" style="background:var(--amber)"></span>43 feste Anlagen erzeugen <span class="big">231.143</span> Fälle, rund um die Uhr, an jedem Tag des Jahres.
       Auffällig: Die Wochenenden (untere Reihen) leuchten heller. Samstags und sonntags lösen die Anlagen
-      <span class="big am">45 % öfter</span> aus als montags.</p>
+      <span class="big am">45 % öfter</span> aus als montags. Naheliegende Erklärung: weniger Stau, freiere Fahrt.</p>
       <p>Der hellste Tag ist der <span class="big">20. Dezember</span> mit 1.562 Fällen: Zwei Tage zuvor gingen an der A 4, Anschluss Eifeltor, zwei neue Messstellen in Betrieb. Die Dreiecke unter dem Kalender markieren, wann neue Anlagen dazukamen.</p>
     </div></div>
     <div class="step" data-idx="1"><div class="step-card">
@@ -342,9 +349,9 @@ footer a{color:var(--ink-2)}
       <h3>Die mobilen Messungen haben Dienstzeiten</h3>
       <p><span class="sw" style="background:var(--blue)"></span>Die mobile Messung (vermutlich Radarwagen und Anhänger) kommt auf <span class="big">203.278</span> Fälle an
       <span class="big">600</span> verschiedenen Standorten. Ihr Muster ist das Spiegelbild: stark unter der Woche,
-      schwach am Wochenende — sonntags nur gut halb so viel wie mittwochs.</p>
+      schwach am Wochenende: sonntags nur gut halb so viel wie mittwochs.</p>
       <p>An <span class="big">18 Tagen</span> gab es gar keine mobile Messung: Neujahr, das erste Januar-Wochenende,
-      das Karnevalswochenende samt Rosenmontag — und die komplette Zeit vom 20. bis 31. Dezember.</p>
+      das Karnevalswochenende samt Rosenmontag und die komplette Zeit vom 20. bis 31. Dezember.</p>
     </div></div>
     <div class="step" data-idx="2"><div class="step-card">
       <span class="n">Akt 1 / Schritt 3</span>
@@ -353,13 +360,13 @@ footer a{color:var(--ink-2)}
       <span class="big am">↑</span>, mobile <span class="big bl">↓</span>. Umrandet: Feiertage.</p>
       <p>Die Fallzahl pro Tag hängt also mindestens so sehr davon ab, <b style="color:var(--ink)">wo und wann gemessen wird</b>,
       wie davon, wie schnell gefahren wird. Deshalb schauen wir ab jetzt auf die festen Anlagen, wo der Messaufwand
-      konstant ist — und auf Anteile statt Summen.</p>
+      konstant ist, und auf Anteile statt Summen.</p>
     </div></div>
   </div>
 </section>
 
 <!-- ================= AKT 2 ================= -->
-<section class="scrolly" data-act="2">
+<section class="scrolly" data-act="2" id="akt-2">
   <div class="graphic">
     <div class="fig" id="g2" data-step="-1">
       <svg id="svg2" viewBox="0 0 1060 600" role="img" aria-label="Tempofälle der festen Anlagen nach Uhrzeit und Anteil schwerer Überschreitungen je Stunde"></svg>
@@ -372,30 +379,33 @@ footer a{color:var(--ink-2)}
       <h3>Tagsüber blitzt es am häufigsten</h3>
       <p>Von 10 bis 22 Uhr blitzt es fast gleichmäßig viel; der Gipfel liegt um 11 Uhr mit
       <span class="big">13.595</span> Fällen übers Jahr. Nachts um 3 Uhr sind es nur <span class="big">3.628</span>.</p>
-      <p>Keine Überraschung — nachts fährt schlicht weniger Verkehr. Interessanter ist,
+      <p>Keine Überraschung: Nachts fährt schlicht weniger Verkehr. Interessanter ist,
       <b style="color:var(--ink)">wie</b> nachts gefahren wird.</p>
     </div></div>
     <div class="step" data-idx="1"><div class="step-card">
       <span class="n">Akt 2 / Schritt 2</span>
       <h3>Nachts wird aus „etwas zu schnell“ „deutlich zu schnell“</h3>
       <p><span class="sw" style="background:var(--sev1)"></span>Unteres Feld: Anteil der Fälle mit <span class="big">21 km/h und mehr</span>
-      zu viel — ab hier gibt es Punkte in Flensburg.</p>
-      <p>Um 14 Uhr trifft das <span class="big">1,7 %</span> der Geblitzten. Um 3 Uhr nachts
-      <span class="big rd">8 %</span> — fast fünfmal so viele.</p>
+      zu viel. Ab hier gibt es Punkte in Flensburg.</p>
+      <p>Um 14 Uhr trifft das <span class="big">1,7 %</span> der Geblitzten, um 3 Uhr nachts
+      <span class="big rd">8,0 %</span>: ein fast fünfmal so hoher Anteil. In absoluten Zahlen sind es übers Jahr
+      292 gegen 207 Fälle, nachts aber bei einem Bruchteil des Verkehrs.</p>
     </div></div>
     <div class="step" data-idx="2"><div class="step-card">
       <span class="n">Akt 2 / Schritt 3</span>
       <h3>Das Fahrverbots-Tempo kommt nachts</h3>
-      <p><span class="sw" style="background:var(--red)"></span>Noch deutlicher bei <span class="big">31 km/h und mehr</span> — innerorts droht dann ein Regelfahrverbot.
-      Um 14 Uhr sind es <span class="big">0,12 %</span> der Fälle, um 3 Uhr <span class="big rd">2,5 %</span>.
-      Faktor <span class="big rd">≈ 20</span>. (Nur Tempo ≤ 50 gerechnet: 0,09 % gegen 1,2 %.)</p>
-      <p>Wer nachts geblitzt wird, ist seltener „ein bisschen drüber“ — und viel öfter richtig schnell.</p>
+      <p><span class="sw" style="background:var(--red)"></span>Noch deutlicher bei <span class="big">31 km/h und mehr</span>, innerorts droht dann ein Regelfahrverbot.
+      Um 14 Uhr sind es <span class="big">0,12 %</span> der Fälle, um 3 Uhr <span class="big rd">2,5 %</span>
+      (nur Tempo ≤ 50 gerechnet: 0,10 % gegen 1,45 %).</p>
+      <p>Zwei Einzelstunden sind ein Extremvergleich. Über die ganze Nacht (22 bis 6 Uhr) gegen den Tag (10 bis 18 Uhr), je Anlage
+      bereinigt, ist der Anteil ab 21 km/h <span class="big rd">2,3-mal</span> und ab 31 km/h <span class="big rd">4,1-mal</span> so hoch.
+      Wer nachts geblitzt wird, ist seltener „ein bisschen drüber“ und viel öfter richtig schnell.</p>
     </div></div>
   </div>
 </section>
 
 <!-- ================= AKT 3 ================= -->
-<section class="scrolly" data-act="3">
+<section class="scrolly" data-act="3" id="akt-3">
   <div class="graphic">
     <div class="fig" id="g3" data-step="-1">
       <svg id="svg3" viewBox="0 0 1060 600" role="img" aria-label="Die festen Blitzer Kölns mit den meisten Fällen, pro Jahr und pro Betriebstag"></svg>
@@ -407,23 +417,26 @@ footer a{color:var(--ink-2)}
       <span class="n">Akt 3 / Schritt 1</span>
       <h3>Zwei Blitzer, 50.000 Fälle</h3>
       <p>Spitzenreiter 2025: die Anlage an der <b style="color:var(--ink)">B 55a, Ausfahrt Frankfurter Straße</b> Richtung Olpe mit
-      <span class="big">25.612</span> Fällen — knapp vor der <b style="color:var(--ink)">Inneren Kanalstraße</b> Richtung Niehler Straße mit <span class="big">24.963</span>.</p>
-      <p>Dabei lief keine der beiden das ganze Jahr: Die B 55a blitzt erst seit dem <span class="big">14. August</span>.</p>
+      <span class="big">25.612</span> Fällen, knapp vor der <b style="color:var(--ink)">Inneren Kanalstraße</b> Richtung Niehler Straße mit <span class="big">24.963</span>.</p>
+      <p>Dabei lief keine der beiden das ganze Jahr: Die B 55a blitzt erst seit dem <span class="big">14. August</span>.
+      Beide liegen auf derselben Achse, Innere Kanalstraße, Zoobrücke, B 55a, beide in Fahrtrichtung Osten. An der Inneren Kanalstraße stehen gleich sechs feste Anlagen.</p>
     </div></div>
     <div class="step" data-idx="1"><div class="step-card">
       <span class="n">Akt 3 / Schritt 2</span>
       <h3>Pro Betriebstag gerechnet</h3>
       <p>Teilt man durch die Tage, an denen eine Anlage tatsächlich Fälle erzeugt hat, rücken die Neuen nach vorn:
-      die A 4 am Eifeltor mit bis zu <span class="big am">213</span> Fällen am Tag, die B 55a mit <span class="big am">187</span>.</p>
-      <p>Die Tempo-30-Anlagen am Kaiser-Wilhelm-Ring kommen „nur“ auf 45 und 29 am Tag — dafür an 364 Tagen im Jahr.</p>
+      die A 4 am Eifeltor mit bis zu <span class="big am">213</span> Fällen am Tag, die B 55a mit <span class="big am">187</span>.
+      Vorsicht bei der A 4: Sie lief 2025 nur 9 bzw. 14 Tage. Das sind Anfangswerte, und wie schnell die sinken, zeigt Akt 5.</p>
+      <p>Die Tempo-30-Anlagen am Kaiser-Wilhelm-Ring kommen „nur“ auf 45 und 29 am Tag, dafür an 364 Tagen im Jahr.</p>
     </div></div>
     <div class="step" data-idx="2"><div class="step-card">
       <span class="n">Akt 3 / Schritt 3</span>
-      <h3>Und was das kostet</h3>
+      <h3>Was das nach Katalog wert wäre</h3>
       <p>Legt man den Bußgeldkatalog an jeden einzelnen Fall, ergibt sich für alle Messstellen zusammen
-      rund <span class="big am">17,8 Mio. €</span> — eine Schätzung, ohne Gebühren, Rotlicht und Einsprüche.</p>
-      <p>An der Spitze pro Anlage: die Innere Kanalstraße mit <span class="big">≈ 1,1 Mio. €</span> — trotz weniger Fälle
-      knapp vor der B 55a, weil innerorts höhere Sätze gelten. Die Zahlen an den Balken zeigen die Schätzung je Anlage.</p>
+      ein Katalogwert von rund <span class="big am">18 Mio. €</span>. Das ist keine Einnahme: Gebühren, Rotlicht, Einstellungen und Einsprüche fehlen.
+      Im Schnitt sind es <span class="big">40 €</span> pro Fall, neun von zehn Fällen sind Verwarnungsgelder.</p>
+      <p>Die Rangfolge hängt an einer Annahme: Als innerorts gilt hier Limit ≤ 50. Dann liegt die Innere Kanalstraße mit ≈ 1,1 Mio. € knapp vorn.
+      Zählt man die B 55a (Tempo 80) ebenfalls als innerorts, käme sie auf ≈ 1,4 Mio. €.</p>
     </div></div>
   </div>
 </section>
@@ -465,54 +478,57 @@ footer a{color:var(--ink-2)}
     </div></div>
     <div class="step" data-idx="3"><div class="step-card" style="border-top-color:var(--red)">
       <span class="n">Akt 4 / Schritt 4</span>
-      <h3>Wo schwer gerast wird</h3>
-      <p><span class="sw" style="background:var(--red)"></span>Je Stadtteil der Anteil der mobilen Fälle mit
-      <span class="big">21 km/h und mehr</span> zu viel (Punkte in Flensburg). Köln-weit sind es <span class="big">2,8 %</span>.</p>
-      <p>Am höchsten liegt er in Merkenich (<span class="big rd">7,2 %</span>), Lind (6,3 %), Vingst (6,1 %) und Bickendorf (6,0 %),
-      am niedrigsten in Ossendorf (0,3 %). Grau: weniger als 300 mobile Fälle.</p>
-      <p>Der Wert beschreibt die Stellen, an denen gemessen wurde, nicht die Menschen, die im Stadtteil wohnen.</p>
+      <h3>Wo die Messungen die Schnellsten erwischen</h3>
+      <p>Vorweg: Die Farbe beschreibt Messstellen, nicht die Menschen im Stadtteil. Oft prägt eine einzige Stelle den Wert.</p>
+      <p><span class="sw" style="background:var(--red)"></span>Gezeigt ist der Anteil der mobilen Fälle mit <span class="big">21 km/h und mehr</span> zu viel
+      (Punkte in Flensburg), nur wo mindestens 30 solche Fälle an mindestens 3 Messstellen zusammenkommen. Köln-weit sind es <span class="big">2,8 %</span>.</p>
+      <p>Wie stark einzelne Stellen wirken, zeigt Merkenich: 85 % der schweren Fälle dort kommen von der Jungbluthstraße, einer Tempo-10-Strecke.
+      21 km/h zu viel heißt dort 34 km/h gemessen. In Eil stammen 94 % von einer Stelle an der Bensberger Straße.</p>
     </div></div>
   </div>
 </section>
 
 <!-- ================= AKT 5 ================= -->
-<section class="scrolly" data-act="5">
+<section class="scrolly" data-act="5" id="akt-5">
   <div class="graphic">
     <div class="fig" id="g5" data-step="-1">
       <svg id="svg5" viewBox="0 0 1060 600" role="img" aria-label="Lernkurve: Fälle pro Tag an zwei neuen Blitzern, Woche für Woche nach Inbetriebnahme, indexiert"></svg>
-      <div class="fig-title"><div class="t">Akt 5 · Die Lernkurve</div><div class="s">Fälle pro Betriebstag, Woche für Woche nach Inbetriebnahme · erste Woche = 100</div></div>
+      <div class="fig-title"><div class="t">Akt 5 · Die Lernkurve</div><div class="s">Fälle pro Betriebstag, Woche für Woche nach Inbetriebnahme · Wochen 0–1 = 100 · gepunktet: Anlagen im Bestand</div></div>
     </div>
   </div>
   <div class="steps">
     <div class="step" data-idx="0"><div class="step-card">
       <span class="n">Akt 5 / Schritt 1</span>
-      <h3>Ein neuer Blitzer ist eine Goldgrube — kurz</h3>
-      <p>Erste Woche an der B 55a: <span class="big">548 Fälle pro Tag</span>. Zweite Woche: 339. Nach 15 Wochen:
-      <span class="big am">114</span>. Das sind <span class="big am">−79 %</span> — danach pendelt sich die Anlage bei etwa einem Viertel ein.</p>
-      <p>Dass der Verkehr auf der B 55a um vier Fünftel zurückging, ist unwahrscheinlich — Verkehrszahlen liegen allerdings nicht vor.</p>
+      <h3>Ein neuer Blitzer wirkt, und zwar schnell</h3>
+      <p>In ihren ersten zwei Wochen löste die Anlage an der B 55a im Schnitt <span class="big">443-mal am Tag</span> aus.
+      In den Wochen 12 bis 19 sind es noch <span class="big am">127</span>: gut ein Viertel (<span class="big am">−71 %</span>).</p>
+      <p>Gepunktet zum Vergleich: 27 Anlagen, die das ganze Jahr messen. Sie bleiben im selben Zeitraum fast gleich (−5 %);
+      die Jahreszeit erklärt den Rückgang also nicht. Auch schwere Fälle werden seltener: Der Anteil mit 21 km/h und mehr zu viel
+      sinkt von 13,0 % auf 5,9 %.</p>
     </div></div>
     <div class="step" data-idx="1"><div class="step-card">
       <span class="n">Akt 5 / Schritt 2</span>
       <h3>K-Kennzeichen verschwinden schneller</h3>
       <p>Getrennt nach Kennzeichen: <span class="sw" style="background:var(--o1)"></span>Fahrzeuge mit <b style="color:var(--ink)">K</b> fallen
-      von 247 auf 38 Fälle am Tag (<span class="big">−85 %</span>),
-      <span class="sw" style="background:var(--muted-chart)"></span>alle anderen von 300 auf 76 (<span class="big">−75 %</span>).</p>
-      <p>Die naheliegende Deutung: Wer täglich vorbeifährt, merkt sich den Kasten. Wer nur durchfährt, bleibt länger „Kunde“.
-      (Das Kennzeichen nennt allerdings den Halter, nicht den Fahrer.)</p>
+      von 201 auf 44 Fälle am Tag (<span class="big">−78 %</span>),
+      <span class="sw" style="background:var(--muted-chart)"></span>alle anderen von 242 auf 82 (<span class="big">−66 %</span>).</p>
+      <p>Eine mögliche Deutung: Wer täglich vorbeifährt, merkt sich den Kasten. Genauso denkbar sind Blitzer-Apps oder Ausweichrouten,
+      und ob hinter dem Kasten wieder beschleunigt wird, zeigen die Daten nicht. Das Kennzeichen nennt den Halter, nicht den Fahrer.</p>
     </div></div>
     <div class="step" data-idx="2"><div class="step-card">
       <span class="n">Akt 5 / Schritt 3</span>
-      <h3>Kein Einzelfall</h3>
-      <p><span class="sw" style="background:var(--amber-soft)"></span>Gestrichelt: die Innere Kanalstraße (Richtung Niehler Straße) ab Mitte Mai.
-      Ähnliches Ergebnis, anderer Verlauf: drei Monate fast unverändert, dann ein steiler Abfall — von 213 auf rund 60 Fälle am Tag nach einem halben Jahr (<span class="big">−72 %</span>).</p>
-      <p>Nicht jede neue Anlage fällt so stark, an der Dellbrücker Hauptstraße waren es −56 %. Aber die Richtung ist eindeutig:
-      <b style="color:var(--ink)">Wo neu geblitzt wird, brechen die Verstöße ein</b> — ein starkes Indiz, dass dort langsamer gefahren wird.</p>
+      <h3>Nicht jede neue Anlage wirkt so</h3>
+      <p><span class="sw" style="background:var(--amber-soft)"></span>Die Innere Kanalstraße (Richtung Niehler Straße, ab Mitte Mai) fällt von rund 200
+      auf gut 80 Fälle am Tag (<span class="big">−59 %</span>). Der größte Teil kam aber abrupt Mitte August. Das passt eher zu einem äußeren Anlass,
+      etwa Baustelle, Umleitung oder Ferienende, als zu Lernen. Die Ursache ist offen.</p>
+      <p>Bei den kleineren neuen Anlagen 2025 schwankt es zwischen −22 % und +29 %. Stark bricht es nur an den beiden großen ein.
+      Heißt: An der Messstelle selbst wird nach einem neuen Blitzer oft langsamer gefahren, aber nicht überall gleich stark, und was hinter dem Kasten passiert, bleibt offen.</p>
     </div></div>
   </div>
 </section>
 
 <!-- ================= AKT 6 ================= -->
-<section class="scrolly" data-act="6">
+<section class="scrolly" data-act="6" id="akt-6">
   <div class="graphic">
     <div class="fig" id="g6" data-step="-1">
       <svg id="svg6" viewBox="0 0 1060 600" role="img" aria-label="Herkunft der geblitzten Fahrzeuge nach Kennzeichen, getrennt nach Messart"></svg>
@@ -524,13 +540,13 @@ footer a{color:var(--ink-2)}
       <span class="n">Akt 6 / Schritt 1</span>
       <h3>Knapp die Hälfte kommt aus Köln</h3>
       <p><span class="big">48,5 %</span> aller Fälle tragen ein K-Kennzeichen. Ein weiteres Fünftel stammt aus den
-      fünf Nachbarn — Rhein-Erft-Kreis (BM), Rheinisch-Bergischer Kreis (GL), Rhein-Sieg-Kreis (SU), Rhein-Kreis Neuss (NE) und Leverkusen.</p>
+      fünf Nachbarn: Rhein-Erft-Kreis (BM), Rheinisch-Bergischer Kreis (GL), Rhein-Sieg-Kreis (SU), Rhein-Kreis Neuss (NE) und Leverkusen.</p>
       <p>Insgesamt tauchen <span class="big">648</span> verschiedene deutsche Kennzeichen-Kürzel auf.</p>
     </div></div>
     <div class="step" data-idx="1"><div class="step-card">
       <span class="n">Akt 6 / Schritt 2</span>
       <h3>Bei mobilen Messungen: 61 % Kölner</h3>
-      <p>Mobile Messungen finden zu 84 % bei Tempo 30 statt, verteilt über 600 Stellen im Stadtgebiet.
+      <p>Mobile Messungen finden zu 84 % bei Tempo 30 statt, meist in Wohnstraßen, verteilt über 600 Stellen im Stadtgebiet.
       Dort kommen <span class="big bl">60,8 %</span> der Geblitzten aus Köln.</p>
     </div></div>
     <div class="step" data-idx="2"><div class="step-card">
@@ -538,21 +554,22 @@ footer a{color:var(--ink-2)}
       <h3>An festen Blitzern: nur noch 38 %</h3>
       <p>An den festen Anlagen kippt das Bild: <span class="big am">37,5 %</span> Kölner, dafür
       <span class="big">36,9 %</span> aus dem übrigen Deutschland.</p>
-      <p>Durchgangsverkehr auf B 55a und A 4 erklärt das kaum: Auch ohne diese Anlagen bleibt der Köln-Anteil bei knapp 38 %.
-      Eine mögliche Erklärung passt zu Akt 5: <b style="color:var(--ink)">Einen festen Blitzer kennt man — wenn man von hier ist.</b></p>
+      <p>Durchgangsverkehr auf B 55a und A 4 erklärt das allein nicht: Auch ohne diese Anlagen bleibt der Köln-Anteil bei knapp 38 %.
+      Viel erklärt aber, wo gemessen wird: Die festen Anlagen stehen an Hauptachsen mit vielen Einpendlern, mobil wird vor allem in Wohnstraßen gemessen.
+      Dazu eine Hypothese, die zu Akt 5 passt: <b style="color:var(--ink)">Einen festen Blitzer kennt, wer von hier ist.</b></p>
     </div></div>
     <div class="step" data-idx="3"><div class="step-card">
       <span class="n">Akt 6 / Schritt 4</span>
       <h3>Die Gäste</h3>
-      <p>Die häufigsten Kennzeichen nach K: BM, GL und SU. Bemerkenswert weit oben: <b style="color:var(--ink)">M, HH, WI und B</b> —
+      <p>Die häufigsten Kennzeichen nach K: BM, GL und SU. Bemerkenswert weit oben: <b style="color:var(--ink)">M, HH, WI und B</b>,
       Kürzel, unter denen auch viele Firmen-, Miet- und Leasingwagen zugelassen sein dürften. Das Kennzeichen verrät den Halter, nicht, wer am Steuer saß.</p>
-      <p>Und die B 55a Richtung Olpe? Dort ist nach K das häufigste Kürzel <span class="big">GL</span>, gefolgt von <span class="big">GM</span> — die Pendler ins Bergische.</p>
+      <p>Und die B 55a Richtung Olpe? Dort ist nach K das häufigste Kürzel <span class="big">GL</span>, gefolgt von <span class="big">GM</span>: die Pendler ins Bergische.</p>
     </div></div>
   </div>
 </section>
 
 <!-- ================= AKT 7 ================= -->
-<section class="scrolly" data-act="7">
+<section class="scrolly" data-act="7" id="akt-7">
   <div class="graphic">
     <div class="fig" id="g7" data-step="-1">
       <svg id="svg7" viewBox="0 0 1060 600" role="img" aria-label="Verteilung der vorwerfbaren Überschreitung in km/h mit Bußgeld-Stufen"></svg>
@@ -562,27 +579,27 @@ footer a{color:var(--ink-2)}
   <div class="steps">
     <div class="step" data-idx="0"><div class="step-card">
       <span class="n">Akt 7 / Schritt 1</span>
-      <h3>Die meisten sind 6 km/h zu schnell</h3>
-      <p>Der häufigste Wert ist <span class="big">6 km/h</span> zu viel — nach Abzug der Messtoleranz. Darunter gibt es
+      <h3>Die meisten liegen knapp über der Schwelle</h3>
+      <p>Der häufigste Wert ist <span class="big">6 km/h</span> zu viel nach Abzug der Messtoleranz (20,5 % aller Fälle). Darunter gibt es
       an festen und mobilen Anlagen praktisch keine Fälle; bei Tempo 30 heißt das: erst ab 39 km/h gemessen.
-      Ob das an der Geräteeinstellung oder an einer Verfolgungsgrenze liegt, verraten die Daten nicht.</p>
+      Ob das an der Geräteeinstellung oder an einer Verfolgungsgrenze liegt, verraten die Daten nicht. Ein Freibrief ist es nicht: Die Schwelle ist gelebte Praxis, kein Recht.</p>
       <p><span class="big">68 %</span> aller Fälle liegen bei 6 bis 10 km/h zu viel.</p>
     </div></div>
     <div class="step" data-idx="1"><div class="step-card">
       <span class="n">Akt 7 / Schritt 2</span>
       <h3>97 % ohne Punkte</h3>
-      <p><span class="sw" style="background:var(--muted-chart)"></span><span class="big">96,9 %</span> bleiben bei höchstens 20 km/h — keine Punkte.
+      <p><span class="sw" style="background:var(--muted-chart)"></span><span class="big">96,9 %</span> bleiben bei höchstens 20 km/h, ohne Punkte.
       90,2 % liegen sogar bei höchstens 15 km/h und kosten nur ein Verwarnungsgeld; ab 16 km/h ist es bereits ein Bußgeld (60–70 €).</p>
       <p><span class="sw" style="background:var(--sev1)"></span><span class="big">13.615</span> Fälle (3,1 %) bringen Punkte.
       <span class="sw" style="background:var(--red)"></span>Ab 31 km/h zu viel droht innerorts ein Fahrverbot.</p>
-      <p>Tempo 30 ist dabei der Normalfall: <span class="big">61,5 %</span> aller Fälle passieren bei Tempolimit 30.</p>
+      <p>Tempo 30 ist dabei der Normalfall: <span class="big">61,6 %</span> aller Fälle passieren bei Tempolimit 30.</p>
     </div></div>
     <div class="step" data-idx="2"><div class="step-card">
       <span class="n">Akt 7 / Schritt 3</span>
       <h3>Der lange Schwanz</h3>
       <p>Logarithmische Skala: Jetzt wird das Ende sichtbar. <span class="big rd">1.697</span> Fälle erreichen die
-      Fahrverbots-Grenze (innerorts ab 31, außerorts ab 41 km/h zu viel).</p>
-      <p>Ganz rechts der Sammelbalken „über 70 km/h zu viel“: 15 Fälle. Der Rekord liegt bei <span class="big rd">+146 km/h</span> — dazu gleich mehr.</p>
+      Fahrverbots-Grenze (innerorts ab 31, außerorts ab 41 km/h zu viel). Zählt man Tempo 60 bis 80 ebenfalls als innerorts, sind es bis zu 2.307.</p>
+      <p>Ganz rechts der Sammelbalken „über 70 km/h zu viel“: 15 Fälle. Der Rekord liegt bei <span class="big rd">+146 km/h</span>, dazu gleich mehr.</p>
     </div></div>
   </div>
 </section>
@@ -591,12 +608,12 @@ footer a{color:var(--ink-2)}
 <section class="prose" style="padding-bottom:30px">
   <div class="kicker red">Epilog I</div>
   <h2>203 km/h auf dem Raderthalgürtel</h2>
-  <p>Mittwoch, 30. April 2025, 19:20 Uhr. Die feste Anlage am Raderthalgürtel, erlaubt sind 50 km/h,
-  misst laut Datensatz <b>203 km/h</b>. Nach Toleranzabzug: 146 km/h zu viel — der Rekord des Jahres.
-  Platz zwei: die B 55a mit 191 km/h bei erlaubten 80, an einem Sonntagmorgen um 6:20 Uhr.</p>
-  <p>Unten jeder Fall ab 31 km/h zu viel, sortiert nach Tempolimit. Innerhalb jeder Spalte steht die Uhrzeit:
-  links Mitternacht, rechts 23 Uhr, rot hinterlegt die Nacht. Die Striche markieren das jeweilige Limit —
-  je weiter ein Punkt darüber liegt, desto absurder die Fahrt.</p>
+  <p>Mittwoch, 30. April 2025, 19:20 Uhr, am Vorabend des 1. Mai. Die feste Anlage am Raderthalgürtel, erlaubt sind 50 km/h,
+  misst laut Datensatz bei einem Pkw <b>203 km/h</b>. Nach Toleranzabzug: 146 km/h zu viel, der Rekord des Jahres.
+  Platz zwei: die B 55a mit 191 km/h bei erlaubten 80, an einem Sonntagmorgen um 6:20 Uhr, drei Tage nach dem Start der Anlage.</p>
+  <p>Unten jeder Fall ab 31 km/h zu viel, sortiert nach Tempolimit (deshalb mehr Fälle als die 1.697 in Akt 7: außerorts zählt das Fahrverbot erst ab 41).
+  Innerhalb jeder Spalte steht die Uhrzeit: links Mitternacht, rechts 23 Uhr, rot hinterlegt die Nacht. Die Striche markieren das jeweilige Limit.
+  Je weiter ein Punkt darüber liegt, desto absurder die Fahrt.</p>
 </section>
 <div class="wide static-fig">
   <div class="fig-title"><div class="t">Die Ausreißer</div><div class="s">Alle 2.307 Fälle ab 31 km/h zu viel · gemessene km/h nach Tempolimit · je Spalte 0 → 23 Uhr · Details: Maus/Tippen</div></div>
@@ -611,7 +628,7 @@ footer a{color:var(--ink-2)}
 <section class="prose" style="padding-bottom:30px">
   <div class="kicker">Epilog II</div>
   <h2>Der Raser-Atlas: Ihr Blitzer</h2>
-  <p>Alle 655 Messstellen des Jahres zum Durchsuchen — nach Straße, Stadtteil oder Richtung.
+  <p>Alle 655 Messstellen des Jahres zum Durchsuchen, nach Straße, Stadtteil oder Richtung.
   Klick auf eine Spaltenüberschrift sortiert. Die kleine Grafik rechts zeigt den Tagesverlauf von 0 bis 23 Uhr, <span style="color:var(--red)">rot</span> die Nachtstunden (22–6 Uhr).</p>
 </section>
 <div class="atlas">
@@ -641,16 +658,17 @@ footer a{color:var(--ink-2)}
 <!-- ================= FAZIT ================= -->
 <section class="prose">
   <div class="kicker">Fazit</div>
-  <h2>Was die 445.660 Fälle sagen — und was nicht</h2>
-  <p>Köln rast nicht mehr oder weniger als die Summe dieser Zeilen behauptet — die Summe beschreibt vor allem,
+  <h2>Was die 445.483 Fälle sagen, und was nicht</h2>
+  <p>Köln rast nicht mehr oder weniger, als die Summe dieser Zeilen behauptet. Die Summe beschreibt vor allem,
   <b>wo und wann die Stadt misst</b>. Die robusten Befunde stecken in den Verhältnissen:</p>
-  <p><b>Nachts</b> ist der Anteil schwerer Verstöße an festen Anlagen um 3 Uhr rund fünfmal (ab 21 km/h) bis zwanzigmal
-  (ab 31 km/h) so hoch wie um 14 Uhr.
-  <b>Die beiden großen neuen Anlagen</b> an B 55a und Innerer Kanalstraße verloren binnen drei bis sechs Monaten rund drei Viertel
-  ihrer Fälle — Fahrzeuge aus Köln verschwanden schneller aus der Statistik als auswärtige.
-  Und <b>die große Masse</b> ist knapp dran: 6 bis 10 km/h zu viel, meistens in Tempo 30.</p>
-  <p>Ob Blitzer Unfälle verhindern, können diese Daten nicht zeigen — dafür bräuchte man Unfall- und Verkehrsmengen
-  an denselben Stellen. Dass die Verstöße genau dort einbrechen, wo neu geblitzt wird, zeigen sie ziemlich deutlich.</p>
+  <p><b>Nachts</b> ist der Anteil schwerer Verstöße an den festen Anlagen deutlich höher: über die ganze Nacht, je Anlage bereinigt,
+  2,3-mal so hoch ab 21 km/h und 4,1-mal so hoch ab 31 km/h wie am Tag.
+  <b>Ein neuer Blitzer wirkt:</b> An der B 55a sank die Zahl der Fälle binnen drei Monaten auf gut ein Viertel, während die Anlagen im Bestand
+  stabil blieben, und auch die schweren Fälle wurden seltener. An kleineren neuen Anlagen ist der Effekt schwach oder nicht zu sehen.
+  Und <b>die große Masse</b> ist knapp dran: 97 % der Fälle liegen höchstens 20 km/h drüber, ohne Punkte, meistens in Tempo 30.</p>
+  <p>Ob Blitzer Unfälle verhindern, können diese Daten nicht zeigen, dafür bräuchte man Unfall- und Verkehrsmengen
+  an denselben Stellen. Und eine Frage bleibt an die Stadt: Mobil wird zu 90 % tagsüber und zu 80 % werktags gemessen.
+  Die schweren Verstöße passieren aber vor allem nachts.</p>
 </section>
 
 <!-- ================= GRENZEN ================= -->
@@ -659,10 +677,11 @@ footer a{color:var(--ink-2)}
   <h2>Grenzen dieser Analyse</h2>
 </section>
 <div class="limits">
-  <div class="limit-card"><h4>Messaufwand ≠ Raserei</h4><p>Fallzahlen steigen, wenn mehr gemessen wird. Vergleiche über Zeit und Orte sind nur bei gleichem Messaufwand fair — deshalb die festen Anlagen in Akt 2 und die Anteile in Akt 6.</p></div>
-  <div class="limit-card"><h4>Kein Verkehr im Nenner</h4><p>Die Daten enthalten keine Verkehrsmengen. Ohne sie lässt sich keine „Raserquote“ berechnen — nur, wie sich die Geblitzten zusammensetzen.</p></div>
-  <div class="limit-card"><h4>Kennzeichen = Halter</h4><p>Das Kürzel nennt den Zulassungsbezirk. Firmen-, Miet- und Leasingwagen sind oft zentral zugelassen — „München“ heißt nicht, dass ein Münchner fuhr.</p></div>
-  <div class="limit-card"><h4>Limit abgeleitet</h4><p>Das Tempolimit steht nicht in den Falldaten. Es wird aus Messwert, Überschreitung und Toleranz zurückgerechnet — für 98,7 % der Zeilen ergibt das ein glattes Limit.</p></div>
+  <div class="limit-card"><h4>Messaufwand ≠ Raserei</h4><p>Fallzahlen steigen, wenn mehr gemessen wird. Vergleiche über Zeit und Orte sind nur bei gleichem Messaufwand fair, deshalb die festen Anlagen in Akt 2 und die Anteile in Akt 6.</p></div>
+  <div class="limit-card"><h4>Kein Verkehr im Nenner</h4><p>Die Daten enthalten keine Verkehrsmengen. Ohne sie lässt sich keine „Raserquote“ berechnen, nur, wie sich die Geblitzten zusammensetzen.</p></div>
+  <div class="limit-card"><h4>Nur die Stadt</h4><p>Die Daten umfassen die Verkehrsüberwachung der Stadt Köln. Messungen der Polizei, etwa auf Autobahnen, fehlen.</p></div>
+  <div class="limit-card"><h4>Kennzeichen = Halter</h4><p>Das Kürzel nennt den Zulassungsbezirk. Firmen-, Miet- und Leasingwagen sind oft zentral zugelassen: „München“ heißt nicht, dass ein Münchner fuhr.</p></div>
+  <div class="limit-card"><h4>Limit abgeleitet</h4><p>Das Tempolimit steht nicht in den Falldaten. Es wird aus Messwert, Überschreitung und Toleranz zurückgerechnet und stimmt zu <span data-k5="limit"></span> mit dem Limit der Standorttabellen überein.</p></div>
   <div class="limit-card"><h4>Orte teils ungefähr</h4><p>Die Standorttabellen nennen Adressen, keine Koordinaten. <span data-k4="strasse_pct"></span> der Messstellen liegen nur auf Straßenebene (höchstens ±1 km), <span data-k4="fehlt"></span> fehlen auf der Karte. Details im Appendix unter „Karte &amp; Geocodierung“.</p></div>
   <div class="limit-card"><h4>Bußgeld = Schätzung</h4><p>Katalog-Sätze für Pkw, innerorts bei Limit ≤ 50 angenommen. Ohne Gebühren, Punkte-Folgekosten, Einstellungen und Einsprüche.</p></div>
 </div>
@@ -672,6 +691,8 @@ footer a{color:var(--ink-2)}
   <div class="kicker">Appendix</div>
   <h2>Methoden &amp; Daten</h2>
   <details class="gloss" id="gl-daten"><summary>Datenbasis</summary><div class="gloss-body">
+    <p>Presseberichte nannten für 2025 451.735 Fälle und für die B 55a 25.419. Diese Seite zählt 451.676 auswertbare Zeilen und daraus
+    445.483 Tempofälle, an der B 55a 25.612. Die Pressezahlen ließen sich nicht an der Originalquelle prüfen; Abgrenzung und Datenstand können abweichen.</p>
     <p>„Geschwindigkeitsüberwachung Köln ab 2025“, Stadt Köln, Offene Daten Köln, Lizenz Datenlizenz Deutschland – Zero – 2.0.
     Datei <code>Geschwindigkeitsueberwachung_Koeln_Gesamt_2025.csv</code> (21,6 MB, Latin-1, Semikolon) plus die Standorttabellen
     sloc-01, sloc-02, sloc-04 und sloc-11.</p>
@@ -680,21 +701,24 @@ footer a{color:var(--ink-2)}
   </div></details>
   <details class="gloss" id="gl-bereinigung"><summary>Bereinigung</summary><div class="gloss-body">
     <p>Die Datei ist ein aneinandergehängter SQL-Export mit Kopfzeile, Trennlinie und „(N Zeile(n) betroffen)“ je Monat.
-    Diese 59 Zeilen (Kopf-, Trenn- und Leerzeilen sowie 12 Zählzeilen) werden übersprungen; die Zeilenzahlen je Monat dienen als Kontrollsumme — sie stimmen für alle zwölf Monate.</p>
+    Diese 59 Zeilen (Kopf-, Trenn- und Leerzeilen sowie 12 Zählzeilen) werden übersprungen; die Zeilenzahlen je Monat dienen als Kontrollsumme, und sie stimmen für alle zwölf Monate.</p>
     <ul>
       <li><span class="m">5.905</span> Zeilen ohne Kennzeichen-Feld (Spalten um eins verrutscht) werden zurückgeschoben.</li>
       <li>Eine Handvoll Sonderkennzeichen (z. B. „NRW 5-“) sind zweigeteilt; auch sie werden normalisiert.</li>
       <li><span class="m">1</span> Zeile ohne Überschreitungswert wird verworfen → <span class="m">451.676</span> Zeilen.</li>
-      <li>Kreuzungsanlagen (K-04): Nur Zeilen mit plausiblem Limit 50/70 km/h zählen als Tempofall. Die übrigen
-      <span class="m">6.016</span> sind überwiegend Fälle ohne Überschreitung — vermutlich Rotlichtverstöße — und bleiben außen vor.
-      → <span class="m">445.660</span> Tempofälle.</li>
+      <li>Kreuzungsanlagen (K-04): Nur Zeilen mit plausiblem Limit 50/70 km/h und einer Überschreitung zählen als Tempofall. Die übrigen
+      <span class="m">6.193</span> sind überwiegend Fälle ohne Überschreitung, vermutlich Rotlichtverstöße, und bleiben außen vor
+      (seit Version 3.1 auch 177 Zeilen mit genau 0 km/h zu viel).
+      → <span class="m">445.483</span> Tempofälle.</li>
     </ul>
   </div></details>
   <details class="gloss" id="gl-limit"><summary>Tempolimit, Toleranz, innerorts</summary><div class="gloss-body">
     <p>Die „Überschreitung“ ist bereits der vorwerfbare Wert nach Toleranzabzug. Daraus lässt sich das Limit zurückrechnen:</p>
     <div class="gloss-formula">Limit = gemessen − Überschreitung − Toleranz   (Toleranz = 3 km/h bis 100 km/h, sonst 3 % aufgerundet)</div>
-    <p>Für feste und mobile Anlagen ergibt das bis auf zwei Einzelfälle ausschließlich die Werte 10, 20, 30, 50, 60 und 80 km/h — ein starker Hinweis,
-    dass die Rechnung stimmt. Eine Ortstafel kennen die Daten nicht; für Bußgeld und Fahrverbot gilt Limit ≤ 50 km/h als innerorts.</p>
+    <p>Für feste und mobile Anlagen ergibt das bis auf zwei Einzelfälle ausschließlich die Werte 10, 20, 30, 50, 60 und 80 km/h, ein starker Hinweis,
+    dass die Rechnung stimmt. Gegenprobe mit der Spalte „Limit Pkw“ der Standorttabellen: <span data-k5="limit_detail"></span>
+    Eine Ortstafel kennen die Daten nicht; für Bußgeld und Fahrverbot gilt Limit ≤ 50 km/h als innerorts. Die B 55a lief in ihren ersten sechs Tagen
+    noch mit Tempo 60 (<span data-k5="b55a_60"></span> Fälle).</p>
   </div></details>
   <details class="gloss" id="gl-dienst"><summary>Messarten: fest, mobil, Kreuzung</summary><div class="gloss-body">
     <p>Die Dienststellen-Codes sind in den Daten nicht erklärt. Die Zuordnung folgt dem Verhalten der Daten:</p>
@@ -702,20 +726,26 @@ footer a{color:var(--ink-2)}
       <li><b>S-01 · feste Anlagen</b>: 43 Standorte (Standorttabelle sloc-01), gleichmäßige Fälle rund um die Uhr.</li>
       <li><b>S-02 · mobile Messung</b>: 600 Standorte (sloc-02), überwiegend tagsüber und werktags (10 % der Fälle nachts, 20 % am Wochenende).</li>
       <li><b>K-04 · Kreuzungsanlagen</b>: 12 Standorte. Jeder ihrer Codes (7018 …) hat ein Gegenstück in der Tabelle sloc-04 mit +100
-      (7118 …), mit fast immer passendem Tempolimit — daraus leiten wir die Ortsnamen ab.</li>
+      (7118 …), mit fast immer passendem Tempolimit; daraus leiten wir die Ortsnamen ab.</li>
     </ul>
     <p>Die Tabelle sloc-11 (A 1, Rheinbrücke Leverkusen) hat 2025 keine Fälle.</p>
+    <p><b>Datenschutz:</b> Die Seite zeigt nur abgeleitete Kennzahlen. Bei Messstellen mit weniger als 5 Fällen blendet der Atlas Köln-Anteil,
+    Höchstwert und Tagesprofil aus, weil sie sonst Einzelfälle erkennbar machen würden.</p>
   </div></details>
   <details class="gloss" id="gl-lern"><summary>Lernkurve</summary><div class="gloss-body">
-    <p>Woche 0 beginnt am ersten Tag mit regulärem Betrieb (B 55a: 14.08.2025; Innere Kanalstraße: 15.05.2025 — drei Testfälle im März ignoriert).
-    Je Woche: Fälle ÷ Tage mit Fällen, damit Ausfälle (B 55a, Woche 2 — 28.08. bis 03.09. — nur 4 Betriebstage) die Kurve nicht verzerren. Index: erste Woche = 100.</p>
-    <p>Saisonale Einflüsse (die NRW-Sommerferien endeten am 26.08.), Wetter und Umleitungen sind nicht herausgerechnet; Verkehrsmengen fehlen.
-    Ein Rückgang um drei Viertel ist dafür allerdings sehr groß.</p>
+    <p>Woche 0 beginnt am ersten Tag mit regulärem Betrieb (B 55a: 14.08.2025; Innere Kanalstraße: 15.05.2025, drei Testfälle im März ignoriert).
+    Je Woche: Fälle ÷ Tage mit Fällen, damit Ausfälle (B 55a, Woche 2, 28.08. bis 03.09., nur 4 Betriebstage) die Kurve nicht verzerren.
+    Index: Durchschnitt der Wochen 0 und 1 = 100, verglichen mit dem Plateau in den Wochen 12 bis 19; einzelne Extremwochen tragen den Befund nicht.</p>
+    <p>Kontrollreihe: <span data-k5="kontrolle"></span> feste Anlagen, die das ganze Jahr Fälle liefern (erste Fälle bis 10.01., letzte ab 20.12.), je Anlagen-Betriebstag.
+    Die Gegenrichtung der B 55a (Richtung Zoobrücke) löst seit August ebenfalls seltener aus, <span data-k5="gegen"></span> pro Tag; ob das ein Ausstrahleffekt entlang der Strecke ist, bleibt offen.
+    Verkehrsmengen, Wetter und Umleitungen sind nicht herausgerechnet.</p>
+    <p>Alle 2025 neu gestarteten festen Anlagen, Fälle je Betriebstag in Woche 0–1 gegen Woche 12–19:</p>
+    <div class="mini-wrap"><table class="mini" id="tbl-neu"><thead><tr><th>Anlage</th><th>Start</th><th class="num">Woche 0–1</th><th class="num">Woche 12–19</th><th class="num">Veränderung</th></tr></thead><tbody></tbody></table></div>
   </div></details>
   <details class="gloss" id="gl-herkunft"><summary>Herkunft &amp; Kennzeichen</summary><div class="gloss-body">
     <p>Kürzel werden mit der Liste der Unterscheidungszeichen aus dem npm-Paket <code>german-license-plate-prefixes</code> (CC BY 3.0) aufgelöst.
     <b>Umland</b> = die fünf Nachbarn BM, GL, SU, NE, LEV. Kürzel ohne Treffer (Sonder-, Behörden-, Auslands- oder unvollständige Kennzeichen)
-    landen in „ohne/sonstige“. Die Spalte enthält vereinzelt Fragmente ausländischer Wunschkennzeichen — diese Seite zeigt nur Bezirks-Kürzel.</p>
+    landen in „ohne/sonstige“. Die Spalte enthält vereinzelt Fragmente ausländischer Wunschkennzeichen, diese Seite zeigt nur Bezirks-Kürzel.</p>
   </div></details>
   <details class="gloss" id="gl-bussgeld"><summary>Bußgeld-Schätzung</summary><div class="gloss-body">
     <p>Bußgeldkatalog für Pkw (BKatV, Stand seit 09.11.2021, 2025 unverändert): innerorts 30 € (bis 10 km/h) bis 800 € (über 70 km/h),
@@ -740,7 +770,7 @@ footer a{color:var(--ink-2)}
     </ul>
     <p>Weggelassen wurden Stellen, deren Angabe nur eine lange Straße nennt: <span data-k4="fehlend"></span>. Sie fehlen auf der Karte,
     zählen in den Stadtteilwerten aber mit, denn den Stadtteil nennt die Standorttabelle selbst (einzige Ausnahme „Feldkassel“, ein Ortsteil von Merkenich: Zuordnung über die Koordinate).</p>
-    <p><b>Stadtteile</b>: 86 Flächen aus OpenStreetMap. Der Anteil ≥ 21 km/h wird nur ab <span data-k4="min"></span> mobilen Fällen ausgewiesen.
+    <p><b>Stadtteile</b>: 86 Flächen aus OpenStreetMap. Der Anteil ≥ 21 km/h wird nur ab <span data-k4="min"></span> ausgewiesen, in drei Klassen und ohne Rangliste: Bei wenigen Messstellen prägt oft eine einzige den Wert.
     Kartengeometrie vereinfacht (Douglas-Peucker, 12–16 m), äquidistante Projektion; Koordinaten und Prüfliste liegen unter
     <code>koeln-raser/data/geo/</code> (<code>manual_coords.csv</code>, <code>messstellen_review.csv</code>).</p>
     <p>Kartendaten © OpenStreetMap-Mitwirkende (ODbL) · Geocodierung: Geoapify.</p>
@@ -749,7 +779,7 @@ footer a{color:var(--ink-2)}
     <p>Alles liegt im Repository unter <code>koeln-raser/</code>:</p>
     <div class="gloss-formula">python3 koeln-raser/scripts/build_db.py &amp;&amp; python3 koeln-raser/scripts/build_story_data.py &amp;&amp; python3 koeln-raser/scripts/build_story_html.py</div>
     <p>Die SQLite-Datenbank <code>raser_2025.sqlite</code> hat die Tabellen <code>verstoss</code>, <code>standort</code> und
-    <code>monat_kontrolle</code> — eigene Abfragen ausdrücklich erwünscht.</p>
+    <code>monat_kontrolle</code>. Eigene Abfragen sind ausdrücklich erwünscht.</p>
   </div></details>
 </section>
 
@@ -759,11 +789,11 @@ footer a{color:var(--ink-2)}
 
 <footer>
   Daten: Stadt Köln · Offene Daten Köln · „Geschwindigkeitsüberwachung Köln ab 2025“ · Datenlizenz Deutschland – Zero – 2.0<br>
-  Kennzeichen-Zuordnung: npm german-license-plate-prefixes (CC BY 3.0) · Bußgeldsätze: BKatV Tabelle 1<br>
-  Kartendaten © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL) · Geocodierung: Geoapify<br>
+  Kennzeichen-Zuordnung: npm german-license-plate-prefixes, Daten: Senatsverwaltung für Wirtschaft, Technologie und Forschung Berlin (<a href="https://creativecommons.org/licenses/by/3.0/de/">CC BY 3.0</a>) · Bußgeldsätze: BKatV Tabelle 1<br>
+  Kartendaten © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL) · Geocodierung: <a href="https://www.geoapify.com/">Powered by Geoapify</a><br>
   Diese Seite enthält nur abgeleitete Kennzahlen, keine Einzeldatensätze mit Kennzeichen<br>
   Analyse &amp; Visualisierung: Daten-WG · SQLite + handgebautes SVG, keine Chart-Bibliothek<br>
-  Version 3 (Karten-Akt) · Entwicklungsstand ansehen: <a href="koelner-raser-story-v1.html">Version 1</a> · <a href="koelner-raser-story-v2.html">Version 2</a><br>
+  Version 3.1 (Karten-Akt, überarbeitet nach Peer-Review) · Entwicklungsstand ansehen: <a href="koelner-raser-story-v1.html">Version 1</a> · <a href="koelner-raser-story-v2.html">Version 2</a><br>
   Kontakt: <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a>
 </footer>
 
@@ -1176,16 +1206,15 @@ const act4 = (function(){
   [true,false].forEach(side=>dodge(tl.filter(l=>l.right===side), MOB ? 26 : 18));
 
   // ---- Choroplethe: Anteil ≥ 21 km/h (mobile Messung) je Stadtteil ----
+  // drei Klassen an den Tertilen (auf 0,5 gerundet): mehr Stufen gäben kleine Unterschiede als Rangfolge aus
   const vals = K.stadtteile.map(t=>t.p21).filter(v=>v!=null).sort((a,b)=>a-b);
-  const brk = [...new Set([.2,.4,.6,.8].map(q=>Math.round(2*vals[Math.floor(q*vals.length)])/2))].filter(v=>v>vals[0]);
-  const RAMP = ["#3b2828","#5c3232","#843f3f","#b24f4f","#e66767"].slice(-(brk.length+1));
+  const brk = [...new Set([1/3,2/3].map(q=>Math.round(2*vals[Math.floor(q*vals.length)])/2))].filter(v=>v>vals[0]);
+  const RAMP = ["#4a2d2e","#944649","#e66767"].slice(-(brk.length+1));
   const NA = "#202125";
   const cls = v => v==null ? -1 : brk.filter(b=>v>=b).length;
   const colOf = t => t.p21==null ? NA : RAMP[cls(t.p21)];
   const rangeLab = i => i===0 ? `unter ${fmt1(brk[0])} %` : i===brk.length ? `ab ${fmt1(brk[i-1])} %` : `${fmt1(brk[i-1])}–${fmt1(brk[i])} %`;
-  const chl = el("g", {class:"chl", ...noev}, g);
-  const rank = K.stadtteile.filter(t=>t.p21!=null).sort((a,b)=>b.p21-a.p21);
-  rank.slice(0,3).forEach(t=>txt(chl, X(t.c[0]), Y(t.c[1])+4, `${t.name} ${fmt1(t.p21)} %`, {...halo, "text-anchor":"middle", class:"lab-strong", "font-size":12}));
+  const chl = el("g", {class:"chl", ...noev}, g);         // bewusst ohne Rangliste und Namen: Werte hängen oft an einer Stelle
 
   // ---- Legenden (je Schritt eine Gruppe) ----
   const lg = c => el("g", {class:"ly "+c, ...noev}, g);
@@ -1258,25 +1287,24 @@ const act4 = (function(){
     lastH = h; lastM = m;
   }
 
-  // Farbskala + Rangliste (Schritt 4)
-  const n21 = RAMP.length + 1;
+  // Farbskala (Schritt 4) — ohne Rangliste
+  const n21 = RAMP.length + 1, naLab = `zu wenig Daten (unter ${K.min_schwer} schweren Fällen oder ${K.min_ms} Messstellen)`;
   if (MOB){
     txt(lg3, 16, 638, "Anteil ≥ 21 km/h zu viel · mobile Messung", {class:"lab-soft"});
     const sw = (W-32)/n21;
     [...RAMP, NA].forEach((c,i)=>{ el("rect", {x:16+i*sw, y:652, width:sw-4, height:20, fill:c, stroke:"#3a3b40", "stroke-width":.6}, lg3);
-      txt(lg3, 16+i*sw, 698, i<RAMP.length ? rangeLab(i).replace(" %","").replace("unter ","<").replace("ab ","≥") : "zu wenig", {"font-size":12}); });
-    txt(lg3, 16, 740, `in % · Stadtteile unter ${K.min_faelle} Fällen grau`, {"font-size":12, fill:"var(--muted)"});
+      txt(lg3, 16+i*sw, 698, i<RAMP.length ? rangeLab(i).replace(" %","").replace("unter ","<").replace("ab ","≥")+" %" : "zu wenig Daten", {"font-size":12}); });
+    txt(lg3, 16, 740, "Werte beschreiben Messstellen, nicht Anwohner", {"font-size":12, fill:"var(--muted)"});
   } else {
     txt(lg3, 34, 150, "Anteil der Fälle mit ≥ 21 km/h zu viel", {"font-size":12.5, class:"lab-soft"});
     txt(lg3, 34, 168, "mobile Messung, je Stadtteil", {"font-size":12.5, class:"lab-soft"});
-    [...RAMP.map((c,i)=>[c, rangeLab(i)]).reverse(), [NA, `unter ${K.min_faelle} Fällen`]].forEach(([c,l],i)=>{
+    [...RAMP.map((c,i)=>[c, rangeLab(i)]).reverse(), [NA, "zu wenig Daten"]].forEach(([c,l],i)=>{
       el("rect", {x:34, y:186+i*24, width:22, height:16, fill:c, stroke:"#3a3b40", "stroke-width":.6}, lg3);
       txt(lg3, 66, 199+i*24, l, {"font-size":12.5}); });
-    const ly0 = 186 + (RAMP.length+1)*24 + 34;
-    txt(lg3, 34, ly0, "Höchste Anteile", {"font-size":12.5, class:"lab-strong"});
-    rank.slice(0,5).forEach((t,i)=>{
-      txt(lg3, 34, ly0+24+i*22, t.name, {"font-size":12.5});
-      txt(lg3, 330, ly0+24+i*22, fmt1(t.p21)+" %", {"font-size":12.5, "text-anchor":"end", class:"lab-strong"}); });
+    const ly0 = 186 + (RAMP.length+1)*24 + 30;
+    [`„Zu wenig Daten“: unter ${K.min_schwer} schweren Fällen`, `oder weniger als ${K.min_ms} Messstellen.`, "",
+     "Oft prägt eine einzige Messstelle den Wert,", "welche, zeigt der Tooltip. Die Farbe", "beschreibt Messstellen, nicht Anwohner."]
+      .forEach((l,i)=>txt(lg3, 34, ly0+i*20, l, {"font-size":12.5, fill: i>2 ? "var(--ink-2)" : "var(--muted)"}));
   }
   function setChor(on){ teile.forEach((p,i)=>{ p.style.fill = on ? colOf(K.stadtteile[i]) : "transparent";
     p.style.stroke = on ? "#0b0c0e" : ""; }); }
@@ -1288,10 +1316,11 @@ const act4 = (function(){
   const siteTip = o => { const q = o.s;
     return `<b>${siteName(q)}</b><br><span class="l">${ART[q.d]}${q.d!=="S-01" && q.ort ? " · "+q.ort : ""} · Tempo ${q.lim}</span>`+
       `<br><span class="l">Fälle</span> ${fmt(q.n)} · ${fmt1(q.pt)} pro Tag<br><span class="l">Ø zu viel</span> ${fmt1(q.avg)} km/h`+
-      `<br><span class="l">Köln-Anteil</span> ${fmt1(q.k)} %<br><span class="l">Lage</span> ${LAGE[o.acc]}`; };
+      (q.n >= 5 ? `<br><span class="l">Köln-Anteil</span> ${fmt1(q.k)} %` : "")+`<br><span class="l">Lage</span> ${LAGE[o.acc]}`; };
   const teilTip = t => `<b>${t.name}</b> <span class="l">· ${t.bezirk}</span><br><span class="l">mobile Fälle</span> ${fmt(t.n)} · ${t.ms} Messstellen`+
       (t.p21!=null ? `<br><span class="l">≥ 21 km/h zu viel</span> ${fmt1(t.p21)} %<br><span class="l">Ø zu viel</span> ${fmt1(t.avg)} km/h`
-                   : `<br><span class="l">zu wenig Fälle für einen Anteil (unter ${K.min_faelle})</span>`)+
+                   : `<br><span class="l">zu wenig Daten für einen Anteil (${fmt(t.n21)} schwere Fälle)</span>`)+
+      (t.top && t.n21 >= 10 ? `<br><span class="l">davon an einer Stelle</span> ${t.top.anteil} % · ${t.top.lage} (Tempo ${t.top.lim})` : "")+
       (t.fest ? `<br><span class="l">feste Anlagen/Kreuzungen</span> ${t.fest}` : "");
   function onPointer(ev){
     const m = svg.getScreenCTM(); if (!m) return;
@@ -1392,14 +1421,16 @@ const act5 = (function(){
   const svg = stage("#svg5"), fig = $("#g5"), g = el("g", {}, svg);
   const B = DATA.lernkurven["0015"], I = DATA.lernkurven["0005"];
   const per = (w, k) => w[k]/w.tage;
-  const idx = (arr, k) => { const b = per(arr[0], k); return arr.map(w=>[w.w, 100*per(w,k)/b, per(w,k)]); };
+  // Index: Durchschnitt der Wochen 0 und 1 = 100 (eine einzelne Startwoche wäre ein Ausreißer)
+  const base = (arr, k) => { const ws = arr.filter(w=>w.w<=1); return ws.reduce((s,w)=>s+w[k],0)/ws.reduce((s,w)=>s+w.tage,0); };
+  const idx = (arr, k) => { const b = base(arr, k); return arr.map(w=>[w.w, 100*per(w,k)/b, per(w,k)]); };
   const maxW = Math.max(B.wochen.at(-1).w, I.wochen.at(-1).w);
   const xr = W - M.r - (MOB ? 118 : 150);
-  const x = lin(0, maxW, M.l, xr), y = lin(0, 110, H-M.b, M.t+(MOB?40:30));
-  [0,25,50,75,100].forEach(v=>{ el("line",{x1:M.l,x2:xr,y1:y(v),y2:y(v),class:"tick"},g); txt(g, M.l-8, y(v)+4, v, {"text-anchor":"end"}); });
+  const x = lin(0, maxW, M.l, xr), y = lin(0, 130, H-M.b, M.t+(MOB?40:30));
+  [0,25,50,75,100,125].forEach(v=>{ el("line",{x1:M.l,x2:xr,y1:y(v),y2:y(v),class:"tick"},g); txt(g, M.l-8, y(v)+4, v, {"text-anchor":"end"}); });
   el("line", {x1:M.l, x2:xr, y1:y(0), y2:y(0), class:"axisline"}, g);
   const wstep = MOB ? 8 : 4;
-  for (let w=0; w<=maxW; w+=wstep) txt(g, x(w), H-M.b+20, (MOB ? "W " : "Woche ")+w, {"text-anchor":"middle","font-size":11});
+  for (let w=0; w<=maxW; w+=wstep) txt(g, x(w), H-M.b+20, (MOB ? "W " : "Woche ")+w, {"text-anchor": w ? "middle" : "start","font-size":11});
   const ends = [];
   function line(pts, cls, label, lcol){
     const grp = el("g", {class:cls.split(" ").pop()}, g);
@@ -1411,6 +1442,8 @@ const act5 = (function(){
     ends.push({t, y:y(last[1])+4, w:last[0]});
     return p;
   }
+  // Kontrollreihe: Anlagen, die das ganze Jahr messen, je Anlagen-Betriebstag ab dem Start der B 55a
+  const ctl = line(idx(B.kontrolle.filter(w=>w.w<=B.wochen.at(-1).w),"n"), "ctl s0t", MOB ? "Bestand" : `Bestand (${B.kontrolle_anlagen})`, "var(--muted-chart)");
   const t = line(idx(B.wochen,"n"), "tot s0t", "B 55a", "var(--ink)");
   const k = line(idx(B.wochen,"k"), "kln s1", "K", "var(--ink)");
   const a = line(idx(B.wochen,"a"), "aus s1", "andere", "var(--ink-2)");
@@ -1418,9 +1451,10 @@ const act5 = (function(){
   // End-Labels je Endwoche auseinanderschieben
   [...new Set(ends.map(e=>e.w))].forEach(w=>dodge(ends.filter(e=>e.w===w)));
   const ann = el("g", {class:"s0t"}, g);
-  const b0 = idx(B.wochen,"n");
-  txt(ann, x(0)+10, y(100)-10, `Woche 0: ${fmt(b0[0][2])} Fälle/Tag`, {class:"lab-strong","font-size":12.5});
-  txt(ann, x(15), y(b0[15][1])+28, `Woche 15: ${fmt(b0[15][2])}/Tag`, {"text-anchor":"middle", class:"lab-strong","font-size":12.5});
+  const W01 = base(B.wochen,"n"), ws = B.wochen.filter(w=>w.w>=12 && w.w<=19);
+  const W1219 = ws.reduce((s,w)=>s+w.n,0)/ws.reduce((s,w)=>s+w.tage,0);
+  txt(ann, x(0)+10, y(124)-12, `Woche 0–1: ${fmt(W01)} Fälle/Tag`, {class:"lab-strong","font-size":12.5});
+  txt(ann, x(15.5), y(100*W1219/W01)+30, `Woche 12–19: ${fmt(W1219)}/Tag`, {"text-anchor":"middle", class:"lab-strong","font-size":12.5});
   [t,k,a].forEach(prepDraw);
   let drawn = false;
   return {step(i){
@@ -1590,12 +1624,26 @@ const act7 = (function(){
     tr.innerHTML = `<td>${dateDE(e.datum)}</td><td>${e.zeit}</td><td>${e.lage || e.ort}</td><td class="num">${e.lim}</td><td class="num">${e.kmh}</td><td class="num">${e.ueber}</td>`; tb.appendChild(tr); });
 })();
 
+/* Appendix: Limit-Abgleich, Lernkurven-Details und alle neuen Anlagen direkt aus DATA */
+(function lernText(){
+  const L = DATA.limit_abgleich, B = DATA.b55a, LK = DATA.lernkurven["0015"];
+  const val = {limit: fmt1(L.anteil)+" %",
+    limit_detail: `Für ${fmt1(L.anteil)} % der Fälle stimmt das abgeleitete Limit mit ihr überein, ohne die Anlage ${L.groesste.name.split(" · ")[0]} sogar für ${fmt1(L.ohne_groesste)} %. Dort nennt die Tabelle Tempo ${L.groesste.tabelle}, die Daten ergeben das ganze Jahr Tempo ${L.groesste.daten} (${fmt(L.groesste.faelle)} Fälle).`,
+    b55a_60: fmt(B.limit60[0]), kontrolle: fmt(LK.kontrolle_anlagen),
+    gegen: `von ${fmt1(B.gegenrichtung_vorher)} auf ${fmt1(B.gegenrichtung_nachher)} Fälle`};
+  document.querySelectorAll("[data-k5]").forEach(e=>{ e.textContent = val[e.dataset.k5] ?? ""; });
+  const tb = $("#tbl-neu tbody");
+  if (tb) tb.innerHTML = DATA.neue_anlagen.map(a=>`<tr><td>${a.name}</td><td>${dateDE(a.start)}</td>`+
+    `<td class="num">${a.anfang_pt!=null ? fmt1(a.anfang_pt) : "–"}</td><td class="num">${a.plateau_pt!=null ? fmt1(a.plateau_pt) : "–"}</td>`+
+    `<td class="num">${a.delta!=null ? (a.delta>0 ? "+" : "")+a.delta+" %" : (a.tage < 30 ? "zu kurz" : "Lücke")}</td></tr>`).join("");
+})();
+
 /* Appendix und Grenzen: Genauigkeit der Karte direkt aus DATA.karte */
 (function karteText(){
   const K = DATA.karte; if (!K) return;
   const G = K.genauigkeit, n = DATA.standorte.length, p = v => `${fmt(v)} (${fmt1(100*v/n)} %)`;
   const val = {n: fmt(n), hausnummer: p(G.hausnummer), strasse: p(G.strasse), manuell: p(G.manuell), fehlt: fmt(G.fehlt),
-    fehlt_faelle: fmt(K.fehlend_faelle), strasse_pct: fmt(100*G.strasse/n)+" %", min: fmt(K.min_faelle),
+    fehlt_faelle: fmt(K.fehlend_faelle), strasse_pct: fmt(100*G.strasse/n)+" %", min: `${fmt(K.min_schwer)} schweren Fällen an mindestens ${K.min_ms} Messstellen`,
     osm_abgleich: fmt(K.korrekturen.osm_abgleich), von_hand: fmt(K.korrekturen.von_hand),
     fehlend: K.fehlend.map(f=>`${f.name.split(" · ")[0]} (${f.ort}, ${fmt(f.n)} Fälle)`).join("; ")};
   document.querySelectorAll("[data-k4]").forEach(e=>{ e.textContent = val[e.dataset.k4] ?? ""; });
@@ -1620,7 +1668,9 @@ const act7 = (function(){
     cnt.textContent = `${fmt(list.length)} von ${fmt(rows.length)} Messstellen`;
     tb.innerHTML = list.slice(0,limit).map(r=>`<tr>
       <td class="nm"><span class="tag ${art[r.d][1]}">${art[r.d][0]}</span>${r.name}<small>${[r.d!=="S-01"?r.ort:"", "Fälle ab "+dateDE(r.von)].filter(Boolean).join(" · ")}${act4.has(r.d+"|"+r.c) ? ` · <button class="tomap" type="button" data-k="${r.d}|${r.c}">auf der Karte</button>` : ""}</small></td>
-      <td>${r.lim}</td><td>${fmt(r.n)}</td><td>${r.tage}</td><td>${fmt1(r.pt)}</td><td>${fmt1(r.avg)}</td><td>${fmt1(r.p21)} %</td><td>${fmt1(r.k)} %</td><td>${r.vmax}</td><td>${spark(r.h)}</td></tr>`).join("");
+      <td>${r.lim}</td><td>${fmt(r.n)}</td><td>${r.tage}</td><td>${fmt1(r.pt)}</td><td>${fmt1(r.avg)}</td><td>${fmt1(r.p21)} %</td>${r.n >= 5
+        ? `<td>${fmt1(r.k)} %</td><td>${r.vmax}</td><td>${spark(r.h)}</td>`
+        : `<td title="unter 5 Fällen ausgeblendet">–</td><td title="unter 5 Fällen ausgeblendet">–</td><td></td>`}</tr>`).join("");
     more.style.display = list.length > limit ? "" : "none";
   }
   document.querySelectorAll("#atlas th[data-k]").forEach(th=>th.addEventListener("click", ()=>{

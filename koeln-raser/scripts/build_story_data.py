@@ -81,8 +81,10 @@ def prepare(con):
       CREATE TEMP VIEW tempo AS
         SELECT v.*, kmh - ueber - tol(kmh) AS lim
         FROM verstoss v
-        WHERE dienststelle != 'K-04' OR kmh - ueber - tol(kmh) IN (50, 70);
+        WHERE dienststelle != 'K-04' OR (kmh - ueber - tol(kmh) IN (50, 70) AND ueber > 0);
     """)
+    # K-04: Zeilen ohne Überschreitung (gemessen genau Limit + Toleranz) sind keine Tempofälle,
+    # vermutlich Rotlicht — seit v3.1 ausgeschlossen (Hinweis aus dem Peer-Review)
 
 
 def main():
@@ -125,7 +127,7 @@ def main():
 
     # ---- Akt 2: Uhr (nur stationär = 24/7 gleicher Messaufwand) ------------
     d["stunde_s01"] = [
-        {"h": h, "n": c, "p21": round(100 * a / c, 2), "p31": round(100 * b / c, 2), "avg": round(m, 1)}
+        {"h": h, "n": c, "p21": round(100 * a / c, 3), "p31": round(100 * b / c, 3), "avg": round(m, 1)}
         for h, c, a, b, m in q("""SELECT stunde, COUNT(*), SUM(ueber>=21), SUM(ueber>=31), AVG(ueber)
                                   FROM tempo WHERE dienststelle='S-01' GROUP BY 1""")]
     # Hero „Lichtspuren": deterministische Stichprobe echter Fälle der festen Anlagen
@@ -137,6 +139,25 @@ def main():
     for w, h, c, a in q("SELECT wochentag, stunde, COUNT(*), SUM(ueber>=21) FROM tempo WHERE dienststelle='S-01' GROUP BY 1, 2"):
         wh[w][h], wh21[w][h] = c, a
     d["woche_stunde_s01"] = {"n": wh, "n21": wh21}
+
+    # Nacht (22–6 Uhr) gegen Tag (10–18 Uhr), nur feste Anlagen: gepoolt und je Anlage bereinigt
+    # (Mantel-Haenszel-Risikoverhältnis), damit nicht zwei Extremstunden den Befund tragen
+    def nacht_tag(thr):
+        rows = q("""SELECT standort, SUM(n), SUM(n AND ueber>=?), SUM(t), SUM(t AND ueber>=?) FROM
+                    (SELECT standort, ueber, (stunde>=22 OR stunde<6) AS n, (stunde>=10 AND stunde<18) AS t
+                     FROM tempo WHERE dienststelle='S-01') GROUP BY 1""", thr, thr)
+        n1, a1 = sum(r[1] for r in rows), sum(r[2] for r in rows)
+        n0, a0 = sum(r[3] for r in rows), sum(r[4] for r in rows)
+        num = sum(a * t0 / (t1 + t0) for _, t1, a, t0, c in rows if t1 + t0)
+        den = sum(c * t1 / (t1 + t0) for _, t1, a, t0, c in rows if t1 + t0)
+        return {"nacht_faelle": n1, "nacht_schwer": a1, "nacht_p": round(100 * a1 / n1, 2),
+                "tag_faelle": n0, "tag_schwer": a0, "tag_p": round(100 * a0 / n0, 2),
+                "faktor": round((a1 / n1) / (a0 / n0), 1), "faktor_je_anlage": round(num / den, 1)}
+    d["nacht_tag"] = {"p21": nacht_tag(21), "p31": nacht_tag(31)}
+    # Fahrverbots-Tempo nur innerorts (Limit ≤ 50) um 3 und um 14 Uhr, mit Fallzahlen
+    d["innerorts_p31"] = {str(h): dict(zip(("n", "schwer", "p"), one(
+        "SELECT COUNT(*), SUM(ueber>=31), ROUND(100.0*SUM(ueber>=31)/COUNT(*),2) FROM tempo WHERE dienststelle='S-01' AND lim<=50 AND stunde=?", h)))
+        for h in (3, 14)}
 
     # ---- Akt 3: Orte -----------------------------------------------------
     # Standorttabelle als Lookup. K-04-Codes (7018 …) entsprechen sloc-04 mit +100 (7118 …):
@@ -170,6 +191,25 @@ def main():
     sites.sort(key=lambda s: -s["n"])
     d["standorte"] = sites
 
+    # Plausibilität des abgeleiteten Limits: Vergleich mit der Spalte limit_pkw der Standorttabellen
+    lp = {(dst, code): l for dst, code, l in q("SELECT dienststelle, code, limit_pkw FROM standort")}
+    tab = lambda dst, code: lp.get(("S-04", f"{int(code) + 100:04d}")) if dst == "K-04" else lp.get((dst, code))
+    ok = tot = 0
+    abw = {}
+    for dst, code, lim, c in q("SELECT dienststelle, standort, lim, COUNT(*) FROM tempo WHERE standort!='0000' GROUP BY 1, 2, 3"):
+        t = tab(dst, code)
+        if t is None:
+            continue
+        tot += c
+        if lim == t:
+            ok += c
+        else:
+            abw[(dst, code, t)] = abw.get((dst, code, t), 0) + c
+    (gd, gc, gt), gn = max(abw.items(), key=lambda kv: kv[1])
+    d["limit_abgleich"] = {"anteil": round(100 * ok / tot, 1), "ohne_groesste": round(100 * ok / (tot - gn), 1),
+                           "groesste": {"d": gd, "c": gc, "tabelle": gt, "daten": lim_mode[(gd, gc)][0], "faelle": gn,
+                                        "name": S01_NAMEN.get(gc) if gd == "S-01" else gc}}
+
     # ---- Akt 5: Lernkurven neuer Anlagen -----------------------------------
     lern = {}
     for code, name in (("0015", "B 55a, Ausfahrt Frankfurter Straße → Olpe"),
@@ -183,6 +223,46 @@ def main():
                     GROUP BY 1 ORDER BY 1""", start, code, start)
         lern[code] = {"name": name, "start": start,
                       "wochen": [{"w": w, "n": c, "k": k, "a": a, "tage": nd} for w, c, k, a, nd in rows]}
+    # Kontrollreihe: Anlagen, die das ganze Jahr liefern (erste Fälle bis 10.01., letzte ab 20.12.),
+    # Fälle je Anlagen-Betriebstag, wöchentlich ab dem Start der jeweiligen neuen Anlage
+    alt = [c for (c,) in q("""SELECT standort FROM tempo WHERE dienststelle='S-01' AND standort!='0000'
+                               GROUP BY 1 HAVING MIN(datum) <= '2025-01-10' AND MAX(datum) >= '2025-12-20'""")]
+    ph = ",".join("?" * len(alt))
+    for code, L in lern.items():
+        L["kontrolle"] = [{"w": w, "n": c, "tage": t} for w, c, t in q(f"""
+            SELECT CAST((julianday(datum) - julianday(?)) / 7 AS INT), COUNT(*), COUNT(DISTINCT standort || datum)
+            FROM tempo WHERE dienststelle='S-01' AND datum >= ? AND standort IN ({ph}) GROUP BY 1 ORDER BY 1""",
+            L["start"], L["start"], *alt)]
+        L["kontrolle_anlagen"] = len(alt)
+    # Alle 2025 neu gestarteten festen Anlagen: Fälle je Betriebstag in Woche 0–1 gegen Woche 12–19
+    neu = []
+    for code, first in q("""SELECT standort, MIN(datum) FROM tempo WHERE dienststelle='S-01' AND standort!='0000'
+                            GROUP BY 1 HAVING MIN(datum) > '2025-01-10' ORDER BY 2"""):
+        # Start = erster Tag, ab dem die Anlage an mindestens 4 der folgenden 7 Tage Fälle hat (Testfälle ignorieren)
+        days = [r[0] for r in q("SELECT DISTINCT datum FROM tempo WHERE dienststelle='S-01' AND standort=? ORDER BY 1", code)]
+        start = next((dt for i, dt in enumerate(days)
+                      if sum(1 for x in days[i:i + 7] if (date.fromisoformat(x) - date.fromisoformat(dt)).days < 7) >= 4), first)
+        wk = {w: (c, t, a) for w, c, t, a in q("""
+            SELECT CAST((julianday(datum) - julianday(?)) / 7 AS INT), COUNT(*), COUNT(DISTINCT datum), SUM(ueber>=21)
+            FROM tempo WHERE dienststelle='S-01' AND standort=? AND datum >= ? GROUP BY 1""", start, code, start)}
+        per = lambda ws: (sum(wk[w][0] for w in ws if w in wk), sum(wk[w][1] for w in ws if w in wk))
+        (b_n, b_t), (e_n, e_t) = per([0, 1]), per(range(12, 20))
+        s = next(x for x in sites if x["d"] == "S-01" and x["c"] == code)
+        neu.append({"c": code, "name": S01_NAMEN.get(code) or " · ".join(filter(None, [s["lage"] or s["ort"], s["ri"]])),
+                    "start": start, "bis": s["bis"], "tage": s["tage"], "n": s["n"],
+                    "anfang_pt": round(b_n / b_t, 1) if b_t else None,
+                    "plateau_pt": round(e_n / e_t, 1) if e_t >= 20 else None,
+                    "plateau_tage": e_t,
+                    "delta": round(100 * ((e_n / e_t) / (b_n / b_t) - 1)) if b_t and e_t >= 20 else None})
+    d["neue_anlagen"] = neu
+    # B 55a: Anteil ≥ 21 km/h in den ersten zwei Wochen gegen die letzten vier Wochen; Limit in den ersten Tagen
+    d["b55a"] = {
+        "p21_anfang": one("SELECT ROUND(100.0*SUM(ueber>=21)/COUNT(*),1) FROM tempo WHERE dienststelle='S-01' AND standort='0015' AND datum BETWEEN '2025-08-14' AND '2025-08-27'")[0],
+        "p21_ende": one("SELECT ROUND(100.0*SUM(ueber>=21)/COUNT(*),1) FROM tempo WHERE dienststelle='S-01' AND standort='0015' AND datum BETWEEN '2025-12-04' AND '2025-12-31'")[0],
+        "limit60": list(one("SELECT COUNT(*), MIN(datum), MAX(datum) FROM tempo WHERE dienststelle='S-01' AND standort='0015' AND lim=60")),
+        "gegenrichtung_vorher": one("SELECT ROUND(COUNT(*)*1.0/COUNT(DISTINCT datum),1) FROM tempo WHERE dienststelle='S-01' AND standort='0002' AND datum BETWEEN '2025-06-01' AND '2025-08-13'")[0],
+        "gegenrichtung_nachher": one("SELECT ROUND(COUNT(*)*1.0/COUNT(DISTINCT datum),1) FROM tempo WHERE dienststelle='S-01' AND standort='0002' AND datum BETWEEN '2025-10-01' AND '2025-12-31'")[0],
+    }
     d["lernkurven"] = lern
 
     # ---- Akt 6: Herkunft -------------------------------------------------
@@ -217,6 +297,8 @@ def main():
         "SELECT lim, COUNT(*), AVG(ueber), SUM(ueber>=21) FROM tempo GROUP BY 1 HAVING COUNT(*) > 100 ORDER BY 1")]
     d["fahrverbot"] = {
         "innerorts_ab31": one("SELECT COUNT(*) FROM tempo WHERE lim<=50 AND ueber>=31")[0],
+        "alle_ab31": one("SELECT COUNT(*) FROM tempo WHERE ueber>=31")[0],   # obere Grenze, falls Tempo 60–80 innerorts liegt
+        "genau6": one("SELECT COUNT(*) FROM tempo WHERE ueber=6")[0],
         "ausserorts_ab41": one("SELECT COUNT(*) FROM tempo WHERE lim>50 AND ueber>=41")[0],
         "punkte_ab21": one("SELECT COUNT(*) FROM tempo WHERE ueber>=21")[0],
         "bis10": one("SELECT COUNT(*) FROM tempo WHERE ueber<=10")[0],
@@ -245,7 +327,15 @@ def main():
             s_site[(dst, code)] = s_site.get((dst, code), 0) + e
         for s in d["standorte"]:
             s["eur"] = s_site.get((s["d"], s["c"]), 0)
-        d["bussgeld"] = {"summe_eur": s_all, "quelle": kat.get("quelle"), "stand": kat.get("stand")}
+        # Rangfolge-Check: die B 55a (Tempo 80), wenn man sie trotzdem als innerorts bewertet
+        b55_inner = sum(euro(u, True) * c for u, c in q(
+            "SELECT ueber, COUNT(*) FROM tempo WHERE dienststelle='S-01' AND standort='0015' AND ueber > 0 GROUP BY 1"))
+        d["bussgeld"] = {"summe_eur": s_all, "quelle": kat.get("quelle"), "stand": kat.get("stand"),
+                         "b55a_als_innerorts_eur": b55_inner}
+    # Messzeiten der mobilen Messung (für das Fazit): Anteil nachts (22–6 Uhr) und am Wochenende
+    mn, mnacht, mwe = one("SELECT COUNT(*), SUM(stunde>=22 OR stunde<6), SUM(wochentag>=5) FROM tempo WHERE dienststelle='S-02'")
+    d["meta"]["mobil_nacht_anteil"] = round(100 * mnacht / mn, 1)
+    d["meta"]["mobil_wochenende_anteil"] = round(100 * mwe / mn, 1)
 
     # ---- Akt 4: Karte (nur aus den versionierten Geodateien, kein Netz) ------
     if (ROOT / "data" / "geo" / "koeln_grenzen_osm.json.gz").exists():

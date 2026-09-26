@@ -64,7 +64,15 @@ Nicht versioniert: `geocode_cache.json` (Geocoder-Zwischenspeicher), `osm_adress
 (167.551 OSM-Adresspunkte + 27.021 Straßenabschnitte für den Abgleich, ~2,5 MB; per
 `fetch_geo.py --nur adressen` neu zu holen).
 
-Attribution auf der Seite: „Kartendaten © OpenStreetMap-Mitwirkende (ODbL) · Geocodierung: Geoapify“.
+Attribution auf der Seite: „Kartendaten © OpenStreetMap-Mitwirkende (ODbL) · Geocodierung: Powered by Geoapify“.
+Die aus OSM abgeleiteten Dateien dieses Ordners (Grenzen, Straßen, `manual_coords.csv`, `messstellen_geocoded.json`,
+`messstellen_review.csv`) stehen unter der ODbL; bei Weiterverwendung „© OpenStreetMap-Mitwirkende“ nennen.
+
+## C) Bilder für Blog und LinkedIn (`blog/assets/`)
+
+- `raser-*.png`, `raser-karussell.pdf`: eigene Grafiken aus `story_data.json` (`scripts/build_social.py`); Kartenfolie mit OSM-Attribution.
+- `koeln-nacht-hohenzollernbruecke.jpg`: „Köln bei Nacht, Blick auf die Hohenzollernbrücke“, Detlef Huhn, 17.10.2014,
+  CC BY-SA 4.0, via Wikimedia Commons (1920-px-Vorschau). Namensnennung steht unter dem Bild.
 
 ## Nicht verwendet
 
