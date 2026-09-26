@@ -5,6 +5,15 @@ Geschwister-Stück zu `rhein-story.html` (gleiches Designsystem, gleiche Scrolly
 
 Ergebnis: [`/koelner-raser-story.html`](../koelner-raser-story.html)
 
+## Versionen
+
+Frühere Fassungen bleiben unverändert im Repo liegen, damit die Entwicklung sichtbar bleibt.
+
+| Version | Datei | Stand |
+|---|---|---|
+| v1 | [`/koelner-raser-story-v1.html`](../koelner-raser-story-v1.html) | 25.09.2026 · sechs Akte, Ausreißer, Atlas; Hero mit Blitzpunkten |
+| v2 | [`/koelner-raser-story.html`](../koelner-raser-story.html) | laufend · Hero „Lichtspuren“ (Stichprobe echter Fälle als Langzeitbelichtung) |
+
 ## Pipeline
 
 ```bash

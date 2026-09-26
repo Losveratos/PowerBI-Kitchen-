@@ -125,6 +125,9 @@ def main():
         {"h": h, "n": c, "p21": round(100 * a / c, 2), "p31": round(100 * b / c, 2), "avg": round(m, 1)}
         for h, c, a, b, m in q("""SELECT stunde, COUNT(*), SUM(ueber>=21), SUM(ueber>=31), AVG(ueber)
                                   FROM tempo WHERE dienststelle='S-01' GROUP BY 1""")]
+    # Hero „Lichtspuren": deterministische Stichprobe echter Fälle der festen Anlagen
+    # (jede 97. Zeile) als [Stunde, gemessen km/h, Limit, zu viel]
+    d["hero"] = q("SELECT stunde, kmh, lim, ueber FROM tempo WHERE dienststelle='S-01' AND id % 97 = 0 ORDER BY id")
     d["stunde_s02"] = [c for _, c in q("SELECT stunde, COUNT(*) FROM tempo WHERE dienststelle='S-02' GROUP BY 1")]
     wh = [[0] * 24 for _ in range(7)]
     wh21 = [[0] * 24 for _ in range(7)]

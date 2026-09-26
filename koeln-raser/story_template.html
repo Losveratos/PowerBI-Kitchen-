@@ -41,7 +41,11 @@ body{background:var(--bg);color:var(--ink-2);font-family:var(--sans);font-size:1
 
 /* ---------- Hero ---------- */
 .hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center}
-.hero svg{position:absolute;inset:0;width:100%;height:100%}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.85}
+/* dunkler Kern hinter dem Text, damit die Lichtspuren nie mit der Schrift konkurrieren */
+.hero-vignette{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 52% 48% at 50% 48%,rgba(13,13,13,.9) 0%,rgba(13,13,13,.62) 55%,rgba(13,13,13,0) 100%),
+             linear-gradient(to bottom,rgba(13,13,13,.55),rgba(13,13,13,0) 22%,rgba(13,13,13,0) 78%,rgba(13,13,13,.8))}
 .hero-inner{position:relative;max-width:900px;padding:32px 24px;z-index:2}
 .hero-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--amber-soft);margin-bottom:22px}
 .hero h1{font-family:var(--sans);font-weight:750;font-size:clamp(38px,7vw,82px);line-height:1.04;color:var(--ink);letter-spacing:-.02em}
@@ -53,8 +57,6 @@ body{background:var(--bg);color:var(--ink-2);font-family:var(--sans);font-size:1
 .hero-clock b{color:var(--amber-soft);font-weight:600;font-variant-numeric:tabular-nums}
 .hero-scroll{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);animation:bob 2.2s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
-.flash{fill:var(--flash);opacity:0;animation:flash 1.1s ease-out forwards;transform-box:fill-box;transform-origin:center}
-@keyframes flash{0%{opacity:0;transform:scale(.4)}12%{opacity:.95;transform:scale(1.6)}100%{opacity:0;transform:scale(1)}}
 
 /* ---------- Prosa ---------- */
 .prose{max-width:660px;margin:0 auto;padding:80px 24px}
@@ -257,7 +259,8 @@ footer a{color:var(--ink-2)}
 
 <!-- ================= HERO ================= -->
 <header class="hero">
-  <svg id="hero-svg" viewBox="0 0 960 540" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-vignette" aria-hidden="true"></div>
   <a class="home-pill" href="index.html#posts-talks" rel="noopener">← Daten-WG Knowledge Kitchen</a>
   <div class="hero-inner">
     <div class="hero-eyebrow">Kölner Raser-Atlas · Geschwindigkeitsüberwachung 2025</div>
@@ -664,6 +667,7 @@ footer a{color:var(--ink-2)}
   Kennzeichen-Zuordnung: npm german-license-plate-prefixes (CC BY 3.0) · Bußgeldsätze: BKatV Tabelle 1<br>
   Diese Seite enthält nur abgeleitete Kennzahlen, keine Einzeldatensätze mit Kennzeichen<br>
   Analyse &amp; Visualisierung: Daten-WG · SQLite + handgebautes SVG, keine Chart-Bibliothek<br>
+  Version 2 (Lichtspuren-Hero) · Entwicklungsstand ansehen: <a href="koelner-raser-story-v1.html">Version 1</a><br>
   Kontakt: <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a>
 </footer>
 
@@ -746,30 +750,92 @@ const siteName = s => s.name || [s.lage || s.ort, s.ri].filter(Boolean).join(" �
 const hh = h => String(h).padStart(2,"0");
 
 /* ================================================================
-   Hero: ein Durchschnittstag der festen Anlagen im Zeitraffer.
-   1 Stunde = 1,25 s. Blitzdichte ∝ Fälle dieser Stunde.
+   Hero: Lichtspuren
 ================================================================ */
 (function hero(){
-  const svg = $("#hero-svg"), clock = $("#hero-clock");
-  const defs = el("defs", {}, svg);
-  const f = el("filter", {id:"glow", x:"-200%", y:"-200%", width:"500%", height:"500%"}, defs);
-  el("feGaussianBlur", {stdDeviation:"2.2", result:"b"}, f);
-  const mg = el("feMerge", {}, f); el("feMergeNode", {in:"b"}, mg); el("feMergeNode", {in:"SourceGraphic"}, mg);
+  /* „Langzeitbelichtung": jede Lichtspur ist ein echter Fall einer festen Anlage (Stichprobe DATA.hero:
+     [Stunde, gemessen, Limit, zu viel]). Länge und Tempo ∝ gemessene km/h, Farbe = Schwere,
+     beim Passieren des Blitzers blitzt es. Die Spurdichte folgt dem echten Tagesgang (DATA.stunde_s01),
+     ein Durchschnittstag läuft im Zeitraffer (1 Stunde = 1,25 s). */
+  const cv = $("#hero-canvas"), ctx = cv.getContext("2d"), clock = $("#hero-clock");
   const hrs = DATA.stunde_s01.map(d=>d.n), max = Math.max(...hrs);
-  const pool = [];
+  const byHour = Array.from({length:24}, ()=>[]);
+  DATA.hero.forEach(r=>byHour[r[0]].push(r));
+  const ptr = new Array(24).fill(0);
+  const LANES = 16;
+  let Wc = 0, Hc = 0, dpr = 1, lanes = [];
   let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
-  const spawn = () => {
-    const c = el("circle", {cx:(rnd()*960).toFixed(1), cy:(rnd()*540).toFixed(1), r:(1.6+rnd()*3).toFixed(1), class:"flash", filter:"url(#glow)"}, svg);
-    pool.push(c); if (pool.length > 90) pool.shift().remove();
-  };
-  if (REDUCED){ for (let i=0;i<120;i++) el("circle",{cx:rnd()*960, cy:rnd()*540, r:1.6, fill:"var(--flash)", opacity:.25}, svg); return; }
-  const t0 = performance.now(); let acc = 0, last = t0;
+  function resize(){
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    const r = cv.getBoundingClientRect();
+    Wc = cv.width = Math.round(r.width*dpr); Hc = cv.height = Math.round(r.height*dpr);
+    // Perspektive: oben fern (klein, langsam, dunkel), unten nah
+    lanes = Array.from({length:LANES}, (_,i)=>{
+      const z = i/(LANES-1), sc = .28 + .72*Math.pow(z, 1.35);
+      return {y: Hc*(.1 + .86*Math.pow(z, 1.15)), sc, cam: Wc*(.66 + (rnd()-.5)*.08)};
+    });
+  }
+  resize(); addEventListener("resize", resize);
+  const col = u => u>=31 ? [230,103,103] : u>=21 ? [224,138,104] : [240,181,74];
+  const cars = [], flashes = [];
+  function spawn(h){
+    const list = byHour[h]; if (!list.length) return;
+    const [ , kmh, , ueber] = list[ptr[h]++ % list.length];
+    const L = lanes[Math.floor(rnd()*LANES)];
+    const len = kmh * 5.5 * L.sc * dpr;
+    cars.push({L, kmh, ueber, x: Wc + rnd()*60*dpr, len, v: kmh * 11 * L.sc * dpr, c: col(ueber), fl: false});
+  }
+  function draw(dt){
+    ctx.clearRect(0,0,Wc,Hc);
+    ctx.globalCompositeOperation = "lighter";
+    // Fahrbahnmarkierungen als ganz leise Parallax-Striche
+    lanes.forEach((L,i)=>{ if (i%3) return;
+      ctx.strokeStyle = `rgba(255,255,255,${.035*L.sc})`; ctx.lineWidth = 1*dpr;
+      ctx.setLineDash([18*L.sc*dpr, 26*L.sc*dpr]); ctx.lineDashOffset = (performance.now()/1000*90*L.sc*dpr) % (44*L.sc*dpr);
+      ctx.beginPath(); ctx.moveTo(0, L.y+8*L.sc*dpr); ctx.lineTo(Wc, L.y+8*L.sc*dpr); ctx.stroke(); });
+    ctx.setLineDash([]);
+    for (let i=cars.length-1; i>=0; i--){
+      const c = cars[i]; c.x -= c.v*dt;
+      if (!c.fl && c.x <= c.L.cam){ c.fl = true; flashes.push({x:c.L.cam, y:c.L.y, sc:c.L.sc, t:0, hot:c.ueber>=21}); }
+      if (c.x + c.len < 0){ cars.splice(i,1); continue; }
+      const a = .45 + .55*c.L.sc, [r,g,b] = c.c;
+      ctx.shadowColor = `rgba(${r},${g},${b},.9)`; ctx.shadowBlur = 10*c.L.sc*dpr;
+      const grd = ctx.createLinearGradient(c.x, 0, c.x + c.len, 0);
+      grd.addColorStop(0, `rgba(${r},${g},${b},${a})`); grd.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      ctx.strokeStyle = grd; ctx.lineCap = "round";
+      ctx.lineWidth = (c.ueber>=31 ? 4.2 : 2.5) * c.L.sc * dpr;
+      ctx.beginPath(); ctx.moveTo(c.x, c.L.y); ctx.lineTo(c.x + c.len, c.L.y); ctx.stroke();
+      ctx.fillStyle = `rgba(255,244,214,${a})`;                       // Scheinwerfer-Kopf
+      ctx.beginPath(); ctx.arc(c.x, c.L.y, 2.2*c.L.sc*dpr, 0, 7); ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    for (let i=flashes.length-1; i>=0; i--){
+      const f = flashes[i]; f.t += dt; const k = 1 - f.t/.45;
+      if (k <= 0){ flashes.splice(i,1); continue; }
+      const R = (f.hot ? 95 : 60) * f.sc * dpr;
+      const rg = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, R);
+      rg.addColorStop(0, `rgba(255,250,235,${.95*k})`); rg.addColorStop(.18, `rgba(255,240,200,${.45*k})`); rg.addColorStop(1, "rgba(255,236,190,0)");
+      ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(f.x, f.y, R, 0, 7); ctx.fill();
+    }
+    ctx.globalCompositeOperation = "source-over";
+  }
+  if (REDUCED){                                   // ein ruhiges Standbild statt Animation
+    for (let i=0;i<70;i++){ spawn(Math.floor(rnd()*24)); const c = cars.at(-1); if (c) c.x = rnd()*Wc; }
+    cars.forEach(c=>c.fl = true); draw(0); return;
+  }
+  let visible = true;
+  new IntersectionObserver(es=>{ visible = es[0].isIntersecting; }).observe(cv);
+  const t0 = performance.now(); let last = t0, acc = 0;
   function tick(now){
-    const simH = ((now - t0) / 1250) % 24, h = Math.floor(simH);
-    acc += (now-last)/1000 * 26 * (hrs[h]/max); last = now;
-    while (acc >= 1){ spawn(); acc -= 1; }
-    const mm = String(Math.floor((simH%1)*60)).padStart(2,"0");
-    clock.innerHTML = `Durchschnittstag der festen Anlagen · <b>${hh(h)}:${mm}</b> Uhr · <b>${fmt(hrs[h]/365)}</b> Blitze pro Stunde`;
+    const dt = Math.min(.05, (now-last)/1000); last = now;
+    if (visible){
+      const simH = ((now - t0) / 1250) % 24, h = Math.floor(simH);
+      acc += dt * (2 + 30*hrs[h]/max);
+      while (acc >= 1){ spawn(h); acc -= 1; }
+      draw(dt);
+      const mm = String(Math.floor((simH%1)*60)).padStart(2,"0");
+      clock.innerHTML = `Durchschnittstag der festen Anlagen · <b>${hh(h)}:${mm}</b> Uhr · <b>${fmt(hrs[h]/365)}</b> Blitze pro Stunde`;
+    }
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
