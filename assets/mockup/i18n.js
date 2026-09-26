@@ -68,7 +68,7 @@
       pageRename: 'Seite umbenennen', pageDelete: 'Seite löschen', pageLeft: 'Seite nach links', pageRight: 'Seite nach rechts',
       splitRow: 'In Spalten teilen', splitCol: 'In Zeilen teilen', tileRemove: 'Kachel entfernen',
       slicerRemove: 'Slicer entfernen', filterMenu: 'Filter-Menü (Bookmark)', linkTo: 'Springt zu Seite', remove: 'entfernen',
-      rmNewField: 'Entfernen',
+      rmNewField: 'Entfernen', removeNamed: '{name} entfernen',
     },
 
     panel: { model: 'Datenmodell' },
@@ -129,6 +129,8 @@
     },
 
     hint: {
+      inkContrast: 'Kontrast Schrift zu Kachelgrund nur {r}:1 (Ziel: mindestens 4,5:1). Andere Schriftfarbe oder anderen Kachelgrund wählen.',
+      inkAuto: 'Auf dunklem Kachelgrund zeigt die Skizze die Schrift automatisch hell. Der Export übernimmt die gewählte Schriftfarbe.',
       report: 'Der Berichtskopf wandert in Brief, Workshop-Doku und PowerPoint. Ohne Zielgruppe und Entscheidung bleibt die Doku ein Bilderbuch.',
       lang: 'Gilt für Skizzen-Beschriftungen und Export-Dokumente.',
       uiScale: 'Schriften und Abstände skalieren automatisch mit der Canvas-Breite.',
@@ -192,6 +194,14 @@
     },
 
     tabexp: { pbir: 'pbir-visuals (aktuelle Seite)', prompt: 'Prompt für Claude Code' },
+
+    // Hinweis bei Handy-Breite (≤ 640 px): drei Bereiche passen nicht nebeneinander
+    mobile: {
+      h: 'Bitte am Desktop öffnen',
+      p: 'MockupKitchen braucht Platz für drei Bereiche nebeneinander: links das Datenmodell, in der Mitte die Berichtsseite, rechts die Eigenschaften. Auf dem Handy bleibt für die Seite nichts übrig.',
+      p2: 'Öffne den Link am Laptop oder Desktop, am besten ab 1280 px Breite.',
+      go: 'Trotzdem ansehen', colModel: 'Modell', colPage: 'Berichtsseite', colProps: 'Eigenschaften',
+    },
 
     help: {
       body: [
@@ -558,7 +568,7 @@
       pageRename: 'Rename page', pageDelete: 'Delete page', pageLeft: 'Move page left', pageRight: 'Move page right',
       splitRow: 'Split into columns', splitCol: 'Split into rows', tileRemove: 'Remove tile',
       slicerRemove: 'Remove slicer', filterMenu: 'Filter menu (bookmark)', linkTo: 'Jumps to page', remove: 'remove',
-      rmNewField: 'Remove',
+      rmNewField: 'Remove', removeNamed: 'Remove {name}',
     },
 
     panel: { model: 'Data model' },
@@ -619,6 +629,8 @@
     },
 
     hint: {
+      inkContrast: 'Text on tile background only reaches {r}:1 contrast (target: at least 4.5:1). Pick a different text colour or tile background.',
+      inkAuto: 'On a dark tile background the sketch shows the text in a light colour automatically. The export keeps the chosen text colour.',
       report: 'The report header travels into the brief, the workshop documentation and the PowerPoint. Without an audience and a decision the documentation stays a picture book.',
       lang: 'Applies to sketch labels and the export documents.',
       uiScale: 'Fonts and spacing scale automatically with the canvas width.',
@@ -682,6 +694,13 @@
     },
 
     tabexp: { pbir: 'pbir-visuals (current page)', prompt: 'Prompt for Claude Code' },
+
+    mobile: {
+      h: 'Please open on a desktop',
+      p: 'MockupKitchen needs room for three areas side by side: the data model on the left, the report page in the middle, the properties on the right. On a phone there is no space left for the page.',
+      p2: 'Open the link on a laptop or desktop, ideally at 1280 px width or more.',
+      go: 'View anyway', colModel: 'Model', colPage: 'Report page', colProps: 'Properties',
+    },
 
     help: {
       body: [

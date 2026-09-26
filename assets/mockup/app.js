@@ -287,7 +287,7 @@
   function renderPages() {
     const bar = $('#pagebar');
     bar.innerHTML = S.pages.map((p, i) => `<span class="ptab${p.id === S.cur ? ' act' : ''}" data-page="${p.id}"><span class="n">${i + 1}</span>${esc(p.name)}${p.id === S.cur ? `<span class="x" data-renpage="${p.id}" title="${esc(t('tip.pageRename'))}">✎</span>` : ''}<span class="x" data-delpage="${p.id}" title="${esc(t('tip.pageDelete'))}">×</span></span>`).join('')
-      + `<button class="padd" id="btnAddPage">${esc(t('btn.addPage'))}</button><span class="ptools"><button class="btn sm ghost" id="btnPageLeft" title="${esc(t('tip.pageLeft'))}">‹</button><button class="btn sm ghost" id="btnPageRight" title="${esc(t('tip.pageRight'))}">›</button></span>`;
+      + `<button class="padd" id="btnAddPage">${esc(t('btn.addPage'))}</button><span class="ptools"><button class="btn sm ghost" id="btnPageLeft" title="${esc(t('tip.pageLeft'))}" aria-label="${esc(t('tip.pageLeft'))}">‹</button><button class="btn sm ghost" id="btnPageRight" title="${esc(t('tip.pageRight'))}" aria-label="${esc(t('tip.pageRight'))}">›</button></span>`;
   }
   $('#pagebar').addEventListener('click', e => {
     const del = e.target.closest('[data-delpage]'); if (del) { delPage(del.dataset.delpage); return; }
@@ -351,10 +351,15 @@
 
   // ------------------------------------------------------------------ Rendering: Seite
   const pageEl = $('#page'), stage = $('#stage');
+  // Fokus in der Zeichenfläche halten (B42): Kachel mit dieser id, sonst die Seite selbst (tabindex=-1)
+  function focusCanvas(leafId) { const el = leafId ? pageEl.querySelector(`[data-leaf="${CSS.escape(leafId)}"]`) : null; (el || pageEl).focus({ preventScroll: true }); }
   function render() {
     const { w, h } = S.canvas; const c = S.chrome; const d = S.design; const k = ui();
+    // innerHTML ersetzt unten alle Kacheln; lag der Fokus darin, fiele er sonst auf <body> und der nächste Tab begänne oben
+    const fa = document.activeElement, faIn = !!fa && fa !== pageEl && pageEl.contains(fa), faTile = faIn && fa.closest('[data-leaf]');
     pageEl.style.width = w + 'px'; pageEl.style.height = h + 'px'; pageEl.style.transform = 'scale(' + zoom + ')';
-    pageEl.style.setProperty('--ui', k); pageEl.style.setProperty('--zoom', zoom); pageEl.style.setProperty('--tile-r', Math.round(d.radius * k) + 'px'); pageEl.style.setProperty('--page-bg', pageBgOf(d)); pageEl.style.setProperty('--accent', d.accent || '#C25A2D'); pageEl.style.setProperty('--tile-bg', d.tileBg || '#FFFFFF'); pageEl.style.setProperty('--ink-page', d.ink || '#0F1E2E'); pageEl.style.setProperty('--hdr-bg', d.headerBg || '#0F1E2E'); pageEl.style.setProperty('--hdr-ink', d.headerInk || '#FFFFFF'); const ty = typo(); pageEl.style.setProperty('--fs-title', (ty.title * ty.scale) + 'px'); pageEl.style.setProperty('--fs-sub', (ty.sub * ty.scale) + 'px');
+    // Kacheltitel und Eyebrow folgen derselben Hell/Dunkel-Regel wie die Skizze (tileHtml, render-png), sonst 1:1-Kontrast auf dunklem Kachelgrund (B5)
+    pageEl.style.setProperty('--ui', k); pageEl.style.setProperty('--zoom', zoom); pageEl.style.setProperty('--tile-r', Math.round(d.radius * k) + 'px'); pageEl.style.setProperty('--page-bg', pageBgOf(d)); pageEl.style.setProperty('--accent', d.accent || '#C25A2D'); pageEl.style.setProperty('--tile-bg', d.tileBg || '#FFFFFF'); pageEl.style.setProperty('--ink-page', isDark(d.tileBg) ? '#E6E6E6' : (d.ink || '#0F1E2E')); pageEl.style.setProperty('--hdr-bg', d.headerBg || '#0F1E2E'); pageEl.style.setProperty('--hdr-ink', d.headerInk || '#FFFFFF'); const ty = typo(); pageEl.style.setProperty('--fs-title', (ty.title * ty.scale) + 'px'); pageEl.style.setProperty('--fs-sub', (ty.sub * ty.scale) + 'px');
     pageEl.className = 'page tile-' + (d.tile || 'border');
     $('#stageInner').style.minWidth = `max(100%, ${Math.round(w * zoom + 56)}px)`; $('#stageInner').style.minHeight = `max(100%, ${Math.round(h * zoom + 56)}px)`;
     pageEl.style.marginRight = (w * zoom - w) + 'px'; pageEl.style.marginBottom = (h * zoom - h) + 'px';
@@ -380,10 +385,11 @@
       html += `<div class="zone filter ${c.filter.side}" style="${css(z.filter)}" data-dropfilter="1">${showHead ? `<h4>${esc(headTxt)}${c.filter.collapsible && c.filter.side !== 'top' ? ' ⧉' : ''}</h4>` : ''}${ftxt}${sl}<div class="sl ph">${esc(t('canvas.dropField'))}</div></div>`;
     }
     all.leaves.forEach(({ node, rect }) => { html += tileHtml(node, rect); });
-    all.gutters.forEach((g, i) => { html += `<div class="gutter ${g.dir === 'row' ? 'v' : 'h'}" data-gutter="${i}" style="${css(g.rect)}"><button type="button" class="gmerge" data-merge="${i}" title="${esc(t('tip.merge'))}">+</button></div>`; });
-    { const c0 = z.content, eb = (side, st) => `<button type="button" class="gedge ${side}" data-edge="${side}" style="${st}" title="${esc(t('tip.edge'))}">+</button>`;
+    all.gutters.forEach((g, i) => { html += `<div class="gutter ${g.dir === 'row' ? 'v' : 'h'}" data-gutter="${i}" style="${css(g.rect)}"><button type="button" class="gmerge" data-merge="${i}" title="${esc(t('tip.merge'))}" aria-label="${esc(t('tip.merge'))}">+</button></div>`; });
+    { const c0 = z.content, eb = (side, st) => `<button type="button" class="gedge ${side}" data-edge="${side}" style="${st}" title="${esc(t('tip.edge'))}" aria-label="${esc(t('tip.edge'))}">+</button>`;
       html += eb('left', `left:${c0.x}px;top:${c0.y + c0.h / 2}px`) + eb('right', `left:${c0.x + c0.w}px;top:${c0.y + c0.h / 2}px`) + eb('top', `left:${c0.x + c0.w / 2}px;top:${c0.y}px`) + eb('bottom', `left:${c0.x + c0.w / 2}px;top:${c0.y + c0.h}px`); }
     pageEl.innerHTML = html;
+    if (faIn) focusCanvas(faTile ? faTile.dataset.leaf : null);
     $('#stageInfo').textContent = t('canvas.info', { w, h, cw: z.content.w, ch: z.content.h, k: k.toFixed(2), z: Math.round(zoom * 100) });
     renderPages(); renderInspector(); renderModel(); syncPageInputs();
   }
@@ -392,7 +398,9 @@
   function tileHtml(node, rect) {
     const v = node.visual; const selc = sel === node.id ? ' sel' : ''; const k = ui();
     const tiny = rect.h < 70 * k || rect.w < 110 * k;
-    const acts = `<div class="t-actions"><button data-act="row" title="${esc(t('tip.splitRow'))}">⇔</button><button data-act="col" title="${esc(t('tip.splitCol'))}">⇕</button><button data-act="rm" title="${esc(t('tip.tileRemove'))}">✕</button></div>`;
+    // Icon-Knöpfe: aria-label wie title, sonst lesen Screenreader nur die Glyphe vor (B30)
+    const ib = (act, key, glyph) => `<button data-act="${act}" title="${esc(t(key))}" aria-label="${esc(t(key))}">${glyph}</button>`;
+    const acts = `<div class="t-actions">${ib('row', 'tip.splitRow', '⇔')}${ib('col', 'tip.splitCol', '⇕')}${ib('rm', 'tip.tileRemove', '✕')}</div>`;
     if (!v) return `<div class="tile empty${selc}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="${esc(t('canvas.emptyTile'))}" style="${css(rect)}"><span class="plus">+</span><span class="lbl">${tiny ? '' : esc(t('canvas.emptyHint'))}</span>${acts}</div>`;
     const def = CAT.byId[v.kind] || {}; const pad = Math.round(S.spacing.pad * k);
     const link = v.link ? S.pages.find(p => p.id === v.link) : null;
@@ -402,7 +410,11 @@
     const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - footH - pad - 6);
     const an = analysisOf(v);
     const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: def.plain ? 'AC' : v.scenario, seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: isDark(S.design.tileBg) ? '#E6E6E6' : (S.design.ink || '#404040'), dark: isDark(S.design.tileBg), paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral' }, samplesOpt(v))) : '';
-    const note = v.notes ? `<span class="note-ico" title="${esc(v.openQuestion ? t('canvas.noteOpen') : t('canvas.note'))}">${v.openQuestion ? '?' : '✎'}</span><div class="note-pop">${esc(v.notes)}</div>` : (v.openQuestion ? `<span class="note-ico" title="${esc(t('canvas.openQuestion'))}">?</span><div class="note-pop">${esc(t('canvas.openQuestionEmpty'))}</div>` : '');
+    // Notiz: Symbol in der Badge-Zeile, das Popup als eigenes Element der Seite rechtsbündig unter dem Kachelkopf (B47).
+    // In .badges schrumpfte es auf deren Breite (ca. 33 px) und wurde vom overflow:hidden der Kachel abgeschnitten.
+    const noteTxt = v.notes ? v.notes : (v.openQuestion ? t('canvas.openQuestionEmpty') : '');
+    const note = noteTxt ? `<span class="note-ico" data-note="${node.id}" title="${esc(v.notes ? (v.openQuestion ? t('canvas.noteOpen') : t('canvas.note')) : t('canvas.openQuestion'))}">${v.openQuestion ? '?' : '✎'}</span>` : '';
+    const notePop = noteTxt ? `<div class="note-pop" data-note-for="${node.id}" style="top:calc(${rect.y}px + 28px / var(--zoom));right:calc(${S.canvas.w - rect.x - rect.w}px + 6px / var(--zoom));max-width:min(calc(320px / var(--zoom)), ${Math.max(40, rect.x + rect.w - 8)}px)">${esc(noteTxt)}</div>` : '';
     const missing = CAT.rolesFor(def, v).filter(r => r.req && !(v.roles[r.key] || []).length).map(r => r.label);
     const req = missing.length ? `<span class="reqdot" title="${esc(t('canvas.reqEmpty', { roles: missing.join(', ') }))}"></span>` : '';
     const pri = v.priority ? `<span class="pri ${v.priority}" title="${esc(t('canvas.priority', { p: t('opt.pri.' + v.priority) }))}">${{ must: 'M', should: 'S', could: 'C' }[v.priority] || ''}</span>` : '';
@@ -411,8 +423,9 @@
       ${headH ? `<div class="t-head" style="--tf:${tileScale(v)}"><span class="t-title">${esc(v.title || def.label)}</span>${v.sub ? `<span class="t-sub">${esc(v.sub)}</span>` : ''}</div>` : ''}
       <div class="t-body">${svg}${ANTI[v.kind] ? '<div class="ap"></div>' : ''}</div>
       ${footH ? `<div class="t-foot">${chips}</div>` : ''}
-      <div class="badges">${req}${st}${pri}${note}<span class="badge${v.engine === 'ck' ? ' ck' : (v.engine === 'custom' ? ' cv' : '')}">${v.engine === 'ck' ? 'CK' : v.engine === 'deneb' ? 'Deneb' : v.engine === 'custom' ? 'CV' : 'PBI'}</span></div>${acts}</div>`;
+      <div class="badges">${req}${st}${pri}${note}<span class="badge${v.engine === 'ck' ? ' ck' : (v.engine === 'custom' ? ' cv' : '')}">${v.engine === 'ck' ? 'CK' : v.engine === 'deneb' ? 'Deneb' : v.engine === 'custom' ? 'CV' : 'PBI'}</span></div>${acts}</div>${notePop}`;
   }
+  const notePopFor = ico => pageEl.querySelector(`.note-pop[data-note-for="${CSS.escape(ico.dataset.note || '')}"]`);
   function roleChips(v) {
     const out = [];
     (CAT.byId[v.kind] ? CAT.byId[v.kind].roles : []).forEach(r => (v.roles[r.key] || []).forEach(f => out.push(`<span class="rchip${f.isNew ? ' new' : ''}" title="${esc(r.label)}">${esc(f.name)}</span>`)));
@@ -426,12 +439,16 @@
     if (rm) { S.chrome.filter.fields.splice(+rm.dataset.rmfilter, 1); commit(); return; }
     if (act && tile) { e.stopPropagation(); const id = tile.dataset.leaf; if (act.dataset.act === 'rm') removeLeaf(id); else splitLeaf(id, act.dataset.act); return; }
     const zc = e.target.closest('[data-zcfg]'); if (zc) { openFrameSection(zc.dataset.zcfg); return; }
-    const ico = e.target.closest('.note-ico');
-    $$('.note-pop.pinned', pageEl).forEach(p => { if (!ico || p !== ico.nextElementSibling) p.classList.remove('pinned'); });
-    if (ico) { const pop = ico.nextElementSibling; if (pop) pop.classList.toggle('pinned'); return; }
+    if (e.target.closest('.note-pop')) return;                             // Klick ins angeheftete Popup: stehen lassen
+    const ico = e.target.closest('.note-ico'); const icoPop = ico ? notePopFor(ico) : null;
+    $$('.note-pop.pinned', pageEl).forEach(p => { if (p !== icoPop) p.classList.remove('pinned'); });
+    if (ico) { if (icoPop) icoPop.classList.toggle('pinned'); return; }
     if (tile) { selectTile(tile.dataset.leaf); return; }
     sel = null; render();
   });
+  // Notiz beim Darüberfahren zeigen (das Popup ist kein Geschwister des Symbols mehr, daher per Klasse statt :hover + )
+  pageEl.addEventListener('mouseover', e => { const ico = e.target.closest && e.target.closest('.note-ico'); if (ico) { const p = notePopFor(ico); if (p) p.classList.add('hover'); } });
+  pageEl.addEventListener('mouseout', e => { const ico = e.target.closest && e.target.closest('.note-ico'); if (ico && !ico.contains(e.relatedTarget)) { const p = notePopFor(ico); if (p) p.classList.remove('hover'); } });
   pageEl.addEventListener('keydown', e => {
     const tile = e.target.closest && e.target.closest('[data-leaf]'); if (!tile) return;
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTile(tile.dataset.leaf); if (e.key === 'Enter' && !findNode(sel).node.visual) openCatalog(); }
@@ -561,7 +578,7 @@
     const rolesDef = CAT.rolesFor(def, v); const hasRef = rolesDef.some(r => r.key === 'ref');
     const roles = rolesDef.map(r => {
       const list = v.roles[r.key] || [];
-      const chips = list.map((x, i) => `<span class="fchip ${x.kind === 'measure' ? 'm' : 'c'}${x.isNew ? ' new' : ''}" draggable="false"><span class="ico">${x.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(x.name)}</span><button class="x" data-rmrole="${r.key}" data-i="${i}" title="${esc(t('tip.remove'))}">×</button></span>`).join('');
+      const chips = list.map((x, i) => `<span class="fchip ${x.kind === 'measure' ? 'm' : 'c'}${x.isNew ? ' new' : ''}" draggable="false"><span class="ico">${x.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(x.name)}</span><button class="x" data-rmrole="${r.key}" data-i="${i}" title="${esc(t('tip.remove'))}" aria-label="${esc(t('tip.removeNamed', { name: x.name }))}">×</button></span>`).join('');
       const kindLbl = r.kind === 'any' ? t('kind.any') : r.kind === 'measure' ? t('kind.measure') : t('kind.column');
       return `<div class="role" data-role="${r.key}"><div class="rl">${esc(r.label)}${r.req ? '<span class="req">*</span>' : ''}<span class="k">${esc(kindLbl)} · ${esc(t('canvas.maxN', { n: r.max }))}</span></div>${chips ? `<div class="chips">${chips}</div>` : ''}${list.length < r.max ? `<div class="drop">${esc(t('canvas.dropFieldRole'))} ${esc(t('canvas.orCreate'))} <button type="button" class="lnk" data-newfield="${r.key}" data-newkind="${r.kind}" title="${esc(t('canvas.createHereTip'))}">+ ${esc(t('canvas.createHere'))}</button></div>` : ''}</div>`;
     }).join('');
@@ -732,11 +749,14 @@
     $('#nvOn').checked = c.nav.on; $('#nvW').value = c.nav.w;
     $('#ftOn').checked = c.filter.on; $('#ftSide').value = c.filter.side; const fh0 = c.filter.heading || {}; $('#ftHeadShow').value = fh0.show || 'auto'; $('#ftHeadText').value = fh0.text || ''; $('#ftText').value = c.filter.text || ''; const ty0 = typo(); $('#tyScale').value = String(ty0.scale); $('#tyTitle').value = ty0.title; $('#tySub').value = ty0.sub; $('#tyChart').value = ty0.chart; $('#ftW').value = c.filter.side === 'top' ? (c.filter.topH || 56) : c.filter.w; $('#ftWHint').textContent = c.filter.side === 'top' ? t('hint.height') : t('hint.width'); $('#ftW').disabled = c.filter.side === 'burger';
     $('#ftCollapsible').checked = c.filter.collapsible; $('#ftCollapsibleRow').style.display = (c.filter.side === 'left' || c.filter.side === 'right') ? '' : 'none';
-    $('#ftFieldList').innerHTML = (c.filter.fields || []).map((f, i) => `<div class="row" style="margin-bottom:4px"><span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}" draggable="false" style="margin:0;flex:1;min-width:0"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span><button class="x" data-rmfilter2="${i}">×</button></span><select class="ctl" data-fttype="${i}" title="${esc(t('lbl.slicerType'))}" style="width:96px;padding:3px 4px;font-size:11px">${['dropdown', 'list', 'tile', 'button', 'between', 'date', 'relative', 'search'].map(k => `<option value="${k}" ${(f.type || 'dropdown') === k ? 'selected' : ''}>${esc(t('opt.slicer.' + k))}</option>`).join('')}</select><input class="ctl" data-ftdef="${i}" value="${esc(f.default || '')}" placeholder="${esc(t('ph.slicerDefault'))}" style="width:90px;padding:3px 6px;font-size:11.5px"></div>`).join('') || `<span class="hint">${esc(t('hint.noSlicers'))}</span>`;
+    $('#ftFieldList').innerHTML = (c.filter.fields || []).map((f, i) => `<div class="row" style="margin-bottom:4px"><span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}" draggable="false" style="margin:0;flex:1;min-width:0"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span><button class="x" data-rmfilter2="${i}" title="${esc(t('tip.slicerRemove'))}" aria-label="${esc(t('tip.removeNamed', { name: f.name }))}">×</button></span><select class="ctl" data-fttype="${i}" title="${esc(t('lbl.slicerType'))}" style="width:96px;padding:3px 4px;font-size:11px">${['dropdown', 'list', 'tile', 'button', 'between', 'date', 'relative', 'search'].map(k => `<option value="${k}" ${(f.type || 'dropdown') === k ? 'selected' : ''}>${esc(t('opt.slicer.' + k))}</option>`).join('')}</select><input class="ctl" data-ftdef="${i}" value="${esc(f.default || '')}" placeholder="${esc(t('ph.slicerDefault'))}" style="width:90px;padding:3px 6px;font-size:11.5px"></div>`).join('') || `<span class="hint">${esc(t('hint.noSlicers'))}</span>`;
     $('#ffOn').checked = c.footer.on; $('#ffH').value = c.footer.h; $('#ffText').value = c.footer.text;
     $('#dsRadius').value = String(d.radius); $('#dsTile').value = d.tile; $('#dsPageBg').value = d.pageBg; $('#dsHeader').value = d.header; $('#dsAccent').value = d.accent; $('#dsAccentTxt').textContent = d.accent;
     $('#dsPalette').value = d.palette || 'teal'; $('#dsNative').value = d.nativePalette || 'neutral'; $('#dsPageBgRow').hidden = d.pageBg !== 'custom'; $('#dsPageBgHex').value = d.pageBgHex || '#F4F4F1'; $('#dsPageBgHexTxt').textContent = d.pageBgHex || '#F4F4F1';
     $('#dsTileBg').value = d.tileBg || '#FFFFFF'; $('#dsTileBgTxt').textContent = d.tileBg || '#FFFFFF'; $('#dsInk').value = d.ink || '#0F1E2E'; $('#dsInkTxt').textContent = d.ink || '#0F1E2E';
+    // Kontrast direkt am Farbwähler zeigen (B5), nicht nur im eingeklappten Kontrast-Check weiter unten
+    { const r = window.MK_A11Y ? window.MK_A11Y.contrastRatio(d.ink || '#0F1E2E', d.tileBg || '#FFFFFF') : null; const warn = $('#dsInkWarn'); const low = r != null && r < 4.5; warn.hidden = !low;
+      if (low) warn.textContent = t('hint.inkContrast', { r: (Math.round(r * 10) / 10).toLocaleString(I18N.lang === 'en' ? 'en' : 'de') }) + (isDark(d.tileBg) ? ' ' + t('hint.inkAuto') : ''); }
     $('#dsHeaderRow').hidden = d.header !== 'custom'; $('#dsHeaderBg').value = d.headerBg || '#0F1E2E'; $('#dsHeaderBgTxt').textContent = d.headerBg || '#0F1E2E'; $('#dsHeaderInk').value = d.headerInk || '#FFFFFF'; $('#dsHeaderInkTxt').textContent = d.headerInk || '#FFFFFF';
     const dsel = $('#demoModelSel'); if (!dsel.options.length || dsel.dataset.lang !== S.lang) { dsel.innerHTML = CAT.demoModels.map(m => `<option value="${m.id}">${esc(m.label)}</option>`).join(''); dsel.dataset.lang = S.lang; dsel.value = S.demoId || 'controlling'; }
   }
@@ -812,8 +832,10 @@
 
   // ------------------------------------------------------------------ Vorlagen-Dialog
   $('#btnNew').onclick = () => { const n = S.pages.reduce((a, p) => a + leaves(p.layout).filter(l => l.visual).length, 0); if ((n || S.pages.length > 1) && !confirm(t('ask.newReplace', { n, p: S.pages.length }))) return; window.MK.reset(); toast(t('toast.newProject')); };
-  $('#btnTemplates').onclick = () => { $('#tplGrid').innerHTML = CAT.templates.map(tp => `<div class="tpl" data-tpl="${tp.id}"><div class="pv">${templateSvg(tp)}</div><b>${esc(tp.label)}</b><small>${esc(tp.desc)}</small></div>`).join(''); $('#dlgTemplates').showModal(); };
+  // Vorlagenkarten sind per Tab erreichbar und mit Enter/Leertaste wählbar, sonst hat der Dialog nur den Schließen-Knopf
+  $('#btnTemplates').onclick = () => { $('#tplGrid').innerHTML = CAT.templates.map(tp => `<div class="tpl" data-tpl="${tp.id}" role="button" tabindex="0" aria-label="${esc(tp.label)}"><div class="pv">${templateSvg(tp)}</div><b>${esc(tp.label)}</b><small>${esc(tp.desc)}</small></div>`).join(''); $('#dlgTemplates').showModal(); };
   $('#tplGrid').addEventListener('click', e => { const el = e.target.closest('[data-tpl]'); if (!el) return; applyTemplate(el.dataset.tpl); $('#dlgTemplates').close(); });
+  $('#tplGrid').addEventListener('keydown', e => { if (e.key !== 'Enter' && e.key !== ' ') return; const el = e.target.closest('[data-tpl]'); if (!el) return; e.preventDefault(); el.click(); });
   function templateSvg(tp) {
     const tree = tp.tree(); const out = { leaves: [], gutters: [] }; layoutRects(tree, { x: 2, y: 2, w: 196, h: 92 }, out, 3);
     return `<svg viewBox="0 0 200 96">${out.leaves.map(l => `<rect x="${l.rect.x}" y="${l.rect.y}" width="${l.rect.w}" height="${l.rect.h}" rx="2" fill="${l.node.visual ? '#E9EEF5' : '#fff'}" stroke="#C9C6BA" stroke-dasharray="${l.node.visual ? '' : '3 2'}"/>${l.node.visual ? `<text x="${l.rect.x + 4}" y="${l.rect.y + 11}" font-size="7" fill="#475569" font-family="Geist,system-ui">${esc((CAT.byId[l.node.visual.kind] || {}).label || '').slice(0, Math.max(3, l.rect.w / 5))}</text>` : ''}`).join('')}</svg>`;
@@ -907,7 +929,7 @@
       return `<span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}${used.has(key) ? ' used' : ''}" draggable="true" data-field='${esc(JSON.stringify({ table, name: f.name, kind: f.kind, type: f.type || '', isNew: !!f.isNew }))}' title="${esc((f.desc || '') + (f.type ? ' · ' + f.type : '') + (f.open ? ' · offen: ' + f.open : ''))}"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span>${extra || ''}</span>`;
     };
     let html = '';
-    if (S.newFields.length) html += `<div class="table-block open"><div class="table-head"><span class="car">▸</span>${esc(t('model.newGroup'))}<span class="cnt">${S.newFields.length}</span></div><div class="table-body">${S.newFields.map((f, i) => chip(f, f.table, `<button class="x" data-rmnew="${i}" title="${esc(t('tip.rmNewField'))}">×</button>`)).join('')}</div></div>`;
+    if (S.newFields.length) html += `<div class="table-block open"><div class="table-head"><span class="car">▸</span>${esc(t('model.newGroup'))}<span class="cnt">${S.newFields.length}</span></div><div class="table-body">${S.newFields.map((f, i) => chip(f, f.table, `<button class="x" data-rmnew="${i}" title="${esc(t('tip.rmNewField'))}" aria-label="${esc(t('tip.removeNamed', { name: f.name }))}">×</button>`)).join('')}</div></div>`;
     if (!m.tables.length && !S.newFields.length) html += `<div class="empty-model"><strong>${esc(t('model.emptyTitle'))}</strong>${esc(t('model.emptyText'))}</div>`;
     m.tables.forEach(tb => {
       const inner = tb.measures.map(f => chip(f, tb.name)).join('') + tb.columns.filter(c => !c.hidden || used.has(tb.name + '|' + c.name)).map(f => chip(f, tb.name)).join('');
@@ -1006,11 +1028,39 @@
   function togglePresent(on) { document.body.classList.toggle('present', on); const p = document.body.classList.contains('present'); const b = $('#btnPresent'); b.textContent = p ? t('btn.presentEnd') : t('btn.present'); b.setAttribute('data-i18n', p ? 'btn.presentEnd' : 'btn.present'); setTimeout(() => { fitZoom(); render(); }, 30); }
   $('#btnPresent').onclick = () => togglePresent();
   $$('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
+  // Tab-Umlauf in offenen Dialogen (B4). Die native Fokusfalle von showModal() springt in Chromium/Edge am Ende der Reihe
+  // kurz auf <body> (kein Fokusring), und scrollbare Dialogflächen werden zu unsichtbaren Stopps. Deshalb die Reihe selbst führen.
+  const FOCUSABLE = 'a[href], button, input, select, textarea, summary, [tabindex]';
+  function dialogStops(dlg) {
+    const vis = el => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+    return $$(FOCUSABLE + ', .dlg-body, pre.code', dlg).filter(el => {
+      if (el.matches('.dlg-body, pre.code') && (!el.hasAttribute('tabindex') || el.hasAttribute('data-scrollstop'))) {
+        // Scrollfläche ohne eigene Bedienelemente: als Stopp aufnehmen, damit sie per Tastatur scrollbar bleibt
+        const stop = el.scrollHeight > el.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(el).overflowY) && !$$(FOCUSABLE, el).some(vis);
+        if (stop) { el.setAttribute('tabindex', '0'); el.setAttribute('data-scrollstop', ''); } else if (el.hasAttribute('data-scrollstop')) { el.removeAttribute('tabindex'); el.removeAttribute('data-scrollstop'); }
+        return stop && vis(el);
+      }
+      return !el.disabled && el.tabIndex >= 0 && vis(el) && !(el.tagName === 'INPUT' && el.type === 'hidden');
+    });
+  }
+  function openDialog() { const open = $$('dialog[open]'); return open.find(d => d.contains(document.activeElement)) || open[open.length - 1] || null; }
+  function trapTab(e, dlg) {
+    const stops = dialogStops(dlg); e.preventDefault(); if (!stops.length) return;
+    const a = document.activeElement; let i = stops.indexOf(a), j;
+    if (i >= 0) j = (i + (e.shiftKey ? -1 : 1) + stops.length) % stops.length;
+    else if (a && a !== dlg && dlg.contains(a)) {                             // Fokus auf einem Element ohne Stopp: nach Dokumentreihenfolge weiter
+      const after = stops.findIndex(s => a.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING);
+      j = e.shiftKey ? (after < 0 ? stops.length - 1 : (after - 1 + stops.length) % stops.length) : (after < 0 ? 0 : after);
+    } else j = e.shiftKey ? stops.length - 1 : 0;
+    stops[j].focus();
+  }
+  // Nach dem Schließen: war der Auslöser inzwischen neu gezeichnet (Inspektor, Kachel), stünde der Fokus auf <body>
+  $$('dialog').forEach(d => d.addEventListener('close', () => setTimeout(() => { const a = document.activeElement; if ((!a || a === document.body) && !openDialog()) focusCanvas(sel); }, 0)));
   window.addEventListener('keydown', e => {
     const tgt = e.target;
-    if (document.querySelector('dialog[open]')) return;                       // Dialoge behalten Fokusfang und Esc
+    const dlgOpen = openDialog(); if (dlgOpen) { if (e.key === 'Tab' && !e.altKey && !e.ctrlKey && !e.metaKey) trapTab(e, dlgOpen); return; }   // Esc schließt nativ
     if (tgt && tgt.matches && tgt.matches('input,textarea,select')) { if (e.key === 'Escape' && tgt.blur) tgt.blur(); return; }
-    if (e.key === 'Escape') { const pinned = $$('.note-pop.pinned', pageEl); if (pinned.length) { pinned.forEach(p => p.classList.remove('pinned')); return; } if (document.body.classList.contains('present')) togglePresent(false); else { sel = null; render(); } }
+    if (e.key === 'Escape') { const pinned = $$('.note-pop.pinned', pageEl); if (pinned.length) { pinned.forEach(p => p.classList.remove('pinned')); return; } if (document.body.classList.contains('present')) togglePresent(false); else { const was = sel; sel = null; render(); const a = document.activeElement; if (!a || a === document.body) focusCanvas(was); } }
     else if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey && !e.altKey) togglePresent();
     else if (e.key.toLowerCase() === 'n' && sel && !e.ctrlKey && !e.metaKey && !e.altKey) { const hit = findNode(sel); if (hit && hit.node.visual) openTileDialog(sel); }
     else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) { e.preventDefault(); redo(); }
@@ -1019,6 +1069,9 @@
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); $('#btnSave').click(); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') { e.preventDefault(); $('#btnExport').click(); }
   });
+  // Handy-Hinweis (B6): „Trotzdem ansehen" blendet ihn für diese Sitzung aus, die Seite ist dann seitlich scrollbar
+  $('#mobileGo').onclick = () => { document.body.classList.add('mobile-ok'); fitZoom(); render(); };
+  $('#mobileLang').onclick = () => setLang(I18N.lang === 'de' ? 'en' : 'de');
   let toastT = null;
   function toast(msg) { const el = $('#toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 3200); }
 
