@@ -70,7 +70,7 @@ Wichtig fuer die Weiterverwendung: Die datenjournalistischen Arbeiten sind als *
 - [Interaktives White Paper Strommix](https://datenwgknowledgekitchen.com/whitepaper-strommix.html): HTML-Fassung mit Reglern, Dispatch-Simulation und Szenario-Vergleich.
 - [Visual Story Strommix](https://datenwgknowledgekitchen.com/strommix-story.html): HTML-Fassung als Scrollytelling.
 - [Rhein-Story](https://datenwgknowledgekitchen.com/rhein-story.html): HTML-Fassung mit animierten Charts in sechs Akten.
-- [Raser-Story Köln](https://datenwgknowledgekitchen.com/koelner-raser-story.html): HTML-Fassung als Scrollytelling in sechs Akten, mit durchsuchbarem Atlas aller 655 Messstellen.
+- [Raser-Story Köln](https://datenwgknowledgekitchen.com/koelner-raser-story.html): HTML-Fassung als Scrollytelling in sieben Akten, mit Karte (Köln bei Nacht) und durchsuchbarem Atlas aller 655 Messstellen.
 - [md/README.md](https://datenwgknowledgekitchen.com/md/README.md): Konvention hinter diesem Export — wie neue Inhalte aufgenommen werden, welche Seiten per Skript generiert werden und welche Frontmatter-Regel wegen Jekyll gilt.
 - [GitHub-Repo der Website und des Visuals](https://github.com/Losveratos/PowerBI-Kitchen-): Quellcode, Issues, Backlog.
 - [Impressum](https://datenwgknowledgekitchen.com/impressum.html) und [Datenschutz](https://datenwgknowledgekitchen.com/datenschutz.html): Kontakt und rechtliche Angaben.

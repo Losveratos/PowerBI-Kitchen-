@@ -3,3 +3,5 @@ data/raw/Geschwindigkeitsueberwachung_Koeln_Gesamt_2025.csv
 data/raser_2025.sqlite
 # Zwischenspeicher der lokalen Geocodierung (fetch_geo.py)
 data/geo/geocode_cache.json
+# OSM-Adressbestand nur für den Abgleich in check_geo.py (fetch_geo.py --nur adressen, ~2,5 MB)
+data/geo/osm_adressen_koeln.json.gz

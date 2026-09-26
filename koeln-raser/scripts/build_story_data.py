@@ -73,13 +73,9 @@ def tol(kmh):
     return 3 if kmh <= 100 else math.ceil(kmh * 0.03)
 
 
-def main():
-    con = sqlite3.connect(DB)
+def prepare(con):
+    """Arbeitsansicht: nur Tempofälle, mit implizitem Limit (auch von build_map_data.py genutzt)."""
     con.create_function("tol", 1, tol)
-    q = lambda s, *a: con.execute(s, a).fetchall()
-    one = lambda s, *a: con.execute(s, a).fetchone()
-
-    # Arbeitsansicht: nur Tempofälle, mit implizitem Limit
     con.executescript("""
       DROP VIEW IF EXISTS tempo;
       CREATE TEMP VIEW tempo AS
@@ -87,6 +83,13 @@ def main():
         FROM verstoss v
         WHERE dienststelle != 'K-04' OR kmh - ueber - tol(kmh) IN (50, 70);
     """)
+
+
+def main():
+    con = sqlite3.connect(DB)
+    prepare(con)
+    q = lambda s, *a: con.execute(s, a).fetchall()
+    one = lambda s, *a: con.execute(s, a).fetchone()
 
     total = one("SELECT COUNT(*) FROM verstoss")[0]
     n = one("SELECT COUNT(*) FROM tempo")[0]
@@ -167,7 +170,7 @@ def main():
     sites.sort(key=lambda s: -s["n"])
     d["standorte"] = sites
 
-    # ---- Akt 4: Lernkurven neuer Anlagen -----------------------------------
+    # ---- Akt 5: Lernkurven neuer Anlagen -----------------------------------
     lern = {}
     for code, name in (("0015", "B 55a, Ausfahrt Frankfurter Straße → Olpe"),
                        ("0005", "Innere Kanalstraße → Niehler Straße")):
@@ -182,7 +185,7 @@ def main():
                       "wochen": [{"w": w, "n": c, "k": k, "a": a, "tage": nd} for w, c, k, a, nd in rows]}
     d["lernkurven"] = lern
 
-    # ---- Akt 5: Herkunft -------------------------------------------------
+    # ---- Akt 6: Herkunft -------------------------------------------------
     def herkunft(where):
         rows = q(f"SELECT kennz, COUNT(*) FROM tempo WHERE {where} GROUP BY 1")
         g = {"Köln": 0, "Umland": 0, "Übriges Deutschland": 0, "Ohne/Sonder/Ausland": 0}
@@ -207,7 +210,7 @@ def main():
     d["meta"]["kennz_bezirke"] = sum(1 for (k,) in q("SELECT DISTINCT kennz FROM tempo") if k in KFZ)
     d["umland"] = sorted(UMLAND)
 
-    # ---- Akt 6: Wie schnell ------------------------------------------------
+    # ---- Akt 7: Wie schnell ------------------------------------------------
     hist = dict(q("SELECT MIN(ueber, 71), COUNT(*) FROM tempo GROUP BY 1"))
     d["hist_ueber"] = [hist.get(i, 0) for i in range(0, 72)]  # Index 71 = „über 70"
     d["limits"] = [{"lim": l, "n": c, "avg": round(a, 1), "p21": round(100 * p / c, 2)} for l, c, a, p in q(
@@ -243,6 +246,12 @@ def main():
         for s in d["standorte"]:
             s["eur"] = s_site.get((s["d"], s["c"]), 0)
         d["bussgeld"] = {"summe_eur": s_all, "quelle": kat.get("quelle"), "stand": kat.get("stand")}
+
+    # ---- Akt 4: Karte (nur aus den versionierten Geodateien, kein Netz) ------
+    if (ROOT / "data" / "geo" / "koeln_grenzen_osm.json.gz").exists():
+        import build_map_data
+        d["karte"] = build_map_data.build_karte(con, d)
+        build_map_data.report(d["karte"])
 
     OUT.write_text(json.dumps(d, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"✓ {OUT.relative_to(ROOT)} · {OUT.stat().st_size/1024:.0f} KB · {n:,} Tempofälle")

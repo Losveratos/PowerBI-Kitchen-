@@ -49,10 +49,27 @@ enthält nur eine Validierungs-Liste gültiger Kürzel-Strings (Regex-Zwecke),
 
 ---
 
+## B) Karte (Version 3, lokal geholt mit `scripts/fetch_geo.py`, 26.09.2026)
+
+| Datei | Inhalt | Quelle · Lizenz |
+|---|---|---|
+| `koeln_grenzen_osm.json.gz` | Stadtgrenze (admin_level 6), 9 Stadtbezirke (9), 86 Stadtteile (10), Ringe aus den Member-Ways zusammengesetzt | OpenStreetMap via Overpass API · © OpenStreetMap-Mitwirkende, ODbL |
+| `osm_koeln.json.gz` | Rhein (waterway=river) und Straßen motorway/trunk/primary im Stadtgebiet | OpenStreetMap via Overpass API · ODbL |
+| `koeln_grenzen.json` | Stadt, Bezirke, Stadtteile laut Geoapify Boundaries (liefert ebenfalls 86 Stadtteile; nur zum Gegencheck) | Geoapify · Daten © OSM-Mitwirkende, ODbL |
+| `messstellen_geocoded.json` | Geocoder-Treffer je Messstelle mit Genauigkeit | Geoapify Geocoding API |
+| `manual_coords.csv` | geprüfte Koordinaten: 56 feste Anlagen/Kreuzungen von Hand, übrige Zeilen aus dem OSM-Abgleich (`check_geo.py --korrekturen`); leeres lat/lon = bewusst weggelassen | eigene Prüfung auf OSM-Basis |
+| `messstellen_review.csv` | Prüfliste: Geocoder-Punkt, unabhängiger OSM-Punkt, Abstände, Stadtteil-Abgleich, OSM-Links | abgeleitet |
+
+Nicht versioniert: `geocode_cache.json` (Geocoder-Zwischenspeicher), `osm_adressen_koeln.json.gz`
+(167.551 OSM-Adresspunkte + 27.021 Straßenabschnitte für den Abgleich, ~2,5 MB; per
+`fetch_geo.py --nur adressen` neu zu holen).
+
+Attribution auf der Seite: „Kartendaten © OpenStreetMap-Mitwirkende (ODbL) · Geocodierung: Geoapify“.
+
 ## Nicht verwendet
 
-Kreis-/Landesgrenzen und Kölner Stadtteil-Geometrien waren über die erreichbaren Registries
-(npm, PyPI) nicht offline verfügbar; die Story kommt deshalb ohne Karte aus. Geprüft und verworfen:
+Kreis-/Landesgrenzen und Kölner Stadtteil-Geometrien waren in der Cloud-Umgebung von v1/v2 über die erreichbaren
+Registries (npm, PyPI) nicht offline verfügbar. Seit Version 3 kommen sie lokal aus OpenStreetMap (siehe B). Geprüft und verworfen:
 `landkreise-deutschland` (nur Sachdaten, keine Geometrien), `@svg-maps/germany` (nur Bundesländer),
 `deutschland`/`@polymech/gadm` (laden Geometrien zur Laufzeit von gesperrten Hosts), PyPI `koeln`
 (nur API-Client).

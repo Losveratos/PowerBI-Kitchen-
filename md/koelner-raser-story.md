@@ -4,11 +4,11 @@
 
 - **Quelle:** https://datenwgknowledgekitchen.com/koelner-raser-story.html
 - **Autor:** Michael Tenner · Daten-WG Knowledge Kitchen
-- **Extrahiert aus:** `koelner-raser-story.html` · Stand 2026-09-25
+- **Extrahiert aus:** `koelner-raser-story.html` · Version 3 (Karten-Akt) · Stand 2026-09-26
 - **Zitierhinweis:** Michael Tenner, Daten-WG Knowledge Kitchen, https://datenwgknowledgekitchen.com/koelner-raser-story.html — Abruf mit Datum angeben. Weiterverwendung mit Quellenangabe erwuenscht.
-- **Hinweis fuer Agenten:** Diese Markdown-Fassung enthaelt den Fliesstext der Seite. Die animierten Charts und der durchsuchbare Raser-Atlas (alle 655 Messstellen) sind nur in der HTML-Fassung nutzbar; die zentralen Zahlen stehen hier als Tabelle.
-- **Datengrundlage:** Stadt Koeln, Offene Daten Koeln, „Geschwindigkeitsueberwachung Koeln ab 2025“ + Standorttabellen sloc-01/02/04/11, Datenlizenz Deutschland – Zero – 2.0; 451.676 Zeilen, davon 445.660 Tempofaelle
-- **Reproduzierbarkeit:** `koeln-raser/scripts/build_db.py` (SQLite) → `build_story_data.py` (SQL-Kennzahlen) → `build_story_html.py`. Jede Zahl stammt aus `koeln-raser/data/story_data.json`.
+- **Hinweis fuer Agenten:** Diese Markdown-Fassung enthaelt den Fliesstext der Seite. Die animierten Charts, die Karte und der durchsuchbare Raser-Atlas (alle 655 Messstellen) sind nur in der HTML-Fassung nutzbar; die zentralen Zahlen stehen hier als Tabelle.
+- **Datengrundlage:** Stadt Koeln, Offene Daten Koeln, „Geschwindigkeitsueberwachung Koeln ab 2025“ + Standorttabellen sloc-01/02/04/11, Datenlizenz Deutschland – Zero – 2.0; 451.676 Zeilen, davon 445.660 Tempofaelle. Karte: © OpenStreetMap-Mitwirkende (ODbL), Geocodierung Geoapify
+- **Reproduzierbarkeit:** `koeln-raser/scripts/build_db.py` (SQLite) → `build_story_data.py` (SQL-Kennzahlen + Karte aus `data/geo/`) → `build_story_html.py`. Geodaten einmalig lokal: `fetch_geo.py` → `check_geo.py`. Jede Zahl stammt aus `koeln-raser/data/story_data.json`.
 
 ---
 
@@ -45,7 +45,30 @@ Um 3 Uhr nachts ist der Anteil schwerer Verstöße rund fünfmal (ab 21 km/h, Pu
 
 Bußgeld nach Katalog für alle Messstellen zusammen: **≈ 17,8 Mio. €** (grobe Schätzung: Pkw-Sätze, innerorts bei Limit ≤ 50 angenommen; ohne Gebühren, Einsprüche, Lkw-Sätze).
 
-## Akt 4 · Die Lernkurve
+## Akt 4 · Köln bei Nacht (Karte)
+
+Alle Messstellen an ihren Orten: Köln als dunkle Silhouette, der Rhein als Lichtband, Autobahnen und Hauptstraßen als Lichtlinien.
+
+- **Feste Anlagen:** 16 der 43 Anlagen stehen höchstens 3 km vom Dom entfernt und erzeugen 57,8 % aller Fälle fester Anlagen. Die größten: Innere Kanalstraße, Kaiser-Wilhelm-Ring und rechtsrheinisch die B 55a.
+- **Mobile Messung:** Messstellen in 78 von 86 Stadtteilen, die meisten in Neustadt/Süd (26), Dellbrück (23) und Mülheim (20). Ohne mobile Messung 2025: Blumenberg, Esch/Auweiler, Grengel, Hahnwald, Langel, Raderberg, Seeberg, Urbach.
+- **24 Stunden im Zeitraffer:** Um 11 Uhr blitzt es am Durchschnittstag rund 90-mal pro Stunde, mehr als die Hälfte davon mobil. Um 3 Uhr nachts sind es 13, drei von vier Blitzen (75 %) kommen dann von festen Anlagen.
+- **Wo schwer gerast wird:** Anteil der mobilen Fälle mit 21 km/h und mehr zu viel, je Stadtteil (ab 300 Fällen, 69 Stadtteile). Köln-weit 2,8 %.
+
+| Stadtteil | Anteil ≥ 21 km/h (mobil) | mobile Fälle | Messstellen |
+|---|---:|---:|---:|
+| Merkenich | 7,2 % | 1.118 | 5 |
+| Lind | 6,3 % | 1.319 | 6 |
+| Vingst | 6,1 % | 362 | 7 |
+| Bickendorf | 6,0 % | 9.306 | 13 |
+| Eil | 5,7 % | 4.628 | 6 |
+| … | | | |
+| Ossendorf | 0,3 % | 310 | 6 |
+
+Der Wert beschreibt die Stellen, an denen gemessen wurde, nicht die Menschen, die im Stadtteil wohnen.
+
+**Geocodierung:** Die Standorttabellen nennen nur Adressen. Geoapify plus unabhängiger Abgleich mit OpenStreetMap; alle festen Anlagen und Kreuzungen einzeln geprüft. Von 655 Messstellen: 433 punktgenau (66,1 %), 144 auf Straßenebene bis ±1 km (22,0 %), 52 von Hand verortet (7,9 %), 26 ohne verlässlichen Punkt (7.036 Fälle) weggelassen.
+
+## Akt 5 · Die Lernkurve
 
 | | erste Woche | nach 15 Wochen | Veränderung |
 |---|---:|---:|---:|
@@ -55,7 +78,7 @@ Bußgeld nach Katalog für alle Messstellen zusammen: **≈ 17,8 Mio. €** (gro
 
 Danach pendelt sich die B 55a bei etwa einem Viertel ein. Innere Kanalstraße: drei Monate fast unverändert, dann ein steiler Abfall von 213 auf rund 60 Fälle am Tag nach einem halben Jahr (−72 %). Dellbrücker Hauptstraße: −56 %. Verkehrsmengen liegen nicht vor; ein Rückgang dieser Größe ist aber ein starkes Indiz, dass dort langsamer gefahren wird. Das Kennzeichen nennt den Halter, nicht den Fahrer.
 
-## Akt 5 · Die Ortskundigen
+## Akt 6 · Die Ortskundigen
 
 | Messart | Köln (K) | Umland (BM, GL, SU, NE, LEV) | übriges Deutschland | ohne/sonstige |
 |---|---:|---:|---:|---:|
@@ -63,9 +86,9 @@ Danach pendelt sich die B 55a bei etwa einem Viertel ein. Innere Kanalstraße: d
 | mobil | 60,8 % | 18,1 % | 19,9 % | 1,3 % |
 | fest | 37,5 % | 20,9 % | 36,9 % | 4,6 % |
 
-Auch ohne B 55a und A 4 bleibt der Köln-Anteil an festen Anlagen bei knapp 38 %. Mögliche Erklärung: Wer von hier ist, kennt die festen Blitzer. Häufigste Kürzel nach K: BM, GL, SU; an der B 55a Richtung Olpe nach K: GL, dann GM. 648 verschiedene deutsche Kennzeichen-Kürzel.
+Auch ohne B 55a und A 4 bleibt der Köln-Anteil an festen Anlagen bei knapp 38 %. Mögliche Erklärung (passt zu Akt 5): Wer von hier ist, kennt die festen Blitzer. Häufigste Kürzel nach K: BM, GL, SU; an der B 55a Richtung Olpe nach K: GL, dann GM. 648 verschiedene deutsche Kennzeichen-Kürzel.
 
-## Akt 6 · Wie schnell?
+## Akt 7 · Wie schnell?
 
 - Häufigster Wert: **6 km/h** zu viel (nach Toleranzabzug); darunter praktisch keine Fälle — bei Tempo 30 also erst ab 39 km/h gemessen. 68 % der Fälle liegen bei 6–10 km/h.
 - 96,9 % bleiben bei höchstens 20 km/h (keine Punkte), 90,2 % bei höchstens 15 km/h (Verwarnungsgeld). 13.615 Fälle (3,1 %) bringen Punkte.
@@ -82,4 +105,4 @@ Auch ohne B 55a und A 4 bleibt der Köln-Anteil an festen Anlagen bei knapp 38 %
 
 ## Grenzen
 
-Messaufwand ≠ Raserei · keine Verkehrsmengen im Nenner · Kennzeichen = Halter · Tempolimit aus Messwert, Überschreitung und Toleranz abgeleitet (für 98,7 % der Zeilen plausibel) · Bußgeld = Schätzung · Dienststellen-Codes (S-01 fest, S-02 mobil, K-04 Kreuzung) aus dem Verhalten der Daten gedeutet, nicht dokumentiert.
+Orte teils ungefähr (22 % nur auf Straßenebene, 26 Messstellen ohne Punkt) · Messaufwand ≠ Raserei · keine Verkehrsmengen im Nenner · Kennzeichen = Halter · Tempolimit aus Messwert, Überschreitung und Toleranz abgeleitet (für 98,7 % der Zeilen plausibel) · Bußgeld = Schätzung · Dienststellen-Codes (S-01 fest, S-02 mobil, K-04 Kreuzung) aus dem Verhalten der Daten gedeutet, nicht dokumentiert.
