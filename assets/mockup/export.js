@@ -8,6 +8,9 @@
   const MK = window.MK, CAT = window.MK_CATALOG, I18N = window.MK_I18N;
   const TOOL = 'MockupKitchen byDatenWG', VER = '0.4', SPEC_VERSION = 3;
   const fieldRef = f => `${f.table}.${f.name}`;
+  // Status einer Bindung live gegen das geladene Modell (Review B3): isNew nur für vorgemerkte neue Felder, missing für Felder, die das Modell nicht kennt
+  const statusOf = f => (MK.fieldStatus ? MK.fieldStatus(f) : (f.isNew ? 'new' : 'model'));
+  const liveFlags = f => { const st = statusOf(f); return st === 'missing' ? { isNew: false, missing: true } : { isNew: st === 'new' }; };
   const slug = s => String(s || 'seite').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'Seite';
   const today = () => new Date().toISOString().slice(0, 10);
   const ENGINE = CAT.engineLabel;
@@ -34,7 +37,7 @@
     const L = S.lang || I18N.lang; const T = (key, vars) => TL(L, key, vars);
     const z = MK.zones(); const issues = []; const links = [];
     const issue = (level, code, text, page, visual) => issues.push({ level, code, text, page: page || null, visual: visual || null });
-    const fieldOut = f => ({ table: f.table, name: f.name, kind: f.kind, ref: fieldRef(f), isNew: !!f.isNew });
+    const fieldOut = f => Object.assign({ table: f.table, name: f.name, kind: f.kind, ref: fieldRef(f) }, liveFlags(f));
     const pages = S.pages.map((p, pi) => {
       const all = MK.computeAll(p);
       const visuals = all.leaves.filter(l => l.node.visual).map(l => {
@@ -46,6 +49,15 @@
         if (v.engine === 'native' && !def.native) { vw.push(T('exp.issue.noNativeShort')); issue('error', 'NO_NATIVE', T('exp.issue.noNative', { label: def.label }), p.name, id); }
         if ((v.kind === 'text' || v.kind === 'button') && !(v.content || '').trim()) issue('warn', 'TEXT_EMPTY', T('exp.issue.textEmpty', { t: title }), p.name, id);
         if (/^\s*(Δ|Delta|Abweichung|Variance)/i.test(title) && !(v.roles.ref || []).length && !(v.roles.goal || []).length) issue('warn', 'DELTA_NO_REF', T('exp.issue.deltaNoRef', { t: title }), p.name, id);
+        // Gebundene Felder, die das geladene Modell nicht kennt (Review B3): pbir add visual würde daran scheitern
+        Object.keys(roles).forEach(key => roles[key].filter(f => f.missing).forEach(f => { vw.push(T('exp.issue.fieldNotInModelShort', { f: f.ref })); issue('error', 'FIELD_NOT_IN_MODEL', T('exp.issue.fieldNotInModel', { t: title, f: f.ref }), p.name, id); }));
+        // Szenario bzw. Δ-Basis und gebundene Referenz widersprechen sich (Review B2)
+        const mm = MK.refMismatch ? MK.refMismatch(v) : null;
+        if (mm) {
+          const vars = { t: title, s: mm.scenario || v.scenario || '', d: mm.want, f: mm.field.name, b: mm.note || '' };
+          vw.push(T(mm.kind === 'scenario' ? 'exp.issue.scenRefShort' : 'exp.issue.basisRefShort', vars));
+          issue('warn', 'SCENARIO_REF_MISMATCH', T(mm.kind === 'scenario' ? 'exp.issue.scenRef' : 'exp.issue.basisRef', vars), p.name, id);
+        }
         const native = def.native && (v.engine === 'native' || v.engine === 'ck') ? { type: def.native.type, buckets: bucketsFor(def, v) } : null;
         const target = v.link ? S.pages.find(x => x.id === v.link) : null;
         const cat = (v.roles.category || v.roles.rows || [])[0] || null;
@@ -79,6 +91,7 @@
     if (z.nav) zonesOut.nav.pages = S.pages.map(p => p.name);
     if (z.footer) { zonesOut.footer.text = c.footer.text; zonesOut.footer.nav = navPos === 'footer' ? navList : []; zonesOut.footer.navPosition = navPos; }
     const slicers = (c.filter.fields || []).map(f => Object.assign(fieldOut(f), { default: f.default || null, type: f.type || 'dropdown' }));
+    slicers.filter(f => f.missing).forEach(f => issue('error', 'FIELD_NOT_IN_MODEL', T('exp.issue.slicerNotInModel', { f: f.ref })));
     if (c.filter.on) {
       const mode = c.filter.side; const fl = zonesOut.filter || {};
       const fh = c.filter.heading || {}; const headingShown = fh.show === 'on' || (fh.show !== 'off' && !slicers.length) || (fh.show == null && !!fh.text);
@@ -97,8 +110,12 @@
       return Object.assign({}, f, { description: info.desc || (nf ? nf.desc : '') || '', formatString: info.format || '', dataType: info.type || '', alias: m.alias || '', renameInModel: !!m.rename, confirmed: !!m.confirmed, owner: m.owner || (nf ? nf.owner : '') || '', source: m.source || (nf ? nf.source : '') || '', target: m.target || (nf ? nf.target : '') || '', unit: m.unit || (nf ? nf.unit : '') || '', note: m.note || '' });
     });
     fields.filter(f => f.renameInModel && f.alias).forEach(f => issue('info', 'RENAME_REQUEST', T('exp.issue.renameRequest', { n: f.name, a: f.alias })));
-    const newFields = S.newFields.map(f => ({ table: f.table, name: f.name, kind: f.kind, ref: fieldRef(f), description: f.desc || '', unit: f.unit || '', target: f.target || '', owner: f.owner || '', source: f.source || '', openQuestion: f.open || '', used: used.has(fieldRef(f)) }));
+    const tableNames = S.model.tables.map(t => t.name);
+    const newFields = S.newFields.map(f => Object.assign({ table: f.table, name: f.name, kind: f.kind, ref: fieldRef(f), description: f.desc || '', unit: f.unit || '', target: f.target || '', owner: f.owner || '', source: f.source || '', openQuestion: f.open || '', used: used.has(fieldRef(f)) },
+      tableNames.length && !tableNames.includes(f.table) ? { newTable: true } : {}));
     newFields.filter(f => !f.used).forEach(f => issue('info', 'NEW_FIELD_UNUSED', T('exp.issue.newFieldUnused', { n: f.name })));
+    // Neues Feld in einer Tabelle, die das Modell nicht kennt (Review B26): bestätigt = Hinweis, sonst Warnung (Tippfehler, anderes Modell)
+    S.newFields.forEach(f => { if (!tableNames.length || tableNames.includes(f.table)) return; if (f.newTable) issue('info', 'NEW_FIELD_NEW_TABLE', T('exp.issue.newTable', { n: f.name, tb: f.table })); else issue('warn', 'NEW_FIELD_NEW_TABLE', T('exp.issue.newTableUnconfirmed', { n: f.name, tb: f.table })); });
     // Barrierefreiheit (Modul a11y.js): Kontrast, Schriftgrößen, Kachelgrößen, Titel, Dichte, Navigation
     if (MK.gridCheck) S.pages.forEach(p => { const gc = MK.gridCheck(p); const n = gc.findings.filter(f => f.level === 'warn').length; if (n) issue('info', 'LAYOUT_NOT_PIXEL_PERFECT', T('exp.issue.gridCheck', { page: p.name, n }), p.name, null); });
     if (MK.a11yFindings) MK.a11yFindings().forEach(f => issue(f.level, f.code, f.text + (f.hint ? ' (' + f.hint + ')' : ''), f.page, f.visual ? 'mk_' + f.visual : null));
@@ -120,13 +137,13 @@
   }
   function bucketsFor(def, v) {
     const b = {}; if (!def.native) return b;
-    Object.keys(def.native.map).forEach(roleKey => { const bucket = def.native.map[roleKey]; const list = v.roles[roleKey] || []; if (!list.length) return; b[bucket] = (b[bucket] || []).concat(list.map(f => ({ ref: fieldRef(f), kind: f.kind, isNew: !!f.isNew }))); });
+    Object.keys(def.native.map).forEach(roleKey => { const bucket = def.native.map[roleKey]; const list = v.roles[roleKey] || []; if (!list.length) return; b[bucket] = (b[bucket] || []).concat(list.map(f => Object.assign({ ref: fieldRef(f), kind: f.kind }, liveFlags(f)))); });
     return b;
   }
   function customBuckets(def, v) {
     // map-Wert ist ein Rollenname des Custom Visuals oder ein Objekt { rolle: /Namensmuster/ }:
     // dann entscheidet der Feldname (z. B. PY -> py, PL -> pl); ohne Treffer die erste noch freie Rolle.
-    const b = {}; const push = (bucket, f) => { (b[bucket] = b[bucket] || []).push({ ref: fieldRef(f), kind: f.kind, isNew: !!f.isNew }); };
+    const b = {}; const push = (bucket, f) => { (b[bucket] = b[bucket] || []).push(Object.assign({ ref: fieldRef(f), kind: f.kind }, liveFlags(f))); };
     Object.keys(def.customVisual.map).forEach(roleKey => {
       const bucket = def.customVisual.map[roleKey]; const list = v.roles[roleKey] || []; if (!list.length) return;
       if (typeof bucket === 'string') { list.forEach(f => push(bucket, f)); return; }
@@ -178,7 +195,7 @@
     }
     if (z.filter) {
       const mode = B('fMode.' + z.filter.mode);
-      const list = z.filter.slicers.length ? z.filter.slicers.map(s => `\`${s.ref}\`${s.default ? ` = ${s.default}` : ''}${s.isNew ? ` ${T('exp.new')}` : ''}`).join(', ') : B('fNone');
+      const list = z.filter.slicers.length ? z.filter.slicers.map(s => `\`${s.ref}\`${s.default ? ` = ${s.default}` : ''}${s.isNew ? ` ${T('exp.new')}` : ''}${s.missing ? ` ${T('exp.missing')}` : ''}`).join(', ') : B('fNone');
       const slicers = B('fSlicers', { arr: z.filter.mode === 'top' ? B('fArrRow') : B('fArrCol'), list });
       const bm = z.filter.bookmarks ? B('fBookmarks', { list: z.filter.bookmarks.map(b => T('exp.quote', { t: b.name })).join(' / ') }) : '';
       out.push(`| ${B('zFilter', { mode, coll: z.filter.collapsible ? B('filterColl') : '' })} | ${z.filter.x} | ${z.filter.y} | ${z.filter.w} | ${z.filter.h} | ${slicers}${bm} |`);
@@ -196,7 +213,7 @@
         if (v.subtitle) out.push(B('vSub', { s: v.subtitle }));
         if (v.content) out.push(B('vText', { t: v.content }));
         if (v.scenario) out.push(B('vScenario', { s: v.scenario }));
-        const roleLines = Object.keys(v.roles).map(key => `  - ${roleLabel(v.kind, key)}: ${v.roles[key].map(f => `\`${f.ref}\`${f.isNew ? B('vNew') : ''}`).join(', ')}`);
+        const roleLines = Object.keys(v.roles).map(key => `  - ${roleLabel(v.kind, key)}: ${v.roles[key].map(f => `\`${f.ref}\`${f.isNew ? B('vNew') : ''}${f.missing ? ` ${T('exp.missing')}` : ''}`).join(', ')}`);
         out.push(roleLines.length ? B('vRoles') : B('vRolesNone'), ...roleLines);
         if (v.native && Object.keys(v.native.buckets).length) out.push(B('vBuckets', { type: v.native.type }) + Object.keys(v.native.buckets).map(b => `${b} ← ${v.native.buckets[b].map(f => f.ref).join(', ')}`).join(' · '));
         if (Object.keys(v.roles).length && v.kind !== 'slicer' && v.kind !== 'text') out.push(B('vAnalysis', { a: analysisLine(v.analysis, L) }));
@@ -211,7 +228,7 @@
     });
     if (spec.links.length) { out.push(B('hLinks'), '', B('linkTable'), '|---|---|---|---|---|'); spec.links.forEach(l => out.push(`| \`${l.fromVisual}\` | ${l.fromPage} | ${l.toPage} | ${l.kind} | ${l.drillField ? `\`${l.drillField}\`` : '–'} |`)); out.push(''); }
     out.push(B('hFields'), '', B('fieldTable'), '|---|---|---|---|---|---|---|---|---|');
-    spec.fields.forEach(f => out.push(`| \`${f.ref}\`${f.isNew ? ` ${T('exp.new')}` : ''} | ${f.alias || '–'}${f.renameInModel ? ` ${T('exp.rename')}` : ''} | ${f.description || '–'} | ${f.formatString || '–'} | ${f.unit || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.target || '–'} | ${f.confirmed ? T('exp.yes') : T('exp.no')} |`));
+    spec.fields.forEach(f => out.push(`| \`${f.ref}\`${f.isNew ? ` ${T('exp.new')}` : ''}${f.missing ? ` ${T('exp.missing')}` : ''} | ${f.alias || '–'}${f.renameInModel ? ` ${T('exp.rename')}` : ''} | ${f.description || '–'} | ${f.formatString || '–'} | ${f.unit || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.target || '–'} | ${f.confirmed ? T('exp.yes') : T('exp.no')} |`));
     out.push('');
     if (spec.newFields.length) {
       out.push(B('hNewFields'), '', B('newFieldTable'), '|---|---|---|---|---|---|---|---|---|---|');
@@ -249,7 +266,7 @@
       if (p.visuals.length) {
         out.push(D('table'), D('tableSep'));
         p.visuals.forEach((v, i) => {
-          const fields = Object.keys(v.roles).map(key => `${roleLabel(v.kind, key)}: ${v.roles[key].map(f => f.name + (f.isNew ? ` ${T('exp.new')}` : '')).join(', ')}`).join('; ') || '–';
+          const fields = Object.keys(v.roles).map(key => `${roleLabel(v.kind, key)}: ${v.roles[key].map(f => f.name + (f.isNew ? ` ${T('exp.new')}` : '') + (f.missing ? ` ${T('exp.missing')}` : '')).join(', ')}`).join('; ') || '–';
           const an = Object.keys(v.roles).length && v.kind !== 'slicer' ? [v.analysis.polarity === 'lower' ? D('anLower') : '', v.analysis.sort ? D('anSort', { by: v.analysis.sort.by }) : '', v.analysis.topN ? D('anTop', { n: v.analysis.topN }) : '', v.analysis.unit || ''].filter(Boolean).join(', ') || '–' : '–';
           out.push(`| ${p.index}.${i + 1} | ${v.title}${v.subtitle ? ` (${v.subtitle})` : ''}${v.analysis.message ? `<br>_${v.analysis.message}_` : ''} | ${v.label}${v.scenario ? `, ${v.scenario}` : ''}${v.engine === 'ck' ? ', ChartKitchen' : ''} | ${fields} | ${an} | ${v.workshop.priority ? T('exp.pri.' + v.workshop.priority) : '–'} | ${T('exp.status.' + v.workshop.status)} | ${[v.content ? D('txtPrefix', { t: v.content }) : '', v.notes, v.link ? `→ ${v.link.pageName}` : ''].filter(Boolean).join(' · ') || '–'} |`);
         });
@@ -258,7 +275,7 @@
     });
     if (spec.links.length) { out.push(D('hLinks'), ''); spec.links.forEach(l => out.push(D('link', { from: l.fromPage, id: l.fromVisual, to: l.toPage, kind: l.kind === 'navigation' ? D('linkNav') : (l.drillField ? D('linkDrillOn', { f: l.drillField }) : D('linkDrill')) }))); out.push(''); }
     out.push(D('hFields'), '', D('fieldTable'), D('fieldSep'));
-    spec.fields.forEach(f => out.push(`| ${f.ref}${f.isNew ? ` ${T('exp.new')}` : ''} | ${f.alias || '–'} | ${f.description || FILL} | ${f.unit || f.formatString || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.confirmed ? '☑' : '☐'} |`));
+    spec.fields.forEach(f => out.push(`| ${f.ref}${f.isNew ? ` ${T('exp.new')}` : ''}${f.missing ? ` ${T('exp.missing')}` : ''} | ${f.alias || '–'} | ${f.description || FILL} | ${f.unit || f.formatString || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.confirmed ? '☑' : '☐'} |`));
     out.push('');
     if (spec.newFields.length) { out.push(D('hNew'), '', D('newTable'), D('newSep')); spec.newFields.forEach(f => out.push(`| ${f.name} | ${f.kind === 'measure' ? T('exp.measureLong') : T('exp.dimension')} | ${f.table} | ${f.description || FILL} | ${f.unit || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.openQuestion || '–'} |`)); out.push(''); }
     const open = [];
@@ -279,6 +296,7 @@
     p.visuals.forEach(v => {
       if (v.engine !== 'native' || !v.native) return;
       if (missingRequired(v)) return;                 // unvollständige Visuals nicht emittieren (Import würde die ganze Datei ablehnen)
+      if (Object.values(v.native.buckets).some(l => l.some(f => f.missing))) return;   // Feld fehlt im Modell (FIELD_NOT_IN_MODEL): ebenso
       const fields = {}; Object.keys(v.native.buckets).forEach(b => { const refs = v.native.buckets[b].map(f => f.ref); fields[b] = refs.length === 1 ? refs[0] : refs; });
       const item = { visual_type: v.native.type, name: v.id, title: v.title, x: v.rect.x, y: v.rect.y, width: v.rect.w, height: v.rect.h };
       if (Object.keys(fields).length) item.fields = fields;
@@ -286,6 +304,7 @@
     });
     const z = spec.zones.filter;
     if (z) z.slicers.forEach((s, i) => {
+      if (s.missing) return;
       const k = spec.canvas.uiScale; const pad = Math.round(8 * k);
       const item = { visual_type: 'slicer', name: 'mk_slicer_' + slug(s.name) + '_p' + p.index, title: s.name, fields: { Values: s.ref } };
       if (z.mode === 'top') Object.assign(item, { x: z.x + pad + i * Math.round(168 * k), y: z.y + pad, width: Math.round(160 * k), height: z.h - 2 * pad });

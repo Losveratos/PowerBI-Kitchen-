@@ -282,6 +282,12 @@ def has_empty_required_role(v: dict) -> bool:
     return any(str(w).startswith("Pflichtrolle") for w in (v.get("warnings") or []))
 
 
+def has_missing_field(v: dict) -> bool:
+    """Gebundenes Feld fehlt im Modell (Issue FIELD_NOT_IN_MODEL, Tool-Review B3).
+    `pbir add visual` wuerde die Referenz nicht aufloesen; die Kachel bleibt ein To-do."""
+    return any(f.get("missing") for l in ((v.get("roles") or {}).values()) for f in (l or []))
+
+
 def is_text_tile(v: dict) -> bool:
     return v.get("kind") in ("text", "button")
 
@@ -583,7 +589,7 @@ def build_pbir_visuals(nspec: dict, page: dict, ck_fallback: bool = False):
             continue
         if v.get("engine") != "native" and not (ck_fallback and v.get("engine") == "ck"):
             continue
-        if has_empty_required_role(v):
+        if has_empty_required_role(v) or has_missing_field(v):
             skipped.append(v)
             continue
         buckets = native.get("buckets") or {}
@@ -2233,6 +2239,20 @@ def build_model_todos(nspec: dict, model_name: str) -> str:
                 row += " %s |" % (f.get("openQuestion") or "–")
             row += " %s |" % ("ja" if f.get("used") else "nein")
             L.append(row)
+        # Neue Felder in Tabellen, die das Modell laut Spec nicht kennt (Tool-Review B26):
+        # Tippfehler oder gewollt neue Tabelle. Beides klaert der Mensch, bevor te add laeuft.
+        known = {t if isinstance(t, str) else (t or {}).get("name")
+                 for t in ((nspec.get("model") or {}).get("tables") or [])}
+        known.discard(None)
+        new_tbl = [f for f in new if known and f.get("table") not in known]
+        if new_tbl:
+            names = sorted({f["table"] for f in new_tbl})
+            L += ["", "## Achtung: Tabelle fehlt im Modell", "",
+                  "Diese neuen Felder verweisen auf Tabellen, die laut Spec (`model.tables`) "
+                  "nicht im Modell stehen: %s. Den Tabellennamen mit dem Menschen klären "
+                  "(Tippfehler?). Ist die Tabelle gewollt neu, sie zuerst anlegen (Quelle bzw. "
+                  "Power Query oder berechnete Tabelle). Die `te add`-Zeilen dazu sind unten "
+                  "auskommentiert." % ", ".join("`%s`" % n for n in names)]
         L += ["", "## Vorschlag (DAX bestätigen lassen, nicht ungefragt anlegen)", "",
               "```bash"]
         for f in new:
@@ -2240,12 +2260,17 @@ def build_model_todos(nspec: dict, model_name: str) -> str:
                 L.append("# %s ist eine Spalte — gehört in die Quelle/Power Query, "
                          "nicht in te add" % f["ref"])
                 continue
-            L.append('te add "%s/%s" -m "%s" -t Measure \\'
+            pre = ""
+            if f in new_tbl:
+                pre = "# "
+                L.append("# Tabelle \"%s\" fehlt im Modell: erst klären bzw. anlegen, dann:"
+                         % f["table"])
+            L.append(pre + 'te add "%s/%s" -m "%s" -t Measure \\'
                      % (f["table"], f["name"], model_name or "<Name>.SemanticModel"))
-            L.append('  -i "%s" \\' % dax_suggestion(f))
+            L.append(pre + '  -i "%s" \\' % dax_suggestion(f))
             if f.get("description"):
-                L.append('  -q description -i "%s" \\' % f["description"].replace('"', "'"))
-            L.append('  -q formatString -i "#,##0" --if-not-exists --save')
+                L.append(pre + '  -q description -i "%s" \\' % f["description"].replace('"', "'"))
+            L.append(pre + '  -q formatString -i "#,##0" --if-not-exists --save')
         L += ['te validate -m "%s" --errors-only' % (model_name or "<Name>.SemanticModel"),
               "```", ""]
         if has_q:
@@ -2438,7 +2463,8 @@ def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos,
 
     skipped = [s for e in per_page for s in e["skipped"]]
     if skipped:
-        L += ["## Nicht gebaute Kacheln (leere Pflichtrolle)", ""]
+        L += ["## Nicht gebaute Kacheln (leere Pflichtrolle%s)"
+              % (" bzw. Feld fehlt im Modell" if any(has_missing_field(v) for v in skipped) else ""), ""]
         for v in skipped:
             L.append("- [ ] `%s` — %s (%s): %s"
                      % (v["id"], v.get("title") or "", v.get("kind"),
@@ -3388,7 +3414,9 @@ def main() -> int:
               "ChartKitchen %d · Deneb %d · Custom %d%s"
               % (e["name"], len(e["pbir"]), len(e["text"]), len(e["chrome"]),
                  len(e["ck"]), len(e["deneb"]), len(e["custom"]),
-                 " · %d wegen leerer Pflichtrolle ausgelassen" % len(e["skipped"])
+                 " · %d wegen leerer Pflichtrolle%s ausgelassen"
+                 % (len(e["skipped"]), " bzw. fehlendem Feld"
+                    if any(has_missing_field(v) for v in e["skipped"]) else "")
                  if e["skipped"] else ""))
     print("\nVerknüpfungen: %d · neue Felder: %d · Analyse-To-dos: %d"
           % (len(nspec["links"]), len(nspec["newFields"]), len(all_todos)))

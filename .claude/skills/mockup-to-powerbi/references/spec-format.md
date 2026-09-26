@@ -176,6 +176,9 @@ bestätigte Definitionen sind der häufigste Grund für „die Zahl stimmt nicht
 | `NAV_OVERFLOW` | zu viele Nav-Buttons im Kopfband (ab ~6 Seiten) |
 | `RENAME_REQUEST` | Umbenennungswunsch aus dem Fachbereich |
 | `NEW_FIELD_UNUSED` | neues Feld auf keiner Kachel gebunden |
+| `NEW_FIELD_NEW_TABLE` | neues Feld in einer Tabelle, die nicht in `model.tables` steht (`newFields[].newTable: true`). `info`, wenn im Tool ausdrücklich als neue Tabelle bestätigt, sonst `warn` (Tippfehler?). `model-todos.md` kommentiert das `te add` dafür aus |
+| `FIELD_NOT_IN_MODEL` | gebundenes Feld (Kachel oder Slicer) fehlt im geladenen Modell und ist nicht als neu vorgemerkt, z. B. nach einem TMDL-Neuimport (`error`). Das Feld trägt `missing: true`, `isNew` bleibt `false`; eine native Kachel damit steht nicht in `pbir-visuals.json` (Checkliste: „Nicht gebaute Kacheln"). Als offene Entscheidung vorlegen: umbenennen, mappen oder neu anlegen |
+| `SCENARIO_REF_MISMATCH` | Szenario (bzw. gesetzte Δ-Basis) und gebundene Referenz widersprechen sich, z. B. Szenario `AC/PY`, gebunden ist `_Measures.PL` (`warn`). Nicht still umdeuten, sondern nachfragen |
 | `REPORT_NO_AUDIENCE`, `REPORT_NO_DECISION` | Berichtskopf unvollständig |
 | `SM_NO_FIELD` | Small Multiples eingeschaltet, aber kein Aufteilungsfeld gebunden (`warn`, ab 0.4.1) — die Kachel wird trotzdem gebaut, nur ohne Aufteilung |
 | `FIELDPARAM_FEW` | Feldparameter mit weniger als zwei Feldern (`info`, ab 0.4.1) — zum Umschalten braucht es mindestens zwei |

@@ -224,7 +224,7 @@
       emptyTile: 'Leere Kachel', emptyHint: 'Visual wählen oder Feld ablegen', pageTitle: 'Seitentitel',
       filter: 'Filter', dropField: '+ Feld hierher ziehen', dropFieldRole: 'Feld hierher ziehen', orCreate: 'oder', createHere: 'neu anlegen', createHereTip: 'Kennzahl oder Dimension, die es im Modell noch nicht gibt, hier anlegen und direkt an diese Rolle binden',
       note: 'Notiz', noteOpen: 'Notiz (offene Frage)', openQuestion: 'Offene Frage', openQuestionEmpty: 'Offene Frage (noch ohne Text)',
-      reqEmpty: 'Pflichtrolle leer: {roles}', priority: 'Priorität {p}', status: 'Status: {s}',
+      reqEmpty: 'Pflichtrolle leer: {roles}', fieldMissing: 'Fehlt im geladenen Modell: {f}', priority: 'Priorität {p}', status: 'Status: {s}',
       info: '{w} × {h} px · Inhalt {cw} × {ch} · Skalierung ×{k} · Zoom {z} %',
       dims: { xy: 'x · y', wh: 'w × h' },
       maxN: 'max {n}',
@@ -236,6 +236,28 @@
       emptyText: 'TMDL-Ordner laden, „Demo-Modell" klicken oder Kennzahlen/Dimensionen manuell anlegen.',
       type: 'Typ', format: 'Format', description: 'Beschreibung', noDesc: '– (im Modell keine Beschreibung hinterlegt)',
       colOf: 'Spalte {t}', isNew: ' · neu (noch nicht im Modell)', tmdlSrc: 'TMDL ({n} Dateien)',
+      isMissing: ' · fehlt im geladenen Modell', status: 'Status', missingGroup: 'Fehlt im Modell',
+      missingTip: 'fehlt im geladenen Modell ({r}). Im Modell anlegen, als neues Feld vormerken oder die Bindung lösen.',
+      missingInfo: 'Nicht im geladenen Modell. Im Modell anlegen, als neues Feld vormerken oder die Bindung lösen.',
+    },
+
+    // Szenario und gebundene Referenz (Review B2, B13)
+    scen: {
+      mismatch: 'Szenario {s}, gebunden ist aber „{f}"{b}.',
+      mismatchExtra: 'Szenario {s}, zusätzlich gebunden ist „{f}"{b}. Szenario erweitern oder die Bindung lösen.',
+      mismatchBasis: 'Δ-Basis {d}, gebunden ist aber „{f}"{b}.',
+      noCandidate: 'Ein passendes {b}-Feld bitte selbst in die Rolle ziehen.',
+      swap: '„{n}" binden', fixScenario: 'Szenario {s} übernehmen', autoBasis: 'Δ-Basis automatisch ({b})',
+      toast: 'Szenario {s}: Die Referenz ist noch an „{f}"{b} gebunden. Bitte im Panel angleichen.',
+    },
+
+    // Neues Feld: Tabellenname gegen das Modell prüfen (Review B26)
+    nm: {
+      tableUnknown: 'Die Tabelle „{tb}" gibt es im Modell nicht.',
+      tableConfirm: 'Vorhandene Tabelle wählen oder bestätigen, dass eine neue entstehen soll.',
+      tableStaged: 'Neue Tabelle „{tb}", schon für andere neue Felder vorgemerkt.',
+      tableDot: 'Ein Punkt ist im Tabellennamen nicht möglich (Feldreferenzen lauten Tabelle.Feld).',
+      tableNear: 'Gemeint: „{tb}"?', tableNew: 'als neue Tabelle anlegen',
     },
 
     toast: {
@@ -251,6 +273,8 @@
       tmdlEmpty: 'TMDL gelesen, aber keine Spalten/Measures erkannt. Datei ist vermutlich kein Tabellen-TMDL.',
       tmdlOk: '{tables} Tabellen, {measures} Measures, {columns} Spalten geladen', readFailed: 'Lesen fehlgeschlagen: {msg}',
       fieldCreated: '„{n}" angelegt · jetzt auf eine Kachel ziehen',
+      fieldsMissing: '{n} gebundene(s) Feld(er) fehlen im neuen Modell, rot markiert',
+      refSwapped: 'Referenz getauscht: „{o}" → „{n}"', scenAdjusted: 'Szenario auf {s} gestellt', basisAuto: 'Δ-Basis folgt wieder der Referenz ({b})',
       fieldRemoved: '„{n}" samt {c} Bindung(en) entfernt',
       saved: 'Mockup gespeichert', loaded: '„{n}" geladen', notAMockup: 'Datei ist kein MockupKitchen-Mockup',
       copied: '{n} kopiert', pngFailed: 'PNG-Export fehlgeschlagen: {msg}', filesPng: '{f} Dateien + {p} Seitenbilder',
@@ -354,7 +378,7 @@
 
     // ------------------------------------------------ Export (Brief, Doku, Prompt, Preflight)
     exp: {
-      open: '[offen]', fill: '[ausfüllen]', none: '–', yes: 'ja', no: 'nein', new: '(neu)', rename: '(umbenennen)', quote: '„{t}"',
+      open: '[offen]', fill: '[ausfüllen]', none: '–', yes: 'ja', no: 'nein', new: '(neu)', missing: '(fehlt im Modell)', rename: '(umbenennen)', quote: '„{t}"',
       measure: 'Measure', column: 'Spalte', measureLong: 'Kennzahl', dimension: 'Dimension',
       pri: { must: 'Must', should: 'Should', could: 'Could' },
       status: { open: 'offen', agreed: 'abgestimmt', approved: 'abgenommen' },
@@ -476,6 +500,15 @@
         renameRequest: 'Fachbereich möchte „{n}" in „{a}" umbenennen',
         newFieldUnused: 'Neues Feld „{n}" ist auf keiner Kachel gebunden',
         noAudience: 'Berichtskopf: Zielgruppe fehlt', noDecision: 'Berichtskopf: Entscheidung fehlt',
+        scenRef: '„{t}": Szenario {s}, gebunden ist aber „{f}"{b}. Referenz oder Szenario angleichen.',
+        scenRefShort: 'Szenario {s} passt nicht zur Referenz „{f}"{b}',
+        basisRef: '„{t}": Δ-Basis {d}, gebunden ist aber „{f}"{b}. Referenz oder Δ-Basis angleichen.',
+        basisRefShort: 'Δ-Basis {d} passt nicht zur Referenz „{f}"{b}',
+        fieldNotInModel: '„{t}": Feld „{f}" fehlt im geladenen Modell. Im Modell anlegen, umbenennen oder die Bindung lösen.',
+        fieldNotInModelShort: 'Feld „{f}" fehlt im Modell',
+        slicerNotInModel: 'Slicer-Feld „{f}" fehlt im geladenen Modell',
+        newTable: 'Neues Feld „{n}" kommt in die neue Tabelle „{tb}"; die Tabelle ist im Modell erst anzulegen',
+        newTableUnconfirmed: 'Neues Feld „{n}": Die Tabelle „{tb}" gibt es im Modell nicht. Tabellennamen prüfen.',
       },
 
       bm: { open: 'Filter öffnen', close: 'Filter schließen', overlayNote: 'Panel liegt über dem Inhalt; sichtbar nur im Bookmark „Filter öffnen".' },
@@ -713,7 +746,7 @@
       emptyTile: 'Empty tile', emptyHint: 'Choose a visual or drop a field', pageTitle: 'Page title',
       filter: 'Filters', dropField: '+ Drag a field here', dropFieldRole: 'Drag a field here', orCreate: 'or', createHere: 'create new', createHereTip: 'Create a measure or dimension that does not exist in the model yet and bind it to this role right away',
       note: 'Note', noteOpen: 'Note (open question)', openQuestion: 'Open question', openQuestionEmpty: 'Open question (no text yet)',
-      reqEmpty: 'Required role empty: {roles}', priority: 'Priority {p}', status: 'Status: {s}',
+      reqEmpty: 'Required role empty: {roles}', fieldMissing: 'Missing from the loaded model: {f}', priority: 'Priority {p}', status: 'Status: {s}',
       info: '{w} × {h} px · content {cw} × {ch} · scale ×{k} · zoom {z} %',
       dims: { xy: 'x · y', wh: 'w × h' },
       maxN: 'max {n}',
@@ -725,6 +758,28 @@
       emptyText: 'Load a TMDL folder, click “Demo model” or create measures / dimensions manually.',
       type: 'Type', format: 'Format', description: 'Description', noDesc: '– (no description stored in the model)',
       colOf: 'Column {t}', isNew: ' · new (not in the model yet)', tmdlSrc: 'TMDL ({n} files)',
+      isMissing: ' · missing from the loaded model', status: 'Status', missingGroup: 'Missing from the model',
+      missingTip: 'missing from the loaded model ({r}). Create it in the model, stage it as a new field or remove the binding.',
+      missingInfo: 'Not in the loaded model. Create it in the model, stage it as a new field or remove the binding.',
+    },
+
+    // Scenario and bound reference (review B2, B13)
+    scen: {
+      mismatch: 'Scenario {s}, but “{f}”{b} is bound.',
+      mismatchExtra: 'Scenario {s}, but “{f}”{b} is bound in addition. Extend the scenario or remove the binding.',
+      mismatchBasis: 'Δ base {d}, but “{f}”{b} is bound.',
+      noCandidate: 'Please drag a matching {b} field into the role.',
+      swap: 'Bind “{n}”', fixScenario: 'Use scenario {s}', autoBasis: 'Δ base automatic ({b})',
+      toast: 'Scenario {s}: the reference is still bound to “{f}”{b}. Please align it in the panel.',
+    },
+
+    // New field: check the table name against the model (review B26)
+    nm: {
+      tableUnknown: 'The table “{tb}” does not exist in the model.',
+      tableConfirm: 'Pick an existing table or confirm that a new one should be created.',
+      tableStaged: 'New table “{tb}”, already staged for other new fields.',
+      tableDot: 'A dot is not possible in a table name (field references read Table.Field).',
+      tableNear: 'Did you mean “{tb}”?', tableNew: 'create as a new table',
     },
 
     toast: {
@@ -740,6 +795,8 @@
       tmdlEmpty: 'TMDL read, but no columns / measures recognised. The file is probably not a table TMDL.',
       tmdlOk: '{tables} tables, {measures} measures, {columns} columns loaded', readFailed: 'Reading failed: {msg}',
       fieldCreated: '“{n}” created · now drag it onto a tile',
+      fieldsMissing: '{n} bound field(s) missing from the new model, marked red',
+      refSwapped: 'Reference swapped: “{o}” → “{n}”', scenAdjusted: 'Scenario set to {s}', basisAuto: 'Δ base follows the reference again ({b})',
       fieldRemoved: '“{n}” and {c} binding(s) removed',
       saved: 'Mockup saved', loaded: '“{n}” loaded', notAMockup: 'The file is not a MockupKitchen mockup',
       copied: '{n} copied', pngFailed: 'PNG export failed: {msg}', filesPng: '{f} files + {p} page images',
@@ -842,7 +899,7 @@
     },
 
     exp: {
-      open: '[open]', fill: '[to fill in]', none: '–', yes: 'yes', no: 'no', new: '(new)', rename: '(rename)', quote: '“{t}”',
+      open: '[open]', fill: '[to fill in]', none: '–', yes: 'yes', no: 'no', new: '(new)', missing: '(not in the model)', rename: '(rename)', quote: '“{t}”',
       measure: 'Measure', column: 'Column', measureLong: 'Measure', dimension: 'Dimension',
       pri: { must: 'Must', should: 'Should', could: 'Could' },
       status: { open: 'open', agreed: 'agreed', approved: 'approved' },
@@ -965,6 +1022,15 @@
         renameRequest: 'The business wants “{n}” renamed to “{a}”',
         newFieldUnused: 'The new field “{n}” is not bound on any tile',
         noAudience: 'Report header: the audience is missing', noDecision: 'Report header: the decision is missing',
+        scenRef: '“{t}”: scenario {s}, but “{f}”{b} is bound. Align the reference or the scenario.',
+        scenRefShort: 'Scenario {s} does not match the reference “{f}”{b}',
+        basisRef: '“{t}”: Δ base {d}, but “{f}”{b} is bound. Align the reference or the Δ base.',
+        basisRefShort: 'Δ base {d} does not match the reference “{f}”{b}',
+        fieldNotInModel: '“{t}”: the field “{f}” is missing from the loaded model. Create it in the model, rename it or remove the binding.',
+        fieldNotInModelShort: 'Field “{f}” is missing from the model',
+        slicerNotInModel: 'Slicer field “{f}” is missing from the loaded model',
+        newTable: 'The new field “{n}” goes into the new table “{tb}”; the table has to be created in the model first',
+        newTableUnconfirmed: 'New field “{n}”: the table “{tb}” does not exist in the model. Check the table name.',
       },
 
       bm: { open: 'Open filters', close: 'Close filters', overlayNote: 'The panel lies over the content; visible only in the bookmark “Open filters”.' },

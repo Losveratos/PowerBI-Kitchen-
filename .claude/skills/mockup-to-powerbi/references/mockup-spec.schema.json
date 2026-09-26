@@ -227,6 +227,7 @@
         "kind": { "enum": ["column", "measure"] },
         "ref": { "type": "string", "pattern": "^[^.]+\\..+$" },
         "isNew": { "type": "boolean" },
+        "missing": { "type": "boolean", "description": "Seit Tool-Review 2026-09-25. true = das Feld fehlt im geladenen Modell und ist auch nicht als neues Feld vorgemerkt (Issue FIELD_NOT_IN_MODEL). Fehlt der Schluessel, ist das Feld bekannt." },
         "default": { "type": ["string", "number", "boolean", "null"] },
         "type": {
           "description": "Ab Tool 0.4.4. Slicer-Art; fehlt sie (aeltere Specs), bleibt der Slicer wie pbir ihn anlegt.",
@@ -405,6 +406,7 @@
         "kind": { "enum": ["column", "measure"] },
         "ref": { "type": "string", "pattern": "^[^.]+\\..+$" },
         "isNew": { "type": "boolean" },
+        "missing": { "type": "boolean", "description": "Seit Tool-Review 2026-09-25. true = fehlt im geladenen Modell, nicht als neu vorgemerkt (Issue FIELD_NOT_IN_MODEL)." },
         "description": { "type": ["string", "null"] },
         "formatString": { "type": ["string", "null"] },
         "dataType": { "type": ["string", "null"] },
@@ -432,7 +434,8 @@
         "owner": { "type": ["string", "null"] },
         "source": { "type": ["string", "null"] },
         "openQuestion": { "type": ["string", "null"] },
-        "used": { "type": "boolean" }
+        "used": { "type": "boolean" },
+        "newTable": { "type": "boolean", "description": "Seit Tool-Review 2026-09-25. true = die Tabelle steht nicht in model.tables (Issue NEW_FIELD_NEW_TABLE). Zuerst die Tabelle klaeren bzw. anlegen." }
       }
     },
     "issue": {
