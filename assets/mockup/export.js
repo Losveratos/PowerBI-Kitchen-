@@ -141,7 +141,11 @@
     slicers.forEach(f => used.set(f.ref, f));
     const fields = Array.from(used.values()).map(f => {
       const info = MK.fieldInfo(f.ref) || {}; const m = S.fieldMeta[f.ref] || {}; const nf = S.newFields.find(x => x.table === f.table && x.name === f.name);
-      return Object.assign({}, f, { description: info.desc || (nf ? nf.desc : '') || '', formatString: info.format || '', dataType: info.type || '', alias: m.alias || '', renameInModel: !!m.rename, confirmed: !!m.confirmed, owner: m.owner || (nf ? nf.owner : '') || '', source: m.source || (nf ? nf.source : '') || '', target: m.target || (nf ? nf.target : '') || '', unit: m.unit || (nf ? nf.unit : '') || '', note: m.note || '' });
+      return Object.assign({}, f, { description: info.desc || (nf ? nf.desc : '') || '', formatString: info.format || '', dataType: info.type || '', alias: m.alias || '', renameInModel: !!m.rename, confirmed: !!m.confirmed, owner: m.owner || (nf ? nf.owner : '') || '', source: m.source || (nf ? nf.source : '') || '', target: m.target || (nf ? nf.target : '') || '', unit: m.unit || (nf ? nf.unit : '') || '', note: m.note || '',
+        // v0.5.3: Definition aus dem TMDL-Import und Workshop-Rückmeldung
+        expression: info.expr || '', formatExpression: info.formatExpr || '', formatDynamic: !!info.formatDynamic, displayFolder: info.folder || '',
+        formatDescription: (MK.fmtOf(info) || {}).label || '', formatSample: (MK.fmtOf(info) || {}).sample || '',
+        formatWish: m.formatWish || '', formatWishString: (MK.FORMAT_WISH || {})[m.formatWish] || '', daxComment: m.daxNote || '' });
     });
     fields.filter(f => f.renameInModel && f.alias).forEach(f => issue('info', 'RENAME_REQUEST', T('exp.issue.renameRequest', { n: f.name, a: f.alias })));
     const tableNames = S.model.tables.map(t => t.name);
@@ -206,7 +210,29 @@
   }
 
   // ------------------------------------------------------------------ Agent-Brief
+  // v0.5.3: Abschnitt „Definitionen und Kommentare" (DAX aus dem TMDL-Import, Format in Klartext, Workshop-Rückmeldung).
+  // DAX kommt aus der unveränderten Spec (raw): im Codeblock wären die Markdown-Escapes von mdSafe falsch.
+  function defsSection(spec, raw, K, L) {
+    const rawBy = new Map(raw.fields.map(f => [f.ref, f]));
+    const items = spec.fields.filter(f => { const r = rawBy.get(f.ref) || {}; return r.expression || r.daxComment || r.formatWish || r.formatDescription; });
+    if (!items.length) return [];
+    const out = [K('hDefs'), ''];
+    items.forEach(f => {
+      const r = rawBy.get(f.ref) || {};
+      out.push('### ' + (f.alias || f.name) + ' (`' + r.ref + '`)', '');
+      if (f.description) out.push(f.description, '');
+      if (r.formatDescription) out.push(K('defFormat', { l: f.formatDescription, s: f.formatSample ? ' · ' + f.formatSample : '' }));
+      if (r.formatWish) out.push(r.formatWish === 'other' ? K('defWishOther') : K('defWish', { f: r.formatWishString, l: TL(L, 'dax.fw.' + r.formatWish) }));
+      if (r.daxComment) out.push(K('defComment', { c: f.daxComment }));
+      if (r.expression) { const fence = r.expression.includes('```') ? '````' : '```'; out.push('', fence + 'dax', r.expression, fence); }
+      else if (f.kind === 'measure') out.push(K('defNoDax'));
+      if (r.formatExpression) { const fence = r.formatExpression.includes('```') ? '````' : '```'; out.push('', fence + 'dax', r.formatExpression, fence); }
+      out.push('');
+    });
+    return out;
+  }
   function buildBrief(spec) {
+    const rawSpec = spec;
     spec = mdSafe(spec);
     const L = spec.meta.lang === 'en' ? 'en' : 'de'; const T = (k, v) => TL(L, k, v);
     const B = (k, v) => TL(L, 'exp.brief.' + k, v);
@@ -265,6 +291,7 @@
     out.push(B('hFields'), '', B('fieldTable'), '|---|---|---|---|---|---|---|---|---|');
     spec.fields.forEach(f => out.push(row(`| \`${f.ref}\`${f.isNew ? ` ${T('exp.new')}` : ''}${f.missing ? ` ${T('exp.missing')}` : ''} | ${f.alias || '–'}${f.renameInModel ? ` ${T('exp.rename')}` : ''} | ${f.description || '–'} | ${f.formatString || '–'} | ${f.unit || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.target || '–'} | ${f.confirmed ? T('exp.yes') : T('exp.no')} |`)));
     out.push('');
+    defsSection(spec, rawSpec, B, L).forEach(x => out.push(x));
     if (spec.newFields.length) {
       out.push(B('hNewFields'), '', B('newFieldTable'), '|---|---|---|---|---|---|---|---|---|---|');
       spec.newFields.forEach(f => out.push(row(`| \`${f.name}\` | ${f.kind === 'measure' ? T('exp.measure') : T('exp.column')} | ${f.table} | ${f.description || '–'} | ${f.unit || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.openQuestion || '–'} | ${f.used ? T('exp.yes') : T('exp.no')} |`)));
@@ -278,6 +305,7 @@
 
   // ------------------------------------------------------------------ Workshop-Doku
   function buildDocs(spec) {
+    const rawSpec = spec;
     spec = mdSafe(spec);
     const L = spec.meta.lang === 'en' ? 'en' : 'de'; const T = (k, v) => TL(L, k, v);
     const D = (k, v) => TL(L, 'exp.docs.' + k, v);
@@ -313,6 +341,7 @@
     out.push(D('hFields'), '', D('fieldTable'), D('fieldSep'));
     spec.fields.forEach(f => out.push(row(`| ${f.ref}${f.isNew ? ` ${T('exp.new')}` : ''}${f.missing ? ` ${T('exp.missing')}` : ''} | ${f.alias || '–'} | ${f.description || FILL} | ${f.unit || f.formatString || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.confirmed ? '☑' : '☐'} |`)));
     out.push('');
+    defsSection(spec, rawSpec, D, L).forEach(x => out.push(x));
     if (spec.newFields.length) { out.push(D('hNew'), '', D('newTable'), D('newSep')); spec.newFields.forEach(f => out.push(row(`| ${f.name} | ${f.kind === 'measure' ? T('exp.measureLong') : T('exp.dimension')} | ${f.table} | ${f.description || FILL} | ${f.unit || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.openQuestion || '–'} |`))); out.push(''); }
     const open = [];
     spec.newFields.forEach(f => { if (f.openQuestion) open.push(`${f.name}: ${f.openQuestion}`); });

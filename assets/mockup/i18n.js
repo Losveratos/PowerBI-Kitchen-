@@ -255,6 +255,14 @@
       maxN: 'max {n}',
     },
 
+    dax: {
+      formula: 'DAX-Formel', formatExpr: 'Formatausdruck (dynamisches Format)', folder: 'Ordner', sample: 'Beispiel',
+      none: 'Keine DAX-Formel bekannt. Sie erscheint hier, wenn das Modell per TMDL geladen ist.',
+      note: 'Kommentar zu Berechnung und Beschreibung', notePh: 'z. B. Gutschriften fehlen, Beschreibung passt nicht zur Formel',
+      wish: 'Gewünschte Darstellung',
+      fw: { none: 'wie im Modell', int: 'Ganzzahl (1.235)', dec1: '1 Nachkommastelle (1.234,6)', dec2: '2 Nachkommastellen (1.234,57)', k: 'in Tausend (1,2 Tsd.)',
+            m: 'in Millionen (1,2 Mio.)', pct0: 'Prozent (12 %)', pct1: 'Prozent, 1 Nachkommastelle (12,3 %)', eur: 'Euro (1.235 €)', teur: 'Tausend Euro (1 T€)', other: 'anders (siehe Kommentar)' }
+    },
     model: {
       none: 'Kein Modell geladen', meta: '{src} · {tables} Tabellen · {measures} Measures', fallbackSrc: 'Modell',
       newGroup: 'Neu · zu erstellen', emptyTitle: 'Noch kein Modell',
@@ -462,6 +470,7 @@
         linkNav: 'Seitennavigation per Button-Aktion', linkDrill: 'Drill-through; Zielseite mit Drill-through-Feld aus der Kategorie dieses Visuals',
         vNotes: '- **Notizen:** {n}', vOpenQ: ' **(offene Frage)**',
         hLinks: '## Navigation und Drill', linkTable: '| Von (Visual) | Seite | Nach Seite | Art | Drill-Feld |',
+        hDefs: '## Kennzahl-Definitionen und Workshop-Kommentare', defFormat: '- Format im Modell: {l}{s}', defWish: '- **Darstellung ändern** auf `{f}` ({l}), Wunsch aus dem Workshop', defWishOther: '- **Darstellung ändern**, Wunsch aus dem Workshop: siehe Kommentar', defComment: '- **Kommentar aus dem Workshop:** {c}', defNoDax: '- DAX: im Mockup nicht bekannt (Modell ohne TMDL geladen)',
         hFields: '## Kennzahlen-Steckbrief (gebundene Felder)',
         fieldTable: '| Feld | Alias (Fachbereich) | Definition laut Modell | Format | Einheit | Owner | Quelle | Ziel | bestätigt |',
         hNewFields: '## Neue Kennzahlen / Felder (im Modell anlegen, bevor Visuals gebunden werden)',
@@ -501,6 +510,7 @@
         anLower: 'kleiner = besser', anSort: 'sortiert nach {by}', anTop: 'Top {n}', txtPrefix: 'Text: {t}',
         hLinks: '## Navigation und Drill-Wege',
         link: '- Von „{from}" ({id}) nach „{to}" ({kind})', linkNav: 'Seitenwechsel', linkDrill: 'Drill-through', linkDrillOn: 'Drill-through auf {f}',
+        hDefs: '## Definitionen und Kommentare', defFormat: '- Darstellung heute: {l}{s}', defWish: '- Gewünschte Darstellung: {l}', defWishOther: '- Gewünschte Darstellung: anders, siehe Kommentar', defComment: '- Kommentar: {c}', defNoDax: '- Formel: nicht bekannt',
         hFields: '## Kennzahlen-Steckbrief',
         fieldTable: '| Feld | Heißt beim Fachbereich | Definition laut Modell | Einheit | Ziel | Owner | Quelle | bestätigt |',
         fieldSep: '|---|---|---|---|---|---|---|---|',
@@ -826,6 +836,14 @@
       maxN: 'max {n}',
     },
 
+    dax: {
+      formula: 'DAX formula', formatExpr: 'Format expression (dynamic format)', folder: 'Folder', sample: 'Example',
+      none: 'No DAX formula known. It shows up here once the model is loaded from TMDL.',
+      note: 'Comment on calculation and description', notePh: 'e.g. credit notes missing, description does not match the formula',
+      wish: 'Desired display',
+      fw: { none: 'as in the model', int: 'Whole number (1,235)', dec1: '1 decimal (1,234.6)', dec2: '2 decimals (1,234.57)', k: 'in thousands (1.2K)',
+            m: 'in millions (1.2M)', pct0: 'Percent (12 %)', pct1: 'Percent, 1 decimal (12.3 %)', eur: 'Euro (€1,235)', teur: 'Thousand euro (€1K)', other: 'different (see comment)' }
+    },
     model: {
       none: 'No model loaded', meta: '{src} · {tables} tables · {measures} measures', fallbackSrc: 'Model',
       newGroup: 'New · to be created', emptyTitle: 'No model yet',
@@ -1032,6 +1050,7 @@
         linkNav: 'page navigation via button action', linkDrill: 'drill-through; target page with a drill-through field from the category of this visual',
         vNotes: '- **Notes:** {n}', vOpenQ: ' **(open question)**',
         hLinks: '## Navigation and drill', linkTable: '| From (visual) | Page | To page | Kind | Drill field |',
+        hDefs: '## KPI definitions and workshop comments', defFormat: '- Format in the model: {l}{s}', defWish: '- **Change display** to `{f}` ({l}), requested in the workshop', defWishOther: '- **Change display**, requested in the workshop: see comment', defComment: '- **Workshop comment:** {c}', defNoDax: '- DAX: not known in the mockup (model loaded without TMDL)',
         hFields: '## KPI fact sheet (bound fields)',
         fieldTable: '| Field | Alias (business) | Definition from the model | Format | Unit | Owner | Source | Target | confirmed |',
         hNewFields: '## New measures / fields (create in the model before binding visuals)',
@@ -1071,6 +1090,7 @@
         anLower: 'lower is better', anSort: 'sorted by {by}', anTop: 'Top {n}', txtPrefix: 'Text: {t}',
         hLinks: '## Navigation and drill paths',
         link: '- From “{from}” ({id}) to “{to}” ({kind})', linkNav: 'page switch', linkDrill: 'drill-through', linkDrillOn: 'drill-through on {f}',
+        hDefs: '## Definitions and comments', defFormat: '- Display today: {l}{s}', defWish: '- Desired display: {l}', defWishOther: '- Desired display: different, see comment', defComment: '- Comment: {c}', defNoDax: '- Formula: not known',
         hFields: '## KPI fact sheet',
         fieldTable: '| Field | Called by the business | Definition from the model | Unit | Target | Owner | Source | confirmed |',
         fieldSep: '|---|---|---|---|---|---|---|---|',

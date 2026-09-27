@@ -1,6 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
 // Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
-window.MK_VERSION = '0.5.2';
+window.MK_VERSION = '0.5.3';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
@@ -1108,18 +1108,25 @@ window.MK_VERSION = '0.5.2';
   // ---------------------------------------------------------------- Kennzahlen-Steckbrief (fieldMeta je Tabelle.Feld)
   let fmRef = null;
   function fieldInfo(ref) { const i = ref.indexOf('.'); const t = S.model.tables.find(x => x.name === ref.slice(0, i)); if (!t) return null; return t.measures.find(x => x.name === ref.slice(i + 1)) || t.columns.find(x => x.name === ref.slice(i + 1)) || null; }
+  const FORMAT_WISH = { int: '#,0', dec1: '#,0.0', dec2: '#,0.00', k: '#,0.0, "Tsd."', m: '#,0.0,, "Mio."', pct0: '0 %', pct1: '0.0 %', eur: '#,0 "€"', teur: '#,0, "T€"' };
+  function fmtOf(info) { return info && window.MK_FMTINFO ? window.MK_FMTINFO.describe(info.format, S.lang, { dynamic: !!info.formatDynamic }) : null; }
   function openFieldMeta(f) {
     fmRef = f.table + '.' + f.name; const m = S.fieldMeta[fmRef] || {}; const info = fieldInfo(fmRef); const nf = S.newFields.find(x => x.table === f.table && x.name === f.name);
     // Status live bestimmen (Review B3): ein Feld, das es im geladenen Modell nicht mehr gibt, meldet das hier statt still leer zu bleiben
     const st = fieldStatus(f);
     $('#fmRef').textContent = fmRef + (st === 'new' ? t('model.isNew') : st === 'missing' ? t('model.isMissing') : '');
-    $('#fmModel').innerHTML = info ? `<span class="k">${esc(t('model.type'))}</span><span>${esc(info.kind === 'measure' ? t('kind.measure') : t('model.colOf', { t: info.type || '' }))}</span><span class="k">${esc(t('model.format'))}</span><span>${esc(info.format || '–')}</span><span class="k">${esc(t('model.description'))}</span><span>${esc(info.desc || t('model.noDesc'))}</span>` : (nf ? `<span class="k">${esc(t('model.description'))}</span><span>${esc(nf.desc || '–')}</span>` : (st === 'missing' ? `<span class="k">${esc(t('model.status'))}</span><span class="fm-missing">${esc(t('model.missingInfo'))}</span>` : ''));
+    $('#fmModel').innerHTML = info ? `<span class="k">${esc(t('model.type'))}</span><span>${esc(info.kind === 'measure' ? t('kind.measure') : t('model.colOf', { t: info.type || '' }))}</span><span class="k">${esc(t('model.format'))}</span><span>${fmtOf(info) ? `${esc(fmtOf(info).label)}${fmtOf(info).sample ? ` <span class="fm-sample">${esc(t('dax.sample'))} ${esc(fmtOf(info).sample)}</span>` : ''}${info.format ? `<br><span class="mono fm-raw">${esc(info.format)}</span>` : ''}` : '–'}</span>${info.folder ? `<span class="k">${esc(t('dax.folder'))}</span><span>${esc(info.folder)}</span>` : ''}<span class="k">${esc(t('model.description'))}</span><span>${esc(info.desc || t('model.noDesc'))}</span>` : (nf ? `<span class="k">${esc(t('model.description'))}</span><span>${esc(nf.desc || '–')}</span>` : (st === 'missing' ? `<span class="k">${esc(t('model.status'))}</span><span class="fm-missing">${esc(t('model.missingInfo'))}</span>` : ''));
     $('#fmAlias').value = m.alias || ''; $('#fmConfirmed').checked = !!m.confirmed; $('#fmRename').checked = !!m.rename; $('#fmOwner').value = m.owner || (nf ? nf.owner || '' : ''); $('#fmSource').value = m.source || (nf ? nf.source || '' : ''); $('#fmTarget').value = m.target || (nf ? nf.target || '' : ''); $('#fmUnit').value = m.unit || (nf ? nf.unit || '' : ''); $('#fmNote').value = m.note || '';
+    // DAX und dynamischer Formatausdruck aus dem TMDL-Import (v0.5.3)
+    const dax = info && info.expr; $('#fmDax').hidden = !dax; $('#fmDaxCode').textContent = dax || '';
+    const fx = info && info.formatExpr; $('#fmFmtExpr').hidden = !fx; $('#fmFmtExprCode').textContent = fx || '';
+    $('#fmNoDax').hidden = !!dax || !info || info.kind !== 'measure';
+    $('#fmDaxNote').value = m.daxNote || ''; $('#fmFormatWish').value = m.formatWish || '';
     $('#dlgFieldMeta').showModal();
   }
   $('#fmOk').onclick = () => {
     if (!fmRef) return;
-    const m = { alias: $('#fmAlias').value.trim(), confirmed: $('#fmConfirmed').checked, rename: $('#fmRename').checked, owner: $('#fmOwner').value.trim(), source: $('#fmSource').value.trim(), target: $('#fmTarget').value.trim(), unit: $('#fmUnit').value.trim(), note: $('#fmNote').value.trim() };
+    const m = { alias: $('#fmAlias').value.trim(), confirmed: $('#fmConfirmed').checked, rename: $('#fmRename').checked, owner: $('#fmOwner').value.trim(), source: $('#fmSource').value.trim(), target: $('#fmTarget').value.trim(), unit: $('#fmUnit').value.trim(), note: $('#fmNote').value.trim(), daxNote: $('#fmDaxNote').value.trim(), formatWish: $('#fmFormatWish').value };
     if (Object.values(m).some(v => v === true || (typeof v === 'string' && v))) S.fieldMeta[fmRef] = m; else delete S.fieldMeta[fmRef];
     $('#dlgFieldMeta').close(); commit(); toast(t('toast.metaSaved'));
   };
@@ -1183,8 +1190,24 @@ window.MK_VERSION = '0.5.2';
     const lines = text.replace(/^﻿/, '').replace(/\r/g, '').split('\n');
     let table = null, cur = null, pendingDesc = []; const out = [];
     const unq = s => { s = s.trim(); return (s.startsWith("'") && s.endsWith("'")) ? s.slice(1, -1).replace(/''/g, "'") : s; };
+    // DAX-Formeln (v0.5.3): einzeilig hinter „=", mehrzeilig tiefer eingerückt als die Eigenschaften, oder in ```-Blöcken
+    let expr = null;          // { target, lines, fence, indent }
+    const endExpr = () => {
+      if (!expr) return;
+      const ls = expr.lines; while (ls.length && !ls[ls.length - 1].trim()) ls.pop(); while (ls.length && !ls[0].trim()) ls.shift();
+      const min = ls.filter(l => l.trim()).reduce((m, l) => Math.min(m, l.match(/^ */)[0].length), 1e9);
+      const text = ls.map(l => l.slice(Math.min(min, l.match(/^ */)[0].length)).replace(/^(?: {4})+/, s => '\t'.repeat(s.length / 4))).join('\n').trim();
+      if (expr.key === 'expr') expr.target.expr = text; else if (expr.key === 'formatExpr') expr.target.formatExpr = text;
+      expr = null;
+    };
+    const tmdlValue = v => { v = v.trim(); return (v.length > 1 && v.startsWith('"') && v.endsWith('"')) ? v.slice(1, -1).replace(/""/g, '"') : v; };
     for (const raw of lines) {
       const line = raw.replace(/\t/g, '    '); const indent = line.match(/^ */)[0].length; const t = line.trim();
+      if (expr) {
+        if (expr.fence) { if (t === '```') { endExpr(); continue; } expr.lines.push(line); continue; }
+        if (!t || indent > expr.indent) { expr.lines.push(line); continue; }
+        endExpr();
+      }
       if (!t) continue;
       if (indent === 0) {
         if (t.startsWith('table ')) { table = { name: unq(t.slice(6).replace(/\s*\/\/.*$/, '')), columns: [], measures: [], hidden: false, desc: pendingDesc.join(' ') }; out.push(table); cur = null; pendingDesc = []; }
@@ -1200,6 +1223,12 @@ window.MK_VERSION = '0.5.2';
           const kind = m[1] === 'measure' ? 'measure' : (m[1] === 'hierarchy' ? 'hierarchy' : 'column');
           cur = { name: unq(m[2]), kind, type: kind === 'measure' ? 'measure' : '', desc: pendingDesc.join(' '), hidden: false, format: '' }; pendingDesc = [];
           if (kind === 'measure') table.measures.push(cur); else if (kind === 'column') table.columns.push(cur); else cur = null;
+          const rhs = m[3] ? m[3].replace(/^\s*=\s*/, '') : null;
+          if (cur && rhs !== null) {
+            if (rhs.startsWith('```')) expr = { target: cur, key: 'expr', lines: rhs.slice(3).trim() ? [rhs.slice(3)] : [], fence: true, indent };
+            else if (rhs.trim()) cur.expr = rhs.trim();
+            else expr = { target: cur, key: 'expr', lines: [], fence: false, indent: indent + 4 };
+          }
         } else if (t.startsWith('isHidden') && !cur) table.hidden = true;
         else { cur = null; pendingDesc = []; }
         continue;
@@ -1207,10 +1236,17 @@ window.MK_VERSION = '0.5.2';
       if (cur && indent <= 8) {
         if (t.startsWith('dataType:')) cur.type = t.slice(9).trim();
         else if (t === 'isHidden' || t.startsWith('isHidden:')) cur.hidden = true;
-        else if (t.startsWith('formatString:')) cur.format = t.slice(13).trim();
-        else if (t.startsWith('description:')) cur.desc = t.slice(12).trim();
+        else if (t.startsWith('formatString:')) cur.format = tmdlValue(t.slice(13));
+        else if (t.startsWith('description:')) cur.desc = tmdlValue(t.slice(12));
+        else if (t.startsWith('displayFolder:')) cur.folder = tmdlValue(t.slice(14));
+        else if (t.startsWith('formatStringDefinition')) {
+          cur.formatDynamic = true; const rhs = t.replace(/^formatStringDefinition\s*=?\s*/, '');
+          if (rhs.startsWith('```')) expr = { target: cur, key: 'formatExpr', lines: [], fence: true, indent };
+          else if (rhs) cur.formatExpr = rhs; else expr = { target: cur, key: 'formatExpr', lines: [], fence: false, indent };
+        }
       }
     }
+    endExpr();
     return out;
   }
   function ingestTmdlFiles(files) {
@@ -1514,7 +1550,7 @@ window.MK_VERSION = '0.5.2';
   // Öffentliche API für export.js
   window.MK = {
     get state() { return S; }, set state(v) { S = migrate(v); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Öffnen nie verhindern */ } sel = null; commit(); },
-    page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
+    page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, fmtOf, FORMAT_WISH, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     fieldStatus, refMismatch, sketchScenario, basisOfName, syncFieldFlags,
     setLang, get lang() { return I18N.lang; }, copyText, tileInk,
     markClean() { cleanPrint = fingerprint(S); }, isUnchanged() { return (cleanPrint !== null && cleanPrint === fingerprint(S)) || isPristine(); },

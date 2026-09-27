@@ -4,452 +4,1480 @@
   "title": "MockupKitchen byDatenWG - mockup-spec.json (specVersion 3)",
   "description": "Pruefschema fuer die Spec aus assets/mockup/export.js. Geprueft wird die auf v3 gehobene Fassung: mockup_to_pbir.py hebt specVersion 1 und 2 intern auf diese Form, bevor validiert wird. Absichtlich permissiv gegenueber zusaetzlichen Schluesseln (das Tool darf wachsen), streng bei Typen, Enums und Pflichtfeldern.",
   "type": "object",
-  "required": ["meta", "canvas", "zones", "pages"],
+  "required": [
+    "meta",
+    "canvas",
+    "zones",
+    "pages"
+  ],
   "properties": {
     "meta": {
       "type": "object",
-      "required": ["specVersion", "name"],
+      "required": [
+        "specVersion",
+        "name"
+      ],
       "properties": {
-        "tool": { "type": "string" },
-        "version": { "type": "string" },
-        "specVersion": { "type": "integer", "minimum": 1, "maximum": 3 },
-        "sourceSpecVersion": { "type": "integer", "minimum": 1, "maximum": 3 },
-        "specHash": { "type": ["string", "null"] },
-        "name": { "type": "string" },
-        "lang": { "enum": ["de", "en"] },
-        "exportedAt": { "type": "string" },
-        "skill": { "type": "string" }
+        "tool": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "specVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "sourceSpecVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "specHash": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "lang": {
+          "enum": [
+            "de",
+            "en"
+          ]
+        },
+        "exportedAt": {
+          "type": "string"
+        },
+        "skill": {
+          "type": "string"
+        }
       }
     },
     "report": {
       "type": "object",
       "properties": {
-        "name": { "type": ["string", "null"] },
-        "audience": { "type": ["string", "null"] },
-        "purpose": { "type": ["string", "null"] },
-        "decision": { "type": ["string", "null"] },
-        "participants": { "type": ["string", "null"] },
-        "version": { "type": ["string", "null"] },
-        "dataDate": { "type": ["string", "null"] }
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "audience": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "purpose": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "decision": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "participants": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dataDate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
     "canvas": {
       "type": "object",
-      "required": ["width", "height"],
+      "required": [
+        "width",
+        "height"
+      ],
       "properties": {
-        "width": { "type": "integer", "minimum": 1 },
-        "height": { "type": "integer", "minimum": 1 },
-        "preset": { "type": ["string", "null"] },
-        "uiScale": { "type": "number", "minimum": 0.1, "maximum": 8 }
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "preset": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "uiScale": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 8
+        }
       }
     },
     "spacing": {
       "type": "object",
       "properties": {
-        "margin": { "type": "integer", "minimum": 0 },
-        "gutter": { "type": "integer", "minimum": 0 },
-        "tilePadding": { "type": "integer", "minimum": 0 },
-        "base": { "type": "object" }
+        "margin": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "gutter": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tilePadding": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "base": {
+          "type": "object"
+        }
       }
     },
     "design": {
       "type": "object",
       "properties": {
-        "cornerRadius": { "type": "integer", "minimum": 0 },
-        "tileStyle": { "enum": ["border", "shadow", "flat"] },
-        "pageBackground": { "$ref": "#/$defs/hex" },
-        "tileBackground": { "$ref": "#/$defs/hex" },
-        "headerStyle": { "enum": ["light", "dark", "accent", "custom"] },
-        "accent": { "$ref": "#/$defs/hex" },
-        "darkMode": { "type": "boolean" },
-        "fontScale": { "type": "number", "minimum": 0.1, "maximum": 8 },
-        "variancePalette": { "enum": ["teal", "ibcs"] },
+        "cornerRadius": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tileStyle": {
+          "enum": [
+            "border",
+            "shadow",
+            "flat"
+          ]
+        },
+        "pageBackground": {
+          "$ref": "#/$defs/hex"
+        },
+        "tileBackground": {
+          "$ref": "#/$defs/hex"
+        },
+        "headerStyle": {
+          "enum": [
+            "light",
+            "dark",
+            "accent",
+            "custom"
+          ]
+        },
+        "accent": {
+          "$ref": "#/$defs/hex"
+        },
+        "darkMode": {
+          "type": "boolean"
+        },
+        "fontScale": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 8
+        },
+        "variancePalette": {
+          "enum": [
+            "teal",
+            "ibcs"
+          ]
+        },
         "varianceColors": {
-          "type": ["object", "null"],
+          "type": [
+            "object",
+            "null"
+          ],
           "properties": {
-            "good": { "$ref": "#/$defs/hex" },
-            "bad": { "$ref": "#/$defs/hex" }
+            "good": {
+              "$ref": "#/$defs/hex"
+            },
+            "bad": {
+              "$ref": "#/$defs/hex"
+            }
           }
         },
         "colors": {
-          "type": ["object", "null"],
+          "type": [
+            "object",
+            "null"
+          ],
           "properties": {
-            "pageBackground": { "$ref": "#/$defs/hex" },
-            "tileBackground": { "$ref": "#/$defs/hex" },
-            "ink": { "$ref": "#/$defs/hex" },
-            "headerBackground": { "$ref": "#/$defs/hex" },
-            "headerInk": { "$ref": "#/$defs/hex" }
+            "pageBackground": {
+              "$ref": "#/$defs/hex"
+            },
+            "tileBackground": {
+              "$ref": "#/$defs/hex"
+            },
+            "ink": {
+              "$ref": "#/$defs/hex"
+            },
+            "headerBackground": {
+              "$ref": "#/$defs/hex"
+            },
+            "headerInk": {
+              "$ref": "#/$defs/hex"
+            }
           }
         },
-        "typography": { "$ref": "#/$defs/typography" },
-        "nativePalette": { "description": "Ab Tool 0.4.7. Farbschema der Skizzen fuer native Visuals: neutral | pbi | kitchen (nur Skizze; im Bericht regelt das Theme die Datenfarben).", "enum": ["neutral", "pbi", "kitchen"] }
+        "typography": {
+          "$ref": "#/$defs/typography"
+        },
+        "nativePalette": {
+          "description": "Ab Tool 0.4.7. Farbschema der Skizzen fuer native Visuals: neutral | pbi | kitchen (nur Skizze; im Bericht regelt das Theme die Datenfarben).",
+          "enum": [
+            "neutral",
+            "pbi",
+            "kitchen"
+          ]
+        }
       }
     },
     "zones": {
       "type": "object",
-      "required": ["content"],
+      "required": [
+        "content"
+      ],
       "properties": {
-        "content": { "$ref": "#/$defs/zone" },
-        "nav": { "$ref": "#/$defs/navZone" },
-        "header": { "$ref": "#/$defs/headerZone" },
-        "filter": { "$ref": "#/$defs/filterZone" },
-        "footer": { "$ref": "#/$defs/footerZone" }
+        "content": {
+          "$ref": "#/$defs/zone"
+        },
+        "nav": {
+          "$ref": "#/$defs/navZone"
+        },
+        "header": {
+          "$ref": "#/$defs/headerZone"
+        },
+        "filter": {
+          "$ref": "#/$defs/filterZone"
+        },
+        "footer": {
+          "$ref": "#/$defs/footerZone"
+        }
       }
     },
     "pages": {
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "#/$defs/page" }
+      "items": {
+        "$ref": "#/$defs/page"
+      }
     },
-    "links": { "type": "array", "items": { "$ref": "#/$defs/link" } },
+    "links": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/link"
+      }
+    },
     "model": {
       "type": "object",
       "properties": {
-        "source": { "type": ["string", "null"] },
-        "tables": { "type": "array", "items": { "type": "string" } },
-        "usedFields": { "type": "array", "items": { "$ref": "#/$defs/field" } }
+        "source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "usedFields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/field"
+          }
+        }
       }
     },
-    "fields": { "type": "array", "items": { "$ref": "#/$defs/field" } },
-    "newFields": { "type": "array", "items": { "$ref": "#/$defs/newField" } },
-    "issues": { "type": "array", "items": { "$ref": "#/$defs/issue" } },
-    "warnings": { "type": "array", "items": { "type": "string" } }
+    "fields": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/field"
+      }
+    },
+    "newFields": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/newField"
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/issue"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
   },
   "$defs": {
-    "hex": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+    "hex": {
+      "type": "string",
+      "pattern": "^#[0-9A-Fa-f]{6}$"
+    },
     "zone": {
       "type": "object",
-      "required": ["x", "y", "w", "h"],
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ],
       "properties": {
-        "x": { "type": "integer" },
-        "y": { "type": "integer" },
-        "w": { "type": "integer", "minimum": 0 },
-        "h": { "type": "integer", "minimum": 0 }
+        "x": {
+          "type": "integer"
+        },
+        "y": {
+          "type": "integer"
+        },
+        "w": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "h": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
     "navZone": {
-      "allOf": [{ "$ref": "#/$defs/zone" }],
-      "properties": { "pages": { "type": "array", "items": { "type": "string" } } }
+      "allOf": [
+        {
+          "$ref": "#/$defs/zone"
+        }
+      ],
+      "properties": {
+        "pages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     },
     "headerZone": {
-      "allOf": [{ "$ref": "#/$defs/zone" }],
+      "allOf": [
+        {
+          "$ref": "#/$defs/zone"
+        }
+      ],
       "properties": {
-        "style": { "enum": ["light", "dark", "accent", "custom"] },
-        "logoPos": { "enum": ["left", "right", "none"] },
-        "title": { "type": ["string", "null"] },
-        "subtitle": { "type": ["string", "null"] },
-        "nav": { "type": "array", "items": { "type": "string" } },
-        "navOn": { "type": "boolean" },
-        "navPosition": { "$ref": "#/$defs/navPosition" },
-        "navAuto": { "type": "boolean" },
-        "burger": { "type": "boolean" }
+        "style": {
+          "enum": [
+            "light",
+            "dark",
+            "accent",
+            "custom"
+          ]
+        },
+        "logoPos": {
+          "enum": [
+            "left",
+            "right",
+            "none"
+          ]
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "subtitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nav": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "navOn": {
+          "type": "boolean"
+        },
+        "navPosition": {
+          "$ref": "#/$defs/navPosition"
+        },
+        "navAuto": {
+          "type": "boolean"
+        },
+        "burger": {
+          "type": "boolean"
+        }
       }
     },
     "filterZone": {
-      "allOf": [{ "$ref": "#/$defs/zone" }],
+      "allOf": [
+        {
+          "$ref": "#/$defs/zone"
+        }
+      ],
       "properties": {
-        "mode": { "enum": ["right", "left", "top", "burger"] },
-        "side": { "type": "string" },
-        "collapsible": { "type": "boolean" },
+        "mode": {
+          "enum": [
+            "right",
+            "left",
+            "top",
+            "burger"
+          ]
+        },
+        "side": {
+          "type": "string"
+        },
+        "collapsible": {
+          "type": "boolean"
+        },
         "heading": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Ab Tool 0.4.4. Sichtbare Ueberschrift des Filterbereichs; null = keine Ueberschrift. Fehlt der Schluessel (aeltere Specs), baut der Skill wie bisher die Ueberschrift \"Filter\"."
         },
         "text": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Ab Tool 0.4.4. Freier Hinweistext im Filterbereich (unter der Ueberschrift, in der Leiste oben daneben); null = keiner."
         },
-        "overlay": { "type": "boolean" },
-        "note": { "type": ["string", "null"] },
-        "slicers": { "type": "array", "items": { "$ref": "#/$defs/slicer" } },
+        "overlay": {
+          "type": "boolean"
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "slicers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/slicer"
+          }
+        },
         "bookmarks": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["name"],
+            "required": [
+              "name"
+            ],
             "properties": {
-              "name": { "type": "string" },
-              "showsPanel": { "type": "boolean" }
+              "name": {
+                "type": "string"
+              },
+              "showsPanel": {
+                "type": "boolean"
+              }
             }
           }
         }
       }
     },
     "footerZone": {
-      "allOf": [{ "$ref": "#/$defs/zone" }],
+      "allOf": [
+        {
+          "$ref": "#/$defs/zone"
+        }
+      ],
       "properties": {
-        "text": { "type": ["string", "null"] },
+        "text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "nav": {
           "description": "Ab Tool 0.4.3. Seitennamen der Navigation, wenn navPosition \"footer\" ist; sonst leer.",
           "type": "array",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         },
-        "navPosition": { "$ref": "#/$defs/navPosition" }
+        "navPosition": {
+          "$ref": "#/$defs/navPosition"
+        }
       }
     },
     "navPosition": {
       "description": "Ab Tool 0.4.3. Wo die Seitennavigation sitzt. `zones.header.navOn` ist die Kurzform fuer navPosition == \"header\".",
-      "enum": ["header", "footer", "off"]
+      "enum": [
+        "header",
+        "footer",
+        "off"
+      ]
     },
     "typography": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "description": "Ab Tool 0.4.3. Basisgroessen in px bei 1280 px Seitenbreite; die Seite skaliert mit k = canvas.width / 1280 (= design.fontScale). Wirksam: Titel = title x scale x k, Untertitel = sub x scale x k, Diagrammbeschriftung = chart x scale x k; im Bericht in pt = px x 0,75.",
       "properties": {
-        "basis": { "type": "string" },
-        "scale": { "type": "number", "exclusiveMinimum": 0, "maximum": 8 },
-        "title": { "type": "number", "exclusiveMinimum": 0, "maximum": 96 },
-        "sub": { "type": "number", "exclusiveMinimum": 0, "maximum": 96 },
-        "chart": { "type": "number", "exclusiveMinimum": 0, "maximum": 96 }
+        "basis": {
+          "type": "string"
+        },
+        "scale": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 8
+        },
+        "title": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 96
+        },
+        "sub": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 96
+        },
+        "chart": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 96
+        }
       }
     },
     "visualTypography": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "description": "Ab Tool 0.4.3. Kachel-Override: `scale` multipliziert die globale Typografie fuer diese Kachel; null = wie global.",
       "properties": {
-        "scale": { "type": "number", "exclusiveMinimum": 0, "maximum": 8 }
+        "scale": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 8
+        }
       }
     },
     "interaction": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "description": "Ab Tool 0.4.2. Verhalten der Kachel.",
       "properties": {
-        "drillDown": { "type": "boolean" },
-        "crossFilter": { "type": "boolean" },
-        "drillThrough": { "type": ["object", "null"] }
+        "drillDown": {
+          "type": "boolean"
+        },
+        "crossFilter": {
+          "type": "boolean"
+        },
+        "drillThrough": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
       }
     },
     "slicer": {
       "type": "object",
-      "required": ["table", "name", "ref"],
+      "required": [
+        "table",
+        "name",
+        "ref"
+      ],
       "properties": {
-        "table": { "type": "string" },
-        "name": { "type": "string" },
-        "kind": { "enum": ["column", "measure"] },
-        "ref": { "type": "string", "pattern": "^[^.]+\\..+$" },
-        "isNew": { "type": "boolean" },
-        "missing": { "type": "boolean", "description": "Seit Tool-Review 2026-09-25. true = das Feld fehlt im geladenen Modell und ist auch nicht als neues Feld vorgemerkt (Issue FIELD_NOT_IN_MODEL). Fehlt der Schluessel, ist das Feld bekannt." },
-        "default": { "type": ["string", "number", "boolean", "null"] },
+        "table": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "column",
+            "measure"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^[^.]+\\..+$"
+        },
+        "isNew": {
+          "type": "boolean"
+        },
+        "missing": {
+          "type": "boolean",
+          "description": "Seit Tool-Review 2026-09-25. true = das Feld fehlt im geladenen Modell und ist auch nicht als neues Feld vorgemerkt (Issue FIELD_NOT_IN_MODEL). Fehlt der Schluessel, ist das Feld bekannt."
+        },
+        "default": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "null"
+          ]
+        },
         "type": {
           "description": "Ab Tool 0.4.4. Slicer-Art; fehlt sie (aeltere Specs), bleibt der Slicer wie pbir ihn anlegt.",
-          "enum": ["dropdown", "list", "tile", "between", "date", "search", "relative", "button"]
+          "enum": [
+            "dropdown",
+            "list",
+            "tile",
+            "between",
+            "date",
+            "search",
+            "relative",
+            "button"
+          ]
         }
       }
     },
     "page": {
       "type": "object",
-      "required": ["name", "visuals"],
+      "required": [
+        "name",
+        "visuals"
+      ],
       "properties": {
-        "id": { "type": "string" },
-        "index": { "type": "integer", "minimum": 1 },
-        "name": { "type": "string", "minLength": 1 },
-        "question": { "type": ["string", "null"] },
-        "notes": { "type": ["string", "null"] },
-        "contentRect": { "$ref": "#/$defs/zone" },
-        "visuals": { "type": "array", "items": { "$ref": "#/$defs/visual" } },
-        "layoutTree": { "type": ["object", "null"] }
+        "id": {
+          "type": "string"
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "question": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "contentRect": {
+          "$ref": "#/$defs/zone"
+        },
+        "visuals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/visual"
+          }
+        },
+        "layoutTree": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
       }
     },
     "visual": {
       "type": "object",
-      "required": ["id", "kind", "engine", "rect"],
+      "required": [
+        "id",
+        "kind",
+        "engine",
+        "rect"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "stableId": { "type": "string" },
-        "slug": { "type": "string" },
-        "page": { "type": "string" },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stableId": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "page": {
+          "type": "string"
+        },
         "kind": {
           "description": "Katalog-Typ aus assets/mockup/catalog.js. Die Gruppe `native` (ncolumn, nbar, nline, ndonut) kam mit Tool 0.4.1 dazu.",
           "enum": [
-            "columns", "kombi", "colline", "absvar", "relvar", "bars", "barskombi",
-            "bullet", "tornado", "dotplot", "pareto", "stackcol", "stackbar",
+            "columns",
+            "kombi",
+            "colline",
+            "absvar",
+            "relvar",
+            "bars",
+            "barskombi",
+            "bullet",
+            "tornado",
+            "dotplot",
+            "pareto",
+            "stackcol",
+            "stackbar",
             "marimekko",
-            "line", "varint", "slope", "fan", "zchart", "multiples", "area",
-            "waterfall", "wfint", "wfkombi", "bridge", "tree", "heatmap", "scatter",
-            "boxplot", "gantt",
-            "kpi", "card", "multirow", "table", "pnl", "sparktable", "matrix", "gauge",
-            "ncolumn", "nbar", "nline", "ndonut", "pie", "treemap", "decomp", "map",
+            "line",
+            "varint",
+            "slope",
+            "fan",
+            "zchart",
+            "multiples",
+            "area",
+            "waterfall",
+            "wfint",
+            "wfkombi",
+            "bridge",
+            "tree",
+            "heatmap",
+            "scatter",
+            "boxplot",
+            "gantt",
+            "kpi",
+            "card",
+            "multirow",
+            "table",
+            "pnl",
+            "sparktable",
+            "matrix",
+            "gauge",
+            "ncolumn",
+            "nbar",
+            "nline",
+            "ndonut",
+            "pie",
+            "treemap",
+            "decomp",
+            "map",
             "deneb",
-            "slicer", "text", "image", "button"
+            "slicer",
+            "text",
+            "image",
+            "button"
           ]
         },
-        "label": { "type": ["string", "null"] },
-        "engine": { "enum": ["native", "ck", "deneb", "custom"] },
-        "chartKitchenType": { "type": ["string", "null"] },
-        "chartKitchenMode": { "type": ["string", "null"] },
-        "native": { "$ref": "#/$defs/native" },
-        "customVisual": { "$ref": "#/$defs/customVisual" },
-        "title": { "type": ["string", "null"] },
-        "subtitle": { "type": ["string", "null"] },
-        "content": { "type": ["string", "null"] },
-        "scenario": { "type": ["string", "null"] },
-        "analysis": { "$ref": "#/$defs/analysis" },
-        "workshop": { "$ref": "#/$defs/workshop" },
-        "typography": { "$ref": "#/$defs/visualTypography" },
-        "interaction": { "$ref": "#/$defs/interaction" },
+        "label": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "engine": {
+          "enum": [
+            "native",
+            "ck",
+            "deneb",
+            "custom"
+          ]
+        },
+        "chartKitchenType": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "chartKitchenMode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "native": {
+          "$ref": "#/$defs/native"
+        },
+        "customVisual": {
+          "$ref": "#/$defs/customVisual"
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "subtitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "content": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scenario": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "analysis": {
+          "$ref": "#/$defs/analysis"
+        },
+        "workshop": {
+          "$ref": "#/$defs/workshop"
+        },
+        "typography": {
+          "$ref": "#/$defs/visualTypography"
+        },
+        "interaction": {
+          "$ref": "#/$defs/interaction"
+        },
         "samples": {
           "description": "Ab Tool 0.4.7. Beispielwerte aus dem Workshop (nur Anschauung fuer Skizze und Doku, keine Daten fuer den Bericht).",
-          "type": ["object", "null"],
+          "type": [
+            "object",
+            "null"
+          ],
           "properties": {
-            "categories": { "type": "array", "items": { "type": "string" } },
-            "values": { "type": "array", "items": { "type": "number" } },
-            "refValues": { "type": "array", "items": { "type": "number" } }
+            "categories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "refValues": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
           }
         },
-        "rect": { "$ref": "#/$defs/rect" },
-        "roles": { "type": "object" },
-        "notes": { "type": ["string", "null"] },
-        "link": { "type": ["object", "null"] },
-        "warnings": { "type": "array", "items": { "type": "string" } }
+        "rect": {
+          "$ref": "#/$defs/rect"
+        },
+        "roles": {
+          "type": "object"
+        },
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "link": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
     "rect": {
       "type": "object",
-      "required": ["x", "y", "w", "h"],
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ],
       "properties": {
-        "x": { "type": "integer" },
-        "y": { "type": "integer" },
-        "w": { "type": "integer", "minimum": 1 },
-        "h": { "type": "integer", "minimum": 1 }
+        "x": {
+          "type": "integer"
+        },
+        "y": {
+          "type": "integer"
+        },
+        "w": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "h": {
+          "type": "integer",
+          "minimum": 1
+        }
       }
     },
     "native": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "properties": {
-        "type": { "type": "string", "minLength": 1 },
-        "buckets": { "type": "object" }
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "buckets": {
+          "type": "object"
+        }
       }
     },
     "customVisual": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "description": "Nur bei engine: \"custom\". `buckets` ist wie `native.buckets` aufgebaut, die Schluessel sind aber die Datenrollen des Custom Visuals aus seiner capabilities.json (dataKitchenGantt: task, start, end, phase, ...; pnlByDatenWG: levels, ac, py, pl, fc, rowType, ...).",
-      "required": ["name", "guid"],
+      "required": [
+        "name",
+        "guid"
+      ],
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "guid": { "type": "string", "pattern": "^[A-Za-z0-9]+$" },
-        "buckets": { "type": "object" }
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "guid": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9]+$"
+        },
+        "buckets": {
+          "type": "object"
+        }
       }
     },
     "analysis": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "properties": {
-        "polarity": { "enum": ["higher", "lower"] },
-        "polarityAuto": { "type": "boolean" },
-        "deltaBasis": { "type": ["string", "null"], "enum": ["PL", "PY", "BU", "FC", null] },
-        "deltaBasisAuto": { "type": "boolean" },
-        "deltaKind": { "type": "array", "items": { "enum": ["abs", "rel"] } },
-        "unit": { "type": ["string", "null"] },
-        "displayUnits": { "type": ["string", "null"], "enum": ["none", "K", "M", null] },
-        "decimals": { "type": ["integer", "null"], "minimum": 0, "maximum": 6 },
-        "sort": {
-          "type": ["object", "null"],
-          "required": ["by", "dir"],
-          "properties": {
-            "by": { "enum": ["value", "delta", "category"] },
-            "dir": { "enum": ["asc", "desc"] }
+        "polarity": {
+          "enum": [
+            "higher",
+            "lower"
+          ]
+        },
+        "polarityAuto": {
+          "type": "boolean"
+        },
+        "deltaBasis": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "PL",
+            "PY",
+            "BU",
+            "FC",
+            null
+          ]
+        },
+        "deltaBasisAuto": {
+          "type": "boolean"
+        },
+        "deltaKind": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "abs",
+              "rel"
+            ]
           }
         },
-        "topN": { "type": ["integer", "null"], "minimum": 1, "maximum": 100 },
-        "timeGrain": { "type": ["string", "null"], "enum": ["day", "week", "month", "quarter", "year", null] },
-        "cumulative": { "type": "boolean" },
-        "scaleGroup": { "type": ["string", "null"] },
-        "message": { "type": ["string", "null"] },
-        "smallMultiples": { "$ref": "#/$defs/smallMultiples" },
-        "fieldParam": { "$ref": "#/$defs/fieldParam" }
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "displayUnits": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "none",
+            "K",
+            "M",
+            null
+          ]
+        },
+        "decimals": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 6
+        },
+        "sort": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "by",
+            "dir"
+          ],
+          "properties": {
+            "by": {
+              "enum": [
+                "value",
+                "delta",
+                "category"
+              ]
+            },
+            "dir": {
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        },
+        "topN": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 100
+        },
+        "timeGrain": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "day",
+            "week",
+            "month",
+            "quarter",
+            "year",
+            null
+          ]
+        },
+        "cumulative": {
+          "type": "boolean"
+        },
+        "scaleGroup": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "message": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "smallMultiples": {
+          "$ref": "#/$defs/smallMultiples"
+        },
+        "fieldParam": {
+          "$ref": "#/$defs/fieldParam"
+        }
       }
     },
     "smallMultiples": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "description": "Ab Tool 0.4.1. `null` = aus. `field` ist das Aufteilungsfeld und steht zusaetzlich in roles.multiples; ist es null, meldet das Tool das Issue SM_NO_FIELD. In PBIR ist das der Bucket `Rows` der kartesischen Visuals (verifiziert mit `pbir schema roles`).",
       "properties": {
-        "field": { "type": ["string", "null"], "pattern": "^[^.]+\\..+$" }
+        "field": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[^.]+\\..+$"
+        }
       }
     },
     "fieldParam": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "description": "Ab Tool 0.4.1. `null` = aus. Die Kategorieachse kommt aus einem Feldparameter (berechnete Tabelle mit dem NAMEOF-Muster); ein Slicer auf '<name>'[<name>] schaltet sie um. Weniger als zwei Felder meldet das Tool als Issue FIELDPARAM_FEW.",
-      "required": ["name"],
+      "required": [
+        "name"
+      ],
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "role": { "enum": ["category"] },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "enum": [
+            "category"
+          ]
+        },
         "fields": {
           "type": "array",
-          "items": { "type": "string", "pattern": "^[^.]+\\..+$" }
+          "items": {
+            "type": "string",
+            "pattern": "^[^.]+\\..+$"
+          }
         }
       }
     },
     "workshop": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "properties": {
-        "priority": { "type": ["string", "null"], "enum": ["must", "should", "could", null] },
-        "status": { "enum": ["open", "agreed", "approved"] },
-        "openQuestion": { "type": "boolean" }
+        "priority": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "must",
+            "should",
+            "could",
+            null
+          ]
+        },
+        "status": {
+          "enum": [
+            "open",
+            "agreed",
+            "approved"
+          ]
+        },
+        "openQuestion": {
+          "type": "boolean"
+        }
       }
     },
     "link": {
       "type": "object",
-      "required": ["fromVisual", "fromPage", "toPage", "kind"],
+      "required": [
+        "fromVisual",
+        "fromPage",
+        "toPage",
+        "kind"
+      ],
       "properties": {
-        "fromVisual": { "type": "string" },
-        "fromPage": { "type": "string" },
-        "toPage": { "type": "string" },
-        "toPageId": { "type": ["string", "null"] },
-        "kind": { "enum": ["navigation", "drillthrough"] },
-        "drillField": { "type": ["string", "null"] }
+        "fromVisual": {
+          "type": "string"
+        },
+        "fromPage": {
+          "type": "string"
+        },
+        "toPage": {
+          "type": "string"
+        },
+        "toPageId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "navigation",
+            "drillthrough"
+          ]
+        },
+        "drillField": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
     "field": {
       "type": "object",
-      "required": ["table", "name", "ref"],
+      "required": [
+        "table",
+        "name",
+        "ref"
+      ],
       "properties": {
-        "table": { "type": "string" },
-        "name": { "type": "string" },
-        "kind": { "enum": ["column", "measure"] },
-        "ref": { "type": "string", "pattern": "^[^.]+\\..+$" },
-        "isNew": { "type": "boolean" },
-        "missing": { "type": "boolean", "description": "Seit Tool-Review 2026-09-25. true = fehlt im geladenen Modell, nicht als neu vorgemerkt (Issue FIELD_NOT_IN_MODEL)." },
-        "description": { "type": ["string", "null"] },
-        "formatString": { "type": ["string", "null"] },
-        "dataType": { "type": ["string", "null"] },
-        "alias": { "type": ["string", "null"] },
-        "renameInModel": { "type": "boolean" },
-        "confirmed": { "type": "boolean" },
-        "owner": { "type": ["string", "null"] },
-        "source": { "type": ["string", "null"] },
-        "target": { "type": ["string", "null"] },
-        "unit": { "type": ["string", "null"] },
-        "note": { "type": ["string", "null"] }
+        "table": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "column",
+            "measure"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^[^.]+\\..+$"
+        },
+        "isNew": {
+          "type": "boolean"
+        },
+        "missing": {
+          "type": "boolean",
+          "description": "Seit Tool-Review 2026-09-25. true = fehlt im geladenen Modell, nicht als neu vorgemerkt (Issue FIELD_NOT_IN_MODEL)."
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "formatString": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dataType": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "alias": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "renameInModel": {
+          "type": "boolean"
+        },
+        "confirmed": {
+          "type": "boolean"
+        },
+        "owner": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "target": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expression": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Ab Tool 0.5.3. DAX-Formel aus dem TMDL-Import (Measure oder berechnete Spalte), unverändert."
+        },
+        "formatExpression": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Ab Tool 0.5.3. Formatausdruck eines dynamischen Formats (formatStringDefinition)."
+        },
+        "formatDynamic": {
+          "type": "boolean",
+          "description": "Ab Tool 0.5.3. true = dynamisches Format (formatStringDefinition)."
+        },
+        "displayFolder": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Ab Tool 0.5.3. Anzeigeordner aus dem Modell."
+        },
+        "formatDescription": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Ab Tool 0.5.3. formatString in Klartext (z. B. 'Prozent, 1 Nachkommastelle')."
+        },
+        "formatSample": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Ab Tool 0.5.3. Beispielwert im Format (z. B. '12,3 %')."
+        },
+        "formatWish": {
+          "enum": [
+            "",
+            "int",
+            "dec1",
+            "dec2",
+            "k",
+            "m",
+            "pct0",
+            "pct1",
+            "eur",
+            "teur",
+            "other",
+            null
+          ],
+          "description": "Ab Tool 0.5.3. Gewünschte Darstellung aus dem Workshop; '' = wie im Modell, 'other' = siehe daxComment."
+        },
+        "formatWishString": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Ab Tool 0.5.3. Vorschlag für den formatString zum Wunsch (z. B. '#,0.0,, \"Mio.\"'); im Modell per te setzen."
+        },
+        "daxComment": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Ab Tool 0.5.3. Kommentar aus dem Workshop zu Berechnung und Beschreibung."
+        }
       }
     },
     "newField": {
       "type": "object",
-      "required": ["table", "name", "ref"],
+      "required": [
+        "table",
+        "name",
+        "ref"
+      ],
       "properties": {
-        "table": { "type": "string" },
-        "name": { "type": "string" },
-        "kind": { "enum": ["column", "measure"] },
-        "ref": { "type": "string", "pattern": "^[^.]+\\..+$" },
-        "description": { "type": ["string", "null"] },
-        "unit": { "type": ["string", "null"] },
-        "target": { "type": ["string", "null"] },
-        "owner": { "type": ["string", "null"] },
-        "source": { "type": ["string", "null"] },
-        "openQuestion": { "type": ["string", "null"] },
-        "used": { "type": "boolean" },
-        "newTable": { "type": "boolean", "description": "Seit Tool-Review 2026-09-25. true = die Tabelle steht nicht in model.tables (Issue NEW_FIELD_NEW_TABLE). Zuerst die Tabelle klaeren bzw. anlegen." }
+        "table": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "column",
+            "measure"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^[^.]+\\..+$"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "target": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "owner": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "openQuestion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "used": {
+          "type": "boolean"
+        },
+        "newTable": {
+          "type": "boolean",
+          "description": "Seit Tool-Review 2026-09-25. true = die Tabelle steht nicht in model.tables (Issue NEW_FIELD_NEW_TABLE). Zuerst die Tabelle klaeren bzw. anlegen."
+        }
       }
     },
     "issue": {
       "type": "object",
-      "required": ["level", "code", "text"],
+      "required": [
+        "level",
+        "code",
+        "text"
+      ],
       "properties": {
-        "level": { "enum": ["error", "warn", "info"] },
+        "level": {
+          "enum": [
+            "error",
+            "warn",
+            "info"
+          ]
+        },
         "code": {
-          "type": "string", "minLength": 1,
+          "type": "string",
+          "minLength": 1,
           "description": "Freier Code. Ab Tool 0.4.4 beginnen die Befunde der Barrierefreiheits-Pruefung mit A11Y_ (A11Y_CONTRAST_TEXT, A11Y_CONTRAST_HEADER, A11Y_CONTRAST_ACCENT, A11Y_PALETTE_COLOUR_ONLY, A11Y_FONT_MIN, A11Y_TILE_SMALL, A11Y_TITLE_MISSING, A11Y_DENSITY, A11Y_READING_ORDER, A11Y_NAV_OFF, A11Y_SLICER_LABEL)."
         },
-        "text": { "type": "string" },
-        "page": { "type": ["string", "null"] },
-        "visual": { "type": ["string", "null"] }
+        "text": {
+          "type": "string"
+        },
+        "page": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "visual": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     }
   }
