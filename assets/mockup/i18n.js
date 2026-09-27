@@ -258,6 +258,9 @@
     dax: {
       formula: 'DAX-Formel', formatExpr: 'Formatausdruck (dynamisches Format)', folder: 'Ordner', sample: 'Beispiel',
       none: 'Keine DAX-Formel bekannt. Sie erscheint hier, wenn das Modell per TMDL geladen ist.',
+      noneDemo: 'Demo-Modell: enthält keine DAX-Formeln. Mit einem TMDL-Import erscheinen hier Formel, Beschreibung und Format aus deinem Modell.',
+      noneStale: 'Das Modell wurde mit einer älteren Version geladen, die Formeln noch nicht mitgelesen hat. TMDL einmal neu laden, dann erscheint die Formel hier. Bindungen bleiben erhalten.',
+      noneTmdl: 'Im geladenen TMDL steht zu dieser Kennzahl keine Formel.',
       note: 'Kommentar zu Berechnung und Beschreibung', notePh: 'z. B. Gutschriften fehlen, Beschreibung passt nicht zur Formel',
       wish: 'Gewünschte Darstellung',
       fw: { none: 'wie im Modell', int: 'Ganzzahl (1.235)', dec1: '1 Nachkommastelle (1.234,6)', dec2: '2 Nachkommastellen (1.234,57)', k: 'in Tausend (1,2 Tsd.)',
@@ -839,6 +842,9 @@
     dax: {
       formula: 'DAX formula', formatExpr: 'Format expression (dynamic format)', folder: 'Folder', sample: 'Example',
       none: 'No DAX formula known. It shows up here once the model is loaded from TMDL.',
+      noneDemo: 'Demo model: contains no DAX formulas. Import your TMDL to see formula, description and format from your model here.',
+      noneStale: 'This model was loaded with an older version that did not read formulas yet. Load the TMDL once more and the formula shows up here. Bindings are kept.',
+      noneTmdl: 'The loaded TMDL has no formula for this measure.',
       note: 'Comment on calculation and description', notePh: 'e.g. credit notes missing, description does not match the formula',
       wish: 'Desired display',
       fw: { none: 'as in the model', int: 'Whole number (1,235)', dec1: '1 decimal (1,234.6)', dec2: '2 decimals (1,234.57)', k: 'in thousands (1.2K)',

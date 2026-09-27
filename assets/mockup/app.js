@@ -1121,6 +1121,8 @@ window.MK_VERSION = '0.5.3';
     const dax = info && info.expr; $('#fmDax').hidden = !dax; $('#fmDaxCode').textContent = dax || '';
     const fx = info && info.formatExpr; $('#fmFmtExpr').hidden = !fx; $('#fmFmtExprCode').textContent = fx || '';
     $('#fmNoDax').hidden = !!dax || !info || info.kind !== 'measure';
+    // Warum keine Formel? Altes Import-Format (vor 0.5.3), Demo-Modell oder im TMDL wirklich keine Formel
+    $('#fmNoDax').textContent = !S.model.loadedAt ? t('dax.noneDemo') : (!S.model.parser ? t('dax.noneStale') : t('dax.noneTmdl'));
     $('#fmDaxNote').value = m.daxNote || ''; $('#fmFormatWish').value = m.formatWish || '';
     $('#dlgFieldMeta').showModal();
   }
@@ -1257,7 +1259,7 @@ window.MK_VERSION = '0.5.3';
       const rel = tmdl[0].webkitRelativePath || ''; const src = rel.includes('/') ? rel.split('/')[0] : t('model.tmdlSrc', { n: tmdl.length });
       const good = tables.filter(tb => tb.columns.length || tb.measures.length);
       if (!good.length) return toast(t('toast.tmdlEmpty'));
-      S.model = { tables: good, source: src, loadedAt: new Date().toISOString() }; const miss = syncFieldFlags(); openMeasureTable(); commit();
+      S.model = { tables: good, source: src, loadedAt: new Date().toISOString(), parser: 2 };   // parser 2 = mit DAX-Formeln (v0.5.3) const miss = syncFieldFlags(); openMeasureTable(); commit();
       toast(t('toast.tmdlOk', { tables: good.length, measures: good.reduce((a, tb) => a + tb.measures.length, 0), columns: good.reduce((a, tb) => a + tb.columns.length, 0) }) + (miss ? ' · ' + t('toast.fieldsMissing', { n: miss }) : ''));
     }).catch(err => toast(t('toast.readFailed', { msg: err.message })));
   }
