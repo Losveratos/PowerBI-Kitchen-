@@ -133,6 +133,6 @@ Zum Nachschauen und Nachbauen:
 
 - **Die Story** mit Karte „Köln bei Nacht“, 24-Stunden-Zeitraffer und Lernkurve: https://datenwgknowledgekitchen.com/koelner-raser-story.html
 - **Der Atlas**: alle 655 Messstellen durchsuchbar, mit Tagesprofil, und ein Klick zeigt die Stelle auf der Karte: https://datenwgknowledgekitchen.com/koelner-raser-story.html#atlas
-- **Daten und Code**: [`koeln-raser/` auf GitHub](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/koeln-raser), alle Skripte von den Rohdaten bis zum HTML. Die Rohdaten selbst lädst du beim Portal der Stadt.
+- **Daten und Code**: [`koeln-raser/` auf GitHub](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/koeln-raser), alle Skripte von den Rohdaten bis zum HTML. Die Rohdaten liegen gepackt dabei, die jeweils aktuelle Fassung gibt es beim Portal der Stadt.
 
 Daten: Stadt Köln, Offene Daten Köln, „Geschwindigkeitsüberwachung Köln ab 2025“ (Datenlizenz Deutschland Zero 2.0). Karte © OpenStreetMap-Mitwirkende (ODbL). Geocodierung: Geoapify. Titelfoto: Detlef Huhn, CC BY-SA 4.0, via Wikimedia Commons.
