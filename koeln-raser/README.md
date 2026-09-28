@@ -29,6 +29,7 @@ Veröffentlichung (Blog, LinkedIn):
 
 ```bash
 python3 koeln-raser/scripts/build_social.py      # Karussell-Folien 1080×1350 + PDF → ../blog/assets/ (Headless-Chrome)
+python3 koeln-raser/scripts/build_infografik.py  # Infografik A4 hochkant → ../blog/assets/raser-infografik.{jpg,pdf} + -web.jpg für den Post (4960 × 7016 px)
 python3 koeln-raser/scripts/build_post.py        # ../blog/koeln-blitzt.md → ../koelner-raser-post.html
 ```
 

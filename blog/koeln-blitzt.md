@@ -93,6 +93,13 @@ Ein Nebenbefund aus dem Peer-Review: 177 Zeilen der Kreuzungsanlagen hatten gena
 
 Mobil wird zu 90 % tagsüber und zu 80 % werktags gemessen. Die schweren Verstöße passieren aber vor allem nachts. Warum wird mobil nicht öfter nachts gemessen? Die Daten können die Frage stellen, beantworten kann sie nur die Verwaltung. Dafür fehlen uns auch Einschätzungen zu Personal, Standortkriterien und dazu, ob die Anlagen nach der Unfalllage ausgewählt werden.
 
+## Alles auf einer Seite
+
+Die wichtigsten Befunde als Infografik, A4 hochkant: Karte, Lernkurve, Nacht gegen Tag, die fünf größten Anlagen und die Herkunft der Geblitzten. Zum Ausdrucken, Teilen oder Weiterschicken.
+
+[![Infografik „Köln blitzt. 445.483 Mal.“ mit Karte aller Messstellen, Lernkurve der B 55a, Anteil schwerer Fälle je Uhrzeit, den fünf größten festen Anlagen und der Herkunft nach Kennzeichen](assets/raser-infografik-web.jpg)](assets/raser-infografik.jpg)
+*Klick aufs Bild öffnet die volle Auflösung (4960 × 7016 px). [Infografik als PDF herunterladen](assets/raser-infografik.pdf), eine Seite A4.*
+
 ## Selbst nachschauen
 
 - **Die Story** mit Karte „Köln bei Nacht“, 24-Stunden-Zeitraffer und Lernkurve: https://datenwgknowledgekitchen.com/koelner-raser-story.html

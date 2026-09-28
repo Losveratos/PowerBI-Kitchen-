@@ -4,7 +4,7 @@
 >
 > **Publish-Checkliste:**
 > 1. Branch mergen und prüfen, dass live ist: `https://datenwgknowledgekitchen.com/koelner-raser-story.html` und `…/koelner-raser-post.html`.
-> 2. Karussell anhängen: `blog/assets/raser-karussell.pdf` als Dokument hochladen, Titel „Köln blitzt: Was 445.483 Blitzer-Fälle zeigen“. Alternativ nur `blog/assets/raser-2-lernkurve.png` als Bild.
+> 2. Karussell anhängen: `blog/assets/raser-karussell.pdf` als Dokument hochladen, Titel „Köln blitzt: Was 445.483 Blitzer-Fälle zeigen“. Alternativ die Infografik `blog/assets/raser-infografik.pdf` (eine Seite A4) als Dokument, oder nur `blog/assets/raser-2-lernkurve.png` als Bild.
 > 3. Links stehen im Post. Wer sie lieber im ersten Kommentar hat: Link-Zeilen aus dem Post nehmen und den Kommentar-Baustein unten nutzen.
 > 4. Keine Namen von Personen, keine Kennzeichen einzelner Fälle.
 

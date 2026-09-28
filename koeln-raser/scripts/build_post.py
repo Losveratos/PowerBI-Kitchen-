@@ -23,6 +23,8 @@ EXTRA_CSS = """
 .post-hero img { width:100%; max-width:none; height:auto; display:block; border-radius:var(--radius); box-shadow:none; }
 figure { margin:26px 0 30px; }
 figure img { width:100%; max-width:560px; height:auto; display:block; border-radius:var(--radius); box-shadow:var(--shadow-md); }
+figure.wide img { max-width:100%; }
+figure > a { display:block; }
 figcaption, .post-hero figcaption { font-size:12.5px; color:var(--ink-mute); margin-top:8px; }
 .prose table { width:100%; max-width:70ch; border-collapse:collapse; font-size:14px; margin:8px 0 10px; }
 .prose th { text-align:left; font-weight:600; color:var(--ink); border-bottom:2px solid var(--line-strong); padding:7px 8px; }
@@ -36,10 +38,21 @@ figcaption, .post-hero figcaption { font-size:12.5px; color:var(--ink-mute); mar
 """
 
 
+def href(u):
+    """Relative Pfade im Markdown gelten ab blog/, die Seite liegt eine Ebene höher."""
+    return u if re.match(r"(https?:|#|/)", u) else "blog/" + u
+
+
+def link(text, u):
+    dl = " download" if u.endswith(".pdf") and not u.startswith("http") else ""
+    return f'<a href="{href(u)}"{dl}>{text}</a>'
+
+
 def inline(s):
     s = html.escape(s, quote=False)
     s = re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
     s = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", s)
+    s = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", lambda m: link(m.group(1), m.group(2)), s)
     s = re.sub(r"(?<![\"=])(https?://[^\s)<]+)", lambda m: f'<a href="{m.group(1)}">{m.group(1).replace("https://", "")}</a>', s)
     return s
 
@@ -59,7 +72,7 @@ def main():
     body, i, hero = [], 1, ""
     while i < len(lines):
         ln = lines[i].rstrip()
-        img = re.match(r"!\[([^\]]*)\]\(([^)]+)\)", ln)
+        img = re.match(r"\[?!\[([^\]]*)\]\(([^)]+)\)(?:\]\(([^)]+)\))?", ln)
         if not ln or ln.startswith(">"):
             i += 1
             continue
@@ -69,7 +82,11 @@ def main():
                 cap = lines[i + 1].strip().strip("*")
                 i += 1
             src = "blog/" + img.group(2)
-            fig = f'<figure><img src="{src}" alt="{html.escape(img.group(1))}" loading="lazy">' + (f"<figcaption>{inline(cap)}</figcaption>" if cap else "") + "</figure>"
+            tag = f'<img src="{src}" alt="{html.escape(img.group(1))}" loading="lazy">'
+            if img.group(3):                               # verlinktes Bild: volle Breite, Klick öffnet das Original
+                tag = f'<a href="{href(img.group(3))}">{tag}</a>'
+            fig = (f'<figure{" class=\"wide\"" if img.group(3) else ""}>{tag}'
+                   + (f"<figcaption>{inline(cap)}</figcaption>" if cap else "") + "</figure>")
             if not hero:                                   # erstes Bild = Titelbild über dem Artikel
                 hero = fig.replace("<figure>", '<figure class="post-hero">').replace(' loading="lazy"', "")
             else:

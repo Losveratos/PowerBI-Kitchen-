@@ -91,6 +91,8 @@ a { color:inherit; }
 .post-hero img { width:100%; max-width:none; height:auto; display:block; border-radius:var(--radius); box-shadow:none; }
 figure { margin:26px 0 30px; }
 figure img { width:100%; max-width:560px; height:auto; display:block; border-radius:var(--radius); box-shadow:var(--shadow-md); }
+figure.wide img { max-width:100%; }
+figure > a { display:block; }
 figcaption, .post-hero figcaption { font-size:12.5px; color:var(--ink-mute); margin-top:8px; }
 .prose table { width:100%; max-width:70ch; border-collapse:collapse; font-size:14px; margin:8px 0 10px; }
 .prose th { text-align:left; font-weight:600; color:var(--ink); border-bottom:2px solid var(--line-strong); padding:7px 8px; }
@@ -158,6 +160,9 @@ figcaption, .post-hero figcaption { font-size:12.5px; color:var(--ink-mute); mar
     <ul><li><strong>Keine Verkehrsmengen.</strong> Ohne sie gibt es keine „Raserquote“, nur die Zusammensetzung der Geblitzten.</li><li><strong>Keine Unfälle.</strong> Ob Blitzer Unfälle verhindern, lässt sich hier nicht zeigen.</li><li><strong>Kennzeichen = Halter.</strong> Firmen-, Miet- und Leasingwagen sind oft zentral zugelassen.</li><li><strong>Tempolimit abgeleitet.</strong> Es steht nicht in den Falldaten, sondern wird aus Messwert, Überschreitung und Toleranz zurückgerechnet. Mit dem Limit der Standorttabellen stimmt es zu 98,2 % überein.</li></ul>
     <h2>Eine Frage an die Stadt</h2>
     <p>Mobil wird zu 90 % tagsüber und zu 80 % werktags gemessen. Die schweren Verstöße passieren aber vor allem nachts. Warum wird mobil nicht öfter nachts gemessen? Die Daten können die Frage stellen, beantworten kann sie nur die Verwaltung. Dafür fehlen uns auch Einschätzungen zu Personal, Standortkriterien und dazu, ob die Anlagen nach der Unfalllage ausgewählt werden.</p>
+    <h2>Alles auf einer Seite</h2>
+    <p>Die wichtigsten Befunde als Infografik, A4 hochkant: Karte, Lernkurve, Nacht gegen Tag, die fünf größten Anlagen und die Herkunft der Geblitzten. Zum Ausdrucken, Teilen oder Weiterschicken.</p>
+    <figure class="wide"><a href="blog/assets/raser-infografik.jpg"><img src="blog/assets/raser-infografik-web.jpg" alt="Infografik „Köln blitzt. 445.483 Mal.“ mit Karte aller Messstellen, Lernkurve der B 55a, Anteil schwerer Fälle je Uhrzeit, den fünf größten festen Anlagen und der Herkunft nach Kennzeichen" loading="lazy"></a><figcaption>Klick aufs Bild öffnet die volle Auflösung (4960 × 7016 px). <a href="blog/assets/raser-infografik.pdf" download>Infografik als PDF herunterladen</a>, eine Seite A4.</figcaption></figure>
     <h2>Selbst nachschauen</h2>
     <ul><li><strong>Die Story</strong> mit Karte „Köln bei Nacht“, 24-Stunden-Zeitraffer und Lernkurve: <a href="https://datenwgknowledgekitchen.com/koelner-raser-story.html">datenwgknowledgekitchen.com/koelner-raser-story.html</a></li><li><strong>Der Atlas</strong>: alle 655 Messstellen durchsuchbar, mit Tagesprofil, und ein Klick zeigt die Stelle auf der Karte: <a href="https://datenwgknowledgekitchen.com/koelner-raser-story.html#atlas">datenwgknowledgekitchen.com/koelner-raser-story.html#atlas</a></li><li><strong>Daten und Code</strong>: <code>koeln-raser/</code> im Repository der Kitchen, von den Rohdaten bis zum HTML reproduzierbar.</li></ul>
     <p>Daten: Stadt Köln, Offene Daten Köln, „Geschwindigkeitsüberwachung Köln ab 2025“ (Datenlizenz Deutschland Zero 2.0). Karte © OpenStreetMap-Mitwirkende (ODbL). Geocodierung: Geoapify. Titelfoto: Detlef Huhn, CC BY-SA 4.0, via Wikimedia Commons.</p>
