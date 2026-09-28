@@ -66,3 +66,6 @@ scripts/_*
 
 # Playwright-Artefakte der Rechner-Pruefsuiten (Screenshots, PDF, XLSX)
 tests/rechner/.artifacts/
+
+# Raser-Story: verlustfreies Zwischenbild der Infografik (5 MB, aus build_infografik.py)
+blog/assets/raser-infografik.png

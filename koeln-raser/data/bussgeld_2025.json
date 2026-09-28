@@ -1,0 +1,38 @@
+{
+  "quelle": "Bußgeldkatalog-Verordnung (BKatV), Tabelle 1 (nicht qualifizierte Geschwindigkeitsüberschreitungen Pkw) recherchiert über bussgeldkatalog.org/.de, juraforum.de, anwalt.org, bussgeldrechner.org, derbussgeldkatalog.de (Websuche/Snippets, kein Primärdokument-Fetch möglich)",
+  "stand": "2025/2026 (unveraendert seit StVO-Novelle 09.11.2021)",
+  "konfidenz_hinweis": "Werte stammen aus mehreren uebereinstimmenden Suchmaschinen-Snippets (Konfidenz B), einzelne Randwerte nur aus einem Snippet (Konfidenz C, siehe kontext.md Abschnitt 2)",
+  "toleranzabzug": {
+    "bis_100_kmh": "3 km/h fester Abzug",
+    "ueber_100_kmh": "3 % des Messwerts",
+    "quelle": "juraforum.de, bussgeldkatalog.de, anwalt.org (PTB-Verkehrsfehlergrenzen)"
+  },
+  "wiederholungstaeter_regel": {
+    "beschreibung": "Wer innerhalb von 12 Monaten zweimal mit mindestens 26 km/h zu schnell (inner- oder ausserorts) erwischt wird, erhaelt zusaetzlich ein einmonatiges Fahrverbot beim zweiten Verstoss - unabhaengig davon, dass ein Regelfahrverbot bei einem Einzelverstoss erst ab 31 km/h (innerorts) bzw. 41 km/h (ausserorts) greift.",
+    "quelle": "bussgeldkatalog.de/fahrverbot-wiederholungstaeter, bussgeldrechner.org/wiederholungstaeter"
+  },
+  "innerorts": [
+    {"bis": 10, "euro": 30, "punkte": 0, "fahrverbot_monate": 0},
+    {"bis": 15, "euro": 50, "punkte": 0, "fahrverbot_monate": 0},
+    {"bis": 20, "euro": 70, "punkte": 0, "fahrverbot_monate": 0},
+    {"bis": 25, "euro": 115, "punkte": 1, "fahrverbot_monate": 0},
+    {"bis": 30, "euro": 180, "punkte": 1, "fahrverbot_monate": 0, "hinweis": "Fahrverbot nur bei Wiederholungstaeter-Regel (2x in 12 Monaten)"},
+    {"bis": 40, "euro": 260, "punkte": 2, "fahrverbot_monate": 1},
+    {"bis": 50, "euro": 400, "punkte": 2, "fahrverbot_monate": 1},
+    {"bis": 60, "euro": 560, "punkte": 2, "fahrverbot_monate": 2},
+    {"bis": 70, "euro": 700, "punkte": 2, "fahrverbot_monate": 3},
+    {"bis": 999, "euro": 800, "punkte": 2, "fahrverbot_monate": 3}
+  ],
+  "ausserorts": [
+    {"bis": 10, "euro": 20, "punkte": 0, "fahrverbot_monate": 0},
+    {"bis": 15, "euro": 40, "punkte": 0, "fahrverbot_monate": 0},
+    {"bis": 20, "euro": 60, "punkte": 0, "fahrverbot_monate": 0},
+    {"bis": 25, "euro": 100, "punkte": 1, "fahrverbot_monate": 0},
+    {"bis": 30, "euro": 150, "punkte": 1, "fahrverbot_monate": 0},
+    {"bis": 40, "euro": 200, "punkte": 1, "fahrverbot_monate": 0, "hinweis": "Fahrverbot nur bei Wiederholungstaeter-Regel (2x in 12 Monaten)"},
+    {"bis": 50, "euro": 320, "punkte": 2, "fahrverbot_monate": 1},
+    {"bis": 60, "euro": 480, "punkte": 2, "fahrverbot_monate": 1},
+    {"bis": 70, "euro": 600, "punkte": 2, "fahrverbot_monate": 2},
+    {"bis": 999, "euro": 700, "punkte": 2, "fahrverbot_monate": 3}
+  ]
+}

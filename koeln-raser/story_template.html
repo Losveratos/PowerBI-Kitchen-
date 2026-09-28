@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Köln blitzt · Raser-Atlas 2025</title>
+<meta name="description" content="445.483 Tempoverstöße in einem Jahr: eine Scrollytelling-Datenstory über die Geschwindigkeitsüberwachung der Stadt Köln 2025. Wann, wo, wie schnell, und wie schnell ein neuer Blitzer wirkt.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Designsystem: Geschwister der rhein-story.html (gleiche Flächen, Typo, Scrolly-Mechanik).
+   Farben nach Aufgabe: Amber = feste Anlagen, Blau = mobile Messung, Rot = Fahrverbots-Bereich.
+   Kategorien-Palette (#c2831a,#3987e5,#e66767) mit dataviz/validate_palette.js gegen #1a1a19 geprüft. */
+:root{
+  --bg:#0d0d0d;
+  --surface:#1a1a19;
+  --ink:#ffffff;
+  --ink-2:#c3c2b7;
+  --muted:#898781;
+  --muted-chart:#a3a19a;
+  --grid:#2c2c2a;
+  --axis:#383835;
+  --amber:#c2831a;       /* feste Anlagen (Mark-Farbe) */
+  --amber-soft:#f0b54a;  /* Akzent-Text, Blitzlicht */
+  --flash:#fff3c4;
+  --blue:#3987e5;        /* mobile Messung */
+  --blue-soft:#86b6ef;
+  --red:#e66767;         /* Fahrverbots-Bereich / Extremfälle */
+  --sev1:#a65454;        /* Schwere-Rampe Stufe 1: Punkte-Bereich (21–30 km/h) — heller = schwerer */
+  --o1:#9cc4f2; --o2:#5b9be6; --o3:#2f68b3; --o4:#4a4a47;  /* Herkunft: nah → fern (eine Farbfamilie) */
+  --card:rgba(20,21,23,.82);
+  --ring:rgba(255,255,255,.14);
+  --sans:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink-2);font-family:var(--sans);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--amber);color:#fff}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.85}
+/* dunkler Kern hinter dem Text, damit die Lichtspuren nie mit der Schrift konkurrieren */
+.hero-vignette{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 52% 48% at 50% 48%,rgba(13,13,13,.9) 0%,rgba(13,13,13,.62) 55%,rgba(13,13,13,0) 100%),
+             linear-gradient(to bottom,rgba(13,13,13,.55),rgba(13,13,13,0) 22%,rgba(13,13,13,0) 78%,rgba(13,13,13,.8))}
+.hero-inner{position:relative;max-width:900px;padding:32px 24px;z-index:2}
+.hero-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--amber-soft);margin-bottom:22px}
+.hero h1{font-family:var(--sans);font-weight:750;font-size:clamp(38px,7vw,82px);line-height:1.04;color:var(--ink);letter-spacing:-.02em}
+.hero h1 em{font-style:normal;color:var(--amber-soft)}
+.hero-sub{margin:28px auto 0;max-width:640px;font-size:clamp(16px,2vw,19px);color:var(--ink-2)}
+.hero-meta{margin-top:40px;display:flex;gap:28px;justify-content:center;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.hero-meta b{color:var(--ink);font-weight:600}
+.hero-clock{margin-top:22px;font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.06em;min-height:1.6em}
+.hero-clock b{color:var(--amber-soft);font-weight:600;font-variant-numeric:tabular-nums}
+.hero-scroll{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);animation:bob 2.2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+
+/* ---------- Prosa ---------- */
+.prose{max-width:660px;margin:0 auto;padding:80px 24px}
+.prose h2{font-family:var(--sans);font-weight:700;letter-spacing:-.015em;font-size:clamp(26px,3.4vw,36px);color:var(--ink);margin-bottom:18px;line-height:1.2}
+.prose p{margin-bottom:16px}
+.prose .lede{font-size:19px;color:var(--ink)}
+.prose b{color:var(--ink)}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--amber-soft);margin-bottom:14px}
+.kicker.red{color:var(--red)}
+.ticker{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--amber-soft);font-weight:600}
+
+/* ---------- Scrolly-Gerüst (1:1 aus rhein-story.html) ---------- */
+.scrolly{position:relative}
+.graphic{position:sticky;top:0;height:100svh;display:flex;align-items:flex-start;justify-content:center;overflow:hidden;padding-top:2vh}
+.fig{position:relative;width:min(1100px,99vw)}
+.fig svg{display:block;width:100%;height:auto;background:var(--surface);border:1px solid var(--ring);border-radius:0}
+.fig-title{position:absolute;top:26px;left:34px;right:34px;pointer-events:none}
+.fig-title .t{font-family:var(--sans);font-weight:700;letter-spacing:-.015em;font-size:clamp(16px,2vw,21px);color:var(--ink)}
+.fig-title .s{font-family:var(--mono);font-size:12px;color:var(--muted-chart);margin-top:3px}
+.steps{position:relative;z-index:5;padding-bottom:4vh;pointer-events:none}
+.step{min-height:88svh;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4vh;pointer-events:none}
+/* leere Step-Fläche liegt mobil über der Grafik: Tippen durchreichen, nur die Karte selbst fängt Klicks */
+.step-card{pointer-events:auto}
+.step-card{width:min(440px,92vw);background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--ring);border-top:2px solid var(--amber);border-radius:0;padding:22px 24px;opacity:.5;transform:translateY(10px);transition:opacity .45s ease,transform .45s ease;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+@media (min-width:1020px){
+  .scrolly{display:grid;grid-template-columns:minmax(340px,430px) minmax(0,1fr);column-gap:6px}
+  .graphic{grid-area:1/2;height:100vh;align-items:center;padding:0 20px 0 0}
+  .fig{width:100%;max-width:1400px}
+  .steps{grid-area:1/1;padding:0 0 6vh clamp(12px,2.5vw,36px)}
+  .step{min-height:80vh;align-items:center;justify-content:flex-start;padding-bottom:0}
+  .step-card{width:min(400px,100%)}
+}
+.step.is-active .step-card{opacity:1;transform:none}
+.step-card .n{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--amber-soft);text-transform:uppercase;margin-bottom:8px;display:block}
+.step-card h3{font-family:var(--sans);font-size:21px;font-weight:700;letter-spacing:-.015em;color:var(--ink);margin-bottom:8px;line-height:1.25}
+.step-card p{font-size:14.5px;line-height:1.6}
+.step-card p+p{margin-top:8px}
+.step-card .big{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--ink)}
+.step-card .am{color:var(--amber-soft)} .step-card .bl{color:var(--blue-soft)} .step-card .rd{color:var(--red)}
+.sw{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:baseline}
+
+/* ---------- SVG-Grundstile ---------- */
+svg text{font-family:var(--mono);fill:var(--muted-chart);font-size:13px}
+.tick{stroke:var(--grid);stroke-width:1}
+.axisline{stroke:var(--axis);stroke-width:1}
+.lab-strong{fill:var(--ink);font-weight:600}
+.lab-soft{fill:var(--ink-2)}
+.fade{transition:opacity .7s ease}
+path.draw{transition:stroke-dashoffset 2s cubic-bezier(.4,0,.2,1)}
+
+/* Akt 1 · Kalender */
+#g1 .blk,#g1 .hol,#g1 .wk{transition:opacity .6s ease}
+#g1[data-step="0"] .b2,#g1[data-step="1"] .b1{opacity:.16}
+#g1 .hol,#g1 .wk{opacity:0}
+#g1[data-step="2"] .hol,#g1[data-step="2"] .wk{opacity:1}
+#g1 .cell{shape-rendering:crispEdges}
+/* Akt 2 · Uhr */
+#g2 .hbar{transform-box:fill-box;transform-origin:bottom;transition:transform .8s cubic-bezier(.2,.7,.3,1)}
+#g2 .lower,#g2 .ann21,#g2 .ann31,#g2 .ax21,#g2 .ax31{transition:opacity .6s ease}
+#g2[data-step="0"] .lower{opacity:.15}
+#g2 .ann21,#g2 .ann31,#g2 .ax31{opacity:0}
+#g2[data-step="1"] .ann21{opacity:1}
+#g2[data-step="2"] .ann31,#g2[data-step="2"] .ax31{opacity:1}
+#g2[data-step="2"] .ax21{opacity:0}
+/* Akt 3 · Orte */
+#g3 .row{transition:transform .9s cubic-bezier(.3,.7,.2,1),opacity .6s ease}
+#g3 .bar{transform-box:fill-box;transform-origin:left;transition:transform .9s cubic-bezier(.3,.7,.2,1),fill .6s ease,opacity .6s ease}
+#g3 .val{transition:transform .9s cubic-bezier(.3,.7,.2,1)}
+#g3 .row.out{opacity:0}
+/* Akt 4 · Köln bei Nacht (Karte) */
+#g4 svg{background:#0b0c0e}
+#g4 .map-cv{position:absolute;pointer-events:none;opacity:0;transition:opacity .6s ease}
+#g4[data-step="2"] .map-cv{opacity:1}
+#g4 .ly{transition:opacity .7s ease}
+#g4 .p-s02,#g4 .lg1,#g4 .lg2,#g4 .lg3,#g4 .chor,#g4 .chl{opacity:0}
+#g4 .p-s02,#g4 .p-s01,#g4 .p-k04,#g4 .chor,#g4 .st4{transition:opacity .7s ease,fill .7s ease}
+#g4[data-step="1"] .p-s02,#g4[data-step="2"] .p-s02{opacity:1}
+#g4[data-step="2"] .p-s01,#g4[data-step="2"] .p-s02,#g4[data-step="2"] .p-k04{opacity:.28}
+#g4[data-step="3"] .p-s01,#g4[data-step="3"] .p-k04,#g4[data-step="3"] .top4,#g4[data-step="2"] .top4{opacity:0}
+#g4[data-step="3"] .roads{opacity:.35}
+#g4[data-step="3"] .orient4{opacity:0}
+#g4 .orient4{transition:opacity .7s ease}
+#g4[data-step="3"] .chor,#g4[data-step="3"] .chl{opacity:1}
+#g4[data-step="0"] .lg0,#g4[data-step="-1"] .lg0,#g4[data-step="1"] .lg0,#g4[data-step="1"] .lg1{opacity:1}
+#g4[data-step="2"] .lg0,#g4[data-step="3"] .lg0{opacity:0}
+#g4[data-step="2"] .lg2,#g4[data-step="3"] .lg3{opacity:1}
+#g4 .hl{pointer-events:none}
+#g4 .st4{cursor:default}
+@media (min-width:761px){ #g4 .fig-title{right:auto;max-width:380px} }
+/* Akt 5 · Lernkurve */
+#g5 .ln{fill:none;stroke-linejoin:round;stroke-linecap:round;transition:opacity .6s ease}
+#g5 .tot{stroke:var(--amber);stroke-width:2.5}
+#g5 .kln{stroke:var(--o1);stroke-width:2.5}
+#g5 .aus{stroke:var(--muted-chart);stroke-width:2.5}
+#g5 .ik{stroke:var(--amber-soft);stroke-width:2;stroke-dasharray:6 5}
+#g5 .ctl{stroke:var(--muted-chart);stroke-width:2;stroke-dasharray:2 4}
+#g5 .s1{opacity:0}
+#g5 .s2{opacity:.12}
+#g5[data-step="1"] .s0t{opacity:.18}
+#g5[data-step="1"] .s1,#g5[data-step="2"] .s1{opacity:1}
+#g5[data-step="2"] .s0t{opacity:1}
+#g5[data-step="2"] .s1{opacity:.18}
+#g5[data-step="2"] .s2{opacity:1}
+/* Akt 6 · Herkunft */
+#g6 .hrow,#g6 .kz{transition:opacity .6s ease}
+#g6 .r1,#g6 .r2,#g6 .kz,#g6 .arrow{opacity:0}
+#g1 .bday text{font-size:11px}
+#g6[data-step="1"] .r1,#g6[data-step="2"] .r1,#g6[data-step="3"] .r1{opacity:1}
+#g6[data-step="2"] .r2,#g6[data-step="3"] .r2,#g6[data-step="2"] .arrow{opacity:1}
+#g6[data-step="3"] .kz{opacity:1}
+#g6[data-step="3"] .hrow{opacity:.35}
+#g6 .arrow{transition:opacity .6s ease}
+/* Akt 7 · Wie schnell */
+#g7 .hb{transform-box:fill-box;transform-origin:bottom;transition:transform .9s cubic-bezier(.2,.7,.3,1),fill .6s ease}
+#g7 .band,#g7 .axlin,#g7 .axlog,#g7 .tail{transition:opacity .6s ease}
+#g7 .band,#g7 .axlog,#g7 .tail{opacity:0}
+#g7[data-step="1"] .band,#g7[data-step="2"] .band{opacity:1}
+#g7[data-step="2"] .axlin{opacity:0}
+#g7[data-step="2"] .axlog,#g7[data-step="2"] .tail{opacity:1}
+
+/* ---------- Statische Figuren (Epilog) ---------- */
+.wide{max-width:1100px;margin:0 auto;padding:10px 24px 40px}
+.static-fig .fig-title{position:static;padding:0 0 14px}
+.static-fig svg{width:100%;height:auto;background:var(--surface);border:1px solid var(--ring)}
+
+/* ---------- Atlas ---------- */
+.atlas{max-width:1100px;margin:0 auto;padding:0 24px 40px}
+.atlas-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.atlas-bar input{flex:1 1 260px;background:var(--surface);border:1px solid var(--ring);color:var(--ink);font-family:var(--mono);font-size:14px;padding:10px 12px;border-radius:0}
+.atlas-bar input:focus{outline:2px solid var(--amber);outline-offset:0}
+.seg{display:flex;border:1px solid var(--ring)}
+.seg button{background:transparent;border:0;color:var(--muted-chart);font-family:var(--mono);font-size:12px;padding:9px 12px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--ring)}
+.seg button[aria-pressed="true"]{background:#2a2a28;color:var(--ink)}
+.atlas-count{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.atlas-wrap{overflow-x:auto;border:1px solid var(--ring);background:var(--surface)}
+table.atl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px;min-width:820px}
+table.atl th{position:sticky;top:0;background:#222320;text-align:right;color:var(--muted-chart);font-weight:400;padding:9px 10px;border-bottom:1px solid var(--axis);cursor:pointer;white-space:nowrap;user-select:none}
+table.atl th:first-child,table.atl td:first-child{text-align:left}
+table.atl th[aria-sort="descending"]::after{content:" ▾";color:var(--amber-soft)}
+table.atl th[aria-sort="ascending"]::after{content:" ▴";color:var(--amber-soft)}
+table.atl td{padding:7px 10px;border-bottom:1px solid var(--grid);text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums;vertical-align:middle}
+table.atl td.nm{color:var(--ink);font-family:var(--sans);font-size:13.5px;max-width:360px}
+table.atl td.nm small{display:block;color:var(--muted);font-family:var(--mono);font-size:11px}
+table.atl tr:hover td{background:#20201f}
+.tag{display:inline-block;font-size:10.5px;padding:1px 6px;border:1px solid var(--ring);color:var(--ink-2);margin-right:6px}
+.tag.s01{border-color:var(--amber);color:var(--amber-soft)}
+.tag.s02{border-color:var(--blue);color:var(--blue-soft)}
+.tomap{background:none;border:0;padding:0;font:inherit;color:var(--amber-soft);cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px}
+.tomap:hover,.tomap:focus-visible{color:var(--ink)}
+.atlas-more{margin-top:12px;background:transparent;border:1px solid var(--ring);color:var(--ink-2);font-family:var(--mono);font-size:12px;padding:9px 14px;cursor:pointer}
+.atlas-more:hover{color:var(--ink);border-color:rgba(255,255,255,.32)}
+
+/* ---------- Kästen, Grenzen, Tabellen, Glossar ---------- */
+.kasten{width:min(660px,calc(100vw - 32px));margin:32px auto;padding:20px 24px;background:var(--surface);border:1px solid var(--ring);border-left:3px solid var(--amber);border-radius:0}
+.kasten.red{border-left-color:var(--red)}
+.kasten-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber-soft);margin-bottom:10px}
+.kasten.red .kasten-kicker{color:var(--red)}
+.kasten p{font-size:14.5px;line-height:1.6;color:var(--ink-2)}
+.kasten p+p{margin-top:10px}
+.kasten b{color:var(--ink)}
+.limits{max-width:1000px;margin:0 auto;padding:0 24px 110px;display:grid;grid-template-columns:repeat(auto-fit,minmax(176px,1fr));gap:14px}
+.limit-card{background:var(--surface);border:1px solid var(--ring);border-radius:0;padding:20px}
+.limit-card h4{font-family:var(--sans);font-weight:700;letter-spacing:-.015em;color:var(--ink);font-size:16px;margin-bottom:8px}
+.limit-card p{font-size:13.5px;line-height:1.55}
+details.tbl{max-width:660px;margin:6px auto 30px;padding:0 24px}
+details.tbl summary{cursor:pointer;font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.06em}
+details.tbl summary:hover{color:var(--ink-2)}
+details.tbl table{width:100%;margin-top:12px;border-collapse:collapse;font-family:var(--mono);font-size:12.5px}
+details.tbl th{text-align:left;color:var(--muted);font-weight:400;border-bottom:1px solid var(--axis);padding:6px 8px}
+details.tbl td{padding:5px 8px;border-bottom:1px solid var(--grid);color:var(--ink-2);font-variant-numeric:tabular-nums}
+details.tbl td.num,details.tbl th.num{text-align:right}
+#tip{position:fixed;pointer-events:none;background:#222320;border:1px solid var(--ring);border-radius:0;padding:8px 11px;font-family:var(--mono);font-size:12px;color:var(--ink);opacity:0;transition:opacity .15s ease;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.5);white-space:nowrap;line-height:1.55}
+#tip .l{color:var(--muted)}
+.home-pill{display:inline-block;font-family:var(--mono);font-size:12px;line-height:1.2;padding:8px 16px;border:1px solid var(--ring);border-radius:999px;background:rgba(26,26,25,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--ink-2);text-decoration:none;letter-spacing:.04em;white-space:nowrap;transition:color .2s ease,border-color .2s ease,background .2s ease}
+.home-pill:hover,.home-pill:focus-visible{color:var(--ink);border-color:rgba(255,255,255,.32);background:rgba(44,44,42,.72)}
+.hero .home-pill{position:absolute;top:22px;left:24px;z-index:6}
+.home-pill-wrap{text-align:center;padding:0 24px 54px}
+details.gloss{background:var(--surface);border:1px solid var(--ring);border-radius:0;margin:10px 0;scroll-margin-top:24px}
+details.gloss>summary{cursor:pointer;list-style:none;font-family:var(--sans);font-weight:700;font-size:15px;color:var(--ink);padding:14px 18px;display:flex;gap:10px;align-items:baseline;line-height:1.35}
+details.gloss>summary::-webkit-details-marker{display:none}
+details.gloss>summary::before{content:"▸";font-family:var(--mono);color:var(--amber-soft);display:inline-block;transition:transform .2s ease}
+details.gloss[open]>summary::before{transform:rotate(90deg)}
+details.gloss>summary:hover{color:var(--amber-soft)}
+.gloss-body{padding:0 18px 16px;font-size:14px;line-height:1.6;color:var(--ink-2)}
+.gloss-body p+p{margin-top:10px}
+.gloss-body ul{margin:10px 0 0;padding-left:18px}
+.gloss-body li{margin-bottom:6px}
+.gloss-body code,.gloss-body .m{font-family:var(--mono);font-size:12.5px;color:var(--ink)}
+.mini-wrap{overflow-x:auto;margin-top:10px}
+table.mini{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+table.mini th{text-align:left;color:var(--muted);font-weight:400;border-bottom:1px solid var(--axis);padding:5px 6px}
+table.mini td{padding:4px 6px;border-bottom:1px solid var(--grid);color:var(--ink-2);font-variant-numeric:tabular-nums}
+table.mini .num{text-align:right;white-space:nowrap}
+.gloss-formula{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--bg);border:1px solid var(--grid);padding:10px 12px;margin-top:12px;overflow-x:auto;white-space:nowrap}
+a.gl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--muted)}
+a.gl:hover,a.gl:focus-visible{color:var(--ink);border-bottom-color:var(--ink-2)}
+footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--muted);line-height:2}
+footer a{color:var(--ink-2)}
+
+@media (max-width:760px){
+  /* Mobil zeichnet jede Grafik in einem eigenen 640er-viewBox (JS: MOB) → Faktor ≈ 0,59; 18–21 Einheiten ≈ 11–12 px */
+  svg text{font-size:19px}
+  svg text[font-size="10.5"],svg text[font-size="11"]{font-size:17px!important}
+  svg text[font-size="12"],svg text[font-size="12.5"],svg text[font-size="13"]{font-size:18px!important}
+  svg text[font-size="14"],svg text[font-size="15"]{font-size:21px!important}
+  #g1 .bday text{font-size:16px}
+  svg tspan[font-size="12"]{font-size:17px}
+  .graphic{padding-top:8px}
+  .step{min-height:100svh}
+  .hero-eyebrow{letter-spacing:.12em;font-size:11px}
+  table.atl{min-width:560px}
+  table.atl th:nth-child(4),table.atl td:nth-child(4),table.atl th:nth-child(6),table.atl td:nth-child(6),
+  table.atl th:nth-child(7),table.atl td:nth-child(7),table.atl th:nth-child(9),table.atl td:nth-child(9){display:none}
+  table.atl th:first-child,table.atl td:first-child{position:sticky;left:0;z-index:1;background:var(--surface);max-width:170px;min-width:150px}
+  table.atl th:first-child{background:#222320;z-index:2}
+  .fig{width:100vw;padding:0 6px;display:flex;flex-direction:column}
+  .fig .fig-title{position:static;left:auto;right:auto;top:auto;order:-1;padding:14px 10px 10px}
+  .hero .home-pill{top:14px;left:12px;font-size:11px;padding:6px 12px;letter-spacing:.02em}
+  .home-pill-wrap .home-pill{font-size:11px;padding:7px 14px}
+  .wide,.atlas{padding-left:10px;padding-right:10px}
+  #tip{white-space:normal;max-width:calc(100vw - 16px)}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{animation:none!important;transition:none!important}
+  path.draw{stroke-dasharray:none!important;stroke-dashoffset:0!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-vignette" aria-hidden="true"></div>
+  <a class="home-pill" href="index.html#posts-talks" rel="noopener">← Daten-WG Knowledge Kitchen</a>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Kölner Raser-Atlas · Geschwindigkeitsüberwachung 2025</div>
+    <h1>Köln blitzt.<br><em>445.483</em> Mal.</h1>
+    <p class="hero-sub">Ein Jahr Tempoverstöße, jeder einzelne mit Uhrzeit, Ort und Herkunft.
+    Die Daten erzählen, wann und wo in Köln geblitzt wird, wer ins Netz geht und wie schnell ein neuer Blitzer wirkt:
+    An der B 55a löste er nach drei Monaten <b style="color:var(--ink)">nur noch gut ein Viertel</b> so oft aus.</p>
+    <div class="hero-meta">
+      <span><b>1.221</b> Fälle pro Tag</span>
+      <span><b>655</b> Messstellen</span>
+      <span><b>648</b> Kennzeichen-Kürzel</span>
+      <span>Rekord <b>203 km/h</b> bei Tempo 50</span>
+    </div>
+    <div class="hero-clock" id="hero-clock" aria-hidden="true"></div>
+  </div>
+  <div class="hero-scroll">scrollen ↓</div>
+</header>
+
+<!-- ================= PROLOG ================= -->
+<section class="prose">
+  <div class="kicker">Prolog</div>
+  <h2>Alle 71 Sekunden</h2>
+  <p class="lede">So oft hat es 2025 in Köln im Schnitt geblitzt, Tag und Nacht, das ganze Jahr.
+  Seit Sie diese Seite geöffnet haben, statistisch: <span class="ticker" id="since">0</span> Fälle.</p>
+  <p>Die Stadt Köln veröffentlicht ihre Geschwindigkeitsüberwachung als offene Daten: jede Verwarnung
+  und jedes Bußgeldverfahren eine Zeile. Mit Datum und Uhrzeit, gemessener Geschwindigkeit,
+  vorwerfbarer Überschreitung, Fahrzeugart, Messstelle und dem Kürzel des Zulassungsbezirks.
+  <b>451.676 Zeilen</b> sind es für 2025. Wir haben sie in eine kleine SQLite-Datenbank geladen, bereinigt
+  und befragt. Es geht um die Verkehrsüberwachung der Stadt; Messungen der Polizei sind nicht enthalten.</p>
+  <p>Vorweg die wichtigste Regel für alles, was folgt: <b>Ein Blitz zählt nicht die Raser. Er zählt die
+  Raser, die dort vorbeikommen, wo die Stadt gerade misst.</b> Wer das vergisst, liest aus diesen Daten
+  vor allem heraus, wann und wo gemessen wird. Genau damit fängt Akt 1 an.</p>
+</section>
+
+<!-- ================= AKT 1 ================= -->
+<section class="scrolly" data-act="1" id="akt-1">
+  <div class="graphic">
+    <div class="fig" id="g1" data-step="-1">
+      <svg id="svg1" viewBox="0 0 1060 600" role="img" aria-label="Kalender 2025: Tempofälle pro Tag, getrennt nach festen Anlagen und mobiler Messung"></svg>
+      <div class="fig-title"><div class="t">Akt 1 · Der Takt</div><div class="s">Tempofälle pro Tag · 2025 · je heller, desto mehr · Details: Maus/Tippen</div></div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 1 / Schritt 1</span>
+      <h3>Die festen Blitzer schlafen nie</h3>
+      <p><span class="sw" style="background:var(--amber)"></span>43 feste Anlagen erzeugen <span class="big">231.143</span> Fälle, rund um die Uhr, an jedem Tag des Jahres.
+      Auffällig: Die Wochenenden (untere Reihen) leuchten heller. Samstags und sonntags lösen die Anlagen
+      <span class="big am">45 % öfter</span> aus als montags. Naheliegende Erklärung: weniger Stau, freiere Fahrt.</p>
+      <p>Der hellste Tag ist der <span class="big">20. Dezember</span> mit 1.562 Fällen: Zwei Tage zuvor gingen an der A 4, Anschluss Eifeltor, zwei neue Messstellen in Betrieb. Die Dreiecke unter dem Kalender markieren, wann neue Anlagen dazukamen.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card">
+      <span class="n">Akt 1 / Schritt 2</span>
+      <h3>Die mobilen Messungen haben Dienstzeiten</h3>
+      <p><span class="sw" style="background:var(--blue)"></span>Die mobile Messung (vermutlich Radarwagen und Anhänger) kommt auf <span class="big">203.278</span> Fälle an
+      <span class="big">600</span> verschiedenen Standorten. Ihr Muster ist das Spiegelbild: stark unter der Woche,
+      schwach am Wochenende: sonntags nur gut halb so viel wie mittwochs.</p>
+      <p>An <span class="big">18 Tagen</span> gab es gar keine mobile Messung: Neujahr, das erste Januar-Wochenende,
+      das Karnevalswochenende samt Rosenmontag und die komplette Zeit vom 20. bis 31. Dezember.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 1 / Schritt 3</span>
+      <h3>Die Zahl misst zuerst die Stadt</h3>
+      <p>Unten im Bild der Wochenrhythmus als Index (Ø = 100): feste Anlagen am Wochenende
+      <span class="big am">↑</span>, mobile <span class="big bl">↓</span>. Umrandet: Feiertage.</p>
+      <p>Die Fallzahl pro Tag hängt also mindestens so sehr davon ab, <b style="color:var(--ink)">wo und wann gemessen wird</b>,
+      wie davon, wie schnell gefahren wird. Deshalb schauen wir ab jetzt auf die festen Anlagen, wo der Messaufwand
+      konstant ist, und auf Anteile statt Summen.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================= AKT 2 ================= -->
+<section class="scrolly" data-act="2" id="akt-2">
+  <div class="graphic">
+    <div class="fig" id="g2" data-step="-1">
+      <svg id="svg2" viewBox="0 0 1060 600" role="img" aria-label="Tempofälle der festen Anlagen nach Uhrzeit und Anteil schwerer Überschreitungen je Stunde"></svg>
+      <div class="fig-title"><div class="t">Akt 2 · Die Uhr</div><div class="s">Nur feste Anlagen (24/7 gleicher Messaufwand) · 231.143 Fälle nach Stunde · Details: Maus/Tippen</div></div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 2 / Schritt 1</span>
+      <h3>Tagsüber blitzt es am häufigsten</h3>
+      <p>Von 10 bis 22 Uhr blitzt es fast gleichmäßig viel; der Gipfel liegt um 11 Uhr mit
+      <span class="big">13.595</span> Fällen übers Jahr. Nachts um 3 Uhr sind es nur <span class="big">3.628</span>.</p>
+      <p>Keine Überraschung: Nachts fährt schlicht weniger Verkehr. Interessanter ist,
+      <b style="color:var(--ink)">wie</b> nachts gefahren wird.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card">
+      <span class="n">Akt 2 / Schritt 2</span>
+      <h3>Nachts wird aus „etwas zu schnell“ „deutlich zu schnell“</h3>
+      <p><span class="sw" style="background:var(--sev1)"></span>Unteres Feld: Anteil der Fälle mit <span class="big">21 km/h und mehr</span>
+      zu viel. Ab hier gibt es Punkte in Flensburg.</p>
+      <p>Um 14 Uhr trifft das <span class="big">1,7 %</span> der Geblitzten, um 3 Uhr nachts
+      <span class="big rd">8,0 %</span>: ein fast fünfmal so hoher Anteil. In absoluten Zahlen sind es übers Jahr
+      292 gegen 207 Fälle, nachts aber bei einem Bruchteil des Verkehrs.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 2 / Schritt 3</span>
+      <h3>Das Fahrverbots-Tempo kommt nachts</h3>
+      <p><span class="sw" style="background:var(--red)"></span>Noch deutlicher bei <span class="big">31 km/h und mehr</span>, innerorts droht dann ein Regelfahrverbot.
+      Um 14 Uhr sind es <span class="big">0,12 %</span> der Fälle, um 3 Uhr <span class="big rd">2,5 %</span>
+      (nur Tempo ≤ 50 gerechnet: 0,10 % gegen 1,45 %).</p>
+      <p>Zwei Einzelstunden sind ein Extremvergleich. Über die ganze Nacht (22 bis 6 Uhr) gegen den Tag (10 bis 18 Uhr), je Anlage
+      bereinigt, ist der Anteil ab 21 km/h <span class="big rd">2,3-mal</span> und ab 31 km/h <span class="big rd">4,1-mal</span> so hoch.
+      Wer nachts geblitzt wird, ist seltener „ein bisschen drüber“ und viel öfter richtig schnell.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================= AKT 3 ================= -->
+<section class="scrolly" data-act="3" id="akt-3">
+  <div class="graphic">
+    <div class="fig" id="g3" data-step="-1">
+      <svg id="svg3" viewBox="0 0 1060 600" role="img" aria-label="Die festen Blitzer Kölns mit den meisten Fällen, pro Jahr und pro Betriebstag"></svg>
+      <div class="fig-title"><div class="t">Akt 3 · Die Orte</div><div class="s" id="g3-sub">Feste Anlagen · Tempofälle 2025 · Details: Maus/Tippen</div></div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 3 / Schritt 1</span>
+      <h3>Zwei Blitzer, 50.000 Fälle</h3>
+      <p>Spitzenreiter 2025: die Anlage an der <b style="color:var(--ink)">B 55a, Ausfahrt Frankfurter Straße</b> Richtung Olpe mit
+      <span class="big">25.612</span> Fällen, knapp vor der <b style="color:var(--ink)">Inneren Kanalstraße</b> Richtung Niehler Straße mit <span class="big">24.963</span>.</p>
+      <p>Dabei lief keine der beiden das ganze Jahr: Die B 55a blitzt erst seit dem <span class="big">14. August</span>.
+      Beide liegen auf derselben Achse, Innere Kanalstraße, Zoobrücke, B 55a, beide in Fahrtrichtung Osten. An der Inneren Kanalstraße stehen gleich sechs feste Anlagen.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card">
+      <span class="n">Akt 3 / Schritt 2</span>
+      <h3>Pro Betriebstag gerechnet</h3>
+      <p>Teilt man durch die Tage, an denen eine Anlage tatsächlich Fälle erzeugt hat, rücken die Neuen nach vorn:
+      die A 4 am Eifeltor mit bis zu <span class="big am">213</span> Fällen am Tag, die B 55a mit <span class="big am">187</span>.
+      Vorsicht bei der A 4: Sie lief 2025 nur 9 bzw. 14 Tage. Das sind Anfangswerte, und wie schnell die sinken, zeigt Akt 5.</p>
+      <p>Die Tempo-30-Anlagen am Kaiser-Wilhelm-Ring kommen „nur“ auf 45 und 29 am Tag, dafür an 364 Tagen im Jahr.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 3 / Schritt 3</span>
+      <h3>Was das nach Katalog wert wäre</h3>
+      <p>Legt man den Bußgeldkatalog an jeden einzelnen Fall, ergibt sich für alle Messstellen zusammen
+      ein Katalogwert von rund <span class="big am">18 Mio. €</span>. Das ist keine Einnahme: Gebühren, Rotlicht, Einstellungen und Einsprüche fehlen.
+      Im Schnitt sind es <span class="big">40 €</span> pro Fall, neun von zehn Fällen sind Verwarnungsgelder.</p>
+      <p>Die Rangfolge hängt an einer Annahme: Als innerorts gilt hier Limit ≤ 50. Dann liegt die Innere Kanalstraße mit ≈ 1,1 Mio. € knapp vorn.
+      Zählt man die B 55a (Tempo 80) ebenfalls als innerorts, käme sie auf ≈ 1,4 Mio. €.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================= AKT 4 ================= -->
+<section class="scrolly" data-act="4" id="karte">
+  <div class="graphic">
+    <div class="fig" id="g4" data-step="-1">
+      <svg id="svg4" viewBox="0 0 1060 600" role="img" aria-label="Karte von Köln bei Nacht mit allen Messstellen 2025: feste Anlagen, mobile Messungen, Zeitraffer eines Durchschnittstags und Anteil schwerer Überschreitungen je Stadtteil"></svg>
+      <div class="fig-title"><div class="t">Akt 4 · Köln bei Nacht</div><div class="s" id="g4-sub">Messstellen 2025 an ihren Orten · Details: Maus/Tippen</div></div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 4 / Schritt 1</span>
+      <h3>Die Stadt bei Nacht</h3>
+      <p>Köln als dunkle Fläche, der Rhein als Lichtband, die Hauptstraßen als feine Lichtlinien. Darauf
+      <span class="sw" style="background:var(--amber)"></span>die 43 festen Anlagen, jede Kreisfläche so groß wie ihre Fälle.</p>
+      <p>Sie ballen sich im Zentrum: <span class="big am">16</span> Anlagen stehen höchstens 3 km vom Dom entfernt und erzeugen
+      <span class="big am">57,8 %</span> aller Fälle fester Anlagen. Die größten Kreise: Innere Kanalstraße, Kaiser-Wilhelm-Ring
+      und rechtsrheinisch die B 55a.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card" style="border-top-color:var(--blue)">
+      <span class="n">Akt 4 / Schritt 2</span>
+      <h3>600 Stellen, an denen mobil gemessen wurde</h3>
+      <p><span class="sw" style="background:var(--blue)"></span>Die mobile Messung verteilt sich über die ganze Stadt:
+      Messstellen in <span class="big bl">78</span> von 86 Stadtteilen, die meisten in Neustadt/Süd (26), Dellbrück (23) und Mülheim (20).</p>
+      <p><span class="big">574</span> der 600 Stellen haben einen verlässlichen Punkt; bei 26 reicht die Ortsangabe nur für eine lange Straße.
+      Sie fehlen auf der Karte, zählen aber in Schritt 4 mit.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 4 / Schritt 3</span>
+      <h3>24 Stunden im Zeitraffer</h3>
+      <p>Ein Durchschnittstag in 30 Sekunden: Jeder Lichtpunkt ist ein Blitz an seinem echten Ort, getaktet nach dem
+      Stundenprofil der Messstelle.</p>
+      <p>Um 11 Uhr blitzt es rund <span class="big">90</span>-mal pro Stunde, mehr als die Hälfte davon mobil.
+      Um 3 Uhr nachts sind es nur noch <span class="big">13</span>, und drei von vier Blitzen (<span class="big am">75 %</span>)
+      kommen dann von festen Anlagen.</p>
+    </div></div>
+    <div class="step" data-idx="3"><div class="step-card" style="border-top-color:var(--red)">
+      <span class="n">Akt 4 / Schritt 4</span>
+      <h3>Wo die Messungen die Schnellsten erwischen</h3>
+      <p>Vorweg: Die Farbe beschreibt Messstellen, nicht die Menschen im Stadtteil. Oft prägt eine einzige Stelle den Wert.</p>
+      <p><span class="sw" style="background:var(--red)"></span>Gezeigt ist der Anteil der mobilen Fälle mit <span class="big">21 km/h und mehr</span> zu viel
+      (Punkte in Flensburg), nur wo mindestens 30 solche Fälle an mindestens 3 Messstellen zusammenkommen. Köln-weit sind es <span class="big">2,8 %</span>.</p>
+      <p>Wie stark einzelne Stellen wirken, zeigt Merkenich: 85 % der schweren Fälle dort kommen von der Jungbluthstraße, einer Tempo-10-Strecke.
+      21 km/h zu viel heißt dort 34 km/h gemessen. In Eil stammen 94 % von einer Stelle an der Bensberger Straße.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================= AKT 5 ================= -->
+<section class="scrolly" data-act="5" id="akt-5">
+  <div class="graphic">
+    <div class="fig" id="g5" data-step="-1">
+      <svg id="svg5" viewBox="0 0 1060 600" role="img" aria-label="Lernkurve: Fälle pro Tag an zwei neuen Blitzern, Woche für Woche nach Inbetriebnahme, indexiert"></svg>
+      <div class="fig-title"><div class="t">Akt 5 · Die Lernkurve</div><div class="s">Fälle pro Betriebstag, Woche für Woche nach Inbetriebnahme · Wochen 0–1 = 100 · gepunktet: Anlagen im Bestand</div></div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 5 / Schritt 1</span>
+      <h3>Ein neuer Blitzer wirkt, und zwar schnell</h3>
+      <p>In ihren ersten zwei Wochen löste die Anlage an der B 55a im Schnitt <span class="big">443-mal am Tag</span> aus.
+      In den Wochen 12 bis 19 sind es noch <span class="big am">127</span>: gut ein Viertel (<span class="big am">−71 %</span>).</p>
+      <p>Gepunktet zum Vergleich: 27 Anlagen, die das ganze Jahr messen. Sie bleiben im selben Zeitraum fast gleich (−5 %);
+      die Jahreszeit erklärt den Rückgang also nicht. Auch schwere Fälle werden seltener: Der Anteil mit 21 km/h und mehr zu viel
+      sinkt von 13,0 % auf 5,9 %.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card">
+      <span class="n">Akt 5 / Schritt 2</span>
+      <h3>K-Kennzeichen verschwinden schneller</h3>
+      <p>Getrennt nach Kennzeichen: <span class="sw" style="background:var(--o1)"></span>Fahrzeuge mit <b style="color:var(--ink)">K</b> fallen
+      von 201 auf 44 Fälle am Tag (<span class="big">−78 %</span>),
+      <span class="sw" style="background:var(--muted-chart)"></span>alle anderen von 242 auf 82 (<span class="big">−66 %</span>).</p>
+      <p>Eine mögliche Deutung: Wer täglich vorbeifährt, merkt sich den Kasten. Genauso denkbar sind Blitzer-Apps oder Ausweichrouten,
+      und ob hinter dem Kasten wieder beschleunigt wird, zeigen die Daten nicht. Das Kennzeichen nennt den Halter, nicht den Fahrer.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 5 / Schritt 3</span>
+      <h3>Nicht jede neue Anlage wirkt so</h3>
+      <p><span class="sw" style="background:var(--amber-soft)"></span>Die Innere Kanalstraße (Richtung Niehler Straße, ab Mitte Mai) fällt von rund 200
+      auf gut 80 Fälle am Tag (<span class="big">−59 %</span>). Der größte Teil kam aber abrupt Mitte August. Das passt eher zu einem äußeren Anlass,
+      etwa Baustelle, Umleitung oder Ferienende, als zu Lernen. Die Ursache ist offen.</p>
+      <p>Bei den kleineren neuen Anlagen 2025 schwankt es zwischen −22 % und +29 %. Stark bricht es nur an den beiden großen ein.
+      Heißt: An der Messstelle selbst wird nach einem neuen Blitzer oft langsamer gefahren, aber nicht überall gleich stark, und was hinter dem Kasten passiert, bleibt offen.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================= AKT 6 ================= -->
+<section class="scrolly" data-act="6" id="akt-6">
+  <div class="graphic">
+    <div class="fig" id="g6" data-step="-1">
+      <svg id="svg6" viewBox="0 0 1060 600" role="img" aria-label="Herkunft der geblitzten Fahrzeuge nach Kennzeichen, getrennt nach Messart"></svg>
+      <div class="fig-title"><div class="t">Akt 6 · Die Ortskundigen</div><div class="s">Herkunft laut Kennzeichen-Kürzel (Halter, nicht Fahrer) · Anteile in %</div></div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 6 / Schritt 1</span>
+      <h3>Knapp die Hälfte kommt aus Köln</h3>
+      <p><span class="big">48,5 %</span> aller Fälle tragen ein K-Kennzeichen. Ein weiteres Fünftel stammt aus den
+      fünf Nachbarn: Rhein-Erft-Kreis (BM), Rheinisch-Bergischer Kreis (GL), Rhein-Sieg-Kreis (SU), Rhein-Kreis Neuss (NE) und Leverkusen.</p>
+      <p>Insgesamt tauchen <span class="big">648</span> verschiedene deutsche Kennzeichen-Kürzel auf.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card">
+      <span class="n">Akt 6 / Schritt 2</span>
+      <h3>Bei mobilen Messungen: 61 % Kölner</h3>
+      <p>Mobile Messungen finden zu 84 % bei Tempo 30 statt, meist in Wohnstraßen, verteilt über 600 Stellen im Stadtgebiet.
+      Dort kommen <span class="big bl">60,8 %</span> der Geblitzten aus Köln.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 6 / Schritt 3</span>
+      <h3>An festen Blitzern: nur noch 38 %</h3>
+      <p>An den festen Anlagen kippt das Bild: <span class="big am">37,5 %</span> Kölner, dafür
+      <span class="big">36,9 %</span> aus dem übrigen Deutschland.</p>
+      <p>Durchgangsverkehr auf B 55a und A 4 erklärt das allein nicht: Auch ohne diese Anlagen bleibt der Köln-Anteil bei knapp 38 %.
+      Viel erklärt aber, wo gemessen wird: Die festen Anlagen stehen an Hauptachsen mit vielen Einpendlern, mobil wird vor allem in Wohnstraßen gemessen.
+      Dazu eine Hypothese, die zu Akt 5 passt: <b style="color:var(--ink)">Einen festen Blitzer kennt, wer von hier ist.</b></p>
+    </div></div>
+    <div class="step" data-idx="3"><div class="step-card">
+      <span class="n">Akt 6 / Schritt 4</span>
+      <h3>Die Gäste</h3>
+      <p>Die häufigsten Kennzeichen nach K: BM, GL und SU. Bemerkenswert weit oben: <b style="color:var(--ink)">M, HH, WI und B</b>,
+      Kürzel, unter denen auch viele Firmen-, Miet- und Leasingwagen zugelassen sein dürften. Das Kennzeichen verrät den Halter, nicht, wer am Steuer saß.</p>
+      <p>Und die B 55a Richtung Olpe? Dort ist nach K das häufigste Kürzel <span class="big">GL</span>, gefolgt von <span class="big">GM</span>: die Pendler ins Bergische.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================= AKT 7 ================= -->
+<section class="scrolly" data-act="7" id="akt-7">
+  <div class="graphic">
+    <div class="fig" id="g7" data-step="-1">
+      <svg id="svg7" viewBox="0 0 1060 600" role="img" aria-label="Verteilung der vorwerfbaren Überschreitung in km/h mit Bußgeld-Stufen"></svg>
+      <div class="fig-title"><div class="t">Akt 7 · Wie schnell?</div><div class="s" id="g7-sub">Fälle je km/h vorwerfbarer Überschreitung (nach Toleranzabzug) · alle Messarten</div></div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 7 / Schritt 1</span>
+      <h3>Die meisten liegen knapp über der Schwelle</h3>
+      <p>Der häufigste Wert ist <span class="big">6 km/h</span> zu viel nach Abzug der Messtoleranz (20,5 % aller Fälle). Darunter gibt es
+      an festen und mobilen Anlagen praktisch keine Fälle; bei Tempo 30 heißt das: erst ab 39 km/h gemessen.
+      Ob das an der Geräteeinstellung oder an einer Verfolgungsgrenze liegt, verraten die Daten nicht. Ein Freibrief ist es nicht: Die Schwelle ist gelebte Praxis, kein Recht.</p>
+      <p><span class="big">68 %</span> aller Fälle liegen bei 6 bis 10 km/h zu viel.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card">
+      <span class="n">Akt 7 / Schritt 2</span>
+      <h3>97 % ohne Punkte</h3>
+      <p><span class="sw" style="background:var(--muted-chart)"></span><span class="big">96,9 %</span> bleiben bei höchstens 20 km/h, ohne Punkte.
+      90,2 % liegen sogar bei höchstens 15 km/h und kosten nur ein Verwarnungsgeld; ab 16 km/h ist es bereits ein Bußgeld (60–70 €).</p>
+      <p><span class="sw" style="background:var(--sev1)"></span><span class="big">13.615</span> Fälle (3,1 %) bringen Punkte.
+      <span class="sw" style="background:var(--red)"></span>Ab 31 km/h zu viel droht innerorts ein Fahrverbot.</p>
+      <p>Tempo 30 ist dabei der Normalfall: <span class="big">61,6 %</span> aller Fälle passieren bei Tempolimit 30.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 7 / Schritt 3</span>
+      <h3>Der lange Schwanz</h3>
+      <p>Logarithmische Skala: Jetzt wird das Ende sichtbar. <span class="big rd">1.697</span> Fälle erreichen die
+      Fahrverbots-Grenze (innerorts ab 31, außerorts ab 41 km/h zu viel). Zählt man Tempo 60 bis 80 ebenfalls als innerorts, sind es bis zu 2.307.</p>
+      <p>Ganz rechts der Sammelbalken „über 70 km/h zu viel“: 15 Fälle. Der Rekord liegt bei <span class="big rd">+146 km/h</span>, dazu gleich mehr.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================= EPILOG · AUSREISSER ================= -->
+<section class="prose" style="padding-bottom:30px">
+  <div class="kicker red">Epilog I</div>
+  <h2>203 km/h auf dem Raderthalgürtel</h2>
+  <p>Mittwoch, 30. April 2025, 19:20 Uhr, am Vorabend des 1. Mai. Die feste Anlage am Raderthalgürtel, erlaubt sind 50 km/h,
+  misst laut Datensatz bei einem Pkw <b>203 km/h</b>. Nach Toleranzabzug: 146 km/h zu viel, der Rekord des Jahres.
+  Platz zwei: die B 55a mit 191 km/h bei erlaubten 80, an einem Sonntagmorgen um 6:20 Uhr, drei Tage nach dem Start der Anlage.</p>
+  <p>Unten jeder Fall ab 31 km/h zu viel, sortiert nach Tempolimit (deshalb mehr Fälle als die 1.697 in Akt 7: außerorts zählt das Fahrverbot erst ab 41).
+  Innerhalb jeder Spalte steht die Uhrzeit: links Mitternacht, rechts 23 Uhr, rot hinterlegt die Nacht. Die Striche markieren das jeweilige Limit.
+  Je weiter ein Punkt darüber liegt, desto absurder die Fahrt.</p>
+</section>
+<div class="wide static-fig">
+  <div class="fig-title"><div class="t">Die Ausreißer</div><div class="s">Alle 2.307 Fälle ab 31 km/h zu viel · gemessene km/h nach Tempolimit · je Spalte 0 → 23 Uhr · Details: Maus/Tippen</div></div>
+  <svg id="svgx" viewBox="0 0 1060 520" role="img" aria-label="Streudiagramm der extremen Überschreitungen nach Tempolimit"></svg>
+</div>
+<details class="tbl">
+  <summary>Die 15 höchsten Überschreitungen als Tabelle anzeigen</summary>
+  <table id="tbl-extreme"><thead><tr><th>Datum</th><th>Uhrzeit</th><th>Ort</th><th class="num">Limit</th><th class="num">gemessen</th><th class="num">zu viel</th></tr></thead><tbody></tbody></table>
+</details>
+
+<!-- ================= EPILOG · ATLAS ================= -->
+<section class="prose" style="padding-bottom:30px">
+  <div class="kicker">Epilog II</div>
+  <h2>Der Raser-Atlas: Ihr Blitzer</h2>
+  <p>Alle 655 Messstellen des Jahres zum Durchsuchen, nach Straße, Stadtteil oder Richtung.
+  Klick auf eine Spaltenüberschrift sortiert. Die kleine Grafik rechts zeigt den Tagesverlauf von 0 bis 23 Uhr, <span style="color:var(--red)">rot</span> die Nachtstunden (22–6 Uhr).</p>
+</section>
+<div class="atlas">
+  <div class="atlas-bar">
+    <input id="atlas-q" type="search" placeholder="Straße, Stadtteil oder Richtung … z. B. Aachener, Ring, Porz" aria-label="Messstellen durchsuchen">
+    <div class="seg" role="group" aria-label="Messart filtern">
+      <button type="button" data-f="all" aria-pressed="true">alle</button>
+      <button type="button" data-f="S-01" aria-pressed="false">fest</button>
+      <button type="button" data-f="S-02" aria-pressed="false">mobil</button>
+      <button type="button" data-f="K-04" aria-pressed="false">Kreuzung</button>
+    </div>
+    <span class="atlas-count" id="atlas-count"></span>
+  </div>
+  <div class="atlas-wrap">
+    <table class="atl" id="atlas">
+      <thead><tr>
+        <th data-k="name">Messstelle</th><th data-k="lim">Limit</th><th data-k="n" aria-sort="descending">Fälle</th>
+        <th data-k="tage">Tage</th><th data-k="pt">pro Tag</th><th data-k="avg">Ø zu viel</th><th data-k="p21">≥ 21 km/h</th>
+        <th data-k="k">Köln-Anteil</th><th data-k="vmax">max. km/h</th><th data-k="h" style="cursor:default">0–23 Uhr</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <button class="atlas-more" id="atlas-more" type="button">Mehr anzeigen</button>
+</div>
+
+<!-- ================= FAZIT ================= -->
+<section class="prose">
+  <div class="kicker">Fazit</div>
+  <h2>Was die 445.483 Fälle sagen, und was nicht</h2>
+  <p>Köln rast nicht mehr oder weniger, als die Summe dieser Zeilen behauptet. Die Summe beschreibt vor allem,
+  <b>wo und wann die Stadt misst</b>. Die robusten Befunde stecken in den Verhältnissen:</p>
+  <p><b>Nachts</b> ist der Anteil schwerer Verstöße an den festen Anlagen deutlich höher: über die ganze Nacht, je Anlage bereinigt,
+  2,3-mal so hoch ab 21 km/h und 4,1-mal so hoch ab 31 km/h wie am Tag.
+  <b>Ein neuer Blitzer wirkt:</b> An der B 55a sank die Zahl der Fälle binnen drei Monaten auf gut ein Viertel, während die Anlagen im Bestand
+  stabil blieben, und auch die schweren Fälle wurden seltener. An kleineren neuen Anlagen ist der Effekt schwach oder nicht zu sehen.
+  Und <b>die große Masse</b> ist knapp dran: 97 % der Fälle liegen höchstens 20 km/h drüber, ohne Punkte, meistens in Tempo 30.</p>
+  <p>Ob Blitzer Unfälle verhindern, können diese Daten nicht zeigen, dafür bräuchte man Unfall- und Verkehrsmengen
+  an denselben Stellen. Und eine Frage bleibt an die Stadt: Mobil wird zu 90 % tagsüber und zu 80 % werktags gemessen.
+  Die schweren Verstöße passieren aber vor allem nachts.</p>
+</section>
+
+<!-- ================= GRENZEN ================= -->
+<section class="prose" style="padding-bottom:30px">
+  <div class="kicker">Ehrlichkeit</div>
+  <h2>Grenzen dieser Analyse</h2>
+</section>
+<div class="limits">
+  <div class="limit-card"><h4>Messaufwand ≠ Raserei</h4><p>Fallzahlen steigen, wenn mehr gemessen wird. Vergleiche über Zeit und Orte sind nur bei gleichem Messaufwand fair, deshalb die festen Anlagen in Akt 2 und die Anteile in Akt 6.</p></div>
+  <div class="limit-card"><h4>Kein Verkehr im Nenner</h4><p>Die Daten enthalten keine Verkehrsmengen. Ohne sie lässt sich keine „Raserquote“ berechnen, nur, wie sich die Geblitzten zusammensetzen.</p></div>
+  <div class="limit-card"><h4>Nur die Stadt</h4><p>Die Daten umfassen die Verkehrsüberwachung der Stadt Köln. Messungen der Polizei, etwa auf Autobahnen, fehlen.</p></div>
+  <div class="limit-card"><h4>Kennzeichen = Halter</h4><p>Das Kürzel nennt den Zulassungsbezirk. Firmen-, Miet- und Leasingwagen sind oft zentral zugelassen: „München“ heißt nicht, dass ein Münchner fuhr.</p></div>
+  <div class="limit-card"><h4>Limit abgeleitet</h4><p>Das Tempolimit steht nicht in den Falldaten. Es wird aus Messwert, Überschreitung und Toleranz zurückgerechnet und stimmt zu <span data-k5="limit"></span> mit dem Limit der Standorttabellen überein.</p></div>
+  <div class="limit-card"><h4>Orte teils ungefähr</h4><p>Die Standorttabellen nennen Adressen, keine Koordinaten. <span data-k4="strasse_pct"></span> der Messstellen liegen nur auf Straßenebene (höchstens ±1 km), <span data-k4="fehlt"></span> fehlen auf der Karte. Details im Appendix unter „Karte &amp; Geocodierung“.</p></div>
+  <div class="limit-card"><h4>Bußgeld = Schätzung</h4><p>Katalog-Sätze für Pkw, innerorts bei Limit ≤ 50 angenommen. Ohne Gebühren, Punkte-Folgekosten, Einstellungen und Einsprüche.</p></div>
+</div>
+
+<!-- ================= APPENDIX ================= -->
+<section class="prose" id="appendix" style="padding-top:0">
+  <div class="kicker">Appendix</div>
+  <h2>Methoden &amp; Daten</h2>
+  <details class="gloss" id="gl-daten"><summary>Datenbasis</summary><div class="gloss-body">
+    <p>Presseberichte nannten für 2025 451.735 Fälle und für die B 55a 25.419. Diese Seite zählt 451.676 auswertbare Zeilen und daraus
+    445.483 Tempofälle, an der B 55a 25.612. Die Pressezahlen ließen sich nicht an der Originalquelle prüfen; Abgrenzung und Datenstand können abweichen.</p>
+    <p>„Geschwindigkeitsüberwachung Köln ab 2025“, Stadt Köln, Offene Daten Köln, Lizenz Datenlizenz Deutschland – Zero – 2.0.
+    Datei <code>Geschwindigkeitsueberwachung_Koeln_Gesamt_2025.csv</code> (21,6 MB, Latin-1, Semikolon) plus die Standorttabellen
+    sloc-01, sloc-02, sloc-04 und sloc-11.</p>
+    <p>Spalten: Jahr, Monat, Vorfallsdatum, Vorfallsuhrzeit, Kennzeichen-Kürzel, Geschwindigkeit, Überschreitung, Fahrzeugart,
+    Dienststelle, Standort. 98,5 % der Fälle haben Fahrzeugart <span class="m">04a</span> (Pkw).</p>
+  </div></details>
+  <details class="gloss" id="gl-bereinigung"><summary>Bereinigung</summary><div class="gloss-body">
+    <p>Die Datei ist ein aneinandergehängter SQL-Export mit Kopfzeile, Trennlinie und „(N Zeile(n) betroffen)“ je Monat.
+    Diese 59 Zeilen (Kopf-, Trenn- und Leerzeilen sowie 12 Zählzeilen) werden übersprungen; die Zeilenzahlen je Monat dienen als Kontrollsumme, und sie stimmen für alle zwölf Monate.</p>
+    <ul>
+      <li><span class="m">5.905</span> Zeilen ohne Kennzeichen-Feld (Spalten um eins verrutscht) werden zurückgeschoben.</li>
+      <li>Eine Handvoll Sonderkennzeichen (z. B. „NRW 5-“) sind zweigeteilt; auch sie werden normalisiert.</li>
+      <li><span class="m">1</span> Zeile ohne Überschreitungswert wird verworfen → <span class="m">451.676</span> Zeilen.</li>
+      <li>Kreuzungsanlagen (K-04): Nur Zeilen mit plausiblem Limit 50/70 km/h und einer Überschreitung zählen als Tempofall. Die übrigen
+      <span class="m">6.193</span> sind überwiegend Fälle ohne Überschreitung, vermutlich Rotlichtverstöße, und bleiben außen vor
+      (seit Version 3.1 auch 177 Zeilen mit genau 0 km/h zu viel).
+      → <span class="m">445.483</span> Tempofälle.</li>
+    </ul>
+  </div></details>
+  <details class="gloss" id="gl-limit"><summary>Tempolimit, Toleranz, innerorts</summary><div class="gloss-body">
+    <p>Die „Überschreitung“ ist bereits der vorwerfbare Wert nach Toleranzabzug. Daraus lässt sich das Limit zurückrechnen:</p>
+    <div class="gloss-formula">Limit = gemessen − Überschreitung − Toleranz   (Toleranz = 3 km/h bis 100 km/h, sonst 3 % aufgerundet)</div>
+    <p>Für feste und mobile Anlagen ergibt das bis auf zwei Einzelfälle ausschließlich die Werte 10, 20, 30, 50, 60 und 80 km/h, ein starker Hinweis,
+    dass die Rechnung stimmt. Gegenprobe mit der Spalte „Limit Pkw“ der Standorttabellen: <span data-k5="limit_detail"></span>
+    Eine Ortstafel kennen die Daten nicht; für Bußgeld und Fahrverbot gilt Limit ≤ 50 km/h als innerorts. Die B 55a lief in ihren ersten sechs Tagen
+    noch mit Tempo 60 (<span data-k5="b55a_60"></span> Fälle).</p>
+  </div></details>
+  <details class="gloss" id="gl-dienst"><summary>Messarten: fest, mobil, Kreuzung</summary><div class="gloss-body">
+    <p>Die Dienststellen-Codes sind in den Daten nicht erklärt. Die Zuordnung folgt dem Verhalten der Daten:</p>
+    <ul>
+      <li><b>S-01 · feste Anlagen</b>: 43 Standorte (Standorttabelle sloc-01), gleichmäßige Fälle rund um die Uhr.</li>
+      <li><b>S-02 · mobile Messung</b>: 600 Standorte (sloc-02), überwiegend tagsüber und werktags (10 % der Fälle nachts, 20 % am Wochenende).</li>
+      <li><b>K-04 · Kreuzungsanlagen</b>: 12 Standorte. Jeder ihrer Codes (7018 …) hat ein Gegenstück in der Tabelle sloc-04 mit +100
+      (7118 …), mit fast immer passendem Tempolimit; daraus leiten wir die Ortsnamen ab.</li>
+    </ul>
+    <p>Die Tabelle sloc-11 (A 1, Rheinbrücke Leverkusen) hat 2025 keine Fälle.</p>
+    <p><b>Datenschutz:</b> Die Seite zeigt nur abgeleitete Kennzahlen. Bei Messstellen mit weniger als 5 Fällen blendet der Atlas Köln-Anteil,
+    Höchstwert und Tagesprofil aus, weil sie sonst Einzelfälle erkennbar machen würden.</p>
+  </div></details>
+  <details class="gloss" id="gl-lern"><summary>Lernkurve</summary><div class="gloss-body">
+    <p>Woche 0 beginnt am ersten Tag mit regulärem Betrieb (B 55a: 14.08.2025; Innere Kanalstraße: 15.05.2025, drei Testfälle im März ignoriert).
+    Je Woche: Fälle ÷ Tage mit Fällen, damit Ausfälle (B 55a, Woche 2, 28.08. bis 03.09., nur 4 Betriebstage) die Kurve nicht verzerren.
+    Index: Durchschnitt der Wochen 0 und 1 = 100, verglichen mit dem Plateau in den Wochen 12 bis 19; einzelne Extremwochen tragen den Befund nicht.</p>
+    <p>Kontrollreihe: <span data-k5="kontrolle"></span> feste Anlagen, die das ganze Jahr Fälle liefern (erste Fälle bis 10.01., letzte ab 20.12.), je Anlagen-Betriebstag.
+    Die Gegenrichtung der B 55a (Richtung Zoobrücke) löst seit August ebenfalls seltener aus, <span data-k5="gegen"></span> pro Tag; ob das ein Ausstrahleffekt entlang der Strecke ist, bleibt offen.
+    Verkehrsmengen, Wetter und Umleitungen sind nicht herausgerechnet.</p>
+    <p>Alle 2025 neu gestarteten festen Anlagen, Fälle je Betriebstag in Woche 0–1 gegen Woche 12–19:</p>
+    <div class="mini-wrap"><table class="mini" id="tbl-neu"><thead><tr><th>Anlage</th><th>Start</th><th class="num">Woche 0–1</th><th class="num">Woche 12–19</th><th class="num">Veränderung</th></tr></thead><tbody></tbody></table></div>
+  </div></details>
+  <details class="gloss" id="gl-herkunft"><summary>Herkunft &amp; Kennzeichen</summary><div class="gloss-body">
+    <p>Kürzel werden mit der Liste der Unterscheidungszeichen aus dem npm-Paket <code>german-license-plate-prefixes</code> (CC BY 3.0) aufgelöst.
+    <b>Umland</b> = die fünf Nachbarn BM, GL, SU, NE, LEV. Kürzel ohne Treffer (Sonder-, Behörden-, Auslands- oder unvollständige Kennzeichen)
+    landen in „ohne/sonstige“. Die Spalte enthält vereinzelt Fragmente ausländischer Wunschkennzeichen, diese Seite zeigt nur Bezirks-Kürzel.</p>
+  </div></details>
+  <details class="gloss" id="gl-bussgeld"><summary>Bußgeld-Schätzung</summary><div class="gloss-body">
+    <p>Bußgeldkatalog für Pkw (BKatV, Stand seit 09.11.2021, 2025 unverändert): innerorts 30 € (bis 10 km/h) bis 800 € (über 70 km/h),
+    außerorts 20 € bis 700 €. Jeder Fall wird mit dem Satz seiner Stufe bewertet und summiert.</p>
+    <p>Das ist eine grobe Schätzung des Katalogwerts, keine Einnahme: Gebühren und Auslagen fehlen; Einstellungen, Einsprüche,
+    höhere Lkw-Sätze (rund 1,5 % der Fälle) und die Wiederholungsregel sind nicht berücksichtigt.</p>
+  </div></details>
+  <details class="gloss" id="gl-karte"><summary>Karte &amp; Geocodierung</summary><div class="gloss-body">
+    <p>Die Standorttabellen nennen keine Koordinaten, nur Ort, Lage und Fahrtrichtung, etwa „Escher Straße ggü. Haus-Nr. 146“
+    oder „Innere Kanalstr. zw. Lat. 177-176“. Die Angaben wurden bereinigt (Laternen- statt Hausnummern, Abkürzungen wie „Ber.Gl.Str.“,
+    Tippfehler der Quelle) und mit <b>Geoapify</b> geocodiert. Ein Treffer zählt nur, wenn Straße und Stadtteil zur Anfrage passen.</p>
+    <p>Danach ein unabhängiger Abgleich mit <b>OpenStreetMap</b>: Aus OSM-Adresspunkten, Kreuzungen und Straßen entsteht für jede Messstelle
+    ein zweiter Punkt. Lag der Geocoder im falschen Stadtteil, mehr als 150 m neben der OSM-Adresse oder nur auf Straßenebene, gilt der
+    OSM-Punkt (<span data-k4="osm_abgleich"></span> mobile Messstellen). Alle festen Anlagen und Kreuzungsanlagen
+    (<span data-k4="von_hand"></span>) wurden einzeln geprüft, unter anderem mit der Pressemitteilung der Stadt zur B 55a und öffentlichen Standortlisten.</p>
+    <p><b>Genauigkeit</b> der <span data-k4="n"></span> Messstellen:</p>
+    <ul>
+      <li>punktgenau (Hausnummer oder Kreuzung): <span data-k4="hausnummer"></span></li>
+      <li>auf der richtigen Straße im richtigen Stadtteil, höchstens ±1 km: <span data-k4="strasse"></span></li>
+      <li>von Hand verortet: <span data-k4="manuell"></span></li>
+      <li>ohne verlässlichen Punkt, weggelassen: <span data-k4="fehlt"></span> mit <span data-k4="fehlt_faelle"></span> Fällen</li>
+    </ul>
+    <p>Weggelassen wurden Stellen, deren Angabe nur eine lange Straße nennt: <span data-k4="fehlend"></span>. Sie fehlen auf der Karte,
+    zählen in den Stadtteilwerten aber mit, denn den Stadtteil nennt die Standorttabelle selbst (einzige Ausnahme „Feldkassel“, ein Ortsteil von Merkenich: Zuordnung über die Koordinate).</p>
+    <p><b>Stadtteile</b>: 86 Flächen aus OpenStreetMap. Der Anteil ≥ 21 km/h wird nur ab <span data-k4="min"></span> ausgewiesen, in drei Klassen und ohne Rangliste: Bei wenigen Messstellen prägt oft eine einzige den Wert.
+    Kartengeometrie vereinfacht (Douglas-Peucker, 12–16 m), äquidistante Projektion; Koordinaten und Prüfliste liegen unter
+    <code>koeln-raser/data/geo/</code> (<code>manual_coords.csv</code>, <code>messstellen_review.csv</code>).</p>
+    <p>Kartendaten © OpenStreetMap-Mitwirkende (ODbL) · Geocodierung: Geoapify.</p>
+  </div></details>
+  <details class="gloss" id="gl-repro"><summary>Reproduzieren</summary><div class="gloss-body">
+    <p>Alles liegt im Repository unter <code>koeln-raser/</code>:</p>
+    <div class="gloss-formula">python3 koeln-raser/scripts/build_db.py &amp;&amp; python3 koeln-raser/scripts/build_story_data.py &amp;&amp; python3 koeln-raser/scripts/build_story_html.py</div>
+    <p>Die SQLite-Datenbank <code>raser_2025.sqlite</code> hat die Tabellen <code>verstoss</code>, <code>standort</code> und
+    <code>monat_kontrolle</code>. Eigene Abfragen sind ausdrücklich erwünscht.</p>
+  </div></details>
+</section>
+
+<div class="home-pill-wrap">
+  <a class="home-pill" href="index.html#posts-talks" rel="noopener">← Daten-WG Knowledge Kitchen</a>
+</div>
+
+<footer>
+  Daten: Stadt Köln · Offene Daten Köln · „Geschwindigkeitsüberwachung Köln ab 2025“ · Datenlizenz Deutschland – Zero – 2.0<br>
+  Kennzeichen-Zuordnung: npm german-license-plate-prefixes, Daten: Senatsverwaltung für Wirtschaft, Technologie und Forschung Berlin (<a href="https://creativecommons.org/licenses/by/3.0/de/">CC BY 3.0</a>) · Bußgeldsätze: BKatV Tabelle 1<br>
+  Kartendaten © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap-Mitwirkende</a> (ODbL) · Geocodierung: <a href="https://www.geoapify.com/">Powered by Geoapify</a><br>
+  Diese Seite enthält nur abgeleitete Kennzahlen, keine Einzeldatensätze mit Kennzeichen<br>
+  Analyse &amp; Visualisierung: Daten-WG · SQLite + handgebautes SVG, keine Chart-Bibliothek<br>
+  Version 3.1 (Karten-Akt, überarbeitet nach Peer-Review) · Entwicklungsstand ansehen: <a href="koelner-raser-story-v1.html">Version 1</a> · <a href="koelner-raser-story-v2.html">Version 2</a><br>
+  Kontakt: <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a>
+</footer>
+
+<div id="tip" role="status" aria-hidden="true"></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+</script>
+<script>
+/* ================================================================
+   Helpers (wie rhein-story.html)
+================================================================ */
+const NS = "http://www.w3.org/2000/svg";
+const MON = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+const WD = ["Mo","Di","Mi","Do","Fr","Sa","So"];
+const fmt = n => Math.round(n).toLocaleString("de-DE");
+const fmt1 = n => n.toLocaleString("de-DE", {minimumFractionDigits:1, maximumFractionDigits:1});
+const fmt2 = n => n.toLocaleString("de-DE", {minimumFractionDigits:2, maximumFractionDigits:2});
+const pct = (a,b,d=1) => (100*a/b).toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}) + " %";
+const lin = (d0,d1,r0,r1) => v => r0 + (v-d0)/(d1-d0)*(r1-r0);
+const $ = s => document.querySelector(s);
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* Zwei Geometrien: Desktop zeichnet in 1060×600, Mobil in 640×760 (Hochformat).
+   So bleibt Schrift auf dem Telefon lesbar, statt eine Querformat-Grafik auf 1/3 zu schrumpfen. */
+const MQ = matchMedia("(max-width: 760px)");
+const MOB = MQ.matches;
+MQ.addEventListener("change", ()=>location.reload());
+const W = MOB ? 640 : 1060, H = MOB ? 760 : 600;
+const M = MOB ? {t:28, r:20, b:48, l:58} : {t:96, r:40, b:52, l:78};
+const DODGE = MOB ? 24 : 16;          // Mindestabstand gestapelter Labels
+
+function el(tag, attrs, parent){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function txt(parent, x, y, s, attrs={}){
+  const a = Object.assign({x,y}, attrs);
+  // CSS „svg text{fill}" schlägt Präsentationsattribute → Farbe als Inline-Style
+  if (a.fill){ a.style = `fill:${a.fill}`; delete a.fill; }
+  const t = el("text", a, parent);
+  t.textContent = s;
+  return t;
+}
+const tw = t => { try { return t.getComputedTextLength(); } catch(e){ return 0; } };
+function dodge(labels, gap=DODGE){           // labels: [{t, y}] — y aufsteigend auseinanderschieben
+  labels.sort((a,b)=>a.y-b.y);
+  for (let i=1;i<labels.length;i++) if (labels[i].y - labels[i-1].y < gap) labels[i].y = labels[i-1].y + gap;
+  labels.forEach(l=>l.t.setAttribute("y", l.y));
+}
+function pathFrom(pts){ return pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(""); }
+function prepDraw(p){ const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p.classList.add("draw"); return p; }
+function reveal(p){ p.style.strokeDashoffset = 0; }
+function stage(id){ const svg = $(id); svg.setAttribute("viewBox", `0 0 ${W} ${H}`); return svg; }
+
+const tip = document.getElementById("tip");
+function showTip(html, x, y){
+  tip.innerHTML = html;
+  tip.style.opacity = 1;
+  const w = tip.offsetWidth, vw = window.innerWidth;
+  tip.style.left = Math.max(8, Math.min(x+14, vw-w-10)) + "px";
+  tip.style.top = Math.max(8, y-40-tip.offsetHeight/2) + "px";
+}
+function hideTip(){ tip.style.opacity = 0; }
+/* Maus: folgt dem Zeiger. Touch: Tippen zeigt, Scrollen blendet aus. */
+function hover(elm, html){
+  const h = ev => showTip(typeof html==="function"?html():html, ev.clientX, ev.clientY);
+  elm.addEventListener("mousemove", h);
+  elm.addEventListener("mouseleave", hideTip);
+  elm.addEventListener("click", h);
+}
+addEventListener("scroll", hideTip, {passive:true});
+
+const dateDE = iso => { const [y,m,d] = iso.split("-"); return `${d}.${m}.${y}`; };
+const wdOf = iso => (new Date(iso+"T12:00:00Z").getUTCDay()+6)%7;
+const S01 = DATA.standorte.filter(s=>s.d==="S-01");
+const siteName = s => s.name || [s.lage || s.ort, s.ri].filter(Boolean).join(" · ");
+const hh = h => String(h).padStart(2,"0");
+
+/* ================================================================
+   Hero: Lichtspuren
+================================================================ */
+(function hero(){
+  /* „Langzeitbelichtung": jede Lichtspur ist ein echter Fall einer festen Anlage (Stichprobe DATA.hero:
+     [Stunde, gemessen, Limit, zu viel]). Länge und Tempo ∝ gemessene km/h, Farbe = Schwere,
+     beim Passieren des Blitzers blitzt es. Die Spurdichte folgt dem echten Tagesgang (DATA.stunde_s01),
+     ein Durchschnittstag läuft im Zeitraffer (1 Stunde = 1,25 s). */
+  const cv = $("#hero-canvas"), ctx = cv.getContext("2d"), clock = $("#hero-clock");
+  const hrs = DATA.stunde_s01.map(d=>d.n), max = Math.max(...hrs);
+  const byHour = Array.from({length:24}, ()=>[]);
+  DATA.hero.forEach(r=>byHour[r[0]].push(r));
+  const ptr = new Array(24).fill(0);
+  const LANES = 16;
+  let Wc = 0, Hc = 0, dpr = 1, lanes = [];
+  let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
+  function resize(){
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    const r = cv.getBoundingClientRect();
+    Wc = cv.width = Math.round(r.width*dpr); Hc = cv.height = Math.round(r.height*dpr);
+    // Perspektive: oben fern (klein, langsam, dunkel), unten nah
+    lanes = Array.from({length:LANES}, (_,i)=>{
+      const z = i/(LANES-1), sc = .28 + .72*Math.pow(z, 1.35);
+      return {y: Hc*(.1 + .86*Math.pow(z, 1.15)), sc, cam: Wc*(.66 + (rnd()-.5)*.08)};
+    });
+  }
+  resize(); addEventListener("resize", resize);
+  const col = u => u>=31 ? [230,103,103] : u>=21 ? [224,138,104] : [240,181,74];
+  const cars = [], flashes = [];
+  function spawn(h){
+    const list = byHour[h]; if (!list.length) return;
+    const [ , kmh, , ueber] = list[ptr[h]++ % list.length];
+    const L = lanes[Math.floor(rnd()*LANES)];
+    const len = kmh * 5.5 * L.sc * dpr;
+    cars.push({L, kmh, ueber, x: Wc + rnd()*60*dpr, len, v: kmh * 11 * L.sc * dpr, c: col(ueber), fl: false});
+  }
+  function draw(dt){
+    ctx.clearRect(0,0,Wc,Hc);
+    ctx.globalCompositeOperation = "lighter";
+    // Fahrbahnmarkierungen als ganz leise Parallax-Striche
+    lanes.forEach((L,i)=>{ if (i%3) return;
+      ctx.strokeStyle = `rgba(255,255,255,${.035*L.sc})`; ctx.lineWidth = 1*dpr;
+      ctx.setLineDash([18*L.sc*dpr, 26*L.sc*dpr]); ctx.lineDashOffset = (performance.now()/1000*90*L.sc*dpr) % (44*L.sc*dpr);
+      ctx.beginPath(); ctx.moveTo(0, L.y+8*L.sc*dpr); ctx.lineTo(Wc, L.y+8*L.sc*dpr); ctx.stroke(); });
+    ctx.setLineDash([]);
+    for (let i=cars.length-1; i>=0; i--){
+      const c = cars[i]; c.x -= c.v*dt;
+      if (!c.fl && c.x <= c.L.cam){ c.fl = true; flashes.push({x:c.L.cam, y:c.L.y, sc:c.L.sc, t:0, hot:c.ueber>=21}); }
+      if (c.x + c.len < 0){ cars.splice(i,1); continue; }
+      const a = .45 + .55*c.L.sc, [r,g,b] = c.c;
+      ctx.shadowColor = `rgba(${r},${g},${b},.9)`; ctx.shadowBlur = 10*c.L.sc*dpr;
+      const grd = ctx.createLinearGradient(c.x, 0, c.x + c.len, 0);
+      grd.addColorStop(0, `rgba(${r},${g},${b},${a})`); grd.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      ctx.strokeStyle = grd; ctx.lineCap = "round";
+      ctx.lineWidth = (c.ueber>=31 ? 4.2 : 2.5) * c.L.sc * dpr;
+      ctx.beginPath(); ctx.moveTo(c.x, c.L.y); ctx.lineTo(c.x + c.len, c.L.y); ctx.stroke();
+      ctx.fillStyle = `rgba(255,244,214,${a})`;                       // Scheinwerfer-Kopf
+      ctx.beginPath(); ctx.arc(c.x, c.L.y, 2.2*c.L.sc*dpr, 0, 7); ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    for (let i=flashes.length-1; i>=0; i--){
+      const f = flashes[i]; f.t += dt; const k = 1 - f.t/.45;
+      if (k <= 0){ flashes.splice(i,1); continue; }
+      const R = (f.hot ? 95 : 60) * f.sc * dpr;
+      const rg = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, R);
+      rg.addColorStop(0, `rgba(255,250,235,${.95*k})`); rg.addColorStop(.18, `rgba(255,240,200,${.45*k})`); rg.addColorStop(1, "rgba(255,236,190,0)");
+      ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(f.x, f.y, R, 0, 7); ctx.fill();
+    }
+    ctx.globalCompositeOperation = "source-over";
+  }
+  if (REDUCED){                                   // ein ruhiges Standbild statt Animation
+    for (let i=0;i<70;i++){ spawn(Math.floor(rnd()*24)); const c = cars.at(-1); if (c) c.x = rnd()*Wc; }
+    cars.forEach(c=>c.fl = true); draw(0); return;
+  }
+  let visible = true;
+  new IntersectionObserver(es=>{ visible = es[0].isIntersecting; }).observe(cv);
+  const t0 = performance.now(); let last = t0, acc = 0;
+  function tick(now){
+    const dt = Math.min(.05, (now-last)/1000); last = now;
+    if (visible){
+      const simH = ((now - t0) / 1250) % 24, h = Math.floor(simH);
+      acc += dt * (2 + 30*hrs[h]/max);
+      while (acc >= 1){ spawn(h); acc -= 1; }
+      draw(dt);
+      const mm = String(Math.floor((simH%1)*60)).padStart(2,"0");
+      clock.innerHTML = `Durchschnittstag der festen Anlagen · <b>${hh(h)}:${mm}</b> Uhr · <b>${fmt(hrs[h]/365)}</b> Blitze pro Stunde`;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* Prolog-Zähler: 1 Fall alle DATA.meta.sekunden_pro_fall Sekunden */
+(function since(){
+  const out = $("#since"), t0 = Date.now(), s = DATA.meta.sekunden_pro_fall;
+  setInterval(()=>{ out.textContent = fmt(Math.floor((Date.now()-t0)/1000/s)); }, 1000);
+})();
+
+/* ================================================================
+   Akt 1 · Kalender
+================================================================ */
+const act1 = (function(){
+  const svg = stage("#svg1"), fig = $("#g1"), g = el("g", {}, svg);
+  const cal = DATA.kalender, hol = DATA.feiertage;
+  const x0 = MOB ? 44 : 104;
+  const st = MOB ? Math.floor((W - x0 - M.r)/53*10)/10 : 17, cs = st - (MOB ? 1.4 : 2);
+  const blocks = [
+    {cls:"b1", i:1, y: MOB ? 78 : 148, label:"Feste Anlagen", sub:"231.143 Fälle · 43 Standorte", col:"#c2831a"},
+    {cls:"b2", i:2, y: MOB ? 262 : 336, label:"Mobile Messung", sub:"203.278 Fälle · 600 Standorte", col:"#3987e5"},
+  ];
+  const pos = idx => ({w: Math.floor((idx+2)/7), d: (idx+2)%7});   // 1.1.2025 = Mittwoch
+  blocks.forEach(b=>{
+    const bg = el("g", {class:"blk "+b.cls}, g);
+    const vals = cal.map(c=>c[b.i]).slice().sort((a,z)=>a-z);
+    const p98 = vals[Math.floor(vals.length*.98)];
+    el("rect", {x:x0, y:b.y-(MOB?46:40), width:10, height:10, fill:b.col}, bg);
+    const lt = txt(bg, x0+16, b.y-(MOB?37:31), b.label, {class:"lab-strong", "font-size":14});
+    const ts = el("tspan", {dx:12, "font-size":12, style:"font-weight:400;fill:var(--muted-chart)"}, lt); ts.textContent = b.sub;
+    ["Mo","","Mi","","Fr","","So"].forEach((l,d)=>{ if(l) txt(bg, x0-8, b.y+d*st+cs-2, l, {"text-anchor":"end","font-size":11}); });
+    cal.forEach((c,idx)=>{
+      const {w,d} = pos(idx), v = c[b.i];
+      const a = v ? .1 + .9*Math.pow(Math.min(1, v/p98), .85) : 0;
+      const r = el("rect", {x:x0+w*st, y:b.y+d*st, width:cs, height:cs, class:"cell",
+        fill: v ? b.col : "none", "fill-opacity": a.toFixed(3), stroke: v ? "none" : "var(--grid)"}, bg);
+      r.dataset.i = idx;
+    });
+  });
+  // Monatsbeschriftung über Block 1
+  const mg = el("g", {}, g);
+  cal.forEach((c,idx)=>{ if (c[0].endsWith("-01")){ const {w} = pos(idx); txt(mg, x0+w*st, blocks[0].y-8, MON[+c[0].slice(5,7)-1], {"font-size":11}); }});
+  // „Blitzer-Geburtstage": Inbetriebnahme der großen neuen Anlagen unter Block 1
+  const bd = el("g", {class:"bday"}, g);
+  const by = blocks[0].y + 7*st + (MOB ? 8 : 6);
+  [["2025-05-15","Innere Kanalstr."],["2025-08-14","B 55a"],["2025-12-18","A 4"]].forEach(([d,l0])=>{
+    const l = MOB ? l0.replace("Innere ","") : l0;
+    const idx = cal.findIndex(c=>c[0]===d), {w} = pos(idx), cx = x0 + w*st + cs/2;
+    el("path", {d:`M${cx} ${by} l5 8 h-10 z`, fill:"var(--amber-soft)"}, bd);
+    const end = cx > W - M.r - 120;
+    txt(bd, cx + (end ? -8 : 8), by+8, MOB ? l : `${l} ab ${d.slice(8)}.${d.slice(5,7)}.`, {"text-anchor": end ? "end" : "start", fill:"var(--amber-soft)", "font-size":11});
+  });
+  // Feiertage umranden
+  const hg = el("g", {class:"hol"}, g);
+  cal.forEach((c,idx)=>{ if (hol[c[0]]) blocks.forEach(b=>{ const {w,d} = pos(idx);
+    el("rect", {x:x0+w*st-1.5, y:b.y+d*st-1.5, width:cs+3, height:cs+3, fill:"none", stroke:"var(--ink)", "stroke-width":1.4}, hg); }); });
+  // Wochenrhythmus-Index unten
+  const wk = el("g", {class:"wk"}, g);
+  const span = 53*st, wy0 = MOB ? H-M.b-6 : 566, wh = MOB ? 190 : 72, gx = span/7, bw = MOB ? 24 : 16;
+  const idx = k => { const a = DATA.wochentag[k], m = a.reduce((s,v)=>s+v,0)/7; return a.map(v=>100*v/m); };
+  const i1 = idx("S-01"), i2 = idx("S-02"), ys = lin(0, 150, wy0, wy0-wh);
+  txt(wk, x0, wy0-wh-(MOB?26:14), "Wochenrhythmus · Index, Ø der Woche = 100", {"font-size":12, class:"lab-soft"});
+  el("line", {x1:x0, x2:x0+span, y1:ys(100), y2:ys(100), stroke:"var(--muted)", "stroke-dasharray":"3 3"}, wk);
+  if (!MOB) txt(wk, x0+span+4, ys(100)+4, "100", {"font-size":11});
+  WD.forEach((d,i)=>{
+    const cx = x0 + gx*i + gx/2;
+    [[i1[i],"#c2831a",-bw-2],[i2[i],"#3987e5",2]].forEach(([v,col,dx])=>{
+      el("rect", {x:cx+dx, y:ys(v), width:bw, height:wy0-ys(v), fill:col}, wk);
+      txt(wk, cx+dx+bw/2, ys(v)-5, fmt(v), {"text-anchor":"middle","font-size":10.5});
+    });
+    txt(wk, cx, wy0+(MOB?22:16), d, {"text-anchor":"middle","font-size":11});
+  });
+  el("line", {x1:x0, x2:x0+span, y1:wy0, y2:wy0, class:"axisline"}, wk);
+  // Hover/Tippen per Delegation
+  const cellTip = ev=>{
+    const i = ev.target.dataset && ev.target.dataset.i; if (i===undefined){ hideTip(); return; }
+    const c = cal[+i], h = hol[c[0]];
+    showTip(`<b>${WD[wdOf(c[0])]} ${dateDE(c[0])}</b>${h?` · ${h}`:""}<br><span class="l">feste Anlagen</span> ${fmt(c[1])}<br><span class="l">mobil</span> ${fmt(c[2])}<br><span class="l">Kreuzungen</span> ${fmt(c[3])}`, ev.clientX, ev.clientY);
+  };
+  g.addEventListener("mousemove", cellTip); g.addEventListener("click", cellTip);
+  g.addEventListener("mouseleave", hideTip);
+  return {step(i){ fig.dataset.step = i; }};
+})();
+
+/* ================================================================
+   Akt 2 · Die Uhr (zwei Felder, gemeinsame x-Achse — keine Doppelachse)
+================================================================ */
+const act2 = (function(){
+  const svg = stage("#svg2"), fig = $("#g2"), g = el("g", {}, svg);
+  const D = DATA.stunde_s01, bw = (W-M.l-M.r)/24, pad = MOB ? 2 : 5;
+  const x = h => M.l + h*bw;
+  const topY1 = M.t + 30, lowY0 = H - M.b, ph = (lowY0 - topY1 - 70)/2;
+  const topY0 = topY1 + ph, lowY1 = topY0 + 70;
+  const tickLab = v => MOB && v>=1000 ? (v/1000)+"k" : fmt(v);
+  const maxN = 14000, yT = lin(0, maxN, topY0, topY1);
+  [0,5000,10000].forEach(v=>{ el("line",{x1:M.l,x2:W-M.r,y1:yT(v),y2:yT(v),class:"tick"},g); txt(g, M.l-8, yT(v)+4, tickLab(v), {"text-anchor":"end"}); });
+  txt(g, M.l, topY1-12, "Fälle je Stunde (Jahressumme)", {"font-size":12, class:"lab-soft"});
+  D.forEach(d=>{
+    const r = el("rect", {x:x(d.h)+pad, y:topY1, width:bw-2*pad, height:topY0-topY1, fill:"#c2831a", class:"hbar"}, g);
+    r.style.transform = `scaleY(${(topY0-yT(d.n))/(topY0-topY1)})`;
+  });
+  el("line", {x1:M.l, x2:W-M.r, y1:topY0, y2:topY0, class:"axisline"}, g);
+  const hstep = MOB ? 6 : 3;
+  for (let h=0; h<24; h+=hstep) txt(g, x(h)+bw/2, topY0+18, hh(h), {"text-anchor":"middle","font-size":11});
+  // unteres Feld: Anteil schwerer Fälle — Rot-Rampe (heller = schwerer)
+  const low = el("g", {class:"lower"}, g);
+  const lab = txt(low, M.l, lowY1-12, "", {"font-size":12, class:"lab-soft"});
+  const ax21 = el("g", {class:"ax21"}, low), ax31 = el("g", {class:"ax31"}, low);
+  const y21 = lin(0, 10, lowY0, lowY1), y31 = lin(0, 3, lowY0, lowY1);
+  [0,5,10].forEach(v=>{ el("line",{x1:M.l,x2:W-M.r,y1:y21(v),y2:y21(v),class:"tick"},ax21); txt(ax21, M.l-8, y21(v)+4, v+" %", {"text-anchor":"end"}); });
+  [0,1,2,3].forEach(v=>{ el("line",{x1:M.l,x2:W-M.r,y1:y31(v),y2:y31(v),class:"tick"},ax31); txt(ax31, M.l-8, y31(v)+4, v+" %", {"text-anchor":"end"}); });
+  const lbars = D.map(d=>el("rect", {x:x(d.h)+pad, y:lowY1, width:bw-2*pad, height:lowY0-lowY1, fill:"var(--sev1)", class:"hbar"}, low));
+  el("line", {x1:M.l, x2:W-M.r, y1:lowY0, y2:lowY0, class:"axisline"}, low);
+  for (let h=0; h<24; h+=hstep) txt(low, x(h)+bw/2, lowY0+18, hh(h), {"text-anchor":"middle","font-size":11});
+  const a21 = el("g", {class:"ann21"}, low), a31 = el("g", {class:"ann31"}, low);
+  const note = (grp, h, v, y, s) => txt(grp, x(h)+bw/2, y(v)-8, s, {"text-anchor":"middle", class:"lab-strong", "font-size":12});
+  note(a21, 3, D[3].p21, y21, fmt1(D[3].p21)+" %"); note(a21, 14, D[14].p21, y21, fmt1(D[14].p21)+" %");
+  note(a31, 3, D[3].p31, y31, fmt1(D[3].p31)+" %"); note(a31, 14, D[14].p31, y31, fmt2(D[14].p31)+" %");
+  D.forEach(d=>{ const hit = el("rect", {x:x(d.h), y:topY1, width:bw, height:lowY0-topY1, fill:"transparent"}, g);
+    hover(hit, `<b>${hh(d.h)}–${hh(d.h+1)} Uhr</b><br><span class="l">Fälle</span> ${fmt(d.n)}<br><span class="l">Ø zu viel</span> ${fmt1(d.avg)} km/h<br><span class="l">≥ 21 km/h</span> ${fmt1(d.p21)} %<br><span class="l">≥ 31 km/h</span> ${fmt2(d.p31)} %`); });
+  function setLow(key){
+    const y = key==="p21" ? y21 : y31;
+    lbars.forEach((r,i)=>{ r.style.transform = `scaleY(${(lowY0-y(D[i][key]))/(lowY0-lowY1)})`; r.setAttribute("fill", key==="p21" ? "var(--sev1)" : "var(--red)"); });
+    lab.textContent = key==="p21" ? (MOB ? "Anteil ≥ 21 km/h zu viel (Punkte)" : "Anteil mit 21 km/h und mehr zu viel (Punkte)")
+                                  : (MOB ? "Anteil ≥ 31 km/h zu viel" : "Anteil mit 31 km/h und mehr zu viel (Fahrverbots-Tempo)");
+  }
+  setLow("p21");
+  return {step(i){ fig.dataset.step = i; setLow(i>=2 ? "p31" : "p21"); }};
+})();
+
+/* ================================================================
+   Akt 3 · Die Orte — Ranking, das sich umsortiert
+================================================================ */
+const act3 = (function(){
+  const svg = stage("#svg3"), fig = $("#g3"), g = el("g", {}, svg);
+  const top12 = k => S01.slice().sort((a,b)=>(b[k]||0)-(a[k]||0)).slice(0,12);
+  const byN = top12("n"), byPT = top12("pt"), byE = top12("eur");
+  const set = [...new Set([...byN, ...byPT, ...byE])];
+  // Desktop: Name links vom Balken. Mobil: Name über dem Balken (lange Standortnamen).
+  const top = MOB ? 44 : 118, rh = (H-M.b-top)/12;
+  const lx = MOB ? 16 : 420, bx = MOB ? 16 : 432;
+  const bmax = MOB ? W-16-140 : W-M.r-bx-110;
+  const barY = MOB ? 24 : 4, barH = MOB ? rh-32 : rh-10, valY = MOB ? barY+barH/2+6 : rh/2+4;
+  const rows = set.map(s=>{
+    const r = el("g", {class:"row"}, g);
+    txt(r, lx, MOB ? 18 : rh/2+4, s.name, {"text-anchor": MOB ? "start" : "end", "font-size":12.5, class:"lab-soft"});
+    const b = el("rect", {x:bx, y:barY, width:bmax, height:barH, class:"bar", fill:"#c2831a"}, r);
+    const v = txt(r, bx+8, valY, "", {class:"val lab-strong","font-size":12.5});
+    hover(r, ()=>`<b>${s.name}</b><br><span class="l">Tempolimit</span> ${s.lim} km/h<br><span class="l">Fälle von–bis</span> ${dateDE(s.von)} – ${dateDE(s.bis)} (${s.tage} Tage)<br><span class="l">Fälle</span> ${fmt(s.n)} · ${fmt1(s.pt)} pro Tag<br><span class="l">Ø zu viel</span> ${fmt1(s.avg)} km/h · max. ${s.vmax} km/h gemessen<br><span class="l">Köln-Kennzeichen</span> ${fmt1(s.k)} %<br><span class="l">Bußgeld-Schätzung</span> ${fmt(s.eur||0)} €`);
+    return {s, r, b, v};
+  });
+  function show(key, list, fmtV){
+    const max = Math.max(...list.map(s=>s[key]||0));
+    rows.forEach(o=>{
+      const i = list.indexOf(o.s), on = i >= 0;
+      o.r.classList.toggle("out", !on);
+      o.r.style.transform = `translate(0px, ${top + (on ? i : 12.5)*rh}px)`;
+      const w = on ? (o.s[key]||0)/max : 0;
+      o.b.style.transform = `scaleX(${Math.max(w,.002)})`;
+      o.v.textContent = on ? fmtV(o.s) : "";
+      o.v.style.transform = `translate(${w*bmax}px,0)`;
+    });
+  }
+  const sub = $("#g3-sub");
+  return {step(i){
+    fig.dataset.step = i;
+    if (i<=0){ show("n", byN, s=>fmt(s.n)); sub.textContent = "Feste Anlagen · Tempofälle 2025, Top 12 · Details: Maus/Tippen"; }
+    else if (i===1){ show("pt", byPT, s=>fmt1(s.pt)+" / Tag"); sub.textContent = "Feste Anlagen · Fälle pro Betriebstag, Top 12 · Details: Maus/Tippen"; }
+    else { show("eur", byE, s=>"≈ "+fmt2((s.eur||0)/1e6)+" Mio. €"); sub.textContent = "Feste Anlagen · Bußgeld nach Katalog (Schätzung), Top 12 · Details: Maus/Tippen"; }
+  }};
+})();
+
+/* ================================================================
+   Akt 4 · Köln bei Nacht — Karte. Geometrie aus DATA.karte (1 Einheit = 10 m),
+   Kennzahlen je Messstelle aus DATA.standorte (Schlüssel „Dienststelle|Code“).
+================================================================ */
+const act4 = (function(){
+  const svg = stage("#svg4"), fig = $("#g4"), K = DATA.karte, sub = $("#g4-sub");
+  if (!K) return {step(i){ fig.dataset.step = i; }, focus(){}};
+  // Desktop: Karte rechts, Legende links. Mobil: Karte oben, Legende darunter.
+  const box = MOB ? {x:10, y:4, w:W-20, h:600} : {x:420, y:10, w:W-430, h:H-20};
+  const s = Math.min(box.w/K.w, box.h/K.h);
+  const ox = MOB ? box.x + (box.w-K.w*s)/2 : box.x + box.w - K.w*s, oy = box.y + (box.h-K.h*s)/2;
+  const X = x => ox + x*s, Y = y => oy + y*s, px = v => (v/s).toFixed(2);   // px → Karteneinheiten
+  const g = el("g", {}, svg);
+  const map = el("g", {transform:`translate(${ox.toFixed(1)} ${oy.toFixed(1)}) scale(${s.toFixed(5)})`, "clip-path":"url(#clip4)"}, g);
+  const cp = el("clipPath", {id:"clip4"}, el("defs", {}, svg));
+  el("rect", {x:0, y:0, width:K.w, height:K.h}, cp);                 // Rhein endet am Kartenrahmen
+  const noev = {"pointer-events":"none"};
+
+  // ---- Silhouette, Stadtteile, Straßen, Rhein ----
+  el("path", {d:K.stadt, fill:"#15171b", ...noev}, map);
+  const teile = K.stadtteile.map((t,i)=>{
+    const p = el("path", {d:t.d, class:"st4", fill:"none", stroke:"#25272c", "stroke-width":px(.7), "pointer-events":"fill"}, map);
+    p.dataset.i = i; return p;
+  });
+  el("path", {d:K.stadt, fill:"none", stroke:"#44464c", "stroke-width":px(1), ...noev}, map);
+  const roads = el("g", {class:"roads ly", ...noev}, map);
+  [["primary",.7,2.6,.16,.045],["trunk",1,3.4,.22,.05],["motorway",1.2,4.2,.28,.06]].forEach(([k,w,gw,a,ga])=>{
+    el("path", {d:K.strassen[k], fill:"none", stroke:`rgba(255,210,140,${ga})`, "stroke-width":px(gw), "stroke-linecap":"round", "stroke-linejoin":"round"}, roads);
+    el("path", {d:K.strassen[k], fill:"none", stroke:`rgba(255,230,190,${a})`, "stroke-width":px(w), "stroke-linecap":"round", "stroke-linejoin":"round"}, roads);
+  });
+  const rhein = el("g", noev, map);
+  [[90,"rgba(110,160,220,.07)"],[46,"rgba(120,170,225,.18)"],[24,"rgba(150,190,235,.38)"],[7,"rgba(215,230,250,.75)"]].forEach(([w,c])=>
+    el("path", {d:K.rhein, fill:"none", stroke:c, "stroke-width":w, "stroke-linecap":"round", "stroke-linejoin":"round"}, rhein));
+
+  // ---- Messstellen (Fläche ∝ Fälle) ----
+  const f = MOB ? 1.5 : 1;
+  const maxOf = d => Math.max(...DATA.standorte.filter(q=>q.d===d).map(q=>q.n));
+  const mx = {"S-01":maxOf("S-01"), "S-02":maxOf("S-02")};
+  const rad = q => q.d==="S-01" ? f*(2.2 + 9.5*Math.sqrt(q.n/mx["S-01"])) : q.d==="S-02" ? f*(1.3 + 4.2*Math.sqrt(q.n/mx["S-02"])) : f*3.4;
+  const lay = {};
+  ["S-02","K-04","S-01"].forEach(d=>lay[d] = el("g", {class:"p-"+d.replace("-","").toLowerCase(), ...noev}, g));
+  const pts = [];
+  ["S-02","K-04","S-01"].forEach(d=>DATA.standorte.filter(q=>q.d===d).sort((a,b)=>b.n-a.n).forEach(q=>{
+    const key = q.d+"|"+q.c, p = K.punkte[key]; if (!p) return;
+    const o = {s:q, key, x:X(p[0]), y:Y(p[1]), acc:p[2], r:rad(q)};
+    if (d==="K-04") el("circle", {cx:o.x, cy:o.y, r:o.r, fill:"none", stroke:"var(--amber-soft)", "stroke-width":1.6*f}, lay[d]);
+    else el("circle", {cx:o.x, cy:o.y, r:o.r, fill: d==="S-01" ? "var(--amber)" : "var(--blue)", "fill-opacity": d==="S-01" ? .9 : .78,
+                       stroke:"#0b0c0e", "stroke-width": d==="S-01" ? .8 : .5}, lay[d]);
+    pts.push(o);
+  }));
+  const byKey = Object.fromEntries(pts.map(o=>[o.key, o]));
+
+  // Beschriftung: Dom zur Orientierung + die drei festen Anlagen mit den meisten Fällen
+  const halo = {style:"paint-order:stroke;stroke:#0b0c0e;stroke-width:4px;stroke-linejoin:round"};
+  const orient = el("g", {class:"orient4", ...noev}, g);
+  (K.orte||[]).forEach(o=>{ el("rect", {x:X(o.x)-2.5, y:Y(o.y)-2.5, width:5, height:5, fill:"var(--ink)", transform:`rotate(45 ${X(o.x)} ${Y(o.y)})`}, orient);
+    txt(orient, X(o.x)+8, Y(o.y)+(MOB?20:16), o.name, {...halo, "font-size":12, class:"lab-soft"}); });
+  const top = el("g", {class:"top4 ly", ...noev}, g);
+  const tl = [];
+  S01.slice().sort((a,b)=>b.n-a.n).slice(0,3).forEach(q=>{
+    const o = byKey[q.d+"|"+q.c]; if (!o) return;
+    const short = q.name.split(/ · | → | \d+[–-]/)[0], name = MOB ? short : short + " · " + fmt(q.n);
+    let right = o.x > ox + K.w*s*.55;
+    const t = txt(top, 0, o.y+5, name, {...halo, class:"lab-strong", "font-size":12.5});
+    if (!right && o.x - o.r - 10 - tw(t) < 6) right = true;              // passt links nicht ins Bild → rechts
+    t.setAttribute("x", right ? o.x + o.r + 10 : o.x - o.r - 10); t.setAttribute("text-anchor", right ? "start" : "end");
+    tl.push({t, y:o.y+5, right});
+  });
+  [true,false].forEach(side=>dodge(tl.filter(l=>l.right===side), MOB ? 26 : 18));
+
+  // ---- Choroplethe: Anteil ≥ 21 km/h (mobile Messung) je Stadtteil ----
+  // drei Klassen an den Tertilen (auf 0,5 gerundet): mehr Stufen gäben kleine Unterschiede als Rangfolge aus
+  const vals = K.stadtteile.map(t=>t.p21).filter(v=>v!=null).sort((a,b)=>a-b);
+  const brk = [...new Set([1/3,2/3].map(q=>Math.round(2*vals[Math.floor(q*vals.length)])/2))].filter(v=>v>vals[0]);
+  const RAMP = ["#4a2d2e","#944649","#e66767"].slice(-(brk.length+1));
+  const NA = "#202125";
+  const cls = v => v==null ? -1 : brk.filter(b=>v>=b).length;
+  const colOf = t => t.p21==null ? NA : RAMP[cls(t.p21)];
+  const rangeLab = i => i===0 ? `unter ${fmt1(brk[0])} %` : i===brk.length ? `ab ${fmt1(brk[i-1])} %` : `${fmt1(brk[i-1])}–${fmt1(brk[i])} %`;
+  const chl = el("g", {class:"chl", ...noev}, g);         // bewusst ohne Rangliste und Namen: Werte hängen oft an einer Stelle
+
+  // ---- Legenden (je Schritt eine Gruppe) ----
+  const lg = c => el("g", {class:"ly "+c, ...noev}, g);
+  const lg0 = lg("lg0"), lg1 = lg("lg1"), lg2 = lg("lg2"), lg3 = lg("lg3");
+  const floorNice = v => { const e = Math.pow(10, Math.floor(Math.log10(v))); return Math.floor(v/e*2)/2*e; };
+  const KEYV = {"S-01":[1000, 10000, floorNice(mx["S-01"])], "S-02":[floorNice(mx["S-02"]/10), floorNice(mx["S-02"]/3), floorNice(mx["S-02"])]};
+  function sizeKey(grp, x, y, d, col, title){
+    const t = txt(grp, x, y, title, {"font-size":12.5, class:"lab-soft"});
+    let cx = x;
+    KEYV[d].forEach(v=>{
+      const r = rad({d, n:v}); cx += r + 2;
+      el("circle", {cx, cy:y+22+ (MOB?10:6), r, fill:col, "fill-opacity":.85}, grp);
+      txt(grp, cx + r + 5, y+27+(MOB?10:6), fmt(v), {"font-size":12});
+      cx += r + (MOB ? 92 : 58);
+    });
+    return t;
+  }
+  if (MOB){
+    sizeKey(lg0, 16, 636, "S-01", "var(--amber)", "Feste Anlage · Fläche ∝ Fälle");
+    el("circle", {cx:24, cy:716, r:3.4*f, fill:"none", stroke:"var(--amber-soft)", "stroke-width":1.6*f}, lg0);
+    txt(lg0, 40, 722, "Kreuzungsanlage", {class:"lab-soft"});
+    el("circle", {cx:W/2+4, cy:716, r:3.2*f, fill:"var(--blue)"}, lg1);
+    txt(lg1, W/2+20, 722, "mobile Messstelle", {class:"lab-soft"});
+  } else {
+    sizeKey(lg0, 34, 150, "S-01", "var(--amber)", "Feste Anlage (S-01) · Fläche ∝ Fälle");
+    el("circle", {cx:44, cy:220, r:3.4, fill:"none", stroke:"var(--amber-soft)", "stroke-width":1.6}, lg0);
+    txt(lg0, 58, 225, "Kreuzungsanlage (K-04)", {"font-size":12.5, class:"lab-soft"});
+    sizeKey(lg1, 34, 268, "S-02", "var(--blue)", "Mobile Messstelle (S-02) · Fläche ∝ Fälle");
+  }
+  const nPts = pts.length, nAll = DATA.standorte.length;
+  if (MOB){                                        // Mobil: links unten, wo Köln schmal wird, ist die Karte leer
+    txt(g, 14, 566, `${fmt(nPts)} von ${fmt(nAll)} verortet`, {"font-size":12, fill:"var(--muted)", ...noev});
+    txt(g, 14, 590, "Karte © OpenStreetMap", {"font-size":12, fill:"var(--muted)", ...noev});
+  } else txt(g, 34, H-18, `${fmt(nPts)} von ${fmt(nAll)} Messstellen verortet · Karte © OpenStreetMap`, {"font-size":11, fill:"var(--muted)", ...noev});
+
+  // Uhr + Tagesgang (Schritt 3)
+  const mix = K.fakten.stunde_mix.map(r=>r.map(v=>v/365));
+  const perH = mix.map(r=>r[0]+r[1]+r[2]), maxH = Math.max(...perH);
+  const cb = MOB ? {x:20, y0:726, w:W-40, h:62} : {x:34, y0:460, w:360, h:120};
+  const bwc = cb.w/24;
+  txt(lg2, cb.x, cb.y0-cb.h-(MOB?14:12), MOB ? "Blitze je Stunde · Ø-Tag" : "Blitze je Stunde am Durchschnittstag · alle Messstellen", {"font-size":12, class:"lab-soft"});
+  const hb = mix.map((r,h)=>{
+    const grp = el("g", {opacity:.5}, lg2);
+    let y = cb.y0;
+    [[r[1],"var(--blue)"],[r[2],"var(--amber-soft)"],[r[0],"var(--amber)"]].forEach(([v,c])=>{
+      const hh2 = cb.h*v/maxH; el("rect", {x:cb.x+h*bwc+1, y:y-hh2, width:bwc-2, height:hh2, fill:c}, grp); y -= hh2; });
+    return grp;
+  });
+  el("line", {x1:cb.x, x2:cb.x+cb.w, y1:cb.y0, y2:cb.y0, class:"axisline"}, lg2);
+  [0,6,12,18].forEach(h=>txt(lg2, cb.x+h*bwc+bwc/2, cb.y0+(MOB?22:16), hh(h), {"text-anchor":"middle", "font-size":12}));
+  const ck = MOB ? {x:W-18, y:62, a:"end"} : {x:34, y:196, a:"start"};
+  // Schriftgröße als Inline-Style: CSS „svg text{font-size}“ schlägt das Attribut
+  const clockT = txt(lg2, ck.x, ck.y, "20:00", {"text-anchor":ck.a, "font-weight":600, style:`fill:var(--ink);font-size:${MOB ? 40 : 52}px;font-variant-numeric:tabular-nums`});
+  const clockS = txt(lg2, ck.x, ck.y+(MOB?30:34), "", {"text-anchor":ck.a, "font-size":MOB ? 14 : 13, class:"lab-soft"});
+  const clockS2 = txt(lg2, ck.x, ck.y+(MOB?56:56), "", {"text-anchor":ck.a, "font-size":MOB ? 14 : 13, class:"lab-soft"});
+  if (!MOB){
+    [["var(--amber)","feste Anlagen"],["var(--blue)","mobile Messung"],["var(--amber-soft)","Kreuzungen"]].forEach(([c,l],i)=>{
+      el("rect", {x:34+i*122, y:cb.y0+30, width:10, height:10, fill:c}, lg2); txt(lg2, 50+i*122, cb.y0+39, l, {"font-size":12}); });
+  }
+  let lastH = -1, lastM = -1;
+  function setClock(h, fr){
+    const m = Math.floor(fr*6)*10;
+    if (h===lastH && m===lastM) return;
+    clockT.textContent = `${hh(h)}:${String(m).padStart(2,"0")}`;
+    if (h!==lastH){
+      hb.forEach((b,i)=>b.setAttribute("opacity", i===h ? 1 : .35));
+      clockS.textContent = `≈ ${fmt(perH[h])} Blitze in dieser Stunde`;
+      clockS2.textContent = `${fmt(100*mix[h][0]/perH[h])} % davon an festen Anlagen`;
+    }
+    lastH = h; lastM = m;
+  }
+
+  // Farbskala (Schritt 4) — ohne Rangliste
+  const n21 = RAMP.length + 1, naLab = `zu wenig Daten (unter ${K.min_schwer} schweren Fällen oder ${K.min_ms} Messstellen)`;
+  if (MOB){
+    txt(lg3, 16, 638, "Anteil ≥ 21 km/h zu viel · mobile Messung", {class:"lab-soft"});
+    const sw = (W-32)/n21;
+    [...RAMP, NA].forEach((c,i)=>{ el("rect", {x:16+i*sw, y:652, width:sw-4, height:20, fill:c, stroke:"#3a3b40", "stroke-width":.6}, lg3);
+      txt(lg3, 16+i*sw, 698, i<RAMP.length ? rangeLab(i).replace(" %","").replace("unter ","<").replace("ab ","≥")+" %" : "zu wenig Daten", {"font-size":12}); });
+    txt(lg3, 16, 740, "Werte beschreiben Messstellen, nicht Anwohner", {"font-size":12, fill:"var(--muted)"});
+  } else {
+    txt(lg3, 34, 150, "Anteil der Fälle mit ≥ 21 km/h zu viel", {"font-size":12.5, class:"lab-soft"});
+    txt(lg3, 34, 168, "mobile Messung, je Stadtteil", {"font-size":12.5, class:"lab-soft"});
+    [...RAMP.map((c,i)=>[c, rangeLab(i)]).reverse(), [NA, "zu wenig Daten"]].forEach(([c,l],i)=>{
+      el("rect", {x:34, y:186+i*24, width:22, height:16, fill:c, stroke:"#3a3b40", "stroke-width":.6}, lg3);
+      txt(lg3, 66, 199+i*24, l, {"font-size":12.5}); });
+    const ly0 = 186 + (RAMP.length+1)*24 + 30;
+    [`„Zu wenig Daten“: unter ${K.min_schwer} schweren Fällen`, `oder weniger als ${K.min_ms} Messstellen.`, "",
+     "Oft prägt eine einzige Messstelle den Wert,", "welche, zeigt der Tooltip. Die Farbe", "beschreibt Messstellen, nicht Anwohner."]
+      .forEach((l,i)=>txt(lg3, 34, ly0+i*20, l, {"font-size":12.5, fill: i>2 ? "var(--ink-2)" : "var(--muted)"}));
+  }
+  function setChor(on){ teile.forEach((p,i)=>{ p.style.fill = on ? colOf(K.stadtteile[i]) : "transparent";
+    p.style.stroke = on ? "#0b0c0e" : ""; }); }
+
+  // ---- Hover + Tippen: nächste Messstelle bzw. Stadtteil (Schritt 4) ----
+  const ART = {"S-01":"feste Anlage","S-02":"mobile Messung","K-04":"Kreuzungsanlage"};
+  const LAGE = {h:"Hausnummer", s:"Straße (ungefähr)", m:"von Hand geprüft"};
+  const hl = el("circle", {class:"hl", r:0, fill:"none", stroke:"var(--ink)", "stroke-width":1.6, opacity:0}, g);
+  const siteTip = o => { const q = o.s;
+    return `<b>${siteName(q)}</b><br><span class="l">${ART[q.d]}${q.d!=="S-01" && q.ort ? " · "+q.ort : ""} · Tempo ${q.lim}</span>`+
+      `<br><span class="l">Fälle</span> ${fmt(q.n)} · ${fmt1(q.pt)} pro Tag<br><span class="l">Ø zu viel</span> ${fmt1(q.avg)} km/h`+
+      (q.n >= 5 ? `<br><span class="l">Köln-Anteil</span> ${fmt1(q.k)} %` : "")+`<br><span class="l">Lage</span> ${LAGE[o.acc]}`; };
+  const teilTip = t => `<b>${t.name}</b> <span class="l">· ${t.bezirk}</span><br><span class="l">mobile Fälle</span> ${fmt(t.n)} · ${t.ms} Messstellen`+
+      (t.p21!=null ? `<br><span class="l">≥ 21 km/h zu viel</span> ${fmt1(t.p21)} %<br><span class="l">Ø zu viel</span> ${fmt1(t.avg)} km/h`
+                   : `<br><span class="l">zu wenig Daten für einen Anteil (${fmt(t.n21)} schwere Fälle)</span>`)+
+      (t.top && t.n21 >= 10 ? `<br><span class="l">davon an einer Stelle</span> ${t.top.anteil} % · ${t.top.lage} (Tempo ${t.top.lim})` : "")+
+      (t.fest ? `<br><span class="l">feste Anlagen/Kreuzungen</span> ${t.fest}` : "");
+  function onPointer(ev){
+    const m = svg.getScreenCTM(); if (!m) return;
+    const p = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse());
+    const st = +fig.dataset.step;
+    if (st===3){
+      hl.setAttribute("opacity", 0);
+      const t = ev.target.closest ? ev.target.closest(".st4") : null;
+      if (t) showTip(teilTip(K.stadtteile[+t.dataset.i]), ev.clientX, ev.clientY); else hideTip();
+      return;
+    }
+    let best = null, bd = (MOB ? 30 : 16)**2;
+    for (const o of pts){ if (st<1 && o.s.d==="S-02") continue;
+      const dx = o.x-p.x, dy = o.y-p.y, d = dx*dx+dy*dy; if (d < bd){ bd = d; best = o; } }
+    if (!best){ hideTip(); hl.setAttribute("opacity", 0); return; }
+    hl.setAttribute("cx", best.x); hl.setAttribute("cy", best.y); hl.setAttribute("r", best.r+3); hl.setAttribute("opacity", 1);
+    showTip(siteTip(best), ev.clientX, ev.clientY);
+  }
+  svg.addEventListener("mousemove", onPointer); svg.addEventListener("click", onPointer);
+  svg.addEventListener("mouseleave", ()=>{ hideTip(); hl.setAttribute("opacity", 0); });
+
+  // ---- Zeitraffer: Canvas über der Karte, ein Lichtpunkt je Blitz ----
+  const cv = document.createElement("canvas"); cv.className = "map-cv"; cv.setAttribute("aria-hidden","true"); fig.appendChild(cv);
+  const ctx = cv.getContext("2d");
+  let kpx = 1, dpr = 1;
+  function fit(){
+    const r = svg.getBoundingClientRect(), fr = fig.getBoundingClientRect(); if (!r.width) return;
+    dpr = Math.min(2, window.devicePixelRatio || 1); kpx = r.width / W;
+    Object.assign(cv.style, {left:(r.left-fr.left)+"px", top:(r.top-fr.top)+"px", width:r.width+"px", height:r.height+"px"});
+    cv.width = Math.round(r.width*dpr); cv.height = Math.round(r.height*dpr);
+  }
+  addEventListener("resize", fit);
+  const COL = {"S-01":[255,190,100], "S-02":[110,170,255], "K-04":[255,214,150]};
+  const HOUR = 1.25, flashes = [];                      // 1 Stunde = 1,25 s → ein Tag in 30 s
+  let simH = 20, last = 0, running = false, visible = false, raf = 0;
+  function glow(o, a){
+    const x = o.x*kpx*dpr, y = o.y*kpx*dpr, R = (o.s.d==="S-02" ? 8 : 13)*kpx*dpr*f*(.55+.45*a), [r,gg,b] = COL[o.s.d];
+    const gr = ctx.createRadialGradient(x, y, 0, x, y, R);
+    gr.addColorStop(0, `rgba(255,252,240,${a})`); gr.addColorStop(.3, `rgba(${r},${gg},${b},${.65*a})`); gr.addColorStop(1, `rgba(${r},${gg},${b},0)`);
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y, R, 0, 7); ctx.fill();
+  }
+  function frame(now){
+    raf = 0; if (!running || !visible) return;
+    const dt = Math.min(.05, (now-last)/1000); last = now;
+    simH = (simH + dt/HOUR) % 24; const h = Math.floor(simH);
+    for (const o of pts) if (Math.random() < o.s.h[h]/365*dt/HOUR) flashes.push({o, t:0});
+    ctx.clearRect(0, 0, cv.width, cv.height); ctx.globalCompositeOperation = "lighter";
+    for (let i=flashes.length-1; i>=0; i--){ const fl = flashes[i]; fl.t += dt; const a = 1 - fl.t/.6;
+      if (a <= 0){ flashes.splice(i,1); continue; } glow(fl.o, a); }
+    ctx.globalCompositeOperation = "source-over";
+    setClock(h, simH%1);
+    raf = requestAnimationFrame(frame);
+  }
+  function kick(){ if (running && visible && !raf){ last = performance.now(); raf = requestAnimationFrame(frame); } }
+  function still(){                                   // reduzierte Bewegung: ein Standbild des ganzen Tages
+    ctx.clearRect(0, 0, cv.width, cv.height); ctx.globalCompositeOperation = "lighter";
+    const tot = o => o.s.h.reduce((a,b)=>a+b,0)/365, mxT = Math.max(...pts.map(tot));
+    pts.forEach(o=>glow(o, .25 + .75*Math.sqrt(tot(o)/mxT)));
+    ctx.globalCompositeOperation = "source-over";
+    hb.forEach(b=>b.setAttribute("opacity", 1));
+    clockT.textContent = "0–24 Uhr"; clockS.textContent = "Standbild: Helligkeit ∝ Blitze pro Tag"; clockS2.textContent = "";
+  }
+  new IntersectionObserver(es=>{ visible = es[0].isIntersecting; kick(); }).observe(fig);
+
+  // ---- Atlas → Karte: Messstelle hervorheben ----
+  const pin = el("circle", {class:"hl", r:0, fill:"none", stroke:"var(--ink)", "stroke-width":2.2, opacity:0}, g);
+  const pinT = txt(g, 0, 0, "", {...halo, class:"hl lab-strong", "font-size":12.5});
+  const SUB = ["Feste Anlagen und Kreuzungen · Fläche ∝ Fälle 2025 · Details: Maus/Tippen",
+               "Dazu die mobile Messung (blau) · Details: Maus/Tippen",
+               "Durchschnittstag im Zeitraffer · ein Lichtpunkt je Blitz",
+               "Mobile Messung · Anteil ≥ 21 km/h zu viel je Stadtteil · Details: Maus/Tippen"];
+  return {
+    step(i){
+      fig.dataset.step = i; sub.textContent = SUB[Math.max(0,i)];
+      setChor(i===3);
+      running = i===2;
+      if (running){ fit(); if (REDUCED) still(); else kick(); }
+      else { flashes.length = 0; }
+    },
+    has(key){ return !!byKey[key]; },
+    focus(key){
+      const o = byKey[key]; if (!o) return;
+      pin.setAttribute("cx", o.x); pin.setAttribute("cy", o.y); pin.setAttribute("r", o.r+6); pin.setAttribute("opacity", 1);
+      const right = o.x < ox + K.w*s*.5;
+      pinT.textContent = siteName(o.s).split(" · ")[0];
+      pinT.setAttribute("x", right ? o.x + o.r + 12 : o.x - o.r - 12); pinT.setAttribute("y", o.y - o.r - 8);
+      pinT.setAttribute("text-anchor", right ? "start" : "end");
+      const st = document.querySelector('#karte .step[data-idx="1"]');
+      if (st) st.scrollIntoView({behavior: REDUCED ? "auto" : "smooth", block:"center"});
+    }
+  };
+})();
+
+/* ================================================================
+   Akt 5 · Die Lernkurve (indexiert, eine Achse)
+================================================================ */
+const act5 = (function(){
+  const svg = stage("#svg5"), fig = $("#g5"), g = el("g", {}, svg);
+  const B = DATA.lernkurven["0015"], I = DATA.lernkurven["0005"];
+  const per = (w, k) => w[k]/w.tage;
+  // Index: Durchschnitt der Wochen 0 und 1 = 100 (eine einzelne Startwoche wäre ein Ausreißer)
+  const base = (arr, k) => { const ws = arr.filter(w=>w.w<=1); return ws.reduce((s,w)=>s+w[k],0)/ws.reduce((s,w)=>s+w.tage,0); };
+  const idx = (arr, k) => { const b = base(arr, k); return arr.map(w=>[w.w, 100*per(w,k)/b, per(w,k)]); };
+  const maxW = Math.max(B.wochen.at(-1).w, I.wochen.at(-1).w);
+  const xr = W - M.r - (MOB ? 118 : 150);
+  const x = lin(0, maxW, M.l, xr), y = lin(0, 130, H-M.b, M.t+(MOB?40:30));
+  [0,25,50,75,100,125].forEach(v=>{ el("line",{x1:M.l,x2:xr,y1:y(v),y2:y(v),class:"tick"},g); txt(g, M.l-8, y(v)+4, v, {"text-anchor":"end"}); });
+  el("line", {x1:M.l, x2:xr, y1:y(0), y2:y(0), class:"axisline"}, g);
+  const wstep = MOB ? 8 : 4;
+  for (let w=0; w<=maxW; w+=wstep) txt(g, x(w), H-M.b+20, (MOB ? "W " : "Woche ")+w, {"text-anchor": w ? "middle" : "start","font-size":11});
+  const ends = [];
+  function line(pts, cls, label, lcol){
+    const grp = el("g", {class:cls.split(" ").pop()}, g);
+    const p = el("path", {d:pathFrom(pts.map(p=>[x(p[0]), y(p[1])])), class:"ln "+cls}, grp);
+    pts.forEach(p=>{ const c = el("circle", {cx:x(p[0]), cy:y(p[1]), r:MOB?12:9, fill:"transparent"}, grp);
+      hover(c, `<b>${label}</b><br><span class="l">Woche</span> ${p[0]}<br><span class="l">Index</span> ${fmt(p[1])}<br><span class="l">Fälle pro Tag</span> ${fmt(p[2])}`); });
+    const last = pts.at(-1);
+    const t = txt(grp, x(last[0])+10, y(last[1])+4, label + " " + fmt(last[1]), {"font-size":12.5, fill:lcol});
+    ends.push({t, y:y(last[1])+4, w:last[0]});
+    return p;
+  }
+  // Kontrollreihe: Anlagen, die das ganze Jahr messen, je Anlagen-Betriebstag ab dem Start der B 55a
+  const ctl = line(idx(B.kontrolle.filter(w=>w.w<=B.wochen.at(-1).w),"n"), "ctl s0t", MOB ? "Bestand" : `Bestand (${B.kontrolle_anlagen})`, "var(--muted-chart)");
+  const t = line(idx(B.wochen,"n"), "tot s0t", "B 55a", "var(--ink)");
+  const k = line(idx(B.wochen,"k"), "kln s1", "K", "var(--ink)");
+  const a = line(idx(B.wochen,"a"), "aus s1", "andere", "var(--ink-2)");
+  line(idx(I.wochen,"n"), "ik s2", MOB ? "Kanalstr." : "Innere Kanalstr.", "var(--ink-2)");
+  // End-Labels je Endwoche auseinanderschieben
+  [...new Set(ends.map(e=>e.w))].forEach(w=>dodge(ends.filter(e=>e.w===w)));
+  const ann = el("g", {class:"s0t"}, g);
+  const W01 = base(B.wochen,"n"), ws = B.wochen.filter(w=>w.w>=12 && w.w<=19);
+  const W1219 = ws.reduce((s,w)=>s+w.n,0)/ws.reduce((s,w)=>s+w.tage,0);
+  txt(ann, x(0)+10, y(124)-12, `Woche 0–1: ${fmt(W01)} Fälle/Tag`, {class:"lab-strong","font-size":12.5});
+  txt(ann, x(15.5), y(100*W1219/W01)+30, `Woche 12–19: ${fmt(W1219)}/Tag`, {"text-anchor":"middle", class:"lab-strong","font-size":12.5});
+  [t,k,a].forEach(prepDraw);
+  let drawn = false;
+  return {step(i){
+    fig.dataset.step = i;
+    if (!drawn){ drawn = true; requestAnimationFrame(()=>[t,k,a].forEach(reveal)); }
+  }};
+})();
+
+/* ================================================================
+   Akt 6 · Herkunft: 100-%-Balken + Kennzeichen-Ranking
+================================================================ */
+const act6 = (function(){
+  const svg = stage("#svg6"), fig = $("#g6"), g = el("g", {}, svg);
+  const cats = ["Köln","Umland","Übriges Deutschland","Ohne/Sonder/Ausland"];
+  const cols = ["var(--o1)","var(--o2)","var(--o3)","var(--o4)"];
+  const labels = ["Köln (K)","Umland (BM, GL, SU, NE, LEV)","übriges Deutschland","ohne / sonstige"];
+  const x0 = MOB ? 16 : 250, x1 = W-M.r, bh = MOB ? 50 : 58;
+  // Legende: gemessene Breiten; Umbruch, wenn die Zeile voll ist
+  const legY = MOB ? 34 : 112;
+  let lx = x0, ly = legY;
+  cats.forEach((c,i)=>{
+    const t = txt(g, 0, 0, labels[i], {"font-size":12, class:"lab-soft"});
+    const w = tw(t) + 16;
+    if (lx + w > x1){ lx = x0; ly += MOB ? 28 : 20; }
+    el("rect",{x:lx, y:ly-10, width:11, height:11, fill:cols[i]}, g);
+    t.setAttribute("x", lx+16); t.setAttribute("y", ly);
+    lx += w + 18;
+  });
+  const rowsDef = [["alle","Alle Messarten",""],["S-02","Mobile Messung","r1"],["S-01","Feste Anlagen","r2"]];
+  const rowY = ri => MOB ? 140 + ri*112 : 150 + ri*(bh+26);
+  rowsDef.forEach(([k,lab,cls],ri)=>{
+    const H5 = DATA.herkunft[k], tot = cats.reduce((s,c)=>s+H5[c],0);
+    const y0 = rowY(ri);
+    const r = el("g", {class:"hrow "+cls}, g);
+    if (MOB){
+      const t = txt(r, x0, y0-10, lab, {class:"lab-strong", "font-size":14});
+      const ts = el("tspan", {dx:10, "font-size":12, style:"font-weight:400;fill:var(--muted-chart)"}, t); ts.textContent = fmt(tot)+" Fälle";
+    } else {
+      txt(r, x0-14, y0+bh/2+5, lab, {"text-anchor":"end", class:"lab-strong", "font-size":14});
+      txt(r, x0-14, y0+bh/2+22, fmt(tot)+" Fälle", {"text-anchor":"end", "font-size":11});
+    }
+    let cx = x0;
+    cats.forEach((c,i)=>{
+      const w = (x1-x0)*H5[c]/tot;
+      const seg = el("rect", {x:cx, y:y0, width:Math.max(0,w-2), height:bh, fill:cols[i]}, r);
+      if (w > (MOB ? 78 : 50)) txt(r, cx+8, y0+bh/2+6, fmt1(100*H5[c]/tot)+" %", {"font-size":13, fill: i<2 ? "#0d0d0d" : "var(--ink)", "font-weight":600});
+      hover(seg, `<b>${lab}</b><br><span class="l">${labels[i]}</span> ${fmt(H5[c])} · ${pct(H5[c],tot)}`);
+      cx += w;
+    });
+  });
+  // Pfeil Köln-Anteil mobil → fest
+  const ar = el("g", {class:"arrow"}, g);
+  const share = k => DATA.herkunft[k]["Köln"]/cats.reduce((s,c)=>s+DATA.herkunft[k][c],0);
+  const kx = k => x0 + (x1-x0)*share(k);
+  const ya = rowY(1)+bh+3, yb = rowY(2) - (MOB ? 30 : 3);
+  el("line", {x1:kx("S-02"), y1:ya, x2:kx("S-01"), y2:yb, stroke:"var(--ink)", "stroke-width":1.5, "stroke-dasharray":"4 3"}, ar);
+  txt(ar, MOB ? x1 : kx("S-02")+10, ya+(MOB?22:15), `Köln-Anteil ${fmt1(100*share("S-02"))} % → ${fmt1(100*share("S-01"))} %`, {class:"lab-strong","font-size":12.5, "text-anchor": MOB ? "end" : "start"});
+  // Kennzeichen-Ranking (ohne K)
+  const kz = el("g", {class:"kz"}, g);
+  const n = MOB ? 10 : 16;
+  const top = DATA.kennz_top.filter(k=>k.k!=="K").slice(0,n);
+  const ky0 = MOB ? 500 : 436, kh = MOB ? 170 : 100, kmax = top[0].n, bw = (W-M.r-x0)/n;
+  txt(kz, x0, ky0-(MOB?44:30), "Häufigste Kennzeichen außer K · Fälle 2025", {"font-size":12, class:"lab-soft"});
+  top.forEach((k,i)=>{
+    const h = kh*k.n/kmax, bx = x0 + i*bw;
+    const r = el("rect", {x:bx+4, y:ky0+kh-h, width:bw-8, height:h, fill: DATA.umland.includes(k.k) ? "var(--o2)" : "var(--o3)"}, kz);
+    txt(kz, bx+bw/2, ky0+kh+(MOB?24:16), k.k, {"text-anchor":"middle", class:"lab-strong", "font-size":12});
+    txt(kz, bx+bw/2, ky0+kh-h-6, fmt1(k.n/1000)+"k", {"text-anchor":"middle", "font-size":10.5});
+    hover(r, `<b>${k.k} · ${k.ort}</b><br><span class="l">Fälle</span> ${fmt(k.n)}<br><span class="l">fest / mobil</span> ${fmt(k.s01)} / ${fmt(k.s02)}<br><span class="l">Ø zu viel</span> ${fmt1(k.avg)} km/h`);
+  });
+  return {step(i){ fig.dataset.step = i; }};
+})();
+
+/* ================================================================
+   Akt 7 · Histogramm, linear → logarithmisch
+================================================================ */
+const act7 = (function(){
+  const svg = stage("#svg7"), fig = $("#g7"), g = el("g", {}, svg);
+  const h = DATA.hist_ueber; // Index = km/h zu viel, 71 = „über 70"
+  const bins = h.map((v,i)=>({u:i, v})).filter(b=>b.u>=1);
+  const x0 = M.l, x1 = W-M.r, bw = (x1-x0)/bins.length, y0 = H-M.b, y1 = M.t+(MOB?70:40);
+  const col = u => u>=31 ? "var(--red)" : u>=21 ? "var(--sev1)" : "var(--muted-chart)";
+  // Bänder: Beschriftung gemessen; passt sie nicht über ihr Band, rückt sie eine Zeile höher
+  const band = el("g", {class:"band"}, g);
+  [[1,20,"ohne Punkte","var(--muted-chart)"],[21,30,"1 Punkt","#c77a7a"],[31,71,"2 Punkte + Fahrverbot droht","var(--red)"]].forEach(([a,b,l,c],i)=>{
+    const xa = x0+(a-1)*bw, xb = x0+b*bw;
+    el("line", {x1:xa+1, x2:xb-1, y1:y1-16, y2:y1-16, stroke:c, "stroke-width":2}, band);
+    const t = txt(band, xa+2, y1-24, l, {"font-size":12, fill:c});
+    if (tw(t) > xb-xa-4) t.setAttribute("y", y1-24-(MOB?24:16));
+  });
+  const axlin = el("g", {class:"axlin"}, g), axlog = el("g", {class:"axlog"}, g);
+  const yl = lin(0, 100000, y0, y1), yg = v => y0 - (y0-y1)*Math.log10(Math.max(v,1))/5;
+  const tl = v => MOB && v>=1000 ? fmt(v/1000)+"k" : fmt(v);
+  [0,25000,50000,75000,100000].forEach(v=>{ el("line",{x1:x0,x2:x1,y1:yl(v),y2:yl(v),class:"tick"},axlin); txt(axlin, x0-8, yl(v)+4, tl(v), {"text-anchor":"end"}); });
+  [1,10,100,1000,10000,100000].forEach(v=>{ el("line",{x1:x0,x2:x1,y1:yg(v),y2:yg(v),class:"tick"},axlog); txt(axlog, x0-8, yg(v)+4, tl(v), {"text-anchor":"end"}); });
+  const bars = bins.map((b,i)=>{
+    const r = el("rect", {x:x0+i*bw+(MOB?.5:1), y:y1, width:Math.max(1,bw-(MOB?1:2)), height:y0-y1, class:"hb", fill:"var(--muted-chart)"}, g);
+    hover(r, `<b>${b.u===71?"über 70":b.u} km/h zu viel</b><br><span class="l">Fälle</span> ${fmt(b.v)}`);
+    return {r, b};
+  });
+  el("line", {x1:x0, x2:x1, y1:y0, y2:y0, class:"axisline"}, g);
+  (MOB ? [1,10,20,30,40,50,60] : [1,6,10,20,30,40,50,60]).forEach(u=>txt(g, x0+(u-1)*bw+bw/2, y0+18, u, {"text-anchor":"middle","font-size":11}));
+  txt(g, x0+70*bw+bw/2, y0+18, ">70", {"text-anchor":"middle","font-size":11});
+  txt(g, x1, y0+(MOB?42:38), "km/h zu viel (nach Toleranzabzug)", {"text-anchor":"end","font-size":11});
+  // Schwanz-Annotation oben rechts (dort ist die Log-Skala leer) + Führungslinie zum Sammelbalken
+  const tail = el("g", {class:"tail"}, g);
+  const iMax = bins.findIndex(b=>b.u===71), bxMax = x0+iMax*bw+bw/2;
+  const tt = txt(tail, x1, y1+22, `über 70 zu viel: ${bins[iMax].v} Fälle · Rekord +146`, {"text-anchor":"end", fill:"var(--red)", "font-size":12.5, "font-weight":600});
+  el("line", {x1:bxMax, x2:bxMax, y1:y1+30, y2:yg(bins[iMax].v)-4, stroke:"var(--red)", "stroke-dasharray":"2 3"}, tail);
+  txt(tail, MOB ? x1 : x0+30*bw+6, yg(300)-6, MOB ? "1.697 mit Fahrverbots-Tempo" : "1.697 Fälle mit Fahrverbots-Tempo", {class:"lab-strong","font-size":12.5, "text-anchor": MOB ? "end" : "start"});
+  function set(mode, colored){
+    bars.forEach(({r,b})=>{
+      const s = mode==="lin" ? (y0-yl(b.v))/(y0-y1) : (y0-yg(b.v))/(y0-y1);
+      r.style.transform = `scaleY(${Math.max(0,s)})`;
+      r.setAttribute("fill", colored ? col(b.u) : "var(--muted-chart)");
+    });
+  }
+  set("lin", false);
+  return {step(i){
+    fig.dataset.step = i;
+    set(i>=2 ? "log" : "lin", i>=1);
+    $("#g7-sub").textContent = i>=2 ? "Fälle je km/h Überschreitung · logarithmische Skala (jede Linie = ×10)" : "Fälle je km/h vorwerfbarer Überschreitung (nach Toleranzabzug) · alle Messarten";
+  }};
+})();
+
+/* ================================================================
+   Epilog I · Ausreißer: Spalte = Tempolimit, Position in der Spalte = Uhrzeit
+================================================================ */
+(function outliers(){
+  const svg = $("#svgx"), HX = MOB ? 680 : 520;
+  svg.setAttribute("viewBox", `0 0 ${W} ${HX}`);
+  const g = el("g", {}, svg);
+  const lims = [10,20,30,50,60,70,80];
+  const x0 = M.l, x1 = W-M.r, cw = (x1-x0)/lims.length, inset = cw*.08;
+  const y = lin(0, 210, HX-(MOB?56:44), MOB?50:40);
+  const hx = (i, h) => x0 + i*cw + inset + (cw-2*inset)*h/24;
+  // Nachtstunden je Spalte rot hinterlegen
+  lims.forEach((l,i)=>{ [[0,6],[22,24]].forEach(([a,b])=>el("rect", {x:hx(i,a), y:y(210), width:hx(i,b)-hx(i,a), height:y(0)-y(210), fill:"var(--red)", opacity:.07}, g)); });
+  [0,50,100,150,200].forEach(v=>{ el("line",{x1:x0,x2:x1,y1:y(v),y2:y(v),class:"tick"},g); txt(g, x0-8, y(v)+4, v, {"text-anchor":"end"}); });
+  txt(g, x0-8, MOB?24:26, "km/h gemessen", {"text-anchor":"start","font-size":11});
+  lims.forEach((l,i)=>{
+    const cx = x0 + i*cw + cw/2;
+    el("line", {x1:hx(i,0), x2:hx(i,24), y1:y(l), y2:y(l), stroke:"var(--ink-2)", "stroke-width":2}, g);
+    txt(g, cx, HX-(MOB?22:20), MOB ? String(l) : "Tempo "+l, {"text-anchor":"middle", class:"lab-soft", "font-size":12});
+  });
+  if (MOB) txt(g, x1, HX-2, "Tempolimit in km/h", {"text-anchor":"end","font-size":11});
+  let seed = 11; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
+  const pos = {};
+  DATA.streu.filter(p=>lims.includes(p[0])).forEach(([l,k,h])=>{
+    const i = lims.indexOf(l), cx = hx(i, h + rnd());
+    pos[l+"/"+k+"/"+h] = cx;
+    const c = el("circle", {cx, cy:y(k), r:MOB?3.4:3, fill:"var(--red)", "fill-opacity":.6}, g);
+    hover(c, `<b>${k} km/h bei Tempo ${l}</b><br><span class="l">zu viel</span> ${k-l-(k<=100?3:Math.ceil(k*.03))} km/h<br><span class="l">Uhrzeit</span> ${hh(h)} Uhr`);
+  });
+  // Die drei Rekorde über Inhalt statt Index finden (robust bei Gleichständen)
+  const E = DATA.extreme;
+  const pick = (kmh, lim) => E.find(e=>e.kmh===kmh && e.lim===lim);
+  [[pick(203,50),"203 km/h · Raderthalgürtel", " · 30.04., 19:20"],[pick(191,80),"191 km/h · B 55a", " · 17.08., 6:20"],[pick(133,30),"133 km/h · Sachsenring", " · 04.11., 23:10"]].forEach(([e,l,d])=>{
+    if (!e) return;
+    const i = lims.indexOf(e.lim), cx = pos[e.lim+"/"+e.kmh+"/"+(+e.zeit.slice(0,2))] ?? (x0 + i*cw + cw/2);
+    el("circle", {cx, cy:y(e.kmh), r:7, fill:"none", stroke:"var(--ink)", "stroke-width":1.5}, g);
+    const right = cx < W/2;
+    txt(g, cx + (right?12:-12), y(e.kmh)+5, MOB ? l : l+d, {"text-anchor": right?"start":"end", class:"lab-strong", "font-size":12.5});
+  });
+  const tb = $("#tbl-extreme tbody");
+  E.slice(0,15).forEach(e=>{ const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${dateDE(e.datum)}</td><td>${e.zeit}</td><td>${e.lage || e.ort}</td><td class="num">${e.lim}</td><td class="num">${e.kmh}</td><td class="num">${e.ueber}</td>`; tb.appendChild(tr); });
+})();
+
+/* Appendix: Limit-Abgleich, Lernkurven-Details und alle neuen Anlagen direkt aus DATA */
+(function lernText(){
+  const L = DATA.limit_abgleich, B = DATA.b55a, LK = DATA.lernkurven["0015"];
+  const val = {limit: fmt1(L.anteil)+" %",
+    limit_detail: `Für ${fmt1(L.anteil)} % der Fälle stimmt das abgeleitete Limit mit ihr überein, ohne die Anlage ${L.groesste.name.split(" · ")[0]} sogar für ${fmt1(L.ohne_groesste)} %. Dort nennt die Tabelle Tempo ${L.groesste.tabelle}, die Daten ergeben das ganze Jahr Tempo ${L.groesste.daten} (${fmt(L.groesste.faelle)} Fälle).`,
+    b55a_60: fmt(B.limit60[0]), kontrolle: fmt(LK.kontrolle_anlagen),
+    gegen: `von ${fmt1(B.gegenrichtung_vorher)} auf ${fmt1(B.gegenrichtung_nachher)} Fälle`};
+  document.querySelectorAll("[data-k5]").forEach(e=>{ e.textContent = val[e.dataset.k5] ?? ""; });
+  const tb = $("#tbl-neu tbody");
+  if (tb) tb.innerHTML = DATA.neue_anlagen.map(a=>`<tr><td>${a.name}</td><td>${dateDE(a.start)}</td>`+
+    `<td class="num">${a.anfang_pt!=null ? fmt1(a.anfang_pt) : "–"}</td><td class="num">${a.plateau_pt!=null ? fmt1(a.plateau_pt) : "–"}</td>`+
+    `<td class="num">${a.delta!=null ? (a.delta>0 ? "+" : "")+a.delta+" %" : (a.tage < 30 ? "zu kurz" : "Lücke")}</td></tr>`).join("");
+})();
+
+/* Appendix und Grenzen: Genauigkeit der Karte direkt aus DATA.karte */
+(function karteText(){
+  const K = DATA.karte; if (!K) return;
+  const G = K.genauigkeit, n = DATA.standorte.length, p = v => `${fmt(v)} (${fmt1(100*v/n)} %)`;
+  const val = {n: fmt(n), hausnummer: p(G.hausnummer), strasse: p(G.strasse), manuell: p(G.manuell), fehlt: fmt(G.fehlt),
+    fehlt_faelle: fmt(K.fehlend_faelle), strasse_pct: fmt(100*G.strasse/n)+" %", min: `${fmt(K.min_schwer)} schweren Fällen an mindestens ${K.min_ms} Messstellen`,
+    osm_abgleich: fmt(K.korrekturen.osm_abgleich), von_hand: fmt(K.korrekturen.von_hand),
+    fehlend: K.fehlend.map(f=>`${f.name.split(" · ")[0]} (${f.ort}, ${fmt(f.n)} Fälle)`).join("; ")};
+  document.querySelectorAll("[data-k4]").forEach(e=>{ e.textContent = val[e.dataset.k4] ?? ""; });
+})();
+
+/* ================================================================
+   Epilog II · Atlas
+================================================================ */
+(function atlas(){
+  const rows = DATA.standorte.map(s=>({...s, name: siteName(s), hay: [s.name, s.ort, s.lage, s.ri].join(" ").toLowerCase()}));
+  const tb = $("#atlas tbody"), q = $("#atlas-q"), cnt = $("#atlas-count"), more = $("#atlas-more");
+  let key = "n", dir = -1, filt = "all", limit = 25;
+  const art = {"S-01":["fest","s01"],"S-02":["mobil","s02"],"K-04":["Kreuzung",""]};
+  function spark(h){
+    const m = Math.max(...h) || 1;
+    return `<svg width="96" height="22" viewBox="0 0 96 22" aria-hidden="true">${h.map((v,i)=>`<rect x="${i*4}" y="${22-20*v/m}" width="3" height="${20*v/m}" fill="${i<6||i>=22?'#e66767':'#a3a19a'}"/>`).join("")}</svg>`;
+  }
+  function render(){
+    const term = q.value.trim().toLowerCase();
+    let list = rows.filter(r=>(filt==="all"||r.d===filt) && (!term || term.split(/\s+/).every(t=>r.hay.includes(t))));
+    list.sort((a,b)=> key==="name" ? dir*a.name.localeCompare(b.name,"de") : dir*(a[key]-b[key]));
+    cnt.textContent = `${fmt(list.length)} von ${fmt(rows.length)} Messstellen`;
+    tb.innerHTML = list.slice(0,limit).map(r=>`<tr>
+      <td class="nm"><span class="tag ${art[r.d][1]}">${art[r.d][0]}</span>${r.name}<small>${[r.d!=="S-01"?r.ort:"", "Fälle ab "+dateDE(r.von)].filter(Boolean).join(" · ")}${act4.has(r.d+"|"+r.c) ? ` · <button class="tomap" type="button" data-k="${r.d}|${r.c}">auf der Karte</button>` : ""}</small></td>
+      <td>${r.lim}</td><td>${fmt(r.n)}</td><td>${r.tage}</td><td>${fmt1(r.pt)}</td><td>${fmt1(r.avg)}</td><td>${fmt1(r.p21)} %</td>${r.n >= 5
+        ? `<td>${fmt1(r.k)} %</td><td>${r.vmax}</td><td>${spark(r.h)}</td>`
+        : `<td title="unter 5 Fällen ausgeblendet">–</td><td title="unter 5 Fällen ausgeblendet">–</td><td></td>`}</tr>`).join("");
+    more.style.display = list.length > limit ? "" : "none";
+  }
+  document.querySelectorAll("#atlas th[data-k]").forEach(th=>th.addEventListener("click", ()=>{
+    const k = th.dataset.k; if (k==="h") return;
+    dir = (k===key) ? -dir : (k==="name" ? 1 : -1); key = k;
+    document.querySelectorAll("#atlas th").forEach(t=>t.removeAttribute("aria-sort"));
+    th.setAttribute("aria-sort", dir<0 ? "descending" : "ascending"); render();
+  }));
+  document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click", ()=>{
+    filt = b.dataset.f; document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed", x===b)); limit = 25; render(); }));
+  q.addEventListener("input", ()=>{ limit = 25; render(); });
+  tb.addEventListener("click", ev=>{ const b = ev.target.closest(".tomap"); if (b) act4.focus(b.dataset.k); });
+  more.addEventListener("click", ()=>{ limit += 50; render(); });
+  render();
+})();
+
+/* ================================================================
+   Scroll-Steuerung (wie rhein-story.html)
+================================================================ */
+const ACTS = {1:act1, 2:act2, 3:act3, 4:act4, 5:act5, 6:act6, 7:act7};
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    const step = e.target;
+    const act = step.closest(".scrolly").dataset.act;
+    const idx = +step.dataset.idx;
+    step.parentElement.querySelectorAll(".step").forEach(s=>s.classList.toggle("is-active", s===step));
+    ACTS[act].step(idx);
+  });
+}, {rootMargin:"-42% 0px -42% 0px"});
+document.querySelectorAll(".step").forEach(s=>io.observe(s));
+document.querySelectorAll(".scrolly").forEach(sec=>{
+  new IntersectionObserver((es,obs)=>{
+    es.forEach(e=>{
+      if(e.isIntersecting){
+        const act = sec.dataset.act;
+        if (document.getElementById("g"+act).dataset.step==="-1") ACTS[act].step(0);
+        obs.disconnect();
+      }
+    });
+  }, {threshold:.35}).observe(sec);
+});
+</script>
+</body>
+</html>

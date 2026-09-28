@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alle 71 Sekunden ein Blitz: Was ein Jahr Kölner Blitzerdaten zeigt · Daten-WG</title>
+<link rel="alternate" type="text/markdown" title="Markdown" href="blog/koeln-blitzt.md">
+<meta name="description" content="445.483 Tempoverstöße, offen als Daten: ein neuer Blitzer, der nach drei Monaten nur noch gut ein Viertel so oft auslöst, Nächte mit deutlich mehr schweren Fällen und 97 % der Fälle ohne Punkt. Dazu, was die Daten nicht können.">
+<meta property="og:title" content="Alle 71 Sekunden ein Blitz: Was ein Jahr Kölner Blitzerdaten zeigt">
+<meta property="og:description" content="445.483 Tempoverstöße, offen als Daten: ein neuer Blitzer, der nach drei Monaten nur noch gut ein Viertel so oft auslöst, Nächte mit deutlich mehr schweren Fällen und 97 % der Fälle ohne Punkt. Dazu, was die Daten nicht können.">
+<meta property="og:image" content="https://datenwgknowledgekitchen.com/blog/assets/raser-1-karte-nacht.png">
+<style>
+:root {
+  --bg:#FAFAF5; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#1A1A1A; --ink-soft:#4A4A4A; --ink-mute:#6B6B6B; --black:#0A0A0A;
+  --line:#E5E2D8; --line-strong:#1A1A1A;
+  --accent:#117865; --accent-deep:#0A5A4D;
+  --topic:#2A857A; --low:#2A857A; --mid:#C9962E; --high:#8B2E2E;
+  --shadow-sm:0 1px 2px rgba(10,10,10,.04),0 1px 3px rgba(10,10,10,.06);
+  --shadow-md:0 4px 12px rgba(10,10,10,.08),0 2px 4px rgba(10,10,10,.06);
+  --radius-sm:6px; --radius:10px; --radius-lg:16px;
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Segoe UI Variable Small","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:var(--sans); font-size:16px; line-height:1.62; color:var(--ink); background:var(--bg);
+  background-image:radial-gradient(circle at 12% -5%,rgba(42,133,122,.06),transparent 35%),radial-gradient(circle at 95% 12%,rgba(17,120,101,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; min-height:100vh;
+}
+a { color:inherit; }
+.container { max-width:820px; margin:0 auto; padding:36px 28px 110px; }
+.back-link { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-mute); text-decoration:none; padding:8px 14px; border:1px solid var(--line); border-radius:100px; transition:all .15s ease; margin-bottom:40px; }
+.back-link:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+.post-eyebrow { display:inline-flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--topic); font-weight:700; margin-bottom:18px; }
+.post-eyebrow::before { content:''; width:28px; height:1px; background:var(--topic); }
+.post-title { font-family:var(--serif); font-weight:300; font-size:clamp(2.1rem,5.5vw,3.6rem); line-height:1.05; letter-spacing:-0.025em; color:var(--black); margin-bottom:18px; }
+.post-title em { font-style:italic; font-weight:300; color:var(--topic); }
+.post-dek { font-size:18px; color:var(--ink-soft); line-height:1.5; max-width:64ch; margin-bottom:24px; }
+.post-meta { display:flex; flex-wrap:wrap; gap:18px; align-items:center; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-mute); padding-bottom:28px; border-bottom:1px solid var(--line); margin-bottom:8px; }
+.post-meta strong { color:var(--ink); font-weight:600; }
+.prose h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.5rem,3.2vw,2rem); letter-spacing:-0.015em; color:var(--black); margin:52px 0 16px; line-height:1.15; }
+.prose h2 em { font-style:italic; color:var(--topic); font-weight:500; }
+.prose p { margin-bottom:18px; color:var(--ink-soft); max-width:70ch; }
+.prose p strong { color:var(--ink); font-weight:600; }
+.prose p a { color:var(--accent); }
+.prose p code, .prose li code { font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:.86em; background:var(--bg-soft); border:1px solid var(--line); border-radius:4px; padding:1px 5px; }
+.prose ul { margin:0 0 20px; padding-left:0; list-style:none; max-width:70ch; }
+.prose ul li { position:relative; padding:8px 0 8px 26px; color:var(--ink-soft); border-bottom:1px solid var(--line); }
+.prose ul li:last-child { border-bottom:none; }
+.prose ul li::before { content:''; position:absolute; left:6px; top:16px; width:7px; height:7px; border-radius:50%; background:var(--topic); }
+.prose ul li strong { color:var(--ink); font-weight:600; }
+.bigstat { display:grid; grid-template-columns:auto 1fr; gap:24px; align-items:center; background:linear-gradient(135deg,var(--bg-card) 0%,rgba(42,133,122,.06) 100%); border:1px solid var(--line); border-left:4px solid var(--topic); border-radius:var(--radius-lg); padding:24px 28px; margin:28px 0; box-shadow:var(--shadow-sm); }
+.bigstat-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:clamp(2rem,6vw,3.4rem); line-height:1; letter-spacing:-0.03em; color:var(--topic); white-space:nowrap; }
+.bigstat-text { font-size:15px; color:var(--ink-soft); line-height:1.55; }
+.bigstat-text strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .bigstat { grid-template-columns:1fr; gap:12px; } }
+.quote { border-left:3px solid var(--topic); background:var(--bg-soft); border-radius:0 var(--radius) var(--radius) 0; padding:14px 18px; margin:18px 0 24px; font-size:14.5px; color:var(--ink-soft); line-height:1.55; }
+.quote .ts { font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:12px; color:var(--accent); text-decoration:none; margin-right:8px; white-space:nowrap; }
+.quote .k { display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:4px; }
+.step { display:grid; grid-template-columns:56px 1fr; gap:20px; align-items:start; background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:22px 26px; margin:16px 0; box-shadow:var(--shadow-sm); }
+.step-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:2.2rem; line-height:1; color:var(--topic); }
+.step h3 { font-family:var(--serif); font-weight:600; font-size:1.1rem; color:var(--black); margin-bottom:6px; }
+.step h3 span { font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin-left:8px; }
+.step p { font-size:14.5px; color:var(--ink-soft); margin:0; line-height:1.6; }
+.step p strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .step { grid-template-columns:1fr; gap:8px; } }
+.tbl { width:100%; border-collapse:collapse; font-size:14px; margin:12px 0 28px; }
+.tbl th, .tbl td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top; color:var(--ink-soft); }
+.tbl th { font-family:var(--mono); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-mute); }
+.tbl td:first-child { color:var(--ink); font-weight:600; }
+.src-box { background:var(--bg-soft); border:1px solid var(--line); border-left:4px solid var(--ink-mute); border-radius:var(--radius); padding:20px 24px; margin:28px 0; font-size:13.5px; color:var(--ink-soft); line-height:1.6; }
+.src-box h3 { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--black); margin-bottom:8px; }
+.src-box a { color:var(--accent); }
+.cta-card { display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; background:var(--black); color:#fff; border-radius:var(--radius-lg); padding:28px 32px; margin:52px 0 0; }
+.cta-card-text { max-width:46ch; }
+.cta-card-text .k { font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--mid); display:block; margin-bottom:8px; }
+.cta-card-text h3 { font-family:var(--serif); font-weight:500; font-size:1.35rem; color:#fff; margin:0 0 6px; }
+.cta-card-text p { color:rgba(255,255,255,.7); font-size:14px; margin:0; }
+.cta-actions { display:flex; flex-wrap:wrap; gap:12px; }
+.cta-btn { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--black); background:var(--mid); padding:13px 18px; border-radius:100px; text-decoration:none; }
+.cta-btn:hover { filter:brightness(1.08); }
+.cta-btn.ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.4); }
+.cta-btn.ghost:hover { border-color:#fff; filter:none; }
+.post-foot { margin-top:56px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--ink-mute); line-height:1.6; }
+.post-foot a { color:var(--accent); }
+
+.post-hero { margin:0 0 30px; }
+.post-hero img { width:100%; max-width:none; height:auto; display:block; border-radius:var(--radius); box-shadow:none; }
+figure { margin:26px 0 30px; }
+figure img { width:100%; max-width:560px; height:auto; display:block; border-radius:var(--radius); box-shadow:var(--shadow-md); }
+figure.wide img { max-width:100%; }
+.prose ol { margin:0 0 20px; padding-left:0; list-style:none; counter-reset:step; max-width:70ch; }
+.prose ol li { position:relative; padding:10px 0 10px 40px; color:var(--ink-soft); border-bottom:1px solid var(--line); counter-increment:step; }
+.prose ol li:last-child { border-bottom:none; }
+.prose ol li::before { content:counter(step); position:absolute; left:0; top:10px; width:26px; height:26px; border-radius:50%; background:var(--black); color:#fff; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; }
+.prose ol li strong { color:var(--ink); font-weight:600; }
+.prose pre { max-width:70ch; margin:0 0 20px; padding:14px 16px; background:var(--black); color:#f1efe8; border-radius:var(--radius); font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:13px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; }
+figure > a { display:block; }
+figcaption, .post-hero figcaption { font-size:12.5px; color:var(--ink-mute); margin-top:8px; }
+.prose table { width:100%; max-width:70ch; border-collapse:collapse; font-size:14px; margin:8px 0 10px; }
+.prose th { text-align:left; font-weight:600; color:var(--ink); border-bottom:2px solid var(--line-strong); padding:7px 8px; }
+.prose td { border-bottom:1px solid var(--line); padding:6px 8px; color:var(--ink-soft); font-variant-numeric:tabular-nums; }
+.prose th.r, .prose td.r { text-align:right; white-space:nowrap; }
+.table-wrap { overflow-x:auto; margin-bottom:6px; }
+.prose p.note { font-size:13px; color:var(--ink-mute); }
+.cta { display:flex; flex-wrap:wrap; gap:12px; margin:26px 0 8px; }
+.cta a { display:inline-block; padding:11px 18px; border-radius:999px; background:var(--black); color:#fff; text-decoration:none; font-weight:600; font-size:14px; }
+.cta a.ghost { background:transparent; color:var(--ink); border:1px solid var(--line-strong); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <a class="back-link" href="index.html#posts-talks">← Zurück zur Knowledge Kitchen</a>
+
+  <header>
+    <div class="post-eyebrow">Post · Köln blitzt, Raser-Atlas 2025</div>
+    <h1 class="post-title">Alle 71 Sekunden ein Blitz: Was ein Jahr Kölner Blitzerdaten zeigt</h1>
+    <p class="post-dek">445.483 Tempoverstöße, offen als Daten: ein neuer Blitzer, der nach drei Monaten nur noch gut ein Viertel so oft auslöst, Nächte mit deutlich mehr schweren Fällen und 97 % der Fälle ohne Punkt. Dazu, was die Daten nicht können.</p>
+    <div class="post-meta">
+      <span>Von <strong>Michael Tenner</strong></span>
+      <span>Stand · <strong>September 2026</strong></span>
+      <span>Quelle · <strong>Offene Daten Köln 2025</strong></span>
+      <span>Story · <strong><a href="koelner-raser-story.html">Karte, Zeitraffer, Atlas</a></strong></span>
+    </div>
+  </header>
+
+  <figure class="post-hero"><img src="blog/assets/koeln-nacht-hohenzollernbruecke.jpg" alt="Die Hohenzollernbrücke bei Nacht, dahinter die Zoobrücke"><figcaption>Hohenzollernbrücke bei Nacht, im Hintergrund die Zoobrücke. Foto: Detlef Huhn, CC BY-SA 4.0, via Wikimedia Commons</figcaption></figure>
+
+  <div class="prose">
+    <p>14. August 2025, B 55a stadtauswärts, zwischen Ab- und Auffahrt Frankfurter Straße. Die Stadt Köln nimmt einen neuen Blitzer in Betrieb. In seinen ersten zwei Wochen löst er im Schnitt 443-mal am Tag aus. Drei Monate später sind es 127.</p>
+    <p>Das ist die interessanteste Zahl in einem Datensatz, den die Stadt offen ins Netz stellt: jede Verwarnung und jedes Bußgeldverfahren der städtischen Geschwindigkeitsüberwachung 2025 als eigene Zeile, mit Datum, Uhrzeit, Messstelle, gemessener Geschwindigkeit, Überschreitung und dem Kürzel des Zulassungsbezirks. Wir haben die Datei in eine kleine SQLite-Datenbank geladen, bereinigt und befragt. Heraus kam eine Datenstory in sieben Akten, mit Karte und einem Atlas aller 655 Messstellen. Hier die wichtigsten Befunde, und was die Daten nicht können.</p>
+    <h2>Die Zahl vorneweg, und warum sie wenig sagt</h2>
+    <p>451.676 Zeilen, davon <strong>445.483 Tempofälle</strong>. Das sind 1.221 am Tag, im Schnitt alle 71 Sekunden ein Blitz. Nicht enthalten sind die Messungen der Polizei, etwa auf Autobahnen, und die Rotlichtverstöße der Kreuzungsanlagen.</p>
+    <p>Die Summe klingt nach Schlagzeile, ist aber das schwächste Maß im ganzen Datensatz. Denn ein Blitz zählt nicht die Raser. Er zählt die Raser, die dort vorbeikommen, wo die Stadt gerade misst. Die 43 festen Anlagen messen rund um die Uhr, die mobile Messung arbeitet mit Dienstzeiten: 90 % ihrer Fälle entstehen tagsüber, 80 % werktags, und vom 20. bis 31. Dezember gab es gar keine. Wer nur die Summe liest, liest vor allem heraus, wann und wo gemessen wird. Die belastbaren Befunde stecken in den Verhältnissen.</p>
+    <h2>Ein neuer Blitzer wirkt, und zwar schnell</h2>
+    <figure><img src="blog/assets/raser-2-lernkurve.png" alt="Lernkurve der B 55a gegen 27 Anlagen im Bestand" loading="lazy"></figure>
+    <p>Zurück zur B 55a. Von 443 auf 127 Fälle am Tag sind <strong>−71 %</strong>, gerechnet zwischen den ersten zwei Wochen und dem Plateau in den Wochen 12 bis 19. Ist das nur die Jahreszeit, das Ende der Sommerferien, weniger Verkehr im Herbst? Zum Vergleich haben wir 27 feste Anlagen genommen, die das ganze Jahr messen. Im selben Zeitraum bleiben sie fast gleich (−5 %). Der Rückgang an der B 55a hat also mit der neuen Anlage zu tun.</p>
+    <p>Und nicht nur die Menge sinkt. Der Anteil der Fälle mit 21 km/h und mehr zu viel fällt dort von 13,0 % auf 5,9 %. Es wird also nicht bloß seltener geblitzt, es wird auch seltener richtig schnell gefahren.</p>
+    <p>Zwei Einschränkungen gehören dazu. Erstens: Was hinter dem Kasten passiert, zeigen die Daten nicht. Ob danach wieder beschleunigt wird oder ob Leute auf andere Strecken ausweichen, bleibt offen. Zweitens wirkt nicht jede neue Anlage so. An der Inneren Kanalstraße fallen die Fälle ebenfalls deutlich (−59 %), der größte Teil aber abrupt Mitte August, was eher nach einem äußeren Anlass aussieht als nach Lernen. Bei den kleineren neuen Anlagen 2025 liegt die Veränderung zwischen −22 % und +29 %.</p>
+    <p>Eine Beobachtung, die uns beschäftigt hat: Fahrzeuge mit K-Kennzeichen verschwinden an der B 55a schneller (−78 %) als alle anderen (−66 %). Eine mögliche Deutung ist, dass man einen Kasten auf dem täglichen Weg eben kennt. Genauso denkbar sind Blitzer-Apps. Und das Kennzeichen nennt den Halter, nicht den Fahrer.</p>
+    <h2>Nachts wird aus „etwas zu schnell“ „deutlich zu schnell“</h2>
+    <figure><img src="blog/assets/raser-3-nacht-tag.png" alt="Anteil schwerer Fälle je Uhrzeit an den festen Anlagen" loading="lazy"></figure>
+    <p>Für den Tagesgang taugen nur die festen Anlagen, weil sie rund um die Uhr gleich messen. Tagsüber blitzt es am häufigsten, nachts fährt schlicht weniger Verkehr. Interessanter ist, wie nachts gefahren wird. Um 14 Uhr haben 1,7 % der Geblitzten 21 km/h oder mehr zu viel auf dem Tacho, um 3 Uhr nachts 8,0 %.</p>
+    <p>Zwei Einzelstunden sind allerdings ein Extremvergleich. Robuster ist die ganze Nacht (22 bis 6 Uhr) gegen den Tag (10 bis 18 Uhr), je Anlage bereinigt: Der Anteil ab 21 km/h ist nachts <strong>2,3-mal</strong>, der Anteil ab 31 km/h, ab dem innerorts ein Fahrverbot droht, <strong>4,1-mal</strong> so hoch. Wichtig beim Lesen: Das ist ein Anteil unter den Geblitzten. Wie viele Autos insgesamt unterwegs waren, steht nicht in den Daten.</p>
+    <h2>Die große Masse ist knapp dran</h2>
+    <figure><img src="blog/assets/raser-4-knapp-drueber.png" alt="97 % der Fälle ohne Punkte" loading="lazy"></figure>
+    <p>97 % aller Fälle liegen höchstens 20 km/h über dem Limit, also ohne Punkt in Flensburg. Der häufigste Wert ist 6 km/h zu viel nach Abzug der Messtoleranz, darunter gibt es praktisch keine Fälle. Bei Tempo 30 heißt das: erst ab 39 km/h gemessen. Ein Freibrief ist das nicht, die Schwelle ist gelebte Praxis, kein Recht. Tempo 30 ist ohnehin der Normalfall: 61,6 % aller Fälle passieren dort.</p>
+    <p>Was das kostet? Legt man den Bußgeldkatalog an jeden Fall, kommt man auf einen Katalogwert von rund 18 Mio. €, im Schnitt 40 € pro Fall. Das ist keine Einnahme: Gebühren, Einstellungen und Einsprüche fehlen, und neun von zehn Fällen sind Verwarnungsgelder.</p>
+    <div class="table-wrap"><table><thead><tr><th>zu viel (innerorts)</th><th class="r">Bußgeld</th><th class="r">Punkte</th><th>Fahrverbot</th></tr></thead><tbody><tr><td>bis 10 km/h</td><td class="r">30 €</td><td class="r">–</td><td>–</td></tr><tr><td>11 bis 15 km/h</td><td class="r">50 €</td><td class="r">–</td><td>–</td></tr><tr><td>16 bis 20 km/h</td><td class="r">70 €</td><td class="r">–</td><td>–</td></tr><tr><td>21 bis 25 km/h</td><td class="r">115 €</td><td class="r">1</td><td>–</td></tr><tr><td>26 bis 30 km/h</td><td class="r">180 €</td><td class="r">1</td><td>nur bei Wiederholung</td></tr><tr><td>31 bis 40 km/h</td><td class="r">260 €</td><td class="r">2</td><td>1 Monat</td></tr></tbody></table></div>
+    <p class="note">Bußgeldkatalog für Pkw, Stand seit 09.11.2021. Außerorts gelten niedrigere Sätze, das Regelfahrverbot erst ab 41 km/h.</p>
+    <p>Am anderen Ende: 1.697 Fälle erreichen Fahrverbots-Tempo. Der Rekord des Jahres ist ein Pkw mit 203 km/h bei erlaubten 50, am Raderthalgürtel, am Vorabend des 1. Mai um 19:20 Uhr.</p>
+    <h2>Wo geblitzt wird</h2>
+    <figure><img src="blog/assets/raser-1-karte-nacht.png" alt="Alle Messstellen auf der Nachtkarte" loading="lazy"></figure>
+    <p>Für die Karte mussten aus den Ortsangaben der Stadt erst Punkte werden. 629 der 655 Messstellen haben jetzt einen verlässlichen Ort. Die festen Anlagen ballen sich im Zentrum: 16 von 43 stehen höchstens 3 km vom Dom entfernt und erzeugen 57,8 % aller Fälle fester Anlagen. Die beiden Spitzenreiter liegen auf derselben Achse, Innere Kanalstraße, Zoobrücke, B 55a, beide in Fahrtrichtung Osten. An der Inneren Kanalstraße stehen gleich sechs Anlagen.</p>
+    <div class="table-wrap"><table><thead><tr><th>feste Anlage</th><th class="r">Tempo</th><th class="r">Fälle 2025</th><th class="r">pro Betriebstag</th></tr></thead><tbody><tr><td>B 55a, Ausfahrt Frankfurter Straße, Richtung Olpe (ab 14.08.)</td><td class="r">80</td><td class="r">25.612</td><td class="r">186,9</td></tr><tr><td>Innere Kanalstraße, Höhe Lentstraße, Richtung Niehler Straße</td><td class="r">50</td><td class="r">24.963</td><td class="r">107,6</td></tr><tr><td>Kaiser-Wilhelm-Ring 17–21, Richtung Christophstraße</td><td class="r">30</td><td class="r">16.376</td><td class="r">45,0</td></tr><tr><td>Escher Straße 146, Richtung Geldernstraße</td><td class="r">30</td><td class="r">12.009</td><td class="r">34,7</td></tr><tr><td>Dellbrücker Hauptstraße 95, Richtung Bergisch Gladbacher Straße</td><td class="r">20</td><td class="r">11.962</td><td class="r">71,6</td></tr></tbody></table></div>
+    <p>Die mobile Messung verteilt sich über 78 von 86 Stadtteilen. Wo die Messungen die Schnellsten erwischen, hängt allerdings oft an einer einzigen Stelle. In Merkenich kommen 85 % der schweren Fälle von einer Tempo-10-Strecke, dort heißt 21 km/h zu viel: 34 km/h gemessen. Die Story zeigt deshalb Stadtteilwerte nur ab 30 schweren Fällen an mindestens drei Messstellen, in drei groben Klassen und ohne Rangliste. Die Werte beschreiben Messstellen, nicht die Menschen, die dort wohnen.</p>
+    <h2>Hinter den Kulissen: Aus „Lat. 177“ wird ein Punkt</h2>
+    <p>Für alle, die mit Daten arbeiten, war das der aufwendigste Teil. Die Standorttabellen der Stadt nennen keine Koordinaten, sondern Einträge wie „Innere Kanalstr. zw. Lat. 177-176“, „Friedrich-Schmidtstr. ggü70-72“ oder „Ber.Gl.Str. 1135-1129“. Laternennummern sind keine Hausnummern, Abkürzungen und Tippfehler kommen dazu.</p>
+    <p>Der erste Geocoder-Lauf mit Geoapify hatte eine überraschende Fehlerklasse: gleichnamige Straßen. Aus „Hauptstraße 55“ in Widdersdorf wurde mit hoher Konfidenz die Kalker Hauptstraße 55. Seitdem zählt ein Treffer nur, wenn Straße und Stadtteil zur Anfrage passen. Danach kam ein zweiter, unabhängiger Punkt aus OpenStreetMap (167.551 Adresspunkte), und bei Abweichungen gilt der besser belegte. Alle 43 festen Anlagen und 12 Kreuzungsanlagen haben wir einzeln geprüft, für die B 55a mit der Pressemitteilung der Stadt. 26 mobile Stellen, deren Angabe nur eine lange Straße nennt, fehlen lieber auf der Karte, als falsch zu stehen.</p>
+    <p>Ein Nebenbefund aus dem Peer-Review: 177 Zeilen der Kreuzungsanlagen hatten genau 0 km/h Überschreitung und zählten fälschlich als Tempofall. Sie sind jetzt raus. Zudem prüft ein kleines Skript bei jedem Build, ob die Zahlen im Text noch zu den Daten passen. Die ganze Pipeline liegt offen im Repository: Rohdaten, SQL, Geocodierung, Prüflisten.</p>
+    <h2>Was die Daten nicht können</h2>
+    <ul><li><strong>Keine Verkehrsmengen.</strong> Ohne sie gibt es keine „Raserquote“, nur die Zusammensetzung der Geblitzten.</li><li><strong>Keine Unfälle.</strong> Ob Blitzer Unfälle verhindern, lässt sich hier nicht zeigen.</li><li><strong>Kennzeichen = Halter.</strong> Firmen-, Miet- und Leasingwagen sind oft zentral zugelassen.</li><li><strong>Tempolimit abgeleitet.</strong> Es steht nicht in den Falldaten, sondern wird aus Messwert, Überschreitung und Toleranz zurückgerechnet. Mit dem Limit der Standorttabellen stimmt es zu 98,2 % überein.</li></ul>
+    <h2>Eine Frage an die Stadt</h2>
+    <p>Mobil wird zu 90 % tagsüber und zu 80 % werktags gemessen. Die schweren Verstöße passieren aber vor allem nachts. Warum wird mobil nicht öfter nachts gemessen? Die Daten können die Frage stellen, beantworten kann sie nur die Verwaltung. Dafür fehlen uns auch Einschätzungen zu Personal, Standortkriterien und dazu, ob die Anlagen nach der Unfalllage ausgewählt werden.</p>
+    <h2>Alles auf einer Seite</h2>
+    <p>Die wichtigsten Befunde als Infografik, A4 hochkant: Karte, Lernkurve, Nacht gegen Tag, die fünf größten Anlagen und die Herkunft der Geblitzten. Zum Ausdrucken, Teilen oder Weiterschicken.</p>
+    <figure class="wide"><a href="blog/assets/raser-infografik.jpg"><img src="blog/assets/raser-infografik-web.jpg" alt="Infografik „Köln blitzt. 445.483 Mal.“ mit Karte aller Messstellen, Lernkurve der B 55a, Anteil schwerer Fälle je Uhrzeit, den fünf größten festen Anlagen und der Herkunft nach Kennzeichen" loading="lazy"></a><figcaption>Klick aufs Bild öffnet die volle Auflösung (4960 × 7016 px). <a href="blog/assets/raser-infografik.pdf" download>Infografik als PDF herunterladen</a>, eine Seite A4.</figcaption></figure>
+    <h2>Selbst bauen</h2>
+    <p>Die Story ist kein Einzelstück. Gebaut haben wir sie mit Claude Code, einem KI-Agenten im Terminal, einem offenen Datensatz und zwei Geodaten-Schnittstellen. Das Rezept funktioniert mit fast jedem Open-Data-Datensatz, der Ort und Zeit enthält: Parkverstöße, Baustellen, Unfälle, Radzählstellen.</p>
+    <ol><li><strong>Datensatz finden.</strong> Auf offenedaten-koeln.de, für ganz Deutschland auf GovData.de, nach Daten mit Ort und Zeit suchen und die Lizenz prüfen. Die Datenlizenz Deutschland Zero 2.0 erlaubt jede Nutzung, auch ohne Namensnennung. Die Metadaten gibt es maschinenlesbar im DCAT-AP.de-Format, so liest ein Agent Download-Link und Lizenz selbst aus. Unser Datensatz: <a href="https://offenedaten-koeln.de/distribution/f4b74707075a593c779024dd0ffd0a50">Geschwindigkeitsüberwachung Köln ab 2025</a>.</li><li><strong>In eine Datenbank laden.</strong> Claude schreibt das Ladeskript, du prüfst das Ergebnis. SQLite reicht, ganz ohne Server. Wichtig ist der Abgleich mit der Quelle: Die Kölner CSV enthält je Monat eine Kontrollsumme, und das Skript prüft jede davon.</li><li><strong>Fragen stellen, nicht Charts bestellen.</strong> Lass Claude zuerst aufschreiben, was die Daten beantworten können und was nicht. Jede Zahl kommt per SQL aus der Datenbank, nie aus dem Gedächtnis des Modells.</li><li><strong>Verorten mit einer API.</strong> Angaben wie „Innere Kanalstr. zw. Lat. 177-176“ werden mit der Geocoding-API von Geoapify zu Koordinaten, der kostenlose Plan reicht für unsere 655 Messstellen. Stadtteile, Straßen und den Rhein liefert OpenStreetMap über die Overpass-API. Jeden Treffer prüfen: Passen Straße und Stadtteil? Was nicht passt, landet auf einer Prüfliste statt auf der Karte.</li><li><strong>Story bauen.</strong> Eine HTML-Vorlage, die Daten als JSON eingesetzt, Diagramme als handgebautes SVG. Kein Framework, keine Build-Kette. Claude baut, du schaust im Browser nach, am Desktop und am Handy.</li><li><strong>Gegenlesen lassen.</strong> Lass Claude den Text aus mehreren Rollen kritisieren, bei uns waren es sieben: vom eiligen Leser über den Lokalreporter bis zum Statistiker. Das hat echte Fehler gefunden, etwa 177 Zeilen ohne Überschreitung. Dazu prüft ein Skript bei jedem Build, ob die Zahlen im Text noch zur Datenbank passen.</li><li><strong>Veröffentlichen.</strong> Aus denselben Daten entstehen per Skript Blogbeitrag, LinkedIn-Karussell und Infografik. Die Seite läuft als statisches HTML auf GitHub Pages.</li></ol>
+    <p>So kann der erste Prompt an Claude Code aussehen, wenn die CSV im Ordner <code>data/raw</code> liegt:</p>
+    <pre><code>Lade die CSV aus data/raw in eine SQLite-Datenbank. Prüfe Zeilenzahl und Kontrollsummen gegen die Quelle. Schreib mir dann zehn Fragen, die diese Daten beantworten können, und fünf, die sie nicht beantworten können. Jede Zahl, die du nennst, kommt per SQL aus der Datenbank.</code></pre>
+    <p>Und so der Schritt mit der API:</p>
+    <pre><code>Verorte die Messstellen aus der Standorttabelle mit der Geoapify-API. Der Key steht in der Umgebungsvariable GEOAPIFY_KEY. Gib ihn nie aus und schreib ihn in keine Datei. Prüfe jeden Treffer gegen Straße und Stadtteil und schreib alles, was nicht passt, in eine Prüfliste.</code></pre>
+    <p>Zwei Regeln haben uns am meisten geholfen:</p>
+    <ul><li><strong>API-Keys nur als Umgebungsvariable.</strong> Nie in den Chat, nie in eine Datei, nie in einen Commit. Wer einen Key doch einmal irgendwo eingefügt hat, erneuert ihn beim Anbieter.</li><li><strong>Jede Zahl hat eine Quelle.</strong> Eine SQL-Abfrage, ein Prüfskript, ein Link. Was sich nicht belegen lässt, steht nicht im Text.</li></ul>
+    <p>Zum Nachschauen und Nachbauen:</p>
+    <ul><li><strong>Die Story</strong> mit Karte „Köln bei Nacht“, 24-Stunden-Zeitraffer und Lernkurve: <a href="https://datenwgknowledgekitchen.com/koelner-raser-story.html">datenwgknowledgekitchen.com/koelner-raser-story.html</a></li><li><strong>Der Atlas</strong>: alle 655 Messstellen durchsuchbar, mit Tagesprofil, und ein Klick zeigt die Stelle auf der Karte: <a href="https://datenwgknowledgekitchen.com/koelner-raser-story.html#atlas">datenwgknowledgekitchen.com/koelner-raser-story.html#atlas</a></li><li><strong>Daten und Code</strong>: <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/koeln-raser"><code>koeln-raser/</code> auf GitHub</a>, alle Skripte von den Rohdaten bis zum HTML. Die Rohdaten liegen gepackt dabei, die jeweils aktuelle Fassung gibt es beim Portal der Stadt.</li></ul>
+    <p>Daten: Stadt Köln, Offene Daten Köln, „Geschwindigkeitsüberwachung Köln ab 2025“ (Datenlizenz Deutschland Zero 2.0). Karte © OpenStreetMap-Mitwirkende (ODbL). Geocodierung: Geoapify. Titelfoto: Detlef Huhn, CC BY-SA 4.0, via Wikimedia Commons.</p>
+    <div class="cta"><a href="koelner-raser-story.html">Zur interaktiven Story</a><a class="ghost" href="koelner-raser-story.html#atlas">Meinen Blitzer suchen</a></div>
+  </div>
+</div>
+</body>
+</html>

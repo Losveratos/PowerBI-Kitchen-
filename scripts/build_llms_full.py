@@ -31,6 +31,7 @@ DOCS = [
     ("md/whitepaper-strommix.md", "md/whitepaper-strommix.md"),
     ("md/strommix-story.md", "md/strommix-story.md"),
     ("md/rhein-story.md", "md/rhein-story.md"),
+    ("md/koelner-raser-story.md", "md/koelner-raser-story.md"),
     ("whitepaper-ki-entwicklung-roi.md", "whitepaper-ki-entwicklung-roi.md"),
     ("md/pdoom-ki-risiko.md", "md/pdoom-ki-risiko.md"),
     ("md/ki-co2-simulator.md", "md/ki-co2-simulator.md"),
