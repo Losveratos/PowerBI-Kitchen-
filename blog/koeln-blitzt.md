@@ -100,10 +100,39 @@ Die wichtigsten Befunde als Infografik, A4 hochkant: Karte, Lernkurve, Nacht geg
 [![Infografik „Köln blitzt. 445.483 Mal.“ mit Karte aller Messstellen, Lernkurve der B 55a, Anteil schwerer Fälle je Uhrzeit, den fünf größten festen Anlagen und der Herkunft nach Kennzeichen](assets/raser-infografik-web.jpg)](assets/raser-infografik.jpg)
 *Klick aufs Bild öffnet die volle Auflösung (4960 × 7016 px). [Infografik als PDF herunterladen](assets/raser-infografik.pdf), eine Seite A4.*
 
-## Selbst nachschauen
+## Selbst bauen
+
+Die Story ist kein Einzelstück. Gebaut haben wir sie mit Claude Code, einem KI-Agenten im Terminal, einem offenen Datensatz und zwei Geodaten-Schnittstellen. Das Rezept funktioniert mit fast jedem Open-Data-Datensatz, der Ort und Zeit enthält: Parkverstöße, Baustellen, Unfälle, Radzählstellen.
+
+1. **Datensatz finden.** Auf offenedaten-koeln.de, für ganz Deutschland auf GovData.de, nach Daten mit Ort und Zeit suchen und die Lizenz prüfen. Die Datenlizenz Deutschland Zero 2.0 erlaubt jede Nutzung, auch ohne Namensnennung. Die Metadaten gibt es maschinenlesbar im DCAT-AP.de-Format, so liest ein Agent Download-Link und Lizenz selbst aus. Unser Datensatz: [Geschwindigkeitsüberwachung Köln ab 2025](https://offenedaten-koeln.de/distribution/f4b74707075a593c779024dd0ffd0a50).
+2. **In eine Datenbank laden.** Claude schreibt das Ladeskript, du prüfst das Ergebnis. SQLite reicht, ganz ohne Server. Wichtig ist der Abgleich mit der Quelle: Die Kölner CSV enthält je Monat eine Kontrollsumme, und das Skript prüft jede davon.
+3. **Fragen stellen, nicht Charts bestellen.** Lass Claude zuerst aufschreiben, was die Daten beantworten können und was nicht. Jede Zahl kommt per SQL aus der Datenbank, nie aus dem Gedächtnis des Modells.
+4. **Verorten mit einer API.** Angaben wie „Innere Kanalstr. zw. Lat. 177-176“ werden mit der Geocoding-API von Geoapify zu Koordinaten, der kostenlose Plan reicht für unsere 655 Messstellen. Stadtteile, Straßen und den Rhein liefert OpenStreetMap über die Overpass-API. Jeden Treffer prüfen: Passen Straße und Stadtteil? Was nicht passt, landet auf einer Prüfliste statt auf der Karte.
+5. **Story bauen.** Eine HTML-Vorlage, die Daten als JSON eingesetzt, Diagramme als handgebautes SVG. Kein Framework, keine Build-Kette. Claude baut, du schaust im Browser nach, am Desktop und am Handy.
+6. **Gegenlesen lassen.** Lass Claude den Text aus mehreren Rollen kritisieren, bei uns waren es sieben: vom eiligen Leser über den Lokalreporter bis zum Statistiker. Das hat echte Fehler gefunden, etwa 177 Zeilen ohne Überschreitung. Dazu prüft ein Skript bei jedem Build, ob die Zahlen im Text noch zur Datenbank passen.
+7. **Veröffentlichen.** Aus denselben Daten entstehen per Skript Blogbeitrag, LinkedIn-Karussell und Infografik. Die Seite läuft als statisches HTML auf GitHub Pages.
+
+So kann der erste Prompt an Claude Code aussehen, wenn die CSV im Ordner `data/raw` liegt:
+
+```
+Lade die CSV aus data/raw in eine SQLite-Datenbank. Prüfe Zeilenzahl und Kontrollsummen gegen die Quelle. Schreib mir dann zehn Fragen, die diese Daten beantworten können, und fünf, die sie nicht beantworten können. Jede Zahl, die du nennst, kommt per SQL aus der Datenbank.
+```
+
+Und so der Schritt mit der API:
+
+```
+Verorte die Messstellen aus der Standorttabelle mit der Geoapify-API. Der Key steht in der Umgebungsvariable GEOAPIFY_KEY. Gib ihn nie aus und schreib ihn in keine Datei. Prüfe jeden Treffer gegen Straße und Stadtteil und schreib alles, was nicht passt, in eine Prüfliste.
+```
+
+Zwei Regeln haben uns am meisten geholfen:
+
+- **API-Keys nur als Umgebungsvariable.** Nie in den Chat, nie in eine Datei, nie in einen Commit. Wer einen Key doch einmal irgendwo eingefügt hat, erneuert ihn beim Anbieter.
+- **Jede Zahl hat eine Quelle.** Eine SQL-Abfrage, ein Prüfskript, ein Link. Was sich nicht belegen lässt, steht nicht im Text.
+
+Zum Nachschauen und Nachbauen:
 
 - **Die Story** mit Karte „Köln bei Nacht“, 24-Stunden-Zeitraffer und Lernkurve: https://datenwgknowledgekitchen.com/koelner-raser-story.html
 - **Der Atlas**: alle 655 Messstellen durchsuchbar, mit Tagesprofil, und ein Klick zeigt die Stelle auf der Karte: https://datenwgknowledgekitchen.com/koelner-raser-story.html#atlas
-- **Daten und Code**: `koeln-raser/` im Repository der Kitchen, von den Rohdaten bis zum HTML reproduzierbar.
+- **Daten und Code**: [`koeln-raser/` auf GitHub](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/koeln-raser), alle Skripte von den Rohdaten bis zum HTML. Die Rohdaten selbst lädst du beim Portal der Stadt.
 
 Daten: Stadt Köln, Offene Daten Köln, „Geschwindigkeitsüberwachung Köln ab 2025“ (Datenlizenz Deutschland Zero 2.0). Karte © OpenStreetMap-Mitwirkende (ODbL). Geocodierung: Geoapify. Titelfoto: Detlef Huhn, CC BY-SA 4.0, via Wikimedia Commons.

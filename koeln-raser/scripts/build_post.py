@@ -24,6 +24,12 @@ EXTRA_CSS = """
 figure { margin:26px 0 30px; }
 figure img { width:100%; max-width:560px; height:auto; display:block; border-radius:var(--radius); box-shadow:var(--shadow-md); }
 figure.wide img { max-width:100%; }
+.prose ol { margin:0 0 20px; padding-left:0; list-style:none; counter-reset:step; max-width:70ch; }
+.prose ol li { position:relative; padding:10px 0 10px 40px; color:var(--ink-soft); border-bottom:1px solid var(--line); counter-increment:step; }
+.prose ol li:last-child { border-bottom:none; }
+.prose ol li::before { content:counter(step); position:absolute; left:0; top:10px; width:26px; height:26px; border-radius:50%; background:var(--black); color:#fff; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; }
+.prose ol li strong { color:var(--ink); font-weight:600; }
+.prose pre { max-width:70ch; margin:0 0 20px; padding:14px 16px; background:var(--black); color:#f1efe8; border-radius:var(--radius); font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:13px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; }
 figure > a { display:block; }
 figcaption, .post-hero figcaption { font-size:12.5px; color:var(--ink-mute); margin-top:8px; }
 .prose table { width:100%; max-width:70ch; border-collapse:collapse; font-size:14px; margin:8px 0 10px; }
@@ -91,6 +97,17 @@ def main():
                 hero = fig.replace("<figure>", '<figure class="post-hero">').replace(' loading="lazy"', "")
             else:
                 body.append(fig)
+        elif ln.startswith("```"):                         # Code-Kasten, z. B. ein Prompt zum Kopieren
+            code, i = [], i + 1
+            while i < len(lines) and not lines[i].startswith("```"):
+                code.append(lines[i]); i += 1
+            body.append(f"<pre><code>{html.escape(chr(10).join(code))}</code></pre>")
+        elif ln.startswith("1. "):                          # Liste beginnt mit 1., sonst wäre „14. August …“ eine
+            items = []
+            while i < len(lines) and re.match(r"\d+\. ", lines[i]):
+                items.append(f"<li>{inline(re.sub(r'^\d+\. ', '', lines[i]))}</li>"); i += 1
+            body.append("<ol>" + "".join(items) + "</ol>")
+            continue
         elif ln.startswith("## "):
             body.append(f"<h2>{inline(ln[3:])}</h2>")
         elif ln.startswith("|"):
