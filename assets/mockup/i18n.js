@@ -299,6 +299,7 @@
 
     toast: {
       newProject: 'Neues Mockup angelegt. Über „Vorlagen" geht es schnell weiter.',
+      gridified: 'Seite ins Raster gestellt: jede Kachel hat jetzt ihr eigenes +, die Achsen bleiben beim Verbinden stehen',
       merged: 'Kacheln verbunden', inserted: 'Kachel eingefügt, Ebene gleich verteilt',
       edgeTooNarrow: 'Nicht eingefügt: Kacheln wären nur {v} px breit (Minimum {min} px, sonst kaum lesbar). Erst Kacheln verbinden oder entfernen.',
       edgeTooLow: 'Nicht eingefügt: Kacheln wären nur {v} px hoch (Minimum {min} px, sonst kaum lesbar). Erst Kacheln verbinden oder entfernen.',
@@ -883,6 +884,7 @@
 
     toast: {
       newProject: 'New mockup started. Templates give you a quick start.',
+      gridified: 'Page turned into a grid: every tile now has its own +, the axes stay put when merging',
       merged: 'Tiles merged', inserted: 'Tile inserted, level distributed evenly',
       edgeTooNarrow: 'Not inserted: tiles would be only {v} px wide (minimum {min} px, otherwise hard to read). Merge or remove tiles first.',
       edgeTooLow: 'Not inserted: tiles would be only {v} px high (minimum {min} px, otherwise hard to read). Merge or remove tiles first.',

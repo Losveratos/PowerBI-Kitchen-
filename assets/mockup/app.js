@@ -1,6 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
 // Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
-window.MK_VERSION = '0.5.3';
+window.MK_VERSION = '0.5.4';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
@@ -395,8 +395,37 @@ window.MK_VERSION = '0.5.3';
     grid.children.splice(grid.children.indexOf(A), 1, merged); grid.children.splice(grid.children.indexOf(B), 1);
     sel = keepNode.type === 'leaf' ? keepNode.id : sel; commit(); toast(t('toast.merged'));
   }
+  // Baum → echtes Raster, pixelgenau (v0.5.4): alle Kacheln der Seite auf gemeinsame Spuren legen (Spurgewicht = Spurbreite in px).
+  // Gibt null zurück, wenn das Raster eine Kachel um mehr als 2 px verschieben würde oder sich Kacheln überdecken.
+  function pageToGrid(pg) {
+    if (!window.MK_PBIR || !window.MK_PBIR.solveRects) return null;
+    const geo = computeAll(pg); const g = Math.round(S.spacing.gutter * ui()); const leaves = geo.leaves; if (leaves.length < 2) return null;
+    const res = window.MK_PBIR.solveRects(leaves.map(l => ({ r: l.rect, node: l.node })), geo.zones.content, g);
+    if (!res || res.dev > 2) return null;   // Bäume legen ihren Pixelrest anders ab als das Raster: höchstens 2 px Versatz beim Umstellen
+    const children = res.cells.map(c => ({ r: c.r, c: c.c, rs: c.rs, cs: c.cs, node: c.tile.node }));
+    const occ = new Set(); let clash = false;
+    children.forEach(c => { for (let r = c.r; r < c.r + c.rs; r++) for (let k = c.c; k < c.c + c.cs; k++) { const key = r + ':' + k; if (occ.has(key)) clash = true; occ.add(key); } });
+    if (clash) return null;
+    for (let r = 0; r < res.rows.length; r++) for (let k = 0; k < res.cols.length; k++) if (!occ.has(r + ':' + k)) children.push({ r, c: k, rs: 1, cs: 1, node: { id: uid(), type: 'leaf', visual: null } });
+    const grid = { id: uid(), type: 'grid', cols: res.cols, rows: res.rows, children };
+    // Gegenprobe: jede Kachel liegt im Raster auf denselben Pixeln wie vorher
+    const out = { leaves: [], gutters: [] }; layoutRects(grid, geo.zones.content, out, g);
+    const was = new Map(leaves.map(l => [l.node.id, l.rect]));
+    const moved = out.leaves.some(l => { const a = was.get(l.node.id); return a && (Math.abs(a.x - l.rect.x) > 2 || Math.abs(a.y - l.rect.y) > 2 || Math.abs(a.w - l.rect.w) > 2 || Math.abs(a.h - l.rect.h) > 2); });
+    return moved ? null : { grid, gutters: out.gutters };
+  }
   function mergeGutter(gi) {
     if (gi.grid) return mergeGridGutter(gi);
+    // Achsen halten (Tester-Feedback 01.10.2026): im verschachtelten Baum verschiebt Verbinden die Nachbarlinien, und über Gruppen
+    // hinweg ging es gar nicht. Deshalb die Seite erst pixelgenau ins Raster überführen und dort die beiden Zellen am „+" verbinden.
+    const pg = page(); const conv = pg.layout.type !== 'grid' ? pageToGrid(pg) : null;
+    if (conv) {
+      const cx = gi.rect.x + gi.rect.w / 2, cy = gi.rect.y + gi.rect.h / 2;
+      const hit = conv.gutters.find(x => x.grid && x.dir === gi.dir && cx >= x.rect.x - 1 && cx <= x.rect.x + x.rect.w + 1 && cy >= x.rect.y - 1 && cy <= x.rect.y + x.rect.h + 1);
+      pg.layout = conv.grid;
+      if (hit) return mergeGridGutter(hit);
+      sel = null; commit(); return toast(t('toast.gridified'));
+    }
     const p = gi.parent, i = gi.index; const A = p.children[i], B = p.children[i + 1]; if (!A || !B) return;
     const isLeaf = c => c.node.type === 'leaf', empty = c => isLeaf(c) && !c.node.visual;
     let keep, drop;
