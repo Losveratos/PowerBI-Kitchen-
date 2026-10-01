@@ -68,6 +68,7 @@ Wichtig fuer die Weiterverwendung: Die datenjournalistischen Arbeiten sind als *
 
 - [llms-full.txt](https://datenwgknowledgekitchen.com/llms-full.txt): Die Publikationen und die kompakteren Guides in einer einzigen Datei zusammengefasst — fuer Agenten, die lieber einmal alles laden als viele Einzeldateien.
 - [Startseite der Kitchen](https://datenwgknowledgekitchen.com/): Uebersicht aller Seiten, auch der interaktiven Werkzeuge und Spiele, die hier bewusst nicht als Markdown vorliegen (Business Chart Builder, IBCS-Trainer, P&L-Treiberbaum, Daten-WG-Spiel, Konferenz-Agenda).
+- [Post: Fabric Alchemie](https://datenwgknowledgekitchen.com/fabric-alchemie-post.html): Lernspiel von Ulrik Harnisch (https://www.linkedin.com/in/ulrik-harnisch/) nach dem Little-Alchemy-Prinzip: aus Daten, Rechenleistung, Speicher und Netzwerk per Drag-and-drop ueber 150 Microsoft-Fabric-Elemente zusammenbauen, jedes mit Link zu Microsoft Learn. Live eingebettet von https://huhar.github.io/FabricAlchemy/ (DE/EN), damit immer die neueste Version laeuft.
 - [Interaktives White Paper Strommix](https://datenwgknowledgekitchen.com/whitepaper-strommix.html): HTML-Fassung mit Reglern, Dispatch-Simulation und Szenario-Vergleich.
 - [Visual Story Strommix](https://datenwgknowledgekitchen.com/strommix-story.html): HTML-Fassung als Scrollytelling.
 - [Rhein-Story](https://datenwgknowledgekitchen.com/rhein-story.html): HTML-Fassung mit animierten Charts in sechs Akten.
