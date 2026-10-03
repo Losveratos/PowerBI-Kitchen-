@@ -27,7 +27,7 @@ Mockup: **Custom-Visual-Testfall** · specVersion 3 (gelesen als v3) · Hash `cu
 
 | Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
 |---|---|---|---|---|---|---|---|---|
-| Projekt & GuV | `Projekt_GuV/` | Liegt das Rollout im Plan und was kostet es? | 1 | 0 | 5 | 0 | 0 | 3 |
+| Projekt & GuV | `Projekt_GuV/` | Liegt das Rollout im Plan und was kostet es? | 1 | 0 | 7 | 0 | 0 | 3 |
 
 ## Offene Punkte aus der Spec (`issues`)
 

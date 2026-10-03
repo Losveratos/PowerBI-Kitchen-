@@ -6,17 +6,22 @@
 
      window.MK_PNG.pageSvg(pageId, opts)   -> String (vollstaendiges <svg>)
      window.MK_PNG.pagePng(pageId, opts)   -> Promise<Blob> (image/png)
+     window.MK_PNG.renderPage(pageId, opts) -> Promise<{blob, w, h, tiles, zones}> (PNG + Lage je Kachel)
      window.MK_PNG.allPagesPng(opts)       -> Promise<[{page, blob, fileName}]>
      window.MK_PNG.download(blob, fileName)
 
    opts = {
-     scale:      2,      // nur pagePng/allPagesPng: Aufloesungsfaktor
+     scale:      2,      // nur pagePng/renderPage/allPagesPng: Aufloesungsfaktor
      background: null,   // Farbe statt Seitenhintergrund; 'transparent' = keiner
      chips:      true,   // Rollen-Chips in der Kachelfusszeile
+     chipSpace:  false,  // Fusszeile als Flaeche behalten, auch wenn chips aus sind (Skizze so gross wie im Tool)
      badges:     false,  // Engine-Badges (PBI/CK/Deneb) oben rechts
      notes:      true,   // Notiz-Symbol, wenn die Kachel eine Notiz hat
+     compare:    false,  // Vergleichsbild fuer den Runner: chips/badges/notes aus, chipSpace an (live.js, Deploy)
      seedBase:   0       // verschiebt die Demo-Daten aller Kacheln
    }
+   renderPage().tiles = { <stableId>: { rect, body, headH, footH } } in Seiten-px (Massstab 1), siehe
+   mockup-live/CONTRACT.md, „Kitchen-Bild". Die Skizzen-Optionen kommen aus MK.sketchOpts (wie der Bildschirm).
 
    Grundsaetze
    - Das SVG ist eigenstaendig: keine externen Fonts (System-Stack), keine
@@ -139,12 +144,15 @@
   }
   function norm(o) {
     o = o || {};
+    // compare: Vergleichsbild für den Runner (Deploy) — ohne Chips, Badges und Notizen, Fußzeile aber als Fläche (chipSpace)
+    var cmp = o.compare === true;
     return {
       scale: o.scale == null ? 2 : Math.max(0.25, Math.min(8, +o.scale || 2)),
       background: o.background == null ? null : o.background,
-      chips: o.chips !== false,
-      badges: o.badges === true,
-      notes: o.notes !== false,
+      chips: cmp ? false : o.chips !== false,
+      chipSpace: cmp || o.chipSpace === true,
+      badges: cmp ? false : o.badges === true,
+      notes: cmp ? false : o.notes !== false,
       seedBase: (+o.seedBase || 0) | 0
     };
   }
@@ -196,7 +204,8 @@
       dark: !!ti.dark,
       palette: d.palette || 'teal',
       pad: Math.round((S.spacing ? S.spacing.pad : 8) * k),
-      cat: (M.catalog && M.catalog.byId) || {}
+      cat: (M.catalog && M.catalog.byId) || {},
+      layout: {}
     };
 
     /* Seitenhintergrund */
@@ -225,7 +234,7 @@
       '<title>' + esc((S.name || 'Mockup') + (p.name ? ' · ' + p.name : '')) + '</title>' +
       defs + body + '</svg>';
 
-    return { svg: svg, page: p, w: W, h: H };
+    return { svg: svg, page: p, w: W, h: H, layout: ctx.layout, zones: z };
   }
 
   /* --------------------------------------------------------- Navigationsleiste */
@@ -442,22 +451,25 @@
     var def = ctx.cat[v.kind] || {};
     var tiny = r.h < 70 * k || r.w < 110 * k;
     var link = v.link ? ctx.S.pages.filter(function (pg) { return pg.id === v.link; })[0] : null;
+    // Chips wie auf dem Bildschirm; o.chips steuert nur das Zeichnen. Mit o.chipSpace (Vergleichsbild) bleibt die Fußzeile
+    // als Fläche stehen, damit die Skizze genau so groß ist wie im Tool (gleiche Beschriftungsschwellen).
     var chips = [];
-    if (o.chips) {
-      (def.roles || []).forEach(function (role) {
-        // Status live wie im Tool (Review B2, B3): fehlt im Modell = rot, passt nicht zum Szenario = gelb
-        var mm = mk().refMismatch ? mk().refMismatch(v) : null;
-        ((v.roles || {})[role.key] || []).forEach(function (fl, fi) {
-          var st = mk().fieldStatus ? mk().fieldStatus(fl) : (fl.isNew ? 'new' : 'model');
-          chips.push({ t: fl.name, kind: st === 'missing' ? 'missing' : (mm && mm.roleKey === role.key && mm.idx === fi ? 'warn' : (st === 'new' ? 'new' : 'plain')) });
-        });
+    (def.roles || []).forEach(function (role) {
+      // Status live wie im Tool (Review B2, B3): fehlt im Modell = rot, passt nicht zum Szenario = gelb
+      var mm = mk().refMismatch ? mk().refMismatch(v) : null;
+      ((v.roles || {})[role.key] || []).forEach(function (fl, fi) {
+        var st = mk().fieldStatus ? mk().fieldStatus(fl) : (fl.isNew ? 'new' : 'model');
+        chips.push({ t: fl.name, kind: st === 'missing' ? 'missing' : (mm && mm.roleKey === role.key && mm.idx === fi ? 'warn' : (st === 'new' ? 'new' : 'plain')) });
       });
-      if (link) chips.push({ t: '↗ ' + link.name, kind: 'link' });
-    }
+    });
+    // Vorgesehene, aber ungebundene Bezüge („PL ?", gestrichelt), wie im Tool
+    if (mk().placeholderChips) mk().placeholderChips(v).forEach(function (pc) { chips.push({ t: pc.t, kind: 'ph' }); });
+    if (link) chips.push({ t: '↗ ' + link.name, kind: 'link' });
     var hasNote = !!(o.notes && v.notes);
     var hasBadge = o.badges && !tiny;
     var headH = (v.title || v.sub) ? (tiny ? 18 : 24) * k : 0;
-    var footH = (chips.length && !tiny) ? 18 * k : 0;
+    var footH = (chips.length && !tiny && (o.chips || o.chipSpace)) ? 18 * k : 0;
+    if (!o.chips) chips = [];
 
     /* Kachelflaeche */
     var out = rc(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1, {
@@ -490,23 +502,35 @@
     var by = r.y + 1 + ip + headH + 2;
     var bottom = r.y + r.h - 1 - ip - footH - 4;
     if (by + bh > bottom) by = Math.max(r.y + 1 + ip + headH, bottom - bh);
-    var sopt = {
-      scenario: mk().sketchScenario ? mk().sketchScenario(v) : (def.plain ? 'AC' : v.scenario), seed: (seedOf(leaf.node.id) + o.seedBase) % 1000,
-      label: v.sub || '', scale: k, lang: ctx.S.lang, content: v.content || '',
-      palette: ctx.palette, ink: ctx.ink, dark: ctx.dark, paper: ctx.tileBg,
-      fontScale: (mk().typo ? mk().typo().scale : 1) * ((v.typo && v.typo.scale) || 1), fonts: { label: mk().typo ? mk().typo().chart : 9 },
-      antiPattern: !!(mk().anti && mk().anti[v.kind]),
-      nativePalette: (ctx.d && ctx.d.nativePalette) || 'neutral'
-    };
-    if (mk().samplesOpt) { try { Object.assign(sopt, mk().samplesOpt(v)); } catch (e) { /* ohne Beispielwerte */ } }
+    // Optionen aus derselben Quelle wie der Bildschirm (MK.sketchOpts): Szenario nach Bindung, Basis, Schrift, Farben, Beispielwerte
+    var sopt;
+    if (mk().sketchOpts) {
+      sopt = mk().sketchOpts(v, leaf.node.id);
+      sopt.seed = ((+sopt.seed || 0) + o.seedBase) % 1000;
+    } else {
+      sopt = {
+        scenario: mk().sketchScenario ? mk().sketchScenario(v) : (def.plain ? 'AC' : v.scenario), seed: (seedOf(leaf.node.id) + o.seedBase) % 1000,
+        label: v.sub || '', scale: k, lang: ctx.S.lang, content: v.content || '',
+        palette: ctx.palette, ink: ctx.ink, dark: ctx.dark, paper: ctx.tileBg,
+        fontScale: (mk().typo ? mk().typo().scale : 1) * ((v.typo && v.typo.scale) || 1), fonts: { label: mk().typo ? mk().typo().chart : 9 },
+        antiPattern: !!(mk().anti && mk().anti[v.kind]),
+        nativePalette: (ctx.d && ctx.d.nativePalette) || 'neutral'
+      };
+      if (mk().samplesOpt) { try { Object.assign(sopt, mk().samplesOpt(v)); } catch (e) { /* ohne Beispielwerte */ } }
+    }
     try {
       var an = mk().analysisOf ? mk().analysisOf(v) : null;
       if (an) {
-        sopt.polarity = an.polarity; sopt.deltaBasis = an.deltaBasis; sopt.unit = an.unit; sopt.small = !!an.smallMultiples;
-        sopt.variance = { abs: (an.deltaKind || []).indexOf('abs') >= 0, rel: (an.deltaKind || []).indexOf('rel') >= 0 };
+        sopt.small = !!an.smallMultiples;
+        if (!mk().sketchOpts) {
+          sopt.polarity = an.polarity; sopt.deltaBasis = an.deltaBasis; sopt.unit = an.unit;
+          sopt.variance = { abs: (an.deltaKind || []).indexOf('abs') >= 0, rel: (an.deltaKind || []).indexOf('rel') >= 0 };
+        }
       }
     } catch (e) { /* Analyse optional */ }
     out += sketchAt(def.sketch || v.kind, bx, by, bw, bh, sopt, P);
+    // Lage je Kachel für tiles.json (Vergleich Kitchen gegen Desktop, mockup-live/CONTRACT.md)
+    if (ctx.layout) ctx.layout[leaf.node.id] = { rect: { x: r.x, y: r.y, w: r.w, h: r.h }, body: { x: nm(bx), y: nm(by), w: nm(bw), h: nm(bh) }, headH: nm(headH), footH: nm(footH) };
 
     /* Fusszeile mit Rollen-Chips */
     if (footH) {
@@ -518,12 +542,13 @@
         if (cx2 + w2 > limit) return;
         out += rc(cx2, cy2 - ch / 2, w2, ch, c2.kind === 'new'
           ? { r: 3 * k, fill: '#FFFFFF', stroke: ctx.accent, sw: 1, dash: nm(2.5 * k) + ' ' + nm(2 * k) }
+          : c2.kind === 'ph' ? { r: 3 * k, fill: ctx.dark ? '#1E2733' : '#FFFFFF', stroke: '#8A919C', sw: 1, dash: nm(2.5 * k) + ' ' + nm(2 * k) }
           : c2.kind === 'missing' ? { r: 3 * k, fill: '#FDECEA', stroke: '#B8392F', sw: 1 }
           : c2.kind === 'warn' ? { r: 3 * k, fill: '#FFF7E6', stroke: '#B7791F', sw: 1, dash: nm(2.5 * k) + ' ' + nm(2 * k) }
           : { r: 3 * k, fill: c2.kind === 'link' ? (ctx.dark ? '#28405E' : '#E3ECFA') : (ctx.dark ? '#2A3646' : '#F1F0EA') });
         out += tx(cx2 + 5 * k, cy2 + cfs * MID, c2.t, {
           size: cfs, mono: true,
-          fill: c2.kind === 'new' ? ctx.accent : c2.kind === 'missing' ? '#B8392F' : c2.kind === 'warn' ? '#7A4B00' : (c2.kind === 'link' ? (ctx.dark ? '#9CC0F5' : '#1F5FBF') : (ctx.dark ? '#C9D1DB' : '#475569'))
+          fill: c2.kind === 'new' ? ctx.accent : c2.kind === 'ph' ? (ctx.dark ? '#AEB6C0' : '#6B7280') : c2.kind === 'missing' ? '#B8392F' : c2.kind === 'warn' ? '#7A4B00' : (c2.kind === 'link' ? (ctx.dark ? '#9CC0F5' : '#1F5FBF') : (ctx.dark ? '#C9D1DB' : '#475569'))
         });
         cx2 += w2 + 3 * k;
       });
@@ -588,6 +613,19 @@
     return svgToPng(r.svg, w, h);
   }
 
+  /* Seite als PNG plus Lage der Kacheln (für den Bildvergleich beim Deploy, live.js → mockup/kitchen/<seq>/).
+     -> Promise<{ blob, w, h, tiles: { <stableId>: { rect, body, headH, footH } }, zones }>
+     Rechtecke in Seiten-px (Massstab 1 der PBIR-Seite), unabhaengig von opts.scale. */
+  function renderPage(pageId, opts) {
+    var o = norm(opts);
+    var M = mk(), S = M.state;
+    var w = Math.round(S.canvas.w * o.scale), h = Math.round(S.canvas.h * o.scale);
+    var r = build(pageId, opts, w, h);
+    return svgToPng(r.svg, w, h).then(function (blob) {
+      return { blob: blob, w: w, h: h, page: r.page, tiles: r.layout, zones: r.zones };
+    });
+  }
+
   function allPagesPng(opts) {
     var M = mk(), pages = M.state.pages.slice();
     var out = [];
@@ -615,6 +653,7 @@
   root.MK_PNG = {
     pageSvg: pageSvg,
     pagePng: pagePng,
+    renderPage: renderPage,
     allPagesPng: allPagesPng,
     download: download,
     // Zusatz, praktisch fuer Tests und Vorschauen

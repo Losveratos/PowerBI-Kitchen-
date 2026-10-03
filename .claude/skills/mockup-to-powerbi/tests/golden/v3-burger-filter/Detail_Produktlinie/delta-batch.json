@@ -8,16 +8,16 @@
       "id": "move-mk_slicer_Year_p2",
       "op": "move",
       "select": "Detail Produktlinie.Page/mk_slicer_Year_p2.Visual",
-      "x": 1088,
-      "y": 96,
+      "x": 1090,
+      "y": 92,
       "continue_on_error": true
     },
     {
       "id": "resize-mk_slicer_Year_p2",
       "op": "resize",
       "select": "Detail Produktlinie.Page/mk_slicer_Year_p2.Visual",
-      "width": 184,
-      "height": 56,
+      "width": 180,
+      "height": 76,
       "continue_on_error": true
     },
     {
@@ -42,16 +42,16 @@
       "id": "move-mk_slicer_Region_p2",
       "op": "move",
       "select": "Detail Produktlinie.Page/mk_slicer_Region_p2.Visual",
-      "x": 1088,
-      "y": 160,
+      "x": 1090,
+      "y": 175,
       "continue_on_error": true
     },
     {
       "id": "resize-mk_slicer_Region_p2",
       "op": "resize",
       "select": "Detail Produktlinie.Page/mk_slicer_Region_p2.Visual",
-      "width": 184,
-      "height": 56,
+      "width": 180,
+      "height": 76,
       "continue_on_error": true
     },
     {
@@ -125,86 +125,86 @@
       "op": "move",
       "select": "Detail Produktlinie.Page/chrome_burger.Visual",
       "x": 16,
-      "y": 14,
+      "y": 12,
       "continue_on_error": true
     },
     {
       "id": "resize-chrome_burger",
       "op": "resize",
       "select": "Detail Produktlinie.Page/chrome_burger.Visual",
-      "width": 84,
-      "height": 28,
+      "width": 32,
+      "height": 32,
       "continue_on_error": true
     },
     {
       "id": "move-chrome_logo",
       "op": "move",
       "select": "Detail Produktlinie.Page/chrome_logo.Visual",
-      "x": 1144,
-      "y": 12,
+      "x": 1176,
+      "y": 13,
       "continue_on_error": true
     },
     {
       "id": "resize-chrome_logo",
       "op": "resize",
       "select": "Detail Produktlinie.Page/chrome_logo.Visual",
-      "width": 120,
-      "height": 32,
+      "width": 88,
+      "height": 30,
       "continue_on_error": true
     },
     {
       "id": "move-chrome_nav_1",
       "op": "move",
       "select": "Detail Produktlinie.Page/chrome_nav_1.Visual",
-      "x": 896,
-      "y": 12,
+      "x": 917,
+      "y": 13,
       "continue_on_error": true
     },
     {
       "id": "resize-chrome_nav_1",
       "op": "resize",
       "select": "Detail Produktlinie.Page/chrome_nav_1.Visual",
-      "width": 112,
-      "height": 32,
+      "width": 86,
+      "height": 29,
       "continue_on_error": true
     },
     {
       "id": "move-chrome_nav_2",
       "op": "move",
       "select": "Detail Produktlinie.Page/chrome_nav_2.Visual",
-      "x": 1016,
-      "y": 12,
+      "x": 1009,
+      "y": 13,
       "continue_on_error": true
     },
     {
       "id": "resize-chrome_nav_2",
       "op": "resize",
       "select": "Detail Produktlinie.Page/chrome_nav_2.Visual",
-      "width": 112,
-      "height": 32,
+      "width": 153,
+      "height": 29,
       "continue_on_error": true
     },
     {
       "id": "move-chrome_header_title",
       "op": "move",
       "select": "Detail Produktlinie.Page/chrome_header_title.Visual",
-      "x": 112,
-      "y": 6,
+      "x": 62,
+      "y": 7,
       "continue_on_error": true
     },
     {
       "id": "resize-chrome_header_title",
       "op": "resize",
       "select": "Detail Produktlinie.Page/chrome_header_title.Visual",
-      "width": 768,
-      "height": 26,
+      "width": 841,
+      "height": 25,
       "continue_on_error": true
     },
     {
       "id": "move-chrome_header_subtitle",
       "op": "move",
       "select": "Detail Produktlinie.Page/chrome_header_subtitle.Visual",
-      "x": 112,
+      "x": 62,
       "y": 32,
       "continue_on_error": true
     },
@@ -212,8 +212,8 @@
       "id": "resize-chrome_header_subtitle",
       "op": "resize",
       "select": "Detail Produktlinie.Page/chrome_header_subtitle.Visual",
-      "width": 768,
-      "height": 18,
+      "width": 841,
+      "height": 16,
       "continue_on_error": true
     },
     {
@@ -236,16 +236,16 @@
       "id": "move-chrome_filter_title",
       "op": "move",
       "select": "Detail Produktlinie.Page/chrome_filter_title.Visual",
-      "x": 1088,
-      "y": 64,
+      "x": 1090,
+      "y": 68,
       "continue_on_error": true
     },
     {
       "id": "resize-chrome_filter_title",
       "op": "resize",
       "select": "Detail Produktlinie.Page/chrome_filter_title.Visual",
-      "width": 184,
-      "height": 24,
+      "width": 148,
+      "height": 16,
       "continue_on_error": true
     },
     {
@@ -265,11 +265,43 @@
       "continue_on_error": true
     },
     {
+      "id": "move-chrome_footer_bg",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_footer_bg.Visual",
+      "x": 0,
+      "y": 696,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_bg",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_footer_bg.Visual",
+      "width": 1280,
+      "height": 24,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_rule",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_footer_rule.Visual",
+      "x": 0,
+      "y": 696,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_rule",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_footer_rule.Visual",
+      "width": 1280,
+      "height": 1,
+      "continue_on_error": true
+    },
+    {
       "id": "move-chrome_footer_text",
       "op": "move",
       "select": "Detail Produktlinie.Page/chrome_footer_text.Visual",
       "x": 16,
-      "y": 696,
+      "y": 697,
       "continue_on_error": true
     },
     {
@@ -277,7 +309,7 @@
       "op": "resize",
       "select": "Detail Produktlinie.Page/chrome_footer_text.Visual",
       "width": 1248,
-      "height": 24,
+      "height": 23,
       "continue_on_error": true
     }
   ]

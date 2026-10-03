@@ -30,9 +30,47 @@ landet im Container-Titel, nicht im Text.
 Nachträglich Text setzen geht nur bei `shape` und `actionButton`:
 
 ```bash
-pbir set "<Report>.Report/<Seite>.Page/chrome_footer_text.Visual.text.text" \
+pbir set "<Report>.Report/<Seite>.Page/chrome_footer_text.Visual.text.show" --value true
+pbir set "<Report>.Report/<Seite>.Page/chrome_footer_text.Visual.text.default.text" \
   --value "Stand: 18.09.2026 · Quelle: DWH"
+pbir set "<Report>.Report/<Seite>.Page/chrome_footer_text.Visual.text.default.fontColor" \
+  --value "#6B7280"
 ```
+
+**Text-Formatierung nur im Zustand `default`.** Power BI Desktop liest bei
+`shape` und `actionButton` alle Text-Eigenschaften (`text`, `fontSize`,
+`fontColor`, `fontFamily`, `bold`, `italic`, `horizontalAlignment`,
+`verticalAlignment`, `leftMargin` … `bottomMargin`) nur aus dem Eintrag mit
+`"selector": {"id": "default"}`; ohne Selektor wirkt allein `show`. Verifiziert im
+Live-Lauf 02.10.2026: ohne Zustand stand im Kopfband kein Text, mit `text` und
+`fontSize` im Zustand war er da, aber mittig, hellgrau und klein, solange
+Ausrichtung, Farbe, Fett und Ränder ohne Selektor lagen. `pbir set
+"<Visual>.text.default.<prop>"` und dieselben Schlüssel in `pbir batch` schreiben
+den Selektor. Bei `actionButton` gilt das auch für `shape.tileShape` und
+`shape.rectangleRoundedCurve` (`shape.default.*`, so speichert Desktop Buttons);
+`fill.fillColor` und `outline.*` legt `pbir` von sich aus unter `default` ab.
+Der Skill schreibt die Schlüssel so in `chrome-batch.json` und
+`chrome-commands.sh/.ps1` (`state_key()` in `mockup_to_pbir.py`).
+
+Zielform in der `visual.json` (wie Desktop sie speichert):
+
+```json
+"text": [
+  { "properties": { "show": true } },
+  { "properties": { "text": "…", "fontSize": 19, "fontColor": "…", "bold": true,
+                    "horizontalAlignment": "left", "verticalAlignment": "middle",
+                    "leftMargin": 0, "rightMargin": 0, "topMargin": 0, "bottomMargin": 0 },
+    "selector": { "id": "default" } }
+]
+```
+
+**`text.show = true` ist Pflicht.** Der Schalter steht bei `shape` und
+`actionButton` standardmäßig auf aus (`pbir schema describe shape text` nennt
+`show`). Ohne ihn steht der Text in `objects.text`, ist aber unsichtbar — so
+fehlten im Deploy 4 Kopfband-Titel, Untertitel und Fußleistentext auf allen
+Seiten (`mockup-live/AUDIT-DEPLOY4.md`). Der Skill setzt ihn bei jedem Chrome-Text,
+jedem Nav-Button und jeder Text-/Button-Kachel. Die Textränder stehen auf 0, die
+Position ist schon die Textposition aus dem Kitchen.
 
 Bei `textbox` müsste dafür `general.paragraphs` ein Array aus Absätzen mit
 `textRuns` sein. `pbir set …general.paragraphs --value "Text"` schreibt
@@ -96,7 +134,7 @@ pbir set "<Seite>.Page/<id>.Visual.background.color" --value "#FFFFFF"
 pbir set "<Seite>.Page/<id>.Visual.background.transparency" --value 0
 # tileStyle = border
 pbir set "<Seite>.Page/<id>.Visual.border.show"   --value true
-pbir set "<Seite>.Page/<id>.Visual.border.color"  --value "#E5E7EB"
+pbir set "<Seite>.Page/<id>.Visual.border.color"  --value "#E1DFD6"   # Kitchen .tile
 pbir set "<Seite>.Page/<id>.Visual.border.width"  --value 1
 pbir set "<Seite>.Page/<id>.Visual.dropShadow.show" --value false
 # tileStyle = shadow: border.show=false, dropShadow.show=true,
@@ -123,8 +161,38 @@ Ab Tool 0.4 kommen Fläche und Schrift **immer** aus `design.colors`
 die Spec sie nicht mitliefert. `Ink` ist `design.colors.ink` (Vorgabe
 `#0F1E2E`), per `--ink` überschreibbar.
 
-Schriftgrößen werden mit `design.fontScale` (= `canvas.uiScale`) multipliziert und
-auf 6–45 pt begrenzt — außerhalb lehnt `pbir set` ab.
+**Chrome-Farben** kommen aus `design.colors` (`panel`, `rule`, `tileBorder`,
+`muted`, `slicerBorder`, `slicerBackground`, `slicerInk`, `footerNavInk`,
+`footerBackground`), sonst aus dem Kitchen-CSS (`mockup-kitchen.html`):
+
+| Schlüssel | Kitchen-Vorgabe | wofür |
+|---|---|---|
+| `panel` | `#ECEBE5` | Fläche des Filterbereichs |
+| `rule` | `#E3E1D8` | Linie unter dem hellen Kopfband, am Filterbereich, über der Fußleiste |
+| `tileBorder` | `#E1DFD6` | Kachelrahmen (`tileStyle: border`) |
+| `muted` | `#6B7280` | Fußleistentext, Filter-Überschrift und -Hinweis |
+| `slicerBorder` / `slicerBackground` / `slicerInk` | `#D9D6CC` / `#FFFFFF` / `#374151` | Slicer-Kasten |
+| `footerNavInk` | `#475569` | inaktive Nav-Pillen in der Fußleiste |
+
+Die CLI-Flags `--panel`, `--rule`, `--tile-border`, `--muted` gewinnen vor beidem.
+
+**Schriftgrößen im Chrome: pt = Kitchen-px × k × 0,75**, auf 0,5 pt gerundet und
+auf 6–45 pt begrenzt (außerhalb lehnt `pbir set` ab) — dieselbe Regel wie für die
+Kacheltitel. `k` ist `design.fontScale` (= `canvas.uiScale`). Bis 01.10.2026 galt
+„Basis × k" in pt; das war rund ein Drittel zu groß (`mockup-live/FIDELITY.md`,
+Lücke 10).
+
+| Text | Kitchen-px | bei k = 1,5 |
+|---|---|---|
+| Kopfband-Titel (fett) | 17 | 19 pt |
+| Kopfband-Untertitel (70 % Deckkraft → Mischfarbe) | 11 | 12,5 pt |
+| Nav-Pillen im Kopfband | 11,5 | 13 pt |
+| Logo-Platzhalter | 10 | 11,5 pt |
+| Filter-Überschrift (Versalien, grau, fett wie `h4`) | 11 | 12,5 pt |
+| Filter-Hinweis | 9,5 | 10,5 pt |
+| Slicer-Kopf und -Einträge | 10,5 | 12 pt |
+| Fußleistentext | 10 | 11,5 pt |
+| Nav-Pillen in der Fußleiste | 9,5 | 10,5 pt |
 
 ## Aufbau je Zone
 
@@ -137,12 +205,12 @@ der Spec, die Elemente darin werden relativ dazu gesetzt.
 | Element | Name | Geometrie | Befehle |
 |---|---|---|---|
 | Fläche | `chrome_header_bg` | Zone 1:1 | `shape.tileShape=rectangle`, `fill.show=true`, `fill.fillColor` je `headerStyle`, `outline.show=false`, `--z 0` |
-| Unterkante | `chrome_header_rule` | `x`, `y+h-1`, `w`, 1 px — nur bei `headerStyle: light` | `fill.fillColor=<Rahmenfarbe>`, `--z 1` |
-| Burger | `chrome_burger` | links im Band, 84×28 — nur bei `header.burger` bzw. Filter-Modus `burger` | `fill.fillColor=<Akzent>`, `text.text="☰ Filter"`, Aktion `--type Bookmark --target "Filter öffnen · <Seite>"`, `--z 5` |
-| Logo | `chrome_logo` | `logoPos: left` → hinter Burger/Rand; `right` → `x+w-16-120`; vertikal zentriert, 120×32 | Platzhalter-Shape mit Kontur und Text `LOGO`; ersetzen durch `pbir add visual image "<Seite>.Page" -n chrome_logo -x … --image "<Pfad|URL|Table.Measure>"` |
-| Titel | `chrome_header_title` | hinter Burger/Logo, Breite bis vor die Nav-Buttons | `fill.show=false`, `outline.show=false`, `text.text=<title>`, `fontSize 16·fontScale`, `bold`, `fontColor` je `headerStyle`, `verticalAlignment=middle`, `--z 4` |
-| Untertitel | `chrome_header_subtitle` | unter dem Titel, nur wenn das Band ≥ 48 px hoch ist | wie Titel, `fontSize 10·fontScale`, gedämpfte Farbe |
-| Nav-Buttons | `chrome_nav_1…n` | rechtsbündig, je 112×32, Lücke 8 (alle skaliert) — **nur wenn `header.navOn` nicht `false` ist** | **inaktiv:** `fill.show=false`, `text.fontColor=<Kopfbandschrift>`, `pbir visuals action … --type PageNavigation --target "<Seite>"`; **aktive Seite:** `fill.fillColor=<Akzent>`, weiße Schrift, **keine** Aktion; `--z 5` |
+| Unterkante | `chrome_header_rule` | `x`, `y+h-1`, `w`, 1 px — nur bei hellem Kopfband | `fill.fillColor=<rule>`, `--z 1` |
+| Burger | `chrome_burger` | Rand 16 px, 32×32 (× k), senkrecht mittig — nur bei `header.burger` bzw. Filter-Modus `burger` | ohne Füllung, Umriss in Kopfbandschrift mit 70 % (dunkel 60 %) Transparenz, Radius 4, `text.default.text="☰"`, Aktion `--type Bookmark --target "Filter öffnen · <Seite>"` (navigation.md), `--z 5` |
+| Logo | `chrome_logo` | `logoPos: left` → hinter Burger + 14 px; `right` → `x+w-16-88`; senkrecht mittig, 88×30 | Platzhalter-Shape mit Umriss (Kitchen: gestrichelt, das kann Power BI nicht) und Text `LOGO`; ersetzen durch `pbir add visual image "<Seite>.Page" -n chrome_logo -x … --image "<Pfad|URL|Table.Measure>"` |
+| Titel | `chrome_header_title` | hinter Burger/Logo + 14 px, Breite bis vor die Nav-Pillen; mit Untertitel beide als Block senkrecht mittig (Zeilenhöhe 1,45) | `text.show=true`, `fill.show=false`, `outline.show=false`, `text.default.text=<title>` (alle Text-Eigenschaften in `text.default.*`), 17 px → pt, `bold`, Farbe je `headerStyle`, Ränder 0, `--z 4` |
+| Untertitel | `chrome_header_subtitle` | direkt unter dem Titel, nur wenn das Band hoch genug ist | wie Titel, 11 px → pt, Kopfbandschrift zu 70 % gemischt |
+| Nav-Pillen | `chrome_nav_1…n` | rechtsbündig, Breite nach Text (11,5 px, Polster 12 px), Höhe ≈ 29 × k, Lücke 6 — **nur wenn `header.navOn` nicht `false` ist** | **inaktiv:** keine Füllung, Umriss in Kopfbandschrift (Transparenz 70 bzw. 65), Radius 4, `PageNavigation`; **aktive Seite:** Akzent (im Akzent-Kopfband Ink), weiße Schrift, **keine** Aktion; `--z 5` |
 
 **`header.navOn: false`** (ab Tool 0.4.1): das Kopfband bekommt **keine**
 Seitennavigation. Es entsteht kein einziges `chrome_nav_*` und keine
@@ -168,11 +236,21 @@ Fläche in Ink. Das Kopfband behält Titel und Untertitel.
 
 | Element | Name | Geometrie |
 |---|---|---|
-| Fläche | `chrome_filter_bg` | Zone 1:1, `fill.fillColor` eine Stufe heller/dunkler als der Seitenhintergrund |
-| Überschrift | `chrome_filter_title` | seitliches Panel: `x+8`, `y+8`, `w-16`, 24 px · Leiste oben: `x+8`, `y`, 56 px breit, volle Höhe. Text „Filter", 11 pt, fett |
-| Hinweistext | `chrome_filter_text` | nur mit `zones.filter.text` (Tool 0.4.4): unter der Überschrift, `w-16`, Höhe nach Zeilen; Leiste oben rechts neben der Überschrift, höchstens 220 px. 9,5 pt, grau, oben bündig |
-| Schließen | `chrome_filter_close` | `x+w-36`, `y+8`, 28×24, Text `✕` — nur bei `collapsible` oder Overlay |
-| Slicer | v3 `mk_slicer_<Feld>_p<Seite>`, v2 `p<Seite>_slicer<i>_<Feld>`, v1 `slicer<i>_<Feld>` | seitlich gestapelt `x+8k`, `y+40k+i·64k`, `w-16k`, `56k` · oben nebeneinander `x+8k+i·168k`, `y+8k`, `160k`, `h-16k` — stehen bereits in `pbir-visuals.json` |
+| Fläche | `chrome_filter_bg` | Zone 1:1, `fill.fillColor` = `panel` (Kitchen `#ECEBE5`) |
+| Kante | `chrome_filter_rule` | 1 px in `rule` zur Inhaltsseite (rechts: linke Kante, links: rechte Kante, oben: Unterkante) — nicht beim Overlay |
+| Überschrift | `chrome_filter_title` | seitliches Panel: `x+10k`, `y+12k`, `w-20k`, 16k · Leiste oben: `x+16k`, volle Höhe, Breite nach Text. Text in **Versalien**, 11 px → pt, `muted`, fett (Kitchen `h4`) |
+| Hinweistext | `chrome_filter_text` | nur mit `zones.filter.text` (Tool 0.4.4): 8k unter der Überschrift, `w-20k`, Höhe nach Zeilen (Zeile 1,35); Leiste oben rechts daneben, höchstens 220 px. 9,5 px → pt, `muted`, oben bündig |
+| Schließen | `chrome_filter_close` | `x+w-36`, `y+8`, 28×24, Text `✕` in `muted` — nur bei `collapsible` oder Overlay |
+| Slicer | v3 `mk_slicer_<Feld>_p<Seite>`, v2 `p<Seite>_slicer<i>_<Feld>`, v1 `slicer<i>_<Feld>` | seitlich gestapelt ab 8k unter Überschrift/Hinweis, `x+10k`, `w-20k`, Abstand 7k; Höhe Dropdown & Co. (27 + 25) × k, **mindestens 76 px**, Liste/Suche 94k, Kacheln/Button-Slicer 64k · oben nebeneinander 160k breit, Abstand 8k, senkrecht mittig — stehen bereits in `pbir-visuals.json` |
+
+**Slicer-Optik** (`chrome-batch.json`): Container-Titel **aus** und Slicer-Kopf
+**an** (`header.show`), damit der Feldname genau einmal dasteht (Deploy 4 zeigte
+ihn doppelt); Kitchen-Kasten mit `background.color=slicerBackground`,
+`border.color=slicerBorder`, Radius 4 × k; `header.textSize`/`items.textSize`
+10,5 px → pt in `slicerInk`. Beim Button-Slicer (`advancedSlicerVisual`) nur der
+Container. Unter 76 px meldet `pbir validate --qa` `SLICER_HEIGHT_BELOW_FLOOR`
+(„the header or selector will clip", am Testbed geprüft) — deshalb die Untergrenze,
+auch wenn der Kitchen-Kasten flacher ist.
 
 Ab Tool 0.4.4 steht der Überschriftstext in `zones.filter.heading` (`null` =
 keine Überschrift, dann kein `chrome_filter_title`); die Slicer rücken unter
@@ -186,7 +264,7 @@ Die Modi im Einzelnen:
 |---|---|---|
 | `right` / `left` | feste Spalte, Inhalt wird schmaler | `0` / `10` |
 | `top` | feste Leiste unter dem Kopfband, Slicer nebeneinander | `0` / `10` |
-| `burger` | Panel liegt **über** dem Inhalt (`overlay: true`), Burger-Button im Kopfband | `20` / `24` |
+| `burger` | Panel liegt **über** dem Inhalt (`overlay: true`), Burger-Button im Kopfband; Panel, Überschrift, Hinweis, Schließen-Button und Slicer werden **ausgeblendet angelegt** (`pbir visuals hide` in `analysis-commands.sh`, `pbir batch` kennt kein `isHidden`) | `20` / `24` |
 
 #### Lesezeichen-Rezept (bei `burger` und bei `collapsible: true`)
 
@@ -214,14 +292,18 @@ erst, wenn das Lesezeichen in Desktop einmal aktualisiert wird
 
 ### Fußleiste (`zones.footer`)
 
-Ein `shape` ohne Füllung über die Zone, `x+16`, `w-32`, Text aus `footer.text`,
-9 pt, gedämpftes Grau, `verticalAlignment=middle`.
+Wie im Kitchen (`.zone.footer`): Band `chrome_footer_bg` über die Zone
+(Fläche `footerBackground`, sonst Seitenhintergrund — das Kitchen-Band ist
+transparent), Linie `chrome_footer_rule` 1 px in `rule` an der Oberkante und
+`chrome_footer_text`: Shape ohne Füllung, `x+16k`, Text aus `footer.text`,
+10 px → pt, `muted`, `text.show=true`, senkrecht mittig.
 
 **Seitennavigation in der Fußleiste** (Tool 0.4.3, `navPosition: "footer"`,
 Liste in `zones.footer.nav`): `actionButton`s `chrome_nav_<i>` rechtsbündig
-(Rand 16 × k, Abstand 5 × k, Höhe ≤ 20 × k, Breite nach Text), Schrift
-9,5 × k — kleiner als im Kopfband. Aktive Seite: Akzentfüllung, keine Aktion;
-die anderen: Rahmen (`outline.show/lineColor/weight`) und `PageNavigation`.
+(Rand 16 × k, Abstand 5 × k, Höhe ≈ 22 × k, Breite nach Text), Schrift
+9,5 px → pt — kleiner als im Kopfband. Aktive Seite: Akzentfüllung, keine Aktion;
+die anderen: Umriss in Ink mit 70 % Transparenz, Radius 3, Schrift
+`footerNavInk`, `PageNavigation`.
 Der Fußzeilentext wird entsprechend schmaler. Das Kopfband bekommt dann keine
 Nav-Buttons.
 
@@ -246,7 +328,7 @@ Je Seite:
 Erst wenn **alle** Seiten stehen: Nav-Ziele, Drill-through und Lesezeichen
 (`navigation.md`) — vorher existieren die Zielseiten nicht.
 
-Vergebene Ebenen: Chrome-Flächen `0` (Kopfband-Unterkante `1`), Chrome-Texte `4`,
+Vergebene Ebenen: Chrome-Flächen `0` (Linien `1`), Chrome-Texte `4`,
 Buttons `5`, Inhalt `10`, Overlay-Filterpanel `20`, dessen Text `22`, dessen
 Slicer und Schließen-Button `24`.
 
@@ -326,6 +408,23 @@ Visuals, die es noch nicht gibt, melden schlicht `targets=0`.
 } } } }
 ```
 
+Dazu die Seite und ihre Umgebung (ab 02.10.2026):
+
+```json
+"page": { "*": {
+  "outspace":   [{ "color": { "solid": { "color": "#EAE8E1" } }, "transparency": 0 }],
+  "background": [{ "color": { "solid": { "color": "<design.pageBackground>" } }, "transparency": 0 }]
+} }
+```
+
+Ohne `outspace` leitet Desktop die Fläche um die Seite aus der dunklen
+Vordergrundfarbe ab (Live-Lauf: dunkelblauer Rand). Farbe ist die Bühne des
+Kitchens `#EAE8E1`; `design.stageBackground` (oder `design.colors.stage`)
+überschreibt sie, im dunklen Modus wird der Seitenhintergrund um 35 % abgedunkelt.
+Einzeln setzbar mit `pbir theme set-formatting "<Report>" "page.*.outspace.color"
+--value "#EAE8E1"` und `"page.*.outspace.transparency" --value 0` (schreibt nur die
+Theme-Datei).
+
 Wer ein Theme pflegt, merged das Fragment dorthin (Skill
 `reports:modifying-theme-json` bzw. `powerbi-design-framework`) und lässt die
 `background`/`border`/`dropShadow`-Schritte in `chrome-batch.json` weg — dann
@@ -333,7 +432,38 @@ steht die Gestaltung an **einer** Stelle statt an jedem Visual. Per Visual nur
 noch Ausnahmen. Seitenhintergrund und Akzentfarbe bleiben außerhalb des
 Fragments (Seiten-Objekt bzw. Nav-Buttons).
 
+## Native Visuals in Kitchen-Optik
+
+`chrome-batch.json` setzt je nativem Visual (auch dem ChartKitchen-Ersatz aus
+`--ck-fallback`), was die Kitchen-Skizze zeigt. Die Objekte je Typ sind mit
+`pbir schema describe <typ> <objekt>` geprüft, die Selektor-Syntax
+`dataPoint.field(<Tabelle.Kennzahl>).fill` mit `pbir batch` am Testbed
+(`selector.metadata` = queryRef der Kennzahl):
+
+| Kitchen | Power BI |
+|---|---|
+| IBCS-Skizze: keine Legende, keine Wertachse, kein Gitter | `legend.show=false`, `valueAxis.show=false`, `valueAxis.gridlineShow=false` |
+| Werte an den Datenpunkten | `labels.show` (aus `display.drawn.labels`, sonst an), `labels.color`, `labels.fontSize` = Diagrammschrift in pt |
+| AC dunkel, PY grau, PL weiß mit Umriss | `dataPoint.field(<AC>).fill=#404040`, `…(<PY>).fill=#B3B3B3`, `…(<PL>).fill=#FFFFFF` + `borderShow/borderColor/borderSize` (Linien: PL grau) — Szenario nach Feldname wie bei ChartKitchen |
+| Wasserfall gut/schlecht | `sentimentColors.increaseFill/decreaseFill/totalFill` (Polarität dreht) |
+| Einheiten/Stellen | `labels.show=true` + `labelDisplayUnits`/`labelPrecision` (sonst unsichtbar) |
+| Power-BI-Klassiker (`ncolumn`, `nbar`, `nline`, …) | Legende bleibt, `valueAxis.gridlineStyle=dotted`, Kennzahlfarben aus `design.nativePalette` (nicht bei `pbi`) |
+| Kachel ohne Kopf (`title` leer bzw. `titleShown: false`) | `title.show=false`, Titeltext bleibt für den Auswahlbereich |
+
+Kennzahlen, die als **Spalte** gebunden sind, bekommen keine Farbe (pbir
+projiziert sie als `Sum(...)`, der Selektor dafür ist ungeprüft).
+
 ## Fallstricke
+
+- **`--from-json` liest die Datei als cp1252.** Eine UTF-8-Datei mit „Fußleiste"
+  kommt als „FuÃŸleiste" an (am Testbed nachgestellt), eine BOM lehnt pbir ab.
+  Der Skill schreibt `chrome-visuals.json`, `pbir-visuals.json` und
+  `text-visuals.json` deshalb mit `\u`-Escapes (reines ASCII). Wer selbst eine
+  `--from-json`-Datei erzeugt: `json.dump(..., ensure_ascii=True)`.
+  `pbir batch` liest UTF-8 korrekt.
+- **`pbir visuals labels --labelDisplayUnits`** bricht in 0.9.32 ab („Expected
+  integer, got str", auch mit `1000000`). `pbir set "<Visual>.labels.labelDisplayUnits"
+  --value 1000000` funktioniert — so steht es in `analysis-commands.sh`.
 
 - **`shape.tileShape` heißt `rectangleRounded`**, nicht `roundedRectangle`.
   Der falsche Name wird abgelehnt (`Validation error: … not in [...]`) und reißt

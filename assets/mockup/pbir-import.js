@@ -5,10 +5,13 @@
    MK_PBIR.fromDefinition(def)  rein: { name?, pagesOrder:[…], pages:[{ folder, page:<page.json>, visuals:[{ folder, visual:<visual.json> }] }] } → Ergebnis
    MK_PBIR.applyTo(MK, res)     übernimmt ein Ergebnis in den Kitchen-Zustand (Leinwand, Abstände, Rahmen, Seiten) über die öffentliche MK-API
 
-   Ergebnis: { pages, warnings, canvas, spacing, chrome, skipped, stats }
+   Ergebnis: { pages, warnings, canvas, spacing, chrome, design, skipped, stats }
      pages    genau im Format von S.pages (app.js): { id, name, notes, question, layout, pbir:{ page } }, jede Kachel mit visual.pbir = { page, visual, type }
      canvas / spacing / chrome   berichtsweite Einstellungen, ohne die die Rechtecke nicht exakt nachgerechnet werden (Leinwand, Rand und
               Zwischenraum sowie Kopf-, Navigations-, Filter- und Fußzone gelten im Kitchen für alle Seiten)
+     design   Gestaltung des Berichts (B2): { pageBackground, pageBackgroundSource: 'page'|'theme'|'default', tile: 'border'|'shadow'|'flat',
+              tileBg, radius (px), borderColor, headerBg, headerInk, ink, tiles } aus page.json, visualContainerObjects, Rahmenformen und
+              Theme; applyTo schreibt sie nach S.design, damit die Spec direkt nach dem Einlesen dieselbe Gestaltung trägt wie der Bericht
      skipped  [{ page, visual, type, reason }] was nicht zur Kachel wurde (Rahmen, Deko, Hintergrund, Überlagerung, ausgeblendet)
      stats    je Seite { page, tiles, maxDev } und gesamt maxDev (px, Kitchen-Rechteck gegen PBIR-Position)
 
@@ -43,6 +46,27 @@
     const list = (objs || {})[group]; if (!Array.isArray(list)) return undefined;
     for (const e of list) { const p = (e && e.properties) || {}; if (name in p) return literal(p[name]); }
     return undefined;
+  }
+  // Farbe eines Eigenschaftswerts: { solid: { color: <expr> } } (PBIR), <expr> oder ein Klartext „#RRGGBB" (Theme-JSON)
+  function solidColor(p) {
+    if (p == null) return null;
+    if (typeof p === 'string') return hexOf(p);
+    if (p.solid && p.solid.color != null) return solidColor(p.solid.color);
+    if (p.expr) return hexOf(literal(p));
+    return null;
+  }
+  function hexOf(v) { const m = /^#?([0-9a-f]{6})$/i.exec(String(v == null ? '' : v).trim()); return m ? '#' + m[1].toUpperCase() : null; }
+  function colorProp(objs, group, name) {
+    const list = (objs || {})[group]; if (!Array.isArray(list)) return null;
+    for (const e of list) { const p = (e && e.properties) || {}; if (name in p) { const c = solidColor(p[name]); if (c) return c; } }
+    return null;
+  }
+  // Textfarbe einer Textbox: erster Textlauf mit textStyle.color
+  function textboxColor(vis) {
+    for (const e of ((vis.objects || {}).general || [])) for (const para of ((e.properties || {}).paragraphs || [])) for (const r of (para.textRuns || [])) {
+      const c = r && r.textStyle && solidColor(r.textStyle.color); if (c) return c;
+    }
+    return null;
   }
   function textboxText(vis) {
     const out = [];
@@ -584,12 +608,67 @@
     if (zoneNames.length) W_('CHROME_MAPPED', `Rahmen als Kitchen-Zonen übernommen: ${zoneNames.join(', ')}`);
 
     const spacing = { margin: r3(m / k), gutter: r3(g / k) };
+    const design = designOf(Z, P0, def.theme || null, zone, titleV, W, H);
+    if (design.pageBackground) W_('DESIGN_MAPPED', `Gestaltung des Berichts übernommen: Seitenhintergrund ${design.pageBackground} (${design.pageBackgroundSource === 'page' ? 'aus page.json' : design.pageBackgroundSource === 'theme' ? 'aus dem Theme' : 'Vorgabe'})${design.tile ? ', Kacheln ' + ({ border: 'mit Rahmen', shadow: 'mit Schatten', flat: 'flach' })[design.tile] : ''}${design.tileBg ? ' auf ' + design.tileBg : ''}${design.headerBg ? ', Kopfband ' + design.headerBg : ''}`);
     return {
       name: def.name || null, pages, warnings, skipped,
       canvas: { w: W, h: H, preset: PRESETS.includes(W + 'x' + H) ? W + 'x' + H : 'custom' },
-      spacing, chrome,
+      spacing, chrome, design,
       stats: { pages: stats, maxDev: Math.round(maxAll * 100) / 100, margin: m, gutter: g, content },
     };
+  }
+
+  // ------------------------------------------------------------------ Gestaltung des Berichts (B2: nach dem Einlesen gilt sie als unverändert)
+  // Seitenhintergrund aus page.json (sonst Theme, sonst Weiß), Kachelstil aus den visualContainerObjects der eingelesenen Kacheln
+  // (häufigster Wert; fehlt er, aus dem Theme), Kopfbandfarben aus den Rahmenformen. Alles, was sich nicht bestimmen lässt, bleibt null.
+  function mode(counts) { const keys = Object.keys(counts); return keys.length ? keys.sort((a, b) => counts[b] - counts[a] || (a < b ? -1 : 1))[0] : null; }
+  const bump = (o, v) => { if (v == null) return; o[v] = (o[v] || 0) + 1; };
+  function themeStar(theme) { const vs = (theme && theme.visualStyles) || {}; return (vs['*'] && vs['*']['*']) || {}; }
+  function themeProp(theme, obj, name) { const list = themeStar(theme)[obj]; const e = Array.isArray(list) ? list[0] : null; return e && name in e ? e[name] : undefined; }
+  function designOf(Z, P0, theme, zone, titleV, W, H) {
+    const d = { pageBackground: null, pageBackgroundSource: null, tile: null, tileBg: null, radius: null, borderColor: null, headerBg: null, headerInk: null, ink: null, tiles: 0 };
+    // Seitenhintergrund
+    const pbg = {};
+    Z.forEach(x => {
+      const bg = (x.pj.objects || {}).background; if (!Array.isArray(bg)) return;
+      const col = colorProp(x.pj.objects, 'background', 'color'); const tr = prop(x.pj.objects, 'background', 'transparency');
+      if (col && !(typeof tr === 'number' && tr >= 100)) bump(pbg, col);
+    });
+    if (mode(pbg)) { d.pageBackground = mode(pbg); d.pageBackgroundSource = 'page'; }
+    else {
+      const vs = (theme && theme.visualStyles) || {}; const pg = vs.page && vs.page['*'] && Array.isArray(vs.page['*'].background) ? vs.page['*'].background[0] : null;
+      const col = (pg && solidColor(pg.color)) || (theme && solidColor(theme.background)) || null;
+      if (col) { d.pageBackground = col; d.pageBackgroundSource = 'theme'; } else { d.pageBackground = '#FFFFFF'; d.pageBackgroundSource = 'default'; }
+    }
+    if (theme && solidColor(theme.foreground)) d.ink = solidColor(theme.foreground);
+    // Kachelstil: Hintergrund, Rahmen, Schatten, Ecken je eingelesener Kachel; ohne Eintrag gilt das Theme, sonst die Power-BI-Vorgabe
+    const tBgShow = themeProp(theme, 'background', 'show'), tBg = solidColor(themeProp(theme, 'background', 'color')), tBorder = themeProp(theme, 'border', 'show'), tBorderCol = solidColor(themeProp(theme, 'border', 'color')), tRadius = themeProp(theme, 'border', 'radius'), tShadow = themeProp(theme, 'dropShadow', 'show');
+    const dflt = (v, t, f) => (v !== undefined ? v : (t !== undefined ? t : f));
+    const styles = {}, bgs = {}, radii = {}, bcols = {};
+    Z.forEach(x => x.list.forEach(v => {
+      if (v.role !== 'tile' || v.isGroup) return;
+      const vco = v.vis.visualContainerObjects || {}; d.tiles++;
+      const bgShow = dflt(prop(vco, 'background', 'show'), tBgShow, true); const bg = colorProp(vco, 'background', 'color') || tBg || '#FFFFFF';
+      const border = dflt(prop(vco, 'border', 'show'), tBorder, false); const shadow = dflt(prop(vco, 'dropShadow', 'show'), tShadow, false);
+      const radius = dflt(prop(vco, 'border', 'radius'), tRadius, 0);
+      bump(styles, shadow ? 'shadow' : border ? 'border' : 'flat');
+      if (bgShow !== false) bump(bgs, bg);
+      if (typeof radius === 'number') bump(radii, String(Math.round(radius)));
+      if (border) bump(bcols, colorProp(vco, 'border', 'color') || tBorderCol || null);
+    }));
+    if (d.tiles) { d.tile = mode(styles); d.tileBg = mode(bgs); d.radius = mode(radii) != null ? +mode(radii) : null; d.borderColor = mode(bcols); }
+    else if (theme && themeStar(theme).background) { d.tile = tShadow ? 'shadow' : tBorder ? 'border' : 'flat'; d.tileBg = tBg; d.radius = typeof tRadius === 'number' ? tRadius : null; d.borderColor = tBorderCol; }
+    // Kopfband: Fläche (Form mit Füllung) und Titelfarbe
+    if (zone.top && P0) {
+      const inTop = v => v.role === 'chrome' && (v.side === 'top' || (P0.cls.tool && y1(v.r) <= zone.top + 1));
+      const fillOf = v => (prop(v.vis.objects, 'fill', 'show') === false ? null : colorProp(v.vis.objects, 'fill', 'fillColor'));
+      let bgV = P0.cls.tool ? P0.list.find(v => v.name === 'chrome_header_bg') : null;
+      if (!bgV) bgV = P0.list.filter(v => inTop(v) && (v.type === 'shape' || v.type === 'basicShape') && fillOf(v)).sort((a, b) => area(b.r) - area(a.r))[0] || null;
+      if (bgV) d.headerBg = fillOf(bgV);
+      if (titleV) d.headerInk = titleV.type === 'textbox' ? textboxColor(titleV.vis) : colorProp(titleV.vis.objects, 'text', 'fontColor');
+      if (!d.headerInk && d.headerBg) { const n = parseInt(d.headerBg.slice(1), 16); const lum = 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255); d.headerInk = lum < 128 ? '#FFFFFF' : '#0F1E2E'; }
+    }
+    return d;
   }
 
   // ------------------------------------------------------------------ Ordner lesen (File System Access API)
@@ -631,17 +710,45 @@
       }
       pages.push({ folder, page, visuals });
     }
-    const res = fromDefinition({ name: String(rep.name || '').replace(/\.Report$/i, ''), pagesOrder: meta.pageOrder || [], pages });
+    // Theme des Berichts (nur für die Gestaltung: Seitenhintergrund und Kachelstil, wo page.json bzw. die Kacheln nichts sagen)
+    let theme = null;
+    try {
+      const rj = await readJson(defDir, 'report.json', () => null, 'definition/');
+      const tc = rj && rj.themeCollection; const ct = tc && tc.customTheme && tc.customTheme.name;
+      if (ct) { const sr = await childDir(rep, 'StaticResources'); const rr = sr && await childDir(sr, 'RegisteredResources'); const tj = rr && await readJson(rr, String(ct), () => null, 'StaticResources/RegisteredResources/'); if (tj && typeof tj === 'object') theme = tj; }
+    } catch (e) { theme = null; }
+    const res = fromDefinition({ name: String(rep.name || '').replace(/\.Report$/i, ''), pagesOrder: meta.pageOrder || [], pages, theme });
     res.warnings = warnings.concat(res.warnings);
     return res;
   }
 
   // ------------------------------------------------------------------ Übernehmen (öffentliche MK-API)
   // Leinwand, Rand/Zwischenraum und Rahmen gelten im Kitchen für alle Seiten und gehören zum Import: ohne sie stimmen die Rechtecke nicht.
+  // Gestaltung des Berichts in S.design (B2): nach dem Einlesen gilt sie als unverändert, die Spec direkt danach trägt dieselben Werte
+  // wie der Bericht (der Runner vergleicht gegen die Grundlinie und schreibt dann weder Seitenhintergrund noch Kachelstil).
+  function applyDesign(mk, S, d, canvas) {
+    const D = S.design; if (!D || !d) return;
+    const W = (canvas && canvas.w) || S.canvas.w; const k = kOf(W); const r3 = v => Math.round(v * 1e6) / 1e6;
+    const PAGE_BG = mk.pageBg || { light: '#F4F4F1', soft: '#EEF1F5', white: '#FFFFFF' };
+    const dark = hex => { const n = parseInt(String(hex).slice(1), 16); return (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) < 128; };
+    if (d.pageBackground) { const hex = hexOf(d.pageBackground); const pre = Object.keys(PAGE_BG).find(x => hexOf(PAGE_BG[x]) === hex); if (pre) D.pageBg = pre; else { D.pageBg = 'custom'; D.pageBgHex = hex; } }
+    if (d.tile === 'border' || d.tile === 'shadow' || d.tile === 'flat') D.tile = d.tile;
+    if (hexOf(d.tileBg)) D.tileBg = hexOf(d.tileBg);
+    if (typeof d.radius === 'number' && d.radius >= 0) D.radius = r3(d.radius / k);
+    if (hexOf(d.ink)) D.ink = hexOf(d.ink);
+    if (hexOf(d.headerBg)) {
+      const bg = hexOf(d.headerBg); const ink = hexOf(d.headerInk) || (dark(bg) ? '#FFFFFF' : '#0F1E2E');
+      if (bg === '#FFFFFF' && ink === '#0F1E2E') D.header = 'light';
+      else if (bg === '#0F1E2E' && ink === '#FFFFFF') D.header = 'dark';
+      else if (bg === hexOf(D.accent) && ink === '#FFFFFF') D.header = 'accent';
+      else { D.header = 'custom'; D.headerBg = bg; D.headerInk = ink; }
+    }
+  }
   function applyTo(mk, res) {
     if (!mk || !res || !res.pages || !res.pages.length) return false;
     const S = mk.state; const clone = o => JSON.parse(JSON.stringify(o));
     if (res.spacing) Object.assign(S.spacing, res.spacing);
+    if (res.design) { try { applyDesign(mk, S, res.design, res.canvas); } catch (e) { /* Gestaltung ist Zugabe, das Layout kommt trotzdem */ } }
     if (res.chrome) {
       const c = res.chrome;
       ['header', 'nav', 'filter', 'footer'].forEach(z => { if (!c[z]) return; S.chrome[z] = Object.assign({}, S.chrome[z], clone(c[z])); });
@@ -655,7 +762,7 @@
   }
 
   // solveRects: beliebige Kachel-Rechtecke eines Inhaltsbereichs auf Rasterspuren legen (auch für Baum → Raster im Kitchen, v0.5.4)
-  const api = { readDir, fromDefinition, applyTo, solveRects: solvePage, _solveAxis: solveAxis, _gridRects: gridRects };
+  const api = { readDir, fromDefinition, applyTo, applyDesign, solveRects: solvePage, _solveAxis: solveAxis, _gridRects: gridRects };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.MK_PBIR = api;
 })(typeof window !== 'undefined' ? window : globalThis);

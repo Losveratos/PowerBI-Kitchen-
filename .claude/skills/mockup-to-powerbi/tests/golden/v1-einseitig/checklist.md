@@ -21,13 +21,13 @@ Mockup: **Management Report · Beispiel** · specVersion 1 (gelesen als v3) · H
 
 ## Umfang
 
-- Visuals gesamt: 6 (ChartKitchen 4 · nativ 2 · Deneb 0)
+- Visuals gesamt: 6 (ChartKitchen 1 · nativ 2 · Deneb 0)
 - Slicer je Seite: 2 (Filter-Modus `right`)
 - Verknüpfungen: 0 (0 Drill-through, 0 Seitenwechsel)
 
 | Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
 |---|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | – | 4 | 0 | 10 | 4 | 0 | 0 |
+| Übersicht | `Ubersicht/` | – | 4 | 0 | 13 | 1 | 0 | 3 |
 
 ## Offene Punkte aus der Spec (`issues`)
 
@@ -42,6 +42,18 @@ Mockup: **Management Report · Beispiel** · specVersion 1 (gelesen als v3) · H
 ## ChartKitchen-Rollen-Mapping
 
 - [ ] [Übersicht / v05_Umsatz_AC_FC_vs_PL_je_Monat] `fcFlag` muss die **Zahl** 1/0 liefern, kein Boolean (DimDate.IsForecast pruefen).
+
+## Custom Visuals (`engine: "custom"`)
+
+`pbir add visual` kennt diese GUIDs nicht — die Kacheln stehen deshalb **nicht** in `pbir-visuals.json`, sondern als fertige `visual.json` in `<Seitenslug>/custom-visuals/`. Die `.pbiviz` muss **vorher** im Bericht importiert sein, sonst lädt das Visual nicht.
+
+| Seite | Kachel | Visual | GUID | .pbiviz | Rollen |
+|---|---|---|---|---|---|
+| Übersicht | Umsatz (`v01_Umsatz`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Umsatz, `pl`: _Measures.PL |
+| Übersicht | Marge (`v02_Marge`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Marge, `pl`: _Measures.PL |
+| Übersicht | Deckungsbeitrag (`v04_Deckungsbeitrag`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Deckungsbeitrag, `pl`: _Measures.PL |
+
+- Pflichtrollen aller Custom Visuals belegt.
 
 ## Analyse-Angaben ohne direkten pbir-Befehl
 

@@ -323,16 +323,16 @@
       "id": "move-mk_slicer_Year_p1",
       "op": "move",
       "select": "Varianten.Page/mk_slicer_Year_p1.Visual",
-      "x": 1072,
-      "y": 96,
+      "x": 1074,
+      "y": 92,
       "continue_on_error": true
     },
     {
       "id": "resize-mk_slicer_Year_p1",
       "op": "resize",
       "select": "Varianten.Page/mk_slicer_Year_p1.Visual",
-      "width": 184,
-      "height": 56,
+      "width": 180,
+      "height": 76,
       "continue_on_error": true
     },
     {
@@ -390,38 +390,38 @@
       "op": "move",
       "select": "Varianten.Page/chrome_logo.Visual",
       "x": 16,
-      "y": 12,
+      "y": 13,
       "continue_on_error": true
     },
     {
       "id": "resize-chrome_logo",
       "op": "resize",
       "select": "Varianten.Page/chrome_logo.Visual",
-      "width": 120,
-      "height": 32,
+      "width": 88,
+      "height": 30,
       "continue_on_error": true
     },
     {
       "id": "move-chrome_header_title",
       "op": "move",
       "select": "Varianten.Page/chrome_header_title.Visual",
-      "x": 152,
-      "y": 6,
+      "x": 118,
+      "y": 7,
       "continue_on_error": true
     },
     {
       "id": "resize-chrome_header_title",
       "op": "resize",
       "select": "Varianten.Page/chrome_header_title.Visual",
-      "width": 1112,
-      "height": 26,
+      "width": 1146,
+      "height": 25,
       "continue_on_error": true
     },
     {
       "id": "move-chrome_header_subtitle",
       "op": "move",
       "select": "Varianten.Page/chrome_header_subtitle.Visual",
-      "x": 152,
+      "x": 118,
       "y": 32,
       "continue_on_error": true
     },
@@ -429,8 +429,8 @@
       "id": "resize-chrome_header_subtitle",
       "op": "resize",
       "select": "Varianten.Page/chrome_header_subtitle.Visual",
-      "width": 1112,
-      "height": 18,
+      "width": 1146,
+      "height": 16,
       "continue_on_error": true
     },
     {
@@ -450,19 +450,67 @@
       "continue_on_error": true
     },
     {
+      "id": "move-chrome_filter_rule",
+      "op": "move",
+      "select": "Varianten.Page/chrome_filter_rule.Visual",
+      "x": 1064,
+      "y": 56,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_rule",
+      "op": "resize",
+      "select": "Varianten.Page/chrome_filter_rule.Visual",
+      "width": 1,
+      "height": 640,
+      "continue_on_error": true
+    },
+    {
       "id": "move-chrome_filter_title",
       "op": "move",
       "select": "Varianten.Page/chrome_filter_title.Visual",
-      "x": 1072,
-      "y": 64,
+      "x": 1074,
+      "y": 68,
       "continue_on_error": true
     },
     {
       "id": "resize-chrome_filter_title",
       "op": "resize",
       "select": "Varianten.Page/chrome_filter_title.Visual",
-      "width": 184,
+      "width": 180,
+      "height": 16,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_bg",
+      "op": "move",
+      "select": "Varianten.Page/chrome_footer_bg.Visual",
+      "x": 0,
+      "y": 696,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_bg",
+      "op": "resize",
+      "select": "Varianten.Page/chrome_footer_bg.Visual",
+      "width": 1280,
       "height": 24,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_rule",
+      "op": "move",
+      "select": "Varianten.Page/chrome_footer_rule.Visual",
+      "x": 0,
+      "y": 696,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_rule",
+      "op": "resize",
+      "select": "Varianten.Page/chrome_footer_rule.Visual",
+      "width": 1280,
+      "height": 1,
       "continue_on_error": true
     },
     {
@@ -470,7 +518,7 @@
       "op": "move",
       "select": "Varianten.Page/chrome_footer_text.Visual",
       "x": 16,
-      "y": 696,
+      "y": 697,
       "continue_on_error": true
     },
     {
@@ -478,7 +526,7 @@
       "op": "resize",
       "select": "Varianten.Page/chrome_footer_text.Visual",
       "width": 1248,
-      "height": 24,
+      "height": 23,
       "continue_on_error": true
     }
   ]

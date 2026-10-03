@@ -1,0 +1,255 @@
+{
+  "generated": "<zeitstempel>",
+  "tool": "mockup_to_pbir.py",
+  "spec": {
+    "name": "Treue-Testfall B1",
+    "specVersion": 3,
+    "specHash": "fidelityb1",
+    "lang": "de"
+  },
+  "report": "Test.Report",
+  "model": "PBI-IBCS-Testbed",
+  "canvas": {
+    "width": 1920,
+    "height": 1080
+  },
+  "pages": [
+    {
+      "name": "Fidelity",
+      "dir": "Fidelity",
+      "slug": "Fidelity",
+      "visuals": 10,
+      "chrome": 13,
+      "ck": 8,
+      "deneb": 0
+    }
+  ],
+  "rules": [
+    "Visualname = `id` aus der Spec (stabil über Läufe).",
+    "Vorhandene Visuals werden aktualisiert (delta-batch.json), nie neu angelegt.",
+    "Was im Bericht steht, aber nicht mehr im Mockup: nur melden, nie löschen.",
+    "Kein Schritt schreibt, bevor der Mensch den Plan freigegeben hat."
+  ],
+  "steps": [
+    {
+      "id": "backup",
+      "op": "backup",
+      "page": null,
+      "idempotent": "Legt eine weitere Sicherung an; mehrfach ausführen schadet nicht.",
+      "delta": "immer vor dem ersten schreibenden Schritt",
+      "commands": [
+        "pbir backup \"Test.Report\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "page:Fidelity",
+      "op": "add_page",
+      "page": "Fidelity",
+      "idempotent": "Seite existiert bereits → diesen Schritt überspringen und stattdessen `pbir pages resize \"Test.Report/Fidelity.Page\" -w 1920 -h 1080`.",
+      "delta": "vorhandene Seite wird nie gelöscht",
+      "commands": [
+        "pbir add page \"Test.Report/Fidelity.Page\" -n \"Fidelity\" -w 1920 -h 1080",
+        "pbir rm \"Test.Report/Fidelity.Page/Title.Visual\" -f"
+      ],
+      "batch": null
+    },
+    {
+      "id": "chrome:Fidelity",
+      "op": "add_visuals",
+      "page": "Fidelity",
+      "idempotent": "Schlägt fehl, wenn die Chrome-Visuals schon existieren → dann delta-batch.json statt dieses Schritts.",
+      "delta": "delta-batch.json aktualisiert Position/Größe",
+      "commands": [
+        "pbir add visual \"Test.Report/Fidelity.Page\" --from-json \"<out>/Fidelity/chrome-visuals.json\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "visuals:Fidelity",
+      "op": "add_visuals",
+      "page": "Fidelity",
+      "idempotent": "Namen sind stabil; ein zweiter Lauf legt nichts doppelt an, sondern scheitert → delta-batch.json.",
+      "delta": "delta-batch.json aktualisiert Position, Größe und Bindung",
+      "commands": [
+        "pbir add visual \"Test.Report/Fidelity.Page\" --from-json \"<out>/Fidelity/pbir-visuals.json\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "background:Fidelity",
+      "op": "page_background",
+      "page": "Fidelity",
+      "idempotent": "Setzt eine feste Farbe — beliebig oft ausfuehrbar.",
+      "delta": "unveraendert im zweiten Lauf",
+      "commands": [
+        "pbir pages background \"Test.Report/Fidelity.Page\" --color \"#F4F4F1\" --transparency 0"
+      ],
+      "batch": null
+    },
+    {
+      "id": "format:Fidelity",
+      "op": "batch",
+      "page": "Fidelity",
+      "idempotent": "Setzt Eigenschaften auf feste Werte — beliebig oft ausführbar.",
+      "delta": "unverändert im zweiten Lauf",
+      "commands": [
+        "pbir batch validate \"<out>/Fidelity/chrome-batch.json\"",
+        "pbir batch plan \"<out>/Fidelity/chrome-batch.json\" --root \"Test.Report\"",
+        "pbir batch run \"<out>/Fidelity/chrome-batch.json\" --root \"Test.Report\""
+      ],
+      "batch": "Fidelity/chrome-batch.json"
+    },
+    {
+      "id": "analysis:Fidelity",
+      "op": "commands",
+      "page": "Fidelity",
+      "idempotent": "Sortierung und Untertitel ja; `pbir add filter` legt bei erneutem Lauf ggf. einen zweiten Filter an — vorher `pbir filters list` prüfen.",
+      "delta": "Top-N/Vorauswahl vor dem zweiten Lauf prüfen",
+      "commands": [
+        "bash \"<out>/Fidelity/analysis-commands.sh\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "custom:Fidelity",
+      "op": "custom_visuals",
+      "page": "Fidelity",
+      "idempotent": "Platzhalter-Shape schlägt beim zweiten Mal fehl (Name existiert); das Kopieren der visual.json ist beliebig wiederholbar.",
+      "delta": "Im Delta-Lauf reicht das Kopieren der neu erzeugten visual.json — sie enthält Position, Größe, Bindung und Container-Formatierung vollständig.",
+      "commands": [
+        "# .pbiviz zuerst in den Bericht importieren (Desktop): ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+        "bash \"<out>/Fidelity/custom-commands.sh\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "navigation",
+      "op": "commands",
+      "page": null,
+      "idempotent": "`pbir add bookmark` legt bei gleichem Namen keinen zweiten an (prüfen mit `pbir bookmarks list`).",
+      "delta": "Lesezeichen nur ergänzen, nie löschen",
+      "commands": [
+        "# Befehle in navigation.md — erst wenn alle Seiten stehen"
+      ],
+      "batch": null
+    },
+    {
+      "id": "annotate",
+      "op": "annotation",
+      "page": null,
+      "idempotent": "Gleicher Name überschreibt den Wert.",
+      "delta": "Beim nächsten Lauf mit `pbir annotations list \"Test.Report\" --json` vergleichen: gleicher Hash = nichts zu tun.",
+      "commands": [
+        "pbir add annotation \"Test.Report\" --name mockup-spec-hash --value \"fidelityb1\"",
+        "pbir add annotation \"Test.Report\" --name mockup-spec-name --value \"Treue-Testfall B1\""
+      ],
+      "batch": null
+    },
+    {
+      "id": "verify",
+      "op": "verify",
+      "page": null,
+      "idempotent": "reine Prüfung",
+      "delta": "immer",
+      "commands": [
+        "pbir validate \"Test.Report\" --fields",
+        "te validate -m \"PBI-IBCS-Testbed\" --errors-only",
+        "python .claude/skills/mockup-to-powerbi/scripts/mockup_verify.py \"Test.Report\" \"<out>/acceptance.json\""
+      ],
+      "batch": null
+    }
+  ],
+  "todos": [
+    {
+      "code": "CK_NO_NATIVE",
+      "page": "Fidelity",
+      "visual": "mk_absvar1",
+      "title": "Δ PY absolut",
+      "text": "Kein natives Ersatzvisual (ein natives Säulendiagramm zeigt AC statt der Δ-Säulen). Bis ChartKitchen im Bericht ist, steht ein Platzhalter; nativ nur mit einer Δ-Kennzahl ([AC] − [Referenz]) im Modell."
+    },
+    {
+      "code": "CK_NO_NATIVE",
+      "page": "Fidelity",
+      "visual": "mk_relvar1",
+      "title": "Δ PY %",
+      "text": "Kein natives Ersatzvisual (ein natives Säulendiagramm zeigt AC statt der Δ%-Nadeln). Bis ChartKitchen im Bericht ist, steht ein Platzhalter; nativ nur mit einer Δ-Kennzahl ([AC] − [Referenz]) im Modell."
+    },
+    {
+      "code": "CK_NO_NATIVE",
+      "page": "Fidelity",
+      "visual": "mk_bridge1",
+      "title": "PL → AC je Region",
+      "text": "Kein natives Ersatzvisual (ein nativer Wasserfall zeigt die AC-Beiträge statt der Brücke Referenz → Δ je Kategorie → AC). Bis ChartKitchen im Bericht ist, steht ein Platzhalter; nativ nur mit einer Δ-Kennzahl ([AC] − [Referenz]) im Modell."
+    }
+  ],
+  "issues": [],
+  "fieldParams": [],
+  "smallMultiples": [],
+  "customVisuals": [
+    {
+      "page": "Fidelity",
+      "visual": "mk_kpi1",
+      "name": "ibcsKpiCard",
+      "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+      "file": "<out>/Fidelity/custom-visuals/mk_kpi1.visual.json",
+      "buckets": {
+        "ac": [
+          "_Measures.AC"
+        ],
+        "py": [
+          "_Measures.PY"
+        ],
+        "trend": [
+          "DimDate.MonthName"
+        ]
+      },
+      "warnings": []
+    }
+  ],
+  "typography": {
+    "basis": "1280px",
+    "scale": 1.0,
+    "k": 1.5,
+    "titlePt": 13.5,
+    "subtitlePt": 10.5,
+    "labelPt": 10,
+    "tileOverrides": []
+  },
+  "filter": {
+    "heading": "Filter",
+    "text": "Werte in Tsd. EUR",
+    "slicers": [
+      {
+        "name": "Region",
+        "ref": "DimRegion.Region",
+        "type": "dropdown",
+        "format": {
+          "data.mode": "Dropdown"
+        }
+      },
+      {
+        "name": "Category",
+        "ref": "DimProduct.Category",
+        "type": "list",
+        "format": {
+          "data.mode": "Basic",
+          "general.orientation": 0
+        }
+      },
+      {
+        "name": "Year",
+        "ref": "DimDate.Year",
+        "type": "dropdown",
+        "format": {
+          "data.mode": "Dropdown"
+        }
+      }
+    ]
+  },
+  "navigation": {
+    "position": "off",
+    "footer": []
+  }
+}

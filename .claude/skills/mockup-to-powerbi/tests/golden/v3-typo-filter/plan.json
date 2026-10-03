@@ -19,7 +19,7 @@
       "dir": "Ubersicht",
       "slug": "Ubersicht",
       "visuals": 7,
-      "chrome": 10,
+      "chrome": 13,
       "ck": 0,
       "deneb": 0
     },
@@ -28,7 +28,7 @@
       "dir": "Detail",
       "slug": "Detail",
       "visuals": 4,
-      "chrome": 10,
+      "chrome": 13,
       "ck": 1,
       "deneb": 0
     }

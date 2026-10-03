@@ -1,6 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
 // Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
-window.MK_VERSION = '0.5.4';
+window.MK_VERSION = '0.6.0';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
@@ -199,11 +199,102 @@ window.MK_VERSION = '0.5.4';
     if (SCEN_OPTIONS.includes(swapped) && bases.every(b => scenRefs(swapped).includes(b))) return swapped;
     return SCEN_OPTIONS.find(s => s !== 'AC' && bases.every(b => scenRefs(s).includes(b))) || null;
   }
-  // Szenario, mit dem die Skizze gezeichnet wird: Typen ohne Szenario-Wahl (KPI, Tacho) folgen der gebundenen Referenz bzw. der Δ-Basis (Review B13)
-  function sketchScenario(v, an) {
-    const def = CAT.byId[v.kind] || {}; if (def.plain) return 'AC';
-    if (refRoleOf(def, v) === 'goal' && (((v.roles || {}).goal || []).length || (v.analysis || {}).deltaBasis)) return 'AC/' + (an || analysisOf(v)).deltaBasis;
-    return v.scenario;
+  /* Szenario, wie es die Kachel zeigt: Bindung vor Auswahl (AUDIT-DEPLOY4, Ursache 6). EINE Regel für Skizze, Analyse und Export
+     (mockup-live/CONTRACT.md, Abschnitt „Kachel-Anzeige"):
+     1. Referenz gebunden: gezeigt werden genau die gebundenen Szenarien. Das Kürzel kommt aus dem Feldnamen, ohne Kürzel im Namen
+        das nächste noch freie Kürzel der Szenario-Auswahl, sonst PL. Ein FC-Feld in der Referenzrolle ist der Forecast-Anteil,
+        kein Bezug (bei der Ziel-Rolle von KPI und Tacho bleibt FC ein Bezug, Review B13).
+     2. Keine Referenz gebunden, aber die Hauptkennzahl: kein Bezug, keine Δ-Ebene (source 'none'), wie in Desktop.
+        Ist die Referenz eine Pflichtrolle (absvar, bridge …), gilt 3: die Kachel ist ohnehin als unvollständig markiert.
+     3. Sonst Platzhalter (source 'placeholder'): die Szenario-Auswahl, auf der Kachel als gestrichelter Chip „PL ?" markiert.
+     Forecast-Anteil: wenn die Forecast-Rolle gebunden ist, ein FC-Feld in der Referenz liegt, oder im Platzhalter laut Auswahl.
+     Δ-Basis: die gewählte, wenn sie gezeigt wird, sonst automatisch PL > BU > PY (wie ChartKitchen „auto": plan vor py).
+     Eine gewählte, aber nicht gezeigte Basis bleibt als basisRequested stehen; den Widerspruch meldet refMismatch.
+     Typen ohne Referenz- und Zielrolle (Pareto, Wasserfall …) und die nativen Klassiker zeigen nur die Hauptreihe. */
+  const AUTO_BASIS = ['PL', 'BU', 'PY'];
+  function effScen(v) {
+    const def = (v && CAT.byId[v.kind]) || null;
+    const out = { roleKey: null, source: null, main: 'AC', refs: [], fc: false, scenarios: ['AC'], basis: null, basisSource: null, basisRequested: null, declared: [], placeholders: [] };
+    if (!v || !def || def.plain) return out;
+    const roles = v.roles || {}; const a = v.analysis || {}; const key = refRoleOf(def, v); out.roleKey = key;
+    const declList = String(v.scenario || 'AC/PL').toUpperCase().split(/[^A-Z]+/).filter(x => ['AC', 'PY', 'PL', 'BU', 'FC'].includes(x));
+    out.main = declList.includes('AC') || !declList.includes('FC') ? 'AC' : 'FC';
+    const declRefs = declList.filter(x => x !== out.main && x !== 'FC'); const declFC = declList.includes('FC') && out.main !== 'FC';
+    out.declared = declRefs.slice();
+    const fcBound = !!((roles.fc || []).length);
+    if (key) {
+      const bound = roles[key] || []; const want = a.deltaBasis || null;
+      if (bound.length) {
+        out.source = 'bound';
+        const codes = bound.map(f => basisOfName(f.name, true)); const free = declRefs.filter(x => !codes.includes(x)); let fcRef = false;
+        bound.forEach((f, i) => {
+          let c = codes[i];
+          if (!c) c = key === 'goal' ? (want || (/PY/i.test(f.name) ? 'PY' : 'PL')) : (free.shift() || 'PL');
+          if (c === 'FC' && key === 'ref') { fcRef = true; return; }
+          if (!out.refs.includes(c)) out.refs.push(c);
+        });
+        out.fc = fcBound || fcRef;
+      } else if (primaryMeasure(v) && !CAT.rolesFor(def, v).some(r => r.key === key && r.req)) {
+        out.source = 'none'; out.fc = fcBound; out.placeholders = key === 'goal' ? (want ? [want] : []) : declRefs.slice();
+      } else {
+        out.source = 'placeholder'; out.refs = key === 'goal' ? [want || declRefs[0] || 'PL'] : declRefs.slice(); out.fc = fcBound || declFC;
+        out.placeholders = out.refs.slice();
+      }
+      if (out.refs.length) {
+        if (want && out.refs.includes(want)) { out.basis = want; out.basisSource = 'explicit'; }
+        else { out.basis = AUTO_BASIS.find(x => out.refs.includes(x)) || out.refs[0]; out.basisSource = 'auto'; if (want) out.basisRequested = want; }
+      } else if (want) out.basisRequested = want;
+    } else out.fc = fcBound && declFC;
+    // Reihenfolge: Hauptreihe, Bezug (Δ-Basis), weitere Bezüge (Dreieck-Marke), Forecast
+    const list = [out.main].concat(out.basis ? [out.basis] : [], out.refs.filter(r => r !== out.basis), out.fc ? ['FC'] : []);
+    out.scenarios = list.filter((x, i) => list.indexOf(x) === i);
+    return out;
+  }
+  // Szenario-String, mit dem die Skizze gezeichnet wird (Kurzform von effScen; render-png und Altaufrufer)
+  function sketchScenario(v) { return effScen(v).scenarios.join('/'); }
+  // Numerischer Schlüssel als Kategorie/Facette (RegionKey 1, 2, 3 …): die Skizze beschriftet dann mit Zahlen statt Beispielnamen
+  const NUM_TYPE = /^(int64|double|decimal|integer|number|currency|int)$/i;
+  function numericField(f) { if (!f) return false; const hit = lookupField(f.table, f.name); return !!(hit && NUM_TYPE.test(hit.type || '')); }
+  // Alle Optionen für MK_SKETCH an einer Stelle: Bildschirm, PNG-Export (render-png.js) und Export-Analyse zeichnen damit dasselbe
+  function sketchOpts(v, nodeId, extra) {
+    const an = analysisOf(v); const e = effScen(v); const ti = tileInk(S.design); const ty = typo();
+    const o = {
+      scenarios: e.scenarios, scenario: e.scenarios.join('/'), deltaBasis: e.basis || undefined, noRef: e.source === 'none',
+      seed: seedOf(nodeId || ''), label: v.sub || '', scale: ui(), polarity: an.polarity,
+      variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '',
+      antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: ti.ink, dark: ti.dark, paper: S.design.tileBg || '#FFFFFF',
+      fontScale: ty.scale * tileScale(v), fonts: { label: ty.chart }, nativePalette: S.design.nativePalette || 'neutral',
+    };
+    const r = v.roles || {};
+    // Verlaufslinie (kpi, B3): nur mit gebundenem Zeitfeld; Hauptkennzahl gebunden, Zeitfeld nicht → keine Linie (so wie Desktop);
+    // nichts gebunden → Platzhalter-Skizze (undefined, die Linie bleibt als Beispiel)
+    const def = CAT.byId[v.kind]; const tRole = def ? CAT.rolesFor(def, v).find(x => x.labelKey === 'timeSpark' || (x.labelKey === 'time' && !x.req)) : null;
+    if (tRole) o.spark = (r[tRole.key] || []).length ? true : (primaryMeasure(v) ? false : undefined);
+    if (v.kind === 'multiples' && numericField((r.series || [])[0])) o.catNames = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+    if (an.smallMultiples && numericField((r.multiples || [])[0])) o.multiplesLabels = ['1', '2', '3', '4', '5', '6'];
+    return Object.assign(o, samplesOpt(v), extra || {});
+  }
+  // Gestrichelte Chips „PL ?" für Bezüge, die das Szenario vorsieht, aber nicht gebunden sind (Platzhalter bzw. nur AC gezeigt)
+  function placeholderChips(v) {
+    const e = effScen(v); if (!e.placeholders.length) return [];
+    return e.placeholders.map(b => ({ t: b + ' ?', tip: t(e.source === 'none' ? 'canvas.refNone' : 'canvas.refPlaceholder', { b }) }));
+  }
+  // Kachelgeometrie wie auf dem Bildschirm (tileHtml, render-png.js, Export): Kopf, Fuß, Fläche der Skizze
+  function tileGeom(v, rect, hasChips) {
+    const k = ui(); const pad = Math.round(S.spacing.pad * k); const tiny = rect.h < 70 * k || rect.w < 110 * k;
+    const headH = v && (v.title || v.sub) ? (tiny ? 18 : 24) * k : 0; const footH = hasChips && !tiny ? 18 * k : 0;
+    return { k, pad, tiny, headH, footH, bw: Math.max(20, rect.w - 2 * pad - 4), bh: Math.max(12, rect.h - headH - footH - pad - 6) };
+  }
+  const hasChipsOf = v => !!(v && (chipList(v).length || (v.link && S.pages.some(p => p.id === v.link))));
+  // Was die Skizze einer Kachel tatsächlich zeichnet (sketches.js, o.report): Bezüge, Marke, Δ-Ebenen, Beschriftung, Σ, FC, Einheit, Schrift
+  function sketchInfo(node, rect) {
+    const v = node && node.visual; if (!v || !window.MK_SKETCH) return null;
+    const def = CAT.byId[v.kind] || {}; const g = tileGeom(v, rect, hasChipsOf(v)); const an = analysisOf(v);
+    const fn = an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH;
+    let svg = ''; try { svg = fn(def.sketch || v.kind, g.bw, g.bh, sketchOpts(v, node.id, { report: true })); } catch (e) { svg = ''; }
+    const m = /\sdata-mk-drawn="([^"]*)"/.exec(String(svg).slice(0, 2000));
+    let drawn = null; if (m) try { drawn = JSON.parse(m[1].replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')); } catch (e) { drawn = null; }
+    return { geom: g, drawn };
   }
 
   let S = null, sel = null, zoom = 1, undoStack = [], redoStack = [], lastRects = { leaves: [], gutters: [] };
@@ -238,13 +329,13 @@ window.MK_VERSION = '0.5.4';
     if (s.categories.length) o.cats = s.categories; if (s.values.length) o.values = s.values; if (s.refValues.length) o.refValues = s.refValues;
     return o;
   }
+  // deltaBasis ist die WIRKSAME Basis (effScen): die, gegen die die Skizze rechnet, null ohne gezeigten Bezug.
+  // Gewählt, aber nicht gezeigt: deltaBasisRequested. deltaBasisSource: 'explicit' | 'auto' | null.
   function analysisOf(v) {
-    const a = v.analysis || {}; const pm = primaryMeasure(v); const refs = (v.roles && v.roles.ref) || []; const goal = (v.roles && v.roles.goal) || [];
-    const scen = String(v.scenario || 'AC/PL');
-    const basisAuto = refs[0] ? basisOfName(refs[0].name) : (goal[0] ? (basisOfName(goal[0].name, true) || (/PY/i.test(goal[0].name) ? 'PY' : 'PL')) : (scen.includes('PY') ? 'PY' : 'PL'));
+    const a = v.analysis || {}; const pm = primaryMeasure(v); const e = effScen(v);
     return {
       polarity: a.polarity || CAT.polarityFor(pm ? pm.name : v.title), polarityAuto: !a.polarity,
-      deltaBasis: a.deltaBasis || basisAuto, deltaBasisAuto: !a.deltaBasis,
+      deltaBasis: e.basis, deltaBasisAuto: e.basisSource !== 'explicit', deltaBasisSource: e.basisSource, deltaBasisRequested: e.basisRequested,
       deltaKind: a.deltaKind || ['abs', 'rel'],
       unit: a.unit || '', displayUnits: a.displayUnits || 'auto', decimals: a.decimals == null ? null : a.decimals,
       sort: a.sort || null, topN: a.topN || null, timeGrain: a.timeGrain || null, cumulative: !!a.cumulative, scaleGroup: a.scaleGroup || '', message: a.message || '',
@@ -258,7 +349,8 @@ window.MK_VERSION = '0.5.4';
     try { const raw = localStorage.getItem(LS_KEY); if (raw) { S = migrate(JSON.parse(raw)); I18N.set(S.lang); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Laden nie verhindern */ } return; } } catch (e) { /* ignorieren */ }
     S = defaultState(); S.pages.forEach(p => markTemplate(ensureIds(p.layout)));   // erst jetzt ist S gesetzt → Vorlagenfelder werden gebunden
   }
-  function persist() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { /* voll oder blockiert */ } }
+  // mk:changed meldet jede Änderung am Stand (live.js schreibt daraufhin die Spec in den Projektordner), ohne den Zustand abzufragen
+  function persist() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { /* voll oder blockiert */ } try { window.dispatchEvent(new Event('mk:changed')); } catch (e) { /* Listener-Fehler nicht weitertragen */ } }
   // Verlauf: höchstens UNDO_MAX Schritte (Tooltip tip.undo nennt dieselbe Zahl). Fällt ein alter Schritt heraus, merkt sich
   // undoDropped das, damit Strg+Z am Ende ehrlich „Verlauf voll, ältere verworfen" meldet statt „nichts rückgängig zu machen".
   // undoDropped: false | 'limit' (Verlauf voll) | 'new' („Neu" hat den älteren Verlauf verworfen)
@@ -495,8 +587,9 @@ window.MK_VERSION = '0.5.4';
     if (!name) setDefault(p, 'name', 'state.pageN', { n: S.pages.length + 1 });
     S.pages.push(p); S.cur = p.id; sel = null; commit(); return p;
   }
-  function dupPage() { const src = page(); const p = JSON.parse(JSON.stringify(src)); p.id = uid(); p.name = src.name + t('state.copySuffix'); dropDefault(p, 'name'); reId(p.layout); S.pages.splice(S.pages.indexOf(src) + 1, 0, p); S.cur = p.id; sel = null; commit(); }
-  function reId(n) { n.id = uid(); if (n.type !== 'leaf') n.children.forEach(c => reId(c.node)); }
+  function dupPage() { const src = page(); const p = JSON.parse(JSON.stringify(src)); p.id = uid(); p.name = src.name + t('state.copySuffix'); dropDefault(p, 'name'); delete p.pbir; reId(p.layout); S.pages.splice(S.pages.indexOf(src) + 1, 0, p); S.cur = p.id; sel = null; commit(); }
+  // Kopien zeigen nie auf dasselbe PBIR-Objekt wie das Original (live, CONTRACT.md)
+  function reId(n) { n.id = uid(); if (n.type === 'leaf') { if (n.visual) delete n.visual.pbir; } else n.children.forEach(c => reId(c.node)); }
   function delPage(pid) {
     const p = S.pages.find(x => x.id === pid) || page();
     if (S.pages.length === 1) return toast(t('toast.lastPage'));
@@ -620,6 +713,8 @@ window.MK_VERSION = '0.5.4';
     if (faIn) focusCanvas(faTile ? faTile.dataset.leaf : null, sel);
     $('#stageInfo').textContent = t('canvas.info', { w, h, cw: z.content.w, ch: z.content.h, k: k.toFixed(2), z: Math.round(zoom * 100) });
     renderPages(); if (!(opts && opts.inspector === false)) renderInspector(); renderModel(); syncPageInputs();
+    // Nach dem Zeichnen: live.js setzt Kachelmarken und das Desktop-Bild wieder ein (innerHTML hat sie ersetzt)
+    try { window.dispatchEvent(new Event('mk:rendered')); } catch (e) { /* Listener-Fehler nicht weitertragen */ }
   }
   function css(r) { return `left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px`; }
   // Klick nicht verschlucken (B12): Verlässt man ein Feld per Mausklick auf eine andere Kachel, feuert dessen change-Ereignis
@@ -657,11 +752,10 @@ window.MK_VERSION = '0.5.4';
     const def = CAT.byId[v.kind] || {}; const pad = Math.round(S.spacing.pad * k);
     const link = v.link ? S.pages.find(p => p.id === v.link) : null;
     const chips = roleChips(v) + (link ? `<span class="rchip link" title="${esc(t('tip.linkTo'))}">↗ ${esc(link.name)}</span>` : '');
-    const headH = v.title || v.sub ? (tiny ? 18 : 24) * k : 0;
-    const footH = chips && !tiny ? 18 * k : 0;
-    const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - footH - pad - 6);
+    // Geometrie und Skizzen-Optionen zentral (tileGeom, sketchOpts): PNG-Export und Export-Analyse rechnen genauso
+    const gm = tileGeom(v, rect, !!chips); const headH = gm.headH, footH = gm.footH, bw = gm.bw, bh = gm.bh;
     const an = analysisOf(v);
-    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: sketchScenario(v, an), seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '', antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: tileInk(S.design).ink, dark: tileInk(S.design).dark, paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral' }, samplesOpt(v))) : '';
+    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, sketchOpts(v, node.id)) : '';
     // Notiz: Symbol in der Badge-Zeile, das Popup als eigenes Element der Seite rechtsbündig unter dem Kachelkopf (B47).
     // In .badges schrumpfte es auf deren Breite (ca. 33 px) und wurde vom overflow:hidden der Kachel abgeschnitten.
     const noteTxt = v.notes ? v.notes : (v.openQuestion ? t('canvas.openQuestionEmpty') : '');
@@ -686,11 +780,14 @@ window.MK_VERSION = '0.5.4';
       <div class="badges">${req}${st}${pri}${note}<span class="badge${v.engine === 'ck' ? ' ck' : (v.engine === 'custom' ? ' cv' : '')}">${v.engine === 'ck' ? 'CK' : v.engine === 'deneb' ? 'Deneb' : v.engine === 'custom' ? 'CV' : 'PBI'}</span></div>${acts}</div>${notePop}`;
   }
   const notePopFor = ico => pageEl.querySelector(`.note-pop[data-note-for="${CSS.escape(ico.dataset.note || '')}"]`);
-  function roleChips(v) {
+  // Chips der Kachelfußzeile: gebundene Felder, dazu gestrichelt „PL ?" für vorgesehene, aber ungebundene Bezüge (effScen)
+  function chipList(v) {
     const out = []; const mm = refMismatch(v);
-    (CAT.byId[v.kind] ? CAT.byId[v.kind].roles : []).forEach(r => (v.roles[r.key] || []).forEach((f, i) => { const c = chipState(f, mm && mm.roleKey === r.key && mm.idx === i ? mm : null, v); out.push(`<span class="rchip${c.cls}" title="${esc(r.label + c.tip)}">${esc(f.name)}</span>`); }));
-    return out.join('');
+    (CAT.byId[v.kind] ? CAT.byId[v.kind].roles : []).forEach(r => ((v.roles || {})[r.key] || []).forEach((f, i) => { const c = chipState(f, mm && mm.roleKey === r.key && mm.idx === i ? mm : null, v); out.push({ t: f.name, cls: c.cls, tip: r.label + c.tip }); }));
+    placeholderChips(v).forEach(p => out.push({ t: p.t, cls: ' ph', tip: p.tip }));
+    return out;
   }
+  function roleChips(v) { return chipList(v).map(c => `<span class="rchip${c.cls}" title="${esc(c.tip)}">${esc(c.t)}</span>`).join(''); }
   // Darstellung eines gebundenen Felds: neu (gestrichelt), fehlt im Modell (rot), passt nicht zum Szenario (gelb) samt Tooltip-Zusatz
   function chipState(f, mm, v) {
     const st = fieldStatus(f);
@@ -891,7 +988,8 @@ window.MK_VERSION = '0.5.4';
     if (!v) { insEl.innerHTML = `<button class="typebtn" id="btnPickType"><div class="pv"></div><div><b>${esc(t('btn.pickType'))}</b><small>${esc(t('hint.pickTypeSub'))}</small></div></button><p class="hint">${esc(t('hint.dragField'))}</p>${dims}<div class="section"><button class="btn sm" data-ins="rm">${esc(t('btn.removeTile'))}</button></div>`; bindInspector(n); return; }
     const def = CAT.byId[v.kind] || { label: v.kind, roles: [], engines: ['native'] };
     const an = analysisOf(v); const a = v.analysis || {};
-    const pv = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, 64, 36, { scenario: sketchScenario(v, an), deltaBasis: an.deltaBasis, seed: 3, lang: S.lang }) : '';
+    const es = effScen(v);
+    const pv = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, 64, 36, { scenarios: es.scenarios, deltaBasis: es.basis || undefined, noRef: es.source === 'none', seed: 3, lang: S.lang }) : '';
     const engines = def.engines.map(e => `<button data-engine="${e}" class="${v.engine === e ? 'on ' + e : ''}">${CAT.engineLabel[e]}</button>`).join('');
     const rolesDef = CAT.rolesFor(def, v); const hasRef = rolesDef.some(r => r.key === 'ref');
     // Δ-Basis auch bei Typen mit Ziel-Rolle (KPI, Tacho) zeigen: dort folgt das Szenario der gebundenen Referenz (Review B13)
@@ -915,7 +1013,7 @@ window.MK_VERSION = '0.5.4';
     const analysis = hasMeasure ? grp('analysis', t('sec.analysis'), `
       <div class="grid2">
         <div class="field"><label>${esc(t('lbl.polarity'))}</label><select class="ctl" data-an="polarity">${opt(['', 'higher', 'lower'], a.polarity || '', { '': t('opt.polarity.auto', { v: t('opt.polarity.' + an.polarity) }), higher: t('opt.polarity.higher'), lower: t('opt.polarity.lower') })}</select></div>
-        ${hasBasis ? `<div class="field"><label>${esc(t('lbl.deltaBasis'))}</label><select class="ctl" data-an="deltaBasis">${opt(['', 'PL', 'PY', 'BU', 'FC'], a.deltaBasis || '', { '': t('opt.autoBase', { v: an.deltaBasis }), PL: 'PL', PY: 'PY', BU: 'BU', FC: 'FC' })}</select></div>` : '<div></div>'}
+        ${hasBasis ? `<div class="field"><label>${esc(t('lbl.deltaBasis'))}</label><select class="ctl" data-an="deltaBasis">${opt(['', 'PL', 'PY', 'BU', 'FC'], a.deltaBasis || '', { '': t('opt.autoBase', { v: AUTO_BASIS.find(x => es.refs.includes(x)) || es.refs[0] || '–' }), PL: 'PL', PY: 'PY', BU: 'BU', FC: 'FC' })}</select></div>` : '<div></div>'}
         <div class="field"><label>${esc(t('lbl.unit'))}</label><input class="ctl" data-an="unit" value="${esc(an.unit)}" placeholder="${esc(t('ph.anUnit'))}"></div>
         <div class="field"><label>${esc(t('lbl.displayUnits'))}</label><select class="ctl" data-an="displayUnits">${opt(['auto', 'none', 'K', 'M'], an.displayUnits, { auto: t('opt.du.auto'), none: t('opt.du.none'), K: t('opt.du.K'), M: t('opt.du.M') })}</select></div>
         <div class="field"><label>${esc(t('lbl.decimals'))}</label><input class="ctl" type="number" min="0" max="4" data-an="decimals" value="${an.decimals == null ? '' : an.decimals}" placeholder="${esc(t('ph.anDecimals'))}"></div>
@@ -1025,7 +1123,7 @@ window.MK_VERSION = '0.5.4';
         if (plan.scen) v.scenario = plan.scen;
         commit(); toast(t('toast.refSwapped', { o: mm.field.name, n: c.name }) + (plan.scen ? ' · ' + t('toast.scenAdjusted', { s: plan.scen }) : ''));
       } else if (b.dataset.mm === 'scen') { v.scenario = b.dataset.s; commit(); toast(t('toast.scenAdjusted', { s: v.scenario })); }
-      else if (b.dataset.mm === 'auto') { if (v.analysis) delete v.analysis.deltaBasis; commit(); toast(t('toast.basisAuto', { b: analysisOf(v).deltaBasis })); }
+      else if (b.dataset.mm === 'auto') { if (v.analysis) delete v.analysis.deltaBasis; commit(); toast(t('toast.basisAuto', { b: analysisOf(v).deltaBasis || '–' })); }
     });
     $$('[data-vkb]', insEl).forEach(x => x.addEventListener('change', () => { n.visual[x.dataset.vkb] = x.checked; commit({ keep: true }); }));
     // Analyse-Block: leer = nicht entschieden (Schlüssel wird entfernt), sonst Wert speichern
@@ -1057,7 +1155,8 @@ window.MK_VERSION = '0.5.4';
 
   $$('.panel.right details.sub[id]').forEach(d => { if (d.id in panelOpen) d.open = !!panelOpen[d.id]; });
   $('.panel.right').addEventListener('toggle', e => { const d = e.target; if (d && d.matches && d.matches('details.sub')) { const key = d.dataset.grp || d.id; if (key) grpRemember(key, d.open); } }, true);
-  $$('.tab').forEach(tb => tb.onclick = () => { $$('.tab').forEach(x => x.classList.toggle('active', x === tb)); ['el', 'page', 'report', 'chrome', 'design'].forEach(k => { $('#ins' + k[0].toUpperCase() + k.slice(1)).hidden = tb.dataset.tab !== k; }); });
+  // Tab „Live" (live.js, nur mit ?live=1 sichtbar): den Inhalt zeichnet live.js, hier nur das Umschalten wie bei den anderen Tabs
+  $$('.tab').forEach(tb => tb.onclick = () => { $$('.tab').forEach(x => x.classList.toggle('active', x === tb)); ['el', 'page', 'report', 'chrome', 'design', 'live'].forEach(k => { const el = $('#ins' + k[0].toUpperCase() + k.slice(1)); if (el) el.hidden = tb.dataset.tab !== k; }); try { window.dispatchEvent(new CustomEvent('mk:tab', { detail: tb.dataset.tab })); } catch (e) { /* kein Listener */ } });
 
   // ------------------------------------------------------------------ Inspector · Seite / Rahmen / Design
   const bind = (id, set, ev) => {
@@ -1280,18 +1379,32 @@ window.MK_VERSION = '0.5.4';
     endExpr();
     return out;
   }
-  function ingestTmdlFiles(files) {
+  // opts.source: Name der Quelle (live.js übergibt den Projektnamen, File-Objekte aus Verzeichnis-Handles haben keinen webkitRelativePath).
+  // Liefert ein Promise: true, wenn ein Modell geladen wurde.
+  function ingestTmdlFiles(files, opts) {
     const tmdl = files.filter(f => /\.tmdl$/i.test(f.name) && !/^(model|database|relationships|expressions|cultures)\.tmdl$/i.test(f.name));
-    if (!tmdl.length) return toast(t('toast.noTmdl', { n: files.length }));
-    Promise.all(tmdl.map(f => f.text())).then(texts => {
+    if (!tmdl.length) { toast(t('toast.noTmdl', { n: files.length })); return Promise.resolve(false); }
+    return Promise.all(tmdl.map(f => f.text())).then(texts => {
       const tables = []; texts.forEach(txt => parseTmdl(txt).forEach(tb => tables.push(tb)));
-      const rel = tmdl[0].webkitRelativePath || ''; const src = rel.includes('/') ? rel.split('/')[0] : t('model.tmdlSrc', { n: tmdl.length });
+      const rel = tmdl[0].webkitRelativePath || ''; const src = (opts && opts.source) || (rel.includes('/') ? rel.split('/')[0] : t('model.tmdlSrc', { n: tmdl.length }));
       const good = tables.filter(tb => tb.columns.length || tb.measures.length);
-      if (!good.length) return toast(t('toast.tmdlEmpty'));
+      if (!good.length) { toast(t('toast.tmdlEmpty')); return false; }
       S.model = { tables: good, source: src, loadedAt: new Date().toISOString(), parser: 2 };   // parser 2 = mit DAX-Formeln (v0.5.3)
       const miss = syncFieldFlags(); openMeasureTable(); commit();
       toast(t('toast.tmdlOk', { tables: good.length, measures: good.reduce((a, tb) => a + tb.measures.length, 0), columns: good.reduce((a, tb) => a + tb.columns.length, 0) }) + (miss ? ' · ' + t('toast.fieldsMissing', { n: miss }) : ''));
-    }).catch(err => toast(t('toast.readFailed', { msg: err.message })));
+      return true;
+    }).catch(err => { toast(t('toast.readFailed', { msg: err.message })); return false; });
+  }
+  // Seiten aus dem Projekt übernehmen (live.js, Layout aus dem PBIR): ein Rückgängig-Schritt. opts.canvas = { w, h } setzt die Seitengröße mit.
+  function setPages(pages, opts) {
+    if (!Array.isArray(pages) || !pages.length) return false;
+    const next = JSON.parse(JSON.stringify(pages)).filter(p => p && p.layout);
+    if (!next.length) return false;
+    next.forEach(p => { if (!p.id) p.id = uid(); if (p.name == null) p.name = t('state.firstPage'); if (p.notes == null) p.notes = ''; ensureIds(p.layout); });
+    S.pages = next; S.cur = next[0].id; sel = null;
+    const cv = opts && opts.canvas; if (cv && cv.w > 0 && cv.h > 0) { S.canvas.w = Math.round(cv.w); S.canvas.h = Math.round(cv.h); const pre = S.canvas.w + 'x' + S.canvas.h; S.canvas.preset = $$('#canvasPreset option').some(o => o.value === pre) ? pre : 'custom'; fitZoom(); }
+    try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Übernehmen nie verhindern */ }
+    commit(); return true;
   }
   $('#btnImportTmdl').onclick = () => $('#fileTmdl').click();
   $('#fileTmdl').addEventListener('change', e => { ingestTmdlFiles(Array.from(e.target.files)); e.target.value = ''; });
@@ -1584,7 +1697,9 @@ window.MK_VERSION = '0.5.4';
     get state() { return S; }, set state(v) { S = migrate(v); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Öffnen nie verhindern */ } sel = null; commit(); },
     page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, fmtOf, FORMAT_WISH, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     fieldStatus, refMismatch, sketchScenario, basisOfName, syncFieldFlags,
+    effScen, sketchOpts, sketchInfo, tileGeom, placeholderChips, hasChips: hasChipsOf,
     setLang, get lang() { return I18N.lang; }, copyText, tileInk,
+    ingestTmdlFiles, setPages, setKind,
     markClean() { cleanPrint = fingerprint(S); }, isUnchanged() { return (cleanPrint !== null && cleanPrint === fingerprint(S)) || isPristine(); },
     // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
     // Der Verlauf beginnt neu; commit() legt danach den Stand vor „Neu" als einen Schritt ab, Strg+Z holt ihn also zurück.

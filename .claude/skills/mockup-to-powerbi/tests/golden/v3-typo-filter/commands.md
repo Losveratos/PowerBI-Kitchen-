@@ -44,7 +44,7 @@ pbir batch run "<out>/Ubersicht/chrome-batch.json" --root "Test.Report"
 bash "<out>/Ubersicht/analysis-commands.sh"
 ```
 
-> Seitennavigation in der Fußleiste (`navPosition: "footer"`): 2 Buttons `chrome_nav_*` rechtsbündig, Schrift 14.5 pt; das Kopfband bleibt ohne Nav.
+> Seitennavigation in der Fußleiste (`navPosition: "footer"`): 2 Buttons `chrome_nav_*` rechtsbündig, Schrift 10.5 pt; das Kopfband bleibt ohne Nav.
 > Slicer „Date" ist ein Datumsbereich: `DimDate.Date` muss vom Typ Date/DateTime sein, sonst zeigt Power BI keinen Kalender (`te get`).
 
 ## 2 · Seite „Detail"
@@ -78,7 +78,7 @@ pbir batch run "<out>/Detail/chrome-batch.json" --root "Test.Report"
 bash "<out>/Detail/analysis-commands.sh"
 ```
 
-> Seitennavigation in der Fußleiste (`navPosition: "footer"`): 2 Buttons `chrome_nav_*` rechtsbündig, Schrift 14.5 pt; das Kopfband bleibt ohne Nav.
+> Seitennavigation in der Fußleiste (`navPosition: "footer"`): 2 Buttons `chrome_nav_*` rechtsbündig, Schrift 10.5 pt; das Kopfband bleibt ohne Nav.
 > Slicer „Date" ist ein Datumsbereich: `DimDate.Date` muss vom Typ Date/DateTime sein, sonst zeigt Power BI keinen Kalender (`te get`).
 
 ## Zweiter Lauf (Delta)
@@ -107,7 +107,8 @@ Nur über eine vorhandene Referenz-Instanz replizieren — Vorgehen in `.claude/
 ```bash
 # Detail · AC vs. PL je Monat (columns → orientation columns)
 pbir add visual shape "Test.Report/Detail.Page" -n "mk_ck1_slot" -x 24 -y 108 -w 1572 -h 450 -t "ChartKitchen: columns"
-pbir set "Test.Report/Detail.Page/mk_ck1_slot.Visual.text.text" --value "ChartKitchen: columns · AC vs. PL je Monat"
+pbir set "Test.Report/Detail.Page/mk_ck1_slot.Visual.text.show" --value true
+pbir set "Test.Report/Detail.Page/mk_ck1_slot.Visual.text.default.text" --value "ChartKitchen: columns · AC vs. PL je Monat"
 ```
 
 ## Verifizieren

@@ -1,240 +1,11 @@
 [
   {
-    "id": "p1_v01_Umsatz",
-    "stableId": "p1_v01_Umsatz",
-    "page": "Übersicht",
-    "title": "Umsatz",
-    "subtitle": "",
-    "kind": "kpi",
-    "label": "KPI-Kachel (IBCS)",
-    "rect": {
-      "x": 16,
-      "y": 72,
-      "w": 317,
-      "h": 119
-    },
-    "scenario": null,
-    "notes": "",
-    "analysis": {
-      "polarity": "higher",
-      "polarityAuto": true,
-      "deltaBasis": null,
-      "deltaBasisAuto": true,
-      "deltaKind": [
-        "abs",
-        "rel"
-      ],
-      "unit": null,
-      "displayUnits": null,
-      "decimals": null,
-      "sort": null,
-      "topN": null,
-      "timeGrain": null,
-      "cumulative": false,
-      "scaleGroup": null,
-      "message": null,
-      "smallMultiples": null,
-      "fieldParam": null
-    },
-    "workshop": {
-      "priority": null,
-      "status": "open",
-      "openQuestion": false
-    },
-    "mockupRoles": {
-      "indicator": [
-        "_Measures.Umsatz"
-      ],
-      "goal": [
-        "_Measures.PL"
-      ]
-    },
-    "chartKitchenType": "kpi",
-    "orientation": "cards",
-    "chartProps": {
-      "orientation": "cards"
-    },
-    "chartKitchenRoles": {
-      "actual": [
-        "_Measures.Umsatz"
-      ],
-      "plan": [
-        "_Measures.PL"
-      ]
-    },
-    "nativeFallback": {
-      "type": "card",
-      "buckets": {
-        "Values": [
-          {
-            "ref": "_Measures.Umsatz",
-            "kind": "measure",
-            "isNew": false
-          }
-        ]
-      }
-    },
-    "warnings": []
-  },
-  {
-    "id": "p1_v03_Deckungsbeitrag",
-    "stableId": "p1_v03_Deckungsbeitrag",
-    "page": "Übersicht",
-    "title": "Deckungsbeitrag",
-    "subtitle": "",
-    "kind": "kpi",
-    "label": "KPI-Kachel (IBCS)",
-    "rect": {
-      "x": 669,
-      "y": 72,
-      "w": 330,
-      "h": 119
-    },
-    "scenario": null,
-    "notes": "",
-    "analysis": {
-      "polarity": "higher",
-      "polarityAuto": true,
-      "deltaBasis": null,
-      "deltaBasisAuto": true,
-      "deltaKind": [
-        "abs",
-        "rel"
-      ],
-      "unit": null,
-      "displayUnits": null,
-      "decimals": null,
-      "sort": null,
-      "topN": null,
-      "timeGrain": null,
-      "cumulative": false,
-      "scaleGroup": null,
-      "message": null,
-      "smallMultiples": null,
-      "fieldParam": null
-    },
-    "workshop": {
-      "priority": null,
-      "status": "open",
-      "openQuestion": false
-    },
-    "mockupRoles": {
-      "indicator": [
-        "_Measures.Deckungsbeitrag"
-      ],
-      "goal": [
-        "_Measures.PL"
-      ]
-    },
-    "chartKitchenType": "kpi",
-    "orientation": "cards",
-    "chartProps": {
-      "orientation": "cards"
-    },
-    "chartKitchenRoles": {
-      "actual": [
-        "_Measures.Deckungsbeitrag"
-      ],
-      "plan": [
-        "_Measures.PL"
-      ]
-    },
-    "nativeFallback": {
-      "type": "card",
-      "buckets": {
-        "Values": [
-          {
-            "ref": "_Measures.Deckungsbeitrag",
-            "kind": "measure",
-            "isNew": true
-          }
-        ]
-      }
-    },
-    "warnings": []
-  },
-  {
-    "id": "p1_v04_Marge",
-    "stableId": "p1_v04_Marge",
-    "page": "Übersicht",
-    "title": "Marge",
-    "subtitle": "",
-    "kind": "kpi",
-    "label": "KPI-Kachel (IBCS)",
-    "rect": {
-      "x": 1011,
-      "y": 72,
-      "w": 253,
-      "h": 119
-    },
-    "scenario": null,
-    "notes": "",
-    "analysis": {
-      "polarity": "higher",
-      "polarityAuto": true,
-      "deltaBasis": null,
-      "deltaBasisAuto": true,
-      "deltaKind": [
-        "abs",
-        "rel"
-      ],
-      "unit": null,
-      "displayUnits": null,
-      "decimals": null,
-      "sort": null,
-      "topN": null,
-      "timeGrain": null,
-      "cumulative": false,
-      "scaleGroup": null,
-      "message": null,
-      "smallMultiples": null,
-      "fieldParam": null
-    },
-    "workshop": {
-      "priority": null,
-      "status": "open",
-      "openQuestion": false
-    },
-    "mockupRoles": {
-      "indicator": [
-        "_Measures.Marge"
-      ],
-      "goal": [
-        "_Measures.PL"
-      ]
-    },
-    "chartKitchenType": "kpi",
-    "orientation": "cards",
-    "chartProps": {
-      "orientation": "cards"
-    },
-    "chartKitchenRoles": {
-      "actual": [
-        "_Measures.Marge"
-      ],
-      "plan": [
-        "_Measures.PL"
-      ]
-    },
-    "nativeFallback": {
-      "type": "card",
-      "buckets": {
-        "Values": [
-          {
-            "ref": "_Measures.Marge",
-            "kind": "measure",
-            "isNew": false
-          }
-        ]
-      }
-    },
-    "warnings": []
-  },
-  {
     "id": "p1_v06_Umsatz_AC_FC_vs_PL_je_Monat",
     "stableId": "p1_v06_Umsatz_AC_FC_vs_PL_je_Monat",
     "page": "Übersicht",
     "title": "Umsatz AC/FC vs PL je Monat",
+    "titleText": "Umsatz AC/FC vs PL je Monat",
+    "titleShown": true,
     "subtitle": "in T€",
     "kind": "varint",
     "label": "Integrierte Varianzanalyse",
@@ -298,16 +69,363 @@
       "actual": [
         "_Measures.AC"
       ],
-      "plan": [
-        "_Measures.PL"
-      ],
       "fcFlag": [
         "DimDate.IsForecast"
+      ],
+      "plan": [
+        "_Measures.PL"
       ]
     },
     "nativeFallback": null,
     "warnings": [
       "`fcFlag` muss die **Zahl** 1/0 liefern, kein Boolean (DimDate.IsForecast pruefen)."
-    ]
+    ],
+    "ckSettings": {
+      "chart.orientation": "intwaterfall",
+      "chart.comparisonMode": "plan",
+      "chart.showAbsoluteVariance": true,
+      "chart.showRelativeVariance": true,
+      "chart.invert": false,
+      "chart.chartButtons": false,
+      "chart.smartStart": false,
+      "labels.displayUnits": "auto",
+      "labels.decimals": 0,
+      "labels.fontPreset": "compact",
+      "labels.fontScale": 100,
+      "labels.fontSize": 9,
+      "categoryAxis.fontSize": 9,
+      "colors.appearance": "light",
+      "colors.goodColor": "#1E8F9E",
+      "colors.badColor": "#D64541",
+      "ibcsTitle.kpi": "Umsatz AC/FC vs PL je Monat",
+      "ibcsTitle.show": false
+    },
+    "objects": {
+      "chart": [
+        {
+          "properties": {
+            "orientation": {
+              "expr": {
+                "Literal": {
+                  "Value": "'intwaterfall'"
+                }
+              }
+            },
+            "comparisonMode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'plan'"
+                }
+              }
+            },
+            "showAbsoluteVariance": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "showRelativeVariance": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "invert": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "chartButtons": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "smartStart": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "labels": [
+        {
+          "properties": {
+            "displayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "'auto'"
+                }
+              }
+            },
+            "decimals": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            },
+            "fontPreset": {
+              "expr": {
+                "Literal": {
+                  "Value": "'compact'"
+                }
+              }
+            },
+            "fontScale": {
+              "expr": {
+                "Literal": {
+                  "Value": "100D"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "categoryAxis": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "colors": [
+        {
+          "properties": {
+            "appearance": {
+              "expr": {
+                "Literal": {
+                  "Value": "'light'"
+                }
+              }
+            },
+            "goodColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#1E8F9E'"
+                    }
+                  }
+                }
+              }
+            },
+            "badColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#D64541'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "ibcsTitle": [
+        {
+          "properties": {
+            "kpi": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Umsatz AC/FC vs PL je Monat'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "container": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Umsatz AC/FC vs PL je Monat'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#0F1E2E'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'in T€'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "7D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#57626D'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#E1DFD6'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropShadow": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "z": 10
   }
 ]

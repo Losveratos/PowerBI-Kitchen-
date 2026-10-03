@@ -19,8 +19,8 @@
       "dir": "Ubersicht",
       "slug": "Ubersicht",
       "visuals": 5,
-      "chrome": 10,
-      "ck": 6,
+      "chrome": 13,
+      "ck": 3,
       "deneb": 0
     },
     {
@@ -28,8 +28,8 @@
       "dir": "Detail_Produktlinie",
       "slug": "Detail_Produktlinie",
       "visuals": 4,
-      "chrome": 10,
-      "ck": 5,
+      "chrome": 13,
+      "ck": 3,
       "deneb": 0
     }
   ],
@@ -144,6 +144,18 @@
       "batch": null
     },
     {
+      "id": "custom:Ubersicht",
+      "op": "custom_visuals",
+      "page": "Übersicht",
+      "idempotent": "Platzhalter-Shape schlägt beim zweiten Mal fehl (Name existiert); das Kopieren der visual.json ist beliebig wiederholbar.",
+      "delta": "Im Delta-Lauf reicht das Kopieren der neu erzeugten visual.json — sie enthält Position, Größe, Bindung und Container-Formatierung vollständig.",
+      "commands": [
+        "# .pbiviz zuerst in den Bericht importieren (Desktop): ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+        "bash \"<out>/Ubersicht/custom-commands.sh\""
+      ],
+      "batch": null
+    },
+    {
       "id": "page:Detail_Produktlinie",
       "op": "add_page",
       "page": "Detail Produktlinie",
@@ -224,6 +236,18 @@
       "batch": null
     },
     {
+      "id": "custom:Detail_Produktlinie",
+      "op": "custom_visuals",
+      "page": "Detail Produktlinie",
+      "idempotent": "Platzhalter-Shape schlägt beim zweiten Mal fehl (Name existiert); das Kopieren der visual.json ist beliebig wiederholbar.",
+      "delta": "Im Delta-Lauf reicht das Kopieren der neu erzeugten visual.json — sie enthält Position, Größe, Bindung und Container-Formatierung vollständig.",
+      "commands": [
+        "# .pbiviz zuerst in den Bericht importieren (Desktop): ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+        "bash \"<out>/Detail_Produktlinie/custom-commands.sh\""
+      ],
+      "batch": null
+    },
+    {
       "id": "navigation",
       "op": "commands",
       "page": null,
@@ -262,13 +286,6 @@
   ],
   "todos": [
     {
-      "code": "CK_INVERT",
-      "page": "Übersicht",
-      "visual": "mk_5z33e3b",
-      "title": "Umsatz",
-      "text": "ChartKitchen-Slot: `chart.invert = true` setzen (kleiner = besser)."
-    },
-    {
       "code": "POLARITY",
       "page": "Übersicht",
       "visual": "mk_9rdsrnj",
@@ -304,13 +321,6 @@
       "text": "Sortierung delta desc: Kachel ist kein natives Visual im Bericht (ChartKitchen/Deneb regeln das selbst)."
     },
     {
-      "code": "DISPLAY_UNITS_SLOT",
-      "page": "Übersicht",
-      "visual": "mk_wf01",
-      "title": "Brücke AC vs PL",
-      "text": "Anzeigeeinheit M / 0 Dezimalstellen im ChartKitchen- bzw. Deneb-Slot setzen."
-    },
-    {
       "code": "TIME_GRAIN",
       "page": "Übersicht",
       "visual": "mk_wf01",
@@ -318,11 +328,11 @@
       "text": "Zeitgranularitaet „quarter\": das Kategorie-Feld muss auf dieser Ebene gebunden sein (Datumshierarchie oder eigene Spalte). pbir bindet, was in der Spec steht."
     },
     {
-      "code": "CUMULATIVE",
+      "code": "CUMULATIVE_CK_MODE",
       "page": "Übersicht",
       "visual": "mk_wf01",
       "title": "Brücke AC vs PL",
-      "text": "Kumulierte Darstellung (YTD) braucht eine YTD-Kennzahl im Modell (TOTALYTD/DATESYTD) — nicht im Bericht loesbar."
+      "text": "Kumuliert (YTD): ChartKitchen kumuliert selbst, aber nur in den Modi columns, line und table — hier `waterfall`."
     },
     {
       "code": "SCALE_GROUP",
@@ -330,13 +340,6 @@
       "visual": "mk_wf01",
       "title": "Brücke AC vs PL",
       "text": "Gemeinsame Skala „A\": Wertachse auf allen Kacheln der Gruppe auf denselben Bereich setzen (`pbir visuals axis <Visual> value --min <a> --max <b>`)."
-    },
-    {
-      "code": "DELTA_BASIS",
-      "page": "Übersicht",
-      "visual": "mk_wf01",
-      "title": "Brücke AC vs PL",
-      "text": "Δ-Basis FC -> ChartKitchen-Rolle `forecast` belegen."
     },
     {
       "code": "SLICER_DEFAULT",
@@ -360,13 +363,6 @@
       "text": "Zeitgranularitaet „month\": das Kategorie-Feld muss auf dieser Ebene gebunden sein (Datumshierarchie oder eigene Spalte). pbir bindet, was in der Spec steht."
     },
     {
-      "code": "DELTA_BASIS",
-      "page": "Detail Produktlinie",
-      "visual": "mk_cl01",
-      "title": "Umsatz und Marge",
-      "text": "Δ-Basis PY -> ChartKitchen-Rolle `previousYear` belegen."
-    },
-    {
       "code": "SLICER_DEFAULT",
       "page": "Detail Produktlinie",
       "visual": "mk_slicer_Year_p2",
@@ -374,8 +370,99 @@
       "text": "Vorauswahl DimDate.Year = 2026: `pbir add filter` legt einen kategorialen Visual-Filter an. In Desktop pruefen, ob die Auswahl im Slicer sichtbar ist — sonst dort einmal klicken und speichern."
     }
   ],
-  "issues": [],
+  "issues": [
+    {
+      "level": "warn",
+      "code": "CUSTOM_VISUAL",
+      "text": "[Übersicht / mk_7ixiebk] Pflichtrolle `ac` ist leer — IBCS KPI Card 2.3 zeichnet ohne sie nichts. Feld im Mockup nachtragen oder im Bericht nachbinden."
+    }
+  ],
   "fieldParams": [],
   "smallMultiples": [],
-  "customVisuals": []
+  "customVisuals": [
+    {
+      "page": "Übersicht",
+      "visual": "mk_5z33e3b",
+      "name": "ibcsKpiCard",
+      "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+      "file": "<out>/Ubersicht/custom-visuals/mk_5z33e3b.visual.json",
+      "buckets": {
+        "ac": [
+          "_Measures.Kosten"
+        ],
+        "pl": [
+          "_Measures.PL"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "page": "Übersicht",
+      "visual": "mk_7ixiebk",
+      "name": "ibcsKpiCard",
+      "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+      "file": "<out>/Ubersicht/custom-visuals/mk_7ixiebk.visual.json",
+      "buckets": {
+        "pl": [
+          "_Measures.PL"
+        ]
+      },
+      "warnings": [
+        "Pflichtrolle `ac` ist leer — IBCS KPI Card 2.3 zeichnet ohne sie nichts. Feld im Mockup nachtragen oder im Bericht nachbinden."
+      ]
+    },
+    {
+      "page": "Übersicht",
+      "visual": "mk_ldc3xxy",
+      "name": "ibcsKpiCard",
+      "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+      "file": "<out>/Ubersicht/custom-visuals/mk_ldc3xxy.visual.json",
+      "buckets": {
+        "ac": [
+          "_Measures.Marge"
+        ],
+        "pl": [
+          "_Measures.PL"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "page": "Detail Produktlinie",
+      "visual": "mk_nav2msq",
+      "name": "ibcsKpiCard",
+      "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+      "file": "<out>/Detail_Produktlinie/custom-visuals/mk_nav2msq.visual.json",
+      "buckets": {
+        "ac": [
+          "_Measures.Umsatz"
+        ],
+        "pl": [
+          "_Measures.PL"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "page": "Detail Produktlinie",
+      "visual": "mk_ap1p6su",
+      "name": "ibcsKpiCard",
+      "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+      "file": "<out>/Detail_Produktlinie/custom-visuals/mk_ap1p6su.visual.json",
+      "buckets": {
+        "ac": [
+          "_Measures.Marge%"
+        ],
+        "pl": [
+          "_Measures.PL"
+        ]
+      },
+      "warnings": []
+    }
+  ]
 }

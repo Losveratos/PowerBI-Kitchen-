@@ -32,8 +32,8 @@ Mockup: **Typografie- und Filter-Testfall** · specVersion 3 (gelesen als v3) ·
 
 | Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
 |---|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | Wo stehen Umsatz und Kosten je Region? | 6 | 1 | 10 | 0 | 0 | 0 |
-| Detail | `Detail/` | Wie läuft AC gegen Plan im Jahresverlauf? | 4 | 0 | 10 | 1 | 0 | 0 |
+| Übersicht | `Ubersicht/` | Wo stehen Umsatz und Kosten je Region? | 6 | 1 | 13 | 0 | 0 | 0 |
+| Detail | `Detail/` | Wie läuft AC gegen Plan im Jahresverlauf? | 4 | 0 | 13 | 1 | 0 | 0 |
 
 ## Barrierefreiheit
 
@@ -52,7 +52,7 @@ Befunde der Barrierefreiheits-Prüfung im Tool (Kontrast, Schriftgrößen, Kache
 
 ## Hinweise aus dem Chrome-Aufbau
 
-- [ ] Seitennavigation in der Fußleiste (`navPosition: "footer"`): 2 Buttons `chrome_nav_*` rechtsbündig, Schrift 14.5 pt; das Kopfband bleibt ohne Nav.
+- [ ] Seitennavigation in der Fußleiste (`navPosition: "footer"`): 2 Buttons `chrome_nav_*` rechtsbündig, Schrift 10.5 pt; das Kopfband bleibt ohne Nav.
 - [ ] Slicer „Date" ist ein Datumsbereich: `DimDate.Date` muss vom Typ Date/DateTime sein, sonst zeigt Power BI keinen Kalender (`te get`).
 
 ## ChartKitchen-Rollen-Mapping

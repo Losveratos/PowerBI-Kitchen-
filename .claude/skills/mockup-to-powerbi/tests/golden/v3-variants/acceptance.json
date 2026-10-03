@@ -42,9 +42,9 @@
           "type": "shape",
           "rect": {
             "x": 16,
-            "y": 12,
-            "w": 120,
-            "h": 32
+            "y": 13,
+            "w": 88,
+            "h": 30
           },
           "role": "chrome",
           "fields": {}
@@ -53,10 +53,10 @@
           "name": "chrome_header_title",
           "type": "shape",
           "rect": {
-            "x": 152,
-            "y": 6,
-            "w": 1112,
-            "h": 26
+            "x": 118,
+            "y": 7,
+            "w": 1146,
+            "h": 25
           },
           "role": "chrome",
           "fields": {}
@@ -65,10 +65,10 @@
           "name": "chrome_header_subtitle",
           "type": "shape",
           "rect": {
-            "x": 152,
+            "x": 118,
             "y": 32,
-            "w": 1112,
-            "h": 18
+            "w": 1146,
+            "h": 16
           },
           "role": "chrome",
           "fields": {}
@@ -86,13 +86,49 @@
           "fields": {}
         },
         {
+          "name": "chrome_filter_rule",
+          "type": "shape",
+          "rect": {
+            "x": 1064,
+            "y": 56,
+            "w": 1,
+            "h": 640
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
           "name": "chrome_filter_title",
           "type": "shape",
           "rect": {
-            "x": 1072,
-            "y": 64,
-            "w": 184,
+            "x": 1074,
+            "y": 68,
+            "w": 180,
+            "h": 16
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_bg",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 696,
+            "w": 1280,
             "h": 24
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_rule",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 696,
+            "w": 1280,
+            "h": 1
           },
           "role": "chrome",
           "fields": {}
@@ -102,9 +138,9 @@
           "type": "shape",
           "rect": {
             "x": 16,
-            "y": 696,
+            "y": 697,
             "w": 1248,
-            "h": 24
+            "h": 23
           },
           "role": "chrome",
           "fields": {}
@@ -218,10 +254,10 @@
           "name": "mk_slicer_Year_p1",
           "type": "slicer",
           "rect": {
-            "x": 1072,
-            "y": 96,
-            "w": 184,
-            "h": 56
+            "x": 1074,
+            "y": 92,
+            "w": 180,
+            "h": 76
           },
           "role": "slicer",
           "fields": {

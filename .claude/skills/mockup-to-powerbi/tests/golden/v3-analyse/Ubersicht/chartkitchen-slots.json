@@ -1,227 +1,11 @@
 [
   {
-    "id": "mk_5z33e3b",
-    "stableId": "5z33e3b",
-    "page": "Übersicht",
-    "title": "Umsatz",
-    "subtitle": "",
-    "kind": "kpi",
-    "label": "KPI-Kachel (IBCS)",
-    "rect": {
-      "x": 16,
-      "y": 72,
-      "w": 317,
-      "h": 119
-    },
-    "scenario": null,
-    "notes": "",
-    "analysis": {
-      "polarity": "lower",
-      "polarityAuto": false,
-      "deltaBasis": "PL",
-      "deltaBasisAuto": true,
-      "deltaKind": [
-        "abs",
-        "rel"
-      ],
-      "unit": null,
-      "displayUnits": null,
-      "decimals": null,
-      "sort": null,
-      "topN": null,
-      "timeGrain": null,
-      "cumulative": false,
-      "scaleGroup": null,
-      "message": null,
-      "smallMultiples": null,
-      "fieldParam": null
-    },
-    "workshop": {
-      "priority": null,
-      "status": "open",
-      "openQuestion": false
-    },
-    "mockupRoles": {
-      "indicator": [
-        "_Measures.Kosten"
-      ],
-      "goal": [
-        "_Measures.PL"
-      ]
-    },
-    "chartKitchenType": "kpi",
-    "orientation": "cards",
-    "chartProps": {
-      "orientation": "cards",
-      "invert": true
-    },
-    "chartKitchenRoles": {
-      "actual": [
-        "_Measures.Kosten"
-      ],
-      "plan": [
-        "_Measures.PL"
-      ]
-    },
-    "nativeFallback": {
-      "type": "card",
-      "buckets": {
-        "Values": [
-          {
-            "ref": "_Measures.Kosten",
-            "kind": "measure",
-            "isNew": false
-          }
-        ]
-      }
-    },
-    "warnings": []
-  },
-  {
-    "id": "mk_7ixiebk",
-    "stableId": "7ixiebk",
-    "page": "Übersicht",
-    "title": "Deckungsbeitrag",
-    "subtitle": "",
-    "kind": "kpi",
-    "label": "KPI-Kachel (IBCS)",
-    "rect": {
-      "x": 669,
-      "y": 72,
-      "w": 330,
-      "h": 119
-    },
-    "scenario": null,
-    "notes": "",
-    "analysis": {
-      "polarity": "higher",
-      "polarityAuto": true,
-      "deltaBasis": "PL",
-      "deltaBasisAuto": true,
-      "deltaKind": [
-        "abs",
-        "rel"
-      ],
-      "unit": null,
-      "displayUnits": null,
-      "decimals": null,
-      "sort": null,
-      "topN": null,
-      "timeGrain": null,
-      "cumulative": false,
-      "scaleGroup": null,
-      "message": null,
-      "smallMultiples": null,
-      "fieldParam": null
-    },
-    "workshop": {
-      "priority": null,
-      "status": "open",
-      "openQuestion": false
-    },
-    "mockupRoles": {
-      "goal": [
-        "_Measures.PL"
-      ]
-    },
-    "chartKitchenType": "kpi",
-    "orientation": "cards",
-    "chartProps": {
-      "orientation": "cards"
-    },
-    "chartKitchenRoles": {
-      "plan": [
-        "_Measures.PL"
-      ]
-    },
-    "nativeFallback": {
-      "type": "card",
-      "buckets": {}
-    },
-    "warnings": []
-  },
-  {
-    "id": "mk_ldc3xxy",
-    "stableId": "ldc3xxy",
-    "page": "Übersicht",
-    "title": "Marge",
-    "subtitle": "",
-    "kind": "kpi",
-    "label": "KPI-Kachel (IBCS)",
-    "rect": {
-      "x": 1011,
-      "y": 72,
-      "w": 253,
-      "h": 119
-    },
-    "scenario": null,
-    "notes": "",
-    "analysis": {
-      "polarity": "higher",
-      "polarityAuto": true,
-      "deltaBasis": "PL",
-      "deltaBasisAuto": true,
-      "deltaKind": [
-        "abs",
-        "rel"
-      ],
-      "unit": null,
-      "displayUnits": null,
-      "decimals": null,
-      "sort": null,
-      "topN": null,
-      "timeGrain": null,
-      "cumulative": false,
-      "scaleGroup": null,
-      "message": null,
-      "smallMultiples": null,
-      "fieldParam": null
-    },
-    "workshop": {
-      "priority": null,
-      "status": "open",
-      "openQuestion": false
-    },
-    "mockupRoles": {
-      "indicator": [
-        "_Measures.Marge"
-      ],
-      "goal": [
-        "_Measures.PL"
-      ]
-    },
-    "chartKitchenType": "kpi",
-    "orientation": "cards",
-    "chartProps": {
-      "orientation": "cards"
-    },
-    "chartKitchenRoles": {
-      "actual": [
-        "_Measures.Marge"
-      ],
-      "plan": [
-        "_Measures.PL"
-      ]
-    },
-    "nativeFallback": {
-      "type": "card",
-      "buckets": {
-        "Values": [
-          {
-            "ref": "_Measures.Marge",
-            "kind": "measure",
-            "isNew": false
-          }
-        ]
-      }
-    },
-    "warnings": []
-  },
-  {
     "id": "mk_7rbkjp5",
     "stableId": "7rbkjp5",
     "page": "Übersicht",
     "title": "Δ PL je Produktlinie",
+    "titleText": "Δ PL je Produktlinie",
+    "titleShown": true,
     "subtitle": "",
     "kind": "wfint",
     "label": "Wasserfall horizontal + Varianz",
@@ -271,9 +55,9 @@
       ]
     },
     "chartKitchenType": "wfint",
-    "orientation": "intwaterfall",
+    "orientation": "catbridge",
     "chartProps": {
-      "orientation": "intwaterfall"
+      "orientation": "catbridge"
     },
     "chartKitchenRoles": {
       "category": [
@@ -287,13 +71,377 @@
       ]
     },
     "nativeFallback": null,
-    "warnings": []
+    "warnings": [],
+    "orientationFrom": "intwaterfall",
+    "ckSettings": {
+      "chart.orientation": "catbridge",
+      "chart.comparisonMode": "plan",
+      "chart.showAbsoluteVariance": true,
+      "chart.showRelativeVariance": true,
+      "chart.invert": false,
+      "chart.chartButtons": false,
+      "chart.smartStart": false,
+      "labels.displayUnits": "auto",
+      "labels.decimals": 0,
+      "labels.fontPreset": "compact",
+      "labels.fontScale": 100,
+      "labels.fontSize": 9,
+      "categoryAxis.fontSize": 9,
+      "colors.appearance": "light",
+      "colors.goodColor": "#1E8F9E",
+      "colors.badColor": "#D64541",
+      "ibcsTitle.kpi": "Δ PL je Produktlinie",
+      "ibcsTitle.show": false
+    },
+    "objects": {
+      "chart": [
+        {
+          "properties": {
+            "orientation": {
+              "expr": {
+                "Literal": {
+                  "Value": "'catbridge'"
+                }
+              }
+            },
+            "comparisonMode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'plan'"
+                }
+              }
+            },
+            "showAbsoluteVariance": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "showRelativeVariance": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "invert": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "chartButtons": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "smartStart": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "labels": [
+        {
+          "properties": {
+            "displayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "'auto'"
+                }
+              }
+            },
+            "decimals": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            },
+            "fontPreset": {
+              "expr": {
+                "Literal": {
+                  "Value": "'compact'"
+                }
+              }
+            },
+            "fontScale": {
+              "expr": {
+                "Literal": {
+                  "Value": "100D"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "categoryAxis": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "colors": [
+        {
+          "properties": {
+            "appearance": {
+              "expr": {
+                "Literal": {
+                  "Value": "'light'"
+                }
+              }
+            },
+            "goodColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#1E8F9E'"
+                    }
+                  }
+                }
+              }
+            },
+            "badColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#D64541'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "ibcsTitle": [
+        {
+          "properties": {
+            "kpi": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Δ PL je Produktlinie'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "container": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Δ PL je Produktlinie'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#0F1E2E'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "''"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "7D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#57626D'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropShadow": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "preset": {
+              "expr": {
+                "Literal": {
+                  "Value": "'BottomRight'"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#0F1E2E'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "85D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "z": 10
   },
   {
     "id": "mk_kv12rex",
     "stableId": "kv12rex",
     "page": "Übersicht",
     "title": "Umsatz AC/FC vs PL je Monat",
+    "titleText": "Umsatz AC/FC vs PL je Monat",
+    "titleShown": true,
     "subtitle": "in T€",
     "kind": "varint",
     "label": "Integrierte Varianzanalyse",
@@ -357,23 +505,386 @@
       "actual": [
         "_Measures.AC"
       ],
-      "plan": [
-        "_Measures.PL"
-      ],
       "fcFlag": [
         "DimDate.IsForecast"
+      ],
+      "plan": [
+        "_Measures.PL"
       ]
     },
     "nativeFallback": null,
     "warnings": [
       "`fcFlag` muss die **Zahl** 1/0 liefern, kein Boolean (DimDate.IsForecast pruefen)."
-    ]
+    ],
+    "ckSettings": {
+      "chart.orientation": "intwaterfall",
+      "chart.comparisonMode": "plan",
+      "chart.showAbsoluteVariance": true,
+      "chart.showRelativeVariance": true,
+      "chart.invert": false,
+      "chart.chartButtons": false,
+      "chart.smartStart": false,
+      "labels.displayUnits": "auto",
+      "labels.decimals": 0,
+      "labels.fontPreset": "compact",
+      "labels.fontScale": 100,
+      "labels.fontSize": 9,
+      "categoryAxis.fontSize": 9,
+      "colors.appearance": "light",
+      "colors.goodColor": "#1E8F9E",
+      "colors.badColor": "#D64541",
+      "ibcsTitle.kpi": "Umsatz AC/FC vs PL je Monat",
+      "ibcsTitle.show": false
+    },
+    "objects": {
+      "chart": [
+        {
+          "properties": {
+            "orientation": {
+              "expr": {
+                "Literal": {
+                  "Value": "'intwaterfall'"
+                }
+              }
+            },
+            "comparisonMode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'plan'"
+                }
+              }
+            },
+            "showAbsoluteVariance": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "showRelativeVariance": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "invert": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "chartButtons": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "smartStart": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "labels": [
+        {
+          "properties": {
+            "displayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "'auto'"
+                }
+              }
+            },
+            "decimals": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            },
+            "fontPreset": {
+              "expr": {
+                "Literal": {
+                  "Value": "'compact'"
+                }
+              }
+            },
+            "fontScale": {
+              "expr": {
+                "Literal": {
+                  "Value": "100D"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "categoryAxis": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "colors": [
+        {
+          "properties": {
+            "appearance": {
+              "expr": {
+                "Literal": {
+                  "Value": "'light'"
+                }
+              }
+            },
+            "goodColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#1E8F9E'"
+                    }
+                  }
+                }
+              }
+            },
+            "badColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#D64541'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "ibcsTitle": [
+        {
+          "properties": {
+            "kpi": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Umsatz AC/FC vs PL je Monat'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "container": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Umsatz AC/FC vs PL je Monat'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#0F1E2E'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'in T€'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "7D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#57626D'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropShadow": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "preset": {
+              "expr": {
+                "Literal": {
+                  "Value": "'BottomRight'"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#0F1E2E'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "85D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "z": 10
   },
   {
     "id": "mk_wf01",
     "stableId": "wf01",
     "page": "Übersicht",
     "title": "Brücke AC vs PL",
+    "titleText": "Brücke AC vs PL",
+    "titleShown": true,
     "subtitle": "",
     "kind": "waterfall",
     "label": "Wasserfall / Brücke",
@@ -460,8 +971,369 @@
       }
     },
     "warnings": [
-      "Modus `waterfall` braucht die Rolle `rowType` (sum/delta je Zeile). Das Mockup kennt die Rolle nicht — Spalte im Modell bereitstellen und im Visual binden, sonst bleibt die Bruecke leer.",
-      "Szenario `AC/PL/FC` nennt FC, aber weder eine `fcFlag`-Spalte (Zahl 1/0) noch eine `forecast`-Kennzahl ist gebunden. Eines von beidem nachziehen, sonst zeichnet ChartKitchen keinen Forecast."
-    ]
+      "Szenario `AC/PL/FC` nennt FC, aber weder eine `fcFlag`-Spalte (Zahl 1/0) noch eine `forecast`-Kennzahl ist gebunden. Eines von beidem nachziehen, sonst zeichnet ChartKitchen keinen Forecast.",
+      "Δ-Basis FC: ChartKitchen vergleicht nicht AC gegen FC (`fcrev` heisst FC gegen Vorprognose). `comparisonMode` bleibt `auto`; FC wird schraffiert gezeichnet."
+    ],
+    "ckSettings": {
+      "chart.orientation": "waterfall",
+      "chart.comparisonMode": "auto",
+      "chart.showAbsoluteVariance": true,
+      "chart.showRelativeVariance": false,
+      "chart.invert": false,
+      "chart.chartButtons": false,
+      "chart.smartStart": false,
+      "labels.displayUnits": "m",
+      "labels.decimals": 0,
+      "labels.fontPreset": "compact",
+      "labels.fontScale": 100,
+      "labels.fontSize": 9,
+      "categoryAxis.fontSize": 9,
+      "colors.appearance": "light",
+      "colors.goodColor": "#1E8F9E",
+      "colors.badColor": "#D64541",
+      "ibcsTitle.kpi": "Brücke AC vs PL",
+      "ibcsTitle.show": false
+    },
+    "objects": {
+      "chart": [
+        {
+          "properties": {
+            "orientation": {
+              "expr": {
+                "Literal": {
+                  "Value": "'waterfall'"
+                }
+              }
+            },
+            "comparisonMode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'auto'"
+                }
+              }
+            },
+            "showAbsoluteVariance": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "showRelativeVariance": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "invert": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "chartButtons": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "smartStart": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "labels": [
+        {
+          "properties": {
+            "displayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "'m'"
+                }
+              }
+            },
+            "decimals": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            },
+            "fontPreset": {
+              "expr": {
+                "Literal": {
+                  "Value": "'compact'"
+                }
+              }
+            },
+            "fontScale": {
+              "expr": {
+                "Literal": {
+                  "Value": "100D"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "categoryAxis": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "colors": [
+        {
+          "properties": {
+            "appearance": {
+              "expr": {
+                "Literal": {
+                  "Value": "'light'"
+                }
+              }
+            },
+            "goodColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#1E8F9E'"
+                    }
+                  }
+                }
+              }
+            },
+            "badColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#D64541'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "ibcsTitle": [
+        {
+          "properties": {
+            "kpi": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Brücke AC vs PL'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "container": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Brücke AC vs PL'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#0F1E2E'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "''"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "7D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#57626D'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropShadow": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "preset": {
+              "expr": {
+                "Literal": {
+                  "Value": "'BottomRight'"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#0F1E2E'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "85D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "z": 10
   }
 ]

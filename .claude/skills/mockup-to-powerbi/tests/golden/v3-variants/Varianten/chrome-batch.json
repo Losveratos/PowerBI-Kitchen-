@@ -11,47 +11,102 @@
       "set": {
         "shape.tileShape": "rectangle",
         "fill.show": true,
-        "fill.fillColor": "#F1F3F5",
+        "fill.fillColor": "#ECEBE5",
         "outline.show": false,
-        "position.z": 0
+        "position.z": 0,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-2",
       "op": "set",
-      "select": "Varianten.Page/chrome_filter_title.Visual",
+      "select": "Varianten.Page/chrome_filter_rule.Visual",
       "set": {
-        "fill.show": false,
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#E3E1D8",
         "outline.show": false,
-        "text.text": "Filter",
-        "text.fontSize": 11,
-        "text.fontColor": "#0F1E2E",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "text.bold": true,
-        "position.z": 4
+        "position.z": 1,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-3",
       "op": "set",
-      "select": "Varianten.Page/chrome_footer_text.Visual",
+      "select": "Varianten.Page/chrome_filter_title.Visual",
       "set": {
         "fill.show": false,
         "outline.show": false,
-        "text.text": "Stand: taeglich 6 Uhr · Quelle: DWH",
-        "text.fontSize": 9,
-        "text.fontColor": "#6B7280",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "position.z": 4
+        "text.show": true,
+        "text.default.text": "FILTER",
+        "text.default.fontSize": 8.5,
+        "text.default.fontColor": "#6B7280",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "text.default.bold": true,
+        "position.z": 4,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-4",
+      "op": "set",
+      "select": "Varianten.Page/chrome_footer_bg.Visual",
+      "set": {
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#F4F4F1",
+        "outline.show": false,
+        "position.z": 0,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-5",
+      "op": "set",
+      "select": "Varianten.Page/chrome_footer_rule.Visual",
+      "set": {
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#E3E1D8",
+        "outline.show": false,
+        "position.z": 1,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-6",
+      "op": "set",
+      "select": "Varianten.Page/chrome_footer_text.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.show": true,
+        "text.default.text": "Stand: taeglich 6 Uhr · Quelle: DWH",
+        "text.default.fontSize": 7.5,
+        "text.default.fontColor": "#6B7280",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "position.z": 4,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-7",
       "op": "set",
       "select": "Varianten.Page/chrome_header_bg.Visual",
       "set": {
@@ -59,73 +114,95 @@
         "fill.show": true,
         "fill.fillColor": "#FFFFFF",
         "outline.show": false,
-        "position.z": 0
-      },
-      "continue_on_error": true
-    },
-    {
-      "id": "format-5",
-      "op": "set",
-      "select": "Varianten.Page/chrome_header_rule.Visual",
-      "set": {
-        "fill.show": true,
-        "fill.fillColor": "#E5E7EB",
-        "outline.show": false,
-        "position.z": 1
-      },
-      "continue_on_error": true
-    },
-    {
-      "id": "format-6",
-      "op": "set",
-      "select": "Varianten.Page/chrome_header_subtitle.Visual",
-      "set": {
-        "fill.show": false,
-        "outline.show": false,
-        "text.text": "Umsatz und Kosten je Region",
-        "text.fontSize": 10,
-        "text.fontColor": "#6B7280",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "position.z": 4
-      },
-      "continue_on_error": true
-    },
-    {
-      "id": "format-7",
-      "op": "set",
-      "select": "Varianten.Page/chrome_header_title.Visual",
-      "set": {
-        "fill.show": false,
-        "outline.show": false,
-        "text.text": "Vertrieb 2026",
-        "text.fontSize": 16,
-        "text.fontColor": "#0F1E2E",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "text.bold": true,
-        "position.z": 4
+        "position.z": 0,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-8",
       "op": "set",
-      "select": "Varianten.Page/chrome_logo.Visual",
+      "select": "Varianten.Page/chrome_header_rule.Visual",
       "set": {
-        "fill.show": false,
-        "outline.show": true,
-        "outline.lineColor": "#0F1E2E",
-        "text.text": "LOGO",
-        "text.fontSize": 8,
-        "text.fontColor": "#0F1E2E",
-        "text.horizontalAlignment": "center",
-        "position.z": 4
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#E3E1D8",
+        "outline.show": false,
+        "position.z": 1,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-9",
+      "op": "set",
+      "select": "Varianten.Page/chrome_header_subtitle.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.show": true,
+        "text.default.text": "Umsatz und Kosten je Region",
+        "text.default.fontSize": 8.5,
+        "text.default.fontColor": "#57626D",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "position.z": 4,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-10",
+      "op": "set",
+      "select": "Varianten.Page/chrome_header_title.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.show": true,
+        "text.default.text": "Vertrieb 2026",
+        "text.default.fontSize": 13,
+        "text.default.fontColor": "#0F1E2E",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "text.default.bold": true,
+        "position.z": 4,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-11",
+      "op": "set",
+      "select": "Varianten.Page/chrome_logo.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": true,
+        "outline.lineColor": "#0F1E2E",
+        "outline.transparency": 60,
+        "outline.weight": 1,
+        "shape.tileShape": "rectangleRounded",
+        "shape.rectangleRoundedCurve": 4,
+        "text.show": true,
+        "text.default.text": "LOGO",
+        "text.default.fontSize": 7.5,
+        "text.default.fontColor": "#6F7882",
+        "text.default.horizontalAlignment": "center",
+        "text.default.verticalAlignment": "middle",
+        "position.z": 4,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-12",
       "op": "set",
       "select": "Varianten.Page/mk_bar1.Visual",
       "set": {
@@ -135,12 +212,13 @@
         "border.show": false,
         "dropShadow.show": false,
         "border.radius": 4,
+        "valueAxis.gridlineStyle": "dotted",
         "position.z": 10
       },
       "continue_on_error": true
     },
     {
-      "id": "format-10",
+      "id": "format-13",
       "op": "set",
       "select": "Varianten.Page/mk_col1.Visual",
       "set": {
@@ -150,12 +228,13 @@
         "border.show": false,
         "dropShadow.show": false,
         "border.radius": 4,
+        "valueAxis.gridlineStyle": "dotted",
         "position.z": 10
       },
       "continue_on_error": true
     },
     {
-      "id": "format-11",
+      "id": "format-14",
       "op": "set",
       "select": "Varianten.Page/mk_donut1.Visual",
       "set": {
@@ -170,7 +249,7 @@
       "continue_on_error": true
     },
     {
-      "id": "format-12",
+      "id": "format-15",
       "op": "set",
       "select": "Varianten.Page/mk_line1.Visual",
       "set": {
@@ -180,21 +259,37 @@
         "border.show": false,
         "dropShadow.show": false,
         "border.radius": 4,
+        "valueAxis.gridlineStyle": "dotted",
         "position.z": 10
       },
       "continue_on_error": true
     },
     {
-      "id": "format-13",
+      "id": "format-16",
       "op": "set",
       "select": "Varianten.Page/mk_slicer_Year_p1.Visual",
       "set": {
+        "title.show": false,
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": true,
+        "border.color": "#D9D6CC",
+        "border.width": 1,
+        "border.radius": 4,
+        "dropShadow.show": false,
+        "header.show": true,
+        "header.textSize": 8,
+        "header.fontColor": "#374151",
+        "header.bold": false,
+        "items.textSize": 8,
+        "items.fontColor": "#374151",
         "position.z": 10
       },
       "continue_on_error": true
     },
     {
-      "id": "format-14",
+      "id": "format-17",
       "op": "set",
       "select": "Varianten.Page/mk_wf1.Visual",
       "set": {
@@ -204,6 +299,14 @@
         "border.show": false,
         "dropShadow.show": false,
         "border.radius": 4,
+        "legend.show": false,
+        "valueAxis.show": false,
+        "valueAxis.gridlineShow": false,
+        "labels.show": true,
+        "labels.color": "#404040",
+        "sentimentColors.increaseFill": "#1E8F9E",
+        "sentimentColors.decreaseFill": "#D64541",
+        "sentimentColors.totalFill": "#404040",
         "position.z": 10
       },
       "continue_on_error": true
@@ -213,6 +316,7 @@
       "op": "set",
       "select": "Varianten.Page/mk_col1.Visual",
       "set": {
+        "labels.show": true,
         "labels.labelDisplayUnits": 1000,
         "labels.labelPrecision": 0
       },

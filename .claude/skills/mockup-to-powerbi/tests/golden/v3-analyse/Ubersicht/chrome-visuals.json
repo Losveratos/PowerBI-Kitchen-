@@ -21,37 +21,37 @@
     "visual_type": "shape",
     "name": "chrome_logo",
     "title": "Logo",
-    "x": 1144,
-    "y": 12,
-    "width": 120,
-    "height": 32
+    "x": 1176,
+    "y": 13,
+    "width": 88,
+    "height": 30
   },
   {
     "visual_type": "actionButton",
     "name": "chrome_nav_1",
-    "title": "Übersicht",
-    "x": 896,
-    "y": 12,
-    "width": 112,
-    "height": 32
+    "title": "\u00dcbersicht",
+    "x": 917,
+    "y": 13,
+    "width": 86,
+    "height": 29
   },
   {
     "visual_type": "actionButton",
     "name": "chrome_nav_2",
     "title": "Detail Produktlinie",
-    "x": 1016,
-    "y": 12,
-    "width": 112,
-    "height": 32
+    "x": 1009,
+    "y": 13,
+    "width": 153,
+    "height": 29
   },
   {
     "visual_type": "shape",
     "name": "chrome_header_title",
     "title": "Kopfband-Titel",
     "x": 16,
-    "y": 6,
-    "width": 864,
-    "height": 26
+    "y": 7,
+    "width": 887,
+    "height": 25
   },
   {
     "visual_type": "shape",
@@ -59,8 +59,8 @@
     "title": "Kopfband-Untertitel",
     "x": 16,
     "y": 32,
-    "width": 864,
-    "height": 18
+    "width": 887,
+    "height": 16
   },
   {
     "visual_type": "shape",
@@ -73,20 +73,47 @@
   },
   {
     "visual_type": "shape",
+    "name": "chrome_filter_rule",
+    "title": "Filter-Panel Kante",
+    "x": 1064,
+    "y": 56,
+    "width": 1,
+    "height": 640
+  },
+  {
+    "visual_type": "shape",
     "name": "chrome_filter_title",
-    "title": "Filter-Überschrift",
-    "x": 1072,
-    "y": 64,
-    "width": 200,
+    "title": "Filter-\u00dcberschrift",
+    "x": 1074,
+    "y": 68,
+    "width": 196,
+    "height": 16
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_footer_bg",
+    "title": "Fu\u00dfleiste",
+    "x": 0,
+    "y": 696,
+    "width": 1280,
     "height": 24
   },
   {
     "visual_type": "shape",
-    "name": "chrome_footer_text",
-    "title": "Fußleiste",
-    "x": 16,
+    "name": "chrome_footer_rule",
+    "title": "Fu\u00dfleiste Oberkante",
+    "x": 0,
     "y": 696,
+    "width": 1280,
+    "height": 1
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_footer_text",
+    "title": "Fu\u00dfleisten-Text",
+    "x": 16,
+    "y": 697,
     "width": 1248,
-    "height": 24
+    "height": 23
   }
 ]

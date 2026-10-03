@@ -3,6 +3,18 @@
 Positionierung (aus dem Review): kein Report-Generator, sondern ein **Anforderungswerkzeug mit deterministischem
 Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau ist eine Ableitung.
 
+## Neu in v0.6 für alle (auch ohne Live-Modus)
+
+Die Live-Oberfläche erscheint nur mit `?live=1` (Schalter, siehe `mockup-live/BETA.md`). Für alle Nutzerinnen und Nutzer
+geändert hat sich nur, was die Skizze ehrlicher macht (Praxistest 02.10.2026, Befund B3):
+
+- **KPI-Kachel (`kpi`):** Die Verlaufslinie erscheint nur, wenn das Zeitfeld (Rolle „Zeit (Sparkline)") gebunden ist. Ist
+  nur die Hauptkennzahl gebunden, gibt es keine Linie, so wie Desktop es zeigt. Ohne jede Bindung bleibt die
+  Platzhalter-Skizze mit Linie. Ohne gebundenen Bezug gibt es weiter keine Δ-Zeile.
+- **Tacho (`gauge`):** Die Zielnadel erscheint nur mit gebundenem Ziel.
+- **Spec:** neues Feld `display.drawn.sparkline` (`true`/`false`); der Konverter setzt daraus `showSparkline` der
+  KPI-Karte (`ibcsKpiCard`).
+
 ## Neu in v0.4 (erstes Nutzer-Feedback)
 
 - **Skizzen:** Δ-Ebene in `varint` als echte kumulierte Brücke (`deltaBridge()`, Verbinder, Labels, Σ-Spalte); Balkenbreiten

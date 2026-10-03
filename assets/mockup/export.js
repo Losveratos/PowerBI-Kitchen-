@@ -76,7 +76,10 @@
       const all = MK.computeAll(p);
       const visuals = all.leaves.filter(l => l.node.visual).map(l => {
         const v = l.node.visual; const def = CAT.byId[v.kind] || { label: v.kind, roles: [], native: null, ck: null, ckMode: null };
-        const roles = {}; const vw = []; const id = 'mk_' + l.node.id; const title = v.title || def.label;
+        // title = sichtbarer Kachelkopf, '' wenn die Kachel keinen zeigt (AUDIT-DEPLOY4: sonst schreibt der Runner einen Titel, den das
+        // Kitchen nie zeigte). Der Kopf erscheint mit eigenem Titel oder Untertitel; ohne eigenen Titel steht dann das Katalog-Label dort.
+        // displayName = Name für Meldungen, Brief und Auswahlbereich (eigener Titel, sonst Katalog-Label), label = Katalog-Label.
+        const roles = {}; const vw = []; const id = 'mk_' + l.node.id; const titleShown = !!(v.title || v.sub); const title = v.title || def.label;
         CAT.rolesFor(def, v).forEach(r => { const list = v.roles[r.key] || []; if (list.length) roles[r.key] = list.map(fieldOut); if (r.req && !list.length) { vw.push(T('exp.issue.roleEmptyShort', { r: r.label })); issue(v.engine === 'native' ? 'error' : 'warn', 'ROLE_EMPTY', T('exp.issue.roleEmpty', { r: r.label }), p.name, id); } });
         if (MK.anti[v.kind]) { vw.push(def.note || T('exp.issue.antiShort')); issue('warn', 'ANTI_PATTERN', T('exp.issue.anti', { label: def.label, note: def.note || T('exp.issue.antiFallback') }), p.name, id); }
         if (v.engine === 'ck' && !def.ckMode) { vw.push(T('exp.issue.ckNoModeShort')); issue('error', 'CK_NO_MODE', T('exp.issue.ckNoMode', { label: def.label }), p.name, id); }
@@ -103,20 +106,24 @@
           id, stableId: l.node.id, slug: slug(title), page: p.name, kind: v.kind, label: def.label, engine: v.engine,
           chartKitchenType: v.engine === 'ck' ? def.ck : null, chartKitchenMode: v.engine === 'ck' ? def.ckMode : null, native,
           customVisual: v.engine === 'custom' && def.customVisual ? { name: def.customVisual.name, guid: def.customVisual.guid, buckets: customBuckets(def, v) } : null,
-          title, subtitle: v.sub || '', content: v.content || '', scenario: def.roles.some(r => r.key === 'ref') ? v.scenario : null,
-          analysis: { polarity: an.polarity, polarityAuto: an.polarityAuto, deltaBasis: an.deltaBasis, deltaBasisAuto: an.deltaBasisAuto, deltaKind: an.deltaKind, unit: an.unit || null, displayUnits: an.displayUnits === 'auto' ? null : an.displayUnits, decimals: an.decimals, sort: an.sort, topN: an.topN, timeGrain: an.timeGrain, cumulative: an.cumulative, scaleGroup: an.scaleGroup || null, message: an.message || null,
+          title: titleShown ? title : '', titleShown, displayName: title, subtitle: v.sub || '', content: v.content || '', scenario: def.roles.some(r => r.key === 'ref') ? v.scenario : null,
+          // deltaBasis = wirksame Basis (gegen die die Skizze rechnet, null ohne gezeigten Bezug); gewählt, aber nicht gezeigt: deltaBasisRequested
+          analysis: { polarity: an.polarity, polarityAuto: an.polarityAuto, deltaBasis: an.deltaBasis, deltaBasisAuto: an.deltaBasisAuto, deltaBasisSource: an.deltaBasisSource || null, deltaBasisRequested: an.deltaBasisRequested || null, deltaKind: an.deltaKind, unit: an.unit || null, displayUnits: an.displayUnits === 'auto' ? null : an.displayUnits, decimals: an.decimals, sort: an.sort, topN: an.topN, timeGrain: an.timeGrain, cumulative: an.cumulative, scaleGroup: an.scaleGroup || null, message: an.message || null,
             smallMultiples: an.smallMultiples ? { field: (v.roles.multiples || [])[0] ? fieldRef(v.roles.multiples[0]) : null } : null,
             fieldParam: an.fieldParam ? { name: an.fieldParamName || 'Achse', role: 'category', fields: (v.roles.category || []).map(fieldRef) } : null },
+          display: displayOf(l, v, an),
           workshop: { priority: v.priority || null, status: v.status || 'open', openQuestion: !!v.openQuestion },
           typography: v.typo && v.typo.scale ? { scale: v.typo.scale } : null,
           samples: MK.samplesOf ? MK.samplesOf(v) : null,
           interaction: { drillDown: !!(v.interaction || {}).drillDown, crossFilter: (v.interaction || {}).crossFilter !== false, drillThrough: target && v.kind !== 'button' ? { pageId: target.id, pageName: target.name, field: cat ? fieldRef(cat) : null } : null },
           rect: l.rect, roles, notes: v.notes || '', link: target ? { pageId: target.id, pageName: target.name } : null, warnings: vw,
+          // Herkunft aus dem Projekt (MK_PBIR): der Runner aktualisiert dieses PBIR-Visual per Delta statt ein neues anzulegen (CONTRACT.md)
+          pbir: pbirOf(v.pbir, true),
         };
       });
       all.leaves.filter(l => !l.node.visual).forEach(l => issue('warn', 'EMPTY_TILE', T('exp.issue.emptyTile', { x: l.rect.x, y: l.rect.y, w: l.rect.w, h: l.rect.h }), p.name));
       if (!(p.question || '').trim()) issue('info', 'PAGE_NO_QUESTION', T('exp.issue.pageNoQuestion'), p.name);
-      return { id: p.id, index: pi + 1, name: p.name, question: p.question || '', notes: p.notes || '', contentRect: all.zones.content, visuals, layoutTree: stripTree(p.layout) };
+      return { id: p.id, index: pi + 1, name: p.name, pbir: pbirOf(p.pbir, false), question: p.question || '', notes: p.notes || '', contentRect: all.zones.content, visuals, layoutTree: stripTree(p.layout) };
     });
     const zonesOut = {};
     Object.keys(z).forEach(key => { zonesOut[key] = Object.assign({}, z[key]); });
@@ -173,6 +180,37 @@
       warnings: issues.filter(i => i.level !== 'info').map(i => (i.page ? TL(L, 'exp.brief.openPage', { p: i.page }) + ': ' : '') + i.text),
     };
   }
+  /* Was die Kachel zeigt, als ausdrückliche Felder (mockup-live/CONTRACT.md, „Kachel-Anzeige"). Messlatte ist das Kitchen-Bild
+     (PLAN-V2, Paket B): der Konverter soll nachbauen können, was die Skizze zeichnet, nicht was das Szenario-Menü sagt.
+     Quellen: MK.effScen (Bindung vor Auswahl) und die Skizze selbst (MK.sketchInfo liest data-mk-drawn in derselben Größe wie
+     auf dem Bildschirm). Typen ohne Referenz- und Zielrolle tragen nie eine Δ-Ebene (ihre Skizzen-Δ sind Beiträge, kein Vergleich). */
+  function displayOf(l, v, an) {
+    const e = MK.effScen ? MK.effScen(v) : null; const info = MK.sketchInfo ? MK.sketchInfo(l.node, l.rect) : null;
+    const dr = (info && info.drawn) || null; const cmp = !!(e && e.roleKey);
+    const ty = MK.typo(); const f = ty.scale * MK.tileScale(v) * MK.ui(); const r1 = x => Math.round(x * 10) / 10;
+    const px = { title: r1(ty.title * f), subtitle: r1(ty.sub * f), label: dr && dr.fontPx ? r1(dr.fontPx.label) : r1(ty.chart * f), axis: dr && dr.fontPx ? r1(dr.fontPx.axis) : r1(ty.chart * f) };
+    return {
+      scenarios: e ? e.scenarios : ['AC'],
+      refSource: e ? e.source : null,
+      placeholders: e ? e.placeholders : [],
+      deltaBasis: an.deltaBasis || null,
+      deltaBasisSource: an.deltaBasisSource || null,
+      drawn: dr ? {
+        refs: dr.refs || [], marker: dr.marker || [], delta: cmp ? (dr.delta || []) : [], deltaBasis: cmp ? (dr.basis || null) : null,
+        labels: !!dr.labels, total: !!dr.sum, forecast: !!dr.fc, unit: dr.unit || null, reduced: !!dr.small,
+        sparkline: !!dr.spark,   // kpi: Verlaufslinie nur mit gebundenem Zeitfeld (B3) → ibcsKpiCard showSparkline
+      } : null,
+      numbers: { displayUnits: an.displayUnits || 'auto', decimals: an.decimals == null ? null : an.decimals, unitText: an.unit || null },
+      fontPx: px,
+      fontPt: { title: r1(px.title * 0.75), subtitle: r1(px.subtitle * 0.75), label: r1(px.label * 0.75), axis: r1(px.axis * 0.75) },
+    };
+  }
+  // Zuordnung zu bestehenden PBIR-Objekten (mockup-live/CONTRACT.md): Seiten { page }, Visuals { page, visual }. Ohne Herkunft fehlt der Schlüssel.
+  function pbirOf(o, visual) {
+    if (!o || typeof o.page !== 'string' || !o.page) return undefined;
+    if (!visual) return { page: o.page };
+    return typeof o.visual === 'string' && o.visual ? { page: o.page, visual: o.visual } : undefined;
+  }
   function bucketsFor(def, v) {
     const b = {}; if (!def.native) return b;
     Object.keys(def.native.map).forEach(roleKey => { const bucket = def.native.map[roleKey]; const list = v.roles[roleKey] || []; if (!list.length) return; b[bucket] = (b[bucket] || []).concat(list.map(f => Object.assign({ ref: fieldRef(f), kind: f.kind }, liveFlags(f)))); });
@@ -206,6 +244,19 @@
     if (a.scaleGroup) parts.push(T('exp.an.scaleGroup', { g: a.scaleGroup }));
     if (a.smallMultiples) parts.push(T('exp.an.smallMultiples', { f: a.smallMultiples.field || '?' }));
     if (a.fieldParam) parts.push(T('exp.an.fieldParam', { n: a.fieldParam.name, fields: (a.fieldParam.fields || []).join(', ') || '–' }));
+    return parts.join(' · ');
+  }
+
+  // Kurzzeile „Zeigt: AC · PL · PY (gebunden) · ΔPL abs + rel · Beschriftung an · Σ" für den Brief (nur Typen mit Bezug)
+  function displayLine(ds, L) {
+    if (!ds || !ds.refSource) return '';
+    const T = (k, v) => TL(L, k, v); const dr = ds.drawn || {};
+    const parts = [ds.scenarios.join(' · ') + ' (' + T('exp.disp.src.' + ds.refSource) + ')'];
+    if (ds.deltaBasis && (dr.delta || []).length) parts.push('Δ' + ds.deltaBasis + ' ' + dr.delta.join(' + ') + (ds.deltaBasisSource === 'auto' ? T('exp.an.auto') : ''));
+    else parts.push(T('exp.disp.noDelta'));
+    if (ds.placeholders && ds.placeholders.length) parts.push(T('exp.disp.unbound', { b: ds.placeholders.join(', ') }));
+    parts.push(T(dr.labels ? 'exp.disp.labelsOn' : 'exp.disp.labelsOff', { px: ds.fontPx.label, pt: ds.fontPt.label }));
+    if (dr.total) parts.push('Σ');
     return parts.join(' · ');
   }
 
@@ -268,12 +319,14 @@
       if (p.question) out.push(B('pQuestion', { q: p.question }), ''); if (p.notes) out.push(B('pNotes', { n: p.notes }), '');
       if (!p.visuals.length) out.push(B('pEmpty'));
       p.visuals.forEach((v, i) => {
-        out.push(`### ${p.index}.${i + 1} ${v.title} \`${v.id}\``, '',
+        out.push(`### ${p.index}.${i + 1} ${v.displayName || v.title} \`${v.id}\``, '',
           B('vType', { label: v.label, kind: v.kind, engine: ENGINE[v.engine] }) + (v.chartKitchenMode ? B('vCkMode', { m: v.chartKitchenMode }) : '') + (v.native ? B('vNative', { t: v.kind === 'text' ? 'shape' : v.native.type }) : ''),
           B('vPos', { rect: r(v.rect), id: v.stableId }));
+        if (v.titleShown === false) out.push(B('vNoTitle'));
         if (v.subtitle) out.push(B('vSub', { s: v.subtitle }));
         if (v.content) out.push(B('vText', { t: v.content }));
         if (v.scenario) out.push(B('vScenario', { s: v.scenario }));
+        { const ds = displayLine(v.display, L); if (ds) out.push(B('vDisplay', { d: ds })); }
         const roleLines = Object.keys(v.roles).map(key => `  - ${roleLabel(v.kind, key)}: ${v.roles[key].map(f => `\`${f.ref}\`${f.isNew ? B('vNew') : ''}${f.missing ? ` ${T('exp.missing')}` : ''}`).join(', ')}`);
         out.push(roleLines.length ? B('vRoles') : B('vRolesNone'), ...roleLines);
         if (v.native && Object.keys(v.native.buckets).length) out.push(B('vBuckets', { type: v.native.type }) + Object.keys(v.native.buckets).map(b => `${b} ← ${v.native.buckets[b].map(f => f.ref).join(', ')}`).join(' · '));
@@ -332,7 +385,7 @@
         p.visuals.forEach((v, i) => {
           const fields = Object.keys(v.roles).map(key => `${roleLabel(v.kind, key)}: ${v.roles[key].map(f => f.name + (f.isNew ? ` ${T('exp.new')}` : '') + (f.missing ? ` ${T('exp.missing')}` : '')).join(', ')}`).join('; ') || '–';
           const an = Object.keys(v.roles).length && v.kind !== 'slicer' ? [v.analysis.polarity === 'lower' ? D('anLower') : '', v.analysis.sort ? D('anSort', { by: v.analysis.sort.by }) : '', v.analysis.topN ? D('anTop', { n: v.analysis.topN }) : '', v.analysis.unit || ''].filter(Boolean).join(', ') || '–' : '–';
-          out.push(row(`| ${p.index}.${i + 1} | ${v.title}${v.subtitle ? ` (${v.subtitle})` : ''}${v.analysis.message ? `<br>_${v.analysis.message}_` : ''} | ${v.label}${v.scenario ? `, ${v.scenario}` : ''}${v.engine === 'ck' ? ', ChartKitchen' : ''} | ${fields} | ${an} | ${v.workshop.priority ? T('exp.pri.' + v.workshop.priority) : '–'} | ${T('exp.status.' + v.workshop.status)} | ${[v.content ? D('txtPrefix', { t: v.content }) : '', v.notes, v.link ? `→ ${v.link.pageName}` : ''].filter(Boolean).join(' · ') || '–'} |`));
+          out.push(row(`| ${p.index}.${i + 1} | ${v.displayName || v.title}${v.subtitle ? ` (${v.subtitle})` : ''}${v.analysis.message ? `<br>_${v.analysis.message}_` : ''} | ${v.label}${v.scenario ? `, ${v.scenario}` : ''}${v.engine === 'ck' ? ', ChartKitchen' : ''} | ${fields} | ${an} | ${v.workshop.priority ? T('exp.pri.' + v.workshop.priority) : '–'} | ${T('exp.status.' + v.workshop.status)} | ${[v.content ? D('txtPrefix', { t: v.content }) : '', v.notes, v.link ? `→ ${v.link.pageName}` : ''].filter(Boolean).join(' · ') || '–'} |`));
         });
       } else out.push(D('pEmpty'));
       out.push('');
@@ -345,7 +398,7 @@
     if (spec.newFields.length) { out.push(D('hNew'), '', D('newTable'), D('newSep')); spec.newFields.forEach(f => out.push(row(`| ${f.name} | ${f.kind === 'measure' ? T('exp.measureLong') : T('exp.dimension')} | ${f.table} | ${f.description || FILL} | ${f.unit || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.openQuestion || '–'} |`))); out.push(''); }
     const open = [];
     spec.newFields.forEach(f => { if (f.openQuestion) open.push(`${f.name}: ${f.openQuestion}`); });
-    spec.pages.forEach(p => p.visuals.forEach(v => { if (v.workshop.openQuestion) open.push(`${p.name} / ${v.title}: ${v.notes || D('openQNoText')}`); }));
+    spec.pages.forEach(p => p.visuals.forEach(v => { if (v.workshop.openQuestion) open.push(`${p.name} / ${v.displayName || v.title}: ${v.notes || D('openQNoText')}`); }));
     spec.issues.filter(i => i.level !== 'info').forEach(i => open.push(withPage(i, L)));
     spec.fields.filter(f => f.note).forEach(f => open.push(`${f.ref}: ${f.note}`));
     out.push(D('hOpen'), '', ...(open.length ? open.map(o => `- [ ] ${o}`) : [D('openNone')]), '');

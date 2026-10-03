@@ -29,10 +29,10 @@
           "name": "chrome_nav_1",
           "type": "actionButton",
           "rect": {
-            "x": 1152,
-            "y": 12,
-            "w": 112,
-            "h": 32
+            "x": 1151,
+            "y": 13,
+            "w": 113,
+            "h": 29
           },
           "role": "chrome",
           "fields": {}
@@ -42,9 +42,9 @@
           "type": "shape",
           "rect": {
             "x": 16,
-            "y": 6,
-            "w": 1120,
-            "h": 26
+            "y": 7,
+            "w": 1121,
+            "h": 25
           },
           "role": "chrome",
           "fields": {}
@@ -55,8 +55,32 @@
           "rect": {
             "x": 16,
             "y": 32,
-            "w": 1120,
-            "h": 18
+            "w": 1121,
+            "h": 16
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_bg",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 696,
+            "w": 1280,
+            "h": 24
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_rule",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 696,
+            "w": 1280,
+            "h": 1
           },
           "role": "chrome",
           "fields": {}
@@ -66,9 +90,9 @@
           "type": "shape",
           "rect": {
             "x": 16,
-            "y": 696,
+            "y": 697,
             "w": 1248,
-            "h": 24
+            "h": 23
           },
           "role": "chrome",
           "fields": {}

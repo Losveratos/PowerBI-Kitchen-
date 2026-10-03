@@ -1,0 +1,151 @@
+[
+  {
+    "visual_type": "pivotTable",
+    "name": "mk_heat1",
+    "title": "Region \u00d7 Kategorie",
+    "x": 1440,
+    "y": 99,
+    "width": 460,
+    "height": 300,
+    "fields": {
+      "Rows": "DimRegion.Region",
+      "Columns": "DimProduct.Category",
+      "Values": [
+        "_Measures.AC",
+        "_Measures.PY"
+      ]
+    }
+  },
+  {
+    "visual_type": "tableEx",
+    "name": "mk_spark1",
+    "title": "Produkte",
+    "x": 15,
+    "y": 414,
+    "width": 460,
+    "height": 300,
+    "fields": {
+      "Values": [
+        "DimProduct.Product",
+        "_Measures.AC",
+        "_Measures.PL"
+      ]
+    }
+  },
+  {
+    "visual_type": "decompositionTreeVisual",
+    "name": "mk_tree1",
+    "title": "AC je Region",
+    "x": 490,
+    "y": 414,
+    "width": 460,
+    "height": 300,
+    "fields": {
+      "Analyze": "_Measures.AC",
+      "ExplainBy": "DimRegion.Region",
+      "Tooltips": "_Measures.PY"
+    }
+  },
+  {
+    "visual_type": "clusteredBarChart",
+    "name": "mk_bars1",
+    "title": "AC vs PL je Region",
+    "x": 1440,
+    "y": 414,
+    "width": 460,
+    "height": 300,
+    "fields": {
+      "Category": "DimRegion.Region",
+      "Y": [
+        "_Measures.AC",
+        "_Measures.PL"
+      ]
+    }
+  },
+  {
+    "visual_type": "clusteredColumnChart",
+    "name": "mk_col1",
+    "title": "S\u00e4ulen (AC vs Referenz)",
+    "x": 15,
+    "y": 729,
+    "width": 460,
+    "height": 300,
+    "fields": {
+      "Category": "DimDate.MonthName",
+      "Y": [
+        "_Measures.Kosten",
+        "_Measures.PY",
+        "_Measures.PL"
+      ]
+    }
+  },
+  {
+    "visual_type": "clusteredColumnChart",
+    "name": "mk_ncol1",
+    "title": "Umsatz und Kosten",
+    "x": 965,
+    "y": 729,
+    "width": 460,
+    "height": 300,
+    "fields": {
+      "Category": "DimRegion.Region",
+      "Y": [
+        "_Measures.Umsatz",
+        "_Measures.Kosten"
+      ]
+    }
+  },
+  {
+    "visual_type": "clusteredColumnChart",
+    "name": "mk_kombi1",
+    "title": "Monate",
+    "x": 1440,
+    "y": 729,
+    "width": 460,
+    "height": 300,
+    "fields": {
+      "Category": "DimDate.MonthName",
+      "Y": [
+        "_Measures.AC",
+        "_Measures.PY",
+        "_Measures.PL"
+      ]
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Region_p1",
+    "title": "Region",
+    "x": 1515,
+    "y": 170,
+    "width": 390,
+    "height": 78,
+    "fields": {
+      "Values": "DimRegion.Region"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Category_p1",
+    "title": "Category",
+    "x": 1515,
+    "y": 258,
+    "width": 390,
+    "height": 141,
+    "fields": {
+      "Values": "DimProduct.Category"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Year_p1",
+    "title": "Year",
+    "x": 1515,
+    "y": 409,
+    "width": 390,
+    "height": 78,
+    "fields": {
+      "Values": "DimDate.Year"
+    }
+  }
+]

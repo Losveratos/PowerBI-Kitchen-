@@ -12,8 +12,9 @@ pbir visuals sort "Test.Report/Übersicht.Page/mk_bars01.Visual" --field _Measur
 # Top 5 nach _Measures.Umsatz
 pbir add filter DimRegion Region -v "Test.Report/Übersicht.Page/mk_bars01.Visual" --type TopN --n 5 --by-table _Measures --by-field Umsatz --direction Top
 # Anzeigeeinheiten fuer mk_bars01
-pbir visuals labels "Test.Report/Übersicht.Page/mk_bars01.Visual" --labelDisplayUnits Thousands
-pbir visuals labels "Test.Report/Übersicht.Page/mk_bars01.Visual" --labelPrecision 1
+pbir set "Test.Report/Übersicht.Page/mk_bars01.Visual.labels.show" --value true
+pbir set "Test.Report/Übersicht.Page/mk_bars01.Visual.labels.labelDisplayUnits" --value 1000
+pbir set "Test.Report/Übersicht.Page/mk_bars01.Visual.labels.labelPrecision" --value 1
 # Einheit als Untertitel
 pbir set "Test.Report/Übersicht.Page/mk_bars01.Visual.subTitle.show" --value true
 pbir set "Test.Report/Übersicht.Page/mk_bars01.Visual.subTitle.text" --value "T€"

@@ -58,16 +58,16 @@
       "id": "move-chrome_nav_1",
       "op": "move",
       "select": "Projekt & GuV.Page/chrome_nav_1.Visual",
-      "x": 1152,
-      "y": 12,
+      "x": 1151,
+      "y": 13,
       "continue_on_error": true
     },
     {
       "id": "resize-chrome_nav_1",
       "op": "resize",
       "select": "Projekt & GuV.Page/chrome_nav_1.Visual",
-      "width": 112,
-      "height": 32,
+      "width": 113,
+      "height": 29,
       "continue_on_error": true
     },
     {
@@ -75,15 +75,15 @@
       "op": "move",
       "select": "Projekt & GuV.Page/chrome_header_title.Visual",
       "x": 16,
-      "y": 6,
+      "y": 7,
       "continue_on_error": true
     },
     {
       "id": "resize-chrome_header_title",
       "op": "resize",
       "select": "Projekt & GuV.Page/chrome_header_title.Visual",
-      "width": 1120,
-      "height": 26,
+      "width": 1121,
+      "height": 25,
       "continue_on_error": true
     },
     {
@@ -98,8 +98,40 @@
       "id": "resize-chrome_header_subtitle",
       "op": "resize",
       "select": "Projekt & GuV.Page/chrome_header_subtitle.Visual",
-      "width": 1120,
-      "height": 18,
+      "width": 1121,
+      "height": 16,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_bg",
+      "op": "move",
+      "select": "Projekt & GuV.Page/chrome_footer_bg.Visual",
+      "x": 0,
+      "y": 696,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_bg",
+      "op": "resize",
+      "select": "Projekt & GuV.Page/chrome_footer_bg.Visual",
+      "width": 1280,
+      "height": 24,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_rule",
+      "op": "move",
+      "select": "Projekt & GuV.Page/chrome_footer_rule.Visual",
+      "x": 0,
+      "y": 696,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_rule",
+      "op": "resize",
+      "select": "Projekt & GuV.Page/chrome_footer_rule.Visual",
+      "width": 1280,
+      "height": 1,
       "continue_on_error": true
     },
     {
@@ -107,7 +139,7 @@
       "op": "move",
       "select": "Projekt & GuV.Page/chrome_footer_text.Visual",
       "x": 16,
-      "y": 696,
+      "y": 697,
       "continue_on_error": true
     },
     {
@@ -115,7 +147,7 @@
       "op": "resize",
       "select": "Projekt & GuV.Page/chrome_footer_text.Visual",
       "width": 1248,
-      "height": 24,
+      "height": 23,
       "continue_on_error": true
     }
   ]

@@ -9,15 +9,21 @@
       "op": "set",
       "select": "Übersicht.Page/chrome_burger.Visual",
       "set": {
-        "fill.show": true,
-        "fill.fillColor": "#C25A2D",
-        "outline.show": false,
-        "text.text": "☰ Filter",
-        "text.fontSize": 10,
-        "text.fontColor": "#FFFFFF",
-        "text.horizontalAlignment": "center",
-        "text.verticalAlignment": "middle",
-        "position.z": 5
+        "fill.show": false,
+        "outline.show": true,
+        "outline.lineColor": "#0F1E2E",
+        "outline.transparency": 70,
+        "outline.weight": 1,
+        "shape.default.tileShape": "rectangleRounded",
+        "shape.default.rectangleRoundedCurve": 4,
+        "text.show": true,
+        "text.default.text": "☰",
+        "text.default.fontSize": 12,
+        "text.default.fontColor": "#0F1E2E",
+        "text.default.horizontalAlignment": "center",
+        "text.default.verticalAlignment": "middle",
+        "position.z": 5,
+        "title.show": false
       },
       "continue_on_error": true
     },
@@ -29,9 +35,10 @@
         "shape.tileShape": "rectangleRounded",
         "shape.rectangleRoundedCurve": 8,
         "fill.show": true,
-        "fill.fillColor": "#F1F3F5",
+        "fill.fillColor": "#ECEBE5",
         "outline.show": false,
-        "position.z": 20
+        "position.z": 20,
+        "title.show": false
       },
       "continue_on_error": true
     },
@@ -42,12 +49,14 @@
       "set": {
         "fill.show": false,
         "outline.show": false,
-        "text.text": "✕",
-        "text.fontSize": 11,
-        "text.fontColor": "#0F1E2E",
-        "text.horizontalAlignment": "center",
-        "text.verticalAlignment": "middle",
-        "position.z": 24
+        "text.show": true,
+        "text.default.text": "✕",
+        "text.default.fontSize": 10.5,
+        "text.default.fontColor": "#6B7280",
+        "text.default.horizontalAlignment": "center",
+        "text.default.verticalAlignment": "middle",
+        "position.z": 24,
+        "title.show": false
       },
       "continue_on_error": true
     },
@@ -58,34 +67,74 @@
       "set": {
         "fill.show": false,
         "outline.show": false,
-        "text.text": "Filter",
-        "text.fontSize": 11,
-        "text.fontColor": "#0F1E2E",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "text.bold": true,
-        "position.z": 22
+        "text.show": true,
+        "text.default.text": "FILTER",
+        "text.default.fontSize": 8.5,
+        "text.default.fontColor": "#6B7280",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "text.default.bold": true,
+        "position.z": 22,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-5",
       "op": "set",
-      "select": "Übersicht.Page/chrome_footer_text.Visual",
+      "select": "Übersicht.Page/chrome_footer_bg.Visual",
       "set": {
-        "fill.show": false,
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#F4F4F1",
         "outline.show": false,
-        "text.text": "Stand: <datum> · Quelle: DWH · Kontakt: Controlling",
-        "text.fontSize": 9,
-        "text.fontColor": "#6B7280",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "position.z": 4
+        "position.z": 0,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-6",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_footer_rule.Visual",
+      "set": {
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#E3E1D8",
+        "outline.show": false,
+        "position.z": 1,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-7",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_footer_text.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.show": true,
+        "text.default.text": "Stand: <datum> · Quelle: DWH · Kontakt: Controlling",
+        "text.default.fontSize": 7.5,
+        "text.default.fontColor": "#6B7280",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "position.z": 4,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-8",
       "op": "set",
       "select": "Übersicht.Page/chrome_header_bg.Visual",
       "set": {
@@ -93,124 +142,189 @@
         "fill.show": true,
         "fill.fillColor": "#FFFFFF",
         "outline.show": false,
-        "position.z": 0
-      },
-      "continue_on_error": true
-    },
-    {
-      "id": "format-7",
-      "op": "set",
-      "select": "Übersicht.Page/chrome_header_rule.Visual",
-      "set": {
-        "fill.show": true,
-        "fill.fillColor": "#E5E7EB",
-        "outline.show": false,
-        "position.z": 1
-      },
-      "continue_on_error": true
-    },
-    {
-      "id": "format-8",
-      "op": "set",
-      "select": "Übersicht.Page/chrome_header_subtitle.Visual",
-      "set": {
-        "fill.show": false,
-        "outline.show": false,
-        "text.text": "in T€ · YTD 2026",
-        "text.fontSize": 10,
-        "text.fontColor": "#6B7280",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "position.z": 4
+        "position.z": 0,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-9",
       "op": "set",
-      "select": "Übersicht.Page/chrome_header_title.Visual",
+      "select": "Übersicht.Page/chrome_header_rule.Visual",
       "set": {
-        "fill.show": false,
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#E3E1D8",
         "outline.show": false,
-        "text.text": "Management Report",
-        "text.fontSize": 16,
-        "text.fontColor": "#0F1E2E",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "text.bold": true,
-        "position.z": 4
+        "position.z": 1,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-10",
       "op": "set",
-      "select": "Übersicht.Page/chrome_logo.Visual",
+      "select": "Übersicht.Page/chrome_header_subtitle.Visual",
       "set": {
         "fill.show": false,
-        "outline.show": true,
-        "outline.lineColor": "#0F1E2E",
-        "text.text": "LOGO",
-        "text.fontSize": 8,
-        "text.fontColor": "#0F1E2E",
-        "text.horizontalAlignment": "center",
-        "position.z": 4
+        "outline.show": false,
+        "text.show": true,
+        "text.default.text": "in T€ · YTD 2026",
+        "text.default.fontSize": 8.5,
+        "text.default.fontColor": "#57626D",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "position.z": 4,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-11",
       "op": "set",
-      "select": "Übersicht.Page/chrome_nav_1.Visual",
+      "select": "Übersicht.Page/chrome_header_title.Visual",
       "set": {
-        "fill.show": true,
-        "fill.fillColor": "#C25A2D",
-        "text.fontColor": "#FFFFFF",
+        "fill.show": false,
         "outline.show": false,
-        "text.text": "Übersicht",
-        "text.fontSize": 10,
-        "text.horizontalAlignment": "center",
-        "text.verticalAlignment": "middle",
-        "position.z": 5
+        "text.show": true,
+        "text.default.text": "Management Report",
+        "text.default.fontSize": 13,
+        "text.default.fontColor": "#0F1E2E",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "text.default.bold": true,
+        "position.z": 4,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-12",
       "op": "set",
-      "select": "Übersicht.Page/chrome_nav_2.Visual",
+      "select": "Übersicht.Page/chrome_logo.Visual",
       "set": {
         "fill.show": false,
-        "text.fontColor": "#0F1E2E",
-        "outline.show": false,
-        "text.text": "Detail Produktlinie",
-        "text.fontSize": 10,
-        "text.horizontalAlignment": "center",
-        "text.verticalAlignment": "middle",
-        "position.z": 5
+        "outline.show": true,
+        "outline.lineColor": "#0F1E2E",
+        "outline.transparency": 60,
+        "outline.weight": 1,
+        "shape.tileShape": "rectangleRounded",
+        "shape.rectangleRoundedCurve": 4,
+        "text.show": true,
+        "text.default.text": "LOGO",
+        "text.default.fontSize": 7.5,
+        "text.default.fontColor": "#6F7882",
+        "text.default.horizontalAlignment": "center",
+        "text.default.verticalAlignment": "middle",
+        "position.z": 4,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-13",
       "op": "set",
-      "select": "Übersicht.Page/p1_slicer1_Year.Visual",
+      "select": "Übersicht.Page/chrome_nav_1.Visual",
       "set": {
-        "position.z": 24
+        "fill.show": true,
+        "fill.fillColor": "#C25A2D",
+        "outline.show": true,
+        "outline.lineColor": "#C25A2D",
+        "outline.weight": 1,
+        "text.default.fontColor": "#FFFFFF",
+        "shape.default.tileShape": "rectangleRounded",
+        "shape.default.rectangleRoundedCurve": 4,
+        "text.show": true,
+        "text.default.text": "Übersicht",
+        "text.default.fontSize": 8.5,
+        "text.default.horizontalAlignment": "center",
+        "text.default.verticalAlignment": "middle",
+        "position.z": 5,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-14",
       "op": "set",
-      "select": "Übersicht.Page/p1_slicer2_Region.Visual",
+      "select": "Übersicht.Page/chrome_nav_2.Visual",
       "set": {
-        "position.z": 24
+        "fill.show": false,
+        "outline.show": true,
+        "outline.lineColor": "#0F1E2E",
+        "outline.transparency": 70,
+        "outline.weight": 1,
+        "text.default.fontColor": "#0F1E2E",
+        "shape.default.tileShape": "rectangleRounded",
+        "shape.default.rectangleRoundedCurve": 4,
+        "text.show": true,
+        "text.default.text": "Detail Produktlinie",
+        "text.default.fontSize": 8.5,
+        "text.default.horizontalAlignment": "center",
+        "text.default.verticalAlignment": "middle",
+        "position.z": 5,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-15",
+      "op": "set",
+      "select": "Übersicht.Page/p1_slicer1_Year.Visual",
+      "set": {
+        "title.show": false,
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": true,
+        "border.color": "#D9D6CC",
+        "border.width": 1,
+        "border.radius": 4,
+        "dropShadow.show": false,
+        "header.show": true,
+        "header.textSize": 8,
+        "header.fontColor": "#374151",
+        "header.bold": false,
+        "items.textSize": 8,
+        "items.fontColor": "#374151",
+        "position.z": 24
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-16",
+      "op": "set",
+      "select": "Übersicht.Page/p1_slicer2_Region.Visual",
+      "set": {
+        "title.show": false,
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": true,
+        "border.color": "#D9D6CC",
+        "border.width": 1,
+        "border.radius": 4,
+        "dropShadow.show": false,
+        "header.show": true,
+        "header.textSize": 8,
+        "header.fontColor": "#374151",
+        "header.bold": false,
+        "items.textSize": 8,
+        "items.fontColor": "#374151",
+        "position.z": 24
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-17",
       "op": "set",
       "select": "Übersicht.Page/p1_v02_Kosten.Visual",
       "set": {
@@ -218,7 +332,7 @@
         "background.color": "#FFFFFF",
         "background.transparency": 0,
         "border.show": true,
-        "border.color": "#E5E7EB",
+        "border.color": "#E1DFD6",
         "border.width": 1,
         "dropShadow.show": false,
         "border.radius": 8,
@@ -227,7 +341,7 @@
       "continue_on_error": true
     },
     {
-      "id": "format-16",
+      "id": "format-18",
       "op": "set",
       "select": "Übersicht.Page/p1_v05_PL_je_Produktlinie.Visual",
       "set": {
@@ -235,35 +349,47 @@
         "background.color": "#FFFFFF",
         "background.transparency": 0,
         "border.show": true,
-        "border.color": "#E5E7EB",
+        "border.color": "#E1DFD6",
         "border.width": 1,
         "dropShadow.show": false,
         "border.radius": 8,
+        "legend.show": false,
+        "valueAxis.show": false,
+        "valueAxis.gridlineShow": false,
+        "labels.show": true,
+        "labels.color": "#404040",
+        "dataPoint.field(_Measures.AC).fill": "#404040",
+        "dataPoint.field(_Measures.PL).fill": "#FFFFFF",
+        "dataPoint.field(_Measures.PL).borderShow": true,
+        "dataPoint.field(_Measures.PL).borderColor": "#404040",
+        "dataPoint.field(_Measures.PL).borderSize": 1,
         "position.z": 10
       },
       "continue_on_error": true
     },
     {
-      "id": "format-17",
+      "id": "format-19",
       "op": "set",
       "select": "Übersicht.Page/p1_v07_Kommentar.Visual",
       "set": {
         "fill.show": false,
         "outline.show": false,
-        "text.text": "Kommentar",
-        "text.fontSize": 11,
-        "text.fontColor": "#0F1E2E",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "top",
+        "text.show": true,
+        "text.default.text": "Kommentar",
+        "text.default.fontSize": 11,
+        "text.default.fontColor": "#0F1E2E",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "top",
         "background.show": true,
         "background.color": "#FFFFFF",
         "background.transparency": 0,
         "border.show": true,
-        "border.color": "#E5E7EB",
+        "border.color": "#E1DFD6",
         "border.width": 1,
         "dropShadow.show": false,
         "border.radius": 8,
-        "position.z": 10
+        "position.z": 10,
+        "title.show": false
       },
       "continue_on_error": true
     }

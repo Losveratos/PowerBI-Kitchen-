@@ -19,8 +19,8 @@
       "dir": "Ubersicht",
       "slug": "Ubersicht",
       "visuals": 5,
-      "chrome": 12,
-      "ck": 4,
+      "chrome": 14,
+      "ck": 1,
       "deneb": 0
     },
     {
@@ -28,8 +28,8 @@
       "dir": "Detail_Produktlinie",
       "slug": "Detail_Produktlinie",
       "visuals": 5,
-      "chrome": 12,
-      "ck": 2,
+      "chrome": 14,
+      "ck": 0,
       "deneb": 0
     }
   ],
@@ -144,6 +144,18 @@
       "batch": null
     },
     {
+      "id": "custom:Ubersicht",
+      "op": "custom_visuals",
+      "page": "Übersicht",
+      "idempotent": "Platzhalter-Shape schlägt beim zweiten Mal fehl (Name existiert); das Kopieren der visual.json ist beliebig wiederholbar.",
+      "delta": "Im Delta-Lauf reicht das Kopieren der neu erzeugten visual.json — sie enthält Position, Größe, Bindung und Container-Formatierung vollständig.",
+      "commands": [
+        "# .pbiviz zuerst in den Bericht importieren (Desktop): ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+        "bash \"<out>/Ubersicht/custom-commands.sh\""
+      ],
+      "batch": null
+    },
+    {
       "id": "page:Detail_Produktlinie",
       "op": "add_page",
       "page": "Detail Produktlinie",
@@ -224,6 +236,18 @@
       "batch": null
     },
     {
+      "id": "custom:Detail_Produktlinie",
+      "op": "custom_visuals",
+      "page": "Detail Produktlinie",
+      "idempotent": "Platzhalter-Shape schlägt beim zweiten Mal fehl (Name existiert); das Kopieren der visual.json ist beliebig wiederholbar.",
+      "delta": "Im Delta-Lauf reicht das Kopieren der neu erzeugten visual.json — sie enthält Position, Größe, Bindung und Container-Formatierung vollständig.",
+      "commands": [
+        "# .pbiviz zuerst in den Bericht importieren (Desktop): ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+        "bash \"<out>/Detail_Produktlinie/custom-commands.sh\""
+      ],
+      "batch": null
+    },
+    {
       "id": "navigation",
       "op": "commands",
       "page": null,
@@ -272,5 +296,91 @@
   "issues": [],
   "fieldParams": [],
   "smallMultiples": [],
-  "customVisuals": []
+  "customVisuals": [
+    {
+      "page": "Übersicht",
+      "visual": "p1_v01_Umsatz",
+      "name": "ibcsKpiCard",
+      "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+      "file": "<out>/Ubersicht/custom-visuals/p1_v01_Umsatz.visual.json",
+      "buckets": {
+        "ac": [
+          "_Measures.Umsatz"
+        ],
+        "pl": [
+          "_Measures.PL"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "page": "Übersicht",
+      "visual": "p1_v03_Deckungsbeitrag",
+      "name": "ibcsKpiCard",
+      "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+      "file": "<out>/Ubersicht/custom-visuals/p1_v03_Deckungsbeitrag.visual.json",
+      "buckets": {
+        "ac": [
+          "_Measures.Deckungsbeitrag"
+        ],
+        "pl": [
+          "_Measures.PL"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "page": "Übersicht",
+      "visual": "p1_v04_Marge",
+      "name": "ibcsKpiCard",
+      "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+      "file": "<out>/Ubersicht/custom-visuals/p1_v04_Marge.visual.json",
+      "buckets": {
+        "ac": [
+          "_Measures.Marge"
+        ],
+        "pl": [
+          "_Measures.PL"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "page": "Detail Produktlinie",
+      "visual": "p2_v02_Umsatz",
+      "name": "ibcsKpiCard",
+      "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+      "file": "<out>/Detail_Produktlinie/custom-visuals/p2_v02_Umsatz.visual.json",
+      "buckets": {
+        "ac": [
+          "_Measures.Umsatz"
+        ],
+        "pl": [
+          "_Measures.PL"
+        ]
+      },
+      "warnings": []
+    },
+    {
+      "page": "Detail Produktlinie",
+      "visual": "p2_v03_Marge",
+      "name": "ibcsKpiCard",
+      "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+      "file": "<out>/Detail_Produktlinie/custom-visuals/p2_v03_Marge.visual.json",
+      "buckets": {
+        "ac": [
+          "_Measures.Marge%"
+        ],
+        "pl": [
+          "_Measures.PL"
+        ]
+      },
+      "warnings": []
+    }
+  ]
 }

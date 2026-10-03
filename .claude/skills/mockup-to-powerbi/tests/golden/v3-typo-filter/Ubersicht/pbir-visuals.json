@@ -41,10 +41,10 @@
     "visual_type": "slicer",
     "name": "mk_slicer_Year_p1",
     "title": "Year",
-    "x": 1632,
-    "y": 199,
-    "width": 276,
-    "height": 84,
+    "x": 1635,
+    "y": 189,
+    "width": 270,
+    "height": 78,
     "fields": {
       "Values": "DimDate.Year"
     }
@@ -53,10 +53,10 @@
     "visual_type": "slicer",
     "name": "mk_slicer_Region_p1",
     "title": "Region",
-    "x": 1632,
-    "y": 295,
-    "width": 276,
-    "height": 84,
+    "x": 1635,
+    "y": 277,
+    "width": 270,
+    "height": 96,
     "fields": {
       "Values": "DimRegion.Region"
     }
@@ -65,10 +65,10 @@
     "visual_type": "slicer",
     "name": "mk_slicer_Date_p1",
     "title": "Date",
-    "x": 1632,
-    "y": 391,
-    "width": 276,
-    "height": 84,
+    "x": 1635,
+    "y": 383,
+    "width": 270,
+    "height": 78,
     "fields": {
       "Values": "DimDate.Date"
     }
