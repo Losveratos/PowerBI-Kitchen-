@@ -1,0 +1,31 @@
+table DimRegion
+
+	column RegionKey
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: RegionKey
+
+	column Region
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Region
+
+	column Weight
+		dataType: double
+		formatString: 0.0%
+		summarizeBy: none
+		sourceColumn: Weight
+
+	partition DimRegion = m
+		mode: import
+		source =
+			let
+			    Source = Table.FromRows({
+			        {1, "DACH", 0.40},
+			        {2, "North America", 0.28},
+			        {3, "EMEA", 0.20},
+			        {4, "APAC", 0.12}
+			    }, {"RegionKey", "Region", "Weight"}),
+			    Typed = Table.TransformColumnTypes(Source, {{"RegionKey", Int64.Type}, {"Region", type text}, {"Weight", type number}})
+			in
+			    Typed

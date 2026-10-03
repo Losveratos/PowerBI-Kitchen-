@@ -1,0 +1,10 @@
+# Power BI Desktop: lokale Einstellungen und Cache, rechnergebunden
+.pbi/localSettings.json
+.pbi/cache.abf
+*.pbi/
+*.abf
+
+# MockupKitchen live: Laufzeitdateien, Screenshots mit echten Daten, Sicherungen.
+# Im Beispielprojekt bleibt der ganze Ordner draußen. In eigenen Projekten legt
+# der Live-Helfer mockup/.gitignore mit Erlaubnisliste an (Spec, Brief, Freigaben).
+mockup/
