@@ -1330,6 +1330,16 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
         cmds.note("Seitenhintergrund aus design.pageBackground")
         cmds.add("pbir", "pages", "background", "{page}", "--color", st.page_bg,
                  "--transparency", "0")
+    # Seitenrolle (Kitchen 0.6.1): Detail- und Drillthrough-Seiten sind in Power BI ausgeblendet.
+    # Seiten aus dem Bericht bekommen die Sichtbarkeit immer gesetzt, damit „wieder in die Navigation" wirkt.
+    role = page.get("role") or "nav"
+    if role != "nav":
+        cmds.note("Seite ausblenden (Rolle %s)" % role)
+        cmds.add("pbir", "set", "{page}.visibility", "--value", "HiddenInViewMode")
+        if role == "drill":
+            cmds.note("Drillthrough-Feld in Power BI setzen (Bereich Drillthrough), pbir kann es nicht anlegen")
+    elif page.get("pbir"):
+        cmds.add("pbir", "set", "{page}.visibility", "--value", "AlwaysVisible")
     cmds.note("")
 
     def band(name: str, title: str, x, y, w, h, color: str, z: int = Z["bg"],

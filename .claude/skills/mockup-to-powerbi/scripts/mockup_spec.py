@@ -742,6 +742,11 @@ HASH_SKIP_DESIGN = ("variancePalette", "varianceColors", "colors")
 HASH_SKIP_ANALYSIS_IF_NULL = ("smallMultiples", "fieldParam")
 
 
+# Seitenrollen aus dem Kitchen (0.6.1): nav steht in der Navigation, detail und drill sind in
+# Power BI ausgeblendet (drill = Drillthrough-Ziel)
+PAGE_ROLES = ("nav", "detail", "drill")
+
+
 def _hash_analysis(analysis):
     if not isinstance(analysis, dict):
         return analysis
@@ -758,6 +763,7 @@ def spec_hash(spec: dict) -> str:
                    if k not in HASH_SKIP_DESIGN},
         "zones": spec.get("zones") or {},
         "pages": [{
+            **({"role": p["role"]} if p.get("role") in PAGE_ROLES and p["role"] != "nav" else {}),
             "name": p.get("name"), "question": p.get("question") or "",
             # engineSource: Engine vor der kpi-Umstellung (ck -> custom), damit der
             # Hash derselbe bleibt wie im Kitchen (export.js kennt nur `engine`)
@@ -935,6 +941,7 @@ def upgrade(raw: dict, page_name_override=None) -> dict:
                 "contentRect": p.get("contentRect") or zones.get("content") or {},
                 "visuals": p.get("visuals") or [],
                 "layoutTree": p.get("layoutTree"),
+                "role": p.get("role") if p.get("role") in PAGE_ROLES else "nav",
             }
             # Herkunft aus dem Bericht (Kitchen 0.6, mockup-live/CONTRACT.md). Nur wenn
             # gesetzt; zaehlt nicht im Spec-Hash (der kennt je Seite nur Name, Frage, Kacheln).

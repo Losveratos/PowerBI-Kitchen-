@@ -274,6 +274,34 @@ def unit_tests(res: Results):
     res.check("v1 bekommt einen Spec-Hash", bool(v1["meta"].get("specHash")))
     res.check("v1 Schema sauber", M.validate(M.as_document(v1)) == [])
 
+    # Seitenrollen (Tool 0.6.1): Hash nur bei Abweichung vom Standard, Konverter blendet aus
+    import copy
+    import mockup_to_pbir as P
+    base_spec = M.load(FIXTURES / "v3-analyse.json")
+    h0 = M.spec_hash(base_spec)
+    r_nav = copy.deepcopy(base_spec); r_nav["pages"][0]["role"] = "nav"
+    res.check("Rolle nav aendert den Spec-Hash nicht", M.spec_hash(r_nav) == h0)
+    r_det = copy.deepcopy(base_spec); r_det["pages"][0]["role"] = "detail"
+    res.check("Rolle detail aendert den Spec-Hash", M.spec_hash(r_det) != h0)
+    nd = M.upgrade(r_det)
+    res.check("upgrade() uebernimmt die Rolle", nd["pages"][0]["role"] == "detail")
+    res.check("Rolle detail: Schema sauber", M.validate(M.as_document(nd)) == [])
+    r_bad = copy.deepcopy(base_spec); r_bad["pages"][0]["role"] = "quatsch"
+    res.check("unbekannte Rolle wird nav", M.upgrade(r_bad)["pages"][0]["role"] == "nav")
+
+    import types
+
+    def chrome_cmds(nspec):
+        o = types.SimpleNamespace()
+        return repr(P.build_chrome(nspec, nspec["pages"][0], P.Style(nspec, o), o)[1].items)
+    try:
+        txt_det = chrome_cmds(nd)
+        txt_nav = chrome_cmds(M.upgrade(copy.deepcopy(base_spec)))
+        res.check("Konverter blendet Detailseite aus", "HiddenInViewMode" in txt_det, txt_det[:200])
+        res.check("Konverter laesst Navigationsseite sichtbar", "HiddenInViewMode" not in txt_nav)
+    except Exception as e:  # noqa: BLE001
+        res.check("Konverter mit Seitenrolle", False, "%s: %s" % (type(e).__name__, e))
+
     v2 = M.upgrade(M.load(FIXTURES / "v2-zweiseitig.json"))
     res.check("v2 wird auf v3 gehoben", v2["sourceVersion"] == 2)
     res.check("v2 Drill-Feld ergaenzt",

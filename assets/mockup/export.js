@@ -123,7 +123,8 @@
       });
       all.leaves.filter(l => !l.node.visual).forEach(l => issue('warn', 'EMPTY_TILE', T('exp.issue.emptyTile', { x: l.rect.x, y: l.rect.y, w: l.rect.w, h: l.rect.h }), p.name));
       if (!(p.question || '').trim()) issue('info', 'PAGE_NO_QUESTION', T('exp.issue.pageNoQuestion'), p.name);
-      return { id: p.id, index: pi + 1, name: p.name, pbir: pbirOf(p.pbir, false), question: p.question || '', notes: p.notes || '', contentRect: all.zones.content, visuals, layoutTree: stripTree(p.layout) };
+      const role = MK.roleOf(p);
+      return { id: p.id, index: pi + 1, name: p.name, role, hidden: role !== 'nav', pbir: pbirOf(p.pbir, false), question: p.question || '', notes: p.notes || '', contentRect: all.zones.content, visuals, layoutTree: stripTree(p.layout) };
     });
     const zonesOut = {};
     Object.keys(z).forEach(key => { zonesOut[key] = Object.assign({}, z[key]); });
@@ -166,7 +167,9 @@
     if (MK.a11yFindings) MK.a11yFindings().forEach(f => issue(f.level, f.code, f.text + (f.hint ? ' (' + f.hint + ')' : ''), f.page, f.visual ? 'mk_' + f.visual : null));
     if (!S.report.audience) issue('info', 'REPORT_NO_AUDIENCE', T('exp.issue.noAudience'));
     if (!S.report.decision) issue('info', 'REPORT_NO_DECISION', T('exp.issue.noDecision'));
-    const core = { canvas: { width: S.canvas.w, height: S.canvas.h }, design: d, zones: zonesOut, pages: pages.map(p => ({ name: p.name, question: p.question, visuals: p.visuals.map(v => ({ id: v.id, kind: v.kind, engine: v.engine, title: v.title, content: v.content, rect: v.rect, roles: v.roles, analysis: v.analysis, link: v.link })) })), fields, newFields, links };
+    const core = { canvas: { width: S.canvas.w, height: S.canvas.h }, design: d, zones: zonesOut, pages: pages.map(p => Object.assign(p.role !== 'nav' ? { role: p.role } : {}, { name: p.name, question: p.question, visuals: p.visuals.map(v => ({ id: v.id, kind: v.kind, engine: v.engine, title: v.title, content: v.content, rect: v.rect, roles: v.roles, analysis: v.analysis, link: v.link })) })), fields, newFields, links };
+    // Drillthrough-Seite ohne Kachel, die auf sie springt
+    pages.filter(p => p.role === 'drill' && !pages.some(q => q.visuals.some(v => v.link && v.link.pageId === p.id))).forEach(p => issue('info', 'DRILL_NO_SOURCE', T('exp.issue.drillNoSource', { p: p.name }), p.name));
     const specHash = fnv(canon(core));
     return {
       meta: { tool: TOOL, version: VER, specVersion: SPEC_VERSION, specHash, name: S.name, lang: L, exportedAt: new Date().toISOString(), skill: 'mockup-to-powerbi' },
@@ -317,6 +320,8 @@
     spec.pages.forEach(p => {
       out.push('', B('hPage', { i: p.index, name: p.name }), '');
       if (p.question) out.push(B('pQuestion', { q: p.question }), ''); if (p.notes) out.push(B('pNotes', { n: p.notes }), '');
+      if (p.role === 'detail') out.push(B('pRoleDetail'), '');
+      if (p.role === 'drill') { const src = spec.pages.filter(q => q.visuals.some(v => v.link && v.link.pageId === p.id)).map(q => q.name); out.push(B('pRoleDrill', { src: src.length ? B('pRoleSrc', { list: src.join(', ') }) : '' }), ''); }
       if (!p.visuals.length) out.push(B('pEmpty'));
       p.visuals.forEach((v, i) => {
         out.push(`### ${p.index}.${i + 1} ${v.displayName || v.title} \`${v.id}\``, '',
@@ -380,6 +385,7 @@
     spec.pages.forEach(p => {
       out.push(D('hPage', { i: p.index, name: p.name }), '', D('pQuestion', { q: p.question || FILL }), '');
       if (p.notes) out.push(D('pNotes', { n: p.notes }), '');
+      if (p.role && p.role !== 'nav') out.push(D('pRole', { r: T('pgl.' + p.role) }), '');
       if (p.visuals.length) {
         out.push(D('table'), D('tableSep'));
         p.visuals.forEach((v, i) => {

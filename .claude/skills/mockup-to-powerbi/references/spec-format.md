@@ -306,6 +306,8 @@ schreibt `mockup_to_pbir.py` nach `mockup-out/navigation.md`.
 | `name` | Seitenname in Power BI (`pbir add page -n`) — muss eindeutig sein |
 | `question` | Fragestellung / Kernbotschaft der Seite (ab v3) |
 | `notes` | Zweck der Seite, Freitext aus dem Workshop |
+| `role` | ab Tool 0.6.1: `nav` (Standard, steht in der Navigation), `detail` (Detailseite) oder `drill` (Drillthrough-Ziel). `detail` und `drill` setzt der Konverter in Power BI auf ausgeblendet (`visibility: HiddenInViewMode`); beim Drillthrough-Feld bleibt eine Aufgabe, pbir kann es nicht anlegen. Die Reihenfolge von `pages[]` ist die Seitenreihenfolge. |
+| `hidden` | ab Tool 0.6.1: `true` bei `detail` und `drill` (abgeleitet, nur zur Info) |
 | `contentRect` | Inhaltsbereich dieser Seite (identisch zu `zones.content`, solange das Tool die Zonen global hält) |
 | `visuals` | Kachel-Slots, siehe unten |
 | `layoutTree` | Container-Baum (`split`/`children`/`leaf`) — nur zur Orientierung, maßgeblich sind die Rechtecke |

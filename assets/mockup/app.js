@@ -1,6 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
 // Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
-window.MK_VERSION = '0.6.0';
+window.MK_VERSION = '0.6.1';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
@@ -309,7 +309,10 @@ window.MK_VERSION = '0.6.0';
   function typo() { return Object.assign({}, TYPO_DEF, (S.design && S.design.typo) || {}); }
   function tileScale(v) { return (v && v.typo && v.typo.scale) || 1; }
   function navPosOf(c) { c = c || S.chrome; return c.navPos || (c.header.navOn === false ? 'off' : 'header'); }
-  function navNames(c) { c = c || S.chrome; return c.header.navAuto ? S.pages.map(p => p.name) : (c.header.nav || []); }
+  // Seitenrolle: nav = steht in der Navigation, detail = ausgeblendet (Sprung per Schaltfläche), drill = Drillthrough-Ziel (ausgeblendet)
+  const PAGE_ROLES = ['nav', 'detail', 'drill'];
+  function roleOf(p) { return p && PAGE_ROLES.includes(p.role) ? p.role : 'nav'; }
+  function navNames(c) { c = c || S.chrome; return c.header.navAuto ? S.pages.filter(p => roleOf(p) === 'nav').map(p => p.name) : (c.header.nav || []); }
   // Beispielwerte je Kachel (v0.4.7): v.samples = { cats, values, ref } als Rohtext; hier geparst.
   // Zahlen: eine je Zeile, Semikolon oder Tab; bei einer Zeile auch Leerzeichen. Tausenderpunkte/-kommas nach Sprache.
   function parseNums(txt) {
@@ -598,13 +601,22 @@ window.MK_VERSION = '0.6.0';
     S.pages.forEach(p => visuals(p).forEach(l => { if (l.visual.link === id) l.visual.link = ''; }));
     commit();
   }
-  function movePage(d) { const i = S.pages.indexOf(page()); const j = i + d; if (j < 0 || j >= S.pages.length) return; const [p] = S.pages.splice(i, 1); S.pages.splice(j, 0, p); commit(); }
+  function movePage(d) { const i = S.pages.indexOf(page()); movePageTo(page().id, i + d); }
+  // Seite an Position j (0-basiert, Index nach dem Herausnehmen) setzen; Sprungziele hängen an der id und bleiben gültig
+  function movePageTo(pid, j, say) {
+    const i = S.pages.findIndex(p => p.id === pid); if (i < 0) return;
+    j = Math.max(0, Math.min(S.pages.length - 1, j)); if (i === j) return;
+    const [p] = S.pages.splice(i, 1); S.pages.splice(j, 0, p); commit();
+    if (say) toast(t('pgl.moved', { n: p.name, i: j + 1 }));
+  }
+  function setPageRole(pid, r) { const p = S.pages.find(x => x.id === pid); if (!p || !PAGE_ROLES.includes(r) || roleOf(p) === r) return; if (r === 'nav') delete p.role; else p.role = r; commit(); }
+  const roleBadge = p => { const r = roleOf(p); return r === 'nav' ? '' : `<span class="prole ${r}" title="${esc(t('pgl.' + r + 'Tip'))}">${esc(t('pgl.' + r + 'S'))}</span>`; };
   // Seitenreiter sind Knöpfe (Tastatur: Tab, Enter/Leertaste), ✎ und × ebenso, mit Namen im aria-label.
   // Nach dem Neuzeichnen steht der Fokus wieder auf demselben Knopf, sonst fiele er nach jedem Seitenwechsel auf <body>.
   function renderPages() {
     const bar = $('#pagebar'); const fa = document.activeElement;
     const keep = fa && fa !== bar && bar.contains(fa) ? (fa.id ? '#' + fa.id : ['go', 'renpage', 'delpage'].filter(k => fa.dataset[k]).map(k => `[data-${k}="${CSS.escape(fa.dataset[k])}"]`)[0]) : null;
-    bar.innerHTML = S.pages.map((p, i) => { const act = p.id === S.cur; return `<span class="ptab${act ? ' act' : ''}" data-page="${p.id}"><button type="button" class="pt-go" data-go="${p.id}"${act ? ' aria-current="page"' : ''}><span class="n">${i + 1}</span>${esc(p.name)}</button>${act ? `<button type="button" class="x" data-renpage="${p.id}" title="${esc(t('tip.pageRename'))}" aria-label="${esc(t('tip.pageRenameN', { n: p.name }))}">✎</button>` : ''}<button type="button" class="x" data-delpage="${p.id}" title="${esc(t('tip.pageDelete'))}" aria-label="${esc(t('tip.pageDeleteN', { n: p.name }))}">×</button></span>`; }).join('')
+    bar.innerHTML = S.pages.map((p, i) => { const act = p.id === S.cur; return `<span class="ptab${act ? ' act' : ''}" data-page="${p.id}" draggable="true" title="${esc(t('pgl.drag'))}"><button type="button" class="pt-go" data-go="${p.id}"${act ? ' aria-current="page"' : ''}><span class="n">${i + 1}</span>${esc(p.name)}${roleBadge(p)}</button>${act ? `<button type="button" class="x" data-renpage="${p.id}" title="${esc(t('tip.pageRename'))}" aria-label="${esc(t('tip.pageRenameN', { n: p.name }))}">✎</button>` : ''}<button type="button" class="x" data-delpage="${p.id}" title="${esc(t('tip.pageDelete'))}" aria-label="${esc(t('tip.pageDeleteN', { n: p.name }))}">×</button></span>`; }).join('')
       + `<button class="padd" id="btnAddPage">${esc(t('btn.addPage'))}</button><span class="ptools"><button class="btn sm ghost" id="btnPageLeft" title="${esc(t('tip.pageLeft'))}" aria-label="${esc(t('tip.pageLeft'))}">‹</button><button class="btn sm ghost" id="btnPageRight" title="${esc(t('tip.pageRight'))}" aria-label="${esc(t('tip.pageRight'))}">›</button></span>`;
     if (keep) { const el = $(keep, bar) || $(`[data-go="${CSS.escape(S.cur)}"]`, bar); if (el) el.focus({ preventScroll: true }); }
   }
@@ -616,6 +628,61 @@ window.MK_VERSION = '0.6.0';
     if (e.target.id === 'btnPageLeft') movePage(-1);
     if (e.target.id === 'btnPageRight') movePage(1);
   });
+  // Seiten ziehen: Reiterleiste (waagerecht) und Seitenliste im Seiten-Tab (senkrecht). Eigener Datentyp, damit
+  // Leinwand und Feldliste den Zug ignorieren. Markierung vor oder nach dem Ziel, je nach Hälfte.
+  const PG_DT = 'application/x-mk-page';
+  function pageDnd(box, itemSel, horiz) {
+    if (!box) return; let src = null;
+    const clear = () => $$('.dz-before,.dz-after', box).forEach(n => n.classList.remove('dz-before', 'dz-after'));
+    const after = (el, e) => { const r = el.getBoundingClientRect(); return horiz ? e.clientX > r.left + r.width / 2 : e.clientY > r.top + r.height / 2; };
+    box.addEventListener('dragstart', e => {
+      const it = e.target.closest && e.target.closest(itemSel); if (!it || !box.contains(it)) return;
+      if (e.target.closest('select')) { e.preventDefault(); return; }
+      src = it.dataset.page; e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData(PG_DT, src); } catch (er) { /* ältere Browser */ }
+      it.classList.add('dragging');
+    });
+    box.addEventListener('dragover', e => {
+      if (!src) return; const it = e.target.closest(itemSel); if (!it || !box.contains(it)) return;
+      e.preventDefault(); e.dataTransfer.dropEffect = 'move'; clear();
+      if (it.dataset.page !== src) it.classList.add(after(it, e) ? 'dz-after' : 'dz-before');
+    });
+    box.addEventListener('dragleave', e => { if (!box.contains(e.relatedTarget)) clear(); });
+    box.addEventListener('drop', e => {
+      if (!src) return; const it = e.target.closest(itemSel); e.preventDefault(); clear();
+      const id = src; src = null;
+      if (!it || it.dataset.page === id) return;
+      const from = S.pages.findIndex(p => p.id === id); let to = S.pages.findIndex(p => p.id === it.dataset.page);
+      if (after(it, e)) to++; if (from < to) to--;
+      movePageTo(id, to, true);
+    });
+    box.addEventListener('dragend', () => { src = null; clear(); $$('.dragging', box).forEach(n => n.classList.remove('dragging')); });
+  }
+  pageDnd($('#pagebar'), '.ptab', true);
+  pageDnd($('#pageList'), '.pgrow', false);
+  function renderPageList() {
+    const box = $('#pageList'); if (!box) return;
+    const fa = document.activeElement; const keep = fa && box.contains(fa) ? fa.dataset.pgfocus : null;
+    box.innerHTML = S.pages.map((p, i) => {
+      const r = roleOf(p); const act = p.id === S.cur;
+      return `<li class="pgrow${act ? ' act' : ''}" data-page="${p.id}" draggable="true">`
+        + `<span class="grip" title="${esc(t('pgl.drag'))}" aria-hidden="true">⋮⋮</span><span class="n">${i + 1}</span>`
+        + `<button type="button" class="pg-go" data-pgfocus="go-${p.id}" data-go="${p.id}" title="${esc(t('pgl.open'))}"${act ? ' aria-current="page"' : ''}>${esc(p.name)}</button>`
+        + `<select class="ctl pg-role r-${r}" data-pgfocus="role-${p.id}" data-pgrole="${p.id}" aria-label="${esc(t('pgl.roleOf', { n: p.name }))}" title="${esc(t('pgl.' + r + 'Tip'))}">${PAGE_ROLES.map(k => `<option value="${k}"${k === r ? ' selected' : ''}>${esc(t('pgl.' + k))}</option>`).join('')}</select>`
+        + `<span class="pg-mv"><button type="button" class="btn sm ghost" data-pgfocus="up-${p.id}" data-pgup="${p.id}"${i === 0 ? ' disabled' : ''} title="${esc(t('pgl.up'))}" aria-label="${esc(t('pgl.up') + ': ' + p.name)}">↑</button>`
+        + `<button type="button" class="btn sm ghost" data-pgfocus="dn-${p.id}" data-pgdn="${p.id}"${i === S.pages.length - 1 ? ' disabled' : ''} title="${esc(t('pgl.down'))}" aria-label="${esc(t('pgl.down') + ': ' + p.name)}">↓</button></span></li>`;
+    }).join('');
+    const none = !S.pages.some(p => roleOf(p) === 'nav'); const w = $('#pageListWarn'); if (w) { w.hidden = !none; w.textContent = none ? t('pgl.navEmpty') : ''; }
+    if (keep) { const el = $(`[data-pgfocus="${CSS.escape(keep)}"]`, box); if (el) el.focus({ preventScroll: true }); }
+  }
+  if ($('#pageList')) {
+    $('#pageList').addEventListener('click', e => {
+      const go = e.target.closest('[data-go]'); if (go) { if (go.dataset.go !== S.cur) { S.cur = go.dataset.go; sel = null; commit({ noUndo: true }); } return; }
+      const up = e.target.closest('[data-pgup]'); if (up) { movePageTo(up.dataset.pgup, S.pages.findIndex(p => p.id === up.dataset.pgup) - 1); return; }
+      const dn = e.target.closest('[data-pgdn]'); if (dn) movePageTo(dn.dataset.pgdn, S.pages.findIndex(p => p.id === dn.dataset.pgdn) + 1);
+    });
+    $('#pageList').addEventListener('change', e => { const x = e.target.closest('[data-pgrole]'); if (x) setPageRole(x.dataset.pgrole, x.value); });
+  }
   $('#pagebar').addEventListener('dblclick', e => { const el = e.target.closest('[data-page]'); if (!el || e.target.closest('[data-delpage]')) return; const p = S.pages.find(x => x.id === el.dataset.page); const n = prompt(t('ask.pageName'), p.name); if (n && n.trim()) { p.name = n.trim(); dropDefault(p, 'name'); commit(); } });
 
   // ------------------------------------------------------------------ Geometrie
@@ -686,7 +753,7 @@ window.MK_VERSION = '0.6.0';
     pageEl.style.marginRight = (w * zoom - w) + 'px'; pageEl.style.marginBottom = (h * zoom - h) + 'px';
     const all = computeAll(); const z = all.zones;
     let html = '';
-    if (z.nav) html += `<div class="zone nav" style="${css(z.nav)}"><i class="logo"></i>${S.pages.map(p => `<i class="${p.id === S.cur ? 'act' : ''}" title="${esc(p.name)}"></i>`).join('')}</div>`;
+    if (z.nav) html += `<div class="zone nav" style="${css(z.nav)}"><i class="logo"></i>${S.pages.filter(p => roleOf(p) === 'nav').map(p => `<i class="${p.id === S.cur ? 'act' : ''}" title="${esc(p.name)}"></i>`).join('')}</div>`;
     if (z.header) {
       const names = navPosOf(c) === 'header' ? navNames(c) : [];
       const cur = c.header.navAuto ? page().name : names[0];
@@ -1001,7 +1068,7 @@ window.MK_VERSION = '0.6.0';
       const kindLbl = r.kind === 'any' ? t('kind.any') : r.kind === 'measure' ? t('kind.measure') : t('kind.column');
       return `<div class="role" data-role="${r.key}"><div class="rl">${esc(r.label)}${r.req ? '<span class="req">*</span>' : ''}<span class="k">${esc(kindLbl)} · ${esc(t('canvas.maxN', { n: r.max }))}</span></div>${chips ? `<div class="chips">${chips}</div>` : ''}${list.length < r.max ? `<div class="drop">${esc(t('canvas.dropFieldRole'))} ${esc(t('canvas.orCreate'))} <button type="button" class="lnk" data-newfield="${r.key}" data-newkind="${r.kind}" title="${esc(t('canvas.createHereTip'))}">+ ${esc(t('canvas.createHere'))}</button></div>` : ''}</div>`;
     }).join('');
-    const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
+    const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(roleOf(p) === 'nav' ? p.name : t('pgl.linkRole', { n: p.name, r: t('pgl.' + roleOf(p) + 'S') }))}</option>`).join('');
     const hasMeasure = rolesDef.some(r => ['ac', 'indicator', 'values', 'y'].includes(r.key));
     const variants = CAT.variantsFor(def) ? grp('variants', t('sec.variants'), `
       <label class="toggle" style="padding:0 0 6px"><input type="checkbox" data-an="smallMultiples" ${an.smallMultiples ? 'checked' : ''}> ${esc(t('lbl.smallMultiples'))}</label>
@@ -1060,7 +1127,7 @@ window.MK_VERSION = '0.6.0';
     const hit = findNode(id); const n = hit && hit.node; if (!n || !n.visual) return;
     const v = n.visual; const def = CAT.byId[v.kind] || { label: v.kind, roles: [] }; const an = analysisOf(v); const it = v.interaction || {};
     const opt = (list, cur, labels) => list.map(x => `<option value="${x}" ${String(cur) === String(x) ? 'selected' : ''}>${labels ? labels[x] : x}</option>`).join('');
-    const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
+    const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(roleOf(p) === 'nav' ? p.name : t('pgl.linkRole', { n: p.name, r: t('pgl.' + roleOf(p) + 'S') }))}</option>`).join('');
     const hasCat = CAT.rolesFor(def, v).some(r => r.key === 'category'); const canVar = CAT.variantsFor(def); const isText = v.kind === 'text' || v.kind === 'button' || v.kind === 'image';
     $('#dlgTileH').textContent = v.title || def.label;
     $('#dlgTileBody').innerHTML = `<div class="tw-grid"><div class="tw-left">
@@ -1178,7 +1245,7 @@ window.MK_VERSION = '0.6.0';
   function syncPageInputs() {
     renderA11y();
     const c = S.chrome, d = S.design, p = page();
-    $('#projName').value = S.name; $('#rpName').value = S.name; $('#pageName').value = p.name; $('#pageNotes').value = p.notes || ''; $('#pageQuestion').value = p.question || '';
+    $('#projName').value = S.name; $('#rpName').value = S.name; $('#pageName').value = p.name; $('#pageNotes').value = p.notes || ''; $('#pageQuestion').value = p.question || ''; renderPageList();
     const rp = S.report; $('#rpAudience').value = rp.audience; $('#rpPurpose').value = rp.purpose; $('#rpDecision').value = rp.decision; $('#rpVersion').value = rp.version; $('#rpDataDate').value = rp.dataDate; $('#rpParticipants').value = rp.participants; $('#rpLang').value = S.lang || 'de';
     $('#canvasPreset').value = S.canvas.preset; $('#customSize').hidden = S.canvas.preset !== 'custom'; $('#canvasW').value = S.canvas.w; $('#canvasH').value = S.canvas.h;
     $('#uiScaleInfo').textContent = t('hint.uiScaleInfo', { k: ui().toFixed(2) });
@@ -1695,7 +1762,7 @@ window.MK_VERSION = '0.6.0';
   // Öffentliche API für export.js
   window.MK = {
     get state() { return S; }, set state(v) { S = migrate(v); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Öffnen nie verhindern */ } sel = null; commit(); },
-    page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, fmtOf, FORMAT_WISH, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
+    page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, fmtOf, FORMAT_WISH, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, roleOf, PAGE_ROLES, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     fieldStatus, refMismatch, sketchScenario, basisOfName, syncFieldFlags,
     effScen, sketchOpts, sketchInfo, tileGeom, placeholderChips, hasChips: hasChipsOf,
     setLang, get lang() { return I18N.lang; }, copyText, tileInk,

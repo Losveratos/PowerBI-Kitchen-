@@ -577,7 +577,10 @@
         const key = f.table + '|' + f.name; if (fieldKey[key]) return; fieldKey[key] = 1;
         fields.push({ table: f.table, name: f.name, kind: f.kind, isNew: false, type: slicerTypeOf(v.type, vis, [f]) });
       });
-      return { id: pageIds[x.p.folder], name: x.name, notes: '', question: '', layout, pbir: { page: x.p.folder } };
+      // Rolle aus dem Bericht: Drillthrough-Bindung = drill, sonst ausgeblendet = detail (Kitchen 0.6.1)
+      const pb = x.pj.pageBinding || {}; const hiddenPg = x.pj.visibility === 'HiddenInViewMode';
+      const role = pb.type === 'Drillthrough' ? 'drill' : hiddenPg ? 'detail' : null;
+      return Object.assign({ id: pageIds[x.p.folder], name: x.name, notes: '', question: '', layout, pbir: { page: x.p.folder } }, role ? { role } : {});
     });
 
     // Rahmen (berichtsweit)

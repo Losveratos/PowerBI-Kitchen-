@@ -118,6 +118,26 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .pagebar .ptab button:focus-visible{outline:2px solid var(--sel);outline-offset:2px;opacity:1}
 .pagebar .ptab .x:hover{opacity:1;color:var(--bad)}
 .pagebar .ptab.act .x:hover{color:#ffb4a8}
+.pagebar .ptab[draggable="true"]{cursor:grab}
+.pagebar .ptab.dragging,.pglist .pgrow.dragging{opacity:.45}
+.pagebar .ptab.dz-before{box-shadow:-3px 0 0 var(--accent)}
+.pagebar .ptab.dz-after{box-shadow:3px 0 0 var(--accent)}
+.prole{font-family:var(--ff-mono);font-size:9.5px;font-weight:500;line-height:15px;padding:0 5px;border-radius:999px;border:1px solid var(--line-strong);color:var(--ink-mute);background:var(--bg-card)}
+.prole.drill{border-style:dashed}
+.pagebar .ptab.act .prole{background:rgba(255,255,255,.14);color:#E9E6DE;border-color:rgba(255,255,255,.3)}
+.hint.warn{color:var(--bad)}
+.pglist{list-style:none;margin:6px 0 4px;padding:0;display:flex;flex-direction:column;gap:4px}
+.pglist .pgrow{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);padding:4px 6px;font-size:12px;cursor:grab}
+.pglist .pgrow.act{border-color:var(--ink-soft);background:var(--bg-card)}
+.pglist .pgrow.dz-before{box-shadow:0 -3px 0 var(--accent)}
+.pglist .pgrow.dz-after{box-shadow:0 3px 0 var(--accent)}
+.pglist .grip{color:var(--ink-mute);letter-spacing:-2px;font-size:11px;user-select:none}
+.pglist .n{font-family:var(--ff-mono);font-size:10px;color:var(--ink-mute);min-width:14px;text-align:right}
+.pglist .pg-go{flex:1;min-width:0;text-align:left;border:0;background:none;font:inherit;color:inherit;padding:2px 0;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.pglist .pg-go:hover{text-decoration:underline}
+.pglist .pg-role{width:auto;max-width:118px;padding:2px 4px;font-size:11.5px;cursor:pointer}
+.pglist .pg-mv{display:inline-flex}
+.pglist .pg-mv .btn{padding:1px 5px;min-width:0}
 .pagebar .padd{border:1px dashed var(--line-strong);background:transparent;border-radius:6px;padding:4px 10px;font-size:12px;color:var(--ink-mute)}
 .pagebar .padd:hover{color:var(--ink);border-color:var(--ink-soft)}
 .pagebar .ptools{margin-left:auto;display:flex;gap:4px}
@@ -898,6 +918,11 @@ dialog.narrow.lv-wide{width:min(96vw,1120px);max-width:min(96vw,1120px)}
       <div class="field"><label data-i18n="lbl.pageQuestion">Fragestellung / Kernbotschaft der Seite</label><input class="ctl" id="pageQuestion" data-i18n-ph="ph.pageQuestion" placeholder="z. B. Liegen wir im Plan, und wo nicht?"></div>
       <div class="field"><label data-i18n="lbl.pageNotes">Zweck / Notizen zur Seite</label><textarea class="ctl" id="pageNotes" data-i18n-ph="ph.pageNotes" placeholder="Zielgruppe, Drill-Wege, Interaktionen …"></textarea></div>
       <div class="row wrap" style="margin-bottom:10px"><button class="btn sm" id="btnPageDup" data-i18n="btn.pageDup">Seite duplizieren</button><button class="btn sm" id="btnPageDel" data-i18n="btn.pageDel">Seite löschen</button></div>
+      <div class="section"><h3 data-i18n="pgl.sec">Alle Seiten</h3>
+        <p class="hint" data-i18n="pgl.hint">Reihenfolge per Ziehen ändern, hier oder oben in der Seitenleiste. Die Rolle legt fest, ob eine Seite in der Navigation steht.</p>
+        <ol class="pglist" id="pageList"></ol>
+        <p class="hint warn" id="pageListWarn" role="status" hidden></p>
+      </div>
       <div class="section"><h3 data-i18n="sec.grid">Raster</h3>
         <button class="btn sm" id="btnSplitRoot" data-i18n="btn.splitRoot">Inhalt neu aufteilen …</button> <button class="btn sm" id="btnGridCheck" data-i18n="gc.btn">Pixelgenau prüfen …</button>
         <p class="hint" data-i18n="hint.splitRoot">Setzt den Inhaltsbereich dieser Seite auf ein neues Raster (Zeilen × Spalten). Bestehende Visuals werden der Reihe nach wieder eingesetzt.</p>
@@ -1186,17 +1211,17 @@ dialog.narrow.lv-wide{width:min(96vw,1120px);max-width:min(96vw,1120px)}
 <input type="file" id="fileDiff" accept=".json" hidden>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="assets/mockup/i18n.js?v=20261003a"></script>
-<script src="assets/mockup/sketches.js?v=20261003a"></script>
-<script src="assets/mockup/catalog.js?v=20261003a"></script>
-<script src="assets/mockup/a11y.js?v=20261003a"></script>
-<script src="assets/mockup/diff.js?v=20261003a"></script>
-<script src="assets/mockup/gridcheck.js?v=20261003a"></script>
-<script src="assets/mockup/fmtinfo.js?v=20261003a"></script>
-<script src="assets/mockup/app.js?v=20261003a"></script>
-<script src="assets/mockup/render-png.js?v=20261003a"></script>
-<script src="assets/mockup/export.js?v=20261003a"></script>
-<script src="assets/mockup/pbir-import.js?v=20261003a"></script>
-<script src="assets/mockup/live.js?v=20261003a"></script>
+<script src="assets/mockup/i18n.js?v=20261005a"></script>
+<script src="assets/mockup/sketches.js?v=20261005a"></script>
+<script src="assets/mockup/catalog.js?v=20261005a"></script>
+<script src="assets/mockup/a11y.js?v=20261005a"></script>
+<script src="assets/mockup/diff.js?v=20261005a"></script>
+<script src="assets/mockup/gridcheck.js?v=20261005a"></script>
+<script src="assets/mockup/fmtinfo.js?v=20261005a"></script>
+<script src="assets/mockup/app.js?v=20261005a"></script>
+<script src="assets/mockup/render-png.js?v=20261005a"></script>
+<script src="assets/mockup/export.js?v=20261005a"></script>
+<script src="assets/mockup/pbir-import.js?v=20261005a"></script>
+<script src="assets/mockup/live.js?v=20261005a"></script>
 </body>
 </html>

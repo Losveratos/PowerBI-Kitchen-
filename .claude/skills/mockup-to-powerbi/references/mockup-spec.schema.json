@@ -723,6 +723,14 @@
             "null"
           ]
         },
+        "role": {
+          "description": "Optional (Tool 0.6.1): Rolle der Seite. nav = steht in der Seitennavigation (Standard), detail = Detailseite, drill = Drillthrough-Ziel. detail und drill sind in Power BI ausgeblendet (visibility HiddenInViewMode).",
+          "enum": ["nav", "detail", "drill"]
+        },
+        "hidden": {
+          "description": "Optional (Tool 0.6.1): true, wenn die Seite in Power BI ausgeblendet ist (folgt aus role).",
+          "type": "boolean"
+        },
         "pbir": {
           "description": "Optional (Tool 0.6, mockup-live/CONTRACT.md): Seite wurde aus dem Projekt eingelesen. page = Ordnername der Seite in <Name>.Report/definition/pages. Der Runner aktualisiert diese Seite, statt eine neue anzulegen.",
           "type": "object",
