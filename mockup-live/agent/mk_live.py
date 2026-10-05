@@ -35,6 +35,7 @@ import re
 import struct
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.parse
 import webbrowser
@@ -868,7 +869,15 @@ def open_browser(url: str, no_browser: bool) -> None:
         say("Kitchen: %s" % url)
         return
     try:
-        webbrowser.open(url, new=2)
+        target = url
+        if os.name == "nt" and url.lower().startswith("file:") and "?" in url:
+            # Windows verwirft beim Öffnen lokaler Dateien die Parameter (?live=1 ginge verloren):
+            # kleine Weiterleitungsseite öffnen, die die volle Adresse lädt.
+            hop = Path(tempfile.gettempdir()) / "mk-live-open.html"
+            hop.write_text('<!doctype html><meta charset="utf-8"><script>location.replace(%s)</script>'
+                           % json.dumps(url), encoding="utf-8")
+            target = hop.as_uri()
+        webbrowser.open(target, new=2)
         say("Kitchen geöffnet: %s" % url)
     except Exception as e:                       # noqa: BLE001
         say("Kitchen bitte selbst öffnen: %s (%s)" % (url, e))
