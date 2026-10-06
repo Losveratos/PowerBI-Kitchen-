@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fabric Apps im Heimrevier von Power BI: Vertrieb und Finance · Daten-WG</title>
+<link rel="alternate" type="text/markdown" title="Markdown" href="md/fabric-apps-controlling-post.md">
+<meta name="description" content="Zwei Fabric Apps für Vertriebscontrolling und Finance Reporting, gebaut mit Rayfin CLI, Coding-Agent, MockupKitchen und ChartKitchen. Warum wir dabei auf Standards wie IBCS setzen und was man vorher wissen sollte.">
+<meta property="og:title" content="Fabric Apps im Heimrevier von Power BI: Vertrieb und Finance">
+<meta property="og:description" content="Zwei Fabric Apps für Controlling und Finance, an IBCS angelehnt, mit einem Playbook und einem Coding-Agent gebaut.">
+<meta property="og:image" content="https://datenwgknowledgekitchen.com/blog/assets/fabric-apps/vertrieb-uebersicht.jpg">
+<style>
+:root {
+  --bg:#FAFAF5; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#1A1A1A; --ink-soft:#4A4A4A; --ink-mute:#6B6B6B; --black:#0A0A0A;
+  --line:#E5E2D8; --line-strong:#1A1A1A;
+  --accent:#117865; --accent-deep:#0A5A4D;
+  --topic:#117865; --low:#2A857A; --mid:#C9962E; --high:#8B2E2E;
+  --shadow-sm:0 1px 2px rgba(10,10,10,.04),0 1px 3px rgba(10,10,10,.06);
+  --shadow-md:0 4px 12px rgba(10,10,10,.08),0 2px 4px rgba(10,10,10,.06);
+  --radius-sm:6px; --radius:10px; --radius-lg:16px;
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Segoe UI Variable Small","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:var(--sans); font-size:16px; line-height:1.62; color:var(--ink); background:var(--bg);
+  background-image:radial-gradient(circle at 12% -5%,rgba(17,120,101,.05),transparent 35%),radial-gradient(circle at 95% 12%,rgba(201,150,46,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; min-height:100vh;
+}
+a { color:inherit; }
+.container { max-width:820px; margin:0 auto; padding:36px 28px 110px; }
+
+.back-link {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--ink-mute); text-decoration:none; padding:8px 14px; border:1px solid var(--line); border-radius:100px;
+  transition:all .15s ease; margin-bottom:40px;
+}
+.back-link:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+
+.post-eyebrow { display:inline-flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--topic); margin-bottom:20px; }
+.post-eyebrow::before { content:''; width:28px; height:1px; background:var(--topic); }
+.post-title { font-family:var(--serif); font-weight:300; font-size:clamp(2.1rem,5.5vw,3.6rem); line-height:1.05; letter-spacing:-0.025em; color:var(--black); margin-bottom:18px; }
+.post-title em { font-style:italic; font-weight:300; color:var(--topic); }
+.post-dek { font-size:18px; color:var(--ink-soft); line-height:1.5; max-width:64ch; margin-bottom:24px; }
+.post-meta { display:flex; flex-wrap:wrap; gap:18px; align-items:center; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-mute); padding:16px 0 28px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-bottom:40px; }
+.post-meta strong { color:var(--ink); font-weight:600; }
+.tags { display:flex; flex-wrap:wrap; gap:8px; margin:-20px 0 36px; }
+.tag { font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); border:1px solid var(--accent); border-radius:100px; padding:4px 12px; }
+
+.prose h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.5rem,3.2vw,2rem); letter-spacing:-0.015em; color:var(--black); margin:52px 0 16px; line-height:1.15; }
+.prose h2 em { font-style:italic; color:var(--topic); font-weight:500; }
+.prose p { margin-bottom:18px; color:var(--ink-soft); max-width:70ch; }
+.prose p strong { color:var(--ink); font-weight:600; }
+.prose p a, .prose li a { color:var(--accent); }
+.prose ul { margin:0 0 20px; padding-left:0; list-style:none; max-width:70ch; }
+.prose ul li { position:relative; padding:8px 0 8px 26px; color:var(--ink-soft); border-bottom:1px solid var(--line); }
+.prose ul li:last-child { border-bottom:none; }
+.prose ul li::before { content:''; position:absolute; left:6px; top:16px; width:7px; height:7px; border-radius:50%; background:var(--topic); }
+.prose ul li strong { color:var(--ink); font-weight:600; }
+.prose code { font-family:Consolas,"Cascadia Mono",monospace; font-size:.9em; background:var(--bg-soft); border:1px solid var(--line); border-radius:4px; padding:1px 5px; }
+
+.bigstat { display:grid; grid-template-columns:auto 1fr; gap:24px; align-items:center; background:linear-gradient(135deg,var(--bg-card) 0%,rgba(17,120,101,.05) 100%); border:1px solid var(--line); border-left:4px solid var(--topic); border-radius:var(--radius-lg); padding:26px 30px; margin:36px 0; }
+.bigstat-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:clamp(2rem,6vw,3.4rem); line-height:1; letter-spacing:-0.03em; color:var(--topic); white-space:nowrap; }
+.bigstat-text { font-size:15px; color:var(--ink-soft); line-height:1.55; }
+.bigstat-text strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .bigstat { grid-template-columns:1fr; gap:12px; } }
+
+.figure { margin:32px 0 12px; }
+.figure-embed { border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-md); background:#fff; }
+.figure-embed img, .figure-embed video { width:100%; display:block; }
+.figure-cap { font-family:var(--mono); font-size:11px; letter-spacing:0.04em; color:var(--ink-mute); margin-top:12px; padding-left:2px; line-height:1.5; }
+.figure-cap strong { color:var(--ink-soft); }
+.gallery { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:28px 0 12px; }
+.gallery figure { margin:0; }
+.gallery a { display:block; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-sm); background:#fff; transition:box-shadow .15s ease; }
+.gallery a:hover { box-shadow:var(--shadow-md); }
+.gallery img { width:100%; display:block; }
+.gallery figcaption { font-family:var(--mono); font-size:11px; color:var(--ink-mute); margin-top:8px; line-height:1.45; }
+.gallery figcaption strong { color:var(--ink-soft); }
+@media (max-width:620px){ .gallery { grid-template-columns:1fr; } }
+
+.step { display:grid; grid-template-columns:56px 1fr; gap:20px; align-items:start; background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:22px 26px; margin:16px 0; box-shadow:var(--shadow-sm); }
+.step-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:2.2rem; line-height:1; color:var(--topic); }
+.step h3 { font-family:var(--serif); font-weight:600; font-size:1.1rem; color:var(--black); margin-bottom:6px; }
+.step h3 span { font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin-left:8px; }
+.step p { font-size:14.5px; color:var(--ink-soft); margin:0; line-height:1.6; }
+.step p strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .step { grid-template-columns:1fr; gap:8px; } }
+
+.src-box { background:var(--bg-soft); border:1px solid var(--line); border-left:4px solid var(--ink-mute); border-radius:var(--radius); padding:20px 24px; margin:28px 0; font-size:13.5px; color:var(--ink-soft); line-height:1.6; }
+.src-box h3 { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--black); margin-bottom:8px; }
+.src-box a { color:var(--accent); }
+.src-box ul { list-style:none; margin:0; padding:0; }
+.src-box li { padding:5px 0; border-bottom:1px solid var(--line); }
+.src-box li:last-child { border-bottom:none; }
+
+.notation { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:24px 0; }
+.notation div { background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius); padding:14px; font-size:13px; color:var(--ink-soft); line-height:1.45; }
+.notation strong { display:block; color:var(--ink); font-size:14px; margin:8px 0 2px; }
+.sw { width:100%; height:26px; border-radius:3px; }
+.sw.ac { background:#404040; }
+.sw.py { background:#a8a8a8; }
+.sw.pl { background:#fff; border:2px solid #404040; }
+.sw.fc { background:repeating-linear-gradient(45deg,#404040 0 2px,#fff 2px 6px); border:1px solid #404040; }
+@media (max-width:620px){ .notation { grid-template-columns:1fr 1fr; } }
+
+.post-foot { margin-top:56px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--ink-mute); line-height:1.6; }
+.post-foot a { color:var(--accent); }
+.lang-switch { display:inline-flex; align-items:center; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-mute); text-decoration:none; margin-left:8px; padding:8px 14px; border:1px solid var(--line); border-radius:100px; transition:all .15s ease; }
+.lang-switch:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <a class="back-link" href="index.html#posts-talks">← Zurück zur Knowledge Kitchen</a>
+  <a class="lang-switch" href="fabric-apps-controlling-post_en.html">EN</a>
+
+  <header>
+    <div class="post-eyebrow">Post · Fabric Apps &amp; Visualisierung</div>
+    <h1 class="post-title">Fabric Apps im Heimrevier von Power BI: <em>Vertrieb und Finance</em></h1>
+    <p class="post-dek">Fabric Apps sind jetzt in unserer Fabric-Umgebung verfügbar, also haben wir angefangen zu testen. Ich habe viele großartige, fancy, super coole Apps gesehen. Dann kam die Idee: Warum nicht etwas bauen, das viele wirklich brauchen? <strong>Vertriebscontrolling und Finance Reporting</strong>, das klassische Heimrevier von Power-BI-Berichten. Mit klaren Standards statt Show.</p>
+    <div class="post-meta">
+      <span>Von <strong>Michael Tenner</strong></span>
+      <span>Stand · <strong>Oktober 2026</strong></span>
+      <span>Werkzeuge · <strong>Rayfin CLI · Claude Code · MockupKitchen · ChartKitchen</strong></span>
+      <span>Status · <strong>Fabric Apps (Preview)</strong></span>
+    </div>
+    <div class="tags"><span class="tag">Vis</span><span class="tag">Fabric</span><span class="tag">IBCS</span></div>
+  </header>
+
+  <div class="prose">
+
+    <figure class="figure">
+      <div class="figure-embed">
+        <video src="assets/fabric-apps/fabric-apps-live.mp4" poster="assets/fabric-apps/fabric-apps-live-poster.jpg" controls muted playsinline preload="metadata"></video>
+      </div>
+      <div class="figure-cap"><strong>89 Sekunden, live aufgenommen, ohne Schnitt:</strong> erst das Vertriebscontrolling mit Dark Mode, Filtern, Analyse, Pipeline, Deals und dem Zoom in Small Multiples. Dann das Finance KPI Cockpit mit AC gegen PY, Plan und Forecast. Alle Daten sind Demodaten.</div>
+    </figure>
+
+    <h2>Was sind <em>Fabric Apps?</em></h2>
+    <p>Fabric Apps sind ein neuer Item-Typ in Microsoft Fabric, aktuell in der Preview. Microsoft hat sie zur Build 2026 zusammen mit <strong>Rayfin</strong> vorgestellt, einem Open-Source-SDK und einer CLI. Man schreibt eine Web-App in TypeScript und React, verbindet sie über Konnektoren mit Fabric-Daten und deployt sie mit <code>rayfin up</code> in einen Workspace. Angemeldet wird über Fabric SSO, und jeder sieht nur die Daten, auf die er auch im Modell Zugriff hat.</p>
+    <p>Für Reporting ist vor allem der Konnektor auf das <strong>Semantikmodell</strong> interessant. Die App schickt DAX-Abfragen über die Execute-Queries-API an das bestehende Modell. Das Modell bleibt die Datenquelle, die App übernimmt die Darstellung und die Interaktion.</p>
+
+    <div class="src-box">
+      <h3>Die Grundlagen bei Microsoft Learn</h3>
+      <ul>
+        <li><a href="https://learn.microsoft.com/fabric/apps/overview">What is Fabric Apps (Preview)?</a> · Überblick, Voraussetzungen und Kapazität</li>
+        <li><a href="https://learn.microsoft.com/fabric/apps/create-app">Create your first Fabric app</a> · Schnellstart mit Node und Rayfin</li>
+        <li><a href="https://learn.microsoft.com/fabric/apps/create-app-with-cli">Create a Fabric app with the Rayfin CLI</a> · der Weg über die Kommandozeile</li>
+        <li><a href="https://learn.microsoft.com/fabric/apps/connectors">Connect Fabric Apps to Fabric data</a> · Konnektoren für Semantikmodell, Lakehouse, Warehouse</li>
+        <li><a href="https://learn.microsoft.com/fabric/apps/data-apps-template">Create an app connected to a semantic model</a> · App auf einem Semantikmodell</li>
+        <li><a href="https://learn.microsoft.com/fabric/apps/deploy-app">Deploy a Fabric app to Fabric</a> · was <code>rayfin up</code> macht</li>
+        <li><a href="https://learn.microsoft.com/fabric/apps/troubleshooting">Troubleshoot Fabric Apps</a> · bekannte Grenzen</li>
+        <li><a href="https://learn.microsoft.com/fabric/admin/region-availability">Fabric region availability</a> · Fabric Apps gibt es noch nicht in jeder Region</li>
+        <li><a href="https://learn.microsoft.com/rest/api/power-bi/datasets/execute-queries">Datasets · Execute Queries</a> · die API hinter dem Modell-Konnektor</li>
+        <li><a href="https://azure.microsoft.com/en-us/blog/microsoft-build-2026-building-agentic-apps-with-microsoft-fabric-and-microsoft-databases/">Ankündigung zur Build 2026</a> · Azure Blog</li>
+      </ul>
+    </div>
+
+    <h2>Was wir <em>gebaut haben</em></h2>
+    <p>Zwei Apps im selben Workspace, beide auf einem bestehenden Semantikmodell. Jede ist in etwa einer Stunde entstanden.</p>
+    <ul>
+      <li><strong>Vertriebscontrolling:</strong> vier Seiten mit Übersicht, Analyse, Pipeline &amp; Forecast sowie Deals &amp; Kunden. Auftragseingang AC gegen PY, integrierte Varianzanalyse, Strukturbrücke, Werttreiberbaum und ein Zoom, der aus einer Grafik Small Multiples macht.</li>
+      <li><strong>Finance KPI Cockpit:</strong> sechs Kennzahlen gegen Vorjahr, Plan und Forecast, mit wählbaren Plan- und Forecast-Versionen, Forecast schraffiert ab dem ersten offenen Monat, alle Kennzahlen als Tabelle und Ergebnisbrücke.</li>
+    </ul>
+
+    <div class="gallery">
+      <figure><a href="blog/assets/fabric-apps/vertrieb-uebersicht.jpg"><img src="blog/assets/fabric-apps/vertrieb-uebersicht.jpg" alt="Vertriebscontrolling, Übersicht mit KPI-Karten, integrierter Varianzanalyse und Strukturbrücke" loading="lazy"></a><figcaption><strong>Übersicht:</strong> KPI-Karten, integrierte Varianzanalyse je Monat, Strukturbrücke je Produktgruppe.</figcaption></figure>
+      <figure><a href="blog/assets/fabric-apps/vertrieb-darkmode.jpg"><img src="blog/assets/fabric-apps/vertrieb-darkmode.jpg" alt="Vertriebscontrolling im Dark Mode" loading="lazy"></a><figcaption><strong>Dark Mode:</strong> ein Klick, dieselbe Notation.</figcaption></figure>
+      <figure><a href="blog/assets/fabric-apps/vertrieb-zoom-small-multiples.jpg"><img src="blog/assets/fabric-apps/vertrieb-zoom-small-multiples.jpg" alt="Zoom aus einer Grafik in Small Multiples je Vertriebler" loading="lazy"></a><figcaption><strong>Zoom:</strong> aus einer Grafik in Small Multiples, umschaltbar nach Dimension.</figcaption></figure>
+      <figure><a href="blog/assets/fabric-apps/vertrieb-analyse.jpg"><img src="blog/assets/fabric-apps/vertrieb-analyse.jpg" alt="Analyse-Seite mit Small Multiples je Produktgruppe" loading="lazy"></a><figcaption><strong>Analyse:</strong> Kennzahl wählen, Small Multiples und Werttreiberbaum.</figcaption></figure>
+      <figure><a href="blog/assets/fabric-apps/vertrieb-pipeline.jpg"><img src="blog/assets/fabric-apps/vertrieb-pipeline.jpg" alt="Pipeline und Forecast" loading="lazy"></a><figcaption><strong>Pipeline &amp; Forecast:</strong> offene Angebote nach Wahrscheinlichkeit und Vertriebler.</figcaption></figure>
+      <figure><a href="blog/assets/fabric-apps/vertrieb-deals.jpg"><img src="blog/assets/fabric-apps/vertrieb-deals.jpg" alt="Deals und Kunden als Liste" loading="lazy"></a><figcaption><strong>Deals &amp; Kunden:</strong> jedes Angebot im Detail, Demodaten.</figcaption></figure>
+      <figure><a href="blog/assets/fabric-apps/cockpit-uebersicht.jpg"><img src="blog/assets/fabric-apps/cockpit-uebersicht.jpg" alt="Finance KPI Cockpit, Übersicht" loading="lazy"></a><figcaption><strong>Finance KPI Cockpit:</strong> ΔPY, ΔPL und ΔFC auf jeder Karte.</figcaption></figure>
+      <figure><a href="blog/assets/fabric-apps/cockpit-filter.jpg"><img src="blog/assets/fabric-apps/cockpit-filter.jpg" alt="Cockpit mit aktiven Filtern als Chips über der Seite" loading="lazy"></a><figcaption><strong>Filter:</strong> sichtbar über der Seite, mit einem Klick entfernt.</figcaption></figure>
+      <figure><a href="blog/assets/fabric-apps/cockpit-alle-kennzahlen.jpg"><img src="blog/assets/fabric-apps/cockpit-alle-kennzahlen.jpg" alt="Alle Kennzahlen als Tabelle und Ergebnisbrücke im Dark Mode" loading="lazy"></a><figcaption><strong>Alle Kennzahlen:</strong> Tabelle und Ergebnisbrücke.</figcaption></figure>
+      <figure><a href="blog/assets/fabric-apps/cockpit-versionen.jpg"><img src="blog/assets/fabric-apps/cockpit-versionen.jpg" alt="Auswahl der Plan- und Forecast-Version" loading="lazy"></a><figcaption><strong>Versionen:</strong> Plan und Forecast direkt wechseln.</figcaption></figure>
+    </div>
+
+    <p>Was mir besonders gefällt: die <strong>Filter über der Seite</strong>, gut sichtbar und mit einem Klick gelöscht. Der <strong>Zoom mit neuen Aktionen</strong>. Und das „Beste": der einfache Wechsel in den <strong>Dark Mode</strong>. Das hätte ich in Power BI nie gebaut. Dazu steckt jede Ansicht in der URL, also lässt sich genau dieser Stand teilen.</p>
+
+    <h2>Wie wir es gebaut haben: <em>ein Playbook</em></h2>
+    <p>Um Fabric Apps zu bekommen, die sich an IBCS-Konzepten orientieren, habe ich meinen Skill mit der MockupKitchen und dem Code meiner Power-BI-Custom-Visuals kombiniert. Daraus ist ein erster Versuch eines Playbooks entstanden: ein reproduzierbares Setup, mit dem mein Coding-Agent über Rayfin solche Apps baut.</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <h3>Seitengerüst <span>MockupKitchen</span></h3>
+        <p>Kopfband, KPI-Leiste, Kachelraster und Filterpanel rechts. Jede Kachel hat Titel, Untertitel und eine Kernaussage. So steht fest, <strong>was</strong> auf die Seite gehört, bevor eine Zeile Code entsteht.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <h3>Erprobte Grafikmuster <span>ChartKitchen · Custom Visuals</span></h3>
+        <p>Integrierte Varianzanalyse, Pins für prozentuale Abweichungen, Brücken, Werttreiberbaum. Diese Muster laufen schon als Power-BI-Custom-Visuals. Der Agent <strong>portiert sie</strong>, statt sie neu zu erfinden.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <h3>Regeln als Skill <span>Notation · Farben · Interaktion</span></h3>
+        <p>Szenarien, Farben für gut und schlecht, Skalierung, Beschriftung. Dazu Regeln für die Interaktion nach dem Shneiderman-Mantra: erst Überblick, dann zoomen und filtern, dann Details bei Bedarf.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div>
+        <h3>Bauen, testen, deployen <span>Claude Code · Rayfin CLI</span></h3>
+        <p>Der Coding-Agent legt das Projekt an, schreibt die DAX-Abfragen für den Konnektor, baut die Seiten, lässt die Tests laufen und deployt mit <code>rayfin up</code>. Für größere Seiten arbeiten mehrere Agenten parallel gegen denselben Datenkontext.</p>
+      </div>
+    </div>
+
+    <div class="bigstat">
+      <div class="bigstat-num">~1 Stunde</div>
+      <div class="bigstat-text"><strong>je App, vom leeren Projekt bis zur deployten Fabric App.</strong> Möglich ist das, weil das Playbook die Entscheidungen schon enthält: Seitengerüst, Grafikmuster und Notation muss der Agent nicht erfinden.</div>
+    </div>
+
+    <h2>Warum wir auf <em>Standards</em> setzen</h2>
+    <p>Fabric Apps können alles, was eine Web-App kann. Genau das ist im Controlling ein Risiko. Ein Finanzbericht wird jeden Monat wieder gelesen, von Menschen, die schnell entscheiden müssen. Dafür braucht man kein fancy Feuerwerk, sondern ein <strong>verlässliches Arbeitspferd</strong>, das jedes Mal gleich funktioniert.</p>
+    <p>Ein bekannter Standard dafür sind die <strong>International Business Communication Standards (IBCS)</strong>. Sie legen fest, wie Szenarien, Abweichungen und Strukturen einheitlich dargestellt werden. Seit Juni 2026 gibt es IBCS in Version 2.0, abgestimmt mit der neuen Norm <strong>ISO 24896</strong> zur Notation im Business Reporting. Unsere Apps greifen einzelne Konzepte daraus auf:</p>
+
+    <div class="notation">
+      <div><span class="sw ac"></span><strong>AC · Ist</strong>Voll und dunkel</div>
+      <div><span class="sw py"></span><strong>PY · Vorjahr</strong>Grau</div>
+      <div><span class="sw pl"></span><strong>PL · Plan</strong>Umrandet</div>
+      <div><span class="sw fc"></span><strong>FC · Forecast</strong>Schraffiert</div>
+    </div>
+
+    <p>Dazu kommen Abweichungen als eigene Grafik, eine einheitliche Skalierung und eine klare Farbe für gut und schlecht. Statt Grün nehmen wir unser Kitchen-Teal, damit die Farben auch bei Rot-Grün-Sehschwäche unterscheidbar bleiben.</p>
+    <p>Mit einem Coding-Agent wird ein Standard noch wertvoller. <strong>Er ist eine Spezifikation, die der Agent befolgen kann.</strong> Ohne Standard erfindet der Agent bei jeder App ein neues Design, und jede App muss man neu lesen lernen. Mit Standard sieht die dritte App aus wie die erste, und Leser erkennen AC, PY, Plan und Forecast sofort wieder. Das macht das Ergebnis reproduzierbar, und genau darum geht es beim Playbook.</p>
+
+    <div class="src-box">
+      <h3>Die Grundlagen zu IBCS</h3>
+      <ul>
+        <li><a href="https://www.ibcs.com/">IBCS · International Business Communication Standards</a> · Startseite</li>
+        <li><a href="https://www.ibcs.com/ibcs-version-2-0/">IBCS Standards Version 2.0</a> · seit Juni 2026, abgestimmt mit ISO 24896</li>
+        <li><a href="https://www.ibcs.com/iso-24896/">ISO 24896 bei IBCS</a> · was die Norm regelt</li>
+        <li><a href="https://www.iso.org/standard/88366.html">ISO 24896:2026 · Notation for business reporting</a> · die Norm bei ISO</li>
+        <li><a href="https://www.ibcs.com/ibcs-association/">IBCS Association</a> · gemeinnütziger Verein, der die Standards frei unter Creative Commons veröffentlicht</li>
+      </ul>
+    </div>
+
+    <h2>Was man <em>bedenken sollte</em></h2>
+    <p>Es ist nicht alles Sonnenschein. Diese Punkte gehören zur ehrlichen Bewertung dazu:</p>
+    <ul>
+      <li><strong>Rechenlogik wandert in den App-Code.</strong> Wenn die App Kennzahlen im Browser rechnet, liegt diese Logik nicht mehr im Semantikmodell. Sie muss getestet und dokumentiert werden, sonst gibt es zwei Wahrheiten.</li>
+      <li><strong>Governance.</strong> Die Fabric-Git-Integration synchronisiert das App-Item nicht. Den Quellcode versionieren wir deshalb separat im Repository.</li>
+      <li><strong>Preview und Regionen.</strong> Fabric Apps sind Preview, der Tenant-Admin muss sie freischalten, und nicht jede Region unterstützt sie.</li>
+      <li><strong>Kapazität und Grenzen.</strong> Apps verbrauchen Capacity Units, und kleine Kapazitäten drosseln schnell. Die Execute-Queries-API hat Grenzen bei Zeilen und Abfragen pro Minute.</li>
+      <li><strong>Kein Ersatz für Power BI.</strong> Für viele Berichte bleibt ein Power-BI-Bericht der einfachere Weg. Fabric Apps lohnen sich dort, wo Interaktion den Unterschied macht.</li>
+    </ul>
+
+    <h2>Warum das <em>sinnvoll ist</em></h2>
+    <p>Fabric Apps sind eine Ergänzung, kein Ersatz. Spannend werden sie, wenn man sie mit Standards und einem Playbook kombiniert. Dann bekommt man die Freiheit einer Web-App, ohne bei jeder App bei null anzufangen. Das Semantikmodell bleibt die Quelle, die Notation bleibt gleich, und der Agent baut in einer Stunde, was sonst Tage an Design und Abstimmung kostet.</p>
+    <p>Das ist ein erster Versuch. <strong>Was denkt ihr?</strong> Ich freue mich über Feedback, Kritik und eigene Experimente.</p>
+
+    <div class="post-foot">
+      Fragen, Kritik, eigene Experimente: <strong>Michael Tenner</strong> · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>
+      Alle gezeigten Zahlen, Kunden und Namen sind Demodaten. Werkzeuge: Rayfin CLI, Claude Code, MockupKitchen, ChartKitchen.<br>
+      Einzelne Konzepte wie Szenario-Kennzeichnung und Abweichungsdarstellung sind an IBCS® angelehnt. Die Apps sind nicht zertifiziert und stehen in keiner Verbindung zur IBCS Association. IBCS® ist eine eingetragene Marke des IBCS Institute.
+      <br><a href="md/fabric-apps-controlling-post.md">📄 Diese Seite als Markdown</a>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

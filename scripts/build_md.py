@@ -1471,6 +1471,32 @@ PAGES: list[dict] = [
             "https://datenwgknowledgekitchen.com/pnl-treiberbaum-demo.html\n"
         ),
     },
+    {
+        **POST_COMMON,
+        "basename": "fabric-apps-controlling-post",
+        "lang": "de",
+        "title": "Fabric Apps im Heimrevier von Power BI: Vertrieb und Finance",
+        "append_md": (
+            "---\n\n"
+            "## Weiterlesen\n\n"
+            "- HTML (maßgeblich): https://datenwgknowledgekitchen.com/fabric-apps-controlling-post.html\n"
+            "- Englische Fassung: [fabric-apps-controlling-post_en.html](../fabric-apps-controlling-post_en.html) · "
+            "[fabric-apps-controlling-post_en.md](fabric-apps-controlling-post_en.md)\n"
+        ),
+    },
+    {
+        **POST_COMMON,
+        "basename": "fabric-apps-controlling-post_en",
+        "lang": "en",
+        "title": "Fabric Apps on Power BI's Home Turf: Sales and Finance",
+        "append_md": (
+            "---\n\n"
+            "## Read on\n\n"
+            "- HTML (authoritative): https://datenwgknowledgekitchen.com/fabric-apps-controlling-post_en.html\n"
+            "- German version: [fabric-apps-controlling-post.html](../fabric-apps-controlling-post.html) · "
+            "[fabric-apps-controlling-post.md](fabric-apps-controlling-post.md)\n"
+        ),
+    },
 ]
 
 
