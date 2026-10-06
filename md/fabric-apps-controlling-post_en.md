@@ -8,7 +8,7 @@ Fabric Apps are now available in our Fabric environment. Let's start to test the
 
 By **Michael Tenner** · Updated · **October 2026** · Tools · **Rayfin CLI · Claude Code · MockupKitchen · ChartKitchen** · Status · **Fabric Apps (Preview)**
 
-Vis Fabric IBCS
+Visualisation Fabric IBCS
 
 **Demo video:** ../assets/fabric-apps/fabric-apps-live.mp4
 
