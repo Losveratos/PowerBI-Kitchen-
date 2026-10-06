@@ -246,11 +246,31 @@ a { color:inherit; }
       </ul>
     </div>
 
+    <h2>Git: ein sauberer Workflow, <em>auch ohne offiziellen Support</em></h2>
+    <p>Reproduzierbar heißt für mich auch: versioniert. Der Workspace hängt deshalb über die <strong>Fabric-Git-Integration</strong> an einem privaten GitHub-Repository. Semantikmodelle, Berichte, Lakehouse und die anderen Items werden dort automatisch synchronisiert.</p>
+    <p>Bei den Apps steht in der Quellcodeverwaltung von Fabric aber <strong>„Unsupported"</strong>. Fabric Apps gehören im Moment noch nicht zu den Items, die Microsoft für die Git-Integration unterstützt. Fabric lässt sie beim Sync einfach liegen. Das ist kein Fehler im Setup, sondern der aktuelle Stand der Preview.</p>
+    <p>Darauf wollten wir nicht warten. Den Quellcode der Apps haben wir deshalb <strong>extra</strong> in dasselbe Repository gelegt, in einen eigenen Ordner neben den Items aus der Fabric-Synchronisation. Fabric ignoriert diesen Ordner, weil er keine Item-Definitionen enthält. So folgt auch die App-Seite einem sinnvollen Workflow:</p>
+    <ul>
+      <li><strong>Ein Repository für alles:</strong> Modell, Bericht und App-Code liegen zusammen und haben eine gemeinsame Historie.</li>
+      <li><strong>Branches und Merges:</strong> Änderungen an den Apps laufen über einen eigenen Branch und werden per Merge übernommen, wie bei jedem anderen Code.</li>
+      <li><strong>Keine Geheimnisse im Repo:</strong> Umgebungsdateien, Deployment-Zustände und Datenexporte bleiben draußen. Nach dem Klonen werden sie lokal neu erzeugt.</li>
+      <li><strong>Neu aufbauen statt kopieren:</strong> Aus dem Repository lässt sich jede App mit <code>rayfin up</code> in einen anderen Workspace deployen, etwa in einen eigenen Demo- oder Test-Workspace.</li>
+    </ul>
+    <p>Sobald Microsoft das App-Item in die Git-Integration aufnimmt, kann der Ordner in den normalen Sync wandern. Bis dahin ist das der pragmatische Weg.</p>
+
+    <div class="src-box">
+      <h3>Git und Umgebungen bei Microsoft Learn</h3>
+      <ul>
+        <li><a href="https://learn.microsoft.com/fabric/cicd/git-integration/intro-to-git-integration">What is Microsoft Fabric Git integration?</a> · inklusive Liste der unterstützten Items</li>
+        <li><a href="https://learn.microsoft.com/fabric/apps/dev-prod-workflow">Manage dev and prod environments with the Rayfin CLI</a> · Entwicklungs- und Produktiv-Workspace für Fabric Apps</li>
+      </ul>
+    </div>
+
     <h2>Was man <em>bedenken sollte</em></h2>
     <p>Es ist nicht alles Sonnenschein. Diese Punkte gehören zur ehrlichen Bewertung dazu:</p>
     <ul>
       <li><strong>Rechenlogik wandert in den App-Code.</strong> Wenn die App Kennzahlen im Browser rechnet, liegt diese Logik nicht mehr im Semantikmodell. Sie muss getestet und dokumentiert werden, sonst gibt es zwei Wahrheiten.</li>
-      <li><strong>Governance.</strong> Die Fabric-Git-Integration synchronisiert das App-Item nicht. Den Quellcode versionieren wir deshalb separat im Repository.</li>
+      <li><strong>Governance.</strong> Die Fabric-Git-Integration unterstützt das App-Item noch nicht. Den Workaround mit eigenem Ordner im Repository muss man bewusst pflegen, siehe oben.</li>
       <li><strong>Preview und Regionen.</strong> Fabric Apps sind Preview, der Tenant-Admin muss sie freischalten, und nicht jede Region unterstützt sie.</li>
       <li><strong>Kapazität und Grenzen.</strong> Apps verbrauchen Capacity Units, und kleine Kapazitäten drosseln schnell. Die Execute-Queries-API hat Grenzen bei Zeilen und Abfragen pro Minute.</li>
       <li><strong>Kein Ersatz für Power BI.</strong> Für viele Berichte bleibt ein Power-BI-Bericht der einfachere Weg. Fabric Apps lohnen sich dort, wo Interaktion den Unterschied macht.</li>

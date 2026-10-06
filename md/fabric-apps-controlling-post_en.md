@@ -152,12 +152,32 @@ With a coding agent, a standard becomes even more valuable. **It is a specificat
 > - [ISO 24896:2026 · Notation for business reporting](https://www.iso.org/standard/88366.html) · the standard at ISO
 > - [IBCS Association](https://www.ibcs.com/ibcs-association/) · non-profit association that publishes the standards freely under Creative Commons
 
+## Git: a clean workflow, *even without official support*
+
+For me, reproducible also means versioned. That is why the workspace is connected to a private GitHub repository through the **Fabric Git integration**. Semantic models, reports, the lakehouse and the other items sync there automatically.
+
+For the apps, though, Fabric source control shows **"Unsupported"**. Right now Fabric Apps are not yet among the items Microsoft supports for Git integration. Fabric simply skips them during sync. That is not a setup error. It is the current state of the preview.
+
+We did not want to wait for that. So we put the app source code into the same repository **on purpose**, in its own folder next to the items from the Fabric sync. Fabric ignores that folder because it contains no item definitions. This way the app side follows a sensible workflow too:
+
+- **One repository for everything:** model, report and app code live together and share one history.
+- **Branches and merges:** changes to the apps go through their own branch and get merged, like any other code.
+- **No secrets in the repo:** environment files, deployment state and data exports stay out. After cloning, they are created again locally.
+- **Rebuild instead of copy:** from the repository, every app can be deployed with `rayfin up` to another workspace, for example a separate demo or test workspace.
+
+As soon as Microsoft adds the app item to the Git integration, the folder can move into the regular sync. Until then, this is the pragmatic way.
+
+> ### Git and environments at Microsoft Learn
+>
+> - [What is Microsoft Fabric Git integration?](https://learn.microsoft.com/fabric/cicd/git-integration/intro-to-git-integration) · including the list of supported items
+> - [Manage dev and prod environments with the Rayfin CLI](https://learn.microsoft.com/fabric/apps/dev-prod-workflow) · dev and prod workspaces for Fabric Apps
+
 ## What you should *keep in mind*
 
 It is not all sunshine. These points belong to an honest assessment:
 
 - **Calculation logic moves into the app code.** If the app calculates KPIs in the browser, that logic no longer lives in the semantic model. It has to be tested and documented, otherwise you get two versions of the truth.
-- **Governance.** The Fabric Git integration does not sync the app item. So we version the source code separately in a repository.
+- **Governance.** The Fabric Git integration does not support the app item yet. The workaround with its own folder in the repository needs to be maintained deliberately, see above.
 - **Preview and regions.** Fabric Apps are in preview, the tenant admin has to enable them, and not every region supports them.
 - **Capacity and limits.** Apps consume Capacity Units, and small capacities throttle quickly. The Execute Queries API has limits on rows and queries per minute.
 - **No replacement for Power BI.** For many reports, a Power BI report stays the easier way. Fabric Apps pay off where interaction makes the difference.
