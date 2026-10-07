@@ -173,6 +173,19 @@
                 }
             }
         },
+        "leerZustand": {
+            "displayName": "Leer-Zustand",
+            "properties": {
+                "titel": {
+                    "displayName": "Eigener Titel",
+                    "type": { "text": true }
+                },
+                "text": {
+                    "displayName": "Eigener Text",
+                    "type": { "text": true }
+                }
+            }
+        },
         "dataPoint": {
             "displayName": "Task-Farben",
             "properties": {

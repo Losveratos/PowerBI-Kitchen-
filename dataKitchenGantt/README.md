@@ -48,6 +48,15 @@ Plan-Meilensteine als Outline-Raute) · Δ-Spalte in der Tabelle („+3 d" rot =
 „−2 d" grün = früher) · Verzug-Zeilen leicht rot hinterlegen (Tabelle + Chart-Lane).
 Phasen aggregieren den Plan ihrer Kinder (Hülle) und zeigen das Verzugs-Delta der Phase.
 
+**Leer-Zustand** (ab 1.10) — eigene Karte: Eigener Titel + Eigener Text ersetzen
+das „DataKitchen Gantt"-Branding, wenn keine Vorgänge dargestellt werden (Felder
+leer oder Auswahl ohne Zeilen) — z. B. „Keine Vorgänge für diese Auswahl" mit
+Filter-Hinweis. Leer gelassen bleibt der bisherige Felder-Hinweis.
+
+**Tooltip im Dunkel-Theme** (ab 1.10): nicht mehr invertiert hell, sondern als
+leicht angehobenes dunkles Panel mit Rand — passend zur dunklen Seite. Im hellen
+Theme bleibt der klassische dunkle Tooltip unverändert.
+
 ## Entwicklung
 
 ```bash

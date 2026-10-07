@@ -218,6 +218,7 @@ export class Visual implements IVisual {
         const b = this.formattingSettings.basisplanCard;
         const ms = this.formattingSettings.meilensteineCard;
         const f = this.formattingSettings.schriftCard.font;
+        const lz = this.formattingSettings.leerZustandCard;
         const allow = this.host.hostCapabilities.allowInteractions !== false;
         this.renderer.setOptions({
             dark: String(d.theme.value.value) === 'dunkel',
@@ -235,6 +236,8 @@ export class Visual implements IVisual {
             msAufPhase: ms.aufPhasenzeile.value,
             msDatum: ms.datumAnzeigen.value,
             msEndeGleichStart: ms.endeGleichStart.value,
+            leerTitel: lz.titel.value,
+            leerText: lz.text.value,
             fontFamily: f.fontFamily.value,
             fontSize: f.fontSize.value,
             selectedKeys: this.selectedKeys(),

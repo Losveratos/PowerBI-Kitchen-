@@ -40,6 +40,8 @@
     const opts = () => ({
       dark: params.get('dark') === '1',
       ibcs: params.get('ibcs') === '1',
+      leerTitel: params.get('leertitel') || '',
+      leerText: params.get('leertext') || '',
       wochenenden: params.get('wochenenden') !== '0',
       abhaengigkeiten: params.get('deps') !== '0',
       heuteLinie: params.get('heute') !== '0',
@@ -82,7 +84,8 @@
         ...TASKS.map(t => clone(t, 'B:', 'Speicher Gladbeck', shift))
       ];
     }
-    r.setData(DATA);
+    // ?empty=1 → Leer-Zustand testen (mit ?leertitel=…&leertext=… für eigene Texte)
+    r.setData(params.get('empty') === '1' ? [] : DATA);
     r.setOptions(opts());
     window.__gantt = r; // für Debug-Zugriff
   </script>

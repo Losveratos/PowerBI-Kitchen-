@@ -159,11 +159,34 @@ class SchriftCardSettings extends FormattingSettingsCard {
     slices: Array<FormattingSettingsSlice> = [this.font];
 }
 
+class LeerZustandCardSettings extends FormattingSettingsCard {
+    titel = new formattingSettings.TextInput({
+        name: "titel",
+        displayName: "Eigener Titel",
+        description: "Ersetzt die Überschrift „DataKitchen Gantt\", wenn keine Vorgänge dargestellt werden (Felder leer oder Auswahl ohne Zeilen).",
+        placeholder: "z. B. Keine Vorgänge für diese Auswahl",
+        value: ""
+    });
+
+    text = new formattingSettings.TextInput({
+        name: "text",
+        displayName: "Eigener Text",
+        description: "Textkörper unter dem Titel im Leer-Zustand — z. B. ein Hinweis, welche Filter der Leser prüfen soll.",
+        placeholder: "z. B. Bitte Projekt- oder Zeitraum-Filter anpassen.",
+        value: ""
+    });
+
+    name: string = "leerZustand";
+    displayName: string = "Leer-Zustand";
+    slices: Array<FormattingSettingsSlice> = [this.titel, this.text];
+}
+
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     darstellungCard = new DarstellungCardSettings();
     basisplanCard = new BasisplanCardSettings();
     meilensteineCard = new MeilensteineCardSettings();
     schriftCard = new SchriftCardSettings();
+    leerZustandCard = new LeerZustandCardSettings();
 
-    cards = [this.darstellungCard, this.basisplanCard, this.meilensteineCard, this.schriftCard];
+    cards = [this.darstellungCard, this.basisplanCard, this.meilensteineCard, this.schriftCard, this.leerZustandCard];
 }

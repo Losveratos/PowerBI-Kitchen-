@@ -53,6 +53,8 @@ export interface GanttOptions {
     msAufPhase?: boolean;               // Meilensteine auf zugeklappten Phasenzeilen zeigen (default true)
     msDatum?: boolean;                  // Datum am Meilenstein anzeigen (default true)
     msEndeGleichStart?: boolean;        // Ende = Start ebenfalls als Meilenstein werten (default false)
+    leerTitel?: string;                 // Leer-Zustand: eigener Titel statt "DataKitchen Gantt"
+    leerText?: string;                  // Leer-Zustand: eigener Textkörper statt des Felder-Hinweises
     fontFamily: string;
     fontSize: number;                   // Basisgröße in px (Referenz-Design: 13)
     selectedKeys: ReadonlySet<string> | null;   // aktive Selektion (Dimmen)
@@ -142,7 +144,7 @@ function statusKind(st: string): StatusKind {
 interface Theme {
     bg: string; panel: string; border: string; grid: string;
     text: string; sub: string; weekend: string; hoverBg: string;
-    today: string; dep: string; tipBg: string; tipFg: string; tipSub: string;
+    today: string; dep: string; tipBg: string; tipFg: string; tipSub: string; tipBd: string;
 }
 
 interface RenderItem {
@@ -616,16 +618,19 @@ export class GanttRenderer {
     // ---------- Ableitungen ----------
 
     private theme(dark: boolean): Theme {
+        // Tooltip: im hellen Theme bewusst invertiert dunkel (klassischer Stil);
+        // im dunklen Theme NICHT invertiert hell — ein greller Kasten blendet auf
+        // dunkler Seite. Stattdessen leicht angehobenes dunkles Panel mit Rand.
         return dark ? {
             bg: '#151619', panel: '#1E2023', border: '#33363C', grid: '#2A2D32',
             text: '#E9E7E2', sub: '#90939A', weekend: 'rgba(255,255,255,0.035)',
             hoverBg: 'rgba(255,255,255,0.055)', today: okl(0.66, 0.16, 30),
-            dep: '#6A6E76', tipBg: '#F3F2EE', tipFg: '#26251F', tipSub: '#7A776F'
+            dep: '#6A6E76', tipBg: '#2A2D33', tipFg: '#E9E7E2', tipSub: '#9BA0A8', tipBd: '#484C54'
         } : {
             bg: '#F4F3F0', panel: '#FFFFFF', border: '#E4E2DC', grid: '#F0EEE9',
             text: '#2A2925', sub: '#8B887E', weekend: 'rgba(60,55,40,0.05)',
             hoverBg: 'rgba(60,55,40,0.055)', today: okl(0.58, 0.17, 30),
-            dep: '#B5B2A9', tipBg: '#26251F', tipFg: '#F5F4F0', tipSub: '#A3A098'
+            dep: '#B5B2A9', tipBg: '#26251F', tipFg: '#F5F4F0', tipSub: '#A3A098', tipBd: 'transparent'
         };
     }
 
@@ -827,8 +832,15 @@ export class GanttRenderer {
             this.landing.style.display = 'flex';
             this.landing.style.color = t.sub;
             this.landing.replaceChildren();
-            const head = el('div', 'font-weight:700;font-size:15px;color:' + t.text + ';margin-bottom:6px', 'DataKitchen Gantt');
-            const body = el('div', 'font-size:12.5px', 'Bitte mindestens "Task" und "Start (Datum)" befüllen. Optional: Ende (leer = Meilenstein), Phase, Fortschritt, Status, Wer, Abhängigkeiten.');
+            // Leer-Zustand: eigene Texte aus dem Formatbereich ersetzen das Branding —
+            // z. B. "Keine Vorgänge für diese Auswahl" statt des Felder-Hinweises
+            const cTitel = (o.leerTitel || '').trim();
+            const cText = (o.leerText || '').trim();
+            const head = el('div', 'font-weight:700;font-size:15px;color:' + t.text + ';margin-bottom:6px',
+                cTitel !== '' ? cTitel : 'DataKitchen Gantt');
+            const body = el('div', 'font-size:12.5px;max-width:560px;line-height:1.55',
+                cText !== '' ? cText
+                    : 'Bitte mindestens "Task" und "Start (Datum)" befüllen. Optional: Ende (leer = Meilenstein), Phase, Fortschritt, Status, Wer, Abhängigkeiten.');
             const wrap = el('div', '');
             wrap.appendChild(head); wrap.appendChild(body);
             this.landing.appendChild(wrap);
@@ -1351,6 +1363,7 @@ export class GanttRenderer {
         const isM = it.kind === 'ms';
         const box = el('div',
             'position:absolute;left:' + this.tip.x + 'px;top:' + this.tip.y + 'px;background:' + t.tipBg + ';color:' + t.tipFg + ';' +
+            'border:1px solid ' + t.tipBd + ';' +
             'border-radius:' + (ibcs ? '0' : '9px') + ';padding:11px 13px;box-shadow:' + (ibcs ? '0 0 0 1px rgba(0,0,0,0.15)' : '0 10px 28px rgba(0,0,0,0.25)') + ';min-width:200px;max-width:300px');
         box.appendChild(el('div', 'font-weight:700;font-size:' + this.fs(12.5) + ';margin-bottom:7px', it.name));
         const grid = el('div', 'display:grid;grid-template-columns:auto 1fr;gap:3px 14px;font-size:' + this.fs(11.5));
