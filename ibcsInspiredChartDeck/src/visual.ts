@@ -554,6 +554,8 @@ export class Visual implements IVisual {
             this.viewMode = options.viewMode ?? null;
             // resolve dark mode before any branch renders (landing gallery included)
             this.uiDark = this.resolveDarkMode();
+            // a hover tooltip must not survive the data/layout change underneath it
+            this.hideDarkTip();
             // one-click-P&L lists: a just-persisted value must survive a stale
             // metadata update that arrives before the host echoes it back
             for (const [prop, val] of [...this.pendingListProps]) {
@@ -731,6 +733,7 @@ export class Visual implements IVisual {
     /** re-render from the last update args — used by in-chart interactions (zoom, compare) */
     private rerender(): void {
         if (!this.lastRender) { return; }
+        this.hideDarkTip();
         // render() mutates order in place via groups — pass a copy of the point list
         this.render([...this.lastRender.points], this.lastRender.width, this.lastRender.height);
         this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
@@ -1254,6 +1257,72 @@ export class Visual implements IVisual {
         return sign + nf.format(Math.abs(v)) + "%";
     }
 
+    /** self-styled hover tooltip while dark mode is active. The host tooltip keeps
+     *  the report's (usually light) styling, which glares on a dark page — this
+     *  overlay follows the visual's own dark tokens instead. Light mode keeps the
+     *  native tooltipService untouched. */
+    private darkTip: HTMLDivElement | null = null;
+
+    private showDarkTip(items: VisualTooltipDataItem[], e: MouseEvent): void {
+        if (!this.darkTip) {
+            if (window.getComputedStyle(this.root).position === "static") {
+                this.root.style.position = "relative";
+            }
+            const d = document.createElement("div");
+            d.style.cssText = "position:absolute;z-index:20;pointer-events:none;"
+                + "background:#2B2B2B;color:#E8E8E8;border:1px solid #5A5A5A;"
+                + "border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,0.45);"
+                + "padding:7px 10px;font-family:'Segoe UI',sans-serif;font-size:11px;"
+                + "line-height:1.5;max-width:280px;";
+            this.root.appendChild(d);
+            this.darkTip = d;
+        }
+        const d = this.darkTip;
+        while (d.firstChild) { d.removeChild(d.firstChild); }
+        items.forEach((it, i) => {
+            const row = document.createElement("div");
+            if (i === 0) {
+                // first item is the category — render it as the tooltip header
+                row.style.cssText = "font-weight:600;margin-bottom:3px;";
+                row.textContent = it.value;
+            } else {
+                const n = document.createElement("span");
+                n.style.cssText = "color:#A6A6A6;margin-right:8px;";
+                n.textContent = it.displayName;
+                const v = document.createElement("span");
+                v.textContent = it.value;
+                row.appendChild(n);
+                row.appendChild(v);
+            }
+            d.appendChild(row);
+        });
+        this.moveDarkTip(e);
+    }
+
+    private moveDarkTip(e: MouseEvent): void {
+        const d = this.darkTip;
+        if (!d) { return; }
+        const r = this.root.getBoundingClientRect();
+        let x = e.clientX - r.left + 14;
+        let y = e.clientY - r.top + 14;
+        // flip to the other side of the cursor instead of leaving the visual
+        if (x + d.offsetWidth > r.width - 4) {
+            x = Math.max(4, e.clientX - r.left - d.offsetWidth - 14);
+        }
+        if (y + d.offsetHeight > r.height - 4) {
+            y = Math.max(4, e.clientY - r.top - d.offsetHeight - 14);
+        }
+        d.style.left = `${x}px`;
+        d.style.top = `${y}px`;
+    }
+
+    private hideDarkTip(): void {
+        if (this.darkTip) {
+            this.darkTip.remove();
+            this.darkTip = null;
+        }
+    }
+
     /** shared colors for the small HTML overlays (search box, structure menu,
      *  comment editor) — they float over the report page, so they follow uiDark */
     private popupColors(): { bg: string; ink: string; border: string; subtle: string } {
@@ -1311,18 +1380,33 @@ export class Visual implements IVisual {
         const hint = this.missingHint
             || this.locStr("Demo_Hint", "Sample data — add Category and Actual (AC)");
 
+        // custom empty state (pane card "Leer-Zustand"): the author's own title/body
+        // replace the branding. Readers (view mode) get ONLY the message — the mode
+        // gallery is a builder tool, so it stays edit-only once a custom text is set
+        const esc = this.formattingSettings.emptyStateCard;
+        const cTitle = (esc.title.value || "").trim();
+        const cBody = (esc.body.value || "").trim();
+        const custom = cTitle !== "" || cBody !== "";
+        // null = no host context (harness) → treat as edit, like Smart-Start does
+        const isEdit = this.viewMode == null || this.viewMode >= 1;
+        if (custom && !isEdit) {
+            this.renderEmptyMessage(width, height, cTitle, cBody, ink, subtle);
+            return;
+        }
+
         // tiny visuals: no room for the gallery — title + hint only
         if (width < 300 || height < 220) {
             const t0 = this.el("text", {
                 x: width / 2, y: height / 2 - 8, "text-anchor": "middle",
                 "font-size": 13, "font-weight": 700, fill: ink, "font-family": FONT
             }, this.svg);
-            t0.textContent = "ChartKitchen byDatenWG";
+            t0.textContent = cTitle !== ""
+                ? this.truncate(cTitle, width - 12, 13) : "ChartKitchen byDatenWG";
             const t1 = this.el("text", {
                 x: width / 2, y: height / 2 + 10, "text-anchor": "middle",
                 "font-size": 10, fill: subtle, "font-family": FONT
             }, this.svg);
-            t1.textContent = this.truncate(hint, width - 12, 10);
+            t1.textContent = this.truncate(cBody !== "" ? cBody : hint, width - 12, 10);
             return;
         }
 
@@ -1351,12 +1435,16 @@ export class Visual implements IVisual {
             x: 12, y: 9 + titleF, "font-size": titleF, "font-weight": 700,
             fill: ink, "font-family": FONT
         }, this.svg);
-        title.textContent = "ChartKitchen byDatenWG";
+        // edit mode with a custom empty state: show the author's texts in place of
+        // the branding, so the builder previews what readers will get
+        title.textContent = cTitle !== "" ? this.truncate(cTitle, width - 24, titleF)
+            : "ChartKitchen byDatenWG";
         const sub = this.el("text", {
             x: 12, y: 9 + titleF + subF + 5, "font-size": subF, fill: subtle, "font-family": FONT
         }, this.svg);
         sub.textContent = this.truncate(
-            `${hint} · ${this.locStr("Demo_Pick", "Click a preview to pick the chart mode")}`,
+            cBody !== "" ? cBody
+                : `${hint} · ${this.locStr("Demo_Pick", "Click a preview to pick the chart mode")}`,
             width - 24, subF);
         const made = this.el("text", {
             x: width / 2, y: height - 8, "text-anchor": "middle",
@@ -1664,6 +1752,54 @@ export class Visual implements IVisual {
                 });
                 sx += wds[i] + segGap;
             });
+        }
+    }
+
+    /** consumer-facing empty state: only the author's title + body, centered —
+     *  shown in view mode when the "Leer-Zustand" card carries custom text */
+    private renderEmptyMessage(width: number, height: number, title: string, body: string,
+        ink: string, subtle: string): void {
+        // same effective font factor as the landing header (preset × free scale)
+        const sLc = this.formattingSettings.labelsCard;
+        const kf = Math.min(3, ({ compact: 1, fullhd: 1.5, presentation: 2 }[
+            String(sLc.fontPreset.value.value)] ?? 1)
+            * Math.max(0.5, Math.min(3, Number(sLc.fontScale.value ?? 100) / 100)));
+        const tf = Math.min(Math.round(15 * kf), 32);
+        const bf = Math.min(Math.round(11.5 * kf), 22);
+        const maxW = Math.min(width - 32, 560);
+        // word-wrap the body against the real text metrics
+        const lines: string[] = [];
+        for (const para of body.split(/\n/)) {
+            let line = "";
+            for (const word of para.split(/\s+/).filter(w => w !== "")) {
+                const probe = line === "" ? word : `${line} ${word}`;
+                if (line === "" || this.textWidth(probe, bf) <= maxW) { line = probe; }
+                else { lines.push(line); line = word; }
+            }
+            lines.push(line);
+        }
+        while (lines.length > 0 && lines[lines.length - 1] === "") { lines.pop(); }
+        const lineH = Math.round(bf * 1.5);
+        const gapTB = title !== "" && lines.length > 0 ? Math.round(bf * 0.9) : 0;
+        const blockH = (title !== "" ? tf : 0) + gapTB + lines.length * lineH;
+        let y = Math.max(tf + 10, (height - blockH) / 2 + tf);
+        if (title !== "") {
+            const t = this.el("text", {
+                x: width / 2, y, "text-anchor": "middle",
+                "font-size": tf, "font-weight": 700, fill: ink, "font-family": FONT
+            }, this.svg);
+            t.textContent = this.truncate(title, width - 24, tf);
+            y += gapTB + bf;
+        }
+        for (const ln of lines) {
+            if (ln !== "") {
+                const t = this.el("text", {
+                    x: width / 2, y, "text-anchor": "middle",
+                    "font-size": bf, fill: subtle, "font-family": FONT
+                }, this.svg);
+                t.textContent = ln;
+            }
+            y += lineH;
         }
     }
 
@@ -9001,6 +9137,10 @@ export class Visual implements IVisual {
             return out;
         };
         g.addEventListener("mouseover", (e: MouseEvent) => {
+            if (this.uiDark) {
+                this.showDarkTip(items(), e);
+                return;
+            }
             this.tooltipService.show({
                 dataItems: items(),
                 identities: p.sel ? [p.sel] : [],
@@ -9009,6 +9149,10 @@ export class Visual implements IVisual {
             });
         });
         g.addEventListener("mousemove", (e: MouseEvent) => {
+            if (this.uiDark) {
+                this.moveDarkTip(e);
+                return;
+            }
             this.tooltipService.move({
                 dataItems: items(),
                 identities: p.sel ? [p.sel] : [],
@@ -9017,6 +9161,10 @@ export class Visual implements IVisual {
             });
         });
         g.addEventListener("mouseout", () => {
+            if (this.uiDark) {
+                this.hideDarkTip();
+                return;
+            }
             this.tooltipService.hide({ immediately: false, isTouchEvent: false });
         });
     }

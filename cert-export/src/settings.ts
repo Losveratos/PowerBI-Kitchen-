@@ -1101,6 +1101,33 @@ export class LabelsCardSettings extends FormattingSettingsCard {
     ];
 }
 
+export class EmptyStateCardSettings extends FormattingSettingsCard {
+    title = new formattingSettings.TextInput({
+        name: "title",
+        displayName: "Eigener Titel",
+        displayNameKey: "Empty_Title",
+        description: "Ersetzt die Überschrift „ChartKitchen byDatenWG\", wenn keine Daten dargestellt werden (Felder leer oder Auswahl ohne Zeilen). Im Lesemodus erscheint dann nur Titel + Text statt der Modus-Galerie.",
+        descriptionKey: "Desc_Empty_Title",
+        placeholder: "z. B. Keine Daten für diese Auswahl",
+        value: ""
+    });
+
+    body = new formattingSettings.TextInput({
+        name: "body",
+        displayName: "Eigener Text",
+        displayNameKey: "Empty_Body",
+        description: "Textkörper unter dem Titel im Leer-Zustand — z. B. ein Hinweis, welche Filter der Leser prüfen soll.",
+        descriptionKey: "Desc_Empty_Body",
+        placeholder: "z. B. Bitte Zeitraum oder Filter anpassen.",
+        value: ""
+    });
+
+    name: string = "emptyState";
+    displayName: string = "Leer-Zustand";
+    displayNameKey: string = "Card_EmptyState";
+    slices: Array<FormattingSettingsSlice> = [this.title, this.body];
+}
+
 export class CommentsCardSettings extends FormattingSettingsCard {
     showPanel = new formattingSettings.ToggleSwitch({
         name: "showPanel",
@@ -1235,9 +1262,10 @@ export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     colorsCard = new ColorsCardSettings();
     labelsCard = new LabelsCardSettings();
     commentsCard = new CommentsCardSettings();
+    emptyStateCard = new EmptyStateCardSettings();
     scaleCard = new ScaleCardSettings();
     categoryAxisCard = new CategoryAxisCardSettings();
 
     cards = [this.ibcsTitleCard, this.chartCard, this.colorsCard, this.labelsCard,
-        this.commentsCard, this.scaleCard, this.categoryAxisCard];
+        this.commentsCard, this.scaleCard, this.categoryAxisCard, this.emptyStateCard];
 }

@@ -140,10 +140,11 @@ function dataView(cats, cols, objects, multValues, rowTypes) {
   };
 }
 
-function run(id, dv, w, h, hc, noInteract, themeBg) {
+function run(id, dv, w, h, hc, noInteract, themeBg, viewMode) {
   const el = document.getElementById(id);
   const v = new Visual({ element: el, host: makeHost(hc, noInteract, themeBg) });
-  v.update({ viewport: { width: w, height: h }, dataViews: [dv] });
+  // viewMode: 0 = View (reader), 1 = Edit; undefined = like the harness default (edit)
+  v.update({ viewport: { width: w, height: h }, dataViews: [dv], viewMode });
 }
 
 const months = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
@@ -1303,6 +1304,23 @@ run("c135", { metadata: { columns: [], objects: { colors: { appearance: "dark" }
 // c136: light regression guard — no appearance object, default palette
 run("c136", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €")],
   { chart: { showAbsoluteVariance: true, showRelativeVariance: true } }), 960, 480);
+</script>
+
+<div class="case"><h4>c137 · 1.44 · Eigener Leer-Zustand im LESE-Modus (viewMode=0) — nur Titel + umbrochener Text zentriert, KEINE Galerie, kein "ChartKitchen byDatenWG"</h4><div class="stage" id="c137" style="width:960px;height:320px"></div></div>
+<div class="case"><h4>c138 · 1.44 · Eigener Leer-Zustand · Dark + Lese-Modus — helle Schrift auf dunkler Seite</h4><div class="stage" id="c138" style="width:960px;height:320px;background:#1E1E1E"></div></div>
+<div class="case"><h4>c139 · 1.44 · Eigener Leer-Zustand im EDIT-Modus (default) — Galerie bleibt für den Builder, aber Header/Sub zeigen die eigenen Texte</h4><div class="stage" id="c139" style="width:960px;height:380px"></div></div>
+<script>
+const esObj = { emptyState: {
+  title: "Keine Daten für diese Auswahl",
+  body: "Für die gewählte Kombination aus Zeitraum und Gesellschaft liegen keine Buchungen vor. Bitte den Zeitraum-Filter oder die Gesellschafts-Auswahl oben rechts anpassen — oder den Fachbereich Controlling kontaktieren."
+} };
+// c137: reader view — empty categorical + custom texts → message only
+run("c137", { metadata: { columns: [], objects: esObj }, categorical: { categories: [], values: [] } }, 960, 320, false, false, undefined, 0);
+// c138: same in forced dark mode
+run("c138", { metadata: { columns: [], objects: Object.assign({ colors: { appearance: "dark" } }, esObj) }, categorical: { categories: [], values: [] } }, 960, 320, false, false, undefined, 0);
+// c139: edit mode (viewMode undefined = harness default) keeps the gallery,
+// but header + subline preview the author's custom texts
+run("c139", { metadata: { columns: [], objects: esObj }, categorical: { categories: [], values: [] } }, 960, 380);
 </script>
 </body>
 </html>
