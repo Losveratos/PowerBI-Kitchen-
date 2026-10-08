@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daten-WG 2026 · Sponsoren</title>
+<meta name="description" content="Sponsoren und Supporter der Daten-WG 2026 — Vollbild-Schleife für die Bühne, mit QR-Code zur Agenda.">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32">
+<meta name="robots" content="noindex">
+<style>
+  /* Bewusst nur System-Schriften: die Seite läuft auf dem Beamer-Rechner
+     auch ohne Internet. Keine externen Requests, Logos liegen lokal. */
+  :root{
+    --bg:#FAFAF7; --ink:#0F1E2E; --ink-soft:#475569; --line:#E5E2D8;
+    --accent:#C25A2D; --card:#FFFFFF;
+    --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font-family:var(--sans); background:#1a1a18; color:var(--ink);
+    display:grid; place-items:center; overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---- 16:9-Bühne ----------------------------------------------------
+     Feste Entwurfsgröße 1920×1080, per transform:scale auf das Fenster
+     gerechnet. Dadurch sitzt jede Schriftgröße exakt wie entworfen,
+     egal ob Laptop-Display, 4K-Beamer oder Vorschaufenster.             */
+  #stage-wrap{position:relative; width:100vw; height:100vh; overflow:hidden}
+  #stage{
+    position:absolute; top:50%; left:50%;
+    width:1920px; height:1080px; transform-origin:center center;
+    background:var(--bg); display:flex; flex-direction:column;
+    padding:72px 96px 64px;
+  }
+
+  /* ---- Kopf ---- */
+  .head{display:flex; align-items:flex-start; justify-content:space-between; gap:48px; flex:0 0 auto}
+  .brand{display:flex; align-items:center; gap:28px}
+  .brand img{height:96px; width:auto; display:block}
+  .brand-year{
+    font-size:76px; font-weight:800; letter-spacing:-.03em; line-height:1;
+    color:var(--accent);
+  }
+  .head-meta{text-align:right; font-size:26px; line-height:1.45; color:var(--ink-soft); padding-top:6px}
+  .head-meta strong{display:block; color:var(--ink); font-size:30px; font-weight:700}
+
+  /* ---- Mittelteil ---- */
+  .body-area{flex:1 1 auto; display:flex; flex-direction:column; justify-content:center; min-height:0; padding:24px 0}
+  .tier{display:none; flex-direction:column; gap:40px}
+  .tier.show{display:flex}
+  .tier-label{
+    display:flex; align-items:center; gap:24px;
+    font-size:30px; font-weight:800; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--accent);
+  }
+  .tier-label::after{content:''; flex:1; height:2px; background:var(--line)}
+
+  .logos{display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:40px}
+  .logo-card{
+    background:var(--card); border:1px solid var(--line); border-radius:20px;
+    display:grid; place-items:center; padding:32px 44px;
+    box-shadow:0 2px 14px rgba(15,30,46,.06);
+    opacity:0; transform:translateY(26px) scale(.97);
+    animation:pop .62s cubic-bezier(.2,.75,.3,1) forwards;
+  }
+  .logo-card img{display:block; object-fit:contain; width:auto}
+  /* Größenstufen je Rang */
+  .size-xl .logo-card{min-width:460px; min-height:230px} .size-xl .logo-card img{max-height:150px; max-width:380px}
+  .size-lg .logo-card{min-width:340px; min-height:180px} .size-lg .logo-card img{max-height:110px; max-width:280px}
+  .size-md .logo-card{min-width:250px; min-height:136px} .size-md .logo-card img{max-height:80px;  max-width:200px}
+  .size-sm .logo-card{min-width:188px; min-height:104px; padding:20px 26px} .size-sm .logo-card img{max-height:56px; max-width:150px}
+
+  @keyframes pop{to{opacity:1; transform:translateY(0) scale(1)}}
+
+  /* Finale: alle Stufen untereinander */
+  .finale{display:none; flex-direction:column; gap:30px; width:100%}
+  .finale.show{display:flex}
+  .finale-row{display:flex; flex-direction:column; gap:14px}
+  .finale-row .tier-label{font-size:21px; gap:18px}
+  .finale-row .logos{gap:22px; justify-content:center}
+
+  /* ---- Fuß mit QR ---- */
+  .foot{
+    flex:0 0 auto; display:flex; align-items:center; justify-content:space-between;
+    gap:40px; border-top:2px solid var(--line); padding-top:28px;
+  }
+  .foot-text{font-size:27px; line-height:1.4; color:var(--ink-soft)}
+  .foot-text b{color:var(--ink); font-weight:700}
+  .qr-box{display:flex; align-items:center; gap:22px}
+  .qr-box svg{width:150px; height:150px; display:block; background:#fff; padding:8px; border-radius:12px; border:1px solid var(--line)}
+  .qr-cap{font-size:22px; line-height:1.35; color:var(--ink-soft); text-align:right}
+  .qr-cap b{display:block; color:var(--ink); font-size:26px; font-weight:700}
+
+  /* ---- Fortschritt + Bedienung ---- */
+  .progress{position:absolute; left:0; bottom:0; height:6px; background:var(--accent); width:0; transition:width .25s linear}
+  .hint{
+    position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+    background:rgba(15,30,46,.88); color:#fff; font-size:13px; letter-spacing:.04em;
+    padding:9px 18px; border-radius:100px; display:flex; gap:16px; align-items:center;
+    opacity:0; transition:opacity .3s; pointer-events:none; z-index:20; white-space:nowrap;
+  }
+  body:hover .hint{opacity:1}
+  .hint kbd{background:rgba(255,255,255,.17); border-radius:5px; padding:2px 7px; font-family:inherit; font-size:12px}
+  .paused-badge{
+    position:absolute; top:28px; left:50%; transform:translateX(-50%);
+    background:var(--accent); color:#fff; font-size:20px; font-weight:700;
+    letter-spacing:.1em; text-transform:uppercase; padding:8px 22px; border-radius:100px;
+    display:none;
+  }
+  body.is-paused .paused-badge{display:block}
+
+  @media print{ .hint{display:none} }
+</style>
+</head>
+<body>
+
+<div id="stage-wrap">
+  <div id="stage">
+    <div class="paused-badge">Pause</div>
+
+    <header class="head">
+      <div class="brand">
+        <img src="assets/daten-wg-logo.png" alt="Daten-WG">
+        <span class="brand-year">2026</span>
+      </div>
+      <div class="head-meta">
+        <strong>14.–16. Oktober 2026</strong>
+        Die Wohngemeinschaft · Köln
+      </div>
+    </header>
+
+    <main class="body-area">
+      <div id="tier-stage"></div>
+      <div id="finale" class="finale"></div>
+    </main>
+
+    <footer class="foot">
+      <div class="foot-text">
+        <b>Danke an unsere Sponsoren und Supporter.</b><br>
+        Ohne euch gäbe es diese Konferenz nicht.
+      </div>
+      <div class="qr-box">
+        <div class="qr-cap"><b>Agenda &amp; Speaker</b>Scannen und eigenen<br>Ablauf zusammenstellen</div>
+        <div id="qr"></div>
+      </div>
+    </footer>
+
+    <div class="progress" id="progress"></div>
+  </div>
+</div>
+
+<div class="hint">
+  <span><kbd>F</kbd> Vollbild</span>
+  <span><kbd>Leer</kbd> Pause</span>
+  <span><kbd>←</kbd><kbd>→</kbd> Blättern</span>
+  <span><kbd>R</kbd> Neustart</span>
+</div>
+
+<script>
+/* ====================================================================
+   Sponsoren der Daten-WG 2026.
+   Stand: von daten-wg.com/daten-wg-2026 übernommen (08.10.2026).
+   Reihenfolge der Stufen = Reihenfolge der Einblendung.
+   Neue Sponsoren: einfach eine Zeile in der passenden items-Liste.
+   ==================================================================== */
+/* QR-Code auf die Agenda-Seite, als SVG eingebettet (kein externer Dienst). */
+const QR_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\" class=\"segno\"><path class=\"qrline\" stroke=\"#0f1e2e\" d=\"M2 2.5h7m1 0h1m1 0h2m7 0h1m2 0h2m1 0h1m2 0h2m1 0h2m1 0h7m-41 1h1m5 0h1m1 0h3m1 0h1m1 0h2m1 0h4m3 0h5m1 0h1m1 0h1m1 0h1m5 0h1m-41 1h1m1 0h3m1 0h1m1 0h2m9 0h2m1 0h4m2 0h1m1 0h1m3 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m2 0h2m4 0h1m1 0h4m5 0h2m1 0h1m4 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m6 0h1m2 0h4m1 0h1m2 0h1m3 0h1m2 0h2m1 0h1m1 0h3m1 0h1m-41 1h1m5 0h1m1 0h3m2 0h3m4 0h2m1 0h3m1 0h2m3 0h1m1 0h1m5 0h1m-41 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-33 1h3m6 0h1m1 0h2m5 0h1m3 0h3m-31 1h3m1 0h1m1 0h2m2 0h2m3 0h5m1 0h2m1 0h4m3 0h3m2 0h3m-40 1h2m4 0h1m2 0h3m1 0h2m8 0h1m1 0h1m1 0h1m1 0h7m1 0h3m-40 1h1m3 0h2m1 0h1m1 0h1m4 0h5m1 0h7m4 0h1m1 0h2m-36 1h2m2 0h2m1 0h2m3 0h3m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m2 0h5m1 0h1m-38 1h2m1 0h1m2 0h1m3 0h2m1 0h1m1 0h1m1 0h2m2 0h1m7 0h1m1 0h1m5 0h2m1 0h1m-36 1h1m1 0h2m1 0h2m1 0h4m1 0h4m5 0h1m2 0h7m1 0h3m-41 1h1m4 0h2m3 0h1m1 0h2m1 0h2m1 0h1m4 0h3m1 0h1m5 0h1m1 0h1m1 0h2m-37 1h1m1 0h2m1 0h1m1 0h3m1 0h1m2 0h1m2 0h3m3 0h3m2 0h3m1 0h4m-35 1h1m1 0h14m1 0h1m5 0h4m1 0h1m1 0h1m1 0h1m2 0h1m-36 1h1m1 0h1m1 0h1m1 0h3m3 0h3m3 0h1m1 0h4m1 0h1m1 0h3m1 0h7m-40 1h1m3 0h2m2 0h1m4 0h3m5 0h1m4 0h2m5 0h1m1 0h1m1 0h1m-39 1h2m3 0h1m7 0h1m4 0h1m1 0h2m3 0h1m1 0h2m1 0h1m1 0h2m2 0h1m3 0h1m-40 1h2m1 0h3m2 0h7m1 0h1m1 0h4m1 0h1m1 0h1m2 0h1m8 0h1m-38 1h3m1 0h1m8 0h3m1 0h5m1 0h1m1 0h1m1 0h1m1 0h7m2 0h2m-41 1h7m1 0h2m1 0h1m3 0h1m1 0h4m4 0h1m1 0h1m2 0h1m3 0h4m-34 1h1m2 0h1m4 0h1m2 0h1m3 0h3m1 0h6m3 0h1m2 0h3m1 0h1m-39 1h1m1 0h5m1 0h1m1 0h2m2 0h2m1 0h1m1 0h2m2 0h1m1 0h2m1 0h1m3 0h1m4 0h3m-39 1h3m2 0h1m1 0h1m1 0h1m1 0h5m1 0h2m1 0h1m1 0h2m2 0h2m1 0h1m1 0h5m1 0h2m-41 1h1m2 0h1m2 0h2m1 0h1m1 0h5m1 0h1m3 0h1m1 0h2m2 0h4m1 0h1m2 0h1m3 0h1m-38 1h2m3 0h1m3 0h4m1 0h2m1 0h5m3 0h2m2 0h3m2 0h2m2 0h1m-40 1h1m1 0h1m1 0h2m1 0h5m1 0h2m1 0h4m1 0h2m3 0h1m1 0h1m1 0h1m3 0h1m1 0h2m-39 1h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m4 0h5m4 0h1m1 0h1m2 0h2m1 0h8m-41 1h1m2 0h1m2 0h2m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1m4 0h4m2 0h1m-39 1h1m1 0h1m7 0h2m1 0h1m1 0h3m1 0h3m1 0h2m1 0h3m4 0h3m1 0h1m1 0h1m-40 1h1m3 0h1m1 0h1m1 0h5m3 0h1m1 0h1m2 0h5m3 0h1m2 0h5m1 0h3m-33 1h4m1 0h4m1 0h1m5 0h3m2 0h2m1 0h1m3 0h5m-41 1h7m2 0h1m2 0h2m3 0h1m7 0h3m3 0h2m1 0h1m1 0h1m1 0h1m-39 1h1m5 0h1m2 0h1m2 0h1m2 0h5m3 0h1m1 0h1m2 0h1m2 0h2m3 0h2m2 0h1m-41 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h2m2 0h5m1 0h1m-39 1h1m1 0h3m1 0h1m1 0h7m1 0h1m1 0h5m1 0h2m2 0h1m1 0h4m1 0h1m1 0h1m2 0h1m-41 1h1m1 0h3m1 0h1m1 0h2m3 0h4m3 0h1m1 0h2m1 0h1m1 0h2m2 0h9m-40 1h1m5 0h1m2 0h1m1 0h1m3 0h1m6 0h2m1 0h1m1 0h1m2 0h1m1 0h1m3 0h2m1 0h1m-40 1h7m3 0h1m4 0h4m1 0h3m2 0h2m2 0h1m1 0h1m3 0h2m1 0h1\"/></svg>";
+
+const TIERS = [
+  { id:'premium',   label:'Premium Sponsoren', size:'size-xl', items:[
+    /* aktuell keine Premium-Sponsoren gelistet — sobald welche dazukommen,
+       hier eintragen; die Stufe wird dann automatisch mitgespielt. */
+  ]},
+  { id:'sponsoren', label:'Sponsoren', size:'size-lg', items:[
+    { name:'Dataciders',       file:'dataciders.png' },
+    { name:'MD',               file:'md.jpg' },
+    { name:'ORAYLIS',          file:'oraylis.png' },
+    { name:'Opitz Consulting', file:'opitz-consulting.jpg' },
+    { name:'Hedda.io',         file:'hedda-io.png' },
+    { name:'haavest',          file:'haavest.png' },
+  ]},
+  { id:'supporter', label:'Supporter', size:'size-md', items:[
+    { name:'arelium',           file:'arelium.png' },
+    { name:'GermanTechJobs',    file:'germantechjobs.jpg' },
+    { name:'conflux9',          file:'conflux9.png' },
+    { name:'IT-Schulungen.com', file:'it-schulungen.png' },
+    { name:'TDWI',              file:'tdwi.jpg' },
+  ]},
+];
+
+const HOLD_MS   = 7000;   // Standzeit je Stufe
+const FINALE_MS = 11000;  // Standzeit des Finales
+const STAGGER   = 110;    // Versatz zwischen den Logos einer Stufe
+
+const activeTiers = TIERS.filter(t => t.items.length > 0);
+
+/* ---- 16:9 skalieren ---- */
+const stage = document.getElementById('stage');
+function fit(){
+  const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+  stage.style.transform = `translate(-50%,-50%) scale(${s})`;
+}
+addEventListener('resize', fit); fit();
+
+/* ---- QR-Code (inline, keine externe Anfrage) ---- */
+document.getElementById('qr').innerHTML = QR_SVG;
+
+/* ---- Aufbau der Stufen ---- */
+const tierStage = document.getElementById('tier-stage');
+const finaleEl  = document.getElementById('finale');
+
+function logosHtml(tier, stagger){
+  return tier.items.map((it, i) =>
+    `<div class="logo-card" style="animation-delay:${i * stagger}ms">
+       <img src="assets/sponsoren/${it.file}" alt="${it.name}" loading="eager">
+     </div>`).join('');
+}
+
+activeTiers.forEach(t => {
+  const d = document.createElement('div');
+  d.className = `tier ${t.size}`;
+  d.dataset.tier = t.id;
+  d.innerHTML = `<div class="tier-label">${t.label}</div><div class="logos">${logosHtml(t, STAGGER)}</div>`;
+  tierStage.appendChild(d);
+});
+
+finaleEl.innerHTML = activeTiers.map(t =>
+  `<div class="finale-row ${t.id === 'premium' ? 'size-md' : 'size-sm'}">
+     <div class="tier-label">${t.label}</div>
+     <div class="logos">${logosHtml(t, 45)}</div>
+   </div>`).join('');
+
+/* ---- Ablaufsteuerung ----
+   Szenen: je eine pro Stufe, dann das Finale mit allen.           */
+const scenes = [...activeTiers.map(t => ({ kind:'tier', id:t.id, ms:HOLD_MS })),
+                { kind:'finale', ms:FINALE_MS }];
+
+let idx = 0, paused = false, timer = null, startedAt = 0, remaining = 0, raf = null;
+const progressEl = document.getElementById('progress');
+
+function paint(){
+  tierStage.querySelectorAll('.tier').forEach(el => el.classList.remove('show'));
+  finaleEl.classList.remove('show');
+  const sc = scenes[idx];
+  const target = sc.kind === 'finale' ? finaleEl
+               : tierStage.querySelector(`.tier[data-tier="${sc.id}"]`);
+  if (!target) return;
+  target.classList.add('show');
+  // Einblend-Animation neu anstossen. Kein cloneNode: das wuerde die
+  // Referenz auf finaleEl entwerten, worauf das remove('show') oben ins
+  // Leere griffe und zwei Szenen gleichzeitig stuenden.
+  target.querySelectorAll('.logo-card').forEach(c => {
+    c.style.animation = 'none';
+    void c.offsetHeight;          // Reflow erzwingen
+    c.style.animation = '';
+  });
+}
+
+function tick(){
+  const sc = scenes[idx];
+  const done = Date.now() - startedAt;
+  progressEl.style.width = Math.min(100, (done / sc.ms) * 100) + '%';
+  if (!paused && done >= sc.ms){ next(); return; }
+  raf = requestAnimationFrame(tick);
+}
+
+function run(){
+  cancelAnimationFrame(raf);
+  paint();
+  startedAt = Date.now();
+  raf = requestAnimationFrame(tick);
+}
+function next(){ idx = (idx + 1) % scenes.length; run(); }
+function prev(){ idx = (idx - 1 + scenes.length) % scenes.length; run(); }
+
+let pausedAt = 0;
+function togglePause(){
+  paused = !paused;
+  document.body.classList.toggle('is-paused', paused);
+  if (paused){ pausedAt = Date.now(); cancelAnimationFrame(raf); }
+  else { startedAt += Date.now() - pausedAt; raf = requestAnimationFrame(tick); }
+}
+
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'f'){ e.preventDefault();
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(()=>{});
+  }
+  else if (e.key === ' '){ e.preventDefault(); togglePause(); }
+  else if (e.key === 'ArrowRight'){ e.preventDefault(); next(); }
+  else if (e.key === 'ArrowLeft'){ e.preventDefault(); prev(); }
+  else if (k === 'r'){ e.preventDefault(); idx = 0; run(); }
+});
+addEventListener('click', () => { if (!document.fullscreenElement) return; next(); });
+addEventListener('fullscreenchange', fit);
+
+run();
+</script>
+</body>
+</html>
