@@ -38,11 +38,7 @@
   /* ---- Kopf ---- */
   .head{display:flex; align-items:flex-start; justify-content:space-between; gap:48px; flex:0 0 auto}
   .brand{display:flex; align-items:center; gap:28px}
-  .brand img{height:96px; width:auto; display:block}
-  .brand-year{
-    font-size:76px; font-weight:800; letter-spacing:-.03em; line-height:1;
-    color:var(--accent);
-  }
+  .brand img{height:112px; width:auto; display:block}
   .head-meta{text-align:right; font-size:26px; line-height:1.45; color:var(--ink-soft); padding-top:6px}
   .head-meta strong{display:block; color:var(--ink); font-size:30px; font-weight:700}
 
@@ -67,12 +63,15 @@
   }
   .logo-card img{display:block; object-fit:contain; width:auto}
   /* Größenstufen je Rang */
-  .size-xl .logo-card{min-width:460px; min-height:230px} .size-xl .logo-card img{max-height:150px; max-width:380px}
-  .size-lg .logo-card{min-width:340px; min-height:180px} .size-lg .logo-card img{max-height:110px; max-width:280px}
-  .size-md .logo-card{min-width:250px; min-height:136px} .size-md .logo-card img{max-height:80px;  max-width:200px}
-  .size-sm .logo-card{min-width:188px; min-height:104px; padding:20px 26px} .size-sm .logo-card img{max-height:56px; max-width:150px}
+  .size-xl .logo-card{min-width:540px; min-height:280px; padding:40px 56px} .size-xl .logo-card img{max-height:184px; max-width:440px}
+  .size-lg .logo-card{min-width:320px; min-height:168px} .size-lg .logo-card img{max-height:98px;  max-width:250px}
+  .size-md .logo-card{min-width:224px; min-height:124px; padding:22px 30px} .size-md .logo-card img{max-height:68px; max-width:172px}
+  .size-sm .logo-card{min-width:170px; min-height:96px;  padding:18px 22px} .size-sm .logo-card img{max-height:50px; max-width:136px}
 
   @keyframes pop{to{opacity:1; transform:translateY(0) scale(1)}}
+  @media (prefers-reduced-motion: reduce){
+    .logo-card{animation:none !important; opacity:1; transform:none}
+  }
 
   /* Finale: alle Stufen untereinander */
   .finale{display:none; flex-direction:column; gap:30px; width:100%}
@@ -123,7 +122,6 @@
     <header class="head">
       <div class="brand">
         <img src="assets/daten-wg-logo.png" alt="Daten-WG">
-        <span class="brand-year">2026</span>
       </div>
       <div class="head-meta">
         <strong>14.–16. Oktober 2026</strong>
@@ -170,23 +168,23 @@ const QR_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\" 
 
 const TIERS = [
   { id:'premium',   label:'Premium Sponsoren', size:'size-xl', items:[
-    /* aktuell keine Premium-Sponsoren gelistet — sobald welche dazukommen,
-       hier eintragen; die Stufe wird dann automatisch mitgespielt. */
+    { name:'Dataciders',     file:'dataciders.png' },
+    { name:'Mail & Deploy',  file:'mail-and-deploy.jpg' },
+    { name:'Hedda.io',       file:'hedda-io.png' },
   ]},
   { id:'sponsoren', label:'Sponsoren', size:'size-lg', items:[
-    { name:'Dataciders',       file:'dataciders.png' },
-    { name:'MD',               file:'md.jpg' },
+    { name:'Datenpioniere',    file:'datenpioniere.png' },
     { name:'ORAYLIS',          file:'oraylis.png' },
     { name:'Opitz Consulting', file:'opitz-consulting.jpg' },
-    { name:'Hedda.io',         file:'hedda-io.png' },
+    { name:'SteinauTech',      file:'steinautech.png' },
     { name:'haavest',          file:'haavest.png' },
   ]},
   { id:'supporter', label:'Supporter', size:'size-md', items:[
     { name:'arelium',           file:'arelium.png' },
     { name:'GermanTechJobs',    file:'germantechjobs.jpg' },
+    { name:'TDWI Europe',       file:'tdwi.jpg' },
     { name:'conflux9',          file:'conflux9.png' },
     { name:'IT-Schulungen.com', file:'it-schulungen.png' },
-    { name:'TDWI',              file:'tdwi.jpg' },
   ]},
 ];
 
@@ -237,7 +235,7 @@ finaleEl.innerHTML = activeTiers.map(t =>
 const scenes = [...activeTiers.map(t => ({ kind:'tier', id:t.id, ms:HOLD_MS })),
                 { kind:'finale', ms:FINALE_MS }];
 
-let idx = 0, paused = false, timer = null, startedAt = 0, remaining = 0, raf = null;
+let idx = 0, paused = false, timer = null, startedAt = 0, remaining = 0, raf = null, safetyTimer = null;
 const progressEl = document.getElementById('progress');
 
 function paint(){
@@ -251,11 +249,19 @@ function paint(){
   // Einblend-Animation neu anstossen. Kein cloneNode: das wuerde die
   // Referenz auf finaleEl entwerten, worauf das remove('show') oben ins
   // Leere griffe und zwei Szenen gleichzeitig stuenden.
-  target.querySelectorAll('.logo-card').forEach(c => {
+  const cards = target.querySelectorAll('.logo-card');
+  cards.forEach(c => {
+    c.style.opacity = ''; c.style.transform = '';
     c.style.animation = 'none';
     void c.offsetHeight;          // Reflow erzwingen
     c.style.animation = '';
   });
+  // Spaetestens nach dieser Frist sind die Logos sichtbar, egal was die
+  // Animation macht. Laeuft sie normal, hat sie laengst auf 1 gefuellt.
+  clearTimeout(safetyTimer);
+  safetyTimer = setTimeout(() => {
+    cards.forEach(c => { c.style.opacity = '1'; c.style.transform = 'none'; });
+  }, 1800);
 }
 
 function tick(){
