@@ -106,6 +106,15 @@ Filter-Hinweis. Leer gelassen bleibt der bisherige Felder-Hinweis.
 leicht angehobenes dunkles Panel mit Rand — passend zur dunklen Seite. Im hellen
 Theme bleibt der klassische dunkle Tooltip unverändert.
 
+**Ansichts-Zustand bleibt erhalten** (ab 1.14): Zoom, Position, gewählte
+Zeiteinheit (Tage … Jahre) und auf-/zugeklappte Ebenen werden entprellt in die
+Formatoptionen persistiert (`zustand.ansicht`/`zustand.zugeklappt`, unsichtbar
+im Formatbereich) und beim nächsten Öffnen wiederhergestellt — statt wie bisher
+immer alles aufzuklappen und neu einzupassen. Wiederherstellung greift einmal
+pro Sitzung; danach gewinnt immer der Live-Zustand (Host-Echos drehen nichts
+zurück). „Alles"/„Heute" funktionieren weiter wie gewohnt und werden ebenfalls
+gemerkt.
+
 ## Entwicklung
 
 ```bash

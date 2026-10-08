@@ -218,6 +218,12 @@
                 }
             }
         },
+        "zustand": {
+            "properties": {
+                "ansicht": { "type": { "text": true } },
+                "zugeklappt": { "type": { "text": true } }
+            }
+        },
         "leerZustand": {
             "displayName": "Leer-Zustand",
             "properties": {

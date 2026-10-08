@@ -42,6 +42,10 @@
       ibcs: params.get('ibcs') === '1',
       leerTitel: params.get('leertitel') || '',
       leerText: params.get('leertext') || '',
+      // ?zustand={"mode":"Jahre","pxd":0.5,"view":1700000000000,"collapsed":["…"]}
+      // simuliert den persistierten Ansichts-Zustand; Änderungen landen in window.__zustand
+      initZustand: params.has('zustand') ? JSON.parse(params.get('zustand')) : null,
+      onZustand: (z) => { window.__zustand = z; },
       wochenenden: params.get('wochenenden') !== '0',
       abhaengigkeiten: params.get('deps') !== '0',
       heuteLinie: params.get('heute') !== '0',

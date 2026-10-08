@@ -217,6 +217,13 @@ export class Visual implements IVisual {
     private renderer: GanttRenderer;
     private data: TaskWithId[] = [];
     private statusDatum: number | null = null;
+    /** gespeicherter Ansichts-Zustand aus den Metadaten (zustand.ansicht/zugeklappt) —
+     *  der Renderer wendet ihn einmal pro Lebenszeit an */
+    private initZustand: { mode?: string; pxd?: number; view?: number; collapsed?: string[] } | null = null;
+    /** Entprell-Timer: Pannen/Zoomen feuert viele Änderungen pro Sekunde,
+     *  persistiert wird erst nach einer kurzen Ruhepause */
+    private zustandTimer: number | null = null;
+    private zustandLetzter: { mode: string; pxd: number; view: number; collapsed: string[] } | null = null;
 
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
@@ -288,6 +295,30 @@ export class Visual implements IVisual {
                 if (!allow) return;
                 this.selectionManager.clear().then(() => this.pushOptions());
             },
+            initZustand: this.initZustand,
+            onZustand: (z) => {
+                // Ansichts-Zustand (Zoom/Pan/Zeiteinheit + zugeklappte Ebenen)
+                // entprellt in die Formatoptionen schreiben, damit das Visual
+                // beim nächsten Öffnen so dasteht wie verlassen
+                if (!allow) return;
+                this.zustandLetzter = z;
+                if (this.zustandTimer !== null) window.clearTimeout(this.zustandTimer);
+                this.zustandTimer = window.setTimeout(() => {
+                    this.zustandTimer = null;
+                    const zz = this.zustandLetzter;
+                    if (!zz) return;
+                    this.host.persistProperties({
+                        merge: [{
+                            objectName: 'zustand',
+                            selector: undefined as unknown as powerbi.data.Selector,
+                            properties: {
+                                ansicht: JSON.stringify({ mode: zz.mode, pxd: zz.pxd, view: zz.view }),
+                                zugeklappt: JSON.stringify(zz.collapsed)
+                            }
+                        }]
+                    });
+                }, 700);
+            },
             onTableWidth: (w) => {
                 // Per Trenner gezogene Breite in die Formatoptionen zurückschreiben,
                 // damit sie den Reload/Publish überlebt
@@ -307,6 +338,29 @@ export class Visual implements IVisual {
         try {
             const dataView = options.dataViews && options.dataViews[0];
             this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualFormattingSettingsModel, dataView);
+
+            // gespeicherten Ansichts-Zustand aus den Metadaten lesen; der Renderer
+            // wendet ihn nur einmal pro Lebenszeit an (Echos drehen nichts zurück)
+            const zObj = dataView && dataView.metadata && dataView.metadata.objects
+                ? dataView.metadata.objects['zustand'] : undefined;
+            const zTxt = (p: string): string => {
+                const v = zObj ? zObj[p] : undefined;
+                return typeof v === 'string' ? v : '';
+            };
+            let iz: { mode?: string; pxd?: number; view?: number; collapsed?: string[] } | null = null;
+            try {
+                const a = zTxt('ansicht') !== '' ? JSON.parse(zTxt('ansicht')) : null;
+                const c = zTxt('zugeklappt') !== '' ? JSON.parse(zTxt('zugeklappt')) : null;
+                if (a || (Array.isArray(c) && c.length)) {
+                    iz = {
+                        mode: a && typeof a.mode === 'string' ? a.mode : undefined,
+                        pxd: a && typeof a.pxd === 'number' ? a.pxd : undefined,
+                        view: a && typeof a.view === 'number' ? a.view : undefined,
+                        collapsed: Array.isArray(c) ? c.map(String) : undefined
+                    };
+                }
+            } catch { /* korrupter Store: Zustand verwerfen, normal einpassen */ }
+            this.initZustand = iz;
 
             this.data = parseData(dataView, this.host);
             this.statusDatum = parseStatusDate(dataView);

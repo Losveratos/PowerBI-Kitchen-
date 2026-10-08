@@ -99,6 +99,9 @@ export class GanttRenderer {
     maxSy = 0;
     pan = null;
     fitted = false;
+    /** initZustand nur einmal pro Renderer-Lebenszeit anwenden — Host-Echos der
+     *  eigenen Persistierung dürfen den Live-Zustand nicht zurückdrehen */
+    zustandInit = false;
     lastSig = '';
     raf = 0;
     timer = 0;
@@ -315,7 +318,22 @@ export class GanttRenderer {
             this.tip = patch.tip;
         if (patch.sy !== undefined)
             this.sy = patch.sy;
+        // Ansichts-Änderungen (nicht Hover/Tooltip/Scroll) dem Host melden
+        if (patch.pxd !== undefined || patch.view !== undefined || patch.mode !== undefined) {
+            this.meldeZustand();
+        }
         this.invalidate();
+    }
+    /** Schnappschuss des Ansichts-Zustands an den Host geben (Persistierung) */
+    meldeZustand() {
+        if (!this.opts || !this.opts.onZustand)
+            return;
+        this.opts.onZustand({
+            mode: this.mode,
+            pxd: this.pxd,
+            view: this.view,
+            collapsed: Object.keys(this.collapsed).filter(k => this.collapsed[k])
+        });
     }
     invalidate() {
         // rAF für flüssiges Pannen/Zoomen; setTimeout-Fallback, weil rAF in
@@ -402,6 +420,7 @@ export class GanttRenderer {
     }
     togglePhase(k) {
         this.collapsed[k] = !this.collapsed[k];
+        this.meldeZustand();
         this.invalidate();
     }
     onChartDown = (e) => {
@@ -829,6 +848,23 @@ export class GanttRenderer {
         this.tableWrap.style.width = tableW + 'px';
         this.tableWrap.style.borderRight = '1px solid ' + t.border;
         this.divider.style.background = this.twDrag ? t.sub : t.border;
+        // Gespeicherter Ansichts-Zustand: einmal pro Lebenszeit anwenden, BEVOR
+        // das Auto-Einpassen greift — das Visual öffnet dann exakt so, wie es
+        // verlassen wurde (Zoom/Pan/Zeiteinheit + zugeklappte Ebenen)
+        if (!this.zustandInit && o.initZustand) {
+            const z = o.initZustand;
+            this.zustandInit = true;
+            if (Array.isArray(z.collapsed)) {
+                z.collapsed.forEach(k => { this.collapsed[String(k)] = true; });
+            }
+            if (typeof z.pxd === 'number' && isFinite(z.pxd) && z.pxd > 0
+                && typeof z.view === 'number' && isFinite(z.view)) {
+                this.pxd = Math.min(60, Math.max(0.25, z.pxd));
+                this.view = z.view;
+                this.mode = typeof z.mode === 'string' ? z.mode : '';
+                this.fitted = true; // Wiederherstellung ersetzt das Einpassen
+            }
+        }
         if (!this.fitted && this.chartArea.clientWidth > 0) {
             // Layout ist nach dem Anhängen synchron messbar → direkt einpassen
             this.fitted = true;
@@ -909,6 +945,7 @@ export class GanttRenderer {
             const anyOpen = this.projKeys.some(k => !this.collapsed[k]);
             mkBtn(anyOpen ? '▾ Projekte' : '▸ Projekte', () => {
                 this.projKeys.forEach(k => this.collapsed[k] = anyOpen);
+                this.meldeZustand();
                 this.invalidate();
             }, true);
         }
@@ -917,6 +954,7 @@ export class GanttRenderer {
             const lbl = this.levelCount > 1 ? 'Ebenen' : 'Phasen';
             mkBtn((anyOpen ? '▾ ' : '▸ ') + lbl, () => {
                 this.phaseKeys.forEach(k => this.collapsed[k] = anyOpen);
+                this.meldeZustand();
                 this.invalidate();
             }, true);
         }

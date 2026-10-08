@@ -59,6 +59,14 @@ export interface GanttOptions {
     msEndeGleichStart?: boolean;        // Ende = Start ebenfalls als Meilenstein werten (default false)
     leerTitel?: string;                 // Leer-Zustand: eigener Titel statt "DataKitchen Gantt"
     leerText?: string;                  // Leer-Zustand: eigener Textkörper statt des Felder-Hinweises
+    /** gespeicherter Ansichts-Zustand (Zoom/Pan/Zeiteinheit + zugeklappte Ebenen) —
+     *  wird EINMAL beim ersten Layout angewendet (statt Auto-Einpassen), danach
+     *  gewinnt immer der Live-Zustand */
+    initZustand?: { mode?: string; pxd?: number; view?: number; collapsed?: string[] } | null;
+    /** Live-Zustand hat sich geändert (Zoom, Pan, Zeiteinheit, Auf-/Zuklappen) —
+     *  der Host persistiert ihn entprellt, damit das Visual beim nächsten Öffnen
+     *  wieder so dasteht wie verlassen */
+    onZustand?: (z: { mode: string; pxd: number; view: number; collapsed: string[] }) => void;
     fontFamily: string;
     fontSize: number;                   // Basisgröße in px (Referenz-Design: 13)
     selectedKeys: ReadonlySet<string> | null;   // aktive Selektion (Dimmen)
@@ -229,6 +237,9 @@ export class GanttRenderer {
     private maxSy = 0;
     private pan: { x0: number; y0: number; v0: number; moved: boolean; taskKey: string | null } | null = null;
     private fitted = false;
+    /** initZustand nur einmal pro Renderer-Lebenszeit anwenden — Host-Echos der
+     *  eigenen Persistierung dürfen den Live-Zustand nicht zurückdrehen */
+    private zustandInit = false;
     private lastSig = '';
     private raf = 0;
     private timer = 0;
@@ -439,7 +450,22 @@ export class GanttRenderer {
         if (patch.hover !== undefined) this.hover = patch.hover;
         if (patch.tip !== undefined) this.tip = patch.tip;
         if (patch.sy !== undefined) this.sy = patch.sy;
+        // Ansichts-Änderungen (nicht Hover/Tooltip/Scroll) dem Host melden
+        if (patch.pxd !== undefined || patch.view !== undefined || patch.mode !== undefined) {
+            this.meldeZustand();
+        }
         this.invalidate();
+    }
+
+    /** Schnappschuss des Ansichts-Zustands an den Host geben (Persistierung) */
+    private meldeZustand(): void {
+        if (!this.opts || !this.opts.onZustand) return;
+        this.opts.onZustand({
+            mode: this.mode,
+            pxd: this.pxd,
+            view: this.view,
+            collapsed: Object.keys(this.collapsed).filter(k => this.collapsed[k])
+        });
     }
 
     private invalidate(): void {
@@ -519,6 +545,7 @@ export class GanttRenderer {
 
     private togglePhase(k: string): void {
         this.collapsed[k] = !this.collapsed[k];
+        this.meldeZustand();
         this.invalidate();
     }
 
@@ -952,6 +979,23 @@ export class GanttRenderer {
         this.tableWrap.style.borderRight = '1px solid ' + t.border;
         this.divider.style.background = this.twDrag ? t.sub : t.border;
 
+        // Gespeicherter Ansichts-Zustand: einmal pro Lebenszeit anwenden, BEVOR
+        // das Auto-Einpassen greift — das Visual öffnet dann exakt so, wie es
+        // verlassen wurde (Zoom/Pan/Zeiteinheit + zugeklappte Ebenen)
+        if (!this.zustandInit && o.initZustand) {
+            const z = o.initZustand;
+            this.zustandInit = true;
+            if (Array.isArray(z.collapsed)) {
+                z.collapsed.forEach(k => { this.collapsed[String(k)] = true; });
+            }
+            if (typeof z.pxd === 'number' && isFinite(z.pxd) && z.pxd > 0
+                && typeof z.view === 'number' && isFinite(z.view)) {
+                this.pxd = Math.min(60, Math.max(0.25, z.pxd));
+                this.view = z.view;
+                this.mode = typeof z.mode === 'string' ? z.mode : '';
+                this.fitted = true;   // Wiederherstellung ersetzt das Einpassen
+            }
+        }
         if (!this.fitted && this.chartArea.clientWidth > 0) {
             // Layout ist nach dem Anhängen synchron messbar → direkt einpassen
             this.fitted = true;
@@ -1036,6 +1080,7 @@ export class GanttRenderer {
             const anyOpen = this.projKeys.some(k => !this.collapsed[k]);
             mkBtn(anyOpen ? '▾ Projekte' : '▸ Projekte', () => {
                 this.projKeys.forEach(k => this.collapsed[k] = anyOpen);
+                this.meldeZustand();
                 this.invalidate();
             }, true);
         }
@@ -1044,6 +1089,7 @@ export class GanttRenderer {
             const lbl = this.levelCount > 1 ? 'Ebenen' : 'Phasen';
             mkBtn((anyOpen ? '▾ ' : '▸ ') + lbl, () => {
                 this.phaseKeys.forEach(k => this.collapsed[k] = anyOpen);
+                this.meldeZustand();
                 this.invalidate();
             }, true);
         }
