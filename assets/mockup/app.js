@@ -1,6 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
 // Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
-window.MK_VERSION = '0.5.5';
+window.MK_VERSION = '0.5.6';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
@@ -263,7 +263,10 @@ window.MK_VERSION = '0.5.5';
   // undoDropped das, damit Strg+Z am Ende ehrlich „Verlauf voll, ältere verworfen" meldet statt „nichts rückgängig zu machen".
   // undoDropped: false | 'limit' (Verlauf voll) | 'new' („Neu" hat den älteren Verlauf verworfen)
   const UNDO_MAX = 200; let undoDropped = false;
-  function pushUndo(s) { undoStack.push(s); if (undoStack.length > UNDO_MAX) { undoStack.shift(); if (undoDropped !== 'new') undoDropped = 'limit'; } redoStack = []; }
+  // undoLabels/redoLabels laufen parallel zu den Stapeln: Name der Aktion (aus toastUndo), damit Strg+Z sagt, was es zurücknimmt (Review 09.10.)
+  let undoLabels = [], redoLabels = [];
+  function pushUndo(s) { undoStack.push(s); undoLabels.push(null); if (undoStack.length > UNDO_MAX) { undoStack.shift(); undoLabels.shift(); if (undoDropped !== 'new') undoDropped = 'limit'; } redoStack = []; redoLabels = []; syncUndoButtons(); }
+  function syncUndoButtons() { const u = $('#btnUndo'), r = $('#btnRedo'); if (u) u.disabled = !undoStack.length && !undoDropped; if (r) r.disabled = !redoStack.length; }
   let snap = null;
   function commit(opts) {
     if (!(opts && opts.noUndo)) { if (snap !== null) pushUndo(snap); snap = null; }
@@ -275,13 +278,15 @@ window.MK_VERSION = '0.5.5';
   function syncLang() { if (S.lang !== I18N.lang) { relabelDefaults(I18N.lang); S.lang = I18N.lang; } }
   function undo() {
     if (!undoStack.length) return toast(undoDropped === 'new' ? t('toast.undoAfterNew') : undoDropped ? t('toast.undoLimit', { n: UNDO_MAX }) : t('toast.nothingUndo'));
-    redoStack.push(JSON.stringify(S));
-    S = migrate(JSON.parse(undoStack.pop())); syncLang(); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast(t('toast.undone'));
+    redoStack.push(JSON.stringify(S)); const lbl = undoLabels.pop() || null; redoLabels.push(lbl);
+    S = migrate(JSON.parse(undoStack.pop())); syncLang(); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); syncUndoButtons();
+    toast(lbl ? t('toast.undoneX', { a: lbl }) : t('toast.undone'));
   }
   function redo() {
     if (!redoStack.length) return toast(t('toast.nothingRedo'));
-    undoStack.push(JSON.stringify(S));
-    S = migrate(JSON.parse(redoStack.pop())); syncLang(); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); toast(t('toast.redone'));
+    undoStack.push(JSON.stringify(S)); const lbl = redoLabels.pop() || null; undoLabels.push(lbl);
+    S = migrate(JSON.parse(redoStack.pop())); syncLang(); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); syncUndoButtons();
+    toast(lbl ? t('toast.redoneX', { a: lbl }) : t('toast.redone'));
   }
   // ---- Standardtexte und Sprachwechsel (B27) -----------------------------------------------------------------
   // Ein Standardtext trägt seinen i18n-Schlüssel als Merker: obj.dflt[prop] = 'state.newReport' (Seitenzahlen: ['state.pageN', { n: 2 }]).
@@ -511,8 +516,8 @@ window.MK_VERSION = '0.5.5';
   function renderPages() {
     const bar = $('#pagebar'); const fa = document.activeElement;
     const keep = fa && fa !== bar && bar.contains(fa) ? (fa.id ? '#' + fa.id : ['go', 'renpage', 'delpage'].filter(k => fa.dataset[k]).map(k => `[data-${k}="${CSS.escape(fa.dataset[k])}"]`)[0]) : null;
-    bar.innerHTML = S.pages.map((p, i) => { const act = p.id === S.cur; return `<span class="ptab${act ? ' act' : ''}" data-page="${p.id}"><button type="button" class="pt-go" data-go="${p.id}"${act ? ' aria-current="page"' : ''}><span class="n">${i + 1}</span>${esc(p.name)}</button>${act ? `<button type="button" class="x" data-renpage="${p.id}" title="${esc(t('tip.pageRename'))}" aria-label="${esc(t('tip.pageRenameN', { n: p.name }))}">✎</button>` : ''}<button type="button" class="x" data-delpage="${p.id}" title="${esc(t('tip.pageDelete'))}" aria-label="${esc(t('tip.pageDeleteN', { n: p.name }))}">×</button></span>`; }).join('')
-      + `<button class="padd" id="btnAddPage">${esc(t('btn.addPage'))}</button><span class="ptools"><button class="btn sm ghost" id="btnPageLeft" title="${esc(t('tip.pageLeft'))}" aria-label="${esc(t('tip.pageLeft'))}">‹</button><button class="btn sm ghost" id="btnPageRight" title="${esc(t('tip.pageRight'))}" aria-label="${esc(t('tip.pageRight'))}">›</button></span>`;
+    bar.innerHTML = S.pages.map((p, i) => { const act = p.id === S.cur; return `<span class="ptab${act ? ' act' : ''}" data-page="${p.id}"><button type="button" class="pt-go" data-go="${p.id}" title="${esc(t('tip.pageGo', { n: p.name }))}"${act ? ' aria-current="page"' : ''}><span class="n">${i + 1}</span>${esc(p.name)}</button>${act ? `<button type="button" class="x" data-renpage="${p.id}" title="${esc(t('tip.pageRename'))}" aria-label="${esc(t('tip.pageRenameN', { n: p.name }))}">✎</button>` : ''}<button type="button" class="x" data-delpage="${p.id}" title="${esc(t('tip.pageDelete'))}" aria-label="${esc(t('tip.pageDeleteN', { n: p.name }))}">×</button></span>`; }).join('')
+      + `<button class="padd" id="btnAddPage" title="${esc(t('tip.addPage'))}">${esc(t('btn.addPage'))}</button><span class="ptools"><button class="btn sm ghost" id="btnPageLeft" title="${esc(t('tip.pageLeft'))}" aria-label="${esc(t('tip.pageLeft'))}">‹</button><button class="btn sm ghost" id="btnPageRight" title="${esc(t('tip.pageRight'))}" aria-label="${esc(t('tip.pageRight'))}">›</button></span>`;
     if (keep) { const el = $(keep, bar) || $(`[data-go="${CSS.escape(S.cur)}"]`, bar); if (el) el.focus({ preventScroll: true }); }
   }
   $('#pagebar').addEventListener('click', e => {
@@ -604,7 +609,7 @@ window.MK_VERSION = '0.5.5';
     }
     if (z.footer) { const fnames = navPosOf(c) === 'footer' ? navNames(c) : []; const fnav = fnames.length ? `<div class="nav">${fnames.map(n => `<span class="${n === page().name ? 'act' : ''}">${esc(n)}</span>`).join('')}</div>` : ''; html += `<div class="zone footer" style="${css(z.footer)}"><span class="ft">${esc(c.footer.text || '')}</span>${fnav}</div>`; }
     // Zahnrad je Zone: oeffnet den passenden Abschnitt im Reiter Rahmen (Doppelklick auf die Zone tut dasselbe)
-    ['header', 'nav', 'filter', 'footer'].forEach(key => { const r = z[key]; if (!r) return; const gx = r.x + r.w - 22 * k, gy = key === 'footer' ? r.y + (r.h - 18 * k) / 2 : r.y + 4 * k; html += `<div class="zcfg" data-zcfg="${key}" title="${esc(t('tip.zoneCfg'))}" style="left:${gx}px;top:${gy}px">⚙</div>`; });
+    ['header', 'nav', 'filter', 'footer'].forEach(key => { const r = z[key]; if (!r) return; const gx = r.x + r.w - 26 * k, gy = key === 'footer' ? r.y + (r.h - 22 * k) / 2 : r.y + 4 * k; html += `<div class="zcfg" data-zcfg="${key}" title="${esc(t('tip.zoneCfg'))}" style="left:${gx}px;top:${gy}px">⚙</div>`; });
     if (z.filter) {
       const SLG = { dropdown: '▾', list: '☰', tile: '▦', between: '⟷', date: '▤', search: '⌕', relative: '◷', button: '▣' };
       const sl = (c.filter.fields || []).map((f, i) => { const miss = fieldStatus(f) === 'missing'; return `<div class="sl${miss ? ' missing' : ''}"${miss ? ` title="${esc(f.name + ' · ' + t('model.missingTip', { r: f.table + '.' + f.name }))}"` : ''}><span class="ty" title="${esc(t('opt.slicer.' + (f.type || 'dropdown')))}">${SLG[f.type || 'dropdown'] || '▾'}</span><span class="nm">${esc(f.name)}</span><span class="x" data-rmfilter="${i}" title="${esc(t('tip.slicerRemove'))}">✕</span></div>`; }).join('');
@@ -659,9 +664,14 @@ window.MK_VERSION = '0.5.5';
     const chips = roleChips(v) + (link ? `<span class="rchip link" title="${esc(t('tip.linkTo'))}">↗ ${esc(link.name)}</span>` : '');
     const headH = v.title || v.sub ? (tiny ? 18 : 24) * k : 0;
     const footH = chips && !tiny ? 18 * k : 0;
-    const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - footH - pad - 6);
+    // Kernaussage (analysis.message) als Botschaftszeile unter dem Kopf (IBCS: Botschaft unter Titel/Untertitel, Review R7); die Skizze wird um die Zeile kleiner
+    const msg = String((v.analysis || {}).message || '').trim();
+    const msgFs = typo().sub * typo().scale * tileScale(v) * k, msgH = msg && !tiny ? Math.round(msgFs * 1.4 + 2 * k) : 0;
+    const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - msgH - footH - pad - 6);
     const an = analysisOf(v);
-    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: sketchScenario(v, an), seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '', antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: tileInk(S.design).ink, dark: tileInk(S.design).dark, paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral' }, samplesOpt(v))) : '';
+    // Leere Pflichtrolle Kennzahl (KPI, Karte, Tacho): „?" statt einer erfundenen Zahl (Review R16)
+    const noMeasure = CAT.rolesFor(def, v).some(r => r.key === 'indicator' && r.req) && !((v.roles || {}).indicator || []).length;
+    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: sketchScenario(v, an), seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '', antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: tileInk(S.design).ink, dark: tileInk(S.design).dark, paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral', sort: an.sort, topN: an.topN, noMeasure }, samplesOpt(v))) : '';
     // Notiz: Symbol in der Badge-Zeile, das Popup als eigenes Element der Seite rechtsbündig unter dem Kachelkopf (B47).
     // In .badges schrumpfte es auf deren Breite (ca. 33 px) und wurde vom overflow:hidden der Kachel abgeschnitten.
     const noteTxt = v.notes ? v.notes : (v.openQuestion ? t('canvas.openQuestionEmpty') : '');
@@ -677,13 +687,14 @@ window.MK_VERSION = '0.5.5';
     const gone = []; Object.keys(v.roles || {}).forEach(key => (v.roles[key] || []).forEach(f => { if (fieldStatus(f) === 'missing' && !gone.includes(f.name)) gone.push(f.name); }));
     const reqTip = [missing.length ? t('canvas.reqEmpty', { roles: missing.join(', ') }) : '', gone.length ? t('canvas.fieldMissing', { f: gone.join(', ') }) : ''].filter(Boolean).join(' · ');
     const req = reqTip ? `<span class="reqdot" title="${esc(reqTip)}"></span>` : '';
-    const pri = v.priority ? `<span class="pri ${v.priority}" title="${esc(t('canvas.priority', { p: t('opt.pri.' + v.priority) }))}">${{ must: 'M', should: 'S', could: 'C' }[v.priority] || ''}</span>` : '';
+    const pri = v.priority ? `<span class="pri ${v.priority}" title="${esc(t('tip.badge.' + v.priority))}">${{ must: 'M', should: 'S', could: 'C' }[v.priority] || ''}</span>` : '';
     const st = v.status && v.status !== 'open' ? `<span class="st ${v.status}" title="${esc(t('canvas.status', { s: t('opt.status.' + v.status) }))}"></span>` : '';
     return `<div class="tile${selc}${tiny ? ' tiny' : ''}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="${esc(v.title || def.label)}" title="${esc(t('smp.tileDrag'))}" style="${css(rect)};padding:${Math.max(0, pad - 6)}px">
       ${headH ? `<div class="t-head" style="--tf:${tileScale(v)}"><span class="t-title">${esc(v.title || def.label)}</span>${v.sub ? `<span class="t-sub">${esc(v.sub)}</span>` : ''}</div>` : ''}
+      ${msgH ? `<div class="t-msg" title="${esc(msg)}" style="--tf:${tileScale(v)};flex:none;height:${msgH}px;line-height:${msgH}px;padding:0 calc(9px * var(--ui));font-size:calc(var(--fs-sub,9.5px) * var(--ui) * var(--tf,1));font-weight:500;color:var(--ink-page,#0F1E2E);opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(msg)}</div>` : ''}
       <div class="t-body">${svg}${ANTI[v.kind] ? '<div class="ap"></div>' : ''}</div>
       ${footH ? `<div class="t-foot">${chips}</div>` : ''}
-      <div class="badges">${req}${st}${pri}${note}<span class="badge${v.engine === 'ck' ? ' ck' : (v.engine === 'custom' ? ' cv' : '')}">${v.engine === 'ck' ? 'CK' : v.engine === 'deneb' ? 'Deneb' : v.engine === 'custom' ? 'CV' : 'PBI'}</span></div>${acts}</div>${notePop}`;
+      <div class="badges">${req}${st}${pri}${note}<span class="badge${v.engine === 'ck' ? ' ck' : (v.engine === 'custom' ? ' cv' : '')}" title="${esc(t('tip.badge.' + (v.engine === 'ck' ? 'ck' : v.engine === 'deneb' ? 'deneb' : v.engine === 'custom' ? 'cv' : 'pbi')))}">${v.engine === 'ck' ? 'CK' : v.engine === 'deneb' ? 'Deneb' : v.engine === 'custom' ? 'CV' : 'PBI'}</span></div>${acts}</div>${notePop}`;
   }
   const notePopFor = ico => pageEl.querySelector(`.note-pop[data-note-for="${CSS.escape(ico.dataset.note || '')}"]`);
   function roleChips(v) {
@@ -724,14 +735,21 @@ window.MK_VERSION = '0.5.5';
     if (edge) { e.stopPropagation(); if (!e.detail) insertEdge(edge.dataset.edge); return; }
     const act = e.target.closest('[data-act]'); const tile = e.target.closest('[data-leaf]'); const rm = e.target.closest('[data-rmfilter]');
     if (rm) { S.chrome.filter.fields.splice(+rm.dataset.rmfilter, 1); commit(); return; }
-    if (act && tile) { e.stopPropagation(); const id = tile.dataset.leaf; if (act.dataset.act === 'rm') removeLeaf(id); else splitLeaf(id, act.dataset.act); return; }
+    if (act && tile) {
+      e.stopPropagation(); const id = tile.dataset.leaf; const nm = tileName(id);
+      if (act.dataset.act === 'rm') { removeLeaf(id); toastUndo(nm ? t('toast.act.removed', { t: nm }) : t('toast.act.removedEmpty')); }
+      else { splitLeaf(id, act.dataset.act); toastUndo(t(act.dataset.act === 'row' ? 'toast.act.splitRow' : 'toast.act.splitCol', { t: nm || t('toast.act.emptyTile') })); }
+      return;
+    }
     const zc = e.target.closest('[data-zcfg]'); if (zc) { openFrameSection(zc.dataset.zcfg); return; }
     if (e.target.closest('.note-pop')) return;                             // Klick ins angeheftete Popup: stehen lassen
     const ico = e.target.closest('.note-ico'); const icoPop = ico ? notePopFor(ico) : null;
     $$('.note-pop.pinned', pageEl).forEach(p => { if (p !== icoPop) p.classList.remove('pinned'); });
     if (ico) { if (icoPop) icoPop.classList.toggle('pinned'); return; }
     if (tile) { selectTile(tile.dataset.leaf); return; }
-    sel = null; render();
+    // Abwählen ohne render(): ein Neuzeichnen zwischen den beiden Klicks ersetzt das Ziel, dann feuert der Doppelklick auf
+    // Kopfband, Filter und Fußleiste nie (Review 09.10., R9; gleiche Ursache wie früher H1 bei Kacheln)
+    selectTile(null);
   });
   // Notiz beim Darüberfahren zeigen (das Popup ist kein Geschwister des Symbols mehr, daher per Klasse statt :hover + )
   pageEl.addEventListener('mouseover', e => { const ico = e.target.closest && e.target.closest('.note-ico'); if (ico) { const p = notePopFor(ico); if (p) p.classList.add('hover'); } });
@@ -742,7 +760,9 @@ window.MK_VERSION = '0.5.5';
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTile(tile.dataset.leaf); if (e.key === 'Enter' && !findNode(sel).node.visual) openCatalog(); }
   });
   // Auswahl ohne Neu-Rendern der Seite, sonst geht das Zielelement zwischen zwei Klicks verloren (Doppelklick)
-  function selectTile(id) { sel = id; $$('.tile', pageEl).forEach(t => t.classList.toggle('sel', t.dataset.leaf === id)); renderInspector(); }
+  // Eine gewählte Kachel bringt den Reiter „Kachel" nach vorn: sonst gibt es auf „Seite" oder „Design" keine Ablageziele für Felder (Review 09.10., R8)
+  function showTab(key) { const tb = $('.tab[data-tab="' + key + '"]'); if (tb && !tb.classList.contains('active')) tb.click(); }
+  function selectTile(id) { sel = id; $$('.tile', pageEl).forEach(t => t.classList.toggle('sel', t.dataset.leaf === id)); if (id) showTab('el'); renderInspector(); }
   function openFrameSection(key) {
     const tab = $('.tab[data-tab="chrome"]'); if (tab) tab.click();
     const sec = $('#sec' + key.charAt(0).toUpperCase() + key.slice(1)); if (!sec) return;
@@ -822,7 +842,12 @@ window.MK_VERSION = '0.5.5';
     if (tileId && tileId !== id) swapTiles(tileId, id);
   });
 
-  function swapTiles(a, b) { const na = findNode(a).node, nb = findNode(b).node; const tmp = na.visual; na.visual = nb.visual; nb.visual = tmp; sel = b; commit(); }
+  function swapTiles(a, b) {
+    const na = findNode(a).node, nb = findNode(b).node; const an = tileName(a), bn = tileName(b); const tmp = na.visual; na.visual = nb.visual; nb.visual = tmp; sel = b; commit();
+    // Ziehen tauscht, statt zu verschieben (es gibt keine freie Stelle): das muss der Toast sagen (Review 09.10., UX)
+    toastUndo(bn ? t('toast.act.swapped', { a: an || t('toast.act.emptyTile'), b: bn }) : t('toast.act.moved', { a: an || t('toast.act.emptyTile') }));
+  }
+  function tileName(id) { const f = findNode(id); const v = f && f.node.visual; if (!v) return ''; return v.title || (CAT.byId[v.kind] || {}).label || v.kind; }
   function setKind(id, kind) {
     const n = findNode(id).node; const def = CAT.byId[kind]; if (!def) return;
     const old = n.visual || {}; const roles = {};
@@ -855,9 +880,9 @@ window.MK_VERSION = '0.5.5';
     list.push({ table: f.table, name: f.name, kind: f.kind, type: f.type || '', isNew: !!f.isNew });
     if (!v.title && role.key !== 'category' && role.key !== 'field') v.title = f.name;
     if (v.kind === 'slicer' && !v.title) v.title = f.name;
-    sel = id; commit();
+    sel = id; commit(); toastUndo(t('toast.act.assigned', { f: f.name, r: role.label, t: tileName(id) }));
   }
-  function removeField(id, roleKey, idx) { const v = findNode(id).node.visual; if (!v) return; v.roles[roleKey].splice(idx, 1); commit(); }
+  function removeField(id, roleKey, idx) { const v = findNode(id).node.visual; if (!v) return; const f = v.roles[roleKey][idx]; v.roles[roleKey].splice(idx, 1); commit(); if (f) toastUndo(t('toast.act.unassigned', { f: f.name, t: tileName(id) })); }
   // Kleines Rollenmenü: erscheint, wenn mehrere Datenrollen zum Feld passen (ersetzt bei vollen Rollen den ältesten Eintrag)
   let roleMenu = null;
   function showRoleMenu(id, f, roles, v) {
@@ -888,11 +913,11 @@ window.MK_VERSION = '0.5.5';
     if (!f) { insEl.innerHTML = `<p class="hint">${esc(t('hint.pickTile'))}</p><div class="section"><h3>${esc(t('sec.quickstart'))}</h3><ol class="list-dense hint">${[1, 2, 3, 4, 5, 6].map(i => `<li>${esc(t('quickstart.s' + i))}</li>`).join('')}</ol></div>`; return; }
     const n = f.node, v = n.visual; const rect = (lastRects.leaves.find(l => l.node.id === n.id) || {}).rect || { x: 0, y: 0, w: 0, h: 0 };
     const dims = `<div class="kv" style="margin-top:8px"><span class="k">${esc(t('canvas.dims.xy'))}</span><span>${rect.x} · ${rect.y}</span><span class="k">${esc(t('canvas.dims.wh'))}</span><span>${rect.w} × ${rect.h} px</span></div>`;
-    if (!v) { insEl.innerHTML = `<button class="typebtn" id="btnPickType"><div class="pv"></div><div><b>${esc(t('btn.pickType'))}</b><small>${esc(t('hint.pickTypeSub'))}</small></div></button><p class="hint">${esc(t('hint.dragField'))}</p>${dims}<div class="section"><button class="btn sm" data-ins="rm">${esc(t('btn.removeTile'))}</button></div>`; bindInspector(n); return; }
+    if (!v) { insEl.innerHTML = `<button class="typebtn" id="btnPickType" title="${esc(t('tip.pickType'))}"><div class="pv"></div><div><b>${esc(t('btn.pickType'))}</b><small>${esc(t('hint.pickTypeSub'))}</small></div></button><p class="hint">${esc(t('hint.dragField'))}</p>${dims}<div class="section"><button class="btn sm" data-ins="rm" title="${esc(t('tip.removeTile'))}">${esc(t('btn.removeTile'))}</button></div>`; bindInspector(n); return; }
     const def = CAT.byId[v.kind] || { label: v.kind, roles: [], engines: ['native'] };
     const an = analysisOf(v); const a = v.analysis || {};
     const pv = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, 64, 36, { scenario: sketchScenario(v, an), deltaBasis: an.deltaBasis, seed: 3, lang: S.lang }) : '';
-    const engines = def.engines.map(e => `<button data-engine="${e}" class="${v.engine === e ? 'on ' + e : ''}">${CAT.engineLabel[e]}</button>`).join('');
+    const engines = def.engines.map(e => `<button data-engine="${e}" title="${esc(t('tip.engine.' + e))}" class="${v.engine === e ? 'on ' + e : ''}">${CAT.engineLabel[e]}</button>`).join('');
     const rolesDef = CAT.rolesFor(def, v); const hasRef = rolesDef.some(r => r.key === 'ref');
     // Δ-Basis auch bei Typen mit Ziel-Rolle (KPI, Tacho) zeigen: dort folgt das Szenario der gebundenen Referenz (Review B13)
     const hasBasis = hasRef || rolesDef.some(r => r.key === 'goal');
@@ -901,59 +926,59 @@ window.MK_VERSION = '0.5.5';
       const list = v.roles[r.key] || [];
       const chips = list.map((x, i) => { const c = chipState(x, mm && mm.roleKey === r.key && mm.idx === i ? mm : null, v); return `<span class="fchip ${x.kind === 'measure' ? 'm' : 'c'}${c.cls}" draggable="false"${c.tip ? ` title="${esc(c.tip.replace(/^ · /, ''))}"` : ''}><span class="ico">${x.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(x.name)}</span><button class="x" data-rmrole="${r.key}" data-i="${i}" title="${esc(t('tip.remove'))}" aria-label="${esc(t('tip.removeNamed', { name: x.name }))}">×</button></span>`; }).join('');
       const kindLbl = r.kind === 'any' ? t('kind.any') : r.kind === 'measure' ? t('kind.measure') : t('kind.column');
-      return `<div class="role" data-role="${r.key}"><div class="rl">${esc(r.label)}${r.req ? '<span class="req">*</span>' : ''}<span class="k">${esc(kindLbl)} · ${esc(t('canvas.maxN', { n: r.max }))}</span></div>${chips ? `<div class="chips">${chips}</div>` : ''}${list.length < r.max ? `<div class="drop">${esc(t('canvas.dropFieldRole'))} ${esc(t('canvas.orCreate'))} <button type="button" class="lnk" data-newfield="${r.key}" data-newkind="${r.kind}" title="${esc(t('canvas.createHereTip'))}">+ ${esc(t('canvas.createHere'))}</button></div>` : ''}</div>`;
+      return `<div class="role" data-role="${r.key}"><div class="rl" title="${esc(t('tip.role.' + r.labelKey))}">${esc(r.label)}${r.req ? '<span class="req">*</span>' : ''}<span class="k">${esc(kindLbl)} · ${esc(t('canvas.maxN', { n: r.max }))}</span></div>${chips ? `<div class="chips">${chips}</div>` : ''}${list.length < r.max ? `<div class="drop">${esc(t('canvas.dropFieldRole'))} ${esc(t('canvas.orCreate'))} <button type="button" class="lnk" data-newfield="${r.key}" data-newkind="${r.kind}" title="${esc(t('canvas.createHereTip'))}">+ ${esc(t('canvas.createHere'))}</button></div>` : ''}</div>`;
     }).join('');
     const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
     const hasMeasure = rolesDef.some(r => ['ac', 'indicator', 'values', 'y'].includes(r.key));
     const variants = CAT.variantsFor(def) ? grp('variants', t('sec.variants'), `
-      <label class="toggle" style="padding:0 0 6px"><input type="checkbox" data-an="smallMultiples" ${an.smallMultiples ? 'checked' : ''}> ${esc(t('lbl.smallMultiples'))}</label>
+      <label class="toggle" style="padding:0 0 6px" title="${esc(t('tip.an.smallMultiples'))}"><input type="checkbox" data-an="smallMultiples" ${an.smallMultiples ? 'checked' : ''}> ${esc(t('lbl.smallMultiples'))}</label>
       ${an.smallMultiples && !(v.roles.multiples || []).length ? `<p class="hint" style="margin:0 0 8px">${esc(t('lbl.smHint'))}</p>` : ''}
-      <label class="toggle" style="padding:0 0 6px"><input type="checkbox" data-an="fieldParam" ${an.fieldParam ? 'checked' : ''}> ${esc(t('lbl.fieldParam'))}</label>
-      ${an.fieldParam ? `<div class="field"><label>${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-an="fieldParamName" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div><p class="hint" style="margin:0 0 8px">${esc(t('lbl.fieldParamHint'))}</p>` : ''}
+      <label class="toggle" style="padding:0 0 6px" title="${esc(t('tip.an.fieldParam'))}"><input type="checkbox" data-an="fieldParam"${an.fieldParam ? 'checked' : ''}> ${esc(t('lbl.fieldParam'))}</label>
+      ${an.fieldParam ? `<div class="field"><label title="${esc(t('tip.an.fieldParamName'))}">${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-an="fieldParamName" title="${esc(t('tip.an.fieldParamName'))}" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div><p class="hint" style="margin:0 0 8px">${esc(t('lbl.fieldParamHint'))}</p>` : ''}
     `, false, [an.smallMultiples, an.fieldParam].filter(Boolean).length ? t('grp.on', { n: [an.smallMultiples, an.fieldParam].filter(Boolean).length }) : '') : '';
     const opt = (list, cur, labels) => list.map(x => `<option value="${x}" ${String(cur) === String(x) ? 'selected' : ''}>${labels ? labels[x] : x}</option>`).join('');
     const analysis = hasMeasure ? grp('analysis', t('sec.analysis'), `
       <div class="grid2">
-        <div class="field"><label>${esc(t('lbl.polarity'))}</label><select class="ctl" data-an="polarity">${opt(['', 'higher', 'lower'], a.polarity || '', { '': t('opt.polarity.auto', { v: t('opt.polarity.' + an.polarity) }), higher: t('opt.polarity.higher'), lower: t('opt.polarity.lower') })}</select></div>
-        ${hasBasis ? `<div class="field"><label>${esc(t('lbl.deltaBasis'))}</label><select class="ctl" data-an="deltaBasis">${opt(['', 'PL', 'PY', 'BU', 'FC'], a.deltaBasis || '', { '': t('opt.autoBase', { v: an.deltaBasis }), PL: 'PL', PY: 'PY', BU: 'BU', FC: 'FC' })}</select></div>` : '<div></div>'}
-        <div class="field"><label>${esc(t('lbl.unit'))}</label><input class="ctl" data-an="unit" value="${esc(an.unit)}" placeholder="${esc(t('ph.anUnit'))}"></div>
-        <div class="field"><label>${esc(t('lbl.displayUnits'))}</label><select class="ctl" data-an="displayUnits">${opt(['auto', 'none', 'K', 'M'], an.displayUnits, { auto: t('opt.du.auto'), none: t('opt.du.none'), K: t('opt.du.K'), M: t('opt.du.M') })}</select></div>
-        <div class="field"><label>${esc(t('lbl.decimals'))}</label><input class="ctl" type="number" min="0" max="4" data-an="decimals" value="${an.decimals == null ? '' : an.decimals}" placeholder="${esc(t('ph.anDecimals'))}"></div>
-        <div class="field"><label>${esc(t('lbl.deltaKind'))}</label><div class="row"><label class="toggle" style="padding:0"><input type="checkbox" data-ank="abs" ${an.deltaKind.includes('abs') ? 'checked' : ''}> abs</label><label class="toggle" style="padding:0"><input type="checkbox" data-ank="rel" ${an.deltaKind.includes('rel') ? 'checked' : ''}> %</label></div></div>
-        <div class="field"><label>${esc(t('lbl.sort'))}</label><select class="ctl" data-an="sortBy">${opt(['', 'value', 'delta', 'category'], an.sort ? an.sort.by : '', { '': t('opt.sort.none'), value: t('opt.sort.value'), delta: t('opt.sort.delta'), category: t('opt.sort.category') })}</select></div>
-        <div class="field"><label>${esc(t('lbl.sortDir'))}</label><select class="ctl" data-an="sortDir">${opt(['desc', 'asc'], an.sort ? an.sort.dir : 'desc', { desc: t('opt.sort.desc'), asc: t('opt.sort.asc') })}</select></div>
-        <div class="field"><label>${esc(t('lbl.topN'))}</label><input class="ctl" type="number" min="1" max="100" data-an="topN" value="${an.topN || ''}" placeholder="${esc(t('ph.anTopN'))}"></div>
-        <div class="field"><label>${esc(t('lbl.timeGrain'))}</label><select class="ctl" data-an="timeGrain">${opt(['', 'day', 'week', 'month', 'quarter', 'year'], an.timeGrain || '', { '': t('opt.grain.none'), day: t('opt.grain.day'), week: t('opt.grain.week'), month: t('opt.grain.month'), quarter: t('opt.grain.quarter'), year: t('opt.grain.year') })}</select></div>
-        <div class="field"><label>${esc(t('lbl.scaleGroup'))}</label><input class="ctl" data-an="scaleGroup" value="${esc(an.scaleGroup)}" placeholder="${esc(t('ph.anScaleGroup'))}"></div>
-        <div class="field"><label class="toggle" style="text-transform:none;letter-spacing:0"><input type="checkbox" data-an="cumulative" ${an.cumulative ? 'checked' : ''}> ${esc(t('lbl.cumulative'))}</label></div>
+        <div class="field"><label title="${esc(t('tip.an.polarity'))}">${esc(t('lbl.polarity'))}</label><select class="ctl" data-an="polarity" title="${esc(t('tip.an.polarity'))}">${opt(['', 'higher', 'lower'], a.polarity || '', { '': t('opt.polarity.auto', { v: t('opt.polarity.' + an.polarity) }), higher: t('opt.polarity.higher'), lower: t('opt.polarity.lower') })}</select></div>
+        ${hasBasis ? `<div class="field"><label title="${esc(t('tip.an.deltaBasis'))}">${esc(t('lbl.deltaBasis'))}</label><select class="ctl" data-an="deltaBasis" title="${esc(t('tip.an.deltaBasis'))}">${opt(['', 'PL', 'PY', 'BU', 'FC'], a.deltaBasis || '', { '': t('opt.autoBase', { v: an.deltaBasis }), PL: 'PL', PY: 'PY', BU: 'BU', FC: 'FC' })}</select></div>` : '<div></div>'}
+        <div class="field"><label title="${esc(t('tip.an.unit'))}">${esc(t('lbl.unit'))}</label><input class="ctl" data-an="unit" title="${esc(t('tip.an.unit'))}" value="${esc(an.unit)}" placeholder="${esc(t('ph.anUnit'))}"></div>
+        <div class="field"><label title="${esc(t('tip.an.displayUnits'))}">${esc(t('lbl.displayUnits'))}</label><select class="ctl" data-an="displayUnits" title="${esc(t('tip.an.displayUnits'))}">${opt(['auto', 'none', 'K', 'M'], an.displayUnits, { auto: t('opt.du.auto'), none: t('opt.du.none'), K: t('opt.du.K'), M: t('opt.du.M') })}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.decimals'))}">${esc(t('lbl.decimals'))}</label><input class="ctl" type="number" min="0" max="4" data-an="decimals" title="${esc(t('tip.an.decimals'))}" value="${an.decimals == null ? '' : an.decimals}" placeholder="${esc(t('ph.anDecimals'))}"></div>
+        <div class="field"><label title="${esc(t('tip.an.deltaKind'))}">${esc(t('lbl.deltaKind'))}</label><div class="row"><label class="toggle" style="padding:0" title="${esc(t('tip.an.deltaAbs'))}"><input type="checkbox" data-ank="abs" ${an.deltaKind.includes('abs') ? 'checked' : ''}> abs</label><label class="toggle" style="padding:0" title="${esc(t('tip.an.deltaRel'))}"><input type="checkbox" data-ank="rel" ${an.deltaKind.includes('rel') ? 'checked' : ''}> %</label></div></div>
+        <div class="field"><label title="${esc(t('tip.an.sort'))}">${esc(t('lbl.sort'))}</label><select class="ctl" data-an="sortBy" title="${esc(t('tip.an.sort'))}">${opt(['', 'value', 'delta', 'category'], an.sort ? an.sort.by : '', { '': t('opt.sort.none'), value: t('opt.sort.value'), delta: t('opt.sort.delta'), category: t('opt.sort.category') })}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.sortDir'))}">${esc(t('lbl.sortDir'))}</label><select class="ctl" data-an="sortDir" title="${esc(t('tip.an.sortDir'))}">${opt(['desc', 'asc'], an.sort ? an.sort.dir : 'desc', { desc: t('opt.sort.desc'), asc: t('opt.sort.asc') })}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.topN'))}">${esc(t('lbl.topN'))}</label><input class="ctl" type="number" min="1" max="100" data-an="topN" title="${esc(t('tip.an.topN'))}" value="${an.topN || ''}" placeholder="${esc(t('ph.anTopN'))}"></div>
+        <div class="field"><label title="${esc(t('tip.an.timeGrain'))}">${esc(t('lbl.timeGrain'))}</label><select class="ctl" data-an="timeGrain" title="${esc(t('tip.an.timeGrain'))}">${opt(['', 'day', 'week', 'month', 'quarter', 'year'], an.timeGrain || '', { '': t('opt.grain.none'), day: t('opt.grain.day'), week: t('opt.grain.week'), month: t('opt.grain.month'), quarter: t('opt.grain.quarter'), year: t('opt.grain.year') })}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.scaleGroup'))}">${esc(t('lbl.scaleGroup'))}</label><input class="ctl" data-an="scaleGroup" title="${esc(t('tip.an.scaleGroup'))}" value="${esc(an.scaleGroup)}" placeholder="${esc(t('ph.anScaleGroup'))}"></div>
+        <div class="field"><label class="toggle" style="text-transform:none;letter-spacing:0" title="${esc(t('tip.an.cumulative'))}"><input type="checkbox" data-an="cumulative" ${an.cumulative ? 'checked' : ''}> ${esc(t('lbl.cumulative'))}</label></div>
       </div>
-      <div class="field"><label>${esc(t('lbl.message'))}</label><input class="ctl" data-an="message" value="${esc(an.message)}" placeholder="${esc(t('ph.anMessage'))}"></div>
+      <div class="field"><label title="${esc(t('tip.an.message'))}">${esc(t('lbl.message'))}</label><input class="ctl" data-an="message" title="${esc(t('tip.an.message'))}" value="${esc(an.message)}" placeholder="${esc(t('ph.anMessage'))}"></div>
     `, false, Object.keys(a).length ? t('grp.set', { n: Object.keys(a).length }) : '') : '';
     const isText = v.kind === 'text' || v.kind === 'button';
     insEl.innerHTML = `
       <button class="btn tilewin-btn" data-tilewin="1" title="${esc(t('tip.tileWindow'))}">⤢ ${esc(t('lbl.tileWindow'))}</button>
-      <button class="typebtn" id="btnPickType"><div class="pv">${pv}</div><div><b>${esc(def.label)}</b><small>${esc(t('hint.changeType', { group: def.group || '' }))}</small></div></button>
+      <button class="typebtn" id="btnPickType" title="${esc(t('tip.pickType'))}"><div class="pv">${pv}</div><div><b>${esc(def.label)}</b><small>${esc(t('hint.changeType', { group: def.group || '' }))}</small></div></button>
       ${def.note ? `<p class="${def.warnNote ? 'warn' : 'hint'}" style="margin-top:8px">${esc(def.note)}</p>` : ''}
-      <div class="field" style="margin-top:10px"><label>${esc(t('lbl.engine'))}</label><div class="engine">${engines}</div></div>
-      <div class="field"><label>${esc(t('lbl.vizTitle'))}</label><input class="ctl" data-vk="title" value="${esc(v.title)}" placeholder="${esc(def.label)}"></div>
-      <div class="field"><label>${esc(t('lbl.vizSub'))}</label><input class="ctl" data-vk="sub" value="${esc(v.sub)}" placeholder="${esc(t('ph.vizSub'))}"></div>
+      <div class="field" style="margin-top:10px"><label title="${esc(t('tip.engineSec'))}">${esc(t('lbl.engine'))}</label><div class="engine">${engines}</div></div>
+      <div class="field"><label title="${esc(t('tip.an.vizTitle'))}">${esc(t('lbl.vizTitle'))}</label><input class="ctl" data-vk="title" title="${esc(t('tip.an.vizTitle'))}" value="${esc(v.title)}" placeholder="${esc(def.label)}"></div>
+      <div class="field"><label title="${esc(t('tip.an.vizSub'))}">${esc(t('lbl.vizSub'))}</label><input class="ctl" data-vk="sub" title="${esc(t('tip.an.vizSub'))}" value="${esc(v.sub)}" placeholder="${esc(t('ph.vizSub'))}"></div>
       ${isText ? `<div class="field"><label>${esc(v.kind === 'button' ? t('lbl.btnCaption') : t('lbl.tileText'))}</label><textarea class="ctl" data-vk="content" placeholder="${esc(t('ph.tileText'))}">${esc(v.content || '')}</textarea></div>` : ''}
-      ${hasRef ? `<div class="field"><label>${esc(t('lbl.scenario'))}</label><select class="ctl" data-vk="scenario">${SCEN_OPTIONS.map(s => `<option ${v.scenario === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>` : ''}
+      ${hasRef ? `<div class="field"><label title="${esc(t('tip.scenario'))}">${esc(t('lbl.scenario'))}</label><select class="ctl" data-vk="scenario" title="${esc(t('tip.scenario'))}">${SCEN_OPTIONS.map(s => { const tip = t('tip.scenOpt.' + s.toLowerCase().replace(/\W/g, '')); return `<option value="${s}" title="${esc(tip)}" ${v.scenario === s ? 'selected' : ''}>${esc(tip)}</option>`; }).join('')}</select></div>` : ''}
       ${mismatchHtml(v, mm)}
       ${variants}
-      <div class="section"><h3>${esc(t('sec.roles'))} <span class="k" style="font-weight:400;text-transform:none;letter-spacing:0">${esc(t('sec.rolesHint'))}</span></h3>${roles || `<p class="hint">${esc(t('hint.noRoles'))}</p>`}</div>
+      <div class="section"><h3 title="${esc(t('tip.rolesSec'))}">${esc(t('sec.roles'))} <span class="k" style="font-weight:400;text-transform:none;letter-spacing:0">${esc(t('sec.rolesHint'))}</span></h3>${roles || `<p class="hint">${esc(t('hint.noRoles'))}</p>`}</div>
       ${analysis}
       ${grp('workshop', t('sec.workshop'), `
         <div class="grid2">
-          <div class="field"><label>${esc(t('lbl.priority'))}</label><select class="ctl" data-vk="priority">${opt(['', 'must', 'should', 'could'], v.priority || '', { '': t('opt.pri.none'), must: t('opt.pri.must'), should: t('opt.pri.should'), could: t('opt.pri.could') })}</select></div>
-          <div class="field"><label>${esc(t('lbl.status'))}</label><select class="ctl" data-vk="status">${opt(['open', 'agreed', 'approved'], v.status || 'open', { open: t('opt.status.open'), agreed: t('opt.status.agreed'), approved: t('opt.status.approved') })}</select></div>
+          <div class="field"><label title="${esc(t('tip.an.priority'))}">${esc(t('lbl.priority'))}</label><select class="ctl" data-vk="priority" title="${esc(t('tip.an.priority'))}">${opt(['', 'must', 'should', 'could'], v.priority || '', { '': t('opt.pri.none'), must: t('opt.pri.must'), should: t('opt.pri.should'), could: t('opt.pri.could') })}</select></div>
+          <div class="field"><label title="${esc(t('tip.an.status'))}">${esc(t('lbl.status'))}</label><select class="ctl" data-vk="status" title="${esc(t('tip.an.status'))}">${opt(['open', 'agreed', 'approved'], v.status || 'open', { open: t('opt.status.open'), agreed: t('opt.status.agreed'), approved: t('opt.status.approved') })}</select></div>
         </div>
-        <div class="field"><label>${esc(t('lbl.notes'))}</label><textarea class="ctl" data-vk="notes" placeholder="${esc(t('ph.notes'))}">${esc(v.notes)}</textarea></div>
-        <label class="toggle"><input type="checkbox" data-vkb="openQuestion" ${v.openQuestion ? 'checked' : ''}> ${esc(t('lbl.openQuestion'))}</label>
-        <div class="field"><label>${esc(t('lbl.link'))}</label><select class="ctl" data-vk="link">${links}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.notes'))}">${esc(t('lbl.notes'))}</label><textarea class="ctl" data-vk="notes" title="${esc(t('tip.an.notes'))}" placeholder="${esc(t('ph.notes'))}">${esc(v.notes)}</textarea></div>
+        <label class="toggle" title="${esc(t('tip.an.openQuestion'))}"><input type="checkbox" data-vkb="openQuestion" ${v.openQuestion ? 'checked' : ''}> ${esc(t('lbl.openQuestion'))}</label>
+        <div class="field"><label title="${esc(t('tip.an.link'))}">${esc(t('lbl.link'))}</label><select class="ctl" data-vk="link" title="${esc(t('tip.an.link'))}">${links}</select></div>
       `, true, v.priority ? t('opt.pri.' + v.priority) : (v.openQuestion ? '?' : ''))}
       ${dims}
-      <div class="section row wrap"><button class="btn sm" data-ins="clear">${esc(t('btn.clearTile'))}</button><button class="btn sm" data-ins="rm">${esc(t('btn.removeTile'))}</button></div>`;
+      <div class="section row wrap"><button class="btn sm" data-ins="clear" title="${esc(t('tip.clearTile'))}">${esc(t('btn.clearTile'))}</button><button class="btn sm" data-ins="rm" title="${esc(t('tip.removeTile'))}">${esc(t('btn.removeTile'))}</button></div>`;
     bindInspector(n);
     const wb = $('[data-tilewin]', insEl); if (wb) wb.onclick = () => openTileDialog(n.id);
   }
@@ -1005,7 +1030,7 @@ window.MK_VERSION = '0.5.5';
   function bindInspector(n) {
     const b = $('#btnPickType'); if (b) b.onclick = openCatalog;
     $$('[data-ins]', insEl).forEach(x => x.onclick = () => { if (x.dataset.ins === 'rm') removeLeaf(n.id); else { n.visual = null; commit(); } });
-    $$('[data-engine]', insEl).forEach(x => x.onclick = () => { n.visual.engine = x.dataset.engine; commit({ keep: true }); });
+    $$('[data-engine]', insEl).forEach(x => x.onclick = () => { if (n.visual.engine === x.dataset.engine) return; n.visual.engine = x.dataset.engine; commit({ keep: true }); toastUndo(t('toast.act.engine', { t: tileName(n.id), e: CAT.engineLabel[x.dataset.engine] })); });
     $$('[data-vk]', insEl).forEach(x => {
       const isSel = x.tagName === 'SELECT';
       // Text: beim Tippen nur die Seite neu zeichnen, das Feld selbst bleibt stehen. Sonst ersetzte jeder Anschlag das Feld,
@@ -1280,14 +1305,41 @@ window.MK_VERSION = '0.5.5';
     endExpr();
     return out;
   }
+  // Modellname (R20), in dieser Reihenfolge: (a) database.tmdl / model.tmdl, (b) Ordner „*.SemanticModel" im Pfad, (c) nachfragen
+  const relPath = f => f.webkitRelativePath || f.__mkPath || '';          // __mkPath: beim Ziehen gesetzt (entry.fullPath)
+  const GENERIC_MODEL = /^(tables|definition|model|database|cultures|expressions)$/i;
+  const stripSm = n => String(n || '').trim().replace(/\.SemanticModel$/i, '');
+  function modelNameFromTmdl(text, kind) {   // „database 'Mein Modell'" bzw. „model Name"; PBIP schreibt oft nur „database" oder „model Model"
+    const m = text.replace(/^﻿/, '').match(new RegExp('^' + kind + "[ \\t]+('(?:[^']|'')+'|\\S+)", 'm'));
+    if (!m) return '';
+    const v = m[1], name = (v.startsWith("'") && v.endsWith("'")) ? v.slice(1, -1).replace(/''/g, "'") : v;
+    return GENERIC_MODEL.test(name) ? '' : stripSm(name);
+  }
+  function modelNameFromPath(files) {
+    for (const f of files) { const hit = relPath(f).split('/').filter(Boolean).slice(0, -1).find(p => /\.SemanticModel$/i.test(p)); if (hit) return stripSm(hit); }
+    return '';
+  }
+  function modelFolderGuess(files) {          // erster Ordnername über der Datei, der nicht „tables" o. Ä. heißt
+    for (const f of files) { const ps = relPath(f).split('/').filter(Boolean); if (ps.length > 1 && !GENERIC_MODEL.test(ps[0])) return ps[0]; }
+    return '';
+  }
+  function renameModel() {
+    if (!S.model.tables.length) return;
+    const ans = prompt(t('ask.modelName'), S.model.source || '');
+    if (ans == null || !stripSm(ans)) return;
+    S.model.source = stripSm(ans); commit();
+  }
   function ingestTmdlFiles(files) {
     const tmdl = files.filter(f => /\.tmdl$/i.test(f.name) && !/^(model|database|relationships|expressions|cultures)\.tmdl$/i.test(f.name));
     if (!tmdl.length) return toast(t('toast.noTmdl', { n: files.length }));
-    Promise.all(tmdl.map(f => f.text())).then(texts => {
+    const metaFiles = ['database', 'model'].map(k => files.find(f => f.name.toLowerCase() === k + '.tmdl')).filter(Boolean);
+    Promise.all([Promise.all(tmdl.map(f => f.text())), Promise.all(metaFiles.map(f => f.text().then(tx => modelNameFromTmdl(tx, f.name.toLowerCase().replace('.tmdl', '')))))]).then(([texts, metaNames]) => {
       const tables = []; texts.forEach(txt => parseTmdl(txt).forEach(tb => tables.push(tb)));
-      const rel = tmdl[0].webkitRelativePath || ''; const src = rel.includes('/') ? rel.split('/')[0] : t('model.tmdlSrc', { n: tmdl.length });
       const good = tables.filter(tb => tb.columns.length || tb.measures.length);
       if (!good.length) return toast(t('toast.tmdlEmpty'));
+      let name = metaNames.find(Boolean) || modelNameFromPath(files);
+      if (!name) { const ans = prompt(t('ask.modelName'), modelFolderGuess(tmdl)); if (ans && stripSm(ans)) name = stripSm(ans); }   // Abbrechen: bisheriges Label
+      const rel = relPath(tmdl[0]); const src = name || (rel.includes('/') ? rel.split('/')[0] : t('model.tmdlSrc', { n: tmdl.length }));
       S.model = { tables: good, source: src, loadedAt: new Date().toISOString(), parser: 2 };   // parser 2 = mit DAX-Formeln (v0.5.3)
       const miss = syncFieldFlags(); openMeasureTable(); commit();
       toast(t('toast.tmdlOk', { tables: good.length, measures: good.reduce((a, tb) => a + tb.measures.length, 0), columns: good.reduce((a, tb) => a + tb.columns.length, 0) }) + (miss ? ' · ' + t('toast.fieldsMissing', { n: miss }) : ''));
@@ -1296,6 +1348,8 @@ window.MK_VERSION = '0.5.5';
   $('#btnImportTmdl').onclick = () => $('#fileTmdl').click();
   $('#fileTmdl').addEventListener('change', e => { ingestTmdlFiles(Array.from(e.target.files)); e.target.value = ''; });
   $('#fileTmdlSingle').addEventListener('change', e => { ingestTmdlFiles(Array.from(e.target.files)); e.target.value = ''; });
+  $('#modelMeta').addEventListener('click', renameModel);
+  $('#modelMeta').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); renameModel(); } });
   $('#btnDemoModel').onclick = () => { const id = $('#demoModelSel').value || 'controlling'; const m = CAT.demoModels.find(x => x.id === id); S.demoId = id; S.model = m ? m.build() : CAT.demoModel; const miss = syncFieldFlags(); openMeasureTable(); commit(); toast(t('toast.demoLoaded') + (miss ? ' · ' + t('toast.fieldsMissing', { n: miss }) : '')); };
   function openMeasureTable() { const tb = S.model.tables.find(x => x.measures.length); if (tb) openTables.add(tb.name); }
   const mdrop = $('#modelDrop');
@@ -1310,7 +1364,7 @@ window.MK_VERSION = '0.5.5';
     const flat = Array.from(e.dataTransfer.files || []);
     const files = [];
     const walk = entry => new Promise(res => {
-      if (entry.isFile) entry.file(f => { files.push(f); res(); }, () => res());
+      if (entry.isFile) entry.file(f => { try { f.__mkPath = String(entry.fullPath || '').replace(/^\//, ''); } catch (e) { /* Pfad nur Zusatz */ } files.push(f); res(); }, () => res());
       else if (entry.isDirectory) { const rd = entry.createReader(); const all = []; const next = () => rd.readEntries(async ents => { if (!ents.length) { for (const en of all) await walk(en); res(); } else { all.push(...ents); next(); } }, () => res()); next(); }
       else res();
     });
@@ -1327,7 +1381,8 @@ window.MK_VERSION = '0.5.5';
   const openTables = new Set();
   function renderModel() {
     const list = $('#modelList'); const q = ($('#modelSearch').value || '').toLowerCase(); const onlyUsed = $('#onlyUsed').checked; const used = usedFieldKeys(); const m = S.model;
-    $('#modelMeta').textContent = m.tables.length ? t('model.meta', { src: m.source || t('model.fallbackSrc'), tables: m.tables.length, measures: m.tables.reduce((a, tb) => a + tb.measures.length, 0) }) : t('model.none');
+    const mm = $('#modelMeta'); mm.textContent = m.tables.length ? t('model.meta', { src: m.source || t('model.fallbackSrc'), tables: m.tables.length, measures: m.tables.reduce((a, tb) => a + tb.measures.length, 0) }) : t('model.none');
+    if (m.tables.length) { mm.setAttribute('role', 'button'); mm.tabIndex = 0; mm.title = t('tip.modelName'); } else { mm.removeAttribute('role'); mm.removeAttribute('tabindex'); mm.removeAttribute('title'); }
     $('#nmTables').innerHTML = Array.from(new Set(m.tables.map(tb => tb.name).concat(S.newFields.map(f => f.table)))).map(n => `<option value="${esc(n)}">`).join('');
     const chip = (f, table, extra) => {
       const key = table + '|' + f.name; if (onlyUsed && !used.has(key)) return ''; if (q && !(f.name + ' ' + table).toLowerCase().includes(q)) return '';
@@ -1551,10 +1606,13 @@ window.MK_VERSION = '0.5.5';
       else if (e.key === 'Tab') { e.preventDefault(); const bs = $$('button', roleMenu); const i = bs.indexOf(document.activeElement); if (bs.length) bs[i < 0 ? (e.shiftKey ? bs.length - 1 : 0) : (i + (e.shiftKey ? -1 : 1) + bs.length) % bs.length].focus(); }
       return;
     }
+    // F1 öffnet die Hilfe (und unterdrückt die Browser-Hilfe); bei offenem Dialog bleibt es still
+    if (e.key === 'F1' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) { e.preventDefault(); if (!openDialog()) $('#btnHelp').click(); return; }
     const dlgOpen = openDialog(); if (dlgOpen) { if (e.key === 'Tab' && !e.altKey && !e.ctrlKey && !e.metaKey) trapTab(e, dlgOpen); return; }   // Esc schließt nativ
     // Esc in einem Feld: Feld verlassen, Fokus auf die gewählte Kachel (sonst stünde er auf <body>, ohne sichtbaren Ring)
     if (tgt && tgt.matches && tgt.matches('input,textarea,select')) { if (e.key === 'Escape' && tgt.blur) { tgt.blur(); focusCanvas(sel); } return; }
     if (e.key === 'Escape') { const pinned = $$('.note-pop.pinned', pageEl); if (pinned.length) { pinned.forEach(p => p.classList.remove('pinned')); return; } if (document.body.classList.contains('present')) togglePresent(false); else { const was = sel; sel = null; render(); const a = document.activeElement; if (!a || a === document.body) focusCanvas(was); } }
+    else if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); $('#btnHelp').click(); }
     else if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey && !e.altKey) togglePresent();
     else if (e.key.toLowerCase() === 'n' && sel && !e.ctrlKey && !e.metaKey && !e.altKey) { const hit = findNode(sel); if (hit && hit.node.visual) openTileDialog(sel); }
     else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) { e.preventDefault(); redo(); }
@@ -1571,7 +1629,14 @@ window.MK_VERSION = '0.5.5';
   $('#mobileGo').onclick = () => { document.body.classList.add('mobile-ok'); try { sessionStorage.setItem(MOBILE_OK, '1'); } catch (e) { /* blockiert */ } fitZoom(); render(); };
   $('#mobileLang').onclick = () => setLang(I18N.lang === 'de' ? 'en' : 'de');
   let toastT = null;
-  function toast(msg) { const el = $('#toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 3200); }
+  function toast(msg) { const el = $('#toast'); el.textContent = msg; el.classList.remove('act'); el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 3200); }
+  // Benannte Aktion nach commit(): Toast mit „Rückgängig" und Name im Verlauf (Review 09.10.: Teilen, Entfernen, Tauschen, Rollen, Umsetzung waren stumm)
+  function toastUndo(msg) {
+    if (undoStack.length) undoLabels[undoLabels.length - 1] = msg;
+    const el = $('#toast'); el.textContent = msg + ' ';
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = t('toast.undoBtn'); b.onclick = () => { el.classList.remove('show'); undo(); };
+    el.appendChild(b); el.classList.add('show', 'act'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 5000);
+  }
 
   // Öffnen fragt nur, wenn etwas verloren ginge (B8): nicht bei einem frischen Projekt und nicht, wenn der Stand dem zuletzt
   // gespeicherten oder geöffneten entspricht. Verglichen wird ohne IDs (die sind je Anlage zufällig).
@@ -1589,9 +1654,9 @@ window.MK_VERSION = '0.5.5';
     // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
     // Der Verlauf beginnt neu; commit() legt danach den Stand vor „Neu" als einen Schritt ab, Strg+Z holt ihn also zurück.
     // Das geladene Modell gehört zum Arbeitsplatz, nicht zum Bericht: „Neu" behält es (Review 09.10., R5: TMDL-Import war sonst still weg)
-    reset() { const keep = S ? { model: S.model, demoId: S.demoId } : null; S = defaultState(); if (keep && keep.model) { S.model = keep.model; if (keep.demoId) S.demoId = keep.demoId; } S.pages.forEach(p => markTemplate(ensureIds(p.layout))); syncFieldFlags(); sel = null; undoDropped = undoStack.length ? 'new' : undoDropped; undoStack = []; commit(); },
+    reset() { const keep = S ? { model: S.model, demoId: S.demoId } : null; S = defaultState(); if (keep && keep.model) { S.model = keep.model; if (keep.demoId) S.demoId = keep.demoId; } S.pages.forEach(p => markTemplate(ensureIds(p.layout))); syncFieldFlags(); sel = null; undoDropped = undoStack.length ? 'new' : undoDropped; undoStack = []; undoLabels = []; redoStack = []; redoLabels = []; commit(); syncUndoButtons(); },
   };
 
   { const vEl = $('#mkVersion'); if (vEl) vEl.textContent = window.MK_VERSION; }
-  load(); I18N.apply(document); snap = JSON.stringify(S); fitZoom(); render();
+  load(); I18N.apply(document); snap = JSON.stringify(S); fitZoom(); render(); syncUndoButtons();
 })();

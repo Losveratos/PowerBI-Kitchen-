@@ -20,6 +20,12 @@
          variance:{abs:Boolean, rel:Boolean},
          seed:Number, dense:Boolean, scale:Number,
          label:String (nur kpi/card: '' = keine Beschriftung),
+         noMeasure:Boolean,                         // nur kpi/card/gauge: Kennzahl nicht gebunden
+                                                    // → „?" und „Kennzahl fehlt" statt Zahl, kein Δ
+         // nur Kategorie-Typen (bars, barskombi, bullet, dotplot, table, absvar,
+         // relvar, nbar, ncolumn; pareto nur topN): siehe arrange()
+         sort:{ by:'value'|'delta'|'category', dir:'asc'|'desc' },
+         topN:Number,
          content:String (nur text: Text der Kachel, umbrochen; nur button:
                          Beschriftung; leer = Platzhalter wie bisher),
          // Typografie
@@ -217,7 +223,8 @@
       vs: 'vs', total: 'gesamt', sum: 'Summe', target: 'Ziel', trend: 'Verlauf',
       cumul: 'kumuliert', margin: 'Marge %', revenue: 'Umsatz', apply: 'Anwenden',
       spec: 'Vega-Spec', prior: 'Vorjahr', region: 'Region', all: 'Alle', grand: 'Gesamt',
-      ytd: 'YTD Jan–Jun', mat: 'MAT', month: 'Monat', product: 'Produkt'
+      ytd: 'YTD Jan–Jun', mat: 'MAT', month: 'Monat', product: 'Produkt',
+      nomeas: 'Kennzahl fehlt'
     },
     en: {
       mon: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -230,7 +237,8 @@
       vs: 'vs', total: 'total', sum: 'Total', target: 'Target', trend: 'Trend',
       cumul: 'cumulative', margin: 'Margin %', revenue: 'Revenue', apply: 'Apply',
       spec: 'Vega spec', prior: 'Prior year', region: 'Region', all: 'All', grand: 'Total',
-      ytd: 'YTD Jan–Jun', mat: 'MAT', month: 'Month', product: 'Product'
+      ytd: 'YTD Jan–Jun', mat: 'MAT', month: 'Month', product: 'Product',
+      nomeas: 'Measure missing'
     }
   };
 
@@ -755,6 +763,86 @@
     for (i = 0; i < syn.length; i++) out.push(i < c.ur.length && c.ur[i] != null ? c.ur[i] : syn[i]);
     return out;
   }
+  /* Sortierung und Top-N (o.sort, o.topN; Vertrag analysis.sort/topN).
+     Top-N wählt wie der Konverter (TopN-Filter auf die führende Kennzahl)
+     die N größten Werte, bei dir 'asc' die N kleinsten (Bottom); danach
+     ordnet sort: value = Wert, delta = Wert minus Referenz der Skizze (mit
+     Vorzeichen, ohne Polarität), category = Name. Gleichstand bleibt in
+     der Ausgangsfolge. Ohne beides gibt arrange() null zurück und die
+     Skizze bleibt byte-identisch. Eine Zeile „Sonstige" gibt es nicht. */
+  var SORT_BY = { value: 1, delta: 1, category: 1 };
+  function sortSpec(o) {
+    var s = (o && o.sort && typeof o.sort === 'object') ? o.sort : null;
+    var top = Math.floor(+(o && o.topN));
+    return { by: s && SORT_BY[s.by] ? s.by : null, asc: !!(s && s.dir === 'asc'), top: top >= 1 && isFinite(top) ? top : 0 };
+  }
+  function sortIdx(sp, ac, rf, names, lang) {
+    var cnt = ac.length, idx = [], i, sel;
+    for (i = 0; i < cnt; i++) idx.push(i);
+    if (sp.top && sp.top < cnt) {
+      sel = idx.slice().sort(function (p, q) { return (sp.asc ? n(ac[p]) - n(ac[q]) : n(ac[q]) - n(ac[p])) || p - q; }).slice(0, sp.top);
+      idx = idx.filter(function (p) { return sel.indexOf(p) >= 0; });
+    }
+    if (sp.by) {
+      idx.sort(function (p, q) {
+        var r = sp.by === 'category' ? String(names[p]).localeCompare(String(names[q]), lang, { numeric: true })
+              : (sp.by === 'delta' && rf ? n(ac[p] - rf[p]) - n(ac[q] - rf[q]) : n(ac[p]) - n(ac[q]));
+        return (sp.asc ? r : -r) || p - q;
+      });
+    }
+    return idx;
+  }
+  /* In der Skizze: ac/rf (rf darf null sein) und weitere Reihen gleicher
+     Länge in more umordnen und kürzen. Die Namen kommen aus base (Default
+     c.cat) und werden zu c.cat und c.uc: eine sortierte Achse ist eine
+     Kategorieachse, auch wenn die Skizze sonst Monate zeigt.
+     opt.noSort: nur Top-N (Pareto sortiert selbst).                      */
+  function arrange(c, ac, rf, more, base, opt) {
+    var sp = sortSpec(c.o), i, j;
+    if (opt && opt.noSort) sp.by = null;
+    if (!sp.by && !(sp.top && sp.top < ac.length)) return null;
+    base = base || c.cat;
+    var names = [];
+    for (i = 0; i < ac.length; i++) names.push(base[i % base.length]);
+    var idx = sortIdx(sp, ac, rf, names, c.lang);
+    function pick(a) { if (!a) return a; var r = []; for (j = 0; j < idx.length; j++) r.push(a[idx[j]]); return r; }
+    c.cat = c.uc = pick(names);
+    var m = [];
+    for (i = 0; more && i < more.length; i++) m.push(pick(more[i]));
+    return { ac: pick(ac), rf: pick(rf), more: m, n: idx.length };
+  }
+  /* Vor der Skizze (Dispatcher): eigene Daten vollständig umordnen und auf
+     Top-N kürzen, damit die Kappung auf das, was die Skizze fasst, die
+     richtigen Kategorien behält. Nur wenn jede Kategorie einen Wert (und
+     für delta einen Bezug) hat; sonst entscheidet arrange() in der Skizze. */
+  var SORTABLE = { bars: 1, barskombi: 1, bullet: 1, dotplot: 1, pareto: 1, table: 1, absvar: 1, relvar: 1, nbar: 1, ncolumn: 1 };
+  function prearrange(kind, o) {
+    if (!o || !SORTABLE[kind]) return o;
+    var sp = sortSpec(o), uv = numList(o.values), ur = uv ? numList(o.refValues) : null, uc = strList(o.cats);
+    if (kind === 'pareto') sp.by = null;
+    if (!uv || (!sp.by && !sp.top)) return o;
+    var cnt = uc ? uc.length : uv.length, i;
+    if (uv.length < cnt || (sp.by === 'delta' && (!ur || ur.length < cnt))) return o;
+    for (i = 0; i < cnt; i++) if (uv[i] == null || (sp.by === 'delta' && ur[i] == null)) return o;
+    var ac = uv.slice(0, cnt), rf = ur ? ur.slice(0, cnt) : null;
+    var idx = sortIdx(sp, ac, rf, uc || ac, o.lang === 'en' ? 'en' : 'de');
+    function pick(a) { var r = [], j; for (j = 0; j < idx.length; j++) r.push(a[idx[j]]); return r; }
+    var out = {}, k;
+    for (k in o) if (Object.prototype.hasOwnProperty.call(o, k)) out[k] = o[k];
+    out.values = pick(ac);
+    if (uc) out.cats = pick(uc);
+    if (rf) out.refValues = pick(rf);     // Lücken bleiben Lücken (useRef ergänzt synthetisch)
+    delete out.topN;            // schon gekürzt; die Sortierung wiederholt arrange() stabil
+    return out;
+  }
+  // Zeitachse: Sortierung und Top-N fallen weg (columns nativ → ncolumn)
+  function timeAxis(o) {
+    if (!o || (o.sort == null && o.topN == null)) return o;
+    var out = {}, k;
+    for (k in o) if (Object.prototype.hasOwnProperty.call(o, k) && k !== 'sort' && k !== 'topN') out[k] = o[k];
+    return out;
+  }
+
   // Wertebereich inkl. 0 über mehrere Reihen (null-Reihen werden übersprungen)
   function span() {
     var lo = 0, hi = 0, i, j, a;
@@ -795,6 +883,15 @@
     var a = [c.main], i;
     if (kind && a.indexOf(kind) < 0) a.push(kind);
     for (i = 0; i < c.scens.length; i++) if (a.indexOf(c.scens[i]) < 0) a.push(c.scens[i]);
+    return a.join(' · ');
+  }
+  /* Balken (bars, barskombi): nur, was die Skizze zeichnet. Hauptreihe,
+     Bezug und die Dreieck-Marke; FC als Nebenszenario kennt der Balken
+     nicht (keine Zeitachse), also auch nicht die Legende (Review R23).     */
+  function barsCap(c, kind, sec) {
+    var a = [c.main];
+    if (kind && a.indexOf(kind) < 0) a.push(kind);
+    if (sec && c.sec && a.indexOf(c.sec) < 0) a.push(c.sec);
     return a.join(' · ');
   }
 
@@ -1088,7 +1185,7 @@
 
   /* ---- 1 · Säulen: AC gegen Referenz, eine Δ-Ebene darüber -------------- */
   S.columns = function (w, h, o) {
-    if (o && o.look === 'native') return S.ncolumn(w, h, o);
+    if (o && o.look === 'native') return S.ncolumn(w, h, timeAxis(o));
     var c = ctx(w, h, o), hh = hatch(c), b = hh.defs;
     var cnt = kcnt(c, c.small ? 4 : (c.dense ? 12 : 6), capN(c, 4, 16));
     var kind = refKind(c);
@@ -1207,11 +1304,14 @@
     var c = ctx(w, h, o), hh = hatch(c), b = hh.defs;
     var cnt = kcnt(c, c.small ? 4 : (c.dense ? 12 : 7), capN(c, 4, 16));
     var kind = refKind(c) || 'PL';
-    var d = [], i;
+    var d = [], i, ac = null, rf = null;
     if (c.uv) {
-      var ac = useVals(c, series(c, cnt, 70, 26));
-      d = diffs(ac, useRef(c, derive(c, ac, 0.86, 1.14)));
+      ac = useVals(c, series(c, cnt, 70, 26)); rf = useRef(c, derive(c, ac, 0.86, 1.14));
+      d = diffs(ac, rf);
     } else for (i = 0; i < cnt; i++) d.push(n((c.rnd() - 0.45) * 30 + Math.sin(i) * 8));
+    // Sortierung: ohne eigene Werte trägt Δ auch den Wert; sortiert sind es Kategorien statt Monate
+    var A = arrange(c, ac || d, rf, [d], c.uc ? c.cat : c.t.cat);
+    if (A) { d = A.more[0]; cnt = A.n; }
     var capH = c.lab ? c.fsT + 4 : 0;
     var P = area(c, { bottom: c.lab ? c.fsA + 5 : 0, top: capH });
     var sl = slots(P.x, P.w, cnt, 0.3);
@@ -1228,11 +1328,13 @@
     var c = ctx(w, h, o), hh = hatch(c), b = hh.defs;
     var cnt = kcnt(c, c.small ? 4 : (c.dense ? 12 : 7), capN(c, 4, 16));
     var kind = refKind(c) || 'PL';
-    var d = [], i;
+    var d = [], i, ac = null, rf = null;
     if (c.uv) {
-      var ac = useVals(c, series(c, cnt, 70, 26));
-      d = rels(ac, useRef(c, derive(c, ac, 0.86, 1.14)));
+      ac = useVals(c, series(c, cnt, 70, 26)); rf = useRef(c, derive(c, ac, 0.86, 1.14));
+      d = rels(ac, rf);
     } else for (i = 0; i < cnt; i++) d.push(n((c.rnd() - 0.45) * 18 + Math.sin(i * 1.3) * 5));
+    var A = arrange(c, ac || d, rf, [d], c.uc ? c.cat : c.t.cat);
+    if (A) { d = A.more[0]; cnt = A.n; }
     var capH = c.lab ? c.fsT + 4 : 0;
     var P = area(c, { bottom: c.lab ? c.fsA + 5 : 0, top: capH });
     var sl = slots(P.x, P.w, cnt, 0.3);
@@ -1872,6 +1974,8 @@
     var kind = refKind(c);
     var ac = useVals(c, sortDesc(vals(c, cnt, 64, 60))), rf = kind ? useRef(c, derive(c, ac, 0.84, 1.16)) : null;
     var sec = (kind && c.sec) ? derive(c, ac, 0.86, 1.12) : null;
+    var A = arrange(c, ac, rf, [sec]);
+    if (A) { ac = A.ac; rf = A.rf; sec = A.more[0]; cnt = A.n; }
     var dOn = !!rf && c.lab && (c.vAbs || c.vRel), dRel = dOn && c.vRel, i;
     var dv = [];
     for (i = 0; i < cnt && rf; i++) dv.push(dRel ? n(rf[i] ? (ac[i] - rf[i]) / Math.abs(rf[i]) * 100 : 0) : n(ac[i] - rf[i]));
@@ -1882,7 +1986,7 @@
     var headH = c.lab ? c.fsT + 5 : 0;
     var P = area(c, { left: labW, right: dW, top: headH });
     var rw = rowsOf(P.y, P.h, cnt, 0.3);
-    if (c.lab) b += txt(P.x, c.y0 + c.fsT * 0.85, scenCap(c, kind), c.fsT, c.C.sub, 'start');
+    if (c.lab) b += txt(P.x, c.y0 + c.fsT * 0.85, barsCap(c, rf && kind, sec), c.fsT, c.C.sub, 'start');
     b += barsBlock(c, P, ac, rf, sec, kind, hh, rw);
     for (i = 0; i < cnt; i++) {
       if (c.lab) b += rowLabel(c, P.x - 4, rw[i].cy, c.cat[i % c.cat.length], labW - 4);
@@ -1896,13 +2000,18 @@
   S.bullet = function (w, h, o) {
     var c = ctx(w, h, o), b = '';
     var cnt = kcnt(c, c.small ? 2 : (c.dense ? 7 : 4), capR(c, 2, 13, 2, 14));
-    var labW = c.lab ? labWid(c, cnt, Math.min(c.iw * 0.24, tw('Service', c.fsA) + 5)) : 0;
-    var valW = c.lab ? tw('+00%', c.fs) + 6 : 0;
     /* Eigene Daten: o.values = AC, o.refValues = Ziel je Zeile; Balken ab 0
        (negative Werte als leerer Balken, Beschriftung mit Vorzeichen).     */
     var bv = null, bt = null, bmx = 1, i;
-    if (c.uv) {
-      bv = useVals(c, vals(c, cnt, 60, 40)); bt = useRef(c, derive(c, bv, 0.9, 1.25));
+    if (c.uv) { bv = useVals(c, vals(c, cnt, 60, 40)); bt = useRef(c, derive(c, bv, 0.9, 1.25)); }
+    // Dummy-Anteile je Zeile (Wert, Ziel) vorab, damit die Sortierung sie umordnen kann
+    var sv = [], st = [];
+    for (i = 0; i < cnt; i++) { sv.push(0.45 + c.rnd() * 0.5); st.push(0.55 + c.rnd() * 0.35); }
+    var A = arrange(c, bv || sv, bv ? bt : st, [sv, st]);
+    if (A) { if (bv) { bv = A.ac; bt = A.rf; } sv = A.more[0]; st = A.more[1]; cnt = A.n; }
+    var labW = c.lab ? labWid(c, cnt, Math.min(c.iw * 0.24, tw('Service', c.fsA) + 5)) : 0;
+    var valW = c.lab ? tw('+00%', c.fs) + 6 : 0;
+    if (bv) {
       bmx = Math.max(maxOf(bv), maxOf(bt)) * 1.15;
       if (c.lab && !c.vRel) {
         valW = 0;
@@ -1914,7 +2023,7 @@
     var P = area(c, { left: labW, right: valW, top: headH });
     var rw = rowsOf(P.y, P.h, cnt, 0.3);
     for (i = 0; i < cnt; i++) {
-      var v = 0.45 + c.rnd() * 0.5, t = 0.55 + c.rnd() * 0.35;
+      var v = sv[i], t = st[i];
       if (bv) { v = Math.max(0, bv[i] / bmx); t = Math.max(0, bt[i] / bmx); }
       var bh = rw[i].h * 0.42;
       b += rect(P.x, rw[i].y, P.w, rw[i].h, c.C.wash);
@@ -1949,6 +2058,9 @@
       v = []; names = [];
       for (i = 0; i < cnt; i++) { v.push(Math.max(0, pv[ix[i]])); names.push(c.cat[ix[i] % c.cat.length]); }
     }
+    // Top-N kürzt (Summenlinie über die gezeigten); die Reihenfolge bleibt absteigend
+    var A = arrange(c, v, null, null, names, { noSort: true });
+    if (A) { v = A.ac; names = c.cat; cnt = A.n; }
     for (i = 0; i < cnt; i++) tot += v[i];
     var capH = c.lab ? c.fsT + 4 : 0;
     var rW = c.lab ? tw('100%', c.fs) + 4 : 0;
@@ -1979,12 +2091,14 @@
     var c = ctx(w, h, o), b = '';
     var cnt = kcnt(c, c.small ? 3 : (c.dense ? 8 : 5), capR(c, 3, 11, 3, 20));
     var kind = refKind(c);
+    var ac = useVals(c, sortDesc(vals(c, cnt, 60, 60))), rf = kind ? useRef(c, derive(c, ac, 0.85, 1.15)) : null;
+    var A = arrange(c, ac, rf);
+    if (A) { ac = A.ac; rf = A.rf; cnt = A.n; }
     var labW = c.lab ? labWid(c, cnt, Math.min(c.iw * 0.26, tw('Service', c.fsA) + 5)) : 0;
     var headH = c.lab ? c.fsT + 5 : 0;
     var P = area(c, { left: labW, right: 4, top: headH });
     var rw = rowsOf(P.y, P.h, cnt, 0.2), i;
     var r = c.small ? 1.8 : clamp(rw[0].step * 0.16, 2, 3.6);
-    var ac = useVals(c, sortDesc(vals(c, cnt, 60, 60))), rf = kind ? useRef(c, derive(c, ac, 0.85, 1.15)) : null;
     var mx = Math.max(maxOf(ac), rf ? maxOf(rf) : 0) * 1.05;
     var s = sc(0, mx, P.x + r + 1, P.x + P.w - r - 1 - (c.lab ? tw('000', c.fs) + 3 : 0)), xZ = P.x;
     if (c.real) {
@@ -2055,6 +2169,8 @@
     var kind = refKind(c) || 'PL';
     var ac = useVals(c, sortDesc(vals(c, cnt, 64, 60))), pl = useRef(c, derive(c, ac, 0.84, 1.16));
     var sec = c.sec ? derive(c, ac, 0.86, 1.12) : null;
+    var A = arrange(c, ac, pl, [sec]);
+    if (A) { ac = A.ac; pl = A.rf; sec = A.more[0]; cnt = A.n; }
     var labW = c.lab ? labWid(c, cnt, Math.min(c.iw * 0.2, tw('Service', c.fsA) + 5), 0.24) : 0;
     var headH = c.lab ? c.fsT + 5 : 0;
     var P = area(c, { left: labW, top: headH });
@@ -2067,7 +2183,7 @@
     var rw = rowsOf(P.y, P.h, cnt, 0.28), i;
     b += barsBlock(c, { x: P.x, y: P.y, w: w1, h: P.h }, ac, pl, sec, kind, hh, rw);
     if (c.lab) {
-      b += txt(P.x, c.y0 + c.fsT * 0.85, scenCap(c, kind), c.fsT, c.C.sub, 'start');
+      b += txt(P.x, c.y0 + c.fsT * 0.85, barsCap(c, kind, sec), c.fsT, c.C.sub, 'start');
       for (i = 0; i < cnt; i++) b += rowLabel(c, P.x - 4, rw[i].cy, c.cat[i % c.cat.length], labW - 4);
     }
     var x2 = P.x + w1 + gap, rg = rowGeom(c, rw, kind, true);
@@ -2088,11 +2204,6 @@
     var c = ctx(w, h, o), b = '';
     var rows = kcnt(c, c.small ? 3 : (c.dense ? 8 : 5), c.small ? 3 : Math.max(3, Math.min(20, Math.floor((c.ih - c.fsT - 6) / (c.fs * 1.3)) - 1)));
     var kind = refKind(c) || 'PL';
-    var P = area(c, {});
-    var headH = c.lab ? c.fsT + 6 : Math.min(6, P.h * 0.16);
-    var rh = (P.h - headH) / (rows + 1);
-    var lab = c.lab && rh >= c.fs * 1.25;
-    var wide = lab && c.w >= 330;
     var ac = [], rf = [], d = [], rel = [], sec = [], i;
     for (i = 0; i < rows; i++) {
       var a = (c.uc && rows > 6) ? n(80 * (1 - i / (rows + 3)) + c.rnd() * 8) : n(80 - i * 11 + c.rnd() * 10), p = n(a * (0.86 + c.rnd() * 0.24));
@@ -2104,6 +2215,13 @@
       ac = useVals(c, ac); rf = useRef(c, derive(c, ac, 0.86, 1.1)); sec = derive(c, ac, 0.9, 1.1);
       d = diffs(ac, rf); rel = rels(ac, rf);
     }
+    var A = arrange(c, ac, rf, [d, rel, sec]);
+    if (A) { ac = A.ac; rf = A.rf; d = A.more[0]; rel = A.more[1]; sec = A.more[2]; rows = A.n; }
+    var P = area(c, {});
+    var headH = c.lab ? c.fsT + 6 : Math.min(6, P.h * 0.16);
+    var rh = (P.h - headH) / (rows + 1);
+    var lab = c.lab && rh >= c.fs * 1.25;
+    var wide = lab && c.w >= 330;
     var sAC = sum(ac), sRF = sum(rf), dS = n(sAC - sRF), relS = n(sRF ? dS / Math.abs(sRF) * 100 : 0);
     var dOn = c.vAbs, rOn = c.vRel;
     // Spalten (Anteile von P.w)
@@ -3029,6 +3147,7 @@
     var col = dcol(c, d);
     var card = P.w >= 40 && P.h >= 26;
     var accW = clamp(P.w * 0.018, 2, 4);
+    if (o && o.noMeasure) return wrap(c, kpiEmpty(c, P, card, accW));
     if (card) {
       b += rrect(P.x + 0.5, P.y + 0.5, P.w - 1, P.h - 1, 3, c.C.paper, c.C.edge, 1);
       b += rrect(P.x + 0.5, P.y + 0.5, accW, P.h - 1, Math.min(2, accW / 2), col);
@@ -3078,6 +3197,33 @@
     }
     return wrap(c, b);
   };
+
+  /* KPI ohne gebundene Kennzahl (Review R16): Rahmen mit neutralem Akzent,
+     Beschriftung wie sonst, „?" statt der Zahl, darunter „Kennzahl fehlt";
+     kein Δ, kein Verlauf. Die Zufallswerte oben sind schon gezogen, damit
+     die übrigen Kacheln unverändert bleiben.                              */
+  function kpiEmpty(c, P, card, accW) {
+    var b = '', o = c.o;
+    if (card) {
+      b += rrect(P.x + 0.5, P.y + 0.5, P.w - 1, P.h - 1, 3, c.C.paper, c.C.edge, 1);
+      b += rrect(P.x + 0.5, P.y + 0.5, accW, P.h - 1, Math.min(2, accW / 2), c.C.py);
+    }
+    var padX = card ? Math.min(10, P.w * 0.06) : 0;
+    var L = P.x + (card ? accW + padX : 0), iw = Math.max(6, P.x + P.w - (card ? padX * 0.7 : 0) - L);
+    var kpiLabel = (o.label !== undefined) ? String(o.label) : c.t.revenue;
+    var titleH = (!c.small && kpiLabel && P.h >= 34) ? c.fsT + 4 : 0;
+    // ohne Verlauf ist Platz: das „?" etwas größer als die Zahl sonst
+    var big = Math.min(c.fsV || clamp(P.h * 0.36, 10, 40 * c.fk), iw / 1.2);
+    var msg = c.t.nomeas, mOn = !c.tiny && tw(msg, c.fs) <= iw;
+    var padY = card ? Math.min(10, P.h * 0.08) : 0;
+    var blockH = titleH + big * 0.95 + (mOn ? c.fs + 5 : 0);
+    var T = P.y + padY + Math.max(0, (P.h - padY * 2 - blockH) / 2);
+    if (titleH) b += txt(L, T + c.fsT * 0.85, fit(c, kpiLabel, iw, c.fsT), c.fsT, c.C.sub, 'start');
+    var yBig = T + titleH + big * 0.8;
+    b += txt(L, yBig, '?', big, c.C.sub, 'start', '700');
+    if (mOn && yBig + big * 0.15 + c.fs + 3 <= P.y + P.h - 1) b += txt(L, yBig + big * 0.15 + c.fs + 3, msg, c.fs, c.C.sub, 'start', '600');
+    return b;
+  }
 
   /* ---- 31 · Streudiagramm mit Quadranten -------------------------------- */
   S.scatter = function (w, h, o) {
@@ -3287,6 +3433,8 @@
     var cnt = kcnt(c, c.small ? 4 : (c.dense ? 12 : 6), capN(c, 4, 16)), i;
     var two = !c.small && c.w >= 200;
     var a = useVals(c, series(c, cnt, 60, 22)), p = two ? useRef(c, derive(c, a, 0.8, 1.05)) : null;
+    var A = arrange(c, a, p, null, c.uc ? c.cat : c.t.cat);
+    if (A) { a = A.ac; p = A.rf; cnt = A.n; }
     var names = two ? [c.t.revenue, refName(c)] : [c.t.revenue];
     if (c.real) {
       // echte Werte: Nulllinie, Säulen nach unten bei negativen Werten, Datenbeschriftung
@@ -3328,6 +3476,8 @@
     var cnt = kcnt(c, c.small ? 3 : (c.dense ? 8 : 5), capR(c, 3, 11, 3, 20)), i;
     var two = !c.small && c.h >= 110;
     var a = useVals(c, sortDesc(vals(c, cnt, 60, 60))), p = two ? useRef(c, derive(c, a, 0.8, 1.05)) : null;
+    var A = arrange(c, a, p);
+    if (A) { a = A.ac; p = A.rf; cnt = A.n; }
     var names = two ? [c.t.revenue, refName(c)] : [c.t.revenue];
     if (c.real) {
       // echte Werte: Nulllinie, Balken nach links bei negativen Werten, Wert am Balkenende
@@ -3405,13 +3555,15 @@
     // o.values[0] = Kennzahl, Kürzung (Tsd./Mio./…) statt fester Einheit, o.unit dahinter
     if (c.uv) full = fmt(c, first(c.uv)) + (c.unit ? ' ' + c.unit : '');
     var cardLabel = (o && o.label !== undefined) ? String(o.label) : (c.t.revenue + ' ' + c.t.total);
+    // ohne gebundene Kennzahl (Review R16): „?" statt Zahl, „Kennzahl fehlt" als Beschriftung
+    if (o && o.noMeasure) { full = '?'; cardLabel = c.t.nomeas; }
     var labOn = !c.small && P.h >= 30 && !!cardLabel;
     var cap = c.fsV || clamp(P.h * (labOn ? 0.42 : 0.55), 8, 36 * c.fk);
     var big = Math.min(cap, P.w / (full.length * 0.58));
     var cx = P.x + P.w / 2;
     var blockH = big * 0.78 + (labOn ? c.fsT + 6 : 0);
     var yN = P.y + (P.h - blockH) / 2 + big * 0.78;
-    b += txt(cx, yN, full, big, c.C.nTitle, 'middle', '600');
+    b += txt(cx, yN, full, big, o && o.noMeasure ? c.C.nTxt : c.C.nTitle, 'middle', '600');
     if (labOn) b += txt(cx, yN + c.fsT + 5, fit(c, cardLabel, P.w, c.fsT), c.fsT, c.C.nTxt, 'middle');
     return wrap(c, b);
   };
@@ -3897,6 +4049,13 @@
       gTxt = fmt(c, gv); gMax = fmt(c, gm).replace(/[.,]0+(?=\D*$)/, '');
     }
     b += arc(0, 1, c.C.nGrid === '#E9E9E9' ? '#E6E6E6' : c.C.nGrid);
+    if (o && o.noMeasure) {
+      // ohne gebundene Kennzahl (Review R16): leerer Bogen, „?" in der Mitte, „Kennzahl fehlt" darunter
+      var fq = Math.min(c.fsV || 99, clamp(r * 0.42, 6, 26 * c.fk));
+      if (r - th > fq * 0.8) b += txt(cx, cy - 1, '?', fq, c.C.nTxt, 'middle', '600');
+      if (showV && tw(c.t.nomeas, c.fs) <= P.w) b += txt(cx, cy + c.fs + 1, c.t.nomeas, c.fs, c.C.nTxt, 'middle');
+      return wrap(c, b);
+    }
     b += arc(0, v, c.C.pbi[0]);
     var ta = Math.PI + t * Math.PI;
     b += ln(cx + (r - th - 1) * Math.cos(ta), cy + (r - th - 1) * Math.sin(ta), cx + (r + 0.5) * Math.cos(ta), cy + (r + 0.5) * Math.sin(ta), c.C.nTitle, 1.6);
@@ -3944,7 +4103,7 @@
       ? S[kind] : S.generic;
     var out;
     try {
-      out = fn(w, h, o || {});
+      out = fn(w, h, prearrange(kind, o) || {});
     } catch (e) {
       out = null;
     }
