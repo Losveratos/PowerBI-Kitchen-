@@ -1,6 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
 // Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
-window.MK_VERSION = '0.5.4';
+window.MK_VERSION = '0.5.5';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
@@ -1588,7 +1588,8 @@ window.MK_VERSION = '0.5.4';
     markClean() { cleanPrint = fingerprint(S); }, isUnchanged() { return (cleanPrint !== null && cleanPrint === fingerprint(S)) || isPristine(); },
     // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
     // Der Verlauf beginnt neu; commit() legt danach den Stand vor „Neu" als einen Schritt ab, Strg+Z holt ihn also zurück.
-    reset() { S = defaultState(); S.pages.forEach(p => markTemplate(ensureIds(p.layout))); sel = null; undoDropped = undoStack.length ? 'new' : undoDropped; undoStack = []; commit(); },
+    // Das geladene Modell gehört zum Arbeitsplatz, nicht zum Bericht: „Neu" behält es (Review 09.10., R5: TMDL-Import war sonst still weg)
+    reset() { const keep = S ? { model: S.model, demoId: S.demoId } : null; S = defaultState(); if (keep && keep.model) { S.model = keep.model; if (keep.demoId) S.demoId = keep.demoId; } S.pages.forEach(p => markTemplate(ensureIds(p.layout))); syncFieldFlags(); sel = null; undoDropped = undoStack.length ? 'new' : undoDropped; undoStack = []; commit(); },
   };
 
   { const vEl = $('#mkVersion'); if (vEl) vEl.textContent = window.MK_VERSION; }

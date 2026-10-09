@@ -1,7 +1,7 @@
 {
   "generated": "<zeitstempel>",
   "report": "Test.Report",
-  "specHash": "4d42e99d",
+  "specHash": "9dc6dbad",
   "specName": "Management Report · Beispiel",
   "tolerance": 1,
   "pages": [
@@ -549,6 +549,6 @@
     }
   ],
   "annotations": {
-    "mockup-spec-hash": "4d42e99d"
+    "mockup-spec-hash": "9dc6dbad"
   }
 }

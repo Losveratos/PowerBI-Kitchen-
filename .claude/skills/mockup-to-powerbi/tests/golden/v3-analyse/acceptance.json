@@ -1,7 +1,7 @@
 {
   "generated": "<zeitstempel>",
   "report": "Test.Report",
-  "specHash": "testhash",
+  "specHash": "3aaa17c5",
   "specName": "Analyse-Testfall",
   "tolerance": 1,
   "pages": [
@@ -554,6 +554,6 @@
     }
   ],
   "annotations": {
-    "mockup-spec-hash": "testhash"
+    "mockup-spec-hash": "3aaa17c5"
   }
 }

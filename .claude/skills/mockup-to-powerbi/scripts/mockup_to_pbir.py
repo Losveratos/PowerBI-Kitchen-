@@ -84,6 +84,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -93,9 +94,9 @@ from mockup_spec import (                                     # noqa: E402
     CK_ORIENTATION, CK_ROLE, CK_ROLE_UNSUPPORTED, DRILL_ROLE_ORDER,
     MEASURE_ROLE_ORDER, NO_VARIANT_KINDS, SMALL_MULTIPLES_BUCKET,
     SMALL_MULTIPLES_TYPES, SpecError, as_document,
-    a11y_issues, custom_visual_info, footer_nav_entries, half_pt, is_a11y_issue,
+    a11y_issues, build_hash, custom_visual_info, footer_nav_entries, half_pt, is_a11y_issue,
     is_light, load, nav_position, slug, split_ref, structural_errors,
-    type_sizes, upgrade, validate,
+    hash_mismatch, type_sizes, upgrade, validate,
 )
 
 # PBIR-Schema, das `pbir add visual` in 0.9.32 schreibt. Custom Visuals kann die
@@ -712,6 +713,41 @@ def custom_query_state(buckets: dict) -> dict:
         if projections:
             state[role] = {"projections": projections}
     return state
+
+
+# Szenario-Rollen des P&L-Visuals und woran man sie am Measure-Namen erkennt.
+# Gleiche Regeln wie `customVisual.map.ref` im Katalog des Tools (catalog.js).
+CV_SCENARIO_ROLES = {
+    "py": re.compile(r"(?<![a-z])(py|vj|vorjahr|prior|previous|ly)(?![a-z])", re.I),
+    "pl": re.compile(r"(?<![a-z])(pl|bu|budget|plan|target)(?![a-z])", re.I),
+    "fc": re.compile(r"(?<![a-z])(fc|forecast|prognose)(?![a-z])", re.I),
+}
+
+
+def cv_bucket_warnings(nspec: dict) -> list:
+    """Measures, deren Name ein anderes Szenario nennt als ihr Bucket im Custom Visual.
+
+    Bis Tool 0.5.4 griff die Namensregel im Katalog nie (Steuerzeichen statt `\\b`),
+    die Referenzen wurden der Reihe nach verteilt: BU landete in `py`, PY in `pl`.
+    Alte Exporte tragen das weiter, deshalb prueft der Konverter selbst.
+    """
+    out = []
+    for p in nspec.get("pages") or []:
+        for v in p.get("visuals") or []:
+            buckets = (v.get("customVisual") or {}).get("buckets") or {}
+            for role, entries in buckets.items():
+                if role not in CV_SCENARIO_ROLES:
+                    continue
+                for e in entries or []:
+                    _, name = split_ref(e.get("ref") or "")
+                    hits = [r for r, rx in CV_SCENARIO_ROLES.items() if rx.search(name)]
+                    if len(hits) == 1 and hits[0] != role:
+                        out.append("%s / %s: Measure „%s“ steht im Bucket %s, der Name "
+                                   "spricht für %s. Im Mockup neu exportieren (ab Tool "
+                                   "0.5.5 richtig) oder den Bucket in der Spec tauschen."
+                                   % (p.get("name"), v.get("title") or v.get("id"),
+                                      name, role, hits[0]))
+    return out
 
 
 def custom_visual_json(v: dict, st) -> dict:
@@ -2979,7 +3015,7 @@ def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: st
          delta="Lesezeichen nur ergänzen, nie löschen")
     step("annotate", "annotation",
          ['pbir add annotation "%s" --name mockup-spec-hash --value "%s"'
-          % (report, nspec["meta"].get("specHash") or ""),
+          % (report, build_hash(nspec)),
           'pbir add annotation "%s" --name mockup-spec-name --value "%s"'
           % (report, nspec["meta"].get("name") or "")],
          idempotent="Gleicher Name überschreibt den Wert.",
@@ -3133,14 +3169,14 @@ def build_acceptance(nspec: dict, report: str, per_page, st: Style) -> dict:
     return {
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "report": report,
-        "specHash": nspec["meta"].get("specHash"),
+        "specHash": build_hash(nspec),        # nachgerechnet, nicht abgeschrieben
         "specName": nspec["meta"].get("name"),
         "tolerance": 1,
         "pages": pages,
         "bookmarks": sorted(set(bookmarks)),
         "drillthrough": [{"page": d["toPage"], "table": d["table"], "field": d["field"]}
                          for d in drill_targets(nspec) if d["table"]],
-        "annotations": {"mockup-spec-hash": nspec["meta"].get("specHash")},
+        "annotations": {"mockup-spec-hash": build_hash(nspec)},
     }
 
 
@@ -3188,6 +3224,19 @@ def build_delta_batch(nspec: dict, page: dict, report: str, items) -> Batch:
 # --------------------------------------------------------------------------- #
 # main
 # --------------------------------------------------------------------------- #
+# Bis zu dieser Tool-Version rechnete export.js den specHash ueber den
+# Tool-Zustand (S.design u. a.), nicht ueber die exportierte Spec.
+OLD_HASH_TOOL = "0.5.4"
+
+
+def old_hash_tool(version) -> bool:
+    try:
+        have = tuple(int(x) for x in str(version).split("."))
+    except ValueError:
+        return False
+    return have <= tuple(int(x) for x in OLD_HASH_TOOL.split("."))
+
+
 def main() -> int:
     p = argparse.ArgumentParser(
         description="MockupKitchen-Spec → pbir-Bausteine (specVersion 1, 2 und 3)",
@@ -3253,12 +3302,25 @@ def main() -> int:
             print("  Ohne brauchbares Rechteck und deshalb ausgelassen: %s"
                   % ", ".join(dropped), file=sys.stderr)
     dropped_slicers = drop_missing_slicers(nspec)
+    for w in cv_bucket_warnings(nspec):
+        print("Warnung: %s" % w, file=sys.stderr)
+    # Hash nachrechnen: Handkorrekturen an der Spec sind erlaubt, deshalb nur eine
+    # Warnung. Annotation und Sollbild tragen ohnehin den nachgerechneten Hash.
+    mism = hash_mismatch(nspec)
+    if mism:
+        print("Warnung: specHash passt nicht zum Inhalt (Spec nach dem Export verändert?), "
+              "gerechnet %s, in der Spec %s" % mism, file=sys.stderr)
+        if old_hash_tool(nspec["meta"].get("version")):
+            print("  Hinweis: MockupKitchen bis %s rechnete den Hash noch über den "
+                  "Tool-Zustand, er ist aus der Spec nicht nachrechenbar. Annotation und "
+                  "Sollbild nutzen den gerechneten."
+                  % OLD_HASH_TOOL, file=sys.stderr)
     if opt.validate:
         print("Spec in Ordnung: specVersion %d (gelesen als v%d) · %d Seite(n) · "
               "%d Kachel(n) · Hash %s"
               % (nspec["sourceVersion"], nspec["version"], len(nspec["pages"]),
                  sum(len(p["visuals"]) for p in nspec["pages"]),
-                 nspec["meta"].get("specHash")))
+                 build_hash(nspec)))
         return 0
 
     lang = opt.lang or (nspec["meta"].get("lang") or "de")

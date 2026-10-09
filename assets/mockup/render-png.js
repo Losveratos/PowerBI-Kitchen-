@@ -115,9 +115,10 @@
   /* ------------------------------------------------------------- Helferlein */
   // identisch zur Tool-Funktion, damit PNG und Bildschirm dieselben Demo-Daten zeigen
   function seedOf(id) { var h = 7, i; id = String(id || ''); for (i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0; return h % 1000; }
+  // identisch zu slug() in export.js und mockup_spec.slug() im Skill: sonst findet mockup_to_docs.py die Seitenbilder nicht (Review 09.10., R2)
   function slug(s) {
     return String(s || 'seite').normalize('NFD').replace(/[̀-ͯ]/g, '')
-      .replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40).toLowerCase() || 'seite';
+      .replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'Seite';
   }
   // Texte des Bildes in der Sprache des Mockups (= aktuelle UI-Sprache, setLang hält beide gleich), wie im Canvas
   function L(ctx, key) {

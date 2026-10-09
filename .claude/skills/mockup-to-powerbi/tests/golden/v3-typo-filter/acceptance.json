@@ -1,7 +1,7 @@
 {
   "generated": "<zeitstempel>",
   "report": "Test.Report",
-  "specHash": "typofilter1",
+  "specHash": "2f1b399c",
   "specName": "Typografie- und Filter-Testfall",
   "tolerance": 1,
   "pages": [
@@ -464,6 +464,6 @@
   "bookmarks": [],
   "drillthrough": [],
   "annotations": {
-    "mockup-spec-hash": "typofilter1"
+    "mockup-spec-hash": "2f1b399c"
   }
 }
