@@ -1,6 +1,6 @@
 # Modell-To-dos
 
-Quelle: `Management Report · Beispiel` · Modell: `Demo-Modell`
+Quelle: `Management Report · Beispiel` · Modell: `<Modell>.SemanticModel`
 
 ## Neu anzulegen
 
@@ -13,11 +13,11 @@ Diese Felder existieren im Modell noch nicht. **Zuerst anlegen**, DAX vom Mensch
 ## Vorschlag (DAX bestätigen lassen, nicht ungefragt anlegen)
 
 ```bash
-te add "_Measures/Deckungsbeitrag" -m "Demo-Modell" -t Measure \
+te add "_Measures/Deckungsbeitrag" -m "<Modell>.SemanticModel" -t Measure \
   -i "[Umsatz] - [Kosten]" \
   -q description -i "Umsatz minus variable Kosten; Format #,##0" \
   -q formatString -i "#,##0" --if-not-exists --save
-te validate -m "Demo-Modell" --errors-only
+te validate -m "<Modell>.SemanticModel" --errors-only
 ```
 
 ## Offene Fragen aus dem Workshop

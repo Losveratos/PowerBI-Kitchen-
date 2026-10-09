@@ -8,7 +8,8 @@
     "lang": "de"
   },
   "report": "Test.Report",
-  "model": "Demo-Modell",
+  "model": "<Modell>.SemanticModel",
+  "modelNote": "Der Modellname in der Spec („Demo-Modell\") ist kein Name für `te -m` (das Mockup wurde auf einem Demo-Modell gezeichnet). `<Modell>.SemanticModel` durch den Ordnernamen des Semantikmodells im PBIP ersetzen, z. B. `Vertrieb.SemanticModel`.",
   "canvas": {
     "width": 1280,
     "height": 720
@@ -242,7 +243,7 @@
       "delta": "immer",
       "commands": [
         "pbir validate \"Test.Report\" --fields",
-        "te validate -m \"Demo-Modell\" --errors-only",
+        "te validate -m \"<Modell>.SemanticModel\" --errors-only",
         "python .claude/skills/mockup-to-powerbi/scripts/mockup_verify.py \"Test.Report\" \"<out>/acceptance.json\""
       ],
       "batch": null

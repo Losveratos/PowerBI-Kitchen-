@@ -956,11 +956,17 @@ def review_fix_tests(tmp: Path, res: Results):
               (D.page_image({}, page, folder) or Path()).name == "page-1-Detail_Standort.png")
 
     # R20: unbrauchbarer Modellname aus alten Exporten ("TMDL (16 Dateien)", "tables")
-    for raw in ("TMDL (16 Dateien)", "TMDL (3 files)", "tables", "definition"):
+    for raw in ("TMDL (16 Dateien)", "TMDL (3 files)", "tables", "definition",
+                "Demo-Modell", "Demo model", "Demo · Controlling"):
         res.check("R20 · „%s“ ist kein Modellname" % raw,
                   P.usable_model_name(raw) == "<Modell>.SemanticModel")
-    for raw in ("Vertrieb.SemanticModel", "Vertriebscontrolling_Excel_based_3.0", "Demo-Modell", ""):
+    for raw in ("Vertrieb.SemanticModel", ""):
         res.check("R20 · „%s“ bleibt unveraendert" % raw, P.usable_model_name(raw) == raw)
+    res.check("R20 · Name aus dem Ordnerimport bekommt die Endung fuer te -m",
+              P.usable_model_name("Vertriebscontrolling_Excel_based_3.0")
+              == "Vertriebscontrolling_Excel_based_3.0.SemanticModel")
+    res.check("R20 · Hinweis nennt beim Demo-Modell den Grund",
+              "Demo-Modell gezeichnet" in P.model_name_hint("<Modell>.SemanticModel", "Demo-Modell"))
     import json as _json
     fx = _json.loads((FIXTURES / "v3-custom-visuals.json").read_text(encoding="utf-8"))
     for raw in ("TMDL (16 Dateien)", "Vertriebscontrolling_Excel_based_3.0"):
@@ -980,9 +986,10 @@ def review_fix_tests(tmp: Path, res: Results):
                       plan.get("model") == "<Modell>.SemanticModel" and "modelNote" in plan
                       and "TMDL (16 Dateien)" not in json.dumps(plan.get("steps")))
         else:
-            res.check("R20 · brauchbarer Name wird eingesetzt, ohne Hinweis",
-                      code == 0 and 'te validate -m "%s"' % raw in cmd and "**Hinweis:**" not in cmd
-                      and plan.get("model") == raw and "modelNote" not in plan, err[-200:])
+            want = raw + ".SemanticModel"
+            res.check("R20 · brauchbarer Name wird eingesetzt (mit Endung), ohne Hinweis",
+                      code == 0 and 'te validate -m "%s"' % want in cmd and "**Hinweis:**" not in cmd
+                      and plan.get("model") == want and "modelNote" not in plan, err[-200:])
 
 
 # --------------------------------------------------------------------------- #

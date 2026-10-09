@@ -2643,13 +2643,23 @@ def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos,
 # Alte Exporte tragen als Modellname den Ladetext des Tools („TMDL (16 Dateien)") oder den
 # Namen des gewählten Ordners („tables", „definition"). Das ist kein Name für `te -m`.
 MODEL_PLACEHOLDER = "<Modell>.SemanticModel"
-_UNUSABLE_MODEL = re.compile(r"^\s*(TMDL\s*\(|tables\s*$|definition\s*$)", re.I)
+# Import-Label statt Modellname („TMDL (16 Dateien)", Ordner „tables") und die
+# Demo-Modelle des Tools („Demo-Modell", „Demo · Controlling", EN „Demo model"):
+# keins davon ist ein Ordner im PBIP, `te -m` liefe ins Leere.
+_UNUSABLE_MODEL = re.compile(
+    r"^\s*(TMDL\s*\(|tables\s*$|definition\s*$|demo[\s-]*mod(ell|el)\s*$|demo\s*·)", re.I)
 
 
 def usable_model_name(raw: str) -> str:
-    """Modellname aus der Spec, oder der Platzhalter, wenn er unbrauchbar ist."""
+    """Modellname aus der Spec als `te -m`-Ziel, oder der Platzhalter.
+
+    Ab Tool 0.5.6 kommt der Name beim Ordnerimport ohne Endung
+    („Vertrieb"); `te -m` erwartet den Ordner des Semantikmodells, deshalb
+    wird `.SemanticModel` ergaenzt."""
     if raw and _UNUSABLE_MODEL.search(raw):
         return MODEL_PLACEHOLDER
+    if raw and not raw.lower().endswith(".semanticmodel"):
+        return raw + ".SemanticModel"
     return raw
 
 
@@ -2657,10 +2667,12 @@ def model_name_hint(model_name: str, raw: str = "") -> str:
     """Hinweistext, wenn statt des Spec-Namens der Platzhalter eingesetzt wurde."""
     if model_name != MODEL_PLACEHOLDER:
         return ""
-    return ("Der Modellname in der Spec%s ist kein Name für `te -m` (älterer "
-            "Export). `%s` durch den Ordnernamen des Semantikmodells im PBIP "
+    why = ("das Mockup wurde auf einem Demo-Modell gezeichnet"
+           if re.search(r"demo", raw or "", re.I) else "älterer Export")
+    return ("Der Modellname in der Spec%s ist kein Name für `te -m` (%s). "
+            "`%s` durch den Ordnernamen des Semantikmodells im PBIP "
             "ersetzen, z. B. `Vertrieb.SemanticModel`."
-            % (" („%s\")" % raw if raw else "", MODEL_PLACEHOLDER))
+            % (" („%s\")" % raw if raw else "", why, MODEL_PLACEHOLDER))
 
 
 def build_commands_md(nspec: dict, report: str, out_dir: Path, per_page,

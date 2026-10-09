@@ -2,12 +2,14 @@
 
 2 Seite(n), Canvas 1280×720, Spec-Hash `testhash`. Reihenfolge einhalten. Vor dem ersten schreibenden Befehl: Power BI Desktop schließen, `pbir backup` oder Git-Commit.
 
+> **Hinweis:** Der Modellname in der Spec („Demo-Modell") ist kein Name für `te -m` (das Mockup wurde auf einem Demo-Modell gezeichnet). `<Modell>.SemanticModel` durch den Ordnernamen des Semantikmodells im PBIP ersetzen, z. B. `Vertrieb.SemanticModel`.
+
 ```bash
 # 0 · Ausgangslage sichern
 pbir backup "Test.Report"
 
 # 1 · Modell zuerst (siehe model-todos.md), dann prüfen
-te validate -m "Demo-Modell" --errors-only
+te validate -m "<Modell>.SemanticModel" --errors-only
 ```
 
 ## 1 · Seite „Übersicht"
@@ -143,7 +145,7 @@ pbir set "Test.Report/Detail Produktlinie.Page/mk_cl01_slot.Visual.text.text" --
 
 ```bash
 pbir validate "Test.Report" --fields
-te validate -m "Demo-Modell" --errors-only
+te validate -m "<Modell>.SemanticModel" --errors-only
 
 # Abnahme gegen das Sollbild aus der Spec (Rechtecke ±1 px, Bindungen, Slicer)
 python .claude/skills/mockup-to-powerbi/scripts/mockup_verify.py "Test.Report" "<out>/acceptance.json"

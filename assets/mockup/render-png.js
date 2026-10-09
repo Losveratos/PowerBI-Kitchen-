@@ -459,6 +459,11 @@
     var hasBadge = o.badges && !tiny;
     var headH = (v.title || v.sub) ? (tiny ? 18 : 24) * k : 0;
     var footH = (chips.length && !tiny) ? 18 * k : 0;
+    // Kernaussage als Botschaftszeile unter dem Kopf, Masse wie im Tool (tileHtml: msgH)
+    var ty0 = (mk().typo ? mk().typo() : { scale: 1, title: 12, sub: 9.5, chart: 9 });
+    var msg = String((v.analysis || {}).message || '').replace(/^\s+|\s+$/g, '');
+    var mfs = ty0.sub * ty0.scale * ((v.typo && v.typo.scale) || 1) * k;
+    var msgH = msg && !tiny ? Math.round(mfs * 1.4 + 2 * k) : 0;
 
     /* Kachelflaeche */
     var out = rc(r.x + 0.5, r.y + 0.5, r.w - 1, r.h - 1, {
@@ -483,14 +488,19 @@
         out += tx(tx0 + used, base, fit(v.sub, availW - used, sfs), { size: sfs, fill: ctx.ink, opacity: 0.7 });
       }
     }
+    /* Botschaftszeile: normale Schrift, kraeftiger als der Untertitel (500, 90 %), eine Zeile mit Auslassung */
+    if (msgH) {
+      var mx0 = r.x + 1 + ip + 9 * k, mW = Math.max(10, r.x + r.w - 1 - ip - 9 * k - mx0);
+      out += tx(mx0, r.y + 1 + ip + headH + msgH / 2 + mfs * MID, fit(msg, mW, mfs, 500), { size: mfs, weight: 500, fill: ctx.ink, opacity: 0.9 });
+    }
 
     /* Skizze — Masse exakt wie im Tool, damit die small/tiny-Schwellen greifen */
     var bw = Math.max(20, r.w - 2 * pad - 4);
-    var bh = Math.max(12, r.h - headH - footH - pad - 6);
+    var bh = Math.max(12, r.h - headH - msgH - footH - pad - 6);
     var bx = r.x + (r.w - bw) / 2;
-    var by = r.y + 1 + ip + headH + 2;
+    var by = r.y + 1 + ip + headH + msgH + 2;
     var bottom = r.y + r.h - 1 - ip - footH - 4;
-    if (by + bh > bottom) by = Math.max(r.y + 1 + ip + headH, bottom - bh);
+    if (by + bh > bottom) by = Math.max(r.y + 1 + ip + headH + msgH, bottom - bh);
     var sopt = {
       scenario: mk().sketchScenario ? mk().sketchScenario(v) : (def.plain ? 'AC' : v.scenario), seed: (seedOf(leaf.node.id) + o.seedBase) % 1000,
       label: v.sub || '', scale: k, lang: ctx.S.lang, content: v.content || '',
@@ -500,10 +510,13 @@
       nativePalette: (ctx.d && ctx.d.nativePalette) || 'neutral'
     };
     if (mk().samplesOpt) { try { Object.assign(sopt, mk().samplesOpt(v)); } catch (e) { /* ohne Beispielwerte */ } }
+    // Leere Pflichtrolle Kennzahl (KPI, Karte, Tacho): „?" statt Zahl (Review R16)
+    sopt.noMeasure = (def.roles || []).some(function (rl) { return rl.key === 'indicator' && rl.req; }) && !((v.roles || {}).indicator || []).length;
     try {
       var an = mk().analysisOf ? mk().analysisOf(v) : null;
       if (an) {
         sopt.polarity = an.polarity; sopt.deltaBasis = an.deltaBasis; sopt.unit = an.unit; sopt.small = !!an.smallMultiples;
+        sopt.sort = an.sort; sopt.topN = an.topN;          // Sortierung und Top-N wirken auf die Skizze (Review R7)
         sopt.variance = { abs: (an.deltaKind || []).indexOf('abs') >= 0, rel: (an.deltaKind || []).indexOf('rel') >= 0 };
       }
     } catch (e) { /* Analyse optional */ }

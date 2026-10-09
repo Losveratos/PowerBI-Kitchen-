@@ -102,8 +102,8 @@
       gridCheck: 'Prüft, ob alle Kanten und Zwischenräume genau auf dem Pixelraster liegen',
       diff: 'Gespeicherte Datei gegen den aktuellen Stand vergleichen: neue, entfernte und geänderte Kacheln',
       rolesSec: 'Datenrollen sind die Plätze einer Kachel, in die Felder aus dem Modell gehören, z. B. Ist-Wert, Referenz oder Kategorie',
-      analysisSec: 'Fachliche Angaben zur Kennzahl: Vergleich, Einheit, Sortierung. Sie wandern in die Spec und werden in Power BI umgesetzt',
       scenario: 'Szenario: welche Werte die Kachel gegenüberstellt. AC = Ist, PL = Plan, PY = Vorjahr, BU = Budget, FC = Forecast',
+      engineSec: 'Engine (Umsetzung): womit die Kachel in Power BI gebaut wird; jeder Knopf erklärt sich per Tooltip',
       defScenario: 'Szenario, das neue Charts zunächst bekommen. AC = Ist, PL = Plan, PY = Vorjahr',
       an: {
         polarity: 'Polarität: ob ein höherer Wert gut ist (Umsatz) oder schlecht (Kosten); davon hängt ab, welche Abweichung als positiv eingefärbt wird',
@@ -825,8 +825,8 @@
       gridCheck: 'Checks whether all edges and gutters sit exactly on the pixel grid',
       diff: 'Compare a saved file with the current state: new, removed and changed tiles',
       rolesSec: 'Data roles are the slots of a tile that take fields from the model, e.g. actual value, reference or category',
-      analysisSec: 'Business settings for the measure: comparison, unit, sorting. They go into the spec and are implemented in Power BI',
       scenario: 'Scenario: which values the tile compares. AC = actual, PL = plan, PY = prior year, BU = budget, FC = forecast',
+      engineSec: 'Engine (implementation): what the tile is built with in Power BI; each button explains itself in its tooltip',
       defScenario: 'Scenario that new charts start with. AC = actual, PL = plan, PY = prior year',
       an: {
         polarity: 'Polarity: whether a higher value is good (revenue) or bad (costs); it decides which variance is coloured as favourable',

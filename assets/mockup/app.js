@@ -664,9 +664,14 @@ window.MK_VERSION = '0.5.5';
     const chips = roleChips(v) + (link ? `<span class="rchip link" title="${esc(t('tip.linkTo'))}">↗ ${esc(link.name)}</span>` : '');
     const headH = v.title || v.sub ? (tiny ? 18 : 24) * k : 0;
     const footH = chips && !tiny ? 18 * k : 0;
-    const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - footH - pad - 6);
+    // Kernaussage (analysis.message) als Botschaftszeile unter dem Kopf (IBCS: Botschaft unter Titel/Untertitel, Review R7); die Skizze wird um die Zeile kleiner
+    const msg = String((v.analysis || {}).message || '').trim();
+    const msgFs = typo().sub * typo().scale * tileScale(v) * k, msgH = msg && !tiny ? Math.round(msgFs * 1.4 + 2 * k) : 0;
+    const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - msgH - footH - pad - 6);
     const an = analysisOf(v);
-    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: sketchScenario(v, an), seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '', antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: tileInk(S.design).ink, dark: tileInk(S.design).dark, paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral' }, samplesOpt(v))) : '';
+    // Leere Pflichtrolle Kennzahl (KPI, Karte, Tacho): „?" statt einer erfundenen Zahl (Review R16)
+    const noMeasure = CAT.rolesFor(def, v).some(r => r.key === 'indicator' && r.req) && !((v.roles || {}).indicator || []).length;
+    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: sketchScenario(v, an), seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '', antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: tileInk(S.design).ink, dark: tileInk(S.design).dark, paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral', sort: an.sort, topN: an.topN, noMeasure }, samplesOpt(v))) : '';
     // Notiz: Symbol in der Badge-Zeile, das Popup als eigenes Element der Seite rechtsbündig unter dem Kachelkopf (B47).
     // In .badges schrumpfte es auf deren Breite (ca. 33 px) und wurde vom overflow:hidden der Kachel abgeschnitten.
     const noteTxt = v.notes ? v.notes : (v.openQuestion ? t('canvas.openQuestionEmpty') : '');
@@ -686,6 +691,7 @@ window.MK_VERSION = '0.5.5';
     const st = v.status && v.status !== 'open' ? `<span class="st ${v.status}" title="${esc(t('canvas.status', { s: t('opt.status.' + v.status) }))}"></span>` : '';
     return `<div class="tile${selc}${tiny ? ' tiny' : ''}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="${esc(v.title || def.label)}" title="${esc(t('smp.tileDrag'))}" style="${css(rect)};padding:${Math.max(0, pad - 6)}px">
       ${headH ? `<div class="t-head" style="--tf:${tileScale(v)}"><span class="t-title">${esc(v.title || def.label)}</span>${v.sub ? `<span class="t-sub">${esc(v.sub)}</span>` : ''}</div>` : ''}
+      ${msgH ? `<div class="t-msg" title="${esc(msg)}" style="--tf:${tileScale(v)};flex:none;height:${msgH}px;line-height:${msgH}px;padding:0 calc(9px * var(--ui));font-size:calc(var(--fs-sub,9.5px) * var(--ui) * var(--tf,1));font-weight:500;color:var(--ink-page,#0F1E2E);opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(msg)}</div>` : ''}
       <div class="t-body">${svg}${ANTI[v.kind] ? '<div class="ap"></div>' : ''}</div>
       ${footH ? `<div class="t-foot">${chips}</div>` : ''}
       <div class="badges">${req}${st}${pri}${note}<span class="badge${v.engine === 'ck' ? ' ck' : (v.engine === 'custom' ? ' cv' : '')}" title="${esc(t('tip.badge.' + (v.engine === 'ck' ? 'ck' : v.engine === 'deneb' ? 'deneb' : v.engine === 'custom' ? 'cv' : 'pbi')))}">${v.engine === 'ck' ? 'CK' : v.engine === 'deneb' ? 'Deneb' : v.engine === 'custom' ? 'CV' : 'PBI'}</span></div>${acts}</div>${notePop}`;
@@ -920,56 +926,56 @@ window.MK_VERSION = '0.5.5';
       const list = v.roles[r.key] || [];
       const chips = list.map((x, i) => { const c = chipState(x, mm && mm.roleKey === r.key && mm.idx === i ? mm : null, v); return `<span class="fchip ${x.kind === 'measure' ? 'm' : 'c'}${c.cls}" draggable="false"${c.tip ? ` title="${esc(c.tip.replace(/^ · /, ''))}"` : ''}><span class="ico">${x.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(x.name)}</span><button class="x" data-rmrole="${r.key}" data-i="${i}" title="${esc(t('tip.remove'))}" aria-label="${esc(t('tip.removeNamed', { name: x.name }))}">×</button></span>`; }).join('');
       const kindLbl = r.kind === 'any' ? t('kind.any') : r.kind === 'measure' ? t('kind.measure') : t('kind.column');
-      return `<div class="role" data-role="${r.key}"><div class="rl">${esc(r.label)}${r.req ? '<span class="req">*</span>' : ''}<span class="k">${esc(kindLbl)} · ${esc(t('canvas.maxN', { n: r.max }))}</span></div>${chips ? `<div class="chips">${chips}</div>` : ''}${list.length < r.max ? `<div class="drop">${esc(t('canvas.dropFieldRole'))} ${esc(t('canvas.orCreate'))} <button type="button" class="lnk" data-newfield="${r.key}" data-newkind="${r.kind}" title="${esc(t('canvas.createHereTip'))}">+ ${esc(t('canvas.createHere'))}</button></div>` : ''}</div>`;
+      return `<div class="role" data-role="${r.key}"><div class="rl" title="${esc(t('tip.role.' + r.labelKey))}">${esc(r.label)}${r.req ? '<span class="req">*</span>' : ''}<span class="k">${esc(kindLbl)} · ${esc(t('canvas.maxN', { n: r.max }))}</span></div>${chips ? `<div class="chips">${chips}</div>` : ''}${list.length < r.max ? `<div class="drop">${esc(t('canvas.dropFieldRole'))} ${esc(t('canvas.orCreate'))} <button type="button" class="lnk" data-newfield="${r.key}" data-newkind="${r.kind}" title="${esc(t('canvas.createHereTip'))}">+ ${esc(t('canvas.createHere'))}</button></div>` : ''}</div>`;
     }).join('');
     const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
     const hasMeasure = rolesDef.some(r => ['ac', 'indicator', 'values', 'y'].includes(r.key));
     const variants = CAT.variantsFor(def) ? grp('variants', t('sec.variants'), `
-      <label class="toggle" style="padding:0 0 6px"><input type="checkbox" data-an="smallMultiples" ${an.smallMultiples ? 'checked' : ''}> ${esc(t('lbl.smallMultiples'))}</label>
+      <label class="toggle" style="padding:0 0 6px" title="${esc(t('tip.an.smallMultiples'))}"><input type="checkbox" data-an="smallMultiples" ${an.smallMultiples ? 'checked' : ''}> ${esc(t('lbl.smallMultiples'))}</label>
       ${an.smallMultiples && !(v.roles.multiples || []).length ? `<p class="hint" style="margin:0 0 8px">${esc(t('lbl.smHint'))}</p>` : ''}
-      <label class="toggle" style="padding:0 0 6px"><input type="checkbox" data-an="fieldParam" ${an.fieldParam ? 'checked' : ''}> ${esc(t('lbl.fieldParam'))}</label>
-      ${an.fieldParam ? `<div class="field"><label>${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-an="fieldParamName" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div><p class="hint" style="margin:0 0 8px">${esc(t('lbl.fieldParamHint'))}</p>` : ''}
+      <label class="toggle" style="padding:0 0 6px" title="${esc(t('tip.an.fieldParam'))}"><input type="checkbox" data-an="fieldParam"${an.fieldParam ? 'checked' : ''}> ${esc(t('lbl.fieldParam'))}</label>
+      ${an.fieldParam ? `<div class="field"><label title="${esc(t('tip.an.fieldParamName'))}">${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-an="fieldParamName" title="${esc(t('tip.an.fieldParamName'))}" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div><p class="hint" style="margin:0 0 8px">${esc(t('lbl.fieldParamHint'))}</p>` : ''}
     `, false, [an.smallMultiples, an.fieldParam].filter(Boolean).length ? t('grp.on', { n: [an.smallMultiples, an.fieldParam].filter(Boolean).length }) : '') : '';
     const opt = (list, cur, labels) => list.map(x => `<option value="${x}" ${String(cur) === String(x) ? 'selected' : ''}>${labels ? labels[x] : x}</option>`).join('');
     const analysis = hasMeasure ? grp('analysis', t('sec.analysis'), `
       <div class="grid2">
-        <div class="field"><label>${esc(t('lbl.polarity'))}</label><select class="ctl" data-an="polarity">${opt(['', 'higher', 'lower'], a.polarity || '', { '': t('opt.polarity.auto', { v: t('opt.polarity.' + an.polarity) }), higher: t('opt.polarity.higher'), lower: t('opt.polarity.lower') })}</select></div>
-        ${hasBasis ? `<div class="field"><label>${esc(t('lbl.deltaBasis'))}</label><select class="ctl" data-an="deltaBasis">${opt(['', 'PL', 'PY', 'BU', 'FC'], a.deltaBasis || '', { '': t('opt.autoBase', { v: an.deltaBasis }), PL: 'PL', PY: 'PY', BU: 'BU', FC: 'FC' })}</select></div>` : '<div></div>'}
-        <div class="field"><label>${esc(t('lbl.unit'))}</label><input class="ctl" data-an="unit" value="${esc(an.unit)}" placeholder="${esc(t('ph.anUnit'))}"></div>
-        <div class="field"><label>${esc(t('lbl.displayUnits'))}</label><select class="ctl" data-an="displayUnits">${opt(['auto', 'none', 'K', 'M'], an.displayUnits, { auto: t('opt.du.auto'), none: t('opt.du.none'), K: t('opt.du.K'), M: t('opt.du.M') })}</select></div>
-        <div class="field"><label>${esc(t('lbl.decimals'))}</label><input class="ctl" type="number" min="0" max="4" data-an="decimals" value="${an.decimals == null ? '' : an.decimals}" placeholder="${esc(t('ph.anDecimals'))}"></div>
-        <div class="field"><label>${esc(t('lbl.deltaKind'))}</label><div class="row"><label class="toggle" style="padding:0"><input type="checkbox" data-ank="abs" ${an.deltaKind.includes('abs') ? 'checked' : ''}> abs</label><label class="toggle" style="padding:0"><input type="checkbox" data-ank="rel" ${an.deltaKind.includes('rel') ? 'checked' : ''}> %</label></div></div>
-        <div class="field"><label>${esc(t('lbl.sort'))}</label><select class="ctl" data-an="sortBy">${opt(['', 'value', 'delta', 'category'], an.sort ? an.sort.by : '', { '': t('opt.sort.none'), value: t('opt.sort.value'), delta: t('opt.sort.delta'), category: t('opt.sort.category') })}</select></div>
-        <div class="field"><label>${esc(t('lbl.sortDir'))}</label><select class="ctl" data-an="sortDir">${opt(['desc', 'asc'], an.sort ? an.sort.dir : 'desc', { desc: t('opt.sort.desc'), asc: t('opt.sort.asc') })}</select></div>
-        <div class="field"><label>${esc(t('lbl.topN'))}</label><input class="ctl" type="number" min="1" max="100" data-an="topN" value="${an.topN || ''}" placeholder="${esc(t('ph.anTopN'))}"></div>
-        <div class="field"><label>${esc(t('lbl.timeGrain'))}</label><select class="ctl" data-an="timeGrain">${opt(['', 'day', 'week', 'month', 'quarter', 'year'], an.timeGrain || '', { '': t('opt.grain.none'), day: t('opt.grain.day'), week: t('opt.grain.week'), month: t('opt.grain.month'), quarter: t('opt.grain.quarter'), year: t('opt.grain.year') })}</select></div>
-        <div class="field"><label>${esc(t('lbl.scaleGroup'))}</label><input class="ctl" data-an="scaleGroup" value="${esc(an.scaleGroup)}" placeholder="${esc(t('ph.anScaleGroup'))}"></div>
-        <div class="field"><label class="toggle" style="text-transform:none;letter-spacing:0"><input type="checkbox" data-an="cumulative" ${an.cumulative ? 'checked' : ''}> ${esc(t('lbl.cumulative'))}</label></div>
+        <div class="field"><label title="${esc(t('tip.an.polarity'))}">${esc(t('lbl.polarity'))}</label><select class="ctl" data-an="polarity" title="${esc(t('tip.an.polarity'))}">${opt(['', 'higher', 'lower'], a.polarity || '', { '': t('opt.polarity.auto', { v: t('opt.polarity.' + an.polarity) }), higher: t('opt.polarity.higher'), lower: t('opt.polarity.lower') })}</select></div>
+        ${hasBasis ? `<div class="field"><label title="${esc(t('tip.an.deltaBasis'))}">${esc(t('lbl.deltaBasis'))}</label><select class="ctl" data-an="deltaBasis" title="${esc(t('tip.an.deltaBasis'))}">${opt(['', 'PL', 'PY', 'BU', 'FC'], a.deltaBasis || '', { '': t('opt.autoBase', { v: an.deltaBasis }), PL: 'PL', PY: 'PY', BU: 'BU', FC: 'FC' })}</select></div>` : '<div></div>'}
+        <div class="field"><label title="${esc(t('tip.an.unit'))}">${esc(t('lbl.unit'))}</label><input class="ctl" data-an="unit" title="${esc(t('tip.an.unit'))}" value="${esc(an.unit)}" placeholder="${esc(t('ph.anUnit'))}"></div>
+        <div class="field"><label title="${esc(t('tip.an.displayUnits'))}">${esc(t('lbl.displayUnits'))}</label><select class="ctl" data-an="displayUnits" title="${esc(t('tip.an.displayUnits'))}">${opt(['auto', 'none', 'K', 'M'], an.displayUnits, { auto: t('opt.du.auto'), none: t('opt.du.none'), K: t('opt.du.K'), M: t('opt.du.M') })}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.decimals'))}">${esc(t('lbl.decimals'))}</label><input class="ctl" type="number" min="0" max="4" data-an="decimals" title="${esc(t('tip.an.decimals'))}" value="${an.decimals == null ? '' : an.decimals}" placeholder="${esc(t('ph.anDecimals'))}"></div>
+        <div class="field"><label title="${esc(t('tip.an.deltaKind'))}">${esc(t('lbl.deltaKind'))}</label><div class="row"><label class="toggle" style="padding:0" title="${esc(t('tip.an.deltaAbs'))}"><input type="checkbox" data-ank="abs" ${an.deltaKind.includes('abs') ? 'checked' : ''}> abs</label><label class="toggle" style="padding:0" title="${esc(t('tip.an.deltaRel'))}"><input type="checkbox" data-ank="rel" ${an.deltaKind.includes('rel') ? 'checked' : ''}> %</label></div></div>
+        <div class="field"><label title="${esc(t('tip.an.sort'))}">${esc(t('lbl.sort'))}</label><select class="ctl" data-an="sortBy" title="${esc(t('tip.an.sort'))}">${opt(['', 'value', 'delta', 'category'], an.sort ? an.sort.by : '', { '': t('opt.sort.none'), value: t('opt.sort.value'), delta: t('opt.sort.delta'), category: t('opt.sort.category') })}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.sortDir'))}">${esc(t('lbl.sortDir'))}</label><select class="ctl" data-an="sortDir" title="${esc(t('tip.an.sortDir'))}">${opt(['desc', 'asc'], an.sort ? an.sort.dir : 'desc', { desc: t('opt.sort.desc'), asc: t('opt.sort.asc') })}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.topN'))}">${esc(t('lbl.topN'))}</label><input class="ctl" type="number" min="1" max="100" data-an="topN" title="${esc(t('tip.an.topN'))}" value="${an.topN || ''}" placeholder="${esc(t('ph.anTopN'))}"></div>
+        <div class="field"><label title="${esc(t('tip.an.timeGrain'))}">${esc(t('lbl.timeGrain'))}</label><select class="ctl" data-an="timeGrain" title="${esc(t('tip.an.timeGrain'))}">${opt(['', 'day', 'week', 'month', 'quarter', 'year'], an.timeGrain || '', { '': t('opt.grain.none'), day: t('opt.grain.day'), week: t('opt.grain.week'), month: t('opt.grain.month'), quarter: t('opt.grain.quarter'), year: t('opt.grain.year') })}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.scaleGroup'))}">${esc(t('lbl.scaleGroup'))}</label><input class="ctl" data-an="scaleGroup" title="${esc(t('tip.an.scaleGroup'))}" value="${esc(an.scaleGroup)}" placeholder="${esc(t('ph.anScaleGroup'))}"></div>
+        <div class="field"><label class="toggle" style="text-transform:none;letter-spacing:0" title="${esc(t('tip.an.cumulative'))}"><input type="checkbox" data-an="cumulative" ${an.cumulative ? 'checked' : ''}> ${esc(t('lbl.cumulative'))}</label></div>
       </div>
-      <div class="field"><label>${esc(t('lbl.message'))}</label><input class="ctl" data-an="message" value="${esc(an.message)}" placeholder="${esc(t('ph.anMessage'))}"></div>
+      <div class="field"><label title="${esc(t('tip.an.message'))}">${esc(t('lbl.message'))}</label><input class="ctl" data-an="message" title="${esc(t('tip.an.message'))}" value="${esc(an.message)}" placeholder="${esc(t('ph.anMessage'))}"></div>
     `, false, Object.keys(a).length ? t('grp.set', { n: Object.keys(a).length }) : '') : '';
     const isText = v.kind === 'text' || v.kind === 'button';
     insEl.innerHTML = `
       <button class="btn tilewin-btn" data-tilewin="1" title="${esc(t('tip.tileWindow'))}">⤢ ${esc(t('lbl.tileWindow'))}</button>
       <button class="typebtn" id="btnPickType" title="${esc(t('tip.pickType'))}"><div class="pv">${pv}</div><div><b>${esc(def.label)}</b><small>${esc(t('hint.changeType', { group: def.group || '' }))}</small></div></button>
       ${def.note ? `<p class="${def.warnNote ? 'warn' : 'hint'}" style="margin-top:8px">${esc(def.note)}</p>` : ''}
-      <div class="field" style="margin-top:10px"><label>${esc(t('lbl.engine'))}</label><div class="engine">${engines}</div></div>
-      <div class="field"><label>${esc(t('lbl.vizTitle'))}</label><input class="ctl" data-vk="title" value="${esc(v.title)}" placeholder="${esc(def.label)}"></div>
-      <div class="field"><label>${esc(t('lbl.vizSub'))}</label><input class="ctl" data-vk="sub" value="${esc(v.sub)}" placeholder="${esc(t('ph.vizSub'))}"></div>
+      <div class="field" style="margin-top:10px"><label title="${esc(t('tip.engineSec'))}">${esc(t('lbl.engine'))}</label><div class="engine">${engines}</div></div>
+      <div class="field"><label title="${esc(t('tip.an.vizTitle'))}">${esc(t('lbl.vizTitle'))}</label><input class="ctl" data-vk="title" title="${esc(t('tip.an.vizTitle'))}" value="${esc(v.title)}" placeholder="${esc(def.label)}"></div>
+      <div class="field"><label title="${esc(t('tip.an.vizSub'))}">${esc(t('lbl.vizSub'))}</label><input class="ctl" data-vk="sub" title="${esc(t('tip.an.vizSub'))}" value="${esc(v.sub)}" placeholder="${esc(t('ph.vizSub'))}"></div>
       ${isText ? `<div class="field"><label>${esc(v.kind === 'button' ? t('lbl.btnCaption') : t('lbl.tileText'))}</label><textarea class="ctl" data-vk="content" placeholder="${esc(t('ph.tileText'))}">${esc(v.content || '')}</textarea></div>` : ''}
       ${hasRef ? `<div class="field"><label title="${esc(t('tip.scenario'))}">${esc(t('lbl.scenario'))}</label><select class="ctl" data-vk="scenario" title="${esc(t('tip.scenario'))}">${SCEN_OPTIONS.map(s => { const tip = t('tip.scenOpt.' + s.toLowerCase().replace(/\W/g, '')); return `<option value="${s}" title="${esc(tip)}" ${v.scenario === s ? 'selected' : ''}>${esc(tip)}</option>`; }).join('')}</select></div>` : ''}
       ${mismatchHtml(v, mm)}
       ${variants}
-      <div class="section"><h3>${esc(t('sec.roles'))} <span class="k" style="font-weight:400;text-transform:none;letter-spacing:0">${esc(t('sec.rolesHint'))}</span></h3>${roles || `<p class="hint">${esc(t('hint.noRoles'))}</p>`}</div>
+      <div class="section"><h3 title="${esc(t('tip.rolesSec'))}">${esc(t('sec.roles'))} <span class="k" style="font-weight:400;text-transform:none;letter-spacing:0">${esc(t('sec.rolesHint'))}</span></h3>${roles || `<p class="hint">${esc(t('hint.noRoles'))}</p>`}</div>
       ${analysis}
       ${grp('workshop', t('sec.workshop'), `
         <div class="grid2">
-          <div class="field"><label>${esc(t('lbl.priority'))}</label><select class="ctl" data-vk="priority">${opt(['', 'must', 'should', 'could'], v.priority || '', { '': t('opt.pri.none'), must: t('opt.pri.must'), should: t('opt.pri.should'), could: t('opt.pri.could') })}</select></div>
-          <div class="field"><label>${esc(t('lbl.status'))}</label><select class="ctl" data-vk="status">${opt(['open', 'agreed', 'approved'], v.status || 'open', { open: t('opt.status.open'), agreed: t('opt.status.agreed'), approved: t('opt.status.approved') })}</select></div>
+          <div class="field"><label title="${esc(t('tip.an.priority'))}">${esc(t('lbl.priority'))}</label><select class="ctl" data-vk="priority" title="${esc(t('tip.an.priority'))}">${opt(['', 'must', 'should', 'could'], v.priority || '', { '': t('opt.pri.none'), must: t('opt.pri.must'), should: t('opt.pri.should'), could: t('opt.pri.could') })}</select></div>
+          <div class="field"><label title="${esc(t('tip.an.status'))}">${esc(t('lbl.status'))}</label><select class="ctl" data-vk="status" title="${esc(t('tip.an.status'))}">${opt(['open', 'agreed', 'approved'], v.status || 'open', { open: t('opt.status.open'), agreed: t('opt.status.agreed'), approved: t('opt.status.approved') })}</select></div>
         </div>
-        <div class="field"><label>${esc(t('lbl.notes'))}</label><textarea class="ctl" data-vk="notes" placeholder="${esc(t('ph.notes'))}">${esc(v.notes)}</textarea></div>
-        <label class="toggle"><input type="checkbox" data-vkb="openQuestion" ${v.openQuestion ? 'checked' : ''}> ${esc(t('lbl.openQuestion'))}</label>
-        <div class="field"><label>${esc(t('lbl.link'))}</label><select class="ctl" data-vk="link">${links}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.notes'))}">${esc(t('lbl.notes'))}</label><textarea class="ctl" data-vk="notes" title="${esc(t('tip.an.notes'))}" placeholder="${esc(t('ph.notes'))}">${esc(v.notes)}</textarea></div>
+        <label class="toggle" title="${esc(t('tip.an.openQuestion'))}"><input type="checkbox" data-vkb="openQuestion" ${v.openQuestion ? 'checked' : ''}> ${esc(t('lbl.openQuestion'))}</label>
+        <div class="field"><label title="${esc(t('tip.an.link'))}">${esc(t('lbl.link'))}</label><select class="ctl" data-vk="link" title="${esc(t('tip.an.link'))}">${links}</select></div>
       `, true, v.priority ? t('opt.pri.' + v.priority) : (v.openQuestion ? '?' : ''))}
       ${dims}
       <div class="section row wrap"><button class="btn sm" data-ins="clear" title="${esc(t('tip.clearTile'))}">${esc(t('btn.clearTile'))}</button><button class="btn sm" data-ins="rm" title="${esc(t('tip.removeTile'))}">${esc(t('btn.removeTile'))}</button></div>`;
@@ -1600,10 +1606,13 @@ window.MK_VERSION = '0.5.5';
       else if (e.key === 'Tab') { e.preventDefault(); const bs = $$('button', roleMenu); const i = bs.indexOf(document.activeElement); if (bs.length) bs[i < 0 ? (e.shiftKey ? bs.length - 1 : 0) : (i + (e.shiftKey ? -1 : 1) + bs.length) % bs.length].focus(); }
       return;
     }
+    // F1 öffnet die Hilfe (und unterdrückt die Browser-Hilfe); bei offenem Dialog bleibt es still
+    if (e.key === 'F1' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) { e.preventDefault(); if (!openDialog()) $('#btnHelp').click(); return; }
     const dlgOpen = openDialog(); if (dlgOpen) { if (e.key === 'Tab' && !e.altKey && !e.ctrlKey && !e.metaKey) trapTab(e, dlgOpen); return; }   // Esc schließt nativ
     // Esc in einem Feld: Feld verlassen, Fokus auf die gewählte Kachel (sonst stünde er auf <body>, ohne sichtbaren Ring)
     if (tgt && tgt.matches && tgt.matches('input,textarea,select')) { if (e.key === 'Escape' && tgt.blur) { tgt.blur(); focusCanvas(sel); } return; }
     if (e.key === 'Escape') { const pinned = $$('.note-pop.pinned', pageEl); if (pinned.length) { pinned.forEach(p => p.classList.remove('pinned')); return; } if (document.body.classList.contains('present')) togglePresent(false); else { const was = sel; sel = null; render(); const a = document.activeElement; if (!a || a === document.body) focusCanvas(was); } }
+    else if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); $('#btnHelp').click(); }
     else if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey && !e.altKey) togglePresent();
     else if (e.key.toLowerCase() === 'n' && sel && !e.ctrlKey && !e.metaKey && !e.altKey) { const hit = findNode(sel); if (hit && hit.node.visual) openTileDialog(sel); }
     else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) { e.preventDefault(); redo(); }
