@@ -562,6 +562,13 @@ def _pick(obj, keys) -> dict:
     return {k: obj[k] for k in keys if k in obj}
 
 
+# Steckbrief-Angaben, die nur das Protokoll betreffen (wie `workshop.status`):
+# Sie zaehlen nicht zum Bau-Hash, damit eine im Workshop bestaetigte Definition
+# keinen Delta-Lauf ausloest. Gleiche Liste wie HASH_DOC_KEYS in export.js.
+HASH_DOC_KEYS = ("confirmed", "owner", "source", "target", "note", "daxComment",
+                 "openQuestion")
+
+
 def _hash_core_v3(spec: dict) -> dict:
     """Bau-Kern einer v3-Spec, gleiche Felder wie `core` in buildSpec (export.js),
     genau so, wie sie in der Datei stehen."""
@@ -575,6 +582,10 @@ def _hash_core_v3(spec: dict) -> dict:
             if isinstance(p, dict) and "visuals" in p else {}))
             for p in (spec.get("pages") or []) if isinstance(p, dict)]
     core.update(_pick(spec, ("fields", "newFields", "links")))
+    for key in ("fields", "newFields"):
+        if isinstance(core.get(key), list):
+            core[key] = [{k: v for k, v in f.items() if k not in HASH_DOC_KEYS}
+                         if isinstance(f, dict) else f for f in core[key]]
     return core
 
 

@@ -1,7 +1,7 @@
 {
   "generated": "<zeitstempel>",
   "report": "Test.Report",
-  "specHash": "0e4af1da",
+  "specHash": "06df74da",
   "specName": "Custom-Visual-Testfall",
   "tolerance": 1,
   "pages": [
@@ -174,6 +174,6 @@
   "bookmarks": [],
   "drillthrough": [],
   "annotations": {
-    "mockup-spec-hash": "0e4af1da"
+    "mockup-spec-hash": "06df74da"
   }
 }

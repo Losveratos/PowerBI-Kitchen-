@@ -1,7 +1,7 @@
 {
   "generated": "<zeitstempel>",
   "report": "Test.Report",
-  "specHash": "0fa58f3d",
+  "specHash": "14048cc9",
   "specName": "Nur ChartKitchen",
   "tolerance": 1,
   "pages": [
@@ -283,6 +283,6 @@
   ],
   "drillthrough": [],
   "annotations": {
-    "mockup-spec-hash": "0fa58f3d"
+    "mockup-spec-hash": "14048cc9"
   }
 }

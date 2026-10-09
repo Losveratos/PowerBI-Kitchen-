@@ -230,7 +230,7 @@
       "idempotent": "Gleicher Name überschreibt den Wert.",
       "delta": "Beim nächsten Lauf mit `pbir annotations list \"Test.Report\" --json` vergleichen: gleicher Hash = nichts zu tun.",
       "commands": [
-        "pbir add annotation \"Test.Report\" --name mockup-spec-hash --value \"0e8a3835\"",
+        "pbir add annotation \"Test.Report\" --name mockup-spec-hash --value \"2f1b399c\"",
         "pbir add annotation \"Test.Report\" --name mockup-spec-name --value \"Typografie- und Filter-Testfall\""
       ],
       "batch": null

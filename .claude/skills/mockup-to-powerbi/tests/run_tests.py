@@ -844,7 +844,7 @@ def typo_filter_tests(res: Results, P, M, D, Opt):
 # 4 · specHash (Kanonisierung wie export.js, references/spec-format.md)
 # --------------------------------------------------------------------------- #
 # Erwartete Werte aus dem Browser bzw. aus fnv()/canon() von export.js unter Node
-HASH_VECTOR = "24e8c769"
+HASH_VECTOR = "afc10f2a"
 HASH_CANON_IN = ('{"b": 1.0, "a": [1e-7, null, true, 1.5e21, -0.25], '
                  '"\\uffff": "x\\n\\u0001\\u2028", "\\ud83d\\ude00": "\\u00e9\\u1e9e"}')
 HASH_CANON_OUT = ('{"a":[1e-7,null,true,1.5e+21,-0.25],"b":1,'
@@ -876,6 +876,15 @@ def hash_tests(tmp: Path, res: Results, exports=None):
     edited = json.loads(json.dumps(spec))
     edited["pages"][0]["visuals"][0]["title"] = "Umsatz (von Hand)"
     res.check("Handkorrektur aendert den Hash", M.spec_hash(edited) != HASH_VECTOR)
+    doc = json.loads(json.dumps(spec))
+    for f in doc.get("fields") or []:
+        f.update(confirmed=not f.get("confirmed"), owner="Controlling", note="geprueft",
+                 daxComment="ok", source="SAP", target="100")
+    res.check("Steckbrief-Doku (bestaetigt, Owner, Notiz) aendert den Hash nicht",
+              bool(doc.get("fields")) and M.spec_hash(doc) == HASH_VECTOR)
+    if doc.get("fields"):
+        doc["fields"][0]["alias"] = "Nettoerloes"
+    res.check("Alias (te rename) aendert den Hash", M.spec_hash(doc) != HASH_VECTOR)
     n_ed = M.upgrade(edited)
     res.check("Bau-Hash ist der nachgerechnete",
               M.build_hash(n_ed) == M.spec_hash(edited)

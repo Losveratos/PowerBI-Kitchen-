@@ -153,7 +153,7 @@
       "idempotent": "Gleicher Name überschreibt den Wert.",
       "delta": "Beim nächsten Lauf mit `pbir annotations list \"Test.Report\" --json` vergleichen: gleicher Hash = nichts zu tun.",
       "commands": [
-        "pbir add annotation \"Test.Report\" --name mockup-spec-hash --value \"0e4af1da\"",
+        "pbir add annotation \"Test.Report\" --name mockup-spec-hash --value \"06df74da\"",
         "pbir add annotation \"Test.Report\" --name mockup-spec-name --value \"Custom-Visual-Testfall\""
       ],
       "batch": null

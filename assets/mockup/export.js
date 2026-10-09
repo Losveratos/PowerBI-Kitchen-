@@ -26,6 +26,10 @@
   // Regeln wie spec_hash() in mockup_spec.py, festgelegt in references/spec-format.md („Kanonisierung des specHash"):
   // Schlüssel nach UTF-16-Codeeinheiten sortiert, Schlüssel mit undefined fallen weg (wie in JSON.stringify),
   // Zahlen und Texte wie JSON.stringify, FNV-1a über die UTF-16-Codeeinheiten (charCodeAt)
+  // Steckbrief-Angaben, die nur das Protokoll betreffen, zählen nicht zum Bau-Hash (wie workshop.status):
+  // eine im Workshop bestätigte Definition soll beim Agenten keinen Delta-Lauf auslösen (Review 09.10., R3)
+  const HASH_DOC_KEYS = ['confirmed', 'owner', 'source', 'target', 'note', 'daxComment', 'openQuestion'];
+  const noDoc = f => { const o = Object.assign({}, f); HASH_DOC_KEYS.forEach(k => delete o[k]); return o; };
   function fnv(str) { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return ('0000000' + h.toString(16)).slice(-8); }
   function canon(o) { if (Array.isArray(o)) return '[' + o.map(x => x === undefined ? 'null' : canon(x)).join(',') + ']'; if (o && typeof o === 'object') return '{' + Object.keys(o).filter(k => o[k] !== undefined).sort().map(k => JSON.stringify(k) + ':' + canon(o[k])).join(',') + '}'; return JSON.stringify(o); }
 
@@ -183,7 +187,7 @@
     // so lässt sich der Hash aus der Spec allein nachrechnen.
     const core = JSON.parse(JSON.stringify({ canvas: { width: spec.canvas.width, height: spec.canvas.height }, design: spec.design, zones: spec.zones,
       pages: spec.pages.map(p => ({ name: p.name, question: p.question, visuals: p.visuals.map(v => ({ id: v.id, kind: v.kind, engine: v.engine, title: v.title, content: v.content, rect: v.rect, roles: v.roles, analysis: v.analysis, link: v.link })) })),
-      fields: spec.fields, newFields: spec.newFields, links: spec.links }));
+      fields: spec.fields.map(noDoc), newFields: spec.newFields.map(noDoc), links: spec.links }));
     spec.meta.specHash = fnv(canon(core));
     return spec;
   }

@@ -126,6 +126,11 @@ sich aus der Spec allein nachrechnen.
 - **v3 (Datei aus dem Tool):** Werte genau so, wie sie in der Datei stehen,
   ganze Objekte (`design` mit `colors`, `zones`, `analysis`, `fields[]` mit
   Steckbrief). Fehlt ein Schlüssel in der Datei, fehlt er auch im Kern.
+  Ausnahme ab Tool 0.5.5: In `fields[]` und `newFields[]` fallen die reinen
+  Protokoll-Angaben `confirmed`, `owner`, `source`, `target`, `note`,
+  `daxComment` und `openQuestion` weg (`HASH_DOC_KEYS`), wie `workshop.status`.
+  Eine im Workshop bestätigte Definition löst so keinen Delta-Lauf aus; Alias,
+  Umbenennung, Formatwunsch und Einheit zählen weiter, weil der Skill sie baut.
   `spec_hash()` bekommt die rohe Spec (`load()`), nicht die gehobene Form.
 - **v1/v2 (gehoben):** Kern aus der gehobenen Form, ohne
   `design.variancePalette`, `varianceColors`, `colors`
@@ -149,7 +154,7 @@ außerhalb der BMP sind zwei Surrogate). Ergebnis: 8 Hex-Ziffern, klein, mit
 führenden Nullen.
 
 **Testvektor:** `tests/fixtures/hash-vektor.json` (Tool-Export mit Emoji,
-Steuerzeichen, U+2028 und Kommazahlen) ergibt `24e8c769`. Kanonisierung an
+Steuerzeichen, U+2028 und Kommazahlen) ergibt `afc10f2a`. Kanonisierung an
 Sonderfällen: `{"b": 1.0, "a": [1e-7, null, true]}` wird
 `{"a":[1e-7,null,true],"b":1}`. `run_tests.py --exports <Ordner>` rechnet
 zusätzlich alle `mockup-spec.json` eines Ordners nach.
