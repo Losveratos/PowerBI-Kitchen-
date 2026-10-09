@@ -1,7 +1,7 @@
 {
   "generated": "<zeitstempel>",
   "report": "Test.Report",
-  "specHash": "variants1",
+  "specHash": "1d1f6ee4",
   "specName": "Darstellungsvarianten-Testfall",
   "tolerance": 1,
   "pages": [
@@ -249,6 +249,6 @@
   "bookmarks": [],
   "drillthrough": [],
   "annotations": {
-    "mockup-spec-hash": "variants1"
+    "mockup-spec-hash": "1d1f6ee4"
   }
 }

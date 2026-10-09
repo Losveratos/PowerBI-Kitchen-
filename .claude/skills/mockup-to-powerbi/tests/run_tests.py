@@ -24,6 +24,10 @@ Drei Arten von Tests:
    (`MOCKUP_NO_JSONSCHEMA=1`).
 3. **Einheiten** — kleine Funktionen aus `mockup_spec.py` und `mockup_verify.py`,
    die ohne CLI pruefbar sind.
+4. **specHash** — Testvektor `fixtures/hash-vektor.json` (Tool-Export, Hash im
+   Browser gerechnet), Kanonisierung an Sonderfaellen, Warnung von `--validate`
+   bei manipuliertem Hash. Mit `--exports <Ordner>` werden zusaetzlich alle
+   `mockup-spec.json` darunter nachgerechnet (nicht Teil des Standardlaufs).
 """
 
 from __future__ import annotations
@@ -837,12 +841,122 @@ def typo_filter_tests(res: Results, P, M, D, Opt):
 
 
 # --------------------------------------------------------------------------- #
+# 4 · specHash (Kanonisierung wie export.js, references/spec-format.md)
+# --------------------------------------------------------------------------- #
+# Erwartete Werte aus dem Browser bzw. aus fnv()/canon() von export.js unter Node
+HASH_VECTOR = "24e8c769"
+HASH_CANON_IN = ('{"b": 1.0, "a": [1e-7, null, true, 1.5e21, -0.25], '
+                 '"\\uffff": "x\\n\\u0001\\u2028", "\\ud83d\\ude00": "\\u00e9\\u1e9e"}')
+HASH_CANON_OUT = ('{"a":[1e-7,null,true,1.5e+21,-0.25],"b":1,'
+                  '"\U0001F600":"\u00e9\u1e9e","\uffff":"x\\n\\u0001\u2028"}')
+HASH_CANON_FNV = "22c9a214"
+
+
+def hash_tests(tmp: Path, res: Results, exports=None):
+    import mockup_spec as M
+
+    vec = FIXTURES / "hash-vektor.json"
+    spec = M.load(vec)
+    res.check("Testvektor · spec_hash = meta.specHash aus dem Tool",
+              M.spec_hash(spec) == spec["meta"]["specHash"] == HASH_VECTOR,
+              "%s / %s" % (M.spec_hash(spec), spec["meta"]["specHash"]))
+    canon = M._canon(json.loads(HASH_CANON_IN))
+    res.check("Kanonisierung wie canon() in export.js", canon == HASH_CANON_OUT, canon)
+    res.check("FNV-1a wie fnv() in export.js",
+              M.fnv1a(canon) == HASH_CANON_FNV and M.fnv1a("\U0001F600") == "cb31c4b8"
+              and M.fnv1a("") == "811c9dc5")
+    res.check("Zahlen wie JSON.stringify",
+              [M._js_number(x) for x in (5.0, 9.5, 1e21, 1e-7, 1e-6, -0.0, 2 ** 60)]
+              == ["5", "9.5", "1e+21", "1e-7", "0.000001", "0", "1152921504606847000"])
+    res.check("v1/v2 behalten ihren Hash",
+              M.upgrade(M.load(FIXTURES / "v1-einseitig.json"))["meta"]["specHash"] == "7e7618d2"
+              and M.upgrade(M.load(FIXTURES / "v2-zweiseitig.json"))["meta"]["specHash"]
+              == "02f4ddc3")
+
+    edited = json.loads(json.dumps(spec))
+    edited["pages"][0]["visuals"][0]["title"] = "Umsatz (von Hand)"
+    res.check("Handkorrektur aendert den Hash", M.spec_hash(edited) != HASH_VECTOR)
+    n_ed = M.upgrade(edited)
+    res.check("Bau-Hash ist der nachgerechnete",
+              M.build_hash(n_ed) == M.spec_hash(edited)
+              and n_ed["meta"]["specHash"] == HASH_VECTOR
+              and M.hash_mismatch(n_ed) == (M.spec_hash(edited), HASH_VECTOR))
+    res.check("passender Hash · kein Befund", M.hash_mismatch(M.upgrade(spec)) is None)
+
+    script = str(SCRIPTS / "mockup_to_pbir.py")
+    code, _, stderr = run([script, str(vec), "--validate"])
+    res.check("--validate · passender Hash ohne Warnung",
+              code == 0 and "specHash passt nicht" not in stderr, stderr.strip()[:200])
+    bad = tmp / "hash-manipuliert.json"
+    forged = json.loads(json.dumps(spec))
+    forged["meta"]["specHash"] = "deadbeef"
+    bad.write_text(json.dumps(forged, ensure_ascii=False), encoding="utf-8")
+    code, _, stderr = run([script, str(bad), "--validate"])
+    res.check("--validate · manipulierter Hash = Warnung, kein Abbruch",
+              code == 0 and "specHash passt nicht zum Inhalt" in stderr
+              and ("gerechnet %s, in der Spec deadbeef" % HASH_VECTOR) in stderr,
+              "Exit %d · %s" % (code, stderr.strip()[:200]))
+    out = tmp / "hash-plan"
+    code, _, _ = run([script, str(bad), "--out", str(out), "--report", REPORT, "--plan"])
+    acc = json.loads((out / "acceptance.json").read_text(encoding="utf-8")) if code == 0 else {}
+    res.check("Sollbild traegt den nachgerechneten Hash",
+              (acc.get("annotations") or {}).get("mockup-spec-hash") == HASH_VECTOR
+              and acc.get("specHash") == HASH_VECTOR, json.dumps(acc.get("annotations")))
+
+    if exports:
+        files = sorted(Path(exports).expanduser().rglob("mockup-spec.json"))
+        files += sorted(Path(exports).expanduser().rglob("*.mockup-spec.json"))
+        n = 0
+        for f in files:
+            raw = M.load(f)
+            if M.spec_version(raw) < 3:
+                continue
+            n += 1
+            have, want = M.spec_hash(raw), (raw.get("meta") or {}).get("specHash")
+            res.check("Export %s · Hash nachgerechnet" % f.relative_to(Path(exports).expanduser()),
+                      have == want, "gerechnet %s, in der Spec %s" % (have, want))
+        res.check("Exporte gefunden in %s" % exports, n > 0, "keine v3-Spec gefunden")
+
+
+def review_fix_tests(tmp: Path, res: Results):
+    """Regressionen aus dem Persona-Review vom 09.10. (R1 GuV-Buckets, R2 PNG-Namen)."""
+    import mockup_to_pbir as P
+    import mockup_to_docs as D
+
+    def pnl(buckets):
+        return {"pages": [{"name": "S", "visuals": [{"id": "mk_a", "title": "GuV",
+                "customVisual": {"buckets": buckets}}]}]}
+    m = lambda name: [{"ref": "_Measures." + name, "kind": "measure"}]
+    # Export bis Tool 0.5.4: BU in py, PY in pl (Namensregel griff nie)
+    warn = P.cv_bucket_warnings(pnl({"py": m("BU"), "pl": m("PY"), "fc": m("FC")}))
+    res.check("R1 · vertauschte GuV-Buckets werden gemeldet",
+              len(warn) == 2 and "„BU“ steht im Bucket py" in warn[0], " | ".join(warn))
+    res.check("R1 · richtige Buckets ohne Befund",
+              P.cv_bucket_warnings(pnl({"py": m("PY"), "pl": m("BU"), "fc": m("FC3")})) == [])
+    res.check("R1 · Namen ohne Szenario werden nicht geraten",
+              P.cv_bucket_warnings(pnl({"py": m("Umsatz Monthly"), "pl": m("Supply")})) == [])
+
+    page = {"index": 1, "name": "Detail Standort"}
+    folder = tmp / "png-namen"
+    folder.mkdir(exist_ok=True)
+    (folder / "page-1-detail-standort.png").write_bytes(b"\x89PNG")
+    res.check("R2 · alte PNG-Namen (bis 0.5.4) werden gefunden",
+              (D.page_image({}, page, folder) or Path()).name == "page-1-detail-standort.png")
+    (folder / "page-1-Detail_Standort.png").write_bytes(b"\x89PNG")
+    res.check("R2 · neuer PNG-Name hat Vorrang",
+              (D.page_image({}, page, folder) or Path()).name == "page-1-Detail_Standort.png")
+
+
+# --------------------------------------------------------------------------- #
 def main() -> int:
     ap = argparse.ArgumentParser(description="Evals fuer mockup-to-powerbi")
     ap.add_argument("--update", action="store_true",
                     help="Golden-Dateien neu schreiben (nach bewussten Aenderungen)")
     ap.add_argument("--only", default=None, help="nur Faelle mit diesem Text im Namen")
     ap.add_argument("-v", "--verbose", action="store_true", help="Diffs zeigen")
+    ap.add_argument("--exports", default=None,
+                    help="Ordner mit Tool-Exporten (mockup-spec.json): Hash von jedem "
+                         "nachrechnen")
     opt = ap.parse_args()
 
     for stream in (sys.stdout, sys.stderr):
@@ -864,6 +978,10 @@ def main() -> int:
             validation_tests(tmp, res)
             print("Einheiten")
             unit_tests(res)
+            print("specHash")
+            hash_tests(tmp, res, opt.exports)
+            print("Review 09.10.")
+            review_fix_tests(tmp, res)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

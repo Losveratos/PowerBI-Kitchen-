@@ -402,8 +402,13 @@ def split_ref(ref: str) -> tuple:
     return table, field
 
 
+# --------------------------------------------------------------------------- #
+# specHash · Kanonisierung (festgelegt in references/spec-format.md,
+# Abschnitt „Kanonisierung des specHash"; gleiche Regeln wie fnv()/canon() und
+# der Bau-Kern in buildSpec von assets/mockup/export.js)
+# --------------------------------------------------------------------------- #
 def fnv1a(text: str) -> str:
-    """FNV-1a wie fnv() in export.js — ueber UTF-16-Codeeinheiten (charCodeAt)."""
+    """FNV-1a wie fnv() in export.js, ueber UTF-16-Codeeinheiten (charCodeAt)."""
     h = 0x811C9DC5
     for ch in text:
         o = ord(ch)
@@ -417,13 +422,94 @@ def fnv1a(text: str) -> str:
     return ("0000000" + format(h, "x"))[-8:]
 
 
+_JS_ESC = {0x08: "\\b", 0x09: "\\t", 0x0A: "\\n", 0x0C: "\\f", 0x0D: "\\r",
+           0x22: '\\"', 0x5C: "\\\\"}
+
+
+def _js_string(s: str) -> str:
+    """Text wie JSON.stringify: nur Steuerzeichen, Anfuehrungszeichen, Backslash
+    und einzelne Surrogate werden maskiert (\\u00xx klein), alles andere bleibt."""
+    out = ['"']
+    for ch in s:
+        o = ord(ch)
+        if o in _JS_ESC:
+            out.append(_JS_ESC[o])
+        elif o < 0x20 or 0xD800 <= o <= 0xDFFF:
+            out.append("\\u%04x" % o)
+        else:
+            out.append(ch)
+    out.append('"')
+    return "".join(out)
+
+
+def _js_number(x) -> str:
+    """Zahl wie JSON.stringify (Number::toString): 5.0 -> "5", 1e21 -> "1e+21",
+    1e-7 -> "1e-7", NaN/Infinity -> "null". Python und JS liefern dieselben
+    kuerzesten Ziffern, nur die Schreibweise unterscheidet sich."""
+    if isinstance(x, int) and abs(x) <= 2 ** 53:   # darueber rundet auch JS
+        return str(x)
+    x = float(x)
+    if x != x or x in (float("inf"), float("-inf")):
+        return "null"
+    if x == 0:
+        return "0"
+    sign = "-" if x < 0 else ""
+    mant, _, exp = repr(abs(x)).partition("e")
+    whole, _, frac = mant.partition(".")
+    digits = whole + frac
+    n = len(whole) + (int(exp) if exp else 0)   # Wert = 0.<digits> * 10^n
+    stripped = digits.lstrip("0")
+    n -= len(digits) - len(stripped)
+    digits = stripped.rstrip("0") or "0"
+    k = len(digits)
+    if k <= n <= 21:
+        body = digits + "0" * (n - k)
+    elif 0 < n <= 21:
+        body = digits[:n] + "." + digits[n:]
+    elif -6 < n <= 0:
+        body = "0." + "0" * (-n) + digits
+    else:
+        e = n - 1
+        body = (digits[0] + ("." + digits[1:] if k > 1 else "")
+                + "e" + ("+" if e >= 0 else "-") + str(abs(e)))
+    return sign + body
+
+
+def _utf16_key(k: str) -> bytes:
+    # Array.prototype.sort() vergleicht UTF-16-Codeeinheiten, nicht Codepunkte
+    return k.encode("utf-16-be", "surrogatepass")
+
+
 def _canon(obj) -> str:
-    """Kanonische Serialisierung wie canon() in export.js (JS-JSON-Stil)."""
-    if isinstance(obj, list):
+    """Kanonische Serialisierung wie canon() in export.js: Schluessel nach
+    UTF-16-Codeeinheiten sortiert, ohne Leerraum, Texte und Zahlen wie
+    JSON.stringify."""
+    if isinstance(obj, (list, tuple)):
         return "[" + ",".join(_canon(o) for o in obj) + "]"
     if isinstance(obj, dict):
         return "{" + ",".join(
-            json.dumps(k, ensure_ascii=False) + ":" + _canon(obj[k])
+            _js_string(str(k)) + ":" + _canon(obj[k])
+            for k in sorted(obj.keys(), key=lambda k: _utf16_key(str(k)))) + "}"
+    if obj is True:
+        return "true"
+    if obj is False:
+        return "false"
+    if obj is None:
+        return "null"
+    if isinstance(obj, (int, float)):
+        return _js_number(obj)
+    return _js_string(str(obj))
+
+
+def _canon_legacy(obj) -> str:
+    """Serialisierung der gehobenen v1/v2-Specs, wie sie seit Tool 0.4 gilt
+    (Python-JSON-Zahlen: 1.0 bleibt 1.0). Bleibt so, damit deren Hash stabil
+    bleibt; fuer v3 gilt `_canon`."""
+    if isinstance(obj, list):
+        return "[" + ",".join(_canon_legacy(o) for o in obj) + "]"
+    if isinstance(obj, dict):
+        return "{" + ",".join(
+            json.dumps(k, ensure_ascii=False) + ":" + _canon_legacy(obj[k])
             for k in sorted(obj.keys())) + "}"
     if obj is True:
         return "true"
@@ -434,17 +520,18 @@ def _canon(obj) -> str:
     return json.dumps(obj, ensure_ascii=False)
 
 
-# Schluessel, die `normalise_design` ergaenzt. Sie bleiben aus dem Hash heraus,
-# damit ein v1/v2-Mockup denselben Hash behaelt wie vor Tool 0.4 — sonst meldete
-# der naechste Lauf an einem bereits gebauten Bericht faelschlich eine Aenderung.
-# Fuer Specs aus dem Tool zaehlt ohnehin `meta.specHash` aus export.js.
+# Schluessel, die `normalise_design` ergaenzt. Sie bleiben bei **gehobenen
+# v1/v2-Specs** aus dem Hash heraus, damit ein v1/v2-Mockup denselben Hash
+# behaelt wie vor Tool 0.4; sonst meldete der naechste Lauf an einem bereits
+# gebauten Bericht faelschlich eine Aenderung. Eine v3-Spec aus dem Tool wird
+# so gehasht, wie sie in der Datei steht (siehe `spec_hash`).
 HASH_SKIP_DESIGN = ("variancePalette", "varianceColors", "colors")
 
-# Analyse-Schluessel, die es erst ab Tool 0.4.1 gibt. Sind sie **nicht benutzt**
-# (`None`), bleiben sie aus dem Hash heraus — sonst bekaeme ein v1/v2-Mockup
-# einen anderen Hash als vor 0.4.1 und der naechste Lauf meldete faelschlich eine
-# Aenderung an einem bereits gebauten Bericht. Ist die Variante gesetzt, zaehlt
-# sie ganz normal mit, damit zwei Mockups sich nicht denselben Hash teilen.
+# Analyse-Schluessel, die es erst ab Tool 0.4.1 gibt. Sind sie bei einer
+# gehobenen v1/v2-Spec **nicht benutzt** (`None`), bleiben sie aus dem Hash
+# heraus, sonst bekaeme ein v1/v2-Mockup einen anderen Hash als vor 0.4.1. Ist
+# die Variante gesetzt, zaehlt sie ganz normal mit, damit zwei Mockups sich
+# nicht denselben Hash teilen.
 HASH_SKIP_ANALYSIS_IF_NULL = ("smallMultiples", "fieldParam")
 
 
@@ -455,9 +542,45 @@ def _hash_analysis(analysis):
             if not (k in HASH_SKIP_ANALYSIS_IF_NULL and v is None)}
 
 
-def spec_hash(spec: dict) -> str:
-    """FNV-1a ueber den bau-relevanten Kern — gleiche Felder wie export.js."""
-    core = {
+def _hash_source_version(spec: dict) -> int:
+    """Aus welcher Spec-Version stammt der Inhalt? Gehobene Specs tragen sie
+    als `sourceVersion` bzw. `meta.sourceSpecVersion`."""
+    meta = spec.get("meta") or {}
+    for v in (spec.get("sourceVersion"), meta.get("sourceSpecVersion")):
+        if v:
+            try:
+                return int(v)
+            except (TypeError, ValueError):
+                break
+    return spec_version(spec)
+
+
+def _pick(obj, keys) -> dict:
+    """Nur Schluessel, die da sind: was in der Datei fehlt, faellt auch in JS
+    (undefined) aus dem Kern heraus."""
+    obj = obj if isinstance(obj, dict) else {}
+    return {k: obj[k] for k in keys if k in obj}
+
+
+def _hash_core_v3(spec: dict) -> dict:
+    """Bau-Kern einer v3-Spec, gleiche Felder wie `core` in buildSpec (export.js),
+    genau so, wie sie in der Datei stehen."""
+    core = {"canvas": _pick(spec.get("canvas"), ("width", "height"))}
+    core.update(_pick(spec, ("design", "zones")))
+    if "pages" in spec:
+        core["pages"] = [dict(_pick(p, ("name", "question")), **(
+            {"visuals": [_pick(v, ("id", "kind", "engine", "title", "content", "rect",
+                                   "roles", "analysis", "link"))
+                         for v in (p.get("visuals") or [])]}
+            if isinstance(p, dict) and "visuals" in p else {}))
+            for p in (spec.get("pages") or []) if isinstance(p, dict)]
+    core.update(_pick(spec, ("fields", "newFields", "links")))
+    return core
+
+
+def _hash_core_legacy(spec: dict) -> dict:
+    """Bau-Kern einer gehobenen v1/v2-Spec (Regeln seit Tool 0.4, unveraendert)."""
+    return {
         "canvas": {"width": (spec.get("canvas") or {}).get("width"),
                    "height": (spec.get("canvas") or {}).get("height")},
         "design": {k: v for k, v in (spec.get("design") or {}).items()
@@ -477,7 +600,19 @@ def spec_hash(spec: dict) -> str:
         "newFields": spec.get("newFields") or [],
         "links": spec.get("links") or [],
     }
-    return fnv1a(_canon(core))
+
+
+def spec_hash(spec: dict) -> str:
+    """FNV-1a ueber den bau-relevanten Kern.
+
+    v3 (die Datei aus dem Tool, roh wie von `load`): gleiche Felder wie `core`
+    in buildSpec (export.js), Werte wie geschrieben; reproduziert
+    `meta.specHash` exakt. Gehobene v1/v2-Specs: alte Regeln mit
+    HASH_SKIP_DESIGN, HASH_SKIP_ANALYSIS_IF_NULL und `_canon_legacy`, damit
+    ihr Hash stabil bleibt."""
+    if _hash_source_version(spec) >= 3:
+        return fnv1a(_canon(_hash_core_v3(spec)))
+    return fnv1a(_canon_legacy(_hash_core_legacy(spec)))
 
 
 def spec_version(spec: dict) -> int:
@@ -607,6 +742,8 @@ def upgrade(raw: dict, page_name_override=None) -> dict:
         raise SpecError("Spec-Version %d ist ungueltig." % version)
 
     spec = json.loads(json.dumps(raw))          # tiefe Kopie, Original bleibt
+    # v3: Hash aus der Datei, wie sie ist (vor jeder Normalisierung), wie buildSpec ihn rechnet
+    raw_hash = spec_hash(raw) if version >= 3 else None
     meta = dict(spec.get("meta") or {})
     canvas = spec.get("canvas") or {}
     zones = spec.get("zones") or {}
@@ -810,9 +947,29 @@ def upgrade(raw: dict, page_name_override=None) -> dict:
     meta["specVersion"] = SUPPORTED_SPEC_VERSION
     meta.setdefault("name", "Mockup")
     meta.setdefault("lang", "de")
+    # Bau-Hash: nachgerechnet, nicht abgeschrieben. Er kommt in die Annotation
+    # `mockup-spec-hash` und ins Sollbild, damit eine Handkorrektur an der Spec den
+    # naechsten Delta-Lauf ausloest. `meta.specHash` bleibt, wie er in der Datei steht.
+    out["specHashComputed"] = raw_hash or spec_hash(out)
     if not meta.get("specHash"):
-        meta["specHash"] = spec_hash(out)
+        meta["specHash"] = out["specHashComputed"]
     return out
+
+
+def build_hash(nspec: dict) -> str:
+    """Hash, der fuer Annotation und Delta-Lauf zaehlt (nachgerechnet)."""
+    return nspec.get("specHashComputed") or (nspec.get("meta") or {}).get("specHash") or ""
+
+
+def hash_mismatch(nspec: dict):
+    """(gerechnet, eingetragen), wenn eine v3-Spec einen specHash traegt, der
+    nicht zum Inhalt passt; sonst None. v1/v2 bleiben aussen vor: ihr Hash
+    stammt aus aelteren Tool-Staenden mit anderem Kern."""
+    given = (nspec.get("meta") or {}).get("specHash")
+    calc = nspec.get("specHashComputed")
+    if nspec.get("sourceVersion", 0) >= 3 and given and calc and given != calc:
+        return calc, given
+    return None
 
 
 def as_document(nspec: dict) -> dict:

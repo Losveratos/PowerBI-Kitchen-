@@ -264,7 +264,10 @@ pbir annotations list "<Name>.Report" --json      # mockup-spec-hash des letzten
 ```
 
 Gleicher `mockup-spec-hash` wie in `acceptance.json` → am Bericht hat sich
-nichts zu ändern. Anderer Hash → Delta-Lauf: **nicht** neu anlegen, sondern
+nichts zu ändern. Verglichen wird mit dem Hash, den `mockup_to_pbir.py` aus der
+Spec **nachrechnet** (steht in `acceptance.json` und im Annotationsbefehl), nicht
+mit dem eingetragenen `meta.specHash`; passen beide nicht zusammen, warnt der
+Lauf („specHash passt nicht zum Inhalt"). Anderer Hash → Delta-Lauf: **nicht** neu anlegen, sondern
 `<Seitenslug>/delta-batch.json` laufen lassen (aktualisiert Position, Größe und
 Feldbindung der vorhandenen Visuals). Gelöschtes nur melden.
 
@@ -567,7 +570,7 @@ Den Spec-Hash nach dem Bau am Report ablegen, damit der nächste Lauf weiß, was
 gebaut wurde:
 
 ```bash
-pbir add annotation "<Name>.Report" --name mockup-spec-hash --value "<meta.specHash>"
+pbir add annotation "<Name>.Report" --name mockup-spec-hash --value "<Hash aus acceptance.json>"
 ```
 
 - Alle Seiten teilen dieselbe Inhaltszone, deshalb reicht **eine** `zones.json`.

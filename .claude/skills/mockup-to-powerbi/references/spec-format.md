@@ -82,8 +82,10 @@ Wieder abwärtskompatibel. Fehlen die Schlüssel, ist die jeweilige Variante aus
 | `zones.header.navOn` | bool, Vorgabe `true`. `false` = **keine** Seitennavigation im Kopfband |
 | Issue-Codes `SM_NO_FIELD`, `FIELDPARAM_FEW` | siehe [`issues[]`](#issues-ab-v3) |
 
-> **Hash-Stabilität:** `smallMultiples` und `fieldParam` zählen nur dann in
-> `meta.specHash` mit, wenn sie **gesetzt** sind. Ein v1/v2-Mockup behält so
+> **Hash-Stabilität:** Bei gehobenen v1/v2-Specs zählen `smallMultiples` und
+> `fieldParam` nur dann in `meta.specHash` mit, wenn sie **gesetzt** sind
+> (eine v3-Spec aus dem Tool zählt sie, wie sie dasteht, siehe
+> [Kanonisierung](#kanonisierung-des-spechash)). Ein v1/v2-Mockup behält so
 > denselben Hash wie vor 0.4.1 — sonst meldete der nächste Lauf an einem
 > bereits gebauten Bericht fälschlich eine Änderung
 > (`mockup_spec.HASH_SKIP_ANALYSIS_IF_NULL`, dieselbe Idee wie bei `design`).
@@ -104,6 +106,62 @@ Wieder abwärtskompatibel: fehlt ein Schlüssel, baut der Skill genau wie vorher
 | `visuals[].samples`, `design.nativePalette` | 0.4.7 | Beispielwerte je Kachel (`categories`, `values`, `refValues`, nur Anschauung) und Farbschema der Skizzen für native Visuals (`neutral`/`pbi`/`kitchen`). Beides ist **kein** Bauauftrag: keine Daten in den Bericht schreiben, Datenfarben regelt das Theme |
 | `zones.filter.slicers[].type` | 0.4.4 / 0.4.6 | Slicer-Art `dropdown` · `list` · `tile` · `between` · `date` · `search` · ab 0.4.6 `relative` · `button` |
 | Issue-Codes `A11Y_*` | 0.4.4 | Befunde der Barrierefreiheits-Prüfung |
+
+## Kanonisierung des `specHash`
+
+`meta.specHash` sagt, welcher Mockup-Stand gebaut wurde. Tool (`fnv()`,
+`canon()` und `core` in `buildSpec`, `assets/mockup/export.js`) und Skill
+(`mockup_spec.spec_hash()`) rechnen ihn nach denselben Regeln; der Hash lässt
+sich aus der Spec allein nachrechnen.
+
+**Kern** (sonst zählt nichts, auch nicht `meta`, `report`, `issues`, `model`):
+
+```
+{ canvas: {width, height}, design, zones,
+  pages: [{ name, question,
+            visuals: [{ id, kind, engine, title, content, rect, roles, analysis, link }] }],
+  fields, newFields, links }
+```
+
+- **v3 (Datei aus dem Tool):** Werte genau so, wie sie in der Datei stehen,
+  ganze Objekte (`design` mit `colors`, `zones`, `analysis`, `fields[]` mit
+  Steckbrief). Fehlt ein Schlüssel in der Datei, fehlt er auch im Kern.
+  `spec_hash()` bekommt die rohe Spec (`load()`), nicht die gehobene Form.
+- **v1/v2 (gehoben):** Kern aus der gehobenen Form, ohne
+  `design.variancePalette`, `varianceColors`, `colors`
+  (`HASH_SKIP_DESIGN`) und ohne ungenutzte `smallMultiples`/`fieldParam`
+  (`HASH_SKIP_ANALYSIS_IF_NULL`), mit der alten Python-Serialisierung
+  (`_canon_legacy`). So bleibt der Hash dieser Mockups wie vor Tool 0.4.
+
+**Serialisierung** (v3), ohne Leerraum:
+
+| Wert | Schreibweise |
+|---|---|
+| Objekt | `{"a":…,"b":…}`, Schlüssel nach **UTF-16-Codeeinheiten** sortiert (wie `Array.prototype.sort()`), Schlüssel mit `undefined` fallen weg |
+| Liste | `[…]` in Originalreihenfolge |
+| Text | wie `JSON.stringify`: `\"`, `\\`, `\b`, `\f`, `\n`, `\r`, `\t`, übrige Steuerzeichen unter U+0020 und einzelne Surrogate als `\u00xx` (klein); alles andere unverändert, auch Umlaute, Emoji und U+2028 |
+| Zahl | wie `JSON.stringify` (`Number::toString`): `5.0` wird `5`, `9.5` bleibt, `1e21` wird `1e+21`, `1e-7` bleibt `1e-7`, `0.000001` bleibt; `NaN`/`Infinity` werden `null` |
+| sonst | `true`, `false`, `null` |
+
+**Hash:** FNV-1a, 32 Bit (Startwert `0x811c9dc5`, Primzahl `0x01000193`), über
+die **UTF-16-Codeeinheiten** der Zeichenkette (`charCodeAt`; ein Zeichen
+außerhalb der BMP sind zwei Surrogate). Ergebnis: 8 Hex-Ziffern, klein, mit
+führenden Nullen.
+
+**Testvektor:** `tests/fixtures/hash-vektor.json` (Tool-Export mit Emoji,
+Steuerzeichen, U+2028 und Kommazahlen) ergibt `24e8c769`. Kanonisierung an
+Sonderfällen: `{"b": 1.0, "a": [1e-7, null, true]}` wird
+`{"a":[1e-7,null,true],"b":1}`. `run_tests.py --exports <Ordner>` rechnet
+zusätzlich alle `mockup-spec.json` eines Ordners nach.
+
+**Prüfung im Skill:** `mockup_to_pbir.py --validate` (und jeder Lauf) rechnet
+den Hash nach. Passt er nicht, kommt eine **Warnung**, kein Abbruch, weil
+Handkorrekturen an der Spec erlaubt sind. Annotation `mockup-spec-hash` und
+`acceptance.json` tragen immer den **nachgerechneten** Hash; so löst auch eine
+Handkorrektur den nächsten Delta-Lauf aus. MockupKitchen bis 0.5.4 rechnete den
+Hash noch über seinen inneren Zustand; solche Exporte sind aus der Spec nicht
+nachrechenbar und erzeugen die Warnung. Ein Bericht, dessen Annotation noch
+diesen alten Hash trägt, bekommt beim nächsten Lauf einmal einen Delta-Lauf.
 
 ## Oberste Ebene (specVersion 3)
 

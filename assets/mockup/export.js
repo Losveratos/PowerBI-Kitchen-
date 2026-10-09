@@ -23,8 +23,11 @@
   const tr = (l, k, fallback) => (I18N.has(k, l) ? I18N.tl(l, k) : fallback);
 
   // FNV-1a-Hash über eine kanonische Serialisierung (Provenienz: welcher Mockup-Stand wurde gebaut?)
+  // Regeln wie spec_hash() in mockup_spec.py, festgelegt in references/spec-format.md („Kanonisierung des specHash"):
+  // Schlüssel nach UTF-16-Codeeinheiten sortiert, Schlüssel mit undefined fallen weg (wie in JSON.stringify),
+  // Zahlen und Texte wie JSON.stringify, FNV-1a über die UTF-16-Codeeinheiten (charCodeAt)
   function fnv(str) { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return ('0000000' + h.toString(16)).slice(-8); }
-  function canon(o) { if (Array.isArray(o)) return '[' + o.map(canon).join(',') + ']'; if (o && typeof o === 'object') return '{' + Object.keys(o).sort().map(k => JSON.stringify(k) + ':' + canon(o[k])).join(',') + '}'; return JSON.stringify(o); }
+  function canon(o) { if (Array.isArray(o)) return '[' + o.map(x => x === undefined ? 'null' : canon(x)).join(',') + ']'; if (o && typeof o === 'object') return '{' + Object.keys(o).filter(k => o[k] !== undefined).sort().map(k => JSON.stringify(k) + ':' + canon(o[k])).join(',') + '}'; return JSON.stringify(o); }
 
   // Kachel hat leere Pflichtrollen? (früher über den Wortlaut der Warnung geprüft – das ging mit zwei Sprachen nicht mehr)
   function missingRequired(v) {
@@ -163,10 +166,9 @@
     if (MK.a11yFindings) MK.a11yFindings().forEach(f => issue(f.level, f.code, f.text + (f.hint ? ' (' + f.hint + ')' : ''), f.page, f.visual ? 'mk_' + f.visual : null));
     if (!S.report.audience) issue('info', 'REPORT_NO_AUDIENCE', T('exp.issue.noAudience'));
     if (!S.report.decision) issue('info', 'REPORT_NO_DECISION', T('exp.issue.noDecision'));
-    const core = { canvas: { width: S.canvas.w, height: S.canvas.h }, design: d, zones: zonesOut, pages: pages.map(p => ({ name: p.name, question: p.question, visuals: p.visuals.map(v => ({ id: v.id, kind: v.kind, engine: v.engine, title: v.title, content: v.content, rect: v.rect, roles: v.roles, analysis: v.analysis, link: v.link })) })), fields, newFields, links };
-    const specHash = fnv(canon(core));
-    return {
-      meta: { tool: TOOL, version: VER, specVersion: SPEC_VERSION, specHash, name: S.name, lang: L, exportedAt: new Date().toISOString(), skill: 'mockup-to-powerbi' },
+    // specHash wird unten aus der fertigen Spec gerechnet; der Platzhalter hält die Schlüsselreihenfolge in meta
+    const spec = {
+      meta: { tool: TOOL, version: VER, specVersion: SPEC_VERSION, specHash: '', name: S.name, lang: L, exportedAt: new Date().toISOString(), skill: 'mockup-to-powerbi' },
       report: Object.assign({ name: S.name }, S.report),
       canvas: { width: S.canvas.w, height: S.canvas.h, preset: S.canvas.preset, uiScale: +k.toFixed(3) },
       spacing: { margin: Math.round(S.spacing.margin * k), gutter: Math.round(S.spacing.gutter * k), tilePadding: Math.round(S.spacing.pad * k), base: { margin: S.spacing.margin, gutter: S.spacing.gutter, tilePadding: S.spacing.pad } },
@@ -176,6 +178,14 @@
       fields, newFields, issues,
       warnings: issues.filter(i => i.level !== 'info').map(i => (i.page ? TL(L, 'exp.brief.openPage', { p: i.page }) + ': ' : '') + i.text),
     };
+    // Bau-Kern des Hashes, nur aus Werten, die so in mockup-spec.json stehen (gleiche Felder wie spec_hash() in mockup_spec.py).
+    // Die JSON-Rundreise sorgt dafür, dass genau das zählt, was die Datei schreibt (undefined fällt weg, NaN wird null);
+    // so lässt sich der Hash aus der Spec allein nachrechnen.
+    const core = JSON.parse(JSON.stringify({ canvas: { width: spec.canvas.width, height: spec.canvas.height }, design: spec.design, zones: spec.zones,
+      pages: spec.pages.map(p => ({ name: p.name, question: p.question, visuals: p.visuals.map(v => ({ id: v.id, kind: v.kind, engine: v.engine, title: v.title, content: v.content, rect: v.rect, roles: v.roles, analysis: v.analysis, link: v.link })) })),
+      fields: spec.fields, newFields: spec.newFields, links: spec.links }));
+    spec.meta.specHash = fnv(canon(core));
+    return spec;
   }
   function bucketsFor(def, v) {
     const b = {}; if (!def.native) return b;

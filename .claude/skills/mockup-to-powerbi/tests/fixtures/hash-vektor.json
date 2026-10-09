@@ -1,0 +1,695 @@
+{
+  "meta": {
+    "tool": "MockupKitchen byDatenWG",
+    "version": "0.5.5",
+    "specVersion": 3,
+    "specHash": "24e8c769",
+    "name": "Hash-Testvektor",
+    "lang": "de",
+    "exportedAt": "2026-10-09T13:07:15.747Z",
+    "skill": "mockup-to-powerbi"
+  },
+  "report": {
+    "name": "Hash-Testvektor",
+    "audience": "",
+    "purpose": "",
+    "decision": "",
+    "participants": "",
+    "version": "0.1",
+    "dataDate": ""
+  },
+  "canvas": {
+    "width": 1920,
+    "height": 1080,
+    "preset": "1920x1080",
+    "uiScale": 1.5
+  },
+  "spacing": {
+    "margin": 24,
+    "gutter": 18,
+    "tilePadding": 12,
+    "base": {
+      "margin": 16,
+      "gutter": 12,
+      "tilePadding": 8
+    }
+  },
+  "design": {
+    "nativePalette": "neutral",
+    "cornerRadius": 12,
+    "tileStyle": "border",
+    "pageBackground": "#F4F4F1",
+    "tileBackground": "#FFFFFF",
+    "headerStyle": "light",
+    "accent": "#C25A2D",
+    "variancePalette": "teal",
+    "varianceColors": {
+      "good": "#1E8F9E",
+      "bad": "#D64541"
+    },
+    "colors": {
+      "pageBackground": "#F4F4F1",
+      "tileBackground": "#FFFFFF",
+      "ink": "#0F1E2E",
+      "headerBackground": "#FFFFFF",
+      "headerInk": "#0F1E2E"
+    },
+    "darkMode": false,
+    "fontScale": 1.5,
+    "typography": {
+      "basis": "1280px",
+      "scale": 1,
+      "title": 12,
+      "sub": 9.5,
+      "chart": 9
+    }
+  },
+  "zones": {
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 84,
+      "style": "light",
+      "logoPos": "left",
+      "title": "Management Report",
+      "subtitle": "in T€ · YTD 2026",
+      "nav": [
+        "Übersicht"
+      ],
+      "navOn": true,
+      "navPosition": "header",
+      "navAuto": true,
+      "burger": false
+    },
+    "footer": {
+      "x": 0,
+      "y": 1044,
+      "w": 1920,
+      "h": 36,
+      "text": "Stand: 18.09.2026 · Quelle: DWH · Kontakt: Controlling",
+      "nav": [],
+      "navPosition": "header"
+    },
+    "filter": {
+      "x": 1620,
+      "y": 84,
+      "w": 300,
+      "h": 960,
+      "mode": "right",
+      "side": "right",
+      "collapsible": false,
+      "heading": "Filter",
+      "text": null,
+      "slicers": []
+    },
+    "content": {
+      "x": 24,
+      "y": 108,
+      "w": 1572,
+      "h": 912
+    }
+  },
+  "pages": [
+    {
+      "id": "l6f19nn",
+      "index": 1,
+      "name": "Übersicht",
+      "question": "Zeile 1\nZeile 2\t\u0001   ẞ",
+      "notes": "",
+      "contentRect": {
+        "x": 24,
+        "y": 108,
+        "w": 1572,
+        "h": 912
+      },
+      "visuals": [
+        {
+          "id": "mk_mnr8m32",
+          "stableId": "mnr8m32",
+          "slug": "Umsatz",
+          "page": "Übersicht",
+          "kind": "kpi",
+          "label": "KPI-Kachel (ChartKitchen)",
+          "engine": "ck",
+          "chartKitchenType": "kpi",
+          "chartKitchenMode": "cards",
+          "native": {
+            "type": "card",
+            "buckets": {
+              "Values": [
+                {
+                  "ref": "_Measures.Umsatz",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Umsatz",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": null,
+            "fieldParam": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "typography": null,
+          "samples": null,
+          "interaction": {
+            "drillDown": false,
+            "crossFilter": true,
+            "drillThrough": null
+          },
+          "rect": {
+            "x": 25,
+            "y": 108,
+            "w": 379,
+            "h": 178
+          },
+          "roles": {
+            "indicator": [
+              {
+                "table": "_Measures",
+                "name": "Umsatz",
+                "kind": "measure",
+                "ref": "_Measures.Umsatz",
+                "isNew": false
+              }
+            ],
+            "goal": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ],
+            "category": [
+              {
+                "table": "DimDate",
+                "name": "Month",
+                "kind": "column",
+                "ref": "DimDate.Month",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_90ypjeo",
+          "stableId": "90ypjeo",
+          "slug": "PL_je_Produktlinie",
+          "page": "Übersicht",
+          "kind": "bars",
+          "label": "Balken (Kategorien, sortiert)",
+          "engine": "ck",
+          "chartKitchenType": "bars",
+          "chartKitchenMode": "bars",
+          "native": {
+            "type": "clusteredBarChart",
+            "buckets": {
+              "Category": [
+                {
+                  "ref": "DimProduct.Category",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "Y": [
+                {
+                  "ref": "_Measures.AC",
+                  "kind": "measure",
+                  "isNew": false
+                },
+                {
+                  "ref": "_Measures.PL",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Δ PL je Produktlinie 📈",
+          "subtitle": "",
+          "content": "",
+          "scenario": "AC/PL",
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": {
+              "by": "delta",
+              "dir": "desc"
+            },
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": null,
+            "fieldParam": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "typography": null,
+          "samples": null,
+          "interaction": {
+            "drillDown": false,
+            "crossFilter": true,
+            "drillThrough": null
+          },
+          "rect": {
+            "x": 1078,
+            "y": 304,
+            "w": 518,
+            "h": 715
+          },
+          "roles": {
+            "category": [
+              {
+                "table": "DimProduct",
+                "name": "Category",
+                "kind": "column",
+                "ref": "DimProduct.Category",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              }
+            ],
+            "ref": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        }
+      ],
+      "layoutTree": {
+        "split": "col",
+        "children": [
+          {
+            "size": 1,
+            "node": {
+              "split": "row",
+              "children": [
+                {
+                  "size": 1,
+                  "node": {
+                    "leaf": "Umsatz",
+                    "stableId": "mnr8m32"
+                  }
+                },
+                {
+                  "size": 1,
+                  "node": {
+                    "leaf": "Marge",
+                    "stableId": "d9nvq21"
+                  }
+                },
+                {
+                  "size": 1,
+                  "node": {
+                    "leaf": "Kosten",
+                    "stableId": "691vbvb"
+                  }
+                },
+                {
+                  "size": 1,
+                  "node": {
+                    "leaf": "Aufträge",
+                    "stableId": "uccig0t"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "size": 4,
+            "node": {
+              "split": "row",
+              "children": [
+                {
+                  "size": 2,
+                  "node": {
+                    "leaf": "Umsatz AC/FC vs PL je Monat",
+                    "stableId": "2tm6698"
+                  }
+                },
+                {
+                  "size": 1,
+                  "node": {
+                    "leaf": "Δ PL je Produktlinie",
+                    "stableId": "90ypjeo"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "links": [],
+  "model": {
+    "source": "Demo · Controlling",
+    "tables": [
+      "DimDate",
+      "DimProduct",
+      "DimRegion",
+      "DimCustomer",
+      "DimAccount",
+      "_Measures"
+    ],
+    "usedFields": [
+      {
+        "table": "_Measures",
+        "name": "Umsatz",
+        "kind": "measure",
+        "ref": "_Measures.Umsatz",
+        "isNew": false,
+        "description": "",
+        "formatString": "#,##0",
+        "dataType": "measure",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": "",
+        "expression": "",
+        "formatExpression": "",
+        "formatDynamic": false,
+        "displayFolder": "",
+        "formatDescription": "Ganzzahl, mit Tausendertrennzeichen",
+        "formatSample": "1.234.568",
+        "formatWish": "",
+        "formatWishString": "",
+        "daxComment": ""
+      },
+      {
+        "table": "_Measures",
+        "name": "PL",
+        "kind": "measure",
+        "ref": "_Measures.PL",
+        "isNew": false,
+        "description": "Plan",
+        "formatString": "#,##0",
+        "dataType": "measure",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": "",
+        "expression": "",
+        "formatExpression": "",
+        "formatDynamic": false,
+        "displayFolder": "",
+        "formatDescription": "Ganzzahl, mit Tausendertrennzeichen",
+        "formatSample": "1.234.568",
+        "formatWish": "",
+        "formatWishString": "",
+        "daxComment": ""
+      },
+      {
+        "table": "DimDate",
+        "name": "Month",
+        "kind": "column",
+        "ref": "DimDate.Month",
+        "isNew": false,
+        "description": "Monatsname, sortiert nach MonthKey",
+        "formatString": "",
+        "dataType": "string",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": "",
+        "expression": "",
+        "formatExpression": "",
+        "formatDynamic": false,
+        "displayFolder": "",
+        "formatDescription": "",
+        "formatSample": "",
+        "formatWish": "",
+        "formatWishString": "",
+        "daxComment": ""
+      },
+      {
+        "table": "_Measures",
+        "name": "AC",
+        "kind": "measure",
+        "ref": "_Measures.AC",
+        "isNew": false,
+        "description": "Ist",
+        "formatString": "#,##0",
+        "dataType": "measure",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": "",
+        "expression": "",
+        "formatExpression": "",
+        "formatDynamic": false,
+        "displayFolder": "",
+        "formatDescription": "Ganzzahl, mit Tausendertrennzeichen",
+        "formatSample": "1.234.568",
+        "formatWish": "",
+        "formatWishString": "",
+        "daxComment": ""
+      },
+      {
+        "table": "DimProduct",
+        "name": "Category",
+        "kind": "column",
+        "ref": "DimProduct.Category",
+        "isNew": false,
+        "description": "Produktlinie",
+        "formatString": "",
+        "dataType": "string",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": "",
+        "expression": "",
+        "formatExpression": "",
+        "formatDynamic": false,
+        "displayFolder": "",
+        "formatDescription": "",
+        "formatSample": "",
+        "formatWish": "",
+        "formatWishString": "",
+        "daxComment": ""
+      }
+    ]
+  },
+  "fields": [
+    {
+      "table": "_Measures",
+      "name": "Umsatz",
+      "kind": "measure",
+      "ref": "_Measures.Umsatz",
+      "isNew": false,
+      "description": "",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": "",
+      "expression": "",
+      "formatExpression": "",
+      "formatDynamic": false,
+      "displayFolder": "",
+      "formatDescription": "Ganzzahl, mit Tausendertrennzeichen",
+      "formatSample": "1.234.568",
+      "formatWish": "",
+      "formatWishString": "",
+      "daxComment": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "PL",
+      "kind": "measure",
+      "ref": "_Measures.PL",
+      "isNew": false,
+      "description": "Plan",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": "",
+      "expression": "",
+      "formatExpression": "",
+      "formatDynamic": false,
+      "displayFolder": "",
+      "formatDescription": "Ganzzahl, mit Tausendertrennzeichen",
+      "formatSample": "1.234.568",
+      "formatWish": "",
+      "formatWishString": "",
+      "daxComment": ""
+    },
+    {
+      "table": "DimDate",
+      "name": "Month",
+      "kind": "column",
+      "ref": "DimDate.Month",
+      "isNew": false,
+      "description": "Monatsname, sortiert nach MonthKey",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": "",
+      "expression": "",
+      "formatExpression": "",
+      "formatDynamic": false,
+      "displayFolder": "",
+      "formatDescription": "",
+      "formatSample": "",
+      "formatWish": "",
+      "formatWishString": "",
+      "daxComment": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "AC",
+      "kind": "measure",
+      "ref": "_Measures.AC",
+      "isNew": false,
+      "description": "Ist",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": "",
+      "expression": "",
+      "formatExpression": "",
+      "formatDynamic": false,
+      "displayFolder": "",
+      "formatDescription": "Ganzzahl, mit Tausendertrennzeichen",
+      "formatSample": "1.234.568",
+      "formatWish": "",
+      "formatWishString": "",
+      "daxComment": ""
+    },
+    {
+      "table": "DimProduct",
+      "name": "Category",
+      "kind": "column",
+      "ref": "DimProduct.Category",
+      "isNew": false,
+      "description": "Produktlinie",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": "",
+      "expression": "",
+      "formatExpression": "",
+      "formatDynamic": false,
+      "displayFolder": "",
+      "formatDescription": "",
+      "formatSample": "",
+      "formatWish": "",
+      "formatWishString": "",
+      "daxComment": ""
+    }
+  ],
+  "newFields": [],
+  "issues": [],
+  "warnings": []
+}
