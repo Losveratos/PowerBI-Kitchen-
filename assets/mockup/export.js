@@ -99,12 +99,16 @@
         const an = MK.analysisOf(v);
         if (an.smallMultiples && !(v.roles.multiples || []).length) issue('warn', 'SM_NO_FIELD', T('exp.issue.smNoField', { t: title }), p.name, id);
         if (an.fieldParam && (v.roles.category || []).length < 2) issue('info', 'FIELDPARAM_FEW', T('exp.issue.fieldParamFew', { t: title, n: an.fieldParamName || 'Achse', k: (v.roles.category || []).length }), p.name, id);
+        const guessed = []; const cvBuckets = v.engine === 'custom' && def.customVisual ? customBuckets(def, v, guessed) : null;
+        guessed.forEach(g => { vw.push(T('exp.issue.cvRoleGuessShort', { f: g.f, b: g.b })); issue('warn', 'CV_ROLE_GUESS', T('exp.issue.cvRoleGuess', { t: title, f: g.f, b: g.b }), p.name, id); });
+        // Analyse-Angaben nur, wo der Typ sie tragen kann (Review 09.10., R4): Δ nur mit Referenz-Rolle, Polarität nur mit Kennzahl-Rolle
+        const hasRef = def.roles.some(r => r.key === 'ref' || r.key === 'goal'); const hasMeasure = def.roles.some(r => r.kind === 'measure');
         return {
           id, stableId: l.node.id, slug: slug(title), page: p.name, kind: v.kind, label: def.label, engine: v.engine,
           chartKitchenType: v.engine === 'ck' ? def.ck : null, chartKitchenMode: v.engine === 'ck' ? def.ckMode : null, native,
-          customVisual: v.engine === 'custom' && def.customVisual ? { name: def.customVisual.name, guid: def.customVisual.guid, buckets: customBuckets(def, v) } : null,
+          customVisual: cvBuckets ? { name: def.customVisual.name, guid: def.customVisual.guid, buckets: cvBuckets } : null,
           title, subtitle: v.sub || '', content: v.content || '', scenario: def.roles.some(r => r.key === 'ref') ? v.scenario : null,
-          analysis: { polarity: an.polarity, polarityAuto: an.polarityAuto, deltaBasis: an.deltaBasis, deltaBasisAuto: an.deltaBasisAuto, deltaKind: an.deltaKind, unit: an.unit || null, displayUnits: an.displayUnits === 'auto' ? null : an.displayUnits, decimals: an.decimals, sort: an.sort, topN: an.topN, timeGrain: an.timeGrain, cumulative: an.cumulative, scaleGroup: an.scaleGroup || null, message: an.message || null,
+          analysis: { polarity: hasMeasure ? an.polarity : null, polarityAuto: hasMeasure ? an.polarityAuto : false, deltaBasis: hasRef ? an.deltaBasis : null, deltaBasisAuto: hasRef ? an.deltaBasisAuto : false, deltaKind: hasRef ? an.deltaKind : [], unit: an.unit || null, displayUnits: an.displayUnits === 'auto' ? null : an.displayUnits, decimals: an.decimals, sort: an.sort, topN: an.topN, timeGrain: an.timeGrain, cumulative: an.cumulative, scaleGroup: an.scaleGroup || null, message: an.message || null,
             smallMultiples: an.smallMultiples ? { field: (v.roles.multiples || [])[0] ? fieldRef(v.roles.multiples[0]) : null } : null,
             fieldParam: an.fieldParam ? { name: an.fieldParamName || 'Achse', role: 'category', fields: (v.roles.category || []).map(fieldRef) } : null },
           workshop: { priority: v.priority || null, status: v.status || 'open', openQuestion: !!v.openQuestion },
@@ -178,15 +182,20 @@
     Object.keys(def.native.map).forEach(roleKey => { const bucket = def.native.map[roleKey]; const list = v.roles[roleKey] || []; if (!list.length) return; b[bucket] = (b[bucket] || []).concat(list.map(f => Object.assign({ ref: fieldRef(f), kind: f.kind }, liveFlags(f)))); });
     return b;
   }
-  function customBuckets(def, v) {
+  function customBuckets(def, v, guessed) {
     // map-Wert ist ein Rollenname des Custom Visuals oder ein Objekt { rolle: /Namensmuster/ }:
-    // dann entscheidet der Feldname (z. B. PY -> py, PL -> pl); ohne Treffer die erste noch freie Rolle.
+    // dann entscheidet der Feldname (z. B. PY -> py, BU -> pl); ohne Treffer die erste noch freie Rolle.
+    // Geratene Zuordnungen landen in guessed, der Export meldet sie (Review 09.10., R1: BU stand still als Vorjahr im Bericht).
     const b = {}; const push = (bucket, f) => { (b[bucket] = b[bucket] || []).push(Object.assign({ ref: fieldRef(f), kind: f.kind }, liveFlags(f))); };
     Object.keys(def.customVisual.map).forEach(roleKey => {
       const bucket = def.customVisual.map[roleKey]; const list = v.roles[roleKey] || []; if (!list.length) return;
       if (typeof bucket === 'string') { list.forEach(f => push(bucket, f)); return; }
       const keys = Object.keys(bucket);
-      list.forEach(f => { const hit = keys.find(k => bucket[k].test(f.name)) || keys.find(k => !b[k]) || keys[keys.length - 1]; push(hit, f); });
+      list.forEach(f => {
+        const named = keys.find(k => bucket[k].test(f.name)); const hit = named || keys.find(k => !b[k]) || keys[keys.length - 1];
+        if (!named && guessed) guessed.push({ f: f.name, b: hit });
+        push(hit, f);
+      });
     });
     return b;
   }
@@ -199,7 +208,7 @@
   const r = o => `x=${o.x}, y=${o.y}, w=${o.w}, h=${o.h}`;
   function analysisLine(a, L) {
     const T = (k, v) => TL(L, k, v);
-    const parts = [T('exp.an.polarity', { v: T(a.polarity === 'lower' ? 'exp.an.lower' : 'exp.an.higher') }) + (a.polarityAuto ? T('exp.an.auto') : '')];
+    const parts = a.polarity ? [T('exp.an.polarity', { v: T(a.polarity === 'lower' ? 'exp.an.lower' : 'exp.an.higher') }) + (a.polarityAuto ? T('exp.an.auto') : '')] : [];
     if (a.deltaBasis) parts.push(T('exp.an.basis', { b: a.deltaBasis, auto: a.deltaBasisAuto ? T('exp.an.auto') : '', kinds: a.deltaKind.join(' + ') }));
     if (a.unit) parts.push(T('exp.an.unit', { u: a.unit })); if (a.displayUnits) parts.push(T('exp.an.display', { d: a.displayUnits })); if (a.decimals != null) parts.push(T('exp.an.decimals', { n: a.decimals }));
     if (a.sort) parts.push(T('exp.an.sort', { by: a.sort.by, dir: a.sort.dir })); if (a.topN) parts.push(T('exp.an.topN', { n: a.topN })); if (a.timeGrain) parts.push(T('exp.an.grain', { g: a.timeGrain })); if (a.cumulative) parts.push(T('exp.an.cumulative'));
@@ -277,7 +286,7 @@
         const roleLines = Object.keys(v.roles).map(key => `  - ${roleLabel(v.kind, key)}: ${v.roles[key].map(f => `\`${f.ref}\`${f.isNew ? B('vNew') : ''}${f.missing ? ` ${T('exp.missing')}` : ''}`).join(', ')}`);
         out.push(roleLines.length ? B('vRoles') : B('vRolesNone'), ...roleLines);
         if (v.native && Object.keys(v.native.buckets).length) out.push(B('vBuckets', { type: v.native.type }) + Object.keys(v.native.buckets).map(b => `${b} ← ${v.native.buckets[b].map(f => f.ref).join(', ')}`).join(' · '));
-        if (Object.keys(v.roles).length && v.kind !== 'slicer' && v.kind !== 'text') out.push(B('vAnalysis', { a: analysisLine(v.analysis, L) }));
+        const al = Object.keys(v.roles).length && v.kind !== 'slicer' && v.kind !== 'text' ? analysisLine(v.analysis, L) : ''; if (al) out.push(B('vAnalysis', { a: al }));
         { const it = v.interaction || {}; const beh = []; if (it.drillDown) beh.push(T('exp.an.drillDown')); if (it.crossFilter === false) beh.push(T('exp.an.noCross')); if (it.drillThrough) beh.push(T('exp.an.drillThrough', { p: it.drillThrough.pageName })); if (beh.length) out.push(B('vBehaviour', { list: beh.join(' · ') })); }
         if (v.analysis.message) out.push(B('vMessage', { m: v.analysis.message }));
         if (v.workshop.priority || v.workshop.status !== 'open') out.push(B('vWorkshop', { p: v.workshop.priority ? T('exp.pri.' + v.workshop.priority) + ' · ' : '', s: T('exp.status.' + v.workshop.status) }));

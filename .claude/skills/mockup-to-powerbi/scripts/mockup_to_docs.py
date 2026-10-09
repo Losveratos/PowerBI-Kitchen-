@@ -401,11 +401,19 @@ def has_nav_position(nspec: dict) -> bool:
 
 
 def page_image(nspec: dict, page: dict, folder: Path):
-    """`page-<Index>-<Slug>.png` neben der Spec, falls exportiert."""
+    """`page-<Index>-<Slug>.png` neben der Spec, falls exportiert.
+
+    Bis Tool 0.5.4 schrieb render-png.js die Namen klein und mit Bindestrich
+    (`page-1-ubersicht.png`); solche Exporte werden weiter gefunden.
+    """
     if not folder:
         return None
-    cand = folder / ("page-%d-%s.png" % (page["index"], slug(page["name"])))
-    return cand if cand.is_file() else None
+    s = slug(page["name"])
+    for name in (s, s.replace("_", "-").lower()):
+        cand = folder / ("page-%d-%s.png" % (page["index"], name))
+        if cand.is_file():
+            return cand
+    return None
 
 
 # --------------------------------------------------------------------------- #

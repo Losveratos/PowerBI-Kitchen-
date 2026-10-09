@@ -970,9 +970,14 @@
       ],
       "properties": {
         "polarity": {
+          "type": [
+            "string",
+            "null"
+          ],
           "enum": [
             "higher",
-            "lower"
+            "lower",
+            null
           ]
         },
         "polarityAuto": {

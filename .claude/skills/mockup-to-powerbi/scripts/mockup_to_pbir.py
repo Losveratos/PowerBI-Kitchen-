@@ -84,6 +84,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -712,6 +713,41 @@ def custom_query_state(buckets: dict) -> dict:
         if projections:
             state[role] = {"projections": projections}
     return state
+
+
+# Szenario-Rollen des P&L-Visuals und woran man sie am Measure-Namen erkennt.
+# Gleiche Regeln wie `customVisual.map.ref` im Katalog des Tools (catalog.js).
+CV_SCENARIO_ROLES = {
+    "py": re.compile(r"(?<![a-z])(py|vj|vorjahr|prior|previous|ly)(?![a-z])", re.I),
+    "pl": re.compile(r"(?<![a-z])(pl|bu|budget|plan|target)(?![a-z])", re.I),
+    "fc": re.compile(r"(?<![a-z])(fc|forecast|prognose)(?![a-z])", re.I),
+}
+
+
+def cv_bucket_warnings(nspec: dict) -> list:
+    """Measures, deren Name ein anderes Szenario nennt als ihr Bucket im Custom Visual.
+
+    Bis Tool 0.5.4 griff die Namensregel im Katalog nie (Steuerzeichen statt `\\b`),
+    die Referenzen wurden der Reihe nach verteilt: BU landete in `py`, PY in `pl`.
+    Alte Exporte tragen das weiter, deshalb prueft der Konverter selbst.
+    """
+    out = []
+    for p in nspec.get("pages") or []:
+        for v in p.get("visuals") or []:
+            buckets = (v.get("customVisual") or {}).get("buckets") or {}
+            for role, entries in buckets.items():
+                if role not in CV_SCENARIO_ROLES:
+                    continue
+                for e in entries or []:
+                    _, name = split_ref(e.get("ref") or "")
+                    hits = [r for r, rx in CV_SCENARIO_ROLES.items() if rx.search(name)]
+                    if len(hits) == 1 and hits[0] != role:
+                        out.append("%s / %s: Measure „%s“ steht im Bucket %s, der Name "
+                                   "spricht für %s. Im Mockup neu exportieren (ab Tool "
+                                   "0.5.5 richtig) oder den Bucket in der Spec tauschen."
+                                   % (p.get("name"), v.get("title") or v.get("id"),
+                                      name, role, hits[0]))
+    return out
 
 
 def custom_visual_json(v: dict, st) -> dict:
@@ -3253,6 +3289,8 @@ def main() -> int:
             print("  Ohne brauchbares Rechteck und deshalb ausgelassen: %s"
                   % ", ".join(dropped), file=sys.stderr)
     dropped_slicers = drop_missing_slicers(nspec)
+    for w in cv_bucket_warnings(nspec):
+        print("Warnung: %s" % w, file=sys.stderr)
     if opt.validate:
         print("Spec in Ordnung: specVersion %d (gelesen als v%d) · %d Seite(n) · "
               "%d Kachel(n) · Hash %s"

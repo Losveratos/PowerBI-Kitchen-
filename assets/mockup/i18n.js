@@ -298,7 +298,7 @@
     },
 
     toast: {
-      newProject: 'Neues Mockup angelegt. Über „Vorlagen" geht es schnell weiter.',
+      newProject: 'Neues Mockup angelegt, das geladene Modell bleibt. Über „Vorlagen" geht es schnell weiter.',
       gridified: 'Seite ins Raster gestellt: jede Kachel hat jetzt ihr eigenes +, die Achsen bleiben beim Verbinden stehen',
       merged: 'Kacheln verbunden', inserted: 'Kachel eingefügt, Ebene gleich verteilt',
       edgeTooNarrow: 'Nicht eingefügt: Kacheln wären nur {v} px breit (Minimum {min} px, sonst kaum lesbar). Erst Kacheln verbinden oder entfernen.',
@@ -327,7 +327,7 @@
       pageName: 'Seitenname', delPage: 'Seite „{n}" löschen?',
       tplReplace: 'Vorlage „{t}" ersetzt die {n} Kachel(n) dieser Seite. Fortfahren? (Strg+Z macht es rückgängig)',
       rmField: '„{n}" ist {c}× gebunden. Feld und alle Bindungen entfernen?',
-      newReplace: 'Neues Mockup anlegen? Der aktuelle Stand ({n} Kachel(n), {p} Seite(n)) wird verworfen. Vorher mit „Speichern" sichern. (Abbrechen = zurück)',
+      newReplace: 'Neues Mockup anlegen? Der aktuelle Stand ({n} Kachel(n), {p} Seite(n)) wird verworfen, das geladene Modell bleibt. Vorher mit „Speichern" sichern. (Abbrechen = zurück)',
       mergeReplace: 'Beide Kacheln haben ein Visual. Verbinden entfernt „{t}". Fortfahren? (Strg+Z macht es rückgängig)',
       splitReplace: 'Das neue Raster hat {c} Zelle(n), die Seite aber {k} Visual(s). Diese {n} gehen verloren: {t}. Fortfahren? (Strg+Z macht es rückgängig)',
       splitMore: 'und {n} weitere',
@@ -563,6 +563,8 @@
         scenRefShort: 'Szenario {s} passt nicht zur Referenz „{f}"{b}',
         basisRef: '„{t}": Δ-Basis {d}, gebunden ist aber „{f}"{b}. Referenz oder Δ-Basis angleichen.',
         basisRefShort: 'Δ-Basis {d} passt nicht zur Referenz „{f}"{b}',
+        cvRoleGuess: '„{t}": Am Namen „{f}" ist kein Szenario erkennbar, als Rolle {b} des Custom Visuals eingeordnet. Bitte prüfen (z. B. Measure mit PY, BU, PL oder FC im Namen binden).',
+        cvRoleGuessShort: '„{f}" geraten als Rolle {b}',
         fieldNotInModel: '„{t}": Feld „{f}" fehlt im geladenen Modell. Im Modell anlegen, umbenennen oder die Bindung lösen.',
         fieldNotInModelShort: 'Feld „{f}" fehlt im Modell',
         slicerNotInModel: 'Slicer-Feld „{f}" fehlt im geladenen Modell',
@@ -883,7 +885,7 @@
     },
 
     toast: {
-      newProject: 'New mockup started. Templates give you a quick start.',
+      newProject: 'New mockup started, the loaded model stays. Templates give you a quick start.',
       gridified: 'Page turned into a grid: every tile now has its own +, the axes stay put when merging',
       merged: 'Tiles merged', inserted: 'Tile inserted, level distributed evenly',
       edgeTooNarrow: 'Not inserted: tiles would be only {v} px wide (minimum {min} px, otherwise hard to read). Merge or remove tiles first.',
@@ -912,7 +914,7 @@
       pageName: 'Page name', delPage: 'Delete page “{n}”?',
       tplReplace: 'The template “{t}” replaces the {n} tile(s) of this page. Continue? (Ctrl+Z undoes it)',
       rmField: '“{n}” is bound {c}×. Remove the field and all its bindings?',
-      newReplace: 'Start a new mockup? The current state ({n} tile(s), {p} page(s)) will be discarded. Use “Save” first. (Cancel = go back)',
+      newReplace: 'Start a new mockup? The current state ({n} tile(s), {p} page(s)) will be discarded, the loaded model stays. Use “Save” first. (Cancel = go back)',
       mergeReplace: 'Both tiles have a visual. Merging removes “{t}”. Continue? (Ctrl+Z undoes it)',
       splitReplace: 'The new grid has {c} cell(s), but the page has {k} visual(s). These {n} will be lost: {t}. Continue? (Ctrl+Z undoes it)',
       splitMore: 'and {n} more',
@@ -1147,6 +1149,8 @@
         scenRefShort: 'Scenario {s} does not match the reference “{f}”{b}',
         basisRef: '“{t}”: Δ base {d}, but “{f}”{b} is bound. Align the reference or the Δ base.',
         basisRefShort: 'Δ base {d} does not match the reference “{f}”{b}',
+        cvRoleGuess: '“{t}”: the name “{f}” shows no scenario, so it was placed in the custom visual role {b}. Please check (for example, bind a measure with PY, BU, PL or FC in its name).',
+        cvRoleGuessShort: '“{f}” guessed as role {b}',
         fieldNotInModel: '“{t}”: the field “{f}” is missing from the loaded model. Create it in the model, rename it or remove the binding.',
         fieldNotInModelShort: 'Field “{f}” is missing from the model',
         slicerNotInModel: 'Slicer field “{f}” is missing from the loaded model',
