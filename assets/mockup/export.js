@@ -447,7 +447,8 @@
   }
 
   // ------------------------------------------------------------------ Dialog
-  let cur = 'json', spec = null;
+  // Der Dialog öffnet mit dem Prompt: das ist der Einstieg, rohes JSON ist für Menschen keiner (Review 09.10., UX und Vertrieb)
+  let cur = 'prompt', spec = null;
   const texts = () => ({ json: JSON.stringify(spec, null, 2), brief: buildBrief(spec), docs: buildDocs(spec), pbir: JSON.stringify(buildPbir(spec, MK.page().id), null, 2), prompt: buildPrompt(spec) });
   const fileNames = () => ({ json: 'mockup-spec.json', brief: 'AGENT-BRIEF.md', docs: 'WORKSHOP-DOKU.md', pbir: pbirName(MK.page()), prompt: 'claude-prompt.txt' });
   // Was steht je Seite in pbir-visuals.<Seite>.json und was nicht (und warum)?
@@ -509,7 +510,7 @@
     spec.pages.forEach(p => files.push([pbirName(p), JSON.stringify(buildPbir(spec, p.id), null, 2)]));
     files.forEach(([n, body], i) => setTimeout(() => download(n, body), i * 350));
     if (window.MK_PNG && window.MK_PNG.allPagesPng) {
-      try { const pngs = await window.MK_PNG.allPagesPng({ scale: 2 }); pngs.forEach((x, i) => setTimeout(() => window.MK_PNG.download(x.blob, x.fileName), (files.length + i) * 350)); MK.toast(UI('toast.filesPng', { f: files.length, p: pngs.length })); }
+      try { const pngs = await window.MK_PNG.allPagesPng({ scale: 2, chips: !!($('#expPngChips') || {}).checked, notes: !!($('#expPngNotes') || {}).checked }); pngs.forEach((x, i) => setTimeout(() => window.MK_PNG.download(x.blob, x.fileName), (files.length + i) * 350)); MK.toast(UI('toast.filesPng', { f: files.length, p: pngs.length })); }
       catch (err) { MK.toast(UI('toast.pngFailed', { msg: err.message })); }
     }
   };

@@ -57,6 +57,10 @@ geht auch allein, ohne PBIP.
   `pbir ls --json` / `pbir cat` (macht `scripts/mockup_verify.py`).
 - Nach jedem Modelleingriff `te validate -m "<Name>.SemanticModel" --errors-only`,
   nach jedem Berichtseingriff `pbir validate "<Name>.Report" --fields`.
+  Den Modellnamen liefert `model.source` der Spec. Steht dort der Ladetext eines älteren
+  Exports („TMDL (16 Dateien)") oder ein Ordnername wie „tables", setzt der Konverter in
+  `commands.md`/`plan.json` den Platzhalter `<Modell>.SemanticModel` samt Hinweis ein.
+  Dann den echten Ordnernamen des Semantikmodells im PBIP verwenden, nie den Ladetext.
 - Absolute Pfade verwenden; bei mehreren gleichnamigen Reports im Baum erwischt
   `pbir` sonst den falschen.
 - Power BI Desktop muss **geschlossen** sein. Läuft es mit, überschreibt ein

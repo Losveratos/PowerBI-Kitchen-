@@ -2640,6 +2640,29 @@ def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos,
     return "\n".join(L)
 
 
+# Alte Exporte tragen als Modellname den Ladetext des Tools („TMDL (16 Dateien)") oder den
+# Namen des gewählten Ordners („tables", „definition"). Das ist kein Name für `te -m`.
+MODEL_PLACEHOLDER = "<Modell>.SemanticModel"
+_UNUSABLE_MODEL = re.compile(r"^\s*(TMDL\s*\(|tables\s*$|definition\s*$)", re.I)
+
+
+def usable_model_name(raw: str) -> str:
+    """Modellname aus der Spec, oder der Platzhalter, wenn er unbrauchbar ist."""
+    if raw and _UNUSABLE_MODEL.search(raw):
+        return MODEL_PLACEHOLDER
+    return raw
+
+
+def model_name_hint(model_name: str, raw: str = "") -> str:
+    """Hinweistext, wenn statt des Spec-Namens der Platzhalter eingesetzt wurde."""
+    if model_name != MODEL_PLACEHOLDER:
+        return ""
+    return ("Der Modellname in der Spec%s ist kein Name für `te -m` (älterer "
+            "Export). `%s` durch den Ordnernamen des Semantikmodells im PBIP "
+            "ersetzen, z. B. `Vertrieb.SemanticModel`."
+            % (" („%s\")" % raw if raw else "", MODEL_PLACEHOLDER))
+
+
 def build_commands_md(nspec: dict, report: str, out_dir: Path, per_page,
                       model_name: str) -> str:
     canvas = nspec["canvas"]
@@ -2650,8 +2673,11 @@ def build_commands_md(nspec: dict, report: str, out_dir: Path, per_page,
          "%d Seite(n), Canvas %s×%s, Spec-Hash `%s`. Reihenfolge einhalten. "
          "Vor dem ersten schreibenden Befehl: Power BI Desktop schließen, "
          "`pbir backup` oder Git-Commit."
-         % (len(nspec["pages"]), w, h, meta.get("specHash") or "–"), "",
-         "```bash",
+         % (len(nspec["pages"]), w, h, meta.get("specHash") or "–"), ""]
+    hint = model_name_hint(model_name, (nspec["model"] or {}).get("source") or "")
+    if hint:
+        L += ["> **Hinweis:** " + hint, ""]
+    L += ["```bash",
          "# 0 · Ausgangslage sichern",
          'pbir backup "%s"' % report,
          "",
@@ -3068,6 +3094,8 @@ def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: st
                  "specHash": nspec["meta"].get("specHash"),
                  "lang": nspec["meta"].get("lang")},
         "report": report, "model": model_name or None,
+        **({"modelNote": model_name_hint(model_name, (nspec["model"] or {}).get("source") or "")}
+           if model_name == MODEL_PLACEHOLDER else {}),
         "canvas": {"width": w, "height": h},
         "pages": [{"name": e["name"], "dir": e["dir"], "slug": slug(e["name"]),
                    "visuals": len(e["pbir"]) + len(e["text"]),
@@ -3327,7 +3355,7 @@ def main() -> int:
     if lang not in T:
         lang = "de"
     st = Style(nspec, opt)
-    model_name = (nspec["model"] or {}).get("source") or ""
+    model_name = usable_model_name((nspec["model"] or {}).get("source") or "")
     out = Path(opt.out).expanduser()
     out.mkdir(parents=True, exist_ok=True)
     report = opt.report or "<Name>.Report"

@@ -10,7 +10,7 @@
       pct: 'Prozent', cur: 'Währung', num: 'Zahl', int: 'Ganzzahl', date: 'Datum', time: 'Uhrzeit', dt: 'Datum und Uhrzeit', text: 'Text',
       dec0: 'ohne Nachkommastellen', dec1: '1 Nachkommastelle', decN: '{n} Nachkommastellen', thou: 'mit Tausendertrennzeichen',
       k: 'in Tausend', m: 'in Millionen', b: 'in Milliarden', unit: 'Einheit „{u}"', dyn: 'dynamisch (Format wird per DAX berechnet)',
-      gen: 'ohne feste Formatierung', lit: 'fester Text', neg: 'eigenes Format für negative Werte', named: {
+      gen: 'ohne feste Formatierung', lit: 'fester Text', neg: 'eigenes Format für negative Werte', sign: 'mit Vorzeichen', named: {
         'general date': 'Datum und Uhrzeit', 'long date': 'Datum lang', 'medium date': 'Datum mittel', 'short date': 'Datum kurz',
         'long time': 'Uhrzeit lang', 'medium time': 'Uhrzeit mittel', 'short time': 'Uhrzeit kurz',
         'general number': 'Zahl ohne feste Formatierung', currency: 'Währung (Gebietsschema)', fixed: 'Zahl, 2 Nachkommastellen',
@@ -24,7 +24,7 @@
       pct: 'Percent', cur: 'Currency', num: 'Number', int: 'Whole number', date: 'Date', time: 'Time', dt: 'Date and time', text: 'Text',
       dec0: 'no decimals', dec1: '1 decimal', decN: '{n} decimals', thou: 'with thousands separator',
       k: 'in thousands', m: 'in millions', b: 'in billions', unit: 'unit “{u}”', dyn: 'dynamic (format computed in DAX)',
-      gen: 'no fixed format', lit: 'fixed text', neg: 'own format for negative values', named: {
+      gen: 'no fixed format', lit: 'fixed text', neg: 'own format for negative values', sign: 'with sign', named: {
         'general date': 'Date and time', 'long date': 'Long date', 'medium date': 'Medium date', 'short date': 'Short date',
         'long time': 'Long time', 'medium time': 'Medium time', 'short time': 'Short time',
         'general number': 'Number without fixed format', currency: 'Currency (locale)', fixed: 'Number, 2 decimals',
@@ -36,6 +36,8 @@
     }
   };
   var CURRENCY = /€|\$|£|¥|CHF|EUR|USD|GBP/;
+  // Farb-Tags wie [Red] gehören nicht zur Zahl; sie zählen nur beim Vergleich der Abschnitte
+  var COLOR = /\[(?:black|blue|cyan|green|magenta|red|white|yellow|color\s*\d+)\]/gi;
   // Beispiel-Datum: Montag, 27. September 2026, 14:30:05
   var SD = { y: 2026, M: 9, d: 27, wd: 0, H: 14, m: 30, s: 5 };
 
@@ -71,6 +73,11 @@
     flush(lit);
     var core = parts.filter(function (p) { return !p.lit; }).map(function (p) { return p.s; }).join('');
     return { core: core, parts: parts };
+  }
+
+  // Inhalt eines Abschnitts ohne Vorzeichen, Leerraum und Farb-Tag: gleicht die negative Sektion nur das Vorzeichen, ist sie nichts Eigenes
+  function bare(sec) {
+    return split(sec.replace(COLOR, '')).parts.map(function (p) { return p.lit ? p.s.replace(/\s+/g, '') : p.s.replace(/[\s+\-]/g, ''); }).join('');
   }
 
   function groupDigits(intStr, sep) { return intStr.replace(/\B(?=(\d{3})+(?!\d))/g, sep); }
@@ -117,7 +124,7 @@
       return { kind: k, label: named, sample: smp, raw: fs };
     }
     var secs = sections(fs), first = split(secs[0]);
-    var core = first.core;
+    var core = first.core.replace(COLOR, '');
     var lits = first.parts.filter(function (p) { return p.lit; }).map(function (p) { return p.s; }).join('').trim();
     var hasDigit = /[0#]/.test(core);
     // Datum / Uhrzeit: Datums-Platzhalter ohne Ziffern-Platzhalter
@@ -151,13 +158,16 @@
     var iFirst = -1, iLast = -1;
     seq.forEach(function (x, j) { if (x.fmt && /[0#]/.test(x.ch) && iFirst < 0) iFirst = j; if (x.fmt) iLast = j; });
     var prefix = seq.slice(0, iFirst).map(function (x) { return x.ch; }).join('').trim();
+    // + oder - am Anfang der Sektion ist eine Vorzeichenregel, keine Einheit
+    var signM = prefix.match(/^([+\-])\s*/), signCh = signM ? signM[1] : '';
+    if (signM) prefix = prefix.slice(signM[0].length);
     var suffix = seq.slice(iLast + 1).filter(function (x) { return x.ch !== '%'; }).map(function (x) { return x.ch; }).join('').trim();
     var unitText = (prefix + ' ' + suffix).trim();
     var curM = unitText.match(CURRENCY);
     var unit = curM ? '' : unitText;
     // Beispiel
     var v = pct ? 12.3456 : 1234567.891 / Math.pow(1000, scale);
-    var sample = (prefix ? prefix + ' ' : '') + fmtNumber(v, dec, thou, T) + (pct ? ' %' : '') + (suffix ? ' ' + suffix : '');
+    var sample = signCh + (prefix ? prefix + ' ' : '') + fmtNumber(v, dec, thou, T) + (pct ? ' %' : '') + (suffix ? ' ' + suffix : '');
     var parts = [];
     var kind = pct ? 'percent' : (curM ? 'currency' : (dec === 0 ? 'integer' : 'number'));
     var head = pct ? T.pct : (curM ? T.cur + ' ' + unitText : (dec === 0 ? T.int : T.num));
@@ -166,7 +176,8 @@
     if (thou) parts.push(T.thou);
     if (scale) parts.push(scale === 1 ? T.k : (scale === 2 ? T.m : T.b));
     if (unit) parts.push(fill(T.unit, { u: unit }));
-    if (secs.length > 1 && secs[1].trim() && split(secs[1]).core.replace(/-/g, '') !== core) parts.push(T.neg);
+    if (signCh) parts.push(T.sign);
+    if (secs.length > 1 && secs[1].trim() && (bare(secs[1]) !== bare(secs[0]) || (secs[1].search(COLOR) >= 0 && secs[0].search(COLOR) < 0))) parts.push(T.neg);
     return { kind: kind, label: parts.join(', '), sample: sample, raw: fs, decimals: dec, thousands: thou, scale: scale };
   }
 

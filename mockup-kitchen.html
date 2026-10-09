@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MockupKitchen · Power-BI-Seiten skizzieren</title>
 <meta name="description" content="Mockup-Tool für Power-BI-Berichtsseiten: Container-Layout, mehrere Seiten, TMDL-Felder per Drag-and-drop, Skizzen mit semantischer Notation, Export als JSON-Spec + Agent-Brief + Workshop-Doku für Claude Code.">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -62,6 +66,8 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .panel-head{padding:10px 14px 8px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg-card);z-index:2}
 .panel-head h2{font-family:var(--ff-sans);font-size:15px;font-weight:600;margin:0 0 2px}
 .panel-head p{margin:0;color:var(--ink-mute);font-size:11.5px}
+.panel-head p[role=button]{cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px}
+.panel-head p[role=button]:hover{color:var(--ink)}
 .panel-body{padding:10px 14px 24px;flex:1}
 .row{display:flex;gap:8px;align-items:center}
 .row.wrap{flex-wrap:wrap}
@@ -159,8 +165,8 @@ textarea.ctl{resize:vertical;min-height:54px;font-family:var(--ff-sans)}
 .zone.footer .nav{margin-left:auto;display:flex;gap:calc(5px * var(--ui));flex:none}
 .zone.footer .nav span{padding:calc(3px * var(--ui)) calc(9px * var(--ui));border:1px solid rgba(15,30,46,.3);border-radius:3px;font-size:calc(9.5px * var(--ui));color:#475569;white-space:nowrap}
 .zone.footer .nav span.act{background:var(--accent);border-color:var(--accent);color:#fff}
-.zcfg{position:absolute;z-index:6;width:calc(18px * var(--ui));height:calc(18px * var(--ui));border-radius:50%;background:var(--bg-card);border:1px solid var(--line-strong);color:var(--ink-soft);font-size:calc(12px * var(--ui));line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .12s}
-.page:hover .zcfg{opacity:.55}.zcfg:hover{opacity:1;background:var(--accent);color:#fff;border-color:var(--accent)}
+.zcfg{position:absolute;z-index:6;width:calc(22px * var(--ui));height:calc(22px * var(--ui));border-radius:50%;background:var(--bg-card);border:1px solid var(--line-strong);color:var(--ink-soft);font-size:calc(12px * var(--ui));line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:.35;transition:opacity .12s}
+.page:hover .zcfg{opacity:.7}.zcfg:hover{opacity:1;background:var(--accent);color:#fff;border-color:var(--accent)}
 body.present .zcfg{display:none}
 .section.flash,details.sub.flash{animation:secflash 1.2s ease}@keyframes secflash{0%{background:var(--accent-soft)}100%{background:transparent}}
 .zone.filter{background:#ECEBE5;border-left:1px solid #E3E1D8;padding:calc(12px * var(--ui)) calc(10px * var(--ui))}
@@ -389,6 +395,8 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 .rolemenu button b{font-size:12px}.rolemenu button small{font-size:10.5px;color:var(--ink-mute)}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px;font-size:12.5px;opacity:0;transition:.2s;pointer-events:none;z-index:50}
 .toast.show{opacity:1;transform:translateX(-50%)}
+.toast.act.show{pointer-events:auto}.toast button{margin-left:10px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.55);border-radius:6px;padding:2px 9px;font:inherit;font-weight:600;cursor:pointer}.toast button:hover,.toast button:focus-visible{background:#fff;color:var(--ink)}
+#btnUndo:disabled,#btnRedo:disabled{opacity:.35;cursor:default}
 .warn{background:#FFF7E6;border:1px solid #F3D9A4;color:#7A4B00;border-radius:6px;padding:6px 9px;font-size:11.5px;margin-bottom:8px}
 .ok{background:#E8F5EE;border:1px solid #BFE3CD;color:#1E5A3A;border-radius:6px;padding:6px 9px;font-size:11.5px;margin-bottom:8px}
 /* Modellvertrag (Review B2, B3, B26): Feld fehlt im Modell (rot), Referenz passt nicht zum Szenario (gelb), Tabellenprüfung im Dialog „Neues Feld" */
@@ -462,7 +470,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
     <button class="btn ghost" id="btnHelp" data-i18n-title="tip.help" data-i18n-aria="tip.help">?</button>
     <button class="btn" id="btnOpen" data-i18n="btn.open" data-i18n-title="tip.open">Öffnen</button>
     <button class="btn" id="btnSave" data-i18n="btn.save" data-i18n-title="tip.save">Speichern</button>
-    <button class="btn accent" id="btnExport" data-i18n="btn.export">Export für Claude Code</button>
+    <button class="btn accent" id="btnExport" data-i18n="btn.export" data-i18n-title="tip.export">Export für Claude Code</button>
   </header>
 
   <aside class="panel left">
@@ -475,7 +483,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       <div class="row" style="margin-bottom:8px;flex-wrap:wrap;row-gap:6px">
         <select class="ctl" id="demoModelSel" style="width:auto;flex:1 1 110px;min-width:0;padding:3px 6px;font-size:11.5px" data-i18n-title="tip.demoModel"></select>
         <button class="btn sm" id="btnDemoModel" data-i18n="btn.demoModel" data-i18n-title="tip.demoModel">Demo-Modell laden</button>
-        <button class="btn sm" id="btnNewMeasure" data-i18n="btn.newMeasure" style="margin-left:auto">+ Kennzahl / Dimension</button>
+        <button class="btn sm" id="btnNewMeasure" data-i18n="btn.newMeasure" data-i18n-title="tip.newMeasure" style="margin-left:auto">+ Kennzahl / Dimension</button>
       </div>
       <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="ctl" id="modelSearch" data-i18n-ph="ph.searchField" placeholder="Feld suchen …"></div>
       <label class="toggle" style="padding:0 0 8px"><input type="checkbox" id="onlyUsed"> <span data-i18n="lbl.onlyUsed">nur verwendete Felder</span></label>
@@ -501,11 +509,11 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
 
   <aside class="panel right">
     <div class="tabs">
-      <button class="tab active" data-tab="el" data-i18n="tab.el">Kachel</button>
-      <button class="tab" data-tab="page" data-i18n="tab.page">Seite</button>
-      <button class="tab" data-tab="report" data-i18n="tab.report">Bericht</button>
-      <button class="tab" data-tab="chrome" data-i18n="tab.chrome">Rahmen</button>
-      <button class="tab" data-tab="design" data-i18n="tab.design">Design</button>
+      <button class="tab active" data-tab="el" data-i18n="tab.el" data-i18n-title="tip.tabEl">Kachel</button>
+      <button class="tab" data-tab="page" data-i18n="tab.page" data-i18n-title="tip.tabPage">Seite</button>
+      <button class="tab" data-tab="report" data-i18n="tab.report" data-i18n-title="tip.tabReport">Bericht</button>
+      <button class="tab" data-tab="chrome" data-i18n="tab.chrome" data-i18n-title="tip.tabChrome">Rahmen</button>
+      <button class="tab" data-tab="design" data-i18n="tab.design" data-i18n-title="tip.tabDesign">Design</button>
     </div>
     <div class="panel-body" id="insEl"></div>
     <div class="panel-body" id="insReport" hidden>
@@ -519,19 +527,19 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
         <div class="field"><label data-i18n="lbl.dataDate">Datenstand / Aktualisierung</label><input class="ctl" id="rpDataDate" data-i18n-ph="ph.dataDate" placeholder="täglich 6:00, Stand T-1"></div>
       </div>
       <div class="field"><label data-i18n="lbl.participants">Teilnehmende Workshop</label><input class="ctl" id="rpParticipants" data-i18n-ph="ph.participants" placeholder="Namen, Rollen"></div>
-      <div class="field"><label data-i18n="lbl.lang">Sprache der Ausgaben</label><select class="ctl" id="rpLang"><option value="de">Deutsch</option><option value="en">English</option></select><p class="hint" data-i18n="hint.lang">Gilt für Skizzen-Beschriftungen und Export-Dokumente.</p></div>
+      <div class="field"><label data-i18n="lbl.lang">Sprache der Ausgaben</label><select class="ctl" id="rpLang" data-i18n-title="tip.sel.rpLang"><option value="de">Deutsch</option><option value="en">English</option></select><p class="hint" data-i18n="hint.lang">Gilt für Skizzen-Beschriftungen und Export-Dokumente.</p></div>
       <div class="section"><h3 data-i18n="diffui.sec">Stände vergleichen</h3>
         <p class="hint" data-i18n="diffui.hint">Gespeicherte Datei (Speichern oder Export) gegen den aktuellen Stand: neue, entfernte, geänderte Kacheln, Seiten, Zonen, Design.</p>
-        <button class="btn" id="btnDiff" data-i18n="diffui.btn" style="margin-top:6px">Datei vergleichen …</button>
+        <button class="btn" id="btnDiff" data-i18n="diffui.btn" data-i18n-title="tip.diff" style="margin-top:6px">Datei vergleichen …</button>
       </div>
     </div>
     <div class="panel-body" id="insPage" hidden>
       <div class="field"><label data-i18n="lbl.thisPage">Diese Seite</label><input class="ctl" id="pageName" data-i18n-ph="ph.pageName" placeholder="z. B. Übersicht"></div>
       <div class="field"><label data-i18n="lbl.pageQuestion">Fragestellung / Kernbotschaft der Seite</label><input class="ctl" id="pageQuestion" data-i18n-ph="ph.pageQuestion" placeholder="z. B. Liegen wir im Plan, und wo nicht?"></div>
       <div class="field"><label data-i18n="lbl.pageNotes">Zweck / Notizen zur Seite</label><textarea class="ctl" id="pageNotes" data-i18n-ph="ph.pageNotes" placeholder="Zielgruppe, Drill-Wege, Interaktionen …"></textarea></div>
-      <div class="row wrap" style="margin-bottom:10px"><button class="btn sm" id="btnPageDup" data-i18n="btn.pageDup">Seite duplizieren</button><button class="btn sm" id="btnPageDel" data-i18n="btn.pageDel">Seite löschen</button></div>
+      <div class="row wrap" style="margin-bottom:10px"><button class="btn sm" id="btnPageDup" data-i18n="btn.pageDup" data-i18n-title="tip.pageDup">Seite duplizieren</button><button class="btn sm" id="btnPageDel" data-i18n="btn.pageDel" data-i18n-title="tip.pageDel">Seite löschen</button></div>
       <div class="section"><h3 data-i18n="sec.grid">Raster</h3>
-        <button class="btn sm" id="btnSplitRoot" data-i18n="btn.splitRoot">Inhalt neu aufteilen …</button> <button class="btn sm" id="btnGridCheck" data-i18n="gc.btn">Pixelgenau prüfen …</button>
+        <button class="btn sm" id="btnSplitRoot" data-i18n="btn.splitRoot" data-i18n-title="tip.splitRoot">Inhalt neu aufteilen …</button> <button class="btn sm" id="btnGridCheck" data-i18n="gc.btn" data-i18n-title="tip.gridCheck">Pixelgenau prüfen …</button>
         <p class="hint" data-i18n="hint.splitRoot">Setzt den Inhaltsbereich dieser Seite auf ein neues Raster (Zeilen × Spalten). Bestehende Visuals werden der Reihe nach wieder eingesetzt.</p>
       </div>
     </div>
@@ -541,11 +549,11 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
         <label class="toggle"><input type="checkbox" id="hdOn"> <span data-i18n="lbl.headerOn">Kopfband anzeigen</span></label>
         <div class="grid2">
           <div><input class="ctl" type="number" id="hdH" min="32" max="120" step="4"><p class="hint" data-i18n="hint.height">Höhe</p></div>
-          <div><select class="ctl" id="hdLogoPos"><option value="left" data-i18n="opt.logo.left">Logo links</option><option value="right" data-i18n="opt.logo.right">Logo rechts</option><option value="none" data-i18n="opt.logo.none">kein Logo</option></select><p class="hint" data-i18n="hint.logo">Logo</p></div>
+          <div><select class="ctl" id="hdLogoPos" data-i18n-title="tip.sel.hdLogoPos"><option value="left" data-i18n="opt.logo.left">Logo links</option><option value="right" data-i18n="opt.logo.right">Logo rechts</option><option value="none" data-i18n="opt.logo.none">kein Logo</option></select><p class="hint" data-i18n="hint.logo">Logo</p></div>
         </div>
         <div class="field"><label data-i18n="lbl.title">Titel</label><input class="ctl" id="hdTitle"></div>
         <div class="field"><label data-i18n="lbl.subtitle">Untertitel</label><input class="ctl" id="hdSub" data-i18n-ph="ph.headerSub" placeholder="z. B. Zeitraum, Einheit"></div>
-        <div class="field"><label data-i18n="lbl.navPos">Seitennavigation</label><select class="ctl" id="hdNavPos"><option value="header" data-i18n="opt.navPos.header">im Kopfband</option><option value="footer" data-i18n="opt.navPos.footer">in der Fußleiste</option><option value="off" data-i18n="opt.navPos.off">aus</option></select></div>
+        <div class="field"><label data-i18n="lbl.navPos">Seitennavigation</label><select class="ctl" id="hdNavPos" data-i18n-title="tip.sel.hdNavPos"><option value="header" data-i18n="opt.navPos.header">im Kopfband</option><option value="footer" data-i18n="opt.navPos.footer">in der Fußleiste</option><option value="off" data-i18n="opt.navPos.off">aus</option></select></div>
         <label class="toggle"><input type="checkbox" id="hdNavAuto"> <span data-i18n="lbl.navAuto">Navigation aus den Seitennamen</span></label>
         <div class="field"><label data-i18n="lbl.navManual">Navigation manuell (kommagetrennt)</label><input class="ctl" id="hdNav" data-i18n-ph="ph.navManual" placeholder="Übersicht, Umsatz, Kosten"></div>
       </details>
@@ -556,11 +564,11 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       <details class="sub" id="secFilter" open><summary data-i18n="sec.filter">Filter / Slicer</summary>
         <label class="toggle"><input type="checkbox" id="ftOn"> <span data-i18n="lbl.filterOn">Filter anzeigen</span></label>
         <div class="grid2">
-          <div><select class="ctl" id="ftSide"><option value="right" data-i18n="opt.filter.right">Panel rechts</option><option value="left" data-i18n="opt.filter.left">Panel links</option><option value="top" data-i18n="opt.filter.top">Leiste oben</option><option value="burger" data-i18n="opt.filter.burger">Burger-Menü (Bookmark)</option></select><p class="hint" data-i18n="hint.position">Position</p></div>
+          <div><select class="ctl" id="ftSide" data-i18n-title="tip.sel.ftSide"><option value="right" data-i18n="opt.filter.right">Panel rechts</option><option value="left" data-i18n="opt.filter.left">Panel links</option><option value="top" data-i18n="opt.filter.top">Leiste oben</option><option value="burger" data-i18n="opt.filter.burger">Burger-Menü (Bookmark)</option></select><p class="hint" data-i18n="hint.position">Position</p></div>
           <div><input class="ctl" type="number" id="ftW" min="48" max="360" step="8"><p class="hint" id="ftWHint">Breite</p></div>
         </div>
         <div class="grid2">
-          <div><select class="ctl" id="ftHeadShow"><option value="auto" data-i18n="opt.fh.auto">Überschrift solange leer</option><option value="on" data-i18n="opt.fh.on">Überschrift immer</option><option value="off" data-i18n="opt.fh.off">keine Überschrift</option></select><p class="hint" data-i18n="hint.fhShow">Überschrift</p></div>
+          <div><select class="ctl" id="ftHeadShow" data-i18n-title="tip.sel.ftHeadShow"><option value="auto" data-i18n="opt.fh.auto">Überschrift solange leer</option><option value="on" data-i18n="opt.fh.on">Überschrift immer</option><option value="off" data-i18n="opt.fh.off">keine Überschrift</option></select><p class="hint" data-i18n="hint.fhShow">Überschrift</p></div>
           <div><input class="ctl" id="ftHeadText" data-i18n-ph="ph.fhText" placeholder="Filter"><p class="hint" data-i18n="hint.fhText">Eigener Titel</p></div>
         </div>
         <div class="field"><label data-i18n="lbl.filterText">Text im Filterbereich (optional)</label><textarea class="ctl" id="ftText" rows="2" data-i18n-ph="ph.filterText" placeholder="z. B. Hinweis: Zeitraum wählen, dann Region"></textarea></div>
@@ -578,7 +586,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       <p class="hint" style="margin:0 0 6px" data-i18n="hint.design">Gestaltung gilt für alle Seiten und wandert als Design-Entscheidung in den Export.</p>
       <details class="sub" id="dsFormat" open><summary data-i18n="sec.canvas">Canvas (alle Seiten)</summary>
       <div>
-        <select class="ctl" id="canvasPreset">
+        <select class="ctl" id="canvasPreset" data-i18n-title="tip.sel.canvasPreset">
           <option value="1280x720" data-i18n="opt.canvas.hd">HD · 1280 × 720 (Standard)</option>
           <option value="1920x1080" data-i18n="opt.canvas.fhd">Full HD · 1920 × 1080</option>
           <option value="3840x2160" data-i18n="opt.canvas.uhd">Ultra HD · 3840 × 2160</option>
@@ -600,7 +608,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
         </div>
       </div>
       <div class="field"><label data-i18n="lbl.defScenario">Standard-Szenario neuer Charts</label>
-        <select class="ctl" id="defScenario">
+        <select class="ctl" id="defScenario" data-i18n-title="tip.defScenario">
           <option value="AC/PL" data-i18n="opt.scen.acpl">AC vs PL (Ist vs Plan)</option>
           <option value="AC/PY" data-i18n="opt.scen.acpy">AC vs PY (Ist vs Vorjahr)</option>
           <option value="AC/PL/FC" data-i18n="opt.scen.acplfc">AC + FC vs PL</option>
@@ -610,13 +618,13 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       </details>
       <details class="sub" id="dsSurface" open><summary data-i18n="grp.surfaces">Kacheln &amp; Flächen</summary>
       <div class="field"><label data-i18n="lbl.radius">Kachel-Ecken</label>
-        <select class="ctl" id="dsRadius"><option value="0" data-i18n="opt.radius.r0">eckig</option><option value="4" data-i18n="opt.radius.r4">leicht gerundet (4 px)</option><option value="8" data-i18n="opt.radius.r8">gerundet (8 px)</option><option value="12" data-i18n="opt.radius.r12">stark gerundet (12 px)</option></select>
+        <select class="ctl" id="dsRadius" data-i18n-title="tip.sel.dsRadius"><option value="0" data-i18n="opt.radius.r0">eckig</option><option value="4" data-i18n="opt.radius.r4">leicht gerundet (4 px)</option><option value="8" data-i18n="opt.radius.r8">gerundet (8 px)</option><option value="12" data-i18n="opt.radius.r12">stark gerundet (12 px)</option></select>
       </div>
       <div class="field"><label data-i18n="lbl.tileStyle">Kachel-Stil</label>
-        <select class="ctl" id="dsTile"><option value="border" data-i18n="opt.tile.border">weiß mit feinem Rahmen</option><option value="shadow" data-i18n="opt.tile.shadow">weiß mit weichem Schatten</option><option value="flat" data-i18n="opt.tile.flat">flach, ohne Rahmen</option></select>
+        <select class="ctl" id="dsTile" data-i18n-title="tip.sel.dsTile"><option value="border" data-i18n="opt.tile.border">weiß mit feinem Rahmen</option><option value="shadow" data-i18n="opt.tile.shadow">weiß mit weichem Schatten</option><option value="flat" data-i18n="opt.tile.flat">flach, ohne Rahmen</option></select>
       </div>
       <div class="field"><label data-i18n="lbl.pageBg">Seitenhintergrund</label>
-        <select class="ctl" id="dsPageBg"><option value="light" data-i18n="opt.bg.light">hell strukturiert (#F4F4F1)</option><option value="soft" data-i18n="opt.bg.soft">kühl strukturiert (#EEF1F5)</option><option value="white" data-i18n="opt.bg.white">weiß</option><option value="custom" data-i18n="opt.bg.custom">eigene Farbe …</option></select>
+        <select class="ctl" id="dsPageBg" data-i18n-title="tip.sel.dsPageBg"><option value="light" data-i18n="opt.bg.light">hell strukturiert (#F4F4F1)</option><option value="soft" data-i18n="opt.bg.soft">kühl strukturiert (#EEF1F5)</option><option value="white" data-i18n="opt.bg.white">weiß</option><option value="custom" data-i18n="opt.bg.custom">eigene Farbe …</option></select>
         <div class="row" id="dsPageBgRow" style="margin-top:6px" hidden><input type="color" id="dsPageBgHex" value="#F4F4F1" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsPageBgHexTxt">#F4F4F1</span></div>
       </div>
       <div class="grid2">
@@ -627,24 +635,24 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
       </details>
       <details class="sub" id="dsColors" open><summary data-i18n="grp.colors">Farben</summary>
       <div class="field"><label data-i18n="lbl.headerStyle">Kopfband-Stil</label>
-        <select class="ctl" id="dsHeader"><option value="light" data-i18n="opt.hdr.light">hell (weiß, dunkle Schrift)</option><option value="dark" data-i18n="opt.hdr.dark">dunkel (Ink)</option><option value="accent" data-i18n="opt.hdr.accent">Akzentfarbe</option><option value="custom" data-i18n="opt.hdr.custom">eigene Farben …</option></select>
+        <select class="ctl" id="dsHeader" data-i18n-title="tip.sel.dsHeader"><option value="light" data-i18n="opt.hdr.light">hell (weiß, dunkle Schrift)</option><option value="dark" data-i18n="opt.hdr.dark">dunkel (Ink)</option><option value="accent" data-i18n="opt.hdr.accent">Akzentfarbe</option><option value="custom" data-i18n="opt.hdr.custom">eigene Farben …</option></select>
         <div class="grid2" id="dsHeaderRow" style="margin-top:6px" hidden>
           <div><div class="row"><input type="color" id="dsHeaderBg" value="#0F1E2E" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsHeaderBgTxt">#0F1E2E</span></div><p class="hint" data-i18n="lbl.headerBg">Kopfband-Hintergrund</p></div>
           <div><div class="row"><input type="color" id="dsHeaderInk" value="#FFFFFF" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsHeaderInkTxt">#FFFFFF</span></div><p class="hint" data-i18n="lbl.headerInk">Kopfband-Schrift</p></div>
         </div>
       </div>
       <div class="field"><label data-i18n="lbl.palette">Abweichungsfarben (Δ)</label>
-        <select class="ctl" id="dsPalette"><option value="teal" data-i18n="opt.pal.teal">Teal / Rot (ChartKitchen-Standard)</option><option value="ibcs" data-i18n="opt.pal.ibcs">Grün / Rot (klassisch)</option></select>
+        <select class="ctl" id="dsPalette" data-i18n-title="tip.sel.dsPalette"><option value="teal" data-i18n="opt.pal.teal">Teal / Rot (ChartKitchen-Standard)</option><option value="ibcs" data-i18n="opt.pal.ibcs">Grün / Rot (klassisch)</option></select>
       </div>
       <div class="field"><label data-i18n="smp.nativePal">Farbschema native Visuals</label>
-        <select class="ctl" id="dsNative"><option value="neutral" data-i18n="smp.neutral">Neutral (Grau mit einem Akzent)</option><option value="pbi" data-i18n="smp.pbi">Power-BI-Standardpalette</option><option value="kitchen" data-i18n="smp.kitchen">ChartKitchen (Teal)</option></select>
+        <select class="ctl" id="dsNative" data-i18n-title="tip.sel.dsNative"><option value="neutral" data-i18n="smp.neutral">Neutral (Grau mit einem Akzent)</option><option value="pbi" data-i18n="smp.pbi">Power-BI-Standardpalette</option><option value="kitchen" data-i18n="smp.kitchen">ChartKitchen (Teal)</option></select>
       </div>
       <div class="field"><label data-i18n="lbl.accent">Akzentfarbe</label><div class="row"><input type="color" id="dsAccent" value="#C25A2D" style="width:44px;height:30px;padding:2px;border:1px solid var(--line-strong);border-radius:6px;background:#fff"><span class="hint mono" id="dsAccentTxt">#C25A2D</span></div></div>
       </details>
       <details class="sub" id="dsTypo"><summary data-i18n="sec.typoDetails">Typografie (Details)</summary>
         <p class="hint" data-i18n="hint.typo">Basisgrößen in px bei 1280 px Seitenbreite, sie skalieren mit der Seite. Je Kachel im Kachel-Fenster übersteuerbar.</p>
         <div class="grid2">
-          <div><select class="ctl" id="tyScale"><option value="0.85">85 %</option><option value="1">100 %</option><option value="1.15">115 %</option><option value="1.3">130 %</option><option value="1.5">150 %</option></select><p class="hint" data-i18n="hint.tyScale">Skalierung gesamt</p></div>
+          <div><select class="ctl" id="tyScale" data-i18n-title="tip.sel.tyScale"><option value="0.85">85 %</option><option value="1">100 %</option><option value="1.15">115 %</option><option value="1.3">130 %</option><option value="1.5">150 %</option></select><p class="hint" data-i18n="hint.tyScale">Skalierung gesamt</p></div>
           <div><input class="ctl" type="number" id="tyTitle" min="8" max="24" step="0.5"><p class="hint" data-i18n="hint.tyTitle">Kacheltitel</p></div>
           <div><input class="ctl" type="number" id="tySub" min="7" max="18" step="0.5"><p class="hint" data-i18n="hint.tySub">Untertitel</p></div>
           <div><input class="ctl" type="number" id="tyChart" min="6" max="16" step="0.5"><p class="hint" data-i18n="hint.tyChart">Diagrammbeschriftung</p></div>
@@ -675,13 +683,14 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
   <div class="dlg-body">
     <div id="expChecks"></div>
     <div class="exp-tabs" id="expTabs">
-      <button data-exp="json" class="on">mockup-spec.json</button>
+      <button data-exp="json">mockup-spec.json</button>
       <button data-exp="brief">AGENT-BRIEF.md</button>
       <button data-exp="docs">WORKSHOP-DOKU.md</button>
       <button data-exp="pbir" data-i18n="tabexp.pbir">pbir-visuals (aktuelle Seite)</button>
-      <button data-exp="prompt" data-i18n="tabexp.prompt">Prompt für Claude Code</button>
+      <button data-exp="prompt" class="on" data-i18n="tabexp.prompt">Prompt für Claude Code</button>
     </div>
     <pre class="code" id="expOut"></pre>
+    <div class="exp-png" style="display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;margin-top:8px;font-size:12px"><span data-i18n="dlg.exp.pngH">Seitenbilder (PNG) bei „Alle Dateien":</span><label class="toggle" style="padding:0"><input type="checkbox" id="expPngChips"> <span data-i18n="dlg.exp.pngChips">Feldnamen zeigen</span></label><label class="toggle" style="padding:0"><input type="checkbox" id="expPngNotes"> <span data-i18n="dlg.exp.pngNotes">Notizsymbole zeigen</span></label></div>
   </div>
   <div class="dlg-foot"><span class="hint" id="expHint" style="margin-right:auto"></span><button class="btn" id="btnExpCopy" data-i18n="btn.copy">Kopieren</button><button class="btn" id="btnExpDownload" data-i18n="btn.download">Datei herunterladen</button><button class="btn primary" id="btnExpAll" data-i18n="btn.downloadAll">Alle Dateien herunterladen</button></div>
 </dialog>

@@ -955,6 +955,35 @@ def review_fix_tests(tmp: Path, res: Results):
     res.check("R2 · neuer PNG-Name hat Vorrang",
               (D.page_image({}, page, folder) or Path()).name == "page-1-Detail_Standort.png")
 
+    # R20: unbrauchbarer Modellname aus alten Exporten ("TMDL (16 Dateien)", "tables")
+    for raw in ("TMDL (16 Dateien)", "TMDL (3 files)", "tables", "definition"):
+        res.check("R20 · „%s“ ist kein Modellname" % raw,
+                  P.usable_model_name(raw) == "<Modell>.SemanticModel")
+    for raw in ("Vertrieb.SemanticModel", "Vertriebscontrolling_Excel_based_3.0", "Demo-Modell", ""):
+        res.check("R20 · „%s“ bleibt unveraendert" % raw, P.usable_model_name(raw) == raw)
+    import json as _json
+    fx = _json.loads((FIXTURES / "v3-custom-visuals.json").read_text(encoding="utf-8"))
+    for raw in ("TMDL (16 Dateien)", "Vertriebscontrolling_Excel_based_3.0"):
+        fx["model"]["source"] = raw
+        spec_path = tmp / "r20-spec.json"
+        spec_path.write_text(_json.dumps(fx, ensure_ascii=False), encoding="utf-8")
+        out = tmp / ("r20-" + ("alt" if raw.startswith("TMDL") else "neu"))
+        code, _, err = run([str(SCRIPTS / "mockup_to_pbir.py"), str(spec_path), "--out", str(out),
+                            "--report", REPORT, "--plan"])
+        cmd = (out / "commands.md").read_text(encoding="utf-8") if code == 0 else ""
+        plan = _json.loads((out / "plan.json").read_text(encoding="utf-8")) if code == 0 else {}
+        if raw.startswith("TMDL"):
+            res.check("R20 · commands.md nennt den Platzhalter statt des Ladetexts",
+                      code == 0 and 'te validate -m "<Modell>.SemanticModel"' in cmd
+                      and '-m "TMDL' not in cmd and "**Hinweis:**" in cmd, err[-200:])
+            res.check("R20 · plan.json nennt Platzhalter und Hinweis",
+                      plan.get("model") == "<Modell>.SemanticModel" and "modelNote" in plan
+                      and "TMDL (16 Dateien)" not in json.dumps(plan.get("steps")))
+        else:
+            res.check("R20 · brauchbarer Name wird eingesetzt, ohne Hinweis",
+                      code == 0 and 'te validate -m "%s"' % raw in cmd and "**Hinweis:**" not in cmd
+                      and plan.get("model") == raw and "modelNote" not in plan, err[-200:])
+
 
 # --------------------------------------------------------------------------- #
 def main() -> int:

@@ -755,6 +755,86 @@
     for (i = 0; i < syn.length; i++) out.push(i < c.ur.length && c.ur[i] != null ? c.ur[i] : syn[i]);
     return out;
   }
+  /* Sortierung und Top-N (o.sort, o.topN; Vertrag analysis.sort/topN).
+     Top-N wählt wie der Konverter (TopN-Filter auf die führende Kennzahl)
+     die N größten Werte, bei dir 'asc' die N kleinsten (Bottom); danach
+     ordnet sort: value = Wert, delta = Wert minus Referenz der Skizze (mit
+     Vorzeichen, ohne Polarität), category = Name. Gleichstand bleibt in
+     der Ausgangsfolge. Ohne beides gibt arrange() null zurück und die
+     Skizze bleibt byte-identisch. Eine Zeile „Sonstige" gibt es nicht. */
+  var SORT_BY = { value: 1, delta: 1, category: 1 };
+  function sortSpec(o) {
+    var s = (o && o.sort && typeof o.sort === 'object') ? o.sort : null;
+    var top = Math.floor(+(o && o.topN));
+    return { by: s && SORT_BY[s.by] ? s.by : null, asc: !!(s && s.dir === 'asc'), top: top >= 1 && isFinite(top) ? top : 0 };
+  }
+  function sortIdx(sp, ac, rf, names, lang) {
+    var cnt = ac.length, idx = [], i, sel;
+    for (i = 0; i < cnt; i++) idx.push(i);
+    if (sp.top && sp.top < cnt) {
+      sel = idx.slice().sort(function (p, q) { return (sp.asc ? n(ac[p]) - n(ac[q]) : n(ac[q]) - n(ac[p])) || p - q; }).slice(0, sp.top);
+      idx = idx.filter(function (p) { return sel.indexOf(p) >= 0; });
+    }
+    if (sp.by) {
+      idx.sort(function (p, q) {
+        var r = sp.by === 'category' ? String(names[p]).localeCompare(String(names[q]), lang, { numeric: true })
+              : (sp.by === 'delta' && rf ? n(ac[p] - rf[p]) - n(ac[q] - rf[q]) : n(ac[p]) - n(ac[q]));
+        return (sp.asc ? r : -r) || p - q;
+      });
+    }
+    return idx;
+  }
+  /* In der Skizze: ac/rf (rf darf null sein) und weitere Reihen gleicher
+     Länge in more umordnen und kürzen. Die Namen kommen aus base (Default
+     c.cat) und werden zu c.cat und c.uc: eine sortierte Achse ist eine
+     Kategorieachse, auch wenn die Skizze sonst Monate zeigt.
+     opt.noSort: nur Top-N (Pareto sortiert selbst).                      */
+  function arrange(c, ac, rf, more, base, opt) {
+    var sp = sortSpec(c.o), i, j;
+    if (opt && opt.noSort) sp.by = null;
+    if (!sp.by && !(sp.top && sp.top < ac.length)) return null;
+    base = base || c.cat;
+    var names = [];
+    for (i = 0; i < ac.length; i++) names.push(base[i % base.length]);
+    var idx = sortIdx(sp, ac, rf, names, c.lang);
+    function pick(a) { if (!a) return a; var r = []; for (j = 0; j < idx.length; j++) r.push(a[idx[j]]); return r; }
+    c.cat = c.uc = pick(names);
+    var m = [];
+    for (i = 0; more && i < more.length; i++) m.push(pick(more[i]));
+    return { ac: pick(ac), rf: pick(rf), more: m, n: idx.length };
+  }
+  /* Vor der Skizze (Dispatcher): eigene Daten vollständig umordnen und auf
+     Top-N kürzen, damit die Kappung auf das, was die Skizze fasst, die
+     richtigen Kategorien behält. Nur wenn jede Kategorie einen Wert (und
+     für delta einen Bezug) hat; sonst entscheidet arrange() in der Skizze. */
+  var SORTABLE = { bars: 1, barskombi: 1, bullet: 1, dotplot: 1, pareto: 1, table: 1, absvar: 1, relvar: 1, nbar: 1, ncolumn: 1 };
+  function prearrange(kind, o) {
+    if (!o || !SORTABLE[kind]) return o;
+    var sp = sortSpec(o), uv = numList(o.values), ur = uv ? numList(o.refValues) : null, uc = strList(o.cats);
+    if (kind === 'pareto') sp.by = null;
+    if (!uv || (!sp.by && !sp.top)) return o;
+    var cnt = uc ? uc.length : uv.length, i;
+    if (uv.length < cnt || (sp.by === 'delta' && (!ur || ur.length < cnt))) return o;
+    for (i = 0; i < cnt; i++) if (uv[i] == null || (sp.by === 'delta' && ur[i] == null)) return o;
+    var ac = uv.slice(0, cnt), rf = ur ? ur.slice(0, cnt) : null;
+    var idx = sortIdx(sp, ac, rf, uc || ac, o.lang === 'en' ? 'en' : 'de');
+    function pick(a) { var r = [], j; for (j = 0; j < idx.length; j++) r.push(a[idx[j]]); return r; }
+    var out = {}, k;
+    for (k in o) if (Object.prototype.hasOwnProperty.call(o, k)) out[k] = o[k];
+    out.values = pick(ac);
+    if (uc) out.cats = pick(uc);
+    if (rf) out.refValues = pick(rf);     // Lücken bleiben Lücken (useRef ergänzt synthetisch)
+    delete out.topN;            // schon gekürzt; die Sortierung wiederholt arrange() stabil
+    return out;
+  }
+  // Zeitachse: Sortierung und Top-N fallen weg (columns nativ → ncolumn)
+  function timeAxis(o) {
+    if (!o || (o.sort == null && o.topN == null)) return o;
+    var out = {}, k;
+    for (k in o) if (Object.prototype.hasOwnProperty.call(o, k) && k !== 'sort' && k !== 'topN') out[k] = o[k];
+    return out;
+  }
+
   // Wertebereich inkl. 0 über mehrere Reihen (null-Reihen werden übersprungen)
   function span() {
     var lo = 0, hi = 0, i, j, a;
@@ -1088,7 +1168,7 @@
 
   /* ---- 1 · Säulen: AC gegen Referenz, eine Δ-Ebene darüber -------------- */
   S.columns = function (w, h, o) {
-    if (o && o.look === 'native') return S.ncolumn(w, h, o);
+    if (o && o.look === 'native') return S.ncolumn(w, h, timeAxis(o));
     var c = ctx(w, h, o), hh = hatch(c), b = hh.defs;
     var cnt = kcnt(c, c.small ? 4 : (c.dense ? 12 : 6), capN(c, 4, 16));
     var kind = refKind(c);
@@ -3944,7 +4024,7 @@
       ? S[kind] : S.generic;
     var out;
     try {
-      out = fn(w, h, o || {});
+      out = fn(w, h, prearrange(kind, o) || {});
     } catch (e) {
       out = null;
     }
