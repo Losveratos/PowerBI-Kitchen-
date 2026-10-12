@@ -1547,7 +1547,8 @@ class Deploy:
             pages.append({"id": pj.get("name") or folder,
                           "displayName": pj.get("displayName") or folder,
                           "dir": root / folder,
-                          "width": pj.get("width"), "height": pj.get("height")})
+                          "width": pj.get("width"), "height": pj.get("height"),
+                          "visibility": pj.get("visibility")})
         self.report_pages = pages
         self.page_visuals = {}
 
@@ -1642,7 +1643,8 @@ class Deploy:
                 plan = self.scope_plan(plan)
             self.publish_plan_doc(self.plan_summary(plan))
             if any(pw["items"] or pw["action"] == "create" or pw["background"]
-                   for pw in plan) or self.theme_wanted() or self.model_followups:
+                   or pw.get("visibility") for pw in plan) or self.theme_wanted() \
+                    or self.model_followups or self.page_order_moves(plan):
                 if not getattr(self, "backup_dir", None):
                     self.st.begin_step("backup")
                     self.backup()
@@ -3973,6 +3975,12 @@ class Deploy:
                   "items": [], "chrome": chrome, "imported": imported_page,
                   "background": bool(background),
                   "canvas": canvas}
+            # Seitenrolle (Kitchen 0.6.1): detail und drill sind in Power BI ausgeblendet. Geschrieben
+            # wird nur, wenn page.json etwas anderes sagt (gilt auch für eingelesene Seiten).
+            want_vis = "AlwaysVisible" if (page.get("role") or "nav") == "nav" else "HiddenInViewMode"
+            have_vis = (rp or {}).get("visibility") or "AlwaysVisible"
+            pw["visibility"] = want_vis if (want_vis != have_vis if rp
+                                            else want_vis == "HiddenInViewMode") else None
             if bg_note:
                 self.r.log("Seite %s: %s" % (name, bg_note))
             # Demo B2 (Prüfung an der Demo-Kopie): Ändert sich der Rahmen im Kitchen, setzt das
@@ -4593,6 +4601,7 @@ class Deploy:
         try:
             for pw in plan:
                 self.write_page(pw, nspec)
+            self.apply_page_order(plan)
             self.apply_theme()
             for cmd in self.model_followups:     # Umbenennung im Modell -> Bericht nachziehen
                 if cmd and cmd[0] == "pbir" and len(cmd) > 2 and cmd[1] != "validate":
@@ -4704,6 +4713,46 @@ class Deploy:
     def page_path(self, pw) -> str:
         return "%s/%s.Page" % (self.p.report_arg, pw["display"])
 
+    def page_order_moves(self, plan: list) -> list:
+        """Reihenfolge der Kitchen-Seiten im Bericht nachziehen (Kitchen 0.6.1, Seiten ziehen).
+        Seiten, die das Kitchen nicht kennt (QuickInfo-Seiten, übersprungene), behalten ihren
+        Platz; die Plätze der Kitchen-Seiten werden in Kitchen-Reihenfolge belegt.
+        Rückgabe: [(seiten_id, ziel_1_basiert)], leer, wenn die Reihenfolge schon stimmt."""
+        meta = read_json(self.p.report / "definition" / "pages" / "pages.json", retries=1) or {}
+        order = [str(x) for x in (meta.get("pageOrder") or [])]
+        mine = [pw["pageId"] for pw in plan if pw.get("pageId") and pw["pageId"] in order]
+        if len(mine) < 2:
+            return []
+        slots = [k for k, pid in enumerate(order) if pid in set(mine)]
+        target = list(order)
+        for k, pid in zip(slots, mine):
+            target[k] = pid
+        if target == order:
+            return []
+        moves, cur = [], list(order)
+        for k, pid in enumerate(target):
+            if cur[k] != pid:
+                cur.remove(pid)
+                cur.insert(k, pid)
+                moves.append((pid, k + 1))
+        return moves
+
+    def apply_page_order(self, plan: list) -> None:
+        moves = self.page_order_moves(plan)
+        if not moves:
+            return
+        names = {pw.get("pageId"): pw for pw in plan}
+        for pid, pos in moves:
+            pw = names.get(pid)
+            if not pw:
+                continue
+            rc, out, err = self.pbir("pages", "move", self.page_path(pw), "--to", str(pos))
+            if rc != 0:
+                self.todo("manual", pw["name"], "Seitenreihenfolge nicht gesetzt (Position %d): %s"
+                          % (pos, short(err or out)))
+                return
+        self.r.log("Seitenreihenfolge nachgezogen: %d Verschiebung(en)" % len(moves))
+
     def write_page(self, pw: dict, nspec: dict) -> None:
         name = pw["name"]
         canvas = pw["canvas"]
@@ -4772,7 +4821,14 @@ class Deploy:
                     self.visuals_on(pw["pageId"], refresh=True)
                     refreshed = True
                 self.add_ck(pw, it)
-        # 3 · Seitenhintergrund (kann batch nicht)
+        # 3 · Sichtbarkeit der Seite (Rolle detail/drill = ausgeblendet)
+        if pw.get("visibility") and pw.get("pageId"):
+            rc, out, err = self.pbir("set", "%s.visibility" % self.page_path(pw),
+                                     "--value", pw["visibility"])
+            if rc != 0:
+                self.todo("manual", pw["name"], "Sichtbarkeit der Seite (%s) nicht gesetzt: %s"
+                          % (pw["visibility"], short(err or out)))
+        # 4 · Seitenhintergrund (kann batch nicht)
         if pw["background"]:
             color = self.page_color(nspec)
             if color:

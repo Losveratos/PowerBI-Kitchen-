@@ -142,6 +142,8 @@
   function fingerprints() {
     if (memo.fp && memo.fpRev === rev) return memo.fp;
     const out = {}; const S = MK().state; S.pages.forEach(p => MK().computeAll(p).leaves.forEach(l => { if (l.node.visual) out[l.node.id] = tileFp(l); })); out.__design = fnv(JSON.stringify([S.design, S.chrome, S.canvas, S.spacing]));
+    // „__pages": Reihenfolge und Rolle der Seiten (Navigation, Detail, Drillthrough), Kitchen 0.6.1
+    out.__pages = fnv(JSON.stringify(S.pages.map(p => [p.id, MK().roleOf ? MK().roleOf(p) : 'nav'])));
     memo.fp = out; memo.fpRev = rev; return out;
   }
   function fpDiff(a, b) { if (!a || !b) return a === b ? 'same' : 'changed'; if (a === b) return 'same'; const [av, ar] = a.split('|'), [bv, br] = b.split('|'); return av === bv && ar !== br && ar != null && br != null ? 'moved' : 'changed'; }
@@ -166,9 +168,11 @@
       if (any) out.pages[p.name] = pg;
       out.changed += pg.changed; out.moved += pg.moved; out.added += pg.new;
     });
-    if (dep.fps) Object.keys(dep.fps).forEach(id => { if (!seen[id] && id !== '__design') out.removed++; });
+    if (dep.fps) Object.keys(dep.fps).forEach(id => { if (!seen[id] && id !== '__design' && id !== '__pages') out.removed++; });
     out.theme = !!(dep.fps && dep.fps.__design && dep.fps.__design !== fingerprints().__design);
-    out.n = out.changed + out.moved + out.added + out.removed + (out.theme ? 1 : 0);
+    // Ältere Abdrücke ohne __pages zählen nicht als Änderung
+    out.pageOrder = !!(dep.fps && dep.fps.__pages && dep.fps.__pages !== fingerprints().__pages);
+    out.n = out.changed + out.moved + out.added + out.removed + (out.theme ? 1 : 0) + (out.pageOrder ? 1 : 0);
     return out;
   }
 
@@ -835,6 +839,7 @@
     if (ch.added) parts.push(ch.added === 1 ? t('live.dep.detail.new1') : t('live.dep.detail.new', { n: ch.added }));
     if (ch.removed) parts.push(t('live.dep.detail.removed', { n: ch.removed }));
     if (ch.theme) parts.push(t('live.dep.detail.theme'));
+    if (ch.pageOrder) parts.push(t('live.dep.detail.pages'));
     return parts.join(', ');
   }
   function renderDep() {
@@ -1558,7 +1563,8 @@
     bC.hidden = !!proj || !!stored;
     bR.hidden = !!proj || !stored;
     if (wrap) wrap.hidden = bC.hidden;
-    if (stored) { const txt = t('live.reconnect', { name: stored.name }); $('.lv-txt', bR).textContent = txt; bR.title = txt + ' · ' + t('live.reconnectTip'); bR.setAttribute('aria-label', txt); }
+    // Sichtbar steht der Ordnername neben ⟳ (bleibt auch gekürzt erkennbar), der volle Satz im Tooltip
+    if (stored) { const txt = t('live.reconnect', { name: stored.name }); $('.lv-txt', bR).textContent = stored.name; bR.title = txt + ' · ' + t('live.reconnectTip'); bR.setAttribute('aria-label', txt); }
     renderDep();
     // Verbunden: Deploy ist die Hauptaktion, der Export tritt zurück (kurz und ohne Akzent, Strg+E bleibt)
     const ex = $('#btnExport');

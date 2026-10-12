@@ -459,7 +459,9 @@ body.live-on .toast{bottom:76px}
 .live-chip .lv-txt{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .live-chip.reconnect{border-style:dashed;border-color:var(--accent);color:var(--accent-strong);background:var(--bg-card)}
 .live-chip.reconnect:hover{background:var(--accent-soft)}
-@media (max-width:1300px){.live-chip.reconnect .lv-txt{display:none}.live-chip.reconnect{padding:4px 8px}}
+/* Wieder verbinden: nie auf ein leeres ⟳ schrumpfen (Test 03.10.), Name gekürzt, voller Text im Tooltip */
+.live-chip.reconnect{flex:none}.live-chip.reconnect .lv-txt{max-width:190px}
+@media (max-width:1300px){.live-chip.reconnect .lv-txt{max-width:96px}.live-chip.reconnect{padding:4px 8px}}
 /* Bis 1400 px enger (B38: die Leiste soll bei 1366 und 1280 px einzeilig bleiben): Knopf ohne Mindestbreite, Pille nur als Punkt */
 @media (max-width:1400px){.lv-dep .dep-main{min-width:0;padding:6px 9px}.lv-dep .dep-more{padding:0 6px}.lv-pill{padding:3px 6px}}
 @media (max-width:1300px){.lv-dep .dep-main{padding:6px 7px;font-size:12px}body.live-on .topbar #btnMore{padding-left:6px;padding-right:6px}body.live-on .brand small{display:none}}

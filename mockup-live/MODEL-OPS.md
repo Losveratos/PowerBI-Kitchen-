@@ -59,11 +59,27 @@ chk = MO.fields_exist("X.SemanticModel", ["_Measures.Umsatz", ("DimDate", "Year"
 
 Die Doku zur neuen Preview (bis 31.10.2026) setzt Eigenschaften mit `-p Name=Wert`. Die abgelaufene Preview kannte `-q <Eigenschaft> -i <Wert>`. `te_dialect()` liest `te set --help` und wählt die passende Form. Beides ist getestet.
 
-## Offen bis zur neuen `te`-Version
+## Echter Durchlauf mit `te` 0.7.1.2 (12.10.2026)
 
-- `te set --help`, `te add --help`, `te mv --help`, `te ls --help`, `te validate --help` gegen `render()` prüfen (Flags, `--if-not-exists`, `--non-interactive`).
-- JSON von `te ls --type measure --output-format json`: enthält `properties` `formatString`, `description`, `displayFolder`? Fehlen sie, plant `plan()` mit den Werten aus der Spec.
-- Form von `objectPath` (Slash- oder DAX-Form, Container-Segment `Measures`?). `split_path()` nimmt erstes und letztes Segment.
-- Benennt `te mv` DAX-Verweise mit um? Die Doku-Quellen widersprechen sich. Falls nein, verweigert das Save-Gate die Umbenennung bei abhängigen Kennzahlen, Rücksetzen greift.
-- Greift ein BPA-Gate (`bpa.onMutation`) beim `--save` von `te add`/`te set`? Dann scheitern Ops mit BPA-Meldung, ggf. `te config set bpa.onMutation false` für den Runner.
-- Echter Durchlauf an der Testkopie von PBI-IBCS-Testbed (Paket E).
+An einer Kopie von `sample/MockupLive-Sample` (ohne Desktop): Format, Beschreibung und Anzeigeordner
+setzen, Kennzahl umbenennen (`BU` → `Budget`), neue Kennzahl mit DAX anlegen, danach `te validate`.
+Alle fünf Ops gespeichert, keine neuen Fehler.
+
+- **Flags:** `te add … -p Name=Wert --if-not-exists --save`, `te set … -p … --save`, `te mv alt neu --save` und
+  `te validate --errors-only` laufen wie in `render()`; der Dialekt `p` wird erkannt.
+- **`te ls Measures --output-format json`:** `formatString`, `description`, `displayFolder` und `expression` stehen
+  direkt am Objekt, `objectPath` in Slash-Form (`_Measures/AC`). `plan()` liest die aktuellen Werte und blockiert
+  vorhandene Ziele („existiert bereits im Modell").
+- **`te mv` zieht DAX-Verweise mit** („1 cascading change(s)": `[AC] - [BU]` wird `[AC] - [Budget]`).
+- **Kein BPA-Gate** bei `add`/`set` mit `--save` in der Standardkonfiguration.
+- **Save-Gate:** Bringt eine Änderung neue DAX-Fehler, verweigert `te` das Speichern (`Error: Save blocked …`,
+  Exit 1). Befund: Neue Kennzahlen liefen vor dem Umbenennen und scheiterten, wenn sie den neuen Namen nutzten.
+  Seit 12.10. laufen Änderungen an Bestehendem zuerst, neue Kennzahlen zuletzt; Verweise auf den alten Namen einer
+  im selben Lauf umbenannten Kennzahl werden im DAX mitgezogen (`'Tabelle'[Spalte]` bleibt unberührt).
+- **Fehlertext:** `te` schreibt die Ablaufwarnung der Preview auf stderr. `te_message()` lässt sie weg und zeigt
+  `Error:`- und DAX-Zeilen; vorher stand im Kitchen nur die Warnung.
+- **Bericht:** Nach dem Umbenennen ruft der Runner `pbir fields replace <Bericht> --from alt --to neu` mit dem
+  echten Berichtspfad auf (Platzhalter nur im statischen Plan).
+
+Noch offen: derselbe Durchlauf mit offenem Desktop (Reload des Modells über die Bridge) und mit einem Bericht, der
+die umbenannte Kennzahl bindet.

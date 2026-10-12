@@ -338,10 +338,34 @@ class Apply(Base):
         self.assertIn("--if-not-exists", adds[0])
         self.assertIn("--save", adds[0])
         self.assertEqual(r["followUps"][0][:3], ["pbir", "fields", "replace"])
-        # Umbenennung zuletzt: der Format-Aufruf traf noch den alten Namen
+        # Erst Änderungen an Bestehendem (set vor mv, der Format-Aufruf traf noch den alten
+        # Namen), neue Kennzahlen zuletzt: sie dürfen den neuen Namen schon nutzen (te 0.7)
         order = [c[0] for c in self.calls() if c and c[0] in ("add", "set", "mv")]
-        self.assertEqual(order[0], "add")
-        self.assertEqual(order[-1], "mv")
+        self.assertEqual(order[-1], "add")
+        self.assertEqual(order[-2], "mv")
+        self.assertLess(order.index("set"), order.index("mv"))
+
+    def test_add_follows_rename_in_same_run(self):
+        # DAX mit dem alten Namen einer im selben Lauf umbenannten Kennzahl wird mitgezogen
+        ops = self.plan()
+        oid = "addMeasure:_Measures.Deckungsbeitrag"
+        r = MO.apply(ops, self.model, [oid, "rename:_Measures.AC"], te=TE,
+                     overrides={oid: {"dax": "[AC] - [Kosten] + 'Fact'[AC]"}})
+        m = self.state()["tables"]["_Measures"]["measures"]
+        self.assertEqual(m["Deckungsbeitrag"]["expression"], "[Ist] - [Kosten] + 'Fact'[AC]")
+        self.assertTrue(r["ok"], r["message"])
+
+    def test_te_message_drops_preview_warning(self):
+        r = {"err": "Warning: Early preview expires in 19 day(s), on 2026-10-31. Update to the "
+                    "latest version at https://tabulareditor.com/downloads\nError: Save blocked: "
+                    "this mutation introduced 1 DAX validation error(s). Use --force to save anyway.",
+             "out": "Validation: 1 error(s)\n  DAX0002 Wert fehlt in X\n  x DAX0002 Wert fehlt in X"}
+        msg = MO.te_message(r)
+        self.assertNotIn("Early preview", msg)
+        self.assertIn("Save blocked", msg)
+        self.assertEqual(msg.count("DAX0002"), 1)
+        self.assertEqual(MO.te_message({"err": "Warning: Early preview expires", "out": "kaputt"}),
+                         "kaputt")
 
     def test_override_unblocks_placeholder(self):
         ops = self.plan()

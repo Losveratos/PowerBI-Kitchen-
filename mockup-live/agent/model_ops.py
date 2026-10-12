@@ -130,6 +130,25 @@ def _tail(text: str, n: int = 600) -> str:
     return text if len(text) <= n else "…" + text[-n:]
 
 
+_NOISE_RX = re.compile(r"Early preview expires|Update to the latest version", re.I)
+
+
+def te_message(r: dict, n: int = 600) -> str:
+    """Fehlertext eines te-Aufrufs ohne die Ablaufwarnung der Preview: zuerst die
+    Zeilen mit „Error:“ und DAX-Codes (Speicher-Sperre bei neuen DAX-Fehlern), sonst
+    das Ende von stderr bzw. stdout."""
+    lines = [ln.strip() for ln in ((r.get("err") or "") + chr(10) + (r.get("out") or "")).splitlines()
+             if ln.strip() and not _NOISE_RX.search(ln)]
+    key = [ln for ln in lines if ln.startswith("Error") or re.match(r"(x\s+)?DAX\d{4}", ln)]
+    seen, picked = set(), []
+    for ln in key or lines:
+        ln2 = re.sub(r"^x\s+", "", ln)
+        if ln2 not in seen:
+            seen.add(ln2)
+            picked.append(ln2)
+    return _tail(" · ".join(picked), n)
+
+
 def expiry_from_text(text: str) -> tuple:
     """(abgelaufen?, Datum) aus einer te-Ausgabe."""
     m = _EXPIRED_RX.search(text or "")
@@ -790,6 +809,32 @@ def apply(ops: list, model_dir, approved_ids=(), *, te=None, overrides: dict | N
     backup = snapshot(model_dir, root)
     res["backup"] = str(backup)
 
+    # Reihenfolge: erst Änderungen an bestehenden Objekten (set, mv), dann neue Kennzahlen.
+    # Eine neue Kennzahl darf so schon den neuen Namen einer umbenannten nutzen; te sperrt
+    # das Speichern, wenn eine Änderung neue DAX-Fehler bringt. Verweise auf den alten
+    # Namen einer im selben Lauf umbenannten Kennzahl werden mitgezogen.
+    run.sort(key=lambda o: 1 if (o.get("action") or {}).get("verb") == "add" else 0)
+    renamed = {}
+    for op in run:
+        act = op.get("action") or {}
+        if act.get("verb") == "mv" and act.get("dest"):
+            old, new = split_path(act["path"])[-1], split_path(act["dest"])[-1]
+            if old and new and old != new:
+                renamed[old] = new
+    if renamed:
+        for i, op in enumerate(run):
+            act = op.get("action") or {}
+            expr = (act.get("props") or {}).get("expression")
+            if act.get("verb") != "add" or not expr:
+                continue
+            new_expr = expr
+            for old, new in renamed.items():
+                new_expr = re.sub(r"(?<!')\[%s\]" % re.escape(old), lambda _m, _n=new: "[%s]" % _n, new_expr)
+            if new_expr != expr:
+                op = dict(op, action=dict(act, props=dict(act["props"], expression=new_expr)))
+                op["renamedRefs"] = True
+                run[i] = op
+
     before = validate(model_dir, te)
     applied, failed = [], []
     for op in run:
@@ -801,7 +846,7 @@ def apply(ops: list, model_dir, approved_ids=(), *, te=None, overrides: dict | N
                                     "ms": r["ms"]})
             if r["code"] != 0:
                 out["status"] = "failed"
-                out["message"] = _tail(r["err"] or r["out"], 600) or "Exit %d" % r["code"]
+                out["message"] = te_message(r) or "Exit %d" % r["code"]
                 break
         results.append(out)
         (applied if out["status"] == "applied" else failed).append(op)
