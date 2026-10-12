@@ -1,7 +1,7 @@
 {
   "generated": "<zeitstempel>",
   "report": "Test.Report",
-  "specHash": "fidelityb1",
+  "specHash": "069c4b71",
   "specName": "Treue-Testfall B1",
   "tolerance": 1,
   "pages": [
@@ -498,6 +498,6 @@
   ],
   "drillthrough": [],
   "annotations": {
-    "mockup-spec-hash": "fidelityb1"
+    "mockup-spec-hash": "069c4b71"
   }
 }

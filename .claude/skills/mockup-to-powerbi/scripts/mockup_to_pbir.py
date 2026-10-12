@@ -94,13 +94,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mockup_spec import (                                     # noqa: E402
-    CK_CUMULATIVE_MODES, CK_MULTIPLES_MODES, CK_ROLE,
+    CK_CUMULATIVE_MODES, CK_MULTIPLES_MODES, CK_ORIENTATION, CK_ROLE,
     CK_ROLE_UNSUPPORTED, CK_TOPN_MODES, DRILL_ROLE_ORDER, KITCHEN_CHROME,
     MEASURE_ROLE_ORDER, NATIVE_PALETTES, NO_VARIANT_KINDS, PX_TO_PT, SCENARIO_COLORS,
     SMALL_MULTIPLES_BUCKET, SMALL_MULTIPLES_TYPES, SpecError, as_document,
-    a11y_issues, basis_of_name, ck_mode_for, custom_visual_info, design_from_report,
+    a11y_issues, basis_of_name, build_hash, ck_mode_for, custom_visual_info, design_from_report,
     display_name, drawn, keeps_report_style, tile_numbers, tile_type_sizes,
-    footer_nav_entries, half_pt, is_a11y_issue, is_light, load, mix, nav_position,
+    footer_nav_entries, half_pt, hash_mismatch, is_a11y_issue, is_light, load, mix, nav_position,
     slug, split_ref, structural_errors, title_shown, type_sizes, upgrade, validate,
     visible_title,
 )
@@ -818,6 +818,41 @@ def custom_query_state(buckets: dict) -> dict:
         if projections:
             state[role] = {"projections": projections}
     return state
+
+
+# Szenario-Rollen des P&L-Visuals und woran man sie am Measure-Namen erkennt.
+# Gleiche Regeln wie `customVisual.map.ref` im Katalog des Tools (catalog.js).
+CV_SCENARIO_ROLES = {
+    "py": re.compile(r"(?<![a-z])(py|vj|vorjahr|prior|previous|ly)(?![a-z])", re.I),
+    "pl": re.compile(r"(?<![a-z])(pl|bu|budget|plan|target)(?![a-z])", re.I),
+    "fc": re.compile(r"(?<![a-z])(fc|forecast|prognose)(?![a-z])", re.I),
+}
+
+
+def cv_bucket_warnings(nspec: dict) -> list:
+    """Measures, deren Name ein anderes Szenario nennt als ihr Bucket im Custom Visual.
+
+    Bis Tool 0.5.4 griff die Namensregel im Katalog nie (Steuerzeichen statt `\\b`),
+    die Referenzen wurden der Reihe nach verteilt: BU landete in `py`, PY in `pl`.
+    Alte Exporte tragen das weiter, deshalb prueft der Konverter selbst.
+    """
+    out = []
+    for p in nspec.get("pages") or []:
+        for v in p.get("visuals") or []:
+            buckets = (v.get("customVisual") or {}).get("buckets") or {}
+            for role, entries in buckets.items():
+                if role not in CV_SCENARIO_ROLES:
+                    continue
+                for e in entries or []:
+                    _, name = split_ref(e.get("ref") or "")
+                    hits = [r for r, rx in CV_SCENARIO_ROLES.items() if rx.search(name)]
+                    if len(hits) == 1 and hits[0] != role:
+                        out.append("%s / %s: Measure „%s“ steht im Bucket %s, der Name "
+                                   "spricht für %s. Im Mockup neu exportieren (ab Tool "
+                                   "0.5.5 richtig) oder den Bucket in der Spec tauschen."
+                                   % (p.get("name"), v.get("title") or v.get("id"),
+                                      name, role, hits[0]))
+    return out
 
 
 def container_objects(v: dict, st, hide_titles: bool = False,
@@ -3434,6 +3469,41 @@ def build_checklist(nspec: dict, per_page, chrome_notes, slot_warn, todos,
     return "\n".join(L)
 
 
+# Alte Exporte tragen als Modellname den Ladetext des Tools („TMDL (16 Dateien)") oder den
+# Namen des gewählten Ordners („tables", „definition"). Das ist kein Name für `te -m`.
+MODEL_PLACEHOLDER = "<Modell>.SemanticModel"
+# Import-Label statt Modellname („TMDL (16 Dateien)", Ordner „tables") und die
+# Demo-Modelle des Tools („Demo-Modell", „Demo · Controlling", EN „Demo model"):
+# keins davon ist ein Ordner im PBIP, `te -m` liefe ins Leere.
+_UNUSABLE_MODEL = re.compile(
+    r"^\s*(TMDL\s*\(|tables\s*$|definition\s*$|demo[\s-]*mod(ell|el)\s*$|demo\s*·)", re.I)
+
+
+def usable_model_name(raw: str) -> str:
+    """Modellname aus der Spec als `te -m`-Ziel, oder der Platzhalter.
+
+    Ab Tool 0.5.6 kommt der Name beim Ordnerimport ohne Endung
+    („Vertrieb"); `te -m` erwartet den Ordner des Semantikmodells, deshalb
+    wird `.SemanticModel` ergaenzt."""
+    if raw and _UNUSABLE_MODEL.search(raw):
+        return MODEL_PLACEHOLDER
+    if raw and not raw.lower().endswith(".semanticmodel"):
+        return raw + ".SemanticModel"
+    return raw
+
+
+def model_name_hint(model_name: str, raw: str = "") -> str:
+    """Hinweistext, wenn statt des Spec-Namens der Platzhalter eingesetzt wurde."""
+    if model_name != MODEL_PLACEHOLDER:
+        return ""
+    why = ("das Mockup wurde auf einem Demo-Modell gezeichnet"
+           if re.search(r"demo", raw or "", re.I) else "älterer Export")
+    return ("Der Modellname in der Spec%s ist kein Name für `te -m` (%s). "
+            "`%s` durch den Ordnernamen des Semantikmodells im PBIP "
+            "ersetzen, z. B. `Vertrieb.SemanticModel`."
+            % (" („%s\")" % raw if raw else "", why, MODEL_PLACEHOLDER))
+
+
 def build_commands_md(nspec: dict, report: str, out_dir: Path, per_page,
                       model_name: str) -> str:
     canvas = nspec["canvas"]
@@ -3444,8 +3514,11 @@ def build_commands_md(nspec: dict, report: str, out_dir: Path, per_page,
          "%d Seite(n), Canvas %s×%s, Spec-Hash `%s`. Reihenfolge einhalten. "
          "Vor dem ersten schreibenden Befehl: Power BI Desktop schließen, "
          "`pbir backup` oder Git-Commit."
-         % (len(nspec["pages"]), w, h, meta.get("specHash") or "–"), "",
-         "```bash",
+         % (len(nspec["pages"]), w, h, meta.get("specHash") or "–"), ""]
+    hint = model_name_hint(model_name, (nspec["model"] or {}).get("source") or "")
+    if hint:
+        L += ["> **Hinweis:** " + hint, ""]
+    L += ["```bash",
          "# 0 · Ausgangslage sichern",
          'pbir backup "%s"' % report,
          "",
@@ -3848,7 +3921,7 @@ def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: st
          delta="Lesezeichen nur ergänzen, nie löschen")
     step("annotate", "annotation",
          ['pbir add annotation "%s" --name mockup-spec-hash --value "%s"'
-          % (report, nspec["meta"].get("specHash") or ""),
+          % (report, build_hash(nspec)),
           'pbir add annotation "%s" --name mockup-spec-name --value "%s"'
           % (report, nspec["meta"].get("name") or "")],
          idempotent="Gleicher Name überschreibt den Wert.",
@@ -3909,6 +3982,8 @@ def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: st
                  "specHash": nspec["meta"].get("specHash"),
                  "lang": nspec["meta"].get("lang")},
         "report": report, "model": model_name or None,
+        **({"modelNote": model_name_hint(model_name, (nspec["model"] or {}).get("source") or "")}
+           if model_name == MODEL_PLACEHOLDER else {}),
         "canvas": {"width": w, "height": h},
         "pages": [{"name": e["name"], "dir": e["dir"], "slug": slug(e["name"]),
                    "visuals": len(e["pbir"]) + len(e["text"]),
@@ -4011,14 +4086,14 @@ def build_acceptance(nspec: dict, report: str, per_page, st: Style) -> dict:
     return {
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "report": report,
-        "specHash": nspec["meta"].get("specHash"),
+        "specHash": build_hash(nspec),        # nachgerechnet, nicht abgeschrieben
         "specName": nspec["meta"].get("name"),
         "tolerance": 1,
         "pages": pages,
         "bookmarks": sorted(set(bookmarks)),
         "drillthrough": [{"page": d["toPage"], "table": d["table"], "field": d["field"]}
                          for d in drill_targets(nspec) if d["table"]],
-        "annotations": {"mockup-spec-hash": nspec["meta"].get("specHash")},
+        "annotations": {"mockup-spec-hash": build_hash(nspec)},
     }
 
 
@@ -4071,6 +4146,19 @@ def build_delta_batch(nspec: dict, page: dict, report: str, items) -> Batch:
 # --------------------------------------------------------------------------- #
 # main
 # --------------------------------------------------------------------------- #
+# Bis zu dieser Tool-Version rechnete export.js den specHash ueber den
+# Tool-Zustand (S.design u. a.), nicht ueber die exportierte Spec.
+OLD_HASH_TOOL = "0.5.4"
+
+
+def old_hash_tool(version) -> bool:
+    try:
+        have = tuple(int(x) for x in str(version).split("."))
+    except ValueError:
+        return False
+    return have <= tuple(int(x) for x in OLD_HASH_TOOL.split("."))
+
+
 def main() -> int:
     p = argparse.ArgumentParser(
         description="MockupKitchen-Spec → pbir-Bausteine (specVersion 1, 2 und 3)",
@@ -4139,19 +4227,32 @@ def main() -> int:
             print("  Ohne brauchbares Rechteck und deshalb ausgelassen: %s"
                   % ", ".join(dropped), file=sys.stderr)
     dropped_slicers = drop_missing_slicers(nspec)
+    for w in cv_bucket_warnings(nspec):
+        print("Warnung: %s" % w, file=sys.stderr)
+    # Hash nachrechnen: Handkorrekturen an der Spec sind erlaubt, deshalb nur eine
+    # Warnung. Annotation und Sollbild tragen ohnehin den nachgerechneten Hash.
+    mism = hash_mismatch(nspec)
+    if mism:
+        print("Warnung: specHash passt nicht zum Inhalt (Spec nach dem Export verändert?), "
+              "gerechnet %s, in der Spec %s" % mism, file=sys.stderr)
+        if old_hash_tool(nspec["meta"].get("version")):
+            print("  Hinweis: MockupKitchen bis %s rechnete den Hash noch über den "
+                  "Tool-Zustand, er ist aus der Spec nicht nachrechenbar. Annotation und "
+                  "Sollbild nutzen den gerechneten."
+                  % OLD_HASH_TOOL, file=sys.stderr)
     if opt.validate:
         print("Spec in Ordnung: specVersion %d (gelesen als v%d) · %d Seite(n) · "
               "%d Kachel(n) · Hash %s"
               % (nspec["sourceVersion"], nspec["version"], len(nspec["pages"]),
                  sum(len(p["visuals"]) for p in nspec["pages"]),
-                 nspec["meta"].get("specHash")))
+                 build_hash(nspec)))
         return 0
 
     lang = opt.lang or (nspec["meta"].get("lang") or "de")
     if lang not in T:
         lang = "de"
     st = Style(nspec, opt)
-    model_name = (nspec["model"] or {}).get("source") or ""
+    model_name = usable_model_name((nspec["model"] or {}).get("source") or "")
     out = Path(opt.out).expanduser()
     out.mkdir(parents=True, exist_ok=True)
     report = opt.report or "<Name>.Report"

@@ -1,6 +1,6 @@
 # Modell-To-dos
 
-Quelle: `Analyse-Testfall` · Modell: `Demo-Modell`
+Quelle: `Analyse-Testfall` · Modell: `<Modell>.SemanticModel`
 
 ## Neu anzulegen
 
@@ -13,11 +13,11 @@ Diese Felder existieren im Modell noch nicht. **Zuerst anlegen**, DAX vom Mensch
 ## Vorschlag (DAX bestätigen lassen, nicht ungefragt anlegen)
 
 ```bash
-te add "_Measures/Deckungsbeitrag" -m "Demo-Modell" -t Measure \
+te add "_Measures/Deckungsbeitrag" -m "<Modell>.SemanticModel" -t Measure \
   -i "[Umsatz] - [Kosten]" \
   -q description -i "Umsatz minus Kosten" \
   -q formatString -i "#,##0" --if-not-exists --save
-te validate -m "Demo-Modell" --errors-only
+te validate -m "<Modell>.SemanticModel" --errors-only
 ```
 
 ## Offene Fragen aus dem Workshop
@@ -33,5 +33,5 @@ Der Workshop hat für diese Felder einen Alias notiert und `renameInModel` geset
 | `_Measures.Umsatz` | Nettoerlös | ja | Controlling |
 
 ```bash
-te rename "_Measures/Umsatz" "Nettoerlös" -m "Demo-Modell" --save
+te rename "_Measures/Umsatz" "Nettoerlös" -m "<Modell>.SemanticModel" --save
 ```

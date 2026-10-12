@@ -8,7 +8,7 @@
     "lang": "de"
   },
   "report": "Test.Report",
-  "model": "PBI-IBCS-Testbed",
+  "model": "PBI-IBCS-Testbed.SemanticModel",
   "canvas": {
     "width": 1920,
     "height": 1080
@@ -141,7 +141,7 @@
       "idempotent": "Gleicher Name überschreibt den Wert.",
       "delta": "Beim nächsten Lauf mit `pbir annotations list \"Test.Report\" --json` vergleichen: gleicher Hash = nichts zu tun.",
       "commands": [
-        "pbir add annotation \"Test.Report\" --name mockup-spec-hash --value \"fidelityb1\"",
+        "pbir add annotation \"Test.Report\" --name mockup-spec-hash --value \"069c4b71\"",
         "pbir add annotation \"Test.Report\" --name mockup-spec-name --value \"Treue-Testfall B1\""
       ],
       "batch": null
@@ -154,7 +154,7 @@
       "delta": "immer",
       "commands": [
         "pbir validate \"Test.Report\" --fields",
-        "te validate -m \"PBI-IBCS-Testbed\" --errors-only",
+        "te validate -m \"PBI-IBCS-Testbed.SemanticModel\" --errors-only",
         "python .claude/skills/mockup-to-powerbi/scripts/mockup_verify.py \"Test.Report\" \"<out>/acceptance.json\""
       ],
       "batch": null

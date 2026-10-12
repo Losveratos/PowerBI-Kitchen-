@@ -7,7 +7,7 @@
 pbir backup "Test.Report"
 
 # 1 · Modell zuerst (siehe model-todos.md), dann prüfen
-te validate -m "PBI-IBCS-Testbed" --errors-only
+te validate -m "PBI-IBCS-Testbed.SemanticModel" --errors-only
 ```
 
 ## 1 · Seite „Fidelity"
@@ -130,7 +130,7 @@ pbir set "Test.Report/Fidelity.Page/mk_kombi1_slot.Visual.text.default.text" --v
 
 ```bash
 pbir validate "Test.Report" --fields
-te validate -m "PBI-IBCS-Testbed" --errors-only
+te validate -m "PBI-IBCS-Testbed.SemanticModel" --errors-only
 
 # Abnahme gegen das Sollbild aus der Spec (Rechtecke ±1 px, Bindungen, Slicer)
 python .claude/skills/mockup-to-powerbi/scripts/mockup_verify.py "Test.Report" "<out>/acceptance.json"

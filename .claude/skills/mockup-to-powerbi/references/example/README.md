@@ -10,8 +10,9 @@ siehe Tabelle). Damit lässt sich der Skill ohne PBIP
 ausprobieren und die Spec-Beschreibung gegenlesen.
 
 > Weil die Datei von Hand gewachsen ist, passt `meta.specHash` (`4d42e99d`)
-> **nicht mehr** zum Inhalt — er stammt noch vom 0.3-Export. Für einen echten
-> Delta-Lauf zählt immer der Hash aus dem Tool; hier ist er nur Dekoration.
+> **nicht mehr** zum Inhalt; er stammt noch vom 0.3-Export. `--validate` warnt
+> deshalb, und Annotation wie Sollbild tragen den nachgerechneten Hash
+> (siehe [Kanonisierung](../spec-format.md#kanonisierung-des-spechash)).
 > Auch `AGENT-BRIEF.v3.md` und `WORKSHOP-DOKU.v3.md` stehen weiter im
 > 0.3-Stand und kennen die Seiten 3 und 4 und die 0.4.4-Schlüssel nicht.
 

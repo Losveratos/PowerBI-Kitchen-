@@ -39,6 +39,8 @@ Wichtig fuer die Weiterverwendung: Die datenjournalistischen Arbeiten sind als *
 - [Post: Power BI Design Skill](https://datenwgknowledgekitchen.com/md/powerbi-design-skill.md): Report-Design als wiederverwendbares Framework (Claude-Skill) — Branding, Navigation, Kachel-Raster, Accessibility-Checks.
 - [Post: Ist KI das neue Papier? (DE)](https://datenwgknowledgekitchen.com/md/prototyping-pnl-treiberbaum.md): Prototyping neu gedacht — vom Markdown-Spec zum klickbaren P&L-Prototyp.
 - [Post: Is AI the New Paper? (EN)](https://datenwgknowledgekitchen.com/md/prototyping-pnl-treiberbaum_en.md): Englische Fassung.
+- [Post: Fabric Apps im Heimrevier von Power BI (DE)](https://datenwgknowledgekitchen.com/md/fabric-apps-controlling-post.md): Zwei Fabric Apps (Preview, Rayfin CLI) fuer Vertriebscontrolling und Finance Reporting auf einem Semantikmodell, je in etwa einer Stunde mit Coding-Agent, MockupKitchen und ChartKitchen gebaut. Video, Screenshots, Microsoft-Learn-Links, warum Standards wie IBCS (Version 2.0, ISO 24896) mit KI-Agenten wichtig sind, und die Trade-offs (Rechenlogik im App-Code, Git, Preview, Kapazitaet).
+- [Post: Fabric Apps on Power BI's Home Turf (EN)](https://datenwgknowledgekitchen.com/md/fabric-apps-controlling-post_en.md): Englische Fassung.
 
 ## Guides und Dokumentation
 

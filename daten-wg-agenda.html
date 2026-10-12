@@ -377,8 +377,56 @@ a { color: inherit; text-decoration: none; }
 
 .hidden { display: none !important; }
 
+/* ---------- Mein Ablauf: Sessions merken ---------- */
+.session-card:not(.service) { padding-right: 58px; }
+.pin-btn {
+  position: absolute; top: 10px; right: 10px;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--bg-card);
+  display: grid; place-items: center; cursor: pointer; padding: 0;
+  font-size: 16px; line-height: 1; color: var(--ink-mute);
+  transition: background .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
+}
+.pin-btn:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.08); }
+.pin-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pin-btn.pinned { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pin-btn .off { display: block; } .pin-btn .on { display: none; }
+.pin-btn.pinned .off { display: none; } .pin-btn.pinned .on { display: block; }
+
+.tab .tab-count {
+  display: inline-block; min-width: 18px; margin-left: 6px; padding: 1px 6px;
+  border-radius: 100px; background: var(--accent); color: #fff;
+  font-size: 10px; font-weight: 700; vertical-align: middle;
+}
+.tab .tab-count.zero { display: none; }
+
+.mine-intro {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+  background: var(--bg-soft); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 14px 18px; margin-bottom: 18px; font-size: 14px; color: var(--ink-soft);
+}
+.mine-intro button {
+  border: 1px solid var(--line); background: var(--bg-card); color: var(--ink-soft);
+  border-radius: 100px; padding: 7px 15px; font: inherit; font-size: 13px; cursor: pointer;
+}
+.mine-intro button:hover { border-color: var(--accent); color: var(--accent); }
+.empty-state { text-align: center; padding: 56px 20px; color: var(--ink-mute); }
+.empty-state .big { font-size: 40px; display: block; margin-bottom: 12px; }
+.empty-state h3 { font-size: 19px; color: var(--ink); margin-bottom: 8px; }
+.conflict-note {
+  margin-top: 8px; font-size: 12px; font-weight: 600; color: #B4541F;
+  background: #FDF0E8; border-radius: 6px; padding: 5px 9px; display: inline-block;
+}
+
 @media (max-width: 640px) {
   .container { padding: 0 18px 64px; }
+  /* Daumenfreundlich: 44px Touch-Ziel, Tabs horizontal scrollbar */
+  .pin-btn { width: 44px; height: 44px; font-size: 18px; top: 8px; right: 8px; }
+  .session-card:not(.service) { padding-right: 62px; }
+  .tabs { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; gap: 6px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { white-space: nowrap; flex: 0 0 auto; }
+  .mine-intro { font-size: 13px; }
   .topnav { padding: 12px 18px; }
   .hero { padding: 40px 0 28px; }
   .slot { grid-template-columns: 1fr; gap: 8px; }
@@ -427,6 +475,7 @@ a { color: inherit; text-decoration: none; }
       <button class="tab active" data-view="schedule" role="tab">🗓 Zeitplan</button>
       <button class="tab" data-view="sessions" role="tab">🎤 Sessions</button>
       <button class="tab" data-view="speakers" role="tab">👥 Speaker:innen</button>
+      <button class="tab" data-view="mine" role="tab">⭐ Mein Ablauf<span class="tab-count zero" id="pin-count">0</span></button>
     </div>
 
     <div class="filterbar" id="filterbar">
@@ -442,6 +491,7 @@ a { color: inherit; text-decoration: none; }
     <section id="view-schedule" role="tabpanel"></section>
     <section id="view-sessions" role="tabpanel" class="hidden"><div class="session-grid" id="sessions-grid"></div></section>
     <section id="view-speakers" role="tabpanel" class="hidden"><div class="speaker-grid" id="speakers-grid"></div></section>
+    <section id="view-mine" role="tabpanel" class="hidden"></section>
   </main>
 
   <footer class="footer">
@@ -650,6 +700,45 @@ function speakerMinisHtml(s) {
     `<span class="speaker-mini">${avatarImg(sp, '', 'avatar-fallback')}<span>${esc(sp.fullName)}</span></span>`
   ).join('')}</div>`;
 }
+/* ---------- Mein Ablauf ----------
+   Gemerkte Sessions liegen im localStorage dieses Geraets. Keine Anmeldung,
+   nichts verlaesst den Browser. Faellt localStorage aus (privater Modus,
+   gesperrte Site-Daten), laeuft die Seite normal weiter, nur ohne Merken. */
+const PIN_KEY = 'dwg2026-pins';
+let pinned = new Set();
+try { pinned = new Set(JSON.parse(localStorage.getItem(PIN_KEY) || '[]')); } catch (e) { pinned = new Set(); }
+function savePins() {
+  try { localStorage.setItem(PIN_KEY, JSON.stringify([...pinned])); } catch (e) { /* Speichern nicht moeglich */ }
+}
+function isPinned(id) { return pinned.has(String(id)); }
+function togglePin(id) {
+  id = String(id);
+  pinned.has(id) ? pinned.delete(id) : pinned.add(id);
+  savePins();
+  // Alle Instanzen derselben Session aktualisieren (Karte kann mehrfach im DOM sein)
+  document.querySelectorAll(`.pin-btn[data-pin="${CSS.escape(id)}"]`).forEach(b => {
+    const on = isPinned(id);
+    b.classList.toggle('pinned', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.title = on ? 'Aus meinem Ablauf entfernen' : 'Zu meinem Ablauf hinzufuegen';
+  });
+  updatePinCount();
+  if (state.view === 'mine') renderMine();
+}
+function updatePinCount() {
+  const el = $('#pin-count');
+  if (!el) return;
+  el.textContent = pinned.size;
+  el.classList.toggle('zero', pinned.size === 0);
+}
+function pinBtnHtml(s) {
+  if (s.isService) return '';                 // Pausen/Orga nicht merkbar
+  const on = isPinned(s.id);
+  return `<button class="pin-btn${on ? ' pinned' : ''}" data-pin="${esc(s.id)}"
+    aria-pressed="${on ? 'true' : 'false'}" title="${on ? 'Aus meinem Ablauf entfernen' : 'Zu meinem Ablauf hinzufügen'}"
+    ><span class="off">☆</span><span class="on">★</span></button>`;
+}
+
 function sessionCardHtml(s, { withDesc = false, withWhen = false } = {}) {
   const dur = durationMin(s);
   const when = s.startsAt
@@ -658,6 +747,7 @@ function sessionCardHtml(s, { withDesc = false, withWhen = false } = {}) {
   const ticket = s.isService ? null : ticketFor(s);
   return `<article class="session-card${s.isService ? ' service' : ''}" style="--track-color: var(${s.trackColor})"
       data-session="${esc(s.id)}" tabindex="0" role="button" aria-label="${esc(s.title)}">
+    ${pinBtnHtml(s)}
     ${sessionMetaHtml(s)}
     <h3 class="session-title">${esc(s.title)}</h3>
     ${withDesc && s.description ? `<p class="session-desc">${esc(s.description)}</p>` : ''}
@@ -668,8 +758,8 @@ function sessionCardHtml(s, { withDesc = false, withWhen = false } = {}) {
 }
 
 // ---------- Render: Views ----------
-function renderSchedule(list) {
-  const el = $('#view-schedule');
+function renderSchedule(list, targetSel = '#view-schedule') {
+  const el = $(targetSel);
   const scheduled = list.filter(s => s.startsAt).sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const unscheduled = list.filter(s => !s.startsAt);
 
@@ -720,11 +810,66 @@ function renderSpeakers(list) {
     : '<div class="state-box" style="grid-column:1/-1"><h2>Keine Treffer</h2><p>Filter oder Suche anpassen.</p></div>';
 }
 
-function render() {
-  ['schedule', 'sessions', 'speakers'].forEach(v => $('#view-' + v).classList.toggle('hidden', state.view !== v));
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === state.view));
+function renderMine() {
+  const el = $('#view-mine');
+  const list = state.sessions.filter(s => isPinned(s.id));
 
-  if (state.view === 'speakers') {
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state">
+      <span class="big">⭐</span>
+      <h3>Noch nichts gemerkt</h3>
+      <p>Tippe auf den Stern an einer Session, um sie hier zu sammeln.<br>
+         So baust du dir deinen eigenen Ablauf für die drei Tage.</p>
+    </div>`;
+    return;
+  }
+
+  // Zeitliche Ueberschneidungen markieren - beim Planen der wichtigste Hinweis
+  const timed = list.filter(s => s.startsAt && s.endsAt);
+  const clash = new Set();
+  for (let i = 0; i < timed.length; i++) {
+    for (let j = i + 1; j < timed.length; j++) {
+      const a = timed[i], b = timed[j];
+      if (a.startsAt < b.endsAt && b.startsAt < a.endsAt) { clash.add(a.id); clash.add(b.id); }
+    }
+  }
+
+  el.innerHTML = `<div class="mine-intro">
+      <span><strong>${list.length}</strong> gemerkt${clash.size ? ` · <span style="color:#B4541F;font-weight:600">${clash.size} mit Überschneidung</span>` : ''} · nur auf diesem Gerät gespeichert</span>
+      <span>
+        <button type="button" id="mine-print">🖨 Drucken</button>
+        <button type="button" id="mine-clear">Alle entfernen</button>
+      </span>
+    </div>
+    <div id="view-mine-body"></div>`;
+  renderSchedule(list, '#view-mine-body');
+
+  clash.forEach(id => {
+    const card = el.querySelector(`.session-card[data-session="${CSS.escape(String(id))}"]`);
+    if (card && !card.querySelector('.conflict-note')) {
+      card.insertAdjacentHTML('beforeend', '<div class="conflict-note">⚠ Überschneidet sich mit einer anderen gemerkten Session</div>');
+    }
+  });
+
+  $('#mine-clear').onclick = () => {
+    if (!confirm('Alle gemerkten Sessions entfernen?')) return;
+    pinned.clear(); savePins(); updatePinCount(); renderMine();
+    document.querySelectorAll('.pin-btn.pinned').forEach(b => {
+      b.classList.remove('pinned'); b.setAttribute('aria-pressed','false');
+    });
+  };
+  $('#mine-print').onclick = () => window.print();
+}
+
+function render() {
+  ['schedule', 'sessions', 'speakers', 'mine'].forEach(v => $('#view-' + v).classList.toggle('hidden', state.view !== v));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === state.view));
+  $('#filterbar').classList.toggle('hidden', state.view === 'mine');
+  updatePinCount();
+
+  if (state.view === 'mine') {
+    renderMine();
+  } else if (state.view === 'speakers') {
     const list = filteredSpeakers();
     renderSpeakers(list);
     $('#result-count').textContent = list.length;
@@ -852,6 +997,8 @@ $('#search').addEventListener('input', e => { state.q = e.target.value; render()
 $('#filter-room').addEventListener('change', e => { state.room = e.target.value; render(); });
 
 document.addEventListener('click', e => {
+  const pin = e.target.closest('.pin-btn');
+  if (pin) { e.preventDefault(); e.stopPropagation(); togglePin(pin.dataset.pin); return; }
   if (e.target.closest('a')) return; // Links (z. B. Tickets) nicht als Karten-Klick werten
   const card = e.target.closest('[data-session]');
   if (card) { openSessionModal(card.dataset.session); return; }

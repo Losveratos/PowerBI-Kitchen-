@@ -8,7 +8,8 @@
     "lang": "de"
   },
   "report": "Test.Report",
-  "model": "Demo-Modell",
+  "model": "<Modell>.SemanticModel",
+  "modelNote": "Der Modellname in der Spec („Demo-Modell\") ist kein Name für `te -m` (das Mockup wurde auf einem Demo-Modell gezeichnet). `<Modell>.SemanticModel` durch den Ordnernamen des Semantikmodells im PBIP ersetzen, z. B. `Vertrieb.SemanticModel`.",
   "canvas": {
     "width": 1280,
     "height": 720
@@ -253,7 +254,7 @@
       "idempotent": "Gleicher Name überschreibt den Wert.",
       "delta": "Beim nächsten Lauf mit `pbir annotations list \"Test.Report\" --json` vergleichen: gleicher Hash = nichts zu tun.",
       "commands": [
-        "pbir add annotation \"Test.Report\" --name mockup-spec-hash --value \"4d42e99d\"",
+        "pbir add annotation \"Test.Report\" --name mockup-spec-hash --value \"9dc6dbad\"",
         "pbir add annotation \"Test.Report\" --name mockup-spec-name --value \"Management Report · Beispiel\""
       ],
       "batch": null
@@ -266,7 +267,7 @@
       "delta": "immer",
       "commands": [
         "pbir validate \"Test.Report\" --fields",
-        "te validate -m \"Demo-Modell\" --errors-only",
+        "te validate -m \"<Modell>.SemanticModel\" --errors-only",
         "python .claude/skills/mockup-to-powerbi/scripts/mockup_verify.py \"Test.Report\" \"<out>/acceptance.json\""
       ],
       "batch": null
