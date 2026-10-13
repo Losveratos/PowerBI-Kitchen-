@@ -785,7 +785,7 @@
           blocked: 'Wartet auf dich, die Lösung steht im Band', awaiting: 'Der Live-Helfer wartet auf deine Antwort', error: 'Bericht unverändert, Sicherung zurückgespielt',
           locked: 'Zwei verschiedene Kopien: Pfade prüfen', inactive: 'Kein Lebenszeichen vom Live-Helfer seit über 15 s',
         },
-        detail: { changed: '{n} Kacheln geändert', changed1: '1 Kachel geändert', new: '{n} neu', new1: '1 neu', removed: '{n} entfernt', theme: 'Theme oder Rahmen geändert', pages: 'Seitenreihenfolge oder Seitenrolle geändert' },
+        detail: { changed: '{n} Kacheln geändert', changed1: '1 Kachel geändert', new: '{n} neu', new1: '1 neu', removed: '{n} entfernt', theme: 'Theme oder Rahmen geändert', pages: 'Seitenreihenfolge oder Seitenrolle geändert', model1: '1 Modelländerung freigegeben', model: '{n} Modelländerungen freigegeben' },
       },
       menu: {
         all: 'Alles deployen', layout: 'Nur Layout', theme: 'Nur Theme', model: 'Nur Modell', measure: 'Neu messen ohne Deploy', preview: 'Vorschau anzeigen',
@@ -1684,7 +1684,7 @@
           blocked: 'Waiting for you, the solution is in the band', awaiting: 'The live helper waits for your answer', error: 'Report unchanged, backup restored',
           locked: 'Two different copies: check the paths', inactive: 'No sign of life from the live helper for more than 15 s',
         },
-        detail: { changed: '{n} tiles changed', changed1: '1 tile changed', new: '{n} new', new1: '1 new', removed: '{n} removed', theme: 'Theme or frame changed', pages: 'Page order or page role changed' },
+        detail: { changed: '{n} tiles changed', changed1: '1 tile changed', new: '{n} new', new1: '1 new', removed: '{n} removed', theme: 'Theme or frame changed', pages: 'Page order or page role changed', model1: '1 model change approved', model: '{n} model changes approved' },
       },
       menu: {
         all: 'Deploy everything', layout: 'Layout only', theme: 'Theme only', model: 'Model only', measure: 'Re-measure without deploy', preview: 'Show preview',

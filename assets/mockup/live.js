@@ -634,6 +634,9 @@
     if (hashMemo[key] === undefined) { hashMemo[key] = null; hashFor(todo, dax).then(h => { hashMemo[key] = h.hash; bump(); renderAll(); renderFmLive(); }).catch(() => { hashMemo[key] = false; }); }
     return hashMemo[key] ? hashMemo[key] === e.hash : !todo.staleApproval;
   }
+  // Freigegeben, aber noch nicht ausgerollt (das To-do steht noch im Status): zählt als Änderung, sonst bliebe der Deploy-Knopf
+  // bei „Aktuell" und eine freigegebene Modelländerung ohne Layout-Änderung ließe sich nie anwenden (Desktop-Test 13.10.)
+  function readyModelOps() { return teOn() ? approvalTodos().filter(x => approvalState(x).k === 'approved').length : 0; }
   function pendingApprovals() { return approvalTodos().filter(x => ['open', 'stale', 'rejected', 'retry'].includes(approvalState(x).k)); }
   function teOn() {
     const todos = (status && Array.isArray(status.todos)) ? status.todos : [];
@@ -829,9 +832,10 @@
     if (appliedAt && Date.now() - appliedAt < APPLIED_MS && appliedSeq === seq) return { s: 'applied', seq, pill: pend, ms: +status.ms || 0 };
     if (status && seq >= (dep.real || 0) && seq === dep.seq && status.state === 'blocked') return { s: 'blocked', seq, pill: pend };
     if (status && seq >= (dep.real || 0) && seq === dep.seq && status.state === 'failed') return { s: 'error', seq, pill: pend };
-    if (!ch.n) return { s: 'current', seq: dep.real || seq, pill: pend, n: 0 };
+    const ready = readyModelOps();
+    if (!ch.n && !ready) return { s: 'current', seq: dep.real || seq, pill: pend, n: 0 };
     const restart = !!(status && status.plan && status.plan.restart && status.state === 'planned' && seq > (dep.real || 0));
-    return { s: restart ? 'restart' : 'changes', seq: dep.real || seq, n: ch.n, ch, pill: pend, restart, reason: restart ? (status.plan.restartReason || '') : '' };
+    return { s: restart ? 'restart' : 'changes', seq: dep.real || seq, n: ch.n + ready, ch: Object.assign({}, ch, { model: ready }), pill: pend, restart, reason: restart ? (status.plan.restartReason || '') : '' };
   }
   function detailTxt(ch) {
     const parts = [];
@@ -840,6 +844,7 @@
     if (ch.removed) parts.push(t('live.dep.detail.removed', { n: ch.removed }));
     if (ch.theme) parts.push(t('live.dep.detail.theme'));
     if (ch.pageOrder) parts.push(t('live.dep.detail.pages'));
+    if (ch.model) parts.push(ch.model === 1 ? t('live.dep.detail.model1') : t('live.dep.detail.model', { n: ch.model }));
     return parts.join(', ');
   }
   function renderDep() {
@@ -1141,7 +1146,7 @@
   async function preview(scope) {
     if (!proj) return; closeMenus();
     // Teilziele (Theme, Modell) fragen den Runner immer, auch ohne Kacheländerung: er kennt den Stand im Bericht
-    const ch = changes(); const noChange = !ch.n && (!scope || scope === 'all');
+    const ch = changes(); const noChange = !ch.n && !readyModelOps() && (!scope || scope === 'all');
     plan = { seq: 0, local: ch, remote: null, scope: scope || 'all', noChange, at: Date.now() };
     renderPreview();
     if (!noChange && alive() && !busy()) { const seq = await deploy({ dryRun: true, scope: plan.scope }); if (plan) plan.seq = seq || 0; renderPreview(); }

@@ -1450,6 +1450,11 @@ class Deploy:
         self.report_pages = []     # [{id, displayName}]
         self.page_visuals = {}     # page id -> {name: {type, path}}
         self.counts = {"created": 0, "updated": 0, "error": 0, "skipped": 0}
+        self.page_meta = {"visibility": 0, "order": 0}   # Seitenrolle und -reihenfolge (Kitchen 0.6.1)
+        # Sicherung des Modells vor den Ops dieses Deploys: Wird der Bericht zurückgerollt, geht das
+        # Modell mit zurück, sonst passen Modell und Bericht nicht mehr zusammen (Desktop-Test 13.10.)
+        self.model_backup = None
+        self.model_applied_ids = []
         self.ck_ref = None         # Referenz-Instanz {page, name, json}
         self.created = {}          # .state/created.json
         self.desk = runner.desktop
@@ -2019,6 +2024,11 @@ class Deploy:
         for key, r in sorted(self.visuals.items()):
             if r.get("state") in ("skipped", "error"):
                 self.r.log("Kachel %s: %s · %s" % (key, r.get("state"), r.get("msg")))
+        pm = getattr(self, "page_meta", {}) or {}
+        if pm.get("visibility"):
+            parts.append("Sichtbarkeit von %d Seite(n) gesetzt" % pm["visibility"])
+        if pm.get("order"):
+            parts.append("Seitenreihenfolge nachgezogen")
         if not parts:
             parts.append("keine Änderung am Bericht")
         if self.st.doc["desktop"].get("reloaded"):
@@ -2141,10 +2151,14 @@ class Deploy:
                     c["moved"] += 1
                 else:
                     c["changed"] += 1
-            if pw["items"] or pw["action"] == "create" or pw["background"]:
+            if pw.get("visibility"):
+                c["visibility"] = pw["visibility"]
+            if pw["items"] or pw["action"] == "create" or pw["background"] or pw.get("visibility"):
                 writes = True
                 touched += 1
             pages[pw["name"]] = c
+        order_moves = len(self.page_order_moves(plan))
+        writes = writes or bool(order_moves)
         removed_pages = sorted(p for p in removed if p not in pages)
         theme = self.theme_wanted()
         ops = self.model_op_view()
@@ -2155,6 +2169,7 @@ class Deploy:
         doc = {"scope": self.scope, "restart": restart,
                "restartReason": self.restart_reason or "",
                "modelOps": ops, "pages": pages, "removedPages": removed_pages,
+               "pageOrder": order_moves,
                "theme": bool(theme), "themeRegister": bool(self.theme_reg),
                "visualsToInstall": installs,
                "reload": bool(writes or theme or model_run) and not self.opt.no_bridge,
@@ -2543,6 +2558,11 @@ class Deploy:
                           if p.get("page") == "new")
         if n_new_pages:
             parts.append("%d Seite(n) neu" % n_new_pages)
+        n_vis = sum(1 for p in (summary.get("pages") or {}).values() if p.get("visibility"))
+        if n_vis:
+            parts.append("Sichtbarkeit von %d Seite(n)" % n_vis)
+        if summary.get("pageOrder"):
+            parts.append("Seitenreihenfolge")
         if summary.get("theme"):
             parts.append("Theme")
         runs = [o for o in summary.get("modelOps") or [] if o.get("willRun")]
@@ -3723,6 +3743,9 @@ class Deploy:
             if res.get("reloadModel"):
                 self.model_reload = True
             self.model_followups = list(res.get("followUps") or [])
+            self.model_applied_ids = [r["id"] for r in res.get("results") or []
+                                      if r.get("status") == "applied"]
+            self.model_backup = res.get("backup") if self.model_applied_ids else None
         results = {r["id"]: r for r in ((res or {}).get("results") or [])}
         if approved and ok:
             for i in approved:
@@ -4603,13 +4626,8 @@ class Deploy:
                 self.write_page(pw, nspec)
             self.apply_page_order(plan)
             self.apply_theme()
-            for cmd in self.model_followups:     # Umbenennung im Modell -> Bericht nachziehen
-                if cmd and cmd[0] == "pbir" and len(cmd) > 2 and cmd[1] != "validate":
-                    rc, out, err = self.pbir(*cmd[1:])
-                    if rc != 0:
-                        self.todo("model", " ".join(cmd[1:4]), "Nach der Umbenennung im "
-                                  "Modell: %s schlug fehl: %s" % (" ".join(cmd[:3]),
-                                                                 short(err or out)))
+            if self.model_followups:             # Umbenennung im Modell -> Bericht nachziehen
+                self.run_model_followups()
             fault = os.environ.get("MK_RUNNER_FAULT")
             if fault == "write":
                 raise RunnerError("Testfehler nach dem Schreiben (MK_RUNNER_FAULT)")
@@ -4617,6 +4635,8 @@ class Deploy:
             n = self.restore()
             msg = "Schreiben abgebrochen (%s), Backup zurückgespielt (%d Datei(en))" % (
                 e if isinstance(e, RunnerError) else "%s: %s" % (type(e).__name__, e), n)
+            if self.rollback_model(msg):
+                msg += ", Modelländerungen zurückgenommen"
             self.st.step("write", "error", msg)
             self.mark_all_failed(plan)
             if isinstance(e, KeyboardInterrupt):
@@ -4662,6 +4682,8 @@ class Deploy:
                                i.get("message")) for i in new[:3]))
             msg = "pbir validate --fields: %s. Backup zurückgespielt (%d Datei(en))" % (
                 what, n)
+            if self.rollback_model(msg):
+                msg += ", Modelländerungen zurückgenommen"
             self.st.step("validate", "error", msg)
             self.mark_all_failed(plan, new)
             raise RunnerError(msg)
@@ -4671,6 +4693,76 @@ class Deploy:
                      "(%s: %d%s)" % (len(data.get("errors") or []), 0, base_note, len(baseline),
                                      ", %d fremde Befunde nicht aus diesem Deploy"
                                      % len(foreign) if foreign else ""))
+        return True
+
+    def run_model_followups(self) -> None:
+        """Umbenennung im Modell im Bericht nachziehen: `pbir fields replace` je Seite. pbir
+        schreibt dabei auch report.json und .platform neu (nur der Zeilenumbruch am Ende fehlt
+        danach); bei offenem Desktop dürfen geschützte Dateien nicht extern geändert werden.
+        Deshalb: Bytes vorher merken und danach exakt zurückschreiben. Hätte sich ihr Inhalt
+        wirklich geändert (z. B. Berichtsfilter auf das alte Feld), bleibt die alte Fassung und
+        es entsteht ein To-do für Desktop."""
+        guard = {}
+        for f in self.p.report.rglob("*"):
+            if f.is_file() and (f.name.lower() in PROTECTED_FILES or f.name == ".platform"):
+                try:
+                    guard[f] = f.read_bytes()
+                except OSError:
+                    pass
+        self.load_report_pages()
+        for cmd in self.model_followups:
+            if not (cmd and cmd[0] == "pbir" and cmd[1:3] == ["fields", "replace"]
+                    and "--from" in cmd and "--to" in cmd):
+                continue                         # validate läuft ohnehin danach
+            frm, to = cmd[cmd.index("--from") + 1], cmd[cmd.index("--to") + 1]
+            for pg in self.report_pages:
+                rc, out, err = self.pbir("fields", "replace", "%s/%s.Page" % (
+                    self.p.report_arg, pg["displayName"]), "--from", frm, "--to", to)
+                if rc != 0:
+                    self.todo("model", "%s -> %s" % (frm, to), "Nach der Umbenennung im Modell: "
+                              "Seite „%s“ nicht nachgezogen: %s" % (pg["displayName"],
+                                                                   short(err or out)))
+        for f, data in guard.items():
+            try:
+                now = f.read_bytes()
+            except OSError:
+                continue
+            if now == data:
+                continue
+            try:
+                same = json.loads(now.decode("utf-8-sig")) == json.loads(data.decode("utf-8-sig"))
+            except ValueError:
+                same = False
+            f.write_bytes(data)
+            if not same:
+                self.todo("manual", f.name, "„%s“ verweist noch auf das alte Feld (Berichtsfilter "
+                          "o. Ä.). Bei offenem Desktop ändert der Runner diese Datei nicht: in "
+                          "Desktop anpassen." % f.name)
+
+    def rollback_model(self, why: str) -> bool:
+        """Modell auf den Stand vor den Ops dieses Deploys, Freigaben gelten als „zurückgenommen“
+        (das Kitchen bietet „Erneut freigeben“ an). True, wenn zurückgesetzt wurde."""
+        bk = getattr(self, "model_backup", None)
+        if not bk:
+            return False
+        try:
+            MO.restore(self.p.model, Path(bk))
+        except Exception as e:                   # noqa: BLE001
+            self.todo("model", "rollback", "Modell konnte nicht zurückgesetzt werden (%s). "
+                      "Sicherung: %s" % (e, bk))
+            return False
+        self.model_backup, self.model_followups = None, []
+        done = read_json(self.p.model_applied, retries=0) or {}
+        for i in self.model_applied_ids:
+            if isinstance(done.get(i), dict):
+                done[i]["status"] = "reverted"
+                done[i]["why"] = short(why, 200)
+        if done:
+            write_json_atomic(self.p.model_applied, done)
+        self.todo("model", "rollback", "Modelländerungen dieses Deploys zurückgenommen, damit "
+                  "Modell und Bericht zusammenpassen (%s). Nach der Korrektur erneut freigeben."
+                  % short(why, 160))
+        self.r.log("Modell zurückgesetzt aus %s" % bk)
         return True
 
     def touched_prefixes(self, plan) -> set:
@@ -4751,6 +4843,7 @@ class Deploy:
                 self.todo("manual", pw["name"], "Seitenreihenfolge nicht gesetzt (Position %d): %s"
                           % (pos, short(err or out)))
                 return
+        self.page_meta["order"] += len(moves)
         self.r.log("Seitenreihenfolge nachgezogen: %d Verschiebung(en)" % len(moves))
 
     def write_page(self, pw: dict, nspec: dict) -> None:
@@ -4825,7 +4918,9 @@ class Deploy:
         if pw.get("visibility") and pw.get("pageId"):
             rc, out, err = self.pbir("set", "%s.visibility" % self.page_path(pw),
                                      "--value", pw["visibility"])
-            if rc != 0:
+            if rc == 0:
+                self.page_meta["visibility"] += 1
+            else:
                 self.todo("manual", pw["name"], "Sichtbarkeit der Seite (%s) nicht gesetzt: %s"
                           % (pw["visibility"], short(err or out)))
         # 4 · Seitenhintergrund (kann batch nicht)
