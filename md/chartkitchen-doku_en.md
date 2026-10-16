@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 An IBCS-inspired chart deck for Power BI: 13 chart modes in a single visual, with a consistent scenario notation (AC filled, PY grey, PL outlined, FC hatched) and variances built in throughout. This documentation takes you from import through the 13 modes and the key features to the complete settings reference.
 
-Version · **1.38.0.0** · As of · **2026-07-19** · IBCS-inspired
+Version · **1.47.0.0** · As of · **2026-10-16** · IBCS-inspired
 
 ## Contents
 
@@ -20,11 +20,11 @@ Version · **1.38.0.0** · As of · **2026-07-19** · IBCS-inspired
 
 ## 01 · What is ChartKitchen?
 
-**ChartKitchen byDatenWG** is a single Power BI custom visual that unifies 13 chart modes — from columns, bars and lines through waterfall and bridge layouts to an IBCS table, a matrix, KPI cards and a full P&L statement. Instead of picking a different visual for every question, you switch the orientation and keep the same notation, colours and scaling logic.
+**ChartKitchen byDatenWG** is a single Power BI custom visual that unifies 13 chart modes — from columns, bars and lines through waterfall and bridge layouts to an IBCS table (with a matrix variant), KPI cards, a full P&L statement and a scatter/bubble plot for correlations. Instead of picking a different visual for every question, you switch the orientation and keep the same notation, colours and scaling logic.
 
 The design is inspired by the **IBCS® principles** (International Business Communication Standards): one consistent scenario notation — **AC** (actual) filled, **PY** (prior year) grey, **PL** (plan) outlined, **FC** (forecast) hatched — and variances that are always present: absolute and relative variance panels appear automatically next to or above the base chart. Every chart reads by the same rules, whichever mode you choose.
 
-This guide describes the state of version **1.38.0.0**.
+This guide describes the state of version **1.47.0.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 03.
 
 ## 02 · Quick start
 
@@ -44,7 +44,7 @@ This guide describes the state of version **1.38.0.0**.
 
 | Field role | Type | What for |
 | --- | --- | --- |
-| Category | Grouping | Time axis (months) or structure (e.g. countries, products). Required; a second category forms a hierarchy in the table. |
+| Category | Grouping | Time axis (months) or structure (e.g. countries, products). A second category forms a hierarchy in the table — since 1.47 it expands into the row tree automatically. Optional since 1.41: without a category the visual renders a single KPI tile titled with the AC measure's name. |
 | Actual (AC) | Measure | The actual value — the main measure, drawn filled. Required. |
 | Previous Year (PY) | Measure | Prior-year value, drawn grey. Basis for the ΔPY variance panels. |
 | Plan / Budget (PL) | Measure | Plan or budget value, drawn as an outline. Basis for the ΔPL variance panels. |
@@ -59,16 +59,21 @@ This guide describes the state of version **1.38.0.0**.
 | Small Multiples | Grouping | Splits the chart into small tiles per group — with identical scaling (IBCS small multiples). |
 | Waterfall type (sum/delta) | Grouping | Waterfall/P&L only: “sum” = absolute subtotal, “delta” = movement (P&L waterfall). |
 | Forecast flag (0=actual · 1=FC · 2=preliminary) | Grouping | Alternative to the FC measure: a 1/0 column — rows flagged 1 are drawn as forecast (hatched), the AC measure runs through. |
+| X axis (scatter) | Measure | Scatter/bubble only (since 1.47): measure for the X axis — the Y axis stays AC. |
+| Bubble size | Measure | Scatter/bubble only, optional: scales the dot area proportionally to the value (3–22 px) — turning the scatter into a bubble chart. |
+| Trend (time) | Grouping | KPI cards only (since 1.47): a time field turns every card into a time series with a mini chart (sparkline or columns). Other modes ignore the role and re-aggregate the rows. |
 
 ![Landing page with empty field wells: a tile overview of every mode with the fields each one needs.](../doku-assets/feature-landing.png)
 
 ### 3 · First comparison with PY
 
 1. Add the matching measure to the **Previous Year (PY)** role. The variance panels *ΔPY absolute* and *ΔPY %* appear above the base chart immediately — green when better, red when worse.
-2. For a plan comparison also bind **Plan / Budget (PL)**; under *Chart → Layout → Variance basis* you choose what the panels compute against (Auto uses PL, otherwise PY).
-3. From here you change the mode under *Chart → Layout → Orientation* — everything that follows builds on that.
+2. For a plan comparison also bind **Plan / Budget (PL)**; under *Chart → Variance basis* you choose what the panels compute against (Auto uses PL, otherwise PY).
+3. From here you change the mode under *Chart → Chart type* — since 1.45 the Chart card is the first card in the format pane. Everything that follows builds on that.
 
 ## 03 · The 13 modes
+
+ChartKitchen counts 13 chart types — exactly as the mode gallery on the landing page shows them. The matrix is not a separate type but the table variant with the column role filled; it is described here as card 07b.
 
 ### 01 · Columns
 
@@ -110,7 +115,7 @@ The year bridge: the PY total column on the left, the ΔPY cascade across the mo
 
 ![As it looks in Power BI Desktop: Structure bridge by country: PL and PY reference rows on top, an AC bar per country, the ΔPL cascade with ΔPL % pins on the right and the AC total at the bottom.](../doku-assets/pbi/pbi-bridge-structure.png)
 
-The driver bridge across categories: a PY row on top, each driver as an AC-PY bar plus a cascade segment and a ΔPY% pin, an AC reconciliation row at the bottom. You see at a glance which category drives the total variance. The biggest driver is flagged automatically with a note.
+The driver bridge across categories: a PY row on top, each driver as an AC-PY bar plus a cascade segment and a ΔPY% pin, an AC reconciliation row at the bottom. You see at a glance which category drives the total variance. The biggest driver is flagged automatically with a note. Since 1.47 the orientation is selectable (Chart → Bridge): “Automatic”, “Bars” (as before) or “Columns” — a vertical column cascade from the PY anchor through the drivers to AC, with Δ% pins on top.
 
 ### 07 · Table
 
@@ -118,23 +123,23 @@ The driver bridge across categories: a PY row on top, each driver as an AC-PY ba
 
 ![As it looks in Power BI Desktop: Table by country: AC-PY-PL bars per row, a dedicated ΔPL bar column, ΔPL % pins and the Σ total row at the bottom.](../doku-assets/pbi/pbi-table.png)
 
-The flat IBCS value table: an AC-PY bar per row, a Δbasis bar column, Δbasis% pins and a Σ total row. It combines numeric precision with in-cell IBCS graphics and is the basis for hierarchies, result/skip rows and the matrix. Ideal for board- and print-ready KPI sheets.
+The flat IBCS value table: an AC-PY bar per row, a Δbasis bar column, Δbasis% pins and a Σ total row. It combines numeric precision with in-cell IBCS graphics and is the basis for hierarchies, result/skip rows and the matrix. Ideal for board- and print-ready KPI sheets. Multiple category fields expand automatically into the row tree since 1.47 (toggle “Auto-expand hierarchy”, default on).
 
-### 08 · Matrix
+### 07b · Matrix
 
 ![Matrix: row categories against the Quarter→Month column hierarchy, collapsed to quarter blocks with Σ, ΔPY and ΔPY% on the right.](../doku-assets/mode-matrix.png)
 
 ![As it looks in Power BI Desktop: Matrix with the Category→Product hierarchy and four deviation columns at once — ΔPL, ΔPL %, ΔPY and ΔPY % — each with bars or pins, plus a Σ total.](../doku-assets/pbi/pbi-matrix-ytd.png)
 
-The table with the column role filled: row categories against a column hierarchy (e.g. quarter → month, max. 2 levels), value and Δbasis per block, a frozen Σ block on the right. Column groups collapse and expand, wide matrices scroll horizontally. For KPIs across two dimensions at once.
+The table variant with the column role filled (not a separate chart type): row categories against a column hierarchy (e.g. quarter → month, max. 2 levels), value and Δbasis per block, a frozen Σ block on the right. Column groups collapse and expand, wide matrices scroll horizontally. For KPIs across two dimensions at once.
 
-### 09 · Pareto
+### 08 · Pareto
 
 ![Pareto: AC columns descending with a cumulative percentage line and an 80% reference marker for ABC analysis.](../doku-assets/mode-pareto.png)
 
 The ABC analysis: AC columns descending with a cumulative percentage line and an 80% reference marker. You immediately see which few categories make up the bulk. Use it for assortment, customer or root-cause analyses.
 
-### 10 · Dumbbell
+### 09 · Dumbbell
 
 ![Dumbbell: a PY and an AC dot per category, the coloured connector shows the direction and size of the change.](../doku-assets/mode-dumbbell.png)
 
@@ -142,7 +147,7 @@ The ABC analysis: AC columns descending with a cumulative percentage line and an
 
 Before/after per category as a dot pair: a PY and an AC dot, the coloured connector shows the direction and size of the change. Calmer than two bar series when only two scenarios are compared. Needs AC and PY/PL per category.
 
-### 11 · Slope
+### 10 · Slope
 
 ![Slope: rank shifts between two points in time, PY on the left and AC on the right, slope and colour per category.](../doku-assets/mode-slope.png)
 
@@ -150,19 +155,23 @@ Before/after per category as a dot pair: a PY and an AC dot, the coloured connec
 
 Rank shifts between two points in time: PY on the left, AC on the right, one line per category — slope and colour show risers and fallers. Ideal for telling the story of position changes in a ranking. Needs AC and PY/PL per category.
 
-### 12 · KPI cards
+### 11 · KPI cards
 
 ![KPI cards: one tile per metric with the AC value, ΔPL and ΔPY rows plus a mini bridge PL→Δ→AC.](../doku-assets/mode-cards.png)
 
-KPI tiles for monitoring: one card per metric with a large AC value, ΔPL and ΔPY rows and a mini bridge PL→Δ→AC. Optionally with a status light, background tint and a bullet against the benchmark. For overview pages and control-room walls.
+KPI tiles for monitoring: one card per metric with a large AC value, ΔPL and ΔPY rows and a mini bridge PL→Δ→AC. Optionally with a status light, background tint and a bullet against the benchmark. For overview pages and control-room walls. With a time field in the “Trend (time)” role every card becomes a time series — a sparkline with a PY ghost line or zero-based columns, card value “Last value” or “Sum” (since 1.47).
 
-### 13 · P&L statement
+### 12 · P&L statement
 
 ![P&L statement: income statement with subtotal, delta and margin rows, PY/AC cascade columns and ΔPY plus ΔPY% pins.](../doku-assets/mode-pnl.png)
 
 ![As it looks in Power BI Desktop: P&L statement for two entities side by side: subtotal, delta and margin (pp) row types, the AC&FC cascade column plus ΔPY and ΔPY %.](../doku-assets/pbi/pbi-pnl.png)
 
 The full P&L statement: an income statement with subtotal, delta and margin rows, PY/AC cascade columns and ΔPY plus ΔPY% pins. Levels (subtotals only / all line items) and views (AC / AC+FC / PL) toggle via buttons. The closing mode for formal reporting. Needs PY (or PL) as a reference.
+
+### 13 · Scatter / bubble (correlation)
+
+The correlation mode (new in 1.47): every category as a dot, Y axis = AC, X axis = the new “X axis (scatter)” role; with the “Bubble size” role filled it becomes a bubble chart (dot area proportional, 3–22 px). Quadrant lines can sit at the mean or median of both axes — set reference lines (including the new X reference line) override them. The axes show at most 5 round ticks with the unit in the axis title; labels avoid collisions automatically (emphasized categories before biggest bubbles before extreme points). An optional status coloring tints the dots by ΔPY/ΔPL including the materiality threshold. Emphasis (EMPHASIZE), FC hatching, comments, cross-filtering, dark mode and high contrast work as in the other modes; a field in the small-multiples role becomes a combined dot cloud (category · group).
 
 ## 04 · ChartKitchen in action
 
@@ -289,43 +298,61 @@ The following captures come straight from Power BI Desktop, with sample data fro
 3. Show the bullet against the benchmark (optionally zoomed to the target range) and the mini bridge as needed; you can sort by deviation (biggest top-left).
 4. The benchmark role must be filled for the benchmark rating.
 
+### Trend cards: KPI cards with a time series
+
+1. In addition to the category, drag a time field into the “Trend (time)” role — every KPI card becomes a series (since 1.47).
+2. Under Chart → KPI cards pick the mini chart: a sparkline (with a PY ghost line, FC dashed, the last actual point labelled) or zero-based columns (negatives below the zero line, FC hatched) — or Off.
+3. The card value shows “Last value” (default — the Δ rows and the traffic light consistently refer to the same period) or “Sum”.
+4. Without a trend field everything stays exactly as before; other modes ignore the role (the rows are re-aggregated).
+
+### Dark mode (appearance)
+
+1. Under IBCS colors → “Appearance” choose Auto · Light · Dark (since 1.43). “Auto” detects dark report themes from the luminance of the theme background color; for manually darkened pages without a dark theme, “Dark” is the explicit switch.
+2. In dark mode, ink, paper and secondary grey switch to light tones; halos and hollow markers fill with the dark page background so they blend with the page.
+3. Color pickers still on their light defaults (AC/PL, PY, good, bad) are replaced automatically by their light counterparts — colors you chose yourself stay untouched. The blue/orange preset lightens accordingly.
+4. The landing gallery and the HTML overlays (row search, structure menu, comment editor) follow the appearance; high-contrast mode remains its own path.
+5. Since 1.44 the visual also draws the hover tooltip itself in dark mode: a dark box, light text, the category as header — in light mode the native Power BI tooltip remains.
+
+### Custom empty state
+
+1. In the “Empty state” card you set a custom title and a custom text (since 1.44) — they replace the “ChartKitchen byDatenWG” branding whenever no data is shown (empty field wells or a selection without rows).
+2. In reading mode, report readers see only title + text, centred and word-wrapped — the mode gallery is a builder tool and stays reserved for edit mode (where your texts appear as a preview above the gallery).
+3. Without custom texts everything stays as before.
+
+### Scaling guarantees & axis break (waterfall)
+
+1. Since 1.45 hard scaling guarantees apply: the ΔPY and ΔPL panels share ONE scale (absolute and %), bridges include every cascade intermediate in the scale, stacked small multiples share a common scale, and values and variances use ONE unit scale — no more “k€ next to thousands”. Formats with their own prefix (“#,0 T€”, “Mio €”) switch the auto unit off.
+2. “Scale minimum maximum” and outlier capping now also apply in the waterfall; the ⫽ marker sits on every capped element (PY, PL, BM, line).
+3. Δ% shows “n.a.” when the basis is 0 or the sign flips between basis and actual — instead of misleading values like “−250 %”. P&L cost rows with a consistently negative basis keep their percentages.
+4. Axis break in the waterfall (IBCS UN 5.3, since 1.45): under Scale → “Waterfall axis” set the break to Off · Auto · On; the axis is only cut when all anchors and deltas sit entirely above the break. Anchors become stubs with ⫽ across the full bar width; a title suffix and the export footer disclose the break, and small multiples share ONE break.
+5. Alternatively click the in-chart chip “⫽ axis”: it toggles the break, highlights itself on an auto suggestion, and is disabled when a break would be invalid — the tooltip names the reason or the blocking tile.
+
 ### Cross-filter, tooltips & bookmarks
 
 1. Clicking a category filters the other visuals on the page (cross-filter). Exceptions: while comment, compare or structure mode is active, clicks do not cross-filter.
-2. On hover, default and canvas tooltips show values, variances, series and comment; canvas tooltips (report-page tooltips) are supported.
-3. Interactive states are bookmark-capable: the variance basis, the YTD view, in-chart sorting, expanded rows/columns, captured comments and column widths travel with the report or the bookmark.
+2. In the other direction, since 1.46: a selection in another visual always **filters** ChartKitchen — Power BI no longer offers the “highlight” interaction for this visual. Σ header and scales therefore work consistently on the filtered data during cross-interaction; the visual's own selection (click, Ctrl = multi-select) still dims locally.
+3. On hover, default and canvas tooltips show values, variances, series and comment; canvas tooltips (report-page tooltips) are supported. In dark mode the visual draws the hover tooltip itself (a dark box with the category as header).
+4. Interactive states are bookmark-capable: the variance basis, the YTD view, in-chart sorting, expanded rows/columns, captured comments and column widths travel with the report or the bookmark.
 
 ## 06 · Settings reference
 
 The following schematics show the structure and order of the format pane (naming as in Power BI). Each card and subgroup appears as a schematic sketch next to its settings table, so you can locate every toggle and dropdown in the pane itself. The German format pane is shown; the English pane is laid out identically.
 
-![Schematic: Format pane: the visual's seven cards in pane order (collapsed) – IBCS title, Chart, IBCS colors, Data labels, Comments, Scale & reference line, Category axis. German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-overview.png)
+Since 1.45 the format pane follows the working order: the Chart card sits at position 1, “Orientation” is now called “Chart type”, and the card order is Chart → IBCS title → Data labels → Category axis → IBCS colors → Scale & reference line → Comments → Empty state. The sketches show the cards schematically (state before the pane rework); all setting names and effects are unchanged.
 
-> The tables below list every setting in the format pane, grouped by cards and groups — in exactly the order and with the names as they appear in the Power BI format pane. The “Chart” card bundles most settings; many apply only in certain modes (e.g. the “Table”, “Small Multiples”, “Bridge” and “KPI cards” groups).
+![Schematic: Format pane: the visual's eight cards (collapsed). Pane order since 1.45: Chart, IBCS title, Data labels, Category axis, IBCS colors, Scale & reference line, Comments, Empty state (sketch: arrangement before 1.45). German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-overview.png)
 
-### IBCS Title
-
-![Schematic: Format pane → IBCS title: title toggle, KPI name, period, message line, auto message, footer and filter footer. German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-ibcs-titel.png)
-
-| Setting | Description | Options / default |
-| --- | --- | --- |
-| Show labels | — | On / Off · default On |
-| KPI name (auto if empty) | — | Free text · z. B. Umsatz |
-| Period (auto if empty) | — | Free text · z. B. 2026 |
-| Message line | — | Free text · Kernbotschaft der Grafik (IBCS: SAY) |
-| Auto message | Automatically builds the message line (driver text) from the total variance and the biggest drivers when no custom message is entered. Off by default. | On / Off · default Off |
-| Footer (data status · source) | Footer at the bottom left — e.g. data status and source: "Actuals as of Jun 2026 · status 05.07. · source: SAP FI". | Free text · z. B. Ist per Jun 2026 · Stand 05.07. |
-| Show filter footer | Second footer with the filter context: shows the bound "Filter info" text measure (report filters are not exposed to custom visuals via API) plus the visual's own display state — YTD, Top-N, in-chart sorting, Σ exclusions, comparison. | On / Off · default Off |
+> The tables below list every setting in the format pane, grouped by cards and groups. Since 1.45 the Chart card is regrouped in the pane (Chart type · Comparison & variance · Data & time · Interaction in the report · Appearance · Small Multiples · Bridge · Table · KPI cards) — a pure display reordering; names and effects of the settings are unchanged. The “Chart” card bundles most settings; many apply only in certain modes (e.g. the “Table”, “Small Multiples”, “Bridge” and “KPI cards” groups).
 
 ### Chart
 
 #### Layout
 
-![Schematic: Format pane → Chart → Layout: orientation, variance basis and the deviation options. German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-chart-layout.png)
+![Schematic: Format pane → Chart: chart type (formerly “Orientation”), variance basis and the deviation options (sketch: state before 1.45). German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-chart-layout.png)
 
 | Setting | Description | Options / default |
 | --- | --- | --- |
-| Orientation | — | Options: Columns (Time) \| Bars (Structure) \| Line (Time, many points) \| Waterfall / Bridge \| Integrated Bridge (Time) \| Category Bridge (Structure) \| Table (IBCS) \| Pareto (Structure) \| Dumbbell (Structure) \| Slope · Before/After \| KPI Cards (Tiles) \| P&L Statement (IBCS) · default „Columns (Time)“ |
+| Chart type | The chart mode — called “Orientation” until 1.45; since then at the very top of the first card in the format pane. | Options: Columns (Time) \| Bars (Structure) \| Line (Time, many points) \| Waterfall / Bridge \| Integrated Bridge (Time) \| Category Bridge (Structure) \| Table (IBCS) \| Pareto (Structure) \| Dumbbell (Structure) \| Slope · Before/After \| KPI Cards (Tiles) \| P&L Statement (IBCS) \| Scatter / Bubble (Correlation) · default „Columns (Time)“ |
 | Variance basis | Basis for the variance panels. Auto: PL if available, otherwise PY. | Options: Auto \| Previous Year (PY) \| Plan (PL) \| Prior-month FC (revision) · default „Auto“ |
 | Absolute variance (ΔAC) | — | On / Off · default On |
 | Relative variance (ΔAC %) | — | On / Off · default On |
@@ -376,6 +403,7 @@ The following schematics show the structure and order of the format pane (naming
 | Sort by impact | Waterfall bridge only: sorts the categories by variance size (biggest driver first). A Top-N remainder row stays at the end. Also toggleable by clicking the ⇅ symbol in the chart. | On / Off · default Off |
 | In-chart buttons | Integrated/Category bridge: shows clickable buttons at the top right of the chart — ΔPY/ΔPL reference toggle, ⇅ sorting and ▶ build-up animation. The end user can switch the variance basis directly in the report; the choice is persisted. | On / Off · default On |
 | Driver note in chart | Category bridge: italic note at the biggest driver ("biggest driver · n % of the total variance") — overlays the row area, can be turned off here. | On / Off · default On |
+| Bridge: orientation | Category bridge (since 1.47): “Automatic” picks as before, “Bars” forces the horizontal bridge, “Columns” the vertical column cascade (PY anchor → drivers → AC with a Δbasis reconciliation, Δ% pins on top). Emphasis, driver note, the n.a. rule and the small-multiples scale apply there too. | Options: Automatic \| Bars \| Columns · default “Automatic” |
 
 #### Table
 
@@ -398,6 +426,7 @@ The following schematics show the structure and order of the format pane (naming
 | Row density | Row height: “Compact” for dense tables, “Normal” (default) as before, “Airy” for more whitespace. Scales only the cap; very tall visuals stay bounded. | Options: Compact \| Normal \| Airy · default „Compact“ |
 | Grid lines | Separator style: “Horizontal” (default) row lines only, “None” for a calm look, “Horizontal + vertical” adds subtle column/block dividers. | Options: Horizontal \| None \| Horizontal + vertical · default „Horizontal“ |
 | Cell layout (matrix) | Matrix only: “Columns” (default) shows the value and Δbasis side by side. “Two rows” puts the value large on top and the smaller Δ number directly below it in the same cell — the matrix becomes roughly half as wide. The Δ mini-bar is dropped; reference (value) columns stay as their own columns next to the value. | Options: Columns (value · Δ side by side) \| Two rows: value on top, Δ below · default „Columns (value · Δ side by side)“ |
+| Auto-expand hierarchy | Multiple fields in the category role (table/P&L): the visual expands the drill hierarchy into the clickable row tree automatically — once per field constellation; manual collapsing is preserved. Since 1.47. | On / Off · default On |
 
 #### KPI cards
 
@@ -413,19 +442,30 @@ The following schematics show the structure and order of the format pane (naming
 | Tint intensity % | Opacity of the background tint in percent (4–40). Default 12 — stronger for control-room monitors, subtler for board reports. | 4–40 · default 12 |
 | Bullet vs. benchmark | Small bullet chart on the card: AC bar on a light band, benchmark as a tick — below the number (stacked layout) or next to the Δ rows (flat layout). Requires the benchmark role. | On / Off · default Off |
 | Bullet: zoom to target range | Spreads the bullet across the range around AC and benchmark instead of starting at zero — KPIs close to target (97 vs. 99) become distinguishable. The axis break at the left bar end marks the truncated scale. | On / Off · default Off |
+| Show reference values | Shows the comparison values themselves in addition to the Δ rows: “Basis value” adds the comparison basis as its own row, “All bound scenarios” additionally PY, plan, forecast and benchmark — in ink above the coloured Δ rows, so the deviation keeps the visual weight. Since 1.41. | Options: Deviations only \| Basis value \| All bound scenarios · default “Deviations only” |
+| Mini chart (trend) | Only with a time field in the “Trend (time)” role (since 1.47): a mini chart per card — a sparkline with a PY ghost line, FC dashed and the last actual point labelled, or zero-based columns (negatives below the zero line, FC hatched). | Options: Off \| Sparkline \| Columns |
+| Card value (with trend) | “Last value” shows the most recent value of the series — Δ rows and traffic light consistently refer to the same period. “Sum” aggregates the series. | Options: Last value \| Sum · default “Last value” |
 
-### IBCS Colors
-
-![Schematic: Format pane → IBCS colors: theme adoption plus the scenario colors – Actual (AC) dark grey, Previous year (PY) light grey, Plan (PL) as outline, good variance teal, bad variance red. German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-ibcs-farben.png)
+#### Scatter / bubble
 
 | Setting | Description | Options / default |
 | --- | --- | --- |
-| Use report theme colors | Takes the good/bad and neutral colors from the report theme instead of the color pickers below. | On / Off · default Off |
-| Actual (AC) | — | default #404040 |
-| Previous Year (PY) | — | default #B3B3B3 |
-| Plan outline (PL) | — | default #404040 |
-| Good variance | The default is the DatenWG teal (#1E8F9E) instead of classic green — the blue component keeps "good" clearly distinguishable from red even with red-green color deficiency. Overridable here. | default #1E8F9E |
-| Bad variance | — | default #D64541 |
+| Quadrant lines | Scatter/bubble (since 1.47): places quadrant lines at the mean or median of both axes. Set reference lines (Scale card) override the quadrants. | Options: Off \| Mean \| Median · default “Off” |
+| Dot coloring | “Status” tints the dots by the variance basis (ΔPY/ΔPL) good/bad, including the materiality threshold — otherwise a single color. | Options: Single color \| Status (Δbasis) |
+
+### IBCS Title
+
+![Schematic: Format pane → IBCS title: title toggle, KPI name, period, message line, auto message, footer and filter footer. German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-ibcs-titel.png)
+
+| Setting | Description | Options / default |
+| --- | --- | --- |
+| Show labels | — | On / Off · default On |
+| KPI name (auto if empty) | — | Free text · z. B. Umsatz |
+| Period (auto if empty) | — | Free text · z. B. 2026 |
+| Message line | — | Free text · Kernbotschaft der Grafik (IBCS: SAY) |
+| Auto message | Automatically builds the message line (driver text) from the total variance and the biggest drivers when no custom message is entered. Off by default. | On / Off · default Off |
+| Footer (data status · source) | Footer at the bottom left — e.g. data status and source: "Actuals as of Jun 2026 · status 05.07. · source: SAP FI". | Free text · z. B. Ist per Jun 2026 · Stand 05.07. |
+| Show filter footer | Second footer with the filter context: shows the bound "Filter info" text measure (report filters are not exposed to custom visuals via API) plus the visual's own display state — YTD, Top-N, in-chart sorting, Σ exclusions, comparison. | On / Off · default Off |
 
 ### Data Labels
 
@@ -443,6 +483,56 @@ The following schematics show the structure and order of the format pane (naming
 | Finance format (parentheses) | Finance convention for numbers: negative values in parentheses instead of a minus sign — (1,234) — and zero as "–". Applies to value and Δ labels including Δ %. | On / Off · default Off |
 | Sum-safe label rounding | Rounds the value labels using the largest-remainder method so they add up exactly to the Σ header — no more rounding-difference questions. Off = mathematically exact individual rounding, but a rounding note appears below the Σ row when there is a discrepancy. | On / Off · default Off |
 
+### Category Axis
+
+![Schematic: Format pane → Category axis: text size of the axis labels. German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-kategorienachse.png)
+
+| Setting | Description | Options / default |
+| --- | --- | --- |
+| Font size | — | 6–24 · default 10 |
+
+### IBCS Colors
+
+![Schematic: Format pane → IBCS colors: theme adoption plus the scenario colors – Actual (AC) dark grey, Previous year (PY) light grey, Plan (PL) as outline, good variance teal, bad variance red. German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-ibcs-farben.png)
+
+| Setting | Description | Options / default |
+| --- | --- | --- |
+| Use report theme colors | Takes the good/bad and neutral colors from the report theme instead of the color pickers below. | On / Off · default Off |
+| Appearance | Since 1.43: “Auto” detects dark report themes from the luminance of the theme background color and switches ink, axes and areas to light tones; “Dark” forces this for manually darkened pages. Color pickers on their light defaults are replaced automatically by their light counterparts; your own colors stay. In dark mode the visual also draws the hover tooltip itself (since 1.44). | Options: Auto \| Light \| Dark · default “Auto” |
+| Color preset | “Blue/orange” (ColorBrewer #2C7BB6/#E66101) overrides the good/bad pickers — distinguishable by lightness even with achromatopsia and in black-and-white print; lightened automatically in dark mode. | Options: Custom colors \| Blue/orange · default “Custom colors” |
+| Actual (AC) | — | default #404040 |
+| Previous Year (PY) | — | default #B3B3B3 |
+| Plan outline (PL) | — | default #404040 |
+| Good variance | The default is the DatenWG teal (#1E8F9E) instead of classic green — the blue component keeps "good" clearly distinguishable from red even with red-green color deficiency. Overridable here. | default #1E8F9E |
+| Bad variance | — | default #D64541 |
+
+### Scale & Reference Line
+
+#### Scale sync
+
+![Schematic: Format pane → Scale & reference line: Scale-sync subgroup (minimum maxima, cap outliers) and Reference-line subgroup (value & label). German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-skala.png)
+
+| Setting | Description | Options / default |
+| --- | --- | --- |
+| Scale minimum maximum | Scales the base chart at least up to this value — for identical scales across multiple visuals (IBCS). 0 = automatic. Larger data values still extend the scale. Since 1.45 it also applies in the waterfall. | from 0 · default 0 |
+| Variance minimum maximum | As above, for the variance panels (symmetric ±). 0 = automatic. Since 1.45 the ΔPY and ΔPL panels share ONE scale — the value applies to both. | from 0 · default 0 |
+| Cap outliers at maximum | Makes the scale maximum hard: larger values are capped and marked with a ⫽ double stroke (the label shows the real value). Since 1.45 every capped element carries the marker (including PY, PL, BM and lines); a target line above the cap no longer stretches the axis. | On / Off · default Off |
+
+#### Reference line
+
+| Setting | Description | Options / default |
+| --- | --- | --- |
+| Reference line (value) | Draws a target/threshold line at this value across the base chart. Empty = off. | Free text · z. B. 1200000 |
+| Reference line (label) | — | Free text · z. B. Ziel |
+| X reference line (scatter) | Vertical reference line on the X axis in scatter/bubble mode (since 1.47); together with the reference line it overrides the quadrant lines. | Free text · empty = off |
+
+#### Waterfall axis
+
+| Setting | Description | Options / default |
+| --- | --- | --- |
+| Axis break | IBCS axis break in the waterfall (since 1.45): anchors become stubs with ⫽ across the full bar width. The axis is only cut when all anchors and deltas sit entirely above the break; a title suffix and the export footer disclose it, and small multiples share ONE break. “Auto” highlights the in-chart chip “⫽ axis” — the cut happens only on click. | Options: Off \| Auto \| On · default “Off” |
+| Break at value | Manual break value; 0 = automatic (a round value below the lowest cascade level). | from 0 · default 0 |
+
 ### Comments
 
 ![Schematic: Format pane → Comments: show comment list, comment font size and capturing comments in the chart. German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-kommentare.png)
@@ -453,32 +543,12 @@ The following schematics show the structure and order of the format pane (naming
 | Comment font size | Font size of the comment list in pt (8–24). Also multiplied by the font preset and the scaling factor, so it scales with the rest of the visual. | 8–24 · default 10 |
 | Capture comments in chart | Comment mode: clicking a category opens an input field — the comment is stored in the report (bookmark-capable, travels with the PBIX). While the mode is on, clicks do not cross-filter. Off by default. | On / Off · default Off |
 
-### Scale & Reference Line
-
-#### Scale sync
-
-![Schematic: Format pane → Scale & reference line: Scale-sync subgroup (minimum maxima, cap outliers) and Reference-line subgroup (value & label). German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-skala.png)
+### Empty State
 
 | Setting | Description | Options / default |
 | --- | --- | --- |
-| Scale minimum maximum | Scales the base chart at least up to this value — for identical scales across multiple visuals (IBCS). 0 = automatic. Larger data values still extend the scale. | from 0 · default 0 |
-| Variance minimum maximum | As above, for the absolute variance panel (symmetric ±). 0 = automatic. | from 0 · default 0 |
-| Cap outliers at maximum | Makes the scale maximum hard: larger values are capped and marked with a double stroke (the label shows the real value). | On / Off · default Off |
-
-#### Reference line
-
-| Setting | Description | Options / default |
-| --- | --- | --- |
-| Reference line (value) | Draws a target/threshold line at this value across the base chart. Empty = off. | Free text · z. B. 1200000 |
-| Reference line (label) | — | Free text · z. B. Ziel |
-
-### Category Axis
-
-![Schematic: Format pane → Category axis: text size of the axis labels. German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-kategorienachse.png)
-
-| Setting | Description | Options / default |
-| --- | --- | --- |
-| Font size | — | 6–24 · default 10 |
+| Custom title | Replaces the “ChartKitchen byDatenWG” heading in the empty state (no fields bound, or a selection without rows). In reading mode, report readers see only title + text, centred and word-wrapped; in edit mode your texts appear as a preview above the mode gallery. Since 1.44. | Free text · empty = default |
+| Custom text | Your own text below the title — e.g. a hint which fields to bind or why the selection is empty. | Free text · empty = default |
 
 ## 07 · FAQ & troubleshooting
 
@@ -518,7 +588,19 @@ Report filters are not exposed to custom visuals via API. Bind a text measure (e
 
 Enable Data labels → “Sum-safe label rounding”. The individual labels are then rounded with the largest-remainder method so they add up exactly to the Σ header.
 
-**ChartKitchen byDatenWG** · Version 1.38.0.0
+### Δ% shows “n.a.” — why?
+
+Deliberate since 1.45: when the basis is 0 or the sign flips between basis and actual, any percentage would be misleading (e.g. “−250 %” for an improvement). The visual then shows “n.a.” — everywhere: labels, pins, tooltips, table, cards, Σ header and the P&L statement. P&L cost rows with a consistently negative basis keep their percentages.
+
+### Clicking in another visual filters ChartKitchen instead of highlighting it.
+
+Intended (since 1.46): the visual interaction for ChartKitchen is always “filter” — Power BI no longer offers “highlight” for this visual. That way the Σ header, scales and all modes work consistently on the filtered data during cross-interaction. The visual's own selection (click on a bar/row/card, Ctrl = multi-select) still dims locally.
+
+### On dark report pages the text is barely readable.
+
+Set IBCS colors → “Appearance” to “Auto” (detects dark themes from the background luminance) or explicitly to “Dark” — ink, axes, areas and, since 1.44, the hover tooltip then switch to a dark rendering with light text.
+
+**ChartKitchen byDatenWG** · Version 1.47.0.0
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 

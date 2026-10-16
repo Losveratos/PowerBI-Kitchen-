@@ -115,7 +115,8 @@ async function run(){
     }
     const all = await API.allPagesPng(opts);
     lastPngs = { API, all };
-    checks.push({ ok: all.length === pages.length && all.every(a => /^page-\d+-[a-z0-9-]+\.png$/.test(a.fileName)),
+    // Dateinamen wie export.js seit 0.5.5 (R2): page-1-Ubersicht.png
+    checks.push({ ok: all.length === pages.length && all.every(a => /^page-\d+-[A-Za-z0-9_]+\.png$/.test(a.fileName)),
                   t: 'allPagesPng: ' + all.map(a => a.fileName).join(', ') });
     $('#dl').disabled = false;
   } catch (e) {

@@ -10,7 +10,7 @@ Wichtig fuer die Weiterverwendung: Die datenjournalistischen Arbeiten sind als *
 
 - [Schnellstart (DE)](https://datenwgknowledgekitchen.com/md/chartkitchen-schnellstart.md): Was das Visual kann, Download, Import in Power BI Desktop, Beta-Hinweis.
 - [Quick Start (EN)](https://datenwgknowledgekitchen.com/md/chartkitchen-schnellstart_en.md): Englische Fassung der Schnellstart-Seite.
-- [Dokumentation (DE)](https://datenwgknowledgekitchen.com/md/chartkitchen-doku.md): Vollstaendige Doku des IBCS-inspirierten Visuals — 13 Diagramm-Modi, Szenario-Notation (AC/PY/PL/FC), Varianzen, 84-Settings-Referenz, 15 Feldrollen, FAQ.
+- [Dokumentation (DE)](https://datenwgknowledgekitchen.com/md/chartkitchen-doku.md): Vollstaendige Doku des IBCS-inspirierten Visuals (Stand 1.47.0.0) — 13 Diagramm-Modi inkl. Scatter/Bubble, Szenario-Notation (AC/PY/PL/FC), Varianzen, Dark Mode, Trend-KPI-Karten, Achsenschnitt im Wasserfall, Cross-Interaktion = Filtern, Settings-Referenz in acht Format-Karten, 18 Feldrollen, FAQ.
 - [Documentation (EN)](https://datenwgknowledgekitchen.com/md/chartkitchen-doku_en.md): Englische Fassung der Dokumentation.
 - [AGENT-GUIDE](https://datenwgknowledgekitchen.com/ibcsInspiredChartDeck/AGENT-GUIDE.md): Maschinenlesbare Referenz fuer KI-Agenten — exakte Property-Namen fuers PBIR-Authoring, Datenvertrag, persistierte Zustaende, bekannte Fallen. Erste Wahl, wenn ein Agent Berichte mit dem Visual konfigurieren soll.
 - [CHANGELOG](https://datenwgknowledgekitchen.com/ibcsInspiredChartDeck/CHANGELOG.md): Versionshistorie des Visuals.

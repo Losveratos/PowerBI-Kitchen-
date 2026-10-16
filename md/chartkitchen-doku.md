@@ -6,7 +6,7 @@ Power-BI-Visual · Enddokumentation
 
 Ein IBCS-inspiriertes Chart-Deck für Power BI: 13 Diagramm-Modi in einem einzigen Visual, mit einheitlicher Szenario-Notation (AC ausgefüllt, PY grau, PL umrandet, FC schraffiert) und mitgedachten Varianzen. Diese Dokumentation führt vom Import über die 13 Modi und die wichtigsten Funktionen bis zur vollständigen Einstellungs-Referenz.
 
-Version · **1.38.0.0** · Stand · **2026-07-19** · IBCS-inspired
+Version · **1.47.0.0** · Stand · **2026-10-16** · IBCS-inspired
 
 ## Inhalt
 
@@ -20,11 +20,11 @@ Version · **1.38.0.0** · Stand · **2026-07-19** · IBCS-inspired
 
 ## 01 · Was ist ChartKitchen?
 
-**ChartKitchen byDatenWG** ist ein einzelnes Power-BI-Custom-Visual, das 13 Diagramm-Modi vereint — von Säulen, Balken und Linien über Wasserfall- und Brücken-Darstellungen bis zu IBCS-Tabelle, Matrix, KPI-Karten und einem vollständigen GuV-Statement. Statt für jede Fragestellung ein eigenes Visual zu wählen, stellst du die Ausrichtung um und behältst dieselbe Notation, Farbwelt und Skalenlogik bei.
+**ChartKitchen byDatenWG** ist ein einzelnes Power-BI-Custom-Visual, das 13 Diagramm-Modi vereint — von Säulen, Balken und Linien über Wasserfall- und Brücken-Darstellungen bis zu IBCS-Tabelle (mit Matrix-Variante), KPI-Karten, einem vollständigen GuV-Statement und einem Scatter/Bubble-Plot für Korrelationen. Statt für jede Fragestellung ein eigenes Visual zu wählen, stellst du die Ausrichtung um und behältst dieselbe Notation, Farbwelt und Skalenlogik bei.
 
 Die Gestaltung ist von den **IBCS®-Prinzipien** (International Business Communication Standards) inspiriert: eine einheitliche Szenario-Notation — **AC** (Ist) ausgefüllt, **PY** (Vorjahr) grau, **PL** (Plan) umrandet, **FC** (Forecast) schraffiert — und Abweichungen, die immer mitgedacht sind: absolute und relative Varianz-Panels stehen automatisch neben oder über dem Basis-Chart. So liest sich jede Grafik nach denselben Regeln, egal welcher Modus.
 
-Diese Anleitung beschreibt den Stand der Version **1.38.0.0**.
+Diese Anleitung beschreibt den Stand der Version **1.47.0.0**. Gezählt wird wie im Visual selbst: 13 Chart-Typen — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 03 trotzdem eine eigene Karte.
 
 ## 02 · Schnellstart
 
@@ -44,7 +44,7 @@ Diese Anleitung beschreibt den Stand der Version **1.38.0.0**.
 
 | Feldrolle | Typ | Wofür |
 | --- | --- | --- |
-| Kategorie | Gruppierung | Zeitachse (Monate) oder Struktur (z. B. Länder, Produkte). Pflichtfeld; eine zweite Kategorie bildet eine Hierarchie in der Tabelle. |
+| Kategorie | Gruppierung | Zeitachse (Monate) oder Struktur (z. B. Länder, Produkte). Eine zweite Kategorie bildet eine Hierarchie in der Tabelle — seit 1.47 klappt sie dort automatisch zum Zeilenbaum auf. Seit 1.41 optional: ohne Kategorie rendert das Visual eine einzelne KPI-Kachel mit dem Namen der AC-Measure. |
 | Ist (AC) | Kennzahl | Ist-Wert — die Hauptkennzahl, ausgefüllt gezeichnet. Pflichtfeld. |
 | Vorjahr (PY) | Kennzahl | Vorjahreswert, grau gezeichnet. Basis für die ΔPY-Varianz-Panels. |
 | Plan / Budget (PL) | Kennzahl | Plan- oder Budgetwert, als Umriss gezeichnet. Basis für die ΔPL-Varianz-Panels. |
@@ -59,16 +59,21 @@ Diese Anleitung beschreibt den Stand der Version **1.38.0.0**.
 | Small Multiples | Gruppierung | Teilt das Chart in kleine Kacheln pro Gruppe — mit identischer Skalierung (IBCS Small Multiples). |
 | Waterfall-Typ (sum/delta) | Gruppierung | Nur Wasserfall/GuV: „sum“ = absolute Zwischensumme, „delta“ = Bewegung (GuV-Wasserfall). |
 | Forecast-Flag (0=Ist · 1=FC · 2=vorläufig) | Gruppierung | Alternative zur FC-Measure: eine 1/0-Spalte — Zeilen mit 1 werden als Forecast (schraffiert) dargestellt, die AC-Measure läuft durch. |
+| X-Achse (Scatter) | Kennzahl | Nur Scatter/Bubble (seit 1.47): Kennzahl für die X-Achse — die Y-Achse bleibt AC. |
+| Blasengröße | Kennzahl | Nur Scatter/Bubble, optional: skaliert die Punktfläche proportional zum Wert (3–22 px) — aus dem Scatter wird ein Bubble-Chart. |
+| Trend (Zeit) | Gruppierung | Nur KPI-Karten (seit 1.47): ein Zeitfeld macht jede Karte zur Zeitreihe mit Mini-Chart (Sparkline oder Säulen). Andere Modi ignorieren die Rolle und aggregieren die Zeilen. |
 
 ![Startseite bei leeren Feldern: Kachel-Übersicht aller Modi mit den je Modus benötigten Feldern.](../doku-assets/feature-landing.png)
 
 ### 3 · Erster Vergleich mit PY
 
 1. Füge der Rolle **Vorjahr (PY)** die entsprechende Kennzahl hinzu. Sofort erscheinen über dem Basis-Chart die Varianz-Panels *ΔPY absolut* und *ΔPY %* — grün, wenn besser, rot, wenn schlechter.
-2. Für einen Plan-Vergleich bindest du zusätzlich **Plan / Budget (PL)**; über *Chart → Layout → Abweichungsbasis* wählst du, wogegen die Panels rechnen (Auto nimmt PL, sonst PY).
-3. Von hier aus änderst du unter *Chart → Layout → Ausrichtung* den Modus — alle folgenden Kapitel bauen darauf auf.
+2. Für einen Plan-Vergleich bindest du zusätzlich **Plan / Budget (PL)**; über *Chart → Abweichungsbasis* wählst du, wogegen die Panels rechnen (Auto nimmt PL, sonst PY).
+3. Von hier aus änderst du über *Chart → Chart-Typ* den Modus — seit 1.45 ist die Chart-Karte die erste Karte im Formatbereich. Alle folgenden Kapitel bauen darauf auf.
 
 ## 03 · Die 13 Modi
+
+ChartKitchen zählt 13 Chart-Typen — so, wie sie auch die Modus-Galerie der Startseite zeigt. Die Matrix ist dabei kein eigener Typ, sondern die Tabellen-Variante mit gefüllter Spalten-Rolle; sie wird hier als Karte 07b beschrieben.
 
 ### 01 · Säulen
 
@@ -110,7 +115,7 @@ Die Jahresbrücke: links die PY-Totalsäule, in der Mitte die ΔPY-Kaskade über
 
 ![So sieht es in Power BI Desktop aus: Struktur-Brücke nach Ländern: PL- und PY-Referenzzeile oben, ein AC-Balken je Land, rechts die ΔPL-Kaskade mit ΔPL-%-Pins und die AC-Summe unten.](../doku-assets/pbi/pbi-bridge-structure.png)
 
-Die Treiber-Brücke über Kategorien: PY-Zeile oben, je Treiber ein AC-PY-Balken plus Kaskadenglied und ΔPY-%-Pin, AC-Zeile als Überleitung unten. So sieht man auf einen Blick, welche Kategorie die Gesamtabweichung treibt. Der größte Treiber wird automatisch mit einer Notiz markiert.
+Die Treiber-Brücke über Kategorien: PY-Zeile oben, je Treiber ein AC-PY-Balken plus Kaskadenglied und ΔPY-%-Pin, AC-Zeile als Überleitung unten. So sieht man auf einen Blick, welche Kategorie die Gesamtabweichung treibt. Der größte Treiber wird automatisch mit einer Notiz markiert. Seit 1.47 ist die Ausrichtung wählbar (Chart → Brücke): „Automatisch“, „Balken“ (wie bisher) oder „Säulen“ — eine vertikale Säulen-Kaskade vom PY-Anker über die Treiber zu AC, mit Δ%-Pins oben.
 
 ### 07 · Tabelle
 
@@ -118,23 +123,23 @@ Die Treiber-Brücke über Kategorien: PY-Zeile oben, je Treiber ein AC-PY-Balken
 
 ![So sieht es in Power BI Desktop aus: Tabelle nach Ländern: AC-PY-PL-Balken je Zeile, eine eigene ΔPL-Balkenspalte, ΔPL-%-Pins und die Σ-Gesamt-Zeile unten.](../doku-assets/pbi/pbi-table.png)
 
-Die flache IBCS-Wertetabelle: je Zeile der AC-PY-Balken, eine ΔBasis-Balkenspalte, ΔBasis-%-Pins und eine Σ-Gesamtzeile. Sie verbindet Zahlengenauigkeit mit IBCS-Grafik in der Zelle und ist die Grundlage für Hierarchien, Ergebnis-/Skip-Zeilen und die Matrix. Ideal für board- und drucktaugliche Kennzahlenblätter.
+Die flache IBCS-Wertetabelle: je Zeile der AC-PY-Balken, eine ΔBasis-Balkenspalte, ΔBasis-%-Pins und eine Σ-Gesamtzeile. Sie verbindet Zahlengenauigkeit mit IBCS-Grafik in der Zelle und ist die Grundlage für Hierarchien, Ergebnis-/Skip-Zeilen und die Matrix. Ideal für board- und drucktaugliche Kennzahlenblätter. Mehrere Kategorie-Felder klappen seit 1.47 automatisch als Zeilenbaum auf (Schalter „Hierarchie automatisch aufklappen“, Standard an).
 
-### 08 · Matrix
+### 07b · Matrix
 
 ![Matrix: Zeilen-Kategorien gegen die Spaltenhierarchie Quartal→Monat, zugeklappt zu Quartals-Blöcken mit Σ, ΔPY und ΔPY-% rechts.](../doku-assets/mode-matrix.png)
 
 ![So sieht es in Power BI Desktop aus: Matrix mit der Hierarchie Kategorie→Produkt und gleich vier Abweichungsspalten — ΔPL, ΔPL %, ΔPY und ΔPY % — je mit Balken bzw. Pins, plus Σ-Gesamt.](../doku-assets/pbi/pbi-matrix-ytd.png)
 
-Die Tabelle mit gefüllter Spalten-Rolle: Zeilen-Kategorien gegen eine Spaltenhierarchie (z. B. Quartal → Monat, max. 2 Ebenen), je Block Wert und ΔBasis, rechts ein fixierter Σ-Block. Spaltengruppen lassen sich auf- und zuklappen, breite Matrizen horizontal scrollen. Für Kennzahlen über zwei Dimensionen gleichzeitig.
+Die Tabellen-Variante mit gefüllter Spalten-Rolle (kein eigener Chart-Typ): Zeilen-Kategorien gegen eine Spaltenhierarchie (z. B. Quartal → Monat, max. 2 Ebenen), je Block Wert und ΔBasis, rechts ein fixierter Σ-Block. Spaltengruppen lassen sich auf- und zuklappen, breite Matrizen horizontal scrollen. Für Kennzahlen über zwei Dimensionen gleichzeitig.
 
-### 09 · Pareto
+### 08 · Pareto
 
 ![Pareto: AC-Säulen absteigend mit kumulierter Prozentlinie und 80-%-Referenzmarke für die ABC-Analyse.](../doku-assets/mode-pareto.png)
 
 Die ABC-Analyse: AC-Säulen absteigend mit kumulierter Prozentlinie und 80-%-Referenzmarke. Man erkennt sofort, welche wenigen Kategorien den Großteil ausmachen. Nimm ihn für Sortiments-, Kunden- oder Fehlerursachen-Analysen.
 
-### 10 · Dumbbell
+### 09 · Dumbbell
 
 ![Dumbbell: je Kategorie PY- und AC-Punkt, der farbige Verbinder zeigt Richtung und Größe der Veränderung.](../doku-assets/mode-dumbbell.png)
 
@@ -142,7 +147,7 @@ Die ABC-Analyse: AC-Säulen absteigend mit kumulierter Prozentlinie und 80-%-Ref
 
 Vorher/Nachher je Kategorie als Punktpaar: ein PY- und ein AC-Punkt, der farbige Verbinder zeigt Richtung und Größe der Veränderung. Ruhiger als zwei Balkenreihen, wenn nur zwei Szenarien verglichen werden. Braucht AC und PY/PL je Kategorie.
 
-### 11 · Slope
+### 10 · Slope
 
 ![Slope: Rangwechsel zwischen zwei Zeitpunkten, PY links und AC rechts, Steigung und Farbe je Kategorie.](../doku-assets/mode-slope.png)
 
@@ -150,19 +155,23 @@ Vorher/Nachher je Kategorie als Punktpaar: ein PY- und ein AC-Punkt, der farbige
 
 Rangwechsel zwischen zwei Zeitpunkten: PY links, AC rechts, je Kategorie eine Linie — Steigung und Farbe zeigen Auf- und Absteiger. Ideal, um Positionsverschiebungen in einem Ranking zu erzählen. Braucht AC und PY/PL je Kategorie.
 
-### 12 · KPI-Karten
+### 11 · KPI-Karten
 
 ![KPI-Karten: je Kennzahl eine Kachel mit AC-Wert, ΔPL- und ΔPY-Zeilen sowie einer Mini-Brücke PL→Δ→AC.](../doku-assets/mode-cards.png)
 
-KPI-Kacheln fürs Monitoring: je Kennzahl eine Karte mit großem AC-Wert, ΔPL- und ΔPY-Zeilen und einer Mini-Brücke PL→Δ→AC. Optional mit Status-Ampel, Hintergrund-Färbung und Bullet gegen die Benchmark. Für Überblicks-Seiten und Kontrollraum-Wände.
+KPI-Kacheln fürs Monitoring: je Kennzahl eine Karte mit großem AC-Wert, ΔPL- und ΔPY-Zeilen und einer Mini-Brücke PL→Δ→AC. Optional mit Status-Ampel, Hintergrund-Färbung und Bullet gegen die Benchmark. Für Überblicks-Seiten und Kontrollraum-Wände. Mit einem Zeitfeld in der Rolle „Trend (Zeit)“ wird jede Karte zur Zeitreihe — Sparkline mit PY-Geisterlinie oder nullbasierte Säulen, Kartenwert „Letzter Wert“ oder „Summe“ (seit 1.47).
 
-### 13 · GuV-Statement
+### 12 · GuV-Statement
 
 ![GuV-Statement: Ergebnisrechnung mit Summen-, Delta- und Margen-Zeilen, PY-/AC-Kaskadenspalten und ΔPY plus ΔPY-%-Pins.](../doku-assets/mode-pnl.png)
 
 ![So sieht es in Power BI Desktop aus: GuV-Statement für zwei Gesellschaften nebeneinander: Zeilentypen Summe, Delta und Marge (Pp), die AC&FC-Kaskadenspalte sowie ΔPY und ΔPY %.](../doku-assets/pbi/pbi-pnl.png)
 
 Das vollständige GuV-Statement: Ergebnisrechnung mit Summen-, Delta- und Margen-Zeilen, PY-/AC-Kaskadenspalten und ΔPY plus ΔPY-%-Pins. Ebenen (nur Zwischensummen / alle Positionen) und Ansichten (AC / AC+FC / PL) sind per Button umschaltbar. Der Abschluss-Modus für die formale Berichterstattung. Braucht PY (oder PL) als Referenz.
+
+### 13 · Scatter / Bubble (Korrelation)
+
+Der Korrelations-Modus (neu in 1.47): jede Kategorie als Punkt, Y-Achse = AC, X-Achse = die neue Rolle „X-Achse (Scatter)“; mit gefüllter Rolle „Blasengröße“ wird daraus ein Bubble-Chart (Punktfläche proportional, 3–22 px). Quadranten-Linien lassen sich auf Mittelwert oder Median legen — gesetzte Referenzlinien (auch die neue X-Referenzlinie) übersteuern sie. Die Achsen zeigen maximal 5 runde Ticks mit der Einheit im Achsentitel; Labels weichen Kollisionen automatisch aus (hervorgehobene Kategorien vor größten Blasen vor Extrempunkten). Optional färbt eine Status-Färbung die Punkte nach ΔPY/ΔPL inklusive Wesentlichkeitsschwelle. Hervorhebung (EMPHASIZE), FC-Schraffur, Kommentare, Crossfilter, Dark Mode und Hochkontrast funktionieren wie in den übrigen Modi; ein Feld in der Small-Multiples-Rolle wird zur kombinierten Punktwolke (Kategorie · Gruppe).
 
 ## 04 · ChartKitchen im Einsatz
 
@@ -289,43 +298,61 @@ Die folgenden Aufnahmen stammen direkt aus Power BI Desktop, mit Beispieldaten a
 3. Das Bullet gegen die Benchmark (optional mit Zoom auf den Zielbereich) und die Mini-Brücke zeigst du je nach Bedarf; sortieren kannst du nach Abweichung (größte oben-links).
 4. Für die Benchmark-Bewertung muss die Benchmark-Rolle gefüllt sein.
 
+### Trend-Karten: KPI-Karten mit Zeitreihe
+
+1. Ziehe zusätzlich zur Kategorie ein Zeitfeld in die Rolle „Trend (Zeit)“ — jede KPI-Karte wird zur Serie (seit 1.47).
+2. Unter Chart → KPI-Karten wählst du das Mini-Chart: Sparkline (mit PY-Geisterlinie, FC gestrichelt, letzter Ist-Punkt beschriftet) oder nullbasierte Säulen (Negative unter der Nulllinie, FC schraffiert) — oder Aus.
+3. Der Kartenwert zeigt „Letzter Wert“ (Standard — Δ-Zeilen und Ampel beziehen sich konsistent auf dieselbe Periode) oder „Summe“.
+4. Ohne Trend-Feld bleibt alles exakt wie bisher; andere Modi ignorieren die Rolle (die Zeilen werden re-aggregiert).
+
+### Dark Mode (Erscheinungsbild)
+
+1. Unter IBCS-Farben → „Erscheinungsbild“ wählst du Auto · Hell · Dunkel (seit 1.43). „Auto“ erkennt dunkle Berichts-Themes an der Luminanz der Theme-Hintergrundfarbe; für manuell dunkel eingefärbte Seiten ohne dunkles Theme gibt es „Dunkel“ als expliziten Schalter.
+2. Im Dark Mode wechseln Tinte, Papier und Sekundärgrau auf helle Töne; Halos und hohle Marker füllen mit dem dunklen Seitenhintergrund, damit sie mit der Seite verschmelzen.
+3. Farbwähler, die noch auf ihrem hellen Standard stehen (AC/PL, PY, Gut, Schlecht), werden automatisch durch die helle Entsprechung ersetzt — selbst gewählte Farben bleiben unangetastet. Auch das Blau/Orange-Preset hellt analog auf.
+4. Startseiten-Galerie und HTML-Overlays (Zeilensuche, Struktur-Menü, Kommentar-Editor) folgen dem Erscheinungsbild; der Hochkontrast-Modus bleibt ein eigener Pfad.
+5. Seit 1.44 zeichnet das Visual im Dark Mode auch den Hover-Tooltip selbst: dunkler Kasten, helle Schrift, Kategorie als Header — im hellen Modus bleibt der native Power-BI-Tooltip.
+
+### Eigener Leer-Zustand
+
+1. In der Karte „Leer-Zustand“ hinterlegst du einen eigenen Titel und einen eigenen Text (seit 1.44) — sie ersetzen das „ChartKitchen byDatenWG“-Branding, wenn keine Daten dargestellt werden (Felder leer oder Auswahl ohne Zeilen).
+2. Im Lesemodus sehen Berichtsleser nur noch Titel + Text, zentriert und mit Wortumbruch — die Modus-Galerie ist ein Builder-Werkzeug und bleibt dem Bearbeitungsmodus vorbehalten (dort erscheinen die eigenen Texte als Vorschau über der Galerie).
+3. Ohne eigene Texte bleibt alles wie bisher.
+
+### Skalierungs-Garantien & Achsenschnitt (Wasserfall)
+
+1. Seit 1.45 gelten harte Skalen-Garantien: ΔPY- und ΔPL-Panels teilen EINE Skala (absolut und %), Brücken nehmen alle Kaskaden-Zwischenstände in die Skala, gestapelte Small Multiples teilen eine gemeinsame Skala, und Werte wie Varianzen nutzen EINEN Einheitenmaßstab — kein „K€ neben T€“ mehr. Formate mit eigenem Präfix („#,0 T€“, „Mio €“) schalten die Auto-Einheit ab.
+2. „Skalen-Mindest-Maximum“ und die Ausreißer-Kappung wirken jetzt auch im Wasserfall; der ⫽-Marker sitzt an jedem gekappten Element (PY, PL, BM, Linie).
+3. Δ% zeigt „n.a.“ bei Basis 0 oder Vorzeichenwechsel zwischen Basis und Ist — statt irreführender Werte wie „−250 %“. GuV-Kostenzeilen mit durchgängig negativer Basis behalten ihre Prozente.
+4. Achsenschnitt im Wasserfall (IBCS UN 5.3, seit 1.45): Unter Skala → „Wasserfall-Achse“ stellst du den Schnitt auf Aus · Auto · An; geschnitten wird nur, wenn alle Anker und Deltas vollständig über dem Schnitt liegen. Anker werden zu Stummeln mit ⫽ über die volle Balkenbreite; Titel-Suffix und Export-Fußzeile weisen den Schnitt aus, Small Multiples teilen EINEN Schnitt.
+5. Alternativ klickst du den In-Chart-Chip „⫽ Achse“: Er schaltet den Schnitt an/aus, hebt sich bei Auto-Vorschlag hervor und ist bei unzulässigem Schnitt deaktiviert — der Tooltip nennt den Grund bzw. die blockierende Kachel.
+
 ### Cross-Filter, Tooltips & Bookmarks
 
 1. Ein Klick auf eine Kategorie filtert die übrigen Visuals der Seite (Cross-Filter). Ausnahmen: solange Kommentar-, Vergleich- oder Struktur-Modus aktiv sind, filtern Klicks nicht quer.
-2. Beim Überfahren zeigen Standard- und Canvas-Tooltips Werte, Abweichungen, Serie und Kommentar; Canvas-Tooltips (Report-Page-Tooltips) werden unterstützt.
-3. Interaktive Zustände sind bookmark-fähig: die Varianz-Basis, die YTD-Sicht, die In-Chart-Sortierung, aufgeklappte Zeilen/Spalten, erfasste Kommentare und Spaltenbreiten wandern mit dem Bericht bzw. dem Lesezeichen.
+2. In der Gegenrichtung gilt seit 1.46: Eine Auswahl in einem anderen Visual **filtert** ChartKitchen immer — die Wechselwirkung „Hervorheben“ bietet Power BI für dieses Visual gar nicht mehr an. Σ-Kopf und Skalen rechnen damit bei Cross-Interaktion konsistent auf dem gefilterten Datenbestand; die eigene Selektion im Visual (Klick, Strg = Mehrfachauswahl) dimmt weiterhin lokal.
+3. Beim Überfahren zeigen Standard- und Canvas-Tooltips Werte, Abweichungen, Serie und Kommentar; Canvas-Tooltips (Report-Page-Tooltips) werden unterstützt. Im Dark Mode zeichnet das Visual den Hover-Tooltip selbst (dunkler Kasten mit Kategorie-Header).
+4. Interaktive Zustände sind bookmark-fähig: die Varianz-Basis, die YTD-Sicht, die In-Chart-Sortierung, aufgeklappte Zeilen/Spalten, erfasste Kommentare und Spaltenbreiten wandern mit dem Bericht bzw. dem Lesezeichen.
 
 ## 06 · Einstellungs-Referenz
 
 Die folgenden Darstellungen zeigen Aufbau und Reihenfolge des Formatbereichs (Schema — Benennung wie in Power BI). Jede Karte und Untergruppe erscheint als schematische Skizze neben ihrer Einstellungstabelle, sodass du Schalter und Auswahlfelder direkt im Pane wiederfindest.
 
-![Schema: Formatbereich: die sieben Karten des Visuals in Pane-Reihenfolge (zugeklappt) – IBCS-Titel, Chart, IBCS-Farben, Datenbeschriftungen, Kommentare, Skala & Referenzlinie, Kategorienachse.](../doku-assets/pane/pane-overview.png)
+Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an Position 1, „Ausrichtung“ heißt jetzt „Chart-Typ“, und die Kartenreihenfolge ist Chart → IBCS-Titel → Datenbeschriftungen → Kategorienachse → IBCS-Farben → Skala & Referenzlinie → Kommentare → Leer-Zustand. Die Skizzen zeigen die Karten schematisch (Stand vor dem Panel-Umbau); alle Einstellungsnamen und -wirkungen sind unverändert.
 
-> Die folgenden Tabellen listen alle Einstellungen des Formatbereichs, gegliedert nach Karten und Gruppen — genau in der Reihenfolge und mit den Benennungen, wie sie im Power-BI-Formatbereich erscheinen. Die Karte „Chart“ bündelt die meisten Einstellungen; viele wirken nur in bestimmten Modi (z. B. die Gruppen „Tabelle“, „Small Multiples“, „Brücke“, „KPI-Karten“).
+![Schema: Formatbereich: die acht Karten des Visuals (zugeklappt). Pane-Reihenfolge seit 1.45: Chart, IBCS-Titel, Datenbeschriftungen, Kategorienachse, IBCS-Farben, Skala & Referenzlinie, Kommentare, Leer-Zustand (Skizze: Anordnung vor 1.45).](../doku-assets/pane/pane-overview.png)
 
-### IBCS-Titel
-
-![Schema: Formatbereich → IBCS-Titel: Titel-Anzeige, KPI-Name, Zeitraum, Botschafts-Zeile, automatische Botschaft, Fußzeile und Filter-Fußzeile.](../doku-assets/pane/pane-ibcs-titel.png)
-
-| Einstellung | Beschreibung | Optionen / Standard |
-| --- | --- | --- |
-| Beschriftungen anzeigen | — | An / Aus · Standard An |
-| KPI-Name (leer = automatisch) | — | Freitext · z. B. Umsatz |
-| Zeitraum (leer = automatisch) | — | Freitext · z. B. 2026 |
-| Botschafts-Zeile | — | Freitext · Kernbotschaft der Grafik (IBCS: SAY) |
-| Automatische Botschaft | Erzeugt die Botschafts-Zeile (Treiber-Text) automatisch aus Gesamtabweichung und größten Treibern, wenn keine eigene Botschaft eingegeben ist. Standard aus. | An / Aus · Standard Aus |
-| Fußzeile (Datenstand · Quelle) | Fußzeile unten links — z. B. Datenstand und Quelle: „Ist per Jun 2026 · Stand 05.07. · Quelle: SAP FI". | Freitext · z. B. Ist per Jun 2026 · Stand 05.07. |
-| Filter-Fußzeile anzeigen | Zweite Fußzeile mit dem Filterkontext: zeigt die gebundene „Filter-Info“-Text-Measure (Report-Filter sind für Custom Visuals nicht per API sichtbar) plus den Anzeige-Zustand des Visuals selbst — YTD, Top-N, In-Chart-Sortierung, Σ-Ausschlüsse, Vergleich. | An / Aus · Standard Aus |
+> Die folgenden Tabellen listen alle Einstellungen des Formatbereichs, gegliedert nach Karten und Gruppen. Seit 1.45 ist die Chart-Karte neu gruppiert (Chart-Typ · Vergleich & Abweichung · Daten & Zeit · Interaktion im Bericht · Darstellung · Small Multiples · Brücke · Tabelle · KPI-Karten) — eine reine Anzeige-Umsortierung, Namen und Wirkung der Einstellungen sind unverändert. Die Karte „Chart“ bündelt die meisten Einstellungen; viele wirken nur in bestimmten Modi (z. B. die Gruppen „Tabelle“, „Small Multiples“, „Brücke“, „KPI-Karten“).
 
 ### Chart
 
 #### Layout
 
-![Schema: Formatbereich → Chart → Layout: Ausrichtung, Abweichungsbasis und die Abweichungs-Optionen.](../doku-assets/pane/pane-chart-layout.png)
+![Schema: Formatbereich → Chart: Chart-Typ (vormals „Ausrichtung“), Abweichungsbasis und die Abweichungs-Optionen (Skizze: Stand vor 1.45).](../doku-assets/pane/pane-chart-layout.png)
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
-| Ausrichtung | — | Optionen: Columns (Zeit) \| Bars (Struktur) \| Line (Zeit, viele Punkte) \| Waterfall / Brücke \| Integrierte Brücke (Zeit) \| Kategorie-Brücke (Struktur) \| Tabelle (IBCS) \| Pareto (Struktur) \| Dumbbell (Struktur) \| Slope · Vorher/Nachher \| KPI-Karten (Kacheln) \| GuV-Statement (IBCS) · Standard „Columns (Zeit)“ |
+| Chart-Typ | Der Diagramm-Modus — hieß bis 1.45 „Ausrichtung“ und steht seitdem ganz oben in der ersten Karte des Formatbereichs. | Optionen: Columns (Zeit) \| Bars (Struktur) \| Line (Zeit, viele Punkte) \| Waterfall / Brücke \| Integrierte Brücke (Zeit) \| Kategorie-Brücke (Struktur) \| Tabelle (IBCS) \| Pareto (Struktur) \| Dumbbell (Struktur) \| Slope · Vorher/Nachher \| KPI-Karten (Kacheln) \| GuV-Statement (IBCS) \| Scatter / Bubble (Korrelation) · Standard „Columns (Zeit)“ |
 | Abweichungsbasis | Basis für die Abweichungs-Panels. Auto: PL wenn vorhanden, sonst PY. | Optionen: Auto \| Vorjahr (PY) \| Plan (PL) \| FC Vormonat (Revision) · Standard „Auto“ |
 | Absolute Abweichung (ΔAC) | — | An / Aus · Standard An |
 | Relative Abweichung (ΔAC %) | — | An / Aus · Standard An |
@@ -376,6 +403,7 @@ Die folgenden Darstellungen zeigen Aufbau und Reihenfolge des Formatbereichs (Sc
 | Nach Wirkung sortieren | Nur bei Waterfall bridge: sortiert die Kategorien nach Abweichungsgröße (größter Treiber zuerst). Eine Top-N-Rest-Zeile bleibt am Ende. Auch per Klick auf das ⇅-Symbol im Chart umschaltbar. | An / Aus · Standard Aus |
 | In-Chart-Buttons | Integrierte/Kategorie-Brücke: zeigt klickbare Buttons oben rechts im Chart — ΔPY/ΔPL-Referenz-Umschalter, ⇅ Sortierung und ▶ Aufbau-Animation. Der Enduser kann die Varianz-Basis direkt im Bericht wechseln; die Wahl wird persistiert. | An / Aus · Standard An |
 | Treiber-Notiz im Chart | Kategorie-Brücke: kursive Notiz am größten Treiber („größter Treiber · n % der Gesamtabweichung“) — überlagert den Zeilenbereich, hier abschaltbar. | An / Aus · Standard An |
+| Brücke: Ausrichtung | Kategorie-Brücke (seit 1.47): „Automatisch“ wählt wie bisher, „Balken“ erzwingt die horizontale Brücke, „Säulen“ die vertikale Säulen-Kaskade (PY-Anker → Treiber → AC mit ΔBasis-Überleitung, Δ%-Pins oben). Hervorhebung, Treiber-Notiz, n.a.-Regel und Small-Multiples-Skala gelten auch dort. | Optionen: Automatisch \| Balken \| Säulen · Standard „Automatisch“ |
 
 #### Tabelle
 
@@ -398,6 +426,7 @@ Die folgenden Darstellungen zeigen Aufbau und Reihenfolge des Formatbereichs (Sc
 | Zeilenhöhe | Zeilenhöhe: „Kompakt“ für dichte Tabellen, „Normal“ (Standard) wie bisher, „Luftig“ für mehr Weißraum. Skaliert nur die Obergrenze; sehr hohe Visuals bleiben gedeckelt. | Optionen: Kompakt \| Normal \| Luftig · Standard „Kompakt“ |
 | Gitterlinien | Trennlinien-Stil: „Horizontal“ (Standard) nur Zeilenlinien, „Keine“ für ein ruhiges Bild, „Horizontal + vertikal“ ergänzt dezente Spalten-/Blocktrenner. | Optionen: Horizontal \| Keine \| Horizontal + vertikal · Standard „Horizontal“ |
 | Zellen-Layout (Matrix) | Nur Matrix: „Spalten“ (Standard) zeigt Wert und ΔBasis nebeneinander. „Zwei Zeilen“ setzt den Wert groß nach oben und die kleinere Δ-Zahl direkt darunter in dieselbe Zelle — die Matrix wird etwa halb so breit. Der Δ-Minibalken entfällt dabei; Referenzspalten bleiben eigene Spalten neben dem Wert. | Optionen: Spalten (Wert · Δ nebeneinander) \| Zwei Zeilen: Wert oben, Δ darunter · Standard „Spalten (Wert · Δ nebeneinander)“ |
+| Hierarchie automatisch aufklappen | Mehrere Felder in der Kategorie-Rolle (Tabelle/GuV): Das Visual klappt die Drill-Hierarchie automatisch zum klickbaren Zeilenbaum auf — je Feld-Konstellation einmal; manuelles Zuklappen bleibt erhalten. Seit 1.47. | An / Aus · Standard An |
 
 #### KPI-Karten
 
@@ -413,19 +442,30 @@ Die folgenden Darstellungen zeigen Aufbau und Reihenfolge des Formatbereichs (Sc
 | Färbe-Intensität % | Deckkraft der Hintergrund-Färbung in Prozent (4–40). Standard 12 — kräftiger für Kontrollraum-Monitore, dezenter für Board-Reports. | 4–40 · Standard 12 |
 | Bullet vs. Benchmark | Kleines Bullet-Chart auf der Karte: AC-Balken auf hellem Band, Benchmark als Tick — unter der Zahl (Stapel-Layout) bzw. neben den Δ-Zeilen (flaches Layout). Braucht die Benchmark-Rolle. | An / Aus · Standard Aus |
 | Bullet: Zoom auf Zielbereich | Spreizt das Bullet auf den Bereich um AC und Benchmark statt bei Null zu starten — KPIs nahe am Ziel (97 vs. 99) werden unterscheidbar. Der Achsenbruch am linken Balkenende kennzeichnet die gekappte Skala. | An / Aus · Standard Aus |
+| Referenzwerte anzeigen | Zeigt zusätzlich zu den Δ-Zeilen die Vergleichswerte selbst: „Basiswert“ blendet die Vergleichsbasis als eigene Zeile ein, „Alle gebundenen Szenarien“ zusätzlich VJ, Plan, Prognose und Benchmark — in Tinte über den farbigen Δ-Zeilen, die Abweichung behält das optische Gewicht. Seit 1.41. | Optionen: Nur Abweichungen \| Basiswert \| Alle gebundenen Szenarien · Standard „Nur Abweichungen“ |
+| Mini-Chart (Trend) | Nur mit Zeitfeld in der Rolle „Trend (Zeit)“ (seit 1.47): Mini-Chart je Karte — Sparkline mit PY-Geisterlinie, FC gestrichelt und beschriftetem letzten Ist-Punkt, oder nullbasierte Säulen (Negative unter der Nulllinie, FC schraffiert). | Optionen: Aus \| Sparkline \| Säulen |
+| Kartenwert (mit Trend) | „Letzter Wert“ zeigt den jüngsten Wert der Serie — Δ-Zeilen und Ampel beziehen sich konsistent auf dieselbe Periode. „Summe“ aggregiert die Serie. | Optionen: Letzter Wert \| Summe · Standard „Letzter Wert“ |
 
-### IBCS-Farben
-
-![Schema: Formatbereich → IBCS-Farben: Theme-Übernahme sowie die Szenario-Farben – Ist (AC) dunkelgrau, Vorjahr (PY) hellgrau, Plan (PL) als Umriss, gute Abweichung Teal, schlechte Abweichung Rot.](../doku-assets/pane/pane-ibcs-farben.png)
+#### Scatter / Bubble
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
-| Theme-Farben des Berichts verwenden | Übernimmt Good/Bad und Neutralfarben aus dem Berichtsdesign (Theme) statt der Farbwähler unten. | An / Aus · Standard Aus |
-| Ist (AC) | — | Standard #404040 |
-| Vorjahr (PY) | — | Standard #B3B3B3 |
-| Plan-Umriss (PL) | — | Standard #404040 |
-| Gute Abweichung | Standard ist das DatenWG-Teal (#1E8F9E) statt klassischem Grün — durch den Blauanteil bleibt „gut“ auch bei Rot-Grün-Schwäche klar vom Rot unterscheidbar. Hier übersteuerbar. | Standard #1E8F9E |
-| Schlechte Abweichung | — | Standard #D64541 |
+| Quadranten-Linien | Scatter/Bubble (seit 1.47): legt Quadranten-Linien auf Mittelwert oder Median beider Achsen. Gesetzte Referenzlinien (Skala) übersteuern die Quadranten. | Optionen: Aus \| Mittelwert \| Median · Standard „Aus“ |
+| Punkt-Färbung | „Status“ färbt die Punkte nach der Abweichungsbasis (ΔPY/ΔPL) gut/schlecht, inklusive Wesentlichkeitsschwelle — sonst einfarbig. | Optionen: Einfarbig \| Status (ΔBasis) |
+
+### IBCS-Titel
+
+![Schema: Formatbereich → IBCS-Titel: Titel-Anzeige, KPI-Name, Zeitraum, Botschafts-Zeile, automatische Botschaft, Fußzeile und Filter-Fußzeile.](../doku-assets/pane/pane-ibcs-titel.png)
+
+| Einstellung | Beschreibung | Optionen / Standard |
+| --- | --- | --- |
+| Beschriftungen anzeigen | — | An / Aus · Standard An |
+| KPI-Name (leer = automatisch) | — | Freitext · z. B. Umsatz |
+| Zeitraum (leer = automatisch) | — | Freitext · z. B. 2026 |
+| Botschafts-Zeile | — | Freitext · Kernbotschaft der Grafik (IBCS: SAY) |
+| Automatische Botschaft | Erzeugt die Botschafts-Zeile (Treiber-Text) automatisch aus Gesamtabweichung und größten Treibern, wenn keine eigene Botschaft eingegeben ist. Standard aus. | An / Aus · Standard Aus |
+| Fußzeile (Datenstand · Quelle) | Fußzeile unten links — z. B. Datenstand und Quelle: „Ist per Jun 2026 · Stand 05.07. · Quelle: SAP FI". | Freitext · z. B. Ist per Jun 2026 · Stand 05.07. |
+| Filter-Fußzeile anzeigen | Zweite Fußzeile mit dem Filterkontext: zeigt die gebundene „Filter-Info“-Text-Measure (Report-Filter sind für Custom Visuals nicht per API sichtbar) plus den Anzeige-Zustand des Visuals selbst — YTD, Top-N, In-Chart-Sortierung, Σ-Ausschlüsse, Vergleich. | An / Aus · Standard Aus |
 
 ### Datenbeschriftungen
 
@@ -443,6 +483,56 @@ Die folgenden Darstellungen zeigen Aufbau und Reihenfolge des Formatbereichs (Sc
 | Finance-Format (Klammern) | Finanzkonvention für Zahlen: negative Werte in Klammern statt Minuszeichen — (1.234) — und Null als „–". Gilt für Wert- und Δ-Beschriftungen inkl. Δ %. | An / Aus · Standard Aus |
 | Σ-treue Rundung der Beschriftungen | Rundet die Wertbeschriftungen nach dem Restwertverfahren so, dass sie exakt auf die Σ-Kopfzeile aufaddieren — keine Rundungsdifferenz-Nachfragen mehr. Aus = mathematisch exakte Einzelrundung, dafür erscheint bei Abweichung ein Rundungshinweis unter der Σ-Zeile. | An / Aus · Standard Aus |
 
+### Kategorienachse
+
+![Schema: Formatbereich → Kategorienachse: Textgröße der Achsenbeschriftung.](../doku-assets/pane/pane-kategorienachse.png)
+
+| Einstellung | Beschreibung | Optionen / Standard |
+| --- | --- | --- |
+| Textgröße | — | 6–24 · Standard 10 |
+
+### IBCS-Farben
+
+![Schema: Formatbereich → IBCS-Farben: Theme-Übernahme sowie die Szenario-Farben – Ist (AC) dunkelgrau, Vorjahr (PY) hellgrau, Plan (PL) als Umriss, gute Abweichung Teal, schlechte Abweichung Rot.](../doku-assets/pane/pane-ibcs-farben.png)
+
+| Einstellung | Beschreibung | Optionen / Standard |
+| --- | --- | --- |
+| Theme-Farben des Berichts verwenden | Übernimmt Good/Bad und Neutralfarben aus dem Berichtsdesign (Theme) statt der Farbwähler unten. | An / Aus · Standard Aus |
+| Erscheinungsbild | Seit 1.43: „Auto“ erkennt dunkle Berichts-Themes an der Luminanz der Theme-Hintergrundfarbe und stellt Tinte, Achsen und Flächen auf helle Töne um; „Dunkel“ erzwingt das für manuell dunkel eingefärbte Seiten. Farbwähler auf hellem Standard werden automatisch durch die helle Entsprechung ersetzt, eigene Farben bleiben. Im Dark Mode zeichnet das Visual auch den Hover-Tooltip selbst (seit 1.44). | Optionen: Auto \| Hell \| Dunkel · Standard „Auto“ |
+| Farbpreset | „Blau/Orange“ (ColorBrewer #2C7BB6/#E66101) übersteuert die Good/Bad-Farbwähler — auch bei Achromatopsie und im S/W-Druck über die Helligkeit unterscheidbar; im Dark Mode automatisch aufgehellt. | Optionen: Eigene Farben \| Blau/Orange · Standard „Eigene Farben“ |
+| Ist (AC) | — | Standard #404040 |
+| Vorjahr (PY) | — | Standard #B3B3B3 |
+| Plan-Umriss (PL) | — | Standard #404040 |
+| Gute Abweichung | Standard ist das DatenWG-Teal (#1E8F9E) statt klassischem Grün — durch den Blauanteil bleibt „gut“ auch bei Rot-Grün-Schwäche klar vom Rot unterscheidbar. Hier übersteuerbar. | Standard #1E8F9E |
+| Schlechte Abweichung | — | Standard #D64541 |
+
+### Skala & Referenzlinie
+
+#### Skalen-Sync
+
+![Schema: Formatbereich → Skala & Referenzlinie: Untergruppe Skalen-Sync (Mindest-Maxima, Ausreißer kappen) und Untergruppe Referenzlinie (Wert & Beschriftung).](../doku-assets/pane/pane-skala.png)
+
+| Einstellung | Beschreibung | Optionen / Standard |
+| --- | --- | --- |
+| Skalen-Mindest-Maximum | Skaliert das Basis-Chart mindestens bis zu diesem Wert — für identische Skalen über mehrere Visuals (IBCS). 0 = automatisch. Größere Datenwerte erweitern die Skala weiterhin. Wirkt seit 1.45 auch im Wasserfall. | ab 0 · Standard 0 |
+| Abweichungs-Mindest-Maximum | Wie oben, für die Abweichungs-Panels (symmetrisch ±). 0 = automatisch. Seit 1.45 teilen ΔPY- und ΔPL-Panel EINE Skala — der Wert wirkt auf beide. | ab 0 · Standard 0 |
+| Ausreißer am Maximum kappen | Macht das Skalen-Maximum hart: größere Werte werden gekappt und mit ⫽-Doppelstrich markiert (Label zeigt den echten Wert). Seit 1.45 trägt jedes gekappte Element den Marker (auch PY, PL, BM und Linien); eine Ziellinie über dem Cap dehnt die Achse nicht mehr. | An / Aus · Standard Aus |
+
+#### Referenzlinie
+
+| Einstellung | Beschreibung | Optionen / Standard |
+| --- | --- | --- |
+| Referenzlinie (Wert) | Zeichnet eine Ziel-/Schwellenlinie bei diesem Wert quer durch das Basis-Chart. Leer = aus. | Freitext · z. B. 1200000 |
+| Referenzlinie (Beschriftung) | — | Freitext · z. B. Ziel |
+| X-Referenzlinie (Scatter) | Vertikale Referenzlinie auf der X-Achse im Scatter/Bubble-Modus (seit 1.47); übersteuert zusammen mit der Referenzlinie die Quadranten-Linien. | Freitext · leer = aus |
+
+#### Wasserfall-Achse
+
+| Einstellung | Beschreibung | Optionen / Standard |
+| --- | --- | --- |
+| Achsenschnitt | IBCS-Achsenschnitt im Wasserfall (seit 1.45): Anker werden zu Stummeln mit ⫽ über die volle Balkenbreite. Geschnitten wird nur, wenn alle Anker und Deltas vollständig über dem Schnitt liegen; Titel-Suffix und Export-Fußzeile weisen den Schnitt aus, Small Multiples teilen EINEN Schnitt. „Auto“ hebt den In-Chart-Chip „⫽ Achse“ hervor — geschnitten wird erst per Klick. | Optionen: Aus \| Auto \| An · Standard „Aus“ |
+| Schnitt bei Wert | Manueller Schnittwert; 0 = automatisch (runder Wert unter dem tiefsten Kaskaden-Stand). | ab 0 · Standard 0 |
+
 ### Kommentare
 
 ![Schema: Formatbereich → Kommentare: Kommentarliste anzeigen, Kommentar-Schriftgröße und Kommentar-Erfassung im Chart.](../doku-assets/pane/pane-kommentare.png)
@@ -453,32 +543,12 @@ Die folgenden Darstellungen zeigen Aufbau und Reihenfolge des Formatbereichs (Sc
 | Kommentar-Schriftgröße | Schriftgröße der Kommentar-Liste in pt (8–24). Wird zusätzlich mit dem Schrift-Preset und dem Skalierungs-Faktor multipliziert, skaliert also mit dem Rest des Visuals mit. | 8–24 · Standard 10 |
 | Kommentare im Chart erfassen | Kommentar-Modus: Klick auf eine Kategorie öffnet ein Eingabefeld — der Kommentar wird im Bericht gespeichert (bookmark-fähig, wandert mit der PBIX). Solange der Modus an ist, filtern Klicks nicht quer. Standard aus. | An / Aus · Standard Aus |
 
-### Skala & Referenzlinie
-
-#### Skalen-Sync
-
-![Schema: Formatbereich → Skala & Referenzlinie: Untergruppe Skalen-Sync (Mindest-Maxima, Ausreißer kappen) und Untergruppe Referenzlinie (Wert & Beschriftung).](../doku-assets/pane/pane-skala.png)
+### Leer-Zustand
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
-| Skalen-Mindest-Maximum | Skaliert das Basis-Chart mindestens bis zu diesem Wert — für identische Skalen über mehrere Visuals (IBCS). 0 = automatisch. Größere Datenwerte erweitern die Skala weiterhin. | ab 0 · Standard 0 |
-| Abweichungs-Mindest-Maximum | Wie oben, für das absolute Abweichungs-Panel (symmetrisch ±). 0 = automatisch. | ab 0 · Standard 0 |
-| Ausreißer am Maximum kappen | Macht das Skalen-Maximum hart: größere Werte werden gekappt und mit Doppelstrich markiert (Label zeigt den echten Wert). | An / Aus · Standard Aus |
-
-#### Referenzlinie
-
-| Einstellung | Beschreibung | Optionen / Standard |
-| --- | --- | --- |
-| Referenzlinie (Wert) | Zeichnet eine Ziel-/Schwellenlinie bei diesem Wert quer durch das Basis-Chart. Leer = aus. | Freitext · z. B. 1200000 |
-| Referenzlinie (Beschriftung) | — | Freitext · z. B. Ziel |
-
-### Kategorienachse
-
-![Schema: Formatbereich → Kategorienachse: Textgröße der Achsenbeschriftung.](../doku-assets/pane/pane-kategorienachse.png)
-
-| Einstellung | Beschreibung | Optionen / Standard |
-| --- | --- | --- |
-| Textgröße | — | 6–24 · Standard 10 |
+| Eigener Titel | Ersetzt im Leer-Zustand (keine Felder gebunden oder Auswahl ohne Zeilen) die Überschrift „ChartKitchen byDatenWG“. Im Lesemodus sehen Berichtsleser nur noch Titel + Text, zentriert und mit Wortumbruch; im Bearbeitungsmodus erscheinen die eigenen Texte als Vorschau über der Modus-Galerie. Seit 1.44. | Freitext · leer = Standard |
+| Eigener Text | Eigener Text unter dem Titel — z. B. ein Hinweis, welche Felder zu binden sind oder warum die Auswahl leer ist. | Freitext · leer = Standard |
 
 ## 07 · FAQ & Troubleshooting
 
@@ -518,7 +588,19 @@ Report-Filter sind für Custom Visuals nicht per API sichtbar. Binde eine Text-M
 
 Aktiviere Datenbeschriftungen → „Σ-treue Rundung der Beschriftungen“. Dann werden die Einzelbeschriftungen nach dem Restwertverfahren so gerundet, dass sie exakt auf die Σ-Kopfzeile aufaddieren.
 
-**ChartKitchen byDatenWG** · Version 1.38.0.0
+### Δ% zeigt „n.a.“ — warum?
+
+Seit 1.45 bewusst so: Bei Basis 0 oder einem Vorzeichenwechsel zwischen Basis und Ist wäre jede Prozentzahl irreführend (z. B. „−250 %“ bei einer Verbesserung). Das Visual zeigt dann „n.a.“ — überall: Labels, Pins, Tooltips, Tabelle, Karten, Σ-Kopf und GuV-Statement. GuV-Kostenzeilen mit durchgängig negativer Basis behalten ihre Prozente.
+
+### Ein Klick in einem anderen Visual filtert ChartKitchen, statt hervorzuheben.
+
+Gewollt (seit 1.46): Die Visual-Wechselwirkung steht für ChartKitchen immer auf „Filtern“ — Power BI bietet „Hervorheben“ für dieses Visual gar nicht mehr an. So arbeiten Σ-Kopf, Skalen und alle Modi bei Cross-Interaktion konsistent auf dem gefilterten Datenbestand. Die eigene Selektion im Visual (Klick auf Balken/Zeile/Karte, Strg = Mehrfachauswahl) dimmt weiterhin lokal.
+
+### Auf dunklen Berichtsseiten ist die Schrift kaum lesbar.
+
+Stelle IBCS-Farben → „Erscheinungsbild“ auf „Auto“ (erkennt dunkle Themes an der Hintergrund-Luminanz) oder explizit auf „Dunkel“ — Tinte, Achsen, Flächen und seit 1.44 auch der Hover-Tooltip wechseln dann auf dunkle Darstellung mit heller Schrift.
+
+**ChartKitchen byDatenWG** · Version 1.47.0.0
 
 Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
