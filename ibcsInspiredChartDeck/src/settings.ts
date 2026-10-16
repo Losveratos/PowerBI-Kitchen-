@@ -173,7 +173,9 @@ const scatterQuadrantItems: LocEnumMember[] = [
 
 const scatterColorByItems: LocEnumMember[] = [
     { value: "single", displayName: "Single color (AC)", key: "Enum_ScatterColor_Single" },
-    { value: "status", displayName: "Status ΔPY/ΔPL (good · bad · grey)", key: "Enum_ScatterColor_Status" }
+    { value: "status", displayName: "Status ΔPY/ΔPL (good · bad · grey)", key: "Enum_ScatterColor_Status" },
+    // 1.48: Farbe je Wert des Serie-Felds (ohne Kacheln sonst je Small-Multiples-Gruppe)
+    { value: "group", displayName: "By group/series (legend)", key: "Enum_ScatterColor_Group" }
 ];
 
 /** resolve all enum-member labels once via the host's localization manager */
@@ -929,7 +931,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "scatterColorBy",
         displayName: "Point color",
         displayNameKey: "Chart_ScatterColorBy",
-        description: "Scatter: „Einfarbig\" zeigt alle Punkte in der AC-Farbe (Standard). „Status\" färbt nach der Abweichung zur Vergleichsbasis (ΔPY/ΔPL): gut/schlecht in den Varianzfarben, unter der Wesentlichkeits-Schwelle oder ohne Basis grau. Invert-Einstellungen wirken.",
+        description: "Scatter: „Einfarbig\" zeigt alle Punkte in der AC-Farbe (Standard). „Status\" färbt nach der Abweichung zur Vergleichsbasis (ΔPY/ΔPL): gut/schlecht in den Varianzfarben, unter der Wesentlichkeits-Schwelle oder ohne Basis grau. Invert-Einstellungen wirken. „Nach Gruppe/Serie“ färbt nach dem Feld „Serie“ (sonst nach Small Multiples) in einer gedeckten Palette mit einzeiliger Legende oben; in Small-Multiples-Kacheln nur nach „Serie“ (ohne Serie einfarbig). Ab der 7. Gruppe grau.",
         descriptionKey: "Desc_Chart_ScatterColorBy",
         items: scatterColorByItems,
         value: scatterColorByItems[0]

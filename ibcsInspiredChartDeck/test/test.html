@@ -1454,7 +1454,7 @@ run("c156", dataView(brProds, [col("actual", brAc, "#,0 €"), col("previousYear
   brObj("on", { ibcsTitle: { kpi: "Umsatz", footer: "Ist per Jun 2026 · Quelle: SAP FI" } })), 960, 420, false, true);
 </script>
 <div class="case"><h4>c157 · Scatter / Bubble · Basis: 12 Sparten, Umsatz (AC, Y) über EBIT-Marge (X, „0.0 %") — Achsen mit 3–5 runden Ticks, Einheiten in den Achsentiteln („in T€" / „in %"), Quadranten-Linien beim Mittelwert (Standard), Kategorie-Labels kollisionsfrei · rechts: X-Rolle fehlt → Hinweis statt Leerlauf</h4><div class="stage" id="c157" style="width:960px;height:440px;display:inline-block"></div><div class="stage" id="c157b" style="width:420px;height:200px;display:inline-block;vertical-align:top"></div></div>
-<div class="case"><h4>c158 · Bubble · Größe = Mitarbeitende (Fläche ∝ Wert, max 22px·k) + Quadranten Mittelwert — Titel „○ Mitarbeitende (max 820)" · rechts: Small-Multiples-Feld gebunden → EINE Punktwolke „Sparte · Region"</h4><div class="stage" id="c158" style="width:960px;height:460px;display:inline-block"></div><div class="stage" id="c158b" style="width:620px;height:340px;display:inline-block;vertical-align:top"></div></div>
+<div class="case"><h4>c158 · Bubble · Größe = Mitarbeitende (Fläche ∝ Wert, max 22px·k) + Quadranten Mittelwert — Titel „○ Mitarbeitende (max 820)" · rechts (1.48): Small-Multiples-Feld gebunden → ZWEI Kacheln Nord/Süd mit gemeinsamer X/Y-Skala und identischen Ø-Linien; multiplesTotal=true wird im Scatter ignoriert (keine Σ-Kachel), kleine Kacheln beschriften nur Extrempunkte</h4><div class="stage" id="c158" style="width:960px;height:460px;display:inline-block"></div><div class="stage" id="c158b" style="width:620px;height:340px;display:inline-block;vertical-align:top"></div></div>
 <div class="case"><h4>c159 · Status-Färbung ΔPY (gut teal / schlecht rot) + Wesentlichkeit 3 % (grau) + Quadranten Median — Titel „color = ΔPY"</h4><div class="stage" id="c159" style="width:960px;height:440px"></div></div>
 <div class="case"><h4>c160 · EMPHASIZE „Software, Robotik" (Ring + fett, immer beschriftet) + X-Referenzlinie 10 % (scale.xRefLine) + Y-Referenzlinie „Ziel 5 Mio" (scale.refLine) ersetzen die Quadranten-Linien + Kommentar-Badge ① an „Logistik"</h4><div class="stage" id="c160" style="width:960px;height:460px"></div></div>
 <div class="case"><h4>c161 · Scatter · Dark Mode (appearance="dark") · Bubbles + Status ΔPY + EMPHASIZE „Service"</h4><div class="stage" id="c161" style="width:960px;height:460px;background:#1E1E1E"></div></div>
@@ -1476,7 +1476,8 @@ run("c157b", dataView(scatU, [col("actual", scatAc, "#,0 T€")], scatObj()), 42
 run("c158", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende")]),
   scatObj({ scatterQuadrant: "mean" })), 960, 460);
 {
-  // small multiples bound in scatter: no tiles, one cloud of "unit · region" points
+  // small multiples bound in scatter (1.48): one tile per region on a shared scale,
+  // no Σ tile despite multiplesTotal (sums over ratio measures would be wrong)
   const cats = [], mult = [], a = [], x = [];
   [["Nord", 1, 0], ["Süd", 0.7, 0.03]].forEach(([r, f, dm]) => {
     scatU.slice(0, 5).forEach((c, i) => { cats.push(c); mult.push(r); a.push(Math.round(scatAc[i] * f)); x.push(scatX[i] + dm); });
@@ -1493,6 +1494,54 @@ run("c161", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "
   scatObj({ scatterColorBy: "status", highlight: "Service" }, { colors: { appearance: "dark" } })), 960, 460);
 run("c162", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende"), col("previousYear", scatPy, "#,0 T€")]),
   scatObj({ scatterColorBy: "status", highlight: "Service" })), 960, 460, true);
+</script>
+
+<div class="case"><h4>c170 · 1.48 · Scatter Small Multiples · 4 Regionen × 8 Sparten (Nord ≈ 4× Ost) · GEMEINSAME X- und Y-Skala (identische Ticks in allen Kacheln, Ost-Punkte sitzen sichtbar tiefer) · Ø-Linien über ALLE 32 Punkte, in jeder Kachel an derselben Stelle · Kachel-Labels nach der bestehenden Greedy-Strategie (Platz reicht); kleine Kacheln → nur Hervorgehobene + Extrempunkte (siehe c158b, c173b)</h4><div class="stage" id="c170" style="width:1200px;height:560px"></div></div>
+<div class="case"><h4>c171 · 1.48 · Scatter Small Multiples + Bubbles (Mitarbeitende, größte Blase global = Nord Antriebe) + Quadranten Median global + X-Referenzlinie 10 % (in jeder Kachel) + Erste Kachel groß (Hero) · multiplesTotal/multiplesTopN gesetzt → wirkungslos (keine Σ-/Rest-Kachel) · EMPHASIZE „Software"</h4><div class="stage" id="c171" style="width:1200px;height:600px"></div></div>
+<div class="case"><h4>c172 · 1.48 · scatterColorBy = „group" · Serie-Feld „Geschäftsfeld" (4 Werte) ohne Multiples → gedeckte Palette (Tinte · Blau · Ocker · Hellblau) + einzeilige Legende „Geschäftsfeld: ● …" oben · rechts: 8 Serienwerte auf 620px → Werte 7–8 grau, Legende kürzt mit „+n weitere"</h4><div class="stage" id="c172" style="width:960px;height:460px;display:inline-block"></div><div class="stage" id="c172b" style="width:620px;height:340px;display:inline-block;vertical-align:top"></div></div>
+<div class="case"><h4>c173 · 1.48 · Scatter Small Multiples (4 Regionen) + colorBy „group" mit Serie-Feld → Färbung nach Serie INNERHALB der Kacheln, EINE Legende über dem Raster (Farben in allen Kacheln gleich) · darunter (900×420): gleiche Kacheln OHNE Serie-Feld → Rückfall auf einfarbig, keine Legende; Kacheln klein → Labels automatisch nur Extrempunkte</h4><div class="stage" id="c173" style="width:1200px;height:560px"></div><div class="stage" id="c173b" style="width:900px;height:420px"></div></div>
+<div class="case"><h4>c174 · 1.48 · Scatter Small Multiples · Dark Mode (appearance="dark") · Bubbles + colorBy „group" (Serie) mit Dark-Palette + Quadranten Ø · darunter: Hochkontrast — group-Färbung wirkungslos (Umriss-Kreise), keine Legende</h4><div class="stage" id="c174" style="width:1200px;height:560px;background:#1E1E1E"></div><div class="stage" id="c174b" style="width:900px;height:420px;background:#000"></div></div>
+<script>
+// c170–c174: scatter small multiples (1.48) — 4 regions × 8 business units
+{
+  const units = scatU.slice(0, 8);
+  const regs = [["Nord", 1, 0], ["Süd", 0.62, 0.012], ["West", 0.45, -0.018], ["Ost", 0.26, 0.025]];
+  const seg = { "Antriebe": "Industrie", "Sensorik": "Industrie", "Hydraulik": "Industrie", "Pneumatik": "Mobilität",
+    "Service": "Digital", "Software": "Digital", "Ersatzteile": "Mobilität", "Robotik": "Gesundheit",
+    "Logistik": "Mobilität", "Energie": "Industrie", "Medizintechnik": "Gesundheit", "Automotive": "Mobilität" };
+  const cats = [], mult = [], a = [], x = [], sz = [], ser = [];
+  regs.forEach(([r, f, dm], ri) => {
+    units.forEach((c, i) => {
+      cats.push(c); mult.push(r); ser.push(seg[c]);
+      a.push(Math.round(scatAc[i] * f * (1 + 0.08 * Math.sin(i + ri))));
+      x.push(Math.round((scatX[i] + dm + 0.01 * Math.cos(i * 2 + ri)) * 1000) / 1000);
+      sz.push(Math.round(scatSize[i] * f));
+    });
+  });
+  // series role (Stack-Series) as an extra category column — the harness dataView has no slot for it
+  const withSeries = (dv, values, name) => {
+    dv.categorical.categories.push({ source: { displayName: name || "Geschäftsfeld", roles: { series: true } }, values });
+    return dv;
+  };
+  const baseCols = (extra) => [col("actual", a, "#,0 T€"), col("xValue", x, "0.0 %", null, "EBIT-Marge")].concat(extra || []);
+  const sizeCol = col("bubbleSize", sz, "#,0", null, "Mitarbeitende");
+  run("c170", dataView(cats, baseCols(), scatObj(), mult), 1200, 560);
+  run("c171", dataView(cats, baseCols([sizeCol]),
+    scatObj({ scatterQuadrant: "median", multiplesHero: true, multiplesTotal: true, multiplesTopN: 2, highlight: "Software" },
+      { scale: { xRefLine: "0.1" } }), mult), 1200, 600);
+  // c172: one cloud (no multiples), colored by the business-field series
+  run("c172", withSeries(dataView(scatU, scatCols(), scatObj({ scatterColorBy: "group" })), scatU.map(u => seg[u])), 960, 460);
+  {
+    const s8 = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta"];
+    run("c172b", withSeries(dataView(scatU, scatCols(), scatObj({ scatterColorBy: "group" })),
+      scatU.map((u, i) => s8[i % 8]), "Vertriebskanal"), 620, 340);
+  }
+  run("c173", withSeries(dataView(cats, baseCols(), scatObj({ scatterColorBy: "group" }), mult), ser), 1200, 560);
+  run("c173b", dataView(cats, baseCols(), scatObj({ scatterColorBy: "group" }), mult), 900, 420);
+  run("c174", withSeries(dataView(cats, baseCols([sizeCol]),
+    scatObj({ scatterColorBy: "group", scatterQuadrant: "mean" }, { colors: { appearance: "dark" } }), mult), ser), 1200, 560);
+  run("c174b", withSeries(dataView(cats, baseCols([sizeCol]), scatObj({ scatterColorBy: "group" }), mult), ser), 900, 420, true);
+}
 </script>
 
 <div class="case"><h4>c163 · 1.47 · Auto-Aufklappen: Tabelle mit drillbarer Kategorie (drillableRoles bietet Down) → Visual ruft host.drill("category", Down) GENAU EINMAL — Konsole zeigt »drill {"roleName":"category","drillType":2}«</h4><div class="stage" id="c163" style="width:960px;height:320px"></div></div>

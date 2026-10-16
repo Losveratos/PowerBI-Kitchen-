@@ -370,8 +370,51 @@ interface ChartConfig {
         /** display-unit divisor + raw format string of the X measure (tick labels) */
         xDiv: number;
         xFormat: string;
+        /** small-multiples deck (1.48): X/Y data range, quadrant split and largest
+         *  bubble computed ONCE over the points of ALL drawn tiles (IBCS CO 5.1) — every
+         *  tile draws the same scales and the same mean/median lines. null = one cloud */
+        shared: ScatterShared | null;
+        /** colorBy "group" (1.48): color per series value (resp. multiples value without
+         *  tiles), fixed order of first appearance over the whole deck. null = no group
+         *  coloring in effect (single, status, high contrast or no grouping field) */
+        groupColors: Map<string, string> | null;
+        /** which field drives groupColors: "series" (Stack-Series role) or "group"
+         *  (multiples role, only without tiles) */
+        groupKey: "series" | "group" | null;
     } | null;
 }
+
+/** deck-wide scatter scales for small multiples (see ChartConfig.scatter.shared) */
+interface ScatterShared {
+    xLo: number;
+    xHi: number;
+    yLo: number;
+    yHi: number;
+    /** quadrant / reference split per axis (null = no line) */
+    qx: number | null;
+    qy: number | null;
+    /** bubble-size maximum over all tiles (0 = no bubbles anywhere) */
+    sMax: number;
+    /** size of a regular grid cell — caps the bubble radius identically in every tile
+     *  (the hero tile is larger and would otherwise draw bigger bubbles). null = zoom */
+    refCell: { w: number; h: number } | null;
+}
+
+/**
+ * scatter colorBy "group" (1.48): muted categorical palette, IBCS-compatible — ink
+ * grey first, then blue / ochre / light blue / olive / plum; no red or green (those
+ * stay reserved for the good/bad variance semantics) and no rainbow. Checked with the
+ * dataviz palette validator over ALL pairs (a scatter has no adjacency): light on
+ * white → normal-vision ΔE ≥ 15.6, CVD ΔE ≥ 7.2 (floor band — legal because every
+ * color also has a legend entry, direct labels and the tooltip); dark on #1E1E1E →
+ * normal ΔE ≥ 15.9, CVD ΔE ≥ 6.4, all ≥ 3:1 contrast. The dark slots are their own
+ * steps of the same hue families (not an automatic flip). Values beyond the sixth
+ * are never a generated hue: they share one neutral grey ("further" in the legend).
+ */
+const SCATTER_GROUP_LIGHT = ["#404040", "#3D78B2", "#B0702A", "#93B5D8", "#C2B04E", "#9F5989"];
+const SCATTER_GROUP_DARK = ["#D9D9D9", "#67A3E0", "#D08D54", "#2F6FA8", "#7A7A36", "#C978B8"];
+const SCATTER_GROUP_REST_LIGHT = "#C4C4C4";
+const SCATTER_GROUP_REST_DARK = "#5A5A5A";
 
 /** running cascade of "from"/"to" positions for the waterfall-bridge style */
 interface Cascade {
@@ -510,6 +553,9 @@ export class Visual implements IVisual {
     private sizeFormat: string | undefined;
     /** Trend role (KPI cards): display name of the bound period field */
     private trendName: string | undefined;
+    /** display names of the Stack-Series and multiples fields (scatter group legend) */
+    private seriesName: string | undefined;
+    private multName: string | undefined;
     /** shared waterfall domain across small-multiples cells (IBCS same scale) */
     private sharedWfDomain: [number, number] | null = null;
     /** global font multiplier from the labels "Size preset" (Full HD = 1.5) */
@@ -951,7 +997,7 @@ export class Visual implements IVisual {
         // Brücken-Ausrichtung wirkt nur auf die Kategorie-Brücke
         fs.chartCard.bridgeOrientation.visible = orient === "catbridge";
         // Scatter: eigene Gruppe nur im Scatter; Δ-Panels gibt es dort nicht (Status-
-        // Färbung nutzt die Basis trotzdem), Small Multiples werden zu EINER Punktwolke
+        // Färbung nutzt die Basis trotzdem); Small Multiples = echte Kacheln (1.48, s. u.)
         const isScatter = orient === "scatter";
         fs.chartCard.scatterGroup.visible = isScatter;
         fs.chartCard.showAbsoluteVariance.visible = !isScatter;
@@ -963,7 +1009,13 @@ export class Visual implements IVisual {
         // comments card stays visible without a comment measure — the in-chart
         // capture mode works on any category
         fs.commentsCard.visible = true;
-        fs.chartCard.multiplesGroup.visible = this.paneHasMultiples && !isScatter;
+        // Scatter (1.48): echte Kacheln — die Gruppe ist wieder da, aber OHNE Σ-Kachel und
+        // Top-N/Rest-Kachel (Summen über Quoten wären falsch) und ohne den Brücken-
+        // Skalen-Schalter: der Scatter teilt X/Y-Skala immer über alle Kacheln (IBCS)
+        fs.chartCard.multiplesGroup.visible = this.paneHasMultiples;
+        fs.chartCard.multiplesTotal.visible = !isScatter;
+        fs.chartCard.multiplesTopN.visible = !isScatter;
+        fs.chartCard.multiplesSameScale.visible = !isScatter;
         fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line";
         fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table";
         fs.chartCard.cumulativeKind.visible = fs.chartCard.cumulative.visible && fs.chartCard.cumulative.value;
@@ -1028,6 +1080,8 @@ export class Visual implements IVisual {
         const mult = catCols?.find(c => c.source.roles?.["multiples"]);
         this.paneHasMultiples = !!mult;
         const seriesCol = catCols?.find(c => c.source.roles?.["series"]);
+        this.seriesName = seriesCol?.source.displayName;
+        this.multName = mult?.source.displayName;
         const rowTypeCol = catCols?.find(c => c.source.roles?.["rowType"]);
         const fcFlagCol = catCols?.find(c => c.source.roles?.["fcFlag"]);
         const colCols = catCols?.filter(c => c.source.roles?.["colgroup"]) ?? [];
@@ -2453,18 +2507,16 @@ export class Visual implements IVisual {
             if (found) { found.pts.push(p); } else { groups.push({ name: p.group, pts: [p] }); }
         }
 
-        // scatter v1 draws ONE point cloud: a bound multiples field does not split into
-        // tiles — its groups become an extra point dimension ("Kategorie · Gruppe").
-        // Tiles would need a Σ/Rest tile that SUMS X, which is wrong for ratio measures
-        // (margin %, rotation days); one cloud keeps every point un-aggregated
-        if (isScatter && groups.length > 1) {
-            groups.splice(0, groups.length, { name: null, pts: points });
-        }
-
+        // scatter (1.48): real small multiples — one point cloud per group, all tiles on
+        // the SAME X/Y scale (prepareScatterDeck). Deliberately WITHOUT the Σ total and
+        // Top-N "Rest" tiles: both would aggregate the points, and summing X/Y over
+        // groups is wrong for ratio measures (margin %, rotation days) — a "Σ" point
+        // with a 47 % margin made of four 12 % margins. (1.47 flattened the groups into
+        // one cloud of "Kategorie · Gruppe" points for the same reason.)
         // multiples options: Top-N tiles (remainder merged into one "Rest" tile) and a
         // leading "Σ Gesamt" tile — applied before the per-group transforms and domain
         // computation so all tiles, including the larger total, share one IBCS scale
-        if (groups.length > 1 && groups[0].name != null) {
+        if (groups.length > 1 && groups[0].name != null && !isScatter) {
             const mTopN = Math.round(s.chartCard.multiplesTopN.value ?? 0);
             const allGroups = groups.slice();
             if (mTopN > 0 && groups.length > mTopN + 1) {
@@ -2962,6 +3014,10 @@ export class Visual implements IVisual {
         // IBCS same-scale rule also for the self-scaling renderers (pareto/dumbbell/slope)
         cfg.mainDomain = domains.main;
         cfg.varDomain = domains.abs;
+        // scatter: deck-wide scales/quadrants over the DRAWN tiles + group colors
+        if (isScatter && cfg.scatter) {
+            this.prepareScatterDeck(cfg.scatter, groups.slice(0, MULT_MAX_CELLS), groups.length > 1, cfg);
+        }
 
         const renderCell = (grp: { name: string | null; pts: DataPoint[] }, region: Rect) => {
             if (isWaterfall) {
@@ -3084,7 +3140,9 @@ export class Visual implements IVisual {
             && (this.viewMode == null || this.viewMode === 1 /* powerbi.ViewMode.Edit */);
         const smartStartSug = smartStartOn ? this.computeSmartStartSuggestion(orientationRaw) : null;
         const smartStartH = smartStartSug ? this.drawSmartStartChip(titleH, cfg, smartStartSug) : 0;
-        const topOffset = titleH + smartStartH;
+        // scatter colorBy "group": one compact legend row for the whole visual (1.48)
+        const scatterLegH = isScatter ? this.drawScatterLegend(titleH + smartStartH, width, cfg) : 0;
+        const topOffset = titleH + smartStartH + scatterLegH;
         const footerText = (s.ibcsTitleCard.footer.value || "").trim();
         // optional second footer line: the applied-filter context. Report/page
         // filters are not exposed to custom visuals, so the author binds a text
@@ -3200,6 +3258,10 @@ export class Visual implements IVisual {
         const cellW = gridW / cols;
         const cellH = availH / rows;
 
+        // scatter: the regular cell bounds the bubble radius of every tile (hero included)
+        if (isScatter && cfg.scatter?.shared) {
+            cfg.scatter.shared.refCell = { w: cellW - 4, h: cellH - groupTitleH - 2 };
+        }
         if (heroOn) {
             renderCell(shown[0],
                 { x: 2, y: topOffset + groupTitleH, w: heroW - 6, h: availH - groupTitleH - 2 });
@@ -8426,8 +8488,138 @@ export class Visual implements IVisual {
             colorBy: String(s.chartCard.scatterColorBy.value.value),
             xRefLine: this.parseRefValue(String(s.scaleCard.xRefLine.value || "")),
             xDiv: this.formatterParams(absMax(xGet), allInt(xGet), this.xFormat ?? "").unit,
-            xFormat: this.xFormat ?? ""
+            xFormat: this.xFormat ?? "",
+            // filled by prepareScatterDeck once the tiles are known
+            shared: null,
+            groupColors: null,
+            groupKey: null
         };
+    }
+
+    /** points a scatter can plot: X and Y both present and finite (no zero substitution) */
+    private scatterValid(points: DataPoint[]): DataPoint[] {
+        return points.filter(p => p.value != null && p.xVal != null
+            && isFinite(p.value) && isFinite(p.xVal));
+    }
+
+    /**
+     * scatter deck preparation (1.48), run once per render after the tiles are known:
+     *
+     * - small multiples: X/Y range, quadrant split (mean/median over ALL points of all
+     *   drawn tiles, resp. the reference lines) and the largest bubble are computed over
+     *   the whole deck → identical scales and identical quadrant lines in every tile
+     *   (IBCS CO 5.1). This is not switchable: multiplesSameScale only concerns the
+     *   bridge modes; a scatter, like columns/bars/waterfall, always shares its scales.
+     * - colorBy "group": one color per series value (Stack-Series role) — or, without
+     *   tiles, per multiples value. With tiles the tile title already carries the
+     *   multiples group (coloring by it would be redundant), so only a bound series
+     *   colors inside the tiles; without a series role the deck falls back to "single".
+     *   High contrast keeps outline/filled circles and therefore ignores the coloring.
+     */
+    private prepareScatterDeck(sc: NonNullable<ChartConfig["scatter"]>,
+        tiles: { name: string | null; pts: DataPoint[] }[], tiled: boolean, cfg: ChartConfig): void {
+        const all = this.scatterValid(tiles.reduce<DataPoint[]>((a, g) => a.concat(g.pts), []));
+        sc.shared = null;
+        sc.groupColors = null;
+        sc.groupKey = null;
+        if (tiled && all.length > 0) {
+            const xs = all.map(p => p.xVal as number), ys = all.map(p => p.value as number);
+            const qOn = sc.quadrant !== "off";
+            const stat = (vals: number[]) => sc.quadrant === "median" ? medianOf(vals) : meanOf(vals);
+            const xRef = sc.xRefLine, yRef = cfg.refLine;
+            const qx = xRef != null ? xRef : qOn ? stat(xs) : null;
+            const qy = yRef != null ? yRef : qOn ? stat(ys) : null;
+            const [xLo, xHi] = this.scatterRange(xs, xRef);
+            const [yLo, yHi] = this.scatterRange(ys, yRef);
+            sc.shared = {
+                xLo, xHi, yLo, yHi, qx, qy,
+                sMax: Math.max(0, ...all.map(p => p.sizeVal ?? 0)),
+                refCell: null
+            };
+        }
+        if (sc.colorBy !== "group" || cfg.hc) { return; }
+        const key: "series" | "group" | null = all.some(p => p.stackSeries != null) ? "series"
+            : !tiled && all.some(p => p.group != null) ? "group" : null;
+        if (!key) { return; }
+        const pal = cfg.dark ? SCATTER_GROUP_DARK : SCATTER_GROUP_LIGHT;
+        const rest = cfg.dark ? SCATTER_GROUP_REST_DARK : SCATTER_GROUP_REST_LIGHT;
+        const map = new Map<string, string>();
+        for (const p of all) {
+            const v = this.scatterGroupOf(p, key);
+            if (!map.has(v)) { map.set(v, map.size < pal.length ? pal[map.size] : rest); }
+        }
+        sc.groupKey = key;
+        sc.groupColors = map;
+    }
+
+    /** the coloring value of a scatter point (series or multiples label) */
+    private scatterGroupOf(p: DataPoint, key: "series" | "group"): string {
+        return (key === "series" ? p.stackSeries : p.group) ?? "(blank)";
+    }
+
+    /** scatter axis data range incl. the reference line; a single value gets ±10 % */
+    private scatterRange(vals: number[], ref: number | null): [number, number] {
+        const lo = Math.min(...vals, ref ?? Infinity), hi = Math.max(...vals, ref ?? -Infinity);
+        if (hi > lo) { return [lo, hi]; }
+        const d = Math.abs(lo) > 0 ? Math.abs(lo) * 0.1 : 1;
+        return [lo - d, hi + d];
+    }
+
+    /**
+     * compact one-line legend for colorBy "group" (1.48): "Field: ● A  ● B …", drawn
+     * once above the chart (with tiles: above the whole grid, the colors are the same in
+     * every tile). Values that do not fit are summarised as "+n". Returns the height used.
+     */
+    private drawScatterLegend(y: number, width: number, cfg: ChartConfig): number {
+        const sc = cfg.scatter;
+        if (!sc || !sc.groupColors || sc.groupColors.size === 0) { return 0; }
+        const k = this.fontK;
+        const f = Math.round(10 * k);
+        const h = f + 8;
+        const r = Math.max(3, Math.round(3.5 * k));
+        const g = this.el("g", { "class": "icd-scatter-legend" }, this.svg);
+        const field = sc.groupKey === "series"
+            ? (this.seriesName ?? this.locStr("Tooltip_Series", "Series"))
+            : (this.multName ?? this.locStr("Role_Multiples", "Small Multiples"));
+        const base = y + h / 2 + f * 0.35;
+        let x = 6;
+        const lead = this.el("text", {
+            x, y: base, "font-size": f, fill: cfg.subtle, "font-family": FONT
+        }, g);
+        lead.textContent = `${field}:`;
+        x += this.textWidth(`${field}:`, f) + 8;
+        const pal = cfg.dark ? SCATTER_GROUP_DARK : SCATTER_GROUP_LIGHT;
+        const entries = Array.from(sc.groupColors.entries());
+        const named = entries.slice(0, pal.length);
+        const restN = entries.length - named.length;
+        const restTxt = (n: number) => `+${n} ${this.locStr("Scatter_LegendMore", "further")}`;
+        for (let i = 0; i < named.length; i++) {
+            const [name, col] = named[i];
+            const left = named.length - i - 1 + restN;
+            const tw = this.textWidth(name, f);
+            const need = 2 * r + 4 + tw + 12;
+            const reserve = left > 0 ? this.textWidth(restTxt(left), f) + 2 * r + 8 : 0;
+            if (x + need + reserve > width - 6 && i > 0) {
+                const t = this.el("text", { x, y: base, "font-size": f, fill: cfg.subtle, "font-family": FONT }, g);
+                t.textContent = restTxt(entries.length - i);
+                return h;
+            }
+            this.el("circle", { cx: x + r, cy: y + h / 2, r, fill: col }, g);
+            const t = this.el("text", {
+                x: x + 2 * r + 4, y: base, "font-size": f, fill: cfg.ink, "font-family": FONT
+            }, g);
+            t.textContent = this.truncate(name, Math.max(30, width - x - 2 * r - 10 - reserve), f);
+            x += need;
+        }
+        if (restN > 0) {
+            const rc = cfg.dark ? SCATTER_GROUP_REST_DARK : SCATTER_GROUP_REST_LIGHT;
+            this.el("circle", { cx: x + r, cy: y + h / 2, r, fill: rc }, g);
+            const t = this.el("text", {
+                x: x + 2 * r + 4, y: base, "font-size": f, fill: cfg.subtle, "font-family": FONT
+            }, g);
+            t.textContent = restTxt(restN);
+        }
+        return h;
     }
 
     /**
@@ -8450,8 +8642,7 @@ export class Visual implements IVisual {
             return;
         }
         // points without X or Y are skipped (no zero substitution — it would plot a fake)
-        const pts = points.filter(p => p.value != null && p.xVal != null
-            && isFinite(p.value) && isFinite(p.xVal));
+        const pts = this.scatterValid(points);
         if (pts.length === 0) {
             this.drawModeHint(region, cfg, this.locStr("Hint_ScatterEmpty",
                 "Scatter: no category has both an X and an AC value"));
@@ -8464,8 +8655,12 @@ export class Visual implements IVisual {
         const titleH = Math.round(14 * k);
         const xs = pts.map(p => p.xVal as number);
         const ys = pts.map(p => p.value as number);
-        const hasSize = pts.some(p => (p.sizeVal ?? 0) > 0);
-        const sMax = hasSize ? Math.max(...pts.map(p => Math.max(p.sizeVal ?? 0, 0))) : 0;
+        // small multiples (1.48): scales, quadrant split and the largest bubble come from
+        // the whole deck (prepareScatterDeck) — every tile draws the same axes
+        const sh = sc.shared;
+        const hasSize = sh ? sh.sMax > 0 : pts.some(p => (p.sizeVal ?? 0) > 0);
+        const sMax = sh ? sh.sMax
+            : hasSize ? Math.max(...pts.map(p => Math.max(p.sizeVal ?? 0, 0))) : 0;
         // status color needs a comparison basis — without PY/PL it stays single-colored
         const statusOn = sc.colorBy === "status" && pts.some(p => p.varAbs != null);
 
@@ -8497,17 +8692,11 @@ export class Visual implements IVisual {
         const xRef = sc.xRefLine, yRef = cfg.refLine;
         const qOn = sc.quadrant !== "off";
         const stat = (vals: number[]) => sc.quadrant === "median" ? medianOf(vals) : meanOf(vals);
-        const qx = xRef != null ? xRef : qOn ? stat(xs) : null;
-        const qy = yRef != null ? yRef : qOn ? stat(ys) : null;
+        const qx = sh ? sh.qx : xRef != null ? xRef : qOn ? stat(xs) : null;
+        const qy = sh ? sh.qy : yRef != null ? yRef : qOn ? stat(ys) : null;
         // data range incl. reference lines; a single value gets a ±10 % window
-        const range = (vals: number[], ref: number | null): [number, number] => {
-            const lo = Math.min(...vals, ref ?? Infinity), hi = Math.max(...vals, ref ?? -Infinity);
-            if (hi > lo) { return [lo, hi]; }
-            const d = Math.abs(lo) > 0 ? Math.abs(lo) * 0.1 : 1;
-            return [lo - d, hi + d];
-        };
-        const [xLo, xHi] = range(xs, xRef);
-        const [yLo, yHi] = range(ys, yRef);
+        const [xLo, xHi] = sh ? [sh.xLo, sh.xHi] : this.scatterRange(xs, xRef);
+        const [yLo, yHi] = sh ? [sh.yLo, sh.yHi] : this.scatterRange(ys, yRef);
 
         // vertical layout: grey panel title · Y-axis title · plot · X ticks · X-axis title
         const top = region.y + pad;
@@ -8521,7 +8710,13 @@ export class Visual implements IVisual {
         // marker is clipped by an axis
         const rPlain = 4 * Math.min(k, 1.6);
         const rMin = 3 * k;
-        const rMax = hasSize ? Math.max(rMin + 2, Math.min(22 * k, Math.min(region.w * 0.8, plotH) / 7)) : rPlain;
+        // small multiples (1.48): ONE bubble scale for the deck — the size cap derives
+        // from the grid cell, so the larger hero tile draws the same radius per value
+        const rBoxW = sh?.refCell ? sh.refCell.w : region.w;
+        const rBoxH = sh?.refCell
+            ? Math.max(20, (sh.refCell.h - pad - 2 * axF - 10) - (pad + titleH + axF + Math.round(6 * k)))
+            : plotH;
+        const rMax = hasSize ? Math.max(rMin + 2, Math.min(22 * k, Math.min(rBoxW * 0.8, rBoxH) / 7)) : rPlain;
         const inset = rMax + 6;
 
         // Y ticks first (their label width sets the plot's left edge)
@@ -8595,7 +8790,8 @@ export class Visual implements IVisual {
         const rOf = (p: DataPoint): number => !hasSize ? rPlain
             : Math.max(rMin, rMax * Math.sqrt(Math.max(p.sizeVal ?? 0, 0) / sMax));
         const items = pts.map(p => {
-            const label = p.group != null ? `${p.cat} · ${p.group}` : p.cat;
+            // in a tile the title carries the group — the point label is the category alone
+            const label = p.group != null && !sh ? `${p.cat} · ${p.group}` : p.cat;
             return {
                 p, label, cx: X(p.xVal as number), cy: Y(p.value as number), r: rOf(p),
                 emph: this.isEmph(cfg, p.cat) || this.isEmph(cfg, label) || this.isEmph(cfg, p.group)
@@ -8658,6 +8854,10 @@ export class Visual implements IVisual {
         }
 
         const colOf = (p: DataPoint): string => {
+            // colorBy "group" (1.48): deck-wide color per series / multiples value
+            if (sc.groupColors && sc.groupKey) {
+                return sc.groupColors.get(this.scatterGroupOf(p, sc.groupKey)) ?? cfg.colors.ac;
+            }
             if (!statusOn) { return cfg.colors.ac; }
             const v = p.varAbs;
             if (v == null || v === 0 || !cfg.isMaterial(p)) { return cfg.colors.py; }
@@ -8670,7 +8870,12 @@ export class Visual implements IVisual {
         // the plot and hits neither a placed label nor another marker — the rest is left
         // to the tooltip. labels.show off → only emphasized points; density "ends" →
         // emphasized + the X/Y extremes; "all" → every point, overlap accepted.
-        const density = String(this.formattingSettings.labelsCard.labelDensity.value.value);
+        // small multiples tiles (1.48): a small tile thins "auto" out to emphasized +
+        // extreme points by itself — a full greedy pass would fill it with labels
+        const densitySet = String(this.formattingSettings.labelsCard.labelDensity.value.value);
+        const kk = Math.min(k, 1.5);
+        const smallTile = sh != null && (plotW < 300 * kk || plotH < 170 * kk);
+        const density = densitySet === "auto" && smallTile ? "ends" : densitySet;
         const extremes = new Set<number>();
         if (density === "ends") {
             const arg = (vals: number[], dir: number) =>
@@ -10918,7 +11123,7 @@ export class Visual implements IVisual {
                         ? `${lastLbl} · ${cfg.fmt.format(lastPt.value)}` : lastLbl
                 });
             }
-            // scatter: group (flattened multiples), X before Y = AC, bubble size after it
+            // scatter: multiples group (tile name), X before Y = AC, bubble size after it
             const sc = cfg.scatter;
             if (sc && p.group != null) {
                 out.push({ displayName: this.locStr("Role_Multiples", "Small Multiples"), value: p.group });

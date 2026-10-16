@@ -124,7 +124,7 @@
         },
         {
             "displayName": "Small Multiples",
-            "description": "Splits the chart into small-multiple tiles per group, all sharing the same scale (IBCS small multiples). Scatter: no tiles — every category × group combination becomes its own point (\"Category · Group\") in ONE point cloud.",
+            "description": "Splits the chart into small-multiple tiles per group, all sharing the same scale (IBCS small multiples). Scatter: one point cloud per group, X and Y scale, quadrant lines and bubble size shared across all tiles — deliberately without a Σ total or Top-N/Rest tile (sums over ratios such as margins would be wrong).",
             "descriptionKey": "RoleDesc_Multiples",
             "displayNameKey": "Role_Multiples",
             "name": "multiples",
@@ -345,7 +345,8 @@
                     "type": {
                         "enumeration": [
                             { "value": "single", "displayName": "Single color (AC)" },
-                            { "value": "status", "displayName": "Status ΔPY/ΔPL" }
+                            { "value": "status", "displayName": "Status ΔPY/ΔPL" },
+                            { "value": "group", "displayName": "By group/series" }
                         ]
                     }
                 },
