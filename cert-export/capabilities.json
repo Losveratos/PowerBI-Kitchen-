@@ -509,7 +509,7 @@
             "canvas": true
         }
     },
-    "supportsHighlight": true,
+    "supportsHighlight": false,
     "supportsKeyboardFocus": true,
     "supportsMultiVisualSelection": true,
     "supportsLandingPage": true,
