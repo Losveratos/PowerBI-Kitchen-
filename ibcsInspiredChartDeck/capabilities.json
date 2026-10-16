@@ -409,6 +409,12 @@
                 }
             }
         },
+        "emptyState": {
+            "properties": {
+                "title": { "type": { "text": true } },
+                "body": { "type": { "text": true } }
+            }
+        },
         "commentsPanel": {
             "properties": {
                 "showPanel": { "type": { "bool": true } },

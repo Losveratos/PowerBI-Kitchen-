@@ -8,7 +8,7 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.43.0.0** (16.09.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.44.0.0** (07.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -63,7 +63,7 @@ Geisterzeilen/Kreuzprodukte. Wächter-Muster:
 | KPI-Kacheln | `cards` | category + actual |
 | Pareto / Dumbbell / Slope | `pareto` / `dumbbell` / `slope` | category + actual (+ Basis) |
 
-## Settings-Referenz (aus capabilities.json generiert, 1.43.0.0)
+## Settings-Referenz (aus capabilities.json generiert, 1.44.0.0)
 
 PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String.
 
@@ -162,6 +162,17 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 | `fontPreset` | enum | `compact` · `fullhd` (Default-Empfehlung 1080p) · `presentation` |
 | `fontScale` / `fontSize` / `decimals` | numeric | Feinjustierung |
 | `displayUnits` | enum | `auto` · `none` · `k` · `m` · `b` |
+
+### Objekt `emptyState` (ab 1.44)
+
+| Property | Typ | Werte |
+| --- | --- | --- |
+| `title` | text | Eigener Titel im Leer-Zustand — ersetzt „ChartKitchen byDatenWG" |
+| `body` | text | Eigener Text darunter (Wortumbruch). Gesetzt + Lesemodus → NUR Titel+Text, keine Modus-Galerie; im Edit-Modus bleibt die Galerie mit den eigenen Texten als Header |
+
+Hinweis Tooltip: Im Dark Mode (colors.appearance) zeichnet das Visual den
+Hover-Tooltip selbst (dunkler Kasten, Kategorie als Header); im hellen Modus
+bleibt der native tooltipService.
 
 ### Objekt `commentsPanel`
 
