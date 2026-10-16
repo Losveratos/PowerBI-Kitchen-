@@ -140,7 +140,7 @@
         },
         {
             "displayName": "Trend (time)",
-            "description": "KPI cards only: a date/month field that turns every card into a time series — sparkline or mini columns at the bottom of the card; the card value is the last period or the sum (chart.cardTrendValue). All other modes ignore this field: rows are merged back to one row per category (summed, like without the field).",
+            "description": "KPI cards only: a date/month field that turns every card into a time series — sparkline or mini columns at the bottom of the card; the card value is the last period or the sum (setting \"Card value with trend\"). All other modes ignore this field: rows are merged back to one row per category (summed, like without the field).",
             "descriptionKey": "RoleDesc_Trend",
             "displayNameKey": "Role_Trend",
             "name": "trend",

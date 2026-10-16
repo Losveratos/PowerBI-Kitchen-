@@ -138,6 +138,15 @@ interface DataPoint {
      *  null/absent when the role is not bound or for synthetic rows */
     xVal?: number | null;
     sizeVal?: number | null;
+    /** Trend role (KPI cards): period label of this row and its sort key (Date →
+     *  timestamp, number → value, text → first appearance); absent when unbound */
+    trend?: string | null;
+    trendOrd?: number;
+    /** KPI cards + Trend role: the card's time series over the COMMON period axis
+     *  (cfg.trendLabels; null = period missing for this card) and the index of the
+     *  period the card refers to (last period with an actual, else last with a value) */
+    trendSeries?: (TrendPt | null)[] | null;
+    trendRef?: number;
     comment: string | null;
     /** 1-based comment marker number, assigned in category order */
     commentNo: number | null;
@@ -151,6 +160,17 @@ interface DataPoint {
      *  it — rendered faded. False whenever no highlight is active at all */
     dim: boolean;
     sel: ISelectionId | null;
+}
+
+/** one period of a KPI card's trend series (Trend role) */
+interface TrendPt {
+    ac: number | null;
+    py: number | null;
+    pl: number | null;
+    fc: number | null;
+    /** AC, or FC where AC is missing (the plotted value) */
+    value: number | null;
+    isFc: boolean;
 }
 
 /** one bar of a waterfall / bridge */
@@ -247,6 +267,18 @@ interface ChartConfig {
     cardSort: string;
     /** KPI cards: reference values as own rows ("off" | "basis" | "all") */
     cardRefVals: string;
+    /** KPI cards + Trend role: mini chart replacing the mini bridge ("off" | "sparkline"
+     *  | "columns"); always "off" without a bound trend field or outside the cards mode */
+    cardTrend: string;
+    /** KPI cards + Trend role: the card value is the sum over all periods (else the
+     *  last period with an actual) — PY/PL/FC/BM follow the same rule */
+    cardTrendSum: boolean;
+    /** KPI cards + Trend role: common period axis (labels in chronological order) and
+     *  the trend field's display name (tooltip) */
+    trendLabels: string[];
+    trendName: string;
+    /** category bridge drawn as a vertical column cascade (chart.bridgeOrientation) */
+    catBridgeVertical: boolean;
     /** sum-safe label rounding (largest remainder): labels add up to the Σ header */
     sumSafe: boolean;
     /** deck-wide absolute-variance domain (incl. fixedVarMax) for scale sync */
@@ -476,6 +508,8 @@ export class Visual implements IVisual {
     private xFormat: string | undefined;
     private sizeName: string | undefined;
     private sizeFormat: string | undefined;
+    /** Trend role (KPI cards): display name of the bound period field */
+    private trendName: string | undefined;
     /** shared waterfall domain across small-multiples cells (IBCS same scale) */
     private sharedWfDomain: [number, number] | null = null;
     /** global font multiplier from the labels "Size preset" (Full HD = 1.5) */
@@ -559,6 +593,8 @@ export class Visual implements IVisual {
     private paneHasPl = false;
     private paneHasComments = false;
     private paneHasMultiples = false;
+    /** Trend role bound — gates the trend options of the KPI-card group */
+    private paneHasTrend = false;
     /** basis parseData actually used — single source of truth for ΔBasis labels */
     private basisMode: Basis = "py";
     /** secondary basis (the dual-variance counterpart of basisMode) */
@@ -903,8 +939,17 @@ export class Visual implements IVisual {
         // UX-5: „Brücke" trägt nur noch waterfallStyle + sortByImpact (Buttons →
         // Interaktion, Treiber-Notiz → Darstellung) — sichtbar, sobald einer davon greift
         fs.chartCard.bridgeGroup.visible = fs.chartCard.waterfallStyle.visible
-            || fs.chartCard.sortByImpact.visible;
+            || fs.chartCard.sortByImpact.visible || orient === "catbridge";
         fs.chartCard.cardsGroup.visible = orient === "cards";
+        // Trend role: its two options only exist with a bound period field; the trend
+        // chart then replaces the mini bridge, so the bridge toggle only matters "off"
+        const trendCards = orient === "cards" && this.paneHasTrend;
+        fs.chartCard.cardTrendChart.visible = trendCards;
+        fs.chartCard.cardTrendValue.visible = trendCards;
+        fs.chartCard.cardBars.visible = !trendCards
+            || String(fs.chartCard.cardTrendChart.value.value) === "off";
+        // Brücken-Ausrichtung wirkt nur auf die Kategorie-Brücke
+        fs.chartCard.bridgeOrientation.visible = orient === "catbridge";
         // Scatter: eigene Gruppe nur im Scatter; Δ-Panels gibt es dort nicht (Status-
         // Färbung nutzt die Basis trotzdem), Small Multiples werden zu EINER Punktwolke
         const isScatter = orient === "scatter";
@@ -986,6 +1031,30 @@ export class Visual implements IVisual {
         const rowTypeCol = catCols?.find(c => c.source.roles?.["rowType"]);
         const fcFlagCol = catCols?.find(c => c.source.roles?.["fcFlag"]);
         const colCols = catCols?.filter(c => c.source.roles?.["colgroup"]) ?? [];
+        // Trend role: a period field that only the KPI cards evaluate (sparkline /
+        // mini columns per card) — render() merges its rows back in every other mode
+        const trendCol = catCols?.find(c => c.source.roles?.["trend"]);
+        this.paneHasTrend = !!trendCol;
+        this.trendName = trendCol?.source.displayName;
+        // period sort key: Date → chronological, numbers (year, month no.) → numeric,
+        // anything else → first appearance across all rows
+        let trendOrdOf: ((i: number) => number) | null = null;
+        if (trendCol) {
+            const tv = trendCol.values;
+            const nonNull = tv.filter(v => v != null);
+            if (nonNull.length > 0 && nonNull.every(v => v instanceof Date)) {
+                trendOrdOf = i => tv[i] instanceof Date ? (tv[i] as Date).getTime() : Number.MAX_VALUE;
+            } else if (nonNull.length > 0 && nonNull.every(v => typeof v === "number")) {
+                trendOrdOf = i => typeof tv[i] === "number" ? tv[i] as number : Number.MAX_VALUE;
+            } else {
+                const firstSeen = new Map<string, number>();
+                tv.forEach((v, i) => {
+                    const lbl = this.categoryLabel(v);
+                    if (!firstSeen.has(lbl)) { firstSeen.set(lbl, i); }
+                });
+                trendOrdOf = i => firstSeen.get(this.categoryLabel(tv[i])) ?? i;
+            }
+        }
         // Smart-Start rules a/b key off the roles being bound AT ALL — independent of
         // what the current orientation later filters/merges them into
         this.paneHasRowType = !!rowTypeCol;
@@ -1162,6 +1231,10 @@ export class Visual implements IVisual {
                     ? this.categoryLabel(seriesCol.values[i]) : null,
                 xVal: byRole["xValue"] ? byRole["xValue"][i] : null,
                 sizeVal: byRole["bubbleSize"] ? byRole["bubbleSize"][i] : null,
+                ...(trendCol && trendOrdOf ? {
+                    trend: this.categoryLabel(trendCol.values[i]),
+                    trendOrd: trendOrdOf(i)
+                } : {}),
                 comment,
                 commentNo: comment != null ? ++commentCounter : null,
                 group: mult ? this.categoryLabel(mult.values[i]) : null,
@@ -1736,7 +1809,7 @@ export class Visual implements IVisual {
                 fields: this.locStr("Demo_F_Pnl", "Category, AC, PY, type (sum/delta)") },
             { v: "cards", key: "Enum_Orientation_Cards", en: "KPI Cards",
                 use: this.locStr("Demo_Use_Cards", "KPI tiles for monitoring: status, bullet"),
-                fields: this.locStr("Demo_F_Cards", "Category, AC, PY/PL/BM") },
+                fields: this.locStr("Demo_F_Cards", "Category, AC, PY/PL/BM, opt. Trend") },
             { v: "pareto", key: "Enum_Orientation_Pareto", en: "Pareto",
                 use: this.locStr("Demo_Use_Pareto", "ABC analysis: top drivers + cumulative %"),
                 fields: this.locStr("Demo_F_Pareto", "Category, AC") },
@@ -2299,9 +2372,22 @@ export class Visual implements IVisual {
                 || isScatter
                 ? "bars" : "columns";
         // matrix column groups only pivot in table mode — everywhere else the same
-        // category repeats once per column value; merge back to one point per category
-        if (!isTable && points.some(p => p.colLevels && p.colLevels.length > 0)) {
-            points = this.mergeColPoints(points);
+        // category repeats once per column value; merge back to one point per category.
+        // The Trend role works the same way outside the KPI cards: the period split is
+        // summed back, so every other mode renders as if the field were not bound
+        // (cards keep the periods apart until aggregateTrendCards folds them per card)
+        const hasTrend = points.some(p => p.trend != null);
+        const trendCards = isCards && hasTrend;
+        if ((!isTable && points.some(p => p.colLevels && p.colLevels.length > 0))
+            || (hasTrend && !isCards)) {
+            points = this.mergeColPoints(points, isTable, trendCards);
+        }
+        const trendSum = String(s.chartCard.cardTrendValue.value.value) === "sum";
+        let trendLabels: string[] = [];
+        if (trendCards) {
+            const tr = this.aggregateTrendCards(points, trendSum);
+            points = tr.points;
+            trendLabels = tr.labels;
         }
         // margin rows (rowType "pct") carry percentages, not € — only table, waterfall
         // and the P&L statement can render them; everywhere else they would corrupt
@@ -2605,6 +2691,12 @@ export class Visual implements IVisual {
             cardBulletZoom: s.chartCard.cardBulletZoom.value,
             cardHl: String(s.chartCard.cardHighlight.value.value),
             cardRefVals: String(s.chartCard.cardRefValues.value.value),
+            cardTrend: trendCards ? String(s.chartCard.cardTrendChart.value.value) : "off",
+            cardTrendSum: trendSum,
+            trendLabels,
+            trendName: this.trendName ?? "Trend",
+            catBridgeVertical: isCatBridge
+                && String(s.chartCard.bridgeOrientation.value.value) === "columns",
             cardBars: s.chartCard.cardBars.value,
             // the in-chart chip override wins over the pane dropdown when set
             cardSort: this.cardSortSel !== "" ? this.cardSortSel
@@ -2850,7 +2942,8 @@ export class Visual implements IVisual {
                     if (REF <= 0 && ACt <= 0 && (!hasOther || otherTot <= 0)) { continue; }
                     // all totals present in a tile are drawn as rows → all bound the scale,
                     // and so do the running cascade levels and row bars (S3)
-                    const ext = this.catBridgeExtent(g.pts, refIsPl, hasPy);
+                    // the vertical cascade draws no per-category AC/PY bars — mirror that
+                    const ext = this.catBridgeExtent(g.pts, refIsPl, hasPy, !cfg.catBridgeVertical);
                     maxV = Math.max(maxV, PYt, PLt, ACt, ext[1]);
                     minV = Math.min(minV, hasPy ? PYt : 0, hasPl ? PLt : 0, ACt, ext[0]);
                     // n.a. rows (UN 4.1: zero basis / sign change) have no pin → no bound
@@ -3864,16 +3957,19 @@ export class Visual implements IVisual {
 
     /**
      * value range the category bridge draws besides its totals: every running
-     * cascade level (reference total + Δ so far) and each row's AC/reference bar.
-     * Mirrors renderCategoryBridge — used there and in the same-scale pass.
+     * cascade level (reference total + Δ so far) and each row's AC/reference bar
+     * (withRows; the vertical cascade has no row bars). Mirrors both category-bridge
+     * renderers — used there and in the same-scale pass.
      */
-    private catBridgeExtent(pts: DataPoint[], refIsPl: boolean, hasPy: boolean): [number, number] {
+    private catBridgeExtent(pts: DataPoint[], refIsPl: boolean, hasPy: boolean,
+        withRows = true): [number, number] {
         const refOf = (p: DataPoint) => refIsPl ? p.pl : p.py;
         let cum = pts.reduce((a, p) => a + (refOf(p) ?? 0), 0);
         let lo = Math.min(0, cum), hi = Math.max(0, cum);
         for (const p of pts) {
             const behind = hasPy ? p.py : p.pl;
-            for (const v of [p.value, behind]) {
+            // withRows = false: vertical cascade without row bars — levels only
+            for (const v of withRows ? [p.value, behind] : []) {
                 if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
             }
             const rv = refOf(p);
@@ -3920,6 +4016,11 @@ export class Visual implements IVisual {
         if (REF <= 0 && ACt <= 0 && (!hasOther || otherTot <= 0)) {
             this.drawModeHint(region, cfg, this.locStr("Hint_CatBridgeNeg",
                 "Category bridge does not support all-negative totals — use waterfall or columns + bridge"));
+            return;
+        }
+        // chart.bridgeOrientation = "columns": own drawing path (vertical cascade)
+        if (cfg.catBridgeVertical) {
+            this.renderCategoryBridgeVertical(pts, region, cfg);
             return;
         }
         const goodOf = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
@@ -4261,6 +4362,335 @@ export class Visual implements IVisual {
         drawBridgeRow(yBr1, REF, ACt, `Δ${refLabel}`, true);
         if (yBr2 != null) {
             drawBridgeRow(yBr2, otherTot, ACt, `Δ${otherLabel}`, false);
+        }
+    }
+
+    /**
+     * Category bridge, vertical (chart.bridgeOrientation = "columns"): the classic
+     * column waterfall, driven by categories — reference anchor left (the other
+     * scenario as a second anchor in front of it, like the two total columns of the
+     * integrated bridge), one floating ΔRef brick per category, the AC anchor and the
+     * double reconciliation (ΔRef with circled callout, Δother) right; the ΔRef% pins
+     * sit on top instead of in a side column. Scale rules as in the horizontal bridge
+     * (1.45): every running cascade level is in the domain, small multiples share
+     * cfg.sharedCatBridge — computed without row bars, since this layout draws none.
+     */
+    private renderCategoryBridgeVertical(pts: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const n = pts.length;
+        const k = this.fontK;
+        const lf = cfg.labelFont, cf = cfg.catFont;
+        const pad = 6;
+        const hasPy = pts.some(p => p.py != null);
+        const hasPl = pts.some(p => p.pl != null);
+        const PYt = pts.reduce((a, p) => a + (p.py ?? 0), 0);
+        const PLt = pts.reduce((a, p) => a + (p.pl ?? 0), 0);
+        const ACt = pts.reduce((a, p) => a + (p.value ?? 0), 0);
+        const refIsPl = cfg.basisMode === "plan" && hasPl;
+        const refLabel = refIsPl ? cfg.scenL.pl : cfg.scenL.py;
+        const REF = refIsPl ? PLt : PYt;
+        const hasOther = refIsPl ? hasPy : hasPl;
+        const otherTot = refIsPl ? PYt : PLt;
+        const otherLabel = refIsPl ? cfg.scenL.py : cfg.scenL.pl;
+        const dTot = ACt - REF;
+        // per-row deltas locally against the bridge's own reference (see horizontal)
+        const goodOf = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
+        const refValOf = (p: DataPoint): number | null => refIsPl ? p.pl : p.py;
+        const dOf = (p: DataPoint): number | null =>
+            p.value != null && refValOf(p) != null ? p.value - (refValOf(p) as number) : null;
+        const dRelOf = (p: DataPoint): number | null => relVar(dOf(p), refValOf(p));
+        const dRelNa = (p: DataPoint): boolean => relIsNa(dOf(p), refValOf(p));
+        const colOf = (v: number, pp?: DataPoint) => (v === 0
+            || (pp != null && !cfg.isMaterial(pp, dOf(pp), dRelOf(pp))))
+            ? cfg.colors.py : (goodOf(v, pp) ? cfg.colors.good : cfg.colors.bad);
+        const fmtD = (v: number) => this.fmtSigned(cfg.fmtVar, v);
+
+        // ------- slots: [other] REF | drivers | AC | ΔRef [Δother]
+        type Slot = { kind: "other" | "ref" | "drv" | "ac" | "dref" | "doth"; label: string; p?: DataPoint };
+        const slots: Slot[] = [];
+        if (hasOther) { slots.push({ kind: "other", label: otherLabel }); }
+        slots.push({ kind: "ref", label: refLabel });
+        for (const p of pts) { slots.push({ kind: "drv", label: p.cat, p }); }
+        slots.push({ kind: "ac", label: cfg.scenL.ac });
+        slots.push({ kind: "dref", label: `Δ${refLabel}` });
+        if (hasOther) { slots.push({ kind: "doth", label: `Δ${otherLabel}` }); }
+        const bandStart = region.x + pad;
+        const bandEnd = region.x + region.w - pad;
+        // half a slot of air between the AC anchor and the reconciliation columns
+        const units = slots.length + 0.5;
+        const step = (bandEnd - bandStart) / units;
+        const barW = Math.max(2, step * 0.62);
+        const slotX = (i: number) => bandStart + (i + (slots[i].kind === "dref" || slots[i].kind === "doth" ? 0.5 : 0)) * step
+            + (step - barW) / 2;
+        const center = (i: number) => slotX(i) + barW / 2;
+
+        // ------- vertical layout: pin tier · (driver note) · cascade · category names
+        const showPins = cfg.showRel && region.h >= 240
+            && pts.some(p => dRelOf(p) != null || dRelNa(p));
+        const pinH = showPins ? Math.max(48, Math.round(region.h * 0.2)) : 0;
+        const catLineH = Math.round(cf * 1.15);
+        const catH = catLineH * 2 + 6;
+        // largest driver (optional italic note above the cascade)
+        let drvIdx = -1;
+        pts.forEach((p, i) => {
+            if (dOf(p) == null) { return; }
+            if (drvIdx < 0 || Math.abs(dOf(p) as number) > Math.abs(dOf(pts[drvIdx]) ?? 0)) { drvIdx = i; }
+        });
+        const noteFont = Math.round(Math.max(9, lf * 0.85));
+        const showNote = drvIdx >= 0 && dTot !== 0 && region.w >= 480 && region.h >= 220
+            && this.formattingSettings.chartCard.driverNote.value;
+        const noteH = showNote ? noteFont + 8 : 0;
+        const top = region.y + pad;
+        const pinTop = top;
+        const cTop = pinTop + pinH + noteH;
+        const cBottom = region.y + region.h - pad - catH;
+
+        // ------- scale: anchors + every cascade level (no row bars in this layout)
+        const ext = this.catBridgeExtent(pts, refIsPl, hasPy, false);
+        const maxV = cfg.sharedCatBridge?.maxV
+            ?? Math.max(REF, ACt, hasOther ? otherTot : 0, ext[1], 1);
+        const minV = cfg.sharedCatBridge?.minV
+            ?? Math.min(0, hasPy ? PYt : 0, hasPl ? PLt : 0, ACt, ext[0]);
+        const labelPad = lf + 8;
+        const plotTop = cTop + labelPad;
+        const plotBottom = cBottom - (minV < 0 ? labelPad : 2);
+        const Y = linearScale(minV, maxV, plotBottom, plotTop);
+        const yZ = Y(0);
+
+        const bg = this.el("g", {}, this.svg);
+        const marks = this.el("g", {}, this.svg);
+
+        // highlight bands (IBCS EMPHASIZE): the full driver column incl. pin and name
+        if (cfg.highlight.size > 0) {
+            slots.forEach((sl, i) => {
+                if (sl.kind !== "drv" || !this.isEmph(cfg, sl.label)) { return; }
+                this.emphBand(bg, bandStart + i * step + 1, top, step - 2,
+                    region.y + region.h - pad - top, cfg);
+            });
+        }
+        // group separators between driver columns
+        const groupEvery = Math.round(this.formattingSettings.chartCard.groupEvery.value ?? 0);
+        const firstDrv = slots.findIndex(sl => sl.kind === "drv");
+        if (groupEvery > 0 && groupEvery < n) {
+            for (let i = groupEvery; i < n; i += groupEvery) {
+                const xs = bandStart + (firstDrv + i) * step;
+                this.el("line", {
+                    x1: xs, y1: cTop, x2: xs, y2: region.y + region.h - pad,
+                    stroke: cfg.subtle, "stroke-width": 1, "stroke-opacity": 0.35
+                }, bg);
+            }
+        }
+
+        const valLabel = (xx: number, yy: number, text: string, bold: boolean, parent: SVGElement,
+            color = cfg.ink) => {
+            const t = this.el("text", {
+                x: xx, y: yy, "text-anchor": "middle", "font-size": lf, fill: color,
+                "font-family": FONT, "font-weight": bold ? 700 : 400,
+                stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+            }, parent);
+            t.textContent = text;
+            return t;
+        };
+        // value label above a bar end (positive) or below it (negative); a label that
+        // would drop into the name band flips above the bar instead (waterfall rule)
+        const endLabel = (i: number, lo: number, hi: number, up: boolean, text: string, bold: boolean,
+            parent: SVGElement, color = cfg.ink) => {
+            if (!cfg.showLabels || step < lf * 1.4) { return; }
+            let yy = up ? Y(hi) - 4 : Y(lo) + lf + 2;
+            if (!up && yy > cBottom) { yy = Y(hi) - 4; }
+            valLabel(center(i), yy, text, bold, parent, color);
+        };
+        // category / anchor names below the axis — two lines before truncating
+        const nameLabel = (i: number, text: string, bold: boolean, parent: SVGElement) => {
+            const maxW = step - 4;
+            const t = this.el("text", {
+                x: center(i), "text-anchor": "middle", "font-size": cf, fill: cfg.ink,
+                "font-family": FONT, "font-weight": bold ? 700 : 400
+            }, parent);
+            const y1 = cBottom + catLineH;
+            if (this.textWidth(text, cf) <= maxW) {
+                t.setAttribute("y", String(y1));
+                t.textContent = text;
+                return;
+            }
+            const [l1, l2raw] = this.splitTwoLines(text, maxW, cf);
+            for (const [ln, yy] of [[l1, y1], [this.truncate(l2raw, maxW, cf), y1 + catLineH]] as [string, number][]) {
+                if (!ln) { continue; }
+                const ts = document.createElementNS(SVG_NS, "tspan");
+                ts.setAttribute("x", String(center(i)));
+                ts.setAttribute("y", String(yy));
+                ts.textContent = ln;
+                t.appendChild(ts);
+            }
+        };
+        const vBar = (i: number, from: number, to: number, style: Record<string, string | number>,
+            parent: SVGElement) => {
+            const a = Y(from), b = Y(to);
+            this.el("rect", {
+                x: slotX(i), y: Math.min(a, b), width: barW,
+                height: Math.max(Math.abs(b - a), 1), ...style
+            }, parent);
+        };
+        const connector = (iFrom: number, iTo: number, level: number) => {
+            this.el("line", {
+                x1: slotX(iFrom) + barW, y1: Y(level), x2: slotX(iTo), y2: Y(level),
+                stroke: cfg.subtle, "stroke-width": 1
+            }, bg);
+        };
+        const pyStyle = cfg.hc
+            ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
+            : { fill: cfg.colors.py };
+        const plStyle = { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.5 };
+
+        // ------- zero line (AC notation) across all columns
+        this.el("line", {
+            x1: bandStart, y1: yZ, x2: bandEnd, y2: yZ, stroke: cfg.colors.ac, "stroke-width": 1.6
+        }, bg);
+
+        // ------- ΔRef% pin tier on top
+        const iAc = slots.findIndex(sl => sl.kind === "ac");
+        const axisY = pinTop + pinH * 0.5;
+        const maxPct = cfg.sharedCatBridge?.maxPct
+            ?? Math.max(...pts.map(p => Math.abs(dRelOf(p) ?? 0)),
+                Math.abs(relVar(dTot, REF) ?? 0), 1);
+        const maxPinLen = Math.max(8, pinH * 0.5 - lf - 10);
+        const pinLen = (v: number) => Math.max(2, Math.abs(v) / maxPct * maxPinLen);
+        const drawPin = (i: number, pct: number, bold: boolean, parent: SVGElement, pp?: DataPoint) => {
+            const cx = center(i);
+            const len = pinLen(pct);
+            const c = colOf(pct, pp);
+            const r = Math.max(2.6, 3.4 * k);
+            const yEnd = pct >= 0 ? axisY - 2 - len : axisY + 2 + len;
+            this.el("rect", {
+                x: cx - 1.5, y: Math.min(axisY, yEnd), width: 3, height: Math.abs(yEnd - axisY), fill: c
+            }, parent);
+            this.pinHead(parent, cx, yEnd, r, "square", cfg.pinStyle, { fill: cfg.ink });
+            if (cfg.showLabels && step >= lf * 1.6) {
+                valLabel(cx, pct >= 0 ? yEnd - r - 3 : yEnd + r + lf, this.fmtPercent(pct), bold, parent);
+            }
+        };
+        if (showPins) {
+            const tp = this.el("text", {
+                x: region.x + pad, y: pinTop + Math.round(11 * k), "font-size": Math.round(11 * k),
+                fill: cfg.subtle, "font-family": FONT, "font-weight": 600
+            }, bg);
+            tp.textContent = `Δ${refLabel}%`;
+            // axis under the driver columns, a separate stub under the AC total pin
+            const xA = slotX(firstDrv) - (step - barW) / 2;
+            const xB = slotX(firstDrv + n - 1) + barW + (step - barW) / 2;
+            this.el("rect", { x: xA, y: axisY - 1.5, width: Math.max(xB - xA - step * 0.1, 1), height: 3, fill: cfg.colors.py }, bg);
+            this.el("rect", { x: slotX(iAc) - step * 0.1, y: axisY - 1.5, width: barW + step * 0.2, height: 3, fill: cfg.colors.py }, bg);
+        }
+
+        // ------- left anchors: other scenario + reference
+        slots.forEach((sl, i) => {
+            if (sl.kind !== "other" && sl.kind !== "ref") { return; }
+            const isPlBar = sl.kind === "ref" ? refIsPl : !refIsPl;
+            const v = sl.kind === "ref" ? REF : otherTot;
+            vBar(i, 0, v, isPlBar ? plStyle : pyStyle, bg);
+            endLabel(i, Math.min(0, v), Math.max(0, v), v >= 0, cfg.fmt.format(v), true, bg);
+            nameLabel(i, sl.label, true, bg);
+        });
+
+        // ------- driver columns: floating ΔRef bricks along the running level
+        let cum = REF;
+        let prevSlot = slots.findIndex(sl => sl.kind === "ref");
+        slots.forEach((sl, i) => {
+            if (sl.kind !== "drv" || !sl.p) { return; }
+            const p = sl.p;
+            const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
+            const d = dOf(p);
+            if (d != null) {
+                const a = cum, b = cum + d;
+                const c = colOf(d, p);
+                const hollowBad = cfg.hc && !goodOf(d, p) && d !== 0;
+                vBar(i, a, b, hollowBad
+                    ? { fill: cfg.paper, stroke: c, "stroke-width": 1.4 }
+                    : p.isFc
+                        ? { fill: `url(#${goodOf(d, p) ? cfg.patGood : cfg.patBad})`, stroke: c, "stroke-width": 1 }
+                        : { fill: c }, g);
+                connector(prevSlot, i, a);
+                endLabel(i, Math.min(a, b), Math.max(a, b), d >= 0, fmtD(d), false, g);
+                cum = b;
+                prevSlot = i;
+            }
+            nameLabel(i, p.cat, this.isEmph(cfg, p.cat), g);
+            if (showPins && dRelOf(p) != null) {
+                drawPin(i, dRelOf(p) as number, false, g, p);
+            } else if (showPins && dRelNa(p)) {
+                this.drawRelNa(g, center(i), axisY, "columns", cfg);
+            }
+            this.attachInteraction(g, p, cfg);
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
+            this.animGroups.push([g]);
+        });
+        connector(prevSlot, iAc, cum);
+
+        // ------- AC anchor (hatched when forecast is part of it) + total pin
+        vBar(iAc, 0, ACt, cfg.hasFc
+            ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1.2 }
+            : { fill: cfg.colors.ac }, bg);
+        endLabel(iAc, Math.min(0, ACt), Math.max(0, ACt), ACt >= 0, cfg.fmt.format(ACt), true, bg);
+        nameLabel(iAc, cfg.scenL.ac, true, bg);
+        const totRel = relVar(dTot, REF);
+        if (showPins && totRel != null) {
+            drawPin(iAc, totRel, true, bg);
+        } else if (showPins) {
+            this.drawRelNa(bg, center(iAc), axisY, "columns", cfg);
+        }
+
+        // ------- reconciliation: ΔRef (circled callout) and Δother, floating between
+        // the respective total and AC; a thin guide carries the AC level across
+        const iDref = slots.findIndex(sl => sl.kind === "dref");
+        const iDoth = slots.findIndex(sl => sl.kind === "doth");
+        const lastRecon = iDoth >= 0 ? iDoth : iDref;
+        this.el("line", {
+            x1: slotX(iAc) + barW, y1: Y(ACt), x2: slotX(lastRecon) + barW, y2: Y(ACt),
+            stroke: cfg.subtle, "stroke-width": 1, "stroke-dasharray": "3,2", "stroke-opacity": 0.8
+        }, bg);
+        const recon = (i: number, from: number, withCallout: boolean) => {
+            const d = ACt - from;
+            vBar(i, from, ACt, { fill: colOf(d) }, bg);
+            nameLabel(i, slots[i].label, false, bg);
+            if (!cfg.showLabels) { return; }
+            const text = fmtD(d);
+            const yTopBar = Y(Math.max(from, ACt));
+            if (withCallout) {
+                const pw = Math.max(44, this.textWidth(text, lf) + 16), ph = lf + 9;
+                const py0 = Math.max(cTop, yTopBar - 6 - ph);
+                this.el("rect", {
+                    x: center(i) - pw / 2, y: py0, width: pw, height: ph, rx: ph / 2,
+                    fill: cfg.paper, stroke: colOf(d), "stroke-width": 1.8
+                }, bg);
+                valLabel(center(i), py0 + ph / 2 + lf * 0.36, text, true, bg, colOf(d));
+            } else {
+                valLabel(center(i), yTopBar - 4, text, false, bg);
+            }
+        };
+        recon(iDref, REF, true);
+        if (iDoth >= 0) { recon(iDoth, otherTot, false); }
+
+        // ------- largest-driver note (optional), one italic line above the cascade
+        if (showNote) {
+            const d = dOf(pts[drvIdx]) as number;
+            const share = Math.round(Math.abs(d / dTot) * 100);
+            let note: string;
+            if (Math.sign(d) === Math.sign(dTot) && share <= 100) {
+                note = `${this.locStr("Note_Driver", "largest driver")} · ${share} ${this.locStr("Note_OfTotal", "% of total variance")}`;
+            } else {
+                const sameSum = pts.reduce((a2, q) => {
+                    const qd = dOf(q);
+                    return a2 + (qd != null && Math.sign(qd) === Math.sign(d) ? Math.abs(qd) : 0);
+                }, 0);
+                const sh2 = sameSum ? Math.round(Math.abs(d) / sameSum * 100) : 0;
+                note = `${this.locStr("Note_Driver", "largest driver")} · ${sh2} ${d < 0
+                    ? this.locStr("Note_OfDeclines", "% of all declines")
+                    : this.locStr("Note_OfIncreases", "% of all increases")}`;
+            }
+            const nt = this.el("text", {
+                x: region.x + pad, y: pinTop + pinH + noteFont + 2, "text-anchor": "start",
+                "font-size": noteFont, fill: cfg.subtle, "font-family": FONT, "font-style": "italic"
+            }, bg);
+            nt.textContent = this.truncate(`${pts[drvIdx].cat}: ${note}`, region.w - pad * 2, noteFont);
         }
     }
 
@@ -6804,12 +7234,16 @@ export class Visual implements IVisual {
         return out;
     }
 
-    /** merges points that repeat per matrix-column value back to one per category */
-    private mergeColPoints(points: DataPoint[]): DataPoint[] {
+    /** merges points that repeat per matrix-column value back to one per category.
+     *  keepCols: the matrix columns stay apart (table + Trend role — only the periods
+     *  merge); keepTrend: the periods stay apart (KPI cards + Trend role) */
+    private mergeColPoints(points: DataPoint[], keepCols = false, keepTrend = false): DataPoint[] {
         const order: string[] = [];
         const byKey = new Map<string, DataPoint[]>();
         for (const p of points) {
-            const key = `${p.group ?? ""}¦${p.stackSeries ?? ""}¦${p.cat}`;
+            let key = `${p.group ?? ""}¦${p.stackSeries ?? ""}¦${p.cat}`;
+            if (keepCols) { key += `¦c:${(p.colLevels ?? []).join("¦")}`; }
+            if (keepTrend) { key += `¦t:${p.trend ?? ""}`; }
             const b = byKey.get(key);
             if (b) { b.push(p); } else { byKey.set(key, [p]); order.push(key); }
         }
@@ -6837,8 +7271,127 @@ export class Visual implements IVisual {
             agg.comment = kids[0].comment;
             agg.commentNo = kids[0].commentNo;
             agg.sel = kids[0].sel;
+            if (keepCols) { agg.colLevels = kids[0].colLevels; }
+            if (keepTrend) {
+                agg.trend = kids[0].trend;
+                agg.trendOrd = kids[0].trendOrd;
+            }
             return agg;
         });
+    }
+
+    /**
+     * KPI cards + Trend role: folds the period rows of every card (group × series ×
+     * category) into ONE card point that carries its time series over the common
+     * period axis. Card value: "last" (default) takes AC/PY/PL/FC/BM and all
+     * variances from the card's reference period — the last period with an actual
+     * (pure FC cards: the last period with a value) — so Δ and status compare like
+     * with like; "sum" sums every scenario over all periods (Σ-treu wie Top-N/Rest).
+     */
+    private aggregateTrendCards(points: DataPoint[], useSum: boolean): { points: DataPoint[]; labels: string[] } {
+        // common period axis: sort key per label (stable sort keeps first appearance)
+        const ordOf = new Map<string, number>();
+        for (const p of points) {
+            const t = p.trend ?? "";
+            if (!ordOf.has(t)) { ordOf.set(t, p.trendOrd ?? ordOf.size); }
+        }
+        const labels = [...ordOf.keys()].sort((a, b) => (ordOf.get(a) as number) - (ordOf.get(b) as number));
+        const idxOf = new Map(labels.map((l, i) => [l, i] as [string, number]));
+        const order: string[] = [];
+        const byKey = new Map<string, DataPoint[]>();
+        for (const p of points) {
+            const key = `${p.group ?? ""}¦${p.stackSeries ?? ""}¦${p.cat}`;
+            const b = byKey.get(key);
+            if (b) { b.push(p); } else { byKey.set(key, [p]); order.push(key); }
+        }
+        const out = order.map(key => {
+            const kids = byKey.get(key) as DataPoint[];
+            // one point per period (duplicates — e.g. an unmerged series — are summed)
+            const perIdx: (DataPoint | null)[] = labels.map(() => null);
+            for (const c of kids) {
+                const i = idxOf.get(c.trend ?? "") as number;
+                const prev = perIdx[i];
+                if (prev == null) { perIdx[i] = c; continue; }
+                const agg = this.aggregateHierarchy(c.cat, [prev, c]);
+                agg.isFc = prev.isFc && c.isFc;
+                agg.bm = prev.bm != null || c.bm != null ? (prev.bm ?? 0) + (c.bm ?? 0) : null;
+                perIdx[i] = agg;
+            }
+            const series: (TrendPt | null)[] = perIdx.map(d => d == null ? null : {
+                ac: d.ac, py: d.py, pl: d.pl, fc: d.fc, value: d.value, isFc: d.isFc
+            });
+            const ref = this.trendRefIdx(series);
+            const first = kids[0];
+            let card: DataPoint;
+            if (useSum) {
+                card = this.aggregateHierarchy(first.cat, kids);
+                card.isFc = kids.every(c => c.isFc);
+                let bm: number | null = null;
+                for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
+                card.bm = bm;
+            } else {
+                const refPt = (ref >= 0 ? perIdx[ref] : null) ?? first;
+                card = { ...refPt };
+                card.dim = kids.every(c => c.dim);
+            }
+            card.cat = first.cat;
+            card.catLevels = first.catLevels;
+            card.colLevels = null;
+            card.group = first.group;
+            card.stackSeries = first.stackSeries;
+            card.rowType = first.rowType;
+            card.sel = first.sel;
+            card.comment = kids.find(c => c.comment != null)?.comment ?? null;
+            card.trend = null;
+            card.trendSeries = series;
+            card.trendRef = ref;
+            return card;
+        });
+        // comment markers were numbered per period row — renumber per card
+        let no = 0;
+        for (const p of out) { p.commentNo = p.comment != null ? ++no : null; }
+        return { points: out, labels };
+    }
+
+    /** reference period of a trend series: last period with an actual, else last with a value */
+    private trendRefIdx(series: (TrendPt | null)[]): number {
+        for (let i = series.length - 1; i >= 0; i--) {
+            const t = series[i];
+            if (t && t.value != null && !t.isFc) { return i; }
+        }
+        for (let i = series.length - 1; i >= 0; i--) {
+            if (series[i]?.value != null) { return i; }
+        }
+        return -1;
+    }
+
+    /** period-wise sum of several cards' trend series (Σ tile, Rest / immaterial
+     *  collector card) — null when a card has no series or the axes differ */
+    private sumTrendSeries(kids: DataPoint[]): { series: (TrendPt | null)[]; ref: number } | null {
+        if (kids.length === 0 || kids.some(c => !c.trendSeries)) { return null; }
+        const len = (kids[0].trendSeries as (TrendPt | null)[]).length;
+        if (kids.some(c => (c.trendSeries as (TrendPt | null)[]).length !== len)) { return null; }
+        const add = (a: number | null, b: number | null | undefined) =>
+            b == null ? a : (a ?? 0) + b;
+        const series: (TrendPt | null)[] = [];
+        for (let i = 0; i < len; i++) {
+            let acc: TrendPt | null = null;
+            let allFc = true;
+            for (const c of kids) {
+                const t = (c.trendSeries as (TrendPt | null)[])[i];
+                if (!t) { continue; }
+                acc = acc ?? { ac: null, py: null, pl: null, fc: null, value: null, isFc: false };
+                acc.ac = add(acc.ac, t.ac);
+                acc.py = add(acc.py, t.py);
+                acc.pl = add(acc.pl, t.pl);
+                acc.fc = add(acc.fc, t.fc);
+                acc.value = add(acc.value, t.value);
+                if (t.value != null && !t.isFc) { allFc = false; }
+            }
+            if (acc) { acc.isFc = acc.value != null && allFc; }
+            series.push(acc);
+        }
+        return { series, ref: this.trendRefIdx(series) };
     }
 
     /** aggregates the child rows of one hierarchy parent into a synthetic table row */
@@ -6895,6 +7448,9 @@ export class Visual implements IVisual {
             let bm: number | null = null;
             for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
             agg.bm = bm;
+            // KPI cards + Trend role: the Σ / Rest tile keeps a summed time series
+            const ts = this.sumTrendSeries(kids);
+            if (ts) { agg.trendSeries = ts.series; agg.trendRef = ts.ref; }
             return agg;
         });
         return { name, pts };
@@ -7188,6 +7744,167 @@ export class Visual implements IVisual {
                 }, g);
             };
 
+            // trend mini chart (Trend role): the card's own time series as sparkline or
+            // mini columns. Scale PER CARD like the bullet — KPI tiles mix units
+            // (€, %, pieces), a shared scale would flatten all but the largest. The
+            // sparkline spans the data range (no zero anchor needed for a line), the
+            // columns are zero-based. byBottom is the plot floor; the first/last period
+            // labels sit below it in the legend row like the bridge legend
+            const drawTrend = (bx: number, byBottom: number, bw: number, bh: number) => {
+                const ser = p.trendSeries;
+                if (!ser || ser.length === 0) { return; }
+                const nT = ser.length;
+                const ref = p.trendRef ?? -1;
+                const asCols = cfg.cardTrend === "columns";
+                const showPy = !asCols && cfg.hasPy && ser.some(t => t?.py != null);
+                const vals: number[] = [];
+                for (const t of ser) {
+                    if (!t) { continue; }
+                    if (t.value != null) { vals.push(t.value); }
+                    if (showPy && t.py != null) { vals.push(t.py); }
+                }
+                if (vals.length === 0) { return; }
+                let lo = Math.min(...vals), hi = Math.max(...vals);
+                if (asCols) { lo = Math.min(0, lo); hi = Math.max(0, hi); }
+                if (hi - lo < 1e-9) {
+                    const d = Math.abs(hi) * 0.1 || 1;
+                    lo -= asCols && lo === 0 ? 0 : d;
+                    hi += d;
+                }
+                // last value, small: right of the plot when the reference period is the
+                // last one (room reserved in x), else above its mark (a forecast tail
+                // continues to the right — room reserved on top instead)
+                const lblF = Math.max(8, Math.round(cfg.labelFont * 0.85));
+                const refPt = ref >= 0 ? ser[ref] : null;
+                const lastText = refPt && refPt.value != null ? fmtP.format(refPt.value) : "";
+                const atEnd = ref === nT - 1;
+                let lblW = 0, headroom = 0;
+                if (lastText && atEnd) {
+                    lblW = this.textWidth(lastText, lblF) + Math.round(6 * k);
+                    if (bw - lblW < 40 * k) { lblW = 0; }
+                } else if (lastText && bh - lblF - 3 >= 14 * k) {
+                    headroom = lblF + 3;
+                }
+                const showLbl = lblW > 0 || headroom > 0;
+                const plotW = bw - lblW;
+                const mr = Math.max(2.2, 2.6 * k);
+                const yOf = linearScale(lo, hi, byBottom - (asCols ? 0 : mr), byBottom - bh + mr + 1 + headroom);
+                const lblY = (v: number) => Math.max(byBottom - bh + lblF * 0.8,
+                    Math.min(byBottom, yOf(v) + lblF * 0.35));
+                const tg = this.el("g", {}, g);
+                // label anchor of the reference period: x center, y above its mark
+                let markX = bx + plotW, markY = byBottom;
+                if (asCols) {
+                    const band = plotW / nT;
+                    const barW = Math.max(1, band * 0.7);
+                    const zeroY = yOf(0);
+                    ser.forEach((t, i) => {
+                        if (!t || t.value == null) { return; }
+                        const bxI = bx + i * band + (band - barW) / 2;
+                        const yv = yOf(t.value);
+                        const isRef = i === ref;
+                        const style: Record<string, string | number> = t.isFc
+                            ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 0.8 }
+                            : cfg.hc && !isRef
+                                ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 0.8 }
+                                : { fill: cfg.colors.ac };
+                        // last (reference) column at full strength, the history muted —
+                        // still clearly darker than the PY grey (PY is not plotted here)
+                        if (!isRef && !cfg.hc) { style["fill-opacity"] = t.isFc ? 0.7 : 0.55; }
+                        this.el("rect", {
+                            x: bxI, y: Math.min(yv, zeroY), width: barW,
+                            height: Math.max(1, Math.abs(yv - zeroY)), ...style
+                        }, tg);
+                        // negative bar: label above the zero line (the bar hangs below it)
+                        if (isRef) { markX = bxI + barW / 2; markY = Math.min(yv, zeroY); }
+                    });
+                    this.el("line", {
+                        x1: bx, y1: zeroY, x2: bx + plotW, y2: zeroY,
+                        stroke: cfg.subtle, "stroke-width": 1
+                    }, tg);
+                } else {
+                    const xOf = (i: number) => nT === 1 ? bx + plotW / 2
+                        : bx + mr + i * (plotW - 2 * mr) / (nT - 1);
+                    // PY as thin grey line behind (dotted in high contrast)
+                    if (showPy) {
+                        let dPy = "";
+                        let prevOk = false;
+                        ser.forEach((t, i) => {
+                            if (!t || t.py == null) { prevOk = false; return; }
+                            dPy += `${prevOk ? "L" : "M"}${xOf(i).toFixed(1)},${yOf(t.py).toFixed(1)}`;
+                            prevOk = true;
+                        });
+                        if (dPy) {
+                            this.el("path", {
+                                d: dPy, fill: "none", stroke: cfg.hc ? cfg.ink : cfg.colors.py,
+                                "stroke-width": Math.max(1, 1.1 * k), "stroke-linejoin": "round",
+                                ...(cfg.hc ? { "stroke-dasharray": "1,2" } : {})
+                            }, tg);
+                        }
+                    }
+                    // AC line: solid for actuals, dashed into forecast periods (IBCS FC)
+                    let dAc = "", dFc = "";
+                    for (let i = 1; i < nT; i++) {
+                        const a = ser[i - 1], b = ser[i];
+                        if (!a || !b || a.value == null || b.value == null) { continue; }
+                        const seg = `M${xOf(i - 1).toFixed(1)},${yOf(a.value).toFixed(1)}L${xOf(i).toFixed(1)},${yOf(b.value).toFixed(1)}`;
+                        if (b.isFc) { dFc += seg; } else { dAc += seg; }
+                    }
+                    const lw = Math.max(1.4, 1.6 * k);
+                    if (dAc) {
+                        this.el("path", {
+                            d: dAc, fill: "none", stroke: cfg.colors.ac, "stroke-width": lw,
+                            "stroke-linejoin": "round", "stroke-linecap": "round"
+                        }, tg);
+                    }
+                    if (dFc) {
+                        this.el("path", {
+                            d: dFc, fill: "none", stroke: cfg.colors.ac, "stroke-width": lw,
+                            "stroke-dasharray": `${Math.round(3 * k)},${Math.round(2 * k)}`
+                        }, tg);
+                    }
+                    // isolated periods (gaps on both sides) would vanish — small dot
+                    ser.forEach((t, i) => {
+                        if (!t || t.value == null || i === ref) { return; }
+                        const lone = (i === 0 || ser[i - 1]?.value == null)
+                            && (i === nT - 1 || ser[i + 1]?.value == null);
+                        if (lone) {
+                            this.el("circle", { cx: xOf(i), cy: yOf(t.value), r: lw * 0.8, fill: cfg.colors.ac }, tg);
+                        }
+                    });
+                    if (refPt && refPt.value != null) {
+                        markX = xOf(ref);
+                        markY = yOf(refPt.value);
+                        this.el("circle", {
+                            cx: markX, cy: markY, r: mr,
+                            ...(refPt.isFc
+                                ? { fill: cfg.paper, stroke: cfg.colors.ac, "stroke-width": 1.2 }
+                                : { fill: cfg.colors.ac })
+                        }, tg);
+                        markY -= mr;
+                    }
+                }
+                if (showLbl && refPt && refPt.value != null) {
+                    const lt = this.el("text", {
+                        x: atEnd ? bx + plotW + Math.round(4 * k) : markX,
+                        y: atEnd ? lblY(refPt.value) : Math.max(byBottom - bh + lblF * 0.8, markY - 3),
+                        "text-anchor": atEnd ? "start" : "middle",
+                        "font-size": lblF, fill: cfg.ink, "font-family": FONT, "font-weight": 600,
+                        stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+                    }, tg);
+                    lt.textContent = lastText;
+                }
+                // period legend: first and last period of the common axis
+                const legF = Math.round(8 * k);
+                if (nT >= 2 && cfg.trendLabels.length === nT) {
+                    txt(bx, byBottom + legF + 2, cfg.trendLabels[0], legF, false, cfg.subtle, "start");
+                    txt(bx + plotW, byBottom + legF + 2, cfg.trendLabels[nT - 1], legF, false, cfg.subtle, "end");
+                }
+            };
+            // trend chart active: it takes the mini bridge's place (bullet independent);
+            // cards without a series (none here) simply keep the area empty
+            const trendOn = cfg.cardTrend !== "off";
+
             // Δ reference rows: variance basis, second basis, benchmark — in
             // benchmark-status mode the BM row leads (it carries the judgement)
             const deltaRows: [string, number, number | null | "na", boolean][] = [];
@@ -7265,7 +7982,14 @@ export class Visual implements IVisual {
                 // bridge on the right edge when there is still room for it (toggle)
                 const bw2 = Math.min(170 * k, x + w - pad - refX);
                 const bh2 = Math.min(Math.round(34 * k), h - Math.round(12 * k) - legRoom);
-                if (cfg.cardBars && p.basis != null && bw2 >= 100 * k && bh2 >= 18 * k) {
+                if (trendOn) {
+                    // trend chart in the bridge slot — a little wider, a line needs length
+                    const bwT = Math.min(220 * k, x + w - pad - refX);
+                    if (p.trendSeries && bwT >= 90 * k && bh2 >= 16 * k) {
+                        const byBottom = y + (h - legRoom + bh2) / 2;
+                        drawTrend(x + w - pad - bwT, byBottom, bwT, bh2);
+                    }
+                } else if (cfg.cardBars && p.basis != null && bw2 >= 100 * k && bh2 >= 18 * k) {
                     const byBottom = y + (h - legRoom + bh2) / 2;
                     drawBridge(x + w - pad - bw2, byBottom, bw2, bh2);
                 }
@@ -7289,7 +8013,15 @@ export class Visual implements IVisual {
                     yCur += Math.round(18 * k);
                 }
                 const bridgeH = Math.round(40 * k);
-                if (cfg.cardBars && p.basis != null && h - (yCur - y) >= bridgeH + pad + legRoom && w >= 150 * k) {
+                if (trendOn) {
+                    // trend chart fills the free bottom area (≥ 56 px·k, up to a third of
+                    // a tall card), full card width
+                    const avail = y + h - pad - legRoom - yCur;
+                    const hT = Math.min(Math.round(Math.max(56 * k, h * 0.34)), avail);
+                    if (p.trendSeries && hT >= 18 * k && w >= 120 * k) {
+                        drawTrend(x + pad, y + h - pad - legRoom, w - pad * 2, hT);
+                    }
+                } else if (cfg.cardBars && p.basis != null && h - (yCur - y) >= bridgeH + pad + legRoom && w >= 150 * k) {
                     const bw2 = Math.min(w - pad * 2, 190 * k);
                     drawBridge(x + pad, y + h - pad - legRoom, bw2, bridgeH);
                 }
@@ -9250,6 +9982,8 @@ export class Visual implements IVisual {
      * shortened list still matches the Σ over all data.
      */
     private aggregateTail(tail: DataPoint[], cat: string, group: string | null): DataPoint {
+        // KPI cards + Trend role: the collector card keeps a summed time series
+        const ts = this.sumTrendSeries(tail);
         const sum = (vals: (number | null)[]): number | null => {
             let acc: number | null = null;
             for (const v of vals) {
@@ -9282,7 +10016,8 @@ export class Visual implements IVisual {
             group,
             rowType: null,
             isRest: true,
-            sel: null
+            sel: null,
+            ...(ts ? { trendSeries: ts.series, trendRef: ts.ref } : {})
         };
     }
 
@@ -10105,6 +10840,9 @@ export class Visual implements IVisual {
             aria.push(`${cfg.scatter.xName} ${cfg.scatter.fmtX.format(p.xVal)}`);
         }
         if (p.value != null) { aria.push(cfg.fmt.format(p.value)); }
+        if (p.trendSeries && p.trendRef != null && p.trendRef >= 0 && cfg.trendLabels[p.trendRef]) {
+            aria.push(`${this.locStr("Tooltip_LastPeriod", "Last period")} ${cfg.trendLabels[p.trendRef]}`);
+        }
         if (p.varAbs != null) { aria.push(`Δ${cfg.basisLabel} ${this.fmtSigned(cfg.fmtVar, p.varAbs)}`); }
         if (p.comment) { aria.push(p.comment); }
         g.setAttribute("aria-label", aria.join(", "));
@@ -10162,6 +10900,24 @@ export class Visual implements IVisual {
                 });
             };
             out.push({ displayName: this.locStr("Role_Category", "Category"), value: p.cat });
+            // KPI cards + Trend role: which period the card value refers to — the last
+            // period with an actual; "sum" cards name the summed span and the last value
+            if (p.trendSeries && p.trendRef != null && p.trendRef >= 0
+                && cfg.trendLabels.length === p.trendSeries.length) {
+                const lastLbl = cfg.trendLabels[p.trendRef];
+                const lastPt = p.trendSeries[p.trendRef];
+                if (cfg.cardTrendSum) {
+                    out.push({
+                        displayName: cfg.trendName,
+                        value: `Σ ${cfg.trendLabels[0]} – ${cfg.trendLabels[cfg.trendLabels.length - 1]}`
+                    });
+                }
+                out.push({
+                    displayName: this.locStr("Tooltip_LastPeriod", "Last period"),
+                    value: cfg.cardTrendSum && lastPt?.value != null
+                        ? `${lastLbl} · ${cfg.fmt.format(lastPt.value)}` : lastLbl
+                });
+            }
             // scatter: group (flattened multiples), X before Y = AC, bubble size after it
             const sc = cfg.scatter;
             if (sc && p.group != null) {

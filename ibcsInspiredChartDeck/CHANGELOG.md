@@ -1,5 +1,39 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.47.0.0 (2026-10-16)
+
+**Vier Besitzer-Wünsche: Scatter/Bubble, Trend-Karten, Brücken-Ausrichtung, Sofort-Hierarchie.**
+
+- **Neuer Chart-Typ „Scatter / Bubble (Korrelation)"** — 13. Modus:
+  Y = AC, X = neue Measure-Rolle „X-Achse (Scatter)", optionale Rolle
+  „Blasengröße" (Fläche proportional, 3–22 px). Quadranten-Linien
+  (aus · Mittelwert · Median), refLine/xRefLine übersteuern sie; Achsen
+  mit max. 5 runden Ticks, Einheit im Achsentitel; Labels mit
+  Kollisionsvermeidung (Hervorgehobene > größte Blasen > Extrempunkte);
+  optionale Status-Färbung nach ΔPY/ΔPL inkl. Wesentlichkeit; EMPHASIZE,
+  FC-Schraffur, Kommentare, Crossfilter, Dark Mode, Hochkontrast.
+  Multiples-Rolle wird zur kombinierten Punktwolke (Kategorie · Gruppe).
+- **KPI-Karten mit Zeitreihe:** Neue Grouping-Rolle „Trend (Zeit)" —
+  jede Karte wird zur Serie. Mini-Chart wählbar (Aus · Sparkline ·
+  Säulen): Sparkline mit PY-Geisterlinie, FC gestrichelt, letzter
+  Ist-Punkt beschriftet; Säulen nullbasiert, Negative unter der
+  Nulllinie, FC schraffiert. Kartenwert „Letzter Wert" (Default, inkl.
+  konsistenter Δ/Ampel aus derselben Periode) oder „Summe". Ohne
+  Trend-Feld bleibt alles exakt wie bisher; andere Modi ignorieren die
+  Rolle (Zeilen werden re-aggregiert).
+- **Kategorie-Brücke: Ausrichtung wählbar** (Automatisch · Balken ·
+  Säulen): Die neue vertikale Säulen-Kaskade (PY-Anker → Treiber → AC →
+  ΔBasis-Überleitung) mit Δ%-Pins oben; Hervorhebung, Treiber-Notiz,
+  n.a.-Regel und Small-Multiples-Skala gelten auch dort.
+- **Hierarchie klappt sofort auf:** Mehrere Felder in „Kategorie"
+  (Tabelle/GuV) → das Visual ruft die Drilldown-API selbst auf, der
+  klickbare Zeilenbaum erscheint ohne die Drill-Knöpfe im Kopf; je
+  Feld-Konstellation nur einmal, manuelles Hochklappen bleibt bestehen.
+  Schalter „Hierarchie automatisch aufklappen" (Standard an).
+- 47 neue Übersetzungs-Keys + 4 nachgezogene Alt-Lücken (465 × 4,
+  Parität). Tests c157–c169 (+ Zusatzfälle); Regression: alle
+  Bestandsfälle pixelidentisch (nur die Landing zeigt die 13. Kachel).
+
 ## 1.46.0.0 (2026-10-16)
 
 **Cross-Interaktion steht jetzt immer auf „Filtern".**

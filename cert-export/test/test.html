@@ -111,18 +111,21 @@ function makeHost(hc, noInteract, themeBg) {
     tooltipService: { show(){}, move(){}, hide(){} },
     createLocalizationManager: () => ({ getDisplayName: () => "" }),
     persistProperties: (changes) => console.log("persistProperties", JSON.stringify(changes)),
+    drill: (args) => console.log("drill", JSON.stringify(args)),
     locale: "de-DE"
   };
 }
 
 // highlights: parallel array as Power BI delivers it with supportsHighlight —
 // null marks a row outside the cross-highlight coming from another visual
-function col(role, values, format, highlights) {
-  return { source: { displayName: role === "actual" ? "Umsatz" : role, roles: { [role]: true }, isMeasure: true, format }, values, highlights };
+// name: optional measure display name (scatter axis titles/tooltips), else the default
+function col(role, values, format, highlights, name) {
+  return { source: { displayName: name ?? (role === "actual" ? "Umsatz" : role), roles: { [role]: true }, isMeasure: true, format }, values, highlights };
 }
 
 // cats === null renders the measure-only case (KPI card without a category)
-function dataView(cats, cols, objects, multValues, rowTypes) {
+// trendValues: optional Trend-role column (period per row, KPI cards)
+function dataView(cats, cols, objects, multValues, rowTypes, trendValues) {
   const categories = cats == null ? []
     : [{ source: { displayName: "Category", roles: { category: true } }, values: cats }];
   if (multValues) {
@@ -133,6 +136,9 @@ function dataView(cats, cols, objects, multValues, rowTypes) {
   }
   if (objects && objects.__fcFlags) {
     categories.push({ source: { displayName: "FC", roles: { fcFlag: true } }, values: objects.__fcFlags });
+  }
+  if (trendValues) {
+    categories.push({ source: { displayName: "Monat", roles: { trend: true } }, values: trendValues });
   }
   return {
     metadata: { columns: [], objects: objects || {} },
@@ -1446,6 +1452,148 @@ run("c154", dataView(brProds, [col("actual", brAc, "#,0 €"), col("previousYear
 run("c155", dataView(brProds, [col("actual", brAc, "#,0 €"), col("previousYear", brPy, "#,0 €")], brObj("on")), 960, 420, true);
 run("c156", dataView(brProds, [col("actual", brAc, "#,0 €"), col("previousYear", brPy, "#,0 €")],
   brObj("on", { ibcsTitle: { kpi: "Umsatz", footer: "Ist per Jun 2026 · Quelle: SAP FI" } })), 960, 420, false, true);
+</script>
+<div class="case"><h4>c157 · Scatter / Bubble · Basis: 12 Sparten, Umsatz (AC, Y) über EBIT-Marge (X, „0.0 %") — Achsen mit 3–5 runden Ticks, Einheiten in den Achsentiteln („in T€" / „in %"), Quadranten-Linien beim Mittelwert (Standard), Kategorie-Labels kollisionsfrei · rechts: X-Rolle fehlt → Hinweis statt Leerlauf</h4><div class="stage" id="c157" style="width:960px;height:440px;display:inline-block"></div><div class="stage" id="c157b" style="width:420px;height:200px;display:inline-block;vertical-align:top"></div></div>
+<div class="case"><h4>c158 · Bubble · Größe = Mitarbeitende (Fläche ∝ Wert, max 22px·k) + Quadranten Mittelwert — Titel „○ Mitarbeitende (max 820)" · rechts: Small-Multiples-Feld gebunden → EINE Punktwolke „Sparte · Region"</h4><div class="stage" id="c158" style="width:960px;height:460px;display:inline-block"></div><div class="stage" id="c158b" style="width:620px;height:340px;display:inline-block;vertical-align:top"></div></div>
+<div class="case"><h4>c159 · Status-Färbung ΔPY (gut teal / schlecht rot) + Wesentlichkeit 3 % (grau) + Quadranten Median — Titel „color = ΔPY"</h4><div class="stage" id="c159" style="width:960px;height:440px"></div></div>
+<div class="case"><h4>c160 · EMPHASIZE „Software, Robotik" (Ring + fett, immer beschriftet) + X-Referenzlinie 10 % (scale.xRefLine) + Y-Referenzlinie „Ziel 5 Mio" (scale.refLine) ersetzen die Quadranten-Linien + Kommentar-Badge ① an „Logistik"</h4><div class="stage" id="c160" style="width:960px;height:460px"></div></div>
+<div class="case"><h4>c161 · Scatter · Dark Mode (appearance="dark") · Bubbles + Status ΔPY + EMPHASIZE „Service"</h4><div class="stage" id="c161" style="width:960px;height:460px;background:#1E1E1E"></div></div>
+<div class="case"><h4>c162 · Scatter · Hochkontrast (gelb auf schwarz) · Bubbles als Umriss-Kreise in Vordergrundfarbe, EMPHASIZE gefüllt</h4><div class="stage" id="c162" style="width:960px;height:460px;background:#000"></div></div>
+<script>
+// c157–c162: Scatter / Bubble — 12 business units, revenue (AC) vs. EBIT margin (X)
+const scatU = ["Antriebe","Sensorik","Hydraulik","Pneumatik","Service","Software","Ersatzteile","Robotik","Logistik","Energie","Medizintechnik","Automotive"];
+const scatAc = [12400, 8600, 6900, 5400, 4800, 3900, 3500, 2900, 2400, 1800, 1500, 900];
+const scatPy = [11800, 8900, 6500, 5600, 4300, 3100, 3450, 3100, 2350, 1500, 1520, 1100];
+const scatX = [0.142, 0.118, 0.092, 0.081, 0.214, 0.236, 0.188, 0.064, 0.035, 0.121, 0.168, -0.022];
+const scatSize = [820, 610, 540, 380, 420, 160, 140, 260, 300, 120, 95, 85];
+const scatCols = (extra) => [col("actual", scatAc, "#,0 T€"), col("xValue", scatX, "0.0 %", null, "EBIT-Marge")].concat(extra || []);
+const scatObj = (chart, extra) => Object.assign({
+  ibcsTitle: { kpi: "Umsatz" },
+  chart: Object.assign({ orientation: "scatter" }, chart || {})
+}, extra || {});
+run("c157", dataView(scatU, scatCols(), scatObj()), 960, 440);
+run("c157b", dataView(scatU, [col("actual", scatAc, "#,0 T€")], scatObj()), 420, 200);
+run("c158", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende")]),
+  scatObj({ scatterQuadrant: "mean" })), 960, 460);
+{
+  // small multiples bound in scatter: no tiles, one cloud of "unit · region" points
+  const cats = [], mult = [], a = [], x = [];
+  [["Nord", 1, 0], ["Süd", 0.7, 0.03]].forEach(([r, f, dm]) => {
+    scatU.slice(0, 5).forEach((c, i) => { cats.push(c); mult.push(r); a.push(Math.round(scatAc[i] * f)); x.push(scatX[i] + dm); });
+  });
+  run("c158b", dataView(cats, [col("actual", a, "#,0 T€"), col("xValue", x, "0.0 %", null, "EBIT-Marge")],
+    scatObj({ multiplesTotal: true }), mult), 620, 340);
+}
+run("c159", dataView(scatU, scatCols([col("previousYear", scatPy, "#,0 T€")]),
+  scatObj({ scatterColorBy: "status", scatterQuadrant: "median", materialityPct: 3 })), 960, 440);
+run("c160", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende"),
+    col("comments", scatU.map(u => u === "Logistik" ? "Großkunde verloren, Preisdruck" : null))]),
+  scatObj({ highlight: "Software, Robotik" }, { scale: { xRefLine: "0.1", refLine: "5000", refLineLabel: "Ziel 5 Mio" } })), 960, 460);
+run("c161", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende"), col("previousYear", scatPy, "#,0 T€")]),
+  scatObj({ scatterColorBy: "status", highlight: "Service" }, { colors: { appearance: "dark" } })), 960, 460);
+run("c162", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende"), col("previousYear", scatPy, "#,0 T€")]),
+  scatObj({ scatterColorBy: "status", highlight: "Service" })), 960, 460, true);
+</script>
+
+<div class="case"><h4>c163 · 1.47 · Auto-Aufklappen: Tabelle mit drillbarer Kategorie (drillableRoles bietet Down) → Visual ruft host.drill("category", Down) GENAU EINMAL — Konsole zeigt »drill {"roleName":"category","drillType":2}«</h4><div class="stage" id="c163" style="width:960px;height:320px"></div></div>
+<script>
+// Der Shim loggt host.drill; die Signatur-Logik (einmal je Feld-Konstellation)
+// wird geprüft, indem dieselbe Instanz zweimal mit identischen Daten updated
+const aeDv = dataView(["Nord", "Süd"], [col("actual", [100, 200], "#,0 €")],
+  { chart: { orientation: "table" } });
+aeDv.metadata.dataRoles = { drillableRoles: { category: [2] } };
+const aeEl = document.getElementById("c163");
+const aeVisual = new Visual({ element: aeEl, host: makeHost(false, false) });
+aeVisual.update({ viewport: { width: 960, height: 320 }, dataViews: [aeDv] });
+// zweites Update mit gleicher Konstellation: darf NICHT erneut drillen
+aeVisual.update({ viewport: { width: 960, height: 320 }, dataViews: [aeDv] });
+</script>
+
+<div class="case"><h4>c164 · 1.47 · KPI-Karten + Trend-Rolle (Monat, Datumstyp) · Sparkline · Karten-Wert „Letzter Wert" — 4 KPIs × 12 Monate, PY gebunden (dünn grau dahinter), Okt–Dez FC (fcFlag, gestrichelt) → Kartenwert/Marker/Label = Sep (letzte Ist-Periode), Δ gegen PY Sep; Retourenquote invertiert; Zeilen absichtlich unsortiert (Dez zuerst) → chronologisch · rechts: Dark Mode</h4><div class="stage" id="c164" style="width:1200px;height:300px"></div><div class="stage" id="c164b" style="width:1200px;height:300px;background:#1E1E1E"></div></div>
+<div class="case"><h4>c165 · 1.47 · KPI-Karten + Trend · Mini-Säulen · negative Monate unter der Nulllinie, letzte Ist-Säule voll (Historie gedämpft), Nov/Dez FC schraffiert · flacher Streifen (1420×130) mit Trend im Brücken-Slot · Hochkontrast</h4><div class="stage" id="c165" style="width:1200px;height:300px"></div><div class="stage" id="c165b" style="width:1420px;height:130px"></div><div class="stage" id="c165c" style="width:1200px;height:300px;background:#000"></div></div>
+<div class="case"><h4>c166 · 1.47 · KPI-Karten + Trend · cardTrendValue = Summe (Kartenwert = Σ Jan–Jun, PY/BM ebenfalls summiert) + Bullet vs. BM an — Bullet unter den Δ-Zeilen, Sparkline darunter (Koexistenz), Tooltip „Σ Jan – Jun“ + „Letzte Periode“</h4><div class="stage" id="c166" style="width:1200px;height:360px"></div></div>
+<div class="case"><h4>c167 · 1.47 · Regression: KPI-Karten OHNE Trend-Rolle (cardTrendChart = Sparkline gesetzt, wirkt nicht) — Mini-Brücke PY → Δ → AC wie bisher · darunter: Balken MIT Trend-Feld (c167b) vs. OHNE (c167c) — Trend wird außerhalb der Karten ignoriert, beide identisch (Konsole „trend-ignored identical“)</h4><div class="stage" id="c167" style="width:1200px;height:300px"></div><div class="stage" id="c167b" style="width:600px;height:260px;display:inline-block"></div><div class="stage" id="c167c" style="width:600px;height:260px;display:inline-block"></div></div>
+<div class="case"><h4>c168 · 1.47 · Kategorie-Brücke VERTIKAL (bridgeOrientation = columns) · c141-Daten: PY 100, A +60 → Zwischenstand 160 in der Skala, −45/−25 → AC 90; ΔPY%-Pins oben, ΔPY-Überleitung mit Kreis-Callout · darunter: c23-Daten (PL + PY, 15 Staaten, Gruppen alle 4, EMPHASIZE „Texas“) mit Doppel-Überleitung ΔPY + ΔPL</h4><div class="stage" id="c168" style="width:1200px;height:420px"></div><div class="stage" id="c168b" style="width:1340px;height:600px"></div></div>
+<div class="case"><h4>c169 · 1.47 · Kategorie-Brücke VERTIKAL · Small Multiples (Nord 3× Süd) + multiplesSameScale (Süd sichtbar kleiner) + Dark Mode</h4><div class="stage" id="c169" style="width:1340px;height:560px;background:#1E1E1E"></div></div>
+<script>
+// c164–c167: KPI cards with the Trend role — rows = KPI × month (Date type)
+const trKpis = ["Umsatz", "Deckungsbeitrag", "Neukunden", "Retourenquote"];
+const trBase = { "Umsatz": [820, 790, 900, 940, 1010, 980, 1060, 1020, 1110, 1150, 1180, 1290],
+  "Deckungsbeitrag": [310, 290, 335, 350, 372, 361, 380, 366, 398, 410, 420, 455],
+  "Neukunden": [142, 128, 151, 160, 149, 171, 166, 158, 183, 176, 181, 190],
+  "Retourenquote": [6.8, 7.1, 6.5, 6.9, 7.4, 7.0, 6.6, 6.4, 6.1, 6.0, 5.9, 5.8] };
+const trPyF = { "Umsatz": 0.93, "Deckungsbeitrag": 0.97, "Neukunden": 1.06, "Retourenquote": 1.08 };
+function trendRows(kpis, base, pyF, months, fcFrom, order) {
+  const cats = [], tr = [], ac = [], py = [], flags = [];
+  kpis.forEach(kk => {
+    (order || months.map((_, i) => i)).forEach(mi => {
+      cats.push(kk); tr.push(new Date(2026, mi, 1));
+      ac.push(base[kk][mi]); py.push(Math.round(base[kk][mi] * pyF[kk] * 10) / 10);
+      flags.push(fcFrom != null && mi >= fcFrom ? 1 : 0);
+    });
+  });
+  return { cats, tr, ac, py, flags };
+}
+// Umsatz rows arrive with December first — the Date sort must restore Jan → Dez
+{
+  const order = [11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const r = trendRows(trKpis, trBase, trPyF, months, 9, order);
+  const obj = (extra) => Object.assign({ chart: { orientation: "cards", invertList: "Retourenquote" },
+    __fcFlags: r.flags }, extra || {});
+  run("c164", dataView(r.cats, [col("actual", r.ac), col("previousYear", r.py)], obj(), null, null, r.tr), 1200, 300);
+  run("c164b", dataView(r.cats, [col("actual", r.ac), col("previousYear", r.py)],
+    obj({ colors: { appearance: "dark" } }), null, null, r.tr), 1200, 300);
+}
+// c165: columns, negative months, FC tail Nov/Dez
+{
+  const k5 = ["EBIT", "Free Cashflow", "Auftragseingang", "Working Capital Δ"];
+  const b5 = { "EBIT": [42, 38, -12, 55, 61, -8, 47, 52, 66, 58, 63, 71],
+    "Free Cashflow": [-20, 15, 33, -41, 28, 36, -5, 44, 39, 12, 25, 30],
+    "Auftragseingang": [910, 880, 960, 1010, 990, 1040, 1100, 1080, 1150, 1190, 1210, 1240],
+    "Working Capital Δ": [-3.2, -1.1, 2.4, 1.8, -0.6, -2.2, 1.4, 0.9, -1.7, -2.5, 0.8, 1.6] };
+  const p5 = { "EBIT": 0.9, "Free Cashflow": 1.1, "Auftragseingang": 0.95, "Working Capital Δ": 1 };
+  const r = trendRows(k5, b5, p5, months, 10);
+  const obj = { chart: { orientation: "cards", cardTrendChart: "columns", invertList: "Working Capital Δ" },
+    __fcFlags: r.flags };
+  run("c165", dataView(r.cats, [col("actual", r.ac), col("previousYear", r.py)], obj, null, null, r.tr), 1200, 300);
+  run("c165b", dataView(r.cats, [col("actual", r.ac), col("previousYear", r.py)], obj, null, null, r.tr), 1420, 130);
+  run("c165c", dataView(r.cats, [col("actual", r.ac), col("previousYear", r.py)], obj, null, null, r.tr), 1200, 300, true);
+}
+// c166: sum mode + bullet vs. BM (6 months, BM = monthly target)
+{
+  const m6 = months.slice(0, 6);
+  const r = trendRows(trKpis.slice(0, 3), trBase, trPyF, m6);
+  const bm = r.cats.map((c, i) => Math.round(r.ac[i] * (c === "Neukunden" ? 1.08 : 0.97)));
+  run("c166", dataView(r.cats, [col("actual", r.ac), col("previousYear", r.py), col("benchmark", bm)],
+    { chart: { orientation: "cards", cardTrendValue: "sum", cardBullet: true } }, null, null, r.tr), 1200, 360);
+}
+// c167: no trend field — the mini bridge must render exactly as before
+{
+  const ac4 = trKpis.map(kk => trBase[kk][8]);
+  const py4 = trKpis.map(kk => Math.round(trBase[kk][8] * trPyF[kk] * 10) / 10);
+  run("c167", dataView(trKpis, [col("actual", ac4), col("previousYear", py4)],
+    { chart: { orientation: "cards", cardTrendChart: "sparkline", invertList: "Retourenquote" } }), 1200, 300);
+  // bars WITH a trend field vs. WITHOUT: the period split is summed back
+  const r = trendRows(["Nord", "Süd", "West"], { Nord: [5, 6, 7], Süd: [3, 4, 2], West: [8, 1, 4] },
+    { Nord: 0.9, Süd: 1.2, West: 1 }, months.slice(0, 3));
+  const sums = (arr) => ["Nord", "Süd", "West"].map(c => r.cats.reduce((a, cc, i) => a + (cc === c ? arr[i] : 0), 0));
+  run("c167b", dataView(r.cats, [col("actual", r.ac), col("previousYear", r.py)],
+    { chart: { orientation: "bars" } }, null, null, r.tr), 600, 260);
+  run("c167c", dataView(["Nord", "Süd", "West"], [col("actual", sums(r.ac)), col("previousYear", sums(r.py))],
+    { chart: { orientation: "bars" } }), 600, 260);
+  // instance ids differ (pattern ids) — compare with the instance suffix stripped
+  const norm = (id) => document.getElementById(id).innerHTML.replace(/icd-(hatch|prelim)(-good|-bad)?-\d+/g, "pat");
+  console.log("trend-ignored identical:", norm("c167b") === norm("c167c"));
+}
+// c168: vertical category bridge — c141 data, then the c23 states with PL + PY
+run("c168", dataView(["A (+60)","B (−45)","C (−25)"], [col("actual", [80, 5, 5]), col("previousYear", [20, 50, 30])],
+  { chart: { orientation: "catbridge", bridgeOrientation: "columns" } }), 1200, 420);
+run("c168b", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col("plan", cbPl)],
+  { chart: { orientation: "catbridge", bridgeOrientation: "columns", groupEvery: 4, highlight: "Texas" } }), 1340, 600);
+// c169: vertical bridge in small multiples, shared scale, dark mode
+run("c169", dataView(cbCats2, [col("actual", cbAc2), col("previousYear", cbPy2)],
+  { chart: { orientation: "catbridge", bridgeOrientation: "columns", multiplesSameScale: true },
+    colors: { appearance: "dark" } }, cbMult2), 1340, 560);
 </script>
 </body>
 </html>
