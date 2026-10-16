@@ -117,8 +117,9 @@ function makeHost(hc, noInteract, themeBg) {
 
 // highlights: parallel array as Power BI delivers it with supportsHighlight —
 // null marks a row outside the cross-highlight coming from another visual
-function col(role, values, format, highlights) {
-  return { source: { displayName: role === "actual" ? "Umsatz" : role, roles: { [role]: true }, isMeasure: true, format }, values, highlights };
+// name: optional measure display name (scatter axis titles/tooltips), else the default
+function col(role, values, format, highlights, name) {
+  return { source: { displayName: name ?? (role === "actual" ? "Umsatz" : role), roles: { [role]: true }, isMeasure: true, format }, values, highlights };
 }
 
 // cats === null renders the measure-only case (KPI card without a category)
@@ -1446,6 +1447,47 @@ run("c154", dataView(brProds, [col("actual", brAc, "#,0 €"), col("previousYear
 run("c155", dataView(brProds, [col("actual", brAc, "#,0 €"), col("previousYear", brPy, "#,0 €")], brObj("on")), 960, 420, true);
 run("c156", dataView(brProds, [col("actual", brAc, "#,0 €"), col("previousYear", brPy, "#,0 €")],
   brObj("on", { ibcsTitle: { kpi: "Umsatz", footer: "Ist per Jun 2026 · Quelle: SAP FI" } })), 960, 420, false, true);
+</script>
+<div class="case"><h4>c157 · Scatter / Bubble · Basis: 12 Sparten, Umsatz (AC, Y) über EBIT-Marge (X, „0.0 %") — Achsen mit 3–5 runden Ticks, Einheiten in den Achsentiteln („in T€" / „in %"), Quadranten-Linien beim Mittelwert (Standard), Kategorie-Labels kollisionsfrei · rechts: X-Rolle fehlt → Hinweis statt Leerlauf</h4><div class="stage" id="c157" style="width:960px;height:440px;display:inline-block"></div><div class="stage" id="c157b" style="width:420px;height:200px;display:inline-block;vertical-align:top"></div></div>
+<div class="case"><h4>c158 · Bubble · Größe = Mitarbeitende (Fläche ∝ Wert, max 22px·k) + Quadranten Mittelwert — Titel „○ Mitarbeitende (max 820)" · rechts: Small-Multiples-Feld gebunden → EINE Punktwolke „Sparte · Region"</h4><div class="stage" id="c158" style="width:960px;height:460px;display:inline-block"></div><div class="stage" id="c158b" style="width:620px;height:340px;display:inline-block;vertical-align:top"></div></div>
+<div class="case"><h4>c159 · Status-Färbung ΔPY (gut teal / schlecht rot) + Wesentlichkeit 3 % (grau) + Quadranten Median — Titel „color = ΔPY"</h4><div class="stage" id="c159" style="width:960px;height:440px"></div></div>
+<div class="case"><h4>c160 · EMPHASIZE „Software, Robotik" (Ring + fett, immer beschriftet) + X-Referenzlinie 10 % (scale.xRefLine) + Y-Referenzlinie „Ziel 5 Mio" (scale.refLine) ersetzen die Quadranten-Linien + Kommentar-Badge ① an „Logistik"</h4><div class="stage" id="c160" style="width:960px;height:460px"></div></div>
+<div class="case"><h4>c161 · Scatter · Dark Mode (appearance="dark") · Bubbles + Status ΔPY + EMPHASIZE „Service"</h4><div class="stage" id="c161" style="width:960px;height:460px;background:#1E1E1E"></div></div>
+<div class="case"><h4>c162 · Scatter · Hochkontrast (gelb auf schwarz) · Bubbles als Umriss-Kreise in Vordergrundfarbe, EMPHASIZE gefüllt</h4><div class="stage" id="c162" style="width:960px;height:460px;background:#000"></div></div>
+<script>
+// c157–c162: Scatter / Bubble — 12 business units, revenue (AC) vs. EBIT margin (X)
+const scatU = ["Antriebe","Sensorik","Hydraulik","Pneumatik","Service","Software","Ersatzteile","Robotik","Logistik","Energie","Medizintechnik","Automotive"];
+const scatAc = [12400, 8600, 6900, 5400, 4800, 3900, 3500, 2900, 2400, 1800, 1500, 900];
+const scatPy = [11800, 8900, 6500, 5600, 4300, 3100, 3450, 3100, 2350, 1500, 1520, 1100];
+const scatX = [0.142, 0.118, 0.092, 0.081, 0.214, 0.236, 0.188, 0.064, 0.035, 0.121, 0.168, -0.022];
+const scatSize = [820, 610, 540, 380, 420, 160, 140, 260, 300, 120, 95, 85];
+const scatCols = (extra) => [col("actual", scatAc, "#,0 T€"), col("xValue", scatX, "0.0 %", null, "EBIT-Marge")].concat(extra || []);
+const scatObj = (chart, extra) => Object.assign({
+  ibcsTitle: { kpi: "Umsatz" },
+  chart: Object.assign({ orientation: "scatter" }, chart || {})
+}, extra || {});
+run("c157", dataView(scatU, scatCols(), scatObj()), 960, 440);
+run("c157b", dataView(scatU, [col("actual", scatAc, "#,0 T€")], scatObj()), 420, 200);
+run("c158", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende")]),
+  scatObj({ scatterQuadrant: "mean" })), 960, 460);
+{
+  // small multiples bound in scatter: no tiles, one cloud of "unit · region" points
+  const cats = [], mult = [], a = [], x = [];
+  [["Nord", 1, 0], ["Süd", 0.7, 0.03]].forEach(([r, f, dm]) => {
+    scatU.slice(0, 5).forEach((c, i) => { cats.push(c); mult.push(r); a.push(Math.round(scatAc[i] * f)); x.push(scatX[i] + dm); });
+  });
+  run("c158b", dataView(cats, [col("actual", a, "#,0 T€"), col("xValue", x, "0.0 %", null, "EBIT-Marge")],
+    scatObj({ multiplesTotal: true }), mult), 620, 340);
+}
+run("c159", dataView(scatU, scatCols([col("previousYear", scatPy, "#,0 T€")]),
+  scatObj({ scatterColorBy: "status", scatterQuadrant: "median", materialityPct: 3 })), 960, 440);
+run("c160", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende"),
+    col("comments", scatU.map(u => u === "Logistik" ? "Großkunde verloren, Preisdruck" : null))]),
+  scatObj({ highlight: "Software, Robotik" }, { scale: { xRefLine: "0.1", refLine: "5000", refLineLabel: "Ziel 5 Mio" } })), 960, 460);
+run("c161", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende"), col("previousYear", scatPy, "#,0 T€")]),
+  scatObj({ scatterColorBy: "status", highlight: "Service" }, { colors: { appearance: "dark" } })), 960, 460);
+run("c162", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende"), col("previousYear", scatPy, "#,0 T€")]),
+  scatObj({ scatterColorBy: "status", highlight: "Service" })), 960, 460, true);
 </script>
 </body>
 </html>

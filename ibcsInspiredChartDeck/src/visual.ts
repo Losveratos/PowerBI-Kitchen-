@@ -134,6 +134,10 @@ interface DataPoint {
     lineVal: number | null;
     /** stacked mode: series label when the Stack-Series role is bound (else null) */
     stackSeries: string | null;
+    /** scatter: X-axis measure (role xValue) and bubble-size measure (role bubbleSize);
+     *  null/absent when the role is not bound or for synthetic rows */
+    xVal?: number | null;
+    sizeVal?: number | null;
     comment: string | null;
     /** 1-based comment marker number, assigned in category order */
     commentNo: number | null;
@@ -318,6 +322,23 @@ interface ChartConfig {
      *  cut value, `possible` = every anchor + delta lies above it, `suggested` = delta
      *  span < 25 % of the largest anchor, `active` = actually drawn broken. null = off */
     wfBreak: { at: number; possible: boolean; suggested: boolean; active: boolean } | null;
+    /** scatter / bubble mode only (null elsewhere): names + own formatters of the X and
+     *  bubble-size measures, quadrant split ("off" | "mean" | "median"), point color
+     *  ("single" | "status") and the X reference line (scale.xRefLine, null = off) */
+    scatter: {
+        hasX: boolean;
+        xName: string;
+        yName: string;
+        sizeName: string;
+        fmtX: IValueFormatter;
+        fmtSize: IValueFormatter;
+        quadrant: string;
+        colorBy: string;
+        xRefLine: number | null;
+        /** display-unit divisor + raw format string of the X measure (tick labels) */
+        xDiv: number;
+        xFormat: string;
+    } | null;
 }
 
 /** running cascade of "from"/"to" positions for the waterfall-bridge style */
@@ -363,6 +384,39 @@ function extentTight(values: (number | null)[]): [number, number] {
         if (v > mx) { mx = v; }
     }
     return mn === Infinity ? [0, 0] : [mn, mx];
+}
+
+/**
+ * "nice" tick values (1/2/2.5/5 × 10ⁿ) INSIDE [lo, hi] — at most maxTicks of them,
+ * as many as fit. The scatter axes run over the data range (plus the marker inset),
+ * not out to the next round number, so no empty band is wasted at the edges.
+ */
+function niceTicks(lo: number, hi: number, maxTicks: number): number[] {
+    if (!isFinite(lo) || !isFinite(hi) || hi <= lo) { return isFinite(lo) ? [lo] : []; }
+    const mag = Math.pow(10, Math.floor(Math.log10(hi - lo)) - 1);
+    for (const e of [1, 10, 100]) {
+        for (const m of [1, 2, 2.5, 5]) {
+            const st = m * e * mag;
+            const a = Math.ceil(lo / st - 1e-9), b = Math.floor(hi / st + 1e-9);
+            if (b - a + 1 <= maxTicks) {
+                const out: number[] = [];
+                // trim float noise (0.1-steps) so labels read "0,3" not "0,30000000000000004"
+                for (let i = a; i <= b; i++) { out.push(Number((i * st).toPrecision(12))); }
+                return out;
+            }
+        }
+    }
+    return [lo, hi];
+}
+
+/** arithmetic mean / median of a non-empty list (scatter quadrant split) */
+function meanOf(vals: number[]): number {
+    return vals.reduce((a, v) => a + v, 0) / Math.max(vals.length, 1);
+}
+function medianOf(vals: number[]): number {
+    const s = [...vals].sort((a, b) => a - b);
+    const m = s.length >> 1;
+    return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 }
 
 /**
@@ -417,6 +471,11 @@ export class Visual implements IVisual {
     private measureName: string | undefined;
     private lineFormat: string | undefined;
     private lineName: string | undefined;
+    /** scatter roles: display name + format string of the X and bubble-size measures */
+    private xName: string | undefined;
+    private xFormat: string | undefined;
+    private sizeName: string | undefined;
+    private sizeFormat: string | undefined;
     /** shared waterfall domain across small-multiples cells (IBCS same scale) */
     private sharedWfDomain: [number, number] | null = null;
     /** global font multiplier from the labels "Size preset" (Full HD = 1.5) */
@@ -843,13 +902,20 @@ export class Visual implements IVisual {
         fs.chartCard.bridgeGroup.visible = fs.chartCard.waterfallStyle.visible
             || fs.chartCard.sortByImpact.visible;
         fs.chartCard.cardsGroup.visible = orient === "cards";
+        // Scatter: eigene Gruppe nur im Scatter; Δ-Panels gibt es dort nicht (Status-
+        // Färbung nutzt die Basis trotzdem), Small Multiples werden zu EINER Punktwolke
+        const isScatter = orient === "scatter";
+        fs.chartCard.scatterGroup.visible = isScatter;
+        fs.chartCard.showAbsoluteVariance.visible = !isScatter;
+        fs.chartCard.showRelativeVariance.visible = !isScatter;
+        if (isScatter) { fs.chartCard.dualVariance.visible = false; }
         fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
         fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0;
         fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value;
         // comments card stays visible without a comment measure — the in-chart
         // capture mode works on any category
         fs.commentsCard.visible = true;
-        fs.chartCard.multiplesGroup.visible = this.paneHasMultiples;
+        fs.chartCard.multiplesGroup.visible = this.paneHasMultiples && !isScatter;
         fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line";
         fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table";
         fs.chartCard.cumulativeKind.visible = fs.chartCard.cumulative.visible && fs.chartCard.cumulative.value;
@@ -881,8 +947,11 @@ export class Visual implements IVisual {
         // stays visible there too — two waterfalls on a page can share one scale;
         // the table consumes the sync domains but has no ref line / cap marker
         fs.scaleCard.visible = orient === "columns" || orient === "bars"
-            || orient === "line" || orient === "waterfall" || orient === "table";
-        fs.scaleCard.syncGroup.visible = true;
+            || orient === "line" || orient === "waterfall" || orient === "table" || isScatter;
+        // Scatter skaliert beide Achsen selbst (keine Sync-Maxima), nutzt aber die
+        // Referenzlinien: Y = refLine, X = xRefLine (nur hier sichtbar)
+        fs.scaleCard.syncGroup.visible = !isScatter;
+        fs.scaleCard.xRefLine.visible = isScatter;
         fs.scaleCard.refLineGroup.visible = orient !== "table";
         if (orient === "table") { fs.scaleCard.capOverflow.visible = false; }
         // Achsenschnitt nur im Wasserfall; der Schnittwert erst, wenn Schnitt erlaubt ist
@@ -956,9 +1025,11 @@ export class Visual implements IVisual {
         // the card itself, so a swapped measure must not leave the old name standing
         this.measureName = undefined;
         this.filterInfo = null;
+        this.xName = this.xFormat = this.sizeName = this.sizeFormat = undefined;
         for (const col of valueCols) {
             const roles = col.source.roles || {};
-            for (const role of ["actual", "previousYear", "plan", "forecast", "benchmark", "lineMeasure", "prevForecast"]) {
+            for (const role of ["actual", "previousYear", "plan", "forecast", "benchmark", "lineMeasure", "prevForecast",
+                "xValue", "bubbleSize"]) {
                 if (roles[role]) {
                     byRole[role] = col.values.map(v => (typeof v === "number" && isFinite(v)) ? v : null);
                     if (role === "actual" || (role === "forecast" && !this.measureFormat)) {
@@ -970,6 +1041,14 @@ export class Visual implements IVisual {
                     if (role === "lineMeasure") {
                         this.lineFormat = col.source.format;
                         this.lineName = col.source.displayName;
+                    }
+                    if (role === "xValue") {
+                        this.xFormat = col.source.format;
+                        this.xName = col.source.displayName;
+                    }
+                    if (role === "bubbleSize") {
+                        this.sizeFormat = col.source.format;
+                        this.sizeName = col.source.displayName;
                     }
                     if (col.highlights) {
                         anyHighlights = true;
@@ -1078,6 +1157,8 @@ export class Visual implements IVisual {
                 lineVal: byRole["lineMeasure"] ? byRole["lineMeasure"][i] : null,
                 stackSeries: seriesCol && seriesCol.values[i] != null
                     ? this.categoryLabel(seriesCol.values[i]) : null,
+                xVal: byRole["xValue"] ? byRole["xValue"][i] : null,
+                sizeVal: byRole["bubbleSize"] ? byRole["bubbleSize"][i] : null,
                 comment,
                 commentNo: comment != null ? ++commentCounter : null,
                 group: mult ? this.categoryLabel(mult.values[i]) : null,
@@ -1319,7 +1400,10 @@ export class Visual implements IVisual {
 
     private buildFormatter(unit: number, prec: number, formatOverride?: string): IValueFormatter {
         const f = valueFormatter.create({
-            format: formatOverride ?? this.measureFormat,
+            // "" = the measure has NO format string (scatter X/size) — must neither
+            // inherit the AC format nor reach valueFormatter as "" (it then ignores
+            // the precision and prints every float digit)
+            format: formatOverride === "" ? undefined : (formatOverride ?? this.measureFormat),
             value: unit,
             precision: prec,
             cultureSelector: this.host.locale
@@ -1626,7 +1710,10 @@ export class Visual implements IVisual {
                 fields: this.locStr("Demo_F_Dumbbell", "Category, AC, PY/PL") },
             { v: "slope", key: "Enum_Orientation_Slope", en: "Slope",
                 use: this.locStr("Demo_Use_Slope", "Rank shifts between two points in time"),
-                fields: this.locStr("Demo_F_Slope", "Category, AC, PY/PL") }
+                fields: this.locStr("Demo_F_Slope", "Category, AC, PY/PL") },
+            { v: "scatter", key: "Enum_Orientation_Scatter", en: "Scatter / bubble",
+                use: this.locStr("Demo_Use_Scatter", "Correlation of two KPIs per category (e.g. revenue vs. margin)"),
+                fields: this.locStr("Demo_F_Scatter", "Category, AC (Y), X axis, size (optional)") }
         ];
         const fieldsPre = this.locStr("Demo_Fields", "Fields");
         const active = String(this.formattingSettings.chartCard.orientation.value.value);
@@ -2116,6 +2203,31 @@ export class Visual implements IVisual {
                 line(0.08, 0.80, 0.92, 0.60, c.ink, 1.8);
                 break;
             }
+            case "scatter": {
+                // point cloud over thin L-axes, dashed quadrant split, ONE emphasized point
+                const u = Math.max(0.6, Math.min(w, h) / 60);
+                for (const [x1, y1, x2, y2] of [[0.52, 0, 0.52, 1], [0, 0.48, 1, 0.48]]) {
+                    this.el("line", {
+                        x1: x + x1 * w, y1: y + y1 * h, x2: x + x2 * w, y2: y + y2 * h,
+                        stroke: c.grey, "stroke-width": 1, "stroke-dasharray": "3,2"
+                    }, g);
+                }
+                line(0, 0, 0, 1, c.ink, 1.2); line(0, 1, 1, 1, c.ink, 1.2);
+                const dots: [number, number, number][] = [[0.12, 0.82, 2.6], [0.22, 0.64, 4], [0.30, 0.76, 2.4],
+                    [0.40, 0.58, 3.2], [0.48, 0.70, 2.2], [0.60, 0.40, 5], [0.70, 0.52, 2.8], [0.88, 0.20, 3.6]];
+                for (const [dx, dy, dr] of dots) {
+                    this.el("circle", {
+                        cx: x + dx * w, cy: y + dy * h, r: dr * u,
+                        fill: c.ink, "fill-opacity": 0.55, stroke: c.ink, "stroke-width": 0.8
+                    }, g);
+                }
+                this.el("circle", { cx: x + 0.78 * w, cy: y + 0.28 * h, r: 4.2 * u, fill: c.teal }, g);
+                this.el("circle", {
+                    cx: x + 0.78 * w, cy: y + 0.28 * h, r: 6.4 * u,
+                    fill: "none", stroke: c.teal, "stroke-width": 1.2
+                }, g);
+                break;
+            }
         }
     }
 
@@ -2141,12 +2253,15 @@ export class Visual implements IVisual {
         const isPareto = orientationRaw === "pareto";
         const isDumbbell = orientationRaw === "dumbbell";
         const isSlope = orientationRaw === "slope";
+        // Scatter / Bubble: AC (Y) over the xValue measure (X), optional bubble size
+        const isScatter = orientationRaw === "scatter";
         // KPI cards: one tile per category — the KPI-card visual folded into the deck
         const isCards = orientationRaw === "cards";
         // GuV-Statement: row-based P&L with PY + scenario waterfall columns
         const isPnl = orientationRaw === "pnl";
         const orientation: Orientation =
             orientationRaw === "bars" || isCatBridge || isTable || isDumbbell || isCards || isPnl
+                || isScatter
                 ? "bars" : "columns";
         // matrix column groups only pivot in table mode — everywhere else the same
         // category repeats once per column value; merge back to one point per category
@@ -2217,6 +2332,14 @@ export class Visual implements IVisual {
             if (found) { found.pts.push(p); } else { groups.push({ name: p.group, pts: [p] }); }
         }
 
+        // scatter v1 draws ONE point cloud: a bound multiples field does not split into
+        // tiles — its groups become an extra point dimension ("Kategorie · Gruppe").
+        // Tiles would need a Σ/Rest tile that SUMS X, which is wrong for ratio measures
+        // (margin %, rotation days); one cloud keeps every point un-aggregated
+        if (isScatter && groups.length > 1) {
+            groups.splice(0, groups.length, { name: null, pts: points });
+        }
+
         // multiples options: Top-N tiles (remainder merged into one "Rest" tile) and a
         // leading "Σ Gesamt" tile — applied before the per-group transforms and domain
         // computation so all tiles, including the larger total, share one IBCS scale
@@ -2274,7 +2397,8 @@ export class Visual implements IVisual {
         // and prune single cells, scramble the column order and leave a nameless
         // rest block; the row-oriented ranking only makes sense without column groups
         const topNBlocked = isTable && points.some(p => p.colLevels && p.colLevels.length > 0);
-        if (orientation === "bars" && topN > 0 && !cumulativeOn && !topNBlocked) {
+        // scatter: no "Rest" point — it would sum X across the tail (pane slice hidden)
+        if (orientation === "bars" && topN > 0 && !cumulativeOn && !topNBlocked && !isScatter) {
             for (const g of groups) {
                 if (g.pts.length > topN + 1) { g.pts = this.applyTopN(g.pts, topN); }
             }
@@ -2476,7 +2600,8 @@ export class Visual implements IVisual {
             sharedIntWf: null,
             sharedCatBridge: null,
             stackDomain: null,
-            isMaterial: this.materialityFn()
+            isMaterial: this.materialityFn(),
+            scatter: isScatter ? this.scatterConfig(points) : null
         };
 
         // hatch patterns for forecast (base chart + good/bad variance colors)
@@ -2746,6 +2871,10 @@ export class Visual implements IVisual {
             }
             if (isSlope) {
                 this.renderSlope(grp.pts, region, cfg);
+                return;
+            }
+            if (isScatter) {
+                this.renderScatter(grp.pts, region, cfg);
                 return;
             }
             if (isStacked) {
@@ -6662,6 +6791,14 @@ export class Visual implements IVisual {
             let bm: number | null = null;
             for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
             agg.bm = bm;
+            // scatter measures are summed like AC, so a merged point keeps its X/size
+            const sumOf = (get: (c: DataPoint) => number | null | undefined): number | null => {
+                let acc: number | null = null;
+                for (const c of kids) { const v = get(c); if (v != null) { acc = (acc ?? 0) + v; } }
+                return acc;
+            };
+            agg.xVal = sumOf(c => c.xVal);
+            agg.sizeVal = sumOf(c => c.sizeVal);
             agg.comment = kids[0].comment;
             agg.commentNo = kids[0].commentNo;
             agg.sel = kids[0].sel;
@@ -7494,6 +7631,374 @@ export class Visual implements IVisual {
             this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
+    }
+
+    /**
+     * scatter-mode configuration: own formatters for X and bubble size (same 1.45 unit
+     * logic as the values — auto display units, magnitude-carrying format strings like
+     * "#,0 T€" are left alone), the measure names and the pane choices. An unformatted
+     * X measure must NOT inherit the AC format ("" instead of undefined), or a margin
+     * ratio would be labelled in T€.
+     */
+    private scatterConfig(points: DataPoint[]): NonNullable<ChartConfig["scatter"]> {
+        const s = this.formattingSettings;
+        const absMax = (get: (p: DataPoint) => number | null | undefined) =>
+            points.reduce((a, p) => Math.max(a, Math.abs(get(p) ?? 0)), 0);
+        const allInt = (get: (p: DataPoint) => number | null | undefined) =>
+            points.every(p => { const v = get(p); return v == null || Number.isInteger(v); });
+        const xGet = (p: DataPoint) => p.xVal, sGet = (p: DataPoint) => p.sizeVal;
+        return {
+            // role bound at all — a bound-but-empty X gets the "no points" hint instead
+            hasX: this.xName != null,
+            xName: this.xName ?? "X",
+            yName: this.measureName ?? "",
+            sizeName: this.sizeName ?? "",
+            fmtX: this.makeFormatter(absMax(xGet), allInt(xGet), this.xFormat ?? ""),
+            fmtSize: this.makeFormatter(absMax(sGet), allInt(sGet), this.sizeFormat ?? ""),
+            quadrant: String(s.chartCard.scatterQuadrant.value.value),
+            colorBy: String(s.chartCard.scatterColorBy.value.value),
+            xRefLine: this.parseRefValue(String(s.scaleCard.xRefLine.value || "")),
+            xDiv: this.formatterParams(absMax(xGet), allInt(xGet), this.xFormat ?? "").unit,
+            xFormat: this.xFormat ?? ""
+        };
+    }
+
+    /**
+     * Scatter / Bubble (correlation): AC on the Y axis over the xValue measure on X, one
+     * point per category — with the bubbleSize role the points become bubbles whose AREA
+     * (not radius) is proportional to the size measure. Not an IBCS core chart type: like
+     * Pareto/Dumbbell/Slope it carries the grey panel title. A scatter needs real axes
+     * (exception to the label-instead-of-axis rule, as in Slope): thin axis lines with
+     * 3–5 "nice" ticks, the units from the format strings go into the axis titles.
+     * Quadrant lines at mean/median (scale.refLine / scale.xRefLine override them),
+     * greedy collision-free category labels (the rest via tooltip), EMPHASIZE and an
+     * optional ΔBasis status color.
+     */
+    private renderScatter(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const sc = cfg.scatter;
+        if (!sc) { return; }
+        if (!sc.hasX) {
+            this.drawModeHint(region, cfg, this.locStr("Hint_ScatterX",
+                "Scatter: add a measure to the “X axis (Scatter)” field"));
+            return;
+        }
+        // points without X or Y are skipped (no zero substitution — it would plot a fake)
+        const pts = points.filter(p => p.value != null && p.xVal != null
+            && isFinite(p.value) && isFinite(p.xVal));
+        if (pts.length === 0) {
+            this.drawModeHint(region, cfg, this.locStr("Hint_ScatterEmpty",
+                "Scatter: no category has both an X and an AC value"));
+            return;
+        }
+        const k = this.fontK;
+        const cf = cfg.catFont;
+        const axF = Math.round(9.5 * k);
+        const pad = 4;
+        const titleH = Math.round(14 * k);
+        const xs = pts.map(p => p.xVal as number);
+        const ys = pts.map(p => p.value as number);
+        const hasSize = pts.some(p => (p.sizeVal ?? 0) > 0);
+        const sMax = hasSize ? Math.max(...pts.map(p => Math.max(p.sizeVal ?? 0, 0))) : 0;
+        // status color needs a comparison basis — without PY/PL it stays single-colored
+        const statusOn = sc.colorBy === "status" && pts.some(p => p.varAbs != null);
+
+        // units from the format strings (1.45 unit logic): ONE unit per axis in the axis
+        // title, plain numbers at the ticks — same derivation as the IBCS title block
+        const unitOf = (f: IValueFormatter, v: number) =>
+            f.format(v || 1).replace(/[0-9.,\s +\-−–—()]/g, "");
+        const yUnit = unitOf(cfg.fmt, Math.max(...ys.map(Math.abs)));
+        const xUnit = unitOf(sc.fmtX, Math.max(...xs.map(Math.abs)));
+        // tick labels: the axis formatter's display unit, decimals from the tick STEP
+        // (5 %-steps → "0 · 5 · 10", 0.2-steps → "2,8 · 3,0 · 3,2"), unit stripped — it
+        // stands in the axis title. Zero reads "0" (not the finance dash)
+        const tickTexts = (ticks: number[], div: number, fmtStr: string | undefined): string[] => {
+            const pct = /%/.test((fmtStr ?? this.measureFormat ?? "").replace(/"[^"]*"/g, ""));
+            const step = ticks.length > 1 ? Math.abs(ticks[1] - ticks[0]) : 1;
+            const scaled = Number((step / (div || 1) * (pct ? 100 : 1)).toPrecision(6));
+            const frac = /\.(\d+)$/.exec(String(scaled));
+            const f = this.buildFormatter(div, Math.min(4, frac ? frac[1].length : 0), fmtStr);
+            return ticks.map(v => {
+                if (v === 0) { return "0"; }
+                const t = f.format(v);
+                const num = t.replace(/[^\d.,\s+\-−–—()]/g, "").replace(/\s+/g, " ").trim()
+                    .replace(/\(\s+/, "(").replace(/\s+\)/, ")");
+                return num !== "" ? num : t;
+            });
+        };
+
+        // quadrant split per axis — a reference line overrides the statistic
+        const xRef = sc.xRefLine, yRef = cfg.refLine;
+        const qOn = sc.quadrant !== "off";
+        const stat = (vals: number[]) => sc.quadrant === "median" ? medianOf(vals) : meanOf(vals);
+        const qx = xRef != null ? xRef : qOn ? stat(xs) : null;
+        const qy = yRef != null ? yRef : qOn ? stat(ys) : null;
+        // data range incl. reference lines; a single value gets a ±10 % window
+        const range = (vals: number[], ref: number | null): [number, number] => {
+            const lo = Math.min(...vals, ref ?? Infinity), hi = Math.max(...vals, ref ?? -Infinity);
+            if (hi > lo) { return [lo, hi]; }
+            const d = Math.abs(lo) > 0 ? Math.abs(lo) * 0.1 : 1;
+            return [lo - d, hi + d];
+        };
+        const [xLo, xHi] = range(xs, xRef);
+        const [yLo, yHi] = range(ys, yRef);
+
+        // vertical layout: grey panel title · Y-axis title · plot · X ticks · X-axis title
+        const top = region.y + pad;
+        const yTitleBase = top + titleH + axF;
+        const plotTop = yTitleBase + Math.round(6 * k);
+        const xTitleBase = region.y + region.h - pad;
+        const plotBottom = Math.max(plotTop + 20, xTitleBase - 2 * axF - 10);
+        const plotH = plotBottom - plotTop;
+        // marker sizes: plain dots, or bubbles between min 3px·k and max 22px·k (capped
+        // by the plot size). The plot range is inset by the largest radius, so no
+        // marker is clipped by an axis
+        const rPlain = 4 * Math.min(k, 1.6);
+        const rMin = 3 * k;
+        const rMax = hasSize ? Math.max(rMin + 2, Math.min(22 * k, Math.min(region.w * 0.8, plotH) / 7)) : rPlain;
+        const inset = rMax + 6;
+
+        // Y ticks first (their label width sets the plot's left edge)
+        const yPer = (yHi - yLo) / Math.max(plotH - 2 * inset, 10);
+        const yTicks = niceTicks(yLo - inset * yPer, yHi + inset * yPer,
+            Math.max(2, Math.min(5, Math.floor(plotH / (axF * 2.4)))));
+        const yTickTxt = tickTexts(yTicks, cfg.fmtUnit, undefined);
+        const plotLeft = region.x + pad + this.maxTextWidth(yTickTxt, axF) + 8;
+        const plotRight = region.x + region.w - pad - 2;
+        const plotW = Math.max(20, plotRight - plotLeft);
+        // X ticks: 5 at most, fewer while their labels would collide
+        const xPer = (xHi - xLo) / Math.max(plotW - 2 * inset, 10);
+        let xTicks: number[] = [];
+        let xTickTxt: string[] = [];
+        for (let m = 5; m >= 2; m--) {
+            xTicks = niceTicks(xLo - inset * xPer, xHi + inset * xPer, m);
+            xTickTxt = tickTexts(xTicks, sc.xDiv, sc.xFormat);
+            if (xTicks.length * (this.maxTextWidth(xTickTxt, axF) + 12) <= plotW) { break; }
+        }
+        const X = linearScale(xLo, xHi, plotLeft + inset, plotRight - inset);
+        const Y = linearScale(yLo, yHi, plotBottom - inset, plotTop + inset);
+
+        const bg = this.el("g", {}, this.svg);
+        // grey panel title — marks the non-IBCS-core chart type (as Pareto/Dumbbell/Slope)
+        const titleParts = [`Scatter · ${cfg.scenL.ac} × ${sc.xName}`];
+        if (hasSize) { titleParts.push(`○ ${sc.sizeName} (max ${sc.fmtSize.format(sMax)})`); }
+        if (statusOn) {
+            titleParts.push(this.locStr("Scatter_ColorStatus", "color = Δ{0}").replace("{0}", cfg.basisLabel));
+        }
+        this.drawPanelTitle(bg, { x: region.x, y: top, w: region.w, h: titleH }, titleParts.join(" · "),
+            "columns", titleH, region, undefined, cfg.subtle);
+        // axis titles carry name + unit: Y top-left above the plot, X bottom-right
+        const yName = sc.yName ? `${sc.yName} (${cfg.scenL.ac})` : cfg.scenL.ac;
+        const yt = this.el("text", {
+            x: region.x + pad + 2, y: yTitleBase, "font-size": axF, fill: cfg.subtle, "font-family": FONT
+        }, bg);
+        yt.textContent = this.truncate(`${yName}${yUnit ? ` in ${yUnit}` : ""}`, region.w - 12, axF);
+        const xt = this.el("text", {
+            x: plotRight, y: xTitleBase, "text-anchor": "end", "font-size": axF,
+            fill: cfg.subtle, "font-family": FONT
+        }, bg);
+        xt.textContent = this.truncate(`${sc.xName}${xUnit ? ` in ${xUnit}` : ""}`, plotW, axF);
+
+        // thin axis lines + short tick marks, no grid (IBCS: no decoration)
+        const axis = { stroke: cfg.subtle, "stroke-width": 1 };
+        this.el("line", { x1: plotLeft, y1: plotTop, x2: plotLeft, y2: plotBottom, ...axis }, bg);
+        this.el("line", { x1: plotLeft, y1: plotBottom, x2: plotRight, y2: plotBottom, ...axis }, bg);
+        yTicks.forEach((v, i) => {
+            const y = Y(v);
+            this.el("line", { x1: plotLeft - 3, y1: y, x2: plotLeft, y2: y, ...axis }, bg);
+            const t = this.el("text", {
+                x: plotLeft - 5, y: y + axF * 0.35, "text-anchor": "end", "font-size": axF,
+                fill: cfg.subtle, "font-family": FONT
+            }, bg);
+            t.textContent = yTickTxt[i];
+        });
+        xTicks.forEach((v, i) => {
+            const x = X(v);
+            this.el("line", { x1: x, y1: plotBottom, x2: x, y2: plotBottom + 3, ...axis }, bg);
+            // edge ticks stay inside the visual instead of being clipped
+            const half = this.textWidth(xTickTxt[i], axF) / 2;
+            const t = this.el("text", {
+                x: Math.min(Math.max(x, region.x + half + 1), region.x + region.w - half - 1),
+                y: plotBottom + 4 + axF, "text-anchor": "middle", "font-size": axF,
+                fill: cfg.subtle, "font-family": FONT
+            }, bg);
+            t.textContent = xTickTxt[i];
+        });
+
+        // marks: area-proportional radius r = rMax·√(size / max), never below rMin
+        const rOf = (p: DataPoint): number => !hasSize ? rPlain
+            : Math.max(rMin, rMax * Math.sqrt(Math.max(p.sizeVal ?? 0, 0) / sMax));
+        const items = pts.map(p => {
+            const label = p.group != null ? `${p.cat} · ${p.group}` : p.cat;
+            return {
+                p, label, cx: X(p.xVal as number), cy: Y(p.value as number), r: rOf(p),
+                emph: this.isEmph(cfg, p.cat) || this.isEmph(cfg, label) || this.isEmph(cfg, p.group)
+            };
+        });
+        type Box = { x0: number; y0: number; x1: number; y1: number };
+        const checkMarks = items.length <= 400;
+        const hitsMark = (b: Box, self: number) => checkMarks && items.some((it, j) => {
+            if (j === self) { return false; }
+            const dx = it.cx - Math.min(Math.max(it.cx, b.x0), b.x1);
+            const dy = it.cy - Math.min(Math.max(it.cy, b.y0), b.y1);
+            return dx * dx + dy * dy < (it.r + 1) * (it.r + 1);
+        });
+
+        // quadrant lines (faint, dashed) resp. reference lines (ink, like drawRefLine);
+        // their labels take the first line end free of markers and are reserved boxes
+        // the point labels must not cover
+        const placed: Box[] = [];
+        const lineF = Math.round(9 * k);
+        const halo = { stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round" };
+        const lineLabel = (txt: string, isRef: boolean,
+            cands: { x: number; y: number; anchor: string }[]) => {
+            const w = this.textWidth(txt, lineF);
+            const boxOf = (c: { x: number; y: number; anchor: string }): Box => {
+                const x0 = c.anchor === "start" ? c.x : c.x - w;
+                return { x0, y0: c.y - lineF, x1: x0 + w, y1: c.y + 2 };
+            };
+            const fits = (b: Box) => b.x0 >= plotLeft + 1 && b.x1 <= plotRight + 1;
+            const pick = cands.find(c => fits(boxOf(c)) && !hitsMark(boxOf(c), -1))
+                ?? cands.find(c => fits(boxOf(c))) ?? cands[0];
+            const t = this.el("text", {
+                x: pick.x, y: pick.y, "text-anchor": pick.anchor, "font-size": lineF,
+                fill: isRef ? cfg.ink : cfg.subtle, "font-family": FONT, ...halo
+            }, bg);
+            t.textContent = txt;
+            placed.push(boxOf(pick));
+        };
+        const statLbl = sc.quadrant === "median"
+            ? this.locStr("Scatter_Median", "Median") : this.locStr("Scatter_Mean", "Ø");
+        const qStyle = (isRef: boolean) => isRef
+            ? { stroke: cfg.ink, "stroke-width": 1.1, "stroke-dasharray": "7,3" }
+            : { stroke: cfg.faint, "stroke-width": 1.3, "stroke-dasharray": "4,3" };
+        if (qx != null) {
+            const isRef = xRef != null;
+            const x = X(qx);
+            this.el("line", { x1: x, y1: plotTop, x2: x, y2: plotBottom, ...qStyle(isRef) }, bg);
+            lineLabel(isRef ? sc.fmtX.format(qx) : `${statLbl} ${sc.fmtX.format(qx)}`, isRef, [
+                { x: x + 3, y: plotTop + lineF, anchor: "start" }, { x: x - 3, y: plotTop + lineF, anchor: "end" },
+                { x: x + 3, y: plotBottom - 4, anchor: "start" }, { x: x - 3, y: plotBottom - 4, anchor: "end" }
+            ]);
+        }
+        if (qy != null) {
+            const isRef = yRef != null;
+            const y = Y(qy);
+            this.el("line", { x1: plotLeft, y1: y, x2: plotRight, y2: y, ...qStyle(isRef) }, bg);
+            lineLabel(isRef ? (cfg.refLineLabel || cfg.fmt.format(qy)) : `${statLbl} ${cfg.fmt.format(qy)}`, isRef, [
+                { x: plotRight - 2, y: y - 3, anchor: "end" }, { x: plotRight - 2, y: y + lineF + 2, anchor: "end" },
+                { x: plotLeft + 3, y: y - 3, anchor: "start" }, { x: plotLeft + 3, y: y + lineF + 2, anchor: "start" }
+            ]);
+        }
+
+        const colOf = (p: DataPoint): string => {
+            if (!statusOn) { return cfg.colors.ac; }
+            const v = p.varAbs;
+            if (v == null || v === 0 || !cfg.isMaterial(p)) { return cfg.colors.py; }
+            return cfg.isGood(v, p) ? cfg.colors.good : cfg.colors.bad;
+        };
+
+        // labels: greedy, no force layout. Priority: emphasized, then the largest bubbles,
+        // then the outermost points (distance from the plot centre). Each label tries
+        // right · left · above · below its marker and takes the first spot that stays in
+        // the plot and hits neither a placed label nor another marker — the rest is left
+        // to the tooltip. labels.show off → only emphasized points; density "ends" →
+        // emphasized + the X/Y extremes; "all" → every point, overlap accepted.
+        const density = String(this.formattingSettings.labelsCard.labelDensity.value.value);
+        const extremes = new Set<number>();
+        if (density === "ends") {
+            const arg = (vals: number[], dir: number) =>
+                vals.reduce((bi, v, i) => (v - vals[bi]) * dir > 0 ? i : bi, 0);
+            [arg(xs, 1), arg(xs, -1), arg(ys, 1), arg(ys, -1)].forEach(i => extremes.add(i));
+        }
+        const ccx = (plotLeft + plotRight) / 2, ccy = (plotTop + plotBottom) / 2;
+        const order = items.map((_, i) => i).sort((a, b) => {
+            const A = items[a], B = items[b];
+            if (A.emph !== B.emph) { return A.emph ? -1 : 1; }
+            if (hasSize && A.r !== B.r) { return B.r - A.r; }
+            return Math.hypot(B.cx - ccx, B.cy - ccy) - Math.hypot(A.cx - ccx, A.cy - ccy);
+        });
+        const hitsLabel = (b: Box) => placed.some(q => b.x0 < q.x1 && b.x1 > q.x0 && b.y0 < q.y1 && b.y1 > q.y0);
+        const inPlot = (b: Box) => b.x0 >= plotLeft + 2 && b.x1 <= region.x + region.w - 2
+            && b.y0 >= plotTop && b.y1 <= plotBottom - 2;
+        const maxLabW = Math.max(60, Math.min(160 * k, plotW * 0.35));
+        const labelAt: ({ x: number; y: number; anchor: string; text: string } | null)[] = items.map(() => null);
+        for (const i of order) {
+            const it = items[i];
+            const wanted = it.emph || (cfg.showLabels && (density !== "ends" || extremes.has(i)));
+            if (!wanted) { continue; }
+            const text = this.truncate(it.label, maxLabW, cf);
+            // bold (emphasized) text runs ~8 % wider than the regular metrics
+            const w = this.textWidth(text, cf) * (it.emph ? 1.08 : 1) + 2;
+            const h = cf, gap = 3;
+            const cands = [
+                { b: { x0: it.cx + it.r + gap, y0: it.cy - h / 2, x1: it.cx + it.r + gap + w, y1: it.cy + h / 2 },
+                    x: it.cx + it.r + gap, y: it.cy + h * 0.35, anchor: "start" },
+                { b: { x0: it.cx - it.r - gap - w, y0: it.cy - h / 2, x1: it.cx - it.r - gap, y1: it.cy + h / 2 },
+                    x: it.cx - it.r - gap, y: it.cy + h * 0.35, anchor: "end" },
+                { b: { x0: it.cx - w / 2, y0: it.cy - it.r - gap - h, x1: it.cx + w / 2, y1: it.cy - it.r - gap },
+                    x: it.cx, y: it.cy - it.r - gap - h * 0.2, anchor: "middle" },
+                { b: { x0: it.cx - w / 2, y0: it.cy + it.r + gap, x1: it.cx + w / 2, y1: it.cy + it.r + gap + h },
+                    x: it.cx, y: it.cy + it.r + gap + h * 0.8, anchor: "middle" }
+            ];
+            let pick = cands.find(c => inPlot(c.b) && !hitsLabel(c.b) && !hitsMark(c.b, i));
+            // emphasized points and density "all" are always labelled (overlap accepted)
+            if (!pick && (it.emph || density === "all")) { pick = cands.find(c => inPlot(c.b)) ?? cands[0]; }
+            if (!pick) { continue; }
+            placed.push(pick.b);
+            labelAt[i] = { x: pick.x, y: pick.y, anchor: pick.anchor, text };
+        }
+
+        // draw order: largest bubbles first (small ones stay visible on top), emphasized last
+        const drawOrder = items.map((_, i) => i).sort((a, b) =>
+            (Number(items[a].emph) - Number(items[b].emph)) || (items[b].r - items[a].r));
+        const marks = this.el("g", {}, this.svg);
+        for (const i of drawOrder) {
+            const { p, cx, cy, r, emph } = items[i];
+            const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
+            // generous invisible hit target — 3px dots are hard to hover and click
+            this.el("circle", { cx, cy, r: Math.max(r + 2, 7), fill: cfg.paper, "fill-opacity": 0.01 }, g);
+            const col = colOf(p);
+            this.el("circle", {
+                cx, cy, r,
+                // high contrast: outline circles in the foreground color (emphasized filled);
+                // FC points hatched like FC columns; bubbles translucent so overlaps read
+                ...(cfg.hc
+                    ? { fill: emph ? cfg.ink : cfg.paper, stroke: cfg.ink, "stroke-width": 1.4 }
+                    : p.isFc
+                        ? { fill: `url(#${cfg.patId})`, stroke: col, "stroke-width": 1.2 }
+                        : hasSize
+                            ? { fill: col, "fill-opacity": emph ? 0.9 : 0.55, stroke: col, "stroke-width": 1.2 }
+                            : { fill: col, stroke: cfg.paper, "stroke-width": 1 })
+            }, g);
+            if (emph) {
+                // IBCS EMPHASIZE: ring around the marker + bold label
+                this.el("circle", {
+                    cx, cy, r: r + 2.5, fill: "none", stroke: cfg.ink, "stroke-width": 1.4
+                }, g);
+            }
+            const la = labelAt[i];
+            if (la) {
+                const t = this.el("text", {
+                    x: la.x, y: la.y, "text-anchor": la.anchor, "font-size": cf, fill: cfg.ink,
+                    "font-family": FONT, "font-weight": emph ? 700 : 400, ...halo
+                }, g);
+                t.textContent = la.text;
+            }
+            if (p.commentNo != null) {
+                // numbered comment badge at the marker's upper right (list in the panel)
+                const br = Math.round(6 * k);
+                const bx = cx + r * 0.71 + br * 0.6, by = cy - r * 0.71 - br * 0.6;
+                this.el("circle", { cx: bx, cy: by, r: br, fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1 }, g);
+                const ct = this.el("text", {
+                    x: bx, y: by + br * 0.42, "text-anchor": "middle", "font-size": Math.round(8 * k),
+                    fill: cfg.ink, "font-family": FONT, "font-weight": 600
+                }, g);
+                ct.textContent = String(p.commentNo);
+            }
+            this.attachInteraction(g, p, cfg);
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
+            this.animGroups.push([g]);
+        }
     }
 
     /**
@@ -9083,8 +9588,12 @@ export class Visual implements IVisual {
     }
 
     private parseRefLine(): number | null {
-        const raw = String(this.formattingSettings.scaleCard.refLine.value || "")
-            .trim().replace(/\s/g, "").replace(",", ".");
+        return this.parseRefValue(String(this.formattingSettings.scaleCard.refLine.value || ""));
+    }
+
+    /** reference-line text → number (scale.refLine / scale.xRefLine); "" = off */
+    private parseRefValue(text: string): number | null {
+        const raw = text.trim().replace(/\s/g, "").replace(",", ".");
         if (!raw) { return null; }
         // accept k/M/B (and German Mio/Mrd initials) as magnitude suffixes
         const m = /^(-?\d*\.?\d+)([kKmMbB]?)$/.exec(raw);
@@ -9557,6 +10066,9 @@ export class Visual implements IVisual {
         g.setAttribute("tabindex", "0");
         g.setAttribute("role", "option");
         const aria = [`${p.cat}`];
+        if (cfg.scatter && p.xVal != null) {
+            aria.push(`${cfg.scatter.xName} ${cfg.scatter.fmtX.format(p.xVal)}`);
+        }
         if (p.value != null) { aria.push(cfg.fmt.format(p.value)); }
         if (p.varAbs != null) { aria.push(`Δ${cfg.basisLabel} ${this.fmtSigned(cfg.fmtVar, p.varAbs)}`); }
         if (p.comment) { aria.push(p.comment); }
@@ -9615,7 +10127,18 @@ export class Visual implements IVisual {
                 });
             };
             out.push({ displayName: this.locStr("Role_Category", "Category"), value: p.cat });
+            // scatter: group (flattened multiples), X before Y = AC, bubble size after it
+            const sc = cfg.scatter;
+            if (sc && p.group != null) {
+                out.push({ displayName: this.locStr("Role_Multiples", "Small Multiples"), value: p.group });
+            }
+            if (sc && p.xVal != null) {
+                out.push({ displayName: sc.xName, value: sc.fmtX.format(p.xVal) });
+            }
             add(this.locStr("Role_Actual", "Actual (AC)"), p.ac);
+            if (sc && p.sizeVal != null) {
+                out.push({ displayName: sc.sizeName, value: sc.fmtSize.format(p.sizeVal) });
+            }
             if (p.isPrelim) {
                 out.push({ displayName: "Status", value: this.locStr("Tooltip_Prelim", "preliminary") });
             }

@@ -27,6 +27,7 @@ const orientationItems: LocEnumMember[] = [
     { value: "pareto", displayName: "Pareto (Structure)", key: "Enum_Orientation_Pareto" },
     { value: "dumbbell", displayName: "Dumbbell · Before/After (Structure)", key: "Enum_Orientation_Dumbbell" },
     { value: "slope", displayName: "Slope · Before/After", key: "Enum_Orientation_Slope" },
+    { value: "scatter", displayName: "Scatter / bubble (correlation)", key: "Enum_Orientation_Scatter" },
     { value: "cards", displayName: "KPI Cards (Tiles)", key: "Enum_Orientation_Cards" },
     { value: "pnl", displayName: "P&L Statement (IBCS)", key: "Enum_Orientation_Pnl" }
 ];
@@ -141,6 +142,19 @@ const wfAxisBreakItems: LocEnumMember[] = [
     { value: "on", displayName: "On (axis broken)", key: "Enum_WfBreak_On" }
 ];
 
+// Scatter / Bubble: Quadranten-Teilung je Achse (Referenzlinien übersteuern) und
+// Punktfarbe — einfarbig AC oder Status gut/schlecht/grau über ΔBasis + Wesentlichkeit
+const scatterQuadrantItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off", key: "Enum_ScatterQuad_Off" },
+    { value: "mean", displayName: "Mean (Ø)", key: "Enum_ScatterQuad_Mean" },
+    { value: "median", displayName: "Median", key: "Enum_ScatterQuad_Median" }
+];
+
+const scatterColorByItems: LocEnumMember[] = [
+    { value: "single", displayName: "Single color (AC)", key: "Enum_ScatterColor_Single" },
+    { value: "status", displayName: "Status ΔPY/ΔPL (good · bad · grey)", key: "Enum_ScatterColor_Status" }
+];
+
 /** resolve all enum-member labels once via the host's localization manager */
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems, appearanceItems,
@@ -148,7 +162,8 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems,
         cardRefValueItems,
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
-        gridLinesItems, cellLayoutItems, wfAxisBreakItems];
+        gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
+        scatterColorByItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -840,6 +855,34 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
             this.cardBulletZoom]
     });
 
+    scatterQuadrant = new formattingSettings.ItemDropdown({
+        name: "scatterQuadrant",
+        displayName: "Quadrant lines",
+        displayNameKey: "Chart_ScatterQuadrant",
+        description: "Scatter: gestrichelte Mittellinien teilen die Punktwolke in vier Quadranten — beim Mittelwert (Ø, Standard) oder Median von X und Y. Eine Referenzlinie (Skala-Karte: Y-Wert bzw. X-Wert) ersetzt die jeweilige Mittellinie. Aus = keine Quadranten.",
+        descriptionKey: "Desc_Chart_ScatterQuadrant",
+        items: scatterQuadrantItems,
+        value: scatterQuadrantItems[1]
+    });
+
+    scatterColorBy = new formattingSettings.ItemDropdown({
+        name: "scatterColorBy",
+        displayName: "Point color",
+        displayNameKey: "Chart_ScatterColorBy",
+        description: "Scatter: „Einfarbig\" zeigt alle Punkte in der AC-Farbe (Standard). „Status\" färbt nach der Abweichung zur Vergleichsbasis (ΔPY/ΔPL): gut/schlecht in den Varianzfarben, unter der Wesentlichkeits-Schwelle oder ohne Basis grau. Invert-Einstellungen wirken.",
+        descriptionKey: "Desc_Chart_ScatterColorBy",
+        items: scatterColorByItems,
+        value: scatterColorByItems[0]
+    });
+
+    // eigene Modus-Gruppe wie Brücke/Tabelle/KPI-Karten — nur im Scatter sichtbar
+    scatterGroup = new formattingSettings.Group({
+        name: "chartScatter",
+        displayName: "Scatter / bubble",
+        displayNameKey: "Group_Scatter",
+        slices: [this.scatterQuadrant, this.scatterColorBy]
+    });
+
     // UX-5 (AUDIT-2026-10-UX §1.5): die Mega-Gruppen „Layout"/„Analyse" aufgabenorientiert
     // neu geschnitten. Gruppen sind reine Anzeige — die Slices wechseln nur die Gruppe
     // INNERHALB der Chart-Karte, Objekt- und Property-Namen bleiben unverändert.
@@ -890,7 +933,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
     displayName: string = "Chart";
     displayNameKey: string = "Card_Chart";
     groups = [this.chartTypeGroup, this.varianceGroup, this.dataTimeGroup, this.interactionGroup,
-        this.displayGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup];
+        this.displayGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup,
+        this.scatterGroup];
 }
 
 const appearanceItems: LocEnumMember[] = [
@@ -1247,6 +1291,18 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    // Scatter: senkrechte Ziel-/Schwellenlinie auf der X-Achse — Text wie refLine
+    // (leer = aus, 0 ist ein gültiger Wert, k/M/B-Suffixe), nur im Scatter sichtbar
+    xRefLine = new formattingSettings.TextInput({
+        name: "xRefLine",
+        displayName: "Reference line X (scatter)",
+        displayNameKey: "Scale_XRefLine",
+        description: "Nur Scatter: senkrechte Ziel-/Schwellenlinie bei diesem X-Wert (z. B. 0.15 für 15 % Marge). Ersetzt die X-Quadrantenlinie; die Y-Referenzlinie oben ersetzt die Y-Quadrantenlinie. Leer = aus.",
+        descriptionKey: "Desc_Scale_XRefLine",
+        placeholder: "z. B. 0.15",
+        value: ""
+    });
+
     capOverflow = new formattingSettings.ToggleSwitch({
         name: "capOverflow",
         displayName: "Cap outliers at maximum",
@@ -1289,7 +1345,7 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         name: "scaleRefLine",
         displayName: "Reference line",
         displayNameKey: "Group_RefLine",
-        slices: [this.refLine, this.refLineLabel]
+        slices: [this.refLine, this.refLineLabel, this.xRefLine]
     });
 
     // eigene Gruppe, nur im Wasserfall sichtbar (getFormattingModel)
