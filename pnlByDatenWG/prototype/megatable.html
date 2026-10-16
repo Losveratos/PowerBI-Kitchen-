@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Mega-Table Prototyp · P&amp;L Statement byDatenWG</title>
+<!--
+  Mega-Table-Prototyp für „P&L Statement byDatenWG" — Design-Quelle für den
+  Ausbau der Tabellen-Ansicht (siehe ../SPEC-MEGATABLE.md). Kein Build, keine
+  Bibliothek, keine externen Ressourcen. Bleibt im Repo.
+
+  RENDER-WAHL: EIN SVG für die ganze Tabelle (Kopf, Zeilen, Zell-Charts, Fuß).
+  Begründung:
+   1. Die neuen Elemente sind zeilenübergreifend: kaskadierender Wasserfall mit
+      Verbindungslinien über mehrere Zeilen, EINE Nulllinie je Spalte über den
+      ganzen Block, Szenario-Unterstreichungen, Summenlinien. Mit HTML-Zellen +
+      Einzel-SVG je Zelle (Bestand: deltaBarCell/deltaPinCell) müssten diese
+      Linien zerstückelt und pixelgenau wieder zusammengesetzt werden.
+   2. Der Bestand rendert Wasserfall (waterfall.ts) und Baum bereits D3-frei als
+      SVG mit einem svgEl(tag, attrs)-Helfer — `el()` hier ist 1:1 derselbe Stil.
+   3. Der Code ist dreigeteilt und einzeln übertragbar:
+        (a) Rechenkern  computeAll / delta / cascade  → engine.ts-Funktionen
+            (buildModel, variance, waterfall.ts-Kaskade) im Visual, NICHT neu bauen
+        (b) Layout      layout()  → reine Zahlen (Spalten x/w, Zeilen y,
+            Maßstab k, Achse x0, Kappung) ohne DOM außer Textmessung
+        (c) Painter     paint()   → SVG-Elemente aus dem Layout-Objekt
+      Will das Visual für sehr lange Statements virtualisieren, kann (b)
+      unverändert bleiben und (c) je Chart-Spalte einen hohen SVG-Streifen
+      neben HTML-Zahlenzellen zeichnen.
+
+  ARCHITEKTUR DER SCHALTER: Es gibt keine Template-Sonderfälle im Renderer.
+  Jede Spalte und jedes Element ist ein eigener Schalter (state); die
+  Templates T01–T04/12A sind nur PRESETS dieser Schalter (PRESETS unten).
+  Notation kommt aus EINER Funktion: notation(minuend, subtrahend).
+-->
+<style>
+  body { margin: 0; font-family: 'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif; background: #f2f2f2; color: #1A1A1A; }
+  #bar { position: sticky; top: 0; z-index: 2; background: #fff; border-bottom: 1px solid #ddd; padding: 6px 12px 4px; font-size: 12px; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-bottom: 4px; }
+  .ctl { display: inline-flex; align-items: center; gap: 5px; }
+  .ctl > .lbl { color: #8A8886; }
+  .seg { display: inline-flex; border: 1px solid #DEDCD7; border-radius: 3px; overflow: hidden; }
+  .seg button { border: 0; background: #fff; padding: 2px 7px; font: inherit; color: #404040; cursor: pointer; }
+  .seg button + button { border-left: 1px solid #DEDCD7; }
+  .seg button:hover { background: #F4F3F0; }
+  .seg button.on { background: #404040; color: #fff; }
+  .seg button:disabled { color: #C8C6C4; background: #fff; cursor: default; }
+  select { font: inherit; border: 1px solid #DEDCD7; border-radius: 3px; padding: 1px 3px; color: #404040; background: #fff; }
+  .chk { display: inline-flex; align-items: center; gap: 2px; color: #404040; cursor: pointer; white-space: nowrap; }
+  .chk input { margin: 0 2px 0 0; }
+  .chk.dis { color: #C8C6C4; cursor: default; }
+  .grp { display: inline-flex; align-items: center; gap: 8px; padding: 1px 8px; border-left: 1px solid #EDEBE9; }
+  .grp:first-child { border-left: 0; padding-left: 0; }
+  .grp > b { font-weight: 600; color: #404040; }
+  #stage { background: #fff; margin: 12px; border: 1px solid #ddd; padding: 14px 16px; overflow-x: auto; }
+  #status { font-size: 11px; color: #8A8886; margin: 0 12px 16px; line-height: 1.5; }
+  #status code { font-family: Consolas, monospace; color: #404040; }
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="stage"></div>
+<div id="status"></div>
+<script>
+"use strict";
+
+// ============================================================================
+// 0 · Tokens (Farben/Schrift aus src/visual.ts übernommen)
+// ============================================================================
+const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
+const NNBSP = " "; // schmales Leerzeichen als Tausender-Trenner (wie NBSP_GROUP im Visual)
+const C = {
+  ink: "#404040",      // C.ac / C.line im Visual — Tinte für Marken, Achsen, Pin-Köpfe
+  text: "#1A1A1A",     // C.text
+  soft: "#8A8886",     // C.soft — Fußzeile, Verbindungslinien, AC-Kostensegmente (12A)
+  py: "#B3B3B3",       // C.py — PY-Füllung, PY-Achse, PY-Unterstreichung
+  pyLight: "#D9D9D9",  // PY-Kostensegmente (12A, „hell abgesetzt")
+  rule: "#D9D9D9",     // Zeilen-Trennlinien (neu; gridSoft #EDEBE9 ist im Druckbild zu schwach)
+  white: "#FFFFFF",
+  tealGood: "#0E8585", tealBad: "#E02B1D",   // Default (dokumentierte Abweichung)
+  ibcsGood: "#8CB400", ibcsBad: "#FF2600",   // klassisches IBCS
+};
+
+/** Geometrie — alles aus der Schriftgröße fs abgeleitet (siehe SPEC „Abgeleitete Maße"). */
+function geometry(fs) {
+  const rowH = Math.round(fs * 1.7);
+  return {
+    fs, rowH,
+    fsSmall: Math.round(fs * 0.85 * 10) / 10,
+    gapRowH: Math.round(rowH * 0.5),       // Leerzeile vor Zwischensummen-Blöcken
+    colGap: Math.round(fs * 0.5),          // Lücke zwischen Spalten einer Gruppe
+    groupGap: Math.round(fs * 1.1),        // Lücke zwischen Spaltengruppen (Werte | ΔPY | ΔPL)
+    blockGap: Math.round(fs * 1.6),        // Lücke Block ↔ Kategorie-Spalte (Monat | Label | YTD)
+    pad: Math.round(fs * 0.35),            // Innenabstand Zahl ↔ Spaltenrand
+    minNumW: Math.round(fs * 3.2),         // Mindestbreite einer Zahlenspalte
+    markH: 4,                              // Szenario-Unterstreichung: Dicke
+    barH: Math.round(rowH * 0.62),         // Balkenhöhe (Δ-Balken, Wasserfall, Wert-Kaskade)
+    pinStem: 3,                            // Pin-Stiel (Linienstärke)
+    pinHead: Math.round(fs * 0.62),        // Pin-Kopf: Quadrat, Kantenlänge
+    lblGap: 3,                             // Abstand Balkenende/Pin-Kopf → Zahl
+    arrowW: Math.round(fs * 0.7),          // Ausreißer-Pfeilspitze: Länge
+    signW: Math.round(fs * 1.2),           // Spalte für + / − / = vor dem Kontennamen
+    indent: Math.round(fs * 1.0),          // Einrückung je Hierarchie-Ebene
+    titleLineH: Math.round(fs * 1.45),
+    chartMin: Math.round(fs * 7),          // Chart-Spalte: Mindest-/Höchstbreite
+    chartMax: Math.round(fs * 22),
+    vwfMax: Math.round(fs * 28),           // Wert-Kaskade (12A) darf breiter werden
+    axisPY: 3,                             // PY-Achse: graue Linie, Breite
+    axisPLGap: 3,                          // PL-Achse: Abstand der zwei 1-px-Linien
+  };
+}
+
+// ============================================================================
+// 1 · Demo-Daten (Zahlen aus den Referenzbildern in prototype/refs/)
+// ============================================================================
+const ST_IDS = ["lic", "con", "mai", "orev", "ooi", "pur", "mat", "per", "amo", "oox", "inv", "fin", "tax", "oth"];
+const zip = (arr) => Object.fromEntries(ST_IDS.map((id, i) => [id, arr[i]]));
+
+const ST_T03 = { // T03A (PY/PL/AC) + T03B (FC)
+  PY: [713.3, 72.0, 22.0, 15.0, 45.0, 344.2, 11.0, 76.0, 56.0, 78.0, 43.0, 73.0, 132.1, 50.0],
+  PL: [749.0, 75.6, 22.0, 25.0, 35.0, 361.4, 11.6, 79.8, 56.0, 76.0, 39.0, 66.0, 115.0, 52.0],
+  AC: [896.4, 90.0, 20.4, 24.4, 38.8, 379.2, 15.8, 87.6, 44.4, 75.6, 53.0, 69.6, 111.1, 56.7],
+  FC: [897.9, 93.0, 18.0, 22.5, 36.7, 389.0, 13.4, 83.6, 45.6, 78.6, 53.0, 68.9, 99.7, 50.5],
+};
+const ST_T04 = { // T04A–E
+  PY: [751.30, 76.45, 22.01, 55.70, 45.02, 603.58, 48.66, 76.03, 56.02, 78.03, 43.02, 73.03, 132.06, 50.00],
+  PL: [748.97, 75.63, 22.01, 62.77, 40.54, 589.45, 55.89, 79.83, 56.02, 76.00, 44.68, 66.00, 127.79, 52.00],
+  AC: [745.89, 80.11, 27.57, 65.03, 49.68, 600.57, 54.02, 85.62, 47.46, 79.67, 53.02, 66.03, 135.31, 55.02],
+  FC: [749.89, 82.45, 25.45, 65.99, 48.94, 603.45, 55.06, 88.35, 46.77, 77.99, 53.02, 66.03, 134.57, 55.02],
+};
+const ST_12A = { // 12A (PY/AC); PL aus 12H („PL 2026"), FC aus 12G („Year")
+  PY: [713, 72, 22, 6, 45, 344, 11, 76, 56, 78, 43, 73, 132, 89],
+  AC: [896, 90, 10, 65, 17, 379, 54, 127, 40, 152, 53, 66, 111, 55],
+  PL: [896, 90, 10, 8, 17, 379, 15, 127, 40, 114, 53, 66, 111, 55],
+  FC: [1434, 144, 16, 104, 27, 606, 86, 203, 64, 243, 42, 33, 178, 88],
+};
+
+// Regionen (T01): Monat PY PL AC | YTD PY PL AC
+const REG_GROUPS = [
+  { id: "eu", name: "Europe", other: "Other Europe", leaves: ["Austria", "Belgium", "France", "Germany", "Poland", "Sweden", "Switzerland", "Other"] },
+  { id: "am", name: "Americas", other: "Other Amer.", leaves: ["Brazil", "Canada", "USA", "Other"] },
+  { id: "row", name: "Rest of World", other: "Other RoW", leaves: ["Australia", "China", "Japan", "Other"] },
+];
+const REG_BASE = {
+  "eu:Austria": [500, 590, 559, 5078, 5611, 5509], "eu:Belgium": [56, 72, 58, 531, 529, 484],
+  "eu:France": [140, 149, 134, 1290, 1488, 1354], "eu:Germany": [345, 279, 260, 3124, 2815, 2850],
+  "eu:Poland": [78, 91, 86, 816, 818, 854], "eu:Sweden": [77, 81, 86, 809, 722, 764],
+  "eu:Switzerland": [61, 70, 66, 604, 582, 678], "eu:Other": [502, 498, 545, 5602, 6022, 5441],
+  "am:Brazil": [119, 109, 121, 1205, 1254, 1314], "am:Canada": [65, 71, 59, 629, 656, 718],
+  "am:USA": [346, 326, 311, 3406, 3124, 3239], "am:Other": [438, 401, 399, 4166, 4219, 4008],
+  "row:Australia": [54, 66, 62, 517, 609, 588], "row:China": [266, 204, 231, 2107, 1925, 2399],
+  "row:Japan": [9, 12, 11, 67, 87, 144], "row:Other": [243, 323, 266, 2531, 2099, 2145],
+};
+// FC (Monat, YTD) aus T02E bzw. T02F
+const REG_FC_E = {
+  "eu:Austria": [590, 5426], "eu:Belgium": [58, 597], "eu:France": [135, 1333], "eu:Germany": [324, 3022],
+  "eu:Poland": [66, 768], "eu:Sweden": [65, 929], "eu:Switzerland": [72, 678], "eu:Other": [489, 5359],
+  "am:Brazil": [123, 1324], "am:Canada": [73, 699], "am:USA": [378, 3190], "am:Other": [492, 4008],
+  "row:Australia": [56, 579], "row:China": [281, 2001], "row:Japan": [8, 166], "row:Other": [262, 2647],
+};
+const REG_FC_F = Object.assign({}, REG_FC_E, {
+  "eu:Sweden": [65, 832], "eu:Poland": [77, 768], "eu:Other": [489, 5678], "am:Other": [423, 4008], "row:China": [235, 2001],
+});
+// Abweichungen der einzelnen Referenzblätter vom T01-Stand: [block, szenario, zeile, wert]
+const REG_OVERRIDES = {
+  T02A: [["y", "AC", "eu:Other", 5899], ["y", "PL", "row:China", 2311], ["y", "PL", "row:Japan", 139]],
+  T02E: [["m", "PY", "eu:Austria", 560], ["y", "PY", "row:Japan", 142]],
+  T02F: [["y", "AC", "eu:Other", 5899], ["y", "PL", "row:China", 2311], ["y", "PL", "row:Japan", 139], ["m", "PL", "row:Japan", 11]],
+};
+
+function regionBlocks(variant) {
+  const m = { PY: {}, PL: {}, AC: {}, FC: {} }, y = { PY: {}, PL: {}, AC: {}, FC: {} };
+  const fc = variant === "T02F" || variant === "T02A" ? REG_FC_F : REG_FC_E;
+  for (const k of Object.keys(REG_BASE)) {
+    const b = REG_BASE[k];
+    m.PY[k] = b[0]; m.PL[k] = b[1]; m.AC[k] = b[2];
+    y.PY[k] = b[3]; y.PL[k] = b[4]; y.AC[k] = b[5];
+    m.FC[k] = fc[k][0]; y.FC[k] = fc[k][1];
+  }
+  for (const [blk, s, k, v] of (REG_OVERRIDES[variant] || [])) { (blk === "m" ? m : y)[s][k] = v; }
+  return [{ name: "November", vals: m }, { name: "_November", vals: y }];
+}
+const stBlocks = (src, name) => () => [{ name, vals: { PY: zip(src.PY), PL: zip(src.PL), AC: zip(src.AC), FC: zip(src.FC) } }];
+
+const TITLE_PHARMA = (period) => ["Pharmaceutical Inc.", ["Profit after tax", " in kEUR"], period];
+const DATASETS = {
+  T01: { kind: "regions", label: "Regionen · T01", blocks: () => regionBlocks("T01"), title: TITLE_PHARMA("November 2026") },
+  T02A: { kind: "regions", label: "Regionen · T02A–C", blocks: () => regionBlocks("T02A"), title: TITLE_PHARMA("November 2026") },
+  T02E: { kind: "regions", label: "Regionen · T02E", blocks: () => regionBlocks("T02E"), title: TITLE_PHARMA("November 2026") },
+  T02F: { kind: "regions", label: "Regionen · T02F", blocks: () => regionBlocks("T02F"), title: TITLE_PHARMA("November 2026") },
+  T03: { kind: "statement", label: "GuV · T03", blocks: stBlocks(ST_T03, "2026"), title: TITLE_PHARMA("2026"), labels: {} },
+  T04: { kind: "statement", label: "GuV · T04", blocks: stBlocks(ST_T04, "2026"), title: TITLE_PHARMA("2026"),
+    labels: { ooi: "Other operating income", oox: "Other operating expenses" } },
+  "12A": { kind: "statement", label: "GuV · 12A", blocks: stBlocks(ST_12A, "2025"), message: true,
+    title: ["Software and Service Group", ["Profit and loss statement", " in kEUR"], null],
+    labels: { mai: "Support", gm: null } },
+};
+const THRESHOLDS = { regions: [{ abs: -20, pct: -0.10 }, { abs: -220, pct: -0.10 }], statement: [{ abs: -20, pct: -0.10 }] };
+
+// ---- Zeilenrahmen ----------------------------------------------------------
+// kind: acc | sum | formula | pct | gap ; op: + − = (Anzeige-Glyphe) ;
+// eff: Vorzeichen der Wirkung aufs Ergebnis (= SignConvention entlang des Pfads) ;
+// cost: varianceInvert ; anchor: Wasserfall setzt hier neu auf der Nulllinie an
+function statementFrame(lbl) {
+  const L = Object.assign({
+    lic: "Licences", con: "Consulting", mai: "Maintenance", orev: "Other revenue", sales: "Sales revenue",
+    ooi: "Other op. income", pur: "Purchases", mat: "Material expenses", per: "Personnel expenses",
+    amo: "Amortization", oox: "Other op. expenses", opex: "Operating expenses", opres: "Operating result",
+    gm: "Gross margin", inv: "Investment income", fin: "Financial income, net", rbt: "Result before tax",
+    tax: "Income tax", rat: "Result after tax", oth: "Profit to other investors", grp: "Group result",
+  }, lbl || {});
+  const acc = (id, op, eff, extra) => Object.assign({ id, label: L[id], kind: "acc", op, eff, cost: eff < 0, level: 0 }, extra || {});
+  const f = (id, terms) => ({ id, label: L[id], kind: "formula", op: "=", eff: 1, anchor: true, terms });
+  const rows = [
+    acc("lic", "+", 1, { parent: "sales" }), acc("con", "+", 1, { parent: "sales" }),
+    acc("mai", "+", 1, { parent: "sales" }), acc("orev", "+", 1, { parent: "sales" }),
+    { id: "sales", label: L.sales, kind: "sum", op: "=", eff: 1, anchor: true },
+    { kind: "gap" },
+    acc("ooi", "+", 1),
+    ...["pur", "mat", "per", "amo", "oox"].map(id => acc(id, "", -1, { parent: "opex", level: 1 })),
+    { id: "opex", label: L.opex, kind: "sum", op: "-", eff: -1, cost: true },
+    f("opres", [["sales", 1], ["ooi", 1], ["opex", -1]]),
+  ];
+  if (L.gm !== null) { rows.push({ id: "gm", label: L.gm, kind: "pct", num: "opres", den: "sales" }); }
+  rows.push(
+    { kind: "gap" }, acc("inv", "+", 1), acc("fin", "+", 1), f("rbt", [["opres", 1], ["inv", 1], ["fin", 1]]),
+    { kind: "gap" }, acc("tax", "-", -1), f("rat", [["rbt", 1], ["tax", -1]]),
+    { kind: "gap" }, acc("oth", "-", -1), f("grp", [["rat", 1], ["oth", -1]]),
+  );
+  return rows;
+}
+
+function regionFrame(subtotals) {
+  const rows = [];
+  REG_GROUPS.forEach((g, gi) => {
+    if (subtotals && gi > 0) { rows.push({ kind: "gap" }); }
+    for (const n of g.leaves) {
+      rows.push({ id: g.id + ":" + n, label: subtotals || n !== "Other" ? n : g.other, kind: "acc", op: "", eff: 1,
+        parent: subtotals ? g.id : "world", group: g.id, other: n === "Other", level: 0 });
+    }
+    if (subtotals) { rows.push({ id: g.id, label: g.name, kind: "sum", op: "", eff: 1, parent: "world" }); }
+  });
+  if (subtotals) { rows.push({ kind: "gap" }); }
+  rows.push({ id: "world", label: "World", kind: "sum", op: "", eff: 1, anchor: true });
+  return rows;
+}
+
+// ============================================================================
+// 2 · Rechenkern  (im Visual: engine.ts buildModel/variance — nicht duplizieren)
+// ============================================================================
+const SCENS = ["PY", "PL", "AC", "FC"];
+function computeAll(frame, vals) {
+  const out = {};
+  for (const s of SCENS) {
+    const v = {};
+    for (const r of frame) { if (r.kind === "acc") { v[r.id] = vals[s][r.id] ?? null; } }
+    for (const r of frame) {
+      if (r.kind === "sum") {
+        let t = 0; for (const c of frame) { if (c.parent === r.id && c.id in v) { t += v[c.id]; } } v[r.id] = t;
+      } else if (r.kind === "formula") {
+        v[r.id] = r.terms.reduce((t, [id, sg]) => t + sg * v[id], 0);
+      } else if (r.kind === "pct") {
+        v[r.id] = v[r.den] ? v[r.num] / v[r.den] : null;
+      }
+    }
+    out[s] = v;
+  }
+  return out;
+}
+
+/** Varianz einer Zeile (= engine.ts variance + %p-Fall für Margen-Zeilen). */
+function delta(blk, r, min, ref) {
+  const a = blk.v[min][r.id], b = blk.v[ref][r.id];
+  if (a == null || b == null) { return null; }
+  if (r.kind === "pct") { return { d: (a - b) * 100, p: b ? a / b - 1 : null, good: a >= b, pp: true }; }
+  const d = a - b;
+  return { d, p: b ? d / Math.abs(b) : null, good: (d >= 0) !== !!r.cost, impact: r.cost ? -d : d };
+}
+
+/**
+ * Kaskade (Δ- oder Wert-Wasserfall): jeder Schritt beginnt am Ende des vorigen,
+ * anchor-Zeilen (=) zeichnen ab der Nulllinie und setzen den Lauf neu,
+ * Summen ohne Anker (− Operating expenses, Europe …) spannen über ihre Kinder.
+ * Gleiche Logik wie cascadeSegments()/waterfall.ts im Visual.
+ */
+function cascade(rows, val) {
+  const out = new Map(); const spanStart = {}; let cum = 0;
+  for (const r of rows) {
+    if (r.kind === "gap" || r.kind === "pct") { continue; }
+    const v = val(r); if (v == null) { continue; }
+    if (r.anchor) { out.set(r.id, { s: 0, e: v, type: "anchor" }); cum = v; continue; }
+    if (r.kind === "sum") { out.set(r.id, { s: spanStart[r.id] ?? cum, e: cum, type: "span" }); continue; }
+    if (r.parent && !(r.parent in spanStart)) { spanStart[r.parent] = cum; }
+    out.set(r.id, { s: cum, e: cum + v, type: "step" }); cum += v;
+  }
+  return out;
+}
+
+/**
+ * Ausreißer-Kappung (Pins; optional Balken) — Tukey-Zaun (Faktor 4 statt 3, s. T02A) auf |Werte|:
+ *   Zaun = Q3 + 4 × (Q3 − Q1);  Kappung = größter |Wert| ≤ Zaun.
+ * Alles darüber wird bis zur Kappung + Pfeilspitze gezeichnet, Zahl auf dem Stiel.
+ * Abgleich mit den Referenzen: 12A (+983, +391 gekappt, +95 passt) ✓ ·
+ * T02A (+16.5 passt) ✓ · T04 (+25.6 passt) ✓ · 12A mit FC (+1633/+1200/+686
+ * nah beieinander → alle gekappt) ✓. T02F kappt in der Referenz bereits
+ * −27.3/+26.1 (Sprung nur 1.35×) — bewusst NICHT nachgebaut, das wäre
+ * Handarbeit; eine Regel, die das trifft, kappt auch T02A fälschlich.
+ */
+const OUTLIER = { fence: 4, minN: 8 };
+function outlierCap(values) {
+  const a = values.map(Math.abs).filter(x => x > 0).sort((x, y) => x - y);
+  if (a.length < OUTLIER.minN) { return Infinity; }
+  const q = p => { const i = (a.length - 1) * p, lo = Math.floor(i); return a[lo] + (a[Math.ceil(i)] - a[lo]) * (i - lo); };
+  const fence = q(0.75) + OUTLIER.fence * (q(0.75) - q(0.25));
+  const inside = a.filter(x => x <= fence);
+  return inside.length === a.length ? Infinity : inside[inside.length - 1];
+}
+
+// ============================================================================
+// 3 · Notations-Engine — EINE Funktion für alle Varianz-/Szenario-Elemente
+// ============================================================================
+/**
+ * notation(minuend, subtrahend) → Zeichenvorschrift.
+ *   Minuend  (AC | FC)  → FÜLLUNG:  AC voll, FC schraffiert (+ 1-px-Kontur in derselben Farbe)
+ *   Subtrahend (PY | PL) → ACHSE:   PY graue Linie, PL Doppellinie
+ * Dieselbe Tabelle liefert die Szenario-Kennung jedes Szenarios (Kopf- und
+ * Summen-Unterstreichung, Füllung der Wert-Kaskade):
+ *   AC  voll dunkel · PY voll grau · PL doppelt (Kontur) · FC schraffiert
+ */
+const SCENARIO_NOTATION = {
+  AC: { mark: "solid", fill: "solid", tone: C.ink, toneLight: C.soft },
+  FC: { mark: "hatch", fill: "hatch", tone: C.ink, toneLight: C.soft },
+  PY: { mark: "gray", fill: "solid", tone: C.py, toneLight: C.pyLight, axis: "gray" },
+  PL: { mark: "double", fill: "outline", tone: C.ink, toneLight: C.ink, axis: "double" },
+};
+function notation(minuend, subtrahend) {
+  const m = SCENARIO_NOTATION[minuend], s = SCENARIO_NOTATION[subtrahend || "PY"];
+  const paintOf = (kind, color, hatch) =>
+    kind === "hatch" ? { fill: hatch(color), stroke: color, sw: 1 }
+      : kind === "outline" ? { fill: C.white, stroke: color, sw: 1 }
+        : { fill: color, stroke: null, sw: 0 };
+  return {
+    /** Varianz-Fläche (Balken, Wasserfall-Segment) in Gut/Schlecht-Farbe */
+    area: (color, hatch) => paintOf(m.fill, color, hatch),
+    /** Pin-Kopf: Tinte, Füllung nach Minuend */
+    head: (hatch) => paintOf(m.fill, C.ink, hatch),
+    /** Achse der Δ-Spalten: nach Subtrahend */
+    axis: s.axis,
+    /** Szenario-Kennung eines beliebigen Szenarios (Kopf-Unterstreichung) */
+    mark: (scen) => SCENARIO_NOTATION[scen].mark,
+    /** Füllung der Wert-Kaskade (12A) je Szenario; Kostenzeilen hell */
+    value: (scen, light, hatch) => {
+      const n = SCENARIO_NOTATION[scen];
+      return paintOf(n.fill, light ? n.toneLight : n.tone, hatch);
+    },
+  };
+}
+
+// ============================================================================
+// 4 · Schalter, Presets
+// ============================================================================
+const REFS = ["PY", "PL"];
+const DKINDS = [["num", "Zahl"], ["bar", "Balken"], ["wf", "Wasserfall"], ["pct", "Δ% Zahl"], ["pin", "Δ% Pins"]];
+const OFF = {};
+for (const r of REFS) { for (const [k] of DKINDS) { OFF["d" + r + k] = false; } }
+
+const BASE = Object.assign({
+  ds: "T03", min: "AC", showPY: true, showPL: true, showMin: true, valueWf: false,
+  ytd: false, subtotals: true, margins: true, thresholds: false, marks: true, barLabels: true, barCap: false,
+  sort: "cat", sortBlock: 1, dec: 1,
+}, OFF);
+const P = (o) => Object.assign({}, BASE, o);
+const PRESETS = {};
+PRESETS.T01A = P({ ds: "T01", dPYnum: true, dPYpct: true, dPLnum: true, dPLpct: true, ytd: true, subtotals: false, thresholds: true, dec: 0 });
+PRESETS.T01B = P(Object.assign({}, PRESETS.T01A, { subtotals: true }));
+PRESETS.T02A = P({ ds: "T02A", showPY: false, dPLbar: true, dPLpin: true, ytd: true, dec: 0 });
+PRESETS.T02B = P(Object.assign({}, PRESETS.T02A, { sort: "ac", sortBlock: 1 }));
+PRESETS.T02C = P(Object.assign({}, PRESETS.T02A, { sort: "delta", sortBlock: 0 }));
+PRESETS.T02E = P(Object.assign({}, PRESETS.T02A, { ds: "T02E", min: "FC", showPY: true, showPL: false, dPLbar: false, dPLpin: false, dPYbar: true, dPYpin: true, sort: "delta", sortBlock: 1 }));
+PRESETS.T02F = P(Object.assign({}, PRESETS.T02A, { ds: "T02F", min: "FC", sort: "delta", sortBlock: 1 }));
+PRESETS.T03A = P({ ds: "T03", dPYnum: true, dPYpct: true, dPLnum: true, dPLpct: true, dec: 1 });
+PRESETS.T03B = P(Object.assign({}, PRESETS.T03A, { min: "FC" }));
+PRESETS.T04A = P({ ds: "T04", showPY: false, dPLbar: true, dPLpin: true, dec: 1 });
+PRESETS.T04B = P(Object.assign({}, PRESETS.T04A, { dPLbar: false, dPLwf: true, dec: 2 }));
+PRESETS.T04C = P(Object.assign({}, PRESETS.T04B, { showPY: true, showPL: false, dPLwf: false, dPLpin: false, dPYwf: true, dPYpin: true }));
+PRESETS.T04D = P(Object.assign({}, PRESETS.T04B, { min: "FC" }));
+PRESETS.T04E = P(Object.assign({}, PRESETS.T04C, { min: "FC" }));
+PRESETS["12A"] = P({ ds: "12A", showPL: false, valueWf: true, dPYbar: true, dPYpin: true, dec: 0 });
+/** Template-Buttons → Standard-Preset der Familie */
+const TEMPLATES = { T01: "T01B", T02: "T02A", T03: "T03A", T04: "T04B", "12A": "12A" };
+
+const state = Object.assign({ preset: "T03A", color: "teal", fs: 13 }, PRESETS.T03A);
+
+function applyPreset(name) {
+  Object.assign(state, PRESETS[name], { preset: name });
+}
+
+// ============================================================================
+// 5 · Formatierung + Textmessung
+// ============================================================================
+function num(v, dec, plus) {
+  const a = Math.abs(v);
+  let s = a.toFixed(dec);
+  const zero = Number(s) === 0;
+  const [i, f] = s.split(".");
+  s = i.replace(/\B(?=(\d{3})+(?!\d))/g, NNBSP) + (f ? "." + f : "");
+  return (v < 0 && !zero ? "-" : plus && !zero ? "+" : "") + s;
+}
+function makeFmt(S, regions) {
+  const d = S.dec;
+  const pdec = regions ? Math.max(1, d) : (d >= 2 ? 1 : 0);   // Δ%-Zahlenspalte (T01: 1 · T03: 0)
+  const pinDec = (!regions && d === 0) ? 0 : Math.max(1, d);  // Pin-Beschriftung (T02: 1 · T04B: 2 · 12A: 0)
+  return {
+    val: v => num(v, d, false),
+    delta: v => num(v, d, true),
+    pct: p => num(p * 100, pdec, true) + "%",
+    pin: p => num(p * 100, pinDec, true),
+    margin: m => num(m * 100, d, false) + "%",
+    pp: x => num(x, d, true) + "%p",
+    rel: p => num(p * 100, 0, true),
+  };
+}
+const _mctx = document.createElement("canvas").getContext("2d");
+function tw(str, fs, bold, italic) {
+  _mctx.font = `${italic ? "italic " : ""}${bold ? "bold " : ""}${fs}px ${FONT}`;
+  return _mctx.measureText(str).width;
+}
+
+// ============================================================================
+// 6 · Layout (reine Geometrie)
+// ============================================================================
+const isBold = r => r.kind === "sum" || r.kind === "formula";
+const CHART_TYPES = new Set(["bar", "wf", "pin", "vwf"]);
+const activeRefs = S => REFS.filter(r => DKINDS.some(([k]) => S["d" + r + k]));
+
+function orderRows(frame, S, blocks, regions) {
+  if (!regions || S.sort === "cat") { return frame.slice(); }
+  const b = blocks[Math.min(S.sortBlock, blocks.length - 1)];
+  const ref = activeRefs(S)[0] || (S.showPY ? "PY" : "PL");
+  const key = r => S.sort === "ac" ? b.v[S.min][r.id] : b.v[S.min][r.id] - b.v[ref][r.id];
+  const out = []; let run = [];
+  const flush = () => {
+    const rest = run.filter(r => !r.other).sort((x, y) => key(y) - key(x));
+    out.push(...rest, ...run.filter(r => r.other)); run = [];
+  };
+  for (const r of frame) {
+    if (r.kind === "acc") { if (run.length && run[0].group !== r.group) { flush(); } run.push(r); }
+    else { flush(); out.push(r); }
+  }
+  flush();
+  return { rows: out, ref, block: b.i };
+}
+
+function buildColumns(S, nb) {
+  const blockCols = (b) => {
+    const groups = [];
+    const vals = [];
+    if (S.showPY) { vals.push("PY"); }
+    if (S.showPL) { vals.push("PL"); }
+    if (S.showMin) { vals.push(S.min); }
+    if (S.valueWf) { vals.forEach(s => groups.push([{ type: "vwf", scen: s }])); }
+    else if (vals.length) { groups.push(vals.map(s => ({ type: "value", scen: s }))); }
+    for (const r of REFS) {
+      const g = [];
+      if (S["d" + r + "num"]) { g.push({ type: "delta", ref: r }); }
+      if (S["d" + r + "bar"]) { g.push({ type: "bar", ref: r }); }
+      if (S["d" + r + "wf"]) { g.push({ type: "wf", ref: r }); }
+      if (S["d" + r + "pct"]) { g.push({ type: "dpct", ref: r }); }
+      if (S["d" + r + "pin"]) { g.push({ type: "pin", ref: r }); }
+      if (g.length) { groups.push(g); }
+    }
+    const out = [];
+    groups.forEach((g, gi) => g.forEach((c, ci) => { c.block = b; c.gap = ci ? "col" : gi ? "group" : "edge"; out.push(c); }));
+    return out;
+  };
+  const label = { type: "label", block: -1, gap: "edge" };
+  const parts = nb === 2 ? [blockCols(0), [label], blockCols(1)] : [[label], blockCols(0)];
+  const cols = [].concat(...parts);
+  cols.forEach((c, i) => {
+    if (i === 0) { c.gap = "none"; }
+    else if (c.gap === "edge") { c.gap = nb === 2 ? "block" : "group"; }
+  });
+  return cols;
+}
+
+function layout(S, viewW) {
+  const G = geometry(S.fs);
+  const ds = DATASETS[S.ds];
+  const regions = ds.kind === "regions";
+  const frameAll = regions ? regionFrame(S.subtotals) : statementFrame(ds.labels);
+  const frame = S.margins ? frameAll : frameAll.filter(r => r.kind !== "pct");
+  const nb = regions && S.ytd ? 2 : 1;
+  const ths = THRESHOLDS[ds.kind];
+  const blocks = ds.blocks().slice(0, nb).map((b, i) => ({ i, name: b.name, v: computeAll(frameAll, b.vals), th: ths[i] }));
+  const ord = orderRows(frame, S, blocks, regions);
+  const rows = Array.isArray(ord) ? ord : ord.rows;
+  const sortInfo = Array.isArray(ord) ? null : ord;
+  const fmt = makeFmt(S, regions);
+  const N = notation(S.min, activeRefs(S)[0]);
+  const cols = buildColumns(S, nb);
+  const anyChart = cols.some(c => CHART_TYPES.has(c.type));
+  const style = {
+    signs: !regions, blockTitles: regions, pairHeader: !regions,
+    closing: S.marks && !regions && !anyChart,
+    rowRules: !S.valueWf, continuousSumRules: S.valueWf, headerRules: !S.valueWf,
+    thresholds: S.thresholds && cols.some(c => c.type === "delta" || c.type === "dpct"),
+  };
+
+  // ---- Zellen-Text (Zahlenspalten) ------------------------------------------
+  const cellText = (c, r) => {
+    const blk = blocks[c.block];
+    const bold = isBold(r), pct = r.kind === "pct";
+    const base = { bold, italic: pct, fs: pct ? G.fsSmall : G.fs, color: C.text };
+    if (c.type === "value") {
+      const v = blk.v[c.scen][r.id];
+      return v == null ? null : Object.assign(base, { t: pct ? fmt.margin(v) : fmt.val(v) });
+    }
+    const D = delta(blk, r, S.min, c.ref);
+    if (!D) { return null; }
+    if (c.type === "delta") {
+      const red = S.thresholds && !pct && D.impact < blk.th.abs - 1e-9;
+      return Object.assign(base, { t: pct ? fmt.pp(D.d) : fmt.delta(D.d), color: red ? pal().bad : C.text });
+    }
+    if (c.type === "dpct") {
+      if (D.p == null) { return null; }
+      const imp = r.cost ? -D.p : D.p;
+      const red = S.thresholds && !pct && imp < blk.th.pct - 1e-9;
+      return Object.assign(base, { t: pct ? fmt.rel(D.p) : fmt.pct(D.p), color: red ? pal().bad : C.text });
+    }
+    return null;
+  };
+  const headerText = (c) => {
+    let t = c.type === "value" || c.type === "vwf" ? c.scen
+      : c.type === "dpct" || c.type === "pin" ? "Δ" + c.ref + "%" : c.type === "label" ? "" : "Δ" + c.ref;
+    if (sortInfo && c.block === sortInfo.block) {
+      if (S.sort === "ac" && (c.type === "value" || c.type === "vwf") && c.scen === S.min) { t += "(↓)"; }
+      if (S.sort === "delta" && c.ref === sortInfo.ref) {
+        const firstD = cols.find(x => x.block === c.block && x.ref === sortInfo.ref && x.type !== "dpct" && x.type !== "pin");
+        if (firstD === c) { t += "(↓)"; }
+      }
+    }
+    return t;
+  };
+
+  // ---- feste Breiten ---------------------------------------------------------
+  for (const c of cols) {
+    c.head = headerText(c);
+    if (c.type === "label") {
+      let w = 0;
+      for (const r of rows) {
+        if (r.kind === "gap") { continue; }
+        const fsx = r.kind === "pct" ? G.fsSmall : G.fs;
+        w = Math.max(w, (style.signs ? G.signW : 0) + (r.level || 0) * G.indent + tw(r.label, fsx, isBold(r), r.kind === "pct"));
+      }
+      c.w = Math.ceil(Math.max(w + 2 * G.pad, G.fs * 6));
+    } else if (!CHART_TYPES.has(c.type)) {
+      let w = tw(c.head, G.fs);
+      for (const r of rows) {
+        if (r.kind === "gap") { continue; }
+        const t = cellText(c, r); if (t) { w = Math.max(w, tw(t.t, t.fs, t.bold, t.italic)); }
+      }
+      c.w = Math.ceil(Math.max(w + 2 * G.pad, G.minNumW));
+    }
+  }
+  const gapPx = g => g === "col" ? G.colGap : g === "group" ? G.groupGap : g === "block" ? G.blockGap : 0;
+  const fixedW = cols.reduce((t, c) => t + gapPx(c.gap) + (c.w || 0), 0);
+  const charts = cols.filter(c => CHART_TYPES.has(c.type));
+  const weight = c => c.type === "vwf" ? 1.5 : c.type === "wf" ? 1.2 : 1;
+  const free = Math.max(0, viewW - fixedW);
+  const sumW = charts.reduce((t, c) => t + weight(c), 0) || 1;
+  for (const c of charts) {
+    const max = c.type === "vwf" ? G.vwfMax : G.chartMax;
+    c.w = Math.round(Math.min(max, Math.max(G.chartMin, free * weight(c) / sumW)));
+  }
+  let x = 0;
+  for (const c of cols) { x += gapPx(c.gap); c.x = x; x += c.w; }
+  const tableW = x;
+
+  // ---- Zeilen y --------------------------------------------------------------
+  const titleH = 3 * G.titleLineH + Math.round(G.fs * 1.2);
+  const blockTitleY = titleH;
+  const colHeadY = blockTitleY + (style.blockTitles ? G.rowH : 0);
+  const markY = colHeadY + G.rowH;
+  const bodyTop = markY + G.markH + Math.round(G.fs * 0.5);
+  let y = bodyTop;
+  const R = [];
+  for (const r of rows) {
+    if (r.kind === "gap") { y += G.gapRowH; continue; }
+    R.push({ r, y, h: G.rowH }); y += G.rowH;
+  }
+  // gap rows at the very end/start are meaningless — already structural
+  const bodyBottom = y;
+  const footY = bodyBottom + (style.closing ? G.markH + 4 : 2);
+  const height = footY + (style.thresholds ? G.rowH : 0) + 4;
+
+  // ---- Maßstäbe je Block × Familie ------------------------------------------
+  const lblW = (t, bold) => S.barLabels ? tw(t, G.fs, bold) + G.lblGap : 0;
+  for (const c of charts) {
+    const blk = blocks[c.block];
+    c.els = [{ p: 0, q: 0, a: 3, c: 3 }]; // die Achse selbst
+    if (c.type === "bar" || c.type === "pin") {
+      c.vals = [];
+      for (const { r } of R) {
+        if (r.kind === "pct") { continue; }
+        const D = delta(blk, r, S.min, c.ref); if (!D) { continue; }
+        const v = c.type === "bar" ? D.d : D.p == null ? null : D.p * 100;
+        if (v != null) { c.vals.push({ r, v, D }); }
+      }
+    } else if (c.type === "wf") {
+      const m = cascade(rows, r => { const D = delta(blk, r, S.min, c.ref); return D ? (r.anchor ? D.d : D.d * r.eff) : null; });
+      c.casc = m;
+    } else if (c.type === "vwf") {
+      const v = blk.v[c.scen];
+      c.casc = cascade(rows, r => v[r.id] == null ? null : (r.anchor ? v[r.id] : v[r.id] * r.eff));
+    }
+  }
+  // Kappung je Block × Familie (alle Pin-Spalten eines Blocks teilen sie)
+  for (const b of blocks) {
+    for (const fam of ["pin", "bar"]) {
+      const cs = charts.filter(c => c.block === b.i && c.type === fam);
+      const allV = [].concat(...cs.map(c => c.vals.map(o => o.v)));
+      const cap = fam === "pin" || S.barCap ? outlierCap(allV) : Infinity;
+      cs.forEach(c => { c.cap = cap; });
+    }
+  }
+  for (const c of charts) {
+    if (c.type === "bar" || c.type === "pin") {
+      const side = c.type === "pin" ? G.pinHead / 2 + G.lblGap : 0;
+      for (const { r, v, D } of c.vals) {
+        const capped = Math.abs(v) > c.cap;
+        const vv = capped ? Math.sign(v) * c.cap : v;
+        const text = c.type === "bar" ? fmt.delta(v) : fmt.pin(D.p);
+        const extra = capped ? G.arrowW : side + lblW(text, isBold(r));
+        if (vv >= 0) { c.els.push({ p: 0, q: vv, a: 0, c: extra }); }
+        else { c.els.push({ p: vv, q: 0, a: extra, c: 0 }); }
+      }
+    } else {
+      const blk = blocks[c.block];
+      for (const { r } of R) {
+        const seg = c.casc.get(r.id); if (!seg) { continue; }
+        const text = c.type === "wf" ? fmt.delta(delta(blk, r, S.min, c.ref).d) : fmt.val(blk.v[c.scen][r.id]);
+        const up = seg.e >= seg.s;
+        c.els.push({ p: Math.min(seg.s, seg.e), q: Math.max(seg.s, seg.e), a: up ? 0 : lblW(text, isBold(r)), c: up ? lblW(text, isBold(r)) : 0 });
+      }
+    }
+  }
+  const needs = (els, k) => {
+    let L = 0, Rr = 0;
+    for (const e of els) { L = Math.max(L, e.a - e.p * k); Rr = Math.max(Rr, e.q * k + e.c); }
+    return [L, Rr];
+  };
+  const solveK = (els, W) => {
+    if (!els.some(e => e.p || e.q)) { return 1; }
+    let lo = 0, hi = 1e-3;
+    while (needs(els, hi)[0] + needs(els, hi)[1] <= W && hi < 1e7) { hi *= 2; }
+    for (let i = 0; i < 50; i++) { const m = (lo + hi) / 2; const [a, b] = needs(els, m); if (a + b <= W) { lo = m; } else { hi = m; } }
+    return lo;
+  };
+  const family = c => c.type === "pin" ? "pct" : c.type === "vwf" ? "value" : "delta";
+  const famK = {};
+  for (const c of charts) {
+    c.inner = c.w - 2 * G.pad;
+    c.kSelf = solveK(c.els, c.inner);
+    const key = c.block + ":" + family(c);
+    famK[key] = Math.min(famK[key] ?? Infinity, c.kSelf);
+  }
+  for (const c of charts) {
+    c.k = famK[c.block + ":" + family(c)];
+    const [L, Rr] = needs(c.els, c.k);
+    const slack = Math.max(0, c.inner - L - Rr);
+    c.x0 = c.x + G.pad + L + slack / 2;
+  }
+
+  return { S, G, ds, regions, blocks, rows, R, cols, charts, fmt, N, style, sortInfo,
+    tableW, titleH, blockTitleY, colHeadY, markY, bodyTop, bodyBottom, footY, height, cellText, famK };
+}
+
+// ============================================================================
+// 7 · Painter (SVG)
+// ============================================================================
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) { if (attrs[k] != null) { n.setAttribute(k, attrs[k]); } }
+  if (parent) { parent.appendChild(n); }
+  return n;
+}
+function pal() {
+  return state.color === "ibcs" ? { good: C.ibcsGood, bad: C.ibcsBad } : { good: C.tealGood, bad: C.tealBad };
+}
+
+function paint(L) {
+  const { S, G, R, cols, N, style, blocks, fmt } = L;
+  const W = Math.max(L.tableW, 700);
+  const svg = el("svg", { width: W, height: L.height, viewBox: `0 0 ${W} ${L.height}`, "font-family": FONT, "font-size": G.fs, fill: C.text });
+  svg.style.display = "block";
+  const defs = el("defs", {}, svg);
+  const hatches = new Map();
+  /** Schraffur: 4-px-Raster, 45°, Strich 1.8 px in Farbe auf Weiß (wie hatchPattern im Visual) */
+  const hatch = (color) => {
+    if (!hatches.has(color)) {
+      const id = "h" + color.slice(1) + "_" + hatches.size;
+      const p = el("pattern", { id, width: 4, height: 4, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, defs);
+      el("rect", { width: 4, height: 4, fill: C.white }, p);
+      el("rect", { width: 1.8, height: 4, fill: color }, p);
+      hatches.set(color, `url(#${id})`);
+    }
+    return hatches.get(color);
+  };
+  const gRules = el("g", { "shape-rendering": "crispEdges" }, svg);
+  const gCharts = el("g", {}, svg);
+  const gText = el("g", {}, svg);
+  const text = (x, y, t, o) => {
+    o = o || {};
+    const n = el("text", { x, y, "text-anchor": o.anchor || "start", "font-weight": o.bold ? "bold" : null,
+      "font-style": o.italic ? "italic" : null, "font-size": o.fs && o.fs !== G.fs ? o.fs : null, fill: o.color || null }, o.parent || gText);
+    if (o.halo) { n.setAttribute("stroke", C.white); n.setAttribute("stroke-width", 3); n.setAttribute("paint-order", "stroke"); n.setAttribute("stroke-linejoin", "round"); }
+    n.textContent = t; return n;
+  };
+  const base = (y, h, fs) => y + h / 2 + (fs || G.fs) * 0.35;
+  const hline = (x1, x2, y, color, sw) => el("line", { x1, x2, y1: y, y2: y, stroke: color, "stroke-width": sw || 1 }, gRules);
+  const vline = (x, y1, y2, color, sw, parent) => el("line", { x1: x, x2: x, y1, y2, stroke: color, "stroke-width": sw || 1 }, parent || gRules);
+  const rect = (x, y, w, h, st, parent) => el("rect", { x, y, width: Math.max(w, 0), height: h, fill: st.fill, stroke: st.stroke, "stroke-width": st.stroke ? st.sw : null }, parent || gCharts);
+
+  // ---- Titelblock ------------------------------------------------------------
+  const title = L.ds.title.slice();
+  if (title[2] == null) {
+    const refs = activeRefs(S);
+    title[2] = `${S.min} 2025` + (refs.length ? `, ${refs.join(", ")} and ${refs.map(r => "Δ" + r).join(", ")}` : "");
+  }
+  text(0, G.titleLineH * 0.8, title[0]);
+  const t2 = text(0, G.titleLineH * 1.8, "");
+  el("tspan", { "font-weight": "bold" }, t2).textContent = title[1][0];
+  el("tspan", {}, t2).textContent = title[1][1];
+  text(0, G.titleLineH * 2.8, title[2]);
+  if (L.ds.message) { paintMessage(L, text); }
+  hline(0, W, L.titleH - Math.round(G.fs * 0.6) + 0.5, C.py, 1.5);
+
+  // ---- Kopf ------------------------------------------------------------------
+  const markMid = L.markY + G.markH / 2;
+  const paintMark = (kind, x, w, y) => {
+    y = y ?? L.markY;
+    if (kind === "solid") { rect(x, y, w, G.markH, { fill: C.ink }, gRules); }
+    else if (kind === "gray") { rect(x, y, w, G.markH, { fill: C.py }, gRules); }
+    else if (kind === "double") { hline(x, x + w, y + 0.5, C.ink); hline(x, x + w, y + G.markH - 0.5, C.ink); }
+    else if (kind === "hatch") { rect(x + 0.5, y + 0.5, w - 1, G.markH - 1, { fill: hatch(C.ink), stroke: C.ink, sw: 0.75 }, gRules); }
+    else if (kind === "rule") { hline(x, x + w, Math.round(y + G.markH / 2) + 0.5, C.ink); }
+  };
+  if (L.style.blockTitles) {
+    for (const b of blocks) {
+      const bc = cols.filter(c => c.block === b.i);
+      if (!bc.length) { continue; }
+      const x1 = bc[0].x, x2 = bc[bc.length - 1].x + bc[bc.length - 1].w;
+      text((x1 + x2) / 2, base(L.blockTitleY, G.rowH), b.name, { anchor: "middle" });
+      hline(x1, x2, L.blockTitleY + G.rowH - 0.5, C.ink);
+    }
+  }
+  for (let i = 0; i < cols.length; i++) {
+    const c = cols[i];
+    const ty = base(L.colHeadY, G.rowH);
+    if (c.type === "label") { if (style.headerRules) { paintMark("rule", c.x, c.w); } continue; }
+    if (c.type === "value") {
+      text(c.x + c.w - G.pad, ty, c.head, { anchor: "end" });
+      paintMark(S.marks ? N.mark(c.scen) : "rule", c.x, c.w);
+      continue;
+    }
+    if (c.type === "delta" && style.pairHeader && cols[i + 1] && cols[i + 1].type === "dpct" && cols[i + 1].ref === c.ref && cols[i + 1].block === c.block) {
+      const n = cols[i + 1];
+      text(n.x + n.w - G.pad, ty, c.head, { anchor: "end" });
+      if (style.headerRules) { paintMark("rule", c.x, n.x + n.w - c.x); }
+      i++; continue;
+    }
+    if (c.type === "delta" || c.type === "dpct") { text(c.x + c.w - G.pad, ty, c.head, { anchor: "end" }); }
+    else { text(c.x + c.w / 2, ty, c.head, { anchor: "middle" }); }
+    if (style.headerRules) { paintMark("rule", c.x, c.w); }
+  }
+
+  // ---- Zeilen: Linien --------------------------------------------------------
+  const left = cols.length ? cols[0].x : 0;
+  for (let i = 0; i < R.length; i++) {
+    const { r, y, h } = R[i];
+    const next = R[i + 1];
+    const contiguous = next && next.y === y + h;
+    if (isBold(r)) {
+      if (style.continuousSumRules) { hline(left, L.tableW, y + 0.5, C.ink); }
+      else { for (const c of cols) { hline(c.x, c.x + c.w, y + 0.5, C.ink); } }
+    }
+    if (style.rowRules && r.kind === "acc" && !(contiguous && isBold(next.r))) {
+      for (const c of cols) { hline(c.x, c.x + c.w, y + h - 0.5, C.rule); }
+    }
+  }
+  if (style.closing) {
+    for (const c of cols) {
+      if (c.type === "value") { paintMark(N.mark(c.scen), c.x, c.w, L.bodyBottom + 2); }
+      else { hline(c.x, c.x + c.w, L.bodyBottom + 0.5, C.ink); }
+    }
+  }
+
+  // ---- Zahlen ----------------------------------------------------------------
+  for (const { r, y, h } of R) {
+    for (const c of cols) {
+      if (c.type === "label") {
+        const fsx = r.kind === "pct" ? G.fsSmall : G.fs;
+        const ty = base(y, h, fsx);
+        if (style.signs && r.op) { text(c.x + G.pad, ty, r.op === "-" ? "-" : r.op, { bold: isBold(r) }); }
+        text(c.x + G.pad + (style.signs ? G.signW : 0) + (r.level || 0) * G.indent, ty, r.label,
+          { bold: isBold(r), italic: r.kind === "pct", fs: fsx });
+        continue;
+      }
+      if (CHART_TYPES.has(c.type)) { continue; }
+      const t = L.cellText(c, r);
+      if (t) { text(c.x + c.w - G.pad, base(y, h, t.fs), t.t, { anchor: "end", bold: t.bold, italic: t.italic, fs: t.fs, color: t.color }); }
+    }
+  }
+
+  // ---- Chart-Spalten ---------------------------------------------------------
+  for (const c of L.charts) { paintChartColumn(L, c, { el, rect, text, vline, hatch, base, gCharts }); }
+
+  // ---- Fußzeile „Δ in red if" -------------------------------------------------
+  if (style.thresholds) {
+    const fy = base(L.footY, G.rowH, G.fsSmall);
+    const o = { italic: true, fs: G.fsSmall, color: C.soft, anchor: "end" };
+    for (const b of blocks) {
+      const bc = cols.filter(c => c.block === b.i);
+      const firstD = bc.findIndex(c => c.type === "delta" || c.type === "dpct");
+      if (firstD < 0) { continue; }
+      const before = bc[firstD - 1];
+      const lx = before ? before.x + before.w - G.pad : bc[firstD].x - G.groupGap;
+      text(lx, fy, "Δ in red if:", o);
+      for (const c of bc) {
+        if (c.type === "delta") { text(c.x + c.w - G.pad, fy, "<" + num(b.th.abs, 0, false), o); }
+        if (c.type === "dpct") { text(c.x + c.w - G.pad, fy, "<" + num(b.th.pct * 100, 0, false) + "%", o); }
+      }
+    }
+  }
+  return svg;
+}
+
+function paintChartColumn(L, c, h) {
+  const { S, G, R, N, blocks, fmt } = L;
+  const { el, rect, text, vline, hatch, base, gCharts } = h;
+  const blk = blocks[c.block];
+  const P = pal();
+  const X = v => c.x0 + v * c.k;
+  const g = el("g", {}, gCharts);
+  const gAx = el("g", { "shape-rendering": "crispEdges" }, g);
+  // Achse (Nulllinie) über den ganzen Block
+  const y1 = L.bodyTop - Math.round(G.fs * 0.3), y2 = L.bodyBottom;
+  const axisKind = c.type === "vwf" ? "value" : SCENARIO_NOTATION[c.ref].axis;
+  const ax = Math.round(c.x0);
+  const axisHalf = axisKind === "double" ? G.axisPLGap / 2 + 1 : axisKind === "gray" ? G.axisPY / 2 : 0.5;
+  const paintAxis = () => {
+    if (axisKind === "gray") { vline(ax, y1, y2, C.py, G.axisPY, gAx); }
+    else if (axisKind === "double") { vline(ax - G.axisPLGap / 2 - 0.5, y1, y2, C.ink, 1, gAx); vline(ax + G.axisPLGap / 2 + 0.5, y1, y2, C.ink, 1, gAx); }
+    else { vline(ax + 0.5, y1, y2, C.ink, 1, gAx); }
+  };
+  const label = (x, y, t, anchor, bold, halo) => {
+    if (!S.barLabels) { return; }
+    text(x, y, t, { anchor, bold, parent: g, halo });
+  };
+  const arrow = (xTip, cy, dir, hgt, fill) =>
+    el("path", { d: `M${xTip},${cy} L${xTip - dir * G.arrowW},${cy - hgt / 2} L${xTip - dir * G.arrowW},${cy + hgt / 2} Z`, fill }, g);
+
+  if (c.type === "bar" || c.type === "pin") {
+    const byRow = new Map(c.vals.map(o => [o.r, o]));
+    const gBars = el("g", {}, g);
+    for (const { r, y, h: rh } of R) {
+      const o = byRow.get(r); if (!o) { continue; }
+      const cy = y + rh / 2, ty = base(y, rh);
+      const v = o.v, dir = v >= 0 ? 1 : -1;
+      const capped = Math.abs(v) > c.cap;
+      const vv = capped ? dir * c.cap : v;
+      const color = o.D.good ? P.good : P.bad;
+      const bold = isBold(r);
+      if (c.type === "bar") {
+        const x2 = X(vv);
+        const bx = Math.min(c.x0, x2), bw = Math.abs(x2 - c.x0);
+        if (v !== 0) { rect(Math.round(bx * 2) / 2, cy - G.barH / 2, Math.max(bw, 1), G.barH, N.area(color, hatch), gBars); }
+        if (capped) {
+          arrow(x2 + dir * G.arrowW, cy, dir, G.barH + 4, color);
+          label(x2 - dir * 3, ty, fmt.delta(v), dir > 0 ? "end" : "start", bold, true);
+        } else {
+          const lx = dir > 0 ? Math.max(x2, c.x0 + axisHalf) + G.lblGap : Math.min(x2, c.x0 - axisHalf) - G.lblGap;
+          label(lx, ty, fmt.delta(v), dir > 0 ? "start" : "end", bold);
+        }
+      } else {
+        const xh = X(vv);
+        const stemEnd = capped ? xh : xh;
+        el("line", { x1: c.x0, x2: stemEnd, y1: cy, y2: cy, stroke: color, "stroke-width": G.pinStem }, gBars);
+        if (capped) {
+          arrow(xh + dir * G.arrowW, cy, dir, G.pinHead + 2, color);
+          label(xh - dir * 3, ty, fmt.pin(o.D.p), dir > 0 ? "end" : "start", bold, true);
+        } else {
+          const hs = G.pinHead;
+          rect(xh - hs / 2, cy - hs / 2, hs, hs, N.head(hatch), gBars);
+          const lx = dir > 0 ? Math.max(xh, c.x0) + hs / 2 + G.lblGap : Math.min(xh, c.x0) - hs / 2 - G.lblGap;
+          label(lx, ty, fmt.pin(o.D.p), dir > 0 ? "start" : "end", bold);
+        }
+      }
+    }
+    paintAxis();
+    return;
+  }
+
+  // ---- Kaskaden (Δ-Wasserfall „wf" · Wert-Kaskade „vwf") -----------------------
+  paintAxis();
+  const gConn = el("g", { "shape-rendering": "crispEdges" }, g);
+  let last = null;          // { v, yb } — Lauf-Ende des zuletzt gezeichneten Segments
+  const spanFrom = {};      // Elternsumme → { v, yb } am Beginn ihrer Kinder
+  const near = (a, b) => Math.abs(a - b) <= 1e-6 * Math.max(1, Math.abs(a), Math.abs(b));
+  const conn = (v, ya, yb) => { if (yb - ya > 0.5) { vline(Math.round(X(v)) + 0.5, ya, yb, C.soft, 1, gConn); } };
+  for (const { r, y, h: rh } of R) {
+    const seg = c.casc.get(r.id); if (!seg) { continue; }
+    const cy = y + rh / 2, top = cy - G.barH / 2, bot = cy + G.barH / 2, ty = base(y, rh);
+    if (r.parent && !(r.parent in spanFrom) && last) { spanFrom[r.parent] = last; }
+    let st, txt;
+    if (c.type === "wf") {
+      const D = delta(blk, r, S.min, c.ref);
+      st = N.area(D.good ? pal().good : pal().bad, hatch);
+      txt = fmt.delta(D.d);
+    } else {
+      st = N.value(c.scen, !!r.cost, hatch);
+      txt = fmt.val(blk.v[c.scen][r.id]);
+    }
+    const xa = X(Math.min(seg.s, seg.e)), xb = X(Math.max(seg.s, seg.e));
+    rect(xa, top, Math.max(xb - xa, 1), G.barH, st, g);
+    // Verbindungslinien
+    if (last) {
+      if (seg.type === "anchor") { if (near(seg.e, last.v)) { conn(seg.e, last.yb, top); } }
+      else if (seg.type === "span") {
+        const sf = spanFrom[r.id];
+        if (sf && near(seg.s, sf.v)) { conn(seg.s, sf.yb, top); }
+        if (near(seg.e, last.v)) { conn(seg.e, last.yb, top); }
+      } else if (near(seg.s, last.v)) { conn(seg.s, last.yb, top); }
+    }
+    last = { v: seg.e, yb: bot };
+    const up = seg.e >= seg.s;
+    label(up ? xb + G.lblGap : xa - G.lblGap, ty, txt, up ? "start" : "end", isBold(r));
+  }
+}
+
+/** Nachrichten-Headline (12er-Serie) — aus den Daten generiert */
+function paintMessage(L, text) {
+  const { blocks, rows, S, G, fmt } = L;
+  const ref = activeRefs(S)[0] || "PY";
+  const b = blocks[0];
+  const accs = rows.filter(r => r.kind === "acc").map(r => ({ r, D: delta(b, r, S.min, ref) })).filter(o => o.D);
+  const best = accs.slice().sort((x, y) => y.D.impact - x.D.impact)[0];
+  const opex = rows.find(r => r.id === "opex");
+  const dOpex = opex ? delta(b, opex, S.min, ref) : null;
+  const grp = rows.find(r => r.id === "grp");
+  const dG = grp ? delta(b, grp, S.min, ref) : null;
+  if (!best || !dG) { return; }
+  const msg = `Compared to ${ref}, the ${dOpex && dOpex.d > 0 ? "higher" : "lower"} operating expenses (${fmt.delta(dOpex.d)} kEUR) were ` +
+    `${dOpex.d > 0 ? "compensated" : "accompanied"} by ${best.r.label.toLowerCase()} (${fmt.delta(best.D.d)} kEUR), leading to a ` +
+    `${dG.d >= 0 ? "higher" : "lower"} group result (${fmt.delta(dG.d)} kEUR)`;
+  const x0 = Math.round(G.fs * 30);
+  const words = msg.split(" "); let line = "", ln = 0;
+  for (const w of words) {
+    const t = line ? line + " " + w : w;
+    if (tw(t, G.fs) > G.fs * 46 && line) { text(x0, G.titleLineH * (0.8 + ln), line); ln++; line = w; } else { line = t; }
+  }
+  text(x0, G.titleLineH * (0.8 + ln), line);
+}
+
+// ============================================================================
+// 8 · Bedienleiste
+// ============================================================================
+const bar = document.getElementById("bar");
+function seg(key, options, opts) {
+  opts = opts || {};
+  const wrap = document.createElement("span"); wrap.className = "ctl";
+  if (opts.label) { const l = document.createElement("span"); l.className = "lbl"; l.textContent = opts.label; wrap.appendChild(l); }
+  const s = document.createElement("span"); s.className = "seg";
+  for (const [val, txt] of options) {
+    const b = document.createElement("button");
+    b.textContent = typeof txt === "function" ? txt() : txt;
+    const isOn = opts.isOn ? opts.isOn(val) : state[key] === val;
+    if (isOn) { b.className = "on"; }
+    if (opts.disabled && opts.disabled()) { b.disabled = true; }
+    b.onclick = () => { if (opts.onClick) { opts.onClick(val); } else { state[key] = val; state.preset = ""; } update(); };
+    s.appendChild(b);
+  }
+  wrap.appendChild(s); return wrap;
+}
+function chk(key, label, disabled) {
+  const l = document.createElement("label"); l.className = "chk" + (disabled ? " dis" : "");
+  const i = document.createElement("input"); i.type = "checkbox"; i.checked = !!state[key]; i.disabled = !!disabled;
+  i.dataset.key = key;
+  i.onchange = () => { state[key] = i.checked; state.preset = ""; update(); };
+  l.appendChild(i); l.appendChild(document.createTextNode(label)); return l;
+}
+function group(title, kids) {
+  const g = document.createElement("span"); g.className = "grp";
+  if (title) { const b = document.createElement("b"); b.textContent = title; g.appendChild(b); }
+  kids.forEach(k => g.appendChild(k)); return g;
+}
+function buildBar() {
+  bar.innerHTML = "";
+  const regions = DATASETS[state.ds].kind === "regions";
+  const fam = state.preset ? Object.keys(TEMPLATES).find(t => state.preset.startsWith(t)) : null;
+  // Zeile 1: Presets, Daten, Szenario, Format
+  const r1 = document.createElement("div"); r1.className = "row";
+  r1.appendChild(seg("tpl", Object.keys(TEMPLATES).map(t => [t, t]), {
+    label: "Template", isOn: t => t === fam, onClick: t => applyPreset(TEMPLATES[t]) }));
+  const ps = document.createElement("select"); ps.id = "preset";
+  ps.appendChild(new Option("— angepasst —", ""));
+  for (const p of Object.keys(PRESETS)) { ps.appendChild(new Option(p, p)); }
+  ps.value = state.preset;
+  ps.onchange = () => { if (ps.value) { applyPreset(ps.value); update(); } };
+  const pw = document.createElement("span"); pw.className = "ctl";
+  pw.innerHTML = '<span class="lbl">Referenz</span>'; pw.appendChild(ps); r1.appendChild(pw);
+  const dsSel = document.createElement("select"); dsSel.id = "ds";
+  for (const k of Object.keys(DATASETS)) { dsSel.appendChild(new Option(DATASETS[k].label, k)); }
+  dsSel.value = state.ds; dsSel.onchange = () => { state.ds = dsSel.value; state.preset = ""; update(); };
+  const dw = document.createElement("span"); dw.className = "ctl";
+  dw.innerHTML = '<span class="lbl">Daten</span>'; dw.appendChild(dsSel); r1.appendChild(dw);
+  r1.appendChild(seg("min", [["AC", "AC"], ["FC", "FC"]], { label: "Minuend" }));
+  const subNow = () => { const a = activeRefs(state); return a.length === 2 ? "both" : a[0] || ""; };
+  r1.appendChild(seg("sub", [["PY", "nur ΔPY"], ["PL", "nur ΔPL"], ["both", "beide"]], {
+    label: "Subtrahend", isOn: v => subNow() === v,
+    onClick: v => {
+      // Muster der aktiven Referenz übernehmen, auf die gewählte(n) Referenz(en) legen
+      const src = activeRefs(state)[0] || "PL";
+      const pat = Object.fromEntries(DKINDS.map(([k]) => [k, state["d" + src + k]]));
+      for (const r of REFS) { const on = v === "both" || v === r; for (const [k] of DKINDS) { state["d" + r + k] = on && pat[k]; } }
+      state.showPY = v !== "PL"; state.showPL = v !== "PY"; state.preset = "";
+    } }));
+  r1.appendChild(seg("color", [["teal", "teal"], ["ibcs", "IBCS-Grün"]], { label: "Farbe" }));
+  r1.appendChild(seg("dec", [[0, "0"], [1, "1"], [2, "2"]], { label: "Dezimalen" }));
+  r1.appendChild(seg("fs", [[11, "11"], [13, "13"], [15, "15"]], { label: "Schrift px" }));
+  bar.appendChild(r1);
+  // Zeile 2: Spalten
+  const r2 = document.createElement("div"); r2.className = "row";
+  r2.appendChild(group("Wertspalten", [chk("showPY", "PY"), chk("showPL", "PL"), chk("showMin", state.min), chk("valueWf", "als Wert-Kaskade (12A)")]));
+  for (const r of REFS) {
+    r2.appendChild(group("Δ" + r, DKINDS.map(([k, t]) => chk("d" + r + k, t.replace("Δ%", "Δ" + r + "%")))));
+  }
+  bar.appendChild(r2);
+  // Zeile 3: Elemente, Sortierung
+  const r3 = document.createElement("div"); r3.className = "row";
+  r3.appendChild(group("Elemente", [
+    chk("ytd", "2. Block _YTD", !regions), chk("subtotals", "Zwischensummen", !regions), chk("margins", "Margen-/%-Zeilen", regions),
+    chk("thresholds", "Δ-Schwellen + Fußzeile"), chk("marks", "Szenario-Unterstreichung"), chk("barLabels", "Zahlen an Balken/Pins"),
+    chk("barCap", "Ausreißer-Kappung auch für Balken")]));
+  const sortOff = () => !regions;
+  r3.appendChild(group("", [
+    seg("sort", [["cat", "Kategorie"], ["ac", () => state.min + "↓"], ["delta", "Δ↓"]], { label: "Sortierung", disabled: sortOff }),
+    seg("sortBlock", [[0, "Monat"], [1, "_YTD"]], { label: "nach Block", disabled: () => sortOff() || state.sort === "cat" || !state.ytd })]));
+  bar.appendChild(r3);
+}
+
+// ============================================================================
+// 9 · Ablauf
+// ============================================================================
+const stage = document.getElementById("stage");
+let lastLayout = null;
+function update() {
+  writeHash();
+  buildBar();
+  const viewW = Math.max(760, stage.clientWidth - 34);
+  const L = layout(state, viewW);
+  lastLayout = L;
+  stage.innerHTML = "";
+  stage.appendChild(paint(L));
+  // Statuszeile: abgeleitete Maße live
+  const fams = Object.entries(L.famK).map(([k, v]) => {
+    const [b, f] = k.split(":");
+    const unit = f === "pct" ? "px/%-Pkt." : "px/Einheit";
+    const cap = L.charts.find(c => String(c.block) === b && (f === "pct" ? c.type === "pin" : f === "delta" ? c.type === "bar" : false));
+    return `Block ${L.blocks[b].name} · ${f}: <code>${v.toFixed(3)} ${unit}</code>` + (cap && isFinite(cap.cap) ? ` · Kappung <code>${cap.cap.toFixed(1)}</code>` : "");
+  });
+  document.getElementById("status").innerHTML =
+    `Preset <code>${state.preset || "angepasst"}</code> · Daten <code>${L.ds.label}</code> · Notation: Minuend ${state.min} → ${state.min === "FC" ? "schraffiert" : "voll"}, ` +
+    `Subtrahend ${activeRefs(state).join("+") || "–"} → ${activeRefs(state).map(r => r === "PY" ? "graue Achse" : "Doppelachse").join(" / ") || "–"} · ` +
+    `Zeile ${L.G.rowH}px · Balken ${L.G.barH}px · Pin-Kopf ${L.G.pinHead}px · Tabelle ${L.tableW}px<br>` + (fams.join(" &nbsp;|&nbsp; ") || "keine Chart-Spalten");
+}
+function writeHash() {
+  const diff = Object.keys(state).filter(k => k !== "preset" && state.preset && PRESETS[state.preset] && PRESETS[state.preset][k] !== state[k] && k !== "color" && k !== "fs");
+  const parts = state.preset ? ["ref=" + state.preset] : [];
+  const keys = state.preset ? diff.concat(["color", "fs"]) : Object.keys(state).filter(k => k !== "preset");
+  for (const k of keys) { parts.push(k + "=" + state[k]); }
+  history.replaceState(null, "", "#" + parts.join("&"));
+}
+function readHash() {
+  const h = location.hash.slice(1); if (!h) { return; }
+  const kv = Object.fromEntries(h.split("&").map(p => p.split("=")));
+  if (kv.ref && PRESETS[decodeURIComponent(kv.ref)]) { applyPreset(decodeURIComponent(kv.ref)); }
+  for (const [k, v] of Object.entries(kv)) {
+    if (k === "ref" || !(k in state)) { continue; }
+    const cur = state[k];
+    state[k] = typeof cur === "boolean" ? v === "true" : typeof cur === "number" ? Number(v) : decodeURIComponent(v);
+  }
+}
+// für Tests/Playwright
+window.__mega = { state, update, applyPreset, layout: () => lastLayout, PRESETS };
+readHash();
+update();
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(update, 80); });
+</script>
+</body>
+</html>
