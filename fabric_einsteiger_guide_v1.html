@@ -159,10 +159,30 @@ a { color: inherit; }
   background: var(--ink);
   color: white;
 }
-@media (max-width: 900px) {
-  .topnav { display: none; }
-  .container { padding-top: 40px; }
+/* Mobil: statt versteckter Leiste eine schmale Kapitel-Leiste mit Ausklapp-Liste */
+.topnav-toggle {
+  display: none; align-items: center; gap: 6px; flex: none;
+  min-height: 44px; padding: 0 14px;
+  border: 1px solid var(--line); border-radius: 999px; background: #fff;
+  font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink); cursor: pointer;
 }
+.topnav-toggle span { display: inline-block; transition: transform .15s ease; }
+.topnav.open .topnav-toggle span { transform: rotate(180deg); }
+.topnav-toggle:focus-visible, .topnav-link:focus-visible, .topnav-brand:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 900px) {
+  .container { padding-top: 24px; }
+  .topnav { margin: 0 -32px 32px; padding: 4px 12px 4px 32px; }
+  .topnav-inner { flex-wrap: nowrap; gap: 8px; min-height: 48px; }
+  .topnav-brand { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px; margin-right: 0; }
+  .topnav-brand .beta-badge { display: none; }
+  .topnav-link { display: none; }
+  .topnav-toggle { display: inline-flex; }
+  .topnav.open { max-height: 100vh; max-height: 100dvh; overflow-y: auto; overscroll-behavior: contain; }
+  .topnav.open .topnav-inner { flex-wrap: wrap; gap: 2px 8px; padding-bottom: 12px; }
+  .topnav.open .topnav-link { display: flex; align-items: center; flex-basis: 100%; min-height: 44px; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .topnav-toggle span { transition: none; } }
 
 /* ========== HEADER ========== */
 .header {
@@ -1807,9 +1827,18 @@ kbd.kbd {
 }
 .section { animation: fadeUp .6s ease backwards; }
 @media (max-width: 900px) { .header { grid-template-columns: 1fr; } .header-meta { text-align: left; } }
+
+/* Mobil 390 px: kein horizontales Scrollen */
+@media (max-width: 640px) {
+  .rls-row { grid-template-columns: 1fr; gap: 8px; }
+  .sources-list { grid-template-columns: 1fr; }
+  .section-head { flex-wrap: wrap; gap: 8px 16px; }
+  .section-hint { flex-basis: 100%; }
+}
 </style>
 </head>
 <body>
+<script src="assets/js/site-chrome.js" data-chrome="full"></script>
 
 <div class="container">
 
@@ -1819,6 +1848,7 @@ kbd.kbd {
 <nav class="topnav">
   <div class="topnav-inner">
     <a class="topnav-brand" href="index.html">Microsoft Fabric <em>End-to-End</em> · Einsteiger-Guide<span class="beta-badge" title="Beta-Phase · noch in Entwicklung">Beta</span></a>
+    <button class="topnav-toggle" type="button" aria-expanded="false" aria-label="Kapitel anzeigen">Kapitel <span aria-hidden="true">▾</span></button>
     <a class="topnav-link topnav-link-home" href="index.html">← Knowledge Kitchen</a>
     <a class="topnav-link" href="power_bi_einsteiger_guide_v4.html">Power-BI-Guide</a>
     <a class="topnav-link" href="#einordnung">Einordnung</a>
@@ -1830,6 +1860,7 @@ kbd.kbd {
     <a class="topnav-link" href="#quellen">Quellen</a>
   </div>
 </nav>
+<script>/* Kapitel-Leiste mobil */(function(){var n=document.querySelector('.topnav'),b=n&&n.querySelector('.topnav-toggle');if(!b)return;function set(o){n.classList.toggle('open',o);b.setAttribute('aria-expanded',o?'true':'false');}b.addEventListener('click',function(){set(!n.classList.contains('open'));});n.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('.topnav-link'))set(false);});document.addEventListener('keydown',function(e){if(e.key==='Escape'&&n.classList.contains('open')){set(false);b.focus();}});})();</script>
 
 <!-- ============================================================
      HEADER

@@ -26,7 +26,7 @@
           border:1.5px solid; background:#fff; font-weight:bold; transition: opacity .15s; }
   .chip.off { opacity:.32; }
   .layout { display:flex; gap:16px; align-items:flex-start; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(370px, 1fr)); gap: 14px; flex: 1; min-width: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(370px, 100%), 1fr)); gap: 14px; flex: 1; min-width: 0; }
   .panel { background: #fff; border: 1px solid var(--grid); border-radius: 10px; padding: 10px 10px 4px; }
   .ptitle { font-weight: bold; font-size: 13.5px; margin: 2px 4px 0; }
   .pstats { font-size: 12px; color: var(--muted); margin: 1px 4px 4px; }
@@ -127,6 +127,7 @@
 </style>
 </head>
 <body>
+<script src="assets/js/site-chrome.js" data-chrome="footer"></script>
 <div class="wrap">
   <a class="backtop" href="index.html#posts-talks">← Zurück zur Daten-WG Knowledge Kitchen</a>
   <h1>Country Indicator Explorer</h1>
