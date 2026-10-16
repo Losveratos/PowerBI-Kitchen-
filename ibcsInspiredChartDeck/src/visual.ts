@@ -511,6 +511,10 @@ export class Visual implements IVisual {
     /** dark mode resolved per update (pane setting or theme luminance) — also
      *  drives the landing gallery and the HTML overlays outside of cfg */
     private uiDark = false;
+    /** Modus-Chip-Klick "beendet den Modus": ein gerade persistiertes false muss
+     *  ein verspätetes Metadaten-Echo überleben (Schlüssel object.prop → TTL),
+     *  gleiches Muster wie pendingFontPreset */
+    private pendingModeOff = new Map<string, number>();
     /** rowType / colgroup role bound at all (Smart-Start rules a/b), independent of the
      *  current orientation's own filtering of those fields */
     private paneHasRowType = false;
@@ -602,6 +606,20 @@ export class Visual implements IVisual {
                 const slice = this.formattingSettings.chartCard[prop];
                 if (String(slice.value || "") === val) { this.pendingListProps.delete(prop); }
                 else { slice.value = val; }
+            }
+            // Modus-Chip "beenden": frisch persistiertes false gegen stale Echos
+            // verteidigen; TTL lässt den Pane-Wert nach ein paar Updates wieder
+            // gewinnen, falls das Host-Echo verloren geht
+            for (const [key, ttl] of [...this.pendingModeOff]) {
+                const fsm = this.formattingSettings;
+                const slice = key === "commentsPanel.editComments" ? fsm.commentsCard.editComments
+                    : key === "chart.structureEdit" ? fsm.chartCard.structureEdit
+                        : fsm.chartCard.compareClick;
+                if (slice.value === false || ttl <= 1) { this.pendingModeOff.delete(key); }
+                else {
+                    this.pendingModeOff.set(key, ttl - 1);
+                    slice.value = false;
+                }
             }
             // a just-clicked landing font-preset pill must survive a stale
             // metadata update that arrives before the host echoes it back
@@ -822,9 +840,18 @@ export class Visual implements IVisual {
         fs.chartCard.materialityPct.visible = this.paneHasPy || this.paneHasPl || this.paneHasBm;
         // exception filter needs something to filter against — and a mode whose row
         // order may shrink (time axes and cascades must stay gapless)
-        fs.chartCard.exceptionOnly.visible = ((fs.chartCard.materialityAbs.value ?? 0) > 0
-            || (fs.chartCard.materialityPct.value ?? 0) > 0)
-            && (orient === "bars" || orient === "cards" || orient === "table");
+        // sichtbar in allen fähigen Modi, auch OHNE Schwelle — ein verstecktes
+        // Feature findet niemand (UX-8). Ohne Schwelle nennt die Beschreibung
+        // die Voraussetzung (Slice-disabled gibt es in dieser Utils-Version
+        // nicht; descriptionKey dynamisch zu tauschen hat denselben Effekt)
+        const excCapable = orient === "bars" || orient === "cards" || orient === "table";
+        const excThreshold = (fs.chartCard.materialityAbs.value ?? 0) > 0
+            || (fs.chartCard.materialityPct.value ?? 0) > 0;
+        fs.chartCard.exceptionOnly.visible = excCapable;
+        fs.chartCard.exceptionOnly.descriptionKey = excThreshold
+            ? "Desc_Chart_ExceptionOnly" : "Exc_NeedsThreshold";
+        // AC+FC-Splitsäule nur anbieten, wenn überhaupt ein FC-Measure da ist (UX-7)
+        fs.chartCard.acFcSplit.visible = this.paneHasFc;
         fs.chartCard.compareClick.visible = orient === "columns" || orient === "bars";
         fs.chartCard.showTotal.visible = orient === "columns" || orient === "bars"
             || orient === "line" || orient === "table";
@@ -1521,10 +1548,9 @@ export class Visual implements IVisual {
         const sub = this.el("text", {
             x: 12, y: 9 + titleF + subF + 5, "font-size": subF, fill: subtle, "font-family": FONT
         }, this.svg);
-        sub.textContent = this.truncate(
-            cBody !== "" ? cBody
-                : `${hint} · ${this.locStr("Demo_Pick", "Click a preview to pick the chart mode")}`,
-            width - 24, subF);
+        // der Text wird unten gesetzt, sobald der aktive Modus bekannt ist —
+        // die Subline nennt dann den NÄCHSTEN Schritt (welche Felder binden)
+        // statt des generischen Hinweises (UX-4 aus AUDIT-2026-10-UX.md)
         const made = this.el("text", {
             x: width / 2, y: height - 8, "text-anchor": "middle",
             "font-size": 10, fill: subtle, "font-family": FONT
@@ -1574,6 +1600,17 @@ export class Visual implements IVisual {
         ];
         const fieldsPre = this.locStr("Demo_Fields", "Fields");
         const active = String(this.formattingSettings.chartCard.orientation.value.value);
+        // Subline = nächster Schritt für den AKTIVEN Modus: ein fehlender-
+        // Pflichtfeld-Hinweis (missingHint) gewinnt, dann eigener Leer-Text,
+        // sonst die konkreten Felder des gewählten Modus (lokalisiert)
+        const activeMode = modes.find(m => m.v === active);
+        const nextTxt = this.missingHint != null ? hint
+            : this.locStr("Demo_Next", "Next: add {0} to the field wells")
+                .replace("{0}", activeMode ? activeMode.fields : "");
+        sub.textContent = this.truncate(
+            cBody !== "" ? cBody
+                : `${nextTxt} · ${this.locStr("Demo_Pick", "Click a preview to pick the chart mode")}`,
+            width - 24, subF);
         const padX = 12, gap = 8;
         const top = 16 + titleF + subF + 12;
         const selH = Math.round(21 * Math.min(1.25, tf));
@@ -2683,8 +2720,9 @@ export class Visual implements IVisual {
                     : this.structureEdit
                         ? this.locStr("Chip_StructureMode", "⚙ Structure mode")
                         : `${this.locStr("Chip_Compare", "⇄ Compare")} (${this.compareCats.length}/2)`;
+                const mode = this.commentEdit ? "comment" : this.structureEdit ? "structure" : "compare";
                 this.drawModeChip(width - 6 - toolbarReserve - sortReserve - ytdReserve - excReserve,
-                    text, cfg);
+                    text, cfg, mode);
             }
 
             // YTD chip (opt-in): the end user flips the cumulative view on the report
@@ -9965,11 +10003,14 @@ export class Visual implements IVisual {
     }
 
     /** small dark pill top-right announcing an active click mode (comment/compare) */
-    private drawModeChip(xRight: number, text: string, cfg: ChartConfig): void {
+    private drawModeChip(xRight: number, text: string, cfg: ChartConfig,
+        mode: "comment" | "structure" | "compare"): void {
         const k = this.fontK;
         const bh = Math.round(18 * k), font = Math.round(10 * k);
-        const w = Math.round(text.length * font * 0.62) + Math.round(16 * k);
-        const g = this.el("g", {}, this.svg);
+        // echte Textbreite statt Zeichen×Faktor — lange lokalisierte Labels
+        // (ja-JP!) liefen sonst aus der Pille (UX-10 teilweise)
+        const w = Math.round(this.textWidth(text, font)) + Math.round(16 * k);
+        const g = this.el("g", { role: "button", tabindex: "0" }, this.svg) as SVGGElement;
         this.el("rect", {
             x: xRight - w, y: 6, width: w, height: bh, rx: bh / 2,
             fill: cfg.hc ? cfg.paper : cfg.colors.ac,
@@ -9980,10 +10021,57 @@ export class Visual implements IVisual {
             "font-size": font, fill: cfg.hc ? cfg.ink : cfg.paper, "font-family": FONT, "font-weight": 600
         }, g);
         t.textContent = text;
-        const tip = this.el("title", {}, g);
-        tip.textContent = text.startsWith("✎")
+        const tipBase = mode === "comment"
             ? this.locStr("ChipTip_Comment", "Comment mode active: clicking a category opens the editor")
-            : this.locStr("ChipTip_Compare", "Compare mode active: click two elements to show the difference, click empty space to reset");
+            : mode === "structure"
+                ? this.locStr("ChipTip_Structure", "Structure mode active: clicking a row opens the one-click P&L menu")
+                : this.locStr("ChipTip_Compare", "Compare mode active: click two elements to show the difference, click empty space to reset");
+        const endHint = this.locStr("ChipTip_EndMode", "Click the chip to end the mode");
+        const tipText = `${tipBase} — ${endHint}`;
+        const tip = this.el("title", {}, g);
+        tip.textContent = tipText;
+        g.setAttribute("aria-label", tipText);
+        // Klick beendet den Modus (UX-3): der Chip persistiert die jeweilige
+        // Pane-Eigenschaft auf false — wie alle anderen In-Chart-Schalter.
+        // Optimistisch: Slice sofort umsetzen + Echo-Guard mit TTL, damit ein
+        // verspätetes Metadaten-Echo den Klick nicht kurz zurückdreht
+        if (this.host.hostCapabilities?.allowInteractions !== false) {
+            g.style.cursor = "pointer";
+            const endMode = () => {
+                const s = this.formattingSettings;
+                if (mode === "comment") {
+                    s.commentsCard.editComments.value = false;
+                    this.pendingModeOff.set("commentsPanel.editComments", 5);
+                    this.host.persistProperties({ merge: [{
+                        objectName: "commentsPanel", selector: null,
+                        properties: { editComments: false }
+                    }] });
+                } else if (mode === "structure") {
+                    s.chartCard.structureEdit.value = false;
+                    this.pendingModeOff.set("chart.structureEdit", 5);
+                    this.host.persistProperties({ merge: [{
+                        objectName: "chart", selector: null,
+                        properties: { structureEdit: false }
+                    }] });
+                } else {
+                    s.chartCard.compareClick.value = false;
+                    this.pendingModeOff.set("chart.compareClick", 5);
+                    this.compareCats = [];
+                    this.host.persistProperties({ merge: [{
+                        objectName: "chart", selector: null,
+                        properties: { compareClick: false }
+                    }] });
+                }
+                this.rerender();
+            };
+            g.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); endMode(); });
+            g.addEventListener("keydown", (e: KeyboardEvent) => {
+                if (e.key !== "Enter" && e.key !== " ") { return; }
+                e.preventDefault();
+                e.stopPropagation();
+                endMode();
+            });
+        }
     }
 
     /**
