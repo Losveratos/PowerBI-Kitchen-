@@ -27,6 +27,14 @@ und rendert unverändert. Details: `SPEC-MEGATABLE.md`, Abschnitt
   (persistProperties mit Echo-Guard), danach ist jeder Schalter frei.
 - Neue Tests: `npm run test:mega`.
 
+**Fix (Bestand, Tabellen-/Balken-/Waterfall-Ansicht):** Die Beschriftungsspur
+der Δ%-Pins wurde für den auf ±40 % gekappten Wert bemessen („+40.0%▸"),
+gedruckt wird aber der ungekappte Wert mit Überlauf-Marke („+220.0%▸") — bei
+|Δ%| ≥ 100 % konnte die Zahl am SVG-Rand abgeschnitten werden (Testfall p2,
+`npm run test:render`). Die Spur misst jetzt den tatsächlich gedruckten Text;
+Pin-Spalten mit dreistelligen Δ% werden dadurch um eine Zeichenbreite breiter,
+alle anderen bleiben pixelgleich.
+
 ## 0.17.0.0 (2026-08-26) — Selektion, Cross-Filtering und natives Kontextmenü: das Statement wird zum Einstieg in den Drillthrough
 
 Bisher war das Visual eine reine Lesefläche: es zeigte die GuV, filterte aber

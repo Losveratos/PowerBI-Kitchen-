@@ -2392,7 +2392,12 @@ export class Visual implements IVisual {
                     if (v.delta != null) { dLabelLen = Math.max(dLabelLen, fmt.val(v.delta, true).length); }
                 } else if (c.kind === "pin") {
                     const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
-                    if (v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(this.capPct(v.deltaPct), true) + "▸").length); }
+                    // the lane must hold the label the pin really prints: the
+                    // UNCAPPED Δ% (+ the overflow marker) — deltaPinCell only
+                    // caps the needle at ±40%, never the number. Measuring the
+                    // capped value sized the lane for "+40.0%▸" and clipped
+                    // "+220.0%▸" (p2). Within ±40% nothing changes.
+                    if (v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length); }
                 }
             }
         }
