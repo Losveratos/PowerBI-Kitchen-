@@ -90,6 +90,15 @@
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
+            "displayName": "X axis PY (scatter, optional)",
+            "description": "Scatter / bubble mode only: previous-year value of the X measure. With \"Movement arrows PY → AC\" the arrow then moves in 2D (X and Y); without it the arrow only moves vertically.",
+            "descriptionKey": "RoleDesc_XPrevious",
+            "displayNameKey": "Role_XPrevious",
+            "name": "xPrevious",
+            "kind": "Measure",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
             "displayName": "Stack Series (Gestapelt)",
             "description": "Splits Actual by an additional dimension and stacks the columns/bars by that series, with legend and stack-total labels.",
             "descriptionKey": "RoleDesc_Series",
@@ -350,6 +359,23 @@
                         ]
                     }
                 },
+                "scatterShapes": { "type": { "bool": true } },
+                "scatterArrows": { "type": { "bool": true } },
+                "scatterTrend": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "linear", "displayName": "Linear" }
+                        ]
+                    }
+                },
+                "scatterTrendR2": { "type": { "bool": true } },
+                "scatterSizeLegend": { "type": { "bool": true } },
+                "scatterQuadLabelTL": { "type": { "text": true } },
+                "scatterQuadLabelTR": { "type": { "text": true } },
+                "scatterQuadLabelBL": { "type": { "text": true } },
+                "scatterQuadLabelBR": { "type": { "text": true } },
+                "scatterPlay": { "type": { "bool": true } },
                 "cardSortSel": { "type": { "text": true } },
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },
@@ -503,6 +529,12 @@
                 "refLine": { "type": { "text": true } },
                 "refLineLabel": { "type": { "text": true } },
                 "xRefLine": { "type": { "text": true } },
+                "xLogScale": { "type": { "bool": true } },
+                "yLogScale": { "type": { "bool": true } },
+                "xMin": { "type": { "text": true } },
+                "xMax": { "type": { "text": true } },
+                "yMin": { "type": { "text": true } },
+                "yMax": { "type": { "text": true } },
                 "wfAxisBreak": {
                     "type": {
                         "enumeration": [
@@ -531,6 +563,7 @@
                     "lineMeasure": { "max": 1 },
                     "xValue": { "max": 1 },
                     "bubbleSize": { "max": 1 },
+                    "xPrevious": { "max": 1 },
                     "rowType": { "max": 1 },
                     "fcFlag": { "max": 1 },
                     "trend": { "max": 1 },
@@ -569,6 +602,7 @@
                         { "bind": { "to": "lineMeasure" } },
                         { "bind": { "to": "xValue" } },
                         { "bind": { "to": "bubbleSize" } },
+                        { "bind": { "to": "xPrevious" } },
                         { "bind": { "to": "comments" } },
                         { "bind": { "to": "filterInfo" } }
                     ]
