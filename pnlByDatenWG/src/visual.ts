@@ -2330,7 +2330,15 @@ export class Visual implements IVisual {
                     if (v.delta != null) { dLabelLen = Math.max(dLabelLen, fmt.val(v.delta, true).length); }
                 } else if (c.kind === "pin") {
                     const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
-                    if (v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(this.capPct(v.deltaPct), true) + "▸").length); }
+                    if (v.deltaPct != null) {
+                        // the lane must hold what deltaPinCell actually draws: the
+                        // UNCAPPED Δ% (plus ▸ on overflow) — the capped+▸ measure
+                        // stays so tables without overflow keep their geometry
+                        const drawn = fmt.pct(v.deltaPct, true) + (this.capPct(v.deltaPct) !== v.deltaPct ? "▸" : "");
+                        pLabelLen = Math.max(pLabelLen,
+                            (fmt.pct(this.capPct(v.deltaPct), true) + "▸").length,
+                            drawn.length);
+                    }
                 }
             }
         }
