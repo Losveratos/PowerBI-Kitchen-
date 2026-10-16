@@ -5604,7 +5604,10 @@ export class Visual implements IVisual {
             if (!synced && this.megaPending) { applied = pend.applied; }
         }
         const tpl = String(cc.template.value.value);
-        if (tpl === applied) { this.megaSessionTpl = null; return; }
+        // only the host's own confirmation re-arms the session guard — an
+        // equality that the pending guard merely pretends must not
+        if (tpl === persisted) { this.megaSessionTpl = null; }
+        if (tpl === applied) { return; }
         if (!MEGA_PRESETS[tpl] || tpl === this.megaSessionTpl) { return; }
         this.applyMegaTemplate(tpl);
     }

@@ -628,4 +628,44 @@ test("period sorting: the monthly series follow the period order", () => {
     assert.deepEqual([...km.byId.values()].find(x => x.row.name === "Produkte").series.ac, [10, 20]);
 });
 
+// mega table — variance on raw values + display orientation (T01–T04)
+test("varianceOf: the variance rule on raw values", () => {
+    assert.deepEqual(E.varianceOf(110, 100, false), { delta: 10, deltaPct: 0.1, good: true });
+    assert.deepEqual(E.varianceOf(-110, -100, false), { delta: -10, deltaPct: -0.1, good: false });
+    assert.equal(E.varianceOf(110, 100, true).good, false);              // VarianceInvert flips the colour only
+    assert.equal(E.varianceOf(5, 0, false).deltaPct, null);              // Δ% against zero is undefined
+    assert.deepEqual(E.varianceOf(null, 100, false), { delta: null, deltaPct: null, good: true });
+    // variance() is exactly varianceOf on node.computed
+    const m = E.buildModel([row("a", null, { values: { ac: 12, py: 10 }, varianceInvert: true })], "U");
+    assert.deepEqual(E.variance(m.byId.get("a"), "py"), E.varianceOf(12, 10, true));
+});
+
+test("displayVariance: cost rows, VarianceInvert costs, margin rows (%p)", () => {
+    // T03A Operating expenses: costs stored negative (sign −1) and shown positive
+    const cost = row("opex", null, { sign: -1, displayInvert: true });
+    const d = E.displayVariance(cost, -602.6, -565.2);
+    assert.ok(Math.abs(d.d - 37.4) < 1e-9, "Δ follows the shown values: costs up = +37.4");
+    assert.ok(Math.abs(d.p - 37.4 / 565.2) < 1e-12, "Δ% +6.6 %");
+    assert.equal(d.good, false);
+    assert.ok(d.impact < 0 && Math.abs(d.impact + 37.4) < 1e-9, "impact in good orientation: −37.4 (red below −20)");
+    assert.equal(d.pp, false);
+    // the other cost convention: positive costs + VarianceInvert — same picture
+    const cost2 = row("opex2", null, { varianceInvert: true });
+    const d2 = E.displayVariance(cost2, 602.6, 565.2);
+    assert.ok(Math.abs(d2.d - 37.4) < 1e-9 && d2.good === false && d2.impact < 0);
+    assert.ok(d2.impactPct < 0);
+    // revenue row: plain
+    const rev = E.displayVariance(row("rev", null), 896.4, 713.3);
+    assert.ok(rev.good && rev.impact > 0 && Math.abs(rev.d - 183.1) < 1e-9);
+    // T03A Gross margin: 45.3 % vs 36.7 % → +8.6 %p, relative +23 %
+    const kpi = row("gm", null, { rowType: "kpi" });
+    const k = E.displayVariance(kpi, 467.4 / 1031.2, 302.1 / 822.3);
+    assert.equal(k.pp, true);
+    assert.ok(Math.abs(k.d - (467.4 / 1031.2 - 302.1 / 822.3) * 100) < 1e-9);
+    assert.equal(Math.round(k.d * 10) / 10, 8.6);
+    assert.equal(Math.round(k.p * 100), 23);
+    assert.equal(k.good, true);
+    assert.equal(E.displayVariance(rev ? row("x", null) : null, null, 3), null);
+});
+
 console.log(`\n${n} engine test blocks passed`);
