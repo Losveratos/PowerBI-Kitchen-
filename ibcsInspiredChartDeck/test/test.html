@@ -1397,5 +1397,55 @@ run("c148b", dataView(naCats, [col("actual", naAc, "#,0 T€"), col("previousYea
 run("c148c", dataView(naCats, [col("actual", naAc, "#,0 T€"), col("previousYear", naPy, "#,0 T€")],
   { chart: { orientation: "cards" } }), 1200, 260);
 </script>
+
+<div class="case"><h4>c149 · Achsenschnitt Wasserfall (IBCS UN 5.3) · scale.wfAxisBreak="on" · PY 100 Mio → 5 Produkte ±1–4,5 Mio → AC 107 Mio — Schnitt bei 90 Mio: PY/AC-Anker mit ⫽ im Stummel gekürzt, Deltas ~7× höher, Titel „· axis broken from …", Chip „⫽ Axis" gefüllt</h4><div class="stage" id="c149" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>c150 · Achsenschnitt „auto" (gleiche Daten) — nullbasiert wie bisher, Chip „⫽ Axis" HERVORGEHOBEN (Ring + fett, Vorschlag: Δ-Spanne 7 % &lt; 25 % des größten Ankers); Klick → persistProperties scale.wfAxisBreak="on"</h4><div class="stage" id="c150" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>c151 · Achsenschnitt unzulässig · wfAxisBreak="on" · GuV Umsatz 100 → EBIT 10 — bleibt NULLBASIERT, Chip deaktiviert (gestrichelt, Tooltip „not possible")</h4><div class="stage" id="c151" style="width:960px;height:380px"></div></div>
+<div class="case"><h4>c152 · Achsenschnitt · Small Multiples Nord (PY 100 Mio) / Süd (PY 92 Mio) · wfAxisBreak="on" — EIN gemeinsamer Schnitt in beiden Kacheln (gleiche Skala, gleiches ⫽)</h4><div class="stage" id="c152" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>c153 · Achsenschnitt · Small Multiples Nord 10× Süd · wfAxisBreak="on" — Süd reicht unter den gemeinsamen Schnitt → KEIN Schnitt, beide nullbasiert, Chip deaktiviert (Tooltip nennt Kachel „Süd")</h4><div class="stage" id="c153" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>c154 · Achsenschnitt · Dark Mode (appearance="dark") — ⫽ mit Dunkel-Papier-Lücke + heller Tinte, Chip gefüllt hell</h4><div class="stage" id="c154" style="width:960px;height:420px;background:#1E1E1E"></div></div>
+<div class="case"><h4>c155 · Achsenschnitt · Hochkontrast (gelb auf schwarz) — ⫽ in Vordergrundfarbe, Chip im HC-Stil</h4><div class="stage" id="c155" style="width:960px;height:420px;background:#000"></div></div>
+<div class="case"><h4>c156 · Achsenschnitt · Export (allowInteractions=false) · wfAxisBreak="on" — KEIN Chip, Schnitt bleibt; Fußzeile „⫽ Axis from …" auch ohne Filter-Fußzeile (PDF/PPT weist den Schnitt aus)</h4><div class="stage" id="c156" style="width:960px;height:420px"></div></div>
+<script>
+// c149–c156: waterfall axis break (IBCS UN 5.3) — S1 data from AUDIT-2026-10-SKALIERUNG
+const brProds = ["Produkt A","Produkt B","Produkt C","Produkt D","Produkt E"];
+const brPy = [30e6, 25e6, 20e6, 15e6, 10e6];
+const brAc = [33e6, 23.5e6, 24.5e6, 14e6, 12e6];
+const brObj = (mode, extra) => Object.assign({
+  chart: { orientation: "waterfall", showTotal: false },
+  scale: { wfAxisBreak: mode },
+  ibcsTitle: { kpi: "Umsatz" }
+}, extra || {});
+run("c149", dataView(brProds, [col("actual", brAc, "#,0 €"), col("previousYear", brPy, "#,0 €")], brObj("on")), 960, 420);
+run("c150", dataView(brProds, [col("actual", brAc, "#,0 €"), col("previousYear", brPy, "#,0 €")], brObj("auto")), 960, 420);
+// c151: Umsatz 100 → EBIT 10 — the EBIT anchor (10) lies below any sensible cut
+run("c151", dataView(["Umsatz","Material","Personal","Sonstige","EBIT"],
+  [col("actual", [100, -50, -30, -10, 10], "#,0 T€")],
+  { chart: { orientation: "waterfall", showTotal: false }, scale: { wfAxisBreak: "on" }, ibcsTitle: { kpi: "GuV" } },
+  null, ["sum","delta","delta","delta","sum"]), 960, 380);
+// c152: two tiles on a similar base — one shared cut
+{
+  const cats = [], mult = [], a = [], p = [];
+  [["Nord", 1], ["Süd", 0.92]].forEach(([r, f]) => {
+    brProds.forEach((c, i) => { cats.push(c); mult.push(r); a.push(brAc[i] * f); p.push(brPy[i] * f); });
+  });
+  run("c152", dataView(cats, [col("actual", a, "#,0 €"), col("previousYear", p, "#,0 €")],
+    { chart: { orientation: "waterfall", showTotal: false }, scale: { wfAxisBreak: "on" } }, mult), 960, 420);
+}
+// c153: Süd = 1/10 of Nord (audit S11) — Süd blocks the shared cut, nothing is cut
+{
+  const cats = [], mult = [], a = [], p = [];
+  [["Nord", 1], ["Süd", 0.1]].forEach(([r, f]) => {
+    brProds.forEach((c, i) => { cats.push(c); mult.push(r); a.push(brAc[i] * f); p.push(brPy[i] * f); });
+  });
+  run("c153", dataView(cats, [col("actual", a, "#,0 €"), col("previousYear", p, "#,0 €")],
+    { chart: { orientation: "waterfall", showTotal: false }, scale: { wfAxisBreak: "on" } }, mult), 960, 420);
+}
+run("c154", dataView(brProds, [col("actual", brAc, "#,0 €"), col("previousYear", brPy, "#,0 €")],
+  brObj("on", { colors: { appearance: "dark" } })), 960, 420);
+run("c155", dataView(brProds, [col("actual", brAc, "#,0 €"), col("previousYear", brPy, "#,0 €")], brObj("on")), 960, 420, true);
+run("c156", dataView(brProds, [col("actual", brAc, "#,0 €"), col("previousYear", brPy, "#,0 €")],
+  brObj("on", { ibcsTitle: { kpi: "Umsatz", footer: "Ist per Jun 2026 · Quelle: SAP FI" } })), 960, 420, false, true);
+</script>
 </body>
 </html>

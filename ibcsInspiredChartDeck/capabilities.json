@@ -429,7 +429,17 @@
                 "fixedVarMax": { "type": { "numeric": true } },
                 "capOverflow": { "type": { "bool": true } },
                 "refLine": { "type": { "text": true } },
-                "refLineLabel": { "type": { "text": true } }
+                "refLineLabel": { "type": { "text": true } },
+                "wfAxisBreak": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off (zero-based)" },
+                            { "value": "auto", "displayName": "Auto (reader decides via chip)" },
+                            { "value": "on", "displayName": "On (axis broken)" }
+                        ]
+                    }
+                },
+                "wfBreakAt": { "type": { "numeric": true } }
             }
         },
         "categoryAxis": {

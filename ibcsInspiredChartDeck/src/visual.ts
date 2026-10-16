@@ -314,6 +314,10 @@ interface ChartConfig {
     /** waterfall-bridge rendering layered on top of columns/bars orientation */
     waterfallStyle: boolean;
     sortByImpact: boolean;
+    /** waterfall axis break (IBCS UN 5.3), computed ONCE over all drawn tiles: `at` =
+     *  cut value, `possible` = every anchor + delta lies above it, `suggested` = delta
+     *  span < 25 % of the largest anchor, `active` = actually drawn broken. null = off */
+    wfBreak: { at: number; possible: boolean; suggested: boolean; active: boolean } | null;
 }
 
 /** running cascade of "from"/"to" positions for the waterfall-bridge style */
@@ -473,6 +477,9 @@ export class Visual implements IVisual {
     /** landing mode pick: orientation we persisted but the host has not echoed yet */
     private pendingOrientation: string | null = null;
     private pendingOrientationTtl = 0;
+    /** ⫽-Achse-Chip: scale.wfAxisBreak we persisted but the host has not echoed yet */
+    private pendingWfBreak: string | null = null;
+    private pendingWfBreakTtl = 0;
     /** structure-edit mode (one-click P&L): row clicks open the structure menu */
     private structureEdit = false;
     private structEditor: HTMLDivElement | null = null;
@@ -648,6 +655,18 @@ export class Visual implements IVisual {
                     if (orIt) { orSlice.value = orIt; }
                 }
             }
+            // ⫽-Achse-Chip (Wasserfall-Achsenschnitt), same echo-guard + TTL pattern —
+            // ONE source (the pane slice), so no two-source reconciliation needed
+            const wbSlice = this.formattingSettings.scaleCard.wfAxisBreak;
+            if (this.pendingWfBreak != null) {
+                if (String(wbSlice.value.value) === this.pendingWfBreak
+                    || --this.pendingWfBreakTtl <= 0) {
+                    this.pendingWfBreak = null;
+                } else {
+                    const wbIt = wbSlice.items.find(x => String(x.value) === this.pendingWfBreak);
+                    if (wbIt) { wbSlice.value = wbIt; }
+                }
+            }
 
             const width = options.viewport.width;
             const height = options.viewport.height;
@@ -816,11 +835,13 @@ export class Visual implements IVisual {
             || ((orient === "columns" || orient === "bars") && fs.chartCard.waterfallStyle.value);
         fs.chartCard.groupEvery.visible = orient === "columns" || orient === "bars"
             || orient === "line" || orient === "catbridge";
-        fs.chartCard.bridgeGroup.visible = orient === "columns" || orient === "bars"
-            || orient === "intwaterfall" || orient === "catbridge" || orient === "pnl";
         fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge"
             || orient === "pnl";
         fs.chartCard.driverNote.visible = orient === "catbridge";
+        // UX-5: „Brücke" trägt nur noch waterfallStyle + sortByImpact (Buttons →
+        // Interaktion, Treiber-Notiz → Darstellung) — sichtbar, sobald einer davon greift
+        fs.chartCard.bridgeGroup.visible = fs.chartCard.waterfallStyle.visible
+            || fs.chartCard.sortByImpact.visible;
         fs.chartCard.cardsGroup.visible = orient === "cards";
         fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
         fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0;
@@ -864,7 +885,16 @@ export class Visual implements IVisual {
         fs.scaleCard.syncGroup.visible = true;
         fs.scaleCard.refLineGroup.visible = orient !== "table";
         if (orient === "table") { fs.scaleCard.capOverflow.visible = false; }
+        // Achsenschnitt nur im Wasserfall; der Schnittwert erst, wenn Schnitt erlaubt ist
+        fs.scaleCard.wfAxisGroup.visible = orient === "waterfall";
+        fs.scaleCard.wfBreakAt.visible = String(fs.scaleCard.wfAxisBreak.value.value) !== "off";
         fs.chartCard.tableGroup.visible = orient === "table";
+        // UX-5: Export-Aufklappen wirkt auf Tabelle/Matrix UND GuV-Statement — lag
+        // vorher in der Tabellen-Gruppe und war im GuV-Modus unauffindbar
+        fs.chartCard.exportExpandAll.visible = orient === "table" || orient === "pnl";
+        // neue Gruppe nur zeigen, wenn mindestens ein Schalter im Modus wirkt
+        fs.chartCard.interactionGroup.visible = fs.chartCard.chartButtons.visible
+            || fs.chartCard.cumulativeButton.visible || fs.chartCard.compareClick.visible;
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 
@@ -2357,6 +2387,7 @@ export class Visual implements IVisual {
                 this.lineFormat),
             waterfallStyle: wfStyleGlobal,
             sortByImpact: sortByImpactOn,
+            wfBreak: null,
             basisMode,
             // Hausbegriffe: die Umbenennungs-Felder der Labels-Karte speisen alle
             // Titel/Spaltenköpfe; leer = IBCS-Standardkürzel
@@ -2549,6 +2580,51 @@ export class Visual implements IVisual {
             if (this.sharedWfDomain) { this.sharedWfDomain = domains.main; }
         }
 
+        // waterfall axis break (IBCS UN 5.3): cut value, admissibility and suggestion
+        // over ALL drawn tiles — one shared cut or none at all (same-scale rule, the
+        // zoom view keeps it). The default stays zero-based: "auto" only highlights
+        // the ⫽ chip, the axis is cut after the click ("on")
+        let wfBreakTile: string | null = null;
+        const wfBreakMode = isWaterfall ? String(s.scaleCard.wfAxisBreak.value.value) : "off";
+        if (wfBreakMode !== "off") {
+            let minLevel = Infinity, maxLevel = -Infinity, maxAnchor = 0;
+            const tileMin: { name: string | null; min: number }[] = [];
+            for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+                const segs = wfByGroup.get(g.name) ?? [];
+                if (segs.length === 0) { continue; }
+                let gMin = Infinity;
+                for (const sg of segs) {
+                    // anchors start at 0 by design — only their top must clear the cut
+                    // (the stub shows the rest); a delta must lie above it in full
+                    gMin = Math.min(gMin, sg.kind === "anchor" ? sg.to : Math.min(sg.from, sg.to));
+                    maxLevel = Math.max(maxLevel, sg.from, sg.to);
+                    if (sg.kind === "anchor") { maxAnchor = Math.max(maxAnchor, sg.to); }
+                }
+                tileMin.push({ name: g.name, min: gMin });
+                minLevel = Math.min(minLevel, gMin);
+            }
+            if (tileMin.length > 0) {
+                const manualAt = s.scaleCard.wfBreakAt.value ?? 0;
+                const at = manualAt > 0 ? manualAt : this.wfAutoCut(minLevel, maxLevel);
+                // positive cascades only (variant 1); a hard cap must stay above the cut
+                const possible = at > 0 && minLevel > at
+                    && (cfg.capMax == null || cfg.capMax > at);
+                if (!possible && groups.length > 1) {
+                    // name the tile that dips below the shared cut (chip tooltip)
+                    const blocker = tileMin.find(tm => tm.min <= at);
+                    wfBreakTile = blocker ? (blocker.name ?? "") : null;
+                }
+                cfg.wfBreak = {
+                    at,
+                    possible,
+                    // deltas squeezed onto a big base: their whole span is under 25 %
+                    // of the largest anchor → the chip suggests the cut
+                    suggested: possible && maxAnchor > 0 && (maxLevel - minLevel) < 0.25 * maxAnchor,
+                    active: possible && wfBreakMode === "on"
+                };
+            }
+        }
+
         // stacked (Stack-Series role): one stack-total domain over ALL tiles —
         // small multiples were scaled per tile (Nord 3 900 ≙ Süd 390, S5). Negative
         // segments stack below the zero line, so the domain spans both stack sides.
@@ -2705,6 +2781,12 @@ export class Visual implements IVisual {
             if (this.exceptionCapable && !isCards) {
                 excReserve = this.drawExceptionChip(width - 6, 6, cfg) + Math.round(6 * this.fontK);
             }
+            // ⫽ chip (waterfall axis break), same top-right corner — the exception
+            // filter never exists in the waterfall, so it starts at the right edge
+            let wfReserve = 0;
+            if (isWaterfall && cfg.wfBreak) {
+                wfReserve = this.drawWfBreakChip(width - 6, cfg, wfBreakTile) + Math.round(6 * this.fontK);
+            }
             // active-mode chip: comment capture, structure edit and compare-on-click
             // silently repurpose clicks — show a pill so nobody wonders why
             // crossfiltering stopped working
@@ -2721,8 +2803,8 @@ export class Visual implements IVisual {
                         ? this.locStr("Chip_StructureMode", "⚙ Structure mode")
                         : `${this.locStr("Chip_Compare", "⇄ Compare")} (${this.compareCats.length}/2)`;
                 const mode = this.commentEdit ? "comment" : this.structureEdit ? "structure" : "compare";
-                this.drawModeChip(width - 6 - toolbarReserve - sortReserve - ytdReserve - excReserve,
-                    text, cfg, mode);
+                this.drawModeChip(width - 6 - toolbarReserve - sortReserve - ytdReserve - excReserve
+                    - wfReserve, text, cfg, mode);
             }
 
             // YTD chip (opt-in): the end user flips the cumulative view on the report
@@ -2775,9 +2857,20 @@ export class Visual implements IVisual {
             }
         }
         const filterText = filterParts.join(" · ");
+        // a broken waterfall axis is declared in the footer line too — independent of
+        // the filter-footer switch, so PDF/PowerPoint exports (no chip) still say it
+        const noteParts: string[] = [];
+        if (cfg.wfBreak?.active) {
+            noteParts.push(this.locStr("Foot_WfBreak", "⫽ Axis from {0}")
+                .replace("{0}", cfg.fmt.format(cfg.wfBreak.at)));
+        }
+        const line2Text = [
+            filterText ? `${this.locStr("Foot_Filter", "Filter")}: ${filterText}` : "",
+            ...noteParts
+        ].filter(x => x).join(" · ");
         const lineF = Math.round(11 * this.fontK) + 2;
-        const footerH = (footerText || filterText ? Math.round(11 * this.fontK) + 6 : 0)
-            + (footerText && filterText ? lineF : 0);
+        const footerH = (footerText || line2Text ? Math.round(11 * this.fontK) + 6 : 0)
+            + (footerText && line2Text ? lineF : 0);
         const availH = height - topOffset - footerH;
         const ff = Math.round(9.5 * this.fontK);
         let fy = height - 5;
@@ -2788,12 +2881,11 @@ export class Visual implements IVisual {
             ft.textContent = this.truncate(footerText, width - 12, ff);
             fy -= lineF;
         }
-        if (filterText) {
+        if (line2Text) {
             const ft2 = this.el("text", {
                 x: 6, y: fy, "font-size": ff, fill: cfg.subtle, "font-family": FONT
             }, this.svg);
-            ft2.textContent = this.truncate(
-                `${this.locStr("Foot_Filter", "Filter")}: ${filterText}`, width - 12, ff);
+            ft2.textContent = this.truncate(line2Text, width - 12, ff);
         }
 
         // comment panel: numbered footnote list to the right of the chart
@@ -3054,7 +3146,13 @@ export class Visual implements IVisual {
         if (cap != null) { domain[1] = cap; }
         const capV = (v: number) => cap != null ? Math.min(v, cap) : v;
         const labelPad = cfg.showLabels ? cfg.labelFont + 6 : 6;
-        const scale = this.makePanelScale(domain, rect, "columns", labelPad);
+        // axis break (IBCS UN 5.3): 0..cut shrinks to a fixed stub above the baseline,
+        // the deltas run linearly in [cut, max] — the cut is shared by all tiles
+        const brk = cfg.wfBreak?.active ? cfg.wfBreak.at : null;
+        const stubPx = Math.max(8, Math.min(Math.round(22 * k), Math.round(rect.h * 0.3)));
+        const scale = brk != null
+            ? this.makeBrokenScale(domain, brk, rect, labelPad, stubPx)
+            : this.makePanelScale(domain, rect, "columns", labelPad);
         const n = segs.length;
         const step = (bandEnd - bandStart) / n;
         const slotW = Math.max(2, step * 0.62);
@@ -3124,10 +3222,16 @@ export class Visual implements IVisual {
 
         const bg = this.el("g", {}, this.svg);
         this.drawBaseline(bg, rect, scale, "columns", bandStart, bandEnd, "ac", cfg.colors);
-        if (cfg.refLine != null && !(cap != null && cfg.refLine > cap)) {
+        // a ref line inside the squeezed stub would sit at a meaningless height — skip it
+        if (cfg.refLine != null && !(cap != null && cfg.refLine > cap)
+            && !(brk != null && cfg.refLine <= brk)) {
             this.drawRefLine(bg, rect, scale, "columns", bandStart, bandEnd, cfg);
         }
-        const title = segs[0].outlined ? `${cfg.basisLabel} → ${cfg.scenL.ac}` : cfg.scenL.ac;
+        let title = segs[0].outlined ? `${cfg.basisLabel} → ${cfg.scenL.ac}` : cfg.scenL.ac;
+        // transparency: the panel title states the cut ("· Achse ab 90 Mio geschnitten")
+        if (brk != null) {
+            title += ` · ${this.locStr("WfBreak_Title", "axis broken from {0}").replace("{0}", cfg.fmt.format(brk))}`;
+        }
         this.drawPanelTitle(bg, rect, title, "columns", titleH, region, undefined, cfg.subtle);
 
         const marks = this.el("g", {}, this.svg);
@@ -3157,6 +3261,11 @@ export class Visual implements IVisual {
             if (cap != null && Math.max(sg.from, sg.to) > cap) {
                 this.drawCapMarker(g, pos(i), slotW, scale, "columns", cfg);
             }
+            // shortened anchors / subtotals: ⫽ across the full bar width inside the stub
+            // (deltas never reach into it — that is the admissibility rule)
+            if (brk != null && sg.kind === "anchor") {
+                this.drawAxisBreak(g, pos(i), slotW, scale(brk) + stubPx * 0.45, "columns", cfg);
+            }
 
             // connector to the next bar at the running level
             if (i < n - 1) {
@@ -3176,7 +3285,10 @@ export class Visual implements IVisual {
                 // (capped bars: the label sits at the cut end but shows the real value)
                 let anchor = capV(sg.to);
                 let positive = sg.to >= sg.from;
-                if (!positive && scale(anchor) + cfg.labelFont + 2 > rect.y + rect.h) {
+                // with an axis break the floor is the stub top: a label dropping into
+                // the stub would sit on the ⫽ zone of the axis — flip it as well
+                const labelFloor = brk != null ? scale(brk) : rect.y + rect.h;
+                if (!positive && scale(anchor) + cfg.labelFont + 2 > labelFloor) {
                     anchor = capV(Math.max(sg.from, sg.to));
                     positive = true;
                 }
@@ -9032,25 +9144,52 @@ export class Visual implements IVisual {
     private drawCapMarker(parent: SVGElement, bp: number, bw: number, scale: Scale,
         orientation: Orientation, cfg: ChartConfig): void {
         const end = scale(cfg.capMax as number);
-        const stroke = (offset: number, color: string, w: number) => {
+        // 12 px inside the bar from the cut end (pixel-identical to the former inline marker)
+        this.drawAxisBreak(parent, bp, bw, orientation === "columns" ? end + 12 : end - 12,
+            orientation, cfg);
+    }
+
+    /**
+     * IBCS break glyph (⫽) across the full bar width ±15 %: a paper gap plus two
+     * slanted ink strokes, centered at `c` on the value axis. Shared by the outlier
+     * cap and the waterfall axis break; paper/ink follow dark mode and high contrast.
+     */
+    private drawAxisBreak(parent: SVGElement, bp: number, bw: number, c: number,
+        orientation: Orientation, cfg: ChartConfig): void {
+        const stroke = (d: number, color: string, w: number) => {
             if (orientation === "columns") {
                 this.el("line", {
-                    x1: bp - bw * 0.15, y1: end + 10 + offset + 2,
-                    x2: bp + bw * 1.15, y2: end + 10 + offset - 2,
+                    x1: bp - bw * 0.15, y1: c + d + 2,
+                    x2: bp + bw * 1.15, y2: c + d - 2,
                     stroke: color, "stroke-width": w
                 }, parent);
             } else {
                 this.el("line", {
-                    x1: end - 10 - offset - 2, y1: bp - bw * 0.15,
-                    x2: end - 10 - offset + 2, y2: bp + bw * 1.15,
+                    x1: c - d - 2, y1: bp - bw * 0.15,
+                    x2: c - d + 2, y2: bp + bw * 1.15,
                     stroke: color, "stroke-width": w
                 }, parent);
             }
         };
         // paper gap first, then the two ink strokes
-        stroke(2, cfg.paper, 7);
-        stroke(0, cfg.ink, 1.4);
-        stroke(4, cfg.ink, 1.4);
+        stroke(0, cfg.paper, 7);
+        stroke(-2, cfg.ink, 1.4);
+        stroke(2, cfg.ink, 1.4);
+    }
+
+    /**
+     * auto cut value for the waterfall axis break: a quarter of the level span below
+     * the lowest level, floored to a multiple of a "nice" step (1/2/5 × 10ⁿ ≥ span) —
+     * PY 100 Mio with levels up to 107 Mio cuts at 90 Mio. ≤ 0 = no sensible cut.
+     */
+    private wfAutoCut(minLevel: number, maxLevel: number): number {
+        const span = maxLevel - minLevel > 0 ? maxLevel - minLevel : Math.abs(minLevel) * 0.1;
+        if (!(span > 0) || !isFinite(span)) { return 0; }
+        const raw = minLevel - 0.25 * span;
+        const mag = Math.pow(10, Math.floor(Math.log10(span)));
+        const step = [1, 2, 5, 10].map(m => m * mag).find(st => st >= span) ?? 10 * mag;
+        // trim float noise (0.1-steps) so labels read "0,3" not "0,30000000000000004"
+        return Number((Math.floor(raw / step) * step).toPrecision(12));
     }
 
     /**
@@ -9187,6 +9326,24 @@ export class Visual implements IVisual {
             const right = rect.x + rect.w - ((bothEnds || mx > 0) ? labelPad + 24 : 4);
             return linearScale(mnp, mxp, left, right);
         }
+    }
+
+    /**
+     * piecewise-linear value scale for the waterfall axis break (IBCS UN 5.3), columns:
+     * 0..cutAt is squeezed into a fixed stub of stubPx above the baseline, cutAt..max
+     * runs linearly over the remaining height. Same Scale type as makePanelScale, same
+     * label headroom on top; the baseline stays at scale(0).
+     */
+    private makeBrokenScale(domain: [number, number], cutAt: number, rect: Rect,
+        labelPad: number, stubPx: number): Scale {
+        const mx = Math.max(domain[1], cutAt);
+        const mxp = mx + (mx - cutAt) * 0.02;
+        const top = rect.y + labelPad + 12;
+        const bottom = rect.y + rect.h - 2;
+        const stubTop = bottom - stubPx;
+        const lower = linearScale(0, cutAt, bottom, stubTop);
+        const upper = linearScale(cutAt, mxp, stubTop, top);
+        return (v: number) => v <= cutAt ? lower(v) : upper(v);
     }
 
     /** IBCS baseline notation: AC solid black, PY fat grey, PL double line */
@@ -10115,6 +10272,84 @@ export class Visual implements IVisual {
                     objectName: "chart", selector: null,
                     properties: { exceptionOnly: next }
                 }]
+            });
+            this.rerender();
+        };
+        btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); toggle(); });
+        btn.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key !== "Enter" && e.key !== " ") { return; }
+            e.preventDefault(); e.stopPropagation(); toggle();
+        });
+        return segW;
+    }
+
+    /**
+     * ⫽ chip top-right (waterfall axis break, IBCS UN 5.3): the reader flips the cut
+     * on ↔ auto in the report, persisted to the SAME pane slice scale.wfAxisBreak
+     * (bookmarkable). States: active = filled like the YTD chip · suggestion = ink
+     * ring + wash + bold (deltas small against the base) · idle = paper + subtle ring
+     * · not possible = dashed ring, subtle text, not clickable, tooltip names the
+     * reason (or the multiples tile). Returns the width it took (chip-row reserve).
+     */
+    private drawWfBreakChip(xRight: number, cfg: ChartConfig, blockedTile: string | null): number {
+        const wb = cfg.wfBreak;
+        if (!wb) { return 0; }
+        const k = this.fontK;
+        const bh = Math.round(18 * k), font = Math.round(11 * k);
+        const label = this.locStr("Chip_WfBreak", "⫽ Axis");
+        const on = wb.active;
+        const disabled = !wb.possible;
+        const hint = !on && !disabled && wb.suggested;
+        const segW = this.textWidth(label, font) + Math.round(16 * k);
+        const x = xRight - segW, y = 6;
+        const atTxt = cfg.fmt.format(wb.at);
+        const tipText = (disabled
+            ? (blockedTile != null
+                ? this.locStr("ChipTip_WfBreakNaTile",
+                    "Axis break not possible: tile \"{0}\" reaches below the shared cut — all tiles stay zero-based")
+                    .replace("{0}", blockedTile)
+                : this.locStr("ChipTip_WfBreakNa",
+                    "Axis break not possible: an anchor or a variance reaches below the cut value — the axis stays zero-based"))
+            : on
+                ? this.locStr("ChipTip_WfBreakOn", "Axis broken from {0} (IBCS UN 5.3) — click to show the zero-based axis again")
+                : hint
+                    ? this.locStr("ChipTip_WfBreakSuggest",
+                        "Suggestion: the variances are small against the base — click to break the axis from {0} (anchors shortened with ⫽)")
+                    : this.locStr("ChipTip_WfBreakOff",
+                        "Break the axis from {0} — anchors are shortened with ⫽, the variances become readable")
+        ).replace("{0}", atTxt);
+        const btn = this.el("g", { tabindex: disabled ? "-1" : "0", role: "button" }, this.svg) as SVGGElement;
+        btn.setAttribute("aria-label", tipText);
+        if (disabled) { btn.setAttribute("aria-disabled", "true"); }
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        const tip = this.el("title", {}, btn);
+        tip.textContent = tipText;
+        this.el("rect", {
+            x, y, width: segW, height: bh, rx: bh / 2,
+            fill: on ? cfg.colors.ac : hint ? cfg.wash : cfg.paper,
+            stroke: cfg.hc || hint ? cfg.ink : cfg.subtle,
+            "stroke-width": hint ? 1.6 : 1,
+            ...(disabled ? { "stroke-dasharray": "3,2" } : {})
+        }, btn);
+        const t = this.el("text", {
+            x: x + segW / 2, y: y + bh / 2 + font * 0.36, "text-anchor": "middle",
+            "font-size": font, fill: on ? cfg.paper : disabled ? cfg.subtle : cfg.ink,
+            "font-family": FONT, "font-weight": on || hint ? 600 : 400
+        }, btn);
+        t.textContent = label;
+        if (disabled) { return segW; }
+        btn.style.cursor = "pointer";
+        const toggle = () => {
+            const next = on ? "auto" : "on";
+            // optimistic: set the slice now, guard it against a stale echo (TTL) —
+            // same pattern as pendingOrientation / the Smart-Start chip
+            const sl = this.formattingSettings.scaleCard.wfAxisBreak;
+            const it = sl.items.find(x2 => String(x2.value) === next);
+            if (it) { sl.value = it; }
+            this.pendingWfBreak = next;
+            this.pendingWfBreakTtl = 5;
+            this.host.persistProperties({
+                merge: [{ objectName: "scale", selector: null, properties: { wfAxisBreak: next } }]
             });
             this.rerender();
         };
