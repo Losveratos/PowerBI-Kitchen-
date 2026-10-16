@@ -110,9 +110,11 @@
         guessed.forEach(g => { vw.push(T('exp.issue.cvRoleGuessShort', { f: g.f, b: g.b })); issue('warn', 'CV_ROLE_GUESS', T('exp.issue.cvRoleGuess', { t: title, f: g.f, b: g.b }), p.name, id); });
         // Analyse-Angaben nur, wo der Typ sie tragen kann (Review 09.10., R4): Δ nur mit Referenz-Rolle, Polarität nur mit Kennzahl-Rolle
         const hasRef = def.roles.some(r => r.key === 'ref' || r.key === 'goal'); const hasMeasure = def.roles.some(r => r.kind === 'measure');
+        // ChartKitchen-Optionen (ab 0.6.0, ChartKitchen 1.47): nur bei engine ck und nur, wenn der Typ welche kennt; sonst fehlt der Schlüssel (Hash bleibt)
+        const ckProps = CAT.ckPropsOf ? CAT.ckPropsOf(v) : null;
         return {
           id, stableId: l.node.id, slug: slug(title), page: p.name, kind: v.kind, label: def.label, engine: v.engine,
-          chartKitchenType: v.engine === 'ck' ? def.ck : null, chartKitchenMode: v.engine === 'ck' ? def.ckMode : null, native,
+          chartKitchenType: v.engine === 'ck' ? def.ck : null, chartKitchenMode: v.engine === 'ck' ? def.ckMode : null, ...(ckProps ? { chartKitchenProps: ckProps } : {}), native,
           customVisual: cvBuckets ? { name: def.customVisual.name, guid: def.customVisual.guid, buckets: cvBuckets } : null,
           title, subtitle: v.sub || '', content: v.content || '', scenario: def.roles.some(r => r.key === 'ref') ? v.scenario : null,
           analysis: { polarity: hasMeasure ? an.polarity : null, polarityAuto: hasMeasure ? an.polarityAuto : false, deltaBasis: hasRef ? an.deltaBasis : null, deltaBasisAuto: hasRef ? an.deltaBasisAuto : false, deltaKind: hasRef ? an.deltaKind : [], unit: an.unit || null, displayUnits: an.displayUnits === 'auto' ? null : an.displayUnits, decimals: an.decimals, sort: an.sort, topN: an.topN, timeGrain: an.timeGrain, cumulative: an.cumulative, scaleGroup: an.scaleGroup || null, message: an.message || null,
@@ -186,7 +188,7 @@
     // Die JSON-Rundreise sorgt dafür, dass genau das zählt, was die Datei schreibt (undefined fällt weg, NaN wird null);
     // so lässt sich der Hash aus der Spec allein nachrechnen.
     const core = JSON.parse(JSON.stringify({ canvas: { width: spec.canvas.width, height: spec.canvas.height }, design: spec.design, zones: spec.zones,
-      pages: spec.pages.map(p => ({ name: p.name, question: p.question, visuals: p.visuals.map(v => ({ id: v.id, kind: v.kind, engine: v.engine, title: v.title, content: v.content, rect: v.rect, roles: v.roles, analysis: v.analysis, link: v.link })) })),
+      pages: spec.pages.map(p => ({ name: p.name, question: p.question, visuals: p.visuals.map(v => ({ id: v.id, kind: v.kind, engine: v.engine, title: v.title, content: v.content, rect: v.rect, roles: v.roles, analysis: v.analysis, link: v.link, chartKitchenProps: v.chartKitchenProps })) })),
       fields: spec.fields.map(noDoc), newFields: spec.newFields.map(noDoc), links: spec.links }));
     spec.meta.specHash = fnv(canon(core));
     return spec;
@@ -299,6 +301,10 @@
         if (v.scenario) out.push(B('vScenario', { s: v.scenario }));
         const roleLines = Object.keys(v.roles).map(key => `  - ${roleLabel(v.kind, key)}: ${v.roles[key].map(f => `\`${f.ref}\`${f.isNew ? B('vNew') : ''}${f.missing ? ` ${T('exp.missing')}` : ''}`).join(', ')}`);
         out.push(roleLines.length ? B('vRoles') : B('vRolesNone'), ...roleLines);
+        // ChartKitchen-Optionen und abweichende Rollen-Zuordnung ab 1.47 (Zeitfeld der KPI → trend, Scatter → xValue/actual/bubbleSize)
+        if (v.chartKitchenProps) out.push(B('vCkProps', { list: Object.keys(v.chartKitchenProps).map(k => `\`chart.${k}\` = \`${v.chartKitchenProps[k]}\``).join(' · ') }));
+        if (v.engine === 'ck' && v.kind === 'kpi' && (v.roles.category || []).length) out.push(B('vCkTrend', { f: v.roles.category[0].ref }));
+        if (v.engine === 'ck' && v.kind === 'scatter') out.push(B('vCkScatter', { b: (v.roles.size || []).length ? B('vCkBubble') : '' }));
         if (v.native && Object.keys(v.native.buckets).length) out.push(B('vBuckets', { type: v.native.type }) + Object.keys(v.native.buckets).map(b => `${b} ← ${v.native.buckets[b].map(f => f.ref).join(', ')}`).join(' · '));
         const al = Object.keys(v.roles).length && v.kind !== 'slicer' && v.kind !== 'text' ? analysisLine(v.analysis, L) : ''; if (al) out.push(B('vAnalysis', { a: al }));
         { const it = v.interaction || {}; const beh = []; if (it.drillDown) beh.push(T('exp.an.drillDown')); if (it.crossFilter === false) beh.push(T('exp.an.noCross')); if (it.drillThrough) beh.push(T('exp.an.drillThrough', { p: it.drillThrough.pageName })); if (beh.length) out.push(B('vBehaviour', { list: beh.join(' · ') })); }

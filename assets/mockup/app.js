@@ -1,6 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
 // Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
-window.MK_VERSION = '0.5.6';
+window.MK_VERSION = '0.6.0';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
@@ -250,6 +250,19 @@ window.MK_VERSION = '0.5.6';
       sort: a.sort || null, topN: a.topN || null, timeGrain: a.timeGrain || null, cumulative: !!a.cumulative, scaleGroup: a.scaleGroup || '', message: a.message || '',
       smallMultiples: !!a.smallMultiples, fieldParam: !!a.fieldParam, fieldParamName: a.fieldParamName || '',
     };
+  }
+
+  // ChartKitchen-Optionen (ab 1.47) als Skizzen-Optionen: nur bei engine ck, damit native Kacheln wie bisher aussehen.
+  // KPI ohne Zeitfeld zeichnet keinen Verlauf (wie das Visual), die Brücke folgt der Ausrichtung (auto = Balken).
+  function ckSketchOpt(v) {
+    const o = {}; if (!v) return o;
+    const bound = key => !!(((v.roles || {})[key]) || []).length;
+    if (v.kind === 'scatter') o.bubble = bound('size');
+    if (v.engine !== 'ck') return o;
+    if (v.kind === 'kpi') o.trend = bound('category') ? CAT.ckValue(v, 'cardTrendChart') : 'off';
+    if (v.kind === 'bridge') o.orient = CAT.ckValue(v, 'bridgeOrientation') === 'columns' ? 'columns' : 'bars';
+    if (v.kind === 'scatter') o.quadrant = CAT.ckValue(v, 'scatterQuadrant');
+    return o;
   }
 
   function load() {
@@ -641,7 +654,7 @@ window.MK_VERSION = '0.5.6';
   function renderFocusSoon() { if (pointerDown) renderPending = true; else renderKeepFocus(); }
   // Wurde mit dem Klick ein anderes Feld im Kachel-Panel fokussiert, steht der Cursor nach dem Neuzeichnen wieder dort.
   // Dasselbe für Auswahllisten und Häkchen, die per Tastatur geändert wurden: sonst fiele der Fokus nach jeder Änderung auf <body>.
-  const KEEP_ATTR = ['vk', 'an', 'vkb', 'ank', 'engine'];
+  const KEEP_ATTR = ['vk', 'an', 'vkb', 'ank', 'engine', 'ckp'];
   function renderKeepFocus() {
     const a = document.activeElement; const inIns = a && a.closest && a.closest('#insEl') && a.dataset;
     const attr = inIns ? KEEP_ATTR.find(x => a.dataset[x] != null) : null;
@@ -671,7 +684,7 @@ window.MK_VERSION = '0.5.6';
     const an = analysisOf(v);
     // Leere Pflichtrolle Kennzahl (KPI, Karte, Tacho): „?" statt einer erfundenen Zahl (Review R16)
     const noMeasure = CAT.rolesFor(def, v).some(r => r.key === 'indicator' && r.req) && !((v.roles || {}).indicator || []).length;
-    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: sketchScenario(v, an), seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '', antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: tileInk(S.design).ink, dark: tileInk(S.design).dark, paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral', sort: an.sort, topN: an.topN, noMeasure }, samplesOpt(v))) : '';
+    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: sketchScenario(v, an), seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '', antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: tileInk(S.design).ink, dark: tileInk(S.design).dark, paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral', sort: an.sort, topN: an.topN, noMeasure }, ckSketchOpt(v), samplesOpt(v))) : '';
     // Notiz: Symbol in der Badge-Zeile, das Popup als eigenes Element der Seite rechtsbündig unter dem Kachelkopf (B47).
     // In .badges schrumpfte es auf deren Breite (ca. 33 px) und wurde vom overflow:hidden der Kachel abgeschnitten.
     const noteTxt = v.notes ? v.notes : (v.openQuestion ? t('canvas.openQuestionEmpty') : '');
@@ -916,7 +929,7 @@ window.MK_VERSION = '0.5.6';
     if (!v) { insEl.innerHTML = `<button class="typebtn" id="btnPickType" title="${esc(t('tip.pickType'))}"><div class="pv"></div><div><b>${esc(t('btn.pickType'))}</b><small>${esc(t('hint.pickTypeSub'))}</small></div></button><p class="hint">${esc(t('hint.dragField'))}</p>${dims}<div class="section"><button class="btn sm" data-ins="rm" title="${esc(t('tip.removeTile'))}">${esc(t('btn.removeTile'))}</button></div>`; bindInspector(n); return; }
     const def = CAT.byId[v.kind] || { label: v.kind, roles: [], engines: ['native'] };
     const an = analysisOf(v); const a = v.analysis || {};
-    const pv = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, 64, 36, { scenario: sketchScenario(v, an), deltaBasis: an.deltaBasis, seed: 3, lang: S.lang }) : '';
+    const pv = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, 64, 36, Object.assign({ scenario: sketchScenario(v, an), deltaBasis: an.deltaBasis, seed: 3, lang: S.lang }, ckSketchOpt(v))) : '';
     const engines = def.engines.map(e => `<button data-engine="${e}" title="${esc(t('tip.engine.' + e))}" class="${v.engine === e ? 'on ' + e : ''}">${CAT.engineLabel[e]}</button>`).join('');
     const rolesDef = CAT.rolesFor(def, v); const hasRef = rolesDef.some(r => r.key === 'ref');
     // Δ-Basis auch bei Typen mit Ziel-Rolle (KPI, Tacho) zeigen: dort folgt das Szenario der gebundenen Referenz (Review B13)
@@ -937,6 +950,14 @@ window.MK_VERSION = '0.5.6';
       ${an.fieldParam ? `<div class="field"><label title="${esc(t('tip.an.fieldParamName'))}">${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-an="fieldParamName" title="${esc(t('tip.an.fieldParamName'))}" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div><p class="hint" style="margin:0 0 8px">${esc(t('lbl.fieldParamHint'))}</p>` : ''}
     `, false, [an.smallMultiples, an.fieldParam].filter(Boolean).length ? t('grp.on', { n: [an.smallMultiples, an.fieldParam].filter(Boolean).length }) : '') : '';
     const opt = (list, cur, labels) => list.map(x => `<option value="${x}" ${String(cur) === String(x) ? 'selected' : ''}>${labels ? labels[x] : x}</option>`).join('');
+    // ChartKitchen-Optionen (ab 1.47): nur bei Umsetzung mit ChartKitchen; die Vorgabe des Visuals steht als „(Vorgabe)" in der Liste
+    const ckOpts = v.engine === 'ck' ? CAT.ckOptsFor(v.kind) : [];
+    const ckSet = ckOpts.filter(o => ((v.ckProps || {})[o.key] || o.def) !== o.def).length;
+    const ckBox = ckOpts.length ? grp('ckopts', t('ck.sec'), `
+      <p class="hint" style="margin:0 0 8px">${esc(t('ck.hint'))}</p>
+      <div class="grid2">${ckOpts.map(o => { const labels = {}; o.values.forEach(x => { labels[x] = esc(o.def === x ? t('ck.dflt', { v: t('ck.opt.' + o.key + '.' + x) }) : t('ck.opt.' + o.key + '.' + x)); }); return `<div class="field"><label title="${esc(t('ck.tip.' + o.key))}">${esc(t('ck.lbl.' + o.key))}</label><select class="ctl" data-ckp="${o.key}" title="${esc(t('ck.tip.' + o.key))}">${opt(o.values, CAT.ckValue(v, o.key), labels)}</select></div>`; }).join('')}</div>
+      ${ckOpts.some(o => o.role && !(v.roles[o.role] || []).length) ? `<p class="hint" style="margin:0 0 8px">${esc(t('ck.trendHint'))}</p>` : ''}
+    `, true, ckSet ? t('grp.set', { n: ckSet }) : '') : '';
     const analysis = hasMeasure ? grp('analysis', t('sec.analysis'), `
       <div class="grid2">
         <div class="field"><label title="${esc(t('tip.an.polarity'))}">${esc(t('lbl.polarity'))}</label><select class="ctl" data-an="polarity" title="${esc(t('tip.an.polarity'))}">${opt(['', 'higher', 'lower'], a.polarity || '', { '': t('opt.polarity.auto', { v: t('opt.polarity.' + an.polarity) }), higher: t('opt.polarity.higher'), lower: t('opt.polarity.lower') })}</select></div>
@@ -966,6 +987,7 @@ window.MK_VERSION = '0.5.6';
       ${hasRef ? `<div class="field"><label title="${esc(t('tip.scenario'))}">${esc(t('lbl.scenario'))}</label><select class="ctl" data-vk="scenario" title="${esc(t('tip.scenario'))}">${SCEN_OPTIONS.map(s => { const tip = t('tip.scenOpt.' + s.toLowerCase().replace(/\W/g, '')); return `<option value="${s}" title="${esc(tip)}" ${v.scenario === s ? 'selected' : ''}>${esc(tip)}</option>`; }).join('')}</select></div>` : ''}
       ${mismatchHtml(v, mm)}
       ${variants}
+      ${ckBox}
       <div class="section"><h3 title="${esc(t('tip.rolesSec'))}">${esc(t('sec.roles'))} <span class="k" style="font-weight:400;text-transform:none;letter-spacing:0">${esc(t('sec.rolesHint'))}</span></h3>${roles || `<p class="hint">${esc(t('hint.noRoles'))}</p>`}</div>
       ${analysis}
       ${grp('workshop', t('sec.workshop'), `
@@ -1053,6 +1075,13 @@ window.MK_VERSION = '0.5.6';
       else if (b.dataset.mm === 'auto') { if (v.analysis) delete v.analysis.deltaBasis; commit(); toast(t('toast.basisAuto', { b: analysisOf(v).deltaBasis })); }
     });
     $$('[data-vkb]', insEl).forEach(x => x.addEventListener('change', () => { n.visual[x.dataset.vkb] = x.checked; commit({ keep: true }); }));
+    // ChartKitchen-Optionen: nur bewusst gewählte Werte merken; die Vorgabe des Visuals löscht den Schlüssel (v.ckProps fällt dann weg)
+    $$('[data-ckp]', insEl).forEach(x => x.addEventListener('change', () => {
+      const v = n.visual; const o = CAT.ckOptsFor(v.kind).find(z => z.key === x.dataset.ckp); if (!o) return;
+      const p = v.ckProps = v.ckProps || {}; if (x.value === o.def) delete p[o.key]; else p[o.key] = x.value;
+      if (!Object.keys(p).length) delete v.ckProps;
+      commit({ keep: true });
+    }));
     // Analyse-Block: leer = nicht entschieden (Schlüssel wird entfernt), sonst Wert speichern
     const setAn = (key, val) => { const a = n.visual.analysis = n.visual.analysis || {}; if (val === '' || val === null || val === undefined) delete a[key]; else a[key] = val; };
     $$('[data-an]', insEl).forEach(x => {
@@ -1647,7 +1676,7 @@ window.MK_VERSION = '0.5.6';
   // Öffentliche API für export.js
   window.MK = {
     get state() { return S; }, set state(v) { S = migrate(v); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Öffnen nie verhindern */ } sel = null; commit(); },
-    page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, fmtOf, FORMAT_WISH, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
+    page, visuals, leaves, zones, computeAll, ui, ckSketchOpt, toast, findNode, insertEdge, mergeGutter, fmtOf, FORMAT_WISH, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     fieldStatus, refMismatch, sketchScenario, basisOfName, syncFieldFlags,
     setLang, get lang() { return I18N.lang; }, copyText, tileInk,
     markClean() { cleanPrint = fingerprint(S); }, isUnchanged() { return (cleanPrint !== null && cleanPrint === fingerprint(S)) || isPristine(); },

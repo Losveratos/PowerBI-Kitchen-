@@ -62,7 +62,7 @@
       pageBg: 'Seitenhintergrund', accent: 'Akzentfarbe', typo: 'Typografie', canvas: 'Seitengröße',
       radius: 'Kachel-Ecken', tileBg: 'Kachelhintergrund', ink: 'Schriftfarbe der Kacheln', headerStyle: 'Kopfband-Stil', headerBg: 'Kopfband-Hintergrund', headerInk: 'Kopfband-Schrift',
       margin: 'Rand', gutter: 'Zwischenraum', pad: 'Kachel-Innenabstand', typoScale: 'Typografie, Skalierung gesamt', typoTitle: 'Typografie, Kacheltitel', typoSub: 'Typografie, Untertitel',
-      typoChart: 'Typografie, Diagrammbeschriftung', navPos: 'Seitennavigation', on: 'an', off: 'aus',
+      typoChart: 'Typografie, Diagrammbeschriftung', navPos: 'Seitennavigation', on: 'an', off: 'aus', ck: 'ChartKitchen-Optionen',
       reflow: '{n} Kachel(n) durch neue oder entfernte Kacheln verschoben oder in der Größe geändert'
     },
     tip: {
@@ -198,8 +198,31 @@
         multiples: 'Small Multiples nach: Spalte, nach der die Kachel in kleine Diagramme aufgeteilt wird',
         facet: 'Facette: Spalte, die für jeden Wert ein eigenes Mini-Diagramm in der Kachel erzeugt',
         valueCol: 'Wert: Spalte mit den Einzelwerten, deren Verteilung gezeigt wird',
-        timeSpark: 'Zeit: Spalte für die Zeitachse der kleinen Verlaufslinie (Sparkline)',
+        timeSpark: 'Trend (Zeit): Datums- oder Monatsspalte; die KPI-Karte wird zur Zeitreihe mit Sparkline oder Säulen (ChartKitchen-Rolle trend, ab 1.47). Leer = Karte ohne Verlauf',
+        xValue: 'X-Achse: Kennzahl auf der waagerechten Achse (ChartKitchen-Rolle xValue)',
+        yAc: 'Y-Achse: Kennzahl auf der senkrechten Achse, in ChartKitchen die Rolle AC (actual)',
+        bubble: 'Blasengröße (optional): Kennzahl, deren Wert die Fläche der Blase bestimmt (ChartKitchen-Rolle bubbleSize); leer = gleich große Punkte',
         explainBy: 'Erklären durch: Spalten, nach denen die Kennzahl Schritt für Schritt aufgeschlüsselt wird (Zerlegungsbaum)',
+      },
+    },
+
+    // ChartKitchen-Optionen je Kachel (ab ChartKitchen 1.47): Property-Namen aus dem Objekt chart des Visuals
+    ck: {
+      sec: 'ChartKitchen-Optionen', hint: 'Format-Einstellungen des Visuals (Objekt chart); sie wandern als chartKitchenProps in die Spec.',
+      trendHint: 'Wirkt erst mit einem Zeitfeld in der Rolle „Trend (Zeit)"; ohne Trend bleibt die Karte ohne Verlauf.',
+      dflt: '{v} (Vorgabe)', list: 'ChartKitchen-Optionen',
+      lbl: { cardTrendChart: 'Mini-Chart der Karte', cardTrendValue: 'Kartenwert', bridgeOrientation: 'Ausrichtung der Brücke', scatterQuadrant: 'Quadranten' },
+      tip: {
+        cardTrendChart: 'Mini-Chart unter der Kartenzahl: Sparkline (Linie mit Vorjahr als Schatten) oder Säulen je Periode; „aus" zeigt keinen Verlauf (chart.cardTrendChart)',
+        cardTrendValue: 'Welcher Wert als große Zahl erscheint: der letzte Wert der Zeitreihe (Δ aus derselben Periode) oder die Summe über alle Perioden (chart.cardTrendValue)',
+        bridgeOrientation: 'Ausrichtung der Kategorie-Brücke: automatisch (wie bisher, waagerechte Balken), Balken oder senkrechte Säulen-Kaskade (chart.bridgeOrientation)',
+        scatterQuadrant: 'Quadranten-Kreuz der Punktwolke am Mittelwert oder Median der Achsen, oder aus (chart.scatterQuadrant)',
+      },
+      opt: {
+        cardTrendChart: { off: 'aus', sparkline: 'Sparkline', columns: 'Säulen' },
+        cardTrendValue: { last: 'letzter Wert', sum: 'Summe' },
+        bridgeOrientation: { auto: 'automatisch (Balken)', bars: 'Balken (waagerecht)', columns: 'Säulen (senkrecht)' },
+        scatterQuadrant: { off: 'aus', mean: 'Mittelwert (Ø)', median: 'Median' },
       },
     },
 
@@ -478,7 +501,8 @@
       ac: 'AC · Ist-Wert', ref: 'Referenz (PL / PY / BU)', fc: 'FC-Flag (1/0)', values: 'Werte', valuesAny: 'Felder',
       rows: 'Zeilen', cols: 'Spalten', x: 'X-Wert', y: 'Y-Wert', size: 'Größe', indicator: 'Kennzahl',
       goal: 'Ziel / Referenz', start: 'Start', end: 'Ende', field: 'Feld', text: 'Text (statisch oder Measure)', geo: 'Geo-Feld',
-      facet: 'Facette (je Kachel)', valueCol: 'Wert (Spalte, Einzelwerte)', timeSpark: 'Zeit (Sparkline)', explainBy: 'Erklären durch',
+      facet: 'Facette (je Kachel)', valueCol: 'Wert (Spalte, Einzelwerte)', timeSpark: 'Trend (Zeit)', explainBy: 'Erklären durch',
+      xValue: 'X-Achse', yAc: 'Y-Achse · AC', bubble: 'Blasengröße',
     },
 
     group: {
@@ -498,9 +522,9 @@
       multiples: { label: 'Small Multiples' }, area: { label: 'Fläche (nativ)', note: 'Flächen überdecken sich schnell; Linie bevorzugen.' },
       waterfall: { label: 'Wasserfall (vertikal)' }, wfint: { label: 'Wasserfall horizontal + Varianz' }, wfkombi: { label: 'Wasserfall + Δ' },
       bridge: { label: 'Brücke (Σ Ref → Δ → Σ AC)' }, tree: { label: 'Baum / Zerlegung' }, heatmap: { label: 'Heatmap (divergierend)' },
-      scatter: { label: 'Streudiagramm' }, boxplot: { label: 'Boxplot' }, gantt: { label: 'Gantt (dataKitchenGantt)', note: 'Custom Visual dataKitchenGantt byDatenWG aus dem Repository.' },
+      scatter: { label: 'Streudiagramm / Bubble', note: 'Punktwolke mit Quadranten-Kreuz; ChartKitchen-Modus scatter (ab 1.47): Y = AC, X-Achse, optional Blasengröße.' }, boxplot: { label: 'Boxplot' }, gantt: { label: 'Gantt (dataKitchenGantt)', note: 'Custom Visual dataKitchenGantt byDatenWG aus dem Repository.' },
       pnl: { label: 'GuV-Statement (P&L byDatenWG)', note: 'Custom Visual P&L Statement byDatenWG: Kontenhierarchie, Summen- und Formelzeilen, Szenarien AC · PY · PL · FC mit Δ-Balken.' },
-      kpi: { label: 'KPI-Kachel (ChartKitchen)', note: 'Große Zahl, Δ-Zeile grün/rot, optional Sparkline.' },
+      kpi: { label: 'KPI-Kachel (ChartKitchen)', note: 'Große Zahl, Δ-Zeile grün/rot; mit einem Zeitfeld in „Trend (Zeit)" als Sparkline oder Säulen.' },
       card: { label: 'Karte (nativ)' }, multirow: { label: 'Mehrzeilen-Karte' },
       table: { label: 'Berichtstabelle (ChartKitchen)', note: 'Spalten AC · Ref · Δ · Δ% mit Mini-Balken.' },
       sparktable: { label: 'Tabelle mit Sparklines' }, matrix: { label: 'Matrix (nativ)' },
@@ -605,6 +629,8 @@
         vNew: ' **(neu anlegen)**', vBuckets: '- **pbir-Buckets ({type}):** ', vAnalysis: '- **Analyse:** {a}',
         vMessage: '- **Kernaussage (Titelzeile):** {m}', vWorkshop: '- **Workshop:** {p}Status {s}',
         vLink: '- **Springt zu:** Seite „{p}" ({how})', vBehaviour: '- **Verhalten:** {list}',
+        vCkProps: '- **ChartKitchen-Optionen (chart):** {list}', vCkTrend: '- **ChartKitchen-Rollen:** Zeitfeld `{f}` → Rolle `trend` (nicht `category`)',
+        vCkScatter: '- **ChartKitchen-Rollen:** X → `xValue`, Y → `actual`{b}', vCkBubble: ', Größe → `bubbleSize`',
         linkNav: 'Seitennavigation per Button-Aktion', linkDrill: 'Drill-through; Zielseite mit Drill-through-Feld aus der Kategorie dieses Visuals',
         vNotes: '- **Notizen:** {n}', vOpenQ: ' **(offene Frage)**',
         hLinks: '## Navigation und Drill', linkTable: '| Von (Visual) | Seite | Nach Seite | Art | Drill-Feld |',
@@ -785,7 +811,7 @@
       pageBg: 'Page background', accent: 'Accent colour', typo: 'Typography', canvas: 'Page size',
       radius: 'Tile corners', tileBg: 'Tile background', ink: 'Tile text colour', headerStyle: 'Header style', headerBg: 'Header background', headerInk: 'Header text',
       margin: 'Margin', gutter: 'Gutter', pad: 'Tile padding', typoScale: 'Typography, overall scale', typoTitle: 'Typography, tile title', typoSub: 'Typography, subtitle',
-      typoChart: 'Typography, chart labels', navPos: 'Page navigation', on: 'on', off: 'off',
+      typoChart: 'Typography, chart labels', navPos: 'Page navigation', on: 'on', off: 'off', ck: 'ChartKitchen options',
       reflow: '{n} tile(s) moved or resized because tiles were added or removed'
     },
     tip: {
@@ -921,8 +947,31 @@
         multiples: 'Small multiples by: column the tile is split into small charts by',
         facet: 'Facet: column that creates one mini chart per value inside the tile',
         valueCol: 'Value: column with the individual values whose distribution is shown',
-        timeSpark: 'Time: column for the time axis of the small trend line (sparkline)',
+        timeSpark: 'Trend (time): date or month column; the KPI card becomes a time series with a sparkline or columns (ChartKitchen role trend, 1.47 and later). Empty = card without a trend',
+        xValue: 'X axis: measure on the horizontal axis (ChartKitchen role xValue)',
+        yAc: 'Y axis: measure on the vertical axis, in ChartKitchen the AC role (actual)',
+        bubble: 'Bubble size (optional): measure whose value sets the bubble area (ChartKitchen role bubbleSize); empty = points of equal size',
         explainBy: 'Explain by: columns the measure is broken down by, step by step (decomposition tree)',
+      },
+    },
+
+    // ChartKitchen options per tile (ChartKitchen 1.47 and later): property names from the visual's chart object
+    ck: {
+      sec: 'ChartKitchen options', hint: 'Format settings of the visual (chart object); they go into the spec as chartKitchenProps.',
+      trendHint: 'Takes effect only with a time field in the “Trend (time)” role; without a trend the card shows no history.',
+      dflt: '{v} (default)', list: 'ChartKitchen options',
+      lbl: { cardTrendChart: 'Card mini chart', cardTrendValue: 'Card value', bridgeOrientation: 'Bridge orientation', scatterQuadrant: 'Quadrants' },
+      tip: {
+        cardTrendChart: 'Mini chart below the card number: sparkline (line with the previous year as a shadow) or columns per period; “off” shows no history (chart.cardTrendChart)',
+        cardTrendValue: 'Which value is the large number: the last value of the series (Δ from the same period) or the sum over all periods (chart.cardTrendValue)',
+        bridgeOrientation: 'Orientation of the category bridge: automatic (as before, horizontal bars), bars or a vertical column cascade (chart.bridgeOrientation)',
+        scatterQuadrant: 'Quadrant cross of the point cloud at the mean or median of the axes, or off (chart.scatterQuadrant)',
+      },
+      opt: {
+        cardTrendChart: { off: 'off', sparkline: 'Sparkline', columns: 'Columns' },
+        cardTrendValue: { last: 'last value', sum: 'sum' },
+        bridgeOrientation: { auto: 'automatic (bars)', bars: 'bars (horizontal)', columns: 'columns (vertical)' },
+        scatterQuadrant: { off: 'off', mean: 'mean (Ø)', median: 'median' },
       },
     },
 
@@ -1199,7 +1248,8 @@
       ac: 'AC · actual', ref: 'Reference (PL / PY / BU)', fc: 'FC flag (1/0)', values: 'Values', valuesAny: 'Fields',
       rows: 'Rows', cols: 'Columns', x: 'X value', y: 'Y value', size: 'Size', indicator: 'Measure',
       goal: 'Target / reference', start: 'Start', end: 'End', field: 'Field', text: 'Text (static or measure)', geo: 'Geo field',
-      facet: 'Facet (per tile)', valueCol: 'Value (column, single values)', timeSpark: 'Time (sparkline)', explainBy: 'Explain by',
+      facet: 'Facet (per tile)', valueCol: 'Value (column, single values)', timeSpark: 'Trend (time)', explainBy: 'Explain by',
+      xValue: 'X axis', yAc: 'Y axis · AC', bubble: 'Bubble size',
     },
 
     group: {
@@ -1219,9 +1269,9 @@
       multiples: { label: 'Small multiples' }, area: { label: 'Area (native)', note: 'Areas quickly overlap; prefer a line.' },
       waterfall: { label: 'Waterfall (vertical)' }, wfint: { label: 'Waterfall horizontal + variance' }, wfkombi: { label: 'Waterfall + Δ' },
       bridge: { label: 'Bridge (Σ ref → Δ → Σ AC)' }, tree: { label: 'Tree / decomposition' }, heatmap: { label: 'Heatmap (diverging)' },
-      scatter: { label: 'Scatter plot' }, boxplot: { label: 'Box plot' }, gantt: { label: 'Gantt (dataKitchenGantt)', note: 'Custom visual dataKitchenGantt byDatenWG from the repository.' },
+      scatter: { label: 'Scatter / bubble', note: 'Point cloud with a quadrant cross; ChartKitchen mode scatter (1.47 and later): Y = AC, X axis, optional bubble size.' }, boxplot: { label: 'Box plot' }, gantt: { label: 'Gantt (dataKitchenGantt)', note: 'Custom visual dataKitchenGantt byDatenWG from the repository.' },
       pnl: { label: 'P&L statement (P&L byDatenWG)', note: 'Custom visual P&L Statement byDatenWG: account hierarchy, subtotal and formula rows, scenarios AC · PY · PL · FC with Δ bars.' },
-      kpi: { label: 'KPI tile (ChartKitchen)', note: 'Large number, Δ row green/red, optional sparkline.' },
+      kpi: { label: 'KPI tile (ChartKitchen)', note: 'Large number, Δ row green/red; with a time field in “Trend (time)” as a sparkline or columns.' },
       card: { label: 'Card (native)' }, multirow: { label: 'Multi-row card' },
       table: { label: 'Report table (ChartKitchen)', note: 'Columns AC · ref · Δ · Δ% with mini bars.' },
       sparktable: { label: 'Table with sparklines' }, matrix: { label: 'Matrix (native)' },
@@ -1325,6 +1375,8 @@
         vNew: ' **(to be created)**', vBuckets: '- **pbir buckets ({type}):** ', vAnalysis: '- **Analysis:** {a}',
         vMessage: '- **Key message (title line):** {m}', vWorkshop: '- **Workshop:** {p}status {s}',
         vLink: '- **Jumps to:** page “{p}” ({how})', vBehaviour: '- **Behaviour:** {list}',
+        vCkProps: '- **ChartKitchen options (chart):** {list}', vCkTrend: '- **ChartKitchen roles:** time field `{f}` → role `trend` (not `category`)',
+        vCkScatter: '- **ChartKitchen roles:** X → `xValue`, Y → `actual`{b}', vCkBubble: ', size → `bubbleSize`',
         linkNav: 'page navigation via button action', linkDrill: 'drill-through; target page with a drill-through field from the category of this visual',
         vNotes: '- **Notes:** {n}', vOpenQ: ' **(open question)**',
         hLinks: '## Navigation and drill', linkTable: '| From (visual) | Page | To page | Kind | Drill field |',

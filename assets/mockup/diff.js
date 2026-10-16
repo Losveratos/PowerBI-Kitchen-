@@ -31,6 +31,13 @@
     Object.keys(roles || {}).forEach(function (k) { var l = roles[k]; if (Array.isArray(l) && l.length) out[k] = l.map(refOf).filter(Boolean); });
     return out;
   }
+  // ChartKitchen-Optionen (ab v0.6.0): aufgelöst wie im Export (visuals[].chartKitchenProps), damit Zustand und Spec vergleichbar sind.
+  // Ohne Katalog (Node-Test) zählen die bewusst gewählten Werte des Zustands.
+  function ckOf(v) {
+    var C = root.MK_CATALOG;
+    if (C && C.ckPropsOf) return C.ckPropsOf(v);
+    return v && v.engine === 'ck' && v.ckProps && Object.keys(v.ckProps).length ? v.ckProps : null;
+  }
   function samplesOf(x) {
     if (!x) return null;
     var c = x.categories || x.cats, v = x.values, r = x.refValues || x.ref;
@@ -124,7 +131,7 @@
           id: 'mk_' + leaf.id, page: p.name, pageId: p.id, kind: v.kind, engine: v.engine || '', title: v.title || '',
           fields: flatRoles(v.roles), analysis: normAnalysis(v.analysis, false), priority: v.priority || '', status: v.status || 'open',
           notes: v.notes || '', openQuestion: !!v.openQuestion, interaction: normInteraction(v.interaction),
-          link: target, linkName: target ? pageName[target] : '', content: v.content || '',
+          link: target, linkName: target ? pageName[target] : '', content: v.content || '', ck: ckOf(v),
           pos: r ? (rects ? { x: r.x, y: r.y, w: r.w, h: r.h, unit: 'px' } : pct(r)) : null, samples: samplesOf(v.samples), anc: anc
         });
       });
@@ -163,7 +170,7 @@
           id: v.id, page: p.name, pageId: p.id || p.name, kind: v.kind, engine: v.engine || '', title: v.title || '',
           fields: flatRoles(v.roles), analysis: normAnalysis(v.analysis, true), priority: w.priority || v.priority || '', status: w.status || v.status || 'open',
           notes: v.notes || w.notes || '', openQuestion: !!(w.openQuestion || v.openQuestion), interaction: normInteraction(v.interaction),
-          link: lk.id, linkName: lk.name, content: v.content || '',
+          link: lk.id, linkName: lk.name, content: v.content || '', ck: v.chartKitchenProps || null,
           pos: (r.x != null) ? { x: r.x, y: r.y, w: r.w, h: r.h, unit: 'px' } : null, samples: samplesOf(v.samples), anc: ancOf[v.stableId]
         });
       });
@@ -219,6 +226,8 @@
       // Sprungziel über die Seiten-ID, angezeigt wird der Seitenname
       if (o.link !== it.link) det.push({ what: 'link', before: o.linkName, after: it.linkName, kind: it.kind });
       cmp('content', o.content, it.content); cmp('samples', o.samples, it.samples);
+      var ck = {}; Object.keys(o.ck || {}).concat(Object.keys(it.ck || {})).forEach(function (k) { ck[k] = true; });
+      Object.keys(ck).forEach(function (k) { cmp('ck.' + k, (o.ck || {})[k], (it.ck || {})[k]); });
       // Position nur bei gleicher Quelle und Einheit (px aus app.js oder Anteile in %), sonst wäre jede Kachel „verschoben"
       if (older.source === newer.source && o.pos && it.pos && o.pos.unit === it.pos.unit) cmp('position', o.pos, it.pos);
       if (det.length) res.changed.push({ item: it, before: o, details: det });
@@ -324,6 +333,7 @@
     if (ctx.section === 'design') return DESIGN_FMT[what] ? DESIGN_FMT[what](t, v, ctx) : fmt(v);
     if (what.indexOf('an.') === 0) return anValue(t, what.slice(3), v);
     if (what.indexOf('role.') === 0) return fmt(v);
+    if (what.indexOf('ck.') === 0) return tr(t, 'ck.opt.' + what.slice(3) + '.' + v, null, fmt(v));
     switch (what) {
       case 'kind': return kindName(t, v);
       case 'engine': return tr(t, 'engine.' + v, null, v);
@@ -344,6 +354,7 @@
   function detLabel(t, what, kind) {
     if (what.indexOf('an.') === 0) return label(t, 'analysis') + ' · ' + tr(t, 'lbl.' + what.slice(3), null, what.slice(3));
     if (what.indexOf('role.') === 0) return label(t, 'fields') + ' · ' + roleName(t, kind, what.slice(5));
+    if (what.indexOf('ck.') === 0) return label(t, 'ck') + ' · ' + tr(t, 'ck.lbl.' + what.slice(3), null, what.slice(3));
     return label(t, what);
   }
   function fieldsText(t, it) { return Object.keys(it.fields || {}).map(function (k) { return roleName(t, it.kind, k) + ': ' + it.fields[k].join(', '); }).join(' · '); }

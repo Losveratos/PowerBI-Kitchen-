@@ -510,6 +510,8 @@
       nativePalette: (ctx.d && ctx.d.nativePalette) || 'neutral'
     };
     if (mk().samplesOpt) { try { Object.assign(sopt, mk().samplesOpt(v)); } catch (e) { /* ohne Beispielwerte */ } }
+    // ChartKitchen-Optionen (Trend der KPI-Karte, Ausrichtung der Brücke, Quadranten) wie auf der Zeichenfläche
+    if (mk().ckSketchOpt) { try { Object.assign(sopt, mk().ckSketchOpt(v)); } catch (e) { /* ohne Optionen */ } }
     // Leere Pflichtrolle Kennzahl (KPI, Karte, Tacho): „?" statt Zahl (Review R16)
     sopt.noMeasure = (def.roles || []).some(function (rl) { return rl.key === 'indicator' && rl.req; }) && !((v.roles || {}).indicator || []).length;
     try {

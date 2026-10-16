@@ -161,5 +161,20 @@ function run(older, newer, t) { var res = D.compare(D.fromState(older), D.fromSt
   assert(rDe.html.indexOf('&lt;b&gt;') >= 0, 'HTML-Dialog escapet');
 })();
 
+// ---------------------------------------------------------------- v0.6.0: ChartKitchen-Optionen (chartKitchenProps)
+(function () {
+  var a = base(), b = base(); b.pages[0].layout.children[1].node.visual = vis('bridge', 'Brücke', { ckProps: { bridgeOrientation: 'columns' } });
+  a.pages[0].layout.children[1].node.visual = vis('bridge', 'Brücke');
+  var r = run(a, b);
+  assert(r.res.counts.changed === 1 && r.res.changed[0].details.some(function (d) { return d.what === 'ck.bridgeOrientation'; }), 'Ausrichtung der Brücke erkannt: ' + JSON.stringify(r.res.counts));
+  assert(r.html.indexOf('ChartKitchen-Optionen') >= 0 && r.html.indexOf('Ausrichtung der Brücke') >= 0 && r.html.indexOf('Säulen (senkrecht)') >= 0, 'Fachsprache für die Option: ' + r.html);
+  var n1 = base(), n2 = base(); n2.pages[0].layout.children[1].node.visual.engine = 'native'; n1.pages[0].layout.children[1].node.visual.engine = 'native';
+  n2.pages[0].layout.children[1].node.visual.ckProps = { bridgeOrientation: 'columns' };
+  assert(run(n1, n2).res.counts.total === 0, 'Option ohne ChartKitchen-Engine zählt nicht');
+  var sp = function (o) { return { meta: { specVersion: 3 }, pages: [{ id: 'p1', name: 'S', visuals: [{ id: 'mk_k', stableId: 'k', kind: 'kpi', engine: 'ck', title: 'KPI', roles: {}, chartKitchenProps: o }] }], zones: {}, design: {}, canvas: { width: 1280, height: 720 } }; };
+  var r2 = D.compare(D.fromSpec(sp({ cardTrendChart: 'sparkline', cardTrendValue: 'last' })), D.fromSpec(sp({ cardTrendChart: 'columns', cardTrendValue: 'last' })));
+  assert(r2.counts.changed === 1 && D.render(r2, en).indexOf('Card mini chart') >= 0 && D.render(r2, en).indexOf('Columns') >= 0, 'Spec: cardTrendChart erkannt (EN)');
+})();
+
 console.log((failures ? 'FEHLER' : 'OK') + ': ' + passed + ' bestanden, ' + failures + ' fehlgeschlagen');
 process.exit(failures ? 1 : 0);

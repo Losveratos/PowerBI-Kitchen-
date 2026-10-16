@@ -481,9 +481,12 @@ gegenprüfen, ob die Auswahl im Slicer sichtbar ist.
 `mockup-out/<Seitenslug>/chartkitchen-slots.json` enthält je Slot: `rect`,
 `chartKitchenType`, den `orientation`-Wert **aus der Spec**
 (`visuals[].chartKitchenMode`), `chartProps` (z. B. `invert: true`, wenn die
-Analyse „kleiner = besser" sagt), `chartKitchenRoles` (Mockup-Rollen auf den
-ChartKitchen-Feld-Vertrag gemappt), `analysis`, `workshop` und — falls
-vorhanden — einen `nativeFallback`.
+Analyse „kleiner = besser" sagt; ab Tool 0.6.0 zusätzlich die Werte aus
+`visuals[].chartKitchenProps`: `cardTrendChart`, `cardTrendValue`,
+`bridgeOrientation`, `scatterQuadrant`), `chartKitchenRoles` (Mockup-Rollen auf den
+ChartKitchen-Feld-Vertrag gemappt; ab ChartKitchen 1.47 geht das Zeitfeld einer
+KPI-Kachel nach `trend`, Scatter nach `xValue`/`actual`/`bubbleSize`), `analysis`,
+`workshop` und — falls vorhanden — einen `nativeFallback`.
 
 Die `warnings` je Slot sind die Stellen, an denen das Mapping aufpassen muss:
 - **`rowType` fehlt** bei `orientation: waterfall`/`pnl` — ohne die Spalte
@@ -493,6 +496,9 @@ Die `warnings` je Slot sind die Stellen, an denen das Mapping aufpassen muss:
 - **FC im Szenario ohne `fcFlag`/`forecast`** — dann zeichnet ChartKitchen
   keinen Forecast. `fcFlag` muss die **Zahl** 1/0 liefern, kein Boolean.
 - `colgroup` nur bei `orientation: table`, `lineMeasure` nur bei `columns`.
+- **`scatter` ohne `xValue`/`actual`** — keine Punktwolke. `trend`, `xValue`,
+  `bubbleSize` und `orientation: scatter` gibt es erst ab ChartKitchen **1.47**;
+  eine ältere `.pbiviz` im Bericht vorher aktualisieren.
 
 - **Mit Referenz-Instanz:** replizieren nach
   [`chartkitchen-report/references/pbir-insertion.md`](../chartkitchen-report/references/pbir-insertion.md),

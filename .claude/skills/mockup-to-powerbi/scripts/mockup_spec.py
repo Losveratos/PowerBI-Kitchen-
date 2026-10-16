@@ -55,6 +55,26 @@ CK_ROLE = {
 }
 CK_ROLE_UNSUPPORTED = {"x", "y", "size", "start", "end", "field", "text"}
 
+# Abweichende Zuordnung je Kachel-Typ (ChartKitchen 1.47, Tool 0.6.0). Gilt vor CK_ROLE und
+# CK_ROLE_UNSUPPORTED. Quelle: ibcsInspiredChartDeck/capabilities.json (Rollen xValue, bubbleSize,
+# trend) und AGENT-GUIDE „Neu in 1.47".
+#   kpi:     das Zeitfeld (Mockup-Rolle category) ist die Grouping-Rolle `trend` — in `category`
+#            wuerde jede Periode eine eigene Karte.
+#   scatter: Y = AC (`actual`), X = `xValue`, Blasengroesse = `bubbleSize`.
+CK_ROLE_BY_KIND = {
+    "kpi": {"category": "trend"},
+    "scatter": {"x": "xValue", "y": "actual", "size": "bubbleSize"},
+}
+
+# ChartKitchen-Optionen je Kachel (visuals[].chartKitchenProps, Tool 0.6.0) -> Objekt `chart`.
+# Werte und Vorgaben wie im Visual (src/settings.ts); `role` = wirkt nur mit gebundener Rolle.
+CK_PROPS = {
+    "cardTrendChart": {"values": ("off", "sparkline", "columns"), "default": "sparkline"},
+    "cardTrendValue": {"values": ("last", "sum"), "default": "last"},
+    "bridgeOrientation": {"values": ("auto", "bars", "columns"), "default": "auto"},
+    "scatterQuadrant": {"values": ("off", "mean", "median"), "default": "mean"},
+}
+
 # Vollstaendiges Rollen-Vokabular (Quelle: assets/mockup/catalog.js -> R und R_MULT).
 # Nur zum Nachschlagen und Dokumentieren — unbekannte Rollen brechen nichts ab,
 # das Tool darf wachsen.
@@ -76,6 +96,8 @@ CK_ORIENTATION = {
     "bridge": "catbridge",
     "kpi": "cards",
     "table": "table", "sparktable": "table", "heatmap": "table",
+    # ab ChartKitchen 1.47 / Tool 0.6.0
+    "scatter": "scatter",
 }
 
 # --------------------------------------------------------------------------- #
@@ -577,7 +599,7 @@ def _hash_core_v3(spec: dict) -> dict:
     if "pages" in spec:
         core["pages"] = [dict(_pick(p, ("name", "question")), **(
             {"visuals": [_pick(v, ("id", "kind", "engine", "title", "content", "rect",
-                                   "roles", "analysis", "link"))
+                                   "roles", "analysis", "link", "chartKitchenProps"))
                          for v in (p.get("visuals") or [])]}
             if isinstance(p, dict) and "visuals" in p else {}))
             for p in (spec.get("pages") or []) if isinstance(p, dict)]
