@@ -440,5 +440,7 @@
   "Hint_ScatterEmpty": "Dispersión: ninguna categoría tiene a la vez un valor X y un valor AC",
   "Scatter_Mean": "Ø",
   "Scatter_Median": "Mediana",
-  "Scatter_ColorStatus": "color = Δ{0}"
+  "Scatter_ColorStatus": "color = Δ{0}",
+  "Chart_AutoExpand": "Expandir jerarquía automáticamente",
+  "Desc_Chart_AutoExpand": "Con varios campos en «Categoría», el visual expande la jerarquía automáticamente — el árbol de filas aparece al arrastrar los campos, sin los botones de exploración del encabezado. Subir manualmente se respeta (solo un cambio de campos vuelve a activarlo). Activado por defecto."
 }

@@ -440,5 +440,7 @@
   "Hint_ScatterEmpty": "Scatter: keine Kategorie hat sowohl einen X- als auch einen AC-Wert",
   "Scatter_Mean": "Ø",
   "Scatter_Median": "Median",
-  "Scatter_ColorStatus": "Farbe = Δ{0}"
+  "Scatter_ColorStatus": "Farbe = Δ{0}",
+  "Chart_AutoExpand": "Hierarchie automatisch aufklappen",
+  "Desc_Chart_AutoExpand": "Liegen mehrere Felder in „Kategorie“, klappt das Visual die Drill-Hierarchie automatisch auf — der klickbare Zeilenbaum erscheint sofort beim Hineinziehen, ohne die Drill-Knöpfe im Visual-Kopf. Manuelles Hochklappen bleibt bestehen (nur ein Feld-Wechsel löst erneut aus). Standard an."
 }

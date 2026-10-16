@@ -440,5 +440,7 @@
   "Hint_ScatterEmpty": "Scatter: no category has both an X and an AC value",
   "Scatter_Mean": "Ø",
   "Scatter_Median": "Median",
-  "Scatter_ColorStatus": "color = Δ{0}"
+  "Scatter_ColorStatus": "color = Δ{0}",
+  "Chart_AutoExpand": "Auto-expand hierarchy",
+  "Desc_Chart_AutoExpand": "With multiple fields in “Category”, the visual expands the drill hierarchy automatically — the clickable row tree appears right when you drag fields in, without the drill buttons in the visual header. Manual drill-up is respected (only a field change triggers again). On by default."
 }

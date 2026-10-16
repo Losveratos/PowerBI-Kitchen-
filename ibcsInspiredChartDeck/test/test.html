@@ -111,6 +111,7 @@ function makeHost(hc, noInteract, themeBg) {
     tooltipService: { show(){}, move(){}, hide(){} },
     createLocalizationManager: () => ({ getDisplayName: () => "" }),
     persistProperties: (changes) => console.log("persistProperties", JSON.stringify(changes)),
+    drill: (args) => console.log("drill", JSON.stringify(args)),
     locale: "de-DE"
   };
 }
@@ -1488,6 +1489,20 @@ run("c161", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "
   scatObj({ scatterColorBy: "status", highlight: "Service" }, { colors: { appearance: "dark" } })), 960, 460);
 run("c162", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende"), col("previousYear", scatPy, "#,0 T€")]),
   scatObj({ scatterColorBy: "status", highlight: "Service" })), 960, 460, true);
+</script>
+
+<div class="case"><h4>c163 · 1.47 · Auto-Aufklappen: Tabelle mit drillbarer Kategorie (drillableRoles bietet Down) → Visual ruft host.drill("category", Down) GENAU EINMAL — Konsole zeigt »drill {"roleName":"category","drillType":2}«</h4><div class="stage" id="c163" style="width:960px;height:320px"></div></div>
+<script>
+// Der Shim loggt host.drill; die Signatur-Logik (einmal je Feld-Konstellation)
+// wird geprüft, indem dieselbe Instanz zweimal mit identischen Daten updated
+const aeDv = dataView(["Nord", "Süd"], [col("actual", [100, 200], "#,0 €")],
+  { chart: { orientation: "table" } });
+aeDv.metadata.dataRoles = { drillableRoles: { category: [2] } };
+const aeEl = document.getElementById("c163");
+const aeVisual = new Visual({ element: aeEl, host: makeHost(false, false) });
+aeVisual.update({ viewport: { width: 960, height: 320 }, dataViews: [aeDv] });
+// zweites Update mit gleicher Konstellation: darf NICHT erneut drillen
+aeVisual.update({ viewport: { width: 960, height: 320 }, dataViews: [aeDv] });
 </script>
 </body>
 </html>

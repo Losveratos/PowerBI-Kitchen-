@@ -664,6 +664,9 @@ export class Visual implements IVisual {
             this.viewMode = options.viewMode ?? null;
             // resolve dark mode before any branch renders (landing gallery included)
             this.uiDark = this.resolveDarkMode();
+            // Mehrfeld-Kategorie: Drill-Hierarchie automatisch aufklappen, damit
+            // der klickbare Zeilenbaum direkt beim Hineinziehen erscheint
+            this.maybeAutoExpand(dataView);
             // a hover tooltip must not survive the data/layout change underneath it
             this.hideDarkTip();
             // one-click-P&L lists: a just-persisted value must survive a stale
@@ -1549,6 +1552,38 @@ export class Visual implements IVisual {
         return this.uiDark
             ? { bg: "#2B2B2B", ink: "#E8E8E8", border: "#5A5A5A", subtle: DARK_SUBTLE }
             : { bg: "#FFFFFF", ink: "#252423", border: "#8A8A8A", subtle: "#6E6E6E" };
+    }
+
+    /** pro Feld-Konstellation nur EINMAL automatisch aufklappen — ein manuelles
+     *  Hochklappen des Nutzers (Drill-up) darf nicht übersteuert werden */
+    private autoExpandDone = new Set<string>();
+
+    /** Mehrfeld-Kategorie in Tabelle/GuV: Power BI liefert ohne Drill nur die
+     *  oberste Ebene; erst "Alle eine Ebene nach unten erweitern" bringt die
+     *  weiteren Kategorie-Spalten, aus denen der klickbare Zeilenbaum entsteht.
+     *  Die Drilldown-API (host.drill, DrillType.Down = Union der Ebenen) löst
+     *  das ohne Nutzer-Klick aus. Signatur = aktuelle Kategorie-Spalten; nach
+     *  jedem Expand ändert sie sich, bis Down nicht mehr angeboten wird — so
+     *  klappen auch 3+ Ebenen vollständig auf, und ein Drill-up des Nutzers
+     *  (gleiche Signatur schon gesehen) bleibt unangetastet. */
+    private maybeAutoExpand(dataView: DataView | undefined): void {
+        const s = this.formattingSettings;
+        if (!s.chartCard.autoExpandHierarchy.value) { return; }
+        const orient = String(s.chartCard.orientation.value.value);
+        if (orient !== "table" && orient !== "pnl") { return; }
+        const drillable = dataView?.metadata?.dataRoles?.drillableRoles?.["category"];
+        // DrillType ist ein const enum (zur Laufzeit nicht vorhanden): Down = 2
+        const DRILL_DOWN = 2 as powerbi.DrillType;
+        if (!drillable || drillable.indexOf(DRILL_DOWN) < 0) { return; }
+        const cols = (dataView?.metadata?.columns ?? [])
+            .filter(c => c.roles?.["category"])
+            .map(c => c.queryName ?? c.displayName);
+        const sig = cols.join("|");
+        if (this.autoExpandDone.has(sig)) { return; }
+        // Sicherung gegen Endlosschleifen bei unerwartetem Host-Verhalten
+        if (this.autoExpandDone.size > 16) { this.autoExpandDone.clear(); }
+        this.autoExpandDone.add(sig);
+        this.host.drill({ roleName: "category", drillType: DRILL_DOWN });
     }
 
     /** dark mode: the pane's appearance dropdown wins; "auto" sniffs the report

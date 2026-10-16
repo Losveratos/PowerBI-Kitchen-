@@ -440,5 +440,7 @@
   "Hint_ScatterEmpty": "散布図：X 値と AC 値の両方を持つカテゴリがありません",
   "Scatter_Mean": "Ø",
   "Scatter_Median": "中央値",
-  "Scatter_ColorStatus": "色 = Δ{0}"
+  "Scatter_ColorStatus": "色 = Δ{0}",
+  "Chart_AutoExpand": "階層を自動展開",
+  "Desc_Chart_AutoExpand": "「カテゴリ」に複数のフィールドがある場合、ビジュアルがドリル階層を自動的に展開します — ヘッダーのドリルボタンなしで、クリック可能な行ツリーがすぐに表示されます。手動のドリルアップは尊重されます（フィールド変更時のみ再実行）。既定でオン。"
 }

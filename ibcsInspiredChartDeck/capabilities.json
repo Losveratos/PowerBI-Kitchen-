@@ -182,6 +182,7 @@
                 },
                 "smartStart": { "type": { "bool": true } },
                 "smartStartDismissed": { "type": { "text": true } },
+                "autoExpandHierarchy": { "type": { "bool": true } },
                 "pnlView": { "type": { "text": true } },
                 "tableExpanded": { "type": { "text": true } },
                 "tableSort": { "type": { "text": true } },

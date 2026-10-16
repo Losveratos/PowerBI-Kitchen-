@@ -747,11 +747,20 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    autoExpandHierarchy = new formattingSettings.ToggleSwitch({
+        name: "autoExpandHierarchy",
+        displayName: "Auto-expand hierarchy",
+        displayNameKey: "Chart_AutoExpand",
+        description: "Liegen mehrere Felder in „Kategorie\", klappt das Visual die Drill-Hierarchie automatisch auf — der klickbare Zeilenbaum erscheint sofort beim Hineinziehen, ohne die ⫟-Drill-Knöpfe im Visual-Kopf. Manuelles Hochklappen bleibt bestehen (nur ein Feld-Wechsel löst erneut aus). Standard an.",
+        descriptionKey: "Desc_Chart_AutoExpand",
+        value: true
+    });
+
     tableGroup = new formattingSettings.Group({
         name: "chartTable",
         displayName: "Table",
         displayNameKey: "Group_Table",
-        slices: [this.valueColumns, this.structureEdit, this.resultList, this.skipList,
+        slices: [this.valueColumns, this.autoExpandHierarchy, this.structureEdit, this.resultList, this.skipList,
             this.hideList, this.chartList, this.indentList, this.rowFormats,
             this.matrixCompare, this.formulaRows, this.totalRowPosition,
             this.zebraStripes, this.rowDensity, this.gridLines, this.cellLayout]
