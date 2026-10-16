@@ -138,6 +138,9 @@ interface DataPoint {
      *  null/absent when the role is not bound or for synthetic rows */
     xVal?: number | null;
     sizeVal?: number | null;
+    /** scatter v3: previous-year value of the X measure (role xPrevious) — start of
+     *  the PY → AC movement arrow on the X axis (without it, arrows move only in Y) */
+    xPrev?: number | null;
     /** Trend role (KPI cards): period label of this row and its sort key (Date →
      *  timestamp, number → value, text → first appearance); absent when unbound */
     trend?: string | null;
@@ -381,6 +384,27 @@ interface ChartConfig {
         /** which field drives groupColors: "series" (Stack-Series role) or "group"
          *  (multiples role, only without tiles) */
         groupKey: "series" | "group" | null;
+        /** v3: ordered group values of groupKey (first appearance over the deck) —
+         *  drives the shape cycle; filled even in high contrast (shapes work there) */
+        groupOrder: string[] | null;
+        /** v3 feature switches (chart card; already gated on bound roles) */
+        arrows: boolean;
+        hasXPrev: boolean;
+        xPrevName: string;
+        shapes: boolean;
+        sizeLegend: boolean;
+        trend: string;
+        trendR2: boolean;
+        quadLabels: { tr: string; tl: string; bl: string; br: string };
+        play: boolean;
+        /** v3 axis options (scale card): fixed bounds (null = auto) + log wishes —
+         *  whether log actually applies is decided per render over the data */
+        xMin: number | null;
+        xMax: number | null;
+        yMin: number | null;
+        yMax: number | null;
+        xLogWanted: boolean;
+        yLogWanted: boolean;
     } | null;
 }
 
@@ -398,6 +422,11 @@ interface ScatterShared {
     /** size of a regular grid cell — caps the bubble radius identically in every tile
      *  (the hero tile is larger and would otherwise draw bigger bubbles). null = zoom */
     refCell: { w: number; h: number } | null;
+    /** v3: log scale per axis, decided ONCE over the whole deck (all tiles share it) */
+    xLog: boolean;
+    yLog: boolean;
+    /** v3: the size legend renders once per deck (first tile that draws it wins) */
+    sizeLegendDrawn?: boolean;
 }
 
 /**
@@ -495,6 +524,46 @@ function medianOf(vals: number[]): number {
 }
 
 /**
+ * scatter v3: ticks for a logarithmic axis INSIDE [lo, hi] — whole decades (10ⁿ)
+ * while at least two fit, otherwise 1-2-5 steps across the span; never more than
+ * maxTicks (thinned out keeping the ends). lo must be > 0.
+ */
+function logTicks(lo: number, hi: number, maxTicks: number): number[] {
+    if (!(lo > 0) || !(hi > lo)) { return lo > 0 ? [lo] : []; }
+    const d0 = Math.ceil(Math.log10(lo) - 1e-9), d1 = Math.floor(Math.log10(hi) + 1e-9);
+    const decades: number[] = [];
+    for (let e = d0; e <= d1; e++) { decades.push(Number(Math.pow(10, e).toPrecision(12))); }
+    if (decades.length > Math.max(2, maxTicks)) {
+        const step = Math.ceil(decades.length / Math.max(2, maxTicks));
+        return decades.filter((_, i) => i % step === 0);
+    }
+    if (decades.length >= 2) { return decades; }
+    // fewer than two decades inside the span: 1-2-5 steps
+    let out: number[] = [];
+    for (let e = Math.floor(Math.log10(lo)) - 1; e <= d1 + 1 && out.length < 60; e++) {
+        for (const m of [1, 2, 5]) {
+            const v = Number((m * Math.pow(10, e)).toPrecision(12));
+            if (v >= lo * (1 - 1e-9) && v <= hi * (1 + 1e-9)) { out.push(v); }
+        }
+    }
+    while (out.length > Math.max(2, maxTicks)) {
+        const keep: number[] = [];
+        for (let i = 0; i < out.length; i += 2) { keep.push(out[i]); }
+        if (keep[keep.length - 1] !== out[out.length - 1]) { keep.push(out[out.length - 1]); }
+        out = keep;
+    }
+    return out.length > 0 ? out : [lo, hi];
+}
+
+/** linear or logarithmic position scale (scatter v3) — log assumes d0, d1 > 0 */
+function logLinScale(d0: number, d1: number, r0: number, r1: number, log: boolean): Scale {
+    if (!log) { return linearScale(d0, d1, r0, r1); }
+    const l0 = Math.log(d0);
+    const dd = (Math.log(d1) - l0) || 1;
+    return (v: number) => r0 + ((Math.log(Math.max(v, Number.MIN_VALUE)) - l0) / dd) * (r1 - r0);
+}
+
+/**
  * Δ is defined but Δ% is not — the "n.a." case of IBCS UN 4.1: a zero basis,
  * or a SIGN CHANGE between basis and actual (PY +20 → AC −30 gave "−250 %").
  * Same-sign negative bases stay interpretable: GuV cost lines ("Material-
@@ -551,6 +620,31 @@ export class Visual implements IVisual {
     private xFormat: string | undefined;
     private sizeName: string | undefined;
     private sizeFormat: string | undefined;
+    /** scatter v3: display name of the bound xPrevious measure (arrow start, tooltips) */
+    private xPrevName: string | undefined;
+    /** scatter v3 play mode (Rosling): transient — NEVER persisted. frame = currently
+     *  shown period index; anim = live DOM references while the rAF loop runs */
+    private scatterFrame: number | null = null;
+    private scatterAnim: {
+        frames: string[];
+        frameData: Map<string, { x: number; y: number; size: number }>[];
+        dots: Map<string, { g: SVGGElement; cx: number; cy: number;
+            circle: SVGElement | null; hasSize: boolean }>;
+        X: Scale; Y: Scale;
+        rOf: (size: number) => number;
+        watermark: SVGTextElement | null;
+        btnIcon: SVGTextElement | null;
+        raf: number | null;
+        playing: boolean;
+        from: number;
+        cur: number;
+        t0: number;
+    } | null = null;
+    /** scatter v3 rectangle selection: true right after a drag-select ended, so the
+     *  immediately following click on the svg must NOT clear the fresh selection */
+    private scatterDragJustEnded = false;
+    /** teardown hooks for the document-level listeners of an active drag-select */
+    private scatterDragCleanup: (() => void) | null = null;
     /** Trend role (KPI cards): display name of the bound period field */
     private trendName: string | undefined;
     /** display names of the Stack-Series and multiples fields (scatter group legend) */
@@ -720,8 +814,13 @@ export class Visual implements IVisual {
         this.svg = document.createElementNS(SVG_NS, "svg");
         this.root.appendChild(this.svg);
 
-        // click on empty space clears selection (and a pending compare pick)
+        // click on empty space clears selection (and a pending compare pick) — except
+        // right after a scatter rectangle selection, whose mouseup fires this click too
         this.svg.addEventListener("click", () => {
+            if (this.scatterDragJustEnded) {
+                this.scatterDragJustEnded = false;
+                return;
+            }
             this.closeCommentEditor();
             this.selectionManager.clear();
             this.applySelectionOpacity([]);
@@ -1003,6 +1102,23 @@ export class Visual implements IVisual {
         fs.chartCard.showAbsoluteVariance.visible = !isScatter;
         fs.chartCard.showRelativeVariance.visible = !isScatter;
         if (isScatter) { fs.chartCard.dualVariance.visible = false; }
+        // Scatter v3 gates: Formen nur bei Gruppen-Färbung; Pfeile nur mit PY;
+        // R² nur bei aktiver Trendlinie; Größen-Legende nur mit gebundener Blasengröße;
+        // Quadranten-Labels nur, wenn überhaupt Quadranten-Linien entstehen können
+        // (Quadranten an oder eine Referenzlinie gesetzt)
+        fs.chartCard.scatterShapes.visible = isScatter
+            && String(fs.chartCard.scatterColorBy.value.value) === "group";
+        fs.chartCard.scatterArrows.visible = isScatter && this.paneHasPy;
+        fs.chartCard.scatterTrendR2.visible = isScatter
+            && String(fs.chartCard.scatterTrend.value.value) !== "off";
+        fs.chartCard.scatterSizeLegend.visible = isScatter && this.sizeName != null;
+        const quadOn = String(fs.chartCard.scatterQuadrant.value.value) !== "off"
+            || String(fs.scaleCard.refLine.value || "").trim() !== ""
+            || String(fs.scaleCard.xRefLine.value || "").trim() !== "";
+        fs.chartCard.scatterQuadLabelTR.visible = isScatter && quadOn;
+        fs.chartCard.scatterQuadLabelTL.visible = isScatter && quadOn;
+        fs.chartCard.scatterQuadLabelBL.visible = isScatter && quadOn;
+        fs.chartCard.scatterQuadLabelBR.visible = isScatter && quadOn;
         fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
         fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0;
         fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value;
@@ -1049,9 +1165,11 @@ export class Visual implements IVisual {
         fs.scaleCard.visible = orient === "columns" || orient === "bars"
             || orient === "line" || orient === "waterfall" || orient === "table" || isScatter;
         // Scatter skaliert beide Achsen selbst (keine Sync-Maxima), nutzt aber die
-        // Referenzlinien: Y = refLine, X = xRefLine (nur hier sichtbar)
+        // Referenzlinien: Y = refLine, X = xRefLine (nur hier sichtbar). Die v3-Gruppe
+        // „Scatter-Achsen" (Min/Max-Fixierung + Log) existiert nur im Scatter
         fs.scaleCard.syncGroup.visible = !isScatter;
         fs.scaleCard.xRefLine.visible = isScatter;
+        fs.scaleCard.scatterAxesGroup.visible = isScatter;
         fs.scaleCard.refLineGroup.visible = orient !== "table";
         if (orient === "table") { fs.scaleCard.capOverflow.visible = false; }
         // Achsenschnitt nur im Wasserfall; der Schnittwert erst, wenn Schnitt erlaubt ist
@@ -1152,10 +1270,11 @@ export class Visual implements IVisual {
         this.measureName = undefined;
         this.filterInfo = null;
         this.xName = this.xFormat = this.sizeName = this.sizeFormat = undefined;
+        this.xPrevName = undefined;
         for (const col of valueCols) {
             const roles = col.source.roles || {};
             for (const role of ["actual", "previousYear", "plan", "forecast", "benchmark", "lineMeasure", "prevForecast",
-                "xValue", "bubbleSize"]) {
+                "xValue", "xPrevious", "bubbleSize"]) {
                 if (roles[role]) {
                     byRole[role] = col.values.map(v => (typeof v === "number" && isFinite(v)) ? v : null);
                     if (role === "actual" || (role === "forecast" && !this.measureFormat)) {
@@ -1171,6 +1290,9 @@ export class Visual implements IVisual {
                     if (role === "xValue") {
                         this.xFormat = col.source.format;
                         this.xName = col.source.displayName;
+                    }
+                    if (role === "xPrevious") {
+                        this.xPrevName = col.source.displayName;
                     }
                     if (role === "bubbleSize") {
                         this.sizeFormat = col.source.format;
@@ -1284,6 +1406,7 @@ export class Visual implements IVisual {
                 stackSeries: seriesCol && seriesCol.values[i] != null
                     ? this.categoryLabel(seriesCol.values[i]) : null,
                 xVal: byRole["xValue"] ? byRole["xValue"][i] : null,
+                xPrev: byRole["xPrevious"] ? byRole["xPrevious"][i] : null,
                 sizeVal: byRole["bubbleSize"] ? byRole["bubbleSize"][i] : null,
                 ...(trendCol && trendOrdOf ? {
                     trend: this.categoryLabel(trendCol.values[i]),
@@ -2398,6 +2521,11 @@ export class Visual implements IVisual {
     private render(points: DataPoint[], width: number, height: number): void {
         while (this.svg.firstChild) { this.svg.removeChild(this.svg.firstChild); }
         this.catGroups = [];
+        // scatter v3: a running play animation or drag-select must not outlive the
+        // DOM it manipulates (the svg was just cleared above)
+        if (this.scatterAnim?.raf != null) { cancelAnimationFrame(this.scatterAnim.raf); }
+        this.scatterAnim = null;
+        if (this.scatterDragCleanup) { this.scatterDragCleanup(); }
 
         const s = this.formattingSettings;
         // finance number convention — read BEFORE any formatter is created
@@ -2417,6 +2545,9 @@ export class Visual implements IVisual {
         const isSlope = orientationRaw === "slope";
         // Scatter / Bubble: AC (Y) over the xValue measure (X), optional bubble size
         const isScatter = orientationRaw === "scatter";
+        // v3 play: the shown period is transient session state — it resets as soon as
+        // the mode or the play toggle changes (never persisted)
+        if (!isScatter || s.chartCard.scatterPlay.value !== true) { this.scatterFrame = null; }
         // KPI cards: one tile per category — the KPI-card visual folded into the deck
         const isCards = orientationRaw === "cards";
         // GuV-Statement: row-based P&L with PY + scenario waterfall columns
@@ -7329,6 +7460,7 @@ export class Visual implements IVisual {
                 return acc;
             };
             agg.xVal = sumOf(c => c.xVal);
+            agg.xPrev = sumOf(c => c.xPrev);
             agg.sizeVal = sumOf(c => c.sizeVal);
             agg.comment = kids[0].comment;
             agg.commentNo = kids[0].commentNo;
@@ -8489,10 +8621,33 @@ export class Visual implements IVisual {
             xRefLine: this.parseRefValue(String(s.scaleCard.xRefLine.value || "")),
             xDiv: this.formatterParams(absMax(xGet), allInt(xGet), this.xFormat ?? "").unit,
             xFormat: this.xFormat ?? "",
+            // v3: movement arrows need PY data; 2D movement additionally the xPrevious role
+            arrows: s.chartCard.scatterArrows.value === true && points.some(p => p.py != null),
+            hasXPrev: this.xPrevName != null,
+            xPrevName: this.xPrevName ?? "X PY",
+            shapes: s.chartCard.scatterShapes.value === true
+                && String(s.chartCard.scatterColorBy.value.value) === "group",
+            sizeLegend: s.chartCard.scatterSizeLegend.value === true,
+            trend: String(s.chartCard.scatterTrend.value.value),
+            trendR2: s.chartCard.scatterTrendR2.value === true,
+            quadLabels: {
+                tr: String(s.chartCard.scatterQuadLabelTR.value || "").trim(),
+                tl: String(s.chartCard.scatterQuadLabelTL.value || "").trim(),
+                bl: String(s.chartCard.scatterQuadLabelBL.value || "").trim(),
+                br: String(s.chartCard.scatterQuadLabelBR.value || "").trim()
+            },
+            play: s.chartCard.scatterPlay.value === true,
+            xMin: this.parseRefValue(String(s.scaleCard.xMin.value || "")),
+            xMax: this.parseRefValue(String(s.scaleCard.xMax.value || "")),
+            yMin: this.parseRefValue(String(s.scaleCard.yMin.value || "")),
+            yMax: this.parseRefValue(String(s.scaleCard.yMax.value || "")),
+            xLogWanted: s.scaleCard.xLogScale.value === true,
+            yLogWanted: s.scaleCard.yLogScale.value === true,
             // filled by prepareScatterDeck once the tiles are known
             shared: null,
             groupColors: null,
-            groupKey: null
+            groupKey: null,
+            groupOrder: null
         };
     }
 
@@ -8522,34 +8677,76 @@ export class Visual implements IVisual {
         sc.shared = null;
         sc.groupColors = null;
         sc.groupKey = null;
+        sc.groupOrder = null;
         if (tiled && all.length > 0) {
+            const xRef = sc.xRefLine, yRef = cfg.refLine;
+            // v3: axes include the PY arrow starts; fixed bounds + log resolved deck-wide
             const xs = all.map(p => p.xVal as number), ys = all.map(p => p.value as number);
+            const xsDom = xs.slice(), ysDom = ys.slice();
+            if (sc.arrows) {
+                for (const p of all) {
+                    if (p.py == null || !isFinite(p.py)) { continue; }
+                    ysDom.push(p.py);
+                    if (sc.hasXPrev && p.xPrev != null && isFinite(p.xPrev)) { xsDom.push(p.xPrev); }
+                }
+            }
+            const ax = this.scatterAxisDomain(xsDom, [xRef], sc.xMin, sc.xMax, sc.xLogWanted);
+            const ay = this.scatterAxisDomain(ysDom, [yRef], sc.yMin, sc.yMax, sc.yLogWanted);
+            // quadrant statistic over the points that stay inside the fixed bounds
+            const vis = all.filter(p => (p.xVal as number) >= ax.lo && (p.xVal as number) <= ax.hi
+                && (p.value as number) >= ay.lo && (p.value as number) <= ay.hi);
+            const sPts = vis.length > 0 ? vis : all;
             const qOn = sc.quadrant !== "off";
             const stat = (vals: number[]) => sc.quadrant === "median" ? medianOf(vals) : meanOf(vals);
-            const xRef = sc.xRefLine, yRef = cfg.refLine;
-            const qx = xRef != null ? xRef : qOn ? stat(xs) : null;
-            const qy = yRef != null ? yRef : qOn ? stat(ys) : null;
-            const [xLo, xHi] = this.scatterRange(xs, xRef);
-            const [yLo, yHi] = this.scatterRange(ys, yRef);
+            const qx = xRef != null ? xRef : qOn ? stat(sPts.map(p => p.xVal as number)) : null;
+            const qy = yRef != null ? yRef : qOn ? stat(sPts.map(p => p.value as number)) : null;
             sc.shared = {
-                xLo, xHi, yLo, yHi, qx, qy,
-                sMax: Math.max(0, ...all.map(p => p.sizeVal ?? 0)),
-                refCell: null
+                xLo: ax.lo, xHi: ax.hi, yLo: ay.lo, yHi: ay.hi, qx, qy,
+                sMax: Math.max(0, ...sPts.map(p => p.sizeVal ?? 0)),
+                refCell: null,
+                xLog: ax.log, yLog: ay.log,
+                sizeLegendDrawn: false
             };
         }
-        if (sc.colorBy !== "group" || cfg.hc) { return; }
+        if (sc.colorBy !== "group") { return; }
         const key: "series" | "group" | null = all.some(p => p.stackSeries != null) ? "series"
             : !tiled && all.some(p => p.group != null) ? "group" : null;
         if (!key) { return; }
+        // the order of first appearance drives colors AND the v3 shape cycle; in high
+        // contrast only the shapes apply (groupColors stays null — outline convention)
+        const order: string[] = [];
+        for (const p of all) {
+            const v = this.scatterGroupOf(p, key);
+            if (!order.includes(v)) { order.push(v); }
+        }
+        sc.groupKey = key;
+        sc.groupOrder = order;
+        if (cfg.hc) { return; }
         const pal = cfg.dark ? SCATTER_GROUP_DARK : SCATTER_GROUP_LIGHT;
         const rest = cfg.dark ? SCATTER_GROUP_REST_DARK : SCATTER_GROUP_REST_LIGHT;
         const map = new Map<string, string>();
-        for (const p of all) {
-            const v = this.scatterGroupOf(p, key);
-            if (!map.has(v)) { map.set(v, map.size < pal.length ? pal[map.size] : rest); }
-        }
-        sc.groupKey = key;
+        order.forEach((v, i) => map.set(v, i < pal.length ? pal[i] : rest));
         sc.groupColors = map;
+    }
+
+    /**
+     * scatter v3: resolved axis domain — data range (plus reference lines), overridden
+     * by the fixed bounds (scale.xMin/xMax/yMin/yMax; nonsense min ≥ max falls back to
+     * auto), and whether the requested log scale may actually apply: only when every
+     * value, reference line and bound is greater than zero (keys template contract).
+     */
+    private scatterAxisDomain(vals: number[], refs: (number | null)[],
+        fixMin: number | null, fixMax: number | null,
+        logWanted: boolean): { lo: number; hi: number; log: boolean } {
+        const refList = refs.filter((r): r is number => r != null && isFinite(r));
+        let [lo, hi] = this.scatterRange(vals, null);
+        for (const r of refList) { lo = Math.min(lo, r); hi = Math.max(hi, r); }
+        let fLo = fixMin ?? lo, fHi = fixMax ?? hi;
+        if (fLo >= fHi) { fLo = lo; fHi = hi; }
+        if (fLo >= fHi) { fHi = fLo + (Math.abs(fLo) > 0 ? Math.abs(fLo) * 0.1 : 1); }
+        const log = logWanted && fLo > 0 && fHi > 0
+            && vals.every(v => v > 0) && refList.every(r => r > 0);
+        return { lo: fLo, hi: fHi, log };
     }
 
     /** the coloring value of a scatter point (series or multiples label) */
@@ -8566,13 +8763,290 @@ export class Visual implements IVisual {
     }
 
     /**
+     * scatter v3: one mark in the group's shape — 0 circle · 1 square · 2 triangle ·
+     * 3 diamond, visually area-matched to a circle of radius r. Returns the element
+     * (the play animation moves the whole group, only a circle resizes its radius).
+     */
+    private drawScatterShape(parent: SVGElement, cx: number, cy: number, r: number,
+        shape: number, attrs: Record<string, string | number>): SVGElement {
+        switch (shape % 4) {
+            case 1: {
+                const s = r * 1.772; // side of the equal-area square (r·√π)
+                return this.el("rect", {
+                    x: cx - s / 2, y: cy - s / 2, width: s, height: s, ...attrs
+                }, parent);
+            }
+            case 2: {
+                const s = r * 2.5; // up-triangle with roughly equal visual weight
+                const h = s * 0.866;
+                return this.el("polygon", {
+                    points: `${cx},${cy - h * 0.58} ${cx - s / 2},${cy + h * 0.42} `
+                        + `${cx + s / 2},${cy + h * 0.42}`,
+                    "stroke-linejoin": "round", ...attrs
+                }, parent);
+            }
+            case 3: {
+                const d = r * 1.35; // diamond: area 2d² ≈ πr²
+                return this.el("polygon", {
+                    points: `${cx},${cy - d} ${cx + d},${cy} ${cx},${cy + d} ${cx - d},${cy}`,
+                    "stroke-linejoin": "round", ...attrs
+                }, parent);
+            }
+            default:
+                return this.el("circle", { cx, cy, r, ...attrs }, parent);
+        }
+    }
+
+    /**
+     * scatter v3 size legend: three nested reference circles (bottom-aligned) on round
+     * values — largest ≈ the biggest bubble, then ~half and ~quarter, each labelled
+     * like the data labels. Takes the first plot corner free of marks and labels,
+     * reserves its box in `placed` and returns whether it was drawn.
+     */
+    private drawScatterSizeLegend(parent: SVGElement,
+        plot: { left: number; right: number; top: number; bottom: number },
+        sMax: number, rOf: (v: number) => number, fmtSize: IValueFormatter,
+        placed: { x0: number; y0: number; x1: number; y1: number }[],
+        blocked: (b: { x0: number; y0: number; x1: number; y1: number }) => boolean,
+        cfg: ChartConfig): boolean {
+        const niceBelow = (v: number): number => {
+            if (v <= 0) { return 0; }
+            const e = Math.pow(10, Math.floor(Math.log10(v)));
+            for (const m of [5, 2.5, 2, 1]) {
+                if (m * e <= v * (1 + 1e-9)) { return Number((m * e).toPrecision(12)); }
+            }
+            return e;
+        };
+        const v1 = niceBelow(sMax);
+        if (v1 <= 0) { return false; }
+        const vals = [v1, niceBelow(v1 / 2), niceBelow(v1 / 4)]
+            .filter((v, i, a) => v > 0 && a.indexOf(v) === i);
+        const k = this.fontK;
+        const f = Math.round(8.5 * k);
+        const r1 = rOf(vals[0]);
+        const texts = vals.map(v => fmtSize.format(v));
+        const labW = this.maxTextWidth(texts, f) + 4;
+        const w = 2 * r1 + 6 + labW;
+        const h = 2 * r1 + f + 2;
+        if (w > (plot.right - plot.left) * 0.5 || h > (plot.bottom - plot.top) * 0.6) { return false; }
+        const m = 6;
+        type B = { x0: number; y0: number; x1: number; y1: number };
+        const corners: B[] = [
+            { x0: plot.right - m - w, y0: plot.top + m, x1: plot.right - m, y1: plot.top + m + h },
+            { x0: plot.right - m - w, y0: plot.bottom - m - h, x1: plot.right - m, y1: plot.bottom - m },
+            { x0: plot.left + m, y0: plot.top + m, x1: plot.left + m + w, y1: plot.top + m + h },
+            { x0: plot.left + m, y0: plot.bottom - m - h, x1: plot.left + m + w, y1: plot.bottom - m }
+        ];
+        const box = corners.find(b => !blocked(b)) ?? corners[0];
+        const cx = box.x0 + r1;
+        const yBase = box.y1 - 1; // circles share the baseline (classic nested layout)
+        for (let i = 0; i < vals.length; i++) {
+            const r = rOf(vals[i]);
+            const cy = yBase - r;
+            this.el("circle", {
+                cx, cy, r, fill: "none", stroke: cfg.subtle, "stroke-width": 1,
+                ...(i === 0 ? {} : { "stroke-dasharray": "2,2" })
+            }, parent);
+            // leader from the circle's top to its value at the right
+            const ty = cy - r;
+            this.el("line", {
+                x1: cx, y1: ty, x2: cx + r1 + 3, y2: ty,
+                stroke: cfg.faint, "stroke-width": 0.8
+            }, parent);
+            const t = this.el("text", {
+                x: cx + r1 + 5, y: ty + f * 0.35, "font-size": f,
+                fill: cfg.subtle, "font-family": FONT
+            }, parent);
+            t.textContent = texts[i];
+        }
+        placed.push(box);
+        return true;
+    }
+
+    /** scatter v3: the ▶/⏸ chip (styled like the mode chips) that drives the play loop */
+    private drawScatterPlayChip(xRight: number, yTop: number,
+        cfg: ChartConfig): { g: SVGGElement; icon: SVGTextElement } {
+        const k = this.fontK;
+        const bh = Math.round(18 * k), font = Math.round(10 * k);
+        const w = Math.round(28 * k);
+        const g = this.el("g", { role: "button", tabindex: "0" }, this.svg) as SVGGElement;
+        this.el("rect", {
+            x: xRight - w, y: yTop, width: w, height: bh, rx: bh / 2,
+            fill: cfg.hc ? cfg.paper : cfg.colors.ac,
+            stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 1.2 : 0
+        }, g);
+        const icon = this.el("text", {
+            x: xRight - w / 2, y: yTop + bh / 2 + font * 0.36, "text-anchor": "middle",
+            "font-size": font, fill: cfg.hc ? cfg.ink : cfg.paper,
+            "font-family": FONT, "font-weight": 600
+        }, g) as SVGTextElement;
+        icon.textContent = "▶";
+        const tipText = `${this.locStr("Btn_ScatterPlay", "Play")} / ${this.locStr("Btn_Pause", "Pause")}`;
+        const tip = this.el("title", {}, g);
+        tip.textContent = tipText;
+        g.setAttribute("aria-label", tipText);
+        g.style.cursor = "pointer";
+        const act = () => this.scatterPlayToggle();
+        g.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); act(); });
+        g.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key !== "Enter" && e.key !== " ") { return; }
+            e.preventDefault();
+            e.stopPropagation();
+            act();
+        });
+        return { g, icon };
+    }
+
+    /** scatter v3 play loop: start/resume or pause. Transient — nothing is persisted. */
+    private scatterPlayToggle(): void {
+        const an = this.scatterAnim;
+        if (!an || an.frames.length < 2) { return; }
+        if (an.playing) {
+            an.playing = false;
+            if (an.raf != null) { cancelAnimationFrame(an.raf); an.raf = null; }
+            an.from = an.cur;
+            this.scatterFrame = Math.round(an.cur);
+            if (an.btnIcon) { an.btnIcon.textContent = "▶"; }
+            return;
+        }
+        if (an.from >= an.frames.length - 1) { an.from = 0; }
+        an.playing = true;
+        if (an.btnIcon) { an.btnIcon.textContent = "⏸"; }
+        an.t0 = performance.now();
+        const SEG = 900; // ms per period step
+        const step = (ts: number) => {
+            if (!an.playing || this.scatterAnim !== an) { return; }
+            const t = an.from + (ts - an.t0) / SEG;
+            if (t >= an.frames.length - 1) {
+                // end of the timeline: stay on the last period, re-render once for
+                // clean (greedily placed) labels of the final frame
+                an.playing = false;
+                an.raf = null;
+                this.scatterFrame = an.frames.length - 1;
+                this.rerender();
+                return;
+            }
+            this.scatterApplyFrame(an, t);
+            an.raf = requestAnimationFrame(step);
+        };
+        an.raf = requestAnimationFrame(step);
+    }
+
+    /** scatter v3 play: positions every series dot at timeline position t (frame index
+     *  + fraction) via a group transform; a series missing in a frame fades out */
+    private scatterApplyFrame(an: NonNullable<Visual["scatterAnim"]>, t: number): void {
+        const last = an.frames.length - 1;
+        const i = Math.max(0, Math.min(Math.floor(t), last));
+        const j = Math.min(i + 1, last);
+        const f = Math.min(Math.max(t - i, 0), 1);
+        const a = an.frameData[i], b = an.frameData[j];
+        for (const [key, dot] of an.dots) {
+            const va = a.get(key), vb = b.get(key);
+            const v = va && vb
+                ? { x: va.x + (vb.x - va.x) * f, y: va.y + (vb.y - va.y) * f,
+                    size: va.size + (vb.size - va.size) * f }
+                : (va ?? vb);
+            if (!v) {
+                dot.g.setAttribute("opacity", "0");
+                continue;
+            }
+            dot.g.setAttribute("opacity", va && vb ? "1" : "0.25");
+            dot.g.setAttribute("transform",
+                `translate(${an.X(v.x) - dot.cx},${an.Y(v.y) - dot.cy})`);
+            if (dot.circle && dot.hasSize) {
+                dot.circle.setAttribute("r", String(an.rOf(v.size)));
+            }
+        }
+        if (an.watermark) { an.watermark.textContent = an.frames[Math.round(t)]; }
+        an.cur = t;
+    }
+
+    /**
+     * scatter v3 rectangle selection: document-level drag from an empty-plot mousedown.
+     * On release the contained points go into ONE multi-select (crossfilter); the click
+     * that follows the mouseup is suppressed so it cannot clear the fresh selection.
+     */
+    private beginScatterDrag(e0: MouseEvent,
+        marks: { x: number; y: number; sel: ISelectionId | null }[], cfg: ChartConfig): void {
+        if (this.scatterDragCleanup) { this.scatterDragCleanup(); }
+        const svgBox = this.svg.getBoundingClientRect();
+        const toLocal = (e: MouseEvent) => ({ x: e.clientX - svgBox.left, y: e.clientY - svgBox.top });
+        const start = toLocal(e0);
+        let rectEl: SVGRectElement | null = null;
+        let moved = false;
+        const frame = (e: MouseEvent) => {
+            const cur = toLocal(e);
+            return {
+                x0: Math.min(start.x, cur.x), y0: Math.min(start.y, cur.y),
+                x1: Math.max(start.x, cur.x), y1: Math.max(start.y, cur.y)
+            };
+        };
+        const onMove = (e: MouseEvent) => {
+            const cur = toLocal(e);
+            if (!moved && Math.hypot(cur.x - start.x, cur.y - start.y) < 4) { return; }
+            moved = true;
+            if (!rectEl) {
+                rectEl = this.el("rect", {
+                    fill: cfg.ink, "fill-opacity": 0.06,
+                    stroke: cfg.ink, "stroke-width": 1, "stroke-dasharray": "4,3"
+                }, this.svg) as SVGRectElement;
+                (rectEl.style as CSSStyleDeclaration & { pointerEvents: string }).pointerEvents = "none";
+            }
+            const b = frame(e);
+            rectEl.setAttribute("x", String(b.x0));
+            rectEl.setAttribute("y", String(b.y0));
+            rectEl.setAttribute("width", String(Math.max(b.x1 - b.x0, 0)));
+            rectEl.setAttribute("height", String(Math.max(b.y1 - b.y0, 0)));
+            e.preventDefault();
+        };
+        const cleanup = () => {
+            document.removeEventListener("mousemove", onMove);
+            document.removeEventListener("mouseup", onUp);
+            if (rectEl && rectEl.parentNode) { rectEl.parentNode.removeChild(rectEl); }
+            rectEl = null;
+            this.scatterDragCleanup = null;
+        };
+        const onUp = (e: MouseEvent) => {
+            const wasMoved = moved;
+            const b = frame(e);
+            cleanup();
+            if (!wasMoved) { return; } // plain click: existing clear-on-empty behavior
+            this.scatterDragJustEnded = true;
+            const ids = marks
+                .filter(mk => mk.sel != null && mk.x >= b.x0 && mk.x <= b.x1
+                    && mk.y >= b.y0 && mk.y <= b.y1)
+                .map(mk => mk.sel as ISelectionId);
+            if (ids.length > 0) {
+                this.selectionManager.select(ids, false).then((sel: ISelectionId[]) => {
+                    this.applySelectionOpacity(sel);
+                });
+            } else {
+                this.selectionManager.clear();
+                this.applySelectionOpacity([]);
+            }
+        };
+        document.addEventListener("mousemove", onMove);
+        document.addEventListener("mouseup", onUp);
+        this.scatterDragCleanup = cleanup;
+        e0.preventDefault();
+    }
+
+    /**
      * compact one-line legend for colorBy "group" (1.48): "Field: ● A  ● B …", drawn
      * once above the chart (with tiles: above the whole grid, the colors are the same in
      * every tile). Values that do not fit are summarised as "+n". Returns the height used.
      */
     private drawScatterLegend(y: number, width: number, cfg: ChartConfig): number {
         const sc = cfg.scatter;
-        if (!sc || !sc.groupColors || sc.groupColors.size === 0) { return 0; }
+        if (!sc) { return 0; }
+        // v3: in high contrast the group COLORS stay off, but with "shape per group"
+        // the legend still earns its keep — it shows the shapes in the ink color
+        const entriesAll: [string, string][] = sc.groupColors && sc.groupColors.size > 0
+            ? Array.from(sc.groupColors.entries())
+            : (cfg.hc && sc.shapes && sc.groupKey && sc.groupOrder)
+                ? sc.groupOrder.map(n => [n, cfg.ink] as [string, string])
+                : [];
+        if (entriesAll.length === 0) { return 0; }
         const k = this.fontK;
         const f = Math.round(10 * k);
         const h = f + 8;
@@ -8589,10 +9063,21 @@ export class Visual implements IVisual {
         lead.textContent = `${field}:`;
         x += this.textWidth(`${field}:`, f) + 8;
         const pal = cfg.dark ? SCATTER_GROUP_DARK : SCATTER_GROUP_LIGHT;
-        const entries = Array.from(sc.groupColors.entries());
+        const entries = entriesAll;
         const named = entries.slice(0, pal.length);
         const restN = entries.length - named.length;
         const restTxt = (n: number) => `+${n} ${this.locStr("Scatter_LegendMore", "further")}`;
+        // v3 shapes: the legend glyph repeats the group's shape (HC: outline style)
+        const glyph = (i: number, col: string, gx: number) => {
+            const attrs = cfg.hc
+                ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 }
+                : { fill: col };
+            if (sc.shapes && sc.groupKey) {
+                this.drawScatterShape(g, gx + r, y + h / 2, r, i % 4, attrs);
+            } else {
+                this.el("circle", { cx: gx + r, cy: y + h / 2, r, ...attrs }, g);
+            }
+        };
         for (let i = 0; i < named.length; i++) {
             const [name, col] = named[i];
             const left = named.length - i - 1 + restN;
@@ -8604,7 +9089,7 @@ export class Visual implements IVisual {
                 t.textContent = restTxt(entries.length - i);
                 return h;
             }
-            this.el("circle", { cx: x + r, cy: y + h / 2, r, fill: col }, g);
+            glyph(i, col, x);
             const t = this.el("text", {
                 x: x + 2 * r + 4, y: base, "font-size": f, fill: cfg.ink, "font-family": FONT
             }, g);
@@ -8613,7 +9098,10 @@ export class Visual implements IVisual {
         }
         if (restN > 0) {
             const rc = cfg.dark ? SCATTER_GROUP_REST_DARK : SCATTER_GROUP_REST_LIGHT;
-            this.el("circle", { cx: x + r, cy: y + h / 2, r, fill: rc }, g);
+            this.el("circle", {
+                cx: x + r, cy: y + h / 2, r,
+                ...(cfg.hc ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 } : { fill: rc })
+            }, g);
             const t = this.el("text", {
                 x: x + 2 * r + 4, y: base, "font-size": f, fill: cfg.subtle, "font-family": FONT
             }, g);
@@ -8642,8 +9130,8 @@ export class Visual implements IVisual {
             return;
         }
         // points without X or Y are skipped (no zero substitution — it would plot a fake)
-        const pts = this.scatterValid(points);
-        if (pts.length === 0) {
+        const allPts = this.scatterValid(points);
+        if (allPts.length === 0) {
             this.drawModeHint(region, cfg, this.locStr("Hint_ScatterEmpty",
                 "Scatter: no category has both an X and an AC value"));
             return;
@@ -8653,14 +9141,58 @@ export class Visual implements IVisual {
         const axF = Math.round(9.5 * k);
         const pad = 4;
         const titleH = Math.round(14 * k);
-        const xs = pts.map(p => p.xVal as number);
-        const ys = pts.map(p => p.value as number);
         // small multiples (1.48): scales, quadrant split and the largest bubble come from
         // the whole deck (prepareScatterDeck) — every tile draws the same axes
         const sh = sc.shared;
-        const hasSize = sh ? sh.sMax > 0 : pts.some(p => (p.sizeVal ?? 0) > 0);
+        // quadrant split per axis — a reference line overrides the statistic
+        const xRef = sc.xRefLine, yRef = cfg.refLine;
+        const qOn = sc.quadrant !== "off";
+        const stat = (vals: number[]) => sc.quadrant === "median" ? medianOf(vals) : meanOf(vals);
+
+        // v3 axis domains: data range (movement arrows include the PY start positions)
+        // plus reference lines, overridden by the fixed bounds of the scale card; a
+        // requested log scale applies only while every value stays above zero
+        const xsDom = allPts.map(p => p.xVal as number);
+        const ysDom = allPts.map(p => p.value as number);
+        if (sc.arrows) {
+            for (const p of allPts) {
+                if (p.py == null || !isFinite(p.py)) { continue; }
+                ysDom.push(p.py);
+                if (sc.hasXPrev && p.xPrev != null && isFinite(p.xPrev)) { xsDom.push(p.xPrev); }
+            }
+        }
+        const ax = sh ? { lo: sh.xLo, hi: sh.xHi, log: sh.xLog }
+            : this.scatterAxisDomain(xsDom, [xRef], sc.xMin, sc.xMax, sc.xLogWanted);
+        const ay = sh ? { lo: sh.yLo, hi: sh.yHi, log: sh.yLog }
+            : this.scatterAxisDomain(ysDom, [yRef], sc.yMin, sc.yMax, sc.yLogWanted);
+        const xLo = ax.lo, xHi = ax.hi, yLo = ay.lo, yHi = ay.hi;
+        // fixed bounds: points outside the axes are not drawn, the panel title counts them
+        const vis = allPts.filter(p => (p.xVal as number) >= xLo && (p.xVal as number) <= xHi
+            && (p.value as number) >= yLo && (p.value as number) <= yHi);
+        const outsideN = allPts.length - vis.length;
+        if (vis.length === 0) {
+            this.drawModeHint(region, cfg, this.locStr("Hint_ScatterEmpty",
+                "Scatter: no category has both an X and an AC value"));
+            return;
+        }
+
+        // v3 play (Rosling): the category becomes the time axis — the chart shows ONE
+        // period (frames in data order) while the axes stay fixed over the total range
+        // of all periods. Single cloud only; small-multiples tiles keep the normal
+        // scatter, and exports (no interactions) render the full cloud as before.
+        const playOn = sc.play && !sh && this.allowInteractions;
+        const frames: string[] = [];
+        if (playOn) { for (const p of vis) { if (!frames.includes(p.cat)) { frames.push(p.cat); } } }
+        const playActive = playOn && frames.length >= 2;
+        const frameIdx = playActive
+            ? Math.max(0, Math.min(this.scatterFrame ?? frames.length - 1, frames.length - 1)) : -1;
+        const pts = playActive ? vis.filter(p => p.cat === frames[frameIdx]) : vis;
+        const xs = pts.map(p => p.xVal as number);
+        const ys = pts.map(p => p.value as number);
+
+        const hasSize = sh ? sh.sMax > 0 : vis.some(p => (p.sizeVal ?? 0) > 0);
         const sMax = sh ? sh.sMax
-            : hasSize ? Math.max(...pts.map(p => Math.max(p.sizeVal ?? 0, 0))) : 0;
+            : hasSize ? Math.max(...vis.map(p => Math.max(p.sizeVal ?? 0, 0))) : 0;
         // status color needs a comparison basis — without PY/PL it stays single-colored
         const statusOn = sc.colorBy === "status" && pts.some(p => p.varAbs != null);
 
@@ -8668,14 +9200,18 @@ export class Visual implements IVisual {
         // title, plain numbers at the ticks — same derivation as the IBCS title block
         const unitOf = (f: IValueFormatter, v: number) =>
             f.format(v || 1).replace(/[0-9.,\s +\-−–—()]/g, "");
-        const yUnit = unitOf(cfg.fmt, Math.max(...ys.map(Math.abs)));
-        const xUnit = unitOf(sc.fmtX, Math.max(...xs.map(Math.abs)));
+        const yUnit = unitOf(cfg.fmt, Math.max(...vis.map(p => Math.abs(p.value as number))));
+        const xUnit = unitOf(sc.fmtX, Math.max(...vis.map(p => Math.abs(p.xVal as number))));
         // tick labels: the axis formatter's display unit, decimals from the tick STEP
         // (5 %-steps → "0 · 5 · 10", 0.2-steps → "2,8 · 3,0 · 3,2"), unit stripped — it
-        // stands in the axis title. Zero reads "0" (not the finance dash)
-        const tickTexts = (ticks: number[], div: number, fmtStr: string | undefined): string[] => {
+        // stands in the axis title. Zero reads "0" (not the finance dash). On a log
+        // axis the steps vary — the SMALLEST tick drives the decimals instead
+        const tickTexts = (ticks: number[], div: number, fmtStr: string | undefined,
+            logAxis = false): string[] => {
             const pct = /%/.test((fmtStr ?? this.measureFormat ?? "").replace(/"[^"]*"/g, ""));
-            const step = ticks.length > 1 ? Math.abs(ticks[1] - ticks[0]) : 1;
+            const step = logAxis && ticks.length > 0
+                ? Math.min(...ticks.filter(t => t > 0))
+                : ticks.length > 1 ? Math.abs(ticks[1] - ticks[0]) : 1;
             const scaled = Number((step / (div || 1) * (pct ? 100 : 1)).toPrecision(6));
             const frac = /\.(\d+)$/.exec(String(scaled));
             const f = this.buildFormatter(div, Math.min(4, frac ? frac[1].length : 0), fmtStr);
@@ -8688,15 +9224,12 @@ export class Visual implements IVisual {
             });
         };
 
-        // quadrant split per axis — a reference line overrides the statistic
-        const xRef = sc.xRefLine, yRef = cfg.refLine;
-        const qOn = sc.quadrant !== "off";
-        const stat = (vals: number[]) => sc.quadrant === "median" ? medianOf(vals) : meanOf(vals);
-        const qx = sh ? sh.qx : xRef != null ? xRef : qOn ? stat(xs) : null;
-        const qy = sh ? sh.qy : yRef != null ? yRef : qOn ? stat(ys) : null;
-        // data range incl. reference lines; a single value gets a ±10 % window
-        const [xLo, xHi] = sh ? [sh.xLo, sh.xHi] : this.scatterRange(xs, xRef);
-        const [yLo, yHi] = sh ? [sh.yLo, sh.yHi] : this.scatterRange(ys, yRef);
+        // quadrant lines: the statistic runs over ALL visible points (stable across
+        // play frames); a line outside the fixed bounds is not drawn
+        let qx = sh ? sh.qx : xRef != null ? xRef : qOn ? stat(vis.map(p => p.xVal as number)) : null;
+        let qy = sh ? sh.qy : yRef != null ? yRef : qOn ? stat(vis.map(p => p.value as number)) : null;
+        if (qx != null && (qx < xLo || qx > xHi)) { qx = null; }
+        if (qy != null && (qy < yLo || qy > yHi)) { qy = null; }
 
         // vertical layout: grey panel title · Y-axis title · plot · X ticks · X-axis title
         const top = region.y + pad;
@@ -8719,11 +9252,13 @@ export class Visual implements IVisual {
         const rMax = hasSize ? Math.max(rMin + 2, Math.min(22 * k, Math.min(rBoxW * 0.8, rBoxH) / 7)) : rPlain;
         const inset = rMax + 6;
 
-        // Y ticks first (their label width sets the plot's left edge)
+        // Y ticks first (their label width sets the plot's left edge); a log axis
+        // keeps its ticks inside [lo, hi] (decades resp. 1-2-5 steps, no inset stretch)
+        const yMaxTicks = Math.max(2, Math.min(5, Math.floor(plotH / (axF * 2.4))));
         const yPer = (yHi - yLo) / Math.max(plotH - 2 * inset, 10);
-        const yTicks = niceTicks(yLo - inset * yPer, yHi + inset * yPer,
-            Math.max(2, Math.min(5, Math.floor(plotH / (axF * 2.4)))));
-        const yTickTxt = tickTexts(yTicks, cfg.fmtUnit, undefined);
+        const yTicks = ay.log ? logTicks(yLo, yHi, yMaxTicks)
+            : niceTicks(yLo - inset * yPer, yHi + inset * yPer, yMaxTicks);
+        const yTickTxt = tickTexts(yTicks, cfg.fmtUnit, undefined, ay.log);
         const plotLeft = region.x + pad + this.maxTextWidth(yTickTxt, axF) + 8;
         const plotRight = region.x + region.w - pad - 2;
         const plotW = Math.max(20, plotRight - plotLeft);
@@ -8732,12 +9267,13 @@ export class Visual implements IVisual {
         let xTicks: number[] = [];
         let xTickTxt: string[] = [];
         for (let m = 5; m >= 2; m--) {
-            xTicks = niceTicks(xLo - inset * xPer, xHi + inset * xPer, m);
-            xTickTxt = tickTexts(xTicks, sc.xDiv, sc.xFormat);
+            xTicks = ax.log ? logTicks(xLo, xHi, m)
+                : niceTicks(xLo - inset * xPer, xHi + inset * xPer, m);
+            xTickTxt = tickTexts(xTicks, sc.xDiv, sc.xFormat, ax.log);
             if (xTicks.length * (this.maxTextWidth(xTickTxt, axF) + 12) <= plotW) { break; }
         }
-        const X = linearScale(xLo, xHi, plotLeft + inset, plotRight - inset);
-        const Y = linearScale(yLo, yHi, plotBottom - inset, plotTop + inset);
+        const X = logLinScale(xLo, xHi, plotLeft + inset, plotRight - inset, ax.log);
+        const Y = logLinScale(yLo, yHi, plotBottom - inset, plotTop + inset, ay.log);
 
         const bg = this.el("g", {}, this.svg);
         // grey panel title — marks the non-IBCS-core chart type (as Pareto/Dumbbell/Slope)
@@ -8745,6 +9281,11 @@ export class Visual implements IVisual {
         if (hasSize) { titleParts.push(`○ ${sc.sizeName} (max ${sc.fmtSize.format(sMax)})`); }
         if (statusOn) {
             titleParts.push(this.locStr("Scatter_ColorStatus", "color = Δ{0}").replace("{0}", cfg.basisLabel));
+        }
+        // v3 fixed bounds: declare withheld points — a silently shortened cloud lies
+        if (outsideN > 0) {
+            titleParts.push(this.locStr("Scatter_Outside", "{0} outside the axes")
+                .replace("{0}", String(outsideN)));
         }
         this.drawPanelTitle(bg, { x: region.x, y: top, w: region.w, h: titleH }, titleParts.join(" · "),
             "columns", titleH, region, undefined, cfg.subtle);
@@ -8853,6 +9394,129 @@ export class Visual implements IVisual {
             ]);
         }
 
+        const hitsPlaced = (b: Box) =>
+            placed.some(q => b.x0 < q.x1 && b.x1 > q.x0 && b.y0 < q.y1 && b.y1 > q.y0);
+
+        // v3 quadrant corner labels (pane text fields, empty = off): subtle ink-soft
+        // text in the four plot corners — only while BOTH quadrant lines exist. Each
+        // label tries its corner, then a step inward; it is reserved so point labels
+        // avoid it, but points themselves win ("weicht nach Möglichkeit aus")
+        if (qx != null && qy != null && sc.quadLabels) {
+            const qf = Math.round(9 * k);
+            const put = (txt: string, cx2: number, cy2: number, anchor: string, dy: number) => {
+                if (!txt) { return; }
+                const w = this.textWidth(txt, qf);
+                const boxOf = (x: number, y: number): Box => ({
+                    x0: anchor === "start" ? x : x - w, y0: y - qf,
+                    x1: anchor === "start" ? x + w : x, y1: y + 2
+                });
+                const cands = [{ x: cx2, y: cy2 }, { x: cx2, y: cy2 + dy }];
+                const pick = cands.find(c => !hitsPlaced(boxOf(c.x, c.y)) && !hitsMark(boxOf(c.x, c.y), -1))
+                    ?? cands[0];
+                const t = this.el("text", {
+                    x: pick.x, y: pick.y, "text-anchor": anchor, "font-size": qf,
+                    fill: cfg.subtle, "font-family": FONT, "font-style": "italic", ...halo
+                }, bg);
+                t.textContent = this.truncate(txt, plotW * 0.4, qf);
+                placed.push(boxOf(pick.x, pick.y));
+            };
+            put(sc.quadLabels.tr, plotRight - 4, plotTop + qf + 2, "end", qf + 4);
+            put(sc.quadLabels.tl, plotLeft + 4, plotTop + qf + 2, "start", qf + 4);
+            put(sc.quadLabels.bl, plotLeft + 4, plotBottom - 5, "start", -(qf + 4));
+            put(sc.quadLabels.br, plotRight - 4, plotBottom - 5, "end", -(qf + 4));
+        }
+
+        // v3 trend line: linear regression over the visible points (per tile in small
+        // multiples, per frame in play mode), computed in the transformed space of the
+        // axes (log stays a straight line), drawn as a thin dotted line; optional R²
+        if (sc.trend === "linear" && pts.length >= 3) {
+            const tx = (v: number) => ax.log ? Math.log(v) : v;
+            const ty = (v: number) => ay.log ? Math.log(v) : v;
+            const T = pts.map(p => ({ x: tx(p.xVal as number), y: ty(p.value as number) }));
+            const n = T.length;
+            const mx = meanOf(T.map(t => t.x)), my = meanOf(T.map(t => t.y));
+            let sxx = 0, sxy = 0, syy = 0;
+            for (const t of T) {
+                sxx += (t.x - mx) * (t.x - mx);
+                sxy += (t.x - mx) * (t.y - my);
+                syy += (t.y - my) * (t.y - my);
+            }
+            if (sxx > 1e-12 && n >= 3) {
+                const b = sxy / sxx, a = my - b * mx;
+                // clip the segment to the plot's y-range in transformed space
+                const tx0 = tx(xLo), tx1 = tx(xHi);
+                const tyLo = Math.min(ty(yLo), ty(yHi)), tyHi = Math.max(ty(yLo), ty(yHi));
+                const yA = a + b * tx0, yB = a + b * tx1;
+                let t0 = 0, t1 = 1;
+                if (Math.abs(yB - yA) > 1e-12) {
+                    const tAt = (yv: number) => (yv - yA) / (yB - yA);
+                    const c1 = tAt(tyLo), c2 = tAt(tyHi);
+                    t0 = Math.max(0, Math.min(c1, c2));
+                    t1 = Math.min(1, Math.max(c1, c2));
+                } else if (yA < tyLo || yA > tyHi) {
+                    t0 = 1; t1 = 0;
+                }
+                if (t1 > t0) {
+                    const back = (tv: number, log: boolean) => log ? Math.exp(tv) : tv;
+                    const pxOf = (t: number) => X(back(tx0 + (tx1 - tx0) * t, ax.log));
+                    const pyOf = (t: number) => Y(back(yA + (yB - yA) * t, ay.log));
+                    this.el("line", {
+                        x1: pxOf(t0), y1: pyOf(t0), x2: pxOf(t1), y2: pyOf(t1),
+                        stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1.1,
+                        "stroke-dasharray": "2,3"
+                    }, bg);
+                    if (sc.trendR2 && syy > 1e-12) {
+                        let ssRes = 0;
+                        for (const t of T) { const d = t.y - (a + b * t.x); ssRes += d * d; }
+                        const r2 = Math.max(0, Math.min(1, 1 - ssRes / syy));
+                        const txt = `R² = ${r2.toLocaleString(this.host.locale, {
+                            minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                        const rf = Math.round(9 * k);
+                        const w = this.textWidth(txt, rf);
+                        // at the right end of the line, above or below it, inside the plot
+                        const ex = Math.min(pxOf(t1), plotRight - 2);
+                        const eyRaw = pyOf(t1);
+                        const cands = [eyRaw - 4, eyRaw + rf + 3]
+                            .map(y => Math.min(Math.max(y, plotTop + rf), plotBottom - 3));
+                        const boxOf = (y: number): Box => ({ x0: ex - w, y0: y - rf, x1: ex, y1: y + 2 });
+                        const yPick = cands.find(y => !hitsPlaced(boxOf(y)) && !hitsMark(boxOf(y), -1))
+                            ?? cands[0];
+                        const t = this.el("text", {
+                            x: ex, y: yPick, "text-anchor": "end", "font-size": rf,
+                            fill: cfg.subtle, "font-family": FONT, ...halo
+                        }, bg);
+                        t.textContent = txt;
+                        placed.push(boxOf(yPick));
+                    }
+                }
+            }
+        }
+
+        // v3 size legend (default on, only with bound bubble sizes): three reference
+        // circles on round values in a free corner; small multiples draw it once
+        if (hasSize && sc.sizeLegend && sMax > 0 && !(sh && sh.sizeLegendDrawn)) {
+            const drew = this.drawScatterSizeLegend(bg, {
+                left: plotLeft, right: plotRight, top: plotTop, bottom: plotBottom
+            }, sMax, (v: number) => Math.max(rMin, rMax * Math.sqrt(Math.max(v, 0) / sMax)),
+            sc.fmtSize, placed, (b: Box) => hitsPlaced(b) || hitsMark(b, -1), cfg);
+            if (sh && drew) { sh.sizeLegendDrawn = true; }
+        }
+
+        // v3 log scale requested but not applicable (values ≤ 0): subtle edit-mode hint
+        if (((sc.xLogWanted && !ax.log) || (sc.yLogWanted && !ay.log))
+            && this.allowInteractions && (this.viewMode == null || this.viewMode === 1)) {
+            const hf = Math.round(9 * k);
+            const txt = this.locStr("Hint_ScatterLogOff", "Log scale ignored: values ≤ 0");
+            const b: Box = { x0: plotLeft + 4, y0: plotBottom - 5 - hf,
+                x1: plotLeft + 4 + this.textWidth(txt, hf), y1: plotBottom - 3 };
+            const t = this.el("text", {
+                x: b.x0, y: plotBottom - 5, "font-size": hf, fill: cfg.subtle,
+                "font-family": FONT, "font-style": "italic", ...halo
+            }, bg);
+            t.textContent = txt;
+            placed.push(b);
+        }
+
         const colOf = (p: DataPoint): string => {
             // colorBy "group" (1.48): deck-wide color per series / multiples value
             if (sc.groupColors && sc.groupKey) {
@@ -8920,6 +9584,19 @@ export class Visual implements IVisual {
             labelAt[i] = { x: pick.x, y: pick.y, anchor: pick.anchor, text };
         }
 
+        // v3 shapes: index in the deck-wide group order → circle · square · triangle ·
+        // diamond (cycling); only with group coloring (resp. its HC shape-only variant)
+        const shapeIdxOf = (p: DataPoint): number => {
+            if (!sc.shapes || !sc.groupKey || !sc.groupOrder) { return 0; }
+            const i = sc.groupOrder.indexOf(this.scatterGroupOf(p, sc.groupKey));
+            return i < 0 ? 0 : i % 4;
+        };
+        // v3 play: per-series dot registry for the rAF interpolation
+        const dots = playActive
+            ? new Map<string, { g: SVGGElement; cx: number; cy: number;
+                circle: SVGElement | null; hasSize: boolean }>()
+            : null;
+
         // draw order: largest bubbles first (small ones stay visible on top), emphasized last
         const drawOrder = items.map((_, i) => i).sort((a, b) =>
             (Number(items[a].emph) - Number(items[b].emph)) || (items[b].r - items[a].r));
@@ -8927,12 +9604,48 @@ export class Visual implements IVisual {
         for (const i of drawOrder) {
             const { p, cx, cy, r, emph } = items[i];
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
+            // v3 movement arrow PY → AC: small grey start dot at the PY position (x from
+            // the xPrevious role when bound, else unchanged), thin line, head at AC —
+            // drawn first so the marker stays on top; skipped when the start would lie
+            // outside the axes or (log) at a non-positive position
+            if (sc.arrows && p.py != null && isFinite(p.py)
+                && p.py >= yLo && p.py <= yHi && !(ay.log && p.py <= 0)) {
+                const sx = sc.hasXPrev && p.xPrev != null && isFinite(p.xPrev)
+                    ? p.xPrev : (p.xVal as number);
+                if (sx >= xLo && sx <= xHi && !(ax.log && sx <= 0)) {
+                    const x0 = X(sx), y0 = Y(p.py);
+                    const dx = cx - x0, dy = cy - y0;
+                    const len = Math.hypot(dx, dy);
+                    if (len > r + 4) {
+                        const ux = dx / len, uy = dy / len;
+                        const exx = cx - ux * (r + 1.5), eyy = cy - uy * (r + 1.5);
+                        const aCol = cfg.hc ? cfg.ink : cfg.colors.py;
+                        this.el("line", {
+                            x1: x0, y1: y0, x2: exx - ux * 2, y2: eyy - uy * 2,
+                            stroke: aCol, "stroke-width": 1
+                        }, g);
+                        // IBCS: small grey PY start, thin tail, head touching the AC marker
+                        this.el("circle", {
+                            cx: x0, cy: y0, r: Math.max(2, r * 0.35),
+                            fill: cfg.hc ? cfg.paper : aCol,
+                            ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {})
+                        }, g);
+                        const ah = Math.max(3.5, 4 * Math.min(k, 1.6));
+                        const bx = exx - ux * ah, by = eyy - uy * ah;
+                        this.el("polygon", {
+                            points: `${exx},${eyy} ${bx - uy * ah * 0.45},${by + ux * ah * 0.45} `
+                                + `${bx + uy * ah * 0.45},${by - ux * ah * 0.45}`,
+                            fill: aCol, "stroke-linejoin": "round"
+                        }, g);
+                    }
+                }
+            }
             // generous invisible hit target — 3px dots are hard to hover and click
             this.el("circle", { cx, cy, r: Math.max(r + 2, 7), fill: cfg.paper, "fill-opacity": 0.01 }, g);
             const col = colOf(p);
-            this.el("circle", {
-                cx, cy, r,
-                // high contrast: outline circles in the foreground color (emphasized filled);
+            const shapeIdx = shapeIdxOf(p);
+            const markEl = this.drawScatterShape(g, cx, cy, r, shapeIdx, {
+                // high contrast: outline marks in the foreground color (emphasized filled);
                 // FC points hatched like FC columns; bubbles translucent so overlaps read
                 ...(cfg.hc
                     ? { fill: emph ? cfg.ink : cfg.paper, stroke: cfg.ink, "stroke-width": 1.4 }
@@ -8941,11 +9654,13 @@ export class Visual implements IVisual {
                         : hasSize
                             ? { fill: col, "fill-opacity": emph ? 0.9 : 0.55, stroke: col, "stroke-width": 1.2 }
                             : { fill: col, stroke: cfg.paper, "stroke-width": 1 })
-            }, g);
+            });
             if (emph) {
-                // IBCS EMPHASIZE: ring around the marker + bold label
+                // IBCS EMPHASIZE: ring around the marker + bold label (wider shapes
+                // like the diamond need a correspondingly wider ring)
+                const ringR = (shapeIdx === 3 ? r * 1.35 : shapeIdx === 2 ? r * 1.35 : r) + 2.5;
                 this.el("circle", {
-                    cx, cy, r: r + 2.5, fill: "none", stroke: cfg.ink, "stroke-width": 1.4
+                    cx, cy, r: ringR, fill: "none", stroke: cfg.ink, "stroke-width": 1.4
                 }, g);
             }
             const la = labelAt[i];
@@ -8970,6 +9685,79 @@ export class Visual implements IVisual {
             this.attachInteraction(g, p, cfg);
             this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
+            if (dots) {
+                dots.set(p.stackSeries ?? "·", {
+                    g, cx, cy,
+                    circle: markEl instanceof SVGCircleElement ? markEl : null,
+                    hasSize
+                });
+            }
+        }
+
+        // v3 rectangle selection: a drag on empty plot space draws a marquee and
+        // selects every contained point (multi-select → crossfilter); a plain click
+        // keeps the existing clear behavior. The capture rect sits in bg, UNDER the
+        // marks, so point clicks and hovers are untouched
+        if (this.allowInteractions && !this.commentEdit && !this.compareActive
+            && this.host.hostCapabilities?.allowInteractions !== false) {
+            const cap = this.el("rect", {
+                x: plotLeft, y: plotTop, width: plotW, height: Math.max(plotBottom - plotTop, 1),
+                fill: cfg.paper, "fill-opacity": 0.01
+            }, bg) as SVGRectElement;
+            cap.style.cursor = "crosshair";
+            const hits = items.map(it => ({ x: it.cx, y: it.cy, sel: it.p.sel }));
+            cap.addEventListener("mousedown", (e: MouseEvent) => {
+                if (e.button !== 0) { return; }
+                this.beginScatterDrag(e, hits, cfg);
+            });
+        }
+
+        // v3 play (Rosling): period watermark behind the points (click = reset) + the
+        // ▶/⏸ chip; the rAF loop interpolates the dots between the period frames
+        if (playActive) {
+            const wmF = Math.max(20, Math.min(plotH * 0.42, plotW * 0.16));
+            const wm = this.el("text", {
+                x: (plotLeft + plotRight) / 2, y: (plotTop + plotBottom) / 2 + wmF * 0.35,
+                "text-anchor": "middle", "font-size": wmF, fill: cfg.faint,
+                "fill-opacity": 0.6, "font-family": FONT, "font-weight": 700
+            }, bg) as SVGTextElement;
+            wm.textContent = frames[frameIdx];
+            wm.style.cursor = "pointer";
+            const wmTip = this.el("title", {}, wm);
+            wmTip.textContent = this.locStr("Btn_PlayReset", "Click: back to the start");
+            wm.addEventListener("click", (e: MouseEvent) => {
+                e.stopPropagation();
+                const an = this.scatterAnim;
+                if (an?.raf != null) { cancelAnimationFrame(an.raf); an.raf = null; }
+                if (an) { an.playing = false; }
+                this.scatterFrame = 0;
+                this.rerender();
+            });
+            const frameData = frames.map(() => new Map<string, { x: number; y: number; size: number }>());
+            const frameNo = new Map(frames.map((f, i) => [f, i] as [string, number]));
+            for (const p of vis) {
+                const fi = frameNo.get(p.cat);
+                if (fi == null) { continue; }
+                frameData[fi].set(p.stackSeries ?? "·", {
+                    x: p.xVal as number, y: p.value as number,
+                    size: Math.max(p.sizeVal ?? 0, 0)
+                });
+            }
+            const chip = this.drawScatterPlayChip(region.x + region.w - 6, region.y + pad, cfg);
+            this.scatterAnim = {
+                frames, frameData,
+                dots: dots ?? new Map(),
+                X, Y,
+                rOf: (v: number) => !hasSize ? rPlain
+                    : Math.max(rMin, rMax * Math.sqrt(Math.max(v, 0) / Math.max(sMax, 1e-9))),
+                watermark: wm,
+                btnIcon: chip.icon,
+                raf: null,
+                playing: false,
+                from: frameIdx,
+                cur: frameIdx,
+                t0: 0
+            };
         }
     }
 
@@ -11130,6 +11918,16 @@ export class Visual implements IVisual {
             }
             if (sc && p.xVal != null) {
                 out.push({ displayName: sc.xName, value: sc.fmtX.format(p.xVal) });
+            }
+            // v3 movement arrows: PY position of X plus its Δ (the Y-Δ is ΔPY below)
+            if (sc && p.xPrev != null) {
+                out.push({ displayName: sc.xPrevName, value: sc.fmtX.format(p.xPrev) });
+                if (p.xVal != null) {
+                    out.push({
+                        displayName: `Δ ${sc.xName}`,
+                        value: this.fmtSigned(sc.fmtX, p.xVal - p.xPrev)
+                    });
+                }
             }
             add(this.locStr("Role_Actual", "Actual (AC)"), p.ac);
             if (sc && p.sizeVal != null) {

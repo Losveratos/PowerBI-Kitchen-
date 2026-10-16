@@ -178,6 +178,12 @@ const scatterColorByItems: LocEnumMember[] = [
     { value: "group", displayName: "By group/series (legend)", key: "Enum_ScatterColor_Group" }
 ];
 
+// Scatter v3: Trendlinie (lineare Regression über die sichtbaren Punkte)
+const scatterTrendItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off", key: "Enum_ScatterTrend_Off" },
+    { value: "linear", displayName: "Linear", key: "Enum_ScatterTrend_Linear" }
+];
+
 /** resolve all enum-member labels once via the host's localization manager */
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems, appearanceItems,
@@ -186,7 +192,8 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         cardRefValueItems,
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
         gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
-        scatterColorByItems, cardTrendChartItems, cardTrendValueItems, bridgeOrientationItems];
+        scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
+        bridgeOrientationItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -937,12 +944,118 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: scatterColorByItems[0]
     });
 
-    // eigene Modus-Gruppe wie Brücke/Tabelle/KPI-Karten — nur im Scatter sichtbar
+    // Scatter v3: Form je Gruppe — nur bei Punktfarbe „Nach Gruppe/Serie" sichtbar
+    scatterShapes = new formattingSettings.ToggleSwitch({
+        name: "scatterShapes",
+        displayName: "Shape per group",
+        displayNameKey: "Chart_ScatterShapes",
+        description: "Nur bei Punktfarbe „Nach Gruppe/Serie\": jede Gruppe bekommt zusätzlich eine eigene Form (Kreis · Quadrat · Dreieck · Raute, dann von vorn) — lesbar im Schwarzweiß-Druck und bei Farbfehlsicht; die Legende zeigt die Formen mit. Wirkt auch im Hochkontrast-Modus.",
+        descriptionKey: "Desc_Chart_ScatterShapes",
+        value: false
+    });
+
+    // Scatter v3: PY→AC-Bewegungspfeile — nur mit gebundenem PY sichtbar
+    scatterArrows = new formattingSettings.ToggleSwitch({
+        name: "scatterArrows",
+        displayName: "Movement arrows PY → AC",
+        displayNameKey: "Chart_ScatterArrows",
+        description: "Nur mit Vorjahr (PY): jeder Punkt bekommt einen dünnen Pfeil vom kleinen grauen PY-Punkt zur AC-Position. Y = PY-Wert; X bleibt gleich, außer das Feld „X-Achse VJ (Scatter)\" ist gebunden — dann volle 2D-Bewegung. Die Achsen schließen die PY-Positionen mit ein.",
+        descriptionKey: "Desc_Chart_ScatterArrows",
+        value: false
+    });
+
+    // Scatter v3: Trendlinie (lineare Regression, bei Small Multiples je Kachel)
+    scatterTrend = new formattingSettings.ItemDropdown({
+        name: "scatterTrend",
+        displayName: "Trend line",
+        displayNameKey: "Chart_ScatterTrend",
+        description: "Lineare Regression über die sichtbaren Punkte (bei Small Multiples je Kachel) als dünne gepunktete Linie über die Plotbreite. Bei Log-Achsen im logarithmischen Raum gerechnet (Gerade bleibt gerade). Mindestens 3 Punkte.",
+        descriptionKey: "Desc_Chart_ScatterTrend",
+        items: scatterTrendItems,
+        value: scatterTrendItems[0]
+    });
+
+    scatterTrendR2 = new formattingSettings.ToggleSwitch({
+        name: "scatterTrendR2",
+        displayName: "Show R²",
+        displayNameKey: "Chart_ScatterTrendR2",
+        description: "Beschriftet das Ende der Trendlinie mit dem Bestimmtheitsmaß („R² = 0,87\").",
+        descriptionKey: "Desc_Chart_ScatterTrendR2",
+        value: false
+    });
+
+    // Scatter v3: Größen-Legende — nur mit gebundener Blasengröße sichtbar (Default an)
+    scatterSizeLegend = new formattingSettings.ToggleSwitch({
+        name: "scatterSizeLegend",
+        displayName: "Size legend",
+        displayNameKey: "Chart_ScatterSizeLegend",
+        description: "Nur mit gebundener Blasengröße: drei Referenzkreise (klein · mittel · groß, auf runde Werte gerundet) kompakt in einer freien Ecke des Plots. Bei Small Multiples einmal in der ersten Kachel.",
+        descriptionKey: "Desc_Chart_ScatterSizeLegend",
+        value: true
+    });
+
+    // Scatter v3: Quadranten-Beschriftung (leer = aus) — nur bei aktiven Quadranten
+    scatterQuadLabelTR = new formattingSettings.TextInput({
+        name: "scatterQuadLabelTR",
+        displayName: "Quadrant label top right",
+        displayNameKey: "Chart_ScatterQuadLabelTR",
+        description: "Dezente Beschriftung der Quadranten-Ecke (z. B. „Stars\" oben rechts). Leer = aus. Nur bei aktiven Quadranten-Linien; weicht Punkten nach Möglichkeit aus.",
+        descriptionKey: "Desc_Chart_ScatterQuadLabel",
+        placeholder: "",
+        value: ""
+    });
+
+    scatterQuadLabelTL = new formattingSettings.TextInput({
+        name: "scatterQuadLabelTL",
+        displayName: "Quadrant label top left",
+        displayNameKey: "Chart_ScatterQuadLabelTL",
+        description: "Dezente Beschriftung der Quadranten-Ecke. Leer = aus. Nur bei aktiven Quadranten-Linien; weicht Punkten nach Möglichkeit aus.",
+        descriptionKey: "Desc_Chart_ScatterQuadLabel",
+        placeholder: "",
+        value: ""
+    });
+
+    scatterQuadLabelBL = new formattingSettings.TextInput({
+        name: "scatterQuadLabelBL",
+        displayName: "Quadrant label bottom left",
+        displayNameKey: "Chart_ScatterQuadLabelBL",
+        description: "Dezente Beschriftung der Quadranten-Ecke. Leer = aus. Nur bei aktiven Quadranten-Linien; weicht Punkten nach Möglichkeit aus.",
+        descriptionKey: "Desc_Chart_ScatterQuadLabel",
+        placeholder: "",
+        value: ""
+    });
+
+    scatterQuadLabelBR = new formattingSettings.TextInput({
+        name: "scatterQuadLabelBR",
+        displayName: "Quadrant label bottom right",
+        displayNameKey: "Chart_ScatterQuadLabelBR",
+        description: "Dezente Beschriftung der Quadranten-Ecke. Leer = aus. Nur bei aktiven Quadranten-Linien; weicht Punkten nach Möglichkeit aus.",
+        descriptionKey: "Desc_Chart_ScatterQuadLabel",
+        placeholder: "",
+        value: ""
+    });
+
+    // Scatter v3: Play-Button (Rosling-Animation) — Laufzustand wird NICHT persistiert
+    scatterPlay = new formattingSettings.ToggleSwitch({
+        name: "scatterPlay",
+        displayName: "Play button (animation)",
+        displayNameKey: "Chart_ScatterPlay",
+        description: "Blendet einen ▶-Button ein (Rosling-Modus): die Kategorie wird zur Zeitachse — je Periode ein Bild, die Punkte (je Wert des Felds „Serie\") gleiten von Periode zu Periode, die Periode steht groß im Hintergrund. Achsen bleiben fix (Gesamtbereich aller Perioden). Ohne Abspielen zeigt der Chart die letzte Periode. Der Ablauf wird nicht gespeichert; Klick auf die Hintergrund-Periode = zurück zum Anfang. Aus = kein Button, normaler Scatter.",
+        descriptionKey: "Desc_Chart_ScatterPlay",
+        value: false
+    });
+
+    // eigene Modus-Gruppe wie Brücke/Tabelle/KPI-Karten — nur im Scatter sichtbar.
+    // Reihenfolge nach Wichtigkeit: Quadranten → Färbung → Formen → Pfeile →
+    // Trend (+R²) → Größen-Legende → Quadranten-Labels → Play
     scatterGroup = new formattingSettings.Group({
         name: "chartScatter",
         displayName: "Scatter / bubble",
         displayNameKey: "Group_Scatter",
-        slices: [this.scatterQuadrant, this.scatterColorBy]
+        slices: [this.scatterQuadrant, this.scatterColorBy, this.scatterShapes,
+            this.scatterArrows, this.scatterTrend, this.scatterTrendR2,
+            this.scatterSizeLegend, this.scatterQuadLabelTR, this.scatterQuadLabelTL,
+            this.scatterQuadLabelBL, this.scatterQuadLabelBR, this.scatterPlay]
     });
 
     // UX-5 (AUDIT-2026-10-UX §1.5): die Mega-Gruppen „Layout"/„Analyse" aufgabenorientiert
@@ -1365,6 +1478,68 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    // Scatter v3: fixierte Achsengrenzen — Text wie refLine (leer = auto, 0 gültig,
+    // k/M/B-Suffixe) für Skalen-Sync über mehrere Scatter-Visuals einer Seite
+    xMin = new formattingSettings.TextInput({
+        name: "xMin",
+        displayName: "X axis minimum",
+        displayNameKey: "Scale_XMin",
+        description: "Nur Scatter: fixiert die Achsengrenze (z. B. 0 oder 0.25; k/M/B-Suffixe wie bei der Referenzlinie). Leer = automatisch. Für identische Achsen über mehrere Scatter einer Seite. Punkte außerhalb werden nicht gezeichnet und im Panel-Titel gezählt.",
+        descriptionKey: "Desc_Scale_AxisMinMax",
+        placeholder: "",
+        value: ""
+    });
+
+    xMax = new formattingSettings.TextInput({
+        name: "xMax",
+        displayName: "X axis maximum",
+        displayNameKey: "Scale_XMax",
+        description: "Nur Scatter: fixiert die Achsengrenze. Leer = automatisch.",
+        descriptionKey: "Desc_Scale_AxisMinMax",
+        placeholder: "",
+        value: ""
+    });
+
+    yMin = new formattingSettings.TextInput({
+        name: "yMin",
+        displayName: "Y axis minimum",
+        displayNameKey: "Scale_YMin",
+        description: "Nur Scatter: fixiert die Achsengrenze. Leer = automatisch.",
+        descriptionKey: "Desc_Scale_AxisMinMax",
+        placeholder: "",
+        value: ""
+    });
+
+    yMax = new formattingSettings.TextInput({
+        name: "yMax",
+        displayName: "Y axis maximum",
+        displayNameKey: "Scale_YMax",
+        description: "Nur Scatter: fixiert die Achsengrenze. Leer = automatisch.",
+        descriptionKey: "Desc_Scale_AxisMinMax",
+        placeholder: "",
+        value: ""
+    });
+
+    // Scatter v3: Log-Skalen — greifen nur, wenn alle Werte > 0 sind (sonst linear
+    // mit dezentem Hinweis im Bearbeiten-Modus)
+    xLogScale = new formattingSettings.ToggleSwitch({
+        name: "xLogScale",
+        displayName: "X axis logarithmic",
+        displayNameKey: "Scale_XLogScale",
+        description: "Nur Scatter: logarithmische X-Achse (Ticks als Dekaden bzw. 1-2-5-Schritte). Greift nur, wenn alle X-Werte (inkl. Referenzlinie und fixierter Grenzen) größer 0 sind — sonst bleibt die Achse linear (Hinweis im Bearbeiten-Modus).",
+        descriptionKey: "Desc_Scale_XLogScale",
+        value: false
+    });
+
+    yLogScale = new formattingSettings.ToggleSwitch({
+        name: "yLogScale",
+        displayName: "Y axis logarithmic",
+        displayNameKey: "Scale_YLogScale",
+        description: "Nur Scatter: logarithmische Y-Achse (AC). Greift nur, wenn alle Y-Werte größer 0 sind — sonst linear mit Hinweis im Bearbeiten-Modus.",
+        descriptionKey: "Desc_Scale_YLogScale",
+        value: false
+    });
+
     capOverflow = new formattingSettings.ToggleSwitch({
         name: "capOverflow",
         displayName: "Cap outliers at maximum",
@@ -1403,6 +1578,15 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         slices: [this.fixedMax, this.fixedVarMax, this.capOverflow]
     });
 
+    // Scatter v3: eigene Gruppe „Scatter-Achsen" (Min/Max-Fixierung + Log), nur im
+    // Scatter sichtbar — logisch neben fixedMax (Sync) und den Referenzlinien
+    scatterAxesGroup = new formattingSettings.Group({
+        name: "scaleScatterAxes",
+        displayName: "Scatter axes",
+        displayNameKey: "Group_ScatterAxes",
+        slices: [this.xMin, this.xMax, this.yMin, this.yMax, this.xLogScale, this.yLogScale]
+    });
+
     refLineGroup = new formattingSettings.Group({
         name: "scaleRefLine",
         displayName: "Reference line",
@@ -1421,7 +1605,7 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
     name: string = "scale";
     displayName: string = "Scale";
     displayNameKey: string = "Card_Scale";
-    groups = [this.syncGroup, this.refLineGroup, this.wfAxisGroup];
+    groups = [this.syncGroup, this.scatterAxesGroup, this.refLineGroup, this.wfAxisGroup];
 }
 
 export class CategoryAxisCardSettings extends FormattingSettingsCard {
