@@ -2552,9 +2552,8 @@ export class Visual implements IVisual {
                             cfg.pyTriangle ? (p.py ?? 0) : 0);
                         maxPct = Math.max(maxPct, Math.abs(p.varRel ?? 0));
                     }
-                    if (basisSum > 0) {
-                        maxPct = Math.max(maxPct, Math.abs((vTot - basisSum) / basisSum) * 100);
-                    }
+                    const totPct = relVar(vTot - basisSum, basisSum);
+                    if (totPct != null) { maxPct = Math.max(maxPct, Math.abs(totPct)); }
                 }
                 cfg.sharedIntWf = { maxTot, maxMon, maxPct };
             }
@@ -2579,12 +2578,12 @@ export class Visual implements IVisual {
                     const ext = this.catBridgeExtent(g.pts, refIsPl, hasPy);
                     maxV = Math.max(maxV, PYt, PLt, ACt, ext[1]);
                     minV = Math.min(minV, hasPy ? PYt : 0, hasPl ? PLt : 0, ACt, ext[0]);
-                    // Δ% only against a positive reference (UN 4.1) — n.a. rows have no pin
-                    if (REF > 0) { maxPct = Math.max(maxPct, Math.abs((ACt - REF) / REF) * 100); }
+                    // n.a. rows (UN 4.1: zero basis / sign change) have no pin → no bound
+                    maxPct = Math.max(maxPct, Math.abs(relVar(ACt - REF, REF) ?? 0));
                     for (const p of g.pts) {
                         const rv = refIsPl ? p.pl : p.py;
-                        if (p.value != null && rv != null && rv > 0) {
-                            maxPct = Math.max(maxPct, Math.abs((p.value - rv) / rv) * 100);
+                        if (p.value != null && rv != null) {
+                            maxPct = Math.max(maxPct, Math.abs(relVar(p.value - rv, rv) ?? 0));
                         }
                     }
                 }
@@ -3613,7 +3612,7 @@ export class Visual implements IVisual {
         const refValOf = (p: DataPoint): number | null => refIsPl ? p.pl : p.py;
         const dOf = (p: DataPoint): number | null =>
             p.value != null && refValOf(p) != null ? p.value - (refValOf(p) as number) : null;
-        // Δ% only against a positive reference row value (UN 4.1) — else n.a.
+        // Δ% n.a. at a zero reference or a sign change (UN 4.1)
         const dRelOf = (p: DataPoint): number | null => relVar(dOf(p), refValOf(p));
         const dRelNa = (p: DataPoint): boolean => relIsNa(dOf(p), refValOf(p));
         const colOf = (v: number, pp?: DataPoint) => (v === 0
@@ -3754,7 +3753,7 @@ export class Visual implements IVisual {
         }
         const maxPct = cfg.sharedCatBridge?.maxPct
             ?? Math.max(...pts.map(p => Math.abs(dRelOf(p) ?? 0)),
-                REF > 0 ? Math.abs(dTot / REF * 100) : 0, 1);
+                Math.abs(relVar(dTot, REF) ?? 0), 1);
         const pinLen = (v: number) => Math.max(2, Math.abs(v) / maxPct * maxPinLen);
         const drawPin = (yy: number, pct: number, bold: boolean, parent: SVGElement, pp?: DataPoint) => {
             const w = pinLen(pct);
@@ -3905,8 +3904,9 @@ export class Visual implements IVisual {
         }, bg);
         valLabel(endLblX(ACt, 8), yAC + rowH / 2 + lf * 0.35, cfg.fmt.format(ACt), true, bg, endLblA(ACt));
         guide(X(ACt), yAC + rowH, endSec, false, bg);
-        if (showPins && REF > 0) {
-            drawPin(yAC, dTot / REF * 100, true, bg);
+        const totRel = relVar(dTot, REF);
+        if (showPins && totRel != null) {
+            drawPin(yAC, totRel, true, bg);
         } else if (showPins) {
             this.drawRelNa(bg, yAC + rowH / 2, axisX, "bars", cfg);
         }
@@ -4247,7 +4247,7 @@ export class Visual implements IVisual {
                 // ΔRef bar + label
                 if (showD && mv != null && rv != null) {
                     const d = mv - rv;
-                    const dpm = rv !== 0 ? d / Math.abs(rv) * 100 : null;
+                    const dpm = relVar(d, rv);
                     const c = colOf(d, p, dpm);
                     const w = Math.abs(d) * dPX;
                     const x0 = d >= 0 ? dAxis : dAxis - w;
@@ -4258,9 +4258,14 @@ export class Visual implements IVisual {
                     txt(d >= 0 ? dAxis + w + 5 : dAxis - w - 5, cy + lf * 0.36, fmtD(d),
                         d >= 0 ? "start" : "end", lf, sum, cfg.ink, g);
                 }
-                // ΔRef% pin, capped with outlier arrows like the reference
-                if (showPct && mv != null && rv != null && rv !== 0) {
-                    const dp = (mv - rv) / Math.abs(rv) * 100;
+                // ΔRef% pin, capped with outlier arrows like the reference;
+                // zero reference or sign change → "n.a." instead of a pin (UN 4.1)
+                const dpRel = mv != null && rv != null ? relVar(mv - rv, rv) : null;
+                if (showPct && mv != null && rv != null && dpRel == null && relIsNa(mv - rv, rv)) {
+                    txt(pAxis + 6, cy + lf * 0.36, REL_NA, "start", lf, false, cfg.subtle, g);
+                }
+                if (showPct && mv != null && rv != null && dpRel != null) {
+                    const dp = dpRel;
                     const c = colOf(mv - rv, p, dp);
                     const outlier = Math.abs(dp) > P_CAP;
                     const w = Math.min(Math.abs(dp), P_CAP) / P_CAP * pLen;
@@ -6655,7 +6660,7 @@ export class Visual implements IVisual {
             // status source: the variance basis (ΔPL/ΔPY) or the bound benchmark —
             // monitoring mode judges AC against BM (target/threshold measure)
             const bmV = (p.bm != null && p.value != null) ? (p.value as number) - p.bm : null;
-            // Δ% vs. BM only against a positive benchmark (UN 4.1) — else "n.a."
+            // Δ% vs. BM: "n.a." at a zero benchmark or a sign change (UN 4.1)
             const bmRel: number | null | "na" = bmV == null ? null
                 : relVar(bmV, p.bm) ?? (relIsNa(bmV, p.bm) ? "na" : null);
             const sv = statusDev(p);
@@ -8158,7 +8163,7 @@ export class Visual implements IVisual {
         }
         const [p1, p2] = picked;
         const d = p2.a.value - p1.a.value;
-        // relative to the first pick only when it is positive (UN 4.1), else n.a.
+        // relative to the first pick; n.a. at zero or a sign change (UN 4.1)
         const pct = relVar(d, p1.a.value);
         const text = `Δ ${this.fmtSigned(cfg.fmtVar, d)} (${pct != null ? this.fmtPercent(pct) : REL_NA})`;
         const font = Math.round(Math.max(10, cfg.labelFont));
@@ -8433,7 +8438,8 @@ export class Visual implements IVisual {
         const worst = sorted[sorted.length - 1];
         const parts = [
             `Δ${cfg.basisLabel} ${this.fmtSigned(cfg.fmtVar, sumVar)}`
-            + (sumBasis > 0 ? ` (${this.fmtPercent((sumVar / sumBasis) * 100)})` : ` (${REL_NA})`)
+            + (relVar(sumVar, sumBasis) != null
+                ? ` (${this.fmtPercent(relVar(sumVar, sumBasis) as number)})` : ` (${REL_NA})`)
         ];
         if (withVar.length >= 3 && best !== worst && !cfg.cumulative) {
             parts.push(`stärkster Treiber: ${best.cat} (${this.fmtSigned(cfg.fmtVar, best.varAbs as number)})`);
@@ -8833,7 +8839,7 @@ export class Visual implements IVisual {
             const color = sumVar === 0 ? cfg.subtle : (good ? cfg.colors.good : cfg.colors.bad);
             span(`   Δ${cfg.basisLabel} `, cfg.subtle, false);
             span(this.fmtSigned(cfg.fmtVar, sumVar), color, true);
-            // UN 4.1: Σ% only against a positive net basis, otherwise "n.a."
+            // UN 4.1: Σ% over the net basis — "n.a." at zero or a sign change
             const sumRel = relVar(sumVar, sumBasis);
             if (sumRel != null) {
                 span(` · ${this.fmtPercent(sumRel)}`, color, true);

@@ -1331,7 +1331,7 @@ run("c139", { metadata: { columns: [], objects: esObj }, categorical: { categori
 <div class="case"><h4>c145 · P0-Skalierung S13 · GuV-Wasserfall Format „#,0 T€" (Umsatz 100.000 T€) — Anker „100.000 T€", Δ „+2.000 T€", Titel „Umsatz in T€" (kein K€)</h4><div class="stage" id="c145" style="width:960px;height:420px"></div></div>
 <div class="case"><h4>c146 · P0-Skalierung S7 · GuV-Wasserfall + fixedMax 6.000 + Kappung — Umsatz-Anker (9.800) gekappt mit Bruch-Marker, Label zeigt echten Wert</h4><div class="stage" id="c146" style="width:960px;height:380px"></div></div>
 <div class="case"><h4>c147 · P0-Skalierung S8 · Columns + fixedMax 700 + Kappung, PY 900–1.200, PL teils &gt; 700, BM &gt; 700, Ziellinie 1.000 — Bruch-Marker an PY/PL/BM, Achse endet am Cap (keine Ziellinie darüber)</h4><div class="stage" id="c147" style="width:960px;height:400px"></div></div>
-<div class="case"><h4>c148 · IBCS UN 4.1 · negative/Null-Basis → „n.a." statt Prozentwert — Columns Doppel-Varianz (Ergebnisreihe), Tabelle mit Σ, KPI-Karten</h4><div class="stage" id="c148" style="width:960px;height:520px"></div><div class="stage" id="c148b" style="width:1200px;height:300px"></div><div class="stage" id="c148c" style="width:1200px;height:260px"></div></div>
+<div class="case"><h4>c148 · IBCS UN 4.1 · Δ% = „n.a." bei Basis 0 ODER Vorzeichenwechsel Basis↔Ist (Jul: PY +20 → AC −30, „Neu": Basis 0); gleiches Vorzeichen bleibt Prozent (Feb: PL −40 → AC −80 = −100 %), AC 0 bei Basis &gt; 0 = −100 % („Aus") — Columns Doppel-Varianz, Tabelle mit Σ, KPI-Karten</h4><div class="stage" id="c148" style="width:960px;height:520px"></div><div class="stage" id="c148b" style="width:1200px;height:300px"></div><div class="stage" id="c148c" style="width:1200px;height:260px"></div></div>
 <script>
 // c140 (S1): ΔPY = +20, ΔPL = +2 — factor 10 must stay visible across the panels
 const p0m6 = ["Jan","Feb","Mär","Apr","Mai","Jun"];
@@ -1382,11 +1382,16 @@ run("c147", dataView(p0m6, [col("actual", [500, 520, 540, 560, 600, 650]), col("
   col("plan", [680, 690, 720, 740, 650, 760]), col("benchmark", [560, 600, 640, 720, 760, 800])],
   { scale: { fixedMax: 700, capOverflow: true, refLine: "1000", refLineLabel: "Ziel 1.000" } }), 960, 400);
 // c148 (n.a.): result series with negative bases — Δ% must read "n.a.", never "−250 %"
-run("c148", dataView(months, [col("actual", resAc), col("previousYear", resPy), col("plan", resPl), col("forecast", resFc)],
+// result series as AC (FC folded in) + "Neu" (basis 0 → n.a.) + "Aus" (AC 0 at basis > 0 → −100 %)
+const naMonths = months.concat(["Neu", "Aus"]);
+const naResAc = resAc.map((v, i) => v != null ? v : resFc[i]).concat([50, 0]);
+run("c148", dataView(naMonths, [col("actual", naResAc), col("previousYear", resPy.concat([0, 80])), col("plan", resPl.concat([0, 70]))],
   { chart: { dualVariance: true }, ibcsTitle: { kpi: "Ergebnis" } }), 960, 520);
-const naCats = ["Nord", "Süd", "West", "Ost", "Mitte"];
-const naAc = [120, -30, 40, 15, 80];
-const naPy = [100, -60, -20, 0, 90];
+// Süd: −60 → −30 same sign → +50 %; West: −20 → +40 sign change → n.a.;
+// Ost: basis 0 → n.a.; Aus: 50 → 0 → −100 %
+const naCats = ["Nord", "Süd", "West", "Ost", "Mitte", "Aus"];
+const naAc = [120, -30, 40, 15, 80, 0];
+const naPy = [100, -60, -20, 0, 90, 50];
 run("c148b", dataView(naCats, [col("actual", naAc, "#,0 T€"), col("previousYear", naPy, "#,0 T€")],
   { chart: { orientation: "table", showTotal: true }, ibcsTitle: { kpi: "EBIT" } }), 1200, 300);
 run("c148c", dataView(naCats, [col("actual", naAc, "#,0 T€"), col("previousYear", naPy, "#,0 T€")],
