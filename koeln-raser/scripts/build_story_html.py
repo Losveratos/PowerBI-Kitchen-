@@ -2,7 +2,7 @@
 """Setzt data/story_data.json in story_template.html ein → ../koelner-raser-story.html.
 
 Die Seite ist danach komplett eigenständig (keine Laufzeit-Abhängigkeiten
-außer Google Fonts), wie rhein-story.html.
+Schriften lokal aus assets/fonts/), wie rhein-story.html.
 """
 import json
 from pathlib import Path

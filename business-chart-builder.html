@@ -2,15 +2,15 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<!-- Content-Security-Policy: erlaubt nur eigene + Google-Fonts-Quellen, blockt
+<!-- Content-Security-Policy: erlaubt nur eigene Quellen (Schriften lokal), blockt
      fremde Skript-/Ressourcenquellen (Supply-Chain/Injektion). 'unsafe-inline'
      ist für die Inline-App nötig, 'unsafe-eval' für Vegas Ausdrucks-Codegen –
      externe Skript-URLs bleiben dadurch trotzdem ausgeschlossen. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Business Chart Builder – semantische Notation für klare Berichte</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/fonts/ibm-plex-sans/ibm-plex-sans.css">
+<link rel="stylesheet" href="assets/fonts/ibm-plex-mono/ibm-plex-mono.css">
 <style>
 :root{
   --ink:#1c1c1c; --ink2:#5d5d5d; --ink3:#6b6b6b;   /* WCAG-AA-Kontrast (>=4.5:1 auf Weiß) statt #8d8d8d (~3.3:1) */

@@ -145,7 +145,7 @@ a { color:inherit; }
           <div class="orbs" aria-hidden="true">🗂️⚡💾🌐</div>
           <p>Vier Elemente, über 150 Entdeckungen. Das Spiel läuft komplett im Browser, der Spielstand bleibt auf deinem Gerät.</p>
           <button class="play-btn" type="button" id="play-btn">▶ Spiel hier starten</button>
-          <small>Lädt das Spiel von huhar.github.io. Am besten am Desktop, Drag-and-drop mit der Maus.</small>
+          <small>Lädt das Spiel von huhar.github.io (GitHub Pages) und das Änderungsdatum von api.github.com; dabei wird deine IP-Adresse an GitHub übertragen (<a href="datenschutz.html#weitere">Datenschutz</a>). Am besten am Desktop, Drag-and-drop mit der Maus.</small>
         </div>
       </div>
       <div class="game-foot">
@@ -172,7 +172,7 @@ a { color:inherit; }
 
     <div class="src-box">
       <h3>Immer die neueste Version</h3>
-      Das Spiel ist hier nicht kopiert, sondern direkt von Ulriks Seite <a href="https://huhar.github.io/FabricAlchemy/" target="_blank" rel="noopener">huhar.github.io/FabricAlchemy</a> eingebettet. Jede neue Version, die er veröffentlicht, ist damit automatisch auch hier spielbar. Der Hinweis unter dem Spiel zeigt das Datum der letzten Änderung, live aus dem <a href="https://github.com/huhar/FabricAlchemy" target="_blank" rel="noopener">GitHub-Repository</a>.
+      Das Spiel ist hier nicht kopiert, sondern direkt von Ulriks Seite <a href="https://huhar.github.io/FabricAlchemy/" target="_blank" rel="noopener">huhar.github.io/FabricAlchemy</a> eingebettet. Jede neue Version, die er veröffentlicht, ist damit automatisch auch hier spielbar. Nach dem Start zeigt der Hinweis unter dem Spiel das Datum der letzten Änderung, live aus dem <a href="https://github.com/huhar/FabricAlchemy" target="_blank" rel="noopener">GitHub-Repository</a>.
     </div>
 
     <div class="cta-card">
@@ -216,6 +216,7 @@ a { color:inherit; }
       stage.appendChild(frame);
     }
     frame.src = gameUrl();
+    loadVersion();
   }
 
   document.getElementById('play-btn').addEventListener('click', load);
@@ -230,8 +231,13 @@ a { color:inherit; }
   });
   newtab.href = gameUrl();
 
-  // Letzte Änderung am ausgelieferten Spiel (docs/) live aus GitHub lesen.
+  // Letzte Änderung am ausgelieferten Spiel (docs/) live aus GitHub lesen –
+  // erst nach Klick auf „Spiel starten“ (vorher keine Anfrage an GitHub).
   // Schlägt das fehl (offline, Rate-Limit), bleibt der Standardtext stehen.
+  var versionLoaded = false;
+  function loadVersion() {
+  if (versionLoaded) return;
+  versionLoaded = true;
   fetch('https://api.github.com/repos/huhar/FabricAlchemy/commits?per_page=1&path=docs')
     .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
     .then(function (list) {
@@ -242,6 +248,7 @@ a { color:inherit; }
         'Immer aktuell · letzte Änderung am Spiel: ' + when;
     })
     .catch(function () {});
+  }
 })();
 </script>
 </body>

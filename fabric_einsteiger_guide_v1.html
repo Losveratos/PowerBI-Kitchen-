@@ -2493,7 +2493,7 @@ const DETAILS = {
       </ul>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/fundamentals/media/microsoft-fabric-overview/fabric-architecture.png" alt="Fabric-Architektur-Diagramm: Workloads Data Factory, Analytics, Databases, Real-Time Intelligence und Power BI auf dem gemeinsamen Fundament aus OneLake, Copilot und Purview-Governance">
+        <img src="assets/learn/fabric-architecture.png" alt="Fabric-Architektur-Diagramm: Workloads Data Factory, Analytics, Databases, Real-Time Intelligence und Power BI auf dem gemeinsamen Fundament aus OneLake, Copilot und Purview-Governance">
         <figcaption>
           <strong>Abb. · Die Fabric-Architektur</strong>
           Alle Workloads teilen sich Speicher (OneLake), KI (Copilot) und Governance (Purview). Quelle: <a href="https://learn.microsoft.com/fabric/fundamentals/microsoft-fabric-overview" target="_blank" rel="noopener">What is Microsoft Fabric? · Microsoft Learn</a>
@@ -2582,7 +2582,7 @@ const DETAILS = {
       </ul>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/fundamentals/media/microsoft-fabric-overview/hierarchy-within-tenant.png" alt="Hierarchie-Diagramm: Ein Fabric-Tenant enthält Kapazitäten, diese enthalten Workspaces, diese enthalten Items wie Lakehouses und semantische Modelle">
+        <img src="assets/learn/hierarchy-within-tenant.png" alt="Hierarchie-Diagramm: Ein Fabric-Tenant enthält Kapazitäten, diese enthalten Workspaces, diese enthalten Items wie Lakehouses und semantische Modelle">
         <figcaption>
           <strong>Abb. · Tenant → Kapazität → Workspace → Items</strong>
           Berichte, Modelle und Lakehouses sind gleichberechtigte Items in derselben Hierarchie. Quelle: <a href="https://learn.microsoft.com/fabric/fundamentals/microsoft-fabric-overview" target="_blank" rel="noopener">Microsoft Fabric Overview · Microsoft Learn</a>
@@ -2619,7 +2619,7 @@ const DETAILS = {
       </ul>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/fundamentals/media/microsoft-fabric-overview/onelake-architecture.png" alt="Diagramm: Alle Fabric-Compute-Engines — Data Engineering, Warehouse, Data Factory, Power BI, Real-Time Intelligence — greifen auf denselben OneLake-Speicher zu">
+        <img src="assets/learn/onelake-architecture.png" alt="Diagramm: Alle Fabric-Compute-Engines — Data Engineering, Warehouse, Data Factory, Power BI, Real-Time Intelligence — greifen auf denselben OneLake-Speicher zu">
         <figcaption>
           <strong>Abb. · Viele Engines, ein Speicher</strong>
           Jeder Workload rechnet mit eigener Engine, aber alle lesen und schreiben OneLake. Quelle: <a href="https://learn.microsoft.com/fabric/fundamentals/microsoft-fabric-overview" target="_blank" rel="noopener">Microsoft Fabric Overview · Microsoft Learn</a>
@@ -2678,7 +2678,7 @@ const DETAILS = {
       <p>Der Kerngedanke: Daten liegen <em>einmal</em> in OneLake, und alle Engines arbeiten darauf — Spark schreibt eine Delta-Tabelle, T-SQL fragt sie ab, das Direct-Lake-Modell liest sie in den Bericht. Keine Export-Import-Ketten, keine nächtlichen Kopier-Jobs zwischen Diensten.</p>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/onelake/media/onelake-overview/use-same-copy-of-data.png" alt="Diagramm: Dieselbe Delta-Tabelle wird mit Spark geladen, mit T-SQL abgefragt und im Power-BI-Report angezeigt — ohne Datenkopie">
+        <img src="assets/learn/use-same-copy-of-data.png" alt="Diagramm: Dieselbe Delta-Tabelle wird mit Spark geladen, mit T-SQL abgefragt und im Power-BI-Report angezeigt — ohne Datenkopie">
         <figcaption>
           <strong>Abb. · One Copy of Data</strong>
           Laden mit Spark, Abfragen mit T-SQL, Anzeigen in Power BI — dieselbe Datenkopie. Quelle: <a href="https://learn.microsoft.com/fabric/onelake/onelake-overview" target="_blank" rel="noopener">What is OneLake? · Microsoft Learn</a>
@@ -2715,7 +2715,7 @@ const DETAILS = {
       </ul>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/onelake/media/onelake-shortcuts/shortcut-connects-other-location.png" alt="Diagramm: Ein Shortcut im Lakehouse verbindet transparent auf Daten in einem anderen Speicherort wie ADLS oder S3">
+        <img src="assets/learn/shortcut-connects-other-location.png" alt="Diagramm: Ein Shortcut im Lakehouse verbindet transparent auf Daten in einem anderen Speicherort wie ADLS oder S3">
         <figcaption>
           <strong>Abb. · Shortcut-Prinzip</strong>
           Der Shortcut erscheint als Teil des Lakehouse, die Daten bleiben an der Quelle. Quelle: <a href="https://learn.microsoft.com/fabric/onelake/onelake-shortcuts" target="_blank" rel="noopener">OneLake shortcuts · Microsoft Learn</a>
@@ -2751,7 +2751,7 @@ const DETAILS = {
       </ul>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/data-engineering/media/lakehouse-overview/lakehouse-analyze-data.png" alt="Screenshot: Lakehouse-Oberfläche mit dem Dropdown 'Analyze data with' — SQL analytics endpoint, Eventhouse und Notebook">
+        <img src="assets/learn/lakehouse-analyze-data.png" alt="Screenshot: Lakehouse-Oberfläche mit dem Dropdown 'Analyze data with' — SQL analytics endpoint, Eventhouse und Notebook">
         <figcaption>
           <strong>Abb. · Lakehouse-UI</strong>
           Ein Lakehouse lässt sich direkt aus der Oberfläche mit SQL-Endpoint oder Notebook analysieren. Quelle: <a href="https://learn.microsoft.com/fabric/data-engineering/lakehouse-overview" target="_blank" rel="noopener">What is a lakehouse? · Microsoft Learn</a>
@@ -2789,7 +2789,7 @@ const DETAILS = {
       </ul>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/data-warehouse/media/data-warehousing/warehouse-type.png" alt="Screenshot: Workspace-Item-Liste mit einem Item vom Typ Warehouse">
+        <img src="assets/learn/warehouse-type.png" alt="Screenshot: Workspace-Item-Liste mit einem Item vom Typ Warehouse">
         <figcaption>
           <strong>Abb. · Warehouse als Workspace-Item</strong>
           Ein Warehouse ist ein eigener Item-Typ neben Lakehouse und semantischem Modell. Quelle: <a href="https://learn.microsoft.com/fabric/data-warehouse/data-warehousing" target="_blank" rel="noopener">What is Fabric Data Warehouse? · Microsoft Learn</a>
@@ -2821,7 +2821,7 @@ const DETAILS = {
       </ul>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/data-warehouse/media/data-warehousing/sql-endpoint-type.png" alt="Screenshot: Workspace-Liste mit dem automatisch erzeugten Item vom Typ SQL analytics endpoint neben dem Lakehouse">
+        <img src="assets/learn/sql-endpoint-type.png" alt="Screenshot: Workspace-Liste mit dem automatisch erzeugten Item vom Typ SQL analytics endpoint neben dem Lakehouse">
         <figcaption>
           <strong>Abb. · Automatisch erzeugtes Item</strong>
           Der SQL analytics endpoint erscheint als eigenes Item neben jedem Lakehouse. Quelle: <a href="https://learn.microsoft.com/fabric/data-warehouse/data-warehousing" target="_blank" rel="noopener">Fabric Data Warehouse Doku · Microsoft Learn</a>
@@ -2853,7 +2853,7 @@ const DETAILS = {
       </ul>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/data-factory/media/data-factory-overview/data-integration-stack.png" alt="Diagramm: Data-Integration-Stack von Fabric Data Factory — Konnektoren, Data Movement, Orchestrierung und Transformation auf OneLake">
+        <img src="assets/learn/data-integration-stack.png" alt="Diagramm: Data-Integration-Stack von Fabric Data Factory — Konnektoren, Data Movement, Orchestrierung und Transformation auf OneLake">
         <figcaption>
           <strong>Abb. · Der Data-Factory-Stack</strong>
           Konnektoren → Movement/Orchestrierung/Transformation → Analytics, alles auf OneLake. Quelle: <a href="https://learn.microsoft.com/fabric/data-factory/data-factory-overview" target="_blank" rel="noopener">What is Data Factory? · Microsoft Learn</a>
@@ -2917,7 +2917,7 @@ const DETAILS = {
       </ul>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/data-engineering/media/how-to-use-notebook/lakehouse-file-operation.png" alt="Screenshot: Notebook-Oberfläche mit Lakehouse-Explorer links und Kontextmenü zum Laden einer Datei als Spark- oder Pandas-DataFrame">
+        <img src="assets/learn/lakehouse-file-operation.png" alt="Screenshot: Notebook-Oberfläche mit Lakehouse-Explorer links und Kontextmenü zum Laden einer Datei als Spark- oder Pandas-DataFrame">
         <figcaption>
           <strong>Abb. · Notebook + Lakehouse</strong>
           Dateien aus dem Lakehouse-Explorer direkt als DataFrame laden. Quelle: <a href="https://learn.microsoft.com/fabric/data-engineering/author-execute-notebook" target="_blank" rel="noopener">Fabric Notebooks · Microsoft Learn</a>
@@ -2948,7 +2948,7 @@ const DETAILS = {
       </ul>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/real-time-intelligence/media/overview/overview-schematic.png" alt="Architektur-Diagramm Real-Time Intelligence: Real-Time Hub, Eventstreams, Eventhouse, Dashboards und Activator im Zusammenspiel">
+        <img src="assets/learn/overview-schematic.png" alt="Architektur-Diagramm Real-Time Intelligence: Real-Time Hub, Eventstreams, Eventhouse, Dashboards und Activator im Zusammenspiel">
         <figcaption>
           <strong>Abb. · Real-Time Intelligence</strong>
           Vom Event über Eventstream und Eventhouse bis zu Dashboard und Aktion. Quelle: <a href="https://learn.microsoft.com/fabric/real-time-intelligence/overview" target="_blank" rel="noopener">What is Real-Time Intelligence? · Microsoft Learn</a>
@@ -2984,7 +2984,7 @@ const DETAILS = {
       <p><strong>Pipelines/Copy</strong> füllen Bronze. <strong>Notebooks oder Dataflows</strong> transformieren Bronze → Silber → Gold. <strong>Lakehouse oder Warehouse</strong> speichern die Schichten — Microsoft dokumentiert zwei Muster: alle drei Layer als Lakehouses, oder Bronze+Silber als Lakehouse und <strong>Gold als Warehouse</strong> (für SQL-Teams). Auf Gold sitzt das <strong>semantische Modell</strong>, darauf der Power-BI-Bericht.</p>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/data-engineering/media/tutorial-lakehouse-introduction/data-transformation-flow.png" alt="Diagramm: Daten- und Transformationsfluss durch Bronze-, Silber- und Gold-Schicht mit Quelle, Transformation und Ziel je Schritt">
+        <img src="assets/learn/data-transformation-flow.png" alt="Diagramm: Daten- und Transformationsfluss durch Bronze-, Silber- und Gold-Schicht mit Quelle, Transformation und Ziel je Schritt">
         <figcaption>
           <strong>Abb. · Bronze → Silber → Gold</strong>
           Der Transformationsfluss aus dem offiziellen Lakehouse-Tutorial. Quelle: <a href="https://learn.microsoft.com/fabric/data-engineering/tutorial-lakehouse-introduction" target="_blank" rel="noopener">Lakehouse end-to-end scenario · Microsoft Learn</a>
@@ -3082,7 +3082,7 @@ const DETAILS = {
       <p>Ein Refresh ist bei Direct Lake nur noch eine <strong>Metadaten-Operation in Sekunden</strong>: Das Modell „rahmt" sich auf die neueste Version der Delta-Tabelle (Framing). Abfragen zeigen immer den Stand des letzten Framings — per Default passiert das automatisch, wenn sich Daten ändern. Inkrementelles Framing verwirft dabei nur die Spaltensegmente, die sich geändert haben; der Rest bleibt warm im Speicher.</p>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/fundamentals/media/direct-lake-overview/direct-lake-overview.svg" alt="Direct-Lake-Diagramm: Das semantische Modell lädt Delta-Tabellen aus OneLake direkt in den VertiPaq-Speicher — im Vergleich zu Import und DirectQuery">
+        <img src="assets/learn/direct-lake-overview.svg" alt="Direct-Lake-Diagramm: Das semantische Modell lädt Delta-Tabellen aus OneLake direkt in den VertiPaq-Speicher — im Vergleich zu Import und DirectQuery">
         <figcaption>
           <strong>Abb. · Direct Lake vs. Import vs. DirectQuery</strong>
           Direct Lake liest die Delta-Dateien direkt — kein Import-Duplikat, keine Quell-Query pro Visual. Quelle: <a href="https://learn.microsoft.com/fabric/fundamentals/direct-lake-overview" target="_blank" rel="noopener">Direct Lake overview · Microsoft Learn</a>
@@ -3224,7 +3224,7 @@ const DETAILS = {
       </div>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/data-engineering/media/tutorial-lakehouse-introduction/lakehouse-end-to-end-architecture.png" alt="End-to-End-Architekturdiagramm des Lakehouse-Tutorials: Datenquellen, Ingestion über Pipelines und Shortcuts, Transformation und Speicherung im Medallion-Lakehouse, Konsum über Power BI und SQL-Endpoint">
+        <img src="assets/learn/lakehouse-end-to-end-architecture.png" alt="End-to-End-Architekturdiagramm des Lakehouse-Tutorials: Datenquellen, Ingestion über Pipelines und Shortcuts, Transformation und Speicherung im Medallion-Lakehouse, Konsum über Power BI und SQL-Endpoint">
         <figcaption>
           <strong>Abb. · Das Ziel-Bild dieses End-to-End-Beispiels</strong>
           Quellen → Ingest → Transform &amp; Store → Consume. Genau diesen Fluss bauen die Karten 1–6 nach. Quelle: <a href="https://learn.microsoft.com/fabric/data-engineering/tutorial-lakehouse-introduction" target="_blank" rel="noopener">Lakehouse end-to-end scenario · Microsoft Learn</a>
@@ -3305,7 +3305,7 @@ const DETAILS = {
       <p>Das Tutorial modelliert die Wide-World-Importers-Daten als klassisches Sternschema: <strong>fact_sale</strong> in der Mitte, außen <strong>dimension_customer, dimension_date, dimension_city, dimension_employee, dimension_stock_item</strong>. Genau die Struktur, die Power BI (und Direct Lake) am liebsten mag — die Sternschema-Regeln aus dem Power-BI-Guide gelten hier 1:1.</p>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/data-engineering/media/tutorial-lakehouse-introduction/model-sale-fact-table.png" alt="Sternschema-Diagramm des Tutorials: Sale-Faktentabelle in der Mitte, verbunden mit Datums-, Kunden-, Stadt- und Artikel-Dimensionen">
+        <img src="assets/learn/model-sale-fact-table.png" alt="Sternschema-Diagramm des Tutorials: Sale-Faktentabelle in der Mitte, verbunden mit Datums-, Kunden-, Stadt- und Artikel-Dimensionen">
         <figcaption>
           <strong>Abb. · WWI-Sternschema</strong>
           Fakten und Dimensionen des End-to-End-Tutorials. Quelle: <a href="https://learn.microsoft.com/fabric/data-engineering/tutorial-lakehouse-introduction" target="_blank" rel="noopener">Lakehouse end-to-end scenario · Microsoft Learn</a>
@@ -3426,7 +3426,7 @@ const DETAILS = {
       <p>Beim Anlegen einer <strong>Mirrored Database</strong> wählst du Snowflake-Datenbank und Tabellen aus; Fabric richtet die Replikation ein — technisch basierend auf <strong>Snowflake Streams</strong> (CDC). Änderungen fließen fortlaufend nach OneLake und werden dort als Delta Parquet abgelegt. Ohne Quell-Änderungen drosselt der Replikator sein Polling automatisch (bis zu 1 Stunde Intervall) und beschleunigt wieder, sobald Daten kommen.</p>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/mirroring/media/snowflake/fabric-mirroring-snowflake.svg" alt="Diagramm: Snowflake-Datenbank wird über die Replikator-Engine nach OneLake gespiegelt, inklusive SQL analytics endpoint für Abfragen">
+        <img src="assets/learn/fabric-mirroring-snowflake.svg" alt="Diagramm: Snowflake-Datenbank wird über die Replikator-Engine nach OneLake gespiegelt, inklusive SQL analytics endpoint für Abfragen">
         <figcaption>
           <strong>Abb. · Snowflake-Mirroring</strong>
           Snowflake → Replikation → Delta-Tabellen in OneLake, mit SQL-Endpoint obendrauf. Quelle: <a href="https://learn.microsoft.com/fabric/mirroring/snowflake" target="_blank" rel="noopener">Mirroring Snowflake · Microsoft Learn</a>
@@ -3580,7 +3580,7 @@ const DETAILS = {
       <p>Beruhigend: Beide speichern Delta in OneLake und teilen sich dieselbe SQL-Engine — man kann später das jeweils andere ergänzen, ohne Daten zu migrieren.</p>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/fundamentals/media/decision-guide-data-store/decision-guide.svg" alt="Entscheidungsbaum-Diagramm: Welcher Fabric-Datenspeicher passt — Eventhouse für Streaming, Cosmos DB für AI/NoSQL, SQL database für OLTP, Warehouse für DWH/BI, Lakehouse für Big Data und ML">
+        <img src="assets/learn/decision-guide.svg" alt="Entscheidungsbaum-Diagramm: Welcher Fabric-Datenspeicher passt — Eventhouse für Streaming, Cosmos DB für AI/NoSQL, SQL database für OLTP, Warehouse für DWH/BI, Lakehouse für Big Data und ML">
         <figcaption>
           <strong>Abb. · Der offizielle Entscheidungsbaum</strong>
           Alle Fabric-Datenspeicher nach Ideal-Use-Case. Quelle: <a href="https://learn.microsoft.com/fabric/fundamentals/decision-guide-data-store" target="_blank" rel="noopener">Decision guide: choose a data store · Microsoft Learn</a>
@@ -3682,7 +3682,7 @@ const DETAILS = {
       <p>Quellen → Pipelines/Shortcuts → Bronze-Lakehouse (raw) → Notebooks → Silber-Lakehouse (clean) → Gold-Lakehouse oder -Warehouse (Sternschema) → Direct-Lake-Modell → Power BI. Genau das Muster aus Sektion 04 — skaliert auf getrennte Workspaces pro Layer für saubere Governance.</p>
 
       <figure>
-        <img src="https://learn.microsoft.com/en-us/fabric/data-engineering/media/tutorial-lakehouse-introduction/lakehouse-end-to-end-architecture.png" alt="Referenzarchitektur: Datenquellen über Ingestion und Medallion-Lakehouse bis zu Power BI und SQL-Endpoint">
+        <img src="assets/learn/lakehouse-end-to-end-architecture.png" alt="Referenzarchitektur: Datenquellen über Ingestion und Medallion-Lakehouse bis zu Power BI und SQL-Endpoint">
         <figcaption>
           <strong>Abb. · Medallion-Referenzarchitektur</strong>
           Die offizielle End-to-End-Blaupause. Quelle: <a href="https://learn.microsoft.com/fabric/data-engineering/tutorial-lakehouse-introduction" target="_blank" rel="noopener">Lakehouse end-to-end scenario · Microsoft Learn</a>

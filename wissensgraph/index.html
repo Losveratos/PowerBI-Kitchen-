@@ -198,7 +198,8 @@ const fmtT = s => { s = Math.floor(s || 0); const h = Math.floor(s/3600), m = Ma
 const fmtD = d => d ? new Date(d).toLocaleDateString('de-DE', {year:'numeric', month:'short'}) : '';
 const isDoc = n => n && n.type === 'Document';
 const deepLink = (doc, s, heading) => { if (doc.source === 'youtube' && s != null) return doc.url + '&t=' + Math.floor(s) + 's'; if (doc.source !== 'youtube' && heading) return doc.url + '#:~:text=' + encodeURIComponent(heading.replace(/[.,;:!?]+$/, '').slice(0, 80)); return doc.url || '#'; };
-const thumb = d => d.ytId ? `https://i.ytimg.com/vi/${d.ytId}/mqdefault.jpg` : null;
+// Keine YouTube-Vorschaubilder (i.ytimg.com): neutraler Platzhalter, damit beim Aufruf nichts an Google übertragen wird
+const isVideo = d => !!d.ytId;
 const href = (id, extra) => '#' + new URLSearchParams(Object.assign({n: id}, timeRange !== 'all' ? {t: timeRange} : {}, sources.size !== 2 ? {s: [...sources].join(',')} : {}, onlyClaims ? {c: '1'} : {}, extra || {})).toString();
 const nodeA = (n, cls) => `<a class="${cls || ''}" href="${href(n.id)}">${esc(n.name)}</a>`;
 
@@ -381,7 +382,7 @@ function renderTree() {
 function docCard(d, e, opts) {
   opts = opts || {};
   const sp = speakers(d.id).map(x => x.p.name).join(', ');
-  const img = thumb(d) ? `<img loading="lazy" src="${thumb(d)}" alt="">` : `<div class="ph">📄</div>`;
+  const img = `<div class="ph" aria-hidden="true">${isVideo(d) ? '▶' : '📄'}</div>`;
   const first = opts.firstSeg;
   return `<a class="card doc" href="${href(d.id)}">${img}<div class="body"><div class="name">${esc(d.name)}</div><div class="w">${esc(sp || d.guest || (d.source === 'markdown' ? 'Kitchen-Seite' : 'Solo'))} · ${fmtD(d.published)}${e && e.share != null ? ' · ' + Math.round(e.share * 100) + ' %' : ''}${opts.explains ? ' · erklärt' : ''}</div><div>${covBadge(d).replace('margin-left:6px', '')}</div>${first ? `<div class="q">${esc(first)}</div>` : ''}</div></a>`;
 }
@@ -523,7 +524,7 @@ async function renderDoc(d) {
   h += `<div class="meta">${d.format ? esc(d.format) + ' · ' : ''}${fmtD(d.published)}${d.source === 'markdown' ? ' (Dateistand)' : ''}${d.duration_s ? ' · ' + Math.round(d.duration_s / 60) + ' min' : ''} · ${(d.lang || '').toUpperCase()} ${covBadge(d)}</div>`;
   h += `<p class="lead">${esc(d.summary || d.desc)}</p><div><a class="btn primary" target="_blank" rel="noopener" href="${esc(d.url)}">${d.source === 'markdown' ? '📄 Seite öffnen' : '▶ Auf YouTube'}</a><a class="btn" href="${'graph.html#' + new URLSearchParams({n: d.id}).toString()}">⌖ Im Graph</a></div>`;
   if (persons.length) h += `<h2>Gespräch</h2><div class="chips">${persons.map(x => `<a class="chip" href="${href(x.p.id)}">${esc(x.p.name)} <span style="color:#6B6B6B">${x.role === 'host' ? 'Host' : 'Gast'}</span></a>`).join('')}</div>`;
-  h += `</div><div>${thumb(d) ? `<a target="_blank" rel="noopener" href="${esc(d.url)}"><img src="${thumb(d).replace('mqdefault', 'hqdefault')}" alt="" style="width:100%;border-radius:12px;box-shadow:var(--shadow)"></a>` : ''}</div></div>`;
+  h += `</div><div>${isVideo(d) ? `<a target="_blank" rel="noopener" href="${esc(d.url)}" style="display:flex;flex-direction:column;gap:6px;aspect-ratio:16/9;align-items:center;justify-content:center;background:var(--bg-soft);border-radius:12px;box-shadow:var(--shadow);color:var(--ink-mute);text-decoration:none"><span style="font-size:40px" aria-hidden="true">▶</span><span>Video auf YouTube ansehen</span></a>` : ''}</div></div>`;
   h += `<h2>Themen in diesem Dokument</h2><div class="chips">${ments.slice(0, 20).map(x => `<a class="chip" href="${href(x.n.id)}" style="border-left:3px solid ${TYPE_COLOR[x.n.type]}">${esc(x.n.name)} <span style="color:#6B6B6B">${x.e.segments}</span></a>`).join('')}</div>`;
   if (explains.length) h += `<h2>Erklärt<span class="sub">Kapitel oder Titel nennt das Thema</span></h2><ul class="list">${explains.map(x => `<li>${nodeA(x.n, 't')}<div class="m">${esc(x.ev)}</div></li>`).join('')}</ul>`;
   h += claimsSection(claims, 'Kernaussagen dieser Folge');

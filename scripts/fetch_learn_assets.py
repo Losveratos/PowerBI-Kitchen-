@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Lädt alle Microsoft-Learn-Screenshots der Einsteiger-Guides nach assets/learn/.
 
-Die Guides binden die Bilder primär vom Learn-CDN ein; bricht ein CDN-Pfad
-(Microsoft verschiebt Media-Ordner gelegentlich), greift der JS-Fallback im
-Guide auf assets/learn/<dateiname> zu. Dieses Skript erzeugt genau diese
+Die Fabric-Bilder binden die Guides bereits lokal aus assets/learn/ ein
+(Datenschutz: kein Abruf bei learn.microsoft.com). Die übrigen Bilder kommen
+noch vom Learn-CDN; bricht ein CDN-Pfad (Microsoft verschiebt Media-Ordner
+gelegentlich), greift der JS-Fallback im Guide auf assets/learn/<dateiname> zu.
+Nach dem Laden am besten auch deren src auf assets/learn/ umstellen. Dieses Skript erzeugt genau diese
 lokalen Kopien. Einmal lokal ausführen und die Dateien mitcommitten:
 
     python3 scripts/fetch_learn_assets.py
