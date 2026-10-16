@@ -955,7 +955,7 @@ window.MK_VERSION = '0.6.0';
     const ckSet = ckOpts.filter(o => ((v.ckProps || {})[o.key] || o.def) !== o.def).length;
     const ckBox = ckOpts.length ? grp('ckopts', t('ck.sec'), `
       <p class="hint" style="margin:0 0 8px">${esc(t('ck.hint'))}</p>
-      <div class="grid2">${ckOpts.map(o => { const labels = {}; o.values.forEach(x => { labels[x] = esc(o.def === x ? t('ck.dflt', { v: t('ck.opt.' + o.key + '.' + x) }) : t('ck.opt.' + o.key + '.' + x)); }); return `<div class="field"><label title="${esc(t('ck.tip.' + o.key))}">${esc(t('ck.lbl.' + o.key))}</label><select class="ctl" data-ckp="${o.key}" title="${esc(t('ck.tip.' + o.key))}">${opt(o.values, CAT.ckValue(v, o.key), labels)}</select></div>`; }).join('')}</div>
+      <div>${ckOpts.map(o => { const labels = {}; o.values.forEach(x => { labels[x] = esc(o.def === x ? t('ck.dflt', { v: t('ck.opt.' + o.key + '.' + x) }) : t('ck.opt.' + o.key + '.' + x)); }); return `<div class="field"><label title="${esc(t('ck.tip.' + o.key))}">${esc(t('ck.lbl.' + o.key))}</label><select class="ctl" data-ckp="${o.key}" title="${esc(t('ck.tip.' + o.key))}">${opt(o.values, CAT.ckValue(v, o.key), labels)}</select></div>`; }).join('')}</div>
       ${ckOpts.some(o => o.role && !(v.roles[o.role] || []).length) ? `<p class="hint" style="margin:0 0 8px">${esc(t('ck.trendHint'))}</p>` : ''}
     `, true, ckSet ? t('grp.set', { n: ckSet }) : '') : '';
     const analysis = hasMeasure ? grp('analysis', t('sec.analysis'), `
