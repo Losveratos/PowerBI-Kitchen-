@@ -81,6 +81,15 @@
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
+            "displayName": "X axis PY (Scatter, optional)",
+            "description": "Scatter / bubble mode only: previous-year value of the X measure. With \"Movement arrows PY → AC\" the arrow then moves in 2D (X and Y); without this field the arrow only moves vertically.",
+            "descriptionKey": "RoleDesc_XPrevious",
+            "displayNameKey": "Role_XPrevious",
+            "name": "xPrevious",
+            "kind": "Measure",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
             "displayName": "Bubble size (optional)",
             "description": "Scatter / bubble mode only: turns the points into bubbles whose AREA is proportional to this measure (e.g. headcount). Zero, negative or blank values get the minimum size.",
             "descriptionKey": "RoleDesc_BubbleSize",
@@ -124,7 +133,7 @@
         },
         {
             "displayName": "Small Multiples",
-            "description": "Splits the chart into small-multiple tiles per group, all sharing the same scale (IBCS small multiples). Scatter: no tiles — every category × group combination becomes its own point (\"Category · Group\") in ONE point cloud.",
+            "description": "Splits the chart into small-multiple tiles per group, all sharing the same scale (IBCS small multiples). Scatter: one point cloud per group, X and Y scale, quadrant lines and bubble size shared across all tiles — deliberately without a Σ total or Top-N/Rest tile (sums over ratios such as margins would be wrong).",
             "descriptionKey": "RoleDesc_Multiples",
             "displayNameKey": "Role_Multiples",
             "name": "multiples",
@@ -345,10 +354,28 @@
                     "type": {
                         "enumeration": [
                             { "value": "single", "displayName": "Single color (AC)" },
-                            { "value": "status", "displayName": "Status ΔPY/ΔPL" }
+                            { "value": "status", "displayName": "Status ΔPY/ΔPL" },
+                            { "value": "group", "displayName": "By group/series" }
                         ]
                     }
                 },
+                "scatterShapes": { "type": { "bool": true } },
+                "scatterArrows": { "type": { "bool": true } },
+                "scatterTrend": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "linear", "displayName": "Linear" }
+                        ]
+                    }
+                },
+                "scatterTrendR2": { "type": { "bool": true } },
+                "scatterSizeLegend": { "type": { "bool": true } },
+                "scatterQuadLabelTR": { "type": { "text": true } },
+                "scatterQuadLabelTL": { "type": { "text": true } },
+                "scatterQuadLabelBL": { "type": { "text": true } },
+                "scatterQuadLabelBR": { "type": { "text": true } },
+                "scatterPlay": { "type": { "bool": true } },
                 "cardSortSel": { "type": { "text": true } },
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },
@@ -502,6 +529,12 @@
                 "refLine": { "type": { "text": true } },
                 "refLineLabel": { "type": { "text": true } },
                 "xRefLine": { "type": { "text": true } },
+                "xLogScale": { "type": { "bool": true } },
+                "yLogScale": { "type": { "bool": true } },
+                "xMin": { "type": { "text": true } },
+                "xMax": { "type": { "text": true } },
+                "yMin": { "type": { "text": true } },
+                "yMax": { "type": { "text": true } },
                 "wfAxisBreak": {
                     "type": {
                         "enumeration": [
@@ -529,6 +562,7 @@
                     "series": { "max": 1 },
                     "lineMeasure": { "max": 1 },
                     "xValue": { "max": 1 },
+                    "xPrevious": { "max": 1 },
                     "bubbleSize": { "max": 1 },
                     "rowType": { "max": 1 },
                     "fcFlag": { "max": 1 },
@@ -567,6 +601,7 @@
                         { "bind": { "to": "benchmark" } },
                         { "bind": { "to": "lineMeasure" } },
                         { "bind": { "to": "xValue" } },
+                        { "bind": { "to": "xPrevious" } },
                         { "bind": { "to": "bubbleSize" } },
                         { "bind": { "to": "comments" } },
                         { "bind": { "to": "filterInfo" } }

@@ -118,11 +118,13 @@
     K('bridge', 'struct', { roles: [R.category, R.ac, R.refReq], engines: ['ck', 'deneb'], native: { type: 'waterfallChart', map: { category: 'Category', ac: 'Y' } } }),
     K('tree', 'struct', { roles: [R.category, R.category2, R.ac, R.ref], engines: ['ck', 'native'], native: { type: 'decompositionTreeVisual', map: { ac: 'Analyze', category: 'ExplainBy', subcategory: 'ExplainBy' } } }),
     K('heatmap', 'struct', { roles: [R.category, RX(R.category2, { req: true }), R.ac, R.ref], engines: ['ck', 'deneb', 'native'], native: { type: 'pivotTable', map: { category: 'Rows', subcategory: 'Columns', ac: 'Values' } } }),
-    K('scatter', 'struct', { roles: [R.category, R.x, R.y, R.size], native: { type: 'scatterChart', map: { category: 'Category', x: 'X', y: 'Y', size: 'Size' } } }),
+    // Scatter/Bubble: ab ChartKitchen 1.47 eigener Modus „scatter" (Y = AC, X = xValue, Größe = bubbleSize). Rollen-Schlüssel x/y/size bleiben (gespeicherte Mockups).
+    K('scatter', 'struct', { roles: [R.category, RX(R.x, { labelKey: 'xValue' }), RX(R.y, { labelKey: 'yAc' }), RX(R.size, { labelKey: 'bubble' })], native: { type: 'scatterChart', map: { category: 'Category', x: 'X', y: 'Y', size: 'Size' } } }),
     K('boxplot', 'struct', { roles: [R.category, RX(R.ac, { labelKey: 'valueCol', kind: 'any' })], engines: ['ck', 'deneb'], native: null }),
     K('gantt', 'struct', { roles: [R.category, R.start, R.end, R.series], engines: ['custom', 'deneb'], engine: 'custom', ck: null, native: null, customVisual: { name: 'dataKitchenGantt', guid: 'dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44', map: { category: 'task', start: 'start', end: 'end', series: 'phase' } } }),
 
     // ---------- Tabellen & KPI ----------
+    // Zeitfeld (Rollen-Schlüssel category, wie bisher) = ChartKitchen-Rolle „trend" (ab 1.47): Karte wird zur Zeitreihe mit Sparkline oder Säulen
     K('kpi', 'table', { roles: [R.indicator, R.goal, RX(R.time, { req: false, labelKey: 'timeSpark' })], native: { type: 'card', map: { indicator: 'Values' } } }),
     K('card', 'table', { roles: [R.indicator], engines: ['native'], engine: 'native', ck: null, native: { type: 'card', map: { indicator: 'Values' } } }),
     K('multirow', 'table', { roles: [R.values], engines: ['native'], engine: 'native', ck: null, native: { type: 'multiRowCard', map: { values: 'Values' } } }),
@@ -158,7 +160,31 @@
     dotplot: 'dumbbell', pareto: 'pareto', line: 'line', fan: 'line', zchart: 'line', slope: 'slope',
     varint: 'intwaterfall', wfint: 'intwaterfall', waterfall: 'waterfall', wfkombi: 'waterfall', bridge: 'catbridge',
     kpi: 'cards', table: 'table', sparktable: 'table', heatmap: 'table',
+    scatter: 'scatter',                                            // ab ChartKitchen 1.47
   };
+  // ChartKitchen-Optionen je Kachel (Property-Namen aus capabilities.json, Objekt chart; ab ChartKitchen 1.47).
+  // def = Vorgabe des Visuals. role = Option wirkt nur, wenn diese Rolle gebunden ist (KPI: Zeitfeld = Rolle trend).
+  // Zustand: v.ckProps hält nur bewusst gewählte Werte; Export: visuals[].chartKitchenProps mit aufgelösten Werten (nur engine ck).
+  const CK_OPTS = {
+    kpi: [{ key: 'cardTrendChart', values: ['off', 'sparkline', 'columns'], def: 'sparkline', role: 'category' },
+          { key: 'cardTrendValue', values: ['last', 'sum'], def: 'last', role: 'category' }],
+    bridge: [{ key: 'bridgeOrientation', values: ['auto', 'bars', 'columns'], def: 'auto' }],
+    scatter: [{ key: 'scatterQuadrant', values: ['off', 'mean', 'median'], def: 'mean' }],
+  };
+  const ckOptsFor = kind => CK_OPTS[kind] || [];
+  // Wert einer Option: bewusst gewählt (v.ckProps) oder Vorgabe des Visuals
+  function ckValue(v, key) {
+    const opt = ckOptsFor(v && v.kind).find(o => o.key === key); if (!opt) return null;
+    const x = ((v && v.ckProps) || {})[key];
+    return opt.values.includes(x) ? x : opt.def;
+  }
+  // Aufgelöste Optionen für den Export: nur bei engine ck und nur Optionen, deren Rolle gebunden ist; sonst null (Schlüssel fällt weg)
+  function ckPropsOf(v) {
+    if (!v || v.engine !== 'ck') return null;
+    const out = {};
+    ckOptsFor(v.kind).forEach(o => { if (o.role && !(((v.roles || {})[o.role]) || []).length) return; out[o.key] = ckValue(v, o.key); });
+    return Object.keys(out).length ? out : null;
+  }
   CATALOG.forEach(k => {
     k.ckMode = CK_MODE[k.id] || null;
     if (!k.ckMode) {
@@ -301,7 +327,7 @@
   function row(children) { return { type: 'split', dir: 'row', children: children.map(([size, node]) => ({ size, node })) }; }
   function col(children) { return { type: 'split', dir: 'col', children: children.map(([size, node]) => ({ size, node })) }; }
 
-  const API = { list: CATALOG, byId: BY_ID, engineLabel: ENGINE_LABEL, templates: TEMPLATES, roleDefs: R, ckMode: CK_MODE, polarityFor, groupIds: GROUP_IDS, rolesFor, variantsFor, fieldAliases, demoIds: DEMO_IDS };
+  const API = { list: CATALOG, byId: BY_ID, engineLabel: ENGINE_LABEL, templates: TEMPLATES, roleDefs: R, ckMode: CK_MODE, polarityFor, groupIds: GROUP_IDS, rolesFor, variantsFor, fieldAliases, demoIds: DEMO_IDS, ckOpts: CK_OPTS, ckOptsFor, ckValue, ckPropsOf };
   // groups = Anzeige-Namen in der aktuellen Sprache; k.group liefert denselben String, damit der Filter weiter greift
   lazy(API, 'groups', () => GROUP_IDS.map(id => T('group.' + id)));
   lazy(API, 'demoModel', () => demoModel('controlling'));

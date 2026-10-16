@@ -30,6 +30,9 @@ Measure = Kennzahl. „max": aus `dataViewMappings.conditions` (alle max 1 auße
 | `lineMeasure` | Line (Kombi) | Measure | 1 | Zweite Kennzahl als Linie über Säulen (z. B. Marge %), eigene Skala rechts. **Nur Columns.** |
 | `series` | Stack Series | Grouping | 1 | Säulen/Balken stapeln nach dieser Serie (Legende + Summen-Label). |
 | `colgroup` | Spalten (Matrix) | Grouping | 2 | **Nur Tabelle:** pivotiert Werte in Spaltengruppen (Quartal→Monat, max. 2 Ebenen). |
+| `trend` | Trend (Zeit) | Grouping | 1 | **Nur KPI-Karten (ab 1.47):** Zeitfeld macht jede Karte zur Zeitreihe (Mini-Chart `cardTrendChart` Sparkline/Säulen, Kartenwert `cardTrendValue` Letzter/Summe). Andere Modi aggregieren die Trend-Zeilen weg. |
+| `xValue` | X-Achse (Scatter) | Measure | 1 | **Nur Scatter (ab 1.47):** X-Koordinate; Y = `actual`. numeric/integer. |
+| `bubbleSize` | Blasengröße | Measure | 1 | **Nur Scatter (ab 1.47):** optionale Blasengröße, Fläche proportional. numeric/integer. |
 | `filterInfo` | Filter-Info (Fußzeile) | Measure (text) | 1 | Text-Measure mit Filterkontext (CONCATENATEX/SELECTEDVALUE) → zweite Fußzeile, wenn `ibcsTitle.filterFooter` an. |
 | `comments` | Comments | Measure (text) | 1 | Text-Measure: Kategorien mit Kommentar bekommen nummerierten Marker, Text im Tooltip. |
 | `multiples` | Small Multiples | Grouping | 1 | Teilt das Chart in Kacheln pro Gruppe, identische Skala (IBCS). |
@@ -58,6 +61,7 @@ Aus dem Objekt `chart` in `capabilities.json`, Defaults/Beschreibung aus
 | `pareto` | Pareto (Struktur) | Struktur |
 | `dumbbell` | Dumbbell (Struktur) | Struktur |
 | `slope` | Slope · Vorher/Nachher | 2 Zeitpunkte |
+| `scatter` | Scatter / Bubble (Korrelation) | Struktur (Y = `actual`, X = `xValue`, optional `bubbleSize`; ab 1.47) |
 | `cards` | KPI-Karten (Kacheln) | KPI je Kategorie |
 | `pnl` | GuV-Statement (IBCS) | Struktur (Konten) |
 

@@ -261,6 +261,25 @@ markiert Punkte, die dort bereits (oder besser) gelöst sind.
 
 ## Charts & Brücken
 
+### IBCS-Template-Abgleich (Oktober 2026, gegen C01–C13 / T01–T05)
+
+Abgleich der offiziellen IBCS-Template-Bibliothek gegen 1.48: ~14 von 18
+Templates voll erfüllt (C03–C06, C08–C10, C12, C13, T01–T04). Offene Lücken:
+
+- [ ] **100 %-Stapelung** (S–M) — C01/C02-Anteilsanalysen; Grund-Stapelung
+      über die Serie-Rolle existiert, es fehlt nur die Prozent-Normierung
+      als Option im Stapel-Panel.
+- [ ] **Area-Chart (Flächen)** (M) — C07; kumulierte Anteile über Zeit,
+      als Variante des Linien-Modus (gestapelte Flächen, Szenario-Notation).
+- [ ] **Boxplot / Verteilungen** (L) — EX-1.1-Katalog (vermutlich C11);
+      für Controlling-Zielgruppe nachrangig.
+- [ ] **Varianz-Maßstab-Option / Skalierungsindikatoren** (M) — aus dem
+      IBCS-Audit 2026-10; hängt mit „Skalierungsbänder" (unten) zusammen.
+- [ ] **Achsenschnitt für die übrigen Brücken** (M) — wfAxisBreak gilt
+      bisher nur im Wasserfall (Audit 2026-10).
+- [ ] **Preset „IBCS-Standard" / „S/W-Druck"** (M) — siehe auch
+      „Design-Presets + fx-Farben" im Builder-UX-Block.
+
 - [ ] **Best-/Worst-Case-Korridor am Forecast-Ende** (M) — Bandbreite um FC.
 - [ ] **Index-Darstellung (PY = 100)** (M) — Zusatzmodus für Zeitreihen.
 - [ ] **Skalierungsbänder / Scale Bands** (M) — bei bewusst abweichenden

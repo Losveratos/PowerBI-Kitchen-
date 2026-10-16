@@ -63,7 +63,26 @@ Geisterzeilen/Kreuzprodukte. Wächter-Muster:
 | KPI-Kacheln | `cards` | category + actual |
 | Pareto / Dumbbell / Slope | `pareto` / `dumbbell` / `slope` | category + actual (+ Basis) |
 
-## Settings-Referenz (aus capabilities.json generiert, 1.47.0.0)
+## Settings-Referenz (aus capabilities.json generiert, 1.48.0.0)
+
+**Neu in 1.48:** Scatter-Ausbau. Small Multiples sind echte Scatter-Kacheln
+mit gemeinsamer Skala (Quadranten/refLines/Blasengröße deckweit; Σ- und
+Top-N-Rest-Kachel im Scatter aus). `chart.scatterColorBy` += `group`
+(6 gedeckte Farben ohne Rot/Grün, Legende mit „+n weitere"). Neue Rolle
+`xPrevious` („X-Achse VJ (Scatter)", Measure, max 1) für 2D-Bewegungspfeile.
+Neue chart-Settings (Reihenfolge = Pane-Reihenfolge): `scatterShapes`,
+`scatterArrows`, `scatterTrend` (off|linear), `scatterTrendR2`,
+`scatterSizeLegend` (Default an), `scatterQuadLabelTR/TL/BL/BR` (Text),
+`scatterPlay` (Rosling-Animation: category = Frame-Achse, je Frame ein
+Punkt pro Serie, statisch letzte Periode; Laufzustand transient, KEIN
+persistProperties). Neue scale-Gruppe „Scatter-Achsen": `xMin/xMax/yMin/
+yMax` (Text, parseRefValue: leer=auto, 0 gültig, k/M/B) + `xLogScale`/
+`yLogScale` (nur wenn alles > 0, sonst linear + Edit-Hinweis; bei SM eine
+deckweite Entscheidung; mean/median im Datenraum). Rechteck-Auswahl =
+Marquee auf leerer Plotfläche → EIN selectionManager.select(ids, false).
+Pane-Gates: Formen nur bei group, Pfeile nur mit PY, R² nur bei Trend,
+Größen-Legende nur mit bubbleSize, Ecklabels nur bei aktiven Quadranten.
+Tests c175–c183. 503 resjson-Keys je Sprache.
 
 **Neu in 1.47:** 13. Chart-Modus `scatter` (Scatter/Bubble: Y = AC, X = neue
 Measure-Rolle `xValue`, optionale Rolle `bubbleSize`, Quadranten

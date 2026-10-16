@@ -37,6 +37,11 @@
          density:'normal'|'compact',
          // columns/bars/line/donut: look:'native' zeichnet den Power-BI-Klassiker
          look:'ibcs'|'native',
+         // ChartKitchen-Optionen (ab 1.47); ohne sie ist die Skizze wie bisher
+         trend:'off'|'sparkline'|'columns',         // nur kpi: Mini-Chart (chart.cardTrendChart)
+         orient:'bars'|'columns',                   // nur bridge: waagerechte Balken oder Säulen-Kaskade
+         quadrant:'off'|'mean'|'median',            // nur scatter: Quadranten-Kreuz
+         bubble:Boolean,                            // nur scatter: Blasengröße gebunden
          // Eigene Daten (alle optional; ohne sie ist jede Skizze byte-identisch)
          cats:['Nord','Süd',…],                     // Kategorienamen statt c.t.cat
          values:[Number,…],                         // Hauptszenario (AC), values[i] ↔ cats[i]
@@ -1694,9 +1699,12 @@
     return wrap(c, b);
   };
 
-  /* ---- 12 · Brücke: Σ Referenz -> Δ je Kategorie -> Σ AC ---------------- */
+  /* ---- 12 · Brücke: Σ Referenz -> Δ je Kategorie -> Σ AC ----------------
+     o.orient = 'bars' zeichnet die Kaskade waagerecht (ChartKitchen
+     chart.bridgeOrientation auto/bars), sonst als Säulen wie bisher.       */
   S.bridge = function (w, h, o) {
     var c = ctx(w, h, o), hh = hatch(c), b = hh.defs;
+    var horiz = !!(o && o.orient === 'bars');
     var kind = refKind(c) || 'PY';
     var mids = kcnt(c, c.small ? 3 : (c.dense ? 7 : 5), capN(c, 3, 22, 3, 16)), i;
     var start = 100, items = [{ v: start, anchor: true, kind: kind, lbl: kind }], run = start;
@@ -1717,6 +1725,7 @@
     }
     items.push({ v: n(run), anchor: true, kind: 'AC', lbl: c.main });
     var dT = n(run - start);
+    if (horiz) return wrap(c, b + bridgeRows(c, items, hh, kind, dT));
     var calloutW = (c.lab && c.w >= 260) ? tw(dvlbl(c, dT), c.fs) + c.fs * 1.2 + 10 : 0;
     var capH = c.lab ? c.fsT + 4 : 0;
     var P = area(c, { bottom: c.lab ? c.fsA + 5 : 0, top: capH, right: calloutW });
@@ -1735,6 +1744,43 @@
     b += monLabels(c, r.slots, c.y1 - 0.5, nm, bold);
     return wrap(c, b);
   };
+
+  /* Brücke waagerecht: je Schritt eine Zeile. Anker (Σ Referenz oben, Σ AC
+     unten) laufen ab 0, die Δ je Kategorie schweben auf dem laufenden Stand,
+     senkrechte Haarlinien verbinden die Zeilen. Kategorien links, Werte
+     rechts neben dem Balken, Netto-Δ als Plakette rechts oben.              */
+  function bridgeRows(c, items, hh, kind, dT) {
+    var cnt = items.length, i, run = 0, lo = 0, hi = 0, seg = [], b = '';
+    for (i = 0; i < cnt; i++) {
+      var it = items[i], from = it.anchor ? 0 : run, to = it.anchor ? it.v : n(run + it.v);
+      seg.push({ from: from, to: to });
+      run = to;
+      lo = Math.min(lo, from, to); hi = Math.max(hi, from, to);
+    }
+    var labW = c.lab ? labWid(c, cnt, Math.min(c.iw * 0.22, tw('Service', c.fsA) + 5), 0.26) : 0;
+    var wmax = 0;
+    for (i = 0; i < cnt; i++) wmax = Math.max(wmax, tw(items[i].anchor ? vlbl(c, items[i].v) : dvlbl(c, items[i].v), c.fs));
+    var headH = c.lab ? c.fsT + 5 : 0;
+    var P = area(c, { left: labW, top: headH, right: c.lab ? wmax + 4 : 0 });
+    var rw = rowsOf(P.y, P.h, cnt, 0.3);
+    var showLbl = c.lab && rw[0].step >= c.fs * 1.05;
+    var s = sc(lo, hi * 1.02, P.x, P.x + P.w);
+    if (c.lab) {
+      b += layerCap(c, P.x, c.y0 + c.fsT * 0.85, kind + ' → ' + c.main);
+      b += txt(c.x1, c.y0 + c.fsT * 0.85, dvlbl(c, dT), c.fsT, dcol(c, dT), 'end', '700');
+    }
+    for (i = 0; i < cnt; i++) {
+      var it2 = items[i], sg = seg[i], r = rw[i];
+      var xL = s(Math.min(sg.from, sg.to)), xR = s(Math.max(sg.from, sg.to)), bw = Math.max(1, xR - xL);
+      if (it2.anchor) b += (it2.kind && it2.kind !== 'AC') ? refShape(c, xL, r.y, bw, r.h, it2.kind, hh) : rect(xL, r.y, bw, r.h, c.C.ac);
+      else b += rect(xL, r.y, bw, r.h, dcol(c, it2.v));
+      if (i < cnt - 1) { var xc = s(sg.to); b += ln(xc, r.y + r.h, xc, rw[i + 1].y, c.C.hair, 0.8); }
+      if (c.lab) b += rowLabel(c, P.x - 4, r.cy, it2.lbl, labW - 4, !!it2.anchor);
+      if (showLbl) b += txt(xR + 3, r.cy + c.fs * 0.34, it2.anchor ? vlbl(c, it2.v) : dvlbl(c, it2.v), c.fs, c.C.ink, 'start', it2.anchor ? '600' : null, c.C.paper);
+    }
+    b += baseV(c, P.y, P.y + P.h, s(0), 'AC');
+    return b;
+  }
 
   /* ---- 13 · Integrierte Varianzanalyse (Modus „intwaterfall") -----------
      Links Σ Referenz (PL weiß mit Kontur / PY grau, zweites Szenario davor),
@@ -3174,7 +3220,9 @@
     var padY = card ? Math.min(10, P.h * 0.08) : 0;
     var blockH = titleH + big * 0.95 + dRowH;
     var spare = P.h - padY * 2 - blockH;
-    var sparkOn = spare >= 18 && iw >= 50 && !c.small;
+    // o.trend (ChartKitchen chart.cardTrendChart): 'off' = kein Verlauf, 'columns' = Säulen; ohne Angabe Sparkline wie bisher
+    var trend = (o && o.trend != null) ? String(o.trend) : '';
+    var sparkOn = spare >= 18 && iw >= 50 && !c.small && trend !== 'off';
     var T = P.y + padY + (sparkOn ? 0 : Math.max(0, spare / 2));
     if (titleH) b += txt(L, T + tFs * 0.85, fit(c, kpiLabel, iw, tFs), tFs, c.C.sub, 'start');
     var yBig = T + titleH + big * 0.8;
@@ -3188,7 +3236,13 @@
         if (tw('x'.repeat(richLen(dParts)), dFs) <= iw) b += rich(L, yD, dParts, dFs, 'start');
       }
     }
-    if (sparkOn) {
+    if (sparkOn && trend === 'columns') {
+      // Säulen je Periode, nullbasiert; die letzte (aktuelle) Periode in AC-Farbe
+      var ch = Math.min(spare - 10, P.h * 0.42), cy = P.y + P.h - padY - ch;
+      var sv = series(c, 12, 60, 24), cs = sc(0, maxOf(sv) * 1.05, cy + ch, cy), csl = slots(L, iw - 3, 12, 0.3), ci;
+      for (ci = 0; ci < 12; ci++) b += rect(csl[ci].x, cs(sv[ci]), csl[ci].w, Math.max(0.8, cy + ch - cs(sv[ci])), ci === 11 ? c.C.ac : c.C.py);
+      b += ln(L, cy + ch, L + iw - 3, cy + ch, c.C.axis, 0.8);
+    } else if (sparkOn) {
       var sh = Math.min(spare - 10, P.h * 0.42), sy = P.y + P.h - padY - sh;
       var pts = sparkPts(c, 12, L, sy, iw - 3, sh);
       b += polygonEl(pts.concat([[L + iw - 3, sy + sh], [L, sy + sh]]), c.C.wash);
@@ -3225,16 +3279,26 @@
     return b;
   }
 
-  /* ---- 31 · Streudiagramm mit Quadranten -------------------------------- */
+  /* ---- 31 · Streudiagramm mit Quadranten --------------------------------
+     o.quadrant (ChartKitchen chart.scatterQuadrant): 'off' ohne Kreuz,
+     'median' Kreuz leicht versetzt; o.bubble false = gleich große Punkte,
+     true = Blasen mit größerer Spanne. Ohne Angaben wie bisher.            */
   S.scatter = function (w, h, o) {
     var c = ctx(w, h, o), b = '';
     var cnt = c.small ? 7 : (c.dense ? 24 : 14);
+    var quad = (o && o.quadrant) || 'mean', bub = o ? o.bubble : undefined;
     var P = area(c, { left: c.lab ? tw('00', c.fsA) + 4 : 0, bottom: c.lab ? c.fsA + 4 : 0 });
-    b += ln(P.x + P.w / 2, P.y, P.x + P.w / 2, P.y + P.h, c.C.grid, 1, '3 2');
-    b += ln(P.x, P.y + P.h / 2, P.x + P.w, P.y + P.h / 2, c.C.grid, 1, '3 2');
+    if (quad !== 'off') {
+      var qx = P.x + P.w * (quad === 'median' ? 0.44 : 0.5), qy = P.y + P.h * (quad === 'median' ? 0.56 : 0.5);
+      b += ln(qx, P.y, qx, P.y + P.h, c.C.grid, 1, '3 2');
+      b += ln(P.x, qy, P.x + P.w, qy, c.C.grid, 1, '3 2');
+      if (c.lab && o && o.quadrant) b += txt(qx + 3, P.y + c.fsA * 0.9, quad === 'median' ? 'Md' : 'Ø', c.fsA, c.C.sub, 'start');
+    }
     var i, r;
     for (i = 0; i < cnt; i++) {
       r = c.small ? 1.5 : 1.8 + c.rnd() * 2.2;
+      if (bub === false) r = c.small ? 1.5 : 2.2;
+      else if (bub === true && !c.small) r = 1.6 + (r - 1.8) * 2.4;
       var x = P.x + r + 1 + c.rnd() * (P.w - 2 * r - 2);
       var y = P.y + r + 1 + c.rnd() * (P.h - 2 * r - 2);
       b += circ(x, y, r, i % 5 === 0 ? c.C.ac : mix(c.C.py, c.C.paper, 0.1), c.C.paper, 0.6);

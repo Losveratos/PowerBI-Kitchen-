@@ -91,7 +91,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mockup_spec import (                                     # noqa: E402
-    CK_ORIENTATION, CK_ROLE, CK_ROLE_UNSUPPORTED, DRILL_ROLE_ORDER,
+    CK_ORIENTATION, CK_PROPS, CK_ROLE, CK_ROLE_BY_KIND, CK_ROLE_UNSUPPORTED, DRILL_ROLE_ORDER,
     MEASURE_ROLE_ORDER, NO_VARIANT_KINDS, SMALL_MULTIPLES_BUCKET,
     SMALL_MULTIPLES_TYPES, SpecError, as_document,
     a11y_issues, build_hash, custom_visual_info, footer_nav_entries, half_pt, is_a11y_issue,
@@ -1757,8 +1757,13 @@ def ck_roles_for(v: dict):
             ref_targets.append(cand)
 
     out = {}
+    by_kind = CK_ROLE_BY_KIND.get(v.get("kind")) or {}
     for key, fields in roles.items():
         refs = [f["ref"] for f in fields]
+        if key in by_kind:
+            # ChartKitchen 1.47: KPI-Zeitfeld -> trend, Scatter -> xValue/actual/bubbleSize
+            out.setdefault(by_kind[key], []).extend(refs)
+            continue
         if key == "ref":
             for i, r in enumerate(refs):
                 target = ref_targets[i] if i < len(ref_targets) else "benchmark"
@@ -1809,7 +1814,27 @@ def ck_contract_warnings(v: dict, orientation, roles: dict):
     if roles.get("fcFlag"):
         warn.append("`fcFlag` muss die **Zahl** 1/0 liefern, kein Boolean "
                     "(%s pruefen)." % ", ".join(roles["fcFlag"]))
+    if orientation == "scatter" and not (roles.get("xValue") and roles.get("actual")):
+        warn.append("Modus `scatter` braucht `xValue` (X-Achse) und `actual` (Y-Achse) — "
+                    "ohne beide zeichnet ChartKitchen keine Punktwolke (ab 1.47).")
+    if roles.get("trend") and orientation != "cards":
+        warn.append("`trend` wirkt nur bei `orientation=cards`; andere Modi aggregieren "
+                    "die Trend-Zeilen weg.")
+    if roles.get("xValue") or roles.get("bubbleSize") or roles.get("trend") or orientation == "scatter":
+        warn.append("Rollen `trend`, `xValue`, `bubbleSize` und Modus `scatter` gibt es erst ab "
+                    "ChartKitchen **1.47** — aeltere .pbiviz im Bericht vorher aktualisieren.")
     return warn
+
+
+def ck_chart_props(v: dict) -> dict:
+    """`visuals[].chartKitchenProps` (Tool 0.6.0) -> Properties fuer `chart`.
+    Unbekannte Schluessel oder Werte fallen weg (das Tool darf wachsen)."""
+    out = {}
+    for key, val in ((v.get("chartKitchenProps") or {}).items()):
+        spec = CK_PROPS.get(key)
+        if spec and val in spec["values"]:
+            out[key] = val
+    return out
 
 
 def build_slots(page: dict, nspec=None):
@@ -1840,6 +1865,8 @@ def build_slots(page: dict, nspec=None):
             chart_props = {"orientation": orientation}
             if a.get("polarity") == "lower":
                 chart_props["invert"] = True
+            # Tool 0.6.0: ChartKitchen-Optionen (Trend-Karte, Bruecken-Ausrichtung, Quadranten)
+            chart_props.update(ck_chart_props(v))
             slot = dict(base)
             slot.update({"chartKitchenType": v.get("chartKitchenType"),
                          "orientation": orientation,

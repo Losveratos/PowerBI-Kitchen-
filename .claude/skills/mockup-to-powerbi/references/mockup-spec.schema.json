@@ -804,6 +804,16 @@
             "null"
           ]
         },
+        "chartKitchenProps": {
+          "description": "Ab Tool 0.6.0 (ChartKitchen 1.47): Properties fuer das Objekt `chart`, nur bei engine ck und nur bei Typen mit Optionen. Fehlt der Schluessel, gelten die Vorgaben des Visuals.",
+          "type": "object",
+          "properties": {
+            "cardTrendChart": { "enum": ["off", "sparkline", "columns"] },
+            "cardTrendValue": { "enum": ["last", "sum"] },
+            "bridgeOrientation": { "enum": ["auto", "bars", "columns"] },
+            "scatterQuadrant": { "enum": ["off", "mean", "median"] }
+          }
+        },
         "native": {
           "$ref": "#/$defs/native"
         },

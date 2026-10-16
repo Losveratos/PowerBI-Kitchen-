@@ -1,5 +1,57 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.48.0.0 (2026-10-16)
+
+**Scatter/Bubble-Ausbau: Small Multiples, Gruppen-Färbung und neun Analyse-Features inkl. Play-Modus.**
+
+- **Small Multiples als echte Scatter-Kacheln:** gemeinsame X/Y-Skala,
+  Quadranten-Linien (Mittelwert/Median über alle Punkte), refLine/xRefLine
+  und Blasengröße gelten für alle Kacheln gleich; Kachel-Vergrößern (⤢)
+  behält Skala und Farben. Σ- und Top-N-Rest-Kachel sind im Scatter bewusst
+  aus (keine Summen über Quoten).
+- **Einfärbung nach Gruppe** (`chart.scatterColorBy` += `group`): sechs
+  gedeckte Farben ohne Rot/Grün (bleiben für gut/schlecht reserviert),
+  eigene Dark-Palette, Legende oben mit „+n weitere" ab der 7. Gruppe;
+  Rückfall auf einfarbig ohne Serie, keine Wirkung im Hochkontrast.
+- **PY→AC-Bewegungspfeile** (`chart.scatterArrows`): kleiner grauer
+  PY-Startpunkt, dünne Linie, Pfeilspitze an der AC-Markerkante; neue
+  optionale Rolle **„X-Achse VJ (Scatter)"** (`xPrevious`) für echte
+  2D-Bewegung, sonst nur Y; Tooltip mit Δ je Achse.
+- **Größen-Legende** (`chart.scatterSizeLegend`, Default an): drei genestete
+  Referenzkreise auf runden Werten in der ersten freien Plot-Ecke; bei
+  Kacheln genau einmal.
+- **Quadranten-Beschriftung:** vier freie Ecklabels
+  (`chart.scatterQuadLabelTR/TL/BL/BR`, leer = aus), dezent in ink-soft.
+- **Trendlinie** (`chart.scatterTrend` aus/linear) mit optionalem
+  **R²-Label** (`chart.scatterTrendR2`), bei Kacheln je Kachel; im
+  Log-Raum regressiert, bleibt also gerade.
+- **Log-Skala** (`scale.xLogScale`/`yLogScale`): nur wenn alle Werte,
+  Referenzlinien und fixierten Grenzen > 0, sonst linear + Hinweis im
+  Edit-Modus; Dekaden-Ticks (1-2-5 bei enger Spanne); bei Kacheln eine
+  deckweite Entscheidung.
+- **Achsen-Min/Max fixieren** (`scale.xMin/xMax/yMin/yMax`, leer = auto,
+  k/M/B-Suffixe): Skalen-Sync über mehrere Scatter-Visuals; Punkte
+  außerhalb werden gezählt („n außerhalb der Achsen") statt gezeichnet.
+- **Rechteck-Auswahl:** Aufziehen auf leerer Plotfläche selektiert alle
+  enthaltenen Punkte als EIN Multi-Select (Crossfilter); Klick ohne Drag
+  löscht wie bisher.
+- **Punktform je Gruppe** (`chart.scatterShapes`): Kreis/Quadrat/Dreieck/
+  Raute flächen-angeglichen, auch in der Legende — S/W-Druck- und
+  Farbfehlsicht-tauglich, im Hochkontrast als Umriss-Formen.
+- **Play-Modus (Rosling)** (`chart.scatterPlay`, Default aus = Button
+  unsichtbar): Kategorie wird zur Zeitachse, je Frame ein Punkt pro Serie;
+  animierte Bewegung (900 ms/Periode), großes Perioden-Wasserzeichen
+  (Klick = Reset), Achsen/Quadranten/Blasenskala fix über alle Frames;
+  statisch zeigt der Chart die letzte Periode. Nur für die einzelne
+  Punktwolke (nicht bei Kacheln), Exporte rendern die volle Wolke.
+- **Format-Menü:** Scatter-Einstellungen in Prioritätsreihenfolge
+  (Quadranten → Färbung → Formen → Pfeile → Trend → R² → Größen-Legende →
+  Ecklabels → Play); neue Gruppe „Scatter-Achsen" in der Skala-Karte;
+  Sichtbarkeits-Gates (z. B. R² nur bei Trendlinie, Pfeile nur mit PY).
+- Tests c170–c183 (+Varianten); 503 resjson-Keys je Sprache (4 Sprachen
+  identisch); Bestandsfälle pixelidentisch bis auf die 7 Bubble-Fälle,
+  die jetzt die Größen-Legende zeigen.
+
 ## 1.47.0.0 (2026-10-16)
 
 **Vier Besitzer-Wünsche: Scatter/Bubble, Trend-Karten, Brücken-Ausrichtung, Sofort-Hierarchie.**

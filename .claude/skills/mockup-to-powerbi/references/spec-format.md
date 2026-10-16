@@ -107,6 +107,26 @@ Wieder abwärtskompatibel: fehlt ein Schlüssel, baut der Skill genau wie vorher
 | `zones.filter.slicers[].type` | 0.4.4 / 0.4.6 | Slicer-Art `dropdown` · `list` · `tile` · `between` · `date` · `search` · ab 0.4.6 `relative` · `button` |
 | Issue-Codes `A11Y_*` | 0.4.4 | Befunde der Barrierefreiheits-Prüfung |
 
+### Tool 0.6.0: ChartKitchen 1.47 (specVersion bleibt 3)
+
+Wieder abwärtskompatibel: kein Feld wird umbenannt, die Rollen-Schlüssel bleiben
+(`x`, `y`, `size`, bei `kpi` das Zeitfeld unter `category`). Neu ist nur, wie der
+Skill sie auf ChartKitchen abbildet, und ein optionaler Block je Kachel.
+
+| Neu | Wo |
+|---|---|
+| Typ `scatter` mit Engine `ck` | `chartKitchenMode: "scatter"` (13. Modus ab ChartKitchen 1.47). Vorher hatte `scatter` keinen Modus und lief nur nativ (`scatterChart`); alte Kacheln behalten ihre gespeicherte Engine `native` |
+| `visuals[].chartKitchenProps` | Properties für das Objekt `chart` des Visuals, **nur** bei `engine: "ck"` und nur bei Typen mit Optionen; sonst fehlt der Schlüssel. Werte stehen aufgelöst darin (Vorgabe des Visuals, wenn im Workshop nichts gewählt wurde). Siehe [ChartKitchen-Optionen](#chartkitchen-optionen-visualschartkitchenprops-tool-060) |
+| Zuordnung `kpi`: `category` → `trend` | Das Zeitfeld einer KPI-Kachel (im Tool „Trend (Zeit)") ist ab 1.47 die Grouping-Rolle `trend`: jede Karte wird zur Zeitreihe. In `category` würde jede Periode eine eigene Karte |
+| Zuordnung `scatter`: `x` → `xValue`, `y` → `actual`, `size` → `bubbleSize` | Y-Achse = AC; Blasengröße optional (Fläche proportional) |
+
+> **Hash:** `chartKitchenProps` zählt zum Bau-Kern, aber nur, wenn der Schlüssel
+> in der Datei steht. Specs ohne den Block (alle vor 0.6.0, alle Kacheln ohne
+> ChartKitchen-Optionen) behalten ihren Hash. Ein Neuexport eines älteren
+> Mockups mit ChartKitchen-KPI samt Zeitfeld, ChartKitchen-Brücke oder
+> ChartKitchen-Scatter bekommt den Block und damit **einmal** einen neuen Hash —
+> gewollt, weil der Bau sich ändert (Rolle `trend`, Optionen im Objekt `chart`).
+
 ## Kanonisierung des `specHash`
 
 `meta.specHash` sagt, welcher Mockup-Stand gebaut wurde. Tool (`fnv()`,
@@ -119,13 +139,16 @@ sich aus der Spec allein nachrechnen.
 ```
 { canvas: {width, height}, design, zones,
   pages: [{ name, question,
-            visuals: [{ id, kind, engine, title, content, rect, roles, analysis, link }] }],
+            visuals: [{ id, kind, engine, title, content, rect, roles, analysis, link,
+                        chartKitchenProps }] }],
   fields, newFields, links }
 ```
 
 - **v3 (Datei aus dem Tool):** Werte genau so, wie sie in der Datei stehen,
   ganze Objekte (`design` mit `colors`, `zones`, `analysis`, `fields[]` mit
-  Steckbrief). Fehlt ein Schlüssel in der Datei, fehlt er auch im Kern.
+  Steckbrief). Fehlt ein Schlüssel in der Datei, fehlt er auch im Kern — so
+  auch `chartKitchenProps` (ab Tool 0.6.0), der nur bei Kacheln mit
+  ChartKitchen-Optionen steht.
   Ausnahme ab Tool 0.5.5: In `fields[]` und `newFields[]` fallen die reinen
   Protokoll-Angaben `confirmed`, `owner`, `source`, `target`, `note`,
   `daxComment` und `openQuestion` weg (`HASH_DOC_KEYS`), wie `workshop.status`.
@@ -363,6 +386,7 @@ wird `pbir pages drillthrough "<Ziel>.Page" --table <Tabelle> --field <Feld>`.
 | `engine` | `ck` · `native` · `deneb` |
 | `chartKitchenType` | ChartKitchen-Typ-ID (nur bei `engine: "ck"`, sonst `null`) |
 | `chartKitchenMode` | der `chart.orientation`-Wert aus dem Katalog (ab v3) — **diesen nehmen**, die Tabelle weiter unten ist nur der Ersatz für v1/v2 |
+| `chartKitchenProps` | ab Tool 0.6.0, optional: weitere Properties für das Objekt `chart` (`cardTrendChart`, `cardTrendValue`, `bridgeOrientation`, `scatterQuadrant`), nur bei `engine: "ck"` — siehe [ChartKitchen-Optionen](#chartkitchen-optionen-visualschartkitchenprops-tool-060) |
 | `content` | Text einer Text- oder Button-Kachel (ab v3). Wird als `shape`/`actionButton` mit `text.text` gebaut, **nicht** als Textbox |
 | `analysis` | Analyse-Entscheidungen, siehe unten (ab v3) |
 | `workshop` | `{priority: must\|should\|could\|null, status: open\|agreed\|approved, openQuestion: bool}` (ab v3) — landet als Annotation am Visual und in der Doku |
@@ -500,7 +524,7 @@ Achsenbindung zieht man im Slot nach (To-do `FIELDPARAM_SLOT`).
 
 | Rolle | Label im Tool | Art | max |
 |---|---|---|---|
-| `category` | Kategorie / Achse bzw. Zeit / Periode bzw. Geo-Feld | Spalte | 1 (mit `fieldParam` bis 8) |
+| `category` | Kategorie / Achse bzw. Zeit / Periode bzw. Geo-Feld; bei `kpi` „Trend (Zeit)" (optional) | Spalte | 1 (mit `fieldParam` bis 8) |
 | `subcategory` | Unterkategorie | Spalte | 1 |
 | `series` | Reihe / Legende (bei Kachel-Typ `multiples`: Facette) | Spalte | 1 |
 | `multiples` | Small Multiples nach — ab 0.4.1, Aufteilungsfeld | Spalte | 1 |
@@ -510,8 +534,8 @@ Achsenbindung zieht man im Slot nach (To-do `FIELDPARAM_SLOT`).
 | `values` | Werte / Felder | Measure bzw. beliebig | 12–20 |
 | `rows` | Zeilen | Spalte | 4 |
 | `columns` | Spalten | Spalte | 3 |
-| `x`, `y` | X-/Y-Wert (Streudiagramm) | Measure | 1 |
-| `size` | Größe | Measure | 1 |
+| `x`, `y` | X-Achse / Y-Achse · AC (Streudiagramm; ab 0.6.0 so beschriftet, Schlüssel unverändert) | Measure | 1 |
+| `size` | Blasengröße (Streudiagramm, optional) bzw. Größe (Karte) | Measure | 1 |
 | `indicator` | Kennzahl (KPI/Karte/Tacho) | Measure | 1 |
 | `goal` | Ziel / Referenz | Measure | 1 |
 | `start`, `end` | Start / Ende (Gantt) | Spalte | 1 |
@@ -591,7 +615,7 @@ Das Skript schlägt vor, die Referenz-Instanz entscheidet.
 
 | Mockup-Rolle | ChartKitchen | Anmerkung |
 |---|---|---|
-| `category` | `category` | |
+| `category` | `category` | bei `kind: "kpi"` stattdessen **`trend`** (ab ChartKitchen 1.47, Tool 0.6.0): das Zeitfeld macht die Karte zur Zeitreihe |
 | `rows` | `category` | Tabelle |
 | `series` | `series` | bei `kind: "multiples"` stattdessen `multiples` |
 | `multiples` | `multiples` | ab 0.4.1 — dieselbe Zielrolle wie beim Kachel-Typ `multiples`. **Vorschlag, nicht bestätigt:** ob die gewählte `orientation` daraus wirklich Small Multiples zeichnet, entscheidet die Referenz-Instanz. Der Skill meldet dazu `SM_NOT_NATIVE` |
@@ -601,7 +625,17 @@ Das Skript schlägt vor, die Referenz-Instanz entscheidet.
 | `goal` | `plan` | bei Monitoring-Zielwerten ggf. `benchmark` — nachfragen |
 | `fc` | `fcFlag` | **Zahl 1/0**, nicht Boolean |
 | `rowType` | `rowType` | Pflicht bei `orientation` `waterfall` und `pnl` (`sum`/`delta` je Zeile) |
-| `x`, `y`, `size`, `start`, `end`, `field`, `text` | – | kein Gegenstück; diese Typen kann ChartKitchen nicht |
+| `x`, `y`, `size` bei `kind: "scatter"` | `xValue`, `actual`, `bubbleSize` | ab ChartKitchen 1.47 (Tool 0.6.0): Y-Achse = AC, Blasengröße optional |
+| `x`, `y`, `size` (andere Typen), `start`, `end`, `field`, `text` | – | kein Gegenstück; diese Typen kann ChartKitchen nicht |
+
+`mockup_spec.CK_ROLE_BY_KIND` hält die typabhängigen Zuordnungen (`kpi`,
+`scatter`), sie gelten vor `CK_ROLE`. `trend` wirkt nur bei `orientation:
+cards`, andere Modi aggregieren die Trend-Zeilen weg. Rollen und Modus gibt es
+erst ab ChartKitchen **1.47** — der Slot warnt, damit eine ältere `.pbiviz` im
+Bericht vorher aktualisiert wird. `chartkitchen-report/references/field-contract.md`
+kennt `trend`, `xValue` und `bubbleSize` noch nicht; maßgeblich sind
+`ibcsInspiredChartDeck/capabilities.json` und der Block „Neu in 1.47" im
+`AGENT-GUIDE.md` des Visuals.
 
 ### Kachel-Typ → `chart.orientation`
 
@@ -621,7 +655,36 @@ Das Skript schlägt vor, die Referenz-Instanz entscheidet.
 | `bridge` | `catbridge` |
 | `kpi` | `cards` |
 | `table`, `sparktable`, `heatmap` | `table` |
-| `marimekko`, `tree`, `scatter`, `boxplot`, `gantt` | kein Modus → Deneb oder natives Visual |
+| `scatter` | `scatter` (ab ChartKitchen 1.47, Tool 0.6.0; vorher kein Modus) |
+| `marimekko`, `tree`, `boxplot`, `gantt` | kein Modus → Deneb oder natives Visual |
+
+### ChartKitchen-Optionen (`visuals[].chartKitchenProps`, Tool 0.6.0)
+
+Im Tool unter Kachel → „ChartKitchen-Optionen", nur bei Umsetzung mit
+ChartKitchen. Die Spec trägt die **aufgelösten** Werte (Workshop-Wahl oder
+Vorgabe des Visuals); Property-Namen und Werte wie in der `capabilities.json`
+von ChartKitchen 1.47, Objekt `chart`. Im PBIR:
+`visual.json → objects.chart.properties.<property>`, Enums als String.
+
+| Kachel-Typ | Property | Werte (Vorgabe **fett**) | steht in der Spec, wenn | Wirkung |
+|---|---|---|---|---|
+| `kpi` | `cardTrendChart` | `off` · **`sparkline`** · `columns` | Zeitfeld in `category` gebunden | Mini-Chart der Karte: Sparkline (PY als Geisterlinie, FC gestrichelt) oder Säulen je Periode; `off` = kein Verlauf |
+| `kpi` | `cardTrendValue` | **`last`** · `sum` | wie oben | große Kartenzahl: letzter Wert (Δ/Ampel aus derselben Periode) oder Summe über alle Perioden |
+| `bridge` | `bridgeOrientation` | **`auto`** · `bars` · `columns` | immer bei `engine: "ck"` | `catbridge` waagerecht (`auto` = `bars`, wie vor 1.47) oder als senkrechte Säulen-Kaskade |
+| `scatter` | `scatterQuadrant` | `off` · **`mean`** · `median` | immer bei `engine: "ck"` | Quadranten-Kreuz am Mittelwert bzw. Median der Achsen |
+
+```json
+"chartKitchenMode": "cards",
+"chartKitchenProps": { "cardTrendChart": "columns", "cardTrendValue": "last" }
+```
+
+`mockup_to_pbir.py` übernimmt die Werte in `chartkitchen-slots.json →
+chartProps` neben `orientation` und `invert` (`ck_chart_props`; unbekannte
+Schlüssel oder Werte fallen weg). Ohne Referenz-Instanz sind es Einträge für den
+Format-Bereich (Chart-Karte, Gruppen „KPI-Karten" bzw. „Brücke"). Native,
+Deneb- und Custom-Kacheln bekommen den Block nie; auch die Vorschau-Skizze im
+Tool folgt der Wahl (KPI ohne Zeitfeld ohne Verlauf, Brücke waagerecht bei
+`auto`/`bars`).
 
 Für GuV-Seiten gibt es in ChartKitchen zusätzlich `pnl` (Skill `pnl-report`).
 Ab Tool 0.4 hat das Mockup dafür einen **eigenen Typ** `pnl` — der läuft aber

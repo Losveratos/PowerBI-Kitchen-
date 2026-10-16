@@ -992,6 +992,57 @@ def review_fix_tests(tmp: Path, res: Results):
                       and plan.get("model") == want and "modelNote" not in plan, err[-200:])
 
 
+def ck147_tests(res: Results):
+    """Tool 0.6.0 / ChartKitchen 1.47: Scatter-Modus, KPI-Trend, chartKitchenProps."""
+    import mockup_spec as M
+    import mockup_to_pbir as P
+    f = lambda ref, kind="measure": [{"ref": ref, "kind": kind}]
+    kpi = {"kind": "kpi", "engine": "ck", "scenario": None,
+           "roles": {"indicator": f("_Measures.Umsatz"), "goal": f("_Measures.PL"),
+                     "category": f("DimDate.Month", "column")},
+           "chartKitchenProps": {"cardTrendChart": "columns", "cardTrendValue": "sum"}}
+    roles, warn = P.ck_roles_for(kpi)
+    res.check("1.47 · KPI-Zeitfeld landet in `trend`, nicht in `category`",
+              roles.get("trend") == ["DimDate.Month"] and "category" not in roles
+              and roles.get("actual") == ["_Measures.Umsatz"], repr(roles))
+    sc = {"kind": "scatter", "engine": "ck",
+          "roles": {"category": f("DimProduct.Product", "column"), "x": f("_Measures.Menge"),
+                    "y": f("_Measures.Marge %"), "size": f("_Measures.Umsatz")},
+          "chartKitchenProps": {"scatterQuadrant": "median"}}
+    roles, warn = P.ck_roles_for(sc)
+    res.check("1.47 · Scatter: x → xValue, y → actual, size → bubbleSize",
+              roles == {"category": ["DimProduct.Product"], "xValue": ["_Measures.Menge"],
+                        "actual": ["_Measures.Marge %"], "bubbleSize": ["_Measures.Umsatz"]}
+              and not any("keine ChartKitchen-Entsprechung" in w for w in warn), repr(roles))
+    res.check("1.47 · Typ scatter hat den Modus scatter", M.CK_ORIENTATION.get("scatter") == "scatter")
+    res.check("1.47 · chartKitchenProps → chart-Properties (unbekannte fallen weg)",
+              P.ck_chart_props({"chartKitchenProps": {"bridgeOrientation": "columns",
+                                                      "scatterQuadrant": "quer", "foo": 1}})
+              == {"bridgeOrientation": "columns"})
+    page = {"name": "S", "visuals": [dict(kpi, id="mk_k", rect={"x": 0, "y": 0, "w": 1, "h": 1}),
+                                     dict(sc, id="mk_s", rect={"x": 0, "y": 0, "w": 1, "h": 1})]}
+    ck, _, w = P.build_slots(page)
+    res.check("1.47 · Slot trägt cardTrendChart/cardTrendValue und orientation cards",
+              ck[0]["chartProps"] == {"orientation": "cards", "cardTrendChart": "columns",
+                                      "cardTrendValue": "sum"}, repr(ck[0]["chartProps"]))
+    res.check("1.47 · Scatter-Slot: orientation scatter + Quadranten, Hinweis auf 1.47",
+              ck[1]["orientation"] == "scatter" and ck[1]["chartProps"].get("scatterQuadrant") == "median"
+              and any("1.47" in m for m in ck[1]["warnings"]), repr(ck[1]["chartProps"]))
+    sc_noX = dict(sc, roles={"y": f("_Measures.Marge %")})
+    roles, _ = P.ck_roles_for(sc_noX)
+    res.check("1.47 · Scatter ohne X-Achse wird gemeldet",
+              any("xValue" in m for m in P.ck_contract_warnings(sc_noX, "scatter", roles)))
+    # Hash: chartKitchenProps zaehlt nur, wenn der Schluessel da ist (alte Specs behalten ihren Hash)
+    base = {"canvas": {"width": 1280, "height": 720}, "zones": {}, "design": {},
+            "meta": {"specVersion": 3},
+            "pages": [{"name": "S", "question": "", "visuals": [{"id": "mk_b", "kind": "bridge"}]}]}
+    h0 = M.spec_hash(base)
+    with_props = json.loads(json.dumps(base))
+    with_props["pages"][0]["visuals"][0]["chartKitchenProps"] = {"bridgeOrientation": "columns"}
+    res.check("1.47 · specHash: ohne chartKitchenProps unveraendert, mit Schluessel anders",
+              M.spec_hash(json.loads(json.dumps(base))) == h0 and M.spec_hash(with_props) != h0)
+
+
 # --------------------------------------------------------------------------- #
 def main() -> int:
     ap = argparse.ArgumentParser(description="Evals fuer mockup-to-powerbi")
@@ -1027,6 +1078,8 @@ def main() -> int:
             hash_tests(tmp, res, opt.exports)
             print("Review 09.10.")
             review_fix_tests(tmp, res)
+            print("ChartKitchen 1.47 (Tool 0.6.0)")
+            ck147_tests(res)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
