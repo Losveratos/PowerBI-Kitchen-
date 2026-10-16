@@ -1415,6 +1415,107 @@ a { color: inherit; }
 .modal-body .dwg-folge { padding: 10px 12px; }
 .modal-body .dwg-folge-title { font-size: 13.5px; }
 
+/* ============================================================
+   pbi2 · Sprungmarken, „Weiter vertiefen“ & Learn-Verweise
+   (Kapitel 05 DAX · 06 Viz · 07 Interaktivität · Beispiele)
+============================================================ */
+.dwg-folge-ts {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border: 1px solid rgba(17, 120, 101, 0.35);
+  border-radius: 999px;
+  background: var(--bg-card);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .12s ease, color .12s ease;
+}
+.dwg-folge-ts:hover { background: var(--accent); color: #fff; }
+.dwg-folge-ts:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.vertiefen-block {
+  margin: 20px 0 8px;
+  padding: 20px 24px 22px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.vertiefen-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-bottom: 14px;
+}
+.vertiefen-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-info);
+  font-weight: 700;
+}
+.vertiefen-title {
+  font-family: var(--serif);
+  font-size: 17px;
+  color: var(--ink);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.vertiefen-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 24px;
+}
+.vertiefen-label {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.vertiefen-col ul { list-style: none; margin: 0; padding: 0; }
+.vertiefen-col li { padding: 3px 0; font-size: 13.5px; line-height: 1.4; }
+.vertiefen-col a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: rgba(22, 96, 136, 0.35);
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
+.vertiefen-col a:hover { color: var(--accent-info); text-decoration-color: currentColor; }
+@media (max-width: 800px) {
+  .vertiefen-grid { grid-template-columns: 1fr; }
+  .vertiefen-block { padding: 16px 16px 18px; }
+}
+
+.modal-body .learn-ref {
+  margin: 18px 0 4px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+.modal-body .learn-ref-label {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-info);
+  font-weight: 700;
+  margin-right: 8px;
+}
+.modal-body .learn-ref a { color: var(--accent-info); overflow-wrap: anywhere; }
+
 .modal-body figure {
   margin: 18px 0;
   padding: 12px;
@@ -2288,9 +2389,9 @@ kbd.kbd {
   <div class="section-head">
     <span class="section-num">05</span>
     <h2 class="section-title">DAX <em>· Formelsprache</em></h2>
-    <span class="section-hint">6 Karten · Klickbar</span>
+    <span class="section-hint">20 Karten · inkl. 14 Rezepte</span>
   </div>
-  <p class="section-intro">DAX ist das Herz der analytischen Auswertung in Power BI. Ohne DAX bleibt man bei einfachen Summen — mit DAX werden Time-Intelligence, dynamische Filter und komplexe Geschäftslogik möglich.</p>
+  <p class="section-intro">DAX ist das Herz der analytischen Auswertung in Power BI. Ohne DAX bleibt man bei einfachen Summen — mit DAX werden Time-Intelligence, dynamische Filter und komplexe Geschäftslogik möglich. Unten findest du dazu 14 <strong>DAX-Rezepte</strong> — vom Vorjahresvergleich bis zu den User-Defined Functions, Stand Oktober 2026.</p>
 
   <div class="start-with">
     <span class="start-with-label">Als erstes</span>
@@ -2319,20 +2420,111 @@ kbd.kbd {
     <button class="card" data-c="dax" data-key="dax-vars">
       <div class="card-eyebrow">Performance</div>
       <h3 class="card-title">Variables (VAR / RETURN)</h3>
-      <p class="card-desc">Microsoft Learn: Variablen halbieren oft die Ausführungszeit.</p>
+      <p class="card-desc">Lesbarer, schneller, leichter zu debuggen — im Learn-Beispiel halbe Abfragezeit.</p>
       <div class="card-more">Mehr →</div>
     </button>
     <button class="card" data-c="dax" data-key="dax-time">
       <div class="card-eyebrow">Zeitanalyse</div>
       <h3 class="card-title">Time Intelligence</h3>
-      <p class="card-desc">YTD, MTD, Same-Period-Last-Year. Voraussetzung: markierte Datums-Tabelle.</p>
+      <p class="card-desc">YTD, MTD, Vorjahr, R12. Voraussetzung: lückenlose, markierte Datums-Tabelle.</p>
       <div class="card-more">Mehr →</div>
     </button>
     <button class="card" data-c="dax" data-key="dax-pitfalls">
       <div class="card-eyebrow">Fallstricke</div>
       <h3 class="card-title">Anti-Patterns</h3>
-      <p class="card-desc">FILTER statt Boolean, IFERROR-Abuse, DIVIDE statt /, implizite Measures.</p>
+      <p class="card-desc">FILTER(ALL()) statt Spaltenfilter, IFERROR, / statt DIVIDE, Measures in Iteratoren.</p>
       <div class="card-more">Mehr →</div>
+    </button>
+  </div>
+
+  <!-- pbi2 · DAX-Rezepte -->
+  <h3 style="font-family: var(--serif); font-weight: 500; font-size: 20px; margin: 32px 0 16px; letter-spacing: -0.01em;">DAX-Rezepte <em style="color: var(--c-dax);">· Muster für den Alltag</em></h3>
+  <p class="section-intro" style="margin-bottom: 16px; font-size: 16px;">Jedes Rezept: wann du es brauchst, die Formel, der Filterkontext-Trick in einem Satz, der typische Fehler und der Learn-Link. Alle Formeln nutzen das Beispielmodell dieses Guides: <code>fact_verkauf</code> (Menge, Preis, Umsatz, LieferDatum), <code>'Datum'</code> (Datum, Jahr, Quartal, Monatsbeginn), <code>Region[Name]</code>, <code>Produkt[Produkt]</code> und die Basis-Measure <code>[Umsatz] = SUM(fact_verkauf[Umsatz])</code>. Stand Oktober 2026.</p>
+
+  <div class="card-grid card-grid-3">
+    <button class="card" data-c="dax" data-key="dax-r-vj">
+      <div class="card-eyebrow">Rezept · Zeit</div>
+      <h3 class="card-title">Vorjahr &amp; Abweichung</h3>
+      <p class="card-desc">SAMEPERIODLASTYEAR, VAR und DIVIDE — ohne −100 % in der Zukunft.</p>
+      <div class="card-more">Rezept →</div>
+    </button>
+    <button class="card" data-c="dax" data-key="dax-r-ytd">
+      <div class="card-eyebrow">Rezept · Zeit</div>
+      <h3 class="card-title">YTD, Geschäftsjahr &amp; R12</h3>
+      <p class="card-desc">DATESYTD mit Jahresende und rollierende 12 Monate per DATESINPERIOD.</p>
+      <div class="card-more">Rezept →</div>
+    </button>
+    <button class="card" data-c="dax" data-key="dax-r-anteil">
+      <div class="card-eyebrow">Rezept · Filter</div>
+      <h3 class="card-title">Anteil am Gesamt vs. Auswahl</h3>
+      <p class="card-desc">REMOVEFILTERS oder ALLSELECTED — der Unterschied entscheidet über 100 %.</p>
+      <div class="card-more">Rezept →</div>
+    </button>
+    <button class="card" data-c="dax" data-key="dax-r-keepfilters">
+      <div class="card-eyebrow">Rezept · Filter</div>
+      <h3 class="card-title">KEEPFILTERS statt FILTER(ALL())</h3>
+      <p class="card-desc">Filter ergänzen statt überschreiben — schneller und ehrlicher.</p>
+      <div class="card-more">Rezept →</div>
+    </button>
+    <button class="card" data-c="dax" data-key="dax-r-selected">
+      <div class="card-eyebrow">Rezept · Auswahl</div>
+      <h3 class="card-title">SELECTEDVALUE &amp; ISINSCOPE</h3>
+      <p class="card-desc">Slicer-Auswahl lesen, dynamische Titel, Summenzeile anders behandeln.</p>
+      <div class="card-more">Rezept →</div>
+    </button>
+    <button class="card" data-c="dax" data-key="dax-r-rank">
+      <div class="card-eyebrow">Rezept · Ranking</div>
+      <h3 class="card-title">RANKX oder RANK</h3>
+      <p class="card-desc">Rangfolgen über die sichtbaren Elemente — klassisch und als Fensterfunktion.</p>
+      <div class="card-more">Rezept →</div>
+    </button>
+    <button class="card" data-c="dax" data-key="dax-r-topn">
+      <div class="card-eyebrow">Rezept · Ranking</div>
+      <h3 class="card-title">Top N + „Andere“</h3>
+      <p class="card-desc">Die größten Fünf einzeln, der Rest als ein Balken — Summe stimmt.</p>
+      <div class="card-more">Rezept →</div>
+    </button>
+    <button class="card" data-c="dax" data-key="dax-r-userel">
+      <div class="card-eyebrow">Rezept · Beziehungen</div>
+      <h3 class="card-title">USERELATIONSHIP &amp; TREATAS</h3>
+      <p class="card-desc">Lieferdatum über inaktive Beziehung, Plan-Tabelle per virtueller Beziehung.</p>
+      <div class="card-more">Rezept →</div>
+    </button>
+    <button class="card" data-c="dax" data-key="dax-r-bestand">
+      <div class="card-eyebrow">Rezept · Bestände</div>
+      <h3 class="card-title">Semi-additive Bestände</h3>
+      <p class="card-desc">Stichtagswerte mit CLOSINGBALANCEMONTH und LASTNONBLANKVALUE.</p>
+      <div class="card-more">Rezept →</div>
+    </button>
+    <button class="card" data-c="dax" data-key="dax-r-visualcalc">
+      <div class="card-eyebrow">Rezept · GA seit Mai 2026</div>
+      <h3 class="card-title">Visual Calculations</h3>
+      <p class="card-desc">RUNNINGSUM, MOVINGAVERAGE, PREVIOUS, COLLAPSE — direkt im Visual.</p>
+      <div class="card-more">Rezept →</div>
+    </button>
+    <button class="card" data-c="dax" data-key="dax-r-calcgroup">
+      <div class="card-eyebrow">Rezept · Modell</div>
+      <h3 class="card-title">Calculation Groups</h3>
+      <p class="card-desc">Ist, VJ, YTD, Δ % einmal definieren — für alle Measures.</p>
+      <div class="card-more">Rezept →</div>
+    </button>
+    <button class="card" data-c="dax" data-key="dax-r-udf">
+      <div class="card-eyebrow">Rezept · GA seit Juni 2026</div>
+      <h3 class="card-title">DAX User-Defined Functions</h3>
+      <p class="card-desc">Wiederverwendbare Funktionen mit Parametern statt Copy-Paste-DAX.</p>
+      <div class="card-more">Rezept →</div>
+    </button>
+    <button class="card" data-c="dax" data-key="dax-r-kalender">
+      <div class="card-eyebrow">Rezept · Preview</div>
+      <h3 class="card-title">Kalenderbasierte Zeitintelligenz</h3>
+      <p class="card-desc">Geschäftsjahr, 4-4-5 und Wochen-Logik über definierte Kalender.</p>
+      <div class="card-more">Rezept →</div>
+    </button>
+    <button class="card" data-c="dax" data-key="dax-r-query">
+      <div class="card-eyebrow">Rezept · Werkzeug</div>
+      <h3 class="card-title">Testen in der DAX-Abfrageansicht</h3>
+      <p class="card-desc">DEFINE MEASURE, SUMMARIZECOLUMNS und INFO.VIEW.MEASURES.</p>
+      <div class="card-more">Rezept →</div>
     </button>
   </div>
 
@@ -2341,7 +2533,7 @@ kbd.kbd {
       <span class="dwg-folgen-block-eyebrow">Aus dem Kanal</span>
       <span class="dwg-folgen-block-title">DAX-Konzepte am Beispiel</span>
     </div>
-    <p class="dwg-folgen-block-hint">Expanded Tables sind das Modell hinter Filter- und Row-Context. UDFs + TMDL zeigen, wohin DAX 2026 läuft.</p>
+    <p class="dwg-folgen-block-hint">Expanded Tables sind das Modell hinter Filter- und Row-Context. UDFs + TMDL zeigen, wohin DAX 2026 läuft. Die Sprungmarken (▶ Zeit) starten das Video direkt an der passenden Stelle.</p>
     <div class="dwg-folgen-list">
       <div class="dwg-folge">
         <a class="dwg-folge-link" href="index.html#ep-LQQEn7IOb7w" aria-label="Folge öffnen: Expanded Tables in DAX verstehen"></a>
@@ -2365,6 +2557,99 @@ kbd.kbd {
           <a class="dwg-folge-yt" href="https://youtu.be/0FPA1k5YiTs" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
         </div>
       </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-LQQEn7IOb7w" aria-label="Folge öffnen: Expanded Tables in DAX"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Expanded Tables in DAX</div>
+          <div class="dwg-folge-title">CALCULATE, Filtervergleich &amp; Ergebnis am Beispiel</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=LQQEn7IOb7w&amp;t=467s" target="_blank" rel="noopener" title="Auf YouTube ab 7:47 abspielen">▶ 7:47</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-183uLZ3GYDo" aria-label="Folge öffnen: Alberto Ferrari · Data Binning in DAX"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Alberto Ferrari · Data Binning in DAX</div>
+          <div class="dwg-folge-title">Warum eine Faktentabelle als CALCULATE-Filter teuer ist</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=183uLZ3GYDo&amp;t=4695s" target="_blank" rel="noopener" title="Auf YouTube ab 1:18:15 abspielen">▶ 1:18:15</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-iTK3xUd8V5I" aria-label="Folge öffnen: Power BI vs. Qlik · Teil 3"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Power BI vs. Qlik · Teil 3</div>
+          <div class="dwg-folge-title">Year-to-Date per Visual Calculation (laufende Summe)</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=iTK3xUd8V5I&amp;t=981s" target="_blank" rel="noopener" title="Auf YouTube ab 16:21 abspielen">▶ 16:21</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-0FPA1k5YiTs" aria-label="Folge öffnen: Deep Dive · DAX UDF + TMDL"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Deep Dive · DAX UDF + TMDL</div>
+          <div class="dwg-folge-title">Einführung in DAX User-Defined Functions</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=0FPA1k5YiTs&amp;t=95s" target="_blank" rel="noopener" title="Auf YouTube ab 1:35 abspielen">▶ 1:35</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-6gQiIbyhWEc" aria-label="Folge öffnen: Power BI Update September 2025"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Power BI Update September 2025</div>
+          <div class="dwg-folge-title">Neue Kalenderlogik für die DAX-Zeitintelligenz</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=6gQiIbyhWEc&amp;t=443s" target="_blank" rel="noopener" title="Auf YouTube ab 7:23 abspielen">▶ 7:23</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- pbi2 · Weiter vertiefen -->
+  <div class="vertiefen-block">
+    <div class="vertiefen-head">
+      <span class="vertiefen-eyebrow">Weiter vertiefen</span>
+      <span class="vertiefen-title">DAX bei Microsoft Learn &amp; in der Library</span>
+    </div>
+    <div class="vertiefen-grid">
+      <div class="vertiefen-col">
+        <div class="vertiefen-label">Microsoft Learn · Doku</div>
+        <ul>
+          <li><a href="https://learn.microsoft.com/de-de/dax/dax-overview" target="_blank" rel="noopener">DAX-Übersicht &amp; Funktionsreferenz</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/dax/filter-functions-dax" target="_blank" rel="noopener">Filterfunktionen (CALCULATE, KEEPFILTERS, RANK …)</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/transform-model/desktop-time-intelligence" target="_blank" rel="noopener">Zeitbasierte Berechnungen · kalenderbasiert (Preview)</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/dax/best-practices/dax-user-defined-functions" target="_blank" rel="noopener">DAX User-Defined Functions</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/transform-model/desktop-visual-calculations-overview" target="_blank" rel="noopener">Visual Calculations</a></li>
+        </ul>
+      </div>
+      <div class="vertiefen-col">
+        <div class="vertiefen-label">Microsoft Learn · Training</div>
+        <ul>
+          <li><a href="https://learn.microsoft.com/de-de/training/paths/dax-power-bi/" target="_blank" rel="noopener">Lernpfad: DAX in semantischen Modellen</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/training/modules/dax-power-bi-modify-filter/" target="_blank" rel="noopener">Modul: DAX-Filterkontext ändern</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/training/modules/dax-power-bi-time-intelligence/" target="_blank" rel="noopener">Modul: DAX-Zeitintelligenz</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/training/modules/create-calculation-groups/" target="_blank" rel="noopener">Modul: Calculation Groups</a></li>
+        </ul>
+      </div>
+      <div class="vertiefen-col">
+        <div class="vertiefen-label">DatenWG Library</div>
+        <ul>
+          <li><a href="wissensgraph/thema/dax.html">Thema DAX</a></li>
+          <li><a href="wissensgraph/thema/visual-calculations.html">Thema Visual Calculations</a></li>
+          <li><a href="wissensgraph/thema/calculation-groups.html">Thema Calculation Groups</a></li>
+          <li><a href="wissensgraph/thema/dax-studio.html">Thema DAX Studio</a></li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>
@@ -2378,7 +2663,7 @@ kbd.kbd {
     <h2 class="section-title">Deep Dive: <em>IBCS</em> &amp; Visualisierung</h2>
     <span class="section-hint">Tiefenfokus · 16 Karten</span>
   </div>
-  <p class="section-intro">International Business Communication Standards — ein Regelwerk von Rolf Hichert, das Business-Reporting weltweit vereinheitlicht. Seit 2024 als ISO/AWI 24896 in der Standardisierung. SAP, Philips und Siemens haben ihr Reporting daran ausgerichtet. Die sieben SUCCESS-Regeln sind das Rückgrat.</p>
+  <p class="section-intro">International Business Communication Standards — ein Regelwerk von Rolf Hichert, das Business-Reporting weltweit vereinheitlicht. Laut IBCS Association ist die Notation seit Juni 2026 als internationale Norm ISO 24896:2026 („Notation for business reporting“) veröffentlicht; IBCS 2.0 ist daran ausgerichtet und gliedert die Standards in Notation und Composition. SAP, Philips und Siemens haben ihr Reporting daran ausgerichtet. Die sieben SUCCESS-Regeln sind das bekannte Rückgrat.</p>
 
   <div class="start-with">
     <span class="start-with-label">Als erstes</span>
@@ -2392,8 +2677,8 @@ kbd.kbd {
       <p class="hero-text"><strong>Things that mean the same should look the same.</strong> Das ist der zentrale IBCS-Tenet. Wenn Ist-Werte überall solide gefüllt, Plan-Werte überall hohl und Vorjahres-Werte überall schraffiert sind — dann liest sich jedes Diagramm in Sekundenbruchteilen.</p>
     </div>
     <div>
-      <p class="hero-text"><strong>Power BI &amp; IBCS:</strong> Out-of-the-box ist Power BI nicht IBCS-konform. Aber mit der Inforiver- oder Zebra-BI-Erweiterung — beide kostenpflichtig, aber etabliert — und mit eigenen Themes lässt sich IBCS sauber umsetzen. Selbst ohne Extra-Tool gehen rund 70 % der SUCCESS-Regeln mit Bordmitteln.</p>
-      <p class="hero-text" style="margin-top: 8px;"><strong>Status:</strong> ISO/AWI 24896 — seit Juli 2024 als ISO-Projekt registriert.</p>
+      <p class="hero-text"><strong>Power BI &amp; IBCS:</strong> Out-of-the-box ist Power BI nicht IBCS-konform. Mit Custom Visuals wie Inforiver oder Zebra BI — beide kostenpflichtig, aber etabliert —, mit Deneb und eigenen Themes lässt sich IBCS sauber umsetzen. In Microsoft Fabric bringt Planning (Fabric IQ) zusätzlich IBCS-zertifizierte Intelligence Sheets mit. Viele SUCCESS-Regeln — Botschaft, Achsen, Farbe, Dichte — gehen schon mit Bordmitteln.</p>
+      <p class="hero-text" style="margin-top: 8px;"><strong>Status (Oktober 2026):</strong> ISO 24896:2026 „Notation for business reporting“ — laut IBCS Association im Juni 2026 veröffentlicht (seit Juli 2024 ISO-Projekt).</p>
     </div>
   </div>
 
@@ -2517,7 +2802,7 @@ kbd.kbd {
       <span class="dwg-folgen-block-eyebrow">Aus dem Kanal</span>
       <span class="dwg-folgen-block-title">Visualisierung in Aktion</span>
     </div>
-    <p class="dwg-folgen-block-hint">Von IBCS-First-Principles bis zu deklarativer Custom-Visualisierung mit Deneb/Vega — beide Wege zeigen, warum Default-Charts selten reichen.</p>
+    <p class="dwg-folgen-block-hint">Von IBCS-First-Principles bis zu deklarativer Custom-Visualisierung mit Deneb/Vega — beide Wege zeigen, warum Default-Charts selten reichen. Die Sprungmarken (▶ Zeit) springen direkt zur passenden Stelle.</p>
     <div class="dwg-folgen-list">
       <div class="dwg-folge">
         <a class="dwg-folge-link" href="index.html#ep-inko8wG9jlY" aria-label="Folge öffnen: Boring Charts, Better Insights"></a>
@@ -2541,6 +2826,98 @@ kbd.kbd {
           <a class="dwg-folge-yt" href="https://youtu.be/AxLQtBVAI9o" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
         </div>
       </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-inko8wG9jlY" aria-label="Folge öffnen: Boring Charts, Better Insights"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Boring Charts, Better Insights</div>
+          <div class="dwg-folge-title">Warum Tortendiagramme scheitern — die Wahrnehmungsforschung dahinter</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=inko8wG9jlY&amp;t=408s" target="_blank" rel="noopener" title="Auf YouTube ab 6:48 abspielen">▶ 6:48</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-inko8wG9jlY" aria-label="Folge öffnen: Boring Charts, Better Insights"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Boring Charts, Better Insights</div>
+          <div class="dwg-folge-title">„Langweilige“ Dashboards sind besser — und warum</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=inko8wG9jlY&amp;t=1056s" target="_blank" rel="noopener" title="Auf YouTube ab 17:36 abspielen">▶ 17:36</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-c90oD4zR1Aw" aria-label="Folge öffnen: More than PBIX"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · More than PBIX</div>
+          <div class="dwg-folge-title">Chart-Wahl: Tortendiagramm oder bessere Alternativen?</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=c90oD4zR1Aw&amp;t=335s" target="_blank" rel="noopener" title="Auf YouTube ab 5:35 abspielen">▶ 5:35</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-lZvpCBMKASM" aria-label="Folge öffnen: Fabric &amp;amp; Power BI Quarterly · 2025 Q3"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Fabric &amp;amp; Power BI Quarterly · 2025 Q3</div>
+          <div class="dwg-folge-title">Sparklines sind GA — was steckt dahinter?</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=37s" target="_blank" rel="noopener" title="Auf YouTube ab 0:37 abspielen">▶ 0:37</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-GWCHNmLs72M" aria-label="Folge öffnen: Power BI Update August 2026"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Power BI Update August 2026</div>
+          <div class="dwg-folge-title">GA: Berichtsdesign anpassen (Theme-Bereich) und Datumsauswahl im Slicer</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=GWCHNmLs72M&amp;t=179s" target="_blank" rel="noopener" title="Auf YouTube ab 2:59 abspielen">▶ 2:59</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- pbi2 · Weiter vertiefen -->
+  <div class="vertiefen-block">
+    <div class="vertiefen-head">
+      <span class="vertiefen-eyebrow">Weiter vertiefen</span>
+      <span class="vertiefen-title">Visualisierung bei Microsoft Learn &amp; in der Library</span>
+    </div>
+    <div class="vertiefen-grid">
+      <div class="vertiefen-col">
+        <div class="vertiefen-label">Microsoft Learn · Doku</div>
+        <ul>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-reports-visual-defaults" target="_blank" rel="noopener">Visual-Standards (Fluent 2) &amp; Theme-Bereich</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/report-themes-create-custom" target="_blank" rel="noopener">Berichtsdesigns (Themes) erstellen</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-customize-x-axis-and-y-axis" target="_blank" rel="noopener">Achsen anpassen (Bereich, Runden)</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-sparklines-tables" target="_blank" rel="noopener">Sparklines in Tabelle &amp; Matrix</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/fabric/iq/plan/intelligence-ibcs/how-to-apply-ibcs-formatting" target="_blank" rel="noopener">IBCS-Vorlagen in Planning (Fabric IQ)</a></li>
+        </ul>
+      </div>
+      <div class="vertiefen-col">
+        <div class="vertiefen-label">Microsoft Learn · Training</div>
+        <ul>
+          <li><a href="https://learn.microsoft.com/de-de/training/modules/power-bi-effective-reports/" target="_blank" rel="noopener">Modul: Power BI-Berichte entwerfen</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/training/paths/power-bi-effective/" target="_blank" rel="noopener">Lernpfad: Effektive Berichte in Power BI</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/training/modules/visuals-in-power-bi/" target="_blank" rel="noopener">Modul: Visuals in Power BI</a></li>
+        </ul>
+      </div>
+      <div class="vertiefen-col">
+        <div class="vertiefen-label">DatenWG Library</div>
+        <ul>
+          <li><a href="wissensgraph/thema/ibcs.html">Thema IBCS</a></li>
+          <li><a href="wissensgraph/thema/visualisierung.html">Thema Visualisierung</a></li>
+          <li><a href="wissensgraph/thema/dashboard-design.html">Thema Dashboard-Design</a></li>
+          <li><a href="wissensgraph/thema/deneb.html">Thema Deneb</a></li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>
@@ -2552,9 +2929,9 @@ kbd.kbd {
   <div class="section-head">
     <span class="section-num">07</span>
     <h2 class="section-title">Interaktivität <em>· UX</em></h2>
-    <span class="section-hint">6 Karten · Klickbar</span>
+    <span class="section-hint">7 Karten · Klickbar</span>
   </div>
-  <p class="section-intro">Statische Berichte beantworten eine Frage. Interaktive Berichte werden zum Analyse-Werkzeug. Mit Drillthrough, Bookmarks, Buttons und Field Parameters wird aus einer Reportseite ein Tool, mit dem Anwender selbst in die Daten eintauchen.</p>
+  <p class="section-intro">Statische Berichte beantworten eine Frage. Interaktive Berichte werden zum Analyse-Werkzeug. Mit Drillthrough, Bookmarks, Buttons und Field Parameters wird aus einer Reportseite ein Tool, mit dem Anwender selbst in die Daten eintauchen. Neu dabei: Copilot im Bericht — und Q&amp;A läuft im Februar 2027 aus.</p>
 
   <div class="start-with">
     <span class="start-with-label">Als erstes</span>
@@ -2598,6 +2975,12 @@ kbd.kbd {
       <p class="card-desc">Dynamische Titel, Farbskalen, Icons in Tabellen.</p>
       <div class="card-more">Mehr →</div>
     </button>
+    <button class="card" data-c="inter" data-key="int-copilot">
+      <div class="card-eyebrow">KI</div>
+      <h3 class="card-title">Copilot im Bericht</h3>
+      <p class="card-desc">Zusammenfassungen, Narrative-Visual, Seiten erstellen — und Q&amp;A läuft aus.</p>
+      <div class="card-more">Mehr →</div>
+    </button>
   </div>
 
   <div class="dwg-folgen-block">
@@ -2605,7 +2988,7 @@ kbd.kbd {
       <span class="dwg-folgen-block-eyebrow">Aus dem Kanal</span>
       <span class="dwg-folgen-block-title">Interaktivität konkret</span>
     </div>
-    <p class="dwg-folgen-block-hint">Ein 54-Min-Solo-Deep-Dive verbindet Buttons, Drilling, Navigation und dynamisches Filtern in einem Report. TMDL-Magie zeigt, was Field Parameters jenseits der GUI können.</p>
+    <p class="dwg-folgen-block-hint">Ein 54-Min-Solo-Deep-Dive verbindet Buttons, Drilling, Navigation und dynamisches Filtern in einem Report. TMDL-Magie zeigt, was Field Parameters jenseits der GUI können. Die Sprungmarken (▶ Zeit) starten direkt an der passenden Stelle.</p>
     <div class="dwg-folgen-list">
       <div class="dwg-folge">
         <a class="dwg-folge-link" href="index.html#ep-K27nB68nR1M" aria-label="Folge öffnen: Buttons, Drilling, Navigation und Dynamisches Filtern"></a>
@@ -2628,6 +3011,98 @@ kbd.kbd {
         <div class="dwg-folge-meta">
           <a class="dwg-folge-yt" href="https://youtu.be/sShNdgnHjr4" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
         </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-TkxwcAyBGUM" aria-label="Folge öffnen: Power BI Update Juli 2025"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Power BI Update Juli 2025</div>
+          <div class="dwg-folge-title">Field Parameters sind GA</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=TkxwcAyBGUM&amp;t=267s" target="_blank" rel="noopener" title="Auf YouTube ab 4:27 abspielen">▶ 4:27</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-CvaOkO37HMU" aria-label="Folge öffnen: Vertriebsregionen in Azure Maps"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Vertriebsregionen in Azure Maps</div>
+          <div class="dwg-folge-title">Drillthrough: Detailseite für Regionen bauen</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=1488s" target="_blank" rel="noopener" title="Auf YouTube ab 24:48 abspielen">▶ 24:48</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-TAM5AAZqh7k" aria-label="Folge öffnen: Power BI Update Januar 2026"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Power BI Update Januar 2026</div>
+          <div class="dwg-folge-title">Moderne Quickinfos mit Drillthrough-Aktionen</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=TAM5AAZqh7k&amp;t=79s" target="_blank" rel="noopener" title="Auf YouTube ab 1:19 abspielen">▶ 1:19</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-5xB_oKdvAwQ" aria-label="Folge öffnen: Power BI Update Juni 2026"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Power BI Update Juni 2026</div>
+          <div class="dwg-folge-title">Quickinfos mit erklärendem Text</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=5xB_oKdvAwQ&amp;t=209s" target="_blank" rel="noopener" title="Auf YouTube ab 3:29 abspielen">▶ 3:29</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-TAM5AAZqh7k" aria-label="Folge öffnen: Power BI Update Januar 2026"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Power BI Update Januar 2026</div>
+          <div class="dwg-folge-title">Q&amp;A ist offiziell abgekündigt</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=TAM5AAZqh7k&amp;t=40s" target="_blank" rel="noopener" title="Auf YouTube ab 0:40 abspielen">▶ 0:40</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- pbi2 · Weiter vertiefen -->
+  <div class="vertiefen-block">
+    <div class="vertiefen-head">
+      <span class="vertiefen-eyebrow">Weiter vertiefen</span>
+      <span class="vertiefen-title">Interaktivität bei Microsoft Learn &amp; in der Library</span>
+    </div>
+    <div class="vertiefen-grid">
+      <div class="vertiefen-col">
+        <div class="vertiefen-label">Microsoft Learn · Doku</div>
+        <ul>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-drillthrough" target="_blank" rel="noopener">Drillthrough (auch berichtsübergreifend)</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-bookmarks" target="_blank" rel="noopener">Lesezeichen (Bookmarks)</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-buttons" target="_blank" rel="noopener">Schaltflächen &amp; Aktionen</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-field-parameters" target="_blank" rel="noopener">Feldparameter</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-tooltips" target="_blank" rel="noopener">Berichtsseiten als QuickInfo</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-conditional-formatting" target="_blank" rel="noopener">Bedingte Formatierung</a></li>
+        </ul>
+      </div>
+      <div class="vertiefen-col">
+        <div class="vertiefen-label">Microsoft Learn · Training</div>
+        <ul>
+          <li><a href="https://learn.microsoft.com/de-de/training/modules/power-bi-effective-user-experience/" target="_blank" rel="noopener">Modul: Berichtsdesign für die User Experience</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/training/modules/power-bi-effective-filters/" target="_blank" rel="noopener">Modul: Berichtsfilter konfigurieren</a></li>
+        </ul>
+      </div>
+      <div class="vertiefen-col">
+        <div class="vertiefen-label">DatenWG Library</div>
+        <ul>
+          <li><a href="wissensgraph/thema/field-parameters.html">Thema Field Parameters</a></li>
+          <li><a href="wissensgraph/thema/drillthrough.html">Thema Drillthrough</a></li>
+          <li><a href="wissensgraph/thema/bookmarks.html">Thema Bookmarks</a></li>
+          <li><a href="wissensgraph/thema/copilot.html">Thema Copilot</a></li>
+        </ul>
       </div>
     </div>
   </div>
@@ -2991,6 +3466,37 @@ kbd.kbd {
         <div class="dwg-folge-meta">
           <a class="dwg-folge-yt" href="https://youtu.be/z3eVRymUp30" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- pbi2 · Weiter vertiefen -->
+  <div class="vertiefen-block">
+    <div class="vertiefen-head">
+      <span class="vertiefen-eyebrow">Weiter vertiefen</span>
+      <span class="vertiefen-title">Selbst nachbauen</span>
+    </div>
+    <div class="vertiefen-grid">
+      <div class="vertiefen-col">
+        <div class="vertiefen-label">Microsoft Learn · Training</div>
+        <ul>
+          <li><a href="https://learn.microsoft.com/de-de/training/paths/build-power-bi-visuals-reports/" target="_blank" rel="noopener">Lernpfad: Power BI-Visuals und -Berichte erstellen</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/training/modules/power-bi-effective-user-experience/" target="_blank" rel="noopener">Modul: Berichtsdesign für die User Experience</a></li>
+        </ul>
+      </div>
+      <div class="vertiefen-col">
+        <div class="vertiefen-label">Im Guide</div>
+        <ul>
+          <li><a href="#viz">06 · IBCS &amp; Visualisierung</a></li>
+          <li><a href="#inter">07 · Interaktivität</a></li>
+        </ul>
+      </div>
+      <div class="vertiefen-col">
+        <div class="vertiefen-label">DatenWG Library</div>
+        <ul>
+          <li><a href="wissensgraph/thema/reporting.html">Thema Reporting</a></li>
+          <li><a href="wissensgraph/thema/custom-visuals.html">Thema Custom Visuals</a></li>
+        </ul>
       </div>
     </div>
   </div>
@@ -5005,13 +5511,13 @@ WHERE Datum &gt;= '2024-01-01'
 
 
   // ═══════════════════════════════════════════════════════════
-  // DAX (6)
+  // DAX (6 + 14 Rezepte)
   // ═══════════════════════════════════════════════════════════
   'dax-measures': {
     eyebrow: 'DAX · GRUNDLAGE',
     title: 'Measures vs. Calculated Columns',
     body: `
-      <p class="lead">Die fundamentale Entscheidung in DAX. Faustregel: 99 % der Berechnungen gehören in Measures, nicht in Calculated Columns.</p>
+      <p class="lead">Die fundamentale Entscheidung in DAX. Faustregel: Fast alle Berechnungen gehören in Measures, nicht in Calculated Columns.</p>
 
       <h4>Calculated Column</h4>
       <ul>
@@ -5041,93 +5547,85 @@ WHERE Datum &gt;= '2024-01-01'
 
       <div class="example">
         <strong>Schlechte Calculated Column</strong>
-        <pre style="background:rgba(255,255,255,0.6);color:var(--ink);padding:8px;font-size:12px;margin-top:6px;border-radius:4px;">Umsatz = [Menge] * [Preis]</pre>
-        Verbraucht Speicher pro Zeile (50 Mio × 8 Bytes = 400 MB im Modell). Gleiche Berechnung als Measure:
-        <pre style="background:rgba(255,255,255,0.6);color:var(--ink);padding:8px;font-size:12px;margin-top:6px;border-radius:4px;">Umsatz = SUMX(fact_verkauf, fact_verkauf[Menge] * fact_verkauf[Preis])</pre>
-        Kein Speicherverbrauch, gleiches Ergebnis.
+        <pre style="background:rgba(255,255,255,0.6);color:var(--ink);padding:8px;font-size:12px;margin-top:6px;border-radius:4px;">fact_verkauf[ZeilenUmsatz] = fact_verkauf[Menge] * fact_verkauf[Preis]</pre>
+        Wird pro Zeile gespeichert. Dezimalwerte mit vielen verschiedenen Ausprägungen komprimiert VertiPaq schlecht — bei 50 Mio. Zeilen kostet so eine Spalte schnell dreistellige MB. Gleiche Berechnung als Measure:
+        <pre style="background:rgba(255,255,255,0.6);color:var(--ink);padding:8px;font-size:12px;margin-top:6px;border-radius:4px;">Umsatz = SUMX ( fact_verkauf, fact_verkauf[Menge] * fact_verkauf[Preis] )</pre>
+        Kein Speicherverbrauch, gleiches Ergebnis. Einfache Zeilen-Ausdrücke wie Menge × Preis rechnet die Storage Engine direkt — das ist schnell.
       </div>
 
       <h4>Implizite Measures vermeiden</h4>
       <p>Wenn du eine numerische Spalte in ein Visual ziehst, erzeugt Power BI eine implizite Measure (typischerweise SUM). Sieht praktisch aus, hat aber Probleme:</p>
       <ul>
-        <li>Keine zentrale Definition</li>
-        <li>Schwierig zu wiederverwenden</li>
-        <li>Format und Logik kann nicht angepasst werden</li>
-        <li>In Tabular Editor und externe Tools nicht sichtbar</li>
+        <li>Keine zentrale Definition, kein Format, keine Beschreibung</li>
+        <li>Nicht wiederverwendbar und in Tabular Editor &amp; Co. kein Modellobjekt</li>
+        <li><strong>Calculation Groups und Field Parameters funktionieren nur mit expliziten Measures</strong> — beim Anlegen der ersten Calculation Group fordert Power BI dich auf, „Implizite Measures vermeiden“ (Discourage implicit measures) einzuschalten</li>
       </ul>
-      <p><strong>Stattdessen:</strong> explizite Measures schreiben. <code>SumUmsatz = SUM(fact_verkauf[Menge])</code>.</p>
+      <p><strong>Stattdessen:</strong> explizite Measures schreiben, z. B. <code>Menge = SUM(fact_verkauf[Menge])</code> und <code>Umsatz = SUM(fact_verkauf[Umsatz])</code>. Die Modell-Eigenschaft „Discourage implicit measures“ kannst du auch selbst im Model Explorer aktivieren.</p>
 
       <div class="trap">
         <strong>Anfänger-Falle</strong>
         Calculated Columns für Aggregate verwenden ("ist ja einfacher"). Speicher wächst, Performance leidet. Aggregate gehören in Measures.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/transform-model/desktop-calculations-options" target="_blank" rel="noopener">Calculated Columns, Measures, Visual Calculations im Vergleich</a> · <a href="https://learn.microsoft.com/de-de/power-bi/transform-model/model-explorer" target="_blank" rel="noopener">Model Explorer · Discourage implicit measures</a></p>
     `
   },
-
   'dax-calculate': {
     eyebrow: 'DAX · KERNFUNKTION',
     title: 'CALCULATE — die wichtigste Funktion',
     body: `
-      <p class="lead">CALCULATE ist die einzige DAX-Funktion, die den Filter-Kontext gezielt modifizieren kann. Wer CALCULATE versteht, beherrscht 80 % von DAX.</p>
+      <p class="lead">CALCULATE (und sein Tabellen-Pendant CALCULATETABLE) ist der Weg, den Filter-Kontext gezielt zu verändern. Wer CALCULATE versteht, beherrscht den größten Teil von DAX.</p>
 
       <h4>Was macht CALCULATE?</h4>
-      <p>Wertet einen Ausdruck (typischerweise eine Measure) in einem modifizierten Filter-Kontext aus. Die Filter-Argumente können:</p>
+      <p>Wertet einen Ausdruck (typischerweise eine Measure) in einem veränderten Filter-Kontext aus. Die Filter-Argumente können:</p>
       <ul>
-        <li>Bestehende Filter <strong>ersetzen</strong> — <code>CALCULATE([Umsatz], Region[Name] = "Süd")</code></li>
-        <li>Bestehende Filter <strong>entfernen</strong> — <code>CALCULATE([Umsatz], ALL(Region))</code></li>
-        <li>Filter <strong>ergänzen</strong> — <code>CALCULATE([Umsatz], KEEPFILTERS(...))</code></li>
+        <li>Bestehende Filter auf einer Spalte <strong>ersetzen</strong> — <code>CALCULATE([Umsatz], Region[Name] = "Süd")</code></li>
+        <li>Filter <strong>entfernen</strong> — <code>CALCULATE([Umsatz], REMOVEFILTERS(Region))</code> (Learn empfiehlt REMOVEFILTERS statt ALL als Filter-Modifier)</li>
+        <li>Filter <strong>ergänzen</strong> statt ersetzen — <code>CALCULATE([Umsatz], KEEPFILTERS(Region[Name] = "Süd"))</code></li>
+        <li>Eine <strong>inaktive Beziehung</strong> nutzen — <code>USERELATIONSHIP(...)</code></li>
       </ul>
 
       <h4>Häufige Patterns</h4>
-      <pre><span class="com">// Filter setzen</span>
-Umsatz Süd = <span class="fn">CALCULATE</span>(
-  [Umsatz],
-  Region[Name] = <span class="str">"Süd"</span>
-)
+      <pre><span class="com">// Filter setzen (ersetzt den Filter auf Region[Name])</span>
+Umsatz Süd =
+<span class="fn">CALCULATE</span> ( [Umsatz], Region[Name] = <span class="str">"Süd"</span> )
 
-<span class="com">// Alle Filter auf einer Tabelle entfernen</span>
-Umsatz Gesamt = <span class="fn">CALCULATE</span>(
-  [Umsatz],
-  <span class="fn">ALL</span>(Region)
-)
+<span class="com">// Alle Filter auf der Region-Tabelle entfernen</span>
+Umsatz alle Regionen =
+<span class="fn">CALCULATE</span> ( [Umsatz], <span class="fn">REMOVEFILTERS</span> ( Region ) )
 
 <span class="com">// Time Intelligence</span>
-Umsatz YTD = <span class="fn">CALCULATE</span>(
-  [Umsatz],
-  <span class="fn">DATESYTD</span>(<span class="str">'Datum'</span>[Datum])
-)
+Umsatz YTD =
+<span class="fn">CALCULATE</span> ( [Umsatz], <span class="fn">DATESYTD</span> ( <span class="str">'Datum'</span>[Datum] ) )
 
-<span class="com">// Mehrere Filter kombinieren</span>
-Umsatz Süd Q3 = <span class="fn">CALCULATE</span>(
-  [Umsatz],
-  Region[Name] = <span class="str">"Süd"</span>,
-  <span class="str">'Datum'</span>[Quartal] = <span class="str">"Q3"</span>
+<span class="com">// Mehrere Filter kombinieren (UND-Verknüpfung)</span>
+Umsatz Süd Q3 =
+<span class="fn">CALCULATE</span> (
+    [Umsatz],
+    Region[Name] = <span class="str">"Süd"</span>,
+    <span class="str">'Datum'</span>[Quartal] = <span class="str">"Q3"</span>
 )</pre>
 
       <h4>Context Transition</h4>
-      <p>Wenn CALCULATE im Row Context aufgerufen wird (z. B. innerhalb von <code>SUMX</code>), wandelt es den Row Context in einen Filter Context um. Diese "Context Transition" ist eines der mächtigsten DAX-Konzepte — und Quelle vieler Bugs.</p>
+      <p>Wird CALCULATE im Row Context aufgerufen (z. B. innerhalb von <code>SUMX</code>), wandelt es den Row Context in einen Filter Context um. Bei einer Measure-Referenz im Row Context passiert das automatisch — die Measure ist intern in CALCULATE verpackt. Diese "Context Transition" ist eines der mächtigsten DAX-Konzepte — und Quelle vieler Bugs.</p>
 
       <div class="example">
         <strong>Beispiel · Context Transition</strong>
-        <pre style="background:rgba(255,255,255,0.6);color:var(--ink);padding:8px;font-size:12px;margin-top:6px;border-radius:4px;">SUMX(
-  fact_verkauf,
-  CALCULATE([Umsatz])
-)</pre>
-        Pro Zeile in fact_verkauf wird CALCULATE aufgerufen, der Row Context wird zu Filter Context — die aktuelle Zeile filtert die ganze Faktentabelle auf "diese eine Zeile". <code>[Umsatz]</code> berechnet sich dann nur über die eine Zeile, das Ergebnis wird summiert. Mathematisch korrekt, aber langsam — und meistens nicht das, was man wollte.
+        <pre style="background:rgba(255,255,255,0.6);color:var(--ink);padding:8px;font-size:12px;margin-top:6px;border-radius:4px;">SUMX ( fact_verkauf, [Umsatz] )</pre>
+        Pro Zeile in fact_verkauf wird der Row Context zum Filter Context — die aktuelle Zeile filtert die ganze Faktentabelle auf "Zeilen mit genau diesen Werten". Langsam bei Millionen Zeilen, und falsch, wenn die Faktentabelle identische Zeilen enthält: die werden dann mehrfach gezählt. Iteriere lieber über eine Dimension (<code>SUMX(VALUES(Kunde[Kunde]), [Umsatz])</code>) oder über Spalten (<code>SUMX(fact_verkauf, fact_verkauf[Menge] * fact_verkauf[Preis])</code>).
       </div>
 
       <div class="trap">
         <strong>Anfänger-Falle</strong>
-        CALCULATE-Filter-Argumente mit FILTER umschließen, obwohl Boolean-Filter reicht. <code>CALCULATE([Umsatz], FILTER(VALUES(Region[Name]), Region[Name]="Süd"))</code> ist langsamer als <code>CALCULATE([Umsatz], Region[Name]="Süd")</code>. Boolean-Filter werden optimiert.
+        Ganze Tabellen in FILTER packen, obwohl ein Spaltenfilter reicht: <code>CALCULATE([Umsatz], FILTER(Region, Region[Name] = "Süd"))</code> iteriert die Tabelle und überschreibt dabei die Filter auf <em>allen</em> Region-Spalten. Besser: <code>CALCULATE([Umsatz], Region[Name] = "Süd")</code> oder — wenn bestehende Filter erhalten bleiben sollen — <code>KEEPFILTERS(Region[Name] = "Süd")</code>. FILTER brauchst du nur, wenn du eine Measure oder mehrere Spalten vergleichst.
       </div>
 
       <div class="tip">
         <strong>Tipp · Lesen lernen</strong>
-        Bei jeder CALCULATE-Measure mental drei Fragen stellen: 1) Was ist der Ausdruck (Hauptargument)? 2) Welche Filter werden ergänzt/ersetzt? 3) Was bleibt vom umgebenden Kontext? Wenn du diese drei Fragen beantworten kannst, hast du die Measure verstanden.
+        Bei jeder CALCULATE-Measure mental drei Fragen stellen: 1) Was ist der Ausdruck (Hauptargument)? 2) Welche Filter werden ergänzt/ersetzt/entfernt? 3) Was bleibt vom umgebenden Kontext? Wenn du diese drei Fragen beantworten kannst, hast du die Measure verstanden.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/calculate-function-dax" target="_blank" rel="noopener">CALCULATE</a> · <a href="https://learn.microsoft.com/de-de/dax/best-practices/dax-avoid-avoid-filter-as-filter-argument" target="_blank" rel="noopener">FILTER nicht als Filterargument verwenden</a> · <a href="https://learn.microsoft.com/de-de/training/modules/dax-power-bi-modify-filter/" target="_blank" rel="noopener">Training: Filterkontext ändern</a></p>
     `
   },
-
   'dax-context': {
     eyebrow: 'DAX · KONZEPT',
     title: 'Filter Context vs. Row Context',
@@ -5149,23 +5647,23 @@ Umsatz Süd Q3 = <span class="fn">CALCULATE</span>(
         <li>Calculated Columns (implizit — Spalte iteriert durch alle Zeilen)</li>
         <li>Iteratoren wie <code>SUMX</code>, <code>FILTER</code>, <code>ADDCOLUMNS</code> (explizit — Funktion iteriert)</li>
       </ul>
-      <p><strong>Wichtig:</strong> Row Context filtert <strong>nicht</strong> automatisch andere Tabellen. Dafür braucht es Context Transition (über CALCULATE).</p>
+      <p><strong>Wichtig:</strong> Row Context filtert <strong>nicht</strong> automatisch andere Tabellen. <code>RELATED</code> holt zwar Werte von der 1-Seite einer Beziehung — damit eine Aggregation den Zeilenwert als Filter nutzt, braucht es aber Context Transition (über CALCULATE oder eine Measure-Referenz).</p>
 
       <h4>Der entscheidende Unterschied</h4>
       <table>
         <tr><th>Aspekt</th><th>Filter Context</th><th>Row Context</th></tr>
         <tr><td>Wer hat?</td><td>Measures</td><td>Calculated Columns, Iteratoren</td></tr>
-        <tr><td>Wirkt auf</td><td>Alle Tabellen über Beziehungen</td><td>Nur die aktuelle Tabelle</td></tr>
+        <tr><td>Wirkt auf</td><td>Alle Tabellen über Beziehungen</td><td>Nur die aktuelle Tabelle (RELATED liest die 1-Seite)</td></tr>
         <tr><td>Sichtbar in Spalten</td><td>Aggregat</td><td>Einzelwert pro Zeile</td></tr>
       </table>
 
       <div class="example">
         <strong>Beispiel · Unterschiedliche Ergebnisse</strong>
         <pre style="background:rgba(255,255,255,0.6);color:var(--ink);padding:8px;font-size:12px;margin-top:6px;border-radius:4px;">// Calculated Column: Row Context
-fact_verkauf[ZeilenUmsatz] = [Menge] * [Preis]  → pro Zeile berechnet
+fact_verkauf[ZeilenUmsatz] = fact_verkauf[Menge] * fact_verkauf[Preis]  → pro Zeile berechnet
 
 // Measure: Filter Context
-[Umsatz] = SUMX(fact_verkauf, [Menge] * [Preis])  → aggregiert für aktuellen Filter</pre>
+Umsatz = SUMX ( fact_verkauf, fact_verkauf[Menge] * fact_verkauf[Preis] )  → aggregiert für aktuellen Filter</pre>
         Die Calculated Column liefert pro Zeile einen Wert. Die Measure liefert eine Summe für den aktuellen Filter-Kontext.
       </div>
 
@@ -5179,47 +5677,47 @@ fact_verkauf[ZeilenUmsatz] = [Menge] * [Preis]  → pro Zeile berechnet
 
       <div class="tip">
         <strong>Tipp · SQLBI</strong>
-        Marco Russo und Alberto Ferrari haben dazu das Buch "The Definitive Guide to DAX" geschrieben. Wer DAX ernsthaft betreibt: das Buch ist Pflicht. Kostenfreie Alternative: <a href="https://dax.guide" target="_blank" style="color:var(--accent);">dax.guide</a>.
+        Marco Russo und Alberto Ferrari haben dazu das Buch "The Definitive Guide to DAX" geschrieben. Wer DAX ernsthaft betreibt: das Buch ist Pflicht. Kostenfreie Alternative: <a href="https://dax.guide" target="_blank" rel="noopener" style="color:var(--accent);">dax.guide</a>.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/dax-overview" target="_blank" rel="noopener">DAX-Übersicht · Kontext</a> · <a href="https://learn.microsoft.com/de-de/training/modules/dax-power-bi-modify-filter/" target="_blank" rel="noopener">Training: Filterkontext ändern &amp; Context Transition</a></p>
     `
   },
-
   'dax-vars': {
     eyebrow: 'DAX · PERFORMANCE',
     title: 'Variables (VAR / RETURN)',
     body: `
-      <p class="lead">Microsoft Learn: Variablen halbieren oft die Ausführungszeit, machen DAX lesbar und vereinfachen Debugging. Sollten Standard sein.</p>
+      <p class="lead">Variablen machen DAX lesbar, vereinfachen Debugging und sparen Rechenzeit: Im Learn-Beispiel (Vorjahreswachstum) halbiert eine einzige Variable die Abfragezeit. Sollten Standard sein.</p>
 
       <h4>Syntax</h4>
-      <pre>Marge =
+      <pre>Marge % =
 <span class="kw">VAR</span> Umsatz = [Umsatz]
 <span class="kw">VAR</span> Kosten = [Kosten]
 <span class="kw">VAR</span> Gewinn = Umsatz - Kosten
 <span class="kw">RETURN</span>
-  <span class="fn">DIVIDE</span>(Gewinn, Umsatz)</pre>
+    <span class="fn">DIVIDE</span> ( Gewinn, Umsatz )</pre>
 
       <h4>Drei Vorteile</h4>
       <ol>
-        <li><strong>Performance</strong> — eine Variable wird einmal ausgewertet, dann gecacht. Ohne Variable würde z. B. <code>[Umsatz]</code> mehrfach evaluiert.</li>
+        <li><strong>Performance</strong> — eine Variable wird einmal ausgewertet und dann wiederverwendet. Ohne Variable würde z. B. <code>[Umsatz]</code> mehrfach evaluiert.</li>
         <li><strong>Lesbarkeit</strong> — selbsterklärende Namen statt verschachtelter Logik</li>
-        <li><strong>Debugging</strong> — RETURN auskommentieren, einzelne Variable zurückgeben, schrittweise testen</li>
+        <li><strong>Debugging</strong> — RETURN-Zeile mit <code>--</code> auskommentieren, einzelne Variable zurückgeben, schrittweise testen</li>
       </ol>
 
       <div class="example">
         <strong>Vorher · ohne Variablen</strong>
-        <pre style="background:rgba(255,255,255,0.6);color:var(--ink);padding:8px;font-size:12px;margin-top:6px;border-radius:4px;">YoY % =
-DIVIDE(
-  [Umsatz] - CALCULATE([Umsatz], SAMEPERIODLASTYEAR('Datum'[Datum])),
-  CALCULATE([Umsatz], SAMEPERIODLASTYEAR('Datum'[Datum]))
+        <pre style="background:rgba(255,255,255,0.6);color:var(--ink);padding:8px;font-size:12px;margin-top:6px;border-radius:4px;">Umsatz Δ VJ % =
+DIVIDE (
+    [Umsatz] - CALCULATE ( [Umsatz], SAMEPERIODLASTYEAR ( 'Datum'[Datum] ) ),
+    CALCULATE ( [Umsatz], SAMEPERIODLASTYEAR ( 'Datum'[Datum] ) )
 )</pre>
-        CALCULATE wird zweimal ausgeführt — Engine erkennt Identität nicht zuverlässig.
+        Der Vorjahreswert wird zweimal berechnet.
         <br><br>
         <strong>Nachher · mit Variablen</strong>
-        <pre style="background:rgba(255,255,255,0.6);color:var(--ink);padding:8px;font-size:12px;margin-top:6px;border-radius:4px;">YoY % =
-VAR Vorjahr = CALCULATE([Umsatz], SAMEPERIODLASTYEAR('Datum'[Datum]))
+        <pre style="background:rgba(255,255,255,0.6);color:var(--ink);padding:8px;font-size:12px;margin-top:6px;border-radius:4px;">Umsatz Δ VJ % =
+VAR Vorjahr = CALCULATE ( [Umsatz], SAMEPERIODLASTYEAR ( 'Datum'[Datum] ) )
 RETURN
-  DIVIDE([Umsatz] - Vorjahr, Vorjahr)</pre>
-        Vorjahr wird einmal berechnet, zweimal verwendet. In Tests oft 30–50 % schneller.
+    DIVIDE ( [Umsatz] - Vorjahr, Vorjahr )</pre>
+        Vorjahr wird einmal berechnet, zweimal verwendet. Microsoft Learn misst für genau dieses Muster etwa die halbe Abfragezeit.
       </div>
 
       <h4>Variablen sind Konstanten</h4>
@@ -5228,7 +5726,7 @@ RETURN
       <div class="example">
         <strong>Beispiel</strong>
         <pre style="background:rgba(255,255,255,0.6);color:var(--ink);padding:8px;font-size:12px;margin-top:6px;border-radius:4px;">VAR Aktuell = [Umsatz]
-RETURN CALCULATE(Aktuell, Region[Name] = "Süd")</pre>
+RETURN CALCULATE ( Aktuell, Region[Name] = "Süd" )</pre>
         <code>Aktuell</code> wird im aktuellen Filter-Kontext berechnet — vor dem CALCULATE. Der CALCULATE-Filter ändert die Variable nicht. Ergebnis: der Umsatz des aktuellen Filters, nicht der Umsatz für Süd. Das ist meistens nicht, was man will — aber es ist konsistent und vorhersagbar.
       </div>
 
@@ -5236,133 +5734,529 @@ RETURN CALCULATE(Aktuell, Region[Name] = "Süd")</pre>
         <strong>Tipp · Naming Convention</strong>
         Variablen-Namen sprechend wählen. <code>VAR Umsatz_VJ</code> sagt mehr als <code>VAR x</code>. Wenn die Measure später jemand anders liest, ist die Variable selbsterklärend.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/best-practices/dax-variables" target="_blank" rel="noopener">Variablen zur Verbesserung von DAX-Formeln</a> · <a href="https://learn.microsoft.com/de-de/dax/var-dax" target="_blank" rel="noopener">VAR</a></p>
     `
   },
-
   'dax-time': {
     eyebrow: 'DAX · ZEITANALYSE',
     title: 'Time Intelligence',
     body: `
-      <p class="lead">Zeitreihen-Funktionen — YTD, MTD, Same-Period-Last-Year. DAX hat dafür eingebaute Funktionen, vorausgesetzt die Datums-Dimension ist sauber.</p>
+      <p class="lead">Zeitreihen-Funktionen — YTD, MTD, Vorjahr, rollierende 12 Monate. DAX hat dafür eingebaute Funktionen, vorausgesetzt die Datums-Dimension ist sauber.</p>
 
-      <h4>Voraussetzungen</h4>
+      <h4>Voraussetzungen (klassische Zeitintelligenz)</h4>
       <ol>
-        <li>Echte Datums-Dimension (siehe Sektion 2 und 4)</li>
-        <li>Beziehung von Datums-Dim zur Faktentabelle</li>
-        <li>Datums-Tabelle <strong>markiert</strong> (Mark as date table) mit DateKey-Spalte</li>
-        <li>Lückenlose Datumsfolge in der Dimension (jeden Tag eine Zeile, auch Wochenenden)</li>
+        <li>Eigene Datums-Dimension (siehe Sektion 2 und 4), Auto-Date/Time aus</li>
+        <li>Beziehung von der Datums-Dim zur Faktentabelle</li>
+        <li>Datumsspalte vom Typ <strong>Datum</strong>, eindeutig, ohne Leerwerte und <strong>lückenlos</strong> (jeden Tag eine Zeile, auch Wochenenden) — fehlen Tage, wirft die klassische Zeitintelligenz einen Fehler</li>
+        <li>Tabelle als Datumstabelle <strong>markieren</strong> — Pflicht, sobald die Beziehung über einen Integer-<code>DateKey</code> statt über die Datumsspalte läuft</li>
       </ol>
 
       <h4>Die wichtigsten Funktionen</h4>
       <pre><span class="com">// Year-to-Date</span>
-Umsatz YTD = <span class="fn">TOTALYTD</span>([Umsatz], <span class="str">'Datum'</span>[Datum])
+Umsatz YTD = <span class="fn">TOTALYTD</span> ( [Umsatz], <span class="str">'Datum'</span>[Datum] )
 
 <span class="com">// Quarter-to-Date / Month-to-Date</span>
-Umsatz QTD = <span class="fn">TOTALQTD</span>([Umsatz], <span class="str">'Datum'</span>[Datum])
-Umsatz MTD = <span class="fn">TOTALMTD</span>([Umsatz], <span class="str">'Datum'</span>[Datum])
+Umsatz QTD = <span class="fn">TOTALQTD</span> ( [Umsatz], <span class="str">'Datum'</span>[Datum] )
+Umsatz MTD = <span class="fn">TOTALMTD</span> ( [Umsatz], <span class="str">'Datum'</span>[Datum] )
 
 <span class="com">// Vorjahr (Same Period Last Year)</span>
-Umsatz VJ = <span class="fn">CALCULATE</span>(
-  [Umsatz],
-  <span class="fn">SAMEPERIODLASTYEAR</span>(<span class="str">'Datum'</span>[Datum])
-)
+Umsatz VJ =
+<span class="fn">CALCULATE</span> ( [Umsatz], <span class="fn">SAMEPERIODLASTYEAR</span> ( <span class="str">'Datum'</span>[Datum] ) )
 
-<span class="com">// Vergleich Vorjahr</span>
-Umsatz YoY = [Umsatz] - [Umsatz VJ]
-Umsatz YoY % = <span class="fn">DIVIDE</span>([Umsatz YoY], [Umsatz VJ])
+<span class="com">// Abweichung zum Vorjahr – leer, wo es (noch) kein Ist gibt</span>
+Umsatz Δ VJ % =
+<span class="kw">VAR</span> Ist = [Umsatz]
+<span class="kw">VAR</span> VJ  = [Umsatz VJ]
+<span class="kw">RETURN</span>
+    <span class="kw">IF</span> ( <span class="kw">NOT</span> <span class="fn">ISBLANK</span> ( Ist ), <span class="fn">DIVIDE</span> ( Ist - VJ, VJ ) )
 
-<span class="com">// Rolling 12 Months</span>
-Umsatz R12 = <span class="fn">CALCULATE</span>(
-  [Umsatz],
-  <span class="fn">DATESINPERIOD</span>(<span class="str">'Datum'</span>[Datum], <span class="fn">MAX</span>(<span class="str">'Datum'</span>[Datum]), -<span class="str">12</span>, MONTH)
+<span class="com">// Rollierende 12 Monate</span>
+Umsatz R12 =
+<span class="fn">CALCULATE</span> (
+    [Umsatz],
+    <span class="fn">DATESINPERIOD</span> ( <span class="str">'Datum'</span>[Datum], <span class="fn">MAX</span> ( <span class="str">'Datum'</span>[Datum] ), -12, <span class="kw">MONTH</span> )
 )</pre>
 
-      <h4>Geschäftsjahr abweichend von Kalenderjahr</h4>
-      <p>Wenn das Geschäftsjahr im Juli beginnt, müssen die Standard-Funktionen angepasst werden:</p>
+      <h4>Geschäftsjahr abweichend vom Kalenderjahr</h4>
+      <p>Endet das Geschäftsjahr am 30. Juni, bekommen die YTD-Funktionen ein Jahresende als Text. Learn empfiehlt das Format <strong>Monat/Tag</strong>, damit der String sicher als Datum erkannt wird:</p>
       <pre><span class="com">// YTD mit Geschäftsjahr-Ende 30. Juni</span>
-Umsatz FY YTD = <span class="fn">TOTALYTD</span>(
-  [Umsatz],
-  <span class="str">'Datum'</span>[Datum],
-  <span class="str">"30/06"</span>
-)</pre>
-      <p>Oder: eigene Geschäftsjahr-Spalte in der Datums-Dim und manuelle CALCULATE-Logik.</p>
+Umsatz GJ YTD =
+<span class="fn">TOTALYTD</span> ( [Umsatz], <span class="str">'Datum'</span>[Datum], <span class="str">"6/30"</span> )</pre>
+      <p>Für Geschäftsjahre, 4-4-5-Kalender oder Wochenlogik gibt es inzwischen die <strong>kalenderbasierte Zeitintelligenz</strong> (Preview, Stand Oktober 2026) — Microsoft Learn empfiehlt sie für neue Modelle. Details im Rezept „Kalenderbasierte Zeitintelligenz“ unten.</p>
 
       <div class="example">
         <strong>Praxis-Beispiel · Variance-Bericht</strong>
-        Visual zeigt nebeneinander: <code>Umsatz Aktuell</code>, <code>Umsatz VJ</code>, <code>Umsatz YoY %</code>. Mit dynamischen Titeln ("YoY +12 % über Vorjahr"). Das ist der Kern jeder Management-Reports.
+        Visual zeigt nebeneinander: <code>Umsatz</code>, <code>Umsatz VJ</code>, <code>Umsatz Δ VJ %</code>. Mit dynamischen Titeln ("+12 % über Vorjahr"). Das ist der Kern jedes Management-Reports.
       </div>
 
       <div class="trap">
         <strong>Anfänger-Falle 1</strong>
-        Time Intelligence ohne markierte Datums-Tabelle nutzen. Funktioniert teilweise, aber unzuverlässig. Erst markieren, dann Time Intelligence.
+        Datums-Tabelle mit Lücken oder Integer-Beziehung ohne Markierung. Erst lückenlos und markiert, dann Time Intelligence.
       </div>
 
       <div class="trap">
         <strong>Anfänger-Falle 2</strong>
-        Time Intelligence mit Auto-Date/Time-Tabellen (die versteckten Power-BI-Hierarchien). Funktioniert sehr eingeschränkt. Auto-Date/Time deaktivieren, eigene Dimension verwenden.
+        Time Intelligence mit Auto-Date/Time-Tabellen (die versteckten Power-BI-Hierarchien). Funktioniert sehr eingeschränkt und bläht das Modell auf. Auto-Date/Time deaktivieren, eigene Dimension verwenden.
       </div>
+
+      <div class="trap">
+        <strong>Anfänger-Falle 3</strong>
+        Δ VJ % ohne Leer-Prüfung: Zukünftige Monate zeigen dann −100 %, weil das Ist leer ist, das Vorjahr aber nicht.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/transform-model/desktop-time-intelligence" target="_blank" rel="noopener">Zeitbasierte Berechnungen in Power BI</a> · <a href="https://learn.microsoft.com/de-de/dax/time-intelligence-functions-dax" target="_blank" rel="noopener">Time-Intelligence-Funktionen</a> · <a href="https://learn.microsoft.com/de-de/dax/totalytd-function-dax" target="_blank" rel="noopener">TOTALYTD</a> · <a href="https://learn.microsoft.com/de-de/training/modules/dax-power-bi-time-intelligence/" target="_blank" rel="noopener">Training: DAX-Zeitintelligenz</a></p>
     `
   },
-
   'dax-pitfalls': {
     eyebrow: 'DAX · FALLSTRICKE',
     title: 'Anti-Patterns',
     body: `
-      <p class="lead">Sechs typische Fehler, die jeder Einsteiger einmal macht. Wer sie kennt, spart sich Wochen Debugging.</p>
+      <p class="lead">Sieben typische Fehler, die jeder Einsteiger einmal macht. Wer sie kennt, spart sich Wochen Debugging.</p>
 
-      <h4>1. FILTER statt Boolean</h4>
-      <pre><span class="com">// Schlecht — FILTER iteriert</span>
-<span class="fn">CALCULATE</span>(
-  [Umsatz],
-  <span class="fn">FILTER</span>(<span class="fn">VALUES</span>(Region[Name]), Region[Name] = <span class="str">"Süd"</span>)
-)
+      <h4>1. FILTER über ganze Tabellen statt Spaltenfilter</h4>
+      <pre><span class="com">// Schlecht — FILTER iteriert die ganze Tabelle und überschreibt alle Region-Filter</span>
+<span class="fn">CALCULATE</span> ( [Umsatz], <span class="fn">FILTER</span> ( <span class="fn">ALL</span> ( Region ), Region[Name] = <span class="str">"Süd"</span> ) )
 
-<span class="com">// Gut — Boolean-Filter wird optimiert</span>
-<span class="fn">CALCULATE</span>([Umsatz], Region[Name] = <span class="str">"Süd"</span>)</pre>
-      <p>Boolean-Filter werden von der Engine zu einer effizienten Set-Operation übersetzt. FILTER iteriert zeilenweise — langsamer.</p>
+<span class="com">// Gut — Boolean-Filter auf genau eine Spalte</span>
+<span class="fn">CALCULATE</span> ( [Umsatz], Region[Name] = <span class="str">"Süd"</span> )
+
+<span class="com">// Gut — wie oben, aber bestehende Filter bleiben erhalten (Schnittmenge)</span>
+<span class="fn">CALCULATE</span> ( [Umsatz], <span class="fn">KEEPFILTERS</span> ( Region[Name] = <span class="str">"Süd"</span> ) )</pre>
+      <p>Boolean-Filter übersetzt die Engine in eine effiziente Spalten-Operation. Am teuersten ist <code>FILTER(fact_verkauf, …)</code> als CALCULATE-Argument: Dann wird ein Filter über die gesamte Faktentabelle materialisiert. FILTER nur dort, wo du eine Measure vergleichst: <code>FILTER(VALUES(Kunde[Kunde]), [Umsatz] &gt; 0)</code>.</p>
 
       <h4>2. Slash statt DIVIDE</h4>
-      <pre><span class="com">// Schlecht — wirft Fehler bei 0</span>
-Marge = [Gewinn] / [Umsatz]
+      <pre><span class="com">// Riskant — bei Nenner 0 oder leer entsteht ∞ bzw. NaN im Bericht</span>
+Marge % = [Gewinn] / [Umsatz]
 
-<span class="com">// Gut — DIVIDE liefert BLANK bei 0</span>
-Marge = <span class="fn">DIVIDE</span>([Gewinn], [Umsatz])
-
-<span class="com">// Mit Default</span>
-Marge = <span class="fn">DIVIDE</span>([Gewinn], [Umsatz], <span class="str">0</span>)</pre>
+<span class="com">// Gut — DIVIDE liefert BLANK bei 0 oder leerem Nenner</span>
+Marge % = <span class="fn">DIVIDE</span> ( [Gewinn], [Umsatz] )</pre>
+      <p>Learn-Empfehlung: DIVIDE, wann immer der Nenner 0 oder leer sein kann; den Slash nur bei konstantem Nenner (z. B. <code>/ 1000</code>). Ein Ersatzwert wie <code>DIVIDE(…, …, 0)</code> ist selten gut — BLANK lässt Visuals leere Zeilen ausblenden, 0 zeigt sie alle an.</p>
 
       <h4>3. IFERROR maskiert Probleme</h4>
-      <pre><span class="com">// Schlecht — versteckt Bugs</span>
-<span class="fn">IFERROR</span>([Komplexe Logik], <span class="str">0</span>)
+      <pre><span class="com">// Schlecht — kostet zusätzliche Scans und versteckt Fehler</span>
+<span class="fn">IFERROR</span> ( [Umsatz] / [Menge], 0 )
 
-<span class="com">// Gut — Logik so schreiben, dass kein Fehler entsteht</span>
-<span class="kw">VAR</span> Wert = [Komplexe Logik]
-<span class="kw">RETURN</span> <span class="kw">IF</span>(<span class="fn">ISBLANK</span>(Wert), <span class="str">0</span>, Wert)</pre>
+<span class="com">// Gut — Fehlerquelle direkt vermeiden</span>
+<span class="fn">DIVIDE</span> ( [Umsatz], [Menge] )</pre>
+      <p>Die meisten Fehler entstehen durch unerwartete Leerwerte, Nullen oder falsche Datentypen. Die gehören in Power Query bereinigt — nicht per IFERROR überdeckt.</p>
 
       <h4>4. Implizite Measures durch Drag-and-Drop</h4>
-      <p>Statt einer numerischen Spalte ins Visual zu ziehen (was eine implizite SUM-Measure erzeugt): eine explizite Measure schreiben. Bessere Wartbarkeit, klare Definition, in Tabular Editor sichtbar.</p>
+      <p>Statt eine numerische Spalte ins Visual zu ziehen (implizite SUM): explizite Measure schreiben. Bessere Wartbarkeit, klare Definition, Voraussetzung für Calculation Groups und Field Parameters.</p>
 
       <h4>5. Calculated Columns für Aggregate</h4>
       <pre><span class="com">// Schlecht — verbraucht Speicher pro Zeile</span>
-fact_verkauf[Umsatz] = [Menge] * [Preis]
+fact_verkauf[ZeilenUmsatz] = fact_verkauf[Menge] * fact_verkauf[Preis]
 
 <span class="com">// Gut — Measure, kein Speicher</span>
-Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_verkauf[Preis])</pre>
+Umsatz = <span class="fn">SUMX</span> ( fact_verkauf, fact_verkauf[Menge] * fact_verkauf[Preis] )</pre>
 
-      <h4>6. SUMX über die ganze Tabelle</h4>
-      <p>Bei großen Faktentabellen ist <code>SUMX</code> über alle Zeilen langsam. Wenn möglich: vorberechnete Spalte in Power Query, dann <code>SUM</code> statt <code>SUMX</code>.</p>
+      <h4>6. Measures in Iteratoren über die Faktentabelle</h4>
+      <pre><span class="com">// Schlecht — Context Transition für jede einzelne Faktenzeile</span>
+Umsatz groß = <span class="fn">SUMX</span> ( fact_verkauf, <span class="kw">IF</span> ( [Umsatz] &gt; 1000, [Umsatz] ) )
 
-      <div class="example">
-        <strong>Beispiel · SUM vs SUMX</strong>
-        <code>SUMX(fact_verkauf, [Menge] * [Preis])</code> — 50 Mio Zeilen iterieren, multiplizieren, summieren.<br>
-        Wenn <code>Umsatz</code> in Power Query als Spalte berechnet: <code>SUM(fact_verkauf[Umsatz])</code> — VertiPaq-optimierte Summen-Operation, deutlich schneller.<br>
-        Trade-off: Speicher (Spalte vs. keine Spalte) vs. Performance (langsam vs. schnell). Bei großen Tabellen Performance gewinnt meistens.
-      </div>
+<span class="com">// Besser — über die Dimension iterieren, die du wirklich meinst</span>
+Umsatz große Kunden =
+<span class="fn">SUMX</span> ( <span class="fn">VALUES</span> ( Kunde[Kunde] ), <span class="kw">IF</span> ( [Umsatz] &gt; 1000, [Umsatz] ) )</pre>
+      <p>SUMX mit einfachen Spalten-Ausdrücken (Menge × Preis) ist schnell. Langsam wird es, wenn pro Faktenzeile eine Measure (also CALCULATE) läuft oder komplexe IF-Logik ausgewertet wird. Dann über die kleinere Dimension iterieren oder die Spalte schon in Power Query berechnen.</p>
+
+      <h4>7. ALL statt ALLSELECTED (oder umgekehrt)</h4>
+      <p><code>ALL</code>/<code>REMOVEFILTERS</code> ignorieren auch die Slicer-Auswahl, <code>ALLSELECTED</code> nur den Filter des Visuals. Wer „Anteil an der Auswahl“ will und ALL schreibt, bekommt Anteile, die nie 100 % ergeben. Mehr dazu im Rezept „Anteil am Gesamt vs. an der Auswahl“.</p>
 
       <div class="tip">
         <strong>Tipp · Best Practice Analyzer</strong>
-        Tabular Editor 2 hat einen "Best Practice Analyzer" (BPA), der diese Anti-Patterns automatisch erkennt. Microsoft pflegt ein Standard-Regelset auf GitHub. Lohnt sich, vor jedem Production-Deploy zu laufen.
+        Tabular Editor hat einen "Best Practice Analyzer" (BPA), der viele dieser Anti-Patterns automatisch erkennt. Microsoft pflegt ein Standard-Regelset auf GitHub. Lohnt sich, vor jedem Production-Deploy zu laufen.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/best-practices/dax-divide-function-operator" target="_blank" rel="noopener">DIVIDE vs. Divisionsoperator</a> · <a href="https://learn.microsoft.com/de-de/dax/best-practices/dax-error-functions" target="_blank" rel="noopener">Fehlerfunktionen richtig einsetzen</a> · <a href="https://learn.microsoft.com/de-de/dax/best-practices/dax-avoid-avoid-filter-as-filter-argument" target="_blank" rel="noopener">FILTER nicht als Filterargument</a></p>
+    `
+  },
+
+  // ── DAX-Rezepte (pbi2 · Oktober 2026) ─────────────────────────
+  'dax-r-vj': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · Vorjahr &amp; Abweichung',
+    body: `
+      <p class="lead"><strong>Wann:</strong> In fast jedem Management-Bericht — Ist gegen Vorjahr, absolut und in Prozent, für jede Zeile und jede Slicer-Auswahl.</p>
+      <h4>Formel</h4>
+      <pre>Umsatz VJ =
+<span class="fn">CALCULATE</span> ( [Umsatz], <span class="fn">SAMEPERIODLASTYEAR</span> ( <span class="str">'Datum'</span>[Datum] ) )
+
+Umsatz Δ VJ =
+<span class="kw">VAR</span> Ist = [Umsatz]
+<span class="kw">VAR</span> VJ  = [Umsatz VJ]
+<span class="kw">RETURN</span>
+    <span class="kw">IF</span> ( <span class="kw">NOT</span> <span class="fn">ISBLANK</span> ( Ist ) &amp;&amp; <span class="kw">NOT</span> <span class="fn">ISBLANK</span> ( VJ ), Ist - VJ )
+
+Umsatz Δ VJ % =
+<span class="kw">VAR</span> Ist = [Umsatz]
+<span class="kw">VAR</span> VJ  = [Umsatz VJ]
+<span class="kw">RETURN</span>
+    <span class="kw">IF</span> ( <span class="kw">NOT</span> <span class="fn">ISBLANK</span> ( Ist ), <span class="fn">DIVIDE</span> ( Ist - VJ, VJ ) )</pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p>SAMEPERIODLASTYEAR verschiebt den gerade gefilterten Datumsbereich um ein Jahr zurück und <em>ersetzt</em> damit nur den Datumsfilter — Region, Produkt und alle Slicer bleiben stehen. <code>DATEADD('Datum'[Datum], -1, YEAR)</code> macht dasselbe und funktioniert auch für Quartale oder Monate.</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        Δ VJ % ohne Leer-Prüfung: Für Monate in der Zukunft ist das Ist leer, das Vorjahr nicht — der Bericht zeigt eine Reihe −100 %. Und: Vorjahres-Measures nie mit dem Slash teilen, sondern immer mit DIVIDE.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/sameperiodlastyear-function-dax" target="_blank" rel="noopener">SAMEPERIODLASTYEAR</a> · <a href="https://learn.microsoft.com/de-de/dax/dateadd-function-dax" target="_blank" rel="noopener">DATEADD</a> · <a href="https://learn.microsoft.com/de-de/dax/best-practices/dax-variables" target="_blank" rel="noopener">Variablen in DAX</a></p>
+    `
+  },
+  'dax-r-ytd': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · YTD, Geschäftsjahr &amp; rollierende 12 Monate',
+    body: `
+      <p class="lead"><strong>Wann:</strong> Kumulierte Werte seit Jahresanfang, Geschäftsjahre mit abweichendem Ende und gleitende Jahreswerte, die Saisonalität glätten.</p>
+      <h4>Formel</h4>
+      <pre>Umsatz YTD =
+<span class="fn">CALCULATE</span> ( [Umsatz], <span class="fn">DATESYTD</span> ( <span class="str">'Datum'</span>[Datum] ) )
+
+<span class="com">-- Geschäftsjahr endet am 30.06. (Format Monat/Tag)</span>
+Umsatz GJ YTD =
+<span class="fn">CALCULATE</span> ( [Umsatz], <span class="fn">DATESYTD</span> ( <span class="str">'Datum'</span>[Datum], <span class="str">"6/30"</span> ) )
+
+Umsatz R12 =
+<span class="kw">VAR</span> Stichtag = <span class="fn">MAX</span> ( <span class="str">'Datum'</span>[Datum] )
+<span class="kw">RETURN</span>
+    <span class="kw">IF</span> (
+        <span class="kw">NOT</span> <span class="fn">ISBLANK</span> ( [Umsatz] ),
+        <span class="fn">CALCULATE</span> (
+            [Umsatz],
+            <span class="fn">DATESINPERIOD</span> ( <span class="str">'Datum'</span>[Datum], Stichtag, -12, <span class="kw">MONTH</span> )
+        )
+    )</pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p>DATESYTD und DATESINPERIOD liefern eine Tabelle mit Datumswerten, die CALCULATE als neuen Filter auf die Datumsspalte setzt. Der Monat in der Zeile wird so zum <em>Endpunkt</em> eines längeren Fensters.</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        Die Datums-Tabelle reicht bis Jahresende, die Daten nur bis heute: YTD und R12 laufen in die Zukunft weiter und zeigen konstante Werte. Deshalb oben die Prüfung <code>NOT ISBLANK([Umsatz])</code> — oder ein Kalender-Flag „Datum ≤ letzter Ist-Tag“. Das Jahresende-Argument ist ein Text, der im Gebietsschema der Datei gelesen wird; Learn empfiehlt die Schreibweise Monat/Tag.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/datesytd-function-dax" target="_blank" rel="noopener">DATESYTD</a> · <a href="https://learn.microsoft.com/de-de/dax/datesinperiod-function-dax" target="_blank" rel="noopener">DATESINPERIOD</a> · <a href="https://learn.microsoft.com/de-de/training/modules/dax-power-bi-time-intelligence/" target="_blank" rel="noopener">Training: DAX-Zeitintelligenz</a></p>
+    `
+  },
+  'dax-r-anteil': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · Anteil am Gesamt vs. an der Auswahl',
+    body: `
+      <p class="lead"><strong>Wann:</strong> „Wie viel Prozent trägt die Region bei?“ — einmal gemessen am Gesamtunternehmen, einmal an dem, was der Slicer gerade zeigt.</p>
+      <h4>Formel</h4>
+      <pre>Umsatz Anteil Gesamt =
+<span class="fn">DIVIDE</span> (
+    [Umsatz],
+    <span class="fn">CALCULATE</span> ( [Umsatz], <span class="fn">REMOVEFILTERS</span> ( Region ) )
+)
+
+Umsatz Anteil Auswahl =
+<span class="fn">DIVIDE</span> (
+    [Umsatz],
+    <span class="fn">CALCULATE</span> ( [Umsatz], <span class="fn">ALLSELECTED</span> ( Region[Name] ) )
+)</pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p><code>REMOVEFILTERS(Region)</code> wirft jeden Filter auf der Region-Tabelle weg, auch den Slicer — der Nenner ist immer „alle Regionen“. <code>ALLSELECTED(Region[Name])</code> entfernt nur den Filter, den das Visual pro Zeile setzt, die Slicer-Auswahl bleibt: Die sichtbaren Zeilen ergeben zusammen 100 %.</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        <code>ALL(fact_verkauf)</code> als Nenner: Das entfernt auch alle Filter, die über Beziehungen auf die Faktentabelle wirken — inklusive Datum. Ergebnis ist der Anteil am Allzeit-Umsatz. Neutralisiere nur die Dimension oder Spalte, die du wirklich meinst. Für ein einzelnes Visual geht es auch ohne Modell-Measure: Visual Calculation mit <code>COLLAPSEALL</code>.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/removefilters-function-dax" target="_blank" rel="noopener">REMOVEFILTERS</a> · <a href="https://learn.microsoft.com/de-de/dax/allselected-function-dax" target="_blank" rel="noopener">ALLSELECTED</a></p>
+    `
+  },
+  'dax-r-keepfilters': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · Filter ergänzen statt überschreiben (KEEPFILTERS)',
+    body: `
+      <p class="lead"><strong>Wann:</strong> Eine Measure soll auf eine Teilmenge einschränken, aber die Auswahl im Bericht respektieren — z. B. „Kernregionen“ in einer Matrix nach Region.</p>
+      <h4>Formel</h4>
+      <pre><span class="com">-- Überschreibt: zeigt in JEDER Zeile den Süd-Umsatz</span>
+Umsatz Süd =
+<span class="fn">CALCULATE</span> ( [Umsatz], Region[Name] = <span class="str">"Süd"</span> )
+
+<span class="com">-- Ergänzt: Süd-Umsatz nur in der Zeile Süd, sonst leer</span>
+Umsatz Süd (Schnittmenge) =
+<span class="fn">CALCULATE</span> ( [Umsatz], <span class="fn">KEEPFILTERS</span> ( Region[Name] = <span class="str">"Süd"</span> ) )
+
+<span class="com">-- Mehrere Werte ohne FILTER-Iteration</span>
+Umsatz Kernregionen =
+<span class="fn">CALCULATE</span> ( [Umsatz], <span class="fn">KEEPFILTERS</span> ( Region[Name] <span class="kw">IN</span> { <span class="str">"Süd"</span>, <span class="str">"West"</span> } ) )</pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p>Ein Boolean-Filterargument ersetzt den bestehenden Filter auf genau dieser Spalte. KEEPFILTERS bildet stattdessen die Schnittmenge mit dem, was Slicer und Visual schon filtern.</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        <code>CALCULATE([Umsatz], FILTER(ALL(Region), Region[Name] = "Süd"))</code> — iteriert die ganze Tabelle, entfernt dabei die Filter auf <em>allen</em> Region-Spalten und ist langsamer. Learn empfiehlt Boolean-Filter (bei Bedarf mit KEEPFILTERS); FILTER nur, wenn eine Measure oder mehrere Spalten verglichen werden.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/keepfilters-function-dax" target="_blank" rel="noopener">KEEPFILTERS</a> · <a href="https://learn.microsoft.com/de-de/dax/best-practices/dax-avoid-avoid-filter-as-filter-argument" target="_blank" rel="noopener">FILTER nicht als Filterargument</a></p>
+    `
+  },
+  'dax-r-selected': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · Auswahl auslesen: SELECTEDVALUE &amp; ISINSCOPE',
+    body: `
+      <p class="lead"><strong>Wann:</strong> Dynamische Titel („Umsatz Süd“), Parameter aus Slicern und eine andere Logik in der Summenzeile einer Matrix.</p>
+      <h4>Formel</h4>
+      <pre>Gewählte Region =
+<span class="fn">SELECTEDVALUE</span> ( Region[Name], <span class="str">"Alle Regionen"</span> )
+
+Titel Umsatz =
+<span class="str">"Umsatz "</span> &amp; [Gewählte Region] &amp; <span class="str">" · "</span> &amp; <span class="fn">FORMAT</span> ( [Umsatz], <span class="str">"#,0 €"</span> )
+
+<span class="com">-- In der Summenzeile leer lassen (z. B. für Ränge oder Anteile)</span>
+Umsatz nur Zeilen =
+<span class="kw">IF</span> ( <span class="fn">ISINSCOPE</span> ( Region[Name] ), [Umsatz] )</pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p>SELECTEDVALUE liefert den Wert nur, wenn der Filterkontext die Spalte auf <em>genau einen</em> Wert eingeengt hat — sonst den Ersatzwert. ISINSCOPE fragt, ob die Spalte gerade gruppiert: Zeile ja, Summenzeile nein.</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        <code>ISFILTERED(Region[Name])</code> als Summen-Test: Sobald ein Slicer auf Region filtert, ist ISFILTERED auch in der Summenzeile wahr. Für „Zeile oder Summe?“ immer ISINSCOPE nehmen. Und: <code>SELECTEDVALUE</code> ersetzt das alte Muster <code>IF(HASONEVALUE(…), VALUES(…))</code>.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/selectedvalue-function-dax" target="_blank" rel="noopener">SELECTEDVALUE</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-conditional-format-visual-titles" target="_blank" rel="noopener">Ausdrucksbasierte Titel</a></p>
+    `
+  },
+  'dax-r-rank': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · Ranking: RANKX oder RANK',
+    body: `
+      <p class="lead"><strong>Wann:</strong> Rangfolgen in Tabellen („Top-Region“), Rang-Spalten für Sortierung und als Basis für Top-N-Logik.</p>
+      <h4>Formel</h4>
+      <pre><span class="com">-- Klassisch: RANKX über die sichtbaren Regionen</span>
+Rang Region =
+<span class="kw">IF</span> (
+    <span class="fn">ISINSCOPE</span> ( Region[Name] ),
+    <span class="fn">RANKX</span> ( <span class="fn">ALLSELECTED</span> ( Region[Name] ), [Umsatz], , <span class="kw">DESC</span>, <span class="kw">DENSE</span> )
+)
+
+<span class="com">-- Fensterfunktion (seit 2023): RANK mit ORDERBY</span>
+Rang Region (RANK) =
+<span class="kw">IF</span> (
+    <span class="fn">ISINSCOPE</span> ( Region[Name] ),
+    <span class="fn">RANK</span> ( <span class="kw">DENSE</span>, <span class="fn">ALLSELECTED</span> ( Region[Name] ), <span class="fn">ORDERBY</span> ( [Umsatz], <span class="kw">DESC</span> ) )
+)</pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p>RANKX wertet <code>[Umsatz]</code> für jede Region der Liste aus (Context Transition) und zählt, wie viele besser sind. RANK sortiert die Liste einmal per ORDERBY und sucht die aktuelle Zeile darin — dieselbe Familie wie WINDOW, OFFSET und INDEX.</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        <code>ALL(Region[Name])</code> statt ALLSELECTED: Dann zählen auch Regionen mit, die der Slicer ausblendet, und die Ränge bekommen Lücken (1, 3, 7 …). Ohne ISINSCOPE zeigt die Summenzeile außerdem Rang 1 (RANK liefert dort laut Learn leer). In einem einzelnen Visual geht Ranking auch als Visual Calculation: <code>RANK(DENSE, ORDERBY([Umsatz], DESC))</code>.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/rank-function-dax" target="_blank" rel="noopener">RANK</a> · <a href="https://learn.microsoft.com/de-de/dax/best-practices/dax-understand-orderby" target="_blank" rel="noopener">ORDERBY, PARTITIONBY, MATCHBY verstehen</a> · <a href="https://learn.microsoft.com/de-de/dax/window-function-dax" target="_blank" rel="noopener">WINDOW</a></p>
+    `
+  },
+  'dax-r-topn': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · Top N + „Andere“',
+    body: `
+      <p class="lead"><strong>Wann:</strong> Balkendiagramme mit vielen Kategorien — die fünf größten Produkte einzeln, der Rest als ein Balken „Andere“, und die Summe stimmt trotzdem.</p>
+      <h4>Formel</h4>
+      <pre><span class="com">-- 1) Hilfstabelle für die Achse (berechnete Tabelle, OHNE Beziehung)</span>
+Produkt Achse =
+<span class="fn">UNION</span> ( <span class="fn">DISTINCT</span> ( Produkt[Produkt] ), <span class="fn">ROW</span> ( <span class="str">"Produkt"</span>, <span class="str">"Andere"</span> ) )
+
+<span class="com">-- 2) Measure für das Visual mit 'Produkt Achse'[Produkt] auf der Achse</span>
+Umsatz Top 5 + Andere =
+<span class="kw">VAR</span> TopProdukte =
+    <span class="fn">TOPN</span> ( 5, <span class="fn">ALLSELECTED</span> ( Produkt[Produkt] ), [Umsatz] )
+<span class="kw">VAR</span> Zeile = <span class="fn">SELECTEDVALUE</span> ( <span class="str">'Produkt Achse'</span>[Produkt] )
+<span class="kw">RETURN</span>
+    <span class="kw">SWITCH</span> (
+        <span class="fn">TRUE</span> (),
+        <span class="kw">NOT</span> <span class="fn">ISINSCOPE</span> ( <span class="str">'Produkt Achse'</span>[Produkt] ), [Umsatz],
+        Zeile = <span class="str">"Andere"</span>,
+            <span class="fn">CALCULATE</span> (
+                [Umsatz],
+                <span class="fn">EXCEPT</span> ( <span class="fn">ALLSELECTED</span> ( Produkt[Produkt] ), TopProdukte )
+            ),
+        <span class="fn">CALCULATE</span> (
+            [Umsatz],
+            <span class="fn">TREATAS</span> ( { Zeile }, Produkt[Produkt] ),
+            TopProdukte
+        )
+    )</pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p>Die Achse kommt aus einer unverbundenen Hilfstabelle. TREATAS überträgt die Zeile als Filter auf <code>Produkt[Produkt]</code>, die Top-Liste wirkt als zweiter Filter auf dieselbe Spalte — beide werden geschnitten, Nicht-Top-Produkte bleiben leer. „Andere“ bekommt alle sichtbaren Produkte außer der Top-Liste.</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        Den „Top N“-Filter im Filterbereich nutzen und den Rest vergessen — dann fehlt „Andere“, und die Visual-Summe weicht vom Gesamtumsatz ab. Außerdem: TOPN liefert bei Gleichstand mehr als N Zeilen, und „Andere“ braucht eine Sortierspalte, damit es am Ende steht.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/topn-function-dax" target="_blank" rel="noopener">TOPN</a> · <a href="https://learn.microsoft.com/de-de/dax/treatas-function-dax" target="_blank" rel="noopener">TREATAS</a></p>
+    `
+  },
+  'dax-r-userel': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · Zweites Datum &amp; Tabellen ohne Beziehung',
+    body: `
+      <p class="lead"><strong>Wann:</strong> Umsatz nach Liefer- statt Bestelldatum (inaktive Beziehung) und Plan-Tabellen auf Monatsebene, die keine echte Beziehung zum Tageskalender haben.</p>
+      <h4>Formel</h4>
+      <pre><span class="com">-- Inaktive Beziehung fact_verkauf[LieferDatum] → 'Datum'[Datum]</span>
+Umsatz nach Lieferdatum =
+<span class="fn">CALCULATE</span> (
+    [Umsatz],
+    <span class="fn">USERELATIONSHIP</span> ( fact_verkauf[LieferDatum], <span class="str">'Datum'</span>[Datum] )
+)
+
+<span class="com">-- Plan auf Monatsebene, ohne physische Beziehung</span>
+Umsatz Plan =
+<span class="fn">CALCULATE</span> (
+    <span class="fn">SUM</span> ( plan_umsatz[Plan] ),
+    <span class="fn">TREATAS</span> ( <span class="fn">VALUES</span> ( <span class="str">'Datum'</span>[Monatsbeginn] ), plan_umsatz[Monat] ),
+    <span class="fn">TREATAS</span> ( <span class="fn">VALUES</span> ( Region[Name] ), plan_umsatz[Region] )
+)</pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p>USERELATIONSHIP aktiviert für diese eine Berechnung die gestrichelte Beziehung — die aktive pausiert solange. TREATAS legt die sichtbaren Werte einer Spalte als Filter auf eine Spalte einer fremden Tabelle: eine „virtuelle Beziehung“, die nur in dieser Measure existiert.</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        Row-Level Security: RLS-Filter laufen laut Learn nur über <em>aktive</em> Beziehungen, auch wenn eine Measure USERELATIONSHIP nutzt — und auf RLS-geschützten Tabellen kann USERELATIONSHIP einen Fehler werfen. TREATAS nicht als Dauerlösung für fehlende Modellierung: Wo eine echte Beziehung möglich ist, ist sie schneller und für alle Measures da.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/userelationship-function-dax" target="_blank" rel="noopener">USERELATIONSHIP</a> · <a href="https://learn.microsoft.com/de-de/power-bi/guidance/relationships-active-inactive" target="_blank" rel="noopener">Aktive vs. inaktive Beziehungen</a> · <a href="https://learn.microsoft.com/de-de/dax/treatas-function-dax" target="_blank" rel="noopener">TREATAS</a></p>
+    `
+  },
+  'dax-r-bestand': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · Bestände (semi-additiv)',
+    body: `
+      <p class="lead"><strong>Wann:</strong> Lagerbestand, Kontostand, Mitarbeiterzahl — Stichtagswerte, die über Produkte oder Lager summiert werden dürfen, <em>nicht</em> aber über die Zeit. Beispiel: Tages-Snapshots in <code>fact_bestand</code>.</p>
+      <h4>Formel</h4>
+      <pre><span class="com">-- Wert am letzten Tag des Monats</span>
+Bestand Monatsende =
+<span class="fn">CLOSINGBALANCEMONTH</span> ( <span class="fn">SUM</span> ( fact_bestand[Menge] ), <span class="str">'Datum'</span>[Datum] )
+
+<span class="com">-- Robust, wenn nicht jeden Tag ein Snapshot existiert</span>
+Bestand letzter Stand =
+<span class="fn">LASTNONBLANKVALUE</span> ( <span class="str">'Datum'</span>[Datum], <span class="fn">SUM</span> ( fact_bestand[Menge] ) )</pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p>Beide Funktionen setzen den Datumsfilter auf einen einzigen Tag — den Monatsletzten bzw. den letzten Tag mit Daten — und summieren dann nur noch über Lager und Produkte.</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        Einfach <code>SUM(fact_bestand[Menge])</code> über einen Monat: Dann werden 30 Tagesbestände addiert. Und CLOSINGBALANCEMONTH bei Snapshots nur an Werktagen: Fällt das Monatsende auf einen Sonntag, ist der Wert leer — dann LASTNONBLANKVALUE nehmen. Achtung bei Summen über Produkte: LASTNONBLANKVALUE nimmt den letzten Tag, an dem <em>irgendein</em> Produkt Daten hat.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/closingbalancemonth-function-dax" target="_blank" rel="noopener">CLOSINGBALANCEMONTH</a> · <a href="https://learn.microsoft.com/de-de/dax/lastnonblankvalue-function-dax" target="_blank" rel="noopener">LASTNONBLANKVALUE</a></p>
+    `
+  },
+  'dax-r-visualcalc': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · Visual Calculations (GA)',
+    body: `
+      <p class="lead"><strong>Wann:</strong> Laufende Summe, gleitender Durchschnitt, Vergleich mit der Vorperiode, Prozent vom übergeordneten Wert — für <em>ein</em> Visual, ohne das Modell mit Hilfs-Measures zu fluten. Seit Mai 2026 allgemein verfügbar; im Visual über „Neue visuelle Berechnung“.</p>
+      <h4>Formel</h4>
+      <pre>Laufende Summe   = <span class="fn">RUNNINGSUM</span> ( [Umsatz] )
+Ø 3 Monate       = <span class="fn">MOVINGAVERAGE</span> ( [Umsatz], 3 )
+Δ Vormonat       = [Umsatz] - <span class="fn">PREVIOUS</span> ( [Umsatz] )
+Anteil an Eltern = <span class="fn">DIVIDE</span> ( [Umsatz], <span class="fn">COLLAPSE</span> ( [Umsatz], <span class="kw">ROWS</span> ) )
+Rang im Jahr     = <span class="fn">RANK</span> ( <span class="kw">DENSE</span>, <span class="fn">ORDERBY</span> ( [Umsatz], <span class="kw">DESC</span> ), <span class="fn">PARTITIONBY</span> ( [Jahr] ) )</pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p>Visual Calculations rechnen auf der Ergebnismatrix des Visuals — also auf bereits aggregierten Zeilen — entlang einer Achse (<code>ROWS</code>/<code>COLUMNS</code>). Filterkontext-Jonglieren entfällt, und weil weniger Zeilen verarbeitet werden, sind sie oft schneller als gleichwertige Measures.</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        Sie als Modell-Ersatz behandeln: Visual Calculations lassen sich nicht in anderen Visuals wiederverwenden, nicht filtern oder sortieren, sie fehlen im Datenexport, funktionieren nicht in Slicern und Custom Visuals und nicht bei „Im Web veröffentlichen“. Kennzahlen, die mehrere Berichte brauchen, gehören ins Modell. Außerdem rechnet PREVIOUS in Achsenreihenfolge — falsche Sortierung, falscher Vormonat.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/transform-model/desktop-visual-calculations-overview" target="_blank" rel="noopener">Visual Calculations · Überblick</a> · <a href="https://learn.microsoft.com/de-de/power-bi/transform-model/desktop-visual-calculations-create" target="_blank" rel="noopener">Visual Calculations erstellen</a> · <a href="https://learn.microsoft.com/de-de/training/modules/power-bi-visual-calculations/" target="_blank" rel="noopener">Training: Visual Calculations</a></p>
+    `
+  },
+  'dax-r-calcgroup': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · Calculation Groups',
+    body: `
+      <p class="lead"><strong>Wann:</strong> Dieselbe Logik — Ist, Vorjahr, YTD, Δ % — für viele Measures. Statt 4 × 20 Measures eine Berechnungsgruppe mit 4 Elementen. Anlegen in der Modellansicht über „Berechnungsgruppe“ oder in der TMDL-Ansicht.</p>
+      <h4>Formel</h4>
+      <pre><span class="com">-- Berechnungsgruppe 'Zeitvergleich', Elemente der Spalte [Ansicht]</span>
+Ist    = <span class="fn">SELECTEDMEASURE</span> ()
+VJ     = <span class="fn">CALCULATE</span> ( <span class="fn">SELECTEDMEASURE</span> (), <span class="fn">SAMEPERIODLASTYEAR</span> ( <span class="str">'Datum'</span>[Datum] ) )
+YTD    = <span class="fn">CALCULATE</span> ( <span class="fn">SELECTEDMEASURE</span> (), <span class="fn">DATESYTD</span> ( <span class="str">'Datum'</span>[Datum] ) )
+Δ VJ % =
+<span class="kw">VAR</span> Ist = <span class="fn">SELECTEDMEASURE</span> ()
+<span class="kw">VAR</span> VJ  = <span class="fn">CALCULATE</span> ( <span class="fn">SELECTEDMEASURE</span> (), <span class="fn">SAMEPERIODLASTYEAR</span> ( <span class="str">'Datum'</span>[Datum] ) )
+<span class="kw">RETURN</span>
+    <span class="kw">IF</span> ( <span class="kw">NOT</span> <span class="fn">ISBLANK</span> ( Ist ), <span class="fn">DIVIDE</span> ( Ist - VJ, VJ ) )
+
+<span class="com">-- Format-String-Ausdruck nur für das Element Δ VJ %</span>
+<span class="str">"0.0 %"</span></pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p><code>SELECTEDMEASURE()</code> ist ein Platzhalter: Das Element wird um jede Measure „herumgelegt“, die im Visual steht. Wählt der Slicer „VJ“, rechnen <code>[Umsatz]</code>, <code>[Menge]</code> und <code>[Marge %]</code> automatisch als Vorjahr.</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        Prozent-Measures bekommen ungewollt dieselbe Logik (YTD einer Marge ist Unsinn) — Elemente können Measures nach Name oder Datentyp ausklammern. Bei mehreren Gruppen entscheidet die <strong>Precedence</strong>, welche zuerst greift. Und: Calculation Groups setzen „Implizite Measures vermeiden“ voraus — Spalten-Drag-and-Drop als Wert funktioniert dann nicht mehr (bestehende implizite Measures laufen weiter).
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/transform-model/calculation-groups" target="_blank" rel="noopener">Berechnungsgruppen erstellen</a> · <a href="https://learn.microsoft.com/de-de/training/modules/create-calculation-groups/" target="_blank" rel="noopener">Training: Calculation Groups</a></p>
+    `
+  },
+  'dax-r-udf': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · DAX User-Defined Functions (GA)',
+    body: `
+      <p class="lead"><strong>Wann:</strong> Eine Geschäftsregel kehrt in vielen Measures wieder — Abweichung in %, Steuer, Ampellogik, SVG-Balken. Einmal als Funktion definieren, überall aufrufen: in Measures, berechneten Spalten, Visual Calculations und anderen Funktionen. Allgemein verfügbar seit Juni 2026 (Kompatibilitätsgrad 1702).</p>
+      <h4>Formel</h4>
+      <pre><span class="kw">DEFINE</span>
+    <span class="com">/// Abweichung in % – leer, wenn kein Ist vorhanden ist</span>
+    <span class="kw">FUNCTION</span> DeltaProzent = (
+            ist : <span class="kw">NUMERIC</span>,
+            vergleich : <span class="kw">NUMERIC</span>
+        ) =&gt;
+        <span class="kw">IF</span> ( <span class="kw">NOT</span> <span class="fn">ISBLANK</span> ( ist ), <span class="fn">DIVIDE</span> ( ist - vergleich, vergleich ) )
+
+<span class="kw">EVALUATE</span>
+{ DeltaProzent ( 110, 100 ) }   <span class="com">-- liefert 0,1</span>
+
+<span class="com">-- Danach im Modell:</span>
+Umsatz Δ VJ % = DeltaProzent ( [Umsatz], [Umsatz VJ] )
+Menge Δ VJ %  = DeltaProzent ( [Menge], [Menge VJ] )</pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p>Parameter ohne Typangabe oder mit <code>NUMERIC</code> sind <code>val</code>-Parameter: <code>[Umsatz]</code> wird im Filterkontext des Aufrufers ausgewertet und als fertiger Wert übergeben. Soll die Funktion selbst den Kontext ändern — etwa per CALCULATE um eine übergebene Measure —, brauchst du einen Referenz-Parameter wie <code>MEASUREREF</code> (immer <code>expr</code>, also verzögert ausgewertet).</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        UDFs wie Calculation Groups behandeln: Eine Funktion ändert keinen Filterkontext von allein und wirkt nicht automatisch auf alle Measures. Weitere Grenzen laut Learn: keine Rekursion, kein Überladen, keine Display Folders. Anlegen in DAX-Abfrageansicht, TMDL-Ansicht oder Modellansicht — im PBIP liegen sie in <code>functions.tmdl</code>.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/dax/best-practices/dax-user-defined-functions" target="_blank" rel="noopener">DAX User-Defined Functions</a> · <a href="https://learn.microsoft.com/de-de/power-bi/transform-model/desktop-user-defined-functions-overview" target="_blank" rel="noopener">UDFs in Power BI Desktop</a></p>
+    `
+  },
+  'dax-r-kalender': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · Kalenderbasierte Zeitintelligenz (Preview)',
+    body: `
+      <p class="lead"><strong>Wann:</strong> Geschäftsjahre, Retail-Kalender (4-4-5), Wochenlogik oder Kalender mit Lücken (nur Werktage). <strong>Status Oktober 2026: Preview</strong> — in Desktop unter Optionen → Vorschaufeatures → „Enhanced DAX Time Intelligence“ aktivieren. Learn empfiehlt den Ansatz wegen Flexibilität und Performance.</p>
+      <h4>Formel</h4>
+      <pre><span class="com">-- Kalender 'Geschäftsjahr' auf der Tabelle 'Datum' definiert</span>
+<span class="com">-- (Tabellentools → Kalenderoptionen → Neuer Kalender)</span>
+Umsatz GJ YTD = <span class="fn">TOTALYTD</span> ( [Umsatz], <span class="str">'Geschäftsjahr'</span> )
+Umsatz WTD    = <span class="fn">TOTALWTD</span> ( [Umsatz], <span class="str">'Geschäftsjahr'</span> )
+Umsatz GJ VJ  =
+<span class="fn">CALCULATE</span> ( [Umsatz], <span class="fn">SAMEPERIODLASTYEAR</span> ( <span class="str">'Geschäftsjahr'</span> ) )</pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p>Statt einer Datumsspalte übergibst du einen <em>Kalender</em> — Metadaten, die festlegen, welche Spalte Jahr, Quartal, Monat und Woche ist. Die Funktionen verschieben dann in diesen Einheiten, ohne gregorianische Annahmen. Fehlende Tage sind kein Fehler mehr.</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        Kategorien unvollständig zuordnen: TOTALWTD ohne Wochen-Kategorien oder ein Monat ohne Jahr bricht mit Fehler ab bzw. scheitert an der Eindeutigkeits-Validierung. Das Jahresende-Argument (<code>"6/30"</code>) darf mit einem Kalender nicht angegeben werden — das Geschäftsjahr steckt im Kalender. Preview heißt: vor produktivem Einsatz die Rahmenbedingungen prüfen.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/transform-model/desktop-time-intelligence" target="_blank" rel="noopener">Zeitbasierte Berechnungen · kalenderbasiert</a> · <a href="https://learn.microsoft.com/de-de/dax/totalytd-function-dax" target="_blank" rel="noopener">TOTALYTD (auch mit Kalender)</a></p>
+    `
+  },
+  'dax-r-query': {
+    eyebrow: 'DAX · REZEPT',
+    title: 'Rezept · Measures testen in der DAX-Abfrageansicht',
+    body: `
+      <p class="lead"><strong>Wann:</strong> Bevor eine Measure ins Modell wandert — Zahlen pro Jahr und Region als Tabelle prüfen, Varianten vergleichen, das Modell dokumentieren.</p>
+      <h4>Formel</h4>
+      <pre><span class="kw">DEFINE</span>
+    <span class="kw">MEASURE</span> fact_verkauf[Umsatz Δ VJ % (Test)] =
+        <span class="kw">VAR</span> Ist = [Umsatz]
+        <span class="kw">VAR</span> VJ  = [Umsatz VJ]
+        <span class="kw">RETURN</span> <span class="kw">IF</span> ( <span class="kw">NOT</span> <span class="fn">ISBLANK</span> ( Ist ), <span class="fn">DIVIDE</span> ( Ist - VJ, VJ ) )
+
+<span class="kw">EVALUATE</span>
+<span class="fn">SUMMARIZECOLUMNS</span> (
+    <span class="str">'Datum'</span>[Jahr],
+    Region[Name],
+    <span class="str">"Umsatz"</span>, [Umsatz],
+    <span class="str">"VJ"</span>, [Umsatz VJ],
+    <span class="str">"Δ VJ %"</span>, [Umsatz Δ VJ % (Test)]
+)
+<span class="kw">ORDER</span> <span class="kw">BY</span> <span class="str">'Datum'</span>[Jahr], Region[Name]
+
+<span class="com">-- Alle Measures des Modells auflisten</span>
+<span class="kw">EVALUATE</span>
+<span class="fn">SELECTCOLUMNS</span> (
+    <span class="fn">INFO.VIEW.MEASURES</span> (),
+    <span class="str">"Tabelle"</span>, [Table], <span class="str">"Measure"</span>, [Name], <span class="str">"Formel"</span>, [Expression]
+)</pre>
+      <h4>Der Filterkontext-Trick</h4>
+      <p><code>DEFINE MEASURE</code> gilt nur für diese Abfrage — eine gleichnamige Modell-Measure wird nur hier überschrieben. Du testest, ohne das Modell anzufassen; erst „Modell aktualisieren“ übernimmt die Änderung bewusst.</p>
+      <div class="trap">
+        <strong>Typischer Fehler</strong>
+        Measures nur im Visual testen: Dort verstecken Auto-Filter, Summenzeilen und Formatierung Fehler. In der Abfrageansicht siehst du die rohen Zahlen — seit Juni 2026 auch im Ergebnisraster sortier- und filterbar. Copilot kann dir DAX-Abfragen vorschlagen; prüfen musst du sie trotzdem.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/transform-model/dax-query-view" target="_blank" rel="noopener">DAX-Abfrageansicht</a> · <a href="https://learn.microsoft.com/de-de/dax/dax-queries" target="_blank" rel="noopener">DAX-Abfragen</a> · <a href="https://learn.microsoft.com/de-de/dax/info-functions-dax" target="_blank" rel="noopener">INFO-Funktionen</a></p>
     `
   },
 
@@ -5394,15 +6288,20 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
       <div class="steps">
         <h4 class="step">Dynamische Titel via DAX</h4>
         <p>Eine Measure schreibt den Titel:</p>
-        <pre><span class="fn">VAR</span> Diff = [Umsatz] - [Plan]
-<span class="fn">VAR</span> Pct = <span class="fn">DIVIDE</span>(Diff, [Plan])
-<span class="fn">RETURN</span> <span class="str">"Umsatz "</span> &amp; <span class="fn">FORMAT</span>([Umsatz], <span class="str">"#,0"</span>) &amp;
-  <span class="kw">IF</span>(Diff &gt;= <span class="str">0</span>,
-    <span class="str">" · +"</span> &amp; <span class="fn">FORMAT</span>(Pct, <span class="str">"0 %"</span>) &amp; <span class="str">" über Plan"</span>,
-    <span class="str">" · "</span> &amp; <span class="fn">FORMAT</span>(Pct, <span class="str">"0 %"</span>) &amp; <span class="str">" unter Plan"</span>)</pre>
+        <pre>Titel Umsatz =
+<span class="kw">VAR</span> Ist  = [Umsatz]
+<span class="kw">VAR</span> Plan = [Umsatz Plan]
+<span class="kw">VAR</span> Pct  = <span class="fn">DIVIDE</span> ( Ist - Plan, Plan )
+<span class="kw">RETURN</span>
+    <span class="str">"Umsatz "</span> &amp; <span class="fn">FORMAT</span> ( Ist, <span class="str">"#,0 €"</span> ) &amp;
+    <span class="kw">IF</span> (
+        <span class="fn">ISBLANK</span> ( Pct ), <span class="str">""</span>,
+        <span class="str">" · "</span> &amp; <span class="fn">FORMAT</span> ( <span class="fn">ABS</span> ( Pct ), <span class="str">"0 %"</span> ) &amp; <span class="kw">IF</span> ( Pct &gt;= 0, <span class="str">" über"</span>, <span class="str">" unter"</span> ) &amp; <span class="str">" Plan"</span>
+    )</pre>
+        <p><code>ABS</code> verhindert ein doppeltes Minus („−12 % unter Plan“), die Leer-Prüfung fängt fehlende Planwerte ab.</p>
 
         <h4 class="step">Titel an Visual binden</h4>
-        <p>Im Visual-Format-Pane: "Title" → fx-Knopf rechts neben Title text → "Field value" → die Measure auswählen.</p>
+        <p>Im Format-Bereich: "Titel" → fx-Knopf neben dem Titeltext → Formatstil "Feldwert" → die Measure auswählen. Mit dem Fluent-2-Basisdesign (Standard für neue Berichte seit August 2026) sind auch Untertitel standardmäßig an — ideal für die Quantifizierung.</p>
       </div>
 
       <div class="example">
@@ -5445,7 +6344,8 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
       <ul>
         <li>Custom Theme (JSON) mit definierten Farben für ACT/PL/FC</li>
         <li>Inforiver oder Zebra BI Custom Visual für Variance-Charts mit Solid/Outlined/Hatched</li>
-        <li>Bei Bordmitteln: gleicher Farb-Code für gleiche Bedeutung konsequent durchziehen</li>
+        <li>In Microsoft Fabric: Planning (Fabric IQ) bringt IBCS-zertifizierte Intelligence Sheets mit Vorlagen für Säulen, Wasserfälle und Tabellen</li>
+        <li>Bei Bordmitteln: gleicher Farb-Code für gleiche Bedeutung konsequent durchziehen — im Theme-Bereich lassen sich dafür Sentiment-Farben (gut/neutral/schlecht) zentral setzen</li>
       </ul>
 
       <div class="trap">
@@ -5509,7 +6409,7 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
 
       <div class="example">
         <strong>Default-Falle in Power BI</strong>
-        Power BI Desktop hat per Default Y-Achse "Auto" — beginnt häufig nicht bei Null. Im Visual-Format unter "Y-Axis" → "Range" → "Start" auf 0 setzen. Manuell, jedes Mal.
+        Auf „Auto“ passt Power BI den Wertebereich an die Daten an. Bei Säulen und Balken prüfen, dass niemand das Minimum hochgesetzt hat; bei Linien beginnt die Auto-Achse oft nicht bei Null. Festlegen unter „Y-Achse“ → „Bereich“ → „Minimum“ = 0. Die Option „Bereich runden“ (Standard: an) sorgt für glatte Achsenwerte.
       </div>
 
       <h4>Linien-Charts sind anders</h4>
@@ -5820,12 +6720,12 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
     eyebrow: 'VIZ · SIMPLIFY',
     title: 'Noise eliminieren',
     body: `
-      <p class="lead">Power BI Default-Charts sind voller Dekoration ohne Informationswert. Wer das nicht aufräumt, schwächt die Botschaft.</p>
+      <p class="lead">Default-Charts bringen Dekoration mit, die keine Information trägt. Wer das nicht aufräumt, schwächt die Botschaft. Seit August 2026 starten neue Berichte mit dem Fluent-2-Basisdesign: grauer Canvas, abgerundete Ecken, mehr Innenabstand, Titel und Untertitel an, Achsentitel aus. Prüfe jedes dieser Elemente gegen deine Botschaft.</p>
 
       <h4>Was raus muss</h4>
       <ul>
         <li><strong>Gridlines</strong> — bei Bar-Charts fast nie nötig; bei Line-Charts hellgrau</li>
-        <li><strong>Schatten</strong> — Visuals werfen Default-Schatten; weg damit</li>
+        <li><strong>Schatten</strong> — falls Theme oder Vorlage welche setzen: weg damit</li>
         <li><strong>Verläufe</strong> — Farben sollten einfarbig sein</li>
         <li><strong>3D-Effekte</strong> — immer raus (verzerren Wahrnehmung)</li>
         <li><strong>Farbige Hintergründe</strong> — Weiß ist die Default-Wahl</li>
@@ -5835,14 +6735,14 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
       </ul>
 
       <div class="steps">
-        <h4 class="step">Format-Pane systematisch</h4>
-        <p>Visual auswählen → Format-Pane öffnen → durch jede Sektion klicken: General, X-Axis, Y-Axis, Data labels, Title, Legend, Background, Lock aspect.</p>
+        <h4 class="step">Format-Bereich systematisch</h4>
+        <p>Visual auswählen → „Visual formatieren“ → durch jede Karte klicken: Achsen, Datenbeschriftungen, Titel, Legende, Hintergrund, Rahmen, Schatten. Viele Visuals bieten Stilvorlagen (z. B. „Datenbeschriftungen“ statt Achse).</p>
 
-        <h4 class="step">Eigenes Theme erstellen</h4>
-        <p>Wenn die Standard-Aufräum-Operationen jedes Mal wiederholt werden: ein Theme als JSON-Datei. Im Theme: Default-Werte für Gridlines, Schriftarten, Farben. Wird dann automatisch auf jedes Visual angewendet.</p>
+        <h4 class="step">Theme zentral anpassen</h4>
+        <p>Menüband „Design“ → „Design anpassen“ öffnet den Theme-Bereich (GA seit August 2026, Desktop und Web): Basisdesign wählen, Farbpalette, Textstile, Visual- und Seiteneigenschaften setzen. Änderungen wirken auf alle Visuals, die keine Einzelformatierung haben.</p>
 
-        <h4 class="step">Theme laden</h4>
-        <p>View-Tab → Themes → Browse for themes → JSON-Datei wählen. Alle bestehenden Visuals erben die neuen Defaults.</p>
+        <h4 class="step">Theme exportieren &amp; wiederverwenden</h4>
+        <p>Im Theme-Bereich als JSON exportieren und in anderen Berichten importieren. Wer per Code arbeitet: Im PBIR-Format (seit 2026 Standard-Berichtsformat) liegt jedes Visual als eigene <code>visual.json</code> — Massenänderungen sind dann ein Skript statt hundert Klicks.</p>
       </div>
 
       <h4>Theme-JSON Beispiel</h4>
@@ -5889,14 +6789,14 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
       </div>
 
       <h4>Power BI Default-Falle</h4>
-      <p>Power BI Desktop hat Y-Achse standardmäßig auf "Auto" — beginnt häufig nicht bei Null. Sondern beim niedrigsten Wert. Das ist nicht "Daten richtig zeigen", sondern eine willkürliche Vergrößerung des sichtbaren Bereichs.</p>
+      <p>Auf „Auto“ richtet Power BI den Wertebereich an den Daten aus. Bei Linien-Charts beginnt die Achse dann oft beim niedrigsten Wert statt bei Null — das ist keine neutrale Darstellung, sondern eine Vergrößerung des sichtbaren Bereichs. Bei Säulen und Balken gilt: Wer das Minimum manuell hochsetzt, verzerrt.</p>
 
       <div class="steps">
         <h4 class="step">Y-Achse fixieren</h4>
-        <p>Visual auswählen → Format → Y-Axis → "Range" → Minimum auf 0 setzen.</p>
+        <p>Visual auswählen → „Visual formatieren“ → „Y-Achse“ → „Bereich“ → „Minimum“ auf 0 setzen. „Bereich runden“ aus, wenn die Achse eng an den Daten liegen soll.</p>
 
         <h4 class="step">Mehrere Charts vergleichbar machen</h4>
-        <p>Wenn zwei Charts nebeneinander stehen, die thematisch verglichen werden: gleiche Y-Achse manuell setzen (Maximum auf den größeren Wert beider Charts).</p>
+        <p>Wenn zwei Charts nebeneinander stehen, die thematisch verglichen werden: gleiche Y-Achse manuell setzen (Maximum auf den größeren Wert beider Charts). Bei Small Multiples ist „Gemeinsame Y-Achse“ standardmäßig an — lass sie an, wenn absolute Werte verglichen werden.</p>
       </div>
 
       <h4>Skalenbruch (wenn unvermeidbar)</h4>
@@ -5906,6 +6806,7 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
         <strong>Anfänger-Falle</strong>
         Y-Achse anpassen, um "Detail sichtbar zu machen". Wenn der Unterschied wichtig ist, separates Variance-Chart bauen mit Differenzen oder Prozenten. Die absolute Skala bleibt ehrlich.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-customize-x-axis-and-y-axis" target="_blank" rel="noopener">X- und Y-Achse anpassen</a></p>
     `
   },
 
@@ -5926,19 +6827,19 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
 
       <div class="steps">
         <h4 class="step">Dynamischer Titel als DAX-Measure</h4>
-        <pre><span class="fn">Titel Umsatz</span> =
-<span class="fn">VAR</span> Wert  = [Umsatz]
-<span class="fn">VAR</span> Plan  = [Umsatz Plan]
-<span class="fn">VAR</span> Diff  = Wert - Plan
-<span class="fn">VAR</span> Pct   = <span class="fn">DIVIDE</span>(Diff, Plan)
-<span class="fn">RETURN</span>
-  <span class="str">"Umsatz: "</span> &amp; <span class="fn">FORMAT</span>(Wert, <span class="str">"#,0 €"</span>) &amp;
-  <span class="kw">IF</span>(Pct &gt;= <span class="str">0</span>,
-    <span class="str">" · +"</span> &amp; <span class="fn">FORMAT</span>(Pct, <span class="str">"0 %"</span>) &amp; <span class="str">" über Plan"</span>,
-    <span class="str">" · "</span>  &amp; <span class="fn">FORMAT</span>(Pct, <span class="str">"0 %"</span>) &amp; <span class="str">" unter Plan"</span>)</pre>
+        <pre>Titel Umsatz =
+<span class="kw">VAR</span> Ist  = [Umsatz]
+<span class="kw">VAR</span> Plan = [Umsatz Plan]
+<span class="kw">VAR</span> Pct  = <span class="fn">DIVIDE</span> ( Ist - Plan, Plan )
+<span class="kw">RETURN</span>
+    <span class="str">"Umsatz "</span> &amp; <span class="fn">FORMAT</span> ( Ist, <span class="str">"#,0 €"</span> ) &amp;
+    <span class="kw">IF</span> (
+        <span class="fn">ISBLANK</span> ( Pct ), <span class="str">""</span>,
+        <span class="str">" · "</span> &amp; <span class="fn">FORMAT</span> ( <span class="fn">ABS</span> ( Pct ), <span class="str">"0 %"</span> ) &amp; <span class="kw">IF</span> ( Pct &gt;= 0, <span class="str">" über"</span>, <span class="str">" unter"</span> ) &amp; <span class="str">" Plan"</span>
+    )</pre>
 
         <h4 class="step">Titel an Measure binden</h4>
-        <p>Visual auswählen → Format → Title → fx-Knopf neben "Title text" → "Field value" → die Measure auswählen.</p>
+        <p>Visual auswählen → „Visual formatieren“ → „Allgemein“ → „Titel“ → fx-Knopf neben dem Titeltext → Formatstil „Feldwert“ → die Measure auswählen. Funktioniert genauso für Untertitel.</p>
       </div>
 
       <div class="example">
@@ -5948,8 +6849,9 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
 
       <div class="tip">
         <strong>Tipp</strong>
-        Botschaften nicht überfrachten. Maximal 1 Hauptaussage + 1 Quantifizierung. "Umsatz +12 % über Plan, +8 % über Vorjahr, dank Süd-Region und Online-Kanal mit besonders starken Wachstum bei Privatkunden" ist zu viel — kein Mensch liest das. Eine klare Aussage, alles andere unten.
+        Botschaften nicht überfrachten. Maximal 1 Hauptaussage + 1 Quantifizierung. "Umsatz +12 % über Plan, +8 % über Vorjahr, dank Süd-Region und Online-Kanal mit besonders starkem Wachstum bei Privatkunden" ist zu viel — kein Mensch liest das. Eine klare Aussage, alles andere unten.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-conditional-format-visual-titles" target="_blank" rel="noopener">Ausdrucksbasierte Titel</a> · <a href="https://learn.microsoft.com/de-de/dax/selectedvalue-function-dax" target="_blank" rel="noopener">SELECTEDVALUE</a></p>
     `
   },
 
@@ -5982,7 +6884,7 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
       </div>
 
       <h4>Custom Theme</h4>
-      <p>Eigene Theme-JSON mit definierten <code>dataColors</code> und Status-Farben. Wird automatisch auf alle Visuals angewendet. Konsistenz über alle Berichte des Teams.</p>
+      <p>Eigene Theme-JSON mit definierten <code>dataColors</code> und Sentiment-Farben (gut / neutral / schlecht) — im Theme-Bereich unter „Farben“ auch ohne JSON einstellbar. Wird automatisch auf alle Visuals angewendet. Konsistenz über alle Berichte des Teams. Bedingte Formatierung kann diese Theme-Farben per Name verwenden (<code>"good"</code>, <code>"neutral"</code>, <code>"bad"</code>) — ändert sich das Theme, ändern sich die Ampeln mit.</p>
 
       <div class="trap">
         <strong>Anfänger-Falle</strong>
@@ -6011,7 +6913,7 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
       </div>
 
       <h4>2. Sparklines in Tabellen</h4>
-      <p>Preview seit Dezember 2021, GA seit Juni 2025. In einer Matrix: rechte Spalte als Sparkline (Mini-Linien-Chart) für den Verlauf der letzten 12 Monate. Werte und Trend in einer Tabelle.</p>
+      <p>Preview seit Dezember 2021, GA seit Juni 2025. In einer Matrix: rechte Spalte als Sparkline (Mini-Linien-Chart) für den Verlauf der letzten 12 Monate. Werte und Trend in einer Tabelle. Grenzen laut Learn: bis zu fünf Sparklines pro Visual, bis zu 52 Punkte pro Sparkline.</p>
 
       <h4>3. Variance Charts</h4>
       <p>Zeigt nicht zwei Werte, sondern die Differenz — fokussiert auf die Botschaft. Power BI nativ: kein eingebauter Variance-Chart, aber:</p>
@@ -6019,10 +6921,14 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
         <li>Mit zwei übereinandergelegten Säulen (ACT solid, PL outlined) bauen</li>
         <li>Mit DAX die Differenz als Measure berechnen, in separates Chart</li>
         <li>Custom Visuals: Inforiver, Zebra BI haben Variance nativ</li>
+        <li>Fabric IQ Planning: IBCS-Vorlagen mit automatischen Abweichungen in Intelligence Sheets</li>
       </ul>
 
       <h4>4. Tabellen mit visuellen Elementen</h4>
       <p>Eine Matrix mit Conditional Formatting: Hintergrundfarbe nach Wert, Icon-Spalten für Status, Sparkline für Trend. Mehr Information als ein "schönes" Säulen-Chart.</p>
+
+      <h4>5. KPI-Reihen mit dem Card-Visual</h4>
+      <p>Das neue Card-Visual (GA seit November 2025) zeigt mehrere Kennzahlen in einem Visual — mit Referenzbeschriftungen (z. B. „Δ VJ“) und Bildern. Eine Kachelreihe statt fünf einzelner Karten: weniger Visuals, weniger Abfragen, einheitliche Formatierung.</p>
 
       <div class="example">
         <strong>Praxis-Beispiel · Cockpit-Übersicht</strong>
@@ -6033,11 +6939,12 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
         <strong>Tipp · Informationsdichte vs. Lesbarkeit</strong>
         Dichte hat ein Limit — irgendwann ist zu viel auf zu wenig Raum. Faustregel: Bericht-Seite druckbar auf A4? Wenn ja, wahrscheinlich ok. Wenn nein, zu dicht oder zu groß.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-sparklines-tables" target="_blank" rel="noopener">Sparklines</a> · <a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-card" target="_blank" rel="noopener">Card-Visual</a> · <a href="https://learn.microsoft.com/de-de/fabric/iq/plan/intelligence-ibcs/how-to-apply-ibcs-formatting" target="_blank" rel="noopener">IBCS-Formate in Planning</a></p>
     `
   },
 
   // ═══════════════════════════════════════════════════════════
-  // INTERAKTIVITÄT (6)
+  // INTERAKTIVITÄT (7)
   // ═══════════════════════════════════════════════════════════
   'int-drill': {
     eyebrow: 'INTERAKTIVITÄT · NAVIGATION',
@@ -6053,7 +6960,7 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
         <p>Neue Bericht-Seite erstellen (rechtsklick auf Reiter → "Add Page"). Diese wird zur Drillthrough-Zielseite.</p>
 
         <h4 class="step">Drillthrough-Feld festlegen</h4>
-        <p>Im Visualization-Pane unten ein Feld in "Drillthrough fields" ziehen — z. B. <code>dim_region[RegionName]</code>. Damit weiß Power BI: wenn jemand von außen auf eine Region drillt, wird hier nach diesem Feld gefiltert.</p>
+        <p>Im Visualisierungsbereich unten ein Feld in „Drillthrough-Filter“ ziehen — z. B. <code>Region[Name]</code>. Damit weiß Power BI: wenn jemand von außen auf eine Region drillt, wird hier nach diesem Feld gefiltert. Das Feld muss im Quell-Visual vorkommen und darf dort nicht aggregiert sein.</p>
 
         <h4 class="step">Visuals auf der Detailseite</h4>
         <p>Visuals platzieren, die das Detail zeigen. Sie filtern sich automatisch beim Drillthrough-Aufruf — kein manueller Filter nötig.</p>
@@ -6068,7 +6975,10 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
       </div>
 
       <h4>Cross-Report-Drillthrough</h4>
-      <p>Seit 2020: Drillthrough kann sogar in einen anderen Bericht im selben Workspace springen. Praktisch für aufgeteilte Berichte (z. B. von Übersicht in eine Detail-Lösung).</p>
+      <p>Drillthrough kann auch in einen anderen Bericht im selben Workspace springen — praktisch für aufgeteilte Berichte (Übersicht → Detail-Lösung). Voraussetzungen laut Learn: beide Berichte im selben Workspace veröffentlicht, im Zielbericht „Berichtsübergreifender Drillthrough“ in den Berichtseinstellungen aktiviert, Feldnamen und Datentypen identisch. Funktioniert nur im Power BI Service.</p>
+
+      <h4>Drillthrough ohne Rechtsklick</h4>
+      <p>Viele Anwender finden das Kontextmenü nie. Zwei Alternativen: eine <strong>Drillthrough-Schaltfläche</strong> (Aktion „Drillthrough“, Ziel auch per bedingter Formatierung wählbar) oder die <strong>modernen Visual-QuickInfos</strong> (GA seit Januar 2026) mit Aktionsleiste — Drilldown, Drillup und Drillthrough direkt beim Hovern.</p>
 
       <div class="tip">
         <strong>Tipp</strong>
@@ -6077,8 +6987,9 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
 
       <div class="trap">
         <strong>Anfänger-Falle</strong>
-        Drillthrough einrichten, aber im Drillthrough-Feld eine Spalte aus der Faktentabelle wählen statt aus der Dimension. Funktioniert technisch, ist aber schwer zu verstehen für den Anwender. Immer Dimensions-Spalten als Drillthrough-Feld.
+        Drillthrough einrichten, aber im Drillthrough-Feld eine Spalte aus der Faktentabelle wählen statt aus der Dimension. Funktioniert technisch, ist aber schwer zu verstehen für den Anwender. Immer Dimensions-Spalten als Drillthrough-Feld. Und: Feldparameter können nicht als Drillthrough-Feld dienen — dort die einzelnen Felder verknüpfen.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-drillthrough" target="_blank" rel="noopener">Drillthrough in Power BI</a> · <a href="https://learn.microsoft.com/de-de/power-bi/guidance/report-drillthrough" target="_blank" rel="noopener">Drillthrough-Leitfaden</a> · <a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-visual-tooltips" target="_blank" rel="noopener">Visual-QuickInfos</a></p>
     `
   },
 
@@ -6090,12 +7001,14 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
 
       <h4>Was Bookmarks speichern</h4>
       <ul>
-        <li>Aktuelle Slicer-Werte</li>
-        <li>Filter im Filter-Pane</li>
-        <li>Visual-Sichtbarkeit (über Selection Pane)</li>
+        <li>Die aktuelle Seite</li>
+        <li>Slicer-Werte inkl. Slicer-Typ (z. B. Dropdown oder Liste)</li>
+        <li>Filter im Filterbereich</li>
+        <li>Visual-Sichtbarkeit (über den Auswahlbereich)</li>
         <li>Drill-Stand in einem Visual</li>
-        <li>Sort-Reihenfolge</li>
+        <li>Sortierreihenfolge</li>
         <li>Cross-Highlight-Status</li>
+        <li>Fokus- bzw. Spotlight-Modus</li>
       </ul>
 
       <div class="steps">
@@ -6126,12 +7039,13 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
       </div>
 
       <h4>Personal Bookmarks</h4>
-      <p>Im Service können Anwender eigene Bookmarks speichern — getrennt von den vom Autor angelegten "Report Bookmarks". Praktisch für Power-User, die ihre Lieblings-Filter merken wollen.</p>
+      <p>Im Service können Anwender eigene Bookmarks speichern (bis zu 20 pro Bericht) — getrennt von den vom Autor angelegten Berichts-Bookmarks. Seit Juli 2026 funktionieren beide auch für Berichte in Org-Apps.</p>
 
       <div class="trap">
         <strong>Anfänger-Falle</strong>
-        Bookmark mit "Data" UND "Display" UND "Current page" speichern, ohne zu wissen, was was bedeutet. Diese drei Optionen im Bookmark-Kontextmenü bestimmen, welche Aspekte gespeichert werden. Wenn der Bookmark "auch die Seite wechselt", obwohl du nur Filter ändern wolltest: "Current page" deaktivieren.
+        Bookmark mit „Daten“ UND „Anzeige“ UND „Aktuelle Seite“ speichern, ohne zu wissen, was was bedeutet. Diese Optionen im Bookmark-Kontextmenü bestimmen, welche Aspekte gespeichert werden; dazu kommt „Alle Visuals“ vs. „Ausgewählte Visuals“. Für Ansichts-Umschalter (Chart ↔ Tabelle) „Daten“ ausschalten — sonst setzt jeder Klick die Filter des Anwenders zurück. Wenn der Bookmark "auch die Seite wechselt", obwohl du nur Filter ändern wolltest: „Aktuelle Seite“ deaktivieren.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-bookmarks" target="_blank" rel="noopener">Berichts-Bookmarks</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/button-navigators" target="_blank" rel="noopener">Seiten- und Bookmark-Navigatoren</a></p>
     `
   },
 
@@ -6141,15 +7055,17 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
     body: `
       <p class="lead">Buttons machen aus einem statischen Bericht ein Tool. Power BI hat eine Reihe von Aktions-Typen, die Buttons auslösen können.</p>
 
-      <h4>Sieben Button-Aktionen</h4>
+      <h4>Die Button-Aktionen</h4>
       <ul>
-        <li><strong>Back</strong> — zur vorherigen Seite zurück</li>
-        <li><strong>Bookmark</strong> — Bookmark anwenden</li>
-        <li><strong>Drill through</strong> — Drillthrough zu einer Seite</li>
-        <li><strong>Page navigation</strong> — direkt zu einer anderen Seite</li>
-        <li><strong>Q&amp;A</strong> — Q&amp;A-Visual öffnen</li>
-        <li><strong>Web URL</strong> — externe URL öffnen</li>
-        <li><strong>Apply all slicers / Clear all slicers</strong> — Filter-Steuerung (seit 2022)</li>
+        <li><strong>Zurück</strong> — zur vorherigen Seite (ideal auf Drillthrough-Seiten)</li>
+        <li><strong>Lesezeichen</strong> — Bookmark anwenden</li>
+        <li><strong>Drillthrough</strong> — zu einer Drillthrough-Seite, gefiltert auf die Auswahl</li>
+        <li><strong>Seitennavigation</strong> — direkt zu einer anderen Seite (Ziel auch per bedingter Formatierung)</li>
+        <li><strong>Lesezeichennavigation</strong> — zu einem Bookmark-Zustand</li>
+        <li><strong>Web-URL</strong> — externe URL öffnen</li>
+        <li><strong>Alle Slicer anwenden / Alle Slicer löschen</strong> — Auswahl sammeln und erst auf Klick abfragen (spart Abfragen)</li>
+        <li><strong>Datenfunktion</strong> — ruft eine Fabric User Data Function auf (Translytical Task Flows, GA seit März 2026): Datensätze ändern oder Aktionen auslösen, direkt aus dem Bericht</li>
+        <li><strong>Q&amp;A</strong> — öffnet den Q&amp;A-Explorer. <em>Auslaufmodell:</em> Q&amp;A wird laut Learn im Februar 2027 eingestellt; Nachfolger ist Copilot.</li>
       </ul>
 
       <div class="steps">
@@ -6159,12 +7075,12 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
         <h4 class="step">Aktion konfigurieren</h4>
         <p>Format-Pane → "Action" aktivieren → Type wählen → Ziel angeben (Bookmark, Seite, URL).</p>
 
-        <h4 class="step">Anwender-Hinweis</h4>
-        <p>Im Service-Mode muss der Anwender <strong>Strg + Klick</strong> machen, damit der Button auslöst. Im Editor-Mode reicht Klick. Hinweis im Bericht klar kommunizieren.</p>
+        <h4 class="step">Testen</h4>
+        <p>Im Bearbeitungsmodus (Power BI Desktop oder „Bearbeiten“ im Service) löst ein Button nur mit <strong>Strg + Klick</strong> aus. In der Leseansicht im Service reicht ein normaler Klick — deine Anwender brauchen also keinen Hinweis auf Strg.</p>
       </div>
 
       <h4>Page Navigator</h4>
-      <p>Seit 2021 ein eingebauter Visual-Typ. Insert → Buttons → Navigator → Page navigator. Erstellt automatisch Buttons für alle (sichtbaren) Bericht-Seiten. Ideal für mehrseitige Cockpits.</p>
+      <p>Eingebauter Visual-Typ: Einfügen → Schaltflächen → Navigator → Seitennavigator. Erstellt automatisch Buttons für alle (sichtbaren) Berichtsseiten und aktualisiert sich, wenn Seiten dazukommen. Ideal für mehrseitige Cockpits.</p>
 
       <h4>Bookmark Navigator</h4>
       <p>Analog für Bookmark-Gruppen. Insert → Buttons → Navigator → Bookmark navigator → Bookmark group wählen. Erstellt Buttons für alle Bookmarks der Gruppe. Praktisch für "Aktuell / Letzter Monat / Year-to-Date"-Umschalter.</p>
@@ -6176,8 +7092,9 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
 
       <div class="tip">
         <strong>Tipp</strong>
-        Button-States gestalten: Hover, Selected, Disabled — alle haben eigene Format-Properties. Lohnt sich, um klar zu zeigen, welcher Button aktiv ist.
+        Button-States gestalten: Standard, Hover, Gedrückt, Ausgewählt, Deaktiviert — alle haben eigene Format-Eigenschaften. Mit dem Fluent-2-Basisdesign gibt es dafür Stilvorlagen (Standard, Kontur, Transparent, Symbol &amp; Text). Für reine Filter-Umschalter ist oft der <strong>Button-Slicer</strong> die einfachere Wahl als Button + Bookmark.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-buttons" target="_blank" rel="noopener">Schaltflächen &amp; Aktionen</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/buttons-apply-all-clear-all-slicers" target="_blank" rel="noopener">Alle Slicer anwenden/löschen</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/translytical-task-flow-overview" target="_blank" rel="noopener">Translytical Task Flows</a></p>
     `
   },
 
@@ -6195,7 +7112,7 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
         <p>Modeling-Tab → "New parameter" → "Fields". Dialog erscheint.</p>
 
         <h4 class="step">Felder auswählen</h4>
-        <p>Felder anhaken, die wechselbar sein sollen — z. B. <code>[Umsatz]</code>, <code>[Marge]</code>, <code>[Menge]</code>. Power BI generiert automatisch eine Hilfstabelle und einen Slicer.</p>
+        <p>Felder anhaken, die wechselbar sein sollen — z. B. <code>[Umsatz]</code>, <code>[Marge %]</code>, <code>[Menge]</code>. Nur explizite Measures sind erlaubt. Power BI generiert automatisch eine Hilfstabelle (DAX mit <code>NAMEOF</code>) und auf Wunsch einen Slicer.</p>
 
         <h4 class="step">Visual binden</h4>
         <p>Im Visual-Pane das Parameter-Feld in "Values" ziehen statt einer fixen Measure. Slicer mit dem Parameter wirkt jetzt auf das Visual.</p>
@@ -6209,15 +7126,35 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
       <h4>Field Parameters für Dimensionen</h4>
       <p>Funktioniert auch für die X-Achse oder Legend-Spalte. Anwender wählt: "Nach Region", "Nach Kategorie", "Nach Kunde" — die Achse des Visuals wechselt entsprechend.</p>
 
+      <h4>Parameter bearbeiten</h4>
+      <pre>Kennzahl = {
+    ( <span class="str">"Umsatz"</span>,  <span class="fn">NAMEOF</span> ( [Umsatz] ),  0 ),
+    ( <span class="str">"Marge %"</span>, <span class="fn">NAMEOF</span> ( [Marge %] ), 1 ),
+    ( <span class="str">"Menge"</span>,   <span class="fn">NAMEOF</span> ( [Menge] ),   2 )
+}</pre>
+      <p>Pro Eintrag genau drei Werte: Anzeigename, Feldverweis, Reihenfolge. Zusätzliche Spalten sind laut Learn nicht unterstützt.</p>
+
+      <h4>Neu seit 2025/26</h4>
+      <ul>
+        <li><strong>„Werte des ausgewählten Felds anzeigen“</strong> — der Slicer zeigt statt der Feldnamen die Werte, als Hierarchie-Slicer</li>
+        <li><strong>„Hierarchieebene beibehalten“</strong> (Berichtseinstellung, Januar 2026) — steuert, ob eine aufgeklappte Matrix beim Wechsel aufgeklappt bleibt</li>
+      </ul>
+
       <div class="tip">
         <strong>Tipp · Format-Strings</strong>
-        Wenn die wechselnden Measures unterschiedliche Format-Strings haben (€ vs. % vs. Stk), muss der Visual-Default das übernehmen. Im Field-Parameter-Setup unter "Add slicer to this page" und ggf. Format dynamisch per DAX schalten.
+        Jede Measure bringt ihr eigenes Format mit — gib allen Measures im Parameter saubere Format-Strings (€, %, Stk), dann passt die Achse automatisch. Für einen dynamischen Titel: <code>SELECTEDVALUE(Kennzahl[Kennzahl])</code> in einer Titel-Measure.
+      </div>
+
+      <div class="trap">
+        <strong>Grenzen laut Learn</strong>
+        Keine impliziten Measures, keine Auswahl „kein Feld“, nicht als verknüpftes Feld von Drillthrough- oder QuickInfo-Seiten nutzbar, keine Unterstützung in KI-Visuals und Q&amp;A. Live-Verbindungen brauchen ein lokales Modell (DirectQuery für Power BI-Semantikmodelle).
       </div>
 
       <div class="trap">
         <strong>Anfänger-Falle</strong>
         Field Parameters für jeden Wechsel einsetzen ("eleganter Code"). Wenn der Anwender zwischen zwei Sichten wechselt, ist ein Toggle-Button manchmal verständlicher als ein Slicer mit Parameter.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-field-parameters" target="_blank" rel="noopener">Feldparameter</a></p>
     `
   },
 
@@ -6229,13 +7166,13 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
 
       <div class="steps">
         <h4 class="step">Tooltip-Seite erstellen</h4>
-        <p>Neue Bericht-Seite. Im Format-Pane der Seite: "Page Information" → "Allow use as tooltip" auf On. Page Size: "Tooltip" — kleine Standard-Größe.</p>
+        <p>Neue Berichtsseite. Im Format-Bereich der Seite: „Seiteninformationen“ → „Als QuickInfo verwenden“ auf Ein. „Canvaseinstellungen“ → Typ „QuickInfo“ (320 × 240 Pixel). Ansicht → „Tatsächliche Größe“, damit du siehst, was der Anwender sieht.</p>
 
         <h4 class="step">Visuals auf der Tooltip-Seite</h4>
         <p>2–4 kompakte Visuals platzieren: KPI-Karten, kleiner Trend-Chart, Top-3-Liste. Sollte in der kleinen Tooltip-Größe lesbar sein.</p>
 
         <h4 class="step">Hauptvisual mit Tooltip-Seite verbinden</h4>
-        <p>Im Format-Pane des Hauptvisuals: "Tooltip" → "Type": Report page → "Page" → Tooltip-Seite auswählen.</p>
+        <p>Im Format-Bereich des Hauptvisuals: „Allgemein“ → „QuickInfos“ → „Optionen“ → Typ „Berichtsseite“ → Seite auswählen. Alternativ auf der QuickInfo-Seite Felder hinterlegen — dann erscheint sie automatisch bei allen Visuals, die diese Felder enthalten.</p>
 
         <h4 class="step">Filter-Kontext</h4>
         <p>Wenn du auf einem Region-Balken hoverst, filtert die Tooltip-Seite automatisch auf diese Region. Visuals zeigen die Region-spezifischen Werte.</p>
@@ -6248,13 +7185,20 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
 
       <div class="tip">
         <strong>Tipp · Mehrere Tooltips pro Bericht</strong>
-        Jede Visual-Sektion kann ihre eigene Tooltip-Seite haben. Region-Chart hat Region-Tooltip, Kunden-Chart hat Kunden-Tooltip. Tooltip-Seiten im Seiten-Reiter ausblenden, damit Anwender sie nicht direkt aufrufen.
+        Jede Visual-Sektion kann ihre eigene Tooltip-Seite haben. Region-Chart hat Region-Tooltip, Kunden-Chart hat Kunden-Tooltip. Tooltip-Seiten immer ausblenden, damit Anwender sie nicht direkt aufrufen.
       </div>
+
+      <h4>Die anderen QuickInfo-Typen</h4>
+      <ul>
+        <li><strong>Moderne Visual-QuickInfos</strong> (GA seit Januar 2026) — übernehmen die Theme-Farben und haben eine Aktionsleiste für Drilldown, Drillup und Drillthrough</li>
+        <li><strong>Hilfe-QuickInfos</strong> — ein Fragezeichen-Symbol im Visual-Header, das Text oder eine Berichtsseite mit Erklärungen öffnet</li>
+      </ul>
 
       <div class="trap">
         <strong>Anfänger-Falle</strong>
         Tooltip-Seite zu voll machen. Anwender hovert eine halbe Sekunde — wenn er da Romane lesen muss, geht der Effekt verloren. Maximal 3 kompakte Visuals + 2 KPI-Karten.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-tooltips" target="_blank" rel="noopener">Berichtsseiten-QuickInfos</a> · <a href="https://learn.microsoft.com/de-de/power-bi/guidance/report-page-tooltips" target="_blank" rel="noopener">Leitfaden Seiten-QuickInfos</a> · <a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-help-tooltips" target="_blank" rel="noopener">Hilfe-QuickInfos</a></p>
     `
   },
 
@@ -6282,16 +7226,24 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
         <h4 class="step">Regel definieren</h4>
         <p>Drei Modi:</p>
         <ul>
-          <li><strong>Color scale</strong> — Gradient von Min zu Max</li>
-          <li><strong>Rules</strong> — explizite Regeln (Wenn &lt; 0, dann rot)</li>
-          <li><strong>Field value</strong> — eine Measure liefert die Farbe als Hex-Code</li>
+          <li><strong>Farbverlauf (Gradient)</strong> — Farbskala von Min zu Max, optional mit Mittelwert</li>
+          <li><strong>Regeln</strong> — explizite Regeln (Wenn &lt; 0, dann rot). Prozente als Dezimalzahl eingeben (0,25) und „Zahl“ wählen</li>
+          <li><strong>Feldwert</strong> — eine Measure liefert die Farbe als Hex-Code, CSS-Farbname oder Theme-Farbname</li>
         </ul>
 
         <h4 class="step">Dynamische Farbe per Measure</h4>
-        <pre>Ampel = <span class="kw">IF</span>(
-  [Umsatz] &gt;= [Plan], <span class="str">"#22C55E"</span>,
-  <span class="kw">IF</span>([Umsatz] &gt;= <span class="str">0.9</span>*[Plan], <span class="str">"#F59E0B"</span>, <span class="str">"#EF4444"</span>))</pre>
-        <p>Diese Measure als "Field value" in Conditional Formatting nutzen.</p>
+        <pre>Ampel Umsatz =
+<span class="kw">VAR</span> Ist  = [Umsatz]
+<span class="kw">VAR</span> Plan = [Umsatz Plan]
+<span class="kw">RETURN</span>
+    <span class="kw">SWITCH</span> (
+        <span class="fn">TRUE</span> (),
+        <span class="fn">ISBLANK</span> ( Plan ), <span class="fn">BLANK</span> (),
+        Ist &gt;= Plan, <span class="str">"good"</span>,
+        Ist &gt;= 0.9 * Plan, <span class="str">"neutral"</span>,
+        <span class="str">"bad"</span>
+    )</pre>
+        <p>Diese Measure im Formatstil „Feldwert“ nutzen. <code>"good"</code>, <code>"neutral"</code> und <code>"bad"</code> sind die Sentiment-Farben des Themes — ändert sich das Design, ändern sich die Ampeln mit. Hex-Codes wie <code>"#22C55E"</code> gehen weiterhin.</p>
       </div>
 
       <div class="example">
@@ -6303,9 +7255,50 @@ Umsatz = <span class="fn">SUMX</span>(fact_verkauf, fact_verkauf[Menge] * fact_v
       <p>Im Format-Pane → Title → fx-Knopf neben Title text → Measure auswählen, die den Titel-String liefert. Titel passt sich an Filter an.</p>
 
       <div class="tip">
-        <strong>Tipp · Hex-Codes</strong>
-        Conditional Formatting per Measure braucht Hex-Codes ("#FF0000"). Theme-Farben kannst du als Konstanten in eigene Measures speichern und wiederverwenden.
+        <strong>Tipp · Nur für ein Visual?</strong>
+        Dann reicht eine Visual Calculation, die den Farbcode liefert — ausgeblendet im Visual und als Feldwert verwendet. Das Modell bleibt frei von reinen Formatierungs-Measures. Bedingte Formatierung gibt es nicht nur in Tabellen: auch für Säulen-, Balken-, Linien- und Kreisdiagramme, Card-Visual, Button-Slicer und Titel.
       </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-conditional-formatting" target="_blank" rel="noopener">Bedingte Formatierung in Visuals</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-conditional-table-formatting" target="_blank" rel="noopener">Bedingte Formatierung in Tabellen</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/report-themes-create-custom" target="_blank" rel="noopener">Theme-Farben im Feldwert</a></p>
+    `
+  },
+
+
+  'int-copilot': {
+    eyebrow: 'INTERAKTIVITÄT · KI',
+    title: 'Copilot im Bericht',
+    body: `
+      <p class="lead">Copilot ist in Power BI Desktop und im Service an mehreren Stellen eingebaut — für Anwender, die Fragen an einen Bericht haben, und für Autoren, die schneller bauen wollen. Stand Oktober 2026.</p>
+
+      <h4>Für Anwender</h4>
+      <ul>
+        <li><strong>Zusammenfassung im Copilot-Bereich</strong> — „Fasse diese Seite zusammen“, auch ohne Bearbeitungsrechte, mit Verweisen auf die Quell-Visuals</li>
+        <li><strong>Fragen an die Daten</strong> — Copilot sucht die Antwort zuerst in den Visuals und baut sonst ein Visual aus dem Semantikmodell</li>
+        <li><strong>Zusammenfassungen in Abonnements</strong> — Copilot-Text oben in der Abo-Mail</li>
+      </ul>
+
+      <h4>Für Autoren</h4>
+      <ul>
+        <li><strong>Narrative-Visual im Copilot-Modus</strong> — fasst Bericht, Seiten oder einzelne Visuals zusammen; per Prompt in Ton und Fokus steuerbar, Aktualisierung per Knopf nach Filterwechsel</li>
+        <li><strong>Seiten erstellen und bearbeiten</strong> — Visuals hinzufügen, ändern, löschen, mit Rückgängig; keine Custom Visuals, keine Formatierungsänderungen</li>
+        <li><strong>DAX-Abfragen schreiben</strong> und <strong>Measure-Beschreibungen</strong> erzeugen</li>
+      </ul>
+
+      <h4>Voraussetzungen</h4>
+      <ul>
+        <li>Copilot im Tenant aktiviert (Admin-Einstellungen) und eine bezahlte Fabric-Kapazität in einer unterstützten Region — Trial-SKUs werden nicht unterstützt</li>
+        <li>Für Seiten-Erstellung muss Q&amp;A für das Modell eingeschaltet sein; implizite Measures dürfen nicht deaktiviert sein, Live-Verbindungen zu Analysis Services gehen nicht</li>
+      </ul>
+
+      <div class="example">
+        <strong>Was das für dein Modell heißt</strong>
+        Copilot ist nur so gut wie das Semantikmodell: sprechende Tabellen- und Measure-Namen, Beschreibungen, ausgeblendete Hilfsspalten, saubere Beziehungen. Ein Modell, das für Menschen verständlich ist, ist es auch für Copilot.
+      </div>
+
+      <div class="trap">
+        <strong>Q&amp;A läuft aus</strong>
+        Q&amp;A-Visual, Q&amp;A-Button und Q&amp;A auf Dashboards werden laut Learn im Februar 2027 eingestellt. Neue Berichte nicht mehr darauf aufbauen; bestehende Q&amp;A-Elemente durch Copilot oder klassische Visuals ersetzen.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-reports-overview" target="_blank" rel="noopener">Copilot in Berichten &amp; Modellen</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-create-narrative" target="_blank" rel="noopener">Narrative-Visual mit Copilot</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-create-reports" target="_blank" rel="noopener">Berichte mit Copilot erstellen</a> · <a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-q-and-a" target="_blank" rel="noopener">Q&amp;A-Visual (Abkündigung)</a></p>
     `
   },
 
@@ -7526,20 +8519,99 @@ const EPISODE_LINKS = {
   ],
   'dax-time': [
     ['GsLfiuPlsQE', 'Tutorial · 7 min', 'Visual Calculations erklärt — Prozent vom übergeordneten Wert'],
+    ['iTK3xUd8V5I', 'Power BI vs. Qlik · Teil 3', 'Year-to-Date per Visual Calculation (laufende Summe)', 981],
+    ['6gQiIbyhWEc', 'Power BI Update September 2025', 'Neue Kalenderlogik für die DAX-Zeitintelligenz', 443],
+  ],
+  // pbi2 · Sprungmarken (4. Wert = Startsekunde im Video)
+  'dax-calculate': [
+    ['LQQEn7IOb7w', 'Expanded Tables in DAX', 'CALCULATE, Filtervergleich & Ergebnis am Beispiel', 467],
+    ['183uLZ3GYDo', 'Alberto Ferrari · Data Binning in DAX', 'Warum eine Faktentabelle als CALCULATE-Filter teuer ist', 4695],
+  ],
+  'dax-pitfalls': [
+    ['183uLZ3GYDo', 'Alberto Ferrari · Data Binning in DAX', 'Warum eine Faktentabelle als CALCULATE-Filter teuer ist', 4695],
+  ],
+  'dax-r-ytd': [
+    ['iTK3xUd8V5I', 'Power BI vs. Qlik · Teil 3', 'Year-to-Date per Visual Calculation (laufende Summe)', 981],
+  ],
+  'dax-r-keepfilters': [
+    ['183uLZ3GYDo', 'Alberto Ferrari · Data Binning in DAX', 'Warum eine Faktentabelle als CALCULATE-Filter teuer ist', 4695],
+    ['uxYFqwe_Wiw', 'BI Thinkers Talk · Data Modeling', 'UND- vs. ODER-Filter in DAX am Kunden-/Produkt-Beispiel', 3240],
+  ],
+  'dax-r-rank': [
+    ['9VX4-lLa0EI', 'BI Thinkers Talk nr. 63', 'Ranking, ALLSELECTED und globaler Rang in der Diskussion', 1109],
+  ],
+  'dax-r-userel': [
+    ['LQQEn7IOb7w', 'Expanded Tables in DAX', 'Aktive & inaktive Beziehungen (USERELATIONSHIP)', 145],
+  ],
+  'dax-r-visualcalc': [
+    ['GsLfiuPlsQE', 'Visual Calculations erklärt', 'Prozent vom übergeordneten Wert umsetzen', 80],
+    ['TkxwcAyBGUM', 'Power BI Update Juli 2025', 'Pareto-Diagramm mit Visual Calculations', 127],
+    ['psLPsI32sAs', 'Power BI Update Mai 2026', 'Visual Calculations sind generally available', 65],
+    ['pTTYySb0Cyg', 'Fabric & Power BI Quarterly · 2026-2', 'Visual Calculations als Shortcut, nicht als Modell-Ersatz', 187],
+  ],
+  'dax-r-calcgroup': [
+    ['zkfdfc5fo-E', 'Power BI Update Mai 2025', 'Calculation Group an, implizite Measures aus', 312],
+    ['ZaDd1uxeLbI', '10 Jahre Power BI', 'Calculation Groups sinnvoll nutzen ist gar nicht so einfach', 2931],
+  ],
+  'dax-r-udf': [
+    ['0FPA1k5YiTs', 'Deep Dive · DAX UDF + TMDL', 'Einführung in DAX User-Defined Functions', 95],
+    ['6gQiIbyhWEc', 'Power BI Update September 2025', 'Was sind benutzerdefinierte DAX-Funktionen?', 30],
+    ['5xB_oKdvAwQ', 'Power BI Update Juni 2026', 'DAX User-Defined Functions sind generally available', 268],
+  ],
+  'dax-r-kalender': [
+    ['6gQiIbyhWEc', 'Power BI Update September 2025', 'Neue Kalenderlogik für die DAX-Zeitintelligenz', 443],
+    ['9TsHkV8sIRo', 'Fabric & Power BI Quarterly · 2025 Q4', 'Kalender-Einstellungen, damit Year-to-Date im Geschäftsjahr passt', 585],
+  ],
+  'dax-r-query': [
+    ['5xB_oKdvAwQ', 'Power BI Update Juni 2026', 'DAX-Abfrageansicht: Ergebnisse filtern und sortieren', 313],
   ],
   'viz-axis': [
     ['8DsgIfWJkoI', 'Tutorial · 3 min', 'Die 3 Zustände der sekundären Y-Achse'],
     ['9BpzcWErzwQ', 'Tutorial · 6 min', 'Sekundäre Y-Achse umkehren'],
   ],
+  'viz-charttype': [
+    ['inko8wG9jlY', 'Boring Charts, Better Insights', 'Warum Tortendiagramme scheitern', 408],
+    ['c90oD4zR1Aw', 'More than PBIX', 'Chart-Wahl: Tortendiagramm oder bessere Alternativen?', 335],
+  ],
+  'viz-noise': [
+    ['GWCHNmLs72M', 'Power BI Update August 2026', 'GA: Berichtsdesign anpassen (Theme-Bereich)', 179],
+    ['7xYgX6lWhuQ', 'Power BI Update Juli 2026', 'Berichtsdesign direkt im Bericht anpassen: Designvorlagen und Themes', 10],
+  ],
+  'viz-density': [
+    ['lZvpCBMKASM', 'Fabric & Power BI Quarterly · 2025 Q3', 'Sparklines sind GA — was steckt dahinter?', 37],
+    ['LnNoXBIG7Lc', 'Power BI Update Juni 2025', 'Sparklines GA — Berechnungsgruppe auf die ganze Sparkline', 345],
+    ['XJZxYNIeEVc', 'Power BI Update November 2025', 'Neues Card-Visual ist GA', 16],
+  ],
+  'ibcs-simplify': [
+    ['inko8wG9jlY', 'Boring Charts, Better Insights', '„Langweilige“ Dashboards sind besser — und warum', 1056],
+  ],
   'int-drill': [
     ['0n8hZ6v_0Lc', 'Tutorial · 7 min', 'Drillthrough-Auswahl sortieren — Reihenfolge kontrollieren'],
+    ['CvaOkO37HMU', 'Vertriebsregionen in Azure Maps', 'Drillthrough: Detailseite für Regionen bauen', 1488],
+    ['TAM5AAZqh7k', 'Power BI Update Januar 2026', 'Moderne Quickinfos mit Drillthrough-Aktionen', 79],
   ],
   'int-fieldp': [
     ['v8dvnqqa7f8', 'Tutorial · 5 min', 'Field Parameter (Feldparameter) richtig nutzen'],
     ['sShNdgnHjr4', 'Tutorial · 9 min', 'TMDL Magie: Multi-Parameter-Tabelle — Feldparameter Next Level'],
+    ['TkxwcAyBGUM', 'Power BI Update Juli 2025', 'Field Parameters sind GA', 267],
+    ['TAM5AAZqh7k', 'Power BI Update Januar 2026', 'Field-Parameter-Updates: Hierarchieebene beibehalten', 122],
+    ['u-lgbDfIlLg', 'Power BI Update Februar 2026', 'Neue DAX-Funktionen NAMEOF und TABLEOF', 138],
+  ],
+  'int-tooltip': [
+    ['TAM5AAZqh7k', 'Power BI Update Januar 2026', 'Moderne Quickinfos mit Drillthrough-Aktionen', 79],
+    ['5xB_oKdvAwQ', 'Power BI Update Juni 2026', 'Quickinfos mit erklärendem Text', 209],
+  ],
+  'int-buttons': [
+    ['TAM5AAZqh7k', 'Power BI Update Januar 2026', 'Q&A ist offiziell abgekündigt', 40],
   ],
   'int-condformat': [
     ['c5zxZLRuV_s', 'Tutorial · 6 min', 'Jedes Power BI Visual dynamisch — auch ohne fx-Button'],
+    ['CvaOkO37HMU', 'Vertriebsregionen in Azure Maps', 'Heatmap: bedingte Formatierung nach Umsatz', 1314],
+  ],
+  'int-copilot': [
+    ['TAM5AAZqh7k', 'Power BI Update Januar 2026', 'Q&A ist offiziell abgekündigt', 40],
+    ['TkxwcAyBGUM', 'Power BI Update Juli 2025', 'Copilot: Zusammenfassungen & Export (PDF, PPT)', 97],
+    ['d3HdhRe_nK8', 'Daten-WG Life-Update · State of Power BI', 'Copilot ersetzt keine semantischen Modelle', 1295],
   ],
   'ext-fabric': [
     ['mTVeZzshLzE', 'Talk · 48 min', 'Microsoft Fabric — braucht das wirklich jemand?'],
@@ -7553,16 +8625,24 @@ const PLAY_GLYPH = '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points=
 function renderEpisodeLinks(key) {
   const items = EPISODE_LINKS[key];
   if (!items || items.length === 0) return '';
-  const rows = items.map(([yt, eyebrow, title]) => `
+  // Optionaler 4. Wert = Startsekunde: dann Sprungmarke (▶ m:ss) statt YT-Icon (pbi2)
+  const fmtTs = (sec) => {
+    const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+    return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(s).padStart(2, '0');
+  };
+  const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const rows = items.map(([yt, eyebrow, title, sec]) => `
     <div class="dwg-folge">
-      <a class="dwg-folge-link" href="index.html#ep-${yt}" aria-label="Folge öffnen: ${title.replace(/"/g, '&quot;')}"></a>
+      <a class="dwg-folge-link" href="index.html#ep-${yt}" aria-label="Folge öffnen: ${esc(title).replace(/"/g, '&quot;')}"></a>
       <span class="dwg-folge-icon">${PLAY_GLYPH}</span>
       <div class="dwg-folge-main">
-        <div class="dwg-folge-eyebrow">${eyebrow}</div>
-        <div class="dwg-folge-title">${title}</div>
+        <div class="dwg-folge-eyebrow">${sec != null ? 'Sprungmarke · ' : ''}${esc(eyebrow)}</div>
+        <div class="dwg-folge-title">${esc(title)}</div>
       </div>
       <div class="dwg-folge-meta">
-        <a class="dwg-folge-yt" href="https://youtu.be/${yt}" target="_blank" rel="noopener" title="Direkt auf YouTube">${YT_GLYPH}</a>
+        ${sec != null
+          ? `<a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=${yt}&amp;t=${sec}s" target="_blank" rel="noopener" title="Auf YouTube ab ${fmtTs(sec)} abspielen">▶ ${fmtTs(sec)}</a>`
+          : `<a class="dwg-folge-yt" href="https://youtu.be/${yt}" target="_blank" rel="noopener" title="Direkt auf YouTube">${YT_GLYPH}</a>`}
       </div>
     </div>`).join('');
   return `
