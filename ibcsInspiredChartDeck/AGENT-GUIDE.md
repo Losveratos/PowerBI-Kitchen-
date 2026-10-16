@@ -8,7 +8,7 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.45.0.0** (16.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.46.0.0** (16.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -63,7 +63,7 @@ Geisterzeilen/Kreuzprodukte. Wächter-Muster:
 | KPI-Kacheln | `cards` | category + actual |
 | Pareto / Dumbbell / Slope | `pareto` / `dumbbell` / `slope` | category + actual (+ Basis) |
 
-## Settings-Referenz (aus capabilities.json generiert, 1.45.0.0)
+## Settings-Referenz (aus capabilities.json generiert, 1.46.0.0)
 
 **Panel-Umbau 1.45 (nur Anzeige, alle Property-Namen unverändert):** Karten-
 Reihenfolge jetzt Chart → IBCS-Titel → Datenbeschriftungen → Kategorienachse →
@@ -257,13 +257,18 @@ statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
    unterscheiden.
 7. **Kein `fetchMoreData`** (Backlog) — Segmente über dem Reduction-Fenster
    werden nicht nachgeladen.
-8. **Cross-Highlight ab 1.41** (`supportsHighlight: true`): Eine Auswahl in
-   einem anderen Visual **filtert die Daten hier nicht mehr weg** — das
-   DataView enthält weiter alle Zeilen, die nicht hervorgehobenen rendern
-   gedimmt (opacity 0.35). Σ-Kopf und Skalen beziehen sich weiterhin auf den
-   vollen Datenbestand, nicht auf die Hervorhebung. Wer echtes Filtern
-   braucht, filtert über Slicer/Filterbereich statt über Visual-Interaktion
-   (oder stellt die Wechselwirkung im Bericht auf „Filtern").
+8. **Cross-Interaktion = Filtern (ab 1.46,** `supportsHighlight: false`**):**
+   Eine Auswahl in einem anderen Visual **filtert** dieses Visual immer —
+   Power BI bietet die Wechselwirkung „Hervorheben" dafür gar nicht mehr an.
+   Hintergrund: Von 1.41 bis 1.45 stand `supportsHighlight: true`, wodurch
+   Power BI standardmäßig „Hervorheben" wählte; dabei kamen nur Dimm-Signale
+   statt gefilterter Daten an, und in Tabelle/Wasserfall/GuV wirkte das
+   Visual wie unbeteiligt (Kundenbefund). Σ-Kopf und Skalen beziehen sich
+   jetzt bei Cross-Interaktion auf den gefilterten Bestand — konsistent in
+   allen 12 Modi. Der Dim-Codepfad (`DataPoint.dim` aus highlights-Arrays)
+   bleibt im Code für den Harness erhalten, erhält von Power BI aber keine
+   Daten mehr. Die EIGENE Selektion im Visual (Klick auf Balken) dimmt
+   weiterhin lokal (selectionManager, unabhängig von dieser Einstellung).
 
 ## Verwandte Dateien
 

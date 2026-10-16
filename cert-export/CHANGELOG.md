@@ -1,5 +1,24 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.46.0.0 (2026-10-16)
+
+**Cross-Interaktion steht jetzt immer auf „Filtern".**
+Kundenbefund: Mit `supportsHighlight: true` (seit 1.41) stellte Power BI
+die Visual-Wechselwirkung standardmäßig auf „Hervorheben" — dabei kommen
+nur Dimm-Signale statt gefilterter Daten an, und in Tabelle, Wasserfall
+und GuV wirkte das Visual bei Klicks in anderen Visuals wie unbeteiligt.
+
+- `supportsHighlight` steht jetzt auf `false`: Power BI **filtert** das
+  Visual bei jeder Cross-Interaktion automatisch — die Option
+  „Hervorheben" wird für dieses Visual gar nicht mehr angeboten, kein
+  Berichtsautor muss mehr daran denken, sie umzustellen.
+- Σ-Kopf, Skalen und alle 12 Modi arbeiten damit bei Cross-Interaktion
+  konsistent auf dem gefilterten Datenbestand.
+- Die eigene Selektion IM Visual (Klick auf Balken/Zeile/Karte, Strg =
+  Mehrfachauswahl) bleibt unverändert und dimmt weiterhin lokal.
+- Der Highlight-Empfangspfad bleibt als toter Codepfad für den
+  Test-Harness erhalten (AGENT-GUIDE Falle 8 aktualisiert).
+
 ## 1.45.0.0 (2026-10-16)
 
 **Konzern-Paket: Skalierung wasserdicht, Achsenschnitt per Button, Panel neu geführt.**
