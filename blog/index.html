@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog · Daten-WG Knowledge Kitchen</title>
+<meta name="description" content="Die Blogtexte der Daten-WG Knowledge Kitchen: als Webseite und als reiner Markdown-Text, dazu die LinkedIn-Fassungen.">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/blog/">
+<link rel="icon" href="../assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+<meta name="theme-color" content="#117865">
+<style>
+:root {
+  --bg: #FAFAF5; --bg-card: #FFFFFF; --ink: #1A1A1A; --ink-soft: #4A4A4A; --ink-mute: #6B6B6B; --black: #0A0A0A;
+  --line: #E5E2D8; --accent: #117865; --accent-deep: #0A5A4D; --radius: 10px;
+  --serif: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --sans:  "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --mono:  "Segoe UI Variable Small", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--sans); font-size: 15px; line-height: 1.55; color: var(--ink); background: var(--bg); }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.wrap { max-width: 860px; margin: 0 auto; padding: 44px 24px 72px; }
+.eyebrow { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-mute); }
+h1 { font-family: var(--serif); font-weight: 300; font-size: clamp(34px, 6vw, 48px); letter-spacing: -.025em; line-height: 1.05; color: var(--black); margin: 8px 0 12px; }
+.lead { font-size: 17px; color: var(--ink-soft); max-width: 60ch; margin-bottom: 28px; }
+h2 { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-mute); margin: 32px 0 10px; }
+ul.list { list-style: none; display: grid; gap: 10px; }
+.item { position: relative; background: var(--bg-card); border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: var(--radius); padding: 16px 18px; transition: box-shadow .18s ease, transform .18s ease; }
+.item:hover { box-shadow: 0 4px 12px rgba(10,10,10,.08); transform: translateY(-1px); }
+.item h3 { font-family: var(--serif); font-weight: 400; font-size: 17px; line-height: 1.3; color: var(--black); }
+.item h3 a { text-decoration: none; }
+.item h3 a::after { content: ""; position: absolute; inset: 0; border-radius: var(--radius); }
+.item p { font-size: 13.5px; color: var(--ink-soft); margin-top: 6px; }
+.meta { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 13px; }
+.meta a { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-weight: 600; text-decoration: none; }
+.meta a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.meta span { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-mute); font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+.more { margin-top: 32px; }
+.more a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: var(--accent); color: #fff; font-weight: 600; text-decoration: none; }
+.more a:hover { background: var(--accent-deep); }
+@media (max-width: 700px) { .wrap { padding: 28px 16px 56px; } .lead { font-size: 16px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } .item:hover { transform: none; } }
+</style>
+</head>
+<body>
+<script src="../assets/js/site-chrome.js" data-chrome="full"></script>
+<main class="wrap">
+<p class="eyebrow">Knowledge Kitchen</p>
+<h1>Blog</h1>
+<p class="lead">Die Texte hinter den Beiträgen, jeweils als Webseite und als reiner Markdown-Text. Alle Posts, Stories und Werkzeuge findest du unter <a href="../beitraege.html">Beiträge</a>.</p>
+<h2>Beiträge</h2>
+<ul class="list">
+<li class="item"><h3><a href="../koelner-raser-post.html">Alle 71 Sekunden ein Blitz: Was ein Jahr Kölner Blitzerdaten zeigt</a></h3><p>Die Befunde der Kölner Raser-Story zum Lesen, mit Infografik als PDF und Anleitung zum Selbstbauen.</p><div class="meta"><span>Sept. 2026</span><a href="koeln-blitzt.md">Markdown</a><a href="assets/raser-infografik.pdf">Infografik (PDF)</a></div></li>
+<li class="item"><h3><a href="../wissensgraph-aus-transkripten.html">Aus 126 Folgen wird ein Wissensgraph</a></h3><p>Wie aus den Transkripten der Daten-WG ein Wissensgraph wurde, und der Weg desselben Schemas nach Microsoft Fabric.</p><div class="meta"><span>Sept. 2026</span><a href="wissensgraph-aus-transkripten.md">Markdown</a></div></li>
+<li class="item"><h3><a href="../kitchen-fuer-ki-agenten.html">Die Kitchen spricht jetzt Markdown</a></h3><p>Warum diese Website eine zweite Ausgabe für KI-Agenten bekommen hat: llms.txt, generierte Markdown-Fassungen und vier Regeln zum Nachbauen.</p><div class="meta"><span>Aug. 2026</span><a href="kitchen-fuer-ki-agenten.md">Markdown</a></div></li>
+<li class="item"><h3><a href="ibcs-reporting-power-bi.md">IBCS-Berichte in Power BI: Standard statt Bauchgefühl</a></h3><p>Semantische Notation, Varianzen und Brücken mit Bordmitteln plus Deneb. Liegt nur als Markdown-Text vor.</p><div class="meta"><span>Markdown</span></div></li>
+</ul>
+<h2>LinkedIn-Fassungen</h2>
+<ul class="list">
+<li class="item"><h3><a href="koeln-blitzt-linkedin.md">Köln blitzt, Raser-Atlas 2025</a></h3><p>Kurzfassung der Raser-Story für LinkedIn.</p><div class="meta"><span>Markdown</span></div></li>
+<li class="item"><h3><a href="mockupkitchen-linkedin.md">MockupKitchen</a></h3><p>LinkedIn-Posts zur MockupKitchen (Testphase).</p><div class="meta"><span>Markdown</span></div></li>
+<li class="item"><h3><a href="pnl-beta-linkedin.md">P&amp;L Statement byDatenWG (Beta)</a></h3><p>LinkedIn-Posts zum GuV-Visual in der Beta.</p><div class="meta"><span>Markdown</span></div></li>
+</ul>
+<p class="more"><a href="../beitraege.html">Alle Beiträge ansehen →</a></p>
+</main>
+</body>
+</html>

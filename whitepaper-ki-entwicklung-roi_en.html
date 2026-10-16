@@ -93,9 +93,15 @@
     h2 { break-before:page; }
     .toc-box { columns:2; }
   }
+
+/* Images never wider than the column */
+img{max-width:100%;height:auto;}
+pre{max-width:100%;overflow-x:auto;}
+@media (max-width:700px){main>table{display:block;max-width:100%;overflow-x:auto;}}
 </style>
 </head>
 <body>
+<script src="assets/js/site-chrome.js" data-chrome="full"></script>
 <div class="rule"></div><div class="rule2"></div>
 <header class="hero">
   <div class="kicker">Evidence-Based Thesis Paper</div>

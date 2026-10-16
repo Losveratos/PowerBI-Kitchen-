@@ -440,9 +440,16 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
   body.mobile-ok{overflow:auto}
   body.mobile-ok .app{grid-template-columns:240px minmax(480px,1fr) 300px;width:max-content;min-width:100%}
 }
+
+/* Impressum + Datenschutz in der Fußleiste der Bühne und im Handy-Hinweis */
+.stage-legal,.mn-legal{display:inline-flex;gap:2px;flex:none}
+.legal-link{font-size:11px;color:var(--ink-mute,#6B6B6B);text-decoration:none;padding:3px 5px;white-space:nowrap;border-radius:6px}
+.legal-link:hover{color:var(--ink,#1A1A1A);text-decoration:underline}
+.mn-legal .legal-link{display:inline-flex;align-items:center;min-height:44px;font-size:13px;padding:0 8px}
 </style>
 </head>
 <body>
+<script src="assets/js/site-chrome.js" data-chrome="footer"></script>
 <section class="mobile-note" id="mobileNote" aria-labelledby="mobileNoteH">
   <div class="mn-brand">MockupKitchen · byDatenWG</div>
   <h2 id="mobileNoteH" data-i18n="mobile.h">Bitte am Desktop öffnen</h2>
@@ -453,6 +460,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
     <button class="btn" id="mobileGo" data-i18n="mobile.go">Trotzdem ansehen</button>
     <button class="btn ghost" id="mobileLang" data-i18n="btn.lang" data-i18n-title="tip.lang">EN</button>
     <a class="pill-home" href="https://datenwgknowledgekitchen.com/" data-i18n="lbl.backHome" data-i18n-title="tip.backHome">← Knowledge Kitchen</a>
+    <span class="mn-legal"><a class="legal-link" href="impressum.html">Impressum</a><a class="legal-link" href="datenschutz.html">Datenschutz</a></span>
   </div>
 </section>
 <div class="app">
@@ -496,7 +504,7 @@ pre.code{background:#0F1E2E;color:#E8ECF1;font-family:var(--ff-mono);font-size:1
     <div class="stage" id="stage">
       <div class="stage-inner" id="stageInner"><div class="page" id="page" tabindex="-1"></div></div>
       <div class="stage-bar">
-      <div class="stage-foot"><a class="pill-home hide-present" href="https://datenwgknowledgekitchen.com/" data-i18n="lbl.backHome" data-i18n-title="tip.backHome" title="Zurück zur Knowledge Kitchen">← Knowledge Kitchen</a><div class="stage-info" id="stageInfo"></div></div>
+      <div class="stage-foot"><a class="pill-home hide-present" href="https://datenwgknowledgekitchen.com/" data-i18n="lbl.backHome" data-i18n-title="tip.backHome" title="Zurück zur Knowledge Kitchen">← Knowledge Kitchen</a><span class="stage-legal hide-present"><a class="legal-link" href="impressum.html">Impressum</a><a class="legal-link" href="datenschutz.html">Datenschutz</a></span><div class="stage-info" id="stageInfo"></div></div>
       <div class="stage-tools">
         <button class="btn sm" id="btnZoomOut" data-i18n-title="tip.zoomOut" data-i18n-aria="tip.zoomOut">−</button>
         <button class="btn sm" id="btnGridCheck2" data-i18n-title="gc.h" data-i18n-aria="gc.h" title="Pixelgenau prüfen">⌗</button>
