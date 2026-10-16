@@ -138,9 +138,6 @@ interface DataPoint {
      *  null/absent when the role is not bound or for synthetic rows */
     xVal?: number | null;
     sizeVal?: number | null;
-    /** scatter (1.48): previous-year X (role xPrevious) — with PY the movement arrow
-     *  runs in 2D; absent/null → the arrow only moves vertically */
-    xPrev?: number | null;
     /** Trend role (KPI cards): period label of this row and its sort key (Date →
      *  timestamp, number → value, text → first appearance); absent when unbound */
     trend?: string | null;
@@ -1158,7 +1155,7 @@ export class Visual implements IVisual {
         for (const col of valueCols) {
             const roles = col.source.roles || {};
             for (const role of ["actual", "previousYear", "plan", "forecast", "benchmark", "lineMeasure", "prevForecast",
-                "xValue", "bubbleSize", "xPrevious"]) {
+                "xValue", "bubbleSize"]) {
                 if (roles[role]) {
                     byRole[role] = col.values.map(v => (typeof v === "number" && isFinite(v)) ? v : null);
                     if (role === "actual" || (role === "forecast" && !this.measureFormat)) {
@@ -1288,7 +1285,6 @@ export class Visual implements IVisual {
                     ? this.categoryLabel(seriesCol.values[i]) : null,
                 xVal: byRole["xValue"] ? byRole["xValue"][i] : null,
                 sizeVal: byRole["bubbleSize"] ? byRole["bubbleSize"][i] : null,
-                xPrev: byRole["xPrevious"] ? byRole["xPrevious"][i] : null,
                 ...(trendCol && trendOrdOf ? {
                     trend: this.categoryLabel(trendCol.values[i]),
                     trendOrd: trendOrdOf(i)
@@ -7334,7 +7330,6 @@ export class Visual implements IVisual {
             };
             agg.xVal = sumOf(c => c.xVal);
             agg.sizeVal = sumOf(c => c.sizeVal);
-            agg.xPrev = sumOf(c => c.xPrev);
             agg.comment = kids[0].comment;
             agg.commentNo = kids[0].commentNo;
             agg.sel = kids[0].sel;
