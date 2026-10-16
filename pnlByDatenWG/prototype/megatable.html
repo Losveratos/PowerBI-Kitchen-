@@ -103,6 +103,7 @@ function geometry(fs) {
     titleLineH: Math.round(fs * 1.45),
     chartMin: Math.round(fs * 7),          // Chart-Spalte: Mindest-/Höchstbreite
     chartMax: Math.round(fs * 22),
+    minSpan: Math.round(fs * 3),           // Mindest-Datenfläche einer Chart-Spalte (ohne Zahlen)
     vwfMax: Math.round(fs * 28),           // Wert-Kaskade (12A) darf breiter werden
     axisPY: 3,                             // PY-Achse: graue Linie, Breite
     axisPLGap: 3,                          // PL-Achse: Abstand der zwei 1-px-Linien
@@ -571,10 +572,6 @@ function layout(S, viewW) {
     const max = c.type === "vwf" ? G.vwfMax : G.chartMax;
     c.w = Math.round(Math.min(max, Math.max(G.chartMin, free * weight(c) / sumW)));
   }
-  let x = 0;
-  for (const c of cols) { x += gapPx(c.gap); c.x = x; x += c.w; }
-  const tableW = x;
-
   // ---- Zeilen y --------------------------------------------------------------
   const titleH = 3 * G.titleLineH + Math.round(G.fs * 1.2);
   const blockTitleY = titleH;
@@ -660,6 +657,19 @@ function layout(S, viewW) {
   for (const c of charts) {
     c.inner = c.w - 2 * G.pad;
     c.kSelf = solveK(c.els, c.inner);
+    // Mindest-Spannweite: die Datenfläche (ohne Beschriftung) muss ≥ minSpan px
+    // breit sein — sonst wächst die Spalte (Tabelle scrollt) statt zu kollabieren
+    const span = Math.max(...c.els.map(e => e.q)) - Math.min(...c.els.map(e => e.p));
+    if (span > 0 && c.kSelf * span < G.minSpan) {
+      const kMin = G.minSpan / span;
+      const [a, b] = needs(c.els, kMin);
+      c.inner = Math.ceil(a + b); c.w = c.inner + 2 * G.pad; c.kSelf = kMin;
+    }
+  }
+  let x = 0;
+  for (const c of cols) { x += gapPx(c.gap); c.x = x; x += c.w; }
+  const tableW = x;
+  for (const c of charts) {
     const key = c.block + ":" + family(c);
     famK[key] = Math.min(famK[key] ?? Infinity, c.kSelf);
   }

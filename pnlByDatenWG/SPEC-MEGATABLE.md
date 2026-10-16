@@ -92,3 +92,228 @@ PL doppelt, FC schraffiert (siehe T01/T03-Köpfe und Summen-Unterstreichungen).
 - Kein zweites Visual; keine Verschmelzung mit ChartKitchen (Abgrenzung siehe
   `../ibcsInspiredChartDeck/BACKLOG.md`).
 - ChartKitchens Ad-hoc-Tabelle bleibt unberührt.
+
+## Abgeleitete Maße (aus dem Prototyp)
+
+Quelle: `prototype/megatable.html` (eine Datei, kein Build). Abgeglichen gegen
+alle 17 Referenzbilder; die Presets `#ref=T01A` … `#ref=12A` (URL-Hash) stellen
+jede Referenz 1:1 nach, inkl. des jeweiligen Datenstands.
+
+### Render-Modell
+
+- **Ein SVG pro Tabelle** (Kopf, Zeilen, Zell-Charts, Fuß). Grund: Kaskaden-
+  Verbindungslinien, eine durchgehende Nulllinie je Block-Spalte, Szenario-
+  Unterstreichungen und Summenlinien laufen über Zeilengrenzen — als Einzel-SVG
+  je HTML-Zelle (Bestand `deltaBarCell`/`deltaPinCell`) müssten sie zerstückelt
+  werden. Stil 1:1 wie `waterfall.ts` (`svgEl(tag, attrs)`, kein D3).
+- Code dreigeteilt: **Rechenkern** (`computeAll`, `delta`, `cascade` — im Visual
+  durch `engine.ts` ersetzt) → **Layout** (`layout()`: nur Zahlen, Spalten x/w,
+  Zeilen y, Maßstab k, Achse x0, Kappung) → **Painter** (`paint()`). Für
+  Virtualisierung langer Statements bleibt das Layout gleich, der Painter
+  zeichnet dann je Chart-Spalte einen hohen SVG-Streifen neben HTML-Zahlen.
+- **Keine Template-Sonderfälle im Renderer.** Die Spaltenliste entsteht nur aus
+  Schaltern; T01–T04/12A sind Presets dieser Schalter.
+
+### Geometrie (alles aus der Schriftgröße `fs` abgeleitet; Werte bei fs = 13)
+
+| Größe | Formel | fs 13 |
+|---|---|---|
+| Zeilenhöhe `rowH` | `round(1.7·fs)` | 22 px |
+| Leerzeile vor Zwischensummen-Block (T01B, GuV-Gruppen) | `round(0.5·rowH)` | 11 px |
+| Kleinschrift (Margen-Zeile, Fußzeile) | `0.85·fs` | 11.1 px |
+| Spaltenlücke innerhalb Gruppe | `round(0.5·fs)` | 7 px |
+| Gruppenlücke (Werte \| ΔPY \| ΔPL) | `round(1.1·fs)` | 14 px |
+| Blocklücke (Monat \| Kategorie \| _YTD) | `round(1.6·fs)` | 21 px |
+| Zellen-Innenabstand | `round(0.35·fs)` | 5 px |
+| Vorzeichen-Spalte `+ − =` | `round(1.2·fs)` | 16 px |
+| Einrückung je Ebene | `fs` | 13 px |
+| Balkenhöhe (Δ-Balken, Wasserfall, Wert-Kaskade) | `round(0.62·rowH)` | 14 px |
+| Pin-Stiel | fest | 3 px |
+| Pin-Kopf (Quadrat, Kante) | `round(0.62·fs)` | 8 px |
+| Abstand Balkenende/Pin-Kopf → Zahl | fest | 3 px |
+| Ausreißer-Pfeilspitze (Länge) | `round(0.7·fs)`; Höhe = Balkenhöhe + 4 bzw. Pin-Kopf + 2 | 9 px |
+| PY-Achse | graue Linie `#B3B3B3` | 3 px |
+| PL-Achse | 2 × 1 px Tinte `#404040`, Abstand | 3 px |
+| Wert-Kaskade-Nulllinie (12A) | 1 px Tinte | 1 px |
+| Kaskaden-Verbindungslinie | 1 px `#8A8886` | 1 px |
+| Zeilen-Trennlinie | 1 px `#D9D9D9` je Spalte (Lücken bleiben frei) | 1 px |
+| Summenlinie (über `sum`/`formula`-Zeilen) | 1 px Tinte je Spalte; bei Wert-Kaskade durchgehend | 1 px |
+
+**Kopf/Fuß:** Titelblock `3 × round(1.45·fs) + round(1.2·fs)` = 73 px (im Visual:
+vorhandener `titleBlock`). Block-Titelzeile („November"/„_November", nur bei
+Struktur-/Regionendaten) = `rowH` mit 1-px-Tintenlinie über die Blockbreite.
+Spaltenkopf = `rowH`, darunter Szenario-Unterstreichung `markH = 4 px`, dann
+`round(0.5·fs)` = 7 px Luft bis zur ersten Zeile → Kopf ohne Blocktitel 33 px,
+mit Blocktitel 55 px. Schluss-Unterstreichung (T03) `markH + 4` = 8 px.
+Schwellen-Fußzeile = `rowH`, Kleinschrift kursiv `#8A8886`, rechtsbündig unter
+den Δ-Zahlenspalten; „Δ in red if:" rechtsbündig in der Spalte davor.
+
+**Kopf-Unterstreichungen (Szenario-Kennung):** AC 4-px-Balken Tinte · PY 4-px-
+Balken `#B3B3B3` · PL zwei 1-px-Linien im Abstand 3 px · FC 4-px-Rechteck
+schraffiert mit 0.75-px-Kontur. Δ-Spalten, Chart-Spalten und Kategorie-Spalte:
+1-px-Tintenlinie auf halber Markenhöhe. GuV-Daten: ΔPY+ΔPY% teilen sich einen
+Kopf (rechtsbündig über Δ%, T03); Regionen: getrennte Köpfe (T01).
+
+**Schraffur:** `pattern` 4 × 4 px, `userSpaceOnUse`, `rotate(45)`, weißer Grund,
+1.8-px-Strich in der Elementfarbe (identisch zu `hatchPattern()` im Visual);
+schraffierte Flächen tragen zusätzlich 1-px-Kontur in derselben Farbe.
+
+### Spaltenbreiten-Logik
+
+1. **Zahlenspalten** (Werte, ΔAbs, Δ%): `max(Kopftext, breiteste formatierte
+   Zelle (fett für Summen, kursiv/klein für Margen)) + 2·pad`, mindestens
+   `3.2·fs` (42 px). Gemessen mit Canvas `measureText` in der Visual-Schrift.
+2. **Kategorie-Spalte:** breitestes Label inkl. Vorzeichen-Spalte und Einrückung
+   `+ 2·pad`, mindestens `6·fs`. Bei zwei Blöcken steht sie zwischen den Blöcken.
+3. **Chart-Spalten** teilen den Restplatz `frei = Viewport − Σ fest − Σ Lücken`
+   nach Gewicht: Balken/Pins 1 · Δ-Wasserfall 1.2 · Wert-Kaskade 1.5; Klemme
+   `7·fs … 22·fs` (Wert-Kaskade bis `28·fs`).
+4. **Mindest-Datenfläche:** Würde der Maßstab die Datenfläche einer Chart-Spalte
+   (ohne Beschriftung) unter `3·fs` = 39 px drücken, wächst die Spalte auf genau
+   diese Breite + Beschriftungsbedarf; die Tabelle scrollt dann horizontal statt
+   Balken auf 0 zu kollabieren. Ausgeschaltete Spalten hinterlassen keine Lücke —
+   die Breiten werden bei jeder Schalter-Kombination neu verteilt.
+
+### Balken-/Pin-Maßstab
+
+- **Je Block × Familie EIN Maßstab k** (px pro Einheit): Familien `delta`
+  (Δ-Balken + Δ-Wasserfall, ΔPY und ΔPL gemeinsam), `pct` (alle Δ%-Pins),
+  `value` (alle Wert-Kaskaden). Monat und _YTD haben getrennte Maßstäbe.
+- **Löser:** Jedes Element liefert eine Spanne `[p, q]` in Einheiten plus
+  Beschriftungsbedarf links `a` / rechts `c` in px. Gesucht ist das größte k mit
+  `max(a − p·k) + max(q·k + c) ≤ Spaltenbreite − 2·pad` (konvex → Bisektion,
+  50 Schritte). k der Familie = Minimum der Spalten; nicht bindende Spalten
+  zentrieren ihren Überschuss, die Achse liegt bei `x0 = links + Bedarf_links`.
+  Die Achsenposition ergibt sich so aus den Daten (überwiegend negativ → Achse
+  rechts, wie T02A Monat).
+- Gemessene k bei 1320 px Viewport: T02A Monat 1.14 px/kEUR, _YTD 0.45 px/kEUR,
+  Pins 3.75 / 5.05 px/%-Pkt.; T04B Wasserfall 9.52 px/kEUR; 12A Wert-Kaskade
+  0.25 px/kEUR. (Die Statuszeile im Prototyp zeigt k und Kappung live.)
+- **Überlauf-Grenze / Ausreißer:** Tukey-Zaun auf |Werte| der Familie im Block:
+  `Zaun = Q3 + 4·(Q3 − Q1)`, ab 8 Werten; Kappung = größter |Wert| ≤ Zaun.
+  Gekappte Elemente laufen bis `x0 ± Kappung·k`, dann Pfeilspitze (9 px), keine
+  Kopf-Marke; die Zahl steht mit 3-px-Weißhalo auf dem Stiel/Balken vor der
+  Spitze (12A „+983 →"). Default: an für Pins, aus für Δ-Balken (Schalter).
+  Trifft 12A (+983/+391 gekappt, +95 passt), T02A (+16.5 passt), T04 (+25.6
+  passt). T02F kappt im Referenzbild schon bei Sprung 1.35× — bewusst nicht
+  nachgebaut (jede Regel, die das trifft, kappt T02A fälschlich).
+- **Zahlen außen** in Wachstumsrichtung, `+` immer explizit (Null ohne Vorzeichen),
+  Summenzeilen fett, Textfarbe `#1A1A1A` (nicht die Ampelfarbe — wie Referenzen).
+  Zahl nie über der Achse: Abstand ab `max(Balkenende, Achse ± Achsenhalbbreite)`.
+
+### Pin-Geometrie
+
+Stiel 3 px in Gut/Schlecht-Farbe von der Achse bis zur Kopfmitte; Kopf 8 × 8 px
+Quadrat in Tinte (AC voll, FC schraffiert + 1-px-Kontur); Zahl 3 px hinter der
+Kopfkante, ohne „%"-Zeichen (Spaltenkopf trägt „Δ…%"). Wert 0 → Kopf auf der
+Achse, Zahl rechts (T02F „0.0").
+
+### Kaskaden (Δ-Wasserfall T04, Wert-Kaskade 12A) — eine Funktion
+
+`cascade(rows, val)`: Schritt-Zeilen beginnen am Lauf-Ende (`val = Wert × eff`,
+eff = Wirkungsvorzeichen aufs Ergebnis aus SignConvention entlang des Pfads);
+`anchor`-Zeilen (`=`) zeichnen ab 0 und setzen den Lauf neu; Summen ohne Anker
+(`− Operating expenses`, im Strukturmodus `Europe` …) spannen vom Lauf-Stand vor
+ihrem ersten Kind bis zum aktuellen Stand. Verbindungslinien senkrecht am
+gemeinsamen Wert vom Unterrand des vorigen Segments zum Oberrand des nächsten;
+Spannen erhalten zusätzlich die Linie von ihrem Startpunkt (lange Linie durch die
+Kinderzeilen, T04B). Margen-/Leerzeilen werden übersprungen, die Linie läuft
+durch. Beschriftung: Δ-Wasserfall = rohes Δ der Zeile (Kosten +11.12 rot, Balken
+nach links), Wert-Kaskade = Anzeigewert. Wert-Kaskade-Füllung je Szenario aus
+der Notations-Tabelle, Kostenzeilen hell (PY `#D9D9D9`, AC `#8A8886`).
+
+### Zahlenformat
+
+Tausender-Trenner U+202F (wie `NBSP_GROUP`), Minus als „-". Dezimalen `d` gelten
+für Werte/ΔAbs/Margen; Δ%-Zahlen: Regionen `max(1,d)`, GuV `d ≥ 2 ? 1 : 0`;
+Pins: GuV mit `d = 0` → 0, sonst `max(1,d)`. Margen-Zeile: Wert `36.7%`,
+ΔAbs `+8.6%p`, Δ% als relative Änderung ohne Zeichen `+23`, kursiv/klein.
+Schwellen: rot, wenn `Δ × (Kosten ? −1 : 1) < Schwelle` (Default Monat −20 /
+−10 %, _YTD −220 / −10 %; GuV −20 / −10 %).
+
+### Schalter-Liste → künftige Formatmenü-Toggles (Karte `columns`)
+
+Jeder Schalter ist einzeln wirksam; Templates setzen nur Defaults. Die bestehenden
+Einträge `columns.preset` und `columns.reference` werden zur Preset-Auswahl
+(T01–T04/12A), danach sind alle Toggles frei. Bereits vorhanden und
+wiederverwendet: `numbers.decimals`, `numbers.pctDecimals`, `style.colorMode`.
+
+| Toggle (Prototyp-Key) | Formatmenü-Name (Vorschlag) | Bedeutung |
+|---|---|---|
+| `min` AC/FC | `columns.minuend` | analysiertes Szenario (Füllung voll/schraffiert) |
+| `showPY` | `columns.showPY` | Wertspalte PY |
+| `showPL` | `columns.showPL` | Wertspalte PL |
+| `showMin` | `columns.showMinuend` | Wertspalte AC bzw. FC |
+| `valueWf` | `columns.valueCascade` | Wertspalten als Wert-Kaskade (12A) |
+| `dPYnum` / `dPLnum` | `columns.dPyAbs` / `columns.dPlAbs` | Δ als Zahl |
+| `dPYbar` / `dPLbar` | `columns.dPyBar` / `columns.dPlBar` | Δ als Balken |
+| `dPYwf` / `dPLwf` | `columns.dPyWaterfall` / `columns.dPlWaterfall` | integrierter Δ-Wasserfall (unabhängig vom Balken) |
+| `dPYpct` / `dPLpct` | `columns.dPyPct` / `columns.dPlPct` | Δ% als Zahl |
+| `dPYpin` / `dPLpin` | `columns.dPyPin` / `columns.dPlPin` | Δ% als Pins |
+| `ytd` | `columns.secondBlock` | zweiter Perioden-Block (_YTD) |
+| `subtotals` | `columns.structureSubtotals` | Zwischensummen-Blöcke im Strukturmodus (T01B) |
+| `margins` | `columns.showPctRows` | Margen-/%-Zeilen |
+| `thresholds` | `columns.thresholds` (+ 4 NumUpDown: abs/pct je Block) | rote Δ-Zahlen + Fußzeile „Δ in red if" |
+| `marks` | `columns.scenarioMarks` | Szenario-Unterstreichungen in Kopf/Schluss |
+| `barLabels` | `columns.chartLabels` | Zahlen an Balken/Pins/Kaskaden |
+| `barCap` | `columns.capBars` | Ausreißer-Kappung auch für Δ-Balken (Pins immer) |
+| `sort` | `columns.sort` (category / minuend↓ / Δ↓) | Sortierung je Struktur-Gruppe, „Other" bleibt unten |
+| `sortBlock` | `columns.sortBlock` (period / ytd) | welcher Block die Reihenfolge bestimmt (Kategorie-Spalte ist geteilt) |
+
+Defaults je Preset (✓ = an; nicht genannte Toggles aus; `marks`, `barLabels`
+überall an, `barCap` überall aus):
+
+| Preset | min | PY | PL | Min | ValueWf | ΔPY | ΔPL | ytd | subtot. | margins | thresh. | sort | dec |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| T01A | AC | ✓ | ✓ | ✓ | – | num+pct | num+pct | ✓ | – | ✓ | ✓ | cat | 0 |
+| T01B | AC | ✓ | ✓ | ✓ | – | num+pct | num+pct | ✓ | ✓ | ✓ | ✓ | cat | 0 |
+| T02A | AC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | cat | 0 |
+| T02B | AC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | AC↓ (_YTD) | 0 |
+| T02C | AC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | Δ↓ (Monat) | 0 |
+| T02E | FC | ✓ | – | ✓ | – | bar+pin | – | ✓ | ✓ | ✓ | – | Δ↓ (_YTD) | 0 |
+| T02F | FC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | Δ↓ (_YTD) | 0 |
+| T03A | AC | ✓ | ✓ | ✓ | – | num+pct | num+pct | – | – | ✓ | – | – | 1 |
+| T03B | FC | ✓ | ✓ | ✓ | – | num+pct | num+pct | – | – | ✓ | – | – | 1 |
+| T04A | AC | – | ✓ | ✓ | – | – | bar+pin | – | – | ✓ | – | – | 1 |
+| T04B | AC | – | ✓ | ✓ | – | – | wf+pin | – | – | ✓ | – | – | 2 |
+| T04C | AC | ✓ | – | ✓ | – | wf+pin | – | – | – | ✓ | – | – | 2 |
+| T04D | FC | – | ✓ | ✓ | – | – | wf+pin | – | – | ✓ | – | – | 2 |
+| T04E | FC | ✓ | – | ✓ | – | wf+pin | – | – | – | ✓ | – | – | 2 |
+| 12A | AC | ✓ | – | ✓ | ✓ | bar+pin | – | – | – | – | – | – | 0 |
+
+Aus den Daten abgeleitete Stil-Flags (kein Schalter): Vorzeichen-Spalte und
+gepaarter Δ-Kopf nur bei GuV-Daten; Block-Titelzeile nur bei Struktur-Daten;
+Schluss-Unterstreichung nur GuV ohne Chart-Spalten (T03); bei Wert-Kaskade keine
+grauen Zeilenlinien, durchgehende Summenlinien, keine Kopf-Linien (12A).
+
+### Bewusst offen / Abweichungen
+
+- **12G/12H** (YTD+Restjahr-Stapel, Plan-Tönung) nicht im Prototyp; 12A ist
+  umgesetzt, der Headline-Slot wird aus den Daten generiert.
+- GuV hat keinen _YTD-Block (Demo-Daten nur Jahr); der Block-Schalter wirkt nur
+  bei Strukturdaten.
+- Referenz-Inkonsistenzen werden nicht nachgebaut: Summen rechnet der Kern
+  (T03A AC-Ergebnis 422.2 statt 422.3; ΔPY Group result +186.2 statt der im Bild
+  doppelt gedruckten +162.5; 12H-PL-Operating-result 346 statt 329).
+- Sortierung „je Block" ist bei geteilter Kategorie-Spalte nur über einen Block
+  möglich (`sortBlock`); Indikator `(↓)` steht am sortierenden Spaltenkopf.
+
+### Empfehlungen für die Visual-Ableitung
+
+1. **Rechenkern:** `computeAll`/`delta` → `buildModel` + `variance()` aus
+   `engine.ts`; die %p-Logik der Margen-Zeilen (rowType `kpi`) und das
+   Wirkungsvorzeichen `eff` (Produkt von SignConvention entlang des Pfads) als
+   kleine Ergänzungen in `engine.ts`, nicht im Painter. Gut/schlecht weiter über
+   `varianceInvert`, Anzeige über `displayInvert`.
+2. **Kaskade:** `cascade()` entspricht `cascadeSegments()` im Visual /
+   `waterfall.ts` (Anker bei Formelzeilen, Kinder kaskadieren im Elternsegment) —
+   eine gemeinsame Funktion in `waterfall.ts` exportieren, die Δ- und
+   Wert-Kaskade (Zeile statt Säule) bedient.
+3. **Notation:** `notation(minuend, subtrahend)` ersetzt die verstreuten
+   `drawAxis`/`hatchPattern`/`treeScenFill`-Sonderfälle; `hatchPattern()` und die
+   Farbkonstanten `C` bleiben.
+4. **Layout-Löser** (`solveK`, Tukey-Kappung, Breitenverteilung) als reines Modul
+   (`megatable-layout.ts`) ohne DOM außer Textmessung — unit-testbar gegen die
+   im Prototyp gemessenen k-Werte.
+5. Tree-, Kachel- und Mikro-Karten-Ansicht bleiben unberührt; der Mega-Table ist
+   ein Modus der Tabellen-Ansicht.
