@@ -39,6 +39,7 @@ import {
     layoutMega, paintMega, megaActive, activeRefs, MEGA_PRESETS,
     MegaBlock, MegaDelta, MegaRef, MegaRow, MegaScen, MegaToggles,
 } from "./megatable";
+import { cascade, CascadeNode } from "./waterfall";
 
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const NBSP_GROUP = " "; // narrow space, IBCS number grouping
@@ -2851,37 +2852,19 @@ export class Visual implements IVisual {
      * Children cascade inside their parent's segment. Expand-state independent.
      */
     private cascadeSegments(read: (n: PnlNode) => number | null): Map<string, { s: number; e: number }> {
-        const segs = new Map<string, { s: number; e: number }>();
-        const walkChildren = (node: PnlNode, start: number): void => {
-            let cum = start;
-            for (const c of node.children) {
-                const t = c.row.rowType;
-                if (t === "kpi" || t === "separator") { continue; }
-                const v = read(c);
-                if (t === "formula") { continue; } // nested formulas: no cascade segment
-                if (v == null) { continue; }
-                segs.set(c.row.id, { s: cum, e: cum + v });
-                walkChildren(c, cum);
-                cum += v;
-            }
+        // the shared cascade geometry of waterfall.ts in parent-first ("value")
+        // mode: root formulas anchor, nested formulas carry no segment
+        const node = (n: PnlNode, root: boolean): CascadeNode => {
+            const t = n.row.rowType;
+            const skip = t === "kpi" || t === "separator" || (!root && t === "formula");
+            return {
+                id: n.row.id,
+                value: skip ? null : read(n),
+                anchor: root && t === "formula",
+                children: skip ? [] : n.children.map(c => node(c, false)),
+            };
         };
-        let rootCum = 0;
-        for (const r of this.model!.roots) {
-            const t = r.row.rowType;
-            if (t === "kpi" || t === "separator") { continue; }
-            const v = read(r);
-            if (v == null) { continue; }
-            if (t === "formula") {
-                segs.set(r.row.id, { s: 0, e: v });
-                walkChildren(r, 0);
-                rootCum = v;
-            } else {
-                segs.set(r.row.id, { s: rootCum, e: rootCum + v });
-                walkChildren(r, rootCum);
-                rootCum += v;
-            }
-        }
-        return segs;
+        return cascade(this.model!.roots.map(r => node(r, true)), "value");
     }
 
     /** row-waterfall cell: floating segment or anchor bar in scenario notation */
