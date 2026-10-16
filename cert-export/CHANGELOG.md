@@ -1,5 +1,28 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.44.0.0 (2026-10-07)
+
+**Eigener Leer-Zustand + Dark-Mode-Tooltip.**
+Zwei Nutzerwünsche aus dem Dark-Mode-Rollout:
+
+- **Neue Karte „Leer-Zustand"** (`emptyState`: Eigener Titel + Eigener
+  Text): Werden keine Daten dargestellt (Felder leer oder Auswahl ohne
+  Zeilen), ersetzt der eigene Text das „ChartKitchen byDatenWG"-Branding.
+  Im **Lesemodus** sehen Berichtsleser nur noch Titel + Text, zentriert
+  und mit Wortumbruch — die Modus-Galerie ist ein Builder-Werkzeug und
+  bleibt dem Bearbeitungsmodus vorbehalten (dort als Header-Vorschau der
+  eigenen Texte über der Galerie). Ohne eigene Texte bleibt alles wie
+  bisher.
+- **Hover-Tooltip folgt dem Dark Mode:** Der native Power-BI-Tooltip
+  behält das (meist helle) Report-Styling und blendet auf dunklen
+  Seiten. Im Dark Mode zeichnet das Visual den Tooltip jetzt selbst —
+  dunkler Kasten (#2B2B2B), helle Schrift, Kategorie als Header,
+  gedimmte Zeilenlabels, Kantenerkennung am Visual-Rand (klappt am
+  Cursor um). Im hellen Modus bleibt der native tooltipService
+  unverändert.
+- Testfälle c137–c139 (Lesemodus hell/dunkel, Edit-Modus-Vorschau) plus
+  Hover-Verifikation in c131/c136; 5 neue String-Keys × 4 Sprachen.
+
 ## 1.43.0.0 (2026-09-16)
 
 **Dark Mode: lesbar auf dunklen Berichtsseiten.**
