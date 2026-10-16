@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daten-WG · Knowledge Kitchen · Podcast & Tutorials</title>
+<meta name="description" content="Daten-WG Knowledge Kitchen: alle Folgen des Daten-WG-Podcasts nach Thema sortiert und durchsuchbar, dazu Lernpfade, Werkzeuge und Beiträge rund um Power BI und Microsoft Fabric.">
 
 <!-- Favicon · Daten-WG Knowledge Kitchen -->
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -94,270 +95,6 @@ a { color: inherit; text-decoration: none; }
   padding: 48px 32px 96px;
 }
 
-/* ========== STICKY NAV ========== */
-.topnav {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(250, 250, 247, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--line);
-  margin: 0 -32px 40px;
-  padding: 14px 32px;
-}
-.topnav-inner {
-  max-width: 1240px;
-  margin: 0 auto;
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.topnav-brand {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: 15px;
-  letter-spacing: -0.01em;
-  margin-right: auto;
-}
-.topnav-brand em { font-style: italic; color: var(--accent); }
-.beta-badge {
-  display: inline-block;
-  margin-left: 10px;
-  padding: 2px 8px 3px;
-  font-family: var(--mono);
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: white;
-  background: #C0392B;
-  border-radius: 100px;
-  vertical-align: 2px;
-  line-height: 1;
-}
-.topnav-link {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  transition: all .18s ease;
-  white-space: nowrap;
-}
-.topnav-link:hover {
-  background: var(--ink);
-  color: white;
-}
-
-/* Nav-Dropdown · Talks & Post */
-.topnav-dd { position: relative; }
-.topnav-dd-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.topnav-dd-toggle::after {
-  content: '';
-  width: 6px; height: 6px;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  transform: rotate(45deg);
-  margin-bottom: 2px;
-  transition: transform .18s ease;
-}
-.topnav-dd:hover .topnav-dd-toggle::after,
-.topnav-dd:focus-within .topnav-dd-toggle::after { transform: rotate(225deg); margin-bottom: -2px; }
-.topnav-dd-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  min-width: 248px;
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-lg);
-  padding: 6px;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-6px);
-  transition: opacity .16s ease, transform .16s ease, visibility .16s;
-  z-index: 60;
-}
-.topnav-dd:hover .topnav-dd-menu,
-.topnav-dd:focus-within .topnav-dd-menu { opacity: 1; visibility: visible; transform: translateY(0); }
-.topnav-dd-menu-wide { min-width: 300px; }
-.topnav-dd-item {
-  display: block;
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
-  text-decoration: none;
-  color: var(--ink);
-  transition: background .14s ease;
-}
-.topnav-dd-item:hover { background: var(--bg-soft); }
-.topnav-dd-item-name {
-  font-family: var(--serif);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--black);
-  display: block;
-  line-height: 1.2;
-}
-.topnav-dd-item-meta {
-  font-family: var(--mono);
-  font-size: 9.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-mute);
-  margin-top: 2px;
-  display: block;
-}
-
-/* Burger-Button · nur mobile sichtbar */
-.nav-burger {
-  display: none;
-  margin-left: 12px;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--bg-card);
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 5px;
-  transition: background .18s ease, border-color .18s ease;
-}
-.nav-burger:hover { border-color: var(--ink); }
-.nav-burger span {
-  display: block;
-  width: 20px;
-  height: 2px;
-  background: var(--ink);
-  border-radius: 2px;
-  transition: transform .22s ease, opacity .18s ease;
-}
-.topnav.nav-open .nav-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-.topnav.nav-open .nav-burger span:nth-child(2) { opacity: 0; }
-.topnav.nav-open .nav-burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-
-@media (max-width: 1100px) {
-  .container { padding-top: 32px; }
-
-  .nav-burger { display: flex; }
-
-  .topnav-inner { row-gap: 0; }
-
-  /* Nav-Links standardmäßig einklappen */
-  .topnav-inner > .topnav-link,
-  .topnav-inner > .topnav-dd {
-    display: none;
-    flex-basis: 100%;
-    width: 100%;
-  }
-
-  /* Geöffnetes Menü · gestapelte Links */
-  .topnav.nav-open .topnav-inner > .topnav-link,
-  .topnav.nav-open .topnav-inner > .topnav-dd {
-    display: block;
-  }
-  .topnav.nav-open .topnav-inner > .topnav-link:first-of-type { margin-top: 12px; }
-  .topnav.nav-open .topnav-link {
-    font-size: 12px;
-    padding: 12px 12px;
-    border-top: 1px solid var(--line);
-    border-radius: 0;
-  }
-  .topnav.nav-open .topnav-dd-toggle { justify-content: flex-start; }
-
-  /* Dropdown „Talks & Post" auf Touch inline ausklappen */
-  .topnav.nav-open .topnav-dd-menu {
-    position: static;
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-    box-shadow: none;
-    border: none;
-    padding: 4px 0 8px 16px;
-    min-width: 0;
-    z-index: auto;
-  }
-  .topnav.nav-open .topnav-dd-toggle::after { display: none; }
-}
-
-/* ========== CONFERENCE STRIP (slim) ========== */
-.conf-strip {
-  background: var(--bg-soft);
-  border-bottom: 1px solid var(--line);
-  margin: 0 -32px 32px;
-  padding: 10px 0;
-}
-.conf-strip-inner {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 0 32px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  flex-wrap: wrap;
-}
-.conf-strip-eyebrow {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-.conf-strip-eyebrow::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  background: var(--accent);
-  border-radius: 50%;
-}
-.conf-strip-date {
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--ink);
-  white-space: nowrap;
-}
-.conf-strip-where {
-  font-size: 12.5px;
-  color: var(--ink-soft);
-}
-.conf-strip-cta {
-  margin-left: auto;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  text-decoration: none;
-  padding: 6px 14px;
-  border: 1px solid var(--accent);
-  border-radius: 100px;
-  transition: all .15s ease;
-  white-space: nowrap;
-}
-.conf-strip-cta:hover { background: var(--accent); color: white; }
-/* Zweite Pille (Sponsoren) steht dezenter daneben; die erste Pille holt die
-   Gruppe nach rechts, die folgende schliesst direkt an. */
-.conf-strip-cta + .conf-strip-cta { margin-left: 0; }
-.conf-strip-cta.ghost { color: var(--ink-soft); border-color: var(--line); }
-.conf-strip-cta.ghost:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
-
 /* ========== HEADER ========== */
 .header {
   display: grid;
@@ -424,125 +161,6 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: -0.02em;
   color: var(--black);
   text-transform: none;
-}
-
-/* Subscribe-Card · Aside neben Header-Title */
-.subscribe-card {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  padding: 18px 18px 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  background: var(--bg-card);
-  min-width: 320px;
-  align-self: end;
-}
-.subscribe-card-label {
-  grid-column: 1 / -1;
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 4px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.subscribe-card-label::before {
-  content: '';
-  width: 22px;
-  height: 1px;
-  background: var(--accent);
-}
-.subscribe-link {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 10px 12px;
-  text-decoration: none;
-  color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--bg);
-  transition: all .15s ease;
-}
-.subscribe-link:hover {
-  border-color: var(--accent);
-  background: var(--bg-card);
-  transform: translateY(-1px);
-}
-.subscribe-link-icon {
-  font-size: 14px;
-  color: var(--accent);
-  line-height: 1;
-}
-.subscribe-link-name {
-  font-family: var(--serif);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.1;
-  color: var(--black);
-}
-.subscribe-link-meta {
-  font-family: var(--mono);
-  font-size: 9.5px;
-  letter-spacing: 0.08em;
-  color: var(--ink-mute);
-  text-transform: uppercase;
-}
-
-@media (max-width: 900px) {
-  .header { grid-template-columns: 1fr; }
-  .subscribe-card { min-width: 0; max-width: 100%; }
-}
-@media (max-width: 500px) {
-  .header-stats { gap: 16px; }
-  .subscribe-card { grid-template-columns: 1fr; }
-}
-
-/* ========== ORIENTATION ========== */
-.start-here {
-  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(42, 133, 122, 0.04) 100%);
-  border: 1px solid var(--line);
-  border-left: 4px solid var(--c-model);
-  border-radius: var(--radius-lg);
-  padding: 26px 30px;
-  margin-bottom: 40px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 22px;
-  align-items: start;
-}
-.start-here-icon {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-style: italic;
-  font-size: 44px;
-  color: var(--c-model);
-  line-height: 1;
-}
-.start-here-title {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: 21px;
-  margin-bottom: 8px;
-  letter-spacing: -0.01em;
-}
-.start-here-text {
-  font-size: 14.5px;
-  color: var(--ink-soft);
-  line-height: 1.6;
-  max-width: 72ch;
-}
-.start-here-text strong { color: var(--ink); font-weight: 600; }
-.start-here-text p { margin-bottom: 8px; }
-.start-here-text p:last-child { margin-bottom: 0; }
-@media (max-width: 700px) {
-  .start-here { grid-template-columns: 1fr; padding: 22px 20px; }
-  .start-here-icon { font-size: 36px; }
 }
 
 /* ========== TOP-PICKS SECTION ========== */
@@ -644,115 +262,7 @@ a { color: inherit; text-decoration: none; }
   margin-top: auto;
 }
 
-/* ========== GUIDE PROMO CARD ========== */
-.guide-promo {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 24px;
-  align-items: center;
-  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(27, 110, 92, 0.05) 100%);
-  border: 1px solid var(--line);
-  border-left: 4px solid var(--accent);
-  border-radius: var(--radius-lg);
-  padding: 24px 28px;
-  margin-bottom: 40px;
-  text-decoration: none;
-  color: inherit;
-  transition: all .2s ease;
-  box-shadow: var(--shadow-sm);
-}
-.guide-promo:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-left-color: var(--accent);
-}
-.guide-promo-eyebrow {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-.guide-promo-eyebrow::before {
-  content: '';
-  width: 22px;
-  height: 1px;
-  background: var(--accent);
-}
-.guide-promo-title {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: clamp(22px, 2.6vw, 30px);
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-  color: var(--ink);
-  margin-bottom: 8px;
-}
-.guide-promo-title em {
-  font-style: italic;
-  font-weight: 400;
-  color: var(--accent);
-}
-.guide-promo-text {
-  font-size: 14.5px;
-  color: var(--ink-soft);
-  line-height: 1.55;
-  max-width: 70ch;
-}
-.guide-promo-text strong { color: var(--ink); font-weight: 600; }
-.guide-promo-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: white;
-  background: var(--accent);
-  padding: 12px 20px;
-  border-radius: 100px;
-  white-space: nowrap;
-  transition: all .15s ease;
-  flex-shrink: 0;
-}
-.guide-promo:hover .guide-promo-cta { filter: brightness(1.08); }
-@media (max-width: 720px) {
-  .guide-promo { grid-template-columns: 1fr; padding: 20px 22px; }
-  .guide-promo-cta { justify-self: flex-start; }
-}
-
-/* ========== FILTER BAR ========== */
-.filter-bar {
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 22px 26px;
-  margin-bottom: 36px;
-  position: sticky;
-  top: 60px;
-  z-index: 40;
-  box-shadow: var(--shadow-sm);
-  transition: padding .22s ease, box-shadow .22s ease, border-radius .22s ease, background .22s ease;
-}
-@media (max-width: 1100px) { .filter-bar { top: 0; border-radius: 0; margin: 0 -32px 28px; border-left: none; border-right: none; } }
-
-/* Kompakt-Modus, sobald gescrollt wird */
-.filter-bar.scrolled {
-  padding: 10px 22px 8px;
-  background: rgba(255, 255, 255, 0.92);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow-md);
-}
-.filter-bar.scrolled .filter-row { margin-bottom: 6px; }
-.filter-bar.scrolled .filter-row:last-child { margin-bottom: 0; }
-.filter-bar.scrolled .filter-search { padding: 6px 12px; }
+.filter-search { padding: 6px 12px; }
 
 .filter-row {
   display: flex;
@@ -906,153 +416,6 @@ a { color: inherit; text-decoration: none; }
   padding-top: 10px;
   border-top: 1px solid var(--line);
 }
-
-.filter-label {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-mute);
-  margin-right: 4px;
-  white-space: nowrap;
-}
-
-.tag-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.tag-chip {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 5px 11px;
-  border-radius: 100px;
-  border: 1px solid var(--line);
-  background: var(--bg);
-  color: var(--ink-soft);
-  cursor: pointer;
-  transition: all .15s ease;
-  white-space: nowrap;
-}
-.tag-chip:hover {
-  border-color: var(--ink-soft);
-  color: var(--ink);
-}
-.tag-chip.active {
-  background: var(--ink);
-  color: white;
-  border-color: var(--ink);
-}
-.tag-chip .tag-count {
-  margin-left: 6px;
-  opacity: 0.55;
-  font-size: 10px;
-}
-.tag-chip.rare { display: none; }
-.tag-list.show-all .tag-chip.rare { display: inline-flex; align-items: center; }
-
-/* Tag-Reihe: einklappbar beim Scrollen nach unten */
-.filter-row.tags-row {
-  overflow: hidden;
-  max-height: 320px;
-  opacity: 1;
-  transition: max-height .28s ease, opacity .2s ease, margin .22s ease, padding-top .22s ease;
-}
-.filter-bar.tags-hidden .filter-row.tags-row {
-  max-height: 0;
-  opacity: 0;
-  margin-top: 0;
-  margin-bottom: 0;
-  padding-top: 0;
-  pointer-events: none;
-}
-
-/* Tags ein-/ausklappen-Button (immer sichtbar) */
-.tags-peek {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 5px 12px;
-  border-radius: 100px;
-  border: 1px solid var(--line-strong);
-  background: transparent;
-  color: var(--ink-soft);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all .15s ease;
-}
-.tags-peek:hover { border-color: var(--ink-soft); color: var(--ink); }
-.tags-peek .tags-peek-chevron {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  transform: rotate(-135deg);   /* zeigt nach oben — "einklappen" */
-  transition: transform .22s ease;
-  margin-bottom: 2px;
-}
-.filter-bar.tags-hidden .tags-peek .tags-peek-chevron {
-  transform: rotate(45deg);     /* zeigt nach unten — "ausklappen" */
-  margin-bottom: -2px;
-}
-.tags-peek .tags-peek-badge {
-  display: none;
-  padding: 0 6px;
-  background: var(--accent);
-  color: white;
-  border-radius: 100px;
-  font-size: 9.5px;
-  font-weight: 600;
-}
-.tags-peek .tags-peek-badge[data-active] { display: inline-block; }
-.tag-toggle {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 5px 11px;
-  border-radius: 100px;
-  border: 1px dashed var(--line-strong);
-  background: transparent;
-  color: var(--ink-soft);
-  cursor: pointer;
-  transition: all .15s ease;
-  white-space: nowrap;
-}
-.tag-toggle:hover {
-  border-color: var(--ink-soft);
-  color: var(--ink);
-}
-
-.filter-meta {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--ink-mute);
-  letter-spacing: 0.04em;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-.filter-meta strong { color: var(--ink); font-weight: 600; }
-.filter-reset {
-  font-family: var(--mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--accent);
-  cursor: pointer;
-  padding: 4px 0;
-  border-bottom: 1px solid transparent;
-}
-.filter-reset:hover { border-bottom-color: var(--accent); }
 
 /* ========== BUCKET OVERVIEW ========== */
 .bucket-grid {
@@ -1536,474 +899,6 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
 .no-results.visible { display: block; }
 .no-results { display: none; }
 
-/* ========== EINSTEIGER-GUIDE EMBED (scoped under .eg-embed) ========== */
-.eg-embed {
-  --eg-c-arch:    #4A5C6A;
-  --eg-c-staging: #C97B3F;
-  --eg-c-folding: #B8336A;
-  --eg-c-model:   #2A857A;
-  --eg-c-dax:     #166088;
-  --eg-c-ibcs:    #5C2E2E;
-  --eg-c-inter:   #B8860B;
-  --eg-c-service: #1F6B4A;
-  --eg-c-rls:     #8B2E2E;
-  --eg-c-ext:     #6B5B95;
-  margin: 100px 0 60px;
-  padding-top: 56px;
-  border-top: 1px solid var(--line);
-  scroll-margin-top: 80px;
-}
-.eg-embed-head { margin-bottom: 40px; }
-.eg-embed-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 16px;
-}
-.eg-embed-eyebrow::before {
-  content: '';
-  width: 28px;
-  height: 1px;
-  background: var(--accent);
-}
-.eg-embed-title {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(2rem, 4vw, 3.2rem);
-  letter-spacing: -0.02em;
-  line-height: 1.05;
-  margin-bottom: 12px;
-  font-variation-settings: "opsz" 144;
-}
-.eg-embed-title em { font-style: italic; font-weight: 300; color: var(--accent); }
-.eg-embed-sub {
-  font-size: 16px;
-  color: var(--ink-soft);
-  max-width: 64ch;
-  line-height: 1.55;
-}
-
-.eg-journey {
-  margin: 32px 0 56px;
-  padding: 28px;
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-}
-.eg-journey-title {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: 18px;
-  margin-bottom: 6px;
-}
-.eg-journey-sub {
-  font-size: 13px;
-  color: var(--ink-soft);
-  margin-bottom: 22px;
-}
-.eg-journey-steps {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 8px;
-}
-@media (max-width: 1100px) { .eg-embed .eg-journey-steps { grid-template-columns: repeat(5, 1fr); } }
-@media (max-width: 700px)  { .eg-embed .eg-journey-steps { grid-template-columns: repeat(2, 1fr); } }
-.eg-journey-step {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--line);
-  background: var(--bg);
-  text-decoration: none;
-  color: inherit;
-  transition: all .2s ease;
-  position: relative;
-}
-.eg-journey-step:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-  border-color: var(--ink-soft);
-}
-.eg-journey-step-num {
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  color: var(--ink-mute);
-}
-.eg-journey-step-name {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: 13px;
-  margin-top: 4px;
-}
-.eg-journey-step-dot {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--eg-dot, var(--accent));
-}
-
-.eg-chapter {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  margin-bottom: 18px;
-  padding: 24px 56px 22px 28px;
-  border: 1px solid var(--line);
-  border-left: 4px solid var(--eg-chapter-color, var(--accent));
-  border-radius: var(--radius);
-  background: var(--bg-card);
-  scroll-margin-top: 80px;
-  position: relative;
-  transition: all .2s ease;
-}
-.eg-chapter:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--eg-chapter-color, var(--accent));
-}
-.eg-chapter::after {
-  content: '→';
-  position: absolute;
-  top: 50%;
-  right: 24px;
-  margin-top: -14px;
-  font-size: 24px;
-  font-weight: 300;
-  color: var(--eg-chapter-color, var(--accent));
-  opacity: 0.35;
-  transition: opacity .2s ease, transform .2s ease;
-}
-.eg-chapter:hover::after {
-  opacity: 1;
-  transform: translateX(6px);
-}
-.eg-chapter-head {
-  display: flex;
-  align-items: baseline;
-  gap: 22px;
-  padding-bottom: 14px;
-  margin-bottom: 22px;
-  border-bottom: 1px solid var(--line);
-}
-
-/* Reading-Progress: Häkchen + Status pro Kapitel */
-.eg-chapter-done-btn {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 6px 12px;
-  border: 1px solid var(--line-strong);
-  border-radius: 100px;
-  background: transparent;
-  color: var(--ink-mute);
-  cursor: pointer;
-  transition: all .15s ease;
-  white-space: nowrap;
-  align-self: center;
-}
-.eg-chapter-done-btn::before {
-  content: '';
-  width: 12px;
-  height: 12px;
-  border: 1.5px solid currentColor;
-  border-radius: 50%;
-  display: inline-block;
-}
-.eg-chapter-done-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.eg-chapter-done-btn.done {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-}
-.eg-chapter-done-btn.done::before {
-  content: '✓';
-  width: auto;
-  height: auto;
-  border: none;
-  font-size: 12px;
-  font-weight: 700;
-}
-.eg-chapter.done .eg-chapter-num,
-.eg-chapter.done .eg-chapter-title {
-  color: var(--ink-mute);
-}
-.eg-chapter.done .eg-chapter-head {
-  opacity: 0.7;
-}
-
-/* Reading-Progress Bar oben in der Sektion */
-.eg-progress {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 24px 0 32px;
-  padding: 12px 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-}
-.eg-progress-label {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-mute);
-  white-space: nowrap;
-}
-.eg-progress-track {
-  flex: 1;
-  height: 6px;
-  background: var(--bg-soft);
-  border-radius: 100px;
-  overflow: hidden;
-}
-.eg-progress-fill {
-  height: 100%;
-  background: var(--accent);
-  width: 0;
-  transition: width .35s ease;
-}
-.eg-progress-count {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 300;
-  font-size: 18px;
-  color: var(--black);
-  white-space: nowrap;
-}
-.eg-progress-reset {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-mute);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 4px 8px;
-}
-.eg-progress-reset:hover { color: var(--accent); }
-.eg-chapter-num {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 300;
-  font-size: 28px;
-  color: var(--ink-mute);
-  min-width: 44px;
-}
-.eg-chapter-title {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
-  letter-spacing: -0.015em;
-  flex: 1;
-  font-variation-settings: "opsz" 144;
-}
-.eg-chapter-title em { font-style: italic; font-weight: 400; color: var(--eg-chapter-color, var(--accent)); }
-.eg-chapter-intro {
-  font-family: var(--serif);
-  font-size: 17px;
-  font-style: italic;
-  color: var(--ink-soft);
-  line-height: 1.55;
-  max-width: 70ch;
-  margin-bottom: 18px;
-}
-.eg-start-with {
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--eg-chapter-color, var(--accent));
-  border-radius: var(--radius);
-  padding: 14px 18px;
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.eg-start-with-label {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--eg-chapter-color, var(--accent));
-  font-weight: 700;
-  white-space: nowrap;
-}
-.eg-start-with-text {
-  font-size: 13.5px;
-  color: var(--ink-soft);
-  line-height: 1.5;
-  flex: 1;
-  min-width: 240px;
-}
-.eg-start-with-text strong { color: var(--ink); font-weight: 600; }
-
-/* CTA-Block oben in der embedded-Guide-Sektion */
-.eg-cta-card {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin: 28px 0 36px;
-  padding: 22px 26px;
-  background: var(--black);
-  color: var(--bg);
-  border-radius: var(--radius);
-  text-decoration: none;
-  transition: all .18s ease;
-}
-.eg-cta-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-}
-.eg-cta-card-text {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.eg-cta-card-eyebrow {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-.eg-cta-card-title {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: 19px;
-  line-height: 1.25;
-  color: white;
-}
-.eg-cta-card-sub {
-  font-size: 13px;
-  color: rgba(250, 250, 245, 0.7);
-  line-height: 1.4;
-}
-.eg-cta-card-btn {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  background: var(--accent);
-  color: white;
-  padding: 12px 20px;
-  border-radius: 100px;
-  white-space: nowrap;
-  transition: background .15s ease;
-}
-.eg-cta-card:hover .eg-cta-card-btn { background: var(--brand-soft); }
-.eg-cta-card--fabric { background: var(--brand-deep); margin-top: -16px; }
-.eg-cta-card--fabric .eg-cta-card-btn { background: rgba(255, 255, 255, 0.16); }
-.eg-cta-card--fabric:hover .eg-cta-card-btn { background: rgba(255, 255, 255, 0.28); }
-
-.eg-embed-note {
-  margin-top: 24px;
-  padding: 14px 18px;
-  background: var(--bg-soft);
-  border-left: 3px solid var(--ink-mute);
-  border-radius: var(--radius);
-  font-size: 13.5px;
-  color: var(--ink-soft);
-  line-height: 1.5;
-}
-.eg-embed-note strong { color: var(--ink); font-weight: 600; }
-
-/* ========== FOOTER ========== */
-.footer {
-  margin-top: 80px;
-  padding-top: 32px;
-  border-top: 1px solid var(--line);
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 20px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.footer-brand {
-  font-family: var(--serif);
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-}
-.footer-brand em { font-style: italic; color: var(--accent); }
-.footer-meta {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--ink-mute);
-  letter-spacing: 0.05em;
-}
-.footer-links {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-.footer-link {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--line);
-  transition: all .18s ease;
-}
-.footer-link:hover {
-  background: var(--ink);
-  color: white;
-  border-color: var(--ink);
-}
-.footer-note {
-  grid-column: 1 / -1;
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-  font-size: 12px;
-  color: var(--ink-mute);
-  line-height: 1.5;
-}
-.footer-note a { color: var(--accent); text-decoration: none; }
-.footer-note a:hover { text-decoration: underline; }
-@media (max-width: 700px) {
-  .footer { grid-template-columns: 1fr; text-align: left; }
-}
-
-/* ========== POSTS & TALKS · FILTER + SORT ========== */
-.pt-toolbar { display:flex; flex-wrap:wrap; gap:12px 16px; align-items:center; justify-content:space-between; margin:0 0 18px; }
-.pt-chips { display:flex; flex-wrap:wrap; gap:8px; }
-.pt-chip { font-family:var(--mono, monospace); font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-mute); background:var(--bg-card); border:1px solid var(--line); border-radius:100px; padding:7px 14px; cursor:pointer; transition:all .15s ease; }
-.pt-chip:hover { color:var(--brand); border-color:var(--brand); }
-.pt-chip.active { color:#fff; background:var(--brand); border-color:var(--brand); }
-.pt-sortwrap { display:flex; align-items:center; gap:10px; font-family:var(--mono, monospace); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-mute); }
-.pt-sortwrap select { font-family:inherit; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink); background:var(--bg-card); border:1px solid var(--line); border-radius:100px; padding:6px 12px; cursor:pointer; }
-.pt-sortwrap select:hover { border-color:var(--brand); }
-#pt-count { color:var(--ink-mute); }
-@media (max-width:700px){ .pt-toolbar { flex-direction:column; align-items:flex-start; } }
-
 /* ========== ANIMATIONS ========== */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
@@ -2011,524 +906,647 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
 }
 .bucket-section { animation: fadeUp .5s ease backwards; }
 .video-card { animation: fadeUp .4s ease backwards; }
+
+/* ============================================================
+   STARTSEITE v4 · Navigation, Hero, Wegweiser, Filter, Footer
+   (ersetzt Topnav, Conf-Strip, Subscribe-Card, Orientation,
+   Guide-Promos und die eingebetteten Kurse)
+   ============================================================ */
+:root {
+  --nav-h: 64px;
+  --bar-h: 120px;   /* wird per JS auf die echte Höhe der Filterleiste gesetzt */
+  --gutter: 32px;
+}
+@media (max-width: 900px) { :root { --nav-h: 56px; --gutter: 20px; } }
+@media (max-width: 420px) { :root { --gutter: 16px; } }
+
+html.scroll-lock, html.scroll-lock body { overflow: hidden; }
+.container { padding: 28px var(--gutter) 72px; }
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.skip-link {
+  position: absolute; left: 12px; top: -60px; z-index: 300;
+  background: var(--ink); color: #fff; padding: 12px 14px; min-height: 44px; border-radius: var(--radius-sm);
+}
+.skip-link:focus { top: 8px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Sprungziele: unter der sticky Leiste landen */
+#start, #neu, #posts-talks, #top-picks, #folgen, #einsteiger-guide, #praxis-pfad, #buckets-overview, #suche {
+  scroll-margin-top: calc(var(--nav-h) + 16px);
+}
+.bucket-section, .video-card { scroll-margin-top: calc(var(--nav-h) + var(--bar-h) + 24px); }
+.anchor-target { height: 0; }
+
+/* ---------- Navigation ---------- */
+.site-nav {
+  position: sticky; top: 0; z-index: 60;
+  height: var(--nav-h);
+  background: rgba(250, 250, 245, 0.97);
+  border-bottom: 1px solid var(--line);
+}
+.site-nav-inner {
+  max-width: 1240px; height: 100%; margin: 0 auto; padding: 0 var(--gutter);
+  display: flex; align-items: center; gap: 12px;
+}
+.site-brand {
+  font-family: var(--serif); font-weight: 500; font-size: 15px; letter-spacing: -0.01em;
+  white-space: nowrap; display: inline-flex; align-items: center; min-height: 44px;
+}
+.site-brand em { font-style: italic; color: var(--accent); margin-left: .25em; }
+.beta-badge {
+  display: inline-block; margin-left: 8px; padding: 2px 7px 3px;
+  font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #fff; background: #C0392B; border-radius: 100px; line-height: 1;
+}
+.site-menu { margin-left: auto; }
+.site-menu-head, .site-menu-foot { display: none; }
+.site-menu-list { list-style: none; display: flex; align-items: center; gap: 2px; }
+.nav-item {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px;
+  font-family: var(--mono); font-size: 11.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-soft); border-radius: var(--radius-sm); white-space: nowrap; transition: background .15s, color .15s;
+}
+.nav-item:hover, .nav-dd.open > .nav-item { background: var(--ink); color: #fff; }
+.nav-dd { position: relative; }
+.nav-dd-btn::after {
+  content: ''; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg); margin: -3px 0 0 2px; transition: transform .2s;
+}
+.nav-dd.open > .nav-dd-btn::after { transform: rotate(225deg); margin-top: 3px; }
+.nav-dd-panel {
+  display: none; position: absolute; top: calc(100% + 10px); left: 0; z-index: 70;
+  min-width: 290px; padding: 8px; background: var(--bg-card);
+  border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-lg);
+}
+.nav-dd.open > .nav-dd-panel { display: block; }
+.nav-dd-panel-wide { display: none; min-width: 560px; left: auto; right: -140px; }
+.nav-dd.open > .nav-dd-panel-wide { display: grid; grid-template-columns: 1fr 1fr; gap: 0 8px; }
+.nav-dd-group { display: flex; flex-direction: column; }
+.nav-dd-label {
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-mute); padding: 10px 12px 4px;
+}
+.nav-dd-item { display: flex; flex-direction: column; gap: 2px; padding: 9px 12px; border-radius: var(--radius-sm); min-height: 44px; justify-content: center; }
+.nav-dd-item:hover, .nav-dd-item:focus-visible { background: var(--bg-soft); }
+.nav-dd-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+.nav-dd-meta { font-size: 12px; color: var(--ink-mute); line-height: 1.35; }
+.nav-dd-all {
+  grid-column: 1 / -1; display: flex; align-items: center; min-height: 44px; padding: 0 12px; margin-top: 4px;
+  border-top: 1px solid var(--line); font-weight: 600; font-size: 14px; color: var(--accent);
+}
+.site-nav-actions { display: flex; align-items: center; gap: 6px; }
+.nav-search {
+  width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; color: var(--ink-soft);
+}
+.nav-search:hover { background: var(--bg-soft); color: var(--ink); }
+.nav-search svg { width: 19px; height: 19px; }
+.nav-cta {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px;
+  font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: #fff; background: var(--accent); border-radius: 100px; white-space: nowrap;
+}
+.nav-cta:hover { background: var(--brand-deep); }
+.nav-burger, .nav-close {
+  display: none; width: 44px; height: 44px; align-items: center; justify-content: center; flex-direction: column; gap: 5px;
+  border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--bg-card);
+}
+.nav-burger span { display: block; width: 18px; height: 1.5px; background: var(--ink); border-radius: 2px; }
+.nav-close { font-size: 18px; color: var(--ink); }
+
+@media (min-width: 901px) and (max-width: 1080px) {
+  .beta-badge { display: none; }
+  .nav-item { padding: 0 9px; font-size: 11px; }
+}
+@media (max-width: 900px) {
+  .beta-badge { display: none; }
+  .site-nav-inner { gap: 4px; }
+  .site-nav-inner > .site-brand { margin-right: auto; font-size: 15px; }
+  .site-nav-actions .nav-cta { display: none; }
+  .nav-burger, .nav-close { display: inline-flex; }
+  .site-menu {
+    display: none; position: fixed; inset: 0; z-index: 200; margin: 0;
+    background: var(--bg); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    padding: 0 var(--gutter) 32px;
+  }
+  body.nav-open .site-menu { display: block; }
+  .site-menu-head {
+    display: flex; align-items: center; justify-content: space-between; height: var(--nav-h);
+    position: sticky; top: 0; background: var(--bg); border-bottom: 1px solid var(--line); margin: 0 calc(-1 * var(--gutter)); padding: 0 var(--gutter); z-index: 1;
+  }
+  .site-menu-list { flex-direction: column; align-items: stretch; gap: 0; padding-top: 8px; }
+  .site-menu-list > li { border-bottom: 1px solid var(--line); }
+  .nav-item {
+    width: 100%; min-height: 56px; padding: 0 4px; justify-content: space-between;
+    font-family: var(--serif); font-size: 20px; font-weight: 500; letter-spacing: -0.01em; text-transform: none; color: var(--ink);
+  }
+  .nav-item:hover, .nav-dd.open > .nav-item { background: none; color: var(--accent); }
+  .nav-dd-btn::after { width: 9px; height: 9px; margin-right: 6px; }
+  .nav-dd-panel, .nav-dd-panel-wide {
+    position: static; min-width: 0; box-shadow: none; border: 0; border-radius: 0; background: none;
+    padding: 0 0 12px 0;
+  }
+  .nav-dd.open > .nav-dd-panel-wide { display: block; }
+  .nav-dd-item { min-height: 48px; padding: 8px 12px; }
+  .nav-dd-label { padding: 12px 12px 4px; }
+  .site-menu-foot { display: block; padding-top: 24px; }
+  .nav-cta-block { display: flex; width: 100%; min-height: 52px; font-size: 13px; }
+  .site-menu-sub { margin-top: 16px; font-size: 14px; color: var(--ink-mute); }
+  .site-menu-sub a { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-weight: 600; }
+}
+
+/* ---------- Abschnitts-Köpfe (gemeinsam) ---------- */
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap;
+  margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+}
+.section-title {
+  font-family: var(--serif); font-weight: 300; font-size: 28px; letter-spacing: -0.02em; color: var(--black); line-height: 1.1;
+}
+.section-title em { font-style: italic; color: var(--accent); }
+.section-sub {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-mute);
+}
+.section-link {
+  display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; font-size: 14px; color: var(--accent);
+}
+.section-link:hover { text-decoration: underline; }
+
+/* ---------- Hero ---------- */
+.hero { padding: 20px 0 32px; margin-bottom: 40px; border-bottom: 1px solid var(--line); }
+.hero .eyebrow { margin-bottom: 16px; }
+.hero .title { font-size: clamp(2.1rem, 5.2vw, 4.2rem); margin-bottom: 14px; }
+.hero .subtitle { font-size: 17px; max-width: 60ch; }
+.hero-search {
+  display: flex; align-items: center; gap: 10px; max-width: 640px; margin-top: 22px;
+  background: var(--bg-card); border: 1px solid var(--line-strong); border-radius: 100px; padding: 4px 4px 4px 18px;
+  box-shadow: var(--shadow-sm);
+}
+.hero-search:focus-within { box-shadow: 0 0 0 3px rgba(17,120,101,.18); }
+.hero-search svg { width: 18px; height: 18px; color: var(--ink-mute); flex-shrink: 0; }
+.hero-search input {
+  flex: 1; min-width: 0; min-height: 44px; border: 0; outline: 0; background: none; font: inherit; font-size: 16px; color: var(--ink);
+}
+.hero-search-btn {
+  min-height: 44px; padding: 0 20px; border-radius: 100px; background: var(--accent); color: #fff;
+  font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+}
+.hero-search-btn:hover { background: var(--brand-deep); }
+.hero .header-stats {
+  display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 20px; padding-top: 0; border-top: 0;
+  font-size: 11px; letter-spacing: .1em;
+}
+.hero .header-stat { flex-direction: row; align-items: baseline; gap: 6px; }
+.hero .header-stat strong { font-size: 22px; }
+.hero-subscribe { margin-top: 10px; font-size: 14px; color: var(--ink-mute); }
+.hero-subscribe a { color: var(--accent); font-weight: 600; display: inline-flex; align-items: center; min-height: 32px; }
+.hero-subscribe a:hover { text-decoration: underline; }
+
+/* ---------- Wegweiser ---------- */
+.journey { margin-bottom: 48px; }
+.journey-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.journey-tile {
+  display: flex; flex-direction: column; gap: 6px; padding: 18px 18px 16px;
+  background: var(--bg-card); border: 1px solid var(--line); border-top: 3px solid var(--jc, var(--accent));
+  border-radius: var(--radius); transition: transform .18s, box-shadow .18s;
+}
+.journey-tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.journey-num { font-family: var(--serif); font-style: italic; font-weight: 300; font-size: 20px; color: var(--jc, var(--accent)); line-height: 1; }
+.journey-name { font-family: var(--serif); font-weight: 500; font-size: 18px; line-height: 1.2; color: var(--black); }
+.journey-text { font-size: 13.5px; color: var(--ink-soft); line-height: 1.45; }
+.journey-go { margin-top: auto; padding-top: 6px; font-size: 13.5px; font-weight: 600; color: var(--jc, var(--accent)); }
+
+/* ---------- Neu in der Kitchen ---------- */
+.news { margin-bottom: 48px; }
+.news-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.news-item {
+  display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; min-height: 44px;
+  background: var(--bg-card); border: 1px solid var(--line); border-left: 3px solid var(--bucket-color, var(--accent));
+  border-radius: var(--radius-sm); transition: box-shadow .18s;
+}
+.news-item:hover { box-shadow: var(--shadow-md); }
+.news-kind { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--bucket-color, var(--accent)); }
+.news-title { font-family: var(--serif); font-size: 15.5px; font-weight: 500; line-height: 1.3; color: var(--black); }
+.news-meta { font-size: 12.5px; color: var(--ink-mute); }
+
+/* ---------- Bucket-Übersicht ---------- */
+.buckets-overview { margin-bottom: 48px; }
+.buckets-overview .bucket-grid { margin-bottom: 0; }
+.bucket-tile { min-height: 44px; }
+
+/* ---------- Top-Picks + Beiträge-Teaser ---------- */
+.top-picks { margin-bottom: 48px; }
+.top-picks-head { flex-wrap: wrap; row-gap: 4px; }
+.top-picks-sub { white-space: normal; }
+.posts-teaser .top-picks-head { align-items: center; }
+.posts-teaser .top-picks-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.top-pick-meta { flex-wrap: wrap; gap: 4px 12px; }
+@media (max-width: 1100px) { .posts-teaser .top-picks-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.quick-links { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.quick-link {
+  display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px;
+  border: 1px solid var(--line); border-radius: 100px; background: var(--bg-card);
+  font-size: 13.5px; font-weight: 600; color: var(--ink-soft);
+}
+.quick-link:hover { border-color: var(--accent); color: var(--accent); }
+.all-posts-btn {
+  display: flex; align-items: center; justify-content: center; min-height: 52px; margin-top: 16px;
+  border-radius: var(--radius); background: var(--ink); color: #fff; font-weight: 600; font-size: 15px;
+}
+.all-posts-btn:hover { background: var(--accent); }
+
+/* ---------- Folgen-Bibliothek + Filterleiste ---------- */
+.library { margin-bottom: 56px; }
+.filter-bar {
+  position: sticky; top: var(--nav-h); z-index: 40;
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-lg);
+  padding: 14px 18px; margin-bottom: 28px; box-shadow: var(--shadow-sm);
+}
+.filter-bar.stuck { box-shadow: var(--shadow-md); border-radius: 0 0 var(--radius) var(--radius); }
+.filter-row { display: flex; gap: 10px; align-items: center; margin-bottom: 0; flex-wrap: nowrap; }
+.filter-search { min-width: 0; padding: 0 6px 0 14px; }
+.filter-search input { min-height: 44px; font-size: 16px; min-width: 0; }
+.filter-search input::-webkit-search-cancel-button { cursor: pointer; }
+.search-help-btn { width: 32px; height: 32px; font-size: 14px; position: relative; }
+.search-help-btn::before { content: ''; position: absolute; inset: -6px; } /* Tap-Fläche 44 px */
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 100px; padding: 2px; background: var(--bg-soft); flex-shrink: 0; }
+.seg-btn {
+  min-height: 38px; min-width: 46px; padding: 0 12px; border-radius: 100px;
+  font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: .08em; color: var(--ink-soft);
+}
+.seg-btn[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.filter-toggle {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; flex-shrink: 0;
+  border: 1px solid var(--line-strong); border-radius: 100px; background: var(--bg-card);
+  font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+}
+.filter-toggle[aria-expanded="true"] { background: var(--ink); color: #fff; }
+.filter-toggle-count:not(:empty) {
+  min-width: 20px; height: 20px; padding: 0 6px; border-radius: 100px; background: var(--accent); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 11px; letter-spacing: 0;
+}
+.filter-meta {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-mute);
+}
+.filter-count-text strong { color: var(--ink); }
+.active-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.active-pill {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 6px 0 12px; position: relative;
+  border-radius: 100px; background: var(--bucket-color, var(--accent)); color: #fff;
+  font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: none;
+}
+.active-pill::after { content: '✕'; display: inline-flex; width: 20px; height: 20px; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,.22); font-size: 10px; }
+.active-pill::before { content: ''; position: absolute; inset: -6px 0; }
+.filter-reset {
+  display: none; min-height: 44px; padding: 0 4px; margin-left: auto;
+  font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent);
+}
+body.filtering .filter-reset { display: inline-flex; align-items: center; }
+.filter-panel {
+  display: none; margin: -16px 0 28px; padding: 14px 18px;
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-lg);
+}
+.library.panel-open .filter-panel { display: block; }
+.filter-panel-head, .filter-panel-foot, .filter-panel .filter-group-lang { display: none; }
+.filter-group { display: flex; gap: 8px 12px; align-items: flex-start; margin-bottom: 10px; }
+.filter-group:last-of-type { margin-bottom: 0; }
+.filter-label {
+  flex: 0 0 64px; padding-top: 10px;
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-mute);
+}
+.filter-label-hint { display: block; font-weight: 500; letter-spacing: .04em; text-transform: none; font-size: 10.5px; margin-top: 2px; }
+.chip-list, .tag-list { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; min-width: 0; }
+.tag-list { max-height: 152px; overflow-y: auto; }
+.tag-chip, .bucket-chip {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: 100px; background: var(--bg-card);
+  font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--ink-soft); white-space: nowrap;
+}
+.tag-chip:hover, .bucket-chip:hover { border-color: var(--ink-soft); color: var(--ink); }
+.tag-chip.active, .bucket-chip.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+.bucket-chip::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--bucket-color); }
+.bucket-chip.active { background: var(--bucket-color); border-color: var(--bucket-color); }
+.bucket-chip.active::before { background: #fff; }
+.tag-chip .tag-count { font-size: 10px; opacity: .65; }
+.tag-chip.rare { display: none; }
+.tag-list.show-all .tag-chip.rare { display: inline-flex; }
+.tag-toggle {
+  min-height: 36px; padding: 0 12px; border: 1px dashed var(--line-strong); border-radius: 100px;
+  font-family: var(--mono); font-size: 11px; color: var(--ink-soft);
+}
+.sheet-backdrop { display: none; }
+
+/* Bucket-Sektionen: 3 Karten + „Alle N anzeigen" */
+.bucket-section { margin-bottom: 56px; }
+.bucket-head { flex-wrap: wrap; row-gap: 6px; }
+.video-card.over-limit { display: none; }
+.bucket-more {
+  display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; margin-top: 14px;
+  border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--bg-card);
+  font-weight: 600; font-size: 14.5px; color: var(--ink);
+}
+.bucket-more:hover { background: var(--ink); color: #fff; }
+.bucket-more[hidden] { display: none; }
+.card-grid { grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); }
+.btn { min-height: 40px; }
+.btn-icon { min-width: 40px; }
+
+/* ---------- Lernpfade ---------- */
+.learn { margin-bottom: 40px; }
+.learn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.learn-card {
+  display: flex; flex-direction: column; gap: 6px; padding: 20px;
+  background: var(--bg-card); border: 1px solid var(--line); border-left: 4px solid var(--lc, var(--accent));
+  border-radius: var(--radius); transition: transform .18s, box-shadow .18s;
+}
+.learn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.learn-step { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--lc, var(--accent)); }
+.learn-title { font-family: var(--serif); font-size: 20px; font-weight: 500; color: var(--black); line-height: 1.2; }
+.learn-text { font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+.learn-progress { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--accent); }
+.learn-go { margin-top: auto; padding-top: 6px; font-weight: 600; font-size: 14px; color: var(--lc, var(--accent)); }
+.learn-more { margin-top: 14px; font-size: 14px; color: var(--ink-mute); }
+.learn-more a { color: var(--accent); font-weight: 600; display: inline-flex; min-height: 44px; align-items: center; }
+
+/* ---------- Footer ---------- */
+.site-footer { border-top: 1px solid var(--line); background: var(--bg-soft); }
+.site-footer-inner { max-width: 1240px; margin: 0 auto; padding: 40px var(--gutter) 32px; }
+.footer-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 20px; margin-bottom: 24px; }
+.footer-brand { font-family: var(--serif); font-size: 18px; font-weight: 500; }
+.footer-brand em { font-style: italic; color: var(--accent); }
+.footer-claim { font-size: 14px; color: var(--ink-mute); }
+.footer-cols { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 20px; }
+.footer-col { display: flex; flex-direction: column; }
+.footer-col-title {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink); margin-bottom: 6px;
+}
+.footer-col a { display: flex; align-items: center; min-height: 32px; font-size: 13.5px; color: var(--ink-soft); }
+.footer-col a:hover { color: var(--accent); }
+.footer-note { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-mute); }
+.footer-note a { color: var(--accent); }
+
+/* ---------- Nach oben ---------- */
+.to-top {
+  position: fixed; right: 16px; bottom: 16px; z-index: 55; width: 48px; height: 48px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--ink); color: #fff; box-shadow: var(--shadow-md);
+}
+.to-top[hidden] { display: none; }
+.to-top svg { width: 20px; height: 20px; }
+body.sheet-open .to-top, body.nav-open .to-top { display: none; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .journey-grid, .news-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-cols { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .container { padding-top: 16px; }
+  .hero { padding: 8px 0 24px; margin-bottom: 28px; }
+  .hero .subtitle { font-size: 15.5px; }
+  .hero .eyebrow { margin-bottom: 10px; }
+  .hero-search { margin-top: 16px; }
+  .hero-search-btn { padding: 0 14px; }
+  .section-title { font-size: 24px; }
+  .journey, .news, .buckets-overview, .top-picks { margin-bottom: 36px; }
+  .learn-grid { grid-template-columns: 1fr; }
+
+  /* Filterleiste mobil: eine Zeile (Suche + Filter), Panel als Bottom-Sheet */
+  .filter-bar { margin: 0 calc(-1 * var(--gutter)) 20px; border-radius: 0; border-left: 0; border-right: 0; padding: 8px var(--gutter); }
+  .filter-bar.stuck { border-radius: 0; }
+  .filter-main .lang-toggle { display: none; }
+  .filter-search { padding-left: 12px; }
+  .filter-toggle { padding: 0 14px; }
+  .filter-meta { display: none; margin-top: 6px; }
+  body.filtering .filter-meta { display: flex; }
+  .filter-panel {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 220; margin: 0;
+    max-height: 82vh; max-height: 82dvh; overflow-y: auto; overscroll-behavior: contain;
+    background: var(--bg-card); border: 0; border-radius: 18px 18px 0 0; box-shadow: var(--shadow-lg);
+    padding: 0 var(--gutter) 0;
+  }
+  .filter-panel-head {
+    display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1;
+    background: var(--bg-card); padding: 8px 0; border-bottom: 1px solid var(--line); margin-bottom: 12px;
+  }
+  .filter-panel-title { font-family: var(--serif); font-size: 20px; font-weight: 500; }
+  .sheet-close { width: 44px; height: 44px; border-radius: 50%; font-size: 18px; display: inline-flex; align-items: center; justify-content: center; }
+  .filter-group, .filter-panel .filter-group-lang { display: block; margin-bottom: 18px; }
+  .filter-label { display: block; padding: 0 0 8px; }
+  .tag-list { max-height: none; overflow: visible; }
+  .tag-chip, .bucket-chip, .tag-toggle { min-height: 44px; padding: 0 14px; font-size: 12px; }
+  .seg-btn { min-height: 44px; min-width: 64px; }
+  .filter-panel-foot {
+    display: flex; gap: 10px; position: sticky; bottom: 0; background: var(--bg-card);
+    padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); margin-top: 8px;
+  }
+  .sheet-reset { min-height: 48px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: var(--radius); font-weight: 600; }
+  .sheet-done { flex: 1; min-height: 48px; border-radius: var(--radius); background: var(--accent); color: #fff; font-weight: 700; }
+  .library.panel-open .sheet-backdrop {
+    display: block; position: fixed; inset: 0; z-index: 210; background: rgba(10,10,10,.42);
+  }
+
+  .bucket-section { margin-bottom: 40px; }
+  .bucket-head { gap: 4px 14px; }
+  .bucket-num { font-size: 24px; min-width: 0; }
+  .bucket-intro { font-size: 14px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 16px; }
+  .btn, .btn-icon { min-height: 44px; }
+  .btn-icon { min-width: 44px; }
+  .video-card { padding: 16px; }
+  .footer-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; }
+  .footer-col a { min-height: 44px; }
+}
+@media (max-width: 700px) {
+  /* Buckets 2-spaltig, ohne Teaser */
+  .bucket-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .bucket-tile { padding: 10px 12px; }
+  .bucket-tile-teaser { display: none; }
+  .bucket-tile-name { font-size: 15px; }
+  /* Top-Picks + Beiträge: horizontal wischen statt untereinander */
+  .top-picks .top-picks-grid {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 10px;
+    margin: 0 calc(-1 * var(--gutter)); padding: 2px var(--gutter) 10px; scroll-padding: 0 var(--gutter);
+    overscroll-behavior-x: contain;
+  }
+  .top-picks .top-pick { flex: 0 0 82%; scroll-snap-align: start; }
+  .top-picks .top-pick-why { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+  .top-pick:hover, .journey-tile:hover, .learn-card:hover { transform: none; }
+  .journey-tile { padding: 14px; }
+  .journey-name { font-size: 16px; }
+  .journey-text { display: none; }
+  .journey-go { font-size: 13px; }
+  .news-grid { grid-template-columns: 1fr; gap: 8px; }
+  .news-item { padding: 12px 14px; }
+  .quick-links { flex-wrap: nowrap; overflow-x: auto; margin: 0 calc(-1 * var(--gutter)) 14px; padding: 0 var(--gutter) 4px; }
+  .quick-link { min-height: 44px; flex-shrink: 0; }
+  .hero .header-stat strong { font-size: 19px; }
+  .bucket-title { flex: 1 1 calc(100% - 60px); font-size: 1.45rem; }
+  .bucket-hint { flex-basis: 100%; }
+  .video-card:not(.expanded) .video-card-desc { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+}
+@media (max-width: 380px) {
+  .hero-search-btn { display: none; }
+}
 </style>
 </head>
 <body>
 
+<a class="skip-link" href="#folgen">Direkt zu den Folgen</a>
+
 <!-- ============================================================
-     STICKY TOP NAV
+     NAVIGATION · Desktop: Leiste mit Klick-Dropdowns · Mobil: Vollbild-Sheet
 ============================================================ -->
-<nav class="topnav" id="topnav">
-  <div class="topnav-inner">
-    <div class="topnav-brand">Daten-WG · <em>Knowledge Kitchen</em><span class="beta-badge" title="Beta-Phase · noch in Entwicklung">Beta</span></div>
-    <button class="nav-burger" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="topnav">
-      <span></span><span></span><span></span>
-    </button>
-    <a class="topnav-link" href="#top-picks">Top-Picks</a>
-    <a class="topnav-link" href="#posts-talks">Posts &amp; Talks</a>
-    <a class="topnav-link" href="#buckets-overview">Buckets</a>
-    <a class="topnav-link" href="fabric_einsteiger_guide_v1.html" title="Microsoft Fabric End-to-End · Einsteiger-Guide">Fabric-Guide</a>
-    <a class="topnav-link" href="power_bi_einsteiger_guide_v4.html#beispiele">Beispiele</a>
-    <div class="topnav-dd">
-      <a class="topnav-link topnav-dd-toggle" href="mockup-kitchen.html">Tools</a>
-      <div class="topnav-dd-menu topnav-dd-menu-wide">
-        <a class="topnav-dd-item" href="mockup-kitchen.html">
-          <span class="topnav-dd-item-name">MockupKitchen</span>
-          <span class="topnav-dd-item-meta">Power-BI-Seiten skizzieren · Spec für Claude Code · Beta</span>
-        </a>
-        <a class="topnav-dd-item" href="business-chart-builder.html">
-          <span class="topnav-dd-item-name">Chart-Builder</span>
-          <span class="topnav-dd-item-meta">Business-Charts mit semantischer Notation · Export als Vega-Spec für Deneb</span>
-        </a>
-        <a class="topnav-dd-item" href="ibcs-trainer.html">
-          <span class="topnav-dd-item-name">IBCS-Trainer</span>
-          <span class="topnav-dd-item-meta">Visuelle Regeln spielerisch lernen</span>
-        </a>
-        <a class="topnav-dd-item" href="visual-standards-rechner.html">
-          <span class="topnav-dd-item-name">Visual-Standards-Rechner</span>
-          <span class="topnav-dd-item-meta">Was kosten IBCS-Standards in Power BI? · 3, 5, 10 Jahre</span>
-        </a>
-        <a class="topnav-dd-item" href="pnl-treiberbaum-demo.html">
-          <span class="topnav-dd-item-name">P&amp;L-Treiberbaum</span>
-          <span class="topnav-dd-item-meta">Interaktive Demo · GuV als Treiberbaum</span>
-        </a>
-        <a class="topnav-dd-item" href="laender-indikatoren-explorer.html">
-          <span class="topnav-dd-item-name">Länder-Indikatoren-Explorer</span>
-          <span class="topnav-dd-item-meta">164 Länder × 15 Indikatoren · CSV-Download</span>
-        </a>
-        <a class="topnav-dd-item" href="ki-co2-simulator.html">
-          <span class="topnav-dd-item-name">KI-CO₂-Simulator</span>
-          <span class="topnav-dd-item-meta">Wie viel CO₂ steckt in einem Token? · ESG / Nachhaltigkeit</span>
-        </a>
-        <a class="topnav-dd-item" href="wissensgraph/">
-          <span class="topnav-dd-item-name">DatenWG Library</span>
-          <span class="topnav-dd-item-meta">Themen, Personen, Kernaussagen aus allen Folgen · Early Access</span>
-        </a>
-        <a class="topnav-dd-item" href="fabric-alchemie-post.html">
-          <span class="topnav-dd-item-name">Fabric Alchemie</span>
-          <span class="topnav-dd-item-meta">Lernspiel von Ulrik Harnisch · Fabric-Elemente zusammenbrauen</span>
-        </a>
-        <a class="topnav-dd-item" href="daten-wg-game.html">
-          <span class="topnav-dd-item-name">Das Daten-WG-Spiel</span>
-          <span class="topnav-dd-item-meta">Zieh ein und entdecke das Programm</span>
-        </a>
+<header class="site-nav" id="topnav">
+  <div class="site-nav-inner">
+    <a class="site-brand" href="index.html">Daten-WG · <em>Knowledge Kitchen</em><span class="beta-badge" title="Beta-Phase · noch in Entwicklung">Beta</span></a>
+
+    <nav class="site-menu" id="site-menu" aria-label="Hauptnavigation">
+      <div class="site-menu-head">
+        <a class="site-brand" href="index.html">Daten-WG · <em>Knowledge Kitchen</em></a>
+        <button class="nav-close" type="button" aria-label="Menü schließen"><span aria-hidden="true">✕</span></button>
       </div>
+      <ul class="site-menu-list">
+        <li><a class="nav-item" href="#folgen">Folgen</a></li>
+        <li class="nav-dd">
+          <button class="nav-item nav-dd-btn" type="button" aria-expanded="false" aria-controls="dd-lernen">Lernen</button>
+          <div class="nav-dd-panel" id="dd-lernen">
+            <a class="nav-dd-item" href="powerbi_praxis_pfad.html"><span class="nav-dd-name">Dein erstes Dashboard</span><span class="nav-dd-meta">Praxis-Pfad · ohne Vorkenntnisse · gut 2 Std.</span></a>
+            <a class="nav-dd-item" href="power_bi_einsteiger_guide_v4.html"><span class="nav-dd-name">Power BI von A bis Z</span><span class="nav-dd-meta">Guide · wenn du schon mit Power BI arbeitest</span></a>
+            <a class="nav-dd-item" href="fabric_einsteiger_guide_v1.html"><span class="nav-dd-name">Microsoft Fabric End-to-End</span><span class="nav-dd-meta">Guide · OneLake, Lakehouse, Direct Lake</span></a>
+            <a class="nav-dd-item" href="ibcs-trainer.html"><span class="nav-dd-name">IBCS-Trainer</span><span class="nav-dd-meta">Quiz und „Finde den Verstoß“</span></a>
+            <a class="nav-dd-item" href="fabric-alchemie-post.html"><span class="nav-dd-name">Fabric Alchemie</span><span class="nav-dd-meta">Lernspiel · Fabric-Elemente zusammenbrauen</span></a>
+          </div>
+        </li>
+        <li class="nav-dd">
+          <button class="nav-item nav-dd-btn" type="button" aria-expanded="false" aria-controls="dd-werkzeuge">Werkzeuge</button>
+          <div class="nav-dd-panel nav-dd-panel-wide" id="dd-werkzeuge">
+            <div class="nav-dd-group">
+              <div class="nav-dd-label">Skizzieren &amp; bauen</div>
+              <a class="nav-dd-item" href="mockup-kitchen.html"><span class="nav-dd-name">MockupKitchen</span><span class="nav-dd-meta">Power-BI-Seiten skizzieren · Beta</span></a>
+              <a class="nav-dd-item" href="business-chart-builder.html"><span class="nav-dd-name">Chart-Builder</span><span class="nav-dd-meta">Business-Charts · Export für Deneb</span></a>
+              <a class="nav-dd-item" href="chartkitchen-schnellstart.html"><span class="nav-dd-name">ChartKitchen Visual</span><span class="nav-dd-meta">Custom Visual für Power BI</span></a>
+              <a class="nav-dd-item" href="pnl-schnellstart.html"><span class="nav-dd-name">P&amp;L-Visual</span><span class="nav-dd-meta">GuV als Custom Visual · Beta</span></a>
+              <a class="nav-dd-item" href="pnl-treiberbaum-demo.html"><span class="nav-dd-name">P&amp;L-Treiberbaum</span><span class="nav-dd-meta">Interaktive Demo</span></a>
+            </div>
+            <div class="nav-dd-group">
+              <div class="nav-dd-label">Entscheiden &amp; lernen</div>
+              <a class="nav-dd-item" href="visual-standards-rechner.html"><span class="nav-dd-name">Visual-Standards-Rechner</span><span class="nav-dd-meta">Was kosten IBCS-Standards in Power BI?</span></a>
+              <a class="nav-dd-item" href="ibcs-trainer.html"><span class="nav-dd-name">IBCS-Trainer</span><span class="nav-dd-meta">Regeln spielerisch lernen</span></a>
+              <div class="nav-dd-label">Spielwiese</div>
+              <a class="nav-dd-item" href="laender-indikatoren-explorer.html"><span class="nav-dd-name">Länder-Indikatoren-Explorer</span><span class="nav-dd-meta">164 Länder × 15 Indikatoren</span></a>
+              <a class="nav-dd-item" href="ki-co2-simulator.html"><span class="nav-dd-name">KI-CO₂-Simulator</span><span class="nav-dd-meta">Wie viel CO₂ steckt in einem Token?</span></a>
+              <a class="nav-dd-item" href="daten-wg-game.html"><span class="nav-dd-name">Daten-WG-Spiel</span><span class="nav-dd-meta">Arcade aus der Konferenz</span></a>
+            </div>
+            <a class="nav-dd-all" href="beitraege.html#werkzeuge">Alle Werkzeuge →</a>
+          </div>
+        </li>
+        <li><a class="nav-item" href="beitraege.html">Beiträge</a></li>
+        <li><a class="nav-item" href="wissensgraph/">Library</a></li>
+      </ul>
+      <div class="site-menu-foot">
+        <a class="nav-cta nav-cta-block" href="#start">Start hier</a>
+        <p class="site-menu-sub">Abonnieren: <a href="https://www.youtube.com/@Daten-WG" target="_blank" rel="noopener">YouTube</a> · <a href="https://podcasters.spotify.com/pod/show/daten-wg" target="_blank" rel="noopener">Spotify</a> · <a href="https://www.daten-wg.com" target="_blank" rel="noopener">daten-wg.com</a></p>
+      </div>
+    </nav>
+
+    <div class="site-nav-actions">
+      <a class="nav-search" href="#suche" data-action="focus-search" aria-label="Folgen durchsuchen" title="Folgen durchsuchen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      </a>
+      <a class="nav-cta" href="#start">Start hier</a>
+      <button class="nav-burger" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="site-menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    <a class="topnav-link" href="wissensgraph/" title="DatenWG Library: Themen, Personen und Kernaussagen aus allen Folgen und Seiten, mit Sprung auf die Sekunde. Early Access Beta.">DatenWG Library <span style="font-size:9px;padding:1px 5px;border-radius:4px;background:var(--accent);color:#fff;margin-left:4px;letter-spacing:.04em">Beta</span></a>
-    
-    <a class="topnav-link" href="#einsteiger-guide" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">Einsteiger-Guide</a>
   </div>
-</nav>
+</header>
 
 <div class="container">
 
 <!-- ============================================================
-     CONFERENCE STRIP · Daten-WG 2026 · slim event reminder
+     HERO · Claim, ein Satz, Suche, Zahlen
 ============================================================ -->
-<aside class="conf-strip" aria-label="Daten-WG 2026 Conference">
-  <div class="conf-strip-inner">
-    <span class="conf-strip-eyebrow">Daten-WG 2026 · Conference</span>
-    <span class="conf-strip-date">14 | 15 | 16.10.2026</span>
-    <span class="conf-strip-where">Wohngemeinschaft · Richard-Wagner-Str. 39, Köln</span>
-    <a class="conf-strip-cta ghost" href="daten-wg-sponsoren.html">Sponsoren</a>
-    <a class="conf-strip-cta" href="https://www.daten-wg.com/daten-wg-2026" target="_blank" rel="noopener">Tickets &amp; Programm →</a>
+<header class="hero" id="top">
+  <div class="eyebrow">Daten-WG · Knowledge Kitchen</div>
+  <h1 class="title">Power BI lernen, <em>strukturiert &amp; durchsuchbar.</em></h1>
+  <p class="subtitle">167 Folgen aus dem <strong>Daten-WG-Podcast</strong>, nach Thema sortiert und bis in die Transkripte durchsuchbar. Dazu Lernpfade, Werkzeuge und Beiträge.</p>
+  <form class="hero-search" id="hero-search-form" role="search" action="#suche">
+    <label class="visually-hidden" for="hero-search">Folgen durchsuchen</label>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input id="hero-search" type="search" placeholder="Thema, Gast oder Begriff, z. B. DAX oder Direct Lake" autocomplete="off" enterkeyhint="search">
+    <button class="hero-search-btn" type="submit">Suchen</button>
+  </form>
+  <div class="header-stats">
+    <span class="header-stat"><strong>167</strong>Folgen</span>
+    <span class="header-stat"><strong>105</strong>Transkripte</span>
+    <span class="header-stat"><strong>10</strong>Buckets</span>
   </div>
-</aside>
-
-<!-- ============================================================
-     HEADER · Value-Prop + Subscribe-Card
-============================================================ -->
-<header class="header">
-  <div>
-    <div class="eyebrow">Daten-WG · Knowledge Kitchen</div>
-    <h1 class="title">Power BI lernen,<br><em>strukturiert &amp; durchsuchbar.</em></h1>
-    <p class="subtitle">152 Folgen und 15 Shorts aus dem <strong>Daten-WG-Podcast</strong> — geclustert in 10 Themen-Buckets, mit Volltextsuche bis in die Auto-Transkripte und einem End-to-End-Einsteiger-Guide. Kein Chrono-Scroll, sondern Curriculum.</p>
-    <div class="header-stats">
-      <span class="header-stat"><strong>167</strong>Folgen</span>
-      <span class="header-stat"><strong>105</strong>Transkripte</span>
-      <span class="header-stat"><strong>10</strong>Guide-Kapitel</span>
-      <span class="header-stat"><strong>10</strong>Buckets</span>
-    </div>
-  </div>
-  <aside class="subscribe-card" aria-label="Abonnieren">
-    <div class="subscribe-card-label">Abonnieren</div>
-    <a class="subscribe-link" href="https://www.youtube.com/@Daten-WG" target="_blank" rel="noopener">
-      <span class="subscribe-link-icon" aria-hidden="true">▶</span>
-      <span class="subscribe-link-name">YouTube</span>
-      <span class="subscribe-link-meta">@Daten-WG</span>
-    </a>
-    <a class="subscribe-link" href="https://podcasters.spotify.com/pod/show/daten-wg" target="_blank" rel="noopener">
-      <span class="subscribe-link-icon" aria-hidden="true">♪</span>
-      <span class="subscribe-link-name">Spotify</span>
-      <span class="subscribe-link-meta">Podcast-Feed</span>
-    </a>
-    <a class="subscribe-link" href="https://www.daten-wg.com" target="_blank" rel="noopener">
-      <span class="subscribe-link-icon" aria-hidden="true">●</span>
-      <span class="subscribe-link-name">daten-wg.com</span>
-      <span class="subscribe-link-meta">Blog &amp; Beratung</span>
-    </a>
-    <a class="subscribe-link" href="https://www.daten-wg.com/daten-wg-2026" target="_blank" rel="noopener">
-      <span class="subscribe-link-icon" aria-hidden="true">✦</span>
-      <span class="subscribe-link-name">Conference 2026</span>
-      <span class="subscribe-link-meta">14–16. Okt · Köln</span>
-    </a>
-  </aside>
+  <p class="hero-subscribe">Abonnieren: <a href="https://www.youtube.com/@Daten-WG" target="_blank" rel="noopener">YouTube</a> · <a href="https://podcasters.spotify.com/pod/show/daten-wg" target="_blank" rel="noopener">Spotify</a> · <a href="https://www.daten-wg.com" target="_blank" rel="noopener">daten-wg.com</a></p>
 </header>
 
 <!-- ============================================================
-     ORIENTATION
+     WEGWEISER · Wo stehst du?
 ============================================================ -->
-<div class="start-here">
-  <div class="start-here-icon">i</div>
-  <div>
-    <h2 class="start-here-title">Wie nutzt du diese Seite?</h2>
-    <div class="start-here-text">
-      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 152 Folgen und 15 Shorts sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
-      <p>Jede Folge ist eine Karte mit Gast, Dauer, kurzer Zusammenfassung und Tags. Ein Klick auf die Karte zeigt die <strong>Kapitel-Timestamps</strong> (bei 60 Folgen detailliert eingepflegt) — du kannst direkt zur Stelle springen, die dich interessiert.</p>
-      <p>Empfohlener Einstieg, wenn du den Kanal noch nicht kennst: Quarterly-Updates für die Tools-Lage, dann das Bucket, das gerade zu deiner Arbeit passt.</p>
-    </div>
+<section class="journey" id="start" aria-labelledby="start-title">
+  <div class="section-head">
+    <h2 class="section-title" id="start-title">Wo <em>stehst du?</em></h2>
+    <span class="section-sub">Vier Einstiege</span>
   </div>
-</div>
-
-<!-- ============================================================
-     TOP-PICKS · 5 handverlesene Folgen
-============================================================ -->
-<section class="top-picks" id="top-picks" aria-label="Top-Picks">
-  <header class="top-picks-head">
-    <h2 class="top-picks-title">Top-Picks · <em>Wo anfangen?</em></h2>
-    <span class="top-picks-sub">5 handverlesene Folgen</span>
-  </header>
-  <div class="top-picks-grid">
-    <a class="top-pick" href="https://www.youtube.com/watch?v=GWCHNmLs72M" target="_blank" rel="noopener">
-      <span class="top-pick-rank">01</span>
-      <span class="top-pick-eyebrow">Updates &amp; News</span>
-      <span class="top-pick-title">Power BI Update August 2026</span>
-      <span class="top-pick-why"><strong>Warum diese?</strong> Was ist gerade neu — Stand der Tools in unter 10 Minuten. Idealer Pulse-Check.</span>
-      <span class="top-pick-meta"><span>📅 August 2026</span><span>⏱ 9 min</span></span>
+  <div class="journey-grid">
+    <a class="journey-tile" href="powerbi_praxis_pfad.html" style="--jc: var(--c-model);">
+      <span class="journey-num">01</span>
+      <span class="journey-name">Neu bei Power BI</span>
+      <span class="journey-text">In gut zwei Stunden zum ersten eigenen Dashboard. Ohne Vorkenntnisse.</span>
+      <span class="journey-go">Praxis-Pfad starten →</span>
     </a>
-    <a class="top-pick" href="https://www.youtube.com/watch?v=J-lN5JN-F5I" target="_blank" rel="noopener">
-      <span class="top-pick-rank">02</span>
-      <span class="top-pick-eyebrow">Microsoft Fabric</span>
-      <span class="top-pick-title">Life-Update: Fabric Architekturen</span>
-      <span class="top-pick-why"><strong>Warum diese?</strong> Vier Berater, vier Projekte, wenig Einigkeit — der ehrlichste Einblick, wie Fabric-Plattformen wirklich gebaut werden. Medaillon, Layer, Lakehouse vs. Warehouse.</span>
-      <span class="top-pick-meta"><span>📅 August 2026</span><span>⏱ 51 min</span></span>
+    <a class="journey-tile" href="#suche" data-action="focus-search" style="--jc: var(--c-pbi);">
+      <span class="journey-num">02</span>
+      <span class="journey-name">Ich suche ein Thema</span>
+      <span class="journey-text">Suche über alle Folgen, Gäste und Transkripte. Mit Sprung ins Kapitel.</span>
+      <span class="journey-go">Zur Suche →</span>
     </a>
-    <a class="top-pick" href="https://www.youtube.com/watch?v=YRoJ_6t3VrE" target="_blank" rel="noopener">
-      <span class="top-pick-rank">03</span>
-      <span class="top-pick-eyebrow">Microsoft Fabric</span>
-      <span class="top-pick-title">Fabric Planning Hands-On</span>
-      <span class="top-pick-why"><strong>Warum diese?</strong> Wer Fabric verstehen will, schaut hier zu — echte Planung, echte Klicks, kein Marketing.</span>
-      <span class="top-pick-meta"><span>📅 April 2026</span><span>⏱ 66 min</span></span>
+    <a class="journey-tile" href="fabric_einsteiger_guide_v1.html" style="--jc: var(--c-fabric);">
+      <span class="journey-num">03</span>
+      <span class="journey-name">Fabric &amp; Plattform</span>
+      <span class="journey-text">OneLake, Lakehouse, Direct Lake: der Fabric-Guide in sechs Etappen.</span>
+      <span class="journey-go">Fabric-Guide öffnen →</span>
     </a>
-    <a class="top-pick" href="https://www.youtube.com/watch?v=ZaDd1uxeLbI" target="_blank" rel="noopener">
-      <span class="top-pick-rank">04</span>
-      <span class="top-pick-eyebrow">Strategie · Big Picture</span>
-      <span class="top-pick-title">10 Jahre Power BI</span>
-      <span class="top-pick-why"><strong>Warum diese?</strong> Der historische Überblick — wie Power BI dahin gekommen ist, wo es heute steht. Setzt den Rahmen für alles andere.</span>
-      <span class="top-pick-meta"><span>📅 Juli 2025</span><span>⏱ 92 min</span></span>
-    </a>
-    <a class="top-pick" href="https://www.youtube.com/watch?v=aYHk_V8n_CE" target="_blank" rel="noopener">
-      <span class="top-pick-rank">05</span>
-      <span class="top-pick-eyebrow">Power BI Deep Dive</span>
-      <span class="top-pick-title">Power BI vs. Qlik</span>
-      <span class="top-pick-why"><strong>Warum diese?</strong> Tool-Vergleich auf Augenhöhe — hilft, eigene Annahmen zu checken. Teil 1 von 3.</span>
-      <span class="top-pick-meta"><span>📅 Oktober 2025</span><span>⏱ 60 min</span></span>
+    <a class="journey-tile" href="beitraege.html#werkzeuge" style="--jc: var(--c-viz);">
+      <span class="journey-num">04</span>
+      <span class="journey-name">Werkzeuge &amp; IBCS</span>
+      <span class="journey-text">MockupKitchen, Chart-Builder, ChartKitchen, IBCS-Trainer und mehr.</span>
+      <span class="journey-go">Werkzeuge ansehen →</span>
     </a>
   </div>
 </section>
 
 <!-- ============================================================
-     POSTS & TALKS · eigene Beiträge / Tools
+     NEU IN DER KITCHEN · per JS aus EPISODES + Beiträge-Teaser
 ============================================================ -->
-<section class="top-picks" id="posts-talks" aria-label="Posts und Talks">
-  <header class="top-picks-head">
-    <h2 class="top-picks-title">Posts &amp; Talks · <em>Eigene Beiträge</em></h2>
-    <span class="top-picks-sub">Artikel &amp; Tools aus der Daten-WG</span>
-  </header>
-  <div class="pt-toolbar">
-    <div class="pt-chips" role="group" aria-label="Nach Thema filtern">
-      <button class="pt-chip active" type="button" data-tag="alle">Alle</button>
-      <button class="pt-chip" type="button" data-tag="post">Post</button>
-      <button class="pt-chip" type="button" data-tag="story">Visual Story</button>
-      <button class="pt-chip" type="button" data-tag="whitepaper">White Paper</button>
-      <button class="pt-chip" type="button" data-tag="tool">Tool</button>
-      <button class="pt-chip" type="button" data-tag="doku">Doku</button>
-      <button class="pt-chip" type="button" data-tag="talkevent">Talk &amp; Event</button>
-      <button class="pt-chip" type="button" data-tag="ki">KI</button>
-      <button class="pt-chip" type="button" data-tag="ibcs">IBCS</button>
-      <button class="pt-chip" type="button" data-tag="pbi">Power BI</button>
-      <button class="pt-chip" type="button" data-tag="fabric">Fabric</button>
-      <button class="pt-chip" type="button" data-tag="vis">Visualisierung</button>
-    </div>
-    <div class="pt-sortwrap">
-      <span id="pt-count"></span>
-      <label for="pt-sort">Sortieren</label>
-      <select id="pt-sort">
-        <option value="std" selected>Kuratiert</option>
-        <option value="neu">Neueste</option>
-        <option value="az">Titel A–Z</option>
-        <option value="typ">Nach Typ</option>
-      </select>
-    </div>
+<section class="news" id="neu" aria-labelledby="neu-title">
+  <div class="section-head">
+    <h2 class="section-title" id="neu-title">Neu in der <em>Kitchen</em></h2>
+    <a class="section-link" href="beitraege.html">Alle Beiträge →</a>
   </div>
-  <div class="top-picks-grid">
-    <a class="top-pick" href="fabric-apps-controlling-post.html" data-tags="post vis fabric ibcs" data-date="2026-10">
-      <span class="top-pick-rank">📊</span>
-      <span class="top-pick-eyebrow">Post · Fabric Apps · Controlling &amp; Finance</span>
-      <span class="top-pick-title">Fabric Apps im Heimrevier von Power BI: Vertrieb und Finance</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Zwei Fabric Apps für Vertriebscontrolling und Finance Reporting, je in etwa einer Stunde mit Rayfin CLI und Coding-Agent gebaut. Mit Video, Screenshots, den Microsoft-Learn-Grundlagen und der Frage, warum Standards wie IBCS gerade mit KI-Agenten wichtig sind.</span>
-      <span class="top-pick-meta"><span>🎬 Video 89 s</span><span>🖼️ 10 Screenshots</span><span>🇩🇪 / 🇬🇧 DE / EN</span></span>
-    </a>
-    <a class="top-pick" href="fabric-alchemie-post.html" data-tags="post tool fabric" data-date="2026-10">
-      <span class="top-pick-rank">⚗️</span>
-      <span class="top-pick-eyebrow">Post · Lernspiel · Microsoft Fabric</span>
-      <span class="top-pick-title">Fabric Alchemie — Fabric lernen, indem man es zusammenbraut</span>
-      <span class="top-pick-why"><strong>Zum Spielen:</strong> Das Lernspiel von Ulrik Harnisch nach dem Little-Alchemy-Prinzip. Aus Daten, Rechenleistung, Speicher und Netzwerk entstehen per Drag-and-drop über 150 Elemente, von Lakehouse bis Pipeline, jedes mit Link in die Microsoft-Learn-Doku. Direkt im Post spielbar, immer in der neuesten Version.</span>
-      <span class="top-pick-meta"><span>🎮 Lernspiel</span><span>🇩🇪 / 🇬🇧 DE / EN</span></span>
-    </a>
-    <a class="top-pick" href="visual-standards-rechner.html" data-tags="tool pbi ibcs talkevent" data-date="2026-09">
-      <span class="top-pick-rank">⚖️</span>
-      <span class="top-pick-eyebrow">Tool · Pre-Conference Daten-WG 2026</span>
-      <span class="top-pick-title">Visual-Standards-Rechner: Easy, Flexibel oder MacGyver?</span>
-      <span class="top-pick-why"><strong>Selbst durchrechnen:</strong> Was kosten IBCS-Standards in Power BI mit 3rd-Party-Visuals, Open Source, Deneb oder Core Visuals über 3, 5 oder 10 Jahre? Mengengerüst, MoSCoW-Anforderungen, Governance-K.O.s, Break-even über die Viewer-Zahl, Bandbreiten statt Punktwerte, Excel-Export.</span>
-      <span class="top-pick-meta"><span>⚡ Web-App</span><span>🎓 Workshop 14.10.2026</span><span>🆓 keine Installation</span></span>
-    </a>
-    <a class="top-pick" href="wissensgraph/" data-tags="tool ki">
-      <span class="top-pick-rank">🕸️</span>
-      <span class="top-pick-eyebrow">Tool · DatenWG Library</span>
-      <span class="top-pick-title">DatenWG Library</span>
-      <span class="top-pick-why"><strong>Selbst erkunden:</strong> 126 Folgen als Graph aus Themen, Tools, Personen und Kernaussagen. Thema anklicken, Folgen sehen, „Stellen zeigen" und auf die Sekunde genau ins Video springen. Volltextsuche über alle Transkripte.</span>
-      <span class="top-pick-meta"><span>⚡ Web-App</span><span>▶ Sprungmarken</span></span>
-    </a>
-    <a class="top-pick" href="wissensgraph-aus-transkripten.html" data-tags="post ki">
-      <span class="top-pick-rank">📝</span>
-      <span class="top-pick-eyebrow">Post · Wissensgraph aus Transkripten</span>
-      <span class="top-pick-title">Aus 126 Folgen wird ein Wissensgraph</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Segmente mit Zeitstempel, ein Vokabular gegen Spracherkennungsfehler, Heuristik vor LLM, 677 Kernaussagen mit Beleg. Und der Weg desselben Schemas nach Microsoft Fabric: Lakehouse, Graph, Data Agent.</span>
-      <span class="top-pick-meta"><span>📖 Post</span><span>⏱ ~6 min Lesezeit</span></span>
-    </a>
-    <a class="top-pick" href="eauto-klimabilanz.html" data-tags="post whitepaper">
-      <span class="top-pick-rank">🚗</span>
-      <span class="top-pick-eyebrow">White Paper · Interaktiv</span>
-      <span class="top-pick-title">E-Auto-Klimabilanz: Auspuff oder Lebenszyklus?</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Ein interaktives Lebenszyklus-Modell zur aktuellen TUM/ICCT-Kontroverse: Presets für −41&nbsp;% (TUM) und −73&nbsp;% (ICCT), 10.000 Monte-Carlo-Ziehungen für die Bandbreite und eine Hochrechnung auf Deutschland, EU-27 und Welt.</span>
-      <span class="top-pick-meta"><span>📖 White Paper</span><span>🎲 10.000 Monte-Carlo-Läufe</span></span>
-    </a>
-    <a class="top-pick" href="kitchen-fuer-ki-agenten.html" data-tags="post ki">
-      <span class="top-pick-rank">📄</span>
-      <span class="top-pick-eyebrow">Post · llms.txt &amp; Markdown</span>
-      <span class="top-pick-title">Die Kitchen spricht jetzt Markdown</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Immer öfter liest ein KI-Agent unsere Seiten — und sah bisher leere Kachel-Hüllen. Jetzt gibt es jede Inhaltsseite als generierte Markdown-Fassung plus llms.txt als Index. Warum Handkopien driften, wie Jekyll fast unseren Power-Query-Code verstümmelt hätte, und vier Regeln zum Nachbauen.</span>
-      <span class="top-pick-meta"><span>📖 Post + Making-of</span><span>🤖 llms.txt live</span></span>
-    </a>
-    <a class="top-pick" href="powerbi-design-skill.html" data-tags="post ki pbi">
-      <span class="top-pick-rank">🎨</span>
-      <span class="top-pick-eyebrow">Post · Claude-Skill · Open Source</span>
-      <span class="top-pick-title">Report-Design als Framework — der Power BI Design Skill</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Ein Claude-Code-Skill macht Power-BI-Seiten konsistent: Interview → Branding aus der eigenen Webseite → theme.json + Agent-Brief. Dazu Bulk-Restyle („überall Schatten raus"), Design-Linter und SVG-Wireframes — für menschliche und KI-Entwickler. Mit Praxistest an dieser Seite.</span>
-      <span class="top-pick-meta"><span>📖 Post + GitHub-Repo</span><span>🆓 MIT · Open Source</span></span>
-    </a>
-    <a class="top-pick" href="strommix-story.html" data-tags="post story">
-      <span class="top-pick-rank">⚡</span>
-      <span class="top-pick-eyebrow">Visual Story · Scrollytelling</span>
-      <span class="top-pick-title">Was kostet ein klimaneutrales Stromsystem?</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Eine Scroll-Story über Annahmen, Bandbreiten und die Frage, warum seriöse Antworten Verteilungen sind statt einzelner Zahlen — mit 1.000 durchgerechneten Zukünften.</span>
-      <span class="top-pick-meta"><span>📜 Scrollytelling</span><span>🎲 1.000 Monte-Carlo-Läufe</span></span>
-    </a>
-    <a class="top-pick" href="whitepaper-strommix.html" data-tags="post whitepaper">
-      <span class="top-pick-rank">📄</span>
-      <span class="top-pick-eyebrow">White Paper · Interaktiv</span>
-      <span class="top-pick-title">Was braucht ein gesunder Strommix — und was kostet er?</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Die vollständige Analyse hinter der Story: interaktives Kostenmodell, stündliche Dispatch-Simulation, Monte-Carlo mit 8 Konfigurationen, 60+ Quellen mit Konfidenzstufen.</span>
-      <span class="top-pick-meta"><span>📖 White Paper</span><span>🧮 Live-Rechner</span></span>
-    </a>
-    <a class="top-pick" href="koelner-raser-story.html" data-tags="post story" data-date="2026-09">
-      <span class="top-pick-rank">📸</span>
-      <span class="top-pick-eyebrow">Daten-Story · Scrollytelling</span>
-      <span class="top-pick-title">Köln blitzt. 445.483 Mal.</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Ein Jahr Geschwindigkeitsüberwachung der Stadt Köln, jeder Fall mit Uhrzeit, Ort und Kennzeichen-Kürzel. Sieben Akte zeigen, warum die Fallzahl vor allem den Messaufwand misst, warum nachts deutlich öfter Fahrverbots-Tempo gefahren wird und wie ein neuer Blitzer an der B 55a nach drei Monaten nur noch gut ein Viertel so oft auslöst. Neu: die Karte „Köln bei Nacht“ mit allen Messstellen und 24-Stunden-Zeitraffer, dazu der Raser-Atlas zum Durchsuchen.</span>
-      <span class="top-pick-meta"><span>📜 Scrollytelling</span><span>🗄️ SQLite · Offene Daten Köln 2025</span></span>
-    </a>
-    <a class="top-pick" href="koelner-raser-post.html" data-tags="post" data-date="2026-09">
-      <span class="top-pick-rank">📝</span>
-      <span class="top-pick-eyebrow">Post · Hintergrund zur Raser-Story</span>
-      <span class="top-pick-title">Alle 71 Sekunden ein Blitz: Was ein Jahr Kölner Blitzerdaten zeigt</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Die Befunde der Raser-Story zum Lesen: warum ein neuer Blitzer wirkt (−71 % an der B 55a, Kontrollanlagen stabil), warum nachts öfter richtig schnell gefahren wird und warum 97 % der Fälle ohne Punkt bleiben. Dazu die Infografik zum Herunterladen und eine Anleitung, wie du so eine Story selbst baust: mit Claude, offenen Daten und einer Geocoding-API.</span>
-      <span class="top-pick-meta"><span>📝 Blogbeitrag</span><span>🖼️ Infografik A4 als PDF</span></span>
-    </a>
-    <a class="top-pick" href="rhein-story.html" data-tags="post story">
-      <span class="top-pick-rank">🌊</span>
-      <span class="top-pick-eyebrow">Daten-Story · Scrollytelling</span>
-      <span class="top-pick-title">209 Jahre, ein Fluss, zwei Wahrheiten</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Eine der längsten Abflussreihen der Welt sagt: Dem Rhein geht es gut. Dieselben Daten sagen das Gegenteil. Sechs animierte Akte zeigen, wie ein Klimasignal im Rauschen untergeht — und warum das alte 20-Jahres-Niedrigwasser heute alle 4–5 Jahre kommt. Mit Köln-Bildern, Rekord-Watch August 2026 und aufklappbarem Methoden-Appendix.</span>
-      <span class="top-pick-meta"><span>📜 Scrollytelling</span><span>📊 GRDC-Daten 1816–2025</span></span>
-    </a>
-    <a class="top-pick" href="laender-indikatoren-explorer.html" data-tags="tool">
-      <span class="top-pick-rank">🌍</span>
-      <span class="top-pick-eyebrow">Tool · Datenexploration</span>
-      <span class="top-pick-title">Länder-Indikatoren-Explorer</span>
-      <span class="top-pick-why"><strong>Selbst erkunden:</strong> 164 Länder × 15 Indikatoren — von Lebenszufriedenheit über BIP und Demokratie bis Suizidrate. Jede Kennzahl gegen jede geplottet, nach Korrelationsstärke sortiert, mit Kontinent-Filter und Länder-Rangliste. Rohdaten als CSV zum Download.</span>
-      <span class="top-pick-meta"><span>⚡ Web-App</span><span>📥 CSV-Download</span></span>
-    </a>
-    <a class="top-pick" href="mockup-kitchen.html" data-tags="tool ibcs pbi ki" data-date="2026-09">
-      <span class="top-pick-rank">🧩</span>
-      <span class="top-pick-eyebrow">Tool · Power-BI-Mockup (Test)</span>
-      <span class="top-pick-title">MockupKitchen öffnen</span>
-      <span class="top-pick-why"><strong>Selbst ausprobieren:</strong> Berichtsseiten im Workshop skizzieren — Container-Raster, Kopfband/Filter/Fußleiste, 47 ChartKitchen-, native und Custom-Visual-Typen, Felder aus dem eigenen TMDL-Modell per Drag-and-drop. Export als Spec + Agent-Brief + Workshop-Doku, die Claude Code direkt in ein PBIP baut. DE/EN.</span>
-      <span class="top-pick-meta"><span>⚡ Web-App</span><span>🆓 keine Installation</span></span>
-    </a>
-    <a class="top-pick" href="mockupkitchen-post.html" data-tags="post ki pbi" data-date="2026-09">
-      <span class="top-pick-rank">📐</span>
-      <span class="top-pick-eyebrow">Post · Tool &amp; KI</span>
-      <span class="top-pick-title">MockupKitchen — vom Whiteboard zur Power-BI-Seite</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Warum ein Mockup eine Spezifikation sein sollte und kein Bild: was wir gebaut haben, was man damit macht und was es bringt, wenn der Agent daraus den Report baut. Mit einem Sechs-Perspektiven-Review als Roadmap.</span>
-      <span class="top-pick-meta"><span>📖 Post</span><span>⏱ ~3 min Lesezeit</span></span>
-    </a>
-    <a class="top-pick" href="business-chart-builder-anleitung.html" data-tags="doku ibcs pbi">
-      <span class="top-pick-rank">📝</span>
-      <span class="top-pick-eyebrow">Anleitung · IBCS &amp; Deneb</span>
-      <span class="top-pick-title">Business Chart Builder — How-to &amp; Live-Beispiele</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> IBCS-orientierte Charts im Browser bauen und als Deneb-Template nach Power BI bringen — Schritt für Schritt, mit Beispielen zum Live-Öffnen.</span>
-      <span class="top-pick-meta"><span>📖 Anleitung</span><span>⏱ ~5 min Lesezeit</span></span>
-    </a>
-    <a class="top-pick" href="business-chart-builder.html" data-tags="tool ibcs pbi">
-      <span class="top-pick-rank">🛠</span>
-      <span class="top-pick-eyebrow">Tool · kostenlos</span>
-      <span class="top-pick-title">Business Chart Builder öffnen</span>
-      <span class="top-pick-why"><strong>Selbst ausprobieren:</strong> 30+ IBCS-Diagrammtypen, Varianz-Analysen und KPI-Karten — direkt im Browser, Export als Deneb / PNG / SVG / HTML.</span>
-      <span class="top-pick-meta"><span>⚡ Web-App</span><span>🆓 keine Installation</span></span>
-    </a>
-    <a class="top-pick" href="ibcs-trainer.html" data-tags="tool ibcs">
-      <span class="top-pick-rank">🎯</span>
-      <span class="top-pick-eyebrow">Tool · Interaktiv</span>
-      <span class="top-pick-title">IBCS-Trainer öffnen</span>
-      <span class="top-pick-why"><strong>Spielerisch lernen:</strong> Quiz (25 Fragen quer durch die IBCS-Regeln) oder „Finde den Verstoß" (fehlerhafte Charts erkennen) — mit Punkten &amp; Highscore oder ganz ohne Timer.</span>
-      <span class="top-pick-meta"><span>⚡ Web-App</span><span>🆓 keine Installation</span></span>
-    </a>
-    <a class="top-pick" href="prototyping-pnl-treiberbaum.html" data-tags="post ki">
-      <span class="top-pick-rank">&#9999;&#65039;</span>
-      <span class="top-pick-eyebrow">Post · Prototyping &amp; KI</span>
-      <span class="top-pick-title">Ist KI das neue Papier — und Markdown der neue Stift?</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Vom Markdown-Spec zum klickbaren P&amp;L-Prototyp für den Pitch: 7 Sprachen inkl. Arabisch (RTL), regionale Farblogik für China, Treiber-Simulation mit Solver — plus 47-Sekunden-Demo-Video und interaktive Live-Demo in 16:9.</span>
-      <span class="top-pick-meta"><span>&#127916; Post + Video</span><span>&#128377; Live-Demo · DE/EN</span></span>
-    </a>
-    <a class="top-pick" href="ki-entwicklung-zehn-tage.html" data-tags="post ki pbi" data-date="2026-07">
-      <span class="top-pick-rank">📄</span>
-      <span class="top-pick-eyebrow">Post · KI &amp; Wirtschaftlichkeit</span>
-      <span class="top-pick-title">Zehn Tage bis zum marktfähigen Stand</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Ein Power-BI-Visual in zehn Tagen KI-gestützt gebaut — und nachgerechnet, was es klassisch gekostet hätte. Thesenpapier mit Kostenhebel, Build-vs.-Buy-Rechnung und offener Git-Historie.</span>
-      <span class="top-pick-meta"><span>📖 Post + 34-Seiten-Papier</span><span>🧮 nachrechenbar</span></span>
-    </a>
-    <a class="top-pick" href="chartkitchen-doku.html" data-tags="doku ibcs pbi" data-date="2026-07">
-      <span class="top-pick-rank">📘</span>
-      <span class="top-pick-eyebrow">Doku · Power-BI-Visual</span>
-      <span class="top-pick-title">ChartKitchen byDatenWG — Dokumentation</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Enddokumentation zum IBCS-inspirierten Chart-Deck: 13 Diagramm-Modi in einem Visual, Schnellstart, Funktionen und vollständige Einstellungs-Referenz. Zweisprachig (DE/EN) mit PDF.</span>
-      <span class="top-pick-meta"><span>📖 Doku + PDF</span><span>🇩🇪 / 🇬🇧 DE / EN</span></span>
-    </a>
-    <a class="top-pick" href="chartkitchen-schnellstart.html" data-tags="doku ibcs pbi" data-date="2026-07">
-      <span class="top-pick-rank">🍳</span>
-      <span class="top-pick-eyebrow">Einstieg · Power-BI-Visual</span>
-      <span class="top-pick-title">ChartKitchen byDatenWG — Schnellstart</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Die kompakte Einstiegsseite zum IBCS-inspirierten Chart-Deck: in 2 Minuten verstehen, was das Visual kann, in drei Schritten loslegen und direkt in die passende Doku-Sektion springen. Zweisprachig (DE/EN).</span>
-      <span class="top-pick-meta"><span>⚡ 2-Minuten-Einstieg</span><span>🇩🇪 / 🇬🇧 DE / EN</span></span>
-    </a>
-    <a class="top-pick" href="pnl-beta-post.html" data-tags="post ibcs pbi" data-date="2026-08">
-      <span class="top-pick-rank">🧾</span>
-      <span class="top-pick-eyebrow">Post · Power-BI-Visual (Beta)</span>
-      <span class="top-pick-title">P&amp;L Statement byDatenWG — die GuV als Visual</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Ein IBCS-inspiriertes GuV-Visual in der offenen Beta: Tabelle, Struktur-Bars, Zeilen-Waterfall und Werttreiberbaum mit Kachel-Zoom — warum eine GuV kein Diagramm ist und was die Beta schon kann. Zweisprachig (DE/EN).</span>
-      <span class="top-pick-meta"><span>📖 Post</span><span>🧪 Beta · Download</span></span>
-    </a>
-    <a class="top-pick" href="pnl-schnellstart.html" data-tags="doku ibcs pbi" data-date="2026-08">
-      <span class="top-pick-rank">🌳</span>
-      <span class="top-pick-eyebrow">Einstieg · Power-BI-Visual (Beta)</span>
-      <span class="top-pick-title">P&amp;L Statement byDatenWG — Schnellstart</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> In 2 Minuten zur GuV-Seite: der schnelle Weg mit normalen Ebenen-Spalten (L1..Ln) und der volle Weg mit Zeilentypen, Formeln und Vorzeichen — inklusive Demo-Daten, Treiberbaum und Drillthrough. Zweisprachig (DE/EN).</span>
-      <span class="top-pick-meta"><span>⚡ 2-Minuten-Einstieg</span><span>🇩🇪 / 🇬🇧 DE / EN</span></span>
-    </a>
-    <a class="top-pick" href="pdoom-ki-risiko.html" data-tags="post ki" data-date="2026-06">
-      <span class="top-pick-rank">📉</span>
-      <span class="top-pick-eyebrow">Post · p(doom) / KI-Risiko</span>
-      <span class="top-pick-title">Wie wahrscheinlich ist die KI-Apokalypse?</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> p(doom) ist die geschätzte Wahrscheinlichkeit, dass KI katastrophal endet — Schätzungen reichen von unter 0,01&nbsp;% bis über 99&nbsp;%.</span>
-      <span class="top-pick-meta"><span>📖 Post</span><span>🤖 KI-Risiko</span></span>
-    </a>
-    <a class="top-pick" href="zugfahrten-infografik.html" data-tags="post">
-      <span class="top-pick-rank">🚄</span>
-      <span class="top-pick-eyebrow">Post · Infografik-Experiment</span>
-      <span class="top-pick-title">Die Schweiz fährt Europa davon</span>
-      <span class="top-pick-why"><strong>Making-of:</strong> Aus einem schnellen ChatGPT-Draft wird eine ehrlich skalierte Metro-Karte der Bahnnutzung in Europa (Eurostat 2024).</span>
-      <span class="top-pick-meta"><span>📖 Post</span><span>🗺 Infografik</span></span>
-    </a>
-    <a class="top-pick" href="morally_aligned_ai.html" data-tags="talkevent ki">
-      <span class="top-pick-rank">🎤</span>
-      <span class="top-pick-eyebrow">Talk · Daten Grillen '26</span>
-      <span class="top-pick-title">Morally Aligned AI</span>
-      <span class="top-pick-why">Was bedeutet es, eine KI moralisch auszurichten — und worüber sollten wir reden, bevor wir es tun? Begleitseite zum Vortrag mit spielbaren Modulen und Thesen.</span>
-      <span class="top-pick-meta"><span>🎤 Talk</span><span>🕹 Interaktive Module</span></span>
-    </a>
-    <a class="top-pick" href="ki-co2-simulator.html" data-tags="tool ki" data-date="2026-07">
-      <span class="top-pick-rank">🌱</span>
-      <span class="top-pick-eyebrow">Tool · ESG / Nachhaltigkeit</span>
-      <span class="top-pick-title">Wie viel CO₂ steckt in einem Token?</span>
-      <span class="top-pick-why"><strong>Selbst durchspielen:</strong> Energie- und CO₂-Fußabdruck der KI-Nutzung im Unternehmen — pro Token bis pro Jahr, alle Annahmen als Min–Max-Band mit Quellen.</span>
-      <span class="top-pick-meta"><span>⚡ Web-App</span><span>🆓 keine Installation</span></span>
-    </a>
-    <a class="top-pick" href="waermestreifen-3d.html" data-tags="post pbi">
-      <span class="top-pick-rank">🌡</span>
-      <span class="top-pick-eyebrow">Post · Custom Visual</span>
-      <span class="top-pick-title">175 Jahre Klimageschichte zum Anfassen</span>
-      <span class="top-pick-why"><strong>Worum geht's?</strong> Wärmestreifen 3D — ein Custom Visual für Power BI macht die Klimageschichte seit 1850 räumlich erlebbar.</span>
-      <span class="top-pick-meta"><span>📖 Post</span><span>📊 Power-BI-Visual</span></span>
-    </a>
-    <a class="top-pick" href="daten-wg-game.html" data-tags="tool talkevent">
-      <span class="top-pick-rank">🕹</span>
-      <span class="top-pick-eyebrow">Game · Daten-WG</span>
-      <span class="top-pick-title">Daten-WG ARCADE</span>
-      <span class="top-pick-why"><strong>Zum Spielen:</strong> Daten-WG meets 80s-Arcade — Sessions erspielen, Highscore jagen, ganz ohne Installation.</span>
-      <span class="top-pick-meta"><span>🕹 Web-Game</span><span>🆓 keine Installation</span></span>
-    </a>
-    <a class="top-pick" href="daten-wg-agenda.html" data-tags="talkevent">
-      <span class="top-pick-rank">🗓</span>
-      <span class="top-pick-eyebrow">Event · Rückblick 2026</span>
-      <span class="top-pick-title">Daten-WG 2026 · Agenda &amp; Speaker:innen</span>
-      <span class="top-pick-why"><strong>Zum Nachlesen:</strong> Das komplette Programm der Daten-WG 2026 — alle Sessions und Speaker:innen aus Sessionize.</span>
-      <span class="top-pick-meta"><span>🗓 Event</span><span>🔄 live aus Sessionize</span></span>
-    </a>
+  <div class="news-grid" id="news-grid">
+    <a class="news-item" href="#folgen"><span class="news-kind">Folgen</span><span class="news-title">Die neuesten Folgen stehen oben in jedem Bucket.</span></a>
+    <a class="news-item" href="beitraege.html"><span class="news-kind">Beiträge</span><span class="news-title">Alle Posts, Stories und Werkzeuge</span></a>
   </div>
 </section>
 
 <!-- ============================================================
-     POWER BI EINSTEIGER-GUIDE · Promo
+     BUCKETS · 10 Themen (Klick filtert die Folgen)
 ============================================================ -->
-<a class="guide-promo" href="#einsteiger-guide">
-  <div>
-    <div class="guide-promo-eyebrow">Power BI · Einsteiger-Guide</div>
-    <div class="guide-promo-title">Power BI <em>von A bis Z</em></div>
-    <div class="guide-promo-text">Architektur, <strong>Power Query</strong>, Datenmodell, <strong>DAX</strong>, IBCS, Service, RLS — kompakter End-to-End-Guide in 10 Kapiteln. Ideal vor oder begleitend zu den Folgen.</div>
+<section class="buckets-overview" aria-labelledby="buckets-title">
+  <div class="section-head">
+    <h2 class="section-title" id="buckets-title">Folgen nach <em>Thema</em></h2>
+    <span class="section-sub">Antippen filtert</span>
   </div>
-  <span class="guide-promo-cta">Zum Guide ↓</span>
-</a>
-
-<a class="guide-promo" href="fabric_einsteiger_guide_v1.html" style="border-left-color: var(--c-fabric); margin-top: -24px;">
-  <div>
-    <div class="guide-promo-eyebrow" style="color: var(--c-fabric);">Microsoft Fabric · Einsteiger-Guide</div>
-    <div class="guide-promo-title">Fabric <em>von OneLake bis Report</em></div>
-    <div class="guide-promo-text">OneLake, <strong>Lakehouse &amp; Warehouse</strong>, Pipelines, Notebooks, <strong>Direct Lake</strong> und Snowflake-Integration — End-to-End-Guide in 6 Etappen. Baut auf dem Power-BI-Guide auf.</div>
-  </div>
-  <span class="guide-promo-cta" style="background: var(--c-fabric);">Zum Fabric-Guide →</span>
-</a>
-
-<a class="guide-promo" href="ibcs-trainer.html" style="border-left-color: var(--c-viz); margin-top: -24px;">
-  <div>
-    <div class="guide-promo-eyebrow" style="color: var(--c-viz);">Interaktiv · IBCS-Trainer</div>
-    <div class="guide-promo-title">IBCS-Regeln <em>spielerisch lernen</em></div>
-    <div class="guide-promo-text">Zwei Modi: <strong>Quiz</strong> (25 Fragen quer durch die IBCS-Regeln) und „<strong>Finde den Verstoß</strong>" (fehlerhafte Charts erkennen) — mit Punkten &amp; Highscore oder in Ruhe ohne Timer. Inklusive Spickzettel und Auswertung je Thema.</div>
-  </div>
-  <span class="guide-promo-cta" style="background: var(--c-viz);">Trainer starten →</span>
-</a>
-
-<!-- ============================================================
-     FILTER BAR
-============================================================ -->
-<div class="filter-bar">
-  <div class="filter-row">
-    <label class="filter-search" for="search-input">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="search-input" type="text" placeholder="Suche · mehrere Wörter, &quot;Phrase&quot;, -ausschließen" autocomplete="off">
-      <span class="search-state" id="search-state" data-state="idle" title="Transkript-Volltextsuche"></span>
-      <button class="search-help-btn" id="search-help-btn" type="button" aria-label="Such-Hilfe anzeigen" aria-haspopup="dialog" aria-expanded="false">i</button>
-    </label>
-    <div class="search-help-popover" id="search-help-popover" role="dialog" aria-label="Such-Syntax" hidden>
-      <div class="search-help-title">So sucht's sich</div>
-      <ul>
-        <li><strong>Mehrere Wörter</strong> — alle müssen vorkommen<br><code>dax fabric</code> → Folgen mit beiden Begriffen</li>
-        <li><strong>"Phrase"</strong> — exakt diese Reihenfolge<br><code>"10 jahre"</code> → nur als Zusammenhang</li>
-        <li><strong>-wort</strong> — schließt aus<br><code>dax -calculate</code> → DAX, aber kein <em>calculate</em></li>
-      </ul>
-      <div class="search-help-foot">Sucht in Titel, Gast, Beschreibung und (lazy geladen) Transkripten.</div>
-    </div>
-    <div class="filter-meta">
-      <span><strong id="result-count">167</strong> von 167 Folgen</span>
-      <button class="filter-reset" id="reset-filters">Filter zurücksetzen</button>
-      <button class="tags-peek" id="tags-peek" type="button" aria-expanded="true" aria-controls="tag-list" title="Tag-Filter ein-/ausblenden"><span id="tags-peek-label">Tags ausblenden</span><span class="tags-peek-badge" id="tags-peek-badge">0</span><span class="tags-peek-chevron" aria-hidden="true"></span></button>
-    </div>
-  </div>
-  <div class="filter-row tags-row">
-    <span class="filter-label">Tags</span>
-    <div class="tag-list" id="tag-list"><!-- gerendert per JS --></div>
-  </div>
-</div>
-
-<!-- ============================================================
-     BUCKET OVERVIEW
-============================================================ -->
-<div class="bucket-filter-bar" id="bucket-filter-bar" role="status" aria-live="polite">
-  Aktiver Bucket-Filter: <strong id="bucket-filter-bar-name">—</strong>
-  <button class="bucket-filter-bar-clear" id="bucket-filter-bar-clear" type="button">Filter aufheben</button>
-</div>
-
 <div class="bucket-grid" id="buckets-overview">
   <a class="bucket-tile" href="#bucket-1" style="--bucket-color: var(--c-update);">
     <div class="bucket-tile-num">01 · QUARTERLY</div>
@@ -2591,235 +1609,298 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="bucket-tile-count">15 Shorts</div>
   </a>
 </div>
+</section>
 
 <!-- ============================================================
-     BUCKET SECTIONS (rendered by JS into this container)
+     TOP-PICKS · 5 handverlesene Folgen (verlinken auf die eigene Karte)
 ============================================================ -->
-<!-- ============================================================
-     EINSTEIGER-GUIDE · embedded overview (10 chapters)
-============================================================ -->
-<main id="buckets-container"></main>
+<section class="top-picks" id="top-picks" aria-label="Top-Picks">
+  <header class="top-picks-head">
+    <h2 class="top-picks-title">Top-Picks · <em>Wo anfangen?</em></h2>
+    <span class="top-picks-sub">5 handverlesene Folgen</span>
+  </header>
+  <div class="top-picks-grid">
+    <a class="top-pick" href="#ep-GWCHNmLs72M">
+      <span class="top-pick-rank">01</span>
+      <span class="top-pick-eyebrow">Updates &amp; News</span>
+      <span class="top-pick-title">Power BI Update August 2026</span>
+      <span class="top-pick-why"><strong>Warum diese?</strong> Was ist gerade neu — Stand der Tools in unter 10 Minuten. Idealer Pulse-Check.</span>
+      <span class="top-pick-meta"><span>📅 August 2026</span><span>⏱ 9 min</span></span>
+    </a>
+    <a class="top-pick" href="#ep-J-lN5JN-F5I">
+      <span class="top-pick-rank">02</span>
+      <span class="top-pick-eyebrow">Microsoft Fabric</span>
+      <span class="top-pick-title">Life-Update: Fabric Architekturen</span>
+      <span class="top-pick-why"><strong>Warum diese?</strong> Vier Berater, vier Projekte, wenig Einigkeit — der ehrlichste Einblick, wie Fabric-Plattformen wirklich gebaut werden. Medaillon, Layer, Lakehouse vs. Warehouse.</span>
+      <span class="top-pick-meta"><span>📅 August 2026</span><span>⏱ 51 min</span></span>
+    </a>
+    <a class="top-pick" href="#ep-YRoJ_6t3VrE">
+      <span class="top-pick-rank">03</span>
+      <span class="top-pick-eyebrow">Microsoft Fabric</span>
+      <span class="top-pick-title">Fabric Planning Hands-On</span>
+      <span class="top-pick-why"><strong>Warum diese?</strong> Wer Fabric verstehen will, schaut hier zu — echte Planung, echte Klicks, kein Marketing.</span>
+      <span class="top-pick-meta"><span>📅 April 2026</span><span>⏱ 66 min</span></span>
+    </a>
+    <a class="top-pick" href="#ep-ZaDd1uxeLbI">
+      <span class="top-pick-rank">04</span>
+      <span class="top-pick-eyebrow">Strategie · Big Picture</span>
+      <span class="top-pick-title">10 Jahre Power BI</span>
+      <span class="top-pick-why"><strong>Warum diese?</strong> Der historische Überblick — wie Power BI dahin gekommen ist, wo es heute steht. Setzt den Rahmen für alles andere.</span>
+      <span class="top-pick-meta"><span>📅 Juli 2025</span><span>⏱ 92 min</span></span>
+    </a>
+    <a class="top-pick" href="#ep-aYHk_V8n_CE">
+      <span class="top-pick-rank">05</span>
+      <span class="top-pick-eyebrow">Power BI Deep Dive</span>
+      <span class="top-pick-title">Power BI vs. Qlik</span>
+      <span class="top-pick-why"><strong>Warum diese?</strong> Tool-Vergleich auf Augenhöhe — hilft, eigene Annahmen zu checken. Teil 1 von 3.</span>
+      <span class="top-pick-meta"><span>📅 Oktober 2025</span><span>⏱ 60 min</span></span>
+    </a>
+  </div>
+</section>
 
-<div class="no-results" id="no-results">
-  Keine Folge passt zu deiner Suche. Setz die Filter zurück oder probier einen anderen Begriff.
+<!-- ============================================================
+     BEITRÄGE · Teaser (6 neueste) · alle auf beitraege.html
+============================================================ -->
+<section class="top-picks posts-teaser" id="posts-talks" aria-labelledby="posts-title">
+  <header class="top-picks-head">
+    <h2 class="top-picks-title" id="posts-title">Beiträge · <em>Posts, Stories, Werkzeuge</em></h2>
+    <a class="section-link" href="beitraege.html">Alle Beiträge ansehen →</a>
+  </header>
+  <nav class="quick-links" aria-label="Beiträge nach Art">
+    <a class="quick-link" href="beitraege.html#posts">Posts</a>
+    <a class="quick-link" href="beitraege.html#stories">Visual Stories</a>
+    <a class="quick-link" href="beitraege.html#whitepaper">Whitepaper</a>
+    <a class="quick-link" href="beitraege.html#talks">Talks</a>
+    <a class="quick-link" href="beitraege.html#werkzeuge">Werkzeuge</a>
+    <a class="quick-link" href="beitraege.html#doku">Doku</a>
+    <a class="quick-link" href="beitraege.html#event">Event-Rückblick</a>
+  </nav>
+  <div class="top-picks-grid">
+    <a class="top-pick" href="fabric-apps-controlling-post.html" data-tags="post vis fabric ibcs" data-date="2026-10">
+      <span class="top-pick-rank">📊</span>
+      <span class="top-pick-eyebrow">Post · Fabric Apps · Controlling &amp; Finance</span>
+      <span class="top-pick-title">Fabric Apps im Heimrevier von Power BI: Vertrieb und Finance</span>
+      <span class="top-pick-why"><strong>Worum geht's?</strong> Zwei Fabric Apps für Vertriebscontrolling und Finance Reporting, je in etwa einer Stunde mit Rayfin CLI und Coding-Agent gebaut. Mit Video, Screenshots, den Microsoft-Learn-Grundlagen und der Frage, warum Standards wie IBCS gerade mit KI-Agenten wichtig sind.</span>
+      <span class="top-pick-meta"><span>🎬 Video 89 s</span><span>🖼️ 10 Screenshots</span><span>🇩🇪 / 🇬🇧 DE / EN</span></span>
+    </a>
+    <a class="top-pick" href="fabric-alchemie-post.html" data-tags="post tool fabric" data-date="2026-10">
+      <span class="top-pick-rank">⚗️</span>
+      <span class="top-pick-eyebrow">Post · Lernspiel · Microsoft Fabric</span>
+      <span class="top-pick-title">Fabric Alchemie — Fabric lernen, indem man es zusammenbraut</span>
+      <span class="top-pick-why"><strong>Zum Spielen:</strong> Das Lernspiel von Ulrik Harnisch nach dem Little-Alchemy-Prinzip. Aus Daten, Rechenleistung, Speicher und Netzwerk entstehen per Drag-and-drop über 150 Elemente, von Lakehouse bis Pipeline, jedes mit Link in die Microsoft-Learn-Doku. Direkt im Post spielbar, immer in der neuesten Version.</span>
+      <span class="top-pick-meta"><span>🎮 Lernspiel</span><span>🇩🇪 / 🇬🇧 DE / EN</span></span>
+    </a>
+    <a class="top-pick" href="visual-standards-rechner.html" data-tags="tool pbi ibcs talkevent" data-date="2026-09">
+      <span class="top-pick-rank">⚖️</span>
+      <span class="top-pick-eyebrow">Tool · Pre-Conference Daten-WG 2026</span>
+      <span class="top-pick-title">Visual-Standards-Rechner: Easy, Flexibel oder MacGyver?</span>
+      <span class="top-pick-why"><strong>Selbst durchrechnen:</strong> Was kosten IBCS-Standards in Power BI mit 3rd-Party-Visuals, Open Source, Deneb oder Core Visuals über 3, 5 oder 10 Jahre? Mengengerüst, MoSCoW-Anforderungen, Governance-K.O.s, Break-even über die Viewer-Zahl, Bandbreiten statt Punktwerte, Excel-Export.</span>
+      <span class="top-pick-meta"><span>⚡ Web-App</span><span>🎓 Workshop 14.10.2026</span><span>🆓 keine Installation</span></span>
+    </a>
+    <a class="top-pick" href="koelner-raser-story.html" data-tags="post story" data-date="2026-09">
+      <span class="top-pick-rank">📸</span>
+      <span class="top-pick-eyebrow">Daten-Story · Scrollytelling</span>
+      <span class="top-pick-title">Köln blitzt. 445.483 Mal.</span>
+      <span class="top-pick-why"><strong>Worum geht's?</strong> Ein Jahr Geschwindigkeitsüberwachung der Stadt Köln, jeder Fall mit Uhrzeit, Ort und Kennzeichen-Kürzel. Sieben Akte zeigen, warum die Fallzahl vor allem den Messaufwand misst, warum nachts deutlich öfter Fahrverbots-Tempo gefahren wird und wie ein neuer Blitzer an der B 55a nach drei Monaten nur noch gut ein Viertel so oft auslöst. Neu: die Karte „Köln bei Nacht“ mit allen Messstellen und 24-Stunden-Zeitraffer, dazu der Raser-Atlas zum Durchsuchen.</span>
+      <span class="top-pick-meta"><span>📜 Scrollytelling</span><span>🗄️ SQLite · Offene Daten Köln 2025</span></span>
+    </a>
+    <a class="top-pick" href="mockupkitchen-post.html" data-tags="post ki pbi" data-date="2026-09">
+      <span class="top-pick-rank">📐</span>
+      <span class="top-pick-eyebrow">Post · Tool &amp; KI</span>
+      <span class="top-pick-title">MockupKitchen — vom Whiteboard zur Power-BI-Seite</span>
+      <span class="top-pick-why"><strong>Worum geht's?</strong> Warum ein Mockup eine Spezifikation sein sollte und kein Bild: was wir gebaut haben, was man damit macht und was es bringt, wenn der Agent daraus den Report baut. Mit einem Sechs-Perspektiven-Review als Roadmap.</span>
+      <span class="top-pick-meta"><span>📖 Post</span><span>⏱ ~3 min Lesezeit</span></span>
+    </a>
+    <a class="top-pick" href="pnl-beta-post.html" data-tags="post ibcs pbi" data-date="2026-08">
+      <span class="top-pick-rank">🧾</span>
+      <span class="top-pick-eyebrow">Post · Power-BI-Visual (Beta)</span>
+      <span class="top-pick-title">P&amp;L Statement byDatenWG — die GuV als Visual</span>
+      <span class="top-pick-why"><strong>Worum geht's?</strong> Ein IBCS-inspiriertes GuV-Visual in der offenen Beta: Tabelle, Struktur-Bars, Zeilen-Waterfall und Werttreiberbaum mit Kachel-Zoom — warum eine GuV kein Diagramm ist und was die Beta schon kann. Zweisprachig (DE/EN).</span>
+      <span class="top-pick-meta"><span>📖 Post</span><span>🧪 Beta · Download</span></span>
+    </a>
+  </div>
+  <a class="all-posts-btn" href="beitraege.html">Alle Beiträge ansehen →</a>
+</section>
+
+<!-- ============================================================
+     FOLGEN · sticky Suche + Filter, Bucket-Sektionen per JS
+============================================================ -->
+<section class="library" id="folgen" aria-labelledby="folgen-title">
+  <div class="section-head">
+    <h2 class="section-title" id="folgen-title">Alle <em>Folgen</em></h2>
+    <span class="section-sub">Neueste zuerst</span>
+  </div>
+
+  <div id="suche" class="anchor-target" aria-hidden="true"></div>
+  <div class="filter-bar" id="filter-bar">
+    <div class="filter-row filter-main">
+      <label class="filter-search" for="search-input">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <span class="visually-hidden">Folgen durchsuchen</span>
+        <input id="search-input" type="search" placeholder="Folgen durchsuchen" autocomplete="off" enterkeyhint="search">
+        <span class="search-state" id="search-state" data-state="idle" title="Transkript-Volltextsuche"></span>
+        <button class="search-help-btn" id="search-help-btn" type="button" aria-label="Such-Hilfe anzeigen" aria-haspopup="dialog" aria-expanded="false">i</button>
+      </label>
+      <div class="lang-toggle seg" role="group" aria-label="Sprache">
+        <button type="button" class="seg-btn" data-lang="all" aria-pressed="true">Alle</button>
+        <button type="button" class="seg-btn" data-lang="de" aria-pressed="false">DE</button>
+        <button type="button" class="seg-btn" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <button class="filter-toggle" id="filter-toggle" type="button" aria-expanded="false" aria-controls="filter-panel">Filter<span class="filter-toggle-count" id="filter-count"></span></button>
+      <div class="search-help-popover" id="search-help-popover" role="dialog" aria-label="Such-Syntax" hidden>
+        <div class="search-help-title">So sucht's sich</div>
+        <ul>
+          <li><strong>Mehrere Wörter</strong> — alle müssen vorkommen<br><code>dax fabric</code> → Folgen mit beiden Begriffen</li>
+          <li><strong>"Phrase"</strong> — exakt diese Reihenfolge<br><code>"10 jahre"</code> → nur als Zusammenhang</li>
+          <li><strong>-wort</strong> — schließt aus<br><code>dax -calculate</code> → DAX, aber kein <em>calculate</em></li>
+        </ul>
+        <div class="search-help-foot">Sucht in Titel, Gast, Beschreibung, Tags und (nachgeladen) in den Transkripten.</div>
+      </div>
+    </div>
+    <div class="filter-meta">
+      <span class="filter-count-text"><strong id="result-count">167</strong> von 167 Folgen</span>
+      <span class="active-filters" id="active-filters" aria-live="polite"></span>
+      <button class="filter-reset" id="reset-filters" type="button">Zurücksetzen</button>
+    </div>
+  </div>
+  <div class="sheet-backdrop" id="filter-backdrop" hidden></div>
+  <div class="filter-panel" id="filter-panel" role="region" aria-label="Filter">
+    <div class="filter-panel-head">
+      <span class="filter-panel-title">Filter</span>
+      <button class="sheet-close" id="filter-close" type="button" aria-label="Filter schließen"><span aria-hidden="true">✕</span></button>
+    </div>
+    <div class="filter-group filter-group-lang">
+      <span class="filter-label">Sprache</span>
+      <div class="seg" role="group" aria-label="Sprache">
+        <button type="button" class="seg-btn" data-lang="all" aria-pressed="true">Alle</button>
+        <button type="button" class="seg-btn" data-lang="de" aria-pressed="false">DE</button>
+        <button type="button" class="seg-btn" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Thema</span>
+      <div class="chip-list" id="bucket-chips"><!-- per JS --></div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Tags <span class="filter-label-hint">mehrere = oder</span></span>
+      <div class="tag-list" id="tag-list"><!-- per JS --></div>
+    </div>
+    <div class="filter-panel-foot">
+      <button class="sheet-reset" id="sheet-reset" type="button">Zurücksetzen</button>
+      <button class="sheet-done" id="sheet-done" type="button"><span id="sheet-done-count">167</span> Folgen anzeigen</button>
+    </div>
+  </div>
+
+  <div id="buckets-container"></div>
+
+  <div class="no-results" id="no-results">
+    Keine Folge passt zu deiner Suche. Setz die Filter zurück oder probier einen anderen Begriff.
+  </div>
+</section>
+
+<!-- ============================================================
+     LERNPFADE · Teaser (die Kurse liegen auf eigenen Seiten)
+============================================================ -->
+<section class="learn" id="einsteiger-guide" aria-labelledby="learn-title">
+  <div class="section-head">
+    <h2 class="section-title" id="learn-title">Lern<em>pfade</em></h2>
+    <span class="section-sub">Der Reihe nach oder einzeln</span>
+  </div>
+  <div class="learn-grid">
+    <a class="learn-card" id="praxis-pfad" href="powerbi_praxis_pfad.html" style="--lc: var(--c-model);">
+      <span class="learn-step">Stufe 1 · Für absolute Anfänger</span>
+      <span class="learn-title">Dein erstes Dashboard</span>
+      <span class="learn-text">Programm installieren, Datei anbinden, fertige Auswertung bauen. 7 Module, gut 2 Stunden, ohne Konto. Nur für Windows.</span>
+      <span class="learn-go">Pfad starten →</span>
+    </a>
+    <a class="learn-card" href="power_bi_einsteiger_guide_v4.html" style="--lc: var(--accent);">
+      <span class="learn-step">Stufe 2 · Du arbeitest schon mit Power BI</span>
+      <span class="learn-title">Power BI von A bis Z</span>
+      <span class="learn-text">10 Kapitel von Architektur und Power Query über Datenmodell und DAX bis Service und RLS.</span>
+      <span class="learn-progress" id="learn-progress" hidden></span>
+      <span class="learn-go">Zum Guide →</span>
+    </a>
+    <a class="learn-card" href="fabric_einsteiger_guide_v1.html" style="--lc: var(--c-fabric);">
+      <span class="learn-step">Stufe 3 · Plattform</span>
+      <span class="learn-title">Microsoft Fabric End-to-End</span>
+      <span class="learn-text">OneLake, Lakehouse und Warehouse, Pipelines, Notebooks, Direct Lake. 6 Etappen, baut auf dem Power-BI-Guide auf.</span>
+      <span class="learn-go">Zum Fabric-Guide →</span>
+    </a>
+  </div>
+  <p class="learn-more">Lieber spielerisch? <a href="ibcs-trainer.html">IBCS-Trainer</a> · <a href="fabric-alchemie-post.html">Fabric Alchemie</a></p>
+</section>
+
 </div>
+<!-- /container -->
 
 <!-- ============================================================
      FOOTER
 ============================================================ -->
-<!-- ============================================================
-     EINSTEIGER-GUIDE · embedded overview (10 chapters)
-============================================================ -->
-<section class="eg-embed" id="einsteiger-guide" aria-labelledby="eg-embed-title">
-  <header class="eg-embed-head">
-    <div class="eg-embed-eyebrow">Einsteiger-Guide · Power BI · End-to-End</div>
-    <h2 class="eg-embed-title" id="eg-embed-title">Power BI <em>von A bis Z</em></h2>
-    <p class="eg-embed-sub">Für alle, die Power BI seit ein bis zwei Jahren nutzen und jetzt den ganzen Weg verstehen wollen — von der Datenanbindung bis zum Sharing. Zehn Etappen, jeweils mit Empfehlung, wo du anfängst.</p>
-  </header>
-
-  <a class="eg-cta-card" href="power_bi_einsteiger_guide_v4.html">
-    <div class="eg-cta-card-text">
-      <span class="eg-cta-card-eyebrow">Vollständiger Guide</span>
-      <span class="eg-cta-card-title">87 klickbare Detail-Karten, Beispiele und Schritt-für-Schritt-Anleitungen</span>
-      <span class="eg-cta-card-sub">Die Übersicht hier zeigt nur die Lehrstruktur — Tiefe liegt im vollen Guide.</span>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">Daten-WG · <em>Knowledge Kitchen</em></div>
+      <p class="footer-claim">Folgen, Lernpfade, Werkzeuge und Beiträge aus der Daten-WG-Community.</p>
     </div>
-    <span class="eg-cta-card-btn">Zum vollen Guide →</span>
-  </a>
-
-  <a class="eg-cta-card eg-cta-card--fabric" href="fabric_einsteiger_guide_v1.html">
-    <div class="eg-cta-card-text">
-      <span class="eg-cta-card-eyebrow">Neu · Microsoft Fabric · End-to-End</span>
-      <span class="eg-cta-card-title">Microsoft Fabric von OneLake bis zum Direct-Lake-Bericht</span>
-      <span class="eg-cta-card-sub">Der nächste Schritt nach Power BI: OneLake, Lakehouse, Direct Lake und Snowflake-Integration — 40 klickbare Detail-Karten.</span>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-title">Folgen</div>
+        <a href="#folgen">Alle Folgen</a>
+        <a href="#top-picks">Top-Picks</a>
+        <a href="#buckets-overview">Themen</a>
+        <a href="#bucket-10">Shorts</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Lernen</div>
+        <a href="powerbi_praxis_pfad.html">Dein erstes Dashboard</a>
+        <a href="power_bi_einsteiger_guide_v4.html">Power BI von A bis Z</a>
+        <a href="fabric_einsteiger_guide_v1.html">Fabric End-to-End</a>
+        <a href="ibcs-trainer.html">IBCS-Trainer</a>
+        <a href="fabric-alchemie-post.html">Fabric Alchemie</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Werkzeuge</div>
+        <a href="mockup-kitchen.html">MockupKitchen</a>
+        <a href="business-chart-builder.html">Chart-Builder</a>
+        <a href="chartkitchen-schnellstart.html">ChartKitchen Visual</a>
+        <a href="pnl-schnellstart.html">P&amp;L-Visual</a>
+        <a href="beitraege.html#werkzeuge">Alle Werkzeuge</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Beiträge</div>
+        <a href="beitraege.html">Alle Beiträge</a>
+        <a href="beitraege.html#stories">Visual Stories</a>
+        <a href="beitraege.html#whitepaper">Whitepaper</a>
+        <a href="beitraege.html#talks">Talks</a>
+        <a href="beitraege.html#doku">Doku</a>
+        <a href="wissensgraph/">Library</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Event-Rückblick</div>
+        <a href="daten-wg-agenda.html">Agenda 2026</a>
+        <a href="daten-wg-sponsoren.html">Sponsoren</a>
+        <a href="daten-wg-game.html">Daten-WG-Spiel</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Abonnieren</div>
+        <a href="https://www.youtube.com/@Daten-WG" target="_blank" rel="noopener">YouTube</a>
+        <a href="https://podcasters.spotify.com/pod/show/daten-wg" target="_blank" rel="noopener">Spotify</a>
+        <a href="https://www.daten-wg.com" target="_blank" rel="noopener">daten-wg.com</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Rechtliches</div>
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="llms.txt">llms.txt</a>
+      </div>
     </div>
-    <span class="eg-cta-card-btn">Zum Fabric-Guide →</span>
-  </a>
-
-  <div class="eg-progress" role="status" aria-live="polite">
-    <span class="eg-progress-label">Lernpfad</span>
-    <span class="eg-progress-track"><span class="eg-progress-fill" id="eg-progress-fill"></span></span>
-    <span class="eg-progress-count" id="eg-progress-count">0 / 10 Kapitel</span>
-    <button class="eg-progress-reset" id="eg-progress-reset" type="button">Reset</button>
-  </div>
-
-  <div class="eg-journey">
-    <div class="eg-journey-title">Die Reise durch Power BI</div>
-    <div class="eg-journey-sub">Zehn Etappen, von der Datenanbindung bis zum Sharing. Klick führt zur jeweiligen Sektion unten.</div>
-    <div class="eg-journey-steps">
-      <a class="eg-journey-step" href="#eg-arch"    style="--eg-dot: var(--eg-c-arch);"><span class="eg-journey-step-num">01 · INFRASTRUKTUR</span><span class="eg-journey-step-name">Architektur</span><span class="eg-journey-step-dot"></span></a>
-      <a class="eg-journey-step" href="#eg-pq"      style="--eg-dot: var(--eg-c-staging);"><span class="eg-journey-step-num">02 · ETL</span><span class="eg-journey-step-name">Power Query</span><span class="eg-journey-step-dot"></span></a>
-      <a class="eg-journey-step" href="#eg-folding" style="--eg-dot: var(--eg-c-folding);"><span class="eg-journey-step-num">03 · DEEP DIVE</span><span class="eg-journey-step-name">Query Folding</span><span class="eg-journey-step-dot"></span></a>
-      <a class="eg-journey-step" href="#eg-model"   style="--eg-dot: var(--eg-c-model);"><span class="eg-journey-step-num">04 · DESIGN</span><span class="eg-journey-step-name">Datenmodell</span><span class="eg-journey-step-dot"></span></a>
-      <a class="eg-journey-step" href="#eg-dax"     style="--eg-dot: var(--eg-c-dax);"><span class="eg-journey-step-num">05 · LOGIK</span><span class="eg-journey-step-name">DAX</span><span class="eg-journey-step-dot"></span></a>
-      <a class="eg-journey-step" href="#eg-viz"     style="--eg-dot: var(--eg-c-ibcs);"><span class="eg-journey-step-num">06 · DEEP DIVE</span><span class="eg-journey-step-name">Viz &amp; IBCS</span><span class="eg-journey-step-dot"></span></a>
-      <a class="eg-journey-step" href="#eg-inter"   style="--eg-dot: var(--eg-c-inter);"><span class="eg-journey-step-num">07 · UX</span><span class="eg-journey-step-name">Interaktivität</span><span class="eg-journey-step-dot"></span></a>
-      <a class="eg-journey-step" href="#eg-service" style="--eg-dot: var(--eg-c-service);"><span class="eg-journey-step-num">08 · DEPLOY</span><span class="eg-journey-step-name">Service &amp; Sharing</span><span class="eg-journey-step-dot"></span></a>
-      <a class="eg-journey-step" href="#eg-rls"     style="--eg-dot: var(--eg-c-rls);"><span class="eg-journey-step-num">09 · GOVERNANCE</span><span class="eg-journey-step-name">RLS</span><span class="eg-journey-step-dot"></span></a>
-      <a class="eg-journey-step" href="#eg-ext"     style="--eg-dot: var(--eg-c-ext);"><span class="eg-journey-step-num">10 · ERWEITERT</span><span class="eg-journey-step-name">Tools</span><span class="eg-journey-step-dot"></span></a>
-    </div>
-  </div>
-
-  <a class="eg-chapter" id="eg-arch" href="power_bi_einsteiger_guide_v4.html#arch" style="--eg-chapter-color: var(--eg-c-arch);">
-    <header class="eg-chapter-head">
-      <span class="eg-chapter-num">01</span>
-      <h3 class="eg-chapter-title">Architektur &amp; <em>Komponenten</em></h3>
-      <button class="eg-chapter-done-btn" type="button" aria-label="Kapitel als gelesen markieren">Als gelesen</button>
-    </header>
-    <p class="eg-chapter-intro">Power BI ist nicht eine einzelne App, sondern ein verteiltes System: Authoring-Tool auf deinem Rechner, Cloud-Service, On-Prem-Brücken, Lizenzschichten. Wer das nicht früh versteht, trifft teure Architektur-Entscheidungen rückwirkend.</p>
-    <div class="eg-start-with">
-      <span class="eg-start-with-label">Als erstes</span>
-      <span class="eg-start-with-text"><strong>Lies „Desktop", „Service" und „Storage Modes"</strong> in dieser Reihenfolge — das ist das mentale Modell. Den Rest klickst du, wenn du konkret damit zu tun hast.</span>
-    </div>
-  </a>
-
-  <a class="eg-chapter" id="eg-pq" href="power_bi_einsteiger_guide_v4.html#pq" style="--eg-chapter-color: var(--eg-c-staging);">
-    <header class="eg-chapter-head">
-      <span class="eg-chapter-num">02</span>
-      <h3 class="eg-chapter-title">Power Query <em>Workflow</em></h3>
-      <button class="eg-chapter-done-btn" type="button" aria-label="Kapitel als gelesen markieren">Als gelesen</button>
-    </header>
-    <p class="eg-chapter-intro">70 % der BI-Arbeitszeit fließt typischerweise in Datenaufbereitung. Sauber gemachte Power Query spart später Stunden bei Modellierung und Performance.</p>
-    <div class="eg-start-with">
-      <span class="eg-start-with-label">Als erstes</span>
-      <span class="eg-start-with-text"><strong>Verstehe die drei Spalten: Quellen → Staging → Modell.</strong> Das Trennprinzip ist wichtiger als jeder einzelne Klick. Dann „Datentypen früh setzen" — das ist der wichtigste Einzeltipp.</span>
-    </div>
-  </a>
-
-  <a class="eg-chapter" id="eg-folding" href="power_bi_einsteiger_guide_v4.html#folding" style="--eg-chapter-color: var(--eg-c-folding);">
-    <header class="eg-chapter-head">
-      <span class="eg-chapter-num">03</span>
-      <h3 class="eg-chapter-title">Deep Dive: <em>Query Folding</em></h3>
-      <button class="eg-chapter-done-btn" type="button" aria-label="Kapitel als gelesen markieren">Als gelesen</button>
-    </header>
-    <p class="eg-chapter-intro">Das Thema, das den Unterschied macht zwischen einem Refresh in 30 Sekunden und einem in sechs Minuten. Microsoft Learn dokumentiert: Vollständig gefoldete Queries sind ca. 12-mal schneller als nicht-gefoldete (Benchmark auf Azure Synapse).</p>
-    <div class="eg-start-with">
-      <span class="eg-start-with-label">Als erstes</span>
-      <span class="eg-start-with-text"><strong>„Was ist Query Folding?"</strong> öffnen — das Konzept. Dann <strong>„Step Folding Indicators"</strong> — die schnellste Diagnose, die du sofort in deinem nächsten Power Query anwenden kannst.</span>
-    </div>
-  </a>
-
-  <a class="eg-chapter" id="eg-model" href="power_bi_einsteiger_guide_v4.html#model" style="--eg-chapter-color: var(--eg-c-model);">
-    <header class="eg-chapter-head">
-      <span class="eg-chapter-num">04</span>
-      <h3 class="eg-chapter-title">Datenmodell &amp; <em>Stern-Schema</em></h3>
-      <button class="eg-chapter-done-btn" type="button" aria-label="Kapitel als gelesen markieren">Als gelesen</button>
-    </header>
-    <p class="eg-chapter-intro">Microsoft Learn ist eindeutig: Power BI ist auf Stern-Schemata optimiert. Ein gut entworfenes Modell macht DAX einfacher, Berichte schneller und verhindert die häufigste Fehlerquelle — falsche oder mehrdeutige Beziehungen.</p>
-    <div class="eg-start-with">
-      <span class="eg-start-with-label">Als erstes</span>
-      <span class="eg-start-with-text"><strong>Fakt vs. Dimension</strong> ist die Basis. Dann <strong>„Granularität"</strong> — die Regel, die am häufigsten verletzt wird.</span>
-    </div>
-  </a>
-
-  <a class="eg-chapter" id="eg-dax" href="power_bi_einsteiger_guide_v4.html#dax" style="--eg-chapter-color: var(--eg-c-dax);">
-    <header class="eg-chapter-head">
-      <span class="eg-chapter-num">05</span>
-      <h3 class="eg-chapter-title">DAX <em>· Formelsprache</em></h3>
-      <button class="eg-chapter-done-btn" type="button" aria-label="Kapitel als gelesen markieren">Als gelesen</button>
-    </header>
-    <p class="eg-chapter-intro">DAX ist das Herz der analytischen Auswertung in Power BI. Ohne DAX bleibt man bei einfachen Summen — mit DAX werden Time-Intelligence, dynamische Filter und komplexe Geschäftslogik möglich.</p>
-    <div class="eg-start-with">
-      <span class="eg-start-with-label">Als erstes</span>
-      <span class="eg-start-with-text"><strong>„Measures vs. Calculated Columns"</strong> — das ist die Entscheidung, die du jedes Mal triffst, wenn du DAX schreibst. Dann <strong>„Filter- und Row-Context"</strong> — die zwei Begriffe, ohne die DAX ein Rate-Spiel bleibt.</span>
-    </div>
-  </a>
-
-  <a class="eg-chapter" id="eg-viz" href="power_bi_einsteiger_guide_v4.html#viz" style="--eg-chapter-color: var(--eg-c-ibcs);">
-    <header class="eg-chapter-head">
-      <span class="eg-chapter-num">06</span>
-      <h3 class="eg-chapter-title">Deep Dive: <em>IBCS</em> &amp; Visualisierung</h3>
-      <button class="eg-chapter-done-btn" type="button" aria-label="Kapitel als gelesen markieren">Als gelesen</button>
-    </header>
-    <p class="eg-chapter-intro">International Business Communication Standards — ein Regelwerk von Rolf Hichert, das Business-Reporting weltweit vereinheitlicht. Seit 2024 als ISO/AWI 24896 in Standardisierung. SAP, Philips und Siemens haben ihr Reporting daran ausgerichtet. Die sieben SUCCESS-Regeln sind das Rückgrat.</p>
-    <div class="eg-start-with">
-      <span class="eg-start-with-label">Als erstes</span>
-      <span class="eg-start-with-text"><strong>SAY und UNIFY</strong> im SUCCESS-Wheel — die beiden zentralen Regeln. Dann <strong>„Solid / Outlined / Hatched"</strong> — die visuelle Notation, die du sofort in jedem Bericht einsetzen kannst.</span>
-    </div>
-  </a>
-
-  <a class="eg-chapter" id="eg-inter" href="power_bi_einsteiger_guide_v4.html#inter" style="--eg-chapter-color: var(--eg-c-inter);">
-    <header class="eg-chapter-head">
-      <span class="eg-chapter-num">07</span>
-      <h3 class="eg-chapter-title">Interaktivität <em>· UX</em></h3>
-      <button class="eg-chapter-done-btn" type="button" aria-label="Kapitel als gelesen markieren">Als gelesen</button>
-    </header>
-    <p class="eg-chapter-intro">Statische Berichte beantworten eine Frage. Interaktive Berichte werden zum Analyse-Werkzeug. Mit Drillthrough, Bookmarks, Buttons und Field Parameters wird aus einer Reportseite ein Tool, mit dem Anwender selbst in die Daten eintauchen.</p>
-    <div class="eg-start-with">
-      <span class="eg-start-with-label">Als erstes</span>
-      <span class="eg-start-with-text"><strong>Drillthrough</strong> — die einfachste High-Impact-Interaktion. Anschließend <strong>Field Parameters</strong> — der Game-Changer aus 2022 (Preview) bzw. seit Juli 2025 GA, der viele alte Bookmark-Tricks überflüssig macht.</span>
-    </div>
-  </a>
-
-  <a class="eg-chapter" id="eg-service" href="power_bi_einsteiger_guide_v4.html#service" style="--eg-chapter-color: var(--eg-c-service);">
-    <header class="eg-chapter-head">
-      <span class="eg-chapter-num">08</span>
-      <h3 class="eg-chapter-title">Service &amp; <em>Sharing</em></h3>
-      <button class="eg-chapter-done-btn" type="button" aria-label="Kapitel als gelesen markieren">Als gelesen</button>
-    </header>
-    <p class="eg-chapter-intro">Erst durch den Power BI Service wird aus einer .pbix-Datei eine geteilte, automatisch aktualisierte und governance-konforme Lösung. Microsoft empfiehlt klar: Sicherheitsgruppen statt Einzelnutzer.</p>
-    <div class="eg-start-with">
-      <span class="eg-start-with-label">Als erstes</span>
-      <span class="eg-start-with-text"><strong>„Workspaces"</strong> und <strong>„Workspace-Rollen"</strong> — wer darf was im Service. Dann <strong>„Power BI Apps"</strong> — der Microsoft-empfohlene Sharing-Weg, den viele noch nicht nutzen.</span>
-    </div>
-  </a>
-
-  <a class="eg-chapter" id="eg-rls" href="power_bi_einsteiger_guide_v4.html#rls" style="--eg-chapter-color: var(--eg-c-rls);">
-    <header class="eg-chapter-head">
-      <span class="eg-chapter-num">09</span>
-      <h3 class="eg-chapter-title">Row-Level Security <em>· RLS</em></h3>
-      <button class="eg-chapter-done-btn" type="button" aria-label="Kapitel als gelesen markieren">Als gelesen</button>
-    </header>
-    <p class="eg-chapter-intro">Microsoft Learn ist eindeutig: RLS gilt nur für die Viewer-Rolle, nicht für Admins, Members oder Contributors. RLS-Filter werden auf jede DAX-Query angewendet — ein gut designtes Stern-Schema ist die Voraussetzung für performante RLS.</p>
-    <div class="eg-start-with">
-      <span class="eg-start-with-label">Als erstes</span>
-      <span class="eg-start-with-text"><strong>„Statische RLS"</strong> — das einfachere Konzept. Dann <strong>„Dynamische RLS"</strong> — das Pattern, das in der echten Welt skaliert. <strong>„View As Role"</strong> ist Pflicht vor jedem Production-Deploy.</span>
-    </div>
-  </a>
-
-  <a class="eg-chapter" id="eg-ext" href="power_bi_einsteiger_guide_v4.html#ext" style="--eg-chapter-color: var(--eg-c-ext);">
-    <header class="eg-chapter-head">
-      <span class="eg-chapter-num">10</span>
-      <h3 class="eg-chapter-title">Erweitert &amp; <em>Externe Tools</em></h3>
-      <button class="eg-chapter-done-btn" type="button" aria-label="Kapitel als gelesen markieren">Als gelesen</button>
-    </header>
-    <p class="eg-chapter-intro">Power BI Desktop ist mächtig, aber die Community-Tools heben das Niveau. Tabular Editor 2 ist der Goldstandard für Modellierung, DAX Studio für Performance-Analyse. Profis nutzen sie täglich.</p>
-    <div class="eg-start-with">
-      <span class="eg-start-with-label">Als erstes</span>
-      <span class="eg-start-with-text"><strong>Tabular Editor 2</strong> herunterladen und einrichten — kostenfrei, Open Source, ändert deinen Workflow. Dann <strong>DAX Studio</strong> für Performance-Diagnose. Beides sind Pflicht-Tools für jeden, der über ein Jahr Power BI macht.</span>
-    </div>
-  </a>
-
-  <div class="eg-embed-note">
-    <strong>Tiefer einsteigen:</strong> Diese Übersicht ist die Lehrstruktur. Die detaillierten Klick-Karten pro Kapitel (Schritt-für-Schritt, Beispiele, Anfänger-Fallen) findest du im <a href="power_bi_einsteiger_guide_v4.html" style="color: var(--accent); text-decoration: underline;">vollen Einsteiger-Guide →</a>. Und wenn du wissen willst, was unter Power BI liegt: <a href="fabric_einsteiger_guide_v1.html" style="color: var(--accent); text-decoration: underline;">Microsoft-Fabric-Guide →</a>.
-  </div>
-</section>
-
-
-<footer class="footer">
-  <div>
-    <div class="footer-brand"><em>Daten-WG</em> · Community Podcast</div>
-    <div class="footer-meta" style="margin-top: 4px;">Alle 2 Wochen · Köln</div>
-  </div>
-  <div class="footer-links">
-    <a class="footer-link" href="https://www.youtube.com/@Daten-WG" target="_blank" rel="noopener">YouTube</a>
-    <a class="footer-link" href="https://www.daten-wg.com" target="_blank" rel="noopener">daten-wg.com</a>
-    <a class="footer-link" href="https://www.daten-wg.com/daten-wg-2026" target="_blank" rel="noopener">Daten-WG 2026</a>
-    <a class="footer-link" href="https://podcasters.spotify.com/pod/show/daten-wg" target="_blank" rel="noopener">Spotify</a>
-    <a class="footer-link" href="power_bi_einsteiger_guide_v4.html">Power-BI-Guide</a>
-    <a class="footer-link" href="fabric_einsteiger_guide_v1.html">Fabric-Guide</a>
-    <a class="footer-link" href="md/daten_wg_learn_buckets.md">📄 Guide als Markdown</a>
-    <a class="footer-link" href="impressum.html">Impressum</a>
-    <a class="footer-link" href="datenschutz.html">Datenschutz</a>
-  </div>
-  <div class="footer-note">
-    Privates Projekt von Michael Tenner · derzeit in der Beta-Phase ·
-    inhaltlich verbunden mit der
-    <a href="https://www.daten-wg.com" target="_blank" rel="noopener">Daten-WG-Community</a>.
+    <p class="footer-note">Privates Projekt von Michael Tenner · Beta · inhaltlich verbunden mit der <a href="https://www.daten-wg.com" target="_blank" rel="noopener">Daten-WG-Community</a>.</p>
   </div>
 </footer>
 
-</div>
-<!-- /container -->
+<button class="to-top" id="to-top" type="button" aria-label="Nach oben" title="Nach oben" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>
+</button>
 
 <script>
 /* ============================================================
@@ -6321,10 +5402,102 @@ function ytSearchUrl(title) {
   return `https://www.youtube.com/@Daten-WG/search?query=${q}`;
 }
 
-// Format duration helper (already in episode data as readable string)
+function escAttr(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+const BUCKET_NAMES = {
+  'bucket-1': 'Updates & News',
+  'bucket-2': 'Microsoft Fabric',
+  'bucket-3': 'Datenmodellierung',
+  'bucket-4': 'Self-Service',
+  'bucket-5': 'Visualisierung',
+  'bucket-6': 'Power BI Deep Dive',
+  'bucket-7': 'Karriere & Community',
+  'bucket-8': 'Strategie',
+  'bucket-9': 'Event · Daten-WG',
+  'bucket-10': '1 Minute Power BI (Shorts)',
+};
+// Fallback: Buckets, die neu dazukommen, bekommen ihren Namen aus BUCKETS
+BUCKETS.forEach(b => { if (!BUCKET_NAMES[b.id]) BUCKET_NAMES[b.id] = b.name || b.id; });
+const BUCKET_COLOR = Object.fromEntries(BUCKETS.map(b => [b.id, b.color]));
+
+/* ============================================================
+   TAG-MODELL (nur Anzeige · EPISODES bleiben unverändert)
+   - DE/EN sind keine Tags, sondern der Sprach-Schalter
+   - Personen- und Füll-Tags tauchen nicht als Chip auf (bleiben suchbar)
+   - offensichtliche Dubletten werden zu einem Chip zusammengelegt
+   - Tags mit nur einer Folge erscheinen nicht als Chip
+   ============================================================ */
+const TAG_ALIAS = {
+  'Datenmodell': 'Datenmodellierung', 'Modellierung': 'Datenmodellierung', 'Modeling': 'Datenmodellierung',
+  'AI': 'KI', 'KI-Agent': 'KI',
+  'Data Culture': 'Datenkultur', 'Kultur': 'Datenkultur',
+  'Pricing': 'Lizenzen & Kosten', 'Kosten': 'Lizenzen & Kosten', 'Lizenzen': 'Lizenzen & Kosten',
+  'Azure Maps': 'Maps',
+  'Translytical': 'Writeback',
+  'Career-Switch': 'Karriere',
+  'User Group': 'Community',
+  'Consulting': 'Beratung',
+  'Konferenz': 'Event', 'Köln': 'Event', 'Rückblick': 'Event', 'Pre-Event': 'Event', 'Lineup': 'Event',
+  'Daten-WG 2026': 'Event', 'Daten-WG': 'Event',
+};
+const TAG_HIDE = new Set([
+  'DE', 'EN',                                   // Sprache → eigener Schalter
+  'Power BI',                                   // steht an über der Hälfte aller Folgen, filtert nichts
+  'Unsortiert', 'Crossover', 'Realtalk', 'Long-Read', 'Reflexion', 'Microsoft', 'YouTube-Only', 'Kanal', 'Enterprise',
+]);
+const TAG_PERSON = new Set(['Michael Tenner', 'Hans-Ulrik Harnisch', 'Artur König']);
+function isPersonTag(tag) { return TAG_PERSON.has(tag); }
+function displayTag(tag) { return TAG_ALIAS[tag] || tag; }
+// Tags, die eine Karte als Chip-/Filterwerte trägt
+function filterTagsOf(ep) {
+  const out = [];
+  ep.tags.forEach(t => {
+    if (TAG_HIDE.has(t) || isPersonTag(t, ep)) return;
+    const d = displayTag(t);
+    if (out.indexOf(d) === -1) out.push(d);
+  });
+  return out;
+}
+// Tags, die auf der Karte stehen (ohne Sprache und Personen)
+function cardTagsOf(ep) {
+  const out = [];
+  ep.tags.forEach(t => {
+    if (t === 'DE' || t === 'EN' || (TAG_HIDE.has(t) && t !== 'Power BI') || isPersonTag(t, ep)) return;
+    const d = displayTag(t);
+    if (out.indexOf(d) === -1) out.push(d);
+  });
+  return out;
+}
+// Eyebrow: erster sinnvoller Tag, sonst der Bucket-Name
+function eyebrowOf(ep) {
+  for (const t of ep.tags) {
+    if (t === 'DE' || t === 'EN' || TAG_HIDE.has(t) && t !== 'Power BI' || isPersonTag(t, ep)) continue;
+    return displayTag(t);
+  }
+  return BUCKET_NAMES[ep.bucket] || '';
+}
+
+/* Datum „Oktober 2026“, „~Mai 2026“, „19.07.2026“, „Q4 2025“ → sortierbarer Wert */
+const MONTHS = ['januar', 'februar', 'märz', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'dezember'];
+function dateKey(s) {
+  s = String(s || '').trim().toLowerCase();
+  let m = /(\d{1,2})\.(\d{1,2})\.(\d{4})/.exec(s);
+  if (m) return (+m[3]) * 400 + (+m[2] - 1) * 32 + (+m[1]);
+  m = /([a-zäöü]+)\s+(\d{4})/.exec(s);
+  if (m && MONTHS.indexOf(m[1]) > -1) return (+m[2]) * 400 + MONTHS.indexOf(m[1]) * 32 + 31;
+  m = /q([1-4])\s+(\d{4})/.exec(s);
+  if (m) return (+m[2]) * 400 + ((+m[1]) * 3 - 1) * 32 + 31;
+  m = /(\d{4})/.exec(s);
+  return m ? (+m[1]) * 400 : 0;
+}
+// Neueste zuerst; bei gleichem Monat bleibt die Reihenfolge aus EPISODES
+const EPISODES_SORTED = EPISODES.map((e, i) => ({ e, i, k: dateKey(e.date) }))
+  .sort((a, b) => b.k - a.k || a.i - b.i).map(x => x.e);
+
 // Generate HTML for one episode card
 function renderCard(ep, idx) {
-  const tagsHtml = ep.tags.map(t => `<span class="video-card-tag">${t}</span>`).join('');
+  const tags = cardTagsOf(ep);
+  const tagsHtml = tags.map(t => `<span class="video-card-tag">${t}</span>`).join('');
   const chaptersHtml = ep.chapters.length > 0 ? `
     <div class="video-card-chapters">
       <div class="chapters-title">Kapitel · ${ep.chapters.length} Sprungmarken</div>
@@ -6353,16 +5526,20 @@ function renderCard(ep, idx) {
       <p class="embed-privacy-note">Beim Laden wird eine Verbindung zu YouTube (Google) hergestellt und dabei werden Daten (z.&nbsp;B. deine IP-Adresse) übertragen. <a href="datenschutz.html">Datenschutz</a></p>
     </div>` : '';
 
+  const filterTags = filterTagsOf(ep);
+  const searchText = [ep.title, ep.guest, ep.desc, ep.tags.join(' '), filterTags.join(' '), BUCKET_NAMES[ep.bucket] || ''].join(' ').toLowerCase();
+
   return `
     <div class="video-card${expandable ? ' has-chapters' : ''}"
-         id="${ep.ytId ? 'ep-' + ep.ytId : ''}"
+         ${ep.ytId ? `id="ep-${ep.ytId}"` : ''}
          data-bucket="${ep.bucket}"
-         data-tags="${ep.tags.join('|').toLowerCase()}"
+         data-lang="${(ep.lang || '').toLowerCase()}"
+         data-tags="${escAttr(filterTags.join('|').toLowerCase())}"
          data-ytid="${ep.ytId || ''}"
-         data-search="${(ep.title + ' ' + ep.guest + ' ' + ep.desc).toLowerCase().replace(/"/g, '&quot;')}"
-         style="animation-delay: ${idx * 30}ms">
+         data-search="${escAttr(searchText)}"
+         style="animation-delay: ${Math.min(idx, 6) * 30}ms">
       <div class="video-card-top">
-        <div class="video-card-eyebrow">${ep.tags[0]}</div>
+        <div class="video-card-eyebrow">${eyebrowOf(ep)}</div>
         <div class="video-card-lang">${ep.lang}</div>
       </div>
       <h3 class="video-card-title">${ep.title}</h3>
@@ -6379,11 +5556,11 @@ function renderCard(ep, idx) {
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
           YouTube
         </a>
-        ${!hasYtEmbed ? `<a class="btn btn-ghost" href="${ep.podcastUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+        ${!hasYtEmbed && ep.podcastUrl ? `<a class="btn btn-ghost" href="${ep.podcastUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a11 11 0 1 0 0 22 11 11 0 0 0 0-22Zm0 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm-1.5 13.5h3v2.7c0 .4-.4.8-.8.8h-1.4c-.4 0-.8-.4-.8-.8v-2.7Z"/></svg>
           Podcast.de
         </a>` : ''}
-        ${expandable ? `<button class="btn btn-ghost expand-btn" type="button">
+        ${expandable ? `<button class="btn btn-ghost expand-btn" type="button" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>
           ${ep.chapters.length > 0 ? 'Kapitel' : 'Video'}
         </button>` : ''}
@@ -6397,23 +5574,31 @@ function renderCard(ep, idx) {
   `;
 }
 
+/* Pro Bucket zunächst 3 Karten, Rest per „Alle N anzeigen“ */
+const BUCKET_PREVIEW = 3;
+const expandedBuckets = new Set();
+
+function folgeWord(n) { return n === 1 ? 'Folge' : 'Folgen'; }
+
 // Render all buckets and cards
 function renderBuckets() {
   const container = document.getElementById('buckets-container');
   let html = '';
   BUCKETS.forEach(b => {
-    const eps = EPISODES.filter(e => e.bucket === b.id);
+    const eps = EPISODES_SORTED.filter(e => e.bucket === b.id);
+    const word = b.id === 'bucket-10' ? (eps.length === 1 ? 'Short' : 'Shorts') : folgeWord(eps.length);
     html += `
       <section class="bucket-section" id="${b.id}" data-bucket="${b.id}" style="--bucket-color: ${b.color}">
         <div class="bucket-head">
           <span class="bucket-num">${b.num}</span>
           <h2 class="bucket-title">${b.title}</h2>
-          <span class="bucket-hint">${b.hint} · ${eps.length} ${eps.length === 1 ? 'Folge' : 'Folgen'}</span>
+          <span class="bucket-hint">${b.hint} · ${eps.length} ${word}</span>
         </div>
         <p class="bucket-intro">${b.intro}</p>
         <div class="card-grid">
           ${eps.map((ep, i) => renderCard(ep, i)).join('')}
         </div>
+        ${eps.length > BUCKET_PREVIEW ? `<button class="bucket-more" type="button" data-bucket="${b.id}" data-total="${eps.length}" aria-expanded="false">Alle ${eps.length} anzeigen</button>` : ''}
       </section>
     `;
   });
@@ -6426,8 +5611,10 @@ function renderBuckets() {
       e.stopPropagation();
       const card = btn.closest('.video-card');
       card.classList.toggle('expanded');
+      const open = card.classList.contains('expanded');
+      btn.setAttribute('aria-expanded', String(open));
       const svg = btn.querySelector('svg');
-      svg.style.transform = card.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';
+      svg.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
       svg.style.transition = 'transform .2s ease';
     });
   });
@@ -6457,126 +5644,111 @@ function renderBuckets() {
       if (btn) btn.click();
     });
   });
+
+  // „Alle N anzeigen“ / „Weniger anzeigen“
+  container.querySelectorAll('.bucket-more').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const bId = btn.dataset.bucket;
+      if (expandedBuckets.has(bId)) {
+        expandedBuckets.delete(bId);
+        applyFilters();
+        const sec = document.getElementById(bId);
+        if (sec && sec.getBoundingClientRect().top < 0) sec.scrollIntoView({ block: 'start' });
+      } else {
+        expandedBuckets.add(bId);
+        applyFilters();
+      }
+    });
+  });
 }
 
 /* ============================================================
-   TAG FILTERS
+   CHIPS · Themen (Buckets) und Tags
    ============================================================ */
-
-// Collect all unique tags + their counts
 function buildTagIndex() {
   const counts = {};
-  EPISODES.forEach(ep => ep.tags.forEach(t => {
-    counts[t] = (counts[t] || 0) + 1;
-  }));
-  // Sort: highest count first, then alpha
+  EPISODES.forEach(ep => filterTagsOf(ep).forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
   return Object.entries(counts)
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .filter(([, c]) => c >= 2)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'de'))
     .map(([tag, count]) => ({ tag, count }));
 }
 
 const activeTags = new Set();
+let activeBucket = null;
+let activeLang = 'all';
+const TAG_PREVIEW = 18;
 
 function renderTags() {
   const list = document.getElementById('tag-list');
   const tags = buildTagIndex();
-  const rareCount = tags.filter(t => t.count < 2).length;
-  list.innerHTML = tags.map(({ tag, count }) =>
-    `<button class="tag-chip${count < 2 ? ' rare' : ''}" data-tag="${tag.toLowerCase()}">${tag}<span class="tag-count">${count}</span></button>`
-  ).join('') + (rareCount > 0 ? `<button class="tag-toggle" id="toggle-tags" type="button">+ ${rareCount} weitere Tags</button>` : '');
+  const more = Math.max(0, tags.length - TAG_PREVIEW);
+  list.innerHTML = tags.map(({ tag, count }, i) =>
+    `<button class="tag-chip${i >= TAG_PREVIEW ? ' rare' : ''}" type="button" aria-pressed="false" data-tag="${escAttr(tag.toLowerCase())}">${tag}<span class="tag-count">${count}</span></button>`
+  ).join('') + (more > 0 ? `<button class="tag-toggle" id="toggle-tags" type="button" aria-expanded="false">+ ${more} weitere</button>` : '');
 
   list.querySelectorAll('.tag-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const t = chip.dataset.tag;
-      if (activeTags.has(t)) {
-        activeTags.delete(t);
-        chip.classList.remove('active');
-      } else {
-        activeTags.add(t);
-        chip.classList.add('active');
-      }
+      if (activeTags.has(t)) activeTags.delete(t); else activeTags.add(t);
+      syncChips();
       applyFilters();
     });
   });
-
   const toggle = document.getElementById('toggle-tags');
   if (toggle) {
     toggle.addEventListener('click', () => {
       list.classList.toggle('show-all');
       const expanded = list.classList.contains('show-all');
-      toggle.textContent = expanded ? '− Weniger Tags' : `+ ${rareCount} weitere Tags`;
+      toggle.setAttribute('aria-expanded', String(expanded));
+      toggle.textContent = expanded ? '− weniger' : `+ ${more} weitere`;
     });
   }
 }
 
-/* ============================================================
-   BUCKET-FILTER · Klick auf Tile filtert auf diesen Bucket
-   ============================================================ */
-const BUCKET_NAMES = {
-  'bucket-1': 'Updates & News',
-  'bucket-2': 'Microsoft Fabric',
-  'bucket-3': 'Datenmodellierung',
-  'bucket-4': 'Self-Service',
-  'bucket-5': 'Visualisierung',
-  'bucket-6': 'Power BI Deep Dive',
-  'bucket-7': 'Karriere & Community',
-  'bucket-8': 'Strategie',
-  'bucket-9': 'Event · Daten-WG',
-};
-let activeBucket = null;
+function renderBucketChips() {
+  const wrap = document.getElementById('bucket-chips');
+  if (!wrap) return;
+  wrap.innerHTML = BUCKETS.map(b => {
+    const n = EPISODES.filter(e => e.bucket === b.id).length;
+    return `<button class="bucket-chip" type="button" aria-pressed="false" data-bucket="${b.id}" style="--bucket-color: ${b.color}">${BUCKET_NAMES[b.id]}<span class="tag-count">${n}</span></button>`;
+  }).join('');
+  wrap.querySelectorAll('.bucket-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      setActiveBucket(activeBucket === chip.dataset.bucket ? null : chip.dataset.bucket);
+    });
+  });
+}
 
-function setActiveBucket(bId) {
-  activeBucket = bId || null;
-  document.body.classList.toggle('bucket-filter-on', !!activeBucket);
+function syncChips() {
+  document.querySelectorAll('.tag-chip').forEach(c => {
+    const on = activeTags.has(c.dataset.tag);
+    c.classList.toggle('active', on);
+    c.setAttribute('aria-pressed', String(on));
+  });
+  document.querySelectorAll('.bucket-chip').forEach(c => {
+    const on = c.dataset.bucket === activeBucket;
+    c.classList.toggle('active', on);
+    c.setAttribute('aria-pressed', String(on));
+  });
   document.querySelectorAll('.bucket-tile').forEach(t => {
     t.classList.toggle('active', t.getAttribute('href') === '#' + activeBucket);
   });
-  const nameEl = document.getElementById('bucket-filter-bar-name');
-  if (nameEl) nameEl.textContent = activeBucket ? (BUCKET_NAMES[activeBucket] || activeBucket) : '—';
+  document.querySelectorAll('.seg-btn[data-lang]').forEach(b => {
+    b.setAttribute('aria-pressed', String(b.dataset.lang === activeLang));
+  });
+}
+
+function setActiveBucket(bId) {
+  activeBucket = bId || null;
+  syncChips();
   applyFilters();
 }
 
-/* ============================================================
-   GUIDE READING-PROGRESS · localStorage Set von chapter-ids
-   ============================================================ */
-const READ_KEY = 'datenwg.guideRead';
-const READ = (() => {
-  try { return new Set(JSON.parse(localStorage.getItem(READ_KEY) || '[]')); }
-  catch (e) { return new Set(); }
-})();
-
-function persistRead() {
-  try { localStorage.setItem(READ_KEY, JSON.stringify([...READ])); }
-  catch (e) { /* ignore */ }
-}
-
-function syncReadingProgress() {
-  const chapters = document.querySelectorAll('.eg-chapter');
-  let done = 0;
-  chapters.forEach(ch => {
-    const id = ch.id;
-    const isDone = READ.has(id);
-    ch.classList.toggle('done', isDone);
-    const btn = ch.querySelector('.eg-chapter-done-btn');
-    if (btn) {
-      btn.classList.toggle('done', isDone);
-      btn.textContent = isDone ? 'Gelesen' : 'Als gelesen';
-    }
-    if (isDone) done++;
-  });
-  const total = chapters.length;
-  const fill = document.getElementById('eg-progress-fill');
-  const count = document.getElementById('eg-progress-count');
-  if (fill) fill.style.width = total ? `${(done / total) * 100}%` : '0';
-  if (count) count.textContent = `${done} / ${total} Kapitel`;
-}
-
-function toggleChapterRead(chId) {
-  if (!chId) return;
-  if (READ.has(chId)) READ.delete(chId);
-  else READ.add(chId);
-  persistRead();
-  syncReadingProgress();
+function setLang(lang) {
+  activeLang = lang || 'all';
+  syncChips();
+  applyFilters();
 }
 
 /* ============================================================
@@ -6588,7 +5760,7 @@ function setSearchState(state) {
   TRANSCRIPTS.state = state;
   const el = document.getElementById('search-state');
   if (!el) return;
-  const labels = { idle: '', loading: 'Lädt Transkripte…', ready: 'Sucht auch in Transkripten', failed: 'Transkripte n.v.' };
+  const labels = { idle: '', loading: 'Lädt Transkripte…', ready: 'Inkl. Transkripte', failed: 'Transkripte n.v.' };
   el.textContent = labels[state] || '';
   el.setAttribute('data-state', state);
 }
@@ -6606,7 +5778,6 @@ function loadTranscriptsIfNeeded() {
       }
       TRANSCRIPTS.data = lower;
       setSearchState('ready');
-      // Falls schon Suchtext vorhanden: erneut filtern, damit Transkript-Treffer auftauchen
       applyFilters();
     })
     .catch(err => {
@@ -6616,14 +5787,11 @@ function loadTranscriptsIfNeeded() {
 }
 
 /* ============================================================
-   FILTERING (search + tags + transcripts)
+   FILTERING (Suche + Sprache + Thema + Tags)
+   - Suche: alle Wörter müssen vorkommen, "Phrase", -ausschließen
+   - Tags: mehrere aktive Tags = ODER (zwei Chips ergeben nie 0)
+   - Kategorien untereinander: UND
    ============================================================ */
-
-/* Parst einen Such-String in Tokens:
-   - "phrase in anfuehrungszeichen" = ein exakter Phrase-Token (require)
-   - -wort = exclude-Token
-   - sonst = require-Token
-   - Standalone "&" und "and" werden als Verbinder ignoriert. */
 function parseSearchQuery(raw) {
   const tokens = [];
   const rx = /"([^"]*)"|(\S+)/g;
@@ -6633,25 +5801,29 @@ function parseSearchQuery(raw) {
       const v = m[1].trim().toLowerCase();
       if (v) tokens.push({ kind: 'require', value: v });
     } else {
-      let t = m[2];
+      const t = m[2];
       const tl = t.toLowerCase();
       if (tl === '&' || tl === 'and' || tl === 'und') continue;
-      if (t.startsWith('-') && t.length > 1) {
-        tokens.push({ kind: 'exclude', value: t.slice(1).toLowerCase() });
-      } else {
-        tokens.push({ kind: 'require', value: tl });
-      }
+      if (t.startsWith('-') && t.length > 1) tokens.push({ kind: 'exclude', value: t.slice(1).toLowerCase() });
+      else tokens.push({ kind: 'require', value: tl });
     }
   }
   return tokens;
 }
 
+function isFiltering() {
+  const raw = document.getElementById('search-input').value.trim();
+  return !!(raw || activeTags.size || activeBucket || activeLang !== 'all');
+}
+
 function applyFilters() {
   const rawSearch = document.getElementById('search-input').value.trim();
   const tokens = rawSearch ? parseSearchQuery(rawSearch) : [];
-  let visibleCount = 0;
-  const bucketVisibility = {};
+  const rawLower = rawSearch.toLowerCase().replace(/"/g, '');
   const transcripts = TRANSCRIPTS.data;
+  const filtering = isFiltering();
+  let visibleCount = 0;
+  const perBucket = {};
 
   document.querySelectorAll('.video-card').forEach(card => {
     const search = card.dataset.search || '';
@@ -6660,10 +5832,11 @@ function applyFilters() {
     const ytId = card.dataset.ytid || '';
     const transcript = (transcripts && ytId) ? (transcripts[ytId] || '') : '';
 
-    // Token-basierte Match-Logik: alle require muessen treffen, kein exclude darf treffen.
     let matchesSearch = true;
     let matchedTranscript = false;
-    for (const tok of tokens) {
+    // Exakt eingefügter Titel/Satz trifft immer (auch mit „-part3“ o. ä. darin)
+    const exact = rawLower && search.includes(rawLower);
+    for (const tok of exact ? [] : tokens) {
       const inText = search.includes(tok.value);
       const inTranscript = transcript ? transcript.includes(tok.value) : false;
       if (tok.kind === 'exclude') {
@@ -6673,50 +5846,114 @@ function applyFilters() {
         if (!inText && inTranscript) matchedTranscript = true;
       }
     }
-
-    const matchesTags = activeTags.size === 0 || [...activeTags].every(t => cardTags.includes(t));
+    const matchesTags = activeTags.size === 0 || cardTags.some(t => activeTags.has(t));
     const matchesBucket = !activeBucket || bucketId === activeBucket;
-    const visible = matchesSearch && matchesTags && matchesBucket;
+    const matchesLang = activeLang === 'all' || card.dataset.lang === activeLang;
+    const visible = matchesSearch && matchesTags && matchesBucket && matchesLang;
 
     card.classList.toggle('hidden', !visible);
     card.classList.toggle('transcript-match', visible && matchedTranscript);
     if (visible) {
       visibleCount++;
-      bucketVisibility[bucketId] = (bucketVisibility[bucketId] || 0) + 1;
+      const n = (perBucket[bucketId] = (perBucket[bucketId] || 0) + 1);
+      card.classList.toggle('over-limit', !filtering && !expandedBuckets.has(bucketId) && n > BUCKET_PREVIEW);
+    } else {
+      card.classList.remove('over-limit');
     }
   });
 
-  // Hide entire bucket sections that have no visible cards
   document.querySelectorAll('.bucket-section').forEach(section => {
     const bId = section.dataset.bucket;
-    section.classList.toggle('hidden', !bucketVisibility[bId]);
+    section.classList.toggle('hidden', !perBucket[bId]);
+    const more = section.querySelector('.bucket-more');
+    if (more) {
+      const total = +more.dataset.total;
+      const open = expandedBuckets.has(bId);
+      more.hidden = filtering;
+      more.textContent = open ? 'Weniger anzeigen' : `Alle ${total} anzeigen`;
+      more.setAttribute('aria-expanded', String(open));
+    }
   });
 
   document.getElementById('result-count').textContent = visibleCount;
-  const noRes = document.getElementById('no-results');
-  noRes.classList.toggle('visible', visibleCount === 0);
-  if (visibleCount === 0) {
-    noRes.textContent = 'Keine Folge passt zu deiner Suche. Setz die Filter zurück oder probier einen anderen Begriff.';
-  }
+  const doneCount = document.getElementById('sheet-done-count');
+  if (doneCount) doneCount.textContent = visibleCount;
+  document.getElementById('no-results').classList.toggle('visible', visibleCount === 0);
+  document.body.classList.toggle('filtering', filtering);
 
-  // Badge auf der Tags-Peek-Pille mit Anzahl aktiver Tag-Filter aktualisieren
-  const badge = document.getElementById('tags-peek-badge');
-  if (badge) {
-    if (activeTags.size > 0) {
-      badge.textContent = activeTags.size;
-      badge.setAttribute('data-active', '');
-    } else {
-      badge.removeAttribute('data-active');
-    }
+  // Aktive Filter als entfernbare Pillen + Zähler am Filter-Button
+  const pills = [];
+  if (activeBucket) pills.push(`<button type="button" class="active-pill" data-clear="bucket" style="--bucket-color: ${BUCKET_COLOR[activeBucket] || 'var(--accent)'}" aria-label="Thema ${escAttr(BUCKET_NAMES[activeBucket])} entfernen">${BUCKET_NAMES[activeBucket] || activeBucket}</button>`);
+  if (activeLang !== 'all') pills.push(`<button type="button" class="active-pill" data-clear="lang" aria-label="Sprachfilter entfernen">${activeLang.toUpperCase()}</button>`);
+  activeTags.forEach(t => {
+    const chip = document.querySelector(`.tag-chip[data-tag="${CSS.escape(t)}"]`);
+    const label = chip ? chip.firstChild.textContent : t;
+    pills.push(`<button type="button" class="active-pill" data-clear="tag" data-tag="${escAttr(t)}" style="--bucket-color: var(--ink)" aria-label="Tag ${escAttr(label)} entfernen">${label}</button>`);
+  });
+  const af = document.getElementById('active-filters');
+  if (af) af.innerHTML = pills.join('');
+  const fc = document.getElementById('filter-count');
+  if (fc) {
+    const n = activeTags.size + (activeBucket ? 1 : 0) + (activeLang !== 'all' ? 1 : 0);
+    fc.textContent = n ? String(n) : '';
   }
 }
 
 function resetFilters() {
   activeTags.clear();
-  document.querySelectorAll('.tag-chip.active').forEach(c => c.classList.remove('active'));
+  activeBucket = null;
+  activeLang = 'all';
   document.getElementById('search-input').value = '';
-  if (activeBucket) setActiveBucket(null);
+  syncChips();
   applyFilters();
+}
+
+/* Zähler in Header und Bucket-Kacheln aus EPISODES nachziehen
+   (die Zahlen im Markup bleiben als Marker für den kitchen-update-Skill) */
+function syncCounts() {
+  const total = EPISODES.length;
+  document.querySelectorAll('.header-stat').forEach(s => {
+    if (/Folgen/.test(s.textContent)) { const st = s.querySelector('strong'); if (st) st.textContent = total; }
+  });
+  const sub = document.querySelector('.hero .subtitle');
+  if (sub && sub.firstChild && sub.firstChild.nodeType === 3) sub.firstChild.nodeValue = sub.firstChild.nodeValue.replace(/^\d+/, total);
+  const rc = document.getElementById('result-count');
+  if (rc && rc.parentNode) rc.parentNode.lastChild.nodeValue = ` von ${total} Folgen`;
+  document.querySelectorAll('.bucket-tile').forEach(t => {
+    const id = (t.getAttribute('href') || '').slice(1);
+    const n = EPISODES.filter(e => e.bucket === id).length;
+    const c = t.querySelector('.bucket-tile-count');
+    if (c && n) c.textContent = `${n} ${id === 'bucket-10' ? (n === 1 ? 'Short' : 'Shorts') : folgeWord(n)}`;
+  });
+}
+
+/* „Neu in der Kitchen“: neueste Folge + neuester Short aus EPISODES, neueste Beiträge aus dem Teaser */
+function renderNews() {
+  const grid = document.getElementById('news-grid');
+  if (!grid) return;
+  const items = [];
+  const ep = EPISODES_SORTED.find(e => e.bucket !== 'bucket-10');
+  const short = EPISODES_SORTED.find(e => e.bucket === 'bucket-10');
+  const epItem = (e, kind) => `<a class="news-item" href="${e.ytId ? '#ep-' + e.ytId : '#' + e.bucket}" style="--bucket-color: ${BUCKET_COLOR[e.bucket] || 'var(--accent)'}">
+      <span class="news-kind">${kind} · ${e.date}</span>
+      <span class="news-title">${e.title}</span>
+      <span class="news-meta">${e.solo ? '' : e.guest + ' · '}${e.duration}</span></a>`;
+  if (ep) items.push(epItem(ep, 'Neue Folge'));
+  if (short) items.push(epItem(short, 'Neuer Short'));
+  const cards = [...document.querySelectorAll('#posts-talks .top-pick')]
+    .map((c, i) => ({ c, i, d: c.dataset.date || '' }))
+    .sort((a, b) => b.d.localeCompare(a.d) || a.i - b.i)
+    .slice(0, 2);
+  cards.forEach(({ c }) => {
+    const title = c.querySelector('.top-pick-title');
+    const eyebrow = c.querySelector('.top-pick-eyebrow');
+    const kind = eyebrow ? eyebrow.textContent.split('·')[0].trim() : 'Beitrag';
+    items.push(`<a class="news-item" href="${c.getAttribute('href')}">
+      <span class="news-kind">Neu · ${kind}</span>
+      <span class="news-title">${title ? title.innerHTML : ''}</span>
+      <span class="news-meta">${eyebrow ? eyebrow.textContent.split('·').slice(1).join('·').trim() : ''}</span></a>`);
+  });
+  if (items.length) grid.innerHTML = items.join('');
 }
 
 /* ============================================================
@@ -6725,96 +5962,143 @@ function resetFilters() {
 document.addEventListener('DOMContentLoaded', () => {
   renderBuckets();
   renderTags();
+  renderBucketChips();
+  syncCounts();
+  renderNews();
+  syncChips();
+  applyFilters();
+
   const searchInput = document.getElementById('search-input');
+  const filterBar = document.getElementById('filter-bar');
+  const panel = document.getElementById('filter-panel');
+  const filterToggle = document.getElementById('filter-toggle');
+  const mqMobile = window.matchMedia('(max-width: 900px)');
+  const root = document.documentElement;
+
   searchInput.addEventListener('input', applyFilters);
-  // Transkripte lazy laden: erst bei Fokus oder erstem Tastendruck
   searchInput.addEventListener('focus', loadTranscriptsIfNeeded, { once: true });
   searchInput.addEventListener('input', loadTranscriptsIfNeeded, { once: true });
+  searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); searchInput.blur(); } });
   document.getElementById('reset-filters').addEventListener('click', resetFilters);
+  document.getElementById('sheet-reset').addEventListener('click', resetFilters);
 
-  // Filterleiste: kompakter Look beim Scrollen + manueller Tags-Toggle
-  const filterBar = document.querySelector('.filter-bar');
-  const tagsPeek = document.getElementById('tags-peek');
-  const tagsPeekLabel = document.getElementById('tags-peek-label');
-  const TAGS_STATE_KEY = 'datenwg.tagsHidden';
+  // Sprache
+  document.querySelectorAll('.seg-btn[data-lang]').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
 
-  if (filterBar) {
-    // Kompakter Look beim Scrollen (nur Padding/Blur, keine Auto-Collapse)
-    const COMPACT_AT = 160;
-    let ticking = false;
-    const updateScrollState = () => {
-      filterBar.classList.toggle('scrolled', window.scrollY > COMPACT_AT);
-      ticking = false;
-    };
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        window.requestAnimationFrame(updateScrollState);
-        ticking = true;
-      }
-    }, { passive: true });
-    updateScrollState();
-
-    // Manueller Toggle für die Tag-Reihe — persistiert in localStorage
-    const setTagsHidden = (hidden) => {
-      filterBar.classList.toggle('tags-hidden', hidden);
-      if (tagsPeek) tagsPeek.setAttribute('aria-expanded', String(!hidden));
-      if (tagsPeekLabel) tagsPeekLabel.textContent = hidden ? 'Tags anzeigen' : 'Tags ausblenden';
-      try { localStorage.setItem(TAGS_STATE_KEY, hidden ? '1' : '0'); } catch (e) { /* ignore */ }
-    };
-
-    let initialHidden = false;
-    try { initialHidden = localStorage.getItem(TAGS_STATE_KEY) === '1'; } catch (e) { /* ignore */ }
-    setTagsHidden(initialHidden);
-
-    if (tagsPeek) {
-      tagsPeek.addEventListener('click', () => {
-        setTagsHidden(!filterBar.classList.contains('tags-hidden'));
-      });
-    }
-  }
-
-  // ==== Guide Reading-Progress: Klick auf "Als gelesen" ====
-  // stopPropagation ist wichtig, da die Karte selbst jetzt ein Link ist
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.eg-chapter-done-btn');
-    if (!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const ch = btn.closest('.eg-chapter');
-    if (ch && ch.id) toggleChapterRead(ch.id);
+  // Aktive-Filter-Pillen entfernen
+  document.getElementById('active-filters').addEventListener('click', (e) => {
+    const p = e.target.closest('.active-pill');
+    if (!p) return;
+    if (p.dataset.clear === 'bucket') activeBucket = null;
+    else if (p.dataset.clear === 'lang') activeLang = 'all';
+    else if (p.dataset.clear === 'tag') activeTags.delete(p.dataset.tag);
+    syncChips();
+    applyFilters();
   });
-  const resetBtn = document.getElementById('eg-progress-reset');
-  if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      READ.clear();
-      persistRead();
-      syncReadingProgress();
-    });
+
+  /* ---- Filter-Panel: Desktop offen unter der Leiste (scrollt mit weg), mobil Bottom-Sheet (zu) ---- */
+  const library = document.getElementById('folgen');
+  let panelUserChoice = null; // null = Standard je Breite
+  const setPanel = (open, fromUser) => {
+    if (fromUser) panelUserChoice = open;
+    library.classList.toggle('panel-open', open);
+    filterToggle.setAttribute('aria-expanded', String(open));
+    const sheet = open && mqMobile.matches;
+    document.body.classList.toggle('sheet-open', sheet);
+    root.classList.toggle('scroll-lock', sheet || document.body.classList.contains('nav-open'));
+    document.getElementById('filter-backdrop').hidden = !sheet;
+    if (sheet) setTimeout(() => document.getElementById('filter-close').focus({ preventScroll: true }), 30);
+  };
+  const defaultPanel = () => setPanel(mqMobile.matches ? false : (panelUserChoice !== null ? panelUserChoice : true));
+  filterToggle.addEventListener('click', () => {
+    const open = !library.classList.contains('panel-open');
+    setPanel(open, true);
+    // Desktop: Panel liegt unter der Leiste – wenn es gerade außer Sicht ist, hinscrollen
+    if (open && !mqMobile.matches && panel.getBoundingClientRect().top < navH() + filterBar.offsetHeight) scrollToLibrary();
+  });
+  const closeSheet = () => { setPanel(false, true); filterToggle.focus({ preventScroll: true }); };
+  document.getElementById('filter-close').addEventListener('click', closeSheet);
+  document.getElementById('sheet-done').addEventListener('click', () => {
+    closeSheet();
+    if (document.getElementById('buckets-container').getBoundingClientRect().top < 0 || library.getBoundingClientRect().top > window.innerHeight * 0.5) scrollToLibrary();
+  });
+  document.getElementById('filter-backdrop').addEventListener('click', closeSheet);
+  mqMobile.addEventListener('change', () => { panelUserChoice = null; defaultPanel(); });
+  defaultPanel();
+
+  // Höhe der Filterleiste als CSS-Variable (für scroll-margin der Karten)
+  const setBarH = () => {
+    root.style.setProperty('--bar-h', Math.min(filterBar.offsetHeight, 260) + 'px');
+  };
+  if (window.ResizeObserver) new ResizeObserver(setBarH).observe(filterBar);
+  setBarH();
+
+  // „stuck“-Zustand nur für den Schatten der Leiste
+  const navH = () => parseFloat(getComputedStyle(root).getPropertyValue('--nav-h')) || 64;
+  let wasStuck = false;
+  const toTop = document.getElementById('to-top');
+  let ticking = false;
+  const onScroll = () => {
+    ticking = false;
+    const lib = document.getElementById('folgen');
+    const libRect = lib.getBoundingClientRect();
+    const stuck = filterBar.getBoundingClientRect().top <= navH() + 1 && libRect.bottom > navH() + 80 && libRect.top < navH();
+    if (stuck !== wasStuck) { wasStuck = stuck; filterBar.classList.toggle('stuck', stuck); }
+    toTop.hidden = window.scrollY < window.innerHeight * 3;
+  };
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  onScroll();
+  toTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const brand = document.querySelector('.site-nav-inner > .site-brand');
+    if (brand) brand.focus({ preventScroll: true });
+  });
+
+  /* ---- Suche fokussieren (Nav-Lupe, Wegweiser, Hero) ---- */
+  function scrollToLibrary() {
+    const lib = document.getElementById('folgen');
+    const y = lib.getBoundingClientRect().top + window.scrollY - navH() - 8;
+    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
   }
-  // Initial state sync
-  syncReadingProgress();
+  function focusSearch() {
+    scrollToLibrary();
+    setTimeout(() => searchInput.focus({ preventScroll: true }), 350);
+  }
+  document.querySelectorAll('[data-action="focus-search"]').forEach(a => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (document.body.classList.contains('nav-open') && window.__closeNav) window.__closeNav(false);
+    focusSearch();
+  }));
+  const heroForm = document.getElementById('hero-search-form');
+  if (heroForm) heroForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = document.getElementById('hero-search').value.trim();
+    searchInput.value = q;
+    loadTranscriptsIfNeeded();
+    applyFilters();
+    document.getElementById('hero-search').blur();
+    scrollToLibrary();
+  });
+
+  // Lesefortschritt aus dem Guide (falls vorhanden) an der Lernpfad-Karte zeigen
+  try {
+    const read = JSON.parse(localStorage.getItem('datenwg.guideRead') || '[]');
+    const lp = document.getElementById('learn-progress');
+    if (lp && Array.isArray(read) && read.length) { lp.textContent = `${Math.min(read.length, 10)} / 10 Kapitel als gelesen markiert`; lp.hidden = false; }
+  } catch (e) { /* ignore */ }
 
   // ==== Such-Hilfe-Popover: Klick auf "i" toggelt, Outside-Klick + Esc schliessen ====
   const helpBtn = document.getElementById('search-help-btn');
   const helpPop = document.getElementById('search-help-popover');
   if (helpBtn && helpPop) {
-    const setOpen = (open) => {
-      helpPop.hidden = !open;
-      helpBtn.setAttribute('aria-expanded', String(open));
-    };
-    helpBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setOpen(helpPop.hidden);
-    });
+    const setOpen = (open) => { helpPop.hidden = !open; helpBtn.setAttribute('aria-expanded', String(open)); };
+    helpBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); setOpen(helpPop.hidden); });
     document.addEventListener('click', (e) => {
       if (helpPop.hidden) return;
       if (e.target === helpBtn || helpPop.contains(e.target)) return;
       setOpen(false);
     });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !helpPop.hidden) setOpen(false);
-    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !helpPop.hidden) setOpen(false); });
   }
 
   // ==== Permalink: Klick auf 🔗-Icon kopiert URL mit #ep-<ytId> ====
@@ -6830,162 +6114,157 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.classList.add('copied');
       const orig = btn.getAttribute('title');
       btn.setAttribute('title', 'Kopiert!');
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        if (orig) btn.setAttribute('title', orig);
-      }, 1400);
+      setTimeout(() => { btn.classList.remove('copied'); if (orig) btn.setAttribute('title', orig); }, 1400);
     };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(done).catch(() => {
-        // Fallback: temporäres textarea
-        const ta = document.createElement('textarea');
-        ta.value = url;
-        document.body.appendChild(ta);
-        ta.select();
-        try { document.execCommand('copy'); done(); } catch (_) {}
-        ta.remove();
-      });
-    } else {
+    const fallback = () => {
       const ta = document.createElement('textarea');
-      ta.value = url;
-      document.body.appendChild(ta);
-      ta.select();
+      ta.value = url; document.body.appendChild(ta); ta.select();
       try { document.execCommand('copy'); done(); } catch (_) {}
       ta.remove();
-    }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done).catch(fallback);
+    else fallback();
   });
 
-  // ==== Deep-Link beim Pageload: #ep-<ytId> -> Karte auf-scrollen + highlight ====
-  const openEpisodeFromHash = () => {
-    const hash = location.hash || '';
-    if (!hash.startsWith('#ep-')) return;
-    const card = document.getElementById(hash.slice(1));
-    if (!card) return;
+  /* ==== Deep-Links: #ep-<ytId> (Karte zeigen, aufklappen, markieren) und #bucket-N ==== */
+  function openEpisode(id, smooth) {
+    const card = document.getElementById(id);
+    if (!card) return false;
+    if (card.classList.contains('hidden')) resetFilters();
+    if (card.classList.contains('over-limit')) { expandedBuckets.add(card.dataset.bucket); applyFilters(); }
     setTimeout(() => {
-      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      card.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
       card.classList.add('ep-highlighted');
-      // Wenn Karte ausklappbar ist und nicht offen, auto-expand
       const expandBtn = card.querySelector('.expand-btn');
-      if (expandBtn && !card.classList.contains('expanded')) {
-        expandBtn.click();
-      }
+      if (expandBtn && !card.classList.contains('expanded')) expandBtn.click();
       setTimeout(() => card.classList.remove('ep-highlighted'), 2400);
-    }, 250);
+    }, 60);
+    return true;
+  }
+  const openFromHash = (smooth) => {
+    const hash = decodeURIComponent(location.hash || '');
+    if (hash.startsWith('#ep-')) { openEpisode(hash.slice(1), smooth); return; }
+    if (/^#bucket-\d+$/.test(hash)) {
+      const sec = document.getElementById(hash.slice(1));
+      if (sec) setTimeout(() => sec.scrollIntoView({ block: 'start' }), 60);
+    }
   };
-  openEpisodeFromHash();
-  window.addEventListener('hashchange', openEpisodeFromHash);
+  openFromHash(false);
+  window.addEventListener('hashchange', () => openFromHash(true));
+  // Klick auf einen #ep-Link (Top-Picks, „Neu“) auch dann, wenn der Hash schon gesetzt ist
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href^="#ep-"]');
+    if (!a) return;
+    e.preventDefault();
+    const id = a.getAttribute('href').slice(1);
+    if (history.pushState) history.pushState(null, '', '#' + id);
+    openEpisode(id, true);
+  });
 
-  // ==== Bucket-Tile Filter: Klick filtert auf diesen Bucket statt nur zu scrollen ====
+  // ==== Bucket-Kachel: filtert auf das Thema und springt zur Liste ====
   document.querySelectorAll('.bucket-tile').forEach(tile => {
     tile.addEventListener('click', (e) => {
       e.preventDefault();
-      const target = tile.getAttribute('href') || '';
-      const bId = target.startsWith('#') ? target.slice(1) : '';
+      const bId = (tile.getAttribute('href') || '').slice(1);
       if (!bId) return;
-      // Toggle: aktiver Bucket nochmal geklickt -> Filter aufheben
       setActiveBucket(activeBucket === bId ? null : bId);
-      // Sanftes Scrollen zur Filter-Bar oder zum aktiven Bucket
-      const target_el = activeBucket
-        ? document.getElementById(bId)
-        : document.querySelector('.filter-bar');
-      if (target_el) target_el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      scrollToLibrary();
     });
   });
 
-  // Filter-Aufhebung über Indikator-Button
-  const clearBtn = document.getElementById('bucket-filter-bar-clear');
-  if (clearBtn) clearBtn.addEventListener('click', () => setActiveBucket(null));
-
-  // ESC-Taste hebt Bucket-Filter auf (kleine UX-Verbesserung)
+  // ESC: Sheet schließen, sonst Bucket-Filter aufheben
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && activeBucket && !document.activeElement?.matches('input, textarea')) {
-      setActiveBucket(null);
-    }
+    if (e.key !== 'Escape') return;
+    if (document.body.classList.contains('sheet-open')) { closeSheet(); return; }
+    if (document.body.classList.contains('nav-open')) return;
+    if (activeBucket && !document.activeElement?.matches('input, textarea')) setActiveBucket(null);
   });
 });
 </script>
 
-<!-- Mobile-Navigation · Burger-Menü-Toggle -->
+<!-- Navigation · Klick-Dropdowns (Desktop) und Vollbild-Sheet mit Akkordeons (mobil) -->
 <script>
 (function () {
   var nav = document.getElementById('topnav');
   if (!nav) return;
   var burger = nav.querySelector('.nav-burger');
-  if (!burger) return;
+  var closeBtn = nav.querySelector('.nav-close');
+  var menu = document.getElementById('site-menu');
+  var dds = [].slice.call(nav.querySelectorAll('.nav-dd'));
+  var mq = window.matchMedia('(max-width: 900px)');
+  var root = document.documentElement;
 
-  function setOpen(open) {
-    nav.classList.toggle('nav-open', open);
+  function closeDropdowns(except) {
+    dds.forEach(function (dd) {
+      if (dd === except) return;
+      dd.classList.remove('open');
+      var b = dd.querySelector('.nav-dd-btn');
+      if (b) b.setAttribute('aria-expanded', 'false');
+    });
+  }
+  function setOpen(open, restoreFocus) {
+    document.body.classList.toggle('nav-open', open);
     burger.setAttribute('aria-expanded', open ? 'true' : 'false');
     burger.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
+    root.classList.toggle('scroll-lock', open || document.body.classList.contains('sheet-open'));
+    if (open) { menu.scrollTop = 0; setTimeout(function () { closeBtn.focus(); }, 20); }
+    else { closeDropdowns(); if (restoreFocus) burger.focus(); }
   }
+  window.__closeNav = function (restore) { setOpen(false, restore); };
 
-  burger.addEventListener('click', function () {
-    setOpen(!nav.classList.contains('nav-open'));
-  });
+  burger.addEventListener('click', function () { setOpen(!document.body.classList.contains('nav-open'), false); });
+  closeBtn.addEventListener('click', function () { setOpen(false, true); });
 
-  // Menü nach Klick auf einen echten Link (kein Dropdown-Toggle) schließen
-  nav.querySelectorAll('.topnav-link').forEach(function (link) {
-    link.addEventListener('click', function () {
-      if (link.classList.contains('topnav-dd-toggle')) return;
-      setOpen(false);
+  dds.forEach(function (dd) {
+    var btn = dd.querySelector('.nav-dd-btn');
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      var open = !dd.classList.contains('open');
+      if (!mq.matches) closeDropdowns(dd);
+      dd.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
   });
 
-  // ESC schließt das Menü
+  // Jeder echte Link im Menü schließt Sheet bzw. Dropdown
+  menu.addEventListener('click', function (e) {
+    var a = e.target.closest('a');
+    if (!a) return;
+    closeDropdowns();
+    if (document.body.classList.contains('nav-open')) setOpen(false, false);
+  });
+  // Klick außerhalb schließt Desktop-Dropdowns
+  document.addEventListener('click', function (e) {
+    if (mq.matches) return;
+    if (!e.target.closest('.nav-dd')) closeDropdowns();
+  });
+  // Fokus verlässt ein Dropdown → schließen (Tastatur)
+  dds.forEach(function (dd) {
+    dd.addEventListener('focusout', function (e) {
+      if (mq.matches) return;
+      if (e.relatedTarget && !dd.contains(e.relatedTarget)) {
+        dd.classList.remove('open');
+        dd.querySelector('.nav-dd-btn').setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && nav.classList.contains('nav-open')) setOpen(false);
+    if (e.key !== 'Escape') return;
+    var openDd = dds.filter(function (d) { return d.classList.contains('open'); })[0];
+    if (openDd && !mq.matches) { closeDropdowns(); openDd.querySelector('.nav-dd-btn').focus(); return; }
+    if (document.body.classList.contains('nav-open')) setOpen(false, true);
   });
+  // Fokus im offenen Sheet halten
+  menu.addEventListener('keydown', function (e) {
+    if (e.key !== 'Tab' || !document.body.classList.contains('nav-open')) return;
+    var f = [].slice.call(menu.querySelectorAll('a, button')).filter(function (el) { return el.offsetParent !== null; });
+    if (!f.length) return;
+    if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
+  mq.addEventListener('change', function () { if (!mq.matches) setOpen(false, false); closeDropdowns(); });
+})();
+</script>
 
-  // Beim Wechsel auf Desktop-Breite zurücksetzen
-  window.addEventListener('resize', function () {
-    if (window.innerWidth > 1100 && nav.classList.contains('nav-open')) setOpen(false);
-  });
-})();
-</script>
-<script>
-(function () {
-  var grid = document.querySelector('#posts-talks .top-picks-grid');
-  if (!grid) return;
-  var cards = [].slice.call(grid.querySelectorAll('.top-pick'));
-  cards.forEach(function (c, i) { c.dataset.idx = i; });
-  var chips = [].slice.call(document.querySelectorAll('.pt-chip'));
-  var sortSel = document.getElementById('pt-sort');
-  var countEl = document.getElementById('pt-count');
-  function titleOf(c) { var t = c.querySelector('.top-pick-title'); return t ? t.textContent.trim() : ''; }
-  function typRank(c) {
-    var t = (c.dataset.tags || '').split(' ');
-    var order = ['post', 'story', 'whitepaper', 'tool', 'doku', 'talkevent'];
-    for (var k = 0; k < order.length; k++) if (t.indexOf(order[k]) > -1) return k;
-    return 9;
-  }
-  function apply() {
-    var activeChip = document.querySelector('.pt-chip.active');
-    var tag = activeChip ? activeChip.dataset.tag : 'alle';
-    var mode = sortSel ? sortSel.value : 'std';
-    var order = cards.slice();
-    if (mode === 'az') order.sort(function (a, b) { return titleOf(a).localeCompare(titleOf(b), 'de'); });
-    else if (mode === 'neu') order.sort(function (a, b) { return (b.dataset.date || '').localeCompare(a.dataset.date || '') || (+a.dataset.idx) - (+b.dataset.idx); });
-    else if (mode === 'typ') order.sort(function (a, b) { return typRank(a) - typRank(b) || (+a.dataset.idx) - (+b.dataset.idx); });
-    else order.sort(function (a, b) { return (+a.dataset.idx) - (+b.dataset.idx); });
-    var visible = 0;
-    order.forEach(function (c) {
-      grid.appendChild(c);
-      var show = tag === 'alle' || (c.dataset.tags || '').split(' ').indexOf(tag) > -1;
-      c.style.display = show ? '' : 'none';
-      if (show) visible++;
-    });
-    if (countEl) countEl.textContent = visible + ' von ' + cards.length + ' ·';
-  }
-  chips.forEach(function (ch) {
-    ch.addEventListener('click', function () {
-      chips.forEach(function (o) { o.classList.remove('active'); });
-      ch.classList.add('active');
-      apply();
-    });
-  });
-  if (sortSel) sortSel.addEventListener('change', apply);
-  apply();
-})();
-</script>
 </body>
 </html>
