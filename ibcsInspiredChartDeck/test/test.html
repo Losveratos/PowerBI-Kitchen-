@@ -1322,5 +1322,75 @@ run("c138", { metadata: { columns: [], objects: Object.assign({ colors: { appear
 // but header + subline preview the author's custom texts
 run("c139", { metadata: { columns: [], objects: esObj }, categorical: { categories: [], values: [] } }, 960, 380);
 </script>
+
+<div class="case"><h4>c140 · P0-Skalierung S1 · Doppel-Varianz ΔPL ≈ +2 / ΔPY ≈ +20 — beide Δ-Panels in EINER Skala: ΔPL-Balken ~1/10 so hoch wie ΔPY, Pins ebenso</h4><div class="stage" id="c140" style="width:960px;height:600px"></div></div>
+<div class="case"><h4>c141 · P0-Skalierung S3 · Kategorie-Brücke PY 100, A +60 → Zwischenstand 160, dann −45/−25 → AC 90 — Kaskade bleibt in der Werte-Spalte, Pins frei</h4><div class="stage" id="c141" style="width:1200px;height:420px"></div></div>
+<div class="case"><h4>c142 · P0-Skalierung S4 · Integrierte Brücke PY 60, Jan/Feb +15 → Stand 90, dann 4× −8 → AC 58 — Kaskade unter Pin-Achse und Titel</h4><div class="stage" id="c142" style="width:1120px;height:520px"></div></div>
+<div class="case"><h4>c143 · P0-Skalierung S2 · Bars + Wasserfall-Brücke PY 100 → AC 96 (nur negative Δ) — Brücken-Panel nullbasiert: Anker ab 0 mit AC-Grundlinie, AC-Anker volle Länge</h4><div class="stage" id="c143" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>c144 · P0-Skalierung S5 · Gestapelt + Small Multiples Nord (max 3.900) / Süd (max 390) — gemeinsame Stack-Skala (Süd 1/10), Gutschrift Q3 negativ UNTER der Nulllinie</h4><div class="stage" id="c144" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>c145 · P0-Skalierung S13 · GuV-Wasserfall Format „#,0 T€" (Umsatz 100.000 T€) — Anker „100.000 T€", Δ „+2.000 T€", Titel „Umsatz in T€" (kein K€)</h4><div class="stage" id="c145" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>c146 · P0-Skalierung S7 · GuV-Wasserfall + fixedMax 6.000 + Kappung — Umsatz-Anker (9.800) gekappt mit Bruch-Marker, Label zeigt echten Wert</h4><div class="stage" id="c146" style="width:960px;height:380px"></div></div>
+<div class="case"><h4>c147 · P0-Skalierung S8 · Columns + fixedMax 700 + Kappung, PY 900–1.200, PL teils &gt; 700, BM &gt; 700, Ziellinie 1.000 — Bruch-Marker an PY/PL/BM, Achse endet am Cap (keine Ziellinie darüber)</h4><div class="stage" id="c147" style="width:960px;height:400px"></div></div>
+<div class="case"><h4>c148 · IBCS UN 4.1 · negative/Null-Basis → „n.a." statt Prozentwert — Columns Doppel-Varianz (Ergebnisreihe), Tabelle mit Σ, KPI-Karten</h4><div class="stage" id="c148" style="width:960px;height:520px"></div><div class="stage" id="c148b" style="width:1200px;height:300px"></div><div class="stage" id="c148c" style="width:1200px;height:260px"></div></div>
+<script>
+// c140 (S1): ΔPY = +20, ΔPL = +2 — factor 10 must stay visible across the panels
+const p0m6 = ["Jan","Feb","Mär","Apr","Mai","Jun"];
+run("c140", dataView(p0m6, [col("actual", [120, 122, 124, 126, 128, 130]), col("previousYear", [100, 102, 104, 106, 108, 110]), col("plan", [118, 120, 122, 124, 126, 128])],
+  { chart: { dualVariance: true } }), 960, 600);
+// c141 (S3): running level 160 is above PY 100 and AC 90
+run("c141", dataView(["A (+60)","B (−45)","C (−25)"], [col("actual", [80, 5, 5]), col("previousYear", [20, 50, 30])],
+  { chart: { orientation: "catbridge" } }), 1200, 420);
+// c142 (S4): cascade peaks at 90, totals are 60 / 58
+run("c142", dataView(p0m6, [col("actual", [25, 25, 2, 2, 2, 2]), col("previousYear", [10, 10, 10, 10, 10, 10])],
+  { chart: { orientation: "intwaterfall" } }), 1120, 520);
+// c143 (S2): bridge panel anchors from zero instead of the lowest cascade level
+run("c143", dataView(["Produkt A","Produkt B","Produkt C","Produkt D","Produkt E"],
+  [col("actual", [29, 24, 19.5, 14, 9.5]), col("previousYear", [30, 25, 20, 15, 10])],
+  { chart: { orientation: "bars", waterfallStyle: true } }), 960, 420);
+// c144 (S5): stacked multiples, Nord = 10 × Süd, plus a negative credit-note series in Q3
+{
+  const cats = [], ser = [], mult = [], vals = [];
+  [["Nord", 10], ["Süd", 1]].forEach(([r, f]) => {
+    ["Q1","Q2","Q3","Q4"].forEach((q, qi) => {
+      ["A","B"].forEach((s, si) => {
+        cats.push(q); ser.push(s); mult.push(r); vals.push((100 + qi * 10) * (2 - si) * f);
+      });
+      if (q === "Q3") { cats.push(q); ser.push("Gutschrift"); mult.push(r); vals.push(-60 * f); }
+    });
+  });
+  run("c144", { metadata: { columns: [], objects: {} }, categorical: { categories: [
+      { source: { displayName: "Quartal", roles: { category: true } }, values: cats },
+      { source: { displayName: "Produkt", roles: { series: true } }, values: ser },
+      { source: { displayName: "Region", roles: { multiples: true } }, values: mult }
+    ], values: [col("actual", vals)] } }, 960, 420);
+}
+// c145 (S13): the format already says T€ — no auto "K" on top of it
+const p0gCats = ["Umsatz","Sonst. Erträge","Material","Personal","Abschreibung","Sonstige","EBIT"];
+const p0gVals = [100000, 2000, -3000, -5000, -1500, -2500, 90000];
+const p0gTypes = ["sum","delta","delta","delta","delta","delta","sum"];
+run("c145", dataView(p0gCats, [col("actual", p0gVals, "#,0 T€")],
+  { chart: { orientation: "waterfall", showTotal: false }, ibcsTitle: { kpi: "Umsatz" } }, null, p0gTypes), 960, 420);
+// c146 (S7): fixedMax + cap now act in the waterfall (was silently ignored)
+run("c146", dataView(pnlCats, [col("actual", pnlVals, "#,0 T€")], {
+  chart: { orientation: "waterfall", showTotal: false },
+  scale: { fixedMax: 6000, capOverflow: true },
+  ibcsTitle: { kpi: "GuV", period: "2026" }
+}, null, pnlTypes), 960, 380);
+// c147 (S8): every capped element gets the break marker; the ref line above the
+// cap no longer stretches the axis
+run("c147", dataView(p0m6, [col("actual", [500, 520, 540, 560, 600, 650]), col("previousYear", [900, 950, 1000, 980, 1100, 1200]),
+  col("plan", [680, 690, 720, 740, 650, 760]), col("benchmark", [560, 600, 640, 720, 760, 800])],
+  { scale: { fixedMax: 700, capOverflow: true, refLine: "1000", refLineLabel: "Ziel 1.000" } }), 960, 400);
+// c148 (n.a.): result series with negative bases — Δ% must read "n.a.", never "−250 %"
+run("c148", dataView(months, [col("actual", resAc), col("previousYear", resPy), col("plan", resPl), col("forecast", resFc)],
+  { chart: { dualVariance: true }, ibcsTitle: { kpi: "Ergebnis" } }), 960, 520);
+const naCats = ["Nord", "Süd", "West", "Ost", "Mitte"];
+const naAc = [120, -30, 40, 15, 80];
+const naPy = [100, -60, -20, 0, 90];
+run("c148b", dataView(naCats, [col("actual", naAc, "#,0 T€"), col("previousYear", naPy, "#,0 T€")],
+  { chart: { orientation: "table", showTotal: true }, ibcsTitle: { kpi: "EBIT" } }), 1200, 300);
+run("c148c", dataView(naCats, [col("actual", naAc, "#,0 T€"), col("previousYear", naPy, "#,0 T€")],
+  { chart: { orientation: "cards" } }), 1200, 260);
+</script>
 </body>
 </html>
