@@ -162,11 +162,11 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
   <header class="hero">
     <div class="eyebrow">Power-BI-Visual · Schnellstart</div>
     <h1 class="hero-title">ChartKitchen <em>byDatenWG</em> — Schnellstart</h1>
-    <p class="dek">Ein einzelnes Power-BI-Visual mit 13 IBCS-inspirierten Modi — von Säulen, Linien und Wasserfall über Tabelle und Matrix bis zum GuV-Statement. In zwei Minuten verstehen, was das Visual kann, wie du loslegst und wo die ausführliche Dokumentation steht.</p>
+    <p class="dek">Ein einzelnes Power-BI-Visual mit 13 IBCS-inspirierten Modi — von Säulen, Linien und Wasserfall über Tabelle, Matrix und KPI-Karten bis zu GuV-Statement und Scatter/Bubble. Mit Dark Mode für dunkle Berichtsseiten und Trend-Mini-Charts auf den KPI-Karten. In zwei Minuten verstehen, was das Visual kann, wie du loslegst und wo die ausführliche Dokumentation steht.</p>
     <div class="chips">
       <span class="chip">13 Modi</span>
       <span class="chip teal">DE · EN · ES · JA</span>
-      <span class="chip" id="ck-version">Version 1.40.0.0</span>
+      <span class="chip" id="ck-version">Version 1.48.0.0</span>
     </div>
     <figure class="hero-fig">
       <img src="doku-assets/pbi/pbi-demo-report.png" alt="Komplette Power-BI-Berichtsseite mit KPI-Karten und Brücken, aus ChartKitchen-Visuals gebaut">
@@ -185,7 +185,7 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
       <div class="dl-icon">🍳</div>
       <div>
         <div class="dl-title">Visual herunterladen</div>
-        <div class="dl-ver">Version <strong id="dl-version">1.40.0.0</strong> · <strong>.pbiviz</strong> · <span id="dl-date">05.08.2026</span></div>
+        <div class="dl-ver">Version <strong id="dl-version">1.48.0.0</strong> · <strong>.pbiviz</strong> · <span id="dl-date">16.10.2026</span></div>
         <p class="dl-note">Direkt-Download, keine Registrierung — der Link liefert immer die aktuelle Version. Import in Power BI Desktop: <em>Visualisierungen → „…" → Visual aus einer Datei importieren</em>. Alternativ gibt es alle Builds auch auf <a href="https://github.com/Losveratos/Power-BI-Custom-Visuals-byDatenWG" target="_blank" rel="noopener">GitHub</a>.</p>
         <a class="gate-btn" id="dl-btn" href="downloads/chartkitchen-byDatenWG-latest.pbiviz" download="chartKitchenByDatenWG.pbiviz" style="text-decoration:none;">⬇&nbsp;ChartKitchen herunterladen</a>
 
@@ -217,7 +217,7 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
       <div>
         <div class="dl-title">Für KI-Agenten: der Agent-Guide</div>
         <div class="dl-ver"><strong>AGENT-GUIDE.md</strong> · maschinenlesbare Referenz · immer zur aktuellen Version</div>
-        <p class="dl-note">ChartKitchen bringt als eines der ersten Custom Visuals eine <strong>Doku für KI-Assistenten</strong> mit: der komplette Datenvertrag (Feldrollen samt Fallstricken), alle ~90 Format-Properties mit exakten Namen und Werten fürs PBIR-Authoring, die persistierten Zustände (Sortierung, Klapp-Zustand, Spaltenbreiten), Formel-Syntax, DAX-Regeln und die bekannten Stolperfallen. Damit kann ein Agent — Claude, Copilot, Cursor &amp; Co. — das Visual <em>korrekt konfigurieren statt raten</em>: fertige Berichtsseiten per Prompt, inklusive Einstellungen, die sich sonst nur mühsam zusammenklicken lassen.</p>
+        <p class="dl-note">ChartKitchen bringt als eines der ersten Custom Visuals eine <strong>Doku für KI-Assistenten</strong> mit: der komplette Datenvertrag (Feldrollen samt Fallstricken), alle Format-Properties mit exakten Namen und Werten fürs PBIR-Authoring, die persistierten Zustände (Sortierung, Klapp-Zustand, Spaltenbreiten), Formel-Syntax, DAX-Regeln und die bekannten Stolperfallen. Damit kann ein Agent — Claude, Copilot, Cursor &amp; Co. — das Visual <em>korrekt konfigurieren statt raten</em>: fertige Berichtsseiten per Prompt, inklusive Einstellungen, die sich sonst nur mühsam zusammenklicken lassen.</p>
         <p class="dl-note" style="margin-bottom:16px;"><strong>So nutzt du ihn:</strong> ① Gib deinem Agenten den Guide — Link in den Chat, Datei ins Projekt oder neben deine <code>CLAUDE.md</code>/<code>AGENTS.md</code> legen. ② Stell die Aufgabe („Berichtsseite: Säulen mit ΔPL, YTD-Button, Tabelle nach ΔPY sortiert"). ③ Der Agent schreibt die passende Konfiguration mit exakten Property-Namen — der Guide sagt ihm auch, wie das Datenmodell aussehen muss.</p>
         <a class="gate-btn" href="ibcsInspiredChartDeck/AGENT-GUIDE.md" style="text-decoration:none;background:var(--teal);border-color:var(--teal);">🤖&nbsp;Agent-Guide öffnen (.md)</a>
         <p class="dl-note" style="margin-top:12px;margin-bottom:0;">Direktlink zum Kopieren für den Agenten-Chat: <code>datenwgknowledgekitchen.com/ibcsInspiredChartDeck/AGENT-GUIDE.md</code> · auch auf <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/ibcsInspiredChartDeck/AGENT-GUIDE.md" target="_blank" rel="noopener">GitHub</a></p>
@@ -237,7 +237,7 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
       <div class="step">
         <div class="step-n">2</div>
         <h3>Kategorie + AC befüllen</h3>
-        <p>Weise der Rolle <em>Kategorie</em> deine Achse zu und der Rolle <em>Ist (AC)</em> deine Kennzahl. Es erscheinen Landing-Kacheln — klick einen Modus an, und das Visual zeichnet ihn sofort.</p>
+        <p>Weise der Rolle <em>Kategorie</em> deine Achse zu und der Rolle <em>Ist (AC)</em> deine Kennzahl. Es erscheinen Landing-Kacheln — klick einen Modus an, und das Visual zeichnet ihn sofort. Den Modus wechselst du jederzeit über die Karte „Chart-Typ“ — seit 1.45 die erste Karte im Formatbereich.</p>
       </div>
       <div class="step">
         <div class="step-n">3</div>
@@ -268,7 +268,7 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
         <div class="tile-body">
           <div class="tile-eyebrow">Kapitel 03</div>
           <h3>Die 13 Modi</h3>
-          <p>Säulen, Balken, Linie, Wasserfall, Brücke, Tabelle, Matrix, KPI-Karten, GuV und mehr — jeder Modus erklärt.</p>
+          <p>Säulen, Balken, Linie, Wasserfall, Brücke, Tabelle, Matrix, KPI-Karten, GuV, Scatter/Bubble und mehr — jeder Modus erklärt.</p>
           <span class="tile-go">Öffnen →</span>
         </div>
       </a>
@@ -288,7 +288,7 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
         <div class="tile-body">
           <div class="tile-eyebrow">Kapitel 05</div>
           <h3>Funktionen im Detail</h3>
-          <p>Szenario-Notation, Small Multiples, Kommentare, Kumulierung, Top N und die weiteren Funktionen.</p>
+          <p>Szenario-Notation, Small Multiples, Dark Mode, Trend-Karten, Kommentare, Kumulierung, Top N und die weiteren Funktionen.</p>
           <span class="tile-go">Öffnen →</span>
         </div>
       </a>
@@ -298,7 +298,7 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
         <div class="tile-body">
           <div class="tile-eyebrow">Kapitel 06</div>
           <h3>Einstellungs-Referenz</h3>
-          <p>Alle 84 Einstellungen in sieben Format-Karten — mit Schema-Skizzen des Formatbereichs.</p>
+          <p>Alle Einstellungen in acht Format-Karten — mit Schema-Skizzen des Formatbereichs.</p>
           <span class="tile-go">Öffnen →</span>
         </div>
       </a>
@@ -325,7 +325,7 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
   </section>
 
   <footer class="foot">
-    <strong>ChartKitchen byDatenWG</strong> · <span id="ck-footer-version">Version 1.40.0.0</span><br>
+    <strong>ChartKitchen byDatenWG</strong> · <span id="ck-footer-version">Version 1.48.0.0</span><br>
     Kontakt: Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>
     Die vollständige Dokumentation gibt es als <a href="chartkitchen-doku.html">Web-Seite</a> und als <a href="chartkitchen-doku.pdf">PDF</a>.
     <br><a href="md/chartkitchen-schnellstart.md">📄 Diese Seite als Markdown</a>
