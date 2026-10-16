@@ -197,7 +197,7 @@ Die folgenden Aufnahmen stammen direkt aus Power BI Desktop, mit Beispieldaten a
 
 1. Binde AC, PY, PL und FC in die jeweiligen Feldrollen — alle vier erscheinen in einem Chart.
 2. FC wird automatisch schraffiert gezeichnet. Alternativ zur FC-Measure kannst du eine 1/0-Spalte in die Rolle „Forecast-Flag“ binden.
-3. Bei drei Szenarien (AC + PY + PL) zeigt IBCS PY als graues Dreieck an der Säule. Über Chart → Layout → „PY als Dreieck“ schaltest du das aus.
+3. Bei drei Szenarien (AC + PY + PL) zeigt IBCS PY als graues Dreieck an der Säule. Über Chart → „PY als Dreieck“ schaltest du das aus.
 4. Für einen Zielwert je Kategorie füllst du die Benchmark-Rolle — sie erscheint als Querstrich-Marker (Dreieck).
 5. Eine feste Ziel- oder Schwellenlinie ziehst du stattdessen über Skala → Referenzlinie (Wert + Beschriftung).
 
@@ -450,7 +450,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
-| Quadranten-Linien | Scatter/Bubble (seit 1.47): legt Quadranten-Linien auf Mittelwert oder Median beider Achsen. Gesetzte Referenzlinien (Skala) übersteuern die Quadranten. | Optionen: Aus \| Mittelwert \| Median · Standard „Aus“ |
+| Quadranten-Linien | Scatter/Bubble (seit 1.47): legt Quadranten-Linien auf Mittelwert oder Median beider Achsen. Gesetzte Referenzlinien (Skala) übersteuern die Quadranten. | Optionen: Aus \| Mittelwert \| Median · Standard „Mittelwert“ |
 | Punkt-Färbung | „Status“ färbt die Punkte nach der Abweichungsbasis (ΔPY/ΔPL) gut/schlecht, inklusive Wesentlichkeitsschwelle — sonst einfarbig. | Optionen: Einfarbig \| Status (ΔBasis) |
 
 ### IBCS-Titel
@@ -574,11 +574,11 @@ Ein Standbild ist nicht scrollbar, daher greift im Export der „… +n“-Hinwe
 
 ### PY erscheint als Dreieck statt als Säule.
 
-Bei drei gebundenen Szenarien (AC + PY + PL) zeigt das Visual PY nach IBCS als graues Dreieck, um die Säule nicht zu überladen. Abschalten über Chart → Layout → „PY als Dreieck“.
+Bei drei gebundenen Szenarien (AC + PY + PL) zeigt das Visual PY nach IBCS als graues Dreieck, um die Säule nicht zu überladen. Abschalten über Chart → „PY als Dreieck“.
 
 ### Die Farben „gut/schlecht“ passen nicht zu meiner KPI (z. B. Kosten).
 
-Für Kosten ist ein höherer Wert schlecht. Aktiviere Chart → Analyse → „Invertieren“ global oder „Invertieren je Kategorie“ für einzelne Zeilen (z. B. Aufwandspositionen neben Umsatz).
+Für Kosten ist ein höherer Wert schlecht. Aktiviere Chart → „Invertieren“ global oder „Invertieren je Kategorie“ für einzelne Zeilen (z. B. Aufwandspositionen neben Umsatz).
 
 ### Der Filterkontext steht nicht in der Fußzeile.
 

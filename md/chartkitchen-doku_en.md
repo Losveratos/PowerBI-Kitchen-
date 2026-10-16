@@ -197,7 +197,7 @@ The following captures come straight from Power BI Desktop, with sample data fro
 
 1. Bind AC, PY, PL and FC to their field roles — all four appear in one chart.
 2. FC is drawn hatched automatically. As an alternative to the FC measure you can bind a 1/0 column to the “Forecast flag” role.
-3. With three scenarios (AC + PY + PL) IBCS shows PY as a grey triangle on the column. Turn it off under Chart → Layout → “PY as triangle”.
+3. With three scenarios (AC + PY + PL) IBCS shows PY as a grey triangle on the column. Turn it off under Chart → “PY as triangle”.
 4. For a target value per category fill the Benchmark role — it appears as a tick marker (triangle).
 5. For a fixed target or threshold line use Scale → Reference line (value + label) instead.
 
@@ -450,7 +450,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 
 | Setting | Description | Options / default |
 | --- | --- | --- |
-| Quadrant lines | Scatter/bubble (since 1.47): places quadrant lines at the mean or median of both axes. Set reference lines (Scale card) override the quadrants. | Options: Off \| Mean \| Median · default “Off” |
+| Quadrant lines | Scatter/bubble (since 1.47): places quadrant lines at the mean or median of both axes. Set reference lines (Scale card) override the quadrants. | Options: Off \| Mean \| Median · default “Mean” |
 | Dot coloring | “Status” tints the dots by the variance basis (ΔPY/ΔPL) good/bad, including the materiality threshold — otherwise a single color. | Options: Single color \| Status (Δbasis) |
 
 ### IBCS Title
@@ -574,11 +574,11 @@ A still image cannot scroll, so the “… +n” hint applies on export. Narrow 
 
 ### PY appears as a triangle instead of a column.
 
-With three bound scenarios (AC + PY + PL) the visual shows PY as a grey triangle per IBCS so as not to clutter the column. Turn it off under Chart → Layout → “PY as triangle”.
+With three bound scenarios (AC + PY + PL) the visual shows PY as a grey triangle per IBCS so as not to clutter the column. Turn it off under Chart → “PY as triangle”.
 
 ### The good/bad colours don’t match my KPI (e.g. costs).
 
-For costs a higher value is bad. Enable Chart → Analysis → “Invert” globally or “Invert per category” for individual rows (e.g. expense items next to revenue).
+For costs a higher value is bad. Enable Chart → “Invert” globally or “Invert per category” for individual rows (e.g. expense items next to revenue).
 
 ### The filter context is not shown in the footer.
 
