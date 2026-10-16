@@ -317,3 +317,71 @@ grauen Zeilenlinien, durchgehende Summenlinien, keine Kopf-Linien (12A).
    im Prototyp gemessenen k-Werte.
 5. Tree-, Kachel- und Mikro-Karten-Ansicht bleiben unberührt; der Mega-Table ist
    ein Modus der Tabellen-Ansicht.
+
+## Umsetzungsstand im Visual (Phase 1 + 2)
+
+Code: `src/megatable.ts` (Layout + Painter, kein Power-BI-Import), Datenseite in
+`src/visual.ts` (`buildMega`, `megaRows`, `megaToggles`, `syncMegaTemplate`),
+Rechenkern-Ergänzung in `src/engine.ts` (`varianceOf`, `displayVariance`).
+
+- **Aktivierung:** Der Mega-Table ist ein Modus der Tabellen-Ansicht. Er ist an,
+  sobald mindestens ein Spalten-Schalter (`showPY/showPL/showMinuend`,
+  `dPy*/dPl*`) an ist; alle stehen per Default aus → die klassische Tabelle
+  rendert unverändert (Pixel-Regression byte-identisch). In Balken-, Waterfall-
+  und Baum-Ansicht ändert sich nichts. Im Mega-Modus blendet die Toolbar
+  Spalten-Preset, Δ-Referenz, Perioden und Fit aus (Spalten kommen aus dem
+  Formatbereich); Ansicht, Einheit, Dichte, Ebenen und „Nullzeilen aus" bleiben.
+- **Formatbereich:** `columns` ist jetzt eine Composite-Karte mit den Gruppen
+  „Allgemein" (alle bisherigen Schalter, Namen unverändert) und „Mega-Table".
+  Abweichend vom Vorschlag oben werden `columns.preset`/`reference` NICHT
+  umgewidmet (sie bleiben die Presets der klassischen Tabelle); die
+  Template-Wahl ist das neue Dropdown `columns.template` (off · T01A · T01B ·
+  T02A · T02B · T02C · T02E · T02F · T03A · T03B · T04A). T04B–E und 12A folgen
+  mit Phase 3/5 (Δ-Wasserfall, Wert-Kaskade) — ihre Schalter
+  (`dPyWaterfall`/`dPlWaterfall`/`valueCascade`) sind noch nicht im Pane.
+- **Template-Persistenz:** Wählt der Autor ein Template, schreibt das Visual
+  alle Schalter des Presets plus `numbers.decimals/pctDecimals` und das
+  versteckte `columns.templateApplied` in EINEM `persistProperties`-Merge und
+  setzt die Slices sofort lokal. Echo-Guard mit TTL 5 (Muster aus ChartKitchen):
+  veraltete Updates halten die geschriebenen Werte, nach Ablauf gewinnt der
+  Pane wieder; ein Session-Guard verhindert ein Re-Apply in Schleife, wenn das
+  Echo verloren geht. Danach sind alle Schalter frei. „off" schaltet alle
+  Spalten aus und lässt das Zahlenformat unangetastet.
+- **Perioden-Blöcke:** aus der vorhandenen Perioden-Logik abgeleitet (keine
+  neue YTD-Logik nötig): Monat = letzter Monat mit AC-Daten (`mtdIndex`), YTD =
+  periodengleiches Fenster bis dorthin (`ytdRawSum`, bei vollständigen Ist-Daten
+  der Engine-Wert). Ein Block → YTD-Fenster; `secondBlock` → Monat | _YTD
+  (Titel „November" / „_November", lange Monatsnamen der Locale). Ohne
+  Perioden-Rolle gibt es nur den einen Block.
+- **Daten-Art:** GuV-Daten (Formel-/KPI-Zeilen, Vorzeichen −1 oder
+  DisplayInvert vorhanden) bekommen Vorzeichen-Spalte und gepaarten Δ-Kopf;
+  sonst Strukturdaten (Block-Titelzeile, Sortierung, `structureSubtotals`).
+- **Zeilenfolge:** Kinder zuerst, Summe darunter (IBCS). Vorzeichen-Spalte:
+  Formelzeilen und der Kettenstart (erste Top-Level-Summe) „=", deren Summanden
+  „+"/„−" nach DisplayInvert auf Ebene 0, tiefere Blöcke eingerückt ohne
+  Zeichen (T03 „− Operating expenses"). Leerzeile vor einem neuen Block nach
+  einer fetten Summe und vor der Gesamtsumme nach Zwischensummen-Blöcken.
+  Ohne `structureSubtotals` werden doppelte Blattnamen um den Elternnamen
+  ergänzt („Other Europe", T01A).
+- **Anzeige-Orientierung:** Δ/Δ% folgen den angezeigten Werten (Kosten
+  +37.4 = rot), gut/schlecht weiter aus Vorzeichen + VarianceInvert; Schwellen
+  vergleichen das Δ in Gut-Richtung (`impact`) in Anzeige-Einheiten (nach
+  k/m-Skalierung). Prozent-Schwellen im Pane als ganze Prozent (−10).
+- **Kopf fixiert:** Kopf (Blocktitel, Spaltenköpfe, Marken) und Körper sind ein
+  Koordinatensystem, am Achsenbeginn in zwei SVGs geschnitten; der Kopf klebt
+  unter dem Titelblock (Style → Kopfbereich fixieren). Alle zeilenübergreifenden
+  Linien liegen im Körper.
+- **Interaktion:** Klick auf das Label einer Summe klappt den Block (▸ am
+  gefalteten Label), Klick auf die Zeile setzt die Power-BI-Selektion,
+  Rechtsklick öffnet das Kontextmenü; Kommentar-Marker ① und Fußnoten wie bisher.
+- **Ausreißer-Zahl:** zusätzlich zum Weißhalo ein schmaler Papier-Kasten hinter
+  der Zahl auf dem Stiel (sonst schneidet der 3-px-Stiel die Ziffern).
+- **Schrift:** fs 13 (Dichte normal) bzw. 11 (kompakt) × Schriftgrößen-Preset.
+
+Tests: `npm run test:mega` (Layout-Unit-Tests ohne DOM, Render-Fälle m1–m10
+gegen die Referenzwerte, Template-/Echo-Guard-/Interaktions-Test); Engine-Tests
+für `varianceOf`/`displayVariance`.
+
+Offen für Phase 3+: Δ-Wasserfall-Spalten (`cascade()` gemeinsam mit
+`cascadeSegments`), Wert-Kaskade 12A, Virtualisierung sehr langer Statements
+(heute ein SVG für alle sichtbaren Zeilen).

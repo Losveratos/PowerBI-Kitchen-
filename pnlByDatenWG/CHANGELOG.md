@@ -1,5 +1,32 @@
 # Changelog — P&L Statement byDatenWG
 
+## Unreleased — Mega-Table Phase 1 + 2: IBCS-Tabellen T01–T04A in der Tabellen-Ansicht
+
+Die Tabellen-Ansicht kann jetzt die IBCS-Templates T01A/B, T02A–F, T03A/B und
+T04A darstellen — als Zuschaltung, die klassische Tabelle bleibt der Default
+und rendert unverändert. Details: `SPEC-MEGATABLE.md`, Abschnitt
+„Umsetzungsstand im Visual".
+
+- **Spalten frei kombinierbar** (Formatbereich → Spalten → Mega-Table): PY | PL |
+  AC oder FC | ΔPY | ΔPY% | ΔPL | ΔPL%, jede Δ-Spalte als Zahl, Balken oder
+  Pins einzeln schaltbar. Szenario-Unterstreichungen im Kopf und unter der
+  Schlusszeile (AC voll, PY grau, PL doppelt, FC schraffiert).
+- **Margen-Zeilen** (Zeilentyp KPI) mit Δ in %p und relativer Änderung, kursiv.
+- **„Δ in red if"**: Schwellen je Block (absolut + %) mit Fußzeile; Kosten
+  über die vorhandene Vorzeichen-/VarianceInvert-Logik.
+- **Zweiter Perioden-Block** Monat | _YTD aus der Perioden-Rolle, eigener
+  Maßstab je Block; Sortierung Kategorie / AC↓ / Δ↓ je Struktur-Block mit
+  „(↓)" im sortierenden Kopf, „Other …" bleibt unten.
+- **Strukturmodus** (Regionen o. Ä.): Zwischensummen-Blöcke mit Leerzeile (T01B)
+  oder nur Blätter + Gesamtsumme (T01A).
+- **Zell-Charts**: Δ-Balken und Δ%-Pins mit EINER Nulllinie und EINEM Maßstab
+  je Block, Achse nach Referenz (PY grau 3 px, PL Doppellinie), Füllung nach
+  Minuend (AC voll, FC schraffiert), Zahlen außen mit „+", Ausreißer-Pfeile
+  (Q3 + 4 × IQR). Teal/Rot bzw. IBCS-Grün über den vorhandenen Farbmodus.
+- **Template-Dropdown** setzt alle Schalter auf die Preset-Defaults
+  (persistProperties mit Echo-Guard), danach ist jeder Schalter frei.
+- Neue Tests: `npm run test:mega`.
+
 ## 0.17.0.0 (2026-08-26) — Selektion, Cross-Filtering und natives Kontextmenü: das Statement wird zum Einstieg in den Drillthrough
 
 Bisher war das Visual eine reine Lesefläche: es zeigte die GuV, filterte aber

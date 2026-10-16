@@ -487,7 +487,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
     const anyChart = cols.some(megaIsChart);
     const style = {
         signs: input.statement,
-        blockTitles: !input.statement || nb === 2,
+        blockTitles: (!input.statement || nb === 2) && blocks.some(b => b.name !== ""),
         pairHeader: input.statement,
         closing: t.marks && input.statement && !anyChart,
         thresholds: t.thresholds && cols.some(c => c.type === "delta" || c.type === "dpct"),

@@ -1496,8 +1496,14 @@ export class Visual implements IVisual {
             }
         } else if (mega) {
             // the mega table lays itself out to the viewport (chart columns
-            // share the free width) — no fit passes, no windowing
-            this.root.appendChild(this.buildMega(fmt));
+            // share the free width) — no fit passes, no windowing. One
+            // correction pass: when the body brings a vertical scrollbar along,
+            // the few pixels it takes come out of the chart columns instead of
+            // pushing a horizontal scrollbar in
+            const table = this.buildMega(fmt, 0);
+            this.root.appendChild(table);
+            const over = this.root.scrollWidth - this.root.clientWidth;
+            if (over > 0 && over <= 40) { this.root.replaceChild(this.buildMega(fmt, over), table); }
             this.buildFootnotes(fmt);
             this.root.appendChild(this.buildFooter());
             this.root.scrollTop = keepScroll;
@@ -5826,7 +5832,7 @@ export class Visual implements IVisual {
         return ctx.measureText(t).width;
     }
 
-    private buildMega(fmt: Fmt): HTMLElement {
+    private buildMega(fmt: Fmt, shrink: number): HTMLElement {
         const model = this.model!; const ui = this.ui!;
         const cc = this.settings.columnsCard;
         const t = this.megaToggles();
@@ -5865,7 +5871,7 @@ export class Visual implements IVisual {
         }));
         const fscale = this.fontScale();
         const fs = Math.round((ui.density === "compact" ? 11 : 13) * fscale);
-        const avail = (this.root.clientWidth || 1000) - 2 * TABLE_PAD_X;
+        const avail = (this.root.clientWidth || 1000) - 2 * TABLE_PAD_X - shrink;
         const L = layoutMega({
             rows, blocks, t, statement, fs, viewW: Math.max(320, avail),
             dec: this.settings.numbersCard.decimals.value,
