@@ -33,8 +33,8 @@ Das Skript nimmt optional eine Datei als Argument und **lehnt Dateien ohne
     Alternativ lokal im Projekt: `npm i -D playwright` — dann findet
     `require('playwright')` sie ohne weiteres Zutun.
 * **Kein Netz nötig.** Die Seite wird über `file://` geladen; SheetJS kommt aus
-  `assets/js/xlsx.full.min.js` im Repo. Google Fonts und der cdnjs-Fallback
-  schlagen offline fehl — das ist eingeplant und wird ignoriert.
+  `assets/js/xlsx.full.min.js` im Repo, die Schriften aus `assets/fonts/`. Fehlende Schriften
+  fallen auf Systemschriften zurück — das ist eingeplant und wird ignoriert.
 
 ---
 

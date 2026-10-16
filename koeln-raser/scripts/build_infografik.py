@@ -4,7 +4,7 @@
     python3 koeln-raser/scripts/build_infografik.py
 
 Ausgaben (blog/assets/):
-  raser-infografik.html   die Seite (1240 × 1754 px = A4 hoch), eigenständig bis auf Google Fonts
+  raser-infografik.html   die Seite (1240 × 1754 px = A4 hoch), eigenständig bis auf die lokalen Schriften (assets/fonts/)
   raser-infografik.png    4960 × 7016 px (Headless-Chrome, vierfache Auflösung, ≈ 600 dpi)
   raser-infografik.jpg    dasselbe als JPG (Qualität 92), kleiner für LinkedIn
   raser-infografik-web.jpg  1600 px breit für den Blogbeitrag
@@ -444,8 +444,7 @@ h1 em{{font-style:normal;color:{AMBER_SOFT}}}
 </div>"""
     return f"""<!DOCTYPE html>
 <html lang="de"><head><meta charset="utf-8"><title>Köln blitzt · Infografik</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/fonts/jetbrains-mono/jetbrains-mono.css">
 <style>{css}</style></head><body>{body}</body></html>"""
 
 

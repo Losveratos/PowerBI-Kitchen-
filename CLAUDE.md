@@ -246,7 +246,22 @@ python3 -m http.server 8000
 ## Design-System (nicht ändern)
 
 Schriften: `Fraunces` (Serif, Titel), `Geist` (Sans, Body), `JetBrains Mono`
-(Tags/Metadata). Bereits via Google-Fonts eingebunden.
+(Tags/Metadata). Alle Schriften sind **selbst gehostet** unter `assets/fonts/`
+(je Familie ein Ordner mit `woff2`-Dateien, `OFL.txt` und einer CSS-Datei, z. B.
+`assets/fonts/fraunces/fraunces.css`; Subsets latin + latin-ext, `font-display: swap`).
+Einbinden per `<link rel="stylesheet" href="assets/fonts/<familie>/<familie>.css">`
+(Pfad relativ zur Ordnertiefe, z. B. `../assets/...` in Unterordnern).
+Vorhanden: Fraunces, Geist, JetBrains Mono, IBM Plex Sans/Mono, Space Grotesk,
+Inter, Archivo, Anton, Press Start 2P. Neue Familien mit
+`fonts.googleapis.com` → woff2 herunterladen und genauso ablegen.
+
+**Keine Google Fonts, keine Drittanbieter-CDNs:** Neue Seiten dürfen weder
+Schriften noch Skripte/Styles von fremden Servern laden (kein
+`fonts.googleapis.com`/`fonts.gstatic.com`, kein cdnjs/unpkg/jsdelivr, keine
+`preconnect` dorthin). Bibliotheken als lokale Kopie unter `assets/js/vendor/`
+ablegen (z. B. `d3-7.9.0.min.js`). Externe Einbettungen (YouTube, Power BI) nur
+per Klick-zum-Laden mit Hinweis (Power BI: `assets/js/embed-consent.js`) und in
+`datenschutz.html` dokumentieren.
 
 CSS-Variablen, die für neue Karten/Buckets gelten:
 
@@ -364,10 +379,12 @@ Tag-Chips passen.
 
 - Die `power_bi_einsteiger_guide_v4.html` — nur Referenz für Design.
 - Die Bucket-IDs und Farben (`bucket-1` ... `bucket-9`).
-- Die Schriftart-Imports.
-- Die JS-Render-Logik (`renderCard`, `renderBuckets`, `applyFilters`) — sie
-  unterstützt das Episode-Schema oben bereits vollständig. Nur die
-  `EPISODES`-Konstante austauschen.
+- Die selbst gehosteten Schriftart-Einbindungen (`assets/fonts/`) — nicht
+  wieder auf Google Fonts umstellen.
+- Die Render-Logik der Startseite (`renderCard`, `renderBuckets`,
+  `applyFilters` u. a.) darf geändert werden, solange das `EPISODES`-Schema
+  und die Count-Marker (Header-Folgenzahl, `.bucket-tile-count`,
+  `#result-count`) kompatibel mit dem `kitchen-update`-Skill bleiben.
 
 ---
 

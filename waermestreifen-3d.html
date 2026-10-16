@@ -18,7 +18,8 @@
 <meta property="og:type" content="article">
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('assets/fonts/fraunces/fraunces.css');
+@import url('assets/fonts/jetbrains-mono/jetbrains-mono.css');
 
 :root {
   /* Edler Dark Mode — abgestimmt auf den Hintergrund des Visuals (#141821) */
@@ -307,11 +308,10 @@ article li strong, article li em { color: var(--ink); }
 
   <figure class="wide">
     <div class="report-frame">
-      <iframe title="Wärmestreifen 3D · Live-Demo-Report (Power BI)"
-        src="https://app.powerbi.com/view?r=eyJrIjoiNDBjNTYyNjktNDdiZC00ZTQ3LTllNjItYjRmMjk4OGNmMTIwIiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9"
-        loading="lazy" allowfullscreen></iframe>
+      <div class="pbi-consent" data-pbi-src="https://app.powerbi.com/view?r=eyJrIjoiNDBjNTYyNjktNDdiZC00ZTQ3LTllNjItYjRmMjk4OGNmMTIwIiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9" data-pbi-title="Wärmestreifen 3D · Live-Demo-Report (Power BI)"><p class="pbi-consent-title">Interaktiver Power-BI-Report</p><p class="pbi-consent-text">Beim Laden wird eine Verbindung zu Microsoft (app.powerbi.com) aufgebaut; dabei werden u.&nbsp;a. deine IP-Adresse übertragen und ggf. Cookies gesetzt. Mehr dazu in der <a href="datenschutz.html#powerbi">Datenschutzerklärung</a>. Oder den Report <a href="https://app.powerbi.com/view?r=eyJrIjoiNDBjNTYyNjktNDdiZC00ZTQ3LTllNjItYjRmMjk4OGNmMTIwIiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9" target="_blank" rel="noopener">in neuem Tab öffnen</a>.</p><button type="button" class="pbi-consent-btn">Report laden</button></div>
+      <script src="assets/js/embed-consent.js" defer></script>
     </div>
-    <figcaption>Live-Demo als „Publish to web“-Report — läuft direkt im Beitrag.
+    <figcaption>Live-Demo als „Publish to web“-Report — läuft nach Klick auf „Report laden“ direkt im Beitrag.
       Am Handy am besten über das Vollbild-Symbol unten rechts öffnen.</figcaption>
   </figure>
 
