@@ -2,26 +2,74 @@
 
 > Markdown-Fassung von [daten_wg_learn_buckets.html](../daten_wg_learn_buckets.html) · https://datenwgknowledgekitchen.com/daten_wg_learn_buckets.html · generiert mit scripts/build_learn_md.py aus den Episodendaten — bei Abweichungen gilt die HTML-Fassung.
 
-Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **159 Folgen** insgesamt · Sprachverteilung: 137 DE / 22 EN.
+Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **167 Folgen** insgesamt · Sprachverteilung: 145 DE / 22 EN.
 
 ## Übersicht
 
 | Bucket | Folgen |
 | --- | --- |
-| 01 · Quarterly · Updates & News | 22 |
+| 01 · Quarterly · Updates & News | 24 |
 | 02 · Microsoft Fabric | 29 |
-| 03 · Datenmodellierung & Architektur | 28 |
+| 03 · Datenmodellierung & Architektur | 29 |
 | 04 · Self-Service & Governance | 5 |
 | 05 · Visualisierung & IBCS | 12 |
-| 06 · Power BI · Deep Dive & Vergleiche | 30 |
+| 06 · Power BI · Deep Dive & Vergleiche | 31 |
 | 07 · Karriere & Community | 7 |
 | 08 · Digitalisierung & Strategie | 6 |
 | 09 · Daten-WG Konferenz | 9 |
-| 10 · 1 Minute Power BI | 11 |
+| 10 · 1 Minute Power BI | 15 |
 
 ## 01 · Quarterly · Updates & News
 
 _Vier Mal im Jahr räumt das Quarterly-Format auf, was sich in der Microsoft Data Platform getan hat: neue Power BI Features, Fabric-Ankündigungen, was GA geht, was Preview bleibt. Wenn du nur ein Format hörst, dann das hier — komprimiertes Branchen-Briefing._
+
+### Fabric & Power BI Quarterly · 2026-4
+
+Gast: Gabi Münster · Oktober 2026 · 68 min · DE · Tags: Quarterly, Fabric, Fabric Apps, Mirroring, DE
+
+YouTube: https://www.youtube.com/watch?v=0QZD26KPBcU
+
+Gabi Münster und Artur blicken frisch nach der FabCon Europe in Barcelona auf das Quartal: Fabric Planning ist GA, Fabric Apps entstehen mit Modern Report Design direkt aus Power BI Desktop, bald auch mit Pro- und PPU-Lizenz. Auf der Plattformseite geht es um F0 als Einstieg ohne Kapazität, den neuen Job-Monitor, Mirroring mit Security-Rollen aus Snowflake, Apache Ossie als offenen Semantikstandard und die Fabric Policy Engine, die steuert, wer welche Items anlegen darf.
+
+Kapitel:
+- [00:00](https://www.youtube.com/watch?v=0QZD26KPBcU&t=0s) Intro: Quarterly kurz vor der Daten-WG und Newsflash von der FabCon
+- [01:32](https://www.youtube.com/watch?v=0QZD26KPBcU&t=92s) Fabric Planning ist GA und das Preismodell ist fairer als gedacht
+- [04:24](https://www.youtube.com/watch?v=0QZD26KPBcU&t=264s) Web und Desktop wachsen zusammen: TMDL-Ansicht, PBIP GA, DirectQuery im Service
+- [06:07](https://www.youtube.com/watch?v=0QZD26KPBcU&t=367s) Fabric Apps und Modern Report Design in Power BI Desktop
+- [08:40](https://www.youtube.com/watch?v=0QZD26KPBcU&t=520s) Lego oder 3D-Drucker: Wie viel Zukunft haben interaktive Reports?
+- [15:28](https://www.youtube.com/watch?v=0QZD26KPBcU&t=928s) Fabric Apps auch für Pro und PPU: Wo die Lizenzgrenze jetzt verläuft
+- [18:42](https://www.youtube.com/watch?v=0QZD26KPBcU&t=1122s) F0: Fabric ohne Kapazität und was das für Planning bedeutet
+- [26:30](https://www.youtube.com/watch?v=0QZD26KPBcU&t=1590s) Operation Events im Real-Time Hub und der neue Job-Monitor
+- [31:57](https://www.youtube.com/watch?v=0QZD26KPBcU&t=1917s) KI auf Plattformebene: Fabric Copilot, M365 und gehosteter MCP-Server
+- [35:25](https://www.youtube.com/watch?v=0QZD26KPBcU&t=2125s) Mirroring mit Security-Rollen aus Snowflake
+- [44:49](https://www.youtube.com/watch?v=0QZD26KPBcU&t=2689s) Apache Ossie, Semantic Views und Ontologien: Wie portabel wird Semantik?
+- [52:27](https://www.youtube.com/watch?v=0QZD26KPBcU&t=3147s) Fabric Policy Engine: Wer darf welche Items anlegen?
+- [59:16](https://www.youtube.com/watch?v=0QZD26KPBcU&t=3556s) Deployment Plans und Bilder aus OneLake in Power BI Reports
+- [62:47](https://www.youtube.com/watch?v=0QZD26KPBcU&t=3767s) Wünsche: Vega Visual, Lineage auf Spaltenebene und neue Policies
+- [67:14](https://www.youtube.com/watch?v=0QZD26KPBcU&t=4034s) Ausblick auf die Daten-WG 2026
+
+### Power BI Update September 2026
+
+Oktober 2026 · 11 min · DE · Tags: Update, Power BI, Power Query, Fabric Apps, DE
+
+YouTube: https://www.youtube.com/watch?v=3V9DQwfm0GA
+
+Das September-Update 2026 kommt nach der FabCon Europe: der neue Power-Query-Editor im Desktop mit Query-Folding-Indikator und Diagrammansicht, Verbesserungen bei Translytical Task Flows, neue Ribbons im Web-Editor, 500.000 Zeilen beim Excel-Export und DirectQuery-Modelle direkt im Service. Dazu die FabCon-Themen: Volltextsuche im Modell mit neuen DAX-Funktionen, besseres Monitoring für Aktualisierungen, Fabric Apps und Agentic Development für Power BI als GA.
+
+Kapitel:
+- [00:00](https://www.youtube.com/watch?v=3V9DQwfm0GA&t=0s) Intro: September-Update nach der FabCon Europe
+- [00:23](https://www.youtube.com/watch?v=3V9DQwfm0GA&t=23s) Der neue Power-Query-Editor: Query Folding und Diagrammansicht
+- [01:18](https://www.youtube.com/watch?v=3V9DQwfm0GA&t=78s) Translytical Task Flows: Funktion und Arbeitsbereich direkt am Button
+- [01:43](https://www.youtube.com/watch?v=3V9DQwfm0GA&t=103s) Liniendiagramm und horizontales Scrollen
+- [03:12](https://www.youtube.com/watch?v=3V9DQwfm0GA&t=192s) Web-Editor: die neuen Ribbons aus Power BI Desktop
+- [03:57](https://www.youtube.com/watch?v=3V9DQwfm0GA&t=237s) Export nach Excel: Limit steigt auf 500.000 Zeilen
+- [04:25](https://www.youtube.com/watch?v=3V9DQwfm0GA&t=265s) DirectQuery-Modelle direkt im Service erstellen
+- [05:16](https://www.youtube.com/watch?v=3V9DQwfm0GA&t=316s) Volltextsuche im Modell: neue DAX-Funktionen und die Admin-Hürde
+- [06:48](https://www.youtube.com/watch?v=3V9DQwfm0GA&t=408s) Das neue Monitoring für Aktualisierungen
+- [08:03](https://www.youtube.com/watch?v=3V9DQwfm0GA&t=483s) Fabric Apps: HTML-Seiten statt klassischer Reports
+- [09:25](https://www.youtube.com/watch?v=3V9DQwfm0GA&t=565s) Fabric Apps in Power BI Desktop: Eindrücke von der FabCon
+- [10:02](https://www.youtube.com/watch?v=3V9DQwfm0GA&t=602s) Agentic Development für Power BI ist GA
+- [10:49](https://www.youtube.com/watch?v=3V9DQwfm0GA&t=649s) Fazit: viel KI und ein paar Quality-of-Life-Verbesserungen
 
 ### Power BI Update August 2026
 
@@ -890,6 +938,31 @@ Basic walkthrough of Fabric and which Skill will help you with which task.
 
 _Das Datenmodell entscheidet, ob ein Report skaliert oder kollabiert. Hier geht es um Stern-Schema vs. Data Vault, Tabellen-Denken statt Listen-Denken, Metadaten als Werkzeug — und warum Modellierung am Ende auch Governance ist._
 
+### Davon träumen KI-Agenten | Daten-WG Podcast mit Simon Harrer
+
+Gast: Simon Harrer · September 2026 · 37 min · DE · Tags: Data Contracts, KI, Podcast, Metadaten, DE
+
+YouTube: https://www.youtube.com/watch?v=L8-LEDMLwJA
+
+Simon Harrer ist zurück in der Daten-WG: Aus dem Data Mesh Manager wurde Entropy Data, ausgegründet aus der INNOQ. Es geht um einen Datenprodukt-Marktplatz mit Data Contracts als Basis für KI-Agenten, einen Coding Agent, der aus einem Contract eine Pipeline baut, Apache Ossie (früher Open Semantic Interchange) und Ontologien. Außerdem: das Interesse von Microsoft an Data Contracts für Fabric und Power BI und die Frage, wem die Metadaten gehören sollten.
+
+Kapitel:
+- [00:00](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=0s) Intro: Aus Leidenschaft wird ein Unternehmen
+- [00:48](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=48s) Vom Data Mesh Manager zu Entropy Data
+- [02:21](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=141s) Was ist ein Datenprodukt-Marktplatz?
+- [03:07](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=187s) Der Traum eines jeden Agenten
+- [04:50](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=290s) Contract first: Der Coding Agent baut die Pipeline
+- [05:53](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=353s) Praxisbeispiel: Zeiterfassung als Datenprodukt
+- [09:05](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=545s) Data Contracts statt Datenkatalog und die Frage der Ownership
+- [11:35](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=695s) Agenten als Feedback-Instrument für gute Metadaten
+- [13:08](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=788s) Ist ein Agent selbst ein Datenprodukt?
+- [16:57](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=1017s) Wie verhindert man Slop im Marktplatz?
+- [18:10](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=1090s) OSI: Ein offener Standard für Semantikmodelle
+- [22:37](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=1357s) Metadaten für KI, ODCS und Ontologien
+- [25:32](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=1532s) Aus OSI wird Apache Ossie
+- [26:56](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=1616s) Entropy Data trifft Microsoft Fabric und Power BI
+- [31:45](https://www.youtube.com/watch?v=L8-LEDMLwJA&t=1905s) Wem gehören die Metadaten? Souveränität und offene Standards
+
 ### Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense
 
 Gast: Reinhard Mense · Juli 2026 · 49 min · DE · Tags: Data Warehouse, Podcast, Automation, DE
@@ -1560,6 +1633,14 @@ I will explain how and why behind my Power BI Sparkassen Dashboard.
 ## 06 · Power BI · Deep Dive & Vergleiche
 
 _Zehn Jahre Power BI sind durch — was hat sich wirklich verändert? Wie steht Power BI gegenüber Qlik, Tableau & Co.? Und wie skaliert man jenseits des PBIX-Files in echte Enterprise-Lösungen?_
+
+### GxP Talk - Validierung vs. Nachhaltigkeit
+
+Oktober 2026 · 46 min · DE · Tags: GxP, KI, Nachhaltigkeit, DE
+
+YouTube: https://www.youtube.com/watch?v=8emp-Fwo9fU
+
+Der GxP-Talk geht der Validierung von Systemen weiter auf den Grund. Diesmal um Nutzen und Gefahren von KI in diesem Zusammenhang und darum, wie sich Nachhaltigkeit beim KI-Einsatz bewerten lässt: Wie ordnet man den steigenden Strom- und Wasserverbrauch ein, und können die Vorteile trotzdem überwiegen?
 
 ### Databricks Explained to a Power BI Guy | Daten-WG Podcast with Vitalija Bartusevičiūtė
 
@@ -2335,6 +2416,38 @@ Kurze Kanal-Vorstellung: Die Daten-WG-Community bleibt auch nach dem Event zusam
 ## 10 · 1 Minute Power BI
 
 _Marcus nimmt sich jede Woche eine Sache vor und erklärt sie in unter einer Minute: ein Handgriff, eine Fallstrick-Warnung, eine klare Antwort auf eine Frage, die immer wieder kommt. Kein Drumherum — wer wenig Zeit hat, fängt hier an._
+
+### #015 · Daten in Power BI eingeben und speichern? So geht Writeback!
+
+Oktober 2026 · 80 s · DE · Tags: Writeback, Shorts, Power Apps, DE
+
+YouTube: https://www.youtube.com/watch?v=d1RaD9wZRCM
+
+Power BI ist ein Analysetool, aber mit einer integrierten Power App lassen sich Kommentare direkt im Bericht erfassen und in einer SharePoint-Liste speichern. Marcus streift außerdem Translytical Task Flows in Fabric, Planning-Lösungen und Custom Visuals.
+
+### #014 · Kann Power BI Daten historisieren? Dieser Trick könnte funktionieren!
+
+Oktober 2026 · 64 s · DE · Tags: Historisierung, Shorts, Incremental Refresh, DE
+
+YouTube: https://www.youtube.com/watch?v=6wcq2AooJZo
+
+Ein Dataflow Gen1 ergänzt beim Import einen Zeitstempel, darauf sitzt ein Incremental Refresh, der drei Jahre vorhält und nur den aktuellen Tag aktualisiert. Ob diese Historisierung allein mit Power BI zuverlässig trägt, bleibt offen und wird zur Diskussion gestellt.
+
+### #013 · Import, DirectQuery, Direct Lake oder Dual Mode - was ist eigentlich was?
+
+September 2026 · 85 s · DE · Tags: Speichermodi, Shorts, Direct Lake, DE
+
+YouTube: https://www.youtube.com/watch?v=u5JMKAM8GB0
+
+Der Unterschied liegt darin, wo die Daten liegen, wenn Power BI zugreift: im Modell, in der Quelle oder in Fabric. Für den Einstieg ist Import meist am einfachsten, Direct Lake lohnt aber einen genaueren Blick.
+
+### #012 · Das größte Power BI Feature der letzten Jahre?
+
+September 2026 · 22 s · DE · Tags: PBIP, Shorts, Git, DE
+
+YouTube: https://www.youtube.com/watch?v=rk4ZJ-c8cS4
+
+Die offenen Formate rund um das Power BI Project File (PBIP) machen Versionierung, Teamarbeit und KI-Zugriff auf die Projektdateien möglich. Die Kombination aus Power BI, Git und KI könnte verändern, wie Berichte und semantische Modelle entstehen.
 
 ### #011 · Power BI ohne Fabric? Absolut!
 
