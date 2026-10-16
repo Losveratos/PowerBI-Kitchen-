@@ -6,7 +6,7 @@ Power-BI-Visual · Enddokumentation
 
 Ein IBCS-inspiriertes Chart-Deck für Power BI: 13 Diagramm-Modi in einem einzigen Visual, mit einheitlicher Szenario-Notation (AC ausgefüllt, PY grau, PL umrandet, FC schraffiert) und mitgedachten Varianzen. Diese Dokumentation führt vom Import über die 13 Modi und die wichtigsten Funktionen bis zur vollständigen Einstellungs-Referenz.
 
-Version · **1.47.0.0** · Stand · **2026-10-16** · IBCS-inspired
+Version · **1.48.0.0** · Stand · **2026-10-16** · IBCS-inspired
 
 ## Inhalt
 
@@ -24,7 +24,7 @@ Version · **1.47.0.0** · Stand · **2026-10-16** · IBCS-inspired
 
 Die Gestaltung ist von den **IBCS®-Prinzipien** (International Business Communication Standards) inspiriert: eine einheitliche Szenario-Notation — **AC** (Ist) ausgefüllt, **PY** (Vorjahr) grau, **PL** (Plan) umrandet, **FC** (Forecast) schraffiert — und Abweichungen, die immer mitgedacht sind: absolute und relative Varianz-Panels stehen automatisch neben oder über dem Basis-Chart. So liest sich jede Grafik nach denselben Regeln, egal welcher Modus.
 
-Diese Anleitung beschreibt den Stand der Version **1.47.0.0**. Gezählt wird wie im Visual selbst: 13 Chart-Typen — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 03 trotzdem eine eigene Karte.
+Diese Anleitung beschreibt den Stand der Version **1.48.0.0**. Gezählt wird wie im Visual selbst: 13 Chart-Typen — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 03 trotzdem eine eigene Karte.
 
 ## 02 · Schnellstart
 
@@ -60,6 +60,7 @@ Diese Anleitung beschreibt den Stand der Version **1.47.0.0**. Gezählt wird wie
 | Waterfall-Typ (sum/delta) | Gruppierung | Nur Wasserfall/GuV: „sum“ = absolute Zwischensumme, „delta“ = Bewegung (GuV-Wasserfall). |
 | Forecast-Flag (0=Ist · 1=FC · 2=vorläufig) | Gruppierung | Alternative zur FC-Measure: eine 1/0-Spalte — Zeilen mit 1 werden als Forecast (schraffiert) dargestellt, die AC-Measure läuft durch. |
 | X-Achse (Scatter) | Kennzahl | Nur Scatter/Bubble (seit 1.47): Kennzahl für die X-Achse — die Y-Achse bleibt AC. |
+| X-Achse VJ (Scatter) | Kennzahl | Nur Scatter/Bubble, optional (seit 1.48, max. 1 Feld): Vorjahreswert zur X-Achse. Mit Vorjahr (PY) und aktivierten Bewegungspfeilen zeigen die Pfeile echte 2D-Bewegungen von (X-VJ, PY) zur AC-Position — ohne dieses Feld bewegt sich nur die Y-Achse. |
 | Blasengröße | Kennzahl | Nur Scatter/Bubble, optional: skaliert die Punktfläche proportional zum Wert (3–22 px) — aus dem Scatter wird ein Bubble-Chart. |
 | Trend (Zeit) | Gruppierung | Nur KPI-Karten (seit 1.47): ein Zeitfeld macht jede Karte zur Zeitreihe mit Mini-Chart (Sparkline oder Säulen). Andere Modi ignorieren die Rolle und aggregieren die Zeilen. |
 
@@ -171,7 +172,9 @@ Das vollständige GuV-Statement: Ergebnisrechnung mit Summen-, Delta- und Margen
 
 ### 13 · Scatter / Bubble (Korrelation)
 
-Der Korrelations-Modus (neu in 1.47): jede Kategorie als Punkt, Y-Achse = AC, X-Achse = die neue Rolle „X-Achse (Scatter)“; mit gefüllter Rolle „Blasengröße“ wird daraus ein Bubble-Chart (Punktfläche proportional, 3–22 px). Quadranten-Linien lassen sich auf Mittelwert oder Median legen — gesetzte Referenzlinien (auch die neue X-Referenzlinie) übersteuern sie. Die Achsen zeigen maximal 5 runde Ticks mit der Einheit im Achsentitel; Labels weichen Kollisionen automatisch aus (hervorgehobene Kategorien vor größten Blasen vor Extrempunkten). Optional färbt eine Status-Färbung die Punkte nach ΔPY/ΔPL inklusive Wesentlichkeitsschwelle. Hervorhebung (EMPHASIZE), FC-Schraffur, Kommentare, Crossfilter, Dark Mode und Hochkontrast funktionieren wie in den übrigen Modi; ein Feld in der Small-Multiples-Rolle wird zur kombinierten Punktwolke (Kategorie · Gruppe).
+Der Korrelations-Modus (neu in 1.47): jede Kategorie als Punkt, Y-Achse = AC, X-Achse = die neue Rolle „X-Achse (Scatter)“; mit gefüllter Rolle „Blasengröße“ wird daraus ein Bubble-Chart (Punktfläche proportional, 3–22 px). Quadranten-Linien lassen sich auf Mittelwert oder Median legen — gesetzte Referenzlinien (auch die neue X-Referenzlinie) übersteuern sie. Die Achsen zeigen maximal 5 runde Ticks mit der Einheit im Achsentitel; Labels weichen Kollisionen automatisch aus (hervorgehobene Kategorien vor größten Blasen vor Extrempunkten). Optional färbt eine Status-Färbung die Punkte nach ΔPY/ΔPL inklusive Wesentlichkeitsschwelle. Hervorhebung (EMPHASIZE), FC-Schraffur, Kommentare, Crossfilter, Dark Mode und Hochkontrast funktionieren wie in den übrigen Modi.
+
+Seit 1.48 ist der Modus deutlich ausgebaut: Ein Feld in der Small-Multiples-Rolle erzeugt jetzt echte Scatter-Kacheln mit gemeinsamer X/Y-Skala — Quadranten-Linien, Referenzlinien und Blasenskala gelten für alle Kacheln gleich; die Σ- und die Top-N-Rest-Kachel sind im Scatter bewusst aus (keine Summen über Quoten). Die Punkt-Färbung „Nach Gruppe/Serie“ nutzt sechs gedeckte Farben ohne Rot und Grün (die bleiben für gut/schlecht reserviert) und zeigt eine Legende oben — ab der 7. Gruppe mit „+n weitere“. Die neue Rolle „X-Achse VJ (Scatter)“ macht aus den PY→AC-Bewegungspfeilen echte 2D-Bewegungen. Und der Play-Modus (Rosling-Animation) macht die Kategorie zur Zeitachse: je Frame ein Punkt pro Serie, die laufende Periode steht als großes Wasserzeichen im Hintergrund, ohne Abspielen zeigt der Chart die letzte Periode — nur für die einzelne Punktwolke, nicht bei Kacheln. Dazu kommen Trendlinie mit R²-Label, Größen-Legende, Punktformen je Gruppe, Quadranten-Ecklabels, fixierbare Achsen und Log-Skalen (Einstellungs-Referenz, Kapitel 06).
 
 ## 04 · ChartKitchen im Einsatz
 
@@ -331,8 +334,9 @@ Die folgenden Aufnahmen stammen direkt aus Power BI Desktop, mit Beispieldaten a
 
 1. Ein Klick auf eine Kategorie filtert die übrigen Visuals der Seite (Cross-Filter). Ausnahmen: solange Kommentar-, Vergleich- oder Struktur-Modus aktiv sind, filtern Klicks nicht quer.
 2. In der Gegenrichtung gilt seit 1.46: Eine Auswahl in einem anderen Visual **filtert** ChartKitchen immer — die Wechselwirkung „Hervorheben“ bietet Power BI für dieses Visual gar nicht mehr an. Σ-Kopf und Skalen rechnen damit bei Cross-Interaktion konsistent auf dem gefilterten Datenbestand; die eigene Selektion im Visual (Klick, Strg = Mehrfachauswahl) dimmt weiterhin lokal.
-3. Beim Überfahren zeigen Standard- und Canvas-Tooltips Werte, Abweichungen, Serie und Kommentar; Canvas-Tooltips (Report-Page-Tooltips) werden unterstützt. Im Dark Mode zeichnet das Visual den Hover-Tooltip selbst (dunkler Kasten mit Kategorie-Header).
-4. Interaktive Zustände sind bookmark-fähig: die Varianz-Basis, die YTD-Sicht, die In-Chart-Sortierung, aufgeklappte Zeilen/Spalten, erfasste Kommentare und Spaltenbreiten wandern mit dem Bericht bzw. dem Lesezeichen.
+3. Im Scatter/Bubble-Modus gibt es seit 1.48 zusätzlich die Rechteck-Auswahl: Ziehst du auf leerer Plotfläche ein Rechteck auf, werden alle enthaltenen Punkte als EINE Mehrfachauswahl selektiert und filtern die übrigen Visuals (Crossfilter). Ein Klick auf leere Fläche setzt die Auswahl wie bisher zurück.
+4. Beim Überfahren zeigen Standard- und Canvas-Tooltips Werte, Abweichungen, Serie und Kommentar; Canvas-Tooltips (Report-Page-Tooltips) werden unterstützt. Im Dark Mode zeichnet das Visual den Hover-Tooltip selbst (dunkler Kasten mit Kategorie-Header).
+5. Interaktive Zustände sind bookmark-fähig: die Varianz-Basis, die YTD-Sicht, die In-Chart-Sortierung, aufgeklappte Zeilen/Spalten, erfasste Kommentare und Spaltenbreiten wandern mit dem Bericht bzw. dem Lesezeichen.
 
 ## 06 · Einstellungs-Referenz
 
@@ -451,7 +455,17 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
 | Quadranten-Linien | Scatter/Bubble (seit 1.47): legt Quadranten-Linien auf Mittelwert oder Median beider Achsen. Gesetzte Referenzlinien (Skala) übersteuern die Quadranten. | Optionen: Aus \| Mittelwert \| Median · Standard „Mittelwert“ |
-| Punkt-Färbung | „Status“ färbt die Punkte nach der Abweichungsbasis (ΔPY/ΔPL) gut/schlecht, inklusive Wesentlichkeitsschwelle — sonst einfarbig. | Optionen: Einfarbig \| Status (ΔBasis) |
+| Punkt-Färbung | „Status“ färbt die Punkte nach der Abweichungsbasis (ΔPY/ΔPL) gut/schlecht, inklusive Wesentlichkeitsschwelle. „Nach Gruppe/Serie“ (seit 1.48) färbt je Wert des Serie-Felds — sechs gedeckte Farben ohne Rot/Grün (bleiben für gut/schlecht reserviert), Legende oben mit „+n weitere“ ab der 7. Gruppe; ohne Serie-Feld einfarbig, im Hochkontrast ohne Wirkung. | Optionen: Einfarbig (AC) \| Status (ΔBasis) \| Nach Gruppe/Serie · Standard „Einfarbig“ |
+| Form je Gruppe | Nur bei Punkt-Färbung „Nach Gruppe/Serie“ (seit 1.48): jede Gruppe bekommt zusätzlich eine eigene Punktform (Kreis · Quadrat · Dreieck · Raute, flächen-angeglichen) — auch in der Legende. Lesbar im Schwarzweiß-Druck und bei Farbfehlsicht; im Hochkontrast als Umriss-Formen. | An / Aus · Standard Aus |
+| Bewegungspfeile PY → AC | Nur mit Vorjahr (PY), seit 1.48: dünner Pfeil vom kleinen grauen PY-Startpunkt zur AC-Markerkante jedes Punkts. Mit der Rolle „X-Achse VJ (Scatter)“ echte 2D-Bewegung, sonst bewegt sich nur Y; der Tooltip nennt Δ je Achse, die Achsen schließen die PY-Positionen mit ein. | An / Aus · Standard Aus |
+| Trendlinie | Lineare Regression über die sichtbaren Punkte (seit 1.48) als dünne gepunktete Linie über die Plotbreite, bei Small Multiples je Kachel; bei Log-Achsen im logarithmischen Raum gerechnet — die Gerade bleibt gerade. Mindestens 3 Punkte. | Optionen: Aus \| Linear · Standard „Aus“ |
+| R² anzeigen | Nur bei aktiver Trendlinie: beschriftet das Linienende mit dem Bestimmtheitsmaß („R² = 0,87“). | An / Aus · Standard Aus |
+| Größen-Legende | Nur bei gebundener Blasengröße: drei genestete Referenzkreise (klein · mittel · groß, auf runde Werte gerundet) kompakt in der ersten freien Plot-Ecke; bei Small Multiples genau einmal. | An / Aus · Standard An |
+| Quadranten-Text oben rechts | Nur bei aktiven Quadranten-Linien (seit 1.48): dezente Ecklabel-Beschriftung (z. B. „Stars“ oben rechts), weicht Punkten nach Möglichkeit aus. Leer = aus. | Freitext · leer = aus |
+| Quadranten-Text oben links | — | Freitext · leer = aus |
+| Quadranten-Text unten links | — | Freitext · leer = aus |
+| Quadranten-Text unten rechts | — | Freitext · leer = aus |
+| Play-Button (Animation) | Nur Scatter ohne Small Multiples (seit 1.48): blendet einen ▶-Button ein (Rosling-Modus) — die Kategorie wird zur Zeitachse, je Frame ein Punkt pro Serie, die Periode steht als großes Wasserzeichen im Hintergrund (Klick = zurück zum Anfang). Achsen, Quadranten und Blasenskala bleiben über alle Frames fix; ohne Abspielen zeigt der Chart die letzte Periode, Exporte rendern die volle Punktwolke. Der Laufzustand wird nicht gespeichert. | An / Aus · Standard Aus |
 
 ### IBCS-Titel
 
@@ -517,6 +531,17 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Skalen-Mindest-Maximum | Skaliert das Basis-Chart mindestens bis zu diesem Wert — für identische Skalen über mehrere Visuals (IBCS). 0 = automatisch. Größere Datenwerte erweitern die Skala weiterhin. Wirkt seit 1.45 auch im Wasserfall. | ab 0 · Standard 0 |
 | Abweichungs-Mindest-Maximum | Wie oben, für die Abweichungs-Panels (symmetrisch ±). 0 = automatisch. Seit 1.45 teilen ΔPY- und ΔPL-Panel EINE Skala — der Wert wirkt auf beide. | ab 0 · Standard 0 |
 | Ausreißer am Maximum kappen | Macht das Skalen-Maximum hart: größere Werte werden gekappt und mit ⫽-Doppelstrich markiert (Label zeigt den echten Wert). Seit 1.45 trägt jedes gekappte Element den Marker (auch PY, PL, BM und Linien); eine Ziellinie über dem Cap dehnt die Achse nicht mehr. | An / Aus · Standard Aus |
+
+#### Scatter-Achsen
+
+| Einstellung | Beschreibung | Optionen / Standard |
+| --- | --- | --- |
+| X-Achse Minimum | Nur Scatter-Modus (seit 1.48): fixiert die Achsengrenze — für identische Achsen über mehrere Scatter-Visuals einer Seite. Leer = automatisch, 0 ist ein gültiger Wert, k/M/B-Suffixe wie bei der Referenzlinie (z. B. „50k“). Punkte außerhalb der fixierten Grenzen werden nicht gezeichnet, sondern gezählt („n außerhalb der Achsen“). | Freitext · leer = automatisch |
+| X-Achse Maximum | Wie oben — fixiert die obere X-Grenze. | Freitext · leer = automatisch |
+| Y-Achse Minimum | Wie oben, für die Y-Achse (AC). | Freitext · leer = automatisch |
+| Y-Achse Maximum | Wie oben, für die Y-Achse (AC). | Freitext · leer = automatisch |
+| X-Achse logarithmisch | Nur Scatter-Modus (seit 1.48): logarithmische X-Achse mit Dekaden-Ticks (1-2-5-Schritte bei enger Spanne). Greift nur, wenn alle X-Werte inklusive Referenzlinie und fixierter Grenzen größer 0 sind — sonst bleibt die Achse linear, mit Hinweis im Bearbeitungsmodus. Bei Small Multiples eine deckweite Entscheidung; die Trendlinie regressiert im Log-Raum. | An / Aus · Standard Aus |
+| Y-Achse logarithmisch | Wie oben, für die Y-Achse (AC): nur wenn alle Y-Werte größer 0 sind, sonst linear mit Hinweis. | An / Aus · Standard Aus |
 
 #### Referenzlinie
 
@@ -600,7 +625,7 @@ Gewollt (seit 1.46): Die Visual-Wechselwirkung steht für ChartKitchen immer auf
 
 Stelle IBCS-Farben → „Erscheinungsbild“ auf „Auto“ (erkennt dunkle Themes an der Hintergrund-Luminanz) oder explizit auf „Dunkel“ — Tinte, Achsen, Flächen und seit 1.44 auch der Hover-Tooltip wechseln dann auf dunkle Darstellung mit heller Schrift.
 
-**ChartKitchen byDatenWG** · Version 1.47.0.0
+**ChartKitchen byDatenWG** · Version 1.48.0.0
 
 Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 

@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 An IBCS-inspired chart deck for Power BI: 13 chart modes in a single visual, with a consistent scenario notation (AC filled, PY grey, PL outlined, FC hatched) and variances built in throughout. This documentation takes you from import through the 13 modes and the key features to the complete settings reference.
 
-Version · **1.47.0.0** · As of · **2026-10-16** · IBCS-inspired
+Version · **1.48.0.0** · As of · **2026-10-16** · IBCS-inspired
 
 ## Contents
 
@@ -24,7 +24,7 @@ Version · **1.47.0.0** · As of · **2026-10-16** · IBCS-inspired
 
 The design is inspired by the **IBCS® principles** (International Business Communication Standards): one consistent scenario notation — **AC** (actual) filled, **PY** (prior year) grey, **PL** (plan) outlined, **FC** (forecast) hatched — and variances that are always present: absolute and relative variance panels appear automatically next to or above the base chart. Every chart reads by the same rules, whichever mode you choose.
 
-This guide describes the state of version **1.47.0.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 03.
+This guide describes the state of version **1.48.0.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 03.
 
 ## 02 · Quick start
 
@@ -60,6 +60,7 @@ This guide describes the state of version **1.47.0.0**. The count matches the vi
 | Waterfall type (sum/delta) | Grouping | Waterfall/P&L only: “sum” = absolute subtotal, “delta” = movement (P&L waterfall). |
 | Forecast flag (0=actual · 1=FC · 2=preliminary) | Grouping | Alternative to the FC measure: a 1/0 column — rows flagged 1 are drawn as forecast (hatched), the AC measure runs through. |
 | X axis (scatter) | Measure | Scatter/bubble only (since 1.47): measure for the X axis — the Y axis stays AC. |
+| X axis PY (scatter) | Measure | Scatter/bubble only, optional (since 1.48, max. 1 field): prior-year value for the X axis. With PY bound and movement arrows enabled the arrows show true 2D movement from (X PY, PY) to the AC position — without this field only the Y axis moves. |
 | Bubble size | Measure | Scatter/bubble only, optional: scales the dot area proportionally to the value (3–22 px) — turning the scatter into a bubble chart. |
 | Trend (time) | Grouping | KPI cards only (since 1.47): a time field turns every card into a time series with a mini chart (sparkline or columns). Other modes ignore the role and re-aggregate the rows. |
 
@@ -171,7 +172,9 @@ The full P&L statement: an income statement with subtotal, delta and margin rows
 
 ### 13 · Scatter / bubble (correlation)
 
-The correlation mode (new in 1.47): every category as a dot, Y axis = AC, X axis = the new “X axis (scatter)” role; with the “Bubble size” role filled it becomes a bubble chart (dot area proportional, 3–22 px). Quadrant lines can sit at the mean or median of both axes — set reference lines (including the new X reference line) override them. The axes show at most 5 round ticks with the unit in the axis title; labels avoid collisions automatically (emphasized categories before biggest bubbles before extreme points). An optional status coloring tints the dots by ΔPY/ΔPL including the materiality threshold. Emphasis (EMPHASIZE), FC hatching, comments, cross-filtering, dark mode and high contrast work as in the other modes; a field in the small-multiples role becomes a combined dot cloud (category · group).
+The correlation mode (new in 1.47): every category as a dot, Y axis = AC, X axis = the new “X axis (scatter)” role; with the “Bubble size” role filled it becomes a bubble chart (dot area proportional, 3–22 px). Quadrant lines can sit at the mean or median of both axes — set reference lines (including the new X reference line) override them. The axes show at most 5 round ticks with the unit in the axis title; labels avoid collisions automatically (emphasized categories before biggest bubbles before extreme points). An optional status coloring tints the dots by ΔPY/ΔPL including the materiality threshold. Emphasis (EMPHASIZE), FC hatching, comments, cross-filtering, dark mode and high contrast work as in the other modes.
+
+Since 1.48 the mode has been extended substantially: a field in the small-multiples role now creates true scatter tiles with a shared X/Y scale — quadrant lines, reference lines and the bubble scale apply to all tiles alike; the Σ and top-N rest tiles are deliberately off in scatter (no sums over ratios). The point coloring “By group/series” uses six muted colors without red or green (those stay reserved for good/bad) and shows a legend on top — from the 7th group on with “+n more”. The new “X axis PY (scatter)” role turns the PY→AC movement arrows into true 2D movement. And play mode (Rosling animation) turns the category into a time axis: one dot per series per frame, the current period as a large watermark in the background, without playing the chart shows the last period — only for the single dot cloud, not with tiles. On top of that: a trend line with an R² label, a size legend, shapes per group, quadrant corner labels, fixable axes and log scales (settings reference, chapter 06).
 
 ## 04 · ChartKitchen in action
 
@@ -331,8 +334,9 @@ The following captures come straight from Power BI Desktop, with sample data fro
 
 1. Clicking a category filters the other visuals on the page (cross-filter). Exceptions: while comment, compare or structure mode is active, clicks do not cross-filter.
 2. In the other direction, since 1.46: a selection in another visual always **filters** ChartKitchen — Power BI no longer offers the “highlight” interaction for this visual. Σ header and scales therefore work consistently on the filtered data during cross-interaction; the visual's own selection (click, Ctrl = multi-select) still dims locally.
-3. On hover, default and canvas tooltips show values, variances, series and comment; canvas tooltips (report-page tooltips) are supported. In dark mode the visual draws the hover tooltip itself (a dark box with the category as header).
-4. Interactive states are bookmark-capable: the variance basis, the YTD view, in-chart sorting, expanded rows/columns, captured comments and column widths travel with the report or the bookmark.
+3. In scatter/bubble mode there is additionally a rectangle selection since 1.48: dragging a rectangle on empty plot area selects all contained dots as ONE multi-select and filters the other visuals (cross-filter). A click on empty area clears the selection as before.
+4. On hover, default and canvas tooltips show values, variances, series and comment; canvas tooltips (report-page tooltips) are supported. In dark mode the visual draws the hover tooltip itself (a dark box with the category as header).
+5. Interactive states are bookmark-capable: the variance basis, the YTD view, in-chart sorting, expanded rows/columns, captured comments and column widths travel with the report or the bookmark.
 
 ## 06 · Settings reference
 
@@ -451,7 +455,17 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Setting | Description | Options / default |
 | --- | --- | --- |
 | Quadrant lines | Scatter/bubble (since 1.47): places quadrant lines at the mean or median of both axes. Set reference lines (Scale card) override the quadrants. | Options: Off \| Mean \| Median · default “Mean” |
-| Dot coloring | “Status” tints the dots by the variance basis (ΔPY/ΔPL) good/bad, including the materiality threshold — otherwise a single color. | Options: Single color \| Status (Δbasis) |
+| Dot coloring | “Status” tints the dots by the variance basis (ΔPY/ΔPL) good/bad, including the materiality threshold. “By group/series” (since 1.48) colors per value of the series field — six muted colors without red/green (reserved for good/bad), a legend on top with “+n more” from the 7th group; without a series field a single color, no effect in high contrast. | Options: Single color (AC) \| Status (Δbasis) \| By group/series · default “Single color” |
+| Shape per group | Only with dot coloring “By group/series” (since 1.48): every group additionally gets its own dot shape (circle · square · triangle · diamond, area-matched) — shown in the legend too. Readable in black-and-white print and with color-vision deficiency; outline shapes in high contrast. | On / Off · default Off |
+| Movement arrows PY → AC | Only with prior year (PY), since 1.48: a thin arrow from a small grey PY start dot to the AC marker edge of every dot. With the “X axis PY (scatter)” role true 2D movement, otherwise only Y moves; the tooltip states Δ per axis and the axes include the PY positions. | On / Off · default Off |
+| Trend line | Linear regression over the visible dots (since 1.48) as a thin dotted line across the plot width, per tile with small multiples; computed in log space on log axes — the line stays straight. At least 3 dots. | Options: Off \| Linear · default “Off” |
+| Show R² | Only with an active trend line: labels the end of the line with the coefficient of determination (“R² = 0.87”). | On / Off · default Off |
+| Size legend | Only with a bound bubble size: three nested reference circles (small · medium · large, rounded to friendly values) compactly in the first free plot corner; exactly once with small multiples. | On / Off · default On |
+| Quadrant label top right | Only with active quadrant lines (since 1.48): a subtle corner label (e.g. “Stars” top right), avoiding dots where possible. Empty = off. | Free text · empty = off |
+| Quadrant label top left | — | Free text · empty = off |
+| Quadrant label bottom left | — | Free text · empty = off |
+| Quadrant label bottom right | — | Free text · empty = off |
+| Play button (animation) | Scatter without small multiples only (since 1.48): shows a ▶ button (Rosling mode) — the category becomes the time axis, one dot per series per frame, the period sits as a large watermark in the background (click = back to the start). Axes, quadrants and bubble scale stay fixed across all frames; without playing the chart shows the last period, exports render the full dot cloud. The playback state is not persisted. | On / Off · default Off |
 
 ### IBCS Title
 
@@ -517,6 +531,17 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Scale minimum maximum | Scales the base chart at least up to this value — for identical scales across multiple visuals (IBCS). 0 = automatic. Larger data values still extend the scale. Since 1.45 it also applies in the waterfall. | from 0 · default 0 |
 | Variance minimum maximum | As above, for the variance panels (symmetric ±). 0 = automatic. Since 1.45 the ΔPY and ΔPL panels share ONE scale — the value applies to both. | from 0 · default 0 |
 | Cap outliers at maximum | Makes the scale maximum hard: larger values are capped and marked with a ⫽ double stroke (the label shows the real value). Since 1.45 every capped element carries the marker (including PY, PL, BM and lines); a target line above the cap no longer stretches the axis. | On / Off · default Off |
+
+#### Scatter axes
+
+| Setting | Description | Options / default |
+| --- | --- | --- |
+| X axis minimum | Scatter mode only (since 1.48): fixes the axis bound — for identical axes across several scatter visuals on a page. Empty = automatic, 0 is a valid value, k/M/B suffixes as for the reference line (e.g. “50k”). Dots outside the fixed bounds are not drawn but counted (“n outside the axes”). | Free text · empty = automatic |
+| X axis maximum | As above — fixes the upper X bound. | Free text · empty = automatic |
+| Y axis minimum | As above, for the Y axis (AC). | Free text · empty = automatic |
+| Y axis maximum | As above, for the Y axis (AC). | Free text · empty = automatic |
+| X axis logarithmic | Scatter mode only (since 1.48): logarithmic X axis with decade ticks (1-2-5 steps for a narrow span). Applies only when all X values, including the reference line and fixed bounds, are greater than 0 — otherwise the axis stays linear, with a note in edit mode. One deck-wide decision with small multiples; the trend line regresses in log space. | On / Off · default Off |
+| Y axis logarithmic | As above, for the Y axis (AC): only when all Y values are greater than 0, otherwise linear with a note. | On / Off · default Off |
 
 #### Reference line
 
@@ -600,7 +625,7 @@ Intended (since 1.46): the visual interaction for ChartKitchen is always “filt
 
 Set IBCS colors → “Appearance” to “Auto” (detects dark themes from the background luminance) or explicitly to “Dark” — ink, axes, areas and, since 1.44, the hover tooltip then switch to a dark rendering with light text.
 
-**ChartKitchen byDatenWG** · Version 1.47.0.0
+**ChartKitchen byDatenWG** · Version 1.48.0.0
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
