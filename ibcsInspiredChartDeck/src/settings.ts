@@ -19,13 +19,13 @@ type LocEnumMember = powerbi.IEnumMember & { key: string };
 const orientationItems: LocEnumMember[] = [
     { value: "columns", displayName: "Columns (Time)", key: "Enum_Orientation_Columns" },
     { value: "bars", displayName: "Bars (Structure)", key: "Enum_Orientation_Bars" },
-    { value: "line", displayName: "Line (Time, many points)", key: "Enum_Orientation_Line" },
+    { value: "line", displayName: "Line (long time series)", key: "Enum_Orientation_Line" },
     { value: "waterfall", displayName: "Waterfall / Bridge", key: "Enum_Orientation_Waterfall" },
     { value: "intwaterfall", displayName: "Integrated Bridge (Time)", key: "Enum_Orientation_IntWaterfall" },
     { value: "catbridge", displayName: "Category Bridge (Structure)", key: "Enum_Orientation_CatBridge" },
     { value: "table", displayName: "Table (IBCS)", key: "Enum_Orientation_Table" },
     { value: "pareto", displayName: "Pareto (Structure)", key: "Enum_Orientation_Pareto" },
-    { value: "dumbbell", displayName: "Dumbbell (Structure)", key: "Enum_Orientation_Dumbbell" },
+    { value: "dumbbell", displayName: "Dumbbell · Before/After (Structure)", key: "Enum_Orientation_Dumbbell" },
     { value: "slope", displayName: "Slope · Before/After", key: "Enum_Orientation_Slope" },
     { value: "cards", displayName: "KPI Cards (Tiles)", key: "Enum_Orientation_Cards" },
     { value: "pnl", displayName: "P&L Statement (IBCS)", key: "Enum_Orientation_Pnl" }
@@ -133,6 +133,14 @@ const labelDensityItems: LocEnumMember[] = [
     { value: "ends", displayName: "First · last · extremes", key: "Enum_LabelDensity_Ends" }
 ];
 
+// Wasserfall-Achsenschnitt (IBCS UN 5.3): off = immer nullbasiert, kein Chip ·
+// auto = nullbasiert, Leser schneidet per Chip · on = geschnitten (wenn zulässig)
+const wfAxisBreakItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off (zero-based)", key: "Enum_WfBreak_Off" },
+    { value: "auto", displayName: "Auto (reader decides via chip)", key: "Enum_WfBreak_Auto" },
+    { value: "on", displayName: "On (axis broken)", key: "Enum_WfBreak_On" }
+];
+
 /** resolve all enum-member labels once via the host's localization manager */
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems, appearanceItems,
@@ -140,7 +148,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems,
         cardRefValueItems,
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
-        gridLinesItems, cellLayoutItems];
+        gridLinesItems, cellLayoutItems, wfAxisBreakItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -220,7 +228,7 @@ export class IbcsTitleCardSettings extends FormattingSettingsCard {
 export class ChartCardSettings extends formattingSettings.CompositeCard {
     orientation = new formattingSettings.ItemDropdown({
         name: "orientation",
-        displayName: "Orientation",
+        displayName: "Chart type",
         displayNameKey: "Chart_Orientation",
         items: orientationItems,
         value: orientationItems[0]
@@ -308,7 +316,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
 
     topN = new formattingSettings.NumUpDown({
         name: "topN",
-        displayName: "Top N (Bars)",
+        displayName: "Top N (structure modes)",
         displayNameKey: "Chart_TopN",
         description: "Struktur-Modi (Bars, Kategorie-Brücke, Tabelle, Dumbbell, KPI-Karten): zeigt die N größten Kategorien, der Rest wird aggregiert. 0 = alle.",
         descriptionKey: "Desc_Chart_TopN",
@@ -407,9 +415,9 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
 
     waterfallStyle = new formattingSettings.ToggleSwitch({
         name: "waterfallStyle",
-        displayName: "Waterfall bridge",
+        displayName: "Draw as bridge (instead of single bars)",
         displayNameKey: "Chart_WaterfallStyle",
-        description: "Nur Columns/Bars: zeigt die Kategorien als Wasserfall-Brücke von der Basis (PY/PL) zu AC mit Verbindungslinien, statt als einzelne Balken. Optional — Standard ist aus.",
+        description: "Nur Säulen/Balken: zeigt die Kategorien als Wasserfall-Brücke von der Basis (PY/PL) zu AC mit Verbindungslinien, statt als einzelne Balken. Unterschied zum Chart-Typ „Waterfall / Brücke\": Dort kaskadieren die Datenwerte selbst (sum/delta-Zeilen) — dieser Schalter verbrückt die Abweichung zur Basis im Säulen-/Balken-Modus. Optional — Standard ist aus.",
         descriptionKey: "Desc_Chart_WaterfallStyle",
         value: false
     });
@@ -448,15 +456,6 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         description: "Kategorie-Brücke: kursive Notiz am größten Treiber („größter Treiber · n % der Gesamtabweichung“) — überlagert den Zeilenbereich, hier abschaltbar.",
         descriptionKey: "Desc_Chart_DriverNote",
         value: true
-    });
-
-    layoutGroup = new formattingSettings.Group({
-        name: "chartLayout",
-        displayName: "Layout",
-        displayNameKey: "Group_Layout",
-        slices: [this.orientation, this.smartStart, this.comparisonMode, this.showAbsoluteVariance,
-            this.showRelativeVariance, this.dualVariance, this.pyTriangle, this.showTotal,
-            this.acFcSplit, this.hideBlankCat, this.groupEvery]
     });
 
     cumulativeButton = new formattingSettings.ToggleSwitch({
@@ -521,15 +520,6 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
-    analysisGroup = new formattingSettings.Group({
-        name: "chartAnalysis",
-        displayName: "Analysis",
-        displayNameKey: "Group_Analysis",
-        slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.cumulativeButton, this.movingAverage, this.topN,
-            this.highlight, this.invert, this.invertList, this.compareClick,
-            this.materialityAbs, this.materialityPct, this.exceptionOnly, this.pinStyle, this.deltaIcons]
-    });
-
     multiplesTotal = new formattingSettings.ToggleSwitch({
         name: "multiplesTotal",
         displayName: "Total tile (Σ)",
@@ -582,7 +572,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartBridge",
         displayName: "Bridge",
         displayNameKey: "Group_Bridge",
-        slices: [this.waterfallStyle, this.sortByImpact, this.chartButtons, this.driverNote]
+        slices: [this.waterfallStyle, this.sortByImpact]
     });
 
     valueColumns = new formattingSettings.ItemDropdown({
@@ -749,8 +739,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         slices: [this.valueColumns, this.structureEdit, this.resultList, this.skipList,
             this.hideList, this.chartList, this.indentList, this.rowFormats,
             this.matrixCompare, this.formulaRows, this.totalRowPosition,
-            this.zebraStripes, this.rowDensity, this.gridLines, this.cellLayout,
-            this.exportExpandAll]
+            this.zebraStripes, this.rowDensity, this.gridLines, this.cellLayout]
     });
 
     cardStatusBasis = new formattingSettings.ItemDropdown({
@@ -851,10 +840,57 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
             this.cardBulletZoom]
     });
 
+    // UX-5 (AUDIT-2026-10-UX §1.5): die Mega-Gruppen „Layout"/„Analyse" aufgabenorientiert
+    // neu geschnitten. Gruppen sind reine Anzeige — die Slices wechseln nur die Gruppe
+    // INNERHALB der Chart-Karte, Objekt- und Property-Namen bleiben unverändert.
+    // Erst hier deklariert, weil Feld-Initialisierer in Reihenfolge laufen und die
+    // Gruppen auf Slices aus allen Abschnitten (u. a. exportExpandAll) zeigen.
+    chartTypeGroup = new formattingSettings.Group({
+        name: "chartType",
+        displayName: "Chart type",
+        displayNameKey: "Group_ChartType",
+        slices: [this.orientation, this.smartStart]
+    });
+
+    varianceGroup = new formattingSettings.Group({
+        name: "chartVariance",
+        displayName: "Comparison & variance",
+        displayNameKey: "Group_Variance",
+        slices: [this.comparisonMode, this.showAbsoluteVariance, this.showRelativeVariance,
+            this.dualVariance, this.pyTriangle, this.invert, this.invertList,
+            this.materialityAbs, this.materialityPct, this.exceptionOnly]
+    });
+
+    dataTimeGroup = new formattingSettings.Group({
+        name: "chartDataTime",
+        displayName: "Data & time",
+        displayNameKey: "Group_DataTime",
+        slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.acFcSplit,
+            this.topN, this.showTotal, this.hideBlankCat, this.movingAverage,
+            this.highlight, this.groupEvery]
+    });
+
+    // End-User-Bedienung im Bericht als EINE Familie (In-Chart-Buttons, YTD-Chip,
+    // Vergleich per Klick) — vorher über Brücke und Analyse verstreut
+    interactionGroup = new formattingSettings.Group({
+        name: "chartInteraction",
+        displayName: "Interaction in the report",
+        displayNameKey: "Group_Interaction",
+        slices: [this.chartButtons, this.cumulativeButton, this.compareClick]
+    });
+
+    displayGroup = new formattingSettings.Group({
+        name: "chartDisplay",
+        displayName: "Display",
+        displayNameKey: "Group_Display",
+        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.exportExpandAll]
+    });
+
     name: string = "chart";
     displayName: string = "Chart";
     displayNameKey: string = "Card_Chart";
-    groups = [this.layoutGroup, this.analysisGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup];
+    groups = [this.chartTypeGroup, this.varianceGroup, this.dataTimeGroup, this.interactionGroup,
+        this.displayGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup];
 }
 
 const appearanceItems: LocEnumMember[] = [
@@ -983,8 +1019,10 @@ export class LabelsCardSettings extends FormattingSettingsCard {
 
     fontSize = new formattingSettings.NumUpDown({
         name: "fontSize",
-        displayName: "Text size",
+        displayName: "Text size (pt) · fine-tuning",
         displayNameKey: "Labels_FontSize",
+        description: "Feinjustierung: Basis-Schriftgröße der Beschriftungen in pt. Wird mit Preset und Skalierungs-Faktor multipliziert — im Normalfall genügen Preset und „Alle Beschriftungen skalieren %\".",
+        descriptionKey: "Desc_Labels_FontSize",
         value: 10,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 6 },
@@ -1089,7 +1127,6 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         this.labelDensity,
         this.fontPreset,
         this.fontScale,
-        this.fontSize,
         this.decimals,
         this.displayUnits,
         this.financeFormat,
@@ -1097,7 +1134,8 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         this.labelAc,
         this.labelPy,
         this.labelPl,
-        this.labelFc
+        this.labelFc,
+        this.fontSize
     ];
 }
 
@@ -1218,6 +1256,28 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    wfAxisBreak = new formattingSettings.ItemDropdown({
+        name: "wfAxisBreak",
+        displayName: "Axis break (waterfall)",
+        displayNameKey: "Scale_WfAxisBreak",
+        description: "IBCS-Achsenschnitt (UN 5.3) für Wasserfälle mit großem Sockel: Anker und Zwischensummen werden mit ⫽ gekürzt, die Abweichungen darüber werden lesbar. Aus = immer nullbasiert, kein Chip. Auto = nullbasiert, der Leser schneidet per „⫽ Achse\"-Chip (hervorgehoben, wenn die Abweichungen klein gegenüber dem Sockel sind). An = geschnitten, der Chip schaltet zurück. Geschnitten wird nur, wenn alle Anker und Abweichungen oberhalb des Schnitts liegen — sonst bleibt die Achse nullbasiert.",
+        descriptionKey: "Desc_Scale_WfAxisBreak",
+        items: wfAxisBreakItems,
+        value: wfAxisBreakItems[0]
+    });
+
+    wfBreakAt = new formattingSettings.NumUpDown({
+        name: "wfBreakAt",
+        displayName: "Break at value",
+        displayNameKey: "Scale_WfBreakAt",
+        description: "Wert, bis zu dem die Achse gestaucht wird. 0 = automatisch (runder Wert unterhalb des niedrigsten Stands). Liegt ein Anker oder eine Abweichung darunter, wird nicht geschnitten.",
+        descriptionKey: "Desc_Scale_WfBreakAt",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 }
+        }
+    });
+
     syncGroup = new formattingSettings.Group({
         name: "scaleSync",
         displayName: "Scale sync",
@@ -1232,10 +1292,18 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         slices: [this.refLine, this.refLineLabel]
     });
 
+    // eigene Gruppe, nur im Wasserfall sichtbar (getFormattingModel)
+    wfAxisGroup = new formattingSettings.Group({
+        name: "scaleWfAxis",
+        displayName: "Waterfall axis",
+        displayNameKey: "Group_WfAxis",
+        slices: [this.wfAxisBreak, this.wfBreakAt]
+    });
+
     name: string = "scale";
     displayName: string = "Scale";
     displayNameKey: string = "Card_Scale";
-    groups = [this.syncGroup, this.refLineGroup];
+    groups = [this.syncGroup, this.refLineGroup, this.wfAxisGroup];
 }
 
 export class CategoryAxisCardSettings extends FormattingSettingsCard {
@@ -1266,6 +1334,9 @@ export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     scaleCard = new ScaleCardSettings();
     categoryAxisCard = new CategoryAxisCardSettings();
 
-    cards = [this.ibcsTitleCard, this.chartCard, this.colorsCard, this.labelsCard,
-        this.commentsCard, this.scaleCard, this.categoryAxisCard, this.emptyStateCard];
+    // UX-1 (AUDIT-2026-10-UX §1.5): Soll-Kartenreihenfolge — Chart zuerst (Modus-Wahl
+    // rekonfiguriert alles andere), dann Titel, Beschriftungen + Kategorienachse,
+    // Farben, Skala, Kommentare, Leer-Zustand. Reine Anzeige, keine Property-Änderung.
+    cards = [this.chartCard, this.ibcsTitleCard, this.labelsCard, this.categoryAxisCard,
+        this.colorsCard, this.scaleCard, this.commentsCard, this.emptyStateCard];
 }

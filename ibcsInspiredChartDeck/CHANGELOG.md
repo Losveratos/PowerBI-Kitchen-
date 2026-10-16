@@ -1,5 +1,57 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.45.0.0 (2026-10-16)
+
+**Konzern-Paket: Skalierung wasserdicht, Achsenschnitt per Button, Panel neu geführt.**
+Grundlage sind drei Audits (AUDIT-2026-10-SKALIERUNG/-UX/-IBCS.md).
+
+**Skalierung (P0-Fixes):**
+- **Doppel-Varianz:** ΔPY- und ΔPL-Panels teilen jetzt EINE Skala (abs und %),
+  `fixedVarMax` wirkt auf beide, Tabelle nutzt eine Balken-Einheit für Δ/Δ2.
+- **Brücken:** Kategorie- und Integrierte Brücke nehmen alle Kaskaden-
+  Zwischenstände in die Skala (kein Überlaufen mehr); das Brücken-Panel in
+  Säulen/Balken ist nullbasiert (Anker starten bei 0).
+- **Gestapelt:** gemeinsame Skala über alle Small-Multiples-Kacheln,
+  `fixedMax`/Kappung wirken, negative Segmente stapeln unter der Nulllinie.
+- **Einheiten:** Werte und Varianzen teilen EINEN Einheitenmaßstab; Formate
+  mit eigenem Präfix („#,0 T€", „Mio €") schalten die Auto-Einheit ab —
+  der „K€ neben T€"-Fehler (Faktor 1000) ist behoben, der Titel zieht mit.
+- **Wasserfall:** `fixedMax` und Kappung greifen jetzt auch hier; Skalen-
+  Sync-Gruppe im Pane sichtbar.
+- **Kappung:** ⫽-Marker an JEDEM gekappten Element (PY, PL, BM, Linie);
+  eine Ziellinie über dem Cap dehnt die Achse nicht mehr.
+- **„n.a.":** Δ% zeigt „n.a." bei Basis 0 oder Vorzeichenwechsel zwischen
+  Basis und Ist (statt irreführender Werte wie „−250 %"); GuV-Kostenzeilen
+  mit durchgängig negativer Basis behalten ihre Prozente. Überall: Labels,
+  Pins, Tooltips, Tabelle, Karten, Σ-Kopf, GuV-Statement.
+
+**Achsenschnitt Wasserfall (IBCS UN 5.3):**
+- Neue Skala-Gruppe „Wasserfall-Achse": `wfAxisBreak` (aus · auto · an,
+  Default aus) + `wfBreakAt` (0 = automatisch). Geschnitten wird nur, wenn
+  alle Anker und Deltas vollständig über dem Schnitt liegen; Anker werden
+  zu Stummeln mit ⫽ über die volle Balkenbreite, Titel-Suffix und Export-
+  Fußzeile weisen den Schnitt aus. Small Multiples teilen EINEN Schnitt.
+- In-Chart-Chip „⫽ Achse": schaltet an/aus, hebt sich bei Auto-Vorschlag
+  hervor, ist bei unzulässigem Schnitt deaktiviert (Tooltip nennt den
+  Grund bzw. die blockierende Kachel); persistiert mit Echo-Guard.
+
+**Nutzerführung:**
+- Chart-Karte an Position 1, `orientation` heißt im Pane „Chart-Typ",
+  Enum-Labels eingedeutscht; Kartenreihenfolge nach Arbeitslogik.
+- Chart-Karte neu gruppiert (u. a. neue Gruppen „Interaktion im Bericht"
+  und „Darstellung") — reine Anzeige, keine Property-Änderung.
+- Modus-Chips (✎ Kommentar / ⚙ Struktur / ⇄ Vergleich) beenden ihren
+  Modus jetzt per Klick; Struktur-Chip-Tooltip-Bug behoben.
+- Landing-Galerie nennt nach der Modus-Wahl den nächsten Schritt
+  („Als Nächstes: … in die Feldliste ziehen", lokalisiert).
+- `acFcSplit` nur sichtbar mit FC-Measure; „Nur Auffälligkeiten" immer
+  sichtbar, Beschreibung nennt ohne Schwelle die Voraussetzung.
+- 15 bisher fehlende Übersetzungs-Keys nachgezogen (AC+FC-Split, (blank),
+  Export-Aufklappen, Varianz-Preset, Umbenennen-Felder) — 418 Keys × 4.
+
+Tests c140–c156; Regression: alle 145 Bestandsfälle byte-identisch
+(Achsenschnitt-Refactoring), GuV-Fälle pixelidentisch (n.a.-Regel).
+
 ## 1.44.0.0 (2026-10-07)
 
 **Eigener Leer-Zustand + Dark-Mode-Tooltip.**
