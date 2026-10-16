@@ -401,5 +401,20 @@
   "WfBreak_Title": "eje cortado a partir de {0}",
   "Foot_WfBreak": "⫽ Eje desde {0}",
   "Desc_Scale_WfAxisBreak": "Corte de eje IBCS (UN 5.3) para cascadas sobre una base grande: las anclas y subtotales se acortan con ⫽ y las desviaciones superiores se vuelven legibles. Desactivado = siempre desde cero, sin chip. Auto = desde cero, el lector corta el eje con el chip «⫽ Eje» (resaltado cuando las desviaciones son pequeñas frente a la base). Activado = cortado, el chip vuelve atrás. Solo se corta si todas las anclas y desviaciones quedan por encima del corte; si no, el eje sigue desde cero.",
-  "Desc_Scale_WfBreakAt": "Valor hasta el que se comprime el eje. 0 = automático (un valor redondo por debajo del nivel más bajo). Si un ancla o una desviación queda por debajo, no se corta."
+  "Desc_Scale_WfBreakAt": "Valor hasta el que se comprime el eje. 0 = automático (un valor redondo por debajo del nivel más bajo). Si un ancla o una desviación queda por debajo, no se corta.",
+  "Chart_AcFcSplit": "AC + FC en el mismo período",
+  "Desc_Chart_AcFcSplit": "Un mes parcialmente cerrado entrega AC Y FC: «Pronóstico de mes completo» dibuja la base AC sólida y la completa rayada hasta el valor FC (columna = max(AC, FC)); «Resto del mes» suma el FC encima de AC (columna = AC + FC). Importante: la elección incorrecta cuenta el mes dos veces — debe coincidir con la definición de la medida FC. La etiqueta y Σ muestran el total, la información sobre herramientas ambas partes. Desactivado = comportamiento anterior (FC solo donde falta AC).",
+  "Enum_AcFcSplit_Off": "Desactivado (FC solo donde falta AC)",
+  "Enum_AcFcSplit_Full": "FC = pronóstico de mes completo",
+  "Enum_AcFcSplit_Rest": "FC = resto del mes (aditivo)",
+  "Chart_HideBlankCat": "Ocultar categoría (en blanco)",
+  "Desc_Chart_HideBlankCat": "Oculta filas sin valor de categoría — de lo contrario aparecen como barra, fila o tarjeta KPI «(blank)». Desactivado por defecto para que ningún dato desaparezca inadvertidamente.",
+  "Chart_ExportExpandAll": "Exportar: expandir todos los niveles",
+  "Desc_Chart_ExportExpandAll": "La exportación a PDF/PowerPoint y los correos de suscripción muestran tabla, matriz y estado P&L con todos los niveles expandidos — independientemente del estado en pantalla. Desactivado = la exportación muestra el estado actual.",
+  "Colors_VariancePreset": "Preajuste de colores de desviación",
+  "Desc_Colors_VariancePreset": "«Azul/Naranja» fija favorable/desfavorable al par ColorBrewer #2C7BB6/#E66101 — distinguible por luminosidad incluso con ceguera total al color. Anula los dos selectores de color; los colores del tema siguen teniendo prioridad.",
+  "Labels_RenameAc": "Renombrar AC",
+  "Labels_RenamePy": "Renombrar PY",
+  "Labels_RenamePl": "Renombrar PL",
+  "Labels_RenameFc": "Renombrar FC"
 }

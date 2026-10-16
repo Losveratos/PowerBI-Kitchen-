@@ -401,5 +401,20 @@
   "WfBreak_Title": "Achse ab {0} geschnitten",
   "Foot_WfBreak": "⫽ Achse ab {0}",
   "Desc_Scale_WfAxisBreak": "IBCS-Achsenschnitt (UN 5.3) für Wasserfälle mit großem Sockel: Anker und Zwischensummen werden mit ⫽ gekürzt, die Abweichungen darüber werden lesbar. Aus = immer nullbasiert, kein Chip. Auto = nullbasiert, der Leser schneidet per „⫽ Achse“-Chip (hervorgehoben, wenn die Abweichungen klein gegenüber dem Sockel sind). An = geschnitten, der Chip schaltet zurück. Geschnitten wird nur, wenn alle Anker und Abweichungen oberhalb des Schnitts liegen — sonst bleibt die Achse nullbasiert.",
-  "Desc_Scale_WfBreakAt": "Wert, bis zu dem die Achse gestaucht wird. 0 = automatisch (runder Wert unterhalb des niedrigsten Stands). Liegt ein Anker oder eine Abweichung darunter, wird nicht geschnitten."
+  "Desc_Scale_WfBreakAt": "Wert, bis zu dem die Achse gestaucht wird. 0 = automatisch (runder Wert unterhalb des niedrigsten Stands). Liegt ein Anker oder eine Abweichung darunter, wird nicht geschnitten.",
+  "Chart_AcFcSplit": "AC + FC im selben Monat",
+  "Desc_Chart_AcFcSplit": "Ein teilweise abgeschlossener Monat liefert AC UND FC: „Vollmonatsprognose“ zeigt den AC-Sockel solide und stockt schraffiert bis zum FC-Wert auf (Säule = max(AC, FC)); „Restmonat“ addiert den FC-Wert oben auf AC (Säule = AC + FC). Wichtig: Die falsche Wahl zählt den Monat doppelt — sie muss zur Definition der FC-Measure passen. Label und Σ zeigen den Gesamtwert, der Tooltip beide Anteile. Aus = bisheriges Verhalten (FC nur, wenn AC fehlt).",
+  "Enum_AcFcSplit_Off": "Aus (FC nur, wo AC fehlt)",
+  "Enum_AcFcSplit_Full": "FC = Vollmonatsprognose (Aufstockung)",
+  "Enum_AcFcSplit_Rest": "FC = Restmonat (additiv)",
+  "Chart_HideBlankCat": "(Leer)-Kategorie ausblenden",
+  "Desc_Chart_HideBlankCat": "Blendet Zeilen ohne Kategoriewert aus — sie erscheinen sonst als „(blank)“-Balken, -Zeile oder -KPI-Karte. Standard aus, damit keine Daten unbemerkt verschwinden (Beta-Feedback).",
+  "Chart_ExportExpandAll": "Export: alle Ebenen aufklappen",
+  "Desc_Chart_ExportExpandAll": "PDF-/PowerPoint-Export und Abo-Mails rendern Tabelle, Matrix und GuV-Statement mit allen Zeilen- und Spalten-Ebenen aufgeklappt — der Ausdruck zeigt alles, unabhängig vom Klapp-Zustand am Bildschirm. Aus = Export zeigt den aktuellen Zustand.",
+  "Colors_VariancePreset": "Varianzfarben-Preset",
+  "Desc_Colors_VariancePreset": "„Blau/Orange“ setzt Gut/Schlecht auf das ColorBrewer-Paar #2C7BB6/#E66101 — auch bei vollständiger Farbenblindheit (Achromatopsie) über die Helligkeit unterscheidbar. Übersteuert die beiden Farbwähler unten; Theme-Farben haben weiter Vorrang.",
+  "Labels_RenameAc": "AC umbenennen",
+  "Labels_RenamePy": "PY umbenennen",
+  "Labels_RenamePl": "PL umbenennen",
+  "Labels_RenameFc": "FC umbenennen"
 }

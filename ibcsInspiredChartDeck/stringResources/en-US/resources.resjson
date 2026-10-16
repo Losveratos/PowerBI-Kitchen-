@@ -401,5 +401,20 @@
   "WfBreak_Title": "axis broken from {0}",
   "Foot_WfBreak": "⫽ Axis from {0}",
   "Desc_Scale_WfAxisBreak": "IBCS axis break (UN 5.3) for waterfalls on a large base: anchors and subtotals are shortened with ⫽, the variances above become readable. Off = always zero-based, no chip. Auto = zero-based, the reader breaks the axis via the “⫽ Axis” chip (highlighted when the variances are small against the base). On = broken, the chip switches back. The axis is only broken when every anchor and variance lies above the cut — otherwise it stays zero-based.",
-  "Desc_Scale_WfBreakAt": "Value up to which the axis is compressed. 0 = automatic (a round value below the lowest level). If an anchor or a variance lies below it, the axis is not broken."
+  "Desc_Scale_WfBreakAt": "Value up to which the axis is compressed. 0 = automatic (a round value below the lowest level). If an anchor or a variance lies below it, the axis is not broken.",
+  "Chart_AcFcSplit": "AC + FC in the same period",
+  "Desc_Chart_AcFcSplit": "A partially closed month delivers both AC and FC: “Full-month outlook” draws the AC base solid and tops it up hatched to the FC value (column = max(AC, FC)); “Rest of month” adds FC on top of AC (column = AC + FC). Important: the wrong choice double-counts the month — it must match the FC measure's definition. Label and Σ show the total, the tooltip shows both parts. Off = previous behavior (FC only where AC is missing).",
+  "Enum_AcFcSplit_Off": "Off (FC only where AC is missing)",
+  "Enum_AcFcSplit_Full": "FC = full-month outlook (top-up)",
+  "Enum_AcFcSplit_Rest": "FC = rest of month (additive)",
+  "Chart_HideBlankCat": "Hide (blank) category",
+  "Desc_Chart_HideBlankCat": "Hides rows without a category value — otherwise they appear as a “(blank)” bar, row or KPI card. Off by default so no data disappears unnoticed (beta feedback).",
+  "Chart_ExportExpandAll": "Export: expand all levels",
+  "Desc_Chart_ExportExpandAll": "PDF/PowerPoint export and subscription mails render table, matrix and P&L statement with all row and column levels expanded — the printout shows everything regardless of the on-screen collapse state. Off = export shows the current state.",
+  "Colors_VariancePreset": "Variance color preset",
+  "Desc_Colors_VariancePreset": "“Blue/Orange” sets good/bad to the ColorBrewer pair #2C7BB6/#E66101 — distinguishable by lightness even with complete color blindness (achromatopsia). Overrides the two color pickers below; theme colors still take precedence.",
+  "Labels_RenameAc": "Rename AC",
+  "Labels_RenamePy": "Rename PY",
+  "Labels_RenamePl": "Rename PL",
+  "Labels_RenameFc": "Rename FC"
 }

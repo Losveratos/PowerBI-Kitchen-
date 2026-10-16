@@ -146,15 +146,15 @@
                 "orientation": {
                     "type": {
                         "enumeration": [
-                            { "value": "columns", "displayName": "Columns (Zeit)" },
-                            { "value": "bars", "displayName": "Bars (Struktur)" },
-                            { "value": "line", "displayName": "Line (Zeit, viele Punkte)" },
+                            { "value": "columns", "displayName": "Säulen (Zeit)" },
+                            { "value": "bars", "displayName": "Balken (Struktur)" },
+                            { "value": "line", "displayName": "Linie (lange Zeitreihe)" },
                             { "value": "waterfall", "displayName": "Waterfall / Brücke" },
                             { "value": "intwaterfall", "displayName": "Integrierte Brücke (Zeit)" },
                             { "value": "catbridge", "displayName": "Kategorie-Brücke (Struktur)" },
                             { "value": "table", "displayName": "Tabelle (IBCS)" },
                             { "value": "pareto", "displayName": "Pareto (Struktur)" },
-                            { "value": "dumbbell", "displayName": "Dumbbell (Struktur)" },
+                            { "value": "dumbbell", "displayName": "Dumbbell · Vorher/Nachher (Struktur)" },
                             { "value": "slope", "displayName": "Slope · Vorher/Nachher" },
                             { "value": "cards", "displayName": "KPI-Karten (Kacheln)" },
                             { "value": "pnl", "displayName": "GuV-Statement (IBCS)" }
@@ -429,7 +429,17 @@
                 "fixedVarMax": { "type": { "numeric": true } },
                 "capOverflow": { "type": { "bool": true } },
                 "refLine": { "type": { "text": true } },
-                "refLineLabel": { "type": { "text": true } }
+                "refLineLabel": { "type": { "text": true } },
+                "wfAxisBreak": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off (zero-based)" },
+                            { "value": "auto", "displayName": "Auto (reader decides via chip)" },
+                            { "value": "on", "displayName": "On (axis broken)" }
+                        ]
+                    }
+                },
+                "wfBreakAt": { "type": { "numeric": true } }
             }
         },
         "categoryAxis": {

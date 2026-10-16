@@ -2610,9 +2610,11 @@ export class Visual implements IVisual {
                 const possible = at > 0 && minLevel > at
                     && (cfg.capMax == null || cfg.capMax > at);
                 if (!possible && groups.length > 1) {
-                    // name the tile that dips below the shared cut (chip tooltip)
-                    const blocker = tileMin.find(tm => tm.min <= at);
-                    wfBreakTile = blocker ? (blocker.name ?? "") : null;
+                    // name the tile that dips below the shared cut (chip tooltip); when the
+                    // auto cut itself collapses to ≤ 0, it is the lowest tile dragging it down
+                    const blocker = tileMin.find(tm => tm.min <= at)
+                        ?? tileMin.reduce((a, b) => (b.min < a.min ? b : a));
+                    wfBreakTile = blocker.name ?? "";
                 }
                 cfg.wfBreak = {
                     at,

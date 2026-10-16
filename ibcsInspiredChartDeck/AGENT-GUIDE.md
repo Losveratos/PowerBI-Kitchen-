@@ -8,7 +8,7 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.44.0.0** (07.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.45.0.0** (16.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -63,7 +63,16 @@ Geisterzeilen/Kreuzprodukte. Wächter-Muster:
 | KPI-Kacheln | `cards` | category + actual |
 | Pareto / Dumbbell / Slope | `pareto` / `dumbbell` / `slope` | category + actual (+ Basis) |
 
-## Settings-Referenz (aus capabilities.json generiert, 1.44.0.0)
+## Settings-Referenz (aus capabilities.json generiert, 1.45.0.0)
+
+**Panel-Umbau 1.45 (nur Anzeige, alle Property-Namen unverändert):** Karten-
+Reihenfolge jetzt Chart → IBCS-Titel → Datenbeschriftungen → Kategorienachse →
+IBCS-Farben → Skala → Kommentare → Leer-Zustand. `chart.orientation` heißt im
+Pane „Chart-Typ". Die Chart-Karte ist neu gruppiert: Chart-Typ · Vergleich &
+Abweichung · Daten & Zeit · Interaktion im Bericht · Darstellung · Small
+Multiples · Brücke · Tabelle · KPI-Karten. Modus-Chips (✎/⚙/⇄) beenden ihren
+Modus per Klick (persistiert). Δ% zeigt „n.a." bei Basis 0 oder
+Vorzeichenwechsel; Werte und Varianzen teilen EINEN Einheitenmaßstab.
 
 PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String.
 
@@ -187,9 +196,11 @@ bleibt der native tooltipService.
 
 | Property | Typ | Werte |
 | --- | --- | --- |
-| `fixedMax` / `fixedVarMax` | numeric | Skalen-Sync über Instanzen |
-| `capOverflow` | bool | Ausreißer-Kappung mit ⫽-Marker |
+| `fixedMax` / `fixedVarMax` | numeric | Skalen-Sync über Instanzen (ab 1.45 auch im Wasserfall) |
+| `capOverflow` | bool | Ausreißer-Kappung mit ⫽-Marker (ab 1.45 an ALLEN gekappten Elementen) |
 | `refLine` / `refLineLabel` | text | Referenzlinie + Beschriftung |
+| `wfAxisBreak` | enum | `off` (Default) · `auto` · `on` — IBCS-Achsenschnitt im Wasserfall (ab 1.45): Anker als Stummel mit ⫽ über volle Balkenbreite, nur zulässig wenn alle Anker+Deltas über dem Schnitt liegen; `auto` hebt den „⫽ Achse"-Chip hervor, geschnitten wird erst per Klick; Small Multiples teilen EINEN Schnitt; Fußzeile weist den Schnitt in Exporten aus |
+| `wfBreakAt` | numeric | manueller Schnittwert, 0 = automatisch (niceFloor unter dem tiefsten Stand) |
 
 ### Objekt `categoryAxis`
 

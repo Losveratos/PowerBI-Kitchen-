@@ -401,5 +401,20 @@
   "WfBreak_Title": "軸は {0} から省略",
   "Foot_WfBreak": "⫽ 軸 {0} から",
   "Desc_Scale_WfAxisBreak": "大きな基準値を持つウォーターフォール向けの IBCS 軸省略（UN 5.3）：アンカーと小計を ⫽ で短縮し、その上の差異を読みやすくします。オフ = 常にゼロ基準、チップなし。自動 = ゼロ基準で、閲覧者が「⫽ 軸」チップで省略（差異が基準値に比べて小さいときは強調表示）。オン = 省略、チップで元に戻せます。すべてのアンカーと差異が省略値より上にある場合のみ省略し、それ以外はゼロ基準のままです。",
-  "Desc_Scale_WfBreakAt": "軸を圧縮する上限値。0 = 自動（最も低い水準より下のきりのよい値）。アンカーまたは差異がこれを下回る場合は省略しません。"
+  "Desc_Scale_WfBreakAt": "軸を圧縮する上限値。0 = 自動（最も低い水準より下のきりのよい値）。アンカーまたは差異がこれを下回る場合は省略しません。",
+  "Chart_AcFcSplit": "同一期間のAC + FC",
+  "Desc_Chart_AcFcSplit": "締め前の月はACとFCの両方を持ちます。「月全体見通し」はACを塗りつぶしで描き、FC値まで斜線で積み増します（列 = max(AC, FC)）。「残月」はFCをACの上に加算します（列 = AC + FC）。注意: 選択を誤ると月が二重計上されます — FCメジャーの定義に合わせてください。ラベルとΣは合計を、ツールチップは両方の内訳を表示します。オフ = 従来の動作（ACがない期間のみFC）。",
+  "Enum_AcFcSplit_Off": "オフ（ACがない期間のみFC）",
+  "Enum_AcFcSplit_Full": "FC = 月全体見通し（積み増し）",
+  "Enum_AcFcSplit_Rest": "FC = 残月（加算）",
+  "Chart_HideBlankCat": "（空白）カテゴリを非表示",
+  "Desc_Chart_HideBlankCat": "カテゴリ値のない行を非表示にします — そうしないと「(blank)」の棒・行・KPIカードとして表示されます。データが気づかれずに消えないよう既定ではオフです。",
+  "Chart_ExportExpandAll": "エクスポート: 全階層を展開",
+  "Desc_Chart_ExportExpandAll": "PDF/PowerPointエクスポートと購読メールでは、テーブル・マトリックス・P&Lステートメントを全階層展開で描画します — 画面上の折りたたみ状態に関係なくすべて表示されます。オフ = 現在の状態で出力。",
+  "Colors_VariancePreset": "差異カラープリセット",
+  "Desc_Colors_VariancePreset": "「青/オレンジ」は良い/悪いをColorBrewerのペア #2C7BB6/#E66101 に設定します — 全色盲でも明度で区別できます。下の2つのカラーピッカーより優先され、テーマカラーが引き続き最優先です。",
+  "Labels_RenameAc": "ACの名前を変更",
+  "Labels_RenamePy": "PYの名前を変更",
+  "Labels_RenamePl": "PLの名前を変更",
+  "Labels_RenameFc": "FCの名前を変更"
 }
