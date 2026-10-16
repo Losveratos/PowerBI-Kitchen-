@@ -8,7 +8,7 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.46.0.0** (16.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.47.0.0** (16.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -63,7 +63,19 @@ Geisterzeilen/Kreuzprodukte. Wächter-Muster:
 | KPI-Kacheln | `cards` | category + actual |
 | Pareto / Dumbbell / Slope | `pareto` / `dumbbell` / `slope` | category + actual (+ Basis) |
 
-## Settings-Referenz (aus capabilities.json generiert, 1.46.0.0)
+## Settings-Referenz (aus capabilities.json generiert, 1.47.0.0)
+
+**Neu in 1.47:** 13. Chart-Modus `scatter` (Scatter/Bubble: Y = AC, X = neue
+Measure-Rolle `xValue`, optionale Rolle `bubbleSize`, Quadranten
+`chart.scatterQuadrant` off/mean/median, Färbung `chart.scatterColorBy`
+single/status, `scale.xRefLine`); neue Grouping-Rolle `trend` (Zeit) macht
+KPI-Karten zu Zeitreihen (`chart.cardTrendChart` off/sparkline/columns,
+`chart.cardTrendValue` last/sum — wirkt NUR im cards-Modus, andere Modi
+aggregieren die Trend-Zeilen weg); Kategorie-Brücke mit
+`chart.bridgeOrientation` auto/bars/columns (columns = vertikale
+Säulen-Kaskade); `chart.autoExpandHierarchy` (Default an) klappt bei
+Mehrfeld-Kategorie in Tabelle/GuV die Drill-Hierarchie automatisch auf
+(host.drill, je Feld-Konstellation einmal — manuelles Hochklappen bleibt).
 
 **Panel-Umbau 1.45 (nur Anzeige, alle Property-Namen unverändert):** Karten-
 Reihenfolge jetzt Chart → IBCS-Titel → Datenbeschriftungen → Kategorienachse →

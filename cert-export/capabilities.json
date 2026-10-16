@@ -72,6 +72,24 @@
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
+            "displayName": "X axis (Scatter)",
+            "description": "Scatter / bubble mode only: measure on the horizontal axis — Actual (AC) is the vertical axis, every category becomes one point (e.g. margin % vs. revenue).",
+            "descriptionKey": "RoleDesc_XValue",
+            "displayNameKey": "Role_XValue",
+            "name": "xValue",
+            "kind": "Measure",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Bubble size (optional)",
+            "description": "Scatter / bubble mode only: turns the points into bubbles whose AREA is proportional to this measure (e.g. headcount). Zero, negative or blank values get the minimum size.",
+            "descriptionKey": "RoleDesc_BubbleSize",
+            "displayNameKey": "Role_BubbleSize",
+            "name": "bubbleSize",
+            "kind": "Measure",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
             "displayName": "Stack Series (Gestapelt)",
             "description": "Splits Actual by an additional dimension and stacks the columns/bars by that series, with legend and stack-total labels.",
             "descriptionKey": "RoleDesc_Series",
@@ -106,7 +124,7 @@
         },
         {
             "displayName": "Small Multiples",
-            "description": "Splits the chart into small-multiple tiles per group, all sharing the same scale (IBCS small multiples).",
+            "description": "Splits the chart into small-multiple tiles per group, all sharing the same scale (IBCS small multiples). Scatter: no tiles — every category × group combination becomes its own point (\"Category · Group\") in ONE point cloud.",
             "descriptionKey": "RoleDesc_Multiples",
             "displayNameKey": "Role_Multiples",
             "name": "multiples",
@@ -118,6 +136,14 @@
             "descriptionKey": "RoleDesc_RowType",
             "displayNameKey": "Role_RowType",
             "name": "rowType",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Trend (time)",
+            "description": "KPI cards only: a date/month field that turns every card into a time series — sparkline or mini columns at the bottom of the card; the card value is the last period or the sum (setting \"Card value with trend\"). All other modes ignore this field: rows are merged back to one row per category (summed, like without the field).",
+            "descriptionKey": "RoleDesc_Trend",
+            "displayNameKey": "Role_Trend",
+            "name": "trend",
             "kind": "Grouping"
         },
         {
@@ -156,6 +182,7 @@
                             { "value": "pareto", "displayName": "Pareto (Struktur)" },
                             { "value": "dumbbell", "displayName": "Dumbbell · Vorher/Nachher (Struktur)" },
                             { "value": "slope", "displayName": "Slope · Vorher/Nachher" },
+                            { "value": "scatter", "displayName": "Scatter / Bubble (Korrelation)" },
                             { "value": "cards", "displayName": "KPI-Karten (Kacheln)" },
                             { "value": "pnl", "displayName": "GuV-Statement (IBCS)" }
                         ]
@@ -163,6 +190,7 @@
                 },
                 "smartStart": { "type": { "bool": true } },
                 "smartStartDismissed": { "type": { "text": true } },
+                "autoExpandHierarchy": { "type": { "bool": true } },
                 "pnlView": { "type": { "text": true } },
                 "tableExpanded": { "type": { "text": true } },
                 "tableSort": { "type": { "text": true } },
@@ -258,6 +286,23 @@
                     }
                 },
                 "cardBars": { "type": { "bool": true } },
+                "cardTrendChart": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "sparkline", "displayName": "Sparkline" },
+                            { "value": "columns", "displayName": "Columns" }
+                        ]
+                    }
+                },
+                "cardTrendValue": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "last", "displayName": "Last value" },
+                            { "value": "sum", "displayName": "Sum" }
+                        ]
+                    }
+                },
                 "cardRefValues": {
                     "type": {
                         "enumeration": [
@@ -287,6 +332,23 @@
                     }
                 },
                 "deltaIcons": { "type": { "bool": true } },
+                "scatterQuadrant": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "mean", "displayName": "Mean (Ø)" },
+                            { "value": "median", "displayName": "Median" }
+                        ]
+                    }
+                },
+                "scatterColorBy": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "single", "displayName": "Single color (AC)" },
+                            { "value": "status", "displayName": "Status ΔPY/ΔPL" }
+                        ]
+                    }
+                },
                 "cardSortSel": { "type": { "text": true } },
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },
@@ -332,6 +394,15 @@
                 "multiplesSameScale": { "type": { "bool": true } },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
+                "bridgeOrientation": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Automatic" },
+                            { "value": "bars", "displayName": "Bars (horizontal)" },
+                            { "value": "columns", "displayName": "Columns (vertical)" }
+                        ]
+                    }
+                },
                 "chartButtons": { "type": { "bool": true } },
                 "driverNote": { "type": { "bool": true } },
                 "compareClick": { "type": { "bool": true } },
@@ -430,6 +501,7 @@
                 "capOverflow": { "type": { "bool": true } },
                 "refLine": { "type": { "text": true } },
                 "refLineLabel": { "type": { "text": true } },
+                "xRefLine": { "type": { "text": true } },
                 "wfAxisBreak": {
                     "type": {
                         "enumeration": [
@@ -456,8 +528,11 @@
                     "multiples": { "max": 1 },
                     "series": { "max": 1 },
                     "lineMeasure": { "max": 1 },
+                    "xValue": { "max": 1 },
+                    "bubbleSize": { "max": 1 },
                     "rowType": { "max": 1 },
                     "fcFlag": { "max": 1 },
+                    "trend": { "max": 1 },
                     "actual": { "max": 1 },
                     "previousYear": { "max": 1 },
                     "plan": { "max": 1 },
@@ -477,7 +552,8 @@
                         { "for": { "in": "series" } },
                         { "for": { "in": "rowType" } },
                         { "for": { "in": "fcFlag" } },
-                        { "for": { "in": "colgroup" } }
+                        { "for": { "in": "colgroup" } },
+                        { "for": { "in": "trend" } }
                     ],
                     "dataReductionAlgorithm": { "top": { "count": 1000 } }
                 },
@@ -490,6 +566,8 @@
                         { "bind": { "to": "prevForecast" } },
                         { "bind": { "to": "benchmark" } },
                         { "bind": { "to": "lineMeasure" } },
+                        { "bind": { "to": "xValue" } },
+                        { "bind": { "to": "bubbleSize" } },
                         { "bind": { "to": "comments" } },
                         { "bind": { "to": "filterInfo" } }
                     ]

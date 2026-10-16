@@ -27,6 +27,7 @@ const orientationItems: LocEnumMember[] = [
     { value: "pareto", displayName: "Pareto (Structure)", key: "Enum_Orientation_Pareto" },
     { value: "dumbbell", displayName: "Dumbbell · Before/After (Structure)", key: "Enum_Orientation_Dumbbell" },
     { value: "slope", displayName: "Slope · Before/After", key: "Enum_Orientation_Slope" },
+    { value: "scatter", displayName: "Scatter / bubble (correlation)", key: "Enum_Orientation_Scatter" },
     { value: "cards", displayName: "KPI Cards (Tiles)", key: "Enum_Orientation_Cards" },
     { value: "pnl", displayName: "P&L Statement (IBCS)", key: "Enum_Orientation_Pnl" }
 ];
@@ -121,6 +122,27 @@ const cardSortItems: LocEnumMember[] = [
     { value: "best", displayName: "Best first (good on top)", key: "Enum_CardSort_Best" }
 ];
 
+// KPI-Karten mit gebundener Trend-Rolle: Mini-Chart im unteren Kartenbereich
+// (ersetzt dann die Mini-Brücke) und welcher Wert die große Kartenzahl stellt
+const cardTrendChartItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off (mini bridge as before)", key: "Enum_CardTrendChart_Off" },
+    { value: "sparkline", displayName: "Sparkline", key: "Enum_CardTrendChart_Sparkline" },
+    { value: "columns", displayName: "Columns", key: "Enum_CardTrendChart_Columns" }
+];
+
+const cardTrendValueItems: LocEnumMember[] = [
+    { value: "last", displayName: "Last value (latest period)", key: "Enum_CardTrendValue_Last" },
+    { value: "sum", displayName: "Sum over all periods", key: "Enum_CardTrendValue_Sum" }
+];
+
+// Kategorie-Brücke: Kaskade horizontal (bisher) oder als vertikale Säulen-Kaskade;
+// "auto" = bisheriges Verhalten (horizontal)
+const bridgeOrientationItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Automatic", key: "Enum_BridgeOrient_Auto" },
+    { value: "bars", displayName: "Bars (horizontal)", key: "Enum_BridgeOrient_Bars" },
+    { value: "columns", displayName: "Columns (vertical)", key: "Enum_BridgeOrient_Columns" }
+];
+
 const pinStyleItems: LocEnumMember[] = [
     { value: "auto", displayName: "Automatic (per mode)", key: "Enum_PinStyle_Auto" },
     { value: "round", displayName: "Round", key: "Enum_PinStyle_Round" },
@@ -141,6 +163,19 @@ const wfAxisBreakItems: LocEnumMember[] = [
     { value: "on", displayName: "On (axis broken)", key: "Enum_WfBreak_On" }
 ];
 
+// Scatter / Bubble: Quadranten-Teilung je Achse (Referenzlinien übersteuern) und
+// Punktfarbe — einfarbig AC oder Status gut/schlecht/grau über ΔBasis + Wesentlichkeit
+const scatterQuadrantItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off", key: "Enum_ScatterQuad_Off" },
+    { value: "mean", displayName: "Mean (Ø)", key: "Enum_ScatterQuad_Mean" },
+    { value: "median", displayName: "Median", key: "Enum_ScatterQuad_Median" }
+];
+
+const scatterColorByItems: LocEnumMember[] = [
+    { value: "single", displayName: "Single color (AC)", key: "Enum_ScatterColor_Single" },
+    { value: "status", displayName: "Status ΔPY/ΔPL (good · bad · grey)", key: "Enum_ScatterColor_Status" }
+];
+
 /** resolve all enum-member labels once via the host's localization manager */
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems, appearanceItems,
@@ -148,7 +183,8 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems,
         cardRefValueItems,
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
-        gridLinesItems, cellLayoutItems, wfAxisBreakItems];
+        gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
+        scatterColorByItems, cardTrendChartItems, cardTrendValueItems, bridgeOrientationItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -568,11 +604,21 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
             this.multiplesSameScale]
     });
 
+    bridgeOrientation = new formattingSettings.ItemDropdown({
+        name: "bridgeOrientation",
+        displayName: "Bridge orientation",
+        displayNameKey: "Chart_BridgeOrientation",
+        description: "Nur Kategorie-Brücke: „Balken (horizontal)\" zeigt die Kaskade zeilenweise wie bisher (Kategorien untereinander, Δ%-Pins rechts). „Säulen (vertikal)\" zeichnet sie als klassischen Säulen-Wasserfall — Basis-Anker (PY/PL) links, eine Treiber-Säule je Kategorie, AC-Anker und Überleitung rechts, Δ%-Pins oben. „Automatisch\" = bisheriges Verhalten (horizontal).",
+        descriptionKey: "Desc_Chart_BridgeOrientation",
+        items: bridgeOrientationItems,
+        value: bridgeOrientationItems[0]
+    });
+
     bridgeGroup = new formattingSettings.Group({
         name: "chartBridge",
         displayName: "Bridge",
         displayNameKey: "Group_Bridge",
-        slices: [this.waterfallStyle, this.sortByImpact]
+        slices: [this.waterfallStyle, this.sortByImpact, this.bridgeOrientation]
     });
 
     valueColumns = new formattingSettings.ItemDropdown({
@@ -732,11 +778,20 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    autoExpandHierarchy = new formattingSettings.ToggleSwitch({
+        name: "autoExpandHierarchy",
+        displayName: "Auto-expand hierarchy",
+        displayNameKey: "Chart_AutoExpand",
+        description: "Liegen mehrere Felder in „Kategorie\", klappt das Visual die Drill-Hierarchie automatisch auf — der klickbare Zeilenbaum erscheint sofort beim Hineinziehen, ohne die ⫟-Drill-Knöpfe im Visual-Kopf. Manuelles Hochklappen bleibt bestehen (nur ein Feld-Wechsel löst erneut aus). Standard an.",
+        descriptionKey: "Desc_Chart_AutoExpand",
+        value: true
+    });
+
     tableGroup = new formattingSettings.Group({
         name: "chartTable",
         displayName: "Table",
         displayNameKey: "Group_Table",
-        slices: [this.valueColumns, this.structureEdit, this.resultList, this.skipList,
+        slices: [this.valueColumns, this.autoExpandHierarchy, this.structureEdit, this.resultList, this.skipList,
             this.hideList, this.chartList, this.indentList, this.rowFormats,
             this.matrixCompare, this.formulaRows, this.totalRowPosition,
             this.zebraStripes, this.rowDensity, this.gridLines, this.cellLayout]
@@ -811,6 +866,26 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    cardTrendChart = new formattingSettings.ItemDropdown({
+        name: "cardTrendChart",
+        displayName: "Trend mini chart",
+        displayNameKey: "Cards_TrendChart",
+        description: "Nur mit gebundenem „Trend (Zeit)\"-Feld: zeigt die Zeitreihe je Karte unten auf der Karte — als Sparkline (AC-Linie, PY dünn grau dahinter, letzter Punkt markiert und beschriftet, FC gestrichelt) oder als Mini-Säulen (negative unter der Nulllinie, letzte Säule hervorgehoben, FC schraffiert). Ersetzt dann die Mini-Brücke; das Bullet bleibt unabhängig schaltbar. Skala je Karte (Karten haben verschiedene Einheiten), Säulen nullbasiert. „Aus\" = Mini-Brücke wie bisher.",
+        descriptionKey: "Desc_Cards_TrendChart",
+        items: cardTrendChartItems,
+        value: cardTrendChartItems[1]
+    });
+
+    cardTrendValue = new formattingSettings.ItemDropdown({
+        name: "cardTrendValue",
+        displayName: "Card value with trend",
+        displayNameKey: "Cards_TrendValue",
+        description: "Nur mit gebundenem „Trend (Zeit)\"-Feld: welche Zahl die Karte groß zeigt. „Letzter Wert\" (Standard) = letzte Periode mit Ist-Wert — der aktuelle Stand; PY/PL/FC/BM stammen aus derselben Periode, damit Δ und Status zusammenpassen. „Summe\" = Summe über alle Perioden (z. B. YTD-Umsatz), PY/PL/FC/BM ebenfalls summiert. Für Quoten/Bestände „Letzter Wert\" wählen.",
+        descriptionKey: "Desc_Cards_TrendValue",
+        items: cardTrendValueItems,
+        value: cardTrendValueItems[0]
+    });
+
     cardRefValues = new formattingSettings.ItemDropdown({
         name: "cardRefValues",
         displayName: "Show reference values",
@@ -836,8 +911,36 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "KPI cards",
         displayNameKey: "Group_Cards",
         slices: [this.cardStatusBasis, this.cardHighlight, this.cardRefValues, this.cardSort,
-            this.cardBars, this.cardTint, this.cardTintStrength, this.cardBullet,
-            this.cardBulletZoom]
+            this.cardBars, this.cardTrendChart, this.cardTrendValue, this.cardTint,
+            this.cardTintStrength, this.cardBullet, this.cardBulletZoom]
+    });
+
+    scatterQuadrant = new formattingSettings.ItemDropdown({
+        name: "scatterQuadrant",
+        displayName: "Quadrant lines",
+        displayNameKey: "Chart_ScatterQuadrant",
+        description: "Scatter: gestrichelte Mittellinien teilen die Punktwolke in vier Quadranten — beim Mittelwert (Ø, Standard) oder Median von X und Y. Eine Referenzlinie (Skala-Karte: Y-Wert bzw. X-Wert) ersetzt die jeweilige Mittellinie. Aus = keine Quadranten.",
+        descriptionKey: "Desc_Chart_ScatterQuadrant",
+        items: scatterQuadrantItems,
+        value: scatterQuadrantItems[1]
+    });
+
+    scatterColorBy = new formattingSettings.ItemDropdown({
+        name: "scatterColorBy",
+        displayName: "Point color",
+        displayNameKey: "Chart_ScatterColorBy",
+        description: "Scatter: „Einfarbig\" zeigt alle Punkte in der AC-Farbe (Standard). „Status\" färbt nach der Abweichung zur Vergleichsbasis (ΔPY/ΔPL): gut/schlecht in den Varianzfarben, unter der Wesentlichkeits-Schwelle oder ohne Basis grau. Invert-Einstellungen wirken.",
+        descriptionKey: "Desc_Chart_ScatterColorBy",
+        items: scatterColorByItems,
+        value: scatterColorByItems[0]
+    });
+
+    // eigene Modus-Gruppe wie Brücke/Tabelle/KPI-Karten — nur im Scatter sichtbar
+    scatterGroup = new formattingSettings.Group({
+        name: "chartScatter",
+        displayName: "Scatter / bubble",
+        displayNameKey: "Group_Scatter",
+        slices: [this.scatterQuadrant, this.scatterColorBy]
     });
 
     // UX-5 (AUDIT-2026-10-UX §1.5): die Mega-Gruppen „Layout"/„Analyse" aufgabenorientiert
@@ -890,7 +993,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
     displayName: string = "Chart";
     displayNameKey: string = "Card_Chart";
     groups = [this.chartTypeGroup, this.varianceGroup, this.dataTimeGroup, this.interactionGroup,
-        this.displayGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup];
+        this.displayGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup,
+        this.scatterGroup];
 }
 
 const appearanceItems: LocEnumMember[] = [
@@ -1247,6 +1351,18 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    // Scatter: senkrechte Ziel-/Schwellenlinie auf der X-Achse — Text wie refLine
+    // (leer = aus, 0 ist ein gültiger Wert, k/M/B-Suffixe), nur im Scatter sichtbar
+    xRefLine = new formattingSettings.TextInput({
+        name: "xRefLine",
+        displayName: "Reference line X (scatter)",
+        displayNameKey: "Scale_XRefLine",
+        description: "Nur Scatter: senkrechte Ziel-/Schwellenlinie bei diesem X-Wert (z. B. 0.15 für 15 % Marge). Ersetzt die X-Quadrantenlinie; die Y-Referenzlinie oben ersetzt die Y-Quadrantenlinie. Leer = aus.",
+        descriptionKey: "Desc_Scale_XRefLine",
+        placeholder: "z. B. 0.15",
+        value: ""
+    });
+
     capOverflow = new formattingSettings.ToggleSwitch({
         name: "capOverflow",
         displayName: "Cap outliers at maximum",
@@ -1289,7 +1405,7 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         name: "scaleRefLine",
         displayName: "Reference line",
         displayNameKey: "Group_RefLine",
-        slices: [this.refLine, this.refLineLabel]
+        slices: [this.refLine, this.refLineLabel, this.xRefLine]
     });
 
     // eigene Gruppe, nur im Wasserfall sichtbar (getFormattingModel)
