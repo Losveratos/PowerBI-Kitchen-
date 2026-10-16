@@ -94,7 +94,7 @@ Der Button `✓ IBCS-Check` prüft deine Konfiguration gegen die wichtigsten IBC
 
 [▶ Jetzt selbst ausprobieren](../business-chart-builder.html)
 
-Gebaut von [Michael Tenner](https://www.linkedin.com/in/michael-tenner-5b885970/) · [Daten-WG](https://www.daten-wg.com) · Teil der [Daten-WG Knowledge Kitchen](../daten_wg_learn_buckets.html)
+Gebaut von [Michael Tenner](https://www.linkedin.com/in/michael-tenner-5b885970/) · [Daten-WG](https://www.daten-wg.com) · Teil der [Daten-WG Knowledge Kitchen](../index.html)
 
 Unabhängiges Projekt, IBCS-orientiert (nicht IBCS-zertifiziert).
 
