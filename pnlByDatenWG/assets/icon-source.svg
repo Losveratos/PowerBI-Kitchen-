@@ -37,15 +37,15 @@
   <!-- P&L statement rows: revenue (yellow, long), cost (teal, indented shorter),
        then the double total rule with the result row (ink) -->
   <g stroke="#111111" stroke-width="14" stroke-linejoin="round">
-    <rect class="yel"  x="206" y="196" width="232" height="52" rx="10"/>
-    <rect class="teal" x="246" y="272" width="192" height="52" rx="10"/>
+    <rect class="yel"  x="206" y="178" width="232" height="52" rx="10"/>
+    <rect class="teal" x="246" y="252" width="192" height="52" rx="10"/>
   </g>
   <!-- double rule above the total (IBCS "=" row) -->
+  <rect class="ink" x="196" y="324" width="252" height="12" rx="6"/>
   <rect class="ink" x="196" y="346" width="252" height="12" rx="6"/>
-  <rect class="ink" x="196" y="368" width="252" height="12" rx="6"/>
   <!-- total row -->
   <g stroke="#111111" stroke-width="14" stroke-linejoin="round">
-    <rect class="ink" x="206" y="396" width="232" height="30" rx="10"/>
+    <rect class="ink" x="206" y="372" width="232" height="30" rx="10"/>
   </g>
 
   <!-- DWG wordmark -->
