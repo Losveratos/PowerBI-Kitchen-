@@ -9331,8 +9331,11 @@ export class Visual implements IVisual {
         const rOf = (p: DataPoint): number => !hasSize ? rPlain
             : Math.max(rMin, rMax * Math.sqrt(Math.max(p.sizeVal ?? 0, 0) / sMax));
         const items = pts.map(p => {
-            // in a tile the title carries the group — the point label is the category alone
-            const label = p.group != null && !sh ? `${p.cat} · ${p.group}` : p.cat;
+            // in a tile the title carries the group — the point label is the category
+            // alone. Play mode: the category is the PERIOD (watermark), so the dots
+            // are labelled by what they represent — the series value
+            const label = playActive ? (p.stackSeries ?? p.cat)
+                : p.group != null && !sh ? `${p.cat} · ${p.group}` : p.cat;
             return {
                 p, label, cx: X(p.xVal as number), cy: Y(p.value as number), r: rOf(p),
                 emph: this.isEmph(cfg, p.cat) || this.isEmph(cfg, label) || this.isEmph(cfg, p.group)
@@ -9700,10 +9703,13 @@ export class Visual implements IVisual {
         // marks, so point clicks and hovers are untouched
         if (this.allowInteractions && !this.commentEdit && !this.compareActive
             && this.host.hostCapabilities?.allowInteractions !== false) {
+            // fill "none" + pointer-events "all": receives the drag without painting a
+            // single pixel — the existing scatter rendering stays pixel-identical
             const cap = this.el("rect", {
                 x: plotLeft, y: plotTop, width: plotW, height: Math.max(plotBottom - plotTop, 1),
-                fill: cfg.paper, "fill-opacity": 0.01
+                fill: "none"
             }, bg) as SVGRectElement;
+            (cap.style as CSSStyleDeclaration & { pointerEvents: string }).pointerEvents = "all";
             cap.style.cursor = "crosshair";
             const hits = items.map(it => ({ x: it.cx, y: it.cy, sel: it.p.sel }));
             cap.addEventListener("mousedown", (e: MouseEvent) => {
@@ -9716,15 +9722,18 @@ export class Visual implements IVisual {
         // ▶/⏸ chip; the rAF loop interpolates the dots between the period frames
         if (playActive) {
             const wmF = Math.max(20, Math.min(plotH * 0.42, plotW * 0.16));
+            // the <title> lives on a wrapper group: the rAF loop rewrites the text's
+            // textContent every tick, which would destroy a title INSIDE the text
+            const wmWrap = this.el("g", {}, bg);
+            const wmTip = this.el("title", {}, wmWrap);
+            wmTip.textContent = this.locStr("Btn_PlayReset", "Click: back to the start");
             const wm = this.el("text", {
                 x: (plotLeft + plotRight) / 2, y: (plotTop + plotBottom) / 2 + wmF * 0.35,
                 "text-anchor": "middle", "font-size": wmF, fill: cfg.faint,
                 "fill-opacity": 0.6, "font-family": FONT, "font-weight": 700
-            }, bg) as SVGTextElement;
+            }, wmWrap) as SVGTextElement;
             wm.textContent = frames[frameIdx];
             wm.style.cursor = "pointer";
-            const wmTip = this.el("title", {}, wm);
-            wmTip.textContent = this.locStr("Btn_PlayReset", "Click: back to the start");
             wm.addEventListener("click", (e: MouseEvent) => {
                 e.stopPropagation();
                 const an = this.scatterAnim;

@@ -106,7 +106,7 @@ function makeHost(hc, noInteract, themeBg) {
           foregroundNeutralDark: { value: "#252423" }, foregroundNeutralTertiary: { value: "#C8C6C4" },
           ...(themeBg ? { background: { value: themeBg } } : {}) },
     eventService: { renderingStarted(){}, renderingFinished(){}, renderingFailed(o,e){ console.error("renderfail", e); } },
-    createSelectionManager: () => ({ select: (ids, multi) => { console.log("crossfilter-select", JSON.stringify({multi: !!multi})); return Promise.resolve([]); }, clear: () => Promise.resolve(), getSelectionIds: () => [], showContextMenu(){} }),
+    createSelectionManager: () => ({ select: (ids, multi) => { const n = Array.isArray(ids) ? ids.length : 1; window.__lastSelect = { n, multi: !!multi }; console.log("crossfilter-select", JSON.stringify({ n, multi: !!multi })); return Promise.resolve([]); }, clear: () => Promise.resolve(), getSelectionIds: () => [], showContextMenu(){} }),
     createSelectionIdBuilder: () => ({ withCategory(){ return this; }, createSelectionId(){ return { equals: () => false }; } }),
     tooltipService: { show(){}, move(){}, hide(){} },
     createLocalizationManager: () => ({ getDisplayName: () => "" }),
@@ -1643,6 +1643,155 @@ run("c168b", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), c
 run("c169", dataView(cbCats2, [col("actual", cbAc2), col("previousYear", cbPy2)],
   { chart: { orientation: "catbridge", bridgeOrientation: "columns", multiplesSameScale: true },
     colors: { appearance: "dark" } }, cbMult2), 1340, 560);
+</script>
+
+<div class="case"><h4>c175 · v3 · Bewegungspfeile PY → AC · links: nur PY gebunden → Pfeile laufen senkrecht (X bleibt), kleiner grauer PY-Startpunkt, Pfeilspitze an AC, Achsen schließen PY-Positionen ein · rechts: zusätzlich Rolle „X-Achse VJ" (xPrevious) → volle 2D-Bewegung</h4><div class="stage" id="c175" style="width:760px;height:440px;display:inline-block"></div><div class="stage" id="c175b" style="width:760px;height:440px;display:inline-block;vertical-align:top"></div></div>
+<div class="case"><h4>c176 · v3 · Größen-Legende (Default AN bei gebundener bubbleSize): drei Referenzkreise auf runden Werten in einer freien Ecke, kollisionsfrei reserviert · rechts: scatterSizeLegend=false → keine Legende (wie v2)</h4><div class="stage" id="c176" style="width:760px;height:440px;display:inline-block"></div><div class="stage" id="c176b" style="width:760px;height:440px;display:inline-block;vertical-align:top"></div></div>
+<div class="case"><h4>c177 · v3 · Quadranten-Beschriftung: 4 Textfelder (TR „Stars" · TL „Potenzial" · BL „Prüfen" · BR „Cash Cows"), dezent kursiv in den Plot-Ecken, nur bei aktiven Quadranten (Ø)</h4><div class="stage" id="c177" style="width:960px;height:460px"></div></div>
+<div class="case"><h4>c178 · v3 · Trendlinie (linear, gepunktet dünn) + „R² = 0,xx"-Label am rechten Linienende (Locale de-DE → Komma) · rechts: Trend in Small Multiples je Kachel gerechnet</h4><div class="stage" id="c178" style="width:760px;height:440px;display:inline-block"></div><div class="stage" id="c178b" style="width:620px;height:340px;display:inline-block;vertical-align:top"></div></div>
+<div class="case"><h4>c179 · v3 · Log-Skalen: X und Y logarithmisch (Mitarbeiter 3–20.000 × Umsatz 0,4–8.000), Dekaden-Ticks, Quadranten-Ø im Datenraum / Position im Log-Raum, Trend im Log-Raum gerade · rechts (c179b): X enthält Wert ≤ 0 → X bleibt LINEAR + Hinweis „Log-Skala ignoriert" (Edit-Modus), Y log · darunter (c179c): Log + Small Multiples — EINE Log-Entscheidung für beide Kacheln</h4><div class="stage" id="c179" style="width:760px;height:440px;display:inline-block"></div><div class="stage" id="c179b" style="width:760px;height:440px;display:inline-block;vertical-align:top"></div><div class="stage" id="c179c" style="width:760px;height:340px"></div></div>
+<div class="case"><h4>c180 · v3 · Achsen fixiert: xMin=0 · xMax=0.2 · yMin=1k · yMax=10k → 4 Punkte außerhalb werden NICHT gezeichnet, Panel-Titel zählt „4 außerhalb der Achsen"; Ø-Linien nur über die sichtbaren Punkte</h4><div class="stage" id="c180" style="width:960px;height:440px"></div></div>
+<div class="case"><h4>c181 · v3 · Punktform je Serie (scatterShapes bei colorBy=group): Kreis · Quadrat · Dreieck · Raute zyklisch, Formen auch in der Legende · rechts: Hochkontrast — Farben aus, Formen als Umriss BLEIBEN unterscheidbar, Legende mit Formen in Tinte</h4><div class="stage" id="c181" style="width:760px;height:440px;display:inline-block"></div><div class="stage" id="c181b" style="width:760px;height:440px;display:inline-block;vertical-align:top;background:#000"></div></div>
+<div class="case"><h4>c182 · v3 · Play-Button (Rosling): Kategorie = Monate als Zeitachse, 3 Serien-Punkte, ▶-Chip oben rechts, Perioden-Wasserzeichen (letzte Periode „Jun") hinter den Punkten, Achsen fix über alle Perioden · rechts (c182b): simulierter Ablauf — Play-Klick → Pause nach ~150 ms → Watermark-Klick (Reset) ⇒ steht deterministisch auf Frame 1 „Jan" (Konsole: scatter-play-Checks) · darunter (c182c): scatterPlay=false ⇒ KEIN Button, normale Punktwolke aller Perioden</h4><div class="stage" id="c182" style="width:760px;height:440px;display:inline-block"></div><div class="stage" id="c182b" style="width:760px;height:440px;display:inline-block;vertical-align:top"></div><div class="stage" id="c182c" style="width:760px;height:340px"></div></div>
+<div class="case"><h4>c183 · v3 · Rechteck-Auswahl: synthetischer Drag (mousedown → 2× mousemove → mouseup) über die linke Punktehälfte ⇒ EIN selectionManager.select mit mehreren IDs (Konsole »crossfilter-select {"n":…,"multi":false}«, Assertion scatter-rect-select); Klick auf leere Fläche ohne Drag = Clear wie bisher</h4><div class="stage" id="c183" style="width:960px;height:440px"></div></div>
+<script>
+// c175–c183: Scatter v3 — Pfeile, Größen-Legende, Quadranten-Labels, Trend, Log,
+// Min/Max, Formen, Play (Rosling), Rechteck-Auswahl
+{
+  const addCat = (dv, role, values, name) => {
+    dv.categorical.categories.push({ source: { displayName: name, roles: { [role]: true } }, values });
+    return dv;
+  };
+  const scatXPrev = scatX.map((v, i) => Math.round((v - 0.012 - 0.03 * Math.sin(i)) * 1000) / 1000);
+
+  // c175: arrows — left PY only (vertical), right with xPrevious (2D)
+  run("c175", dataView(scatU, scatCols([col("previousYear", scatPy, "#,0 T€")]),
+    scatObj({ scatterArrows: true })), 760, 440);
+  run("c175b", dataView(scatU, scatCols([col("previousYear", scatPy, "#,0 T€"),
+      col("xPrevious", scatXPrev, "0.0 %", null, "EBIT-Marge VJ")]),
+    scatObj({ scatterArrows: true })), 760, 440);
+
+  // c176: size legend on by default with bubbles / explicitly off
+  run("c176", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende")]),
+    scatObj()), 760, 440);
+  run("c176b", dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende")]),
+    scatObj({ scatterSizeLegend: false })), 760, 440);
+
+  // c177: quadrant corner labels
+  run("c177", dataView(scatU, scatCols(), scatObj({
+    scatterQuadLabelTR: "Stars", scatterQuadLabelTL: "Potenzial",
+    scatterQuadLabelBL: "Prüfen", scatterQuadLabelBR: "Cash Cows" })), 960, 460);
+
+  // c178: trend line + R² — single cloud and per small-multiples tile
+  run("c178", dataView(scatU, scatCols(), scatObj({ scatterTrend: "linear", scatterTrendR2: true })), 760, 440);
+  {
+    const cats = [], mult = [], a = [], x = [];
+    [["Nord", 1, 0], ["Süd", 0.7, 0.03]].forEach(([r, f, dm]) => {
+      scatU.slice(0, 6).forEach((c, i) => { cats.push(c); mult.push(r); a.push(Math.round(scatAc[i] * f)); x.push(scatX[i] + dm); });
+    });
+    run("c178b", dataView(cats, [col("actual", a, "#,0 T€"), col("xValue", x, "0.0 %", null, "EBIT-Marge")],
+      scatObj({ scatterTrend: "linear", scatterTrendR2: true }), mult), 620, 340);
+  }
+
+  // c179: log scales — decades over 4 orders of magnitude
+  const logU = ["Startup A","Startup B","KMU C","KMU D","Mittelstand E","Mittelstand F","Konzern G","Konzern H","Konzern I","Holding J"];
+  const logEmp = [3, 8, 45, 120, 380, 950, 2400, 6800, 12000, 20000];
+  const logRev = [0.4, 1.2, 6, 18, 65, 210, 800, 2100, 4500, 8000];
+  run("c179", dataView(logU, [col("actual", logRev, "#,0.0 Mio €"), col("xValue", logEmp, "#,0", null, "Mitarbeitende")],
+    scatObj({ scatterTrend: "linear" }, { scale: { xLogScale: true, yLogScale: true } })), 760, 440);
+  const logEmpNeg = logEmp.map((v, i) => i === 0 ? -3 : v);
+  run("c179b", dataView(logU, [col("actual", logRev, "#,0.0 Mio €"), col("xValue", logEmpNeg, "#,0", null, "Mitarbeitende")],
+    scatObj({}, { scale: { xLogScale: true, yLogScale: true } })), 760, 440);
+  {
+    const cats = [], mult = [], a = [], x = [];
+    [["Nord", 1], ["Süd", 0.4]].forEach(([r, f]) => {
+      logU.slice(0, 6).forEach((c, i) => { cats.push(c); mult.push(r); a.push(logRev[i] * f); x.push(logEmp[i]); });
+    });
+    run("c179c", dataView(cats, [col("actual", a, "#,0.0 Mio €"), col("xValue", x, "#,0", null, "Mitarbeitende")],
+      scatObj({}, { scale: { xLogScale: true, yLogScale: true } }), mult), 760, 340);
+  }
+
+  // c180: fixed axis bounds — 4 points fall outside (Automotive, Service, Software, Antriebe)
+  run("c180", dataView(scatU, scatCols(), scatObj({},
+    { scale: { xMin: "0", xMax: "0.2", yMin: "1k", yMax: "10k" } })), 960, 440);
+
+  // c181: shape per group (+ legend shapes), light and high contrast
+  const seg3 = { "Antriebe": "Industrie", "Sensorik": "Industrie", "Hydraulik": "Industrie", "Pneumatik": "Mobilität",
+    "Service": "Digital", "Software": "Digital", "Ersatzteile": "Mobilität", "Robotik": "Gesundheit",
+    "Logistik": "Mobilität", "Energie": "Industrie", "Medizintechnik": "Gesundheit", "Automotive": "Mobilität" };
+  run("c181", addCat(dataView(scatU, scatCols(), scatObj({ scatterColorBy: "group", scatterShapes: true })),
+    "series", scatU.map(u => seg3[u]), "Geschäftsfeld"), 760, 440);
+  run("c181b", addCat(dataView(scatU, scatCols(), scatObj({ scatterColorBy: "group", scatterShapes: true })),
+    "series", scatU.map(u => seg3[u]), "Geschäftsfeld"), 760, 440, true);
+
+  // c182: play mode — months × 3 series, static (last period) + simulated run + off
+  const plMonths = ["Jan","Feb","Mär","Apr","Mai","Jun"];
+  const plSeries = ["Produkt A","Produkt B","Produkt C"];
+  const plCats = [], plSer = [], plAc = [], plX = [], plSz = [];
+  plMonths.forEach((m, mi) => {
+    plSeries.forEach((s, si) => {
+      plCats.push(m); plSer.push(s);
+      plAc.push(Math.round((2000 + si * 1500) * (1 + 0.12 * mi * (si === 1 ? -0.4 : 1))));
+      plX.push(Math.round((0.06 + si * 0.05 + 0.012 * mi * (si === 2 ? -1 : 1)) * 1000) / 1000);
+      plSz.push(100 + si * 160 + mi * 25);
+    });
+  });
+  const playDv = () => addCat(dataView(plCats, [col("actual", plAc, "#,0 T€"),
+      col("xValue", plX, "0.0 %", null, "EBIT-Marge"),
+      col("bubbleSize", plSz, "#,0", null, "Mitarbeitende")],
+    scatObj({ scatterPlay: true })), "series", plSer, "Produkt");
+  run("c182", playDv(), 760, 440);
+  run("c182b", playDv(), 760, 440);
+  run("c182c", addCat(dataView(plCats, [col("actual", plAc, "#,0 T€"),
+      col("xValue", plX, "0.0 %", null, "EBIT-Marge")],
+    scatObj()), "series", plSer, "Produkt"), 760, 340);
+  // simulated run on c182b: ▶ → pause after ~150 ms → watermark click = reset to frame 0
+  const playChip = document.querySelector('#c182b svg g[role="button"]');
+  const watermarkOf = (id) => [...document.querySelectorAll(`#${id} svg text`)]
+    .filter(t => t.style.cursor === "pointer")
+    .sort((a, b) => parseFloat(b.getAttribute("font-size")) - parseFloat(a.getAttribute("font-size")))[0];
+  console.log("scatter-play chip visible:", !!playChip,
+    "· watermark (last period):", watermarkOf("c182b")?.textContent,
+    "· c182c has NO chip:", !document.querySelector('#c182c svg g[role="button"]'));
+  if (!playChip) { console.error("scatter-play: chip missing"); }
+  if (document.querySelector('#c182c svg g[role="button"]')) { console.error("scatter-play: chip rendered although scatterPlay=false"); }
+  if (playChip) {
+    playChip.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    setTimeout(() => {
+      playChip.dispatchEvent(new MouseEvent("click", { bubbles: true })); // pause
+      const wm1 = watermarkOf("c182b");
+      console.log("scatter-play paused near start, watermark:", wm1?.textContent);
+      wm1?.dispatchEvent(new MouseEvent("click", { bubbles: true })); // reset → rerender frame 0
+      setTimeout(() => {
+        const wm2 = watermarkOf("c182b");
+        console.log("scatter-play after reset, watermark:", wm2?.textContent);
+        if (wm2 && wm2.textContent !== plMonths[0]) { console.error("scatter-play: reset did not land on frame 0"); }
+      }, 50);
+    }, 150);
+  }
+
+  // c183: rectangle selection — synthetic drag over the left half of the plot
+  run("c183", dataView(scatU, scatCols(), scatObj()), 960, 440);
+  {
+    const cap = [...document.querySelectorAll("#c183 svg rect")].find(r => r.style.cursor === "crosshair");
+    console.log("scatter-rect capture present:", !!cap);
+    if (!cap) { console.error("scatter-rect: capture rect missing"); }
+    else {
+      const b = cap.getBoundingClientRect();
+      const x0 = b.left + 2, y0 = b.top + 2, x1 = b.left + b.width * 0.55, y1 = b.top + b.height - 2;
+      window.__lastSelect = null;
+      cap.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0, clientX: x0, clientY: y0 }));
+      document.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, clientX: (x0 + x1) / 2, clientY: (y0 + y1) / 2 }));
+      document.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, clientX: x1, clientY: y1 }));
+      document.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, clientX: x1, clientY: y1 }));
+      setTimeout(() => {
+        const s = window.__lastSelect;
+        console.log("scatter-rect-select:", JSON.stringify(s));
+        if (!s || s.n < 2 || s.multi) { console.error("scatter-rect: expected one multi-id select (n>=2, multi=false), got " + JSON.stringify(s)); }
+      }, 100);
+    }
+  }
+}
 </script>
 </body>
 </html>
