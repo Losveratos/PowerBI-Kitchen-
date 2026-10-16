@@ -139,6 +139,14 @@
             "kind": "Grouping"
         },
         {
+            "displayName": "Trend (time)",
+            "description": "KPI cards only: a date/month field that turns every card into a time series — sparkline or mini columns at the bottom of the card; the card value is the last period or the sum (chart.cardTrendValue). All other modes ignore this field: rows are merged back to one row per category (summed, like without the field).",
+            "descriptionKey": "RoleDesc_Trend",
+            "displayNameKey": "Role_Trend",
+            "name": "trend",
+            "kind": "Grouping"
+        },
+        {
             "displayName": "Forecast Flag (1/0)",
             "description": "Alternative to a separate FC measure: 1/true marks the AC value as forecast (hatched); 2 or \"prelim\" marks it as preliminary actual (solid bar with thin overlay hatching); 0/blank means a normal actual.",
             "descriptionKey": "RoleDesc_FcFlag",
@@ -278,6 +286,23 @@
                     }
                 },
                 "cardBars": { "type": { "bool": true } },
+                "cardTrendChart": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "sparkline", "displayName": "Sparkline" },
+                            { "value": "columns", "displayName": "Columns" }
+                        ]
+                    }
+                },
+                "cardTrendValue": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "last", "displayName": "Last value" },
+                            { "value": "sum", "displayName": "Sum" }
+                        ]
+                    }
+                },
                 "cardRefValues": {
                     "type": {
                         "enumeration": [
@@ -369,6 +394,15 @@
                 "multiplesSameScale": { "type": { "bool": true } },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
+                "bridgeOrientation": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Automatic" },
+                            { "value": "bars", "displayName": "Bars (horizontal)" },
+                            { "value": "columns", "displayName": "Columns (vertical)" }
+                        ]
+                    }
+                },
                 "chartButtons": { "type": { "bool": true } },
                 "driverNote": { "type": { "bool": true } },
                 "compareClick": { "type": { "bool": true } },
@@ -498,6 +532,7 @@
                     "bubbleSize": { "max": 1 },
                     "rowType": { "max": 1 },
                     "fcFlag": { "max": 1 },
+                    "trend": { "max": 1 },
                     "actual": { "max": 1 },
                     "previousYear": { "max": 1 },
                     "plan": { "max": 1 },
@@ -517,7 +552,8 @@
                         { "for": { "in": "series" } },
                         { "for": { "in": "rowType" } },
                         { "for": { "in": "fcFlag" } },
-                        { "for": { "in": "colgroup" } }
+                        { "for": { "in": "colgroup" } },
+                        { "for": { "in": "trend" } }
                     ],
                     "dataReductionAlgorithm": { "top": { "count": 1000 } }
                 },

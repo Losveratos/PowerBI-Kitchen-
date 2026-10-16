@@ -122,6 +122,27 @@ const cardSortItems: LocEnumMember[] = [
     { value: "best", displayName: "Best first (good on top)", key: "Enum_CardSort_Best" }
 ];
 
+// KPI-Karten mit gebundener Trend-Rolle: Mini-Chart im unteren Kartenbereich
+// (ersetzt dann die Mini-Brücke) und welcher Wert die große Kartenzahl stellt
+const cardTrendChartItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off (mini bridge as before)", key: "Enum_CardTrendChart_Off" },
+    { value: "sparkline", displayName: "Sparkline", key: "Enum_CardTrendChart_Sparkline" },
+    { value: "columns", displayName: "Columns", key: "Enum_CardTrendChart_Columns" }
+];
+
+const cardTrendValueItems: LocEnumMember[] = [
+    { value: "last", displayName: "Last value (latest period)", key: "Enum_CardTrendValue_Last" },
+    { value: "sum", displayName: "Sum over all periods", key: "Enum_CardTrendValue_Sum" }
+];
+
+// Kategorie-Brücke: Kaskade horizontal (bisher) oder als vertikale Säulen-Kaskade;
+// "auto" = bisheriges Verhalten (horizontal)
+const bridgeOrientationItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Automatic", key: "Enum_BridgeOrient_Auto" },
+    { value: "bars", displayName: "Bars (horizontal)", key: "Enum_BridgeOrient_Bars" },
+    { value: "columns", displayName: "Columns (vertical)", key: "Enum_BridgeOrient_Columns" }
+];
+
 const pinStyleItems: LocEnumMember[] = [
     { value: "auto", displayName: "Automatic (per mode)", key: "Enum_PinStyle_Auto" },
     { value: "round", displayName: "Round", key: "Enum_PinStyle_Round" },
@@ -163,7 +184,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         cardRefValueItems,
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
         gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
-        scatterColorByItems];
+        scatterColorByItems, cardTrendChartItems, cardTrendValueItems, bridgeOrientationItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -583,11 +604,21 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
             this.multiplesSameScale]
     });
 
+    bridgeOrientation = new formattingSettings.ItemDropdown({
+        name: "bridgeOrientation",
+        displayName: "Bridge orientation",
+        displayNameKey: "Chart_BridgeOrientation",
+        description: "Nur Kategorie-Brücke: „Balken (horizontal)\" zeigt die Kaskade zeilenweise wie bisher (Kategorien untereinander, Δ%-Pins rechts). „Säulen (vertikal)\" zeichnet sie als klassischen Säulen-Wasserfall — Basis-Anker (PY/PL) links, eine Treiber-Säule je Kategorie, AC-Anker und Überleitung rechts, Δ%-Pins oben. „Automatisch\" = bisheriges Verhalten (horizontal).",
+        descriptionKey: "Desc_Chart_BridgeOrientation",
+        items: bridgeOrientationItems,
+        value: bridgeOrientationItems[0]
+    });
+
     bridgeGroup = new formattingSettings.Group({
         name: "chartBridge",
         displayName: "Bridge",
         displayNameKey: "Group_Bridge",
-        slices: [this.waterfallStyle, this.sortByImpact]
+        slices: [this.waterfallStyle, this.sortByImpact, this.bridgeOrientation]
     });
 
     valueColumns = new formattingSettings.ItemDropdown({
@@ -835,6 +866,26 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    cardTrendChart = new formattingSettings.ItemDropdown({
+        name: "cardTrendChart",
+        displayName: "Trend mini chart",
+        displayNameKey: "Cards_TrendChart",
+        description: "Nur mit gebundenem „Trend (Zeit)\"-Feld: zeigt die Zeitreihe je Karte unten auf der Karte — als Sparkline (AC-Linie, PY dünn grau dahinter, letzter Punkt markiert und beschriftet, FC gestrichelt) oder als Mini-Säulen (negative unter der Nulllinie, letzte Säule hervorgehoben, FC schraffiert). Ersetzt dann die Mini-Brücke; das Bullet bleibt unabhängig schaltbar. Skala je Karte (Karten haben verschiedene Einheiten), Säulen nullbasiert. „Aus\" = Mini-Brücke wie bisher.",
+        descriptionKey: "Desc_Cards_TrendChart",
+        items: cardTrendChartItems,
+        value: cardTrendChartItems[1]
+    });
+
+    cardTrendValue = new formattingSettings.ItemDropdown({
+        name: "cardTrendValue",
+        displayName: "Card value with trend",
+        displayNameKey: "Cards_TrendValue",
+        description: "Nur mit gebundenem „Trend (Zeit)\"-Feld: welche Zahl die Karte groß zeigt. „Letzter Wert\" (Standard) = letzte Periode mit Ist-Wert — der aktuelle Stand; PY/PL/FC/BM stammen aus derselben Periode, damit Δ und Status zusammenpassen. „Summe\" = Summe über alle Perioden (z. B. YTD-Umsatz), PY/PL/FC/BM ebenfalls summiert. Für Quoten/Bestände „Letzter Wert\" wählen.",
+        descriptionKey: "Desc_Cards_TrendValue",
+        items: cardTrendValueItems,
+        value: cardTrendValueItems[0]
+    });
+
     cardRefValues = new formattingSettings.ItemDropdown({
         name: "cardRefValues",
         displayName: "Show reference values",
@@ -860,8 +911,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "KPI cards",
         displayNameKey: "Group_Cards",
         slices: [this.cardStatusBasis, this.cardHighlight, this.cardRefValues, this.cardSort,
-            this.cardBars, this.cardTint, this.cardTintStrength, this.cardBullet,
-            this.cardBulletZoom]
+            this.cardBars, this.cardTrendChart, this.cardTrendValue, this.cardTint,
+            this.cardTintStrength, this.cardBullet, this.cardBulletZoom]
     });
 
     scatterQuadrant = new formattingSettings.ItemDropdown({
