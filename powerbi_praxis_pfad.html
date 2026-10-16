@@ -175,6 +175,38 @@ blockquote.pp-tip { background: #F5F8FB; border-color: #D6E2EE; border-left: 4px
 }
 .pp-shot figcaption { font-size: 14px; color: var(--ink-mute); margin-top: 8px; }
 
+/* Weiter vertiefen: Sprungmarken zu Videos, Microsoft Learn, Library und Guide */
+.pp-vertiefen {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-left: 4px solid var(--blau); border-radius: 10px;
+  padding: 16px 20px 6px; margin: 32px 0 20px;
+}
+.pp-vertiefen-label {
+  font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-mute); font-weight: 700; margin-bottom: 12px;
+}
+.pp-modul .pp-links { list-style: none; padding: 0; margin: 0 0 8px; }
+.pp-modul .pp-links li {
+  display: flex; gap: 12px; align-items: baseline;
+  margin: 0 0 12px; font-size: 15px; line-height: 1.5;
+}
+.pp-links li > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.pp-tag {
+  flex: 0 0 66px; text-align: center; font-size: 11px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; padding: 2px 6px;
+  border-radius: 100px; border: 1px solid var(--line);
+  background: var(--bg-soft); color: var(--ink-soft);
+}
+.pp-tag-video { background: var(--akzent-soft); border-color: #F3C9C3; color: var(--akzent); }
+.pp-tag-learn { background: #F5F8FB; border-color: #D6E2EE; color: var(--blau); }
+.pp-tag-lib   { background: var(--gruen-soft); border-color: #BEE0DA; color: var(--gruen); }
+.pp-links-sub { display: block; color: var(--ink-mute); font-size: 13px; line-height: 1.45; }
+@media (max-width: 640px) {
+  .pp-vertiefen { padding: 14px 16px 4px; }
+  .pp-modul .pp-links li { flex-direction: column; gap: 4px; align-items: flex-start; }
+  .pp-tag { flex: 0 0 auto; padding: 1px 10px; }
+}
+
 /* Fuss */
 .pp-foot { margin-top: 56px; padding-top: 28px; border-top: 2px solid var(--line-strong); font-size: 15px; color: var(--ink-mute); }
 .pp-foot a { color: var(--blau); }
@@ -218,13 +250,23 @@ blockquote.pp-tip { background: #F5F8FB; border-color: #D6E2EE; border-left: 4px
       <span class="pp-badge">≈ 2 Stunden</span>
       <span class="pp-badge">Kein Konto nötig</span>
       <span class="pp-badge">Rettungsdatei je Kapitel</span>
+      <span class="pp-badge">Stand Oktober 2026</span>
     </div>
 
     <div class="pp-hinweis">
       <strong>⚠️ Du brauchst einen Windows-Rechner.</strong> Power BI Desktop gibt es
-      nicht für Mac, nicht fürs iPad und nicht fürs Handy. Das ist eine Entscheidung
-      von Microsoft. Wenn du am Mac sitzt: Lies gern mit — mitmachen kannst du leider nicht.
+      nicht für Mac, nicht fürs iPad und nicht fürs Handy (Voraussetzung: Windows 10 oder neuer).
+      Das ist eine Entscheidung von Microsoft. Wenn du am Mac sitzt: Lies gern mit. Im Browser
+      (<code>app.powerbi.com</code>) kann Power BI inzwischen vieles, auch Datenmodell und Power Query —
+      das braucht aber ein Geschäfts- oder Schulkonto, und die Menüs weichen von diesem Pfad ab.
     </div>
+
+    <blockquote class="pp-note">
+      <p><strong>So liest du die Menüpfade:</strong> Alles steht so, wie es in einem deutschen Power BI Desktop
+      heißt — bei den wichtigsten Stellen mit dem englischen Namen dahinter. Microsoft erneuert Desktop jeden Monat;
+      Bildschirmfotos und Knopfnamen können bei dir leicht abweichen. Die Kontrollpunkte zeigen dir jeweils,
+      ob du auf Kurs bist.</p>
+    </blockquote>
 
     <nav class="pp-nav">
       <div class="pp-nav-titel">Die sieben Module</div>
@@ -246,7 +288,8 @@ blockquote.pp-tip { background: #F5F8FB; border-color: #D6E2EE; border-left: 4px
 <p><em>Etwa 15 Minuten · Du brauchst dafür kein Konto und musst nichts bezahlen.</em></p>
 <blockquote class="pp-warn">
 <p>⚠️ <strong>Nur für Windows.</strong> Power BI Desktop gibt es nicht für Mac und nicht fürs
-Tablet. Wenn du an einem Mac sitzt, kommst du hier leider nicht weiter.</p>
+Tablet (Voraussetzung laut Microsoft: Windows 10 oder neuer, 64-Bit). Wenn du an einem Mac
+sitzt, kannst du hier leider nur mitlesen.</p>
 </blockquote>
 <h2>Deine Aufgabe</h2>
 <p>Deine Chefin bittet dich, die Verkaufszahlen des letzten Jahres anzuschauen. Du bekommst dafür eine Datei aus dem System. Am Ende kannst du sagen: wie viel, wer, wann — und was auffällt.</p>
@@ -256,28 +299,38 @@ Tablet. Wenn du an einem Mac sitzt, kommst du hier leider nicht weiter.</p>
 <ol>
 <li>Öffne den <strong>Microsoft Store</strong> (Windows-Taste drücken, <code>Store</code> tippen, Enter).</li>
 <li>Suche im Store nach <strong>Power BI Desktop</strong> und klicke auf <strong>Installieren</strong>.
-   Das dauert ein paar Minuten — der Download ist groß.</li>
+   Das dauert ein paar Minuten — der Download ist groß. Der Store-Weg hat einen Vorteil:
+   Windows hält das Programm danach automatisch aktuell. Das ist wichtig, weil Microsoft
+   Power BI Desktop jeden Monat erneuert und nur die jeweils neueste Version unterstützt.</li>
 <li>Klappt der Store nicht (zum Beispiel auf einem Firmenrechner), lade das
    Programm stattdessen direkt bei Microsoft herunter:
-   <a href="https://powerbi.microsoft.com/de-de/desktop/">powerbi.microsoft.com/desktop</a>
-   → <strong>Kostenloser Download</strong>. Für diesen Weg brauchst du Administratorrechte.
+   <a href="https://www.microsoft.com/download/details.aspx?id=58494">Microsoft Download Center</a>
+   → <strong>Download</strong> → die <strong>64-Bit-Version</strong> wählen. Für diesen Weg brauchst du Administratorrechte.
    Hast du die nicht, frag kurz deine IT — der Store-Weg braucht sie meist nicht.</li>
 <li>Starte <strong>Power BI Desktop</strong>. Der erste Start dauert etwas länger als die
    späteren.</li>
-<li>Es öffnet sich ein Fenster, das dich zum Anmelden auffordert.
+<li>Je nach Version öffnet sich beim ersten Start ein Willkommens- oder Anmeldefenster.
    <strong>Schließe es</strong> — klick auf das X oben rechts im Fenster.</li>
 </ol>
 <blockquote class="pp-tip">
 <p>💡 <strong>Du brauchst kein Konto.</strong> Für alles in diesem Pfad reicht das Programm auf
 deinem Rechner. Ein Konto bräuchtest du erst, wenn du deine Auswertung im
-Internet mit anderen teilen willst. Das machen wir hier nicht.</p>
+Internet mit anderen teilen willst — und dann muss es ein <strong>Geschäfts- oder Schulkonto</strong>
+sein (siehe Modul 6). Das machen wir hier nicht.</p>
 </blockquote>
 <ol start="6">
-<li>Falls dich das Programm nach einer Datei fragt oder ein Startbildschirm
-   erscheint: Schließ auch den. Du solltest jetzt eine große leere weiße Fläche
-   sehen, oben ein Menüband mit <strong>Datei · Start · Einfügen · Modellierung ·
-   Ansicht · Hilfe</strong>.</li>
+<li>Falls ein Startbildschirm erscheint (<strong>Power BI Home</strong>): Klick dort auf
+   <strong>Neu → Bericht</strong> oder schließ ihn einfach. Du solltest jetzt eine große
+   leere weiße Fläche sehen, oben ein Menüband mit <strong>Datei · Start · Einfügen · Modellierung ·
+   Anzeigen · Optimieren · Hilfe</strong>. Je nach Version kommen weitere Reiter dazu, zum Beispiel
+   <strong>Design</strong>; manche Reiter erscheinen auch nur, wenn du etwas markiert hast.</li>
 </ol>
+<blockquote class="pp-tip">
+<p>💡 <strong>Fehlt dir ein Fenster oder ein Knopf?</strong> Microsoft nennt zwei häufige Ursachen:
+Die Bildschirmauflösung ist zu klein (mindestens 1440 × 900) oder Windows vergrößert Texte und Apps
+auf mehr als 100 %. Dann bleiben manche Dialoge unsichtbar. Prüf unter Windows
+<strong>Einstellungen → System → Anzeige</strong> und stell die Skalierung testweise auf 100 %.</p>
+</blockquote>
 <h2 class="pp-check-titel">✅ Kontrollpunkt</h2>
 <blockquote class="pp-check">
 <p>Power BI Desktop ist offen und zeigt eine leere weiße Fläche.
@@ -285,6 +338,16 @@ Oben links steht <strong>Datei</strong>, daneben <strong>Start</strong>.</p>
 <p>Siehst du das nicht? → Häufigste Ursache: Das Anmeldefenster liegt noch
 darüber oder hinter dem Hauptfenster — klick es weg.</p>
 </blockquote>
+<aside class="pp-vertiefen" aria-label="Weiter vertiefen">
+<div class="pp-vertiefen-label">Weiter vertiefen</div>
+<ul class="pp-links">
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=4hap_ZZskzo" target="_blank" rel="noopener">#001 · Power BI Desktop oder Web? Meine klare Antwort!</a><span class="pp-links-sub">Kurzvideo (46 s): warum Desktop für den Einstieg praktisch ist — Visuals, Datenmodell und Power Query an einem Ort.</span></span></li>
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=10jBGN2K52I" target="_blank" rel="noopener">#008 · Suchst du unsere Tutorials? Hier sind sie!</a><span class="pp-links-sub">Kurzvideo (31 s): wo auf dem Daten-WG-Kanal die Power-BI- und Fabric-Tutorials als Playlisten liegen.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/power-bi/fundamentals/desktop-get-the-desktop" target="_blank" rel="noopener">Power BI Desktop herunterladen</a><span class="pp-links-sub">Store oder Direktdownload, Systemvoraussetzungen, Unterschiede der beiden Wege.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/training/paths/get-started-power-bi/" target="_blank" rel="noopener">Lernpfad „Get started with Power BI“</a><span class="pp-links-sub">Zwei Module für Einsteiger, ohne Vorkenntnisse.</span></span></li>
+<li><span class="pp-tag pp-tag-lib">Library</span><span><a href="wissensgraph/thema/power-bi-desktop.html">Power BI Desktop in der DatenWG Library</a><span class="pp-links-sub">Alle Stellen aus den Folgen zum Thema, mit Sprungmarken.</span></span></li>
+</ul>
+</aside>
 <h2>Weiter</h2>
 <p>→ <a href="#modul-1">Modul 1 · Daten anbinden</a></p>
 </section>
@@ -295,44 +358,70 @@ darüber oder hinter dem Hauptfenster — klick es weg.</p>
 <h2>Ziel dieses Moduls</h2>
 <p>Die Datei <code>verkaeufe_2025.csv</code> liegt in Power BI und du hast einmal draufgeschaut.</p>
 <h2>So geht's</h2>
-<figure class="pp-shot"><img src="assets/praxis-pfad/modul-01-daten-abrufen.png" alt="Menüband „Start&quot; — der rote Rahmen zeigt „Daten abrufen&quot;." loading="lazy"><figcaption>Menüband „Start&quot; — der rote Rahmen zeigt „Daten abrufen&quot;.</figcaption></figure>
+<figure class="pp-shot"><img src="assets/praxis-pfad/modul-01-daten-abrufen.png" alt="Menüband „Start&quot; — der rote Rahmen zeigt „Daten abrufen&quot;." loading="lazy"><figcaption>Menüband „Start&quot; — der rote Rahmen zeigt „Daten abrufen&quot;. (Bildschirmfoto aus einer früheren Version: Bei dir können weitere Reiter und Knöpfe dazukommen.)</figcaption></figure>
 
 <ol>
-<li>Klicke im Menüband auf <strong>Start → Daten abrufen</strong>. Es klappt eine Liste auf.</li>
+<li>Klicke im Menüband auf <strong>Start → Daten abrufen</strong>. Es klappt eine Liste mit den häufigsten Datenquellen auf.</li>
 <li>Wähle darin <strong>Web</strong>. (Steht es nicht in der Liste: <strong>Mehr…</strong> ganz unten,
-   dann links <strong>Andere</strong>, dann <strong>Web</strong>.)</li>
-<li>Ein Fenster <strong>Aus dem Web</strong> geht auf. Kopiere diese Adresse in das Feld <strong>URL</strong>:</li>
-</ol>
-<p><code>https://raw.githubusercontent.com/Losveratos/powerbi-einstieg/main/data/business/verkaeufe_2025.csv</code></p>
-<p>Klick dann auf <strong>OK</strong>.
-4. Jetzt fragt Power BI, wie es sich anmelden soll. Wähle links <strong>Anonym</strong> und
+   dann links <strong>Andere</strong>, dann <strong>Web</strong>, dann <strong>Verbinden</strong>.)</li>
+<li>Ein Fenster <strong>Aus dem Web</strong> geht auf. Steht dort eine Auswahl zwischen <strong>Basic</strong>
+   (einfach) und <strong>Erweitert</strong>, nimm <strong>Basic</strong>. Kopiere diese Adresse in das Feld <strong>URL</strong>
+   und klick dann auf <strong>OK</strong>:
+   <p><code>https://raw.githubusercontent.com/Losveratos/powerbi-einstieg/main/data/business/verkaeufe_2025.csv</code></p></li>
+<li>Jetzt fragt Power BI, wie es sich anmelden soll. Wähle links <strong>Anonym</strong> und
    klick auf <strong>Verbinden</strong>. Anonym heißt: Die Datei ist öffentlich, es braucht
-   kein Passwort.
-5. Du siehst eine Vorschau der Daten. Sie sieht unordentlich aus — die Spalten
+   kein Passwort.</li>
+<li>Du siehst eine Vorschau der Daten. Sie sieht unordentlich aus — die Spalten
    heißen <code>Column1</code>, <code>Column2</code> und so weiter, und in der ersten Zeile steht
-   Kauderwelsch. <strong>Das ist so gewollt.</strong> Genau das räumen wir im nächsten Modul auf.
-6. Klick unten rechts auf <strong>Laden</strong>. Nicht auf „Daten transformieren" — das
-   kommt gleich.
-7. Rechts erscheint der Bereich <strong>Daten</strong>, darin die Tabelle <strong>verkaeufe_2025</strong>.
-   Klick darauf, dann klappen die Spalten auf.
-8. Schau dir die Tabelle einmal ganz an: Klick links am Bildschirmrand auf das
-   mittlere der drei Symbole — die <strong>Tabellenansicht</strong> (ein Gittersymbol).
-   Jetzt siehst du die Daten wie in einer Tabelle.</p>
+   Kauderwelsch. <strong>Das ist so gewollt.</strong> Genau das räumen wir im nächsten Modul auf.</li>
+<li>Klick unten rechts auf <strong>Laden</strong>. Nicht auf „Daten transformieren" — das
+   kommt gleich.</li>
+<li>Rechts erscheint der Bereich <strong>Daten</strong>, darin die Tabelle <strong>verkaeufe_2025</strong>.
+   Klick darauf, dann klappen die Spalten auf.</li>
+<li>Schau dir die Tabelle einmal ganz an: Klick links am Bildschirmrand auf das
+   <strong>zweite</strong> Symbol von oben — die <strong>Tabellenansicht</strong> (ein Gittersymbol).
+   Jetzt siehst du die Daten wie in einer Tabelle. Die Symbole links wechseln die Ansicht:
+   <strong>Bericht</strong>, <strong>Tabelle</strong>, <strong>Modell</strong> — in aktuellen Versionen darunter noch
+   <strong>DAX-Abfrage</strong> und <strong>TMDL</strong>. Die brauchst du in diesem Pfad nicht.</li>
+</ol>
+<blockquote class="pp-note">
+<p><strong>Sieht „Daten abrufen“ bei dir ganz anders aus?</strong> Wenn unter
+<strong>Datei → Optionen und Einstellungen → Optionen → Vorschaufeatures</strong> die Vorschau
+<strong>New Power Query experience</strong> eingeschaltet ist, öffnet sich statt der Liste ein Fenster mit
+Seitenleiste (Home, Neu, Zuletzt verwendet …) und Suchfeld. Tipp <code>Web</code> ins Suchfeld,
+dann geht es mit Schritt 3 weiter. Die Schritte danach sind dieselben.</p>
+</blockquote>
 <div class="pp-wort"><div class="pp-wort-label">📖 Neues Wort</div><p><strong>Zeile und Spalte.</strong> Eine <strong>Zeile</strong> ist ein einzelner Vorgang — hier: ein
 Auftrag. Eine <strong>Spalte</strong> ist eine Eigenschaft, die jeder Vorgang hat — hier zum
 Beispiel das Datum oder die Region. Alles, was du gleich baust, beruht auf
 dieser einen Idee.</p></div>
+<blockquote class="pp-tip">
+<p>💡 <strong>Später mit eigenen Excel-Dateien:</strong> Wenn du eine einzelne Excel-Datei lädst, mach
+im Blatt vorher eine formatierte <strong>Excel-Tabelle</strong> daraus (Daten markieren, <strong>Strg + T</strong>) und lade
+die Tabelle statt des ganzen Tabellenblatts. Dann reisen die Datentypen schon mit, und du hast in Power Query
+weniger Arbeit. Bei einem Ordner voller manuell gepflegter Excel-Dateien ist es eher umgekehrt.</p>
+</blockquote>
 <h2 class="pp-check-titel">✅ Kontrollpunkt</h2>
 <blockquote class="pp-check">
 <p>Ganz unten am Bildschirmrand steht: <strong>verkaeufe_2025 (2.405 Zeilen)</strong>.</p>
 <p>Steht da was anderes? → Häufigste Ursache: Bei der Anmeldung war nicht
 <strong>Anonym</strong> ausgewählt, oder die Adresse wurde beim Kopieren abgeschnitten.
-Lösch die Abfrage rechts (Rechtsklick auf <strong>verkaeufe_2025</strong> → <strong>Aus Bericht
+Lösch die Tabelle rechts (Rechtsklick auf <strong>verkaeufe_2025</strong> im Bereich <strong>Daten</strong> → <strong>Aus Modell
 löschen</strong>) und fang bei Schritt 1 neu an.</p>
 <p>Geht es gar nicht? Lade die Datei stattdessen herunter
 (<a href="https://github.com/Losveratos/powerbi-einstieg/releases/latest/download/verkaeufe_2025.csv">verkaeufe_2025.csv</a>) und binde sie über
 <strong>Start → Daten abrufen → Text/CSV</strong> ein. Der Rest der Anleitung bleibt gleich.</p>
 </blockquote>
+<aside class="pp-vertiefen" aria-label="Weiter vertiefen">
+<div class="pp-vertiefen-label">Weiter vertiefen</div>
+<ul class="pp-links">
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=hkUHetX61jA" target="_blank" rel="noopener">#006 · Power BI &amp; Excel: Tabelle oder Tabellenblatt?</a><span class="pp-links-sub">Kurzvideo (54 s): Beim Excel-Import bringt eine formatierte Tabelle die Datentypen gleich mit.</span></span></li>
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=u5JMKAM8GB0" target="_blank" rel="noopener">#013 · Import, DirectQuery, Direct Lake oder Dual Mode — was ist eigentlich was?</a><span class="pp-links-sub">Kurzvideo (85 s): wo die Daten liegen, wenn Power BI zugreift. Du hast gerade im Import-Modus geladen.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/power-bi/connect-data/desktop-connect-to-web" target="_blank" rel="noopener">Mit Webseiten und Web-Adressen verbinden</a><span class="pp-links-sub">Der Weg Daten abrufen → Web, mit Navigator und Laden/Transformieren.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/training/modules/get-data/" target="_blank" rel="noopener">Lernmodul „Get data in Power BI“</a><span class="pp-links-sub">Excel, Datenbanken und mehr — und wie du beim Laden Performance sparst.</span></span></li>
+<li><span class="pp-tag pp-tag-lib">Library</span><span><a href="wissensgraph/thema/import-mode.html">Import-Modus in der DatenWG Library</a></span></li>
+</ul>
+</aside>
 <h2>Weiter</h2>
 <p>→ <a href="#modul-2">Modul 2 · Aufräumen</a></p>
 </section>
@@ -366,13 +455,15 @@ Klick auf <strong>Start → Zeilen entfernen → Leere Zeilen entfernen</strong>
 <p><strong>Handgriff 4 — Leerzeichen abschneiden</strong>
 Klick oben auf die Spaltenüberschrift <strong>Region</strong>, sodass die Spalte markiert ist.
 Dann: <strong>Transformieren → Format → Kürzen</strong>. Damit verschwinden die unsichtbaren
-Leerzeichen hinter manchen Werten. Ohne diesen Schritt wären <code>Nord</code> und <code>Nord</code>
-später zwei verschiedene Regionen.</p>
+Leerzeichen hinter manchen Werten. Ohne diesen Schritt wären „<code>Nord</code>" und „<code>Nord </code>" (mit
+Leerzeichen am Ende) später zwei verschiedene Regionen.</p>
 <p><strong>Handgriff 5 — Schreibweise vereinheitlichen</strong>
 Klick auf die Spaltenüberschrift <strong>Produktgruppe</strong>. Dann:
 <strong>Transformieren → Format → Jedes Wort großschreiben</strong>. Aus <code>bürobedarf</code> wird
-<code>Bürobedarf</code>. Auch hier gilt: Für Power BI sind Groß- und Kleinschreibung
-zwei verschiedene Dinge.</p>
+<code>Bürobedarf</code>. Der Hintergrund: Power Query unterscheidet Groß- und Kleinschreibung — bei Gruppierungen,
+Filtern und Verknüpfungen entstehen sonst schnell Dubletten. (Das Datenmodell selbst ist dabei
+nachsichtiger: Es behandelt „ABC" und „abc" als gleich und zeigt die zuerst geladene Schreibweise.
+Sauber ist es trotzdem erst nach diesem Handgriff.)</p>
 <p><strong>Handgriff 6 — Datum ist ein Datum</strong>
 Klick auf die Spaltenüberschrift <strong>Auftragsdatum</strong>. Links neben dem Namen steht
 ein kleines Symbol: <strong>ABC</strong> — das heißt „Power BI hält das für Text". Klick auf
@@ -381,16 +472,19 @@ das Symbol und wähle <strong>Datum</strong>. Das Symbol wird zu einem Kalender.
 Klick auf die Spaltenüberschrift <strong>Umsatz</strong>. Klick jetzt <strong>nicht</strong> auf das
 ABC-Symbol, sondern mach einen <strong>Rechtsklick</strong> auf die Überschrift und wähle
 <strong>Typ ändern → Gebietsschema verwenden…</strong>.
-Im Fenster stellst du ein:
-- Datentyp: <strong>Dezimalzahl</strong>
-- Gebietsschema: <strong>Englisch (USA)</strong></p>
+Im Fenster stellst du ein:</p>
+<ul>
+<li>Datentyp: <strong>Dezimalzahl</strong></li>
+<li>Gebietsschema: <strong>Englisch (USA)</strong></li>
+</ul>
 <p>Klick <strong>OK</strong>.</p>
 <blockquote class="pp-note">
 <p>Warum der Umweg? In der Datei stehen die Zahlen mit einem <strong>Punkt</strong> als
 Komma: <code>1796.80</code>. Dein Windows ist auf Deutsch eingestellt und liest den
 Punkt als Tausendertrennzeichen — aus 1796.80 € würden 179.680 €.
 Mit „Gebietsschema: Englisch (USA)" sagst du Power BI: <em>Diese Datei kommt
-aus einem englischsprachigen System, lies den Punkt als Komma.</em></p>
+aus einem englischsprachigen System, lies den Punkt als Komma.</em> Power Query nimmt
+sonst die Regionaleinstellung deines Betriebssystems, um Text in Zahlen und Daten umzuwandeln.</p>
 </blockquote>
 <p><strong>Handgriff 8 — Marge ist eine Zahl</strong>
 Dasselbe noch einmal für die Spalte <strong>Marge</strong>: Rechtsklick auf die Überschrift →
@@ -424,6 +518,17 @@ mach ab Handgriff 1 weiter.</p>
 weitermachen. Öffne die Datei einfach per Doppelklick — sie ist genau auf
 diesem Stand.</p>
 </blockquote>
+<aside class="pp-vertiefen" aria-label="Weiter vertiefen">
+<div class="pp-vertiefen-label">Weiter vertiefen</div>
+<ul class="pp-links">
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=psLPsI32sAs&amp;t=250s" target="_blank" rel="noopener">Power BI Update Mai 2026 · ab 4:10</a><span class="pp-links-sub">Power Query im Desktop übernimmt die modernere Optik des Web-Editors; danach ein Blick auf Standard-Zahlenformate (Kultur) für Berichte.</span></span></li>
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=LnNoXBIG7Lc" target="_blank" rel="noopener">Power BI Update Juni 2025 · ab 0:00</a><span class="pp-links-sub">Power Query und Modellierung im Browser: was im Web inzwischen geht — und was das für Desktop bedeutet.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/power-query/data-types" target="_blank" rel="noopener">Datentypen in Power Query</a><span class="pp-links-sub">Warum das Gebietsschema zählt, und „Typ ändern → Gebietsschema verwenden“ mit Beispiel.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/training/modules/clean-data-power-bi/" target="_blank" rel="noopener">Lernmodul „Clean, transform, and load data in Power BI“</a><span class="pp-links-sub">Datentypen, Umbenennen, Entpivotieren, Spaltenprofil.</span></span></li>
+<li><span class="pp-tag pp-tag-lib">Library</span><span><a href="wissensgraph/thema/power-query.html">Power Query in der DatenWG Library</a></span></li>
+<li><span class="pp-tag pp-tag-guide">Guide</span><span><a href="power_bi_einsteiger_guide_v4.html#pq">Power BI von A bis Z · Kapitel Power Query</a><span class="pp-links-sub">Der nächste Schritt, wenn dir die Handgriffe vertraut sind.</span></span></li>
+</ul>
+</aside>
 <h2>Weiter</h2>
 <p>→ <a href="#modul-3">Modul 3 · Erste Antworten</a></p>
 </section>
@@ -435,29 +540,47 @@ diesem Stand.</p>
 <p>Drei Bilder auf der Seite, die drei Fragen beantworten: wie viel insgesamt, wer,
 und wann.</p>
 <h2>So geht's</h2>
-<p>Klick links am Bildschirmrand auf das oberste der drei Symbole: die
+<p>Klick links am Bildschirmrand auf das oberste der Symbole: die
 <strong>Berichtsansicht</strong>. Du siehst eine leere weiße Seite. Rechts stehen zwei
 Bereiche: <strong>Visualisierungen</strong> (die Symbolsammlung) und <strong>Daten</strong> (deine
 Tabelle).</p>
+<blockquote class="pp-note">
+<p><strong>Sieht bei dir rechts alles anders aus?</strong> Zwei Dinge können abweichen.
+(1) Statt des Bereichs <strong>Visualisierungen</strong> erscheint ein Menü <strong>Visuelles Element erstellen</strong> direkt am
+Visual: Dann ist die <strong>On-Object-Interaktion</strong> eingeschaltet. Microsoft führt sie noch als Vorschaufunktion
+(<strong>Datei → Optionen und Einstellungen → Optionen → Vorschaufeatures → On-object interaction</strong>,
+danach Power BI Desktop neu starten). Wenn du diesem Pfad Schritt für Schritt folgen willst, schalte sie dort aus.
+Du kannst auch einfach im Reiter <strong>Einfügen</strong> ein Visual wählen und die Felder dann über den
+Knopf <strong>Daten hinzufügen</strong> am Visual setzen. (2) Abgerundete Ecken und graue Flächen kommen vom neuen
+Standard-Design (Fluent 2) für neue Berichte — an der Funktion ändert das nichts.</p>
+</blockquote>
 <h3>Bild 1 — die große Zahl: Wie viel insgesamt?</h3>
 <ol>
 <li>Klick auf eine leere Stelle der weißen Seite.</li>
 <li>Klick im Bereich <strong>Visualisierungen</strong> auf das Symbol <strong>Karte</strong> — es sieht aus
-   wie ein Kästchen mit den Ziffern <strong>123</strong> darin.</li>
+   wie ein Kästchen mit den Ziffern <strong>123</strong> darin. Seit dem Update vom November 2025 erzeugt
+   dieses Symbol die <strong>neue Karte</strong>: Sie ersetzt die frühere Einzelkarte und die Mehrfachkarte.
+   Alte Berichte behalten ihre alten Karten.</li>
 </ol>
-<figure class="pp-shot"><img src="assets/praxis-pfad/modul-03-karte.png" alt="Der Bereich „Visualisierungen“ — markiert ist das Symbol „Karte“." loading="lazy"><figcaption>Der Bereich „Visualisierungen“ — markiert ist das Symbol „Karte“.</figcaption></figure>
+<figure class="pp-shot"><img src="assets/praxis-pfad/modul-03-karte.png" alt="Der Bereich „Visualisierungen“ — markiert ist das Symbol „Karte“." loading="lazy"><figcaption>Der Bereich „Visualisierungen“ — markiert ist das Symbol „Karte“. (Bildschirmfoto aus einer früheren Version: Die Symbole sind bei dir vielleicht anders angeordnet. Such nach dem Namen „Karte“, wenn du mit der Maus darüberfährst.)</figcaption></figure>
 
 <p>(Achtung: Es gibt auch ein Symbol mit einer Weltkugel, das ebenfalls „Karte"
-   heißt. Das ist eine Landkarte — nimm das mit den Ziffern.)
-3. Auf der Seite erscheint ein leeres graues Kästchen.
-4. Klapp im Bereich <strong>Daten</strong> die Tabelle <strong>verkaeufe_2025</strong> auf und setz das
-   Häkchen bei <strong>Umsatz</strong>. In dem Kästchen erscheint eine Zahl.
-5. Die Zahl steht dort abgekürzt: <strong>2,10 Mio.</strong> Power BI kürzt große
+   heißt. Das ist eine Landkarte — nimm das mit den Ziffern.)</p>
+<ol start="3">
+<li>Auf der Seite erscheint ein leeres Kästchen.</li>
+<li>Klapp im Bereich <strong>Daten</strong> die Tabelle <strong>verkaeufe_2025</strong> auf und setz das
+   Häkchen bei <strong>Umsatz</strong>. In dem Kästchen erscheint eine Zahl. (Sie landet im Feld
+   <strong>Werte</strong> der Karte.)</li>
+<li>Die Zahl steht dort abgekürzt: etwa <strong>2,10 Mio.</strong> Power BI kürzt große
    Zahlen von sich aus — „Mio." heißt Millionen. Das ist so in Ordnung und
    bleibt auch so; für die Frage „wie viel insgesamt?" reicht diese Genauigkeit
-   völlig.
-6. Schieb das Kästchen nach links oben und zieh es an einer Ecke etwas größer,
-   damit die Zahl gut lesbar ist.</p>
+   völlig. (Je nach Version steht dort auch <strong>2,1 Mio.</strong> — die Größenordnung zählt.)
+   Willst du die volle Zahl sehen: Karte markieren → Symbol <strong>Visual formatieren</strong>
+   im Bereich Visualisierungen → Reiter <strong>Visual</strong> → <strong>Callout-Werte → Werte → Anzeigeeinheiten</strong>
+   (englisch: <em>Callout values → Values → Display units</em>) auf <strong>Keine</strong> stellen.</li>
+<li>Schieb das Kästchen nach links oben und zieh es an einer Ecke etwas größer,
+   damit die Zahl gut lesbar ist.</li>
+</ol>
 <h3>Bild 2 — die Balken: Wer?</h3>
 <ol start="7">
 <li>Klick auf eine leere Stelle der Seite.</li>
@@ -480,7 +603,9 @@ Tabelle).</p>
     Dort steht <code>Auftragsdatum</code> mit vier Einträgen darunter — <strong>Jahr, Quartal,
     Monat, Tag</strong>. Klick bei <strong>Jahr</strong>, <strong>Quartal</strong> und <strong>Tag</strong> jeweils auf das
     <strong>X</strong>. Übrig bleibt <strong>Monat</strong> — und die Linie zeigt zwölf Punkte, Januar bis
-    Dezember.</li>
+    Dezember. (Diese Datumshierarchie baut Power BI automatisch aus der Datumsspalte — die Funktion heißt
+    <em>Auto-Datum/Uhrzeit</em>. Für eigene Zeitberechnungen mit DAX nimmst du später eine eigene
+    Datumstabelle, siehe Modul 5.)</li>
 <li>Schieb die drei Bilder so, dass sie sich nicht überlappen. Ordentlich ist:
     die Karte oben links, das Balkendiagramm rechts daneben, die Linie darunter
     über die ganze Breite.</li>
@@ -491,22 +616,33 @@ oder der Monat. Jedes Diagramm, das du je bauen wirst, ist eine Kennzahl,
 aufgeteilt nach einer Dimension.</p></div>
 <h2 class="pp-check-titel">✅ Kontrollpunkt</h2>
 <blockquote class="pp-check">
-<p>Die Karte zeigt: <strong>2,10 Mio.</strong>
+<p>Die Karte zeigt: <strong>2,10 Mio.</strong> (bzw. gerundet 2,1 Mio.)
 Im Balkendiagramm steht <strong>Süd</strong> ganz oben.</p>
 <p>Steht dort stattdessen <strong>210,01 Mio.</strong> → Dann wurde in Modul 2 der Umsatz ohne
 <strong>Gebietsschema Englisch (USA)</strong> umgewandelt. Power BI hat den Punkt als
 Tausendertrennzeichen gelesen, dadurch sind alle Beträge hundertmal zu groß.
 Geh zurück zu Modul 2, Handgriff 7.</p>
 <p>Steht dort eine viel kleinere Zahl oder „(Leer)"? → Dann ist statt der Summe
-die Anzahl eingestellt. Klick rechts im Feld <strong>Wert</strong> auf den kleinen Pfeil
+die Anzahl eingestellt. Klick rechts im Feld <strong>Werte</strong> auf den kleinen Pfeil
 neben <strong>Umsatz</strong> und wähle <strong>Summe</strong>.</p>
 <p>Willst du es ganz genau wissen: Die Summe auf den Euro beträgt
-<strong>2.100.088</strong>. Sehen kannst du sie, indem du in der Tabellenansicht
-die Spalte <strong>Umsatz</strong> anklickst und unter <strong>Spaltentools</strong> die
-<strong>Dezimalstellen</strong> auf <code>0</code> stellst — nötig ist das aber nicht.</p>
+<strong>2.100.088</strong>. Sehen kannst du sie, indem du bei der Karte die <strong>Anzeigeeinheiten</strong>
+auf <strong>Keine</strong> stellst (siehe Schritt 5) — oder in der Tabellenansicht die Spalte <strong>Umsatz</strong>
+anklickst und unter <strong>Spaltentools</strong> die <strong>Dezimalstellen</strong> auf <code>0</code> stellst.</p>
 <p>Oder: <a href="https://github.com/Losveratos/powerbi-einstieg/releases/latest/download/business_checkpoint_geputzt.pbix">Checkpoint-Datei laden</a> und ab Schritt 1 dieses
 Moduls neu anfangen.</p>
 </blockquote>
+<aside class="pp-vertiefen" aria-label="Weiter vertiefen">
+<div class="pp-vertiefen-label">Weiter vertiefen</div>
+<ul class="pp-links">
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=XJZxYNIeEVc&amp;t=16s" target="_blank" rel="noopener">Power BI Update November 2025 · ab 0:16</a><span class="pp-links-sub">Die neue Karte ist generell verfügbar — ersetzt die alte Karte und die Doppelkarte, mit Kategorien und vielen Einstellungen.</span></span></li>
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=inko8wG9jlY&amp;t=408s" target="_blank" rel="noopener">Boring Charts, Better Insights · ab 6:48</a><span class="pp-links-sub">Warum Tortendiagramme schlecht funktionieren und schlichte Balken meist besser ankommen (Gespräch auf Englisch).</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-card" target="_blank" rel="noopener">Karten-Visual in Power BI</a><span class="pp-links-sub">Werte, Kategorien, Referenzbeschriftungen, Anzeigeeinheiten.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/power-bi/create-reports/power-bi-on-object-interaction" target="_blank" rel="noopener">On-Object-Interaktion (Vorschau)</a><span class="pp-links-sub">Visuals direkt am Visual bauen und formatieren; so schaltest du sie ein oder aus.</span></span></li>
+<li><span class="pp-tag pp-tag-lib">Library</span><span><a href="wissensgraph/thema/visualisierung.html">Visualisierung in der DatenWG Library</a></span></li>
+<li><span class="pp-tag pp-tag-guide">Guide</span><span><a href="power_bi_einsteiger_guide_v4.html#viz">Power BI von A bis Z · Kapitel Visualisierung</a></span></li>
+</ul>
+</aside>
 <h2>Weiter</h2>
 <p>→ <a href="#modul-4">Modul 4 · Filtern</a></p>
 </section>
@@ -535,7 +671,7 @@ Daten einschränken.</p>
 
 <ol start="6">
 <li>Klick noch einmal auf <strong>Technik</strong>, um die Auswahl aufzuheben. Alles ist
-   wieder wie vorher.</li>
+   wieder wie vorher. (Mit gedrückter <strong>Strg</strong>-Taste wählst du mehrere Einträge zugleich.)</li>
 </ol>
 <h3>Das geht auch ohne Datenschnitt</h3>
 <ol start="7">
@@ -546,6 +682,14 @@ Daten einschränken.</p>
 <li>Lass diesen Klick einen Moment stehen — die Zahl brauchst du gleich für den
    Kontrollpunkt.</li>
 </ol>
+<blockquote class="pp-tip">
+<p>💡 <strong>Soll ein Visual nicht mitfiltern?</strong> Markiere das Visual, wähle im Menüband den Reiter
+<strong>Format</strong> und dort <strong>Interaktionen bearbeiten</strong> (englisch: <em>Edit interactions</em>). Über
+kleine Symbole an den anderen Visuals legst du fest, ob sie auf die Auswahl reagieren.
+Und: Der Datenschnitt muss keine Liste sein. Im Bereich <strong>Format</strong> findest du unter
+<strong>Datenschnitt-Einstellungen → Optionen → Stil</strong> zum Beispiel Dropdown, Kacheln — und bei
+Datumsspalten Zeitraum oder relative Datumsauswahl.</p>
+</blockquote>
 <div class="pp-wort"><div class="pp-wort-label">📖 Neues Wort</div><p><strong>Filter.</strong> Ein Filter schränkt ein, welche Zeilen gerade gezählt werden. Das
 Entscheidende: Er wirkt auf alle Bilder der Seite zusammen. Deshalb ist ein
 Bericht kein Bild, sondern ein Werkzeug — dieselbe Seite beantwortet je nach
@@ -554,7 +698,7 @@ Filter Dutzende Fragen.</p></div>
 <blockquote class="pp-check">
 <p>Bei angeklicktem Balken <strong>Nord</strong> zeigt die Karte:
 <strong>480,98 Tsd.</strong> („Tsd." heißt Tausend — die genaue Summe wäre
-480.981).</p>
+480.981; je nach Version steht dort gerundet auch 481 Tsd.).</p>
 <p>Steht da etwas anderes? → Häufigste Ursache: Es ist noch zusätzlich eine
 Produktgruppe im Datenschnitt ausgewählt. Klick sie ab, sodass kein Kästchen
 mehr markiert ist, und klick dann erneut auf den Balken.</p>
@@ -563,13 +707,22 @@ weitermachen.</p>
 </blockquote>
 <p><strong>Wichtig für das nächste Modul:</strong> Klick zum Schluss auf eine leere Stelle der
 Seite, damit kein Filter mehr aktiv ist.</p>
+<aside class="pp-vertiefen" aria-label="Weiter vertiefen">
+<div class="pp-vertiefen-label">Weiter vertiefen</div>
+<ul class="pp-links">
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=GWCHNmLs72M&amp;t=179s" target="_blank" rel="noopener">Power BI Update August 2026 · ab 2:59</a><span class="pp-links-sub">Der Datums-Picker im normalen Datenschnitt ist generell verfügbar; dazu das Berichtsdesign direkt im Bericht anpassen.</span></span></li>
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=5xB_oKdvAwQ&amp;t=104s" target="_blank" rel="noopener">Power BI Update Juni 2026 · ab 1:44</a><span class="pp-links-sub">Die dynamische Datumsauswahl im Datenschnitt in Aktion, auch mit relativen Zeiträumen.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/power-bi/visuals/power-bi-visualization-slicer-visual" target="_blank" rel="noopener">Datenschnitt (Slicer) in Power BI</a><span class="pp-links-sub">Alle Stile — Dropdown, Liste, Kachel, Zeitraum, Datumsauswahl — und wann welcher passt.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/training/modules/power-bi-effective-filters/" target="_blank" rel="noopener">Lernmodul „Configure Power BI report filters“</a><span class="pp-links-sub">Filter im Bericht gestalten: was zur Entwurfszeit und was zur Lesezeit gilt.</span></span></li>
+</ul>
+</aside>
 <h2>Weiter</h2>
 <p>→ <a href="#modul-5">Modul 5 · Nicht jede Zahl darf man addieren</a></p>
 </section>
 
 <section class="pp-modul" id="modul-5">
 <h2 class="pp-modul-titel">Modul 5 · Nicht jede Zahl darf man addieren</h2>
-<p><em>Etwa 20 Minuten · Hier kommt die Antwort auf die Eingangsfrage.</em></p>
+<p><em>Etwa 20 Minuten · Hier kommt die Antwort auf die Eingangsfrage. Der DAX-Teil danach ist optional.</em></p>
 <h2>Ziel dieses Moduls</h2>
 <p>Du siehst, was passiert, wenn Power BI automatisch summiert — und findest damit
 die Auffälligkeit in den Daten.</p>
@@ -589,7 +742,7 @@ die Auffälligkeit in den Daten.</p>
    es Unsinn — 30 % plus 30 % sind nicht 60 %.</p>
 <h3>Dann die Reparatur</h3>
 <ol start="5">
-<li>Schau rechts unter <strong>Visualisierungen</strong> in das Feld <strong>Wert</strong>. Dort steht
+<li>Schau rechts unter <strong>Visualisierungen</strong> in das Feld <strong>Werte</strong>. Dort steht
    <code>Summe von Marge</code>. Klick auf den kleinen <strong>Pfeil nach unten</strong> direkt daneben.</li>
 <li>Es klappt eine Liste auf: <strong>Summe · Mittelwert · Minimum · Maximum ·
    Anzahl (eindeutig) · Anzahl</strong> und weitere. Wähle <strong>Mittelwert</strong>.</li>
@@ -604,17 +757,19 @@ Mal: alle Werte zusammenzählen und durch ihre Anzahl teilen.</p>
 <ol start="7">
 <li>Die Zahl ist jetzt klein, etwa <code>0,32</code>. Das stimmt zwar, liest sich aber
    schlecht. Also formatieren wir die Spalte einmal richtig:
-   - Klick links am Bildschirmrand auf die <strong>Tabellenansicht</strong> (Gittersymbol).
-   - Klick oben auf die Spaltenüberschrift <strong>Marge</strong>.
-   - Im Menüband erscheint der Reiter <strong>Spaltentools</strong>. Klick dort auf das
-     <strong>%-Zeichen</strong> (in der Gruppe <em>Formatierung</em>).
-   - Stell rechts daneben die <strong>Dezimalstellen</strong> von <code>Auto</code> auf <strong>1</strong>.
-   - Zurück zur <strong>Berichtsansicht</strong> (oberstes Symbol links).</li>
+   <ul>
+   <li>Klick links am Bildschirmrand auf die <strong>Tabellenansicht</strong> (zweites Symbol, Gitter).</li>
+   <li>Klick oben auf die Spaltenüberschrift <strong>Marge</strong>.</li>
+   <li>Im Menüband erscheint der Reiter <strong>Spaltentools</strong>. Klick dort auf das
+     <strong>%-Zeichen</strong> (in der Gruppe <em>Formatierung</em>).</li>
+   <li>Stell rechts daneben die <strong>Dezimalstellen</strong> von <code>Auto</code> auf <strong>1</strong>.</li>
+   <li>Zurück zur <strong>Berichtsansicht</strong> (oberstes Symbol links).</li>
+   </ul></li>
 </ol>
 <h2 class="pp-check-titel">✅ Kontrollpunkt</h2>
 <blockquote class="pp-check">
 <p>Die zweite Karte zeigt jetzt: <strong>31,8 %</strong>.</p>
-<p>Steht da etwas anderes? → Häufigste Ursache: Im Feld <strong>Wert</strong> steht noch
+<p>Steht da etwas anderes? → Häufigste Ursache: Im Feld <strong>Werte</strong> steht noch
 <code>Summe von Marge</code> statt <code>Durchschnitt von Marge</code>. Prüf Schritt 5 und 6.</p>
 <p>Oder: <a href="https://github.com/Losveratos/powerbi-einstieg/releases/latest/download/business_checkpoint_visuals.pbix">Checkpoint-Datei laden</a> und ab Schritt 8
 weitermachen.</p>
@@ -643,14 +798,129 @@ deutlich weniger übrig.</p>
 <blockquote class="pp-note">
 <p><strong>Für Genaue:</strong> Ein einfacher Durchschnitt über alle Aufträge gewichtet jeden
 Auftrag gleich — ein 50-€-Auftrag zählt so viel wie ein 5.000-€-Auftrag.
-Sauber wäre eine nach Umsatz gewichtete Marge. Für „fällt hier etwas auf?"
-reicht der Durchschnitt völlig; die gewichtete Rechnung kommt im Aufbaupfad.</p>
+Sauber ist eine nach Umsatz gewichtete Marge. Für „fällt hier etwas auf?"
+reicht der Durchschnitt völlig; die gewichtete Rechnung baust du gleich im
+optionalen DAX-Teil unten als Measure.</p>
 </blockquote>
 <div class="pp-wort"><div class="pp-wort-label">📖 Neues Wort</div><p><strong>Aggregation.</strong> Aggregation ist die Entscheidung, wie viele Zeilen zu einer
 Zahl zusammengefasst werden: addieren, mitteln, zählen, größten Wert nehmen.
 Power BI wählt automatisch „addieren" — das ist eine Annahme, keine Wahrheit.
 Bei jeder Kennzahl, die ein Anteil, ein Preis, eine Note oder ein Stand ist,
 musst du die Entscheidung selbst treffen.</p></div>
+
+<h2>Optional · Deine ersten Measures (DAX)</h2>
+<p><em>Etwa 25 Minuten · Du kannst direkt zu Modul 6 springen — die Seite aus Modul 4 ist fertig. Für diesen
+Teil gibt es keine Rettungsdatei.</em></p>
+<p>Bisher hat Power BI für dich gerechnet: Spalten mit dem Summenzeichen <strong>Σ</strong> im Bereich <strong>Daten</strong>
+werden automatisch aufsummiert. Ein <strong>Measure</strong> ist dagegen eine Rechenvorschrift, die du selbst schreibst — in
+der Formelsprache <strong>DAX</strong>. Es bekommt einen Namen, ein Taschenrechner-Symbol im Bereich <strong>Daten</strong> und
+rechnet immer im Zusammenhang der Seite: Klickst du einen Filter an, rechnet es neu.</p>
+<div class="pp-wort"><div class="pp-wort-label">📖 Neues Wort</div><p><strong>Measure.</strong> Ein Measure ist eine selbst geschriebene Rechenvorschrift mit Namen —
+zum Beispiel „Umsatz gesamt". Sie speichert kein Ergebnis, sondern wird bei jedem Filterklick
+neu ausgewertet.</p></div>
+
+<h3>Schritt 1 — Ein Measure für den Umsatz</h3>
+<ol>
+<li>Rechtsklick auf die Tabelle <strong>verkaeufe_2025</strong> im Bereich <strong>Daten</strong> → <strong>Neues Measure</strong>.
+   (Dasselbe geht über <strong>Start → Neues Measure</strong> in der Gruppe <em>Berechnungen</em>.)</li>
+<li>In der Formelleiste oben ersetzt du den Text durch diese Zeile und drückst <strong>Enter</strong>:</li>
+</ol>
+<pre><code>Umsatz gesamt = SUM(verkaeufe_2025[Umsatz])</code></pre>
+<p><a href="https://learn.microsoft.com/en-us/dax/sum-function-dax" target="_blank" rel="noopener"><code>SUM</code></a>
+zählt alle Werte der Spalte <code>Umsatz</code> zusammen — genau das, was Power BI vorher von allein getan hat,
+nur dass die Rechnung jetzt einen Namen hat und du sie in weiteren Formeln benutzen kannst. Zieh das Measure
+zur Probe in eine neue Karte: Sie zeigt wieder 2,10 Mio.</p>
+
+<h3>Schritt 2 — Die Marge richtig rechnen</h3>
+<p>Lege zwei weitere Measures an (wieder Rechtsklick auf die Tabelle → <strong>Neues Measure</strong>, eins nach dem anderen):</p>
+<pre><code>Marge in Euro = SUMX(verkaeufe_2025, verkaeufe_2025[Umsatz] * verkaeufe_2025[Marge])
+
+Marge gewichtet = DIVIDE([Marge in Euro], [Umsatz gesamt])</code></pre>
+<p><code>SUMX</code> geht Zeile für Zeile durch die Tabelle, rechnet je Auftrag Umsatz mal Marge (das ist der Gewinn in Euro) und zählt
+die Ergebnisse zusammen. <a href="https://learn.microsoft.com/dax/divide-function-dax" target="_blank" rel="noopener"><code>DIVIDE</code></a>
+teilt den Gewinn durch den Umsatz — und liefert statt eines Fehlers einen leeren Wert, falls einmal durch null geteilt würde.
+So wird jeder Auftrag nach seinem Umsatz gewichtet.</p>
+<p>Markiere das Measure <strong>Marge gewichtet</strong>, klick im Reiter <strong>Measuretools</strong> auf das <strong>%-Zeichen</strong> und
+stell die Dezimalstellen auf <strong>1</strong>. Zieh es in eine neue Karte.</p>
+<h2 class="pp-check-titel">✅ Kontrollpunkt</h2>
+<blockquote class="pp-check">
+<p>Die Karte zeigt <strong>30,0 %</strong> — nicht 31,8 % wie der einfache Durchschnitt. Klickst du im Balkendiagramm auf
+<strong>Nord</strong>, steht dort <strong>23,2 %</strong>. (Die Marge in Euro beträgt insgesamt rund 630.600 €.)</p>
+<p>Zeigt Power BI einen Syntaxfehler? → Prüf, ob die Anführungszeichen und Klammern stimmen und ob die Namen
+genau so geschrieben sind wie im Bereich <strong>Daten</strong>. Wenn du unter
+<strong>Datei → Optionen → Regionale Einstellungen</strong> <em>Lokalisierte DAX-Trennzeichen</em> eingeschaltet hast, brauchst du
+Semikolons (<code>;</code>) statt Kommas zwischen den Argumenten. Standard sind Kommas.</p>
+</blockquote>
+<blockquote class="pp-tip">
+<p>💡 Du musst nicht alles selbst tippen: Die <strong>Quick Measures</strong> (Reiter <strong>Start</strong>, Gruppe <em>Berechnungen</em>)
+schreiben gängige Formeln nach deinen Angaben für dich — gut zum Lernen. Und bei Zahlen, die als Anteil gemeint sind, gilt immer:
+erst Zähler und Nenner getrennt summieren, dann teilen. Nie Prozentwerte mitteln, die schon geteilt sind.</p>
+</blockquote>
+
+<h3>Schritt 3 — Umsatz seit Jahresbeginn (YTD)</h3>
+<p>Zeitrechnungen wie „seit Jahresbeginn“ brauchen eine <strong>Datumstabelle</strong>: eine eigene Tabelle mit genau einer
+Zeile pro Tag, ohne Lücken, über ganze Jahre. Das ist die Voraussetzung für die klassischen DAX-Zeitfunktionen.</p>
+<blockquote class="pp-warn">
+<p>⚠️ <strong>Speichere vorher eine Kopie</strong> (<strong>Datei → Speichern unter</strong>, zum Beispiel <code>business_dax</code>).
+Sobald du eine eigene Datumstabelle als solche markierst, entfernt Power BI die automatisch erzeugten, versteckten
+Datumstabellen. Visuals, die auf deren Hierarchie beruhen — wie die Liniendiagramme aus Modul 3 und 5 —
+können danach anders aussehen oder fehlerhaft sein.</p>
+</blockquote>
+<ol>
+<li><strong>Tabelle anlegen.</strong> <strong>Modellierung → Neue Tabelle</strong>, dann in die Formelleiste:
+<pre><code>Kalender =
+ADDCOLUMNS(
+    CALENDARAUTO(),
+    "Monat Nr", MONTH([Date]),
+    "Monat", FORMAT([Date], "MMM")
+)</code></pre>
+<a href="https://learn.microsoft.com/en-us/dax/calendarauto-function-dax" target="_blank" rel="noopener"><code>CALENDARAUTO</code></a>
+erzeugt von allein eine lückenlose Spalte <code>Date</code> mit allen Tagen der Jahre, die in deinen Daten vorkommen
+(hier: 1. Januar bis 31. Dezember 2025). <code>ADDCOLUMNS</code> hängt zwei Spalten an: die Monatsnummer zum Sortieren und
+den Monatsnamen zum Anzeigen.</li>
+<li><strong>Beziehung ziehen.</strong> Klick links auf das dritte Symbol, die <strong>Modellansicht</strong>. Zieh die Spalte
+<code>Date</code> aus <strong>Kalender</strong> auf die Spalte <code>Auftragsdatum</code> in <strong>verkaeufe_2025</strong>. Es erscheint eine
+Linie zwischen den Tabellen: eine <strong>Beziehung</strong>, sie leitet Filter von der Kalender- in die Umsatztabelle weiter.</li>
+<li><strong>Als Datumstabelle markieren.</strong> Rechtsklick auf <strong>Kalender</strong> im Bereich <strong>Daten</strong> →
+<strong>Als Datumstabelle markieren</strong> (englisch <em>Mark as date table</em>) und die Spalte <code>Date</code> wählen. Power BI prüft,
+ob die Daten eindeutig, ohne leere Werte und lückenlos sind.</li>
+<li><strong>Monate richtig sortieren.</strong> Tabellenansicht → Tabelle <strong>Kalender</strong> → Spalte <strong>Monat</strong> markieren →
+im Reiter <strong>Spaltentools</strong> auf <strong>Nach Spalte sortieren</strong> → <strong>Monat Nr</strong>. Sonst steht „Apr“ vor „Jan“.</li>
+<li><strong>Measure anlegen</strong> (wieder in <strong>verkaeufe_2025</strong>):
+<pre><code>Umsatz YTD = TOTALYTD([Umsatz gesamt], Kalender[Date])</code></pre>
+<a href="https://learn.microsoft.com/dax/totalytd-function-dax" target="_blank" rel="noopener"><code>TOTALYTD</code></a>
+summiert den Umsatz vom 1. Januar bis zum jeweiligen Datum — für jeden Monat in der Auswertung neu.</li>
+<li><strong>Anzeigen.</strong> Neues <strong>Liniendiagramm</strong>: <strong>Kalender → Monat</strong> auf die X-Achse, <strong>Umsatz gesamt</strong> und
+<strong>Umsatz YTD</strong> auf die Y-Achse.</li>
+</ol>
+<h2 class="pp-check-titel">✅ Kontrollpunkt</h2>
+<blockquote class="pp-check">
+<p>Die YTD-Linie steigt von Monat zu Monat und endet im Dezember bei <strong>2.100.088 €</strong> (die Summe des ganzen Jahres).
+Im März steht sie bei rund <strong>510.500 €</strong> — das sind Januar, Februar und März zusammen. Die Umsatz-Linie
+daneben schwankt, die YTD-Linie nie.</p>
+<p>Steht bei jedem Monat der gleiche Wert? → Dann fehlt die Beziehung aus Schritt 2 oder sie zeigt in die falsche Richtung. In der
+Modellansicht muss die Linie von <code>Date</code> (Seite „1“) zu <code>Auftragsdatum</code> (Seite „*“) laufen.</p>
+</blockquote>
+<blockquote class="pp-note">
+<p><strong>Stand Oktober 2026:</strong> Neben diesem klassischen Weg gibt es die <em>kalenderbasierte Zeitintelligenz</em>
+(Vorschau, Schalter <strong>Enhanced DAX Time Intelligence</strong> unter <strong>Vorschaufeatures</strong>). Du definierst darin einen Kalender
+auf der Tabelle, schreibst <code>TOTALYTD([Umsatz gesamt], 'Kalender')</code> und musst die Tabelle dafür meist nicht mehr als
+Datumstabelle markieren. Sie kann auch Fiskaljahre und Wochen. Für den Einstieg bleib beim klassischen Weg; <code>TOTALYTD</code> ist übrigens nur
+die Kurzform von <code>CALCULATE</code> mit <code>DATESYTD</code>.
+Details: <a href="https://learn.microsoft.com/power-bi/transform-model/desktop-time-intelligence" target="_blank" rel="noopener">Zeitbasierte Berechnungen in Power BI</a>.</p>
+</blockquote>
+<aside class="pp-vertiefen" aria-label="Weiter vertiefen">
+<div class="pp-vertiefen-label">Weiter vertiefen</div>
+<ul class="pp-links">
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=YxS238qvD3s" target="_blank" rel="noopener">#003 · Das größte DAX-No-Go? FORMAT() im Measure!</a><span class="pp-links-sub">Kurzvideo (76 s): Formatierung nicht ins Measure schreiben — sonst wird aus der Zahl ein Text.</span></span></li>
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=6gQiIbyhWEc&amp;t=443s" target="_blank" rel="noopener">Power BI Update September 2025 · ab 7:23</a><span class="pp-links-sub">Die neue Kalenderlogik für DAX-Zeitintelligenz: Kalenderoptionen, mehrere Kalendertypen, Fiskaljahr.</span></span></li>
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=GsLfiuPlsQE" target="_blank" rel="noopener">Visual Calculations erklärt — Prozent vom übergeordneten Wert</a><span class="pp-links-sub">Anteile direkt im Visual berechnen, ohne ein Measure zu schreiben — der nächste Schritt nach diesem Teil.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/power-bi/transform-model/desktop-tutorial-create-measures" target="_blank" rel="noopener">Tutorial: Eigene Measures in Power BI Desktop erstellen</a><span class="pp-links-sub">Formelleiste, Vorschlagsliste, Measures in Measures.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/power-bi/guidance/model-date-tables" target="_blank" rel="noopener">Datumstabellen in Power BI Desktop</a><span class="pp-links-sub">Anforderungen an eine Datumstabelle und die Wege, sie zu erzeugen.</span></span></li>
+<li><span class="pp-tag pp-tag-lib">Library</span><span><a href="wissensgraph/thema/dax.html">DAX in der DatenWG Library</a></span></li>
+<li><span class="pp-tag pp-tag-guide">Guide</span><span><a href="power_bi_einsteiger_guide_v4.html#dax">Power BI von A bis Z · Kapitel DAX</a></span></li>
+</ul>
+</aside>
 <h2>Weiter</h2>
 <p>→ <a href="#modul-6">Modul 6 · Fertig machen</a></p>
 </section>
@@ -670,27 +940,73 @@ Rechner.</p>
    auf <strong>28</strong> ein. Schieb das Textfeld an den oberen Rand der Seite.</li>
 <li><strong>Aufräumen.</strong> Ordne die fünf Bilder so an, dass nichts überlappt und nichts
    über den Seitenrand ragt. Ein einfaches Raster, das immer funktioniert:
-   - oben: der Titel über die ganze Breite
-   - darunter links: die zwei Karten nebeneinander
-   - rechts daneben: das Balkendiagramm
-   - unten über die ganze Breite: die beiden Liniendiagramme nebeneinander
-   - der Datenschnitt in eine freie Ecke</li>
+   <ul>
+   <li>oben: der Titel über die ganze Breite</li>
+   <li>darunter links: die zwei Karten nebeneinander</li>
+   <li>rechts daneben: das Balkendiagramm</li>
+   <li>unten über die ganze Breite: die beiden Liniendiagramme nebeneinander</li>
+   <li>der Datenschnitt in eine freie Ecke</li>
+   </ul></li>
+<li><strong>Optional: Farben auf einmal ändern.</strong> Im Menüband gibt es einen Reiter <strong>Design</strong>
+   (je nach Version: <strong>Anzeigen → Designs</strong>) mit einer Galerie fertiger Designs. Ein Klick färbt alle Visuals
+   des Berichts auf einmal um. Was du an einem einzelnen Visual von Hand eingestellt hast, behält Vorrang.</li>
 <li><strong>Seite benennen.</strong> Ganz unten steht ein Reiter <strong>Seite 1</strong>. Doppelklick
    darauf und tipp <code>Überblick</code>.</li>
 <li><strong>Speichern.</strong> <strong>Datei → Speichern unter</strong>, Dateiname zum Beispiel
    <code>business_fertig</code>, Endung <code>.pbix</code>. Speicher die Datei irgendwo, wo du sie
    wiederfindest.</li>
 <li><strong>Als PDF exportieren.</strong> <strong>Datei → Exportieren → In PDF exportieren</strong>.
-   Power BI erzeugt eine PDF-Datei mit deiner Seite und öffnet sie.</li>
+   Power BI erzeugt eine PDF-Datei mit deiner Seite und öffnet sie in deinem Standard-PDF-Programm.
+   Währenddessen lässt sich der Bericht kurz nicht bedienen.</li>
 </ol>
 <figure class="pp-shot"><img src="assets/praxis-pfad/modul-06-export.png" alt="Datei → Exportieren — markiert ist „In PDF exportieren“." loading="lazy"><figcaption>Datei → Exportieren — markiert ist „In PDF exportieren“.</figcaption></figure>
 
+<h2>Und wenn ich das teilen will?</h2>
+<p>Im Menüband gibt es den Knopf <strong>Veröffentlichen</strong> (Reiter <strong>Start</strong>, Gruppe <em>Freigeben</em>). Er lädt den
+Bericht in den <strong>Power BI Service</strong> — die Online-Seite von Power BI (<code>app.powerbi.com</code>), in der andere
+ihn anschauen können. Der Ablauf:</p>
+<ol>
+<li><strong>Start → Veröffentlichen</strong>, bei Bedarf speichern.</li>
+<li>Anmelden — mit einem <strong>Geschäfts- oder Schulkonto</strong>. Private Adressen wie @gmail.com oder @hotmail.com
+   werden vom Power BI Service nicht unterstützt. (Wer nur eine private Adresse hat, legt laut Microsoft zuerst ein
+   Microsoft-365-Testkonto an; Hinweise dazu stehen
+   <a href="https://learn.microsoft.com/power-bi/fundamentals/service-self-service-signup-purchase-for-power-bi" target="_blank" rel="noopener">hier</a>.)</li>
+<li>Ziel wählen — zum Beispiel <strong>Mein Arbeitsbereich</strong> (englisch <em>My workspace</em>, dein persönlicher Bereich) → <strong>Auswählen</strong>.</li>
+<li>Am Ende erscheint ein Link <strong>„… in Power BI öffnen“</strong>. Dort kannst du oben <strong>Freigeben</strong> wählen, um andere einzuladen.</li>
+</ol>
+<p>Ob das klappt, hängt an deiner <strong>Lizenz</strong>. Die Lizenzen im Überblick (Stand Oktober 2026):</p>
+<table>
+<thead>
+<tr>
+<th>Lizenz</th>
+<th>Was du damit kannst</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Kostenlos</strong> (Fabric Free)</td>
+<td>Inhalte für dich selbst in <em>Mein Arbeitsbereich</em> bauen. Geteilte Inhalte nur ansehen, wenn sie in einer Premium- oder Fabric-Kapazität liegen. Nicht teilen, nicht in andere Arbeitsbereiche veröffentlichen.</td>
+</tr>
+<tr>
+<td><strong>Power BI Pro</strong></td>
+<td>In Arbeitsbereiche veröffentlichen, teilen, zusammenarbeiten. Die Empfänger brauchen ebenfalls Pro — außer der Inhalt liegt in einer Premium- oder Fabric-Kapazität.</td>
+</tr>
+<tr>
+<td><strong>Premium pro Nutzer</strong> (PPU)</td>
+<td>Alles von Pro plus Premium-Funktionen. Teilen nur mit anderen PPU-Nutzern — außer der Inhalt liegt in einem Arbeitsbereich auf Premium-Kapazität.</td>
+</tr>
+</tbody>
+</table>
+<p>Eine Besonderheit: Leser mit kostenloser Lizenz kommen auf Inhalte, wenn diese in einer <strong>Premium-Kapazität (P)</strong>
+oder in einer <strong>Fabric-Kapazität ab F64</strong> liegen. Bei kleineren Fabric-Kapazitäten (F2 bis F32) brauchen auch die Leser
+eine Pro-Lizenz. Quelle:
+<a href="https://learn.microsoft.com/power-bi/fundamentals/service-features-license-type" target="_blank" rel="noopener">Lizenzarten in Power BI und Fabric</a>
+und <a href="https://learn.microsoft.com/power-bi/collaborate-share/service-share-dashboards" target="_blank" rel="noopener">Teilen und Zusammenarbeiten</a>.</p>
 <blockquote class="pp-tip">
-<p><strong>Und wenn ich das teilen will?</strong> Im Menüband gibt es einen Knopf
-<strong>Veröffentlichen</strong>. Der lädt den Bericht ins Internet, damit andere ihn
-anschauen können — dafür brauchst du allerdings ein Geschäfts- oder
-Schulkonto. Mit einer privaten Adresse geht das nicht. Für diesen Pfad ist
-das PDF der Abschluss.</p>
+<p><strong>Und der Copilot?</strong> Der Copilot-Knopf steht im Menüband immer da. Nutzbar ist er aber nur, wenn du Zugriff auf einen
+Arbeitsbereich mit bezahlter Fabric-Kapazität (ab F2) oder Premium-Kapazität (ab P1) hast, in dem Copilot aktiviert ist —
+oder wenn dein Unternehmen dir eine Fabric-Copilot-Kapazität zugewiesen hat. Testkapazitäten zählen nicht. Mit einer Free- oder
+Pro-Lizenz allein geht es nicht. Für diesen Pfad brauchst du ihn nicht; das PDF ist der Abschluss.</p>
 </blockquote>
 <div class="pp-wort"><div class="pp-wort-label">📖 Neues Wort</div><p><strong>Visual.</strong> Jedes einzelne Bild auf der Seite — Karte, Balken, Linie,
 Datenschnitt — heißt in Power BI ein <strong>Visual</strong>. Eine Seite voller Visuals, die
@@ -705,6 +1021,20 @@ exportieren.</p>
 <p>Oder: <a href="https://github.com/Losveratos/powerbi-einstieg/releases/latest/download/business_fertig.pbix">fertigen Bericht ansehen</a> — so hätte es
 aussehen können.</p>
 </blockquote>
+<aside class="pp-vertiefen" aria-label="Weiter vertiefen">
+<div class="pp-vertiefen-label">Weiter vertiefen</div>
+<ul class="pp-links">
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=3mwlFE7TWuY" target="_blank" rel="noopener">#002 · Alle Farben im Bericht auf einmal ändern</a><span class="pp-links-sub">Kurzvideo (63 s): Designs im Menüband — alle Visuals auf einmal umfärben, eigene Farbe wählen.</span></span></li>
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=7xYgX6lWhuQ&amp;t=10s" target="_blank" rel="noopener">Power BI Update Juli 2026 · ab 0:10</a><span class="pp-links-sub">Berichtsdesign direkt im Bericht anpassen: Designvorlagen und Themes ohne Umweg über das Menüband.</span></span></li>
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=256s" target="_blank" rel="noopener">Daten-WG Life-Update · Fabric Architekturen · ab 4:16</a><span class="pp-links-sub">Praxisbeispiel zu Lizenzen: Ein Kunde startet mit F64, um Nutzerlizenzen zu sparen.</span></span></li>
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=gMYj9UTWeWk" target="_blank" rel="noopener">#011 · Power BI ohne Fabric? Absolut!</a><span class="pp-links-sub">Kurzvideo (33 s): erst die Power-BI-Grundlagen, dann prüfen, ob Fabric dazukommt.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/power-bi/create-reports/desktop-upload-desktop-files" target="_blank" rel="noopener">Semantikmodelle und Berichte aus Power BI Desktop veröffentlichen</a><span class="pp-links-sub">Der Weg von Veröffentlichen bis zum Link in den Service.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/power-bi/collaborate-share/end-user-pdf" target="_blank" rel="noopener">Berichte als PDF exportieren</a><span class="pp-links-sub">Desktop und Service; Einschränkungen und Hinweise zum Export.</span></span></li>
+<li><span class="pp-tag pp-tag-lib">Library</span><span><a href="wissensgraph/thema/lizenzen.html">Lizenzen in der DatenWG Library</a></span></li>
+<li><span class="pp-tag pp-tag-lib">Library</span><span><a href="wissensgraph/thema/power-bi-service.html">Power BI Service in der DatenWG Library</a></span></li>
+<li><span class="pp-tag pp-tag-guide">Guide</span><span><a href="power_bi_einsteiger_guide_v4.html#service">Power BI von A bis Z · Kapitel Service</a></span></li>
+</ul>
+</aside>
 <hr />
 <h2>🎉 Geschafft</h2>
 <p>Du hast eine unordentliche Datei aus einem System genommen, sie sauber gemacht,
@@ -712,7 +1042,7 @@ drei Fragen daran beantwortet, sie filterbar gemacht und dabei etwas gefunden,
 das auf den ersten Blick nicht zu sehen war. Das ist der komplette Ablauf — bei
 jedem echten Projekt ist es genau dieser, nur mit mehr Daten.</p>
 <h2>Dein Glossar</h2>
-<p>Sieben Wörter, die du jetzt kennst:</p>
+<p>Sieben Wörter, die du jetzt kennst (acht, wenn du den optionalen DAX-Teil gemacht hast):</p>
 <table>
 <thead>
 <tr>
@@ -749,12 +1079,23 @@ jedem echten Projekt ist es genau dieser, nur mit mehr Daten.</p>
 <td><strong>Aggregation</strong></td>
 <td>Die Entscheidung, wie viele Zeilen zu einer Zahl werden: addieren, mitteln, zählen.</td>
 </tr>
+<tr>
+<td><strong>Measure</strong> (optional)</td>
+<td>Eine selbst geschriebene Rechenvorschrift in DAX, die bei jedem Filter neu rechnet.</td>
+</tr>
 </tbody>
 </table>
 <h2>Und weiter?</h2>
 <ul>
 <li><strong>Optional, 10 Minuten:</strong> <a href="#exkurs">Exkurs · Warum deine Excel-Tabelle nicht passt</a></li>
 <li>Nimm eine eigene Datei und mach genau dasselbe damit. Das ist die beste Übung.</li>
+<li><strong>Der nächste große Schritt:</strong> der Guide <a href="power_bi_einsteiger_guide_v4.html">Power BI von A bis Z</a>.
+   Passend zu dem, was du gerade gemacht hast:
+   <a href="power_bi_einsteiger_guide_v4.html#pq">Power Query vertiefen</a>,
+   <a href="power_bi_einsteiger_guide_v4.html#model">Datenmodell und Beziehungen</a>,
+   <a href="power_bi_einsteiger_guide_v4.html#dax">DAX</a>,
+   <a href="power_bi_einsteiger_guide_v4.html#viz">Visualisierung</a> und
+   <a href="power_bi_einsteiger_guide_v4.html#service">Veröffentlichen im Service</a>.</li>
 </ul>
 </section>
 
@@ -849,19 +1190,39 @@ wie du sie in Modul 3 benutzt hast. Genau so wollen es alle Auswertungswerkzeuge
 <p>Power BI macht aus den Monatsspalten zwei neue Spalten: <strong>Attribut</strong> (der
 Monatsname) und <strong>Wert</strong> (die Zahl). Die kannst du dann umbenennen, und die
 Tabelle ist lang statt breit.</p>
+<p>Warum <strong>Andere Spalten</strong> und nicht einfach alle Monatsspalten markieren? Kommen im nächsten Jahr
+neue Monatsspalten dazu, werden sie beim Aktualisieren automatisch mit entpivotiert. Wer die
+Monate einzeln markiert, muss nachbessern.</p>
 <h2>Wenn du weitermachen willst</h2>
 <p>Dieser Pfad hatte genau <strong>eine</strong> Tabelle. Echte Auswertungen haben mehrere —
 Aufträge, Kunden, Produkte, Kalender — die über gemeinsame Schlüssel verbunden
 werden. Diese Verbindungen heißen <strong>Beziehungen</strong>, und die übliche Anordnung
-dafür heißt <strong>Sternschema</strong>. Das ist der nächste Schritt, wenn dir eine Tabelle
-nicht mehr reicht.</p>
+dafür heißt <strong>Sternschema</strong>: In der Mitte stehen die Ereignisse (<em>Faktentabelle</em>, hier die Aufträge),
+drumherum die Dinge, nach denen du filterst und gruppierst (<em>Dimensionstabellen</em>, hier zum Beispiel Kalender,
+Produkte, Regionen). Beziehungen siehst und baust du in der <strong>Modellansicht</strong> (dritte Symbol links) — mit
+dem Kalender aus dem optionalen DAX-Teil in Modul 5 hast du schon eine gebaut. Das ist der nächste Schritt, wenn dir
+eine Tabelle nicht mehr reicht.</p>
+<aside class="pp-vertiefen" aria-label="Weiter vertiefen">
+<div class="pp-vertiefen-label">Weiter vertiefen</div>
+<ul class="pp-links">
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=2107s" target="_blank" rel="noopener">Daten-WG Life-Update · Fabric Architekturen · ab 35:07</a><span class="pp-links-sub">Die „dämliche Excel-Kreuztabelle“: wie sie entpivotiert wird und warum sie in Fachbereichen so häufig vorkommt.</span></span></li>
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=517s" target="_blank" rel="noopener">Denken in Tabellen · ab 8:37</a><span class="pp-links-sub">Sternschema statt Flat Table: bessere Filterlogik, weniger Excel-Schmerz.</span></span></li>
+<li><span class="pp-tag pp-tag-video">Video</span><span><a href="https://www.youtube.com/watch?v=WLiGuGjE5m8" target="_blank" rel="noopener">#004 · Bidirektionale Filterung? Meistens ein Fehler!</a><span class="pp-links-sub">Kurzvideo (61 s): Warum Filter, die in beide Richtungen laufen, schnell unvorhersehbar werden — gut zu wissen, sobald du mehrere Tabellen verbindest.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/power-query/unpivot-column" target="_blank" rel="noopener">Spalten entpivotieren</a><span class="pp-links-sub">Alle drei Varianten mit Beispiel und dem Verhalten bei neuen Spalten.</span></span></li>
+<li><span class="pp-tag pp-tag-learn">Learn</span><span><a href="https://learn.microsoft.com/power-bi/guidance/star-schema" target="_blank" rel="noopener">Sternschema und Power BI</a><span class="pp-links-sub">Fakten- und Dimensionstabellen, Measures, Rollen von Datumstabellen.</span></span></li>
+<li><span class="pp-tag pp-tag-lib">Library</span><span><a href="wissensgraph/thema/sternschema.html">Sternschema in der DatenWG Library</a></span></li>
+<li><span class="pp-tag pp-tag-guide">Guide</span><span><a href="power_bi_einsteiger_guide_v4.html#model">Power BI von A bis Z · Kapitel Datenmodell</a></span></li>
+</ul>
+</aside>
 <h2>Zurück</h2>
 <p>→ <a href="#modul-6">Modul 6 · Fertig machen</a></p>
 </section>
 
   <footer class="pp-foot">
-    <p>Alle Kontrollzahlen in diesem Pfad sind aus den echten Daten berechnet und in
-    Power BI Desktop nachgeprüft. Die Datenquelle ist simuliert:
+    <p>Alle Kontrollzahlen in diesem Pfad sind aus den echten Daten berechnet (im Oktober 2026 noch einmal
+    nachgerechnet; die Zahlen des optionalen DAX-Teils stammen aus derselben Rechnung). Menüpfade und Funktionsstatus
+    sind gegen Microsoft Learn geprüft, Stand Oktober 2026; einzelne Bildschirmfotos zeigen noch ältere Desktop-Versionen.
+    Die Datenquelle ist simuliert:
     <a href="https://raw.githubusercontent.com/Losveratos/powerbi-einstieg/main/data/business/verkaeufe_2025.csv">verkaeufe_2025.csv</a>.</p>
     <p>Steckst du fest? An jedem Kontrollpunkt liegt eine fertige Datei zum
     Weitermachen. <a href="https://github.com/Losveratos/powerbi-einstieg/releases/latest/download/business_fertig.pbix">Den Endstand ansehen</a>.</p>
