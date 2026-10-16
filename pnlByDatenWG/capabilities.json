@@ -468,6 +468,217 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "template": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "off",
+                                "displayName": "Off (classic table)"
+                            },
+                            {
+                                "value": "T01A",
+                                "displayName": "T01A"
+                            },
+                            {
+                                "value": "T01B",
+                                "displayName": "T01B"
+                            },
+                            {
+                                "value": "T02A",
+                                "displayName": "T02A"
+                            },
+                            {
+                                "value": "T02B",
+                                "displayName": "T02B"
+                            },
+                            {
+                                "value": "T02C",
+                                "displayName": "T02C"
+                            },
+                            {
+                                "value": "T02E",
+                                "displayName": "T02E"
+                            },
+                            {
+                                "value": "T02F",
+                                "displayName": "T02F"
+                            },
+                            {
+                                "value": "T03A",
+                                "displayName": "T03A"
+                            },
+                            {
+                                "value": "T03B",
+                                "displayName": "T03B"
+                            },
+                            {
+                                "value": "T04A",
+                                "displayName": "T04A"
+                            }
+                        ]
+                    }
+                },
+                "templateApplied": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "minuend": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "ac",
+                                "displayName": "AC"
+                            },
+                            {
+                                "value": "fc",
+                                "displayName": "FC"
+                            }
+                        ]
+                    }
+                },
+                "showPY": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showPL": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showMinuend": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPyAbs": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPyBar": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPyPct": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPyPin": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPlAbs": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPlBar": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPlPct": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPlPin": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "secondBlock": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "structureSubtotals": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showPctRows": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "thresholds": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "thresholdAbs": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "thresholdPct": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "thresholdYtdAbs": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "thresholdYtdPct": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "scenarioMarks": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "chartLabels": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "capBars": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "sort": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "cat",
+                                "displayName": "Category order"
+                            },
+                            {
+                                "value": "min",
+                                "displayName": "AC/FC descending"
+                            },
+                            {
+                                "value": "delta",
+                                "displayName": "Δ descending"
+                            }
+                        ]
+                    }
+                },
+                "sortBlock": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "period",
+                                "displayName": "Month block"
+                            },
+                            {
+                                "value": "ytd",
+                                "displayName": "YTD block"
+                            }
+                        ]
+                    }
                 }
             }
         },

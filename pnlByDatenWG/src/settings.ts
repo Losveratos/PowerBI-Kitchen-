@@ -88,7 +88,58 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
         this.showPeriods, this.showUnit, this.showDensity, this.showLevels, this.showOptions];
 }
 
-export class ColumnsCardSettings extends FormattingSettingsCard {
+const templateItems: powerbi.IEnumMember[] = [
+    { value: "off", displayName: "Off (classic table)" },
+    { value: "T01A", displayName: "T01A · structure, values + Δ, month | YTD" },
+    { value: "T01B", displayName: "T01B · T01A with subtotal blocks" },
+    { value: "T02A", displayName: "T02A · ΔPL bars + pins, month | YTD" },
+    { value: "T02B", displayName: "T02B · T02A sorted by AC (YTD)" },
+    { value: "T02C", displayName: "T02C · T02A sorted by Δ (month)" },
+    { value: "T02E", displayName: "T02E · FC vs PY bars + pins" },
+    { value: "T02F", displayName: "T02F · FC vs PL bars + pins" },
+    { value: "T03A", displayName: "T03A · statement PY·PL·AC + ΔPY·ΔPL" },
+    { value: "T03B", displayName: "T03B · statement PY·PL·FC + ΔPY·ΔPL" },
+    { value: "T04A", displayName: "T04A · statement ΔPL bars + pins" }
+];
+
+const minuendItems: powerbi.IEnumMember[] = [
+    { value: "ac", displayName: "AC (actual)" },
+    { value: "fc", displayName: "FC (forecast)" }
+];
+
+const megaSortItems: powerbi.IEnumMember[] = [
+    { value: "cat", displayName: "Category order" },
+    { value: "min", displayName: "AC/FC descending" },
+    { value: "delta", displayName: "Δ descending" }
+];
+
+const sortBlockItems: powerbi.IEnumMember[] = [
+    { value: "period", displayName: "Month block" },
+    { value: "ytd", displayName: "YTD block" }
+];
+
+/** a plain on/off switch of the mega-table group */
+const megaToggle = (name: string, displayName: string, value: boolean, description?: string): formattingSettings.ToggleSwitch =>
+    new formattingSettings.ToggleSwitch({
+        name, displayName, displayNameKey: "Mega_" + name.charAt(0).toUpperCase() + name.slice(1),
+        description, value
+    });
+
+/** threshold input (negative = below this the Δ number turns red) */
+const megaThreshold = (name: string, displayName: string, value: number): formattingSettings.NumUpDown =>
+    new formattingSettings.NumUpDown({
+        name, displayName, displayNameKey: "Mega_" + name.charAt(0).toUpperCase() + name.slice(1), value
+    });
+
+/**
+ * Columns card. Since the mega table it is a composite card with two groups:
+ * "General" keeps every slice it always had (same property names, same
+ * defaults), "Mega table" holds the IBCS template switches (SPEC-MEGATABLE.md,
+ * "Schalter-Liste"). Every switch acts on its own; the template dropdown only
+ * writes their defaults (see Visual.applyMegaTemplate). With all column
+ * switches off — the default — the classic table renders unchanged.
+ */
+export class ColumnsCardSettings extends formattingSettings.CompositeCard {
     preset = new formattingSettings.ItemDropdown({
         name: "preset",
         displayName: "Default column preset",
@@ -187,12 +238,104 @@ export class ColumnsCardSettings extends FormattingSettingsCard {
         value: true
     });
 
+    // ---- mega table (IBCS templates T01–T04) ----
+    template = new formattingSettings.ItemDropdown({
+        name: "template",
+        displayName: "Template (IBCS table)",
+        displayNameKey: "Mega_Template",
+        description: "Sets the switches below to the template defaults — afterwards every switch is free",
+        items: templateItems,
+        value: templateItems[0]
+    });
+
+    minuend = new formattingSettings.ItemDropdown({
+        name: "minuend",
+        displayName: "Analysed scenario (minuend)",
+        displayNameKey: "Mega_Minuend",
+        description: "AC filled, FC hatched — Δ columns compare it with PY / PL",
+        items: minuendItems,
+        value: minuendItems[0]
+    });
+
+    showPY = megaToggle("showPY", "Value column PY", false);
+    showPL = megaToggle("showPL", "Value column PL", false);
+    showMinuend = megaToggle("showMinuend", "Value column AC / FC", false);
+    dPyAbs = megaToggle("dPyAbs", "ΔPY as number", false);
+    dPyBar = megaToggle("dPyBar", "ΔPY as bars", false);
+    dPyPct = megaToggle("dPyPct", "ΔPY% as number", false);
+    dPyPin = megaToggle("dPyPin", "ΔPY% as pins", false);
+    dPlAbs = megaToggle("dPlAbs", "ΔPL as number", false);
+    dPlBar = megaToggle("dPlBar", "ΔPL as bars", false);
+    dPlPct = megaToggle("dPlPct", "ΔPL% as number", false);
+    dPlPin = megaToggle("dPlPin", "ΔPL% as pins", false);
+    secondBlock = megaToggle("secondBlock", "Second period block (month | _YTD)", false,
+        "Needs the period role: the month of the last actuals left, the year to date right");
+    structureSubtotals = megaToggle("structureSubtotals", "Subtotal blocks (structure data)", true,
+        "Regions / structure hierarchies: subtotal blocks with a spacer row; off = leaves + total only");
+    showPctRows = megaToggle("showPctRows", "Margin / % rows", true);
+    thresholds = megaToggle("thresholds", "Δ in red if below threshold (+ footer)", false);
+    thresholdAbs = megaThreshold("thresholdAbs", "Threshold Δ (month / single block)", -20);
+    thresholdPct = megaThreshold("thresholdPct", "Threshold Δ% (month / single block)", -10);
+    thresholdYtdAbs = megaThreshold("thresholdYtdAbs", "Threshold Δ (_YTD block)", -220);
+    thresholdYtdPct = megaThreshold("thresholdYtdPct", "Threshold Δ% (_YTD block)", -10);
+    scenarioMarks = megaToggle("scenarioMarks", "Scenario underlines (head + closing)", true);
+    chartLabels = megaToggle("chartLabels", "Numbers at bars / pins", true);
+    capBars = megaToggle("capBars", "Outlier arrows for Δ bars too", false,
+        "Pins always cap outliers (Q3 + 4 × IQR); this extends it to the Δ bars");
+
+    sort = new formattingSettings.ItemDropdown({
+        name: "sort",
+        displayName: "Sort (structure data)",
+        displayNameKey: "Mega_Sort",
+        description: "Per subtotal block; rows named Other … stay at the bottom",
+        items: megaSortItems,
+        value: megaSortItems[0]
+    });
+
+    sortBlock = new formattingSettings.ItemDropdown({
+        name: "sortBlock",
+        displayName: "Sorting block",
+        displayNameKey: "Mega_SortBlock",
+        items: sortBlockItems,
+        value: sortBlockItems[1]
+    });
+
+    general = new formattingSettings.Group({
+        name: "columnsGeneral",
+        displayName: "General",
+        displayNameKey: "Columns_GroupGeneral",
+        slices: [this.preset, this.reference, this.periodSort, this.pctRevenue, this.revenueBase,
+            this.hideZeroRows, this.fitWidth, this.treeRoot, this.treeLevel, this.treeCard,
+            this.treeStatus]
+    });
+
+    mega = new formattingSettings.Group({
+        name: "columnsMega",
+        displayName: "Mega table (IBCS templates)",
+        displayNameKey: "Columns_GroupMega",
+        collapsible: true,
+        slices: [this.template, this.minuend, this.showPY, this.showPL, this.showMinuend,
+            this.dPyAbs, this.dPyBar, this.dPyPct, this.dPyPin,
+            this.dPlAbs, this.dPlBar, this.dPlPct, this.dPlPin,
+            this.secondBlock, this.structureSubtotals, this.showPctRows,
+            this.thresholds, this.thresholdAbs, this.thresholdPct, this.thresholdYtdAbs, this.thresholdYtdPct,
+            this.scenarioMarks, this.chartLabels, this.capBars, this.sort, this.sortBlock]
+    });
+
     name: string = "columns";
     displayName: string = "Columns";
     displayNameKey: string = "Card_Columns";
-    slices = [this.preset, this.reference, this.periodSort, this.pctRevenue, this.revenueBase,
-        this.hideZeroRows, this.fitWidth, this.treeRoot, this.treeLevel, this.treeCard,
-        this.treeStatus];
+    groups = [this.general, this.mega];
+
+    /** pane gates: threshold inputs only with thresholds on, the sorting block only with two blocks */
+    onPreProcess(): void {
+        const th = this.thresholds.value;
+        this.thresholdAbs.visible = th;
+        this.thresholdPct.visible = th;
+        this.thresholdYtdAbs.visible = th && this.secondBlock.value;
+        this.thresholdYtdPct.visible = th && this.secondBlock.value;
+        this.sortBlock.visible = this.secondBlock.value && String(this.sort.value.value) !== "cat";
+    }
 }
 
 export class NumbersCardSettings extends FormattingSettingsCard {

@@ -32,9 +32,13 @@ import {
     buildModel, flattenVisible, collapseToLevel, variance, displayValue,
     parseRowType, parseBool, parseSign, rowsFromLevels, aggregateMonthly,
     isZeroRow, revenueBase, formulaOperands, nodeResolver, Variance,
-    syntheticTotal, TOTAL_ID, parsePeriod,
+    syntheticTotal, TOTAL_ID, parsePeriod, displayVariance,
     FormulaOp, InputRow, LevelInputRow, PeriodSort, PnlModel, PnlNode, Scenario,
 } from "./engine";
+import {
+    layoutMega, paintMega, megaActive, activeRefs, MEGA_PRESETS,
+    MegaBlock, MegaDelta, MegaRef, MegaRow, MegaScen, MegaToggles,
+} from "./megatable";
 
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const NBSP_GROUP = " "; // narrow space, IBCS number grouping
@@ -488,6 +492,27 @@ export class Visual implements IVisual {
     private resolveFn: ((id: string) => PnlNode | undefined) | null = null;
     private resolveVer = -1;
 
+    // --- mega table (IBCS templates T01–T04, see SPEC-MEGATABLE.md) ---
+    /**
+     * Template switch we just persisted but the host has not echoed back yet —
+     * the echo-guard + TTL pattern of ChartKitchen (AGENT-GUIDE, persistProperties):
+     * while it lives, a stale metadata update cannot turn the freshly written
+     * switches back; after `ttl` updates the pane value wins again, so a lost
+     * echo never pins a value forever.
+     */
+    private megaPending: {
+        applied: string;
+        cols: Record<string, boolean | string>;
+        nums: Record<string, number>;
+        ttl: number;
+    } | null = null;
+    /** template applied in this session — a lost echo must not re-apply it in a loop */
+    private megaSessionTpl: string | null = null;
+    /** text measure of the mega table (canvas, lazily created) */
+    private measureCtx: CanvasRenderingContext2D | null = null;
+    /** Intl number formats of the mega table per decimal count */
+    private megaNf = new Map<string, Intl.NumberFormat>();
+
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
         this.events = options.host.eventService;
@@ -558,6 +583,7 @@ export class Visual implements IVisual {
             }
             this.syncSelectionColumn(dataView);
             this.buildStatusWarnings();
+            this.syncMegaTemplate(dataView);
             this.syncUiState(dataView);
             this.render();
             this.events.renderingFinished(options);
@@ -1428,7 +1454,8 @@ export class Visual implements IVisual {
         if (this.settings.toolbarCard.show.value) { head.appendChild(this.buildToolbar()); }
         if (this.awaitingSegment) { head.appendChild(this.buildLoadingBar()); }
         if (this.settings.toolbarCard.showLegend.value) { head.appendChild(this.buildLegend()); }
-        if (ui.view !== "tree") { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
+        const mega = this.megaOn();
+        if (ui.view !== "tree" && !mega) { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
         if (head.childElementCount > 0) {
             this.root.appendChild(head);
             this.headEl = head;
@@ -1467,6 +1494,13 @@ export class Visual implements IVisual {
                 }
                 this.zoomPostLayout();
             }
+        } else if (mega) {
+            // the mega table lays itself out to the viewport (chart columns
+            // share the free width) — no fit passes, no windowing
+            this.root.appendChild(this.buildMega(fmt));
+            this.buildFootnotes(fmt);
+            this.root.appendChild(this.buildFooter());
+            this.root.scrollTop = keepScroll;
         } else {
             // fit mode needs the table on screen before it can solve — the
             // row-label column is auto-width, so it is measured, not guessed,
@@ -1529,6 +1563,13 @@ export class Visual implements IVisual {
             zoomHead.style.top = top + "px";
             zoomHead.style.boxShadow = `0 -1px 0 ${this.pageBg()}`;
             top += Math.round(zoomHead.getBoundingClientRect().height);
+        }
+        // the mega table's head svg is an ordinary block — it sticks by itself
+        const megaHead = this.root.querySelector('[data-pnl="mega-head-wrap"]') as HTMLElement | null;
+        if (megaHead) {
+            megaHead.style.position = "sticky";
+            megaHead.style.top = top + "px";
+            megaHead.style.zIndex = "20";
         }
         this.buildFloatHead(top);
     }
@@ -1746,10 +1787,16 @@ export class Visual implements IVisual {
             ? this.yearPrefix(`${this.monthLabel(months[0])}..${this.monthLabel(months[months.length - 1])} (_${this.ytdMarker()})`)
             : "";
         const scen = ["AC", this.has.py ? "PY" : "", this.has.pl ? "PL" : ""].filter(Boolean).join(", ");
+        // mega table: the scenarios and Δ references its columns really show
+        const mt = this.megaOn() && this.ui!.view === "table" ? this.megaToggles() : null;
+        const megaScen = mt ? [mt.showPY ? "PY" : "", mt.showPL ? "PL" : "", mt.min].filter(Boolean).join(", ") : "";
+        const megaRefs = mt ? activeRefs(mt).join(", ") : "";
         const lines = [
             t.unitLine.value.trim(),
             t.measureLine.value.trim() || (this.str("Income statement (P&L)", "GuV (P&L)") + (fmt.suffix ? ` in ${fmt.suffix}${this.settings.numbersCard.unitText.value}` : "")),
-            t.periodLine.value.trim() || [autoPeriod, scen && `${scen} · Δ ${this.ui!.ref.toUpperCase()}`].filter(Boolean).join(": "),
+            t.periodLine.value.trim() || [autoPeriod, mt
+                ? megaScen + (megaRefs ? ` · Δ ${megaRefs}` : "")
+                : scen && `${scen} · Δ ${this.ui!.ref.toUpperCase()}`].filter(Boolean).join(": "),
         ].filter(s => s !== "");
         lines.forEach((line, i) => {
             const el = document.createElement("div");
@@ -1863,18 +1910,22 @@ export class Visual implements IVisual {
         // depth of the opened graph.
         const tableViews = ui.view !== "tree" && !inZoom;
         const isTree = ui.view === "tree" && !inZoom;
+        // the mega table takes its columns from the format pane switches —
+        // presets, Δ reference, period blocks and fit belong to the classic table
+        const mega = ui.view === "table" && this.megaOn();
+        const classic = tableViews && !mega;
 
         const presets: [Preset, string][] = [
             ["full", "AC·PY·PL·FC"], ["acref", "AC vs Ref"], ["dall", "AC vs PY·PL·FC"],
             ["acpydpy", "AC·PY·ΔPY"], ["acpldpl", "AC·PL·ΔPL"], ["dpct", "ΔPY% · ΔPL%"],
         ];
-        if (tset.showPresets.value && tableViews) {
+        if (tset.showPresets.value && classic) {
             bar.appendChild(this.tbGroup(this.str("Column preset", "Spalten-Preset"),
                 presets.map(([p, label]) => this.tbBtn(label, ui.preset === p, () => { ui.preset = p; }))));
         }
 
         const refs: Scenario[] = (["py", "pl", "fc"] as Scenario[]).filter(s => this.has[s]);
-        if (refs.length > 0 && tset.showReference.value && (tableViews || isTree || inZoom)) {
+        if (refs.length > 0 && tset.showReference.value && (classic || isTree || inZoom)) {
             bar.appendChild(this.tbGroup("Δ " + this.str("reference", "Referenz"),
                 refs.map(r => this.tbBtn(r.toUpperCase(), ui.ref === r, () => { ui.ref = r; }))));
         }
@@ -1887,7 +1938,7 @@ export class Visual implements IVisual {
         if (this.has.fcfy && this.has.plfy) {
             pb.push(this.tbBtn("FY", ui.blocks.fy, () => { ui.blocks.fy = !ui.blocks.fy; }));
         }
-        if (pb.length > 1 && tset.showPeriods.value && tableViews) {
+        if (pb.length > 1 && tset.showPeriods.value && classic) {
             bar.appendChild(this.tbGroup(this.str("Periods", "Perioden"), pb));
         }
 
@@ -1946,7 +1997,12 @@ export class Visual implements IVisual {
             bar.appendChild(this.tbGroup(this.str("Expand to level", "Bis Ebene"), lvlBtns));
         }
 
-        if (tset.showOptions.value && tableViews) { bar.appendChild(this.tbGroup(this.str("Options", "Optionen"), [
+        if (tset.showOptions.value && mega) {
+            bar.appendChild(this.tbGroup(this.str("Options", "Optionen"), [
+                this.tbBtn(this.str("Hide zero rows", "Nullzeilen aus"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
+            ]));
+        }
+        if (tset.showOptions.value && classic) { bar.appendChild(this.tbGroup(this.str("Options", "Optionen"), [
             this.tbBtn(this.str("% of revenue", "% vom Umsatz"), ui.pctRev, () => { ui.pctRev = !ui.pctRev; }),
             this.tbBtn(this.str("Hide zero rows", "Nullzeilen aus"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
             this.tbBtn("Fit", ui.fit, () => { ui.fit = !ui.fit; },
@@ -5474,6 +5530,402 @@ export class Visual implements IVisual {
             inner.appendChild(this.treeCardG(c, { cw, s, fmt, svg }, c !== rootCard && c.hasKids));
         }
         wrap.appendChild(svg);
+        return wrap;
+    }
+
+    // ---------------- mega table (IBCS templates T01–T04) ----------------
+
+    /**
+     * The format-pane switches as one toggle set. Scenarios the data does not
+     * carry are switched off here — an unbound PY never leaves an empty column;
+     * an unbound FC minuend falls back to AC.
+     */
+    private megaToggles(): MegaToggles {
+        const cc = this.settings.columnsCard;
+        const has = this.has;
+        const min = String(cc.minuend.value.value) === "fc" && has.fc ? "FC" : "AC";
+        return {
+            min,
+            showPY: cc.showPY.value && has.py,
+            showPL: cc.showPL.value && has.pl,
+            showMin: cc.showMinuend.value,
+            d: {
+                PY: {
+                    num: cc.dPyAbs.value && has.py, bar: cc.dPyBar.value && has.py,
+                    pct: cc.dPyPct.value && has.py, pin: cc.dPyPin.value && has.py,
+                },
+                PL: {
+                    num: cc.dPlAbs.value && has.pl, bar: cc.dPlBar.value && has.pl,
+                    pct: cc.dPlPct.value && has.pl, pin: cc.dPlPin.value && has.pl,
+                },
+            },
+            thresholds: cc.thresholds.value,
+            marks: cc.scenarioMarks.value,
+            labels: cc.chartLabels.value,
+            capBars: cc.capBars.value,
+            sort: (["cat", "min", "delta"].includes(String(cc.sort.value.value))
+                ? String(cc.sort.value.value) : "cat") as MegaToggles["sort"],
+            sortBlock: String(cc.sortBlock.value.value) === "period" ? 0 : 1,
+        };
+    }
+
+    /** the mega table replaces the classic table as soon as one column switch is on */
+    private megaOn(): boolean {
+        return this.model != null && megaActive(this.megaToggles());
+    }
+
+    /**
+     * Template dropdown → switches. A template only writes defaults: the visual
+     * notices a template that differs from the last applied one (the hidden
+     * property columns.templateApplied), sets every switch of the preset at once
+     * — locally, so this very render already shows it — and persists them
+     * together with the new templateApplied. Afterwards every switch is free.
+     * Echo guard + TTL: until the host echoes the write back, a stale update
+     * keeps the written values instead of flipping the pane back for a frame.
+     */
+    private syncMegaTemplate(dataView: DataView): void {
+        const cc = this.settings.columnsCard;
+        const nc = this.settings.numbersCard;
+        const objs = dataView?.metadata?.objects?.["columns"];
+        const persisted = objs && objs["templateApplied"] != null ? String(objs["templateApplied"]) : "off";
+        let applied = persisted;
+        const pend = this.megaPending;
+        if (pend) {
+            let synced = persisted === pend.applied;
+            for (const [k, v] of Object.entries(pend.cols)) {
+                if (!this.megaSliceIs(k, v)) { synced = false; this.megaSliceSet(k, v); }
+            }
+            for (const [k, v] of Object.entries(pend.nums)) {
+                const sl = k === "decimals" ? nc.decimals : nc.pctDecimals;
+                if (sl.value !== v) { synced = false; sl.value = v; }
+            }
+            pend.ttl--;
+            if (synced || pend.ttl <= 0) { this.megaPending = null; }
+            if (!synced && this.megaPending) { applied = pend.applied; }
+        }
+        const tpl = String(cc.template.value.value);
+        if (tpl === applied) { this.megaSessionTpl = null; return; }
+        if (!MEGA_PRESETS[tpl] || tpl === this.megaSessionTpl) { return; }
+        this.applyMegaTemplate(tpl);
+    }
+
+    private applyMegaTemplate(tpl: string): void {
+        const p = MEGA_PRESETS[tpl];
+        const cols: Record<string, boolean | string> = {
+            minuend: p.min.toLowerCase(),
+            showPY: p.showPY, showPL: p.showPL, showMinuend: p.showMin,
+            dPyAbs: p.dPyAbs, dPyBar: p.dPyBar, dPyPct: p.dPyPct, dPyPin: p.dPyPin,
+            dPlAbs: p.dPlAbs, dPlBar: p.dPlBar, dPlPct: p.dPlPct, dPlPin: p.dPlPin,
+            secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, showPctRows: p.showPctRows,
+            thresholds: p.thresholds, scenarioMarks: p.scenarioMarks, chartLabels: p.chartLabels,
+            capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock,
+        };
+        // "off" returns to the classic table and leaves the number format alone
+        const nums: Record<string, number> = tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: p.pctDecimals };
+        for (const [k, v] of Object.entries(cols)) { this.megaSliceSet(k, v); }
+        const nc = this.settings.numbersCard;
+        if (nums.decimals != null) { nc.decimals.value = nums.decimals; }
+        if (nums.pctDecimals != null) { nc.pctDecimals.value = nums.pctDecimals; }
+        this.megaPending = { applied: tpl, cols, nums, ttl: 5 };
+        this.megaSessionTpl = tpl;
+        const merge: powerbi.VisualObjectInstance[] = [
+            { objectName: "columns", selector: null, properties: { ...cols, templateApplied: tpl } },
+        ];
+        if (tpl !== "off") { merge.push({ objectName: "numbers", selector: null, properties: { ...nums } }); }
+        this.host.persistProperties({ merge });
+    }
+
+    /** a mega switch of the columns card by property name (toggle or dropdown) */
+    private megaSlice(k: string): { value: unknown; items?: powerbi.IEnumMember[] } | null {
+        const cc = this.settings.columnsCard as unknown as Record<string, { value: unknown; items?: powerbi.IEnumMember[] }>;
+        return cc[k] ?? null;
+    }
+    private megaSliceIs(k: string, v: boolean | string): boolean {
+        const sl = this.megaSlice(k);
+        if (!sl) { return true; }
+        if (sl.items) { return String((sl.value as powerbi.IEnumMember).value) === String(v); }
+        return sl.value === v;
+    }
+    private megaSliceSet(k: string, v: boolean | string): void {
+        const sl = this.megaSlice(k);
+        if (!sl) { return; }
+        if (sl.items) {
+            const it = sl.items.find(x => String(x.value) === String(v));
+            if (it) { sl.value = it; }
+        } else { sl.value = v; }
+    }
+
+    /** statement (GuV) data vs. a pure structure hierarchy (regions, products …) */
+    private megaStatement(): boolean {
+        for (const n of this.model!.byId.values()) {
+            const r = n.row;
+            if (r.rowType === "formula" || r.rowType === "kpi" || r.sign < 0 || r.displayInvert) { return true; }
+        }
+        return false;
+    }
+
+    /** raw (calculation-signed) value of a scenario in a period block */
+    private megaRaw(node: PnlNode, block: "mtd" | "ytd", s: Scenario): number | null {
+        if (block === "mtd") {
+            const li = this.mtdIndex();
+            return li >= 0 ? (node.series[s]?.[li] ?? null) : null;
+        }
+        // the period-matched YTD window of the classic table (see ytdDisplay)
+        if (this.ytdFull() || node.row.rowType === "kpi") { return node.computed[s]; }
+        return this.ytdRawSum(node, s);
+    }
+
+    /** long month name of a period key ("November"), the author's label otherwise */
+    private megaMonthName(m: string): string {
+        const p = parsePeriod(m);
+        if (p && (/^\d{4}[-/]\d{1,2}/.test(m) || /^\d{1,2}$/.test(m.trim()))) {
+            return new Date(p.y ?? 2000, p.m - 1, 1).toLocaleDateString(this.locale, { month: "long" });
+        }
+        return m;
+    }
+
+    /**
+     * Rows of the mega table in IBCS statement order: children first, their
+     * total below (T01B / T03), spacer rows before a new block. Sign column
+     * (statement data): formula rows and the chain start (the first top-level
+     * total) read "=", their summands "+" / "−" by DisplayInvert, deeper blocks
+     * are indented without a sign (T03 "− Operating expenses").
+     */
+    private megaRows(statement: boolean): { rows: MegaRow[]; nodes: Map<string, PnlNode> } {
+        const model = this.model!; const ui = this.ui!;
+        const cc = this.settings.columnsCard;
+        const collapsed = new Set(ui.collapsed);
+        const showPct = cc.showPctRows.value;
+        const subtotals = statement || cc.structureSubtotals.value;
+        const nodes = new Map<string, PnlNode>();
+        type Item = { node: PnlNode | null; kind: MegaRow["kind"]; level: number; op: string };
+        const items: Item[] = [];
+        const roots = model.roots;
+        const first = roots.find(r => r.row.rowType !== "separator");
+        const chainStart = statement && first && first.hasChildren
+            && (first.row.rowType === "subtotal" || first.row.rowType === "account") ? first : null;
+        const glyph = (n: PnlNode): string => n.row.displayInvert ? "-" : "+";
+        const keep = (n: PnlNode): boolean => !(ui.hideZero && isZeroRow(n));
+
+        const emit = (n: PnlNode, under: PnlNode | null): void => {
+            const t = n.row.rowType;
+            if (t === "separator") { items.push({ node: null, kind: "gap", level: 0, op: "" }); return; }
+            if (t === "kpi" && !showPct) { return; }
+            const open = n.hasChildren && !collapsed.has(n.row.id);
+            if (open) { for (const c of n.children) { emit(c, n); } }
+            // structure data without subtotal blocks: only leaves and the top totals
+            if (open && !subtotals && n.level > 0) { return; }
+            if (!keep(n)) { return; }
+            const kind: MegaRow["kind"] = t === "formula" ? "formula" : t === "kpi" ? "pct"
+                : t === "subtotal" || n.hasChildren || n.isOrphanBucket ? "sum" : "acc";
+            let level = 0; let op = "";
+            if (statement) {
+                const inChain = chainStart != null && under === chainStart;
+                level = Math.max(0, n.level - (inChain || this.megaUnderChain(n, chainStart) ? 1 : 0));
+                if (t === "kpi") { op = ""; }
+                else if (n.level === 0) { op = t === "formula" || n === chainStart ? "=" : glyph(n); }
+                else if (inChain) { op = glyph(n); }
+            }
+            items.push({ node: n, kind, level, op });
+        };
+        for (const r of roots) { emit(r, null); }
+
+        // leaf names that repeat ("Other" per region) get their parent's name
+        // when the subtotal blocks are folded away (T01A "Other Europe")
+        const dupe = new Map<string, number>();
+        if (!subtotals) {
+            for (const it of items) { if (it.node) { dupe.set(it.node.row.name, (dupe.get(it.node.row.name) ?? 0) + 1); } }
+        }
+
+        // comment footnotes are numbered in reading order of this table
+        this.comments = [];
+        this.commentNo.clear();
+        const out: MegaRow[] = [];
+        let prev: Item | null = null;
+        for (const it of items) {
+            if (!it.node) {
+                if (out.length && out[out.length - 1].kind !== "gap") { out.push(this.megaGap()); }
+                continue;
+            }
+            const n = it.node;
+            // spacer row: a new block after a bold total (T03), and the grand
+            // total right below its last subtotal block (T01B "World")
+            if (prev && prev.node && it.kind !== "pct" && (
+                (prev.kind === "sum" || prev.kind === "formula") && it.kind === "acc"
+                || it.kind === "sum" && prev.kind === "sum" && prev.node.row.parent === n.row.id && subtotals && !statement
+            )) {
+                if (out.length && out[out.length - 1].kind !== "gap") { out.push(this.megaGap()); }
+            }
+            nodes.set(n.row.id, n);
+            const suffix: { t: string; color: string }[] = [];
+            if (n.row.comment) {
+                const no = this.comments.length + 1;
+                this.comments.push({ n: no, node: n, text: n.row.comment });
+                this.commentNo.set(n.row.id, no);
+                suffix.push({ t: " " + String.fromCharCode(0x2460 + no - 1), color: C.comment });
+            }
+            if (n.error) { suffix.push({ t: " ⚠ " + n.error, color: this.badColor() }); }
+            if (n.hasChildren && collapsed.has(n.row.id)) { suffix.push({ t: " ▸", color: C.soft }); }
+            if (this.awaitingSegment && (it.kind === "sum" || it.kind === "formula" || it.kind === "pct")) {
+                suffix.push({ t: " ≈", color: C.loading });
+            }
+            const parent = n.row.parent ? model.byId.get(n.row.parent) : undefined;
+            const name = (dupe.get(n.row.name) ?? 0) > 1 && parent ? `${n.row.name} ${parent.row.name}` : n.row.name;
+            out.push({
+                id: n.row.id,
+                label: (n.isOrphanBucket ? "⚠ " : "") + name,
+                kind: it.kind, op: it.op, level: it.level,
+                group: n.row.parent,
+                other: /^(other|others|sonstige|übrige|rest)\b/i.test(n.row.name.trim()),
+                suffix: suffix.length ? suffix : undefined,
+            });
+            if (it.kind !== "pct") { prev = it; }
+        }
+        while (out.length && out[out.length - 1].kind === "gap") { out.pop(); }
+        return { rows: out, nodes };
+    }
+
+    private megaGap(): MegaRow {
+        return { id: "", label: "", kind: "gap", op: "", level: 0, group: null, other: false };
+    }
+
+    /** true when an ancestor of `n` is the statement's chain start (indent one level less) */
+    private megaUnderChain(n: PnlNode, chain: PnlNode | null): boolean {
+        if (!chain) { return false; }
+        let pid = n.row.parent;
+        const byId = this.model!.byId;
+        for (let i = 0; pid != null && i < 64; i++) {
+            if (pid === chain.row.id) { return true; }
+            pid = byId.get(pid)?.row.parent ?? null;
+        }
+        return false;
+    }
+
+    /** locale number text of a non-negative value, narrow space as grouping */
+    private megaNum(abs: number, dec: number): string {
+        const key = String(dec);
+        let nf = this.megaNf.get(key);
+        if (!nf) {
+            nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+            this.megaNf.set(key, nf);
+        }
+        return nf.formatToParts(abs).map(p => (p.type === "group" ? NBSP_GROUP : p.value)).join("");
+    }
+
+    private megaMeasure(t: string, fs: number, bold: boolean, italic: boolean): number {
+        if (!this.measureCtx) {
+            const cv = document.createElement("canvas");
+            this.measureCtx = cv.getContext("2d");
+        }
+        const ctx = this.measureCtx;
+        if (!ctx) { return t.length * fs * 0.55; }
+        ctx.font = `${italic ? "italic " : ""}${bold ? "bold " : ""}${fs}px ${FONT}`;
+        return ctx.measureText(t).width;
+    }
+
+    private buildMega(fmt: Fmt): HTMLElement {
+        const model = this.model!; const ui = this.ui!;
+        const cc = this.settings.columnsCard;
+        const t = this.megaToggles();
+        const statement = this.megaStatement();
+        const { rows, nodes } = this.megaRows(statement);
+        const months = model.months;
+        const twoBlocks = cc.secondBlock.value && months.length > 1;
+        const keys: ("mtd" | "ytd")[] = twoBlocks ? ["mtd", "ytd"] : ["ytd"];
+        const li = this.mtdIndex();
+        const monthName = months.length > 0 ? this.megaMonthName(months[li >= 0 ? li : months.length - 1]) : "";
+        const SC: Record<MegaScen, Scenario> = { AC: "ac", FC: "fc", PY: "py", PL: "pl" };
+        const num = (v: unknown, d: number): number => { const x = Number(v); return isFinite(x) ? x : d; };
+        const th = [
+            { abs: num(cc.thresholdAbs.value, -20), pct: num(cc.thresholdPct.value, -10) / 100 },
+            { abs: num(cc.thresholdYtdAbs.value, -220), pct: num(cc.thresholdYtdPct.value, -10) / 100 },
+        ];
+        const div = fmt.div;
+        const blocks: MegaBlock[] = keys.map((key, bi) => ({
+            name: !monthName ? "" : key === "mtd" ? monthName : (twoBlocks || !statement ? "_" + monthName : monthName),
+            th: th[bi],
+            value: (r: MegaRow, s: MegaScen): number | null => {
+                const n = nodes.get(r.id);
+                if (!n) { return null; }
+                const raw = this.megaRaw(n, key, SC[s]);
+                if (raw == null) { return null; }
+                const v = n.row.displayInvert ? -raw : raw;
+                return n.row.rowType === "kpi" ? v : v / div;
+            },
+            delta: (r: MegaRow, min: MegaScen, ref: MegaRef): MegaDelta | null => {
+                const n = nodes.get(r.id);
+                if (!n) { return null; }
+                const D = displayVariance(n.row, this.megaRaw(n, key, SC[min]), this.megaRaw(n, key, SC[ref]));
+                if (!D) { return null; }
+                return D.pp ? D : { ...D, d: D.d / div, impact: D.impact / div };
+            },
+        }));
+        const fscale = this.fontScale();
+        const fs = Math.round((ui.density === "compact" ? 11 : 13) * fscale);
+        const avail = (this.root.clientWidth || 1000) - 2 * TABLE_PAD_X;
+        const L = layoutMega({
+            rows, blocks, t, statement, fs, viewW: Math.max(320, avail),
+            dec: this.settings.numbersCard.decimals.value,
+            pdec: this.settings.numbersCard.pctDecimals.value,
+            num: (a, d) => this.megaNum(a, d),
+            measure: (s, f, b, i) => this.megaMeasure(s, f, b, i),
+            pal: { good: this.goodColor(), bad: this.badColor() },
+            redIf: this.str("Δ in red if:", "Δ rot, wenn:"),
+        });
+        const ns = "http://www.w3.org/2000/svg";
+        const painted = paintMega(L, {
+            font: FONT,
+            headInk: this.settings.styleCard.headerColor.value?.value || C.text,
+            hatchPattern: (svg, id, color) => this.hatchPattern(svg, ns, id, color),
+            uid: this.uid,
+            selectedId: this.interactive() ? this.selKey : null,
+            selWash: this.accentSoft(0.94),
+            selAccent: this.accent(),
+        });
+
+        // interactions: the label folds a block, the rest of the row selects
+        for (const h of painted.hits) {
+            const node = nodes.get(h.r.id);
+            if (!node) { continue; }
+            const canSelect = this.selectable(node);
+            if (canSelect) {
+                h.cells.style.cursor = "pointer";
+                this.bindSelect(h.cells, node, true);
+                const cap = this.selCapNote(node);
+                if (cap !== "") {
+                    const tt = document.createElementNS(ns, "title");
+                    tt.textContent = this.str("Selection", "Selektion") + cap;
+                    h.cells.appendChild(tt);
+                }
+            }
+            if (node.hasChildren) {
+                h.label.style.cursor = "pointer";
+                const open = !ui.collapsed.includes(node.row.id);
+                h.label.addEventListener("click", (e: Event) => {
+                    e.stopPropagation();
+                    if (open) { ui.collapsed.push(node.row.id); }
+                    else { ui.collapsed = ui.collapsed.filter(id => id !== node.row.id); }
+                    this.persistUi(); this.rerender();
+                });
+                if (canSelect) { this.bindSelect(h.label, node, false); }
+            } else if (canSelect) {
+                h.label.style.cursor = "pointer";
+                this.bindSelect(h.label, node, true);
+            } else {
+                h.label.setAttribute("pointer-events", "none");
+            }
+        }
+
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "mega");
+        wrap.style.cssText = `padding:2px ${TABLE_PAD_X}px 8px ${TABLE_PAD_X}px;width:max-content;`;
+        const headWrap = document.createElement("div");
+        headWrap.setAttribute("data-pnl", "mega-head-wrap");
+        headWrap.style.cssText = `background:${this.pageBg()};`;
+        headWrap.appendChild(painted.head);
+        wrap.appendChild(headWrap);
+        wrap.appendChild(painted.body);
+        this.tableEl = null;
         return wrap;
     }
 
