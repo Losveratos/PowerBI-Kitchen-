@@ -19,13 +19,13 @@ type LocEnumMember = powerbi.IEnumMember & { key: string };
 const orientationItems: LocEnumMember[] = [
     { value: "columns", displayName: "Columns (Time)", key: "Enum_Orientation_Columns" },
     { value: "bars", displayName: "Bars (Structure)", key: "Enum_Orientation_Bars" },
-    { value: "line", displayName: "Line (Time, many points)", key: "Enum_Orientation_Line" },
+    { value: "line", displayName: "Line (long time series)", key: "Enum_Orientation_Line" },
     { value: "waterfall", displayName: "Waterfall / Bridge", key: "Enum_Orientation_Waterfall" },
     { value: "intwaterfall", displayName: "Integrated Bridge (Time)", key: "Enum_Orientation_IntWaterfall" },
     { value: "catbridge", displayName: "Category Bridge (Structure)", key: "Enum_Orientation_CatBridge" },
     { value: "table", displayName: "Table (IBCS)", key: "Enum_Orientation_Table" },
     { value: "pareto", displayName: "Pareto (Structure)", key: "Enum_Orientation_Pareto" },
-    { value: "dumbbell", displayName: "Dumbbell (Structure)", key: "Enum_Orientation_Dumbbell" },
+    { value: "dumbbell", displayName: "Dumbbell · Before/After (Structure)", key: "Enum_Orientation_Dumbbell" },
     { value: "slope", displayName: "Slope · Before/After", key: "Enum_Orientation_Slope" },
     { value: "cards", displayName: "KPI Cards (Tiles)", key: "Enum_Orientation_Cards" },
     { value: "pnl", displayName: "P&L Statement (IBCS)", key: "Enum_Orientation_Pnl" }
@@ -220,7 +220,7 @@ export class IbcsTitleCardSettings extends FormattingSettingsCard {
 export class ChartCardSettings extends formattingSettings.CompositeCard {
     orientation = new formattingSettings.ItemDropdown({
         name: "orientation",
-        displayName: "Orientation",
+        displayName: "Chart type",
         displayNameKey: "Chart_Orientation",
         items: orientationItems,
         value: orientationItems[0]
@@ -308,7 +308,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
 
     topN = new formattingSettings.NumUpDown({
         name: "topN",
-        displayName: "Top N (Bars)",
+        displayName: "Top N (structure modes)",
         displayNameKey: "Chart_TopN",
         description: "Struktur-Modi (Bars, Kategorie-Brücke, Tabelle, Dumbbell, KPI-Karten): zeigt die N größten Kategorien, der Rest wird aggregiert. 0 = alle.",
         descriptionKey: "Desc_Chart_TopN",
@@ -407,9 +407,9 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
 
     waterfallStyle = new formattingSettings.ToggleSwitch({
         name: "waterfallStyle",
-        displayName: "Waterfall bridge",
+        displayName: "Draw as bridge (instead of single bars)",
         displayNameKey: "Chart_WaterfallStyle",
-        description: "Nur Columns/Bars: zeigt die Kategorien als Wasserfall-Brücke von der Basis (PY/PL) zu AC mit Verbindungslinien, statt als einzelne Balken. Optional — Standard ist aus.",
+        description: "Nur Säulen/Balken: zeigt die Kategorien als Wasserfall-Brücke von der Basis (PY/PL) zu AC mit Verbindungslinien, statt als einzelne Balken. Unterschied zum Chart-Typ „Waterfall / Brücke\": Dort kaskadieren die Datenwerte selbst (sum/delta-Zeilen) — dieser Schalter verbrückt die Abweichung zur Basis im Säulen-/Balken-Modus. Optional — Standard ist aus.",
         descriptionKey: "Desc_Chart_WaterfallStyle",
         value: false
     });
@@ -983,8 +983,10 @@ export class LabelsCardSettings extends FormattingSettingsCard {
 
     fontSize = new formattingSettings.NumUpDown({
         name: "fontSize",
-        displayName: "Text size",
+        displayName: "Text size (pt) · fine-tuning",
         displayNameKey: "Labels_FontSize",
+        description: "Feinjustierung: Basis-Schriftgröße der Beschriftungen in pt. Wird mit Preset und Skalierungs-Faktor multipliziert — im Normalfall genügen Preset und „Alle Beschriftungen skalieren %\".",
+        descriptionKey: "Desc_Labels_FontSize",
         value: 10,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 6 },
@@ -1089,7 +1091,6 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         this.labelDensity,
         this.fontPreset,
         this.fontScale,
-        this.fontSize,
         this.decimals,
         this.displayUnits,
         this.financeFormat,
@@ -1097,7 +1098,8 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         this.labelAc,
         this.labelPy,
         this.labelPl,
-        this.labelFc
+        this.labelFc,
+        this.fontSize
     ];
 }
 
@@ -1266,6 +1268,9 @@ export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     scaleCard = new ScaleCardSettings();
     categoryAxisCard = new CategoryAxisCardSettings();
 
-    cards = [this.ibcsTitleCard, this.chartCard, this.colorsCard, this.labelsCard,
-        this.commentsCard, this.scaleCard, this.categoryAxisCard, this.emptyStateCard];
+    // UX-1 (AUDIT-2026-10-UX §1.5): Soll-Kartenreihenfolge — Chart zuerst (Modus-Wahl
+    // rekonfiguriert alles andere), dann Titel, Beschriftungen + Kategorienachse,
+    // Farben, Skala, Kommentare, Leer-Zustand. Reine Anzeige, keine Property-Änderung.
+    cards = [this.chartCard, this.ibcsTitleCard, this.labelsCard, this.categoryAxisCard,
+        this.colorsCard, this.scaleCard, this.commentsCard, this.emptyStateCard];
 }
