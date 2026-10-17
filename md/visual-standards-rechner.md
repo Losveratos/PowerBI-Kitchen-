@@ -407,7 +407,7 @@ Die Simulation zog bis v0.12 nur das Niveau der Kosten zufaellig: gemeinsame Stu
 ## Annahmen-Audit 09/2026
 
 Am 10./11.09.2026 wurden alle Annahmen und die Modellstruktur in sechs unabhaengigen Pruefungen (drei Opus-Audits, Sonnet-Strukturpruefung, Sonnet-Web-Verifikation, Sonnet-Blindschaetzung ohne Kenntnis der bestehenden Werte) geprueft. Ergebnis v0.7: sieben Struktur-Fixes im Rechenkern (Fluktuationsschulung rollendifferenziert, Freigabe je Visual-Paket statt je Chart-Typ, Abkuendigungsrisiko inklusive 60 % des Rollouts, Lizenz-Administration degressiv und bei Site-Lizenz null, Staffel je Jahr, Governance log-linear, Bewertung interner Stunden als Konstante), 24 neu gesetzte Defaults, neue Annahme „neue Reports je Ersteller“, Presets mit Report-Zahlen nach der eigenen Heuristik. Der Parametersatz war in der Summe OSS-feindlich (elf von neunzehn vergleichbaren Werten um Faktor 1,75 bis 3 gegen Open Source, teils doppelt fuer dieselbe Ursache), zugleich fehlte OSS das Rollout-Risiko. Beides ist korrigiert. Vollstaendiger Bericht mit Vorher/Nachher je Preset, allen sechs Pruefberichten und offenen Punkten: `sessions/visual-standards-rechner-audit/README.md` im Repository.
-- Der Share-Link enthaelt die Eingaben unverschluesselt im URL-Fragment. Berechnung lokal im Browser; Google Fonts und (falls die lokale Kopie fehlt) die Excel-Bibliothek werden nachgeladen.
+- Der Share-Link enthaelt die Eingaben unverschluesselt im URL-Fragment. Berechnung lokal im Browser; Schriften und die Excel-Bibliothek werden von der Website selbst ausgeliefert (keine Drittanbieter).
 
 ## Quellen (Auswahl)
 

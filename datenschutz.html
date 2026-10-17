@@ -130,6 +130,13 @@ ul li { margin-bottom: 6px; }
   padding-top: 3px;
 }
 .dataflow dd { color: var(--ink-soft); margin: 0; }
+code { font-size: 12.5px; background: var(--bg-card); border: 1px solid var(--line); padding: 0 4px; border-radius: 4px; overflow-wrap: anywhere; }
+[id] { scroll-margin-top: 80px; }
+@media (max-width: 560px) {
+  .container { padding: 40px 18px 72px; }
+  .dataflow { grid-template-columns: 1fr; gap: 2px 0; }
+  .dataflow dd { margin-bottom: 10px; }
+}
 
 footer.page-footer {
   margin-top: 64px;
@@ -150,6 +157,7 @@ footer.page-footer a:hover { border-color: var(--accent); }
 </style>
 </head>
 <body>
+<script src="assets/js/site-chrome.js" data-chrome="full"></script>
 
 <div class="container">
 
@@ -158,7 +166,7 @@ footer.page-footer a:hover { border-color: var(--accent); }
   <div class="eyebrow">DSGVO · Art. 13</div>
   <h1>Datenschutzerklärung</h1>
 
-  <p><em>Stand: Mai 2026.</em> Diese Seite verarbeitet keine personenbezogenen Daten zu eigenen Zwecken. Es gibt keine Cookies, kein Analytics, keinen Newsletter, kein Tracking. Trotzdem sind beim Aufruf der Seite technisch unvermeidliche Datenverarbeitungen Dritter wirksam — die werden im Folgenden offen benannt.</p>
+  <p><em>Stand: Oktober 2026.</em> Ich setze keine Analyse- oder Tracking-Werkzeuge, keine Werbe-Cookies und keinen Newsletter ein. Schriftarten und Programmbibliotheken liegen auf dieser Website selbst, es gibt also keine Abrufe bei Google Fonts oder fremden CDNs. Beim Aufruf der Seiten werden aber Daten an den Hoster (GitHub) übermittelt. Einige wenige Seiten binden außerdem Inhalte weiterer Anbieter ein, teils erst nach deinem Klick. Welche das sind, auf welchen Seiten und auf welcher Rechtsgrundlage, steht im Folgenden.</p>
 
   <h2>1 · Verantwortlicher</h2>
   <p>
@@ -171,56 +179,93 @@ footer.page-footer a:hover { border-color: var(--accent); }
 
   <h2>2 · Was diese Seite <em>nicht</em> tut</h2>
   <ul>
-    <li>Keine eigenen Cookies oder Local-Storage-Tracker (Ausnahme: rein technische Voreinstellungen wie der „Tags ein-/ausblenden"-Zustand und der Reading-Progress des Einsteiger-Guides bleiben ausschließlich im Browser des Besuchers gespeichert und werden nirgendwohin übermittelt).</li>
+    <li>Keine Cookies zu Analyse-, Werbe- oder Trackingzwecken. Einige Werkzeuge speichern Einstellungen und Arbeitsstände im Local Storage deines Browsers (siehe Abschnitt 2a); diese Daten verlassen dein Gerät nicht.</li>
     <li>Kein Analytics (kein Google Analytics, Matomo, Plausible o.&nbsp;ä.).</li>
     <li>Kein Newsletter, kein Login, keine Formulare, keine Kommentarfunktion.</li>
     <li>Kein Re-Targeting, kein Werbe-Netzwerk, keine Social-Media-Pixel.</li>
+    <li>Keine Schriftarten oder Skripte von Google Fonts oder fremden CDNs: Schriften (SIL Open Font License) und Bibliotheken wie d3 werden von dieser Website selbst ausgeliefert.</li>
   </ul>
 
-  <h2>3 · Hosting · GitHub Pages</h2>
-  <p>Die Seite wird auf <strong>GitHub Pages</strong> (GitHub Inc., 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA) bereitgestellt. Beim Aufruf jeder Seite werden vom Server temporär die folgenden Daten in Server-Logfiles erfasst:</p>
+  <h2 id="local-storage">2a · Speicherung im Browser (Local Storage)</h2>
+  <p>Damit Funktionen, die du aktiv nutzt, beim nächsten Besuch erhalten bleiben, legen einige Seiten Einträge im Local Storage bzw. Session Storage deines Browsers ab. Sie werden nicht an mich oder Dritte übertragen und lassen sich jederzeit über die Browser-Einstellungen („Websitedaten löschen“) entfernen.</p>
+  <dl class="dataflow">
+    <dt>Episoden-Hub</dt><dd>Startseite: gelesene Wegweiser-Karten und Ein-/Ausblende-Zustand der Tags (<code>datenwg.guideRead</code>, <code>datenwg.tagsHidden</code>)</dd>
+    <dt>Guides</dt><dd>Lesefortschritt im Power-BI- und im Fabric-Einsteiger-Guide (<code>pbiGuideV4ReadCards</code>, <code>fabricGuideV1ReadCards</code>)</dd>
+    <dt>Werkzeuge</dt><dd>MockupKitchen: Entwürfe, Panel- und Spracheinstellungen sowie der Hinweis zur Mobilansicht (<code>mockupkitchen.state.v1</code>, <code>mockupkitchen.panels.v1</code>, <code>mockupkitchen.lang</code>, Session Storage <code>mockupkitchen.mobileOk</code>) · Chart-Builder: auf- und zugeklappte Bereiche, Coach-Hinweis, Typ-Gruppen (<code>bcb-collapsed</code>, <code>bcb-subcollapsed</code>, <code>cb_guideCoach_v1</code>, <code>cb_typeGroups</code>) · IBCS-Trainer: Bestwerte je Modus · Power BI on Claude: Farbschema (<code>pboc-theme</code>)</dd>
+    <dt>Event-Rückblick</dt><dd>Merkliste der Daten-WG-Agenda (<code>dwg2026-pins</code>) · Daten-WG-Spiel: Spielstand und Ton-Einstellungen (<code>dwg-game-plan</code>, <code>dwg-game-collected</code>, <code>dwg-game-seen</code>, <code>dwg-muted</code>, <code>dwg-music</code>)</dd>
+    <dt>Library</dt><dd>Wissensgraph: Tour-Hinweis bereits gesehen (<code>dwglib_tour</code>)</dd>
+    <dt>Rechtsgrundlage</dt><dd>§ 25 Abs. 2 Nr. 2 TDDDG (unbedingt erforderlich für einen von dir ausdrücklich gewünschten Dienst); soweit dabei personenbezogene Daten verarbeitet werden, Art. 6 Abs. 1 lit. f DSGVO</dd>
+    <dt>Speicherdauer</dt><dd>bis du die Daten im Browser löschst (Session Storage: bis zum Schließen des Tabs)</dd>
+  </dl>
+  <p>Der Visual-Standards-Rechner kann einen Share-Link erzeugen. Deine Eingaben stehen dann unverschlüsselt im URL-Fragment (hinter dem <code>#</code>); dieser Teil wird nicht an den Server übertragen, ist aber für jeden lesbar, dem du den Link gibst.</p>
+
+  <h2 id="hosting">3 · Hosting · GitHub Pages</h2>
+  <p>Die Seite wird auf <strong>GitHub Pages</strong> (GitHub Inc., 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA) bereitgestellt. Beim Aufruf jeder Seite und jeder Datei (Bilder, Schriften, Skripte, Downloads) werden vom Server die folgenden Daten in Server-Logfiles erfasst:</p>
   <dl class="dataflow">
     <dt>Daten</dt><dd>IP-Adresse · User-Agent · aufgerufene URL · Zeitstempel · Referrer</dd>
     <dt>Zweck</dt><dd>Bereitstellung der Seite und Schutz vor Missbrauch</dd>
-    <dt>Rechtsgrundlage</dt><dd>Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am sicheren Betrieb)</dd>
+    <dt>Rechtsgrundlage</dt><dd>Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am sicheren und zuverlässigen Betrieb)</dd>
+    <dt>Speicherdauer</dt><dd>bestimmt GitHub; ich habe keinen Zugriff auf diese Logfiles (siehe GitHub Privacy Statement)</dd>
     <dt>Drittland</dt><dd>USA · GitHub ist nach dem EU-US Data Privacy Framework zertifiziert</dd>
     <dt>Details</dt><dd><a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub Privacy Statement</a></dd>
   </dl>
+  <p>Downloads (z.&nbsp;B. <code>.pbiviz</code>-Dateien und Beispieldaten) werden ebenfalls von GitHub ausgeliefert, teils von dieser Domain, teils von <code>raw.githubusercontent.com</code> (nur wenn du den jeweiligen Download-Link anklickst).</p>
 
-  <h2>4 · Eingebettete Inhalte Dritter</h2>
-  <p>An mehreren Stellen werden Inhalte von Drittanbietern eingebunden. Beim Laden dieser Inhalte stellt dein Browser eine direkte Verbindung zum jeweiligen Anbieter her — IP-Adresse und ggf. weitere Daten werden dadurch dorthin übermittelt, ohne dass diese Seite Einfluss darauf hat.</p>
+  <h2 id="dritte">4 · Inhalte Dritter</h2>
+  <p>Auf den unten genannten Seiten werden Inhalte von Drittanbietern eingebunden. Beim Laden dieser Inhalte stellt dein Browser eine direkte Verbindung zum jeweiligen Anbieter her; dabei werden mindestens deine IP-Adresse, der User-Agent, die aufgerufene Seite (Referrer) und der Zeitpunkt übermittelt. Für das Einbinden und die damit ausgelöste Übermittlung an den Anbieter bin ich mit diesem gemeinsam verantwortlich; für die weitere Verarbeitung beim Anbieter ist allein dieser verantwortlich.</p>
 
-  <p><strong>4.1 · YouTube</strong></p>
-  <p>Im Hub sind YouTube-Videos erst per Klick einbettbar (Zwei-Klick-Lösung / Lazy-Load: vor dem Klick wird nichts an YouTube übertragen, auch kein Vorschaubild). Ein Hinweis direkt am „Video laden"-Button informiert vor dem Klick über die Datenübertragung. Die Einbettung erfolgt über den erweiterten Datenschutzmodus von YouTube (Domain <code>youtube-nocookie.com</code>). Wird ein Video geladen, gelten die Datenschutzbedingungen von Google.</p>
+  <p id="youtube"><strong>4.1 · YouTube (nur nach Klick)</strong></p>
+  <p>Im Episoden-Hub (Startseite) werden YouTube-Videos erst eingebettet, wenn du auf „Video laden“ klickst (Zwei-Klick-Lösung): Vorher wird nichts an YouTube übertragen, auch kein Vorschaubild. Ein Hinweis am Button informiert vor dem Klick. Die Einbettung erfolgt im erweiterten Datenschutzmodus (<code>youtube-nocookie.com</code>). Nach dem Laden kann YouTube Informationen auf deinem Gerät speichern oder auslesen. Der Wissensgraph (Library) zeigt keine YouTube-Vorschaubilder, sondern nur Links zu YouTube.</p>
   <dl class="dataflow">
-    <dt>Anbieter</dt><dd>Google Ireland Ltd. / Google LLC (USA)</dd>
-    <dt>Daten</dt><dd>u.&nbsp;a. IP-Adresse, Browserdaten, Cookies; bei eingeloggten Nutzern Zuordnung zum Konto</dd>
-    <dt>Rechtsgrundlage</dt><dd>Art. 6 Abs. 1 lit. f DSGVO · Klick = aktive Anforderung</dd>
+    <dt>Anbieter</dt><dd>Google Ireland Ltd., Gordon House, Barrow Street, Dublin 4, Irland / Google LLC (USA)</dd>
+    <dt>Daten</dt><dd>u.&nbsp;a. IP-Adresse, Browserdaten, auf dem Gerät gespeicherte Kennungen; bei eingeloggten Nutzern Zuordnung zum Google-Konto</dd>
+    <dt>Rechtsgrundlage</dt><dd>deine Einwilligung durch den Klick (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG); widerrufbar für die Zukunft, indem du die Seite neu lädst und die Websitedaten löschst</dd>
+    <dt>Drittland</dt><dd>USA · Google LLC ist nach dem EU-US Data Privacy Framework zertifiziert</dd>
     <dt>Details</dt><dd><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a></dd>
   </dl>
 
-  <p><strong>4.2 · Microsoft Power BI</strong></p>
-  <p>Im Einsteiger-Guide („Beispiele"-Sektion) sind drei öffentliche Power-BI-Reports per iframe eingebunden. Diese laden direkt vom Power-BI-Service, sobald die Seite geöffnet wird.</p>
+  <p id="powerbi"><strong>4.2 · Microsoft Power BI (nur nach Klick)</strong></p>
+  <p>Im Power-BI-Einsteiger-Guide („Beispiele“-Sektion) können vier öffentliche Power-BI-Reports und im Beitrag „Wärmestreifen 3D“ ein weiterer Report eingebettet werden. Sie laden erst, wenn du auf „Report laden“ klickst; der Platzhalter weist vorher auf die Verbindung zu Microsoft hin. Nach dem Laden kann der Power-BI-Service Cookies setzen und Informationen auf deinem Gerät speichern.</p>
   <dl class="dataflow">
-    <dt>Anbieter</dt><dd>Microsoft Ireland Operations Ltd. / Microsoft Corp. (USA)</dd>
+    <dt>Anbieter</dt><dd>Microsoft Ireland Operations Ltd., One Microsoft Place, South County Business Park, Leopardstown, Dublin 18, Irland / Microsoft Corp. (USA)</dd>
     <dt>Daten</dt><dd>IP-Adresse, Browserdaten, Cookies des Power-BI-Service</dd>
-    <dt>Rechtsgrundlage</dt><dd>Art. 6 Abs. 1 lit. f DSGVO (Veranschaulichung der Inhalte)</dd>
+    <dt>Rechtsgrundlage</dt><dd>deine Einwilligung durch den Klick (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG); widerrufbar für die Zukunft, indem du die Seite neu lädst und die Websitedaten löschst</dd>
+    <dt>Drittland</dt><dd>USA · Microsoft Corp. ist nach dem EU-US Data Privacy Framework zertifiziert</dd>
     <dt>Details</dt><dd><a href="https://privacy.microsoft.com/de-de/privacystatement" target="_blank" rel="noopener">Microsoft Privacy Statement</a></dd>
   </dl>
 
-  <p><strong>4.3 · Microsoft Learn (Bilder &amp; CDN)</strong></p>
-  <p>An mehreren Stellen im Einsteiger-Guide werden Screenshots direkt vom Microsoft-Learn-CDN geladen.</p>
+  <p id="learn"><strong>4.3 · Microsoft Learn (Screenshots im Power-BI-Einsteiger-Guide)</strong></p>
+  <p>Im Power-BI-Einsteiger-Guide werden einige Screenshots aus der Microsoft-Dokumentation direkt von <code>learn.microsoft.com</code> geladen, und zwar erst, wenn du die Detailansicht einer Karte öffnest. Die Abbildungen im Fabric-Einsteiger-Guide liegen als lokale Kopien auf dieser Website (CC BY 4.0, Quellenangabe am Bild).</p>
   <dl class="dataflow">
     <dt>Anbieter</dt><dd>Microsoft (s.&nbsp;o.)</dd>
     <dt>Daten</dt><dd>IP-Adresse, Referrer, User-Agent beim Bildabruf</dd>
-    <dt>Rechtsgrundlage</dt><dd>Art. 6 Abs. 1 lit. f DSGVO</dd>
+    <dt>Rechtsgrundlage</dt><dd>Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Veranschaulichung mit Original-Abbildungen)</dd>
+    <dt>Drittland</dt><dd>USA · Microsoft Corp. ist nach dem EU-US Data Privacy Framework zertifiziert</dd>
   </dl>
 
-  <p><strong>4.4 · Spotify</strong></p>
-  <p>Der Spotify-Link im Footer ist ein einfacher Link — beim bloßen Anzeigen wird nichts übertragen. Erst beim Klick wird der Spotify-Dienst aufgerufen, dann gelten dessen Datenschutzbedingungen. Details: <a href="https://www.spotify.com/de/legal/privacy-policy/" target="_blank" rel="noopener">spotify.com/legal/privacy-policy</a>.</p>
+  <p id="sessionize"><strong>4.4 · Sessionize (Agenda &amp; Daten-WG-Spiel)</strong></p>
+  <p>Die Seiten „Agenda“ und „Daten-WG-Spiel“ (Event-Rückblick) zeigen das Programm der Daten-WG-Konferenz. Beim Öffnen lädt dein Browser den aktuellen Programmstand von der Sessionize-API (<code>sessionize.com</code>) sowie Profilfotos der Speaker vom Sessionize-CDN (<code>cdn.sessionize.com</code>). Auf anderen Seiten findet kein Abruf bei Sessionize statt.</p>
+  <dl class="dataflow">
+    <dt>Anbieter</dt><dd>Sessionize (Anbieter und Sitz laut <a href="https://sessionize.com/privacy-policy" target="_blank" rel="noopener">Datenschutzerklärung von Sessionize</a>)</dd>
+    <dt>Daten</dt><dd>IP-Adresse, User-Agent, Referrer, Zeitstempel</dd>
+    <dt>Zweck</dt><dd>aktuelles Programm und Speaker-Fotos anzeigen</dd>
+    <dt>Rechtsgrundlage</dt><dd>Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer aktuellen, vollständigen Programmansicht)</dd>
+  </dl>
+
+  <p id="weitere"><strong>4.5 · Fabric-Alchemie-Spiel (nur nach Klick)</strong></p>
+  <p>Im Beitrag „Fabric Alchemie“ wird das Spiel von Ulrik Harnisch erst nach Klick auf „Spiel hier starten“ von <code>huhar.github.io</code> (GitHub Pages) eingebettet. Gleichzeitig fragt die Seite bei <code>api.github.com</code> das Datum der letzten Änderung des Spiels ab. Vor dem Klick wird nichts übertragen. Es gelten die Angaben zu GitHub in Abschnitt 3; Rechtsgrundlage ist deine Einwilligung durch den Klick (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG).</p>
+
+  <p><strong>4.6 · Spotify, podcast.de und weitere Links</strong></p>
+  <p>Links zu Spotify, podcast.de, YouTube, LinkedIn oder Sessionize sind einfache Links: Beim bloßen Anzeigen wird nichts übertragen. Erst beim Klick wird der jeweilige Dienst aufgerufen, dann gelten dessen Datenschutzbedingungen (z.&nbsp;B. <a href="https://www.spotify.com/de/legal/privacy-policy/" target="_blank" rel="noopener">spotify.com/legal/privacy-policy</a>).</p>
 
   <h2>5 · Externe Links</h2>
-  <p>Diese Seite enthält Links zu externen Websites (u.&nbsp;a. daten-wg.com, LinkedIn, YouTube, GitHub, Microsoft Learn). Auf die Inhalte dieser Seiten besteht kein Einfluss; deren Datenverarbeitung richtet sich nach den jeweiligen Datenschutzerklärungen.</p>
+  <p>Diese Seite enthält Links zu externen Websites (u.&nbsp;a. daten-wg.com, LinkedIn, YouTube, Spotify, podcast.de, Sessionize, GitHub, Microsoft Learn). Auf die Inhalte dieser Seiten besteht kein Einfluss; deren Datenverarbeitung richtet sich nach den jeweiligen Datenschutzerklärungen.</p>
+
+  <h2 id="email">5a · Kontakt per E-Mail</h2>
+  <p>Wenn du mir eine E-Mail schreibst, verarbeite ich deine Adresse, deinen Namen (falls angegeben) und den Inhalt der Nachricht, um dein Anliegen zu beantworten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit es um Anfragen zu den Visuals, Werkzeugen oder einer Zusammenarbeit geht, sonst Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Beantwortung). Ich lösche die Nachrichten, wenn das Anliegen erledigt ist und keine gesetzliche Aufbewahrungspflicht besteht. Die E-Mails werden beim Anbieter des jeweiligen Postfachs gespeichert.</p>
+
+  <h2>5b · Drittlandübermittlung</h2>
+  <p>Soweit Daten an GitHub, Google oder Microsoft in die USA übermittelt werden, stützt sich das auf den Angemessenheitsbeschluss der EU-Kommission zum EU-US Data Privacy Framework vom 10.07.2023 (Art. 45 DSGVO); die genannten Unternehmen sind danach zertifiziert.</p>
 
   <h2>6 · Deine Rechte (Art. 15 – 22 DSGVO)</h2>
   <p>Bezogen auf Daten, die dich betreffen und die ich verarbeite, hast du das Recht auf:</p>
@@ -230,9 +275,14 @@ footer.page-footer a:hover { border-color: var(--accent); }
     <li><strong>Löschung</strong> (Art. 17) · sofern keine Aufbewahrungspflicht besteht</li>
     <li><strong>Einschränkung der Verarbeitung</strong> (Art. 18)</li>
     <li><strong>Datenübertragbarkeit</strong> (Art. 20)</li>
-    <li><strong>Widerspruch</strong> gegen Verarbeitung auf Basis berechtigter Interessen (Art. 21)</li>
+    <li><strong>Widerspruch</strong> gegen Verarbeitung auf Basis berechtigter Interessen (Art. 21, siehe Kasten)</li>
+    <li><strong>Widerruf</strong> einer erteilten Einwilligung mit Wirkung für die Zukunft (Art. 7 Abs. 3); die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung bleibt unberührt</li>
   </ul>
-  <p>Da diese Seite selbst keine personenbezogenen Daten erhebt oder speichert, betreffen diese Rechte praktisch die Logfiles bei GitHub und die Datenverarbeitung der oben genannten Drittanbieter. Wende dich für eine Anfrage zunächst gern an mich — ich helfe gern, die richtige Stelle zu finden.</p>
+  <div class="notice">
+    <p><strong>Widerspruchsrecht (Art. 21 DSGVO).</strong> Soweit eine Verarbeitung auf Art. 6 Abs. 1 lit. f DSGVO (berechtigte Interessen) beruht, kannst du jederzeit aus Gründen, die sich aus deiner besonderen Situation ergeben, gegen diese Verarbeitung Widerspruch einlegen. Eine formlose E-Mail an <a href="mailto:michael.tenner@biordie.com">michael.tenner@biordie.com</a> genügt.</p>
+  </div>
+  <p>Da diese Seite selbst keine personenbezogenen Daten erhebt oder speichert, mit Ausnahme von E-Mails, die du mir schickst, betreffen diese Rechte praktisch die Logfiles bei GitHub und die Datenverarbeitung der oben genannten Drittanbieter. Wende dich für eine Anfrage zunächst gern an mich; ich helfe gern, die richtige Stelle zu finden.</p>
+  <p>Eine automatisierte Entscheidungsfindung einschließlich Profiling findet nicht statt. Du bist nicht verpflichtet, Daten bereitzustellen; ohne die technisch nötigen Verbindungsdaten kann die Seite allerdings nicht ausgeliefert werden.</p>
 
   <h2>7 · Beschwerderecht bei der Aufsichtsbehörde</h2>
   <p>Wenn du der Meinung bist, dass die Verarbeitung deiner Daten gegen die DSGVO verstößt, hast du das Recht, dich bei einer Aufsichtsbehörde zu beschweren. Zuständig ist für mich in Köln:</p>

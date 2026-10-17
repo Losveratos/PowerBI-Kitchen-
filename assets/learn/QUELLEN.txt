@@ -1,0 +1,9 @@
+Abbildungen aus der Microsoft-Dokumentation (Microsoft Learn)
+Lizenz: Creative Commons Attribution 4.0 International (CC BY 4.0)
+        https://creativecommons.org/licenses/by/4.0/
+Quelle: Repository MicrosoftDocs/fabric-docs (Ordner docs/**/media/), unverändert übernommen.
+        Die jeweilige Learn-Seite ist in der figcaption des Bildes in den Guides verlinkt.
+
+Lokale Kopien, damit beim Aufruf der Guides keine Bilder von learn.microsoft.com geladen werden.
+Weitere Bilder (Power BI / Power Query) laden die Guides noch von learn.microsoft.com;
+scripts/fetch_learn_assets.py kann sie hierher kopieren, wenn learn.microsoft.com erreichbar ist.

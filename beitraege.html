@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beiträge · Daten-WG Knowledge Kitchen</title>
+<meta name="description" content="Alle Beiträge der Daten-WG Knowledge Kitchen an einem Ort: Posts, Visual Stories, Whitepaper, Talks, Doku und Werkzeuge rund um Power BI, Microsoft Fabric, IBCS und KI. Filterbar nach Art und Thema, mit Suche.">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/beitraege.html">
+<meta property="og:title" content="Beiträge · Daten-WG Knowledge Kitchen">
+<meta property="og:description" content="Posts, Visual Stories, Whitepaper, Talks, Doku und Werkzeuge der Daten-WG. Filterbar nach Art und Thema.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/beitraege.html">
+
+<!-- Favicon · Daten-WG Knowledge Kitchen -->
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+<meta name="theme-color" content="#117865">
+
+<style>
+:root {
+  --bg: #FAFAF5;
+  --bg-card: #FFFFFF;
+  --bg-soft: #F4F1E8;
+  --ink: #1A1A1A;
+  --ink-soft: #4A4A4A;
+  --ink-mute: #6B6B6B;
+  --black: #0A0A0A;
+  --line: #E5E2D8;
+  --accent: #117865;
+  --accent-deep: #0A5A4D;
+  --shadow-md: 0 4px 12px rgba(10,10,10,.08), 0 2px 4px rgba(10,10,10,.06);
+  --radius: 10px;
+  --serif: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --sans:  "Segoe UI Variable Text",    "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --mono:  "Segoe UI Variable Small",   "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+
+  /* Farbe je Art */
+  --t-post: #117865;
+  --t-story: #5B3B7A;
+  --t-whitepaper: #1E3A5F;
+  --t-talk: #A82D60;
+  --t-doku: #166088;
+  --t-werkzeug: #B24E22;
+  --t-event: #7D5C08;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--bg);
+  overflow-x: hidden;
+}
+a { color: inherit; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px 72px; }
+
+/* Kopf */
+.head { padding: 44px 0 24px; }
+.eyebrow { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-mute); }
+h1 { font-family: var(--serif); font-weight: 300; font-size: clamp(34px, 6vw, 52px); letter-spacing: -.025em; line-height: 1.05; color: var(--black); margin: 8px 0 12px; }
+.lead { max-width: 62ch; font-size: 17px; color: var(--ink-soft); }
+
+/* Filter */
+.filters { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 18px; background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px; }
+.search { position: relative; }
+.search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--ink-mute); pointer-events: none; }
+.search input {
+  width: 100%; min-height: 48px; padding: 0 44px 0 42px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--bg);
+  font-size: 16px;
+}
+.search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(17,120,101,.18); }
+.search input::-webkit-search-cancel-button { display: none; }
+.clear { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border: 0; background: none; cursor: pointer; color: var(--ink-mute); border-radius: 8px; font-size: 20px; line-height: 1; }
+.clear:hover { color: var(--ink); }
+
+.frow { display: flex; align-items: flex-start; gap: 12px; min-width: 0; }
+.flabel { flex: none; width: 56px; padding-top: 12px; font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-mute); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; flex: 1; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 44px; padding: 0 14px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--bg-card);
+  font-size: 14px; font-weight: 500; color: var(--ink-soft); cursor: pointer; white-space: nowrap;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.chip:hover { border-color: var(--ink-mute); color: var(--ink); }
+.chip .n { font-size: 12px; font-weight: 600; color: var(--ink-mute); font-variant-numeric: tabular-nums; }
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.chip[aria-pressed="true"] .n { color: rgba(255,255,255,.75); }
+.chip.zero { opacity: .45; }
+.chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--accent)); flex: none; }
+.chip[aria-pressed="true"] .dot { box-shadow: 0 0 0 2px #fff; }
+.topics-toggle { display: none; }
+
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: 22px 0 14px; }
+.count { font-size: 15px; color: var(--ink-soft); }
+.count strong { color: var(--ink); font-size: 18px; font-variant-numeric: tabular-nums; }
+.bar-right { display: flex; align-items: center; gap: 10px; }
+.reset { min-height: 44px; padding: 0 12px; border: 0; background: none; color: var(--accent); font-weight: 600; cursor: pointer; border-radius: 8px; }
+.reset:hover { text-decoration: underline; text-underline-offset: 3px; }
+.sort { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-mute); }
+.sort select { min-height: 44px; padding: 0 34px 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-card); color: var(--ink); cursor: pointer; appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%234A4A4A' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='m3 4.5 3 3 3-3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; }
+
+/* Neu */
+.featured { margin: 28px 0 8px; }
+.sec-title { font-family: var(--serif); font-weight: 300; font-size: 24px; letter-spacing: -.015em; color: var(--black); margin-bottom: 12px; }
+.sec-title em { font-style: italic; color: var(--accent); }
+
+/* Karten · Look der .top-pick-Karten der Startseite */
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; list-style: none; }
+.card {
+  position: relative; display: flex; flex-direction: column; gap: 10px;
+  padding: 18px 18px 16px;
+  background: var(--bg-card); border: 1px solid var(--line); border-top: 3px solid var(--c, var(--accent));
+  border-radius: var(--radius);
+  transition: transform .18s ease, box-shadow .18s ease;
+  min-width: 0;
+}
+.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.card:focus-within { box-shadow: 0 0 0 2px var(--accent); }
+.card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--c, var(--accent)); }
+.badge::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--c, var(--accent)); }
+.date { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--ink-mute); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.card-eyebrow { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-mute); }
+.card h3 { font-family: var(--serif); font-weight: 400; font-size: 17px; line-height: 1.28; letter-spacing: -.005em; color: var(--black); overflow-wrap: anywhere; }
+.card h3 a { text-decoration: none; }
+.card h3 a::after { content: ""; position: absolute; inset: 0; border-radius: var(--radius); }
+.card h3 a:focus-visible { outline: none; }
+.card:hover h3 a { color: var(--accent-deep); }
+.card p { font-size: 13.5px; line-height: 1.5; color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 10px; }
+.card-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: auto; padding-top: 4px; }
+.tchip {
+  position: relative; z-index: 1;
+  display: inline-flex; align-items: center; min-height: 32px; padding: 0 10px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--bg);
+  font-size: 12px; color: var(--ink-soft); cursor: pointer;
+}
+.tchip:hover { border-color: var(--accent); color: var(--accent); }
+.tchip.on { border-color: var(--accent); background: rgba(17,120,101,.08); color: var(--accent-deep); }
+.lang { position: relative; z-index: 1; margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .06em; color: var(--ink-mute); }
+.lang a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--ink-soft); background: var(--bg-card); }
+.lang a:hover { border-color: var(--accent); color: var(--accent); }
+.lang span { display: inline-flex; align-items: center; min-height: 32px; padding: 0 8px; border-radius: 999px; background: var(--bg-soft); }
+.featured .grid .card { background: linear-gradient(180deg, #fff, #fff 60%, var(--bg)); }
+
+.empty { padding: 48px 20px; text-align: center; border: 1px dashed var(--line); border-radius: 14px; background: var(--bg-card); }
+.empty h2 { font-family: var(--serif); font-weight: 300; font-size: 24px; margin-bottom: 6px; }
+.empty p { color: var(--ink-soft); margin-bottom: 16px; }
+.btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; }
+.btn:hover { background: var(--accent-deep); }
+
+.note { margin-top: 36px; font-size: 13.5px; color: var(--ink-mute); max-width: 70ch; }
+.note a { color: var(--accent); }
+
+@media (max-width: 1020px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) {
+  .wrap { padding: 0 16px 56px; }
+  .head { padding: 28px 0 18px; }
+  .lead { font-size: 16px; }
+  .filters { padding: 14px; gap: 12px; }
+  .frow { flex-direction: column; align-items: stretch; gap: 6px; }
+  .chips { flex: none; }
+  .flabel { width: auto; padding-top: 0; }
+  /* Arten als waagrechte Leiste, die innerhalb der Box scrollt */
+  .chips.types { flex-wrap: nowrap; overflow-x: auto; width: 100%; padding-bottom: 4px; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
+  .chips.types::-webkit-scrollbar { display: none; }
+  .chips.types .chip { flex: none; }
+  .row-topics .flabel { display: none; }
+  .topics-toggle { display: inline-flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); cursor: pointer; font-weight: 600; font-size: 14px; }
+  .topics-toggle svg { transition: transform .15s ease; }
+  .topics-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .row-topics .chips[data-collapsed="true"] { display: none; }
+  .grid { grid-template-columns: 1fr; gap: 12px; }
+  .bar { margin-top: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  .card:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+<script src="assets/js/site-chrome.js" data-chrome="full"></script>
+
+<main class="wrap" id="inhalt">
+  <header class="head">
+    <p class="eyebrow">Knowledge Kitchen</p>
+    <h1>Beiträge</h1>
+    <p class="lead">Alle Posts, Visual Stories, Whitepaper, Talks, Doku und Werkzeuge der Daten-WG an einem Ort: nach Art und Thema filtern oder einfach suchen.</p>
+  </header>
+
+  <section class="filters" aria-label="Filter">
+    <div class="search">
+      <label class="sr-only" for="q">Beiträge durchsuchen</label>
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+      <input id="q" type="search" placeholder="Suchen: Titel, Beschreibung, Thema …" autocomplete="off" spellcheck="false">
+      <button class="clear" type="button" id="q-clear" aria-label="Suche leeren" hidden>×</button>
+    </div>
+    <div class="frow">
+      <span class="flabel" id="lbl-type">Art</span>
+      <div class="chips types" id="types" role="group" aria-labelledby="lbl-type"></div>
+    </div>
+    <div class="frow row-topics">
+      <span class="flabel" id="lbl-topic">Thema</span>
+      <button class="topics-toggle" type="button" id="topics-toggle" aria-expanded="false" aria-controls="topics">
+        <span id="topics-toggle-label">Themen</span>
+        <svg width="14" height="14" viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="m3 4.5 3 3 3-3"/></svg>
+      </button>
+      <div class="chips" id="topics" role="group" aria-labelledby="lbl-topic"></div>
+    </div>
+  </section>
+
+  <section class="featured" id="featured" aria-labelledby="featured-title" hidden>
+    <h2 class="sec-title" id="featured-title">Neu in der <em>Kitchen</em></h2>
+    <ul class="grid" id="featured-grid"></ul>
+  </section>
+
+  <div class="bar">
+    <p class="count" id="count" aria-live="polite"></p>
+    <div class="bar-right">
+      <button class="reset" type="button" id="reset" hidden>Filter zurücksetzen</button>
+      <label class="sort" for="sort">Sortieren
+        <select id="sort">
+          <option value="neu">Neueste</option>
+          <option value="az">A–Z</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <h2 class="sr-only" id="list-title">Alle Beiträge</h2>
+  <ul class="grid" id="grid" aria-labelledby="list-title"></ul>
+  <div class="empty" id="empty" hidden>
+    <h2>Nichts gefunden</h2>
+    <p>Für diese Kombination aus Suche und Filtern gibt es keinen Beitrag.</p>
+    <button class="btn" type="button" id="empty-reset">Filter zurücksetzen</button>
+  </div>
+
+  <p class="note">Die Podcast-Folgen findest du in der <a href="index.html#folgen">Folgen-Bibliothek</a>, die Themen aus allen Folgen in der <a href="wissensgraph/">Library</a>. Für KI-Agenten gibt es die Inhalte als Markdown, Index in der <a href="llms.txt">llms.txt</a>.</p>
+  <noscript><p class="note">Diese Übersicht braucht JavaScript. Ohne JavaScript findest du alle Inhalte in der <a href="llms.txt">llms.txt</a> und auf der <a href="index.html">Startseite</a>.</p></noscript>
+</main>
+
+<script type="application/json" id="posts-data">
+[
+{"id": "fabric-apps-controlling", "title": "Fabric Apps im Heimrevier von Power BI: Vertrieb und Finance", "type": "post", "topics": ["fabric", "report", "planung", "ibcs"], "date": "2026-10-06", "lang": "DE", "url": "fabric-apps-controlling-post.html", "enUrl": "fabric-apps-controlling-post_en.html", "eyebrow": "Fabric Apps · Controlling", "desc": "Zwei Fabric Apps für Vertriebscontrolling und Finance Reporting, je in etwa einer Stunde mit Rayfin CLI und Coding-Agent gebaut. Mit Video, Screenshots und der Frage, warum Standards wie IBCS mit KI-Agenten wichtiger werden."},
+{"id": "fabric-alchemie", "title": "Fabric Alchemie: Fabric lernen, indem man es zusammenbraut", "type": "post", "topics": ["fabric"], "date": "2026-10-01", "lang": "DE", "url": "fabric-alchemie-post.html", "eyebrow": "Lernspiel · Microsoft Fabric", "desc": "Das Lernspiel von Ulrik Harnisch nach dem Little-Alchemy-Prinzip: Aus Daten, Rechenleistung, Speicher und Netzwerk entstehen per Drag-and-drop über 150 Fabric-Elemente, jedes mit Link zu Microsoft Learn. Direkt im Post spielbar."},
+{"id": "koelner-raser-post", "title": "Alle 71 Sekunden ein Blitz: Was ein Jahr Kölner Blitzerdaten zeigt", "type": "post", "topics": ["story"], "date": "2026-09-26", "lang": "DE", "url": "koelner-raser-post.html", "eyebrow": "Hintergrund zur Raser-Story", "desc": "Die Befunde der Raser-Story zum Lesen: warum ein neuer Blitzer wirkt, warum nachts öfter richtig schnell gefahren wird und warum 97 % der Fälle ohne Punkt bleiben. Mit Infografik als PDF und Anleitung zum Selbstbauen."},
+{"id": "koelner-raser-story", "title": "Köln blitzt. 445.483 Mal.", "type": "story", "topics": ["story"], "date": "2026-09-25", "lang": "DE", "url": "koelner-raser-story.html", "eyebrow": "Scrollytelling · Offene Daten Köln", "desc": "Ein Jahr Geschwindigkeitsüberwachung der Stadt Köln in sieben Akten: Die Fallzahl misst vor allem den Messaufwand, nachts wird deutlich öfter Fahrverbots-Tempo gefahren. Mit Karte „Köln bei Nacht“ und Atlas aller Messstellen."},
+{"id": "wissensgraph-post", "title": "Aus 126 Folgen wird ein Wissensgraph", "type": "post", "topics": ["ki", "fabric"], "date": "2026-09", "lang": "DE", "url": "wissensgraph-aus-transkripten.html", "eyebrow": "Wissensgraph aus Transkripten", "desc": "Segmente mit Zeitstempel, ein Vokabular gegen Spracherkennungsfehler, Heuristik vor LLM, 677 Kernaussagen mit Beleg. Und der Weg desselben Schemas nach Microsoft Fabric: Lakehouse, Graph, Data Agent."},
+{"id": "library", "title": "DatenWG Library", "type": "werkzeug", "topics": ["ki"], "date": "2026-09", "lang": "DE", "url": "wissensgraph/", "eyebrow": "Web-App · Sprungmarken", "desc": "Alle Folgen als Graph aus Themen, Tools, Personen und Kernaussagen. Thema anklicken, Folgen sehen und auf die Sekunde genau ins Video springen. Mit Volltextsuche über alle Transkripte."},
+{"id": "visual-standards-rechner", "title": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?", "type": "werkzeug", "topics": ["ibcs", "report", "perf"], "date": "2026-09", "lang": "DE", "url": "visual-standards-rechner.html", "eyebrow": "Web-App · Workshop Daten-WG 2026", "desc": "Was kosten visuelle Standards in Power BI mit 3rd-Party-Visuals, Open Source, Deneb oder Core Visuals über 3, 5 oder 10 Jahre? Mengengerüst, Governance-K.O.s, Break-even über die Viewer-Zahl, Bandbreiten statt Punktwerte."},
+{"id": "monte-carlo-viewer", "title": "Wie stark schwanken die Kosten je Viewer, und woran liegt es?", "type": "whitepaper", "topics": ["perf", "report"], "date": "2026-09", "lang": "DE", "url": "sessions/visual-standards-rechner-reviews/monte-carlo-kosten-je-viewer.html", "eyebrow": "Auswertung zum Visual-Standards-Rechner", "desc": "Monte-Carlo-Auswertung mit 6.000 Ziehungen je Szenario: welche Option bei Pilot, Abteilung und Konzern vorn liegt und welche Annahmen die Kosten je Viewer am stärksten bewegen."},
+{"id": "mockup-kitchen", "title": "MockupKitchen", "type": "werkzeug", "topics": ["report", "ki", "ibcs"], "date": "2026-09", "lang": "DE", "url": "mockup-kitchen.html", "eyebrow": "Web-App · Power-BI-Mockup (Test)", "desc": "Berichtsseiten im Workshop skizzieren: Container-Raster, Kopfband, Filter und Fußleiste, 47 Visual-Typen, Felder aus dem eigenen TMDL-Modell. Export als Spec und Agent-Brief, die Claude Code direkt in ein PBIP baut."},
+{"id": "mockupkitchen-post", "title": "MockupKitchen: vom Whiteboard zur Power-BI-Seite", "type": "post", "topics": ["report", "ki"], "date": "2026-09", "lang": "DE", "url": "mockupkitchen-post.html", "eyebrow": "Tool & KI", "desc": "Warum ein Mockup eine Spezifikation sein sollte und kein Bild: was wir gebaut haben, was man damit macht und was es bringt, wenn der Agent daraus den Report baut. Mit einem Sechs-Perspektiven-Review als Roadmap."},
+{"id": "bcb-anleitung", "title": "Business Chart Builder: How-to und Live-Beispiele", "type": "doku", "topics": ["ibcs", "report"], "date": "2026-09", "approx": true, "lang": "DE", "url": "business-chart-builder-anleitung.html", "eyebrow": "Anleitung · IBCS & Deneb", "desc": "IBCS-orientierte Charts im Browser bauen und als Deneb-Template nach Power BI bringen, Schritt für Schritt und mit Beispielen zum Live-Öffnen."},
+{"id": "bcb", "title": "Business Chart Builder", "type": "werkzeug", "topics": ["ibcs", "report"], "date": "2026-06", "approx": true, "lang": "DE", "url": "business-chart-builder.html", "eyebrow": "Web-App · kostenlos", "desc": "Über 30 IBCS-Diagrammtypen, Varianz-Analysen und KPI-Karten direkt im Browser. Export als Deneb-Template, PNG, SVG oder HTML."},
+{"id": "ibcs-trainer", "title": "IBCS-Trainer", "type": "werkzeug", "topics": ["ibcs"], "date": "2026-09", "approx": true, "lang": "DE", "url": "ibcs-trainer.html", "eyebrow": "Lernspiel · interaktiv", "desc": "Quiz mit 25 Fragen quer durch die IBCS-Regeln oder „Finde den Verstoß“: fehlerhafte Charts erkennen. Mit Punkten und Highscore oder ganz ohne Timer."},
+{"id": "laender-explorer", "title": "Länder-Indikatoren-Explorer", "type": "werkzeug", "topics": ["story"], "date": "2026-09", "approx": true, "lang": "DE", "url": "laender-indikatoren-explorer.html", "eyebrow": "Web-App · Datenexploration", "desc": "164 Länder × 15 Indikatoren, von Lebenszufriedenheit über BIP und Demokratie bis Suizidrate. Jede Kennzahl gegen jede geplottet, nach Korrelationsstärke sortiert. Rohdaten als CSV."},
+{"id": "zugfahrten", "title": "Die Schweiz fährt Europa davon", "type": "post", "topics": ["story"], "date": "2026-09", "approx": true, "lang": "DE", "url": "zugfahrten-infografik.html", "eyebrow": "Infografik-Experiment", "desc": "Making-of: Aus einem schnellen ChatGPT-Draft wird eine ehrlich skalierte Metro-Karte der Bahnnutzung in Europa (Eurostat 2024). Mit statischer und animierter Fassung."},
+{"id": "how-i-started", "title": "How I started to build custom visuals", "type": "talk", "topics": ["report", "ibcs"], "date": "2026-09", "approx": true, "lang": "DE", "url": "sessions/how-i-started-to-build-custom-visuals.html", "eyebrow": "Community Session · 45 min", "desc": "Vom HTML-Prototyp über Deneb und Vega zum eigenen .pbiviz: eine ehrliche Reise mit IBCS als Kompass. Die Folien der Session zum Durchblättern."},
+{"id": "eauto", "title": "E-Auto-Klimabilanz: Auspuff oder Lebenszyklus?", "type": "whitepaper", "topics": ["story"], "date": "2026-08-30", "lang": "DE", "url": "eauto-klimabilanz.html", "eyebrow": "Interaktives White Paper", "desc": "Ein Lebenszyklus-Modell zur TUM/ICCT-Kontroverse: Presets für −41 % und −73 %, 10.000 Monte-Carlo-Ziehungen für die Bandbreite und eine Hochrechnung auf Deutschland, EU-27 und Welt."},
+{"id": "whitepaper-strommix", "title": "Was braucht ein gesunder Strommix, und was kostet er?", "type": "whitepaper", "topics": ["story"], "date": "2026-08", "lang": "DE", "url": "whitepaper-strommix.html", "eyebrow": "Interaktives White Paper", "desc": "Die vollständige Analyse hinter der Strommix-Story: Kostenmodell, stündliche Dispatch-Simulation, Monte-Carlo mit acht Konfigurationen und über 60 Quellen mit Konfidenzstufen."},
+{"id": "rhein-story", "title": "209 Jahre, ein Fluss, zwei Wahrheiten", "type": "story", "topics": ["story"], "date": "2026-08", "lang": "DE", "url": "rhein-story.html", "eyebrow": "Scrollytelling · GRDC-Daten 1816–2025", "desc": "Eine der längsten Abflussreihen der Welt sagt: Dem Rhein geht es gut. Dieselben Daten sagen das Gegenteil. Sechs animierte Akte zeigen, wie ein Klimasignal im Rauschen untergeht."},
+{"id": "kitchen-ki-agenten", "title": "Die Kitchen spricht jetzt Markdown", "type": "post", "topics": ["ki"], "date": "2026-08", "lang": "DE", "url": "kitchen-fuer-ki-agenten.html", "eyebrow": "llms.txt & Markdown", "desc": "Immer öfter liest ein KI-Agent unsere Seiten. Jetzt gibt es jede Inhaltsseite als Markdown-Fassung plus llms.txt als Index. Warum Handkopien driften, wie Jekyll fast Power-Query-Code verstümmelt hätte, und vier Regeln zum Nachbauen."},
+{"id": "design-skill", "title": "Report-Design als Framework: der Power BI Design Skill", "type": "post", "topics": ["ki", "report"], "date": "2026-08", "lang": "DE", "url": "powerbi-design-skill.html", "eyebrow": "Claude-Skill · Open Source", "desc": "Ein Claude-Code-Skill macht Power-BI-Seiten konsistent: Interview, Branding aus der eigenen Webseite, theme.json und Agent-Brief. Dazu Bulk-Restyle, Design-Linter und SVG-Wireframes."},
+{"id": "prototyping", "title": "Ist KI das neue Papier, und Markdown der neue Stift?", "type": "post", "topics": ["ki", "planung"], "date": "2026-08", "lang": "DE", "url": "prototyping-pnl-treiberbaum.html", "enUrl": "prototyping-pnl-treiberbaum_en.html", "eyebrow": "Prototyping & KI", "desc": "Vom Markdown-Spec zum klickbaren P&L-Prototyp: sieben Sprachen inklusive Arabisch, regionale Farblogik, Treiber-Simulation mit Solver. Mit Demo-Video und Live-Demo."},
+{"id": "pnl-treiberbaum", "title": "P&L-Treiberbaum: interaktive Demo", "type": "werkzeug", "topics": ["planung"], "date": "2026-08", "lang": "DE", "url": "pnl-treiberbaum-demo.html", "eyebrow": "Prototyp · im Browser", "desc": "EBIT-Brücke, Treiber-Simulation und Solver in sieben Sprachen inklusive Rechts-nach-links, komplett im Browser und ohne Installation."},
+{"id": "pnl-beta", "title": "P&L Statement byDatenWG: die GuV als Visual", "type": "post", "topics": ["planung", "ibcs", "report"], "date": "2026-08", "lang": "DE", "url": "pnl-beta-post.html", "enUrl": "pnl-beta-post_en.html", "eyebrow": "Power-BI-Visual · Beta", "desc": "Ein IBCS-inspiriertes GuV-Visual in der offenen Beta: Tabelle, Struktur-Bars, Zeilen-Waterfall und Werttreiberbaum mit Kachel-Zoom. Warum eine GuV kein Diagramm ist und was die Beta schon kann."},
+{"id": "pnl-schnellstart", "title": "P&L Statement byDatenWG: Schnellstart", "type": "doku", "topics": ["planung", "ibcs"], "date": "2026-08", "lang": "DE", "url": "pnl-schnellstart.html", "enUrl": "pnl-schnellstart_en.html", "eyebrow": "Einstieg · Power-BI-Visual (Beta)", "desc": "In zwei Minuten zur GuV-Seite: der schnelle Weg mit Ebenen-Spalten und der volle Weg mit Zeilentypen, Formeln und Vorzeichen. Mit Demo-Daten, Treiberbaum und Drillthrough."},
+{"id": "power-bi-on-claude", "title": "Power BI on Claude", "type": "talk", "topics": ["ki", "devops"], "date": "2026-08", "lang": "DE", "url": "power-bi-on-claude.html", "eyebrow": "Inhouse-Training", "desc": "Inhouse-Training für agentische Power-BI-Entwicklung mit Claude: drei Stufen, immer im Haus, immer am eigenen Modell. Mit Details zu Governance, Voraussetzungen und Datenschutz."},
+{"id": "waermestreifen", "title": "175 Jahre Klimageschichte zum Anfassen", "type": "story", "topics": ["story", "report"], "date": "2026-07-30", "lang": "DE", "url": "waermestreifen-3d.html", "eyebrow": "Custom Visual · Open Data", "desc": "Die Warming Stripes in der dritten Dimension: 758 Wetterstationen, 1850 bis heute, als interaktives Custom Visual für Power BI."},
+{"id": "whitepaper-ki-roi", "title": "Zehn Tage bis zum marktfähigen Stand (Langfassung)", "type": "whitepaper", "topics": ["ki"], "date": "2026-07-15", "lang": "DE", "url": "whitepaper-ki-entwicklung-roi.html", "enUrl": "whitepaper-ki-entwicklung-roi_en.html", "eyebrow": "Thesenpapier · 34 Seiten", "desc": "Ein Bewertungsmodell für KI-gestützte Software-Entwicklung in festen Frameworks, durchgerechnet an einer dokumentierten Fallstudie: Kostenhebel, Build-vs.-Buy, Grenzen der Übertragbarkeit."},
+{"id": "ki-zehn-tage", "title": "Zehn Tage bis zum marktfähigen Stand", "type": "post", "topics": ["ki"], "date": "2026-07", "lang": "DE", "url": "ki-entwicklung-zehn-tage.html", "enUrl": "ki-entwicklung-zehn-tage_en.html", "eyebrow": "Thesenpapier · Kurzfassung", "desc": "Ein Power-BI-Visual in zehn Tagen KI-gestützt gebaut, und nachgerechnet, was es klassisch gekostet hätte. Die Kurzfassung des Thesenpapiers mit Evidenzstufen je Aussage."},
+{"id": "chartkitchen-doku", "title": "ChartKitchen byDatenWG: Dokumentation", "type": "doku", "topics": ["ibcs", "report"], "date": "2026-07", "lang": "DE", "url": "chartkitchen-doku.html", "enUrl": "chartkitchen-doku_en.html", "eyebrow": "Doku · Power-BI-Visual", "desc": "Die vollständige Doku zum IBCS-inspirierten Chart-Deck: 13 Diagramm-Modi in einem Visual, Szenario-Notation, Varianzen und die komplette Einstellungs-Referenz."},
+{"id": "chartkitchen-schnellstart", "title": "ChartKitchen byDatenWG: Schnellstart", "type": "doku", "topics": ["ibcs", "report"], "date": "2026-07", "lang": "DE", "url": "chartkitchen-schnellstart.html", "enUrl": "chartkitchen-schnellstart_en.html", "eyebrow": "Einstieg · Power-BI-Visual", "desc": "In zwei Minuten verstehen, was das Visual kann, in drei Schritten loslegen und direkt in die passende Doku-Sektion springen. Mit Download der aktuellen Version."},
+{"id": "ki-co2", "title": "Wie viel CO₂ steckt in einem Token?", "type": "werkzeug", "topics": ["ki"], "date": "2026-07", "lang": "DE", "url": "ki-co2-simulator.html", "eyebrow": "Simulator · ESG", "desc": "Energie- und CO₂-Fußabdruck der KI-Nutzung im Unternehmen, pro Token bis pro Jahr. Alle Annahmen als Min–Max-Band mit Quellen, auf Deutsch und Englisch."},
+{"id": "fabric-guide", "title": "Microsoft Fabric End-to-End", "type": "doku", "topics": ["fabric", "integration"], "date": "2026-07", "lang": "DE", "url": "fabric_einsteiger_guide_v1.html", "eyebrow": "Einsteiger-Guide", "desc": "Fabric von der Einordnung über die Komponenten bis zum fertigen Projekt: Lakehouse, Warehouse, Pipelines, Direct Lake und was davon man wann braucht."},
+{"id": "pdoom", "title": "Wie wahrscheinlich ist die KI-Apokalypse?", "type": "post", "topics": ["ki", "story"], "date": "2026-06", "lang": "DE", "url": "pdoom-ki-risiko.html", "eyebrow": "p(doom) · KI-Risiko", "desc": "p(doom) ist die geschätzte Wahrscheinlichkeit, dass KI katastrophal endet. Eine kommentierte Sammlung öffentlicher Schätzungen, von unter 0,01 % bis über 99 %, mit Verteilung, Rollenvergleich und Zeitverlauf."},
+{"id": "strommix-story", "title": "Was kostet ein klimaneutrales Stromsystem?", "type": "story", "topics": ["story"], "date": "2026-05", "lang": "DE", "url": "strommix-story.html", "eyebrow": "Scrollytelling · Monte Carlo", "desc": "Eine Scroll-Story über Annahmen, Bandbreiten und die Frage, warum seriöse Antworten Verteilungen sind statt einzelner Zahlen. Mit 1.000 durchgerechneten Zukünften."},
+{"id": "pbi-guide", "title": "Power BI von A bis Z", "type": "doku", "topics": ["modell", "dax", "report", "integration"], "date": "2026-05", "lang": "DE", "url": "power_bi_einsteiger_guide_v4.html", "eyebrow": "Einsteiger-Guide", "desc": "Power BI End-to-End von der Datenanbindung bis zum Sharing: Power Query, Folding, Modell, DAX, IBCS, Service und RLS. Mit Schritt-für-Schritt-Anleitungen und Beispielen."},
+{"id": "praxis-pfad", "title": "Dein erstes Dashboard", "type": "doku", "topics": ["report", "modell"], "date": "2026-09", "approx": true, "lang": "DE", "url": "powerbi_praxis_pfad.html", "eyebrow": "Praxis-Pfad · ca. 2 Stunden", "desc": "Von null zum ersten fertigen Power-BI-Dashboard in gut zwei Stunden. Kostenlos, ohne Konto, ohne Vorkenntnisse, mit Rettungsdatei für jedes Kapitel."},
+{"id": "ibcs-reporting-md", "title": "IBCS-Berichte in Power BI: Standard statt Bauchgefühl", "type": "post", "topics": ["ibcs", "report"], "date": "2026-09", "approx": true, "lang": "DE", "url": "blog/ibcs-reporting-power-bi.md", "eyebrow": "Blog · Markdown", "desc": "Semantische Notation, Varianzen und Brücken mit Bordmitteln plus Deneb. Der Beitrag liegt als reiner Markdown-Text vor."},
+{"id": "morally-aligned-ai", "title": "Morally Aligned AI", "type": "talk", "topics": ["ki"], "date": "2026-09", "approx": true, "lang": "DE", "url": "morally_aligned_ai.html", "enUrl": "morally_aligned_ai_en.html", "eyebrow": "Talk · Daten Grillen '26", "desc": "Was bedeutet es, eine KI moralisch auszurichten, und worüber sollten wir reden, bevor wir es tun? Begleitseite zum Vortrag mit spielbaren Modulen und Thesen."},
+{"id": "fermi", "title": "Fermi Paradox: Simulation", "type": "werkzeug", "topics": ["ki"], "date": "2026-09", "approx": true, "lang": "EN", "url": "fermi_paradox_en.html", "eyebrow": "Simulation · Modul zum Talk", "desc": "Wenn das Universum so groß und alt ist, wo sind dann alle? Eine kleine Simulation zum Fermi-Paradoxon, Modul 01 aus dem Talk „Morally Aligned AI“. Nur auf Englisch."},
+{"id": "agenda", "title": "Daten-WG 2026: Agenda und Speaker:innen", "type": "event", "topics": ["karriere"], "date": "2026-10-14", "lang": "DE", "url": "daten-wg-agenda.html", "eyebrow": "Rückblick · 14.–16.10.2026", "desc": "Das komplette Programm der Daten-WG 2026 zum Nachlesen: alle Sessions und Speaker:innen aus Sessionize."},
+{"id": "sponsoren", "title": "Daten-WG 2026: Sponsoren", "type": "event", "topics": ["karriere"], "date": "2026-10-08", "lang": "DE", "url": "daten-wg-sponsoren.html", "eyebrow": "Rückblick · Danke", "desc": "Sponsoren und Supporter der Daten-WG 2026, als Vollbild-Schleife für die Bühne."},
+{"id": "game", "title": "Daten-WG ARCADE", "type": "event", "topics": ["karriere"], "date": "2026-10", "lang": "DE", "url": "daten-wg-game.html", "eyebrow": "Spiel zur Konferenz", "desc": "Daten-WG meets 80s-Arcade: Zimmer besuchen, Sessions swipen, Speaker-Karten sammeln und Highscore jagen, ganz ohne Installation."}
+]
+</script>
+<script>
+(function () {
+  'use strict';
+  // Arten: id, Label, Hash, Farbe (CSS-Variable)
+  var TYPES = [
+    { id: 'post',       label: 'Beitrag',              plural: 'Posts',                 hash: 'posts' },
+    { id: 'story',      label: 'Visual Story',         plural: 'Visual Stories',        hash: 'stories' },
+    { id: 'whitepaper', label: 'Whitepaper',           plural: 'Whitepaper',            hash: 'whitepaper' },
+    { id: 'talk',       label: 'Talk/Session',         plural: 'Talks & Sessions',      hash: 'talks' },
+    { id: 'doku',       label: 'Doku & Schnellstart',  plural: 'Doku & Schnellstart',   hash: 'doku' },
+    { id: 'werkzeug',   label: 'Werkzeug',             plural: 'Werkzeuge',             hash: 'werkzeuge' },
+    { id: 'event',      label: 'Event-Rückblick',      plural: 'Event-Rückblick',       hash: 'event' }
+  ];
+  // Gemeinsames Themen-Vokabular (IDs wie bei den Folgen, siehe Tag-Analyse §3.2)
+  var TOPICS = [
+    ['ki', 'KI, Copilot & Agents'], ['report', 'Reportdesign & Visuals'], ['ibcs', 'IBCS & Business Charts'],
+    ['story', 'Data Storytelling'], ['fabric', 'Fabric & Lakehouse'], ['planung', 'Planung & Finance'],
+    ['modell', 'Datenmodellierung'], ['dax', 'DAX & Berechnungen'], ['integration', 'Datenintegration'],
+    ['perf', 'Performance & Kosten'], ['devops', 'Developer-Workflow'], ['governance', 'Governance & Self-Service'],
+    ['strategie', 'Strategie & Datenkultur'], ['oekosystem', 'Tool-Vergleiche'], ['karriere', 'Karriere & Community']
+  ];
+  var MONTHS = ['Jan.', 'Feb.', 'März', 'April', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.'];
+
+  var POSTS = JSON.parse(document.getElementById('posts-data').textContent);
+  var typeById = {}; TYPES.forEach(function (t) { typeById[t.id] = t; });
+  var topicLabel = {}; TOPICS.forEach(function (t) { topicLabel[t[0]] = t[1]; });
+  var usedTopics = TOPICS.filter(function (t) { return POSTS.some(function (p) { return p.topics.indexOf(t[0]) !== -1; }); });
+
+  function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ß/g, 'ss'); }
+  POSTS.forEach(function (p) {
+    p._search = norm([p.title, p.desc, p.eyebrow, typeById[p.type].label, typeById[p.type].plural].concat(p.topics.map(function (t) { return topicLabel[t] || t; })).join(' '));
+    p._sort = p.date.length === 7 ? p.date + '-00' : p.date;
+  });
+
+  var state = { type: '', topics: [], q: '', sort: 'neu' };
+  var $ = function (id) { return document.getElementById(id); };
+  var elQ = $('q'), elTypes = $('types'), elTopics = $('topics'), elGrid = $('grid'), elFeat = $('featured'), elFeatGrid = $('featured-grid');
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function fmtDate(p) {
+    var y = p.date.slice(0, 4), m = +p.date.slice(5, 7);
+    if (p.approx || !m) return y;
+    return MONTHS[m - 1] + ' ' + y;
+  }
+  function matches(p, ignore) {
+    if (ignore !== 'type' && state.type && p.type !== state.type) return false;
+    if (ignore !== 'topics' && state.topics.length && !state.topics.some(function (t) { return p.topics.indexOf(t) !== -1; })) return false;
+    if (state.q) {
+      var words = norm(state.q).split(/\s+/).filter(Boolean);
+      for (var i = 0; i < words.length; i++) if (p._search.indexOf(words[i]) === -1) return false;
+    }
+    return true;
+  }
+  function sorted(list) {
+    return list.slice().sort(state.sort === 'az'
+      ? function (a, b) { return a.title.localeCompare(b.title, 'de', { sensitivity: 'base' }); }
+      : function (a, b) {
+          // Event-Rückblick (Konferenz vorbei) ans Ende, außer man filtert danach
+          if (!state.type) { var ea = a.type === 'event', eb = b.type === 'event'; if (ea !== eb) return ea ? 1 : -1; }
+          return a._sort < b._sort ? 1 : a._sort > b._sort ? -1 : a.title.localeCompare(b.title, 'de');
+        });
+  }
+
+  function card(p) {
+    var t = typeById[p.type];
+    var lang = p.enUrl
+      ? '<span class="lang"><span aria-label="Deutsch">DE</span><a href="' + esc(p.enUrl) + '" hreflang="en" lang="en" aria-label="English version: ' + esc(p.title) + '">EN</a></span>'
+      : '<span class="lang"><span' + (p.lang === 'EN' ? ' lang="en"' : '') + '>' + esc(p.lang) + '</span></span>';
+    var topics = p.topics.map(function (id) {
+      var on = state.topics.indexOf(id) !== -1;
+      return '<button type="button" class="tchip' + (on ? ' on' : '') + '" data-topic="' + id + '" aria-pressed="' + on + '" title="Nach Thema filtern">' + esc(topicLabel[id] || id) + '</button>';
+    }).join('');
+    return '<li class="card" style="--c:var(--t-' + p.type + ')">' +
+      '<div class="card-top"><span class="badge">' + esc(t.label) + '</span><span class="date">' + esc(fmtDate(p)) + '</span></div>' +
+      '<span class="card-eyebrow">' + esc(p.eyebrow) + '</span>' +
+      '<h3><a href="' + esc(p.url) + '">' + esc(p.title) + '</a></h3>' +
+      '<p>' + esc(p.desc) + '</p>' +
+      '<div class="card-foot">' + topics + lang + '</div>' +
+    '</li>';
+  }
+
+  function renderChips() {
+    // Arten: Zahl unter Suche + Themen (ohne Arten-Filter)
+    var base = POSTS.filter(function (p) { return matches(p, 'type'); });
+    var html = '<button type="button" class="chip" data-type="" aria-pressed="' + (!state.type) + '">Alle <span class="n">' + base.length + '</span></button>';
+    TYPES.forEach(function (t) {
+      var n = base.filter(function (p) { return p.type === t.id; }).length;
+      var on = state.type === t.id;
+      html += '<button type="button" class="chip' + (n === 0 && !on ? ' zero' : '') + '" data-type="' + t.id + '" aria-pressed="' + on + '" style="--c:var(--t-' + t.id + ')"' + (n === 0 && !on ? ' aria-disabled="true"' : '') + '><span class="dot" aria-hidden="true"></span>' + esc(t.plural) + ' <span class="n">' + n + '</span></button>';
+    });
+    var sl = elTypes.scrollLeft;
+    elTypes.innerHTML = html;
+    elTypes.scrollLeft = sl;
+
+    // Themen: Zahl unter Suche + Art (ohne Themen-Filter), 0 ausgegraut
+    var tbase = POSTS.filter(function (p) { return matches(p, 'topics'); });
+    elTopics.innerHTML = usedTopics.map(function (t) {
+      var n = tbase.filter(function (p) { return p.topics.indexOf(t[0]) !== -1; }).length;
+      var on = state.topics.indexOf(t[0]) !== -1;
+      return '<button type="button" class="chip' + (n === 0 && !on ? ' zero' : '') + '" data-topic="' + t[0] + '" aria-pressed="' + on + '"' + (n === 0 && !on ? ' aria-disabled="true"' : '') + '>' + esc(t[1]) + ' <span class="n">' + n + '</span></button>';
+    }).join('');
+    $('topics-toggle-label').textContent = state.topics.length ? 'Themen (' + state.topics.length + ' aktiv)' : 'Themen';
+  }
+
+  function render() {
+    renderChips();
+    var list = sorted(POSTS.filter(function (p) { return matches(p); }));
+    elGrid.innerHTML = list.map(card).join('');
+    $('empty').hidden = list.length > 0;
+    var filtered = !!(state.type || state.topics.length || state.q);
+    $('reset').hidden = !filtered;
+    $('q-clear').hidden = !state.q;
+    var t = state.type ? typeById[state.type] : null;
+    $('count').innerHTML = '<strong>' + list.length + '</strong> ' + (list.length === 1 ? 'Beitrag' : 'Beiträge') +
+      (filtered ? ' von ' + POSTS.length : '') + (t ? ' · ' + esc(t.plural) : '');
+    // „Neu in der Kitchen“: drei neueste, nur ohne Filter (Event-Rückblick nicht prominent)
+    if (!filtered) {
+      var feat = POSTS.filter(function (p) { return p.type !== 'event' && !p.approx; })
+        .sort(function (a, b) { return a._sort < b._sort ? 1 : a._sort > b._sort ? -1 : 0; }).slice(0, 3);
+      elFeatGrid.innerHTML = feat.map(card).join('');
+      elFeat.hidden = false;
+      $('list-title').textContent = 'Alle Beiträge';
+    } else {
+      elFeat.hidden = true;
+      elFeatGrid.innerHTML = '';
+    }
+  }
+
+  // URL: Art als Hash (#posts, #stories …), Themen und Suche als Query (?thema=ki,ibcs&q=…)
+  function readUrl() {
+    var h = decodeURIComponent(location.hash.replace(/^#/, ''));
+    var t = TYPES.filter(function (x) { return x.hash === h || x.id === h; })[0];
+    state.type = t ? t.id : '';
+    var sp = new URLSearchParams(location.search);
+    var th = (sp.get('thema') || '').split(',').filter(function (id) { return topicLabel[id]; });
+    state.topics = th;
+    state.q = sp.get('q') || '';
+    elQ.value = state.q;
+  }
+  function writeUrl() {
+    var sp = new URLSearchParams();
+    if (state.topics.length) sp.set('thema', state.topics.join(','));
+    if (state.q) sp.set('q', state.q);
+    var qs = sp.toString();
+    var url = location.pathname + (qs ? '?' + qs : '') + (state.type ? '#' + typeById[state.type].hash : '');
+    if (url !== location.pathname + location.search + location.hash) history.replaceState(null, '', url);
+  }
+  function update() { writeUrl(); render(); }
+
+  elTypes.addEventListener('click', function (e) {
+    var b = e.target.closest('.chip'); if (!b) return;
+    if (b.getAttribute('aria-disabled') === 'true') return;
+    state.type = b.dataset.type; update();
+    var nb = elTypes.querySelector('[data-type="' + state.type + '"]'); if (nb) nb.focus();
+  });
+  function toggleTopic(id) {
+    var i = state.topics.indexOf(id);
+    if (i === -1) state.topics.push(id); else state.topics.splice(i, 1);
+  }
+  elTopics.addEventListener('click', function (e) {
+    var b = e.target.closest('.chip'); if (!b) return;
+    if (b.getAttribute('aria-disabled') === 'true') return;
+    var id = b.dataset.topic; toggleTopic(id); update();
+    var nb = elTopics.querySelector('[data-topic="' + id + '"]'); if (nb) nb.focus();
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.tchip'); if (!b) return;
+    e.preventDefault();
+    var id = b.dataset.topic;
+    if (state.topics.indexOf(id) === -1) state.topics.push(id); else toggleTopic(id);
+    update();
+    $('topics').scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  });
+  var qTimer;
+  elQ.addEventListener('input', function () {
+    clearTimeout(qTimer);
+    qTimer = setTimeout(function () { state.q = elQ.value.trim(); update(); }, 120);
+  });
+  elQ.addEventListener('keydown', function (e) { if (e.key === 'Escape' && elQ.value) { elQ.value = ''; state.q = ''; update(); } });
+  $('q-clear').addEventListener('click', function () { elQ.value = ''; state.q = ''; update(); elQ.focus(); });
+  $('sort').addEventListener('change', function () { state.sort = this.value; render(); });
+  function resetAll() { state.type = ''; state.topics = []; state.q = ''; elQ.value = ''; update(); }
+  $('reset').addEventListener('click', resetAll);
+  $('empty-reset').addEventListener('click', function () { resetAll(); elQ.focus(); });
+  var tt = $('topics-toggle');
+  tt.addEventListener('click', function () {
+    var open = tt.getAttribute('aria-expanded') !== 'true';
+    tt.setAttribute('aria-expanded', String(open));
+    elTopics.setAttribute('data-collapsed', String(!open));
+  });
+  elTopics.setAttribute('data-collapsed', 'true');
+  window.addEventListener('hashchange', function () { readUrl(); render(); });
+
+  readUrl();
+  if (state.topics.length) { tt.setAttribute('aria-expanded', 'true'); elTopics.setAttribute('data-collapsed', 'false'); }
+  render();
+})();
+</script>
+</body>
+</html>
