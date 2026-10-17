@@ -202,6 +202,13 @@ const templateItems: LocEnumMember[] = [
     { value: "C13", displayName: "C13 · Small multiples", key: "Enum_Template_C13" }
 ];
 
+// 1.49: Leer-Zustand — Demo-Galerie (bisheriges Verhalten) · Feld-Intro · eigene Nachricht
+const emptyModeItems: LocEnumMember[] = [
+    { value: "demo", displayName: "Demo gallery (pick a chart type)", key: "Enum_EmptyMode_Demo" },
+    { value: "fields", displayName: "Field guide (which field goes where)", key: "Enum_EmptyMode_Fields" },
+    { value: "message", displayName: "Own message (title / text below)", key: "Enum_EmptyMode_Message" }
+];
+
 /** resolve all enum-member labels once via the host's localization manager */
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
     const lists: LocEnumMember[][] = [templateItems, orientationItems, comparisonItems, appearanceItems,
@@ -211,7 +218,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
         gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
         scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
-        bridgeOrientationItems];
+        bridgeOrientationItems, emptyModeItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -1387,6 +1394,16 @@ export class LabelsCardSettings extends FormattingSettingsCard {
 }
 
 export class EmptyStateCardSettings extends FormattingSettingsCard {
+    mode = new formattingSettings.ItemDropdown({
+        name: "mode",
+        displayName: "Empty state in edit mode",
+        displayNameKey: "Empty_Mode",
+        description: "Was der Bericht-Autor im Bearbeitungsmodus sieht, solange keine Daten dargestellt werden: die Demo-Galerie zur Chart-Typ-Wahl (Standard, bisheriges Verhalten), das Feld-Intro (welches Feld wohin, ✓ an bereits gebundenen Feldern) oder die eigene Nachricht aus Titel/Text unten. Leser und Exporte sehen weiterhin Galerie bzw. eigene Nachricht wie bisher.",
+        descriptionKey: "Desc_Empty_Mode",
+        items: emptyModeItems,
+        value: emptyModeItems[0]
+    });
+
     title = new formattingSettings.TextInput({
         name: "title",
         displayName: "Eigener Titel",
@@ -1410,7 +1427,7 @@ export class EmptyStateCardSettings extends FormattingSettingsCard {
     name: string = "emptyState";
     displayName: string = "Leer-Zustand";
     displayNameKey: string = "Card_EmptyState";
-    slices: Array<FormattingSettingsSlice> = [this.title, this.body];
+    slices: Array<FormattingSettingsSlice> = [this.mode, this.title, this.body];
 }
 
 export class CommentsCardSettings extends FormattingSettingsCard {

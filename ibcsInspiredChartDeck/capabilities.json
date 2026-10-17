@@ -528,6 +528,15 @@
         },
         "emptyState": {
             "properties": {
+                "mode": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "demo", "displayName": "Demo-Galerie (Chart-Typ wählen)" },
+                            { "value": "fields", "displayName": "Feld-Intro (welches Feld wohin)" },
+                            { "value": "message", "displayName": "Eigene Nachricht (Titel / Text unten)" }
+                        ]
+                    }
+                },
                 "title": { "type": { "text": true } },
                 "body": { "type": { "text": true } }
             }

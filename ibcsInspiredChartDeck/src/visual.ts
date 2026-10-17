@@ -768,6 +768,12 @@ export class Visual implements IVisual {
     private sortNoop = false;
     /** ⚠ would fold nothing (every category above the materiality threshold) */
     private exceptionNoop = false;
+    /** 1.49 empty-state switch (edit mode): emptyState.mode we persisted but the
+     *  host has not echoed yet — same echo-guard + TTL pattern as pendingFontPreset */
+    private pendingEmptyMode: string | null = null;
+    private pendingEmptyModeTtl = 0;
+    /** data view of the last update — the field intro marks the bound roles from it */
+    private lastDataView: DataView | undefined = undefined;
     /** structure-edit mode (one-click P&L): row clicks open the structure menu */
     private structureEdit = false;
     private structEditor: HTMLDivElement | null = null;
@@ -967,6 +973,18 @@ export class Visual implements IVisual {
             }
             // 1.49 IBCS chart template (chart.template): applies a preset once per pick
             this.syncChartTemplate(dataView);
+            // 1.49 empty-state switch (Feld-Intro ↔ Galerie ↔ Nachricht), same echo guard
+            const emSlice = this.formattingSettings.emptyStateCard.mode;
+            if (this.pendingEmptyMode != null) {
+                if (String(emSlice.value.value) === this.pendingEmptyMode
+                    || --this.pendingEmptyModeTtl <= 0) {
+                    this.pendingEmptyMode = null;
+                } else {
+                    const emIt = emSlice.items.find(x => String(x.value) === this.pendingEmptyMode);
+                    if (emIt) { emSlice.value = emIt; }
+                }
+            }
+            this.lastDataView = dataView;
 
             const width = options.viewport.width;
             const height = options.viewport.height;
@@ -2066,6 +2084,24 @@ export class Visual implements IVisual {
             return;
         }
 
+        // 1.49 emptyState.mode: field intro / own message replace the gallery for
+        // the AUTHOR (edit mode, interactive host). Readers and exports keep the
+        // previous behaviour above/below — "demo" is exactly the old landing
+        const emptyMode = String(esc.mode.value.value);
+        if (isEdit && this.allowInteractions && width >= 300 && height >= 220) {
+            if (emptyMode === "fields") {
+                this.renderFieldIntro(width, height);
+                return;
+            }
+            if (emptyMode === "message") {
+                const msgBody = custom ? cBody
+                    : this.locStr("Es_MessageEmpty", "No own message yet — enter title and text in the format pane under \"Empty state\".");
+                this.renderEmptyMessage(width, height, custom ? cTitle : "ChartKitchen byDatenWG", msgBody, ink, subtle);
+                this.drawEmptySwitches(width, height, "message", { ink, subtle, tile, edge2 });
+                return;
+            }
+        }
+
         // tiny visuals: no room for the gallery — title + hint only
         if (width < 300 || height < 220) {
             const t0 = this.el("text", {
@@ -2437,6 +2473,165 @@ export class Visual implements IVisual {
                 });
                 sx += wds[i] + segGap;
             });
+        }
+    }
+
+    /**
+     * 1.49 field intro (emptyState.mode = fields, edit mode only): which field goes
+     * into which well — the core roles with a ✓ at the ones already bound and a
+     * one-line purpose each, in the report language (PnL 1.2 pattern, drawn as SVG
+     * like the rest of the landing). A missing-AC hint stays on top.
+     */
+    private renderFieldIntro(width: number, height: number): void {
+        const dk = this.uiDark;
+        const ink = dk ? DARK_INK : "#404040", teal = dk ? "#3FB3C2" : "#1E8F9E";
+        const subtle = dk ? DARK_SUBTLE : "#6E6E6E", soft = dk ? "#BFBFBF" : "#5A5A5A";
+        const wash = dk ? DARK_WASH : WASH, edge2 = dk ? DARK_FAINT : "#DDDDD8";
+        const tile = dk ? "#262624" : "#FAFAF8";
+        const red = dk ? "#E4635F" : "#D64541";
+        const sLc = this.formattingSettings.labelsCard;
+        const kf = Math.min(3, ({ compact: 1, fullhd: 1.5, presentation: 2 }[
+            String(sLc.fontPreset.value.value)] ?? 1)
+            * Math.max(0.5, Math.min(3, Number(sLc.fontScale.value ?? 100) / 100)));
+        const tf = Math.min(1.4, Math.max(1, kf));
+        const fT = Math.round(14 * tf), fB = Math.round(11 * tf), fS = Math.round(9.5 * tf);
+        // bound roles: metadata columns (host) and the categorical sources (harness)
+        const dv = this.lastDataView;
+        const roles = new Set<string>();
+        const take = (r: { [k: string]: boolean } | undefined) => {
+            for (const k of Object.keys(r ?? {})) { if (r && r[k]) { roles.add(k); } }
+        };
+        for (const c of dv?.metadata?.columns ?? []) { take(c.roles); }
+        for (const c of dv?.categorical?.categories ?? []) { take(c.source.roles); }
+        for (const c of dv?.categorical?.values ?? []) { take(c.source.roles); }
+        const rows: { id: string; key: string; en: string; tKey: string; tEn: string; sec: number }[] = [
+            { id: "category", key: "Role_Category", en: "Category", sec: 0,
+                tKey: "FI_Category", tEn: "Axis or structure — months for time series, regions/products for structure; several fields = drill hierarchy" },
+            { id: "actual", key: "Role_Actual", en: "Actual (AC)", sec: 0,
+                tKey: "FI_Ac", tEn: "Actual measure, drawn solid dark — the only required value (alternatively FC)" },
+            { id: "previousYear", key: "Role_PreviousYear", en: "Previous Year (PY)", sec: 1,
+                tKey: "FI_Py", tEn: "Prior year → ΔPY panel and pins, drawn grey" },
+            { id: "plan", key: "Role_Plan", en: "Plan / Budget (PL)", sec: 1,
+                tKey: "FI_Pl", tEn: "Plan/budget → ΔPL, drawn outlined" },
+            { id: "forecast", key: "Role_Forecast", en: "Forecast (FC)", sec: 1,
+                tKey: "FI_Fc", tEn: "Forecast, hatched — fills the periods without actuals" },
+            { id: "series", key: "Role_Series", en: "Stack series", sec: 1,
+                tKey: "FI_Series", tEn: "Stacks columns/bars by this breakdown (templates C01/C02)" },
+            { id: "multiples", key: "Role_Multiples", en: "Small Multiples", sec: 1,
+                tKey: "FI_Multiples", tEn: "One tile per value, all on the same scale (template C13)" }
+        ];
+        const pad = 12;
+        const boxX = pad, boxY = pad, boxW = Math.min(width - 2 * pad, 760);
+        const switchH = Math.round(21 * tf) + 12;
+        const boxH = height - 2 * pad - switchH;
+        const g = this.el("g", { "data-icd": "field-intro" }, this.svg) as SVGGElement;
+        const box = this.el("rect", {
+            x: boxX, y: boxY, width: boxW, height: Math.max(40, boxH), rx: 6,
+            fill: wash, stroke: edge2, "stroke-width": 1, "stroke-dasharray": "4,3"
+        }, g);
+        const ix = boxX + 14, iw = boxW - 28;
+        let y = boxY + 12 + fT;
+        const txt = (x: number, yy: number, t: string, size: number, fill: string, bold = false, maxW = iw) => {
+            const e = this.el("text", {
+                x, y: yy, "font-size": size, fill, "font-family": FONT, ...(bold ? { "font-weight": 600 } : {})
+            }, g);
+            e.textContent = this.truncate(t, maxW, size);
+            return e;
+        };
+        txt(ix, y, this.locStr("FI_Title", "Which field goes where"), fT, ink, true);
+        y += Math.round(fB * 1.6);
+        txt(ix, y, this.locStr("FI_Intro", "Fill the field wells — the chart appears as soon as Actual (AC) is bound."), fB, soft);
+        const bottom = boxY + boxH - 8;
+        if (this.missingHint) {
+            y += Math.round(fB * 1.5);
+            txt(ix, y, this.missingHint, fB, red, true);
+        }
+        const lineH = Math.round(fB * 1.55);
+        const nameW = Math.min(iw * 0.42, Math.max(...rows.map(r =>
+            this.textWidth(this.locStr(r.key, r.en), fB))) + 8);
+        let sec = -1;
+        for (const r of rows) {
+            if (r.sec !== sec) {
+                sec = r.sec;
+                if (y + Math.round(fB * 1.7) + lineH > bottom) { break; }
+                y += Math.round(fB * 1.7);
+                txt(ix, y, (sec === 0 ? this.locStr("FI_Minimal", "Minimal") : this.locStr("FI_Extended", "Extended"))
+                    .toUpperCase(), fS, subtle, true);
+            }
+            if (y + lineH > bottom) { break; }
+            y += lineH;
+            const on = roles.has(r.id);
+            const mark = txt(ix, y, on ? "✓" : "○", fB, on ? teal : subtle, true, 16);
+            mark.setAttribute("data-fi", r.id);
+            mark.setAttribute("data-on", on ? "1" : "0");
+            txt(ix + 18, y, this.locStr(r.key, r.en), fB, ink, true, nameW);
+            txt(ix + 18 + nameW + 6, y, this.locStr(r.tKey, r.tEn), fB, soft, false, iw - 24 - nameW);
+        }
+        if (y + Math.round(fB * 1.9) <= bottom) {
+            y += Math.round(fB * 1.9);
+            const h = txt(ix, y, this.locStr("FI_Hint", "Then pick an IBCS template: format pane → Chart → IBCS chart template."), fB, subtle);
+            h.setAttribute("font-style", "italic");
+        }
+        // the dashed box hugs its content; the switches sit right below it
+        const fitH = Math.max(40, Math.min(boxH, y - boxY + Math.round(fB * 0.9) + 6));
+        box.setAttribute("height", String(fitH));
+        this.drawEmptySwitches(width, height, "fields", { ink, subtle, tile, edge2 }, boxY + fitH + 10);
+    }
+
+    /**
+     * 1.49 empty-state switches (edit mode only, bottom left): every mode except the
+     * current one. A click persists emptyState.mode (echo guard + TTL) and shows the
+     * new start at once; readers never see these buttons.
+     */
+    private drawEmptySwitches(width: number, height: number, cur: string,
+        c: { ink: string; subtle: string; tile: string; edge2: string }, top?: number): void {
+        const sLc = this.formattingSettings.labelsCard;
+        const kf = Math.min(3, ({ compact: 1, fullhd: 1.5, presentation: 2 }[
+            String(sLc.fontPreset.value.value)] ?? 1)
+            * Math.max(0.5, Math.min(3, Number(sLc.fontScale.value ?? 100) / 100)));
+        const tf = Math.min(1.4, Math.max(1, kf));
+        const f = Math.round(10.5 * tf), bh = Math.round(21 * tf);
+        const tip = this.locStr("Es_SwitchTip", "Saved as Empty state → mode — readers keep seeing the gallery or the own message");
+        const opts = [
+            { v: "demo", key: "Es_Demo", en: "Show gallery" },
+            { v: "fields", key: "Es_Fields", en: "Explain fields" },
+            { v: "message", key: "Es_Message", en: "Own message" }
+        ].filter(o => o.v !== cur);
+        let x = 12;
+        const y = top != null ? Math.min(top, height - 12 - bh) : height - 12 - bh;
+        for (const o of opts) {
+            const label = this.locStr(o.key, o.en);
+            const w = Math.ceil(this.textWidth(label, f)) + 22;
+            const b = this.el("g", { role: "button", tabindex: "0", "data-icd": "es-" + o.v }, this.svg) as SVGGElement;
+            b.setAttribute("aria-label", `${label} — ${tip}`);
+            const tt = this.el("title", {}, b);
+            tt.textContent = tip;
+            this.el("rect", {
+                x, y, width: w, height: bh, rx: 4, fill: c.tile, stroke: c.edge2, "stroke-width": 1
+            }, b);
+            const t = this.el("text", {
+                x: x + w / 2, y: y + bh / 2 + f * 0.36, "text-anchor": "middle",
+                "font-size": f, fill: c.ink, "font-family": FONT
+            }, b);
+            t.textContent = label;
+            b.style.cursor = "pointer";
+            const go = () => {
+                const sl = this.formattingSettings.emptyStateCard.mode;
+                const it = sl.items.find(xx => String(xx.value) === o.v);
+                if (it) { sl.value = it; }
+                this.pendingEmptyMode = o.v;
+                this.pendingEmptyModeTtl = 5;
+                this.host.persistProperties({
+                    merge: [{ objectName: "emptyState", selector: null, properties: { mode: o.v } }]
+                });
+                this.renderDemo(width, height);
+            };
+            b.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); go(); });
+            b.addEventListener("keydown", (e: KeyboardEvent) => {
+                if (e.key !== "Enter" && e.key !== " ") { return; }
+                e.preventDefault(); e.stopPropagation(); go();
+            });
+            x += w + 6;
         }
     }
 
