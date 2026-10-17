@@ -49,9 +49,19 @@ Klappentext · *Der unsichtbare Kampf*, Kenamo Verlag
 Michael Thomanek, von allen Micha genannt, schöpft aus **über vierzig Jahren Erfahrung in der Kampfkunst**. Mit *Der unsichtbare Kampf* überträgt er, was auf der Matte sichtbar wird, auf den inneren Kampf, den jeder Mensch kennt. Das Buch ist im Kenamo Verlag erschienen.
 
 - **Sensei:** So nennen ihn Freunde. Im Japanischen heißt das Trainer oder Lehrer der Kampfkunst, „hat aber auch was vom großen Bruder“. Nach rund dreißig Jahren ist es für ihn ein Spitzname geworden, so wie früher Micha für Michael.
-- **Ju-Jutsu seit über 40 Jahren,** seit rund 30 Jahren hauptberuflich als Trainer für Kampfkunst und Selbstverteidigung. Einige seiner Schüler trainieren seit 1995 bei ihm.
+- **Jiu-Jitsu seit über 40 Jahren,** seit rund 30 Jahren hauptberuflich als Trainer für Kampfkunst und Selbstverteidigung. Einige seiner Schüler trainieren seit 1995 bei ihm.
 - **Rund 5.000 Menschen** hat er nach eigener Schätzung trainiert, eigene Gruppen, Lehrgänge und Seminare in Deutschland zusammengenommen.
 - **Das Buch:** 240 Seiten, ein Jahr Arbeit, gefühlt 700 Stunden. Der Impuls liegt 27 Jahre zurück.
+
+Sein Dojo ist der **Jidokan e.V.** in der Kölner Südstadt. Jido verbindet Elemente des Jiu-Jitsu mit Selbstverteidigung. Mehr zum Training: [jido.de](https://jido.de/)
+
+![Eingang des Jidokan in Köln: helle Altbaufassade, Banner „Jiu-Jitsu Dojo“, eine Steinlaterne und eine schwarze Figur neben der Tür.](../assets/posts/unsichtbarer-kampf/jidokan-dojo.jpg)
+
+*Der Eingang zum Jidokan in Köln.*
+
+![Fünf Männer in schwarzen Kampfkunstanzügen stehen lächelnd nebeneinander im Dojo, Micha in der Mitte mit rot-weißem Gürtel.](../assets/posts/unsichtbarer-kampf/jidokan-team.jpg)
+
+*Micha (Mitte) mit Trainern im Dojo.*
 
 ## Das Interview
 
@@ -65,7 +75,7 @@ Für mich ist das nach rund dreißig Jahren hauptberuflich in Selbstverteidigung
 
 ### Frage 2 · Wie kommt man auf die Idee, sich wochenlang hinzusetzen und seine Gedanken aufzuschreiben?
 
-Da muss ich weit ausholen. Ich habe vor über vierzig Jahren mit Ju-Jutsu angefangen und setze mich seitdem mit dem Kämpfen auseinander. Lange stand Selbstverteidigung im Vordergrund. Über die Auseinandersetzung mit dem Kämpfen habe ich irgendwann geschnallt, dass man auch in sich mit sich selbst kämpft.
+Da muss ich weit ausholen. Ich habe vor über vierzig Jahren mit Jiu-Jitsu angefangen und setze mich seitdem mit dem Kämpfen auseinander. Lange stand Selbstverteidigung im Vordergrund. Über die Auseinandersetzung mit dem Kämpfen habe ich irgendwann geschnallt, dass man auch in sich mit sich selbst kämpft.
 
 Über diesen Kampf hatte ich vor 27 Jahren eine sehr tiefgreifende Erfahrung. Ich finde dafür nur die Worte unendliche Liebe und Geist. Das war ein Zustand, der nicht von dieser Welt ist, und in dem war ich eine längere Zeit konstant. Man kann da hineindeuten, was man will. Es gibt aber viele Zeugnisse von Menschen, gerade aus der Kunst, nehmen wir David Lynch oder große Musiker, die von anderen Bewusstseinszuständen sprechen. Da würde ich mich eher einordnen.
 

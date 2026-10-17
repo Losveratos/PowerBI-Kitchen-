@@ -283,6 +283,13 @@ img { display:block; max-width:100%; height:auto; }
 .facts li { position:relative; padding-left:22px; }
 .facts li::before { content:''; position:absolute; left:0; top:.45em; width:12px; height:12px; background:var(--coral); clip-path:polygon(50% 0,100% 100%,0 100%); }
 .facts li:nth-child(2)::before { background:var(--teal); } .facts li:nth-child(3)::before { background:var(--ochre); } .facts li:nth-child(4)::before { background:var(--sky); }
+
+/* Dojo-Abschnitt */
+.dojo-line { margin-top:18px; }
+.dojo-line a { color:var(--green); font-weight:600; text-underline-offset:3px; }
+.dojo-gallery { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,3fr); gap:20px; align-items:start; margin-top:8px; }
+.dojo-gallery .moment { margin:12px 0 0; max-width:none; }
+@media (max-width:640px){ .dojo-gallery { grid-template-columns:minmax(0,1fr); } }
 </style>
 </head>
 <body>
@@ -370,10 +377,21 @@ img { display:block; max-width:100%; height:auto; }
         <p>Michael Thomanek, von allen Micha genannt, schöpft aus <strong>über vierzig Jahren Erfahrung in der Kampfkunst</strong>. Mit <cite>Der unsichtbare Kampf</cite> überträgt er, was auf der Matte sichtbar wird, auf den inneren Kampf, den jeder Mensch kennt. Das Buch ist im Kenamo Verlag erschienen.</p>
         <ul class="facts">
           <li><strong>Sensei:</strong> So nennen ihn Freunde. Im Japanischen heißt das Trainer oder Lehrer der Kampfkunst, „hat aber auch was vom großen Bruder“. Nach rund dreißig Jahren ist es für ihn ein Spitzname geworden, so wie früher Micha für Michael.</li>
-          <li><strong>Ju-Jutsu seit über 40 Jahren,</strong> seit rund 30 Jahren hauptberuflich als Trainer für Kampfkunst und Selbstverteidigung. Einige seiner Schüler trainieren seit 1995 bei ihm.</li>
+          <li><strong>Jiu-Jitsu seit über 40 Jahren,</strong> seit rund 30 Jahren hauptberuflich als Trainer für Kampfkunst und Selbstverteidigung. Einige seiner Schüler trainieren seit 1995 bei ihm.</li>
           <li><strong>Rund 5.000 Menschen</strong> hat er nach eigener Schätzung trainiert, eigene Gruppen, Lehrgänge und Seminare in Deutschland zusammengenommen.</li>
           <li><strong>Das Buch:</strong> 240 Seiten, ein Jahr Arbeit, gefühlt 700 Stunden. Der Impuls liegt 27 Jahre zurück.</li>
         </ul>
+        <p class="dojo-line">Sein Dojo ist der <strong>Jidokan e.V.</strong> in der Kölner Südstadt. Jido verbindet Elemente des Jiu-Jitsu mit Selbstverteidigung. Mehr zum Training: <a href="https://jido.de/" target="_blank" rel="noopener">jido.de</a></p>
+        <div class="dojo-gallery">
+          <figure class="moment g-tall">
+            <div class="moment-frame"><img src="assets/posts/unsichtbarer-kampf/jidokan-dojo.jpg" width="720" height="960" loading="lazy" decoding="async" alt="Eingang des Jidokan in Köln: helle Altbaufassade, Banner „Jiu-Jitsu Dojo“, eine Steinlaterne und eine schwarze Figur neben der Tür."></div>
+            <figcaption>Der Eingang zum Jidokan in Köln.</figcaption>
+          </figure>
+          <figure class="moment g-wide">
+            <div class="moment-frame"><img src="assets/posts/unsichtbarer-kampf/jidokan-team.jpg" width="960" height="640" loading="lazy" decoding="async" alt="Fünf Männer in schwarzen Kampfkunstanzügen stehen lächelnd nebeneinander im Dojo, Micha in der Mitte mit rot-weißem Gürtel."></div>
+            <figcaption>Micha (Mitte) mit Trainern im Dojo.</figcaption>
+          </figure>
+        </div>
       </section>
 
       <section id="interview" aria-labelledby="h-interview">
@@ -393,7 +411,7 @@ img { display:block; max-width:100%; height:auto; }
           <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="24,3 45,40 24,30"/><polygon class="b" points="24,3 24,30 3,40"/><polygon class="c" points="3,40 24,30 45,40"/></svg>
           <div class="answer">
             <h3><span class="q-num">Frage 2</span>Wie kommt man auf die Idee, sich wochenlang hinzusetzen und seine Gedanken aufzuschreiben?</h3>
-            <p>Da muss ich weit ausholen. Ich habe vor über vierzig Jahren mit Ju-Jutsu angefangen und setze mich seitdem mit dem Kämpfen auseinander. Lange stand Selbstverteidigung im Vordergrund. Über die Auseinandersetzung mit dem Kämpfen habe ich irgendwann geschnallt, dass man auch in sich mit sich selbst kämpft.</p>
+            <p>Da muss ich weit ausholen. Ich habe vor über vierzig Jahren mit Jiu-Jitsu angefangen und setze mich seitdem mit dem Kämpfen auseinander. Lange stand Selbstverteidigung im Vordergrund. Über die Auseinandersetzung mit dem Kämpfen habe ich irgendwann geschnallt, dass man auch in sich mit sich selbst kämpft.</p>
             <p>Über diesen Kampf hatte ich vor 27 Jahren eine sehr tiefgreifende Erfahrung. Ich finde dafür nur die Worte unendliche Liebe und Geist. Das war ein Zustand, der nicht von dieser Welt ist, und in dem war ich eine längere Zeit konstant. Man kann da hineindeuten, was man will. Es gibt aber viele Zeugnisse von Menschen, gerade aus der Kunst, nehmen wir David Lynch oder große Musiker, die von anderen Bewusstseinszuständen sprechen. Da würde ich mich eher einordnen.</p>
             <p>Ich habe danach Menschen gefunden, die von ähnlichen Erfahrungen sprechen. Der eine hatte einen Unfall, der andere hat einfach gekämpft, bis er an seine Grenzen kam, und dann hat sich etwas geöffnet. Es gibt Taucher, die ihren Herzschlag fast bis zum Stillstand herunterfahren können. Diese Art Verfügung hatte ich auch: Man wird sich bewusst, wie stark der Geist den Körper beeinflusst. Das war der Impuls für das Buch.</p>
           </div>
