@@ -290,6 +290,19 @@ img { display:block; max-width:100%; height:auto; }
 .dojo-gallery { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,3fr); gap:20px; align-items:start; margin-top:8px; }
 .dojo-gallery .moment { margin:12px 0 0; max-width:none; }
 @media (max-width:640px){ .dojo-gallery { grid-template-columns:minmax(0,1fr); } }
+
+/* Inhaltsverzeichnis */
+.toc-head { margin:34px 0 12px; font-family:var(--display); font-weight:400; text-transform:uppercase; letter-spacing:.02em; font-size:clamp(1.2rem,3.4vw,1.5rem); color:var(--night); }
+.toc { list-style:none; margin:0; padding:0; border-top:2px solid var(--night); }
+.toc li { display:grid; grid-template-columns:44px minmax(0,1fr) auto; gap:4px 12px; align-items:baseline; padding:11px 0; border-bottom:1px solid var(--line); }
+.toc-n { font-family:var(--display); font-size:22px; line-height:1; color:var(--brown); }
+.toc-t { font-weight:600; color:var(--night); }
+.toc-p { font-size:14px; font-variant-numeric:tabular-nums; color:#6B5A6E; white-space:nowrap; }
+.toc-extra .toc-t { font-weight:400; color:#5A4A5E; } .toc-extra .toc-n { color:#B3A3B5; }
+.toc-ch.is-key { background:linear-gradient(90deg, rgba(239,196,106,.28), rgba(239,196,106,0) 85%); }
+.toc-ch.is-key .toc-n { color:var(--coral); }
+.toc-note { display:block; margin-top:4px; font-weight:400; font-size:14.5px; line-height:1.5; color:#5A4A5E; }
+.toc-source { margin-top:8px; font-size:13.5px; color:#6B5A6E; }
 </style>
 </head>
 <body>
@@ -370,6 +383,22 @@ img { display:block; max-width:100%; height:auto; }
           </blockquote>
           <p class="quote-source">Klappentext · <cite>Der unsichtbare Kampf</cite>, Kenamo Verlag</p>
         </div>
+
+        <h3 class="toc-head">Was im Buch steckt</h3>
+        <ol class="toc">
+          <li class="toc-extra"><span class="toc-n">·</span><span class="toc-t">Vorwort</span><span class="toc-p">S. 7</span></li>
+          <li class="toc-ch"><span class="toc-n">1</span><span class="toc-t">Zum Hintergrund der Kampfkünste</span><span class="toc-p">S. 19</span></li>
+          <li class="toc-ch"><span class="toc-n">2</span><span class="toc-t">Bekannte Kampfkünste und Systeme</span><span class="toc-p">S. 26</span></li>
+          <li class="toc-ch"><span class="toc-n">3</span><span class="toc-t">Zwischen Kampfkünsten und Klarheit</span><span class="toc-p">S. 37</span></li>
+          <li class="toc-ch"><span class="toc-n">4</span><span class="toc-t">Der innere Kampf</span><span class="toc-p">S. 50</span></li>
+          <li class="toc-ch is-key"><span class="toc-n">5</span><span class="toc-t">Die Mitte des Ich<span class="toc-note">Mit 41 Seiten das längste Kapitel, genau in der Mitte des Buches. Laut Klappentext liegt dort das philosophische Herzstück.</span></span><span class="toc-p">S. 59</span></li>
+          <li class="toc-ch"><span class="toc-n">6</span><span class="toc-t">Den inneren Kampf lösen</span><span class="toc-p">S. 100</span></li>
+          <li class="toc-ch is-key"><span class="toc-n">7</span><span class="toc-t">Übung und Alltag<span class="toc-note">Die Anleitung, von der Micha im Interview erzählt: Übungen für zu Hause und den Alltag.</span></span><span class="toc-p">S. 131</span></li>
+          <li class="toc-ch"><span class="toc-n">8</span><span class="toc-t">Die Richtung eines Weges</span><span class="toc-p">S. 174</span></li>
+          <li class="toc-ch is-key"><span class="toc-n">9</span><span class="toc-t">Wie Jidō entstand<span class="toc-note">Die Geschichte des Stils, den Micha im Jidokan unterrichtet.</span></span><span class="toc-p">S. 196</span></li>
+          <li class="toc-extra"><span class="toc-n">·</span><span class="toc-t">Nachwort · Begriffliche Orientierung · Kurzbiografie</span><span class="toc-p">S. 227</span></li>
+        </ol>
+        <p class="toc-source">Aus dem Inhaltsverzeichnis, 240 Seiten.</p>
       </section>
 
       <section id="micha" aria-labelledby="h-micha">
@@ -475,7 +504,7 @@ img { display:block; max-width:100%; height:auto; }
           <div class="answer">
             <h3><span class="q-num">Frage 8</span>Was sollen Leser aus dem Buch mitnehmen, und was kommt als Nächstes?</h3>
             <p>Drei Dinge. Erstens: Wer sich für Kampfkunst interessiert, kann sich danach klar einordnen. Interessiere ich mich mehr für Kampfsport, für Selbstverteidigung oder für Kampfkunst? Daraus entsteht innere Stärke, immer mehr Angstfreiheit, immer mehr Bei-sich-Sein. Zweitens die Verwechslung: dass wir uns mit unseren Vorstellungen und Rollen von uns selbst verwechseln. Drittens schließt sich am Ende der Kreis mit der Frage, wie man einen eigenen Weg gestalten kann, mit universellen Beispielen, die man für sich nutzen kann. Oder man lässt es.</p>
-            <p>Ganz praktisch: In Kapitel 7 gibt es eine Anleitung, mit der man Dinge zu Hause auf dem Stuhl oder im Bett ausprobieren und im Alltag anwenden kann.</p>
+            <p>Ganz praktisch: In Kapitel 7, „Übung und Alltag“, gibt es eine Anleitung, mit der man Dinge zu Hause auf dem Stuhl oder im Bett ausprobieren und im Alltag anwenden kann.</p>
             <p>Ich bin kein Verkäufer, und ich habe das Buch nicht geschrieben, um Geld zu verdienen. Ich wollte Menschen erreichen. In meinen Trainingsgruppen sind meist zehn Leute, und von denen erreiche ich viele. Wenn du zehn erreichst, kannst du auch tausend erreichen. Die müssen nur zuhören oder eben ein Buch lesen. Gefehlt hat lange die Zeit. Am Ende habe ich mir drei Monate auf Fuerteventura genommen, eine Struktur erarbeitet und geschrieben. Das war verdammt anstrengend, und ich habe mir ein paarmal gewünscht, ich hätte es mir nicht vorgenommen. Gerade arbeite ich an einer Kinderversion. Diesmal ohne Deadline.</p>
           </div>
         </div>

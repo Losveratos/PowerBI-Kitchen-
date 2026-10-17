@@ -44,6 +44,22 @@ Warum das Ganze hier steht: Druck vor dem Go-Live, Widerstand im Projekt, die Fr
 
 Klappentext · *Der unsichtbare Kampf*, Kenamo Verlag
 
+### Was im Buch steckt
+
+1. ·Vorwort S. 7
+2. 1 Zum Hintergrund der Kampfkünste S. 19
+3. 2 Bekannte Kampfkünste und Systeme S. 26
+4. 3 Zwischen Kampfkünsten und Klarheit S. 37
+5. 4 Der innere Kampf S. 50
+6. 5 Die Mitte des Ich Mit 41 Seiten das längste Kapitel, genau in der Mitte des Buches. Laut Klappentext liegt dort das philosophische Herzstück.S. 59
+7. 6 Den inneren Kampf lösen S. 100
+8. 7 Übung und Alltag Die Anleitung, von der Micha im Interview erzählt: Übungen für zu Hause und den Alltag.S. 131
+9. 8 Die Richtung eines Weges S. 174
+10. 9 Wie Jidō entstand Die Geschichte des Stils, den Micha im Jidokan unterrichtet.S. 196
+11. ·Nachwort · Begriffliche Orientierung · Kurzbiografie S. 227
+
+Aus dem Inhaltsverzeichnis, 240 Seiten.
+
 ## Über Micha
 
 Michael Thomanek, von allen Micha genannt, schöpft aus **über vierzig Jahren Erfahrung in der Kampfkunst**. Mit *Der unsichtbare Kampf* überträgt er, was auf der Matte sichtbar wird, auf den inneren Kampf, den jeder Mensch kennt. Das Buch ist im Kenamo Verlag erschienen.
@@ -133,7 +149,7 @@ Hilft das gegen den mentalen Overload, den gerade so viele spüren? Es kann helf
 
 Drei Dinge. Erstens: Wer sich für Kampfkunst interessiert, kann sich danach klar einordnen. Interessiere ich mich mehr für Kampfsport, für Selbstverteidigung oder für Kampfkunst? Daraus entsteht innere Stärke, immer mehr Angstfreiheit, immer mehr Bei-sich-Sein. Zweitens die Verwechslung: dass wir uns mit unseren Vorstellungen und Rollen von uns selbst verwechseln. Drittens schließt sich am Ende der Kreis mit der Frage, wie man einen eigenen Weg gestalten kann, mit universellen Beispielen, die man für sich nutzen kann. Oder man lässt es.
 
-Ganz praktisch: In Kapitel 7 gibt es eine Anleitung, mit der man Dinge zu Hause auf dem Stuhl oder im Bett ausprobieren und im Alltag anwenden kann.
+Ganz praktisch: In Kapitel 7, „Übung und Alltag“, gibt es eine Anleitung, mit der man Dinge zu Hause auf dem Stuhl oder im Bett ausprobieren und im Alltag anwenden kann.
 
 Ich bin kein Verkäufer, und ich habe das Buch nicht geschrieben, um Geld zu verdienen. Ich wollte Menschen erreichen. In meinen Trainingsgruppen sind meist zehn Leute, und von denen erreiche ich viele. Wenn du zehn erreichst, kannst du auch tausend erreichen. Die müssen nur zuhören oder eben ein Buch lesen. Gefehlt hat lange die Zeit. Am Ende habe ich mir drei Monate auf Fuerteventura genommen, eine Struktur erarbeitet und geschrieben. Das war verdammt anstrengend, und ich habe mir ein paarmal gewünscht, ich hätte es mir nicht vorgenommen. Gerade arbeite ich an einer Kinderversion. Diesmal ohne Deadline.
 
