@@ -10,3 +10,4 @@ test/.tmp-engine.cjs
 test/.tmp-waterfall.js
 test/.tmp-megatable.cjs
 test/.tmp-waterfall.cjs
+test/locales.js

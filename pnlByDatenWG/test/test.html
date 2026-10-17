@@ -37,6 +37,7 @@
 <div class="case"><h4>m14 · Mega-Table T04E · FC vs PY · Wasserfall schraffiert, graue Achse</h4><div class="stage" id="m14" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m15 · Mega-Table 12A · PY- und AC-Wert-Kaskade · ΔPY-Balken + Pins (Ausreißer-Pfeile)</h4><div class="stage" id="m15" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m16 · Mega-Table Einzel-Schalter · Regionen Monat | _YTD · ΔPL-Wasserfall + ΔPL-Balken + Pins · Zwischensummen spannen · IBCS-Grün</h4><div class="stage" id="m16" style="width:1600px;height:800px"></div></div>
+<script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
 <script src="demo-data.js"></script>
 <script src="mega-data.js"></script>
@@ -84,6 +85,13 @@ function makeSelectionMocks() {
   };
 }
 
+function locMgr(locale) {
+  const L = window.PNL_LOCALES || {};
+  const own = L[locale] || {};
+  const en = L["en-US"] || {};
+  return { getDisplayName: (k) => (own[k] != null ? own[k] : en[k] != null ? en[k] : k) };
+}
+
 function makeHost(locale, opts) {
   const o = opts || {};
   const host = {
@@ -91,7 +99,9 @@ function makeHost(locale, opts) {
     colorPalette: { isHighContrast: false },
     eventService: { renderingStarted(){}, renderingFinished(){}, renderingFailed(o,e){ console.error("renderfail", e); } },
     tooltipService: { enabled: () => false, show(){}, move(){}, hide(){} },
-    createLocalizationManager: () => ({ getDisplayName: () => "" }),
+    // the real resjson strings of the locale, en-US for unknown locales/keys —
+    // what the Power BI host does (test/build.js writes locales.js)
+    createLocalizationManager: () => locMgr(locale || "en-US"),
     persistProperties: () => {},
   };
   // "legacy" reproduces a host that offers no selection manager at all

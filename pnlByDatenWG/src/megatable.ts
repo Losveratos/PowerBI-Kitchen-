@@ -29,15 +29,34 @@ import { cascade, CascadeNode, CascadeSeg } from "./waterfall";
 // 0 · Tokens + geometry
 // ============================================================================
 
-export const MEGA_C = {
+const MEGA_LIGHT = {
     ink: "#404040",
     text: "#1A1A1A",
     soft: "#8A8886",
     py: "#B3B3B3",
     pyLight: "#D9D9D9",
     rule: "#D9D9D9",
+    /** paper: hatch ground, outlined PL fills, halos and the boxes behind capped numbers */
     white: "#FFFFFF",
 };
+/** dark stand-ins (ChartKitchen dark palette): light ink, PY dimmer than AC, "light" tones recede */
+const MEGA_DARK: typeof MEGA_LIGHT = {
+    ink: "#D9D9D9",
+    text: "#E0E0E0",
+    soft: "#A6A6A6",
+    py: "#8A8A8A",
+    pyLight: "#5A5A5A",
+    rule: "#3F3F3F",
+    white: "#1E1E1E",
+};
+/** the live palette every painter of this module reads at call time */
+export const MEGA_C = { ...MEGA_LIGHT };
+
+/** switch the live palette (the visual calls this once per update) */
+export function setMegaPalette(dark: boolean, paper?: string): void {
+    Object.assign(MEGA_C, dark ? MEGA_DARK : MEGA_LIGHT);
+    if (dark && paper) { MEGA_C.white = paper; }
+}
 
 /** Geometry — everything derived from the font size fs (SPEC "Geometrie"). */
 export interface MegaGeometry {
@@ -271,14 +290,15 @@ export const MEGA_PRESET_KEYS = Object.keys(MEGA_PRESETS);
 
 interface ScenNotation {
     mark: "solid" | "hatch" | "gray" | "double"; fill: "solid" | "hatch" | "outline"; axis?: "gray" | "double";
-    /** value cascade (12A): tone of the scenario, and of its cost rows ("hell abgesetzt") */
-    tone: string; toneLight: string;
+    /** value cascade (12A): palette tone of the scenario, and of its cost rows ("hell abgesetzt") —
+     *  palette keys, read at call time so the light / dark switch reaches them */
+    tone: keyof typeof MEGA_LIGHT; toneLight: keyof typeof MEGA_LIGHT;
 }
 const SCENARIO_NOTATION: Record<MegaScen, ScenNotation> = {
-    AC: { mark: "solid", fill: "solid", tone: MEGA_C.ink, toneLight: MEGA_C.soft },
-    FC: { mark: "hatch", fill: "hatch", tone: MEGA_C.ink, toneLight: MEGA_C.soft },
-    PY: { mark: "gray", fill: "solid", axis: "gray", tone: MEGA_C.py, toneLight: MEGA_C.pyLight },
-    PL: { mark: "double", fill: "outline", axis: "double", tone: MEGA_C.ink, toneLight: MEGA_C.ink },
+    AC: { mark: "solid", fill: "solid", tone: "ink", toneLight: "soft" },
+    FC: { mark: "hatch", fill: "hatch", tone: "ink", toneLight: "soft" },
+    PY: { mark: "gray", fill: "solid", axis: "gray", tone: "py", toneLight: "pyLight" },
+    PL: { mark: "double", fill: "outline", axis: "double", tone: "ink", toneLight: "ink" },
 };
 
 export interface MegaPaint { fill: string; stroke: string | null; sw: number; }
@@ -311,7 +331,7 @@ export function notation(minuend: MegaMin, subtrahend: MegaRef | null): {
         mark: (scen) => SCENARIO_NOTATION[scen].mark,
         value: (scen, light, hatch) => {
             const n = SCENARIO_NOTATION[scen];
-            return paintOf(n.fill, light ? n.toneLight : n.tone, hatch);
+            return paintOf(n.fill, MEGA_C[light ? n.toneLight : n.tone], hatch);
         },
     };
 }
