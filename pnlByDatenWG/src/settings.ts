@@ -54,6 +54,19 @@ const colorModeItems: LocEnumMember[] = [
     { value: "ibcs", displayName: "IBCS classic green", key: "Enum_ColorMode_Ibcs" }
 ];
 
+/**
+ * Variance colour preset (ChartKitchen colors.variancePreset): "auto" follows
+ * the older style.colorMode switch (teal / IBCS green), so a report saved
+ * before 1.1 keeps its colours; blue / orange is the ColorBrewer pair of
+ * ChartKitchen (#2C7BB6 / #E66101, dark #5BA3DC / #F0821E).
+ */
+const variancePresetItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Like variance colors (teal / IBCS)", key: "Enum_VarPreset_Auto" },
+    { value: "teal", displayName: "Teal / red (color-vision safe)", key: "Enum_VarPreset_Teal" },
+    { value: "ibcs", displayName: "IBCS green / red", key: "Enum_VarPreset_Ibcs" },
+    { value: "blueOrange", displayName: "Blue / orange (ColorBrewer)", key: "Enum_VarPreset_BlueOrange" }
+];
+
 const appearanceItems: LocEnumMember[] = [
     { value: "auto", displayName: "Auto (follow the report theme)", key: "Enum_Appearance_Auto" },
     { value: "light", displayName: "Light", key: "Enum_Appearance_Light" },
@@ -93,12 +106,15 @@ const templateItems: LocEnumMember[] = [
     { value: "T04C", displayName: "T04C · statement ΔPY waterfall + pins", key: "Enum_Template_T04C" },
     { value: "T04D", displayName: "T04D · FC: ΔPL waterfall + pins", key: "Enum_Template_T04D" },
     { value: "T04E", displayName: "T04E · FC: ΔPY waterfall + pins", key: "Enum_Template_T04E" },
-    { value: "12A", displayName: "12A · PY + AC value cascades, ΔPY bars + pins", key: "Enum_Template_12A" }
+    { value: "12A", displayName: "12A · PY + AC value cascades, ΔPY bars + pins", key: "Enum_Template_12A" },
+    { value: "12G", displayName: "12G · FY outlook: PY + AC&FC (YTD + rest of year) cascades, ΔPY", key: "Enum_Template_12G" },
+    { value: "12H", displayName: "12H · plan: PY + PL cascades, ΔPY bars tinted", key: "Enum_Template_12H" }
 ];
 
 const minuendItems: LocEnumMember[] = [
     { value: "ac", displayName: "AC (actual)", key: "Enum_Minuend_Ac" },
-    { value: "fc", displayName: "FC (forecast)", key: "Enum_Minuend_Fc" }
+    { value: "fc", displayName: "FC (forecast)", key: "Enum_Minuend_Fc" },
+    { value: "pl", displayName: "PL (plan statement)", key: "Enum_Minuend_Pl" }
 ];
 
 const megaSortItems: LocEnumMember[] = [
@@ -272,7 +288,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         "Sets the switches below to the template defaults — afterwards every switch is free. Default: off (classic table)",
         templateItems);
     minuend = dropdown("minuend", "Mega_Minuend", "Analysed scenario (minuend)",
-        "AC filled, FC hatched — the Δ columns compare it with PY / PL. Needs the FC field for FC. Default: AC",
+        "AC filled, FC hatched, PL outlined with pale Δ bars (plan statement, 12H) — the Δ columns compare it with PY / PL. Needs the FC / PL field. Default: AC",
         minuendItems);
     showPY = megaToggle("showPY", "Value column PY", false, "Previous-year values as a number column. Default: off");
     showPL = megaToggle("showPL", "Value column PL", false, "Plan values as a number column. Default: off");
@@ -397,7 +413,21 @@ export class NumbersCardSettings extends FormattingSettingsCard {
     displayNameKey: string = "Card_Numbers";
     description: string = "Scaling, unit and decimals";
     descriptionKey: string = "Desc_Card_Numbers";
-    slices = [this.scaling, this.unitText, this.decimals, this.pctDecimals, this.financeFormat, this.sumSafeRounding];
+    /**
+     * Scale sync (ChartKitchen scale.fixedMax / fixedVarMax, "minimum maximum"):
+     * the value bars / cascades reach at least fixedMax, the Δ bars and Δ
+     * waterfalls at least ±fixedVarMax — the same amount gets the same length in
+     * every visual of equal width. Text with k / m / b suffixes, data units.
+     */
+    fixedMax = textInput("fixedMax", "Numbers_FixedMax", "Scale minimum-maximum (values)",
+        "Value bars and value cascades are scaled at least up to this amount — identical scales across several visuals (IBCS). Data units, k / m / b allowed (e.g. 1.5m). Larger values still widen the scale. Empty = automatic",
+        "e.g. 2m");
+    fixedVarMax = textInput("fixedVarMax", "Numbers_FixedVarMax", "Scale minimum-maximum (Δ)",
+        "Same for the Δ bars and integrated Δ waterfalls (symmetric ±). Data units, k / m / b allowed. Empty = automatic",
+        "e.g. 250k");
+
+    slices = [this.scaling, this.unitText, this.decimals, this.pctDecimals, this.financeFormat, this.sumSafeRounding,
+        this.fixedMax, this.fixedVarMax];
 }
 
 /**
@@ -452,6 +482,9 @@ export class StyleCardSettings extends formattingSettings.CompositeCard {
     colorMode = dropdown("colorMode", "Style_ColorMode", "Variance colors",
         "Teal replaces IBCS green to stay readable with red-green color-vision deficiency (documented deviation). Default: teal",
         colorModeItems);
+    variancePreset = dropdown("variancePreset", "Style_VariancePreset", "Variance color preset",
+        "Blue / orange is the ColorBrewer pair #2C7BB6 / #E66101 — distinguishable even with complete color blindness and in black-and-white print. Auto keeps the variance colors above. The two color pickers below still override. Default: Auto",
+        variancePresetItems);
     goodColor = color("goodColor", "Style_GoodColor", "Favorable Δ color (override)",
         "Empty = color of the variance mode", "");
     badColor = color("badColor", "Style_BadColor", "Unfavorable Δ color (override)",
@@ -507,7 +540,7 @@ export class StyleCardSettings extends formattingSettings.CompositeCard {
         name: "styleColors",
         displayName: "Colors & appearance",
         displayNameKey: "Style_GroupColors",
-        slices: [this.appearance, this.colorMode, this.goodColor, this.badColor, this.accentColor,
+        slices: [this.appearance, this.variancePreset, this.colorMode, this.goodColor, this.badColor, this.accentColor,
             this.pageBackground, this.cardBackground]
     });
     type = new formattingSettings.Group({
@@ -545,6 +578,12 @@ export class TitleBlockCardSettings extends FormattingSettingsCard {
     /** ChartKitchen ibcsTitle.autoMessage: generated SAY line while no own message is set */
     autoMessage = toggle("autoMessage", "Title_AutoMessage", "Auto message",
         "Builds the message headline from the variance of the result row and the strongest / weakest driver when no own message is entered. Default: off", false);
+    /**
+     * 12er headline slot (IBCS 12A–12H): the message as a large line beside the
+     * title, above the table. Text = the own message, else the generated one.
+     */
+    headline = toggle("headline", "Title_Headline", "Headline slot (large message)",
+        "Shows the message as a large headline next to the title (IBCS 12-series layout); without an own message the generated auto message. Default: off", false);
     footer = textInput("footer", "Title_Footer", "Footer (data status · source)",
         "Footer line under the statement — e.g. data status and source; printed in exports too",
         "e.g. Actuals as of Jun 2026 · source: SAP FI");
@@ -556,7 +595,7 @@ export class TitleBlockCardSettings extends FormattingSettingsCard {
     displayNameKey: string = "Card_Title";
     description: string = "Three-line IBCS title and the message headline";
     descriptionKey: string = "Desc_Card_Title";
-    slices = [this.show, this.unitLine, this.measureLine, this.periodLine, this.message, this.autoMessage,
+    slices = [this.show, this.unitLine, this.measureLine, this.periodLine, this.message, this.autoMessage, this.headline,
         this.footer, this.filterFooter];
 }
 
@@ -621,7 +660,7 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     c.mega.visible = view == null || view === "table";
     c.tree.visible = view == null || view === "tree";
 
-    c.minuend.visible = fc;
+    c.minuend.visible = fc || pl;
     c.showPY.visible = py; c.showPL.visible = pl;
     for (const s of [c.dPyAbs, c.dPyBar, c.dPyWaterfall, c.dPyPct, c.dPyPin]) { s.visible = py; }
     for (const s of [c.dPlAbs, c.dPlBar, c.dPlWaterfall, c.dPlPct, c.dPlPin]) { s.visible = pl; }
@@ -650,9 +689,13 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     c.capBars.visible = (py && c.dPyBar.value) || (pl && c.dPlBar.value);
 
     const t = m.titleCard;
-    for (const s of [t.unitLine, t.measureLine, t.periodLine, t.message, t.autoMessage, t.footer, t.filterFooter]) {
+    for (const s of [t.unitLine, t.measureLine, t.periodLine, t.message, t.autoMessage, t.headline, t.footer, t.filterFooter]) {
         s.visible = t.show.value;
     }
+
+    // the old teal / IBCS switch only matters while the preset follows it
+    const st = m.styleCard;
+    st.colorMode.visible = String(st.variancePreset.value?.value ?? "auto") === "auto";
 }
 
 /**

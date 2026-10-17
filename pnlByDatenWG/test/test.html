@@ -47,6 +47,11 @@
 <div class="case"><h4>m24 · 1.1 T03A + „% vom Umsatz"-Spalte</h4><div class="stage" id="m24" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m25 · 1.1 Sortierung Δ↓ (Monat) bei ausgeblendeten ΔPL-Balken → Indikator am Kategorie-Kopf</h4><div class="stage" id="m25" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m26 · 1.1 T01A · Schwellen −20.5 / −10.5 % mit Dezimalen in der Fußzeile</h4><div class="stage" id="m26" style="width:1320px;height:720px"></div></div>
+<div class="case"><h4>m27 · 1.1 Paket C · 12G FY-Ausblick: AC&amp;FC gestapelt (YTD voll + Restjahr schraffiert), ΔPY aufs Jahr, Headline</h4><div class="stage" id="m27" style="width:1320px;height:760px"></div></div>
+<div class="case"><h4>m28 · 1.1 Paket C · 12H Planrechnung: PL umrandet vs PY, Δ-Balken blass getönt, Headline</h4><div class="stage" id="m28" style="width:1320px;height:760px"></div></div>
+<div class="case"><h4>m29 · 1.1 Paket C · 12H dunkel + Blau/Orange-Preset</h4><div class="stage" id="m29" style="width:1320px;height:760px"></div></div>
+<div class="case"><h4>m30 · 1.1 Paket C · Skalen-Sync: T04B mit fixedVarMax 60, 12A mit fixedMax 2k (Fußnote im Edit-Modus)</h4><div class="stage" id="m30" style="width:1320px;height:760px"></div></div>
+<div class="case"><h4>m31 · 1.1 Paket C · Virtualisierung: 400 Konten (T02A-Schalter), nur sichtbare Zeilen gezeichnet</h4><div class="stage" id="m31" style="width:1320px;height:600px"></div></div>
 <div class="case"><h4>p12 · Smart Start (1.0) · Demo-GuV ohne Felder · Banner „Demo“ · de-DE</h4><div class="stage" id="p12" style="width:1200px;height:700px"></div></div>
 <div class="case"><h4>p13 · Dark Mode (1.0) · Tabelle · style.appearance = dark</h4><div class="stage" id="p13" style="width:1560px;height:700px"></div></div>
 <div class="case"><h4>p14 · Dark Mode (1.0) · Mega-Table T04B · Werttreiberbaum folgt in test:start</h4><div class="stage" id="p14" style="width:1320px;height:700px"></div></div>
@@ -258,6 +263,11 @@ function dvRows(rows, objects) {
     col("pl", "PL", rows.map(r => r.values.pl ?? null)),
     col("fc", "FC", rows.map(r => r.values.fc ?? null)),
   ];
+  // FY outlook measures (12G) only when the rows carry them — older cases keep their data view
+  if (rows.some(r => r.values.fcfy != null)) {
+    values.push(col("fcFy", "FC FY", rows.map(r => r.values.fcfy ?? null)),
+      col("plFy", "PL FY", rows.map(r => r.values.plfy ?? null)));
+  }
   return { categorical: { categories, values }, metadata: { objects: objects || {} } };
 }
 function runRows(id, rows, objects, locale, hostOpts) {
@@ -349,6 +359,26 @@ runRows("m25", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November
 // m26 — thresholds with decimals
 runRows("m26", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
   columns: { template: "T01A", thresholdAbs: -20.5, thresholdPct: -10.5 } });
+
+// ---- 1.1 package C -------------------------------------------------------------
+const SSG = { unitLine: "Software and Service Group", measureLine: "Profit and loss statement in kEUR" };
+// m27 — 12G: FY outlook, AC&FC stacked YTD + rest of year, ΔPY on the year, headline slot
+runRows("m27", MEGA_DEMO.statement12G(), { titleBlock: { ...SSG, periodLine: "2025 as of May" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "12G" } });
+// m28 — 12H: PL (outlined) vs PY, tinted Δ bars, headline with an own message
+runRows("m28", MEGA_DEMO.statement("12A"), { titleBlock: { ...SSG, periodLine: "PL 2026, ΔPY",
+  message: "Compared to 2025 we plan a better group result for 2026 (+139 kEUR)" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "12H" } });
+// m29 — 12H in dark mode with the blue / orange preset
+runRows("m29", MEGA_DEMO.statement("12A"), { titleBlock: { ...SSG, periodLine: "PL 2026, ΔPY" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "12H" }, style: { appearance: "dark", variancePreset: "blueOrange" } });
+// m30 — scale sync: T04B Δ waterfall held at ±60, 12A-style value cascades at ≥ 2k (edit-mode note)
+runRows("m30", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "T04B" }, numbers: { fixedVarMax: "60", fixedMax: "2k" } });
+// m31 — virtualization: 400 accounts, bars + pins, only the rows around the viewport are painted
+runRows("m31", MEGA_DEMO.long(400), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, numbers: { scaling: "none", decimals: 0 },
+  columns: { showPL: true, showMinuend: true, dPlBar: true, dPlPin: true } });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);

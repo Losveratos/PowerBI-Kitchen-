@@ -172,6 +172,11 @@ export const UI_EN: Record<string, string> = {
     UI_TbRefView: "Reference view",
     UI_TbRefBoth: "both",
     UI_TbScenNoEffect: "No effect: the columns of this mega table do not use this choice",
+    UI_ScaleFixed: "Scale fixed (edit mode only)",
+    UI_ScaleFixedVal: "values ≥ {0}",
+    UI_ScaleFixedVar: "Δ ≥ ±{0}",
+    UI_LgBlueOrange: "Documented IBCS deviation: blue / orange replaces green / red (ColorBrewer, readable without color vision).",
+    UI_FooterDevBo: " Documented corporate deviation: blue / orange (ColorBrewer) replaces the IBCS variance green / red to remain readable without color vision and in black-and-white print.",
 };
 
 /** fill {0} {1} … placeholders */

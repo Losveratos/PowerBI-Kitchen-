@@ -38,8 +38,8 @@ import {
     FormulaOp, InputRow, LevelInputRow, PeriodSort, PnlModel, PnlNode, Scenario,
 } from "./engine";
 import {
-    layoutMega, paintMega, megaActive, activeRefs, setMegaPalette, buildColumns, MEGA_PRESETS,
-    MegaBlock, MegaDelta, MegaRef, MegaRow, MegaScen, MegaToggles,
+    layoutMega, paintMega, megaActive, activeRefs, setMegaPalette, buildColumns, MEGA_PRESETS, parseAmount,
+    MegaBlock, MegaDelta, MegaRef, MegaRow, MegaScen, MegaToggles, MegaLayout, MegaPaintOpts, MegaPainted,
 } from "./megatable";
 import { cascade, CascadeNode } from "./waterfall";
 import { buildDemoRows } from "./demo";
@@ -59,6 +59,8 @@ const C_LIGHT = {
     text: "#1A1A1A", soft: "#8A8886", line: "#404040", gridSoft: "#EDEBE9",
     tealGood: "#0E8585", tealBad: "#E02B1D",
     ibcsGood: "#8CB400", ibcsBad: "#FF2600",
+    /** blue / orange preset (ColorBrewer, ChartKitchen colors.variancePreset) */
+    boGood: "#2C7BB6", boBad: "#E66101",
     comment: "#0064FF", loading: "#B35C00",
     // driver tree
     cardEdge: "#E3E1DC", cardEdgeHover: "#C6C3BC", elbow: "#B4B4B4", refGray: "#9A9A9A",
@@ -89,6 +91,7 @@ const C_DARK: typeof C_LIGHT = {
     text: "#E0E0E0", soft: "#A6A6A6", line: "#BFBFBF", gridSoft: "#3F3F3F",
     tealGood: "#3FB3C2", tealBad: "#E4635F",
     ibcsGood: "#9CCB19", ibcsBad: "#FF5A3C",
+    boGood: "#5BA3DC", boBad: "#F0821E",
     comment: "#6EA8FF", loading: "#E0913A",
     cardEdge: "#3F3F3F", cardEdgeHover: "#5E5E5E", elbow: "#6E6E6E", refGray: "#7A7A7A",
     ctlEdge: "#4A4A4A", ctlHover: "#30302C",
@@ -110,7 +113,7 @@ const C = { ...C_LIGHT };
  */
 function hcPalette(fg: string, bg: string): Partial<typeof C_LIGHT> {
     const out: Partial<Record<keyof typeof C_LIGHT, string>> = {};
-    for (const k of ["ac", "py", "text", "soft", "line", "gridSoft", "tealGood", "tealBad", "ibcsGood", "ibcsBad",
+    for (const k of ["ac", "py", "text", "soft", "line", "gridSoft", "tealGood", "tealBad", "ibcsGood", "ibcsBad", "boGood", "boBad",
         "comment", "loading", "cardEdge", "cardEdgeHover", "elbow", "refGray", "ctlEdge"] as (keyof typeof C_LIGHT)[]) { out[k] = fg; }
     for (const k of ["ctlHover", "paper", "onInk", "wash"] as (keyof typeof C_LIGHT)[]) { out[k] = bg; }
     return out;
@@ -163,6 +166,13 @@ const FONT_SCALE_MAX = 2.2;
 const VIRT_MIN_ROWS = 300;
 /** Rows rendered above/below the scroll viewport. */
 const VIRT_BUFFER = 30;
+/**
+ * Mega table (1.1): above this many rows only the rows around the viewport
+ * are painted (the layout stays complete); at or below it the table paints
+ * exactly as before. Rows painted above / below the viewport.
+ */
+const MEGA_VIRT_MIN_ROWS = 150;
+const MEGA_VIRT_BUFFER = 30;
 /** Height estimate for an opened sparkline row (svg 34 + padding). */
 const SPARK_ROW_H = 40;
 /** Extra height a separator row takes through its top padding. */
@@ -613,7 +623,14 @@ export class Visual implements IVisual {
         applied: string;
         cols: Record<string, boolean | string>;
         nums: Record<string, number>;
+        /** titleBlock switches a template sets (12G / 12H: headline) */
+        title: Record<string, boolean>;
         ttl: number;
+    } | null = null;
+    /** virtualized mega table (> MEGA_VIRT_MIN_ROWS rows): the complete layout + the painted window */
+    private megaVs: {
+        L: MegaLayout; opts: MegaPaintOpts; body: SVGSVGElement;
+        from: number; to: number; bind: (hits: MegaPainted["hits"]) => void;
     } | null = null;
     /** template applied in this session — a lost echo must not re-apply it in a loop */
     private megaSessionTpl: string | null = null;
@@ -1493,17 +1510,30 @@ export class Visual implements IVisual {
         };
     }
 
+    /**
+     * Effective variance colour mode: style.variancePreset (1.1, ChartKitchen
+     * name) wins when set; "auto" — the default — follows the older
+     * style.colorMode switch, so reports saved before 1.1 keep their colours.
+     */
+    private varianceMode(): "teal" | "ibcs" | "blueOrange" {
+        const st = this.settings.styleCard;
+        const p = String(st.variancePreset?.value?.value ?? "auto");
+        if (p === "teal" || p === "ibcs" || p === "blueOrange") { return p; }
+        return String(st.colorMode.value.value) === "ibcs" ? "ibcs" : "teal";
+    }
     private goodColor(): string {
         if (this.hc) { return this.hc.fg; }
         const o = this.settings.styleCard.goodColor.value?.value;
         if (o) { return o; }
-        return String(this.settings.styleCard.colorMode.value.value) === "ibcs" ? C.ibcsGood : C.tealGood;
+        const m = this.varianceMode();
+        return m === "ibcs" ? C.ibcsGood : m === "blueOrange" ? C.boGood : C.tealGood;
     }
     private badColor(): string {
         if (this.hc) { return this.hc.fg; }
         const o = this.settings.styleCard.badColor.value?.value;
         if (o) { return o; }
-        return String(this.settings.styleCard.colorMode.value.value) === "ibcs" ? C.ibcsBad : C.tealBad;
+        const m = this.varianceMode();
+        return m === "ibcs" ? C.ibcsBad : m === "blueOrange" ? C.boBad : C.tealBad;
     }
     /**
      * Accent of the interactive chrome (active toolbar buttons, the back button
@@ -1971,11 +2001,15 @@ export class Visual implements IVisual {
         this.root.style.background = this.pageBg();
         this.comments = [];
         this.vs = null;
+        this.megaVs = null;
         this.headEl = null;
         this.headStuck = false;
         this.pagerSync = [];
 
-        const scan = this.scans();
+        const scanRaw = this.scans();
+        // scale sync (numbers.fixedVarMax): the uniform Δ scale reaches at least ±fixedVarMax
+        const fvm = this.fixedVarMax();
+        const scan = fvm != null && fvm > scanRaw.maxAbsDelta ? { ...scanRaw, maxAbsDelta: fvm } : scanRaw;
         const fmt = this.makeFmt(scan.maxAbsVal);
         // the driver-tree graph drives the tree AND its toolbar groups (depth
         // buttons, breadcrumb) — build it before the toolbar
@@ -2048,9 +2082,11 @@ export class Visual implements IVisual {
             this.root.appendChild(table);
             const over = this.root.scrollWidth - this.root.clientWidth;
             if (over > 0 && over <= 40) { this.root.replaceChild(this.buildMega(fmt, over), table); }
+            this.appendScaleFixedNote();
             this.buildFootnotes(fmt);
             this.root.appendChild(this.buildFooter());
             this.root.scrollTop = keepScroll;
+            this.syncMegaWindow();
         } else {
             // fit mode needs the table on screen before it can solve — the
             // row-label column is auto-width, so it is measured, not guessed,
@@ -2064,6 +2100,7 @@ export class Visual implements IVisual {
                 this.root.replaceChild(tighter, body);
                 body = tighter;
             }
+            this.appendScaleFixedNote();
             this.buildFootnotes(fmt);
             this.root.appendChild(this.buildFooter());
             this.root.scrollTop = keepScroll;
@@ -2083,6 +2120,27 @@ export class Visual implements IVisual {
         if (!last) { return 0; }
         const rb = this.root.getBoundingClientRect();
         return Math.ceil(last.getBoundingClientRect().bottom - rb.top + this.root.scrollTop);
+    }
+
+    /**
+     * Edit mode only: "Scale fixed" under the statement while numbers.fixedMax
+     * or fixedVarMax hold the scale — an author must not wonder why the bars
+     * stay short. Readers and exports never see it.
+     */
+    private appendScaleFixedNote(): void {
+        if (this.fixedMax() == null && this.fixedVarMax() == null) { return; }
+        if ((this.viewMode != null && this.viewMode < 1) || this.exporting()) { return; }
+        const note = document.createElement("div");
+        note.setAttribute("data-pnl", "scale-fixed");
+        note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};font-style:italic;` +
+            `padding:2px ${TABLE_PAD_X + 14}px 0 ${TABLE_PAD_X + 14}px;`;
+        const fmt = this.makeFmt(this.scans().maxAbsVal);
+        const unit = fmt.suffix + this.settings.numbersCard.unitText.value;
+        const part = (v: number | null, key: string): string =>
+            v == null ? "" : this.tr(key, fmt.val(v) + (unit ? " " + unit : ""));
+        note.textContent = this.tr("UI_ScaleFixed") + ": " +
+            [part(this.fixedMax(), "UI_ScaleFixedVal"), part(this.fixedVarMax(), "UI_ScaleFixedVar")].filter(Boolean).join(" · ");
+        this.root.appendChild(note);
     }
 
     /** the uniform-Δ-scale note — part of the frozen head, not of the table */
@@ -2196,10 +2254,10 @@ export class Visual implements IVisual {
         if (this.zoomEl || this.zoomTimer != null) { this.treeZoomHide(); }
         this.syncHeadShadow();
         this.syncFloatHead();
-        if (!this.vs || this.scrollRaf !== 0) { return; }
+        if ((!this.vs && !this.megaVs) || this.scrollRaf !== 0) { return; }
         const raf = typeof requestAnimationFrame === "function"
             ? requestAnimationFrame : (cb: FrameRequestCallback): number => setTimeout(() => cb(0), 16) as unknown as number;
-        this.scrollRaf = raf(() => { this.scrollRaf = 0; this.syncWindow(); });
+        this.scrollRaf = raf(() => { this.scrollRaf = 0; this.syncWindow(); this.syncMegaWindow(); });
     }
 
     private spacerRow(): HTMLElement {
@@ -2309,9 +2367,13 @@ export class Visual implements IVisual {
         const wrap = document.createElement("div");
         wrap.style.cssText = "padding:12px 14px 4px 14px;";
         let msg = t.message.value.trim();
+        // headline slot (1.1, IBCS 12-series): the message moves out of the bold
+        // line above the title into a large line beside it; without an own
+        // message it is the generated one (with or without autoMessage)
+        const hl = t.headline.value;
         // ChartKitchen autoMessage: the generated SAY line while no own message is set
-        if (!msg && t.autoMessage.value) { msg = this.autoMessage(fmt); }
-        if (msg) {
+        if (!msg && (t.autoMessage.value || hl)) { msg = this.autoMessage(fmt); }
+        if (msg && !hl) {
             const m = document.createElement("div");
             m.style.cssText = `font-size:${this.kpx(13.5)};font-weight:700;line-height:1.45;` +
                 `margin-bottom:${this.kpx(8)};max-width:${this.k(900)}px;`;
@@ -2338,14 +2400,33 @@ export class Visual implements IVisual {
                 ? megaScen + (megaRefs ? ` · Δ ${megaRefs}` : "")
                 : scen && `${scen} · Δ ${this.ui!.ref.toUpperCase()}`].filter(Boolean).join(": ")),
         ].filter(s => s !== "");
+        const lineHost = hl ? document.createElement("div") : wrap;
         lines.forEach((line, i) => {
             const el = document.createElement("div");
             el.style.cssText = i === 1
                 ? `font-size:${this.kpx(12)};line-height:1.5;font-weight:600;`
                 : `font-size:${this.kpx(12)};line-height:1.5;color:${i === 0 ? C.text : C.text};`;
             el.textContent = line;
-            wrap.appendChild(el);
+            lineHost.appendChild(el);
         });
+        if (hl) {
+            // 12er layout: title lines left, the message large beside them, a rule below
+            const row = document.createElement("div");
+            row.setAttribute("data-pnl", "headline-row");
+            row.style.cssText = `display:flex;flex-wrap:wrap;align-items:flex-start;column-gap:${this.k(40)}px;row-gap:${this.kpx(6)};` +
+                `padding-bottom:${this.kpx(8)};border-bottom:1px solid ${C.soft};`;
+            lineHost.style.cssText = "flex:0 0 auto;";
+            row.appendChild(lineHost);
+            if (msg) {
+                const h = document.createElement("div");
+                h.setAttribute("data-pnl", "headline");
+                h.style.cssText = `flex:1 1 ${this.k(280)}px;max-width:${this.k(760)}px;font-size:${this.kpx(17)};` +
+                    `line-height:1.3;font-weight:400;color:${C.text};`;
+                h.textContent = msg;
+                row.appendChild(h);
+            }
+            wrap.appendChild(row);
+        }
         return wrap;
     }
 
@@ -2648,6 +2729,9 @@ export class Visual implements IVisual {
             if (mt.showPL) { shown.add("PL"); }
             if (mt.showMin || mRefs.length > 0) { shown.add(mt.min); }
             mRefs.forEach(r => shown.add(r));
+            // FY outlook (12G): AC&FC is hatched where it is forecast — FC explains the hatch
+            const hatchFy = (mt.valueCascade && mt.showMin) || mRefs.some(r => mt.d[r].bar || mt.d[r].wf || mt.d[r].pin);
+            if (mt.min === "AC" && hatchFy && this.megaKeys().includes("fy")) { shown.add("FC"); }
         }
         // house terms (labels.labelAc …) replace the "AC actual" wording as a whole
         const lg = (code: "AC" | "PY" | "PL" | "FC", key: string): string =>
@@ -2671,10 +2755,10 @@ export class Visual implements IVisual {
         unfav.appendChild(document.createTextNode(this.tr("UI_LgBad")));
         bar.appendChild(fav); bar.appendChild(unfav); bar.appendChild(g);
         // (high contrast paints no teal — the deviation note would mislead there)
-        if (String(this.settings.styleCard.colorMode.value.value) !== "ibcs" && !this.hc) {
+        if (this.varianceMode() !== "ibcs" && !this.hc) {
             const note = document.createElement("span");
             note.style.cssText = "font-style:italic;";
-            note.textContent = this.tr("UI_LgTeal");
+            note.textContent = this.tr(this.varianceMode() === "blueOrange" ? "UI_LgBlueOrange" : "UI_LgTeal");
             bar.appendChild(note);
         }
         // mega table: FC is never an axis there (it is the hatched minuend) —
@@ -2859,7 +2943,9 @@ export class Visual implements IVisual {
             vLabelW = Math.ceil(gc.vLabelLen * (fs * 0.52 + laneSlack)) + 4;
             const full = (gc.wf.size > 0 ? (compact ? 190 : 240) : (compact ? 150 : 190)) * fscale;
             const span = Math.max(full * k, FIT_SPAN_MIN);
-            vPpu = span / ((gc.maxPosD + gc.maxNegD) || 1);
+            // scale sync (numbers.fixedMax): the value / cascade bars reach at least fixedMax
+            const posD = Math.max(gc.maxPosD, this.fixedMax() ?? 0);
+            vPpu = span / ((posD + gc.maxNegD) || 1);
             vAxisX = 4 + vLabelW + gc.maxNegD * vPpu;
             vbarW = span + 2 * (vLabelW + 4) + 8;
         }
@@ -6146,7 +6232,9 @@ export class Visual implements IVisual {
     private megaPaneToggles(): MegaToggles {
         const cc = this.settings.columnsCard;
         const has = this.has;
-        const min = String(cc.minuend.value.value) === "fc" && has.fc ? "FC" : "AC";
+        const mv = String(cc.minuend.value.value);
+        // PL as the analysed scenario (12H plan statement) needs the PL field; FC the FC field
+        const min = mv === "fc" && has.fc ? "FC" : mv === "pl" && has.pl ? "PL" : "AC";
         return {
             min,
             showPY: cc.showPY.value && has.py,
@@ -6211,6 +6299,10 @@ export class Visual implements IVisual {
                 const sl = k === "decimals" ? nc.decimals : nc.pctDecimals;
                 if (sl.value !== v) { synced = false; sl.value = v; }
             }
+            for (const [k, v] of Object.entries(pend.title)) {
+                const sl = k === "headline" ? this.settings.titleCard.headline : null;
+                if (sl && sl.value !== v) { synced = false; sl.value = v; }
+            }
             pend.ttl--;
             if (synced || pend.ttl <= 0) { this.megaPending = null; }
             if (!synced && this.megaPending) { applied = pend.applied; }
@@ -6234,21 +6326,26 @@ export class Visual implements IVisual {
             secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, showPctRows: p.showPctRows,
             thresholds: p.thresholds, scenarioMarks: p.scenarioMarks, chartLabels: p.chartLabels,
             capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock,
-            // every template is laid out as YTD, or month | _YTD with the second block
-            blockKind: "ytd", leftBlockKind: "month",
+            // every template is laid out in its period block (YTD; 12G: FY outlook),
+            // or month | that block with the second block
+            blockKind: p.blockKind, leftBlockKind: "month",
         };
         // "off" returns to the classic table and leaves the number format alone
         const nums: Record<string, number> = tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: p.pctDecimals };
+        // 12G / 12H switch the headline slot on; the other templates leave it alone
+        const title: Record<string, boolean> = p.headline ? { headline: true } : {};
         for (const [k, v] of Object.entries(cols)) { this.megaSliceSet(k, v); }
         const nc = this.settings.numbersCard;
         if (nums.decimals != null) { nc.decimals.value = nums.decimals; }
         if (nums.pctDecimals != null) { nc.pctDecimals.value = nums.pctDecimals; }
-        this.megaPending = { applied: tpl, cols, nums, ttl: 5 };
+        if (title.headline != null) { this.settings.titleCard.headline.value = title.headline; }
+        this.megaPending = { applied: tpl, cols, nums, title, ttl: 5 };
         this.megaSessionTpl = tpl;
         const merge: powerbi.VisualObjectInstance[] = [
             { objectName: "columns", selector: null, properties: { ...cols, templateApplied: tpl } },
         ];
         if (tpl !== "off") { merge.push({ objectName: "numbers", selector: null, properties: { ...nums } }); }
+        if (title.headline != null) { merge.push({ objectName: "titleBlock", selector: null, properties: { ...title } }); }
         this.host.persistProperties({ merge });
     }
 
@@ -6484,21 +6581,12 @@ export class Visual implements IVisual {
         // A kind the data cannot carry (no period field, no FY measures) falls
         // back to YTD / month; the defaults give exactly month | _YTD or YTD.
         type BlockKey = "mtd" | "ytd" | "fy";
-        const kindOf = (v: unknown): BlockKey => v === "month" ? "mtd" : v === "fy" ? "fy" : "ytd";
-        const okK = (k: BlockKey): boolean => k === "mtd" ? months.length > 0 : k === "fy" ? this.has.fcfy : true;
-        const bk = kindOf(String(cc.blockKind.value.value)); const lk = kindOf(String(cc.leftBlockKind.value.value));
-        const main: BlockKey = okK(bk) ? bk : "ytd";
-        const left: BlockKey = okK(lk) ? lk : "mtd";
-        const twoBlocks = cc.secondBlock.value && left !== main && okK(left)
-            && (months.length > 1 || (left !== "mtd" && main !== "mtd"));
-        const keys: BlockKey[] = twoBlocks ? [left, main] : [main];
+        const keys: BlockKey[] = this.megaKeys();
+        const twoBlocks = keys.length === 2;
         const li = this.mtdIndex();
         const monthName = months.length > 0 ? this.megaMonthName(months[li >= 0 ? li : months.length - 1]) : "";
         const year = months.length > 0 ? this.periodYear(months[0]) : "";
-        const SC: Record<MegaScen, Scenario> = { AC: "ac", FC: "fc", PY: "py", PL: "pl" };
-        // FY outlook: the minuend is the full-year AC&FC, the plan PL FY, no PY
-        const scenOf = (key: BlockKey, s: MegaScen): Scenario | null => key !== "fy" ? SC[s]
-            : s === "PY" ? null : s === "PL" ? (this.has.plfy ? "plfy" : null) : "fcfy";
+        const scenOf = (key: BlockKey, s: MegaScen): Scenario | null => this.megaScenOf(key, s);
         const revBase = t.share ? revenueBase(model, cc.revenueBase.value) : null;
         const num = (v: unknown, d: number): number => { const x = Number(v); return isFinite(x) ? x : d; };
         const th = [
@@ -6517,6 +6605,7 @@ export class Visual implements IVisual {
             return sc == null ? null : this.ssRaw(n, key, sc, fmt);
         };
         const mat = this.materiality();
+        const fyStack = t.min === "AC";
         const blocks: MegaBlock[] = keys.map((key, bi) => ({
             name: key === "fy" ? "FY" + (year ? " " + year : "")
                 : !monthName ? "" : key === "mtd" ? monthName : (twoBlocks || !statement ? "_" + monthName : monthName),
@@ -6524,6 +6613,16 @@ export class Visual implements IVisual {
             // a single month / FY block names itself (a single YTD statement never did)
             titled: !twoBlocks && key !== "ytd",
             alias: key === "fy" ? { AC: "AC&FC", FC: "FC" } : undefined,
+            // 12G: the FY outlook's AC&FC is mostly forecast — its Δ elements are
+            // hatched, and its value cascade stacks the YTD actuals (solid) in front
+            // of the rest of the year (hatched)
+            minFill: key === "fy" && fyStack ? "FC" : undefined,
+            ytd: key === "fy" && fyStack ? (r: MegaRow): number | null => {
+                const n = nodes.get(r.id);
+                if (!n || n.row.rowType === "kpi") { return null; }
+                const rv = this.megaRaw(n, "ytd", "ac");
+                return rv == null ? null : (n.row.displayInvert ? -rv : rv) / div;
+            } : undefined,
             value: (r: MegaRow, s: MegaScen): number | null => {
                 const n = nodes.get(r.id);
                 if (!n) { return null; }
@@ -6579,9 +6678,13 @@ export class Visual implements IVisual {
             hc: this.hc != null,
             fin: this.finance(),
             relabel: this.hasHouseTerms() ? (x: string) => this.relabel(x) : undefined,
+            ytdHead: "YTD",
+            // scale sync (numbers.fixedMax / fixedVarMax): data units → display units
+            fixedMax: this.fixedMax() != null ? this.fixedMax()! / div : undefined,
+            fixedVarMax: this.fixedVarMax() != null ? this.fixedVarMax()! / div : undefined,
         });
         const ns = "http://www.w3.org/2000/svg";
-        const painted = paintMega(L, {
+        const opts: MegaPaintOpts = {
             font: FONT,
             headInk: this.hc ? this.hc.fg : this.settings.styleCard.headerColor.value?.value || C.text,
             hatchPattern: (svg, id, color) => this.hatchPattern(svg, ns, id, color),
@@ -6594,10 +6697,36 @@ export class Visual implements IVisual {
                 ? { ids: new Set(rows.filter(r => r.id !== "" && nodes.has(r.id) && this.isHighlighted(nodes.get(r.id)!)).map(r => r.id)),
                     ink: this.hc ? this.hc.fg : C.ac, hc: this.hc != null }
                 : undefined,
-        });
+        };
+        // virtualization (1.1): a long statement paints only the rows around the
+        // viewport; an export always prints every row
+        const virt = L.R.length > MEGA_VIRT_MIN_ROWS && !this.exporting();
+        const win = virt ? { from: 0, to: Math.min(L.R.length,
+            Math.ceil((this.root.clientHeight || 800) / Math.max(1, L.G.rowH)) + 2 * MEGA_VIRT_BUFFER) } : undefined;
+        const painted = paintMega(L, win ? { ...opts, window: win } : opts);
+        const bind = (hits: MegaPainted["hits"]): void => this.megaBindHits(hits, nodes, fmt, keys, t, scenOf);
+        bind(painted.hits);
+        this.megaVs = win ? { L, opts, body: painted.body, from: win.from, to: win.to, bind } : null;
 
-        // interactions: the label folds a block, the rest of the row selects
-        for (const h of painted.hits) {
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "mega");
+        wrap.style.cssText = `padding:2px ${TABLE_PAD_X}px 8px ${TABLE_PAD_X}px;width:max-content;`;
+        const headWrap = document.createElement("div");
+        headWrap.setAttribute("data-pnl", "mega-head-wrap");
+        headWrap.style.cssText = `background:${this.pageBg()};`;
+        headWrap.appendChild(painted.head);
+        wrap.appendChild(headWrap);
+        wrap.appendChild(painted.body);
+        this.tableEl = null;
+        return wrap;
+    }
+
+    /** interactions of the mega hit areas: the label folds a block, the rest of the row selects */
+    private megaBindHits(hits: MegaPainted["hits"], nodes: Map<string, PnlNode>, fmt: Fmt,
+        keys: ("mtd" | "ytd" | "fy")[], t: MegaToggles,
+        scenOf: (key: "mtd" | "ytd" | "fy", s: MegaScen) => Scenario | null): void {
+        const ui = this.ui!;
+        for (const h of hits) {
             const node = nodes.get(h.r.id);
             if (!node) { continue; }
             const canSelect = this.selectable(node);
@@ -6608,7 +6737,7 @@ export class Visual implements IVisual {
             // row tooltip (1.1) over the numbers, bars, pins and cascades of the row
             const tipKey = keys[keys.length - 1];
             const tipMin: Scenario = scenOf(tipKey, t.min) ?? "ac";
-            const tipRefs = (activeRefs(t).length ? activeRefs(t) : (["PY", "PL"] as MegaRef[]))
+            const tipRefs = (activeRefs(t).length ? activeRefs(t) : (["PY", "PL"] as MegaRef[]).filter(r => r !== t.min))
                 .map(r => scenOf(tipKey, r)).filter((x): x is Scenario => x != null && this.has[x]);
             this.bindTip(h.cells, node, () => this.tipItems(node, fmt, tipKey, { min: tipMin, refs: tipRefs }));
             this.bindTip(h.label, node, () => this.tipItems(node, fmt, tipKey, { min: tipMin, refs: tipRefs }));
@@ -6632,18 +6761,68 @@ export class Visual implements IVisual {
                 h.label.setAttribute("pointer-events", "none");
             }
         }
+    }
 
-        const wrap = document.createElement("div");
-        wrap.setAttribute("data-pnl", "mega");
-        wrap.style.cssText = `padding:2px ${TABLE_PAD_X}px 8px ${TABLE_PAD_X}px;width:max-content;`;
-        const headWrap = document.createElement("div");
-        headWrap.setAttribute("data-pnl", "mega-head-wrap");
-        headWrap.style.cssText = `background:${this.pageBg()};`;
-        headWrap.appendChild(painted.head);
-        wrap.appendChild(headWrap);
-        wrap.appendChild(painted.body);
-        this.tableEl = null;
-        return wrap;
+    /**
+     * Scroll of a virtualized mega table: repaint the body around the viewport
+     * once the visible rows leave the painted window (with a buffer on both
+     * sides) — the layout is reused, the hit areas are bound again.
+     */
+    private syncMegaWindow(): void {
+        const vs = this.megaVs;
+        if (!vs || !vs.body.isConnected) { return; }
+        const R = vs.L.R;
+        if (R.length === 0) { return; }
+        // body pixel 0 = layout y headH (the body svg's viewBox starts there)
+        const top = this.root.getBoundingClientRect().top - vs.body.getBoundingClientRect().top + vs.L.headH;
+        const viewH = this.root.clientHeight || 800;
+        const at = (y: number): number => {
+            let lo = 0; let hi = R.length - 1;
+            while (lo < hi) {
+                const mid = (lo + hi) >> 1;
+                if (R[mid].y + R[mid].h <= y) { lo = mid + 1; } else { hi = mid; }
+            }
+            return lo;
+        };
+        const vf = at(top); const vt = Math.min(R.length, at(top + viewH) + 1);
+        if (vf >= vs.from && vt <= vs.to) { return; }
+        const from = Math.max(0, vf - MEGA_VIRT_BUFFER);
+        const to = Math.min(R.length, vt + MEGA_VIRT_BUFFER);
+        const painted = paintMega(vs.L, { ...vs.opts, window: { from, to } });
+        vs.body.replaceWith(painted.body);
+        vs.body = painted.body; vs.from = from; vs.to = to;
+        vs.bind(painted.hits);
+    }
+
+    /** the period blocks of the mega table, left to right (see buildMega) */
+    private megaKeys(): ("mtd" | "ytd" | "fy")[] {
+        type BlockKey = "mtd" | "ytd" | "fy";
+        const cc = this.settings.columnsCard;
+        const months = this.model!.months;
+        const kindOf = (v: unknown): BlockKey => v === "month" ? "mtd" : v === "fy" ? "fy" : "ytd";
+        const okK = (k: BlockKey): boolean => k === "mtd" ? months.length > 0 : k === "fy" ? this.has.fcfy : true;
+        const bk = kindOf(String(cc.blockKind.value.value)); const lk = kindOf(String(cc.leftBlockKind.value.value));
+        const main: BlockKey = okK(bk) ? bk : "ytd";
+        const left: BlockKey = okK(lk) ? lk : "mtd";
+        const twoBlocks = cc.secondBlock.value && left !== main && okK(left)
+            && (months.length > 1 || (left !== "mtd" && main !== "mtd"));
+        return twoBlocks ? [left, main] : [main];
+    }
+
+    /** scenario of a mega block: FY outlook = AC&FC (fcfy), PL FY, PY of the whole year */
+    private megaScenOf(key: "mtd" | "ytd" | "fy", s: MegaScen): Scenario | null {
+        const SC: Record<MegaScen, Scenario> = { AC: "ac", FC: "fc", PY: "py", PL: "pl" };
+        if (key !== "fy") { return SC[s]; }
+        // PY of the FY outlook = the whole previous year, as in the classic FY block (12G "ΔPY" on the year)
+        return s === "PY" ? (this.has.py ? "py" : null) : s === "PL" ? (this.has.plfy ? "plfy" : null) : "fcfy";
+    }
+
+    /** numbers.fixedMax / fixedVarMax in data units (k/m/b suffixes); null = automatic */
+    private fixedMax(): number | null {
+        return parseAmount(String(this.settings?.numbersCard?.fixedMax?.value ?? ""));
+    }
+    private fixedVarMax(): number | null {
+        return parseAmount(String(this.settings?.numbersCard?.fixedVarMax?.value ?? ""));
     }
 
     // ---------------- 1.1 Paket B: finance features ----------------
@@ -6780,7 +6959,8 @@ export class Visual implements IVisual {
         const unit = fmt.suffix + this.settings.numbersCard.unitText.value;
         const u = (s: string): string => ratio || !unit ? s : s + " " + unit;
         const code = (s: Scenario): string => s === "fcfy" ? "AC&FC" : s === "plfy" ? "PL" : s.toUpperCase();
-        const scens: Scenario[] = block === "fy" ? ["fcfy", "plfy"] : ["ac", "py", "pl", "fc"];
+        // mega FY outlook: PY of the whole year is a block scenario too (12G)
+        const scens: Scenario[] = block === "fy" ? (mega ? ["fcfy", "py", "plfy"] : ["fcfy", "plfy"]) : ["ac", "py", "pl", "fc"];
         for (const sc of scens) {
             if (!this.has[sc]) { continue; }
             const ss = this.ssRaw(node, block, sc, fmt);
@@ -7050,17 +7230,22 @@ export class Visual implements IVisual {
         if (!model || !ui) { return ""; }
         const mt = this.megaInView() ? this.megaToggles() : null;
         let min: Scenario = "ac"; let ref: Scenario;
+        // the window of the message: YTD; a mega table laid out as FY outlook speaks about the year (12G)
+        let block: "ytd" | "fy" = "ytd";
         if (mt) {
-            const r = activeRefs(mt)[0] ?? (mt.showPL ? "PL" : mt.showPY ? "PY" : null);
+            const r = activeRefs(mt)[0] ?? (mt.showPL && mt.min !== "PL" ? "PL" : mt.showPY ? "PY" : null);
             if (!r) { return ""; }
-            ref = r === "PY" ? "py" : "pl";
-            min = mt.min === "FC" ? "fc" : "ac";
+            const keys = this.megaKeys();
+            block = keys[keys.length - 1] === "fy" ? "fy" : "ytd";
+            const mm = this.megaScenOf(block, mt.min); const rr = this.megaScenOf(block, r);
+            if (!mm || !rr) { return ""; }
+            min = mm; ref = rr;
         } else {
             ref = this.has[ui.ref] ? ui.ref : this.has.pl ? "pl" : "py";
         }
         if (!this.has[ref]) { return ""; }
         const dv = (n: PnlNode): { d: number; p: number | null; good: boolean } | null => {
-            const a = this.megaRaw(n, "ytd", min); const r = this.megaRaw(n, "ytd", ref);
+            const a = this.megaRaw(n, block, min); const r = this.megaRaw(n, block, ref);
             if (mt) {
                 const D = displayVariance(n.row, a, r);
                 return D && !D.pp ? { d: D.d, p: D.p, good: D.good } : null;
@@ -7075,7 +7260,7 @@ export class Visual implements IVisual {
         const total = dv(result);
         if (!total) { return ""; }
         const unit = fmt.suffix + this.settings.numbersCard.unitText.value;
-        const refName = this.relabel(ref.toUpperCase());
+        const refName = this.relabel(ref === "plfy" ? "PL" : ref.toUpperCase());
         const parts = [(result.row.name ? result.row.name + " " : "") + `Δ${refName} ${fmt.val(total.d, true)}${unit ? " " + unit : ""}`
             + (total.p != null ? ` (${fmt.pct(total.p, true)})` : "")];
         const drivers: { n: PnlNode; d: number; score: number }[] = [];
@@ -7171,7 +7356,8 @@ export class Visual implements IVisual {
         f.style.cssText = `padding:10px 14px 12px 14px;border-top:1px solid ${C.gridSoft};` +
             `margin-top:8px;font-size:${this.kpx(8.5)};color:${C.soft};line-height:1.5;` +
             `max-width:${this.k(960)}px;`;
-        const dev = String(this.settings.styleCard.colorMode.value.value) !== "ibcs" && !this.hc ? this.tr("UI_FooterDev") : "";
+        const vm = this.varianceMode();
+        const dev = vm !== "ibcs" && !this.hc ? this.tr(vm === "blueOrange" ? "UI_FooterDevBo" : "UI_FooterDev") : "";
         f.textContent = this.tr("UI_FooterIbcs", dev);
         // title-block footers (1.1): data status / source, then the filter context
         const lines = this.titleFooterLines();
