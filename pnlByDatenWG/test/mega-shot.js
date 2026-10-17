@@ -69,8 +69,19 @@ function readMega(id) {
     const headRects = [...head.querySelectorAll("rect")].map(r => ({ fill: r.getAttribute("fill"), h: +r.getAttribute("height") }));
     const patterns = head.querySelectorAll("pattern").length + body.querySelectorAll("pattern").length;
     const toolbar = stage.querySelectorAll("button").length;
+    // 1.1: legend text, colours of every mega element, the high-contrast patterns
+    const headEl = stage.querySelector('[data-pnl="head"]');
+    const legend = headEl ? headEl.innerText : "";
+    const megaEls = [...stage.querySelectorAll('svg[data-pnl^="mega"] *')];
+    const paints = [...new Set(megaEls.flatMap(e => [e.getAttribute("fill"), e.getAttribute("stroke")]).filter(Boolean))];
+    const underlined = [...body.querySelectorAll('text[text-decoration="underline"]')].map(t => t.textContent);
+    const pyMarkDashed = head.querySelectorAll('line[data-pnl="mega-mark-py"]').length;
+    const dashedRects = body.querySelectorAll("rect[stroke-dasharray]").length;
+    const headFs = [...head.querySelectorAll("text")].map(t => +(t.getAttribute("font-size") || 0));
+    const bg = getComputedStyle(stage.firstElementChild).backgroundColor;
     return { head: texts(head), body: texts(body), clipped, charts, rowIds, rowY, headRects, patterns, toolbar, ruleColors, headLines,
-        bodyH: +body.getAttribute("height"), width: +body.getAttribute("width") };
+        bodyH: +body.getAttribute("height"), width: +body.getAttribute("width"),
+        legend, paints, underlined, pyMarkDashed, dashedRects, headFs, bg };
 }
 
 (async () => {
@@ -82,7 +93,8 @@ function readMega(id) {
     await page.goto("file://" + __dirname + "/test.html");
     await page.waitForTimeout(600);
 
-    const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16"];
+    const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
+        "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -282,6 +294,69 @@ function readMega(id) {
         })());
         check("m16 IBCS green", wf0.bars.some(b => b.fill === "#8CB400"));
     }
+
+    // ==== 1.1 package A ==========================================================
+    // fix 1 — margin rows: relative Δ% with %, %p only for the point difference
+    check("m2 T03B margin row relative +21% / +20% (with %)", has("m2", "+21%") && has("m2", "+20%") && has("m2", "+7.7%p"));
+    // fix 3 — legend = the scenarios the mega columns show; axis note only for real Δ axes
+    const lg = id => S[id] ? S[id].legend : "";
+    check("m7 T02F legend PL + FC only (no AC, no PY)", /PL plan/.test(lg("m7")) && /FC forecast/.test(lg("m7"))
+        && !/AC actual/.test(lg("m7")) && !/PY previous/.test(lg("m7")), lg("m7"));
+    check("m7 axis note names the PL axis only (no 'dashed = FC')", /double line = PL\./.test(lg("m7")) && !/dashed = FC/.test(lg("m7")) && !/gray = PY/.test(lg("m7")));
+    check("m1 T03A (no chart column) has no axis note", !/axes encode/.test(lg("m1")) && /AC actual/.test(lg("m1")) && !/FC forecast/.test(lg("m1")));
+    check("m15 12A legend AC + PY, axis note gray = PY", /AC actual/.test(lg("m15")) && /PY previous/.test(lg("m15")) && !/PL plan/.test(lg("m15"))
+        && /gray = PY\./.test(lg("m15")));
+    // fix 8 — export: no toolbar, every row expanded (exportExpandAll), switch off keeps the fold
+    if (S.m17 && S.m18 && S.m4) {
+        check("m17 export prints no toolbar buttons (toolbar.show on)", S.m17.toolbar === 0);
+        check("m17 export keeps the legend (notation)", /AC actual/.test(S.m17.legend));
+        check("m17 export renders level-1-folded T01B fully expanded (= m4 rows)", JSON.stringify(S.m17.rowIds) === JSON.stringify(S.m4.rowIds),
+            S.m17.rowIds.length + " vs " + S.m4.rowIds.length);
+        check("m18 exportExpandAll off keeps the fold (World only)", S.m18.rowIds.length === 1 && S.m18.toolbar === 0, String(S.m18.rowIds.length));
+    }
+    // fix 7 — high contrast: host foreground / background only, patterns instead of colour
+    if (S.m19) {
+        const D = S.m19;
+        check("m19 HC: mega paints only foreground #FFFF00 / background #000000", D.paints.every(c => ["#FFFF00", "#000000", "none"].includes(c)), D.paints.join(","));
+        check("m19 HC: page background = host background", D.bg === "rgb(0, 0, 0)", D.bg);
+        const bars = D.charts.filter((c, i) => i % 2 === 0);
+        check("m19 HC: unfavourable Δ bars hollow (bg fill + fg outline), favourable solid fg",
+            bars.every(c => c.bars.some(b => b.fill === "#000000" && b.stroke === "#FFFF00") && c.bars.some(b => b.fill === "#FFFF00" && !b.stroke)));
+        check("m19 HC: unfavourable pin heads hollow", D.charts[1].rects.some(r => r.fill === "#000000" && r.stroke === "#FFFF00" && r.w === 8));
+        check("m19 HC: PY head mark dashed", D.pyMarkDashed === 2, String(D.pyMarkDashed));
+        check("m19 HC: red threshold numbers underlined (-85, -274)", D.underlined.includes("-85") && D.underlined.includes("-274")
+            && !D.underlined.includes("+59"), D.underlined.join(","));
+        check("m19 HC: no teal note in the legend", !/teal/.test(D.legend));
+    }
+    if (S.m20) {
+        check("m20 HC 12A: PY value cascade dashed, AC cascade solid fg", S.m20.dashedRects >= 15
+            && S.m20.charts[1].bars.some(b => b.fill === "#FFFF00"), String(S.m20.dashedRects));
+        check("m20 HC: only fg / bg", S.m20.paints.every(c => ["#FFFF00", "#000000", "none"].includes(c)), S.m20.paints.join(","));
+    }
+    // fix 2 — header font size reaches the mega heads (18 px → 13 × 18 / 9 = 26)
+    if (S.m21 && S.m1) {
+        check("m21 heads at 26 px", S.m21.headFs.length === 5 && S.m21.headFs.every(f => f === 26), S.m21.headFs.join(","));
+        check("m21 body unchanged vs m1 (same rows, same numbers)", JSON.stringify(S.m21.body.map(t => t.t)) === JSON.stringify(S.m1.body.map(t => t.t)));
+        check("m1 heads keep the body size (no font-size attribute)", S.m1.headFs.every(f => f === 0));
+    }
+    // fix 9 — period blocks: _YTD | FY outlook, month only
+    check("m22 blocks _June | FY 2026, FY minuend head AC&FC", heads("m22").includes("_June") && heads("m22").includes("FY 2026")
+        && heads("m22").includes("AC&FC"), heads("m22").join("|"));
+    check("m22 FY block carries values (Net revenue FY AC&FC 3 254.1 vs PL 3 316.0)", has("m22", "3 254.1") && has("m22", "3 316.0") && has("m22", "-61.9"));
+    check("m23 month-only block titled June, no _YTD block", heads("m23")[0] === "June" && !heads("m23").some(h => /^_/.test(h)), heads("m23").join("|"));
+    // fix 10 — % of revenue in the mega table
+    if (S.m24) {
+        check("m24 % Rev right after AC", JSON.stringify(heads("m24").slice(0, 4)) === JSON.stringify(["PY", "PL", "AC", "% Rev"]), heads("m24").join("|"));
+        const lic = cell("m24", "87%");
+        check("m24 Licences 87% italic, right-aligned", lic && lic.italic && lic.anchor === "end");
+        check("m24 off by default (m1 has no % Rev)", !heads("m1").includes("% Rev"));
+    }
+    // fix 4 — sort indicator moves to the category head when the sorting column is off
+    check("m25 (↓) ΔPL November on the category head, nowhere else", heads("m25").filter(h => /↓/.test(h)).join("|") === "(↓) ΔPL November",
+        heads("m25").join("|"));
+    // fix 6 — threshold footer with the decimals the thresholds carry
+    check("m26 footer <-20.5 / <-10.5% (YTD <-220 / <-10% unchanged)", has("m26", "<-20.5") && has("m26", "<-10.5%")
+        && has("m26", "<-220") && !has("m26", "<-21"));
 
     // ---- preset dropdown wrote the switches (persistProperties payload) ----------
     const persist = await page.evaluate(() => (window.__persist || []).map(x => ({ id: x.id, p: x.p })));

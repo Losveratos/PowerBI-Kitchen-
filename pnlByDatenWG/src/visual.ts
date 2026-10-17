@@ -2569,7 +2569,8 @@ export class Visual implements IVisual {
         const unfav = document.createElement("span"); unfav.appendChild(sq(this.badColor(), this.hc != null));
         unfav.appendChild(document.createTextNode(this.tr("UI_LgBad")));
         bar.appendChild(fav); bar.appendChild(unfav); bar.appendChild(g);
-        if (String(this.settings.styleCard.colorMode.value.value) !== "ibcs") {
+        // (high contrast paints no teal — the deviation note would mislead there)
+        if (String(this.settings.styleCard.colorMode.value.value) !== "ibcs" && !this.hc) {
             const note = document.createElement("span");
             note.style.cssText = "font-style:italic;";
             note.textContent = this.tr("UI_LgTeal");
@@ -6532,7 +6533,7 @@ export class Visual implements IVisual {
         f.style.cssText = `padding:10px 14px 12px 14px;border-top:1px solid ${C.gridSoft};` +
             `margin-top:8px;font-size:${this.kpx(8.5)};color:${C.soft};line-height:1.5;` +
             `max-width:${this.k(960)}px;`;
-        const dev = String(this.settings.styleCard.colorMode.value.value) !== "ibcs" ? this.tr("UI_FooterDev") : "";
+        const dev = String(this.settings.styleCard.colorMode.value.value) !== "ibcs" && !this.hc ? this.tr("UI_FooterDev") : "";
         f.textContent = this.tr("UI_FooterIbcs", dev);
         return f;
     }

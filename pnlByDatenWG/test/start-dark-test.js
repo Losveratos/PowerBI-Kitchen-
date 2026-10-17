@@ -299,6 +299,9 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
         out.bars = [...__visible(pane(null, { state: { uiState: JSON.stringify({ view: "bars" }) } }))];
         out.noTb = [...__visible(pane(null, { toolbar: { show: false }, titleBlock: { show: false } }))];
         out.charts = [...__visible(pane(MEGA_DEMO.regions(), { columns: { showPL: true, dPlBar: true } }))];
+        // 1.1: % of revenue in the mega table brings the revenue base row along
+        out.share = [...__visible(pane(MEGA_DEMO.regions(), { columns: { pctRevenue: false, pctOfRevenue: true } }))];
+        out.noShare = [...__visible(pane(MEGA_DEMO.regions(), { columns: { pctRevenue: false } }))];
         const noPy = MEGA_DEMO.statement("T03").map(r => ({ ...r, values: { ...r.values, py: null } }));
         const vNoPy = __mk("cnopy", 1200, 600);
         const dvx = dvRows(noPy, {});
@@ -343,6 +346,12 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
     check("Pane: the empty visual / demo keeps every data gate open",
         has(C.empty, "columns.minuend") && has(C.empty, "columns.dPyBar") && has(C.empty, "columns.sort") && has(C.empty, "columns.showPctRows"));
     check("Pane: dark mode dropdown in the style card", has(C.base, "style.appearance"));
+    // 1.1 package A
+    check("Pane 1.1: export switch in the table group, % of revenue + period block in the mega group",
+        has(C.base, "columns.exportExpandAll") && has(C.base, "columns.pctOfRevenue") && has(C.base, "columns.blockKind"));
+    check("Pane 1.1: left block kind only with the second block", !has(C.base, "columns.leftBlockKind") && has(C.t01a, "columns.leftBlockKind"));
+    check("Pane 1.1: period block hidden without period field and FY measures", !has(C.stmt, "columns.blockKind") && has(C.regions, "columns.blockKind"));
+    check("Pane 1.1: revenue base row also for the mega % of revenue", has(C.share, "columns.revenueBase") && !has(C.noShare, "columns.revenueBase"));
     check("Pane (de-DE): card names localized", C.deStrings.includes("Spalten & Mega-Table") && C.deStrings.includes("Darstellung & Toolbar"));
     check("Pane (de-DE): descriptions in the ChartKitchen tone with the default", C.deStrings.filter(s => /Standard: /.test(s)).length > 40);
     check("Pane (de-DE): enum items localized", C.deStrings.includes("Tausend (k)") && C.deStrings.includes("T03A · Statement PY·PL·AC + ΔPY·ΔPL"));

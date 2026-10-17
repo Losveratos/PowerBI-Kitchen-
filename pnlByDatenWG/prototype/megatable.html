@@ -417,7 +417,7 @@ function makeFmt(S, regions) {
     pin: p => num(p * 100, pinDec, true),
     margin: m => num(m * 100, d, false) + "%",
     pp: x => num(x, d, true) + "%p",
-    rel: p => num(p * 100, 0, true),
+    rel: p => num(p * 100, 0, true) + "%",   // T03A "+23%" (1.1: with the sign, like the reference)
   };
 }
 const _mctx = document.createElement("canvas").getContext("2d");

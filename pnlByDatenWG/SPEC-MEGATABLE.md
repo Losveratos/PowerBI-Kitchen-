@@ -173,6 +173,14 @@ schraffierte Flächen tragen zusätzlich 1-px-Kontur in derselben Farbe.
    diese Breite + Beschriftungsbedarf; die Tabelle scrollt dann horizontal statt
    Balken auf 0 zu kollabieren. Ausgeschaltete Spalten hinterlassen keine Lücke —
    die Breiten werden bei jeder Schalter-Kombination neu verteilt.
+   **Geteilter Maßstab (1.1):** Die Garantie gilt auch beim Familien-k (unten):
+   drückt ein Familien-Partner mit viel größeren Werten (ΔPL-Balken neben
+   kleinen ΔPY-Balken, Wasserfall neben Balken) das gemeinsame k unter die
+   Mindestfläche einer Spalte, wird k so weit angehoben, wie jede Spalte der
+   Familie bis zu ihrer Breitengrenze (`22·fs`, Wert-Kaskade `28·fs`; schon
+   breitere behalten ihre Breite) wachsen kann; die bindenden Spalten wachsen.
+   Darüber hinaus gewinnt der eine Maßstab — winzige Werte neben 200× größeren
+   bleiben kurz (vergleichbare Längen sind der Zweck des gemeinsamen k).
 
 ### Balken-/Pin-Maßstab
 
@@ -227,9 +235,12 @@ der Notations-Tabelle, Kostenzeilen hell (PY `#D9D9D9`, AC `#8A8886`).
 Tausender-Trenner U+202F (wie `NBSP_GROUP`), Minus als „-". Dezimalen `d` gelten
 für Werte/ΔAbs/Margen; Δ%-Zahlen: Regionen `max(1,d)`, GuV `d ≥ 2 ? 1 : 0`;
 Pins: GuV mit `d = 0` → 0, sonst `max(1,d)`. Margen-Zeile: Wert `36.7%`,
-ΔAbs `+8.6%p`, Δ% als relative Änderung ohne Zeichen `+23`, kursiv/klein.
+ΔAbs `+8.6%p`, Δ% als relative Änderung mit Zeichen `+23%` (wie T03A; bis
+1.0.1 ohne Zeichen), kursiv/klein — `%p` steht nur an der Punktdifferenz.
 Schwellen: rot, wenn `Δ × (Kosten ? −1 : 1) < Schwelle` (Default Monat −20 /
-−10 %, _YTD −220 / −10 %; GuV −20 / −10 %).
+−10 %, _YTD −220 / −10 %; GuV −20 / −10 %). Die Fußzeile druckt die Schwelle
+mit den Dezimalen, die sie trägt (`<-20.5`, `<-10.5%`; 1.0 rundete auf 0), der
+Rot-Test vergleicht exakt.
 
 ### Schalter-Liste → künftige Formatmenü-Toggles (Karte `columns`)
 
@@ -259,6 +270,9 @@ wiederverwendet: `numbers.decimals`, `numbers.pctDecimals`, `style.colorMode`.
 | `barCap` | `columns.capBars` | Ausreißer-Kappung auch für Δ-Balken (Pins immer) |
 | `sort` | `columns.sort` (category / minuend↓ / Δ↓) | Sortierung je Struktur-Gruppe, „Other" bleibt unten |
 | `sortBlock` | `columns.sortBlock` (period / ytd) | welcher Block die Reihenfolge bestimmt (Kategorie-Spalte ist geteilt) |
+| – (1.1) | `columns.blockKind` / `columns.leftBlockKind` (month / ytd / fy) | Art des Perioden-Blocks bzw. des zweiten Blocks links |
+| – (1.1) | `columns.pctOfRevenue` | „% vom Umsatz"-Spalte im Mega-Modus |
+| – (1.1) | `columns.exportExpandAll` (Gruppe Tabelle, Default an) | Export rendert alle Zeilen aufgeklappt |
 
 Defaults je Preset (✓ = an; nicht genannte Toggles aus; `marks`, `barLabels`
 überall an, `barCap` überall aus):
@@ -289,14 +303,40 @@ grauen Zeilenlinien, durchgehende Summenlinien, keine Kopf-Linien (12A).
 ### Bewusst offen / Abweichungen
 
 - **12G/12H** (YTD+Restjahr-Stapel, Plan-Tönung) nicht im Prototyp; 12A ist
-  umgesetzt, der Headline-Slot wird aus den Daten generiert.
+  umgesetzt, der Headline-Slot wird im Prototyp aus den Daten generiert (im
+  Visual: manueller Slot `titleBlock.message`, Generierung offen).
 - GuV hat keinen _YTD-Block (Demo-Daten nur Jahr); der Block-Schalter wirkt nur
   bei Strukturdaten.
 - Referenz-Inkonsistenzen werden nicht nachgebaut: Summen rechnet der Kern
   (T03A AC-Ergebnis 422.2 statt 422.3; ΔPY Group result +186.2 statt der im Bild
   doppelt gedruckten +162.5; 12H-PL-Operating-result 346 statt 329).
+- **T01A/T01B _YTD-ΔPY-Dezimale:** Die Referenzen drucken die ΔPY-Zahlen des
+  _November-Blocks mit einer Dezimale (`+431.0`, `-274.0`, `+7.0`; T01B `+80.0`,
+  `-127.0`), die ΔPL-Spalte desselben Blocks und der Monatsblock ganzzahlig.
+  Das Visual hat EINE Dezimalregel je Tabelle (`numbers.decimals`, T01-Preset 0)
+  und druckt `+431` — in sich inkonsistente Mischdezimalen werden nicht
+  nachgebaut (keine Dezimalen je Block/Spalte).
+- **T02F-Früh-Kappung:** Das Referenzbild kappt zwei Δ%-Pins (Japan −27.3 im
+  Monat, Other +26.1 im _November) schon beim Sprung 1.35×. Der Tukey-Zaun
+  (Q3 + 4·IQR, ab 8 Werten; siehe „Balken-/Pin-Maßstab") schlägt dort nicht an,
+  beide Pins werden voll gezeichnet — jede Regel, die T02F kappt, kappte T02A
+  `+16.5` fälschlich. Ein manueller Kappungswert je Block ist nicht vorgesehen.
+- **T04C/T04E Financial-income-Pin:** Die Referenzblätter drucken für
+  „Financial income, net" (Δ −7.00 = −9.59 %) einen grünen Pin nach rechts mit
+  `+9.59` — im Widerspruch zum roten Δ-Balken derselben Zeile. Das Visual
+  zeichnet vorzeichenrichtig `-9.59` als roten Pin nach links.
+- **12A-Mehrfach-Pfeilspitzen:** Die Referenz staffelt die Pfeilspitzen gekappter
+  Werte nach Überlauf (`+983` mit drei Spitzen, `+391` mit einer; 12G `+1 633`
+  mit zwei). Prototyp und Visual zeichnen immer genau eine Spitze (9 px) — der
+  Wert steht ohnehin als Zahl am Element.
 - Sortierung „je Block" ist bei geteilter Kategorie-Spalte nur über einen Block
-  möglich (`sortBlock`); Indikator `(↓)` steht am sortierenden Spaltenkopf.
+  möglich (`sortBlock`); Indikator `(↓)` steht am sortierenden Spaltenkopf. Ist
+  diese Spalte ausgeschaltet (sort = min ohne Wertspalte AC/FC, sort = Δ ohne
+  Δ-Zahl/-Balken/-Wasserfall der Referenz), bleibt die Sortierung wie gewählt
+  und der Indikator wandert an den Kopf der Kategorie-Spalte mit Schlüssel und
+  Block: `(↓) ΔPL November` (1.1; bis 1.0.1 fehlte er dann ganz). Bewusst kein
+  stilles Umschalten auf eine sichtbare Spalte: Δ% ordnet anders als Δ, die
+  Reihenfolge wäre eine, die niemand eingestellt hat.
 
 ### Empfehlungen für die Visual-Ableitung
 
@@ -424,6 +464,53 @@ Phase 5 (12G YTD+Restjahr-Stapel, 12H Plan-Tönung, Headline-Slot) ist nicht
 umgesetzt; Virtualisierung sehr langer Statements (heute ein SVG für alle
 sichtbaren Zeilen). Wasserfall-Beschriftungen links eines Schritts dürfen wie
 in den Referenzen (T04B „+5.79") die Nulllinie kreuzen.
+
+### Stand 1.1 · Paket A (Konformitäts-Fixes)
+
+- **Margen-Zeilen:** relative Δ% mit `%` (`+23%`, T03A/B), `%p` nur an der
+  Punktdifferenz (siehe „Zahlenformat").
+- **Kopf-Schriftgröße:** `style.headerFontSize` wirkt jetzt auch auf Spaltenköpfe
+  und Block-Titel des Mega-Tables (Faktor `v / 9` auf `fs`; 0 bzw. außerhalb
+  7…20 = `fs`, unverändert). Kopfzeilen wachsen mit (`round(1.7·headFs)`),
+  Spaltenbreiten messen den Kopf in seiner Schrift; der Körper bleibt gleich.
+- **Legende:** zeigt im Mega-Modus nur die Szenarien, die die Spalten zeigen
+  (Wertspalten, Minuend jedes Δ-Elements, aktive Δ-Referenzen — T02F: PL + FC);
+  die Achsen-Notiz nennt nur Referenzen mit echter Δ-Achse („grau = PY",
+  „Doppellinie = PL"; FC ist im Mega-Table nie Achse) und entfällt ohne
+  Chart-Spalte. Klassische Ansichten unverändert.
+- **Sortier-Indikator / Mindest-Datenfläche / Schwellen-Fußzeile:** siehe oben.
+- **Hochkontrast** (`colorPalette.isHighContrast`, nur solange der Mega-Table
+  sichtbar ist — klassische Tabelle, Balken, Wasserfall und Baum unverändert):
+  `MEGA_C` und `C` auf `foreground` / `background`, Auswahl-Linie
+  `foregroundSelected` (ohne Wash). Muster statt Farbe (ChartKitchen-HC-Pfad):
+  gut = Minuend-Füllung (voll / schraffiert), schlecht = hohl (Hintergrund +
+  1.4-px-Kontur) für Δ-Balken, Wasserfall-Schritte, Pin-Köpfe und Pfeile; rote
+  Schwellenzahlen unterstrichen; PY-Kopfmarke als gestricheltes Band, PY-Wert-
+  Kaskade gestrichelt hohl; Legenden-Chips entsprechend; Teal-Hinweis entfällt.
+- **Export** (`allowInteractions = false`, PDF/PowerPoint/Abo): keine Toolbar
+  (die Legende bleibt — sie erklärt die Notation); mit `columns.exportExpandAll`
+  (Gruppe „Tabelle", Default an) rendern Mega- und klassische Tabelle alle
+  Zeilen aufgeklappt, ohne den gespeicherten Klapp-Zustand zu ändern. Der
+  Werttreiberbaum behält seinen eigenen Klapp-Zustand.
+- **Perioden-Blöcke:** `columns.blockKind` (Perioden-Block: Monat · YTD · FY,
+  Default YTD) und `columns.leftBlockKind` (zweiter Block links, nur mit
+  `secondBlock`, Default Monat). Defaults = bisher (YTD bzw. Monat | _YTD).
+  FY-Ausblick: Minuend = AC&FC (`fcFy`, Kopf „AC&FC"), PL = `plFy`, kein PY
+  (ΔPY-Spalten bleiben dort leer); Titel „FY 2026". Ein einzelner Monats- oder
+  FY-Block zeigt seinen Titel auch bei GuV-Daten. Nicht verfügbare Arten (ohne
+  Perioden-Feld / FY-Maße) fallen auf YTD bzw. Monat zurück. Templates setzen
+  beide zurück (YTD / Monat).
+- **% vom Umsatz:** `columns.pctOfRevenue` (Mega-Gruppe, Default aus): Spalte
+  „% Rev" direkt rechts der Wertspalten je Block (bei Wert-Kaskaden eigene
+  Gruppe), Anteil des Minuenden an der Umsatz-Basiszeile (`columns.revenueBase`)
+  desselben Blocks, `numbers.pctDecimals`, rechtsbündig, kursiv, klein, grau;
+  keine Werte in Margen-Zeilen.
+
+Tests: `test/megatable-test.js` (Layout: Kopf-Schrift, Indikator-Fallback,
+Familien-Mindestspanne inkl. Grenze, % Rev, FY-Alias, HC-Palette/Unterstreichung,
+Schwellen-Dezimalen), `test/mega-shot.js` m17–m26 (Export, HC, Kopf-Schrift,
+FY/Monat-Blöcke, % Rev, Indikator, Fußzeile) + Legenden-Checks an m1/m7/m15,
+`test/start-dark-test.js` (Pane-Gates der neuen Schalter).
 
 ### Stand 1.0.0.0
 

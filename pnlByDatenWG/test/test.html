@@ -37,6 +37,16 @@
 <div class="case"><h4>m14 · Mega-Table T04E · FC vs PY · Wasserfall schraffiert, graue Achse</h4><div class="stage" id="m14" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m15 · Mega-Table 12A · PY- und AC-Wert-Kaskade · ΔPY-Balken + Pins (Ausreißer-Pfeile)</h4><div class="stage" id="m15" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m16 · Mega-Table Einzel-Schalter · Regionen Monat | _YTD · ΔPL-Wasserfall + ΔPL-Balken + Pins · Zwischensummen spannen · IBCS-Grün</h4><div class="stage" id="m16" style="width:1600px;height:800px"></div></div>
+<div class="case"><h4>m17 · 1.1 Export (allowInteractions = false) · T01B auf Ebene 1 zugeklappt → alles aufgeklappt · ohne Toolbar</h4><div class="stage" id="m17" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m18 · 1.1 Export mit columns.exportExpandAll = aus · Klapp-Zustand bleibt</h4><div class="stage" id="m18" style="width:1320px;height:600px"></div></div>
+<div class="case"><h4>m19 · 1.1 Hochkontrast (Gelb auf Schwarz) · Regionen ΔPY-Zahl + Balken + Pins · Schwellen</h4><div class="stage" id="m19" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m20 · 1.1 Hochkontrast · 12A Wert-Kaskaden (PY gestrichelt)</h4><div class="stage" id="m20" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m21 · 1.1 T03A · Kopf-Schriftgröße 18 px (style.headerFontSize)</h4><div class="stage" id="m21" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m22 · 1.1 Pharma-Demo · Blöcke _YTD | FY-Ausblick (AC&amp;FC vs PL)</h4><div class="stage" id="m22" style="width:1560px;height:800px"></div></div>
+<div class="case"><h4>m23 · 1.1 Pharma-Demo · nur Monats-Block</h4><div class="stage" id="m23" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m24 · 1.1 T03A + „% vom Umsatz"-Spalte</h4><div class="stage" id="m24" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m25 · 1.1 Sortierung Δ↓ (Monat) bei ausgeblendeten ΔPL-Balken → Indikator am Kategorie-Kopf</h4><div class="stage" id="m25" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m26 · 1.1 T01A · Schwellen −20.5 / −10.5 % mit Dezimalen in der Fußzeile</h4><div class="stage" id="m26" style="width:1320px;height:720px"></div></div>
 <div class="case"><h4>p12 · Smart Start (1.0) · Demo-GuV ohne Felder · Banner „Demo“ · de-DE</h4><div class="stage" id="p12" style="width:1200px;height:700px"></div></div>
 <div class="case"><h4>p13 · Dark Mode (1.0) · Tabelle · style.appearance = dark</h4><div class="stage" id="p13" style="width:1560px;height:700px"></div></div>
 <div class="case"><h4>p14 · Dark Mode (1.0) · Mega-Table T04B · Werttreiberbaum folgt in test:start</h4><div class="stage" id="p14" style="width:1320px;height:700px"></div></div>
@@ -110,6 +120,7 @@ function makeHost(locale, opts) {
   // "legacy" reproduces a host that offers no selection manager at all
   if (!o.legacy) { Object.assign(host, makeSelectionMocks()); }
   if (o.allowInteractions === false) { host.hostCapabilities = { allowInteractions: false }; }
+  if (o.palette) { host.colorPalette = o.palette; }
   return host;
 }
 
@@ -249,9 +260,9 @@ function dvRows(rows, objects) {
   ];
   return { categorical: { categories, values }, metadata: { objects: objects || {} } };
 }
-function runRows(id, rows, objects, locale) {
+function runRows(id, rows, objects, locale, hostOpts) {
   const el = document.getElementById(id);
-  const host = makeHost(locale);
+  const host = makeHost(locale, hostOpts);
   host.persistProperties = (p) => { (window.__persist = window.__persist || []).push({ id, p }); };
   const v = new Visual({ element: el, host });
   v.update({ dataViews: [dvRows(rows, objects)], viewport: { width: el.clientWidth, height: el.clientHeight }, type: 2 });
@@ -304,6 +315,40 @@ runRows("m16", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November
   style: { colorMode: "ibcs" },
   numbers: { decimals: 0, pctDecimals: 1 },
   columns: { showPL: true, showMinuend: true, dPlBar: true, dPlWaterfall: true, dPlPin: true, secondBlock: true } });
+
+// ---- 1.1 package A ------------------------------------------------------------
+// m17 / m18 — export: no toolbar, every row expanded (unless exportExpandAll is off)
+const EXP = { titleBlock: { ...MT, periodLine: "November 2026" }, hierarchy: { defaultLevel: 1 }, toolbar: { show: true } };
+runRows("m17", MEGA_DEMO.regions(), { ...EXP, columns: { template: "T01B" } }, null, { allowInteractions: false });
+runRows("m18", MEGA_DEMO.regions(), { ...EXP, columns: { template: "T01B", exportExpandAll: false } }, null, { allowInteractions: false });
+// m19 / m20 — high contrast: yellow on black, selection cyan
+const HC = { isHighContrast: true, foreground: { value: "#FFFF00" }, background: { value: "#000000" },
+  foregroundSelected: { value: "#00FFFF" } };
+runRows("m19", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  numbers: { decimals: 0, pctDecimals: 1 },
+  columns: { showPY: true, showMinuend: true, dPyAbs: true, dPyBar: true, dPyPin: true, thresholds: true, secondBlock: true } },
+  null, { palette: HC });
+runRows("m20", MEGA_DEMO.statement("12A"), { titleBlock: { unitLine: "Software and Service Group" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "12A" } }, null, { palette: HC });
+// m21 — head font size 18 px on the mega heads
+runRows("m21", ...ST("T03", "T03A").map((x, i) => i === 1 ? { ...x, style: { headerFontSize: 18 } } : x));
+// m22 / m23 — period blocks: _YTD | FY outlook, month only (pharma demo carries FC FY / PL FY)
+run("m22", { titleBlock: TITLE, hierarchy: { defaultLevel: 1 }, toolbar: { show: false },
+  columns: { showPL: true, showMinuend: true, dPlAbs: true, dPlPct: true, secondBlock: true, blockKind: "fy", leftBlockKind: "ytd" },
+  numbers: { decimals: 1, pctDecimals: 0 } });
+run("m23", { titleBlock: TITLE, hierarchy: { defaultLevel: 1 }, toolbar: { show: false },
+  columns: { showPY: true, showMinuend: true, dPyAbs: true, dPyPct: true, blockKind: "month" },
+  numbers: { decimals: 1, pctDecimals: 0 } });
+// m24 — % of revenue in the mega table
+runRows("m24", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T03A", pctOfRevenue: true } });
+// m25 — Δ↓ sort while the sorting Δ bars are off (pins only)
+runRows("m25", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  numbers: { decimals: 0, pctDecimals: 1 },
+  columns: { showPL: true, showMinuend: true, dPlPin: true, secondBlock: true, sort: "delta", sortBlock: "period" } });
+// m26 — thresholds with decimals
+runRows("m26", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  columns: { template: "T01A", thresholdAbs: -20.5, thresholdPct: -10.5 } });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);
