@@ -328,7 +328,8 @@ Rechenkern-Ergänzung in `src/engine.ts` (`varianceOf`, `displayVariance`).
   sobald mindestens ein Spalten-Schalter (`showPY/showPL/showMinuend`,
   `dPy*/dPl*`) an ist; alle stehen per Default aus → die klassische Tabelle
   rendert unverändert (Pixel-Regression byte-identisch). In Balken-, Waterfall-
-  und Baum-Ansicht ändert sich nichts. Im Mega-Modus blendet die Toolbar
+  und Baum-Ansicht ändert sich nichts (seit 1.0.1 auch mit gewähltem Template:
+  der Mega-Modus gilt nur in der Tabellen-Ansicht, `megaInView()`). Im Mega-Modus blendet die Toolbar
   Spalten-Preset, Δ-Referenz, Perioden und Fit aus (Spalten kommen aus dem
   Formatbereich); Ansicht, Einheit, Dichte, Ebenen und „Nullzeilen aus" bleiben.
 - **Formatbereich:** `columns` ist jetzt eine Composite-Karte mit den Gruppen
@@ -374,6 +375,9 @@ Rechenkern-Ergänzung in `src/engine.ts` (`varianceOf`, `displayVariance`).
 - **Interaktion:** Klick auf das Label einer Summe klappt den Block (▸ am
   gefalteten Label), Klick auf die Zeile setzt die Power-BI-Selektion,
   Rechtsklick öffnet das Kontextmenü; Kommentar-Marker ① und Fußnoten wie bisher.
+- **Zahl auf dem Achsenband (1.0.1):** Kaskaden-Beschriftungen, deren Box das
+  Achsenband schneidet (T04B „+5.79"), bekommen denselben Papier-Kasten — die Achse
+  pausiert hinter der Zahl; alle anderen Beschriftungen bleiben unverändert.
 - **Ausreißer-Zahl:** zusätzlich zum Weißhalo ein schmaler Papier-Kasten hinter
   der Zahl auf dem Stiel (sonst schneidet der 3-px-Stiel die Ziffern).
 - **Schrift:** fs 13 (Dichte normal) bzw. 11 (kompakt) × Schriftgrößen-Preset.

@@ -138,6 +138,16 @@ Alle Monate ausgewählt (kein Filter):
 - [ ] **Bookmark-Test**: Zustand A (Ebene 1, Waterfall) und Zustand B
   (Alle auf, Tabelle) als Lesezeichen speichern → Umschalten stellt beides her
 - [ ] Datei schließen & neu öffnen: letzter Toolbar-Zustand bleibt erhalten
+- [ ] **(1.0.1) Template + Ansicht**: Mega-Template wählen (z. B. T02A) →
+  „Balken" und „Waterfall" zeigen ihre eigenen Spalten, nicht die
+  Mega-Tabelle; „Tabelle" bringt das Template zurück
+- [ ] **(1.0.1) Gesperrte Knöpfe**: Preset AC·PY·PL·FC → Δ-Referenz gedimmt
+  mit Tooltip; „AC vs Ref" → Δ-Referenz wieder aktiv. In Balken/Waterfall
+  gibt es keine Preset-Gruppe und kein „% vom Umsatz"
+- [ ] **(1.0.1) YTD**: MTD an, YTD aus → nur der MTD-Block; MTD aus → YTD
+  kommt zurück (an + gesperrt)
+- [ ] **(1.0.1) Formatbereich wirkt**: nach einem Toolbar-Klick im
+  Formatbereich Spalten-Preset oder Δ-Referenz ändern → die Tabelle folgt sofort
 
 ## 6 · Format-Pane-Tests
 

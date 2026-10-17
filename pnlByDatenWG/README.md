@@ -2,7 +2,7 @@
 
 IBCS-inspiriertes GuV-/P&L-Custom-Visual für Power BI — eigenständiges
 Schwester-Visual von [ChartKitchen byDatenWG](../ibcsInspiredChartDeck/) und der
-[IBCS KPI Card](../ibcsKpiCard/). **Version 1.0.0.0** — raus aus der Beta:
+[IBCS KPI Card](../ibcsKpiCard/). **Version 1.0.1.0** — raus aus der Beta:
 Tabelle mit **Mega-Table** (IBCS-Templates T01–T04 und 12A), Struktur-Bars,
 Zeilen-Waterfall und **Werttreiberbaum (DuPont)** mit Kachel-Zoom; Selektion,
 Drillthrough und natives Kontextmenü; **vier Sprachen** (de · en · es · ja),

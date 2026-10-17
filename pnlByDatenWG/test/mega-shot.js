@@ -49,8 +49,11 @@ function readMega(id) {
         return {
             conn: g.querySelectorAll('g[data-pnl="mega-conn"] line').length,
             labels: [...g.querySelectorAll("text")].map(t => ({ t: t.textContent, x: +t.getAttribute("x"),
-                anchor: t.getAttribute("text-anchor"), bold: t.getAttribute("font-weight") === "bold" })),
-            bars: [...g.querySelectorAll(":scope > rect, :scope > g:not([shape-rendering]) > rect")].map(r => ({ x: +r.getAttribute("x"), w: +r.getAttribute("width"),
+                anchor: t.getAttribute("text-anchor"), bold: t.getAttribute("font-weight") === "bold",
+                x0: t.getBBox().x, x1: t.getBBox().x + t.getBBox().width })),
+            halos: [...g.querySelectorAll('rect[data-pnl="mega-halo"]')].map(r => ({ x0: +r.getAttribute("x"),
+                x1: +r.getAttribute("x") + +r.getAttribute("width") })),
+            bars: [...g.querySelectorAll(":scope > rect:not([data-pnl=mega-halo]), :scope > g:not([shape-rendering]) > rect")].map(r => ({ x: +r.getAttribute("x"), w: +r.getAttribute("width"),
                 y: +r.getAttribute("y"), fill: r.getAttribute("fill"), stroke: r.getAttribute("stroke") })),
             axes: lines.map(l => ({ x: +l.getAttribute("x1"), stroke: l.getAttribute("stroke"), sw: +l.getAttribute("stroke-width") })),
             rects: [...g.querySelectorAll("rect")].map(r => ({ fill: r.getAttribute("fill"), stroke: r.getAttribute("stroke"),
@@ -208,6 +211,15 @@ function readMega(id) {
         const anchorIds = ["L:Sales revenue", "opres", "rbt", "rat", "grp"];
         const anchors = anchorIds.map(a => ids2.indexOf(a)).filter(i => i >= 0)
             .map(i => wf.bars.find(b => b.y > rowsY[i] && b.y < rowsY[i] + 22));
+        // a number beside the zero line sits ON the axis band (T04B "+5.79"): it
+        // gets the paper halo, the axis pauses behind it — and nothing else does
+        const band = wf.axes.length === 2 ? [Math.min(wf.axes[0].x, wf.axes[1].x) - 0.5, Math.max(wf.axes[0].x, wf.axes[1].x) + 0.5]
+            : [wf.axes[0].x - wf.axes[0].sw / 2, wf.axes[0].x + wf.axes[0].sw / 2];
+        // (half a pixel of tolerance, like the painter: a digit touching the line counts)
+        const onAxis = wf.labels.filter(l => l.x0 < band[1] + 0.5 && l.x1 > band[0] - 0.5);
+        check(`${id} every label on the axis band carries a halo, no other label does (${onAxis.length})`,
+            wf.halos.length === onAxis.length && onAxis.every(l => wf.halos.some(h => h.x0 <= l.x0 + 0.5 && h.x1 >= l.x1 - 0.5)),
+            JSON.stringify({ onAxis: onAxis.map(l => l.t), halos: wf.halos.length }));
         check(`${id} = rows anchored on the zero line (5)`, anchors.length === 5 && anchors.every(b => b
             && (Math.abs(b.x - ax) < 1.5 || Math.abs(b.x + b.w - ax) < 1.5)), JSON.stringify(anchors.map(b => b && [b.x, b.w, ax])));
     };

@@ -285,6 +285,12 @@ interface UiState {
 /** current schema version of the persisted tree state (see UiState.treeV) */
 const TREE_STATE_V = 2;
 
+/**
+ * How many updates a toolbar write waits for its echo before the host's state
+ * counts again (same pattern and size as the template guard of the mega table).
+ */
+const UI_ECHO_TTL = 5;
+
 /** One node of the laid-out driver tree (x/y = top-left of the card). */
 interface TreeCard {
     node: PnlNode;
@@ -475,7 +481,13 @@ export class Visual implements IVisual {
     private wfSegs = new Map<string, Map<string, { s: number; e: number }>>();
     private stateLoaded = false;
     private pendingPersist: string | null = null;
+    /** updates a toolbar write may still wait for its echo (see syncUiState) */
+    private pendingTtl = 0;
+    /** states the visual's own pending writes replaced (the only stale echoes) */
+    private supersededUi: string[] = [];
     private lastApplied: string | null = null;
+    /** the format-pane defaults of the toolbar state, as of the last update */
+    private paneSnap: Record<string, string> | null = null;
 
     // --- segmented loading (fetchMoreData) ---
     /** rows delivered by the host so far (accumulated data view) */
@@ -670,6 +682,10 @@ export class Visual implements IVisual {
             this.buildStatusWarnings();
             this.syncMegaTemplate(dataView);
             this.syncUiState(dataView);
+            // a pane default the author just changed is written into the
+            // stored toolbar state too — otherwise the next report load would
+            // bring the old toolbar choice back over it
+            if (this.syncPaneDefaults()) { this.persistUi(); }
             this.render();
             this.events.renderingFinished(options);
         } catch (e) {
@@ -1145,6 +1161,60 @@ export class Visual implements IVisual {
         };
     }
 
+    /** the format-pane settings the toolbar state starts from, as plain strings */
+    private paneDefaults(): Record<string, string> {
+        const s = this.settings;
+        return {
+            preset: String(s.columnsCard.preset.value.value),
+            ref: String(s.columnsCard.reference.value.value),
+            unit: String(s.numbersCard.scaling.value.value),
+            density: String(s.styleCard.density.value.value),
+            pctRev: String(s.columnsCard.pctRevenue.value),
+            hideZero: String(s.columnsCard.hideZeroRows.value),
+            fit: String(s.columnsCard.fitWidth.value),
+            level: String(s.hierarchyCard.defaultLevel.value),
+            treeCard: String(s.columnsCard.treeCard.value.value),
+            treeStatus: String(s.columnsCard.treeStatus.value),
+        };
+    }
+
+    /**
+     * The format pane is the author's default, the toolbar the reader's
+     * choice — but a default the author CHANGES must win. Up to 1.0.0 the
+     * toolbar state was taken from the pane once per session and, after the
+     * first toolbar click, from the stored state forever: changing "Column
+     * preset", "Δ reference", "Scaling", "Density" … in the pane did nothing.
+     * Now every pane value that differs from the previous update is copied
+     * into the toolbar state (only that one — the reader's other choices
+     * stay). Returns true when something was taken over.
+     */
+    private syncPaneDefaults(): boolean {
+        const now = this.paneDefaults();
+        const prev = this.paneSnap;
+        this.paneSnap = now;
+        const ui = this.ui;
+        if (!prev || !ui) { return false; }
+        const d = this.defaultUi();
+        let took = false;
+        for (const k of Object.keys(now)) {
+            if (now[k] === prev[k]) { continue; }
+            took = true;
+            switch (k) {
+                case "preset": ui.preset = d.preset; break;
+                case "ref": ui.ref = d.ref; break;
+                case "unit": ui.unit = d.unit; break;
+                case "density": ui.density = d.density; break;
+                case "pctRev": ui.pctRev = d.pctRev; break;
+                case "hideZero": ui.hideZero = d.hideZero; break;
+                case "fit": ui.fit = d.fit; break;
+                case "level": ui.collapsed = d.collapsed; break;
+                case "treeCard": ui.treeCard = d.treeCard; break;
+                case "treeStatus": ui.treeStatus = d.treeStatus; break;
+            }
+        }
+        return took;
+    }
+
     private resolveRef(pref: string): Scenario {
         if (pref === "py" || pref === "pl" || pref === "fc") { return pref; }
         if (this.has.pl) { return "pl"; }
@@ -1156,8 +1226,24 @@ export class Visual implements IVisual {
         const persisted = dataView?.metadata?.objects?.["state"]?.["uiState"];
         const str = persisted == null ? null : String(persisted);
         if (this.pendingPersist != null) {
-            if (str === this.pendingPersist) { this.lastApplied = str; }
-            this.pendingPersist = null;
+            if (str === this.pendingPersist) {
+                this.lastApplied = str;
+                this.pendingPersist = null;
+                this.supersededUi = [];
+            } else if ((str == null || this.supersededUi.includes(str)) && --this.pendingTtl > 0) {
+                // Echo guard: an update that still carries a state this visual
+                // itself has written over (the one before the click — a resize
+                // arriving first — or an earlier click whose echo comes late)
+                // must not throw the reader's click away. Up to 1.0.0 it did,
+                // and the button sprang back until the echo came. Only the
+                // host's own echo or the TTL (the write was lost) ends the
+                // guard; a state the visual never wrote — a bookmark — is
+                // applied at once below.
+                return;
+            } else {
+                this.pendingPersist = null;
+                this.supersededUi = [];
+            }
         }
         if (str != null && str !== this.lastApplied) {
             try {
@@ -1198,7 +1284,12 @@ export class Visual implements IVisual {
             }
         }
         const json = JSON.stringify(this.ui);
+        // the states this write replaces — only these count as stale echoes
+        if (this.lastApplied != null && this.lastApplied !== json) {
+            this.supersededUi = [...this.supersededUi.slice(-(UI_ECHO_TTL - 1)), this.lastApplied];
+        }
         this.pendingPersist = json;
+        this.pendingTtl = UI_ECHO_TTL;
         this.lastApplied = json;
         this.host.persistProperties({
             merge: [{ objectName: "state", selector: null, properties: { uiState: json } }],
@@ -1588,6 +1679,8 @@ export class Visual implements IVisual {
         this.demoMissing = missing;
         this.syncMegaTemplate(dataView);
         if (!this.ui) { this.ui = this.defaultUi(); }
+        // the demo follows pane edits as well (locally — it never persists)
+        this.syncPaneDefaults();
         this.render();
     }
 
@@ -1601,6 +1694,7 @@ export class Visual implements IVisual {
         this.stateLoaded = false;
         this.lastApplied = null;
         this.pendingPersist = null;
+        this.supersededUi = [];
         this.lastFingerprint = null;
         this.scanCache = null;
         this.geoCache = null;
@@ -1758,7 +1852,10 @@ export class Visual implements IVisual {
         if (this.settings.toolbarCard.show.value) { head.appendChild(this.buildToolbar()); }
         if (this.awaitingSegment) { head.appendChild(this.buildLoadingBar()); }
         if (this.settings.toolbarCard.showLegend.value) { head.appendChild(this.buildLegend()); }
-        const mega = this.megaOn();
+        // the mega table is a mode of the TABLE view only — a template must
+        // never take over Bars or Waterfall (1.0.0 did, and the toolbar of those
+        // views then drove a body that ignored every one of its buttons)
+        const mega = this.megaInView();
         if (ui.view !== "tree" && !mega) { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
         if (head.childElementCount > 0) {
             this.root.appendChild(head);
@@ -2041,38 +2138,25 @@ export class Visual implements IVisual {
 
     /** which Δ combinations the current view shows (drives the uniform scale) */
     private deltaCombos(): { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy" }[] {
-        const ui = this.ui!;
         const out: { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy" }[] = [];
-        if (ui.view === "tree") { return out; } // the tree shows no Δ bars
-        if (ui.view === "bars" || ui.view === "waterfall") {
-            const fyOn = this.has.fcfy && this.has.plfy && ui.blocks.fy;
-            if (ui.view === "waterfall" && ui.blocks.mtd && this.model!.months.length > 1 && this.has[ui.ref]) {
-                out.push({ ref: ui.ref, minuend: "ac", block: "mtd" });
+        if (this.ui!.view === "tree") { return out; } // the tree shows no Δ bars
+        // exactly the Δ columns on screen — read from the column specs, so the
+        // uniform scale can never span a block the toolbar has switched off
+        // (or miss one it shows) — every reference × minuend × block once.
+        // Every bar / pin column carries its own pair; the plain value bars
+        // (vbar / wbar) are scaled by the value maximum, not by Δ.
+        const seen = new Set<string>();
+        for (const b of this.colSpecs()) {
+            for (const c of b.specs) {
+                if ((c.kind !== "bar" && c.kind !== "pin") || !c.ref || !c.minuend) { continue; }
+                const block = c.block ?? "ytd";
+                const key = `${c.ref}|${c.minuend}|${block}`;
+                if (seen.has(key) || !this.has[c.ref]) { continue; }
+                seen.add(key);
+                out.push({ ref: c.ref, minuend: c.minuend, block });
             }
-            if (ui.blocks.ytd !== false && this.has[ui.ref]) { out.push({ ref: ui.ref, minuend: "ac", block: "ytd" }); }
-            if (fyOn) { out.push({ ref: "plfy", minuend: "fcfy", block: "fy" }); }
-            return out;
         }
-        if (ui.blocks.mtd && this.model!.months.length > 1 && this.has[ui.ref]) {
-            out.push({ ref: ui.ref, minuend: "ac", block: "mtd" });
-        }
-        if (ui.preset === "full") {
-            if (this.has.py) { out.push({ ref: "py", minuend: "ac", block: "ytd" }); }
-            if (this.has.pl) { out.push({ ref: "pl", minuend: "ac", block: "ytd" }); }
-            if (this.has.fcfy && this.has.plfy && ui.blocks.fy) { out.push({ ref: "plfy", minuend: "fcfy", block: "fy" }); }
-        } else if (ui.preset === "dall") {
-            // every available reference side by side — all combinations feed the
-            // one uniform Δ scale, so the bars stay comparable across references
-            for (const r of ["py", "pl", "fc"] as Scenario[]) {
-                if (this.has[r]) { out.push({ ref: r, minuend: "ac", block: "ytd" }); }
-            }
-        } else if (ui.preset === "acpydpy") { if (this.has.py) { out.push({ ref: "py", minuend: "ac", block: "ytd" }); } }
-        else if (ui.preset === "acpldpl") { if (this.has.pl) { out.push({ ref: "pl", minuend: "ac", block: "ytd" }); } }
-        else if (ui.preset === "dpct") {
-            if (this.has.py) { out.push({ ref: "py", minuend: "ac", block: "ytd" }); }
-            if (this.has.pl) { out.push({ ref: "pl", minuend: "ac", block: "ytd" }); }
-        } else { out.push({ ref: this.ui!.ref, minuend: "ac", block: "ytd" }); }
-        return out.filter(dc => this.has[dc.ref]);
+        return out;
     }
 
     // ---------------- title / toolbar / legend ----------------
@@ -2097,7 +2181,7 @@ export class Visual implements IVisual {
             : "";
         const scen = ["AC", this.has.py ? "PY" : "", this.has.pl ? "PL" : ""].filter(Boolean).join(", ");
         // mega table: the scenarios and Δ references its columns really show
-        const mt = this.megaOn() && this.ui!.view === "table" ? this.megaToggles() : null;
+        const mt = this.megaInView() ? this.megaToggles() : null;
         const megaScen = mt ? [mt.showPY ? "PY" : "", mt.showPL ? "PL" : "", mt.min].filter(Boolean).join(", ") : "";
         const megaRefs = mt ? activeRefs(mt).join(", ") : "";
         const lines = [
@@ -2120,10 +2204,22 @@ export class Visual implements IVisual {
         return wrap;
     }
 
-    private tbBtn(label: string, active: boolean, onClick: () => void, title?: string): HTMLElement {
+    /**
+     * A toolbar button. `locked` (a tooltip text) marks a button whose click
+     * would change nothing in the current view / column preset: it stays in
+     * place — the toolbar does not jump while the reader explores — but reads
+     * as locked, explains itself on hover and neither persists nor re-renders.
+     * (Up to 1.0.0 such buttons looked live, lit up on click and did nothing.)
+     */
+    private tbBtn(label: string, active: boolean, onClick: () => void, title?: string, locked?: string): HTMLElement {
         const b = document.createElement("button");
         b.textContent = label;
         if (title) { b.title = title; }
+        if (locked) {
+            b.title = locked;
+            b.setAttribute("aria-disabled", "true");
+            b.setAttribute("data-pnl-locked", "1");
+        }
         const acc = this.accent();
         const rest = active
             ? `background:${acc};border:1px solid ${acc};color:${this.onAccent()};font-weight:600;`
@@ -2132,6 +2228,12 @@ export class Visual implements IVisual {
             `font-family:${FONT};font-size:${this.kpx(10.5)};line-height:1.35;` +
             `padding:${this.kpx(3.5)} ${this.kpx(10)};cursor:pointer;` +
             `border-radius:4px;transition:${TRANSITION};` + rest;
+        if (locked) {
+            b.style.opacity = "0.4";
+            b.style.cursor = "default";
+            b.onclick = (e) => { e.stopPropagation(); };
+            return b;
+        }
         // hover is a tint, never a jump: the inactive button warms up, the
         // active one lifts a shade so both stay recognisably the same control
         b.onmouseenter = (): void => {
@@ -2222,31 +2324,64 @@ export class Visual implements IVisual {
         const isTree = ui.view === "tree" && !inZoom;
         // the mega table takes its columns from the format pane switches —
         // presets, Δ reference, period blocks and fit belong to the classic table
-        const mega = ui.view === "table" && this.megaOn();
+        const mega = this.megaInView();
         const classic = tableViews && !mega;
+        // column presets and "% of revenue" shape the classic TABLE only — the
+        // bars and waterfall views build their columns from the Δ reference and
+        // the period blocks alone (up to 1.0.0 both groups showed there and did
+        // nothing)
+        const classicTable = classic && ui.view === "table";
+
+        // Does a toolbar change alter the columns on screen? The column specs
+        // are the one truth for the table, bars and waterfall views — a change
+        // that leaves them identical is a no-op, and its button is locked.
+        const colSig = (): string => JSON.stringify(this.colSpecs().map(b =>
+            [b.key, b.specs.map(c => [c.kind, c.scen ?? "", c.ref ?? "", c.minuend ?? "", c.block ?? ""])]));
+        const baseSig = classic ? colSig() : "";
+        const changes = (mut: (u: UiState) => void): boolean => {
+            const saved = this.ui!;
+            const trial: UiState = { ...saved, blocks: { ...saved.blocks } };
+            mut(trial);
+            this.ui = trial;
+            try { return colSig() !== baseSig; } finally { this.ui = saved; }
+        };
+        const shownBlocks = classic ? new Set(this.colSpecs().map(b => b.key)) : new Set<string>();
 
         const presets: [Preset, string][] = [
             ["full", this.tr("UI_PresetFull")], ["acref", this.tr("UI_PresetAcRef")], ["dall", this.tr("UI_PresetDAll")],
             ["acpydpy", "AC·PY·ΔPY"], ["acpldpl", "AC·PL·ΔPL"], ["dpct", "ΔPY% · ΔPL%"],
         ];
-        if (tset.showPresets.value && classic) {
+        if (tset.showPresets.value && classicTable) {
             bar.appendChild(this.tbGroup(this.tr("UI_TbPreset"),
                 presets.map(([p, label]) => this.tbBtn(label, ui.preset === p, () => { ui.preset = p; }))));
         }
 
         const refs: Scenario[] = (["py", "pl", "fc"] as Scenario[]).filter(s => this.has[s]);
         if (refs.length > 0 && tset.showReference.value && (classic || isTree || inZoom)) {
+            // the tree and the tile always follow the reference; the column
+            // views only where a column is built from it ("AC vs Ref", the MTD
+            // block, bars, waterfall) — elsewhere the preset fixes its references
+            const refLive = !classic || refs.some(r => r !== ui.ref && changes(u => { u.ref = r; }));
+            const refTip = refLive ? undefined : this.tr("UI_TbRefNoEffect", this.tr("UI_PresetAcRef"));
             bar.appendChild(this.tbGroup(this.tr("UI_TbReference"),
-                refs.map(r => this.tbBtn(r.toUpperCase(), ui.ref === r, () => { ui.ref = r; }))));
+                refs.map(r => this.tbBtn(r.toUpperCase(), ui.ref === r, () => { ui.ref = r; }, undefined, refTip))));
         }
 
+        // period buttons show what is ON SCREEN (a forced YTD block reads as
+        // on) and lock where a click would change nothing: the FY block outside
+        // the presets that carry it, the last block that keeps the table alive
         const pb: HTMLElement[] = [];
-        if (ui.view !== "bars" && this.model!.months.length > 1) {
-            pb.push(this.tbBtn("MTD", ui.blocks.mtd, () => { ui.blocks.mtd = !ui.blocks.mtd; }));
-        }
-        pb.push(this.tbBtn("YTD", ui.blocks.ytd, () => { ui.blocks.ytd = !ui.blocks.ytd; }));
-        if (this.has.fcfy && this.has.plfy) {
-            pb.push(this.tbBtn("FY", ui.blocks.fy, () => { ui.blocks.fy = !ui.blocks.fy; }));
+        const periodBtn = (key: "mtd" | "ytd" | "fy", label: string): HTMLElement => {
+            const live = changes(u => { u.blocks[key] = !u.blocks[key]; });
+            const tip = live ? undefined
+                : key === "fy" && !shownBlocks.has("fy") ? this.tr("UI_TbFyNoEffect", this.tr("UI_PresetFull"))
+                    : this.tr("UI_TbLastBlock");
+            return this.tbBtn(label, shownBlocks.has(key), () => { ui.blocks[key] = !ui.blocks[key]; }, undefined, tip);
+        };
+        if (classic) {
+            if (ui.view !== "bars" && this.model!.months.length > 1) { pb.push(periodBtn("mtd", "MTD")); }
+            pb.push(periodBtn("ytd", "YTD"));
+            if (this.has.fcfy && this.has.plfy) { pb.push(periodBtn("fy", "FY")); }
         }
         if (pb.length > 1 && tset.showPeriods.value && classic) {
             bar.appendChild(this.tbGroup(this.tr("UI_TbPeriods"), pb));
@@ -2305,7 +2440,9 @@ export class Visual implements IVisual {
             ]));
         }
         if (tset.showOptions.value && classic) { bar.appendChild(this.tbGroup(this.tr("UI_TbOptions"), [
-            this.tbBtn(this.tr("UI_TbPctRev"), ui.pctRev, () => { ui.pctRev = !ui.pctRev; }),
+            // "% of revenue" is a column of the YTD block — locked while YTD is off
+            ...(classicTable ? [this.tbBtn(this.tr("UI_TbPctRev"), ui.pctRev, () => { ui.pctRev = !ui.pctRev; },
+                undefined, shownBlocks.has("ytd") ? undefined : this.tr("UI_TbPctRevNoEffect"))] : []),
             this.tbBtn(this.tr("UI_TbHideZero"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
             this.tbBtn(this.tr("UI_TbFit"), ui.fit, () => { ui.fit = !ui.fit; }, this.tr("UI_TbFitTip")),
         ])); }
@@ -2472,7 +2609,12 @@ export class Visual implements IVisual {
             if (this.has.py) { ytd.push({ kind: "pin", ref: "py", minuend: "ac", block: "ytd", label: "ΔPY%" }); }
             if (this.has.pl) { ytd.push({ kind: "pin", ref: "pl", minuend: "ac", block: "ytd", label: "ΔPL%" }); }
         }
-        blocks.push({ key: "ytd", label: ytdLabel, specs: ytd });
+        // the YTD toggle hides the YTD block as soon as another block stays on
+        // screen (up to 1.0.0 the classic table ignored it); with nothing else
+        // left YTD stays — the toolbar shows that button as on and locked
+        if (ui.blocks.ytd || (blocks.length === 0 && fy.length === 0)) {
+            blocks.push({ key: "ytd", label: ytdLabel, specs: ytd });
+        }
         if (fy.length > 0) { blocks.push({ key: "fy", label: this.tr("UI_BlkFyFc", fyYear), specs: fy }); }
         return blocks;
     }
@@ -5824,6 +5966,11 @@ export class Visual implements IVisual {
     /** the mega table replaces the classic table as soon as one column switch is on */
     private megaOn(): boolean {
         return this.model != null && megaActive(this.megaToggles());
+    }
+
+    /** the mega table really renders: switches on AND the table view is active */
+    private megaInView(): boolean {
+        return this.ui != null && this.ui.view === "table" && this.megaOn();
     }
 
     /**
