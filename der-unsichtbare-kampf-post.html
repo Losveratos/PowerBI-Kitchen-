@@ -272,6 +272,17 @@ img { display:block; max-width:100%; height:auto; }
 .moment-frame img { display:block; width:100%; height:auto; clip-path:polygon(0 3%,5% 0,100% 0,100% 95%,95% 100%,0 100%); }
 .moment figcaption { font-size:14px; line-height:1.5; color:#5A4A5E; }
 @media (max-width:600px){ .moment { margin-top:24px; } .moment-frame { padding:7px; } }
+
+/* Interview-Antworten, Zitate, Seitengeschichte, Fakten */
+.answer p { margin:0 0 14px; }
+.answer .pull { margin:18px 0 20px; padding:4px 0 4px 18px; border-left:4px solid var(--c1, var(--coral)); font-family:"Anton", "Arial Narrow", sans-serif; font-size:clamp(1.25rem,3.6vw,1.6rem); line-height:1.25; letter-spacing:.01em; text-transform:uppercase; color:var(--night); }
+.side-story { margin:18px 0 10px; padding:18px 20px; background:var(--night); color:#F6EFE6; clip-path:polygon(0 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%); }
+.answer .side-story p { margin:0; font-size:15.5px; line-height:1.6; color:#F6EFE6; }
+.answer .side-story .side-label { margin-bottom:8px; font-size:12px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#EFC46A; }
+.facts { list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.facts li { position:relative; padding-left:22px; }
+.facts li::before { content:''; position:absolute; left:0; top:.45em; width:12px; height:12px; background:var(--coral); clip-path:polygon(50% 0,100% 100%,0 100%); }
+.facts li:nth-child(2)::before { background:var(--teal); } .facts li:nth-child(3)::before { background:var(--ochre); } .facts li:nth-child(4)::before { background:var(--sky); }
 </style>
 </head>
 <body>
@@ -299,7 +310,7 @@ img { display:block; max-width:100%; height:auto; }
         <p class="post-meta">
           <span>Interview</span>
           <span>Persönliche Entwicklung</span>
-          <span data-todo="lesezeit">Lesezeit ca. 4 Min.</span>
+          <span>Lesezeit ca. 12 Min.</span>
           <span class="badge-draft">Entwurf</span>
         </p>
       </div>
@@ -317,9 +328,9 @@ img { display:block; max-width:100%; height:auto; }
 
       <section id="warum" aria-labelledby="h-warum">
         <h2 id="h-warum"><svg class="mark m-coral" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><polygon class="f1" points="16,2 30,29 2,29"/><polygon class="f2" points="16,2 30,29 16,20"/></svg>Warum dieses Buch in der Kitchen?</h2>
-        <p class="is-draft"><span class="draft-tag">[Entwurf]</span> In der Kitchen geht es sonst um Datenmodelle, Reports und Werkzeuge. Ein Buch über Kampfkunst wirkt hier auf den ersten Blick fremd. Auf den zweiten weniger: Druck vor dem Go-Live, Widerstand im Projekt, die Frage, wie präsent man im Meeting wirklich ist, und wer man im Job eigentlich sein will. Das kennen viele von uns.</p>
-        <p class="is-draft"><span class="draft-tag">[Entwurf]</span> Micha beschreibt in seinem Buch, was auf der Matte sichtbar wird, und überträgt es auf den Kampf, den wir innen führen. Ich wollte wissen, was davon im Arbeitsalltag trägt. Darum dieses Gespräch.</p>
-        <p class="is-draft"><span class="draft-tag">[Entwurf]</span> Danke an Micha, dass wir Cover und Klappentext hier zeigen dürfen.</p>
+        <p>In der Kitchen geht es sonst um Datenmodelle, Reports und Werkzeuge. Dieses Gespräch fing anders an: an einem kalten Oktoberabend in Köln, an einem Klapptisch vor unserer Lieblingsbar, ein Kölsch auf dem Tisch. Micha zündet sich erst mal eine an. Dazu später mehr.</p>
+        <p>Micha und ich kennen uns seit ein paar Jahren. Damals habe ich ihm erzählt, dass ich mal Judo gemacht habe, und versprochen, in seiner Kampfschule vorbeizukommen. Zum Training war ich bis heute nicht da. Im Dojo saß ich trotzdem, aber aus einem ganz anderen Grund: Wir haben versucht, sein Buch aus einem Handy zu retten. Die Geschichte steht unten.</p>
+        <p>Warum das Ganze hier steht: Druck vor dem Go-Live, Widerstand im Projekt, die Frage, ob man im Meeting wirklich da ist oder nur reagiert, und wer man im Job eigentlich sein will. Das kennen viele von uns. Micha hat dazu nach über vierzig Jahren auf der Matte eine sehr eigene Sicht. Danke, dass wir Cover und Klappentext zeigen dürfen.</p>
         <figure class="moment">
           <div class="moment-frame">
             <img src="assets/posts/unsichtbarer-kampf/coellner-abend.jpg" width="825" height="1100" loading="lazy" decoding="async" alt="Micha und Michael Tenner sitzen abends an einem Tisch vor dem Coellner. Micha hält das Buch „Der unsichtbare Kampf“ hoch und zeigt den Daumen, Michael Tenner lacht und hebt sein Glas.">
@@ -357,93 +368,106 @@ img { display:block; max-width:100%; height:auto; }
       <section id="micha" aria-labelledby="h-micha">
         <h2 id="h-micha"><svg class="mark m-ochre" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><polygon class="f1" points="16,2 30,29 2,29"/><polygon class="f2" points="16,2 30,29 16,20"/></svg>Über Micha</h2>
         <p>Michael Thomanek, von allen Micha genannt, schöpft aus <strong>über vierzig Jahren Erfahrung in der Kampfkunst</strong>. Mit <cite>Der unsichtbare Kampf</cite> überträgt er, was auf der Matte sichtbar wird, auf den inneren Kampf, den jeder Mensch kennt. Das Buch ist im Kenamo Verlag erschienen.</p>
-        <div class="placeholder" data-todo="bio">
-          <p class="ph-label">[Entwurf] Mehr Bio folgt</p>
-          <p>Platz für zwei, drei Sätze zu Micha, mit ihm abgestimmt: Kampfkunst-Stil und Weg, was er heute macht, wo man ihn findet.</p>
-        </div>
+        <ul class="facts">
+          <li><strong>Sensei:</strong> So nennen ihn Freunde. Im Japanischen heißt das Trainer oder Lehrer der Kampfkunst, „hat aber auch was vom großen Bruder“. Nach rund dreißig Jahren ist es für ihn ein Spitzname geworden, so wie früher Micha für Michael.</li>
+          <li><strong>Ju-Jutsu seit über 40 Jahren,</strong> seit rund 30 Jahren hauptberuflich als Trainer für Kampfkunst und Selbstverteidigung. Einige seiner Schüler trainieren seit 1995 bei ihm.</li>
+          <li><strong>Rund 5.000 Menschen</strong> hat er nach eigener Schätzung trainiert, eigene Gruppen, Lehrgänge und Seminare in Deutschland zusammengenommen.</li>
+          <li><strong>Das Buch:</strong> 240 Seiten, ein Jahr Arbeit, gefühlt 700 Stunden. Der Impuls liegt 27 Jahre zurück.</li>
+        </ul>
       </section>
 
       <section id="interview" aria-labelledby="h-interview">
         <h2 id="h-interview"><svg class="mark m-sky" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><polygon class="f1" points="16,2 30,29 2,29"/><polygon class="f2" points="16,2 30,29 16,20"/></svg>Das Interview</h2>
-        <p class="interview-lead">Acht Fragen, vom Buch über die Matte bis zum Montagmorgen vor dem ersten Meeting.</p>
+        <p class="interview-lead">Aufgenommen im Oktober 2026 in Köln, an einem Klapptisch vor der Bar. Das Gespräch ist gekürzt und sprachlich geglättet. Die Antworten sind Michas Worte, verdichtet auf das Wesentliche.</p>
 
         <div class="qa" id="frage-1">
           <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="6,4 42,10 24,26"/><polygon class="b" points="6,4 24,26 4,40"/><polygon class="c" points="42,10 36,44 24,26 4,40 36,44"/></svg>
-          <div>
-            <h3><span class="q-num">Frage 1</span>Micha, wie kam es zu dem Buch — und warum gerade jetzt?</h3>
-            <div class="placeholder" data-todo="antwort-1"><p class="ph-label">Antwort von Micha folgt</p></div>
+          <div class="answer">
+            <h3><span class="q-num">Frage 1</span>Wer bist du eigentlich?</h3>
+            <p>Jetzt werden ein paar Leute denken: Was unterhält sich der Tenner da mit irgendeinem anderen Michael? Also: Ich bin Michael Thomanek. Freunde nennen mich Sensei. Das kommt aus dem Japanischen und heißt so viel wie Trainer, Lehrer der Kampfkunst. Es hat aber auch was vom großen Bruder.</p>
+            <p>Für mich ist das nach rund dreißig Jahren hauptberuflich in Selbstverteidigung und Kampfkunst eine Art Spitzname geworden. Sensei ist für mich so etwas wie früher der Micha vom Michael.</p>
           </div>
         </div>
 
         <div class="qa" id="frage-2">
           <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="24,3 45,40 24,30"/><polygon class="b" points="24,3 24,30 3,40"/><polygon class="c" points="3,40 24,30 45,40"/></svg>
-          <div>
-            <h3><span class="q-num">Frage 2</span>Vierzig Jahre auf der Matte: Was hat dich die Kampfkunst über dich selbst gelehrt, das du nirgendwo anders gelernt hättest?</h3>
-            <div class="placeholder" data-todo="antwort-2"><p class="ph-label">Antwort von Micha folgt</p></div>
+          <div class="answer">
+            <h3><span class="q-num">Frage 2</span>Wie kommt man auf die Idee, sich wochenlang hinzusetzen und seine Gedanken aufzuschreiben?</h3>
+            <p>Da muss ich weit ausholen. Ich habe vor über vierzig Jahren mit Ju-Jutsu angefangen und setze mich seitdem mit dem Kämpfen auseinander. Lange stand Selbstverteidigung im Vordergrund. Über die Auseinandersetzung mit dem Kämpfen habe ich irgendwann geschnallt, dass man auch in sich mit sich selbst kämpft.</p>
+            <p>Über diesen Kampf hatte ich vor 27 Jahren eine sehr tiefgreifende Erfahrung. Ich finde dafür nur die Worte unendliche Liebe und Geist. Das war ein Zustand, der nicht von dieser Welt ist, und in dem war ich eine längere Zeit konstant. Man kann da hineindeuten, was man will. Es gibt aber viele Zeugnisse von Menschen, gerade aus der Kunst, nehmen wir David Lynch oder große Musiker, die von anderen Bewusstseinszuständen sprechen. Da würde ich mich eher einordnen.</p>
+            <p>Ich habe danach Menschen gefunden, die von ähnlichen Erfahrungen sprechen. Der eine hatte einen Unfall, der andere hat einfach gekämpft, bis er an seine Grenzen kam, und dann hat sich etwas geöffnet. Es gibt Taucher, die ihren Herzschlag fast bis zum Stillstand herunterfahren können. Diese Art Verfügung hatte ich auch: Man wird sich bewusst, wie stark der Geist den Körper beeinflusst. Das war der Impuls für das Buch.</p>
           </div>
         </div>
 
         <div class="qa" id="frage-3">
           <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="4,6 44,4 30,24"/><polygon class="b" points="4,6 30,24 10,44"/><polygon class="c" points="44,4 40,42 10,44 30,24"/></svg>
-          <div>
-            <h3><span class="q-num">Frage 3</span>Du schreibst, Widerstand entsteht in unseren Gedanken und Geschichten. Wie merkt man im Alltag, dass man gerade gegen sich selbst kämpft?</h3>
-            <div class="placeholder" data-todo="antwort-3"><p class="ph-label">Antwort von Micha folgt</p></div>
+          <div class="answer">
+            <h3><span class="q-num">Frage 3</span>Und dann lag das Buch jahrelang in einem Handy.</h3>
+            <p>Ich habe mehr als 2.000 Seiten in die Memo-App meines Huawei-Handys geschrieben und gesprochen. Immer wieder gespeichert, gelöscht, korrigiert. Man kann tatsächlich sagen: Das ganze Buch ist auf einem Huawei entstanden.</p>
+            <p>In diesem Tagebuch habe ich mich Tag für Tag um ein und dasselbe Thema gedreht: Wie kann ich Menschen das Thema Präsenz näherbringen?</p>
+            <aside class="side-story"><p class="side-label">Michael Tenner erzählt</p><p>Irgendwann kam der Anruf: „Tenner, komm mal her, du musst mir helfen. Wir müssen den Text aus dem Huawei rauskopieren.“ Klar, wird schon gehen. Das war eine grandiose Selbstüberschätzung und eine noch grandiosere Unterschätzung, wie bescheuert Handysysteme sein können. Wir haben es mit KI versucht, mit allen möglichen Tools, am Rechner im Dojo, mit dem Support. Einen Export aller Notizen auf einmal gab es nicht, und die gesicherten Dateien waren verschlüsselt. Huawei hat am Ende selbst gesagt: Da geht nichts. Wie viele Stunden und wie viele Bierchen das waren, weiß keiner mehr. Den Rest hat Micha einzeln herausgeschrieben. Rückblickend war genau das vielleicht gut: noch mal ein bewusster Durchgang durch alle Gedanken.</p></aside>
           </div>
         </div>
 
         <div class="qa" id="frage-4">
           <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="24,2 46,24 24,24"/><polygon class="b" points="24,2 24,24 2,24"/><polygon class="c" points="2,24 46,24 24,46"/></svg>
-          <div>
-            <h3><span class="q-num">Frage 4</span>„Von welchem Standpunkt aus erleben wir uns und die Welt?“ — was meinst du damit, und wie kann man das im Alltag ausprobieren?</h3>
-            <div class="placeholder" data-todo="antwort-4"><p class="ph-label">Antwort von Micha folgt</p></div>
+          <div class="answer">
+            <h3><span class="q-num">Frage 4</span>Was meinst du mit Präsenz?</h3>
+            <p>Präsenz ist Gegenwärtigkeit, und die wohnt jedem Menschen inne. Ich beschreibe sie als höheres Selbst, im Grunde die Quelle unseres Ich. Hier und jetzt, das kennt jeder, dazu gibt es eine ganze Reihe Bücher. Aber man muss es leben, nicht nur wissen. Mein Lieblingsspruch: Nur zu wissen, dass es Schirme gibt, schützt nicht vor Regen.</p>
+            <p>Präsenz erlaubt mir zu wählen: zu agieren, statt bloß auf die Schnelle zu reagieren. Aus der Präsenz heraus bekomme ich Abstand zu meiner Automatik. Das braucht auch ein Kampfkünstler, gerade wenn es in einer Selbstverteidigungssituation darum geht zu deeskalieren. Dafür braucht es Ruhe. Diese Ruhe ist nicht einfach das Gegenteil von Unruhe, sie ist die Quelle der mentalen Stärke. Und sie kann sich über die Jahre im Training ausdehnen.</p>
+            <p>Wenn in einer Kneipe jemand Stress macht, gibt es immer einen, der sofort darauf reagiert, das Falsche sagt, das Falsche tut, und schon ist er in diesem Streit gefangen. Andere haben Abstand und eine Ruhe, die schon da ist. Dafür muss man nicht unbedingt Kampfkunst machen.</p>
+            <p class="pull" aria-hidden="true">„Nur zu wissen, dass es Schirme gibt, schützt nicht vor Regen.“</p>
           </div>
         </div>
 
         <div class="qa" id="frage-5">
           <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="3,8 40,3 20,30"/><polygon class="b" points="40,3 45,38 20,30"/><polygon class="c" points="3,8 20,30 45,38 8,45"/></svg>
-          <div>
-            <h3><span class="q-num">Frage 5</span>Viele aus unserer Community arbeiten unter Druck: Deadlines, Go-Lives, Stakeholder. Was kann man von der Matte in ein schwieriges Projekt mitnehmen?</h3>
-            <div class="placeholder" data-todo="antwort-5"><p class="ph-label">Antwort von Micha folgt</p></div>
+          <div class="answer">
+            <h3><span class="q-num">Frage 5</span>Warum ist der Kampf unsichtbar?</h3>
+            <p>Das meiste stellen wir uns nur vor. Und was wir uns vorstellen, läuft wie auf einer Leinwand in unserem Kopf. Das ist aber oft nur die Wiederholung eines Hintergrundfilms, eines Films aus dem Unterbewusstsein. Im Buch nenne ich ihn nicht so, aber das Bild trifft es. Dieser Hintergrundfilm ist für uns in der Regel nicht sichtbar.</p>
+            <p>Ein Wort zieht sich durch das ganze Buch, vor allem durch den philosophischen Teil in der Mitte: Gewahrsein. Wir Menschen kämpfen innerlich alle, mehr oder weniger. Die innere Spannung zeigt sich als Widerstand, und Widerstand raubt uns Energie. Man kennt das aus der Physik: Je größer der Widerstand, desto weniger Strom fließt. Je geringer der Widerstand, desto mehr kann fließen. Bei uns Menschen ist das ähnlich. Ich habe herausgefunden, dass man den Widerstand wegnehmen kann, und dann fließt die Energie wieder.</p>
+            <p>Ein typisches Beispiel: „Ach, ich muss zur Arbeit, ich hab keinen Bock, aber ich muss ja.“ Ich mache etwas, obwohl ich keine Lust habe. Da sitzt der Knoten schon.</p>
+            <p class="pull" aria-hidden="true">„Je größer der Widerstand, desto weniger Strom fließt.“</p>
           </div>
         </div>
 
         <div class="qa" id="frage-6">
           <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="24,3 44,44 4,44"/><polygon class="b" points="24,3 30,44 4,44"/><polygon class="c" points="24,3 44,44 30,44"/></svg>
-          <div>
-            <h3><span class="q-num">Frage 6</span>Präsenz, Identität, Integration: Wenn jemand nur einen dieser Gedanken mitnimmt — welcher sollte es sein?</h3>
-            <div class="placeholder" data-todo="antwort-6"><p class="ph-label">Antwort von Micha folgt</p></div>
+          <div class="answer">
+            <h3><span class="q-num">Frage 6</span>Was passiert auf der Matte, das im Kopf ankommt?</h3>
+            <p>Jenseits von Selbstverteidigung kommt man durch die Übungen in einen Fluss. Das Wichtigste zuerst: Dem Trainer gelingt es oft, den Kopf auszuschalten. Wie bei einem Kind, das hingefallen ist und gleich anfängt zu weinen. Man klatscht in die Hände, sagt „guck mal, da oben“, und das Kind ist ganz woanders. Ähnlich ist es mit Schülern auf der Matte. Werden die Bewegungen fließend geübt, werden sie mit der Wiederholung widerstandslos. Und genau das überträgt sich auf das Innere, auf das Mentale.</p>
+            <p>Ich habe meine Schüler immer so ernst genommen wie mich selbst und versucht, Blockaden zu lösen, die mir aufgefallen sind. Es gibt Menschen, die laufen steif, und genauso steif tanzen sie auch. Nach einer Zeit im Training werden sie insgesamt runder, auch beim Tanzen.</p>
+            <p>Wichtig ist mir die Unterscheidung zwischen Kampfkunst, Selbstverteidigung und Kampfsport. Das sind drei Paar Schuhe, die die meisten vermischen. MMA zum Beispiel ist ganz klar Kampfsport, vor allem Wettkampfsport. Bei uns lernt man realistische, sehr effektive Techniken, aber die Leute kommen nicht, weil an der nächsten Haltestelle ein Feind wartet. Die wichtigste „Technik“ ist für mich eine Einstellung: Offenheit. Wer offen ist, nimmt mehr wahr. Wer mehr wahrnimmt, erkennt Gefahren früher, kann sie vermeiden, oft gar nicht erst entstehen lassen, notfalls abwenden und erst ganz zuletzt sich verteidigen. Offen sein heißt dabei nicht, keine Grenzen zu haben.</p>
           </div>
         </div>
 
         <div class="qa" id="frage-7">
           <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="4,4 44,4 24,22"/><polygon class="b" points="4,4 24,22 4,44"/><polygon class="c" points="44,4 44,44 4,44 24,22"/></svg>
-          <div>
-            <h3><span class="q-num">Frage 7</span>Hast du eine kleine Übung, die man morgen früh vor dem ersten Meeting machen kann?</h3>
-            <div class="placeholder" data-todo="antwort-7"><p class="ph-label">Antwort von Micha folgt</p></div>
+          <div class="answer">
+            <h3><span class="q-num">Frage 7</span>Warum sollte jemand, der nächste Woche Leuten kündigen muss, dein Buch lesen?</h3>
+            <p>Ich glaube, dass wir Menschen uns mit der Vorstellung von uns selbst verwechseln. Wir nehmen eine Rolle ein: Vater, Bruder, Freund, Mutter, Trainer und so weiter. Irgendwann sind wir diese Rolle, leben als diese Rolle und merken nicht mehr, dass wir sie nur leben. Ich glaube, dass wir darüber hinaus mehr sind. Mit diesem Mehr erkennt man auch das Potenzial.</p>
+            <p>Von diesem Standpunkt aus kann man besser differenzieren und gerät nicht so leicht in einen inneren Konflikt. Dann kann ich abwägen und einem Menschen auch sachlich kündigen, ohne selbst ein emotionales Problem damit zu haben.</p>
+            <p>Hilft das gegen den mentalen Overload, den gerade so viele spüren? Es kann helfen, wenn man es ernst meint und sich darauf einlässt. Im Grunde ist es eine ganz langweilige Stille oder Meditation, die auf sich selbst zurückführt. Und der Blick darauf, wogegen wir eigentlich ständig sind: gegen das System, gegen andere, gegen uns selbst. Das sind erst mal nur Geschichten, die sich in unserem Kopf zeigen. Wir suchen gern etwas, damit wir uns nicht für uns selbst verantworten müssen. Das tun die meisten Menschen.</p>
+            <p class="pull" aria-hidden="true">„Wir verwechseln uns mit der Vorstellung von uns selbst.“</p>
           </div>
         </div>
 
         <div class="qa" id="frage-8">
           <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="10,3 46,16 22,24"/><polygon class="b" points="10,3 22,24 2,34"/><polygon class="c" points="46,16 34,46 2,34 22,24"/></svg>
-          <div>
-            <h3><span class="q-num">Frage 8</span>Für wen hast du das Buch geschrieben — und für wen vielleicht gerade nicht?</h3>
-            <div class="placeholder" data-todo="antwort-8"><p class="ph-label">Antwort von Micha folgt</p></div>
+          <div class="answer">
+            <h3><span class="q-num">Frage 8</span>Was sollen Leser aus dem Buch mitnehmen, und was kommt als Nächstes?</h3>
+            <p>Drei Dinge. Erstens: Wer sich für Kampfkunst interessiert, kann sich danach klar einordnen. Interessiere ich mich mehr für Kampfsport, für Selbstverteidigung oder für Kampfkunst? Daraus entsteht innere Stärke, immer mehr Angstfreiheit, immer mehr Bei-sich-Sein. Zweitens die Verwechslung: dass wir uns mit unseren Vorstellungen und Rollen von uns selbst verwechseln. Drittens schließt sich am Ende der Kreis mit der Frage, wie man einen eigenen Weg gestalten kann, mit universellen Beispielen, die man für sich nutzen kann. Oder man lässt es.</p>
+            <p>Ganz praktisch: In Kapitel 7 gibt es eine Anleitung, mit der man Dinge zu Hause auf dem Stuhl oder im Bett ausprobieren und im Alltag anwenden kann.</p>
+            <p>Ich bin kein Verkäufer, und ich habe das Buch nicht geschrieben, um Geld zu verdienen. Ich wollte Menschen erreichen. In meinen Trainingsgruppen sind meist zehn Leute, und von denen erreiche ich viele. Wenn du zehn erreichst, kannst du auch tausend erreichen. Die müssen nur zuhören oder eben ein Buch lesen. Gefehlt hat lange die Zeit. Am Ende habe ich mir drei Monate auf Fuerteventura genommen, eine Struktur erarbeitet und geschrieben. Das war verdammt anstrengend, und ich habe mir ein paarmal gewünscht, ich hätte es mir nicht vorgenommen. Gerade arbeite ich an einer Kinderversion. Diesmal ohne Deadline.</p>
           </div>
         </div>
       </section>
 
       <section id="mitnehmen" aria-labelledby="h-mitnehmen">
         <h2 id="h-mitnehmen"><svg class="mark m-peach" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><polygon class="f1" points="16,2 30,29 2,29"/><polygon class="f2" points="16,2 30,29 16,20"/></svg>Was ich für mich mitnehme</h2>
-        <div class="placeholder" data-todo="fazit">
-          <p class="ph-label">[Entwurf] Fazit von Michael Tenner folgt</p>
-          <p>Drei bis fünf Sätze nach dem Gespräch. Mögliche Anker für die Brücke in den Datenalltag:</p>
-          <ul>
-            <li>Druck im Projekt: Deadline, Go-Live, Eskalation</li>
-            <li>Widerstand: gegen Anforderungen, Stakeholder, das eigene Datenmodell</li>
-            <li>Präsenz im Team: im Meeting wirklich da sein</li>
-            <li>Identität und Karriere: wer man im Job sein will</li>
-          </ul>
-        </div>
+        <p class="is-draft"><span class="draft-tag">[Entwurf, bitte prüfen]</span> Am meisten hängen geblieben ist bei mir das Bild vom Widerstand. In Projekten sehe ich das ständig: Die Energie geht nicht in die Arbeit, sondern in das Dagegen-Sein. Gegen die Anforderung, gegen den Stakeholder, gegen das Datenmodell, das man geerbt hat. Weniger Widerstand heißt nicht, alles hinzunehmen. Es heißt, die Energie dahin fließen zu lassen, wo sie etwas bewegt.</p>
+        <p class="is-draft"><span class="draft-tag">[Entwurf, bitte prüfen]</span> Das zweite ist der Unterschied zwischen agieren und reagieren. Im Meeting, in der Eskalation, in der Mail um 23 Uhr: Kurz Abstand zur eigenen Automatik zu bekommen, ist oft der ganze Unterschied. Und das Thema Schuld kenne ich von mir selbst. Als ich sechs Wochen allein unterwegs war, hatte ich alles selbst geplant, gebucht und entschieden. Da gab es niemanden mehr, dem ich die Schuld geben konnte. Das war unbequem und sehr lehrreich.</p>
+        <p class="is-draft"><span class="draft-tag">[Entwurf, bitte prüfen]</span> Ob man dafür vierzig Jahre auf die Matte muss? Micha sagt: nein. Aber das Buch ist ein guter Anfang. Und zum Training komme ich jetzt wirklich mal vorbei.</p>
       </section>
 
       <aside class="book-box" aria-labelledby="bb-title">
