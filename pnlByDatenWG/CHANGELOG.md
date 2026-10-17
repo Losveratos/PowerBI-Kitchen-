@@ -1,5 +1,89 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.0.1.0 (2026-10-17) — Die Toolbar-Knöpfe wirken wieder in jeder Ansicht
+
+Nutzer-Befund nach dem Test der 1.0 in Power BI: „die AC etc buttons gehen
+nicht so ganz". Die Knöpfe der Toolbar wurden für jede Ansicht systematisch
+durchgeklickt (Tabelle klassisch, Tabelle mit Mega-Template, Balken,
+Waterfall, Baum, Kachel). Gefunden wurden fünf Ursachen.
+
+### Fixes
+
+- **Ein Mega-Template übernahm auch Balken und Waterfall** (neu in 1.0). Die
+  Entscheidung „Mega-Tabelle zeichnen" prüfte nur die Mega-Schalter, nicht die
+  Ansicht. Mit gewähltem Template (T01–T04, 12A) zeigten „Balken" und
+  „Waterfall" deshalb weiter die Mega-Tabelle. Die Toolbar dieser Ansichten
+  bot aber die klassischen Gruppen an (Spalten-Preset „AC·PY·PL·FC",
+  „AC vs Ref" …, Δ-Referenz, Perioden), und kein Klick darauf veränderte
+  etwas. Jetzt gilt das Template nur in der Tabellen-Ansicht. Balken und
+  Waterfall zeigen ihre eigenen Spalten, Titelzeile und Δ-Skalenhinweis
+  passen dazu.
+- **Spalten-Preset und „% vom Umsatz" in Balken/Waterfall ohne Wirkung**
+  (Bestand). Diese Ansichten bauen ihre Spalten nur aus Δ-Referenz und
+  Perioden. Die beiden Knöpfe erscheinen jetzt nur noch in der
+  Tabellen-Ansicht.
+- **Knöpfe, die im aktuellen Zustand nichts ändern, sahen aktiv aus**
+  (Bestand). Ein Beispiel ist die Δ-Referenz PY/PL im Preset „AC·PY·PL·FC",
+  das seine Referenzen fest zeigt. Weitere Fälle: der FY-Block außerhalb der
+  Presets, die ihn tragen, „% vom Umsatz" bei ausgeblendetem YTD-Block und
+  das Abschalten des letzten sichtbaren Perioden-Blocks. Solche Knöpfe sind
+  jetzt **gesperrt**: gedimmt, ohne Hover, mit Tooltip, der sagt, wo sie
+  wirken. Ein Klick darauf speichert nichts. Ob ein Knopf wirkt, prüft die
+  Toolbar gegen die tatsächlich erzeugten Spalten. Die Perioden-Knöpfe
+  zeigen, was auf dem Bildschirm steht: ein erzwungener YTD-Block liest sich
+  als „an".
+- **YTD-Schalter der klassischen Tabelle ohne Wirkung** (Bestand). Der
+  YTD-Block wurde immer gezeichnet. Jetzt blendet YTD ihn aus, sobald ein
+  anderer Block (MTD, FY) sichtbar bleibt. Der einheitliche Δ-Maßstab wird
+  aus den tatsächlich gezeigten Δ-Spalten berechnet, nicht aus einer
+  zweiten, parallel gepflegten Liste.
+- **Formatbereich-Vorgaben wirkten nach dem ersten Rendern nicht mehr**
+  (Bestand). Spalten-Preset, Δ-Referenz, Skalierung, Dichte, % vom Umsatz,
+  Nullzeilen, Einpassen, Standard-Ebene, Baumkarten und Status wurden nur
+  einmal je Sitzung aus dem Formatbereich übernommen, nach dem ersten
+  Toolbar-Klick nie wieder. Eine im Formatbereich **geänderte** Vorgabe gewinnt
+  jetzt (nur diese eine; die übrigen Leser-Entscheidungen bleiben) und wird in
+  den gespeicherten Toolbar-Zustand geschrieben.
+- **Echo-Guard für den Toolbar-Zustand.** Kam zwischen einem Klick und
+  dessen Echo ein Update mit dem alten Zustand (Größenänderung, zwei schnelle
+  Klicks), sprang die Ansicht bis zum Echo zurück. Jetzt hält der Klick, bis
+  das eigene Echo kommt oder nach 5 Updates (Schreibvorgang verloren).
+  Gehalten werden nur Zustände, die das Visual selbst überschrieben hat. Ein
+  Lesezeichen mit einem fremden Zustand wirkt sofort.
+
+### Mega-Table
+
+- **Zahl auf der Achse (integrierter Δ-Wasserfall T04B–E):** Ein schwebendes
+  Segment direkt neben der Nulllinie setzte seine Beschriftung auf das
+  Achsenband, z. B. T04B „+5.79" oder T04D „+8.52". Die PL-Doppellinie
+  schnitt dann durch die Ziffern (die Referenzblätter tun dasselbe). Genau
+  diese Zahlen bekommen jetzt den Papier-Halo der Ausreißer-Zahlen. Die Achse
+  setzt hinter der Zahl aus, alle anderen Beschriftungen bleiben unverändert.
+
+### Tests
+
+- Neu: `npm run test:toolbar` (`test/toolbar-interact.js`, 177 Checks) gegen
+  einen Power-BI-artigen Host mit steuerbarer Echo-Warteschlange:
+  - Template plus Balken/Waterfall.
+  - Gruppen je Ansicht.
+  - Sweep über 20 Toolbar-Zustände: jeder ungesperrte Knopf ändert die
+    Spalten, jeder gesperrte ändert und speichert nichts.
+  - YTD-Schalter und Δ-Maßstab.
+  - Formatbereich-Vorgaben.
+  - Echo-Guard und Lesezeichen.
+  - Trefferflächen aller Knöpfe in vier Sprachen, drei Breiten, gescrollt und
+    ungescrollt.
+
+  Gegen das 1.0.0-Bundle schlagen 86 dieser Checks fehl.
+- `test:mega`: Halo-Prüfung für T04B–E (m11–m14); Minuend AC ↔ FC über den
+  Formatbereich (T04D, Schritt 10 in `mega-interact.js`).
+- Pixel-Regression gegen 1.0.0 (alle 30 Harness-Bühnen):
+  - **Die Tabellen- und Diagrammkörper sind identisch.** Unterschiede gibt es
+    nur in der Toolbar: gesperrte Knöpfe sowie die Preset-Gruppe, die in
+    Balken/Waterfall entfällt. Dadurch rückt p7 (Balken) um eine
+    Toolbar-Zeile nach oben.
+  - Dazu kommen gewollt die Halo-Stellen in m11–m14, m16 und p14.
+
 ## 1.0.0.0 (2026-10-17) — Mega-Table, vier Sprachen, Smart Start, Dark Mode: das P&L-Visual verlässt die Beta
 
 Mit 1.0 fühlt sich das P&L Statement an wie sein Schwester-Visual ChartKitchen:

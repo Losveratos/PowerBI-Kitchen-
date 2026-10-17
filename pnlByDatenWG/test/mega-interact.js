@@ -14,6 +14,8 @@
  *   7. pick "off"           → persist all switches off, numbers untouched → classic table
  *   8. pick T04B (statement) → one persist, waterfall + pins; guard, echo, single switch
  *   9. pick 12A             → one persist, two value cascades + ΔPY bars + pins
+ *  10. T04D, then the minuend dropdown of the format pane FC → AC → FC: the
+ *      slice is there, the fill follows (hatched ↔ solid), nothing is persisted
  *
  * Run: node test/mega-interact.js  (npm run test:mega)
  */
@@ -206,6 +208,52 @@ function check(label, cond, detail) {
     check("9 pick 12A: one more persist with valueCascade", s.persists === 2 && c12.templateApplied === "12A"
         && c12.valueCascade === true && c12.dPyBar === true && c12.dPlWaterfall === false);
     check("9 12A renders two value cascades + ΔPY bars + pins", s.charts === 4 && s.conn === 2, `${s.charts} / ${s.conn}`);
+
+    // ---- 10: minuend AC ↔ FC through the format pane (T04D) -------------------
+    // the pane slice as Power BI builds it, then the write Power BI makes
+    const mn = await page.evaluate(() => {
+        const objs = { hierarchy: { defaultLevel: 0 }, toolbar: { show: false }, columns: { template: "T04D" } };
+        const upd = () => { window.__mi3Upd(objs); };
+        window.__mi3Persist.length = 0;
+        upd();                                   // the author picks T04D …
+        const w = window.__mi3Persist[window.__mi3Persist.length - 1];
+        for (const m of (w ? w.merge : [])) { objs[m.objectName] = { ...(objs[m.objectName] || {}), ...m.properties }; }
+        upd();                                   // … and the host echoes the write
+        const slice = () => {
+            for (const card of window.__mi3.getFormattingModel().cards) {
+                for (const g of card.groups || []) {
+                    for (const sl of g.slices || []) {
+                        const d = sl.control && sl.control.properties && sl.control.properties.descriptor;
+                        if (d && d.objectName === "columns" && d.propertyName === "minuend") {
+                            return { value: sl.control.properties.value.value, visible: sl.visible !== false && g.visible !== false };
+                        }
+                    }
+                }
+            }
+            return null;
+        };
+        const read = () => {
+            const st = document.getElementById("mi3");
+            const head = st.querySelector('svg[data-pnl="mega-head"]');
+            const chart = st.querySelector('g[data-pnl="mega-chart"]');
+            const segs = [...chart.querySelectorAll("rect")].filter(r => r.getAttribute("data-pnl") !== "mega-halo" && +r.getAttribute("height") > 6);
+            return { heads: [...head.querySelectorAll("text")].map(t => t.textContent).join(" "),
+                hatched: segs.filter(r => /^url\(/.test(r.getAttribute("fill") || "")).length,
+                solid: segs.filter(r => /^#/.test(r.getAttribute("fill") || "")).length };
+        };
+        const out = { slice0: slice(), r0: read(), persists0: window.__mi3Persist.length };
+        objs.columns = { ...objs.columns, minuend: "ac" }; upd();
+        out.slice1 = slice(); out.r1 = read();
+        objs.columns = { ...objs.columns, minuend: "fc" }; upd();
+        out.r2 = read(); out.persists2 = window.__mi3Persist.length;
+        return out;
+    });
+    check("10 T04D: the pane shows the minuend slice with FC", mn.slice0 && mn.slice0.visible && mn.slice0.value === "fc", JSON.stringify(mn.slice0));
+    check("10 T04D renders FC hatched", /PL FC ΔPL/.test(mn.r0.heads) && mn.r0.hatched === 20 && mn.r0.solid === 0, JSON.stringify(mn.r0));
+    check("10 pane minuend → AC: solid waterfall, AC head, pane follows", /PL AC ΔPL/.test(mn.r1.heads) && mn.r1.solid === 20
+        && mn.r1.hatched === 0 && mn.slice1.value === "ac", JSON.stringify(mn.r1));
+    check("10 pane minuend → FC again: hatched, template untouched (no persist)", mn.r2.hatched === 20
+        && mn.persists2 === mn.persists0, JSON.stringify(mn.r2));
 
     await browser.close();
     for (const n of notes) { console.log(n); }

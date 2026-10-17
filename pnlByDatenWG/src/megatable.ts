@@ -1076,7 +1076,7 @@ function paintChartColumn(
             const w = input.measure(s, G.fs, bold, false);
             svgEl("rect", {
                 x: (anchor === "end" ? x - w : x) - 1.5, y: y - G.fs * 0.85, width: w + 3, height: G.fs * 1.05,
-                fill: MEGA_C.white,
+                fill: MEGA_C.white, "data-pnl": "mega-halo",
             }, g);
         }
         text(B, x, y, s, { anchor, bold, parent: g, halo });
@@ -1087,7 +1087,12 @@ function paintChartColumn(
         }, g);
     };
     const hatch = B.hatch;
-    if (c.casc) { paintCascade(L, c, B, g, X, label, vline, rect, paintAxis, pal); return; }
+    if (c.casc) {
+        // the drawn axis band (the 12A value line sits half a pixel right)
+        paintCascade(L, c, B, g, X, label, vline, rect, paintAxis, pal,
+            { x: axisKind === "value" ? ax + 0.5 : ax, half: axisHalf });
+        return;
+    }
     const byRow = new Map(c.vals!.map(v => [v.r, v]));
     const gBars = svgEl("g", {}, g);
     for (const { r, y, h: rh } of R) {
@@ -1139,11 +1144,12 @@ function paintCascade(
     B: { svg: SVGSVGElement; rules: SVGGElement; charts: SVGGElement; text: SVGGElement; hatch: (c: string) => string },
     g: SVGGElement,
     X: (v: number) => number,
-    label: (x: number, y: number, s: string, anchor: string, bold: boolean) => void,
+    label: (x: number, y: number, s: string, anchor: string, bold: boolean, halo?: boolean) => void,
     vline: (ly: typeof B, x: number, y1: number, y2: number, color: string, sw: number, parent?: Element) => void,
     rect: (x: number, y: number, w: number, h: number, st: MegaPaint, parent: Element) => SVGRectElement,
     paintAxis: () => void,
     pal: { good: string; bad: string },
+    axis: { x: number; half: number },
 ): void {
     const { G, R, N, input } = L;
     const blk = input.blocks[c.block];
@@ -1183,6 +1189,18 @@ function paintCascade(
         }
         last = { v: seg.e, yb: bot };
         const up = seg.e >= seg.s;
-        label(up ? xb + G.lblGap : xa - G.lblGap, base(y, rh), txt, up ? "start" : "end", megaIsBold(r));
+        const lx = up ? xb + G.lblGap : xa - G.lblGap;
+        // A floating segment just beside the zero line puts its number ON the
+        // axis (T04B "+5.79", T04D "+8.52" — the reference sheets do the same,
+        // and the double PL line then cuts through the digits). Only such a
+        // number gets the paper halo of the outlier labels: the axis pauses
+        // behind it, every other label stays exactly where and how it was.
+        let crosses = false;
+        if (input.t.labels) {
+            const w = input.measure(txt, G.fs, megaIsBold(r), false);
+            const l0 = up ? lx : lx - w; const l1 = up ? lx + w : lx;
+            crosses = l0 < axis.x + axis.half + 0.5 && l1 > axis.x - axis.half - 0.5;
+        }
+        label(lx, base(y, rh), txt, up ? "start" : "end", megaIsBold(r), crosses);
     }
 }

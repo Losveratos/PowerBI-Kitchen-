@@ -483,6 +483,8 @@ export class Visual implements IVisual {
     private pendingPersist: string | null = null;
     /** updates a toolbar write may still wait for its echo (see syncUiState) */
     private pendingTtl = 0;
+    /** states the visual's own pending writes replaced (the only stale echoes) */
+    private supersededUi: string[] = [];
     private lastApplied: string | null = null;
     /** the format-pane defaults of the toolbar state, as of the last update */
     private paneSnap: Record<string, string> | null = null;
@@ -1227,16 +1229,20 @@ export class Visual implements IVisual {
             if (str === this.pendingPersist) {
                 this.lastApplied = str;
                 this.pendingPersist = null;
-            } else if (--this.pendingTtl > 0) {
-                // Echo guard: an update that still carries the state from
-                // BEFORE the last toolbar write (a resize, a second click whose
-                // first echo arrives late) must not throw the reader's click
-                // away — up to 1.0.0 it did, and the button sprang back until
-                // the echo came. Only the host's own echo, or the TTL running
-                // out (the write was lost), hands the state back to the host.
+                this.supersededUi = [];
+            } else if ((str == null || this.supersededUi.includes(str)) && --this.pendingTtl > 0) {
+                // Echo guard: an update that still carries a state this visual
+                // itself has written over (the one before the click — a resize
+                // arriving first — or an earlier click whose echo comes late)
+                // must not throw the reader's click away. Up to 1.0.0 it did,
+                // and the button sprang back until the echo came. Only the
+                // host's own echo or the TTL (the write was lost) ends the
+                // guard; a state the visual never wrote — a bookmark — is
+                // applied at once below.
                 return;
             } else {
                 this.pendingPersist = null;
+                this.supersededUi = [];
             }
         }
         if (str != null && str !== this.lastApplied) {
@@ -1278,6 +1284,10 @@ export class Visual implements IVisual {
             }
         }
         const json = JSON.stringify(this.ui);
+        // the states this write replaces — only these count as stale echoes
+        if (this.lastApplied != null && this.lastApplied !== json) {
+            this.supersededUi = [...this.supersededUi.slice(-(UI_ECHO_TTL - 1)), this.lastApplied];
+        }
         this.pendingPersist = json;
         this.pendingTtl = UI_ECHO_TTL;
         this.lastApplied = json;
@@ -1684,6 +1694,7 @@ export class Visual implements IVisual {
         this.stateLoaded = false;
         this.lastApplied = null;
         this.pendingPersist = null;
+        this.supersededUi = [];
         this.lastFingerprint = null;
         this.scanCache = null;
         this.geoCache = null;

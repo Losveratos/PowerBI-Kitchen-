@@ -301,6 +301,14 @@ function check(label, cond, detail) {
             : /PL.?AC/.test(T.state("tf").hdr.split(" | ")[1] || "") ? "waterfall" : "table"); }
         out.views = views;
         out.final = T.state("tf");
+        // a bookmark arrives while a click still waits for its echo (a host
+        // that echoes late or never): a state the visual never wrote wins at once
+        T.click("tf", "Unit", "mEUR");
+        const bm = JSON.parse(JSON.stringify(st.objects));
+        bm.state = { uiState: JSON.stringify({ view: "waterfall", unit: "k" }) };
+        st.echoes.length = 0;
+        st.update(bm);
+        out.bookmark = T.state("tf").hdr;
         return out;
     });
     check("F a stale update between click and echo keeps the click (Bars stays)", /AC · PL/.test(f.afterStale), f.afterStale);
@@ -308,6 +316,8 @@ function check(label, cond, detail) {
     check("F two quick clicks: no flicker back to the first click while the echoes arrive",
         f.views.every(v => v === "table"), f.views.join(","));
     check("F … and the stored state ends on the second click", f.final.ui.view === "table" && !/AC · PL/.test(f.final.hdr));
+    check("F a bookmark during a pending write is applied at once (waterfall)",
+        /PL.?AC/.test(f.bookmark.split(" | ")[1] || ""), f.bookmark);
 
     // ---- G · hit targets in every locale -------------------------------------
     const hit = await ev(() => {
