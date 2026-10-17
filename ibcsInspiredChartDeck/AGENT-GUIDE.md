@@ -8,7 +8,7 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.47.0.0** (16.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.49.0.0** (17.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -17,7 +17,7 @@ Stand: **1.47.0.0** (16.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst les
 | GUID | `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
 | Aktuelles Paket | `dist/*.pbiviz` · stabiler Download: `https://datenwgknowledgekitchen.com/downloads/chartkitchen-byDatenWG-latest.pbiviz` |
-| Datenlimit | `dataReductionAlgorithm top 1000` Kategoriezeilen — mehr wird still abgeschnitten |
+| Datenlimit | `dataReductionAlgorithm window 1000` + `fetchMoreData` (ab 1.49): weitere Segmente werden nachgeladen, Sicherheitsgrenze 30.000 Kategoriezeilen; Kappung wird im Chart gemeldet |
 | Lizenz | MIT · keine externen Calls, kein Storage, kein Telemetrie |
 
 ## Feld-Rollen (Datenvertrag)
@@ -63,7 +63,53 @@ Geisterzeilen/Kreuzprodukte. Wächter-Muster:
 | KPI-Kacheln | `cards` | category + actual |
 | Pareto / Dumbbell / Slope | `pareto` / `dumbbell` / `slope` | category + actual (+ Basis) |
 
-## Settings-Referenz (aus capabilities.json generiert, 1.48.0.0)
+## Settings-Referenz (aus capabilities.json generiert, 1.49.0.0)
+
+**Neu in 1.49:** Sechs Muster aus dem P&L-Visual. (1) **IBCS-Chart-Vorlagen**
+`chart.template` (erste Position der Chart-Karte; `off` · `C01`…`C06` ·
+`C08`…`C10` · `C12` · `C13`) + versteckt `chart.templateApplied` (text):
+Eine Vorlage, die von `templateApplied` abweicht, setzt ihre Properties
+lokal UND in EINEM persistProperties-Merge (inkl. `templateApplied`);
+Echo-Guard TTL 5 + Session-Guard (kein Re-Apply-Loop bei verlorenem Echo);
+danach alles frei änderbar. `off` schreibt nur `templateApplied: "off"`;
+Default (Vorlage aus, nichts angewandt) schreibt nie. Für PBIR: entweder
+die Einzel-Properties direkt setzen ODER `template` + `templateApplied`
+gleich setzen (dann wird nichts angewandt) — nur `template` ohne
+`templateApplied` wendet die Vorlage beim ersten Rendern an. Mapping:
+
+| Vorlage | Properties (Objekt `chart`) |
+| --- | --- |
+| C01 Gestapelte Säulen | orientation=columns · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false (Stapel über Rolle `series`) |
+| C02 Gestapelte Balken | wie C01 mit orientation=bars |
+| C03 Säulen + Varianzen | orientation=columns · comparisonMode=py · showAbs/showRel=true · dualVariance=false · waterfallStyle=false |
+| C04 Balken + Varianzen | orientation=bars · comparisonMode=plan · showAbs/showRel=true · dualVariance=false · waterfallStyle=false |
+| C05 Integrierte Brücke | orientation=intwaterfall · comparisonMode=py · showAbs/showRel=true · dualVariance=false |
+| C06 Kategorie-Brücke vertikal | orientation=catbridge · bridgeOrientation=columns · comparisonMode=py · showAbs/showRel=true · dualVariance=false |
+| C08 Linie | orientation=line · comparisonMode=auto · showAbs=true · showRel=false · dualVariance=false |
+| C09 Scatter | orientation=scatter · comparisonMode=auto · scatterQuadrant=mean · scatterColorBy=single |
+| C10 Bubble | wie C09 + scatterSizeLegend=true (Rolle `bubbleSize` binden) |
+| C12 Waterfall | orientation=waterfall · comparisonMode=auto · showAbs/showRel=true · dualVariance=false |
+| C13 Small Multiples | multiplesTotal=true · multiplesSameScale=true (orientation bleibt; Rolle `multiples` binden) |
+
+**Nicht enthalten:** C07 (Fläche/Area) und C11 (Verteilung/Boxplot) — die
+Darstellungsformen gibt es im Visual nicht (siehe BACKLOG).
+(2) **fetchMoreData** — siehe Falle 7. (3) **Lesezeichen:**
+`registerOnSelectCallback` übernimmt die vom Host wiederhergestellte
+Auswahl (Dimmen wie nach Klick, `[]` hebt auf). (4) **Gesperrte Chips:**
+wirkungslose In-Chart-Knöpfe tragen `data-icd-locked="1"`,
+`aria-disabled`, Opacity 0.4 und den Grund im Tooltip; Klick persistiert
+nichts (YTD auf rowType/1 Periode, ⇅ bei identischer Wirkungs-Reihenfolge,
+⚠ ohne verdichtbare Zeile, Karten-Sortierung ohne Vergleichswert/1 Karte,
+Brücken-Toolbar im Hinweis-Zustand). (5) **Leer-Zustand:**
+`emptyState.mode` (`demo` Default = bisherige Galerie · `fields` Feld-Intro ·
+`message` eigene Nachricht) wirkt nur im Bearbeitungsmodus mit
+Interaktion; Umschalt-Knöpfe persistieren `emptyState.mode` (Echo-Guard
+TTL 5); Leser/Export unverändert. (6) **Hochkontrast:** Host-Palette mit
+Fallback, `foregroundSelected` für EMPHASIZE-Rahmen/Hover, Status als
+Muster (gut gefüllt · schlecht hohl · unwesentlich gestrichelt) auch in
+KPI-Karten und Scatter-Status, PY-Linie gestrichelt. 548 resjson-Keys je
+Sprache. Tests c184–c219.
+
 
 **Neu in 1.48:** Scatter-Ausbau. Small Multiples sind echte Scatter-Kacheln
 mit gemeinsamer Skala (Quadranten/refLines/Blasengröße deckweit; Σ- und
@@ -123,7 +169,9 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 
 | Property | Typ | Werte |
 | --- | --- | --- |
-| `orientation` | enum | `columns` · `bars` · `line` · `waterfall` · `intwaterfall` · `catbridge` · `table` · `pareto` · `dumbbell` · `slope` · `cards` · `pnl` |
+| `template` | enum | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C08` · `C09` · `C10` · `C12` · `C13` — IBCS-Vorlage (ab 1.49, Mapping oben) |
+| `templateApplied` | text (persistiert) | zuletzt angewandte Vorlage (Echo-Guard; `off` = keine) |
+| `orientation` | enum | `columns` · `bars` · `line` · `waterfall` · `intwaterfall` · `catbridge` · `table` · `pareto` · `dumbbell` · `slope` · `scatter` · `cards` · `pnl` |
 | `pnlView` | text (persistiert) | `ac` · `acfc` · `pl` |
 | `tableExpanded` | text (persistiert) | JSON-Array aufgeklappter Zeilen-Keys |
 | `tableSort` | text (persistiert) | `<spalte>_desc` / `<spalte>_asc`, Spalten: `ac`,`dabs`,`drel`,`d2abs` |
@@ -207,6 +255,7 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 
 | Property | Typ | Werte |
 | --- | --- | --- |
+| `mode` | enum | `demo` (Default, Galerie wie bisher) · `fields` (Feld-Intro mit ✓ an gebundenen Rollen) · `message` (eigene Nachricht) — ab 1.49, nur Bearbeitungsmodus; Leser/Export unverändert |
 | `title` | text | Eigener Titel im Leer-Zustand — ersetzt „ChartKitchen byDatenWG" |
 | `body` | text | Eigener Text darunter (Wortumbruch). Gesetzt + Lesemodus → NUR Titel+Text, keine Modus-Galerie; im Edit-Modus bleibt die Galerie mit den eigenen Texten als Header |
 
@@ -271,13 +320,15 @@ Persistierte Zustände (Sortierung, aufgeklappte Zeilen, Spaltenbreiten,
 GuV-Sicht) sind normale Properties — ein Agent kann sie **vorkonfigurieren**,
 statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
 
-## Bekannte Fallen (Stand 1.40)
+## Bekannte Fallen (Stand 1.49)
 
 1. **Import bei gleicher GUID:** Nach „Visual aus Datei importieren" kann die
    laufende Sandbox-Instanz eingefroren weiterlaufen (reagiert nicht auf
    Filter). Fix: Seite wechseln und zurück, oder Visual minimal resizen.
-2. **Top-1000-Kappung:** Mehr als 1000 Kategoriezeilen werden still
-   abgeschnitten — Datenmodell vorfiltern oder aggregieren.
+2. **Zeilenmenge (ab 1.49 entschärft):** Über 1000 Kategoriezeilen lädt das
+   Visual nach (Falle 7). Grenzen: Host-Limit (~100 MB) und die eigene
+   Sicherheitsgrenze 30.000 Zeilen — beide werden im Chart gemeldet. Für
+   lesbare Charts trotzdem vorfiltern oder aggregieren.
 3. **Non-blank-Measures** erzeugen Geisterzeilen (siehe DAX-Regel oben).
 4. **`acFcSplit`:** `full` vs. `rest` MUSS zur FC-Measure passen, sonst wird
    der angebrochene Monat doppelt gezählt.
@@ -286,8 +337,16 @@ statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
 6. **Export/Abo** rendert ohne In-Chart-Buttons und (Default) alles
    aufgeklappt — Bildschirm-Screenshots und PDF können sich absichtlich
    unterscheiden.
-7. **Kein `fetchMoreData`** (Backlog) — Segmente über dem Reduction-Fenster
-   werden nicht nachgeladen.
+7. **`fetchMoreData` (ab 1.49):** `dataReductionAlgorithm window 1000`. Liefert
+   der Host `metadata.segment`, fordert das Visual `fetchMoreData(true)` an
+   (Append-Updates tragen den AKKUMULIERTEN DataView). Zwischen-Segmente
+   aktualisieren nur die Fortschrittszeile „⏳ n Zeilen geladen …“ unten
+   rechts; gezeichnet wird das erste Fenster und einmal der vollständige
+   Bestand (Memoisierung — 30 Voll-Renders würden den Bericht blockieren).
+   Verweigert der Host (Rückgabe false) → Hinweis „Zeilenlimit erreicht …
+   unvollständig“; ab 30.000 Zeilen keine weitere Anfrage + Hinweis. Ohne
+   `segment` (≤ 1000 Zeilen) exakt das Verhalten vor 1.49. Bis 1.48 stand hier
+   `top 1000` mit stiller Kappung.
 8. **Cross-Interaktion = Filtern (ab 1.46,** `supportsHighlight: false`**):**
    Eine Auswahl in einem anderen Visual **filtert** dieses Visual immer —
    Power BI bietet die Wechselwirkung „Hervorheben" dafür gar nicht mehr an.
@@ -308,4 +367,4 @@ statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
 - `CHANGELOG.md` / `BACKLOG.md` — was sich geändert hat / was fehlt
 - `.claude/skills/chartkitchen-report/` — Claude-Skill mit Report-Blaupausen
   (Monitoring · Monatsreport · Sales-Analyse) und Referenz-Instanz-Workflow
-- `test/test.html` — 113 Render-Cases als lebende Beispiele jeder Funktion
+- `test/test.html` — rund 240 Render-Cases (c1–c219 inkl. Varianten) als lebende Beispiele jeder Funktion

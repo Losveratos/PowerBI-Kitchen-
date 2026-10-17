@@ -1,5 +1,52 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.49.0.0 (2026-10-17)
+
+**Sechs bewährte Muster aus dem Schwester-Visual P&L zurückübernommen: IBCS-Vorlagen, Nachladen, Lesezeichen, gesperrte Chips, Feld-Intro, Hochkontrast.**
+
+- **IBCS-Chart-Vorlagen** (`chart.template`, erste Position der Chart-Karte,
+  Standard „Aus“): C01 gestapelte Säulen · C02 gestapelte Balken · C03 Säulen
+  + ΔPY-Panel + ΔPY%-Pins · C04 Balken + ΔPL-Varianzen · C05 Integrierte
+  Brücke · C06 Kategorie-Brücke vertikal · C08 Linie · C09 Scatter · C10
+  Bubble · C12 Waterfall · C13 Small Multiples (Modus bleibt). Eine Vorlage
+  setzt Modus, Vergleich, Panels und die passenden Schalter in EINEM
+  Schreibvorgang (versteckte Eigenschaft `chart.templateApplied`, Echo-Guard
+  wie im P&L-Visual) — danach ist jede Einstellung frei änderbar. C07 (Fläche)
+  und C11 gibt es im Visual nicht und stehen deshalb nicht in der Liste.
+- **Keine stille 1000er-Kappung mehr:** Liefert Power BI mehr als ein
+  Datenfenster (1000 Kategoriezeilen), lädt das Visual die weiteren Segmente
+  per `fetchMoreData` nach. Während des Ladens steht unten rechts dezent
+  „⏳ n Zeilen geladen …“; gezeichnet wird das erste Fenster und einmal der
+  vollständige Bestand. Verweigert der Host weitere Segmente (100-MB-Grenze)
+  oder greift die Sicherheitsgrenze von 30.000 Zeilen, sagt ein Hinweis, dass
+  die Daten unvollständig sind. Bis 1000 Zeilen ändert sich nichts.
+- **Lesezeichen stellen die Auswahl wieder her:** Ein Lesezeichen mit
+  ausgewählten Kategorien (oder eine Auswahl aus einem anderen Visual) dimmt
+  die übrigen Marken wie nach einem Klick; ein Lesezeichen ohne Auswahl hebt
+  die Dimmung auf.
+- **Gesperrte statt stumme Chips:** Knöpfe im Chart, die im aktuellen Zustand
+  nichts bewirken würden, sind gedimmt, nicht klickbar und nennen im Tooltip
+  den Grund — YTD auf GuV-Zeilen oder bei nur einer Periode, ⇅ wenn die
+  Reihenfolge schon der Wirkungs-Sortierung entspricht, ⚠ wenn nichts zu
+  verdichten ist (z. B. Benchmark-Karten ohne ΔPY/ΔPL), der Karten-Sortier-Chip
+  ohne Vergleichswert sowie ▶/⇅/ΔPY|ΔPL einer Brücke, die nur ihren Hinweis
+  zeigt. Ein Klick darauf speichert nichts.
+- **Leer-Zustand mit Feld-Intro** (`emptyState.mode`: Demo-Galerie [Standard,
+  wie bisher] · Feld-Intro · eigene Nachricht): Das Feld-Intro erklärt dem
+  Autor im Bearbeitungsmodus die Kernrollen Kategorie, AC, PY, PL, FC,
+  Stack-Serie und Small Multiples und hakt die bereits gebundenen ab; Knöpfe
+  im Leer-Zustand schalten zwischen Feld-Intro, Galerie und eigener Nachricht
+  um. Leser und Exporte sehen wie bisher Galerie bzw. eigene Nachricht.
+- **Echter Hochkontrast:** Farben aus der Host-Palette (Vordergrund,
+  Hintergrund, `foregroundSelected` für Hervorhebung und Hover), Status als
+  Muster statt Farbe — gut gefüllt, schlecht hohl, unwesentlich gestrichelt —
+  jetzt auch in KPI-Karten (Streifen, Mini-Brücke) und im Scatter-Status; die
+  PY-Linie im Linienmodus ist gestrichelt. Ohne Hochkontrast bleibt alles
+  unverändert.
+- 45 neue resjson-Keys (548 je Sprache, 4 Sprachen identisch), Testfälle
+  c184–c219. Bestandsfälle pixelidentisch bis auf die Fälle mit bisher
+  stummen Chips (jetzt gesperrt) und zwei Hochkontrast-Fälle mit Status-Mustern.
+
 ## 1.48.0.0 (2026-10-16)
 
 **Scatter/Bubble-Ausbau: Small Multiples, Gruppen-Färbung und neun Analyse-Features inkl. Play-Modus.**
