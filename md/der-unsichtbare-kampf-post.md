@@ -72,7 +72,7 @@ Sein Motto A little bit hiervon, and a little bit davon. And it works.
 
 Michael Thomanek, von allen Micha genannt, schöpft aus **über vierzig Jahren Erfahrung in der Kampfkunst**. Mit *Der unsichtbare Kampf* überträgt er, was auf der Matte sichtbar wird, auf den inneren Kampf, den jeder Mensch kennt. Das Buch ist im Kenamo Verlag erschienen.
 
-- **Sensei:** So nennen ihn Freunde. Im Japanischen heißt das Trainer oder Lehrer der Kampfkunst, „hat aber auch was vom großen Bruder“. Nach rund dreißig Jahren als hauptberuflicher Trainer ist es für ihn ein Spitzname geworden, so wie früher Micha für Michael.
+- **Sensei:** So nennen ihn Freunde. Im Japanischen heißt das Lehrer, ganz allgemein und nicht nur in der Kampfkunst, „hat aber auch was vom großen Bruder“. Nach rund dreißig Jahren als hauptberuflicher Trainer ist es für ihn ein Spitzname geworden, so wie früher Micha für Michael.
 - **Geboren 1972 in Essen,** mit der Kampfkunst angefangen schon als Kind. Seit über vierzig Jahren beschäftigt er sich mit Jiu-Jitsu und Selbstverteidigung, erst als Schüler, dann als Lehrer.
 - **1995 hat er das Jidokan-Dojo in Köln gegründet** und leitet es bis heute. Er trägt den **9. Dan im Jiu-Jitsu**. Er und das Dojo sind Mitglied der International Martial Arts Association und des Tai-Jitsu-Verbandes Deutschland.
 - **Rund 5.000 Menschen** hat er nach eigener Schätzung trainiert, eigene Gruppen, Lehrgänge und Seminare in Deutschland zusammengenommen. Einige seiner Schüler sind seit 1995 dabei.
@@ -94,7 +94,7 @@ Aufgenommen im Oktober 2026 in Köln, an einem Klapptisch vor der Bar. Das Gespr
 
 ### Frage 1 · Wer bist du eigentlich?
 
-Jetzt werden ein paar Leute denken: Was unterhält sich der Tenner da mit irgendeinem anderen Michael? Also: Ich bin Michael Thomanek. Freunde nennen mich Sensei. Das kommt aus dem Japanischen und heißt so viel wie Trainer, Lehrer der Kampfkunst. Es hat aber auch was vom großen Bruder.
+Jetzt werden ein paar Leute denken: Was unterhält sich der Tenner da mit irgendeinem anderen Michael? Also: Ich bin Michael Thomanek. Freunde nennen mich Sensei. Das kommt aus dem Japanischen und heißt Lehrer, ganz allgemein, nicht nur in der Kampfkunst. Es hat aber auch was vom großen Bruder.
 
 Für mich ist das nach rund dreißig Jahren hauptberuflich in Selbstverteidigung und Kampfkunst eine Art Spitzname geworden. Sensei ist für mich so etwas wie früher der Micha vom Michael.
 
@@ -140,15 +140,15 @@ Ein typisches Beispiel: „Ach, ich muss zur Arbeit, ich hab keinen Bock, aber i
 
 Jenseits von Selbstverteidigung kommt man durch die Übungen in einen Fluss. Das Wichtigste zuerst: Dem Trainer gelingt es oft, den Kopf auszuschalten. Wie bei einem Kind, das hingefallen ist und gleich anfängt zu weinen. Man klatscht in die Hände, sagt „guck mal, da oben“, und das Kind ist ganz woanders. Ähnlich ist es mit Schülern auf der Matte. Werden die Bewegungen fließend geübt, werden sie mit der Wiederholung widerstandslos. Und genau das überträgt sich auf das Innere, auf das Mentale.
 
-Ich habe meine Schüler immer so ernst genommen wie mich selbst und versucht, Blockaden zu lösen, die mir aufgefallen sind. Es gibt Menschen, die laufen steif, und genauso steif tanzen sie auch. Nach einer Zeit im Training werden sie insgesamt runder, auch beim Tanzen.
+Ich habe meine Schüler immer so ernst genommen wie mich selbst und versucht, Blockaden zu lösen, die mir aufgefallen sind. Es gibt Menschen, die laufen steif, und genauso steif tanzen sie auch. Nach einer Zeit im Training werden sie insgesamt flüssiger, auch beim Tanzen.
 
 Wichtig ist mir die Unterscheidung zwischen Kampfkunst, Selbstverteidigung und Kampfsport. Das sind drei Paar Schuhe, die die meisten vermischen. MMA zum Beispiel ist ganz klar Kampfsport, vor allem Wettkampfsport. Bei uns lernt man realistische, sehr effektive Techniken, aber die Leute kommen nicht, weil an der nächsten Haltestelle ein Feind wartet. Die wichtigste „Technik“ ist für mich eine Einstellung: Offenheit. Wer offen ist, nimmt mehr wahr. Wer mehr wahrnimmt, erkennt Gefahren früher, kann sie vermeiden, oft gar nicht erst entstehen lassen, notfalls abwenden und erst ganz zuletzt sich verteidigen. Offen sein heißt dabei nicht, keine Grenzen zu haben.
 
-### Frage 7 · Warum sollte jemand, der nächste Woche Leuten kündigen muss, dein Buch lesen?
+### Frage 7 · Warum sollte jemand, der im Job vor einer schwierigen Entscheidung steht, dein Buch lesen?
 
 Ich glaube, dass wir Menschen uns mit der Vorstellung von uns selbst verwechseln. Wir nehmen eine Rolle ein: Vater, Bruder, Freund, Mutter, Trainer und so weiter. Irgendwann sind wir diese Rolle, leben als diese Rolle und merken nicht mehr, dass wir sie nur leben. Ich glaube, dass wir darüber hinaus mehr sind. Mit diesem Mehr erkennt man auch das Potenzial.
 
-Von diesem Standpunkt aus kann man besser differenzieren und gerät nicht so leicht in einen inneren Konflikt. Dann kann ich abwägen und einem Menschen auch sachlich kündigen, ohne selbst ein emotionales Problem damit zu haben.
+Von diesem Standpunkt aus kann man besser differenzieren und gerät nicht so leicht in einen inneren Konflikt. Dann kann ich abwägen und auch eine schwierige Entscheidung sachlich treffen, ohne selbst ein emotionales Problem damit zu haben.
 
 Hilft das gegen den mentalen Overload, den gerade so viele spüren? Es kann helfen, wenn man es ernst meint und sich darauf einlässt. Im Grunde ist es eine ganz langweilige Stille oder Meditation, die auf sich selbst zurückführt. Und der Blick darauf, wogegen wir eigentlich ständig sind: gegen das System, gegen andere, gegen uns selbst. Das sind erst mal nur Geschichten, die sich in unserem Kopf zeigen. Wir suchen gern etwas, damit wir uns nicht für uns selbst verantworten müssen. Das tun die meisten Menschen.
 
