@@ -11,10 +11,11 @@
     "test:engine": "node test/engine-test.js",
     "test:render": "node test/build.js && node test/shot.js",
     "test:tree": "node test/build.js && node test/tree-interact.js",
+    "test:toolbar": "node test/build.js && node test/toolbar-interact.js",
     "test:perf": "node test/build.js && node test/perf.js",
     "test:mega": "node test/megatable-test.js && node test/build.js && node test/mega-shot.js && node test/mega-interact.js",
     "test:waterfall": "node test/waterfall-test.js",
-    "test": "npm run test:i18n && npm run test:engine && npm run test:mega && npm run test:waterfall && npm run test:render && npm run test:tree && npm run test:start && npm run test:perf",
+    "test": "npm run test:i18n && npm run test:engine && npm run test:mega && npm run test:waterfall && npm run test:render && npm run test:tree && npm run test:toolbar && npm run test:start && npm run test:perf",
     "test:i18n": "node test/i18n-test.js",
     "test:start": "node test/build.js && node test/start-dark-test.js"
   },
