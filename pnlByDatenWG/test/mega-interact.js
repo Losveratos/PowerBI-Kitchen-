@@ -255,6 +255,56 @@ function check(label, cond, detail) {
     check("10 pane minuend → FC again: hatched, template untouched (no persist)", mn.r2.hatched === 20
         && mn.persists2 === mn.persists0, JSON.stringify(mn.r2));
 
+    // ---- 11: 1.1 Paket C — 12G / 12H write blockKind, minuend PL and the headline slot
+    await page.evaluate(() => {
+        const box = document.createElement("div");
+        box.id = "mi4"; box.style.cssText = "width:1300px;height:800px;position:relative;";
+        document.body.appendChild(box);
+        const host = makeHost("en-US");
+        window.__mi4Persist = [];
+        host.persistProperties = (p) => { window.__mi4Persist.push(JSON.parse(JSON.stringify(p))); };
+        window.__mi4 = new Visual({ element: box, host });
+        window.__mi4Upd = (objects, rows) => {
+            window.__mi4.update({ dataViews: [dvRows(rows === "12A" ? MEGA_DEMO.statement("12A") : MEGA_DEMO.statement12G(), objects)],
+                viewport: { width: 1300, height: 800 }, type: 2 });
+            const st = document.getElementById("mi4");
+            const head = st.querySelector('svg[data-pnl="mega-head"]');
+            const hl = st.querySelector('[data-pnl="headline"]');
+            return {
+                heads: head ? [...head.querySelectorAll("text")].map(t => t.textContent) : [],
+                headline: hl ? hl.textContent : null,
+                stacked: st.querySelectorAll('text[data-pnl="mega-ytd"]').length,
+                persists: window.__mi4Persist.length,
+                last: window.__mi4Persist[window.__mi4Persist.length - 1] || null,
+            };
+        };
+    });
+    const upd4 = (objects, rows) => page.evaluate(([o, r]) => window.__mi4Upd(o, r), [objects, rows]);
+    const part = (st, name) => ((st.last && st.last.merge.find(m => m.objectName === name)) || {}).properties || {};
+    s = await upd4({ ...BASE, columns: { template: "12G" } });
+    check("11 pick 12G: one persist — blockKind fy, value cascades, titleBlock.headline on",
+        s.persists === 1 && part(s, "columns").blockKind === "fy" && part(s, "columns").valueCascade === true
+        && part(s, "titleBlock").headline === true && part(s, "numbers").decimals === 0, JSON.stringify(s.last));
+    check("11 12G renders at once: FY block, stacked AC&FC (YTD numbers inside), headline from the generator",
+        s.heads.includes("FY 2025") && s.heads.includes("YTD") && s.heads.includes("AC&FC") && s.stacked >= 5
+        && /^Group result ΔPY \+144/.test(s.headline || ""), JSON.stringify([s.heads, s.stacked, s.headline]));
+    s = await upd4({ ...BASE, columns: { template: "12G" } });
+    check("11 stale update: the guard holds blockKind + headline, no second persist", s.persists === 1
+        && s.heads.includes("FY 2025") && s.headline != null);
+    s = await upd4({ ...BASE, columns: { template: "12H" } }, "12A");
+    check("11 pick 12H: minuend pl + headline persisted, blockKind back to ytd", s.persists === 2
+        && part(s, "columns").minuend === "pl" && part(s, "columns").blockKind === "ytd" && part(s, "titleBlock").headline === true,
+        JSON.stringify(s.last));
+    check("11 12H renders PY | PL cascades and ΔPY only (no ΔPL against itself)",
+        JSON.stringify(s.heads) === JSON.stringify(["PY", "PL", "ΔPY", "ΔPY%"]), s.heads.join("|"));
+    // an own message beats the generator; the headline switch off returns the bold line
+    const echo12H = { ...BASE, columns: { ...part(s, "columns"), template: "12H" }, numbers: { decimals: 0, pctDecimals: 0 },
+        titleBlock: { headline: true, message: "Own message" } };
+    s = await upd4(echo12H, "12A");
+    check("11 headline shows the own message", s.headline === "Own message" && s.persists === 2);
+    s = await upd4({ ...echo12H, titleBlock: { headline: false, message: "Own message" } }, "12A");
+    check("11 headline off: no headline slot", s.headline === null && s.persists === 2);
+
     await browser.close();
     for (const n of notes) { console.log(n); }
     if (errors > 0) { failures.push(errors + " render errors"); }

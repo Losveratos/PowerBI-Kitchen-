@@ -126,5 +126,50 @@
     return rows;
   }
 
-  window.MEGA_DEMO = { statement, regions, months: MONTHS };
+  // 12G (1.1): "2025 as of May" — AC Jan..May (YTD), PY the whole year, the FY
+  // outlook AC&FC (fcFy) and PL FY (plFy) on every month row (FY scalars)
+  const YTD12G = [538, 54, 6, 39, 10, 227, 32, 76, 24, 92, 40, 31, 67, 33];
+  const M25 = ["2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06",
+    "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12"];
+  function statement12G() {
+    const src = ST["12A"];
+    const rows = [];
+    ACC.forEach(([levels, account, sort, sign, di], i) => {
+      if (src.labels[account]) { levels = [...levels.slice(0, -1), src.labels[account]]; }
+      M25.forEach((m, mi) => rows.push({
+        levels, account, sort, rowType: "account", formulaDef: null, sign, displayInvert: di,
+        varianceInvert: false, month: m, comment: null,
+        values: {
+          ac: mi < 5 ? Math.round(YTD12G[i] / 5 * 1000) / 1000 : null,
+          py: Math.round(src.py[i] / 12 * 1000) / 1000,
+          fcfy: src.fc[i], plfy: src.pl[i],
+        },
+      }));
+    });
+    for (const [levels, account, sort, rowType, formulaDef] of FORMULAS) {
+      rows.push({
+        levels, account, sort, rowType, formulaDef, sign: 1, displayInvert: false,
+        varianceInvert: false, month: null, comment: null, values: {},
+      });
+    }
+    return rows;
+  }
+
+  /** a long structure statement (virtualization): n accounts in groups of 10 under one total */
+  function long(n) {
+    const rows = [];
+    for (let a = 0; a < n; a++) {
+      const g = "Group " + String(Math.floor(a / 10)).padStart(3, "0");
+      const base = ((a * 7919) % 900) + 100;
+      rows.push({
+        levels: ["Total", g, "Account " + String(a).padStart(4, "0")], account: "A" + a, sort: a,
+        rowType: "account", formulaDef: null, sign: 1, displayInvert: false, varianceInvert: false,
+        month: null, comment: null,
+        values: { ac: base, py: Math.round(base * 0.93), pl: Math.round(base * (0.9 + (a % 7) * 0.03)), fc: base + 5 },
+      });
+    }
+    return rows;
+  }
+
+  window.MEGA_DEMO = { statement, statement12G, long, regions, months: MONTHS };
 })();

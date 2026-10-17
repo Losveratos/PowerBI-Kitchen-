@@ -144,6 +144,15 @@
             "kind": "Measure",
             "description": "Full-year plan scalar for the outlook block.",
             "descriptionKey": "RoleDesc_PLFY"
+        },
+        {
+            "name": "filterInfo",
+            "displayName": "Filter info (footer)",
+            "displayNameKey": "Role_FilterInfo",
+            "kind": "Measure",
+            "requiredTypes": [ { "text": true } ],
+            "description": "Text measure carrying the current filter context (e.g. via CONCATENATEX/SELECTEDVALUE) — shown as a second footer line when the filter footer is enabled.",
+            "descriptionKey": "RoleDesc_FilterInfo"
         }
     ],
     "dataViewMappings": [
@@ -202,6 +211,9 @@
                         "max": 1
                     },
                     "plFy": {
+                        "max": 1
+                    },
+                    "filterInfo": {
                         "max": 1
                     }
                 }
@@ -307,6 +319,11 @@
                             "bind": {
                                 "to": "plFy"
                             }
+                        },
+                        {
+                            "bind": {
+                                "to": "filterInfo"
+                            }
                         }
                     ]
                 }
@@ -362,6 +379,11 @@
                     }
                 },
                 "showOptions": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showScenario": {
                     "type": {
                         "bool": true
                     }
@@ -456,6 +478,11 @@
                     }
                 },
                 "fitWidth": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "exportExpandAll": {
                     "type": {
                         "bool": true
                     }
@@ -559,6 +586,14 @@
                             {
                                 "value": "12A",
                                 "displayName": "12A"
+                            },
+                            {
+                                "value": "12G",
+                                "displayName": "12G"
+                            },
+                            {
+                                "value": "12H",
+                                "displayName": "12H"
                             }
                         ]
                     }
@@ -578,6 +613,10 @@
                             {
                                 "value": "fc",
                                 "displayName": "FC"
+                            },
+                            {
+                                "value": "pl",
+                                "displayName": "PL"
                             }
                         ]
                     }
@@ -738,6 +777,62 @@
                             }
                         ]
                     }
+                },
+                "blockKind": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "month",
+                                "displayName": "Month"
+                            },
+                            {
+                                "value": "ytd",
+                                "displayName": "YTD"
+                            },
+                            {
+                                "value": "fy",
+                                "displayName": "FY outlook (AC&FC vs PL)"
+                            }
+                        ]
+                    }
+                },
+                "leftBlockKind": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "month",
+                                "displayName": "Month"
+                            },
+                            {
+                                "value": "ytd",
+                                "displayName": "YTD"
+                            },
+                            {
+                                "value": "fy",
+                                "displayName": "FY outlook (AC&FC vs PL)"
+                            }
+                        ]
+                    }
+                },
+                "pctOfRevenue": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "highlight": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "materialityAbs": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "materialityPct": {
+                    "type": {
+                        "numeric": true
+                    }
                 }
             }
         },
@@ -761,6 +856,10 @@
                             {
                                 "value": "m",
                                 "displayName": "Millions (m)"
+                            },
+                            {
+                                "value": "b",
+                                "displayName": "Billions (b)"
                             }
                         ]
                     }
@@ -779,11 +878,53 @@
                     "type": {
                         "numeric": true
                     }
+                },
+                "financeFormat": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "sumSafeRounding": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "fixedMax": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "fixedVarMax": {
+                    "type": {
+                        "text": true
+                    }
                 }
             }
         },
         "style": {
             "properties": {
+                "variancePreset": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "auto",
+                                "displayName": "Like variance colors"
+                            },
+                            {
+                                "value": "teal",
+                                "displayName": "Teal / red"
+                            },
+                            {
+                                "value": "ibcs",
+                                "displayName": "IBCS green / red"
+                            },
+                            {
+                                "value": "blueOrange",
+                                "displayName": "Blue / orange (ColorBrewer)"
+                            }
+                        ]
+                    }
+                },
                 "appearance": {
                     "type": {
                         "enumeration": [
@@ -950,6 +1091,64 @@
                     "type": {
                         "text": true
                     }
+                },
+                "autoMessage": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "headline": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "footer": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "filterFooter": {
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
+        },
+        "labels": {
+            "properties": {
+                "labelAc": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "labelPy": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "labelPl": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "labelFc": {
+                    "type": {
+                        "text": true
+                    }
+                }
+            }
+        },
+        "emptyState": {
+            "properties": {
+                "title": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "body": {
+                    "type": {
+                        "text": true
+                    }
                 }
             }
         },
@@ -978,6 +1177,13 @@
         }
     },
     "supportsHighlight": false,
+    "tooltips": {
+        "supportedTypes": {
+            "default": true,
+            "canvas": true
+        }
+    },
+    "supportsKeyboardFocus": true,
     "supportsMultiVisualSelection": true,
     "supportsLandingPage": true,
     "supportsEmptyDataView": true,

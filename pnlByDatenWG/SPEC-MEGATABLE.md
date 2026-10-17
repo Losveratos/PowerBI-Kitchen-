@@ -173,6 +173,14 @@ schraffierte Flächen tragen zusätzlich 1-px-Kontur in derselben Farbe.
    diese Breite + Beschriftungsbedarf; die Tabelle scrollt dann horizontal statt
    Balken auf 0 zu kollabieren. Ausgeschaltete Spalten hinterlassen keine Lücke —
    die Breiten werden bei jeder Schalter-Kombination neu verteilt.
+   **Geteilter Maßstab (1.1):** Die Garantie gilt auch beim Familien-k (unten):
+   drückt ein Familien-Partner mit viel größeren Werten (ΔPL-Balken neben
+   kleinen ΔPY-Balken, Wasserfall neben Balken) das gemeinsame k unter die
+   Mindestfläche einer Spalte, wird k so weit angehoben, wie jede Spalte der
+   Familie bis zu ihrer Breitengrenze (`22·fs`, Wert-Kaskade `28·fs`; schon
+   breitere behalten ihre Breite) wachsen kann; die bindenden Spalten wachsen.
+   Darüber hinaus gewinnt der eine Maßstab — winzige Werte neben 200× größeren
+   bleiben kurz (vergleichbare Längen sind der Zweck des gemeinsamen k).
 
 ### Balken-/Pin-Maßstab
 
@@ -227,9 +235,12 @@ der Notations-Tabelle, Kostenzeilen hell (PY `#D9D9D9`, AC `#8A8886`).
 Tausender-Trenner U+202F (wie `NBSP_GROUP`), Minus als „-". Dezimalen `d` gelten
 für Werte/ΔAbs/Margen; Δ%-Zahlen: Regionen `max(1,d)`, GuV `d ≥ 2 ? 1 : 0`;
 Pins: GuV mit `d = 0` → 0, sonst `max(1,d)`. Margen-Zeile: Wert `36.7%`,
-ΔAbs `+8.6%p`, Δ% als relative Änderung ohne Zeichen `+23`, kursiv/klein.
+ΔAbs `+8.6%p`, Δ% als relative Änderung mit Zeichen `+23%` (wie T03A; bis
+1.0.1 ohne Zeichen), kursiv/klein — `%p` steht nur an der Punktdifferenz.
 Schwellen: rot, wenn `Δ × (Kosten ? −1 : 1) < Schwelle` (Default Monat −20 /
-−10 %, _YTD −220 / −10 %; GuV −20 / −10 %).
+−10 %, _YTD −220 / −10 %; GuV −20 / −10 %). Die Fußzeile druckt die Schwelle
+mit den Dezimalen, die sie trägt (`<-20.5`, `<-10.5%`; 1.0 rundete auf 0), der
+Rot-Test vergleicht exakt.
 
 ### Schalter-Liste → künftige Formatmenü-Toggles (Karte `columns`)
 
@@ -259,6 +270,12 @@ wiederverwendet: `numbers.decimals`, `numbers.pctDecimals`, `style.colorMode`.
 | `barCap` | `columns.capBars` | Ausreißer-Kappung auch für Δ-Balken (Pins immer) |
 | `sort` | `columns.sort` (category / minuend↓ / Δ↓) | Sortierung je Struktur-Gruppe, „Other" bleibt unten |
 | `sortBlock` | `columns.sortBlock` (period / ytd) | welcher Block die Reihenfolge bestimmt (Kategorie-Spalte ist geteilt) |
+| – (1.1) | `columns.blockKind` / `columns.leftBlockKind` (month / ytd / fy) | Art des Perioden-Blocks bzw. des zweiten Blocks links |
+| – (1.1) | `columns.pctOfRevenue` | „% vom Umsatz"-Spalte im Mega-Modus |
+| – (1.1) | `columns.exportExpandAll` (Gruppe Tabelle, Default an) | Export rendert alle Zeilen aufgeklappt |
+| – (1.1 C) | `columns.minuend` += `pl` | Planrechnung (12H): PL umrandet, Δ-Elemente blass getönt |
+| – (1.1 C) | `numbers.fixedMax` / `numbers.fixedVarMax` (Text, k/m/b) | Skalen-Sync: Mindest-Maximum der Familien `valueCascade` / `delta` |
+| – (1.1 C) | `titleBlock.headline` | Headline-Slot der 12er-Serie |
 
 Defaults je Preset (✓ = an; nicht genannte Toggles aus; `marks`, `barLabels`
 überall an, `barCap` überall aus):
@@ -280,6 +297,11 @@ Defaults je Preset (✓ = an; nicht genannte Toggles aus; `marks`, `barLabels`
 | T04D | FC | – | ✓ | ✓ | – | – | wf+pin | – | – | ✓ | – | – | 2 |
 | T04E | FC | ✓ | – | ✓ | – | wf+pin | – | – | – | ✓ | – | – | 2 |
 | 12A | AC | ✓ | – | ✓ | ✓ | bar+pin | – | – | – | – | – | – | 0 |
+| 12G | AC (Block FY → AC&FC) | ✓ | – | ✓ | ✓ | bar+pin | – | – | – | ✓ | – | – | 0 |
+| 12H | PL | ✓ | – | ✓ (= PL) | ✓ | bar+pin | – | – | – | – | – | – | 0 |
+
+12G setzt zusätzlich `blockKind = fy`, 12G/12H setzen `titleBlock.headline = an`
+(alle anderen Templates: `blockKind = ytd`, Headline unangetastet).
 
 Aus den Daten abgeleitete Stil-Flags (kein Schalter): Vorzeichen-Spalte und
 gepaarter Δ-Kopf nur bei GuV-Daten; Block-Titelzeile nur bei Struktur-Daten;
@@ -288,15 +310,41 @@ grauen Zeilenlinien, durchgehende Summenlinien, keine Kopf-Linien (12A).
 
 ### Bewusst offen / Abweichungen
 
-- **12G/12H** (YTD+Restjahr-Stapel, Plan-Tönung) nicht im Prototyp; 12A ist
-  umgesetzt, der Headline-Slot wird aus den Daten generiert.
+- **12G/12H** (YTD+Restjahr-Stapel, Plan-Tönung) nicht im Prototyp; seit 1.1
+  Paket C im Visual (Abschnitt unten). Der Headline-Slot (`titleBlock.headline`)
+  nimmt die eigene Botschaft oder den autoMessage-Generator aus Paket B.
 - GuV hat keinen _YTD-Block (Demo-Daten nur Jahr); der Block-Schalter wirkt nur
   bei Strukturdaten.
 - Referenz-Inkonsistenzen werden nicht nachgebaut: Summen rechnet der Kern
   (T03A AC-Ergebnis 422.2 statt 422.3; ΔPY Group result +186.2 statt der im Bild
   doppelt gedruckten +162.5; 12H-PL-Operating-result 346 statt 329).
+- **T01A/T01B _YTD-ΔPY-Dezimale:** Die Referenzen drucken die ΔPY-Zahlen des
+  _November-Blocks mit einer Dezimale (`+431.0`, `-274.0`, `+7.0`; T01B `+80.0`,
+  `-127.0`), die ΔPL-Spalte desselben Blocks und der Monatsblock ganzzahlig.
+  Das Visual hat EINE Dezimalregel je Tabelle (`numbers.decimals`, T01-Preset 0)
+  und druckt `+431` — in sich inkonsistente Mischdezimalen werden nicht
+  nachgebaut (keine Dezimalen je Block/Spalte).
+- **T02F-Früh-Kappung:** Das Referenzbild kappt zwei Δ%-Pins (Japan −27.3 im
+  Monat, Other +26.1 im _November) schon beim Sprung 1.35×. Der Tukey-Zaun
+  (Q3 + 4·IQR, ab 8 Werten; siehe „Balken-/Pin-Maßstab") schlägt dort nicht an,
+  beide Pins werden voll gezeichnet — jede Regel, die T02F kappt, kappte T02A
+  `+16.5` fälschlich. Ein manueller Kappungswert je Block ist nicht vorgesehen.
+- **T04C/T04E Financial-income-Pin:** Die Referenzblätter drucken für
+  „Financial income, net" (Δ −7.00 = −9.59 %) einen grünen Pin nach rechts mit
+  `+9.59` — im Widerspruch zum roten Δ-Balken derselben Zeile. Das Visual
+  zeichnet vorzeichenrichtig `-9.59` als roten Pin nach links.
+- **12A-Mehrfach-Pfeilspitzen:** Die Referenz staffelt die Pfeilspitzen gekappter
+  Werte nach Überlauf (`+983` mit drei Spitzen, `+391` mit einer; 12G `+1 633`
+  mit zwei). Prototyp und Visual zeichnen immer genau eine Spitze (9 px) — der
+  Wert steht ohnehin als Zahl am Element.
 - Sortierung „je Block" ist bei geteilter Kategorie-Spalte nur über einen Block
-  möglich (`sortBlock`); Indikator `(↓)` steht am sortierenden Spaltenkopf.
+  möglich (`sortBlock`); Indikator `(↓)` steht am sortierenden Spaltenkopf. Ist
+  diese Spalte ausgeschaltet (sort = min ohne Wertspalte AC/FC, sort = Δ ohne
+  Δ-Zahl/-Balken/-Wasserfall der Referenz), bleibt die Sortierung wie gewählt
+  und der Indikator wandert an den Kopf der Kategorie-Spalte mit Schlüssel und
+  Block: `(↓) ΔPL November` (1.1; bis 1.0.1 fehlte er dann ganz). Bewusst kein
+  stilles Umschalten auf eine sichtbare Spalte: Δ% ordnet anders als Δ, die
+  Reihenfolge wäre eine, die niemand eingestellt hat.
 
 ### Empfehlungen für die Visual-Ableitung
 
@@ -419,11 +467,153 @@ Render-Fälle m1–m16 gegen die Referenzwerte, Template-/Echo-Guard-/
 Interaktions-Test inkl. T04B/12A); `npm run test:waterfall`; Engine-Tests für
 `varianceOf`/`displayVariance`.
 
-Offen: Phase 4 ist mit dem Monat | _YTD-Block weitgehend vorweggenommen;
-Phase 5 (12G YTD+Restjahr-Stapel, 12H Plan-Tönung, Headline-Slot) ist nicht
-umgesetzt; Virtualisierung sehr langer Statements (heute ein SVG für alle
-sichtbaren Zeilen). Wasserfall-Beschriftungen links eines Schritts dürfen wie
+Offen (Stand 1.0): Phase 4 ist mit dem Monat | _YTD-Block weitgehend vorweggenommen;
+Phase 5 (12G YTD+Restjahr-Stapel, 12H Plan-Tönung, Headline-Slot) und die
+Virtualisierung sehr langer Statements kamen mit 1.1 Paket C (siehe unten).
+Wasserfall-Beschriftungen links eines Schritts dürfen wie
 in den Referenzen (T04B „+5.79") die Nulllinie kreuzen.
+
+### Stand 1.1 · Paket A (Konformitäts-Fixes)
+
+- **Margen-Zeilen:** relative Δ% mit `%` (`+23%`, T03A/B), `%p` nur an der
+  Punktdifferenz (siehe „Zahlenformat").
+- **Kopf-Schriftgröße:** `style.headerFontSize` wirkt jetzt auch auf Spaltenköpfe
+  und Block-Titel des Mega-Tables (Faktor `v / 9` auf `fs`; 0 bzw. außerhalb
+  7…20 = `fs`, unverändert). Kopfzeilen wachsen mit (`round(1.7·headFs)`),
+  Spaltenbreiten messen den Kopf in seiner Schrift; der Körper bleibt gleich.
+- **Legende:** zeigt im Mega-Modus nur die Szenarien, die die Spalten zeigen
+  (Wertspalten, Minuend jedes Δ-Elements, aktive Δ-Referenzen — T02F: PL + FC);
+  die Achsen-Notiz nennt nur Referenzen mit echter Δ-Achse („grau = PY",
+  „Doppellinie = PL"; FC ist im Mega-Table nie Achse) und entfällt ohne
+  Chart-Spalte. Klassische Ansichten unverändert.
+- **Sortier-Indikator / Mindest-Datenfläche / Schwellen-Fußzeile:** siehe oben.
+- **Hochkontrast** (`colorPalette.isHighContrast`, nur solange der Mega-Table
+  sichtbar ist — klassische Tabelle, Balken, Wasserfall und Baum unverändert):
+  `MEGA_C` und `C` auf `foreground` / `background`, Auswahl-Linie
+  `foregroundSelected` (ohne Wash). Muster statt Farbe (ChartKitchen-HC-Pfad):
+  gut = Minuend-Füllung (voll / schraffiert), schlecht = hohl (Hintergrund +
+  1.4-px-Kontur) für Δ-Balken, Wasserfall-Schritte, Pin-Köpfe und Pfeile; rote
+  Schwellenzahlen unterstrichen; PY-Kopfmarke als gestricheltes Band, PY-Wert-
+  Kaskade gestrichelt hohl; Legenden-Chips entsprechend; Teal-Hinweis entfällt.
+- **Export** (`allowInteractions = false`, PDF/PowerPoint/Abo): keine Toolbar
+  (die Legende bleibt — sie erklärt die Notation); mit `columns.exportExpandAll`
+  (Gruppe „Tabelle", Default an) rendern Mega- und klassische Tabelle alle
+  Zeilen aufgeklappt, ohne den gespeicherten Klapp-Zustand zu ändern. Der
+  Werttreiberbaum behält seinen eigenen Klapp-Zustand.
+- **Perioden-Blöcke:** `columns.blockKind` (Perioden-Block: Monat · YTD · FY,
+  Default YTD) und `columns.leftBlockKind` (zweiter Block links, nur mit
+  `secondBlock`, Default Monat). Defaults = bisher (YTD bzw. Monat | _YTD).
+  FY-Ausblick: Minuend = AC&FC (`fcFy`, Kopf „AC&FC"), PL = `plFy`, kein PY
+  (ΔPY-Spalten bleiben dort leer); Titel „FY 2026". Ein einzelner Monats- oder
+  FY-Block zeigt seinen Titel auch bei GuV-Daten. Nicht verfügbare Arten (ohne
+  Perioden-Feld / FY-Maße) fallen auf YTD bzw. Monat zurück. Templates setzen
+  beide zurück (YTD / Monat).
+- **% vom Umsatz:** `columns.pctOfRevenue` (Mega-Gruppe, Default aus): Spalte
+  „% Rev" direkt rechts der Wertspalten je Block (bei Wert-Kaskaden eigene
+  Gruppe), Anteil des Minuenden an der Umsatz-Basiszeile (`columns.revenueBase`)
+  desselben Blocks, `numbers.pctDecimals`, rechtsbündig, kursiv, klein, grau;
+  keine Werte in Margen-Zeilen.
+
+Tests: `test/megatable-test.js` (Layout: Kopf-Schrift, Indikator-Fallback,
+Familien-Mindestspanne inkl. Grenze, % Rev, FY-Alias, HC-Palette/Unterstreichung,
+Schwellen-Dezimalen), `test/mega-shot.js` m17–m26 (Export, HC, Kopf-Schrift,
+FY/Monat-Blöcke, % Rev, Indikator, Fußzeile) + Legenden-Checks an m1/m7/m15,
+`test/start-dark-test.js` (Pane-Gates der neuen Schalter).
+
+### Stand 1.1 · Paket B (Finance-Features, ChartKitchen-Familie)
+
+Property-Namen wie im ChartKitchen, wo es ein Pendant gibt. Alles Neue steht per
+Default aus bzw. verhaltensgleich — Pixel-Regression aller 40 Fälle von
+`test/test.html` (p1–p14, m1–m26) gegen 1.0.1 + Paket A byte-identisch.
+
+- **Tooltips** (`capabilities.tooltips` default + canvas): Zeilen, Zellen,
+  Balken, Pins und Kaskaden der klassischen Tabelle (auch Balken-/Wasserfall-
+  Ansicht) und des Mega-Tables zeigen über `host.tooltipService` Zeilenname,
+  die gebundenen Szenarien des Blocks (mit Einheit), Δ je Referenz absolut + %
+  (Mega-Table: dessen Minuend und Referenzen in Anzeige-Orientierung, %p für
+  Margen; klassisch: Δ zur Toolbar-Referenz wie die Balken), den Wesentlichkeits-
+  Hinweis, den Kommentar (mit ①) und die Selektions-Kappung. Die `title`-
+  Attribute der Datenzeilen (Kommentar-Marker, Selektions-Hinweis, SVG-`<title>`
+  im Mega-Table) entfallen. Dark Mode: eigener Kasten nach ChartKitchen
+  `showDarkTip` (#2B2B2B, Kantenerkennung, folgt dem Scroll der Wurzel), hell
+  bleibt nativ. Der Werttreiberbaum behält seine SVG-Titel (Struktur unangetastet).
+- **Σ-treue Rundung** `numbers.sumSafeRounding` (Default **aus** wie im
+  ChartKitchen): Restwertverfahren entlang der Hierarchie (`engine.sumSafeRound`,
+  top-down): Wurzeln runden normal, die beitragenden Kinder (Konten/Zwischen-
+  summen) teilen die gedruckte Summe nach größtem Rest — SignConvention des
+  Elternknotens inklusive — und geben ihren gedruckten Wert an ihre Kinder
+  weiter. Wirkt auf die Wertspalten der klassischen Tabelle und des Mega-Tables
+  (auch Wert-Kaskaden-Beschriftungen) je Block; die Δ-Zahl ist dann die
+  Differenz der gedruckten Werte (Δ% bleibt exakt). **Formel-, Margen- und
+  Trennzeilen sind ausgenommen** (exakte Rundung; eine Formelzeile ist keine
+  Summe ihrer Hierarchie-Kinder) und beginnen unter sich eine neue Verteilung.
+  Ist ein Elternwert nicht die Summe seiner Kinder (Eigenwert-Fallback), wird
+  nicht verteilt.
+- **Klammern-Negativ** `numbers.financeFormat` (Default aus): −1 234 → (1 234),
+  Einheit in der Klammer ((12.5%), (8.6%p)); exakte Null „–“, eine gerundete
+  Null bleibt „0.0“. **Δ behält die Vorzeichenlogik wie im ChartKitchen**
+  (`fmtSigned`): positive Δ tragen „+“, negative stehen in Klammern ohne Minus.
+  Gilt für alle Zahlenspalten, Balken-/Pin-/Kaskaden-Beschriftungen, Tooltips
+  und den Baum. Die Schwellen-Fußzeile („<-20“) ist eine Regel, keine Zahl, und
+  bleibt unverändert.
+- **Mrd.** `numbers.scaling` += `b` (÷ 10⁹, Suffix „b“); Auto wählt b ab
+  50 Mrd. (k/m-Schwellen unverändert). Toolbar-Knopf „bEUR“ nur, wenn Auto b
+  wählen würde oder der Pane b gesetzt hat.
+- **Hausbegriffe** — Karte `labels` (`labelAc/labelPy/labelPl/labelFc`, leer =
+  Kürzel): ersetzen ganze Szenario-Kürzel (nicht in PLAN, EBITDA …) in Toolbar
+  (Presets, Referenz, Szenario-Gruppe), Legende (der ganze Eintrag „AC actual“ →
+  „Ist“) inkl. Achsen-Notiz, klassischen Spalten- und Blockköpfen, Mega-Köpfen
+  inkl. Sortier-Indikator und `AC&FC`, Tooltips, generierter Titelzeile, Auto-
+  Botschaft und Filter-Fußzeile. Autorentexte (Titelzeilen, Fußzeile) bleiben.
+- **Titelblock:** `titleBlock.autoMessage` (aus): ohne eigene Botschaft eine
+  generierte Zeile „<Ergebniszeile> Δ<Ref> +x EUR (+y%) · stärkster Treiber: …
+  · schwächster: …“ — Ergebniszeile = letzte Formelzeile der obersten Ebene,
+  sonst die einzige Wurzel, sonst die Gesamtsumme; Treiber = Blatt-Konten nach
+  Wirkung (günstig ↑ / ungünstig ↓), YTD-Fenster; Mega-Table: dessen Minuend +
+  erste Referenz in Anzeige-Orientierung. `titleBlock.footer` (Freitext) und
+  `titleBlock.filterFooter` + neue optionale Textrolle **`filterInfo`** (max 1,
+  Measure): zweite Fußzeile „Filter: <filterInfo> · Nullzeilen ausgeblendet ·
+  <Szenario-Sicht des Lesers>“ über dem IBCS-Hinweis, in allen Ansichten und im
+  Export; leere Zeilen entfallen; beide Felder nur bei `titleBlock.show`.
+- **Hervorheben** `columns.highlight` (Kommaliste von Zeilennamen oder IDs,
+  ohne Groß-/Kleinschreibung): ChartKitchen-`emphBand` — Tinte zu 7 % über alle
+  Zellen der Zeile (klassisch) bzw. über die volle Tabellenbreite (Mega-Table);
+  Dark = dunkle Tinte, Hochkontrast = 1-px-Rahmen in `foreground` ohne Fläche.
+  Die Selektions-Wäsche liegt darüber.
+- **Wesentlichkeit** `columns.materialityAbs` (Dateneinheiten **vor** k/m-
+  Skalierung, wie ChartKitchen) / `materialityPct` (ganze %), 0 = aus; sind
+  beide gesetzt, muss ein Δ beide überschreiten. Unterhalb: Δ-Balken, Pins,
+  Wasserfall-Stufen und Δ-Zahlen in `soft` (#8A8886, dunkel #A6A6A6); eine rote
+  „Δ in red if“-Zahl bleibt rot (explizite Regel gewinnt); Margenzeilen (%p)
+  sind ausgenommen; im Hochkontrast keine hohle „schlecht“-Form. Keine Zeilen-
+  Faltung. **`exceptionOnly` bewusst nicht umgesetzt:** eine Sammelzeile müsste
+  in Kaskaden, Sortierung, Kommentar-Nummerierung, Selektions-IDs und Σ-treuer
+  Rundung als synthetische Zeile mitlaufen — das ist ohne Risiko für die
+  Baum-/Hierarchie-Logik nicht machbar (Backlog).
+- **Toolbar-Gruppe „Szenario“** (`toolbar.showScenario`, Default aus, nur
+  Mega-Modus): „Szenario“ AC / FC (nur mit gebundenem FC) und „Referenz-Sicht“
+  ΔPY · ΔPL · beide. Die Referenz-Sicht verschiebt die vom Autor gewählten
+  Δ-Elemente (Vereinigung über PY und PL: Zahl, Balken, Wasserfall, Δ%, Pins)
+  und eine PY/PL-Wertspalte auf die gewählte(n) Referenz(en). Zustand in
+  `UiState.megaMin/megaRef` (Echo-Guard des Toolbar-Zustands); ein Knopf ohne
+  Wirkung ist gesperrt + gedimmt (Paket-A-Muster). Ändert der Autor Minuend
+  bzw. die Δ-/Wertschalter im Pane, endet die Leser-Sicht (zurück auf „“).
+- **emptyState** (Karte `emptyState`, `title`/`body`, leer = Standard): ersetzt
+  „Keine Daten für die aktuelle Auswahl.“ und — nur im Lesemodus — die
+  Feld-Anleitung der Landing-Page; der Bearbeitungsmodus behält Smart Start /
+  Anleitung.
+- **Tastatur** (`supportsKeyboardFocus: true`): Toolbar-Knöpfe sind native
+  `<button>` mit `aria-pressed`; Aufklapp-Zeilen (Namenszelle klassisch,
+  Label-Trefferfläche im Mega-Table) tragen `tabindex=0`, `role=button`,
+  `aria-expanded`, `aria-label` und klappen mit Enter / Leertaste. Fokus-Ring
+  nur bei Tastatur-Fokus (`:focus-visible`): 2 px Akzent als Outline (HTML)
+  bzw. Kontur (SVG), Hochkontrast `foregroundSelected`.
+
+Tests: `test/engine-test.js` (`largestRemainder`, `sumSafeRound` inkl.
+Zufallsbäume), `test/megatable-test.js` (Finance-Format, Hausbegriffe in Köpfen,
+Wesentlichkeit vs. Schwelle), `test/finance-test.js` (F1–F11 im Browser +
+Capabilities, Screenshots `test/finance-*.png`), `test/start-dark-test.js`
+(Kartenreihenfolge, Pane-Gates der neuen Felder).
 
 ### Stand 1.0.0.0
 
@@ -434,3 +624,74 @@ Tabellen-Ansicht, ΔPY/ΔPL nur mit gebundenem PY/PL, Schwellen-Felder nur bei
 (`MEGA_C` ist live, `setMegaPalette()`; die Tonwerte der Wert-Kaskade sind
 Paletten-Keys statt Literale). **Auf 1.1 verschoben:** Phase 5 (12G, 12H,
 Headline-Slot) und die Virtualisierung sehr langer Mega-Tabellen.
+
+### Stand 1.1 · Paket C (12G · 12H · Headline · Skalen-Sync · Blau/Orange · Virtualisierung)
+
+Alles Neue per Default aus bzw. verhaltensgleich — Pixel-Regression der 40 Fälle
+p1–p14 / m1–m26 gegen 1.1 Paket A+B byte-identisch (PNG und innerHTML je Stage).
+
+- **Notations-Engine erweitert, keine Sonderfälle:** `SCENARIO_NOTATION` trägt je
+  Szenario zusätzlich `area` — die Füllung der Δ-Elemente, wenn es Minuend ist:
+  AC `solid`, FC `hatch`, **PL `tint`** (Gut/Schlecht-Farbe zu 72 % mit dem
+  Papier gemischt, `megaTint`, 1-px-Tintenkontur; auf dunklem Papier ergibt
+  dieselbe Mischung das Dark-Pendant; Hochkontrast: voll, keine Mitteltöne).
+  `notation(minuend, subtrahend, hc)` liefert sie über `area()`; Δ-Balken und
+  Wasserfall-Stufen lesen nur noch `area()`. Pin-Köpfe folgen weiter der
+  Szenario-Füllung (`fill`: PL umrandet). Kostenzeilen einer umrandeten
+  PL-Wert-Kaskade liegen auf blassem Grund (`outlineLight` #F2F2F2 / dunkel
+  #2A2A2A, 12H).
+- **Minuend PL (12H):** `MegaMin = AC | FC | PL`; `activeRefs()` und
+  `buildColumns()` lassen die Referenz = Minuend weg (kein ΔPL gegen sich selbst),
+  `showPL` + `showMinuend` ergeben EINE PL-Spalte. Pane: `columns.minuend` += `pl`
+  (sichtbar mit FC- oder PL-Feld).
+- **Notation je Block:** `MegaBlock.minFill` ersetzt den Minuenden nur für die
+  Δ-Füllung eines Blocks (`MegaLayout.NB[block]`). Der FY-Ausblock setzt bei
+  Minuend AC `minFill = FC`: AC&FC ist überwiegend Forecast → Δ-Balken, Pins und
+  Wasserfall-Stufen schraffiert (12G). Kopf-Marken bleiben beim Szenario.
+- **12G-Stapel:** `MegaBlock.ytd(r)` (Anzeigewert AC YTD) setzt der FY-Block bei
+  Minuend AC. Die Minuend-Wert-Kaskade dieses Blocks wird `stack`: ab dem
+  Segment-Start YTD voll (`value("AC")`), danach bis zum Segment-Ende das Restjahr
+  schraffiert (`value("FC")`), Kostenzeilen hell wie bisher; die YTD-Zahl steht
+  zentriert im vollen Teil in Papierfarbe, wenn sie mit 3 px Rand passt, die
+  Jahreszahl außen wie jede Kaskade. Zwei Köpfe: „YTD" links, Alias „AC&FC" rechts
+  (Spalte mindestens so breit wie beide). PY im FY-Block = ganzes Vorjahr
+  (`computed.py`, wie der klassische FY-Block) → ΔPY bezieht sich aufs Jahr. Die
+  Legende nennt FC, sobald im FY-Block schraffiert wird.
+- **Headline-Slot** `titleBlock.headline` (Default aus): Titelblock als Zeile —
+  drei Titelzeilen links, Botschaft 17 px (× Schriftfaktor) normal daneben, 1-px-
+  Linie darunter (12er-Layout, umbricht bei schmalen Visuals). Text = eigene
+  `message`, sonst der autoMessage-Generator (auch ohne `autoMessage`); die fette
+  Botschaftszeile über dem Titel entfällt dann. Der Generator spricht bei
+  FY-Layout über das Jahr (Minuend/Referenz des Blocks). Templates 12G/12H
+  schalten ihn im selben Persist-Merge an (Echo-Guard deckt `titleBlock` ab).
+- **Skalen-Sync** `numbers.fixedMax` / `fixedVarMax` (Text, `parseAmount`: k/m/b,
+  Komma; leer/ungültig/≤ 0 = automatisch; Dateneinheiten): Phantom-Elemente im
+  Löser — Wert-Kaskaden `[0, max]`, Δ-Balken und Δ-Wasserfälle `±max`, jeweils mit
+  Beschriftungsbedarf der fetten max-Zahl. ChartKitchen-Semantik „Mindest-
+  Maximum": größere Daten weiten die Skala weiter; Pins bleiben aus dem Sync.
+  Klassisch: einheitlicher Δ-Maßstab = max(Daten, fixedVarMax) (Skalennotiz folgt),
+  Wert-/Kaskadenbalken der Balken- und Waterfall-Ansicht mit fixedMax. Fußnote
+  „Skala fixiert: Werte ≥ … · Δ ≥ ±…" nur im Bearbeitungsmodus, nie im Export.
+- **Blau/Orange** `style.variancePreset` (auto · teal · ibcs · blueOrange,
+  Default auto = folgt `style.colorMode`; ein gesetzter Wert übersteuert ihn und
+  blendet colorMode im Pane aus). ColorBrewer #2C7BB6 / #E66101, dunkel
+  #5BA3DC / #F0821E (wie ChartKitchen). Legenden- und Fußzeilen-Hinweis nennen
+  Blau/Orange statt Teal; Picker `goodColor`/`badColor` übersteuern weiterhin.
+- **Virtualisierung:** Ab `MEGA_VIRT_MIN_ROWS = 150` Zeilen (nicht im Export)
+  zeichnet `paintMega(…, {window})` nur die Zeilen `[from, to)` um den Viewport
+  (+30 Puffer); das Layout bleibt vollständig, Körper-SVG behält seine Höhe,
+  Achsen laufen durch, Kaskaden folgen dem Lauf über alle Zeilen und zeichnen
+  Verbindungslinien, die das Fenster kreuzen. Scroll → `syncMegaWindow()` zeichnet
+  den Körper neu, sobald die sichtbaren Zeilen das gemalte Fenster verlassen, und
+  bindet Selektion, Falten, Tastatur und Tooltips neu. Unterhalb der Schwelle
+  wird kein Fenster übergeben — Ausgabe exakt wie 1.0 (Beweis: Pixel-Regression +
+  `test/mega-perf.js`: Fenster über alle Zeilen = byte-identisch zum Malen ohne
+  Fenster).
+
+Tests: `test/megatable-test.js` (Presets 12G/12H, PL-Minuend, Tönung inkl. Dark/HC,
+Stapel + zwei Köpfe, `parseAmount`, Skalen-Sync), `test/mega-shot.js` m27–m31
+(12G, 12H, 12H dunkel + Blau/Orange, Skalen-Sync inkl. klassisch, Virtualisierung),
+`test/mega-interact.js` Schritt 11 (12G/12H-Persistenz + Echo-Guard + Headline),
+`test/start-dark-test.js` (Pane-Gates), `test/mega-perf.js` (2 000 Konten:
+Erstzeichnung, Scroll-Neuzeichnung, Selektion/Falten/Tooltip nach Scroll,
+Identität).

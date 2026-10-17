@@ -1,5 +1,106 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.1.0.0 (2026-10-17) — IBCS-12er-Serie komplett, Finance-Handwerk aus ChartKitchen, lange Statements flüssig
+
+1.1 bündelt drei Pakete. **A** bringt den Mega-Table näher an die
+IBCS-Referenzblätter, **B** holt das Finance-Handwerk von ChartKitchen ins
+P&L-Visual, **C** schließt die 12er-Serie (12G, 12H, Headline) ab und macht
+lange Statements schnell. Alles Neue steht per Default aus oder verhält sich
+wie bisher: die 40 Harness-Bühnen von 1.0.1 (p1–p14, m1–m26) rendern
+byte-identisch (PNG und DOM). Der Werttreiberbaum ist unverändert.
+
+### Paket C — 12G, 12H, Headline, Skalen-Sync, Blau/Orange, Virtualisierung
+
+- **12G · YTD und Restjahr in einem Balken.** Im FY-Ausblick (Block-Art FY mit
+  dem Feld „FC Gesamtjahr") stapelt die AC&FC-Wert-Kaskade das Ist bis heute
+  (voll, Zahl innen in Papierfarbe) und den Rest des Jahres (schraffiert,
+  Jahreszahl außen): „637 ▓ 1 698" wie im Referenzblatt. Die Spalte trägt zwei
+  Köpfe, „YTD" und „AC&FC". PY ist im FY-Block jetzt das ganze Vorjahr (wie in
+  der klassischen Tabelle), damit beziehen sich ΔPY und ΔPY% aufs Jahr. Weil
+  AC&FC überwiegend Forecast ist, sind die Δ-Elemente des FY-Blocks schraffiert;
+  die Legende nennt dann FC.
+- **12H · Planrechnung.** Das analysierte Szenario kann jetzt PL sein
+  (`columns.minuend = pl`): PL-Kaskade umrandet, Kostenzeilen auf blassem Grund,
+  Δ-Balken in blasser Tönung von Teal/Rot mit dünner Kontur, im Dark Mode die
+  dunklen Pendants. Ein ΔPL gegen sich selbst gibt es nicht. Umgesetzt als
+  dritte Füllregel der Notations-Engine (AC voll · FC schraffiert · PL getönt),
+  nicht als Sonderfall im Zeichner.
+- **Headline-Slot** (`titleBlock.headline`): die Botschaft groß neben dem Titel,
+  mit Linie darunter, wie in der 12er-Serie. Ohne eigene Botschaft schreibt der
+  Generator aus Paket B die Zeile; im FY-Layout spricht er über das Jahr.
+- **Templates 12G und 12H** im Template-Menü. Beide schalten den Headline-Slot
+  im selben Speichervorgang an; 12G setzt den FY-Block.
+- **Skalen-Sync** (`numbers.fixedMax`, `numbers.fixedVarMax`, Text mit k/m/b):
+  gleiche Beträge, gleiche Längen über mehrere Visuals. Wie in ChartKitchen ein
+  Mindest-Maximum — größere Daten weiten die Skala weiter. Wirkt auf
+  Wert-Kaskaden und Δ-Balken/-Wasserfälle des Mega-Tables, auf den
+  einheitlichen Δ-Maßstab der klassischen Tabelle und auf die Wertbalken der
+  Balken- und Waterfall-Ansicht. Im Bearbeitungsmodus steht „Skala fixiert"
+  unter der Tabelle.
+- **Blau/Orange** (`style.variancePreset`): das ColorBrewer-Paar #2C7BB6 /
+  #E66101 (dunkel #5BA3DC / #F0821E) wie in ChartKitchen — auch ohne Farbsehen
+  und im Schwarzweiß-Druck unterscheidbar. „Auto" (Default) folgt dem bisherigen
+  Schalter Teal/IBCS, gespeicherte Berichte behalten ihre Farben. Legende und
+  Fußzeile benennen die Abweichung passend.
+- **Lange Statements:** Ab 150 Zeilen zeichnet der Mega-Table nur, was im Bild
+  ist (plus Puffer) und malt beim Scrollen nach. 2 000 Konten: erstes Bild in
+  unter 200 ms, Nachzeichnen beim Scrollen rund 50 ms. Selektion, Falten,
+  Tastatur und Tooltips funktionieren auf nachgezeichneten Zeilen; der Export
+  zeichnet weiterhin alles.
+
+### Paket B — Finance-Handwerk (Namen wie in ChartKitchen)
+
+- **Tooltips** in Tabelle, Balken, Waterfall und Mega-Table: Szenarien, Δ je
+  Referenz, Wesentlichkeit, Kommentar; im Dark Mode ein eigener dunkler Kasten.
+- **Σ-treue Rundung** (`numbers.sumSafeRounding`): gedruckte Kinder ergeben die
+  gedruckte Summe (Restwertverfahren entlang der Hierarchie).
+- **Klammern statt Minus** (`numbers.financeFormat`), **Mrd.** (`scaling = b`),
+  **Hausbegriffe** (Karte „Szenario-Namen": Ist, VJ, Budget …).
+- **Titelblock:** Auto-Botschaft, Fußzeile für Datenstand/Quelle, Filter-Fußzeile
+  mit der neuen Textrolle „Filter-Info".
+- **Hervorheben** von Zeilen, **Wesentlichkeit** (Δ unter der Schwelle grau),
+  Toolbar-Gruppe **Szenario** für Leser (AC/FC, ΔPY · ΔPL · beide),
+  eigener **Leer-Zustand**, **Tastatur** (Toolbar und Aufklappen per Tab/Enter).
+
+### Paket A — Mega-Table näher an den Referenzblättern
+
+- Margen-Δ% mit %-Zeichen (T03A „+23%"), `%p` nur an der Punktdifferenz.
+- Kopf-Schriftgröße wirkt auf Mega-Köpfe; Legende zeigt nur die Szenarien der
+  Spalten; Sortier-Indikator wandert an den Kategorie-Kopf, wenn seine Spalte
+  aus ist; Mindest-Datenfläche hält auch beim gemeinsamen Maßstab;
+  Schwellen-Fußzeile mit den Dezimalen der Schwelle.
+- Hochkontrast-Pfad (Muster statt Farbe), Export ohne Toolbar und aufgeklappt
+  (`columns.exportExpandAll`).
+- Block-Arten Monat · YTD · FY-Ausblick (`columns.blockKind`,
+  `columns.leftBlockKind`) und „% vom Umsatz" im Mega-Modus.
+
+### Neue Properties (Überblick)
+
+`columns`: `blockKind`, `leftBlockKind`, `pctOfRevenue`, `exportExpandAll`,
+`highlight`, `materialityAbs`, `materialityPct`; `minuend` += `pl`; `template` +=
+`12G`, `12H`. `numbers`: `financeFormat`, `sumSafeRounding`, `fixedMax`,
+`fixedVarMax`; `scaling` += `b`. `style.variancePreset`. `titleBlock`:
+`autoMessage`, `headline`, `footer`, `filterFooter`. `toolbar.showScenario`.
+Karten `labels` und `emptyState`. Rolle `filterInfo`. Vollständige Referenz für
+Agenten: [`AGENT-GUIDE.md`](AGENT-GUIDE.md) (neu).
+
+### Verhaltensänderungen, die man sehen kann
+
+- Die umrandete PL-Wert-Kaskade legt Kostenzeilen auf blassen Grund (#F2F2F2)
+  statt Weiß — wie 12H.
+- Im FY-Block heißt PY jetzt Vorjahr gesamt statt „leer".
+
+### Tests
+
+- Neu: `npm run test:megaperf` (`test/mega-perf.js`): 2 000 Konten im
+  Mega-Table, Zeitbudgets, Fenster oben/unten, Selektion/Falten/Tooltip nach dem
+  Scrollen, Identität „Fenster über alle Zeilen = ohne Fenster".
+- `test:mega`: Bühnen m17–m31 (A: Export, Hochkontrast, Blöcke, % vom Umsatz …;
+  C: 12G, 12H, 12H dunkel + Blau/Orange, Skalen-Sync, Virtualisierung),
+  Template-Schritt 11 (12G/12H inkl. Headline und Echo-Guard), Layout-Unit-Tests.
+- `test:finance` (F1–F11), `test:start` (Pane-Gates aller neuen Schalter),
+  `test:i18n`: **511 Keys** je Sprache, vier Sprachen paritätisch.
+
 ## 1.0.1.0 (2026-10-17) — Die Toolbar-Knöpfe wirken wieder in jeder Ansicht
 
 Nutzer-Befund nach dem Test der 1.0 in Power BI: „die AC etc buttons gehen

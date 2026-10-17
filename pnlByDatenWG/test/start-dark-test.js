@@ -299,25 +299,47 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
         out.bars = [...__visible(pane(null, { state: { uiState: JSON.stringify({ view: "bars" }) } }))];
         out.noTb = [...__visible(pane(null, { toolbar: { show: false }, titleBlock: { show: false } }))];
         out.charts = [...__visible(pane(MEGA_DEMO.regions(), { columns: { showPL: true, dPlBar: true } }))];
+        // 1.1: % of revenue in the mega table brings the revenue base row along
+        out.share = [...__visible(pane(MEGA_DEMO.regions(), { columns: { pctRevenue: false, pctOfRevenue: true } }))];
+        out.noShare = [...__visible(pane(MEGA_DEMO.regions(), { columns: { pctRevenue: false } }))];
         const noPy = MEGA_DEMO.statement("T03").map(r => ({ ...r, values: { ...r.values, py: null } }));
         const vNoPy = __mk("cnopy", 1200, 600);
         const dvx = dvRows(noPy, {});
         dvx.categorical.values = dvx.categorical.values.filter(c => !c.source.roles.py);
         vNoPy.__upd([dvx]);
         out.noPy = [...__visible(__pane(vNoPy))];
+        // neither FC nor PL bound: no minuend to choose (1.1 C: PL is a minuend too)
+        const vNoFcPl = __mk("cnofcpl", 1200, 600);
+        const dvy = dvRows(MEGA_DEMO.statement("T03"), {});
+        dvy.categorical.values = dvy.categorical.values.filter(c => !c.source.roles.fc && !c.source.roles.pl);
+        vNoFcPl.__upd([dvy]);
+        out.noFcPl = [...__visible(__pane(vNoFcPl))];
         // the empty visual (demo): every data gate open
         const e = __mk("cempty", 1100, 640); e.__upd([]);
         out.empty = [...__visible(__pane(e))];
+        // 1.1 Paket C: the variance preset hides the old teal / IBCS switch once it is set
+        out.bo = [...__visible(pane(null, { style: { variancePreset: "blueOrange" } }))];
         // German pane: names and descriptions localized, "Standard:" in the tone of ChartKitchen
         const pd = pane(null, {}, "de-DE");
         out.deStrings = pd.strings;
         return out;
     });
     const has = (arr, s) => arr.includes(s);
-    check("Pane: card order columns → display → numbers → style → title → hierarchy",
-        C.order.join(",") === "columns,toolbar,numbers,style,titleBlock,hierarchy", C.order.join(","));
+    // 1.1 Paket B: scenario names after numbers, the empty state last
+    check("Pane: card order columns → display → numbers → scenario names → style → title → hierarchy → empty state",
+        C.order.join(",") === "columns,toolbar,numbers,labels,style,titleBlock,hierarchy,emptyState", C.order.join(","));
     check("Pane: columns card = table | mega table (tree group gated), style card = colors | type | behavior",
-        C.groups[0].startsWith("columns:columnsGeneral|columnsMega") && C.groups[3] === "style:styleColors|styleType|styleBehavior", C.groups.join(" ; "));
+        C.groups[0].startsWith("columns:columnsGeneral|columnsMega") && C.groups[4] === "style:styleColors|styleType|styleBehavior", C.groups.join(" ; "));
+    check("Pane (1.1): title footers + auto message follow titleBlock.show, scenario group follows toolbar.show",
+        has(C.base, "titleBlock.footer") && has(C.base, "titleBlock.filterFooter") && has(C.base, "titleBlock.autoMessage")
+        && has(C.base, "toolbar.showScenario") && !has(C.noTb, "titleBlock.footer") && !has(C.noTb, "toolbar.showScenario"));
+    check("Pane (1.1): finance, sum-safe, house terms, highlight, materiality, empty state visible",
+        ["numbers.financeFormat", "numbers.sumSafeRounding", "labels.labelAc", "labels.labelFc", "columns.highlight",
+            "columns.materialityAbs", "columns.materialityPct", "emptyState.title", "emptyState.body"].every(k => has(C.base, k)));
+    check("Pane (1.1 C): scale sync, variance preset, headline visible; headline follows titleBlock.show",
+        ["numbers.fixedMax", "numbers.fixedVarMax", "style.variancePreset", "style.colorMode", "titleBlock.headline"].every(k => has(C.base, k))
+        && !has(C.noTb, "titleBlock.headline"));
+    check("Pane (1.1 C): a set variance preset hides the teal / IBCS switch", has(C.bo, "style.variancePreset") && !has(C.bo, "style.colorMode"));
     check("Pane: mega switches visible in the table view", has(C.base, "columns.template") && has(C.base, "columns.dPlBar"));
     check("Pane: tree start settings hidden in the table view", !has(C.base, "columns.treeRoot"));
     check("Pane: tree view hides the mega switches and shows the tree start",
@@ -328,7 +350,9 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
         !has(C.regions, "columns.thresholdAbs") && has(C.th1, "columns.thresholdAbs") && has(C.th1, "columns.thresholdPct"));
     check("Pane: YTD thresholds only with the second block", !has(C.th1, "columns.thresholdYtdAbs") && has(C.t01a, "columns.thresholdYtdAbs"));
     check("Pane: sorting block only with two blocks and a sort", has(C.sortCat, "columns.sortBlock") && !has(C.t01a, "columns.sortBlock"));
-    check("Pane: FC minuend only with a bound FC field", !has(C.base, "columns.minuend") && has(C.regions, "columns.minuend"));
+    // 1.1 C: the minuend dropdown carries PL (12H) — it shows with a bound FC or PL field
+    check("Pane: minuend only with a bound FC or PL field", has(C.base, "columns.minuend") && has(C.regions, "columns.minuend")
+        && !has(C.noFcPl, "columns.minuend"));
     check("Pane: structure data shows subtotal blocks + sort, hides margin rows",
         has(C.regions, "columns.structureSubtotals") && has(C.regions, "columns.sort") && !has(C.regions, "columns.showPctRows"));
     check("Pane: statement data shows margin rows, hides subtotal blocks + sort",
@@ -343,6 +367,12 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
     check("Pane: the empty visual / demo keeps every data gate open",
         has(C.empty, "columns.minuend") && has(C.empty, "columns.dPyBar") && has(C.empty, "columns.sort") && has(C.empty, "columns.showPctRows"));
     check("Pane: dark mode dropdown in the style card", has(C.base, "style.appearance"));
+    // 1.1 package A
+    check("Pane 1.1: export switch in the table group, % of revenue + period block in the mega group",
+        has(C.base, "columns.exportExpandAll") && has(C.base, "columns.pctOfRevenue") && has(C.base, "columns.blockKind"));
+    check("Pane 1.1: left block kind only with the second block", !has(C.base, "columns.leftBlockKind") && has(C.t01a, "columns.leftBlockKind"));
+    check("Pane 1.1: period block hidden without period field and FY measures", !has(C.stmt, "columns.blockKind") && has(C.regions, "columns.blockKind"));
+    check("Pane 1.1: revenue base row also for the mega % of revenue", has(C.share, "columns.revenueBase") && !has(C.noShare, "columns.revenueBase"));
     check("Pane (de-DE): card names localized", C.deStrings.includes("Spalten & Mega-Table") && C.deStrings.includes("Darstellung & Toolbar"));
     check("Pane (de-DE): descriptions in the ChartKitchen tone with the default", C.deStrings.filter(s => /Standard: /.test(s)).length > 40);
     check("Pane (de-DE): enum items localized", C.deStrings.includes("Tausend (k)") && C.deStrings.includes("T03A · Statement PY·PL·AC + ΔPY·ΔPL"));

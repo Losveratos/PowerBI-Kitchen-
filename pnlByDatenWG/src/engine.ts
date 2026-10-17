@@ -917,6 +917,72 @@ export function displayValue(node: PnlNode, s: Scenario): number | null {
     return node.row.displayInvert ? -v : v;
 }
 
+/**
+ * Integer quanta `z` with Σ z = target, each z as close to its `y` as the
+ * largest-remainder method allows (ChartKitchen sumSafeAdjust): floors first,
+ * the missing units go to the largest remainders, a surplus is taken from the
+ * smallest. Ties keep the input order.
+ */
+export function largestRemainder(y: number[], target: number): number[] {
+    const out = y.map(v => Math.floor(v));
+    let need = target - out.reduce((a, v) => a + v, 0);
+    if (y.length === 0 || need === 0) { return out; }
+    const order = y.map((v, i) => ({ i, r: v - Math.floor(v) }))
+        .sort((a, b) => (b.r - a.r) || (a.i - b.i)).map(e => e.i);
+    for (let k = 0; need > 0; k++, need--) { out[order[k % order.length]]++; }
+    for (let k = 0; need < 0; k++, need++) { out[order[order.length - 1 - (k % order.length)]]--; }
+    return out;
+}
+
+/**
+ * Sum-safe rounding along the hierarchy (numbers.sumSafeRounding): every value
+ * is rounded to `quantum` (display unit × 10^-decimals) so that the printed
+ * children of a subtotal add up exactly to the printed subtotal. Top-down: a
+ * root (or any row whose value is not its children's sum) rounds normally,
+ * its contributing children (accounts / subtotals with a value) share the
+ * printed parent by largest remainder — the parent's SignConvention included
+ * (parent = sign × Σ children) — and pass their printed value on to their own
+ * children. Formula, margin and separator rows are never distributed: they
+ * keep the exact rounding and start a new distribution below them.
+ *
+ * `read` gives the raw (calculation-signed) value of the period block; the
+ * result maps row id → value that formats exactly at the quantum. Rows
+ * without a value are absent. Rounding of a half is away from zero, like
+ * Intl.NumberFormat.
+ */
+export function sumSafeRound(roots: PnlNode[], read: (n: PnlNode) => number | null, quantum: number): Map<string, number> {
+    const out = new Map<string, number>();
+    if (!(quantum > 0) || !isFinite(quantum)) { return out; }
+    const q = (v: number): number => Math.round((v / quantum) * 1e6) / 1e6;
+    const rnd = (x: number): number => (x < 0 ? -1 : 1) * Math.round(Math.abs(x));
+    const distributable = (n: PnlNode): boolean => n.row.rowType === "account" || n.row.rowType === "subtotal";
+    const visit = (n: PnlNode, printed: number | null): void => {
+        const t = n.row.rowType;
+        const v = t === "kpi" || t === "separator" ? null : read(n);
+        let p: number | null = null;
+        if (v != null && isFinite(v)) {
+            p = printed != null && distributable(n) ? printed : rnd(q(v));
+            out.set(n.row.id, p * quantum);
+        }
+        const kids = n.children.filter(c => distributable(c) && (() => { const cv = read(c); return cv != null && isFinite(cv); })());
+        // only a parent that IS the sum of its children may hand its printed value down
+        let share = false;
+        if (p != null && distributable(n) && kids.length > 0) {
+            const sum = kids.reduce((a, c) => a + (read(c) as number), 0) * (n.row.sign < 0 ? -1 : 1);
+            share = Math.abs(sum - (v as number)) <= 1e-9 * Math.max(1, Math.abs(sum), Math.abs(v as number));
+        }
+        const given = new Map<PnlNode, number>();
+        if (share) {
+            const target = p! * (n.row.sign < 0 ? -1 : 1);
+            const z = largestRemainder(kids.map(c => q(read(c) as number)), target);
+            kids.forEach((c, i) => given.set(c, z[i]));
+        }
+        for (const c of n.children) { visit(c, given.get(c) ?? null); }
+    };
+    for (const r of roots) { visit(r, null); }
+    return out;
+}
+
 /** True when the row carries no value in any scenario (candidate for zero-row hiding). */
 export function isZeroRow(node: PnlNode): boolean {
     return SCENARIOS.every(s => {

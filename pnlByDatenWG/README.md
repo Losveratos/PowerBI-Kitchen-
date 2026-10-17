@@ -2,8 +2,8 @@
 
 IBCS-inspiriertes GuV-/P&L-Custom-Visual für Power BI — eigenständiges
 Schwester-Visual von [ChartKitchen byDatenWG](../ibcsInspiredChartDeck/) und der
-[IBCS KPI Card](../ibcsKpiCard/). **Version 1.0.1.0** — raus aus der Beta:
-Tabelle mit **Mega-Table** (IBCS-Templates T01–T04 und 12A), Struktur-Bars,
+[IBCS KPI Card](../ibcsKpiCard/). **Version 1.1.0.0**:
+Tabelle mit **Mega-Table** (IBCS-Templates T01–T04, 12A, 12G und 12H), Struktur-Bars,
 Zeilen-Waterfall und **Werttreiberbaum (DuPont)** mit Kachel-Zoom; Selektion,
 Drillthrough und natives Kontextmenü; **vier Sprachen** (de · en · es · ja),
 **Smart Start** (Demo-GuV beim Hineinziehen) und **Dark Mode** (Auto · Hell ·
@@ -18,6 +18,9 @@ Toolbar-Zustände sind bookmark-fähig persistiert.
 > Regeln, Perioden-Formate, Drillthrough-Setup und die typischen Fehlerbilder.
 > Web-Fassung: [`pnl-schnellstart.html`](../pnl-schnellstart.html) (DE) /
 > [`pnl-schnellstart_en.html`](../pnl-schnellstart_en.html) (EN).
+>
+> **Für KI-Agenten:** [`AGENT-GUIDE.md`](AGENT-GUIDE.md) — Datenvertrag, alle
+> Properties mit Typ und Default, persistierte Zustände, Fallen, PBIR-Beispiel.
 
 ## Was es kann
 
@@ -28,17 +31,19 @@ Toolbar-Zustände sind bookmark-fähig persistiert.
 | F3 | Vorzeichenlogik: `SignConvention` (±1 Rechenvorzeichen), `DisplayInvert` (Kosten positiv anzeigen), `VarianceInvert` (Kosten unter Plan = grün) |
 | F4 | Szenarien AC / PY / PL / FC als Measure-Slots (Datenvertrag Variante A); Δ und Δ% gegen wählbare Referenz (Auto/PY/PL/FC), zweites Δ% parallel zuschaltbar |
 | F7 | Expand/Collapse je Zeile + Ebenen-Buttons (1·2·3·alle); Zustand wird via `persistProperties` gehalten (bookmark-fähig) und übersteht Cross-Filter |
-| F9 | Skalierung Auto/k/m, Dezimalstellen, 3-zeiliger IBCS-Titelblock mit optionaler Message-Zeile |
+| F9 | Skalierung Auto/k/m/b, Dezimalstellen, 3-zeiliger IBCS-Titelblock mit Message-Zeile, Auto-Botschaft und Headline-Slot der 12er-Serie; Fußzeilen für Datenstand und Filter |
 | F11 | Selektion & Cross-Filtering: Linksklick auf eine Wertspalte (bzw. den Kachel-Kopf) setzt die Power-BI-Selektion der Zeile — inkl. aller Quellzeilen eines Kontos; Subtotals und Formelzeilen selektieren die Blätter darunter |
 | F12 | Natives Kontextmenü per Rechtsklick auf jede Zeile und jede Karte — Power BI hängt die **Drillthrough-Ziele** der Seite selbst ein; in der Kachel-Ansicht erledigt der Knopf „↗ Drill“ Selektion und Menü in einem Griff. Abschaltbar über Stil → „Selektion & Kontextmenü aktiv“ |
-| Mega-Table | IBCS-Tabellen T01A/B, T02A–F, T03A/B, T04A–E und 12A als Zuschaltung der Tabellen-Ansicht (Spalten & Mega-Table → Template): Wert- und Δ-Spalten frei kombinierbar, Δ-Balken, Δ%-Pins, integrierter Δ-Wasserfall, Wert-Kaskaden, Monat \| _YTD, Schwellen mit Fußzeile — siehe [`SPEC-MEGATABLE.md`](SPEC-MEGATABLE.md) |
+| Mega-Table | IBCS-Tabellen T01A/B, T02A–F, T03A/B, T04A–E, 12A, 12G und 12H als Zuschaltung der Tabellen-Ansicht (Spalten & Mega-Table → Template): Wert- und Δ-Spalten frei kombinierbar, Δ-Balken, Δ%-Pins, integrierter Δ-Wasserfall, Wert-Kaskaden (12G: YTD + Restjahr in einem Balken), Planrechnung mit getönten Δ (12H), Blöcke Monat \| YTD \| FY, Schwellen mit Fußzeile, ab 150 Zeilen virtualisiert — siehe [`SPEC-MEGATABLE.md`](SPEC-MEGATABLE.md) |
+| Finance | Wie ChartKitchen: Tooltips, Σ-treue Rundung, Klammern statt Minus, Hausbegriffe (Ist/VJ/Budget), Wesentlichkeit, Zeilen hervorheben, Skalen-Sync über Visuals (`numbers.fixedMax`/`fixedVarMax`), Farb-Preset Blau/Orange |
 | Sprachen | Deutsch, Englisch, Spanisch, Japanisch — Formatmenü, Feldrollen, Toolbar, Tooltips, Fußzeilen, Fehlermeldungen und Demo (`stringResources/<locale>/resources.resjson`) |
 | Smart Start | Ohne Felder zeigt das Visual im Bearbeitungsmodus eine Demo-GuV mit Hinweis, welche Rollen fehlen; nie im Lesemodus oder Export |
 | Dark Mode | Stil → Erscheinungsbild: Auto erkennt dunkle Berichtsthemen (wie ChartKitchen), Hell/Dunkel erzwingen |
 
 IBCS-Notation: AC solide `#404040`, PY grau, PL weiß mit Rahmen, FC schraffiert;
 Abweichungen Teal `#0E8585` / Rot `#E02B1D` (dokumentierte Abweichung für
-Farbfehlsicht, IBCS-Grün `#8CB400` / `#FF2600` umschaltbar), Labels außerhalb mit explizitem `+`;
+Farbfehlsicht, IBCS-Grün `#8CB400` / `#FF2600` und Blau/Orange `#2C7BB6` / `#E66101`
+umschaltbar), Labels außerhalb mit explizitem `+`;
 eine identische Skala je Δ-Spalte über alle Zeilen; %-Zeilen (Margen) ohne
 Δ-Balken-Skalenbruch (Δ in Prozentpunkten); heller Hintergrund (im Dark Mode dunkel), keine Gridlines.
 
@@ -73,7 +78,8 @@ Kontendimension (eine Zeile pro Konto/Zeile der GuV):
 | DisplayInvert | Anzeige invertieren | Kosten positiv anzeigen trotz negativem Rechenwert |
 | VarianceInvert | Abweichungsfarbe drehen | Kosten unter Plan = grün |
 
-Measures: **AC** (Pflicht), PY, PL, FC — Zeitintelligenz, FX und RLS bleiben im
+Measures: **AC** (Pflicht), PY, PL, FC, optional FC Gesamtjahr / PL Gesamtjahr
+(FY-Ausblick, 12G) und der Text „Filter-Info" für die Fußzeile — Zeitintelligenz, FX und RLS bleiben im
 Modell (das Visual verrechnet ausschließlich die gelieferten, ggf.
 RLS-beschnittenen Daten).
 
@@ -84,10 +90,13 @@ npm install
 npm test              # alles: Sprachdateien, Engine, Mega-Table, Wasserfall, Render, Baum, Start/Dark, Performance
 npm run test:i18n     # Sprachdatei-Parität (4 Locales, Keys aus Code + Formatmenü + capabilities)
 npm run test:engine   # Unit-Tests des Rechenkerns (Hierarchie, Formeln, Vorzeichen)
-npm run test:mega     # Mega-Table: Layout-Unit-Tests, Render m1–m16, Template-/Echo-Guard
+npm run test:mega     # Mega-Table: Layout-Unit-Tests, Render m1–m31, Template-/Echo-Guard
 npm run test:render   # Headless-Render aller Testfälle -> test/render.png
 npm run test:tree     # Interaktionstest: Baum (Chevrons, Drill, ⌖) + Selektion/Kontextmenü
 npm run test:start    # Smart Start, Dark Mode, Formatmenü-Gates, Sprachen im Bild (test/i18n-*.png)
+npm run test:finance  # Finance-Features F1–F11 (Tooltips, Σ-treue Rundung, Klammern, Hausbegriffe …)
+npm run test:perf     # 5 000 Konten klassisch (Fensterung, Budgets)
+npm run test:megaperf # 2 000 Konten im Mega-Table (Virtualisierung, Scroll, Selektion nach Scroll)
 npm run lint
 npm run package       # baut dist/*.pbiviz (Paket nicht einchecken)
 ```
@@ -104,11 +113,10 @@ erzeugt: `node test/gen-demo.js`.
 
 ## Roadmap
 
-- 1.1: Mega-Table Phase 5 (12G YTD + Restjahr-Stapel, 12H Plan-Tönung,
-  Headline-Slot), Virtualisierung sehr langer Mega-Tabellen, eigener dunkler
-  Hover-Tooltip
-- Später: gemischte Einheiten (F8), A11y/Tastaturnavigation, AppSource-Zertifizierung,
-  Common-Size-Spalte, Top-N
+- 1.1 (erledigt): Mega-Table Phase 5 (12G, 12H, Headline-Slot), Virtualisierung,
+  Finance-Features aus ChartKitchen, dunkler Hover-Tooltip, Tastatur
+- Später: gemischte Einheiten (F8), Exception-Reporting mit Sammelzeile,
+  AppSource-Zertifizierung, Top-N
 
 > „IBCS" ist eine eingetragene Marke der IBCS Association / HICHERT+FAISST GmbH.
 > Dieses Visual ist nicht von der IBCS Association zertifiziert und nutzt den
