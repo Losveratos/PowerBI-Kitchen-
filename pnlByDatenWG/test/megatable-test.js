@@ -605,4 +605,59 @@ test("high contrast: palette → host fg / bg, red threshold numbers underlined"
     const d0 = L0.cols.find(c => c.type === "delta" && c.ref === "PY" && c.block === 0);
     assert.equal(L0.cellText(d0, L0.rows.find(r => r.id === "g")).underline, undefined);
 });
+// 1.1 Paket B ---------------------------------------------------------------
+test("finance format: (1 234) with the unit inside, + stays on positive Δ, exact zero –, footer rule unchanged", () => {
+    const f = M.megaFmt(num, 1, 1, true);
+    const k = num(1234.5, 1);
+    assert.equal(f.val(-1234.5), "(" + k + ")");
+    assert.equal(f.val(1234.5), k);
+    assert.equal(f.delta(-3.25), "(3.3)");
+    assert.equal(f.delta(3.25), "+3.3");
+    assert.equal(f.pct(-0.1234), "(12.3%)");
+    assert.equal(f.pct(0.1234), "+12.3%");
+    assert.equal(f.pin(-0.05), "(5.0)");
+    assert.equal(f.margin(-0.367), "(36.7%)");
+    assert.equal(f.pp(-8.6), "(8.6%p)");
+    assert.equal(f.rel(-0.23), "(23%)");
+    assert.equal(f.share(0.25), "25.0%");
+    assert.equal(f.val(0), "–", "exact zero");
+    assert.equal(f.val(-0.04), "0.0", "a rounded zero has neither sign nor parentheses");
+    // the threshold footer is a rule, not a figure
+    assert.equal(f.signed(-20, 0, false), "-20");
+    // off: the 1.0 format, byte for byte
+    const o = M.megaFmt(num, 1, 1);
+    assert.deepEqual([o.val(-1234.5), o.delta(3.25), o.pct(-0.1234), o.val(0)], ["-" + k, "+3.3", "-12.3%", "0.0"]);
+    const L = M.layoutMega(regionInput({ fin: true }));
+    const d = L.cols.find(c => c.type === "delta" && c.ref === "PY" && c.block === 0);
+    assert.equal(L.cellText(d, L.rows.find(r => r.id === "g")).t, "(85)");
+});
+
+test("house terms: relabel rewrites every head (values, Δ, Δ%, sort indicator)", () => {
+    const rl = (s) => s.replace(/(?<![A-Za-z])(AC|PY|PL|FC)(?![A-Za-z])/g, m => ({ AC: "Ist", PY: "VJ", PL: "Budget" })[m] || m);
+    const L = M.layoutMega(regionInput({ relabel: rl }));
+    const heads = L.cols.map(c => c.head).filter(Boolean);
+    assert.ok(heads.includes("Ist") && heads.includes("VJ") && heads.includes("Budget"), heads.join("|"));
+    assert.ok(heads.includes("ΔVJ") && heads.includes("ΔBudget%"), heads.join("|"));
+    assert.ok(!heads.some(h => /(?<![A-Za-z])(AC|PY|PL)(?![A-Za-z])/.test(h)), "no IBCS code left");
+    // the head width follows the longer term
+    const L0 = M.layoutMega(regionInput());
+    const w = (LL) => LL.cols.find(c => c.type === "delta" && c.ref === "PL" && c.block === 0).w;
+    assert.ok(w(L) >= w(L0));
+});
+
+test("materiality: an immaterial Δ number is soft, an explicit red threshold wins", () => {
+    const base = regionInput();
+    const soft = (bi) => ({ ...base.blocks[bi], delta: (r, min, ref) => ({ ...base.blocks[bi].delta(r, min, ref), immaterial: true }) });
+    const L = M.layoutMega(regionInput({ blocks: [soft(0), soft(1)] }));
+    const dPY0 = L.cols.find(c => c.type === "delta" && c.ref === "PY" && c.block === 0);
+    const a = L.cellText(dPY0, L.rows.find(r => r.id === "a"));
+    assert.equal(a.color, M.MEGA_C.soft, "Austria ΔPY +59: material colour gone");
+    const g = L.cellText(dPY0, L.rows.find(r => r.id === "g"));
+    assert.equal(g.color, "#E02B1D", "Germany −85 < −20 stays red");
+    // without the flag: ink as before
+    const L0 = M.layoutMega(regionInput());
+    assert.equal(L0.cellText(L0.cols.find(c => c === L0.cols.find(x => x.type === "delta" && x.ref === "PY" && x.block === 0)),
+        L0.rows.find(r => r.id === "a")).color, M.MEGA_C.text);
+});
+
 console.log(`\n${n} mega-table layout test blocks passed`);

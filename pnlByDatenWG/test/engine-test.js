@@ -668,4 +668,74 @@ test("displayVariance: cost rows, VarianceInvert costs, margin rows (%p)", () =>
     assert.equal(E.displayVariance(rev ? row("x", null) : null, null, 3), null);
 });
 
+// 1.1 Paket B — numbers.sumSafeRounding (largest remainder along the hierarchy)
+test("largestRemainder: floors + the biggest remainders, surplus from the smallest, ties in order", () => {
+    assert.deepEqual(E.largestRemainder([1.4, 1.4, 1.4], 4), [2, 1, 1]);
+    assert.deepEqual(E.largestRemainder([1.2, 1.7, 1.1], 4), [1, 2, 1]);
+    // already consistent: plain rounding comes back
+    assert.deepEqual(E.largestRemainder([1.2, 1.7, 2.6], 6), [1, 2, 3]);
+    // a parent rounded down by its own parent: one unit comes off the smallest remainder
+    assert.deepEqual(E.largestRemainder([1.1, 1.8], 2), [1, 1]);
+    // negative values floor towards −∞
+    assert.deepEqual(E.largestRemainder([-1.4, -1.4, -1.4], -4), [-1, -1, -2]);
+    assert.deepEqual(E.largestRemainder([], 0), []);
+});
+
+test("sumSafeRound: printed children add up to the printed subtotal, formulas + margins excluded", () => {
+    const m = E.buildModel([
+        row("rev", null, { rowType: "subtotal" }),
+        row("a", "rev", { values: { ac: 1.4 } }), row("b", "rev", { values: { ac: 1.4 } }), row("c", "rev", { values: { ac: 1.4 } }),
+        row("cost", null, { rowType: "subtotal", sign: -1, displayInvert: true }),
+        row("x", "cost", { values: { ac: 0.6 } }), row("y", "cost", { values: { ac: 0.6 } }),
+        row("res", null, { rowType: "formula", formulaDef: "[rev]+[cost]" }),
+        row("gm", null, { rowType: "kpi", formulaDef: "[res]/[rev]" }),
+    ], "Unassigned");
+    const ss = E.sumSafeRound(m.roots, n => n.computed.ac, 1);
+    // 1.4 × 3 = 4.2 → 4: plain rounding prints 1 + 1 + 1 = 3
+    assert.equal(ss.get("rev"), 4);
+    assert.deepEqual(["a", "b", "c"].map(k => ss.get(k)), [2, 1, 1]);
+    // cost = −1 × (0.6 + 0.6) = −1.2 → −1: the children share +1 (sign −1 of the parent)
+    assert.equal(ss.get("cost"), -1);
+    assert.equal(ss.get("x") + ss.get("y"), 1);
+    // formula row: exact rounding (4.2 − 1.2 = 3.0), margin row: never in the map
+    assert.equal(ss.get("res"), 3);
+    assert.equal(ss.has("gm"), false);
+    // quantum 0.1 (one decimal) — the values already sum exactly: nothing moves
+    const s1 = E.sumSafeRound(m.roots, n => n.computed.ac, 0.1);
+    assert.ok(Math.abs(s1.get("a") - 1.4) < 1e-9 && Math.abs(s1.get("rev") - 4.2) < 1e-9);
+    assert.equal(E.sumSafeRound(m.roots, n => n.computed.ac, 0).size, 0, "no quantum, no map");
+});
+
+test("sumSafeRound: random hierarchies — Σ printed children = printed parent, each within one quantum", () => {
+    let seed = 7;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    for (let iter = 0; iter < 300; iter++) {
+        const rows = [];
+        let id = 0;
+        const grow = (parent, depth) => {
+            const k = 1 + Math.floor(rnd() * 4);
+            for (let i = 0; i < k; i++) {
+                const me = "n" + (id++);
+                const sub = depth < 3 && rnd() < 0.4;
+                rows.push(row(me, parent, sub ? { rowType: "subtotal", sign: rnd() < 0.3 ? -1 : 1 }
+                    : { values: { ac: Math.round((rnd() - 0.3) * 100000) / 100 } }));
+                if (sub) { grow(me, depth + 1); }
+            }
+        };
+        grow(null, 0);
+        const m = E.buildModel(rows, "Unassigned");
+        const quantum = [1, 0.1, 10][iter % 3];
+        const ss = E.sumSafeRound(m.roots, n => n.computed.ac, quantum);
+        for (const n of m.byId.values()) {
+            const v = n.computed.ac; const p = ss.get(n.row.id);
+            if (v == null) { continue; }
+            assert.ok(Math.abs(p - v) < 1.5 * quantum + 1e-9, "within reach of the exact value");
+            const kids = n.children.filter(c => c.computed.ac != null);
+            if (n.row.rowType !== "subtotal" || kids.length === 0) { continue; }
+            const sum = kids.reduce((a, c) => a + ss.get(c.row.id), 0) * n.row.sign;
+            assert.ok(Math.abs(sum - p) < 1e-6 * Math.max(1, Math.abs(p)), `iter ${iter}: ${sum} vs ${p}`);
+        }
+    }
+});
+
 console.log(`\n${n} engine test blocks passed`);
