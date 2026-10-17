@@ -265,6 +265,13 @@ img { display:block; max-width:100%; height:auto; }
   .btn-book, .next-links a { transition:none; }
   .btn-book:hover, .next-links a:hover { transform:none; }
 }
+
+/* Foto vom Gesprächsabend · facettierter Rahmen in Cover-Farben */
+.moment { margin:32px 0 8px; display:flex; flex-direction:column; gap:12px; max-width:520px; }
+.moment-frame { position:relative; padding:10px; background:linear-gradient(135deg,#E25A52 0 22%,#EFC46A 22% 34%,#4E9E86 34% 58%,#3E2F5B 58% 78%,#5B93C9 78%); clip-path:polygon(0 4%,6% 0,100% 0,100% 94%,94% 100%,0 100%); }
+.moment-frame img { display:block; width:100%; height:auto; clip-path:polygon(0 3%,5% 0,100% 0,100% 95%,95% 100%,0 100%); }
+.moment figcaption { font-size:14px; line-height:1.5; color:#5A4A5E; }
+@media (max-width:600px){ .moment { margin-top:24px; } .moment-frame { padding:7px; } }
 </style>
 </head>
 <body>
@@ -313,6 +320,12 @@ img { display:block; max-width:100%; height:auto; }
         <p class="is-draft"><span class="draft-tag">[Entwurf]</span> In der Kitchen geht es sonst um Datenmodelle, Reports und Werkzeuge. Ein Buch über Kampfkunst wirkt hier auf den ersten Blick fremd. Auf den zweiten weniger: Druck vor dem Go-Live, Widerstand im Projekt, die Frage, wie präsent man im Meeting wirklich ist, und wer man im Job eigentlich sein will. Das kennen viele von uns.</p>
         <p class="is-draft"><span class="draft-tag">[Entwurf]</span> Micha beschreibt in seinem Buch, was auf der Matte sichtbar wird, und überträgt es auf den Kampf, den wir innen führen. Ich wollte wissen, was davon im Arbeitsalltag trägt. Darum dieses Gespräch.</p>
         <p class="is-draft"><span class="draft-tag">[Entwurf]</span> Danke an Micha, dass wir Cover und Klappentext hier zeigen dürfen.</p>
+        <figure class="moment">
+          <div class="moment-frame">
+            <img src="assets/posts/unsichtbarer-kampf/coellner-abend.jpg" width="825" height="1100" loading="lazy" decoding="async" alt="Micha und Michael Tenner sitzen abends an einem Tisch vor dem Coellner. Micha hält das Buch „Der unsichtbare Kampf“ hoch und zeigt den Daumen, Michael Tenner lacht und hebt sein Glas.">
+          </div>
+          <figcaption>Wo dieses Gespräch entstanden ist: Micha und Michael Tenner mit dem Buch im Coellner. Das Fenster im Hintergrund ist unscharf gemacht.</figcaption>
+        </figure>
       </section>
 
       <section id="buch" aria-labelledby="h-buch">
