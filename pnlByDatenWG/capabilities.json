@@ -460,6 +460,11 @@
                         "bool": true
                     }
                 },
+                "exportExpandAll": {
+                    "type": {
+                        "bool": true
+                    }
+                },
                 "treeRoot": {
                     "type": {
                         "text": true
@@ -737,6 +742,47 @@
                                 "displayName": "YTD block"
                             }
                         ]
+                    }
+                },
+                "blockKind": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "month",
+                                "displayName": "Month"
+                            },
+                            {
+                                "value": "ytd",
+                                "displayName": "YTD"
+                            },
+                            {
+                                "value": "fy",
+                                "displayName": "FY outlook (AC&FC vs PL)"
+                            }
+                        ]
+                    }
+                },
+                "leftBlockKind": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "month",
+                                "displayName": "Month"
+                            },
+                            {
+                                "value": "ytd",
+                                "displayName": "YTD"
+                            },
+                            {
+                                "value": "fy",
+                                "displayName": "FY outlook (AC&FC vs PL)"
+                            }
+                        ]
+                    }
+                },
+                "pctOfRevenue": {
+                    "type": {
+                        "bool": true
                     }
                 }
             }

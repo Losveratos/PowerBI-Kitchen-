@@ -102,6 +102,18 @@ const C_DARK: typeof C_LIGHT = {
     shadeHover: "rgba(0,0,0,.5)",
 };
 const C = { ...C_LIGHT };
+/**
+ * High contrast (mega table only): every ink, gray, rule and signal tone
+ * becomes the host foreground, every paper the host background — the mega
+ * painter then tells good / bad and PY apart by pattern (MegaInput.hc).
+ */
+function hcPalette(fg: string, bg: string): Partial<typeof C_LIGHT> {
+    const out: Partial<Record<keyof typeof C_LIGHT, string>> = {};
+    for (const k of ["ac", "py", "text", "soft", "line", "gridSoft", "tealGood", "tealBad", "ibcsGood", "ibcsBad",
+        "comment", "loading", "cardEdge", "cardEdgeHover", "elbow", "refGray", "ctlEdge"] as (keyof typeof C_LIGHT)[]) { out[k] = fg; }
+    for (const k of ["ctlHover", "paper", "onInk", "wash"] as (keyof typeof C_LIGHT)[]) { out[k] = bg; }
+    return out;
+}
 /** dark default of the page / card background pickers (used while they hold their white default) */
 const DARK_PAPER = "#1E1E1E";
 const DARK_CARD = "#262624";
@@ -540,6 +552,8 @@ export class Visual implements IVisual {
     private demoMissing: string[] | null = null;
     /** dark palette active (style.appearance, resolved every update) */
     private dark = false;
+    /** high contrast of the mega table: the host's foreground / background / selection colour (null = off) */
+    private hc: { fg: string; bg: string; sel: string } | null = null;
 
     /** the frozen head block (title · toolbar · legend · scale note) */
     private headEl: HTMLElement | null = null;
@@ -783,7 +797,9 @@ export class Visual implements IVisual {
         const real = this.model != null && !this.demo;
         return {
             view: this.ui?.view ?? null,
-            has: real ? { py: this.has.py, pl: this.has.pl, fc: this.has.fc, period: this.model!.months.length > 1 } : null,
+            has: real ? {
+                py: this.has.py, pl: this.has.pl, fc: this.has.fc, period: this.model!.months.length > 1, fy: this.has.fcfy,
+            } : null,
             statement: real ? this.megaStatement() : null,
         };
     }
@@ -955,6 +971,11 @@ export class Visual implements IVisual {
      * host that offers a selection manager, and a host that allows interactions
      * (a static export / e-mail subscription sets allowInteractions = false).
      */
+    /** a static export (PDF / PowerPoint) or a subscription: the host allows no interactions */
+    private exporting(): boolean {
+        return this.host.hostCapabilities?.allowInteractions === false;
+    }
+
     private interactive(): boolean {
         // the demo carries no report identities — nothing to select or drill
         if (this.demo) { return false; }
@@ -1365,11 +1386,27 @@ export class Visual implements IVisual {
         return bg && relLuminance(bg) < 0.35 ? bg : DARK_PAPER;
     }
 
+    /**
+     * High contrast for the mega table (ChartKitchen's HC path): the host's
+     * foreground / background / foregroundSelected. Only while the mega table
+     * is on screen — the classic table, the bars / waterfall views and the
+     * driver tree keep their light path unchanged.
+     */
+    private resolveHighContrast(): { fg: string; bg: string; sel: string } | null {
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette | undefined;
+        if (!palette || !palette.isHighContrast || !this.megaInView()) { return null; }
+        const fg = palette.foreground?.value || "#000000";
+        const bg = palette.background?.value || "#FFFFFF";
+        return { fg, bg, sel: palette.foregroundSelected?.value || fg };
+    }
+
     /** one switch for every painter: the live palettes C and MEGA_C */
     private applyPalette(): void {
         Object.assign(C, this.dark ? C_DARK : C_LIGHT);
         if (this.dark) { C.paper = this.darkPaper(); }
-        setMegaPalette(this.dark, C.paper);
+        this.hc = this.resolveHighContrast();
+        if (this.hc) { Object.assign(C, hcPalette(this.hc.fg, this.hc.bg)); }
+        setMegaPalette(this.dark, C.paper, this.hc ?? undefined);
         this.root.style.color = C.text;
     }
 
@@ -1407,11 +1444,13 @@ export class Visual implements IVisual {
     }
 
     private goodColor(): string {
+        if (this.hc) { return this.hc.fg; }
         const o = this.settings.styleCard.goodColor.value?.value;
         if (o) { return o; }
         return String(this.settings.styleCard.colorMode.value.value) === "ibcs" ? C.ibcsGood : C.tealGood;
     }
     private badColor(): string {
+        if (this.hc) { return this.hc.fg; }
         const o = this.settings.styleCard.badColor.value?.value;
         if (o) { return o; }
         return String(this.settings.styleCard.colorMode.value.value) === "ibcs" ? C.ibcsBad : C.tealBad;
@@ -1423,12 +1462,14 @@ export class Visual implements IVisual {
      * default, so an untouched report keeps exactly the previous look.
      */
     private accent(): string {
+        if (this.hc) { return this.hc.sel; }
         const v = this.settings.styleCard.accentColor.value?.value || C_LIGHT.ac;
         // the light default of the picker becomes the dark ink — a chosen colour stays
         return this.dark && v.toUpperCase() === C_LIGHT.ac ? C.ac : v;
     }
     /** slightly lifted accent for hover states — mixed towards paper in sRGB */
     private accentSoft(alpha: number): string {
+        if (this.hc) { return this.hc.sel; }
         const hex = this.accent().replace("#", "");
         if (!/^[0-9a-fA-F]{6}$/.test(hex)) { return this.accent(); }
         // light: towards white (exactly the 0.17 tint); dark: towards the dark paper
@@ -1444,6 +1485,7 @@ export class Visual implements IVisual {
     }
     /** paper of the visual — behind the tree and behind the tiles of the zoom */
     private pageBg(): string {
+        if (this.hc) { return this.hc.bg; }
         const v = this.settings.styleCard.pageBackground.value?.value || "#FFF";
         return this.dark && /^#fff(fff)?$/i.test(v) ? this.darkPaper() : v;
     }
@@ -1813,7 +1855,24 @@ export class Visual implements IVisual {
         return this.scanCache;
     }
 
+    /**
+     * Export (allowInteractions = false) prints the statement, not the screen:
+     * with columns.exportExpandAll (default on) every row renders expanded —
+     * a folded block never drops out of a PDF — without touching the stored
+     * fold state (ChartKitchen's exportExpandAll). The driver tree keeps its
+     * own fold state.
+     */
     private render(): void {
+        const ui = this.ui;
+        if (ui && ui.collapsed.length > 0 && this.exporting() && this.settings.columnsCard.exportExpandAll.value) {
+            this.ui = { ...ui, collapsed: [] };
+            try { this.renderView(); } finally { this.ui = ui; }
+            return;
+        }
+        this.renderView();
+    }
+
+    private renderView(): void {
         const model = this.model; const ui = this.ui;
         if (!model || !ui) { return; }
         // several visuals may share one document (test harness) — every render
@@ -1849,7 +1908,8 @@ export class Visual implements IVisual {
             (this.sticky() ? "position:sticky;top:0;z-index:30;" : "");
         if (this.demo) { head.appendChild(this.buildDemoBanner()); }
         if (this.settings.titleCard.show.value) { head.appendChild(this.buildTitle(fmt)); }
-        if (this.settings.toolbarCard.show.value) { head.appendChild(this.buildToolbar()); }
+        // an export prints no buttons nobody can press (the legend stays: it explains the notation)
+        if (this.settings.toolbarCard.show.value && !this.exporting()) { head.appendChild(this.buildToolbar()); }
         if (this.awaitingSegment) { head.appendChild(this.buildLoadingBar()); }
         if (this.settings.toolbarCard.showLegend.value) { head.appendChild(this.buildLegend()); }
         // the mega table is a mode of the TABLE view only — a template must
@@ -2454,6 +2514,8 @@ export class Visual implements IVisual {
         const base = `display:inline-block;width:${this.kpx(10)};height:${this.kpx(10)};` +
             `margin-right:${this.kpx(5)};vertical-align:-1px;`;
         if (style === "ac") { chip.style.cssText = base + `background:${C.ac};`; }
+        // high contrast: PY = AC in colour — the PY chip is dashed like the PY mark
+        else if (style === "py" && this.hc) { chip.style.cssText = base + `background:${C.paper};border:1.4px dashed ${C.ac};box-sizing:border-box;`; }
         else if (style === "py") { chip.style.cssText = base + `background:${C.py};`; }
         else if (style === "pl") { chip.style.cssText = base + `background:${C.paper};border:1.4px solid ${C.ac};box-sizing:border-box;`; }
         else {
@@ -2477,20 +2539,34 @@ export class Visual implements IVisual {
             s.appendChild(t);
             bar.appendChild(s);
         };
-        item(this.legendChip("ac"), this.tr("UI_LgAc"));
-        if (this.has.py) { item(this.legendChip("py"), this.tr("UI_LgPy")); }
-        if (this.has.pl || this.has.plfy) { item(this.legendChip("pl"), this.tr("UI_LgPl")); }
-        if (this.has.fc || this.has.fcfy) { item(this.legendChip("fc"), this.tr("UI_LgFc")); }
+        // mega table: exactly the scenarios its columns show — value columns,
+        // the minuend of every Δ element and the active Δ references — not
+        // every bound role (T02F shows PL + FC only)
+        const mt = this.megaInView() ? this.megaToggles() : null;
+        const mRefs = mt ? activeRefs(mt) : [];
+        const shown = new Set<string>();
+        if (mt) {
+            if (mt.showPY) { shown.add("PY"); }
+            if (mt.showPL) { shown.add("PL"); }
+            if (mt.showMin || mRefs.length > 0) { shown.add(mt.min); }
+            mRefs.forEach(r => shown.add(r));
+        }
+        if (!mt || shown.has("AC")) { item(this.legendChip("ac"), this.tr("UI_LgAc")); }
+        if (mt ? shown.has("PY") : this.has.py) { item(this.legendChip("py"), this.tr("UI_LgPy")); }
+        if (mt ? shown.has("PL") : this.has.pl || this.has.plfy) { item(this.legendChip("pl"), this.tr("UI_LgPl")); }
+        if (mt ? shown.has("FC") : this.has.fc || this.has.fcfy) { item(this.legendChip("fc"), this.tr("UI_LgFc")); }
         const g = document.createElement("span");
-        const sq = (color: string): HTMLElement => {
+        const sq = (color: string, hollow = false): HTMLElement => {
             const el = document.createElement("span");
             el.style.cssText = `display:inline-block;width:${this.kpx(10)};height:${this.kpx(10)};` +
-                `background:${color};margin:0 ${this.kpx(5)} 0 0;vertical-align:-1px;`;
+                (hollow ? `background:${C.paper};border:1.4px solid ${color};box-sizing:border-box;` : `background:${color};`) +
+                `margin:0 ${this.kpx(5)} 0 0;vertical-align:-1px;`;
             return el;
         };
         const fav = document.createElement("span"); fav.appendChild(sq(this.goodColor()));
         fav.appendChild(document.createTextNode(this.tr("UI_LgGood")));
-        const unfav = document.createElement("span"); unfav.appendChild(sq(this.badColor()));
+        // high contrast: unfavourable is hollow, as in the mega table
+        const unfav = document.createElement("span"); unfav.appendChild(sq(this.badColor(), this.hc != null));
         unfav.appendChild(document.createTextNode(this.tr("UI_LgBad")));
         bar.appendChild(fav); bar.appendChild(unfav); bar.appendChild(g);
         if (String(this.settings.styleCard.colorMode.value.value) !== "ibcs") {
@@ -2499,10 +2575,20 @@ export class Visual implements IVisual {
             note.textContent = this.tr("UI_LgTeal");
             bar.appendChild(note);
         }
-        const axes = document.createElement("span");
-        axes.style.cssText = "font-style:italic;";
-        axes.textContent = this.tr("UI_LgAxes");
-        bar.appendChild(axes);
+        // mega table: FC is never an axis there (it is the hatched minuend) —
+        // the note names only the references that really draw a Δ axis
+        let axesText = this.tr("UI_LgAxes");
+        if (mt) {
+            const ax = mRefs.filter(r => mt.d[r].bar || mt.d[r].wf || mt.d[r].pin);
+            axesText = ax.length === 2 ? this.tr("UI_LgAxesMegaBoth")
+                : ax[0] === "PY" ? this.tr("UI_LgAxesMegaPy") : ax[0] === "PL" ? this.tr("UI_LgAxesMegaPl") : "";
+        }
+        if (axesText) {
+            const axes = document.createElement("span");
+            axes.style.cssText = "font-style:italic;";
+            axes.textContent = axesText;
+            bar.appendChild(axes);
+        }
         return bar;
     }
 
@@ -5960,6 +6046,7 @@ export class Visual implements IVisual {
             sort: (["cat", "min", "delta"].includes(String(cc.sort.value.value))
                 ? String(cc.sort.value.value) : "cat") as MegaToggles["sort"],
             sortBlock: String(cc.sortBlock.value.value) === "period" ? 0 : 1,
+            share: cc.pctOfRevenue.value,
         };
     }
 
@@ -6021,6 +6108,8 @@ export class Visual implements IVisual {
             secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, showPctRows: p.showPctRows,
             thresholds: p.thresholds, scenarioMarks: p.scenarioMarks, chartLabels: p.chartLabels,
             capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock,
+            // every template is laid out as YTD, or month | _YTD with the second block
+            blockKind: "ytd", leftBlockKind: "month",
         };
         // "off" returns to the classic table and leaves the number format alone
         const nums: Record<string, number> = tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: p.pctDecimals };
@@ -6067,7 +6156,9 @@ export class Visual implements IVisual {
     }
 
     /** raw (calculation-signed) value of a scenario in a period block */
-    private megaRaw(node: PnlNode, block: "mtd" | "ytd", s: Scenario): number | null {
+    private megaRaw(node: PnlNode, block: "mtd" | "ytd" | "fy", s: Scenario): number | null {
+        // FY outlook: the full-year measures (AC&FC, PL FY) as the engine rolls them
+        if (block === "fy") { return node.computed[s] ?? null; }
         if (block === "mtd") {
             const li = this.mtdIndex();
             return li >= 0 ? (node.series[s]?.[li] ?? null) : null;
@@ -6262,39 +6353,75 @@ export class Visual implements IVisual {
         const statement = this.megaStatement();
         const { rows, nodes } = this.megaRows(statement);
         const months = model.months;
-        const twoBlocks = cc.secondBlock.value && months.length > 1;
-        const keys: ("mtd" | "ytd")[] = twoBlocks ? ["mtd", "ytd"] : ["ytd"];
+        // period blocks: the period block (default YTD) and, with secondBlock, a
+        // second one left of it (default month) — month | YTD | FY outlook each.
+        // A kind the data cannot carry (no period field, no FY measures) falls
+        // back to YTD / month; the defaults give exactly month | _YTD or YTD.
+        type BlockKey = "mtd" | "ytd" | "fy";
+        const kindOf = (v: unknown): BlockKey => v === "month" ? "mtd" : v === "fy" ? "fy" : "ytd";
+        const okK = (k: BlockKey): boolean => k === "mtd" ? months.length > 0 : k === "fy" ? this.has.fcfy : true;
+        const bk = kindOf(String(cc.blockKind.value.value)); const lk = kindOf(String(cc.leftBlockKind.value.value));
+        const main: BlockKey = okK(bk) ? bk : "ytd";
+        const left: BlockKey = okK(lk) ? lk : "mtd";
+        const twoBlocks = cc.secondBlock.value && left !== main && okK(left)
+            && (months.length > 1 || (left !== "mtd" && main !== "mtd"));
+        const keys: BlockKey[] = twoBlocks ? [left, main] : [main];
         const li = this.mtdIndex();
         const monthName = months.length > 0 ? this.megaMonthName(months[li >= 0 ? li : months.length - 1]) : "";
+        const year = months.length > 0 ? this.periodYear(months[0]) : "";
         const SC: Record<MegaScen, Scenario> = { AC: "ac", FC: "fc", PY: "py", PL: "pl" };
+        // FY outlook: the minuend is the full-year AC&FC, the plan PL FY, no PY
+        const scenOf = (key: BlockKey, s: MegaScen): Scenario | null => key !== "fy" ? SC[s]
+            : s === "PY" ? null : s === "PL" ? (this.has.plfy ? "plfy" : null) : "fcfy";
+        const revBase = t.share ? revenueBase(model, cc.revenueBase.value) : null;
         const num = (v: unknown, d: number): number => { const x = Number(v); return isFinite(x) ? x : d; };
         const th = [
             { abs: num(cc.thresholdAbs.value, -20), pct: num(cc.thresholdPct.value, -10) / 100 },
             { abs: num(cc.thresholdYtdAbs.value, -220), pct: num(cc.thresholdYtdPct.value, -10) / 100 },
         ];
         const div = fmt.div;
+        const raw = (n: PnlNode, key: BlockKey, s: MegaScen): number | null => {
+            const sc = scenOf(key, s);
+            return sc == null ? null : this.megaRaw(n, key, sc);
+        };
         const blocks: MegaBlock[] = keys.map((key, bi) => ({
-            name: !monthName ? "" : key === "mtd" ? monthName : (twoBlocks || !statement ? "_" + monthName : monthName),
+            name: key === "fy" ? "FY" + (year ? " " + year : "")
+                : !monthName ? "" : key === "mtd" ? monthName : (twoBlocks || !statement ? "_" + monthName : monthName),
             th: th[bi],
+            // a single month / FY block names itself (a single YTD statement never did)
+            titled: !twoBlocks && key !== "ytd",
+            alias: key === "fy" ? { AC: "AC&FC", FC: "FC" } : undefined,
             value: (r: MegaRow, s: MegaScen): number | null => {
                 const n = nodes.get(r.id);
                 if (!n) { return null; }
-                const raw = this.megaRaw(n, key, SC[s]);
-                if (raw == null) { return null; }
-                const v = n.row.displayInvert ? -raw : raw;
+                const rv = raw(n, key, s);
+                if (rv == null) { return null; }
+                const v = n.row.displayInvert ? -rv : rv;
                 return n.row.rowType === "kpi" ? v : v / div;
             },
             delta: (r: MegaRow, min: MegaScen, ref: MegaRef): MegaDelta | null => {
                 const n = nodes.get(r.id);
                 if (!n) { return null; }
-                const D = displayVariance(n.row, this.megaRaw(n, key, SC[min]), this.megaRaw(n, key, SC[ref]));
+                const D = displayVariance(n.row, raw(n, key, min), raw(n, key, ref));
                 if (!D) { return null; }
                 return D.pp ? D : { ...D, d: D.d / div, impact: D.impact / div };
             },
+            // "% of revenue": share of the minuend in the revenue base row of this block
+            share: revBase ? (r: MegaRow): number | null => {
+                const n = nodes.get(r.id);
+                if (!n) { return null; }
+                const v = raw(n, key, t.min); const b = raw(revBase, key, t.min);
+                return v == null || b == null || b === 0 ? null : Math.abs(v / b);
+            } : undefined,
         }));
         const fscale = this.fontScale();
         const fs = Math.round((ui.density === "compact" ? 11 : 13) * fscale);
         const avail = (this.root.clientWidth || 1000) - 2 * TABLE_PAD_X - shrink;
+        // style.headerFontSize reaches the mega heads too: 9 px is the built-in
+        // head size of the classic table, so the factor v / 9 scales fs; 0 (or
+        // anything outside 7..20) keeps the heads at fs exactly
+        const hv = Math.round(Number(this.settings.styleCard.headerFontSize.value) || 0);
+        const headFs = hv < 7 || hv > 20 ? fs : Math.round(fs * hv / 9 * 10) / 10;
         const L = layoutMega({
             rows, blocks, t, statement, fs, viewW: Math.max(320, avail),
             dec: this.settings.numbersCard.decimals.value,
@@ -6303,15 +6430,19 @@ export class Visual implements IVisual {
             measure: (s, f, b, i) => this.megaMeasure(s, f, b, i),
             pal: { good: this.goodColor(), bad: this.badColor() },
             redIf: this.tr("UI_RedIf"),
+            shareHead: this.tr("UI_ColPctRev"),
+            headFs,
+            hc: this.hc != null,
         });
         const ns = "http://www.w3.org/2000/svg";
         const painted = paintMega(L, {
             font: FONT,
-            headInk: this.settings.styleCard.headerColor.value?.value || C.text,
+            headInk: this.hc ? this.hc.fg : this.settings.styleCard.headerColor.value?.value || C.text,
             hatchPattern: (svg, id, color) => this.hatchPattern(svg, ns, id, color),
             uid: this.uid,
             selectedId: this.interactive() ? this.selKey : null,
-            selWash: this.accentSoft(0.94),
+            // high contrast: no wash, the 2 px selection line in foregroundSelected
+            selWash: this.hc ? "none" : this.accentSoft(0.94),
             selAccent: this.accent(),
         });
 

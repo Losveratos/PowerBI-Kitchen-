@@ -106,7 +106,7 @@ function readMega(id) {
     check("m1 Operating expenses ΔPY% +7%", has("m1", "+7%"));
     check("m1 Gross margin AC 45.3% italic", cell("m1", "45.3%") && cell("m1", "45.3%").italic);
     check("m1 Gross margin ΔPY +8.6%p", has("m1", "+8.6%p"));
-    check("m1 Gross margin ΔPY% relative +23", has("m1", "+23"));
+    check("m1 Gross margin ΔPY% relative +23% (with % sign, T03A)", has("m1", "+23%") && !has("m1", "+23"));
     check("m1 Group result AC 422.2 bold", cell("m1", "422.2") && cell("m1", "422.2").bold);
     check("m1 sign column: = / + / -", has("m1", "=") && has("m1", "+") && has("m1", "-"));
     check("m1 head marks: AC solid ink + PY gray", S.m1 && S.m1.headRects.some(r => r.fill === "#404040" && r.h === 4)

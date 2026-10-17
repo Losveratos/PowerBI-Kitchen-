@@ -88,7 +88,19 @@ test("number format: explicit +, '-' minus, zero without a sign, %p and relative
     assert.equal(f.pin(-0.154), "-15");
     assert.equal(f.margin(0.4532), "45.3%");
     assert.equal(f.pp(8.62), "+8.6%p");
-    assert.equal(f.rel(0.234), "+23");
+    // margin rows: the relative change carries its % sign (T03A "+23%"), %p is the point difference
+    assert.equal(f.rel(0.234), "+23%");
+    assert.equal(f.share(0.4532), "45%");
+});
+
+test("threshold footer decimals: the value as the author typed it (−20.5 stays −20.5)", () => {
+    assert.equal(M.megaDecimals(-20), 0);
+    assert.equal(M.megaDecimals(-20.5), 1);
+    assert.equal(M.megaDecimals(-0.105 * 100), 1, "−10.5 % via the fraction");
+    assert.equal(M.megaDecimals(-12.25), 2);
+    const f = M.megaFmt(num, 0, 1);
+    assert.equal(f.signed(-20.5, M.megaDecimals(-20.5), false), "-20.5");
+    assert.equal(f.signed(-220, M.megaDecimals(-220), false), "-220");
 });
 
 test("outlier cap: Tukey fence Q3 + 4·IQR (12A ΔPY% pins: +983/+391 capped, +95 fits)", () => {
@@ -462,4 +474,135 @@ test("megaCascade: a folded total (no child row shown) is a plain step; structur
     assert.deepEqual(m.get("w"), { s: 0, e: 7, type: "anchor" });
 });
 
+
+// ============================================================================
+// 1.1 package A — conformity fixes
+// ============================================================================
+
+test("head font (style.headerFontSize): default keeps fs / rowH, a larger head grows head rows + widths", () => {
+    const L0 = M.layoutMega(regionInput());
+    assert.deepEqual([L0.headFs, L0.headRowH, L0.colHeadY, L0.markY], [13, 22, 24, 46]);
+    const L1 = M.layoutMega(regionInput({ headFs: 26 }));
+    assert.equal(L1.headFs, 26);
+    assert.equal(L1.headRowH, 44);
+    assert.equal(L1.markY, L1.colHeadY + 44);
+    assert.equal(L1.colHeadY, 2 + 44, "the block title row grows too");
+    const w = (L, h) => L.cols.find(c => c.head === h && c.block === 0).w;
+    assert.ok(w(L1, "ΔPY%") >= measure("ΔPY%", 26) + 2 * 5, "number heads are measured in the head font");
+    // the body (rows, numbers) stays as it was
+    assert.deepEqual(L1.R.map(x => x.y - L1.R[0].y), L0.R.map(x => x.y - L0.R[0].y));
+    const L2 = M.layoutMega(regionInput({ headFs: 10 }));
+    assert.equal(L2.headRowH, 22, "a smaller head font never shrinks the head row");
+});
+
+test("sort indicator: on the sorting column, on the category head when that column is off", () => {
+    // Δ↓ by ΔPL, ΔPL bars off (only pins): order unchanged, indicator names the key
+    const t = Object.assign(toggles(M.MEGA_PRESETS.T02A), { sort: "delta", sortBlock: 0 });
+    const on = M.layoutMega(regionInput({ t }));
+    t.d = { PY: t.d.PY, PL: Object.assign({}, t.d.PL, { bar: false }) };
+    const off = M.layoutMega(regionInput({ t }));
+    assert.deepEqual(off.rows.map(r => r.id), on.rows.map(r => r.id), "the author's sort stays");
+    assert.deepEqual(off.cols.map(c => c.head).filter(h => /↓/.test(h)), ["(↓) ΔPL November"]);
+    const lab = off.cols.find(c => c.type === "label");
+    assert.ok(lab.w >= measure("(↓) ΔPL November", 13) + 2 * 5, "the category column fits the indicator");
+    // AC↓ on the YTD block with the AC value column switched off
+    const t2 = Object.assign(toggles(M.MEGA_PRESETS.T02B), { showMin: false });
+    const L2 = M.layoutMega(regionInput({ t: t2 }));
+    assert.deepEqual(L2.cols.map(c => c.head).filter(h => /↓/.test(h)), ["(↓) AC _November"]);
+    // the visible sorting column keeps the plain "(↓)" (T02B / T02C unchanged)
+    const L3 = M.layoutMega(regionInput({ t: toggles(M.MEGA_PRESETS.T02B) }));
+    assert.deepEqual(L3.cols.map(c => c.head).filter(h => /↓/.test(h)), ["AC(↓)"]);
+});
+
+/** one block where the ΔPL bars are `ratio` × the ΔPY bars — two bar columns of one Δ family */
+function familyInput(ratio, viewW) {
+    const base = { a: 1, o: -2, g: 3, eu: 0.5 };
+    const block = {
+        name: "November", th: { abs: -20, pct: -0.1 },
+        value: () => 100,
+        delta: (r, min, ref) => {
+            const d = base[r.id] * (ref === "PL" ? ratio : 1);
+            return { d, p: d / 100, good: d >= 0, impact: d, impactPct: d / 100, pp: false };
+        },
+    };
+    const t = Object.assign(toggles(M.MEGA_PRESETS.T02A), { showPY: false, showPL: false, showMin: false,
+        d: { PY: { num: false, bar: true, wf: false, pct: false, pin: false }, PL: { num: false, bar: true, wf: false, pct: false, pin: false } } });
+    return regionInput({ t, blocks: [block], viewW });
+}
+const dataSpan = c => (Math.max(...c.els.map(e => e.q)) - Math.min(...c.els.map(e => e.p))) * c.k;
+
+test("minimum data span holds at the SHARED family scale (ΔPY bars next to 3× larger ΔPL bars)", () => {
+    const L = M.layoutMega(familyInput(3, 200));
+    const [py, pl] = L.charts;
+    assert.equal(py.k, pl.k, "one Δ scale for the block");
+    assert.ok(dataSpan(py) >= 39 - 1e-6, "ΔPY data span " + dataSpan(py));
+    assert.ok(dataSpan(pl) >= 39 - 1e-6);
+    // the binding ΔPL column grew instead of squeezing the ΔPY bars
+    for (const c of L.charts) {
+        for (const e of c.els) { assert.ok(c.x0 + e.p * c.k - e.a >= c.x - 0.5 && c.x0 + e.q * c.k + e.c <= c.x + c.w + 0.5); }
+    }
+});
+
+test("minimum data span at the family scale stops at the column width limit (one scale wins)", () => {
+    const L = M.layoutMega(familyInput(200, 200));
+    const [py, pl] = L.charts;
+    assert.equal(py.k, pl.k);
+    assert.ok(pl.w <= 13 * 22 + 1, "ΔPL grows at most to chartMax: " + pl.w);
+    assert.ok(dataSpan(pl) >= 39 - 1e-6);
+    assert.ok(dataSpan(py) < 39, "tiny ΔPY bars stay short next to 200× larger ones");
+    // without a family partner nothing changes: one column keeps its own k
+    const one = M.layoutMega(Object.assign(familyInput(3, 200), {}));
+    assert.ok(one.charts.every(c => c.k > 0));
+});
+
+test("% of revenue column: right of the value columns, small italic soft numbers, none on margin rows", () => {
+    const t = Object.assign(toggles(M.MEGA_PRESETS.T03A), { share: true });
+    const cols = M.buildColumns(t, 1);
+    assert.deepEqual(cols.map(c => c.type + (c.scen || c.ref || "")),
+        ["label", "valuePY", "valuePL", "valueAC", "share", "deltaPY", "dpctPY", "deltaPL", "dpctPL"]);
+    assert.equal(cols[4].gap, "col");
+    const inp = statementInput({ t, shareHead: "% Rev" });
+    inp.blocks = [Object.assign({}, inp.blocks[0], { share: r => r.id === "sales" ? 1 : r.id === "pur" ? 0.6531 : null })];
+    const L = M.layoutMega(Object.assign(inp, { pdec: 1 }));
+    const sc = L.cols.find(c => c.type === "share");
+    assert.equal(sc.head, "% Rev");
+    const pur = L.cellText(sc, L.rows.find(r => r.id === "pur"));
+    assert.deepEqual([pur.t, pur.italic, pur.fs, pur.color], ["65.3%", true, L.G.fsSmall, "#8A8886"]);
+    assert.equal(L.cellText(sc, L.rows.find(r => r.id === "sales")).bold, true);
+    assert.equal(L.cellText(sc, L.rows.find(r => r.id === "gm")), null, "no share on margin rows");
+    // default off: no share column
+    assert.ok(!M.buildColumns(toggles(M.MEGA_PRESETS.T03A), 1).some(c => c.type === "share"));
+    // value cascade: the share column becomes its own group
+    const c12 = M.buildColumns(Object.assign(toggles(M.MEGA_PRESETS["12A"]), { share: true }), 1);
+    assert.deepEqual(c12.map(c => c.type), ["label", "vwf", "vwf", "share", "bar", "pin"]);
+});
+
+test("FY / month blocks: alias heads (AC&FC) and a titled single statement block", () => {
+    const t = toggles(M.MEGA_PRESETS.T03A);
+    const inp = statementInput({ t });
+    inp.blocks = [Object.assign({}, inp.blocks[0], { name: "FY 2026", titled: true, alias: { AC: "AC&FC", FC: "FC" } })];
+    const L = M.layoutMega(inp);
+    assert.equal(L.style.blockTitles, true);
+    assert.deepEqual(L.cols.map(c => c.head).slice(1, 4), ["PY", "PL", "AC&FC"]);
+    // an untitled single statement block keeps the T03 look (no block title)
+    assert.equal(M.layoutMega(statementInput({ t })).style.blockTitles, false);
+});
+
+test("high contrast: palette → host fg / bg, red threshold numbers underlined", () => {
+    M.setMegaPalette(false, undefined, { fg: "#FFFF00", bg: "#000000" });
+    try {
+        assert.deepEqual([M.MEGA_C.ink, M.MEGA_C.py, M.MEGA_C.rule, M.MEGA_C.text, M.MEGA_C.white],
+            ["#FFFF00", "#FFFF00", "#FFFF00", "#FFFF00", "#000000"]);
+        const L = M.layoutMega(regionInput({ hc: true, pal: { good: "#FFFF00", bad: "#FFFF00" } }));
+        const d = L.cols.find(c => c.type === "delta" && c.ref === "PY" && c.block === 0);
+        const g = L.cellText(d, L.rows.find(r => r.id === "g"));
+        assert.deepEqual([g.t, g.color, g.underline], ["-85", "#FFFF00", true]);
+        assert.equal(L.cellText(d, L.rows.find(r => r.id === "a")).underline, undefined);
+    } finally { M.setMegaPalette(false); }
+    assert.equal(M.MEGA_C.ink, "#404040", "the light palette is back");
+    // outside high contrast a red number is never underlined
+    const L0 = M.layoutMega(regionInput());
+    const d0 = L0.cols.find(c => c.type === "delta" && c.ref === "PY" && c.block === 0);
+    assert.equal(L0.cellText(d0, L0.rows.find(r => r.id === "g")).underline, undefined);
+});
 console.log(`\n${n} mega-table layout test blocks passed`);

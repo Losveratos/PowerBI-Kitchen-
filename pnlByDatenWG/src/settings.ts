@@ -111,6 +111,13 @@ const sortBlockItems: LocEnumMember[] = [
     { value: "ytd", displayName: "YTD block", key: "Enum_SortBlock_Ytd" }
 ];
 
+/** kind of a mega-table period block — month of the last actuals, year to date, FY outlook */
+const megaBlockItems: LocEnumMember[] = [
+    { value: "month", displayName: "Month", key: "Enum_MegaBlock_Month" },
+    { value: "ytd", displayName: "YTD", key: "Enum_MegaBlock_Ytd" },
+    { value: "fy", displayName: "FY outlook (AC&FC vs PL)", key: "Enum_MegaBlock_Fy" }
+];
+
 /** key of the description that belongs to a display-name key (Toolbar_Show → Desc_Toolbar_Show) */
 const dk = (nameKey: string): string => "Desc_" + nameKey;
 
@@ -225,6 +232,8 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         "Rows without any value disappear; readers can switch it in the toolbar. Default: off", false);
     fitWidth = toggle("fitWidth", "Columns_FitWidth", "Fit table to width (default)",
         "Squeezes the chart columns until the table fits the viewport — no horizontal scrolling. Default: off", false);
+    exportExpandAll = toggle("exportExpandAll", "Columns_ExportExpandAll", "Export: expand all rows",
+        "PDF / PowerPoint export and subscriptions print every row expanded, whatever is folded on screen. Default: on", true);
 
     treeRoot = textInput("treeRoot", "Columns_TreeRoot", "Driver tree root row (id, name or category)",
         "Empty = last formula/KPI row with operands, otherwise the model root", "e.g. Net margin");
@@ -265,6 +274,13 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
     dPlPin = megaToggle("dPlPin", "ΔPL% as pins", false, "Relative variance as pins (lollipops). Default: off");
     secondBlock = megaToggle("secondBlock", "Second period block (month | _YTD)", false,
         "Needs the period field: the month of the last actuals left, the year to date right. Default: off");
+    blockKind = dropdown("blockKind", "Mega_BlockKind", "Period block",
+        "Month of the last actuals, year to date or FY outlook (AC&FC vs PL, needs the FY fields); with a second block the right one. Default: YTD",
+        megaBlockItems, 1);
+    leftBlockKind = dropdown("leftBlockKind", "Mega_LeftBlockKind", "Second block (left)",
+        "Period of the block left of the period block when the second block is on. Default: month", megaBlockItems, 0);
+    pctOfRevenue = megaToggle("pctOfRevenue", "% of revenue column", false,
+        "Share of every row in the revenue base row (group Table), right of the value columns. Default: off");
     structureSubtotals = megaToggle("structureSubtotals", "Subtotal blocks (structure data)", true,
         "Regions / structure hierarchies: subtotal blocks with a spacer row; off = leaves + total only. Default: on");
     showPctRows = megaToggle("showPctRows", "Margin / % rows", true,
@@ -297,7 +313,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         description: "Classic table, bars and waterfall",
         descriptionKey: "Desc_Columns_GroupGeneral",
         slices: [this.preset, this.reference, this.periodSort, this.pctRevenue, this.revenueBase,
-            this.hideZeroRows, this.fitWidth]
+            this.hideZeroRows, this.fitWidth, this.exportExpandAll]
     });
 
     mega = new formattingSettings.Group({
@@ -310,7 +326,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         slices: [this.template, this.minuend, this.showPY, this.showPL, this.showMinuend, this.valueCascade,
             this.dPyAbs, this.dPyBar, this.dPyWaterfall, this.dPyPct, this.dPyPin,
             this.dPlAbs, this.dPlBar, this.dPlWaterfall, this.dPlPct, this.dPlPin,
-            this.secondBlock, this.structureSubtotals, this.showPctRows,
+            this.pctOfRevenue, this.secondBlock, this.blockKind, this.leftBlockKind, this.structureSubtotals, this.showPctRows,
             this.thresholds, this.thresholdAbs, this.thresholdPct, this.thresholdYtdAbs, this.thresholdYtdPct,
             this.scenarioMarks, this.chartLabels, this.capBars, this.sort, this.sortBlock]
     });
@@ -493,7 +509,7 @@ export interface PaneContext {
     /** current view of the visual (table | bars | waterfall | tree); null = not known yet */
     view: string | null;
     /** bound measures / roles; null = no data yet (every gate stays open) */
-    has: { py: boolean; pl: boolean; fc: boolean; period: boolean } | null;
+    has: { py: boolean; pl: boolean; fc: boolean; period: boolean; fy?: boolean } | null;
     /** statement (GuV) data vs. structure data; null = not known */
     statement: boolean | null;
 }
@@ -513,7 +529,8 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     const py = has == null || has.py; const pl = has == null || has.pl;
     const fc = has == null || has.fc; const period = has == null || has.period;
     const view = ctx.view;
-    c.revenueBase.visible = c.pctRevenue.value;
+    c.revenueBase.visible = c.pctRevenue.value || c.pctOfRevenue.value;
+    const fy = has == null || has.fy !== false;
     c.periodSort.visible = period;
     // the mega switches belong to the table view, the tree start to the tree view
     c.mega.visible = view == null || view === "table";
@@ -526,6 +543,8 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     // a value cascade needs a value column it can turn into a cascade
     c.valueCascade.visible = (c.showPY.value && py) || (c.showPL.value && pl) || c.showMinuend.value;
     c.secondBlock.visible = period;
+    c.blockKind.visible = period || fy;
+    c.leftBlockKind.visible = period && c.secondBlock.value;
     const structure = ctx.statement !== true;
     const statement = ctx.statement !== false;
     c.structureSubtotals.visible = structure;

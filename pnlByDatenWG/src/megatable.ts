@@ -52,10 +52,18 @@ const MEGA_DARK: typeof MEGA_LIGHT = {
 /** the live palette every painter of this module reads at call time */
 export const MEGA_C = { ...MEGA_LIGHT };
 
-/** switch the live palette (the visual calls this once per update) */
-export function setMegaPalette(dark: boolean, paper?: string): void {
+/**
+ * switch the live palette (the visual calls this once per update). High
+ * contrast (`hc`, the host's foreground / background): every ink, gray and
+ * rule tone becomes the foreground, the paper the background — the painter
+ * then tells good / bad and PY apart by pattern instead of colour (MegaInput.hc).
+ */
+export function setMegaPalette(dark: boolean, paper?: string, hc?: { fg: string; bg: string }): void {
     Object.assign(MEGA_C, dark ? MEGA_DARK : MEGA_LIGHT);
     if (dark && paper) { MEGA_C.white = paper; }
+    if (hc) {
+        Object.assign(MEGA_C, { ink: hc.fg, text: hc.fg, soft: hc.fg, py: hc.fg, pyLight: hc.fg, rule: hc.fg, white: hc.bg });
+    }
 }
 
 /** Geometry — everything derived from the font size fs (SPEC "Geometrie"). */
@@ -157,6 +165,12 @@ export interface MegaBlock {
     /** display value (display units; margin rows: the ratio) */
     value: (r: MegaRow, s: MegaScen) => number | null;
     delta: (r: MegaRow, min: MegaMin, ref: MegaRef) => MegaDelta | null;
+    /** "% of revenue" of a row (fraction of the revenue base, minuend of this block) */
+    share?: (r: MegaRow) => number | null;
+    /** head text of a value column per scenario (FY block: "AC&FC") — default the scenario */
+    alias?: Partial<Record<MegaScen, string>>;
+    /** show the block title even for a single statement block (month only, FY outlook) */
+    titled?: boolean;
 }
 
 export interface MegaRefToggles {
@@ -186,6 +200,8 @@ export interface MegaToggles {
     sort: MegaSort;
     /** which block decides the order (0 = period, 1 = YTD) */
     sortBlock: number;
+    /** "% of revenue" column next to the value columns. Default off */
+    share?: boolean;
 }
 
 export interface MegaInput {
@@ -209,6 +225,17 @@ export interface MegaInput {
     pal: { good: string; bad: string };
     /** labels of the threshold footer */
     redIf: string;
+    /** head text of the "% of revenue" column */
+    shareHead?: string;
+    /** font size of the column heads and block titles (style.headerFontSize); default fs */
+    headFs?: number;
+    /**
+     * high contrast: MEGA_C carries the host foreground / background (see
+     * setMegaPalette), pal.good = pal.bad = foreground — unfavourable bars,
+     * waterfall steps, pin heads and arrows turn hollow, red threshold numbers
+     * underlined, the PY mark / PY value cascade dashed (ChartKitchen HC path)
+     */
+    hc?: boolean;
 }
 
 // ============================================================================
@@ -301,7 +328,7 @@ const SCENARIO_NOTATION: Record<MegaScen, ScenNotation> = {
     PL: { mark: "double", fill: "outline", axis: "double", tone: "ink", toneLight: "ink" },
 };
 
-export interface MegaPaint { fill: string; stroke: string | null; sw: number; }
+export interface MegaPaint { fill: string; stroke: string | null; sw: number; dash?: string; }
 
 /**
  * notation(minuend, subtrahend):
@@ -348,7 +375,17 @@ export interface MegaFmt {
     margin: (m: number) => string;
     pp: (x: number) => string;
     rel: (p: number) => string;
+    share: (p: number) => string;
     signed: (v: number, dec: number, plus: boolean) => string;
+}
+
+/** decimals a number really carries (−20.5 → 1, −10 → 0), at most `max` — threshold footer */
+export function megaDecimals(x: number, max = 4): number {
+    for (let d = 0; d < max; d++) {
+        const f = Math.pow(10, d);
+        if (Math.abs(Math.round(x * f) - x * f) < 1e-6 * f) { return d; }
+    }
+    return max;
 }
 
 /** explicit "+", "-" as minus, zero without a sign (also a rounded −0.0) */
@@ -366,7 +403,10 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
         pin: p => signed(p * 100, pdec, true),
         margin: m => signed(m * 100, dec, false) + "%",
         pp: x => signed(x, dec, true) + "%p",
-        rel: p => signed(p * 100, 0, true),
+        // margin rows: relative change of the ratio, WITH the % sign (T03A "+23%");
+        // %p stays the sign of the point difference (pp)
+        rel: p => signed(p * 100, 0, true) + "%",
+        share: p => signed(p * 100, pdec, false) + "%",
         signed,
     };
 }
@@ -420,7 +460,7 @@ export function solveK(els: MegaEl[], W: number): number {
 // ============================================================================
 
 /** wf = integrated Δ waterfall (T04B–E) · vwf = value cascade of one scenario (12A) */
-export type MegaColType = "label" | "value" | "delta" | "dpct" | "bar" | "pin" | "wf" | "vwf";
+export type MegaColType = "label" | "value" | "share" | "delta" | "dpct" | "bar" | "pin" | "wf" | "vwf";
 export interface MegaCol {
     type: MegaColType;
     block: number;
@@ -442,7 +482,11 @@ export interface MegaCol {
     casc?: Map<string, CascadeSeg>;
 }
 
-export interface MegaCellText { t: string; bold: boolean; italic: boolean; fs: number; color: string; }
+export interface MegaCellText {
+    t: string; bold: boolean; italic: boolean; fs: number; color: string;
+    /** high contrast: a red threshold number is underlined instead of coloured */
+    underline?: boolean;
+}
 
 export interface MegaLayout {
     G: MegaGeometry;
@@ -461,6 +505,8 @@ export interface MegaLayout {
     sortInfo: { ref: MegaRef; block: number } | null;
     tableW: number;
     blockTitleY: number; colHeadY: number; markY: number; bodyTop: number; headH: number;
+    /** font size + row height of the column heads and block titles (headFs; default fs / rowH) */
+    headFs: number; headRowH: number;
     bodyBottom: number; footY: number; height: number;
     famK: Record<string, number>;
     cellText: (c: MegaCol, r: MegaRow) => MegaCellText | null;
@@ -492,6 +538,11 @@ export function buildColumns(t: MegaToggles, nb: number): MegaCol[] {
         // value cascade (12A): every scenario is a chart column of its own group
         if (t.valueCascade) { vals.forEach(s => groups.push([mk({ type: "vwf", scen: s })])); }
         else if (vals.length) { groups.push(vals.map(s => mk({ type: "value", scen: s }))); }
+        // "% of revenue" right after the value columns (classic table: next to AC)
+        if (t.share) {
+            const sc = mk({ type: "share" });
+            if (!t.valueCascade && vals.length) { groups[groups.length - 1].push(sc); } else { groups.push([sc]); }
+        }
         for (const r of MEGA_REFS) {
             const g: MegaCol[] = [];
             const d = t.d[r];
@@ -600,7 +651,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
     const anyChart = cols.some(megaIsChart);
     const style = {
         signs: input.statement,
-        blockTitles: (!input.statement || nb === 2) && blocks.some(b => b.name !== ""),
+        blockTitles: (!input.statement || nb === 2 || blocks.some(b => b.titled)) && blocks.some(b => b.name !== ""),
         pairHeader: input.statement,
         closing: t.marks && input.statement && !anyChart,
         thresholds: t.thresholds && cols.some(c => c.type === "delta" || c.type === "dpct"),
@@ -609,6 +660,9 @@ export function layoutMega(input: MegaInput): MegaLayout {
         headerRules: !t.valueCascade,
     };
     const tw = (s: string, fs: number, bold = false, italic = false): number => input.measure(s, fs, bold, italic);
+    // head font (style.headerFontSize) — the default keeps fs and rowH exactly
+    const headFs = input.headFs && input.headFs > 0 ? input.headFs : G.fs;
+    const headRowH = headFs > G.fs ? Math.round(headFs * 1.7) : G.rowH;
 
     // ---- cell text (number columns) ------------------------------------------
     const cellText = (c: MegaCol, r: MegaRow): MegaCellText | null => {
@@ -620,29 +674,45 @@ export function layoutMega(input: MegaInput): MegaLayout {
             const v = blk.value(r, c.scen!);
             return v == null ? null : { ...base, t: pct ? fmt.margin(v) : fmt.val(v) };
         }
+        if (c.type === "share") {
+            // "% of revenue": small italic soft numbers (classic table), none on margin rows
+            const v = !pct && blk.share ? blk.share(r) : null;
+            return v == null || !isFinite(v) ? null : { ...base, t: fmt.share(v), italic: true, fs: G.fsSmall, color: MEGA_C.soft };
+        }
         const D = blk.delta(r, t.min, c.ref!);
         if (!D) { return null; }
+        const redText = (red: boolean): Partial<MegaCellText> =>
+            ({ color: red ? input.pal.bad : MEGA_C.text, underline: red && input.hc ? true : undefined });
         if (c.type === "delta") {
             const red = t.thresholds && !pct && D.impact < blk.th.abs - 1e-9;
-            return { ...base, t: pct ? fmt.pp(D.d) : fmt.delta(D.d), color: red ? input.pal.bad : MEGA_C.text };
+            return { ...base, t: pct ? fmt.pp(D.d) : fmt.delta(D.d), ...redText(red) };
         }
         if (c.type === "dpct") {
             if (D.p == null) { return null; }
             const imp = D.impactPct;
             const red = t.thresholds && !pct && imp != null && imp < blk.th.pct - 1e-9;
-            return { ...base, t: pct ? fmt.rel(D.p) : fmt.pct(D.p), color: red ? input.pal.bad : MEGA_C.text };
+            return { ...base, t: pct ? fmt.rel(D.p) : fmt.pct(D.p), ...redText(red) };
         }
         return null;
     };
+    // "(↓)" sits at the head of the column that really sorts: the minuend value
+    // column (sort = min) or the first absolute Δ column of the sorting reference
+    // (sort = delta) of the sorting block. Is that column switched off, the order
+    // stays as the author set it — silently sorting by another column would show
+    // an order nobody asked for — and the indicator moves to the head of the
+    // category column, naming the key: "(↓) ΔPL _November".
+    const sortCol = !sortInfo ? null : cols.find(x => x.block === sortInfo.block && (t.sort === "min"
+        ? (x.type === "value" || x.type === "vwf") && x.scen === t.min
+        : x.ref === sortInfo.ref && x.type !== "dpct" && x.type !== "pin")) ?? null;
     const headerText = (c: MegaCol): string => {
-        let s = c.type === "value" || c.type === "vwf" ? c.scen!
-            : c.type === "dpct" || c.type === "pin" ? "Δ" + c.ref + "%" : c.type === "label" ? "" : "Δ" + c.ref;
-        if (sortInfo && c.block === sortInfo.block) {
-            if (t.sort === "min" && (c.type === "value" || c.type === "vwf") && c.scen === t.min) { s += "(↓)"; }
-            if (t.sort === "delta" && c.ref === sortInfo.ref) {
-                const firstD = cols.find(x => x.block === c.block && x.ref === sortInfo.ref && x.type !== "dpct" && x.type !== "pin");
-                if (firstD === c) { s += "(↓)"; }
-            }
+        const blk = blocks[c.block];
+        let s = c.type === "value" || c.type === "vwf" ? (blk?.alias?.[c.scen!] ?? c.scen!)
+            : c.type === "share" ? (input.shareHead ?? "%")
+                : c.type === "dpct" || c.type === "pin" ? "Δ" + c.ref + "%" : c.type === "label" ? "" : "Δ" + c.ref;
+        if (sortInfo && c === sortCol) { s += "(↓)"; }
+        if (sortInfo && !sortCol && c.type === "label") {
+            const key = t.sort === "min" ? (blocks[sortInfo.block]?.alias?.[t.min] ?? t.min) : "Δ" + sortInfo.ref;
+            s = "(↓) " + key + (nb === 2 && blocks[sortInfo.block].name ? " " + blocks[sortInfo.block].name : "");
         }
         return s;
     };
@@ -659,9 +729,10 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 w = Math.max(w, (style.signs ? G.signW : 0) + r.level * G.indent
                     + tw(labelText(r), fsx, megaIsBold(r), r.kind === "pct"));
             }
+            if (c.head) { w = Math.max(w, tw(c.head, headFs)); }
             c.w = Math.ceil(Math.max(w + 2 * G.pad, G.fs * 6));
         } else if (!megaIsChart(c)) {
-            let w = tw(c.head, G.fs);
+            let w = tw(c.head, headFs);
             for (const r of rows) {
                 const ct = cellText(c, r);
                 if (ct) { w = Math.max(w, tw(ct.t, ct.fs, ct.bold, ct.italic)); }
@@ -680,12 +751,14 @@ export function layoutMega(input: MegaInput): MegaLayout {
     for (const c of charts) {
         const max = c.type === "vwf" ? G.vwfMax : G.chartMax;
         c.w = Math.round(Math.min(max, Math.max(G.chartMin, free * weight(c) / sumW)));
+        // a large head font (headFs) never clips the centred chart head
+        if (headFs > G.fs) { c.w = Math.max(c.w, Math.ceil(tw(c.head, headFs) + 2 * G.pad)); }
     }
 
     // ---- rows y --------------------------------------------------------------
     const blockTitleY = 2;
-    const colHeadY = blockTitleY + (style.blockTitles ? G.rowH : 0);
-    const markY = colHeadY + G.rowH;
+    const colHeadY = blockTitleY + (style.blockTitles ? headRowH : 0);
+    const markY = colHeadY + headRowH;
     const bodyTop = markY + G.markH + Math.round(G.fs * 0.5);
     const headH = bodyTop - Math.round(G.fs * 0.3);
     let y = bodyTop;
@@ -778,13 +851,44 @@ export function layoutMega(input: MegaInput): MegaLayout {
             c.inner = Math.ceil(a + b); c.w = c.inner + 2 * G.pad; c.kSelf = kMin;
         }
     }
+    // one k per block × family = the smallest k of its columns. The minimum data
+    // span holds per column only at that column's own k — a family partner with
+    // far larger values (ΔPL bars next to tiny ΔPY bars, a cascade next to bars)
+    // can push the shared k below it. Then the family k is raised to what the
+    // smallest column needs, as far as every column of the family can grow up to
+    // its width limit (chartMax / vwfMax; a column already wider keeps its
+    // width); the binding columns grow to the needs at that k — the table
+    // scrolls instead of collapsing bars. Beyond that limit the shared scale
+    // wins: a column of tiny values next to huge ones stays short (comparable
+    // lengths are the point of ONE scale).
+    const spanOf = (c: MegaCol): number => Math.max(...c.els!.map(e => e.q)) - Math.min(...c.els!.map(e => e.p));
+    const fams = new Map<string, MegaCol[]>();
+    for (const c of charts) {
+        const key = c.block + ":" + family(c);
+        const list = fams.get(key);
+        if (list) { list.push(c); } else { fams.set(key, [c]); }
+    }
+    for (const [key, cs] of fams) {
+        let k = Math.min(...cs.map(c => c.kSelf!));
+        const live = cs.filter(c => spanOf(c) > 0);
+        const kNeed = live.reduce((m, c) => Math.max(m, G.minSpan / spanOf(c)), 0);
+        if (live.length > 1 && kNeed > k * (1 + 1e-9)) {
+            const maxInner = (c: MegaCol): number => (c.type === "vwf" ? G.vwfMax : G.chartMax) - 2 * G.pad;
+            const kCap = Math.min(...live.map(c => solveK(c.els!, Math.max(c.inner!, maxInner(c)))));
+            const k2 = Math.min(kNeed, Math.max(k, kCap));
+            if (k2 > k) {
+                k = k2;
+                for (const c of cs) {
+                    const [a, b] = megaNeeds(c.els!, k);
+                    if (a + b > c.inner!) { c.inner = Math.ceil(a + b); c.w = c.inner + 2 * G.pad; }
+                }
+            }
+        }
+        famK[key] = k;
+    }
     let x = 0;
     for (const c of cols) { x += gapPx(c.gap); c.x = x; x += c.w; }
     const tableW = x;
-    for (const c of charts) {
-        const key = c.block + ":" + family(c);
-        famK[key] = Math.min(famK[key] ?? Infinity, c.kSelf!);
-    }
     for (const c of charts) {
         c.k = famK[c.block + ":" + family(c)];
         const [L, Rr] = megaNeeds(c.els!, c.k);
@@ -794,7 +898,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
 
     return {
         G, input, fmt, rows, R, cols, charts, N, style, sortInfo, tableW,
-        blockTitleY, colHeadY, markY, bodyTop, headH, bodyBottom, footY, height, famK, cellText,
+        blockTitleY, colHeadY, markY, bodyTop, headH, headFs, headRowH, bodyBottom, footY, height, famK, cellText,
     };
 }
 
@@ -841,6 +945,7 @@ export function paintMega(L: MegaLayout, o: MegaPaintOpts): MegaPainted {
     const { t, blocks, pal } = input;
     const fmt = L.fmt;
     const W = Math.max(1, Math.ceil(L.tableW) + 1);
+    const hfs = L.headFs; const hRow = L.headRowH;
 
     const mkSvg = (y0: number, h: number, kind: string): {
         svg: SVGSVGElement; rules: SVGGElement; charts: SVGGElement; text: SVGGElement; hatch: (c: string) => string;
@@ -873,11 +978,12 @@ export function paintMega(L: MegaLayout, o: MegaPaintOpts): MegaPainted {
     type Layer = typeof H;
     const text = (ly: Layer, x: number, y: number, s: string, oo: {
         anchor?: string; bold?: boolean; italic?: boolean; fs?: number; color?: string; parent?: Element; halo?: boolean;
+        underline?: boolean;
     } = {}): SVGTextElement => {
         const n = svgEl("text", {
             x, y, "text-anchor": oo.anchor || "start", "font-weight": oo.bold ? "bold" : null,
             "font-style": oo.italic ? "italic" : null, "font-size": oo.fs && oo.fs !== G.fs ? oo.fs : null,
-            fill: oo.color || null,
+            fill: oo.color || null, "text-decoration": oo.underline ? "underline" : null,
         }, oo.parent || ly.text);
         if (oo.halo) {
             n.setAttribute("stroke", MEGA_C.white); n.setAttribute("stroke-width", "3");
@@ -896,14 +1002,20 @@ export function paintMega(L: MegaLayout, o: MegaPaintOpts): MegaPainted {
     const rect = (x: number, y: number, w: number, h: number, st: MegaPaint, parent: Element): SVGRectElement =>
         svgEl("rect", {
             x, y, width: Math.max(w, 0), height: h, fill: st.fill, stroke: st.stroke,
-            "stroke-width": st.stroke ? st.sw : null,
+            "stroke-width": st.stroke ? st.sw : null, "stroke-dasharray": st.stroke && st.dash ? st.dash : null,
         }, parent);
 
     // ---- head ----------------------------------------------------------------
     const paintMark = (ly: Layer, kind: string, x: number, w: number, y?: number): void => {
         const yy = y ?? L.markY;
         if (kind === "solid") { rect(x, yy, w, G.markH, { fill: MEGA_C.ink, stroke: null, sw: 0 }, ly.rules); }
-        else if (kind === "gray") { rect(x, yy, w, G.markH, { fill: MEGA_C.py, stroke: null, sw: 0 }, ly.rules); }
+        else if (kind === "gray" && input.hc) {
+            // high contrast: PY = AC in colour — the PY mark is a dashed band
+            svgEl("line", {
+                x1: x, x2: x + w, y1: yy + G.markH / 2, y2: yy + G.markH / 2, stroke: MEGA_C.py,
+                "stroke-width": G.markH, "stroke-dasharray": "3,2", "data-pnl": "mega-mark-py",
+            }, ly.rules);
+        } else if (kind === "gray") { rect(x, yy, w, G.markH, { fill: MEGA_C.py, stroke: null, sw: 0 }, ly.rules); }
         else if (kind === "double") {
             hline(ly, x, x + w, yy + 0.5, MEGA_C.ink);
             hline(ly, x, x + w, yy + G.markH - 0.5, MEGA_C.ink);
@@ -918,27 +1030,34 @@ export function paintMega(L: MegaLayout, o: MegaPaintOpts): MegaPainted {
             const bc = cols.filter(c => c.block === bi);
             if (!bc.length) { return; }
             const x1 = bc[0].x; const x2 = bc[bc.length - 1].x + bc[bc.length - 1].w;
-            text(H, (x1 + x2) / 2, base(L.blockTitleY, G.rowH), b.name, { anchor: "middle", color: o.headInk });
-            hline(H, x1, x2, L.blockTitleY + G.rowH - 0.5, MEGA_C.ink);
+            text(H, (x1 + x2) / 2, base(L.blockTitleY, hRow, hfs), b.name, { anchor: "middle", color: o.headInk, fs: hfs });
+            hline(H, x1, x2, L.blockTitleY + hRow - 0.5, MEGA_C.ink);
         });
     }
     for (let i = 0; i < cols.length; i++) {
         const c = cols[i];
-        const ty = base(L.colHeadY, G.rowH);
-        if (c.type === "label") { if (style.headerRules) { paintMark(H, "rule", c.x, c.w); } continue; }
+        const ty = base(L.colHeadY, hRow, hfs);
+        const ho = { color: o.headInk, fs: hfs };
+        if (c.type === "label") {
+            // the sort indicator lands here when its column is switched off
+            if (c.head) { text(H, c.x + G.pad, ty, c.head, ho); }
+            if (style.headerRules) { paintMark(H, "rule", c.x, c.w); }
+            continue;
+        }
         if (c.type === "value") {
-            text(H, c.x + c.w - G.pad, ty, c.head, { anchor: "end", color: o.headInk });
+            text(H, c.x + c.w - G.pad, ty, c.head, { anchor: "end", ...ho });
             paintMark(H, t.marks ? N.mark(c.scen!) : "rule", c.x, c.w);
             continue;
         }
         const n = cols[i + 1];
         if (c.type === "delta" && style.pairHeader && n && n.type === "dpct" && n.ref === c.ref && n.block === c.block) {
-            text(H, n.x + n.w - G.pad, ty, c.head, { anchor: "end", color: o.headInk });
+            text(H, n.x + n.w - G.pad, ty, c.head, { anchor: "end", ...ho });
             if (style.headerRules) { paintMark(H, "rule", c.x, n.x + n.w - c.x); }
             i++; continue;
         }
-        if (c.type === "delta" || c.type === "dpct") { text(H, c.x + c.w - G.pad, ty, c.head, { anchor: "end", color: o.headInk }); }
-        else { text(H, c.x + c.w / 2, ty, c.head, { anchor: "middle", color: o.headInk }); }
+        if (c.type === "delta" || c.type === "dpct" || c.type === "share") {
+            text(H, c.x + c.w - G.pad, ty, c.head, { anchor: "end", ...ho });
+        } else { text(H, c.x + c.w / 2, ty, c.head, { anchor: "middle", ...ho }); }
         if (style.headerRules) { paintMark(H, "rule", c.x, c.w); }
     }
 
@@ -991,7 +1110,7 @@ export function paintMega(L: MegaLayout, o: MegaPaintOpts): MegaPainted {
             const ct = L.cellText(c, r);
             if (ct) {
                 text(B, c.x + c.w - G.pad, base(y, h, ct.fs), ct.t,
-                    { anchor: "end", bold: ct.bold, italic: ct.italic, fs: ct.fs, color: ct.color });
+                    { anchor: "end", bold: ct.bold, italic: ct.italic, fs: ct.fs, color: ct.color, underline: ct.underline });
             }
         }
     }
@@ -1010,9 +1129,12 @@ export function paintMega(L: MegaLayout, o: MegaPaintOpts): MegaPainted {
             const before = bc[firstD - 1];
             const lx = before ? before.x + before.w - G.pad : bc[firstD].x - G.groupGap;
             text(B, lx, fy, input.redIf, oo);
+            // the thresholds print with the decimals they carry (−20.5 stays −20.5) —
+            // the red test compares the exact value, the footer must name it
+            const pp = b.th.pct * 100;
             for (const c of bc) {
-                if (c.type === "delta") { text(B, c.x + c.w - G.pad, fy, "<" + fmt.signed(b.th.abs, 0, false), oo); }
-                if (c.type === "dpct") { text(B, c.x + c.w - G.pad, fy, "<" + fmt.signed(b.th.pct * 100, 0, false) + "%", oo); }
+                if (c.type === "delta") { text(B, c.x + c.w - G.pad, fy, "<" + fmt.signed(b.th.abs, megaDecimals(b.th.abs), false), oo); }
+                if (c.type === "dpct") { text(B, c.x + c.w - G.pad, fy, "<" + fmt.signed(pp, megaDecimals(pp), false) + "%", oo); }
             }
         });
     }
@@ -1081,11 +1203,15 @@ function paintChartColumn(
         }
         text(B, x, y, s, { anchor, bold, parent: g, halo });
     };
-    const arrow = (xTip: number, cy: number, dir: number, hgt: number, fill: string): void => {
+    const hc = !!input.hc;
+    const arrow = (xTip: number, cy: number, dir: number, hgt: number, fill: string, hollow = false): void => {
         svgEl("path", {
-            d: `M${xTip},${cy} L${xTip - dir * G.arrowW},${cy - hgt / 2} L${xTip - dir * G.arrowW},${cy + hgt / 2} Z`, fill,
+            d: `M${xTip},${cy} L${xTip - dir * G.arrowW},${cy - hgt / 2} L${xTip - dir * G.arrowW},${cy + hgt / 2} Z`,
+            fill: hollow ? MEGA_C.white : fill, stroke: hollow ? MEGA_C.ink : null, "stroke-width": hollow ? 1 : null,
         }, g);
     };
+    // high contrast: good and bad share the foreground — unfavourable is hollow
+    const hollow: MegaPaint = { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1.4 };
     const hatch = B.hatch;
     if (c.casc) {
         // the drawn axis band (the 12A value line sits half a pixel right)
@@ -1103,13 +1229,14 @@ function paintChartColumn(
         const capped = Math.abs(v) > c.cap!;
         const vv = capped ? dir * c.cap! : v;
         const color = ov.D.good ? pal.good : pal.bad;
+        const bad = hc && !ov.D.good;
         const bold = megaIsBold(r);
         if (c.type === "bar") {
             const x2 = X(vv);
             const bx = Math.min(c.x0!, x2); const bw = Math.abs(x2 - c.x0!);
-            if (v !== 0) { rect(Math.round(bx * 2) / 2, cy - G.barH / 2, Math.max(bw, 1), G.barH, N.area(color, hatch), gBars); }
+            if (v !== 0) { rect(Math.round(bx * 2) / 2, cy - G.barH / 2, Math.max(bw, 1), G.barH, bad ? hollow : N.area(color, hatch), gBars); }
             if (capped) {
-                arrow(x2 + dir * G.arrowW, cy, dir, G.barH + 4, color);
+                arrow(x2 + dir * G.arrowW, cy, dir, G.barH + 4, color, bad);
                 label(x2 - dir * 3, ty, fmt.delta(v), dir > 0 ? "end" : "start", bold, true);
             } else {
                 const lx = dir > 0 ? Math.max(x2, c.x0! + axisHalf) + G.lblGap : Math.min(x2, c.x0! - axisHalf) - G.lblGap;
@@ -1119,11 +1246,11 @@ function paintChartColumn(
             const xh = X(vv);
             svgEl("line", { x1: c.x0!, x2: xh, y1: cy, y2: cy, stroke: color, "stroke-width": G.pinStem }, gBars);
             if (capped) {
-                arrow(xh + dir * G.arrowW, cy, dir, G.pinHead + 2, color);
+                arrow(xh + dir * G.arrowW, cy, dir, G.pinHead + 2, color, bad);
                 label(xh - dir * 3, ty, fmt.pin(ov.D.p!), dir > 0 ? "end" : "start", bold, true);
             } else {
                 const hs = G.pinHead;
-                rect(xh - hs / 2, cy - hs / 2, hs, hs, N.head(hatch), gBars);
+                rect(xh - hs / 2, cy - hs / 2, hs, hs, bad ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1 } : N.head(hatch), gBars);
                 const lx = dir > 0 ? Math.max(xh, c.x0!) + hs / 2 + G.lblGap : Math.min(xh, c.x0!) - hs / 2 - G.lblGap;
                 label(lx, ty, fmt.pin(ov.D.p!), dir > 0 ? "start" : "end", bold);
             }
@@ -1171,10 +1298,14 @@ function paintCascade(
         let st: MegaPaint; let txt: string;
         if (c.type === "wf") {
             const D = blk.delta(r, input.t.min, c.ref!)!;
-            st = N.area(D.good ? pal.good : pal.bad, B.hatch);
+            // high contrast: an unfavourable step is hollow (good / bad share the foreground)
+            st = input.hc && !D.good && D.d !== 0 ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1.4 }
+                : N.area(D.good ? pal.good : pal.bad, B.hatch);
             txt = fmt.delta(D.d);
         } else {
-            st = N.value(c.scen!, !megaAnchor(r) && megaEff(r) < 0, B.hatch);
+            // high contrast: the PY cascade (gray otherwise) is dashed, AC stays solid
+            st = input.hc && c.scen === "PY" ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1, dash: "3,2" }
+                : N.value(c.scen!, !megaAnchor(r) && megaEff(r) < 0, B.hatch);
             txt = fmt.val(blk.value(r, c.scen!)!);
         }
         const xa = X(Math.min(seg.s, seg.e)); const xb = X(Math.max(seg.s, seg.e));
