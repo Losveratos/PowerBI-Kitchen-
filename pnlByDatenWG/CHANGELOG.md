@@ -1,5 +1,120 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.2.0.0 (2026-10-17) — Leichter bedienen: freie Szenarien, Template in der Toolbar, Feld-Intro, Spalten-Kategorie
+
+1.2 sammelt die kleinen Sachen, die beim Testen in Power BI aufgefallen sind.
+Alles Neue steht per Default aus oder verhält sich wie bisher: die 45
+Harness-Bühnen von 1.1 (p1–p14, m1–m31) rendern byte-identisch (PNG und DOM).
+Sichtbar anders sind nur zwei Listen, die kein Bild verändern: die Reihenfolge
+im Formatbereich und die der Feldrollen. Der Werttreiberbaum ist unverändert.
+
+### Szenarien frei kombinieren (Wertspalten-Schalter)
+
+- **Neues Preset „Eigene Auswahl"** (`columns.preset = custom`) mit den
+  Schaltern `colAc`, `colPy`, `colPl`, `colFc` und `colDelta`: jede Kombination
+  der Wertspalten, zum Beispiel AC + PL + FC, dazu Δ-Balken und Δ%-Pin gegen
+  die Δ-Referenz. Die Δ-Referenz bleibt eine eigene Wahl. Der MTD-Block folgt
+  denselben Schaltern, der FY-Block auch (AC/FC → AC&FC, PL → PL FY).
+- **Toolbar-Gruppe „Wertspalten"** (`toolbar.showValues`, Standard aus):
+  AC · PY · PL · FC · ΔRef als unabhängige Knöpfe. Ein Klick macht aus dem
+  aktuellen Spaltensatz die eigene Auswahl und kippt genau einen Schalter. Die
+  Presets bleiben Schnellwahl und setzen die Knöpfe wieder. Aus „AC·PY·ΔPY" und
+  „AC·PL·ΔPL" heraus bleibt die Referenz erhalten. Ungebundene Szenarien
+  bekommen keinen Knopf. Ein Knopf, der nichts ändern würde (die letzte
+  Spalte, Δ ohne Referenzfeld), ist gesperrt wie seit 1.0.1.
+- **Im Mega-Table** zeigt dieselbe Gruppe das analysierte Szenario, PY und
+  PL als Leser-Schalter über den Pane-Schaltern. Die letzte Spalte ist
+  gesperrt, damit der Mega-Table nie per Klick in die klassische Tabelle
+  zurückfällt. Ändert der Autor die Wertspalten im Pane, endet die Leser-Wahl.
+
+### Templates finden
+
+- Die **Mega-Table-Gruppe mit dem Template-Dropdown ist jetzt die erste
+  Gruppe** der Karte „Spalten & Mega-Table" (vorher unter den klassischen
+  Schaltern).
+- **Template-Auswahl in der Toolbar** (`toolbar.showTemplate`, Standard an):
+  ein kompaktes Dropdown am Anfang der Toolbar, **nur im
+  Bearbeitungsmodus** und in der Tabellen-Ansicht. Leser und Export sehen es
+  nie. Eine Auswahl schreibt `template`, `templateApplied` und alle Schalter in
+  **einem** Speichervorgang. Der Echo-Guard des Templates hält die Wahl, bis
+  Power BI sie bestätigt.
+
+### Leerzustand
+
+- **Neuer Modus** `emptyState.mode`: **Demo** (wie bisher, Standard) ·
+  **Feld-Intro** · **Eigene Nachricht** (Titel/Text der Karte). Das Feld-Intro
+  erklärt kompakt, welches Feld wohin gehört, minimal (Ebenen, AC) und im
+  Ausbau (PY, PL, FC, Periode, Zeilentyp + Formel, Vorzeichen,
+  Spalten-Kategorie). Gebundene Rollen tragen ein ✓, fehlende Pflichtrollen
+  stehen oben. Vier Sprachen, im Stil des Smart Start.
+- **Umschalt-Knöpfe im Leerzustand** (nur Bearbeitungsmodus): „Felder
+  erklären" im Demo-Banner, „Demo ansehen" im Feld-Intro, beide bei der
+  eigenen Nachricht. Sie speichern den Modus, ohne dass man in den Pane muss
+  (mit Echo-Guard). Leser und Export sehen wie bisher den Standardtext oder
+  die eigene Nachricht.
+
+### Datenrollen in gewohnter Reihenfolge
+
+Die Feldliste folgt jetzt der Logik des Visuals: Ebenen → Konto-ID →
+Kontoname → Parent → **AC → PY → PL → FC** → Periode → Spalten-Kategorie →
+Zeilentyp, Formel, Vorzeichen-Trio, Sortierung, Kommentar, Filter-Info,
+FY-Rollen. Nur die Reihenfolge hat sich geändert, die Rollennamen nicht.
+Gespeicherte Berichte und PBIR-Projektionen bleiben gültig.
+
+### Balken-Ansicht wie ChartKitchen
+
+- `columns.barOverlap`: Szenario-Balken **überlappt**. AC liegt vorn in voller
+  Stärke, die Referenz gleich hoch dahinter und versetzt (PY grau, PL
+  umrandet, FC schraffiert). Bisher lag ein schmaler AC-Balken in einem
+  vollen Referenzband.
+- `columns.barTriangles`: **Dreieck-Marker** für die weiteren gebundenen
+  Szenarien am jeweiligen Wert über dem Balken: PY grau gefüllt, PL hohl
+  umrandet, FC schraffiert. Die Notation hängt an der Form, nicht nur an der
+  Farbe. Die Marker gehen in den Wertmaßstab ein und werden nie abgeschnitten.
+- Beide Schalter stehen per Default aus, die Balken-Ansicht bleibt dann
+  pixelgleich. Dark Mode funktioniert. Hochkontrast: die klassischen Ansichten
+  behalten wie in 1.1 ihre Palette, der Muster-Pfad gilt im Mega-Table.
+
+### Spalten-Kategorie (klassische Tabelle)
+
+- **Neue Rolle `colCategory`** („Spalten-Kategorie", max. 1): Der
+  Spaltensatz des YTD-Blocks (sonst des ersten Blocks) wiederholt sich je
+  Kategoriewert, etwa je Segment oder Quartal, unter einer Gruppen-Kopfzeile.
+  Danach folgt der bisherige Block als „Gesamt". Jede Kategorie rechnet
+  vollständig, auch Formeln und Margen. Die Monate werden auf den Kalender des
+  Gesamtmodells gelegt, YTD-Fenster und Monatsblock sprechen also über
+  dieselbe Periode. Ein **einheitlicher Δ-Maßstab** gilt über alle Blöcke,
+  bei vielen Werten scrollt die Tabelle horizontal. Periodenartige Werte
+  werden kalendarisch sortiert, alles andere bleibt in Datenreihenfolge.
+  Höchstens 24 Kategorien, der Rest wird in den Fußnoten genannt.
+- Bewusst v1: „% vom Umsatz" und Σ-treue Rundung bleiben im Gesamt-Block. Der
+  Zeilen-Tooltip zeigt die Gesamtwerte. **Mega-Table, Balken und Waterfall
+  ignorieren die Rolle**, im Bearbeitungsmodus steht dann ein Hinweis unter
+  der Tabelle.
+
+### Neue Properties (Überblick)
+
+`columns`: `preset` += `custom`, `colAc`, `colPy`, `colPl`, `colFc`,
+`colDelta`, `barOverlap`, `barTriangles`. `toolbar`: `showValues`,
+`showTemplate`. `emptyState`: `mode` (`demo` · `fields` · `message`). Rolle
+`colCategory`. `state.uiState` += `vals`, `megaVals`. Referenz:
+[`AGENT-GUIDE.md`](AGENT-GUIDE.md).
+
+### Tests
+
+- `test:toolbar` (318 Checks): neue Abschnitte H (Wertspalten-Sweep: 56
+  Schalter in 14 Zuständen, freie Kombination, Pane-Vorgaben, Echo-Guard),
+  I (Template-Auswahl: nur Bearbeitungsmodus, ein Merge, Echo-Guard) und J
+  (Mega-Wertspalten). Der Treffer-Test G deckt die neuen Knöpfe in vier
+  Sprachen ab.
+- Neu: `npm run test:ease` (`test/ease-interact.js`, 47 Checks):
+  Pane-Reihenfolge und Gates, Rollen-Reihenfolge und Mapping (vertauschte
+  Spaltenfolge ergibt dasselbe Statement), Leerzustand-Modi in vier Sprachen
+  mit Umschaltern und Echo-Guard, Balken-Notation, Spalten-Kategorie (Summen,
+  Maßstab, Mega-Hinweis, Kappung).
+- `test.html`: Bühnen p15–p20. `test:i18n`: **563 Keys** je Sprache, vier
+  Sprachen paritätisch.
+
 ## 1.1.0.0 (2026-10-17) — IBCS-12er-Serie komplett, Finance-Handwerk aus ChartKitchen, lange Statements flüssig
 
 1.1 bündelt drei Pakete. **A** bringt den Mega-Table näher an die

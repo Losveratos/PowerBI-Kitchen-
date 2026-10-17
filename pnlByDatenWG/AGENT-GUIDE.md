@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.1.0.0** (17.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.2.0.0** (17.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -19,7 +19,7 @@ Stand: **1.1.0.0** (17.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lese
 | --- | --- |
 | GUID | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
-| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.1.0.0.pbiviz` |
+| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.2.0.0.pbiviz` |
 | API | `powerbi-visuals-api` 5.11 |
 | Datenfenster | `dataReductionAlgorithm window 30000` Zeilen; weitere Segmente lädt das Visual per `fetchMoreData` nach (Ladebalken + „≈" an Summen, bis alles da ist) |
 | Fähigkeiten | Tooltips (default + canvas) · Tastaturfokus · Landing Page · Multi-Visual-Selektion · `supportsHighlight: false` (Cross-Interaktion filtert) |
@@ -35,18 +35,21 @@ Interne Rollennamen für PBIR (`projections`) — je Rolle max. 1 Feld, `levels`
 | `account` | Grouping | Konto-ID (Key), eindeutig + stabil. Pflicht im Parent-Child-Modus; im Level-Modus optional (Blatt-ID). Ohne `levels` und `account` zeigt das Visual Smart Start |
 | `accountName` | Grouping | Anzeigename. Ohne ihn heißt das Blatt wie die letzte gefüllte Ebene |
 | `parent` | Grouping | Parent-ID → Parent-Child-Modus (gewinnt, wenn zusätzlich `levels` gebunden ist) |
-| `sortOrder` | Grouping | Reihenfolge innerhalb des Elternknotens |
+| `ac` | Measure | AC (Pflicht) |
+| `py` / `pl` / `fc` | Measure | PY / PL / FC je Periode |
+| `period` | Grouping | Monat/Periode — schaltet Sparklines, MTD/YTD-Blöcke, `secondBlock` frei. Formate: `2026-03`, Datum, Monatsnamen deutsch/englisch (lang/kurz), `1..12`; Fiskaljahr → `columns.periodSort = data` |
+| `colCategory` | Grouping | **1.2** Spalten-Kategorie (max. 1), nur klassische Tabelle: der Spaltensatz des YTD-Blocks (sonst des ersten) wiederholt sich je Kategoriewert (Segment, Quartal …) mit Gruppen-Kopf, danach der Block als „Gesamt". Jede Kategorie rechnet ein eigenes Modell (Formeln, Margen), Monate auf den Kalender des Gesamtmodells gelegt; einheitlicher Δ-Maßstab; max. 24 Werte (Rest → Fußnote). Mega-Table/Balken/Waterfall ignorieren die Rolle (Hinweis im Bearbeitungsmodus). Measures müssen additiv sein (Gesamt = Σ Kategorien, wie bei der Periode) |
 | `rowType` | Grouping | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator` (Groß/klein egal). KPI = Margenzeile (%-Anzeige, Δ in %p) |
 | `formulaDef` | Grouping | für Formula/KPI: `[EBITDA]/[Umsatz]`, `+ - * /`, Klammern; Verweis per eindeutigem Zeilennamen, Formel-auf-Formel erlaubt, Zirkel → Fehler an der Zeile |
 | `signConvention` | Grouping | Rechenvorzeichen: Erlös `1`, Kosten `-1` (Subtotal = Vorzeichen × Σ Kinder) |
 | `displayInvert` | Grouping | Kosten positiv anzeigen (Anzeige ≠ Rechnung) |
 | `varianceInvert` | Grouping | Gut/schlecht drehen (Kosten unter Plan = günstig) |
-| `period` | Grouping | Monat/Periode — schaltet Sparklines, MTD/YTD-Blöcke, `secondBlock` frei. Formate: `2026-03`, Datum, Monatsnamen deutsch/englisch (lang/kurz), `1..12`; Fiskaljahr → `columns.periodSort = data` |
+| `sortOrder` | Grouping | Reihenfolge innerhalb des Elternknotens |
 | `comment` | Grouping | Kommentar je Zeile → Marker ①② + Fußnote |
-| `ac` | Measure | AC (Pflicht) |
-| `py` / `pl` / `fc` | Measure | PY / PL / FC je Periode |
-| `fcFy` / `plFy` | Measure | FY-Ausblick: AC&FC Gesamtjahr / PL Gesamtjahr (Skalar, auf jeder Monatszeile wiederholt — das Visual nimmt den ersten Wert). Schaltet den FY-Block frei (Mega `blockKind = fy`, 12G) |
 | `filterInfo` | Measure (Text) | Filterkontext-Text für die Filter-Fußzeile (`titleBlock.filterFooter`) — Berichtsfilter sind für Custom Visuals unsichtbar |
+| `fcFy` / `plFy` | Measure | FY-Ausblick: AC&FC Gesamtjahr / PL Gesamtjahr (Skalar, auf jeder Monatszeile wiederholt — das Visual nimmt den ersten Wert). Schaltet den FY-Block frei (Mega `blockKind = fy`, 12G) |
+
+Reihenfolge = Feldliste seit 1.2 (Ebenen → Schlüssel → AC · PY · PL · FC → Periode → Spalten-Kategorie → Spezialrollen → Filter-Info → FY). Das Visual liest jede Spalte über ihre **Rolle**, nie über die Position.
 
 **Vorzeichen-Dreierlogik:** SignConvention (rechnen) · DisplayInvert (zeigen) ·
 VarianceInvert (bewerten) sind unabhängig. Typische Kostenzeile: `-1`, `true`, `true`.
@@ -83,7 +86,14 @@ Die Ansicht ist Leser-Zustand (Toolbar) und steht in `state.uiState` (unten).
 - Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport
   (+30 Zeilen Puffer); Export zeichnet immer alles.
 
-## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.1.0.0)
+## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.2.0.0)
+
+**Neu in 1.2** (Ease of Use): `columns.preset` += `custom` mit `colAc`/`colPy`/
+`colPl`/`colFc`/`colDelta`; `columns.barOverlap`/`barTriangles` (Balken-Ansicht);
+`toolbar.showValues` (Wertspalten-Schalter für Leser) und `toolbar.showTemplate`
+(Template-Dropdown nur im Bearbeitungsmodus); `emptyState.mode`; Rolle
+`colCategory`; `state.uiState` += `vals`/`megaVals`. Pane: die Gruppe Mega-Table
+(Template) steht jetzt **vor** der Gruppe Tabelle.
 
 **Neu in 1.1** (Pakete A–C): `columns.blockKind`/`leftBlockKind`/`pctOfRevenue`/
 `exportExpandAll`/`highlight`/`materialityAbs`/`materialityPct`;
@@ -102,8 +112,15 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 
 | Property | Typ | Default | Bedeutung (de-DE-Pane) |
 | --- | --- | --- | --- |
-| `preset` | enum `full` · `acref` · `dall` · `acpydpy` · `acpldpl` · `dpct` | `full` | Standard-Spalten-Preset: Spaltensatz der klassischen Tabelle beim Öffnen des Berichts; Leser schalten ihn in der Toolbar um. Standard: AC·PY·PL·FC |
+| `preset` | enum `full` · `acref` · `dall` · `acpydpy` · `acpldpl` · `dpct` · `custom` | `full` | Standard-Spalten-Preset: Spaltensatz der klassischen Tabelle beim Öffnen des Berichts; Leser schalten ihn in der Toolbar um. Standard: AC·PY·PL·FC. `custom` (1.2) = „Eigene Auswahl" aus den fünf Schaltern darunter |
+| `colAc` | bool | `true` | Eigene Auswahl: Spalte AC: Istwerte als Zahlenspalte (mit % vom Umsatz, falls an). Standard: an — nur bei `preset = custom` sichtbar |
+| `colPy` | bool | `true` | Eigene Auswahl: Spalte PY: Vorjahreswerte als Zahlenspalte. Standard: an |
+| `colPl` | bool | `true` | Eigene Auswahl: Spalte PL: Planwerte als Zahlenspalte. Standard: an |
+| `colFc` | bool | `false` | Eigene Auswahl: Spalte FC: Forecastwerte als Zahlenspalte. Standard: aus |
+| `colDelta` | bool | `true` | Eigene Auswahl: Δ-Balken + Δ%-Pin: Abweichung von AC zur Δ-Referenz als Balken und Pin. Standard: an |
 | `reference` | enum `auto` · `py` · `pl` · `fc` | `auto` | Standard-Δ-Referenz: Basis der Δ-Spalten, -Balken und Baumkarten. Auto nimmt PL, sonst PY. Standard: Auto |
+| `barOverlap` | bool | `false` | Balken-Ansicht: Szenario-Balken überlappt: AC vorn in voller Stärke, die Referenz (PY grau / PL umrandet / FC schraffiert) dahinter, leicht versetzt — die ChartKitchen-Notation. Standard: aus |
+| `barTriangles` | bool | `false` | Balken-Ansicht: Dreieck-Marker weiterer Szenarien: Kleine Dreiecke über den Balken am Wert jedes weiteren gebundenen Szenarios (PY grau, PL umrandet, FC schraffiert). Standard: aus |
 | `periodSort` | enum `auto` · `data` · `calendar` | `auto` | Perioden-Sortierung: Automatisch liest JJJJ-MM-Schlüssel, Datumswerte und Monatsnamen; Datenreihenfolge behält die Reihenfolge des Modells (Fiskaljahre). Standard: Automatisch |
 | `pctRevenue` | bool | `true` | %-vom-Umsatz-Spalte: Anteil jeder Zeile an der Umsatz-Basiszeile, neben AC. Standard: an |
 | `revenueBase` | text | `—` | Umsatz-Basiszeile (ID oder Name): Zeile, auf die sich % vom Umsatz bezieht. Leer = erste Zeile der obersten Ebene |
@@ -165,6 +182,8 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `showLevels` | bool | `true` | Gruppe: Aufklapp-Ebene: Hierarchie bis Ebene 1, 2 … oder ganz öffnen. Standard: an |
 | `showOptions` | bool | `true` | Gruppe: Optionen: % vom Umsatz, Nullzeilen ausblenden, auf Breite einpassen. Standard: an |
 | `showScenario` | bool | `false` | Gruppe: Szenario (Mega-Table): Leser schalten das analysierte Szenario AC / FC und die Referenz-Sicht ΔPY · ΔPL · beide des Mega-Tables um. Standard: aus |
+| `showValues` | bool | `false` | Gruppe: Wertspalten (Szenarien einzeln): Leser kombinieren die Wertspalten frei — AC, PY, PL, FC und Δ gegen die Δ-Referenz (klassische Tabelle), analysiertes Szenario · PY · PL (Mega-Table). Die Spalten-Presets bleiben als Schnellwahl. Standard: aus |
+| `showTemplate` | bool | `true` | Template-Auswahl im Bearbeitungsmodus: Kompaktes Template-Dropdown am Anfang der Toolbar, solange du den Bericht bearbeitest (Ansicht Tabelle). Leser und Export sehen es nie. Standard: an |
 
 ### Objekt `numbers` — Zahlen
 
@@ -233,6 +252,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 
 | Property | Typ | Default | Bedeutung (de-DE-Pane) |
 | --- | --- | --- | --- |
+| `mode` | enum `demo` · `fields` · `message` | `demo` | Solange Felder fehlen (Bearbeitungsmodus): Demo = Beispiel-GuV (Smart Start) · Feld-Intro = welches Feld wohin, minimal und im Ausbau · Eigene Nachricht = Titel und Text darunter. Leser sehen immer den Standardtext oder die eigene Nachricht. Standard: Demo |
 | `title` | text | `—` | Eigener Titel: Ersetzt die Überschrift, wenn nichts dargestellt wird (im Lesemodus keine Felder gebunden oder Auswahl ohne Zeilen). Leer = Standardtext |
 | `body` | text | `—` | Eigener Text: Textkörper unter dem Titel im Leer-Zustand — z. B. ein Hinweis, welche Filter der Leser prüfen soll. Leer = Standardtext |
 <!-- hidden: columns.templateApplied -->
@@ -250,7 +270,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 ```json
 {
   "view": "table",            // table | bars | waterfall | tree
-  "preset": "full",           // full | acref | dall | acpydpy | acpldpl | dpct
+  "preset": "full",           // full | acref | dall | acpydpy | acpldpl | dpct | custom
   "ref": "pl",                // Δ-Referenz der klassischen Ansichten: py | pl | fc
   "unit": "auto",             // auto | none | k | m | b
   "density": "normal",        // normal | compact
@@ -261,7 +281,10 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
   "treeRoot": "", "treeCollapsed": null, "treeCard": "months", "treeStatus": true,
   "treeZoom": null, "treeV": 2,
   "megaMin": "",              // Leser-Szenario des Mega-Tables: "" | ac | fc
-  "megaRef": ""               // "" | py | pl | both
+  "megaRef": "",              // "" | py | pl | both
+  "vals": { "ac": true, "py": true, "pl": true, "fc": false, "d": true },
+                              // 1.2: Wertspalten der Eigenen Auswahl (gilt nur bei preset = custom)
+  "megaVals": null            // 1.2: Leser-Wertspalten des Mega-Tables { "min", "py", "pl" } | null = Pane
 }
 ```
 
@@ -337,7 +360,7 @@ werden dann überschrieben).
    klassischen Spalten — ein gesetztes Template ändert dort nichts. Im
    Mega-Modus blendet die Toolbar Spalten-Preset, Δ-Referenz, Perioden und Fit
    aus (die Spalten kommen aus dem Pane); Leser schalten Szenario/Referenz nur
-   mit `toolbar.showScenario`.
+   mit `toolbar.showScenario`, die Wertspalten (1.2) mit `toolbar.showValues`.
 4. **Minuend PL (12H):** `minuend = pl` braucht die PL-Rolle (sonst AC). Ein ΔPL
    gegen sich selbst existiert nicht — ΔPL-Schalter wirken dann nicht, `showPL`
    und `showMinuend` ergeben EINE PL-Spalte.
@@ -361,7 +384,24 @@ werden dann überschrieben).
 9. **Formelzeilen** verweisen per Zeilen**name** — doppelte Namen machen die
    Referenz mehrdeutig (Fehler an der Zeile). Σ-treue Rundung lässt Formel- und
    Margenzeilen aus.
-10. **Baum unantastbar:** Der Werttreiberbaum hat eigenen Klapp-Zustand
+10. **Template-Auswahl in der Toolbar (1.2)** ist ein Autoren-Werkzeug: Sie
+    erscheint nur, wenn der Host `viewMode` ≥ 1 meldet (Desktop-Bearbeitung,
+    Service-Bearbeiten), und schreibt `columns.template` + `templateApplied` +
+    alle Schalter in einem Merge, also genau das, was ein PBIR-Agent auch
+    schreiben soll. Dieselbe Bedingung gilt für die Umschalter im Leerzustand
+    (`emptyState.mode`). Ohne gemeldeten View-Mode (Test-Harness) gibt es beides
+    nicht.
+11. **Wertspalten-Schalter (1.2):** Ein Klick in der Gruppe „Wertspalten"
+    schreibt `preset = custom` + `vals` in `state.uiState`. Ein geändertes
+    `columns.preset` oder `colAc…colDelta` im Pane gewinnt wie jede
+    Pane-Vorgabe. Ein PBIR-Agent setzt für eine feste freie Kombination
+    `preset = 'custom'` plus die `col*`-Schalter.
+12. **Spalten-Kategorie (1.2)** wirkt nur in der klassischen Tabellen-Ansicht.
+    Die Kategorie-Blöcke rechnen ohne Σ-treue Rundung und ohne „% vom Umsatz"
+    (beides bleibt im Gesamt-Block). Nicht-additive Measures (Durchschnitte,
+    distinct counts) ergeben im Gesamt-Block die Summe der Kategorien, nicht
+    den Modellwert. Die gleiche Regel gilt schon für die Periode.
+13. **Baum unantastbar:** Der Werttreiberbaum hat eigenen Klapp-Zustand
     (`treeCollapsed`) und SVG-Titel statt Tooltips; Mega-/Finance-Schalter wirken
     dort nicht.
 
@@ -373,4 +413,4 @@ werden dann überschrieben).
 - `SPEC-MEGATABLE.md` — Maße, Notation, Abweichungen von den Referenzblättern
 - `CHANGELOG.md` · `README.md` · `QUICKSTART.md`
 - `../.claude/skills/pnl-report/` — Claude-Skill: GuV-Seite in ein PBIP bauen
-- `test/test.html` — Render-Fälle p1–p14 · m1–m31 als lebende Beispiele
+- `test/test.html` — Render-Fälle p1–p20 · m1–m31 als lebende Beispiele

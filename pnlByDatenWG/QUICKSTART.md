@@ -5,11 +5,11 @@ Hierarchie plus die Kennzahlen (zwei Minuten). **Weg 2** ergänzt die Felder,
 die daraus eine echte GuV machen — Zeilentypen, Formelzeilen, Vorzeichen,
 Kommentare.
 
-Version **1.1.0.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
+Version **1.2.0.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 Web-Fassung dieser Anleitung: [`pnl-schnellstart.html`](../pnl-schnellstart.html)
 (DE) · [`pnl-schnellstart_en.html`](../pnl-schnellstart_en.html) (EN).
 
-> **1.0 / 1.1:** Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind
+> **1.0 – 1.2:** Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind
 > stabil. Nicht im AppSource, also nicht von Microsoft zertifiziert.
 > Oberfläche in Deutsch, Englisch, Spanisch und Japanisch (folgt der
 > Berichtssprache). Feedback: <https://github.com/losveratos/powerbi-kitchen-/issues>
@@ -27,6 +27,11 @@ Demo-GuV mit dem Hinweis „Demo" — darauf lassen sich Ansichten, Toolbar und
 Formatmenü schon ausprobieren (auch die Mega-Table-Templates). Sobald AC und
 eine Hierarchie gebunden sind, verschwindet die Demo; fehlt noch etwas, nennt
 der Hinweis die Rolle. Leser und Exporte sehen nie Demo-Zahlen.
+Statt der Demo kann das Visual ein **Feld-Intro** zeigen, also welches Feld
+wohin gehört, minimal und im Ausbau. Umschalten per Knopf **„Felder erklären"**
+im Demo-Hinweis oder unter Leer-Zustand → Modus (1.2). Die Feldliste steht seit
+1.2 in der gewohnten Reihenfolge: Ebenen, Konto, AC · PY · PL · FC, Periode,
+dann die Spezialrollen.
 
 **Dark Mode:** Stil → Erscheinungsbild. *Auto* folgt einem dunklen
 Berichtsthema, *Dunkel* erzwingt es (z. B. für von Hand dunkel gefärbte Seiten).
@@ -126,8 +131,9 @@ Jan..Dez.
 Fläche — Kombi-Chart mit Monaten und Brücke, Szenario-Grid, „Zahlt ein auf" und
 „Getrieben von". Alle Toolbar-Zustände sind persistiert und lesezeichenfähig.
 
-**Mega-Table:** Formatmenü → **Spalten & Mega-Table → Mega-Table (IBCS-Templates)
-→ Template** wählen (T01A … T04E, 12A, 12G, 12H). Das Template setzt die Schalter darunter,
+**Mega-Table:** im Bearbeitungsmodus das Dropdown **Template** links in der
+Toolbar (1.2), oder Formatmenü → **Spalten & Mega-Table → Mega-Table
+(IBCS-Templates, erste Gruppe) → Template** wählen (T01A … T04E, 12A, 12G, 12H). Das Template setzt die Schalter darunter,
 danach ist jeder Schalter frei: Wertspalten PY · PL · AC/FC, Δ als Zahl, Balken,
 integrierter Wasserfall, Δ% als Zahl oder Pins, zweiter Block Monat | _YTD
 (braucht die Periode), Schwellen mit Fußzeile. Das Formatmenü zeigt nur, was zur
@@ -147,6 +153,20 @@ wenn leer, die generierte.
 (Werte bzw. Δ), z. B. `2m` und `500k` in allen Visuals einer Seite — gleiche
 Beträge sind dann gleich lang. Im Bearbeitungsmodus steht „Skala fixiert" unter
 der Tabelle.
+
+**Szenarien frei kombinieren (1.2):** Darstellung & Toolbar → **Gruppe:
+Wertspalten** an. Dann schalten Leser AC · PY · PL · FC und das Δ gegen die
+Δ-Referenz einzeln, zum Beispiel AC + PL + FC. Die Spalten-Presets bleiben als
+Schnellwahl. Für Autoren gibt es dasselbe als Preset **„Eigene Auswahl"** mit
+fünf Schaltern im Formatbereich.
+
+**Je Segment oder Quartal (1.2):** ein Feld in **Spalten-Kategorie**. Die
+klassische Tabelle wiederholt dann ihren Spaltensatz je Wert, den Gesamt-Block
+zeigt sie danach.
+
+**Balken-Ansicht wie ChartKitchen (1.2):** Spalten & Mega-Table → „Szenario-Balken
+überlappt" und „Dreieck-Marker": AC vorn, Referenz versetzt dahinter, weitere
+Szenarien als kleine Dreiecke.
 
 **Farben ohne Rot/Grün:** Stil → **Abweichungsfarben-Preset → Blau / Orange**
 (ColorBrewer, auch im Schwarzweiß-Druck lesbar).
