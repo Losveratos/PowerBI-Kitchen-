@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Der unsichtbare Kampf · Interview mit Michael Thomanek · Daten-WG</title>
+<!-- ENTWURF: noindex entfernen, sobald der Beitrag freigegeben ist -->
+<meta name="robots" content="noindex">
+<link rel="alternate" type="text/markdown" title="Markdown" href="md/der-unsichtbare-kampf-post.md">
+<meta name="description" content="Interview mit Michael Thomanek über sein Buch „Der unsichtbare Kampf“: was über vierzig Jahre Kampfkunst über inneren Widerstand, Präsenz und Identität zeigen und was davon im Projektalltag von Datenleuten trägt.">
+<!-- Favicon · Daten-WG Knowledge Kitchen -->
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/fonts/anton/anton.css">
+<link rel="stylesheet" href="assets/fonts/inter/inter.css">
+<style>
+/* Farben vom Buchcover „Der unsichtbare Kampf“ (Kenamo Verlag) */
+:root {
+  --coral:#E25A52; --salmon:#D9876A; --peach:#E9A27E; --brown:#7A3F2E;
+  --teal:#4E9E86; --green:#1F5B47; --aubergine:#3E2F5B; --night:#231B33;
+  --sky:#5B93C9; --ochre:#EFC46A;
+  --paper:#F6EFE6; --paper-2:#EEE3D4; --card:#FFFBF5;
+  --ink:#231B33; --ink-soft:#4A3F57; --line:#D9CBB8; --outline:#120D1C;
+  --focus:#3E2F5B;
+  --display:"Anton","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+  --sans:"Inter","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+body {
+  font-family:var(--sans); font-size:17px; line-height:1.65; color:var(--ink);
+  background:var(--paper); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+a { color:inherit; }
+img { display:block; max-width:100%; height:auto; }
+:focus-visible { outline:3px solid var(--focus); outline-offset:3px; border-radius:2px; }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+/* ------------------------------------------------------------- Hero */
+.hero {
+  position:relative; isolation:isolate; overflow:hidden;
+  background:var(--night); color:var(--paper);
+  --focus:var(--ochre);
+}
+.hero-facets { position:absolute; inset:0; width:100%; height:100%; z-index:-2; display:block; }
+.hero::before {
+  content:''; position:absolute; inset:0; z-index:-1;
+  background:
+    radial-gradient(ellipse 46% 78% at 62% 52%, rgba(35,27,51,.9) 0%, rgba(35,27,51,.8) 55%, rgba(35,27,51,0) 100%);
+}
+.hero-inner {
+  max-width:1120px; margin:0 auto; padding:64px 24px 88px;
+  display:grid; grid-template-columns:minmax(220px,340px) minmax(0,1fr); gap:64px; align-items:center;
+}
+.hero-cover { margin:0; }
+.cover-frame {
+  overflow:hidden; aspect-ratio:810/1270; background:var(--night);
+  border:2px solid var(--outline);
+  box-shadow:14px 14px 0 var(--coral), 14px 14px 0 2px var(--outline);
+}
+/* Foto des Covers: schmalen dunklen Rand oben/rechts wegschneiden */
+.cover-frame img { width:107%; max-width:none; height:auto; margin:-2% 0 0 -.6%; }
+.hero-cover figcaption { display:inline-block; margin-top:26px; padding:6px 10px; background:rgba(35,27,51,.9); font-size:13px; line-height:1.45; color:#DCD2E4; }
+
+.eyebrow {
+  display:inline-flex; align-items:center; gap:10px; margin-bottom:22px;
+  font-size:12.5px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--ochre);
+}
+.eyebrow svg { width:18px; height:18px; flex:none; }
+
+.title {
+  --tm:clamp(2.7rem,16.4vw,5.8rem);
+  font-family:var(--display); font-weight:400; text-transform:uppercase; color:var(--paper);
+  display:inline-flex; flex-direction:column; line-height:.94; letter-spacing:.01em;
+  margin-bottom:26px; max-width:100%;
+}
+.t-der { display:flex; align-items:center; gap:.45em; font-size:calc(var(--tm) * .44); line-height:1.1; margin-bottom:.12em; }
+.t-der::before, .t-der::after { content:''; flex:1; height:2px; background:currentColor; opacity:.9; }
+.t-mid { font-size:var(--tm); margin-right:-.01em; }
+/* KAMPF so breit wie UNSICHTBARE (Anton-Laufweiten gemessen), wie auf dem Cover */
+.t-big { font-size:calc(var(--tm) * 1.76); letter-spacing:.04em; margin-right:-.04em; line-height:.88; }
+.subtitle { font-size:clamp(1.08rem,2.6vw,1.35rem); font-weight:600; line-height:1.4; color:var(--peach); max-width:34ch; margin-bottom:14px; }
+.dek { font-size:16.5px; line-height:1.6; color:#E6DCEB; max-width:52ch; margin-bottom:26px; }
+.post-meta { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#E6DCEB; }
+.post-meta > span { display:inline-flex; align-items:center; gap:10px; }
+.post-meta > span + span::before { content:''; width:7px; height:7px; background:var(--teal); clip-path:polygon(50% 0,100% 100%,0 100%); }
+.post-meta .badge-draft::before { display:none; }
+.badge-draft {
+  padding:5px 12px 5px; border-radius:2px; background:var(--ochre); color:var(--night) !important;
+  font-weight:700; letter-spacing:.14em; margin-left:4px;
+}
+
+/* gezackte Facetten-Kante unter dem Hero */
+.facet-edge { display:block; width:100%; height:30px; margin-top:-1px; }
+
+/* ------------------------------------------------------------- Inhalt */
+.content { max-width:760px; margin:0 auto; padding:32px 20px 96px; }
+
+.draft-note {
+  display:flex; gap:14px; align-items:flex-start;
+  background:var(--card); border:2px dashed var(--brown); border-radius:4px;
+  padding:16px 18px; margin:8px 0 8px; font-size:15px; line-height:1.55; color:var(--ink-soft);
+}
+.draft-note strong { color:var(--brown); }
+
+.prose h2 {
+  display:flex; align-items:center; gap:14px;
+  font-family:var(--display); font-weight:400; text-transform:uppercase; letter-spacing:.02em;
+  font-size:clamp(1.7rem,5vw,2.3rem); line-height:1.08; color:var(--night);
+  margin:64px 0 20px;
+}
+.prose h2 .mark { width:30px; height:30px; flex:none; }
+.prose p { margin-bottom:18px; color:var(--ink-soft); }
+.prose p strong { color:var(--ink); font-weight:650; }
+.prose cite { font-style:italic; }
+
+.mark .f1 { fill:var(--m1,var(--coral)); }
+.mark .f2 { fill:var(--m2,var(--salmon)); }
+.mark polygon { stroke:var(--outline); stroke-width:1.5; stroke-linejoin:round; }
+.m-teal { --m1:var(--teal); --m2:var(--green); }
+.m-ochre { --m1:var(--ochre); --m2:var(--peach); }
+.m-sky { --m1:var(--sky); --m2:var(--aubergine); }
+.m-coral { --m1:var(--coral); --m2:var(--brown); }
+.m-peach { --m1:var(--peach); --m2:var(--salmon); }
+
+/* Entwurfs-Markierungen */
+.is-draft { border-left:3px dashed var(--ochre); padding-left:14px; }
+.draft-tag {
+  display:inline-block; margin-right:6px; padding:0 6px; border-radius:2px;
+  background:#F7E3B0; color:#6B3524; font-size:.8em; font-weight:700; letter-spacing:.04em;
+}
+
+/* Das Buch in drei Sätzen */
+.three { list-style:none; counter-reset:three; display:grid; gap:14px; margin:0 0 30px; }
+.three li {
+  counter-increment:three; position:relative; display:grid; grid-template-columns:52px 1fr; gap:16px; align-items:start;
+  background:var(--card); border:2px solid var(--outline); padding:16px 18px 16px 14px; color:var(--ink);
+  font-size:16.5px; line-height:1.55;
+}
+.three li::before {
+  content:counter(three); display:flex; align-items:flex-end; justify-content:center; padding-bottom:4px;
+  width:52px; height:46px; font-family:var(--display); font-size:22px; color:var(--night);
+  background:var(--c,var(--coral)); clip-path:polygon(50% 0,100% 100%,0 100%);
+}
+.three li:nth-child(2) { --c:var(--teal); }
+.three li:nth-child(3) { --c:var(--ochre); }
+
+/* Klappentext */
+.klappentext {
+  position:relative; margin:34px 0 10px; padding:34px 28px 26px;
+  background:var(--card); border:2px solid var(--outline);
+  box-shadow:12px 12px 0 var(--teal), 12px 12px 0 2px var(--outline);
+}
+.klappentext .corner { position:absolute; top:-2px; right:-2px; width:92px; height:92px; }
+.klappentext blockquote p { color:var(--ink); font-size:16.5px; line-height:1.7; margin-bottom:14px; max-width:60ch; }
+.klappentext blockquote p:first-child {
+  font-family:var(--display); text-transform:uppercase; font-size:clamp(1.35rem,4.2vw,1.8rem); line-height:1.15; letter-spacing:.01em;
+  color:var(--night); padding-right:72px;
+}
+.klappentext blockquote p:last-child { font-weight:600; }
+.quote-source { margin:18px 0 0 !important; font-size:13px !important; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--brown) !important; }
+
+/* Platzhalter */
+.placeholder {
+  border:2px dashed var(--aubergine); border-radius:4px; background:var(--paper-2);
+  padding:18px 20px; margin:10px 0 18px; color:var(--ink-soft); font-size:15.5px; line-height:1.55;
+}
+.placeholder .ph-label {
+  display:flex; align-items:center; gap:10px; font-weight:700; color:var(--aubergine);
+  font-size:13px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:6px;
+}
+.placeholder .ph-label::before { content:''; width:12px; height:12px; flex:none; background:var(--aubergine); clip-path:polygon(50% 0,100% 100%,0 100%); }
+.placeholder p { margin:0 !important; }
+.placeholder ul { margin:8px 0 0 18px; }
+.placeholder li { margin:2px 0; }
+
+/* Interview */
+.interview-lead { font-size:16.5px; }
+.qa { display:grid; grid-template-columns:48px minmax(0,1fr); gap:0 18px; padding:26px 0 8px; border-top:1px solid var(--line); }
+.qa:first-of-type { border-top:0; }
+.qa .facet { width:48px; height:48px; margin-top:2px; }
+.facet polygon { stroke:var(--outline); stroke-width:1.5; stroke-linejoin:round; }
+.facet .a { fill:var(--c1); } .facet .b { fill:var(--c2); } .facet .c { fill:var(--c3); }
+.qa h3 { font-size:clamp(1.12rem,2.8vw,1.28rem); font-weight:700; line-height:1.35; color:var(--night); letter-spacing:-.005em; margin-bottom:12px; }
+.q-num { display:block; margin-bottom:6px; font-size:12px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--brown); }
+.qa .placeholder { margin-top:0; }
+.qa:nth-of-type(8n+1) { --c1:var(--coral);  --c2:var(--salmon); --c3:var(--brown); }
+.qa:nth-of-type(8n+2) { --c1:var(--teal);   --c2:var(--green);  --c3:var(--ochre); }
+.qa:nth-of-type(8n+3) { --c1:var(--ochre);  --c2:var(--peach);  --c3:var(--coral); }
+.qa:nth-of-type(8n+4) { --c1:var(--sky);    --c2:var(--aubergine); --c3:var(--teal); }
+.qa:nth-of-type(8n+5) { --c1:var(--salmon); --c2:var(--brown);  --c3:var(--ochre); }
+.qa:nth-of-type(8n+6) { --c1:var(--green);  --c2:var(--teal);   --c3:var(--coral); }
+.qa:nth-of-type(8n+7) { --c1:var(--aubergine); --c2:var(--sky); --c3:var(--peach); }
+.qa:nth-of-type(8n+8) { --c1:var(--peach);  --c2:var(--coral);  --c3:var(--green); }
+
+/* Buch-Box */
+.book-box {
+  position:relative; overflow:hidden; isolation:isolate;
+  display:grid; grid-template-columns:132px minmax(0,1fr); gap:26px; align-items:start;
+  margin:64px 0 0; padding:28px; background:var(--night); color:var(--paper);
+  border:2px solid var(--outline); --focus:var(--ochre);
+}
+.book-box .bb-facets { position:absolute; right:0; bottom:0; width:260px; height:190px; z-index:-1; opacity:.6; -webkit-mask-image:linear-gradient(135deg, transparent 30%, #000 80%); mask-image:linear-gradient(135deg, transparent 30%, #000 80%); }
+.book-box img { width:132px; aspect-ratio:842/1300; object-fit:cover; border:2px solid var(--outline); box-shadow:7px 7px 0 var(--coral), 7px 7px 0 2px var(--outline); }
+.prose .book-box p { margin-bottom:0; }
+.prose .bb-kicker { font-size:12.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--ochre); margin-bottom:6px !important; }
+.prose .bb-title { color:var(--paper); font-family:var(--display); font-weight:400; text-transform:uppercase; font-size:clamp(1.6rem,4.4vw,2.1rem); line-height:1.05; letter-spacing:.02em; margin-bottom:4px !important; }
+.prose .bb-sub { color:var(--peach); font-weight:600; font-size:15px; line-height:1.45; margin-bottom:16px !important; }
+.bb-facts { display:grid; grid-template-columns:auto minmax(0,1fr); gap:4px 16px; font-size:14.5px; margin-bottom:20px; }
+.bb-facts dt { color:#CFC3D9; font-weight:600; }
+.bb-facts dd { color:var(--paper); overflow-wrap:anywhere; }
+.bb-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; }
+.btn-book {
+  display:inline-flex; align-items:center; gap:10px; min-height:48px; padding:0 22px;
+  background:var(--ochre); color:var(--night); font-weight:700; font-size:15px; letter-spacing:.02em; text-decoration:none;
+  border:2px solid var(--outline); box-shadow:4px 4px 0 var(--coral);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.btn-book:hover { transform:translate(-1px,-1px); box-shadow:6px 6px 0 var(--coral); }
+.btn-book svg { width:16px; height:16px; }
+.link-note { font-size:13.5px; color:#CFC3D9; }
+.link-note strong { color:var(--ochre); }
+
+/* Weiter in der Kitchen */
+.next h2 { margin-top:56px; }
+.next-links { list-style:none; display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+.next-links a {
+  display:flex; flex-direction:column; justify-content:center; gap:2px; min-height:72px; padding:14px 18px;
+  background:var(--card); border:2px solid var(--outline); text-decoration:none;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.next-links a:hover { transform:translate(-2px,-2px); box-shadow:5px 5px 0 var(--teal); }
+.next-links .nl-k { font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--green); }
+.next-links .nl-t { font-weight:700; color:var(--night); }
+
+/* ------------------------------------------------------------- responsive */
+@media (max-width:860px) {
+  .hero-inner { grid-template-columns:minmax(0,1fr); gap:44px; padding:40px 20px 64px; }
+  .hero-text { order:1; }
+  .hero-cover { order:2; max-width:260px; width:72%; margin:0 auto 0 0; }
+  .hero::before { background:linear-gradient(180deg, rgba(35,27,51,.55) 0%, rgba(35,27,51,.86) 18%, rgba(35,27,51,.84) 62%, rgba(35,27,51,.2) 100%); }
+}
+@media (max-width:560px) {
+  body { font-size:16.5px; }
+  .eyebrow { letter-spacing:.1em; font-size:12px; }
+  .qa { grid-template-columns:36px minmax(0,1fr); gap:0 14px; }
+  .qa .facet { width:36px; height:36px; }
+  .three li { grid-template-columns:40px 1fr; gap:12px; }
+  .three li::before { width:40px; height:36px; font-size:18px; }
+  .klappentext { padding:28px 18px 20px; box-shadow:8px 8px 0 var(--teal), 8px 8px 0 2px var(--outline); margin-right:10px; }
+  .klappentext .corner { width:64px; height:64px; }
+  .klappentext blockquote p:first-child { padding-right:44px; }
+  .book-box { grid-template-columns:minmax(0,1fr); padding:22px 18px; }
+  .book-box img { width:110px; }
+}
+@media (prefers-reduced-motion:no-preference) {
+  .hero-facets polygon { animation:facet-in .9s ease-out both; animation-delay:calc(var(--i,0) * 6ms); }
+  @keyframes facet-in { from { opacity:0; } }
+}
+@media (prefers-reduced-motion:reduce) {
+  html { scroll-behavior:auto; }
+  .btn-book, .next-links a { transition:none; }
+  .btn-book:hover, .next-links a:hover { transform:none; }
+}
+</style>
+</head>
+<body>
+<script src="assets/js/site-chrome.js" data-chrome="full"></script>
+<main id="beitrag">
+
+  <header class="hero">
+    <svg class="hero-facets" id="hero-facets" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"></svg>
+    <div class="hero-inner">
+      <figure class="hero-cover">
+        <div class="cover-frame"><img src="assets/posts/unsichtbarer-kampf/cover.jpg" width="842" height="1300"
+             alt="Buchcover „Der unsichtbare Kampf“ von Michael Thomanek: zwei kubistisch aus Dreiecken zusammengesetzte Figuren geben sich die Hand, links eine helle in Gelb und Grau, rechts eine grüne, vor Flächen in Koralle, Terrakotta, Braun, Blau und Violett. Darunter der Titel in weißen Großbuchstaben und der Untertitel „Wie inneres Kämpfen dich wandelt – Auf der Matte und im Alltag“."></div>
+        <figcaption>Cover mit freundlicher Genehmigung von Michael Thomanek.</figcaption>
+      </figure>
+
+      <div class="hero-text">
+        <p class="eyebrow"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><polygon points="10,2 18,17 2,17" fill="#E25A52" stroke="#120D1C" stroke-width="1.2"/><polygon points="10,2 18,17 10,12" fill="#EFC46A" stroke="#120D1C" stroke-width="1.2"/></svg>Interview · Persönliche Entwicklung</p>
+        <h1 class="title">
+          <span class="t-der">Der</span>
+          <span class="t-mid">unsichtbare</span>
+          <span class="t-big">Kampf</span>
+        </h1>
+        <p class="subtitle">Wie inneres Kämpfen dich wandelt. Auf der Matte und im Alltag.</p>
+        <p class="dek">Michael Tenner im Gespräch mit Michael Thomanek, „Micha“, über sein Buch, über persönliche Entwicklung und über die Frage, was davon im Projektalltag von Datenleuten trägt.</p>
+        <p class="post-meta">
+          <span>Interview</span>
+          <span>Persönliche Entwicklung</span>
+          <span data-todo="lesezeit">Lesezeit ca. 4 Min.</span>
+          <span class="badge-draft">Entwurf</span>
+        </p>
+      </div>
+    </div>
+  </header>
+  <svg class="facet-edge" id="facet-edge" viewBox="0 0 1600 30" preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg>
+
+  <div class="content">
+
+    <div class="draft-note" role="note">
+      <p><strong>Entwurf, nicht veröffentlicht.</strong> Diese Seite ist noch nirgends verlinkt und für Suchmaschinen gesperrt. Stellen mit <span class="draft-tag">[Entwurf]</span> sind Platzhalter zum Überarbeiten, die Antworten von Micha folgen nach dem Gespräch.</p>
+    </div>
+
+    <article class="prose">
+
+      <section id="warum" aria-labelledby="h-warum">
+        <h2 id="h-warum"><svg class="mark m-coral" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><polygon class="f1" points="16,2 30,29 2,29"/><polygon class="f2" points="16,2 30,29 16,20"/></svg>Warum dieses Buch in der Kitchen?</h2>
+        <p class="is-draft"><span class="draft-tag">[Entwurf]</span> In der Kitchen geht es sonst um Datenmodelle, Reports und Werkzeuge. Ein Buch über Kampfkunst wirkt hier auf den ersten Blick fremd. Auf den zweiten weniger: Druck vor dem Go-Live, Widerstand im Projekt, die Frage, wie präsent man im Meeting wirklich ist, und wer man im Job eigentlich sein will. Das kennen viele von uns.</p>
+        <p class="is-draft"><span class="draft-tag">[Entwurf]</span> Micha beschreibt in seinem Buch, was auf der Matte sichtbar wird, und überträgt es auf den Kampf, den wir innen führen. Ich wollte wissen, was davon im Arbeitsalltag trägt. Darum dieses Gespräch.</p>
+        <p class="is-draft"><span class="draft-tag">[Entwurf]</span> Danke an Micha, dass wir Cover und Klappentext hier zeigen dürfen.</p>
+      </section>
+
+      <section id="buch" aria-labelledby="h-buch">
+        <h2 id="h-buch"><svg class="mark m-teal" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><polygon class="f1" points="16,2 30,29 2,29"/><polygon class="f2" points="16,2 30,29 16,20"/></svg>Das Buch in drei Sätzen</h2>
+        <ol class="three">
+          <li>Der eigentliche Kampf findet nicht draußen statt, sondern in uns: in unseren Gedanken, unseren Geschichten und dem Bild, das wir von uns selbst und der Welt haben.</li>
+          <li>Michael Thomanek nimmt, was in über vierzig Jahren Kampfkunst auf der Matte sichtbar wurde, und überträgt es auf diesen inneren Kampf.</li>
+          <li>Es geht nicht darum, nicht mehr zu kämpfen, sondern zu verstehen, woher der Kampf kommt und wie aus innerer Reibung wieder Stimmigkeit entsteht.</li>
+        </ol>
+
+        <div class="klappentext">
+          <svg class="corner" id="quote-corner" viewBox="0 0 92 92" aria-hidden="true" focusable="false">
+            <polygon points="92,0 92,92 38,0" fill="#E25A52"/>
+            <polygon points="38,0 92,92 92,46" fill="#D9876A"/>
+            <polygon points="92,0 62,0 92,30" fill="#EFC46A"/>
+            <polygon points="38,0 0,0 64,44" fill="#3E2F5B"/>
+            <g fill="none" stroke="#120D1C" stroke-width="1.5" stroke-linejoin="round"><polygon points="92,0 92,92 38,0"/><polygon points="38,0 92,92 92,46"/><polygon points="92,0 62,0 92,30"/><polygon points="38,0 0,0 64,44"/></g>
+          </svg>
+          <blockquote>
+            <p>Was wäre, wenn der eigentliche Kampf nicht auf der Straße stattfindet – sondern in uns?</p>
+            <p>Michael Thomanek schöpft aus über vierzig Jahren Erfahrung in der Kampfkunst. Er zeigt, was auf der Matte sichtbar wird – und überträgt es auf einen Kampf, den jeder Mensch kennt: den inneren Kampf. Widerstand, Anspannung und Reibung entstehen in unseren Gedanken, unseren Geschichten und in dem Bild, das wir von uns selbst und der Welt haben.</p>
+            <p>In der Mitte dieses Buches liegt zugleich sein philosophisches Herzstück: die Frage, von welchem Standpunkt aus wir uns selbst und die Welt überhaupt erleben. Es geht nicht darum, nicht mehr zu kämpfen, sondern zu verstehen, woher der Kampf kommt – und wie aus innerer Reibung wieder Stimmigkeit entstehen kann.</p>
+            <p>Ein Buch über Präsenz. Über Identität. Über Integration. Und über die stille Kraft, die entsteht, wenn wir aufhören, gegen uns selbst zu arbeiten.</p>
+          </blockquote>
+          <p class="quote-source">Klappentext · <cite>Der unsichtbare Kampf</cite>, Kenamo Verlag</p>
+        </div>
+      </section>
+
+      <section id="micha" aria-labelledby="h-micha">
+        <h2 id="h-micha"><svg class="mark m-ochre" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><polygon class="f1" points="16,2 30,29 2,29"/><polygon class="f2" points="16,2 30,29 16,20"/></svg>Über Micha</h2>
+        <p>Michael Thomanek, von allen Micha genannt, schöpft aus <strong>über vierzig Jahren Erfahrung in der Kampfkunst</strong>. Mit <cite>Der unsichtbare Kampf</cite> überträgt er, was auf der Matte sichtbar wird, auf den inneren Kampf, den jeder Mensch kennt. Das Buch ist im Kenamo Verlag erschienen.</p>
+        <div class="placeholder" data-todo="bio">
+          <p class="ph-label">[Entwurf] Mehr Bio folgt</p>
+          <p>Platz für zwei, drei Sätze zu Micha, mit ihm abgestimmt: Kampfkunst-Stil und Weg, was er heute macht, wo man ihn findet.</p>
+        </div>
+      </section>
+
+      <section id="interview" aria-labelledby="h-interview">
+        <h2 id="h-interview"><svg class="mark m-sky" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><polygon class="f1" points="16,2 30,29 2,29"/><polygon class="f2" points="16,2 30,29 16,20"/></svg>Das Interview</h2>
+        <p class="interview-lead">Acht Fragen, vom Buch über die Matte bis zum Montagmorgen vor dem ersten Meeting.</p>
+
+        <div class="qa" id="frage-1">
+          <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="6,4 42,10 24,26"/><polygon class="b" points="6,4 24,26 4,40"/><polygon class="c" points="42,10 36,44 24,26 4,40 36,44"/></svg>
+          <div>
+            <h3><span class="q-num">Frage 1</span>Micha, wie kam es zu dem Buch — und warum gerade jetzt?</h3>
+            <div class="placeholder" data-todo="antwort-1"><p class="ph-label">Antwort von Micha folgt</p></div>
+          </div>
+        </div>
+
+        <div class="qa" id="frage-2">
+          <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="24,3 45,40 24,30"/><polygon class="b" points="24,3 24,30 3,40"/><polygon class="c" points="3,40 24,30 45,40"/></svg>
+          <div>
+            <h3><span class="q-num">Frage 2</span>Vierzig Jahre auf der Matte: Was hat dich die Kampfkunst über dich selbst gelehrt, das du nirgendwo anders gelernt hättest?</h3>
+            <div class="placeholder" data-todo="antwort-2"><p class="ph-label">Antwort von Micha folgt</p></div>
+          </div>
+        </div>
+
+        <div class="qa" id="frage-3">
+          <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="4,6 44,4 30,24"/><polygon class="b" points="4,6 30,24 10,44"/><polygon class="c" points="44,4 40,42 10,44 30,24"/></svg>
+          <div>
+            <h3><span class="q-num">Frage 3</span>Du schreibst, Widerstand entsteht in unseren Gedanken und Geschichten. Wie merkt man im Alltag, dass man gerade gegen sich selbst kämpft?</h3>
+            <div class="placeholder" data-todo="antwort-3"><p class="ph-label">Antwort von Micha folgt</p></div>
+          </div>
+        </div>
+
+        <div class="qa" id="frage-4">
+          <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="24,2 46,24 24,24"/><polygon class="b" points="24,2 24,24 2,24"/><polygon class="c" points="2,24 46,24 24,46"/></svg>
+          <div>
+            <h3><span class="q-num">Frage 4</span>„Von welchem Standpunkt aus erleben wir uns und die Welt?“ — was meinst du damit, und wie kann man das im Alltag ausprobieren?</h3>
+            <div class="placeholder" data-todo="antwort-4"><p class="ph-label">Antwort von Micha folgt</p></div>
+          </div>
+        </div>
+
+        <div class="qa" id="frage-5">
+          <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="3,8 40,3 20,30"/><polygon class="b" points="40,3 45,38 20,30"/><polygon class="c" points="3,8 20,30 45,38 8,45"/></svg>
+          <div>
+            <h3><span class="q-num">Frage 5</span>Viele aus unserer Community arbeiten unter Druck: Deadlines, Go-Lives, Stakeholder. Was kann man von der Matte in ein schwieriges Projekt mitnehmen?</h3>
+            <div class="placeholder" data-todo="antwort-5"><p class="ph-label">Antwort von Micha folgt</p></div>
+          </div>
+        </div>
+
+        <div class="qa" id="frage-6">
+          <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="24,3 44,44 4,44"/><polygon class="b" points="24,3 30,44 4,44"/><polygon class="c" points="24,3 44,44 30,44"/></svg>
+          <div>
+            <h3><span class="q-num">Frage 6</span>Präsenz, Identität, Integration: Wenn jemand nur einen dieser Gedanken mitnimmt — welcher sollte es sein?</h3>
+            <div class="placeholder" data-todo="antwort-6"><p class="ph-label">Antwort von Micha folgt</p></div>
+          </div>
+        </div>
+
+        <div class="qa" id="frage-7">
+          <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="4,4 44,4 24,22"/><polygon class="b" points="4,4 24,22 4,44"/><polygon class="c" points="44,4 44,44 4,44 24,22"/></svg>
+          <div>
+            <h3><span class="q-num">Frage 7</span>Hast du eine kleine Übung, die man morgen früh vor dem ersten Meeting machen kann?</h3>
+            <div class="placeholder" data-todo="antwort-7"><p class="ph-label">Antwort von Micha folgt</p></div>
+          </div>
+        </div>
+
+        <div class="qa" id="frage-8">
+          <svg class="facet" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><polygon class="a" points="10,3 46,16 22,24"/><polygon class="b" points="10,3 22,24 2,34"/><polygon class="c" points="46,16 34,46 2,34 22,24"/></svg>
+          <div>
+            <h3><span class="q-num">Frage 8</span>Für wen hast du das Buch geschrieben — und für wen vielleicht gerade nicht?</h3>
+            <div class="placeholder" data-todo="antwort-8"><p class="ph-label">Antwort von Micha folgt</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="mitnehmen" aria-labelledby="h-mitnehmen">
+        <h2 id="h-mitnehmen"><svg class="mark m-peach" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><polygon class="f1" points="16,2 30,29 2,29"/><polygon class="f2" points="16,2 30,29 16,20"/></svg>Was ich für mich mitnehme</h2>
+        <div class="placeholder" data-todo="fazit">
+          <p class="ph-label">[Entwurf] Fazit von Michael Tenner folgt</p>
+          <p>Drei bis fünf Sätze nach dem Gespräch. Mögliche Anker für die Brücke in den Datenalltag:</p>
+          <ul>
+            <li>Druck im Projekt: Deadline, Go-Live, Eskalation</li>
+            <li>Widerstand: gegen Anforderungen, Stakeholder, das eigene Datenmodell</li>
+            <li>Präsenz im Team: im Meeting wirklich da sein</li>
+            <li>Identität und Karriere: wer man im Job sein will</li>
+          </ul>
+        </div>
+      </section>
+
+      <aside class="book-box" aria-labelledby="bb-title">
+        <svg class="bb-facets" id="bb-facets" viewBox="0 0 220 160" preserveAspectRatio="xMaxYMax slice" aria-hidden="true" focusable="false"></svg>
+        <img class="bb-cover" src="assets/posts/unsichtbarer-kampf/cover.jpg" width="842" height="1300" alt="" loading="lazy">
+        <div>
+          <p class="bb-kicker">Das Buch</p>
+          <p class="bb-title" id="bb-title">Der unsichtbare Kampf</p>
+          <p class="bb-sub">Wie inneres Kämpfen dich wandelt. Auf der Matte und im Alltag</p>
+          <dl class="bb-facts">
+            <dt>Autor</dt><dd>Michael Thomanek</dd>
+            <dt>Verlag</dt><dd>Kenamo Verlag</dd>
+            <dt>ISBN</dt><dd>978-3-9829397-0-4</dd>
+          </dl>
+          <div class="bb-actions">
+            <a class="btn-book" href="#" data-todo="shop-link" aria-describedby="link-note">Zum Buch <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            <span class="link-note" id="link-note"><strong>Link folgt</strong> · Shop- bzw. Verlagslink wird ergänzt.</span>
+          </div>
+        </div>
+      </aside>
+
+      <nav class="next" aria-labelledby="h-next">
+        <h2 id="h-next"><svg class="mark m-teal" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><polygon class="f1" points="16,2 30,29 2,29"/><polygon class="f2" points="16,2 30,29 16,20"/></svg>Weiter in der Kitchen</h2>
+        <ul class="next-links">
+          <li><a href="beitraege.html"><span class="nl-k">Übersicht</span><span class="nl-t">Alle Beiträge der Kitchen</span></a></li>
+          <li><a href="index.html#bucket-7"><span class="nl-k">Daten-WG-Folgen</span><span class="nl-t">Karriere &amp; Community</span></a></li>
+        </ul>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<script>
+/* Facetten im Stil des Covers: gejittertes Raster, jede Zelle in zwei Dreiecke geteilt.
+   Deterministisch (fester Seed), dekorativ (aria-hidden), ohne externe Abhängigkeiten. */
+(function () {
+  'use strict';
+  var NS = 'http://www.w3.org/2000/svg';
+  var PALETTE = ['#E25A52', '#D9876A', '#E9A27E', '#7A3F2E', '#4E9E86', '#1F5B47', '#3E2F5B', '#5B93C9', '#EFC46A'];
+  var OUTLINE = '#0E0A16';
+  function rng(seed) {
+    return function () {
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function poly(svg, pts, fill, opacity, i) {
+    var p = document.createElementNS(NS, 'polygon');
+    p.setAttribute('points', pts.map(function (q) { return q[0].toFixed(1) + ',' + q[1].toFixed(1); }).join(' '));
+    p.setAttribute('fill', fill);
+    p.setAttribute('fill-opacity', opacity.toFixed(2));
+    p.setAttribute('stroke', OUTLINE);
+    p.setAttribute('stroke-width', '1.4');
+    p.setAttribute('stroke-linejoin', 'round');
+    p.setAttribute('vector-effect', 'non-scaling-stroke');
+    if (i != null) p.style.setProperty('--i', i);
+    svg.appendChild(p);
+  }
+  function facets(svg, w, h, cols, rows, seed, opMin, opMax) {
+    if (!svg) return;
+    var r = rng(seed), cw = w / cols, rh = h / rows, pts = [], x, y;
+    for (y = 0; y <= rows; y++) {
+      pts[y] = [];
+      for (x = 0; x <= cols; x++) {
+        var edgeX = x === 0 || x === cols, edgeY = y === 0 || y === rows;
+        pts[y][x] = [
+          x * cw + (edgeX ? 0 : (r() - .5) * cw * .8),
+          y * rh + (edgeY ? 0 : (r() - .5) * rh * .8)
+        ];
+      }
+    }
+    var frag = document.createDocumentFragment(), n = 0;
+    var tmp = { appendChild: function (el) { frag.appendChild(el); } };
+    for (y = 0; y < rows; y++) {
+      for (x = 0; x < cols; x++) {
+        var a = pts[y][x], b = pts[y][x + 1], c = pts[y + 1][x + 1], d = pts[y + 1][x];
+        var tris = r() < .5 ? [[a, b, c], [a, c, d]] : [[a, b, d], [b, c, d]];
+        tris.forEach(function (t) {
+          poly(tmp, t, PALETTE[Math.floor(r() * PALETTE.length)], opMin + r() * (opMax - opMin), n++);
+        });
+      }
+    }
+    svg.appendChild(frag);
+  }
+  function edge(svg) {
+    if (!svg) return;
+    var colors = ['#E25A52', '#4E9E86', '#EFC46A', '#3E2F5B', '#D9876A', '#1F5B47', '#5B93C9', '#7A3F2E'];
+    var r = rng(7), x = 0, i = 0;
+    var tmp = { appendChild: function (el) { svg.appendChild(el); } };
+    while (x < 1600) {
+      var wdt = 50 + r() * 70;
+      // Dreieck nach unten (Spitze in den Papierbereich), Hintergrund nachtfarben
+      poly(tmp, [[x, 0], [x + wdt, 0], [x + wdt * (.35 + r() * .3), 30]], colors[i % colors.length], 1, null);
+      x += wdt; i++;
+    }
+  }
+  facets(document.getElementById('hero-facets'), 1600, 900, 12, 7, 42, .32, .7);
+  facets(document.getElementById('bb-facets'), 220, 160, 4, 3, 11, .25, .6);
+  edge(document.getElementById('facet-edge'));
+
+  // Platzhalter-Link (Shop-Link folgt) springt nicht an den Seitenanfang
+  document.querySelectorAll('a[data-todo][href="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1260,6 +1260,45 @@ POST_COMMON = {
 }
 
 
+# --- Interview-Post „Der unsichtbare Kampf“ (eigenes Layout: main#beitrag) ---
+
+def h_def_list(conv: Converter, node: Node) -> str:
+    """<dl> aus dt/dd-Paaren -> Liste "- **Begriff:** Wert"."""
+    out, term = [], ""
+    for ch in node.children:
+        if ch.tag == "dt":
+            term = conv.inline_children(ch).strip()
+        elif ch.tag == "dd":
+            val = conv.inline_children(ch).strip()
+            out.append(f"- **{term}:** {val}" if term else f"- {val}")
+            term = ""
+    return "\n".join(out)
+
+
+KAMPF_POST = {
+    "root": "#beitrag",
+    "drop": [
+        "h1",             # H1 liefert der Kopfblock
+        ".bb-kicker",     # "Das Buch" ueber dem Buchtitel
+        ".bb-cover",      # Cover-Miniatur in der Buch-Box (alt="", steht oben schon)
+    ],
+    "headings": {
+        "bb-title": 3,
+    },
+    "inline_sep": {
+        "q-num": " · ",   # "Frage 1 · Micha, wie kam es …"
+        "nl-k": ": ",     # "Übersicht: Alle Beiträge der Kitchen"
+    },
+    "inline_join": {
+        "post-meta": " · ",
+    },
+    "blockquote": [".placeholder", ".draft-note"],
+    "custom": {
+        "figure": h_figure,
+        ".bb-facts": h_def_list,
+    },
+}
+
 PAGES: list[dict] = [
     {
         **DOKU_COMMON,
@@ -1495,6 +1534,17 @@ PAGES: list[dict] = [
             "- HTML (authoritative): https://datenwgknowledgekitchen.com/fabric-apps-controlling-post_en.html\n"
             "- German version: [fabric-apps-controlling-post.html](../fabric-apps-controlling-post.html) · "
             "[fabric-apps-controlling-post.md](fabric-apps-controlling-post.md)\n"
+        ),
+    },    {
+        **KAMPF_POST,
+        "basename": "der-unsichtbare-kampf-post",
+        "lang": "de",
+        "title": "Der unsichtbare Kampf — Interview mit Michael Thomanek (Entwurf)",
+        "append_md": (
+            "---\n\n"
+            "## Weiterlesen\n\n"
+            "- HTML (maßgeblich): https://datenwgknowledgekitchen.com/der-unsichtbare-kampf-post.html\n"
+            "- Alle Beiträge: [beitraege.html](../beitraege.html)\n"
         ),
     },
 ]
