@@ -372,6 +372,9 @@ interface ChartConfig {
     isMaterial: (p: DataPoint | null | undefined, vAbs?: number | null, vRel?: number | null) => boolean;
     /** high-contrast mode: only foreground/background colors, outlines for distinction */
     hc: boolean;
+    /** 1.49 high contrast: the host's foregroundSelected (EMPHASIZE, hover) — equals
+     *  ink outside high contrast (never read there) */
+    hcSel: string;
     /** dark mode: light text/marks on a dark report page (forced or auto-detected) */
     dark: boolean;
     ink: string;
@@ -3229,8 +3232,10 @@ export class Visual implements IVisual {
         const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette;
         const hc: boolean = !!(palette && palette.isHighContrast);
         const dark: boolean = this.uiDark;
-        const fg: string = hc ? palette.foreground.value : dark ? DARK_INK : INK;
-        const bgc: string = hc ? palette.background.value : dark ? this.darkPaper() : "#FFFFFF";
+        // 1.49: the host palette may omit single slots — fall back instead of throwing
+        const fg: string = hc ? (palette.foreground?.value || "#FFFFFF") : dark ? DARK_INK : INK;
+        const bgc: string = hc ? (palette.background?.value || "#000000") : dark ? this.darkPaper() : "#FFFFFF";
+        const hcSel: string = hc ? (palette.foregroundSelected?.value || fg) : fg;
 
         // report theme colors: sentiment + neutral tones from the palette,
         // falling back to the color pickers when the theme doesn't define them
@@ -3271,6 +3276,7 @@ export class Visual implements IVisual {
                 };
             })(),
             hc,
+            hcSel,
             dark,
             ink: fg,
             paper: bgc,
@@ -8246,7 +8252,9 @@ export class Visual implements IVisual {
                 : (good(sv.v as number, p) ? cfg.colors.good : cfg.colors.bad);
             this.el("rect", {
                 x: x + 1.2, y: y + 1.2, width: Math.round(4 * k), height: h - 2.4,
-                rx: Math.round(3 * k), fill: stripeCol
+                rx: Math.round(3 * k), fill: stripeCol,
+                // 1.49 high contrast: the stripe carries the status as a pattern
+                ...(cfg.hc ? this.hcStatus(neutral ? "neutral" : good(sv.v as number, p) ? "good" : "bad", cfg) : {})
             }, g);
 
             const pad = Math.round(10 * k) + Math.round(5 * k);
@@ -8347,11 +8355,14 @@ export class Visual implements IVisual {
                     const dTop = yOf(hi), dH = Math.max(1.5, (hi - lo) * sc);
                     const dCol = (!cfg.isMaterial(p) || !hlShow(p.varAbs, p)) ? cfg.colors.py
                         : (good(p.varAbs, p) ? cfg.colors.good : cfg.colors.bad);
+                    const dNeutral = !cfg.isMaterial(p) || !hlShow(p.varAbs, p);
                     this.el("rect", {
                         x: cxs[1] - colW / 2, y: dTop, width: colW, height: dH,
                         ...(p.isFc && cfg.isMaterial(p)
                             ? { fill: `url(#${good(p.varAbs, p) ? cfg.patGood : cfg.patBad})`, stroke: dCol, "stroke-width": 1 }
-                            : { fill: dCol })
+                            : cfg.hc
+                                ? this.hcStatus(dNeutral ? "neutral" : good(p.varAbs, p) ? "good" : "bad", cfg)
+                                : { fill: dCol })
                     }, g);
                     this.el("line", {
                         x1: cxs[0] + colW / 2, y1: yOf(p.basis), x2: cxs[1] - colW / 2, y2: yOf(p.basis),
@@ -10147,7 +10158,10 @@ export class Visual implements IVisual {
                 // high contrast: outline marks in the foreground color (emphasized filled);
                 // FC points hatched like FC columns; bubbles translucent so overlaps read
                 ...(cfg.hc
-                    ? { fill: emph ? cfg.ink : cfg.paper, stroke: cfg.ink, "stroke-width": 1.4 }
+                    ? (statusOn
+                        // 1.49: status by pattern — good solid, bad hollow, immaterial dashed
+                        ? { ...this.hcStatus(this.scatterStatusKind(p, cfg), cfg), stroke: cfg.ink, "stroke-width": 1.4 }
+                        : { fill: emph ? cfg.ink : cfg.paper, stroke: cfg.ink, "stroke-width": 1.4 })
                     : p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: col, "stroke-width": 1.2 }
                         : hasSize
@@ -11696,7 +11710,7 @@ export class Visual implements IVisual {
         this.el("rect", {
             x, y, width: Math.max(1, w), height: Math.max(1, h),
             ...(cfg.hc
-                ? { fill: "none", stroke: cfg.ink, "stroke-width": 1 }
+                ? { fill: "none", stroke: cfg.hcSel, "stroke-width": 1 }
                 : { fill: cfg.ink, "fill-opacity": 0.05 })
         }, parent);
     }
@@ -11714,8 +11728,26 @@ export class Visual implements IVisual {
             x, y, width: Math.max(1, w), height: Math.max(1, h),
             fill: cfg.hc ? "none" : cfg.ink,
             "fill-opacity": cfg.hc ? 0 : 0.07,
-            stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 1 : 0
+            stroke: cfg.hc ? cfg.hcSel : "none", "stroke-width": cfg.hc ? 1 : 0
         }, parent);
+    }
+
+    /**
+     * 1.49 high contrast: status by PATTERN instead of color (PnL mega pattern) —
+     * good = solid foreground, bad = hollow (background fill, foreground outline),
+     * neutral/immaterial = dashed outline. Only called with cfg.hc.
+     */
+    private hcStatus(kind: "good" | "bad" | "neutral", cfg: ChartConfig): Record<string, string | number> {
+        if (kind === "good") { return { fill: cfg.ink }; }
+        if (kind === "bad") { return { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 }; }
+        return { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1, "stroke-dasharray": "2,2" };
+    }
+
+    /** scatter status of a point (colorBy status): good · bad · neutral */
+    private scatterStatusKind(p: DataPoint, cfg: ChartConfig): "good" | "bad" | "neutral" {
+        const v = p.varAbs;
+        if (v == null || v === 0 || !cfg.isMaterial(p)) { return "neutral"; }
+        return cfg.isGood(v, p) ? "good" : "bad";
     }
 
     private clearNode(g: SVGElement | null): void {
@@ -11859,7 +11891,11 @@ export class Visual implements IVisual {
                 this.el("path", { d: dDash, fill: "none", ...style, "stroke-dasharray": "5,4" }, parent);
             }
         };
-        if (cfg.hasPy) { path(p => p.py, { stroke: cfg.colors.py, "stroke-width": 1.4 }, false); }
+        // high contrast: every line has the same color — PY is told apart by its dash
+        if (cfg.hasPy) {
+            path(p => p.py, cfg.hc ? { stroke: cfg.colors.py, "stroke-width": 1.4, "stroke-dasharray": "2,2" }
+                : { stroke: cfg.colors.py, "stroke-width": 1.4 }, false);
+        }
         if (cfg.hasPl) { path(p => p.pl, { stroke: cfg.colors.pl, "stroke-width": 1.2, "stroke-dasharray": "5,3" }, false); }
         path(p => p.value, { stroke: cfg.colors.ac, "stroke-width": 2 }, true);
     }

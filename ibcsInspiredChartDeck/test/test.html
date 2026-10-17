@@ -2092,5 +2092,47 @@ const opacities = (id) => [...document.querySelectorAll(`#${id} svg g[opacity]`)
   check(opacities("c212b").every(x => x === "1"), "c212b: leerer Callback → keine Kategorie gedimmt");
 }
 </script>
+<script>
+// ---------------- Punkt 6 · Echter Hochkontrast (Host-Palette + Muster statt Farbe) ----------------
+// Host-Palette inkl. foregroundSelected (cyan) — gut = gefüllt, schlecht = hohl, neutral = gestrichelt,
+// PY = gestrichelt, FC = schraffiert; EMPHASIZE/Hover in foregroundSelected
+const hcPal = { isHighContrast: true, foreground: { value: "#FFFF00" }, background: { value: "#000000" }, foregroundSelected: { value: "#00FFFF" } };
+const hcRun = (id, title, w, h, dv) => { addStage(id, title, w, h, "#000"); runCap(id, dv, w, h, { palette: hcPal }); };
+const attrsOf = (id, sel) => [...document.querySelectorAll(`#${id} svg ${sel}`)];
+hcRun("c213", "HC · Linie 36 Wochen · PY gestrichelt (2,2), AC durchgezogen, ΔPY-Panel hohl = schlecht", 960, 380,
+  dataView(weeks, [col("actual", wAc), col("previousYear", wPy)], { chart: { orientation: "line" } }));
+check(attrsOf("c213", "path").some(e => e.getAttribute("stroke-dasharray") === "2,2" && e.getAttribute("stroke") === "#FFFF00"),
+  "c213: PY-Linie gestrichelt in Vordergrundfarbe");
+hcRun("c214", "HC · KPI-Karten · Status-Streifen gut = gefüllt, schlecht = hohl, unwesentlich = gestrichelt", 960, 260,
+  dataView(["Umsatz", "Kosten", "EBIT", "Cash"], [col("actual", [9800, 7600, 2200, 1500], "#,0 T€"), col("previousYear", [9100, 7200, 2300, 1497], "#,0 T€")],
+    { chart: { orientation: "cards", invertList: "Kosten", materialityPct: 1 } }));
+{
+  const rects = attrsOf("c214", "rect");
+  const solid = rects.some(r => r.getAttribute("fill") === "#FFFF00" && !r.getAttribute("stroke"));
+  const hollow = rects.some(r => r.getAttribute("fill") === "#000000" && r.getAttribute("stroke") === "#FFFF00" && !r.getAttribute("stroke-dasharray"));
+  const dashed = rects.some(r => r.getAttribute("stroke-dasharray") === "2,2");
+  check(solid && hollow && dashed, `c214: Karten-Status als Muster (gefüllt ${solid} · hohl ${hollow} · gestrichelt ${dashed})`);
+}
+hcRun("c215", "HC · Scatter Status ΔPY · gut gefüllt, schlecht hohl, unwesentlich gestrichelt", 960, 440,
+  dataView(scatU, scatCols([col("previousYear", scatPy, "#,0 T€")]), { ibcsTitle: { kpi: "Umsatz" }, chart: { orientation: "scatter", scatterColorBy: "status", materialityPct: 3 } }));
+{
+  const marks = attrsOf("c215", "g.icd-cat circle, g.icd-cat rect, g.icd-cat path").filter(e => e.getAttribute("stroke-width") === "1.4");
+  const filled = marks.some(e => e.getAttribute("fill") === "#FFFF00"), hollow = marks.some(e => e.getAttribute("fill") === "#000000" && !e.getAttribute("stroke-dasharray"));
+  const dashed = marks.some(e => e.getAttribute("stroke-dasharray") === "2,2");
+  check(filled && hollow && dashed, `c215: Scatter-Status als Muster (gefüllt ${filled} · hohl ${hollow} · gestrichelt ${dashed})`);
+}
+hcRun("c216", "HC · Balken ΔPL · EMPHASIZE „Italien“ als Rahmen in foregroundSelected (cyan)", 960, 380,
+  dataView(countries, [col("actual", costAc), col("plan", [5000,2000,2300,3200,2600,1450,1800])], { chart: { orientation: "bars", highlight: "Italien" } }));
+check(attrsOf("c216", "rect").some(r => r.getAttribute("stroke") === "#00FFFF"), "c216: EMPHASIZE-Rahmen in foregroundSelected");
+hcRun("c217", "HC · Wasserfall GuV + ΔPY-Stufen · schlecht hohl", 960, 460,
+  dataView(pnlCats, [col("actual", pnlVals, "#,0 T€"), col("previousYear", pnlPy, "#,0 T€")], { chart: { orientation: "waterfall" } }, null, pnlTypes));
+hcRun("c218", "HC · Tabelle Länder · PY gestrichelt, ΔPY schlecht hohl", 1200, 360,
+  dataView(countries, [col("actual", costAc), col("previousYear", costPy)], { chart: { orientation: "table", pyTriangle: false } }));
+check(attrsOf("c218", "rect").some(r => r.getAttribute("stroke-dasharray") === "3,2"), "c218: PY-Balken gestrichelt");
+// c219: unvollständige HC-Palette (nur isHighContrast) → Fallback statt Fehler
+addStage("c219", "HC · Palette ohne foreground/background/foregroundSelected → Fallback, kein Fehler", 480, 240, "#000");
+runCap("c219", dataView(months.slice(0, 6), [col("actual", ac.slice(0, 6)), col("previousYear", py.slice(0, 6))]), 480, 240, { palette: { isHighContrast: true } });
+check(document.querySelectorAll("#c219 svg rect").length > 5, "c219: rendert trotz unvollständiger Palette");
+</script>
 </body>
 </html>
