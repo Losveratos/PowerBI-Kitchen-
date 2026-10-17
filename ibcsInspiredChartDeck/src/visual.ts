@@ -72,6 +72,49 @@ function relLuminance(hex: string): number {
 /** small-multiples grid cap — shared-scale maxima must only span rendered tiles */
 const MULT_MAX_CELLS = 24;
 
+/**
+ * 1.49 IBCS chart templates (C01–C13 of the IBCS template library) as presets of
+ * the chart card — the PnL mega-template pattern: the dropdown chart.template only
+ * writes DEFAULTS. A template that differs from the last applied one (hidden
+ * chart.templateApplied) sets all listed chart properties at once, locally for the
+ * very same render and in ONE persistProperties merge; afterwards every switch is
+ * free. C07 (area) and C11 do not exist in this visual and are not offered.
+ * C13 keeps the chart type and only switches the small-multiples options.
+ */
+type TplValue = string | boolean | number;
+const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
+    // C01/C02: structure over time / per category — stacking comes from the Serie role
+    C01: { orientation: "columns", comparisonMode: "auto", showAbsoluteVariance: false,
+        showRelativeVariance: false, dualVariance: false, waterfallStyle: false },
+    C02: { orientation: "bars", comparisonMode: "auto", showAbsoluteVariance: false,
+        showRelativeVariance: false, dualVariance: false, waterfallStyle: false },
+    // C03: multi-tier columns — AC/PY base, ΔPY panel, ΔPY% pins
+    C03: { orientation: "columns", comparisonMode: "py", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false, waterfallStyle: false },
+    // C04: bars with ΔPL panel + ΔPL% pins
+    C04: { orientation: "bars", comparisonMode: "plan", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false, waterfallStyle: false },
+    // C05: integrated bridge over time (PY total → monthly Δ → AC/FC total)
+    C05: { orientation: "intwaterfall", comparisonMode: "py", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false },
+    // C06: category bridge drawn as vertical column cascade
+    C06: { orientation: "catbridge", comparisonMode: "py", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false, bridgeOrientation: "columns" },
+    // C08: line for long time series — ΔBasis panel, no Δ%-pin forest
+    C08: { orientation: "line", comparisonMode: "auto", showAbsoluteVariance: true,
+        showRelativeVariance: false, dualVariance: false },
+    // C09/C10: scatter with mean quadrants; C10 additionally the size legend (bubble role)
+    C09: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "mean",
+        scatterColorBy: "single" },
+    C10: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "mean",
+        scatterColorBy: "single", scatterSizeLegend: true },
+    // C12: waterfall (sum/delta rows or bridge from the basis)
+    C12: { orientation: "waterfall", comparisonMode: "auto", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false },
+    // C13: small multiples — chart type stays, Σ tile + same scale for bridges too
+    C13: { multiplesTotal: true, multiplesSameScale: true }
+};
+
 type Orientation = "columns" | "bars";
 type Basis = "py" | "plan" | "fcrev";
 
@@ -713,6 +756,11 @@ export class Visual implements IVisual {
     /** ⫽-Achse-Chip: scale.wfAxisBreak we persisted but the host has not echoed yet */
     private pendingWfBreak: string | null = null;
     private pendingWfBreakTtl = 0;
+    /** 1.49 chart template just persisted (echo guard + TTL 5, PnL pattern): while it
+     *  lives, a stale metadata update cannot flip the freshly written switches back */
+    private templatePending: { applied: string; props: Record<string, TplValue>; ttl: number } | null = null;
+    /** template applied in this session — a lost echo must not re-apply it in a loop */
+    private templateSessionTpl: string | null = null;
     /** structure-edit mode (one-click P&L): row clicks open the structure menu */
     private structureEdit = false;
     private structEditor: HTMLDivElement | null = null;
@@ -910,6 +958,8 @@ export class Visual implements IVisual {
                     if (wbIt) { wbSlice.value = wbIt; }
                 }
             }
+            // 1.49 IBCS chart template (chart.template): applies a preset once per pick
+            this.syncChartTemplate(dataView);
 
             const width = options.viewport.width;
             const height = options.viewport.height;
@@ -1057,6 +1107,75 @@ export class Visual implements IVisual {
         // render() mutates order in place via groups — pass a copy of the point list
         this.render([...this.lastRender.points], this.lastRender.width, this.lastRender.height);
         this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
+    }
+
+    // ------------------------------------------------------------ IBCS templates (1.49)
+
+    /**
+     * chart.template → chart switches (PnL syncMegaTemplate pattern). A template
+     * only writes defaults: when the dropdown differs from the last applied one
+     * (hidden chart.templateApplied), every property of the preset is set locally
+     * — this very render already shows it — and persisted together with the new
+     * templateApplied in ONE merge. Echo guard + TTL 5: until the host echoes the
+     * write back, a stale update keeps the written values; a lost echo never pins
+     * them forever. "off" only records templateApplied (nothing else changes), and
+     * the default state (template off, nothing applied) never persists at all.
+     */
+    private syncChartTemplate(dataView: DataView | undefined): void {
+        const cc = this.formattingSettings.chartCard;
+        const raw = dataView?.metadata?.objects?.["chart"]?.["templateApplied"];
+        const persisted = raw != null && String(raw) !== "" ? String(raw) : "off";
+        let applied = persisted;
+        const pend = this.templatePending;
+        if (pend) {
+            let synced = persisted === pend.applied;
+            for (const [k, v] of Object.entries(pend.props)) {
+                if (!this.chartSliceIs(k, v)) { synced = false; this.chartSliceSet(k, v); }
+            }
+            pend.ttl--;
+            if (synced || pend.ttl <= 0) { this.templatePending = null; }
+            if (!synced && this.templatePending) { applied = pend.applied; }
+        }
+        const tpl = String(cc.template.value.value);
+        // only the host's own confirmation re-arms the session guard
+        if (tpl === persisted) { this.templateSessionTpl = null; }
+        if (tpl === applied || tpl === this.templateSessionTpl) { return; }
+        if (tpl !== "off" && !CHART_TEMPLATES[tpl]) { return; }
+        this.applyChartTemplate(tpl);
+    }
+
+    private applyChartTemplate(tpl: string): void {
+        const props: Record<string, TplValue> = { ...(CHART_TEMPLATES[tpl] ?? {}) };
+        for (const [k, v] of Object.entries(props)) { this.chartSliceSet(k, v); }
+        this.templatePending = { applied: tpl, props, ttl: 5 };
+        this.templateSessionTpl = tpl;
+        this.host.persistProperties({
+            merge: [{ objectName: "chart", selector: null, properties: { ...props, templateApplied: tpl } }]
+        });
+    }
+
+    /** a chart-card slice by property name (toggle, number or dropdown) */
+    private chartSlice(k: string): { value: unknown; items?: powerbi.IEnumMember[] } | null {
+        const cc = this.formattingSettings.chartCard as unknown as
+            Record<string, { value: unknown; items?: powerbi.IEnumMember[]; name?: string }>;
+        const sl = cc[k];
+        return sl && sl.name === k ? sl : null;
+    }
+    private chartSliceIs(k: string, v: TplValue): boolean {
+        const sl = this.chartSlice(k);
+        if (!sl) { return true; }
+        if (sl.items) { return String((sl.value as powerbi.IEnumMember)?.value) === String(v); }
+        return sl.value === v;
+    }
+    private chartSliceSet(k: string, v: TplValue): void {
+        const sl = this.chartSlice(k);
+        if (!sl) { return; }
+        if (sl.items) {
+            const it = sl.items.find(x => String(x.value) === String(v));
+            if (it) { sl.value = it; }
+        } else {
+            sl.value = v;
+        }
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {

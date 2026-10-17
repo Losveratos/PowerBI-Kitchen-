@@ -501,5 +501,19 @@
   "Scatter_Outside": "軸の範囲外 {0} 件",
   "Btn_Pause": "一時停止",
   "Btn_PlayReset": "クリック：最初に戻る",
-  "Btn_ScatterPlay": "再生"
+  "Btn_ScatterPlay": "再生",
+  "Chart_Template": "IBCS グラフテンプレート",
+  "Desc_Chart_Template": "IBCS グラフテンプレートに基づく出発点: グラフの種類、差異の基準、差異パネル、関連するスイッチを一度に設定します。その後はすべての設定を自由に変更できます。C01/C02 は「積み上げ系列」フィールドで積み上げ、C10 には「バブルサイズ」フィールドも必要、C13 はグラフの種類を維持し「スモールマルチプル」フィールドが必要です。含まれないもの: C07（面）と C11。オフ = テンプレートなし。",
+  "Enum_Template_Off": "オフ（テンプレートなし）",
+  "Enum_Template_C01": "C01 · 積み上げ縦棒（系列）",
+  "Enum_Template_C02": "C02 · 積み上げ横棒（系列）",
+  "Enum_Template_C03": "C03 · 縦棒 + 差異 (PY)",
+  "Enum_Template_C04": "C04 · 横棒 + 差異 (PL)",
+  "Enum_Template_C05": "C05 · 統合ブリッジ(時系列)",
+  "Enum_Template_C06": "C06 · カテゴリブリッジ（縦）",
+  "Enum_Template_C08": "C08 · 折れ線(長い時系列)",
+  "Enum_Template_C09": "C09 · 散布図",
+  "Enum_Template_C10": "C10 · バブル（散布図 + サイズ）",
+  "Enum_Template_C12": "C12 · ウォーターフォール / ブリッジ",
+  "Enum_Template_C13": "C13 · スモールマルチプル"
 }

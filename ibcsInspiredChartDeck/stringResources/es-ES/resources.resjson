@@ -501,5 +501,19 @@
   "Scatter_Outside": "{0} fuera de los ejes",
   "Btn_Pause": "Pausa",
   "Btn_PlayReset": "Clic: volver al inicio",
-  "Btn_ScatterPlay": "Reproducir"
+  "Btn_ScatterPlay": "Reproducir",
+  "Chart_Template": "Plantilla de gráfico IBCS",
+  "Desc_Chart_Template": "Punto de partida según las plantillas de gráficos IBCS: define en un solo paso el tipo de gráfico, la base de desviación, los paneles de desviación y los interruptores correspondientes; después, cada ajuste se puede cambiar libremente. C01/C02 apilan mediante el campo «Serie apilada», C10 necesita además el campo «Tamaño de burbuja», C13 mantiene el tipo de gráfico y necesita el campo «Small Multiples». No incluidas: C07 (área) y C11. Desactivado = sin plantilla.",
+  "Enum_Template_Off": "Desactivado (sin plantilla)",
+  "Enum_Template_C01": "C01 · Columnas apiladas (serie)",
+  "Enum_Template_C02": "C02 · Barras apiladas (serie)",
+  "Enum_Template_C03": "C03 · Columnas + desviaciones (PY)",
+  "Enum_Template_C04": "C04 · Barras + desviaciones (PL)",
+  "Enum_Template_C05": "C05 · Puente integrado (tiempo)",
+  "Enum_Template_C06": "C06 · Puente de categorías vertical",
+  "Enum_Template_C08": "C08 · Línea (serie temporal larga)",
+  "Enum_Template_C09": "C09 · Dispersión",
+  "Enum_Template_C10": "C10 · Burbujas (dispersión + tamaño)",
+  "Enum_Template_C12": "C12 · Cascada / Puente",
+  "Enum_Template_C13": "C13 · Small Multiples"
 }

@@ -178,6 +178,25 @@
         },
         "chart": {
             "properties": {
+                "template": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Aus (keine Vorlage)" },
+                            { "value": "C01", "displayName": "C01 · Gestapelte Säulen (Serie)" },
+                            { "value": "C02", "displayName": "C02 · Gestapelte Balken (Serie)" },
+                            { "value": "C03", "displayName": "C03 · Säulen + Varianzen (PY)" },
+                            { "value": "C04", "displayName": "C04 · Balken + Varianzen (PL)" },
+                            { "value": "C05", "displayName": "C05 · Integrierte Brücke (Zeit)" },
+                            { "value": "C06", "displayName": "C06 · Kategorie-Brücke vertikal" },
+                            { "value": "C08", "displayName": "C08 · Linie (lange Zeitreihe)" },
+                            { "value": "C09", "displayName": "C09 · Scatter" },
+                            { "value": "C10", "displayName": "C10 · Bubble (Scatter + Größe)" },
+                            { "value": "C12", "displayName": "C12 · Waterfall / Brücke" },
+                            { "value": "C13", "displayName": "C13 · Small Multiples" }
+                        ]
+                    }
+                },
+                "templateApplied": { "type": { "text": true } },
                 "orientation": {
                     "type": {
                         "enumeration": [

@@ -501,5 +501,19 @@
   "Scatter_Outside": "{0} außerhalb der Achsen",
   "Btn_Pause": "Pause",
   "Btn_PlayReset": "Klick: zurück zum Anfang",
-  "Btn_ScatterPlay": "Abspielen"
+  "Btn_ScatterPlay": "Abspielen",
+  "Chart_Template": "IBCS-Chart-Vorlage",
+  "Desc_Chart_Template": "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie“, C10 braucht zusätzlich das Feld „Blasengröße“, C13 behält den Chart-Typ und braucht das Feld „Small Multiples“. Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
+  "Enum_Template_Off": "Aus (keine Vorlage)",
+  "Enum_Template_C01": "C01 · Gestapelte Säulen (Serie)",
+  "Enum_Template_C02": "C02 · Gestapelte Balken (Serie)",
+  "Enum_Template_C03": "C03 · Säulen + Varianzen (PY)",
+  "Enum_Template_C04": "C04 · Balken + Varianzen (PL)",
+  "Enum_Template_C05": "C05 · Integrierte Brücke (Zeit)",
+  "Enum_Template_C06": "C06 · Kategorie-Brücke vertikal",
+  "Enum_Template_C08": "C08 · Linie (lange Zeitreihe)",
+  "Enum_Template_C09": "C09 · Scatter",
+  "Enum_Template_C10": "C10 · Bubble (Scatter + Größe)",
+  "Enum_Template_C12": "C12 · Waterfall / Brücke",
+  "Enum_Template_C13": "C13 · Small Multiples"
 }

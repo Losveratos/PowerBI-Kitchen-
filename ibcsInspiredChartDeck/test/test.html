@@ -1793,5 +1793,104 @@ run("c169", dataView(cbCats2, [col("actual", cbAc2), col("previousYear", cbPy2)]
   }
 }
 </script>
+<script>
+// ======================================================================
+// 1.49 · neue Fälle (c184+) — Stages werden dynamisch angehängt, damit die
+// Bestandsfälle c1–c183 unverändert an ihrer Position bleiben
+// ======================================================================
+function addStage(id, title, w, h, bg) {
+  const c = document.createElement("div"); c.className = "case";
+  const h4 = document.createElement("h4"); h4.textContent = id + " · " + title; c.appendChild(h4);
+  const st = document.createElement("div"); st.className = "stage"; st.id = id;
+  st.style.width = w + "px"; st.style.height = h + "px"; if (bg) { st.style.background = bg; }
+  c.appendChild(st); document.body.appendChild(c); return st;
+}
+// run with a capturing host: persistProperties calls land in window.__persist[id]
+window.__persist = {};
+function runCap(id, dv, w, h, opts) {
+  opts = opts || {};
+  const host = makeHost(opts.hc, opts.noInteract, opts.themeBg);
+  if (opts.palette) { host.colorPalette = opts.palette; }
+  window.__persist[id] = [];
+  host.persistProperties = (ch) => { window.__persist[id].push(ch); console.log("persistProperties", id, JSON.stringify(ch)); };
+  if (opts.hostPatch) { opts.hostPatch(host); }
+  const v = new Visual({ element: document.getElementById(id), host });
+  v.update({ viewport: { width: w, height: h }, dataViews: [dv], viewMode: opts.viewMode, operationKind: opts.operationKind });
+  return { v, host, upd: (dv2, o2) => v.update({ viewport: { width: w, height: h }, dataViews: [dv2], viewMode: opts.viewMode, ...(o2 || {}) }) };
+}
+function check(cond, msg) { if (cond) { console.log("ok ·", msg); } else { console.error("FAIL · " + msg); } }
+
+// ---------------- Punkt 1 · IBCS-Chart-Templates (C01–C13) ----------------
+const tplStack = (tpl, extraObj) => ({
+  metadata: { columns: [], objects: Object.assign({ chart: { template: tpl } }, extraObj || {}) },
+  categorical: {
+    categories: [
+      { source: { displayName: "Monat", roles: { category: true } }, values: stCats },
+      { source: { displayName: "Produkt", roles: { series: true } }, values: stSeries }
+    ],
+    values: [col("actual", stAc, "#,0 €")]
+  }
+});
+const tplCases = [
+  ["c184", "C01", "Gestapelte Säulen (Serie) — keine Varianz-Panels", 960, 420, () => tplStack("C01")],
+  ["c185", "C02", "Gestapelte Balken (Serie)", 960, 400, () => tplStack("C02")],
+  ["c186", "C03", "Säulen + ΔPY-Panel + ΔPY%-Pins (Basis PY trotz gebundenem PL)", 960, 480,
+    () => dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €")], { chart: { template: "C03" } })],
+  ["c187", "C04", "Balken + ΔPL-Panel + ΔPL%-Pins (Kosten, invertiert)", 960, 420,
+    () => dataView(countries, [col("actual", costAc), col("previousYear", costPy), col("plan", [5000,2000,2300,3200,2600,1450,1800])], { chart: { template: "C04", invert: true } })],
+  ["c188", "C05", "Integrierte Brücke PY → Monats-Δ → AC+FC", 1120, 620,
+    () => dataView(iwCats, [col("actual", iwAc), col("previousYear", iwPy), col("forecast", iwFc)], { chart: { template: "C05" } })],
+  ["c189", "C06", "Kategorie-Brücke als vertikale Säulen-Kaskade (Basis PY)", 1200, 560,
+    () => dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col("plan", cbPl)], { chart: { template: "C06" } })],
+  ["c190", "C08", "Linie · 36 Wochen · ΔPY-Panel ohne Δ%-Pins", 960, 380,
+    () => dataView(weeks, [col("actual", wAc), col("previousYear", wPy)], { chart: { template: "C08" } })],
+  ["c191", "C09", "Scatter mit Mittelwert-Quadranten", 960, 440,
+    () => dataView(scatU, scatCols(), { ibcsTitle: { kpi: "Umsatz" }, chart: { template: "C09" } })],
+  ["c192", "C10", "Bubble · Scatter + Blasengröße + Größen-Legende", 960, 460,
+    () => dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende")]), { ibcsTitle: { kpi: "Umsatz" }, chart: { template: "C10" } })],
+  ["c193", "C12", "Wasserfall · GuV sum/delta + ΔPY-Stufen", 960, 520,
+    () => dataView(pnlCats, [col("actual", pnlVals, "#,0 T€"), col("previousYear", pnlPy, "#,0 T€")], { chart: { template: "C12" }, ibcsTitle: { kpi: "GuV", period: "2026" } }, null, pnlTypes)],
+  ["c194", "C13", "Small Multiples · Modus bleibt (Säulen) + Σ-Kachel", 960, 560,
+    () => dataView(smCats, [col("actual", smAc), col("plan", smPl)], { chart: { template: "C13" } }, smMult)]
+];
+for (const [id, tpl, title, w, h, mk] of tplCases) {
+  addStage(id, "Template " + tpl + " · " + title, w, h);
+  const r = runCap(id, mk(), w, h);
+  const p = window.__persist[id];
+  const props = p.length === 1 ? p[0].merge[0].properties : null;
+  check(p.length === 1 && props && props.templateApplied === tpl,
+    `template ${tpl}: genau EIN persistProperties-Merge mit templateApplied (${JSON.stringify(props)})`);
+}
+{
+  // Echo-Guard: (1) Pick C03 auf einem Balken-Visual → lokal sofort Säulen + EIN Merge.
+  // (2) stale Update (Host kennt nur template=C03, templateApplied fehlt, orientation=bars)
+  //     → Werte bleiben, KEIN zweiter Merge (Session-Guard). (3) Echo kommt → pending weg.
+  // (4) Autor stellt danach frei auf Balken um → bleibt Balken (Template nur Default).
+  // (5) Auswahl „Aus" → nur templateApplied=off wird geschrieben, sonst nichts.
+  addStage("c195", "Template-Echo-Guard · Pick → stale Update → Echo → freie Änderung → Aus", 960, 420);
+  const base = (objs) => dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €")], objs);
+  const r = runCap("c195", base({ chart: { template: "C03", orientation: "bars", showRelativeVariance: false } }), 960, 420);
+  const cc = () => r.v.formattingSettings.chartCard;
+  check(String(cc().orientation.value.value) === "columns" && cc().showRelativeVariance.value === true,
+    "echo-guard (1): Pick wirkt im selben Render (columns, Δ% an)");
+  r.upd(base({ chart: { template: "C03", orientation: "bars", showRelativeVariance: false } }));
+  check(String(cc().orientation.value.value) === "columns" && window.__persist.c195.length === 1,
+    "echo-guard (2): stale Update kippt nicht zurück, kein zweiter Merge");
+  const echoed = Object.assign({ template: "C03" }, window.__persist.c195[0].merge[0].properties);
+  r.upd(base({ chart: echoed }));
+  check(r.v.templatePending === null, "echo-guard (3): Host-Echo beendet den Guard");
+  r.upd(base({ chart: Object.assign({}, echoed, { orientation: "bars" }) }));
+  check(String(cc().orientation.value.value) === "bars" && window.__persist.c195.length === 1,
+    "echo-guard (4): Einstellungen danach frei änderbar, kein Re-Apply");
+  r.upd(base({ chart: Object.assign({}, echoed, { orientation: "bars", template: "off" }) }));
+  const last = window.__persist.c195[window.__persist.c195.length - 1].merge[0].properties;
+  check(window.__persist.c195.length === 2 && JSON.stringify(last) === '{"templateApplied":"off"}'
+    && String(cc().orientation.value.value) === "bars", "echo-guard (5): „Aus“ schreibt nur templateApplied=off");
+  // Default (kein Template) persistiert nie etwas
+  addStage("c196", "Kein Template (Default) · kein persistProperties", 480, 200);
+  runCap("c196", base({}), 480, 200);
+  check(window.__persist.c196.length === 0, "default: Template aus → kein persistProperties");
+}
+</script>
 </body>
 </html>

@@ -501,5 +501,19 @@
   "Scatter_Outside": "{0} outside the axes",
   "Btn_Pause": "Pause",
   "Btn_PlayReset": "Click: back to the start",
-  "Btn_ScatterPlay": "Play"
+  "Btn_ScatterPlay": "Play",
+  "Chart_Template": "IBCS chart template",
+  "Desc_Chart_Template": "Starting point after the IBCS chart templates: sets chart type, variance basis, variance panels and the matching switches in one step — afterwards every setting is free to change. C01/C02 stack via the “Stack series” field, C10 additionally needs the “Bubble size” field, C13 keeps the chart type and needs the “Small Multiples” field. Not included: C07 (area) and C11. Off = no template.",
+  "Enum_Template_Off": "Off (no template)",
+  "Enum_Template_C01": "C01 · Stacked columns (series)",
+  "Enum_Template_C02": "C02 · Stacked bars (series)",
+  "Enum_Template_C03": "C03 · Columns + variances (PY)",
+  "Enum_Template_C04": "C04 · Bars + variances (PL)",
+  "Enum_Template_C05": "C05 · Integrated bridge (time)",
+  "Enum_Template_C06": "C06 · Category bridge vertical",
+  "Enum_Template_C08": "C08 · Line (long time series)",
+  "Enum_Template_C09": "C09 · Scatter",
+  "Enum_Template_C10": "C10 · Bubble (scatter + size)",
+  "Enum_Template_C12": "C12 · Waterfall / bridge",
+  "Enum_Template_C13": "C13 · Small multiples"
 }

@@ -184,9 +184,27 @@ const scatterTrendItems: LocEnumMember[] = [
     { value: "linear", displayName: "Linear", key: "Enum_ScatterTrend_Linear" }
 ];
 
+// 1.49: IBCS-Chart-Templates als Presets (PnL-Muster). Ein Template schreibt in
+// EINEM persistProperties-Merge Modus + Vergleich + Panels + passende Schalter;
+// danach ist alles frei änderbar. C07 (Fläche) und C11 gibt es im Visual nicht.
+const templateItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off (no template)", key: "Enum_Template_Off" },
+    { value: "C01", displayName: "C01 · Stacked columns (series)", key: "Enum_Template_C01" },
+    { value: "C02", displayName: "C02 · Stacked bars (series)", key: "Enum_Template_C02" },
+    { value: "C03", displayName: "C03 · Columns + variances (PY)", key: "Enum_Template_C03" },
+    { value: "C04", displayName: "C04 · Bars + variances (PL)", key: "Enum_Template_C04" },
+    { value: "C05", displayName: "C05 · Integrated bridge (time)", key: "Enum_Template_C05" },
+    { value: "C06", displayName: "C06 · Category bridge vertical", key: "Enum_Template_C06" },
+    { value: "C08", displayName: "C08 · Line (long time series)", key: "Enum_Template_C08" },
+    { value: "C09", displayName: "C09 · Scatter", key: "Enum_Template_C09" },
+    { value: "C10", displayName: "C10 · Bubble (scatter + size)", key: "Enum_Template_C10" },
+    { value: "C12", displayName: "C12 · Waterfall / bridge", key: "Enum_Template_C12" },
+    { value: "C13", displayName: "C13 · Small multiples", key: "Enum_Template_C13" }
+];
+
 /** resolve all enum-member labels once via the host's localization manager */
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
-    const lists: LocEnumMember[][] = [orientationItems, comparisonItems, appearanceItems,
+    const lists: LocEnumMember[][] = [templateItems, orientationItems, comparisonItems, appearanceItems,
         displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems,
         cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems,
         cardRefValueItems,
@@ -271,6 +289,16 @@ export class IbcsTitleCardSettings extends FormattingSettingsCard {
 }
 
 export class ChartCardSettings extends formattingSettings.CompositeCard {
+    template = new formattingSettings.ItemDropdown({
+        name: "template",
+        displayName: "IBCS chart template",
+        displayNameKey: "Chart_Template",
+        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
+        descriptionKey: "Desc_Chart_Template",
+        items: templateItems,
+        value: templateItems[0]
+    });
+
     orientation = new formattingSettings.ItemDropdown({
         name: "orientation",
         displayName: "Chart type",
@@ -1067,7 +1095,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartType",
         displayName: "Chart type",
         displayNameKey: "Group_ChartType",
-        slices: [this.orientation, this.smartStart]
+        slices: [this.template, this.orientation, this.smartStart]
     });
 
     varianceGroup = new formattingSettings.Group({
