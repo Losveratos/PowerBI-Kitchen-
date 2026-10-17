@@ -1793,5 +1793,346 @@ run("c169", dataView(cbCats2, [col("actual", cbAc2), col("previousYear", cbPy2)]
   }
 }
 </script>
+<script>
+// ======================================================================
+// 1.49 · neue Fälle (c184+) — Stages werden dynamisch angehängt, damit die
+// Bestandsfälle c1–c183 unverändert an ihrer Position bleiben
+// ======================================================================
+function addStage(id, title, w, h, bg) {
+  const c = document.createElement("div"); c.className = "case";
+  const h4 = document.createElement("h4"); h4.textContent = id + " · " + title; c.appendChild(h4);
+  const st = document.createElement("div"); st.className = "stage"; st.id = id;
+  st.style.width = w + "px"; st.style.height = h + "px"; if (bg) { st.style.background = bg; }
+  c.appendChild(st); document.body.appendChild(c); return st;
+}
+// run with a capturing host: persistProperties calls land in window.__persist[id]
+window.__persist = {};
+function runCap(id, dv, w, h, opts) {
+  opts = opts || {};
+  const host = makeHost(opts.hc, opts.noInteract, opts.themeBg);
+  if (opts.palette) { host.colorPalette = opts.palette; }
+  window.__persist[id] = [];
+  host.persistProperties = (ch) => { window.__persist[id].push(ch); console.log("persistProperties", id, JSON.stringify(ch)); };
+  if (opts.hostPatch) { opts.hostPatch(host); }
+  const v = new Visual({ element: document.getElementById(id), host });
+  v.update({ viewport: { width: w, height: h }, dataViews: [dv], viewMode: opts.viewMode, operationKind: opts.operationKind });
+  return { v, host, upd: (dv2, o2) => v.update({ viewport: { width: w, height: h }, dataViews: [dv2], viewMode: opts.viewMode, ...(o2 || {}) }) };
+}
+function check(cond, msg) { if (cond) { console.log("ok ·", msg); } else { console.error("FAIL · " + msg); } }
+
+// ---------------- Punkt 1 · IBCS-Chart-Templates (C01–C13) ----------------
+const tplStack = (tpl, extraObj) => ({
+  metadata: { columns: [], objects: Object.assign({ chart: { template: tpl } }, extraObj || {}) },
+  categorical: {
+    categories: [
+      { source: { displayName: "Monat", roles: { category: true } }, values: stCats },
+      { source: { displayName: "Produkt", roles: { series: true } }, values: stSeries }
+    ],
+    values: [col("actual", stAc, "#,0 €")]
+  }
+});
+const tplCases = [
+  ["c184", "C01", "Gestapelte Säulen (Serie) — keine Varianz-Panels", 960, 420, () => tplStack("C01")],
+  ["c185", "C02", "Gestapelte Balken (Serie)", 960, 400, () => tplStack("C02")],
+  ["c186", "C03", "Säulen + ΔPY-Panel + ΔPY%-Pins (Basis PY trotz gebundenem PL)", 960, 480,
+    () => dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €")], { chart: { template: "C03" } })],
+  ["c187", "C04", "Balken + ΔPL-Panel + ΔPL%-Pins (Kosten, invertiert)", 960, 420,
+    () => dataView(countries, [col("actual", costAc), col("previousYear", costPy), col("plan", [5000,2000,2300,3200,2600,1450,1800])], { chart: { template: "C04", invert: true } })],
+  ["c188", "C05", "Integrierte Brücke PY → Monats-Δ → AC+FC", 1120, 620,
+    () => dataView(iwCats, [col("actual", iwAc), col("previousYear", iwPy), col("forecast", iwFc)], { chart: { template: "C05" } })],
+  ["c189", "C06", "Kategorie-Brücke als vertikale Säulen-Kaskade (Basis PY)", 1200, 560,
+    () => dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col("plan", cbPl)], { chart: { template: "C06" } })],
+  ["c190", "C08", "Linie · 36 Wochen · ΔPY-Panel ohne Δ%-Pins", 960, 380,
+    () => dataView(weeks, [col("actual", wAc), col("previousYear", wPy)], { chart: { template: "C08" } })],
+  ["c191", "C09", "Scatter mit Mittelwert-Quadranten", 960, 440,
+    () => dataView(scatU, scatCols(), { ibcsTitle: { kpi: "Umsatz" }, chart: { template: "C09" } })],
+  ["c192", "C10", "Bubble · Scatter + Blasengröße + Größen-Legende", 960, 460,
+    () => dataView(scatU, scatCols([col("bubbleSize", scatSize, "#,0", null, "Mitarbeitende")]), { ibcsTitle: { kpi: "Umsatz" }, chart: { template: "C10" } })],
+  ["c193", "C12", "Wasserfall · GuV sum/delta + ΔPY-Stufen", 960, 520,
+    () => dataView(pnlCats, [col("actual", pnlVals, "#,0 T€"), col("previousYear", pnlPy, "#,0 T€")], { chart: { template: "C12" }, ibcsTitle: { kpi: "GuV", period: "2026" } }, null, pnlTypes)],
+  ["c194", "C13", "Small Multiples · Modus bleibt (Säulen) + Σ-Kachel", 960, 560,
+    () => dataView(smCats, [col("actual", smAc), col("plan", smPl)], { chart: { template: "C13" } }, smMult)]
+];
+for (const [id, tpl, title, w, h, mk] of tplCases) {
+  addStage(id, "Template " + tpl + " · " + title, w, h);
+  const r = runCap(id, mk(), w, h);
+  const p = window.__persist[id];
+  const props = p.length === 1 ? p[0].merge[0].properties : null;
+  check(p.length === 1 && props && props.templateApplied === tpl,
+    `template ${tpl}: genau EIN persistProperties-Merge mit templateApplied (${JSON.stringify(props)})`);
+}
+{
+  // Echo-Guard: (1) Pick C03 auf einem Balken-Visual → lokal sofort Säulen + EIN Merge.
+  // (2) stale Update (Host kennt nur template=C03, templateApplied fehlt, orientation=bars)
+  //     → Werte bleiben, KEIN zweiter Merge (Session-Guard). (3) Echo kommt → pending weg.
+  // (4) Autor stellt danach frei auf Balken um → bleibt Balken (Template nur Default).
+  // (5) Auswahl „Aus" → nur templateApplied=off wird geschrieben, sonst nichts.
+  addStage("c195", "Template-Echo-Guard · Pick → stale Update → Echo → freie Änderung → Aus", 960, 420);
+  const base = (objs) => dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €")], objs);
+  const r = runCap("c195", base({ chart: { template: "C03", orientation: "bars", showRelativeVariance: false } }), 960, 420);
+  const cc = () => r.v.formattingSettings.chartCard;
+  check(String(cc().orientation.value.value) === "columns" && cc().showRelativeVariance.value === true,
+    "echo-guard (1): Pick wirkt im selben Render (columns, Δ% an)");
+  r.upd(base({ chart: { template: "C03", orientation: "bars", showRelativeVariance: false } }));
+  check(String(cc().orientation.value.value) === "columns" && window.__persist.c195.length === 1,
+    "echo-guard (2): stale Update kippt nicht zurück, kein zweiter Merge");
+  const echoed = Object.assign({ template: "C03" }, window.__persist.c195[0].merge[0].properties);
+  r.upd(base({ chart: echoed }));
+  check(r.v.templatePending === null, "echo-guard (3): Host-Echo beendet den Guard");
+  r.upd(base({ chart: Object.assign({}, echoed, { orientation: "bars" }) }));
+  check(String(cc().orientation.value.value) === "bars" && window.__persist.c195.length === 1,
+    "echo-guard (4): Einstellungen danach frei änderbar, kein Re-Apply");
+  r.upd(base({ chart: Object.assign({}, echoed, { orientation: "bars", template: "off" }) }));
+  const last = window.__persist.c195[window.__persist.c195.length - 1].merge[0].properties;
+  check(window.__persist.c195.length === 2 && JSON.stringify(last) === '{"templateApplied":"off"}'
+    && String(cc().orientation.value.value) === "bars", "echo-guard (5): „Aus“ schreibt nur templateApplied=off");
+  // Default (kein Template) persistiert nie etwas
+  addStage("c196", "Kein Template (Default) · kein persistProperties", 480, 200);
+  runCap("c196", base({}), 480, 200);
+  check(window.__persist.c196.length === 0, "default: Template aus → kein persistProperties");
+}
+</script>
+<script>
+// ---------------- Punkt 4 · gesperrte statt stumme Chips ----------------
+// gesperrt = gedimmt (opacity .4) + data-icd-locked + aria-disabled + Tooltip mit Grund;
+// ein Klick darauf persistiert NICHTS. Gegenprobe: ein wirksamer Chip persistiert.
+function lockedChips(id) { return [...document.querySelectorAll(`#${id} svg g[data-icd-locked="1"]`)]; }
+function clickAll(els) { els.forEach(el => (el.querySelector("rect,circle,text") || el).dispatchEvent(new MouseEvent("click", { bubbles: true }))); }
+function lockCase(id, title, w, h, dv, expectN, opts) {
+  addStage(id, title, w, h);
+  runCap(id, dv, w, h, opts);
+  const L = lockedChips(id);
+  check(L.length === expectN, `${id}: ${expectN} gesperrte(r) Chip(s) (gefunden ${L.length}: ${L.map(g => g.querySelector("title")?.textContent).join(" | ")})`);
+  check(L.every(g => g.style.opacity === "0.4" && g.getAttribute("aria-disabled") === "true" && (g.querySelector("title")?.textContent || "").length > 10),
+    `${id}: gedimmt + aria-disabled + Tooltip mit Grund`);
+  const before = window.__persist[id].length;
+  clickAll(L);
+  check(window.__persist[id].length === before, `${id}: Klick auf gesperrten Chip persistiert nichts`);
+  return L;
+}
+// c197: YTD-Chip auf GuV-Zeilen (rowType) — Kumulation greift dort nie
+lockCase("c197", "YTD-Chip gesperrt · Säulen mit Zeilentyp (GuV-Zeilen werden nicht kumuliert)", 960, 360,
+  dataView(pnlCats, [col("actual", pnlVals, "#,0 T€"), col("previousYear", pnlPy, "#,0 T€")], { chart: { cumulativeButton: true } }, null, pnlTypes), 1);
+// c198: Gegenprobe — gleicher Chip auf Monaten ist wirksam und persistiert
+{
+  addStage("c198", "Gegenprobe · YTD-Chip auf Monaten bleibt wirksam (Klick → persistProperties cumulative=true)", 960, 300);
+  runCap("c198", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €")], { chart: { cumulativeButton: true } }), 960, 300);
+  check(lockedChips("c198").length === 0, "c198: kein gesperrter Chip");
+  const ytd = [...document.querySelectorAll("#c198 svg g[role=button]")].find(g => /YTD/.test(g.textContent));
+  clickAll([ytd]);
+  check(window.__persist.c198.length === 1 && window.__persist.c198[0].merge[0].properties.cumulative === true, "c198: wirksamer YTD-Chip persistiert");
+}
+// c199: ⇅ bei Brücken-Stil, Daten liegen schon in Wirkungs-Reihenfolge
+lockCase("c199", "⇅ gesperrt · Balken als Brücke, Reihenfolge = Sortierung nach Wirkung", 960, 300,
+  dataView(["A", "B", "C", "D"], [col("actual", [1500, 820, 1040, 505]), col("previousYear", [1000, 1000, 1000, 500])], { chart: { orientation: "bars", waterfallStyle: true } }), 1);
+// c200: ⚠ Exception-Chip, alle Kategorien über der Wesentlichkeit
+lockCase("c200", "⚠ gesperrt · Exception-Filter, alle Kategorien wesentlich (|Δ| ≥ 50)", 960, 320,
+  dataView(countries, [col("actual", costAc), col("previousYear", costPy)], { chart: { orientation: "bars", materialityAbs: 50 } }), 1);
+// c201: Karten-Sortier-Chip ohne Vergleichswert
+lockCase("c201", "Karten-Sortier-Chip gesperrt · nur AC gebunden (nichts zu sortieren)", 960, 220,
+  dataView(["Umsatz", "Kosten", "EBIT"], [col("actual", [9800, 7400, 2400], "#,0 T€")], { chart: { orientation: "cards" } }), 1);
+// c202: Kategorie-Brücke ohne Vergleichsbasis → Hinweis; ▶ und ⇅ gesperrt (Lock_NoChart)
+lockCase("c202", "Brücken-Toolbar gesperrt · Kategorie-Brücke nur mit AC → Hinweis statt Chart", 960, 260,
+  dataView(["A", "B", "C"], [col("actual", [120, 80, 40])], { chart: { orientation: "catbridge" } }), 2);
+</script>
+<script>
+// ---------------- Punkt 5 · Leer-Zustand mit Feld-Intro ----------------
+const emptyDv = (objs, cats, vals) => ({ metadata: { columns: [], objects: objs || {} },
+  categorical: { categories: cats || [], values: vals || [] } });
+const fiMarks = (id) => Object.fromEntries([...document.querySelectorAll(`#${id} [data-fi]`)].map(e => [e.getAttribute("data-fi"), e.getAttribute("data-on")]));
+// c203: Feld-Intro im Bearbeitungsmodus, nichts gebunden → alle ○, Umschalter Galerie + Nachricht
+addStage("c203", "Feld-Intro (emptyState.mode = fields) · Bearbeitungsmodus · nichts gebunden", 960, 380);
+runCap("c203", emptyDv({ emptyState: { mode: "fields" } }), 960, 380, { viewMode: 1 });
+{
+  const m = fiMarks("c203");
+  check(Object.keys(m).length === 7 && Object.values(m).every(v => v === "0"), "c203: 7 Kernrollen, keine gebunden " + JSON.stringify(m));
+  check(!!document.querySelector('#c203 [data-icd="es-demo"]') && !!document.querySelector('#c203 [data-icd="es-message"]')
+    && !document.querySelector('#c203 [data-icd="es-fields"]'), "c203: Umschalter Galerie + Nachricht (nicht der aktuelle)");
+}
+// c204: Kategorie + PY + Serie gebunden, AC fehlt → ✓ an den gebundenen + Pflichtfeld-Hinweis
+addStage("c204", "Feld-Intro · Kategorie + PY + Stack-Serie gebunden, AC fehlt → ✓ + Hinweis · Full-HD-Preset", 1100, 460);
+runCap("c204", emptyDv({ emptyState: { mode: "fields" }, labels: { fontPreset: "fullhd" } },
+  [{ source: { displayName: "Monat", roles: { category: true } }, values: stCats },
+   { source: { displayName: "Produkt", roles: { series: true } }, values: stSeries }],
+  [col("previousYear", stAc)]), 1100, 460, { viewMode: 1 });
+{
+  const m = fiMarks("c204");
+  check(m.category === "1" && m.previousYear === "1" && m.series === "1" && m.actual === "0" && m.plan === "0",
+    "c204: ✓ genau an Kategorie, PY, Serie " + JSON.stringify(m));
+}
+// c205: gleiche Einstellung im Lesemodus → Galerie wie bisher (kein Feld-Intro, keine Umschalter)
+addStage("c205", "Feld-Intro-Einstellung im LESEMODUS → Galerie wie bisher", 960, 380);
+runCap("c205", emptyDv({ emptyState: { mode: "fields" } }), 960, 380, { viewMode: 0 });
+check(!document.querySelector('#c205 [data-icd="field-intro"]') && !document.querySelector('#c205 [data-icd^="es-"]'),
+  "c205: Leser sehen kein Feld-Intro und keine Umschalter");
+// c206: eigene Nachricht im Bearbeitungsmodus + Umschalter; Klick „Felder erklären" → persist + sofort Feld-Intro
+addStage("c206", "Eigene Nachricht (mode = message) · Bearbeitungsmodus · Klick „Felder erklären“ → Feld-Intro", 960, 340);
+{
+  runCap("c206", emptyDv({ emptyState: { mode: "message", title: "Keine Daten für diese Auswahl", body: "Bitte Zeitraum oder Filter anpassen." } }), 960, 340, { viewMode: 1 });
+  const sw = document.querySelector('#c206 [data-icd="es-fields"]');
+  check(!!sw && !document.querySelector('#c206 [data-icd="field-intro"]'), "c206: Nachricht + Umschalter sichtbar");
+  sw && sw.querySelector("rect").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  const pp = window.__persist.c206;
+  check(pp.length === 1 && pp[0].merge[0].objectName === "emptyState" && pp[0].merge[0].properties.mode === "fields"
+    && !!document.querySelector('#c206 [data-icd="field-intro"]'), "c206: Umschalter persistiert emptyState.mode=fields und zeigt das Feld-Intro sofort");
+}
+// c207: Export (allowInteractions=false) mit mode = fields → bisheriges Verhalten (Galerie)
+addStage("c207", "Export (allowInteractions=false) mit mode = fields → bisheriges Verhalten", 960, 380);
+runCap("c207", emptyDv({ emptyState: { mode: "fields" } }), 960, 380, { viewMode: 1, noInteract: true });
+check(!document.querySelector('#c207 [data-icd="field-intro"]'), "c207: Export ohne Feld-Intro");
+</script>
+<script>
+// ---------------- Punkt 2 · fetchMoreData statt stiller 1000er-Kappung ----------------
+// Shim: host.fetchMoreData(true) zählt die Anfragen; metadata.segment = "es gibt mehr"
+const segCats = (n) => Array.from({ length: n }, (_, i) => "S" + i);
+const segDv = (n, more, objs) => {
+  const c = segCats(n);
+  const dv = dataView(c, [col("actual", c.map((_, i) => 100 + (i % 37) * 3)), col("previousYear", c.map((_, i) => 95 + (i % 41) * 3))], objs);
+  if (more) { dv.metadata.segment = {}; }
+  return dv;
+};
+const fetchHost = (log, answer) => (h) => { h.fetchMoreData = (agg) => { log.push(agg); return answer; }; };
+{
+  // c208: 1. Segment (1000 Zeilen) → Nachladen angefordert + Fortschritts-Hinweis;
+  //        Append-Update mit 1600 akkumulierten Zeilen, kein weiteres Segment → Hinweis weg
+  addStage("c208", "fetchMoreData · 1000 Zeilen + segment → Nachladen + ⏳-Hinweis · dann Append (1600) = vollständig", 340, 200);
+  const log = [];
+  const r = runCap("c208", segDv(1000, true, { labels: { show: false } }), 340, 200, { hostPatch: fetchHost(log, true) });
+  const hint1 = document.querySelector('#c208 [data-icd="load-state"]');
+  check(log.length === 1 && log[0] === true && !!hint1 && /1\.000/.test(hint1.textContent),
+    "c208: Segment → fetchMoreData(true) + Hinweis „" + (hint1 && hint1.textContent) + "“");
+  r.upd(segDv(1600, false, { labels: { show: false } }), { operationKind: 1 });
+  check(log.length === 1 && !document.querySelector('#c208 [data-icd="load-state"]'), "c208: letztes Segment → kein Hinweis, keine weitere Anfrage");
+  // zweites Fenster: Append MIT weiterem Segment → nächste Anfrage
+  const r2log = [];
+  addStage("c208b", "fetchMoreData · Append mit weiterem Segment → nächste Anfrage", 340, 200);
+  const r2 = runCap("c208b", segDv(1000, true, { labels: { show: false } }), 340, 200, { hostPatch: fetchHost(r2log, true) });
+  r2.upd(segDv(2000, true, { labels: { show: false } }), { operationKind: 1 });
+  const h2 = document.querySelector('#c208b [data-icd="load-state"]');
+  check(r2log.length === 2 && !!h2 && /2\.000/.test(h2.textContent), "c208b: zweites Segment angefordert, Hinweis zählt 2.000");
+  // Memoisierung: das Zwischen-Segment zeichnet den Chart NICHT neu (nur die Fortschrittszeile)
+  check(r2.v.lastRender.points.length === 1000, "c208b: Zwischen-Segment ohne Neu-Render (Chart bleibt beim 1. Fenster)");
+  r2.upd(segDv(2400, false, { labels: { show: false } }), { operationKind: 1 });
+  check(r2.v.lastRender.points.length === 2400 && !document.querySelector('#c208b [data-icd="load-state"]'),
+    "c208b: letztes Segment → EIN Render mit allen 2400 Zeilen");
+}
+{
+  // c209: Host verweigert das Nachladen (100-MB-Grenze) → Warnhinweis statt stiller Kappung
+  addStage("c209", "fetchMoreData verweigert → Hinweis „Zeilenlimit erreicht … unvollständig“", 340, 200);
+  const log = [];
+  runCap("c209", segDv(1000, true, { labels: { show: false } }), 340, 200, { hostPatch: fetchHost(log, false) });
+  const h = document.querySelector('#c209 [data-icd="load-state"]');
+  check(log.length === 1 && !!h && /limit/i.test(h.textContent), "c209: Host-Kappung sichtbar: " + (h && h.textContent));
+}
+{
+  // c210: < 1000 Zeilen ohne segment → keine Anfrage, kein Hinweis, Render identisch zum Host ohne fetchMoreData
+  addStage("c210", "fetchMoreData · 999 Zeilen ohne segment → exakt wie bisher (Vergleich c210b ohne fetchMoreData)", 340, 200);
+  addStage("c210b", "Zwilling ohne fetchMoreData-Funktion", 340, 200);
+  const log = [];
+  runCap("c210", segDv(999, false), 340, 200, { hostPatch: fetchHost(log, true) });
+  runCap("c210b", segDv(999, false), 340, 200);
+  const norm = (id) => document.querySelector(`#${id} svg`).innerHTML.replace(/-\d+(["\)])/g, "$1");
+  check(log.length === 0 && !document.querySelector('#c210 [data-icd="load-state"]') && norm("c210") === norm("c210b"),
+    "c210: keine Anfrage, kein Hinweis, SVG identisch zum Zwilling");
+}
+{
+  // c211: Sicherheitsgrenze 30.000 Zeilen → keine weitere Anfrage, Hinweis „Obergrenze des Visuals“
+  addStage("c211", "fetchMoreData · 30.000 Zeilen + segment → Sicherheitsgrenze, Hinweis statt Anfrage", 340, 200);
+  const log = [];
+  console.time("render-30000");
+  runCap("c211", segDv(30000, true, { labels: { show: false }, chart: { orientation: "line", showAbsoluteVariance: false, showRelativeVariance: false } }), 340, 200, { hostPatch: fetchHost(log, true) });
+  console.timeEnd("render-30000");
+  const h = document.querySelector('#c211 [data-icd="load-state"]');
+  check(log.length === 0 && !!h && /30\.000/.test(h.textContent), "c211: Obergrenze greift: " + (h && h.textContent));
+}
+</script>
+<script>
+// ---------------- Punkt 3 · Lesezeichen-Rückholung (registerOnSelectCallback) ----------------
+// Shim: echte equals-Semantik je Zeilenindex + Selection-Manager mit Callback-API
+function bookmarkHost(state) {
+  return (h) => {
+    h.createSelectionIdBuilder = () => {
+      const keys = [];
+      const b = { withCategory(col, i) { keys.push(i); return b; },
+        createSelectionId() { const key = keys.join("|"); return { key, equals: (o) => !!o && o.key === key }; } };
+      return b;
+    };
+    h.createSelectionManager = () => ({
+      select: (id, multi) => { const ids = Array.isArray(id) ? id : [id]; state.sel = multi ? state.sel.concat(ids) : ids; return Promise.resolve(state.sel); },
+      clear: () => { state.sel = []; return Promise.resolve(); },
+      getSelectionIds: () => state.sel,
+      showContextMenu() {},
+      registerOnSelectCallback: (cb) => { state.cb = cb; }
+    });
+  };
+}
+const opacities = (id) => [...document.querySelectorAll(`#${id} svg g[opacity]`)].map(g => g.getAttribute("opacity"));
+{
+  addStage("c212", "Lesezeichen · registerOnSelectCallback stellt die Auswahl „Mär“ + „Jun“ wieder her (Rest gedimmt)", 960, 360);
+  const st = { sel: [], cb: null };
+  const dv = () => dataView(months.slice(0, 6), [col("actual", ac.slice(0, 6), "#,0 €"), col("previousYear", py.slice(0, 6), "#,0 €")]);
+  const r = runCap("c212", dv(), 960, 360, { hostPatch: bookmarkHost(st) });
+  check(typeof st.cb === "function", "c212: Callback beim Host registriert");
+  const mk = (i) => ({ key: String(i), equals(o) { return !!o && o.key === String(i); } });
+  // Host stellt ein Lesezeichen wieder her: Index 2 (Mär) + 5 (Jun)
+  st.sel = [mk(2), mk(5)];
+  st.cb(st.sel);
+  const o1 = opacities("c212");
+  check(o1.filter(x => x === "1").length === 2 && o1.filter(x => x === "0.35").length === 4,
+    "c212: wiederhergestellte Auswahl dimmt 4 von 6 Kategorien " + JSON.stringify(o1));
+  // folgendes Update (z. B. Größenänderung) bleibt konsistent mit dem Host-Zustand
+  r.upd(dv());
+  check(JSON.stringify(opacities("c212")) === JSON.stringify(o1), "c212: Re-Render behält die wiederhergestellte Auswahl (getSelectionIds)");
+  // Lesezeichen ohne Auswahl → Dimmung weg
+  addStage("c212b", "Lesezeichen ohne Auswahl · Callback mit [] hebt die Dimmung auf", 960, 360);
+  const st2 = { sel: [], cb: null };
+  runCap("c212b", dv(), 960, 360, { hostPatch: bookmarkHost(st2) });
+  st2.sel = [mk(1)]; st2.cb(st2.sel);
+  st2.sel = []; st2.cb([]);
+  check(opacities("c212b").every(x => x === "1"), "c212b: leerer Callback → keine Kategorie gedimmt");
+}
+</script>
+<script>
+// ---------------- Punkt 6 · Echter Hochkontrast (Host-Palette + Muster statt Farbe) ----------------
+// Host-Palette inkl. foregroundSelected (cyan) — gut = gefüllt, schlecht = hohl, neutral = gestrichelt,
+// PY = gestrichelt, FC = schraffiert; EMPHASIZE/Hover in foregroundSelected
+const hcPal = { isHighContrast: true, foreground: { value: "#FFFF00" }, background: { value: "#000000" }, foregroundSelected: { value: "#00FFFF" } };
+const hcRun = (id, title, w, h, dv) => { addStage(id, title, w, h, "#000"); runCap(id, dv, w, h, { palette: hcPal }); };
+const attrsOf = (id, sel) => [...document.querySelectorAll(`#${id} svg ${sel}`)];
+hcRun("c213", "HC · Linie 36 Wochen · PY gestrichelt (2,2), AC durchgezogen, ΔPY-Panel hohl = schlecht", 960, 380,
+  dataView(weeks, [col("actual", wAc), col("previousYear", wPy)], { chart: { orientation: "line" } }));
+check(attrsOf("c213", "path").some(e => e.getAttribute("stroke-dasharray") === "2,2" && e.getAttribute("stroke") === "#FFFF00"),
+  "c213: PY-Linie gestrichelt in Vordergrundfarbe");
+hcRun("c214", "HC · KPI-Karten · Status-Streifen gut = gefüllt, schlecht = hohl, unwesentlich = gestrichelt", 960, 260,
+  dataView(["Umsatz", "Kosten", "EBIT", "Cash"], [col("actual", [9800, 7600, 2200, 1500], "#,0 T€"), col("previousYear", [9100, 7200, 2300, 1497], "#,0 T€")],
+    { chart: { orientation: "cards", invertList: "Kosten", materialityPct: 1 } }));
+{
+  const rects = attrsOf("c214", "rect");
+  const solid = rects.some(r => r.getAttribute("fill") === "#FFFF00" && !r.getAttribute("stroke"));
+  const hollow = rects.some(r => r.getAttribute("fill") === "#000000" && r.getAttribute("stroke") === "#FFFF00" && !r.getAttribute("stroke-dasharray"));
+  const dashed = rects.some(r => r.getAttribute("stroke-dasharray") === "2,2");
+  check(solid && hollow && dashed, `c214: Karten-Status als Muster (gefüllt ${solid} · hohl ${hollow} · gestrichelt ${dashed})`);
+}
+hcRun("c215", "HC · Scatter Status ΔPY · gut gefüllt, schlecht hohl, unwesentlich gestrichelt", 960, 440,
+  dataView(scatU, scatCols([col("previousYear", scatPy, "#,0 T€")]), { ibcsTitle: { kpi: "Umsatz" }, chart: { orientation: "scatter", scatterColorBy: "status", materialityPct: 3 } }));
+{
+  const marks = attrsOf("c215", "g.icd-cat circle, g.icd-cat rect, g.icd-cat path").filter(e => e.getAttribute("stroke-width") === "1.4");
+  const filled = marks.some(e => e.getAttribute("fill") === "#FFFF00"), hollow = marks.some(e => e.getAttribute("fill") === "#000000" && !e.getAttribute("stroke-dasharray"));
+  const dashed = marks.some(e => e.getAttribute("stroke-dasharray") === "2,2");
+  check(filled && hollow && dashed, `c215: Scatter-Status als Muster (gefüllt ${filled} · hohl ${hollow} · gestrichelt ${dashed})`);
+}
+hcRun("c216", "HC · Balken ΔPL · EMPHASIZE „Italien“ als Rahmen in foregroundSelected (cyan)", 960, 380,
+  dataView(countries, [col("actual", costAc), col("plan", [5000,2000,2300,3200,2600,1450,1800])], { chart: { orientation: "bars", highlight: "Italien" } }));
+check(attrsOf("c216", "rect").some(r => r.getAttribute("stroke") === "#00FFFF"), "c216: EMPHASIZE-Rahmen in foregroundSelected");
+hcRun("c217", "HC · Wasserfall GuV + ΔPY-Stufen · schlecht hohl", 960, 460,
+  dataView(pnlCats, [col("actual", pnlVals, "#,0 T€"), col("previousYear", pnlPy, "#,0 T€")], { chart: { orientation: "waterfall" } }, null, pnlTypes));
+hcRun("c218", "HC · Tabelle Länder · PY gestrichelt, ΔPY schlecht hohl", 1200, 360,
+  dataView(countries, [col("actual", costAc), col("previousYear", costPy)], { chart: { orientation: "table", pyTriangle: false } }));
+check(attrsOf("c218", "rect").some(r => r.getAttribute("stroke-dasharray") === "3,2"), "c218: PY-Balken gestrichelt");
+// c219: unvollständige HC-Palette (nur isHighContrast) → Fallback statt Fehler
+addStage("c219", "HC · Palette ohne foreground/background/foregroundSelected → Fallback, kein Fehler", 480, 240, "#000");
+runCap("c219", dataView(months.slice(0, 6), [col("actual", ac.slice(0, 6)), col("previousYear", py.slice(0, 6))]), 480, 240, { palette: { isHighContrast: true } });
+check(document.querySelectorAll("#c219 svg rect").length > 5, "c219: rendert trotz unvollständiger Palette");
+</script>
 </body>
 </html>

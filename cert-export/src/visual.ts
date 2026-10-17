@@ -72,6 +72,56 @@ function relLuminance(hex: string): number {
 /** small-multiples grid cap — shared-scale maxima must only span rendered tiles */
 const MULT_MAX_CELLS = 24;
 
+/** 1.49 segmented loading (fetchMoreData): powerbi.VisualDataChangeOperationKind.Append
+ *  as a literal — const-enum values do not exist at runtime in the test shim */
+const OP_APPEND = 1;
+/** safety cap of the segmented loading: beyond this many category rows the visual
+ *  requests no further segments (an SVG chart with 30k marks is not readable anyway) */
+const FETCH_MAX_ROWS = 30000;
+
+/**
+ * 1.49 IBCS chart templates (C01–C13 of the IBCS template library) as presets of
+ * the chart card — the PnL mega-template pattern: the dropdown chart.template only
+ * writes DEFAULTS. A template that differs from the last applied one (hidden
+ * chart.templateApplied) sets all listed chart properties at once, locally for the
+ * very same render and in ONE persistProperties merge; afterwards every switch is
+ * free. C07 (area) and C11 do not exist in this visual and are not offered.
+ * C13 keeps the chart type and only switches the small-multiples options.
+ */
+type TplValue = string | boolean | number;
+const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
+    // C01/C02: structure over time / per category — stacking comes from the Serie role
+    C01: { orientation: "columns", comparisonMode: "auto", showAbsoluteVariance: false,
+        showRelativeVariance: false, dualVariance: false, waterfallStyle: false },
+    C02: { orientation: "bars", comparisonMode: "auto", showAbsoluteVariance: false,
+        showRelativeVariance: false, dualVariance: false, waterfallStyle: false },
+    // C03: multi-tier columns — AC/PY base, ΔPY panel, ΔPY% pins
+    C03: { orientation: "columns", comparisonMode: "py", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false, waterfallStyle: false },
+    // C04: bars with ΔPL panel + ΔPL% pins
+    C04: { orientation: "bars", comparisonMode: "plan", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false, waterfallStyle: false },
+    // C05: integrated bridge over time (PY total → monthly Δ → AC/FC total)
+    C05: { orientation: "intwaterfall", comparisonMode: "py", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false },
+    // C06: category bridge drawn as vertical column cascade
+    C06: { orientation: "catbridge", comparisonMode: "py", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false, bridgeOrientation: "columns" },
+    // C08: line for long time series — ΔBasis panel, no Δ%-pin forest
+    C08: { orientation: "line", comparisonMode: "auto", showAbsoluteVariance: true,
+        showRelativeVariance: false, dualVariance: false },
+    // C09/C10: scatter with mean quadrants; C10 additionally the size legend (bubble role)
+    C09: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "mean",
+        scatterColorBy: "single" },
+    C10: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "mean",
+        scatterColorBy: "single", scatterSizeLegend: true },
+    // C12: waterfall (sum/delta rows or bridge from the basis)
+    C12: { orientation: "waterfall", comparisonMode: "auto", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false },
+    // C13: small multiples — chart type stays, Σ tile + same scale for bridges too
+    C13: { multiplesTotal: true, multiplesSameScale: true }
+};
+
 type Orientation = "columns" | "bars";
 type Basis = "py" | "plan" | "fcrev";
 
@@ -322,6 +372,9 @@ interface ChartConfig {
     isMaterial: (p: DataPoint | null | undefined, vAbs?: number | null, vRel?: number | null) => boolean;
     /** high-contrast mode: only foreground/background colors, outlines for distinction */
     hc: boolean;
+    /** 1.49 high contrast: the host's foregroundSelected (EMPHASIZE, hover) — equals
+     *  ink outside high contrast (never read there) */
+    hcSel: string;
     /** dark mode: light text/marks on a dark report page (forced or auto-detected) */
     dark: boolean;
     ink: string;
@@ -713,6 +766,33 @@ export class Visual implements IVisual {
     /** ⫽-Achse-Chip: scale.wfAxisBreak we persisted but the host has not echoed yet */
     private pendingWfBreak: string | null = null;
     private pendingWfBreakTtl = 0;
+    /** 1.49 chart template just persisted (echo guard + TTL 5, PnL pattern): while it
+     *  lives, a stale metadata update cannot flip the freshly written switches back */
+    private templatePending: { applied: string; props: Record<string, TplValue>; ttl: number } | null = null;
+    /** template applied in this session — a lost echo must not re-apply it in a loop */
+    private templateSessionTpl: string | null = null;
+    /** 1.49 locked chips: bridge toolbar buttons of this render (locked afterwards when
+     *  the bridge draws nothing but its hint) and the per-render no-op facts */
+    private bridgeChips: SVGGElement[] = [];
+    /** ⇅ would not change the order (impact order == data order in every tile) */
+    private sortNoop = false;
+    /** ⚠ would fold nothing (every category above the materiality threshold) */
+    private exceptionNoop = false;
+    /** 1.49 empty-state switch (edit mode): emptyState.mode we persisted but the
+     *  host has not echoed yet — same echo-guard + TTL pattern as pendingFontPreset */
+    private pendingEmptyMode: string | null = null;
+    private pendingEmptyModeTtl = 0;
+    /** data view of the last update — the field intro marks the bound roles from it */
+    private lastDataView: DataView | undefined = undefined;
+    // --- 1.49 segmented loading (fetchMoreData, PnL pattern) ---
+    /** category rows delivered by the host so far (accumulated data view) */
+    private loadedRows = 0;
+    /** a further segment was requested and is still on its way */
+    private awaitingSegment = false;
+    /** the host refused a further segment although more data exists (100 MB cap) */
+    private hostCapped = false;
+    /** the visual itself stopped at FETCH_MAX_ROWS although more data exists */
+    private selfCapped = false;
     /** structure-edit mode (one-click P&L): row clicks open the structure menu */
     private structureEdit = false;
     private structEditor: HTMLDivElement | null = null;
@@ -806,6 +886,17 @@ export class Visual implements IVisual {
         // interactions — hide the in-chart buttons there instead of dead chrome
         this.allowInteractions = options.host.hostCapabilities?.allowInteractions !== false;
         this.selectionManager = options.host.createSelectionManager();
+        // 1.49 bookmarks (PnL pattern): a bookmark — or "selected by another visual"
+        // via multi-visual selection — restores the selection in the HOST; the
+        // callback hands the restored ids over so the marks dim exactly like after
+        // a click. An empty set clears the dimming (bookmark without selection).
+        // The host owns the truth: later renders read getSelectionIds() as before.
+        // Guarded — older hosts and the test shim have no callback API.
+        if (typeof this.selectionManager?.registerOnSelectCallback === "function") {
+            this.selectionManager.registerOnSelectCallback((ids: ISelectionId[]) => {
+                this.applySelectionOpacity(ids ?? []);
+            });
+        }
         this.tooltipService = options.host.tooltipService;
         this.root = options.element;
         this.root.classList.add("icd-root");
@@ -909,6 +1000,35 @@ export class Visual implements IVisual {
                     const wbIt = wbSlice.items.find(x => String(x.value) === this.pendingWfBreak);
                     if (wbIt) { wbSlice.value = wbIt; }
                 }
+            }
+            // 1.49 IBCS chart template (chart.template): applies a preset once per pick
+            this.syncChartTemplate(dataView);
+            // 1.49 empty-state switch (Feld-Intro ↔ Galerie ↔ Nachricht), same echo guard
+            const emSlice = this.formattingSettings.emptyStateCard.mode;
+            if (this.pendingEmptyMode != null) {
+                if (String(emSlice.value.value) === this.pendingEmptyMode
+                    || --this.pendingEmptyModeTtl <= 0) {
+                    this.pendingEmptyMode = null;
+                } else {
+                    const emIt = emSlice.items.find(x => String(x.value) === this.pendingEmptyMode);
+                    if (emIt) { emSlice.value = emIt; }
+                }
+            }
+            this.lastDataView = dataView;
+            // 1.49: segment beyond the reduction window → request the next one
+            const opKind = options.operationKind as unknown as number | undefined;
+            this.trackSegments(dataView, opKind);
+            // memoization while loading: an intermediate Append (more segments still
+            // on their way) only refreshes the progress line — the chart is drawn for
+            // the first window and once more for the complete data, not per segment
+            // (30 segments × full SVG render would block the report for seconds)
+            if (opKind === OP_APPEND && this.awaitingSegment && this.lastRender != null
+                && options.viewport.width === this.lastRender.width
+                && options.viewport.height === this.lastRender.height) {
+                this.svg.querySelector('[data-icd="load-state"]')?.remove();
+                this.drawLoadState(this.lastRender.width, this.lastRender.height);
+                this.events.renderingFinished(options);
+                return;
             }
 
             const width = options.viewport.width;
@@ -1043,6 +1163,8 @@ export class Visual implements IVisual {
             this.svg.style.display = "block";
             this.lastRender = { points, width, height };
             this.render(points, width, height);
+            this.finishChips();
+            this.drawLoadState(width, height);
             this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
             this.events.renderingFinished(options);
         } catch (error) {
@@ -1056,7 +1178,176 @@ export class Visual implements IVisual {
         this.hideDarkTip();
         // render() mutates order in place via groups — pass a copy of the point list
         this.render([...this.lastRender.points], this.lastRender.width, this.lastRender.height);
+        this.finishChips();
+        this.drawLoadState(this.lastRender.width, this.lastRender.height);
         this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
+    }
+
+    // ------------------------------------------------------------ IBCS templates (1.49)
+
+    /**
+     * chart.template → chart switches (PnL syncMegaTemplate pattern). A template
+     * only writes defaults: when the dropdown differs from the last applied one
+     * (hidden chart.templateApplied), every property of the preset is set locally
+     * — this very render already shows it — and persisted together with the new
+     * templateApplied in ONE merge. Echo guard + TTL 5: until the host echoes the
+     * write back, a stale update keeps the written values; a lost echo never pins
+     * them forever. "off" only records templateApplied (nothing else changes), and
+     * the default state (template off, nothing applied) never persists at all.
+     */
+    private syncChartTemplate(dataView: DataView | undefined): void {
+        const cc = this.formattingSettings.chartCard;
+        const raw = dataView?.metadata?.objects?.["chart"]?.["templateApplied"];
+        const persisted = raw != null && String(raw) !== "" ? String(raw) : "off";
+        let applied = persisted;
+        const pend = this.templatePending;
+        if (pend) {
+            let synced = persisted === pend.applied;
+            for (const [k, v] of Object.entries(pend.props)) {
+                if (!this.chartSliceIs(k, v)) { synced = false; this.chartSliceSet(k, v); }
+            }
+            pend.ttl--;
+            if (synced || pend.ttl <= 0) { this.templatePending = null; }
+            if (!synced && this.templatePending) { applied = pend.applied; }
+        }
+        const tpl = String(cc.template.value.value);
+        // only the host's own confirmation re-arms the session guard
+        if (tpl === persisted) { this.templateSessionTpl = null; }
+        if (tpl === applied || tpl === this.templateSessionTpl) { return; }
+        if (tpl !== "off" && !CHART_TEMPLATES[tpl]) { return; }
+        this.applyChartTemplate(tpl);
+    }
+
+    private applyChartTemplate(tpl: string): void {
+        const props: Record<string, TplValue> = { ...(CHART_TEMPLATES[tpl] ?? {}) };
+        for (const [k, v] of Object.entries(props)) { this.chartSliceSet(k, v); }
+        this.templatePending = { applied: tpl, props, ttl: 5 };
+        this.templateSessionTpl = tpl;
+        this.host.persistProperties({
+            merge: [{ objectName: "chart", selector: null, properties: { ...props, templateApplied: tpl } }]
+        });
+    }
+
+    /** a chart-card slice by property name (toggle, number or dropdown) */
+    private chartSlice(k: string): { value: unknown; items?: powerbi.IEnumMember[] } | null {
+        const cc = this.formattingSettings.chartCard as unknown as
+            Record<string, { value: unknown; items?: powerbi.IEnumMember[]; name?: string }>;
+        const sl = cc[k];
+        return sl && sl.name === k ? sl : null;
+    }
+    private chartSliceIs(k: string, v: TplValue): boolean {
+        const sl = this.chartSlice(k);
+        if (!sl) { return true; }
+        if (sl.items) { return String((sl.value as powerbi.IEnumMember)?.value) === String(v); }
+        return sl.value === v;
+    }
+    // ------------------------------------------------------------ segmented loading (1.49)
+
+    /**
+     * `window` data reduction + fetchMoreData(true) (PnL pattern, Falle 7): every
+     * Append update carries the ACCUMULATED data view, so each segment is parsed as
+     * the full current state and rendered at once; the next segment is requested
+     * right after. Without metadata.segment (≤ one window) nothing changes at all —
+     * no request, no hint, the same render as before 1.49.
+     */
+    private trackSegments(dataView: DataView | undefined, opKind: number | undefined): void {
+        // Create (or a host that does not report the kind) starts a new load
+        if (opKind !== OP_APPEND) {
+            this.awaitingSegment = false;
+            this.hostCapped = false;
+            this.selfCapped = false;
+        }
+        const cat = dataView?.categorical;
+        this.loadedRows = cat?.categories?.[0]?.values?.length ?? cat?.values?.[0]?.values?.length ?? 0;
+        const moreExpected = dataView?.metadata?.segment != null;
+        if (!moreExpected) { this.awaitingSegment = false; this.hostCapped = false; this.selfCapped = false; return; }
+        if (this.loadedRows >= FETCH_MAX_ROWS) {
+            this.awaitingSegment = false; this.selfCapped = true; return;
+        }
+        const accepted = typeof this.host.fetchMoreData === "function"
+            ? this.host.fetchMoreData(true) : false;
+        this.awaitingSegment = accepted;
+        // request refused → the host caps the total (100 MB / row limit)
+        this.hostCapped = !accepted;
+    }
+
+    /** subtle load-state line bottom right: progress while segments are on their way,
+     *  a warning when the total stays incomplete (host or safety cap) */
+    private drawLoadState(width: number, height: number): void {
+        if (!this.awaitingSegment && !this.hostCapped && !this.selfCapped) { return; }
+        const n = new Intl.NumberFormat(this.host.locale || "de-DE").format(this.loadedRows);
+        const text = this.awaitingSegment
+            ? this.locStr("Load_Progress", "⏳ {0} rows loaded … loading more").replace("{0}", n)
+            : this.selfCapped
+                ? this.locStr("Load_SelfCap", "{0} rows loaded — upper limit of the visual, further rows are not loaded").replace("{0}", n)
+                : this.locStr("Load_HostCap", "Row limit reached — the host delivers no further segments, data incomplete");
+        const dk = this.uiDark;
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette;
+        const hc = !!(palette && palette.isHighContrast);
+        const fg = hc ? palette.foreground.value : this.awaitingSegment ? (dk ? DARK_SUBTLE : "#6E6E6E") : (dk ? "#F0821E" : "#B35A00");
+        const bg = hc ? palette.background.value : dk ? this.darkPaper() : "#FFFFFF";
+        const f = Math.round(9.5 * this.fontK);
+        const w = Math.min(width - 12, this.textWidth(text, f) + 12);
+        const g = this.el("g", { "data-icd": "load-state" }, this.svg);
+        this.el("rect", {
+            x: width - 6 - w, y: height - 6 - f - 6, width: w, height: f + 6, rx: 3,
+            fill: bg, "fill-opacity": 0.92, stroke: fg, "stroke-width": 0.8
+        }, g);
+        const t = this.el("text", {
+            x: width - 12, y: height - 6 - 4.5, "text-anchor": "end", "font-size": f,
+            fill: fg, "font-family": FONT
+        }, g);
+        t.textContent = this.truncate(text, w - 10, f);
+    }
+
+    // ------------------------------------------------------------ locked chips (1.49)
+
+    /**
+     * Locked in-chart chip (PnL 1.0.1 pattern): a chip whose click would change
+     * nothing in the current state stays in place — the chip row does not jump —
+     * but reads as locked (dimmed, default cursor, out of the tab order), explains
+     * itself in the tooltip and neither persists nor re-renders. A click on it
+     * still stops propagation, so it does not clear the selection either.
+     */
+    private lockChip(btn: SVGGElement, reason: string): void {
+        btn.setAttribute("data-icd-locked", "1");
+        btn.setAttribute("aria-disabled", "true");
+        btn.setAttribute("tabindex", "-1");
+        btn.setAttribute("aria-label", reason);
+        btn.style.opacity = "0.4";
+        btn.style.cursor = "default";
+        const tip = btn.querySelector("title") ?? this.el("title", {}, btn);
+        tip.textContent = reason;
+        // capture phase on the chip: runs before the chip's own handlers (and before
+        // the target's), so already-attached click/keyboard actions never fire
+        const block = (e: Event) => { e.stopPropagation(); e.stopImmediatePropagation(); e.preventDefault(); };
+        btn.addEventListener("click", block, true);
+        btn.addEventListener("keydown", block, true);
+    }
+
+    /** after a render: a bridge that drew only its hint (no marks) has nothing to
+     *  re-base, sort or animate — its toolbar buttons are locked with the reason */
+    private finishChips(): void {
+        if (this.bridgeChips.length === 0 || this.animGroups.length > 0) { return; }
+        const reason = this.locStr("Lock_NoChart", "No effect: the chart is not drawn in this state (see the note)");
+        for (const b of this.bridgeChips) {
+            if (b.getAttribute("data-icd-locked") !== "1") { this.lockChip(b, reason); continue; }
+            // already locked for a weaker reason (⇅ order): the missing chart is the real one
+            b.setAttribute("aria-label", reason);
+            const tip = b.querySelector("title");
+            if (tip) { tip.textContent = reason; }
+        }
+    }
+
+    private chartSliceSet(k: string, v: TplValue): void {
+        const sl = this.chartSlice(k);
+        if (!sl) { return; }
+        if (sl.items) {
+            const it = sl.items.find(x => String(x.value) === String(v));
+            if (it) { sl.value = it; }
+        } else {
+            sl.value = v;
+        }
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
@@ -1899,6 +2190,24 @@ export class Visual implements IVisual {
             return;
         }
 
+        // 1.49 emptyState.mode: field intro / own message replace the gallery for
+        // the AUTHOR (edit mode, interactive host). Readers and exports keep the
+        // previous behaviour above/below — "demo" is exactly the old landing
+        const emptyMode = String(esc.mode.value.value);
+        if (isEdit && this.allowInteractions && width >= 300 && height >= 220) {
+            if (emptyMode === "fields") {
+                this.renderFieldIntro(width, height);
+                return;
+            }
+            if (emptyMode === "message") {
+                const msgBody = custom ? cBody
+                    : this.locStr("Es_MessageEmpty", "No own message yet — enter title and text in the format pane under \"Empty state\".");
+                this.renderEmptyMessage(width, height, custom ? cTitle : "ChartKitchen byDatenWG", msgBody, ink, subtle);
+                this.drawEmptySwitches(width, height, "message", { ink, subtle, tile, edge2 });
+                return;
+            }
+        }
+
         // tiny visuals: no room for the gallery — title + hint only
         if (width < 300 || height < 220) {
             const t0 = this.el("text", {
@@ -2273,6 +2582,165 @@ export class Visual implements IVisual {
         }
     }
 
+    /**
+     * 1.49 field intro (emptyState.mode = fields, edit mode only): which field goes
+     * into which well — the core roles with a ✓ at the ones already bound and a
+     * one-line purpose each, in the report language (PnL 1.2 pattern, drawn as SVG
+     * like the rest of the landing). A missing-AC hint stays on top.
+     */
+    private renderFieldIntro(width: number, height: number): void {
+        const dk = this.uiDark;
+        const ink = dk ? DARK_INK : "#404040", teal = dk ? "#3FB3C2" : "#1E8F9E";
+        const subtle = dk ? DARK_SUBTLE : "#6E6E6E", soft = dk ? "#BFBFBF" : "#5A5A5A";
+        const wash = dk ? DARK_WASH : WASH, edge2 = dk ? DARK_FAINT : "#DDDDD8";
+        const tile = dk ? "#262624" : "#FAFAF8";
+        const red = dk ? "#E4635F" : "#D64541";
+        const sLc = this.formattingSettings.labelsCard;
+        const kf = Math.min(3, ({ compact: 1, fullhd: 1.5, presentation: 2 }[
+            String(sLc.fontPreset.value.value)] ?? 1)
+            * Math.max(0.5, Math.min(3, Number(sLc.fontScale.value ?? 100) / 100)));
+        const tf = Math.min(1.4, Math.max(1, kf));
+        const fT = Math.round(14 * tf), fB = Math.round(11 * tf), fS = Math.round(9.5 * tf);
+        // bound roles: metadata columns (host) and the categorical sources (harness)
+        const dv = this.lastDataView;
+        const roles = new Set<string>();
+        const take = (r: { [k: string]: boolean } | undefined) => {
+            for (const k of Object.keys(r ?? {})) { if (r && r[k]) { roles.add(k); } }
+        };
+        for (const c of dv?.metadata?.columns ?? []) { take(c.roles); }
+        for (const c of dv?.categorical?.categories ?? []) { take(c.source.roles); }
+        for (const c of dv?.categorical?.values ?? []) { take(c.source.roles); }
+        const rows: { id: string; key: string; en: string; tKey: string; tEn: string; sec: number }[] = [
+            { id: "category", key: "Role_Category", en: "Category", sec: 0,
+                tKey: "FI_Category", tEn: "Axis or structure — months for time series, regions/products for structure; several fields = drill hierarchy" },
+            { id: "actual", key: "Role_Actual", en: "Actual (AC)", sec: 0,
+                tKey: "FI_Ac", tEn: "Actual measure, drawn solid dark — the only required value (alternatively FC)" },
+            { id: "previousYear", key: "Role_PreviousYear", en: "Previous Year (PY)", sec: 1,
+                tKey: "FI_Py", tEn: "Prior year → ΔPY panel and pins, drawn grey" },
+            { id: "plan", key: "Role_Plan", en: "Plan / Budget (PL)", sec: 1,
+                tKey: "FI_Pl", tEn: "Plan/budget → ΔPL, drawn outlined" },
+            { id: "forecast", key: "Role_Forecast", en: "Forecast (FC)", sec: 1,
+                tKey: "FI_Fc", tEn: "Forecast, hatched — fills the periods without actuals" },
+            { id: "series", key: "Role_Series", en: "Stack series", sec: 1,
+                tKey: "FI_Series", tEn: "Stacks columns/bars by this breakdown (templates C01/C02)" },
+            { id: "multiples", key: "Role_Multiples", en: "Small Multiples", sec: 1,
+                tKey: "FI_Multiples", tEn: "One tile per value, all on the same scale (template C13)" }
+        ];
+        const pad = 12;
+        const boxX = pad, boxY = pad, boxW = Math.min(width - 2 * pad, 760);
+        const switchH = Math.round(21 * tf) + 12;
+        const boxH = height - 2 * pad - switchH;
+        const g = this.el("g", { "data-icd": "field-intro" }, this.svg) as SVGGElement;
+        const box = this.el("rect", {
+            x: boxX, y: boxY, width: boxW, height: Math.max(40, boxH), rx: 6,
+            fill: wash, stroke: edge2, "stroke-width": 1, "stroke-dasharray": "4,3"
+        }, g);
+        const ix = boxX + 14, iw = boxW - 28;
+        let y = boxY + 12 + fT;
+        const txt = (x: number, yy: number, t: string, size: number, fill: string, bold = false, maxW = iw) => {
+            const e = this.el("text", {
+                x, y: yy, "font-size": size, fill, "font-family": FONT, ...(bold ? { "font-weight": 600 } : {})
+            }, g);
+            e.textContent = this.truncate(t, maxW, size);
+            return e;
+        };
+        txt(ix, y, this.locStr("FI_Title", "Which field goes where"), fT, ink, true);
+        y += Math.round(fB * 1.6);
+        txt(ix, y, this.locStr("FI_Intro", "Fill the field wells — the chart appears as soon as Actual (AC) is bound."), fB, soft);
+        const bottom = boxY + boxH - 8;
+        if (this.missingHint) {
+            y += Math.round(fB * 1.5);
+            txt(ix, y, this.missingHint, fB, red, true);
+        }
+        const lineH = Math.round(fB * 1.55);
+        const nameW = Math.min(iw * 0.42, Math.max(...rows.map(r =>
+            this.textWidth(this.locStr(r.key, r.en), fB))) + 8);
+        let sec = -1;
+        for (const r of rows) {
+            if (r.sec !== sec) {
+                sec = r.sec;
+                if (y + Math.round(fB * 1.7) + lineH > bottom) { break; }
+                y += Math.round(fB * 1.7);
+                txt(ix, y, (sec === 0 ? this.locStr("FI_Minimal", "Minimal") : this.locStr("FI_Extended", "Extended"))
+                    .toUpperCase(), fS, subtle, true);
+            }
+            if (y + lineH > bottom) { break; }
+            y += lineH;
+            const on = roles.has(r.id);
+            const mark = txt(ix, y, on ? "✓" : "○", fB, on ? teal : subtle, true, 16);
+            mark.setAttribute("data-fi", r.id);
+            mark.setAttribute("data-on", on ? "1" : "0");
+            txt(ix + 18, y, this.locStr(r.key, r.en), fB, ink, true, nameW);
+            txt(ix + 18 + nameW + 6, y, this.locStr(r.tKey, r.tEn), fB, soft, false, iw - 24 - nameW);
+        }
+        if (y + Math.round(fB * 1.9) <= bottom) {
+            y += Math.round(fB * 1.9);
+            const h = txt(ix, y, this.locStr("FI_Hint", "Then pick an IBCS template: format pane → Chart → IBCS chart template."), fB, subtle);
+            h.setAttribute("font-style", "italic");
+        }
+        // the dashed box hugs its content; the switches sit right below it
+        const fitH = Math.max(40, Math.min(boxH, y - boxY + Math.round(fB * 0.9) + 6));
+        box.setAttribute("height", String(fitH));
+        this.drawEmptySwitches(width, height, "fields", { ink, subtle, tile, edge2 }, boxY + fitH + 10);
+    }
+
+    /**
+     * 1.49 empty-state switches (edit mode only, bottom left): every mode except the
+     * current one. A click persists emptyState.mode (echo guard + TTL) and shows the
+     * new start at once; readers never see these buttons.
+     */
+    private drawEmptySwitches(width: number, height: number, cur: string,
+        c: { ink: string; subtle: string; tile: string; edge2: string }, top?: number): void {
+        const sLc = this.formattingSettings.labelsCard;
+        const kf = Math.min(3, ({ compact: 1, fullhd: 1.5, presentation: 2 }[
+            String(sLc.fontPreset.value.value)] ?? 1)
+            * Math.max(0.5, Math.min(3, Number(sLc.fontScale.value ?? 100) / 100)));
+        const tf = Math.min(1.4, Math.max(1, kf));
+        const f = Math.round(10.5 * tf), bh = Math.round(21 * tf);
+        const tip = this.locStr("Es_SwitchTip", "Saved as Empty state → mode — readers keep seeing the gallery or the own message");
+        const opts = [
+            { v: "demo", key: "Es_Demo", en: "Show gallery" },
+            { v: "fields", key: "Es_Fields", en: "Explain fields" },
+            { v: "message", key: "Es_Message", en: "Own message" }
+        ].filter(o => o.v !== cur);
+        let x = 12;
+        const y = top != null ? Math.min(top, height - 12 - bh) : height - 12 - bh;
+        for (const o of opts) {
+            const label = this.locStr(o.key, o.en);
+            const w = Math.ceil(this.textWidth(label, f)) + 22;
+            const b = this.el("g", { role: "button", tabindex: "0", "data-icd": "es-" + o.v }, this.svg) as SVGGElement;
+            b.setAttribute("aria-label", `${label} — ${tip}`);
+            const tt = this.el("title", {}, b);
+            tt.textContent = tip;
+            this.el("rect", {
+                x, y, width: w, height: bh, rx: 4, fill: c.tile, stroke: c.edge2, "stroke-width": 1
+            }, b);
+            const t = this.el("text", {
+                x: x + w / 2, y: y + bh / 2 + f * 0.36, "text-anchor": "middle",
+                "font-size": f, fill: c.ink, "font-family": FONT
+            }, b);
+            t.textContent = label;
+            b.style.cursor = "pointer";
+            const go = () => {
+                const sl = this.formattingSettings.emptyStateCard.mode;
+                const it = sl.items.find(xx => String(xx.value) === o.v);
+                if (it) { sl.value = it; }
+                this.pendingEmptyMode = o.v;
+                this.pendingEmptyModeTtl = 5;
+                this.host.persistProperties({
+                    merge: [{ objectName: "emptyState", selector: null, properties: { mode: o.v } }]
+                });
+                this.renderDemo(width, height);
+            };
+            b.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); go(); });
+            b.addEventListener("keydown", (e: KeyboardEvent) => {
+                if (e.key !== "Enter" && e.key !== " ") { return; }
+                e.preventDefault(); e.stopPropagation(); go();
+            });
+            x += w + 6;
+        }
+    }
+
     /** consumer-facing empty state: only the author's title + body, centered —
      *  shown in view mode when the "Leer-Zustand" card carries custom text */
     private renderEmptyMessage(width: number, height: number, title: string, body: string,
@@ -2521,6 +2989,9 @@ export class Visual implements IVisual {
     private render(points: DataPoint[], width: number, height: number): void {
         while (this.svg.firstChild) { this.svg.removeChild(this.svg.firstChild); }
         this.catGroups = [];
+        this.bridgeChips = [];
+        this.sortNoop = false;
+        this.exceptionNoop = false;
         // scatter v3: a running play animation or drag-select must not outlive the
         // DOM it manipulates (the svg was just cleared above)
         if (this.scatterAnim?.raf != null) { cancelAnimationFrame(this.scatterAnim.raf); }
@@ -2686,6 +3157,11 @@ export class Visual implements IVisual {
                     && !points.some(p => p.rowType != null)));
         this.exceptionOn = this.exceptionCapable && s.chartCard.exceptionOnly.value === true;
         this.exceptionHidden = 0;
+        // 1.49: the ⚠ chip is locked when the filter would fold nothing at all
+        if (this.exceptionCapable) {
+            const material = this.materialityFn();
+            this.exceptionNoop = groups.every(g => g.pts.every(p => material(p)));
+        }
         // order with topN: exception filter FIRST, then topN ranks the remaining
         // conspicuous rows. The other way round the "Rest (n)" row of topN would
         // itself be swallowed by the collector row and lose its label
@@ -2713,6 +3189,14 @@ export class Visual implements IVisual {
             const kind = String(s.chartCard.cumulativeKind.value.value) as "ytd" | "qtd" | "r12";
             const fiscal = Math.min(12, Math.max(1, Math.round(s.chartCard.fiscalStart.value ?? 1)));
             for (const g of groups) { g.pts = this.cumulate(g.pts, basisMode, kind, fiscal); }
+        }
+        // 1.49: the ⇅ chip is locked when impact order and data order coincide in
+        // every tile — the click would change nothing either way
+        if (wfStyleGlobal || isCatBridge) {
+            this.sortNoop = groups.every(g => {
+                const sorted = this.sortByImpact(g.pts);
+                return sorted.every((p, i) => p === g.pts[i]);
+            });
         }
         // waterfall-bridge: order categories by impact, largest driver first (Rest row stays last)
         if (sortByImpactOn) {
@@ -2748,8 +3232,10 @@ export class Visual implements IVisual {
         const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette;
         const hc: boolean = !!(palette && palette.isHighContrast);
         const dark: boolean = this.uiDark;
-        const fg: string = hc ? palette.foreground.value : dark ? DARK_INK : INK;
-        const bgc: string = hc ? palette.background.value : dark ? this.darkPaper() : "#FFFFFF";
+        // 1.49: the host palette may omit single slots — fall back instead of throwing
+        const fg: string = hc ? (palette.foreground?.value || "#FFFFFF") : dark ? DARK_INK : INK;
+        const bgc: string = hc ? (palette.background?.value || "#000000") : dark ? this.darkPaper() : "#FFFFFF";
+        const hcSel: string = hc ? (palette.foregroundSelected?.value || fg) : fg;
 
         // report theme colors: sentiment + neutral tones from the palette,
         // falling back to the color pickers when the theme doesn't define them
@@ -2790,6 +3276,7 @@ export class Visual implements IVisual {
                 };
             })(),
             hc,
+            hcSel,
             dark,
             ink: fg,
             paper: bgc,
@@ -3257,7 +3744,14 @@ export class Visual implements IVisual {
             // canvas; persisted like the other in-chart buttons
             if (s.chartCard.cumulativeButton.value && !isStacked
                 && (orientationRaw === "columns" || orientationRaw === "line")) {
-                this.drawCumButton(width - (wfStyleGlobal ? 30 : 6), cfg);
+                // 1.49: locked where cumulating cannot change the picture — P&L rows
+                // (rowType) are never cumulated, a single period stays identical
+                const ytdLock = points.some(p => p.rowType != null)
+                    ? this.locStr("Lock_YtdRowType", "No effect: P&L rows (row type field) are not cumulated")
+                    : groups.every(g => g.pts.length <= 1)
+                        ? this.locStr("Lock_YtdSingle", "No effect: a single period looks the same cumulated")
+                        : null;
+                this.drawCumButton(width - (wfStyleGlobal ? 30 : 6), cfg, ytdLock);
             }
         }
         // IBCS title block on top of everything (incl. multiples grid)
@@ -7758,7 +8252,9 @@ export class Visual implements IVisual {
                 : (good(sv.v as number, p) ? cfg.colors.good : cfg.colors.bad);
             this.el("rect", {
                 x: x + 1.2, y: y + 1.2, width: Math.round(4 * k), height: h - 2.4,
-                rx: Math.round(3 * k), fill: stripeCol
+                rx: Math.round(3 * k), fill: stripeCol,
+                // 1.49 high contrast: the stripe carries the status as a pattern
+                ...(cfg.hc ? this.hcStatus(neutral ? "neutral" : good(sv.v as number, p) ? "good" : "bad", cfg) : {})
             }, g);
 
             const pad = Math.round(10 * k) + Math.round(5 * k);
@@ -7859,11 +8355,14 @@ export class Visual implements IVisual {
                     const dTop = yOf(hi), dH = Math.max(1.5, (hi - lo) * sc);
                     const dCol = (!cfg.isMaterial(p) || !hlShow(p.varAbs, p)) ? cfg.colors.py
                         : (good(p.varAbs, p) ? cfg.colors.good : cfg.colors.bad);
+                    const dNeutral = !cfg.isMaterial(p) || !hlShow(p.varAbs, p);
                     this.el("rect", {
                         x: cxs[1] - colW / 2, y: dTop, width: colW, height: dH,
                         ...(p.isFc && cfg.isMaterial(p)
                             ? { fill: `url(#${good(p.varAbs, p) ? cfg.patGood : cfg.patBad})`, stroke: dCol, "stroke-width": 1 }
-                            : { fill: dCol })
+                            : cfg.hc
+                                ? this.hcStatus(dNeutral ? "neutral" : good(p.varAbs, p) ? "good" : "bad", cfg)
+                                : { fill: dCol })
                     }, g);
                     this.el("line", {
                         x1: cxs[0] + colW / 2, y1: yOf(p.basis), x2: cxs[1] - colW / 2, y2: yOf(p.basis),
@@ -8268,8 +8767,16 @@ export class Visual implements IVisual {
                 "font-size": font, fill: on ? cfg.paper : cfg.ink, "font-family": FONT
             }, chip);
             t.textContent = label;
-            (chip as unknown as SVGGraphicsElement).style.cursor = "pointer";
+            // 1.49: without a comparison value (PY/PL/BM) or with a single card the
+            // sort orders cannot differ — locked instead of a silent cycle
+            const sortable = points.length > 1 && points.some(p => p.varAbs != null || p.bm != null);
+            if (!sortable) {
+                this.lockChip(chip, this.locStr("Lock_CardSort",
+                    "No effect: without a comparison value (PY/PL/BM) or with a single card there is nothing to sort"));
+            }
+            (chip as unknown as SVGGraphicsElement).style.cursor = sortable ? "pointer" : "default";
             const cycle = () => {
+                if (!sortable) { return; }
                 const next = order[(order.indexOf(cur) + 1) % order.length];
                 this.cardSortSel = next;
                 this.pendingCardSort = next;
@@ -9651,7 +10158,10 @@ export class Visual implements IVisual {
                 // high contrast: outline marks in the foreground color (emphasized filled);
                 // FC points hatched like FC columns; bubbles translucent so overlaps read
                 ...(cfg.hc
-                    ? { fill: emph ? cfg.ink : cfg.paper, stroke: cfg.ink, "stroke-width": 1.4 }
+                    ? (statusOn
+                        // 1.49: status by pattern — good solid, bad hollow, immaterial dashed
+                        ? { ...this.hcStatus(this.scatterStatusKind(p, cfg), cfg), stroke: cfg.ink, "stroke-width": 1.4 }
+                        : { fill: emph ? cfg.ink : cfg.paper, stroke: cfg.ink, "stroke-width": 1.4 })
                     : p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: col, "stroke-width": 1.2 }
                         : hasSize
@@ -10670,6 +11180,10 @@ export class Visual implements IVisual {
             fill: cfg.sortByImpact ? cfg.paper : cfg.ink, "font-family": FONT
         }, btn);
         icon.textContent = "⇅";
+        if (this.sortNoop) {
+            this.lockChip(btn, this.locStr("Lock_SortSame", "No effect: the order already matches the impact order"));
+            return;
+        }
         btn.style.cursor = "pointer";
         const toggle = () => {
             this.host.persistProperties({
@@ -10701,7 +11215,8 @@ export class Visual implements IVisual {
         const persist = (properties: Record<string, unknown>) => {
             this.host.persistProperties({ merge: [{ objectName: "chart", selector: null, properties }] });
         };
-        const roundBtn = (icon: string, active: boolean, label: string, onClick: () => void) => {
+        const roundBtn = (icon: string, active: boolean, label: string, onClick: () => void,
+            lockReason: string | null = null) => {
             const r = bh / 2;
             const cx = xRight - r, cy = 6 + r;
             xRight -= bh + 6;
@@ -10718,6 +11233,8 @@ export class Visual implements IVisual {
                 fill: active ? cfg.paper : cfg.ink, "font-family": FONT
             }, btn);
             t.textContent = icon;
+            this.bridgeChips.push(btn);
+            if (lockReason != null) { this.lockChip(btn, lockReason); return; }
             btn.style.cursor = "pointer";
             btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); onClick(); });
             btn.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -10731,7 +11248,8 @@ export class Visual implements IVisual {
         if (opts.showSort) {
             roundBtn("⇅", cfg.sortByImpact, cfg.sortByImpact
                 ? this.locStr("Btn_SortOff", "Remove impact sorting") : this.locStr("Btn_SortOn", "Sort by impact (largest driver first)"),
-                () => persist({ sortByImpact: !cfg.sortByImpact }));
+                () => persist({ sortByImpact: !cfg.sortByImpact }),
+                this.sortNoop ? this.locStr("Lock_SortSame", "No effect: the order already matches the impact order") : null);
         }
         if (opts.showRef) {
             // segmented ΔPY | ΔPL — active side filled dark, like the reference toolbar
@@ -10752,6 +11270,7 @@ export class Visual implements IVisual {
                     "font-size": font, fill: active ? cfg.paper : cfg.ink, "font-family": FONT
                 }, btn);
                 t.textContent = text;
+                this.bridgeChips.push(btn);
                 btn.style.cursor = "pointer";
                 btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); onClick(); });
                 btn.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -11191,7 +11710,7 @@ export class Visual implements IVisual {
         this.el("rect", {
             x, y, width: Math.max(1, w), height: Math.max(1, h),
             ...(cfg.hc
-                ? { fill: "none", stroke: cfg.ink, "stroke-width": 1 }
+                ? { fill: "none", stroke: cfg.hcSel, "stroke-width": 1 }
                 : { fill: cfg.ink, "fill-opacity": 0.05 })
         }, parent);
     }
@@ -11209,8 +11728,26 @@ export class Visual implements IVisual {
             x, y, width: Math.max(1, w), height: Math.max(1, h),
             fill: cfg.hc ? "none" : cfg.ink,
             "fill-opacity": cfg.hc ? 0 : 0.07,
-            stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 1 : 0
+            stroke: cfg.hc ? cfg.hcSel : "none", "stroke-width": cfg.hc ? 1 : 0
         }, parent);
+    }
+
+    /**
+     * 1.49 high contrast: status by PATTERN instead of color (PnL mega pattern) —
+     * good = solid foreground, bad = hollow (background fill, foreground outline),
+     * neutral/immaterial = dashed outline. Only called with cfg.hc.
+     */
+    private hcStatus(kind: "good" | "bad" | "neutral", cfg: ChartConfig): Record<string, string | number> {
+        if (kind === "good") { return { fill: cfg.ink }; }
+        if (kind === "bad") { return { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 }; }
+        return { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1, "stroke-dasharray": "2,2" };
+    }
+
+    /** scatter status of a point (colorBy status): good · bad · neutral */
+    private scatterStatusKind(p: DataPoint, cfg: ChartConfig): "good" | "bad" | "neutral" {
+        const v = p.varAbs;
+        if (v == null || v === 0 || !cfg.isMaterial(p)) { return "neutral"; }
+        return cfg.isGood(v, p) ? "good" : "bad";
     }
 
     private clearNode(g: SVGElement | null): void {
@@ -11354,7 +11891,11 @@ export class Visual implements IVisual {
                 this.el("path", { d: dDash, fill: "none", ...style, "stroke-dasharray": "5,4" }, parent);
             }
         };
-        if (cfg.hasPy) { path(p => p.py, { stroke: cfg.colors.py, "stroke-width": 1.4 }, false); }
+        // high contrast: every line has the same color — PY is told apart by its dash
+        if (cfg.hasPy) {
+            path(p => p.py, cfg.hc ? { stroke: cfg.colors.py, "stroke-width": 1.4, "stroke-dasharray": "2,2" }
+                : { stroke: cfg.colors.py, "stroke-width": 1.4 }, false);
+        }
         if (cfg.hasPl) { path(p => p.pl, { stroke: cfg.colors.pl, "stroke-width": 1.2, "stroke-dasharray": "5,3" }, false); }
         path(p => p.value, { stroke: cfg.colors.ac, "stroke-width": 2 }, true);
     }
@@ -12589,6 +13130,11 @@ export class Visual implements IVisual {
             "font-size": font, fill: on ? cfg.paper : cfg.ink, "font-family": FONT
         }, btn);
         t.textContent = label;
+        if (this.exceptionNoop) {
+            this.lockChip(btn, this.locStr("Lock_ExcNone",
+                "No effect: every category is above the materiality threshold — nothing to fold"));
+            return segW;
+        }
         btn.style.cursor = "pointer";
         const toggle = () => {
             const next = !on;
@@ -12690,7 +13236,7 @@ export class Visual implements IVisual {
     }
 
     /** YTD chip top-right: persists chart.cumulative so end users can flip the view */
-    private drawCumButton(xRight: number, cfg: ChartConfig): void {
+    private drawCumButton(xRight: number, cfg: ChartConfig, lockReason: string | null = null): void {
         const k = this.fontK;
         const bh = Math.round(18 * k), font = Math.round(11 * k);
         const segW = Math.round(38 * k);
@@ -12712,6 +13258,7 @@ export class Visual implements IVisual {
         }, btn);
         t.textContent = { ytd: "YTD", qtd: "QTD", r12: "R12" }[
             String(this.formattingSettings.chartCard.cumulativeKind.value.value)] ?? "YTD";
+        if (lockReason != null) { this.lockChip(btn, lockReason); return; }
         btn.style.cursor = "pointer";
         const toggle = () => {
             this.host.persistProperties({
