@@ -153,7 +153,7 @@ Wie inneres Kämpfen dich wandelt. Auf der Matte und im Alltag
 - **Verlag:** Kenamo Verlag
 - **ISBN:** 978-3-9829397-0-4
 
-[Zum Buch](#) **Link folgt** · Shop- bzw. Verlagslink wird ergänzt.
+[Zum Buch](https://amzn.eu/d/05hubGrY) Bei Amazon · öffnet in einem neuen Tab
 
 ## Weiter in der Kitchen
 
