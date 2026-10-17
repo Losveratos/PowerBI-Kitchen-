@@ -512,6 +512,101 @@ Schwellen-Dezimalen), `test/mega-shot.js` m17–m26 (Export, HC, Kopf-Schrift,
 FY/Monat-Blöcke, % Rev, Indikator, Fußzeile) + Legenden-Checks an m1/m7/m15,
 `test/start-dark-test.js` (Pane-Gates der neuen Schalter).
 
+### Stand 1.1 · Paket B (Finance-Features, ChartKitchen-Familie)
+
+Property-Namen wie im ChartKitchen, wo es ein Pendant gibt. Alles Neue steht per
+Default aus bzw. verhaltensgleich — Pixel-Regression aller 40 Fälle von
+`test/test.html` (p1–p14, m1–m26) gegen 1.0.1 + Paket A byte-identisch.
+
+- **Tooltips** (`capabilities.tooltips` default + canvas): Zeilen, Zellen,
+  Balken, Pins und Kaskaden der klassischen Tabelle (auch Balken-/Wasserfall-
+  Ansicht) und des Mega-Tables zeigen über `host.tooltipService` Zeilenname,
+  die gebundenen Szenarien des Blocks (mit Einheit), Δ je Referenz absolut + %
+  (Mega-Table: dessen Minuend und Referenzen in Anzeige-Orientierung, %p für
+  Margen; klassisch: Δ zur Toolbar-Referenz wie die Balken), den Wesentlichkeits-
+  Hinweis, den Kommentar (mit ①) und die Selektions-Kappung. Die `title`-
+  Attribute der Datenzeilen (Kommentar-Marker, Selektions-Hinweis, SVG-`<title>`
+  im Mega-Table) entfallen. Dark Mode: eigener Kasten nach ChartKitchen
+  `showDarkTip` (#2B2B2B, Kantenerkennung, folgt dem Scroll der Wurzel), hell
+  bleibt nativ. Der Werttreiberbaum behält seine SVG-Titel (Struktur unangetastet).
+- **Σ-treue Rundung** `numbers.sumSafeRounding` (Default **aus** wie im
+  ChartKitchen): Restwertverfahren entlang der Hierarchie (`engine.sumSafeRound`,
+  top-down): Wurzeln runden normal, die beitragenden Kinder (Konten/Zwischen-
+  summen) teilen die gedruckte Summe nach größtem Rest — SignConvention des
+  Elternknotens inklusive — und geben ihren gedruckten Wert an ihre Kinder
+  weiter. Wirkt auf die Wertspalten der klassischen Tabelle und des Mega-Tables
+  (auch Wert-Kaskaden-Beschriftungen) je Block; die Δ-Zahl ist dann die
+  Differenz der gedruckten Werte (Δ% bleibt exakt). **Formel-, Margen- und
+  Trennzeilen sind ausgenommen** (exakte Rundung; eine Formelzeile ist keine
+  Summe ihrer Hierarchie-Kinder) und beginnen unter sich eine neue Verteilung.
+  Ist ein Elternwert nicht die Summe seiner Kinder (Eigenwert-Fallback), wird
+  nicht verteilt.
+- **Klammern-Negativ** `numbers.financeFormat` (Default aus): −1 234 → (1 234),
+  Einheit in der Klammer ((12.5%), (8.6%p)); exakte Null „–“, eine gerundete
+  Null bleibt „0.0“. **Δ behält die Vorzeichenlogik wie im ChartKitchen**
+  (`fmtSigned`): positive Δ tragen „+“, negative stehen in Klammern ohne Minus.
+  Gilt für alle Zahlenspalten, Balken-/Pin-/Kaskaden-Beschriftungen, Tooltips
+  und den Baum. Die Schwellen-Fußzeile („<-20“) ist eine Regel, keine Zahl, und
+  bleibt unverändert.
+- **Mrd.** `numbers.scaling` += `b` (÷ 10⁹, Suffix „b“); Auto wählt b ab
+  50 Mrd. (k/m-Schwellen unverändert). Toolbar-Knopf „bEUR“ nur, wenn Auto b
+  wählen würde oder der Pane b gesetzt hat.
+- **Hausbegriffe** — Karte `labels` (`labelAc/labelPy/labelPl/labelFc`, leer =
+  Kürzel): ersetzen ganze Szenario-Kürzel (nicht in PLAN, EBITDA …) in Toolbar
+  (Presets, Referenz, Szenario-Gruppe), Legende (der ganze Eintrag „AC actual“ →
+  „Ist“) inkl. Achsen-Notiz, klassischen Spalten- und Blockköpfen, Mega-Köpfen
+  inkl. Sortier-Indikator und `AC&FC`, Tooltips, generierter Titelzeile, Auto-
+  Botschaft und Filter-Fußzeile. Autorentexte (Titelzeilen, Fußzeile) bleiben.
+- **Titelblock:** `titleBlock.autoMessage` (aus): ohne eigene Botschaft eine
+  generierte Zeile „<Ergebniszeile> Δ<Ref> +x EUR (+y%) · stärkster Treiber: …
+  · schwächster: …“ — Ergebniszeile = letzte Formelzeile der obersten Ebene,
+  sonst die einzige Wurzel, sonst die Gesamtsumme; Treiber = Blatt-Konten nach
+  Wirkung (günstig ↑ / ungünstig ↓), YTD-Fenster; Mega-Table: dessen Minuend +
+  erste Referenz in Anzeige-Orientierung. `titleBlock.footer` (Freitext) und
+  `titleBlock.filterFooter` + neue optionale Textrolle **`filterInfo`** (max 1,
+  Measure): zweite Fußzeile „Filter: <filterInfo> · Nullzeilen ausgeblendet ·
+  <Szenario-Sicht des Lesers>“ über dem IBCS-Hinweis, in allen Ansichten und im
+  Export; leere Zeilen entfallen; beide Felder nur bei `titleBlock.show`.
+- **Hervorheben** `columns.highlight` (Kommaliste von Zeilennamen oder IDs,
+  ohne Groß-/Kleinschreibung): ChartKitchen-`emphBand` — Tinte zu 7 % über alle
+  Zellen der Zeile (klassisch) bzw. über die volle Tabellenbreite (Mega-Table);
+  Dark = dunkle Tinte, Hochkontrast = 1-px-Rahmen in `foreground` ohne Fläche.
+  Die Selektions-Wäsche liegt darüber.
+- **Wesentlichkeit** `columns.materialityAbs` (Dateneinheiten **vor** k/m-
+  Skalierung, wie ChartKitchen) / `materialityPct` (ganze %), 0 = aus; sind
+  beide gesetzt, muss ein Δ beide überschreiten. Unterhalb: Δ-Balken, Pins,
+  Wasserfall-Stufen und Δ-Zahlen in `soft` (#8A8886, dunkel #A6A6A6); eine rote
+  „Δ in red if“-Zahl bleibt rot (explizite Regel gewinnt); Margenzeilen (%p)
+  sind ausgenommen; im Hochkontrast keine hohle „schlecht“-Form. Keine Zeilen-
+  Faltung. **`exceptionOnly` bewusst nicht umgesetzt:** eine Sammelzeile müsste
+  in Kaskaden, Sortierung, Kommentar-Nummerierung, Selektions-IDs und Σ-treuer
+  Rundung als synthetische Zeile mitlaufen — das ist ohne Risiko für die
+  Baum-/Hierarchie-Logik nicht machbar (Backlog).
+- **Toolbar-Gruppe „Szenario“** (`toolbar.showScenario`, Default aus, nur
+  Mega-Modus): „Szenario“ AC / FC (nur mit gebundenem FC) und „Referenz-Sicht“
+  ΔPY · ΔPL · beide. Die Referenz-Sicht verschiebt die vom Autor gewählten
+  Δ-Elemente (Vereinigung über PY und PL: Zahl, Balken, Wasserfall, Δ%, Pins)
+  und eine PY/PL-Wertspalte auf die gewählte(n) Referenz(en). Zustand in
+  `UiState.megaMin/megaRef` (Echo-Guard des Toolbar-Zustands); ein Knopf ohne
+  Wirkung ist gesperrt + gedimmt (Paket-A-Muster). Ändert der Autor Minuend
+  bzw. die Δ-/Wertschalter im Pane, endet die Leser-Sicht (zurück auf „“).
+- **emptyState** (Karte `emptyState`, `title`/`body`, leer = Standard): ersetzt
+  „Keine Daten für die aktuelle Auswahl.“ und — nur im Lesemodus — die
+  Feld-Anleitung der Landing-Page; der Bearbeitungsmodus behält Smart Start /
+  Anleitung.
+- **Tastatur** (`supportsKeyboardFocus: true`): Toolbar-Knöpfe sind native
+  `<button>` mit `aria-pressed`; Aufklapp-Zeilen (Namenszelle klassisch,
+  Label-Trefferfläche im Mega-Table) tragen `tabindex=0`, `role=button`,
+  `aria-expanded`, `aria-label` und klappen mit Enter / Leertaste. Fokus-Ring
+  nur bei Tastatur-Fokus (`:focus-visible`): 2 px Akzent als Outline (HTML)
+  bzw. Kontur (SVG), Hochkontrast `foregroundSelected`.
+
+Tests: `test/engine-test.js` (`largestRemainder`, `sumSafeRound` inkl.
+Zufallsbäume), `test/megatable-test.js` (Finance-Format, Hausbegriffe in Köpfen,
+Wesentlichkeit vs. Schwelle), `test/finance-test.js` (F1–F11 im Browser +
+Capabilities, Screenshots `test/finance-*.png`), `test/start-dark-test.js`
+(Kartenreihenfolge, Pane-Gates der neuen Felder).
+
 ### Stand 1.0.0.0
 
 Phase 1–4 sind Teil von 1.0. Dazu im 1.0-Paket: alle Schalter und Template-Namen
