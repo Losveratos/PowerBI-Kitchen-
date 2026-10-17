@@ -94,7 +94,7 @@ function readMega(id) {
     await page.waitForTimeout(600);
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
-        "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26"];
+        "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -357,6 +357,74 @@ function readMega(id) {
     // fix 6 — threshold footer with the decimals the thresholds carry
     check("m26 footer <-20.5 / <-10.5% (YTD <-220 / <-10% unchanged)", has("m26", "<-20.5") && has("m26", "<-10.5%")
         && has("m26", "<-220") && !has("m26", "<-21"));
+
+    // ---- 1.1 Paket C ------------------------------------------------------------
+    const pageInfo = await page.evaluate(() => {
+        const o = {};
+        for (const id of ["m27", "m28", "m29", "m30", "m1", "m15"]) {
+            const st = document.getElementById(id);
+            const hl = st.querySelector('[data-pnl="headline"]');
+            const note = st.querySelector('[data-pnl="scale-fixed"]');
+            o[id] = { headline: hl ? hl.textContent : null, headlineFs: hl ? parseFloat(hl.style.fontSize) : 0,
+                note: note ? note.textContent : null, text: st.innerText,
+                ytd: [...st.querySelectorAll('text[data-pnl="mega-ytd"]')].map(t => ({ t: t.textContent, fill: t.getAttribute("fill") })) };
+        }
+        return o;
+    });
+    if (S.m27) {
+        check("m27 12G heads: FY 2025 · PY · YTD + AC&FC · ΔPY · ΔPY%", ["FY 2025", "PY", "YTD", "AC&FC", "ΔPY", "ΔPY%"].every(h => heads("m27").includes(h)),
+            heads("m27").join("|"));
+        // the stacked bar: YTD inside (paper tone), the year outside (Licences 538 ▓ 1 434, Sales revenue 637 ▓ 1 698)
+        const ytd = pageInfo.m27.ytd.map(x => x.t);
+        check("m27 YTD numbers inside the solid part (538, 637, 196, 267, 200) on the paper tone",
+            ["538", "637", "196", "267", "200"].every(x => ytd.includes(x)) && pageInfo.m27.ytd.every(x => x.fill === "#FFFFFF"), ytd.join(","));
+        check("m27 year numbers outside (1 434, 1 698, 1 202)", has("m27", "1 434") && has("m27", "1 698") && has("m27", "1 202"));
+        const vwf = S.m27.charts[1];
+        check("m27 AC&FC cascade: solid YTD + hatched rest of year per row", vwf.bars.filter(b => /^url\(/.test(b.fill)).length >= 15
+            && vwf.bars.filter(b => b.fill === "#404040").length >= 8, JSON.stringify(vwf.bars.slice(0, 4)));
+        // Δ on the year: Licences +721 (1 434 − 713), Sales revenue +885, bars hatched (AC&FC mostly forecast)
+        check("m27 ΔPY on the year (+721, +885, +637 costs)", has("m27", "+721") && has("m27", "+885") && has("m27", "+637"));
+        check("m27 ΔPY bars hatched", S.m27.charts[2].bars.length > 10 && S.m27.charts[2].bars.every(b => /^url\(/.test(b.fill)));
+        check("m27 legend explains the hatch (FC) next to PY + AC", /FC/.test(S.m27.legend) && /PY/.test(S.m27.legend) && /AC/.test(S.m27.legend));
+        check("m27 headline slot: generated message, large", /^Group result ΔPY \+144/.test(pageInfo.m27.headline || "")
+            && pageInfo.m27.headlineFs >= 16, JSON.stringify(pageInfo.m27.headline));
+    }
+    if (S.m28) {
+        check("m28 12H heads PY | PL | ΔPY | ΔPY%", JSON.stringify(heads("m28")) === JSON.stringify(["PY", "PL", "ΔPY", "ΔPY%"]), heads("m28").join("|"));
+        const bars = S.m28.charts[2].bars;
+        check("m28 ΔPY bars tinted pale teal / red in an ink outline", bars.length > 10
+            && bars.every(b => (b.fill === "#BCDDDD" || b.fill === "#F6C4C0") && b.stroke === "#404040"), JSON.stringify(bars.slice(0, 3)));
+        check("m28 PL cascade outlined, cost rows on the pale ground", S.m28.charts[1].bars.some(b => b.fill === "#FFFFFF" && b.stroke === "#404040")
+            && S.m28.charts[1].bars.some(b => b.fill === "#F2F2F2"));
+        check("m28 PL pins: outlined heads", S.m28.charts[3].rects.some(r => r.fill === "#FFFFFF" && r.stroke === "#404040"));
+        check("m28 values PL vs PY: Group result +111, Licences +183", has("m28", "+111") && has("m28", "+183"));
+        check("m28 headline = the own message", pageInfo.m28.headline === "Compared to 2025 we plan a better group result for 2026 (+139 kEUR)");
+        check("m28 legend PY + PL, no AC", /PY/.test(S.m28.legend) && /PL/.test(S.m28.legend) && !/AC actual/.test(S.m28.legend), S.m28.legend);
+        check("headline off by default (m1, m15 have none)", pageInfo.m1.headline === null && pageInfo.m15.headline === null);
+    }
+    if (S.m29) {
+        const bars = S.m29.charts[2].bars;
+        check("m29 dark + blue/orange: tints of #5BA3DC / #F0821E toward the dark paper", bars.length > 10
+            && bars.every(b => b.fill === "#2F4353" || b.fill === "#593A1E"), [...new Set(bars.map(b => b.fill))].join(","));
+        check("m29 pins in #5BA3DC / #F0821E, no teal", S.m29.paints.includes("#5BA3DC") && S.m29.paints.includes("#F0821E")
+            && !S.m29.paints.includes("#3FB3C2"));
+        check("m29 deviation notes name blue / orange", /blue \/ orange/.test(pageInfo.m29.text) && !/teal replaces/.test(pageInfo.m29.text));
+    }
+    if (S.m30 && S.m11) {
+        // same template + data as m11, the Δ scale held at ±60: every waterfall step is shorter
+        const w = id => S[id].charts[0].bars.map(b => b.w);
+        const a = w("m11"); const b = w("m30");
+        check("m30 fixedVarMax 60: the T04B waterfall is drawn on the fixed (smaller) scale", a.length === b.length
+            && b.every((x, i) => x <= a[i] + 0.01) && b.some((x, i) => x < a[i] - 1), JSON.stringify([a.slice(0, 4), b.slice(0, 4)]));
+        check("m30 edit-mode note “Scale fixed” with both amounts", /^Scale fixed/.test(pageInfo.m30.note || "")
+            && /2\u202F?000/.test(pageInfo.m30.note) && /±60/.test(pageInfo.m30.note), pageInfo.m30.note);
+        check("no scale note without fixed scales (m11)", !/Scale fixed/.test(S.m11.legend));
+    }
+    if (S.m31) {
+        check("m31 virtualization: 441 rows, only the rows around the viewport painted", S.m31.rowIds.length > 20 && S.m31.rowIds.length < 120
+            && S.m31.bodyH > 400 * 22, `${S.m31.rowIds.length} rows, body ${S.m31.bodyH}`);
+        check("below the threshold every row is painted (m15: 20 rows)", S.m15.rowIds.length === 20, String(S.m15.rowIds.length));
+    }
 
     // ---- preset dropdown wrote the switches (persistProperties payload) ----------
     const persist = await page.evaluate(() => (window.__persist || []).map(x => ({ id: x.id, p: x.p })));

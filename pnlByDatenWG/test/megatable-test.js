@@ -270,7 +270,9 @@ test("notation: value cascade per scenario, cost rows light (12A)", () => {
     assert.deepEqual(N.value("AC", false, hatch), { fill: "#404040", stroke: null, sw: 0 });
     assert.deepEqual(N.value("AC", true, hatch), { fill: "#8A8886", stroke: null, sw: 0 });
     assert.deepEqual(N.value("FC", false, hatch), { fill: "url(#h#404040)", stroke: "#404040", sw: 1 });
-    assert.deepEqual(N.value("PL", true, hatch), { fill: "#FFFFFF", stroke: "#404040", sw: 1 });
+    // 1.1 Paket C (12H): the cost rows of the outlined PL cascade sit on a pale ground
+    assert.deepEqual(N.value("PL", true, hatch), { fill: "#F2F2F2", stroke: "#404040", sw: 1 });
+    assert.deepEqual(N.value("PL", false, hatch), { fill: "#FFFFFF", stroke: "#404040", sw: 1 });
 });
 
 /**
@@ -658,6 +660,112 @@ test("materiality: an immaterial Δ number is soft, an explicit red threshold wi
     const L0 = M.layoutMega(regionInput());
     assert.equal(L0.cellText(L0.cols.find(c => c === L0.cols.find(x => x.type === "delta" && x.ref === "PY" && x.block === 0)),
         L0.rows.find(r => r.id === "a")).color, M.MEGA_C.text);
+});
+
+// 1.1 Paket C ---------------------------------------------------------------
+test("presets 12G / 12H: FY outlook block + headline, PL minuend; the older presets keep YTD and leave the headline", () => {
+    const g = M.MEGA_PRESETS["12G"]; const h = M.MEGA_PRESETS["12H"];
+    assert.deepEqual([g.min, g.blockKind, g.headline, g.valueCascade, g.showPY, g.showMin, g.dPyBar, g.dPyPin], ["AC", "fy", true, true, true, true, true, true]);
+    assert.deepEqual([h.min, h.blockKind, h.headline, h.valueCascade, h.showPctRows], ["PL", "ytd", true, true, false]);
+    for (const k of Object.keys(M.MEGA_PRESETS).filter(x => !/^12[GH]$/.test(x))) {
+        assert.equal(M.MEGA_PRESETS[k].blockKind, "ytd", k);
+        assert.equal(M.MEGA_PRESETS[k].headline, false, k);
+    }
+    assert.ok(M.megaActive(toggles(g)) && M.megaActive(toggles(h)));
+});
+
+test("PL minuend (12H): one PL value column, no ΔPL against itself, activeRefs = PY", () => {
+    const t = Object.assign(toggles(M.MEGA_PRESETS["12H"]), { showPL: true, d: {
+        PY: { num: true, bar: true, wf: false, pct: false, pin: true }, PL: { num: true, bar: true, wf: false, pct: true, pin: true } } });
+    assert.deepEqual(M.activeRefs(t), ["PY"]);
+    const cols = M.buildColumns(t, 1);
+    assert.deepEqual(cols.map(c => c.type + (c.scen || c.ref || "")), ["label", "vwfPY", "vwfPL", "deltaPY", "barPY", "pinPY"]);
+    // AC / FC minuends keep both references
+    assert.deepEqual(M.activeRefs(Object.assign({}, t, { min: "AC" })), ["PY", "PL"]);
+});
+
+test("notation: PL minuend tints the Δ area (pale good / bad in an ink outline), dark pendant, HC solid", () => {
+    const hatch = (c) => "url(#h" + c + ")";
+    const N = M.notation("PL", "PY");
+    const a = N.area("#0E8585", hatch);
+    assert.deepEqual([a.fill, a.stroke, a.sw], [M.megaTint("#0E8585"), M.MEGA_C.ink, 1]);
+    assert.equal(M.megaTint("#0E8585"), "#BCDDDD", "72 % paper on white");
+    assert.equal(M.megaTint("#E02B1D"), "#F6C4C0");
+    assert.equal(M.megaTint("#FFF"), "#FFFFFF");
+    assert.equal(M.megaTint("rgb(1,2,3)"), "rgb(1,2,3)", "unparsable colours stay");
+    // the PL pin head stays outlined, PY axis
+    assert.deepEqual([N.head(hatch).fill, N.head(hatch).stroke, N.axis], [M.MEGA_C.white, M.MEGA_C.ink, "gray"]);
+    // dark paper: the tint mixes toward the dark paper (dark pendant)
+    M.setMegaPalette(true);
+    try { assert.equal(M.megaTint("#3FB3C2"), "#27484C"); } finally { M.setMegaPalette(false); }
+    // high contrast: no mid tones — the area is solid
+    const hcA = M.notation("PL", "PY", true).area("#FFFF00", hatch);
+    assert.deepEqual([hcA.fill, hcA.stroke], ["#FFFF00", null]);
+    // AC / FC areas unchanged
+    assert.deepEqual(M.notation("AC", "PY").area("#0E8585", hatch), { fill: "#0E8585", stroke: null, sw: 0 });
+    assert.deepEqual(M.notation("FC", "PL").area("#0E8585", hatch), { fill: "url(#h#0E8585)", stroke: "#0E8585", sw: 1 });
+    // an outlined PL value cascade: cost rows on the pale ground (12H)
+    assert.equal(N.value("PL", true, hatch).fill, M.MEGA_C.outlineLight);
+    assert.equal(N.value("PL", false, hatch).fill, M.MEGA_C.white);
+});
+
+test("12G stack: the minuend value cascade of a block with a YTD share stacks, two heads, Δ fill per block", () => {
+    const t = toggles(M.MEGA_PRESETS["12G"]);
+    const inp = statementInput({ t, dec: 0, pdec: 0 });
+    inp.blocks = [Object.assign({}, inp.blocks[0], { name: "FY 2025", titled: true, alias: { AC: "AC&FC", FC: "FC" },
+        minFill: "FC", ytd: (r) => r.kind === "pct" ? null : inp.blocks[0].value(r, "AC") * 0.4 })];
+    const L = M.layoutMega(inp);
+    const v = L.charts.filter(c => c.type === "vwf");
+    assert.deepEqual(v.map(c => [c.scen, !!c.stack]), [["PY", false], ["AC", true]]);
+    const st = v[1];
+    assert.deepEqual([st.head, st.head2], ["AC&FC", "YTD"]);
+    // the stacked column fits both heads
+    assert.ok(st.w >= measure("AC&FC", 13) + measure("YTD", 13) + 3 * L.G.pad);
+    // the block's Δ elements are hatched (minFill FC), the head marks keep the scenario
+    assert.equal(L.NB[0].area("#0E8585", c => "H" + c).fill, "H#0E8585");
+    assert.equal(L.N.area("#0E8585", c => "H" + c).fill, "#0E8585");
+    // without a YTD share (no FY block) nothing stacks
+    const L0 = M.layoutMega(statementInput({ t, dec: 0, pdec: 0 }));
+    assert.ok(L0.charts.every(c => !c.stack && !c.head2));
+    assert.equal(L0.NB[0], L0.N);
+    // house terms reach the second head too
+    const L2 = M.layoutMega(Object.assign({}, inp, { ytdHead: "YTD", relabel: (x) => x.replace("YTD", "kum.") }));
+    assert.equal(L2.charts.find(c => c.stack).head2, "kum.");
+});
+
+test("parseAmount: k / m / b suffixes, comma decimals, empty / invalid / ≤ 0 = automatic", () => {
+    assert.equal(M.parseAmount("1500"), 1500);
+    assert.equal(M.parseAmount("1.5k"), 1500);
+    assert.equal(M.parseAmount("2,5m"), 2.5e6);
+    assert.equal(M.parseAmount(" 3 B "), 3e9);
+    assert.equal(M.parseAmount("250K"), 250000);
+    for (const x of ["", "  ", "abc", "-5", "0", "1.5x", "1e3"]) { assert.equal(M.parseAmount(x), null, JSON.stringify(x)); }
+});
+
+test("scale sync: fixedVarMax / fixedMax hold the family scale — equal k for different data inside the max", () => {
+    const t = toggles(M.MEGA_PRESETS.T04B);
+    const base = statementInput({ t, dec: 2, pdec: 2 });
+    const kOf = (inp) => M.layoutMega(inp).famK["0:delta"];
+    const k0 = kOf(base);
+    const k60 = kOf(Object.assign({}, base, { fixedVarMax: 60 }));
+    assert.ok(k60 < k0, `${k60} < ${k0}`);
+    // halve every Δ: the automatic scale doubles, the fixed one stays
+    const half = Object.assign({}, base, { blocks: [Object.assign({}, base.blocks[0], {
+        delta: (r, min, ref) => { const D = base.blocks[0].delta(r, min, ref); return D && { ...D, d: D.d / 2, impact: D.impact / 2 }; },
+    })] });
+    assert.ok(kOf(half) > k0 * 1.5, "automatic scale follows the data");
+    assert.ok(Math.abs(kOf(Object.assign({}, half, { fixedVarMax: 60 })) - k60) < 1e-6, "fixed scale holds");
+    // larger data than the max still widens the scale (CK minimum maximum)
+    assert.ok(Math.abs(kOf(Object.assign({}, base, { fixedVarMax: 1 })) - k0) < 1e-9);
+    // value cascades: fixedMax on the valueCascade family only
+    const t12 = toggles(M.MEGA_PRESETS["12A"]);
+    const v0 = M.layoutMega(statementInput({ t: t12, dec: 0, pdec: 0 }));
+    const v1 = M.layoutMega(statementInput({ t: t12, dec: 0, pdec: 0, fixedMax: 3000 }));
+    assert.ok(v1.famK["0:valueCascade"] < v0.famK["0:valueCascade"]);
+    assert.equal(v1.famK["0:pct"], v0.famK["0:pct"], "pins are not part of the scale sync");
+    // off: byte-identical layout numbers
+    const off = M.layoutMega(Object.assign({}, base, { fixedVarMax: undefined, fixedMax: undefined }));
+    assert.deepEqual(off.famK, M.layoutMega(base).famK);
 });
 
 console.log(`\n${n} mega-table layout test blocks passed`);

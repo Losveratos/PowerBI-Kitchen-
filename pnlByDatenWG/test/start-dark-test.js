@@ -308,9 +308,17 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
         dvx.categorical.values = dvx.categorical.values.filter(c => !c.source.roles.py);
         vNoPy.__upd([dvx]);
         out.noPy = [...__visible(__pane(vNoPy))];
+        // neither FC nor PL bound: no minuend to choose (1.1 C: PL is a minuend too)
+        const vNoFcPl = __mk("cnofcpl", 1200, 600);
+        const dvy = dvRows(MEGA_DEMO.statement("T03"), {});
+        dvy.categorical.values = dvy.categorical.values.filter(c => !c.source.roles.fc && !c.source.roles.pl);
+        vNoFcPl.__upd([dvy]);
+        out.noFcPl = [...__visible(__pane(vNoFcPl))];
         // the empty visual (demo): every data gate open
         const e = __mk("cempty", 1100, 640); e.__upd([]);
         out.empty = [...__visible(__pane(e))];
+        // 1.1 Paket C: the variance preset hides the old teal / IBCS switch once it is set
+        out.bo = [...__visible(pane(null, { style: { variancePreset: "blueOrange" } }))];
         // German pane: names and descriptions localized, "Standard:" in the tone of ChartKitchen
         const pd = pane(null, {}, "de-DE");
         out.deStrings = pd.strings;
@@ -328,6 +336,10 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
     check("Pane (1.1): finance, sum-safe, house terms, highlight, materiality, empty state visible",
         ["numbers.financeFormat", "numbers.sumSafeRounding", "labels.labelAc", "labels.labelFc", "columns.highlight",
             "columns.materialityAbs", "columns.materialityPct", "emptyState.title", "emptyState.body"].every(k => has(C.base, k)));
+    check("Pane (1.1 C): scale sync, variance preset, headline visible; headline follows titleBlock.show",
+        ["numbers.fixedMax", "numbers.fixedVarMax", "style.variancePreset", "style.colorMode", "titleBlock.headline"].every(k => has(C.base, k))
+        && !has(C.noTb, "titleBlock.headline"));
+    check("Pane (1.1 C): a set variance preset hides the teal / IBCS switch", has(C.bo, "style.variancePreset") && !has(C.bo, "style.colorMode"));
     check("Pane: mega switches visible in the table view", has(C.base, "columns.template") && has(C.base, "columns.dPlBar"));
     check("Pane: tree start settings hidden in the table view", !has(C.base, "columns.treeRoot"));
     check("Pane: tree view hides the mega switches and shows the tree start",
@@ -338,7 +350,9 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
         !has(C.regions, "columns.thresholdAbs") && has(C.th1, "columns.thresholdAbs") && has(C.th1, "columns.thresholdPct"));
     check("Pane: YTD thresholds only with the second block", !has(C.th1, "columns.thresholdYtdAbs") && has(C.t01a, "columns.thresholdYtdAbs"));
     check("Pane: sorting block only with two blocks and a sort", has(C.sortCat, "columns.sortBlock") && !has(C.t01a, "columns.sortBlock"));
-    check("Pane: FC minuend only with a bound FC field", !has(C.base, "columns.minuend") && has(C.regions, "columns.minuend"));
+    // 1.1 C: the minuend dropdown carries PL (12H) — it shows with a bound FC or PL field
+    check("Pane: minuend only with a bound FC or PL field", has(C.base, "columns.minuend") && has(C.regions, "columns.minuend")
+        && !has(C.noFcPl, "columns.minuend"));
     check("Pane: structure data shows subtotal blocks + sort, hides margin rows",
         has(C.regions, "columns.structureSubtotals") && has(C.regions, "columns.sort") && !has(C.regions, "columns.showPctRows"));
     check("Pane: statement data shows margin rows, hides subtotal blocks + sort",
