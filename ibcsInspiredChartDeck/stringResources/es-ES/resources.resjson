@@ -515,5 +515,11 @@
   "Enum_Template_C09": "C09 · Dispersión",
   "Enum_Template_C10": "C10 · Burbujas (dispersión + tamaño)",
   "Enum_Template_C12": "C12 · Cascada / Puente",
-  "Enum_Template_C13": "C13 · Small Multiples"
+  "Enum_Template_C13": "C13 · Small Multiples",
+  "Lock_YtdRowType": "Sin efecto: las filas de la cuenta de resultados (campo «Tipo de fila») no se acumulan",
+  "Lock_YtdSingle": "Sin efecto: un único período se ve igual acumulado",
+  "Lock_SortSame": "Sin efecto: el orden ya coincide con el orden por impacto",
+  "Lock_ExcNone": "Sin efecto: todas las categorías superan el umbral de materialidad; no hay nada que agrupar",
+  "Lock_CardSort": "Sin efecto: sin valor de comparación (PY/PL/BM) o con una sola tarjeta no hay nada que ordenar",
+  "Lock_NoChart": "Sin efecto: en este estado no se dibuja ningún gráfico (ver el aviso)"
 }

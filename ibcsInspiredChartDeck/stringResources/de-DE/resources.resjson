@@ -515,5 +515,11 @@
   "Enum_Template_C09": "C09 · Scatter",
   "Enum_Template_C10": "C10 · Bubble (Scatter + Größe)",
   "Enum_Template_C12": "C12 · Waterfall / Brücke",
-  "Enum_Template_C13": "C13 · Small Multiples"
+  "Enum_Template_C13": "C13 · Small Multiples",
+  "Lock_YtdRowType": "Wirkungslos: GuV-Zeilen (Feld „Zeilentyp“) werden nicht kumuliert",
+  "Lock_YtdSingle": "Wirkungslos: eine einzelne Periode sieht kumuliert genauso aus",
+  "Lock_SortSame": "Wirkungslos: die Reihenfolge entspricht bereits der Sortierung nach Wirkung",
+  "Lock_ExcNone": "Wirkungslos: alle Kategorien liegen über der Wesentlichkeitsschwelle — es gibt nichts zu verdichten",
+  "Lock_CardSort": "Wirkungslos: ohne Vergleichswert (PY/PL/BM) oder mit nur einer Karte gibt es nichts zu sortieren",
+  "Lock_NoChart": "Wirkungslos: in diesem Zustand wird kein Chart gezeichnet (siehe Hinweis)"
 }

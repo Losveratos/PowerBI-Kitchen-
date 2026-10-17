@@ -761,6 +761,13 @@ export class Visual implements IVisual {
     private templatePending: { applied: string; props: Record<string, TplValue>; ttl: number } | null = null;
     /** template applied in this session — a lost echo must not re-apply it in a loop */
     private templateSessionTpl: string | null = null;
+    /** 1.49 locked chips: bridge toolbar buttons of this render (locked afterwards when
+     *  the bridge draws nothing but its hint) and the per-render no-op facts */
+    private bridgeChips: SVGGElement[] = [];
+    /** ⇅ would not change the order (impact order == data order in every tile) */
+    private sortNoop = false;
+    /** ⚠ would fold nothing (every category above the materiality threshold) */
+    private exceptionNoop = false;
     /** structure-edit mode (one-click P&L): row clicks open the structure menu */
     private structureEdit = false;
     private structEditor: HTMLDivElement | null = null;
@@ -1093,6 +1100,7 @@ export class Visual implements IVisual {
             this.svg.style.display = "block";
             this.lastRender = { points, width, height };
             this.render(points, width, height);
+            this.finishChips();
             this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
             this.events.renderingFinished(options);
         } catch (error) {
@@ -1106,6 +1114,7 @@ export class Visual implements IVisual {
         this.hideDarkTip();
         // render() mutates order in place via groups — pass a copy of the point list
         this.render([...this.lastRender.points], this.lastRender.width, this.lastRender.height);
+        this.finishChips();
         this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
     }
 
@@ -1167,6 +1176,45 @@ export class Visual implements IVisual {
         if (sl.items) { return String((sl.value as powerbi.IEnumMember)?.value) === String(v); }
         return sl.value === v;
     }
+    // ------------------------------------------------------------ locked chips (1.49)
+
+    /**
+     * Locked in-chart chip (PnL 1.0.1 pattern): a chip whose click would change
+     * nothing in the current state stays in place — the chip row does not jump —
+     * but reads as locked (dimmed, default cursor, out of the tab order), explains
+     * itself in the tooltip and neither persists nor re-renders. A click on it
+     * still stops propagation, so it does not clear the selection either.
+     */
+    private lockChip(btn: SVGGElement, reason: string): void {
+        btn.setAttribute("data-icd-locked", "1");
+        btn.setAttribute("aria-disabled", "true");
+        btn.setAttribute("tabindex", "-1");
+        btn.setAttribute("aria-label", reason);
+        btn.style.opacity = "0.4";
+        btn.style.cursor = "default";
+        const tip = btn.querySelector("title") ?? this.el("title", {}, btn);
+        tip.textContent = reason;
+        // capture phase on the chip: runs before the chip's own handlers (and before
+        // the target's), so already-attached click/keyboard actions never fire
+        const block = (e: Event) => { e.stopPropagation(); e.stopImmediatePropagation(); e.preventDefault(); };
+        btn.addEventListener("click", block, true);
+        btn.addEventListener("keydown", block, true);
+    }
+
+    /** after a render: a bridge that drew only its hint (no marks) has nothing to
+     *  re-base, sort or animate — its toolbar buttons are locked with the reason */
+    private finishChips(): void {
+        if (this.bridgeChips.length === 0 || this.animGroups.length > 0) { return; }
+        const reason = this.locStr("Lock_NoChart", "No effect: the chart is not drawn in this state (see the note)");
+        for (const b of this.bridgeChips) {
+            if (b.getAttribute("data-icd-locked") !== "1") { this.lockChip(b, reason); continue; }
+            // already locked for a weaker reason (⇅ order): the missing chart is the real one
+            b.setAttribute("aria-label", reason);
+            const tip = b.querySelector("title");
+            if (tip) { tip.textContent = reason; }
+        }
+    }
+
     private chartSliceSet(k: string, v: TplValue): void {
         const sl = this.chartSlice(k);
         if (!sl) { return; }
@@ -2640,6 +2688,9 @@ export class Visual implements IVisual {
     private render(points: DataPoint[], width: number, height: number): void {
         while (this.svg.firstChild) { this.svg.removeChild(this.svg.firstChild); }
         this.catGroups = [];
+        this.bridgeChips = [];
+        this.sortNoop = false;
+        this.exceptionNoop = false;
         // scatter v3: a running play animation or drag-select must not outlive the
         // DOM it manipulates (the svg was just cleared above)
         if (this.scatterAnim?.raf != null) { cancelAnimationFrame(this.scatterAnim.raf); }
@@ -2805,6 +2856,11 @@ export class Visual implements IVisual {
                     && !points.some(p => p.rowType != null)));
         this.exceptionOn = this.exceptionCapable && s.chartCard.exceptionOnly.value === true;
         this.exceptionHidden = 0;
+        // 1.49: the ⚠ chip is locked when the filter would fold nothing at all
+        if (this.exceptionCapable) {
+            const material = this.materialityFn();
+            this.exceptionNoop = groups.every(g => g.pts.every(p => material(p)));
+        }
         // order with topN: exception filter FIRST, then topN ranks the remaining
         // conspicuous rows. The other way round the "Rest (n)" row of topN would
         // itself be swallowed by the collector row and lose its label
@@ -2832,6 +2888,14 @@ export class Visual implements IVisual {
             const kind = String(s.chartCard.cumulativeKind.value.value) as "ytd" | "qtd" | "r12";
             const fiscal = Math.min(12, Math.max(1, Math.round(s.chartCard.fiscalStart.value ?? 1)));
             for (const g of groups) { g.pts = this.cumulate(g.pts, basisMode, kind, fiscal); }
+        }
+        // 1.49: the ⇅ chip is locked when impact order and data order coincide in
+        // every tile — the click would change nothing either way
+        if (wfStyleGlobal || isCatBridge) {
+            this.sortNoop = groups.every(g => {
+                const sorted = this.sortByImpact(g.pts);
+                return sorted.every((p, i) => p === g.pts[i]);
+            });
         }
         // waterfall-bridge: order categories by impact, largest driver first (Rest row stays last)
         if (sortByImpactOn) {
@@ -3376,7 +3440,14 @@ export class Visual implements IVisual {
             // canvas; persisted like the other in-chart buttons
             if (s.chartCard.cumulativeButton.value && !isStacked
                 && (orientationRaw === "columns" || orientationRaw === "line")) {
-                this.drawCumButton(width - (wfStyleGlobal ? 30 : 6), cfg);
+                // 1.49: locked where cumulating cannot change the picture — P&L rows
+                // (rowType) are never cumulated, a single period stays identical
+                const ytdLock = points.some(p => p.rowType != null)
+                    ? this.locStr("Lock_YtdRowType", "No effect: P&L rows (row type field) are not cumulated")
+                    : groups.every(g => g.pts.length <= 1)
+                        ? this.locStr("Lock_YtdSingle", "No effect: a single period looks the same cumulated")
+                        : null;
+                this.drawCumButton(width - (wfStyleGlobal ? 30 : 6), cfg, ytdLock);
             }
         }
         // IBCS title block on top of everything (incl. multiples grid)
@@ -8387,8 +8458,16 @@ export class Visual implements IVisual {
                 "font-size": font, fill: on ? cfg.paper : cfg.ink, "font-family": FONT
             }, chip);
             t.textContent = label;
-            (chip as unknown as SVGGraphicsElement).style.cursor = "pointer";
+            // 1.49: without a comparison value (PY/PL/BM) or with a single card the
+            // sort orders cannot differ — locked instead of a silent cycle
+            const sortable = points.length > 1 && points.some(p => p.varAbs != null || p.bm != null);
+            if (!sortable) {
+                this.lockChip(chip, this.locStr("Lock_CardSort",
+                    "No effect: without a comparison value (PY/PL/BM) or with a single card there is nothing to sort"));
+            }
+            (chip as unknown as SVGGraphicsElement).style.cursor = sortable ? "pointer" : "default";
             const cycle = () => {
+                if (!sortable) { return; }
                 const next = order[(order.indexOf(cur) + 1) % order.length];
                 this.cardSortSel = next;
                 this.pendingCardSort = next;
@@ -10789,6 +10868,10 @@ export class Visual implements IVisual {
             fill: cfg.sortByImpact ? cfg.paper : cfg.ink, "font-family": FONT
         }, btn);
         icon.textContent = "⇅";
+        if (this.sortNoop) {
+            this.lockChip(btn, this.locStr("Lock_SortSame", "No effect: the order already matches the impact order"));
+            return;
+        }
         btn.style.cursor = "pointer";
         const toggle = () => {
             this.host.persistProperties({
@@ -10820,7 +10903,8 @@ export class Visual implements IVisual {
         const persist = (properties: Record<string, unknown>) => {
             this.host.persistProperties({ merge: [{ objectName: "chart", selector: null, properties }] });
         };
-        const roundBtn = (icon: string, active: boolean, label: string, onClick: () => void) => {
+        const roundBtn = (icon: string, active: boolean, label: string, onClick: () => void,
+            lockReason: string | null = null) => {
             const r = bh / 2;
             const cx = xRight - r, cy = 6 + r;
             xRight -= bh + 6;
@@ -10837,6 +10921,8 @@ export class Visual implements IVisual {
                 fill: active ? cfg.paper : cfg.ink, "font-family": FONT
             }, btn);
             t.textContent = icon;
+            this.bridgeChips.push(btn);
+            if (lockReason != null) { this.lockChip(btn, lockReason); return; }
             btn.style.cursor = "pointer";
             btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); onClick(); });
             btn.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -10850,7 +10936,8 @@ export class Visual implements IVisual {
         if (opts.showSort) {
             roundBtn("⇅", cfg.sortByImpact, cfg.sortByImpact
                 ? this.locStr("Btn_SortOff", "Remove impact sorting") : this.locStr("Btn_SortOn", "Sort by impact (largest driver first)"),
-                () => persist({ sortByImpact: !cfg.sortByImpact }));
+                () => persist({ sortByImpact: !cfg.sortByImpact }),
+                this.sortNoop ? this.locStr("Lock_SortSame", "No effect: the order already matches the impact order") : null);
         }
         if (opts.showRef) {
             // segmented ΔPY | ΔPL — active side filled dark, like the reference toolbar
@@ -10871,6 +10958,7 @@ export class Visual implements IVisual {
                     "font-size": font, fill: active ? cfg.paper : cfg.ink, "font-family": FONT
                 }, btn);
                 t.textContent = text;
+                this.bridgeChips.push(btn);
                 btn.style.cursor = "pointer";
                 btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); onClick(); });
                 btn.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -12708,6 +12796,11 @@ export class Visual implements IVisual {
             "font-size": font, fill: on ? cfg.paper : cfg.ink, "font-family": FONT
         }, btn);
         t.textContent = label;
+        if (this.exceptionNoop) {
+            this.lockChip(btn, this.locStr("Lock_ExcNone",
+                "No effect: every category is above the materiality threshold — nothing to fold"));
+            return segW;
+        }
         btn.style.cursor = "pointer";
         const toggle = () => {
             const next = !on;
@@ -12809,7 +12902,7 @@ export class Visual implements IVisual {
     }
 
     /** YTD chip top-right: persists chart.cumulative so end users can flip the view */
-    private drawCumButton(xRight: number, cfg: ChartConfig): void {
+    private drawCumButton(xRight: number, cfg: ChartConfig, lockReason: string | null = null): void {
         const k = this.fontK;
         const bh = Math.round(18 * k), font = Math.round(11 * k);
         const segW = Math.round(38 * k);
@@ -12831,6 +12924,7 @@ export class Visual implements IVisual {
         }, btn);
         t.textContent = { ytd: "YTD", qtd: "QTD", r12: "R12" }[
             String(this.formattingSettings.chartCard.cumulativeKind.value.value)] ?? "YTD";
+        if (lockReason != null) { this.lockChip(btn, lockReason); return; }
         btn.style.cursor = "pointer";
         const toggle = () => {
             this.host.persistProperties({

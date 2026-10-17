@@ -1892,5 +1892,48 @@ for (const [id, tpl, title, w, h, mk] of tplCases) {
   check(window.__persist.c196.length === 0, "default: Template aus → kein persistProperties");
 }
 </script>
+<script>
+// ---------------- Punkt 4 · gesperrte statt stumme Chips ----------------
+// gesperrt = gedimmt (opacity .4) + data-icd-locked + aria-disabled + Tooltip mit Grund;
+// ein Klick darauf persistiert NICHTS. Gegenprobe: ein wirksamer Chip persistiert.
+function lockedChips(id) { return [...document.querySelectorAll(`#${id} svg g[data-icd-locked="1"]`)]; }
+function clickAll(els) { els.forEach(el => (el.querySelector("rect,circle,text") || el).dispatchEvent(new MouseEvent("click", { bubbles: true }))); }
+function lockCase(id, title, w, h, dv, expectN, opts) {
+  addStage(id, title, w, h);
+  runCap(id, dv, w, h, opts);
+  const L = lockedChips(id);
+  check(L.length === expectN, `${id}: ${expectN} gesperrte(r) Chip(s) (gefunden ${L.length}: ${L.map(g => g.querySelector("title")?.textContent).join(" | ")})`);
+  check(L.every(g => g.style.opacity === "0.4" && g.getAttribute("aria-disabled") === "true" && (g.querySelector("title")?.textContent || "").length > 10),
+    `${id}: gedimmt + aria-disabled + Tooltip mit Grund`);
+  const before = window.__persist[id].length;
+  clickAll(L);
+  check(window.__persist[id].length === before, `${id}: Klick auf gesperrten Chip persistiert nichts`);
+  return L;
+}
+// c197: YTD-Chip auf GuV-Zeilen (rowType) — Kumulation greift dort nie
+lockCase("c197", "YTD-Chip gesperrt · Säulen mit Zeilentyp (GuV-Zeilen werden nicht kumuliert)", 960, 360,
+  dataView(pnlCats, [col("actual", pnlVals, "#,0 T€"), col("previousYear", pnlPy, "#,0 T€")], { chart: { cumulativeButton: true } }, null, pnlTypes), 1);
+// c198: Gegenprobe — gleicher Chip auf Monaten ist wirksam und persistiert
+{
+  addStage("c198", "Gegenprobe · YTD-Chip auf Monaten bleibt wirksam (Klick → persistProperties cumulative=true)", 960, 300);
+  runCap("c198", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €")], { chart: { cumulativeButton: true } }), 960, 300);
+  check(lockedChips("c198").length === 0, "c198: kein gesperrter Chip");
+  const ytd = [...document.querySelectorAll("#c198 svg g[role=button]")].find(g => /YTD/.test(g.textContent));
+  clickAll([ytd]);
+  check(window.__persist.c198.length === 1 && window.__persist.c198[0].merge[0].properties.cumulative === true, "c198: wirksamer YTD-Chip persistiert");
+}
+// c199: ⇅ bei Brücken-Stil, Daten liegen schon in Wirkungs-Reihenfolge
+lockCase("c199", "⇅ gesperrt · Balken als Brücke, Reihenfolge = Sortierung nach Wirkung", 960, 300,
+  dataView(["A", "B", "C", "D"], [col("actual", [1500, 820, 1040, 505]), col("previousYear", [1000, 1000, 1000, 500])], { chart: { orientation: "bars", waterfallStyle: true } }), 1);
+// c200: ⚠ Exception-Chip, alle Kategorien über der Wesentlichkeit
+lockCase("c200", "⚠ gesperrt · Exception-Filter, alle Kategorien wesentlich (|Δ| ≥ 50)", 960, 320,
+  dataView(countries, [col("actual", costAc), col("previousYear", costPy)], { chart: { orientation: "bars", materialityAbs: 50 } }), 1);
+// c201: Karten-Sortier-Chip ohne Vergleichswert
+lockCase("c201", "Karten-Sortier-Chip gesperrt · nur AC gebunden (nichts zu sortieren)", 960, 220,
+  dataView(["Umsatz", "Kosten", "EBIT"], [col("actual", [9800, 7400, 2400], "#,0 T€")], { chart: { orientation: "cards" } }), 1);
+// c202: Kategorie-Brücke ohne Vergleichsbasis → Hinweis; ▶ und ⇅ gesperrt (Lock_NoChart)
+lockCase("c202", "Brücken-Toolbar gesperrt · Kategorie-Brücke nur mit AC → Hinweis statt Chart", 960, 260,
+  dataView(["A", "B", "C"], [col("actual", [120, 80, 40])], { chart: { orientation: "catbridge" } }), 2);
+</script>
 </body>
 </html>

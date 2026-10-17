@@ -515,5 +515,11 @@
   "Enum_Template_C09": "C09 · Scatter",
   "Enum_Template_C10": "C10 · Bubble (scatter + size)",
   "Enum_Template_C12": "C12 · Waterfall / bridge",
-  "Enum_Template_C13": "C13 · Small multiples"
+  "Enum_Template_C13": "C13 · Small multiples",
+  "Lock_YtdRowType": "No effect: P&L rows (row type field) are not cumulated",
+  "Lock_YtdSingle": "No effect: a single period looks the same cumulated",
+  "Lock_SortSame": "No effect: the order already matches the impact order",
+  "Lock_ExcNone": "No effect: every category is above the materiality threshold — nothing to fold",
+  "Lock_CardSort": "No effect: without a comparison value (PY/PL/BM) or with a single card there is nothing to sort",
+  "Lock_NoChart": "No effect: the chart is not drawn in this state (see the note)"
 }
