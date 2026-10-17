@@ -5,11 +5,11 @@ Hierarchie plus die Kennzahlen (zwei Minuten). **Weg 2** ergänzt die Felder,
 die daraus eine echte GuV machen — Zeilentypen, Formelzeilen, Vorzeichen,
 Kommentare.
 
-Version **1.0.1.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
+Version **1.1.0.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 Web-Fassung dieser Anleitung: [`pnl-schnellstart.html`](../pnl-schnellstart.html)
 (DE) · [`pnl-schnellstart_en.html`](../pnl-schnellstart_en.html) (EN).
 
-> **1.0:** Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind
+> **1.0 / 1.1:** Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind
 > stabil. Nicht im AppSource, also nicht von Microsoft zertifiziert.
 > Oberfläche in Deutsch, Englisch, Spanisch und Japanisch (folgt der
 > Berichtssprache). Feedback: <https://github.com/losveratos/powerbi-kitchen-/issues>
@@ -127,13 +127,29 @@ Fläche — Kombi-Chart mit Monaten und Brücke, Szenario-Grid, „Zahlt ein auf
 „Getrieben von". Alle Toolbar-Zustände sind persistiert und lesezeichenfähig.
 
 **Mega-Table:** Formatmenü → **Spalten & Mega-Table → Mega-Table (IBCS-Templates)
-→ Template** wählen (T01A … T04E, 12A). Das Template setzt die Schalter darunter,
+→ Template** wählen (T01A … T04E, 12A, 12G, 12H). Das Template setzt die Schalter darunter,
 danach ist jeder Schalter frei: Wertspalten PY · PL · AC/FC, Δ als Zahl, Balken,
 integrierter Wasserfall, Δ% als Zahl oder Pins, zweiter Block Monat | _YTD
 (braucht die Periode), Schwellen mit Fußzeile. Das Formatmenü zeigt nur, was zur
 Ansicht und zu den gebundenen Feldern passt (z. B. ΔPY-Schalter nur mit PY,
 Schwellen-Felder nur bei eingeschalteten Schwellen). „Aus (klassische Tabelle)"
 führt zurück.
+
+**Die 12er-Serie (1.1):** **12G** braucht das Feld „FC Gesamtjahr" (und die
+Periode): der AC&FC-Balken zeigt Ist bis heute voll und den Rest des Jahres
+schraffiert, die Δ-Spalten vergleichen das Jahr mit dem Vorjahr. **12H** ist die
+Planrechnung (analysiertes Szenario = PL, braucht PL): Plan umrandet, Δ-Balken
+blass getönt. Beide schalten den **Headline-Slot** an (Titelblock →
+„Headline-Slot"): die Botschaft groß neben dem Titel — eigene Botschaft oder,
+wenn leer, die generierte.
+
+**Mehrere Visuals vergleichbar machen:** Zahlen → **Skalen-Mindestmaximum**
+(Werte bzw. Δ), z. B. `2m` und `500k` in allen Visuals einer Seite — gleiche
+Beträge sind dann gleich lang. Im Bearbeitungsmodus steht „Skala fixiert" unter
+der Tabelle.
+
+**Farben ohne Rot/Grün:** Stil → **Abweichungsfarben-Preset → Blau / Orange**
+(ColorBrewer, auch im Schwarzweiß-Druck lesbar).
 
 ## 6 · Drillthrough einrichten (3 Schritte)
 

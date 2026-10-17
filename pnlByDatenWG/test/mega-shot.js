@@ -420,6 +420,34 @@ function readMega(id) {
             && /2\u202F?000/.test(pageInfo.m30.note) && /±60/.test(pageInfo.m30.note), pageInfo.m30.note);
         check("no scale note without fixed scales (m11)", !/Scale fixed/.test(S.m11.legend));
     }
+    // scale sync in the classic views: the uniform Δ scale note and the value bars follow the fixed maxima
+    const classic = await page.evaluate(() => {
+        const mk = (objects, view) => {
+            const box = document.createElement("div");
+            box.style.cssText = "width:1200px;height:700px;position:relative;";
+            document.body.appendChild(box);
+            const v = new Visual({ element: box, host: makeHost("en-US") });
+            const o = { ...objects, state: { uiState: JSON.stringify({ view }) } };
+            v.update({ dataViews: [dv(o)], viewport: { width: 1200, height: 700 }, type: 2 });
+            const note = box.querySelector('[data-pnl="scale-note"]');
+            const fixed = box.querySelector('[data-pnl="scale-fixed"]');
+            const out = { note: note ? note.textContent : null, fixed: fixed ? fixed.textContent : null, html: box.innerHTML.length,
+                rects: [...box.querySelectorAll("svg rect")].map(r => +r.getAttribute("width") || 0).reduce((a, b) => a + b, 0) };
+            box.remove();
+            return out;
+        };
+        return {
+            t0: mk({ hierarchy: { defaultLevel: 1 } }, "table"),
+            t1: mk({ hierarchy: { defaultLevel: 1 }, numbers: { fixedVarMax: "5b" } }, "table"),
+            b0: mk({ hierarchy: { defaultLevel: 1 } }, "bars"),
+            b1: mk({ hierarchy: { defaultLevel: 1 }, numbers: { fixedMax: "50b" } }, "bars"),
+        };
+    });
+    check("classic table: fixedVarMax widens the uniform Δ scale (note) and shrinks the Δ bars, edit-mode note",
+        classic.t0.note !== classic.t1.note && classic.t1.rects < classic.t0.rects && /^Scale fixed/.test(classic.t1.fixed || "")
+        && classic.t0.fixed === null, JSON.stringify([classic.t0.note, classic.t1.note, classic.t0.rects, classic.t1.rects]));
+    check("classic bars view: fixedMax holds the value scale (shorter value bars)", classic.b1.rects < classic.b0.rects,
+        JSON.stringify([classic.b0.rects, classic.b1.rects]));
     if (S.m31) {
         check("m31 virtualization: 441 rows, only the rows around the viewport painted", S.m31.rowIds.length > 20 && S.m31.rowIds.length < 120
             && S.m31.bodyH > 400 * 22, `${S.m31.rowIds.length} rows, body ${S.m31.bodyH}`);

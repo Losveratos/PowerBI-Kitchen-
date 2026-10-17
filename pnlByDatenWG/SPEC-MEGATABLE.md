@@ -273,6 +273,9 @@ wiederverwendet: `numbers.decimals`, `numbers.pctDecimals`, `style.colorMode`.
 | – (1.1) | `columns.blockKind` / `columns.leftBlockKind` (month / ytd / fy) | Art des Perioden-Blocks bzw. des zweiten Blocks links |
 | – (1.1) | `columns.pctOfRevenue` | „% vom Umsatz"-Spalte im Mega-Modus |
 | – (1.1) | `columns.exportExpandAll` (Gruppe Tabelle, Default an) | Export rendert alle Zeilen aufgeklappt |
+| – (1.1 C) | `columns.minuend` += `pl` | Planrechnung (12H): PL umrandet, Δ-Elemente blass getönt |
+| – (1.1 C) | `numbers.fixedMax` / `numbers.fixedVarMax` (Text, k/m/b) | Skalen-Sync: Mindest-Maximum der Familien `valueCascade` / `delta` |
+| – (1.1 C) | `titleBlock.headline` | Headline-Slot der 12er-Serie |
 
 Defaults je Preset (✓ = an; nicht genannte Toggles aus; `marks`, `barLabels`
 überall an, `barCap` überall aus):
@@ -294,6 +297,11 @@ Defaults je Preset (✓ = an; nicht genannte Toggles aus; `marks`, `barLabels`
 | T04D | FC | – | ✓ | ✓ | – | – | wf+pin | – | – | ✓ | – | – | 2 |
 | T04E | FC | ✓ | – | ✓ | – | wf+pin | – | – | – | ✓ | – | – | 2 |
 | 12A | AC | ✓ | – | ✓ | ✓ | bar+pin | – | – | – | – | – | – | 0 |
+| 12G | AC (Block FY → AC&FC) | ✓ | – | ✓ | ✓ | bar+pin | – | – | – | ✓ | – | – | 0 |
+| 12H | PL | ✓ | – | ✓ (= PL) | ✓ | bar+pin | – | – | – | – | – | – | 0 |
+
+12G setzt zusätzlich `blockKind = fy`, 12G/12H setzen `titleBlock.headline = an`
+(alle anderen Templates: `blockKind = ytd`, Headline unangetastet).
 
 Aus den Daten abgeleitete Stil-Flags (kein Schalter): Vorzeichen-Spalte und
 gepaarter Δ-Kopf nur bei GuV-Daten; Block-Titelzeile nur bei Struktur-Daten;
@@ -302,9 +310,9 @@ grauen Zeilenlinien, durchgehende Summenlinien, keine Kopf-Linien (12A).
 
 ### Bewusst offen / Abweichungen
 
-- **12G/12H** (YTD+Restjahr-Stapel, Plan-Tönung) nicht im Prototyp; 12A ist
-  umgesetzt, der Headline-Slot wird im Prototyp aus den Daten generiert (im
-  Visual: manueller Slot `titleBlock.message`, Generierung offen).
+- **12G/12H** (YTD+Restjahr-Stapel, Plan-Tönung) nicht im Prototyp; seit 1.1
+  Paket C im Visual (Abschnitt unten). Der Headline-Slot (`titleBlock.headline`)
+  nimmt die eigene Botschaft oder den autoMessage-Generator aus Paket B.
 - GuV hat keinen _YTD-Block (Demo-Daten nur Jahr); der Block-Schalter wirkt nur
   bei Strukturdaten.
 - Referenz-Inkonsistenzen werden nicht nachgebaut: Summen rechnet der Kern
@@ -459,10 +467,10 @@ Render-Fälle m1–m16 gegen die Referenzwerte, Template-/Echo-Guard-/
 Interaktions-Test inkl. T04B/12A); `npm run test:waterfall`; Engine-Tests für
 `varianceOf`/`displayVariance`.
 
-Offen: Phase 4 ist mit dem Monat | _YTD-Block weitgehend vorweggenommen;
-Phase 5 (12G YTD+Restjahr-Stapel, 12H Plan-Tönung, Headline-Slot) ist nicht
-umgesetzt; Virtualisierung sehr langer Statements (heute ein SVG für alle
-sichtbaren Zeilen). Wasserfall-Beschriftungen links eines Schritts dürfen wie
+Offen (Stand 1.0): Phase 4 ist mit dem Monat | _YTD-Block weitgehend vorweggenommen;
+Phase 5 (12G YTD+Restjahr-Stapel, 12H Plan-Tönung, Headline-Slot) und die
+Virtualisierung sehr langer Statements kamen mit 1.1 Paket C (siehe unten).
+Wasserfall-Beschriftungen links eines Schritts dürfen wie
 in den Referenzen (T04B „+5.79") die Nulllinie kreuzen.
 
 ### Stand 1.1 · Paket A (Konformitäts-Fixes)
@@ -616,3 +624,74 @@ Tabellen-Ansicht, ΔPY/ΔPL nur mit gebundenem PY/PL, Schwellen-Felder nur bei
 (`MEGA_C` ist live, `setMegaPalette()`; die Tonwerte der Wert-Kaskade sind
 Paletten-Keys statt Literale). **Auf 1.1 verschoben:** Phase 5 (12G, 12H,
 Headline-Slot) und die Virtualisierung sehr langer Mega-Tabellen.
+
+### Stand 1.1 · Paket C (12G · 12H · Headline · Skalen-Sync · Blau/Orange · Virtualisierung)
+
+Alles Neue per Default aus bzw. verhaltensgleich — Pixel-Regression der 40 Fälle
+p1–p14 / m1–m26 gegen 1.1 Paket A+B byte-identisch (PNG und innerHTML je Stage).
+
+- **Notations-Engine erweitert, keine Sonderfälle:** `SCENARIO_NOTATION` trägt je
+  Szenario zusätzlich `area` — die Füllung der Δ-Elemente, wenn es Minuend ist:
+  AC `solid`, FC `hatch`, **PL `tint`** (Gut/Schlecht-Farbe zu 72 % mit dem
+  Papier gemischt, `megaTint`, 1-px-Tintenkontur; auf dunklem Papier ergibt
+  dieselbe Mischung das Dark-Pendant; Hochkontrast: voll, keine Mitteltöne).
+  `notation(minuend, subtrahend, hc)` liefert sie über `area()`; Δ-Balken und
+  Wasserfall-Stufen lesen nur noch `area()`. Pin-Köpfe folgen weiter der
+  Szenario-Füllung (`fill`: PL umrandet). Kostenzeilen einer umrandeten
+  PL-Wert-Kaskade liegen auf blassem Grund (`outlineLight` #F2F2F2 / dunkel
+  #2A2A2A, 12H).
+- **Minuend PL (12H):** `MegaMin = AC | FC | PL`; `activeRefs()` und
+  `buildColumns()` lassen die Referenz = Minuend weg (kein ΔPL gegen sich selbst),
+  `showPL` + `showMinuend` ergeben EINE PL-Spalte. Pane: `columns.minuend` += `pl`
+  (sichtbar mit FC- oder PL-Feld).
+- **Notation je Block:** `MegaBlock.minFill` ersetzt den Minuenden nur für die
+  Δ-Füllung eines Blocks (`MegaLayout.NB[block]`). Der FY-Ausblock setzt bei
+  Minuend AC `minFill = FC`: AC&FC ist überwiegend Forecast → Δ-Balken, Pins und
+  Wasserfall-Stufen schraffiert (12G). Kopf-Marken bleiben beim Szenario.
+- **12G-Stapel:** `MegaBlock.ytd(r)` (Anzeigewert AC YTD) setzt der FY-Block bei
+  Minuend AC. Die Minuend-Wert-Kaskade dieses Blocks wird `stack`: ab dem
+  Segment-Start YTD voll (`value("AC")`), danach bis zum Segment-Ende das Restjahr
+  schraffiert (`value("FC")`), Kostenzeilen hell wie bisher; die YTD-Zahl steht
+  zentriert im vollen Teil in Papierfarbe, wenn sie mit 3 px Rand passt, die
+  Jahreszahl außen wie jede Kaskade. Zwei Köpfe: „YTD" links, Alias „AC&FC" rechts
+  (Spalte mindestens so breit wie beide). PY im FY-Block = ganzes Vorjahr
+  (`computed.py`, wie der klassische FY-Block) → ΔPY bezieht sich aufs Jahr. Die
+  Legende nennt FC, sobald im FY-Block schraffiert wird.
+- **Headline-Slot** `titleBlock.headline` (Default aus): Titelblock als Zeile —
+  drei Titelzeilen links, Botschaft 17 px (× Schriftfaktor) normal daneben, 1-px-
+  Linie darunter (12er-Layout, umbricht bei schmalen Visuals). Text = eigene
+  `message`, sonst der autoMessage-Generator (auch ohne `autoMessage`); die fette
+  Botschaftszeile über dem Titel entfällt dann. Der Generator spricht bei
+  FY-Layout über das Jahr (Minuend/Referenz des Blocks). Templates 12G/12H
+  schalten ihn im selben Persist-Merge an (Echo-Guard deckt `titleBlock` ab).
+- **Skalen-Sync** `numbers.fixedMax` / `fixedVarMax` (Text, `parseAmount`: k/m/b,
+  Komma; leer/ungültig/≤ 0 = automatisch; Dateneinheiten): Phantom-Elemente im
+  Löser — Wert-Kaskaden `[0, max]`, Δ-Balken und Δ-Wasserfälle `±max`, jeweils mit
+  Beschriftungsbedarf der fetten max-Zahl. ChartKitchen-Semantik „Mindest-
+  Maximum": größere Daten weiten die Skala weiter; Pins bleiben aus dem Sync.
+  Klassisch: einheitlicher Δ-Maßstab = max(Daten, fixedVarMax) (Skalennotiz folgt),
+  Wert-/Kaskadenbalken der Balken- und Waterfall-Ansicht mit fixedMax. Fußnote
+  „Skala fixiert: Werte ≥ … · Δ ≥ ±…" nur im Bearbeitungsmodus, nie im Export.
+- **Blau/Orange** `style.variancePreset` (auto · teal · ibcs · blueOrange,
+  Default auto = folgt `style.colorMode`; ein gesetzter Wert übersteuert ihn und
+  blendet colorMode im Pane aus). ColorBrewer #2C7BB6 / #E66101, dunkel
+  #5BA3DC / #F0821E (wie ChartKitchen). Legenden- und Fußzeilen-Hinweis nennen
+  Blau/Orange statt Teal; Picker `goodColor`/`badColor` übersteuern weiterhin.
+- **Virtualisierung:** Ab `MEGA_VIRT_MIN_ROWS = 150` Zeilen (nicht im Export)
+  zeichnet `paintMega(…, {window})` nur die Zeilen `[from, to)` um den Viewport
+  (+30 Puffer); das Layout bleibt vollständig, Körper-SVG behält seine Höhe,
+  Achsen laufen durch, Kaskaden folgen dem Lauf über alle Zeilen und zeichnen
+  Verbindungslinien, die das Fenster kreuzen. Scroll → `syncMegaWindow()` zeichnet
+  den Körper neu, sobald die sichtbaren Zeilen das gemalte Fenster verlassen, und
+  bindet Selektion, Falten, Tastatur und Tooltips neu. Unterhalb der Schwelle
+  wird kein Fenster übergeben — Ausgabe exakt wie 1.0 (Beweis: Pixel-Regression +
+  `test/mega-perf.js`: Fenster über alle Zeilen = byte-identisch zum Malen ohne
+  Fenster).
+
+Tests: `test/megatable-test.js` (Presets 12G/12H, PL-Minuend, Tönung inkl. Dark/HC,
+Stapel + zwei Köpfe, `parseAmount`, Skalen-Sync), `test/mega-shot.js` m27–m31
+(12G, 12H, 12H dunkel + Blau/Orange, Skalen-Sync inkl. klassisch, Virtualisierung),
+`test/mega-interact.js` Schritt 11 (12G/12H-Persistenz + Echo-Guard + Headline),
+`test/start-dark-test.js` (Pane-Gates), `test/mega-perf.js` (2 000 Konten:
+Erstzeichnung, Scroll-Neuzeichnung, Selektion/Falten/Tooltip nach Scroll,
+Identität).
