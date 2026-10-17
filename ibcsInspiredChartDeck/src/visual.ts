@@ -883,6 +883,17 @@ export class Visual implements IVisual {
         // interactions — hide the in-chart buttons there instead of dead chrome
         this.allowInteractions = options.host.hostCapabilities?.allowInteractions !== false;
         this.selectionManager = options.host.createSelectionManager();
+        // 1.49 bookmarks (PnL pattern): a bookmark — or "selected by another visual"
+        // via multi-visual selection — restores the selection in the HOST; the
+        // callback hands the restored ids over so the marks dim exactly like after
+        // a click. An empty set clears the dimming (bookmark without selection).
+        // The host owns the truth: later renders read getSelectionIds() as before.
+        // Guarded — older hosts and the test shim have no callback API.
+        if (typeof this.selectionManager?.registerOnSelectCallback === "function") {
+            this.selectionManager.registerOnSelectCallback((ids: ISelectionId[]) => {
+                this.applySelectionOpacity(ids ?? []);
+            });
+        }
         this.tooltipService = options.host.tooltipService;
         this.root = options.element;
         this.root.classList.add("icd-root");

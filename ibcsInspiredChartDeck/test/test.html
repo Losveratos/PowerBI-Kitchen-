@@ -2046,5 +2046,51 @@ const fetchHost = (log, answer) => (h) => { h.fetchMoreData = (agg) => { log.pus
   check(log.length === 0 && !!h && /30\.000/.test(h.textContent), "c211: Obergrenze greift: " + (h && h.textContent));
 }
 </script>
+<script>
+// ---------------- Punkt 3 · Lesezeichen-Rückholung (registerOnSelectCallback) ----------------
+// Shim: echte equals-Semantik je Zeilenindex + Selection-Manager mit Callback-API
+function bookmarkHost(state) {
+  return (h) => {
+    h.createSelectionIdBuilder = () => {
+      const keys = [];
+      const b = { withCategory(col, i) { keys.push(i); return b; },
+        createSelectionId() { const key = keys.join("|"); return { key, equals: (o) => !!o && o.key === key }; } };
+      return b;
+    };
+    h.createSelectionManager = () => ({
+      select: (id, multi) => { const ids = Array.isArray(id) ? id : [id]; state.sel = multi ? state.sel.concat(ids) : ids; return Promise.resolve(state.sel); },
+      clear: () => { state.sel = []; return Promise.resolve(); },
+      getSelectionIds: () => state.sel,
+      showContextMenu() {},
+      registerOnSelectCallback: (cb) => { state.cb = cb; }
+    });
+  };
+}
+const opacities = (id) => [...document.querySelectorAll(`#${id} svg g[opacity]`)].map(g => g.getAttribute("opacity"));
+{
+  addStage("c212", "Lesezeichen · registerOnSelectCallback stellt die Auswahl „Mär“ + „Jun“ wieder her (Rest gedimmt)", 960, 360);
+  const st = { sel: [], cb: null };
+  const dv = () => dataView(months.slice(0, 6), [col("actual", ac.slice(0, 6), "#,0 €"), col("previousYear", py.slice(0, 6), "#,0 €")]);
+  const r = runCap("c212", dv(), 960, 360, { hostPatch: bookmarkHost(st) });
+  check(typeof st.cb === "function", "c212: Callback beim Host registriert");
+  const mk = (i) => ({ key: String(i), equals(o) { return !!o && o.key === String(i); } });
+  // Host stellt ein Lesezeichen wieder her: Index 2 (Mär) + 5 (Jun)
+  st.sel = [mk(2), mk(5)];
+  st.cb(st.sel);
+  const o1 = opacities("c212");
+  check(o1.filter(x => x === "1").length === 2 && o1.filter(x => x === "0.35").length === 4,
+    "c212: wiederhergestellte Auswahl dimmt 4 von 6 Kategorien " + JSON.stringify(o1));
+  // folgendes Update (z. B. Größenänderung) bleibt konsistent mit dem Host-Zustand
+  r.upd(dv());
+  check(JSON.stringify(opacities("c212")) === JSON.stringify(o1), "c212: Re-Render behält die wiederhergestellte Auswahl (getSelectionIds)");
+  // Lesezeichen ohne Auswahl → Dimmung weg
+  addStage("c212b", "Lesezeichen ohne Auswahl · Callback mit [] hebt die Dimmung auf", 960, 360);
+  const st2 = { sel: [], cb: null };
+  runCap("c212b", dv(), 960, 360, { hostPatch: bookmarkHost(st2) });
+  st2.sel = [mk(1)]; st2.cb(st2.sel);
+  st2.sel = []; st2.cb([]);
+  check(opacities("c212b").every(x => x === "1"), "c212b: leerer Callback → keine Kategorie gedimmt");
+}
+</script>
 </body>
 </html>
