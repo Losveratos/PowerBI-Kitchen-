@@ -1981,5 +1981,70 @@ addStage("c207", "Export (allowInteractions=false) mit mode = fields → bisheri
 runCap("c207", emptyDv({ emptyState: { mode: "fields" } }), 960, 380, { viewMode: 1, noInteract: true });
 check(!document.querySelector('#c207 [data-icd="field-intro"]'), "c207: Export ohne Feld-Intro");
 </script>
+<script>
+// ---------------- Punkt 2 · fetchMoreData statt stiller 1000er-Kappung ----------------
+// Shim: host.fetchMoreData(true) zählt die Anfragen; metadata.segment = "es gibt mehr"
+const segCats = (n) => Array.from({ length: n }, (_, i) => "S" + i);
+const segDv = (n, more, objs) => {
+  const c = segCats(n);
+  const dv = dataView(c, [col("actual", c.map((_, i) => 100 + (i % 37) * 3)), col("previousYear", c.map((_, i) => 95 + (i % 41) * 3))], objs);
+  if (more) { dv.metadata.segment = {}; }
+  return dv;
+};
+const fetchHost = (log, answer) => (h) => { h.fetchMoreData = (agg) => { log.push(agg); return answer; }; };
+{
+  // c208: 1. Segment (1000 Zeilen) → Nachladen angefordert + Fortschritts-Hinweis;
+  //        Append-Update mit 1600 akkumulierten Zeilen, kein weiteres Segment → Hinweis weg
+  addStage("c208", "fetchMoreData · 1000 Zeilen + segment → Nachladen + ⏳-Hinweis · dann Append (1600) = vollständig", 340, 200);
+  const log = [];
+  const r = runCap("c208", segDv(1000, true, { labels: { show: false } }), 340, 200, { hostPatch: fetchHost(log, true) });
+  const hint1 = document.querySelector('#c208 [data-icd="load-state"]');
+  check(log.length === 1 && log[0] === true && !!hint1 && /1\.000/.test(hint1.textContent),
+    "c208: Segment → fetchMoreData(true) + Hinweis „" + (hint1 && hint1.textContent) + "“");
+  r.upd(segDv(1600, false, { labels: { show: false } }), { operationKind: 1 });
+  check(log.length === 1 && !document.querySelector('#c208 [data-icd="load-state"]'), "c208: letztes Segment → kein Hinweis, keine weitere Anfrage");
+  // zweites Fenster: Append MIT weiterem Segment → nächste Anfrage
+  const r2log = [];
+  addStage("c208b", "fetchMoreData · Append mit weiterem Segment → nächste Anfrage", 340, 200);
+  const r2 = runCap("c208b", segDv(1000, true, { labels: { show: false } }), 340, 200, { hostPatch: fetchHost(r2log, true) });
+  r2.upd(segDv(2000, true, { labels: { show: false } }), { operationKind: 1 });
+  const h2 = document.querySelector('#c208b [data-icd="load-state"]');
+  check(r2log.length === 2 && !!h2 && /2\.000/.test(h2.textContent), "c208b: zweites Segment angefordert, Hinweis zählt 2.000");
+  // Memoisierung: das Zwischen-Segment zeichnet den Chart NICHT neu (nur die Fortschrittszeile)
+  check(r2.v.lastRender.points.length === 1000, "c208b: Zwischen-Segment ohne Neu-Render (Chart bleibt beim 1. Fenster)");
+  r2.upd(segDv(2400, false, { labels: { show: false } }), { operationKind: 1 });
+  check(r2.v.lastRender.points.length === 2400 && !document.querySelector('#c208b [data-icd="load-state"]'),
+    "c208b: letztes Segment → EIN Render mit allen 2400 Zeilen");
+}
+{
+  // c209: Host verweigert das Nachladen (100-MB-Grenze) → Warnhinweis statt stiller Kappung
+  addStage("c209", "fetchMoreData verweigert → Hinweis „Zeilenlimit erreicht … unvollständig“", 340, 200);
+  const log = [];
+  runCap("c209", segDv(1000, true, { labels: { show: false } }), 340, 200, { hostPatch: fetchHost(log, false) });
+  const h = document.querySelector('#c209 [data-icd="load-state"]');
+  check(log.length === 1 && !!h && /limit/i.test(h.textContent), "c209: Host-Kappung sichtbar: " + (h && h.textContent));
+}
+{
+  // c210: < 1000 Zeilen ohne segment → keine Anfrage, kein Hinweis, Render identisch zum Host ohne fetchMoreData
+  addStage("c210", "fetchMoreData · 999 Zeilen ohne segment → exakt wie bisher (Vergleich c210b ohne fetchMoreData)", 340, 200);
+  addStage("c210b", "Zwilling ohne fetchMoreData-Funktion", 340, 200);
+  const log = [];
+  runCap("c210", segDv(999, false), 340, 200, { hostPatch: fetchHost(log, true) });
+  runCap("c210b", segDv(999, false), 340, 200);
+  const norm = (id) => document.querySelector(`#${id} svg`).innerHTML.replace(/-\d+(["\)])/g, "$1");
+  check(log.length === 0 && !document.querySelector('#c210 [data-icd="load-state"]') && norm("c210") === norm("c210b"),
+    "c210: keine Anfrage, kein Hinweis, SVG identisch zum Zwilling");
+}
+{
+  // c211: Sicherheitsgrenze 30.000 Zeilen → keine weitere Anfrage, Hinweis „Obergrenze des Visuals“
+  addStage("c211", "fetchMoreData · 30.000 Zeilen + segment → Sicherheitsgrenze, Hinweis statt Anfrage", 340, 200);
+  const log = [];
+  console.time("render-30000");
+  runCap("c211", segDv(30000, true, { labels: { show: false }, chart: { orientation: "line", showAbsoluteVariance: false, showRelativeVariance: false } }), 340, 200, { hostPatch: fetchHost(log, true) });
+  console.timeEnd("render-30000");
+  const h = document.querySelector('#c211 [data-icd="load-state"]');
+  check(log.length === 0 && !!h && /30\.000/.test(h.textContent), "c211: Obergrenze greift: " + (h && h.textContent));
+}
+</script>
 </body>
 </html>

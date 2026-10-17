@@ -72,6 +72,13 @@ function relLuminance(hex: string): number {
 /** small-multiples grid cap — shared-scale maxima must only span rendered tiles */
 const MULT_MAX_CELLS = 24;
 
+/** 1.49 segmented loading (fetchMoreData): powerbi.VisualDataChangeOperationKind.Append
+ *  as a literal — const-enum values do not exist at runtime in the test shim */
+const OP_APPEND = 1;
+/** safety cap of the segmented loading: beyond this many category rows the visual
+ *  requests no further segments (an SVG chart with 30k marks is not readable anyway) */
+const FETCH_MAX_ROWS = 30000;
+
 /**
  * 1.49 IBCS chart templates (C01–C13 of the IBCS template library) as presets of
  * the chart card — the PnL mega-template pattern: the dropdown chart.template only
@@ -774,6 +781,15 @@ export class Visual implements IVisual {
     private pendingEmptyModeTtl = 0;
     /** data view of the last update — the field intro marks the bound roles from it */
     private lastDataView: DataView | undefined = undefined;
+    // --- 1.49 segmented loading (fetchMoreData, PnL pattern) ---
+    /** category rows delivered by the host so far (accumulated data view) */
+    private loadedRows = 0;
+    /** a further segment was requested and is still on its way */
+    private awaitingSegment = false;
+    /** the host refused a further segment although more data exists (100 MB cap) */
+    private hostCapped = false;
+    /** the visual itself stopped at FETCH_MAX_ROWS although more data exists */
+    private selfCapped = false;
     /** structure-edit mode (one-click P&L): row clicks open the structure menu */
     private structureEdit = false;
     private structEditor: HTMLDivElement | null = null;
@@ -985,6 +1001,21 @@ export class Visual implements IVisual {
                 }
             }
             this.lastDataView = dataView;
+            // 1.49: segment beyond the reduction window → request the next one
+            const opKind = options.operationKind as unknown as number | undefined;
+            this.trackSegments(dataView, opKind);
+            // memoization while loading: an intermediate Append (more segments still
+            // on their way) only refreshes the progress line — the chart is drawn for
+            // the first window and once more for the complete data, not per segment
+            // (30 segments × full SVG render would block the report for seconds)
+            if (opKind === OP_APPEND && this.awaitingSegment && this.lastRender != null
+                && options.viewport.width === this.lastRender.width
+                && options.viewport.height === this.lastRender.height) {
+                this.svg.querySelector('[data-icd="load-state"]')?.remove();
+                this.drawLoadState(this.lastRender.width, this.lastRender.height);
+                this.events.renderingFinished(options);
+                return;
+            }
 
             const width = options.viewport.width;
             const height = options.viewport.height;
@@ -1119,6 +1150,7 @@ export class Visual implements IVisual {
             this.lastRender = { points, width, height };
             this.render(points, width, height);
             this.finishChips();
+            this.drawLoadState(width, height);
             this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
             this.events.renderingFinished(options);
         } catch (error) {
@@ -1133,6 +1165,7 @@ export class Visual implements IVisual {
         // render() mutates order in place via groups — pass a copy of the point list
         this.render([...this.lastRender.points], this.lastRender.width, this.lastRender.height);
         this.finishChips();
+        this.drawLoadState(this.lastRender.width, this.lastRender.height);
         this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
     }
 
@@ -1194,6 +1227,65 @@ export class Visual implements IVisual {
         if (sl.items) { return String((sl.value as powerbi.IEnumMember)?.value) === String(v); }
         return sl.value === v;
     }
+    // ------------------------------------------------------------ segmented loading (1.49)
+
+    /**
+     * `window` data reduction + fetchMoreData(true) (PnL pattern, Falle 7): every
+     * Append update carries the ACCUMULATED data view, so each segment is parsed as
+     * the full current state and rendered at once; the next segment is requested
+     * right after. Without metadata.segment (≤ one window) nothing changes at all —
+     * no request, no hint, the same render as before 1.49.
+     */
+    private trackSegments(dataView: DataView | undefined, opKind: number | undefined): void {
+        // Create (or a host that does not report the kind) starts a new load
+        if (opKind !== OP_APPEND) {
+            this.awaitingSegment = false;
+            this.hostCapped = false;
+            this.selfCapped = false;
+        }
+        const cat = dataView?.categorical;
+        this.loadedRows = cat?.categories?.[0]?.values?.length ?? cat?.values?.[0]?.values?.length ?? 0;
+        const moreExpected = dataView?.metadata?.segment != null;
+        if (!moreExpected) { this.awaitingSegment = false; this.hostCapped = false; this.selfCapped = false; return; }
+        if (this.loadedRows >= FETCH_MAX_ROWS) {
+            this.awaitingSegment = false; this.selfCapped = true; return;
+        }
+        const accepted = typeof this.host.fetchMoreData === "function"
+            ? this.host.fetchMoreData(true) : false;
+        this.awaitingSegment = accepted;
+        // request refused → the host caps the total (100 MB / row limit)
+        this.hostCapped = !accepted;
+    }
+
+    /** subtle load-state line bottom right: progress while segments are on their way,
+     *  a warning when the total stays incomplete (host or safety cap) */
+    private drawLoadState(width: number, height: number): void {
+        if (!this.awaitingSegment && !this.hostCapped && !this.selfCapped) { return; }
+        const n = new Intl.NumberFormat(this.host.locale || "de-DE").format(this.loadedRows);
+        const text = this.awaitingSegment
+            ? this.locStr("Load_Progress", "⏳ {0} rows loaded … loading more").replace("{0}", n)
+            : this.selfCapped
+                ? this.locStr("Load_SelfCap", "{0} rows loaded — upper limit of the visual, further rows are not loaded").replace("{0}", n)
+                : this.locStr("Load_HostCap", "Row limit reached — the host delivers no further segments, data incomplete");
+        const dk = this.uiDark;
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette;
+        const hc = !!(palette && palette.isHighContrast);
+        const fg = hc ? palette.foreground.value : this.awaitingSegment ? (dk ? DARK_SUBTLE : "#6E6E6E") : (dk ? "#F0821E" : "#B35A00");
+        const bg = hc ? palette.background.value : dk ? this.darkPaper() : "#FFFFFF";
+        const f = Math.round(9.5 * this.fontK);
+        const w = Math.min(width - 12, this.textWidth(text, f) + 12);
+        const g = this.el("g", { "data-icd": "load-state" }, this.svg);
+        this.el("rect", {
+            x: width - 6 - w, y: height - 6 - f - 6, width: w, height: f + 6, rx: 3,
+            fill: bg, "fill-opacity": 0.92, stroke: fg, "stroke-width": 0.8
+        }, g);
+        const t = this.el("text", {
+            x: width - 12, y: height - 6 - 4.5, "text-anchor": "end", "font-size": f,
+            fill: fg, "font-family": FONT
+        }, g);
+        t.textContent = this.truncate(text, w - 10, f);
+    }
+
     // ------------------------------------------------------------ locked chips (1.49)
 
     /**

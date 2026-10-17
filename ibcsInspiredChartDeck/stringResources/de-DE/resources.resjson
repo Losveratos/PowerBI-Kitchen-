@@ -543,5 +543,8 @@
   "Es_Fields": "Felder erklären",
   "Es_Message": "Eigene Nachricht",
   "Es_SwitchTip": "Wird als Leer-Zustand → Modus gespeichert — Leser sehen weiterhin Galerie bzw. eigene Nachricht",
-  "Es_MessageEmpty": "Noch keine eigene Nachricht — Titel und Text im Formatbereich unter „Leer-Zustand“ eintragen."
+  "Es_MessageEmpty": "Noch keine eigene Nachricht — Titel und Text im Formatbereich unter „Leer-Zustand“ eintragen.",
+  "Load_Progress": "⏳ {0} Zeilen geladen … weitere werden nachgeladen",
+  "Load_SelfCap": "{0} Zeilen geladen — Obergrenze des Visuals, weitere Zeilen werden nicht nachgeladen",
+  "Load_HostCap": "Zeilenlimit erreicht — der Host liefert keine weiteren Segmente, Daten unvollständig"
 }

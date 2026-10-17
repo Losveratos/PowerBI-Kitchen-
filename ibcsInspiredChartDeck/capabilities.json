@@ -617,7 +617,7 @@
                         { "for": { "in": "colgroup" } },
                         { "for": { "in": "trend" } }
                     ],
-                    "dataReductionAlgorithm": { "top": { "count": 1000 } }
+                    "dataReductionAlgorithm": { "window": { "count": 1000 } }
                 },
                 "values": {
                     "select": [

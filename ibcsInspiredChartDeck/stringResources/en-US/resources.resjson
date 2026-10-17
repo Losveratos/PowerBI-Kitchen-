@@ -543,5 +543,8 @@
   "Es_Fields": "Explain fields",
   "Es_Message": "Own message",
   "Es_SwitchTip": "Saved as Empty state → mode — readers keep seeing the gallery or the own message",
-  "Es_MessageEmpty": "No own message yet — enter title and text in the format pane under “Empty state”."
+  "Es_MessageEmpty": "No own message yet — enter title and text in the format pane under “Empty state”.",
+  "Load_Progress": "⏳ {0} rows loaded … loading more",
+  "Load_SelfCap": "{0} rows loaded — upper limit of the visual, further rows are not loaded",
+  "Load_HostCap": "Row limit reached — the host delivers no further segments, data incomplete"
 }
