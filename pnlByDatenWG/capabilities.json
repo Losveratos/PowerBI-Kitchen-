@@ -2,6 +2,14 @@
     "privileges": [],
     "dataRoles": [
         {
+            "name": "levels",
+            "displayName": "Level columns (L1..Ln)",
+            "displayNameKey": "Role_Levels",
+            "kind": "Grouping",
+            "description": "Star-schema alternative to Parent ID: flattened hierarchy levels in drag order. Ragged branches end at an empty level or when a level repeats the previous one.",
+            "descriptionKey": "RoleDesc_Levels"
+        },
+        {
             "name": "account",
             "displayName": "Account ID (key)",
             "displayNameKey": "Role_Account",
@@ -18,14 +26,6 @@
             "descriptionKey": "RoleDesc_AccountName"
         },
         {
-            "name": "levels",
-            "displayName": "Level columns (L1..Ln)",
-            "displayNameKey": "Role_Levels",
-            "kind": "Grouping",
-            "description": "Star-schema alternative to Parent ID: flattened hierarchy levels in drag order. Ragged branches end at an empty level or when a level repeats the previous one.",
-            "descriptionKey": "RoleDesc_Levels"
-        },
-        {
             "name": "parent",
             "displayName": "Parent account ID",
             "displayNameKey": "Role_Parent",
@@ -34,12 +34,52 @@
             "descriptionKey": "RoleDesc_Parent"
         },
         {
-            "name": "sortOrder",
-            "displayName": "Sort order",
-            "displayNameKey": "Role_SortOrder",
+            "name": "ac",
+            "displayName": "AC (Actual)",
+            "displayNameKey": "Role_AC",
+            "kind": "Measure",
+            "description": "Actual (AC) value — the primary measure. Required.",
+            "descriptionKey": "RoleDesc_AC"
+        },
+        {
+            "name": "py",
+            "displayName": "PY (Previous Year)",
+            "displayNameKey": "Role_PY",
+            "kind": "Measure",
+            "description": "Previous-year (PY) value — basis of ΔPY.",
+            "descriptionKey": "RoleDesc_PY"
+        },
+        {
+            "name": "pl",
+            "displayName": "PL (Plan / Budget)",
+            "displayNameKey": "Role_PL",
+            "kind": "Measure",
+            "description": "Plan / budget (PL) value — basis of ΔPL, drawn outlined (IBCS).",
+            "descriptionKey": "RoleDesc_PL"
+        },
+        {
+            "name": "fc",
+            "displayName": "FC (Forecast)",
+            "displayNameKey": "Role_FC",
+            "kind": "Measure",
+            "description": "Forecast (FC) value, drawn hatched; can be the analysed scenario of the mega table.",
+            "descriptionKey": "RoleDesc_FC"
+        },
+        {
+            "name": "period",
+            "displayName": "Period (month)",
+            "displayNameKey": "Role_Period",
             "kind": "Grouping",
-            "description": "Number per row that fixes the P&L order (e.g. 10, 20, 30).",
-            "descriptionKey": "RoleDesc_SortOrder"
+            "description": "Month column for sparklines, the month and the YTD block; values are summed across the shown periods. Date keys (YYYY-MM, YYYY-MM-DD), date columns and month names are read into calendar order automatically — see Columns → Period sort order for fiscal years.",
+            "descriptionKey": "RoleDesc_Period"
+        },
+        {
+            "name": "colCategory",
+            "displayName": "Column category",
+            "displayNameKey": "Role_ColCategory",
+            "kind": "Grouping",
+            "description": "Optional (classic table): the column set repeats once per value of this field — e.g. per segment or per quarter — under a group header, with the total block after it. Ignored by the mega table.",
+            "descriptionKey": "RoleDesc_ColCategory"
         },
         {
             "name": "rowType",
@@ -82,12 +122,12 @@
             "descriptionKey": "RoleDesc_VarianceInvert"
         },
         {
-            "name": "period",
-            "displayName": "Period (month)",
-            "displayNameKey": "Role_Period",
+            "name": "sortOrder",
+            "displayName": "Sort order",
+            "displayNameKey": "Role_SortOrder",
             "kind": "Grouping",
-            "description": "Month column for sparklines, the month and the YTD block; values are summed across the shown periods. Date keys (YYYY-MM, YYYY-MM-DD), date columns and month names are read into calendar order automatically — see Columns → Period sort order for fiscal years.",
-            "descriptionKey": "RoleDesc_Period"
+            "description": "Number per row that fixes the P&L order (e.g. 10, 20, 30).",
+            "descriptionKey": "RoleDesc_SortOrder"
         },
         {
             "name": "comment",
@@ -98,36 +138,13 @@
             "descriptionKey": "RoleDesc_Comment"
         },
         {
-            "name": "ac",
-            "displayName": "AC (Actual)",
-            "displayNameKey": "Role_AC",
+            "name": "filterInfo",
+            "displayName": "Filter info (footer)",
+            "displayNameKey": "Role_FilterInfo",
             "kind": "Measure",
-            "description": "Actual (AC) value — the primary measure. Required.",
-            "descriptionKey": "RoleDesc_AC"
-        },
-        {
-            "name": "py",
-            "displayName": "PY (Previous Year)",
-            "displayNameKey": "Role_PY",
-            "kind": "Measure",
-            "description": "Previous-year (PY) value — basis of ΔPY.",
-            "descriptionKey": "RoleDesc_PY"
-        },
-        {
-            "name": "pl",
-            "displayName": "PL (Plan / Budget)",
-            "displayNameKey": "Role_PL",
-            "kind": "Measure",
-            "description": "Plan / budget (PL) value — basis of ΔPL, drawn outlined (IBCS).",
-            "descriptionKey": "RoleDesc_PL"
-        },
-        {
-            "name": "fc",
-            "displayName": "FC (Forecast)",
-            "displayNameKey": "Role_FC",
-            "kind": "Measure",
-            "description": "Forecast (FC) value, drawn hatched; can be the analysed scenario of the mega table.",
-            "descriptionKey": "RoleDesc_FC"
+            "requiredTypes": [ { "text": true } ],
+            "description": "Text measure carrying the current filter context (e.g. via CONCATENATEX/SELECTEDVALUE) — shown as a second footer line when the filter footer is enabled.",
+            "descriptionKey": "RoleDesc_FilterInfo"
         },
         {
             "name": "fcFy",
@@ -144,15 +161,6 @@
             "kind": "Measure",
             "description": "Full-year plan scalar for the outlook block.",
             "descriptionKey": "RoleDesc_PLFY"
-        },
-        {
-            "name": "filterInfo",
-            "displayName": "Filter info (footer)",
-            "displayNameKey": "Role_FilterInfo",
-            "kind": "Measure",
-            "requiredTypes": [ { "text": true } ],
-            "description": "Text measure carrying the current filter context (e.g. via CONCATENATEX/SELECTEDVALUE) — shown as a second footer line when the filter footer is enabled.",
-            "descriptionKey": "RoleDesc_FilterInfo"
         }
     ],
     "dataViewMappings": [
@@ -205,6 +213,9 @@
                         "max": 1
                     },
                     "comment": {
+                        "max": 1
+                    },
+                    "colCategory": {
                         "max": 1
                     },
                     "fcFy": {
@@ -279,6 +290,11 @@
                         {
                             "for": {
                                 "in": "comment"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "colCategory"
                             }
                         }
                     ],
@@ -387,6 +403,16 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "showValues": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showTemplate": {
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         },
@@ -418,8 +444,47 @@
                             {
                                 "value": "dpct",
                                 "displayName": "ΔPY% · ΔPL%"
+                            },
+                            {
+                                "value": "custom",
+                                "displayName": "Own selection"
                             }
                         ]
+                    }
+                },
+                "colAc": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "colPy": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "colPl": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "colFc": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "colDelta": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "barOverlap": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "barTriangles": {
+                    "type": {
+                        "bool": true
                     }
                 },
                 "reference": {
@@ -1140,6 +1205,24 @@
         },
         "emptyState": {
             "properties": {
+                "mode": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "demo",
+                                "displayName": "Demo"
+                            },
+                            {
+                                "value": "fields",
+                                "displayName": "Field guide"
+                            },
+                            {
+                                "value": "message",
+                                "displayName": "Own message"
+                            }
+                        ]
+                    }
+                },
                 "title": {
                     "type": {
                         "text": true
