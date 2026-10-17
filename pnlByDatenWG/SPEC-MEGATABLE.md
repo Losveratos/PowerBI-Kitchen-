@@ -695,3 +695,32 @@ Stapel + zwei Köpfe, `parseAmount`, Skalen-Sync), `test/mega-shot.js` m27–m31
 `test/start-dark-test.js` (Pane-Gates), `test/mega-perf.js` (2 000 Konten:
 Erstzeichnung, Scroll-Neuzeichnung, Selektion/Falten/Tooltip nach Scroll,
 Identität).
+
+### Stand 1.2 · Ease of Use (was den Mega-Table berührt)
+
+- **Template-Auswahl in der Toolbar** (`toolbar.showTemplate`, Default an, nur
+  wenn der Host `viewMode` ≥ 1 meldet, nur Ansicht Tabelle): ein `<select>` mit
+  den lokalisierten Einträgen von `columns.template`. Die Auswahl läuft über
+  `applyMegaTemplate(tpl, picked = true)`: `template` reist im selben Merge wie
+  `templateApplied` und die Schalter. Er steht auch in `megaPending.cols`, damit
+  ein veraltetes Update weder das Dropdown noch die Schalter zurückspringen
+  lässt.
+- **Leser-Wertspalten** (`toolbar.showValues`, Default aus): Die Gruppe
+  „Wertspalten" setzt `uiState.megaVals = { min, py, pl }`. `megaReaderView`
+  legt das als letzte Schicht auf die Pane-Schalter und die Referenz-Sicht
+  (`showMin`/`showPY`/`showPL`; ungebundenes PY/PL bleibt aus). Gesperrt ist,
+  was die Spalten nicht ändert oder `megaActive` auf false setzen würde. Der
+  Mega-Table fällt also nie per Klick in die klassische Tabelle zurück. Eine
+  Pane-Änderung von `showPY`/`showPL`/`showMinuend` setzt `megaVals` zurück
+  (`syncPaneDefaults`, Schlüssel `megaVals`). FC als eigene Wertspalte gibt es
+  im Mega-Table weiterhin nur als Minuend (Bewusst offen).
+- **Spalten-Kategorie** (`colCategory`, neue Rolle): Der Mega-Table ignoriert
+  sie. Im Bearbeitungsmodus steht ein Hinweis unter der Tabelle
+  (`data-pnl="cat-note"`). Eine Kategorie-Achse im Mega-Layout (Block je
+  Kategorie) wäre der nächste Ausbau.
+- Pane: Die Gruppe `columnsMega` (Template zuerst) ist jetzt die erste Gruppe
+  der Karte `columns`. Reine Reihenfolge, keine Property ändert sich.
+
+Tests: `test/toolbar-interact.js` I (Template-Auswahl) und J
+(Mega-Wertspalten), `test/ease-interact.js` P (Pane) und C (Mega ignoriert die
+Kategorie). Pixel-Regression: m1–m31 byte-identisch zu 1.1.

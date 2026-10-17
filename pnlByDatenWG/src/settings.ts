@@ -25,7 +25,9 @@ const presetItems: LocEnumMember[] = [
     { value: "dall", displayName: "AC vs PY·PL·FC", key: "Enum_Preset_DAll" },
     { value: "acpydpy", displayName: "AC·PY·ΔPY", key: "Enum_Preset_AcPyDPy" },
     { value: "acpldpl", displayName: "AC·PL·ΔPL", key: "Enum_Preset_AcPlDPl" },
-    { value: "dpct", displayName: "ΔPY% · ΔPL%", key: "Enum_Preset_DPct" }
+    { value: "dpct", displayName: "ΔPY% · ΔPL%", key: "Enum_Preset_DPct" },
+    // 1.2: free combination — the value-column switches colAc … colDelta below
+    { value: "custom", displayName: "Own selection (switches below)", key: "Enum_Preset_Custom" }
 ];
 
 const referenceItems: LocEnumMember[] = [
@@ -109,6 +111,13 @@ const templateItems: LocEnumMember[] = [
     { value: "12A", displayName: "12A · PY + AC value cascades, ΔPY bars + pins", key: "Enum_Template_12A" },
     { value: "12G", displayName: "12G · FY outlook: PY + AC&FC (YTD + rest of year) cascades, ΔPY", key: "Enum_Template_12G" },
     { value: "12H", displayName: "12H · plan: PY + PL cascades, ΔPY bars tinted", key: "Enum_Template_12H" }
+];
+
+/** 1.2 empty state: the Smart Start demo, the field explanation or the author's own message */
+const emptyModeItems: LocEnumMember[] = [
+    { value: "demo", displayName: "Demo statement (Smart Start)", key: "Enum_EmptyMode_Demo" },
+    { value: "fields", displayName: "Field guide (which field goes where)", key: "Enum_EmptyMode_Fields" },
+    { value: "message", displayName: "Own message (title / text below)", key: "Enum_EmptyMode_Message" }
 ];
 
 const minuendItems: LocEnumMember[] = [
@@ -215,6 +224,16 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
      */
     showScenario = toggle("showScenario", "Toolbar_ShowScenario", "Group: scenario (mega table)",
         "Readers switch the analysed scenario AC / FC and the reference view ΔPY · ΔPL · both of the mega table. Default: off", false);
+    /**
+     * 1.2: value columns as independent switches (AC · PY · PL · FC · Δ) — in
+     * the classic table and (analysed scenario · PY · PL) in the mega table.
+     * Off by default: an existing report keeps exactly its toolbar.
+     */
+    showValues = toggle("showValues", "Toolbar_ShowValues", "Group: value columns (scenarios one by one)",
+        "Readers combine the value columns freely — AC, PY, PL, FC and Δ against the Δ reference (classic table), analysed scenario · PY · PL (mega table). The column presets stay as quick picks. Default: off", false);
+    /** 1.2: the template dropdown in the toolbar — edit mode only, readers never see it */
+    showTemplate = toggle("showTemplate", "Toolbar_ShowTemplate", "Template picker in edit mode",
+        "A compact template dropdown at the start of the toolbar while you edit the report (table view). Readers and exports never see it. Default: on", true);
 
     name: string = "toolbar";
     displayName: string = "Display & toolbar";
@@ -222,7 +241,8 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
     description: string = "What readers see above the statement and what they may switch themselves";
     descriptionKey: string = "Desc_Card_Toolbar";
     slices = [this.show, this.showLegend, this.showView, this.showPresets, this.showReference,
-        this.showPeriods, this.showUnit, this.showDensity, this.showLevels, this.showOptions, this.showScenario];
+        this.showPeriods, this.showUnit, this.showDensity, this.showLevels, this.showOptions, this.showScenario,
+        this.showValues, this.showTemplate];
 }
 
 /**
@@ -239,6 +259,30 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         presetItems);
     reference = dropdown("reference", "Columns_Reference", "Default Δ reference",
         "Basis of the Δ columns, bars and tree cards. Auto takes PL, else PY. Default: Auto", referenceItems);
+    /**
+     * 1.2 preset "Own selection": the value columns as independent switches —
+     * any combination of AC, PY, PL and FC, plus Δ bar + Δ% pin against the
+     * Δ reference. Shown only while the preset is "Own selection".
+     */
+    colAc = toggle("colAc", "Columns_ColAc", "Own selection: AC column",
+        "Actual values as a number column (with % of revenue, if on). Default: on", true);
+    colPy = toggle("colPy", "Columns_ColPy", "Own selection: PY column",
+        "Previous-year values as a number column. Default: on", true);
+    colPl = toggle("colPl", "Columns_ColPl", "Own selection: PL column",
+        "Plan values as a number column. Default: on", true);
+    colFc = toggle("colFc", "Columns_ColFc", "Own selection: FC column",
+        "Forecast values as a number column. Default: off", false);
+    colDelta = toggle("colDelta", "Columns_ColDelta", "Own selection: Δ bar + Δ% pin",
+        "Variance of AC against the Δ reference as bar and pin. Default: on", true);
+    /**
+     * 1.2 bars view (ChartKitchen notation): the reference bar sits behind AC,
+     * offset like the scenario columns of ChartKitchen, instead of the full
+     * band behind a narrow AC bar; and the further scenarios as triangle marks.
+     */
+    barOverlap = toggle("barOverlap", "Columns_BarOverlap", "Bars view: overlapping scenario bars",
+        "AC in front at full strength, the reference (PY gray / PL outlined / FC hatched) behind it and slightly offset — the ChartKitchen notation. Default: off", false);
+    barTriangles = toggle("barTriangles", "Columns_BarTriangles", "Bars view: triangle marks for further scenarios",
+        "Small triangles at the value of every other bound scenario (PY gray, PL outlined, FC hatched) above the bars. Default: off", false);
     /**
      * How the bound period column is ordered. "Automatic" reads month names,
      * date keys and timestamps and puts them in calendar order; a column it
@@ -350,7 +394,8 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Columns_GroupGeneral",
         description: "Classic table, bars and waterfall",
         descriptionKey: "Desc_Columns_GroupGeneral",
-        slices: [this.preset, this.reference, this.periodSort, this.pctRevenue, this.revenueBase,
+        slices: [this.preset, this.colAc, this.colPy, this.colPl, this.colFc, this.colDelta,
+            this.reference, this.barOverlap, this.barTriangles, this.periodSort, this.pctRevenue, this.revenueBase,
             this.hideZeroRows, this.fitWidth, this.exportExpandAll, this.highlight, this.materialityAbs, this.materialityPct]
     });
 
@@ -384,7 +429,12 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
     displayNameKey: string = "Card_Columns";
     description: string = "Which columns the statement shows — classic presets or the IBCS templates";
     descriptionKey: string = "Desc_Card_Columns";
-    groups = [this.general, this.mega, this.tree];
+    /**
+     * 1.2: the mega table group with the template dropdown comes FIRST — the
+     * owner could not find the templates below the classic switches. Pane
+     * order only, no property changes.
+     */
+    groups = [this.mega, this.general, this.tree];
 }
 
 export class NumbersCardSettings extends FormattingSettingsCard {
@@ -455,6 +505,14 @@ export class ScenarioLabelsCardSettings extends FormattingSettingsCard {
 
 /** ChartKitchen emptyState (1.44): the author's own text when nothing can be shown */
 export class EmptyStateCardSettings extends FormattingSettingsCard {
+    /**
+     * 1.2: what the visual shows in edit mode while the fields are missing —
+     * the demo statement (as before), a field guide, or the own message.
+     * Readers and exports keep the plain landing text / own message.
+     */
+    mode = dropdown("mode", "Empty_Mode", "While fields are missing (edit mode)",
+        "Demo = example statement (Smart Start) · Field guide = which field goes where, minimal and extended · Own message = the title and text below. Readers always get the plain text or the own message. Default: demo",
+        emptyModeItems);
     title = textInput("title", "Empty_Title", "Custom title",
         "Replaces the heading when nothing is displayed (no fields bound in reading view, or the selection returns no rows). Empty = standard text",
         "e.g. No data for this selection");
@@ -467,7 +525,7 @@ export class EmptyStateCardSettings extends FormattingSettingsCard {
     displayNameKey: string = "Card_EmptyState";
     description: string = "What readers see when there is nothing to show";
     descriptionKey: string = "Desc_Card_EmptyState";
-    slices = [this.title, this.body];
+    slices = [this.mode, this.title, this.body];
 }
 
 export class StyleCardSettings extends formattingSettings.CompositeCard {
@@ -646,7 +704,7 @@ export interface PaneContext {
 export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContext): void {
     const tb = m.toolbarCard;
     for (const s of [tb.showView, tb.showPresets, tb.showReference, tb.showPeriods, tb.showUnit,
-        tb.showDensity, tb.showLevels, tb.showOptions, tb.showScenario]) { s.visible = tb.show.value; }
+        tb.showDensity, tb.showLevels, tb.showOptions, tb.showScenario, tb.showValues, tb.showTemplate]) { s.visible = tb.show.value; }
 
     const c = m.columnsCard;
     const has = ctx.has;
@@ -656,6 +714,13 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     c.revenueBase.visible = c.pctRevenue.value || c.pctOfRevenue.value;
     const fy = has == null || has.fy !== false;
     c.periodSort.visible = period;
+    // the own-selection switches only matter for the preset that reads them
+    const custom = String(c.preset.value?.value ?? "full") === "custom";
+    for (const s of [c.colAc, c.colPy, c.colPl, c.colFc, c.colDelta]) { s.visible = custom; }
+    c.colPy.visible = custom && py; c.colPl.visible = custom && pl; c.colFc.visible = custom && fc;
+    // bar notation switches belong to the bars view
+    c.barOverlap.visible = view == null || view === "bars";
+    c.barTriangles.visible = view == null || view === "bars";
     // the mega switches belong to the table view, the tree start to the tree view
     c.mega.visible = view == null || view === "table";
     c.tree.visible = view == null || view === "tree";

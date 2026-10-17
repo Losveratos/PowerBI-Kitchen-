@@ -34,7 +34,7 @@ import {
     buildModel, flattenVisible, collapseToLevel, variance, displayValue,
     parseRowType, parseBool, parseSign, rowsFromLevels, aggregateMonthly,
     isZeroRow, revenueBase, formulaOperands, nodeResolver, Variance,
-    syntheticTotal, TOTAL_ID, parsePeriod, displayVariance, sumSafeRound, varianceOf,
+    syntheticTotal, TOTAL_ID, parsePeriod, displayVariance, sumSafeRound, varianceOf, sortMonths,
     FormulaOp, InputRow, LevelInputRow, PeriodSort, PnlModel, PnlNode, Scenario,
 } from "./engine";
 import {
@@ -172,6 +172,8 @@ const VIRT_BUFFER = 30;
  * exactly as before. Rows painted above / below the viewport.
  */
 const MEGA_VIRT_MIN_ROWS = 150;
+/** 1.2 column category: at most this many category blocks (the rest is named in the footnotes) */
+const CAT_MAX = 24;
 const MEGA_VIRT_BUFFER = 30;
 /** Height estimate for an opened sparkline row (svg 34 + padding). */
 const SPARK_ROW_H = 40;
@@ -263,7 +265,11 @@ const FIT_LABEL_MIN = 0.78;
 const FIT_PASSES = 3;
 
 type ViewMode = "table" | "bars" | "waterfall" | "tree";
-type Preset = "full" | "acref" | "acpydpy" | "acpldpl" | "dpct" | "dall";
+type Preset = "full" | "acref" | "acpydpy" | "acpldpl" | "dpct" | "dall" | "custom";
+/** 1.2 preset "custom": the value columns as independent switches, Δ = bar + pin against the Δ reference */
+interface ValSet { ac: boolean; py: boolean; pl: boolean; fc: boolean; d: boolean }
+/** 1.2 the reader's value columns of the mega table (analysed scenario · PY · PL) */
+interface MegaVals { min: boolean; py: boolean; pl: boolean }
 type Unit = "auto" | "none" | "k" | "m" | "b";
 type Density = "normal" | "compact";
 /** Mini chart drawn inside a driver-tree card. */
@@ -311,6 +317,13 @@ interface UiState {
      */
     megaMin: "" | "ac" | "fc";
     megaRef: "" | "py" | "pl" | "both";
+    /**
+     * 1.2 value-column switches of the preset "custom" (toolbar group "Value
+     * columns" / pane colAc … colDelta). Read only while preset = "custom".
+     */
+    vals: ValSet;
+    /** 1.2 the reader's value columns of the mega table; null = the author's switches */
+    megaVals: MegaVals | null;
 }
 
 /** current schema version of the persisted tree state (see UiState.treeV) */
@@ -413,6 +426,8 @@ interface TreeSeries {
 
 interface ColSpec {
     kind: "val" | "pct" | "bar" | "pin" | "gap" | "vbar" | "wbar";
+    /** 1.2 column category: index into Visual.catModels — the cell reads that category's model */
+    cat?: number;
     scen?: Scenario;      // for val
     ref?: Scenario;       // for bar/pin
     minuend?: Scenario;   // for bar/pin ("ac" | "fcfy")
@@ -420,7 +435,7 @@ interface ColSpec {
     label: string;
 }
 
-interface Block { key: "mtd" | "ytd" | "fy"; label: string; specs: ColSpec[]; }
+interface Block { key: "mtd" | "ytd" | "fy"; label: string; specs: ColSpec[]; /** 1.2 column category block */ cat?: number; }
 
 /** Windowed table rendering state (only rows near the scroll viewport are in the DOM). */
 interface VirtualState {
@@ -648,6 +663,21 @@ export class Visual implements IVisual {
     private filterInfo: string | null = null;
     /** sum-safe rounded raw values per block|scenario|unit|decimals (cleared every render) */
     private ssCache = new Map<string, Map<string, number>>();
+    /** 1.2 the arguments of the last Smart Start render — the empty-state switches re-run it */
+    private startArgs: { dataView: DataView | undefined; missing: string[] | null } | null = null;
+    /** 1.2 echo guard of emptyState.mode written by the empty-state switches */
+    private emptyPending: { mode: string; ttl: number } | null = null;
+    /**
+     * 1.2 column category (role colCategory): one model per category value,
+     * built from the same rows filtered to that value and aligned to the
+     * months of the main model — the classic table repeats its column set
+     * per category from these. null = role not bound (or the mega table).
+     */
+    private catModels: { label: string; model: PnlModel }[] | null = null;
+    /** the colCategory role is bound (the mega table ignores it, with an edit-mode note) */
+    private catBound = false;
+    /** category values beyond CAT_MAX that got no block */
+    private catCapped = 0;
 
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
@@ -698,6 +728,7 @@ export class Visual implements IVisual {
             this.settings = this.formattingSettingsService.populateFormattingSettingsModel(
                 VisualFormattingSettingsModel, dataView);
             localizeSettings(this.settings, k => this.trOpt(k));
+            this.syncEmptyMode();
             this.dark = this.resolveDarkMode();
             this.applyPalette();
             if (!dataView) {
@@ -718,10 +749,11 @@ export class Visual implements IVisual {
                 }
                 if (this.demo) { this.leaveDemo(); }
                 if (parsed.rows.length === 0) {
-                    this.model = null; this.vs = null; this.lastFingerprint = null;
+                    this.model = null; this.vs = null; this.lastFingerprint = null; this.catModels = null;
                     this.renderEmpty(); this.events.renderingFinished(options); return;
                 }
                 this.model = buildModel(parsed.rows, this.tr("UI_NotAssigned"), parsed.months);
+                this.buildCatModels(dataView, parsed.months);
                 this.has = parsed.has;
                 this.loadedRows = parsed.rowCount;
                 this.lastFingerprint = fp;
@@ -782,6 +814,9 @@ export class Visual implements IVisual {
         }
         if (this.awaitingSegment) {
             this.statusWarnings.push(this.loadingText());
+        }
+        if (this.catCapped > 0) {
+            this.statusWarnings.push(this.tr("UI_ColCatCapped", this.catCapped, CAT_MAX));
         }
     }
 
@@ -844,7 +879,7 @@ export class Visual implements IVisual {
 
     // ---------------- data ----------------
 
-    private parseRows(dataView: DataView): {
+    private parseRows(dataView: DataView, only?: Set<number>): {
         rows: InputRow[]; months: string[]; rowCount: number; has: Record<Scenario, boolean>;
     } | null {
         const cat = dataView.categorical;
@@ -931,6 +966,8 @@ export class Visual implements IVisual {
         if (levelCols.length > 0 && !parentCol) {
             const lrows: LevelInputRow[] = [];
             for (let i = 0; i < n; i++) {
+                // 1.2 column category: the rows of one category value only
+                if (only && !only.has(i)) { continue; }
                 const sortRaw = Number(txt(sortCol, i) ?? NaN);
                 lrows.push({
                     levels: levelCols.map(c => txt(c, i)),
@@ -950,6 +987,7 @@ export class Visual implements IVisual {
 
         const raw: (InputRow & { month: string | null })[] = [];
         for (let i = 0; i < n; i++) {
+            if (only && !only.has(i)) { continue; }
             const id = key(idCol, i);
             if (id == null) { continue; }
             const sortRaw = Number(txt(sortCol, i) ?? i);
@@ -965,6 +1003,76 @@ export class Visual implements IVisual {
         }
         const agg = aggregateMonthly(raw, sortMode);
         return { rows: agg.rows, months: agg.months, rowCount: n, has };
+    }
+
+    /**
+     * 1.2 column category: split the data-view rows by the colCategory value
+     * and build one model per value with the very parse path of the main model
+     * (levels or parent-child, month aggregation, formulas per category). The
+     * monthly series are re-aligned to the main model's months, so the YTD
+     * window, the month block and every Δ read one shared calendar.
+     * Period-like values sort into calendar order, anything else keeps the
+     * data order; blanks come last; more than CAT_MAX values are cut.
+     */
+    private buildCatModels(dataView: DataView, months: string[]): void {
+        this.catModels = null; this.catBound = false; this.catCapped = 0;
+        const col = (dataView.categorical?.categories ?? []).find(c => c.source.roles && c.source.roles["colCategory"]);
+        if (!col) { return; }
+        this.catBound = true;
+        const groups = new Map<string, number[]>();
+        for (let i = 0; i < col.values.length; i++) {
+            const raw = col.values[i];
+            let k = "";
+            if (raw instanceof Date) {
+                if (!isNaN(raw.getTime())) {
+                    k = `${raw.getFullYear()}-${String(raw.getMonth() + 1).padStart(2, "0")}-${String(raw.getDate()).padStart(2, "0")}`;
+                }
+            } else if (raw != null) { k = String(raw).trim(); }
+            const arr = groups.get(k);
+            if (arr) { arr.push(i); } else { groups.set(k, [i]); }
+        }
+        let keys = sortMonths([...groups.keys()].filter(k => k !== ""), "auto");
+        if (groups.has("")) { keys.push(""); }
+        if (keys.length > CAT_MAX) { this.catCapped = keys.length - CAT_MAX; keys = keys.slice(0, CAT_MAX); }
+        const out: { label: string; model: PnlModel }[] = [];
+        for (const k of keys) {
+            const parsed = this.parseRows(dataView, new Set(groups.get(k)));
+            if (!parsed || parsed.rows.length === 0) { continue; }
+            const rows = parsed.rows.map(r => this.alignSeries(r, parsed.months, months));
+            out.push({ label: k === "" ? this.tr("UI_ColCatBlank") : this.catLabel(k),
+                model: buildModel(rows, this.tr("UI_NotAssigned"), months) });
+        }
+        this.catModels = out.length > 0 ? out : null;
+    }
+
+    /** re-index a row's monthly series from its own months to the main model's months */
+    private alignSeries(r: InputRow, from: string[], to: string[]): InputRow {
+        if (!r.series || (from.length === to.length && from.every((m, i) => m === to[i]))) { return r; }
+        const idx = from.map(m => to.indexOf(m));
+        const series: Partial<Record<Scenario, (number | null)[]>> = {};
+        for (const [sc, arr] of Object.entries(r.series) as [Scenario, (number | null)[] | undefined][]) {
+            if (!arr) { continue; }
+            const o = new Array<number | null>(to.length).fill(null);
+            arr.forEach((v, j) => { if (idx[j] >= 0) { o[idx[j]] = v; } });
+            series[sc] = o;
+        }
+        return { ...r, series };
+    }
+
+    /** header label of a category value: date keys as "Mar 2026", everything else as written */
+    private catLabel(k: string): string {
+        const m = /^(\d{4})-(\d{2})(?:-\d{2})?$/.exec(k);
+        return m ? `${this.monthLabel(k)} ${m[1]}` : k;
+    }
+
+    /** the node of a row in a category model (same row id), or null when the category has no such row */
+    private catNode(cat: number, node: PnlNode): PnlNode | null {
+        return this.catModels?.[cat]?.model.byId.get(node.row.id) ?? null;
+    }
+
+    /** column categories apply to the classic TABLE view only */
+    private catInView(): boolean {
+        return this.catModels != null && this.ui != null && this.ui.view === "table" && !this.megaInView();
     }
 
     // ---------------- selection · cross-filtering · context menu ----------------
@@ -1219,7 +1327,15 @@ export class Visual implements IVisual {
             treeV: TREE_STATE_V,
             megaMin: "",
             megaRef: "",
+            vals: this.paneVals(),
+            megaVals: null,
         };
+    }
+
+    /** the own-selection switches of the format pane (preset "custom") */
+    private paneVals(): ValSet {
+        const c = this.settings.columnsCard;
+        return { ac: c.colAc.value, py: c.colPy.value, pl: c.colPl.value, fc: c.colFc.value, d: c.colDelta.value };
     }
 
     /** the format-pane settings the toolbar state starts from, as plain strings */
@@ -1239,6 +1355,8 @@ export class Visual implements IVisual {
             // the mega switches the reader's scenario view starts from
             megaMin: String(s.columnsCard.minuend.value.value),
             megaRef: this.megaPaneSig(),
+            vals: JSON.stringify(this.paneVals()),
+            megaVals: [s.columnsCard.showPY, s.columnsCard.showPL, s.columnsCard.showMinuend].map(x => (x.value ? "1" : "0")).join(""),
         };
     }
 
@@ -1262,7 +1380,7 @@ export class Visual implements IVisual {
         let took = false;
         for (const k of Object.keys(now)) {
             if (now[k] === prev[k]) { continue; }
-            if (k !== "megaMin" && k !== "megaRef") { took = true; }
+            if (k !== "megaMin" && k !== "megaRef" && k !== "megaVals") { took = true; }
             switch (k) {
                 case "preset": ui.preset = d.preset; break;
                 case "ref": ui.ref = d.ref; break;
@@ -1279,6 +1397,8 @@ export class Visual implements IVisual {
                 // pane edits of the mega table never persisted the toolbar state)
                 case "megaMin": if (ui.megaMin !== "") { took = true; ui.megaMin = ""; } break;
                 case "megaRef": if (ui.megaRef !== "") { took = true; ui.megaRef = ""; } break;
+                case "vals": ui.vals = d.vals; break;
+                case "megaVals": if (ui.megaVals != null) { took = true; ui.megaVals = null; } break;
             }
         }
         return took;
@@ -1775,7 +1895,74 @@ export class Visual implements IVisual {
         return w >= 300 && h >= 220;
     }
 
+    /** start aids (demo, field guide) are edit-mode aids: never for readers or exports */
+    private startAllowed(): boolean {
+        if (this.host.hostCapabilities?.allowInteractions === false) { return false; }
+        return this.viewMode == null || this.viewMode >= 1;
+    }
+
+    /** emptyState.mode (1.2): demo · fields · message */
+    private emptyMode(): "demo" | "fields" | "message" {
+        const v = String(this.settings?.emptyStateCard?.mode?.value?.value ?? "demo");
+        return v === "fields" || v === "message" ? v : "demo";
+    }
+
+    /**
+     * Echo guard of the empty-state switches (the UI_ECHO_TTL pattern): until
+     * the host echoes the written mode, a stale update keeps the clicked one.
+     */
+    private syncEmptyMode(): void {
+        const p = this.emptyPending;
+        if (!p) { return; }
+        const sl = this.settings.emptyStateCard.mode;
+        if (String(sl.value?.value) === p.mode || --p.ttl <= 0) { this.emptyPending = null; return; }
+        const it = (sl.items ?? []).find(x => String(x.value) === p.mode);
+        if (it) { sl.value = it; }
+    }
+
+    /** empty-state switch (edit mode): writes emptyState.mode and shows the new start at once */
+    private setEmptyMode(mode: "demo" | "fields" | "message"): void {
+        const sl = this.settings.emptyStateCard.mode;
+        const it = (sl.items ?? []).find(x => String(x.value) === mode);
+        if (it) { sl.value = it; }
+        this.emptyPending = { mode, ttl: UI_ECHO_TTL };
+        this.host.persistProperties({ merge: [{ objectName: "emptyState", selector: null, properties: { mode } }] });
+        const a = this.startArgs;
+        this.showStart(a ? a.dataView : undefined, a ? a.missing : null);
+    }
+
+    /** a small switch button of the empty state (edit mode only) */
+    private startSwitch(label: string, mode: "demo" | "fields" | "message"): HTMLElement {
+        const b = this.tbBtn(label, false, () => { /* replaced below */ }, this.tr("UI_EsSwitchTip"));
+        b.setAttribute("data-pnl", "es-" + mode);
+        b.onclick = (e: Event): void => { e.stopPropagation(); this.setEmptyMode(mode); };
+        return b;
+    }
+
+    /** the row of empty-state switches — every mode except the current one */
+    private startSwitchRow(cur: "demo" | "fields" | "message"): HTMLElement | null {
+        if (!this.editMode()) { return null; }
+        const row = document.createElement("div");
+        row.setAttribute("data-pnl", "es-switches");
+        row.style.cssText = `display:flex;gap:${this.kpx(6)};flex-wrap:wrap;margin-top:${this.kpx(8)};`;
+        if (cur !== "demo") { row.appendChild(this.startSwitch(this.tr("UI_EsDemo"), "demo")); }
+        if (cur !== "fields") { row.appendChild(this.startSwitch(this.tr("UI_EsFields"), "fields")); }
+        return row;
+    }
+
     private showStart(dataView: DataView | undefined, missing: string[] | null): void {
+        this.startArgs = { dataView, missing };
+        // 1.2 empty-state mode: the field guide or the own message replace the
+        // demo in edit mode; readers and exports keep the landing text below
+        const mode = this.emptyMode();
+        if (mode !== "demo" && this.startAllowed()) {
+            if (this.demo) { this.leaveDemo(); }
+            this.model = null; this.vs = null; this.lastFingerprint = null;
+            this.catModels = null;
+            this.root.style.background = this.pageBg();
+            this.root.replaceChildren(mode === "fields" ? this.fieldGuide(dataView, missing) : this.startMessage());
+            return;
+        }
         if (!this.demoAllowed()) {
             if (this.demo) { this.leaveDemo(); }
             this.model = null; this.vs = null; this.lastFingerprint = null;
@@ -1786,6 +1973,7 @@ export class Visual implements IVisual {
             const lr = rowsFromLevels(buildDemoRows(k => this.tr(k)), "auto");
             this.model = buildModel(lr.rows, this.tr("UI_NotAssigned"), lr.months);
             this.has = { ac: true, py: true, pl: true, fc: false, fcfy: true, plfy: true };
+            this.catModels = null; this.catBound = false; this.catCapped = 0;
             this.loadedRows = lr.rows.length;
             this.modelVer++;
             this.scanCache = null;
@@ -1873,7 +2061,107 @@ export class Visual implements IVisual {
             miss.textContent = this.tr("UI_DemoMissing", this.demoMissing.join(" · "));
             box.appendChild(miss);
         }
+        // 1.2 edit mode: switch to the field guide without opening the pane
+        const sw = this.startSwitchRow("demo");
+        if (sw) { box.appendChild(sw); }
         return wrap;
+    }
+
+    /**
+     * 1.2 field guide (emptyState.mode = fields): which field goes into which
+     * well, minimal and extended, in the reader's language. Bound roles carry
+     * a check, the scenario rows the IBCS chips of the legend. Smart-Start
+     * look: dashed box on the wash, caps section heads.
+     */
+    private fieldGuide(dataView: DataView | undefined, missing: string[] | null): HTMLElement {
+        const cols = dataView?.metadata?.columns ?? [];
+        const bound = (...roles: string[]): boolean => cols.some(c => !!c.roles && roles.some(r => !!c.roles![r]));
+        const role = (key: string, en: string): string => this.trOpt(key) ?? en;
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "field-guide");
+        wrap.style.cssText = `padding:${this.kpx(14)} ${this.kpx(16)};max-width:${this.k(780)}px;box-sizing:border-box;`;
+        const box = document.createElement("div");
+        box.style.cssText = `padding:${this.kpx(10)} ${this.kpx(14)};border:1px dashed ${C.ctlEdge};border-radius:6px;` +
+            `background:${C.wash};color:${C.text};font-size:${this.kpx(11)};line-height:1.5;`;
+        wrap.appendChild(box);
+        const h = document.createElement("div");
+        h.style.cssText = `font-size:${this.kpx(14)};font-weight:600;margin-bottom:${this.kpx(2)};`;
+        h.textContent = this.tr("UI_FiTitle");
+        box.appendChild(h);
+        const intro = document.createElement("div");
+        intro.style.cssText = `color:${C.soft};margin-bottom:${this.kpx(6)};`;
+        intro.textContent = this.tr("UI_FiIntro");
+        box.appendChild(intro);
+        if (missing && missing.length > 0) {
+            const miss = document.createElement("div");
+            miss.setAttribute("data-pnl", "fi-missing");
+            miss.style.cssText = `color:${C.loading};font-weight:600;margin-bottom:${this.kpx(4)};`;
+            miss.textContent = this.tr("UI_DemoMissing", missing.join(" · "));
+            box.appendChild(miss);
+        }
+        type Row = { id: string; name: string; text: string; on: boolean; chip?: "ac" | "py" | "pl" | "fc" };
+        const section = (label: string, rows: Row[]): void => {
+            const cap = this.capsLabel(label);
+            cap.style.marginTop = this.kpx(6);
+            box.appendChild(cap);
+            const grid = document.createElement("div");
+            grid.style.cssText = `display:grid;grid-template-columns:${this.kpx(14)} minmax(${this.kpx(96)},max-content) minmax(0,1fr);` +
+                `column-gap:${this.kpx(8)};row-gap:${this.kpx(3)};align-items:baseline;margin-top:${this.kpx(2)};`;
+            for (const r of rows) {
+                const mark = document.createElement("span");
+                mark.setAttribute("data-pnl", "fi-" + r.id);
+                mark.setAttribute("data-on", r.on ? "1" : "0");
+                mark.style.cssText = `color:${r.on ? this.goodColor() : C.soft};font-weight:700;`;
+                mark.textContent = r.on ? "✓" : "○";
+                const name = document.createElement("span");
+                name.style.cssText = "font-weight:600;white-space:nowrap;";
+                if (r.chip) { name.appendChild(this.legendChip(r.chip)); }
+                name.appendChild(document.createTextNode(r.name));
+                const text = document.createElement("span");
+                text.style.cssText = `color:${C.soft};`;
+                text.textContent = r.text;
+                grid.appendChild(mark); grid.appendChild(name); grid.appendChild(text);
+            }
+            box.appendChild(grid);
+        };
+        section(this.tr("UI_FiMinimal"), [
+            { id: "levels", name: role("Role_Levels", "Level columns (L1..Ln)"), text: this.tr("UI_FiLevels"), on: bound("levels", "account") },
+            { id: "ac", name: role("Role_AC", "AC (Actual)"), text: this.tr("UI_FiAc"), on: bound("ac"), chip: "ac" },
+        ]);
+        section(this.tr("UI_FiExtended"), [
+            { id: "py", name: role("Role_PY", "PY (Previous Year)"), text: this.tr("UI_FiPy"), on: bound("py"), chip: "py" },
+            { id: "pl", name: role("Role_PL", "PL (Plan / Budget)"), text: this.tr("UI_FiPl"), on: bound("pl"), chip: "pl" },
+            { id: "fc", name: role("Role_FC", "FC (Forecast)"), text: this.tr("UI_FiFc"), on: bound("fc", "fcFy"), chip: "fc" },
+            { id: "period", name: role("Role_Period", "Period (month)"), text: this.tr("UI_FiPeriod"), on: bound("period") },
+            { id: "rowType", name: role("Role_RowType", "Row type"), text: this.tr("UI_FiRowType"), on: bound("rowType", "formulaDef") },
+            { id: "sign", name: role("Role_Sign", "Sign convention (±1)"), text: this.tr("UI_FiSign"), on: bound("signConvention", "displayInvert", "varianceInvert") },
+            { id: "colCategory", name: role("Role_ColCategory", "Column category"), text: this.tr("UI_FiColCat"), on: bound("colCategory") },
+        ]);
+        const hint = document.createElement("div");
+        hint.style.cssText = `color:${C.soft};font-style:italic;margin-top:${this.kpx(8)};`;
+        hint.textContent = this.tr("UI_FiHint");
+        box.appendChild(hint);
+        const sw = this.startSwitchRow("fields");
+        if (sw) { box.appendChild(sw); }
+        return wrap;
+    }
+
+    /** emptyState.mode = message in edit mode: the own message (else the landing text) plus the switches */
+    private startMessage(): HTMLElement {
+        let box: HTMLElement;
+        if (this.customEmpty()) { box = this.emptyMessageBox(); }
+        else {
+            box = document.createElement("div");
+            box.setAttribute("data-pnl", "empty-state");
+            box.style.cssText = "padding:18px 22px;max-width:600px;";
+            const p = document.createElement("div");
+            p.style.cssText = `font-size:${this.kpx(12)};color:${C.soft};line-height:1.55;`;
+            p.textContent = this.tr("UI_Landing");
+            box.appendChild(p);
+        }
+        const sw = this.startSwitchRow("message");
+        if (sw) { box.appendChild(sw); }
+        return box;
     }
 
     private renderLanding(): void {
@@ -1913,6 +2201,10 @@ export class Visual implements IVisual {
 
     /** emptyState: the author's title (bold) + text; an empty part falls back to the standard text */
     private renderEmptyMessage(): void {
+        this.root.replaceChildren(this.emptyMessageBox());
+    }
+
+    private emptyMessageBox(): HTMLElement {
         const e = this.settings.emptyStateCard;
         const box = document.createElement("div");
         box.setAttribute("data-pnl", "empty-state");
@@ -1928,7 +2220,7 @@ export class Visual implements IVisual {
         p.style.cssText = `font-size:${this.kpx(12)};color:${C.soft};line-height:1.55;`;
         p.textContent = e.body.value.trim() || this.tr("UI_NoData");
         box.appendChild(p);
-        this.root.replaceChildren(box);
+        return box;
     }
 
     private rerender(): void { this.render(); }
@@ -1936,8 +2228,12 @@ export class Visual implements IVisual {
     /** cache key for the scans that depend on model + shown Δ combinations only */
     private scanKey(): string {
         const ui = this.ui!;
-        return [this.modelVer, ui.view, ui.preset, ui.ref,
-            ui.blocks.mtd, ui.blocks.ytd, ui.blocks.fy].join("~");
+        const k: (string | number | boolean)[] = [this.modelVer, ui.view, ui.preset, ui.ref,
+            ui.blocks.mtd, ui.blocks.ytd, ui.blocks.fy];
+        // 1.2: the own selection and the column categories change the Δ columns too
+        if (ui.preset === "custom") { k.push(JSON.stringify(ui.vals)); }
+        if (this.catInView()) { k.push("cat"); }
+        return k.join("~");
     }
 
     /**
@@ -1958,6 +2254,18 @@ export class Visual implements IVisual {
                 if (v != null) { maxAbsVal = Math.max(maxAbsVal, Math.abs(v)); }
             }
             for (const dc of deltaCombos) {
+                if (dc.cat != null) { continue; }
+                const d = this.blockVariance(node, dc.block, dc.ref, dc.minuend).delta;
+                if (d != null) { maxAbsDelta = Math.max(maxAbsDelta, Math.abs(d)); }
+            }
+        }
+        // 1.2 column categories: their Δ share the one uniform scale
+        for (const dc of deltaCombos) {
+            if (dc.cat == null) { continue; }
+            const cm = this.catModels?.[dc.cat];
+            if (!cm) { continue; }
+            for (const node of cm.model.byId.values()) {
+                if (node.row.rowType === "kpi") { continue; }
                 const d = this.blockVariance(node, dc.block, dc.ref, dc.minuend).delta;
                 if (d != null) { maxAbsDelta = Math.max(maxAbsDelta, Math.abs(d)); }
             }
@@ -2083,6 +2391,7 @@ export class Visual implements IVisual {
             const over = this.root.scrollWidth - this.root.clientWidth;
             if (over > 0 && over <= 40) { this.root.replaceChild(this.buildMega(fmt, over), table); }
             this.appendScaleFixedNote();
+            this.appendCatNote();
             this.buildFootnotes(fmt);
             this.root.appendChild(this.buildFooter());
             this.root.scrollTop = keepScroll;
@@ -2101,6 +2410,7 @@ export class Visual implements IVisual {
                 body = tighter;
             }
             this.appendScaleFixedNote();
+            this.appendCatNote();
             this.buildFootnotes(fmt);
             this.root.appendChild(this.buildFooter());
             this.root.scrollTop = keepScroll;
@@ -2140,6 +2450,22 @@ export class Visual implements IVisual {
             v == null ? "" : this.tr(key, fmt.val(v) + (unit ? " " + unit : ""));
         note.textContent = this.tr("UI_ScaleFixed") + ": " +
             [part(this.fixedMax(), "UI_ScaleFixedVal"), part(this.fixedVarMax(), "UI_ScaleFixedVar")].filter(Boolean).join(" · ");
+        this.root.appendChild(note);
+    }
+
+    /**
+     * Edit mode only (1.2): the column category is bound but this view does not
+     * use it — the mega table, bars and waterfall ignore it. Readers and
+     * exports never see the note.
+     */
+    private appendCatNote(): void {
+        if (!this.catBound || this.catInView() || !this.ui || this.ui.view === "tree") { return; }
+        if ((this.viewMode != null && this.viewMode < 1) || this.exporting()) { return; }
+        const note = document.createElement("div");
+        note.setAttribute("data-pnl", "cat-note");
+        note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};font-style:italic;` +
+            `padding:2px ${TABLE_PAD_X + 14}px 0 ${TABLE_PAD_X + 14}px;`;
+        note.textContent = this.tr("UI_ColCatIgnored");
         this.root.appendChild(note);
     }
 
@@ -2338,8 +2664,8 @@ export class Visual implements IVisual {
     }
 
     /** which Δ combinations the current view shows (drives the uniform scale) */
-    private deltaCombos(): { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy" }[] {
-        const out: { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy" }[] = [];
+    private deltaCombos(): { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy"; cat?: number }[] {
+        const out: { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy"; cat?: number }[] = [];
         if (this.ui!.view === "tree") { return out; } // the tree shows no Δ bars
         // exactly the Δ columns on screen — read from the column specs, so the
         // uniform scale can never span a block the toolbar has switched off
@@ -2351,10 +2677,11 @@ export class Visual implements IVisual {
             for (const c of b.specs) {
                 if ((c.kind !== "bar" && c.kind !== "pin") || !c.ref || !c.minuend) { continue; }
                 const block = c.block ?? "ytd";
-                const key = `${c.ref}|${c.minuend}|${block}`;
+                const key = `${c.ref}|${c.minuend}|${block}` + (c.cat != null ? `|${c.cat}` : "");
                 if (seen.has(key) || !this.has[c.ref]) { continue; }
                 seen.add(key);
-                out.push({ ref: c.ref, minuend: c.minuend, block });
+                // a category column scales against its own category's rows (the uniform scale spans the deck)
+                out.push(c.cat != null ? { ref: c.ref, minuend: c.minuend, block, cat: c.cat } : { ref: c.ref, minuend: c.minuend, block });
             }
         }
         return out;
@@ -2479,6 +2806,56 @@ export class Visual implements IVisual {
     }
 
     /** caps label of a control group — the one type style for every section head */
+    /**
+     * Edit mode in the strict sense: the host SAYS it is editing (Desktop
+     * authoring, service edit). Authoring controls that write the format pane
+     * (template picker, empty-state switches) appear only here — never for
+     * readers, never in exports, and not in hosts that report no view mode.
+     */
+    private editMode(): boolean {
+        return this.viewMode != null && this.viewMode >= 1 && this.host.hostCapabilities?.allowInteractions !== false;
+    }
+
+    /**
+     * 1.2 toolbar template picker (edit mode): the IBCS templates of the format
+     * pane as one compact dropdown. Picking one writes columns.template AND
+     * applies it in the same persist (see applyMegaTemplate) — the pending
+     * guard then holds the new template against stale updates, so the picker
+     * never springs back while the host echoes.
+     */
+    private templatePicker(): HTMLElement {
+        const tpl = this.settings.columnsCard.template;
+        const sel = document.createElement("select");
+        sel.setAttribute("data-pnl", "tb-template");
+        sel.title = this.tr("UI_TbTemplateTip");
+        sel.setAttribute("aria-label", this.tr("UI_TbTemplate"));
+        sel.style.cssText = `font-family:${FONT};font-size:${this.kpx(10.5)};line-height:1.35;` +
+            `padding:${this.kpx(2.5)} ${this.kpx(4)};border-radius:4px;border:1px solid ${C.ctlEdge};` +
+            `background:${C.paper};color:${C.text};cursor:pointer;max-width:${this.k(230)}px;`;
+        const cur = String(tpl.value?.value ?? "off");
+        for (const it of tpl.items ?? []) {
+            const o = document.createElement("option");
+            o.value = String(it.value);
+            o.textContent = typeof it.displayName === "string" ? it.displayName : String(it.value);
+            if (o.value === cur) { o.selected = true; }
+            sel.appendChild(o);
+        }
+        this.kbRing(sel as unknown as HTMLElement);
+        sel.onclick = (e: Event): void => { e.stopPropagation(); };
+        sel.onchange = (): void => { this.pickTemplate(sel.value); };
+        const g = this.tbGroup(this.tr("UI_TbTemplate"), [sel]);
+        g.setAttribute("data-pnl", "tb-template-group");
+        return g;
+    }
+
+    /** toolbar template pick: the pane dropdown, its switches and templateApplied in one write */
+    private pickTemplate(tpl: string): void {
+        if (!MEGA_PRESETS[tpl]) { return; }
+        this.megaSliceSet("template", tpl);
+        this.applyMegaTemplate(tpl, true);
+        this.rerender();
+    }
+
     private capsLabel(text: string, fs = 8.5): HTMLElement {
         const l = document.createElement("div");
         l.style.cssText = `font-size:${this.kpx(fs)};letter-spacing:.09em;color:${C.soft};` +
@@ -2536,6 +2913,11 @@ export class Visual implements IVisual {
         // Δ reference and the unit reach the zoom chart, so only those two stay —
         // the header belongs to the back button and the breadcrumb.
         const inZoom = ui.view === "tree" && ui.treeZoom != null;
+        // 1.2 template picker first — edit mode only (an authoring control, it
+        // writes the format pane), table view only (templates shape the table)
+        if (tset.showTemplate.value && this.editMode() && ui.view === "table") {
+            bar.appendChild(this.templatePicker());
+        }
         if (tset.showView.value && !inZoom) { bar.appendChild(this.tbGroup(this.tr("UI_TbView"), [
             this.tbBtn(this.tr("UI_TbTable"), ui.view === "table", () => { ui.view = "table"; }),
             this.tbBtn(this.tr("UI_TbBars"), ui.view === "bars", () => { ui.view = "bars"; },
@@ -2584,6 +2966,35 @@ export class Visual implements IVisual {
         if (tset.showPresets.value && classicTable) {
             bar.appendChild(this.tbGroup(this.tr("UI_TbPreset"),
                 presets.map(([p, label]) => this.tbBtn(label, ui.preset === p, () => { ui.preset = p; }))));
+        }
+
+        // 1.2 value columns as independent switches (AC · PY · PL · FC · Δ):
+        // a click turns the columns on screen into the preset "custom" and
+        // flips one switch; a preset click later sets them all again. A switch
+        // that would change nothing (the last column, Δ without a reference
+        // field) stays in place, dimmed and locked — the 1.0.1 pattern.
+        if (tset.showValues.value && classicTable) {
+            const shown = this.shownVals();
+            const rDelta: Scenario = this.has[ui.ref] ? ui.ref : (this.has.pl ? "pl" : "py");
+            const flip = (u: UiState, k: keyof ValSet): void => {
+                // the fixed-reference presets hand their reference over, so ΔPY stays ΔPY
+                if (u.preset === "acpydpy") { u.ref = "py"; } else if (u.preset === "acpldpl") { u.ref = "pl"; }
+                u.vals = { ...shown, [k]: !shown[k] };
+                u.preset = "custom";
+            };
+            const lockTip = this.tr("UI_TbValNoEffect");
+            const vb: HTMLElement[] = [];
+            for (const k of ["ac", "py", "pl", "fc"] as (keyof ValSet)[]) {
+                if (!this.has[k as Scenario]) { continue; }
+                vb.push(this.tbBtn(this.relabel(k.toUpperCase()), shown[k], () => flip(ui, k), undefined,
+                    changes(u => flip(u, k)) ? undefined : lockTip));
+            }
+            const refShown = ui.preset === "acpydpy" ? "py" : ui.preset === "acpldpl" ? "pl" : rDelta;
+            vb.push(this.tbBtn("Δ" + this.relabel(refShown.toUpperCase()), shown.d, () => flip(ui, "d"),
+                this.tr("UI_TbValDeltaTip"), changes(u => flip(u, "d")) ? undefined : lockTip));
+            const g = this.tbGroup(this.tr("UI_TbValues"), vb);
+            g.setAttribute("data-pnl", "tb-values");
+            bar.appendChild(g);
         }
 
         const refs: Scenario[] = (["py", "pl", "fc"] as Scenario[]).filter(s => this.has[s]);
@@ -2671,6 +3082,11 @@ export class Visual implements IVisual {
         // mega table: the reader's scenario view (analysed scenario · reference view)
         if (tset.showScenario.value && mega) {
             for (const g of this.megaScenarioGroups()) { bar.appendChild(g); }
+        }
+        // 1.2 the mega table's value columns as reader switches (analysed scenario · PY · PL)
+        if (tset.showValues.value && mega) {
+            const g = this.megaValuesGroup();
+            if (g) { bar.appendChild(g); }
         }
 
         if (tset.showOptions.value && mega) {
@@ -2831,17 +3247,19 @@ export class Visual implements IVisual {
         }
 
         const rM = this.has[ui.ref] ? ui.ref : (this.has.pl ? "pl" : "py");
+        // 1.2 preset "custom": the value-column switches build every block
+        const custom = ui.preset === "custom";
         if (ui.blocks.mtd && months.length > 1) {
-            const mtd: ColSpec[] = [{ kind: "val", scen: "ac", block: "mtd", label: "AC" }];
-            if (this.has[rM]) {
+            const mtd: ColSpec[] = custom ? this.customSpecs("mtd", rM) : [{ kind: "val", scen: "ac", block: "mtd", label: "AC" }];
+            if (!custom && this.has[rM]) {
                 mtd.push({ kind: "val", scen: rM, block: "mtd", label: rM.toUpperCase() });
                 mtd.push({ kind: "bar", ref: rM, minuend: "ac", block: "mtd", label: `Δ${rM.toUpperCase()}` });
                 mtd.push({ kind: "pin", ref: rM, minuend: "ac", block: "mtd", label: `Δ${rM.toUpperCase()}%` });
             }
             blocks.push({ key: "mtd", label: mtdLabel, specs: mtd });
         }
-        const ytd: ColSpec[] = [{ kind: "val", scen: "ac", block: "ytd", label: "AC" }];
-        if (ui.pctRev) { ytd.push({ kind: "pct", block: "ytd", label: this.tr("UI_ColPctRev") }); }
+        const ytd: ColSpec[] = custom ? this.customSpecs("ytd", rM) : [{ kind: "val", scen: "ac", block: "ytd", label: "AC" }];
+        if (ui.pctRev && !custom) { ytd.push({ kind: "pct", block: "ytd", label: this.tr("UI_ColPctRev") }); }
         const fy: ColSpec[] = [];
         const push = (arr: ColSpec[], ref: Scenario, minuend: Scenario, withVal: boolean, valScen?: Scenario): void => {
             if (withVal && valScen) { arr.push({ kind: "val", scen: valScen, block: "ytd", label: valScen === "plfy" ? "PL" : valScen.toUpperCase() }); }
@@ -2880,6 +3298,15 @@ export class Visual implements IVisual {
         } else if (ui.preset === "dpct") {
             if (this.has.py) { ytd.push({ kind: "pin", ref: "py", minuend: "ac", block: "ytd", label: "ΔPY%" }); }
             if (this.has.pl) { ytd.push({ kind: "pin", ref: "pl", minuend: "ac", block: "ytd", label: "ΔPL%" }); }
+        } else if (custom && fyOn) {
+            // the FY outlook follows the switches as well: AC / FC → AC&FC (FC FY), PL → PL FY, Δ → ΔPL
+            const v = ui.vals;
+            if (v.ac || v.fc) { fy.push({ kind: "val", scen: "fcfy", block: "fy", label: "FC" }); }
+            if (v.pl) { fy.push({ kind: "val", scen: "plfy", block: "fy", label: "PL" }); }
+            if (v.d) {
+                fy.push({ kind: "bar", ref: "plfy", minuend: "fcfy", block: "fy", label: "ΔPL" });
+                fy.push({ kind: "pin", ref: "plfy", minuend: "fcfy", block: "fy", label: "ΔPL%" });
+            }
         }
         // the YTD toggle hides the YTD block as soon as another block stays on
         // screen (up to 1.0.0 the classic table ignored it); with nothing else
@@ -2888,7 +3315,54 @@ export class Visual implements IVisual {
             blocks.push({ key: "ytd", label: ytdLabel, specs: ytd });
         }
         if (fy.length > 0) { blocks.push({ key: "fy", label: this.tr("UI_BlkFyFc", fyYear), specs: fy }); }
+        // 1.2 column category: the column set of the YTD block (else the first
+        // block) repeats once per category value in front, under the value as
+        // group head; the blocks above follow as the total. % of revenue stays
+        // in the total block (its base row is a row of the whole statement).
+        if (this.catInView() && blocks.length > 0) {
+            const base = blocks.find(b => b.key === "ytd") ?? blocks[0];
+            const specs = base.specs.filter(c => c.kind !== "pct");
+            const cats: Block[] = this.catModels!.map((cm, i) => ({
+                key: base.key, label: cm.label, cat: i, specs: specs.map(c => ({ ...c, cat: i })),
+            }));
+            const total = blocks.map(b => ({ ...b, label: this.tr("UI_ColCatTotal", b.label) }));
+            return this.relabelBlocks([...cats, ...total]);
+        }
         return this.relabelBlocks(blocks);
+    }
+
+    /**
+     * Columns of one block under the preset "custom" (1.2): every switched-on
+     * value column of a bound scenario in IBCS order AC · PY · PL · FC (% of
+     * revenue next to AC in the YTD block), then Δ bar + Δ% pin of AC against
+     * the Δ reference. A block never ends up empty — AC stays as the floor.
+     */
+    private customSpecs(block: "mtd" | "ytd", ref: Scenario): ColSpec[] {
+        const v = this.ui!.vals;
+        const out: ColSpec[] = [];
+        for (const sc of ["ac", "py", "pl", "fc"] as Scenario[]) {
+            if (!v[sc as keyof ValSet] || !this.has[sc]) { continue; }
+            out.push({ kind: "val", scen: sc, block, label: sc.toUpperCase() });
+            if (sc === "ac" && block === "ytd" && this.ui!.pctRev) {
+                out.push({ kind: "pct", block, label: this.tr("UI_ColPctRev") });
+            }
+        }
+        if (v.d && this.has[ref]) {
+            out.push({ kind: "bar", ref, minuend: "ac", block, label: `Δ${ref.toUpperCase()}` });
+            out.push({ kind: "pin", ref, minuend: "ac", block, label: `Δ${ref.toUpperCase()}%` });
+        }
+        if (out.length === 0) {
+            out.push({ kind: "val", scen: "ac", block, label: "AC" });
+            if (block === "ytd" && this.ui!.pctRev) { out.push({ kind: "pct", block, label: this.tr("UI_ColPctRev") }); }
+        }
+        return out;
+    }
+
+    /** which value columns / Δ the classic table shows right now (toggle states of the "Value columns" group) */
+    private shownVals(): ValSet {
+        const specs = this.colSpecs().filter(b => b.key !== "fy").flatMap(b => b.specs);
+        const val = (sc: Scenario): boolean => specs.some(c => c.kind === "val" && c.scen === sc);
+        return { ac: val("ac"), py: val("py"), pl: val("pl"), fc: val("fc"), d: specs.some(c => c.kind === "bar" || c.kind === "pin") };
     }
 
     /** the columns of all blocks in render order, gap columns in between */
@@ -3084,16 +3558,20 @@ export class Visual implements IVisual {
      */
     private geoScans(cols: ColSpec[], fmt: Fmt): GeoCache {
         const model = this.model!;
-        const sig = cols.map(c => `${c.kind}${c.scen ?? ""}${c.ref ?? ""}${c.minuend ?? ""}${c.block ?? ""}`).join(",");
+        const sig = cols.map(c => `${c.kind}${c.scen ?? ""}${c.ref ?? ""}${c.minuend ?? ""}${c.block ?? ""}${c.cat ?? ""}`).join(",");
         const num = this.settings.numbersCard;
-        const key = [this.scanKey(), sig, fmt.div, fmt.suffix,
-            num.decimals.value, num.pctDecimals.value, this.locale].join("~");
+        const keyParts: (string | number | boolean)[] = [this.scanKey(), sig, fmt.div, fmt.suffix,
+            num.decimals.value, num.pctDecimals.value, this.locale];
+        // 1.2 triangle marks widen the value scale of the bars view
+        if (this.settings.columnsCard.barTriangles.value) { keyParts.push("tri"); }
+        const key = keyParts.join("~");
         if (this.geoCache && this.geoCache.key === key) { return this.geoCache; }
 
         let dLabelLen = 2; let pLabelLen = 3;
         for (const node of model.byId.values()) {
             if (node.row.rowType === "kpi") { continue; }
             for (const c of cols) {
+                if (c.cat != null) { continue; }
                 if (c.kind === "bar") {
                     const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
                     if (v.delta != null) { dLabelLen = Math.max(dLabelLen, fmt.val(v.delta, true).length); }
@@ -3106,6 +3584,18 @@ export class Visual implements IVisual {
                     // "+220.0%▸" (p2). Within ±40% nothing changes.
                     if (v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length); }
                 }
+            }
+        }
+        // 1.2 column categories: their Δ labels share the lane widths
+        for (const c of cols) {
+            if (c.cat == null || (c.kind !== "bar" && c.kind !== "pin")) { continue; }
+            const cm = this.catModels?.[c.cat];
+            if (!cm) { continue; }
+            for (const node of cm.model.byId.values()) {
+                if (node.row.rowType === "kpi") { continue; }
+                const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
+                if (c.kind === "bar" && v.delta != null) { dLabelLen = Math.max(dLabelLen, fmt.val(v.delta, true).length); }
+                if (c.kind === "pin" && v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length); }
             }
         }
 
@@ -3136,7 +3626,12 @@ export class Visual implements IVisual {
             }
         } else if (cols.some(c => c.kind === "vbar")) {
             const scens = new Set<Scenario>();
-            for (const c of cols) { if (c.kind === "vbar") { scens.add(c.scen!); scens.add(c.ref!); } }
+            for (const c of cols) {
+                if (c.kind !== "vbar") { continue; }
+                scens.add(c.scen!); scens.add(c.ref!);
+                // 1.2 triangle marks: their scenarios share the value scale
+                for (const t of this.barTriScens(c)) { scens.add(t); }
+            }
             for (const node of model.byId.values()) {
                 if (node.row.rowType === "kpi" || node.row.rowType === "separator") { continue; }
                 for (const sc of scens) {
@@ -3391,7 +3886,11 @@ export class Visual implements IVisual {
         for (const c of cols) {
             if (c.kind === "gap") { row.appendChild(this.cell(geo.gapW, "center", geo.fs)); continue; }
             let cell: HTMLElement;
-            if (c.kind === "val") {
+            if (c.cat != null) {
+                // 1.2 column category: the same row in that category's model
+                cell = this.catCell(node, c, fmt, geo, isSum, isRatio, mat);
+                if (lineTop && c.kind !== "val") { cell.style.borderTop = `1px solid ${C.line}`; }
+            } else if (c.kind === "val") {
                 cell = this.cell(geo.valW, "right", geo.fs);
                 cell.style.cssText += "font-variant-numeric:tabular-nums;";
                 if (isSum) { cell.style.fontWeight = "600"; }
@@ -3459,6 +3958,39 @@ export class Visual implements IVisual {
             }
         }
         return row;
+    }
+
+    /**
+     * One cell of a column-category block (1.2): value, Δ bar or Δ% pin of the
+     * row as its category model computes it — same notation, same uniform Δ
+     * scale. A row the category does not carry stays empty. Sum-safe rounding
+     * is a property of the total block and is not applied here.
+     */
+    private catCell(node: PnlNode, c: ColSpec, fmt: Fmt, geo: TableGeo, isSum: boolean, isRatio: boolean,
+        mat: (d: number | null, p: number | null) => boolean): HTMLElement {
+        const w = c.kind === "val" || c.kind === "pct" ? geo.valW : c.kind === "bar" ? geo.barW : geo.pinW;
+        const n = this.catNode(c.cat!, node);
+        if (!n) { return this.cell(w, c.kind === "val" ? "right" : "left", geo.fs); }
+        if (c.kind === "val") {
+            const cell = this.cell(geo.valW, "right", geo.fs);
+            cell.style.cssText += "font-variant-numeric:tabular-nums;";
+            if (isSum) { cell.style.fontWeight = "600"; }
+            const bv = this.blockDisplay(n, c.block ?? "ytd", c.scen!);
+            cell.textContent = isRatio ? fmt.pct(bv) : fmt.val(bv);
+            return cell;
+        }
+        const v = this.blockVariance(n, c.block ?? "ytd", c.ref!, c.minuend!);
+        if (isRatio) {
+            const cell = this.cell(c.kind === "bar" ? geo.barW : geo.pinW, "center", geo.fs - 1);
+            if (c.kind === "bar" && v.delta != null) {
+                cell.style.color = v.good ? this.goodColor() : this.badColor();
+                cell.style.fontStyle = "italic";
+                cell.textContent = (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", "pp");
+            }
+            return cell;
+        }
+        const soft = mat(v.delta, v.deltaPct);
+        return c.kind === "bar" ? this.deltaBarCell(v, c, geo, fmt, soft) : this.deltaPinCell(v, c, geo, fmt, soft);
     }
 
     /** reference-scenario axis per IBCS: gray = PY, double line = PL, dashed = FC */
@@ -3673,6 +4205,16 @@ export class Visual implements IVisual {
         return cell;
     }
 
+    /**
+     * 1.2 bars view: the scenarios a value-bar column marks with triangles —
+     * every further bound scenario (PY · PL · FC) except the reference that
+     * already draws a bar. The FY block has its one pair (AC&FC vs PL FY).
+     */
+    private barTriScens(c: ColSpec): Scenario[] {
+        if (!this.settings.columnsCard.barTriangles.value || c.kind !== "vbar" || c.block === "fy") { return []; }
+        return (["py", "pl", "fc"] as Scenario[]).filter(sc => sc !== c.ref && this.has[sc]);
+    }
+
     /** structure view: horizontal AC (or FC) bar with the reference scenario behind it */
     private valueBarCell(node: PnlNode, c: ColSpec,
         geo: { rowH: number; fs: number; valLabelFs: number; vbarW: number; vAxisX: number; vPpu: number },
@@ -3707,16 +4249,55 @@ export class Visual implements IVisual {
             if (stroke) { rect.setAttribute("stroke", stroke); rect.setAttribute("stroke-width", "1"); }
             svg.appendChild(rect);
         };
-        // reference behind (IBCS comparison: subtrahend behind the minuend)
-        if (r != null) {
-            const refIsPlan = c.ref === "pl" || c.ref === "plfy";
-            bar(r, 1.5, h - 3, refIsPlan ? C.paper : C.py, refIsPlan ? C.ac : null);
+        const cc = this.settings.columnsCard;
+        const overlap = cc.barOverlap.value;
+        const tris = this.barTriScens(c).map(sc => ({ sc, v: displayValue(node, sc) })).filter(t => t.v != null);
+        // 1.2 triangle marks sit in a strip above the bars — the bars give up that strip
+        const triS = tris.length > 0 ? Math.max(3.5, Math.min(6, (h - 3) * 0.3)) : 0;
+        const top = 1.5 + (triS > 0 ? triS + 0.5 : 0);
+        const band = h - 1.5 - top;
+        const refIsPlan = c.ref === "pl" || c.ref === "plfy";
+        // the new modes draw the reference in full scenario notation (FC hatched);
+        // the default path keeps its 1.1 pixels
+        const notation = overlap || triS > 0;
+        const refFc = c.ref === "fc";
+        if (notation && refFc && r != null) { this.hatchPattern(svg, ns, pid + "r", C.ac); }
+        const refFill = refIsPlan ? C.paper : refFc ? `url(#${pid}r)` : C.py;
+        const refStroke = refIsPlan || refFc ? C.ac : null;
+        if (overlap) {
+            // 1.2 ChartKitchen notation: equal bars, OFFSET instead of nested —
+            // the reference behind (top), AC in front (bottom) at full strength
+            const bh = band * 0.78;
+            if (r != null) { bar(r, top, bh, refFill, refStroke); }
+            if (v != null) { bar(v, top + band - bh, bh, hatch ? `url(#${pid})` : C.ac, hatch ? C.ac : null); }
+        } else {
+            // reference behind (IBCS comparison: subtrahend behind the minuend)
+            if (r != null) {
+                if (notation) { bar(r, top, band, refFill, refStroke); }
+                else { bar(r, 1.5, h - 3, refIsPlan ? C.paper : C.py, refIsPlan ? C.ac : null); }
+            }
+            // minuend on top, narrower (AC solid / FC hatched)
+            if (v != null) {
+                const bh = (triS > 0 ? band : h - 3) * 0.58;
+                const y = triS > 0 ? top + (band - bh) / 2 : (h - bh) / 2;
+                bar(v, y, bh, hatch ? `url(#${pid})` : C.ac, hatch ? C.ac : null);
+            }
         }
-        // minuend on top, narrower (AC solid / FC hatched)
-        if (v != null) {
-            const bh = (h - 3) * 0.58;
-            const y = (h - bh) / 2;
-            bar(v, y, bh, hatch ? `url(#${pid})` : C.ac, hatch ? C.ac : null);
+        // 1.2 triangle marks: one per further scenario, tip down at its value (CK drawPyTriangle)
+        for (const t of tris) {
+            const x = geo.vAxisX + t.v! * geo.vPpu;
+            const poly = document.createElementNS(ns, "polygon");
+            poly.setAttribute("data-pnl", "bar-tri-" + t.sc);
+            poly.setAttribute("points", `${x - triS * 0.8},${top - triS} ${x + triS * 0.8},${top - triS} ${x},${top}`);
+            // shape notation, not colour alone: PY filled gray, PL hollow, FC hatched
+            let fill: string = C.py; let stroke: string = C.soft;
+            if (t.sc === "pl") { fill = C.paper; stroke = C.ac; }
+            else if (t.sc === "fc") { this.hatchPattern(svg, ns, pid + "t", C.ac); fill = `url(#${pid}t)`; stroke = C.ac; }
+            poly.setAttribute("fill", fill);
+            poly.setAttribute("stroke", stroke);
+            poly.setAttribute("stroke-width", t.sc === "py" ? "0.8" : "1");
+            poly.setAttribute("stroke-linejoin", "round");
+            svg.appendChild(poly);
         }
         // structure baseline
         const axis = document.createElementNS(ns, "line");
@@ -3724,10 +4305,11 @@ export class Visual implements IVisual {
         axis.setAttribute("y1", "0"); axis.setAttribute("y2", String(h));
         axis.setAttribute("stroke", C.ac); axis.setAttribute("stroke-width", "1");
         svg.appendChild(axis);
-        // AC label outside the longer of both bars, in growth direction
+        // AC label outside the longer of both bars (and the triangle marks), in growth direction
         const lv = v ?? r;
         if (lv != null) {
-            const extent = Math.max(Math.abs(v ?? 0), Math.abs(r ?? 0)) * geo.vPpu;
+            const extent = Math.max(Math.abs(v ?? 0), Math.abs(r ?? 0),
+                ...tris.filter(t => (t.v! >= 0) === (lv >= 0)).map(t => Math.abs(t.v!) + triS * 0.8 / (geo.vPpu || 1))) * geo.vPpu;
             const txt = document.createElementNS(ns, "text");
             const tx = lv >= 0 ? geo.vAxisX + extent + 3 : geo.vAxisX - extent - 3;
             txt.setAttribute("x", String(tx));
@@ -6316,9 +6898,12 @@ export class Visual implements IVisual {
         this.applyMegaTemplate(tpl);
     }
 
-    private applyMegaTemplate(tpl: string): void {
+    private applyMegaTemplate(tpl: string, picked = false): void {
         const p = MEGA_PRESETS[tpl];
         const cols: Record<string, boolean | string> = {
+            // toolbar pick (1.2): the dropdown itself travels in the same write
+            // and under the same pending guard as the switches
+            ...(picked ? { template: tpl } : {}),
             minuend: p.min.toLowerCase(),
             showPY: p.showPY, showPL: p.showPL, showMinuend: p.showMin, valueCascade: p.valueCascade,
             dPyAbs: p.dPyAbs, dPyBar: p.dPyBar, dPyWaterfall: p.dPyWf, dPyPct: p.dPyPct, dPyPin: p.dPyPin,
@@ -7170,6 +7755,11 @@ export class Visual implements IVisual {
             const val = t.showPY || t.showPL;
             out = { ...out, d: { PY: py ? { ...uni } : { ...off }, PL: pl ? { ...uni } : { ...off } }, showPY: val && py, showPL: val && pl };
         }
+        // 1.2 the reader's value columns (toolbar group "Value columns") come last
+        const mv = ui.megaVals;
+        if (mv) {
+            out = { ...out, showMin: !!mv.min, showPY: !!mv.py && this.has.py, showPL: !!mv.pl && this.has.pl };
+        }
         return out;
     }
 
@@ -7214,6 +7804,37 @@ export class Visual implements IVisual {
         if (this.has.py && this.has.pl) { rb.push(refBtn("both", this.tr("UI_TbRefBoth"))); }
         if (rb.length > 0) { groups.push(this.tbGroup(this.tr("UI_TbRefView"), rb)); }
         return groups;
+    }
+
+    /**
+     * 1.2 toolbar group "Value columns" of the mega table: the value column of
+     * the analysed scenario, PY and PL as independent switches on top of the
+     * author's switches (and of the reader's reference view). A click that
+     * changes nothing — or would leave the mega table without any column, which
+     * would drop back to the classic table — is locked.
+     */
+    private megaValuesGroup(): HTMLElement | null {
+        const ui = this.ui!;
+        const base = this.megaPaneToggles();
+        const view = this.megaReaderView(base, ui);
+        const cur = this.megaViewSig(view);
+        const shown: MegaVals = { min: view.showMin, py: view.showPY, pl: view.showPL };
+        const flip = (u: UiState, k: keyof MegaVals): void => { u.megaVals = { ...shown, [k]: !shown[k] }; };
+        const live = (k: keyof MegaVals): boolean => {
+            const trial: UiState = { ...ui };
+            flip(trial, k);
+            const t = this.megaReaderView(base, trial);
+            return megaActive(t) && this.megaViewSig(t) !== cur;
+        };
+        const locked = this.tr("UI_TbValNoEffect");
+        const btn = (k: keyof MegaVals, label: string): HTMLElement =>
+            this.tbBtn(this.relabel(label), shown[k], () => flip(ui, k), undefined, live(k) ? undefined : locked);
+        const out: HTMLElement[] = [btn("min", view.min)];
+        if (this.has.py) { out.push(btn("py", "PY")); }
+        if (this.has.pl && view.min !== "PL") { out.push(btn("pl", "PL")); }
+        const g = this.tbGroup(this.tr("UI_TbValues"), out);
+        g.setAttribute("data-pnl", "tb-values");
+        return g;
     }
 
     // ---- title block: auto message, footers ----

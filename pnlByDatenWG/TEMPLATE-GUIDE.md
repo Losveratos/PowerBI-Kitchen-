@@ -1,6 +1,6 @@
 # IBCS-Templates mit „P&L Statement byDatenWG" nachstellen · Kurzanleitung
 
-Stand: **Visual 1.1.0.0** (17.10.2026). Für die lokale Arbeit in Power BI Desktop —
+Stand: **Visual 1.2.0.0** (17.10.2026). Für die lokale Arbeit in Power BI Desktop —
 alles Nötige, um die offiziellen IBCS-Templates (T01A–T04E, 12A, 12G, 12H)
 nachzubauen. Referenzbilder liegen in `prototype/refs/`, der interaktive
 HTML-Prototyp in `prototype/megatable.html` (im Browser öffnen, Referenz-Dropdown
@@ -31,8 +31,17 @@ die Vorzeichenlogik läuft über die Dimension — nichts im Visual „verbiegen
 
 ## 3 · Template wählen — eine Einstellung
 
-Formatbereich → Karte **Spalten** → Gruppe **Mega-Table** → Dropdown
-**Template**. Jedes Template ist nur ein Preset: Es setzt alle Schalter
+Zwei Wege, dasselbe Ergebnis:
+
+- **Toolbar (1.2, am schnellsten):** Im Bearbeitungsmodus steht ganz links in
+  der Toolbar das Dropdown **Template** (nur Ansicht *Tabelle*). Auswählen,
+  fertig — es schreibt dieselben Einstellungen wie der Formatbereich. Leser
+  sehen das Dropdown nie. Abschalten: Darstellung & Toolbar →
+  „Template-Auswahl im Bearbeitungsmodus".
+- **Formatbereich:** Karte **Spalten & Mega-Table** → erste Gruppe
+  **Mega-Table** → Dropdown **Template** (seit 1.2 die erste Gruppe der Karte).
+
+Jedes Template ist nur ein Preset: Es setzt alle Schalter
 (Spalten, Balken/Pins/Wasserfall, Blöcke, Dezimalen) und danach kannst du
 **jedes Element einzeln** ein-/ausblenden. Übersicht:
 
@@ -55,7 +64,7 @@ FC schraffiert · PL getönt/umrandet), Referenz bestimmt die Achse
 **Analysiertes Szenario**; für Leser optional als Toolbar-Buttons
 (Karte Toolbar → **Szenario-Gruppe**, Standard aus).
 
-## 4 · Die wichtigsten Einstellungen (1.1)
+## 4 · Die wichtigsten Einstellungen (1.1 / 1.2)
 
 - **Spalten** einzeln: PY/PL/AC(FC) · je Referenz getrennt Δ-Zahl, Δ-Balken,
   Δ-Wasserfall, Δ%-Zahl, Δ%-Pins · Wert-Kaskade · % vom Umsatz · Margen-Zeilen
@@ -70,6 +79,12 @@ FC schraffiert · PL getönt/umrandet), Referenz bestimmt die Achse
   gleiche Skala über mehrere Instanzen, auch neben ChartKitchen
 - **Farben:** Teal = Standard (farbfehlsicher), Presets ibcs-Grün und Blau/Orange;
   Dark Mode Auto/Hell/Dunkel
+- **Wertspalten für Leser (1.2):** Darstellung & Toolbar → „Gruppe: Wertspalten"
+  an → im Mega-Table schalten Leser analysiertes Szenario · PY · PL einzeln zu
+  (die letzte Spalte bleibt gesperrt). In der klassischen Tabelle: AC · PY · PL ·
+  FC · Δ frei kombinierbar, Preset „Eigene Auswahl"
+- **Leerzustand (1.2):** Leer-Zustand → Modus *Demo* · *Feld-Intro* · *Eigene
+  Nachricht*; im Bearbeitungsmodus per Knopf „Felder erklären" / „Demo ansehen"
 
 ## 5 · Bekannte, bewusste Abweichungen von den Referenzblättern
 
@@ -95,7 +110,12 @@ FC schraffiert · PL getönt/umrandet), Referenz bestimmt die Achse
 - **Schwellen färben nicht:** Schwellen gelten in **Anzeige-Einheiten**
   (nach k/m-Skalierung).
 - **Gleiches Template erneut wählen** wendet es nicht neu an — kurz anderes
-  Template und zurück.
+  Template und zurück (auch im Toolbar-Dropdown).
+- **Kein Template-Dropdown in der Toolbar:** nur im Bearbeitungsmodus und in der
+  Ansicht *Tabelle*; Schalter „Template-Auswahl im Bearbeitungsmodus" prüfen.
+- **Spalten-Kategorie gebunden, aber keine Blöcke:** Der Mega-Table ignoriert
+  sie (Hinweis unter der Tabelle im Bearbeitungsmodus). Sie wirkt in der
+  klassischen Tabelle, also Template „Aus".
 - **Export/PDF:** druckt ohne Toolbar und voll aufgeklappt (Schalter
   „Export klappt alles auf").
 
@@ -104,5 +124,5 @@ FC schraffiert · PL getönt/umrandet), Referenz bestimmt die Achse
 - `SPEC-MEGATABLE.md` — Spezifikation, Maße, Schalter-Liste, Umsetzungsstand
 - `AGENT-GUIDE.md` — Property-Referenz, persistierte Zustände, Fallen (für Agenten/Skills)
 - `prototype/megatable.html` + `prototype/refs/` — Soll-Bilder und 1:1-Vergleich
-- `CHANGELOG.md` — was 1.0 → 1.0.1 → 1.1 jeweils kam
+- `CHANGELOG.md` — was 1.0 → 1.0.1 → 1.1 → 1.2 jeweils kam
 - Skill `.claude/skills/pnl-report` — baut GuV-Seiten in PBIP-Projekten auf

@@ -2,7 +2,7 @@
 
 IBCS-inspiriertes GuV-/P&L-Custom-Visual für Power BI — eigenständiges
 Schwester-Visual von [ChartKitchen byDatenWG](../ibcsInspiredChartDeck/) und der
-[IBCS KPI Card](../ibcsKpiCard/). **Version 1.1.0.0**:
+[IBCS KPI Card](../ibcsKpiCard/). **Version 1.2.0.0**:
 Tabelle mit **Mega-Table** (IBCS-Templates T01–T04, 12A, 12G und 12H), Struktur-Bars,
 Zeilen-Waterfall und **Werttreiberbaum (DuPont)** mit Kachel-Zoom; Selektion,
 Drillthrough und natives Kontextmenü; **vier Sprachen** (de · en · es · ja),
@@ -37,7 +37,8 @@ Toolbar-Zustände sind bookmark-fähig persistiert.
 | Mega-Table | IBCS-Tabellen T01A/B, T02A–F, T03A/B, T04A–E, 12A, 12G und 12H als Zuschaltung der Tabellen-Ansicht (Spalten & Mega-Table → Template): Wert- und Δ-Spalten frei kombinierbar, Δ-Balken, Δ%-Pins, integrierter Δ-Wasserfall, Wert-Kaskaden (12G: YTD + Restjahr in einem Balken), Planrechnung mit getönten Δ (12H), Blöcke Monat \| YTD \| FY, Schwellen mit Fußzeile, ab 150 Zeilen virtualisiert — siehe [`SPEC-MEGATABLE.md`](SPEC-MEGATABLE.md) |
 | Finance | Wie ChartKitchen: Tooltips, Σ-treue Rundung, Klammern statt Minus, Hausbegriffe (Ist/VJ/Budget), Wesentlichkeit, Zeilen hervorheben, Skalen-Sync über Visuals (`numbers.fixedMax`/`fixedVarMax`), Farb-Preset Blau/Orange |
 | Sprachen | Deutsch, Englisch, Spanisch, Japanisch — Formatmenü, Feldrollen, Toolbar, Tooltips, Fußzeilen, Fehlermeldungen und Demo (`stringResources/<locale>/resources.resjson`) |
-| Smart Start | Ohne Felder zeigt das Visual im Bearbeitungsmodus eine Demo-GuV mit Hinweis, welche Rollen fehlen; nie im Lesemodus oder Export |
+| Smart Start | Ohne Felder zeigt das Visual im Bearbeitungsmodus eine Demo-GuV mit Hinweis, welche Rollen fehlen, oder (1.2, Leer-Zustand → Modus) ein **Feld-Intro**: welches Feld wohin, minimal und im Ausbau, mit ✓ für gebundene Rollen. Umschalten per Knopf direkt im Leerzustand. Nie im Lesemodus oder Export |
+| Ease of Use (1.2) | **Wertspalten frei kombinieren**: Preset „Eigene Auswahl" bzw. Toolbar-Gruppe „Wertspalten" mit AC · PY · PL · FC · Δ als einzelne Schalter (auch im Mega-Table). **Template-Auswahl in der Toolbar** im Bearbeitungsmodus, Template-Gruppe zuerst im Formatbereich. **Spalten-Kategorie**: Spaltensatz je Segment/Quartal wiederholt, Gesamt-Block danach. **Balken-Ansicht** wie ChartKitchen: Szenarien überlappt, Dreieck-Marker. Feldliste in gewohnter Reihenfolge |
 | Dark Mode | Stil → Erscheinungsbild: Auto erkennt dunkle Berichtsthemen (wie ChartKitchen), Hell/Dunkel erzwingen |
 
 IBCS-Notation: AC solide `#404040`, PY grau, PL weiß mit Rahmen, FC schraffiert;
@@ -78,6 +79,10 @@ Kontendimension (eine Zeile pro Konto/Zeile der GuV):
 | DisplayInvert | Anzeige invertieren | Kosten positiv anzeigen trotz negativem Rechenwert |
 | VarianceInvert | Abweichungsfarbe drehen | Kosten unter Plan = grün |
 
+Optional (1.2): **Spalten-Kategorie** — ein Feld wie Segment oder Quartal; die
+klassische Tabelle wiederholt ihren Spaltensatz je Wert (max. 24) und zeigt den
+Gesamt-Block danach. Mega-Table, Balken und Waterfall ignorieren das Feld.
+
 Measures: **AC** (Pflicht), PY, PL, FC, optional FC Gesamtjahr / PL Gesamtjahr
 (FY-Ausblick, 12G) und der Text „Filter-Info" für die Fußzeile — Zeitintelligenz, FX und RLS bleiben im
 Modell (das Visual verrechnet ausschließlich die gelieferten, ggf.
@@ -93,6 +98,8 @@ npm run test:engine   # Unit-Tests des Rechenkerns (Hierarchie, Formeln, Vorzeic
 npm run test:mega     # Mega-Table: Layout-Unit-Tests, Render m1–m31, Template-/Echo-Guard
 npm run test:render   # Headless-Render aller Testfälle -> test/render.png
 npm run test:tree     # Interaktionstest: Baum (Chevrons, Drill, ⌖) + Selektion/Kontextmenü
+npm run test:toolbar  # Toolbar-Knöpfe in allen Ansichten, Echo-Guard, Wertspalten-Sweep, Template-Auswahl
+npm run test:ease     # 1.2: Pane-/Rollen-Reihenfolge, Leer-Zustand-Modi, Balken-Notation, Spalten-Kategorie
 npm run test:start    # Smart Start, Dark Mode, Formatmenü-Gates, Sprachen im Bild (test/i18n-*.png)
 npm run test:finance  # Finance-Features F1–F11 (Tooltips, Σ-treue Rundung, Klammern, Hausbegriffe …)
 npm run test:perf     # 5 000 Konten klassisch (Fensterung, Budgets)
@@ -115,7 +122,10 @@ erzeugt: `node test/gen-demo.js`.
 
 - 1.1 (erledigt): Mega-Table Phase 5 (12G, 12H, Headline-Slot), Virtualisierung,
   Finance-Features aus ChartKitchen, dunkler Hover-Tooltip, Tastatur
-- Später: gemischte Einheiten (F8), Exception-Reporting mit Sammelzeile,
+- 1.2 (erledigt): Ease of Use — freie Wertspalten, Template in der Toolbar,
+  Feld-Intro im Leerzustand, Rollen-Reihenfolge, Balken-Notation wie
+  ChartKitchen, Spalten-Kategorie (klassische Tabelle)
+- Später: Spalten-Kategorie im Mega-Table, gemischte Einheiten (F8), Exception-Reporting mit Sammelzeile,
   AppSource-Zertifizierung, Top-N
 
 > „IBCS" ist eine eingetragene Marke der IBCS Association / HICHERT+FAISST GmbH.
