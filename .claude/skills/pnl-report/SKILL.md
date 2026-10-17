@@ -1,7 +1,7 @@
 ---
 name: pnl-report
 description: >
-  Baut mit dem Power-BI-Custom-Visual „P&L Statement byDatenWG" (Beta) eine
+  Baut mit dem Power-BI-Custom-Visual „P&L Statement byDatenWG" eine
   GuV-/P&L-Seite in einem bestehenden Power-BI-Projekt auf: liest das
   Semantikmodell, klärt kurz, ob eine reine Hierarchie oder die volle GuV
   gebaut wird, schlägt das Feld-Mapping für alle Datenrollen vor, repliziert

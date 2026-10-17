@@ -21,8 +21,29 @@
 <div class="case"><h4>p4 · Preset ΔPY%·ΔPL% · IBCS-Grün klassisch · de-DE</h4><div class="stage" id="p4" style="width:900px;height:760px"></div></div>
 <div class="case"><h4>p5 · Landing Page</h4><div class="stage" id="p5" style="width:700px;height:200px"></div></div>
 <div class="case"><h4>p6 · Sparkline offen (12M) · Toolbar aus</h4><div class="stage" id="p6" style="width:1200px;height:820px"></div></div>
+<div class="case"><h4>m1 · Mega-Table T03A (Preset-Dropdown) · GuV PY | PL | AC | ΔPY ΔPY% | ΔPL ΔPL% · Margen-Zeile %p</h4><div class="stage" id="m1" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m2 · Mega-Table T03B · Minuend FC (schraffierte Kennung)</h4><div class="stage" id="m2" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m3 · Mega-Table T01A · Regionen Monat | _YTD · Schwellen + Fußzeile · ohne Zwischensummen</h4><div class="stage" id="m3" style="width:1320px;height:720px"></div></div>
+<div class="case"><h4>m4 · Mega-Table T01B · Zwischensummen-Blöcke mit Leerzeile</h4><div class="stage" id="m4" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m5 · Mega-Table T02A · AC vs PL · ΔPL-Balken + ΔPL%-Pins · zwei Maßstäbe</h4><div class="stage" id="m5" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m6 · Mega-Table T02E · FC vs PY · Balken schraffiert · Sortierung Δ↓ (_YTD)</h4><div class="stage" id="m6" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m7 · Mega-Table T02F · FC vs PL · Sortierung Δ↓ (_YTD)</h4><div class="stage" id="m7" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m8 · Mega-Table AC vs PY (Einzel-Schalter, kein Preset) · ΔPY-Balken + Pins · Sortierung AC↓ (Monat) · IBCS-Grün</h4><div class="stage" id="m8" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m9 · Mega-Table T03A auf Pharma-Demo · Monat | _YTD aus der Perioden-Rolle</h4><div class="stage" id="m9" style="width:1560px;height:900px"></div></div>
+<div class="case"><h4>m10 · Mega-Table T04A · GuV ΔPL-Balken + Pins (Phase 2)</h4><div class="stage" id="m10" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m11 · Mega-Table T04B · AC vs PL · integrierter ΔPL-Wasserfall + ΔPL%-Pins (Phase 3)</h4><div class="stage" id="m11" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m12 · Mega-Table T04C · AC vs PY · ΔPY-Wasserfall (graue Achse) + Pins</h4><div class="stage" id="m12" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m13 · Mega-Table T04D · FC vs PL · Wasserfall schraffiert, Doppelachse</h4><div class="stage" id="m13" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m14 · Mega-Table T04E · FC vs PY · Wasserfall schraffiert, graue Achse</h4><div class="stage" id="m14" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m15 · Mega-Table 12A · PY- und AC-Wert-Kaskade · ΔPY-Balken + Pins (Ausreißer-Pfeile)</h4><div class="stage" id="m15" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m16 · Mega-Table Einzel-Schalter · Regionen Monat | _YTD · ΔPL-Wasserfall + ΔPL-Balken + Pins · Zwischensummen spannen · IBCS-Grün</h4><div class="stage" id="m16" style="width:1600px;height:800px"></div></div>
+<div class="case"><h4>p12 · Smart Start (1.0) · Demo-GuV ohne Felder · Banner „Demo“ · de-DE</h4><div class="stage" id="p12" style="width:1200px;height:700px"></div></div>
+<div class="case"><h4>p13 · Dark Mode (1.0) · Tabelle · style.appearance = dark</h4><div class="stage" id="p13" style="width:1560px;height:700px"></div></div>
+<div class="case"><h4>p14 · Dark Mode (1.0) · Mega-Table T04B · Werttreiberbaum folgt in test:start</h4><div class="stage" id="p14" style="width:1320px;height:700px"></div></div>
+<script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
 <script src="demo-data.js"></script>
+<script src="mega-data.js"></script>
 <script>
 const Visual = PnlByDatenWG.Visual;
 
@@ -67,6 +88,13 @@ function makeSelectionMocks() {
   };
 }
 
+function locMgr(locale) {
+  const L = window.PNL_LOCALES || {};
+  const own = L[locale] || {};
+  const en = L["en-US"] || {};
+  return { getDisplayName: (k) => (own[k] != null ? own[k] : en[k] != null ? en[k] : k) };
+}
+
 function makeHost(locale, opts) {
   const o = opts || {};
   const host = {
@@ -74,7 +102,9 @@ function makeHost(locale, opts) {
     colorPalette: { isHighContrast: false },
     eventService: { renderingStarted(){}, renderingFinished(){}, renderingFailed(o,e){ console.error("renderfail", e); } },
     tooltipService: { enabled: () => false, show(){}, move(){}, hide(){} },
-    createLocalizationManager: () => ({ getDisplayName: () => "" }),
+    // the real resjson strings of the locale, en-US for unknown locales/keys —
+    // what the Power BI host does (test/build.js writes locales.js)
+    createLocalizationManager: () => locMgr(locale || "en-US"),
     persistProperties: () => {},
   };
   // "legacy" reproduces a host that offers no selection manager at all
@@ -193,6 +223,93 @@ run("p4", {
 
 // p5 — landing page
 run("p5", null, null, true);
+
+// ---- mega table (IBCS templates) -------------------------------------------
+// data view from engine LevelInputRows of any shape: three level columns, the
+// four measures, optional period
+function dvRows(rows, objects) {
+  const col = (role, name, vals) => ({ source: { roles: { [role]: true }, displayName: name, index: 0 }, values: vals });
+  const L = (i) => rows.map(r => r.levels[i] ?? null);
+  const categories = [
+    col("levels", "L1", L(0)), col("levels", "L2", L(1)), col("levels", "L3", L(2)),
+    col("account", "AccountID", rows.map(r => r.account)),
+    col("sortOrder", "Sort", rows.map(r => r.sort)),
+    col("rowType", "RowType", rows.map(r => r.rowType)),
+    col("formulaDef", "Formula", rows.map(r => r.formulaDef)),
+    col("signConvention", "Sign", rows.map(r => r.sign)),
+    col("displayInvert", "DispInv", rows.map(r => r.displayInvert)),
+    col("varianceInvert", "VarInv", rows.map(r => r.varianceInvert)),
+  ];
+  if (rows.some(r => r.month != null)) { categories.push(col("period", "Monat", rows.map(r => r.month))); }
+  const values = [
+    col("ac", "AC", rows.map(r => r.values.ac ?? null)),
+    col("py", "PY", rows.map(r => r.values.py ?? null)),
+    col("pl", "PL", rows.map(r => r.values.pl ?? null)),
+    col("fc", "FC", rows.map(r => r.values.fc ?? null)),
+  ];
+  return { categorical: { categories, values }, metadata: { objects: objects || {} } };
+}
+function runRows(id, rows, objects, locale) {
+  const el = document.getElementById(id);
+  const host = makeHost(locale);
+  host.persistProperties = (p) => { (window.__persist = window.__persist || []).push({ id, p }); };
+  const v = new Visual({ element: el, host });
+  v.update({ dataViews: [dvRows(rows, objects)], viewport: { width: el.clientWidth, height: el.clientHeight }, type: 2 });
+  (window.__visuals = window.__visuals || {})[id] = v;
+}
+const MT = { unitLine: "Pharmaceutical Inc.", measureLine: "Profit after tax in kEUR" };
+const REG = { hierarchy: { defaultLevel: 0 }, toolbar: { show: false } };
+// m1 — T03A picked in the template dropdown (the visual writes the switches)
+runRows("m1", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T03A" } });
+// m2 — T03B: FC minuend
+runRows("m2", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T03B" } });
+// m3 / m4 — T01A / T01B: regions, month | _YTD, thresholds + footer
+runRows("m3", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01A" } });
+runRows("m4", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01B" } });
+// m5..m7 — T02A / T02E / T02F: bars + pins for every minuend × subtrahend pair
+runRows("m5", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02A" } });
+runRows("m6", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02E" } });
+runRows("m7", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02F" } });
+// m8 — AC vs PY from single switches (no template), sorted by AC (month), IBCS green
+runRows("m8", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  style: { colorMode: "ibcs" },
+  numbers: { decimals: 0, pctDecimals: 1 },
+  columns: { showPY: true, showMinuend: true, dPyBar: true, dPyPin: true, secondBlock: true,
+    sort: "min", sortBlock: "period" } });
+// m9 — T03A on the pharma demo (month-grain data) with month | _YTD blocks
+run("m9", { titleBlock: TITLE, hierarchy: { defaultLevel: 2 },
+  columns: { template: "T03A", templateApplied: "T03A", showPY: true, showPL: true, showMinuend: true,
+    dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true, secondBlock: true },
+  numbers: { decimals: 1, pctDecimals: 0 } });
+// m10 — T04A: statement with ΔPL bars + pins
+runRows("m10", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T04A" } });
+
+// m11..m14 — T04B–E: the integrated Δ waterfall for every minuend × subtrahend pair
+const ST = (set, tpl) => [MEGA_DEMO.statement(set), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: tpl } }];
+runRows("m11", ...ST("T04", "T04B"));
+runRows("m12", ...ST("T04", "T04C"));
+runRows("m13", ...ST("T04", "T04D"));
+runRows("m14", ...ST("T04", "T04E"));
+// m15 — 12A: PY and AC value cascades next to ΔPY bars + pins
+runRows("m15", MEGA_DEMO.statement("12A"), { titleBlock: { unitLine: "Software and Service Group",
+  measureLine: "Profit and loss statement in kEUR", periodLine: "AC 2025, PY and ΔPY" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "12A" } });
+// m16 — single switches on structure data: Δ waterfall next to the Δ bars and pins,
+// subtotal blocks span their regions, World anchors; two blocks, IBCS green
+runRows("m16", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  style: { colorMode: "ibcs" },
+  numbers: { decimals: 0, pctDecimals: 1 },
+  columns: { showPL: true, showMinuend: true, dPlBar: true, dPlWaterfall: true, dPlPin: true, secondBlock: true } });
+
+// p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
+run("p12", null, "de-DE", true);
+// p13 / p14 — dark mode
+run("p13", { titleBlock: TITLE, hierarchy: { defaultLevel: 2 }, style: { appearance: "dark" } });
+runRows("p14", ...ST("T04", "T04B").map((x, i) => i === 1 ? { ...x, style: { appearance: "dark" } } : x));
 
 // p6 — sparkline open on first account, toolbar hidden
 run("p6", {

@@ -848,14 +848,66 @@ export function formulaOperands(
 // ---- variances
 
 export function variance(node: PnlNode, ref: Scenario, minuend: Scenario = "ac"): Variance {
-    const ac = node.computed[minuend];
-    const rv = node.computed[ref];
-    if (ac == null || rv == null) { return { delta: null, deltaPct: null, good: true }; }
-    const delta = ac - rv;
+    return varianceOf(node.computed[minuend], node.computed[ref], node.row.varianceInvert);
+}
+
+/**
+ * The variance rule on two raw (calculation-signed) values — the single
+ * definition behind variance() and every period block (month, YTD window) that
+ * reads its values from the monthly series instead of node.computed.
+ */
+export function varianceOf(a: number | null, rv: number | null, varianceInvert: boolean): Variance {
+    if (a == null || rv == null) { return { delta: null, deltaPct: null, good: true }; }
+    const delta = a - rv;
     const deltaPct = rv !== 0 ? delta / Math.abs(rv) : null;
     let good = delta >= 0;
-    if (node.row.varianceInvert) { good = !good; }
+    if (varianceInvert) { good = !good; }
     return { delta, deltaPct, good };
+}
+
+/**
+ * Variance in DISPLAY orientation, as an IBCS statement table prints it
+ * (templates T01–T04, see SPEC-MEGATABLE.md):
+ *
+ *  - value rows: Δ and Δ% follow the shown values — a cost row shown positive
+ *    (DisplayInvert) that grows prints "+37.3 / +7%", in red. `good` keeps the
+ *    engine rule (calculation sign + VarianceInvert); `impact` / `impactPct` are
+ *    Δ and Δ% turned into the "good" orientation (≥ 0 ⇔ favourable) — the value
+ *    a "Δ in red if < threshold" test compares, so cost logic needs no extra flag;
+ *  - margin / KPI rows (rowType kpi): Δ in percentage points (`pp`, ×100),
+ *    Δ% as the relative change a / b − 1 of the two ratios.
+ *
+ * `a` / `rv` are raw values of the minuend / reference (node.computed or a
+ * period window of the series). Null when either side is missing.
+ */
+export interface DisplayVariance {
+    d: number;
+    p: number | null;
+    good: boolean;
+    impact: number;
+    impactPct: number | null;
+    pp: boolean;
+}
+
+export function displayVariance(row: InputRow, a: number | null, rv: number | null): DisplayVariance | null {
+    const v = varianceOf(a, rv, row.varianceInvert);
+    if (v.delta == null || a == null || rv == null) { return null; }
+    if (row.rowType === "kpi") {
+        const d = v.delta * 100;
+        const p = rv !== 0 ? a / rv - 1 : null;
+        const flip = row.varianceInvert ? -1 : 1;
+        return { d, p, good: v.good, impact: d * flip, impactPct: p == null ? null : p * flip, pp: true };
+    }
+    const disp = row.displayInvert ? -1 : 1;
+    const eff = row.varianceInvert ? -1 : 1;
+    return {
+        d: v.delta * disp,
+        p: v.deltaPct == null ? null : v.deltaPct * disp,
+        good: v.good,
+        impact: v.delta * eff,
+        impactPct: v.deltaPct == null ? null : v.deltaPct * eff,
+        pp: false,
+    };
 }
 
 /** Value as shown in the value columns (DisplayInvert flips the sign for cost rows). */

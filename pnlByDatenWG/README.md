@@ -2,11 +2,12 @@
 
 IBCS-inspiriertes GuV-/P&L-Custom-Visual für Power BI — eigenständiges
 Schwester-Visual von [ChartKitchen byDatenWG](../ibcsInspiredChartDeck/) und der
-[IBCS KPI Card](../ibcsKpiCard/). Umsetzung des Anforderungsdokuments
-„Best-in-Class P&L Standalone Visual" — Stand v0.3: volle Parität zum
-Konzept-Demo (In-Visual-Toolbar, YTD- + FY-Outlook-Block, Waterfall-Ansicht,
-Monats-Sparklines, Kommentar-Fußnoten, %-vom-Umsatz, Teal-Deviation);
-seit v0.6 zusätzlich der **Werttreiberbaum (DuPont)** aus dem Formel-Graphen.
+[IBCS KPI Card](../ibcsKpiCard/). **Version 1.0.0.0** — raus aus der Beta:
+Tabelle mit **Mega-Table** (IBCS-Templates T01–T04 und 12A), Struktur-Bars,
+Zeilen-Waterfall und **Werttreiberbaum (DuPont)** mit Kachel-Zoom; Selektion,
+Drillthrough und natives Kontextmenü; **vier Sprachen** (de · en · es · ja),
+**Smart Start** (Demo-GuV beim Hineinziehen) und **Dark Mode** (Auto · Hell ·
+Dunkel) in der Handschrift von ChartKitchen.
 **Sternschema (L1..Ln) ist der primäre Hierarchie-Modus** — Parent-Child
 bleibt als Alternative voll unterstützt. Die Toolbar macht das Visual für
 Report-Ersteller wie -Leser ohne Format-Pane bedienbar; alle
@@ -18,7 +19,7 @@ Toolbar-Zustände sind bookmark-fähig persistiert.
 > Web-Fassung: [`pnl-schnellstart.html`](../pnl-schnellstart.html) (DE) /
 > [`pnl-schnellstart_en.html`](../pnl-schnellstart_en.html) (EN).
 
-## Was es kann (MVP)
+## Was es kann
 
 | Anf. | Feature |
 |------|---------|
@@ -30,11 +31,16 @@ Toolbar-Zustände sind bookmark-fähig persistiert.
 | F9 | Skalierung Auto/k/m, Dezimalstellen, 3-zeiliger IBCS-Titelblock mit optionaler Message-Zeile |
 | F11 | Selektion & Cross-Filtering: Linksklick auf eine Wertspalte (bzw. den Kachel-Kopf) setzt die Power-BI-Selektion der Zeile — inkl. aller Quellzeilen eines Kontos; Subtotals und Formelzeilen selektieren die Blätter darunter |
 | F12 | Natives Kontextmenü per Rechtsklick auf jede Zeile und jede Karte — Power BI hängt die **Drillthrough-Ziele** der Seite selbst ein; in der Kachel-Ansicht erledigt der Knopf „↗ Drill“ Selektion und Menü in einem Griff. Abschaltbar über Stil → „Selektion & Kontextmenü aktiv“ |
+| Mega-Table | IBCS-Tabellen T01A/B, T02A–F, T03A/B, T04A–E und 12A als Zuschaltung der Tabellen-Ansicht (Spalten & Mega-Table → Template): Wert- und Δ-Spalten frei kombinierbar, Δ-Balken, Δ%-Pins, integrierter Δ-Wasserfall, Wert-Kaskaden, Monat \| _YTD, Schwellen mit Fußzeile — siehe [`SPEC-MEGATABLE.md`](SPEC-MEGATABLE.md) |
+| Sprachen | Deutsch, Englisch, Spanisch, Japanisch — Formatmenü, Feldrollen, Toolbar, Tooltips, Fußzeilen, Fehlermeldungen und Demo (`stringResources/<locale>/resources.resjson`) |
+| Smart Start | Ohne Felder zeigt das Visual im Bearbeitungsmodus eine Demo-GuV mit Hinweis, welche Rollen fehlen; nie im Lesemodus oder Export |
+| Dark Mode | Stil → Erscheinungsbild: Auto erkennt dunkle Berichtsthemen (wie ChartKitchen), Hell/Dunkel erzwingen |
 
 IBCS-Notation: AC solide `#404040`, PY grau, PL weiß mit Rahmen, FC schraffiert;
-Abweichungen grün `#8CB400` / rot `#FF2600`, Labels außerhalb mit explizitem `+`;
+Abweichungen Teal `#0E8585` / Rot `#E02B1D` (dokumentierte Abweichung für
+Farbfehlsicht, IBCS-Grün `#8CB400` / `#FF2600` umschaltbar), Labels außerhalb mit explizitem `+`;
 eine identische Skala je Δ-Spalte über alle Zeilen; %-Zeilen (Margen) ohne
-Δ-Balken-Skalenbruch (Δ in Prozentpunkten); weißer Hintergrund, keine Gridlines.
+Δ-Balken-Skalenbruch (Δ in Prozentpunkten); heller Hintergrund (im Dark Mode dunkel), keine Gridlines.
 
 ## Datenvertrag
 
@@ -75,24 +81,34 @@ RLS-beschnittenen Daten).
 
 ```bash
 npm install
+npm test              # alles: Sprachdateien, Engine, Mega-Table, Wasserfall, Render, Baum, Start/Dark, Performance
+npm run test:i18n     # Sprachdatei-Parität (4 Locales, Keys aus Code + Formatmenü + capabilities)
 npm run test:engine   # Unit-Tests des Rechenkerns (Hierarchie, Formeln, Vorzeichen)
+npm run test:mega     # Mega-Table: Layout-Unit-Tests, Render m1–m16, Template-/Echo-Guard
 npm run test:render   # Headless-Render aller Testfälle -> test/render.png
 npm run test:tree     # Interaktionstest: Baum (Chevrons, Drill, ⌖) + Selektion/Kontextmenü
+npm run test:start    # Smart Start, Dark Mode, Formatmenü-Gates, Sprachen im Bild (test/i18n-*.png)
 npm run lint
-npm run package       # baut dist/*.pbiviz
+npm run package       # baut dist/*.pbiviz (Paket nicht einchecken)
 ```
 
 Der Rechenkern (`src/engine.ts`) ist bewusst frei von Power-BI-Abhängigkeiten
 und isoliert getestet (`test/engine-test.js`) — Reconciliation-Fehler wären
 Vertrauens-Killer (Anforderungsdok. Kap. 10).
 
-## Roadmap (aus dem Anforderungsdokument)
+Sprachen: neue oder geänderte Texte immer in **allen vier**
+`stringResources/<locale>/resources.resjson` pflegen; In-Visual-Texte zusätzlich
+in der englischen Rückfall-Tabelle `src/i18n.ts` — `npm run test:i18n` meldet
+jede Abweichung. Die Demo-GuV (`src/demo.ts`) wird aus `test/demo-data.js`
+erzeugt: `node test/gen-demo.js`.
 
-- v1.0: Spalten-Presets (F6), mehrere Referenzen parallel voll (F5), gemischte
-  Einheiten (F8), Nullzeilen-Unterdrückung (F10), A11y, Zertifizierung
-- v1.x: Common-Size-Spalte, Top-N (Wasserfall, Kommentare und Drillthrough sind seit 0.14 / 0.17 drin)
-- Offen: `fetchMoreData`-Strategie für Kontenpläne > 30 k Datenpunkte,
-  Virtual Scrolling für > 2 000 Zeilen, eigenes Icon (aktuell Platzhalter)
+## Roadmap
+
+- 1.1: Mega-Table Phase 5 (12G YTD + Restjahr-Stapel, 12H Plan-Tönung,
+  Headline-Slot), Virtualisierung sehr langer Mega-Tabellen, eigener dunkler
+  Hover-Tooltip
+- Später: gemischte Einheiten (F8), A11y/Tastaturnavigation, AppSource-Zertifizierung,
+  Common-Size-Spalte, Top-N
 
 > „IBCS" ist eine eingetragene Marke der IBCS Association / HICHERT+FAISST GmbH.
 > Dieses Visual ist nicht von der IBCS Association zertifiziert und nutzt den

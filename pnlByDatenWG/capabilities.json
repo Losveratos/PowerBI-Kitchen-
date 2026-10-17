@@ -6,120 +6,144 @@
             "displayName": "Account ID (key)",
             "displayNameKey": "Role_Account",
             "kind": "Grouping",
-            "description": "Unique, stable account key from the account dimension"
+            "description": "Unique, stable account key from the account dimension — basis of the parent-child hierarchy and of the selection.",
+            "descriptionKey": "RoleDesc_Account"
         },
         {
             "name": "accountName",
             "displayName": "Account name",
             "displayNameKey": "Role_AccountName",
-            "kind": "Grouping"
+            "kind": "Grouping",
+            "description": "Display name of the row; without it the visual shows the account ID.",
+            "descriptionKey": "RoleDesc_AccountName"
         },
         {
             "name": "levels",
             "displayName": "Level columns (L1..Ln)",
             "displayNameKey": "Role_Levels",
             "kind": "Grouping",
-            "description": "Star-schema alternative to Parent ID: flattened hierarchy levels in drag order. Ragged branches end at an empty level or when a level repeats the previous one."
+            "description": "Star-schema alternative to Parent ID: flattened hierarchy levels in drag order. Ragged branches end at an empty level or when a level repeats the previous one.",
+            "descriptionKey": "RoleDesc_Levels"
         },
         {
             "name": "parent",
             "displayName": "Parent account ID",
             "displayNameKey": "Role_Parent",
             "kind": "Grouping",
-            "description": "Parent-child link; unbalanced hierarchies are allowed"
+            "description": "Parent-child link; unbalanced hierarchies are allowed.",
+            "descriptionKey": "RoleDesc_Parent"
         },
         {
             "name": "sortOrder",
             "displayName": "Sort order",
             "displayNameKey": "Role_SortOrder",
-            "kind": "Grouping"
+            "kind": "Grouping",
+            "description": "Number per row that fixes the P&L order (e.g. 10, 20, 30).",
+            "descriptionKey": "RoleDesc_SortOrder"
         },
         {
             "name": "rowType",
             "displayName": "Row type",
             "displayNameKey": "Role_RowType",
             "kind": "Grouping",
-            "description": "Account | Subtotal | Formula | KPI | Separator"
+            "description": "Account | Subtotal | Formula | KPI | Separator — drives totals, formulas and margin rows.",
+            "descriptionKey": "RoleDesc_RowType"
         },
         {
             "name": "formulaDef",
             "displayName": "Formula definition",
             "displayNameKey": "Role_FormulaDef",
             "kind": "Grouping",
-            "description": "For Formula/KPI rows, e.g. [EBITDA]/[Revenue]"
+            "description": "For Formula/KPI rows, e.g. [EBITDA]/[Revenue].",
+            "descriptionKey": "RoleDesc_FormulaDef"
         },
         {
             "name": "signConvention",
             "displayName": "Sign convention (±1)",
             "displayNameKey": "Role_Sign",
             "kind": "Grouping",
-            "description": "Calculation sign: revenue +1, costs -1"
+            "description": "Calculation sign: revenue +1, costs −1.",
+            "descriptionKey": "RoleDesc_Sign"
         },
         {
             "name": "displayInvert",
             "displayName": "Display invert",
             "displayNameKey": "Role_DisplayInvert",
             "kind": "Grouping",
-            "description": "Show positive although the calculated value is negative"
+            "description": "Show positive although the calculated value is negative (cost rows).",
+            "descriptionKey": "RoleDesc_DisplayInvert"
         },
         {
             "name": "varianceInvert",
             "displayName": "Variance invert",
             "displayNameKey": "Role_VarianceInvert",
             "kind": "Grouping",
-            "description": "Flip variance color (costs below plan = green)"
+            "description": "Flip the variance color (costs below plan = favorable).",
+            "descriptionKey": "RoleDesc_VarianceInvert"
         },
         {
             "name": "period",
             "displayName": "Period (month)",
             "displayNameKey": "Role_Period",
             "kind": "Grouping",
-            "description": "Month column for sparklines and YTD aggregation; values are summed across the shown periods. Date keys (YYYY-MM, YYYY-MM-DD), date columns and month names (Dez, Dezember, Dec, March, Mär …) are read into calendar order automatically — see Columns → Period sort order for fiscal years"
+            "description": "Month column for sparklines, the month and the YTD block; values are summed across the shown periods. Date keys (YYYY-MM, YYYY-MM-DD), date columns and month names are read into calendar order automatically — see Columns → Period sort order for fiscal years.",
+            "descriptionKey": "RoleDesc_Period"
         },
         {
             "name": "comment",
             "displayName": "Comment",
             "displayNameKey": "Role_Comment",
             "kind": "Grouping",
-            "description": "Comment text per row — shown as numbered marker with a footnote section"
+            "description": "Comment text per row — shown as a numbered marker with a footnote section.",
+            "descriptionKey": "RoleDesc_Comment"
         },
         {
             "name": "ac",
             "displayName": "AC (Actual)",
             "displayNameKey": "Role_AC",
-            "kind": "Measure"
+            "kind": "Measure",
+            "description": "Actual (AC) value — the primary measure. Required.",
+            "descriptionKey": "RoleDesc_AC"
         },
         {
             "name": "py",
             "displayName": "PY (Previous Year)",
             "displayNameKey": "Role_PY",
-            "kind": "Measure"
+            "kind": "Measure",
+            "description": "Previous-year (PY) value — basis of ΔPY.",
+            "descriptionKey": "RoleDesc_PY"
         },
         {
             "name": "pl",
             "displayName": "PL (Plan / Budget)",
             "displayNameKey": "Role_PL",
-            "kind": "Measure"
+            "kind": "Measure",
+            "description": "Plan / budget (PL) value — basis of ΔPL, drawn outlined (IBCS).",
+            "descriptionKey": "RoleDesc_PL"
         },
         {
             "name": "fc",
             "displayName": "FC (Forecast)",
             "displayNameKey": "Role_FC",
-            "kind": "Measure"
+            "kind": "Measure",
+            "description": "Forecast (FC) value, drawn hatched; can be the analysed scenario of the mega table.",
+            "descriptionKey": "RoleDesc_FC"
         },
         {
             "name": "fcFy",
             "displayName": "FC Full Year (outlook)",
             "displayNameKey": "Role_FCFY",
             "kind": "Measure",
-            "description": "Full-year forecast scalar (repeated per month row; first value wins, never summed)"
+            "description": "Full-year forecast scalar (repeated per month row; first value wins, never summed).",
+            "descriptionKey": "RoleDesc_FCFY"
         },
         {
             "name": "plFy",
             "displayName": "PL Full Year",
             "displayNameKey": "Role_PLFY",
             "kind": "Measure",
-            "description": "Full-year plan scalar for the outlook block"
+            "description": "Full-year plan scalar for the outlook block.",
+            "descriptionKey": "RoleDesc_PLFY"
         }
     ],
     "dataViewMappings": [
@@ -468,6 +492,252 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "template": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "off",
+                                "displayName": "Off (classic table)"
+                            },
+                            {
+                                "value": "T01A",
+                                "displayName": "T01A"
+                            },
+                            {
+                                "value": "T01B",
+                                "displayName": "T01B"
+                            },
+                            {
+                                "value": "T02A",
+                                "displayName": "T02A"
+                            },
+                            {
+                                "value": "T02B",
+                                "displayName": "T02B"
+                            },
+                            {
+                                "value": "T02C",
+                                "displayName": "T02C"
+                            },
+                            {
+                                "value": "T02E",
+                                "displayName": "T02E"
+                            },
+                            {
+                                "value": "T02F",
+                                "displayName": "T02F"
+                            },
+                            {
+                                "value": "T03A",
+                                "displayName": "T03A"
+                            },
+                            {
+                                "value": "T03B",
+                                "displayName": "T03B"
+                            },
+                            {
+                                "value": "T04A",
+                                "displayName": "T04A"
+                            },
+                            {
+                                "value": "T04B",
+                                "displayName": "T04B"
+                            },
+                            {
+                                "value": "T04C",
+                                "displayName": "T04C"
+                            },
+                            {
+                                "value": "T04D",
+                                "displayName": "T04D"
+                            },
+                            {
+                                "value": "T04E",
+                                "displayName": "T04E"
+                            },
+                            {
+                                "value": "12A",
+                                "displayName": "12A"
+                            }
+                        ]
+                    }
+                },
+                "templateApplied": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "minuend": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "ac",
+                                "displayName": "AC"
+                            },
+                            {
+                                "value": "fc",
+                                "displayName": "FC"
+                            }
+                        ]
+                    }
+                },
+                "showPY": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showPL": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showMinuend": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "valueCascade": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPyAbs": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPyBar": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPyWaterfall": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPyPct": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPyPin": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPlAbs": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPlBar": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPlWaterfall": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPlPct": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPlPin": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "secondBlock": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "structureSubtotals": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showPctRows": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "thresholds": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "thresholdAbs": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "thresholdPct": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "thresholdYtdAbs": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "thresholdYtdPct": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "scenarioMarks": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "chartLabels": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "capBars": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "sort": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "cat",
+                                "displayName": "Category order"
+                            },
+                            {
+                                "value": "min",
+                                "displayName": "AC/FC descending"
+                            },
+                            {
+                                "value": "delta",
+                                "displayName": "Δ descending"
+                            }
+                        ]
+                    }
+                },
+                "sortBlock": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "period",
+                                "displayName": "Month block"
+                            },
+                            {
+                                "value": "ytd",
+                                "displayName": "YTD block"
+                            }
+                        ]
+                    }
                 }
             }
         },
@@ -514,6 +784,24 @@
         },
         "style": {
             "properties": {
+                "appearance": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "auto",
+                                "displayName": "Auto"
+                            },
+                            {
+                                "value": "light",
+                                "displayName": "Light"
+                            },
+                            {
+                                "value": "dark",
+                                "displayName": "Dark"
+                            }
+                        ]
+                    }
+                },
                 "colorMode": {
                     "type": {
                         "enumeration": [

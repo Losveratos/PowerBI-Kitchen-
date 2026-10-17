@@ -27,19 +27,33 @@ import DataViewValueColumn = powerbi.DataViewValueColumn;
 import ISelectionManager = powerbi.extensibility.ISelectionManager;
 import ISelectionId = powerbi.extensibility.ISelectionId;
 
-import { VisualFormattingSettingsModel } from "./settings";
+import { VisualFormattingSettingsModel, PaneContext, applyPaneGates, localizeSettings } from "./settings";
+import { UI_EN, fillArgs } from "./i18n";
 import {
     buildModel, flattenVisible, collapseToLevel, variance, displayValue,
     parseRowType, parseBool, parseSign, rowsFromLevels, aggregateMonthly,
     isZeroRow, revenueBase, formulaOperands, nodeResolver, Variance,
-    syntheticTotal, TOTAL_ID, parsePeriod,
+    syntheticTotal, TOTAL_ID, parsePeriod, displayVariance,
     FormulaOp, InputRow, LevelInputRow, PeriodSort, PnlModel, PnlNode, Scenario,
 } from "./engine";
+import {
+    layoutMega, paintMega, megaActive, activeRefs, setMegaPalette, MEGA_PRESETS,
+    MegaBlock, MegaDelta, MegaRef, MegaRow, MegaScen, MegaToggles,
+} from "./megatable";
+import { cascade, CascadeNode } from "./waterfall";
+import { buildDemoRows } from "./demo";
 
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const NBSP_GROUP = " "; // narrow space, IBCS number grouping
 
-const C = {
+/**
+ * The palette of the visual. `C` is the live palette every painter reads at
+ * call time; applyPalette() copies C_LIGHT or C_DARK into it at the start of
+ * every update, so one switch recolours table, mega table, waterfall, tree,
+ * tiles and hover panels alike. C_LIGHT is exactly the 0.17 palette — an
+ * untouched report in a light theme renders pixel-identical.
+ */
+const C_LIGHT = {
     ac: "#404040", py: "#B3B3B3",
     text: "#1A1A1A", soft: "#8A8886", line: "#404040", gridSoft: "#EDEBE9",
     tealGood: "#0E8585", tealBad: "#E02B1D",
@@ -49,11 +63,59 @@ const C = {
     cardEdge: "#E3E1DC", cardEdgeHover: "#C6C3BC", elbow: "#B4B4B4", refGray: "#9A9A9A",
     /** resting border of a control (toolbar button, chip) — quieter than a card edge */
     ctlEdge: "#DEDCD7", ctlHover: "#F4F3F0",
+    /** paper inside marks: hatch ground, outlined PL fills, halos, chevron boxes */
+    paper: "#FFF",
+    /** text on the ink fill (active 12M chip, AC share label of the total column) */
+    onInk: "#FFF",
+    /** demo banner wash */
+    wash: "#F7F6F3",
+    /** shadow language of the cards — one resting elevation, one on hover */
+    shadow: "0 1px 2px rgba(15,30,46,.06)",
+    shadowHover: "0 2px 6px rgba(15,30,46,.10)",
+    headShadow: "0 3px 8px rgba(15,30,46,.07)",
+    zoomShadow: "0 6px 20px rgba(15,30,46,.16)",
+    shadeRest: "rgba(15,30,46,.06)",
+    shadeHover: "rgba(15,30,46,.10)",
 };
+/**
+ * Dark stand-ins, ChartKitchen's dark palette as reference: ink #D9D9D9 (AC /
+ * PL outline), PY #8A8A8A, text #E0E0E0, subtle #A6A6A6, faint #3F3F3F; teal
+ * #3FB3C2 / red #E4635F — the ChartKitchen dark variance pair, both ≥ 4.5:1 on
+ * the dark paper.
+ */
+const C_DARK: typeof C_LIGHT = {
+    ac: "#D9D9D9", py: "#8A8A8A",
+    text: "#E0E0E0", soft: "#A6A6A6", line: "#BFBFBF", gridSoft: "#3F3F3F",
+    tealGood: "#3FB3C2", tealBad: "#E4635F",
+    ibcsGood: "#9CCB19", ibcsBad: "#FF5A3C",
+    comment: "#6EA8FF", loading: "#E0913A",
+    cardEdge: "#3F3F3F", cardEdgeHover: "#5E5E5E", elbow: "#6E6E6E", refGray: "#7A7A7A",
+    ctlEdge: "#4A4A4A", ctlHover: "#30302C",
+    paper: "#1E1E1E",
+    onInk: "#1E1E1E",
+    wash: "#2A2A27",
+    shadow: "0 1px 2px rgba(0,0,0,.45)",
+    shadowHover: "0 2px 6px rgba(0,0,0,.55)",
+    headShadow: "0 3px 8px rgba(0,0,0,.45)",
+    zoomShadow: "0 6px 20px rgba(0,0,0,.6)",
+    shadeRest: "rgba(0,0,0,.35)",
+    shadeHover: "rgba(0,0,0,.5)",
+};
+const C = { ...C_LIGHT };
+/** dark default of the page / card background pickers (used while they hold their white default) */
+const DARK_PAPER = "#1E1E1E";
+const DARK_CARD = "#262624";
 
-/** shadow language of the cards — one resting elevation, one on hover */
-const SHADOW = "0 1px 2px rgba(15,30,46,.06)";
-const SHADOW_HOVER = "0 2px 6px rgba(15,30,46,.10)";
+/** relative luminance of a #RRGGBB colour (WCAG), 1 for anything unreadable */
+function relLuminance(hex: string): number {
+    const m = /^#?([0-9a-f]{6})$/i.exec((hex || "").trim());
+    if (!m) { return 1; }
+    const ch = (i: number): number => {
+        const c = parseInt(m[1].slice(i, i + 2), 16) / 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * ch(0) + 0.7152 * ch(2) + 0.0722 * ch(4);
+}
 /** transition of the interactive chrome — present, never a show */
 const TRANSITION = "background-color .12s ease,border-color .12s ease,box-shadow .12s ease,color .12s ease";
 
@@ -400,6 +462,8 @@ export class Visual implements IVisual {
     private has: Record<Scenario, boolean> = { ac: false, py: false, pl: false, fc: false, fcfy: false, plfy: false };
     private comments: { n: number; node: PnlNode; text: string }[] = [];
     private locale = "en-US";
+    /** the host's localization manager (null in hosts that offer none) */
+    private locMgr: powerbi.extensibility.ILocalizationManager | null = null;
 
     private ui: UiState | null = null;
     /** open hover-zoom panel of the driver tree (one at a time) */
@@ -450,6 +514,20 @@ export class Visual implements IVisual {
     private totalVer = -1;
     /** stage height of the last host update — drives the compact-card fallback */
     private vpH = 0;
+    /** stage width of the last host update (Smart Start needs room) */
+    private vpW = 0;
+
+    // --- Smart Start (demo statement while no fields are bound) + dark mode ---
+    /** raw powerbi.ViewMode of the last update (0 view, 1 edit, 2 in-focus edit); null = host did not say */
+    private viewMode: number | null = null;
+    /** the model on screen is the built-in demo, not report data */
+    private demo = false;
+    /** locale the demo model was built in (names are localized) */
+    private demoLocale = "";
+    /** roles the author still has to bind (null = nothing bound yet) */
+    private demoMissing: string[] | null = null;
+    /** dark palette active (style.appearance, resolved every update) */
+    private dark = false;
 
     /** the frozen head block (title · toolbar · legend · scale note) */
     private headEl: HTMLElement | null = null;
@@ -488,6 +566,27 @@ export class Visual implements IVisual {
     private resolveFn: ((id: string) => PnlNode | undefined) | null = null;
     private resolveVer = -1;
 
+    // --- mega table (IBCS templates T01–T04, see SPEC-MEGATABLE.md) ---
+    /**
+     * Template switch we just persisted but the host has not echoed back yet —
+     * the echo-guard + TTL pattern of ChartKitchen (AGENT-GUIDE, persistProperties):
+     * while it lives, a stale metadata update cannot turn the freshly written
+     * switches back; after `ttl` updates the pane value wins again, so a lost
+     * echo never pins a value forever.
+     */
+    private megaPending: {
+        applied: string;
+        cols: Record<string, boolean | string>;
+        nums: Record<string, number>;
+        ttl: number;
+    } | null = null;
+    /** template applied in this session — a lost echo must not re-apply it in a loop */
+    private megaSessionTpl: string | null = null;
+    /** text measure of the mega table (canvas, lazily created) */
+    private measureCtx: CanvasRenderingContext2D | null = null;
+    /** Intl number formats of the mega table per decimal count */
+    private megaNf = new Map<string, Intl.NumberFormat>();
+
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
         this.events = options.host.eventService;
@@ -505,7 +604,12 @@ export class Visual implements IVisual {
                 });
             }
         }
-        this.formattingSettingsService = new FormattingSettingsService();
+        // every user-facing text goes through the host's localization manager
+        // (stringResources/<locale>/resources.resjson); a host without one
+        // (old test shims) gets the English fallback table of i18n.ts
+        this.locMgr = typeof options.host.createLocalizationManager === "function"
+            ? options.host.createLocalizationManager() : null;
+        this.formattingSettingsService = new FormattingSettingsService(this.locMgr ?? undefined);
         this.locale = options.host.locale || "en-US";
         this.root = document.createElement("div");
         this.root.className = "pnl-root";
@@ -524,30 +628,36 @@ export class Visual implements IVisual {
         this.events.renderingStarted(options);
         try {
             if (options.viewport && options.viewport.height > 0) { this.vpH = options.viewport.height; }
+            if (options.viewport && options.viewport.width > 0) { this.vpW = options.viewport.width; }
+            // Smart Start is an edit-mode aid — remember the raw view mode every update
+            this.viewMode = options.viewMode ?? null;
             const dataView = options.dataViews && options.dataViews[0];
             this.settings = this.formattingSettingsService.populateFormattingSettingsModel(
                 VisualFormattingSettingsModel, dataView);
+            localizeSettings(this.settings, k => this.trOpt(k));
+            this.dark = this.resolveDarkMode();
+            this.applyPalette();
             if (!dataView) {
-                this.model = null; this.vs = null; this.lastFingerprint = null;
                 this.resetSegments();
-                this.renderLanding(); this.events.renderingFinished(options); return;
+                this.showStart(undefined, null); this.events.renderingFinished(options); return;
             }
             this.trackSegments(dataView, options.operationKind);
 
             // parse + build only when the data actually changed — toolbar clicks
             // and resizes reuse the model (rerender() never enters this path)
             const fp = this.fingerprint(dataView);
-            if (this.model == null || fp !== this.lastFingerprint) {
+            if (this.model == null || this.demo || fp !== this.lastFingerprint) {
                 const parsed = this.parseRows(dataView);
                 if (!parsed) {
-                    this.model = null; this.vs = null; this.lastFingerprint = null;
-                    this.renderLanding(); this.events.renderingFinished(options); return;
+                    this.showStart(dataView, this.missingRoles(dataView));
+                    this.events.renderingFinished(options); return;
                 }
+                if (this.demo) { this.leaveDemo(); }
                 if (parsed.rows.length === 0) {
                     this.model = null; this.vs = null; this.lastFingerprint = null;
                     this.renderEmpty(); this.events.renderingFinished(options); return;
                 }
-                this.model = buildModel(parsed.rows, this.str("Not assigned", "Nicht zugeordnet"), parsed.months);
+                this.model = buildModel(parsed.rows, this.tr("UI_NotAssigned"), parsed.months);
                 this.has = parsed.has;
                 this.loadedRows = parsed.rowCount;
                 this.lastFingerprint = fp;
@@ -558,6 +668,7 @@ export class Visual implements IVisual {
             }
             this.syncSelectionColumn(dataView);
             this.buildStatusWarnings();
+            this.syncMegaTemplate(dataView);
             this.syncUiState(dataView);
             this.render();
             this.events.renderingFinished(options);
@@ -599,9 +710,7 @@ export class Visual implements IVisual {
     private buildStatusWarnings(): void {
         this.statusWarnings = [];
         if (this.hostCapped) {
-            this.statusWarnings.push(this.str(
-                "row limit reached — the host stopped delivering segments, totals are incomplete",
-                "Zeilenlimit erreicht — der Host liefert keine weiteren Segmente, Summen unvollständig"));
+            this.statusWarnings.push(this.tr("UI_RowLimit"));
         }
         if (this.awaitingSegment) {
             this.statusWarnings.push(this.loadingText());
@@ -611,9 +720,7 @@ export class Visual implements IVisual {
     private loadingText(): string {
         const n = new Intl.NumberFormat(this.locale).format(this.loadedRows)
             .replace(/[ ,. ]/g, NBSP_GROUP);
-        return "⏳ " + this.str(
-            `${n} rows loaded … subtotals still incomplete`,
-            `${n} Zeilen geladen … Zwischensummen noch unvollständig`);
+        return "⏳ " + this.tr("UI_Loading", n);
     }
 
     /**
@@ -647,7 +754,22 @@ export class Visual implements IVisual {
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
+        if (this.settings) { applyPaneGates(this.settings, this.paneContext()); }
         return this.formattingSettingsService.buildFormattingModel(this.settings);
+    }
+
+    /**
+     * What the format-pane gates may know: the current view and the bound
+     * roles of real data. The demo (Smart Start) and an empty visual report
+     * "unknown", so every data-dependent switch stays visible there.
+     */
+    private paneContext(): PaneContext {
+        const real = this.model != null && !this.demo;
+        return {
+            view: this.ui?.view ?? null,
+            has: real ? { py: this.has.py, pl: this.has.pl, fc: this.has.fc, period: this.model!.months.length > 1 } : null,
+            statement: real ? this.megaStatement() : null,
+        };
     }
 
     // ---------------- data ----------------
@@ -818,6 +940,8 @@ export class Visual implements IVisual {
      * (a static export / e-mail subscription sets allowInteractions = false).
      */
     private interactive(): boolean {
+        // the demo carries no report identities — nothing to select or drill
+        if (this.demo) { return false; }
         if (this.selectionManager == null) { return false; }
         if (typeof this.host.createSelectionIdBuilder !== "function") { return false; }
         if (this.settings?.styleCard?.interactions?.value === false) { return false; }
@@ -903,9 +1027,7 @@ export class Visual implements IVisual {
     /** the tooltip suffix that names the performance cap, when it bites */
     private selCapNote(node: PnlNode): string {
         if (this.nodeIndices(node).length < SEL_MAX_ROWS) { return ""; }
-        return " · " + this.str(
-            `selection limited to the first ${SEL_MAX_ROWS} source rows`,
-            `Selektion auf die ersten ${SEL_MAX_ROWS} Quellzeilen begrenzt`);
+        return " · " + this.tr("UI_SelCap", SEL_MAX_ROWS);
     }
 
     /**
@@ -971,18 +1093,16 @@ export class Visual implements IVisual {
         const acc = this.accent();
         const b = document.createElement("button");
         b.setAttribute("data-pnl", "zoom-drill");
-        b.textContent = this.str("↗ Drill", "↗ Drill");
-        b.title = this.str(
-            "Set the selection of this card and open the drillthrough targets",
-            "Selektion dieser Karte setzen und Drillthrough-Ziele öffnen") + this.selCapNote(node);
+        b.textContent = this.tr("UI_Drill");
+        b.title = this.tr("UI_DrillTip") + this.selCapNote(node);
         b.style.cssText = `font-family:${FONT};font-size:${this.kpx(13)};font-weight:600;line-height:1.3;` +
             `padding:${this.kpx(8)} ${this.kpx(16)};cursor:pointer;border-radius:6px;border:1px solid ${acc};` +
-            `background:#FFF;color:${acc};transition:${TRANSITION};box-shadow:${SHADOW};`;
+            `background:${C.paper};color:${acc};transition:${TRANSITION};box-shadow:${C.shadow};`;
         b.onmouseenter = (): void => {
             b.style.background = this.accentSoft(0.10);
-            b.style.boxShadow = SHADOW_HOVER;
+            b.style.boxShadow = C.shadowHover;
         };
-        b.onmouseleave = (): void => { b.style.background = "#FFF"; b.style.boxShadow = SHADOW; };
+        b.onmouseleave = (): void => { b.style.background = C.paper; b.style.boxShadow = C.shadow; };
         b.oncontextmenu = (e: MouseEvent): void => this.showMenu(node, e);
         b.onclick = (e: MouseEvent): void => {
             e.stopPropagation();
@@ -1061,6 +1181,8 @@ export class Visual implements IVisual {
 
     private persistUi(): void {
         if (!this.ui) { return; }
+        // the demo is explored locally — nothing of it may land in the report
+        if (this.demo) { return; }
         if (this.model) {
             this.ui.collapsed = this.ui.collapsed.filter(id => this.model!.byId.has(id));
             this.ui.spark = this.ui.spark.filter(id => this.model!.byId.has(id));
@@ -1085,8 +1207,90 @@ export class Visual implements IVisual {
 
     // ---------------- formatting ----------------
 
-    private str(en: string, de: string): string {
-        return this.locale.toLowerCase().startsWith("de") ? de : en;
+    /**
+     * Localized in-visual text: the host's resjson value for `key`, else the
+     * English fallback of i18n.ts; {0} {1} … are filled from `args`.
+     */
+    private tr(key: string, ...args: (string | number)[]): string {
+        return fillArgs(this.trOpt(key) ?? UI_EN[key] ?? key, args);
+    }
+    /** the host's string for a key, or null when it has none */
+    private trOpt(key: string): string | null {
+        const s = this.locMgr?.getDisplayName(key);
+        return s && s !== key ? s : null;
+    }
+    /**
+     * Engine messages (formula errors, model warnings) are English by design —
+     * the engine has no host. They are translated where they are shown.
+     */
+    private trMsg(msg: string): string {
+        const rules: [RegExp, string, ((m: RegExpExecArray) => (string | number)[])?][] = [
+            [/^cycle$/, "UI_ErrCycle"],
+            [/^empty formula$/, "UI_ErrEmpty"],
+            [/^parse error$/, "UI_ErrParse"],
+            [/^missing \)$/, "UI_ErrParen"],
+            [/^missing \]$/, "UI_ErrBracket"],
+            [/^empty reference$/, "UI_ErrEmptyRef"],
+            [/^unexpected "(.*)"$/, "UI_ErrUnexpected", m => [m[1]]],
+            [/^trailing "(.*)"$/, "UI_ErrTrailing", m => [m[1]]],
+            [/^unknown reference \[(.*)\]$/, "UI_ErrUnknownRef", m => [m[1]]],
+            [/^ref \[([^\]]*)\]: (.*)$/, "UI_ErrRef", m => [m[1], this.trMsg(m[2])]],
+            [/^duplicate id: (.*)$/, "UI_WarnDuplicate", m => [m[1]]],
+            [/^(\d+) row\(s\) in a parent-child cycle$/, "UI_WarnCycle", m => [m[1]]],
+            [/^(\d+) orphan row\(s\) moved to "(.*)"$/, "UI_WarnOrphans", m => [m[1], m[2]]],
+            [/^subtree under (.*) \((.*)\) is excluded from parent sums$/, "UI_WarnExcluded", m => [m[1], m[2]]],
+            [/^formula error in ([^:]*): (.*)$/, "UI_WarnFormula", m => [m[1], this.trMsg(m[2])]],
+        ];
+        for (const [rx, key, args] of rules) {
+            const m = rx.exec(msg);
+            if (m) { return this.tr(key, ...(args ? args(m) : [])); }
+        }
+        return msg;
+    }
+
+    // ---------------- light / dark ----------------
+
+    /**
+     * Dark mode, ChartKitchen's rule (resolveDarkMode there): the pane's
+     * appearance dropdown wins; "auto" reads the report theme's background
+     * luminance (< 0.35 = dark). Themes that never set a background report
+     * white, so auto only flips on genuinely dark themes — a page painted dark
+     * by hand needs the explicit "dark". High contrast keeps the light path.
+     */
+    private resolveDarkMode(): boolean {
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette | undefined;
+        if (palette && palette.isHighContrast) { return false; }
+        const mode = String(this.settings?.styleCard?.appearance?.value?.value ?? "auto");
+        if (mode === "dark") { return true; }
+        if (mode === "light") { return false; }
+        const bg = palette?.background?.value;
+        return !!bg && relLuminance(bg) < 0.35;
+    }
+
+    /** the dark paper: the theme's own background when it is dark, else the stand-in */
+    private darkPaper(): string {
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette | undefined;
+        const bg = palette?.background?.value;
+        return bg && relLuminance(bg) < 0.35 ? bg : DARK_PAPER;
+    }
+
+    /** one switch for every painter: the live palettes C and MEGA_C */
+    private applyPalette(): void {
+        Object.assign(C, this.dark ? C_DARK : C_LIGHT);
+        if (this.dark) { C.paper = this.darkPaper(); }
+        setMegaPalette(this.dark, C.paper);
+        this.root.style.color = C.text;
+    }
+
+    /** paper inside a card (hollow PL marks, halos, badges): the palette paper in light mode
+     *  (exactly 0.17), the card fill in dark mode, so a hollow mark never shows a darker hole */
+    private cardPaper(): string {
+        return this.dark ? this.cardBg() : C.paper;
+    }
+
+    /** text on the accent fill: white on dark accents, dark ink on light ones */
+    private onAccent(): string {
+        return relLuminance(this.accent()) > 0.45 ? "#1E1E1E" : "#FFF";
     }
 
     private makeFmt(maxAbs: number): Fmt {
@@ -1128,25 +1332,34 @@ export class Visual implements IVisual {
      * default, so an untouched report keeps exactly the previous look.
      */
     private accent(): string {
-        return this.settings.styleCard.accentColor.value?.value || C.ac;
+        const v = this.settings.styleCard.accentColor.value?.value || C_LIGHT.ac;
+        // the light default of the picker becomes the dark ink — a chosen colour stays
+        return this.dark && v.toUpperCase() === C_LIGHT.ac ? C.ac : v;
     }
     /** slightly lifted accent for hover states — mixed towards paper in sRGB */
     private accentSoft(alpha: number): string {
         const hex = this.accent().replace("#", "");
         if (!/^[0-9a-fA-F]{6}$/.test(hex)) { return this.accent(); }
+        // light: towards white (exactly the 0.17 tint); dark: towards the dark paper
+        let paper = (this.dark ? this.darkPaper() : "#FFFFFF").replace("#", "");
+        if (paper.length === 3) { paper = paper.split("").map(ch => ch + ch).join(""); }
+        if (!/^[0-9a-fA-F]{6}$/.test(paper)) { paper = "FFFFFF"; }
         const mix = (i: number): number => {
             const c = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
-            return Math.round(c + (255 - c) * alpha);
+            const t = parseInt(paper.slice(i * 2, i * 2 + 2), 16);
+            return Math.round(c + (t - c) * alpha);
         };
         return `rgb(${mix(0)},${mix(1)},${mix(2)})`;
     }
     /** paper of the visual — behind the tree and behind the tiles of the zoom */
     private pageBg(): string {
-        return this.settings.styleCard.pageBackground.value?.value || "#FFF";
+        const v = this.settings.styleCard.pageBackground.value?.value || "#FFF";
+        return this.dark && /^#fff(fff)?$/i.test(v) ? this.darkPaper() : v;
     }
     /** fill of every card: tree cards, micro cards, the big tile, hover panel */
     private cardBg(): string {
-        return this.settings.styleCard.cardBackground.value?.value || "#FFF";
+        const v = this.settings.styleCard.cardBackground.value?.value || "#FFF";
+        return this.dark && /^#fff(fff)?$/i.test(v) ? DARK_CARD : v;
     }
     /** whether head block and column headers stay on screen while scrolling */
     private sticky(): boolean {
@@ -1330,8 +1543,126 @@ export class Visual implements IVisual {
 
     // ---------------- render entry ----------------
 
+    // ---------------- Smart Start ----------------
+
+    /**
+     * Smart Start: an author who drops the visual on a page sees a working
+     * statement right away — the built-in demo P&L in the report's language,
+     * with a quiet banner that names the roles still to bind. Only where it
+     * helps and never where it could mislead: edit mode (or a host that does
+     * not say, like the harness), interactions allowed (PDF / PowerPoint
+     * export and subscriptions render with allowInteractions = false) and
+     * enough room. Readers and exports of a report that lost its fields get the
+     * plain text landing — demo numbers never reach a published page.
+     */
+    private demoAllowed(): boolean {
+        if (this.host.hostCapabilities?.allowInteractions === false) { return false; }
+        if (this.viewMode != null && this.viewMode < 1) { return false; }
+        const w = this.vpW || this.root.clientWidth; const h = this.vpH || this.root.clientHeight;
+        return w >= 300 && h >= 220;
+    }
+
+    private showStart(dataView: DataView | undefined, missing: string[] | null): void {
+        if (!this.demoAllowed()) {
+            if (this.demo) { this.leaveDemo(); }
+            this.model = null; this.vs = null; this.lastFingerprint = null;
+            this.renderLanding();
+            return;
+        }
+        if (!this.demo || this.demoLocale !== this.locale) {
+            const lr = rowsFromLevels(buildDemoRows(k => this.tr(k)), "auto");
+            this.model = buildModel(lr.rows, this.tr("UI_NotAssigned"), lr.months);
+            this.has = { ac: true, py: true, pl: true, fc: false, fcfy: true, plfy: true };
+            this.loadedRows = lr.rows.length;
+            this.modelVer++;
+            this.scanCache = null;
+            this.geoCache = null;
+            this.resetSelection();
+            this.selCat = null;
+            this.statusWarnings = [];
+            this.demo = true;
+            this.demoLocale = this.locale;
+            this.lastFingerprint = null;
+            this.ui = null;
+        }
+        this.demoMissing = missing;
+        this.syncMegaTemplate(dataView);
+        if (!this.ui) { this.ui = this.defaultUi(); }
+        this.render();
+    }
+
+    /** real data arrived (or the demo is not allowed any more): back to a clean slate */
+    private leaveDemo(): void {
+        this.demo = false;
+        this.demoMissing = null;
+        this.model = null;
+        this.vs = null;
+        this.ui = null;
+        this.stateLoaded = false;
+        this.lastApplied = null;
+        this.pendingPersist = null;
+        this.lastFingerprint = null;
+        this.scanCache = null;
+        this.geoCache = null;
+        this.totalNode = null;
+        this.resetSelection();
+    }
+
+    /** the roles that keep the statement from rendering, in the words of the field wells */
+    private missingRoles(dataView: DataView | undefined): string[] | null {
+        const cols = dataView?.metadata?.columns ?? [];
+        if (cols.length === 0) { return null; }
+        const bound = (r: string): boolean => cols.some(c => !!(c.roles && c.roles[r]));
+        const out: string[] = [];
+        if (!bound("ac")) { out.push(this.tr("UI_DemoMissAc")); }
+        if (!bound("levels") && !bound("account")) { out.push(this.tr("UI_DemoMissHier")); }
+        else if (bound("parent") && !bound("account")) { out.push(this.tr("UI_DemoMissAccount")); }
+        return out;
+    }
+
+    /** the quiet "this is a demo" line above the title — edit-mode only, never exported */
+    private buildDemoBanner(): HTMLElement {
+        // padding on a wrapper, not a margin on the banner: a top margin of the
+        // head's first child would collapse through the head, which then
+        // measures 10 px short and the frozen column header slips under it
+        const wrap = document.createElement("div");
+        wrap.style.cssText = "padding:10px 14px 0 14px;";
+        const box = document.createElement("div");
+        box.setAttribute("data-pnl", "demo-banner");
+        wrap.appendChild(box);
+        box.style.cssText = `padding:${this.kpx(7)} ${this.kpx(10)};` +
+            `border:1px dashed ${C.ctlEdge};border-radius:6px;background:${C.wash};` +
+            `font-size:${this.kpx(10.5)};line-height:1.5;color:${C.soft};`;
+        const head = document.createElement("div");
+        head.style.cssText = `display:flex;gap:${this.kpx(8)};align-items:baseline;flex-wrap:wrap;`;
+        const badge = document.createElement("span");
+        badge.setAttribute("data-pnl", "demo-badge");
+        badge.textContent = this.tr("UI_DemoBadge");
+        badge.style.cssText = `font-size:${this.kpx(8.5)};font-weight:700;letter-spacing:.09em;` +
+            `color:${this.accent()};border:1px solid ${this.accent()};border-radius:3px;` +
+            `padding:0 ${this.kpx(5)};line-height:1.6;`;
+        const title = document.createElement("span");
+        title.textContent = this.tr("UI_DemoTitle");
+        title.style.cssText = `font-weight:600;color:${C.text};`;
+        head.appendChild(badge); head.appendChild(title);
+        box.appendChild(head);
+        const body = document.createElement("div");
+        body.setAttribute("data-pnl", "demo-body");
+        body.textContent = this.tr("UI_DemoBody");
+        box.appendChild(body);
+        if (this.demoMissing && this.demoMissing.length > 0) {
+            const miss = document.createElement("div");
+            miss.setAttribute("data-pnl", "demo-missing");
+            miss.style.cssText = `color:${C.loading};font-weight:600;`;
+            miss.textContent = this.tr("UI_DemoMissing", this.demoMissing.join(" · "));
+            box.appendChild(miss);
+        }
+        return wrap;
+    }
+
     private renderLanding(): void {
         this.vs = null;
+        this.root.style.background = this.pageBg();
         const box = document.createElement("div");
         box.style.cssText = "padding:22px 26px;max-width:600px;";
         const h = document.createElement("div");
@@ -1339,22 +1670,17 @@ export class Visual implements IVisual {
         h.textContent = "P&L Statement byDatenWG";
         const p = document.createElement("div");
         p.style.cssText = `font-size:${this.kpx(12)};color:${C.soft};line-height:1.55;`;
-        p.textContent = this.str(
-            "Add the AC measure plus level columns (L1..Ln, star schema) or Account ID + Parent ID. " +
-            "Optional: PY / PL / FC, FY outlook measures (FC/PL full year), period (month) for sparklines, " +
-            "row type, formula, sign, comment.",
-            "AC-Measure zuweisen plus Ebenen-Spalten (L1..Ln, Sternschema) oder Konto-ID + Parent-ID. " +
-            "Optional: PY / PL / FC, FY-Outlook-Measures (FC/PL Gesamtjahr), Periode (Monat) für Sparklines, " +
-            "Zeilentyp, Formel, Vorzeichen, Kommentar.");
+        p.textContent = this.tr("UI_Landing");
         box.appendChild(h); box.appendChild(p);
         this.root.replaceChildren(box);
     }
 
     private renderEmpty(): void {
         this.vs = null;
+        this.root.style.background = this.pageBg();
         const box = document.createElement("div");
         box.style.cssText = `padding:18px 22px;font-size:${this.kpx(12)};color:${C.soft};`;
-        box.textContent = this.str("No data for the current selection.", "Keine Daten für die aktuelle Auswahl.");
+        box.textContent = this.tr("UI_NoData");
         this.root.replaceChildren(box);
     }
 
@@ -1396,6 +1722,9 @@ export class Visual implements IVisual {
     private render(): void {
         const model = this.model; const ui = this.ui;
         if (!model || !ui) { return; }
+        // several visuals may share one document (test harness) — every render
+        // re-arms its own palette before it paints
+        this.applyPalette();
         // interactions switched off (format pane, host, or a host without a
         // selection manager): no element may keep a selection marker
         if (!this.interactive()) { this.selKey = null; }
@@ -1424,11 +1753,13 @@ export class Visual implements IVisual {
         head.style.cssText = `background:${this.pageBg()};box-sizing:border-box;` +
             "border-bottom:1px solid transparent;transition:box-shadow .12s ease,border-color .12s ease;" +
             (this.sticky() ? "position:sticky;top:0;z-index:30;" : "");
+        if (this.demo) { head.appendChild(this.buildDemoBanner()); }
         if (this.settings.titleCard.show.value) { head.appendChild(this.buildTitle(fmt)); }
         if (this.settings.toolbarCard.show.value) { head.appendChild(this.buildToolbar()); }
         if (this.awaitingSegment) { head.appendChild(this.buildLoadingBar()); }
         if (this.settings.toolbarCard.showLegend.value) { head.appendChild(this.buildLegend()); }
-        if (ui.view !== "tree") { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
+        const mega = this.megaOn();
+        if (ui.view !== "tree" && !mega) { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
         if (head.childElementCount > 0) {
             this.root.appendChild(head);
             this.headEl = head;
@@ -1467,6 +1798,19 @@ export class Visual implements IVisual {
                 }
                 this.zoomPostLayout();
             }
+        } else if (mega) {
+            // the mega table lays itself out to the viewport (chart columns
+            // share the free width) — no fit passes, no windowing. One
+            // correction pass: when the body brings a vertical scrollbar along,
+            // the few pixels it takes come out of the chart columns instead of
+            // pushing a horizontal scrollbar in
+            const table = this.buildMega(fmt, 0);
+            this.root.appendChild(table);
+            const over = this.root.scrollWidth - this.root.clientWidth;
+            if (over > 0 && over <= 40) { this.root.replaceChild(this.buildMega(fmt, over), table); }
+            this.buildFootnotes(fmt);
+            this.root.appendChild(this.buildFooter());
+            this.root.scrollTop = keepScroll;
         } else {
             // fit mode needs the table on screen before it can solve — the
             // row-label column is auto-width, so it is measured, not guessed,
@@ -1507,9 +1851,8 @@ export class Visual implements IVisual {
         note.setAttribute("data-pnl", "scale-note");
         note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};text-align:right;` +
             `padding:0 ${TABLE_PAD_X}px 3px ${TABLE_PAD_X}px;`;
-        note.textContent = this.str("uniform Δ scale: bars ±", "einheitliche Δ-Skala: Balken ±")
-            + fmt.val(maxAbsDelta) + " " + fmt.suffix + this.settings.numbersCard.unitText.value
-            + " · pins ±40%";
+        note.textContent = this.tr("UI_ScaleNote",
+            fmt.val(maxAbsDelta) + " " + fmt.suffix + this.settings.numbersCard.unitText.value);
         return note;
     }
 
@@ -1530,6 +1873,13 @@ export class Visual implements IVisual {
             zoomHead.style.boxShadow = `0 -1px 0 ${this.pageBg()}`;
             top += Math.round(zoomHead.getBoundingClientRect().height);
         }
+        // the mega table's head svg is an ordinary block — it sticks by itself
+        const megaHead = this.root.querySelector('[data-pnl="mega-head-wrap"]') as HTMLElement | null;
+        if (megaHead) {
+            megaHead.style.position = "sticky";
+            megaHead.style.top = top + "px";
+            megaHead.style.zIndex = "20";
+        }
         this.buildFloatHead(top);
     }
 
@@ -1546,7 +1896,7 @@ export class Visual implements IVisual {
         this.headStuck = on;
         head.className = on ? "pnl-head pnl-head-stuck" : "pnl-head";
         head.style.borderBottomColor = on ? C.gridSoft : "transparent";
-        head.style.boxShadow = on ? "0 3px 8px rgba(15,30,46,.07)" : "none";
+        head.style.boxShadow = on ? C.headShadow : "none";
     }
 
     /**
@@ -1746,10 +2096,18 @@ export class Visual implements IVisual {
             ? this.yearPrefix(`${this.monthLabel(months[0])}..${this.monthLabel(months[months.length - 1])} (_${this.ytdMarker()})`)
             : "";
         const scen = ["AC", this.has.py ? "PY" : "", this.has.pl ? "PL" : ""].filter(Boolean).join(", ");
+        // mega table: the scenarios and Δ references its columns really show
+        const mt = this.megaOn() && this.ui!.view === "table" ? this.megaToggles() : null;
+        const megaScen = mt ? [mt.showPY ? "PY" : "", mt.showPL ? "PL" : "", mt.min].filter(Boolean).join(", ") : "";
+        const megaRefs = mt ? activeRefs(mt).join(", ") : "";
         const lines = [
-            t.unitLine.value.trim(),
-            t.measureLine.value.trim() || (this.str("Income statement (P&L)", "GuV (P&L)") + (fmt.suffix ? ` in ${fmt.suffix}${this.settings.numbersCard.unitText.value}` : "")),
-            t.periodLine.value.trim() || [autoPeriod, scen && `${scen} · Δ ${this.ui!.ref.toUpperCase()}`].filter(Boolean).join(": "),
+            t.unitLine.value.trim() || (this.demo ? this.tr("UI_DemoUnit") : ""),
+            t.measureLine.value.trim() || (fmt.suffix
+                ? this.tr("UI_TitleMeasureUnit", fmt.suffix + this.settings.numbersCard.unitText.value)
+                : this.tr("UI_TitleMeasure")),
+            t.periodLine.value.trim() || [autoPeriod, mt
+                ? megaScen + (megaRefs ? ` · Δ ${megaRefs}` : "")
+                : scen && `${scen} · Δ ${this.ui!.ref.toUpperCase()}`].filter(Boolean).join(": "),
         ].filter(s => s !== "");
         lines.forEach((line, i) => {
             const el = document.createElement("div");
@@ -1768,8 +2126,8 @@ export class Visual implements IVisual {
         if (title) { b.title = title; }
         const acc = this.accent();
         const rest = active
-            ? `background:${acc};border:1px solid ${acc};color:#FFF;font-weight:600;`
-            : `background:#FFF;border:1px solid ${C.ctlEdge};color:${C.text};font-weight:400;`;
+            ? `background:${acc};border:1px solid ${acc};color:${this.onAccent()};font-weight:600;`
+            : `background:${C.paper};border:1px solid ${C.ctlEdge};color:${C.text};font-weight:400;`;
         b.style.cssText =
             `font-family:${FONT};font-size:${this.kpx(10.5)};line-height:1.35;` +
             `padding:${this.kpx(3.5)} ${this.kpx(10)};cursor:pointer;` +
@@ -1782,7 +2140,7 @@ export class Visual implements IVisual {
         };
         b.onmouseleave = (): void => {
             if (active) { b.style.background = acc; b.style.borderColor = acc; }
-            else { b.style.background = "#FFF"; b.style.borderColor = C.ctlEdge; }
+            else { b.style.background = C.paper; b.style.borderColor = C.ctlEdge; }
         };
         b.onclick = (e) => { e.stopPropagation(); onClick(); this.persistUi(); this.rerender(); };
         return b;
@@ -1816,18 +2174,18 @@ export class Visual implements IVisual {
         const acc = this.accent();
         const b = document.createElement("button");
         b.setAttribute("data-pnl", "zoom-back");
-        b.textContent = this.str("← Back to tree", "← Zurück zum Baum");
-        b.title = this.str("Close the tile view", "Kachel-Ansicht schließen");
+        b.textContent = this.tr("UI_BackToTree");
+        b.title = this.tr("UI_BackToTreeTip");
         b.style.cssText = `font-family:${FONT};font-size:${this.kpx(13)};font-weight:600;line-height:1.3;` +
             `padding:${this.kpx(8)} ${this.kpx(16)};cursor:pointer;border-radius:6px;border:1px solid ${acc};` +
-            `background:${acc};color:#FFF;transition:${TRANSITION};box-shadow:${SHADOW};`;
+            `background:${acc};color:${this.onAccent()};transition:${TRANSITION};box-shadow:${C.shadow};`;
         b.onmouseenter = (): void => {
             b.style.background = this.accentSoft(0.16);
             b.style.borderColor = this.accentSoft(0.16);
-            b.style.boxShadow = SHADOW_HOVER;
+            b.style.boxShadow = C.shadowHover;
         };
         b.onmouseleave = (): void => {
-            b.style.background = acc; b.style.borderColor = acc; b.style.boxShadow = SHADOW;
+            b.style.background = acc; b.style.borderColor = acc; b.style.boxShadow = C.shadow;
         };
         b.onclick = (e: Event): void => {
             e.stopPropagation(); onClick(); this.persistUi(); this.rerender();
@@ -1846,15 +2204,14 @@ export class Visual implements IVisual {
         // Δ reference and the unit reach the zoom chart, so only those two stay —
         // the header belongs to the back button and the breadcrumb.
         const inZoom = ui.view === "tree" && ui.treeZoom != null;
-        if (tset.showView.value && !inZoom) { bar.appendChild(this.tbGroup(this.str("View", "Ansicht"), [
-            this.tbBtn("Table", ui.view === "table", () => { ui.view = "table"; }),
-            this.tbBtn("Bars", ui.view === "bars", () => { ui.view = "bars"; },
-                this.str("Structure bars: AC vs reference per row", "Struktur-Balken: AC vs. Referenz je Zeile")),
-            this.tbBtn("Waterfall", ui.view === "waterfall", () => { ui.view = "waterfall"; },
-                this.str("Row waterfall: contributions cascade, subtotals anchor", "Zeilen-Waterfall: Beiträge kaskadieren, Summen ankern")),
-            this.tbBtn("Tree", ui.view === "tree", () => { ui.view = "tree"; },
-                this.str("Value driver tree: the formula graph as a DuPont tree",
-                    "Werttreiberbaum: der Formel-Graph als DuPont-Baum")),
+        if (tset.showView.value && !inZoom) { bar.appendChild(this.tbGroup(this.tr("UI_TbView"), [
+            this.tbBtn(this.tr("UI_TbTable"), ui.view === "table", () => { ui.view = "table"; }),
+            this.tbBtn(this.tr("UI_TbBars"), ui.view === "bars", () => { ui.view = "bars"; },
+                this.tr("UI_TbBarsTip")),
+            this.tbBtn(this.tr("UI_TbWaterfall"), ui.view === "waterfall", () => { ui.view = "waterfall"; },
+                this.tr("UI_TbWaterfallTip")),
+            this.tbBtn(this.tr("UI_TbTree"), ui.view === "tree", () => { ui.view = "tree"; },
+                this.tr("UI_TbTreeTip")),
         ])); }
 
         // column presets, periods and options describe the table layout — the
@@ -1863,19 +2220,23 @@ export class Visual implements IVisual {
         // depth of the opened graph.
         const tableViews = ui.view !== "tree" && !inZoom;
         const isTree = ui.view === "tree" && !inZoom;
+        // the mega table takes its columns from the format pane switches —
+        // presets, Δ reference, period blocks and fit belong to the classic table
+        const mega = ui.view === "table" && this.megaOn();
+        const classic = tableViews && !mega;
 
         const presets: [Preset, string][] = [
-            ["full", "AC·PY·PL·FC"], ["acref", "AC vs Ref"], ["dall", "AC vs PY·PL·FC"],
+            ["full", this.tr("UI_PresetFull")], ["acref", this.tr("UI_PresetAcRef")], ["dall", this.tr("UI_PresetDAll")],
             ["acpydpy", "AC·PY·ΔPY"], ["acpldpl", "AC·PL·ΔPL"], ["dpct", "ΔPY% · ΔPL%"],
         ];
-        if (tset.showPresets.value && tableViews) {
-            bar.appendChild(this.tbGroup(this.str("Column preset", "Spalten-Preset"),
+        if (tset.showPresets.value && classic) {
+            bar.appendChild(this.tbGroup(this.tr("UI_TbPreset"),
                 presets.map(([p, label]) => this.tbBtn(label, ui.preset === p, () => { ui.preset = p; }))));
         }
 
         const refs: Scenario[] = (["py", "pl", "fc"] as Scenario[]).filter(s => this.has[s]);
-        if (refs.length > 0 && tset.showReference.value && (tableViews || isTree || inZoom)) {
-            bar.appendChild(this.tbGroup("Δ " + this.str("reference", "Referenz"),
+        if (refs.length > 0 && tset.showReference.value && (classic || isTree || inZoom)) {
+            bar.appendChild(this.tbGroup(this.tr("UI_TbReference"),
                 refs.map(r => this.tbBtn(r.toUpperCase(), ui.ref === r, () => { ui.ref = r; }))));
         }
 
@@ -1887,39 +2248,32 @@ export class Visual implements IVisual {
         if (this.has.fcfy && this.has.plfy) {
             pb.push(this.tbBtn("FY", ui.blocks.fy, () => { ui.blocks.fy = !ui.blocks.fy; }));
         }
-        if (pb.length > 1 && tset.showPeriods.value && tableViews) {
-            bar.appendChild(this.tbGroup(this.str("Periods", "Perioden"), pb));
+        if (pb.length > 1 && tset.showPeriods.value && classic) {
+            bar.appendChild(this.tbGroup(this.tr("UI_TbPeriods"), pb));
         }
 
         const unitText = this.settings.numbersCard.unitText.value || "EUR";
-        if (tset.showUnit.value) { bar.appendChild(this.tbGroup(this.str("Unit", "Einheit"), [
+        if (tset.showUnit.value) { bar.appendChild(this.tbGroup(this.tr("UI_TbUnit"), [
             this.tbBtn("k" + unitText, ui.unit === "k", () => { ui.unit = "k"; }),
             this.tbBtn("m" + unitText, ui.unit === "m", () => { ui.unit = "m"; }),
         ])); }
 
-        if (tset.showDensity.value && !inZoom) { bar.appendChild(this.tbGroup(this.str("Density", "Dichte"), [
-            this.tbBtn("Normal", ui.density === "normal", () => { ui.density = "normal"; }),
-            this.tbBtn("Compact", ui.density === "compact", () => { ui.density = "compact"; }),
+        if (tset.showDensity.value && !inZoom) { bar.appendChild(this.tbGroup(this.tr("UI_TbDensity"), [
+            this.tbBtn(this.tr("UI_TbNormal"), ui.density === "normal", () => { ui.density = "normal"; }),
+            this.tbBtn(this.tr("UI_TbCompact"), ui.density === "compact", () => { ui.density = "compact"; }),
         ])); }
 
         // card chart + status indicator only make sense on the driver tree
         if (isTree) {
             const cardBtn = (m: TreeCardMode, label: string, tip: string): HTMLElement =>
                 this.tbBtn(label, ui.treeCard === m, () => { ui.treeCard = m; }, tip);
-            bar.appendChild(this.tbGroup(this.str("Cards", "Karten"), [
-                cardBtn("months", this.str("Months", "Monate"),
-                    this.str("Monthly columns: AC solid, PL outlined behind",
-                        "Monatssäulen: AC solide, PL outlined dahinter")),
-                cardBtn("delta", "Δ",
-                    this.str("Variance columns per month: AC − reference",
-                        "Abweichungssäulen je Monat: AC − Referenz")),
-                cardBtn("bridge", this.str("Bridge", "Brücke"),
-                    this.str("Mini bridge: reference → Δ → AC (year to date)",
-                        "Mini-Brücke: Referenz → Δ → AC (Jahresverlauf)")),
-                this.tbBtn(this.str("Status", "Status"), ui.treeStatus,
+            bar.appendChild(this.tbGroup(this.tr("UI_TbCards"), [
+                cardBtn("months", this.tr("UI_TbMonths"), this.tr("UI_TbMonthsTip")),
+                cardBtn("delta", "Δ", this.tr("UI_TbDeltaTip")),
+                cardBtn("bridge", this.tr("UI_TbBridge"), this.tr("UI_TbBridgeTip")),
+                this.tbBtn(this.tr("UI_TbStatus"), ui.treeStatus,
                     () => { ui.treeStatus = !ui.treeStatus; },
-                    this.str("Colour indicator: card edge and Δ% in the header",
-                        "Indikator-Farbe: Kartenrand und Δ% im Kopf")),
+                    this.tr("UI_TbStatusTip")),
             ]));
         }
 
@@ -1930,8 +2284,7 @@ export class Visual implements IVisual {
             lvlBtns.push(this.tbBtn("⌂", false, () => {
                 ui.treeRoot = "";
                 ui.treeCollapsed = null;
-            }, this.str("Back to the top root, whole tree open",
-                "Zurück zur obersten Wurzel, ganzer Baum offen")));
+            }, this.tr("UI_TbHomeTip")));
         }
         for (let l = 1; l < maxL; l++) {
             lvlBtns.push(this.tbBtn(String(l), false, () => {
@@ -1939,19 +2292,22 @@ export class Visual implements IVisual {
                 else { ui.collapsed = [...collapseToLevel(this.model!.roots, l)]; }
             }));
         }
-        lvlBtns.push(this.tbBtn(this.str("All", "Alle"), false, () => {
+        lvlBtns.push(this.tbBtn(this.tr("UI_TbAll"), false, () => {
             if (isTree) { ui.treeCollapsed = []; } else { ui.collapsed = []; }
         }));
         if (tset.showLevels.value && (tableViews || isTree)) {
-            bar.appendChild(this.tbGroup(this.str("Expand to level", "Bis Ebene"), lvlBtns));
+            bar.appendChild(this.tbGroup(this.tr("UI_TbLevels"), lvlBtns));
         }
 
-        if (tset.showOptions.value && tableViews) { bar.appendChild(this.tbGroup(this.str("Options", "Optionen"), [
-            this.tbBtn(this.str("% of revenue", "% vom Umsatz"), ui.pctRev, () => { ui.pctRev = !ui.pctRev; }),
-            this.tbBtn(this.str("Hide zero rows", "Nullzeilen aus"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
-            this.tbBtn("Fit", ui.fit, () => { ui.fit = !ui.fit; },
-                this.str("Squeeze the chart columns until the table fits the width — no horizontal scrolling",
-                    "Diagramm-Spalten stauchen, bis die Tabelle in die Breite passt — kein Querscrollen")),
+        if (tset.showOptions.value && mega) {
+            bar.appendChild(this.tbGroup(this.tr("UI_TbOptions"), [
+                this.tbBtn(this.tr("UI_TbHideZero"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
+            ]));
+        }
+        if (tset.showOptions.value && classic) { bar.appendChild(this.tbGroup(this.tr("UI_TbOptions"), [
+            this.tbBtn(this.tr("UI_TbPctRev"), ui.pctRev, () => { ui.pctRev = !ui.pctRev; }),
+            this.tbBtn(this.tr("UI_TbHideZero"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
+            this.tbBtn(this.tr("UI_TbFit"), ui.fit, () => { ui.fit = !ui.fit; }, this.tr("UI_TbFitTip")),
         ])); }
         return bar;
     }
@@ -1962,10 +2318,10 @@ export class Visual implements IVisual {
             `margin-right:${this.kpx(5)};vertical-align:-1px;`;
         if (style === "ac") { chip.style.cssText = base + `background:${C.ac};`; }
         else if (style === "py") { chip.style.cssText = base + `background:${C.py};`; }
-        else if (style === "pl") { chip.style.cssText = base + `background:#FFF;border:1.4px solid ${C.ac};box-sizing:border-box;`; }
+        else if (style === "pl") { chip.style.cssText = base + `background:${C.paper};border:1.4px solid ${C.ac};box-sizing:border-box;`; }
         else {
             chip.style.cssText = base +
-                `background:repeating-linear-gradient(45deg,#FFF,#FFF 2px,${C.ac} 2px,${C.ac} 3.2px);` +
+                `background:repeating-linear-gradient(45deg,${C.paper},${C.paper} 2px,${C.ac} 2px,${C.ac} 3.2px);` +
                 `border:1px solid ${C.ac};box-sizing:border-box;`;
         }
         return chip;
@@ -1984,10 +2340,10 @@ export class Visual implements IVisual {
             s.appendChild(t);
             bar.appendChild(s);
         };
-        item(this.legendChip("ac"), " AC actual");
-        if (this.has.py) { item(this.legendChip("py"), " PY previous year"); }
-        if (this.has.pl || this.has.plfy) { item(this.legendChip("pl"), " PL plan"); }
-        if (this.has.fc || this.has.fcfy) { item(this.legendChip("fc"), " FC forecast"); }
+        item(this.legendChip("ac"), this.tr("UI_LgAc"));
+        if (this.has.py) { item(this.legendChip("py"), this.tr("UI_LgPy")); }
+        if (this.has.pl || this.has.plfy) { item(this.legendChip("pl"), this.tr("UI_LgPl")); }
+        if (this.has.fc || this.has.fcfy) { item(this.legendChip("fc"), this.tr("UI_LgFc")); }
         const g = document.createElement("span");
         const sq = (color: string): HTMLElement => {
             const el = document.createElement("span");
@@ -1996,22 +2352,19 @@ export class Visual implements IVisual {
             return el;
         };
         const fav = document.createElement("span"); fav.appendChild(sq(this.goodColor()));
-        fav.appendChild(document.createTextNode(this.str("favorable Δ", "günstige Δ")));
+        fav.appendChild(document.createTextNode(this.tr("UI_LgGood")));
         const unfav = document.createElement("span"); unfav.appendChild(sq(this.badColor()));
-        unfav.appendChild(document.createTextNode(this.str("unfavorable Δ", "ungünstige Δ")));
+        unfav.appendChild(document.createTextNode(this.tr("UI_LgBad")));
         bar.appendChild(fav); bar.appendChild(unfav); bar.appendChild(g);
         if (String(this.settings.styleCard.colorMode.value.value) !== "ibcs") {
             const note = document.createElement("span");
             note.style.cssText = "font-style:italic;";
-            note.textContent = this.str(
-                "Documented IBCS deviation: teal replaces green (safe for red–green color-vision deficiency).",
-                "Dokumentierte IBCS-Abweichung: Teal statt Grün (sicher bei Rot-Grün-Sehschwäche).");
+            note.textContent = this.tr("UI_LgTeal");
             bar.appendChild(note);
         }
         const axes = document.createElement("span");
         axes.style.cssText = "font-style:italic;";
-        axes.textContent = this.str("Δ axes encode the reference: gray = PY, double line = PL, dashed = FC.",
-            "Δ-Achsen kodieren die Referenz: grau = PY, Doppellinie = PL, gestrichelt = FC.");
+        axes.textContent = this.tr("UI_LgAxes");
         bar.appendChild(axes);
         return bar;
     }
@@ -2031,10 +2384,10 @@ export class Visual implements IVisual {
         const mi = this.mtdIndex();
         const mtdMonth = mi >= 0 ? this.monthLabel(months[mi]) : last;
         const ytdLabel = months.length > 0
-            ? `${this.yearPrefix(`${this.monthLabel(months[0])}..${last} (_${mtdMonth})`)} · ${this.str("year to date", "Jahresverlauf")}`
-            : this.str("current period", "aktueller Zeitraum");
-        const mtdLabel = `MTD ${mtdMonth} · ${this.str("month", "Monat")}`;
-        const fyLabel = `${fyYear} · ${this.str("outlook", "Ausblick")} AC&FC ${this.str("vs", "vs.")} PL`;
+            ? this.tr("UI_BlkYtd", this.yearPrefix(`${this.monthLabel(months[0])}..${last} (_${mtdMonth})`))
+            : this.tr("UI_BlkCurrent");
+        const mtdLabel = this.tr("UI_BlkMtd", mtdMonth);
+        const fyLabel = this.tr("UI_BlkFy", fyYear);
         const fyOn = this.has.fcfy && this.has.plfy && ui.blocks.fy;
         const blocks: Block[] = [];
 
@@ -2079,7 +2432,7 @@ export class Visual implements IVisual {
             blocks.push({ key: "mtd", label: mtdLabel, specs: mtd });
         }
         const ytd: ColSpec[] = [{ kind: "val", scen: "ac", block: "ytd", label: "AC" }];
-        if (ui.pctRev) { ytd.push({ kind: "pct", block: "ytd", label: "% Rev" }); }
+        if (ui.pctRev) { ytd.push({ kind: "pct", block: "ytd", label: this.tr("UI_ColPctRev") }); }
         const fy: ColSpec[] = [];
         const push = (arr: ColSpec[], ref: Scenario, minuend: Scenario, withVal: boolean, valScen?: Scenario): void => {
             if (withVal && valScen) { arr.push({ kind: "val", scen: valScen, block: "ytd", label: valScen === "plfy" ? "PL" : valScen.toUpperCase() }); }
@@ -2120,7 +2473,7 @@ export class Visual implements IVisual {
             if (this.has.pl) { ytd.push({ kind: "pin", ref: "pl", minuend: "ac", block: "ytd", label: "ΔPL%" }); }
         }
         blocks.push({ key: "ytd", label: ytdLabel, specs: ytd });
-        if (fy.length > 0) { blocks.push({ key: "fy", label: `${fyYear} · ${this.str("outlook (FC)", "Ausblick (FC)")}`, specs: fy }); }
+        if (fy.length > 0) { blocks.push({ key: "fy", label: this.tr("UI_BlkFyFc", fyYear), specs: fy }); }
         return blocks;
     }
 
@@ -2330,7 +2683,12 @@ export class Visual implements IVisual {
                     if (v.delta != null) { dLabelLen = Math.max(dLabelLen, fmt.val(v.delta, true).length); }
                 } else if (c.kind === "pin") {
                     const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
-                    if (v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(this.capPct(v.deltaPct), true) + "▸").length); }
+                    // the lane must hold the label the pin really prints: the
+                    // UNCAPPED Δ% (+ the overflow marker) — deltaPinCell only
+                    // caps the needle at ±40%, never the number. Measuring the
+                    // capped value sized the lane for "+40.0%▸" and clipped
+                    // "+220.0%▸" (p2). Within ±40% nothing changes.
+                    if (v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length); }
                 }
             }
         }
@@ -2552,7 +2910,7 @@ export class Visual implements IVisual {
         if (node.error) {
             const err = document.createElement("span");
             err.style.cssText = `color:${this.badColor()};font-size:${this.kpx(8.5)};`;
-            err.textContent = " ⚠ " + node.error;
+            err.textContent = " ⚠ " + this.trMsg(node.error);
             name.appendChild(err);
         }
         if (node.row.comment) {
@@ -2573,8 +2931,7 @@ export class Visual implements IVisual {
             inc.style.cssText = `color:${C.loading};font-size:${this.kpx(9.5)};` +
                 `margin-left:${this.kpx(5)};cursor:default;`;
             inc.textContent = "≈";
-            inc.title = this.str("value still incomplete — data is loading",
-                "Wert noch unvollständig — Daten werden geladen");
+            inc.title = this.tr("UI_Incomplete");
             name.appendChild(inc);
         }
         // 12M sparkline chip
@@ -2584,14 +2941,14 @@ export class Visual implements IVisual {
             chip.textContent = `${this.model!.months.length}M`;
             chip.style.cssText = `font-size:${this.kpx(8)};margin-left:${this.kpx(6)};` +
                 `padding:0 ${this.kpx(4)};cursor:pointer;border-radius:2px;` +
-                (active ? `background:${C.ac};color:#FFF;` : `border:1px solid ${C.gridSoft};color:${C.soft};`);
+                (active ? `background:${C.ac};color:${C.onInk};` : `border:1px solid ${C.gridSoft};color:${C.soft};`);
             chip.onclick = (e) => {
                 e.stopPropagation();
                 if (active) { ui.spark = ui.spark.filter(id => id !== node.row.id); }
                 else { ui.spark.push(node.row.id); }
                 this.persistUi(); this.rerender();
             };
-            chip.title = this.str("Toggle monthly sparkline", "Monats-Sparkline umschalten");
+            chip.title = this.tr("UI_SparkTip");
             name.appendChild(chip);
         }
         row.appendChild(name);
@@ -2604,7 +2961,7 @@ export class Visual implements IVisual {
             this.bindSelect(row, node, false);
             row.setAttribute("data-pnl-row", node.row.id);
             const cap = this.selCapNote(node);
-            if (cap !== "") { row.title = this.str("Selection", "Selektion") + cap; }
+            if (cap !== "") { row.title = this.tr("UI_Selection") + cap; }
         }
         const selected = canSelect && this.isSelected(node);
         if (selected) { row.setAttribute("data-pnl-sel", "1"); }
@@ -2695,7 +3052,7 @@ export class Visual implements IVisual {
         p.setAttribute("patternUnits", "userSpaceOnUse");
         p.setAttribute("patternTransform", "rotate(45)");
         const r = document.createElementNS(ns, "rect");
-        r.setAttribute("width", "4"); r.setAttribute("height", "4"); r.setAttribute("fill", "#FFF");
+        r.setAttribute("width", "4"); r.setAttribute("height", "4"); r.setAttribute("fill", C.paper);
         const l = document.createElementNS(ns, "rect");
         l.setAttribute("width", "1.8"); l.setAttribute("height", "4"); l.setAttribute("fill", color);
         p.appendChild(r); p.appendChild(l); defs.appendChild(p); svg.appendChild(defs);
@@ -2762,7 +3119,7 @@ export class Visual implements IVisual {
         head.setAttribute("r", overflow ? "2" : "2.8");
         // pin head carries the minuend's scenario fill (IBCS): FC → outlined
         if (c.minuend === "fcfy") {
-            head.setAttribute("fill", "#FFF"); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1.4");
+            head.setAttribute("fill", C.paper); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1.4");
         } else { head.setAttribute("fill", color); }
         svg.appendChild(head);
         const txt = document.createElementNS(ns, "text");
@@ -2784,37 +3141,19 @@ export class Visual implements IVisual {
      * Children cascade inside their parent's segment. Expand-state independent.
      */
     private cascadeSegments(read: (n: PnlNode) => number | null): Map<string, { s: number; e: number }> {
-        const segs = new Map<string, { s: number; e: number }>();
-        const walkChildren = (node: PnlNode, start: number): void => {
-            let cum = start;
-            for (const c of node.children) {
-                const t = c.row.rowType;
-                if (t === "kpi" || t === "separator") { continue; }
-                const v = read(c);
-                if (t === "formula") { continue; } // nested formulas: no cascade segment
-                if (v == null) { continue; }
-                segs.set(c.row.id, { s: cum, e: cum + v });
-                walkChildren(c, cum);
-                cum += v;
-            }
+        // the shared cascade geometry of waterfall.ts in parent-first ("value")
+        // mode: root formulas anchor, nested formulas carry no segment
+        const node = (n: PnlNode, root: boolean): CascadeNode => {
+            const t = n.row.rowType;
+            const skip = t === "kpi" || t === "separator" || (!root && t === "formula");
+            return {
+                id: n.row.id,
+                value: skip ? null : read(n),
+                anchor: root && t === "formula",
+                children: skip ? [] : n.children.map(c => node(c, false)),
+            };
         };
-        let rootCum = 0;
-        for (const r of this.model!.roots) {
-            const t = r.row.rowType;
-            if (t === "kpi" || t === "separator") { continue; }
-            const v = read(r);
-            if (v == null) { continue; }
-            if (t === "formula") {
-                segs.set(r.row.id, { s: 0, e: v });
-                walkChildren(r, 0);
-                rootCum = v;
-            } else {
-                segs.set(r.row.id, { s: rootCum, e: rootCum + v });
-                walkChildren(r, rootCum);
-                rootCum += v;
-            }
-        }
-        return segs;
+        return cascade(this.model!.roots.map(r => node(r, true)), "value");
     }
 
     /** row-waterfall cell: floating segment or anchor bar in scenario notation */
@@ -2853,7 +3192,7 @@ export class Visual implements IVisual {
         rect.setAttribute("x", String(x0)); rect.setAttribute("y", "2");
         rect.setAttribute("width", String(Math.max(x1 - x0, 1)));
         rect.setAttribute("height", String(h - 4));
-        const fill = scen === "ac" ? C.ac : scen === "py" ? C.py : isPlan ? "#FFF" : `url(#${pid})`;
+        const fill = scen === "ac" ? C.ac : scen === "py" ? C.py : isPlan ? C.paper : `url(#${pid})`;
         rect.setAttribute("fill", fill);
         if (isPlan || hatch) { rect.setAttribute("stroke", C.ac); rect.setAttribute("stroke-width", "1"); }
         svg.appendChild(rect);
@@ -2937,7 +3276,7 @@ export class Visual implements IVisual {
         // reference behind (IBCS comparison: subtrahend behind the minuend)
         if (r != null) {
             const refIsPlan = c.ref === "pl" || c.ref === "plfy";
-            bar(r, 1.5, h - 3, refIsPlan ? "#FFF" : C.py, refIsPlan ? C.ac : null);
+            bar(r, 1.5, h - 3, refIsPlan ? C.paper : C.py, refIsPlan ? C.ac : null);
         }
         // minuend on top, narrower (AC solid / FC hatched)
         if (v != null) {
@@ -3036,7 +3375,7 @@ export class Visual implements IVisual {
         if (!model || model.roots.length === 0) { return null; }
         if (this.totalNode == null || this.totalVer !== this.modelVer) {
             const n = syntheticTotal(model);
-            n.row.name = this.str("Total", "Gesamt");
+            n.row.name = this.tr("UI_Total");
             this.totalNode = n;
             this.totalVer = this.modelVer;
         }
@@ -3487,7 +3826,7 @@ export class Visual implements IVisual {
     private treeScenFill(scen: Scenario, hatch: string): { fill: string; stroke: string | null } {
         if (scen === "py") { return { fill: C.refGray, stroke: null }; }
         if (scen === "fc" || scen === "fcfy") { return { fill: `url(#${hatch})`, stroke: C.ac }; }
-        return { fill: "#FFF", stroke: C.ac };
+        return { fill: this.cardPaper(), stroke: C.ac };
     }
 
     /**
@@ -3782,7 +4121,7 @@ export class Visual implements IVisual {
         if (refv != null) {
             const isPlan = ref === "pl";
             const isFc = ref === "fc";
-            const fill = isPlan ? "#FFF" : isFc ? `url(#${this.treeHatchId(svg)})` : C.py;
+            const fill = isPlan ? this.cardPaper() : isFc ? `url(#${this.treeHatchId(svg)})` : C.py;
             bar(yR, refv, fill, isPlan || isFc ? C.ac : null);
             rowLabel(yR, ref.toUpperCase(), C.soft, false);
             valLabel(yR, refv, texts[0], C.soft, false);
@@ -3873,6 +4212,7 @@ export class Visual implements IVisual {
      */
     private treeZoomShow(node: PnlNode, anchor: Element, fmt: Fmt): void {
         this.treeZoomHide();
+        this.applyPalette();
         const ns = "http://www.w3.org/2000/svg";
         const isRatio = node.row.rowType === "kpi";
         const unit = isRatio ? "%" : (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
@@ -3881,7 +4221,7 @@ export class Visual implements IVisual {
         const box = document.createElement("div");
         box.style.cssText = `position:absolute;z-index:40;width:${W}px;background:${this.cardBg()};` +
             `border:1px solid ${C.cardEdge};border-radius:6px;` +
-            `box-shadow:0 6px 20px rgba(15,30,46,.16);` +
+            `box-shadow:${C.zoomShadow};` +
             `padding:${this.kpx(12)} ${this.kpx(14)} ${this.kpx(8)} ${this.kpx(14)};` +
             `pointer-events:none;font-family:${FONT};box-sizing:border-box;`;
 
@@ -3934,11 +4274,11 @@ export class Visual implements IVisual {
             draw(g, svg);
         };
         const zs = 1.15 * zk;
-        caption(this.str(`Months — AC solid, ${refUp} behind`, `Monate — AC solide, ${refUp} dahinter`));
+        caption(this.tr("UI_CapMonths", refUp));
         chart(this.k(104), (g, svg) => this.treeMini(g, node, { x: 0, y: 2, w: inner, h: this.k(100) }, zs, fmt, svg, 0));
-        caption(`Δ${refUp} ` + this.str("per month", "je Monat"));
+        caption(this.tr("UI_CapDelta", refUp));
         chart(this.k(72), (g) => this.treeMiniDelta(g, node, { x: 0, y: 2, w: inner, h: this.k(68) }, zs, fmt, 0));
-        caption(this.str(`Bridge ${refUp} → Δ → AC (YTD)`, `Brücke ${refUp} → Δ → AC (YTD)`));
+        caption(this.tr("UI_CapBridge", refUp));
         chart(this.k(84), (g, svg) => this.treeMiniBridge(g, node, { x: 0, y: 2, w: inner, h: this.k(80) }, zs, fmt, svg, 0));
 
         if (node.row.comment) {
@@ -3951,7 +4291,7 @@ export class Visual implements IVisual {
         if (node.error) {
             const er = document.createElement("div");
             er.style.cssText = `font-size:${this.kpx(9)};color:${this.badColor()};margin-top:4px;`;
-            er.textContent = "⚠ " + node.error;
+            er.textContent = "⚠ " + this.trMsg(node.error);
             box.appendChild(er);
         }
 
@@ -4072,7 +4412,7 @@ export class Visual implements IVisual {
         shade.setAttribute("y", (card.y + 1.5).toFixed(2));
         shade.setAttribute("width", geo.cw.toFixed(2)); shade.setAttribute("height", cardH.toFixed(2));
         shade.setAttribute("rx", "5"); shade.setAttribute("fill", "none");
-        shade.setAttribute("stroke", "rgba(15,30,46,.06)"); shade.setAttribute("stroke-width", "2");
+        shade.setAttribute("stroke", C.shadeRest); shade.setAttribute("stroke-width", "2");
         g.appendChild(shade);
         // crisp 1 px edge without moving the card: the renderer snaps the stroke
         // to the pixel grid, the geometry the bus lines rely on stays exact
@@ -4088,11 +4428,11 @@ export class Visual implements IVisual {
         const selCard = this.isSelected(card.node) && this.selectable(card.node);
         g.addEventListener("mouseenter", () => {
             if (!selCard) { box.setAttribute("stroke", C.cardEdgeHover); }
-            shade.setAttribute("stroke", "rgba(15,30,46,.10)");
+            shade.setAttribute("stroke", C.shadeHover);
         });
         g.addEventListener("mouseleave", () => {
             if (!selCard) { box.setAttribute("stroke", C.cardEdge); }
-            shade.setAttribute("stroke", "rgba(15,30,46,.06)");
+            shade.setAttribute("stroke", C.shadeRest);
         });
 
         const pad = (card.compact ? 6 : 8) * s;
@@ -4144,7 +4484,7 @@ export class Visual implements IVisual {
             hitR.setAttribute("fill", "#FFF"); hitR.setAttribute("fill-opacity", "0.01");
             rr.appendChild(hitR);
             const rt = document.createElementNS(ns, "title");
-            rt.textContent = this.str("Show as root", "Als Wurzel anzeigen");
+            rt.textContent = this.tr("UI_ShowRoot");
             rr.appendChild(rt);
             rr.style.cursor = "pointer";
             rr.onclick = (e: Event): void => {
@@ -4224,7 +4564,7 @@ export class Visual implements IVisual {
                 geo.cw - 2 * pad - (vColor ? 3 * s : 0) - (card.hasKids ? 20 * s : 0), vfs);
             g.appendChild(v);
             const mt = this.treeMonthsTip(card.node, geo.fmt);
-            const err = card.node.error ? " ⚠ " + card.node.error : "";
+            const err = card.node.error ? " ⚠ " + this.trMsg(card.node.error) : "";
             if (mt !== "" || err !== "") {
                 const bt = document.createElementNS(ns, "title");
                 bt.textContent = card.node.row.name + (mt === "" ? "" : " · " + mt) + err;
@@ -4264,8 +4604,7 @@ export class Visual implements IVisual {
         zoomHit.setAttribute("fill", "#FFF"); zoomHit.setAttribute("fill-opacity", "0.01");
         zoomHit.style.cursor = "pointer";
         const zt = document.createElementNS(ns, "title");
-        zt.textContent = this.str("Open the tile view of this driver",
-            "Kachel-Ansicht dieses Treibers öffnen");
+        zt.textContent = this.tr("UI_OpenTile");
         zoomHit.appendChild(zt);
         zoomHit.onclick = (e: Event): void => {
             e.stopPropagation();
@@ -4281,7 +4620,7 @@ export class Visual implements IVisual {
             e.setAttribute("font-size", (7 * s).toFixed(1));
             e.setAttribute("font-family", FONT);
             e.setAttribute("fill", this.badColor());
-            e.textContent = this.fitLabel("⚠ " + card.node.error, geo.cw - 2 * pad, 7 * s);
+            e.textContent = this.fitLabel("⚠ " + this.trMsg(card.node.error), geo.cw - 2 * pad, 7 * s);
             g.appendChild(e);
         }
 
@@ -4298,11 +4637,7 @@ export class Visual implements IVisual {
             badge.setAttribute("fill", C.soft);
             badge.textContent = "+" + card.moreKids;
             const bt = document.createElementNS(ns, "title");
-            bt.textContent = this.str(
-                `Card budget reached — ${card.moreKids} more branches not drawn. ` +
-                "Use ⌖ to open this limb as its own tree.",
-                `Kartenbudget erreicht — ${card.moreKids} weitere Zweige nicht gezeichnet. ` +
-                "Mit ⌖ diesen Ast als eigenen Baum öffnen.");
+            bt.textContent = this.tr("UI_Budget", card.moreKids);
             badge.appendChild(bt);
             g.appendChild(badge);
         }
@@ -4318,7 +4653,7 @@ export class Visual implements IVisual {
             hit.setAttribute("width", (16 * s).toFixed(2));
             hit.setAttribute("height", (12.5 * s).toFixed(2));
             hit.setAttribute("rx", (2 * s).toFixed(2));
-            hit.setAttribute("fill", "#FFF");
+            hit.setAttribute("fill", this.cardPaper());
             hit.setAttribute("stroke", C.ctlEdge);
             hit.setAttribute("stroke-width", "1");
             const ch = document.createElementNS(ns, "text");
@@ -4331,8 +4666,8 @@ export class Visual implements IVisual {
             ch.textContent = card.collapsed ? "▸" : "▾";
             const ct = document.createElementNS(ns, "title");
             ct.textContent = card.collapsed
-                ? this.str("Expand (Shift: whole limb)", "Aufklappen (Shift: ganzer Ast)")
-                : this.str("Collapse", "Zuklappen");
+                ? this.tr("UI_Expand")
+                : this.tr("UI_Collapse");
             ch.appendChild(ct);
             const toggle = (e: Event): void => {
                 e.stopPropagation();
@@ -4487,7 +4822,7 @@ export class Visual implements IVisual {
         const path = this.treeZoomPath(ctx, node);
         if (path.length > 1) {
             const crumbs = this.treeBreadcrumb(path, (n) => { ui.treeZoom = n.row.id; },
-                this.str("Zoom into this card", "Auf diese Karte zoomen"));
+                this.tr("UI_ZoomInto"));
             crumbs.style.margin = "0";
             head.appendChild(crumbs);
         }
@@ -4532,7 +4867,7 @@ export class Visual implements IVisual {
         const tile = document.createElement("div");
         tile.setAttribute("data-pnl", "zoom-center");
         tile.style.cssText = `flex:1 1 ${w}px;min-width:0;background:${this.cardBg()};box-sizing:border-box;` +
-            `border:1px solid ${C.cardEdge};border-radius:6px;box-shadow:${SHADOW};` +
+            `border:1px solid ${C.cardEdge};border-radius:6px;box-shadow:${C.shadow};` +
             (edge ? `border-left:3px solid ${edge};` : "") +
             `padding:${this.kpx(16)} ${this.kpx(16)} ${this.kpx(12)} ${this.kpx(16)};`;
         // right click anywhere on the tile opens the native menu of this row
@@ -4550,8 +4885,7 @@ export class Visual implements IVisual {
         // the charts below it stay reading surface, not controls
         if (this.selectable(node)) {
             nm.style.cursor = "pointer";
-            nm.title = this.str("Set the page selection to this row",
-                "Seiten-Selektion auf diese Zeile setzen") + this.selCapNote(node);
+            nm.title = this.tr("UI_SetSel") + this.selCapNote(node);
             this.bindSelect(nm, node, true);
             if (this.isSelected(node)) {
                 nm.setAttribute("data-pnl-sel", "1");
@@ -4608,11 +4942,7 @@ export class Visual implements IVisual {
         if (isRatio) {
             // percentages do not add up: no bridge, no stacked total — the
             // monthly comparison plus the grid is the honest picture here
-            note(this.str(
-                `Ratio row — percentages are not additive: no bridge and no AC+FC stack. `
-                + `Months AC solid, ${refUp} offset behind, Δ${refUp} in the grid.`,
-                `Quotenzeile — Prozente sind nicht additiv: keine Brücke, kein AC+FC-Stapel. `
-                + `Monate AC solide, ${refUp} versetzt dahinter, Δ${refUp} im Grid.`));
+            note(this.tr("UI_RatioNote", refUp));
             const h = Math.max(Math.round(this.zoomChartH * 0.55), Math.round(150 * k));
             chart(h, (g, svg) => this.treeMini(g, node,
                 { x: 1, y: 4, w: inner - 2, h: h - 30 }, 1.5 * k * sc, fmt, svg, 0));
@@ -4626,11 +4956,7 @@ export class Visual implements IVisual {
             // months without actuals and without a forecast are not zero months:
             // they carry no step, no column and no pin, and the comparison the
             // badge reports runs over the months that do have data
-            note(this.str(
-                `${skipped} month(s) without AC or FC are left out — bridge, Δ% pins and the total `
-                + `compare only the months that carry data.`,
-                `${skipped} Monat(e) ohne AC und FC bleiben außen vor — Brücke, Δ%-Pins und der `
-                + `Gesamtvergleich rechnen nur mit den Monaten, die Daten tragen.`));
+            note(this.tr("UI_Skipped", skipped));
         }
         tile.appendChild(this.treeScenGrid(node, fmt, this.zoomChartH < ZOOM_GRID_COMPACT * k));
 
@@ -4644,7 +4970,7 @@ export class Visual implements IVisual {
         if (node.error) {
             const er = document.createElement("div");
             er.style.cssText = `font-size:${this.kpx(9.5)};color:${this.badColor()};margin-top:4px;`;
-            er.textContent = "⚠ " + node.error;
+            er.textContent = "⚠ " + this.trMsg(node.error);
             tile.appendChild(er);
         }
         return tile;
@@ -4665,8 +4991,8 @@ export class Visual implements IVisual {
         // section head in the very type style of the toolbar group labels, and
         // on the same optical line as the head of the big tile next to it
         const title = this.capsLabel(side === "parents"
-            ? this.str("Feeds into", "Zahlt ein auf")
-            : this.str("Driven by", "Getrieben von"));
+            ? this.tr("UI_FeedsInto")
+            : this.tr("UI_DrivenBy"));
         title.style.margin = `0 0 ${this.kpx(8)} 0`;
         title.style.flex = "0 0 auto";
         col.appendChild(title);
@@ -4689,10 +5015,8 @@ export class Visual implements IVisual {
             const hint = document.createElement("div");
             hint.style.cssText = `font-size:${this.kpx(10)};color:${C.soft};line-height:1.5;`;
             hint.textContent = side === "parents"
-                ? this.str("Top of the tree — no row builds on this one.",
-                    "Spitze des Baums — keine Zeile baut auf dieser auf.")
-                : this.str("No drivers — this row is a posted account.",
-                    "Keine Treiber — diese Zeile ist ein gebuchtes Konto.");
+                ? this.tr("UI_TopOfTree")
+                : this.tr("UI_NoDrivers");
             col.appendChild(hint);
             return col;
         }
@@ -4761,7 +5085,7 @@ export class Visual implements IVisual {
             up.style.display = above ? "block" : "none";
             up.textContent = "▲";
             down.style.display = hidden > 0 ? "block" : "none";
-            down.textContent = `▼ ${hidden} ` + this.str("more", "weitere");
+            down.textContent = "▼ " + this.tr("UI_More", hidden);
         };
         this.pagerSync.push(sync);
 
@@ -4772,7 +5096,7 @@ export class Visual implements IVisual {
         if (more > 0) {
             const rest = document.createElement("div");
             rest.style.cssText = `font-size:${this.kpx(9.5)};color:${C.soft};flex:0 0 auto;padding-top:4px;`;
-            rest.textContent = `+${more} ` + this.str("more", "weitere");
+            rest.textContent = "+" + this.tr("UI_More", more);
             col.appendChild(rest);
         }
         return col;
@@ -4791,10 +5115,10 @@ export class Visual implements IVisual {
 
         const card = document.createElement("div");
         card.setAttribute("data-pnl", side === "parents" ? "zoom-parent" : "zoom-child");
-        card.title = this.str("Zoom into this card", "Auf diese Karte zoomen");
+        card.title = this.tr("UI_ZoomInto");
         card.style.cssText = `background:${this.cardBg()};border:1px solid ${C.cardEdge};` +
             (edge ? `border-left:3px solid ${edge};` : "") +
-            `border-radius:4px;box-shadow:${SHADOW};transition:${TRANSITION};` +
+            `border-radius:4px;box-shadow:${C.shadow};transition:${TRANSITION};` +
             `padding:${this.kpx(8)} ${this.kpx(8)} ${this.kpx(7)} ${this.kpx(8)};` +
             `margin-bottom:${this.k(MICRO_CARD_GAP)}px;` +
             "cursor:pointer;box-sizing:border-box;";
@@ -4806,8 +5130,8 @@ export class Visual implements IVisual {
             if (!edge) { card.style.borderLeftColor = c; }
         };
         const selMicro = this.isSelected(node) && this.selectable(node);
-        const rest = selMicro ? `0 0 0 2px ${this.accent()}` : SHADOW;
-        card.onmouseenter = (): void => { sides(C.cardEdgeHover); card.style.boxShadow = SHADOW_HOVER; };
+        const rest = selMicro ? `0 0 0 2px ${this.accent()}` : C.shadow;
+        card.onmouseenter = (): void => { sides(C.cardEdgeHover); card.style.boxShadow = C.shadowHover; };
         card.onmouseleave = (): void => { sides(C.cardEdge); card.style.boxShadow = rest; };
 
         const head = document.createElement("div");
@@ -4996,8 +5320,7 @@ export class Visual implements IVisual {
         const sideW = fcSum !== 0 ? lfs * 2.1 : 0;
         const bandEnd = box.x + box.w - badgeW - 8 * s - sideW - totW - 14 * s;
         if (bandEnd - bandStart < Math.max(n, 1) * 6) {
-            this.treeHint(g, box, s, this.str("Not enough width for the bridge",
-                "Zu wenig Breite für die Brücke"));
+            this.treeHint(g, box, s, this.tr("UI_NoWidth"));
             return;
         }
         const slots = Math.max(n, 1);
@@ -5082,7 +5405,7 @@ export class Visual implements IVisual {
             if (weight) { t.setAttribute("font-weight", weight); }
             // a number sitting on a hatched fill needs a paper halo to stay legible
             if (halo) {
-                t.setAttribute("stroke", "#FFF"); t.setAttribute("stroke-width", "2.6");
+                t.setAttribute("stroke", this.cardPaper()); t.setAttribute("stroke-width", "2.6");
                 t.setAttribute("paint-order", "stroke"); t.setAttribute("stroke-linejoin", "round");
             }
             t.textContent = txt;
@@ -5115,9 +5438,7 @@ export class Visual implements IVisual {
         const catEvery = Math.max(1, Math.ceil((5 * cfs * 0.6 + 4 * s) / Math.max(step, 1)));
 
         // ---------------- caption
-        label(box.x, box.y + hfs, this.str(
-            `${refUp} → AC${fcSum !== 0 ? "/FC" : ""} · bridge + monthly columns`,
-            `${refUp} → AC${fcSum !== 0 ? "/FC" : ""} · Brücke + Monatssäulen`),
+        label(box.x, box.y + hfs, this.tr("UI_ComboCaption", refUp, fcSum !== 0 ? "/FC" : ""),
         hfs, C.soft, "start", "600");
 
         // ---------------- Δ% pin row
@@ -5135,7 +5456,7 @@ export class Visual implements IVisual {
                 const yEnd = pct >= 0 ? pinAxisY - h : pinAxisY + h;
                 line(x, pinAxisY, x, yEnd, color, 2);
                 const r = Math.max(2.2, 2.6 * s);
-                rect(x - r, yEnd - r, 2 * r, 2 * r, hollow ? "#FFF" : color, color, 1)
+                rect(x - r, yEnd - r, 2 * r, 2 * r, hollow ? this.cardPaper() : color, color, 1)
                     .setAttribute("data-pnl", "combo-pin");
                 label(x, pct >= 0 ? yEnd - r - 2.5 * s : yEnd + r + lfs,
                     fmt.pct(pct, true), lfs, color);
@@ -5286,7 +5607,7 @@ export class Visual implements IVisual {
             label(xTot + totW / 2, (vTop + acTop) / 2 + lfs * 0.35, num(fcSum), lfs, C.text,
                 "middle", undefined, true);
             label(xTot + totW + 3 * s, (vTop + acTop) / 2 + lfs * 0.35, "FC", cfs, C.soft, "start");
-            label(xTot + totW / 2, (acTop + axisY) / 2 + lfs * 0.35, num(acSum), lfs, "#FFF");
+            label(xTot + totW / 2, (acTop + axisY) / 2 + lfs * 0.35, num(acSum), lfs, C.onInk);
             label(xTot + totW + 3 * s, (acTop + axisY) / 2 + lfs * 0.35, "AC", cfs, C.soft, "start");
         }
         label(cxTot, yOf(vTot) - 3 * s, num(vTot), lfs, C.text, "middle", "600");
@@ -5296,7 +5617,7 @@ export class Visual implements IVisual {
         const bh = lfs + 9 * s;
         const bcx = box.x + box.w - badgeW / 2;
         const bcy = Math.min(Math.max((yOf(refSum) + yOf(vTot)) / 2, plotTop + bh / 2), yBase - bh / 2);
-        const bg = rect(bcx - badgeW / 2, bcy - bh / 2, badgeW, bh, "#FFF", totColor, 1.6);
+        const bg = rect(bcx - badgeW / 2, bcy - bh / 2, badgeW, bh, this.cardPaper(), totColor, 1.6);
         bg.setAttribute("rx", (bh / 2).toFixed(2));
         bg.setAttribute("data-pnl", "combo-badge");
         label(bcx, bcy + lfs * 0.36, badge, lfs, totColor, "middle", "600");
@@ -5329,14 +5650,7 @@ export class Visual implements IVisual {
             const hint = document.createElement("div");
             hint.style.cssText = `font-size:${this.kpx(11)};color:${C.soft};line-height:1.55;` +
                 `padding:10px 0;max-width:${this.k(620)}px;`;
-            hint.textContent = this.str(
-                "The driver tree needs rows to grow from — an account or dimension hierarchy, or a formula / "
-                + "KPI row that references other rows (e.g. [EBIT]/[Net revenue]). Bind the level or account "
-                + "field first; a root row named in the format pane starts the tree at that card instead.",
-                "Der Treiberbaum braucht Zeilen, aus denen er wächst — eine Konten- oder Dimensions-Hierarchie "
-                + "oder eine Formel-/KPI-Zeile, die andere Zeilen referenziert (z. B. [EBIT]/[Umsatz]). Zuerst "
-                + "das Ebenen- oder Kontofeld zuweisen; eine im Format-Pane genannte Wurzelzeile startet den "
-                + "Baum stattdessen an dieser Karte.");
+            hint.textContent = this.tr("UI_TreeNeedsRows");
             wrap.appendChild(hint);
             return wrap;
         }
@@ -5382,22 +5696,13 @@ export class Visual implements IVisual {
             wrap.appendChild(this.treeBreadcrumb(ctx.path, (node, i) => {
                 ui.treeRoot = i === 0 ? "" : node.row.id;
                 ui.treeCollapsed = null;
-            }, this.str("Back to this card", "Zurück zu dieser Karte")));
+            }, this.tr("UI_BackToCard")));
         }
 
         const note = document.createElement("div");
         note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};margin:0;padding:0;line-height:1.5;`;
-        note.textContent = this.str(
-            "Value driver tree — ▾ opens and closes one node (Shift: whole limb), ⌖ makes a card the root, "
-            + "hovering a card zooms into its IBCS detail view, clicking its chart opens the tile view.",
-            "Werttreiberbaum — ▾ klappt einen Knoten auf und zu (Shift: ganzer Ast), ⌖ macht eine Karte zur "
-            + "Wurzel, Hover über einer Karte öffnet die IBCS-Detailansicht, ein Klick auf ihr Diagramm die "
-            + "Kachel-Ansicht.")
-            + (this.interactive() ? this.str(
-                " Right-click a card for the context menu (drillthrough); in the tile view “↗ Drill” sets the "
-                + "selection and opens the targets.",
-                " Rechtsklick auf eine Karte öffnet das Kontextmenü (Drillthrough); in der Kachel-Ansicht "
-                + "setzt „↗ Drill“ die Selektion und öffnet die Ziele.") : "");
+        note.textContent = this.tr("UI_TreeHint")
+            + (this.interactive() ? this.tr("UI_TreeHintInteract") : "");
         wrap.appendChild(note);
 
         const ns = "http://www.w3.org/2000/svg";
@@ -5430,7 +5735,7 @@ export class Visual implements IVisual {
             const cx = half(cxRaw); const cy = half(cyRaw);
             const c = document.createElementNS(ns, "circle");
             c.setAttribute("cx", cx.toFixed(2)); c.setAttribute("cy", cy.toFixed(2));
-            c.setAttribute("r", r.toFixed(2)); c.setAttribute("fill", "#FFF");
+            c.setAttribute("r", r.toFixed(2)); c.setAttribute("fill", C.paper);
             c.setAttribute("stroke", C.ac); c.setAttribute("stroke-width", "1");
             inner.appendChild(c);
             const t = document.createElementNS(ns, "text");
@@ -5477,6 +5782,438 @@ export class Visual implements IVisual {
         return wrap;
     }
 
+    // ---------------- mega table (IBCS templates T01–T04) ----------------
+
+    /**
+     * The format-pane switches as one toggle set. Scenarios the data does not
+     * carry are switched off here — an unbound PY never leaves an empty column;
+     * an unbound FC minuend falls back to AC.
+     */
+    private megaToggles(): MegaToggles {
+        const cc = this.settings.columnsCard;
+        const has = this.has;
+        const min = String(cc.minuend.value.value) === "fc" && has.fc ? "FC" : "AC";
+        return {
+            min,
+            showPY: cc.showPY.value && has.py,
+            showPL: cc.showPL.value && has.pl,
+            showMin: cc.showMinuend.value,
+            valueCascade: cc.valueCascade.value,
+            d: {
+                PY: {
+                    num: cc.dPyAbs.value && has.py, bar: cc.dPyBar.value && has.py,
+                    wf: cc.dPyWaterfall.value && has.py,
+                    pct: cc.dPyPct.value && has.py, pin: cc.dPyPin.value && has.py,
+                },
+                PL: {
+                    num: cc.dPlAbs.value && has.pl, bar: cc.dPlBar.value && has.pl,
+                    wf: cc.dPlWaterfall.value && has.pl,
+                    pct: cc.dPlPct.value && has.pl, pin: cc.dPlPin.value && has.pl,
+                },
+            },
+            thresholds: cc.thresholds.value,
+            marks: cc.scenarioMarks.value,
+            labels: cc.chartLabels.value,
+            capBars: cc.capBars.value,
+            sort: (["cat", "min", "delta"].includes(String(cc.sort.value.value))
+                ? String(cc.sort.value.value) : "cat") as MegaToggles["sort"],
+            sortBlock: String(cc.sortBlock.value.value) === "period" ? 0 : 1,
+        };
+    }
+
+    /** the mega table replaces the classic table as soon as one column switch is on */
+    private megaOn(): boolean {
+        return this.model != null && megaActive(this.megaToggles());
+    }
+
+    /**
+     * Template dropdown → switches. A template only writes defaults: the visual
+     * notices a template that differs from the last applied one (the hidden
+     * property columns.templateApplied), sets every switch of the preset at once
+     * — locally, so this very render already shows it — and persists them
+     * together with the new templateApplied. Afterwards every switch is free.
+     * Echo guard + TTL: until the host echoes the write back, a stale update
+     * keeps the written values instead of flipping the pane back for a frame.
+     */
+    private syncMegaTemplate(dataView: DataView | undefined): void {
+        const cc = this.settings.columnsCard;
+        const nc = this.settings.numbersCard;
+        const objs = dataView?.metadata?.objects?.["columns"];
+        const persisted = objs && objs["templateApplied"] != null ? String(objs["templateApplied"]) : "off";
+        let applied = persisted;
+        const pend = this.megaPending;
+        if (pend) {
+            let synced = persisted === pend.applied;
+            for (const [k, v] of Object.entries(pend.cols)) {
+                if (!this.megaSliceIs(k, v)) { synced = false; this.megaSliceSet(k, v); }
+            }
+            for (const [k, v] of Object.entries(pend.nums)) {
+                const sl = k === "decimals" ? nc.decimals : nc.pctDecimals;
+                if (sl.value !== v) { synced = false; sl.value = v; }
+            }
+            pend.ttl--;
+            if (synced || pend.ttl <= 0) { this.megaPending = null; }
+            if (!synced && this.megaPending) { applied = pend.applied; }
+        }
+        const tpl = String(cc.template.value.value);
+        // only the host's own confirmation re-arms the session guard — an
+        // equality that the pending guard merely pretends must not
+        if (tpl === persisted) { this.megaSessionTpl = null; }
+        if (tpl === applied) { return; }
+        if (!MEGA_PRESETS[tpl] || tpl === this.megaSessionTpl) { return; }
+        this.applyMegaTemplate(tpl);
+    }
+
+    private applyMegaTemplate(tpl: string): void {
+        const p = MEGA_PRESETS[tpl];
+        const cols: Record<string, boolean | string> = {
+            minuend: p.min.toLowerCase(),
+            showPY: p.showPY, showPL: p.showPL, showMinuend: p.showMin, valueCascade: p.valueCascade,
+            dPyAbs: p.dPyAbs, dPyBar: p.dPyBar, dPyWaterfall: p.dPyWf, dPyPct: p.dPyPct, dPyPin: p.dPyPin,
+            dPlAbs: p.dPlAbs, dPlBar: p.dPlBar, dPlWaterfall: p.dPlWf, dPlPct: p.dPlPct, dPlPin: p.dPlPin,
+            secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, showPctRows: p.showPctRows,
+            thresholds: p.thresholds, scenarioMarks: p.scenarioMarks, chartLabels: p.chartLabels,
+            capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock,
+        };
+        // "off" returns to the classic table and leaves the number format alone
+        const nums: Record<string, number> = tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: p.pctDecimals };
+        for (const [k, v] of Object.entries(cols)) { this.megaSliceSet(k, v); }
+        const nc = this.settings.numbersCard;
+        if (nums.decimals != null) { nc.decimals.value = nums.decimals; }
+        if (nums.pctDecimals != null) { nc.pctDecimals.value = nums.pctDecimals; }
+        this.megaPending = { applied: tpl, cols, nums, ttl: 5 };
+        this.megaSessionTpl = tpl;
+        const merge: powerbi.VisualObjectInstance[] = [
+            { objectName: "columns", selector: null, properties: { ...cols, templateApplied: tpl } },
+        ];
+        if (tpl !== "off") { merge.push({ objectName: "numbers", selector: null, properties: { ...nums } }); }
+        this.host.persistProperties({ merge });
+    }
+
+    /** a mega switch of the columns card by property name (toggle or dropdown) */
+    private megaSlice(k: string): { value: unknown; items?: powerbi.IEnumMember[] } | null {
+        const cc = this.settings.columnsCard as unknown as Record<string, { value: unknown; items?: powerbi.IEnumMember[] }>;
+        return cc[k] ?? null;
+    }
+    private megaSliceIs(k: string, v: boolean | string): boolean {
+        const sl = this.megaSlice(k);
+        if (!sl) { return true; }
+        if (sl.items) { return String((sl.value as powerbi.IEnumMember).value) === String(v); }
+        return sl.value === v;
+    }
+    private megaSliceSet(k: string, v: boolean | string): void {
+        const sl = this.megaSlice(k);
+        if (!sl) { return; }
+        if (sl.items) {
+            const it = sl.items.find(x => String(x.value) === String(v));
+            if (it) { sl.value = it; }
+        } else { sl.value = v; }
+    }
+
+    /** statement (GuV) data vs. a pure structure hierarchy (regions, products …) */
+    private megaStatement(): boolean {
+        for (const n of this.model!.byId.values()) {
+            const r = n.row;
+            if (r.rowType === "formula" || r.rowType === "kpi" || r.sign < 0 || r.displayInvert) { return true; }
+        }
+        return false;
+    }
+
+    /** raw (calculation-signed) value of a scenario in a period block */
+    private megaRaw(node: PnlNode, block: "mtd" | "ytd", s: Scenario): number | null {
+        if (block === "mtd") {
+            const li = this.mtdIndex();
+            return li >= 0 ? (node.series[s]?.[li] ?? null) : null;
+        }
+        // the period-matched YTD window of the classic table (see ytdDisplay)
+        if (this.ytdFull() || node.row.rowType === "kpi") { return node.computed[s]; }
+        return this.ytdRawSum(node, s);
+    }
+
+    /** long month name of a period key ("November"), the author's label otherwise */
+    private megaMonthName(m: string): string {
+        const p = parsePeriod(m);
+        if (p && (/^\d{4}[-/]\d{1,2}/.test(m) || /^\d{1,2}$/.test(m.trim()))) {
+            return new Date(p.y ?? 2000, p.m - 1, 1).toLocaleDateString(this.locale, { month: "long" });
+        }
+        return m;
+    }
+
+    /**
+     * Rows of the mega table in IBCS statement order: children first, their
+     * total below (T01B / T03), spacer rows before a new block. Sign column
+     * (statement data): formula rows and the chain start (the first top-level
+     * total) read "=", their summands "+" / "−" by DisplayInvert, deeper blocks
+     * are indented without a sign (T03 "− Operating expenses").
+     */
+    private megaRows(statement: boolean): { rows: MegaRow[]; nodes: Map<string, PnlNode> } {
+        const model = this.model!; const ui = this.ui!;
+        const cc = this.settings.columnsCard;
+        const collapsed = new Set(ui.collapsed);
+        const showPct = cc.showPctRows.value;
+        const subtotals = statement || cc.structureSubtotals.value;
+        const nodes = new Map<string, PnlNode>();
+        type Item = { node: PnlNode | null; kind: MegaRow["kind"]; level: number; op: string };
+        const items: Item[] = [];
+        const roots = model.roots;
+        const first = roots.find(r => r.row.rowType !== "separator");
+        const chainStart = statement && first && first.hasChildren
+            && (first.row.rowType === "subtotal" || first.row.rowType === "account") ? first : null;
+        const glyph = (n: PnlNode): string => n.row.displayInvert ? "-" : "+";
+        const realRoots = roots.filter(r => r.row.rowType !== "separator");
+        const soleRoot = realRoots.length === 1 ? realRoots[0] : null;
+        const keep = (n: PnlNode): boolean => !(ui.hideZero && isZeroRow(n));
+
+        const emit = (n: PnlNode, under: PnlNode | null): void => {
+            const t = n.row.rowType;
+            if (t === "separator") { items.push({ node: null, kind: "gap", level: 0, op: "" }); return; }
+            if (t === "kpi" && !showPct) { return; }
+            const open = n.hasChildren && !collapsed.has(n.row.id);
+            if (open) { for (const c of n.children) { emit(c, n); } }
+            // structure data without subtotal blocks: only leaves and the top totals
+            if (open && !subtotals && n.level > 0) { return; }
+            if (!keep(n)) { return; }
+            const kind: MegaRow["kind"] = t === "formula" ? "formula" : t === "kpi" ? "pct"
+                : t === "subtotal" || n.hasChildren || n.isOrphanBucket ? "sum" : "acc";
+            let level = 0; let op = "";
+            if (statement) {
+                const inChain = chainStart != null && under === chainStart;
+                level = Math.max(0, n.level - (inChain || this.megaUnderChain(n, chainStart) ? 1 : 0));
+                if (t === "kpi") { op = ""; }
+                else if (n.level === 0) { op = t === "formula" || n === chainStart ? "=" : glyph(n); }
+                else if (inChain) { op = glyph(n); }
+            }
+            items.push({ node: n, kind, level, op });
+        };
+        for (const r of roots) { emit(r, null); }
+
+        // leaf names that repeat ("Other" per region) get their parent's name
+        // when the subtotal blocks are folded away (T01A "Other Europe")
+        const dupe = new Map<string, number>();
+        if (!subtotals) {
+            for (const it of items) { if (it.node) { dupe.set(it.node.row.name, (dupe.get(it.node.row.name) ?? 0) + 1); } }
+        }
+
+        // comment footnotes are numbered in reading order of this table
+        this.comments = [];
+        this.commentNo.clear();
+        const out: MegaRow[] = [];
+        let prev: Item | null = null;
+        for (const it of items) {
+            if (!it.node) {
+                if (out.length && out[out.length - 1].kind !== "gap") { out.push(this.megaGap()); }
+                continue;
+            }
+            const n = it.node;
+            // spacer row: a new block after a bold total (T03), and the grand
+            // total right below its last subtotal block (T01B "World")
+            if (prev && prev.node && it.kind !== "pct" && (
+                (prev.kind === "sum" || prev.kind === "formula") && it.kind === "acc"
+                || it.kind === "sum" && prev.kind === "sum" && prev.node.row.parent === n.row.id && subtotals && !statement
+            )) {
+                if (out.length && out[out.length - 1].kind !== "gap") { out.push(this.megaGap()); }
+            }
+            nodes.set(n.row.id, n);
+            const suffix: { t: string; color: string }[] = [];
+            if (n.row.comment) {
+                const no = this.comments.length + 1;
+                this.comments.push({ n: no, node: n, text: n.row.comment });
+                this.commentNo.set(n.row.id, no);
+                suffix.push({ t: " " + String.fromCharCode(0x2460 + no - 1), color: C.comment });
+            }
+            if (n.error) { suffix.push({ t: " ⚠ " + this.trMsg(n.error), color: this.badColor() }); }
+            if (n.hasChildren && collapsed.has(n.row.id)) { suffix.push({ t: " ▸", color: C.soft }); }
+            if (this.awaitingSegment && (it.kind === "sum" || it.kind === "formula" || it.kind === "pct")) {
+                suffix.push({ t: " ≈", color: C.loading });
+            }
+            const parent = n.row.parent ? model.byId.get(n.row.parent) : undefined;
+            const name = (dupe.get(n.row.name) ?? 0) > 1 && parent ? `${n.row.name} ${parent.row.name}` : n.row.name;
+            // cascades (T04 Δ waterfall, 12A value cascade): "=" rows anchor —
+            // formula rows, the statement's chain start, the single grand total
+            // of a structure hierarchy; every other row steps with the effect
+            // of its shown value on the result
+            const anchor = it.kind === "formula" || it.op === "="
+                || (!statement && soleRoot === n && it.kind === "sum");
+            const disp = n.row.displayInvert ? -1 : 1;
+            out.push({
+                id: n.row.id,
+                label: (n.isOrphanBucket ? "⚠ " : "") + name,
+                kind: it.kind, op: it.op, level: it.level,
+                group: n.row.parent,
+                other: /^(other|others|sonstige|übrige|rest|otros|otras|resto)\b|^その他/i.test(n.row.name.trim()),
+                suffix: suffix.length ? suffix : undefined,
+                eff: anchor ? disp : disp * this.megaParentSign(n),
+                anchor,
+            });
+            if (it.kind !== "pct") { prev = it; }
+        }
+        while (out.length && out[out.length - 1].kind === "gap") { out.pop(); }
+        return { rows: out, nodes };
+    }
+
+    /**
+     * Product of the SignConvention of the subtotals above `n` — the engine
+     * rolls a subtotal up as sign × Σ children (aggregateSubtotal), a postable
+     * parent account adds its children unsigned. Raw value × this = the row's
+     * effect on the top of its hierarchy.
+     */
+    private megaParentSign(n: PnlNode): number {
+        let f = 1;
+        let pid = n.row.parent;
+        const byId = this.model!.byId;
+        for (let i = 0; pid != null && i < 64; i++) {
+            const p = byId.get(pid);
+            if (!p) { break; }
+            if (p.row.rowType === "subtotal") { f *= p.row.sign < 0 ? -1 : 1; }
+            pid = p.row.parent;
+        }
+        return f;
+    }
+
+    private megaGap(): MegaRow {
+        return { id: "", label: "", kind: "gap", op: "", level: 0, group: null, other: false };
+    }
+
+    /** true when an ancestor of `n` is the statement's chain start (indent one level less) */
+    private megaUnderChain(n: PnlNode, chain: PnlNode | null): boolean {
+        if (!chain) { return false; }
+        let pid = n.row.parent;
+        const byId = this.model!.byId;
+        for (let i = 0; pid != null && i < 64; i++) {
+            if (pid === chain.row.id) { return true; }
+            pid = byId.get(pid)?.row.parent ?? null;
+        }
+        return false;
+    }
+
+    /** locale number text of a non-negative value, narrow space as grouping */
+    private megaNum(abs: number, dec: number): string {
+        const key = String(dec);
+        let nf = this.megaNf.get(key);
+        if (!nf) {
+            nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+            this.megaNf.set(key, nf);
+        }
+        return nf.formatToParts(abs).map(p => (p.type === "group" ? NBSP_GROUP : p.value)).join("");
+    }
+
+    private megaMeasure(t: string, fs: number, bold: boolean, italic: boolean): number {
+        if (!this.measureCtx) {
+            const cv = document.createElement("canvas");
+            this.measureCtx = cv.getContext("2d");
+        }
+        const ctx = this.measureCtx;
+        if (!ctx) { return t.length * fs * 0.55; }
+        ctx.font = `${italic ? "italic " : ""}${bold ? "bold " : ""}${fs}px ${FONT}`;
+        return ctx.measureText(t).width;
+    }
+
+    private buildMega(fmt: Fmt, shrink: number): HTMLElement {
+        const model = this.model!; const ui = this.ui!;
+        const cc = this.settings.columnsCard;
+        const t = this.megaToggles();
+        const statement = this.megaStatement();
+        const { rows, nodes } = this.megaRows(statement);
+        const months = model.months;
+        const twoBlocks = cc.secondBlock.value && months.length > 1;
+        const keys: ("mtd" | "ytd")[] = twoBlocks ? ["mtd", "ytd"] : ["ytd"];
+        const li = this.mtdIndex();
+        const monthName = months.length > 0 ? this.megaMonthName(months[li >= 0 ? li : months.length - 1]) : "";
+        const SC: Record<MegaScen, Scenario> = { AC: "ac", FC: "fc", PY: "py", PL: "pl" };
+        const num = (v: unknown, d: number): number => { const x = Number(v); return isFinite(x) ? x : d; };
+        const th = [
+            { abs: num(cc.thresholdAbs.value, -20), pct: num(cc.thresholdPct.value, -10) / 100 },
+            { abs: num(cc.thresholdYtdAbs.value, -220), pct: num(cc.thresholdYtdPct.value, -10) / 100 },
+        ];
+        const div = fmt.div;
+        const blocks: MegaBlock[] = keys.map((key, bi) => ({
+            name: !monthName ? "" : key === "mtd" ? monthName : (twoBlocks || !statement ? "_" + monthName : monthName),
+            th: th[bi],
+            value: (r: MegaRow, s: MegaScen): number | null => {
+                const n = nodes.get(r.id);
+                if (!n) { return null; }
+                const raw = this.megaRaw(n, key, SC[s]);
+                if (raw == null) { return null; }
+                const v = n.row.displayInvert ? -raw : raw;
+                return n.row.rowType === "kpi" ? v : v / div;
+            },
+            delta: (r: MegaRow, min: MegaScen, ref: MegaRef): MegaDelta | null => {
+                const n = nodes.get(r.id);
+                if (!n) { return null; }
+                const D = displayVariance(n.row, this.megaRaw(n, key, SC[min]), this.megaRaw(n, key, SC[ref]));
+                if (!D) { return null; }
+                return D.pp ? D : { ...D, d: D.d / div, impact: D.impact / div };
+            },
+        }));
+        const fscale = this.fontScale();
+        const fs = Math.round((ui.density === "compact" ? 11 : 13) * fscale);
+        const avail = (this.root.clientWidth || 1000) - 2 * TABLE_PAD_X - shrink;
+        const L = layoutMega({
+            rows, blocks, t, statement, fs, viewW: Math.max(320, avail),
+            dec: this.settings.numbersCard.decimals.value,
+            pdec: this.settings.numbersCard.pctDecimals.value,
+            num: (a, d) => this.megaNum(a, d),
+            measure: (s, f, b, i) => this.megaMeasure(s, f, b, i),
+            pal: { good: this.goodColor(), bad: this.badColor() },
+            redIf: this.tr("UI_RedIf"),
+        });
+        const ns = "http://www.w3.org/2000/svg";
+        const painted = paintMega(L, {
+            font: FONT,
+            headInk: this.settings.styleCard.headerColor.value?.value || C.text,
+            hatchPattern: (svg, id, color) => this.hatchPattern(svg, ns, id, color),
+            uid: this.uid,
+            selectedId: this.interactive() ? this.selKey : null,
+            selWash: this.accentSoft(0.94),
+            selAccent: this.accent(),
+        });
+
+        // interactions: the label folds a block, the rest of the row selects
+        for (const h of painted.hits) {
+            const node = nodes.get(h.r.id);
+            if (!node) { continue; }
+            const canSelect = this.selectable(node);
+            if (canSelect) {
+                h.cells.style.cursor = "pointer";
+                this.bindSelect(h.cells, node, true);
+                const cap = this.selCapNote(node);
+                if (cap !== "") {
+                    const tt = document.createElementNS(ns, "title");
+                    tt.textContent = this.tr("UI_Selection") + cap;
+                    h.cells.appendChild(tt);
+                }
+            }
+            if (node.hasChildren) {
+                h.label.style.cursor = "pointer";
+                const open = !ui.collapsed.includes(node.row.id);
+                h.label.addEventListener("click", (e: Event) => {
+                    e.stopPropagation();
+                    if (open) { ui.collapsed.push(node.row.id); }
+                    else { ui.collapsed = ui.collapsed.filter(id => id !== node.row.id); }
+                    this.persistUi(); this.rerender();
+                });
+                if (canSelect) { this.bindSelect(h.label, node, false); }
+            } else if (canSelect) {
+                h.label.style.cursor = "pointer";
+                this.bindSelect(h.label, node, true);
+            } else {
+                h.label.setAttribute("pointer-events", "none");
+            }
+        }
+
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "mega");
+        wrap.style.cssText = `padding:2px ${TABLE_PAD_X}px 8px ${TABLE_PAD_X}px;width:max-content;`;
+        const headWrap = document.createElement("div");
+        headWrap.setAttribute("data-pnl", "mega-head-wrap");
+        headWrap.style.cssText = `background:${this.pageBg()};`;
+        headWrap.appendChild(painted.head);
+        wrap.appendChild(headWrap);
+        wrap.appendChild(painted.body);
+        this.tableEl = null;
+        return wrap;
+    }
+
     // ---------------- footnotes / footer ----------------
 
     private buildFootnotes(fmt: Fmt): void {
@@ -5489,7 +6226,7 @@ export class Visual implements IVisual {
         const h = document.createElement("div");
         h.style.cssText = `font-size:${this.kpx(9)};font-weight:700;letter-spacing:.08em;` +
             `color:${C.soft};margin-bottom:4px;`;
-        h.textContent = this.str("COMMENTS & DATA-QUALITY SIGNALS", "KOMMENTARE & DATENQUALITÄTS-SIGNALE");
+        h.textContent = this.tr("UI_FootHead");
         box.appendChild(h);
         for (const cm of this.comments) {
             const li = document.createElement("div");
@@ -5506,7 +6243,7 @@ export class Visual implements IVisual {
             const loading = w.charAt(0) === "⏳";
             li.style.cssText = `font-size:${this.kpx(10)};line-height:1.5;margin-bottom:3px;` +
                 `color:${loading ? C.loading : C.soft};`;
-            li.textContent = loading ? w : "⚠ " + w;
+            li.textContent = loading ? w : "⚠ " + this.trMsg(w);
             box.appendChild(li);
         }
         this.root.appendChild(box);
@@ -5517,15 +6254,8 @@ export class Visual implements IVisual {
         f.style.cssText = `padding:10px 14px 12px 14px;border-top:1px solid ${C.gridSoft};` +
             `margin-top:8px;font-size:${this.kpx(8.5)};color:${C.soft};line-height:1.5;` +
             `max-width:${this.k(960)}px;`;
-        const dev = String(this.settings.styleCard.colorMode.value.value) !== "ibcs"
-            ? this.str(" Documented corporate deviation: teal replaces the IBCS variance green to remain readable with red–green color-vision deficiency.",
-                " Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben.")
-            : "";
-        f.textContent = this.str(
-            "Notation based on the IBCS® Standards 1.2 by the IBCS Association (CC BY-SA 4.0, ibcs.com)." + dev +
-            " IBCS® is a registered trademark of HICHERT+FAISST GmbH. This visual is not certified by or affiliated with the IBCS Association.",
-            "Notation nach den IBCS®-Standards 1.2 der IBCS Association (CC BY-SA 4.0, ibcs.com)." + dev +
-            " IBCS® ist eine eingetragene Marke der HICHERT+FAISST GmbH. Dieses Visual ist nicht von der IBCS Association zertifiziert.");
+        const dev = String(this.settings.styleCard.colorMode.value.value) !== "ibcs" ? this.tr("UI_FooterDev") : "";
+        f.textContent = this.tr("UI_FooterIbcs", dev);
         return f;
     }
 }

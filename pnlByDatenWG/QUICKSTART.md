@@ -1,26 +1,35 @@
-# P&L Statement byDatenWG · Schnellstart (Beta)
+# P&L Statement byDatenWG · Schnellstart
 
 Zwei Wege in das Visual: **Weg 1** bindet nur die Ebenen einer vorhandenen
 Hierarchie plus die Kennzahlen (zwei Minuten). **Weg 2** ergänzt die Felder,
 die daraus eine echte GuV machen — Zeilentypen, Formelzeilen, Vorzeichen,
 Kommentare.
 
-Version **0.17.0.0**, Beta · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
+Version **1.0.0.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 Web-Fassung dieser Anleitung: [`pnl-schnellstart.html`](../pnl-schnellstart.html)
 (DE) · [`pnl-schnellstart_en.html`](../pnl-schnellstart_en.html) (EN).
 
-> **Beta:** Funktionsumfang, Feldrollen und Formateinstellungen können sich noch
-> ändern, ebenso das Format des gespeicherten Zustands. Nicht im AppSource, also
-> nicht von Microsoft zertifiziert. Erst im Testbericht ausprobieren.
-> Feedback: <https://github.com/losveratos/powerbi-kitchen-/issues>
+> **1.0:** Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind
+> stabil. Nicht im AppSource, also nicht von Microsoft zertifiziert.
+> Oberfläche in Deutsch, Englisch, Spanisch und Japanisch (folgt der
+> Berichtssprache). Feedback: <https://github.com/losveratos/powerbi-kitchen-/issues>
 
 ## 0 · Installieren
 
 Die jeweils neueste Datei liegt in [`dist/`](dist/):
-`pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.<version>.pbiviz`.
-In Power BI Desktop: **Visualisierungen → ⋯ → Visual aus einer Datei
-importieren**. Das Visual großzügig aufziehen (mind. ~1200×800 px — Toolbar und
-zwei Spaltenblöcke brauchen Breite).
+`pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.<version>.pbiviz` (selbst bauen:
+`npm run package`). In Power BI Desktop: **Visualisierungen → ⋯ → Visual aus
+einer Datei importieren**. Das Visual großzügig aufziehen (mind. ~1200×800 px —
+Toolbar und zwei Spaltenblöcke brauchen Breite).
+
+**Smart Start:** Frisch auf die Seite gezogen, zeigt das Visual eine
+Demo-GuV mit dem Hinweis „Demo" — darauf lassen sich Ansichten, Toolbar und
+Formatmenü schon ausprobieren (auch die Mega-Table-Templates). Sobald AC und
+eine Hierarchie gebunden sind, verschwindet die Demo; fehlt noch etwas, nennt
+der Hinweis die Rolle. Leser und Exporte sehen nie Demo-Zahlen.
+
+**Dark Mode:** Stil → Erscheinungsbild. *Auto* folgt einem dunklen
+Berichtsthema, *Dunkel* erzwingt es (z. B. für von Hand dunkel gefärbte Seiten).
 
 ## 1 · Weg 1 — normale Hierarchie in 2 Minuten
 
@@ -104,7 +113,7 @@ Perioden-Sortierung** auf **„Datenreihenfolge (Fiskaljahr)"**. `Automatisch`
 sortiert kalendarisch, sobald alle Labels lesbar sind; `Kalenderjahr` erzwingt
 Jan..Dez.
 
-## 5 · Die vier Ansichten (Toolbar)
+## 5 · Die vier Ansichten (Toolbar) und die Mega-Table
 
 | Ansicht | Was sie zeigt |
 |---|---|
@@ -116,6 +125,15 @@ Jan..Dez.
 **Kachel-Zoom:** Klick auf ein Karten-Diagramm zoomt den Knoten auf die ganze
 Fläche — Kombi-Chart mit Monaten und Brücke, Szenario-Grid, „Zahlt ein auf" und
 „Getrieben von". Alle Toolbar-Zustände sind persistiert und lesezeichenfähig.
+
+**Mega-Table:** Formatmenü → **Spalten & Mega-Table → Mega-Table (IBCS-Templates)
+→ Template** wählen (T01A … T04E, 12A). Das Template setzt die Schalter darunter,
+danach ist jeder Schalter frei: Wertspalten PY · PL · AC/FC, Δ als Zahl, Balken,
+integrierter Wasserfall, Δ% als Zahl oder Pins, zweiter Block Monat | _YTD
+(braucht die Periode), Schwellen mit Fußzeile. Das Formatmenü zeigt nur, was zur
+Ansicht und zu den gebundenen Feldern passt (z. B. ΔPY-Schalter nur mit PY,
+Schwellen-Felder nur bei eingeschalteten Schwellen). „Aus (klassische Tabelle)"
+führt zurück.
 
 ## 6 · Drillthrough einrichten (3 Schritte)
 
@@ -139,7 +157,7 @@ Abnahme-Checks: [`TESTPLAN.md`](TESTPLAN.md) §6a.
 | FY-Spalten vielfach zu groß | FY-Measure als `SUM` statt `MAX`/`AVERAGE` |
 | Monate in falscher Reihenfolge | Perioden-Label nicht lesbar → Perioden-Sortierung auf „Datenreihenfolge" |
 | Zeile zeigt `·` | Referenzname der Formel nicht eindeutig oder Szenario ohne Daten |
-| Zeile zeigt `⚠ cycle` | Zirkelbezug in der Formeldefinition oder in Parent-Child |
+| Zeile zeigt `⚠ Zyklus` (en: `⚠ cycle`) | Zirkelbezug in der Formeldefinition oder in Parent-Child |
 | „Nicht zugeordnet" rot mit ⚠ | Parent-/Level-Pfad zeigt ins Leere — gewolltes Datenqualitäts-Signal |
 
 Vollständiger Aufbau- und Testplan inklusive Reconciliation-Werten:

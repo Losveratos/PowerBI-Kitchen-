@@ -1,7 +1,7 @@
 {
   "name": "pnl-by-datenwg",
   "description": "IBCS-inspired P&L statement custom visual for Power BI",
-  "version": "0.17.0.0",
+  "version": "1.0.0.0",
   "license": "MIT",
   "scripts": {
     "pbiviz": "pbiviz",
@@ -12,7 +12,11 @@
     "test:render": "node test/build.js && node test/shot.js",
     "test:tree": "node test/build.js && node test/tree-interact.js",
     "test:perf": "node test/build.js && node test/perf.js",
-    "test": "npm run test:engine && npm run test:render && npm run test:tree && npm run test:perf"
+    "test:mega": "node test/megatable-test.js && node test/build.js && node test/mega-shot.js && node test/mega-interact.js",
+    "test:waterfall": "node test/waterfall-test.js",
+    "test": "npm run test:i18n && npm run test:engine && npm run test:mega && npm run test:waterfall && npm run test:render && npm run test:tree && npm run test:start && npm run test:perf",
+    "test:i18n": "node test/i18n-test.js",
+    "test:start": "node test/build.js && node test/start-dark-test.js"
   },
   "dependencies": {
     "powerbi-visuals-api": "~5.11.0",

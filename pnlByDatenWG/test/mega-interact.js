@@ -1,0 +1,218 @@
+/*
+ * Template dropdown of the mega table (headless Chromium over test/test.html).
+ *
+ * Plays the host's side of the format pane: the author picks a template, the
+ * visual writes the switches via persistProperties and must survive the
+ * updates around it —
+ *   1. pick T02A            → ONE persist (switches + templateApplied + decimals), mega renders T02A
+ *   2. stale update         → no persist, still T02A (echo guard)
+ *   3. echo of the write    → no persist, guard cleared
+ *   4. author switches a single toggle off (dPlPin) → no persist, the toggle wins
+ *   5. pick T03A            → ONE persist with T03A
+ *   6. echo lost: 6 stale updates → the guard expires after its TTL, the pane
+ *      wins again and the template is NOT re-applied in a loop
+ *   7. pick "off"           → persist all switches off, numbers untouched → classic table
+ *   8. pick T04B (statement) → one persist, waterfall + pins; guard, echo, single switch
+ *   9. pick 12A             → one persist, two value cascades + ΔPY bars + pins
+ *
+ * Run: node test/mega-interact.js  (npm run test:mega)
+ */
+let chromium;
+try { ({ chromium } = require("playwright")); }
+catch { ({ chromium } = require("/opt/node22/lib/node_modules/playwright")); }
+
+const failures = [];
+const notes = [];
+function check(label, cond, detail) {
+    if (cond) { notes.push("  ok · " + label); return; }
+    failures.push(label + (detail ? " — " + detail : ""));
+}
+
+(async () => {
+    const browser = await chromium.launch();
+    const page = await browser.newPage({ viewport: { width: 1400, height: 1000 } });
+    let errors = 0;
+    page.on("pageerror", e => { errors++; console.log("[pageerror]", e.message); });
+    page.on("console", m => { if (m.type() === "error") { errors++; console.log("[console]", m.text()); } });
+    await page.goto("file://" + __dirname + "/test.html");
+    await page.waitForTimeout(300);
+
+    await page.evaluate(() => {
+        const box = document.createElement("div");
+        box.id = "mi"; box.style.cssText = "width:1300px;height:800px;position:relative;";
+        document.body.appendChild(box);
+        const host = makeHost("en-US");
+        window.__miPersist = [];
+        host.persistProperties = (p) => { window.__miPersist.push(JSON.parse(JSON.stringify(p))); };
+        window.__mi = new Visual({ element: box, host });
+        window.__miUpd = (objects) => window.__mi.update({
+            dataViews: [dvRows(MEGA_DEMO.regions(), objects)],
+            viewport: { width: 1300, height: 800 }, type: 2,
+        });
+        window.__miState = () => {
+            const st = document.getElementById("mi");
+            const head = st.querySelector('svg[data-pnl="mega-head"]');
+            return {
+                mega: !!head,
+                heads: head ? [...head.querySelectorAll("text")].map(t => t.textContent) : [],
+                charts: st.querySelectorAll('g[data-pnl="mega-chart"]').length,
+                classic: st.querySelectorAll('[data-pnl="hdr-row"]').length > 0,
+                persists: window.__miPersist.length,
+                last: window.__miPersist[window.__miPersist.length - 1] || null,
+            };
+        };
+    });
+    const upd = (objects) => page.evaluate((o) => { window.__miUpd(o); return window.__miState(); }, objects);
+    const BASE = { hierarchy: { defaultLevel: 0 }, toolbar: { show: false } };
+
+    // 1 — the author picks T02A
+    let s = await upd({ ...BASE, columns: { template: "T02A" } });
+    check("1 pick T02A: one persist", s.persists === 1, String(s.persists));
+    const cols = s.last && s.last.merge.find(m => m.objectName === "columns").properties;
+    const nums = s.last && s.last.merge.find(m => m.objectName === "numbers");
+    check("1 persist carries the switches + templateApplied", cols && cols.templateApplied === "T02A"
+        && cols.dPlBar === true && cols.dPlPin === true && cols.showPL === true && cols.showPY === false
+        && cols.secondBlock === true && cols.minuend === "ac" && cols.sort === "cat", JSON.stringify(cols));
+    check("1 persist carries decimals 0 / Δ% 1", nums && nums.properties.decimals === 0 && nums.properties.pctDecimals === 1);
+    check("1 renders T02A at once (4 chart columns)", s.mega && s.charts === 4, JSON.stringify(s.heads));
+
+    // 2 — a stale update (the host has not echoed yet)
+    s = await upd({ ...BASE, columns: { template: "T02A" } });
+    check("2 stale update: no second persist", s.persists === 1);
+    check("2 stale update: still T02A (echo guard)", s.mega && s.charts === 4);
+
+    // 3 — the echo arrives
+    // the pane keeps the template the author picked, the host adds what the visual wrote
+    const ECHO = { ...BASE, columns: { ...cols, template: "T02A" }, numbers: { decimals: 0, pctDecimals: 1 } };
+    s = await upd(ECHO);
+    check("3 echo: no persist, T02A", s.persists === 1 && s.charts === 4);
+
+    // 4 — the author switches the ΔPL% pins off by hand
+    s = await upd({ ...ECHO, columns: { ...ECHO.columns, dPlPin: false } });
+    check("4 single toggle wins, nothing re-applied", s.persists === 1 && s.charts === 2, `${s.persists} / ${s.charts}`);
+
+    // 5 — the author picks T03A
+    s = await upd({ ...ECHO, columns: { ...cols, dPlPin: false, template: "T03A" } });
+    check("5 pick T03A: one more persist", s.persists === 2 && s.last.merge[0].properties.templateApplied === "T03A");
+    check("5 T03A renders numbers only (no charts), paired Δ heads", s.mega && s.charts === 0
+        && s.heads.includes("ΔPY") && s.heads.includes("ΔPL"), JSON.stringify(s.heads));
+
+    // 6 — the echo is lost: stale updates keep coming
+    const STALE = { ...ECHO, columns: { ...cols, dPlPin: false, template: "T03A" } };
+    const seen = [];
+    for (let i = 0; i < 7; i++) { s = await upd(STALE); seen.push(s.charts); }
+    check("6 guard holds T03A for the first stale updates", seen[0] === 0 && seen[1] === 0, seen.join(","));
+    check("6 after the TTL the pane wins again (T02A switches, pins off)", seen[seen.length - 1] === 2, seen.join(","));
+    check("6 no re-apply loop (no further persist)", s.persists === 2, String(s.persists));
+
+    // 7 — back to the classic table
+    s = await upd({ ...ECHO, columns: { ...cols, template: "off", templateApplied: "T02A" } });
+    const offCols = s.last.merge[0].properties;
+    check("7 pick off: persist all column switches off", s.persists === 3 && offCols.templateApplied === "off"
+        && offCols.showPL === false && offCols.dPlBar === false && offCols.dPlPin === false);
+    check("7 'off' leaves the number format alone", s.last.merge.length === 1);
+    check("7 classic table renders", !s.mega && s.classic);
+
+    // ---- rows of the mega table: the label folds, the cells select ------------
+    const T01B = { ...BASE, columns: { showPY: true, showPL: true, showMinuend: true, dPyAbs: true, dPyPct: true,
+        dPlAbs: true, dPlPct: true, secondBlock: true } };
+    // the host echoes step 7 first (guard released), then the author builds T01B by hand
+    await upd({ ...BASE, columns: { ...offCols, template: "off" } });
+    await page.evaluate(() => { window.__selReset(); });
+    s = await upd({ ...T01B, columns: { ...offCols, template: "off", ...T01B.columns } });
+    check("hand-built T01B (no template) renders without persisting", s.mega && s.persists === 3);
+    const rowsOf = () => page.evaluate(() => [...document.querySelectorAll('#mi rect[data-pnl-part="cells"]')]
+        .map(r => r.getAttribute("data-pnl-row")));
+    let rows = await rowsOf();
+    check("fold: Europe block open (Austria visible)", rows.includes("Europe:Austria") && rows.includes("L:World¦Europe"));
+    await page.evaluate(() => {
+        const lab = document.querySelector('#mi rect[data-pnl-part="label"][data-pnl-row="L:World¦Europe"]');
+        lab.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    rows = await rowsOf();
+    check("fold: a click on the Europe label folds its block", !rows.includes("Europe:Austria") && rows.includes("L:World¦Europe"));
+    const folded = await page.evaluate(() => [...document.querySelectorAll('#mi svg[data-pnl="mega-body"] text')]
+        .some(t => t.textContent.includes("Europe") && t.textContent.includes("▸")));
+    check("fold: the folded total carries ▸", folded);
+    await page.evaluate(() => {
+        const r = document.querySelector('#mi rect[data-pnl-part="cells"][data-pnl-row="Americas:USA"]');
+        r.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    const sel = await page.evaluate(() => window.__selLog.slice());
+    const pick = sel.find(x => x.call === "select");
+    check("select: a click on the USA cells selects its 11 month rows", pick && pick.n === 11, JSON.stringify(sel));
+    const wash = await page.evaluate(() => document.querySelectorAll('#mi svg[data-pnl="mega-body"] > g > rect[height="2"]').length);
+    check("select: the selected row carries the accent underline", wash >= 1);
+    await page.evaluate(() => {
+        const r = document.querySelector('#mi rect[data-pnl-part="cells"][data-pnl-row="Americas:USA"]');
+        r.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, clientX: 50, clientY: 60 }));
+    });
+    const menu = await page.evaluate(() => window.__selLog.find(x => x.call === "menu"));
+    check("context menu: right click opens the host menu", menu != null);
+
+    // ---- sticky head: the column heads stay under the frozen title block ------
+    await page.evaluate(() => {
+        const box = document.getElementById("mi"); box.style.height = "420px";
+        window.__mi.update({ dataViews: [dvRows(MEGA_DEMO.regions(), { hierarchy: { defaultLevel: 0 },
+            columns: { showPL: true, showMinuend: true, dPlBar: true, dPlPin: true, secondBlock: true } })],
+        viewport: { width: 1300, height: 420 }, type: 2 });
+    });
+    const stick = await page.evaluate(() => {
+        const root = document.querySelector("#mi .pnl-root");
+        root.scrollTop = 260;
+        const head = document.querySelector('#mi [data-pnl="head"]').getBoundingClientRect();
+        const mh = document.querySelector('#mi [data-pnl="mega-head-wrap"]').getBoundingClientRect();
+        return { scroll: root.scrollTop, headBottom: Math.round(head.bottom), megaTop: Math.round(mh.top) };
+    });
+    check("sticky: after scrolling the column heads sit right under the frozen head",
+        stick.scroll > 0 && Math.abs(stick.headBottom - stick.megaTop) <= 1, JSON.stringify(stick));
+
+    // ---- phase 3: T04B / 12A through the same template + echo-guard path ------
+    await page.evaluate(() => {
+        const box = document.createElement("div");
+        box.id = "mi3"; box.style.cssText = "width:1300px;height:800px;position:relative;";
+        document.body.appendChild(box);
+        const host = makeHost("en-US");
+        window.__mi3Persist = [];
+        host.persistProperties = (p) => { window.__mi3Persist.push(JSON.parse(JSON.stringify(p))); };
+        window.__mi3 = new Visual({ element: box, host });
+        window.__mi3Upd = (objects) => {
+            window.__mi3.update({ dataViews: [dvRows(MEGA_DEMO.statement("T04"), objects)],
+                viewport: { width: 1300, height: 800 }, type: 2 });
+            const st = document.getElementById("mi3");
+            return {
+                charts: st.querySelectorAll('g[data-pnl="mega-chart"]').length,
+                conn: st.querySelectorAll('g[data-pnl="mega-conn"]').length,
+                persists: window.__mi3Persist.length,
+                last: window.__mi3Persist[window.__mi3Persist.length - 1] || null,
+            };
+        };
+    });
+    const upd3 = (objects) => page.evaluate((o) => window.__mi3Upd(o), objects);
+    s = await upd3({ ...BASE, columns: { template: "T04B" } });
+    const c4 = s.last && s.last.merge.find(m => m.objectName === "columns").properties;
+    check("8 pick T04B: one persist with dPlWaterfall + templateApplied", s.persists === 1 && c4
+        && c4.templateApplied === "T04B" && c4.dPlWaterfall === true && c4.dPlBar === false && c4.valueCascade === false);
+    check("8 T04B renders at once: waterfall (with connectors) + pins", s.charts === 2 && s.conn === 1, `${s.charts} / ${s.conn}`);
+    s = await upd3({ ...BASE, columns: { template: "T04B" } });
+    check("8 stale update: guard holds T04B, no second persist", s.persists === 1 && s.charts === 2 && s.conn === 1);
+    const ECHO3 = { ...BASE, columns: { ...c4, template: "T04B" }, numbers: { decimals: 2, pctDecimals: 2 } };
+    s = await upd3(ECHO3);
+    check("8 echo: no persist", s.persists === 1 && s.charts === 2);
+    s = await upd3({ ...ECHO3, columns: { ...ECHO3.columns, dPlWaterfall: false } });
+    check("8 the waterfall switch acts on its own (pins stay)", s.persists === 1 && s.charts === 1 && s.conn === 0, `${s.charts}`);
+    s = await upd3({ ...ECHO3, columns: { ...c4, dPlWaterfall: false, template: "12A" } });
+    const c12 = s.last.merge.find(m => m.objectName === "columns").properties;
+    check("9 pick 12A: one more persist with valueCascade", s.persists === 2 && c12.templateApplied === "12A"
+        && c12.valueCascade === true && c12.dPyBar === true && c12.dPlWaterfall === false);
+    check("9 12A renders two value cascades + ΔPY bars + pins", s.charts === 4 && s.conn === 2, `${s.charts} / ${s.conn}`);
+
+    await browser.close();
+    for (const n of notes) { console.log(n); }
+    if (errors > 0) { failures.push(errors + " render errors"); }
+    if (failures.length) {
+        console.error("\n" + failures.length + " check(s) failed:\n  ✗ " + failures.join("\n  ✗ "));
+        process.exit(1);
+    }
+    console.log(`\n${notes.length} template/echo-guard checks passed`);
+})();
