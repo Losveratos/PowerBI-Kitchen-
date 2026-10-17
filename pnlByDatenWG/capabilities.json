@@ -515,6 +515,26 @@
                             {
                                 "value": "T04A",
                                 "displayName": "T04A"
+                            },
+                            {
+                                "value": "T04B",
+                                "displayName": "T04B"
+                            },
+                            {
+                                "value": "T04C",
+                                "displayName": "T04C"
+                            },
+                            {
+                                "value": "T04D",
+                                "displayName": "T04D"
+                            },
+                            {
+                                "value": "T04E",
+                                "displayName": "T04E"
+                            },
+                            {
+                                "value": "12A",
+                                "displayName": "12A"
                             }
                         ]
                     }
@@ -553,12 +573,22 @@
                         "bool": true
                     }
                 },
+                "valueCascade": {
+                    "type": {
+                        "bool": true
+                    }
+                },
                 "dPyAbs": {
                     "type": {
                         "bool": true
                     }
                 },
                 "dPyBar": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPyWaterfall": {
                     "type": {
                         "bool": true
                     }
@@ -579,6 +609,11 @@
                     }
                 },
                 "dPlBar": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "dPlWaterfall": {
                     "type": {
                         "bool": true
                     }

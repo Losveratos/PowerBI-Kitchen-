@@ -99,7 +99,12 @@ const templateItems: powerbi.IEnumMember[] = [
     { value: "T02F", displayName: "T02F · FC vs PL bars + pins" },
     { value: "T03A", displayName: "T03A · statement PY·PL·AC + ΔPY·ΔPL" },
     { value: "T03B", displayName: "T03B · statement PY·PL·FC + ΔPY·ΔPL" },
-    { value: "T04A", displayName: "T04A · statement ΔPL bars + pins" }
+    { value: "T04A", displayName: "T04A · statement ΔPL bars + pins" },
+    { value: "T04B", displayName: "T04B · statement ΔPL waterfall + pins" },
+    { value: "T04C", displayName: "T04C · statement ΔPY waterfall + pins" },
+    { value: "T04D", displayName: "T04D · FC: ΔPL waterfall + pins" },
+    { value: "T04E", displayName: "T04E · FC: ΔPY waterfall + pins" },
+    { value: "12A", displayName: "12A · PY + AC value cascades, ΔPY bars + pins" }
 ];
 
 const minuendItems: powerbi.IEnumMember[] = [
@@ -260,12 +265,18 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
     showPY = megaToggle("showPY", "Value column PY", false);
     showPL = megaToggle("showPL", "Value column PL", false);
     showMinuend = megaToggle("showMinuend", "Value column AC / FC", false);
+    valueCascade = megaToggle("valueCascade", "Value columns as value cascades (12A)", false,
+        "Every shown scenario becomes a cascade chart column: steps on the running total, = rows from zero, cost rows light");
     dPyAbs = megaToggle("dPyAbs", "ΔPY as number", false);
     dPyBar = megaToggle("dPyBar", "ΔPY as bars", false);
+    dPyWaterfall = megaToggle("dPyWaterfall", "ΔPY as integrated waterfall", false,
+        "Each Δ bar starts where the previous one ended; = rows restart from the zero line (T04C/E)");
     dPyPct = megaToggle("dPyPct", "ΔPY% as number", false);
     dPyPin = megaToggle("dPyPin", "ΔPY% as pins", false);
     dPlAbs = megaToggle("dPlAbs", "ΔPL as number", false);
     dPlBar = megaToggle("dPlBar", "ΔPL as bars", false);
+    dPlWaterfall = megaToggle("dPlWaterfall", "ΔPL as integrated waterfall", false,
+        "Each Δ bar starts where the previous one ended; = rows restart from the zero line (T04B/D)");
     dPlPct = megaToggle("dPlPct", "ΔPL% as number", false);
     dPlPin = megaToggle("dPlPin", "ΔPL% as pins", false);
     secondBlock = megaToggle("secondBlock", "Second period block (month | _YTD)", false,
@@ -279,7 +290,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
     thresholdYtdAbs = megaThreshold("thresholdYtdAbs", "Threshold Δ (_YTD block)", -220);
     thresholdYtdPct = megaThreshold("thresholdYtdPct", "Threshold Δ% (_YTD block)", -10);
     scenarioMarks = megaToggle("scenarioMarks", "Scenario underlines (head + closing)", true);
-    chartLabels = megaToggle("chartLabels", "Numbers at bars / pins", true);
+    chartLabels = megaToggle("chartLabels", "Numbers at bars / pins / cascades", true);
     capBars = megaToggle("capBars", "Outlier arrows for Δ bars too", false,
         "Pins always cap outliers (Q3 + 4 × IQR); this extends it to the Δ bars");
 
@@ -314,9 +325,9 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         displayName: "Mega table (IBCS templates)",
         displayNameKey: "Columns_GroupMega",
         collapsible: true,
-        slices: [this.template, this.minuend, this.showPY, this.showPL, this.showMinuend,
-            this.dPyAbs, this.dPyBar, this.dPyPct, this.dPyPin,
-            this.dPlAbs, this.dPlBar, this.dPlPct, this.dPlPin,
+        slices: [this.template, this.minuend, this.showPY, this.showPL, this.showMinuend, this.valueCascade,
+            this.dPyAbs, this.dPyBar, this.dPyWaterfall, this.dPyPct, this.dPyPin,
+            this.dPlAbs, this.dPlBar, this.dPlWaterfall, this.dPlPct, this.dPlPin,
             this.secondBlock, this.structureSubtotals, this.showPctRows,
             this.thresholds, this.thresholdAbs, this.thresholdPct, this.thresholdYtdAbs, this.thresholdYtdPct,
             this.scenarioMarks, this.chartLabels, this.capBars, this.sort, this.sortBlock]

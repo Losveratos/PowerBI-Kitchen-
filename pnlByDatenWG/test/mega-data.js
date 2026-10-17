@@ -2,7 +2,7 @@
 // prototype/refs/ (same source as prototype/megatable.html), shaped as the
 // visual's level-column input (L1..L3 + measures, optional period).
 //
-//  MEGA_DEMO.statement(set) — T03 / T04 income statement (single period):
+//  MEGA_DEMO.statement(set) — T03 / T04 / 12A income statement (single period):
 //      Sales revenue (= chain start) · Other op. income · Operating expenses
 //      (costs: sign −1 + DisplayInvert) · formula rows · Gross margin (KPI)
 //  MEGA_DEMO.regions()      — T01 / T02 regions, 11 months 2026-01..2026-11:
@@ -20,6 +20,15 @@
       pl: [748.97, 75.63, 22.01, 62.77, 40.54, 589.45, 55.89, 79.83, 56.02, 76.00, 44.68, 66.00, 127.79, 52.00],
       ac: [745.89, 80.11, 27.57, 65.03, 49.68, 600.57, 54.02, 85.62, 47.46, 79.67, 53.02, 66.03, 135.31, 55.02],
       fc: [749.89, 82.45, 25.45, 65.99, 48.94, 603.45, 55.06, 88.35, 46.77, 77.99, 53.02, 66.03, 134.57, 55.02],
+    },
+    // 12A (PY / AC); PL from 12H, FC from 12G — "Support" instead of
+    // "Maintenance", no gross margin row
+    "12A": {
+      py: [713, 72, 22, 6, 45, 344, 11, 76, 56, 78, 43, 73, 132, 89],
+      ac: [896, 90, 10, 65, 17, 379, 54, 127, 40, 152, 53, 66, 111, 55],
+      pl: [896, 90, 10, 8, 17, 379, 15, 127, 40, 114, 53, 66, 111, 55],
+      fc: [1434, 144, 16, 104, 27, 606, 86, 203, 64, 243, 42, 33, 178, 88],
+      labels: { mai: "Support" }, noMargin: true,
     },
   };
   // [levels, account, sort, sign, displayInvert] in ST order
@@ -51,6 +60,7 @@
     const src = ST[set || "T03"];
     const rows = [];
     ACC.forEach(([levels, account, sort, sign, di], i) => {
+      if (src.labels && src.labels[account]) { levels = [...levels.slice(0, -1), src.labels[account]]; }
       rows.push({
         levels, account, sort, rowType: "account", formulaDef: null, sign, displayInvert: di,
         varianceInvert: false, month: null, comment: null,
@@ -58,6 +68,7 @@
       });
     });
     for (const [levels, account, sort, rowType, formulaDef] of FORMULAS) {
+      if (rowType === "kpi" && src.noMargin) { continue; }
       rows.push({
         levels, account, sort, rowType, formulaDef, sign: 1, displayInvert: false,
         varianceInvert: false, month: null, comment: null, values: {},

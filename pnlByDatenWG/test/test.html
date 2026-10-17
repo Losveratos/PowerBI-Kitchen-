@@ -31,6 +31,12 @@
 <div class="case"><h4>m8 · Mega-Table AC vs PY (Einzel-Schalter, kein Preset) · ΔPY-Balken + Pins · Sortierung AC↓ (Monat) · IBCS-Grün</h4><div class="stage" id="m8" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m9 · Mega-Table T03A auf Pharma-Demo · Monat | _YTD aus der Perioden-Rolle</h4><div class="stage" id="m9" style="width:1560px;height:900px"></div></div>
 <div class="case"><h4>m10 · Mega-Table T04A · GuV ΔPL-Balken + Pins (Phase 2)</h4><div class="stage" id="m10" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m11 · Mega-Table T04B · AC vs PL · integrierter ΔPL-Wasserfall + ΔPL%-Pins (Phase 3)</h4><div class="stage" id="m11" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m12 · Mega-Table T04C · AC vs PY · ΔPY-Wasserfall (graue Achse) + Pins</h4><div class="stage" id="m12" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m13 · Mega-Table T04D · FC vs PL · Wasserfall schraffiert, Doppelachse</h4><div class="stage" id="m13" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m14 · Mega-Table T04E · FC vs PY · Wasserfall schraffiert, graue Achse</h4><div class="stage" id="m14" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m15 · Mega-Table 12A · PY- und AC-Wert-Kaskade · ΔPY-Balken + Pins (Ausreißer-Pfeile)</h4><div class="stage" id="m15" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m16 · Mega-Table Einzel-Schalter · Regionen Monat | _YTD · ΔPL-Wasserfall + ΔPL-Balken + Pins · Zwischensummen spannen · IBCS-Grün</h4><div class="stage" id="m16" style="width:1600px;height:800px"></div></div>
 <script src="visual.bundle.js"></script>
 <script src="demo-data.js"></script>
 <script src="mega-data.js"></script>
@@ -267,6 +273,24 @@ run("m9", { titleBlock: TITLE, hierarchy: { defaultLevel: 2 },
 // m10 — T04A: statement with ΔPL bars + pins
 runRows("m10", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
   columns: { template: "T04A" } });
+
+// m11..m14 — T04B–E: the integrated Δ waterfall for every minuend × subtrahend pair
+const ST = (set, tpl) => [MEGA_DEMO.statement(set), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: tpl } }];
+runRows("m11", ...ST("T04", "T04B"));
+runRows("m12", ...ST("T04", "T04C"));
+runRows("m13", ...ST("T04", "T04D"));
+runRows("m14", ...ST("T04", "T04E"));
+// m15 — 12A: PY and AC value cascades next to ΔPY bars + pins
+runRows("m15", MEGA_DEMO.statement("12A"), { titleBlock: { unitLine: "Software and Service Group",
+  measureLine: "Profit and loss statement in kEUR", periodLine: "AC 2025, PY and ΔPY" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "12A" } });
+// m16 — single switches on structure data: Δ waterfall next to the Δ bars and pins,
+// subtotal blocks span their regions, World anchors; two blocks, IBCS green
+runRows("m16", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  style: { colorMode: "ibcs" },
+  numbers: { decimals: 0, pctDecimals: 1 },
+  columns: { showPL: true, showMinuend: true, dPlBar: true, dPlWaterfall: true, dPlPin: true, secondBlock: true } });
 
 // p6 — sparkline open on first account, toolbar hidden
 run("p6", {

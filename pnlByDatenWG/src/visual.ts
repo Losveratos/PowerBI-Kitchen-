@@ -5543,13 +5543,16 @@ export class Visual implements IVisual {
             showPY: cc.showPY.value && has.py,
             showPL: cc.showPL.value && has.pl,
             showMin: cc.showMinuend.value,
+            valueCascade: cc.valueCascade.value,
             d: {
                 PY: {
                     num: cc.dPyAbs.value && has.py, bar: cc.dPyBar.value && has.py,
+                    wf: cc.dPyWaterfall.value && has.py,
                     pct: cc.dPyPct.value && has.py, pin: cc.dPyPin.value && has.py,
                 },
                 PL: {
                     num: cc.dPlAbs.value && has.pl, bar: cc.dPlBar.value && has.pl,
+                    wf: cc.dPlWaterfall.value && has.pl,
                     pct: cc.dPlPct.value && has.pl, pin: cc.dPlPin.value && has.pl,
                 },
             },
@@ -5610,9 +5613,9 @@ export class Visual implements IVisual {
         const p = MEGA_PRESETS[tpl];
         const cols: Record<string, boolean | string> = {
             minuend: p.min.toLowerCase(),
-            showPY: p.showPY, showPL: p.showPL, showMinuend: p.showMin,
-            dPyAbs: p.dPyAbs, dPyBar: p.dPyBar, dPyPct: p.dPyPct, dPyPin: p.dPyPin,
-            dPlAbs: p.dPlAbs, dPlBar: p.dPlBar, dPlPct: p.dPlPct, dPlPin: p.dPlPin,
+            showPY: p.showPY, showPL: p.showPL, showMinuend: p.showMin, valueCascade: p.valueCascade,
+            dPyAbs: p.dPyAbs, dPyBar: p.dPyBar, dPyWaterfall: p.dPyWf, dPyPct: p.dPyPct, dPyPin: p.dPyPin,
+            dPlAbs: p.dPlAbs, dPlBar: p.dPlBar, dPlWaterfall: p.dPlWf, dPlPct: p.dPlPct, dPlPin: p.dPlPin,
             secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, showPctRows: p.showPctRows,
             thresholds: p.thresholds, scenarioMarks: p.scenarioMarks, chartLabels: p.chartLabels,
             capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock,
@@ -5702,6 +5705,8 @@ export class Visual implements IVisual {
         const chainStart = statement && first && first.hasChildren
             && (first.row.rowType === "subtotal" || first.row.rowType === "account") ? first : null;
         const glyph = (n: PnlNode): string => n.row.displayInvert ? "-" : "+";
+        const realRoots = roots.filter(r => r.row.rowType !== "separator");
+        const soleRoot = realRoots.length === 1 ? realRoots[0] : null;
         const keep = (n: PnlNode): boolean => !(ui.hideZero && isZeroRow(n));
 
         const emit = (n: PnlNode, under: PnlNode | null): void => {
@@ -5768,6 +5773,13 @@ export class Visual implements IVisual {
             }
             const parent = n.row.parent ? model.byId.get(n.row.parent) : undefined;
             const name = (dupe.get(n.row.name) ?? 0) > 1 && parent ? `${n.row.name} ${parent.row.name}` : n.row.name;
+            // cascades (T04 Δ waterfall, 12A value cascade): "=" rows anchor —
+            // formula rows, the statement's chain start, the single grand total
+            // of a structure hierarchy; every other row steps with the effect
+            // of its shown value on the result
+            const anchor = it.kind === "formula" || it.op === "="
+                || (!statement && soleRoot === n && it.kind === "sum");
+            const disp = n.row.displayInvert ? -1 : 1;
             out.push({
                 id: n.row.id,
                 label: (n.isOrphanBucket ? "⚠ " : "") + name,
@@ -5775,11 +5787,32 @@ export class Visual implements IVisual {
                 group: n.row.parent,
                 other: /^(other|others|sonstige|übrige|rest)\b/i.test(n.row.name.trim()),
                 suffix: suffix.length ? suffix : undefined,
+                eff: anchor ? disp : disp * this.megaParentSign(n),
+                anchor,
             });
             if (it.kind !== "pct") { prev = it; }
         }
         while (out.length && out[out.length - 1].kind === "gap") { out.pop(); }
         return { rows: out, nodes };
+    }
+
+    /**
+     * Product of the SignConvention of the subtotals above `n` — the engine
+     * rolls a subtotal up as sign × Σ children (aggregateSubtotal), a postable
+     * parent account adds its children unsigned. Raw value × this = the row's
+     * effect on the top of its hierarchy.
+     */
+    private megaParentSign(n: PnlNode): number {
+        let f = 1;
+        let pid = n.row.parent;
+        const byId = this.model!.byId;
+        for (let i = 0; pid != null && i < 64; i++) {
+            const p = byId.get(pid);
+            if (!p) { break; }
+            if (p.row.rowType === "subtotal") { f *= p.row.sign < 0 ? -1 : 1; }
+            pid = p.row.parent;
+        }
+        return f;
     }
 
     private megaGap(): MegaRow {

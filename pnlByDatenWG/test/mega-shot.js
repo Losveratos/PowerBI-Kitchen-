@@ -7,7 +7,9 @@
  * the scenario marks, the %p margin row, the red threshold numbers + footer,
  * the subtotal spacer rows, one shared zero axis per chart column, the hatch
  * fill of the FC minuend, the axis notation (PY gray / PL double) and the
- * "(↓)" sort indicator with the sorted order.
+ * "(↓)" sort indicator with the sorted order; phase 3 (m11..m16): the
+ * integrated Δ waterfall T04B–E (cascade, connectors, notation per minuend ×
+ * subtrahend) and the value cascades of 12A.
  *
  * Run: node test/mega-shot.js  (after node test/build.js; npm run test:mega)
  */
@@ -43,8 +45,13 @@ function readMega(id) {
         });
     }
     const charts = [...body.querySelectorAll('g[data-pnl="mega-chart"]')].map(g => {
-        const lines = [...g.querySelectorAll("g[shape-rendering] line")];
+        const lines = [...g.querySelectorAll(":scope > g[shape-rendering]:not([data-pnl]) > line")];
         return {
+            conn: g.querySelectorAll('g[data-pnl="mega-conn"] line').length,
+            labels: [...g.querySelectorAll("text")].map(t => ({ t: t.textContent, x: +t.getAttribute("x"),
+                anchor: t.getAttribute("text-anchor"), bold: t.getAttribute("font-weight") === "bold" })),
+            bars: [...g.querySelectorAll(":scope > rect, :scope > g:not([shape-rendering]) > rect")].map(r => ({ x: +r.getAttribute("x"), w: +r.getAttribute("width"),
+                y: +r.getAttribute("y"), fill: r.getAttribute("fill"), stroke: r.getAttribute("stroke") })),
             axes: lines.map(l => ({ x: +l.getAttribute("x1"), stroke: l.getAttribute("stroke"), sw: +l.getAttribute("stroke-width") })),
             rects: [...g.querySelectorAll("rect")].map(r => ({ fill: r.getAttribute("fill"), stroke: r.getAttribute("stroke"),
                 w: +r.getAttribute("width"), h: +r.getAttribute("height") })),
@@ -54,10 +61,12 @@ function readMega(id) {
     });
     const rowIds = [...body.querySelectorAll('rect[data-pnl-part="cells"]')].map(r => r.getAttribute("data-pnl-row"));
     const rowY = [...body.querySelectorAll('rect[data-pnl-part="cells"]')].map(r => +r.getAttribute("y"));
+    const ruleColors = [...body.querySelectorAll("g[shape-rendering] > line")].map(l => l.getAttribute("stroke"));
+    const headLines = head.querySelectorAll("line").length;
     const headRects = [...head.querySelectorAll("rect")].map(r => ({ fill: r.getAttribute("fill"), h: +r.getAttribute("height") }));
     const patterns = head.querySelectorAll("pattern").length + body.querySelectorAll("pattern").length;
     const toolbar = stage.querySelectorAll("button").length;
-    return { head: texts(head), body: texts(body), clipped, charts, rowIds, rowY, headRects, patterns, toolbar,
+    return { head: texts(head), body: texts(body), clipped, charts, rowIds, rowY, headRects, patterns, toolbar, ruleColors, headLines,
         bodyH: +body.getAttribute("height"), width: +body.getAttribute("width") };
 }
 
@@ -70,7 +79,7 @@ function readMega(id) {
     await page.goto("file://" + __dirname + "/test.html");
     await page.waitForTimeout(600);
 
-    const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10"];
+    const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -178,6 +187,90 @@ function readMega(id) {
         check("m10 margin row has no bar", !S.m10.body.some(x => /%p$/.test(x.t)));
     }
 
+    // ---- T04B–E: integrated Δ waterfall (phase 3) ---------------------------------
+    const wfCase = (id, ref, hatched, axis) => {
+        const D = S[id];
+        if (!D) { return; }
+        check(`${id} heads ${ref === "PL" ? "PL AC|FC" : "PY AC|FC"} Δ${ref} Δ${ref}%`, heads(id).includes("Δ" + ref) && heads(id).includes("Δ" + ref + "%"), heads(id).join("|"));
+        check(`${id} two chart columns: waterfall + pins`, D.charts.length === 2);
+        const wf = D.charts[0];
+        // 20 statement rows carry a segment (the margin row is skipped)
+        check(`${id} one cascade segment per row (20)`, wf.bars.length === 20, String(wf.bars.length));
+        check(`${id} thin connectors between the segments`, wf.conn >= 15, String(wf.conn));
+        check(`${id} waterfall fill by minuend (${hatched ? "hatched + outline" : "solid"})`,
+            wf.bars.every(r => hatched ? /^url\(/.test(r.fill) && r.stroke : /^#/.test(r.fill) && !r.stroke));
+        check(`${id} axis by subtrahend (${axis})`, axis === "double"
+            ? D.charts.every(c => c.axes.length === 2 && c.axes.every(a => a.stroke === "#404040"))
+            : D.charts.every(c => c.axes.length === 1 && c.axes[0].stroke === "#B3B3B3" && c.axes[0].sw === 3));
+        // = rows restart at the zero line: every anchor segment touches the axis
+        const ax = wf.axes.length === 2 ? (wf.axes[0].x + wf.axes[1].x) / 2 : wf.axes[0].x;
+        const rowsY = D.rowY; const ids2 = D.rowIds;
+        const anchorIds = ["L:Sales revenue", "opres", "rbt", "rat", "grp"];
+        const anchors = anchorIds.map(a => ids2.indexOf(a)).filter(i => i >= 0)
+            .map(i => wf.bars.find(b => b.y > rowsY[i] && b.y < rowsY[i] + 22));
+        check(`${id} = rows anchored on the zero line (5)`, anchors.length === 5 && anchors.every(b => b
+            && (Math.abs(b.x - ax) < 1.5 || Math.abs(b.x + b.w - ax) < 1.5)), JSON.stringify(anchors.map(b => b && [b.x, b.w, ax])));
+    };
+    wfCase("m11", "PL", false, "double");
+    wfCase("m12", "PY", false, "gray");
+    wfCase("m13", "PL", true, "double");
+    wfCase("m14", "PY", true, "gray");
+    if (S.m11) {
+        const wf = S.m11.charts[0];
+        const pur = wf.labels.find(l => l.t === "+11.12");
+        check("m11 Purchases +11.12 (raw Δ, cost) left of its bar, bar red", pur && pur.anchor === "end"
+            && wf.bars.some(b => b.fill === "#E02B1D" && Math.abs(b.x - 3 - pur.x) < 0.6));
+        check("m11 Group result +6.04 bold", wf.labels.some(l => l.t === "+6.04" && l.bold));
+        check("m11 pins with 2 decimals (+25.26)", S.m11.charts[1].labels.some(l => l.t === "+25.26"));
+        check("m11 margin row keeps its %p-free values (10.99%)", has("m11", "10.99%"));
+        // the cascade really runs on: Other op. income starts where Sales revenue ended
+        const ids11 = S.m11.rowIds; const y11 = S.m11.rowY;
+        const seg = id => { const i = ids11.indexOf(id); return wf.bars.find(b => b.y > y11[i] && b.y < y11[i] + 22); };
+        const sales = seg("L:Sales revenue"); const ooi = seg("ooi");
+        check("m11 Other op. income starts at the end of Sales revenue", sales && ooi && Math.abs(ooi.x - (sales.x + sales.w)) < 0.6,
+            sales && ooi ? `${sales.x + sales.w} vs ${ooi.x}` : "");
+    }
+    // ---- 12A: value cascades -------------------------------------------------------
+    if (S.m15) {
+        const D = S.m15;
+        check("m15 12A heads PY AC ΔPY ΔPY%", JSON.stringify(heads("m15")) === JSON.stringify(["PY", "AC", "ΔPY", "ΔPY%"]), heads("m15").join("|"));
+        check("m15 four chart columns (2 value cascades + bars + pins)", D.charts.length === 4);
+        const [py, ac] = D.charts;
+        check("m15 PY cascade gray, cost rows light", py.bars.some(b => b.fill === "#B3B3B3") && py.bars.some(b => b.fill === "#D9D9D9"));
+        check("m15 AC cascade ink, cost rows light", ac.bars.some(b => b.fill === "#404040") && ac.bars.some(b => b.fill === "#8A8886"));
+        check("m15 value cascade axis: 1 px ink line", py.axes.length === 1 && py.axes[0].stroke === "#404040" && py.axes[0].sw === 1);
+        check("m15 value labels (Sales revenue AC 1 061 bold, Operating expenses 752)",
+            ac.labels.some(l => l.t === nb("1 061") && l.bold) && ac.labels.some(l => l.t === "752"));
+        check("m15 cascade connectors", py.conn >= 15 && ac.conn >= 15, `${py.conn}/${ac.conn}`);
+        check("m15 ΔPY% outliers +983 / +391 capped with arrows", D.charts[3].arrows === 2);
+        check("m15 no gray row rules, no head rules (12A)", !D.ruleColors.includes("#D9D9D9") && D.headLines === 0);
+        check("m15 no margin row", !D.body.some(x => /%$/.test(x.t)));
+        check("m15 one value-cascade scale for PY and AC (same Licences px per kEUR)", (() => {
+            const i = D.rowIds.indexOf("lic"); const y = D.rowY[i];
+            const a = py.bars.find(b => b.y > y && b.y < y + 22); const c = ac.bars.find(b => b.y > y && b.y < y + 22);
+            return a && c && Math.abs(a.w / 713 - c.w / 896) < 0.01;
+        })());
+    }
+    // ---- single switches on structure data: waterfall next to bars + pins ----------
+    if (S.m16) {
+        const D = S.m16;
+        check("m16 six chart columns (bar, waterfall, pins per block)", D.charts.length === 6);
+        const wf0 = D.charts[1];
+        check("m16 subtotal blocks span their regions (Europe -36 left of its bar)", wf0.labels.some(l => l.t === "-36" && l.bold && l.anchor === "end"));
+        check("m16 World anchored on the zero line", (() => {
+            const i = D.rowIds.indexOf("L:World"); const y = D.rowY[i];
+            const b = wf0.bars.find(r => r.y > y && r.y < y + 22);
+            const ax = (wf0.axes[0].x + wf0.axes[1].x) / 2;
+            return b && Math.abs(b.x + b.w - ax) < 1.5;
+        })());
+        check("m16 waterfall and bars share the Δ scale of the block (Europe -36 equally long)", (() => {
+            const i = D.rowIds.indexOf("L:World¦Europe"); const y = D.rowY[i];
+            const a = D.charts[0].bars.find(r => r.y > y && r.y < y + 22); const b = wf0.bars.find(r => r.y > y && r.y < y + 22);
+            return a && b && Math.abs(a.w - b.w) < 1;
+        })());
+        check("m16 IBCS green", wf0.bars.some(b => b.fill === "#8CB400"));
+    }
+
     // ---- preset dropdown wrote the switches (persistProperties payload) ----------
     const persist = await page.evaluate(() => (window.__persist || []).map(x => ({ id: x.id, p: x.p })));
     const m1p = persist.find(x => x.id === "m1");
@@ -187,6 +280,20 @@ function readMega(id) {
         && colObj.properties.dPyAbs === true && colObj.properties.dPlPct === true && colObj.properties.secondBlock === false);
     check("preset T03A persisted decimals 1 / Δ% 0", numObj && numObj.properties.decimals === 1 && numObj.properties.pctDecimals === 0);
     check("single switches (m8) persist nothing", !persist.some(x => x.id === "m8"));
+    const tplP = (id) => { const x = persist.find(q => q.id === id); return x ? x.p.merge : []; };
+    const colsOf = id => (tplP(id).find(o => o.objectName === "columns") || {}).properties || {};
+    const numsOf = id => (tplP(id).find(o => o.objectName === "numbers") || {}).properties || {};
+    check("preset T04B persisted dPlWaterfall + pins, decimals 2 / Δ% 2", colsOf("m11").templateApplied === "T04B"
+        && colsOf("m11").dPlWaterfall === true && colsOf("m11").dPlBar === false && colsOf("m11").dPlPin === true
+        && numsOf("m11").decimals === 2 && numsOf("m11").pctDecimals === 2);
+    check("preset T04C persisted dPyWaterfall, PY column, no PL", colsOf("m12").dPyWaterfall === true && colsOf("m12").showPY === true
+        && colsOf("m12").showPL === false && colsOf("m12").dPlWaterfall === false);
+    check("presets T04D / T04E persisted minuend FC", colsOf("m13").minuend === "fc" && colsOf("m14").minuend === "fc"
+        && colsOf("m13").dPlWaterfall === true && colsOf("m14").dPyWaterfall === true);
+    check("preset 12A persisted valueCascade + ΔPY bars/pins, no margins, decimals 0 / 0", colsOf("m15").valueCascade === true
+        && colsOf("m15").dPyBar === true && colsOf("m15").dPyPin === true && colsOf("m15").showPctRows === false
+        && numsOf("m15").decimals === 0 && numsOf("m15").pctDecimals === 0);
+    check("single switches (m16) persist nothing", !persist.some(x => x.id === "m16"));
     check("synced template (m9) persists nothing", !persist.some(x => x.id === "m9"));
 
     await browser.close();

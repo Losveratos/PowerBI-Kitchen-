@@ -13,7 +13,8 @@
     "test:tree": "node test/build.js && node test/tree-interact.js",
     "test:perf": "node test/build.js && node test/perf.js",
     "test:mega": "node test/megatable-test.js && node test/build.js && node test/mega-shot.js && node test/mega-interact.js",
-    "test": "npm run test:engine && npm run test:mega && npm run test:render && npm run test:tree && npm run test:perf"
+    "test:waterfall": "node test/waterfall-test.js",
+    "test": "npm run test:engine && npm run test:mega && npm run test:waterfall && npm run test:render && npm run test:tree && npm run test:perf"
   },
   "dependencies": {
     "powerbi-visuals-api": "~5.11.0",
