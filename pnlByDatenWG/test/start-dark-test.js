@@ -317,10 +317,17 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
         return out;
     });
     const has = (arr, s) => arr.includes(s);
-    check("Pane: card order columns → display → numbers → style → title → hierarchy",
-        C.order.join(",") === "columns,toolbar,numbers,style,titleBlock,hierarchy", C.order.join(","));
+    // 1.1 Paket B: scenario names after numbers, the empty state last
+    check("Pane: card order columns → display → numbers → scenario names → style → title → hierarchy → empty state",
+        C.order.join(",") === "columns,toolbar,numbers,labels,style,titleBlock,hierarchy,emptyState", C.order.join(","));
     check("Pane: columns card = table | mega table (tree group gated), style card = colors | type | behavior",
-        C.groups[0].startsWith("columns:columnsGeneral|columnsMega") && C.groups[3] === "style:styleColors|styleType|styleBehavior", C.groups.join(" ; "));
+        C.groups[0].startsWith("columns:columnsGeneral|columnsMega") && C.groups[4] === "style:styleColors|styleType|styleBehavior", C.groups.join(" ; "));
+    check("Pane (1.1): title footers + auto message follow titleBlock.show, scenario group follows toolbar.show",
+        has(C.base, "titleBlock.footer") && has(C.base, "titleBlock.filterFooter") && has(C.base, "titleBlock.autoMessage")
+        && has(C.base, "toolbar.showScenario") && !has(C.noTb, "titleBlock.footer") && !has(C.noTb, "toolbar.showScenario"));
+    check("Pane (1.1): finance, sum-safe, house terms, highlight, materiality, empty state visible",
+        ["numbers.financeFormat", "numbers.sumSafeRounding", "labels.labelAc", "labels.labelFc", "columns.highlight",
+            "columns.materialityAbs", "columns.materialityPct", "emptyState.title", "emptyState.body"].every(k => has(C.base, k)));
     check("Pane: mega switches visible in the table view", has(C.base, "columns.template") && has(C.base, "columns.dPlBar"));
     check("Pane: tree start settings hidden in the table view", !has(C.base, "columns.treeRoot"));
     check("Pane: tree view hides the mega switches and shows the tree start",

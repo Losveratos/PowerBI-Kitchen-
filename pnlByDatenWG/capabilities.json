@@ -144,6 +144,15 @@
             "kind": "Measure",
             "description": "Full-year plan scalar for the outlook block.",
             "descriptionKey": "RoleDesc_PLFY"
+        },
+        {
+            "name": "filterInfo",
+            "displayName": "Filter info (footer)",
+            "displayNameKey": "Role_FilterInfo",
+            "kind": "Measure",
+            "requiredTypes": [ { "text": true } ],
+            "description": "Text measure carrying the current filter context (e.g. via CONCATENATEX/SELECTEDVALUE) — shown as a second footer line when the filter footer is enabled.",
+            "descriptionKey": "RoleDesc_FilterInfo"
         }
     ],
     "dataViewMappings": [
@@ -202,6 +211,9 @@
                         "max": 1
                     },
                     "plFy": {
+                        "max": 1
+                    },
+                    "filterInfo": {
                         "max": 1
                     }
                 }
@@ -307,6 +319,11 @@
                             "bind": {
                                 "to": "plFy"
                             }
+                        },
+                        {
+                            "bind": {
+                                "to": "filterInfo"
+                            }
                         }
                     ]
                 }
@@ -362,6 +379,11 @@
                     }
                 },
                 "showOptions": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showScenario": {
                     "type": {
                         "bool": true
                     }
@@ -784,6 +806,21 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "highlight": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "materialityAbs": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "materialityPct": {
+                    "type": {
+                        "numeric": true
+                    }
                 }
             }
         },
@@ -807,6 +844,10 @@
                             {
                                 "value": "m",
                                 "displayName": "Millions (m)"
+                            },
+                            {
+                                "value": "b",
+                                "displayName": "Billions (b)"
                             }
                         ]
                     }
@@ -824,6 +865,16 @@
                 "pctDecimals": {
                     "type": {
                         "numeric": true
+                    }
+                },
+                "financeFormat": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "sumSafeRounding": {
+                    "type": {
+                        "bool": true
                     }
                 }
             }
@@ -996,6 +1047,59 @@
                     "type": {
                         "text": true
                     }
+                },
+                "autoMessage": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "footer": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "filterFooter": {
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
+        },
+        "labels": {
+            "properties": {
+                "labelAc": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "labelPy": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "labelPl": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "labelFc": {
+                    "type": {
+                        "text": true
+                    }
+                }
+            }
+        },
+        "emptyState": {
+            "properties": {
+                "title": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "body": {
+                    "type": {
+                        "text": true
+                    }
                 }
             }
         },
@@ -1024,6 +1128,13 @@
         }
     },
     "supportsHighlight": false,
+    "tooltips": {
+        "supportedTypes": {
+            "default": true,
+            "canvas": true
+        }
+    },
+    "supportsKeyboardFocus": true,
     "supportsMultiVisualSelection": true,
     "supportsLandingPage": true,
     "supportsEmptyDataView": true,

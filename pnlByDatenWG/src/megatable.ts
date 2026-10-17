@@ -155,6 +155,8 @@ export interface MegaDelta {
     impactPct: number | null;
     /** margin row: d is in percentage points */
     pp: boolean;
+    /** below the materiality threshold (columns.materialityAbs / Pct): soft ink instead of good / bad */
+    immaterial?: boolean;
 }
 
 export interface MegaBlock {
@@ -236,6 +238,10 @@ export interface MegaInput {
      * underlined, the PY mark / PY value cascade dashed (ChartKitchen HC path)
      */
     hc?: boolean;
+    /** finance format (numbers.financeFormat): (1 234) instead of -1 234, exact zero "–" */
+    fin?: boolean;
+    /** house terms (labels.labelAc …): rewrites the scenario codes of every column head */
+    relabel?: (s: string) => string;
 }
 
 // ============================================================================
@@ -388,25 +394,40 @@ export function megaDecimals(x: number, max = 4): number {
     return max;
 }
 
-/** explicit "+", "-" as minus, zero without a sign (also a rounded −0.0) */
-export function megaFmt(num: (abs: number, dec: number) => string, dec: number, pdec: number): MegaFmt {
+/**
+ * explicit "+", "-" as minus, zero without a sign (also a rounded −0.0).
+ * Finance format (`fin`, ChartKitchen labels.financeFormat): a negative number
+ * goes into parentheses with its unit inside — (1 234), (12.5%) — positive Δ
+ * keep their "+", an exact zero prints "–" (a rounded zero stays "0.0").
+ * `signed` itself never uses parentheses: the threshold footer is a rule
+ * ("<-20"), not a figure.
+ */
+export function megaFmt(num: (abs: number, dec: number) => string, dec: number, pdec: number, fin = false): MegaFmt {
     const signed = (v: number, d: number, plus: boolean): string => {
         const f = Math.pow(10, d);
         const r = Math.round(Math.abs(v) * f) / f;
         const zero = r === 0;
         return (v < 0 && !zero ? "-" : plus && !zero ? "+" : "") + num(r, d);
     };
+    const fs = (v: number, d: number, plus: boolean, unit = ""): string => {
+        if (!fin) { return signed(v, d, plus) + unit; }
+        if (v === 0) { return "–"; }
+        const f = Math.pow(10, d);
+        const r = Math.round(Math.abs(v) * f) / f;
+        if (r === 0) { return num(r, d) + unit; }
+        return v < 0 ? "(" + num(r, d) + unit + ")" : (plus ? "+" : "") + num(r, d) + unit;
+    };
     return {
-        val: v => signed(v, dec, false),
-        delta: v => signed(v, dec, true),
-        pct: p => signed(p * 100, pdec, true) + "%",
-        pin: p => signed(p * 100, pdec, true),
-        margin: m => signed(m * 100, dec, false) + "%",
-        pp: x => signed(x, dec, true) + "%p",
+        val: v => fs(v, dec, false),
+        delta: v => fs(v, dec, true),
+        pct: p => fs(p * 100, pdec, true, "%"),
+        pin: p => fs(p * 100, pdec, true),
+        margin: m => fs(m * 100, dec, false, "%"),
+        pp: x => fs(x, dec, true, "%p"),
         // margin rows: relative change of the ratio, WITH the % sign (T03A "+23%");
         // %p stays the sign of the point difference (pp)
-        rel: p => signed(p * 100, 0, true) + "%",
-        share: p => signed(p * 100, pdec, false) + "%",
+        rel: p => fs(p * 100, 0, true, "%"),
+        share: p => fs(p * 100, pdec, false, "%"),
         signed,
     };
 }
@@ -645,7 +666,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
     const ord = orderRows(input);
     const rows = ord.rows;
     const sortInfo = ord.info;
-    const fmt = megaFmt(input.num, input.dec, input.pdec);
+    const fmt = megaFmt(input.num, input.dec, input.pdec, !!input.fin);
     const N = notation(t.min, activeRefs(t)[0] ?? null);
     const cols = buildColumns(t, nb);
     const anyChart = cols.some(megaIsChart);
@@ -681,8 +702,9 @@ export function layoutMega(input: MegaInput): MegaLayout {
         }
         const D = blk.delta(r, t.min, c.ref!);
         if (!D) { return null; }
+        // an explicit "Δ in red if" rule wins over the materiality dampening
         const redText = (red: boolean): Partial<MegaCellText> =>
-            ({ color: red ? input.pal.bad : MEGA_C.text, underline: red && input.hc ? true : undefined });
+            ({ color: red ? input.pal.bad : D.immaterial ? MEGA_C.soft : MEGA_C.text, underline: red && input.hc ? true : undefined });
         if (c.type === "delta") {
             const red = t.thresholds && !pct && D.impact < blk.th.abs - 1e-9;
             return { ...base, t: pct ? fmt.pp(D.d) : fmt.delta(D.d), ...redText(red) };
@@ -714,7 +736,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
             const key = t.sort === "min" ? (blocks[sortInfo.block]?.alias?.[t.min] ?? t.min) : "Δ" + sortInfo.ref;
             s = "(↓) " + key + (nb === 2 && blocks[sortInfo.block].name ? " " + blocks[sortInfo.block].name : "");
         }
-        return s;
+        return input.relabel ? input.relabel(s) : s;
     };
     const labelText = (r: MegaRow): string => r.label + (r.suffix ?? []).map(x => x.t).join("");
 
@@ -931,6 +953,11 @@ export interface MegaPaintOpts {
     selectedId: string | null;
     selWash: string;
     selAccent: string;
+    /**
+     * rows to emphasize (columns.highlight, ChartKitchen emphBand): a quiet ink
+     * band at 7 % over the whole row; high contrast draws a 1 px outline instead
+     */
+    highlight?: { ids: Set<string>; ink: string; hc: boolean };
 }
 
 export interface MegaPainted {
@@ -1059,6 +1086,17 @@ export function paintMega(L: MegaLayout, o: MegaPaintOpts): MegaPainted {
             text(H, c.x + c.w - G.pad, ty, c.head, { anchor: "end", ...ho });
         } else { text(H, c.x + c.w / 2, ty, c.head, { anchor: "middle", ...ho }); }
         if (style.headerRules) { paintMark(H, "rule", c.x, c.w); }
+    }
+
+    // ---- highlight bands (IBCS EMPHASIZE, behind everything of the body) -------
+    if (o.highlight && o.highlight.ids.size > 0) {
+        const hl = o.highlight;
+        for (const { r, y, h } of R) {
+            if (!hl.ids.has(r.id)) { continue; }
+            svgEl("rect", hl.hc
+                ? { x: 0.5, y: y + 0.5, width: Math.max(1, L.tableW - 1), height: h - 1, fill: "none", stroke: hl.ink, "stroke-width": 1, "data-pnl": "mega-hl" }
+                : { x: 0, y, width: L.tableW, height: h, fill: hl.ink, "fill-opacity": 0.07, "data-pnl": "mega-hl" }, B.rules);
+        }
     }
 
     // ---- selection wash (behind everything of the body) -----------------------
@@ -1228,8 +1266,9 @@ function paintChartColumn(
         const v = ov.v; const dir = v >= 0 ? 1 : -1;
         const capped = Math.abs(v) > c.cap!;
         const vv = capped ? dir * c.cap! : v;
-        const color = ov.D.good ? pal.good : pal.bad;
-        const bad = hc && !ov.D.good;
+        // below materiality: soft ink, and in high contrast never the hollow "bad" pattern
+        const color = ov.D.immaterial ? MEGA_C.soft : ov.D.good ? pal.good : pal.bad;
+        const bad = hc && !ov.D.good && !ov.D.immaterial;
         const bold = megaIsBold(r);
         if (c.type === "bar") {
             const x2 = X(vv);
@@ -1299,8 +1338,8 @@ function paintCascade(
         if (c.type === "wf") {
             const D = blk.delta(r, input.t.min, c.ref!)!;
             // high contrast: an unfavourable step is hollow (good / bad share the foreground)
-            st = input.hc && !D.good && D.d !== 0 ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1.4 }
-                : N.area(D.good ? pal.good : pal.bad, B.hatch);
+            st = input.hc && !D.good && D.d !== 0 && !D.immaterial ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1.4 }
+                : N.area(D.immaterial ? MEGA_C.soft : D.good ? pal.good : pal.bad, B.hatch);
             txt = fmt.delta(D.d);
         } else {
             // high contrast: the PY cascade (gray otherwise) is dashed, AC stays solid

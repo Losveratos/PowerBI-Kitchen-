@@ -39,7 +39,8 @@ const scalingItems: LocEnumMember[] = [
     { value: "auto", displayName: "Auto", key: "Enum_Scaling_Auto" },
     { value: "none", displayName: "None", key: "Enum_Scaling_None" },
     { value: "k", displayName: "Thousands (k)", key: "Enum_Scaling_K" },
-    { value: "m", displayName: "Millions (m)", key: "Enum_Scaling_M" }
+    { value: "m", displayName: "Millions (m)", key: "Enum_Scaling_M" },
+    { value: "b", displayName: "Billions (b)", key: "Enum_Scaling_B" }
 ];
 
 const periodSortItems: LocEnumMember[] = [
@@ -191,6 +192,13 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
         "Open the hierarchy down to level 1, 2 … or completely. Default: on", true);
     showOptions = toggle("showOptions", "Toolbar_ShowOptions", "Group: options",
         "% of revenue, hide zero rows, fit to width. Default: on", true);
+    /**
+     * Mega table only: readers switch the analysed scenario (AC / FC, with the
+     * FC field) and the reference view (ΔPY · ΔPL · both). Off by default — an
+     * existing report keeps exactly its toolbar.
+     */
+    showScenario = toggle("showScenario", "Toolbar_ShowScenario", "Group: scenario (mega table)",
+        "Readers switch the analysed scenario AC / FC and the reference view ΔPY · ΔPL · both of the mega table. Default: off", false);
 
     name: string = "toolbar";
     displayName: string = "Display & toolbar";
@@ -198,7 +206,7 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
     description: string = "What readers see above the statement and what they may switch themselves";
     descriptionKey: string = "Desc_Card_Toolbar";
     slices = [this.show, this.showLegend, this.showView, this.showPresets, this.showReference,
-        this.showPeriods, this.showUnit, this.showDensity, this.showLevels, this.showOptions];
+        this.showPeriods, this.showUnit, this.showDensity, this.showLevels, this.showOptions, this.showScenario];
 }
 
 /**
@@ -234,6 +242,20 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         "Squeezes the chart columns until the table fits the viewport — no horizontal scrolling. Default: off", false);
     exportExpandAll = toggle("exportExpandAll", "Columns_ExportExpandAll", "Export: expand all rows",
         "PDF / PowerPoint export and subscriptions print every row expanded, whatever is folded on screen. Default: on", true);
+    /** IBCS EMPHASIZE (ChartKitchen chart.highlight): a quiet band over every column of the named rows */
+    highlight = textInput("highlight", "Columns_Highlight", "Highlight rows",
+        "Comma-separated row names (or ids), case-insensitive: a quiet band runs over all columns of these rows (IBCS EMPHASIZE). Empty = off",
+        "e.g. EBIT, Net income");
+    /**
+     * Materiality (ChartKitchen chart.materialityAbs / materialityPct): Δ
+     * numbers, bars and pins below the threshold are dampened to the soft ink.
+     * Absolute in data units (before k / m scaling, like ChartKitchen), percent
+     * in whole percent; with both set a Δ must exceed both to keep its colour.
+     */
+    materialityAbs = numUpDown("materialityAbs", "Columns_MaterialityAbs", "Materiality from (absolute)",
+        "Variances below this absolute amount (data units, before k/m scaling) are shown in soft gray instead of the variance colors — numbers, bars, pins and waterfall steps. 0 = off", 0, 0);
+    materialityPct = numUpDown("materialityPct", "Columns_MaterialityPct", "Materiality from (%)",
+        "Variances below this Δ% are shown in soft gray. If both thresholds are set, a variance must exceed both to be colored. 0 = off", 0, 0, 100);
 
     treeRoot = textInput("treeRoot", "Columns_TreeRoot", "Driver tree root row (id, name or category)",
         "Empty = last formula/KPI row with operands, otherwise the model root", "e.g. Net margin");
@@ -313,7 +335,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         description: "Classic table, bars and waterfall",
         descriptionKey: "Desc_Columns_GroupGeneral",
         slices: [this.preset, this.reference, this.periodSort, this.pctRevenue, this.revenueBase,
-            this.hideZeroRows, this.fitWidth, this.exportExpandAll]
+            this.hideZeroRows, this.fitWidth, this.exportExpandAll, this.highlight, this.materialityAbs, this.materialityPct]
     });
 
     mega = new formattingSettings.Group({
@@ -358,13 +380,64 @@ export class NumbersCardSettings extends FormattingSettingsCard {
         "Decimal places of values and Δ. Default: 1", 1, 0, 3);
     pctDecimals = numUpDown("pctDecimals", "Numbers_PctDecimals", "Decimals (Δ%)",
         "Decimal places of Δ% and margins. Default: 1", 1, 0, 2);
+    /** ChartKitchen labels.financeFormat: (1 234) instead of -1 234, exact zero as "–" */
+    financeFormat = toggle("financeFormat", "Numbers_FinanceFormat", "Finance format (parentheses)",
+        "Finance convention: negative values in parentheses instead of a minus sign — (1 234) — and zero as “–”. Applies to values, Δ and Δ%; positive Δ keep their “+”. Default: off", false);
+    /**
+     * ChartKitchen labels.sumSafeRounding (default off there, so off here):
+     * largest-remainder rounding along the hierarchy, so the printed children
+     * of a subtotal add up to the printed subtotal. Formula and margin rows
+     * keep their exact rounding.
+     */
+    sumSafeRounding = toggle("sumSafeRounding", "Numbers_SumSafe", "Sum-safe rounding",
+        "Rounds the value columns with the largest-remainder method so printed children add up exactly to their printed subtotal (formula and margin rows keep exact rounding). Default: off", false);
 
     name: string = "numbers";
     displayName: string = "Numbers";
     displayNameKey: string = "Card_Numbers";
     description: string = "Scaling, unit and decimals";
     descriptionKey: string = "Desc_Card_Numbers";
-    slices = [this.scaling, this.unitText, this.decimals, this.pctDecimals];
+    slices = [this.scaling, this.unitText, this.decimals, this.pctDecimals, this.financeFormat, this.sumSafeRounding];
+}
+
+/**
+ * House terms (ChartKitchen labels.labelAc … labelFc): the scenario codes in
+ * toolbar, legend, column heads, tooltips, title block and footers. Empty =
+ * the IBCS code.
+ */
+export class ScenarioLabelsCardSettings extends FormattingSettingsCard {
+    labelAc = textInput("labelAc", "Labels_RenameAc", "Rename AC",
+        "Custom term for AC in toolbar, legend, column heads, tooltips, title and footers. Empty = AC", "AC");
+    labelPy = textInput("labelPy", "Labels_RenamePy", "Rename PY",
+        "Custom term for PY, also in the ΔPY heads. Empty = PY", "PY");
+    labelPl = textInput("labelPl", "Labels_RenamePl", "Rename PL",
+        "Custom term for PL, also in the ΔPL heads. Empty = PL", "PL");
+    labelFc = textInput("labelFc", "Labels_RenameFc", "Rename FC",
+        "Custom term for FC. Empty = FC", "FC");
+
+    name: string = "labels";
+    displayName: string = "Scenario names";
+    displayNameKey: string = "Card_ScenNames";
+    description: string = "House terms for AC, PY, PL and FC";
+    descriptionKey: string = "Desc_Card_ScenNames";
+    slices = [this.labelAc, this.labelPy, this.labelPl, this.labelFc];
+}
+
+/** ChartKitchen emptyState (1.44): the author's own text when nothing can be shown */
+export class EmptyStateCardSettings extends FormattingSettingsCard {
+    title = textInput("title", "Empty_Title", "Custom title",
+        "Replaces the heading when nothing is displayed (no fields bound in reading view, or the selection returns no rows). Empty = standard text",
+        "e.g. No data for this selection");
+    body = textInput("body", "Empty_Body", "Custom text",
+        "Body text below the title in the empty state — e.g. which filters the reader should check. Empty = standard text",
+        "e.g. Please adjust the period or the filters.");
+
+    name: string = "emptyState";
+    displayName: string = "Empty state";
+    displayNameKey: string = "Card_EmptyState";
+    description: string = "What readers see when there is nothing to show";
+    descriptionKey: string = "Desc_Card_EmptyState";
+    slices = [this.title, this.body];
 }
 
 export class StyleCardSettings extends formattingSettings.CompositeCard {
@@ -469,13 +542,22 @@ export class TitleBlockCardSettings extends FormattingSettingsCard {
         "Empty = period and scenarios from the data", "auto from data if empty");
     message = textInput("message", "Title_Message", "Message headline (interpretation)",
         "The finding in one sentence, bold above the title (IBCS SAY)", "e.g. EBITDA +7.4% vs PL, FY outlook -7.8%");
+    /** ChartKitchen ibcsTitle.autoMessage: generated SAY line while no own message is set */
+    autoMessage = toggle("autoMessage", "Title_AutoMessage", "Auto message",
+        "Builds the message headline from the variance of the result row and the strongest / weakest driver when no own message is entered. Default: off", false);
+    footer = textInput("footer", "Title_Footer", "Footer (data status · source)",
+        "Footer line under the statement — e.g. data status and source; printed in exports too",
+        "e.g. Actuals as of Jun 2026 · source: SAP FI");
+    filterFooter = toggle("filterFooter", "Title_FilterFooter", "Show filter footer",
+        "Second footer line with the filter context: the bound “Filter info” text measure (report filters are not visible to custom visuals) plus the visual's own state — hidden zero rows, reader scenario view. Default: off", false);
 
     name: string = "titleBlock";
     displayName: string = "Title block";
     displayNameKey: string = "Card_Title";
     description: string = "Three-line IBCS title and the message headline";
     descriptionKey: string = "Desc_Card_Title";
-    slices = [this.show, this.unitLine, this.measureLine, this.periodLine, this.message];
+    slices = [this.show, this.unitLine, this.measureLine, this.periodLine, this.message, this.autoMessage,
+        this.footer, this.filterFooter];
 }
 
 export class HierarchyCardSettings extends FormattingSettingsCard {
@@ -499,9 +581,12 @@ export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     styleCard = new StyleCardSettings();
     titleCard = new TitleBlockCardSettings();
     hierarchyCard = new HierarchyCardSettings();
+    labelsCard = new ScenarioLabelsCardSettings();
+    emptyStateCard = new EmptyStateCardSettings();
 
     /** pane order by importance: columns (classic + mega) first, then display, numbers, style, title, hierarchy */
-    cards = [this.columnsCard, this.toolbarCard, this.numbersCard, this.styleCard, this.titleCard, this.hierarchyCard];
+    cards = [this.columnsCard, this.toolbarCard, this.numbersCard, this.labelsCard, this.styleCard, this.titleCard,
+        this.hierarchyCard, this.emptyStateCard];
 }
 
 /** what the visual knows about its data and view — drives the visibility gates of the pane */
@@ -522,7 +607,7 @@ export interface PaneContext {
 export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContext): void {
     const tb = m.toolbarCard;
     for (const s of [tb.showView, tb.showPresets, tb.showReference, tb.showPeriods, tb.showUnit,
-        tb.showDensity, tb.showLevels, tb.showOptions]) { s.visible = tb.show.value; }
+        tb.showDensity, tb.showLevels, tb.showOptions, tb.showScenario]) { s.visible = tb.show.value; }
 
     const c = m.columnsCard;
     const has = ctx.has;
@@ -565,7 +650,9 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     c.capBars.visible = (py && c.dPyBar.value) || (pl && c.dPlBar.value);
 
     const t = m.titleCard;
-    for (const s of [t.unitLine, t.measureLine, t.periodLine, t.message]) { s.visible = t.show.value; }
+    for (const s of [t.unitLine, t.measureLine, t.periodLine, t.message, t.autoMessage, t.footer, t.filterFooter]) {
+        s.visible = t.show.value;
+    }
 }
 
 /**

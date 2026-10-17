@@ -160,6 +160,18 @@ export const UI_EN: Record<string, string> = {
     UI_DN_Taxes: "Income taxes",
     UI_DN_NetIncome: "Net income",
     UI_DN_NetMargin: "Net margin",
+    UI_TipRow: "Row",
+    UI_TipMateriality: "Materiality",
+    UI_TipMaterialityBelow: "below threshold — shown in gray",
+    UI_TipComment: "Comment",
+    UI_AutoBest: "strongest driver",
+    UI_AutoWorst: "weakest",
+    UI_FootFilter: "Filter",
+    UI_FootZeroHidden: "zero rows hidden",
+    UI_TbMinuend: "Scenario",
+    UI_TbRefView: "Reference view",
+    UI_TbRefBoth: "both",
+    UI_TbScenNoEffect: "No effect: the columns of this mega table do not use this choice",
 };
 
 /** fill {0} {1} … placeholders */
