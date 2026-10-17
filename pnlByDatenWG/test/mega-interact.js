@@ -12,6 +12,8 @@
  *   6. echo lost: 6 stale updates → the guard expires after its TTL, the pane
  *      wins again and the template is NOT re-applied in a loop
  *   7. pick "off"           → persist all switches off, numbers untouched → classic table
+ *   8. pick T04B (statement) → one persist, waterfall + pins; guard, echo, single switch
+ *   9. pick 12A             → one persist, two value cascades + ΔPY bars + pins
  *
  * Run: node test/mega-interact.js  (npm run test:mega)
  */
@@ -164,6 +166,46 @@ function check(label, cond, detail) {
     });
     check("sticky: after scrolling the column heads sit right under the frozen head",
         stick.scroll > 0 && Math.abs(stick.headBottom - stick.megaTop) <= 1, JSON.stringify(stick));
+
+    // ---- phase 3: T04B / 12A through the same template + echo-guard path ------
+    await page.evaluate(() => {
+        const box = document.createElement("div");
+        box.id = "mi3"; box.style.cssText = "width:1300px;height:800px;position:relative;";
+        document.body.appendChild(box);
+        const host = makeHost("en-US");
+        window.__mi3Persist = [];
+        host.persistProperties = (p) => { window.__mi3Persist.push(JSON.parse(JSON.stringify(p))); };
+        window.__mi3 = new Visual({ element: box, host });
+        window.__mi3Upd = (objects) => {
+            window.__mi3.update({ dataViews: [dvRows(MEGA_DEMO.statement("T04"), objects)],
+                viewport: { width: 1300, height: 800 }, type: 2 });
+            const st = document.getElementById("mi3");
+            return {
+                charts: st.querySelectorAll('g[data-pnl="mega-chart"]').length,
+                conn: st.querySelectorAll('g[data-pnl="mega-conn"]').length,
+                persists: window.__mi3Persist.length,
+                last: window.__mi3Persist[window.__mi3Persist.length - 1] || null,
+            };
+        };
+    });
+    const upd3 = (objects) => page.evaluate((o) => window.__mi3Upd(o), objects);
+    s = await upd3({ ...BASE, columns: { template: "T04B" } });
+    const c4 = s.last && s.last.merge.find(m => m.objectName === "columns").properties;
+    check("8 pick T04B: one persist with dPlWaterfall + templateApplied", s.persists === 1 && c4
+        && c4.templateApplied === "T04B" && c4.dPlWaterfall === true && c4.dPlBar === false && c4.valueCascade === false);
+    check("8 T04B renders at once: waterfall (with connectors) + pins", s.charts === 2 && s.conn === 1, `${s.charts} / ${s.conn}`);
+    s = await upd3({ ...BASE, columns: { template: "T04B" } });
+    check("8 stale update: guard holds T04B, no second persist", s.persists === 1 && s.charts === 2 && s.conn === 1);
+    const ECHO3 = { ...BASE, columns: { ...c4, template: "T04B" }, numbers: { decimals: 2, pctDecimals: 2 } };
+    s = await upd3(ECHO3);
+    check("8 echo: no persist", s.persists === 1 && s.charts === 2);
+    s = await upd3({ ...ECHO3, columns: { ...ECHO3.columns, dPlWaterfall: false } });
+    check("8 the waterfall switch acts on its own (pins stay)", s.persists === 1 && s.charts === 1 && s.conn === 0, `${s.charts}`);
+    s = await upd3({ ...ECHO3, columns: { ...c4, dPlWaterfall: false, template: "12A" } });
+    const c12 = s.last.merge.find(m => m.objectName === "columns").properties;
+    check("9 pick 12A: one more persist with valueCascade", s.persists === 2 && c12.templateApplied === "12A"
+        && c12.valueCascade === true && c12.dPyBar === true && c12.dPlWaterfall === false);
+    check("9 12A renders two value cascades + ΔPY bars + pins", s.charts === 4 && s.conn === 2, `${s.charts} / ${s.conn}`);
 
     await browser.close();
     for (const n of notes) { console.log(n); }

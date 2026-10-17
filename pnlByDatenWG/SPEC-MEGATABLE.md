@@ -318,7 +318,7 @@ grauen Zeilenlinien, durchgehende Summenlinien, keine Kopf-Linien (12A).
 5. Tree-, Kachel- und Mikro-Karten-Ansicht bleiben unberührt; der Mega-Table ist
    ein Modus der Tabellen-Ansicht.
 
-## Umsetzungsstand im Visual (Phase 1 + 2)
+## Umsetzungsstand im Visual (Phase 1 + 2 + 3)
 
 Code: `src/megatable.ts` (Layout + Painter, kein Power-BI-Import), Datenseite in
 `src/visual.ts` (`buildMega`, `megaRows`, `megaToggles`, `syncMegaTemplate`),
@@ -336,9 +336,9 @@ Rechenkern-Ergänzung in `src/engine.ts` (`varianceOf`, `displayVariance`).
   Abweichend vom Vorschlag oben werden `columns.preset`/`reference` NICHT
   umgewidmet (sie bleiben die Presets der klassischen Tabelle); die
   Template-Wahl ist das neue Dropdown `columns.template` (off · T01A · T01B ·
-  T02A · T02B · T02C · T02E · T02F · T03A · T03B · T04A). T04B–E und 12A folgen
-  mit Phase 3/5 (Δ-Wasserfall, Wert-Kaskade) — ihre Schalter
-  (`dPyWaterfall`/`dPlWaterfall`/`valueCascade`) sind noch nicht im Pane.
+  T02A · T02B · T02C · T02E · T02F · T03A · T03B · T04A · T04B · T04C · T04D ·
+  T04E · 12A). Phase 3 ergänzt die Schalter `dPyWaterfall`/`dPlWaterfall`
+  (integrierter Δ-Wasserfall) und `valueCascade` (Wert-Kaskaden, 12A).
 - **Template-Persistenz:** Wählt der Autor ein Template, schreibt das Visual
   alle Schalter des Presets plus `numbers.decimals/pctDecimals` und das
   versteckte `columns.templateApplied` in EINEM `persistProperties`-Merge und
@@ -378,10 +378,45 @@ Rechenkern-Ergänzung in `src/engine.ts` (`varianceOf`, `displayVariance`).
   der Zahl auf dem Stiel (sonst schneidet der 3-px-Stiel die Ziffern).
 - **Schrift:** fs 13 (Dichte normal) bzw. 11 (kompakt) × Schriftgrößen-Preset.
 
-Tests: `npm run test:mega` (Layout-Unit-Tests ohne DOM, Render-Fälle m1–m10
-gegen die Referenzwerte, Template-/Echo-Guard-/Interaktions-Test); Engine-Tests
-für `varianceOf`/`displayVariance`.
+### Phase 3 — integrierter Δ-Wasserfall (T04B–E) + Wert-Kaskaden (12A)
 
-Offen für Phase 3+: Δ-Wasserfall-Spalten (`cascade()` gemeinsam mit
-`cascadeSegments`), Wert-Kaskade 12A, Virtualisierung sehr langer Statements
-(heute ein SVG für alle sichtbaren Zeilen).
+- **Eine Kaskaden-Funktion:** `cascade(roots, container)` in `src/waterfall.ts`
+  rechnet die Segmente `{s, e, type: anchor | step | span}` für alle drei
+  Verbraucher: die Säulen-Brücke `renderWaterfall` und die Zeilen-Waterfall-
+  Ansicht des Visuals (`cascadeSegments`, Modus `"value"`: Eltern zuerst,
+  Kinder kaskadieren im Elternsegment, verschachtelte Formeln ohne Segment) und
+  den Mega-Table (`megaCascade`, Modus `"span"`: IBCS-Reihenfolge Kinder →
+  Summe, die Summe spannt vom Lauf vor ihrem ersten Kind bis nach dem letzten;
+  eine gefaltete Summe ohne sichtbares Kind ist ein normaler Schritt).
+  Parität: Zufallsbaum-Test gegen die alte `cascadeSegments`-Implementierung
+  (5 000 Bäume, bitgleiche s/e) + Pixel-Regression p2 und `test:waterfall`.
+- **Wirkungsvorzeichen:** `MegaRow.eff` = DisplayInvert × SignConvention der
+  Zwischensummen darüber (`megaParentSign`, wie `aggregateSubtotal` rollt) — ein
+  als +600 angezeigter Kostenblock läuft −600. `MegaRow.anchor`: Formelzeilen,
+  „="-Kettenstart, die einzige Gesamtsumme einer Strukturhierarchie (World).
+- **Δ-Wasserfall** (`wf`, je Referenz): Segment = Δ × eff, Beschriftung =
+  angezeigtes Δ (Kosten +11.12 rot, Balken nach links), Füllung/Achse aus
+  `notation()` (AC voll · FC schraffiert × PY grau · PL doppelt), Familie
+  `delta` (gemeinsamer Maßstab mit Δ-Balken desselben Blocks), Breitengewicht
+  1.2. Verbindungslinien 1 px `#8A8886` am gemeinsamen Wert, Spannen zusätzlich
+  ab ihrem Startpunkt. Frei kombinierbar mit Δ-Balken/-Zahl/-Pins.
+- **Wert-Kaskade** (`vwf`, je angezeigtem Szenario eine Spalte in eigener
+  Gruppe): Füllung `notation().value(scen, Kosten)` (PY `#B3B3B3`/hell
+  `#D9D9D9`, AC Tinte/hell `#8A8886`, FC schraffiert, PL Kontur), Achse 1 px
+  Tinte, Familie `valueCascade` (ein Maßstab für alle Szenarien eines Blocks),
+  Gewicht 1.5, Klemme bis `28·fs`. Stil 12A: keine grauen Zeilenlinien,
+  durchgehende Summenlinien, keine Kopf-Linien.
+- **Presets:** T04B (ΔPL wf+pin), T04C (ΔPY wf+pin, PY statt PL), T04D/E (FC),
+  je Dezimalen 2 / Δ% 2; 12A (PY+AC Wert-Kaskaden, ΔPY bar+pin, ohne
+  Margen-Zeilen, Dezimalen 0 / 0). Template-Echo-Guard unverändert.
+
+Tests: `npm run test:mega` (Layout-Unit-Tests ohne DOM inkl. Kaskaden-Parität,
+Render-Fälle m1–m16 gegen die Referenzwerte, Template-/Echo-Guard-/
+Interaktions-Test inkl. T04B/12A); `npm run test:waterfall`; Engine-Tests für
+`varianceOf`/`displayVariance`.
+
+Offen: Phase 4 ist mit dem Monat | _YTD-Block weitgehend vorweggenommen;
+Phase 5 (12G YTD+Restjahr-Stapel, 12H Plan-Tönung, Headline-Slot) ist nicht
+umgesetzt; Virtualisierung sehr langer Statements (heute ein SVG für alle
+sichtbaren Zeilen). Wasserfall-Beschriftungen links eines Schritts dürfen wie
+in den Referenzen (T04B „+5.79") die Nulllinie kreuzen.

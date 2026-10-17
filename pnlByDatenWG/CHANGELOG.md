@@ -1,6 +1,6 @@
 # Changelog — P&L Statement byDatenWG
 
-## Unreleased — Mega-Table Phase 1 + 2: IBCS-Tabellen T01–T04A in der Tabellen-Ansicht
+## Unreleased — Mega-Table Phase 1–3: IBCS-Tabellen T01–T04E und 12A in der Tabellen-Ansicht
 
 Die Tabellen-Ansicht kann jetzt die IBCS-Templates T01A/B, T02A–F, T03A/B und
 T04A darstellen — als Zuschaltung, die klassische Tabelle bleibt der Default
@@ -26,6 +26,24 @@ und rendert unverändert. Details: `SPEC-MEGATABLE.md`, Abschnitt
 - **Template-Dropdown** setzt alle Schalter auf die Preset-Defaults
   (persistProperties mit Echo-Guard), danach ist jeder Schalter frei.
 - Neue Tests: `npm run test:mega`.
+
+### Phase 3 — integrierter Δ-Wasserfall (T04B–E) und Wert-Kaskaden (12A)
+
+- **Δ als integrierter Wasserfall** (neue Schalter „ΔPY/ΔPL als integrierter
+  Wasserfall"): jeder Δ-Balken beginnt am Ende des vorigen, „="-Zeilen setzen
+  an der Nulllinie neu an, Summen spannen über ihre Kinder, dünne
+  Verbindungslinien. Kombinierbar mit Δ-Balken, Δ-Zahl und Δ%-Pins; Notation
+  nach Minuend (AC voll, FC schraffiert) × Referenz (PY graue Achse, PL
+  Doppellinie).
+- **Wertspalten als Wert-Kaskaden** (Schalter „Wertspalten als Wert-Kaskaden
+  (12A)"): je Szenario eine Kaskaden-Spalte mit gemeinsamem Maßstab,
+  Kostenzeilen hell abgesetzt.
+- **Template-Dropdown** um T04B, T04C, T04D, T04E und 12A erweitert.
+- Die Kaskaden-Geometrie ist jetzt EINE Funktion (`cascade()` in
+  `waterfall.ts`) für Zeilen-Waterfall-Ansicht, Säulen-Brücke und Mega-Table —
+  die bestehende Waterfall-Ansicht rendert pixelgleich.
+- Tests: Render-Fälle m11–m16, Kaskaden-Paritätstest, `npm run test:waterfall`
+  läuft jetzt in `npm test` mit.
 
 **Fix (Bestand, Tabellen-/Balken-/Waterfall-Ansicht):** Die Beschriftungsspur
 der Δ%-Pins wurde für den auf ±40 % gekappten Wert bemessen („+40.0%▸"),
