@@ -30,7 +30,7 @@ const presetItems: LocEnumMember[] = [
 
 const referenceItems: LocEnumMember[] = [
     { value: "auto", displayName: "Auto (PL, else PY)", key: "Enum_Ref_Auto" },
-    { value: "py", displayName: "Previous year (PY)", key: "Enum_Ref_Py" },
+    { value: "py", displayName: "Previous Year (PY)", key: "Enum_Ref_Py" },
     { value: "pl", displayName: "Plan (PL)", key: "Enum_Ref_Pl" },
     { value: "fc", displayName: "Forecast (FC)", key: "Enum_Ref_Fc" }
 ];

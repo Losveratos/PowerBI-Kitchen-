@@ -220,7 +220,7 @@
   "Enum_Preset_AcPlDPl": "AC·PL·ΔPL",
   "Enum_Preset_DPct": "ΔPY% · ΔPL%",
   "Enum_Ref_Auto": "Auto (PL, else PY)",
-  "Enum_Ref_Py": "Previous year (PY)",
+  "Enum_Ref_Py": "Previous Year (PY)",
   "Enum_Ref_Pl": "Plan (PL)",
   "Enum_Ref_Fc": "Forecast (FC)",
   "Enum_Scaling_Auto": "Auto",

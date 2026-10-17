@@ -11,3 +11,5 @@ test/.tmp-waterfall.js
 test/.tmp-megatable.cjs
 test/.tmp-waterfall.cjs
 test/locales.js
+test/i18n-pane-*.json
+test/.tmp-settings.cjs

@@ -1282,6 +1282,12 @@ export class Visual implements IVisual {
         this.root.style.color = C.text;
     }
 
+    /** paper inside a card (hollow PL marks, halos, badges): the palette paper in light mode
+     *  (exactly 0.17), the card fill in dark mode, so a hollow mark never shows a darker hole */
+    private cardPaper(): string {
+        return this.dark ? this.cardBg() : C.paper;
+    }
+
     /** text on the accent fill: white on dark accents, dark ink on light ones */
     private onAccent(): string {
         return relLuminance(this.accent()) > 0.45 ? "#1E1E1E" : "#FFF";
@@ -1616,9 +1622,15 @@ export class Visual implements IVisual {
 
     /** the quiet "this is a demo" line above the title — edit-mode only, never exported */
     private buildDemoBanner(): HTMLElement {
+        // padding on a wrapper, not a margin on the banner: a top margin of the
+        // head's first child would collapse through the head, which then
+        // measures 10 px short and the frozen column header slips under it
+        const wrap = document.createElement("div");
+        wrap.style.cssText = "padding:10px 14px 0 14px;";
         const box = document.createElement("div");
         box.setAttribute("data-pnl", "demo-banner");
-        box.style.cssText = `margin:10px 14px 0 14px;padding:${this.kpx(7)} ${this.kpx(10)};` +
+        wrap.appendChild(box);
+        box.style.cssText = `padding:${this.kpx(7)} ${this.kpx(10)};` +
             `border:1px dashed ${C.ctlEdge};border-radius:6px;background:${C.wash};` +
             `font-size:${this.kpx(10.5)};line-height:1.5;color:${C.soft};`;
         const head = document.createElement("div");
@@ -1645,7 +1657,7 @@ export class Visual implements IVisual {
             miss.textContent = this.tr("UI_DemoMissing", this.demoMissing.join(" · "));
             box.appendChild(miss);
         }
-        return box;
+        return wrap;
     }
 
     private renderLanding(): void {
@@ -3814,7 +3826,7 @@ export class Visual implements IVisual {
     private treeScenFill(scen: Scenario, hatch: string): { fill: string; stroke: string | null } {
         if (scen === "py") { return { fill: C.refGray, stroke: null }; }
         if (scen === "fc" || scen === "fcfy") { return { fill: `url(#${hatch})`, stroke: C.ac }; }
-        return { fill: C.paper, stroke: C.ac };
+        return { fill: this.cardPaper(), stroke: C.ac };
     }
 
     /**
@@ -4109,7 +4121,7 @@ export class Visual implements IVisual {
         if (refv != null) {
             const isPlan = ref === "pl";
             const isFc = ref === "fc";
-            const fill = isPlan ? C.paper : isFc ? `url(#${this.treeHatchId(svg)})` : C.py;
+            const fill = isPlan ? this.cardPaper() : isFc ? `url(#${this.treeHatchId(svg)})` : C.py;
             bar(yR, refv, fill, isPlan || isFc ? C.ac : null);
             rowLabel(yR, ref.toUpperCase(), C.soft, false);
             valLabel(yR, refv, texts[0], C.soft, false);
@@ -4641,7 +4653,7 @@ export class Visual implements IVisual {
             hit.setAttribute("width", (16 * s).toFixed(2));
             hit.setAttribute("height", (12.5 * s).toFixed(2));
             hit.setAttribute("rx", (2 * s).toFixed(2));
-            hit.setAttribute("fill", C.paper);
+            hit.setAttribute("fill", this.cardPaper());
             hit.setAttribute("stroke", C.ctlEdge);
             hit.setAttribute("stroke-width", "1");
             const ch = document.createElementNS(ns, "text");
@@ -5393,7 +5405,7 @@ export class Visual implements IVisual {
             if (weight) { t.setAttribute("font-weight", weight); }
             // a number sitting on a hatched fill needs a paper halo to stay legible
             if (halo) {
-                t.setAttribute("stroke", C.paper); t.setAttribute("stroke-width", "2.6");
+                t.setAttribute("stroke", this.cardPaper()); t.setAttribute("stroke-width", "2.6");
                 t.setAttribute("paint-order", "stroke"); t.setAttribute("stroke-linejoin", "round");
             }
             t.textContent = txt;
@@ -5444,7 +5456,7 @@ export class Visual implements IVisual {
                 const yEnd = pct >= 0 ? pinAxisY - h : pinAxisY + h;
                 line(x, pinAxisY, x, yEnd, color, 2);
                 const r = Math.max(2.2, 2.6 * s);
-                rect(x - r, yEnd - r, 2 * r, 2 * r, hollow ? C.paper : color, color, 1)
+                rect(x - r, yEnd - r, 2 * r, 2 * r, hollow ? this.cardPaper() : color, color, 1)
                     .setAttribute("data-pnl", "combo-pin");
                 label(x, pct >= 0 ? yEnd - r - 2.5 * s : yEnd + r + lfs,
                     fmt.pct(pct, true), lfs, color);
@@ -5605,7 +5617,7 @@ export class Visual implements IVisual {
         const bh = lfs + 9 * s;
         const bcx = box.x + box.w - badgeW / 2;
         const bcy = Math.min(Math.max((yOf(refSum) + yOf(vTot)) / 2, plotTop + bh / 2), yBase - bh / 2);
-        const bg = rect(bcx - badgeW / 2, bcy - bh / 2, badgeW, bh, C.paper, totColor, 1.6);
+        const bg = rect(bcx - badgeW / 2, bcy - bh / 2, badgeW, bh, this.cardPaper(), totColor, 1.6);
         bg.setAttribute("rx", (bh / 2).toFixed(2));
         bg.setAttribute("data-pnl", "combo-badge");
         label(bcx, bcy + lfs * 0.36, badge, lfs, totColor, "middle", "600");

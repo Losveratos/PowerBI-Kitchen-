@@ -30,6 +30,8 @@ export interface WaterfallConfig {
     fontFamily: string;
     colors: { ac: string; text: string; soft: string; line: string };
     hatchPatternId: string;        // id of the hatch pattern defined in this SVG's defs
+    /** localized "nothing to draw" text — the caller passes it (UI_NoWidth-style resource), English otherwise */
+    emptyText?: string;
 }
 
 /** One column of the bridge: a floating contribution or an anchor from zero. */
@@ -233,7 +235,7 @@ function toBars(rows: PnlNode[], scenario: Scenario): Bar[] {
 export function renderWaterfall(rows: PnlNode[], cfg: WaterfallConfig): SVGSVGElement {
     const bars = toBars(rows, cfg.scenario);
     if (bars.length === 0) {
-        return emptyChart(cfg, "Keine verwertbaren Zeilen für den Wasserfall");
+        return emptyChart(cfg, cfg.emptyText ?? "No rows to draw a waterfall from");
     }
 
     const width = Math.max(1, Math.round(cfg.width));

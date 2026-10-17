@@ -37,6 +37,9 @@
 <div class="case"><h4>m14 · Mega-Table T04E · FC vs PY · Wasserfall schraffiert, graue Achse</h4><div class="stage" id="m14" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m15 · Mega-Table 12A · PY- und AC-Wert-Kaskade · ΔPY-Balken + Pins (Ausreißer-Pfeile)</h4><div class="stage" id="m15" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m16 · Mega-Table Einzel-Schalter · Regionen Monat | _YTD · ΔPL-Wasserfall + ΔPL-Balken + Pins · Zwischensummen spannen · IBCS-Grün</h4><div class="stage" id="m16" style="width:1600px;height:800px"></div></div>
+<div class="case"><h4>p12 · Smart Start (1.0) · Demo-GuV ohne Felder · Banner „Demo“ · de-DE</h4><div class="stage" id="p12" style="width:1200px;height:700px"></div></div>
+<div class="case"><h4>p13 · Dark Mode (1.0) · Tabelle · style.appearance = dark</h4><div class="stage" id="p13" style="width:1560px;height:700px"></div></div>
+<div class="case"><h4>p14 · Dark Mode (1.0) · Mega-Table T04B · Werttreiberbaum folgt in test:start</h4><div class="stage" id="p14" style="width:1320px;height:700px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
 <script src="demo-data.js"></script>
@@ -301,6 +304,12 @@ runRows("m16", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November
   style: { colorMode: "ibcs" },
   numbers: { decimals: 0, pctDecimals: 1 },
   columns: { showPL: true, showMinuend: true, dPlBar: true, dPlWaterfall: true, dPlPin: true, secondBlock: true } });
+
+// p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
+run("p12", null, "de-DE", true);
+// p13 / p14 — dark mode
+run("p13", { titleBlock: TITLE, hierarchy: { defaultLevel: 2 }, style: { appearance: "dark" } });
+runRows("p14", ...ST("T04", "T04B").map((x, i) => i === 1 ? { ...x, style: { appearance: "dark" } } : x));
 
 // p6 — sparkline open on first account, toolbar hidden
 run("p6", {
