@@ -164,11 +164,11 @@ Ich bin kein Verkäufer, und ich habe das Buch nicht geschrieben, um Geld zu ver
 
 ## Was ich für mich mitnehme
 
-[Entwurf, bitte prüfen] Am meisten hängen geblieben ist bei mir das Bild vom Widerstand. In Projekten sehe ich das ständig: Die Energie geht nicht in die Arbeit, sondern in das Dagegen-Sein. Gegen die Anforderung, gegen den Stakeholder, gegen das Datenmodell, das man geerbt hat. Weniger Widerstand heißt nicht, alles hinzunehmen. Es heißt, die Energie dahin fließen zu lassen, wo sie etwas bewegt.
+Am meisten beschäftigt mich seit dem Abend das Thema Rollen. Wir alle haben Rollen, von denen wir glauben, dass wir sie erfüllen müssen: im Job, in der Familie, im Freundeskreis. Micha sagt, irgendwann verwechseln wir uns mit diesen Rollen und merken gar nicht mehr, dass wir sie nur spielen. Da habe ich mich wiedererkannt.
 
-[Entwurf, bitte prüfen] Das zweite ist der Unterschied zwischen agieren und reagieren. Im Meeting, in der Eskalation, in der Mail um 23 Uhr: Kurz Abstand zur eigenen Automatik zu bekommen, ist oft der ganze Unterschied. Und das Thema Schuld kenne ich von mir selbst. Als ich sechs Wochen allein unterwegs war, hatte ich alles selbst geplant, gebucht und entschieden. Da gab es niemanden mehr, dem ich die Schuld geben konnte. Das war unbequem und sehr lehrreich.
+Hinter diesen Rollen steckt oft ein Druck, den die Gesellschaft ausübt. Manchmal ist er uns bewusst, oft nicht. Wirken tut er trotzdem, im Projekt genauso wie privat. Ihn überhaupt zu bemerken, ist schon ein erster Schritt, um wieder selbst zu wählen, statt nur zu reagieren.
 
-[Entwurf, bitte prüfen] Ob man dafür vierzig Jahre auf die Matte muss? Micha sagt: nein. Aber das Buch ist ein guter Anfang. Und zum Training komme ich jetzt wirklich mal vorbei.
+Und das Dritte: Kopf, Geist und Körper kann man nicht trennen. Micha zeigt das seit dreißig Jahren auf der Matte. Was der Körper im Training lernt, kommt im Kopf an, und umgekehrt. Ob man dafür vierzig Jahre trainieren muss? Micha sagt: nein. Aber das Buch ist ein guter Anfang. Und zum Training komme ich jetzt wirklich mal vorbei.
 
 ### Der unsichtbare Kampf
 
