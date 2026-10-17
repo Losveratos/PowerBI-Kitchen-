@@ -4,7 +4,7 @@
 
 ![Buchcover „Der unsichtbare Kampf“ von Michael Thomanek: zwei kubistisch aus Dreiecken zusammengesetzte Figuren geben sich die Hand, links eine helle in Gelb und Grau, rechts eine grüne, vor Flächen in Koralle, Terrakotta, Braun, Blau und Violett. Darunter der Titel in weißen Großbuchstaben und der Untertitel „Wie inneres Kämpfen dich wandelt – Auf der Matte und im Alltag“.](../assets/posts/unsichtbarer-kampf/cover.jpg)
 
-*Cover mit freundlicher Genehmigung von Michael Thomanek.*
+*Titelbild: Dietmar Schuch. Cover mit freundlicher Genehmigung von Michael Thomanek.*
 
 Interview · Persönliche Entwicklung
 
@@ -55,21 +55,30 @@ Klappentext · *Der unsichtbare Kampf*, Kenamo Verlag
 7. 6 Den inneren Kampf lösen S. 100
 8. 7 Übung und Alltag Die Anleitung, von der Micha im Interview erzählt: Übungen für zu Hause und den Alltag.S. 131
 9. 8 Die Richtung eines Weges S. 174
-10. 9 Wie Jidō entstand Die Geschichte des Stils, den Micha im Jidokan unterrichtet.S. 196
+10. 9 Wie Jidō entstand Wie Micha aus Jiu-Jitsu seinen eigenen Weg entwickelt hat, den er im Jidokan unterrichtet.S. 196
 11. ·Nachwort · Begriffliche Orientierung · Kurzbiografie S. 227
 
 Aus dem Inhaltsverzeichnis, 240 Seiten.
+
+### Das Titelbild
+
+Das Cover hat **Dietmar Schuch** gemalt: Handwerker, Filmer, Reisender, Geschichtenerzähler, Künstler. Seine Bilder entstehen laut Buch aus Beobachtung, Erfahrung und Gefühl und erzählen von Menschen, Begegnungen und inneren Prozessen. Das Titelbild verbindet Sichtbares und Unsichtbares. Auch die Farben und Facetten dieser Seite sind von seinem Bild inspiriert.
+
+> „Ich liebe menschliche Gesichter. Wenn sie sich unbeobachtet fühlen, erzählen sie viel über die Person.“
+
+Sein Motto A little bit hiervon, and a little bit davon. And it works.
 
 ## Über Micha
 
 Michael Thomanek, von allen Micha genannt, schöpft aus **über vierzig Jahren Erfahrung in der Kampfkunst**. Mit *Der unsichtbare Kampf* überträgt er, was auf der Matte sichtbar wird, auf den inneren Kampf, den jeder Mensch kennt. Das Buch ist im Kenamo Verlag erschienen.
 
-- **Sensei:** So nennen ihn Freunde. Im Japanischen heißt das Trainer oder Lehrer der Kampfkunst, „hat aber auch was vom großen Bruder“. Nach rund dreißig Jahren ist es für ihn ein Spitzname geworden, so wie früher Micha für Michael.
-- **Jiu-Jitsu seit über 40 Jahren,** seit rund 30 Jahren hauptberuflich als Trainer für Kampfkunst und Selbstverteidigung. Einige seiner Schüler trainieren seit 1995 bei ihm.
-- **Rund 5.000 Menschen** hat er nach eigener Schätzung trainiert, eigene Gruppen, Lehrgänge und Seminare in Deutschland zusammengenommen.
+- **Sensei:** So nennen ihn Freunde. Im Japanischen heißt das Trainer oder Lehrer der Kampfkunst, „hat aber auch was vom großen Bruder“. Nach rund dreißig Jahren als hauptberuflicher Trainer ist es für ihn ein Spitzname geworden, so wie früher Micha für Michael.
+- **Geboren 1972 in Essen,** mit der Kampfkunst angefangen schon als Kind. Seit über vierzig Jahren beschäftigt er sich mit Jiu-Jitsu und Selbstverteidigung, erst als Schüler, dann als Lehrer.
+- **1995 hat er das Jidokan-Dojo in Köln gegründet** und leitet es bis heute. Er trägt den **9. Dan im Jiu-Jitsu**. Er und das Dojo sind Mitglied der International Martial Arts Association und des Tai-Jitsu-Verbandes Deutschland.
+- **Rund 5.000 Menschen** hat er nach eigener Schätzung trainiert, eigene Gruppen, Lehrgänge und Seminare in Deutschland zusammengenommen. Einige seiner Schüler sind seit 1995 dabei.
 - **Das Buch:** 240 Seiten, ein Jahr Arbeit, gefühlt 700 Stunden. Der Impuls liegt 27 Jahre zurück.
 
-Sein Dojo ist der **Jidokan e.V.** in der Kölner Südstadt. Jido verbindet Elemente des Jiu-Jitsu mit Selbstverteidigung. Mehr zum Training: [jido.de](https://jido.de/)
+Aus seinen Erfahrungen in Training und Unterricht ist **Jidō** entstanden, laut Kurzbiografie „nicht als Abkehr vom Jiu-Jitsu, sondern als Ergebnis eines langen persönlichen Weges innerhalb der Kampfkunst“. Im Mittelpunkt stehen nicht möglichst viele Techniken, sondern Klarheit, Einfachheit und die Fähigkeit, in einer Auseinandersetzung handlungsfähig zu bleiben. Mehr zum Training: [jido.de](https://jido.de/)
 
 ![Eingang des Jidokan in Köln: helle Altbaufassade, Banner „Jiu-Jitsu Dojo“, eine Steinlaterne und eine schwarze Figur neben der Tür.](../assets/posts/unsichtbarer-kampf/jidokan-dojo.jpg)
 

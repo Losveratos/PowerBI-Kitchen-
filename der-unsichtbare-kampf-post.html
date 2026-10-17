@@ -303,6 +303,14 @@ img { display:block; max-width:100%; height:auto; }
 .toc-ch.is-key .toc-n { color:var(--coral); }
 .toc-note { display:block; margin-top:4px; font-weight:400; font-size:14.5px; line-height:1.5; color:#5A4A5E; }
 .toc-source { margin-top:8px; font-size:13.5px; color:#6B5A6E; }
+
+/* Künstler-Kasten */
+.artist { margin-top:34px; padding:6px 0 4px 20px; border-left:4px solid var(--teal); }
+.artist .toc-head { margin-top:0; }
+.artist-quote { margin:14px 0; font-size:clamp(1.05rem,2.6vw,1.2rem); font-style:italic; line-height:1.5; color:var(--night); }
+.artist-quote p { margin:0; }
+.artist-motto { font-style:italic; color:#5A4A5E; }
+.artist-motto span { display:block; margin-bottom:2px; font-style:normal; font-size:12px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--brown); }
 </style>
 </head>
 <body>
@@ -315,7 +323,7 @@ img { display:block; max-width:100%; height:auto; }
       <figure class="hero-cover">
         <div class="cover-frame"><img src="assets/posts/unsichtbarer-kampf/cover.jpg" width="842" height="1300"
              alt="Buchcover „Der unsichtbare Kampf“ von Michael Thomanek: zwei kubistisch aus Dreiecken zusammengesetzte Figuren geben sich die Hand, links eine helle in Gelb und Grau, rechts eine grüne, vor Flächen in Koralle, Terrakotta, Braun, Blau und Violett. Darunter der Titel in weißen Großbuchstaben und der Untertitel „Wie inneres Kämpfen dich wandelt – Auf der Matte und im Alltag“."></div>
-        <figcaption>Cover mit freundlicher Genehmigung von Michael Thomanek.</figcaption>
+        <figcaption>Titelbild: Dietmar Schuch. Cover mit freundlicher Genehmigung von Michael Thomanek.</figcaption>
       </figure>
 
       <div class="hero-text">
@@ -395,22 +403,30 @@ img { display:block; max-width:100%; height:auto; }
           <li class="toc-ch"><span class="toc-n">6</span><span class="toc-t">Den inneren Kampf lösen</span><span class="toc-p">S. 100</span></li>
           <li class="toc-ch is-key"><span class="toc-n">7</span><span class="toc-t">Übung und Alltag<span class="toc-note">Die Anleitung, von der Micha im Interview erzählt: Übungen für zu Hause und den Alltag.</span></span><span class="toc-p">S. 131</span></li>
           <li class="toc-ch"><span class="toc-n">8</span><span class="toc-t">Die Richtung eines Weges</span><span class="toc-p">S. 174</span></li>
-          <li class="toc-ch is-key"><span class="toc-n">9</span><span class="toc-t">Wie Jidō entstand<span class="toc-note">Die Geschichte des Stils, den Micha im Jidokan unterrichtet.</span></span><span class="toc-p">S. 196</span></li>
+          <li class="toc-ch is-key"><span class="toc-n">9</span><span class="toc-t">Wie Jidō entstand<span class="toc-note">Wie Micha aus Jiu-Jitsu seinen eigenen Weg entwickelt hat, den er im Jidokan unterrichtet.</span></span><span class="toc-p">S. 196</span></li>
           <li class="toc-extra"><span class="toc-n">·</span><span class="toc-t">Nachwort · Begriffliche Orientierung · Kurzbiografie</span><span class="toc-p">S. 227</span></li>
         </ol>
         <p class="toc-source">Aus dem Inhaltsverzeichnis, 240 Seiten.</p>
+
+        <aside class="artist" aria-labelledby="h-artist">
+          <h3 id="h-artist" class="toc-head">Das Titelbild</h3>
+          <p>Das Cover hat <strong>Dietmar Schuch</strong> gemalt: Handwerker, Filmer, Reisender, Geschichtenerzähler, Künstler. Seine Bilder entstehen laut Buch aus Beobachtung, Erfahrung und Gefühl und erzählen von Menschen, Begegnungen und inneren Prozessen. Das Titelbild verbindet Sichtbares und Unsichtbares. Auch die Farben und Facetten dieser Seite sind von seinem Bild inspiriert.</p>
+          <blockquote class="artist-quote"><p>„Ich liebe menschliche Gesichter. Wenn sie sich unbeobachtet fühlen, erzählen sie viel über die Person.“</p></blockquote>
+          <p class="artist-motto"><span>Sein Motto</span> A little bit hiervon, and a little bit davon. And it works.</p>
+        </aside>
       </section>
 
       <section id="micha" aria-labelledby="h-micha">
         <h2 id="h-micha"><svg class="mark m-ochre" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><polygon class="f1" points="16,2 30,29 2,29"/><polygon class="f2" points="16,2 30,29 16,20"/></svg>Über Micha</h2>
         <p>Michael Thomanek, von allen Micha genannt, schöpft aus <strong>über vierzig Jahren Erfahrung in der Kampfkunst</strong>. Mit <cite>Der unsichtbare Kampf</cite> überträgt er, was auf der Matte sichtbar wird, auf den inneren Kampf, den jeder Mensch kennt. Das Buch ist im Kenamo Verlag erschienen.</p>
         <ul class="facts">
-          <li><strong>Sensei:</strong> So nennen ihn Freunde. Im Japanischen heißt das Trainer oder Lehrer der Kampfkunst, „hat aber auch was vom großen Bruder“. Nach rund dreißig Jahren ist es für ihn ein Spitzname geworden, so wie früher Micha für Michael.</li>
-          <li><strong>Jiu-Jitsu seit über 40 Jahren,</strong> seit rund 30 Jahren hauptberuflich als Trainer für Kampfkunst und Selbstverteidigung. Einige seiner Schüler trainieren seit 1995 bei ihm.</li>
-          <li><strong>Rund 5.000 Menschen</strong> hat er nach eigener Schätzung trainiert, eigene Gruppen, Lehrgänge und Seminare in Deutschland zusammengenommen.</li>
+          <li><strong>Sensei:</strong> So nennen ihn Freunde. Im Japanischen heißt das Trainer oder Lehrer der Kampfkunst, „hat aber auch was vom großen Bruder“. Nach rund dreißig Jahren als hauptberuflicher Trainer ist es für ihn ein Spitzname geworden, so wie früher Micha für Michael.</li>
+          <li><strong>Geboren 1972 in Essen,</strong> mit der Kampfkunst angefangen schon als Kind. Seit über vierzig Jahren beschäftigt er sich mit Jiu-Jitsu und Selbstverteidigung, erst als Schüler, dann als Lehrer.</li>
+          <li><strong>1995 hat er das Jidokan-Dojo in Köln gegründet</strong> und leitet es bis heute. Er trägt den <strong>9. Dan im Jiu-Jitsu</strong>. Er und das Dojo sind Mitglied der International Martial Arts Association und des Tai-Jitsu-Verbandes Deutschland.</li>
+          <li><strong>Rund 5.000 Menschen</strong> hat er nach eigener Schätzung trainiert, eigene Gruppen, Lehrgänge und Seminare in Deutschland zusammengenommen. Einige seiner Schüler sind seit 1995 dabei.</li>
           <li><strong>Das Buch:</strong> 240 Seiten, ein Jahr Arbeit, gefühlt 700 Stunden. Der Impuls liegt 27 Jahre zurück.</li>
         </ul>
-        <p class="dojo-line">Sein Dojo ist der <strong>Jidokan e.V.</strong> in der Kölner Südstadt. Jido verbindet Elemente des Jiu-Jitsu mit Selbstverteidigung. Mehr zum Training: <a href="https://jido.de/" target="_blank" rel="noopener">jido.de</a></p>
+        <p class="dojo-line">Aus seinen Erfahrungen in Training und Unterricht ist <strong>Jidō</strong> entstanden, laut Kurzbiografie „nicht als Abkehr vom Jiu-Jitsu, sondern als Ergebnis eines langen persönlichen Weges innerhalb der Kampfkunst“. Im Mittelpunkt stehen nicht möglichst viele Techniken, sondern Klarheit, Einfachheit und die Fähigkeit, in einer Auseinandersetzung handlungsfähig zu bleiben. Mehr zum Training: <a href="https://jido.de/" target="_blank" rel="noopener">jido.de</a></p>
         <div class="dojo-gallery">
           <figure class="moment g-tall">
             <div class="moment-frame"><img src="assets/posts/unsichtbarer-kampf/jidokan-dojo.jpg" width="720" height="960" loading="lazy" decoding="async" alt="Eingang des Jidokan in Köln: helle Altbaufassade, Banner „Jiu-Jitsu Dojo“, eine Steinlaterne und eine schwarze Figur neben der Tür."></div>
