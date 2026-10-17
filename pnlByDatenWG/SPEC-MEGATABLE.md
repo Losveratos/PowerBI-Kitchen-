@@ -420,3 +420,13 @@ Phase 5 (12G YTD+Restjahr-Stapel, 12H Plan-Tönung, Headline-Slot) ist nicht
 umgesetzt; Virtualisierung sehr langer Statements (heute ein SVG für alle
 sichtbaren Zeilen). Wasserfall-Beschriftungen links eines Schritts dürfen wie
 in den Referenzen (T04B „+5.79") die Nulllinie kreuzen.
+
+### Stand 1.0.0.0
+
+Phase 1–4 sind Teil von 1.0. Dazu im 1.0-Paket: alle Schalter und Template-Namen
+in vier Sprachen, Sichtbarkeits-Gates im Formatmenü (Mega-Gruppe nur in der
+Tabellen-Ansicht, ΔPY/ΔPL nur mit gebundenem PY/PL, Schwellen-Felder nur bei
+`thresholds`, YTD-Schwellen nur mit `secondBlock` …) und die Dunkel-Palette
+(`MEGA_C` ist live, `setMegaPalette()`; die Tonwerte der Wert-Kaskade sind
+Paletten-Keys statt Literale). **Auf 1.1 verschoben:** Phase 5 (12G, 12H,
+Headline-Slot) und die Virtualisierung sehr langer Mega-Tabellen.

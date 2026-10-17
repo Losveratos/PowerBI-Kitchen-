@@ -1,10 +1,108 @@
 # Changelog — P&L Statement byDatenWG
 
-## Unreleased — Mega-Table Phase 1–3: IBCS-Tabellen T01–T04E und 12A in der Tabellen-Ansicht
+## 1.0.0.0 (2026-10-17) — Mega-Table, vier Sprachen, Smart Start, Dark Mode: das P&L-Visual verlässt die Beta
+
+Mit 1.0 fühlt sich das P&L Statement an wie sein Schwester-Visual ChartKitchen:
+dieselbe Handschrift im Formatmenü, dieselben vier Sprachen, derselbe
+Dunkelmodus und ein Visual, das schon beim Hineinziehen zeigt, was es kann.
+Inhaltlich ist der große Schritt der **Mega-Table** — die Tabellen-Ansicht
+spricht jetzt die IBCS-Templates T01–T04 und 12A (Abschnitt unten).
+
+### Vier Sprachen: Deutsch, Englisch, Spanisch, Japanisch
+
+- **Alle Nutzertexte** kommen aus `stringResources/<locale>/resources.resjson`
+  (de-DE · en-US · es-ES · ja-JP, je **414 Keys**): Feldrollen samt
+  Beschreibungen, jede Karte, Gruppe, jeder Schalter mit Beschreibung,
+  Dropdown-Einträge (auch die Template-Namen) und Platzhalter, die Toolbar mit
+  Tooltips, Legende, Blockköpfe, Skalen-Hinweis, Baum- und Kachel-Texte,
+  Fußnoten und Fußzeile, Lade- und Leerzustände, die Smart-Start-Demo — und die
+  **Formelfehler und Datenqualitäts-Signale** des Rechenkerns (der Kern bleibt
+  englisch und host-frei, übersetzt wird an der Anzeige).
+- **Format wie ChartKitchen:** Ordner je Locale statt der alten
+  `stringResources/de-DE.json` (die bisher nur Rollennamen trug und das
+  Formatmenü gar nicht erreichte — der FormattingSettingsService lief ohne
+  Localization-Manager). `pbiviz.json` listet keine Einzeldateien mehr;
+  `pbiviz package` sammelt die Ordner selbst ein, Power BI fällt für andere
+  Locales auf en-US zurück.
+- **Fachbegriffe wie im ChartKitchen-resjson:** „Vorjahr (PY)" / „Previous
+  Year (PY)" / „Año anterior (PY)" / „前年 (PY)", 実績 · 計画 · 予測, 差異,
+  ウォーターフォール, ブリッジ; ein Test hält die Szenario- und
+  Erscheinungsbild-Begriffe deckungsgleich mit ChartKitchen.
+- **Zahlen und Monate folgen der Locale** (Intl): Dezimalkomma in de/es,
+  Monatsnamen „Juni" / „junio" / „6月", IBCS-Kürzel (AC, PY, PL, FC, ΔPY%)
+  bleiben in allen Sprachen.
+- **Paritäts-Test** `npm run test:i18n`: identische Key-Mengen, keine leeren
+  Werte, gleiche Platzhalter, jeder Key aus Code, Formatmenü und
+  capabilities.json existiert, kein ungenutzter UI-Key, kein Deutsch in
+  en/es/ja, Japanisch und Spanisch überall dort übersetzt, wo Englisch Wörter
+  hat. `npm run test:start` rendert die Mega-Tabelle je Locale
+  (`test/i18n-<locale>.png`) und legt den Formatmenü-Dump daneben
+  (`test/i18n-pane-<locale>.json`).
+
+### Smart Start: die Demo-GuV beim Hineinziehen
+
+- Ohne gebundene Felder zeigt das Visual im **Bearbeitungsmodus** eine
+  vollständige Beispiel-GuV (Pharma-Demo, mEUR, sechs Monate, FY-Ausblick) —
+  in der Sprache des Berichts, **Zeilennamen und Formeln übersetzt** (die
+  Formeln referenzieren die übersetzten Namen, EBITDA rechnet in allen vier
+  Sprachen auf 571,2). Alle Ansichten, Toolbar und Formatmenü funktionieren
+  darauf; ein im Formatmenü gewähltes Mega-Template wirkt sofort auf die Demo.
+- Ein dezenter **„Demo"-Hinweis** über dem Titel nennt die zu befüllenden
+  Rollen; ist schon etwas gebunden, sagt eine Zeile, was noch fehlt („Noch
+  offen: AC (Ist)").
+- **Exportsicher:** Lesemodus, PDF-/PowerPoint-Export und Abo-Mails
+  (`allowInteractions = false`) zeigen nie Demo-Zahlen, sondern den bisherigen
+  Text-Hinweis; zu kleine Visuals ebenso. Die Demo schreibt **nichts** in den
+  Bericht (kein `persistProperties`, keine Selektion, kein Kontextmenü).
+- Kommen echte Daten, verschwindet die Demo restlos — der gespeicherte
+  Toolbar-Zustand des Berichts greift wie gewohnt.
+
+### Formatmenü: nach Wichtigkeit geordnet, mit Sichtbarkeits-Gates
+
+- **Reihenfolge:** Spalten & Mega-Table → Darstellung & Toolbar → Zahlen →
+  Stil → Titelblock → Hierarchie. Die Spalten-Karte gliedert sich in
+  *Tabelle* · *Mega-Table (IBCS-Templates)* · *Werttreiberbaum*, die Stil-Karte
+  in *Farben & Erscheinungsbild* · *Schrift & Zeilen* · *Verhalten*. **Alle
+  Property-Namen bleiben** — bestehende Berichte und PBIR-Definitionen laufen
+  unverändert.
+- **Gates** (verstecken nur, ändern nie, was gerendert wird): Mega-Table-Schalter
+  nur in der Tabellen-Ansicht, Baum-Start nur in der Baum-Ansicht; ΔPY-/ΔPL-
+  Schalter nur mit gebundenem PY/PL, das analysierte Szenario nur mit FC-Feld,
+  zweiter Perioden-Block nur mit Periode; Schwellen-Schalter nur mit einer
+  Δ-Zahlenspalte, Schwellen-Felder nur bei „an", YTD-Schwellen nur mit dem
+  zweiten Block; Wert-Kaskade nur mit einer Wertspalte, Beschriftungen und
+  Ausreißer-Pfeile nur mit Diagrammspalten; Zwischensummen-Blöcke und Sortierung
+  nur bei Strukturdaten, Margen-Zeilen nur bei GuV-Daten; Toolbar-Gruppen und
+  Titelzeilen nur mit ihrem Hauptschalter. Ohne Daten (und in der Demo) bleibt
+  alles offen.
+- **Beschreibungen im ChartKitchen-Ton:** jeder Schalter erklärt sich in einem
+  Satz und nennt seinen Standard („… Standard: an").
+
+### Dark Mode: Auto · Hell · Dunkel
+
+- Neue Einstellung **Stil → Erscheinungsbild** (`style.appearance`, die einzige
+  neue Property von 1.0). **Auto** (Standard) erkennt dunkle Berichtsthemen an
+  der Hintergrund-Luminanz < 0,35 — dieselbe Regel wie ChartKitchens
+  `resolveDarkMode`; Hoher Kontrast bleibt auf dem hellen Pfad.
+- Eine Palette für alles: Tabelle, Mega-Table, Zeilen-Waterfall, Struktur-Bars,
+  Werttreiberbaum, Kachel-Ansicht, Hover-Panel, Toolbar und Demo. Tinte
+  #D9D9D9, PY #8A8A8A, Text #E0E0E0, Teal/Rot im **ChartKitchen-Dark-Paar
+  #3FB3C2 / #E4635F**; das Papier ist der dunkle Theme-Hintergrund selbst.
+- Farbwähler auf ihrem hellen Standard (Seite/Karten weiß, Akzent #404040)
+  wechseln mit; eigene Farben bleiben, wie sie sind.
+- **Im hellen Bericht ändert sich nichts:** „Auto" rendert byte-identisch zu
+  „Hell" (Test für Tabelle, Mega-Table, Baum, Kachel, Wasserfall).
+
+### Logo
+
+`assets/icon.png` ist jetzt das Kochmützen-Statement-Logo (vorher
+`icon-new.png`); `icon-source.svg` bleibt die Quelle.
+
+### Mega-Table (Phase 1–4): IBCS-Tabellen T01–T04E und 12A in der Tabellen-Ansicht
 
 Die Tabellen-Ansicht kann jetzt die IBCS-Templates T01A/B, T02A–F, T03A/B und
-T04A darstellen — als Zuschaltung, die klassische Tabelle bleibt der Default
-und rendert unverändert. Details: `SPEC-MEGATABLE.md`, Abschnitt
+T04A–E sowie 12A darstellen — als Zuschaltung, die klassische Tabelle bleibt
+der Default und rendert unverändert. Details: `SPEC-MEGATABLE.md`, Abschnitt
 „Umsetzungsstand im Visual".
 
 - **Spalten frei kombinierbar** (Formatbereich → Spalten → Mega-Table): PY | PL |
@@ -27,7 +125,7 @@ und rendert unverändert. Details: `SPEC-MEGATABLE.md`, Abschnitt
   (persistProperties mit Echo-Guard), danach ist jeder Schalter frei.
 - Neue Tests: `npm run test:mega`.
 
-### Phase 3 — integrierter Δ-Wasserfall (T04B–E) und Wert-Kaskaden (12A)
+#### Phase 3 — integrierter Δ-Wasserfall (T04B–E) und Wert-Kaskaden (12A)
 
 - **Δ als integrierter Wasserfall** (neue Schalter „ΔPY/ΔPL als integrierter
   Wasserfall"): jeder Δ-Balken beginnt am Ende des vorigen, „="-Zeilen setzen
@@ -45,13 +143,53 @@ und rendert unverändert. Details: `SPEC-MEGATABLE.md`, Abschnitt
 - Tests: Render-Fälle m11–m16, Kaskaden-Paritätstest, `npm run test:waterfall`
   läuft jetzt in `npm test` mit.
 
-**Fix (Bestand, Tabellen-/Balken-/Waterfall-Ansicht):** Die Beschriftungsspur
+### Fixes
+
+- **Demo-Banner und fixierter Kopf:** ein oberer Außenabstand des ersten
+  Kopf-Elements kollabiert durch den Kopf hindurch — der Kopf misst dann 10 px
+  zu kurz und die schwebende Spaltenkopfzeile rutscht darunter. Der Banner
+  trägt seinen Abstand deshalb als Innenabstand eines Wrappers.
+- **Δ%-Pins (Bestand, Tabellen-/Balken-/Waterfall-Ansicht):** Die Beschriftungsspur
 der Δ%-Pins wurde für den auf ±40 % gekappten Wert bemessen („+40.0%▸"),
 gedruckt wird aber der ungekappte Wert mit Überlauf-Marke („+220.0%▸") — bei
 |Δ%| ≥ 100 % konnte die Zahl am SVG-Rand abgeschnitten werden (Testfall p2,
 `npm run test:render`). Die Spur misst jetzt den tatsächlich gedruckten Text;
 Pin-Spalten mit dreistelligen Δ% werden dadurch um eine Zeichenbreite breiter,
 alle anderen bleiben pixelgleich.
+
+### Kompatibilität
+
+- Alle Property-Namen, Datenrollen und der gespeicherte Toolbar-Zustand
+  (`state.uiState`) sind unverändert; `capabilities.json` bekommt nur
+  Beschreibungs-Keys der Rollen und die Property `style.appearance`.
+- Die deutsche Oberfläche ist jetzt durchgehend deutsch: Toolbar-Knöpfe
+  („Tabelle", „Balken", „Einpassen"), Legende („AC Ist", „PY Vorjahr") und die
+  %-Spalte („% Ums.") waren in 0.17 englisch.
+
+### Tests
+
+- Neu: `npm run test:i18n` (12 Prüfungen zu den Sprachdateien, inkl.
+  Generator-Abgleich der Demo) und `npm run test:start` (90 Checks: Smart Start,
+  Dark Mode, Formatmenü-Reihenfolge und -Gates, Sprachen im Bild). Render-Fälle
+  p12 (Demo, de-DE), p13/p14 (Dunkel: Tabelle, T04B).
+- Pixel-Regression gegen 0.17 (Stage-Screenshots p1–p11, m1–m16 über den
+  Harness des Vorgänger-Commits): **alle identisch** bis auf p4 (de-DE) — dort
+  ändern sich gewollt nur die bisher englischen Toolbar- und Legendentexte; die
+  Tabelle selbst ist pixelgleich.
+- Alle bisherigen Suiten unverändert grün (Engine 30, Mega-Layout 19 + 140 +
+  31, Baum/Selektion 262, Wasserfall, Performance im Budget).
+
+### Bewusst auf 1.1 verschoben
+
+- **12G / 12H** (YTD + Restjahr-Stapel, Plan-Tönung) und der **Headline-Slot**
+  der Mega-Table (Phase 5).
+- **Virtualisierung** sehr langer Mega-Tabellen (heute ein SVG für alle
+  sichtbaren Zeilen; die klassische Tabelle rendert bereits gefenstert).
+- Eigener Hover-Tooltip im Dunkelmodus (ChartKitchen-Muster) — das Visual nutzt
+  weiter Browser-Titel und das eigene Hover-Panel des Baums (dieses ist dunkel).
+- Spaltenköpfe der klassischen Tabelle stehen bei schmalen Viewports mit
+  Querscrollen leicht versetzt zur schwebenden Kopfzeile (Bestand aus 0.17,
+  in 1.0 unverändert).
 
 ## 0.17.0.0 (2026-08-26) — Selektion, Cross-Filtering und natives Kontextmenü: das Statement wird zum Einstieg in den Drillthrough
 
