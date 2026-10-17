@@ -246,8 +246,10 @@ markiert Punkte, die dort bereits (oder besser) gelöst sind.
 
 ### Technik
 
-- [ ] **fetchMoreData für große Matrizen** (L) — Segmente > 30k Zeilen
-      nachladen + Hinweis „n von m geladen" statt stillem Abschneiden.
+- [x] **fetchMoreData** — erledigt in 1.49.0.0 (window 1000 + Nachladen,
+      Fortschrittszeile, Host-/Sicherheitsgrenze 30.000 sichtbar gemeldet).
+      Offen: Sicherheitsgrenze konfigurierbar machen; virtualisiertes Rendern
+      für Tabellen > 30k Zeilen (P&L-Muster „windowed rendering").
 - [ ] **Vertikales Scrolling im Export** (—/Doku) — bewusst deaktiviert;
       dokumentieren statt bauen.
 
@@ -262,6 +264,10 @@ markiert Punkte, die dort bereits (oder besser) gelöst sind.
 ## Charts & Brücken
 
 ### IBCS-Template-Abgleich (Oktober 2026, gegen C01–C13 / T01–T05)
+
+Seit 1.49.0.0 als Vorlagen-Dropdown `chart.template` wählbar (C01–C06,
+C08–C10, C12, C13). C07 (Fläche) und C11 fehlen weiterhin als
+Darstellungsform — sobald gebaut, auch als Vorlage ergänzen.
 
 Abgleich der offiziellen IBCS-Template-Bibliothek gegen 1.48: ~14 von 18
 Templates voll erfüllt (C03–C06, C08–C10, C12, C13, T01–T04). Offene Lücken:
@@ -402,3 +408,26 @@ Persona-Vorlagen/Share-Code auf die Builder-UX ein.
 - [ ] **Zertifizierung** (optional, nach Listing) — Vorarbeiten erledigt.
 - [ ] **IBCS-Markenrichtlinien gegenlesen** — Disclaimer steht in NOTICE;
       vor größerer Sichtbarkeit einmal prüfen (lassen).
+
+## Offen aus 1.49 (P&L-Muster-Übernahme)
+
+- [ ] **Hochkontrast vollständig** (M) — 1.49 deckt Säulen/Balken/Linie/
+      Wasserfall/Tabelle/Karten/Scatter mit Mustern ab (gut gefüllt ·
+      schlecht hohl · unwesentlich gestrichelt · PY gestrichelt · FC
+      schraffiert). Noch nicht umgestellt: aktive In-Chart-Chips nutzen
+      Vordergrund statt `foregroundSelected`; Landing-Galerie und Feld-Intro
+      zeichnen mit festen Markenfarben (kein HC-Pfad);
+      eigene Auswahl dimmt per Opacity statt Rahmen in `foregroundSelected`;
+      gestapelte Serien (Stack) unterscheiden sich im HC nur über Umrisse
+      (Muster je Serie fehlen); Pareto/Dumbbell/Slope/GuV-Statement/
+      Integrierte und Kategorie-Brücke laufen über den bisherigen HC-Pfad
+      (schlecht hohl ist dort schon umgesetzt, `foregroundSelected` nicht);
+      selbst gezeichneter Dark-Tooltip ist im HC aus (nativer Tooltip).
+- [ ] **Leer-Zustand-Umschalter in der Demo-Galerie** (S) — im Modus `demo`
+      bewusst ohne Umschalt-Knöpfe, damit die Galerie pixelidentisch bleibt;
+      der Weg zum Feld-Intro führt über Formatbereich → Leer-Zustand. Ein
+      dezenter „Felder erklären"-Link in der Galerie wäre der nächste Schritt.
+- [ ] **ΔPY|ΔPL-Chip sperren statt ausblenden** (S) — der Brücken-Umschalter
+      erscheint nur, wenn PY UND PL gebunden sind; eine gesperrte Hälfte mit
+      Grund („PL nicht gebunden") wäre selbsterklärender, ändert aber
+      Bestandsbilder.
