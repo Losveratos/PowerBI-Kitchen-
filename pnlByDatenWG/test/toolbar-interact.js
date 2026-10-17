@@ -23,6 +23,18 @@
  *      two quick clicks with late echoes end on the second click, no flicker
  *   G  hit targets: every toolbar button is the topmost element at its centre
  *      and its label fits, in all four locales, three widths, scrolled or not
+ *      (1.2: including the value-column switches)
+ *   H  1.2 value columns as independent switches (classic table): sweep over
+ *      every preset × MTD — an unlocked switch changes the columns and turns
+ *      the preset into "custom", a locked one changes nothing; AC + PL + FC
+ *      combine freely; a preset click sets the switches again; the pane's own
+ *      selection (preset custom + colAc …) wins when changed; echo guard
+ *   I  1.2 template picker: only in edit mode (viewMode 1) and the table
+ *      view; a pick writes template + templateApplied + switches in ONE merge,
+ *      a stale update between pick and echo keeps the picked template
+ *   J  1.2 mega value switches: analysed scenario · PY · PL on top of the
+ *      author's switches; the last column is locked (the mega table never
+ *      falls back to the classic table by a click)
  *
  * Run: node test/toolbar-interact.js  (npm run test:toolbar)
  */
@@ -51,7 +63,7 @@ function check(label, cond, detail) {
         const T = {};
         window.__T = T;
         // a stage with a Power-BI-like host; echoes queue up until flushed
-        T.mk = (id, data, objects, locale) => {
+        T.mk = (id, data, objects, locale, opts) => {
             const box = document.createElement("div");
             box.id = id; box.style.cssText = "width:1400px;height:900px;position:relative;";
             document.body.prepend(box);
@@ -60,8 +72,9 @@ function check(label, cond, detail) {
             const dvOf = (objs) => data === "pharma" ? dv(objs)
                 : dvRows(data === "regions" ? MEGA_DEMO.regions() : MEGA_DEMO.statement(data), objs);
             const v = new Visual({ element: box, host });
+            const vm = opts && opts.viewMode != null ? { viewMode: opts.viewMode } : {};
             st.update = (objs) => v.update({ dataViews: [dvOf(objs || st.objects)],
-                viewport: { width: 1400, height: 900 }, type: 2 });
+                viewport: { width: 1400, height: 900 }, type: 2, ...vm });
             host.persistProperties = (p) => {
                 st.persists.push(JSON.parse(JSON.stringify(p)));
                 for (const m of p.merge || []) {
@@ -319,6 +332,166 @@ function check(label, cond, detail) {
     check("F a bookmark during a pending write is applied at once (waterfall)",
         /PL.?AC/.test(f.bookmark.split(" | ")[1] || ""), f.bookmark);
 
+    // ---- H · 1.2 value columns as independent switches (classic table) -------
+    const G_VAL = "Value columns";
+    await ev(() => window.__T.mk("th", "pharma", { hierarchy: { defaultLevel: 1 }, toolbar: { showValues: true } }));
+    s = await state("th");
+    check("H the value-column group is there in the table view", s.groups.includes(G_VAL), s.groups.join("/"));
+    const valBtns = async (id) => (await ev(([id]) => window.__T.buttons(id), id)).filter(b => b.g === G_VAL);
+    let vb = await valBtns("th");
+    check("H only bound scenarios get a switch (pharma: AC PY PL, no FC) + Δ",
+        vb.map(b => b.t).join(",") === "AC,PY,PL,ΔPL", vb.map(b => b.t).join(","));
+    check("H preset AC·PY·PL·FC: AC, PY, PL and Δ read on", vb.every(b => b.active), JSON.stringify(vb));
+    for (const view of ["Bars", "Waterfall"]) {
+        await click("th", "View", view);
+        s = await state("th");
+        check(`H ${view}: no value-column group (those views build their own columns)`, !s.groups.includes(G_VAL));
+    }
+    await click("th", "View", "Table");
+    // sweep: every preset × MTD, every switch
+    let hSweeps = 0;
+    for (const preset of ["full", "acref", "dall", "acpydpy", "acpldpl", "dpct", "custom"]) {
+        for (const mtd of [false, true]) {
+            await setUi("th", { view: "table", preset, blocks: { mtd, ytd: true, fy: true },
+                vals: { ac: true, py: false, pl: true, fc: false, d: true } });
+            const btns = await valBtns("th");
+            for (const b of btns) {
+                const snap = () => ev(([id]) => ({ body: window.__T.body(id), n: window.__T[id].persists.length,
+                    ui: JSON.stringify(window.__T[id].objects.state || null) }), "th");
+                const before = await snap();
+                await click("th", G_VAL, b.t);
+                const after = await snap();
+                const ui = after.ui !== "null" ? JSON.parse(JSON.parse(after.ui).uiState) : null;
+                if (b.locked) {
+                    check(`H ${preset}${mtd ? "+MTD" : ""} · ${b.t} locked: no persist, no change`,
+                        after.n === before.n && after.body === before.body && b.tip.length > 10);
+                } else {
+                    check(`H ${preset}${mtd ? "+MTD" : ""} · ${b.t}: the click changes the columns and sets preset custom`,
+                        after.body !== before.body && ui && ui.preset === "custom");
+                    const nb = (await valBtns("th")).find(x => x.t.replace(/^Δ.*/, "Δ") === b.t.replace(/^Δ.*/, "Δ"));
+                    check(`H ${preset}${mtd ? "+MTD" : ""} · ${b.t}: the switch flips its state`, nb && nb.active === !b.active);
+                }
+                hSweeps++;
+                if (after.ui !== before.ui) {
+                    await ev(([ui]) => { const T = window.__T; T.th.objects.state = JSON.parse(ui); T.th.update(); T.th.flush(); }, before.ui);
+                }
+            }
+        }
+    }
+    check(`H sweep covered ${hSweeps} value switches in 14 states`, hSweeps >= 14 * 4);
+    // the last column cannot be switched off
+    await setUi("th", { view: "table", preset: "custom", blocks: { mtd: false, ytd: true, fy: false },
+        vals: { ac: true, py: false, pl: false, fc: false, d: false } });
+    vb = await valBtns("th");
+    check("H AC alone: the AC switch is locked (the table keeps one column)", vb.find(b => b.t === "AC").locked);
+    // a preset click sets all switches again
+    await click("th", "Column preset", "AC·PY·ΔPY");
+    vb = await valBtns("th");
+    check("H preset AC·PY·ΔPY sets the switches: AC PY Δ on, PL off",
+        vb.map(b => (b.active ? "1" : "0")).join("") === "1101" && /ΔPY/.test(vb[3].t), JSON.stringify(vb.map(b => b.t + b.active)));
+    // from a fixed-reference preset the Δ stays on its reference
+    await click("th", G_VAL, "PL");
+    s = await state("th");
+    check("H switching PL on from AC·PY·ΔPY keeps ΔPY (reference handed over)",
+        s.ui.preset === "custom" && s.ui.ref === "py" && /PYPLΔPYΔPY%/.test(s.hdr.replace(/\s/g, "")), s.hdr);
+    // AC + PL + FC on data with FC: free combination
+    await ev(() => window.__T.mk("th2", "regions", { hierarchy: { defaultLevel: 0 }, toolbar: { showValues: true } }));
+    await click("th2", G_VAL, "PY");
+    await click("th2", G_VAL, "FC");
+    s = await state("th2");
+    check("H AC + PL + FC (PY off) combine in one table, Δ against the Δ reference",
+        /AC.*PL.*FC.*ΔPL.*ΔPL%/.test(s.hdr) && !/\bPY\b/.test(s.hdr.split(" | ")[1] || ""), s.hdr);
+    check("H the combination is stored in the toolbar state", s.ui.vals && s.ui.vals.fc === true && s.ui.vals.py === false);
+    await click("th2", "Δ reference", "PY");
+    s = await state("th2");
+    check("H the Δ reference stays its own choice (ΔPY next to AC · PL · FC)", /FC.*ΔPY/.test(s.hdr), s.hdr);
+    // pane: preset custom with the own selection
+    await ev(() => window.__T.mk("th3", "regions", { hierarchy: { defaultLevel: 0 },
+        columns: { preset: "custom", colPy: false, colFc: true, colDelta: false } }));
+    s = await state("th3");
+    check("H pane preset custom + colPy off + colFc on + colDelta off: AC · PL · FC, no Δ",
+        /AC.*PL.*FC/.test(s.hdr) && !/Δ/.test(s.hdr.split(" | ")[1] || ""), s.hdr);
+    s = await ev(() => { const T = window.__T; T.th3.objects.columns.colDelta = true; T.th3.update(); T.th3.flush(); return T.state("th3"); });
+    check("H a changed pane switch wins at once", /ΔPL/.test(s.hdr), s.hdr);
+    // echo guard: a stale update between click and echo keeps the switch
+    const hf = await ev(() => {
+        const T = window.__T; const st = T.th2;
+        st.flush();
+        const stale = JSON.parse(JSON.stringify(st.objects));
+        T.click("th2", "Value columns", "PY");
+        st.update(stale);
+        const mid = T.buttons("th2").find(b => b.g === "Value columns" && b.t === "PY").active;
+        st.flush();
+        return { mid, end: T.buttons("th2").find(b => b.g === "Value columns" && b.t === "PY").active };
+    });
+    check("H echo guard: a stale update keeps the clicked switch", hf.mid === true && hf.end === true, JSON.stringify(hf));
+
+    // ---- I · 1.2 template picker (edit mode) ------------------------------------
+    await ev(() => window.__T.mk("ti0", "regions", { hierarchy: { defaultLevel: 0 } }));
+    check("I no template picker without the host saying edit mode",
+        !(await ev(() => !!window.__T.box("ti0").querySelector('[data-pnl="tb-template"]'))));
+    await ev(() => window.__T.mk("ti1", "regions", { hierarchy: { defaultLevel: 0 } }, "en-US", { viewMode: 0 }));
+    check("I no template picker for readers (viewMode 0)",
+        !(await ev(() => !!window.__T.box("ti1").querySelector('[data-pnl="tb-template"]'))));
+    await ev(() => window.__T.mk("ti", "regions", { hierarchy: { defaultLevel: 0 } }, "en-US", { viewMode: 1 }));
+    const pick = await ev(() => {
+        const T = window.__T; const st = T.ti; const out = {};
+        const sel = () => T.box("ti").querySelector('[data-pnl="tb-template"]');
+        out.there = !!sel();
+        out.n = sel() ? sel().options.length : 0;
+        out.cur = sel() ? sel().value : "";
+        const stale = JSON.parse(JSON.stringify(st.objects));
+        st.persists.length = 0;
+        sel().value = "T03A"; sel().dispatchEvent(new Event("change"));
+        out.immediate = T.state("ti").mega;
+        out.merges = st.persists.length;
+        const m = st.persists[0] && st.persists[0].merge.find(x => x.objectName === "columns");
+        out.props = m ? m.properties : {};
+        st.update(stale);                                  // stale: still template off
+        out.afterStale = { mega: T.state("ti").mega, sel: sel() ? sel().value : "" };
+        st.flush();
+        out.afterEcho = { mega: T.state("ti").mega, sel: sel() ? sel().value : "", persists: st.persists.length };
+        return out;
+    });
+    check("I edit mode: the template picker is there, with every template", pick.there && pick.n === 18 && pick.cur === "off", JSON.stringify(pick));
+    check("I a pick renders the template at once", pick.immediate);
+    check("I one merge carries template + templateApplied + the switches",
+        pick.merges === 1 && pick.props.template === "T03A" && pick.props.templateApplied === "T03A" && pick.props.showPY === true,
+        JSON.stringify(pick.props));
+    check("I a stale update keeps the picked template (picker and table)", pick.afterStale.mega && pick.afterStale.sel === "T03A",
+        JSON.stringify(pick.afterStale));
+    check("I after the echo: T03A, no second write", pick.afterEcho.mega && pick.afterEcho.sel === "T03A" && pick.afterEcho.persists === 1,
+        JSON.stringify(pick.afterEcho));
+    const off = await ev(() => {
+        const T = window.__T; const sel = T.box("ti").querySelector('[data-pnl="tb-template"]');
+        sel.value = "off"; sel.dispatchEvent(new Event("change")); T.ti.flush();
+        const a = T.state("ti").mega;
+        T.click("ti", "View", "Bars"); T.ti.flush();
+        return { mega: a, inBars: !!T.box("ti").querySelector('[data-pnl="tb-template"]') };
+    });
+    check("I picking off returns to the classic table", off.mega === false);
+    check("I the picker belongs to the table view (not in Bars)", off.inBars === false);
+
+    // ---- J · 1.2 mega value switches --------------------------------------------
+    await ev(() => window.__T.mk("tj", "regions", { hierarchy: { defaultLevel: 0 }, toolbar: { showValues: true },
+        columns: { template: "T02A", templateApplied: "T02A", showPL: true, showMinuend: true, dPlBar: true, dPlPin: true } }));
+    let jb = await valBtns("tj");
+    check("J mega: switches for the analysed scenario, PY and PL", jb.map(b => b.t).join(",") === "AC,PY,PL", jb.map(b => b.t).join(","));
+    check("J they show the author's switches (AC, PL on; PY off)", jb.map(b => (b.active ? 1 : 0)).join("") === "101");
+    const jBefore = await ev(() => window.__T.body("tj"));
+    await click("tj", G_VAL, "PY");
+    s = await state("tj");
+    check("J PY on adds the PY value column to the mega table", s.mega && s.ui.megaVals && s.ui.megaVals.py === true
+        && (await ev(() => window.__T.body("tj"))) !== jBefore);
+    await ev(() => window.__T.mk("tj2", "regions", { hierarchy: { defaultLevel: 0 }, toolbar: { showValues: true },
+        columns: { showMinuend: true } }));
+    jb = await valBtns("tj2");
+    check("J the last mega column is locked (no silent fall back to the classic table)",
+        jb.find(b => b.t === "AC").locked && jb.find(b => b.t === "AC").active);
+    s = await ev(() => { const T = window.__T; T.tj.objects.columns.showPY = false; T.tj.objects.columns.showMinuend = false;
+        T.tj.update(); T.tj.flush(); return T.state("tj"); });
+    check("J an author change of the mega value switches ends the reader's choice", s.ui.megaVals === null);
+
     // ---- G · hit targets in every locale -------------------------------------
     const hit = await ev(() => {
         const bad = []; let n = 0;
@@ -329,6 +502,9 @@ function check(label, cond, detail) {
                     ["pharma", { state: { uiState: JSON.stringify({ view: "bars" }) } }],
                     ["regions", { hierarchy: { defaultLevel: 0 }, columns: { template: "T02A" } }],
                     ["pharma", { state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } }],
+                    // 1.2 the value-column switches of the classic and the mega table
+                    ["pharma", { toolbar: { showValues: true }, columns: { preset: "custom" } }],
+                    ["regions", { hierarchy: { defaultLevel: 0 }, toolbar: { showValues: true }, columns: { template: "T02A" } }],
                 ];
                 for (const [data, obj] of cases) {
                     for (const scroll of [0, 300]) {

@@ -55,6 +55,12 @@
 <div class="case"><h4>p12 · Smart Start (1.0) · Demo-GuV ohne Felder · Banner „Demo“ · de-DE</h4><div class="stage" id="p12" style="width:1200px;height:700px"></div></div>
 <div class="case"><h4>p13 · Dark Mode (1.0) · Tabelle · style.appearance = dark</h4><div class="stage" id="p13" style="width:1560px;height:700px"></div></div>
 <div class="case"><h4>p14 · Dark Mode (1.0) · Mega-Table T04B · Werttreiberbaum folgt in test:start</h4><div class="stage" id="p14" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>p15 · 1.2 Wertspalten-Schalter · eigene Auswahl AC + PL + FC-frei · Δ gegen PL · Toolbar-Gruppe „Wertspalten“</h4><div class="stage" id="p15" style="width:1400px;height:640px"></div></div>
+<div class="case"><h4>p16 · 1.2 Balken-Ansicht · Szenarien überlappt (AC vorn, PL dahinter versetzt) + Dreieck-Marker PY</h4><div class="stage" id="p16" style="width:1250px;height:640px"></div></div>
+<div class="case"><h4>p17 · 1.2 Balken-Ansicht dunkel · Überlappung + Dreiecke · Referenz PY</h4><div class="stage" id="p17" style="width:1250px;height:640px"></div></div>
+<div class="case"><h4>p18 · 1.2 Spalten-Kategorie (Segment Nord | Süd) · Preset AC·PL·ΔPL · Gesamt-Block danach</h4><div class="stage" id="p18" style="width:1500px;height:700px"></div></div>
+<div class="case"><h4>p19 · 1.2 Leer-Zustand Feld-Intro (emptyState.mode = fields) · de-DE · Bearbeitungsmodus mit Umschalt-Button</h4><div class="stage" id="p19" style="width:900px;height:520px"></div></div>
+<div class="case"><h4>p20 · 1.2 Bearbeitungsmodus · Template-Auswahl in der Toolbar · Mega-Table T02A mit Wertspalten-Schaltern</h4><div class="stage" id="p20" style="width:1400px;height:640px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
 <script src="demo-data.js"></script>
@@ -154,6 +160,43 @@ function dv(objects) {
     col("plFy", "PL FY", rows.map(r => r.values.plfy ?? null)),
   ];
   return { categorical: { categories, values }, metadata: { objects: objects || {} } };
+}
+
+// 1.2 column category: every pharma row split into two segments (North 58–63 %,
+// South the rest — PY / PL split differently, so the segment variances differ);
+// formula / KPI rows repeat per segment, the FY scalars stay out (first-wins)
+function dvCat(objects) {
+  const base = PNL_DEMO.levelRows;
+  const rows = [];
+  for (const seg of ["North", "South"]) {
+    base.forEach((r, i) => {
+      const f = (k) => { const a = 0.58 + (i % 5) * 0.012 + (k === "py" ? 0.03 : k === "pl" ? -0.02 : 0); return seg === "North" ? a : 1 - a; };
+      const v = {};
+      for (const k of ["ac", "py", "pl"]) { if (r.values[k] != null) { v[k] = Math.round(r.values[k] * f(k) * 10) / 10; } }
+      rows.push({ ...r, values: v, seg });
+    });
+  }
+  const col = (role, name, vals) => ({ source: { roles: { [role]: true }, displayName: name, index: 0 }, values: vals });
+  const L = (i) => rows.map(r => r.levels[i] ?? null);
+  const categories = [
+    col("levels", "L1", L(0)), col("levels", "L2", L(1)), col("levels", "L3", L(2)),
+    col("account", "AccountID", rows.map(r => r.account)),
+    col("sortOrder", "Sort", rows.map(r => r.sort)),
+    col("rowType", "RowType", rows.map(r => r.rowType)),
+    col("formulaDef", "Formula", rows.map(r => r.formulaDef)),
+    col("signConvention", "Sign", rows.map(r => r.sign)),
+    col("displayInvert", "DispInv", rows.map(r => r.displayInvert)),
+    col("varianceInvert", "VarInv", rows.map(r => r.varianceInvert)),
+    col("period", "Monat", rows.map(r => r.month)),
+    col("colCategory", "Segment", rows.map(r => r.seg)),
+  ];
+  const values = [
+    col("ac", "AC", rows.map(r => r.values.ac ?? null)),
+    col("py", "PY", rows.map(r => r.values.py ?? null)),
+    col("pl", "PL", rows.map(r => r.values.pl ?? null)),
+  ];
+  const metaCols = [...categories, ...values].map(c => ({ roles: c.source.roles, displayName: c.source.displayName }));
+  return { categorical: { categories, values }, metadata: { objects: objects || {}, columns: metaCols } };
 }
 
 function run(id, objects, locale, empty) {
@@ -385,6 +428,37 @@ run("p12", null, "de-DE", true);
 // p13 / p14 — dark mode
 run("p13", { titleBlock: TITLE, hierarchy: { defaultLevel: 2 }, style: { appearance: "dark" } });
 runRows("p14", ...ST("T04", "T04B").map((x, i) => i === 1 ? { ...x, style: { appearance: "dark" } } : x));
+
+// ---- 1.2 ease of use ----------------------------------------------------------
+// p15 — own selection AC + PL (FC unbound), Δ vs PL, the value switches in the toolbar
+run("p15", { titleBlock: { measureLine: "Income statement (P&L) in mEUR" }, hierarchy: { defaultLevel: 1 },
+  toolbar: { showValues: true }, columns: { preset: "custom", colPy: false } });
+// p16 / p17 — bars view: overlapping scenario bars + triangle marks (light, dark with reference PY)
+run("p16", { titleBlock: { measureLine: "Income statement (P&L) in mEUR" }, columns: { barOverlap: true, barTriangles: true },
+  state: { uiState: JSON.stringify({ view: "bars" }) } });
+run("p17", { titleBlock: { measureLine: "Income statement (P&L) in mEUR" }, columns: { barOverlap: true, barTriangles: true },
+  style: { appearance: "dark" }, state: { uiState: JSON.stringify({ view: "bars", ref: "py" }) } });
+// p18 — column category: the AC·PL·ΔPL set per segment, total block after it
+(function () {
+  const el = document.getElementById("p18");
+  const v = new Visual({ element: el, host: makeHost("en-US") });
+  v.update({ dataViews: [dvCat({ titleBlock: { measureLine: "Income statement (P&L) in mEUR" }, hierarchy: { defaultLevel: 1 },
+    columns: { preset: "acpldpl", pctRevenue: false } })], viewport: { width: el.clientWidth, height: el.clientHeight }, type: 2 });
+})();
+// p19 / p20 — edit mode (the host says viewMode 1): field guide, template picker in the toolbar
+function runEdit(id, data, objects, locale) {
+  const el = document.getElementById(id);
+  const host = makeHost(locale);
+  host.persistProperties = (p) => { (window.__persist = window.__persist || []).push({ id, p }); };
+  const v = new Visual({ element: el, host });
+  v.update({ dataViews: data ? [data] : [], viewport: { width: el.clientWidth, height: el.clientHeight }, type: 2, viewMode: 1 });
+  (window.__visuals = window.__visuals || {})[id] = v;
+}
+runEdit("p19", { metadata: { objects: { emptyState: { mode: "fields" } },
+  columns: [{ roles: { ac: true }, displayName: "AC" }, { roles: { py: true }, displayName: "PY" }] }, categorical: { categories: [], values: [] } }, null, "de-DE");
+runEdit("p20", dvRows(MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, hierarchy: { defaultLevel: 0 },
+  toolbar: { showValues: true }, columns: { template: "T02A", templateApplied: "T02A", showPL: true, showMinuend: true,
+    dPlBar: true, dPlPin: true, secondBlock: true } }));
 
 // p6 — sparkline open on first account, toolbar hidden
 run("p6", {

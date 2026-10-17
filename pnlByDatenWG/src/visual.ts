@@ -3351,7 +3351,10 @@ export class Visual implements IVisual {
             out.push({ kind: "bar", ref, minuend: "ac", block, label: `Δ${ref.toUpperCase()}` });
             out.push({ kind: "pin", ref, minuend: "ac", block, label: `Δ${ref.toUpperCase()}%` });
         }
-        if (out.length === 0) { out.push({ kind: "val", scen: "ac", block, label: "AC" }); }
+        if (out.length === 0) {
+            out.push({ kind: "val", scen: "ac", block, label: "AC" });
+            if (block === "ytd" && this.ui!.pctRev) { out.push({ kind: "pct", block, label: this.tr("UI_ColPctRev") }); }
+        }
         return out;
     }
 
@@ -4254,13 +4257,13 @@ export class Visual implements IVisual {
         const top = 1.5 + (triS > 0 ? triS + 0.5 : 0);
         const band = h - 1.5 - top;
         const refIsPlan = c.ref === "pl" || c.ref === "plfy";
-        // the new modes draw the reference in full scenario notation (FC hatched,
-        // PY dashed in high contrast); the default path keeps its 1.1 pixels
+        // the new modes draw the reference in full scenario notation (FC hatched);
+        // the default path keeps its 1.1 pixels
         const notation = overlap || triS > 0;
         const refFc = c.ref === "fc";
         if (notation && refFc && r != null) { this.hatchPattern(svg, ns, pid + "r", C.ac); }
-        const refFill = refIsPlan ? C.paper : refFc ? `url(#${pid}r)` : this.hc ? C.paper : C.py;
-        const refStroke = refIsPlan || refFc ? C.ac : this.hc ? C.ac : null;
+        const refFill = refIsPlan ? C.paper : refFc ? `url(#${pid}r)` : C.py;
+        const refStroke = refIsPlan || refFc ? C.ac : null;
         if (overlap) {
             // 1.2 ChartKitchen notation: equal bars, OFFSET instead of nested —
             // the reference behind (top), AC in front (bottom) at full strength
@@ -4286,15 +4289,14 @@ export class Visual implements IVisual {
             const poly = document.createElementNS(ns, "polygon");
             poly.setAttribute("data-pnl", "bar-tri-" + t.sc);
             poly.setAttribute("points", `${x - triS * 0.8},${top - triS} ${x + triS * 0.8},${top - triS} ${x},${top}`);
-            let fill: string = C.py; let stroke: string = C.soft; let dash: string | null = null;
+            // shape notation, not colour alone: PY filled gray, PL hollow, FC hatched
+            let fill: string = C.py; let stroke: string = C.soft;
             if (t.sc === "pl") { fill = C.paper; stroke = C.ac; }
             else if (t.sc === "fc") { this.hatchPattern(svg, ns, pid + "t", C.ac); fill = `url(#${pid}t)`; stroke = C.ac; }
-            else if (this.hc) { fill = C.paper; stroke = C.ac; dash = "2,1.5"; }
             poly.setAttribute("fill", fill);
             poly.setAttribute("stroke", stroke);
-            poly.setAttribute("stroke-width", t.sc === "py" && !this.hc ? "0.8" : "1");
+            poly.setAttribute("stroke-width", t.sc === "py" ? "0.8" : "1");
             poly.setAttribute("stroke-linejoin", "round");
-            if (dash) { poly.setAttribute("stroke-dasharray", dash); }
             svg.appendChild(poly);
         }
         // structure baseline

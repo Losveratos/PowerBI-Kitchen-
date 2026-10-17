@@ -328,8 +328,9 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
     // 1.1 Paket B: scenario names after numbers, the empty state last
     check("Pane: card order columns → display → numbers → scenario names → style → title → hierarchy → empty state",
         C.order.join(",") === "columns,toolbar,numbers,labels,style,titleBlock,hierarchy,emptyState", C.order.join(","));
-    check("Pane: columns card = table | mega table (tree group gated), style card = colors | type | behavior",
-        C.groups[0].startsWith("columns:columnsGeneral|columnsMega") && C.groups[4] === "style:styleColors|styleType|styleBehavior", C.groups.join(" ; "));
+    // 1.2: the mega table group (template dropdown) comes first — the owner could not find it
+    check("Pane: columns card = mega table | table (tree group gated), style card = colors | type | behavior",
+        C.groups[0].startsWith("columns:columnsMega|columnsGeneral") && C.groups[4] === "style:styleColors|styleType|styleBehavior", C.groups.join(" ; "));
     check("Pane (1.1): title footers + auto message follow titleBlock.show, scenario group follows toolbar.show",
         has(C.base, "titleBlock.footer") && has(C.base, "titleBlock.filterFooter") && has(C.base, "titleBlock.autoMessage")
         && has(C.base, "toolbar.showScenario") && !has(C.noTb, "titleBlock.footer") && !has(C.noTb, "toolbar.showScenario"));
