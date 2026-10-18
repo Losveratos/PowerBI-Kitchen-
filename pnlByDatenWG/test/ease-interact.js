@@ -173,7 +173,7 @@ function check(label, cond, detail) {
         // no field bound: the host still sends the objects (supportsEmptyDataView)
         T.mk("e2", T.partial([]), { emptyState: { mode: "fields" } }, { viewMode: 0 });
         out.readerLanding = !T.q("e2", '[data-pnl="field-guide"]') && !T.q("e2", '[data-pnl="demo-banner"]')
-            && /AC/.test(T.box("e2").textContent);
+            && !!T.q("e2", '[data-pnl="read-landing"]');
         T.mk("e3", T.partial([]), { emptyState: { mode: "fields" } }, { host: { allowInteractions: false } });
         out.exportLanding = !T.q("e3", '[data-pnl="field-guide"]');
         T.mk("e4", T.partial([]), { emptyState: { mode: "message", title: "Bitte Felder binden", body: "Ebenen + AC" } }, { viewMode: 1 });

@@ -124,7 +124,7 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
         // A2 — reading mode (ViewMode.View = 0): plain landing, no demo numbers
         const r = __mk("s2", 1100, 640); r.__upd(DEMO, 0);
         out.readBanner = !!r.__el.querySelector('[data-pnl="demo-banner"]');
-        out.readLanding = r.__el.innerText.includes("Add the AC measure");
+        out.readLanding = !!r.__el.querySelector('[data-pnl="read-landing"]') && r.__el.innerText.includes("no data yet");
         out.readNumbers = /1\s?685\.3/.test(r.__el.innerText);
         // in-focus edit (2) is edit
         const f = __mk("s2b", 1100, 640); f.__upd(DEMO, 2);
@@ -132,7 +132,7 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
         // A3 — export / subscription: allowInteractions = false
         const x = __mk("s3", 1100, 640, "en-US", { hostCapabilities: { allowInteractions: false } }); x.__upd(DEMO, 1);
         out.exportBanner = !!x.__el.querySelector('[data-pnl="demo-banner"]');
-        out.exportLanding = x.__el.innerText.includes("Add the AC measure");
+        out.exportLanding = !!x.__el.querySelector('[data-pnl="read-landing"]') && x.__el.querySelectorAll("button").length === 0;
         // A4 — too small for a statement: text landing
         const t = __mk("s4", 280, 200); t.__upd(DEMO);
         out.tinyBanner = !!t.__el.querySelector('[data-pnl="demo-banner"]');

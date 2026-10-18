@@ -111,9 +111,9 @@ function check(label, cond, detail) {
         out.harness = !!T.q("h2", '[data-pnl="hub-tile-tour"]');
         // readers, exports, tiny visuals: never the hub — the landing text as before
         T.mk("h3", T.empty, {}, { viewMode: 0 });
-        out.readerNoHub = !T.q("h3", '[data-pnl="hub"]') && /AC/.test(T.box("h3").textContent);
+        out.readerNoHub = !T.q("h3", '[data-pnl="hub"]') && !!T.q("h3", '[data-pnl="read-landing"]') && T.qa("h3", "button").length === 0;
         T.mk("h4", T.empty, {}, { host: { allowInteractions: false }, viewMode: 1 });
-        out.exportNoHub = !T.q("h4", '[data-pnl="hub"]') && /AC/.test(T.box("h4").textContent);
+        out.exportNoHub = !T.q("h4", '[data-pnl="hub"]') && !!T.q("h4", '[data-pnl="read-landing"]');
         T.mk("h5", T.empty, {}, { w: 280, h: 200, viewMode: 1 });
         out.tinyNoHub = !T.q("h5", '[data-pnl="hub"]');
         // in-focus edit (2) is edit
@@ -140,7 +140,7 @@ function check(label, cond, detail) {
     check("H the hub title is the product name", H.title === "P&L Statement byDatenWG", H.title);
     check("H every control of the hub is a native button (Tab · Enter · Space)", H.buttons);
     check("H the harness without a view mode shows the hub too (edit, like the 1.1 demo)", H.harness);
-    check("H readers get the landing text, never the hub", H.readerNoHub);
+    check("H readers get the calm landing card (no button), never the hub", H.readerNoHub);
     check("H exports (allowInteractions = false) never see the hub", H.exportNoHub);
     check("H a tiny visual gets the text landing", H.tinyNoHub);
     check("H in-focus edit counts as edit", H.focusHub);
@@ -636,7 +636,9 @@ function check(label, cond, detail) {
         for (const [tile, page] of [[null, "hub"], ["hub-tile-tour", "tour"], ["hub-tile-templates", "templates"], ["hub-tile-fields", "fields"], ["hub-start", "start"]]) {
             if (tile) { T.click("pf", "hub-back"); T.click("pf", tile); await T.ready("pf"); }
             const f = bar();
-            out.pages[page] = !!f && f.firstElementChild.getAttribute("data-pnl") === "hub-font" && getComputedStyle(f).position === "sticky";
+            const b = f && f.querySelector('[data-pnl="hub-bar"]');
+            out.pages[page] = !!b && b.children[0].getAttribute("data-pnl") === "hub-aa" && b.children[1].getAttribute("data-pnl") === "hub-font"
+                && getComputedStyle(f).position === "sticky" && !!f.querySelector('[data-pnl="hub-made"]');
         }
         T.click("pf", "hub-back");
         out.order = presets();
@@ -711,6 +713,85 @@ function check(label, cond, detail) {
         P.demoBar && P.demoPersist && P.demoModeNoBar, JSON.stringify([P.demoBar, P.demoPersist, P.demoModeNoBar]));
     check("P overlay: the bar is there, a click keeps the layer open and scales the statement under it (×1.6)",
         P.ovBar && P.ovOpen && Math.abs(P.ovScaled - 1.6) < 0.05 && P.ovPersist === 1, JSON.stringify([P.ovBar, P.ovOpen, P.ovScaled, P.ovPersist]));
+
+    // ================================================================== 1.4.1 · Y the family look (ChartKitchen = P&L)
+    const Y = await ev(async () => {
+        const T = window.__T; const out = {};
+        const cs = (el) => getComputedStyle(el);
+        T.mk("y1", T.empty, {}, { viewMode: 1, locale: "de-DE" });
+        const bar = T.q("y1", '[data-pnl="hub-bar"]');
+        const b = cs(bar);
+        out.bar = [b.paddingTop, b.paddingLeft, b.borderTopWidth, b.borderTopColor, Math.round(bar.getBoundingClientRect().height)];
+        const pill = (k) => T.q("y1", `[data-pnl="${k}"]`);
+        const hd = cs(pill("hub-font-hd")), fh = cs(pill("hub-font-fullhd"));
+        out.on = [hd.backgroundColor, hd.color, hd.borderTopLeftRadius, hd.height];
+        out.off = [fh.backgroundColor, fh.color, fh.borderTopColor];
+        out.gap = Math.round(pill("hub-font-fullhd").getBoundingClientRect().left - pill("hub-font-hd").getBoundingClientRect().right);
+        const d = cs(pill("hub-docs"));
+        out.docs = [d.backgroundColor, d.borderTopColor, d.borderTopLeftRadius, pill("hub-docs").textContent];
+        out.note = T.q("y1", '[data-pnl="hub-hint"]').textContent;
+        out.noteShown = T.q("y1", '[data-pnl="hub-hint"]').getAttribute("data-hidden") !== "1";
+        const made = T.q("y1", '[data-pnl="hub-made"]');
+        out.made = [made.textContent, cs(made).opacity, cs(made).textAlign,
+            made.getBoundingClientRect().top >= bar.getBoundingClientRect().bottom - 0.5];
+        out.title = [cs(T.q("y1", '[data-pnl="hub-title"]')).fontWeight, !!T.q("y1", '[data-pnl="hub-sub"]')];
+        out.tileR = cs(T.q("y1", '[data-pnl="hub-tile-tour"]')).borderTopLeftRadius;
+        const t = T.q("y1", '[data-pnl="hub-tile-tour"]');
+        t.dispatchEvent(new MouseEvent("mouseenter")); out.lift = t.style.transform; t.dispatchEvent(new MouseEvent("mouseleave"));
+        out.hero = [cs(T.q("y1", '[data-pnl="hub-start"]')).backgroundColor, cs(T.q("y1", '[data-pnl="hub-start"]')).borderTopLeftRadius];
+        T.click("y1", "hub-tile-templates"); await T.ready("y1");
+        const back = cs(T.q("y1", '[data-pnl="hub-back"]'));
+        out.back = [back.backgroundColor, back.borderTopColor, back.borderTopLeftRadius];
+        const g = cs(T.q("y1", '[data-pnl="tpl-group-title"]'));
+        out.eyebrow = [g.textTransform, g.fontSize, g.color];
+        // dark: dark teal with dark text
+        T.mk("y2", T.empty, { style: { appearance: "dark" } }, { viewMode: 1 });
+        const dk = cs(T.q("y2", '[data-pnl="hub-font-hd"]'));
+        out.dark = [dk.backgroundColor, dk.color];
+        // high contrast: the active pill framed in foregroundSelected
+        T.mk("y3", T.empty, {}, { viewMode: 1, host: { palette: { isHighContrast: true, foreground: { value: "#FFFF00" }, background: { value: "#000000" }, foregroundSelected: { value: "#00FFFF" } } } });
+        const hc = cs(T.q("y3", '[data-pnl="hub-font-hd"]'));
+        out.hc = [hc.borderTopColor, hc.backgroundColor];
+        // narrow: only the hint goes, the pills and the docs stay
+        T.mk("y4", T.empty, {}, { viewMode: 1, w: 420, h: 700 });
+        out.narrow = [T.q("y4", '[data-pnl="hub-hint"]').getAttribute("data-hidden"),
+            T.qa("y4", '[data-pnl^="hub-font-"][aria-pressed]').filter(x => x.getBoundingClientRect().width > 20).length, !!T.q("y4", '[data-pnl="hub-docs"]')];
+        // the reader landing: the calm card — no button, the author's text wins
+        T.mk("y5", T.empty, {}, { viewMode: 0, locale: "de-DE" });
+        out.read = [T.q("y5", '[data-pnl="read-title"]').textContent, T.q("y5", '[data-pnl="read-text"]').textContent,
+            T.qa("y5", "button").length, !!T.q("y5", '[data-pnl="read-schemata"]'), T.qa("y5", '[data-pnl="read-schemata"] svg').length];
+        T.mk("y6", T.empty, { emptyState: { title: "GuV folgt", body: "Daten kommen am 5. Werktag." } }, { viewMode: 0 });
+        out.readOwn = [T.q("y6", '[data-pnl="read-title"]').textContent, T.q("y6", '[data-pnl="read-text"]').textContent, T.qa("y6", "button").length];
+        T.mk("y7", T.empty, {}, { viewMode: 0, w: 260, h: 150 });
+        out.readTiny = [!!T.q("y7", '[data-pnl="read-landing"]'), !T.q("y7", '[data-pnl="read-schemata"]')];
+        return out;
+    });
+    check("Y bar: 8 px · 12 px padding, 1 px rule of 10 % ink, 38 px high (HD)",
+        JSON.stringify(Y.bar) === JSON.stringify(["8px", "12px", "1px", "rgba(26, 26, 26, 0.1)", 38]), JSON.stringify(Y.bar));
+    check("Y pills: active teal #0E8585 with white text, radius = height / 2; inactive white with ink-soft frame; 6 px apart",
+        JSON.stringify(Y.on) === JSON.stringify(["rgb(14, 133, 133)", "rgb(255, 255, 255)", "10.5px", "21px"])
+        && JSON.stringify(Y.off) === JSON.stringify(["rgb(255, 255, 255)", "rgb(26, 26, 26)", "rgb(138, 136, 134)"]) && Y.gap === 6,
+        JSON.stringify([Y.on, Y.off, Y.gap]));
+    check("Y docs: the same pill, outlined in ink, \"📖 Doku öffnen\"",
+        JSON.stringify(Y.docs) === JSON.stringify(["rgb(255, 255, 255)", "rgb(26, 26, 26)", "10.5px", "📖 Doku öffnen"]), JSON.stringify(Y.docs));
+    check("Y hint localized on one line; \"made by Daten-WG\" centred under the bar at 60 %",
+        Y.note === "Schriftgröße — HD für Laptops · Full HD für Monitore · UHD für Beamer & 4K" && Y.noteShown
+        && JSON.stringify(Y.made) === JSON.stringify(["made by Daten-WG", "0.6", "center", true]), JSON.stringify([Y.note, Y.made]));
+    check("Y title bold + subtitle, tiles 10 px with the -2 px lift, 🚀 teal 10 px, ← Zurück outlined pill, caps eyebrow 11 px ink-soft",
+        Y.title[0] === "700" && Y.title[1] && Y.tileR === "10px" && Y.lift === "translateY(-2px)"
+        && JSON.stringify(Y.hero) === JSON.stringify(["rgb(14, 133, 133)", "10px"])
+        && JSON.stringify(Y.back) === JSON.stringify(["rgb(255, 255, 255)", "rgb(26, 26, 26)", "10.5px"])
+        && JSON.stringify(Y.eyebrow) === JSON.stringify(["uppercase", "11px", "rgb(138, 136, 134)"]),
+        JSON.stringify([Y.title, Y.tileR, Y.lift, Y.hero, Y.back, Y.eyebrow]));
+    check("Y dark: dark teal #3FB3C2 with dark text; high contrast: foregroundSelected frame",
+        JSON.stringify(Y.dark) === JSON.stringify(["rgb(63, 179, 194)", "rgb(26, 26, 26)"])
+        && JSON.stringify(Y.hc) === JSON.stringify(["rgb(0, 255, 255)", "rgb(0, 0, 0)"]), JSON.stringify([Y.dark, Y.hc]));
+    check("Y narrow (420 px): only the hint is hidden — three pills and the docs stay", Y.narrow[0] === "1" && Y.narrow[1] === 3 && Y.narrow[2],
+        JSON.stringify(Y.narrow));
+    check("Y reader landing: product name, \"noch keine Daten\" line, three static schemata, no button; the author's text wins; tiny without schemata",
+        Y.read[0] === "P&L Statement byDatenWG" && /noch keine Daten/.test(Y.read[1]) && Y.read[2] === 0 && Y.read[3] && Y.read[4] === 3
+        && JSON.stringify(Y.readOwn) === JSON.stringify(["GuV folgt", "Daten kommen am 5. Werktag.", 0]) && Y.readTiny.every(Boolean),
+        JSON.stringify([Y.read, Y.readOwn, Y.readTiny]));
 
     // ================================================================== 1.4 · S "🚀 Loslegen" — the first three minutes
     const S = await ev(async () => {

@@ -87,9 +87,9 @@ const treeCardItems: LocEnumMember[] = [
 ];
 
 const fontPresetItems: LocEnumMember[] = [
-    { value: "hd", displayName: "HD (compact)", key: "Enum_FontPreset_Hd" },
+    { value: "hd", displayName: "HD", key: "Enum_FontPreset_Hd" },
     { value: "fullhd", displayName: "Full HD", key: "Enum_FontPreset_FullHd" },
-    { value: "uhd", displayName: "UHD / presentation", key: "Enum_FontPreset_Uhd" }
+    { value: "uhd", displayName: "UHD", key: "Enum_FontPreset_Uhd" }
 ];
 
 const templateItems: LocEnumMember[] = [

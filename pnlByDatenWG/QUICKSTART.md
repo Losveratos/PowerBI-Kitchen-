@@ -5,7 +5,7 @@ Hierarchie plus die Kennzahlen (zwei Minuten). **Weg 2** ergänzt die Felder,
 die daraus eine echte GuV machen — Zeilentypen, Formelzeilen, Vorzeichen,
 Kommentare.
 
-Version **1.4.0.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
+Version **1.4.1.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 Web-Fassung dieser Anleitung: [`pnl-schnellstart.html`](../pnl-schnellstart.html)
 (DE) · [`pnl-schnellstart_en.html`](../pnl-schnellstart_en.html) (EN).
 

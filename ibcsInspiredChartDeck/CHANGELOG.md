@@ -1,5 +1,32 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.51.1.0 (2026-10-18)
+
+**Familien-Angleichung mit P&L: Hub-Leiste, Zurück-Pille und Leser-Karte nach einer gemeinsamen Spezifikation.**
+
+- **Hub-Leiste (jede Hub-Seite):** 1 px Trennlinie (10 % ink), 12 px / 8 px
+  Innenabstand; „Aa“-Glyph, die Pillen **HD · Full HD · UHD** (rx = h/2,
+  6 px Abstand; aktiv Teal #0E8585 mit weißer Schrift, Dark #3FB3C2 mit
+  dunkler Schrift, Hochkontrast foregroundSelected-Rahmen), dahinter der
+  Hinweis „Schriftgröße — HD für Laptops · Full HD für Monitore · UHD für
+  Beamer & 4K“ (weicht als Einziges bei Platzmangel), rechtsbündig
+  „📖 Doku öffnen“ als outlined Pille. Darunter mittig die Mikro-Signatur
+  „made by Daten-WG“ (9 px, ink-soft, 60 %). `fontPreset`-Werte unverändert.
+- **„← Zurück“** als outlined Pille links oben (Titel rechts daneben),
+  „✕ Schließen“ im Overlay in derselben Form rechts oben.
+- **Startseite:** Untertitel ink-soft, „🚀 Loslegen“ in Teal über die volle
+  Block-Breite, die vier Einstiegs-Kacheln mit Radius 10 px, Hover-/Fokus-Lift
+  (2 px + Schatten) und einheitlicher Piktogramm-Größe (64 × 44 px·k).
+- **Vorlagen-Galerie:** Gruppen-Eyebrow in GROSSBUCHSTABEN, ink-soft, 11 px·k.
+- **Lesemodus ohne Daten (Familien-Regel):** statt der klickbaren Galerie eine
+  ruhige, nicht interaktive Karte — Produktname, ink-soft-Zeile „Dieses
+  Visual hat noch keine Daten — Felder werden im Bearbeitungsmodus gebunden.“
+  (eigener Leer-Zustand-Text gewinnt) und drei statische Mini-Schemata; keine
+  Knöpfe, Pillen oder Doku-Link. Gilt auch für Hosts ohne Interaktion (Export).
+- Pixel-Regression: alle Nicht-Hub-/Nicht-Leser-Fälle byte-identisch;
+  geändert gewollt 29 Hub-Fälle und 10 Leser-Fälle (c137, c138, c205, c207,
+  c226–c226e, c233d); neue Checks c237–c238c.
+
 ## 1.51.0.0 (2026-10-18)
 
 **Hub-Polish für Self-Service von Controllern: Vorlagen nach Zweck, Schriftgröße HD · Full HD · UHD immer unten, alle Felder erklärt, „🚀 Loslegen“ und die Doku einen Klick entfernt.**
