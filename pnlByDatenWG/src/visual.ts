@@ -43,7 +43,8 @@ import {
 } from "./megatable";
 import { cascade, CascadeNode } from "./waterfall";
 import { buildDemoRows } from "./demo";
-import { templateSwitches, HUB_TEMPLATES, TOUR_CARDS, MiniSpec, miniObjects, templateNeedsFc } from "./hub";
+import { templateSwitches, HUB_TEMPLATES, TOUR_CARDS, MiniSpec, miniObjects, templateNeedsFc,
+    HUB_GALLERY, GalleryTile, FIELD_GROUPS, START_FIELD_STEPS, startFieldTicks, FONT_PRESETS, docsUrl } from "./hub";
 
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const NBSP_GROUP = " "; // narrow space, IBCS number grouping
@@ -274,7 +275,7 @@ interface MegaVals { min: boolean; py: boolean; pl: boolean }
 type Unit = "auto" | "none" | "k" | "m" | "b";
 type Density = "normal" | "compact";
 /** pages of the 1.3 Start hub */
-type HubPage = "hub" | "tour" | "templates" | "demo" | "fields";
+type HubPage = "hub" | "tour" | "templates" | "demo" | "fields" | "start";
 /** Mini chart drawn inside a driver-tree card. */
 type TreeCardMode = "months" | "delta" | "bridge";
 
@@ -670,6 +671,8 @@ export class Visual implements IVisual {
     private startArgs: { dataView: DataView | undefined; missing: string[] | null } | null = null;
     /** 1.2 echo guard of emptyState.mode written by the empty-state switches */
     private emptyPending: { mode: string; ttl: number } | null = null;
+    /** 1.4 echo guard of the hub's font size bar (style.fontPreset), the UI_ECHO_TTL pattern */
+    private fontPending: { v: string; ttl: number } | null = null;
 
     // --- 1.3 Start hub (tour · template gallery · demo · field guide) ---
     /** page of the hub; local state, never persisted */
@@ -755,6 +758,7 @@ export class Visual implements IVisual {
                 VisualFormattingSettingsModel, dataView);
             localizeSettings(this.settings, k => this.trOpt(k));
             this.syncEmptyMode();
+            this.syncFontPreset();
             this.dark = this.resolveDarkMode();
             this.applyPalette();
             if (!dataView) {
@@ -1950,6 +1954,47 @@ export class Visual implements IVisual {
         if (it) { sl.value = it; }
     }
 
+    /** 1.4 echo guard of style.fontPreset after a click in the hub's bottom bar */
+    private syncFontPreset(): void {
+        const p = this.fontPending;
+        if (!p) { return; }
+        const sl = this.settings.styleCard.fontPreset;
+        if (String(sl.value?.value) === p.v || --p.ttl <= 0) { this.fontPending = null; return; }
+        const it = (sl.items ?? []).find(x => String(x.value) === p.v);
+        if (it) { sl.value = it; }
+    }
+
+    /**
+     * 1.4 font size preset from the hub's bottom bar: writes style.fontPreset
+     * (the same property as the format pane) and redraws at once — the hub,
+     * the statement under the overlay or the demo page.
+     */
+    private setFontPreset(v: string): void {
+        const sl = this.settings.styleCard.fontPreset;
+        if (String(sl.value?.value) === v) { return; }
+        const it = (sl.items ?? []).find(x => String(x.value) === v);
+        if (!it) { return; }
+        sl.value = it;
+        this.fontPending = { v, ttl: UI_ECHO_TTL };
+        this.host.persistProperties({ merge: [{ objectName: "style", selector: null, properties: { fontPreset: v } }] });
+        this.hubFocusKey = "hub-font-" + v;
+        if (this.hubOverlay) { this.render(); this.hubRefresh(); return; }
+        if (this.demo && this.hubPage === "demo") {
+            this.render();
+            const el = this.root.querySelector<HTMLElement>(`[data-pnl="${this.hubFocusKey}"]`);
+            this.hubFocusKey = null;
+            if (el) { el.focus(); }
+            return;
+        }
+        this.hubRefresh();
+    }
+
+    /** 1.4 "📖 Doku öffnen": the online documentation through the host (IVisualHost.launchUrl) */
+    private openDocs(): void {
+        const h = this.host as IVisualHost & { launchUrl?: (url: string) => void };
+        if (typeof h.launchUrl === "function") { h.launchUrl(docsUrl(this.locale)); }
+    }
+
     /** empty-state switch (edit mode): writes emptyState.mode and shows the new start at once */
     private setEmptyMode(mode: "demo" | "fields" | "message"): void {
         const sl = this.settings.emptyStateCard.mode;
@@ -2272,7 +2317,7 @@ export class Visual implements IVisual {
     private hubGo(page: HubPage, focusKey?: string): void {
         const left = this.hubPage;
         this.hubPage = page;
-        this.hubFocusKey = focusKey ?? (page === "hub" ? "hub-tile-" + left : "hub-back");
+        this.hubFocusKey = focusKey ?? (page === "hub" ? (left === "start" ? "hub-start" : "hub-tile-" + left) : "hub-back");
         if (page === "tour") { this.hubTour = Math.max(0, Math.min(this.hubTour, TOUR_CARDS.length - 1)); }
         if (this.hubOverlay) { this.hubRefresh(); return; }
         const a = this.startArgs;
@@ -2294,7 +2339,9 @@ export class Visual implements IVisual {
         const sig = [page, this.hubTour, this.locale, this.dark ? "d" : "l", this.hubAvail(), this.vpH,
             this.megaPending ? this.megaPending.applied : String(this.settings.columnsCard.template.value.value),
             this.hubSaved ?? "", (a.missing ?? []).join("|"), this.accent(), this.pageBg(),
-            this.settings.styleCard.fontPreset.value.value, this.settings.styleCard.fontZoom.value].join("~");
+            this.settings.styleCard.fontPreset.value.value, this.settings.styleCard.fontZoom.value,
+            // 1.4 the live ticks of the field guide and the checklist, the docs button (edit mode)
+            this.hubBoundRoles().join("|"), this.hubFineTicks().join(""), this.editMode() ? "e" : ""].join("~");
         const cur = host.firstElementChild;
         if (!this.hubFocusKey && cur && cur.getAttribute("data-hub") === "" && cur.getAttribute("data-hub-sig") === sig) { return; }
         const content = this.hubContent(page);
@@ -2331,25 +2378,93 @@ export class Visual implements IVisual {
         wrap.setAttribute("data-pnl", "hub");
         wrap.setAttribute("data-hub", "");
         wrap.setAttribute("data-hub-page", page);
-        wrap.style.cssText = `padding:${this.kpx(16)} ${this.kpx(18)} ${this.kpx(18)} ${this.kpx(18)};` +
+        // 1.4 a column that fills the host: the page grows, the bottom bar sits at the lower edge
+        wrap.style.cssText = `padding:${this.kpx(16)} ${this.kpx(18)} 0 ${this.kpx(18)};min-height:100%;` +
+            "display:flex;flex-direction:column;" +
             `box-sizing:border-box;color:${C.text};font-size:${this.kpx(11)};line-height:1.5;`;
         wrap.addEventListener("keydown", (e: KeyboardEvent) => this.hubKey(e, page));
         const titles: Record<HubPage, string> = {
             hub: "P&L Statement byDatenWG", tour: this.tr("UI_HubTour"), templates: this.tr("UI_HubTpl"),
-            demo: this.tr("UI_EsDemo"), fields: this.tr("UI_EsFields"),
+            demo: this.tr("UI_EsDemo"), fields: this.tr("UI_EsFields"), start: this.tr("UI_GoTitle"),
         };
         wrap.appendChild(this.hubHeader(titles[page], page !== "hub"));
-        if (page === "tour") { wrap.appendChild(this.hubTourPage()); }
-        else if (page === "templates") { wrap.appendChild(this.hubTemplatesPage()); }
-        else if (page === "fields") {
-            const a = this.hubArgs();
-            const g = this.fieldGuide(a.dataView, a.missing, true);
-            g.style.padding = "0";
-            wrap.appendChild(g);
-        }
-        else if (page === "demo") { wrap.appendChild(this.hubDemoPage()); }
-        else { wrap.appendChild(this.hubHome()); }
+        const body = document.createElement("div");
+        body.setAttribute("data-pnl", "hub-body");
+        body.style.cssText = `flex:1 0 auto;padding-bottom:${this.kpx(16)};`;
+        if (page === "tour") { body.appendChild(this.hubTourPage()); }
+        else if (page === "templates") { body.appendChild(this.hubTemplatesPage()); }
+        else if (page === "fields") { body.appendChild(this.hubFieldsPage()); }
+        else if (page === "start") { body.appendChild(this.hubStartPage()); }
+        else if (page === "demo") { body.appendChild(this.hubDemoPage()); }
+        else { body.appendChild(this.hubHome()); }
+        wrap.appendChild(body);
+        wrap.appendChild(this.hubFooter());
         return wrap;
+    }
+
+    /**
+     * 1.4 the bottom bar of every hub page: the three font size presets first
+     * (HD · Full HD · UHD — the format pane's style.fontPreset, active one
+     * marked, a click persists with an echo guard), then "📖 Doku öffnen"
+     * (edit mode only, through IVisualHost.launchUrl). Sticky: it stays at the
+     * lower edge while the page scrolls.
+     */
+    private hubFooter(): HTMLElement {
+        const bar = document.createElement("div");
+        bar.setAttribute("data-pnl", "hub-footer");
+        const pad = this.k(18);
+        bar.style.cssText = `position:sticky;bottom:0;z-index:5;margin:0 -${pad}px;padding:${this.kpx(8)} ${pad}px;` +
+            `display:flex;align-items:center;gap:${this.kpx(10)};flex-wrap:wrap;background:${this.pageBg()};` +
+            `border-top:1px solid ${C.cardEdge};font-family:${FONT};`;
+        const seg = document.createElement("div");
+        seg.setAttribute("data-pnl", "hub-font");
+        seg.setAttribute("role", "group");
+        seg.setAttribute("aria-label", this.tr("UI_HubFont"));
+        seg.style.cssText = `display:flex;gap:${this.kpx(4)};`;
+        const cur = String(this.settings.styleCard.fontPreset.value?.value ?? "hd");
+        for (const p of FONT_PRESETS) {
+            const on = cur === p.value;
+            const b = this.hubBtn(p.label, () => this.setFontPreset(p.value),
+                { key: "hub-font-" + p.value, primary: on, tip: this.tr("UI_HubFontTip", p.label) });
+            b.setAttribute("aria-pressed", on ? "true" : "false");
+            b.style.padding = `${this.kpx(3.5)} ${this.kpx(10)}`;
+            seg.appendChild(b);
+        }
+        bar.appendChild(seg);
+        const note = document.createElement("span");
+        note.style.cssText = `color:${C.soft};font-size:${this.kpx(10)};flex:1 1 auto;min-width:0;`;
+        note.textContent = this.tr("UI_HubFont");
+        bar.appendChild(note);
+        if (this.editMode()) {
+            bar.appendChild(this.hubBtn(this.tr("UI_HubDocs"), () => this.openDocs(),
+                { key: "hub-docs", tip: this.tr("UI_HubDocsTip") }));
+        }
+        return bar;
+    }
+
+    /** the bound data roles the hub reads (field guide, checklist), sorted */
+    private hubBoundRoles(): string[] {
+        const dv = this.hubArgs().dataView;
+        // the metadata columns, and the sources of the categorical columns (hosts that send only those)
+        const cols: { roles?: { [r: string]: boolean } }[] = [...(dv?.metadata?.columns ?? []),
+            ...(dv?.categorical?.categories ?? []).map(c => c.source),
+            ...(dv?.categorical?.values ?? []).map(v => v.source)];
+        const set = new Set<string>();
+        for (const c of cols) { for (const r of Object.keys(c?.roles ?? {})) { if (c.roles![r]) { set.add(r); } } }
+        return [...set].sort();
+    }
+
+    /** step ③ of the checklist: house terms · thresholds / materiality · decimals (1 = set) */
+    private hubFineTicks(): number[] {
+        const s = this.settings;
+        if (!s) { return [0, 0, 0]; }
+        const lc = s.labelsCard;
+        const terms = [lc.labelAc, lc.labelPy, lc.labelPl, lc.labelFc].some(x => String(x.value ?? "").trim() !== "");
+        const cc = s.columnsCard;
+        const thr = this.megaSliceIs("thresholds", true) || Number(cc.materialityAbs.value) > 0 || Number(cc.materialityPct.value) > 0;
+        const nc = s.numbersCard;
+        const dec = Number(nc.decimals.value) !== 1 || Number(nc.pctDecimals.value) !== 1;
+        return [terms ? 1 : 0, thr ? 1 : 0, dec ? 1 : 0];
     }
 
     private hubHeader(title: string, back: boolean): HTMLElement {
@@ -2444,6 +2559,7 @@ export class Visual implements IVisual {
             miss.textContent = this.tr("UI_DemoMissing", a.missing.join(" · "));
             wrap.appendChild(miss);
         }
+        wrap.appendChild(this.hubStartHero());
         const grid = document.createElement("div");
         grid.setAttribute("data-pnl", "hub-tiles");
         // two by two; one column where two do not fit
@@ -2464,6 +2580,38 @@ export class Visual implements IVisual {
         note.textContent = this.tr("UI_HubReaderNote");
         wrap.appendChild(note);
         return wrap;
+    }
+
+    /** 1.4 "🚀 Loslegen": the wide accent button above the four tiles — the guided first three minutes */
+    private hubStartHero(): HTMLElement {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("data-pnl", "hub-start");
+        this.kbRing(b);
+        const acc = this.accent();
+        const on = this.onAccent();
+        b.style.cssText = `display:flex;align-items:center;gap:${this.kpx(14)};width:100%;max-width:${this.k(760)}px;` +
+            `box-sizing:border-box;text-align:left;font-family:${FONT};color:${on};background:${acc};` +
+            `border:1px solid ${acc};border-radius:8px;padding:${this.kpx(12)} ${this.kpx(16)};cursor:pointer;` +
+            `margin-bottom:${this.kpx(12)};box-shadow:${C.shadow};transition:${TRANSITION};`;
+        const txt = document.createElement("span");
+        txt.style.cssText = "display:flex;flex-direction:column;gap:3px;min-width:0;flex:1 1 auto;";
+        const t = document.createElement("span");
+        t.textContent = this.tr("UI_GoTitle");
+        t.style.cssText = `font-size:${this.kpx(15)};font-weight:700;line-height:1.3;`;
+        const d = document.createElement("span");
+        d.textContent = this.tr("UI_GoSub");
+        d.style.cssText = `font-size:${this.kpx(11)};line-height:1.45;opacity:.9;`;
+        txt.appendChild(t); txt.appendChild(d);
+        const arrow = document.createElement("span");
+        arrow.setAttribute("aria-hidden", "true");
+        arrow.textContent = "→";
+        arrow.style.cssText = `font-size:${this.kpx(18)};font-weight:700;flex:none;`;
+        b.appendChild(txt); b.appendChild(arrow);
+        b.onmouseenter = (): void => { b.style.boxShadow = C.shadowHover; b.style.transform = "translateY(-1px)"; };
+        b.onmouseleave = (): void => { b.style.boxShadow = C.shadow; b.style.transform = ""; };
+        b.onclick = (e: Event): void => { e.stopPropagation(); this.hubGo("start"); };
+        return b;
     }
 
     /** one big button of the home page: number badge, title, one line */
@@ -2666,19 +2814,40 @@ export class Visual implements IVisual {
             wrap.appendChild(note);
         }
         const active = this.megaPending ? this.megaPending.applied : String(this.settings.columnsCard.template.value.value);
+        // 1.4 four purpose groups instead of the T-number list; bigger previews
         const avail = this.hubAvail();
-        const gap = this.k(12);
-        const minTile = this.k(210);
+        const gap = this.k(14);
+        const minTile = this.k(240);
         const cols = Math.max(1, Math.floor((avail + gap) / (minTile + gap)));
         const tileW = Math.floor((avail - gap * (cols - 1)) / cols);
-        const pad = this.k(8);
-        const grid = document.createElement("div");
-        grid.setAttribute("data-pnl", "hub-tpl-grid");
-        grid.style.cssText = `display:grid;grid-template-columns:repeat(${cols},${tileW}px);gap:${gap}px;`;
-        for (const tpl of HUB_TEMPLATES) {
-            grid.appendChild(this.hubTemplateTile(tpl, tileW, pad, tpl === active));
+        const pad = this.k(9);
+        for (const g of HUB_GALLERY) {
+            const sec = document.createElement("section");
+            sec.setAttribute("data-pnl", "tpl-group-" + g.id);
+            sec.style.cssText = `margin-top:${this.kpx(14)};`;
+            const head = document.createElement("div");
+            head.style.cssText = `display:flex;align-items:baseline;gap:${this.kpx(10)};flex-wrap:wrap;margin-bottom:${this.kpx(8)};` +
+                `padding-bottom:${this.kpx(4)};border-bottom:1px solid ${C.cardEdge};`;
+            const h = document.createElement("div");
+            h.setAttribute("role", "heading");
+            h.setAttribute("aria-level", "2");
+            h.setAttribute("data-pnl", "tpl-group-title");
+            h.style.cssText = `font-size:${this.kpx(13)};font-weight:700;`;
+            h.textContent = this.tr(g.title);
+            const sub = document.createElement("div");
+            sub.style.cssText = `color:${C.soft};font-size:${this.kpx(10.5)};`;
+            sub.textContent = this.tr(g.sub);
+            head.appendChild(h); head.appendChild(sub);
+            sec.appendChild(head);
+            const grid = document.createElement("div");
+            grid.setAttribute("data-pnl", "hub-tpl-grid");
+            grid.style.cssText = `display:grid;grid-template-columns:repeat(${cols},${tileW}px);gap:${gap}px;`;
+            for (const t of g.tiles) {
+                grid.appendChild(this.hubTemplateTile(t, tileW, pad, t.tpl === active));
+            }
+            sec.appendChild(grid);
+            wrap.appendChild(sec);
         }
-        wrap.appendChild(grid);
         return wrap;
     }
 
@@ -2690,49 +2859,66 @@ export class Visual implements IVisual {
         return i > 0 ? full.slice(0, i) : full;
     }
 
-    private hubTemplateTile(tpl: string, tileW: number, pad: number, active: boolean): HTMLElement {
+    /**
+     * 1.4 a gallery tile: big preview, the finance title, the T number as a
+     * small badge, one line of use; hover lifts it, the active tile carries an
+     * accent frame, a tinted ground and a "✓ aktiv" pill.
+     */
+    private hubTemplateTile(t: GalleryTile, tileW: number, pad: number, active: boolean): HTMLElement {
+        const tpl = t.tpl;
         const full = tpl === "off" ? "" : (this.trOpt("Enum_Template_" + tpl) ?? tpl);
         const cut = full.indexOf(" · ");
-        const code = this.tplCode(tpl);
-        const desc = cut > 0 ? full.slice(cut + 3) : "";
+        const code = tpl === "off" ? "—" : this.tplCode(tpl);
+        const desc = cut > 0 ? full.slice(cut + 3) : this.tr("UI_TplOff");
+        const title = this.tr(t.title);
         const b = document.createElement("button");
         b.type = "button";
         b.setAttribute("data-pnl", "tpl-" + tpl);
         b.setAttribute("data-active", active ? "1" : "0");
         b.setAttribute("aria-pressed", active ? "true" : "false");
-        b.setAttribute("aria-label", this.tr("UI_TplPick", code + (desc ? " " + desc : "")));
-        b.title = desc || code;
+        b.setAttribute("aria-label", this.tr("UI_TplPick", title + (tpl === "off" ? "" : " (" + code + ")")));
+        b.title = (tpl === "off" ? "" : code + " · ") + desc;
         this.kbRing(b);
         const acc = this.accent();
         const edge = active ? acc : C.cardEdge;
-        b.style.cssText = `display:flex;flex-direction:column;gap:${this.kpx(6)};text-align:left;font-family:${FONT};` +
-            `color:${C.text};background:${C.paper};border:${active ? 2 : 1}px solid ${edge};border-radius:8px;` +
+        const ground = active ? this.accentSoft(0.93) : C.paper;
+        b.style.cssText = `position:relative;display:flex;flex-direction:column;gap:${this.kpx(7)};text-align:left;font-family:${FONT};` +
+            `color:${C.text};background:${ground};border:${active ? 2 : 1}px solid ${edge};border-radius:10px;` +
             `padding:${active ? pad - 1 : pad}px;width:${tileW}px;box-sizing:border-box;cursor:pointer;` +
-            `box-shadow:${C.shadow};transition:${TRANSITION};`;
-        const spec: MiniSpec = { view: "table", tpl, level: 2, w: 1100, h: 640, fc: templateNeedsFc(tpl) };
+            `box-shadow:${active ? C.shadowHover : C.shadow};transition:${TRANSITION};`;
+        const spec: MiniSpec = { view: "table", tpl, level: 2, w: 1100, h: 620, fc: templateNeedsFc(tpl) };
         b.appendChild(this.hubMini(spec, tileW - 2 * pad - 2));
+        // the T number: a small badge on the preview's top right corner
+        const badge = document.createElement("span");
+        badge.setAttribute("data-pnl", "tplcode");
+        badge.textContent = tpl === "off" ? this.tr("UI_TplOffBadge") : code;
+        badge.style.cssText = `position:absolute;top:${pad + 6}px;right:${pad + 6}px;font-size:${this.kpx(9.5)};font-weight:700;` +
+            `letter-spacing:.04em;line-height:1.5;padding:0 ${this.kpx(6)};border-radius:9px;` +
+            `background:${C.paper};color:${C.text};border:1px solid ${C.cardEdgeHover};box-shadow:${C.shadow};`;
+        b.appendChild(badge);
         const cap = document.createElement("div");
-        cap.style.cssText = "display:flex;flex-direction:column;gap:2px;min-width:0;";
+        cap.style.cssText = "display:flex;flex-direction:column;gap:3px;min-width:0;";
         const head = document.createElement("div");
-        head.style.cssText = "display:flex;align-items:baseline;gap:8px;";
+        head.style.cssText = "display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;";
         const c = document.createElement("span");
-        c.textContent = code;
-        c.style.cssText = `font-size:${this.kpx(12)};font-weight:700;`;
+        c.setAttribute("data-pnl", "tpl-title");
+        c.textContent = title;
+        c.style.cssText = `font-size:${this.kpx(12.5)};font-weight:700;line-height:1.3;`;
         head.appendChild(c);
         if (active) {
             const a = document.createElement("span");
             a.setAttribute("data-pnl", "tpl-active");
             a.textContent = "✓ " + this.tr("UI_TplActive");
-            a.style.cssText = `font-size:${this.kpx(9.5)};font-weight:700;color:${acc};letter-spacing:.04em;`;
+            a.style.cssText = `font-size:${this.kpx(9.5)};font-weight:700;color:${this.onAccent()};background:${acc};` +
+                `letter-spacing:.04em;border-radius:9px;padding:0 ${this.kpx(6)};line-height:1.6;`;
             head.appendChild(a);
         }
         cap.appendChild(head);
-        if (desc) {
-            const d = document.createElement("span");
-            d.textContent = desc;
-            d.style.cssText = `font-size:${this.kpx(10)};color:${C.soft};line-height:1.35;`;
-            cap.appendChild(d);
-        }
+        const u = document.createElement("span");
+        u.setAttribute("data-pnl", "tpl-use");
+        u.textContent = this.tr(t.use);
+        u.style.cssText = `font-size:${this.kpx(10.5)};color:${C.soft};line-height:1.4;`;
+        cap.appendChild(u);
         if (tpl !== "off" && templateNeedsFc(tpl)) {
             const f = document.createElement("span");
             f.textContent = this.tr("UI_TplFcNote");
@@ -2740,10 +2926,282 @@ export class Visual implements IVisual {
             cap.appendChild(f);
         }
         b.appendChild(cap);
-        b.onmouseenter = (): void => { if (!active) { b.style.borderColor = acc; } b.style.boxShadow = C.shadowHover; };
-        b.onmouseleave = (): void => { b.style.borderColor = edge; b.style.boxShadow = C.shadow; };
+        b.onmouseenter = (): void => {
+            b.style.borderColor = acc; b.style.boxShadow = C.shadowHover; b.style.transform = "translateY(-2px)";
+        };
+        b.onmouseleave = (): void => {
+            b.style.borderColor = edge; b.style.boxShadow = active ? C.shadowHover : C.shadow; b.style.transform = "";
+        };
         b.onclick = (e: Event): void => { e.stopPropagation(); this.hubPickTemplate(tpl); };
         return b;
+    }
+
+    // ---- 1.4 field guide (all roles + two premises) ----
+
+    /**
+     * 1.4 the hub's field guide: every data role of the visual with one
+     * sentence of purpose and a live ✓, grouped (required · scenarios & time ·
+     * statement logic · extras), above it two premises — the IBCS notation
+     * and "structure vs. time". (The 1.2 field guide of emptyState.mode =
+     * fields stays as it was.)
+     */
+    private hubFieldsPage(): HTMLElement {
+        const a = this.hubArgs();
+        const bound = new Set(this.hubBoundRoles());
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "field-guide");
+        wrap.setAttribute("data-fg", "1.4");
+        const intro = document.createElement("div");
+        intro.style.cssText = `color:${C.soft};max-width:${this.k(680)}px;margin-bottom:${this.kpx(8)};`;
+        intro.textContent = this.tr("UI_FiIntro");
+        wrap.appendChild(intro);
+        if (a.missing && a.missing.length > 0) {
+            const miss = document.createElement("div");
+            miss.setAttribute("data-pnl", "fi-missing");
+            miss.style.cssText = `color:${C.loading};font-weight:600;margin-bottom:${this.kpx(8)};`;
+            miss.textContent = this.tr("UI_DemoMissing", a.missing.join(" · "));
+            wrap.appendChild(miss);
+        }
+        // the two premises, side by side where they fit
+        const prem = document.createElement("div");
+        const two = this.hubAvail() >= this.k(640);
+        prem.style.cssText = `display:grid;grid-template-columns:repeat(${two ? 2 : 1},minmax(0,1fr));gap:${this.kpx(12)};` +
+            `margin-bottom:${this.kpx(6)};max-width:${this.k(900)}px;`;
+        prem.appendChild(this.premiseNotation());
+        prem.appendChild(this.premiseStructureTime());
+        wrap.appendChild(prem);
+        // one grid for all four groups: the name and text columns line up across the groups
+        const grid = document.createElement("div");
+        grid.setAttribute("data-pnl", "fg-grid");
+        grid.style.cssText = `display:grid;grid-template-columns:${this.kpx(14)} minmax(${this.kpx(120)},max-content) minmax(0,1fr);` +
+            `column-gap:${this.kpx(10)};row-gap:${this.kpx(4)};align-items:baseline;max-width:${this.k(900)}px;`;
+        wrap.appendChild(grid);
+        for (const g of FIELD_GROUPS) {
+            const cap = this.capsLabel(this.tr(g.title));
+            cap.setAttribute("data-pnl", "fg-" + g.id);
+            cap.style.gridColumn = "1 / -1";
+            cap.style.marginTop = this.kpx(8);
+            grid.appendChild(cap);
+            for (const r of g.roles) {
+                const on = bound.has(r.role);
+                const mark = document.createElement("span");
+                mark.setAttribute("data-pnl", "fr-" + r.role);
+                mark.setAttribute("data-on", on ? "1" : "0");
+                mark.style.cssText = `color:${on ? this.goodColor() : C.soft};font-weight:700;`;
+                mark.textContent = on ? "✓" : "○";
+                const name = document.createElement("span");
+                name.style.cssText = "font-weight:600;white-space:nowrap;";
+                if (r.chip) { name.appendChild(this.legendChip(r.chip)); }
+                name.appendChild(document.createTextNode(this.trOpt(r.name) ?? r.role));
+                const text = document.createElement("span");
+                text.style.cssText = `color:${C.soft};`;
+                text.textContent = this.tr(r.text);
+                grid.appendChild(mark); grid.appendChild(name); grid.appendChild(text);
+            }
+        }
+        const hint = document.createElement("div");
+        hint.style.cssText = `color:${C.soft};font-style:italic;margin-top:${this.kpx(12)};max-width:${this.k(760)}px;`;
+        hint.textContent = this.tr("UI_FiHint");
+        wrap.appendChild(hint);
+        return wrap;
+    }
+
+    /** a premise box of the field guide: dashed frame on the wash, caps head */
+    private premiseBox(key: string, title: string): HTMLElement {
+        const box = document.createElement("div");
+        box.setAttribute("data-pnl", key);
+        box.style.cssText = `padding:${this.kpx(9)} ${this.kpx(12)};border:1px dashed ${C.ctlEdge};border-radius:6px;` +
+            `background:${C.wash};color:${C.text};min-width:0;`;
+        const cap = this.capsLabel(title);
+        cap.style.marginBottom = this.kpx(4);
+        box.appendChild(cap);
+        return box;
+    }
+
+    /** premise (a): the IBCS notation in four lines — the chips of the legend */
+    private premiseNotation(): HTMLElement {
+        const box = this.premiseBox("fi-notation", this.tr("UI_FpNotation"));
+        const rows: ["ac" | "py" | "pl" | "fc", string][] = [
+            ["ac", "UI_FpAc"], ["py", "UI_FpPy"], ["pl", "UI_FpPl"], ["fc", "UI_FpFc"],
+        ];
+        for (const [chip, key] of rows) {
+            const line = document.createElement("div");
+            line.setAttribute("data-pnl", "fi-note-" + chip);
+            line.appendChild(this.legendChip(chip));
+            line.appendChild(document.createTextNode(this.tr(key)));
+            box.appendChild(line);
+        }
+        const rule = document.createElement("div");
+        rule.setAttribute("data-pnl", "fi-note-rule");
+        rule.style.cssText = `margin-top:${this.kpx(4)};font-weight:600;`;
+        rule.textContent = this.tr("UI_FpRule");
+        box.appendChild(rule);
+        return box;
+    }
+
+    /** premise (b): structure vertical in rows, time horizontal in blocks — with a mini pictogram */
+    private premiseStructureTime(): HTMLElement {
+        const box = this.premiseBox("fi-axes", this.tr("UI_FpAxes"));
+        const row = document.createElement("div");
+        row.style.cssText = `display:flex;gap:${this.kpx(12)};align-items:center;flex-wrap:wrap;`;
+        row.appendChild(this.axesPictogram());
+        const t = document.createElement("div");
+        t.style.cssText = `flex:1 1 ${this.k(150)}px;min-width:0;`;
+        t.textContent = this.tr("UI_FpAxesX");
+        row.appendChild(t);
+        box.appendChild(row);
+        return box;
+    }
+
+    /** the mini pictogram of premise (b): rows downwards, the period blocks Monat | _YTD | FY across */
+    private axesPictogram(): SVGSVGElement {
+        const NS = "http://www.w3.org/2000/svg";
+        const s = this.fontScale();
+        const W = 196; const H = 92;
+        const svg = document.createElementNS(NS, "svg");
+        svg.setAttribute("data-pnl", "fi-axes-pic");
+        svg.setAttribute("width", String(Math.round(W * s)));
+        svg.setAttribute("height", String(Math.round(H * s)));
+        svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+        svg.setAttribute("aria-hidden", "true");
+        svg.style.cssText = "flex:none;display:block;";
+        const el = (tag: string, at: Record<string, string | number>, text?: string): SVGElement => {
+            const e = document.createElementNS(NS, tag);
+            for (const [k, v] of Object.entries(at)) { e.setAttribute(k, String(v)); }
+            if (text != null) { e.textContent = text; }
+            svg.appendChild(e);
+            return e;
+        };
+        const font = { "font-family": FONT, "font-size": 8.5 };
+        // time across: three blocks with their heads
+        const blocks = [this.tr("UI_FpMonth"), "_YTD", "FY"];
+        const x0 = 58; const bw = 44; const bg = 3;
+        blocks.forEach((b, i) => {
+            const x = x0 + i * (bw + bg);
+            el("rect", { x, y: 14, width: bw, height: 74, fill: C.paper, stroke: C.cardEdgeHover, "stroke-width": 0.8, rx: 2 });
+            el("text", { x: x + bw / 2, y: 24, "text-anchor": "middle", fill: C.text, "font-weight": 700, ...font }, b);
+        });
+        el("text", { x: x0, y: 8, fill: C.soft, ...font, "font-size": 7.5 }, this.tr("UI_FpTime") + " →");
+        // structure down: five rows, the bars of each block
+        const vals = [0.9, 0.55, 0.7, 0.35, 0.8];
+        vals.forEach((v, r) => {
+            const y = 32 + r * 11;
+            el("rect", { x: 4, y: y + 1, width: r === 2 ? 40 : 32 - (r % 2) * 6, height: 5, fill: r === 2 ? C.text : C.soft, rx: 1 });
+            blocks.forEach((_, i) => {
+                const x = x0 + i * (bw + bg) + 6;
+                el("rect", { x, y: y + 1, width: Math.round((bw - 12) * v * (1 - i * 0.12)), height: 6, fill: C.ac });
+            });
+        });
+        el("text", { x: 4, y: 24, fill: C.soft, ...font, "font-size": 7.5 }, this.tr("UI_FpRows") + " ↓");
+        return svg;
+    }
+
+    // ---- 1.4 "🚀 Loslegen": the first three minutes ----
+
+    /**
+     * A guided checklist, live and never persisted: ① bind the fields (ticks
+     * per required / recommended role, the quick way with level columns first),
+     * ② pick a template (jump into the gallery), ③ fine tuning (house terms,
+     * thresholds, decimals — where in the format pane).
+     */
+    private hubStartPage(): HTMLElement {
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "hub-go");
+        const intro = document.createElement("div");
+        intro.style.cssText = `color:${C.soft};max-width:${this.k(680)}px;margin-bottom:${this.kpx(10)};`;
+        intro.textContent = this.tr("UI_GoIntro");
+        wrap.appendChild(intro);
+        const bound = new Set(this.hubBoundRoles());
+        const ticks = startFieldTicks(r => bound.has(r));
+        const fieldsDone = START_FIELD_STEPS.filter(s => s.required).every(s => ticks[s.id]);
+        const active = this.megaPending ? this.megaPending.applied : String(this.settings.columnsCard.template.value.value);
+        const tplDone = active !== "off" || this.hubSaved != null;
+        const fine = this.hubFineTicks();
+
+        const list = document.createElement("div");
+        list.style.cssText = `display:flex;flex-direction:column;gap:${this.kpx(10)};max-width:${this.k(760)}px;`;
+        const step = (n: number, title: string, done: boolean, body: HTMLElement[]): void => {
+            const card = document.createElement("div");
+            card.setAttribute("data-pnl", "go-step-" + n);
+            card.setAttribute("data-done", done ? "1" : "0");
+            card.style.cssText = `display:flex;gap:${this.kpx(12)};align-items:flex-start;padding:${this.kpx(12)} ${this.kpx(14)};` +
+                `background:${C.paper};border:1px solid ${done ? this.goodColor() : C.cardEdge};border-radius:8px;box-shadow:${C.shadow};`;
+            const badge = document.createElement("span");
+            badge.setAttribute("aria-hidden", "true");
+            badge.textContent = done ? "✓" : String(n);
+            badge.style.cssText = `flex:none;width:${this.kpx(24)};height:${this.kpx(24)};border-radius:50%;` +
+                `background:${done ? this.goodColor() : this.accent()};color:${done ? "#FFF" : this.onAccent()};` +
+                `font-size:${this.kpx(12)};font-weight:700;display:flex;align-items:center;justify-content:center;`;
+            const col = document.createElement("div");
+            col.style.cssText = `display:flex;flex-direction:column;gap:${this.kpx(5)};min-width:0;flex:1 1 auto;`;
+            const h = document.createElement("div");
+            h.style.cssText = `font-size:${this.kpx(13.5)};font-weight:700;line-height:1.3;`;
+            h.textContent = title;
+            col.appendChild(h);
+            for (const x of body) { col.appendChild(x); }
+            card.appendChild(badge); card.appendChild(col);
+            list.appendChild(card);
+        };
+        const line = (key: string, on: boolean, text: string, tag?: string): HTMLElement => {
+            const d = document.createElement("div");
+            d.setAttribute("data-pnl", key);
+            d.setAttribute("data-on", on ? "1" : "0");
+            d.style.cssText = `display:flex;gap:${this.kpx(8)};align-items:baseline;`;
+            const m = document.createElement("span");
+            m.style.cssText = `flex:none;width:${this.kpx(12)};color:${on ? this.goodColor() : C.soft};font-weight:700;`;
+            m.textContent = on ? "✓" : "○";
+            const t = document.createElement("span");
+            t.style.cssText = "min-width:0;";
+            t.textContent = text;
+            d.appendChild(m); d.appendChild(t);
+            if (tag) {
+                const g = document.createElement("span");
+                g.textContent = tag;
+                g.style.cssText = `flex:none;font-size:${this.kpx(8.5)};letter-spacing:.06em;text-transform:uppercase;font-weight:700;` +
+                    `color:${C.soft};border:1px solid ${C.ctlEdge};border-radius:3px;padding:0 ${this.kpx(4)};`;
+                d.appendChild(g);
+            }
+            return d;
+        };
+        const soft = (key: string): HTMLElement => {
+            const d = document.createElement("div");
+            d.style.cssText = `color:${C.soft};font-size:${this.kpx(10.5)};`;
+            d.textContent = this.tr(key);
+            return d;
+        };
+        const btnRow = (...b: HTMLElement[]): HTMLElement => {
+            const r = document.createElement("div");
+            r.style.cssText = `display:flex;gap:${this.kpx(8)};flex-wrap:wrap;margin-top:${this.kpx(2)};`;
+            for (const x of b) { r.appendChild(x); }
+            return r;
+        };
+
+        // ① fields: the quick way first (level columns), then AC, then the recommended roles
+        step(1, this.tr("UI_GoStep1"), fieldsDone, [
+            soft("UI_GoStep1X"),
+            ...START_FIELD_STEPS.map(s => line("go-f-" + s.id, ticks[s.id], this.tr(s.text),
+                this.tr(s.required ? "UI_GoRequired" : "UI_GoRecommended"))),
+            btnRow(this.hubBtn(this.tr("UI_GoAllFields"), () => this.hubGo("fields", "hub-back"), { key: "go-fields" })),
+        ]);
+        // ② template: where it stands, and the jump into the gallery
+        const tplNow = this.hubSaved != null ? this.hubSaved : active;
+        const tplTile = HUB_GALLERY.flatMap(g => g.tiles).find(t => t.tpl === tplNow);
+        const tplName = tplTile ? this.tr(tplTile.title) + (tplNow === "off" ? "" : " (" + this.tplCode(tplNow) + ")") : tplNow;
+        step(2, this.tr("UI_GoStep2"), tplDone, [
+            soft("UI_GoStep2X"),
+            line("go-tpl-state", tplDone, this.tr(tplDone ? "UI_GoTplSet" : "UI_GoTplNone", tplName)),
+            btnRow(this.hubBtn(this.tr("UI_GoToGallery"), () => this.hubGo("templates", "hub-back"),
+                { key: "go-templates", primary: !tplDone })),
+        ]);
+        // ③ fine tuning: house terms · thresholds · decimals, with their place in the format pane
+        step(3, this.tr("UI_GoStep3"), fine.every(x => x === 1), [
+            soft("UI_GoStep3X"),
+            line("go-fine-terms", fine[0] === 1, this.tr("UI_GoFineTerms")),
+            line("go-fine-thresholds", fine[1] === 1, this.tr("UI_GoFineThresholds")),
+            line("go-fine-decimals", fine[2] === 1, this.tr("UI_GoFineDecimals")),
+        ]);
+        wrap.appendChild(list);
+        return wrap;
     }
 
     /**
@@ -2774,7 +3232,8 @@ export class Visual implements IVisual {
     private hubDemoPage(): HTMLElement {
         const host = this.hubHost();
         const w = Math.max(300, (host.clientWidth || this.vpW) - 2 * this.k(18));
-        const h = Math.max(220, (host.clientHeight || this.vpH) - this.k(76));
+        // header above, the bottom bar below (1.4)
+        const h = Math.max(220, (host.clientHeight || this.vpH) - this.k(76) - this.k(48));
         const box = document.createElement("div");
         box.setAttribute("data-pnl", "hub-demo");
         box.style.cssText = `position:relative;width:${w}px;height:${h}px;border:1px solid ${C.ctlEdge};border-radius:4px;overflow:hidden;`;
@@ -2792,12 +3251,14 @@ export class Visual implements IVisual {
         b.textContent = this.tr("UI_HubOpen");
         b.title = this.tr("UI_HubOpenTip");
         this.kbRing(b);
-        // quiet: no frame until hovered — the toolbar's own groups keep the eye
-        b.style.cssText = `margin-left:auto;font-family:${FONT};font-size:${this.kpx(10.5)};line-height:1.35;` +
-            `padding:${this.kpx(3.5)} ${this.kpx(8)};cursor:pointer;border-radius:4px;color:${C.soft};` +
-            `background:transparent;border:1px solid transparent;transition:${TRANSITION};`;
-        b.onmouseenter = (): void => { b.style.background = C.ctlHover; b.style.borderColor = C.ctlEdge; b.style.color = C.text; };
-        b.onmouseleave = (): void => { b.style.background = "transparent"; b.style.borderColor = "transparent"; b.style.color = C.soft; };
+        // 1.4 prominent: the first control of the toolbar, accent frame and text,
+        // filled on hover — the way into tour, templates, fields and docs
+        const acc = this.accent();
+        b.style.cssText = `font-family:${FONT};font-size:${this.kpx(10.5)};line-height:1.35;font-weight:600;` +
+            `padding:${this.kpx(3.5)} ${this.kpx(10)};cursor:pointer;border-radius:4px;color:${acc};` +
+            `background:${C.paper};border:1px solid ${acc};transition:${TRANSITION};`;
+        b.onmouseenter = (): void => { b.style.background = acc; b.style.color = this.onAccent(); };
+        b.onmouseleave = (): void => { b.style.background = C.paper; b.style.color = acc; };
         b.onclick = (e: Event): void => { e.stopPropagation(); this.openHub(); };
         return b;
     }
@@ -2965,6 +3426,13 @@ export class Visual implements IVisual {
             return;
         }
         this.renderView();
+        // 1.4 the hub's demo page (no fields, emptyState.mode = hub) carries the hub's bottom bar too
+        if (this.demo && !this.miniSpec && this.hubPage === "demo" && !this.hubOverlay && this.emptyMode() === "hub") {
+            const f = this.hubFooter();
+            f.style.margin = "0";
+            f.style.padding = `${this.kpx(8)} 14px`;
+            this.root.appendChild(f);
+        }
     }
 
     private renderView(): void {
@@ -3618,6 +4086,9 @@ export class Visual implements IVisual {
         // Δ reference and the unit reach the zoom chart, so only those two stay —
         // the header belongs to the back button and the breadcrumb.
         const inZoom = ui.view === "tree" && ui.treeZoom != null;
+        // 1.3/1.4 the Start hub as an overlay — an authoring aid, edit mode only;
+        // since 1.4 the first control of the toolbar, framed in the accent
+        if (this.editMode() && !this.miniSpec) { bar.appendChild(this.hubOpenButton()); }
         // 1.2 template picker first — edit mode only (an authoring control, it
         // writes the format pane), table view only (templates shape the table)
         if (tset.showTemplate.value && this.editMode() && ui.view === "table") {
@@ -3806,8 +4277,6 @@ export class Visual implements IVisual {
             this.tbBtn(this.tr("UI_TbHideZero"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
             this.tbBtn(this.tr("UI_TbFit"), ui.fit, () => { ui.fit = !ui.fit; }, this.tr("UI_TbFitTip")),
         ])); }
-        // 1.3 the Start hub as an overlay — an authoring aid, edit mode only
-        if (this.editMode() && !this.miniSpec) { bar.appendChild(this.hubOpenButton()); }
         return bar;
     }
 

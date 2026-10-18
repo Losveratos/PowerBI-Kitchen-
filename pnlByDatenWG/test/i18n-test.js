@@ -71,6 +71,9 @@ test("every tr(\"…\") key of the visual exists", () => {
     const used = new Set([...src.matchAll(/\btr\("([A-Za-z0-9_]+)"/g)].map(m => m[1]));
     // keys handed around as strings (trMsg rules, demo names)
     for (const m of src.matchAll(/"(UI_[A-Za-z0-9_]+)"/g)) { used.add(m[1]); }
+    // 1.4: the hub's catalogues (gallery groups + tiles, field roles, checklist) name their keys in src/hub.ts
+    const hub = fs.readFileSync(path.join(ROOT, "src/hub.ts"), "utf8");
+    for (const m of hub.matchAll(/"(UI_[A-Za-z0-9_]+)"/g)) { used.add(m[1]); }
     const demo = fs.readFileSync(path.join(ROOT, "src/demo.ts"), "utf8");
     const levels = [...demo.matchAll(/levels: (\[[^\]]*\])/g)].flatMap(m => JSON.parse(m[1]));
     const refs = [...demo.matchAll(/\[@([A-Za-z]+)\]/g)].map(m => m[1]);

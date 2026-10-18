@@ -285,8 +285,9 @@ function check(label, cond, detail) {
         out.off = { tpl: off[0].properties.template, applied: off[0].properties.templateApplied, nums: off.length };
         return out;
     });
-    check("G the template tile opens the gallery: 18 tiles (the classic table + 17 templates), all minis drawn", G.ready && G.page === "templates" && G.tiles.length === 18
-        && G.tiles[0] === "off" && G.tiles[1] === "T01A" && G.tiles[17] === "12H", G.tiles.join(","));
+    check("G the template tile opens the gallery: 18 tiles (17 templates + the classic table), grouped by purpose, all minis drawn",
+        G.ready && G.page === "templates" && G.tiles.length === 18
+        && G.tiles.join() === "T01A,T01B,T02A,T02B,T02C,T02E,T02F,T03B,T04D,T04E,T03A,T04A,T04B,T04C,12A,12G,12H,off", G.tiles.join(","));
     check("G every tile carries a mini rendering", G.minis.length === 18 && G.minis.every(n => n > 3), JSON.stringify(G.minis));
     check("G 17 of the minis are mega tables (the classic table is the 18th)", G.mega === 17, String(G.mega));
     check("G without fields: the note says the choice is saved and applies on binding", /^No fields bound yet/.test(G.noteNoFields || ""), G.noteNoFields);
@@ -375,6 +376,14 @@ function check(label, cond, detail) {
         out.open = !!T.q("o1", '[data-pnl="hub-open"]');
         out.label = T.q("o1", '[data-pnl="hub-open"]').textContent;
         out.inToolbar = !!T.q("o1", '[data-pnl="head"] [data-pnl="hub-open"]');
+        // 1.4 the first control of the toolbar (before the template picker), framed in the accent
+        const ctl = T.qa("o1", '[data-pnl="head"] button, [data-pnl="head"] select');
+        out.first = ctl[0] && ctl[0].getAttribute("data-pnl");
+        T.mk("o5", T.statement, { hierarchy: { defaultLevel: 1 } }, { viewMode: 1 });
+        const ctl5 = T.qa("o5", '[data-pnl="head"] button, [data-pnl="head"] select');
+        out.firstTable = [ctl5[0] && ctl5[0].getAttribute("data-pnl"), ctl5[1] && ctl5[1].getAttribute("data-pnl")];
+        const hb = T.q("o5", '[data-pnl="hub-open"]');
+        out.framed = getComputedStyle(hb).borderTopColor === getComputedStyle(hb).color && getComputedStyle(hb).fontWeight === "600";
         // readers, exports, hosts without a view mode: no button
         T.mk("o2", T.statement, objs, { viewMode: 0 });
         T.mk("o3", T.statement, objs, { host: { allowInteractions: false }, viewMode: 1 });
@@ -433,7 +442,9 @@ function check(label, cond, detail) {
         out.readerFlip = !T.q("o1", '[data-pnl="hub-overlay"]') && !T.q("o1", '[data-pnl="hub-open"]');
         return out;
     });
-    check("O the toolbar carries a quiet \"☰ Start\" in edit mode", O.open && O.label === "☰ Start" && O.inToolbar, O.label);
+    check("O the toolbar carries \"☰ Start\" in edit mode", O.open && O.label === "☰ Start" && O.inToolbar, O.label);
+    check("O 1.4: \"☰ Start\" is the first control of the toolbar (before the template picker), accent frame + bold",
+        O.first === "hub-open" && O.firstTable[0] === "hub-open" && O.firstTable[1] === "tb-template" && O.framed, JSON.stringify([O.first, O.firstTable, O.framed]));
     check("O readers, exports and hosts without a view mode get no Start button", O.noOpen.every(Boolean), JSON.stringify(O.noOpen));
     check("O the hub opens as a dialog layer over the whole visual, the statement below untouched, the close button focused",
         O.overlay && O.role === "dialog" && O.tiles === 4 && O.covers && O.underHash && O.closeFocus === "hub-close", JSON.stringify([O.overlay, O.role, O.tiles, O.covers, O.underHash, O.closeFocus]));
@@ -578,6 +589,258 @@ function check(label, cond, detail) {
     check("L narrow visual (420 px): four tiles, no horizontal scroll on home, gallery or tour, a single column of gallery tiles",
         L.narrowTiles === 4 && !L.narrowScroll && !L.narrowGalleryScroll && !L.narrowTourScroll && L.narrowGalleryCols === 1,
         JSON.stringify([L.narrowScroll, L.narrowGalleryScroll, L.narrowTourScroll, L.narrowGalleryCols]));
+
+    // ================================================================== 1.4 · Q gallery tiles by purpose
+    const Q = await ev(async () => {
+        const T = window.__T; const out = {};
+        T.mk("q1", T.empty, { columns: { template: "T04B", templateApplied: "T04B" } }, { viewMode: 1, locale: "de-DE" });
+        T.click("q1", "hub-tile-templates"); await T.ready("q1");
+        out.groups = T.qa("q1", '[data-pnl^="tpl-group-"]').filter(s => s.tagName === "SECTION").map(s => [s.getAttribute("data-pnl").slice(10),
+            s.querySelector('[data-pnl="tpl-group-title"]').textContent, s.querySelectorAll("[data-active]").length]);
+        const tile = (tpl) => T.q("q1", `[data-pnl="tpl-${tpl}"]`);
+        const info = (tpl) => { const b = tile(tpl); return { title: b.querySelector('[data-pnl="tpl-title"]').textContent,
+            badge: b.querySelector('[data-pnl="tplcode"]').textContent, use: b.querySelector('[data-pnl="tpl-use"]').textContent,
+            active: !!b.querySelector('[data-pnl="tpl-active"]'), border: b.style.borderWidth || getComputedStyle(b).borderTopWidth,
+            mini: b.querySelector('[data-pnl="hub-mini"]').getBoundingClientRect().width }; };
+        out.t01a = info("T01A"); out.t04b = info("T04B"); out.off = info("off");
+        // hover: the tile lifts and takes the accent frame; leaving restores it
+        const b = tile("T02A");
+        b.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+        out.hover = [b.style.transform, b.style.borderColor];
+        b.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
+        out.leave = b.style.transform;
+        // back on the gallery: the header's ← Zurück, Esc too
+        out.back = !!T.q("q1", '[data-pnl="hub-back"]');
+        return out;
+    });
+    check("Q four purpose groups with German heads: structure 5 · forecast 5 · P&L 4 · report views 4",
+        JSON.stringify(Q.groups) === JSON.stringify([["structure", "Struktur-Vergleich", 5], ["forecast", "Forecast", 5], ["statement", "GuV-Statement", 4], ["report", "Report-Ansichten", 4]]),
+        JSON.stringify(Q.groups));
+    check("Q finance title on the tile, the T number as a small badge, a use line",
+        Q.t01a.title === "Regionen mit Plan-Abweichung" && Q.t01a.badge === "T01A" && Q.t01a.use.length > 30
+        && Q.t04b.title === "GuV mit Δ-Wasserfall" && Q.t04b.badge === "T04B" && Q.off.title === "Klassische GuV-Tabelle" && Q.off.badge === "Klassisch",
+        JSON.stringify([Q.t01a, Q.t04b.title, Q.off.title, Q.off.badge]));
+    check("Q the active tile is marked (pill + 2 px accent frame), the others are not; previews ≥ 220 px wide",
+        Q.t04b.active && !Q.t01a.active && Q.t04b.border === "2px" && Q.t01a.mini >= 220, JSON.stringify([Q.t04b.border, Q.t01a.mini]));
+    check("Q hover lifts the tile with the accent frame, leaving restores it", /translateY\(-2px\)/.test(Q.hover[0]) && Q.leave === "", JSON.stringify(Q.hover));
+
+    // ================================================================== 1.4 · P the bottom bar (font size presets + docs)
+    const P = await ev(async () => {
+        const T = window.__T; const out = {};
+        window.__launched = [];
+        const st = T.mk("pf", T.empty, {}, { viewMode: 1, locale: "de-DE" });
+        const bar = () => T.q("pf", '[data-pnl="hub-footer"]');
+        const presets = () => [...bar().querySelectorAll('[data-pnl^="hub-font-"]')].map(b => [b.textContent, b.getAttribute("aria-pressed")]);
+        // on every page of the hub, the presets first
+        out.pages = {};
+        for (const [tile, page] of [[null, "hub"], ["hub-tile-tour", "tour"], ["hub-tile-templates", "templates"], ["hub-tile-fields", "fields"], ["hub-start", "start"]]) {
+            if (tile) { T.click("pf", "hub-back"); T.click("pf", tile); await T.ready("pf"); }
+            const f = bar();
+            out.pages[page] = !!f && f.firstElementChild.getAttribute("data-pnl") === "hub-font" && getComputedStyle(f).position === "sticky";
+        }
+        T.click("pf", "hub-back");
+        out.order = presets();
+        // the bar sits at the lower edge of the visual
+        const r = bar().getBoundingClientRect(); const h = T.box("pf").getBoundingClientRect();
+        out.atBottom = Math.abs(r.bottom - h.bottom) < 2;
+        // a click: ONE persist of style.fontPreset, the hub redraws at the new scale
+        const fs0 = parseFloat(getComputedStyle(T.q("pf", '[data-pnl="hub-title"]')).fontSize);
+        T.click("pf", "hub-font-fullhd");
+        out.persists = st.persists.map(p => p.merge.map(m => m.objectName + ":" + JSON.stringify(m.properties)).join("+"));
+        out.afterClick = presets();
+        out.fs1 = parseFloat(getComputedStyle(T.q("pf", '[data-pnl="hub-title"]')).fontSize) / fs0;
+        out.focus = document.activeElement && document.activeElement.getAttribute("data-pnl");
+        // echo guard: a stale update keeps Full HD, the echo confirms, no second write
+        st.update({});
+        out.stale = presets();
+        st.flush();
+        out.echo = presets();
+        out.persistN = st.persists.length;
+        // the active preset again: nothing written
+        T.click("pf", "hub-font-fullhd");
+        out.again = st.persists.length;
+        T.click("pf", "hub-font-uhd");
+        out.uhd = presets(); st.flush();
+        // docs: edit mode only, IVisualHost.launchUrl with the locale's page
+        T.click("pf", "hub-docs");
+        out.launched = window.__launched.slice();
+        T.mk("pe", T.empty, {}, { viewMode: 1, locale: "en-US" }); T.click("pe", "hub-docs");
+        T.mk("pj", T.empty, {}, { viewMode: 1, locale: "ja-JP" }); T.click("pj", "hub-docs");
+        out.launchedAll = window.__launched.slice();
+        out.docsPersist = st.persists.length;
+        T.mk("ph", T.empty, {});      // harness without a view mode: the hub, but no docs button
+        out.harness = !!T.q("ph", '[data-pnl="hub-footer"]') && !T.q("ph", '[data-pnl="hub-docs"]');
+        // the hub's demo page (no fields) carries the bar under the demo statement
+        T.click("pe", "hub-tile-demo");
+        out.demoBar = !!T.q("pe", '[data-pnl="hub-footer"] [data-pnl="hub-font-hd"]') && !!T.q("pe", '[data-pnl="demo-banner"]');
+        T.click("pe", "hub-font-fullhd");
+        out.demoPersist = T.pe.persists.length === 1 && !!T.q("pe", '[data-pnl="demo-banner"]')
+            && T.q("pe", '[data-pnl="hub-font-fullhd"]').getAttribute("aria-pressed") === "true";
+        // the 1.2 demo of emptyState.mode = demo stays without it
+        T.mk("pd", T.empty, { emptyState: { mode: "demo" } }, { viewMode: 1 });
+        out.demoModeNoBar = !T.q("pd", '[data-pnl="hub-footer"]');
+        // the overlay over a statement: the bar on its pages, a click scales the statement under it as well
+        const so = T.mk("po", T.statement, { hierarchy: { defaultLevel: 1 } }, { viewMode: 1 });
+        const rowFs = () => parseFloat(getComputedStyle(T.q("po", '[data-pnl="hub-open"]')).fontSize);
+        const before = rowFs();
+        T.click("po", "hub-open");
+        out.ovBar = !!T.q("po", '[data-pnl="hub-overlay"] [data-pnl="hub-footer"]');
+        T.click("po", "hub-font-uhd");
+        out.ovOpen = !!T.q("po", '[data-pnl="hub-overlay"]');
+        so.flush();
+        out.ovScaled = rowFs() / before;
+        out.ovPersist = so.persists.length;
+        return out;
+    });
+    check("P the bottom bar is on every hub page (home, tour, gallery, fields, get started), sticky, the presets first",
+        Object.values(P.pages).every(Boolean) && Object.keys(P.pages).length === 5, JSON.stringify(P.pages));
+    check("P order HD · Full HD · UHD, the active one marked (HD by default), at the lower edge",
+        JSON.stringify(P.order) === JSON.stringify([["HD", "true"], ["Full HD", "false"], ["UHD", "false"]]) && P.atBottom, JSON.stringify(P.order) + " " + P.atBottom);
+    check("P a click = ONE persist of style.fontPreset, the hub redraws ×1.25, the focus stays on the button",
+        P.persists.length === 1 && P.persists[0] === 'style:{"fontPreset":"fullhd"}' && Math.abs(P.fs1 - 1.25) < 0.02 && P.focus === "hub-font-fullhd"
+        && P.afterClick[1][1] === "true", JSON.stringify([P.persists, P.fs1, P.focus]));
+    check("P echo guard: a stale update keeps Full HD, the echo confirms, no second write; the active preset writes nothing",
+        P.stale[1][1] === "true" && P.echo[1][1] === "true" && P.persistN === 1 && P.again === 1 && P.uhd[2][1] === "true",
+        JSON.stringify([P.stale, P.echo, P.persistN, P.again]));
+    check("P \"📖 Doku öffnen\" calls host.launchUrl: German page for de-DE, English for en-US and ja-JP, nothing persisted",
+        JSON.stringify(P.launchedAll) === JSON.stringify(["https://datenwgknowledgekitchen.com/pnl-doku.html",
+            "https://datenwgknowledgekitchen.com/pnl-doku_en.html", "https://datenwgknowledgekitchen.com/pnl-doku_en.html"]) && P.docsPersist === 2,
+        JSON.stringify(P.launchedAll) + " " + P.docsPersist);
+    check("P no docs button without a reported edit mode (the bar itself stays)", P.harness);
+    check("P the hub's demo page carries the bar; a click persists and keeps the demo; the 1.2 demo mode has no bar",
+        P.demoBar && P.demoPersist && P.demoModeNoBar, JSON.stringify([P.demoBar, P.demoPersist, P.demoModeNoBar]));
+    check("P overlay: the bar is there, a click keeps the layer open and scales the statement under it (×1.6)",
+        P.ovBar && P.ovOpen && Math.abs(P.ovScaled - 1.6) < 0.05 && P.ovPersist === 1, JSON.stringify([P.ovBar, P.ovOpen, P.ovScaled, P.ovPersist]));
+
+    // ================================================================== 1.4 · S "🚀 Loslegen" — the first three minutes
+    const S = await ev(async () => {
+        const T = window.__T; const out = {};
+        const cols = (roles) => (o) => ({ metadata: { objects: o, columns: roles.map(r => ({ roles: { [r]: true }, displayName: r })) }, categorical: { categories: [], values: [] } });
+        const st = T.mk("s1", T.empty, {}, { viewMode: 1, locale: "de-DE" });
+        out.hero = !!T.q("s1", '[data-pnl="hub-start"]');
+        out.heroFirst = (() => { const all = T.qa("s1", '[data-pnl="hub"] button'); return all[0] && all[0].getAttribute("data-pnl") === "hub-start"; })();
+        out.heroLabel = T.q("s1", '[data-pnl="hub-start"]').textContent;
+        T.click("s1", "hub-start");
+        out.page = T.page("s1");
+        out.title = T.q("s1", '[data-pnl="hub-title"]').textContent;
+        out.focus = document.activeElement && document.activeElement.getAttribute("data-pnl");
+        out.steps = [1, 2, 3].map(n => T.q("s1", `[data-pnl="go-step-${n}"]`).getAttribute("data-done"));
+        const ticks = (id) => ["levels", "ac", "refs", "period", "logic"].map(x => T.q(id, `[data-pnl="go-f-${x}"]`).getAttribute("data-on")).join("");
+        out.ticks0 = ticks("s1");
+        // Esc steps back to the home page, the focus returns to the hero
+        T.key("s1", "hub", "Escape");
+        out.escHome = T.page("s1");
+        out.escFocus = document.activeElement && document.activeElement.getAttribute("data-pnl");
+        // live ticks: half bound (levels + AC + PL) — the host sends the bound columns, no rows yet
+        const st2 = T.mk("s2", cols(["levels", "ac", "pl"]), {}, { viewMode: 1, locale: "de-DE" });
+        T.click("s2", "hub-start");
+        out.ticks1 = ticks("s2");
+        out.step1Done = T.q("s2", '[data-pnl="go-step-1"]').getAttribute("data-done");
+        // ② jump into the gallery, pick: the step is done (the pick is saved), nothing else persisted
+        T.click("s2", "go-templates"); await T.ready("s2");
+        out.toGallery = T.page("s2");
+        T.click("s2", "tpl-T03A");
+        T.click("s2", "hub-back"); T.click("s2", "hub-start");
+        out.step2 = T.q("s2", '[data-pnl="go-step-2"]').getAttribute("data-done");
+        out.tplState = T.q("s2", '[data-pnl="go-tpl-state"]').textContent;
+        out.persists2 = st2.persists.length;
+        // "all fields explained" opens the field guide
+        T.click("s2", "go-fields");
+        out.toFields = T.page("s2");
+        // ③ fine tuning ticks from the pane: house terms, thresholds, decimals
+        T.mk("s3", T.empty, { labels: { labelAc: "Ist" }, columns: { thresholds: true }, numbers: { decimals: 0 } }, { viewMode: 1 });
+        T.click("s3", "hub-start");
+        out.fine = ["terms", "thresholds", "decimals"].map(x => T.q("s3", `[data-pnl="go-fine-${x}"]`).getAttribute("data-on")).join("");
+        out.step3 = T.q("s3", '[data-pnl="go-step-3"]').getAttribute("data-done");
+        // the overlay over a bound statement: step ① is done
+        T.mk("s4", T.statement, { hierarchy: { defaultLevel: 1 } }, { viewMode: 1 });
+        T.click("s4", "hub-open"); T.click("s4", "hub-start");
+        out.ovTicks = ticks("s4");
+        out.ovBack = !!T.q("s4", '[data-pnl="hub-overlay"] [data-pnl="hub-back"]');
+        out.persists = st.persists.length;
+        out.raw = T.raw("s1") || T.raw("s2") || T.raw("s3");
+        return out;
+    });
+    check("S the home page leads with the wide \"🚀 Loslegen\" button (first control after the title)",
+        S.hero && S.heroFirst && /Loslegen/.test(S.heroLabel), S.heroLabel);
+    check("S it opens the checklist page with ← Zurück focused, three steps, nothing ticked without fields",
+        S.page === "start" && S.title === "🚀 Loslegen" && S.focus === "hub-back" && S.steps.join("") === "000" && S.ticks0 === "00000",
+        JSON.stringify([S.page, S.title, S.focus, S.steps, S.ticks0]));
+    check("S Esc steps back to the home page and the focus returns to the hero", S.escHome === "hub" && S.escFocus === "hub-start", S.escFocus);
+    check("S step ① ticks live per role (levels · AC · PY/PL · period · logic) and is done with the required two",
+        S.ticks1 === "11100" && S.step1Done === "1", S.ticks1);
+    check("S step ② jumps into the gallery; a pick (saved without data) ticks it and names the template",
+        S.toGallery === "templates" && S.step2 === "1" && /T03A/.test(S.tplState) && S.persists2 === 1, JSON.stringify([S.step2, S.tplState, S.persists2]));
+    check("S \"Alle Felder erklärt\" opens the field guide", S.toFields === "fields");
+    check("S step ③ ticks from the pane: house terms, thresholds, decimals", S.fine === "111" && S.step3 === "1", S.fine);
+    check("S in the overlay over a statement step ① is ticked, ← Zurück is there", S.ovTicks.startsWith("11") && S.ovBack, S.ovTicks);
+    check("S the checklist persists nothing and shows no raw key", S.persists === 0 && !S.raw);
+
+    // ================================================================== 1.4 · F the field guide: every role + two premises
+    const F = await ev(async () => {
+        const T = window.__T; const out = {};
+        const cols = (roles) => (o) => ({ metadata: { objects: o, columns: roles.map(r => ({ roles: { [r]: true }, displayName: r })) }, categorical: { categories: [], values: [] } });
+        T.mk("f1", cols(["levels", "ac", "py", "comment"]), {}, { viewMode: 1, locale: "de-DE" });
+        T.click("f1", "hub-tile-fields");
+        out.v14 = T.q("f1", '[data-pnl="field-guide"]').getAttribute("data-fg");
+        out.roles = T.qa("f1", '[data-pnl^="fr-"]').map(m => m.getAttribute("data-pnl").slice(3));
+        out.on = T.qa("f1", '[data-pnl^="fr-"][data-on="1"]').map(m => m.getAttribute("data-pnl").slice(3)).sort();
+        out.groups = ["required", "scenarios", "logic", "extras"].map(g => (T.q("f1", `[data-pnl="fg-${g}"]`) || {}).textContent);
+        out.notation = ["ac", "py", "pl", "fc", "rule"].map(x => (T.q("f1", `[data-pnl="fi-note-${x}"]`) || {}).textContent);
+        out.axes = (T.q("f1", '[data-pnl="fi-axes"]') || {}).textContent;
+        out.pic = (T.q("f1", '[data-pnl="fi-axes-pic"]') || { textContent: "" }).textContent;
+        // the 1.2 field guide of emptyState.mode = fields is unchanged (minimal / extended, its switch)
+        T.mk("f2", T.empty, { emptyState: { mode: "fields" } }, { viewMode: 1 });
+        out.old = !T.q("f2", '[data-fg]') && !!T.q("f2", '[data-pnl="es-demo"]') && !T.q("f2", '[data-pnl="hub-footer"]');
+        // narrow: no horizontal scroll
+        T.mk("f3", T.empty, {}, { viewMode: 1, w: 420, h: 700 });
+        T.click("f3", "hub-tile-fields");
+        const r = T.q("f3", ".pnl-root");
+        out.narrow = r.scrollWidth <= r.clientWidth;
+        T.click("f3", "hub-back"); T.click("f3", "hub-start");
+        out.narrowGo = r.scrollWidth <= r.clientWidth;
+        out.raw = T.raw("f1");
+        return out;
+    });
+    const capsRoles = require("../capabilities.json").dataRoles.map(r => r.name);
+    check("F the hub's field guide lists every data role of capabilities.json once (20), in four groups",
+        F.v14 === "1.4" && F.roles.length === capsRoles.length && F.roles.slice().sort().join() === capsRoles.slice().sort().join()
+        && F.groups.every(g => g && g.length > 3), JSON.stringify([F.roles.length, F.groups]));
+    check("F bound roles carry ✓ live", F.on.join() === "ac,comment,levels,py", F.on.join());
+    check("F premise (a): IBCS notation in four lines + the rule minuend → fill, reference → axis",
+        /voll/.test(F.notation[0]) && /grau/.test(F.notation[1]) && /Doppellinie/.test(F.notation[2]) && /schraffiert/.test(F.notation[3])
+        && /Minuend → Füllung, Referenz → Achse/.test(F.notation[4]), JSON.stringify(F.notation));
+    check("F premise (b): structure vs time with a pictogram (Monat | _YTD | FY)",
+        /vertikal in Zeilen/.test(F.axes) && /horizontal in Blöcken/.test(F.axes) && /Monat/.test(F.pic) && /_YTD/.test(F.pic) && /FY/.test(F.pic), F.axes);
+    check("F the 1.2 field guide (mode fields) stays as it was", F.old);
+    check("F narrow visual: field guide and checklist without a horizontal scroll, no raw key", F.narrow && F.narrowGo && !F.raw);
+
+    // ================================================================== 1.4 · B ← Zurück on every sub page and level
+    const B = await ev(async () => {
+        const T = window.__T; const out = {};
+        T.mk("b1", T.empty, {}, { viewMode: 1 });
+        for (const tile of ["hub-tile-tour", "hub-tile-templates", "hub-tile-demo", "hub-tile-fields", "hub-start"]) {
+            T.click("b1", tile);
+            const back = T.q("b1", '[data-pnl="hub-back"]');
+            out[tile] = !!back;
+            if (back) { back.click(); }
+            out[tile + ":home"] = T.page("b1") === "hub";
+        }
+        // deeper levels: checklist → gallery / field guide, and back to home
+        T.click("b1", "hub-start"); T.click("b1", "go-templates"); await T.ready("b1");
+        out.deep1 = !!T.q("b1", '[data-pnl="hub-back"]');
+        T.click("b1", "hub-back"); out.deep1Home = T.page("b1");
+        T.mk("b2", T.statement, { hierarchy: { defaultLevel: 1 } }, { viewMode: 1 });
+        T.click("b2", "hub-open");
+        for (const tile of ["hub-tile-tour", "hub-tile-templates", "hub-tile-demo", "hub-tile-fields", "hub-start"]) {
+            T.click("b2", tile);
+            out["ov:" + tile] = !!T.q("b2", '[data-pnl="hub-overlay"] [data-pnl="hub-back"]');
+            T.click("b2", "hub-back");
+        }
+        return out;
+    });
+    check("B ← Zurück on every sub page (tour, gallery, demo, fields, get started), in place and in the overlay, and from deeper levels",
+        Object.values(B).every(v => v === true || v === "hub"), JSON.stringify(B));
 
     await browser.close();
     for (const n of notes) { console.log(n); }

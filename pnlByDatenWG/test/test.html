@@ -134,6 +134,8 @@ function makeHost(locale, opts) {
     // what the Power BI host does (test/build.js writes locales.js)
     createLocalizationManager: () => locMgr(locale || "en-US"),
     persistProperties: () => {},
+    // 1.4 IVisualHost.launchUrl ("📖 Doku öffnen"): every call lands in a log the tests read
+    launchUrl: (url) => { (window.__launched = window.__launched || []).push(url); },
   };
   // "legacy" reproduces a host that offers no selection manager at all
   if (!o.legacy) { Object.assign(host, makeSelectionMocks()); }
