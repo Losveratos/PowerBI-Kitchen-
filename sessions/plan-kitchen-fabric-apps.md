@@ -2,10 +2,14 @@
 
 _Stand: 18.10.2026 · betrifft die Repos `PowerBI-Kitchen-` und `Fabric-Apps-Demo` · Arbeitsname **dwg cli**_
 
-> **Update 18.10.2026:** Plan auf ein MVP eingedampft (siehe Phasen). Daten kommen in der Regel aus Fabric-Semantikmodellen.
-> Start mit dem Adapter für ChartKitchen und P&L: **Spike erledigt, Urteil Go.** Code, Messwerte und Screenshots in
-> [`dwg/visuals/`](../dwg/visuals/README.md). 17 von 17 Browser-Prüfungen grün, Original-Visuals ohne Codeänderung,
-> Querfilter per Klick, Dark Mode, 210–480 ms bis vier Visuals stehen, ChartKitchen 218 KB / P&L 139 KB gzip.
+> **Stand 18.10.2026 (abends):** Plan auf ein MVP eingedampft (siehe Phasen). Daten kommen aus Fabric-Semantikmodellen.
+> Alles liegt jetzt im Repo **Fabric-Apps-Demo** unter `dwg/` mit einem Einstieg `node dwg/dwg.mjs`:
+> - **Adapter `@dwg/visuals`** (Spike: Go): Original-Visuals ChartKitchen und P&L im Browser, `daxQuery()`, Querfilter.
+> - **`dwg app page`**: schreibt eine App-Spec als Seite in eine Rayfin-App. Mini-App `apps/datenwg-dwg-spike`
+>   (tsc, ESLint, 65 Tests, Build grün; Browser-Test mit Mock-Konnektor 18/18). Noch nicht deployt.
+> - **`dwg pbip`**: dieselbe Spec als Power-BI-Bericht `dwg Spike.Report` (gegen die PBIR-Schemas geprüft, in `main`,
+>   im Workspace nach „Aktualisieren"). Visuals werden direkt aus der `.pbiviz` eingetragen.
+> Offen: Deploy der App und Sichtprüfung von App und Bericht online (braucht Fabric-Anmeldung).
 
 ## Ziel
 
@@ -178,6 +182,7 @@ Jede Stufe endet mit einer Go/No-Go-Entscheidung. Aufwand grob in Arbeitstagen m
 | Stufe | Inhalt | Ergebnis / Abnahme | Aufwand | Stand |
 | --- | --- | --- | --- | --- |
 | **1 · Spike Adapter** | ChartKitchen (Karten, VarInt, Brücke) und P&L (GuV) über Host-Adapter, Querfilter, Dark Mode, DAX-Generator | 17/17 Browser-Prüfungen, Messwerte, Screenshots | 1 | **erledigt, Go** |
+| **1b · Eine Spec, zwei Ziele** | `dwg app page` (Rayfin-App) und `dwg pbip` (PBIP) aus derselben App-Spec, Mini-App und Bericht „dwg Spike" | App: tsc/Lint/Tests/Build grün, Browser-Test 18/18; Bericht schemagültig | 1 | **erledigt, Abnahme online offen** |
 | **2 · Adapter ausbauen** | React-Hülle `<DwgVisual>`, alle ChartKitchen-Modi und P&L-Ansichten als Paritätstests gegen die Harness-Fälle, Kontextmenü → Detailpanel, `persistProperties` live, Sprachressourcen je Sprache nachladen, Toolbar-Frage klären | Paritätstests grün, Hülle in einer Vite-Seite | 3–4 | offen |
 | **3 · Eine App umstellen** | Sales Cockpit: Nachbauten (`VarIntChart`, `TimeChart`, `StructureBridge` …) durch `@dwg/visuals` ersetzen, Daten per `daxQuery` aus dem Semantikmodell | Tests grün, Sichtvergleich alt/neu online durch Michael. **Go/No-Go für den Rest** | 2–3 | offen |
 | **4 · Template + Skill** | Template `kitchen-cockpit` (Rahmen, Tokens, Adapter), Agent-Skill mit Blaupausen und IBCS-Regeln statt eigener CLI | `rayfin init -t …` ergibt lauffähige App mit Blaupause | 3–4 | offen |
