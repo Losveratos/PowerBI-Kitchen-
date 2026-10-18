@@ -14,7 +14,8 @@ Autor: Michael Tenner, Daten-WG Knowledge Kitchen, https://datenwgknowledgekitch
 
 Nicht enthalten (zu gross fuers Buendel, einzeln unter /md/ abrufbar):
 der Power-BI-Einsteiger-Guide, der Microsoft-Fabric-Einsteiger-Guide,
-die ChartKitchen-Dokumentation und die Video-Linkliste.
+die ChartKitchen-Dokumentation, die P&L-Statement-Dokumentation und die
+Video-Linkliste.
 
 ==============================================================================
 DOKUMENT: https://datenwgknowledgekitchen.com/md/whitepaper-strommix.md
