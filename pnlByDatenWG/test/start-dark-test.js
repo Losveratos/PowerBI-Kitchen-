@@ -87,11 +87,14 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
     });
 
     // ===================================================================== A · Smart Start
+    // 1.3: the default of emptyState.mode is the Start hub (test/hub-interact.js) — the
+    // Smart Start demo is tested through the explicit mode "demo", behaviour unchanged
     const A = await page.evaluate(() => {
         const out = {};
+        const DEMO = [{ metadata: { objects: { emptyState: { mode: "demo" } } } }];
         // A1 — dropped on a page in edit mode (harness: host gives no view mode = edit)
         const v = __mk("s1", 1100, 640);
-        v.__upd([]);
+        v.__upd(DEMO);
         const el = v.__el;
         out.banner = !!el.querySelector('[data-pnl="demo-banner"]');
         out.badge = (el.querySelector('[data-pnl="demo-badge"]') || {}).textContent;
@@ -115,41 +118,41 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
         out.afterUnitLine = el.innerText.includes("Sample Pharma Group");
         out.afterSel = el.querySelectorAll("[data-pnl-row]").length;
         // and back to no data: the demo returns
-        v.__upd([]);
+        v.__upd(DEMO);
         out.backDemo = !!el.querySelector('[data-pnl="demo-banner"]');
 
         // A2 — reading mode (ViewMode.View = 0): plain landing, no demo numbers
-        const r = __mk("s2", 1100, 640); r.__upd([], 0);
+        const r = __mk("s2", 1100, 640); r.__upd(DEMO, 0);
         out.readBanner = !!r.__el.querySelector('[data-pnl="demo-banner"]');
         out.readLanding = r.__el.innerText.includes("Add the AC measure");
         out.readNumbers = /1\s?685\.3/.test(r.__el.innerText);
         // in-focus edit (2) is edit
-        const f = __mk("s2b", 1100, 640); f.__upd([], 2);
+        const f = __mk("s2b", 1100, 640); f.__upd(DEMO, 2);
         out.focusBanner = !!f.__el.querySelector('[data-pnl="demo-banner"]');
         // A3 — export / subscription: allowInteractions = false
-        const x = __mk("s3", 1100, 640, "en-US", { hostCapabilities: { allowInteractions: false } }); x.__upd([], 1);
+        const x = __mk("s3", 1100, 640, "en-US", { hostCapabilities: { allowInteractions: false } }); x.__upd(DEMO, 1);
         out.exportBanner = !!x.__el.querySelector('[data-pnl="demo-banner"]');
         out.exportLanding = x.__el.innerText.includes("Add the AC measure");
         // A4 — too small for a statement: text landing
-        const t = __mk("s4", 280, 200); t.__upd([]);
+        const t = __mk("s4", 280, 200); t.__upd(DEMO);
         out.tinyBanner = !!t.__el.querySelector('[data-pnl="demo-banner"]');
         // A5 — fields half bound: the hint names what is missing
         const h = __mk("s5", 1100, 640);
         const col = (role, name, vals) => ({ source: { roles: { [role]: true }, displayName: name }, values: vals });
         h.__upd([{ categorical: { categories: [col("levels", "L1", ["a", "b"])], values: [] },
-            metadata: { objects: {}, columns: [{ roles: { levels: true }, displayName: "L1" }] } }]);
+            metadata: { objects: { emptyState: { mode: "demo" } }, columns: [{ roles: { levels: true }, displayName: "L1" }] } }]);
         out.missing = (h.__el.querySelector('[data-pnl="demo-missing"]') || {}).textContent;
         const h2 = __mk("s5b", 1100, 640);
         h2.__upd([{ categorical: { categories: [], values: [col("ac", "AC", [1])] },
-            metadata: { objects: {}, columns: [{ roles: { ac: true }, displayName: "AC" }] } }]);
+            metadata: { objects: { emptyState: { mode: "demo" } }, columns: [{ roles: { ac: true }, displayName: "AC" }] } }]);
         out.missing2 = (h2.__el.querySelector('[data-pnl="demo-missing"]') || {}).textContent;
         // A7 — the demo speaks the report's language, formulas included
-        const de = __mk("s7", 1100, 900, "de-DE"); de.__upd([]);
+        const de = __mk("s7", 1100, 900, "de-DE"); de.__upd(DEMO);
         out.deTexts = __texts(de.__el);
-        const ja = __mk("s7b", 1100, 900, "ja-JP"); ja.__upd([]);
+        const ja = __mk("s7b", 1100, 900, "ja-JP"); ja.__upd(DEMO);
         out.jaTexts = __texts(ja.__el);
         // A8 — a mega template picked in the pane applies to the demo
-        const mt = __mk("s8", 1300, 700); mt.__upd([{ metadata: { objects: { columns: { template: "T03A" } } } }]);
+        const mt = __mk("s8", 1300, 700); mt.__upd([{ metadata: { objects: { emptyState: { mode: "demo" }, columns: { template: "T03A" } } } }]);
         out.megaDemo = !!mt.__el.querySelector('svg[data-pnl="mega-head"]');
         out.megaPersist = mt.__host.__persist.length;
         return out;
@@ -244,7 +247,7 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
         out.lightRerender = getComputedStyle(l.__el.querySelector(".pnl-root")).backgroundColor;
         out.lightRerenderInk = getComputedStyle(l.__el.querySelector(".pnl-root")).color;
         // B7 — the demo in dark mode
-        const dd = __mk("b7", 1100, 640); dd.__upd([{ metadata: { objects: { style: { appearance: "dark" } } } }]);
+        const dd = __mk("b7", 1100, 640); dd.__upd([{ metadata: { objects: { emptyState: { mode: "demo" }, style: { appearance: "dark" } } } }]);
         out.demoDarkBg = getComputedStyle(dd.__el.querySelector(".pnl-root")).backgroundColor;
         out.demoDarkBanner = getComputedStyle(dd.__el.querySelector('[data-pnl="demo-banner"]')).backgroundColor;
         return out;

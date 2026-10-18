@@ -61,6 +61,13 @@
 <div class="case"><h4>p18 · 1.2 Spalten-Kategorie (Segment Nord | Süd) · Preset AC·PL·ΔPL · Gesamt-Block danach</h4><div class="stage" id="p18" style="width:1500px;height:700px"></div></div>
 <div class="case"><h4>p19 · 1.2 Leer-Zustand Feld-Intro (emptyState.mode = fields) · de-DE · Bearbeitungsmodus mit Umschalt-Button</h4><div class="stage" id="p19" style="width:900px;height:520px"></div></div>
 <div class="case"><h4>p20 · 1.2 Bearbeitungsmodus · Template-Auswahl in der Toolbar · Mega-Table T02A mit Wertspalten-Schaltern</h4><div class="stage" id="p20" style="width:1400px;height:640px"></div></div>
+<div class="case"><h4>p21 · 1.3 Start-Hub · Startseite (emptyState.mode = hub, Standard) · Bearbeitungsmodus · de-DE</h4><div class="stage" id="p21" style="width:1000px;height:460px"></div></div>
+<div class="case"><h4>p22 · 1.3 Start-Hub · Tour · Karte 2 „Mega-Table mit IBCS-Templates“ (Mini-Rendering mit Demo-Daten) · en-US</h4><div class="stage" id="p22" style="width:1100px;height:520px"></div></div>
+<div class="case"><h4>p23 · 1.3 Start-Hub · Template-Galerie (18 Mini-Vorschauen, T04B aktiv) · de-DE</h4><div class="stage" id="p23" style="width:1300px;height:900px"></div></div>
+<div class="case"><h4>p24 · 1.3 Start-Hub · dunkel · Tour Karte 3 „Werttreiberbaum“ · en-US</h4><div class="stage" id="p24" style="width:1100px;height:520px"></div></div>
+<div class="case"><h4>p25 · 1.3 emptyState.mode = demo (explizit) · pixelgleich zu p12 (Smart Start unverändert) · de-DE</h4><div class="stage" id="p25" style="width:1200px;height:700px"></div></div>
+<div class="case"><h4>p26 · 1.3 Start-Hub als Overlay über einer gebundenen GuV · Bearbeitungsmodus („☰ Start“ in der Toolbar) · de-DE</h4><div class="stage" id="p26" style="width:1300px;height:700px"></div></div>
+<div class="case"><h4>p27 · 1.3 Toolbar · „↺ Zum Template zurück“ (T03A, ein Schalter abgewählt) · Bearbeitungsmodus · de-DE</h4><div class="stage" id="p27" style="width:1400px;height:640px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
 <script src="demo-data.js"></script>
@@ -459,6 +466,30 @@ runEdit("p19", { metadata: { objects: { emptyState: { mode: "fields" } },
 runEdit("p20", dvRows(MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, hierarchy: { defaultLevel: 0 },
   toolbar: { showValues: true }, columns: { template: "T02A", templateApplied: "T02A", showPL: true, showMinuend: true,
     dPlBar: true, dPlPin: true, secondBlock: true } }));
+
+// p21 – p27 — 1.3 Start hub (edit mode: the host says viewMode 1)
+function runHub(id, objects, locale, steps, data, viewMode) {
+  const el = document.getElementById(id);
+  const host = makeHost(locale);
+  host.persistProperties = (p) => { (window.__persist = window.__persist || []).push({ id, p }); };
+  const v = new Visual({ element: el, host });
+  const cols = [];
+  v.update({ dataViews: [data || { metadata: { objects: objects || {}, columns: cols }, categorical: { categories: [], values: [] } }],
+    viewport: { width: el.clientWidth, height: el.clientHeight }, type: 2, ...(viewMode === null ? {} : { viewMode: viewMode ?? 1 }) });
+  (window.__visuals = window.__visuals || {})[id] = v;
+  for (const sel of steps || []) { const b = el.querySelector(sel); if (b) { b.click(); } }
+  return v;
+}
+runHub("p21", {}, "de-DE");
+runHub("p22", {}, "en-US", ['[data-pnl="hub-tile-tour"]', '[data-pnl="tour-dot-2"]']);
+runHub("p23", { columns: { template: "T04B", templateApplied: "T04B" } }, "de-DE", ['[data-pnl="hub-tile-templates"]']);
+runHub("p24", { style: { appearance: "dark" } }, "en-US", ['[data-pnl="hub-tile-tour"]', '[data-pnl="tour-dot-3"]']);
+runHub("p25", { emptyState: { mode: "demo" } }, "de-DE", [], null, null);   // no view mode, exactly like p12
+runHub("p26", { hierarchy: { defaultLevel: 1 } }, "de-DE", ['[data-pnl="hub-open"]'], dv({ hierarchy: { defaultLevel: 1 } }));
+runHub("p27", { titleBlock: { measureLine: "Income statement (P&L) in mEUR" }, hierarchy: { defaultLevel: 0 }, columns: { template: "T03A", templateApplied: "T03A",
+  showPY: true, showPL: true, showMinuend: true, dPyAbs: true, dPyPct: true, dPlAbs: false, dPlPct: true } }, "de-DE", [],
+  dvRows(MEGA_DEMO.statement("T03"), { titleBlock: { measureLine: "Income statement (P&L) in mEUR" }, hierarchy: { defaultLevel: 0 }, columns: { template: "T03A", templateApplied: "T03A",
+  showPY: true, showPL: true, showMinuend: true, dPyAbs: true, dPyPct: true, dPlAbs: false, dPlPct: true } }));
 
 // p6 — sparkline open on first account, toolbar hidden
 run("p6", {

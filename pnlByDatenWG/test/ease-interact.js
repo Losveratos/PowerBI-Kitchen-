@@ -163,10 +163,11 @@ function check(label, cond, detail) {
     // ---- E · empty state ------------------------------------------------------------
     const e1 = await ev(() => {
         const T = window.__T; const out = {};
-        T.mk("e0", null, {});                                       // harness: no view mode (= edit, as in 1.1)
+        // 1.3: the default is the Start hub (test/hub-interact.js); the 1.1 / 1.2 demo is the explicit mode "demo"
+        T.mk("e0", T.partial([]), { emptyState: { mode: "demo" } });         // harness: no view mode (= edit, as in 1.1)
         out.demoDefault = !!T.q("e0", '[data-pnl="demo-banner"]');
         out.noSwitchNoMode = !T.q("e0", '[data-pnl="es-switches"]');
-        T.mk("e1", null, {}, { viewMode: 1 });
+        T.mk("e1", T.partial([]), { emptyState: { mode: "demo" } }, { viewMode: 1 });
         out.demoEdit = !!T.q("e1", '[data-pnl="demo-banner"]');
         out.switchInDemo = !!T.q("e1", '[data-pnl="es-fields"]') && !T.q("e1", '[data-pnl="es-demo"]');
         // no field bound: the host still sends the objects (supportsEmptyDataView)
@@ -182,7 +183,7 @@ function check(label, cond, detail) {
         out.messageNoText = !!T.q("e5", '[data-pnl="empty-state"]') && /AC/.test(T.box("e5").textContent);
         return out;
     });
-    check("E default mode = demo, as in 1.1 (no switches without the host's view mode)", e1.demoDefault && e1.noSwitchNoMode);
+    check("E mode demo = the 1.1 Smart Start (no switches without the host's view mode)", e1.demoDefault && e1.noSwitchNoMode);
     check("E edit mode: the demo banner carries the switch \"Explain fields\"", e1.demoEdit && e1.switchInDemo);
     check("E mode fields: readers get the landing text, never the guide", e1.readerLanding);
     check("E mode fields: exports get the landing text", e1.exportLanding);
