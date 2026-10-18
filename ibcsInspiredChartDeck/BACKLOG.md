@@ -409,11 +409,23 @@ Persona-Vorlagen/Share-Code auf die Builder-UX ein.
 - [ ] **IBCS-Markenrichtlinien gegenlesen** — Disclaimer steht in NOTICE;
       vor größerer Sichtbarkeit einmal prüfen (lassen).
 
+## Offen aus 1.51 (Hub-Polish)
+
+- [ ] **Feld-Intro in schmalen Spalten** (S) — Zweck-Texte werden bei drei
+      Spalten und langen Rollennamen gekürzt (voller Text im Tooltip); eine
+      zweizeilige Variante bräuchte Seiten auch bei 960 × 380.
+- [ ] **☰-Kollisionsprüfung** (S) — prüft nur Text-Elemente und rückt genau
+      eine Stufe; Marken (Säulen, Dreiecke) dürfen weiter darunter liegen.
+- [ ] **Doku-Link je Kapitel** (S) — „📖 Doku öffnen“ springt auf die
+      Startseite der Doku; Anker je Hub-Seite (Vorlagen, Felder) wären
+      hilfreicher.
+
 ## Offen aus 1.50 (Start-Hub)
 
 - [ ] **Demo-Galerie im Hochkontrast** (S) — die Hub-Seiten (Start, Tour,
-      Vorlagen) zeichnen mit der Host-Palette; die Galerie-Unterseite und das
-      Feld-Intro bleiben bewusst unverändert (feste Markenfarben bzw. Dark).
+      Vorlagen, ab 1.51 auch Loslegen und Feld-Intro) zeichnen mit der
+      Host-Palette; die Galerie-Unterseite bleibt bewusst unverändert (feste
+      Markenfarben bzw. Dark).
 - [ ] **Vorschauen mit dem echten Render-Pfad** (M) — Tour- und
       Vorlagen-Kacheln nutzen die schematischen Minis der Galerie
       (`drawModeMini`). Echte Mini-Charts aus Demo-Datenpunkten über
