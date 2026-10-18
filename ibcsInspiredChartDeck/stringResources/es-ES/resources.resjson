@@ -627,6 +627,7 @@
   "Hub_StartDesc": "Primeros 3 minutos: ① enlazar campos · ② elegir plantilla · ③ ajuste fino",
   "Hub_SizeGroup": "Tamaño de letra para todo el visual",
   "Hub_SizeTip": "Tamaño de letra para pantallas {0}: se aplica a todo el visual (panel de formato: Etiquetas de datos → Tamaño predefinido)",
+  "Hub_SizeHint": "Tamaño de letra — HD para portátiles · Full HD para monitores · UHD para proyectores y 4K",
   "Hub_Docs": "📖 Abrir documentación",
   "Hub_DocsTip": "Abrir la documentación de ChartKitchen en el navegador",
   "Hub_TourDone": "← Volver al inicio",

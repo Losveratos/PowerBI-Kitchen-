@@ -210,6 +210,9 @@ interface HubColors {
     hc: boolean; ink: string; grey: string; teal: string; red: string; paper: string;
     subtle: string; soft: string; tile: string; tileOn: string; edge: string; edge2: string;
     onAccent: string;
+    /** 1.51.1 family accent of the hub controls (active size pill, „🚀 Get started“):
+     *  teal #0E8585 · dark teal #3FB3C2 · high contrast foregroundSelected */
+    accent: string;
 }
 
 type Orientation = "columns" | "bars";
@@ -2773,12 +2776,28 @@ export class Visual implements IVisual {
                 sx += wds[i] + segGap;
             });
         }
-        // 1.50 hub page: "← Back" top-right; the heading steps aside for it
+        // 1.51.1 hub page: "← Back" top-left (outlined pill); where the heading shares
+        // its row, heading and subline step right of it; subline in ink-soft
         if (back) {
-            const bw = this.drawHubBackChip(width, this.hubColors());
-            const tx = Number(title.getAttribute("x"));
+            const hc = this.hubColors();
+            const bw = this.drawHubBackChip(width, hc);
+            const tf1 = this.landingTf();
+            const chipBottom = 12 + Math.round(14 * tf1) + Math.round(21 * tf1);
+            const ty = Number(title.getAttribute("y"));
+            let tx = Number(title.getAttribute("x"));
+            if (ty - titleF < chipBottom && tx < 12 + bw + 10) {
+                tx = 12 + bw + 10;
+                title.setAttribute("x", String(tx));
+                const sy = Number(sub.getAttribute("y"));
+                if (sy - subF < chipBottom) {
+                    sub.setAttribute("x", String(tx));
+                    const st = (sub.textContent ?? "").replace(/…$/, "");
+                    sub.textContent = this.truncate(st, Math.max(40, width - 12 - tx), subF);
+                }
+            }
+            sub.setAttribute("fill", hc.soft);
             title.textContent = this.truncate(cTitle !== "" ? cTitle : "ChartKitchen byDatenWG",
-                Math.max(40, width - 22 - bw - tx), titleF);
+                Math.max(40, width - 12 - tx), titleF);
         }
     }
 
@@ -2822,7 +2841,9 @@ export class Visual implements IVisual {
             return e;
         };
         let y = boxY + 12 + fT;
-        txt(g, ix, y, this.locStr("FI_Title", "Which field goes where"), fT, c.ink, true, iw - Math.max(0, backW - 14));
+        // 1.51.1 hub page: „← Back“ top-left inside the box, the title right of it
+        const titleX = back ? ix + backW + 2 : ix;
+        txt(g, titleX, y, this.locStr("FI_Title", "Which field goes where"), fT, c.ink, true, iw - (titleX - ix));
         y += Math.round(fB * 1.6);
         txt(g, ix, y, this.locStr("FI_Intro", "Fill the field wells — the chart appears as soon as Actual (AC) is bound."), fB, c.soft);
         if (this.missingHint) {
@@ -2996,7 +3017,7 @@ export class Visual implements IVisual {
         const fitH = Math.max(40, Math.min(boxH, fitBottom - boxY));
         box.setAttribute("height", String(fitH));
         if (back) {
-            this.drawHubBackChip(width, c);
+            this.drawHubBackChip(width, c, false, ix, boxY + 12 + fT);
             return;
         }
         this.drawEmptySwitches(width, height, "fields", { ink: c.ink, subtle: c.subtle, tile: c.tile, edge2: c.hc ? c.ink : c.edge2 },
@@ -3221,7 +3242,7 @@ export class Visual implements IVisual {
             const bg = pal.background?.value || "#000000";
             const sel = pal.foregroundSelected?.value || fg;
             return { hc: true, ink: fg, grey: fg, teal: sel, red: fg, paper: bg, subtle: fg, soft: fg,
-                tile: bg, tileOn: bg, edge: fg, edge2: fg, onAccent: bg };
+                tile: bg, tileOn: bg, edge: fg, edge2: fg, onAccent: bg, accent: sel };
         }
         const dk = this.uiDark;
         return {
@@ -3230,7 +3251,8 @@ export class Visual implements IVisual {
             paper: dk ? this.darkPaper() : "#FFFFFF", subtle: dk ? DARK_SUBTLE : "#6E6E6E",
             soft: dk ? "#BFBFBF" : "#5A5A5A", tile: dk ? "#262624" : "#FAFAF8",
             tileOn: dk ? "#1E3236" : "#EEF6F7", edge: dk ? DARK_FAINT : "#E4E4DF",
-            edge2: dk ? DARK_FAINT : "#DDDDD8", onAccent: dk ? "#1A1A1A" : "#FFFFFF"
+            edge2: dk ? DARK_FAINT : "#DDDDD8", onAccent: dk ? "#1A1A1A" : "#FFFFFF",
+            accent: dk ? "#3FB3C2" : "#0E8585"
         };
     }
 
@@ -3355,26 +3377,33 @@ export class Visual implements IVisual {
         return out.map(l => this.truncate(l, maxW, f));
     }
 
-    /** "← Back" (sub pages) or "✕ Close" (overlay home) chip top-right; returns its width */
+    /** "← Back" (sub pages, top-left) or "✕ Close" (overlay home, top-right) pill; its width */
     private hubBackChipWidth(close = false): number {
         const f = Math.round(10.5 * this.landingTf());
         const label = close ? this.locStr("Hub_Close", "✕ Close") : this.locStr("Hub_Back", "← Back");
         return Math.ceil(this.textWidth(label, f)) + 22;
     }
 
-    private drawHubBackChip(width: number, c: HubColors, close = false): number {
+    /**
+     * 1.51.1 family style (the same in P&L): an outlined pill — paper ground, 1 px ink
+     * frame, radius = height / 2. „← Back“ sits top-LEFT, vertically centred on the
+     * page title whose baseline is `base` (default: the 14 px·k title at the top
+     * padding); the page title starts right of it. „✕ Close“ stays top-right.
+     */
+    private drawHubBackChip(width: number, c: HubColors, close = false, x0 = 12, base?: number): number {
         const tf = this.landingTf();
-        const f = Math.round(10.5 * tf), bh = Math.round(21 * tf);
+        const f = Math.round(10.5 * tf), bh = Math.round(21 * tf), fT = Math.round(14 * tf);
         const label = close ? this.locStr("Hub_Close", "✕ Close") : this.locStr("Hub_Back", "← Back");
         const w = this.hubBackChipWidth(close);
-        const x = width - 12 - w, y = 8;
+        const x = close ? width - 12 - w : x0;
+        const y = close ? 8 : Math.max(4, Math.round((base ?? 12 + fT) - 0.5 * fT - bh / 2));
         const tip = close
             ? this.locStr("Hub_CloseTip", "Close the start hub — the chart appears exactly as before (Esc)")
             : this.locStr("Hub_BackTip", "Back to the start hub (Esc)");
         const b = this.hubBtn(this.svg, close ? "hub-close" : "hub-back", tip,
             () => { if (close) { this.closeHub(); } else { this.hubGo("home"); } });
         const fr = this.el("rect", {
-            x, y, width: w, height: bh, rx: 4, fill: c.tile, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1
+            x, y, width: w, height: bh, rx: bh / 2, fill: c.paper, stroke: c.ink, "stroke-width": 1
         }, b);
         this.hubFrame(b, fr, c);
         const t = this.el("text", {
@@ -3385,9 +3414,19 @@ export class Visual implements IVisual {
         return w;
     }
 
-    /** height the hub footer reserves at the bottom of every hub page */
+    /** 1.51.1 hub bar metrics (family values, identical in P&L): pill height 21 px·k,
+     *  8 px vertical / 12 px horizontal padding, signature line below the bar */
+    private hubBarMetrics(): { f: number; bh: number; padX: number; padY: number; barH: number; sigH: number } {
+        const tf = this.landingTf();
+        const f = Math.round(10.5 * tf), bh = Math.round(21 * tf);
+        const padX = 12, padY = 8, sigH = 14;
+        return { f, bh, padX, padY, barH: 1 + padY + bh + padY, sigH };
+    }
+
+    /** height the hub footer (bar + signature) reserves at the bottom of every hub page */
     private hubFootH(): number {
-        return Math.round(21 * this.landingTf()) + 12;
+        const m = this.hubBarMetrics();
+        return m.barH + m.sigH;
     }
 
     /** documentation can be opened when the host offers launchUrl (no privilege) */
@@ -3396,29 +3435,44 @@ export class Visual implements IVisual {
     }
 
     /**
-     * 1.51 hub footer, the same on every hub page: the three font presets HD · Full
-     * HD · UHD come first (labels.fontPreset; active one filled; a click persists
-     * with the echo guard like the gallery pills), then „📖 Open docs“ (host.launchUrl,
-     * German or English page by locale) and the credit right-aligned when room is left.
+     * Hub bar, the same on every hub page and in both visuals of the family
+     * (1.51.1 spec): a 1 px divider (10 % ink) on top; inside 12 px / 8 px padding
+     * the „Aa“ glyph (ink-soft), the three pills HD · Full HD · UHD (labels.fontPreset
+     * compact · fullhd · presentation; outlined, the active one teal-filled; a click
+     * persists with the echo guard like the gallery pills), the muted one-line hint
+     * (the only element that yields to a lack of room) and right-aligned the
+     * outlined „📖 Open docs“ pill (host.launchUrl, German or English page by
+     * locale). Below the bar, centred: the micro signature „made by Daten-WG“.
      */
     private drawHubFooter(width: number, height: number): void {
         const c = this.hubColors();
+        const { f, bh, padX, padY, barH, sigH } = this.hubBarMetrics();
         const tf = this.landingTf();
-        const f = Math.round(10.5 * tf), bh = Math.round(21 * tf);
-        const y = height - 6 - bh;
+        const barY = height - sigH - barH;
+        const y = barY + 1 + padY;
         const g = this.el("g", { "data-icd": "hub-foot", role: "group" }, this.svg) as SVGGElement;
         g.setAttribute("aria-label", this.locStr("Hub_SizeGroup", "Font size for the whole visual"));
         this.el("line", {
-            x1: 12, y1: y - 5.5, x2: width - 12, y2: y - 5.5, stroke: c.hc ? c.ink : c.edge, "stroke-width": 1
+            x1: 0, y1: barY + 0.5, x2: width, y2: barY + 0.5, stroke: c.ink, "stroke-width": 1,
+            ...(c.hc ? {} : { "stroke-opacity": 0.1 }), "data-icd": "hub-foot-rule"
         }, g);
+        const midY = y + bh / 2;
+        // „Aa“ — what the pills are about, without a word
+        const fA = Math.round(12 * tf);
+        const aa = this.el("text", {
+            x: padX, y: midY + fA * 0.36, "font-size": fA, "font-weight": 600, fill: c.soft,
+            "font-family": FONT, "data-icd": "hub-foot-glyph", "aria-hidden": "true"
+        }, g);
+        aa.textContent = "Aa";
+        let x = padX + Math.ceil(this.textWidth("Aa", fA)) + 8;
         const sLc = this.formattingSettings.labelsCard;
         const cur = String(sLc.fontPreset.value.value);
         const tipTpl = this.locStr("Hub_SizeTip",
             "Font size for {0} screens — applies to the whole visual (format pane: Data labels → Size preset)");
-        let x = 12;
-        for (const s of HUB_SIZES) {
+        const pillGap = 6;
+        HUB_SIZES.forEach((s, i) => {
             const on = s.v === cur;
-            const w = Math.ceil(this.textWidth(s.label, f)) + 18;
+            const w = Math.ceil(this.textWidth(s.label, f)) + 20;
             const key = `hub-size-${s.v}`;
             const b = this.hubBtn(g, key, tipTpl.replace("{0}", s.label), () => {
                 if (String(sLc.fontPreset.value.value) === s.v) { return; }
@@ -3435,47 +3489,61 @@ export class Visual implements IVisual {
                 this.hubRedraw();
             });
             b.setAttribute("aria-pressed", String(on));
+            // active: teal fill + white text (dark: dark teal + dark text); high
+            // contrast: a foregroundSelected frame on the background instead of a fill
+            const fill = on && !c.hc ? c.accent : c.paper;
+            const stroke = on ? c.accent : c.hc ? c.ink : c.soft;
             const fr = this.el("rect", {
-                x, y, width: w, height: bh, rx: bh / 2, fill: on ? c.teal : c.tile,
-                stroke: on ? c.teal : c.hc ? c.ink : c.edge2, "stroke-width": 1
+                x, y, width: w, height: bh, rx: bh / 2, fill, stroke, "stroke-width": on && c.hc ? 2 : 1
             }, b);
             this.hubFrame(b, fr, on ? { ...c, teal: c.ink } : c);
             const t = this.el("text", {
-                x: x + w / 2, y: y + bh / 2 + f * 0.36, "text-anchor": "middle", "font-size": f,
-                "font-weight": on ? 700 : 400, fill: on ? c.onAccent : c.ink, "font-family": FONT
+                x: x + w / 2, y: midY + f * 0.36, "text-anchor": "middle", "font-size": f,
+                "font-weight": on ? 700 : 400, fill: on ? (c.hc ? c.accent : c.onAccent) : c.ink, "font-family": FONT
             }, b);
             t.textContent = s.label;
-            x += w + 4;
-        }
-        x += 8;
+            x += w + (i < HUB_SIZES.length - 1 ? pillGap : 0);
+        });
+        // right-aligned „📖 Open docs“ — the same pill, outlined (paper ground, ink frame)
+        let right = width - padX;
         if (this.canLaunchDocs()) {
             const label = this.locStr("Hub_Docs", "📖 Open docs");
-            const w = Math.ceil(this.textWidth(label, f)) + 18;
-            if (x + w <= width - 12) {
+            const w = Math.ceil(this.textWidth(label, f)) + 20;
+            const dx = width - padX - w;
+            if (dx >= x + 10) {
                 const de = (this.host.locale || "").toLowerCase().startsWith("de");
                 const url = de ? DOC_URL_DE : DOC_URL_EN;
                 const b = this.hubBtn(g, "hub-docs", this.locStr("Hub_DocsTip", "Open the ChartKitchen documentation in the browser"),
                     () => { this.host.launchUrl(url); });
                 b.setAttribute("data-url", url);
                 const fr = this.el("rect", {
-                    x, y, width: w, height: bh, rx: 4, fill: c.tile, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1
+                    x: dx, y, width: w, height: bh, rx: bh / 2, fill: c.paper, stroke: c.ink, "stroke-width": 1
                 }, b);
                 this.hubFrame(b, fr, c);
                 const t = this.el("text", {
-                    x: x + w / 2, y: y + bh / 2 + f * 0.36, "text-anchor": "middle", "font-size": f,
+                    x: dx + w / 2, y: midY + f * 0.36, "text-anchor": "middle", "font-size": f,
                     fill: c.ink, "font-family": FONT
                 }, b);
                 t.textContent = label;
-                x += w + 8;
+                right = dx;
             }
         }
-        const credit = "made by Daten-WG";
-        if (x + this.textWidth(credit, 10) + 4 <= width - 12) {
-            const m = this.el("text", {
-                x: width - 12, y: y + bh / 2 + 3.6, "text-anchor": "end", "font-size": 10, fill: c.subtle, "font-family": FONT
+        // the muted hint between pills and docs: one line, hidden (never cut) when short of room
+        const fH = Math.round(10 * tf);
+        const hint = this.locStr("Hub_SizeHint", "Font size — HD for laptops · Full HD for monitors · UHD for projectors & 4K");
+        const hx = x + 12;
+        if (hx + this.textWidth(hint, fH) <= right - 12) {
+            const ht = this.el("text", {
+                x: hx, y: midY + fH * 0.36, "font-size": fH, fill: c.soft, "font-family": FONT, "data-icd": "hub-foot-hint"
             }, g);
-            m.textContent = credit;
+            ht.textContent = hint;
         }
+        // micro signature under the bar, centred — identical in both visuals
+        const m = this.el("text", {
+            x: width / 2, y: height - 4, "text-anchor": "middle", "font-size": 9, fill: c.soft, opacity: 0.6,
+            "font-family": FONT, "data-icd": "hub-sig"
+        }, g);
+        m.textContent = "made by Daten-WG";
     }
 
     // ------------------------------------------------------------ overlay + chips
@@ -3688,7 +3756,7 @@ export class Visual implements IVisual {
                 desc: this.locStr("Hub_FieldsDesc", "Which field goes where — ✓ at the fields already bound") }
         ];
         const top = pad + fT + 6 + fS + 12;
-        const footH = this.hubFootH() + 4;
+        const footH = this.hubFootH() + 10;
         const availW = width - 2 * pad, availH = height - top - footH;
         // „Get started“ banner + 4 in a row (wide and low), 2 × 2, or one column (narrow,
         // where the banner simply is the first of five equal rows)
@@ -3717,7 +3785,7 @@ export class Visual implements IVisual {
         const hdrW = width - x0 - pad - (subY - fS - 6 - fT < 8 + 21 * tf ? closeW + 8 : 0);
         t.textContent = this.truncate(cTitle !== "" ? cTitle : "ChartKitchen byDatenWG", hdrW, fT);
         const st = this.el("text", {
-            x: x0, y: subY, "font-size": fS, fill: this.missingHint ? c.red : c.subtle, "font-family": FONT
+            x: x0, y: subY, "font-size": fS, fill: this.missingHint ? c.red : c.soft, "font-family": FONT
         }, this.svg);
         st.textContent = this.truncate(this.missingHint
             ?? (cBody !== "" ? cBody : this.locStr("Hub_Sub", "Start — pick what you want to do first")),
@@ -3727,8 +3795,9 @@ export class Visual implements IVisual {
             const label = this.locStr("Hub_Start", "🚀 Get started");
             const desc = this.locStr("Hub_StartDesc", "First 3 minutes: ① bind fields · ② pick a template · ③ fine-tune");
             const sg = this.hubBtn(this.svg, "hub-start", `${label} — ${desc}`, () => this.hubGo("start"));
+            // 1.51.1 family: teal fill across the full block width, tile radius
             const fr = this.el("rect", {
-                x: x0, y: y0, width: blockW, height: startH, rx: 8, fill: c.teal, stroke: c.teal, "stroke-width": 1
+                x: x0, y: y0, width: blockW, height: startH, rx: 10, fill: c.accent, stroke: c.accent, "stroke-width": 1
             }, sg);
             this.hubFrame(sg, fr, { ...c, teal: c.ink });
             const ty = y0 + startH / 2 + fL * 0.36;
@@ -3746,25 +3815,43 @@ export class Visual implements IVisual {
             }
         }
         const gy0 = y0 + startH + gap;
+        // 1.51.1 family values: radius 10 px, hover/focus lift (2 px + shadow, like the
+        // gallery tiles), one pictogram size (64 × 44 px·k) on every tile
+        const icW = Math.round(64 * tf), icH = Math.round(44 * tf);
         items.forEach((it, i) => {
             const x = x0 + (i % cols) * (bw + gap), y = gy0 + Math.floor(i / cols) * (bh + gap);
+            const sh = this.el("rect", {
+                x: x + 1, y: y + 3, width: bw, height: bh, rx: 10, fill: c.hc ? "none" : c.edge, opacity: 0
+            }, this.svg);
+            sh.style.pointerEvents = "none";
             const g = this.hubBtn(this.svg, `hub-${it.id}`, `${it.label} — ${it.desc}`, () => this.hubGo(it.id));
+            // hit area 3 px taller: the lifted tile keeps the pointer at its lower edge
+            this.el("rect", { x, y, width: bw, height: bh + 3, fill: "transparent" }, g);
             const fr = this.el("rect", {
-                x, y, width: bw, height: bh, rx: 8, fill: c.tile, stroke: c.hc ? c.ink : c.edge, "stroke-width": 1
+                x, y, width: bw, height: bh, rx: 10, fill: c.tile, stroke: c.hc ? c.ink : c.edge, "stroke-width": 1
             }, g);
             this.hubFrame(g, fr, c);
+            let hover = false, focus = false;
+            const lift = () => {
+                const up = hover || focus;
+                g.setAttribute("transform", up ? "translate(0,-2)" : "");
+                sh.setAttribute("opacity", up ? "1" : "0");
+            };
+            g.addEventListener("mouseenter", () => { hover = true; lift(); });
+            g.addEventListener("mouseleave", () => { hover = false; lift(); });
+            g.addEventListener("focus", () => { focus = true; lift(); });
+            g.addEventListener("blur", () => { focus = false; lift(); });
             let tx = x + 14;
-            // the pictogram yields when it would cut the button label
-            const iwProbe = Math.min((bh - 16) * 1.45, bw * 0.34);
-            const labelFits = this.textWidth(it.label, fL) <= bw - 30 - iwProbe;
-            if (bh >= 56 && bw >= 210 && labelFits) {
-                const ih = bh - 16, iw = Math.min(ih * 1.45, bw * 0.34);
+            // the pictogram yields when it would cut the button label or not fit the tile
+            const labelFits = this.textWidth(it.label, fL) <= bw - 30 - icW;
+            if (bh >= icH + 12 && bw >= 210 && labelFits) {
+                const iy = y + (bh - icH) / 2;
                 this.el("rect", {
-                    x: x + 8, y: y + 8, width: iw, height: ih, rx: 5,
+                    x: x + 10, y: iy, width: icW, height: icH, rx: 5,
                     fill: c.paper, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1
                 }, g);
-                this.drawHubIcon(g, it.id, x + 14, y + 14, iw - 12, ih - 12, c);
-                tx = x + 8 + iw + 12;
+                this.drawHubIcon(g, it.id, x + 16, iy + 6, icW - 12, icH - 12, c);
+                tx = x + 10 + icW + 12;
             }
             const tmax = x + bw - 10 - tx;
             const descLines = bh >= 46 ? this.hubWrap(it.desc, tmax, fD, bh >= 84 ? 2 : 1) : [];
@@ -3798,13 +3885,14 @@ export class Visual implements IVisual {
         const tf = this.landingTf();
         const pad = 12, gap = 10;
         const fT = Math.round(14 * tf), fS = Math.round(10 * tf), fH = Math.round(12 * tf), fB = Math.round(10.5 * tf);
+        // 1.51.1: „← Back“ top-left, the page title right of it
         const backW = this.drawHubBackChip(width, c);
         const hT = this.el("text", {
-            x: pad, y: pad + fT, "font-size": fT, "font-weight": 700, fill: c.ink, "font-family": FONT
+            x: pad + backW + 10, y: pad + fT, "font-size": fT, "font-weight": 700, fill: c.ink, "font-family": FONT
         }, this.svg);
-        hT.textContent = this.truncate(this.locStr("Start_Title", "🚀 Get started — the first 3 minutes"), width - 2 * pad - backW - 8, fT);
+        hT.textContent = this.truncate(this.locStr("Start_Title", "🚀 Get started — the first 3 minutes"), width - 2 * pad - backW - 10, fT);
         const hS = this.el("text", {
-            x: pad, y: pad + fT + 5 + fS, "font-size": fS, fill: c.subtle, "font-family": FONT
+            x: pad, y: pad + fT + 5 + fS, "font-size": fS, fill: c.soft, "font-family": FONT
         }, this.svg);
         hS.textContent = this.truncate(this.locStr("Start_Sub",
             "Three steps to a finished IBCS chart — the ticks follow your fields live, nothing is saved"), width - 2 * pad, fS);
@@ -4066,11 +4154,11 @@ export class Visual implements IVisual {
         const fT = Math.round(14 * tf), fB = Math.round(11 * tf), fS = Math.round(9.5 * tf);
         const backW = this.drawHubBackChip(width, c);
         const hT = this.el("text", {
-            x: pad, y: pad + fT, "font-size": fT, "font-weight": 700, fill: c.ink, "font-family": FONT
+            x: pad + backW + 10, y: pad + fT, "font-size": fT, "font-weight": 700, fill: c.ink, "font-family": FONT
         }, this.svg);
-        hT.textContent = this.truncate(this.locStr("Hub_Tour", "What can the visual do?"), width - 2 * pad - backW - 8, fT);
+        hT.textContent = this.truncate(this.locStr("Hub_Tour", "What can the visual do?"), width - 2 * pad - backW - 10, fT);
         const hS = this.el("text", {
-            x: pad, y: pad + fT + 5 + fS, "font-size": fS, fill: c.subtle, "font-family": FONT
+            x: pad, y: pad + fT + 5 + fS, "font-size": fS, fill: c.soft, "font-family": FONT
         }, this.svg);
         hS.textContent = this.truncate(this.locStr("Hub_TourSub", "Core capabilities with mini previews — ← → to browse, Esc to go back"),
             width - 2 * pad, fS);
@@ -4286,13 +4374,13 @@ export class Visual implements IVisual {
         const tf = this.landingTf();
         this.ensureDemoHatch(c);
         const pad = 12, gap = 10, sg = Math.round(22 * tf);
-        const fT = Math.round(14 * tf), fS = Math.round(10 * tf), fG = Math.round(9.5 * tf);
+        const fT = Math.round(14 * tf), fS = Math.round(10 * tf), fG = Math.round(11 * tf);
         const fC = Math.round(10.5 * tf), fN = Math.round(9.5 * tf), fBd = Math.round(8.5 * tf);
         const backW = this.drawHubBackChip(width, c);
         const hT = this.el("text", {
-            x: pad, y: pad + fT, "font-size": fT, "font-weight": 700, fill: c.ink, "font-family": FONT
+            x: pad + backW + 10, y: pad + fT, "font-size": fT, "font-weight": 700, fill: c.ink, "font-family": FONT
         }, this.svg);
-        hT.textContent = this.truncate(this.locStr("Hub_TplTitle", "IBCS templates"), width - 2 * pad - backW - 8, fT);
+        hT.textContent = this.truncate(this.locStr("Hub_TplTitle", "IBCS templates"), width - 2 * pad - backW - 10, fT);
         const hasData = this.lastRender != null;
         const saved = !hasData ? this.hubTplSaved : null;
         const avail = new Set(this.formattingSettings.chartCard.template.items
@@ -4304,7 +4392,7 @@ export class Visual implements IVisual {
                 ? this.locStr("Hub_TplHintData", "One click applies the template — every setting stays freely changeable afterwards")
                 : this.locStr("Hub_TplHintEmpty", "Preview with demo data — your pick is saved and becomes active as soon as fields are bound");
         const hS = this.el("text", {
-            x: pad, y: pad + fT + 5 + fS, "font-size": fS, fill: saved ? c.teal : c.subtle,
+            x: pad, y: pad + fT + 5 + fS, "font-size": fS, fill: saved ? c.teal : c.soft,
             "font-family": FONT, "font-weight": saved ? 600 : 400, "data-icd": "hub-tpl-hint"
         }, this.svg);
         hS.textContent = this.truncate(subTxt, width - 2 * pad, fS);
@@ -4383,7 +4471,7 @@ export class Visual implements IVisual {
                 if (aligned) { bx = x0 + slotX[k]; }
                 const gr = TEMPLATE_GROUPS[ch.gi];
                 const gt = this.el("text", {
-                    x: bx, y: by + fG, "font-size": fG, "font-weight": 700, fill: c.hc ? c.ink : c.teal,
+                    x: bx, y: by + fG, "font-size": fG, "font-weight": 700, fill: c.hc ? c.ink : c.soft,
                     "font-family": FONT, "letter-spacing": "0.5", "data-icd": `hub-tpl-group-${gr.id}`
                 }, this.svg);
                 const gName = this.locStr(gr.key, gr.en).toUpperCase();

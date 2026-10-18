@@ -136,6 +136,23 @@ function relLuminance(hex: string): number {
 }
 /** transition of the interactive chrome — present, never a show */
 const TRANSITION = "background-color .12s ease,border-color .12s ease,box-shadow .12s ease,color .12s ease";
+/**
+ * 1.4.1 family values of the hub's bottom bar — identical in ChartKitchen so
+ * both visuals compare pixel by pixel: 12 px horizontal · 8 px vertical
+ * padding, 6 px between the pills, 10 px between the groups, the "made by
+ * Daten-WG" signature at 9 px / 60 % opacity under the bar. Fixed px — only
+ * the pills and texts follow the font size preset.
+ */
+/** the hover lift of every hub tile (home tiles, "🚀 Loslegen", gallery) */
+const HUB_LIFT = "translateY(-2px)";
+const HUB_BAR = { padX: 12, padY: 8, pillGap: 6, gap: 10, madeFs: 9, madeLh: 12, madePadB: 4 };
+/** #RRGGBB (or #RGB) as rgba() with the given alpha; anything else comes back unchanged */
+function rgbaOf(hex: string, a: number): string {
+    let h = (hex || "").trim().replace("#", "");
+    if (/^[0-9a-f]{3}$/i.test(h)) { h = h.split("").map(ch => ch + ch).join(""); }
+    if (!/^[0-9a-f]{6}$/i.test(h)) { return hex; }
+    return `rgba(${parseInt(h.slice(0, 2), 16)},${parseInt(h.slice(2, 4), 16)},${parseInt(h.slice(4, 6), 16)},${a})`;
+}
 
 /**
  * powerbi.VisualDataChangeOperationKind.Append — mirrored as a plain number
@@ -2158,10 +2175,7 @@ export class Visual implements IVisual {
         title.textContent = this.tr("UI_DemoTitle");
         title.style.cssText = `font-weight:600;color:${C.text};`;
         // 1.3 the hub's demo page: the way back to the start page comes first
-        if (this.emptyMode() === "hub" && !this.miniSpec) {
-            head.appendChild(this.hubBtn(this.tr("UI_HubBack"), () => this.hubGo("hub"),
-                { tip: this.tr("UI_HubBackTip"), key: "hub-back", primary: true }));
-        }
+        if (this.emptyMode() === "hub" && !this.miniSpec) { head.appendChild(this.hubBackPill()); }
         head.appendChild(badge); head.appendChild(title);
         box.appendChild(head);
         const body = document.createElement("div");
@@ -2347,6 +2361,7 @@ export class Visual implements IVisual {
         const content = this.hubContent(page);
         content.setAttribute("data-hub-sig", sig);
         host.replaceChildren(content);
+        this.hubFitNote(content);
         // The minis lay themselves out (fit passes, tile view) — they need the
         // attached page. The first three run at once (the tour and the top of
         // the gallery appear with the page), the rest in small batches so the
@@ -2387,7 +2402,7 @@ export class Visual implements IVisual {
             hub: "P&L Statement byDatenWG", tour: this.tr("UI_HubTour"), templates: this.tr("UI_HubTpl"),
             demo: this.tr("UI_EsDemo"), fields: this.tr("UI_EsFields"), start: this.tr("UI_GoTitle"),
         };
-        wrap.appendChild(this.hubHeader(titles[page], page !== "hub"));
+        wrap.appendChild(this.hubHeader(titles[page], page !== "hub", page === "hub" ? this.tr("UI_HubIntro") : undefined));
         const body = document.createElement("div");
         body.setAttribute("data-pnl", "hub-body");
         body.style.cssText = `flex:1 0 auto;padding-bottom:${this.kpx(16)};`;
@@ -2409,39 +2424,143 @@ export class Visual implements IVisual {
      * (edit mode only, through IVisualHost.launchUrl). Sticky: it stays at the
      * lower edge while the page scrolls.
      */
-    private hubFooter(): HTMLElement {
+    private hubFooter(edge = this.k(18)): HTMLElement {
+        const f = this.hubFam();
+        const foot = document.createElement("div");
+        foot.setAttribute("data-pnl", "hub-footer");
+        foot.style.cssText = `position:sticky;bottom:0;z-index:5;margin:0 -${edge}px;background:${this.pageBg()};` +
+            `font-family:${FONT};`;
+        // 1.4.1 family bar (the same in ChartKitchen): 8 px · 12 px padding, a 1 px rule of 10 % ink on top,
+        // one line of pill height — "Aa", HD · Full HD · UHD, the quiet hint, the docs pill on the right
         const bar = document.createElement("div");
-        bar.setAttribute("data-pnl", "hub-footer");
-        const pad = this.k(18);
-        bar.style.cssText = `position:sticky;bottom:0;z-index:5;margin:0 -${pad}px;padding:${this.kpx(8)} ${pad}px;` +
-            `display:flex;align-items:center;gap:${this.kpx(10)};flex-wrap:wrap;background:${this.pageBg()};` +
-            `border-top:1px solid ${C.cardEdge};font-family:${FONT};`;
+        bar.setAttribute("data-pnl", "hub-bar");
+        bar.style.cssText = `display:flex;align-items:center;flex-wrap:wrap;column-gap:${HUB_BAR.gap}px;row-gap:${HUB_BAR.pillGap}px;` +
+            `box-sizing:border-box;min-height:${this.hubPillH() + 2 * HUB_BAR.padY + 1}px;` +
+            `padding:${HUB_BAR.padY}px ${HUB_BAR.padX}px;border-top:1px solid ${f.rule};`;
+        const aa = document.createElement("span");
+        aa.setAttribute("data-pnl", "hub-aa");
+        aa.setAttribute("aria-hidden", "true");
+        aa.textContent = "Aa";
+        aa.style.cssText = `flex:none;color:${f.soft};font-size:${this.kpx(12)};font-weight:600;line-height:1;`;
+        bar.appendChild(aa);
         const seg = document.createElement("div");
         seg.setAttribute("data-pnl", "hub-font");
         seg.setAttribute("role", "group");
         seg.setAttribute("aria-label", this.tr("UI_HubFont"));
-        seg.style.cssText = `display:flex;gap:${this.kpx(4)};`;
+        seg.style.cssText = `flex:none;display:flex;align-items:center;gap:${HUB_BAR.pillGap}px;`;
         const cur = String(this.settings.styleCard.fontPreset.value?.value ?? "hd");
         for (const p of FONT_PRESETS) {
             const on = cur === p.value;
-            const b = this.hubBtn(p.label, () => this.setFontPreset(p.value),
-                { key: "hub-font-" + p.value, primary: on, tip: this.tr("UI_HubFontTip", p.label) });
+            const b = this.hubPill(p.label, () => this.setFontPreset(p.value),
+                { key: "hub-font-" + p.value, kind: on ? "on" : "off", tip: this.tr("UI_HubFontTip", p.label) });
             b.setAttribute("aria-pressed", on ? "true" : "false");
-            b.style.padding = `${this.kpx(3.5)} ${this.kpx(10)}`;
             seg.appendChild(b);
         }
         seg.title = this.tr("UI_HubFont");
         bar.appendChild(seg);
-        // the explanation where it fits on one line with the buttons; narrow visuals keep it as the tooltip
+        // the hint: one muted line; where it does not fit, only the hint goes (hubFitNote) — never the pills
         const note = document.createElement("span");
-        note.style.cssText = `color:${C.soft};font-size:${this.kpx(10)};flex:1 1 auto;min-width:0;`;
-        if (this.hubAvail() >= this.k(720)) { note.textContent = this.tr("UI_HubFont"); }
+        note.setAttribute("data-pnl", "hub-font-note");
+        note.textContent = this.tr("UI_HubFont");
+        note.style.cssText = `flex:1 1 0;min-width:0;color:${f.soft};font-size:${this.kpx(10)};line-height:1.3;` +
+            "white-space:nowrap;overflow:hidden;";
         bar.appendChild(note);
         if (this.editMode()) {
-            bar.appendChild(this.hubBtn(this.tr("UI_HubDocs"), () => this.openDocs(),
-                { key: "hub-docs", tip: this.tr("UI_HubDocsTip") }));
+            const d = this.hubPill(this.tr("UI_HubDocs"), () => this.openDocs(),
+                { key: "hub-docs", kind: "outline", tip: this.tr("UI_HubDocsTip") });
+            d.style.marginLeft = "auto";
+            bar.appendChild(d);
         }
-        return bar;
+        foot.appendChild(bar);
+        // the micro signature right under the bar, centred — identical in both visuals
+        const made = document.createElement("div");
+        made.setAttribute("data-pnl", "hub-made");
+        made.textContent = "made by Daten-WG";
+        made.style.cssText = `text-align:center;color:${f.soft};opacity:.6;font-size:${HUB_BAR.madeFs}px;` +
+            `line-height:${HUB_BAR.madeLh}px;padding-bottom:${HUB_BAR.madePadB}px;white-space:nowrap;`;
+        foot.appendChild(made);
+        return foot;
+    }
+
+    /** pill height of the hub family (font size pills, docs, ← Zurück): 21 px on the type scale */
+    private hubPillH(): number {
+        return Math.round(this.k(21));
+    }
+
+    /** height of the hub footer: the bar (pill + 2 × 8 px + the 1 px rule) plus the signature line */
+    private hubFooterH(): number {
+        return this.hubPillH() + 2 * HUB_BAR.padY + 1 + HUB_BAR.madeLh + HUB_BAR.madePadB;
+    }
+
+    /** after the page is attached: the hint of the bottom bar disappears when it does not fit its line */
+    private hubFitNote(scope: HTMLElement): void {
+        const n = scope.querySelector<HTMLElement>('[data-pnl="hub-font-note"]');
+        if (!n) { return; }
+        n.style.visibility = "";
+        n.removeAttribute("data-hidden");
+        if (n.scrollWidth > n.clientWidth + 1) {
+            n.style.visibility = "hidden";
+            n.setAttribute("data-hidden", "1");
+        }
+    }
+
+    /**
+     * 1.4.1 family colours of the hub chrome (ChartKitchen uses the same):
+     * ink, ink-soft, paper, the teal accent of the active pill and of
+     * "🚀 Loslegen" (#0E8585 · dark #3FB3C2 with dark text), the 10 % ink rule.
+     * High contrast: foreground / background, the active pill framed in
+     * foregroundSelected.
+     */
+    private hubFam(): { hc: boolean; ink: string; soft: string; paper: string; teal: string; tealEdge: string; onTeal: string; rule: string; hover: string } {
+        const pal = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette | undefined;
+        if (pal && pal.isHighContrast) {
+            const fg = pal.foreground?.value || "#000000";
+            const bg = pal.background?.value || "#FFFFFF";
+            const sel = pal.foregroundSelected?.value || fg;
+            return { hc: true, ink: fg, soft: fg, paper: bg, teal: bg, tealEdge: sel, onTeal: sel, rule: fg, hover: bg };
+        }
+        const teal = this.dark ? "#3FB3C2" : "#0E8585";
+        return {
+            hc: false, ink: C.text, soft: C.soft, paper: C.paper, teal, tealEdge: teal,
+            onTeal: this.dark ? "#1A1A1A" : "#FFFFFF", rule: rgbaOf(C.text, 0.1), hover: C.ctlHover,
+        };
+    }
+
+    /**
+     * A pill of the hub family: radius = height / 2. "off" = an inactive
+     * toggle (paper, 1 px ink-soft frame, ink text), "on" = the active one
+     * (teal fill, white text), "outline" = an action (paper, 1 px ink frame):
+     * the docs button and "← Zurück".
+     */
+    private hubPill(label: string, onClick: () => void,
+        o: { key: string; kind: "on" | "off" | "outline"; tip?: string }): HTMLElement {
+        const f = this.hubFam();
+        const h = this.hubPillH();
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = label;
+        b.setAttribute("data-pnl", o.key);
+        b.setAttribute("data-pill", o.kind);
+        if (o.tip) { b.title = o.tip; }
+        this.kbRing(b);
+        const bg = o.kind === "on" ? f.teal : f.paper;
+        const edge = o.kind === "on" ? f.tealEdge : o.kind === "off" ? f.soft : f.ink;
+        b.style.cssText = `flex:none;box-sizing:border-box;height:${h}px;line-height:${h - 2}px;padding:0 ${this.kpx(10)};` +
+            `border-radius:${h / 2}px;font-family:${FONT};font-size:${this.kpx(10.5)};white-space:nowrap;cursor:pointer;` +
+            `background:${bg};border:1px solid ${edge};color:${o.kind === "on" ? f.onTeal : f.ink};` +
+            `font-weight:${o.kind === "on" ? 600 : 400};transition:${TRANSITION};`;
+        if (o.kind !== "on") {
+            b.onmouseenter = (): void => { b.style.background = f.hover; };
+            b.onmouseleave = (): void => { b.style.background = bg; };
+        }
+        b.onclick = (e: Event): void => { e.stopPropagation(); onClick(); };
+        return b;
+    }
+
+    /** "← Zurück" of every hub sub page (and the hub's demo page): the outlined family pill */
+    private hubBackPill(): HTMLElement {
+        return this.hubPill(this.tr("UI_HubBack"), () => this.hubGo("hub"),
+            { key: "hub-back", kind: "outline", tip: this.tr("UI_HubBackTip") });
     }
 
     /** the bound data roles the hub reads (field guide, checklist), sorted */
@@ -2469,20 +2588,32 @@ export class Visual implements IVisual {
         return [terms ? 1 : 0, thr ? 1 : 0, dec ? 1 : 0];
     }
 
-    private hubHeader(title: string, back: boolean): HTMLElement {
+    /**
+     * 1.4.1 family title row: "← Zurück" as an outlined pill top left, the
+     * title bold (on the home page the product name with its subtitle in
+     * ink-soft below), "✕ Schließen" of the overlay on the right.
+     */
+    private hubHeader(title: string, back: boolean, sub?: string): HTMLElement {
         const row = document.createElement("div");
         row.style.cssText = `display:flex;align-items:center;gap:${this.kpx(12)};margin-bottom:${this.kpx(12)};flex-wrap:wrap;`;
-        if (back) {
-            row.appendChild(this.hubBtn(this.tr("UI_HubBack"), () => this.hubGo("hub"),
-                { tip: this.tr("UI_HubBackTip"), key: "hub-back", primary: true }));
-        }
+        if (back) { row.appendChild(this.hubBackPill()); }
+        const block = document.createElement("div");
+        block.style.cssText = "flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px;";
         const h = document.createElement("div");
         h.setAttribute("data-pnl", "hub-title");
         h.setAttribute("role", "heading");
         h.setAttribute("aria-level", "1");
-        h.style.cssText = `font-size:${this.kpx(15)};font-weight:600;flex:1 1 auto;`;
+        h.style.cssText = `font-size:${this.kpx(15)};font-weight:700;line-height:1.3;`;
         h.textContent = title;
-        row.appendChild(h);
+        block.appendChild(h);
+        if (sub) {
+            const s = document.createElement("div");
+            s.setAttribute("data-pnl", "hub-sub");
+            s.style.cssText = `font-size:${this.kpx(10.5)};color:${this.hubFam().soft};line-height:1.45;max-width:${this.k(620)}px;`;
+            s.textContent = sub;
+            block.appendChild(s);
+        }
+        row.appendChild(block);
         if (this.hubOverlay) {
             row.appendChild(this.hubBtn(this.tr("UI_HubClose"), () => this.closeHub(true),
                 { tip: this.tr("UI_HubCloseTip"), key: "hub-close" }));
@@ -2549,10 +2680,7 @@ export class Visual implements IVisual {
     /** the home page: four big buttons */
     private hubHome(): HTMLElement {
         const wrap = document.createElement("div");
-        const intro = document.createElement("div");
-        intro.style.cssText = `color:${C.soft};max-width:${this.k(620)}px;margin-bottom:${this.kpx(12)};`;
-        intro.textContent = this.tr("UI_HubIntro");
-        wrap.appendChild(intro);
+        // the intro line is the subtitle of the title row (1.4.1 family header)
         const a = this.hubArgs();
         if (a.missing && a.missing.length > 0) {
             const miss = document.createElement("div");
@@ -2590,11 +2718,13 @@ export class Visual implements IVisual {
         b.type = "button";
         b.setAttribute("data-pnl", "hub-start");
         this.kbRing(b);
-        const acc = this.accent();
-        const on = this.onAccent();
+        // 1.4.1 family: teal fill (dark teal with dark text; high contrast framed in foregroundSelected),
+        // the full width of the tile block, the tiles' 10 px corners
+        const f = this.hubFam();
+        const on = f.onTeal;
         b.style.cssText = `display:flex;align-items:center;gap:${this.kpx(14)};width:100%;max-width:${this.k(760)}px;` +
-            `box-sizing:border-box;text-align:left;font-family:${FONT};color:${on};background:${acc};` +
-            `border:1px solid ${acc};border-radius:8px;padding:${this.kpx(12)} ${this.kpx(16)};cursor:pointer;` +
+            `box-sizing:border-box;text-align:left;font-family:${FONT};color:${on};background:${f.teal};` +
+            `border:1px solid ${f.tealEdge};border-radius:10px;padding:${this.kpx(12)} ${this.kpx(16)};cursor:pointer;` +
             `margin-bottom:${this.kpx(12)};box-shadow:${C.shadow};transition:${TRANSITION};`;
         const txt = document.createElement("span");
         txt.style.cssText = "display:flex;flex-direction:column;gap:3px;min-width:0;flex:1 1 auto;";
@@ -2610,7 +2740,7 @@ export class Visual implements IVisual {
         arrow.textContent = "→";
         arrow.style.cssText = `font-size:${this.kpx(18)};font-weight:700;flex:none;`;
         b.appendChild(txt); b.appendChild(arrow);
-        b.onmouseenter = (): void => { b.style.boxShadow = C.shadowHover; b.style.transform = "translateY(-1px)"; };
+        b.onmouseenter = (): void => { b.style.boxShadow = C.shadowHover; b.style.transform = HUB_LIFT; };
         b.onmouseleave = (): void => { b.style.boxShadow = C.shadow; b.style.transform = ""; };
         b.onclick = (e: Event): void => { e.stopPropagation(); this.hubGo("start"); };
         return b;
@@ -2624,7 +2754,7 @@ export class Visual implements IVisual {
         this.kbRing(b);
         const acc = this.accent();
         b.style.cssText = `display:flex;align-items:flex-start;gap:${this.kpx(12)};text-align:left;font-family:${FONT};` +
-            `color:${C.text};background:${C.paper};border:1px solid ${C.cardEdge};border-radius:8px;` +
+            `color:${C.text};background:${C.paper};border:1px solid ${C.cardEdge};border-radius:10px;` +
             `padding:${this.kpx(14)} ${this.kpx(16)};min-height:${this.kpx(84)};cursor:pointer;` +
             `box-shadow:${C.shadow};transition:${TRANSITION};`;
         const badge = document.createElement("span");
@@ -2643,8 +2773,9 @@ export class Visual implements IVisual {
         d.style.cssText = `font-size:${this.kpx(11)};color:${C.soft};line-height:1.45;`;
         txt.appendChild(t); txt.appendChild(d);
         b.appendChild(badge); b.appendChild(txt);
-        b.onmouseenter = (): void => { b.style.borderColor = acc; b.style.boxShadow = C.shadowHover; };
-        b.onmouseleave = (): void => { b.style.borderColor = C.cardEdge; b.style.boxShadow = C.shadow; };
+        // 1.4.1 the family hover lift (the gallery tiles' -2 px, accent frame, raised shadow)
+        b.onmouseenter = (): void => { b.style.borderColor = acc; b.style.boxShadow = C.shadowHover; b.style.transform = HUB_LIFT; };
+        b.onmouseleave = (): void => { b.style.borderColor = C.cardEdge; b.style.boxShadow = C.shadow; b.style.transform = ""; };
         b.onclick = (e: Event): void => { e.stopPropagation(); this.hubGo(page); };
         return b;
     }
@@ -2834,7 +2965,9 @@ export class Visual implements IVisual {
             h.setAttribute("role", "heading");
             h.setAttribute("aria-level", "2");
             h.setAttribute("data-pnl", "tpl-group-title");
-            h.style.cssText = `font-size:${this.kpx(13)};font-weight:700;`;
+            // 1.4.1 family eyebrow: capitals in ink-soft, 11 px on the type scale
+            h.style.cssText = `font-size:${this.kpx(11)};font-weight:700;letter-spacing:.09em;text-transform:uppercase;` +
+                `color:${this.hubFam().soft};line-height:1.4;`;
             h.textContent = this.tr(g.title);
             const sub = document.createElement("div");
             sub.style.cssText = `color:${C.soft};font-size:${this.kpx(10.5)};`;
@@ -2929,7 +3062,7 @@ export class Visual implements IVisual {
         }
         b.appendChild(cap);
         b.onmouseenter = (): void => {
-            b.style.borderColor = acc; b.style.boxShadow = C.shadowHover; b.style.transform = "translateY(-2px)";
+            b.style.borderColor = acc; b.style.boxShadow = C.shadowHover; b.style.transform = HUB_LIFT;
         };
         b.onmouseleave = (): void => {
             b.style.borderColor = edge; b.style.boxShadow = active ? C.shadowHover : C.shadow; b.style.transform = "";
@@ -3235,7 +3368,7 @@ export class Visual implements IVisual {
         const host = this.hubHost();
         const w = Math.max(300, (host.clientWidth || this.vpW) - 2 * this.k(18));
         // header above, the bottom bar below (1.4)
-        const h = Math.max(220, (host.clientHeight || this.vpH) - this.k(76) - this.k(48));
+        const h = Math.max(220, (host.clientHeight || this.vpH) - this.k(76) - this.hubFooterH() - 6);
         const box = document.createElement("div");
         box.setAttribute("data-pnl", "hub-demo");
         box.style.cssText = `position:relative;width:${w}px;height:${h}px;border:1px solid ${C.ctlEdge};border-radius:4px;overflow:hidden;`;
@@ -3430,10 +3563,9 @@ export class Visual implements IVisual {
         this.renderView();
         // 1.4 the hub's demo page (no fields, emptyState.mode = hub) carries the hub's bottom bar too
         if (this.demo && !this.miniSpec && this.hubPage === "demo" && !this.hubOverlay && this.emptyMode() === "hub") {
-            const f = this.hubFooter();
-            f.style.margin = "0";
-            f.style.padding = `${this.kpx(8)} 14px`;
+            const f = this.hubFooter(0);
             this.root.appendChild(f);
+            this.hubFitNote(f);
         }
     }
 

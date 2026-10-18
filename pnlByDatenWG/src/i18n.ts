@@ -289,7 +289,7 @@ export const UI_EN: Record<string, string> = {
     UI_TtOff: "Classic P&L table",
     UI_TuOff: "Column presets, sparklines and period blocks — readers switch for themselves in the toolbar.",
     UI_TplOffBadge: "Classic",
-    UI_HubFont: "Font size — HD for laptops, Full HD for monitors, UHD for projectors and 4K",
+    UI_HubFont: "Font size — HD for laptops · Full HD for monitors · UHD for projectors & 4K",
     UI_HubFontTip: "Font size {0} — saved in the format pane (Style → Font size preset)",
     UI_HubDocs: "📖 Open docs",
     UI_HubDocsTip: "Open the full documentation in the browser (datenwgknowledgekitchen.com)",

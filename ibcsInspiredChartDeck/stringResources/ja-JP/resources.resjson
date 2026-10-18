@@ -627,6 +627,7 @@
   "Hub_StartDesc": "最初の 3 分：① フィールドを設定 · ② テンプレートを選択 · ③ 仕上げ",
   "Hub_SizeGroup": "ビジュアル全体のフォント サイズ",
   "Hub_SizeTip": "{0} 画面向けのフォント サイズ — ビジュアル全体に適用（書式ペイン：データ ラベル → サイズプリセット）",
+  "Hub_SizeHint": "フォント サイズ — HD はノート PC · Full HD はモニター · UHD はプロジェクターと 4K 向け",
   "Hub_Docs": "📖 ドキュメントを開く",
   "Hub_DocsTip": "ChartKitchen のドキュメントをブラウザーで開く",
   "Hub_TourDone": "← スタートに戻る",

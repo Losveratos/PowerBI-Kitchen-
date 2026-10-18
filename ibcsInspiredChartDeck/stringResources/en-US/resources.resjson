@@ -627,6 +627,7 @@
   "Hub_StartDesc": "First 3 minutes: ① bind fields · ② pick a template · ③ fine-tune",
   "Hub_SizeGroup": "Font size for the whole visual",
   "Hub_SizeTip": "Font size for {0} screens — applies to the whole visual (format pane: Data labels → Size preset)",
+  "Hub_SizeHint": "Font size — HD for laptops · Full HD for monitors · UHD for projectors & 4K",
   "Hub_Docs": "📖 Open docs",
   "Hub_DocsTip": "Open the ChartKitchen documentation in the browser",
   "Hub_TourDone": "← Back to start",
