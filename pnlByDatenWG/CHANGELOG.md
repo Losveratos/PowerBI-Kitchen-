@@ -1,5 +1,86 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.4.0.0 (2026-10-18) — Hub-Polish: Self-Service für Controller
+
+Der Einstieg soll für Controller und Finance ohne Sackgassen funktionieren —
+dasselbe Bedienkonzept wie im Schwester-Visual ChartKitchen. Lese- und
+Export-Pfade sind unverändert: Pixel-Regression aller 58 Harness-Bühnen
+(p1–p27, m1–m31) gegen 1.3 — 50 byte-identisch. Abweichungen nur auf Hub-/
+Leerzustand-Bühnen (p12, p21–p24, p26: neue Galerie, Leiste, Loslegen-Knopf)
+und dem Toolbar-Start-Knopf (p20, p27: Unterschied nur in der Toolbar-Zeile,
+y 79–116 bzw. 61–98 px; die Tabelle darunter pixelgleich). p19 (Feld-Intro im
+Modus `fields`) und p25 (Modus `demo`) bleiben byte-identisch. Keine neue
+Property, keine neue Rolle, capabilities.json unverändert; Werttreiberbaum
+unangetastet.
+
+### Template-Galerie nach Zweck
+
+- **Vier Gruppen** statt der T-Nummern-Liste: *Struktur-Vergleich* (T01A/B,
+  T02A–C) · *Forecast* (T02E/F, T03B, T04D/E) · *GuV-Statement* (T03A,
+  T04A–C) · *Report-Ansichten* (12A, 12G, 12H, klassische Tabelle). Jede Gruppe
+  mit einem Satz Zweck.
+- **Kacheln:** Finance-Titel („Regionen mit Plan-Abweichung", „GuV mit
+  Δ-Wasserfall"), T-Nummer als kleines Badge auf der Vorschau, eine
+  Nutzen-Zeile, größere Vorschau (Mindestbreite 240 statt 210 px). Hover hebt
+  die Kachel an (Akzentrahmen, Schatten), die aktive Kachel trägt 2-px-Akzent-
+  rahmen, getönten Grund und die Pille „✓ aktiv". Klick-Verhalten wie in 1.3
+  (ein Speichervorgang, Echo-Guard, Wiederanwenden).
+
+### Untere Leiste auf jeder Hub-Seite
+
+- **HD · Full HD · UHD** als erstes Element einer festen (sticky) Leiste am
+  unteren Rand aller Hub-Seiten — Startseite, Tour, Galerie, Felder, Loslegen,
+  die Demo-Seite und alle Seiten im Overlay. Das ist das bestehende Setting
+  `style.fontPreset`; das aktive Preset ist markiert, ein Klick speichert mit
+  Echo-Guard (TTL 5, Muster `emptyState.mode`) und zeichnet sofort neu — im
+  Overlay auch die GuV darunter.
+- **„📖 Doku öffnen"** rechts in der Leiste (nur Bearbeitungsmodus):
+  `IVisualHost.launchUrl` auf https://datenwgknowledgekitchen.com/pnl-doku.html
+  (deutsche Locale) bzw. `pnl-doku_en.html` (alle anderen). Keine Privilegien
+  nötig, nichts gespeichert.
+
+### Feld-Intro: alle Rollen, zwei Prämissen
+
+- **Alle 20 Datenrollen** mit je einem Satz Zweck und ✓ bei gebunden, in vier
+  Gruppen: *Pflicht* (Ebenen, Konto-ID, Parent, AC) · *Szenarien und Zeit*
+  (PY, PL, FC, Periode, FC/PL Gesamtjahr) · *Statement-Logik* (Zeilentyp,
+  Formel, Vorzeichen, Anzeige-/Abweichungs-Invertierung, Sortierung) ·
+  *Extras* (Kontoname, Kommentar, Spalten-Kategorie, Filter-Info).
+- **Prämisse IBCS-Notation:** AC voll · PY grau · PL Rahmen/Doppellinie ·
+  FC schraffiert, Regel „Minuend → Füllung, Referenz → Achse".
+- **Prämisse Struktur vs. Zeit:** Konten/Struktur vertikal in Zeilen, Zeit
+  horizontal in Blöcken (Monat | _YTD | FY), mit Mini-Piktogramm.
+- Das 1.2-Feld-Intro des Modus `emptyState.mode = fields` bleibt unverändert.
+
+### „🚀 Loslegen" — die ersten 3 Minuten
+
+- Breiter Akzent-Knopf über den vier Kacheln der Startseite. Die Seite ist eine
+  geführte Checkliste: **① Felder binden** (live ✓ je Pflicht-/Empfehlungsrolle,
+  der schnelle Weg mit Ebenen-Spalten zuerst; Sprung „Alle Felder erklärt"),
+  **② Template wählen** (Stand + Sprung in die Galerie), **③ Feinschliff**
+  (Hausbegriffe, Schwellen/Wesentlichkeit, Dezimalen — mit Ort im
+  Formatbereich, ✓ sobald gesetzt). Der Zustand wird nie gespeichert.
+
+### Durchgängig zurück, Zugang einfacher
+
+- „← Zurück" auf jeder Unterseite und Ebene (auch Loslegen → Galerie/Felder),
+  Esc wie gehabt eine Ebene zurück, der Fokus kehrt auf die Kachel bzw. den
+  Loslegen-Knopf zurück.
+- **„☰ Start"** ist jetzt das **erste** Element der Toolbar (vor der
+  Template-Auswahl), mit Akzentrahmen und fetter Schrift, beim Hover gefüllt
+  (bisher leise am Ende der Toolbar).
+
+### Tests
+
+- `test/hub-test.js`: Galerie-Gruppen (Reihenfolge, jedes Template genau
+  einmal), Feld-Rollen = capabilities-Rollen, Checklisten-Ticks, Preset-Reihen-
+  folge, Doku-URL je Locale.
+- `test/hub-interact.js` (109 Checks): neue Abschnitte Q (Galerie-Kacheln),
+  P (Preset-Leiste persist + Echo-Guard, Doku über den `launchUrl`-Logger des
+  Harness-Hosts), S (Loslegen live), F (Feld-Intro), B (Zurück überall).
+- `test/i18n-test.js` liest auch die Schlüssel aus `src/hub.ts`. 107 neue
+  Texte in vier Sprachen (712 Schlüssel je Sprache).
+
 ## 1.3.0.0 (2026-10-18) — Start-Hub: erst entdecken, dann Felder binden
 
 Ziel ist leichtere Bedienung: Wer das Visual ohne Daten auf die Seite zieht,

@@ -1,6 +1,6 @@
 # IBCS-Templates mit „P&L Statement byDatenWG" nachstellen · Kurzanleitung
 
-Stand: **Visual 1.3.0.0** (18.10.2026). Für die lokale Arbeit in Power BI Desktop —
+Stand: **Visual 1.4.0.0** (18.10.2026). Für die lokale Arbeit in Power BI Desktop —
 alles Nötige, um die offiziellen IBCS-Templates (T01A–T04E, 12A, 12G, 12H)
 nachzubauen. Referenzbilder liegen in `prototype/refs/`, der interaktive
 HTML-Prototyp in `prototype/megatable.html` (im Browser öffnen, Referenz-Dropdown
@@ -38,11 +38,21 @@ Drei Wege, dasselbe Ergebnis:
 
 - **Start-Hub (1.3, am anschaulichsten):** Ohne gebundene Felder zeigt das Visual
   im Bearbeitungsmodus den Hub, Knopf **Templates** öffnet die Galerie: 18 Kacheln
-  (klassische Tabelle + T01A–12H) mit Mini-Vorschau auf Demo-Daten. Ein Klick wendet
-  das Template an. Ohne Felder wird die Wahl gespeichert und greift beim Binden.
-  Mit gebundenen Daten steht in der Toolbar (nur Bearbeitung) **☰ Start**: das
-  Overlay hat dieselbe Galerie, ein Klick wendet an, stellt die Ansicht *Tabelle*
-  ein und schließt.
+  mit Mini-Vorschau auf Demo-Daten, seit 1.4 **nach Zweck gruppiert** — siehe
+  Tabelle unten — mit Finance-Titel, T-Nummer als Badge und einer Nutzen-Zeile.
+  Ein Klick wendet das Template an. Ohne Felder wird die Wahl gespeichert und
+  greift beim Binden. Mit gebundenen Daten steht als erstes Element der Toolbar
+  (nur Bearbeitung) **☰ Start**: das Overlay hat dieselbe Galerie, ein Klick
+  wendet an, stellt die Ansicht *Tabelle* ein und schließt. Neu in 1.4:
+  **🚀 Loslegen** führt in drei Schritten (Felder → Template → Feinschliff)
+  zur fertigen Tabelle; die Leiste unten schaltet **HD · Full HD · UHD**.
+
+  | Galerie-Gruppe (1.4) | Templates | Finance-Titel der Kacheln |
+  |---|---|---|
+  | Struktur-Vergleich | T01A, T01B, T02A, T02B, T02C | Regionen mit Plan-Abweichung · Regionen mit Zwischensummen · Plan-Abweichung als Balken · Ranking nach Ist (YTD) · Ranking nach Abweichung (Monat) |
+  | Forecast | T02E, T02F, T03B, T04D, T04E | Forecast gegen Vorjahr · Forecast gegen Plan · Forecast-GuV mit Δ zu Vorjahr und Plan · Forecast-GuV mit Plan-Wasserfall · Forecast-GuV mit Vorjahres-Wasserfall |
+  | GuV-Statement | T03A, T04A, T04B, T04C | GuV mit Abweichung zu Vorjahr und Plan · GuV mit Plan-Abweichungsbalken · GuV mit Δ-Wasserfall · GuV mit Vorjahres-Wasserfall |
+  | Report-Ansichten | 12A, 12G, 12H, klassisch | Wert-Kaskaden Vorjahr und Ist · Jahresausblick (FY) · Planrechnung gegen Vorjahr · Klassische GuV-Tabelle |
 
 - **Toolbar (1.2, am schnellsten):** Im Bearbeitungsmodus steht ganz links in
   der Toolbar das Dropdown **Template** (nur Ansicht *Tabelle*). Auswählen,

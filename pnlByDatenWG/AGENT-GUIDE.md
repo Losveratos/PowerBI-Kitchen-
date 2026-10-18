@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.3.0.0** (18.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.4.0.0** (18.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -19,11 +19,11 @@ Stand: **1.3.0.0** (18.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lese
 | --- | --- |
 | GUID | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
-| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.3.0.0.pbiviz` |
+| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.4.0.0.pbiviz` |
 | API | `powerbi-visuals-api` 5.11 |
 | Datenfenster | `dataReductionAlgorithm window 30000` Zeilen; weitere Segmente lädt das Visual per `fetchMoreData` nach (Ladebalken + „≈" an Summen, bis alles da ist) |
 | Fähigkeiten | Tooltips (default + canvas) · Tastaturfokus · Landing Page · Multi-Visual-Selektion · `supportsHighlight: false` (Cross-Interaktion filtert) |
-| Lizenz | MIT · keine externen Calls, kein Storage, keine Telemetrie |
+| Lizenz | MIT · keine externen Calls, kein Storage, keine Telemetrie (einzige Ausnahme: der Knopf „📖 Doku öffnen" im Hub ruft auf Klick `host.launchUrl` mit der Doku-Seite auf — nur Bearbeitungsmodus) |
 
 ## Feld-Rollen (Datenvertrag)
 
@@ -86,7 +86,13 @@ Die Ansicht ist Leser-Zustand (Toolbar) und steht in `state.uiState` (unten).
 - Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport
   (+30 Zeilen Puffer); Export zeichnet immer alles.
 
-## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.3.0.0)
+## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.4.0.0)
+
+**Neu in 1.4** (Hub-Polish): keine neue Property, keine neue Rolle. Der Hub
+schreibt zusätzlich `style.fontPreset` (Leiste HD · Full HD · UHD unten auf
+jeder Hub-Seite, Echo-Guard) und ruft auf Klick `host.launchUrl` (Doku). Galerie
+nach Zweck gruppiert, Feld-Intro mit allen Rollen, Checkliste „🚀 Loslegen",
+„☰ Start" als erstes Toolbar-Element. Details unter „Hub-Polish (1.4)" bei den Fallen.
 
 **Neu in 1.3** (Start-Hub): `emptyState.mode` += `hub` (neuer **Standard**, erster
 Eintrag; `demo`/`fields`/`message` unverändert wählbar). Keine neue Property,
@@ -410,7 +416,7 @@ werden dann überschrieben).
 13. **Start-Hub (1.3):** Ohne Felder zeigt der Bearbeitungsmodus (`viewMode` ≥ 1 oder
     kein gemeldeter View-Mode, Bühne ≥ 300 × 220 px, `allowInteractions` nicht
     false) den Hub: Tour (7 Karten mit Mini-Renderings), Template-Galerie
-    (18 Kacheln), Demo, Feld-Intro. Leser, Export und kleine Visuals bekommen wie
+    (18 Kacheln), Demo, Feld-Intro (1.4: dazu „🚀 Loslegen" und die untere Leiste). Leser, Export und kleine Visuals bekommen wie
     bisher den Landing-Text. Mit gebundenen Daten öffnet der Toolbar-Knopf
     „☰ Start" (nur `viewMode` ≥ 1) den Hub als Overlay; Schließen stellt die
     Ansicht unverändert her. Ein Galerie-Klick schreibt in **einem** Merge
@@ -428,7 +434,20 @@ werden dann überschrieben).
     sichtbar, wenn Template-Schalter abweichen). Beide schreiben unbedingt
     (`applyMegaTemplate(tpl, true)`, Echo-Guard wie beim Dropdown); ein
     PBIR-Agent muss dafür nichts tun, `template` + `templateApplied` reichen.
-15. **Baum unantastbar:** Der Werttreiberbaum hat eigenen Klapp-Zustand
+15. **Hub-Polish (1.4):** Die Galerie ordnet die 18 Kacheln in vier
+    Zweck-Gruppen (`HUB_GALLERY` in `src/hub.ts`: Struktur-Vergleich · Forecast ·
+    GuV-Statement · Report-Ansichten; die klassische Tabelle steht zuletzt) —
+    die Enum-Reihenfolge von `columns.template` bleibt Pane-Reihenfolge. Die
+    untere Leiste jeder Hub-Seite schreibt `style.fontPreset` (`hd` · `fullhd` ·
+    `uhd`) per `persistProperties` mit Echo-Guard (TTL 5) — dieselbe Property wie
+    der Formatbereich; ein PBIR-Agent setzt sie wie bisher direkt. „📖 Doku
+    öffnen" erscheint nur bei `viewMode` ≥ 1 und ruft `host.launchUrl`
+    (`pnl-doku.html` für `de-*`, sonst `pnl-doku_en.html`). Das Feld-Intro des
+    Hubs listet alle Rollen aus `FIELD_GROUPS` (Test: = capabilities.json);
+    der Modus `emptyState.mode = fields` zeigt weiter das knappe 1.2-Intro.
+    „🚀 Loslegen" ist lokaler Zustand: die Häkchen lesen gebundene Rollen,
+    `labels.*`, `columns.thresholds`/`materiality*` und `numbers.*Decimals`.
+16. **Baum unantastbar:** Der Werttreiberbaum hat eigenen Klapp-Zustand
     (`treeCollapsed`) und SVG-Titel statt Tooltips; Mega-/Finance-Schalter wirken
     dort nicht.
 
@@ -440,5 +459,5 @@ werden dann überschrieben).
 - `SPEC-MEGATABLE.md` — Maße, Notation, Abweichungen von den Referenzblättern
 - `CHANGELOG.md` · `README.md` · `QUICKSTART.md`
 - `../.claude/skills/pnl-report/` — Claude-Skill: GuV-Seite in ein PBIP bauen
-- `src/hub.ts` — Start-Hub, reiner Teil (Template-Schalter, Tour-Karten, Mini-Objekte)
+- `src/hub.ts` — Start-Hub, reiner Teil (Template-Schalter, Tour-Karten, Mini-Objekte; 1.4: Galerie-Gruppen, Feld-Rollen, Loslegen-Schritte, Schrift-Presets, Doku-URL)
 - `test/test.html` — Render-Fälle p1–p27 · m1–m31 als lebende Beispiele

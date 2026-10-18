@@ -203,10 +203,10 @@ const templateItems: LocEnumMember[] = [
 ];
 
 // 1.49: Leer-Zustand — Demo-Galerie (bisheriges Verhalten) · Feld-Intro · eigene Nachricht
-// 1.50: Start-Hub als neuer Standard (Tour · Vorlagen · Demo · Felder); die drei
+// 1.50: Start-Hub als neuer Standard (1.51: Loslegen · Tour · Vorlagen · Demo · Felder); die drei
 // bisherigen Werte bleiben wählbar und verhalten sich wie in 1.49
 const emptyModeItems: LocEnumMember[] = [
-    { value: "hub", displayName: "Start hub (tour, templates, demo, fields)", key: "Enum_EmptyMode_Hub" },
+    { value: "hub", displayName: "Start hub (get started, tour, templates, demo, fields)", key: "Enum_EmptyMode_Hub" },
     { value: "demo", displayName: "Demo gallery (pick a chart type)", key: "Enum_EmptyMode_Demo" },
     { value: "fields", displayName: "Field guide (which field goes where)", key: "Enum_EmptyMode_Fields" },
     { value: "message", displayName: "Own message (title / text below)", key: "Enum_EmptyMode_Message" }
@@ -1401,7 +1401,7 @@ export class EmptyStateCardSettings extends FormattingSettingsCard {
         name: "mode",
         displayName: "Empty state in edit mode",
         displayNameKey: "Empty_Mode",
-        description: "Was der Bericht-Autor im Bearbeitungsmodus sieht, solange keine Daten dargestellt werden: der Start-Hub (Standard: Feature-Tour, IBCS-Vorlagen mit Vorschau, Demo-Galerie, Feld-Intro), nur die Demo-Galerie zur Chart-Typ-Wahl (Verhalten bis 1.49), das Feld-Intro (welches Feld wohin, ✓ an bereits gebundenen Feldern) oder die eigene Nachricht aus Titel/Text unten. Leser und Exporte sehen weiterhin Galerie bzw. eigene Nachricht wie bisher.",
+        description: "Was der Bericht-Autor im Bearbeitungsmodus sieht, solange keine Daten dargestellt werden: der Start-Hub (Standard: Checkliste „Loslegen“, Feature-Tour, IBCS-Vorlagen nach Zweck, Demo-Galerie, Feld-Intro mit allen Rollen; unten HD · Full HD · UHD und die Doku), nur die Demo-Galerie zur Chart-Typ-Wahl (Verhalten bis 1.49), das Feld-Intro (welches Feld wohin, ✓ an bereits gebundenen Feldern) oder die eigene Nachricht aus Titel/Text unten. Leser und Exporte sehen weiterhin Galerie bzw. eigene Nachricht wie bisher.",
         descriptionKey: "Desc_Empty_Mode",
         items: emptyModeItems,
         value: emptyModeItems[0]

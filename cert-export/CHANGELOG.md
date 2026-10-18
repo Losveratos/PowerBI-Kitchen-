@@ -1,5 +1,61 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.51.0.0 (2026-10-18)
+
+**Hub-Polish für Self-Service von Controllern: Vorlagen nach Zweck, Schriftgröße HD · Full HD · UHD immer unten, alle Felder erklärt, „🚀 Loslegen“ und die Doku einen Klick entfernt.**
+
+- **Vorlagen-Galerie nach Zweck gruppiert:** vier Gruppen mit Überschrift —
+  Zeitverlauf (C01, C03, C05, C08) · Struktur (C02, C04, C06) · Korrelation
+  (C09, C10) · Brücken & Mehrfach (C12, C13). Jede Kachel nennt den Zweck in
+  Finance-Sprache („Säulen mit Vorjahres-Abweichung“ statt „C03“), darunter
+  eine Nutzen-Zeile („Monatsbericht AC vs. PY“); die C-Nummer steht als
+  kleines Badge in der Vorschau. Größere Vorschauen, Kacheln heben sich beim
+  Überfahren oder per Tastatur-Fokus leicht an (Schatten + Akzentrahmen), die
+  aktive Vorlage trägt „✓ aktiv“ und einen kräftigen Rahmen. Gruppen, die
+  nebeneinander passen, teilen eine Reihe (in Gruppen-Spalten ausgerichtet);
+  bei wenig Platz blättert die Galerie reihenweise. Speichern wie bisher:
+  `template` + `templateApplied` + Preset in EINEM Merge.
+- **HD · Full HD · UHD immer unten:** Jede Hub-Seite (Start, Loslegen, Tour,
+  Vorlagen, Demo, Felder) endet in derselben Leiste; ihr erstes Element sind
+  die drei Schriftgrößen HD · Full HD · UHD (= `labels.fontPreset`
+  `compact` · `fullhd` · `presentation`), die aktive gefüllt. Ein Klick
+  speichert sofort (Echo-Guard wie bei den Galerie-Pills) und zeichnet den Hub
+  in der neuen Größe; im „☰ Start“-Overlay bleibt der Hub offen, beim
+  Schließen erscheint der Chart in der neuen Größe.
+- **„📖 Doku öffnen“** in derselben Leiste: öffnet die ChartKitchen-Doku über
+  `host.launchUrl` (deutsche Seite bei deutscher Berichtssprache, sonst die
+  englische). Kein zusätzliches Privileg; nur wo der Hub erscheint, also nie
+  für Leser oder in Exporten.
+- **Feld-Intro mit ALLEN 19 Datenrollen** in vier Abschnitten (Pflicht &
+  Achse · Szenarien · Gliederung · Spezial), je ✓ wenn gebunden und ein
+  kurzer Zweck (voller Name + Zweck im Tooltip). Dazu zwei Prämissen-Boxen:
+  **IBCS-Notation** (AC voll · PY grau · PL Rahmen · FC schraffiert, gut/
+  schlecht-Farben) und **Zeit vs. Struktur** („Zeit läuft horizontal, Struktur
+  vertikal — Smart-Start schlägt die passende Achse nach deinem Kategorie-Feld
+  vor“) mit Mini-Piktogramm. Die Blöcke fließen in bis zu drei Spalten; was
+  nicht passt, steht auf weiteren Seiten (‹ n / N ›). Gilt auch für den Modus
+  `fields`, der jetzt die Host-Palette (Hochkontrast) nutzt.
+- **„🚀 Loslegen“** als erster, hervorgehobener Knopf im Hub: geführte
+  Checkliste ① Felder binden (✓ live je Pflicht-/Empfehlungsrolle: Ist (AC)
+  Pflicht, Kategorie, Vorjahr, Plan empfohlen — mit Hinweis, wo die
+  Feldbereiche sind) · ② Template wählen (Sprung in die Galerie, ✓ sobald eine
+  Vorlage gesetzt ist) · ③ Feinschliff (Vergleich & Abweichung, IBCS-Titel,
+  Größen-Preset). Nichts davon wird gespeichert.
+- **„← Zurück“ durchgängig:** jede Unterseite hat den Chip oben rechts; die
+  letzte Tour-Karte bietet zusätzlich „← Zurück zum Start“; Esc wie gehabt.
+- **„☰ Start“ dauerhaft sichtbar:** im Bearbeitungsmodus über dem fertigen
+  Chart abgeschwächt (Deckkraft 0,5), beim Überfahren oder Fokus voll. Liegt
+  an seiner Grundposition unten links Text des Charts (z. B. die erste
+  Achsenbeschriftung) darunter, rückt die Chip-Leiste eine Stufe nach oben.
+  Leser und Exporte sehen ihn weiterhin nie.
+- 78 neue resjson-Keys, zwei entfallen (`FI_Minimal`, `FI_Extended`): 677 je
+  Sprache, de/en/es/ja identisch. Testfälle c230–c236; c203, c222, c225
+  angepasst. Pixel-Regression aller Bestandsfälle gegen 1.50: identisch bis
+  auf die Hub-/Leerzustand-Fälle c11, c135, c139, c203, c204, c206,
+  c220–c229 und — allein wegen des jetzt sichtbaren ☰-Chips — c223, c223b,
+  c224, c225 (Abweichung nur im Chip-Bereich unten links). Lese- und
+  Export-Fälle (u. a. c205, c226) unverändert.
+
 ## 1.50.0.0 (2026-10-18)
 
 **Start-Hub: Wer das Visual leer auf die Seite zieht, bekommt vier große Knöpfe statt einer Galerie — Feature-Tour, IBCS-Vorlagen mit Vorschau, Demo, Felder erklären.**

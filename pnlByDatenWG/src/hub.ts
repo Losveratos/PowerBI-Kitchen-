@@ -42,6 +42,155 @@ export function templateSwitches(tpl: string): TemplateSwitches {
 /** the templates of the gallery, in pane order: "off" (classic table) first, then T01A … 12H */
 export const HUB_TEMPLATES: string[] = MEGA_PRESET_KEYS.slice();
 
+/** a tile of the 1.4 gallery: the template plus its finance title and its use line (resjson keys) */
+export interface GalleryTile {
+    tpl: string;
+    /** finance title of the tile ("Regionen mit Plan-Abweichung") */
+    title: string;
+    /** one line: what a controller gets out of it */
+    use: string;
+}
+
+/** a purpose group of the 1.4 gallery (resjson keys of its head and its one-line explanation) */
+export interface GalleryGroup {
+    id: "structure" | "forecast" | "statement" | "report";
+    title: string;
+    sub: string;
+    tiles: GalleryTile[];
+}
+
+const tile = (tpl: string, title: string, use: string): GalleryTile => ({ tpl, title, use });
+
+/**
+ * 1.4 template gallery by purpose instead of T numbers: structure comparison
+ * (regions, products), forecast, P&L statement, report views. Every template
+ * of the pane appears exactly once; the classic table closes the report views.
+ * The keys are literal so the language test sees them.
+ */
+export const HUB_GALLERY: GalleryGroup[] = [
+    { id: "structure", title: "UI_TgStructure", sub: "UI_TgStructureX", tiles: [
+        tile("T01A", "UI_TtT01A", "UI_TuT01A"),
+        tile("T01B", "UI_TtT01B", "UI_TuT01B"),
+        tile("T02A", "UI_TtT02A", "UI_TuT02A"),
+        tile("T02B", "UI_TtT02B", "UI_TuT02B"),
+        tile("T02C", "UI_TtT02C", "UI_TuT02C"),
+    ] },
+    { id: "forecast", title: "UI_TgForecast", sub: "UI_TgForecastX", tiles: [
+        tile("T02E", "UI_TtT02E", "UI_TuT02E"),
+        tile("T02F", "UI_TtT02F", "UI_TuT02F"),
+        tile("T03B", "UI_TtT03B", "UI_TuT03B"),
+        tile("T04D", "UI_TtT04D", "UI_TuT04D"),
+        tile("T04E", "UI_TtT04E", "UI_TuT04E"),
+    ] },
+    { id: "statement", title: "UI_TgStatement", sub: "UI_TgStatementX", tiles: [
+        tile("T03A", "UI_TtT03A", "UI_TuT03A"),
+        tile("T04A", "UI_TtT04A", "UI_TuT04A"),
+        tile("T04B", "UI_TtT04B", "UI_TuT04B"),
+        tile("T04C", "UI_TtT04C", "UI_TuT04C"),
+    ] },
+    { id: "report", title: "UI_TgReport", sub: "UI_TgReportX", tiles: [
+        tile("12A", "UI_Tt12A", "UI_Tu12A"),
+        tile("12G", "UI_Tt12G", "UI_Tu12G"),
+        tile("12H", "UI_Tt12H", "UI_Tu12H"),
+        tile("off", "UI_TtOff", "UI_TuOff"),
+    ] },
+];
+
+/** a data role of the 1.4 field guide: role name (capabilities), its display name and one sentence of purpose */
+export interface FieldRole {
+    role: string;
+    /** display name key of the field well (Role_*) */
+    name: string;
+    /** one sentence: what the field does (UI_Fr*) */
+    text: string;
+    /** IBCS chip of a scenario role */
+    chip?: "ac" | "py" | "pl" | "fc";
+}
+
+/** a group of the field guide: required · scenarios & time · statement logic · extras */
+export interface FieldGroup {
+    id: "required" | "scenarios" | "logic" | "extras";
+    title: string;
+    roles: FieldRole[];
+}
+
+const fr = (role: string, name: string, text: string, chip?: "ac" | "py" | "pl" | "fc"): FieldRole =>
+    (chip ? { role, name, text, chip } : { role, name, text });
+
+/** 1.4 field guide: every data role of capabilities.json, exactly once, in four groups */
+export const FIELD_GROUPS: FieldGroup[] = [
+    { id: "required", title: "UI_FgRequired", roles: [
+        fr("levels", "Role_Levels", "UI_FrLevels"),
+        fr("account", "Role_Account", "UI_FrAccount"),
+        fr("parent", "Role_Parent", "UI_FrParent"),
+        fr("ac", "Role_AC", "UI_FrAc", "ac"),
+    ] },
+    { id: "scenarios", title: "UI_FgScenarios", roles: [
+        fr("py", "Role_PY", "UI_FrPy", "py"),
+        fr("pl", "Role_PL", "UI_FrPl", "pl"),
+        fr("fc", "Role_FC", "UI_FrFc", "fc"),
+        fr("period", "Role_Period", "UI_FrPeriod"),
+        fr("fcFy", "Role_FCFY", "UI_FrFcFy"),
+        fr("plFy", "Role_PLFY", "UI_FrPlFy"),
+    ] },
+    { id: "logic", title: "UI_FgLogic", roles: [
+        fr("rowType", "Role_RowType", "UI_FrRowType"),
+        fr("formulaDef", "Role_FormulaDef", "UI_FrFormula"),
+        fr("signConvention", "Role_Sign", "UI_FrSign"),
+        fr("displayInvert", "Role_DisplayInvert", "UI_FrDisplayInv"),
+        fr("varianceInvert", "Role_VarianceInvert", "UI_FrVarianceInv"),
+        fr("sortOrder", "Role_SortOrder", "UI_FrSort"),
+    ] },
+    { id: "extras", title: "UI_FgExtras", roles: [
+        fr("accountName", "Role_AccountName", "UI_FrAccountName"),
+        fr("comment", "Role_Comment", "UI_FrComment"),
+        fr("colCategory", "Role_ColCategory", "UI_FrColCat"),
+        fr("filterInfo", "Role_FilterInfo", "UI_FrFilterInfo"),
+    ] },
+];
+
+/** a line of step ① of the "first 3 minutes" checklist */
+export interface StartFieldStep {
+    id: "levels" | "ac" | "refs" | "period" | "logic";
+    /** required (the statement needs it) or recommended */
+    required: boolean;
+    /** any of these roles bound ticks the line */
+    roles: string[];
+    text: string;
+}
+
+/**
+ * Step ① of "🚀 Loslegen": the quick way with level columns first, then AC,
+ * then the recommended roles. A line is ticked as soon as one of its roles is
+ * bound (the account ID counts for the hierarchy as well).
+ */
+export const START_FIELD_STEPS: StartFieldStep[] = [
+    { id: "levels", required: true, roles: ["levels", "account"], text: "UI_GoFLevels" },
+    { id: "ac", required: true, roles: ["ac"], text: "UI_GoFAc" },
+    { id: "refs", required: false, roles: ["py", "pl"], text: "UI_GoFRefs" },
+    { id: "period", required: false, roles: ["period"], text: "UI_GoFPeriod" },
+    { id: "logic", required: false, roles: ["rowType", "signConvention"], text: "UI_GoFLogic" },
+];
+
+/** the ticks of step ①, given the bound roles */
+export function startFieldTicks(bound: (role: string) => boolean): Record<string, boolean> {
+    const out: Record<string, boolean> = {};
+    for (const s of START_FIELD_STEPS) { out[s.id] = s.roles.some(bound); }
+    return out;
+}
+
+/** the three font size presets of the hub's bottom bar, in this order */
+export const FONT_PRESETS: { value: "hd" | "fullhd" | "uhd"; label: string }[] = [
+    { value: "hd", label: "HD" }, { value: "fullhd", label: "Full HD" }, { value: "uhd", label: "UHD" },
+];
+
+/** the online documentation of the visual: German for German locales, English for every other */
+export function docsUrl(locale: string): string {
+    return /^de\b/i.test(locale || "")
+        ? "https://datenwgknowledgekitchen.com/pnl-doku.html"
+        : "https://datenwgknowledgekitchen.com/pnl-doku_en.html";
+}
+
 /** which view a mini rendering draws */
 export type MiniView = "table" | "bars" | "waterfall" | "tree";
 

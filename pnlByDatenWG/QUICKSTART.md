@@ -5,7 +5,7 @@ Hierarchie plus die Kennzahlen (zwei Minuten). **Weg 2** ergänzt die Felder,
 die daraus eine echte GuV machen — Zeilentypen, Formelzeilen, Vorzeichen,
 Kommentare.
 
-Version **1.3.0.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
+Version **1.4.0.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 Web-Fassung dieser Anleitung: [`pnl-schnellstart.html`](../pnl-schnellstart.html)
 (DE) · [`pnl-schnellstart_en.html`](../pnl-schnellstart_en.html) (EN).
 
@@ -29,7 +29,13 @@ das Template an; ohne Felder wird die Wahl gespeichert und greift beim Binden),
 **Demo ansehen** und **Felder erklären**. Esc geht zurück, die Ziffern 1–4 öffnen
 die Knöpfe. Mit gebundenen Daten öffnet **☰ Start** in der Toolbar denselben Hub
 als Overlay; Schließen lässt die Ansicht, wie sie war. Leser und Exporte sehen
-ihn nie. Wer den Hub nicht will, wählt unter Leer-Zustand → Modus Demo,
+ihn nie. **Neu in 1.4:** **🚀 Loslegen** führt in drei Schritten mit Live-Häkchen
+durch Felder binden → Template wählen → Feinschliff; die Galerie ist nach Zweck
+gruppiert (Struktur-Vergleich · Forecast · GuV-Statement · Report-Ansichten);
+„Felder erklären" zeigt alle 20 Rollen plus IBCS-Notation und Struktur vs. Zeit;
+unten auf jeder Hub-Seite schalten **HD · Full HD · UHD** die Schriftgröße
+(gespeichert) und **📖 Doku öffnen** die Online-Doku. „☰ Start" ist der erste
+Knopf der Toolbar. Wer den Hub nicht will, wählt unter Leer-Zustand → Modus Demo,
 Feld-Intro oder eigene Nachricht.
 
 **Smart Start (Demo):** Die Demo-GuV mit dem Hinweis „Demo" — darauf lassen sich Ansichten, Toolbar und
