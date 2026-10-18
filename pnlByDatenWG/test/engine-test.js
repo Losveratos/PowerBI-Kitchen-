@@ -257,6 +257,27 @@ test("levels: ragged via trailing nulls AND repeated values", () => {
     assert.equal(m.maxDepth, 3);
 });
 
+// 1.4.2 — sort column on another scale than the data index (SortOrder = 6 × position, rows arrive by account id):
+// a synthetic intermediate level must not hand its placeholder index up to the root
+test("levels: root order follows the sort column through synthetic intermediate levels", () => {
+    const m = buildLevels([
+        lrow(["Umsatz", "Segment A", "EMEA"], { account: "400100", sort: 30, values: { ac: 100 }, index: 0 }),
+        lrow(["Sonstiges Ergebnis", "Erträge", "Anlagenabgänge"], { account: "440000", sort: 29604, values: { ac: 5 }, index: 1 }),
+        lrow(["Material", "Kaufteile", "Mechanik"], { account: "500000", sign: -1, sort: 13152, values: { ac: 40 }, index: 2 }),
+        lrow(["Rohertrag"], { account: "F-GP", rowType: "formula", formulaDef: "[Umsatz]+[Material]", sort: 23352, index: 3 }),
+    ]);
+    assert.deepEqual(m.roots.map(r => r.row.name), ["Umsatz", "Material", "Rohertrag", "Sonstiges Ergebnis"]);
+    assert.equal(m.byId.get("F-GP").computed.ac, 60);
+});
+
+test("levels: without a sort column the data order still decides", () => {
+    const m = buildLevels([
+        lrow(["B", "b1", "x"], { values: { ac: 1 }, index: 0 }),
+        lrow(["A", "a1", "y"], { values: { ac: 2 }, index: 1 }),
+    ]);
+    assert.deepEqual(m.roots.map(r => r.row.name), ["B", "A"]);
+});
+
 test("levels: same-path aggregation + aggregate row becomes subtotal fallback", () => {
     const m = buildLevels([
         lrow(["Umsatz", "Produkte"], { values: { ac: 60 }, index: 0 }),

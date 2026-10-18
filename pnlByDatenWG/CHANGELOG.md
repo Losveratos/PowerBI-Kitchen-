@@ -1,5 +1,24 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.4.2.0 (2026-10-18) — Korrektur: GuV-Reihenfolge im Ebenen-Modus
+
+Bugfix ohne neue Property oder Rolle; capabilities.json und persistierte Werte
+unverändert.
+
+- **Reihenfolge der Blöcke im Ebenen-Modus (L1…Ln) mit gebundener
+  Sortierspalte:** Erzeugte Zwischenebenen gaben ihren Platzhalter-Index
+  (Position der ersten Datenzeile, 0…n) als Sortierwert an die Wurzel weiter.
+  Liegt die Sortierspalte auf einer anderen Skala (z. B. `SortOrder` = 6 ×
+  Zeilenposition) und kommen die Zeilen nicht in Sortierreihenfolge an (Power BI
+  und Abfragen ordnen nach dem ersten Gruppierungsfeld, meist der Konto-ID),
+  sprangen alle Blöcke mit Zwischenebenen vor die Formelzeilen: „Other operating
+  result" vor „Cost of goods sold", „Gross profit" hinter die Abschreibungen.
+  Jetzt erbt eine erzeugte Ebene nur die kleinste Sortierung ihrer Kinder. Ohne
+  Sortierspalte entscheidet wie bisher die Datenreihenfolge.
+- **Test:** `engine-test.js` prüft die Wurzelreihenfolge über erzeugte
+  Zwischenebenen (scheitert gegen 1.4.1.0) und die Datenreihenfolge ohne
+  Sortierspalte.
+
 ## 1.4.1.0 (2026-10-18) — Familien-Hub: ein Look mit ChartKitchen
 
 Der Start-Hub fühlt sich wie im Schwester-Visual ChartKitchen an (eine

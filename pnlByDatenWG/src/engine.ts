@@ -340,14 +340,20 @@ export function rowsFromLevels(
     const out = [...synth.values(), ...agg.rows];
 
     // synthetic parents inherit the smallest child sort — otherwise their
-    // first-seen data index would shuffle the P&L order at the root level
+    // first-seen data index would shuffle the P&L order at the root level.
+    // A synthetic child passes on only what its own children gave it, never
+    // its placeholder index: with a sort column bound the index (0…n) lives on
+    // another scale than the sort values, and every block with an intermediate
+    // level would jump ahead of the formula rows (Gross profit after D&A).
     const minSort = new Map<string, number>();
     for (let pass = 0; pass < 8; pass++) {
         let changed = false;
         for (const r of out) {
             if (r.parent == null) { continue; }
+            const inherited = minSort.get(r.id);
+            const candidate = r.index === -1 ? inherited : Math.min(r.sort, inherited ?? r.sort);
+            if (candidate == null) { continue; }
             const cur = minSort.get(r.parent);
-            const candidate = Math.min(r.sort, minSort.get(r.id) ?? r.sort);
             if (cur == null || candidate < cur) { minSort.set(r.parent, candidate); changed = true; }
         }
         if (!changed) { break; }
