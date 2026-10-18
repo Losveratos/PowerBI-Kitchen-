@@ -57,12 +57,12 @@ img { display:block; max-width:100%; height:auto; }
 }
 .hero-cover { margin:0; }
 .cover-frame {
-  overflow:hidden; aspect-ratio:810/1270; background:var(--night);
+  overflow:hidden; aspect-ratio:828/1248; background:var(--night);
   border:2px solid var(--outline);
   box-shadow:14px 14px 0 var(--coral), 14px 14px 0 2px var(--outline);
 }
 /* Foto des Covers: schmalen dunklen Rand oben/rechts wegschneiden */
-.cover-frame img { width:107%; max-width:none; height:auto; margin:-2% 0 0 -.6%; }
+.cover-frame img { display:block; width:100%; height:100%; object-fit:cover; }
 .hero-cover figcaption { display:inline-block; margin-top:26px; padding:6px 10px; background:rgba(35,27,51,.9); font-size:13px; line-height:1.45; color:#DCD2E4; }
 
 .eyebrow {
@@ -321,7 +321,7 @@ img { display:block; max-width:100%; height:auto; }
     <svg class="hero-facets" id="hero-facets" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"></svg>
     <div class="hero-inner">
       <figure class="hero-cover">
-        <div class="cover-frame"><img src="assets/posts/unsichtbarer-kampf/cover.jpg" width="842" height="1300"
+        <div class="cover-frame"><img src="assets/posts/unsichtbarer-kampf/cover.jpg" width="828" height="1248"
              alt="Buchcover „Der unsichtbare Kampf“ von Michael Thomanek: zwei kubistisch aus Dreiecken zusammengesetzte Figuren geben sich die Hand, links eine helle in Gelb und Grau, rechts eine grüne, vor Flächen in Koralle, Terrakotta, Braun, Blau und Violett. Darunter der Titel in weißen Großbuchstaben und der Untertitel „Wie inneres Kämpfen dich wandelt – Auf der Matte und im Alltag“."></div>
         <figcaption>Titelbild: Dietmar Schuch. Cover mit freundlicher Genehmigung von Michael Thomanek.</figcaption>
       </figure>
@@ -535,7 +535,7 @@ img { display:block; max-width:100%; height:auto; }
 
       <aside class="book-box" aria-labelledby="bb-title">
         <svg class="bb-facets" id="bb-facets" viewBox="0 0 220 160" preserveAspectRatio="xMaxYMax slice" aria-hidden="true" focusable="false"></svg>
-        <img class="bb-cover" src="assets/posts/unsichtbarer-kampf/cover.jpg" width="842" height="1300" alt="" loading="lazy">
+        <img class="bb-cover" src="assets/posts/unsichtbarer-kampf/cover.jpg" width="828" height="1248" alt="" loading="lazy">
         <div>
           <p class="bb-kicker">Das Buch</p>
           <p class="bb-title" id="bb-title">Der unsichtbare Kampf</p>
