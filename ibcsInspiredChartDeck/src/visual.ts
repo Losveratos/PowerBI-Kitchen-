@@ -2800,10 +2800,11 @@ export class Visual implements IVisual {
         const roles = this.boundRoles();
         this.ensureDemoHatch(c);
         const pad = 12;
-        // hub page: the box leaves the top-right corner to the "← Back" chip and the
-        // bottom to the hub footer; own mode: the switches sit below the box
+        // hub page: the "← Back" chip sits in the box's top-right corner (the title
+        // steps aside) and the box leaves the bottom to the hub footer; own mode: the
+        // switches sit below the box
         const backW = back ? this.hubBackChipWidth() + 8 : 0;
-        const boxX = pad, boxY = pad, boxW = Math.max(120, Math.min(width - 2 * pad - backW, 1400));
+        const boxX = pad, boxY = pad, boxW = Math.max(120, Math.min(width - 2 * pad, 1400));
         const boxBottom = back ? height - this.hubFootH() - 6 : height - pad - (Math.round(21 * tf) + 12);
         const boxH = Math.max(40, boxBottom - boxY);
         const g = this.el("g", { "data-icd": "field-intro" }, this.svg) as SVGGElement;
@@ -2821,7 +2822,7 @@ export class Visual implements IVisual {
             return e;
         };
         let y = boxY + 12 + fT;
-        txt(g, ix, y, this.locStr("FI_Title", "Which field goes where"), fT, c.ink, true);
+        txt(g, ix, y, this.locStr("FI_Title", "Which field goes where"), fT, c.ink, true, iw - Math.max(0, backW - 14));
         y += Math.round(fB * 1.6);
         txt(g, ix, y, this.locStr("FI_Intro", "Fill the field wells — the chart appears as soon as Actual (AC) is bound."), fB, c.soft);
         if (this.missingHint) {
@@ -2833,7 +2834,7 @@ export class Visual implements IVisual {
 
         // ---- blocks: sections of role rows (splittable) and two premise boxes (atomic)
         const cg = Math.round(18 * tf);
-        const minColW = Math.round(265 * tf);
+        const minColW = Math.round(260 * tf);
         const k = Math.max(1, Math.min(3, Math.floor((iw + cg) / (minColW + cg))));
         const colW = (iw - (k - 1) * cg) / k;
         const lh = Math.round(fB * 1.45), hh = Math.round(fB * 1.75), bg = Math.round(6 * tf);
@@ -3891,7 +3892,7 @@ export class Visual implements IVisual {
                 return e;
             };
             if (i === 0) {
-                if (linesFit >= 5) {
+                if (linesFit >= 4) {
                     const nameW = Math.min(cw * 0.5, Math.max(...fieldRows.map(fr =>
                         this.textWidth(this.locStr(ROLE_NAMES[fr.role][0], ROLE_NAMES[fr.role][1]), fB))) + 8);
                     for (const fr of fieldRows) {
@@ -3903,7 +3904,7 @@ export class Visual implements IVisual {
                         ly += lh;
                     }
                     const wl = this.hubWrap(this.locStr("Start_Where",
-                        "Where? Visualizations pane → „Build visual“ — drag the fields into the wells."), cw, fB, Math.max(1, linesFit - 4));
+                        "Where? Visualizations pane → „Build visual“ — drag the fields into the wells."), cw, fB, linesFit - 4);
                     for (const l of wl) {
                         const e = line(l, c.soft);
                         e.setAttribute("font-style", "italic");
