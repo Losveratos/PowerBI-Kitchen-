@@ -112,6 +112,8 @@ function makeHost(hc, noInteract, themeBg) {
     createLocalizationManager: () => ({ getDisplayName: () => "" }),
     persistProperties: (changes) => console.log("persistProperties", JSON.stringify(changes)),
     drill: (args) => console.log("drill", JSON.stringify(args)),
+    // 1.51: launchUrl logger (hub footer „📖 Doku öffnen“) — records instead of opening
+    launchUrl: (url) => { (window.__launch = window.__launch || []).push(url); console.log("launchUrl", url); },
     locale: "de-DE"
   };
 }
@@ -1945,7 +1947,9 @@ addStage("c203", "Feld-Intro (emptyState.mode = fields) · Bearbeitungsmodus · 
 runCap("c203", emptyDv({ emptyState: { mode: "fields" } }), 960, 380, { viewMode: 1 });
 {
   const m = fiMarks("c203");
-  check(Object.keys(m).length === 7 && Object.values(m).every(v => v === "0"), "c203: 7 Kernrollen, keine gebunden " + JSON.stringify(m));
+  check(Object.keys(m).length === 19 && Object.values(m).every(v => v === "0"), "c203: alle 19 Datenrollen (1.51), keine gebunden " + JSON.stringify(m));
+  check(!!document.querySelector('#c203 [data-icd="fi-notation"]') && !!document.querySelector('#c203 [data-icd="fi-axis"]'),
+    "c203: Prämissen-Boxen IBCS-Notation + Zeit vs. Struktur");
   check(!!document.querySelector('#c203 [data-icd="es-demo"]') && !!document.querySelector('#c203 [data-icd="es-message"]')
     && !document.querySelector('#c203 [data-icd="es-fields"]'), "c203: Umschalter Galerie + Nachricht (nicht der aktuelle)");
 }
@@ -2213,7 +2217,8 @@ addStage("c222", "Vorlagen-Galerie ohne Felder · Klick C03 → EIN Merge · Ech
   const r = runCap("c222", emptyDv({}), 960, 420, { viewMode: 1 });
   hubClick("c222", "hub-templates");
   const tiles = [...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8));
-  check(JSON.stringify(tiles) === '["C01","C02","C03","C04","C05","C06","C08","C09","C10","C12","C13"]', "c222: 11 Vorlagen-Kacheln " + JSON.stringify(tiles));
+  // 1.51: nach Zweck gruppiert — Zeitverlauf · Korrelation (Reihe 1), Struktur · Brücken & Mehrfach (Reihe 2)
+  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C08","C09","C10","C12","C13"]', "c222: 11 Vorlagen-Kacheln " + JSON.stringify(tiles));
   hubClick("c222", "hub-tpl-C03");
   const pp = window.__persist.c222;
   const m = pp.length === 1 ? pp[0].merge[0] : null;
@@ -2306,7 +2311,7 @@ addStage("c225", "☰ Start · Overlay öffnen → Tour blättern → zurück �
 {
   const r = runCap("c225", bound({}), 960, 420, { viewMode: 1 });
   const chip = hubQ("c225", "hub-chip");
-  check(!!chip && chip.style.opacity === "0", "c225: ☰-Chip vorhanden, dezent (erst bei Hover/Fokus sichtbar)");
+  check(!!chip && chip.style.opacity === "0.5", "c225: ☰-Chip vorhanden, dezent dauerhaft sichtbar (1.51: Opacity 0,5, voll bei Hover/Fokus)");
   document.getElementById("c225").dispatchEvent(new MouseEvent("mouseenter"));
   check(chip.style.opacity === "1", "c225: Hover zeigt den ☰-Chip");
   document.getElementById("c225").dispatchEvent(new MouseEvent("mouseleave"));
@@ -2396,6 +2401,201 @@ addStage("c229", "Galerie-Wahl C05 · stale Update (template = off) → kein Rü
     && String(r.v.formattingSettings.chartCard.orientation.value.value) === "intwaterfall", "c229: stale Update → C05 bleibt, ein Merge");
   r.upd(emptyDv({ chart: Object.assign({}, pp[0].merge[0].properties) }));
   check(r.v.templatePending === null && pp.length === 1, "c229: Echo beendet den Guard");
+}
+</script>
+<script>
+// ======================================================================
+// 1.51 · Hub-Polish (c230+) — Galerie nach Zweck, HD/Full HD/UHD-Leiste,
+// Feld-Intro mit allen Rollen + Prämissen, „🚀 Loslegen“, Doku-Knopf, ☰ sichtbar
+// ======================================================================
+const tilesOf = (id) => [...document.querySelectorAll(`#${id} [data-icd^="hub-tpl-C"]`)].map(e => e.getAttribute("data-icd").slice(8));
+const groupsOf = (id) => [...document.querySelectorAll(`#${id} [data-icd^="hub-tpl-group-"]`)].map(e => e.getAttribute("data-icd").slice(14));
+const sizeState = (id) => ["compact", "fullhd", "presentation"].map(v => { const b = hubQ(id, "hub-size-" + v); return b ? b.getAttribute("aria-pressed") : "-"; }).join(",");
+const startMarks = (id) => Object.fromEntries([...document.querySelectorAll(`#${id} [data-icd^="hub-start-role-"]`)].map(e => [e.getAttribute("data-icd").slice(15), e.getAttribute("data-on")]));
+
+// c230: Vorlagen-Galerie nach Zweck gruppiert — vier Gruppen, Finance-Titel, C-Badge, aktive Kachel
+addStage("c230", "Galerie nach Zweck · Zeitverlauf · Struktur · Korrelation · Brücken & Mehrfach · C03 aktiv (✓ aktiv) · 1280 × 600", 1280, 600);
+{
+  runCap("c230", emptyDv({ chart: { template: "C03", templateApplied: "C03" } }), 1280, 600, { viewMode: 1 });
+  hubClick("c230", "hub-templates");
+  const groups = groupsOf("c230"), tiles = tilesOf("c230");
+  check(JSON.stringify(groups.slice().sort()) === '["bridges","correlation","structure","time"]', "c230: vier Zweck-Gruppen " + JSON.stringify(groups));
+  // Gruppen-Zuordnung: jede Kachel liegt unter ihrer Gruppenüberschrift (gleiche Spalte, Reihenfolge innerhalb der Gruppe)
+  const want = { time: ["C01", "C03", "C05", "C08"], structure: ["C02", "C04", "C06"], correlation: ["C09", "C10"], bridges: ["C12", "C13"] };
+  const box = (k) => hubQ("c230", k).getBoundingClientRect();
+  const ok = Object.entries(want).every(([gid, codes]) => {
+    const h = box("hub-tpl-group-" + gid);
+    const bs = codes.map(cd => box("hub-tpl-" + cd));
+    return bs.every((b, i) => b.top > h.top && b.top - h.bottom < 20 && b.left >= h.left - 1 && (i === 0 || b.left > bs[i - 1].left));
+  });
+  check(ok && tiles.length === 11, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
+  const c03 = hubQ("c230", "hub-tpl-C03");
+  check(c03.getAttribute("aria-pressed") === "true" && /✓ active/.test(c03.textContent) && /C03/.test(c03.textContent)
+    && /Columns with prior-year variance/.test(c03.textContent) && /Monthly report AC vs\. PY/.test(c03.textContent),
+    "c230: aktive Kachel C03 · Badge · Finance-Titel · Nutzen-Zeile");
+  check(!/✓ active/.test(hubQ("c230", "hub-tpl-C04").textContent), "c230: nur die aktive Kachel trägt „✓ active“");
+  // Hover-Lift: Kachel hebt sich (translate) + Schatten, Mouseleave setzt zurück
+  const t4 = hubQ("c230", "hub-tpl-C04");
+  t4.dispatchEvent(new MouseEvent("mouseenter"));
+  const lifted = t4.getAttribute("transform") === "translate(0,-2)" && t4.previousElementSibling.getAttribute("opacity") === "1";
+  t4.dispatchEvent(new MouseEvent("mouseleave"));
+  check(lifted && !t4.getAttribute("transform"), "c230: Hover-Lift + Schatten an, Mouseleave aus");
+  check(!!hubQ("c230", "hub-back") && window.__persist.c230.length === 0, "c230: ← Zurück auf der Galerie, Navigation persistiert nichts");
+}
+addStage("c230b", "Galerie nach Zweck · 960 × 420 (zwei Gruppen je Reihe) · Dark Mode · Full-HD-Preset blättert", 960, 420, "#1E1E1E");
+{
+  runCap("c230b", emptyDv({ colors: { appearance: "dark" }, labels: { fontPreset: "fullhd" } }), 960, 420, { viewMode: 1 });
+  hubClick("c230b", "hub-templates");
+  const p1 = tilesOf("c230b");
+  hubClick("c230b", "hub-tpl-next");
+  const p2 = tilesOf("c230b");
+  check(p1.length > 0 && p2.length > 0 && p1[0] !== p2[0] && !!hubQ("c230b", "hub-back"), "c230b: Full HD blättert gruppenweise, ← Zurück bleibt");
+}
+
+// c231: HD · Full HD · UHD — feste Leiste unten auf JEDER Hub-Seite, erstes Element, persist mit Echo-Guard
+addStage("c231", "Hub-Fußleiste · HD · Full HD · UHD zuerst · Klick Full HD → EIN Merge, stale Update kippt nicht, Echo beendet den Guard", 960, 380);
+{
+  const r = runCap("c231", emptyDv({}), 960, 380, { viewMode: 1 });
+  const pagesWithFoot = ["home", "hub-start", "hub-tour", "hub-templates", "hub-demo", "hub-fields"].every(k => {
+    if (k !== "home") { hubClick("c231", k); }
+    const f = hubQ("c231", "hub-foot");
+    const first = f && f.querySelector('[data-icd^="hub-size-"]');
+    const order = f ? [...f.querySelectorAll('[data-icd^="hub-size-"]')].map(e => e.querySelector("text").textContent).join("·") : "";
+    const backOk = k === "home" || !!hubQ("c231", "hub-back");
+    if (k !== "home") { hubClick("c231", "hub-back"); }
+    return !!f && first === f.querySelector('[role="button"]') && order === "HD·Full HD·UHD" && backOk;
+  });
+  check(pagesWithFoot, "c231: Leiste auf Start + 5 Unterseiten, HD · Full HD · UHD als erste Knöpfe, ← Zurück auf jeder Unterseite");
+  check(sizeState("c231") === "true,false,false", "c231: HD (compact) aktiv markiert");
+  hubClick("c231", "hub-size-compact");
+  check(window.__persist.c231.length === 0, "c231: Klick auf aktives Preset persistiert nichts");
+  hubClick("c231", "hub-fields");
+  hubClick("c231", "hub-size-fullhd");
+  const pp = window.__persist.c231;
+  check(pp.length === 1 && pp[0].merge[0].objectName === "labels" && pp[0].merge[0].properties.fontPreset === "fullhd"
+    && sizeState("c231") === "false,true,false" && !!hubQ("c231", "field-intro"), "c231: EIN Merge labels.fontPreset = fullhd, bleibt auf der Unterseite");
+  r.upd(emptyDv({}));
+  check(String(r.v.formattingSettings.labelsCard.fontPreset.value.value) === "fullhd" && pp.length === 1, "c231: stale Update (compact) kippt nicht zurück");
+  r.upd(emptyDv({ labels: { fontPreset: "fullhd" } }));
+  check(r.v.pendingFontPreset === null && sizeState("c231") === "false,true,false", "c231: Echo beendet den Guard");
+}
+addStage("c231b", "Preset-Leiste im ☰-Overlay · Klick UHD → persist, Overlay bleibt offen, Schließen rendert den Chart neu", 960, 400);
+{
+  const r = runCap("c231b", bound({}), 960, 400, { viewMode: 1 });
+  hubClick("c231b", "hub-chip");
+  hubClick("c231b", "hub-size-presentation");
+  const pp = window.__persist.c231b;
+  check(pp.length === 1 && pp[0].merge[0].properties.fontPreset === "presentation" && overlay("c231b").style.display === "block"
+    && sizeState("c231b") === "false,false,true", "c231b: UHD persistiert, Overlay bleibt offen");
+  hubClick("c231b", "hub-close");
+  check(overlay("c231b").style.display === "none" && mainSvg("c231b").style.display === "block" && r.v.fontK >= 2,
+    "c231b: Schließen → Chart mit UHD-Preset neu gerendert");
+}
+
+// c232: 🚀 Loslegen — Checkliste mit live-✓, Sprung in die Galerie, nichts persistiert
+addStage("c232", "🚀 Loslegen · Kategorie + PY gebunden (AC fehlt) → ✓ live · ① offen · ② → Galerie", 960, 380);
+{
+  const r = runCap("c232", emptyDv({}), 960, 380, { viewMode: 1 });
+  check(!!hubQ("c232", "hub-start"), "c232: Hub-Start mit „🚀 Loslegen“");
+  hubClick("c232", "hub-start");
+  const m0 = startMarks("c232");
+  check(JSON.stringify(m0) === '{"actual":"0","category":"0","previousYear":"0","plan":"0"}' && !!hubQ("c232", "hub-back"),
+    "c232: alle Rollen offen, ← Zurück " + JSON.stringify(m0));
+  r.upd(emptyDv({}, [{ source: { displayName: "Monat", roles: { category: true } }, values: months }], [col("previousYear", py)]));
+  const m1 = startMarks("c232");
+  const st1 = document.querySelector('#c232 [data-step="1"]');
+  check(m1.category === "1" && m1.previousYear === "1" && m1.actual === "0" && st1.getAttribute("data-done") === "0",
+    "c232: Update → ✓ live an Kategorie + PY, Schritt ① noch offen " + JSON.stringify(m1));
+  hubClick("c232", "hub-start-tpl");
+  check(!!hubQ("c232", "hub-tpl-C01") && window.__persist.c232.length === 0, "c232: „Galerie öffnen →“ springt in die Vorlagen, nichts persistiert");
+  hubClick("c232", "hub-back"); hubClick("c232", "hub-start");
+}
+addStage("c232b", "🚀 Loslegen im ☰-Overlay · AC + Kategorie + PY gebunden, C04 aktiv → ① ✓ ② ✓ · Plan nachträglich gebunden → ✓ live", 960, 380);
+{
+  const objs = { chart: { template: "C04", templateApplied: "C04", orientation: "bars", comparisonMode: "plan" } };
+  const r = runCap("c232b", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €")], objs), 960, 380, { viewMode: 1 });
+  hubClick("c232b", "hub-chip"); hubClick("c232b", "hub-start");
+  const s1 = document.querySelector('#c232b [data-step="1"]'), s2 = document.querySelector('#c232b [data-step="2"]');
+  check(s1.getAttribute("data-done") === "1" && s2.getAttribute("data-done") === "1" && startMarks("c232b").plan === "0",
+    "c232b: ① Felder ✓ · ② Vorlage ✓ · Plan noch offen");
+  r.upd(dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €")], objs));
+  check(startMarks("c232b").plan === "1" && overlay("c232b").style.display === "block" && window.__persist.c232b.length === 0,
+    "c232b: Plan gebunden → ✓ live, Overlay bleibt auf „Loslegen“, nichts persistiert");
+}
+addStage("c232c", "🚀 Loslegen schmal (340 × 260) · Schritt ② als Ganzes klickbar", 340, 260);
+{
+  runCap("c232c", emptyDv({}), 340, 260, { viewMode: 1 });
+  hubClick("c232c", "hub-start");
+  check(!!hubQ("c232c", "hub-start-tpl") && Object.keys(startMarks("c232c")).length >= 1, "c232c: kompakte Checkliste mit Galerie-Sprung");
+}
+
+// c233: 📖 Doku öffnen — host.launchUrl (de/en nach Locale), nur wo der Hub erscheint
+addStage("c233", "📖 Doku öffnen · Locale de-DE → chartkitchen-doku.html · en-US → _en · ohne launchUrl kein Knopf", 960, 300);
+{
+  window.__launch = [];
+  runCap("c233", emptyDv({}), 960, 300, { viewMode: 1 });
+  hubClick("c233", "hub-docs");
+  const st = document.getElementById("c233"); st.style.display = "flex";
+  const mk = (id) => { const d = document.createElement("div"); d.id = id; d.style.cssText = "width:480px;height:300px;position:relative"; st.appendChild(d); };
+  mk("c233b"); mk("c233c");
+  runCap("c233b", emptyDv({}), 480, 300, { viewMode: 1, hostPatch: (h) => { h.locale = "en-US"; } });
+  hubClick("c233b", "hub-docs");
+  runCap("c233c", emptyDv({}), 480, 300, { viewMode: 1, hostPatch: (h) => { delete h.launchUrl; } });
+  check(JSON.stringify(window.__launch) === '["https://datenwgknowledgekitchen.com/chartkitchen-doku.html","https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html"]',
+    "c233: launchUrl de + en " + JSON.stringify(window.__launch));
+  check(!hubQ("c233c", "hub-docs") && !!hubQ("c233c", "hub-size-compact") && window.__persist.c233.length === 0,
+    "c233: Host ohne launchUrl → kein Doku-Knopf, Leiste bleibt; nichts persistiert");
+  // c233d: Leser sehen keinen Hub und damit keinen Doku-Knopf
+  addStage("c233d", "Leser (viewMode 0) · kein Hub, kein Doku-Knopf", 480, 240);
+  runCap("c233d", emptyDv({}), 480, 240, { viewMode: 0 });
+  check(!hubQ("c233d", "hub-docs") && !hubQ("c233d", "hub-foot"), "c233d: Leser ohne Doku-Knopf und ohne Leiste");
+}
+
+// c234: ☰ Start dauerhaft dezent sichtbar · Kollision mit Achsenbeschriftung → eine Stufe höher
+addStage("c234", "☰ Start sichtbar (0,5) · Säulen mit Monatsachse: Chip würde „Jan“ verdecken → eine Stufe höher", 960, 380);
+{
+  runCap("c234", bound({}), 960, 380, { viewMode: 1 });
+  const bar = hubQ("c234", "chip-bar"), chip = hubQ("c234", "hub-chip");
+  check(!!chip && chip.style.opacity === "0.5", "c234: ☰ dauerhaft sichtbar (abgeschwächt)");
+  const br = bar.getBoundingClientRect();
+  const hit = [...document.querySelectorAll("#c234 > svg:not([data-icd]) text")].some(t => {
+    const r = t.getBoundingClientRect();
+    return r.width > 0 && r.right > br.left && r.left < br.right && r.bottom > br.top && r.top < br.bottom;
+  });
+  check(bar.getAttribute("data-lift") === "1" && !hit, "c234: Chip-Leiste eine Stufe höher, verdeckt keine Beschriftung (bottom " + bar.style.bottom + ")");
+  document.getElementById("c234").dispatchEvent(new MouseEvent("mouseenter"));
+  check(chip.style.opacity === "1", "c234: Hover → voll sichtbar");
+  document.getElementById("c234").dispatchEvent(new MouseEvent("mouseleave"));
+}
+addStage("c234b", "☰ Start sichtbar · KPI-Karte ohne Text unten links → Chip bleibt auf Grundposition", 480, 260);
+{
+  runCap("c234b", dataView(null, [col("actual", [9800], "#,0 T€"), col("previousYear", [9100], "#,0 T€")], { chart: { orientation: "cards" } }), 480, 260, { viewMode: 1 });
+  const bar = hubQ("c234b", "chip-bar");
+  check(!!bar && !bar.getAttribute("data-lift") && bar.style.bottom === "4px", "c234b: keine Kollision → bottom 4px");
+}
+
+// c235: Tour-Ende mit „← Zurück zum Start“
+addStage("c235", "Tour-Ende · letzte Karte: „Vorlagen öffnen →“ + „← Zurück zum Start“", 960, 340);
+{
+  runCap("c235", emptyDv({}), 960, 340, { viewMode: 1 });
+  hubClick("c235", "hub-tour");
+  hubKey("c235", "hub-tour-card", "End");
+  check(!!hubQ("c235", "hub-tour-done") && !!hubQ("c235", "hub-tour-action") && !!hubQ("c235", "hub-back"), "c235: letzte Karte mit Zurück-zum-Start");
+  hubClick("c235", "hub-tour-done");
+  check(!!hubQ("c235", "hub-tour") && !hubQ("c235", "hub-tour-card"), "c235: Zurück zum Start → Hub");
+  hubClick("c235", "hub-tour"); hubKey("c235", "hub-tour-card", "End");
+}
+
+// c236: Feld-Intro im Hub · Full HD → Seiten ‹ › · Seite 2 zeigt die Prämissen-Boxen
+addStage("c236", "Feld-Intro im Hub · Full HD · 960 × 380 → Seite 2 (Spezial-Rollen + IBCS-Notation + Zeit vs. Struktur)", 960, 380);
+{
+  runCap("c236", emptyDv({ labels: { fontPreset: "fullhd" } }), 960, 380, { viewMode: 1 });
+  hubClick("c236", "hub-fields");
+  const pg1 = hubQ("c236", "fi-page").textContent;
+  hubClick("c236", "fi-next");
+  const pg2 = hubQ("c236", "fi-page").textContent;
+  check(/^1 \/ \d$/.test(pg1) && /^2 \/ \d$/.test(pg2) && !!hubQ("c236", "fi-notation") && window.__persist.c236.length === 0,
+    "c236: Feld-Intro blättert (" + pg1 + " → " + pg2 + "), Prämissen auf späterer Seite, nichts persistiert");
 }
 </script>
 </body>

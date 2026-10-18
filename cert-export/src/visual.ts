@@ -136,8 +136,75 @@ const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> 
     C10: { role: "bubbleSize", key: "Role_BubbleSize", en: "Bubble size (optional)" },
     C13: { role: "multiples", key: "Role_Multiples", en: "Small Multiples" }
 };
-/** 1.50 start hub pages — transient session state, never persisted */
-type HubPage = "home" | "tour" | "templates" | "demo" | "fields";
+/** 1.51 template gallery: purpose groups in display order (finance wording) */
+const TEMPLATE_GROUPS: { id: string; key: string; en: string; codes: string[] }[] = [
+    { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C03", "C05", "C08"] },
+    { id: "structure", key: "Hub_TplGrpStructure", en: "Structure", codes: ["C02", "C04", "C06"] },
+    { id: "correlation", key: "Hub_TplGrpCorrelation", en: "Correlation", codes: ["C09", "C10"] },
+    { id: "bridges", key: "Hub_TplGrpBridges", en: "Bridges & multiples", codes: ["C12", "C13"] }
+];
+/** 1.51 gallery tile texts per template: [title, use line] (keys Hub_TplT_/Hub_TplU_ + code) */
+const TEMPLATE_TILE_EN: Record<string, [string, string]> = {
+    C01: ["Stacked columns by segment", "Revenue mix per month"],
+    C03: ["Columns with prior-year variance", "Monthly report AC vs. PY"],
+    C05: ["Integrated year bridge", "PY → AC/FC across the months"],
+    C08: ["Line for long series", "Weekly or daily trend vs. PY"],
+    C02: ["Stacked bars by segment", "Cost structure per unit"],
+    C04: ["Bars with plan variance", "Regions or products AC vs. PL"],
+    C06: ["Driver bridge by category", "Which units explain ΔPY?"],
+    C09: ["Scatter with quadrants", "Revenue vs. margin per customer"],
+    C10: ["Bubble chart", "Plus volume as bubble size"],
+    C12: ["Waterfall / P&L bridge", "Revenue → EBIT step by step"],
+    C13: ["Small multiples", "One chart per region, same scale"]
+};
+/** 1.51 documentation opened by the hub footer (host.launchUrl, no privilege needed) */
+const DOC_URL_DE = "https://datenwgknowledgekitchen.com/chartkitchen-doku.html";
+const DOC_URL_EN = "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html";
+/** 1.51 field intro: every data role in four sections — [role, purpose key, English purpose] */
+const FIELD_INTRO_SECTIONS: { key: string; en: string; roles: [string, string, string][] }[] = [
+    { key: "FI_SecRequired", en: "Required & axis", roles: [
+        ["category", "FI_Category", "Axis: months or regions"],
+        ["actual", "FI_Ac", "Required value, solid dark"]] },
+    { key: "FI_SecScenarios", en: "Scenarios", roles: [
+        ["previousYear", "FI_Py", "Prior year, grey → ΔPY"],
+        ["plan", "FI_Pl", "Plan/budget, outlined → ΔPL"],
+        ["forecast", "FI_Fc", "Forecast, hatched"],
+        ["fcFlag", "FI_FcFlag", "Marks AC rows as FC/preliminary"],
+        ["prevForecast", "FI_PrevFc", "Last month's FC → FC revision"],
+        ["benchmark", "FI_Benchmark", "Target as marker + status"]] },
+    { key: "FI_SecBreakdown", en: "Breakdown", roles: [
+        ["series", "FI_Series", "Stacks by segment (C01/C02)"],
+        ["multiples", "FI_Multiples", "One chart per value (C13)"],
+        ["colgroup", "FI_ColGroup", "Matrix columns, e.g. quarter"],
+        ["trend", "FI_Trend", "Time axis inside KPI cards"]] },
+    { key: "FI_SecSpecial", en: "Special", roles: [
+        ["rowType", "FI_RowType", "P&L row type sum/delta/pct"],
+        ["lineMeasure", "FI_Line", "2nd measure as line (margin)"],
+        ["xValue", "FI_XValue", "X axis of the scatter"],
+        ["xPrevious", "FI_XPrev", "X prior year → motion arrows"],
+        ["bubbleSize", "FI_Bubble", "Bubble size, e.g. volume"],
+        ["comments", "FI_Comments", "Text → numbered comments"],
+        ["filterInfo", "FI_FilterInfo", "Text → filter note in footer"]] }
+];
+/** pane names of the roles (resjson key + English fallback) */
+const ROLE_NAMES: Record<string, [string, string]> = {
+    category: ["Role_Category", "Category"], actual: ["Role_Actual", "Actual (AC)"],
+    previousYear: ["Role_PreviousYear", "Previous Year (PY)"], plan: ["Role_Plan", "Plan / Budget (PL)"],
+    forecast: ["Role_Forecast", "Forecast (FC)"], fcFlag: ["Role_FcFlag", "Forecast Flag (1/0)"],
+    prevForecast: ["Role_PrevForecast", "FC previous month (revision)"], benchmark: ["Role_Benchmark", "Benchmark (BM)"],
+    series: ["Role_Series", "Stack series"], multiples: ["Role_Multiples", "Small Multiples"],
+    colgroup: ["Role_ColGroup", "Columns (matrix)"], trend: ["Role_Trend", "Trend (time)"],
+    rowType: ["Role_RowType", "Waterfall Type (sum/delta)"], lineMeasure: ["Role_LineMeasure", "Line (combo)"],
+    xValue: ["Role_XValue", "X axis (Scatter)"], xPrevious: ["Role_XPrevious", "X axis PY (Scatter, optional)"],
+    bubbleSize: ["Role_BubbleSize", "Bubble size (optional)"], comments: ["Role_Comments", "Comments"],
+    filterInfo: ["Role_FilterInfo", "Filter info (footer)"]
+};
+/** 1.51 hub footer: font presets in the order HD · Full HD · UHD (labels.fontPreset) */
+const HUB_SIZES: { v: string; label: string }[] = [
+    { v: "compact", label: "HD" }, { v: "fullhd", label: "Full HD" }, { v: "presentation", label: "UHD" }
+];
+/** 1.50 start hub pages — transient session state, never persisted (1.51: + start) */
+type HubPage = "home" | "start" | "tour" | "templates" | "demo" | "fields";
 /** resolved hub palette (light · dark · high contrast) */
 interface HubColors {
     hc: boolean; ink: string; grey: string; teal: string; red: string; paper: string;
@@ -812,6 +879,8 @@ export class Visual implements IVisual {
     /** tour card and template-gallery page currently shown */
     private hubTourIdx = 0;
     private hubTplPage = 0;
+    /** 1.51 field intro page (all roles + premise boxes flow into columns/pages) */
+    private fiPage = 0;
     /** template picked in the hub without bound fields — "saved, active once bound" */
     private hubTplSaved: string | null = null;
     /** hub opened as overlay above a bound chart (☰ Start chip) */
@@ -968,8 +1037,8 @@ export class Visual implements IVisual {
             e.preventDefault();
             this.selectionManager.showContextMenu(null, { x: e.clientX, y: e.clientY });
         });
-        // 1.50: the ☰ Start chip stays out of the way until the author points at
-        // the visual (like the host's own visual header) or tabs onto it
+        // the ☰ Start chip rests subdued (1.51) and turns full when the author points
+        // at the visual (like the host's own visual header) or tabs onto it
         this.root.addEventListener("mouseenter", () => { this.rootHover = true; this.syncHubChipOpacity(); });
         this.root.addEventListener("mouseleave", () => { this.rootHover = false; this.syncHubChipOpacity(); });
     }
@@ -2379,13 +2448,17 @@ export class Visual implements IVisual {
         // der Text wird unten gesetzt, sobald der aktive Modus bekannt ist —
         // die Subline nennt dann den NÄCHSTEN Schritt (welche Felder binden)
         // statt des generischen Hinweises (UX-4 aus AUDIT-2026-10-UX.md)
-        const made = this.el("text", {
-            x: width / 2, y: height - 8, "text-anchor": "middle",
-            "font-size": 10, fill: subtle, "font-family": FONT
-        }, this.svg);
-        made.textContent = "made by Daten-WG";
+        // 1.51 hub page: the hub footer (HD · Full HD · UHD, docs, credit) replaces
+        // the gallery's own credit line and preset pills
+        if (!back) {
+            const made = this.el("text", {
+                x: width / 2, y: height - 8, "text-anchor": "middle",
+                "font-size": 10, fill: subtle, "font-family": FONT
+            }, this.svg);
+            made.textContent = "made by Daten-WG";
+        }
         // font-preset selector under the gallery (interactive only, needs room)
-        const showSel = this.allowInteractions && width >= 380 && height >= 260;
+        const showSel = !back && this.allowInteractions && width >= 380 && height >= 260;
 
         // ------- mode list: small preview tile + name, use case and fields per mode
         const modes: { v: string; key: string; en: string; use: string; fields: string }[] = [
@@ -2445,7 +2518,7 @@ export class Visual implements IVisual {
         const padX = 12, gap = 8;
         const top = 16 + titleF + subF + 12;
         const selH = Math.round(21 * Math.min(1.25, tf));
-        const footH = 22 + (showSel ? selH + 9 : 0);
+        const footH = back ? this.hubFootH() + 4 : 22 + (showSel ? selH + 9 : 0);
         const availW = width - padX * 2;
         const availH = height - top - footH;
 
@@ -2711,102 +2784,292 @@ export class Visual implements IVisual {
 
     /**
      * 1.49 field intro (emptyState.mode = fields, edit mode only): which field goes
-     * into which well — the core roles with a ✓ at the ones already bound and a
-     * one-line purpose each, in the report language (PnL 1.2 pattern, drawn as SVG
-     * like the rest of the landing). A missing-AC hint stays on top.
+     * into which well, in the report language (PnL 1.2 pattern, drawn as SVG like the
+     * rest of the landing). A missing-AC hint stays on top. 1.51: ALL data roles in
+     * four sections (✓ at the bound ones, one short purpose each, the full sentence in
+     * the tooltip) plus two premise boxes — IBCS notation and time vs. structure. The
+     * blocks flow into 1–3 columns; what does not fit goes onto pages (‹ n / N ›,
+     * transient like the rest of the hub).
      */
     private renderFieldIntro(width: number, height: number, back = false): void {
+        const c = this.hubColors();
         const dk = this.uiDark;
-        const ink = dk ? DARK_INK : "#404040", teal = dk ? "#3FB3C2" : "#1E8F9E";
-        const subtle = dk ? DARK_SUBTLE : "#6E6E6E", soft = dk ? "#BFBFBF" : "#5A5A5A";
-        const wash = dk ? DARK_WASH : WASH, edge2 = dk ? DARK_FAINT : "#DDDDD8";
-        const tile = dk ? "#262624" : "#FAFAF8";
-        const red = dk ? "#E4635F" : "#D64541";
-        const sLc = this.formattingSettings.labelsCard;
-        const kf = Math.min(3, ({ compact: 1, fullhd: 1.5, presentation: 2 }[
-            String(sLc.fontPreset.value.value)] ?? 1)
-            * Math.max(0.5, Math.min(3, Number(sLc.fontScale.value ?? 100) / 100)));
-        const tf = Math.min(1.4, Math.max(1, kf));
+        const wash = c.hc ? c.paper : dk ? DARK_WASH : WASH;
+        const tf = this.landingTf();
         const fT = Math.round(14 * tf), fB = Math.round(11 * tf), fS = Math.round(9.5 * tf);
         const roles = this.boundRoles();
-        const rows: { id: string; key: string; en: string; tKey: string; tEn: string; sec: number }[] = [
-            { id: "category", key: "Role_Category", en: "Category", sec: 0,
-                tKey: "FI_Category", tEn: "Axis or structure — months for time series, regions/products for structure; several fields = drill hierarchy" },
-            { id: "actual", key: "Role_Actual", en: "Actual (AC)", sec: 0,
-                tKey: "FI_Ac", tEn: "Actual measure, drawn solid dark — the only required value (alternatively FC)" },
-            { id: "previousYear", key: "Role_PreviousYear", en: "Previous Year (PY)", sec: 1,
-                tKey: "FI_Py", tEn: "Prior year → ΔPY panel and pins, drawn grey" },
-            { id: "plan", key: "Role_Plan", en: "Plan / Budget (PL)", sec: 1,
-                tKey: "FI_Pl", tEn: "Plan/budget → ΔPL, drawn outlined" },
-            { id: "forecast", key: "Role_Forecast", en: "Forecast (FC)", sec: 1,
-                tKey: "FI_Fc", tEn: "Forecast, hatched — fills the periods without actuals" },
-            { id: "series", key: "Role_Series", en: "Stack series", sec: 1,
-                tKey: "FI_Series", tEn: "Stacks columns/bars by this breakdown (templates C01/C02)" },
-            { id: "multiples", key: "Role_Multiples", en: "Small Multiples", sec: 1,
-                tKey: "FI_Multiples", tEn: "One tile per value, all on the same scale (template C13)" }
-        ];
+        this.ensureDemoHatch(c);
         const pad = 12;
-        // hub page (1.50): the box leaves the top-right corner to the "← Back" chip
+        // hub page: the "← Back" chip sits in the box's top-right corner (the title
+        // steps aside) and the box leaves the bottom to the hub footer; own mode: the
+        // switches sit below the box
         const backW = back ? this.hubBackChipWidth() + 8 : 0;
-        const boxX = pad, boxY = pad, boxW = Math.min(width - 2 * pad - backW, 760);
-        const switchH = back ? 0 : Math.round(21 * tf) + 12;
-        const boxH = height - 2 * pad - switchH;
+        const boxX = pad, boxY = pad, boxW = Math.max(120, Math.min(width - 2 * pad, 1400));
+        const boxBottom = back ? height - this.hubFootH() - 6 : height - pad - (Math.round(21 * tf) + 12);
+        const boxH = Math.max(40, boxBottom - boxY);
         const g = this.el("g", { "data-icd": "field-intro" }, this.svg) as SVGGElement;
         const box = this.el("rect", {
-            x: boxX, y: boxY, width: boxW, height: Math.max(40, boxH), rx: 6,
-            fill: wash, stroke: edge2, "stroke-width": 1, "stroke-dasharray": "4,3"
+            x: boxX, y: boxY, width: boxW, height: boxH, rx: 6,
+            fill: wash, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1, "stroke-dasharray": "4,3"
         }, g);
         const ix = boxX + 14, iw = boxW - 28;
-        let y = boxY + 12 + fT;
-        const txt = (x: number, yy: number, t: string, size: number, fill: string, bold = false, maxW = iw) => {
+        const txt = (parent: SVGElement, x: number, yy: number, t: string, size: number, fill: string,
+            bold = false, maxW = iw) => {
             const e = this.el("text", {
                 x, y: yy, "font-size": size, fill, "font-family": FONT, ...(bold ? { "font-weight": 600 } : {})
-            }, g);
+            }, parent);
             e.textContent = this.truncate(t, maxW, size);
             return e;
         };
-        txt(ix, y, this.locStr("FI_Title", "Which field goes where"), fT, ink, true);
+        let y = boxY + 12 + fT;
+        txt(g, ix, y, this.locStr("FI_Title", "Which field goes where"), fT, c.ink, true, iw - Math.max(0, backW - 14));
         y += Math.round(fB * 1.6);
-        txt(ix, y, this.locStr("FI_Intro", "Fill the field wells — the chart appears as soon as Actual (AC) is bound."), fB, soft);
-        const bottom = boxY + boxH - 8;
+        txt(g, ix, y, this.locStr("FI_Intro", "Fill the field wells — the chart appears as soon as Actual (AC) is bound."), fB, c.soft);
         if (this.missingHint) {
             y += Math.round(fB * 1.5);
-            txt(ix, y, this.missingHint, fB, red, true);
+            txt(g, ix, y, this.missingHint, fB, c.red, true);
         }
-        const lineH = Math.round(fB * 1.55);
-        const nameW = Math.min(iw * 0.42, Math.max(...rows.map(r =>
-            this.textWidth(this.locStr(r.key, r.en), fB))) + 8);
-        let sec = -1;
-        for (const r of rows) {
-            if (r.sec !== sec) {
-                sec = r.sec;
-                if (y + Math.round(fB * 1.7) + lineH > bottom) { break; }
-                y += Math.round(fB * 1.7);
-                txt(ix, y, (sec === 0 ? this.locStr("FI_Minimal", "Minimal") : this.locStr("FI_Extended", "Extended"))
-                    .toUpperCase(), fS, subtle, true);
+        const bodyTop = y + Math.round(fB * 0.6);
+        const bodyMax = boxY + boxH - 8;
+
+        // ---- blocks: sections of role rows (splittable) and two premise boxes (atomic)
+        const cg = Math.round(18 * tf);
+        const minColW = Math.round(260 * tf);
+        const k = Math.max(1, Math.min(3, Math.floor((iw + cg) / (minColW + cg))));
+        const colW = (iw - (k - 1) * cg) / k;
+        const lh = Math.round(fB * 1.45), hh = Math.round(fB * 1.75), bg = Math.round(6 * tf);
+        const lhS = Math.round(fS * 1.55);
+        const picW = Math.round(78 * tf), picH = Math.round(38 * tf);
+        const axisTxt = this.locStr("FI_AxBody",
+            "Time runs horizontally (columns/line), structure vertically (bars) — Smart-Start suggests the matching axis from your category field.");
+        const axisLines = this.hubWrap(axisTxt, Math.max(40, colW - 24 - picW - 10), fS, 5);
+        const notationH = 7 + fB + 6 + 4 * lhS + 8;
+        const axisH = 7 + fB + 6 + Math.max(picH, axisLines.length * lhS) + 6;
+        type Unit = { kind: "head" | "role"; sec: number; role?: string }
+            | { kind: "box"; id: "notation" | "axis"; h: number } | { kind: "hint" };
+        const units: Unit[] = [];
+        FIELD_INTRO_SECTIONS.forEach((s, si) => {
+            units.push({ kind: "head", sec: si });
+            for (const r of s.roles) { units.push({ kind: "role", sec: si, role: r[0] }); }
+        });
+        units.push({ kind: "box", id: "notation", h: notationH });
+        units.push({ kind: "box", id: "axis", h: axisH });
+        units.push({ kind: "hint" });
+        type Placed = { u: Unit; col: number; y: number; head?: boolean };
+        const flow = (bottom: number): Placed[][] => {
+            const pages: Placed[][] = [[]];
+            let col = 0, cy = bodyTop;
+            const nextCol = () => {
+                col++;
+                cy = bodyTop;
+                if (col >= k) { col = 0; pages.push([]); }
+            };
+            const put = (u: Unit, yy: number, head = false) => { pages[pages.length - 1].push({ u, col, y: yy, head }); };
+            for (let i = 0; i < units.length; i++) {
+                const u = units[i];
+                if (u.kind === "head") {
+                    // a heading never stands alone at the end of a column: short sections
+                    // (≤ 4 rows) move as a whole, longer ones keep at least two rows
+                    const n = FIELD_INTRO_SECTIONS[u.sec].roles.length;
+                    if (cy > bodyTop && cy + hh + (n <= 4 ? n : 2) * lh > bottom) { nextCol(); }
+                    cy += cy > bodyTop ? bg : 0;
+                    put(u, cy + hh - Math.round(fB * 0.45), true);
+                    cy += hh;
+                } else if (u.kind === "role") {
+                    if (cy + lh > bottom) {
+                        nextCol();
+                        // continued section: repeat its heading at the top of the column
+                        put({ kind: "head", sec: u.sec }, cy + hh - Math.round(fB * 0.45), true);
+                        cy += hh;
+                    }
+                    put(u, cy + lh - Math.round(fB * 0.35));
+                    cy += lh;
+                } else if (u.kind === "box") {
+                    if (cy > bodyTop && cy + bg + u.h > bottom) { nextCol(); }
+                    cy += cy > bodyTop ? bg + 2 : 0;
+                    put(u, cy);
+                    cy += u.h;
+                } else {
+                    // the closing hint only joins when there is room (never opens a page)
+                    if (cy + bg + lh <= bottom) { put(u, cy + bg + lh - Math.round(fB * 0.35)); cy += bg + lh; }
+                }
             }
-            if (y + lineH > bottom) { break; }
-            y += lineH;
-            const on = roles.has(r.id);
-            const mark = txt(ix, y, on ? "✓" : "○", fB, on ? teal : subtle, true, 16);
-            mark.setAttribute("data-fi", r.id);
-            mark.setAttribute("data-on", on ? "1" : "0");
-            txt(ix + 18, y, this.locStr(r.key, r.en), fB, ink, true, nameW);
-            txt(ix + 18 + nameW + 6, y, this.locStr(r.tKey, r.tEn), fB, soft, false, iw - 24 - nameW);
+            return pages.filter(p => p.length > 0);
+        };
+        const navH = Math.round(20 * tf) + 6;
+        let pages = flow(bodyMax);
+        if (pages.length > 1) {
+            pages = flow(bodyMax - navH);
+        } else if (k > 1) {
+            // balance the columns: the lowest bottom that still fits on one page
+            let lo = bodyTop + lh, hi = bodyMax;
+            while (hi - lo > 3) {
+                const mid = (lo + hi) / 2;
+                if (flow(mid).length === 1) { hi = mid; } else { lo = mid; }
+            }
+            pages = flow(hi);
         }
-        if (y + Math.round(fB * 1.9) <= bottom) {
-            y += Math.round(fB * 1.9);
-            const h = txt(ix, y, this.locStr("FI_Hint", "Then pick an IBCS template: format pane → Chart → IBCS chart template."), fB, subtle);
-            h.setAttribute("font-style", "italic");
+        const nPages = pages.length;
+        const page = Math.max(0, Math.min(nPages - 1, this.fiPage));
+        this.fiPage = page;
+
+        // ---- draw the current page
+        // role names without their bracket note („Forecast-Flag (0=Ist …)“ → „Forecast-Flag“);
+        // scenario codes (AC, PY, PL, FC, BM) stay — the tooltip carries the full name
+        const shortName = (r: string) => this.locStr(ROLE_NAMES[r][0], ROLE_NAMES[r][1])
+            .replace(/\s*[(（]([^)）]*)[)）]/g, (m, inner: string) => /^[A-Z]{2,3}$/.test(inner.trim()) ? m : "").trim();
+        const nameW = Math.min(colW * 0.44, Math.max(...Object.keys(ROLE_NAMES).map(r => this.textWidth(shortName(r), fB))) + 8);
+        let maxY = bodyTop;
+        for (const p of pages[page] ?? []) {
+            const cx = ix + p.col * (colW + cg);
+            const u = p.u;
+            if (u.kind === "head") {
+                const s = FIELD_INTRO_SECTIONS[u.sec];
+                const h = txt(g, cx, p.y, this.locStr(s.key, s.en).toUpperCase(), fS, c.subtle, true, colW);
+                h.setAttribute("letter-spacing", "0.4");
+                maxY = Math.max(maxY, p.y + 4);
+            } else if (u.kind === "role" && u.role) {
+                const rr = FIELD_INTRO_SECTIONS[u.sec].roles.find(x => x[0] === u.role);
+                const nm = ROLE_NAMES[u.role];
+                const name = this.locStr(nm[0], nm[1]);
+                const purpose = rr ? this.locStr(rr[1], rr[2]) : "";
+                const on = roles.has(u.role);
+                const row = this.el("g", { "data-fi-row": u.role }, g);
+                const tt = this.el("title", {}, row);
+                tt.textContent = `${on ? "✓ " : ""}${name} — ${purpose}`;
+                const mark = txt(row, cx, p.y, on ? "✓" : "○", fB, on ? c.teal : c.subtle, true, 16);
+                mark.setAttribute("data-fi", u.role);
+                mark.setAttribute("data-on", on ? "1" : "0");
+                txt(row, cx + 18, p.y, shortName(u.role), fB, c.ink, true, nameW);
+                txt(row, cx + 18 + nameW + 6, p.y, purpose, fS, c.soft, false, colW - 24 - nameW);
+                maxY = Math.max(maxY, p.y + 4);
+            } else if (u.kind === "box") {
+                this.drawPremiseBox(g, u.id, cx, p.y, colW, u.h, c, fB, fS, lhS, picW, picH, axisLines);
+                maxY = Math.max(maxY, p.y + u.h);
+            } else if (u.kind === "hint") {
+                const h = txt(g, cx, p.y, this.locStr("FI_Hint", "Then pick an IBCS template: format pane → Chart → IBCS chart template."),
+                    fB, c.subtle, false, colW);
+                h.setAttribute("font-style", "italic");
+                maxY = Math.max(maxY, p.y + 4);
+            }
+        }
+        // ---- page navigation (‹ n / N ›) bottom-right inside the box
+        let fitBottom = maxY + 8;
+        if (nPages > 1) {
+            const r = Math.round(9 * tf);
+            const ny = Math.min(bodyMax - navH / 2 + 4, maxY + 6 + navH / 2);
+            const lbl = `${page + 1} / ${nPages}`;
+            const lw = this.textWidth(lbl, fS) + 12;
+            const right = boxX + boxW - 14;
+            const redraw = (key: string) => {
+                this.hubFocus = key;
+                if (back) { this.hubRedraw(); return; }
+                this.renderDemo(width, height);
+                const f = this.svg.querySelector(`[data-icd="${key}"]`) as SVGGElement | null;
+                this.hubFocus = null;
+                if (f && typeof f.focus === "function") { f.focus(); }
+            };
+            const nav = (cx: number, d: number, glyph: string, key: string) => {
+                const tip = `${d < 0 ? this.locStr("Hub_Prev", "Previous") : this.locStr("Hub_Next", "Next")} · ${lbl}`;
+                const a = this.hubBtn(this.svg, key, tip, () => {
+                    this.fiPage = (page + d + nPages) % nPages;
+                    redraw(key);
+                });
+                const ci = this.el("circle", { cx, cy: ny, r, fill: c.tile, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1 }, a);
+                this.hubFrame(a, ci, c);
+                const t = this.el("text", {
+                    x: cx, y: ny + r * 0.4, "text-anchor": "middle", "font-size": Math.round(r * 1.2),
+                    "font-weight": 700, fill: c.ink, "font-family": FONT
+                }, a);
+                t.textContent = glyph;
+            };
+            nav(right - r, 1, "›", "fi-next");
+            const pt = this.el("text", {
+                x: right - 2 * r - 6 - lw / 2, y: ny + fS * 0.36, "text-anchor": "middle", "font-size": fS,
+                fill: c.subtle, "font-family": FONT, "data-icd": "fi-page"
+            }, this.svg);
+            pt.textContent = lbl;
+            nav(right - 3 * r - 12 - lw, -1, "‹", "fi-prev");
+            fitBottom = ny + r + 6;
         }
         // the dashed box hugs its content; the switches sit right below it
-        const fitH = Math.max(40, Math.min(boxH, y - boxY + Math.round(fB * 0.9) + 6));
+        const fitH = Math.max(40, Math.min(boxH, fitBottom - boxY));
         box.setAttribute("height", String(fitH));
         if (back) {
-            this.drawHubBackChip(width, this.hubColors());
+            this.drawHubBackChip(width, c);
             return;
         }
-        this.drawEmptySwitches(width, height, "fields", { ink, subtle, tile, edge2 }, boxY + fitH + 10);
+        this.drawEmptySwitches(width, height, "fields", { ink: c.ink, subtle: c.subtle, tile: c.tile, edge2: c.hc ? c.ink : c.edge2 },
+            boxY + fitH + 10);
+    }
+
+    /** 1.51 field-intro premise boxes: IBCS notation (4 lines + good/bad) and
+     *  time vs. structure (pictogram + text) */
+    private drawPremiseBox(g: SVGElement, id: "notation" | "axis", x: number, y: number, w: number, h: number,
+        c: HubColors, fB: number, fS: number, lhS: number, picW: number, picH: number, axisLines: string[]): void {
+        const bx = this.el("g", { "data-icd": `fi-${id}` }, g);
+        this.el("rect", {
+            x, y, width: w, height: h, rx: 5, fill: c.paper, stroke: c.hc ? c.ink : c.edge, "stroke-width": 1
+        }, bx);
+        const ix = x + 9;
+        const hy = y + 7 + fB;
+        const head = this.el("text", {
+            x: ix, y: hy, "font-size": fB, "font-weight": 700, fill: c.ink, "font-family": FONT
+        }, bx);
+        if (id === "notation") {
+            head.textContent = this.truncate(this.locStr("FI_NotTitle", "IBCS notation"), w * 0.5, fB);
+            // good / bad colours right-aligned in the heading line
+            const good = this.locStr("FI_NotGood", "good"), bad = this.locStr("FI_NotBad", "bad");
+            const sq = Math.round(fS * 0.85);
+            const wBad = this.textWidth(bad, fS), wGood = this.textWidth(good, fS);
+            let gx = x + w - 9 - wBad - sq - 4 - 10 - wGood - sq - 4;
+            for (const [lbl, col, ww] of [[good, c.teal, wGood], [bad, c.red, wBad]] as [string, string, number][]) {
+                this.el("rect", { x: gx, y: hy - sq + 1, width: sq, height: sq, rx: 1, fill: col }, bx);
+                const t = this.el("text", { x: gx + sq + 4, y: hy, "font-size": fS, fill: c.soft, "font-family": FONT }, bx);
+                t.textContent = lbl;
+                gx += sq + 4 + ww + 10;
+            }
+            const lines: [string, string, string, Record<string, string | number>][] = [
+                ["FI_NotAc", "Actual (AC) — solid", "ac", { fill: c.ink }],
+                ["FI_NotPy", "Previous year (PY) — grey", "py", { fill: c.grey }],
+                ["FI_NotPl", "Plan (PL) — outlined", "pl", { fill: c.paper, stroke: c.ink, "stroke-width": 1 }],
+                ["FI_NotFc", "Forecast (FC) — hatched", "fc", { fill: "url(#icd-demo-hatch)", stroke: c.ink, "stroke-width": 1 }]
+            ];
+            const sw = Math.round(fS * 1.7), sh = Math.round(fS * 0.95);
+            let ly = hy + 6;
+            for (const [key, en, sc, attrs] of lines) {
+                ly += lhS;
+                this.el("rect", { x: ix, y: ly - sh + 1, width: sw, height: sh, "data-sc": sc, ...attrs }, bx);
+                const t = this.el("text", { x: ix + sw + 8, y: ly, "font-size": fS, fill: c.soft, "font-family": FONT }, bx);
+                t.textContent = this.truncate(this.locStr(key, en), w - 18 - sw - 8, fS);
+            }
+            return;
+        }
+        head.textContent = this.truncate(this.locStr("FI_AxTitle", "Time vs. structure"), w - 18, fB);
+        // pictogram: columns along a horizontal time axis (→), bars down a vertical axis (↓)
+        const px = ix, py = hy + 7, half = picW * 0.46;
+        const base = py + picH - 2;
+        [0.55, 0.75, 0.62, 0.9].forEach((v, i) => {
+            const cw = half / 5.2;
+            this.el("rect", { x: px + 2 + i * cw * 1.3, y: base - v * (picH - 8), width: cw, height: v * (picH - 8), fill: c.ink }, bx);
+        });
+        this.el("line", { x1: px, y1: base + 0.5, x2: px + half, y2: base + 0.5, stroke: c.ink, "stroke-width": 1 }, bx);
+        this.el("path", { d: `M${px + half - 4},${base - 2.5} L${px + half},${base + 0.5} L${px + half - 4},${base + 3.5}`,
+            fill: "none", stroke: c.ink, "stroke-width": 1 }, bx);
+        const bx0 = px + picW * 0.56;
+        [0.9, 0.62, 0.4].forEach((v, i) => {
+            const bh = (picH - 8) / 4.6;
+            this.el("rect", { x: bx0 + 1, y: py + 2 + i * bh * 1.35, width: v * (picW * 0.42), height: bh, fill: c.ink }, bx);
+        });
+        this.el("line", { x1: bx0 + 0.5, y1: py, x2: bx0 + 0.5, y2: base, stroke: c.ink, "stroke-width": 1 }, bx);
+        this.el("path", { d: `M${bx0 - 2.5},${base - 4} L${bx0 + 0.5},${base} L${bx0 + 3.5},${base - 4}`,
+            fill: "none", stroke: c.ink, "stroke-width": 1 }, bx);
+        let ty = py + fS;
+        for (const l of axisLines) {
+            const t = this.el("text", { x: px + picW + 10, y: ty, "font-size": fS, fill: c.soft, "font-family": FONT }, bx);
+            t.textContent = l;
+            ty += lhS;
+        }
     }
 
     /** bound roles: metadata columns (host) and the categorical sources (harness) */
@@ -2988,12 +3251,15 @@ export class Visual implements IVisual {
         this.hubW = width;
         this.hubH = height;
         switch (this.hubPage) {
+            case "start": this.drawHubStart(width, height); break;
             case "tour": this.drawHubTour(width, height); break;
             case "templates": this.drawHubTemplates(width, height); break;
             case "demo": this.drawGallery(width, height, true); break;
             case "fields": this.renderFieldIntro(width, height, true); break;
             default: this.drawHubHome(width, height);
         }
+        // 1.51: every hub page ends in the same footer — HD · Full HD · UHD first
+        this.drawHubFooter(width, height);
         // keyboard navigation: the element that triggered the redraw keeps the focus
         // (only after a user action — the initial render never steals focus)
         const fk = this.hubFocus;
@@ -3015,6 +3281,7 @@ export class Visual implements IVisual {
         // the tour always starts with its first card, the gallery with its first page
         if (page === "tour" && from !== "tour") { this.hubTourIdx = 0; }
         if (page === "templates" && from !== "templates") { this.hubTplPage = 0; }
+        if (page === "fields" && from !== "fields") { this.fiPage = 0; }
         this.hubPage = page;
         this.hubFocus = focus ?? (page === "home" ? `hub-${from}` : "hub-back");
         this.hubRedraw();
@@ -3118,6 +3385,99 @@ export class Visual implements IVisual {
         return w;
     }
 
+    /** height the hub footer reserves at the bottom of every hub page */
+    private hubFootH(): number {
+        return Math.round(21 * this.landingTf()) + 12;
+    }
+
+    /** documentation can be opened when the host offers launchUrl (no privilege) */
+    private canLaunchDocs(): boolean {
+        return typeof this.host.launchUrl === "function";
+    }
+
+    /**
+     * 1.51 hub footer, the same on every hub page: the three font presets HD · Full
+     * HD · UHD come first (labels.fontPreset; active one filled; a click persists
+     * with the echo guard like the gallery pills), then „📖 Open docs“ (host.launchUrl,
+     * German or English page by locale) and the credit right-aligned when room is left.
+     */
+    private drawHubFooter(width: number, height: number): void {
+        const c = this.hubColors();
+        const tf = this.landingTf();
+        const f = Math.round(10.5 * tf), bh = Math.round(21 * tf);
+        const y = height - 6 - bh;
+        const g = this.el("g", { "data-icd": "hub-foot", role: "group" }, this.svg) as SVGGElement;
+        g.setAttribute("aria-label", this.locStr("Hub_SizeGroup", "Font size for the whole visual"));
+        this.el("line", {
+            x1: 12, y1: y - 5.5, x2: width - 12, y2: y - 5.5, stroke: c.hc ? c.ink : c.edge, "stroke-width": 1
+        }, g);
+        const sLc = this.formattingSettings.labelsCard;
+        const cur = String(sLc.fontPreset.value.value);
+        const tipTpl = this.locStr("Hub_SizeTip",
+            "Font size for {0} screens — applies to the whole visual (format pane: Data labels → Size preset)");
+        let x = 12;
+        for (const s of HUB_SIZES) {
+            const on = s.v === cur;
+            const w = Math.ceil(this.textWidth(s.label, f)) + 18;
+            const key = `hub-size-${s.v}`;
+            const b = this.hubBtn(g, key, tipTpl.replace("{0}", s.label), () => {
+                if (String(sLc.fontPreset.value.value) === s.v) { return; }
+                // optimistic + echo guard (TTL) — the same path as the gallery pills
+                this.pendingFontPreset = s.v;
+                this.pendingFontPresetTtl = 5;
+                const it = sLc.fontPreset.items.find(xx => String(xx.value) === s.v);
+                if (it) { sLc.fontPreset.value = it; }
+                this.host.persistProperties({
+                    merge: [{ objectName: "labels", selector: null, properties: { fontPreset: s.v } }]
+                });
+                this.hubFocus = key;
+                if (this.hubOpen && this.lastRender) { this.hubDirty = true; }
+                this.hubRedraw();
+            });
+            b.setAttribute("aria-pressed", String(on));
+            const fr = this.el("rect", {
+                x, y, width: w, height: bh, rx: bh / 2, fill: on ? c.teal : c.tile,
+                stroke: on ? c.teal : c.hc ? c.ink : c.edge2, "stroke-width": 1
+            }, b);
+            this.hubFrame(b, fr, on ? { ...c, teal: c.ink } : c);
+            const t = this.el("text", {
+                x: x + w / 2, y: y + bh / 2 + f * 0.36, "text-anchor": "middle", "font-size": f,
+                "font-weight": on ? 700 : 400, fill: on ? c.onAccent : c.ink, "font-family": FONT
+            }, b);
+            t.textContent = s.label;
+            x += w + 4;
+        }
+        x += 8;
+        if (this.canLaunchDocs()) {
+            const label = this.locStr("Hub_Docs", "📖 Open docs");
+            const w = Math.ceil(this.textWidth(label, f)) + 18;
+            if (x + w <= width - 12) {
+                const de = (this.host.locale || "").toLowerCase().startsWith("de");
+                const url = de ? DOC_URL_DE : DOC_URL_EN;
+                const b = this.hubBtn(g, "hub-docs", this.locStr("Hub_DocsTip", "Open the ChartKitchen documentation in the browser"),
+                    () => { this.host.launchUrl(url); });
+                b.setAttribute("data-url", url);
+                const fr = this.el("rect", {
+                    x, y, width: w, height: bh, rx: 4, fill: c.tile, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1
+                }, b);
+                this.hubFrame(b, fr, c);
+                const t = this.el("text", {
+                    x: x + w / 2, y: y + bh / 2 + f * 0.36, "text-anchor": "middle", "font-size": f,
+                    fill: c.ink, "font-family": FONT
+                }, b);
+                t.textContent = label;
+                x += w + 8;
+            }
+        }
+        const credit = "made by Daten-WG";
+        if (x + this.textWidth(credit, 10) + 4 <= width - 12) {
+            const m = this.el("text", {
+                x: width - 12, y: y + bh / 2 + 3.6, "text-anchor": "end", "font-size": 10, fill: c.subtle, "font-family": FONT
+            }, g);
+            m.textContent = credit;
+        }
+    }
+
     // ------------------------------------------------------------ overlay + chips
 
     /** ☰ Start (bound chart, edit mode): the hub as overlay. The chart SVG is only
@@ -3207,6 +3567,7 @@ export class Visual implements IVisual {
         const sig = `${start}|${dev}|${c.ink}|${c.paper}|${c.edge2}|${fs}`;
         if (this.chipBar && this.chipBarSig === sig && this.chipBar.parentNode === this.root) {
             this.syncHubChipOpacity();
+            this.placeChipBar();
             return;
         }
         this.removeChipBar();
@@ -3244,6 +3605,8 @@ export class Visual implements IVisual {
             const sb = mk("hub-chip", this.locStr("Hub_Chip", "☰ Start"),
                 this.locStr("Hub_ChipTip", "Start hub: feature tour, IBCS templates, demo gallery, field guide — only visible while editing"),
                 () => this.openHub());
+            // 1.51: always visible while editing — subdued at rest, full on hover/focus
+            sb.setAttribute("data-rest", "0.5");
         }
         for (const btn of Array.from(bar.querySelectorAll("button"))) {
             btn.addEventListener("focus", () => this.syncHubChipOpacity());
@@ -3253,6 +3616,30 @@ export class Visual implements IVisual {
         this.chipBar = bar;
         this.chipBarSig = sig;
         this.syncHubChipOpacity();
+        this.placeChipBar();
+    }
+
+    /**
+     * 1.51: the chip row must not cover chart text (axis labels bottom-left). It
+     * rests 4 px above the bottom edge; when any text of the chart overlaps it there,
+     * it moves up one step (its own height + 4 px). Checked after every render.
+     */
+    private placeChipBar(): void {
+        const bar = this.chipBar;
+        if (!bar) { return; }
+        bar.style.bottom = "4px";
+        bar.removeAttribute("data-lift");
+        const br = bar.getBoundingClientRect();
+        if (br.width <= 0 || br.height <= 0) { return; }
+        const texts = this.svg.querySelectorAll("text");
+        for (let i = 0; i < texts.length; i++) {
+            const r = texts[i].getBoundingClientRect();
+            if (r.width > 0 && r.right > br.left && r.left < br.right && r.bottom > br.top && r.top < br.bottom) {
+                bar.style.bottom = `${4 + Math.ceil(br.height) + 4}px`;
+                bar.setAttribute("data-lift", "1");
+                return;
+            }
+        }
     }
 
     private removeChipBar(): void {
@@ -3261,8 +3648,8 @@ export class Visual implements IVisual {
         this.chipBarSig = "";
     }
 
-    /** ☰ Start: invisible until the author points at the visual or tabs onto it;
-     *  ↺ stays visible (it reports a state) but rests a little lighter */
+    /** ☰ Start rests subdued (1.51; invisible until 1.50) and is full on hover or
+     *  keyboard focus; ↺ stays visible (it reports a state) but rests a little lighter */
     private syncHubChipOpacity(): void {
         const bar = this.chipBar;
         if (!bar) { return; }
@@ -3274,7 +3661,8 @@ export class Visual implements IVisual {
 
     // ------------------------------------------------------------ hub pages
 
-    /** hub home: four large buttons (tour · templates · demo · fields) */
+    /** hub home: „🚀 Get started“ on top (accent), then four large buttons (tour ·
+     *  templates · demo · fields); the hub footer sits below */
     private drawHubHome(width: number, height: number): void {
         const c = this.hubColors();
         const tf = this.landingTf();
@@ -3293,23 +3681,32 @@ export class Visual implements IVisual {
             { id: "templates", label: this.locStr("Hub_Templates", "Templates"),
                 desc: CHART_TEMPLATES[tplNow]
                     ? this.locStr("Hub_TemplatesDescOn", "IBCS templates with preview — active: {0}").replace("{0}", tplNow)
-                    : this.locStr("Hub_TemplatesDesc", "IBCS templates C01–C13 with preview — one click applies") },
+                    : this.locStr("Hub_TemplatesDesc", "By purpose: time series · structure · correlation · bridges — one click applies") },
             { id: "demo", label: this.locStr("Hub_Demo", "View demo"),
                 desc: this.locStr("Hub_DemoDesc", "All 13 chart types as a gallery — a click picks the mode") },
             { id: "fields", label: this.locStr("Hub_Fields", "Explain fields"),
                 desc: this.locStr("Hub_FieldsDesc", "Which field goes where — ✓ at the fields already bound") }
         ];
         const top = pad + fT + 6 + fS + 12;
-        const footH = height >= 260 ? 22 : 6;
+        const footH = this.hubFootH() + 4;
         const availW = width - 2 * pad, availH = height - top - footH;
-        // 4 in a row (wide and low), 2 × 2, or one column (narrow)
+        // „Get started“ banner + 4 in a row (wide and low), 2 × 2, or one column (narrow,
+        // where the banner simply is the first of five equal rows)
+        const startH0 = Math.round(Math.min(52, 34 * tf));
         let cols = 2;
-        if (availW >= 4 * 170 + 3 * gap && availH < 2 * 96 + gap) { cols = 4; }
+        if (availW >= 4 * 170 + 3 * gap && availH - startH0 - gap < 2 * 96 + gap) { cols = 4; }
         else if (availW < 2 * 190 + gap) { cols = 1; }
         const rows = Math.ceil(items.length / cols);
+        let startH: number, bh: number;
+        if (cols === 1) {
+            bh = Math.max(22, Math.min(120, (availH - rows * gap) / (rows + 1)));
+            startH = bh;
+        } else {
+            startH = startH0;
+            bh = Math.max(28, Math.min(120, (availH - startH - gap - (rows - 1) * gap) / rows));
+        }
         const bw = Math.min(400, (availW - (cols - 1) * gap) / cols);
-        const bh = Math.max(28, Math.min(120, (availH - (rows - 1) * gap) / rows));
-        const blockW = cols * bw + (cols - 1) * gap, blockH = rows * bh + (rows - 1) * gap;
+        const blockW = cols * bw + (cols - 1) * gap, blockH = startH + gap + rows * bh + (rows - 1) * gap;
         const x0 = pad + Math.max(0, (availW - blockW) / 2);
         const y0 = top + Math.max(0, (availH - blockH) / 2);
         // header sits right above the (centered) block, like the gallery's
@@ -3325,8 +3722,32 @@ export class Visual implements IVisual {
         st.textContent = this.truncate(this.missingHint
             ?? (cBody !== "" ? cBody : this.locStr("Hub_Sub", "Start — pick what you want to do first")),
         width - x0 - pad, fS);
+        // ---- 🚀 Get started: the guided first three minutes (accent button)
+        {
+            const label = this.locStr("Hub_Start", "🚀 Get started");
+            const desc = this.locStr("Hub_StartDesc", "First 3 minutes: ① bind fields · ② pick a template · ③ fine-tune");
+            const sg = this.hubBtn(this.svg, "hub-start", `${label} — ${desc}`, () => this.hubGo("start"));
+            const fr = this.el("rect", {
+                x: x0, y: y0, width: blockW, height: startH, rx: 8, fill: c.teal, stroke: c.teal, "stroke-width": 1
+            }, sg);
+            this.hubFrame(sg, fr, { ...c, teal: c.ink });
+            const ty = y0 + startH / 2 + fL * 0.36;
+            const lt = this.el("text", {
+                x: x0 + 14, y: ty, "font-size": fL, "font-weight": 700, fill: c.onAccent, "font-family": FONT
+            }, sg);
+            lt.textContent = this.truncate(label, blockW - 28, fL);
+            const lw = this.textWidth(lt.textContent, fL);
+            const room = blockW - 28 - lw - 14;
+            if (room > 80) {
+                const dt = this.el("text", {
+                    x: x0 + 14 + lw + 14, y: ty, "font-size": fD, fill: c.onAccent, "font-family": FONT
+                }, sg);
+                dt.textContent = this.truncate(desc, room, fD);
+            }
+        }
+        const gy0 = y0 + startH + gap;
         items.forEach((it, i) => {
-            const x = x0 + (i % cols) * (bw + gap), y = y0 + Math.floor(i / cols) * (bh + gap);
+            const x = x0 + (i % cols) * (bw + gap), y = gy0 + Math.floor(i / cols) * (bh + gap);
             const g = this.hubBtn(this.svg, `hub-${it.id}`, `${it.label} — ${it.desc}`, () => this.hubGo(it.id));
             const fr = this.el("rect", {
                 x, y, width: bw, height: bh, rx: 8, fill: c.tile, stroke: c.hc ? c.ink : c.edge, "stroke-width": 1
@@ -3363,13 +3784,184 @@ export class Visual implements IVisual {
                 dt.textContent = dl;
             }
         });
-        if (footH > 6) {
-            const made = this.el("text", {
-                x: width / 2, y: height - 8, "text-anchor": "middle",
-                "font-size": 10, fill: c.subtle, "font-family": FONT
-            }, this.svg);
-            made.textContent = "made by Daten-WG";
-        }
+    }
+
+    /**
+     * 1.51 „🚀 Get started“: a guided checklist for the first three minutes —
+     * ① bind fields (live ✓ per required/recommended role, where the field wells
+     * are), ② pick a template (jumps into the gallery, ✓ once a template is set),
+     * ③ fine-tune (the three settings that matter most). Nothing is persisted; the
+     * ticks follow the bound fields on every update.
+     */
+    private drawHubStart(width: number, height: number): void {
+        const c = this.hubColors();
+        const tf = this.landingTf();
+        const pad = 12, gap = 10;
+        const fT = Math.round(14 * tf), fS = Math.round(10 * tf), fH = Math.round(12 * tf), fB = Math.round(10.5 * tf);
+        const backW = this.drawHubBackChip(width, c);
+        const hT = this.el("text", {
+            x: pad, y: pad + fT, "font-size": fT, "font-weight": 700, fill: c.ink, "font-family": FONT
+        }, this.svg);
+        hT.textContent = this.truncate(this.locStr("Start_Title", "🚀 Get started — the first 3 minutes"), width - 2 * pad - backW - 8, fT);
+        const hS = this.el("text", {
+            x: pad, y: pad + fT + 5 + fS, "font-size": fS, fill: c.subtle, "font-family": FONT
+        }, this.svg);
+        hS.textContent = this.truncate(this.locStr("Start_Sub",
+            "Three steps to a finished IBCS chart — the ticks follow your fields live, nothing is saved"), width - 2 * pad, fS);
+        const top = pad + fT + 5 + fS + 12;
+        const bottom = height - this.hubFootH() - 8;
+        const roles = this.boundRoles();
+        const hasAc = roles.has("actual") || roles.has("forecast");
+        const tpl = String(this.formattingSettings.chartCard.template.value.value);
+        const tplOn = CHART_TEMPLATES[tpl] != null;
+        const fieldRows: { role: string; on: boolean; tag: string }[] = [
+            { role: "actual", on: hasAc, tag: this.locStr("Start_Required", "required") },
+            { role: "category", on: roles.has("category"), tag: this.locStr("Start_Recommended", "recommended") },
+            { role: "previousYear", on: roles.has("previousYear"), tag: this.locStr("Start_ForPy", "recommended for ΔPY") },
+            { role: "plan", on: roles.has("plan"), tag: this.locStr("Start_ForPl", "recommended for ΔPL") }
+        ];
+        const steps = [
+            { title: this.locStr("Start_S1", "Bind fields"), done: hasAc && roles.has("category") },
+            { title: this.locStr("Start_S2", "Pick a template"), done: tplOn },
+            { title: this.locStr("Start_S3", "Fine-tune"), done: false }
+        ];
+        const tips: [string, string][] = [
+            ["Start_T1", "Comparison & variance — basis PY or plan (Chart card)"],
+            ["Start_T2", "IBCS title — KPI · period · message (IBCS title card)"],
+            ["Start_T3", "Size preset — HD · Full HD · UHD (footer below)"]
+        ];
+        const availW = width - 2 * pad, availH = bottom - top;
+        const lh = Math.round(fB * 1.5), headH = Math.round(14 * tf) + 2 * Math.round(10 * tf);
+        const wide = availW >= 720 && availH >= headH + 4 * lh;
+        const cardW = wide ? (availW - 2 * gap) / 3 : availW;
+        // stacked: room per card follows its content (step 1 has the most lines)
+        const want = (wide ? [6, 3, 6] : [5.2, 2.6, 3.4]).map(n => headH + n * lh + 6);
+        const scale = Math.min(1, (availH - 2 * gap) / want.reduce((a, b) => a + b, 0));
+        const cardH = wide ? Math.min(availH, Math.max(...want) + 8) : 0;
+        let cy = top;
+        steps.forEach((s, i) => {
+            const x = wide ? pad + i * (cardW + gap) : pad;
+            const y = wide ? top : cy;
+            const h = wide ? cardH : Math.max(headH, Math.floor(want[i] * scale));
+            cy += h + gap;
+            const linesFit = Math.floor((y + h - 6 - (y + headH + Math.round(fB * 0.5) - fB)) / lh);
+            // step ② without room for its button: the whole card opens the gallery
+            const cardBtn = i === 1 && linesFit < 2;
+            const cg = cardBtn
+                ? this.hubBtn(this.svg, "hub-start-tpl", this.locStr("Start_OpenGallery", "Open the gallery →"), () => this.hubGo("templates"))
+                : this.el("g", {}, this.svg);
+            cg.setAttribute("data-step", String(i + 1));
+            cg.setAttribute("data-done", s.done ? "1" : "0");
+            if (!cardBtn) { cg.setAttribute("data-icd", `hub-step-${i + 1}`); }
+            const cfr = this.el("rect", {
+                x, y, width: cardW, height: h, rx: 8, fill: s.done ? c.tileOn : c.tile,
+                stroke: s.done ? c.teal : c.hc ? c.ink : c.edge, "stroke-width": s.done ? 1.6 : 1
+            }, cg);
+            if (cardBtn) { this.hubFrame(cg as SVGGElement, cfr, c); }
+            // number badge (✓ when done), title, status right
+            const r = Math.round(10 * tf);
+            const bcx = x + 10 + r, bcy = y + Math.round(10 * tf) + r * 0.7;
+            this.el("circle", {
+                cx: bcx, cy: bcy, r, fill: s.done ? c.teal : c.paper, stroke: s.done ? c.teal : c.hc ? c.ink : c.grey, "stroke-width": 1
+            }, cg);
+            const nt = this.el("text", {
+                x: bcx, y: bcy + fB * 0.36, "text-anchor": "middle", "font-size": fB, "font-weight": 700,
+                fill: s.done ? c.onAccent : c.ink, "font-family": FONT
+            }, cg);
+            nt.textContent = s.done ? "✓" : String(i + 1);
+            const stTxt = i === 2 ? this.locStr("Start_Tip", "tip") : s.done
+                ? this.locStr("Start_Done", "✓ done") : this.locStr("Start_Open", "open");
+            const stW = this.textWidth(stTxt, fS);
+            const stx = this.el("text", {
+                x: x + cardW - 10, y: bcy + fS * 0.36, "text-anchor": "end", "font-size": fS,
+                "font-weight": s.done ? 700 : 400, fill: s.done ? c.teal : c.subtle, "font-family": FONT
+            }, cg);
+            stx.textContent = stTxt;
+            const ttl = this.el("text", {
+                x: bcx + r + 8, y: bcy + fH * 0.36, "font-size": fH, "font-weight": 700, fill: c.ink, "font-family": FONT
+            }, cg);
+            ttl.textContent = this.truncate(s.title, cardW - (bcx + r + 8 - x) - stW - 18, fH);
+            // content
+            const cx0 = x + 12, cw = cardW - 24;
+            let ly = y + headH + Math.round(fB * 0.5);
+            const line = (t: string, fill: string, bold = false, maxW = cw, xx = cx0) => {
+                const e = this.el("text", {
+                    x: xx, y: ly, "font-size": fB, fill, "font-family": FONT, ...(bold ? { "font-weight": 600 } : {})
+                }, cg);
+                e.textContent = this.truncate(t, maxW, fB);
+                return e;
+            };
+            if (i === 0) {
+                if (linesFit >= 4) {
+                    const nameW = Math.min(cw * 0.5, Math.max(...fieldRows.map(fr =>
+                        this.textWidth(this.locStr(ROLE_NAMES[fr.role][0], ROLE_NAMES[fr.role][1]), fB))) + 8);
+                    for (const fr of fieldRows) {
+                        const m = line(fr.on ? "✓" : "○", fr.on ? c.teal : c.subtle, true, 16);
+                        m.setAttribute("data-icd", `hub-start-role-${fr.role}`);
+                        m.setAttribute("data-on", fr.on ? "1" : "0");
+                        line(this.locStr(ROLE_NAMES[fr.role][0], ROLE_NAMES[fr.role][1]), c.ink, true, nameW, cx0 + 18);
+                        line(fr.tag, c.subtle, false, cw - 24 - nameW, cx0 + 18 + nameW + 6);
+                        ly += lh;
+                    }
+                    const wl = this.hubWrap(this.locStr("Start_Where",
+                        "Where? Visualizations pane → „Build visual“ — drag the fields into the wells."), cw, fB, linesFit - 4);
+                    for (const l of wl) {
+                        const e = line(l, c.soft);
+                        e.setAttribute("font-style", "italic");
+                        ly += lh;
+                    }
+                } else if (linesFit >= 1) {
+                    // compact: all four roles in one line
+                    let xx = cx0;
+                    for (const fr of fieldRows) {
+                        const nm = this.locStr(ROLE_NAMES[fr.role][0], ROLE_NAMES[fr.role][1]).split(/\s*[(（]/)[0].trim();
+                        const m = line(fr.on ? "✓" : "○", fr.on ? c.teal : c.subtle, true, 16, xx);
+                        m.setAttribute("data-icd", `hub-start-role-${fr.role}`);
+                        m.setAttribute("data-on", fr.on ? "1" : "0");
+                        const room = x + cardW - 12 - (xx + 14);
+                        if (room < 20) { break; }
+                        line(nm, c.ink, false, room, xx + 14);
+                        xx += 14 + Math.min(room, this.textWidth(nm, fB)) + 12;
+                    }
+                }
+            } else if (i === 1) {
+                if (linesFit >= 1) {
+                    const tTxt = tplOn
+                        ? this.locStr("Start_TplActive", "Active: {0}").replace("{0}",
+                            `${tpl} · ${this.locStr(`Hub_TplT_${tpl}`, (TEMPLATE_TILE_EN[tpl] ?? [tpl])[0])}`)
+                        : this.locStr("Start_TplBody", "Sorted by purpose: time series · structure · correlation · bridges");
+                    const ab = Math.round(21 * tf);
+                    const textLines = Math.max(1, linesFit - (linesFit >= 3 ? 2 : 1));
+                    for (const l of this.hubWrap(tTxt, cw, fB, textLines)) { line(l, tplOn ? c.teal : c.soft, tplOn); ly += lh; }
+                    const label = this.locStr("Start_OpenGallery", "Open the gallery →");
+                    const aw = Math.min(cw, Math.ceil(this.textWidth(label, fB)) + 22);
+                    const ay = Math.min(ly - fB + 2, y + h - 8 - ab);
+                    if (ay >= y + headH - 4) {
+                        const b = this.hubBtn(this.svg, "hub-start-tpl", label, () => this.hubGo("templates"));
+                        const afr = this.el("rect", {
+                            x: cx0, y: ay, width: aw, height: ab, rx: 4, fill: c.teal, stroke: c.teal, "stroke-width": 1
+                        }, b);
+                        this.hubFrame(b, afr, { ...c, teal: c.ink });
+                        const at = this.el("text", {
+                            x: cx0 + aw / 2, y: ay + ab / 2 + fB * 0.36, "text-anchor": "middle",
+                            "font-size": fB, "font-weight": 600, fill: c.onAccent, "font-family": FONT
+                        }, b);
+                        at.textContent = this.truncate(label, aw - 10, fB);
+                    }
+                }
+            } else {
+                // each tip wraps onto a second line when the card has the room
+                let left = linesFit;
+                const per = linesFit >= 2 * tips.length ? 2 : 1;
+                for (const [key, en] of tips) {
+                    if (left <= 0) { break; }
+                    const tl = this.hubWrap(this.locStr(key, en), cw - 14, fB, Math.min(per, left));
+                    const b = line("•", c.teal, true, 12);
+                    b.setAttribute("aria-hidden", "true");
+                    for (const l of tl) { line(l, c.soft, false, cw - 14, cx0 + 12); ly += lh; left--; }
+                }
+            }
+        });
     }
 
     /** small pictogram per hub button, drawn with the gallery's mini pipeline */
@@ -3484,7 +4076,7 @@ export class Visual implements IVisual {
             width - 2 * pad, fS);
         const top = pad + fT + 5 + fS + 10;
         const dotsH = Math.round(16 * tf);
-        const bottom = height - 6 - dotsH;
+        const bottom = height - this.hubFootH() - 4 - dotsH;
         const ar = Math.round(12 * tf);
         const cx0 = pad + 2 * ar + 8, cx1 = width - pad - 2 * ar - 8;
         const cw = cx1 - cx0, ch = bottom - top;
@@ -3530,8 +4122,11 @@ export class Visual implements IVisual {
             tx = px; ty = py + ph + 8; tw = pw;
         }
         this.drawTourPreview(cg, card.minis, px, py, pw, ph, c, fS);
-        // text block: title (≤ 2 lines) + body (as many lines as fit) + optional action
-        const textBottom = top + ch - ip - (card.action ? Math.round(21 * tf) + 8 : 0);
+        // text block: title (≤ 2 lines) + body (as many lines as fit) + optional action;
+        // 1.51: the last card also offers „← Back to start“ (end of the tour)
+        const last = idx === n - 1;
+        const hasAct = card.action != null || last;
+        const textBottom = top + ch - ip - (hasAct ? Math.round(21 * tf) + 8 : 0);
         const lhT = Math.round(fT * 1.3), lhB = Math.round(fB * 1.45);
         const tLines = this.hubWrap(card.t, tw, fT, 2);
         let y = ty + fT;
@@ -3539,7 +4134,7 @@ export class Visual implements IVisual {
             // vertically centered next to the preview
             const room = Math.floor((textBottom - ty - tLines.length * lhT - 6) / lhB);
             const bl = this.hubWrap(card.b, tw, fB, Math.max(0, room)).length;
-            const blockH = tLines.length * lhT + 6 + bl * lhB + (card.action ? Math.round(21 * tf) + 8 : 0);
+            const blockH = tLines.length * lhT + 6 + bl * lhB + (hasAct ? Math.round(21 * tf) + 8 : 0);
             y = top + Math.max(ip, (ch - blockH) / 2) + fT;
         }
         for (const l of tLines) {
@@ -3555,22 +4150,42 @@ export class Visual implements IVisual {
             e.textContent = l;
             y += lhB;
         }
-        if (card.action) {
+        if (hasAct) {
             const af = Math.round(10.5 * tf), abh = Math.round(21 * tf);
-            const label = this.locStr("Hub_TourToTpl", "Open templates →");
-            const aw = Math.ceil(this.textWidth(label, af)) + 22;
             const ay = Math.min(y - lhB + 10, top + ch - ip - abh);
-            const act = card.action;
-            const ab = this.hubBtn(this.svg, "hub-tour-action", label, () => this.hubGo(act));
-            const afr = this.el("rect", {
-                x: tx, y: ay, width: aw, height: abh, rx: 4, fill: c.teal, stroke: c.teal, "stroke-width": 1
-            }, ab);
-            this.hubFrame(ab, afr, { ...c, teal: c.ink });
-            const at = this.el("text", {
-                x: tx + aw / 2, y: ay + abh / 2 + af * 0.36, "text-anchor": "middle",
-                "font-size": af, "font-weight": 600, fill: c.onAccent, "font-family": FONT
-            }, ab);
-            at.textContent = label;
+            let ax = tx;
+            if (card.action) {
+                const label = this.locStr("Hub_TourToTpl", "Open templates →");
+                const aw = Math.ceil(this.textWidth(label, af)) + 22;
+                const act = card.action;
+                const ab = this.hubBtn(this.svg, "hub-tour-action", label, () => this.hubGo(act));
+                const afr = this.el("rect", {
+                    x: ax, y: ay, width: aw, height: abh, rx: 4, fill: c.teal, stroke: c.teal, "stroke-width": 1
+                }, ab);
+                this.hubFrame(ab, afr, { ...c, teal: c.ink });
+                const at = this.el("text", {
+                    x: ax + aw / 2, y: ay + abh / 2 + af * 0.36, "text-anchor": "middle",
+                    "font-size": af, "font-weight": 600, fill: c.onAccent, "font-family": FONT
+                }, ab);
+                at.textContent = label;
+                ax += aw + 8;
+            }
+            if (last) {
+                const label = this.locStr("Hub_TourDone", "← Back to start");
+                const aw = Math.ceil(this.textWidth(label, af)) + 22;
+                if (ax + aw <= cx0 + cw - ip || ax === tx) {
+                    const ab = this.hubBtn(this.svg, "hub-tour-done", label, () => this.hubGo("home"));
+                    const afr = this.el("rect", {
+                        x: ax, y: ay, width: aw, height: abh, rx: 4, fill: c.tile, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1
+                    }, ab);
+                    this.hubFrame(ab, afr, c);
+                    const at = this.el("text", {
+                        x: ax + aw / 2, y: ay + abh / 2 + af * 0.36, "text-anchor": "middle",
+                        "font-size": af, fill: c.ink, "font-family": FONT
+                    }, ab);
+                    at.textContent = label;
+                }
+            }
         }
         // ‹ › at the sides
         const arrow = (ax: number, d: number, glyph: string, key: string) => {
@@ -3600,7 +4215,7 @@ export class Visual implements IVisual {
         const cntW = this.textWidth(cnt, fS) + 10;
         const dotsW = (n - 1) * dg;
         let dx = width / 2 - (dotsW + cntW) / 2;
-        const dy = height - 6 - dotsH / 2;
+        const dy = bottom + dotsH / 2 + 1;
         for (let i = 0; i < n; i++) {
             const on = i === idx;
             const d = this.el("circle", {
@@ -3658,14 +4273,21 @@ export class Visual implements IVisual {
         });
     }
 
-    /** template gallery: one tile per IBCS template (mini preview + label); a click
-     *  stores it exactly like the pane dropdown — also for the active template */
+    /**
+     * template gallery: the IBCS templates grouped by purpose (time series ·
+     * structure · correlation · bridges & multiples), one tile each with a large
+     * preview, the C number as a badge, a finance title and a use line. Groups that
+     * fit share a row (aligned in group columns); when space runs out the rows page
+     * (‹ n / N ›). A click stores the pick exactly like the pane dropdown — also for
+     * the active template (= re-apply).
+     */
     private drawHubTemplates(width: number, height: number): void {
         const c = this.hubColors();
         const tf = this.landingTf();
         this.ensureDemoHatch(c);
-        const pad = 12, gap = 8;
-        const fT = Math.round(14 * tf), fS = Math.round(10 * tf), fC = Math.round(10 * tf), fN = Math.round(9 * tf);
+        const pad = 12, gap = 10, sg = Math.round(22 * tf);
+        const fT = Math.round(14 * tf), fS = Math.round(10 * tf), fG = Math.round(9.5 * tf);
+        const fC = Math.round(10.5 * tf), fN = Math.round(9.5 * tf), fBd = Math.round(8.5 * tf);
         const backW = this.drawHubBackChip(width, c);
         const hT = this.el("text", {
             x: pad, y: pad + fT, "font-size": fT, "font-weight": 700, fill: c.ink, "font-family": FONT
@@ -3673,8 +4295,8 @@ export class Visual implements IVisual {
         hT.textContent = this.truncate(this.locStr("Hub_TplTitle", "IBCS templates"), width - 2 * pad - backW - 8, fT);
         const hasData = this.lastRender != null;
         const saved = !hasData ? this.hubTplSaved : null;
-        const items = this.formattingSettings.chartCard.template.items
-            .filter(it => String(it.value) !== "off" && CHART_TEMPLATES[String(it.value)]);
+        const avail = new Set(this.formattingSettings.chartCard.template.items
+            .map(it => String(it.value)).filter(v => v !== "off" && CHART_TEMPLATES[v]));
         const cur = String(this.formattingSettings.chartCard.template.value.value);
         const subTxt = saved
             ? this.locStr("Hub_TplSaved", "✓ {0} saved — becomes active as soon as fields are bound").replace("{0}", saved)
@@ -3687,71 +4309,101 @@ export class Visual implements IVisual {
         }, this.svg);
         hS.textContent = this.truncate(subTxt, width - 2 * pad, fS);
         const roles = this.boundRoles();
-        const top = pad + fT + 5 + fS + 10;
+        const top = pad + fT + 5 + fS + 12;
         const availW = width - 2 * pad;
-        const minTW = Math.round(128 * Math.min(1.2, tf)), minTH = Math.round(54 + 2 * fC);
-        const cols = Math.max(1, Math.min(6, Math.floor((availW + gap) / (minTW + gap))));
-        const navH = Math.round(22 * tf) + 6;
-        let availH = height - top - 6;
-        let rowsFit = Math.max(1, Math.floor((availH + gap) / (minTH + gap)));
-        let pages = Math.ceil(items.length / (cols * rowsFit));
-        if (pages > 1) {
-            availH -= navH;
-            rowsFit = Math.max(1, Math.floor((availH + gap) / (minTH + gap)));
-            pages = Math.ceil(items.length / (cols * rowsFit));
-        }
-        const per = cols * rowsFit;
-        const page = Math.max(0, Math.min(pages - 1, this.hubTplPage));
-        this.hubTplPage = page;
-        const shown = items.slice(page * per, page * per + per);
-        const rowsUsed = pages > 1 ? rowsFit : Math.ceil(shown.length / cols);
-        const tw = Math.min(200, (availW - (cols - 1) * gap) / cols);
-        const th = Math.min(150, (availH - (rowsUsed - 1) * gap) / rowsUsed);
-        const blockW = cols * tw + (cols - 1) * gap, blockH = rowsUsed * th + (rowsUsed - 1) * gap;
-        const x0 = pad + Math.max(0, (availW - blockW) / 2);
-        // the grid hugs the header (a centered block left a gap under the title)
-        const y0 = top + (pages > 1 ? Math.max(0, (availH - blockH) / 2) : 0);
-        shown.forEach((it, i) => {
-            const code = String(it.value);
-            const label = String(it.displayName);
-            const on = code === cur;
-            const need = TEMPLATE_NEEDS[code];
-            const needTxt = need ? this.locStr("Hub_TplNeeds", "needs the field: {0}")
-                .replace("{0}", this.locStr(need.key, need.en).split(/\s*[(（]/)[0].trim()) : "";
-            const missing = need != null && !roles.has(need.role);
-            const x = x0 + (i % cols) * (tw + gap), y = y0 + Math.floor(i / cols) * (th + gap);
-            const tip = `${label}${needTxt ? ` — ${needTxt}` : ""}${on ? ` · ${this.locStr("Hub_TplActive", "active — click applies it again")}` : ""}`;
-            const g = this.hubBtn(this.svg, `hub-tpl-${code}`, tip, () => this.hubPickTemplate(code));
-            g.setAttribute("aria-pressed", String(on));
-            const fr = this.el("rect", {
-                x, y, width: tw, height: th, rx: 6, fill: on ? c.tileOn : c.tile,
-                stroke: on ? c.teal : c.hc ? c.ink : c.edge, "stroke-width": on ? 1.6 : 1
-            }, g);
-            this.hubFrame(g, fr, c);
-            const showNeed = missing && th >= 96;
-            const capH = fC + 8 + (showNeed ? fN + 3 : 0);
-            const pvX = x + 6, pvY = y + 6, pvW = tw - 12, pvH = th - 12 - capH;
-            this.el("rect", {
-                x: pvX, y: pvY, width: pvW, height: pvH, rx: 4, fill: c.paper,
-                stroke: on ? c.teal : c.hc ? c.ink : c.edge2, "stroke-width": 1
-            }, g);
-            const ins = Math.max(4, Math.min(pvW, pvH) * 0.12);
-            this.drawModeMini(g, TEMPLATE_MINI[code] ?? "columns", pvX + ins, pvY + ins, pvW - 2 * ins, pvH - 2 * ins,
-                { ink: c.ink, grey: c.grey, teal: c.teal, red: c.red, paper: c.paper });
-            const cap = this.el("text", {
-                x: x + 8, y: pvY + pvH + 4 + fC, "font-size": fC, fill: c.ink, "font-family": FONT,
-                "font-weight": on ? 700 : 400
-            }, g);
-            cap.textContent = this.truncate(`${on ? "✓ " : ""}${label}`, tw - 14, fC);
-            if (showNeed) {
-                const nt = this.el("text", {
-                    x: x + 8, y: pvY + pvH + 4 + fC + 3 + fN, "font-size": fN, fill: c.subtle, "font-family": FONT
-                }, g);
-                nt.textContent = this.truncate(`+ ${needTxt}`, tw - 14, fN);
+        const bottomY = height - this.hubFootH() - 6;
+
+        // ---- pack the groups into bands (rows): a group wider than a row splits into
+        // chunks; first fit keeps at most two groups side by side
+        const minTW = Math.round(132 * Math.min(1.2, tf)), maxTW = 230;
+        const maxN = Math.max(1, Math.floor((availW + gap) / (minTW + gap)));
+        type Chunk = { gi: number; codes: string[]; cont: boolean };
+        const chunks: Chunk[] = [];
+        TEMPLATE_GROUPS.forEach((gr, gi) => {
+            const codes = gr.codes.filter(cd => avail.has(cd));
+            for (let i = 0; i < codes.length; i += maxN) {
+                chunks.push({ gi, codes: codes.slice(i, i + maxN), cont: i > 0 });
             }
         });
+        const bandW = (b: Chunk[], tw: number) => b.reduce((a, ch) => a + ch.codes.length * tw + (ch.codes.length - 1) * gap, 0)
+            + (b.length - 1) * sg;
+        const bands: Chunk[][] = [];
+        for (const ch of chunks) {
+            const fit = bands.find(b => b.length < 2 && bandW([...b, ch], minTW) <= availW);
+            if (fit) { fit.push(ch); } else { bands.push([ch]); }
+        }
+        // group columns: the k-th group of every band starts at the same x
+        const slotN = [0, 1].map(k => Math.max(0, ...bands.map(b => b[k] ? b[k].codes.length : 0)));
+        const slots = slotN[1] > 0 ? 2 : 1;
+        const tiles = slotN[0] + slotN[1];
+        let tw = Math.min(maxTW, (availW - (tiles - slots) * gap - (slots - 1) * sg) / tiles);
+        let aligned = tw >= minTW - 0.5;
+        if (!aligned) {
+            tw = Math.min(maxTW, ...bands.map(b => {
+                const n = b.reduce((a, ch) => a + ch.codes.length, 0);
+                return (availW - (n - b.length) * gap - (b.length - 1) * sg) / n;
+            }));
+        }
+        const slotX = [0, slotN[0] * tw + (slotN[0] - 1) * gap + sg];
+        const usedW = aligned ? slotX[0] + tiles * tw + (tiles - slots) * gap + (slots - 1) * sg
+            : Math.max(...bands.map(b => bandW(b, tw)));
+        const x0 = pad + Math.max(0, (availW - usedW) / 2);
+
+        // ---- vertical: heading + tile row per band; page when the bands do not fit
+        const hh = fG + 9, bandGap = Math.round(10 * tf);
+        const textH = 8 + fC + 4 + fN + 8;
+        const minTH = Math.round(textH + 42 * Math.min(1.2, tf)), maxTH = 190;
+        const navH = Math.round(22 * tf) + 6;
+        let availH = bottomY - top;
+        let perPage = Math.max(1, Math.floor((availH + bandGap) / (hh + minTH + bandGap)));
+        let pages = Math.ceil(bands.length / perPage);
         if (pages > 1) {
-            const ny = height - 6 - navH / 2;
+            availH -= navH;
+            perPage = Math.max(1, Math.floor((availH + bandGap) / (hh + minTH + bandGap)));
+            pages = Math.ceil(bands.length / perPage);
+        }
+        const page = Math.max(0, Math.min(pages - 1, this.hubTplPage));
+        this.hubTplPage = page;
+        const nb = pages > 1 ? perPage : bands.length;
+        const th = Math.min(maxTH, (availH - nb * hh - (nb - 1) * bandGap) / nb);
+        const shown = bands.slice(page * perPage, page * perPage + perPage);
+        // one text layout for the whole page keeps every preview the same height:
+        // the „needs field“ line is reserved when any shown tile needs it, the title
+        // wraps onto two lines when one would be cut and the preview keeps its room
+        const shownCodes = shown.flatMap(b => b.flatMap(ch => ch.codes));
+        const needRow = shownCodes.some(cd => TEMPLATE_NEEDS[cd] != null && !roles.has(TEMPLATE_NEEDS[cd].role));
+        const titleOver = shownCodes.some(cd => this.textWidth(this.locStr(`Hub_TplT_${cd}`,
+            (TEMPLATE_TILE_EN[cd] ?? [cd])[0]), fC) > tw - 14);
+        const baseTxt = 6 + 6 + fC + 4 + fN + 6 + (needRow ? 3 + fN : 0);
+        const tLines = titleOver && th - baseTxt - (fC + 2) >= Math.round(46 * Math.min(1.2, tf)) ? 2 : 1;
+        let by = top;
+        shown.forEach(band => {
+            let bx = x0;
+            band.forEach((ch, k) => {
+                if (aligned) { bx = x0 + slotX[k]; }
+                const gr = TEMPLATE_GROUPS[ch.gi];
+                const gt = this.el("text", {
+                    x: bx, y: by + fG, "font-size": fG, "font-weight": 700, fill: c.hc ? c.ink : c.teal,
+                    "font-family": FONT, "letter-spacing": "0.5", "data-icd": `hub-tpl-group-${gr.id}`
+                }, this.svg);
+                const gName = this.locStr(gr.key, gr.en).toUpperCase();
+                const chW = ch.codes.length * tw + (ch.codes.length - 1) * gap;
+                gt.textContent = this.truncate(ch.cont ? `${gName} …` : gName, chW, fG);
+                // a hairline under the heading ties the group's tiles together
+                this.el("line", {
+                    x1: bx, y1: by + fG + 4.5, x2: bx + chW, y2: by + fG + 4.5,
+                    stroke: c.hc ? c.ink : c.edge, "stroke-width": 1
+                }, this.svg);
+                ch.codes.forEach((code, i) => {
+                    this.drawTemplateTile(code, bx + i * (tw + gap), by + hh, tw, th, code === cur, roles, c,
+                        { fC, fN, fBd, tLines, needRow });
+                });
+                bx += chW + sg;
+            });
+            by += hh + th + bandGap;
+        });
+        if (pages > 1) {
+            const ny = height - this.hubFootH() - 6 - navH / 2 + 3;
             const lbl = `${page + 1} / ${pages}`;
             const lw = this.textWidth(lbl, fS) + 16;
             const nav = (cx: number, d: number, glyph: string, key: string) => {
@@ -3776,6 +4428,101 @@ export class Visual implements IVisual {
                 x: width / 2, y: ny + fS * 0.36, "text-anchor": "middle", "font-size": fS, fill: c.subtle, "font-family": FONT
             }, this.svg);
             pt.textContent = lbl;
+        }
+    }
+
+    /** one gallery tile: preview with C-number badge, finance title, use line; hover
+     *  lifts the tile (shadow + accent frame), the active template carries „✓ active“ */
+    private drawTemplateTile(code: string, x: number, y: number, tw: number, th: number, on: boolean,
+        roles: Set<string>, c: HubColors, f: { fC: number; fN: number; fBd: number; tLines: number; needRow: boolean }): void {
+        const title = this.locStr(`Hub_TplT_${code}`, (TEMPLATE_TILE_EN[code] ?? [code, ""])[0]);
+        const use = this.locStr(`Hub_TplU_${code}`, (TEMPLATE_TILE_EN[code] ?? ["", ""])[1]);
+        const need = TEMPLATE_NEEDS[code];
+        const needTxt = need ? this.locStr("Hub_TplNeeds", "needs the field: {0}")
+            .replace("{0}", this.locStr(need.key, need.en).split(/\s*[(（]/)[0].trim()) : "";
+        const missing = need != null && !roles.has(need.role);
+        const tip = `${code} · ${title} — ${use}${needTxt ? ` · ${needTxt}` : ""}${on ? ` · ${this.locStr("Hub_TplActive", "active — click applies it again")}` : ""}`;
+        // shadow (shown while lifted) sits under the tile and never takes the pointer
+        const sh = this.el("rect", {
+            x: x + 1, y: y + 3, width: tw, height: th, rx: 7, fill: c.hc ? "none" : c.edge, opacity: 0
+        }, this.svg);
+        sh.style.pointerEvents = "none";
+        const g = this.hubBtn(this.svg, `hub-tpl-${code}`, tip, () => this.hubPickTemplate(code));
+        g.setAttribute("aria-pressed", String(on));
+        // hit area 3 px taller: the lifted tile keeps the pointer at its lower edge
+        this.el("rect", { x, y, width: tw, height: th + 3, fill: "transparent" }, g);
+        const fr = this.el("rect", {
+            x, y, width: tw, height: th, rx: 7, fill: on ? c.tileOn : c.tile,
+            stroke: on ? c.teal : c.hc ? c.ink : c.edge, "stroke-width": on ? 2 : 1
+        }, g);
+        this.hubFrame(g, fr, c);
+        let hover = false, focus = false;
+        const lift = () => {
+            const up = hover || focus;
+            g.setAttribute("transform", up ? "translate(0,-2)" : "");
+            sh.setAttribute("opacity", up ? "1" : "0");
+        };
+        g.addEventListener("mouseenter", () => { hover = true; lift(); });
+        g.addEventListener("mouseleave", () => { hover = false; lift(); });
+        g.addEventListener("focus", () => { focus = true; lift(); });
+        g.addEventListener("blur", () => { focus = false; lift(); });
+        const showNeed = missing && f.needRow;
+        const capH = 6 + f.tLines * f.fC + (f.tLines - 1) * 2 + 4 + f.fN + (f.needRow ? 3 + f.fN : 0) + 6;
+        const pvX = x + 6, pvY = y + 6, pvW = tw - 12, pvH = Math.max(16, th - 6 - capH);
+        this.el("rect", {
+            x: pvX, y: pvY, width: pvW, height: pvH, rx: 5, fill: c.paper,
+            stroke: on ? c.teal : c.hc ? c.ink : c.edge2, "stroke-width": 1
+        }, g);
+        const bdH = Math.round(f.fBd * 1.6);
+        const insX = Math.max(5, pvW * 0.08), insT = Math.max(5, bdH + 6), insB = Math.max(4, pvH * 0.08);
+        if (pvH - insT - insB >= 10) {
+            this.drawModeMini(g, TEMPLATE_MINI[code] ?? "columns", pvX + insX, pvY + insT, pvW - 2 * insX, pvH - insT - insB,
+                { ink: c.ink, grey: c.grey, teal: c.teal, red: c.red, paper: c.paper });
+        }
+        // C-number badge top-left; „✓ active“ top-right on the active tile
+        const bdW = Math.ceil(this.textWidth(code, f.fBd)) + 10;
+        this.el("rect", {
+            x: pvX + 4, y: pvY + 4, width: bdW, height: bdH, rx: bdH / 2,
+            fill: c.hc ? c.paper : c.tile, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1
+        }, g);
+        const bt = this.el("text", {
+            x: pvX + 4 + bdW / 2, y: pvY + 4 + bdH / 2 + f.fBd * 0.36, "text-anchor": "middle",
+            "font-size": f.fBd, "font-weight": 600, fill: c.subtle, "font-family": FONT
+        }, g);
+        bt.textContent = code;
+        if (on) {
+            const aTxt = this.locStr("Hub_TplOn", "✓ active");
+            const aW = Math.ceil(this.textWidth(aTxt, f.fBd)) + 12;
+            if (aW + bdW + 16 <= pvW) {
+                this.el("rect", {
+                    x: pvX + pvW - 4 - aW, y: pvY + 4, width: aW, height: bdH, rx: bdH / 2, fill: c.teal
+                }, g);
+                const at = this.el("text", {
+                    x: pvX + pvW - 4 - aW / 2, y: pvY + 4 + bdH / 2 + f.fBd * 0.36, "text-anchor": "middle",
+                    "font-size": f.fBd, "font-weight": 700, fill: c.onAccent, "font-family": FONT
+                }, g);
+                at.textContent = aTxt;
+            }
+        }
+        let ty = pvY + pvH + 6 + f.fC;
+        const tl = f.tLines > 1 ? this.hubWrap(title, tw - 14, f.fC, f.tLines) : [this.truncate(title, tw - 14, f.fC)];
+        tl.forEach((l, i) => {
+            const t1 = this.el("text", {
+                x: x + 8, y: ty + i * (f.fC + 2), "font-size": f.fC, "font-weight": 700, fill: c.ink, "font-family": FONT
+            }, g);
+            t1.textContent = l;
+        });
+        ty += (tl.length - 1) * (f.fC + 2);
+        const t2 = this.el("text", {
+            x: x + 8, y: ty + 4 + f.fN, "font-size": f.fN, fill: c.soft, "font-family": FONT
+        }, g);
+        t2.textContent = this.truncate(use, tw - 14, f.fN);
+        if (showNeed) {
+            const nt = this.el("text", {
+                x: x + 8, y: ty + 4 + f.fN + 3 + f.fN, "font-size": f.fN, fill: c.subtle, "font-family": FONT,
+                "font-style": "italic"
+            }, g);
+            nt.textContent = this.truncate(`+ ${needTxt}`, tw - 14, f.fN);
         }
     }
 
