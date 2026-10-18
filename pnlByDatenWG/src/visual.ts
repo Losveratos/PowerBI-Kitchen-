@@ -2430,10 +2430,12 @@ export class Visual implements IVisual {
             b.style.padding = `${this.kpx(3.5)} ${this.kpx(10)}`;
             seg.appendChild(b);
         }
+        seg.title = this.tr("UI_HubFont");
         bar.appendChild(seg);
+        // the explanation where it fits on one line with the buttons; narrow visuals keep it as the tooltip
         const note = document.createElement("span");
         note.style.cssText = `color:${C.soft};font-size:${this.kpx(10)};flex:1 1 auto;min-width:0;`;
-        note.textContent = this.tr("UI_HubFont");
+        if (this.hubAvail() >= this.k(720)) { note.textContent = this.tr("UI_HubFont"); }
         bar.appendChild(note);
         if (this.editMode()) {
             bar.appendChild(this.hubBtn(this.tr("UI_HubDocs"), () => this.openDocs(),
