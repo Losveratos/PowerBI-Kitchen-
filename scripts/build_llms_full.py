@@ -6,9 +6,9 @@ deshalb die inhaltlich dichtesten Dokumente aneinander, jedes mit einer
 Trennmarke und seiner Quell-URL.
 
 Bewusst NICHT enthalten sind die beiden grossen Einsteiger-Guides
-(power-bi, fabric), die ChartKitchen-Doku und die Video-Linkliste: sie
-wuerden die Datei ueber die selbstgesetzte Obergrenze von 500 KB treiben,
-und wer sie braucht, holt sie gezielt ueber llms.txt.
+(power-bi, fabric), die ChartKitchen- und die P&L-Statement-Doku und die
+Video-Linkliste: sie wuerden die Datei ueber die selbstgesetzte Obergrenze
+von 500 KB treiben, und wer sie braucht, holt sie gezielt ueber llms.txt.
 
 Deterministisch: feste Reihenfolge, kein Zeitstempel aus der Laufzeit.
 
@@ -58,7 +58,8 @@ Autor: Michael Tenner, Daten-WG Knowledge Kitchen, {SITE}
 
 Nicht enthalten (zu gross fuers Buendel, einzeln unter /md/ abrufbar):
 der Power-BI-Einsteiger-Guide, der Microsoft-Fabric-Einsteiger-Guide,
-die ChartKitchen-Dokumentation und die Video-Linkliste.
+die ChartKitchen-Dokumentation, die P&L-Statement-Dokumentation und die
+Video-Linkliste.
 """
 
 

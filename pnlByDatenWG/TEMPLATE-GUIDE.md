@@ -1,6 +1,6 @@
 # IBCS-Templates mit „P&L Statement byDatenWG" nachstellen · Kurzanleitung
 
-Stand: **Visual 1.2.0.0** (17.10.2026). Für die lokale Arbeit in Power BI Desktop —
+Stand: **Visual 1.3.0.0** (18.10.2026). Für die lokale Arbeit in Power BI Desktop —
 alles Nötige, um die offiziellen IBCS-Templates (T01A–T04E, 12A, 12G, 12H)
 nachzubauen. Referenzbilder liegen in `prototype/refs/`, der interaktive
 HTML-Prototyp in `prototype/megatable.html` (im Browser öffnen, Referenz-Dropdown
@@ -26,12 +26,23 @@ für Kostenzeilen, dazu AC/PY/PL(/FC); für 12G zusätzlich **FC** und sinnvoll
 **PL FY/FC FY**. Beispiel-Daten mit allen Zahlen der Referenzblätter:
 `demoData/` bzw. eingebettet im Prototyp.
 
-**Wichtig:** Kostenzeilen bekommen `VarianceInvert = 1` (mehr Kosten = rot),
-die Vorzeichenlogik läuft über die Dimension — nichts im Visual „verbiegen".
+**Wichtig:** Kostenzeilen bekommen das Trio `SignConvention = -1` ·
+`DisplayInvert = true` · `VarianceInvert = false` (mehr Kosten = rot). **Nicht**
+`-1` zusammen mit `VarianceInvert = true` setzen: das dreht die Bewertung doppelt
+und färbt eine Kostenüberschreitung fälschlich günstig. Die Vorzeichenlogik läuft
+über die Dimension — nichts im Visual „verbiegen".
 
 ## 3 · Template wählen — eine Einstellung
 
-Zwei Wege, dasselbe Ergebnis:
+Drei Wege, dasselbe Ergebnis:
+
+- **Start-Hub (1.3, am anschaulichsten):** Ohne gebundene Felder zeigt das Visual
+  im Bearbeitungsmodus den Hub, Knopf **Templates** öffnet die Galerie: 18 Kacheln
+  (klassische Tabelle + T01A–12H) mit Mini-Vorschau auf Demo-Daten. Ein Klick wendet
+  das Template an. Ohne Felder wird die Wahl gespeichert und greift beim Binden.
+  Mit gebundenen Daten steht in der Toolbar (nur Bearbeitung) **☰ Start**: das
+  Overlay hat dieselbe Galerie, ein Klick wendet an, stellt die Ansicht *Tabelle*
+  ein und schließt.
 
 - **Toolbar (1.2, am schnellsten):** Im Bearbeitungsmodus steht ganz links in
   der Toolbar das Dropdown **Template** (nur Ansicht *Tabelle*). Auswählen,
@@ -54,7 +65,7 @@ Jedes Template ist nur ein Preset: Es setzt alle Schalter
 | **T02E/F** | FC statt AC (schraffierte Balken), Referenz PY bzw. PL (graue bzw. Doppellinien-Achse) | FC + PY bzw. PL |
 | **T03A/B** | GuV-Statement: +/−/=-Zeilen, PY·PL·AC(bzw. FC) + Δ-Zahlenspalten, Margen-Zeile in %p | Kontendimension mit RowType |
 | **T04A–E** | Statement mit **integriertem Δ-Wasserfall** (kaskadierende Balken, =-Anker) + Δ%-Pins; A/B = vs. PL, C = vs. PY, D/E = FC | wie T03 |
-| **12A** | PY- und AC-**Wert-Kaskaden** als eigene Spalten + ΔPY-Balken/Pins, Headline an | wie T03 |
+| **12A** | PY- und AC-**Wert-Kaskaden** als eigene Spalten + ΔPY-Balken/Pins (Headline bleibt aus; nur 12G und 12H schalten sie ein) | wie T03 |
 | **12G** | FY-Block: YTD voll + Restjahr **schraffiert im selben Balken**, Δ aufs Jahr | FC (+ FY-Werte) |
 | **12H** | Plan-Kaskade umrandet, Varianzbalken **blass getönt** | PL als Minuend |
 
@@ -109,8 +120,11 @@ FC schraffiert · PL getönt/umrandet), Referenz bestimmt die Achse
   dann aus). FC-Minuend braucht die FC-Rolle.
 - **Schwellen färben nicht:** Schwellen gelten in **Anzeige-Einheiten**
   (nach k/m-Skalierung).
-- **Gleiches Template erneut wählen** wendet es nicht neu an — kurz anderes
-  Template und zurück (auch im Toolbar-Dropdown).
+- **Template erneut anwenden** (z. B. nach Schalter-Änderungen): Seit 1.3 reicht
+  ein Klick auf die aktive Kachel der Galerie oder auf **↺ Zum Template zurück**
+  neben dem Dropdown (erscheint, sobald Schalter vom Template abweichen). Das
+  native Dropdown kann den schon gewählten Eintrag nicht noch einmal wählen — der
+  Umweg „kurz anderes Template und zurück" ist nicht mehr nötig.
 - **Kein Template-Dropdown in der Toolbar:** nur im Bearbeitungsmodus und in der
   Ansicht *Tabelle*; Schalter „Template-Auswahl im Bearbeitungsmodus" prüfen.
 - **Spalten-Kategorie gebunden, aber keine Blöcke:** Der Mega-Table ignoriert

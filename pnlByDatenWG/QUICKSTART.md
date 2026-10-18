@@ -5,7 +5,7 @@ Hierarchie plus die Kennzahlen (zwei Minuten). **Weg 2** ergänzt die Felder,
 die daraus eine echte GuV machen — Zeilentypen, Formelzeilen, Vorzeichen,
 Kommentare.
 
-Version **1.2.0.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
+Version **1.3.0.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 Web-Fassung dieser Anleitung: [`pnl-schnellstart.html`](../pnl-schnellstart.html)
 (DE) · [`pnl-schnellstart_en.html`](../pnl-schnellstart_en.html) (EN).
 
@@ -22,8 +22,17 @@ Die jeweils neueste Datei liegt in [`dist/`](dist/):
 einer Datei importieren**. Das Visual großzügig aufziehen (mind. ~1200×800 px —
 Toolbar und zwei Spaltenblöcke brauchen Breite).
 
-**Smart Start:** Frisch auf die Seite gezogen, zeigt das Visual eine
-Demo-GuV mit dem Hinweis „Demo" — darauf lassen sich Ansichten, Toolbar und
+**Start-Hub (1.3):** Frisch auf die Seite gezogen, zeigt das Visual im
+Bearbeitungsmodus vier große Knöpfe: **Was kann das Visual?** (sieben Karten mit
+echten Mini-Renderings), **Templates** (Galerie mit Vorschau — ein Klick wendet
+das Template an; ohne Felder wird die Wahl gespeichert und greift beim Binden),
+**Demo ansehen** und **Felder erklären**. Esc geht zurück, die Ziffern 1–4 öffnen
+die Knöpfe. Mit gebundenen Daten öffnet **☰ Start** in der Toolbar denselben Hub
+als Overlay; Schließen lässt die Ansicht, wie sie war. Leser und Exporte sehen
+ihn nie. Wer den Hub nicht will, wählt unter Leer-Zustand → Modus Demo,
+Feld-Intro oder eigene Nachricht.
+
+**Smart Start (Demo):** Die Demo-GuV mit dem Hinweis „Demo" — darauf lassen sich Ansichten, Toolbar und
 Formatmenü schon ausprobieren (auch die Mega-Table-Templates). Sobald AC und
 eine Hierarchie gebunden sind, verschwindet die Demo; fehlt noch etwas, nennt
 der Hinweis die Rolle. Leser und Exporte sehen nie Demo-Zahlen.

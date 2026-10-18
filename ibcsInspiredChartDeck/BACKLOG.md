@@ -409,6 +409,23 @@ Persona-Vorlagen/Share-Code auf die Builder-UX ein.
 - [ ] **IBCS-Markenrichtlinien gegenlesen** — Disclaimer steht in NOTICE;
       vor größerer Sichtbarkeit einmal prüfen (lassen).
 
+## Offen aus 1.50 (Start-Hub)
+
+- [ ] **Demo-Galerie im Hochkontrast** (S) — die Hub-Seiten (Start, Tour,
+      Vorlagen) zeichnen mit der Host-Palette; die Galerie-Unterseite und das
+      Feld-Intro bleiben bewusst unverändert (feste Markenfarben bzw. Dark).
+- [ ] **Vorschauen mit dem echten Render-Pfad** (M) — Tour- und
+      Vorlagen-Kacheln nutzen die schematischen Minis der Galerie
+      (`drawModeMini`). Echte Mini-Charts aus Demo-Datenpunkten über
+      `render()` wären originalgetreuer, brauchen aber eine eigene
+      Render-Oberfläche (render() leert das Haupt-SVG und setzt Zustand).
+- [ ] **„AC fehlt"-Hinweis lokalisieren** (S) — `missingHint` ist seit
+      jeher deutsch fest verdrahtet; erscheint auch im Hub-Untertitel.
+- [ ] **Dropdown-Re-Apply** — ein natives Dropdown meldet die erneute Wahl
+      des aktiven Eintrags nicht; Re-Apply läuft über Hub-Galerie und
+      „↺ Zum Template zurück“. Nur lösbar, falls der Host künftig ein
+      Aktions-Slice (Button) im Formatbereich anbietet.
+
 ## Offen aus 1.49 (P&L-Muster-Übernahme)
 
 - [ ] **Hochkontrast vollständig** (M) — 1.49 deckt Säulen/Balken/Linie/
@@ -423,10 +440,9 @@ Persona-Vorlagen/Share-Code auf die Builder-UX ein.
       Integrierte und Kategorie-Brücke laufen über den bisherigen HC-Pfad
       (schlecht hohl ist dort schon umgesetzt, `foregroundSelected` nicht);
       selbst gezeichneter Dark-Tooltip ist im HC aus (nativer Tooltip).
-- [ ] **Leer-Zustand-Umschalter in der Demo-Galerie** (S) — im Modus `demo`
-      bewusst ohne Umschalt-Knöpfe, damit die Galerie pixelidentisch bleibt;
-      der Weg zum Feld-Intro führt über Formatbereich → Leer-Zustand. Ein
-      dezenter „Felder erklären"-Link in der Galerie wäre der nächste Schritt.
+- [x] **Leer-Zustand-Umschalter in der Demo-Galerie** (S) — erledigt in 1.50
+      über den Start-Hub (Default): Demo und Feld-Intro sind dort Unterseiten
+      mit „← Zurück“. Der Modus `demo` bleibt bewusst die unveränderte Galerie.
 - [ ] **ΔPY|ΔPL-Chip sperren statt ausblenden** (S) — der Brücken-Umschalter
       erscheint nur, wenn PY UND PL gebunden sind; eine gesperrte Hälfte mit
       Grund („PL nicht gebunden") wäre selbsterklärender, ändert aber

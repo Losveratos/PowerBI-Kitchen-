@@ -113,8 +113,9 @@ const templateItems: LocEnumMember[] = [
     { value: "12H", displayName: "12H · plan: PY + PL cascades, ΔPY bars tinted", key: "Enum_Template_12H" }
 ];
 
-/** 1.2 empty state: the Smart Start demo, the field explanation or the author's own message */
+/** empty state: the Start hub (1.3, default), the Smart Start demo, the field explanation or the author's own message */
 const emptyModeItems: LocEnumMember[] = [
+    { value: "hub", displayName: "Start hub (tour, templates, demo, fields)", key: "Enum_EmptyMode_Hub" },
     { value: "demo", displayName: "Demo statement (Smart Start)", key: "Enum_EmptyMode_Demo" },
     { value: "fields", displayName: "Field guide (which field goes where)", key: "Enum_EmptyMode_Fields" },
     { value: "message", displayName: "Own message (title / text below)", key: "Enum_EmptyMode_Message" }
@@ -506,12 +507,13 @@ export class ScenarioLabelsCardSettings extends FormattingSettingsCard {
 /** ChartKitchen emptyState (1.44): the author's own text when nothing can be shown */
 export class EmptyStateCardSettings extends FormattingSettingsCard {
     /**
-     * 1.2: what the visual shows in edit mode while the fields are missing —
-     * the demo statement (as before), a field guide, or the own message.
+     * What the visual shows in edit mode while the fields are missing — the
+     * Start hub (1.3: tour, templates, demo, field guide behind big buttons),
+     * the demo statement (1.0 Smart Start), a field guide, or the own message.
      * Readers and exports keep the plain landing text / own message.
      */
     mode = dropdown("mode", "Empty_Mode", "While fields are missing (edit mode)",
-        "Demo = example statement (Smart Start) · Field guide = which field goes where, minimal and extended · Own message = the title and text below. Readers always get the plain text or the own message. Default: demo",
+        "Start hub = big buttons for a feature tour, the template gallery, the demo and the field guide · Demo = example statement (Smart Start) · Field guide = which field goes where, minimal and extended · Own message = the title and text below. Readers always get the plain text or the own message. Default: start hub",
         emptyModeItems);
     title = textInput("title", "Empty_Title", "Custom title",
         "Replaces the heading when nothing is displayed (no fields bound in reading view, or the selection returns no rows). Empty = standard text",

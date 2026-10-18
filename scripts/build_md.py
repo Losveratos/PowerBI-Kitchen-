@@ -1349,6 +1349,40 @@ PAGES: list[dict] = [
         "title": "ChartKitchen byDatenWG — Quick Start",
     },
 
+    # --- P&L Statement byDatenWG: Volldoku (gleiches Markup wie chartkitchen-doku)
+    {
+        **DOKU_COMMON,
+        "basename": "pnl-doku",
+        "lang": "de",
+        "title": "P&L Statement byDatenWG — Dokumentation",
+        "append_md": (
+            "---\n\n"
+            "## Weitere Fassungen dieser Seite\n\n"
+            "- HTML (maßgeblich): https://datenwgknowledgekitchen.com/pnl-doku.html\n"
+            "- Englisch: [pnl-doku_en.html](../pnl-doku_en.html) · "
+            "[pnl-doku_en.md](pnl-doku_en.md)\n"
+            "- Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html)\n"
+            "- Referenz für KI-Agenten (Datenvertrag, alle Format-Properties): "
+            "[pnlByDatenWG/AGENT-GUIDE.md](../pnlByDatenWG/AGENT-GUIDE.md)\n"
+        ),
+    },
+    {
+        **DOKU_COMMON,
+        "basename": "pnl-doku_en",
+        "lang": "en",
+        "title": "P&L Statement byDatenWG — Documentation",
+        "append_md": (
+            "---\n\n"
+            "## Other versions of this page\n\n"
+            "- HTML (authoritative): https://datenwgknowledgekitchen.com/pnl-doku_en.html\n"
+            "- German: [pnl-doku.html](../pnl-doku.html) · "
+            "[pnl-doku.md](pnl-doku.md)\n"
+            "- Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html)\n"
+            "- Reference for AI agents (data contract, all format properties): "
+            "[pnlByDatenWG/AGENT-GUIDE.md](../pnlByDatenWG/AGENT-GUIDE.md)\n"
+        ),
+    },
+
     # --- Lern-Guides -------------------------------------------------------
     {
         **GUIDE_COMMON,

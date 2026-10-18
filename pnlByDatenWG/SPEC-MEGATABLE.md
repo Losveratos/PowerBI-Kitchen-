@@ -724,3 +724,18 @@ Identität).
 Tests: `test/toolbar-interact.js` I (Template-Auswahl) und J
 (Mega-Wertspalten), `test/ease-interact.js` P (Pane) und C (Mega ignoriert die
 Kategorie). Pixel-Regression: m1–m31 byte-identisch zu 1.1.
+
+### Stand 1.3 · Start-Hub und Template-Bedienung (was den Mega-Table berührt)
+
+- **Schalter-Satz eines Templates** liegt in `src/hub.ts` (`templateSwitches`),
+  `applyMegaTemplate` liest ihn; Pane-Dropdown, Toolbar-Dropdown, Galerie und
+  „↺ Zum Template zurück" schreiben also dieselben Werte (Test: `hub-test.js`).
+- **Galerie** (`columns.template` pro Kachel): jede Kachel ist eine nicht-
+  interaktive, verkleinerte Visual-Instanz mit den Schaltern des Presets über der
+  Demo (`renderMini`, FC-Templates mit simuliertem FC = AC × 1,02). Mini-Größe
+  1100 × 640 px natürlich, per CSS-Transform skaliert.
+- **Wiederanwenden:** unbedingter Write; ein bereits gewähltes Template wird über
+  Galerie-Klick oder „↺" erneut geschrieben (Echo-Guard `megaPending` wie bei
+  jeder Auswahl). Abweichung = ein Schalter der Spalten-Karte oder die Headline
+  weicht vom Preset ab; Dezimalstellen zählen nicht.
+- Pixel-Regression: m1–m31 byte-identisch zu 1.2.

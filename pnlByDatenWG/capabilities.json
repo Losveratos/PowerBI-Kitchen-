@@ -1209,6 +1209,10 @@
                     "type": {
                         "enumeration": [
                             {
+                                "value": "hub",
+                                "displayName": "Start hub"
+                            },
+                            {
                                 "value": "demo",
                                 "displayName": "Demo"
                             },

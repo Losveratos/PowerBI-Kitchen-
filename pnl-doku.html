@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P&amp;L Statement byDatenWG · Dokumentation</title>
+<meta name="description" content="Vollständige Dokumentation des IBCS-inspirierten GuV-Visuals P&amp;L Statement byDatenWG 1.2.0.0 für Power BI: Datenmodell und Rollen, Tabelle, Mega-Table, Struktur-Bars, Zeilen-Waterfall, Werttreiberbaum, IBCS-Templates T01A–12H, alle Einstellungen, Interaktion und Troubleshooting.">
+<link rel="alternate" type="text/markdown" title="Markdown" href="md/pnl-doku.md">
+<style>
+:root{
+  --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#0F1E2E; --ink-soft:#475569; --ink-mute:#6B7686;
+  --line:#E4E2DA; --accent:#C25A2D; --accent-deep:#A2481F; --teal:#1B9AA8;
+  --radius:10px; --radius-lg:16px;
+  --shadow-sm:0 1px 2px rgba(15,30,46,.04),0 1px 3px rgba(15,30,46,.06);
+  --shadow-md:0 6px 18px rgba(15,30,46,.08),0 2px 6px rgba(15,30,46,.05);
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans);font-size:16px;line-height:1.62;color:var(--ink);background:var(--bg);
+  background-image:radial-gradient(circle at 10% -5%,rgba(194,90,45,.05),transparent 34%),radial-gradient(circle at 96% 8%,rgba(27,154,168,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased;min-height:100vh;}
+a{color:inherit;}
+.wrap{max-width:1180px;margin:0 auto;padding:32px 26px 120px;display:grid;grid-template-columns:230px 1fr;gap:48px;}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;gap:20px;}}
+
+/* top chrome */
+.topbar{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.back-link,.lang-pill,.pdf-btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;
+  padding:8px 14px;border:1px solid var(--line);border-radius:100px;color:var(--ink-mute);transition:all .15s ease;background:var(--bg-card);}
+.back-link:hover,.pdf-btn:hover{color:var(--accent);border-color:var(--accent);}
+.lang-group{display:inline-flex;gap:6px;}
+.lang-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.lang-pill:hover{border-color:var(--accent);}
+.pdf-btn{color:var(--accent);border-color:var(--accent);}
+.pdf-btn:hover{background:var(--accent);color:#fff;}
+
+/* header */
+header.doc-head{grid-column:1/-1;border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:8px;}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+.eyebrow::before{content:'';width:26px;height:1px;background:var(--accent);}
+h1.doc-title{font-family:var(--serif);font-weight:600;font-size:clamp(2.2rem,5.5vw,3.5rem);line-height:1.04;letter-spacing:-.02em;margin-bottom:16px;}
+h1.doc-title em{font-style:normal;color:var(--accent);}
+.dek{font-size:17px;color:var(--ink-soft);line-height:1.55;max-width:74ch;margin-bottom:20px;}
+.meta{display:flex;flex-wrap:wrap;gap:20px;align-items:center;font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-mute);}
+.meta strong{color:var(--ink);}
+
+/* sticky toc */
+nav.toc{position:sticky;top:24px;align-self:start;font-size:14px;}
+@media(max-width:900px){nav.toc{position:static;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;}}
+nav.toc .toc-t{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:12px;}
+nav.toc ol{list-style:none;counter-reset:toc;}
+nav.toc li{counter-increment:toc;margin-bottom:2px;}
+nav.toc a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--ink-soft);text-decoration:none;line-height:1.3;transition:all .12s ease;border-left:2px solid transparent;}
+nav.toc a::before{content:counter(toc,decimal-leading-zero);font-family:var(--mono);font-size:11px;color:var(--ink-mute);}
+nav.toc a:hover{background:var(--bg-soft);color:var(--ink);}
+nav.toc a.active{color:var(--accent);border-left-color:var(--accent);background:var(--bg-card);font-weight:600;}
+
+/* content */
+main{min-width:0;}
+section.doc-sec{margin-bottom:8px;padding-top:14px;scroll-margin-top:20px;}
+section.doc-sec>h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.5rem,3.4vw,2.05rem);letter-spacing:-.01em;margin:40px 0 18px;padding-bottom:10px;border-bottom:2px solid var(--accent);display:flex;align-items:baseline;gap:14px;}
+section.doc-sec>h2 .snum{font-family:var(--mono);font-size:1rem;color:var(--accent);font-weight:700;}
+h3{font-family:var(--serif);font-weight:600;font-size:1.16rem;margin:26px 0 10px;color:var(--ink);}
+p{margin:0 0 14px;color:var(--ink-soft);max-width:76ch;}
+strong{color:var(--ink);font-weight:600;}
+em{color:var(--ink);font-style:normal;font-weight:600;}
+code{font-family:var(--mono);font-size:.86em;background:var(--bg-soft);padding:1px 5px;border-radius:4px;color:var(--accent-deep);}
+ol.steps,ul.steps{margin:0 0 16px;padding-left:0;list-style:none;counter-reset:st;max-width:78ch;}
+ol.steps li,ul.steps li{position:relative;padding:7px 0 7px 34px;color:var(--ink-soft);border-bottom:1px solid var(--line);}
+ol.steps li:last-child,ul.steps li:last-child{border-bottom:none;}
+ol.steps{counter-reset:st;}
+ol.steps li::before{counter-increment:st;content:counter(st);position:absolute;left:0;top:8px;width:22px;height:22px;
+  background:var(--accent);color:#fff;border-radius:50%;font-family:var(--mono);font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;}
+ul.steps li::before{content:'';position:absolute;left:8px;top:15px;width:7px;height:7px;border-radius:50%;background:var(--teal);}
+
+/* figures */
+figure.fig{margin:18px 0 8px;}
+figure.fig img{width:100%;display:block;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);background:#fff;}
+figcaption{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;color:var(--ink-mute);margin-top:10px;line-height:1.5;}
+
+/* modes / feats / faq */
+.mode,.feat{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:22px 24px;margin:18px 0;box-shadow:var(--shadow-sm);}
+.mode-head{display:flex;align-items:baseline;gap:12px;margin-bottom:4px;}
+.mode-n{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);}
+.mode h3,.feat h3{margin:0 0 8px;}
+.mode p,.feat li{max-width:none;}
+.mode p{margin-top:6px;margin-bottom:0;}
+.faq{border-left:3px solid var(--teal);background:var(--bg-card);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:var(--radius);padding:16px 20px;margin:12px 0;box-shadow:var(--shadow-sm);}
+.faq h3{margin:0 0 6px;font-size:1.05rem;}
+.faq p{margin:0;}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:12px 0 20px;border:1px solid var(--line);border-radius:var(--radius);}
+table.ref{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--bg-card);}
+table.ref th{text-align:left;background:var(--bg-soft);border-bottom:2px solid var(--ink);padding:9px 12px;font-weight:600;color:var(--ink);white-space:nowrap;}
+table.ref td{border-bottom:1px solid var(--line);padding:9px 12px;vertical-align:top;color:var(--ink-soft);}
+table.ref tr:last-child td{border-bottom:none;}
+td.rname,td.sname{font-weight:600;color:var(--ink);white-space:nowrap;}
+td.rkind{color:var(--teal);font-family:var(--mono);font-size:12px;white-space:nowrap;}
+td.sopt{font-family:var(--mono);font-size:11.5px;color:var(--ink-mute);min-width:170px;}
+.muted{color:var(--ink-mute);}
+.card-h{font-family:var(--serif);font-size:1.28rem;margin:30px 0 6px;padding-top:6px;color:var(--accent-deep);}
+.grp-h{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin:16px 0 6px;}
+.notebox{background:var(--bg-soft);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--radius);padding:14px 18px;margin:6px 0 18px;font-size:14px;color:var(--ink-soft);}
+
+/* settings-reference pane schematics */
+.sref-row{display:grid;grid-template-columns:266px minmax(0,1fr);gap:26px;align-items:start;margin:12px 0 24px;}
+@media(max-width:760px){.sref-row{grid-template-columns:1fr;gap:14px;}}
+.sref-row .tbl-wrap{margin:0;}
+figure.pane-fig{margin:14px 0 8px;}
+.sref-row figure.pane-fig{margin:0;}
+figure.pane-fig img{width:100%;max-width:266px;background:#fff;}
+figure.pane-fig.pane-overview{max-width:320px;margin:16px 0 20px;}
+figure.pane-fig.pane-overview img{max-width:320px;}
+
+/* footer */
+footer.doc-foot{grid-column:1/-1;margin-top:40px;padding-top:22px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-mute);line-height:1.65;}
+footer.doc-foot a{color:var(--accent);}
+footer.doc-foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
+
+figure.fig-pbi img{border-color:#B9DEE2;}
+.pbi-badge{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#fff;background:var(--teal);padding:2px 8px;border-radius:100px;margin-right:8px;vertical-align:1.5px;}
+</style>
+</head>
+<body>
+<script src="assets/js/site-chrome.js" data-chrome="full"></script>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <a class="back-link" href="pnl-schnellstart.html">↩ Schnellstart</a>
+      <div class="lang-group">
+        <a class="lang-pill active" href="pnl-doku.html">DE</a>
+        <a class="lang-pill " href="pnl-doku_en.html">EN</a>
+      </div>
+      <a class="pdf-btn" href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.2.0.0.pbiviz">.pbiviz laden ↓</a>
+    </div>
+  </div>
+
+  <header class="doc-head">
+    <div class="eyebrow">Power-BI-Visual · Enddokumentation</div>
+    <h1 class="doc-title">P&amp;L Statement <em>byDatenWG</em></h1>
+    <p class="dek">Das IBCS-inspirierte GuV-Visual für Power BI: ein Statement direkt aus deiner Kontendimension — als klassische Tabelle oder als Mega-Table mit den IBCS-Templates T01–T04, 12A, 12G und 12H, dazu Struktur-Bars, Zeilen-Waterfall, Werttreiberbaum und Kachel-Zoom. Diese Dokumentation führt vom Import über Datenmodell, Ansichten und Templates bis zur vollständigen Einstellungs-Referenz.</p>
+    <div class="meta">
+      <span>Version · <strong>1.2.0.0</strong></span>
+      <span>Stand · <strong>2026-10-17</strong></span>
+      <span>IBCS-inspired</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <div class="toc-t">Inhalt</div>
+    <ol><li><a href="#intro">Was ist das Visual?</a></li><li><a href="#quickstart">Schnellstart &amp; Import</a></li><li><a href="#data">Datenmodell &amp; Rollen</a></li><li><a href="#views">Die Ansichten</a></li><li><a href="#templates">IBCS-Templates</a></li><li><a href="#settings">Einstellungs-Referenz</a></li><li><a href="#interaction">Interaktion</a></li><li><a href="#deviations">Abweichungen von den IBCS-Blättern</a></li><li><a href="#faq">Troubleshooting</a></li><li><a href="#version">Versionshinweis 1.2.0.0</a></li></ol>
+  </nav>
+
+  <main>
+
+<section class="doc-sec" id="intro"><h2><span class="snum">01</span>Was ist das Visual?</h2>
+<p><strong>P&amp;L Statement byDatenWG</strong> ist ein eigenständiges Power-BI-Custom-Visual für die Gewinn- und Verlustrechnung und jede andere Kontenhierarchie — das Schwester-Visual von <a href="chartkitchen-doku.html">ChartKitchen</a>. Es liest die Hierarchie aus deiner Dimensionstabelle (Sternschema-Ebenen L1..Ln oder Parent-Child), rechnet Zwischensummen, Formel- und Margenzeilen selbst und zeigt die Szenarien <strong>AC</strong> (Ist), <strong>PY</strong> (Vorjahr), <strong>PL</strong> (Plan) und <strong>FC</strong> (Forecast) mit ihren Abweichungen.</p>
+<p>Aus <em>einer</em> Datenbindung entstehen vier Ansichten, umgeschaltet in der Toolbar über dem Statement — Leser brauchen dafür keinen Formatbereich:</p>
+<ul class="steps">
+<li><strong>GuV-Statement (Tabelle):</strong> Konten, Zwischensummen, Formel- und Margenzeilen mit den Perioden-Blöcken MTD · YTD · FY-Ausblick, Δ-Balken und Δ%-Pins auf einer einheitlichen Skala je Spalte.</li>
+<li><strong>Mega-Table:</strong> dieselbe Tabellen-Ansicht als IBCS-Tabelle — Wert- und Δ-Spalten frei kombinierbar, Δ als Zahl, Balken, Pin oder integrierter Wasserfall, Wert-Kaskaden, zwei Perioden-Blöcke, Schwellen mit Fußzeile. Ein Template (T01A … 12H) setzt alle Schalter auf einmal.</li>
+<li><strong>Struktur-Bars und Zeilen-Waterfall:</strong> dieselben Zeilen als Größenbalken gegen die Referenz bzw. als Kaskade, in der die Ergebniszeilen auf der Nulllinie ankern.</li>
+<li><strong>Werttreiberbaum mit Kacheln:</strong> der Formel-Graph als DuPont-Baum (oder, ohne Formelzeilen, die reine Hierarchie) mit Mini-Charts auf jeder Karte; ein Klick öffnet die Kachel-Ansicht des Knotens mit Kombi-Chart, Szenario-Grid und Treibern.</li>
+</ul>
+<p>Die Notation folgt den <strong>IBCS®-Prinzipien</strong>: AC ausgefüllt in Dunkelgrau (#404040), PY grau, PL weiß mit Rahmen, FC schraffiert; Beschriftungen außen mit explizitem „+“, eine identische Skala je Δ-Spalte über alle Zeilen, Margenzeilen mit Δ in Prozentpunkten, keine Gitterlinien. Die Oberfläche spricht Deutsch, Englisch, Spanisch und Japanisch (sie folgt der Berichtssprache), kennt einen Dunkelmodus und zeigt beim Hineinziehen eine Demo-GuV. Das Visual macht keine externen Aufrufe, speichert nichts außerhalb des Berichts und sendet keine Telemetrie.</p>
+<div class="notebox"><strong>Dokumentierte Abweichung: Teal statt Grün.</strong> Günstige Abweichungen sind standardmäßig Teal (#0E8585), ungünstige Rot (#E02B1D) — statt des IBCS-Grüns #8CB400 / Rot #FF2600. So bleiben die Abweichungen bei Rot-Grün-Sehschwäche lesbar; Legende und Fußzeile nennen die Abweichung. Umschaltbar unter Stil → Abweichungsfarben (IBCS-Grün klassisch) oder per Abweichungsfarben-Preset Blau / Orange (ColorBrewer #2C7BB6 / #E66101, auch ohne Farbsehen und im Schwarzweiß-Druck unterscheidbar). Im Dunkelmodus gilt das ChartKitchen-Paar #3FB3C2 / #E4635F.</div>
+<p>Diese Anleitung beschreibt den Stand der Version <strong>1.2.0.0</strong>. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft.</p>
+</section>
+
+<section class="doc-sec" id="quickstart"><h2><span class="snum">02</span>Schnellstart &amp; Import</h2>
+<h3>1 · Visual importieren</h3>
+<ol class="steps">
+<li>Lade die Datei <a href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.2.0.0.pbiviz"><code>pnlByDatenWG…1.2.0.0.pbiviz</code></a> herunter (Endung <code>.pbiviz</code>, auch über den Button oben rechts).</li>
+<li>In Power BI Desktop: <em>Visualisierungen</em> → <em>⋯</em> → <em>Visual aus einer Datei importieren</em> und die <code>.pbiviz</code> wählen. Eine ältere Version wird dabei ersetzt.</li>
+<li>Das Visual großzügig aufziehen (mindestens etwa 1200 × 800 px) — Toolbar und zwei Spaltenblöcke brauchen Breite. Frisch auf der Seite zeigt es eine <strong>Demo-GuV</strong> (Smart Start), auf der Ansichten, Toolbar und Templates schon funktionieren.</li>
+</ol>
+<h3>2 · Minimal-Setup</h3>
+<ol class="steps">
+<li>Ziehe die Ebenen deiner Hierarchie in <strong>Ebenen-Spalten (L1..Ln)</strong> — in der Reihenfolge von oben nach unten. Alternative: <strong>Konto-ID (Key)</strong> + <strong>Parent-Konto-ID</strong>.</li>
+<li>Binde deine Hauptkennzahl an <strong>AC (Ist)</strong>. Sobald AC und eine Hierarchie gebunden sind, verschwindet die Demo und das Statement erscheint.</li>
+<li>Stelle alle Gruppierungsfelder auf <strong>„Nicht zusammenfassen“</strong> — sonst aggregiert Power BI sie und das Visual bekommt leere Werte.</li>
+</ol>
+<h3>3 · Ausbau</h3>
+<ol class="steps">
+<li><strong>PY · PL · FC</strong> binden — jedes gebundene Szenario schaltet seine Δ-Spalten frei.</li>
+<li><strong>Periode (Monat)</strong> binden — für Monats- und YTD-Block, Sparklines und Monatskarten.</li>
+<li>Für eine echte GuV: <strong>Zeilentyp</strong>, <strong>Formeldefinition</strong> und das <strong>Vorzeichen-Trio</strong> (Kapitel 03); für den Ganzjahres-Ausblick <strong>FC Gesamtjahr</strong> und <strong>PL Gesamtjahr</strong> als <code>MAX</code>-Measures.</li>
+<li>Optional ein IBCS-Template wählen: im Bearbeitungsmodus das Dropdown <strong>Template</strong> ganz links in der Toolbar (Ansicht Tabelle) oder Formatbereich → <em>Spalten &amp; Mega-Table</em> → <em>Template</em> (Kapitel 05).</li>
+</ol>
+<div class="notebox">Beide Wege Schritt für Schritt — die normale Hierarchie in zwei Minuten und die volle GuV mit Formelzeilen —, eine Beispiel-Kontendimension und die Pharma-Demodaten zum Mitspielen stehen auf der <a href="pnl-schnellstart.html">Schnellstart-Seite</a>.</div>
+</section>
+
+<section class="doc-sec" id="data"><h2><span class="snum">03</span>Datenmodell &amp; Rollen</h2>
+<p>Das Visual braucht eine Kontendimension — eine Zeile je GuV-Zeile — und eine Faktentabelle mit den Measures. Für die Hierarchie gibt es zwei voll unterstützte Eingabemodi:</p>
+<ul class="steps">
+<li><strong>Sternschema (Ebenen-Spalten, primärer Modus):</strong> L1..Ln in Ziehreihenfolge, höchstens 8. Das Visual baut den Baum selbst. Ragged-Äste nach beiden üblichen Konventionen: Ist eine tiefere Ebene leer, ist die letzte gefüllte Ebene das Blatt; wiederholt eine Ebene den Text der vorigen (L2 = L1), endet der Pfad dort. Zeilen mit gleichem Pfad werden aggregiert; Aggregat-Zeilen (z. B. PY nur auf L1) wirken als Szenario-Fallback.</li>
+<li><strong>Parent-Child:</strong> Konto-ID + Parent-Konto-ID, beliebig tief und unbalanciert. Waisen landen sichtbar in „Nicht zugeordnet“ statt still zu verschwinden. Sind Ebenen-Spalten und Parent-ID gebunden, gewinnt Parent-Child.</li>
+</ul>
+<p>Zwischensummen entstehen synthetisch aus den Ebenen-Pfaden; eine synthetische Zwischensumme erbt <em>Anzeige invertieren</em> und <em>Abweichungsfarbe drehen</em>, wenn alle Kinder einheitlich sind. Formelzeilen referenzieren andere Zeilen über ihren eindeutigen Namen.</p>
+
+<h3>Feldrollen (Reihenfolge wie im Feldbereich)</h3>
+<p>Je Rolle höchstens ein Feld, die Ebenen-Spalten höchstens acht. Das Visual liest jede Spalte über ihre Rolle, nie über ihre Position — seit 1.2 steht die Feldliste in der gewohnten Reihenfolge Ebenen → Schlüssel → AC · PY · PL · FC → Periode → Spezialrollen.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Feldrolle</th><th>Typ</th><th>Wofür</th></tr></thead><tbody>
+<tr><td class="rname">Ebenen-Spalten (L1..Ln)</td><td class="rkind">Gruppierung · bis 8</td><td>Sternschema-Hierarchie in Ziehreihenfolge — der primäre Modus. Ragged-Regeln siehe oben.</td></tr>
+<tr><td class="rname">Konto-ID (Key)</td><td class="rkind">Gruppierung</td><td>Eindeutiger, stabiler Kontoschlüssel. Pflicht im Parent-Child-Modus, im Ebenen-Modus optional (Blatt-ID). Basis der Selektion und des Drillthroughs. Ohne Ebenen-Spalten und Konto-ID zeigt das Visual den Leer-Zustand (Demo).</td></tr>
+<tr><td class="rname">Kontoname</td><td class="rkind">Gruppierung</td><td>Anzeigename der Zeile. Ohne Feld zeigt das Visual die Konto-ID bzw. im Ebenen-Modus den Text der letzten gefüllten Ebene.</td></tr>
+<tr><td class="rname">Parent-Konto-ID</td><td class="rkind">Gruppierung</td><td>Parent-Child-Verknüpfung; unbalancierte Hierarchien sind erlaubt. Gewinnt, wenn zusätzlich Ebenen-Spalten gebunden sind.</td></tr>
+<tr><td class="rname">AC (Ist)</td><td class="rkind">Kennzahl · Pflicht</td><td>Ist-Wert — die zentrale Kennzahl, ausgefüllt gezeichnet.</td></tr>
+<tr><td class="rname">PY (Vorjahr)</td><td class="rkind">Kennzahl</td><td>Vorjahreswert, grau gezeichnet — Basis für ΔPY.</td></tr>
+<tr><td class="rname">PL (Plan / Budget)</td><td class="rkind">Kennzahl</td><td>Plan- bzw. Budgetwert, umrandet gezeichnet — Basis für ΔPL; im Mega-Table auch analysiertes Szenario (Planrechnung, 12H).</td></tr>
+<tr><td class="rname">FC (Forecast)</td><td class="rkind">Kennzahl</td><td>Forecast-Wert, schraffiert gezeichnet; kann im Mega-Table das analysierte Szenario sein (T02E/F, T03B, T04D/E).</td></tr>
+<tr><td class="rname">Periode (Monat)</td><td class="rkind">Gruppierung</td><td>Monatsspalte für Sparklines, Monats- und YTD-Block, den zweiten Perioden-Block und die Monatskarten. Gelesen werden JJJJ-MM, JJJJ-MM-TT, ISO-Zeitstempel, JJJJ/MM, Datumsspalten, deutsche und englische Monatsnamen (lang/kurz, mit Jahr) und Zahlen 1–12. „Monat“ ist der letzte Monat <em>mit AC-Daten</em>; YTD ist das periodengleiche Fenster bis dorthin.</td></tr>
+<tr><td class="rname">Spalten-Kategorie</td><td class="rkind">Gruppierung · 1.2</td><td>Optional, nur klassische Tabelle: Der Spaltensatz des YTD-Blocks wiederholt sich je Wert dieses Felds (z. B. Segment oder Quartal) unter einer Gruppen-Kopfzeile, danach folgt der Gesamt-Block. Mega-Table, Balken und Waterfall ignorieren das Feld.</td></tr>
+<tr><td class="rname">Zeilentyp</td><td class="rkind">Gruppierung</td><td><code>Account</code> · <code>Subtotal</code> · <code>Formula</code> · <code>KPI</code> · <code>Separator</code> (Groß-/Kleinschreibung egal). KPI ist eine Margenzeile: %-Anzeige, Δ in Prozentpunkten.</td></tr>
+<tr><td class="rname">Formeldefinition</td><td class="rkind">Gruppierung</td><td>Für Formel- und KPI-Zeilen, z. B. <code>[EBITDA]/[Umsatz]</code>: <code>+ − * /</code> und Klammern, Verweis per eindeutigem Zeilennamen, Formel auf Formel erlaubt. Ein Zirkelbezug erscheint als Fehler an der Zeile.</td></tr>
+<tr><td class="rname">Rechenvorzeichen (±1)</td><td class="rkind">Gruppierung</td><td>Vorzeichen, mit dem die Zeile rechnet: Erlöse <code>1</code>, Kosten <code>-1</code>. Eine Zwischensumme ist Vorzeichen × Summe der Kinder.</td></tr>
+<tr><td class="rname">Anzeige invertieren</td><td class="rkind">Gruppierung</td><td>Positiv anzeigen, obwohl der gerechnete Wert negativ ist (Kostenzeilen). Ändert nur die Anzeige, nicht die Rechnung.</td></tr>
+<tr><td class="rname">Abweichungsfarbe drehen</td><td class="rkind">Gruppierung</td><td>Dreht die Bewertung günstig / ungünstig einer Zeile.</td></tr>
+<tr><td class="rname">Sortierung</td><td class="rkind">Gruppierung</td><td>Zahl je Zeile, die die GuV-Reihenfolge innerhalb des Elternknotens festlegt (z. B. 10, 20, 30).</td></tr>
+<tr><td class="rname">Kommentar</td><td class="rkind">Gruppierung</td><td>Kommentartext je Zeile — erscheint als nummerierter Marker (①, ②) mit Fußnote und im Tooltip.</td></tr>
+<tr><td class="rname">Filter-Info (Fußzeile)</td><td class="rkind">Kennzahl (Text)</td><td>Text-Measure mit dem aktuellen Filterkontext (z. B. per <code>CONCATENATEX</code>/<code>SELECTEDVALUE</code>) — erscheint als zweite Fußzeile, wenn die Filter-Fußzeile aktiv ist. Berichtsfilter sind für Custom Visuals sonst unsichtbar.</td></tr>
+<tr><td class="rname">FC Gesamtjahr (Ausblick)</td><td class="rkind">Kennzahl</td><td>Forecast fürs Gesamtjahr (AC&amp;FC) als Einzelwert, auf jeder Monatszeile wiederholt; der erste Wert gilt, nie summiert. Schaltet den FY-Ausblick frei (Mega-Table Block-Art FY, Template 12G).</td></tr>
+<tr><td class="rname">PL Gesamtjahr</td><td class="rkind">Kennzahl</td><td>Plan fürs Gesamtjahr als Einzelwert für den Ausblicks-Block. Der FY-Block der klassischen Tabelle braucht beide FY-Felder.</td></tr>
+</tbody></table></div>
+
+<h3>Das Vorzeichen-Trio</h3>
+<p>Drei Felder der Kontendimension steuern, wie eine Zeile rechnet, wie sie aussieht und wie ihre Abweichung bewertet wird. Sie sind voneinander unabhängig — die Vorzeichenlogik läuft über die Dimension, im Visual wird nichts „verbogen“.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Feld</th><th>Frage</th><th>Wirkung</th></tr></thead><tbody>
+<tr><td class="rname">Rechenvorzeichen (±1)</td><td>Wie geht die Zeile in Summen und Formeln ein?</td><td>Der gebuchte Wert wird mit ±1 multipliziert. Positiv gebuchte Kosten mit <code>-1</code> gehen negativ in die Summe ein, sodass <code>[Umsatz]+[Herstellungskosten]</code> das Bruttoergebnis ergibt.</td></tr>
+<tr><td class="rname">Anzeige invertieren</td><td>Wie wird die Zeile gezeigt?</td><td>Dreht das Vorzeichen nur für die Anzeige: −50 gerechnet, 50 gezeigt. Δ und Δ % folgen im Mega-Table den gezeigten Werten.</td></tr>
+<tr><td class="rname">Abweichungsfarbe drehen</td><td>Ist „mehr“ gut oder schlecht?</td><td>Bewertet wird die Abweichung des <em>gerechneten</em> Werts: ein Plus ist günstig. Der Schalter dreht diese Bewertung für Zeilen, deren Vorzeichen nicht über die Dimension kommt.</td></tr>
+</tbody></table></div>
+<div class="notebox"><strong>Beispiel — Kostenzeile „Material“, AC 50 gegen PL 60.</strong> Die Kosten sind in der Faktentabelle positiv gebucht. Mit Rechenvorzeichen <code>-1</code> rechnet das Visual −50 gegen −60; die Abweichung des gerechneten Werts ist +10, also <em>günstig</em> (Teal) — weniger Kosten als geplant. <em>Anzeige invertieren</em> = <code>true</code> zeigt die Zeile als 50 und 60. Ergebnis für die typische Kostenzeile (so auch in der Pharma-Demo): <code>-1</code> · <code>true</code> · <code>false</code>.<br><br><strong>Die andere Konvention:</strong> Werden Kosten positiv und ohne Rechenvorzeichen (<code>1</code>) geliefert und erst per Formel abgezogen, wäre „mehr Kosten“ rechnerisch ein Plus. Dann setzt du <em>Abweichungsfarbe drehen</em> = <code>true</code> — dasselbe Beispiel ergibt dasselbe Bild: 10 unter Plan, günstig. Kombiniere <code>-1</code> nicht zusätzlich mit <em>Abweichungsfarbe drehen</em>, außer höhere Werte dieser Zeile sind tatsächlich gut: die Bewertung kippt sonst, und eine Kostenüberschreitung erscheint günstig.</div>
+
+<h3>Spalten-Kategorie (1.2)</h3>
+<p>Ein Feld wie Segment oder Quartal in <strong>Spalten-Kategorie</strong> lässt die klassische Tabelle ihren Spaltensatz je Kategoriewert wiederholen — der Spaltensatz des YTD-Blocks (sonst des ersten Blocks) steht unter einer Gruppen-Kopfzeile je Wert, danach folgen die bisherigen Blöcke als „Gesamt“. Jede Kategorie rechnet vollständig, auch Formeln und Margen; die Monate liegen auf dem Kalender des Gesamtmodells, ein einheitlicher Δ-Maßstab gilt über alle Blöcke. Höchstens 24 Kategorien, weitere Werte nennt eine Fußnote. „% vom Umsatz“ und Σ-treue Rundung bleiben im Gesamt-Block. Die Measures müssen additiv sein (Gesamt = Summe der Kategorien), sonst zeigt der Gesamt-Block die Summe statt des Modellwerts. Mega-Table, Balken und Waterfall ignorieren die Rolle; im Bearbeitungsmodus steht dann ein Hinweis unter der Tabelle.</p>
+
+<div class="notebox"><strong>DAX-Regeln, an denen Modelle scheitern:</strong> FY-Measures mit <code>MAX</code> statt <code>SUM</code> (die Jahreswerte stehen auf jeder Monatszeile); ein Berichtsjahr filtern, sonst summieren AC/PY/PL/FC über Jahre; Measures, die für nicht existierende Konto-/Perioden-Kombinationen einen Wert liefern (<code>COALESCE(x, 0)</code>, <code>+0</code>), erzeugen Geisterzeilen — Wächter-Muster <code>IF(COUNTROWS('Fakt') &gt; 0, …)</code>. Zeitintelligenz, Währungsumrechnung und Row-Level Security bleiben im Modell: das Visual verrechnet ausschließlich die gelieferten Daten.</div>
+</section>
+
+<section class="doc-sec" id="views"><h2><span class="snum">04</span>Die Ansichten</h2>
+<p>Die Toolbar-Gruppe <em>Ansicht</em> schaltet zwischen Tabelle, Balken, Wasserfall und Baum. Der Mega-Table ist keine eigene Ansicht, sondern ein Modus der Tabellen-Ansicht; die Kachel-Ansicht öffnet sich aus dem Baum. Die gewählte Ansicht ist ein Leser-Zustand und wird mit dem Bericht und in Lesezeichen gespeichert.</p>
+
+<div class="mode"><div class="mode-head"><span class="mode-n">01</span><h3>Tabelle (klassisch)</h3></div>
+<p>Das Statement: Konten, Zwischensummen, Formel- und Margenzeilen mit Auf- und Zuklappen je Zeile. Die Spalten kommen aus dem <strong>Spalten-Preset</strong> — <em>AC·PY·PL·FC (voll)</em> (AC, % vom Umsatz, PY mit ΔPY-Balken, PL mit ΔPL-Balken und ΔPL%-Pin), <em>AC vs. Referenz</em>, <em>AC vs. PY·PL·FC</em> (Δ-Balken und Δ%-Pin je gebundener Referenz), <em>AC·PY·ΔPY</em>, <em>AC·PL·ΔPL</em>, <em>ΔPY% · ΔPL%</em> (nur Pins) und seit 1.2 <em>Eigene Auswahl</em> (AC, PY, PL, FC und Δ als einzelne Schalter). Drei Perioden-Blöcke: <strong>MTD</strong> (AC gegen die Δ-Referenz), <strong>YTD</strong> und der <strong>FY-Ausblick</strong> (AC&amp;FC gegen PL Gesamtjahr, mit beiden FY-Feldern, im vollen Preset und in der eigenen Auswahl). Jede Δ-Spalte hat eine identische Skala über alle Zeilen; die Δ%-Pins sind bei ±40 % gekappt, größere Werte tragen eine Überlauf-Marke. Mit gebundener Periode schaltet ein Chip je Zeile eine Monats-Sparkline auf; Kommentare erscheinen als nummerierte Marker mit Fußnote.</p></div>
+
+<div class="mode"><div class="mode-head"><span class="mode-n">02</span><h3>Mega-Table</h3></div>
+<p>Sobald in der Tabellen-Ansicht ein Spalten-Schalter des Mega-Tables an ist (Wertspalte PY, PL oder AC/FC, eine ΔPY-/ΔPL-Darstellung), zeichnet das Visual die IBCS-Tabelle; alle Schalter aus = klassische Tabelle. Wertspalten und Δ-Spalten sind frei kombinierbar: Δ als Zahl, als Balken auf einer Nulllinie, als <strong>integrierter Wasserfall</strong> (jeder Δ-Balken beginnt am Ende des vorigen, „=“-Zeilen setzen an der Nulllinie neu an), Δ % als Zahl oder Pin; Wertspalten optional als <strong>Wert-Kaskaden</strong> (12A). Ein oder zwei <strong>Perioden-Blöcke</strong> (Monat · YTD · FY-Ausblick) mit eigenem Maßstab je Block, <strong>Schwellen</strong> („Δ rot, wenn …“) mit Fußzeile, Margenzeilen kursiv mit Δ in %p, Szenario-Unterstreichungen in Kopf und Schlusszeile. Bei Strukturdaten (Regionen statt GuV) gibt es Zwischensummen-Blöcke mit Leerzeile und eine Sortierung je Block mit „(↓)“ am sortierenden Kopf; Zeilen namens „Other …“/„Sonstige …“ bleiben unten. Pins kappen Ausreißer automatisch (Tukey-Zaun Q3 + 4 × IQR) mit Pfeilspitze. Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport; der Export zeichnet immer alles. Im Mega-Modus blendet die Toolbar Spalten-Preset, Δ-Referenz, Perioden und Einpassen aus — die Spalten kommen aus dem Formatbereich.</p></div>
+
+<div class="mode"><div class="mode-head"><span class="mode-n">03</span><h3>Struktur-Bars</h3></div>
+<p>Dieselben Zeilen mit einem Größenbalken je Zeile: AC gegen die Δ-Referenz, dazu ΔRef-Balken und ΔRef%-Pin — der Blick auf die Struktur des Ergebnisses, ohne die Zahlen aufzugeben. Blöcke: YTD und (mit beiden FY-Feldern) der FY-Ausblick. Standard ist ein schmaler AC-Balken im vollen Referenzband. Seit 1.2 gibt es die <strong>ChartKitchen-Notation</strong> als Schalter (Spalten &amp; Mega-Table → Tabelle): <em>Szenario-Balken überlappt</em> legt AC in voller Stärke nach vorn und die Referenz gleich hoch, leicht versetzt dahinter (PY grau, PL umrandet, FC schraffiert); <em>Dreieck-Marker</em> setzen kleine Dreiecke am Wert jedes weiteren gebundenen Szenarios über die Balken — PY grau gefüllt, PL hohl umrandet, FC schraffiert. Die Notation hängt an der Form, nicht nur an der Farbe; die Marker gehen in den Wertmaßstab ein und werden nie abgeschnitten. Beide Schalter stehen standardmäßig aus, die Ansicht bleibt dann pixelgleich zu 1.1.</p></div>
+
+<div class="mode"><div class="mode-head"><span class="mode-n">04</span><h3>Zeilen-Waterfall</h3></div>
+<p>Die GuV als Kaskade auf der Wurzelebene der Hierarchie: Beiträge kaskadieren, Summen ankern — Ergebnisanker wie Umsatz, Bruttoergebnis, EBITDA, EBIT, EBT und Jahresüberschuss stehen auf der Nulllinie, die Kostenblöcke floaten dazwischen. Je Block eine Kaskade für die Referenz und eine für AC, dazu ΔRef-Balken und ΔRef%-Pin; Blöcke MTD, YTD und FY-Ausblick. Die Kaskaden-Geometrie ist dieselbe Funktion wie im integrierten Δ-Wasserfall des Mega-Tables.</p></div>
+
+<div class="mode"><div class="mode-head"><span class="mode-n">05</span><h3>Werttreiberbaum</h3></div>
+<p>Der Ergebnisbaum als DuPont-Graph: Wurzel ist die letzte Formel-/KPI-Zeile mit Operanden (oder die im Formatbereich genannte Wurzelzeile), die Kanten tragen die Operatoren ÷ × + − als Kreise. Ohne Formelzeilen wächst der Baum direkt aus der Hierarchie — bei genau einer Wurzel ist sie die Baum-Wurzel, bei mehreren trägt eine virtuelle <strong>Gesamt-Wurzel</strong> sie als Kinder; die Kanten tragen dann das Rechenvorzeichen. Tidy-Layout mit einer Spalte je Ebene, Kompakt-Karten in der Tiefe. Jede Karte zeigt ein Mini-Chart nach Wahl — <em>Monatssäulen</em> (AC solide, Referenz dahinter), <em>Abweichungssäulen</em> (AC − Referenz je Monat) oder <em>Mini-Brücke</em> (Referenz → Δ → AC, YTD) — und optional einen Status-Rand in der Abweichungsfarbe. ▾ klappt einen Knoten auf und zu (Shift: der ganze Ast), ⌖ macht eine Karte zur Wurzel, die Breadcrumb und ⌂ führen zurück; der Hover über einer Karte öffnet die IBCS-Detailansicht. Wird das Kartenbudget erreicht, nennt ein Hinweis die nicht gezeichneten Zweige. Mega-Table- und Finance-Schalter wirken im Baum nicht; er hat seinen eigenen Klapp-Zustand.</p></div>
+
+<div class="mode"><div class="mode-head"><span class="mode-n">06</span><h3>Kacheln (Kachel-Ansicht)</h3></div>
+<p>Ein Klick auf das Diagramm einer Baum-Karte zoomt den Knoten auf die ganze Fläche: Kombi-Chart aus Monatssäulen (Referenz versetzt hinter AC) und Brücke, darunter das Szenario-Grid, daneben die Mikro-Karten „Zahlt ein auf“ und „Getrieben von“ (bei vielen Treibern blätterbar). Die Seite passt sich in den Viewport ein — das Diagramm ist das elastische Element, das Grid wird bei knapper Höhe kompakter. „← Zurück zum Baum“ und die Breadcrumb führen heraus; „↗ Drill“ setzt die Selektion des Knotens und öffnet das Kontextmenü mit den Drillthrough-Zielen in einem Griff. Quotenzeilen (Margen) zeigen keine Brücke, weil Prozente nicht additiv sind. In der Toolbar bleiben nur Δ-Referenz und Einheit.</p></div>
+</section>
+
+<section class="doc-sec" id="templates"><h2><span class="snum">05</span>IBCS-Templates</h2>
+<p>Der Mega-Table stellt die offiziellen IBCS-Templates T01A–T04E sowie die Report-Varianten 12A, 12G und 12H nach. Ein Template ist nur ein <strong>Preset</strong>: Es setzt alle Schalter der Gruppe Mega-Table und die Dezimalstellen (12G und 12H zusätzlich den Headline-Slot) in <em>einem</em> Speichervorgang — danach ist jeder Schalter frei, du kannst jedes Element einzeln ein- und ausblenden. Templates wirken nur in der Ansicht <em>Tabelle</em>; <em>Aus (klassische Tabelle)</em> stellt alle Mega-Schalter zurück.</p>
+<ul class="steps">
+<li><strong>Toolbar (seit 1.2, am schnellsten):</strong> Im Bearbeitungsmodus steht ganz links das Dropdown <em>Template</em> (nur Ansicht Tabelle). Es schreibt dieselben Einstellungen wie der Formatbereich; Leser und Export sehen es nie. Abschaltbar über Darstellung &amp; Toolbar → <em>Template-Auswahl im Bearbeitungsmodus</em>.</li>
+<li><strong>Formatbereich:</strong> Karte <em>Spalten &amp; Mega-Table</em> → erste Gruppe <em>Mega-Table (IBCS-Templates)</em> → <em>Template (IBCS-Tabelle)</em>.</li>
+</ul>
+<div class="notebox"><strong>Szenario-Regel (eine Regel für alle Elemente):</strong> Der <strong>Minuend</strong> — das analysierte Szenario — bestimmt die <strong>Füllung</strong>: AC voll, FC schraffiert, PL umrandet mit blass getönten Δ-Elementen (Planrechnung). Die <strong>Referenz</strong> bestimmt die <strong>Achse</strong>: PY = graue Achse, PL = Doppellinie. Dieselbe Kennung steht als Unterstreichung unter den Spaltenköpfen (AC voll, PY grau, PL doppelt, FC schraffiert). Im FY-Block ist der Minuend AC&amp;FC — überwiegend Forecast, deshalb sind dessen Δ-Elemente schraffiert.</div>
+
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Template</th><th>Was es zeigt</th><th>Daten-Voraussetzung</th><th>Schalter des Presets</th><th>Dezimalen (Werte / Δ %)</th></tr></thead><tbody>
+<tr><td class="sname">T01A</td><td>Struktur flach: PY · PL · AC, ΔPY / ΔPY % / ΔPL / ΔPL % als Zahlen, Monat | _YTD, Schwellen-Rot mit Fußzeile</td><td>Struktur + Periode + AC / PY / PL</td><td class="sopt">Minuend AC · Wertspalten PY, PL, AC · ΔPY + ΔPY % als Zahl · ΔPL + ΔPL % als Zahl · zweiter Block · Zwischensummen aus · Schwellen an</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T01B</td><td>wie T01A mit Zwischensummen-Blöcken (z. B. Europe / Americas / RoW)</td><td>Hierarchie-Ebenen</td><td class="sopt">wie T01A · Zwischensummen-Blöcke an</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T02A</td><td>PL · AC mit ΔPL-Balken und ΔPL %-Pins, zwei Blöcke</td><td>AC / PL (+ Periode)</td><td class="sopt">Minuend AC · Wertspalten PL, AC · ΔPL-Balken + ΔPL %-Pins · zweiter Block · Zwischensummen an</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T02B</td><td>wie T02A, sortiert nach AC absteigend („(↓)“ im Kopf)</td><td>wie T02A</td><td class="sopt">wie T02A · Sortierung AC/FC absteigend · sortierender Block YTD</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T02C</td><td>wie T02A, sortiert nach ΔPL absteigend</td><td>wie T02A</td><td class="sopt">wie T02A · Sortierung Δ absteigend · sortierender Block Monat</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T02E</td><td>FC statt AC (schraffierte Balken), Referenz PY mit grauer Achse</td><td>FC + PY</td><td class="sopt">Minuend FC · Wertspalten PY, FC · ΔPY-Balken + ΔPY %-Pins · zweiter Block · Sortierung Δ absteigend (YTD)</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T02F</td><td>FC statt AC, Referenz PL mit Doppellinien-Achse</td><td>FC + PL</td><td class="sopt">Minuend FC · Wertspalten PL, FC · ΔPL-Balken + ΔPL %-Pins · zweiter Block · Sortierung Δ absteigend (YTD)</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T03A</td><td>GuV-Statement: + / − / =-Zeilen, PY · PL · AC und Δ-Zahlenspalten, Margenzeile in %p</td><td>Kontendimension mit Zeilentyp</td><td class="sopt">Minuend AC · Wertspalten PY, PL, AC · ΔPY + ΔPY % · ΔPL + ΔPL % als Zahl · ein Block</td><td class="sopt">1 / 0</td></tr>
+<tr><td class="sname">T03B</td><td>wie T03A mit FC als analysiertem Szenario</td><td>wie T03A + FC</td><td class="sopt">wie T03A · Minuend FC</td><td class="sopt">1 / 0</td></tr>
+<tr><td class="sname">T04A</td><td>Statement mit ΔPL-Balken und ΔPL %-Pins</td><td>wie T03A</td><td class="sopt">Minuend AC · Wertspalten PL, AC · ΔPL-Balken + ΔPL %-Pins</td><td class="sopt">1 / 1</td></tr>
+<tr><td class="sname">T04B</td><td>Statement mit integriertem ΔPL-Wasserfall (kaskadierende Balken, =-Anker) und Pins</td><td>wie T03A</td><td class="sopt">Minuend AC · Wertspalten PL, AC · ΔPL-Wasserfall + ΔPL %-Pins</td><td class="sopt">2 / 2</td></tr>
+<tr><td class="sname">T04C</td><td>Statement mit integriertem ΔPY-Wasserfall und Pins</td><td>wie T03A</td><td class="sopt">Minuend AC · Wertspalten PY, AC · ΔPY-Wasserfall + ΔPY %-Pins</td><td class="sopt">2 / 2</td></tr>
+<tr><td class="sname">T04D</td><td>wie T04B mit FC (schraffiert)</td><td>wie T03A + FC</td><td class="sopt">wie T04B · Minuend FC</td><td class="sopt">2 / 2</td></tr>
+<tr><td class="sname">T04E</td><td>wie T04C mit FC (schraffiert)</td><td>wie T03A + FC</td><td class="sopt">wie T04C · Minuend FC</td><td class="sopt">2 / 2</td></tr>
+<tr><td class="sname">12A</td><td>PY- und AC-Wert-Kaskaden als eigene Spalten, dazu ΔPY-Balken und Pins</td><td>wie T03A</td><td class="sopt">Minuend AC · Wertspalten PY, AC als Wert-Kaskaden · ΔPY-Balken + ΔPY %-Pins · Margenzeilen aus</td><td class="sopt">0 / 0</td></tr>
+<tr><td class="sname">12G</td><td>FY-Ausblick: YTD voll und Restjahr schraffiert im selben Balken, Δ aufs Jahr gegen das ganze Vorjahr</td><td>wie T03A + FC Gesamtjahr (+ Periode)</td><td class="sopt">Minuend AC (FY-Block: AC&amp;FC) · Wertspalten PY, AC als Wert-Kaskaden · ΔPY-Balken + ΔPY %-Pins · Perioden-Block FY · Headline-Slot an</td><td class="sopt">0 / 0</td></tr>
+<tr><td class="sname">12H</td><td>Planrechnung: PL-Kaskade umrandet, Kostenzeilen auf blassem Grund, ΔPY-Balken blass getönt</td><td>wie T03A + PL als Minuend</td><td class="sopt">Minuend PL · Wertspalten PY, PL als Wert-Kaskaden · ΔPY-Balken + ΔPY %-Pins · Margenzeilen aus · Headline-Slot an</td><td class="sopt">0 / 0</td></tr>
+</tbody></table></div>
+<p>Für alle Templates gilt: Szenario-Unterstreichungen und Zahlen an Balken / Pins / Kaskaden an, Ausreißer-Pfeile für Δ-Balken aus, Perioden-Block YTD (außer 12G: FY), zweiter Block links = Monat; nicht genannte Schalter stehen aus. Der zweite Perioden-Block braucht das Periodenfeld — ohne Periode fallen „Monat“ und der zweite Block still auf einen YTD-Block zurück, ohne FC Gesamtjahr fällt FY auf YTD zurück.</p>
+<div class="notebox">Dasselbe Template ein zweites Mal zu wählen wendet es nicht erneut an — kurz ein anderes Template wählen und zurück (auch im Toolbar-Dropdown). Wer Berichte per PBIR schreibt, setzt <code>columns.template</code> und <code>columns.templateApplied</code> auf denselben Wert, sonst wendet das Visual das Template beim ersten Rendern an und überschreibt die mitgeschriebenen Schalter (siehe <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md">AGENT-GUIDE</a>). Die Referenzblätter im Vergleich: <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/TEMPLATE-GUIDE.md">TEMPLATE-GUIDE</a> und der HTML-Prototyp <code>pnlByDatenWG/prototype/megatable.html</code>.</div>
+</section>
+
+<section class="doc-sec" id="settings"><h2><span class="snum">06</span>Einstellungs-Referenz</h2>
+<p>Der Formatbereich hat acht Karten in dieser Reihenfolge: <strong>Spalten &amp; Mega-Table</strong> → <strong>Darstellung &amp; Toolbar</strong> → <strong>Zahlen</strong> → <strong>Szenario-Begriffe</strong> → <strong>Stil</strong> → <strong>Titelblock</strong> → <strong>Hierarchie</strong> → <strong>Leer-Zustand</strong>. Die Tabellen listen alle Einstellungen mit Optionen und Standardwert; die Namen entsprechen der deutschen Oberfläche.</p>
+<div class="notebox"><strong>Sichtbarkeit:</strong> Der Formatbereich zeigt nur, was zur aktuellen Ansicht und zu den gebundenen Feldern passt — die Mega-Table-Gruppe nur in der Ansicht Tabelle, die Baum-Gruppe nur im Baum, ΔPY-Schalter nur mit PY, Schwellen-Felder nur bei eingeschalteten Schwellen. Ein ausgeblendeter Schalter behält seinen Wert; die Ausblendung ändert nie, was gerendert wird. Ohne Daten (und in der Demo) bleibt alles sichtbar. Die Hinweise „Sichtbar …“ in den Tabellen nennen diese Bedingungen.</div>
+
+<h3 class="card-h">Spalten &amp; Mega-Table</h3>
+<div class="grp-h">Mega-Table (IBCS-Templates)</div>
+<p>Seit 1.2 die erste Gruppe der Karte. Sichtbar in der Ansicht Tabelle. Jeder Schalter wirkt einzeln; das Template schreibt nur ihre Vorgaben.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Einstellung</th><th>Beschreibung</th><th>Optionen / Standard</th></tr></thead><tbody>
+<tr><td class="sname">Template (IBCS-Tabelle)</td><td>Setzt die Schalter darunter auf die Template-Vorgaben — danach ist jeder Schalter frei.</td><td class="sopt">Optionen: Aus (klassische Tabelle) | T01A | T01B | T02A | T02B | T02C | T02E | T02F | T03A | T03B | T04A | T04B | T04C | T04D | T04E | 12A | 12G | 12H · Standard „Aus (klassische Tabelle)“</td></tr>
+<tr><td class="sname">Analysiertes Szenario (Minuend)</td><td>AC gefüllt, FC schraffiert, PL umrandet mit blassen Δ-Balken (Planrechnung, 12H) — die Δ-Spalten vergleichen es mit PY / PL. FC und PL brauchen ihr Feld. Bei PL gibt es kein ΔPL; Wertspalte PL und Wertspalte AC/FC ergeben dann eine PL-Spalte.<br><span class="muted">Sichtbar mit gebundenem FC oder PL.</span></td><td class="sopt">Optionen: AC (Ist) | FC (Forecast) | PL (Planrechnung) · Standard „AC (Ist)“</td></tr>
+<tr><td class="sname">Wertspalte PY</td><td>Vorjahreswerte als Zahlenspalte.<br><span class="muted">Sichtbar mit gebundenem PY.</span></td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Wertspalte PL</td><td>Planwerte als Zahlenspalte.<br><span class="muted">Sichtbar mit gebundenem PL.</span></td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Wertspalte AC / FC</td><td>Werte des analysierten Szenarios als Zahlenspalte.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Wertspalten als Wert-Kaskaden (12A)</td><td>Jedes gezeigte Szenario wird zur Kaskaden-Diagrammspalte: Schritte auf der laufenden Summe, =-Zeilen ab null, Kostenzeilen hell.<br><span class="muted">Sichtbar, sobald eine Wertspalte an ist.</span></td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">ΔPY als Zahl</td><td>Absolute Abweichung zum Vorjahr.<br><span class="muted">Sichtbar mit gebundenem PY (gilt für alle ΔPY-Schalter).</span></td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">ΔPY als Balken</td><td>Abweichungsbalken auf einer Nulllinie, graue PY-Achse.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">ΔPY als integrierter Wasserfall</td><td>Jeder Δ-Balken beginnt am Ende des vorigen; =-Zeilen setzen an der Nulllinie neu an (T04C/E).</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">ΔPY% als Zahl</td><td>Relative Abweichung zum Vorjahr.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">ΔPY% als Pins</td><td>Relative Abweichung als Pins (Lollipops).</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">ΔPL als Zahl</td><td>Absolute Abweichung zum Plan.<br><span class="muted">Sichtbar mit gebundenem PL (gilt für alle ΔPL-Schalter).</span></td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">ΔPL als Balken</td><td>Abweichungsbalken auf einer Nulllinie, doppelte PL-Achse.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">ΔPL als integrierter Wasserfall</td><td>Jeder Δ-Balken beginnt am Ende des vorigen; =-Zeilen setzen an der Nulllinie neu an (T04B/D).</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">ΔPL% als Zahl</td><td>Relative Abweichung zum Plan.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">ΔPL% als Pins</td><td>Relative Abweichung als Pins (Lollipops).</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Spalte % vom Umsatz</td><td>Anteil jeder Zeile an der Umsatz-Basiszeile (Gruppe Tabelle), rechts neben den Wertspalten.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Zweiter Perioden-Block (Monat | _YTD)</td><td>Links der Monat der letzten Ist-Daten, rechts der Jahresverlauf.<br><span class="muted">Sichtbar mit gebundener Periode.</span></td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Perioden-Block</td><td>Monat der letzten Ist-Daten, Jahr bis dato oder FY-Ausblick (AC&amp;FC vs. PL, braucht die FY-Felder); mit zweitem Block der rechte.<br><span class="muted">Sichtbar mit Periode oder FY-Feldern.</span></td><td class="sopt">Optionen: Monat | YTD | FY-Ausblick (AC&amp;FC vs PL) · Standard „YTD“</td></tr>
+<tr><td class="sname">Zweiter Block (links)</td><td>Periode des Blocks links vom Perioden-Block, wenn der zweite Block an ist.<br><span class="muted">Sichtbar mit Periode und eingeschaltetem zweitem Block.</span></td><td class="sopt">Optionen: Monat | YTD | FY-Ausblick (AC&amp;FC vs PL) · Standard „Monat“</td></tr>
+<tr><td class="sname">Zwischensummen-Blöcke (Strukturdaten)</td><td>Regionen / Strukturhierarchien: Zwischensummen-Blöcke mit Leerzeile; aus = nur Blätter + Gesamtsumme.<br><span class="muted">Sichtbar bei Strukturdaten (ohne GuV-Zeilentypen).</span></td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Margen-/%-Zeilen</td><td>KPI-Zeilen (Margen) kursiv, ihre Δ in Prozentpunkten.<br><span class="muted">Sichtbar bei GuV-Daten.</span></td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Δ rot unter Schwelle (+ Fußzeile)</td><td>Δ-Zahlen unter den Schwellen werden rot; eine Fußzeile nennt die Regel.<br><span class="muted">Sichtbar, sobald eine Δ-Zahlenspalte (ΔPY/ΔPL als Zahl oder Δ% als Zahl) an ist.</span></td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Schwelle Δ (Monat / einziger Block)</td><td>In Anzeige-Einheiten (nach k/m-Skalierung).<br><span class="muted">Sichtbar bei eingeschalteten Schwellen.</span></td><td class="sopt">Zahl · Standard −20</td></tr>
+<tr><td class="sname">Schwelle Δ% (Monat / einziger Block)</td><td>In ganzen Prozent.<br><span class="muted">Sichtbar bei eingeschalteten Schwellen.</span></td><td class="sopt">Zahl · Standard −10</td></tr>
+<tr><td class="sname">Schwelle Δ (_YTD-Block)</td><td>Schwelle des zweiten Blocks, in Anzeige-Einheiten.<br><span class="muted">Sichtbar bei Schwellen, zweitem Block und Periode.</span></td><td class="sopt">Zahl · Standard −220</td></tr>
+<tr><td class="sname">Schwelle Δ% (_YTD-Block)</td><td>Schwelle des zweiten Blocks, in ganzen Prozent.<br><span class="muted">Sichtbar bei Schwellen, zweitem Block und Periode.</span></td><td class="sopt">Zahl · Standard −10</td></tr>
+<tr><td class="sname">Szenario-Unterstreichungen (Kopf + Schluss)</td><td>AC voll, PY grau, PL doppelt, FC schraffiert unter den Spaltenköpfen.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Zahlen an Balken / Pins / Kaskaden</td><td>Wertbeschriftung an jedem Diagramm-Element.<br><span class="muted">Sichtbar, sobald eine Diagrammspalte (Δ-Balken, -Pins, -Wasserfall oder Wert-Kaskade) an ist.</span></td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Ausreißer-Pfeile auch für Δ-Balken</td><td>Pins kappen Ausreißer immer (Q3 + 4 × IQR); dies erweitert es auf die Δ-Balken.<br><span class="muted">Sichtbar mit ΔPY- oder ΔPL-Balken.</span></td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Sortierung (Strukturdaten)</td><td>Je Zwischensummen-Block; Zeilen namens Sonstige … bleiben unten.<br><span class="muted">Sichtbar bei Strukturdaten.</span></td><td class="sopt">Optionen: Kategoriereihenfolge | AC/FC absteigend | Δ absteigend · Standard „Kategoriereihenfolge“</td></tr>
+<tr><td class="sname">Sortierender Block</td><td>Welcher Perioden-Block die Reihenfolge bestimmt.<br><span class="muted">Sichtbar bei Strukturdaten, zweitem Block, Periode und einer Sortierung außer Kategoriereihenfolge.</span></td><td class="sopt">Optionen: Monats-Block | YTD-Block · Standard „YTD-Block“</td></tr>
+</tbody></table></div>
+
+<div class="grp-h">Tabelle</div>
+<p>Klassische Tabelle, Balken und Wasserfall. Die Vorgaben dieser Gruppe gelten beim Öffnen des Berichts; Leser schalten vieles davon in der Toolbar um. Eine im Formatbereich <em>geänderte</em> Vorgabe gewinnt gegen den gespeicherten Leser-Zustand (nur die geänderte).</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Einstellung</th><th>Beschreibung</th><th>Optionen / Standard</th></tr></thead><tbody>
+<tr><td class="sname">Standard-Spalten-Preset</td><td>Spaltensatz der klassischen Tabelle beim Öffnen des Berichts; Leser schalten ihn in der Toolbar um. „Eigene Auswahl“ (1.2) baut die Spalten aus den fünf Schaltern darunter.</td><td class="sopt">Optionen: AC·PY·PL·FC (voll) | AC vs. Referenz | AC vs. PY·PL·FC | AC·PY·ΔPY | AC·PL·ΔPL | ΔPY% · ΔPL% | Eigene Auswahl (Schalter darunter) · Standard „AC·PY·PL·FC (voll)“</td></tr>
+<tr><td class="sname">Eigene Auswahl: Spalte AC</td><td>Istwerte als Zahlenspalte (mit % vom Umsatz, falls an).<br><span class="muted">Sichtbar beim Preset „Eigene Auswahl“.</span></td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Eigene Auswahl: Spalte PY</td><td>Vorjahreswerte als Zahlenspalte.<br><span class="muted">Sichtbar bei „Eigene Auswahl“ und gebundenem PY.</span></td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Eigene Auswahl: Spalte PL</td><td>Planwerte als Zahlenspalte.<br><span class="muted">Sichtbar bei „Eigene Auswahl“ und gebundenem PL.</span></td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Eigene Auswahl: Spalte FC</td><td>Forecastwerte als Zahlenspalte.<br><span class="muted">Sichtbar bei „Eigene Auswahl“ und gebundenem FC.</span></td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Eigene Auswahl: Δ-Balken + Δ%-Pin</td><td>Abweichung von AC zur Δ-Referenz als Balken und Pin.<br><span class="muted">Sichtbar beim Preset „Eigene Auswahl“.</span></td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Standard-Δ-Referenz</td><td>Basis der Δ-Spalten, -Balken und Baumkarten. Auto nimmt PL, sonst PY.</td><td class="sopt">Optionen: Auto (PL, sonst PY) | Vorjahr (PY) | Plan (PL) | Forecast (FC) · Standard „Auto (PL, sonst PY)“</td></tr>
+<tr><td class="sname">Balken-Ansicht: Szenario-Balken überlappt</td><td>AC vorn in voller Stärke, die Referenz (PY grau / PL umrandet / FC schraffiert) dahinter, leicht versetzt — die ChartKitchen-Notation.<br><span class="muted">Sichtbar in der Ansicht Balken.</span></td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Balken-Ansicht: Dreieck-Marker weiterer Szenarien</td><td>Kleine Dreiecke über den Balken am Wert jedes weiteren gebundenen Szenarios (PY grau, PL umrandet, FC schraffiert).<br><span class="muted">Sichtbar in der Ansicht Balken.</span></td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Perioden-Sortierung</td><td>Automatisch liest JJJJ-MM-Schlüssel, Datumswerte und Monatsnamen; Datenreihenfolge behält die Reihenfolge des Modells (Fiskaljahre); Kalenderjahr erzwingt Jan..Dez.<br><span class="muted">Sichtbar mit gebundener Periode.</span></td><td class="sopt">Optionen: Automatisch | Datenreihenfolge (Fiskaljahr) | Kalenderjahr · Standard „Automatisch“</td></tr>
+<tr><td class="sname">%-vom-Umsatz-Spalte</td><td>Anteil jeder Zeile an der Umsatz-Basiszeile, neben AC.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Umsatz-Basiszeile (ID oder Name)</td><td>Zeile, auf die sich % vom Umsatz bezieht. Leer = erste Zeile der obersten Ebene.<br><span class="muted">Sichtbar, wenn eine der beiden %-vom-Umsatz-Spalten an ist.</span></td><td class="sopt">Text · Standard leer</td></tr>
+<tr><td class="sname">Nullzeilen ausblenden (Standard)</td><td>Zeilen ohne jeden Wert verschwinden; Leser schalten es in der Toolbar um.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Tabelle auf Breite einpassen (Standard)</td><td>Staucht die Diagramm-Spalten, bis die Tabelle in den Viewport passt — kein Querscrollen.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Export: alle Zeilen aufklappen</td><td>PDF-/PowerPoint-Export und Abonnements drucken jede Zeile aufgeklappt, egal was am Bildschirm zugeklappt ist.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Zeilen hervorheben</td><td>Kommagetrennte Zeilennamen (oder IDs), ohne Groß-/Kleinschreibung: ein dezentes Band läuft über alle Spalten dieser Zeilen (IBCS EMPHASIZE). Leer = aus.</td><td class="sopt">Text · Standard leer</td></tr>
+<tr><td class="sname">Wesentlichkeit ab (absolut)</td><td>Abweichungen unter diesem absoluten Betrag (Dateneinheiten, vor k/m-Skalierung) werden in sanftem Grau statt in den Abweichungsfarben dargestellt — Zahlen, Balken, Pins und Wasserfall-Stufen. 0 = aus.</td><td class="sopt">≥ 0 · Standard 0</td></tr>
+<tr><td class="sname">Wesentlichkeit ab (%)</td><td>Abweichungen unter diesem Δ % werden in sanftem Grau dargestellt. Sind beide Schwellen gesetzt, muss eine Abweichung beide überschreiten, um farbig zu sein. 0 = aus.</td><td class="sopt">0–100 · Standard 0</td></tr>
+</tbody></table></div>
+
+<div class="grp-h">Werttreiberbaum</div>
+<p>Start der Baum-Ansicht. Sichtbar in der Ansicht Baum.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Einstellung</th><th>Beschreibung</th><th>Optionen / Standard</th></tr></thead><tbody>
+<tr><td class="sname">Wurzelzeile Treiberbaum (ID, Name oder Kategorie)</td><td>Leer = letzte Formel-/KPI-Zeile mit Operanden, sonst die Modell-Wurzel.</td><td class="sopt">Text · Standard leer</td></tr>
+<tr><td class="sname">Start-Tiefe Treiberbaum (0 = ganzer Baum)</td><td>Wie viele Ebenen des Baums beim Start offen sind.</td><td class="sopt">0–8 · Standard 0</td></tr>
+<tr><td class="sname">Karten-Diagramm im Treiberbaum</td><td>Mini-Diagramm auf jeder Karte: Monatssäulen, Abweichungssäulen oder Mini-Brücke.</td><td class="sopt">Optionen: Monatssäulen (AC vs. PL) | Abweichungssäulen (Δ vs. Referenz) | Mini-Brücke (REF → Δ → AC) · Standard „Monatssäulen (AC vs. PL)“</td></tr>
+<tr><td class="sname">Status-Indikator der Karten (Δ-Farbe)</td><td>Kartenrand und Δ% im Kartenkopf in der Abweichungsfarbe.</td><td class="sopt">An / Aus · Standard An</td></tr>
+</tbody></table></div>
+
+<h3 class="card-h">Darstellung &amp; Toolbar</h3>
+<p>Was Leser über dem Statement sehen und selbst umschalten dürfen. Eine ausgeblendete Gruppe nimmt Lesern nur den Knopf — die Vorgabe aus dem Formatbereich wirkt weiter.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Einstellung</th><th>Beschreibung</th><th>Optionen / Standard</th></tr></thead><tbody>
+<tr><td class="sname">Toolbar anzeigen (Leser können umschalten)</td><td>Knöpfe über dem Statement: Ansicht, Spalten, Einheit, Dichte, Ebenen.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Szenario-Legende anzeigen</td><td>Chips für AC · PY · PL · FC sowie günstige / ungünstige Δ unter der Toolbar.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Gruppe: Ansicht</td><td>Tabelle · Balken · Wasserfall · Baum.<br><span class="muted">Sichtbar bei eingeschalteter Toolbar (gilt für alle Gruppen-Schalter).</span></td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Gruppe: Spalten-Presets</td><td>Spaltensätze der klassischen Tabelle.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Gruppe: Δ-Referenz</td><td>PY · PL · FC als Basis jeder Δ.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Gruppe: Perioden (MTD/YTD/FY)</td><td>Perioden-Blöcke der klassischen Tabelle.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Gruppe: Einheit</td><td>Umschalten zwischen Tausend und Millionen.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Gruppe: Dichte</td><td>Normale oder kompakte Zeilen.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Gruppe: Aufklapp-Ebene</td><td>Hierarchie bis Ebene 1, 2 … oder ganz öffnen.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Gruppe: Optionen</td><td>% vom Umsatz, Nullzeilen ausblenden, auf Breite einpassen.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Gruppe: Szenario (Mega-Table)</td><td>Leser schalten das analysierte Szenario AC / FC und die Referenz-Sicht ΔPY · ΔPL · beide des Mega-Tables um.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Gruppe: Wertspalten (Szenarien einzeln)</td><td>Leser kombinieren die Wertspalten frei — AC, PY, PL, FC und Δ gegen die Δ-Referenz (klassische Tabelle), analysiertes Szenario · PY · PL (Mega-Table). Die Spalten-Presets bleiben als Schnellwahl.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Template-Auswahl im Bearbeitungsmodus</td><td>Kompaktes Template-Dropdown am Anfang der Toolbar, solange du den Bericht bearbeitest (Ansicht Tabelle). Leser und Export sehen es nie.</td><td class="sopt">An / Aus · Standard An</td></tr>
+</tbody></table></div>
+
+<h3 class="card-h">Zahlen</h3>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Einstellung</th><th>Beschreibung</th><th>Optionen / Standard</th></tr></thead><tbody>
+<tr><td class="sname">Skalierung</td><td>Auto schaltet ab 50.000 auf k, ab 50 Mio. auf m und ab 50 Mrd. auf b. Leser schalten die Einheit in der Toolbar um (b nur, wenn die Daten es brauchen).</td><td class="sopt">Optionen: Auto | Keine | Tausend (k) | Millionen (m) | Milliarden (b) · Standard „Auto“</td></tr>
+<tr><td class="sname">Einheit (z. B. EUR)</td><td>Folgt auf k / m in Titel, Skalen-Hinweis und Karten.</td><td class="sopt">Text · Standard „EUR“</td></tr>
+<tr><td class="sname">Dezimalstellen (Werte)</td><td>Nachkommastellen von Werten und Δ. Ein Template setzt sie mit.</td><td class="sopt">0–3 · Standard 1</td></tr>
+<tr><td class="sname">Dezimalstellen (Δ%)</td><td>Nachkommastellen von Δ% und Margen. Ein Template setzt sie mit.</td><td class="sopt">0–2 · Standard 1</td></tr>
+<tr><td class="sname">Finance-Format (Klammern)</td><td>Finanzkonvention: negative Werte in Klammern statt Minuszeichen — (1 234) — und Null als „–“. Gilt für Werte, Δ und Δ %; positive Δ behalten ihr „+“.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Σ-treue Rundung</td><td>Rundet die Wertspalten nach dem Restwertverfahren, sodass die gedruckten Kinder exakt ihre gedruckte Zwischensumme ergeben (Formel- und Margenzeilen behalten die exakte Rundung). Die Δ-Zahl ist dann die Differenz der gedruckten Werte.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Skalen-Mindestmaximum (Werte)</td><td>Wertbalken und Wert-Kaskaden reichen mindestens bis zu diesem Betrag — gleiche Skalen über mehrere Visuals (IBCS), auch neben ChartKitchen. Dateneinheiten, k / m / b erlaubt (z. B. 1.5m). Größere Werte erweitern die Skala weiterhin. Im Bearbeitungsmodus steht „Skala fixiert“ unter der Tabelle.</td><td class="sopt">Text · Standard leer (automatisch)</td></tr>
+<tr><td class="sname">Skalen-Mindestmaximum (Δ)</td><td>Dasselbe für Δ-Balken und integrierte Δ-Wasserfälle (symmetrisch ±). Dateneinheiten, k / m / b erlaubt.</td><td class="sopt">Text · Standard leer (automatisch)</td></tr>
+</tbody></table></div>
+
+<h3 class="card-h">Szenario-Begriffe</h3>
+<p>Hausbegriffe für AC, PY, PL und FC — etwa „Ist“, „VJ“ oder „Budget“. Sie erscheinen in Toolbar, Legende, Spaltenköpfen (auch ΔPY/ΔPL), Tooltips, Titel und Fußzeilen.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Einstellung</th><th>Beschreibung</th><th>Optionen / Standard</th></tr></thead><tbody>
+<tr><td class="sname">AC umbenennen</td><td>Eigener Begriff für AC (z. B. „Ist“). Leer = AC.</td><td class="sopt">Text · Standard leer (AC)</td></tr>
+<tr><td class="sname">PY umbenennen</td><td>Eigener Begriff für PY, auch in den ΔPY-Köpfen (z. B. „Vorjahr“). Leer = PY.</td><td class="sopt">Text · Standard leer (PY)</td></tr>
+<tr><td class="sname">PL umbenennen</td><td>Eigener Begriff für PL, auch in den ΔPL-Köpfen (z. B. „Budget“). Leer = PL.</td><td class="sopt">Text · Standard leer (PL)</td></tr>
+<tr><td class="sname">FC umbenennen</td><td>Eigener Begriff für FC (z. B. „Prognose“). Leer = FC.</td><td class="sopt">Text · Standard leer (FC)</td></tr>
+</tbody></table></div>
+
+<h3 class="card-h">Stil</h3>
+<div class="grp-h">Farben &amp; Erscheinungsbild</div>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Einstellung</th><th>Beschreibung</th><th>Optionen / Standard</th></tr></thead><tbody>
+<tr><td class="sname">Erscheinungsbild</td><td>Dark Mode: „Auto“ erkennt dunkle Berichts-Themes an der Hintergrundfarbe (Luminanz unter 0,35) und stellt Tinte, Achsen und Flächen auf helle Töne um; von Hand dunkel gefärbte Seiten brauchen „Dunkel“. Im hellen Bericht rendert Auto identisch zu Hell.</td><td class="sopt">Optionen: Auto (Berichtsthema folgen) | Hell | Dunkel · Standard „Auto (Berichtsthema folgen)“</td></tr>
+<tr><td class="sname">Abweichungsfarben-Preset</td><td>Blau / Orange ist das ColorBrewer-Paar #2C7BB6 / #E66101 (dunkel #5BA3DC / #F0821E) — auch bei vollständiger Farbenblindheit und im Schwarzweiß-Druck unterscheidbar. Auto behält die Abweichungsfarben darunter. Die beiden Farbwähler übersteuern weiterhin.</td><td class="sopt">Optionen: Wie Abweichungsfarben (Teal / IBCS) | Teal / Rot (farbfehlsicht-tauglich) | IBCS Grün / Rot | Blau / Orange (ColorBrewer) · Standard „Wie Abweichungsfarben (Teal / IBCS)“</td></tr>
+<tr><td class="sname">Abweichungsfarben</td><td>Teal ersetzt IBCS-Grün, damit es bei Rot-Grün-Sehschwäche lesbar bleibt (dokumentierte Abweichung).<br><span class="muted">Sichtbar, solange das Preset auf „Wie Abweichungsfarben“ steht.</span></td><td class="sopt">Optionen: Teal-Abweichung (farbfehlsichtig-tauglich) | IBCS-Grün klassisch · Standard „Teal-Abweichung“</td></tr>
+<tr><td class="sname">Farbe günstige Δ (Überschreibung)</td><td>Leer = Farbe des Abweichungsmodus.</td><td class="sopt">Farbe · Standard leer</td></tr>
+<tr><td class="sname">Farbe ungünstige Δ (Überschreibung)</td><td>Leer = Farbe des Abweichungsmodus.</td><td class="sopt">Farbe · Standard leer</td></tr>
+<tr><td class="sname">Akzentfarbe Bedienelemente</td><td>Aktive Toolbar-Knöpfe, Zurück-Knopf und Breadcrumb-Hover — nie Datenmarken oder Achsen.</td><td class="sopt">Farbe · Standard #404040</td></tr>
+<tr><td class="sname">Hintergrund Seite</td><td>Grund des Statements, des Baums und der Kachel-Ansicht (im Dunkelmodus dunkel).</td><td class="sopt">Farbe · Standard #FFFFFF</td></tr>
+<tr><td class="sname">Hintergrund Kacheln</td><td>Füllung der Baumkarten, Kacheln und des Hover-Panels (im Dunkelmodus dunkel).</td><td class="sopt">Farbe · Standard #FFFFFF</td></tr>
+</tbody></table></div>
+<div class="grp-h">Schrift &amp; Zeilen</div>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Einstellung</th><th>Beschreibung</th><th>Optionen / Standard</th></tr></thead><tbody>
+<tr><td class="sname">Schriftgrößen-Preset</td><td>Skaliert alle Beschriftungen auf einmal: HD ×1 · Full HD ×1,25 · UHD ×1,6.</td><td class="sopt">Optionen: HD (kompakt) | Full HD | UHD / Präsentation · Standard „HD (kompakt)“</td></tr>
+<tr><td class="sname">Schrift-Feinskalierung (%)</td><td>Zusätzlich zum Preset (100 = Preset unverändert). Das Produkt aus Preset und Feinskalierung ist bei 2,2 gedeckelt.</td><td class="sopt">80–160 · Standard 100</td></tr>
+<tr><td class="sname">Schriftgröße Kopfzeilen (px, 0 = automatisch)</td><td>0 = automatisch (eingebaute Größen), sonst 7–20 px; wirkt auch auf die Köpfe des Mega-Tables.</td><td class="sopt">0–20 · Standard 0</td></tr>
+<tr><td class="sname">Schriftfarbe Kopfzeilen (Überschreibung)</td><td>Leer = eingebautes weiches Grau.</td><td class="sopt">Farbe · Standard leer</td></tr>
+<tr><td class="sname">Standard-Dichte</td><td>Zeilenhöhe beim Öffnen des Berichts; Leser schalten sie in der Toolbar um.</td><td class="sopt">Optionen: Normal | Kompakt · Standard „Normal“</td></tr>
+</tbody></table></div>
+<div class="grp-h">Verhalten</div>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Einstellung</th><th>Beschreibung</th><th>Optionen / Standard</th></tr></thead><tbody>
+<tr><td class="sname">Kopfbereich fixieren</td><td>Titel, Toolbar, Legende und Spaltenköpfe bleiben oben, während die Zeilen scrollen.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Selektion &amp; Kontextmenü aktiv</td><td>Klick setzt die Seiten-Selektion (Kreuzfilterung, Drillthrough), Rechtsklick öffnet das native Menü. Aus = reine Anzeige ohne Klick-Handler.</td><td class="sopt">An / Aus · Standard An</td></tr>
+</tbody></table></div>
+<div class="notebox">Im Windows-Hochkontrastmodus ignoriert der Mega-Table alle Farbeinstellungen und unterscheidet die Szenarien über Muster statt Farbe; die klassischen Ansichten behalten ihre Palette.</div>
+
+<h3 class="card-h">Titelblock</h3>
+<p>Der dreizeilige IBCS-Titel (Berichtseinheit · Kennzahl + Einheit · Zeitraum + Szenarien) mit Botschaft, Headline und Fußzeilen. Alle Felder außer dem Hauptschalter sind nur bei eingeschaltetem Titelblock sichtbar.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Einstellung</th><th>Beschreibung</th><th>Optionen / Standard</th></tr></thead><tbody>
+<tr><td class="sname">Titelblock anzeigen</td><td>IBCS-Titel: Berichtseinheit · Kennzahl + Einheit · Zeitraum + Szenarien.</td><td class="sopt">An / Aus · Standard An</td></tr>
+<tr><td class="sname">Zeile 1 · Berichtseinheit</td><td>Wer berichtet — Unternehmen, Segment, Konsolidierungskreis.</td><td class="sopt">Text · Standard leer</td></tr>
+<tr><td class="sname">Zeile 2 · Kennzahl + Einheit</td><td>Leer = „GuV (P&amp;L) in &lt;Einheit&gt;“ aus den Daten.</td><td class="sopt">Text · Standard leer (automatisch)</td></tr>
+<tr><td class="sname">Zeile 3 · Zeitraum + Szenarien</td><td>Leer = Zeitraum und Szenarien aus den Daten (mit „_Monat“-Statusmarker des letzten Ist-Monats).</td><td class="sopt">Text · Standard leer (automatisch)</td></tr>
+<tr><td class="sname">Message-Zeile (Interpretation)</td><td>Die Erkenntnis in einem Satz, fett über dem Titel (IBCS SAY).</td><td class="sopt">Text · Standard leer</td></tr>
+<tr><td class="sname">Automatische Botschaft</td><td>Erzeugt die Botschafts-Zeile aus der Abweichung der Ergebniszeile und dem stärksten / schwächsten Treiber, wenn keine eigene Botschaft eingegeben ist.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Headline-Slot (große Botschaft)</td><td>Zeigt die Botschaft als große Headline neben dem Titel (Layout der IBCS-12er-Serie); ohne eigene Botschaft die generierte Auto-Botschaft. 12G und 12H schalten ihn an.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+<tr><td class="sname">Fußzeile (Datenstand · Quelle)</td><td>Fußzeile unter dem Statement — z. B. Datenstand und Quelle; wird auch im Export gedruckt.</td><td class="sopt">Text · Standard leer</td></tr>
+<tr><td class="sname">Filter-Fußzeile anzeigen</td><td>Zweite Fußzeile mit dem Filterkontext: die gebundene „Filter-Info“-Text-Measure (Report-Filter sind für Custom Visuals nicht sichtbar) plus der eigene Zustand des Visuals — ausgeblendete Nullzeilen, Szenario-Sicht des Lesers.</td><td class="sopt">An / Aus · Standard Aus</td></tr>
+</tbody></table></div>
+
+<h3 class="card-h">Hierarchie</h3>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Einstellung</th><th>Beschreibung</th><th>Optionen / Standard</th></tr></thead><tbody>
+<tr><td class="sname">Standard-Aufklapp-Ebene</td><td>Wie tief das Statement aufklappt. 0 = alles aufklappen.</td><td class="sopt">0–8 · Standard 2</td></tr>
+<tr><td class="sname">Einrückung je Ebene (px)</td><td>Einrückung der Zeilenbeschriftung je Hierarchie-Ebene.</td><td class="sopt">6–32 · Standard 16</td></tr>
+</tbody></table></div>
+
+<h3 class="card-h">Leer-Zustand</h3>
+<p>Was das Visual zeigt, wenn nichts darzustellen ist. Demo und Feld-Intro erscheinen nur im Bearbeitungsmodus; Leser, PDF-Export und Abos sehen immer den Standardtext oder die eigene Nachricht, nie Demo-Zahlen.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Einstellung</th><th>Beschreibung</th><th>Optionen / Standard</th></tr></thead><tbody>
+<tr><td class="sname">Solange Felder fehlen (Bearbeitungsmodus)</td><td>Demo = Beispiel-GuV (Smart Start) · Feld-Intro = welches Feld wohin, minimal und im Ausbau, mit ✓ für gebundene Rollen · Eigene Nachricht = Titel und Text darunter. Umschalten auch per Knopf direkt im Leer-Zustand („Felder erklären“ / „Demo ansehen“).</td><td class="sopt">Optionen: Demo-GuV (Smart Start) | Feld-Intro (welches Feld wohin) | Eigene Nachricht (Titel / Text darunter) · Standard „Demo-GuV (Smart Start)“</td></tr>
+<tr><td class="sname">Eigener Titel</td><td>Ersetzt die Überschrift, wenn nichts dargestellt wird (im Lesemodus keine Felder gebunden oder Auswahl ohne Zeilen). Leer = Standardtext.</td><td class="sopt">Text · Standard leer</td></tr>
+<tr><td class="sname">Eigener Text</td><td>Textkörper unter dem Titel im Leer-Zustand — z. B. ein Hinweis, welche Filter der Leser prüfen soll. Leer = Standardtext.</td><td class="sopt">Text · Standard leer</td></tr>
+</tbody></table></div>
+<div class="notebox">Zwei Properties stehen nicht im Formatbereich: <code>columns.templateApplied</code> (zuletzt angewendetes Template, Echo-Guard) und <code>state.uiState</code> (der Leser-Zustand der Toolbar als JSON, lesezeichenfähig). Property-Namen, Typen und das Schema für das PBIR-Authoring stehen im <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md">AGENT-GUIDE</a>.</div>
+</section>
+
+<section class="doc-sec" id="interaction"><h2><span class="snum">07</span>Interaktion</h2>
+<h3>Toolbar</h3>
+<p>Die Toolbar über dem Statement zeigt je Ansicht nur die Gruppen, die dort etwas bewirken. Darunter steht die Szenario-Legende mit den Chips AC · PY · PL · FC, günstiger und ungünstiger Δ und dem Hinweis, wie die Δ-Achsen die Referenz kodieren.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Gruppe</th><th>Wann sichtbar</th><th>Was sie schaltet</th></tr></thead><tbody>
+<tr><td class="sname">Template</td><td>Bearbeitungsmodus, Ansicht Tabelle</td><td>Dropdown aller IBCS-Templates; schreibt Template und Schalter in einem Speichervorgang.</td></tr>
+<tr><td class="sname">Ansicht</td><td>immer, außer in der Kachel-Ansicht</td><td>Tabelle · Balken · Wasserfall · Baum.</td></tr>
+<tr><td class="sname">Spalten-Preset</td><td>klassische Tabelle</td><td>Die sechs Presets als Schnellwahl.</td></tr>
+<tr><td class="sname">Wertspalten</td><td>klassische Tabelle oder Mega-Table, mit „Gruppe: Wertspalten“</td><td>Klassisch: AC · PY · PL · FC · ΔRef als einzelne Knöpfe. Mega-Table: analysiertes Szenario · PY · PL.</td></tr>
+<tr><td class="sname">Δ-Referenz</td><td>klassische Ansichten, Baum, Kachel</td><td>PY · PL · FC — nur gebundene Szenarien bekommen einen Knopf.</td></tr>
+<tr><td class="sname">Perioden</td><td>klassische Ansichten, ab zwei Blöcken</td><td>MTD · YTD · FY. MTD nicht in Balken, FY nur mit beiden FY-Feldern.</td></tr>
+<tr><td class="sname">Einheit</td><td>immer</td><td>kEUR · mEUR (bEUR nur ab 50 Mrd. oder wenn der Formatbereich b wählt).</td></tr>
+<tr><td class="sname">Dichte</td><td>außer Kachel-Ansicht</td><td>Normal · Kompakt.</td></tr>
+<tr><td class="sname">Karten</td><td>Baum</td><td>Monate · Δ · Brücke als Karten-Diagramm, dazu Status (farbiger Kartenrand).</td></tr>
+<tr><td class="sname">Bis Ebene</td><td>Tabellen-Ansichten und Baum</td><td>1 · 2 · … · Alle; im Baum zusätzlich ⌂ (zurück zur obersten Wurzel, ganzer Baum offen).</td></tr>
+<tr><td class="sname">Szenario · Referenz-Sicht</td><td>Mega-Table, mit „Gruppe: Szenario“</td><td>Szenario AC · FC (nur mit FC-Feld), Referenz-Sicht ΔPY · ΔPL · beide.</td></tr>
+<tr><td class="sname">Optionen</td><td>klassische Ansichten bzw. Mega-Table</td><td>Klassisch: % vom Umsatz (nur Tabelle), Nullzeilen aus, Einpassen. Mega-Table: Nullzeilen aus.</td></tr>
+</tbody></table></div>
+
+<h3>Wertspalten- und Szenario-Gruppe</h3>
+<ul class="steps">
+<li><strong>Klassische Tabelle:</strong> Ein Klick auf einen Wertspalten-Knopf macht aus dem aktuellen Spaltensatz die <em>Eigene Auswahl</em> und kippt genau diesen Schalter — so entsteht z. B. AC + PL + FC. Die Presets bleiben Schnellwahl und setzen die Knöpfe wieder; aus „AC·PY·ΔPY“ und „AC·PL·ΔPL“ heraus bleibt die Referenz erhalten. Der MTD- und der FY-Block folgen denselben Schaltern.</li>
+<li><strong>Mega-Table:</strong> Dieselbe Gruppe schaltet analysiertes Szenario, PY und PL als Leser-Schicht über den Formatbereich-Schaltern. Die letzte Spalte ist gesperrt, damit der Mega-Table nie per Klick in die klassische Tabelle zurückfällt. Ändert der Autor die Wertspalten im Formatbereich, endet die Leser-Wahl.</li>
+<li><strong>Gruppe Szenario:</strong> Leser wechseln das analysierte Szenario AC / FC und die Referenz-Sicht ΔPY · ΔPL · beide. Die Filter-Fußzeile nennt die gewählte Sicht.</li>
+</ul>
+
+<h3>Gesperrte Buttons</h3>
+<p>Ein Knopf, der im aktuellen Zustand nichts ändern würde, ist <strong>gesperrt</strong>: gedimmt, ohne Hover, mit einem Tooltip, der sagt, wo er wirkt — ein Klick speichert nichts. Ob ein Knopf wirkt, prüft die Toolbar gegen die tatsächlich erzeugten Spalten. Typische Fälle: die Δ-Referenz unter dem Preset „AC·PY·PL·FC“ (das seine Referenzen fest zeigt), der FY-Block außerhalb der Presets, die ihn tragen, „% vom Umsatz“ bei ausgeblendetem YTD-Block, der letzte sichtbare Perioden-Block, die letzte Wertspalte oder Δ ohne Referenzfeld, und im Mega-Table eine Szenario-Wahl, die seine Spalten nicht nutzen. Die Perioden-Knöpfe zeigen, was auf dem Bildschirm steht — ein erzwungener YTD-Block liest sich als „an“.</p>
+
+<h3>Selektion, Crossfilter &amp; Drillthrough</h3>
+<ul class="steps">
+<li><strong>Linksklick</strong> auf eine Wert- oder Diagrammspalte einer Zeile (Tabelle, Mega-Table, Balken, Waterfall) oder auf den Kopf der Kachel setzt die Power-BI-Selektion dieser Zeile — mit allen Quellzeilen des Kontos (z. B. alle Monate). Zwischensummen selektieren die Blätter darunter, Formelzeilen die Blätter ihrer Operanden. Ein zweiter Klick oder ein Klick auf freie Fläche hebt die Selektion auf.</li>
+<li><strong>Crossfilter:</strong> Die Selektion filtert die übrige Berichtsseite; die Drillthrough-Schaltflächen der Seite werden mit genau diesem Kontext aktiv. Das Visual selbst unterstützt kein Hervorheben — Cross-Interaktion von außen filtert.</li>
+<li><strong>Rechtsklick</strong> auf eine Zeile, Baum-Karte, Mikro-Karte oder die große Kachel öffnet das native Kontextmenü mit den Drillthrough-Zielen der Seite; in der Kachel-Ansicht erledigt „↗ Drill“ Selektion und Menü in einem Griff.</li>
+<li>Die Markierung sitzt nur auf dem gewählten Element (blasser Akzent-Waschton und 2 px Unterstrich); andere Zeilen werden nicht abgedunkelt. Je Knoten werden höchstens 2.000 Quellzeilen selektiert; wo der Deckel greift, sagt es der Tooltip.</li>
+<li>Der Name einer Zeile klappt, das Chevron klappt, ein Klick auf eine Baum-Karte öffnet die Kachel — selektiert wird über die Wert- und Diagrammspalten. Abschaltbar über Stil → <em>Selektion &amp; Kontextmenü aktiv</em>; im Export und in Abos gibt es keine Interaktion.</li>
+</ul>
+<ol class="steps">
+<li><strong>Zielseite:</strong> neue Seite anlegen (z. B. „Konto-Detail“) und unter <em>Visualisierungen → Seite auf Detailsuche filtern</em> genau die Spalte einziehen, die im Visual als <em>Konto-ID (Key)</em> gebunden ist — ohne Konto-ID die erste Ebenen-Spalte (L1).</li>
+<li><strong>Schaltfläche:</strong> auf der Quellseite <em>Einfügen → Schaltflächen → Leer</em>, dann <em>Aktion → Ein</em>, <em>Typ = Detailsuche</em>, <em>Ziel = Konto-Detail</em>.</li>
+<li><strong>Benutzen:</strong> im Visual eine Wertspalte anklicken — die Schaltfläche wird aktiv. Alternativ Rechtsklick oder „↗ Drill“ in der Kachel-Ansicht.</li>
+</ol>
+
+<h3>Lesezeichen (Bookmarks)</h3>
+<p>Alle Toolbar-Zustände sind im Bericht gespeichert und lesezeichenfähig: Ansicht, Spalten-Preset und Wertspalten, Δ-Referenz, Einheit, Dichte, Optionen, Perioden-Blöcke, zugeklappte Zeilen und offene Sparklines, Wurzel, Faltung, Karten-Diagramm, Status und Zoom des Baums sowie die Leser-Sicht des Mega-Tables. Ein Lesezeichen mit einem fremden Zustand wirkt sofort. Eine im Formatbereich geänderte Vorgabe gewinnt nur für die geänderte Einstellung, die übrigen Leser-Entscheidungen bleiben. Ein Lesezeichen mit Selektion stellt den Filter über Power BI wieder her; die Markierung im Visual wird dabei nicht nachgezeichnet, ein Lesezeichen ohne Selektion entfernt sie.</p>
+
+<h3>Tooltips</h3>
+<p>In Tabelle, Mega-Table, Balken und Waterfall zeigen Zeilen, Zellen, Balken, Pins und Kaskaden einen Tooltip mit Zeilenname, den gebundenen Szenarien des Blocks (mit Einheit), der Abweichung je Referenz absolut und in Prozent (Margen in %p), dem Wesentlichkeits-Hinweis, dem Kommentar und gegebenenfalls der Selektions-Kappung. Im hellen Modus ist es der native Power-BI-Tooltip, im Dunkelmodus ein eigener dunkler Kasten. Der Werttreiberbaum nutzt seine Detailansicht beim Hover und SVG-Titel.</p>
+
+<h3>Tastatur</h3>
+<p>Toolbar-Knöpfe und die Auf-/Zuklapp-Elemente der Zeilen sind per <kbd>Tab</kbd> erreichbar; <kbd>Enter</kbd> oder <kbd>Leertaste</kbd> löst aus bzw. klappt auf und zu. Der Fokus ist als Ring sichtbar — auch auf nachgezeichneten Zeilen langer Mega-Tables.</p>
+</section>
+
+<section class="doc-sec" id="deviations"><h2><span class="snum">08</span>Bekannte Abweichungen von den IBCS-Blättern</h2>
+<p>Das Visual stellt die Referenzblätter so genau wie möglich nach, baut aber deren Inkonsistenzen und Druckfehler bewusst nicht nach. Vier Abweichungen sind dokumentiert (vollständig in <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/SPEC-MEGATABLE.md">SPEC-MEGATABLE.md</a>, Abschnitt „Bewusst offen / Abweichungen“):</p>
+<ol class="steps">
+<li><strong>T01A/B — Dezimale im YTD-Block:</strong> Die YTD-ΔPY-Spalte des Originals druckt eine Dezimale (+431.0) bei sonst ganzzahligen Spalten. Das ist eine Inkonsistenz der Referenz; das Visual hat eine Dezimalregel je Tabelle und druckt einheitlich (+431).</li>
+<li><strong>T02F — frühe Kappung:</strong> Das Original kappt Δ%-Pins schon bei einem Sprung von 1,35×. Die Tukey-Automatik des Visuals (Q3 + 4 × IQR) kappt dort nicht — jede Regel, die T02F träfe, würde in T02A fälschlich kappen.</li>
+<li><strong>T03A — Druckfehler der Blätter:</strong> Das Original druckt in ΔPY des Group result versehentlich den ΔPL-Wert (+162.5); das Visual rechnet korrekt (+186.2). Ebenso der Financial-income-Pin in T04C/E (das Visual zeichnet vorzeichenrichtig −9.59) und das Operating result in 12H.</li>
+<li><strong>12A — Pfeilspitzen:</strong> Mehrfach-Pfeilspitzen gekappter Werte (+983 →→→) sind im Visual eine einfache Spitze; der Wert steht ohnehin als Zahl am Element.</li>
+</ol>
+<p>Davon unabhängig ist die Teal-Farbgebung eine bewusste, dokumentierte Abweichung (Kapitel 01).</p>
+</section>
+
+<section class="doc-sec" id="faq"><h2><span class="snum">09</span>Troubleshooting</h2>
+<div class="faq"><h3>Buttons wirken „tot“.</h3><p>Seit 1.0.1 sind wirkungslose Knöpfe gedimmt und der Tooltip sagt warum — etwa die Δ-Referenz unter dem vollen Preset. Ein Template wirkt nur in der Ansicht <em>Tabelle</em>.</p></div>
+<div class="faq"><h3>Die ΔPL-Spalten bleiben leer.</h3><p>Die PL-Rolle ist nicht gebunden — der Formatbereich blendet die ΔPL-Schalter dann aus. Ein FC-Minuend braucht die FC-Rolle, PL als Minuend die PL-Rolle.</p></div>
+<div class="faq"><h3>Die Schwellen färben nicht.</h3><p>Schwellen gelten in <strong>Anzeige-Einheiten</strong>, also nach der k/m-Skalierung — −20 heißt bei mEUR −20 Mio. Außerdem brauchen sie eine Δ-Zahlenspalte.</p></div>
+<div class="faq"><h3>Dasselbe Template noch einmal gewählt — nichts passiert.</h3><p>Das gleiche Template erneut zu wählen wendet es nicht neu an. Kurz ein anderes Template wählen und zurück, auch im Toolbar-Dropdown.</p></div>
+<div class="faq"><h3>In der Toolbar fehlt das Template-Dropdown.</h3><p>Es erscheint nur im Bearbeitungsmodus und in der Ansicht <em>Tabelle</em>. Den Schalter Darstellung &amp; Toolbar → <em>Template-Auswahl im Bearbeitungsmodus</em> prüfen.</p></div>
+<div class="faq"><h3>Spalten-Kategorie gebunden, aber keine Blöcke.</h3><p>Der Mega-Table ignoriert die Spalten-Kategorie (Hinweis unter der Tabelle im Bearbeitungsmodus). Sie wirkt in der klassischen Tabelle, also mit Template „Aus“.</p></div>
+<div class="faq"><h3>Export/PDF sieht anders aus als der Bildschirm.</h3><p>Gewollt: Der Export druckt ohne Toolbar und voll aufgeklappt (Schalter <em>Export: alle Zeilen aufklappen</em>), ohne Virtualisierung und ohne „Skala fixiert“.</p></div>
+<div class="faq"><h3>Alle Werte sind leer.</h3><p>Die Gruppierungsfelder stehen auf „Zusammenfassen“ statt „Nicht zusammenfassen“.</p></div>
+<div class="faq"><h3>Die FY-Spalten sind um ein Vielfaches zu groß.</h3><p>Das FY-Measure ist als <code>SUM</code> statt <code>MAX</code> (oder <code>AVERAGE</code>) definiert; der Jahreswert steht auf jeder Monatszeile.</p></div>
+<div class="faq"><h3>Die Monate stehen in falscher Reihenfolge.</h3><p>Das Perioden-Label ist nicht lesbar oder es ist ein Fiskaljahr — Spalten &amp; Mega-Table → Tabelle → <em>Perioden-Sortierung</em> auf „Datenreihenfolge (Fiskaljahr)“ stellen.</p></div>
+<div class="faq"><h3>Eine Zeile zeigt „·“ oder „⚠ Zyklus“.</h3><p>„·“: Der Referenzname der Formel ist nicht eindeutig oder das Szenario hat keine Daten. „⚠ Zyklus“: Zirkelbezug in der Formeldefinition oder in Parent-Child.</p></div>
+<div class="faq"><h3>„Nicht zugeordnet“ erscheint rot mit ⚠.</h3><p>Ein Parent- oder Ebenen-Pfad zeigt ins Leere. Das ist ein gewolltes Datenqualitäts-Signal: das Visual verschluckt keine Konten.</p></div>
+<div class="faq"><h3>Die Kosten erscheinen günstig, obwohl sie über Plan liegen.</h3><p>Die Kostenzeile trägt Rechenvorzeichen <code>-1</code> <em>und</em> Abweichungsfarbe drehen = <code>true</code> — die beiden Mechanismen heben sich auf. Bei <code>-1</code> die Abweichungsfarbe nicht zusätzlich drehen (Kapitel 03).</p></div>
+</section>
+
+<section class="doc-sec" id="version"><h2><span class="snum">10</span>Versionshinweis 1.2.0.0</h2>
+<p>Diese Dokumentation beschreibt <strong>Version 1.2.0.0</strong> vom 17.10.2026 (GUID <code style="overflow-wrap:anywhere;">pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358</code>). Das Visual ist nicht im Microsoft AppSource gelistet und damit nicht von Microsoft zertifiziert. Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind seit 1.0 stabil; jede neue Einstellung steht per Standard aus oder verhält sich wie bisher.</p>
+<ul class="steps">
+<li><strong>1.2.0.0 — Ease of Use:</strong> Wertspalten frei kombinieren (Preset „Eigene Auswahl“, Toolbar-Gruppe Wertspalten, auch im Mega-Table), Template-Auswahl in der Toolbar, Template-Gruppe zuerst im Formatbereich, Leer-Zustand mit Feld-Intro, Feldliste in gewohnter Reihenfolge, Balken-Ansicht wie ChartKitchen (überlappt, Dreiecke), Spalten-Kategorie.</li>
+<li><strong>1.1.0.0:</strong> 12G, 12H und Headline-Slot, Skalen-Sync, Blau/Orange, Virtualisierung langer Mega-Tables; Finance-Handwerk aus ChartKitchen (Tooltips, Σ-treue Rundung, Klammern, Mrd., Hausbegriffe, Auto-Botschaft, Fußzeilen, Hervorheben, Wesentlichkeit, Leser-Szenario, Leer-Zustand, Tastatur); Block-Arten Monat · YTD · FY.</li>
+<li><strong>1.0.1.0:</strong> Toolbar-Knöpfe wirken in jeder Ansicht, gesperrte Knöpfe mit Tooltip, Formatbereich-Vorgaben gewinnen nach Änderung, Echo-Guard für den Toolbar-Zustand.</li>
+<li><strong>1.0.0.0:</strong> Mega-Table (T01–T04, 12A), vier Sprachen, Smart Start, Dark Mode, Formatbereich mit Sichtbarkeits-Regeln.</li>
+<li><strong>0.17.0.0:</strong> Selektion, Cross-Filtering und natives Kontextmenü mit Drillthrough.</li>
+</ul>
+<p>Die vollständige Versionshistorie steht im <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md">CHANGELOG</a>.</p>
+</section>
+
+<footer class="doc-foot"><strong>P&amp;L Statement byDatenWG</strong> · Version 1.2.0.0<br>Kontakt: Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>Schnellstart: <a href="pnl-schnellstart.html">pnl-schnellstart.html</a> · Download: <a href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.2.0.0.pbiviz">.pbiviz 1.2.0.0</a> · Quellcode und Änderungsprotokoll: <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG">pnlByDatenWG im Repository</a> · Für KI-Agenten: <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md">AGENT-GUIDE</a><br><a href="md/pnl-doku.md">📄 Diese Seite als Markdown</a><div class="ibcs">Notation nach den IBCS®-Standards 1.2 der IBCS Association (CC BY-SA 4.0, ibcs.com). Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke der HICHERT+FAISST GmbH. Dieses Visual ist nicht von der IBCS Association zertifiziert und steht in keiner Verbindung zu ihr.</div></footer>
+
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('nav.toc a'));
+  var secs=links.map(function(a){return document.getElementById(a.getAttribute('href').slice(1));});
+  function onScroll(){
+    var y=window.scrollY+120,cur=0;
+    for(var i=0;i<secs.length;i++){if(secs[i]&&secs[i].offsetTop<=y)cur=i;}
+    links.forEach(function(a,i){a.classList.toggle('active',i===cur);});
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+})();
+</script>
+</body>
+</html>

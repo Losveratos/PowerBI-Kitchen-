@@ -43,6 +43,7 @@ import {
 } from "./megatable";
 import { cascade, CascadeNode } from "./waterfall";
 import { buildDemoRows } from "./demo";
+import { templateSwitches, HUB_TEMPLATES, TOUR_CARDS, MiniSpec, miniObjects, templateNeedsFc } from "./hub";
 
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const NBSP_GROUP = " "; // narrow space, IBCS number grouping
@@ -272,6 +273,8 @@ interface ValSet { ac: boolean; py: boolean; pl: boolean; fc: boolean; d: boolea
 interface MegaVals { min: boolean; py: boolean; pl: boolean }
 type Unit = "auto" | "none" | "k" | "m" | "b";
 type Density = "normal" | "compact";
+/** pages of the 1.3 Start hub */
+type HubPage = "hub" | "tour" | "templates" | "demo" | "fields";
 /** Mini chart drawn inside a driver-tree card. */
 type TreeCardMode = "months" | "delta" | "bridge";
 
@@ -667,6 +670,28 @@ export class Visual implements IVisual {
     private startArgs: { dataView: DataView | undefined; missing: string[] | null } | null = null;
     /** 1.2 echo guard of emptyState.mode written by the empty-state switches */
     private emptyPending: { mode: string; ttl: number } | null = null;
+
+    // --- 1.3 Start hub (tour · template gallery · demo · field guide) ---
+    /** page of the hub; local state, never persisted */
+    private hubPage: HubPage = "hub";
+    /** card of the feature tour */
+    private hubTour = 0;
+    /** the overlay layer of the hub over a bound statement (edit mode); null = closed */
+    private hubOverlay: HTMLElement | null = null;
+    /** the host element got position:relative for the overlay — undone on close */
+    private hubParentFixed = false;
+    /** data-pnl of the control that gets the focus after the next hub render (keyboard flow) */
+    private hubFocusKey: string | null = null;
+    /** mini renderings of the page being built; they run once the page is attached */
+    private hubMinis: (() => void)[] = [];
+    /** generation of the hub page — a newer page cancels the batches of an older one */
+    private hubGen = 0;
+    /** template saved from the gallery while no fields were bound (shows the "saved" note) */
+    private hubSaved: string | null = null;
+    /** the last data view of update() — the overlay's field guide reads it */
+    private lastDv: DataView | undefined;
+    /** this instance is a mini rendering of the hub (a tiny, non-interactive copy over the demo) */
+    private miniSpec: MiniSpec | null = null;
     /**
      * 1.2 column category (role colCategory): one model per category value,
      * built from the same rows filtered to that value and aligned to the
@@ -725,6 +750,7 @@ export class Visual implements IVisual {
             // Smart Start is an edit-mode aid — remember the raw view mode every update
             this.viewMode = options.viewMode ?? null;
             const dataView = options.dataViews && options.dataViews[0];
+            this.lastDv = dataView;
             this.settings = this.formattingSettingsService.populateFormattingSettingsModel(
                 VisualFormattingSettingsModel, dataView);
             localizeSettings(this.settings, k => this.trOpt(k));
@@ -748,6 +774,8 @@ export class Visual implements IVisual {
                     this.events.renderingFinished(options); return;
                 }
                 if (this.demo) { this.leaveDemo(); }
+                // fields are bound: the hub starts at its home page the next time
+                this.hubPage = "hub"; this.hubSaved = null;
                 if (parsed.rows.length === 0) {
                     this.model = null; this.vs = null; this.lastFingerprint = null; this.catModels = null;
                     this.renderEmpty(); this.events.renderingFinished(options); return;
@@ -771,6 +799,8 @@ export class Visual implements IVisual {
             // bring the old toolbar choice back over it
             if (this.syncPaneDefaults()) { this.persistUi(); }
             this.render();
+            // the hub overlay (edit mode) follows the host: a reader never keeps it, a resize redraws it
+            if (this.hubOverlay) { if (this.editMode()) { this.hubRefresh(); } else { this.closeHub(false); } }
             this.events.renderingFinished(options);
         } catch (e) {
             this.events.renderingFailed(options, e instanceof Error ? e.message : String(e));
@@ -1901,10 +1931,10 @@ export class Visual implements IVisual {
         return this.viewMode == null || this.viewMode >= 1;
     }
 
-    /** emptyState.mode (1.2): demo · fields · message */
-    private emptyMode(): "demo" | "fields" | "message" {
-        const v = String(this.settings?.emptyStateCard?.mode?.value?.value ?? "demo");
-        return v === "fields" || v === "message" ? v : "demo";
+    /** emptyState.mode: hub (1.3, default) · demo · fields · message */
+    private emptyMode(): "hub" | "demo" | "fields" | "message" {
+        const v = String(this.settings?.emptyStateCard?.mode?.value?.value ?? "hub");
+        return v === "demo" || v === "fields" || v === "message" ? v : "hub";
     }
 
     /**
@@ -1952,10 +1982,25 @@ export class Visual implements IVisual {
 
     private showStart(dataView: DataView | undefined, missing: string[] | null): void {
         this.startArgs = { dataView, missing };
+        // no statement on screen any more: an overlay of a former statement has no ground
+        if (this.hubOverlay) { this.closeHub(false); }
+        const mode = this.emptyMode();
+        // 1.3 Start hub (the default): big buttons for the tour, the template
+        // gallery, the demo and the field guide — where the demo would show
+        // (edit mode, room enough); readers and exports keep the landing text
+        if (mode === "hub" && this.demoAllowed() && this.hubPage !== "demo") {
+            if (this.demo) { this.leaveDemo(); }
+            this.model = null; this.vs = null; this.lastFingerprint = null;
+            this.catModels = null;
+            // echo guard + pane-chosen template, as in the demo path below
+            this.syncMegaTemplate(dataView);
+            this.root.style.background = this.pageBg();
+            this.hubRefresh();
+            return;
+        }
         // 1.2 empty-state mode: the field guide or the own message replace the
         // demo in edit mode; readers and exports keep the landing text below
-        const mode = this.emptyMode();
-        if (mode !== "demo" && this.startAllowed()) {
+        if ((mode === "fields" || mode === "message") && this.startAllowed()) {
             if (this.demo) { this.leaveDemo(); }
             this.model = null; this.vs = null; this.lastFingerprint = null;
             this.catModels = null;
@@ -1970,19 +2015,7 @@ export class Visual implements IVisual {
             return;
         }
         if (!this.demo || this.demoLocale !== this.locale) {
-            const lr = rowsFromLevels(buildDemoRows(k => this.tr(k)), "auto");
-            this.model = buildModel(lr.rows, this.tr("UI_NotAssigned"), lr.months);
-            this.has = { ac: true, py: true, pl: true, fc: false, fcfy: true, plfy: true };
-            this.catModels = null; this.catBound = false; this.catCapped = 0;
-            this.loadedRows = lr.rows.length;
-            this.modelVer++;
-            this.scanCache = null;
-            this.geoCache = null;
-            this.resetSelection();
-            this.selCat = null;
-            this.statusWarnings = [];
-            this.demo = true;
-            this.demoLocale = this.locale;
+            this.installDemoModel(false);
             this.lastFingerprint = null;
             this.ui = null;
         }
@@ -1992,6 +2025,37 @@ export class Visual implements IVisual {
         // the demo follows pane edits as well (locally — it never persists)
         this.syncPaneDefaults();
         this.render();
+        // the hub's demo page: the focus goes to its ← Zurück button (keyboard flow)
+        if (this.hubFocusKey && this.emptyMode() === "hub") {
+            const el = this.root.querySelector<HTMLElement>(`[data-pnl="${this.hubFocusKey}"]`);
+            this.hubFocusKey = null;
+            if (el) { el.focus(); }
+        }
+    }
+
+    /**
+     * The built-in demo as the model on screen (Smart Start, hub demo page and
+     * the hub's mini renderings share it). `fc` adds a synthetic forecast —
+     * only the template previews that analyse FC ask for it.
+     */
+    private installDemoModel(fc: boolean): void {
+        const base = buildDemoRows(k => this.tr(k));
+        const rows = fc
+            ? base.map(r => (r.values.ac != null ? { ...r, values: { ...r.values, fc: Math.round(r.values.ac * 1.02) } } : r))
+            : base;
+        const lr = rowsFromLevels(rows, "auto");
+        this.model = buildModel(lr.rows, this.tr("UI_NotAssigned"), lr.months);
+        this.has = { ac: true, py: true, pl: true, fc, fcfy: true, plfy: true };
+        this.catModels = null; this.catBound = false; this.catCapped = 0;
+        this.loadedRows = lr.rows.length;
+        this.modelVer++;
+        this.scanCache = null;
+        this.geoCache = null;
+        this.resetSelection();
+        this.selCat = null;
+        this.statusWarnings = [];
+        this.demo = true;
+        this.demoLocale = this.locale;
     }
 
     /** real data arrived (or the demo is not allowed any more): back to a clean slate */
@@ -2048,6 +2112,11 @@ export class Visual implements IVisual {
         const title = document.createElement("span");
         title.textContent = this.tr("UI_DemoTitle");
         title.style.cssText = `font-weight:600;color:${C.text};`;
+        // 1.3 the hub's demo page: the way back to the start page comes first
+        if (this.emptyMode() === "hub" && !this.miniSpec) {
+            head.appendChild(this.hubBtn(this.tr("UI_HubBack"), () => this.hubGo("hub"),
+                { tip: this.tr("UI_HubBackTip"), key: "hub-back", primary: true }));
+        }
         head.appendChild(badge); head.appendChild(title);
         box.appendChild(head);
         const body = document.createElement("div");
@@ -2062,7 +2131,8 @@ export class Visual implements IVisual {
             box.appendChild(miss);
         }
         // 1.2 edit mode: switch to the field guide without opening the pane
-        const sw = this.startSwitchRow("demo");
+        // (in the hub the demo is a page of the hub — the switches stay out)
+        const sw = this.emptyMode() === "hub" ? null : this.startSwitchRow("demo");
         if (sw) { box.appendChild(sw); }
         return wrap;
     }
@@ -2073,7 +2143,7 @@ export class Visual implements IVisual {
      * a check, the scenario rows the IBCS chips of the legend. Smart-Start
      * look: dashed box on the wash, caps section heads.
      */
-    private fieldGuide(dataView: DataView | undefined, missing: string[] | null): HTMLElement {
+    private fieldGuide(dataView: DataView | undefined, missing: string[] | null, inHub = false): HTMLElement {
         const cols = dataView?.metadata?.columns ?? [];
         const bound = (...roles: string[]): boolean => cols.some(c => !!c.roles && roles.some(r => !!c.roles![r]));
         const role = (key: string, en: string): string => this.trOpt(key) ?? en;
@@ -2141,7 +2211,7 @@ export class Visual implements IVisual {
         hint.style.cssText = `color:${C.soft};font-style:italic;margin-top:${this.kpx(8)};`;
         hint.textContent = this.tr("UI_FiHint");
         box.appendChild(hint);
-        const sw = this.startSwitchRow("fields");
+        const sw = inHub ? null : this.startSwitchRow("fields");
         if (sw) { box.appendChild(sw); }
         return wrap;
     }
@@ -2162,6 +2232,612 @@ export class Visual implements IVisual {
         const sw = this.startSwitchRow("message");
         if (sw) { box.appendChild(sw); }
         return box;
+    }
+
+    // ---------------- 1.3 Start hub ----------------
+    //
+    // Without fields the edit mode shows the hub (emptyState.mode = hub, the
+    // default): four big buttons — the feature tour, the template gallery, the
+    // demo and the field guide. With fields bound the toolbar offers "☰ Start"
+    // (edit mode only), which opens the same hub as an overlay layer above the
+    // statement; closing it removes the layer and leaves the view as it was.
+    // Readers and exports never see the hub. All of it is local state — only a
+    // template click writes (like the toolbar dropdown).
+
+    /** the element the hub currently renders into: the overlay layer, else the visual's root */
+    private hubHost(): HTMLElement {
+        return this.hubOverlay ?? this.root;
+    }
+
+    /** a mini rendering that is not the full demo of the overlay: no banner, no title */
+    private miniQuiet(): boolean {
+        return this.miniSpec != null && !this.miniSpec.full;
+    }
+
+    /** what the field guide of the hub page reads: the live data view, or the one of the last empty update */
+    private hubArgs(): { dataView: DataView | undefined; missing: string[] | null } {
+        if (this.hubOverlay) {
+            return { dataView: this.lastDv, missing: this.lastDv ? this.missingRoles(this.lastDv) : null };
+        }
+        const a = this.startArgs;
+        return { dataView: a ? a.dataView : undefined, missing: a ? a.missing : null };
+    }
+
+    /** whether a statement is on screen under the hub (the template pick then closes the overlay) */
+    private hubHasStatement(): boolean {
+        return this.model != null && !this.demo && this.hubOverlay != null;
+    }
+
+    /** go to a page of the hub (keyboard flow: the focus follows) */
+    private hubGo(page: HubPage, focusKey?: string): void {
+        const left = this.hubPage;
+        this.hubPage = page;
+        this.hubFocusKey = focusKey ?? (page === "hub" ? "hub-tile-" + left : "hub-back");
+        if (page === "tour") { this.hubTour = Math.max(0, Math.min(this.hubTour, TOUR_CARDS.length - 1)); }
+        if (this.hubOverlay) { this.hubRefresh(); return; }
+        const a = this.startArgs;
+        this.showStart(a ? a.dataView : undefined, a ? a.missing : null);
+    }
+
+    /** redraw the hub page into its host (overlay or root) and run its mini renderings */
+    private hubRefresh(): void {
+        const host = this.hubHost();
+        if (this.hubOverlay) {
+            this.hubOverlay.style.background = this.pageBg();
+            this.hubOverlay.style.color = C.text;
+        }
+        this.hubMinis = [];
+        const page = this.hubPage === "demo" && !this.hubOverlay ? "hub" : this.hubPage;
+        // an update that changes nothing the page shows (an echo of a persist, a pane
+        // edit elsewhere) must not redraw the minis — a resize still does (width)
+        const a = this.hubArgs();
+        const sig = [page, this.hubTour, this.locale, this.dark ? "d" : "l", this.hubAvail(), this.vpH,
+            this.megaPending ? this.megaPending.applied : String(this.settings.columnsCard.template.value.value),
+            this.hubSaved ?? "", (a.missing ?? []).join("|"), this.accent(), this.pageBg(),
+            this.settings.styleCard.fontPreset.value.value, this.settings.styleCard.fontZoom.value].join("~");
+        const cur = host.firstElementChild;
+        if (!this.hubFocusKey && cur && cur.getAttribute("data-hub") === "" && cur.getAttribute("data-hub-sig") === sig) { return; }
+        const content = this.hubContent(page);
+        content.setAttribute("data-hub-sig", sig);
+        host.replaceChildren(content);
+        // The minis lay themselves out (fit passes, tile view) — they need the
+        // attached page. The first three run at once (the tour and the top of
+        // the gallery appear with the page), the rest in small batches so the
+        // host never freezes; data-hub-ready flips to 1 when the last one is drawn.
+        const jobs = this.hubMinis;
+        this.hubMinis = [];
+        const gen = ++this.hubGen;
+        content.setAttribute("data-hub-ready", jobs.length === 0 ? "1" : "0");
+        const batch = (): void => {
+            if (gen !== this.hubGen || !content.isConnected) { return; }
+            for (const j of jobs.splice(0, 3)) { j(); }
+            // each mini re-armed the shared palettes for its own look
+            this.applyPalette();
+            if (jobs.length > 0) { setTimeout(batch, 0); } else { content.setAttribute("data-hub-ready", "1"); }
+        };
+        // a page with one or two minis (tour, demo) draws them at once; the gallery after the first paint
+        if (jobs.length > 3) { setTimeout(batch, 0); } else if (jobs.length > 0) { batch(); }
+        const key = this.hubFocusKey;
+        this.hubFocusKey = null;
+        if (key) {
+            const el = host.querySelector<HTMLElement>(`[data-pnl="${key}"]`);
+            if (el) { el.focus(); }
+        }
+    }
+
+    /** the hub wrapper: header (back · title · close), the page, keyboard */
+    private hubContent(page: HubPage): HTMLElement {
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "hub");
+        wrap.setAttribute("data-hub", "");
+        wrap.setAttribute("data-hub-page", page);
+        wrap.style.cssText = `padding:${this.kpx(16)} ${this.kpx(18)} ${this.kpx(18)} ${this.kpx(18)};` +
+            `box-sizing:border-box;color:${C.text};font-size:${this.kpx(11)};line-height:1.5;`;
+        wrap.addEventListener("keydown", (e: KeyboardEvent) => this.hubKey(e, page));
+        const titles: Record<HubPage, string> = {
+            hub: "P&L Statement byDatenWG", tour: this.tr("UI_HubTour"), templates: this.tr("UI_HubTpl"),
+            demo: this.tr("UI_EsDemo"), fields: this.tr("UI_EsFields"),
+        };
+        wrap.appendChild(this.hubHeader(titles[page], page !== "hub"));
+        if (page === "tour") { wrap.appendChild(this.hubTourPage()); }
+        else if (page === "templates") { wrap.appendChild(this.hubTemplatesPage()); }
+        else if (page === "fields") {
+            const a = this.hubArgs();
+            const g = this.fieldGuide(a.dataView, a.missing, true);
+            g.style.padding = "0";
+            wrap.appendChild(g);
+        }
+        else if (page === "demo") { wrap.appendChild(this.hubDemoPage()); }
+        else { wrap.appendChild(this.hubHome()); }
+        return wrap;
+    }
+
+    private hubHeader(title: string, back: boolean): HTMLElement {
+        const row = document.createElement("div");
+        row.style.cssText = `display:flex;align-items:center;gap:${this.kpx(12)};margin-bottom:${this.kpx(12)};flex-wrap:wrap;`;
+        if (back) {
+            row.appendChild(this.hubBtn(this.tr("UI_HubBack"), () => this.hubGo("hub"),
+                { tip: this.tr("UI_HubBackTip"), key: "hub-back", primary: true }));
+        }
+        const h = document.createElement("div");
+        h.setAttribute("data-pnl", "hub-title");
+        h.setAttribute("role", "heading");
+        h.setAttribute("aria-level", "1");
+        h.style.cssText = `font-size:${this.kpx(15)};font-weight:600;flex:1 1 auto;`;
+        h.textContent = title;
+        row.appendChild(h);
+        if (this.hubOverlay) {
+            row.appendChild(this.hubBtn(this.tr("UI_HubClose"), () => this.closeHub(true),
+                { tip: this.tr("UI_HubCloseTip"), key: "hub-close" }));
+        }
+        return row;
+    }
+
+    /** a button of the hub: native (Tab · Enter · Space), focus ring, no toolbar side effects */
+    private hubBtn(label: string, onClick: () => void,
+        o: { tip?: string; key?: string; primary?: boolean; locked?: string; aria?: string } = {}): HTMLElement {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = label;
+        if (o.tip) { b.title = o.tip; }
+        if (o.aria) { b.setAttribute("aria-label", o.aria); }
+        if (o.key) { b.setAttribute("data-pnl", o.key); }
+        this.kbRing(b);
+        const acc = this.accent();
+        const rest = o.primary
+            ? `background:${acc};border:1px solid ${acc};color:${this.onAccent()};font-weight:600;`
+            : `background:${C.paper};border:1px solid ${C.ctlEdge};color:${C.text};font-weight:400;`;
+        b.style.cssText = `font-family:${FONT};font-size:${this.kpx(11)};line-height:1.35;` +
+            `padding:${this.kpx(5)} ${this.kpx(12)};cursor:pointer;border-radius:5px;` +
+            `transition:${TRANSITION};${rest}`;
+        if (o.locked) {
+            b.title = o.locked;
+            b.setAttribute("aria-disabled", "true");
+            b.style.opacity = "0.4";
+            b.style.cursor = "default";
+            b.onclick = (e: Event): void => { e.stopPropagation(); };
+            return b;
+        }
+        b.onmouseenter = (): void => {
+            if (o.primary) { b.style.background = this.accentSoft(0.14); b.style.borderColor = this.accentSoft(0.14); }
+            else { b.style.background = C.ctlHover; b.style.borderColor = C.cardEdgeHover; }
+        };
+        b.onmouseleave = (): void => {
+            if (o.primary) { b.style.background = acc; b.style.borderColor = acc; }
+            else { b.style.background = C.paper; b.style.borderColor = C.ctlEdge; }
+        };
+        b.onclick = (e: Event): void => { e.stopPropagation(); onClick(); };
+        return b;
+    }
+
+    /** Esc steps back (page → home → close the overlay); ← → leaf through the tour; 1–4 open a tile of the home page */
+    private hubKey(e: KeyboardEvent, page: HubPage): void {
+        const k = e.key;
+        if (k === "Escape" || k === "Esc") {
+            if (page !== "hub") { e.preventDefault(); e.stopPropagation(); this.hubGo("hub"); }
+            else if (this.hubOverlay) { e.preventDefault(); e.stopPropagation(); this.closeHub(true); }
+            return;
+        }
+        if (page === "tour" && (k === "ArrowLeft" || k === "ArrowRight")) {
+            e.preventDefault(); e.stopPropagation();
+            this.hubTourStep(k === "ArrowRight" ? 1 : -1);
+            return;
+        }
+        if (page === "hub" && k >= "1" && k <= "4" && !e.ctrlKey && !e.altKey && !e.metaKey) {
+            e.preventDefault(); e.stopPropagation();
+            this.hubGo((["tour", "templates", "demo", "fields"] as HubPage[])[Number(k) - 1]);
+        }
+    }
+
+    /** the home page: four big buttons */
+    private hubHome(): HTMLElement {
+        const wrap = document.createElement("div");
+        const intro = document.createElement("div");
+        intro.style.cssText = `color:${C.soft};max-width:${this.k(620)}px;margin-bottom:${this.kpx(12)};`;
+        intro.textContent = this.tr("UI_HubIntro");
+        wrap.appendChild(intro);
+        const a = this.hubArgs();
+        if (a.missing && a.missing.length > 0) {
+            const miss = document.createElement("div");
+            miss.setAttribute("data-pnl", "hub-missing");
+            miss.style.cssText = `color:${C.loading};font-weight:600;margin-bottom:${this.kpx(10)};`;
+            miss.textContent = this.tr("UI_DemoMissing", a.missing.join(" · "));
+            wrap.appendChild(miss);
+        }
+        const grid = document.createElement("div");
+        grid.setAttribute("data-pnl", "hub-tiles");
+        // two by two; one column where two do not fit
+        const two = this.hubAvail() >= this.k(560);
+        grid.style.cssText = `display:grid;grid-template-columns:repeat(${two ? 2 : 1},minmax(0,1fr));` +
+            `gap:${this.kpx(12)};max-width:${this.k(760)}px;`;
+        const tpls = HUB_TEMPLATES.length - 1;
+        const tiles: [HubPage, string, string][] = [
+            ["tour", this.tr("UI_HubTour"), this.tr("UI_HubTourSub", TOUR_CARDS.length)],
+            ["templates", this.tr("UI_HubTpl"), this.tr("UI_HubTplSub", tpls)],
+            ["demo", this.tr("UI_EsDemo"), this.tr("UI_HubDemoSub")],
+            ["fields", this.tr("UI_EsFields"), this.tr("UI_HubFieldsSub")],
+        ];
+        tiles.forEach(([page, title, sub], i) => grid.appendChild(this.hubTile(i + 1, page, title, sub)));
+        wrap.appendChild(grid);
+        const note = document.createElement("div");
+        note.style.cssText = `color:${C.soft};font-style:italic;margin-top:${this.kpx(14)};font-size:${this.kpx(10)};`;
+        note.textContent = this.tr("UI_HubReaderNote");
+        wrap.appendChild(note);
+        return wrap;
+    }
+
+    /** one big button of the home page: number badge, title, one line */
+    private hubTile(n: number, page: HubPage, title: string, sub: string): HTMLElement {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("data-pnl", "hub-tile-" + page);
+        this.kbRing(b);
+        const acc = this.accent();
+        b.style.cssText = `display:flex;align-items:flex-start;gap:${this.kpx(12)};text-align:left;font-family:${FONT};` +
+            `color:${C.text};background:${C.paper};border:1px solid ${C.cardEdge};border-radius:8px;` +
+            `padding:${this.kpx(14)} ${this.kpx(16)};min-height:${this.kpx(84)};cursor:pointer;` +
+            `box-shadow:${C.shadow};transition:${TRANSITION};`;
+        const badge = document.createElement("span");
+        badge.setAttribute("aria-hidden", "true");
+        badge.textContent = String(n);
+        badge.style.cssText = `flex:none;width:${this.kpx(24)};height:${this.kpx(24)};border-radius:50%;` +
+            `background:${acc};color:${this.onAccent()};font-size:${this.kpx(12)};font-weight:700;` +
+            "display:flex;align-items:center;justify-content:center;";
+        const txt = document.createElement("span");
+        txt.style.cssText = "display:flex;flex-direction:column;gap:4px;min-width:0;";
+        const t = document.createElement("span");
+        t.textContent = title;
+        t.style.cssText = `font-size:${this.kpx(14)};font-weight:600;line-height:1.3;`;
+        const d = document.createElement("span");
+        d.textContent = sub;
+        d.style.cssText = `font-size:${this.kpx(11)};color:${C.soft};line-height:1.45;`;
+        txt.appendChild(t); txt.appendChild(d);
+        b.appendChild(badge); b.appendChild(txt);
+        b.onmouseenter = (): void => { b.style.borderColor = acc; b.style.boxShadow = C.shadowHover; };
+        b.onmouseleave = (): void => { b.style.borderColor = C.cardEdge; b.style.boxShadow = C.shadow; };
+        b.onclick = (e: Event): void => { e.stopPropagation(); this.hubGo(page); };
+        return b;
+    }
+
+    /** available width for the page content inside the hub padding */
+    private hubAvail(): number {
+        const host = this.hubHost();
+        const w = host.clientWidth || this.vpW || 600;
+        // a vertical scrollbar may still appear: keep a margin instead of a horizontal scroll
+        return Math.max(220, Math.floor(w - 2 * this.k(18) - 18));
+    }
+
+    /**
+     * A mini rendering: a nested, non-interactive copy of this visual over the
+     * demo, laid out at its natural size and scaled down with a transform.
+     * The nested instance renders once the page is attached (hubRefresh).
+     */
+    private hubMini(spec: MiniSpec, outerW: number): HTMLElement {
+        const s = outerW / spec.w;
+        const outer = document.createElement("div");
+        outer.setAttribute("data-pnl", "hub-mini");
+        outer.setAttribute("aria-hidden", "true");
+        outer.style.cssText = `position:relative;flex:none;width:${outerW}px;height:${Math.round(spec.h * s)}px;overflow:hidden;` +
+            `border:1px solid ${C.ctlEdge};border-radius:4px;background:${this.pageBg()};pointer-events:none;`;
+        const inner = document.createElement("div");
+        inner.style.cssText = `position:absolute;left:0;top:0;width:${spec.w}px;height:${spec.h}px;` +
+            `transform:scale(${s});transform-origin:0 0;`;
+        outer.appendChild(inner);
+        this.hubMinis.push(() => this.hubRunMini(inner, spec));
+        return outer;
+    }
+
+    private hubRunMini(el: HTMLElement, spec: MiniSpec): void {
+        try {
+            const noop = (): void => undefined;
+            const host = {
+                locale: this.locale,
+                colorPalette: this.host.colorPalette,
+                eventService: { renderingStarted: noop, renderingFinished: noop, renderingFailed: noop },
+                createLocalizationManager: () => this.locMgr,
+                persistProperties: noop,
+            } as unknown as IVisualHost;
+            const v = new Visual({ element: el, host });
+            v.renderMini(spec, spec.dark === true || this.dark);
+        } catch {
+            // a thumbnail that fails must never take the hub down
+            el.replaceChildren();
+        }
+    }
+
+    /**
+     * Render this instance as a mini: the built-in demo, no toolbar / title /
+     * legend, view and template from the spec, non-interactive (the hub puts
+     * pointer-events:none on it). Called on a fresh instance by hubRunMini.
+     */
+    public renderMini(spec: MiniSpec, dark: boolean): void {
+        this.miniSpec = spec;
+        this.viewMode = 0;
+        this.vpW = spec.w; this.vpH = spec.h;
+        this.settings = this.formattingSettingsService.populateFormattingSettingsModel(
+            VisualFormattingSettingsModel,
+            { metadata: { columns: [], objects: miniObjects(spec, dark) } } as unknown as DataView);
+        this.dark = this.resolveDarkMode();
+        // a thumbnail never scrolls; the overlay's full demo does
+        if (!spec.full) { this.root.style.overflow = "hidden"; }
+        this.applyPalette();
+        this.installDemoModel(spec.fc === true);
+        this.ui = this.defaultUi();
+        this.ui.view = spec.view;
+        if (spec.zoom) { this.ui.treeZoom = spec.zoom; }
+        this.render();
+    }
+
+    // ---- tour ----
+
+    private hubTourStep(d: number): void {
+        const n = Math.max(0, Math.min(TOUR_CARDS.length - 1, this.hubTour + d));
+        if (n === this.hubTour) { return; }
+        this.hubTour = n;
+        this.hubFocusKey = d > 0 ? (n === TOUR_CARDS.length - 1 ? "tour-prev" : "tour-next") : (n === 0 ? "tour-next" : "tour-prev");
+        this.hubRefresh();
+    }
+
+    private hubTourPage(): HTMLElement {
+        const keys: [string, string][] = [
+            ["UI_Tour1T", "UI_Tour1X"], ["UI_Tour2T", "UI_Tour2X"], ["UI_Tour3T", "UI_Tour3X"], ["UI_Tour4T", "UI_Tour4X"],
+            ["UI_Tour5T", "UI_Tour5X"], ["UI_Tour6T", "UI_Tour6X"], ["UI_Tour7T", "UI_Tour7X"],
+        ];
+        const total = TOUR_CARDS.length;
+        const i = Math.max(0, Math.min(this.hubTour, total - 1));
+        const card = TOUR_CARDS[i];
+        const avail = this.hubAvail();
+        const wide = avail >= this.k(700);
+        const miniW = Math.max(200, Math.min(this.k(520), wide ? Math.floor(avail * 0.56) : avail - 2));
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "hub-tour");
+        wrap.setAttribute("data-tour-card", String(i + 1));
+        const row = document.createElement("div");
+        row.style.cssText = `display:flex;gap:${this.kpx(18)};align-items:flex-start;flex-wrap:${wide ? "nowrap" : "wrap"};`;
+        row.appendChild(this.hubMini(card.mini, miniW));
+        const txt = document.createElement("div");
+        txt.style.cssText = `flex:1 1 ${this.k(220)}px;min-width:0;`;
+        const eyebrow = document.createElement("div");
+        eyebrow.setAttribute("data-pnl", "tour-count");
+        eyebrow.appendChild(this.capsLabel(`${i + 1} / ${total}`));
+        const h = document.createElement("div");
+        h.setAttribute("data-pnl", "tour-title");
+        h.style.cssText = `font-size:${this.kpx(16)};font-weight:600;margin:${this.kpx(4)} 0 ${this.kpx(6)} 0;line-height:1.3;`;
+        h.textContent = this.tr(keys[i][0]);
+        const p = document.createElement("div");
+        p.setAttribute("data-pnl", "tour-text");
+        p.style.cssText = `font-size:${this.kpx(12)};color:${C.soft};line-height:1.6;max-width:${this.k(460)}px;`;
+        p.textContent = this.tr(keys[i][1]);
+        txt.appendChild(eyebrow); txt.appendChild(h); txt.appendChild(p);
+        row.appendChild(txt);
+        wrap.appendChild(row);
+
+        const nav = document.createElement("div");
+        nav.style.cssText = `display:flex;align-items:center;gap:${this.kpx(8)};margin-top:${this.kpx(14)};flex-wrap:wrap;`;
+        nav.appendChild(this.hubBtn("‹", () => this.hubTourStep(-1), {
+            key: "tour-prev", aria: this.tr("UI_TourPrev"), tip: this.tr("UI_TourPrev"),
+            locked: i === 0 ? this.tr("UI_TourPrev") : undefined,
+        }));
+        const dots = document.createElement("div");
+        dots.style.cssText = `display:flex;gap:${this.kpx(6)};align-items:center;`;
+        for (let d = 0; d < total; d++) {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.setAttribute("data-pnl", "tour-dot-" + (d + 1));
+            dot.setAttribute("aria-label", this.tr("UI_TourDot", d + 1));
+            dot.setAttribute("aria-current", d === i ? "true" : "false");
+            dot.title = this.tr(keys[d][0]);
+            this.kbRing(dot);
+            dot.style.cssText = `width:${this.kpx(10)};height:${this.kpx(10)};padding:0;border-radius:50%;cursor:pointer;` +
+                `border:1px solid ${d === i ? this.accent() : C.cardEdgeHover};background:${d === i ? this.accent() : "transparent"};`;
+            dot.onclick = (e: Event): void => {
+                e.stopPropagation();
+                this.hubTour = d; this.hubFocusKey = "tour-dot-" + (d + 1); this.hubRefresh();
+            };
+            dots.appendChild(dot);
+        }
+        nav.appendChild(dots);
+        nav.appendChild(this.hubBtn("›", () => this.hubTourStep(1), {
+            key: "tour-next", aria: this.tr("UI_TourNext"), tip: this.tr("UI_TourNext"),
+            locked: i === total - 1 ? this.tr("UI_TourNext") : undefined,
+        }));
+        wrap.appendChild(nav);
+        return wrap;
+    }
+
+    // ---- template gallery ----
+
+    private hubTemplatesPage(): HTMLElement {
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "hub-templates");
+        const intro = document.createElement("div");
+        intro.style.cssText = `color:${C.soft};max-width:${this.k(640)}px;margin-bottom:${this.kpx(8)};`;
+        intro.textContent = this.tr("UI_TplIntro");
+        wrap.appendChild(intro);
+        // without bound fields the pick is stored and takes effect when fields arrive
+        if (!this.hubHasStatement()) {
+            const note = document.createElement("div");
+            note.setAttribute("data-pnl", "hub-tpl-note");
+            note.style.cssText = `margin-bottom:${this.kpx(10)};padding:${this.kpx(6)} ${this.kpx(10)};` +
+                `border:1px dashed ${C.ctlEdge};border-radius:6px;background:${C.wash};color:${C.text};font-weight:600;`;
+            note.textContent = this.hubSaved != null
+                ? this.tr("UI_TplSaved", this.tplCode(this.hubSaved))
+                : this.tr("UI_TplNoFields");
+            wrap.appendChild(note);
+        }
+        const active = this.megaPending ? this.megaPending.applied : String(this.settings.columnsCard.template.value.value);
+        const avail = this.hubAvail();
+        const gap = this.k(12);
+        const minTile = this.k(210);
+        const cols = Math.max(1, Math.floor((avail + gap) / (minTile + gap)));
+        const tileW = Math.floor((avail - gap * (cols - 1)) / cols);
+        const pad = this.k(8);
+        const grid = document.createElement("div");
+        grid.setAttribute("data-pnl", "hub-tpl-grid");
+        grid.style.cssText = `display:grid;grid-template-columns:repeat(${cols},${tileW}px);gap:${gap}px;`;
+        for (const tpl of HUB_TEMPLATES) {
+            grid.appendChild(this.hubTemplateTile(tpl, tileW, pad, tpl === active));
+        }
+        wrap.appendChild(grid);
+        return wrap;
+    }
+
+    /** "T04B" from the pane label "T04B · statement …"; the classic table has no code */
+    private tplCode(tpl: string): string {
+        if (tpl === "off") { return this.tr("UI_TplOff"); }
+        const full = this.trOpt("Enum_Template_" + tpl) ?? tpl;
+        const i = full.indexOf(" · ");
+        return i > 0 ? full.slice(0, i) : full;
+    }
+
+    private hubTemplateTile(tpl: string, tileW: number, pad: number, active: boolean): HTMLElement {
+        const full = tpl === "off" ? "" : (this.trOpt("Enum_Template_" + tpl) ?? tpl);
+        const cut = full.indexOf(" · ");
+        const code = this.tplCode(tpl);
+        const desc = cut > 0 ? full.slice(cut + 3) : "";
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("data-pnl", "tpl-" + tpl);
+        b.setAttribute("data-active", active ? "1" : "0");
+        b.setAttribute("aria-pressed", active ? "true" : "false");
+        b.setAttribute("aria-label", this.tr("UI_TplPick", code + (desc ? " " + desc : "")));
+        b.title = desc || code;
+        this.kbRing(b);
+        const acc = this.accent();
+        const edge = active ? acc : C.cardEdge;
+        b.style.cssText = `display:flex;flex-direction:column;gap:${this.kpx(6)};text-align:left;font-family:${FONT};` +
+            `color:${C.text};background:${C.paper};border:${active ? 2 : 1}px solid ${edge};border-radius:8px;` +
+            `padding:${active ? pad - 1 : pad}px;width:${tileW}px;box-sizing:border-box;cursor:pointer;` +
+            `box-shadow:${C.shadow};transition:${TRANSITION};`;
+        const spec: MiniSpec = { view: "table", tpl, level: 2, w: 1100, h: 640, fc: templateNeedsFc(tpl) };
+        b.appendChild(this.hubMini(spec, tileW - 2 * pad - 2));
+        const cap = document.createElement("div");
+        cap.style.cssText = "display:flex;flex-direction:column;gap:2px;min-width:0;";
+        const head = document.createElement("div");
+        head.style.cssText = "display:flex;align-items:baseline;gap:8px;";
+        const c = document.createElement("span");
+        c.textContent = code;
+        c.style.cssText = `font-size:${this.kpx(12)};font-weight:700;`;
+        head.appendChild(c);
+        if (active) {
+            const a = document.createElement("span");
+            a.setAttribute("data-pnl", "tpl-active");
+            a.textContent = "✓ " + this.tr("UI_TplActive");
+            a.style.cssText = `font-size:${this.kpx(9.5)};font-weight:700;color:${acc};letter-spacing:.04em;`;
+            head.appendChild(a);
+        }
+        cap.appendChild(head);
+        if (desc) {
+            const d = document.createElement("span");
+            d.textContent = desc;
+            d.style.cssText = `font-size:${this.kpx(10)};color:${C.soft};line-height:1.35;`;
+            cap.appendChild(d);
+        }
+        if (tpl !== "off" && templateNeedsFc(tpl)) {
+            const f = document.createElement("span");
+            f.textContent = this.tr("UI_TplFcNote");
+            f.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};font-style:italic;`;
+            cap.appendChild(f);
+        }
+        b.appendChild(cap);
+        b.onmouseenter = (): void => { if (!active) { b.style.borderColor = acc; } b.style.boxShadow = C.shadowHover; };
+        b.onmouseleave = (): void => { b.style.borderColor = edge; b.style.boxShadow = C.shadow; };
+        b.onclick = (e: Event): void => { e.stopPropagation(); this.hubPickTemplate(tpl); };
+        return b;
+    }
+
+    /**
+     * Gallery click: the same write as the toolbar dropdown (template, every
+     * switch and templateApplied in ONE persist) — and always, also for the
+     * template that is already set, so a click restores its state. With a
+     * statement under the overlay the view becomes the table and the overlay
+     * closes on the result; without fields the pick is stored and shown as saved.
+     */
+    private hubPickTemplate(tpl: string): void {
+        if (!MEGA_PRESETS[tpl]) { return; }
+        this.megaSliceSet("template", tpl);
+        this.applyMegaTemplate(tpl, true);
+        if (this.hubHasStatement()) {
+            // templates shape the table view — a click in another view brings the table along
+            if (this.ui && this.ui.view !== "table") { this.ui.view = "table"; this.persistUi(); }
+            this.closeHub(true);
+            this.rerender();
+            return;
+        }
+        this.hubSaved = tpl;
+        this.hubFocusKey = "tpl-" + tpl;
+        this.hubRefresh();
+    }
+
+    // ---- demo page (overlay only; without a statement the demo is the visual's own Smart Start) ----
+
+    private hubDemoPage(): HTMLElement {
+        const host = this.hubHost();
+        const w = Math.max(300, (host.clientWidth || this.vpW) - 2 * this.k(18));
+        const h = Math.max(220, (host.clientHeight || this.vpH) - this.k(76));
+        const box = document.createElement("div");
+        box.setAttribute("data-pnl", "hub-demo");
+        box.style.cssText = `position:relative;width:${w}px;height:${h}px;border:1px solid ${C.ctlEdge};border-radius:4px;overflow:hidden;`;
+        this.hubMinis.push(() => this.hubRunMini(box, { view: "table", level: 2, w, h, full: true }));
+        return box;
+    }
+
+    // ---- overlay ----
+
+    private hubOpenButton(): HTMLElement {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("data-pnl", "hub-open");
+        b.setAttribute("aria-haspopup", "dialog");
+        b.textContent = this.tr("UI_HubOpen");
+        b.title = this.tr("UI_HubOpenTip");
+        this.kbRing(b);
+        // quiet: no frame until hovered — the toolbar's own groups keep the eye
+        b.style.cssText = `margin-left:auto;font-family:${FONT};font-size:${this.kpx(10.5)};line-height:1.35;` +
+            `padding:${this.kpx(3.5)} ${this.kpx(8)};cursor:pointer;border-radius:4px;color:${C.soft};` +
+            `background:transparent;border:1px solid transparent;transition:${TRANSITION};`;
+        b.onmouseenter = (): void => { b.style.background = C.ctlHover; b.style.borderColor = C.ctlEdge; b.style.color = C.text; };
+        b.onmouseleave = (): void => { b.style.background = "transparent"; b.style.borderColor = "transparent"; b.style.color = C.soft; };
+        b.onclick = (e: Event): void => { e.stopPropagation(); this.openHub(); };
+        return b;
+    }
+
+    /** open the hub as a layer above the statement (edit mode); the statement underneath stays untouched */
+    private openHub(): void {
+        if (this.hubOverlay || !this.editMode()) { return; }
+        const parent = this.root.parentElement;
+        if (!parent) { return; }
+        this.hubPage = "hub"; this.hubSaved = null;
+        if (getComputedStyle(parent).position === "static") { parent.style.position = "relative"; this.hubParentFixed = true; }
+        const ov = document.createElement("div");
+        ov.setAttribute("data-pnl", "hub-overlay");
+        ov.setAttribute("role", "dialog");
+        ov.setAttribute("aria-modal", "true");
+        ov.setAttribute("aria-label", this.tr("UI_HubTitle"));
+        ov.style.cssText = `position:absolute;left:0;top:0;right:0;bottom:0;z-index:200;overflow:auto;box-sizing:border-box;` +
+            `font-family:${FONT};`;
+        ov.addEventListener("click", (e: Event) => e.stopPropagation());
+        ov.addEventListener("contextmenu", (e: Event) => e.stopPropagation());
+        parent.appendChild(ov);
+        this.hubOverlay = ov;
+        this.hubFocusKey = "hub-close";
+        this.hubRefresh();
+    }
+
+    /** close the layer; the statement below is exactly as it was. `refocus` puts the focus back on "☰ Start" */
+    private closeHub(refocus: boolean): void {
+        const ov = this.hubOverlay;
+        if (!ov) { return; }
+        this.hubOverlay = null;
+        ov.remove();
+        const parent = this.root.parentElement;
+        if (parent && this.hubParentFixed) { parent.style.position = ""; }
+        this.hubParentFixed = false;
+        this.hubPage = "hub";
+        if (refocus) {
+            const b = this.root.querySelector<HTMLElement>('[data-pnl="hub-open"]');
+            if (b) { b.focus(); }
+        }
     }
 
     private renderLanding(): void {
@@ -2331,7 +3007,7 @@ export class Visual implements IVisual {
         head.style.cssText = `background:${this.pageBg()};box-sizing:border-box;` +
             "border-bottom:1px solid transparent;transition:box-shadow .12s ease,border-color .12s ease;" +
             (this.sticky() ? "position:sticky;top:0;z-index:30;" : "");
-        if (this.demo) { head.appendChild(this.buildDemoBanner()); }
+        if (this.demo && !this.miniQuiet()) { head.appendChild(this.buildDemoBanner()); }
         if (this.settings.titleCard.show.value) { head.appendChild(this.buildTitle(fmt)); }
         // an export prints no buttons nobody can press (the legend stays: it explains the notation)
         if (this.settings.toolbarCard.show.value && !this.exporting()) { head.appendChild(this.buildToolbar()); }
@@ -2843,9 +3519,38 @@ export class Visual implements IVisual {
         this.kbRing(sel as unknown as HTMLElement);
         sel.onclick = (e: Event): void => { e.stopPropagation(); };
         sel.onchange = (): void => { this.pickTemplate(sel.value); };
-        const g = this.tbGroup(this.tr("UI_TbTemplate"), [sel]);
+        // 1.3 "back to the template": the switches left the template's state —
+        // one click writes the template again (a native dropdown cannot pick the
+        // template that is already selected, so this is the way to re-apply it)
+        const parts: HTMLElement[] = [sel];
+        const dev = this.templateDeviation();
+        if (dev) {
+            const b = this.tbBtn(this.tr("UI_TbTplReset"), false, () => { /* replaced below */ },
+                this.tr("UI_TbTplResetTip", dev));
+            b.setAttribute("data-pnl", "tb-template-reset");
+            b.onclick = (e: Event): void => { e.stopPropagation(); this.pickTemplate(dev); };
+            parts.push(b);
+        }
+        const g = this.tbGroup(this.tr("UI_TbTemplate"), parts);
         g.setAttribute("data-pnl", "tb-template-group");
         return g;
+    }
+
+    /**
+     * The template the switches have left: the code of the set template when at
+     * least one of its switches (columns card, title headline) differs from the
+     * preset, else null. The number format is part of the restored state but
+     * does not count as a deviation (decimals are a taste, not a switch).
+     */
+    private templateDeviation(): string | null {
+        const tpl = String(this.settings.columnsCard.template.value.value);
+        if (tpl === "off" || !MEGA_PRESETS[tpl]) { return null; }
+        const sw = templateSwitches(tpl);
+        for (const [k, v] of Object.entries(sw.cols)) {
+            if (!this.megaSliceIs(k, v)) { return tpl; }
+        }
+        if (sw.title.headline != null && this.settings.titleCard.headline.value !== sw.title.headline) { return tpl; }
+        return null;
     }
 
     /** toolbar template pick: the pane dropdown, its switches and templateApplied in one write */
@@ -3101,6 +3806,8 @@ export class Visual implements IVisual {
             this.tbBtn(this.tr("UI_TbHideZero"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
             this.tbBtn(this.tr("UI_TbFit"), ui.fit, () => { ui.fit = !ui.fit; }, this.tr("UI_TbFitTip")),
         ])); }
+        // 1.3 the Start hub as an overlay — an authoring aid, edit mode only
+        if (this.editMode() && !this.miniSpec) { bar.appendChild(this.hubOpenButton()); }
         return bar;
     }
 
@@ -6899,26 +7606,15 @@ export class Visual implements IVisual {
     }
 
     private applyMegaTemplate(tpl: string, picked = false): void {
-        const p = MEGA_PRESETS[tpl];
+        const sw = templateSwitches(tpl);
         const cols: Record<string, boolean | string> = {
             // toolbar pick (1.2): the dropdown itself travels in the same write
             // and under the same pending guard as the switches
             ...(picked ? { template: tpl } : {}),
-            minuend: p.min.toLowerCase(),
-            showPY: p.showPY, showPL: p.showPL, showMinuend: p.showMin, valueCascade: p.valueCascade,
-            dPyAbs: p.dPyAbs, dPyBar: p.dPyBar, dPyWaterfall: p.dPyWf, dPyPct: p.dPyPct, dPyPin: p.dPyPin,
-            dPlAbs: p.dPlAbs, dPlBar: p.dPlBar, dPlWaterfall: p.dPlWf, dPlPct: p.dPlPct, dPlPin: p.dPlPin,
-            secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, showPctRows: p.showPctRows,
-            thresholds: p.thresholds, scenarioMarks: p.scenarioMarks, chartLabels: p.chartLabels,
-            capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock,
-            // every template is laid out in its period block (YTD; 12G: FY outlook),
-            // or month | that block with the second block
-            blockKind: p.blockKind, leftBlockKind: "month",
+            ...sw.cols,
         };
-        // "off" returns to the classic table and leaves the number format alone
-        const nums: Record<string, number> = tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: p.pctDecimals };
-        // 12G / 12H switch the headline slot on; the other templates leave it alone
-        const title: Record<string, boolean> = p.headline ? { headline: true } : {};
+        const nums = sw.nums;
+        const title = sw.title;
         for (const [k, v] of Object.entries(cols)) { this.megaSliceSet(k, v); }
         const nc = this.settings.numbersCard;
         if (nums.decimals != null) { nc.decimals.value = nums.decimals; }

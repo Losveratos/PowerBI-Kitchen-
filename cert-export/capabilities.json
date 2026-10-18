@@ -531,6 +531,7 @@
                 "mode": {
                     "type": {
                         "enumeration": [
+                            { "value": "hub", "displayName": "Start-Hub (Tour, Vorlagen, Demo, Felder)" },
                             { "value": "demo", "displayName": "Demo-Galerie (Chart-Typ wählen)" },
                             { "value": "fields", "displayName": "Feld-Intro (welches Feld wohin)" },
                             { "value": "message", "displayName": "Eigene Nachricht (Titel / Text unten)" }
