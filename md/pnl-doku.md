@@ -6,24 +6,26 @@ Power-BI-Visual · Enddokumentation
 
 Das IBCS-inspirierte GuV-Visual für Power BI: ein Statement direkt aus deiner Kontendimension — als klassische Tabelle oder als Mega-Table mit den IBCS-Templates T01–T04, 12A, 12G und 12H, dazu Struktur-Bars, Zeilen-Waterfall, Werttreiberbaum und Kachel-Zoom. Diese Dokumentation führt vom Import über Datenmodell, Ansichten und Templates bis zur vollständigen Einstellungs-Referenz.
 
-Version · **1.2.0.0** · Stand · **2026-10-17** · IBCS-inspired
+Version · **1.4.1.0** · Stand · **2026-10-18** · IBCS-inspired
 
 ## Inhalt
 
 1. [Was ist das Visual?](#intro)
-2. [Schnellstart & Import](#quickstart)
-3. [Datenmodell & Rollen](#data)
-4. [Die Ansichten](#views)
-5. [IBCS-Templates](#templates)
-6. [Einstellungs-Referenz](#settings)
-7. [Interaktion](#interaction)
-8. [Abweichungen von den IBCS-Blättern](#deviations)
-9. [Troubleshooting](#faq)
-10. [Versionshinweis 1.2.0.0](#version)
+2. [Die Produktfamilie](#family)
+3. [Der Start-Hub](#hub)
+4. [Schnellstart & Import](#quickstart)
+5. [Datenmodell & Rollen](#data)
+6. [Die Ansichten](#views)
+7. [IBCS-Templates](#templates)
+8. [Einstellungs-Referenz](#settings)
+9. [Interaktion](#interaction)
+10. [Abweichungen von den IBCS-Blättern](#deviations)
+11. [Troubleshooting](#faq)
+12. [Versionshinweis 1.4.1.0](#version)
 
 ## 01 · Was ist das Visual?
 
-**P&L Statement byDatenWG** ist ein eigenständiges Power-BI-Custom-Visual für die Gewinn- und Verlustrechnung und jede andere Kontenhierarchie — das Schwester-Visual von [ChartKitchen](../chartkitchen-doku.html). Es liest die Hierarchie aus deiner Dimensionstabelle (Sternschema-Ebenen L1..Ln oder Parent-Child), rechnet Zwischensummen, Formel- und Margenzeilen selbst und zeigt die Szenarien **AC** (Ist), **PY** (Vorjahr), **PL** (Plan) und **FC** (Forecast) mit ihren Abweichungen.
+**P&L Statement byDatenWG** ist ein eigenständiges Power-BI-Custom-Visual für die Gewinn- und Verlustrechnung und jede andere Kontenhierarchie — das Schwester-Visual von [ChartKitchen](../chartkitchen-doku.html); beide bilden eine Produktfamilie mit gemeinsamer Notation und Bedienung (Kapitel 02). Es liest die Hierarchie aus deiner Dimensionstabelle (Sternschema-Ebenen L1..Ln oder Parent-Child), rechnet Zwischensummen, Formel- und Margenzeilen selbst und zeigt die Szenarien **AC** (Ist), **PY** (Vorjahr), **PL** (Plan) und **FC** (Forecast) mit ihren Abweichungen.
 
 Aus *einer* Datenbindung entstehen vier Ansichten, umgeschaltet in der Toolbar über dem Statement — Leser brauchen dafür keinen Formatbereich:
 
@@ -32,36 +34,158 @@ Aus *einer* Datenbindung entstehen vier Ansichten, umgeschaltet in der Toolbar �
 - **Struktur-Bars und Zeilen-Waterfall:** dieselben Zeilen als Größenbalken gegen die Referenz bzw. als Kaskade, in der die Ergebniszeilen auf der Nulllinie ankern.
 - **Werttreiberbaum mit Kacheln:** der Formel-Graph als DuPont-Baum (oder, ohne Formelzeilen, die reine Hierarchie) mit Mini-Charts auf jeder Karte; ein Klick öffnet die Kachel-Ansicht des Knotens mit Kombi-Chart, Szenario-Grid und Treibern.
 
-Die Notation folgt den **IBCS®-Prinzipien**: AC ausgefüllt in Dunkelgrau (#404040), PY grau, PL weiß mit Rahmen, FC schraffiert; Beschriftungen außen mit explizitem „+“, eine identische Skala je Δ-Spalte über alle Zeilen, Margenzeilen mit Δ in Prozentpunkten, keine Gitterlinien. Die Oberfläche spricht Deutsch, Englisch, Spanisch und Japanisch (sie folgt der Berichtssprache), kennt einen Dunkelmodus und zeigt beim Hineinziehen eine Demo-GuV. Das Visual macht keine externen Aufrufe, speichert nichts außerhalb des Berichts und sendet keine Telemetrie.
+Die Notation folgt den **IBCS®-Prinzipien**: AC ausgefüllt in Dunkelgrau (#404040), PY grau, PL weiß mit Rahmen, FC schraffiert; Beschriftungen außen mit explizitem „+“, eine identische Skala je Δ-Spalte über alle Zeilen, Margenzeilen mit Δ in Prozentpunkten, keine Gitterlinien. Die Oberfläche spricht Deutsch, Englisch, Spanisch und Japanisch (sie folgt der Berichtssprache), kennt einen Dunkelmodus und Hochkontrast und begrüßt Autoren beim Hineinziehen mit einem Start-Hub (Kapitel 03). Das Visual macht keine externen Aufrufe, speichert nichts außerhalb des Berichts und sendet keine Telemetrie.
 
 > **Dokumentierte Abweichung: Teal statt Grün.** Günstige Abweichungen sind standardmäßig Teal (#0E8585), ungünstige Rot (#E02B1D) — statt des IBCS-Grüns #8CB400 / Rot #FF2600. So bleiben die Abweichungen bei Rot-Grün-Sehschwäche lesbar; Legende und Fußzeile nennen die Abweichung. Umschaltbar unter Stil → Abweichungsfarben (IBCS-Grün klassisch) oder per Abweichungsfarben-Preset Blau / Orange (ColorBrewer #2C7BB6 / #E66101, auch ohne Farbsehen und im Schwarzweiß-Druck unterscheidbar). Im Dunkelmodus gilt das ChartKitchen-Paar #3FB3C2 / #E4635F.
 
-Diese Anleitung beschreibt den Stand der Version **1.2.0.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft.
+Diese Anleitung beschreibt den Stand der Version **1.4.1.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft. Neu seit 1.2: der Start-Hub (Kapitel 03) mit Template-Galerie nach Zweck, „🚀 Loslegen“, Schriftgrößen-Leiste HD · Full HD · UHD und Doku-Knopf, ☰ Start als erster Toolbar-Knopf, „↺ Zum Template zurück“ samt Wiederanwenden und die ruhige Landing-Karte für Leser.
 
-## 02 · Schnellstart & Import
+## 02 · Die Produktfamilie
+
+ChartKitchen und P&L Statement sind zwei Visuals aus einer Küche: dieselbe IBCS-Notation, dieselbe Bedienung, derselbe Start-Hub. Sie konkurrieren nicht, sie ergänzen sich — ChartKitchen deckt die **Breite** der Diagrammformen ab, P&L Statement die **Tiefe** der Ergebnisrechnung.
+
+### Wofür welches Visual?
+
+Breite · 13 Chart-Modi
+
+#### ChartKitchen byDatenWG
+
+Ein Visual für jede Frage nach Verlauf, Struktur und Zusammenhang — „Wie entwickelt sich …?“, „Wer treibt …?“.
+
+- **Zeitreihen:** Säulen und Linie, die integrierte Brücke PY → AC über die Monate, Forecast schraffiert, YTD per Klick.
+- **Strukturen:** Balken, Kategorie-Brücke, Pareto, Dumbbell und Slope, dazu IBCS-Tabelle und Matrix.
+- **Scatter & Bubble:** zwei Kennzahlen gegeneinander, mit Quadranten, Trendlinie, Bewegungspfeilen und Play-Modus.
+- **KPI-Karten:** Monitoring-Kacheln mit Ampel, Bullet gegen Benchmark und Trend-Sparkline.
+- **Small Multiples:** eine Kachel je Region oder Produkt, alle auf derselben Skala, mit Σ- und Top-N-Kachel.
+
+[Zur ChartKitchen-Doku →](../chartkitchen-doku.html#family)
+
+Tiefe · Tabellen & Statements
+
+#### P&L Statement byDatenWG
+
+Die Ergebnisrechnung Zeile für Zeile — „Was steht in der GuV, und warum weicht sie ab?“.
+
+- **Mega-Table:** die IBCS-Tabellen-Templates T01–T04 sowie 12A, 12G und 12H — Wert-Kaskaden, Δ-Wasserfälle, Pins, Schwellen.
+- **Formel-Engine:** Hierarchie, Zwischensummen, Formel- und Margenzeilen direkt aus der Kontendimension (Ebenen-Spalten oder Parent-Child).
+- **Werttreiberbaum:** der Formel-Graph als DuPont-Baum mit Mini-Charts auf jeder Karte und Kachel-Zoom je Knoten.
+- **Perioden-Blöcke:** Monat · YTD · FY-Ausblick nebeneinander; Leser schalten Spalten, Referenz und Einheit in der Toolbar.
+- **Struktur-Bars & Zeilen-Waterfall:** dieselben GuV-Zeilen als Größenbalken oder als Kaskade mit Ergebnisankern.
+
+✓ Diese Dokumentation
+
+> **Die typische Berichtsseite nutzt beide nebeneinander** — links die GuV aus P&L Statement, rechts ChartKitchen mit Monatsverlauf, Treiber-Brücke oder KPI-Karten. Mit `fixedMax` teilen sie den Maßstab: denselben Betrag in ChartKitchen unter *Skala & Referenzlinie → Skalen-Mindest-Maximum* und im P&L Statement unter *Zahlen → Skalen-Mindestmaximum (Werte)* eintragen — gleiche Beträge ergeben dann gleich lange Balken (IBCS: identische Skalen).
+
+### Gemeinsame Bedienung
+
+Wer eines der beiden Visuals bedienen kann, kann auch das andere: Einstieg, Vorlagen und Darstellung folgen einer gemeinsamen Spezifikation. Die Tabelle nennt, was gleich ist, und wo es im jeweiligen Visual sitzt.
+
+| Gemeinsam | ChartKitchen | P&L Statement |
+| --- | --- | --- |
+| **Start-Hub** 🚀 Loslegen plus vier Knöpfe: Tour · Vorlagen-Galerie · Demo · Felder erklären — nur im Bearbeitungsmodus. | Tour mit 11 Karten, Demo = Galerie der 13 Chart-Typen, Feld-Intro mit allen 19 Rollen. | Tour mit 7 Karten (echte Mini-Renderings), Demo = Beispiel-GuV, Feld-Intro mit allen 20 Rollen. |
+| **Vorlagen als Presets** Galerie nach Zweck; ein Klick setzt alle Schalter, danach ist alles frei. „↺ Zum Template zurück“ stellt den Vorlagen-Stand wieder her. | 11 IBCS-Chart-Vorlagen C01–C13 (ohne C07/C11) in vier Gruppen; ↺ unten links im Chart. | 17 IBCS-Tabellen-Templates T01A–12H plus klassische Tabelle in vier Gruppen; ↺ neben dem Template-Dropdown. |
+| **Schriftgröße HD · Full HD · UHD** Leiste unten auf jeder Hub-Seite, rechts daneben „📖 Doku öffnen“. | Speichert *Datenbeschriftungen → Größen-Preset* (im Formatbereich Kompakt · Full HD · Präsentation; ×1 · ×1,5 · ×2). | Speichert *Stil → Schriftgrößen-Preset* (HD · Full HD · UHD; ×1 · ×1,25 · ×1,6). |
+| **IBCS-Notation, Teal als Standard** AC voll, PY grau, PL Rahmen, FC schraffiert; günstige Abweichungen Teal statt Grün — lesbar bei Rot-Grün-Schwäche. | Teal #1E8F9E · Rot #D64541; Farbpreset Blau/Orange. | Teal #0E8585 · Rot #E02B1D; Presets IBCS-Grün und Blau/Orange. |
+| **Vier Sprachen** Deutsch, Englisch, Spanisch, Japanisch — folgt der Berichtssprache, auch im Hub. | Formatbereich, Chart-Texte und Hub. | Formatbereich, Toolbar, Statement und Hub. |
+| **Dark Mode & Hochkontrast** „Auto“ erkennt dunkle Berichts-Themes; im Hochkontrast tragen Muster statt Farben die Aussage. | *IBCS-Farben → Erscheinungsbild*. | *Stil → Erscheinungsbild*. |
+| **Tastatur** Alle Knöpfe per Tab, Enter oder Leertaste lösen aus, Esc geht eine Ebene zurück bzw. schließt. | Tour: ‹ ›, Pfeiltasten, Pos1/Ende. | Hub: Ziffern 1–4 öffnen die Knöpfe; Tour: ‹ › und Pfeiltasten. |
+| **Leser-Landing** Ohne Daten sehen Leser und Exporte eine ruhige Karte ohne Knöpfe; der eigene Leer-Zustand-Text gewinnt. | Seit 1.51.1. | Seit 1.4.1. |
+
+## 03 · Der Start-Hub
+
+Wer das P&L Statement leer auf die Berichtsseite zieht, sieht seit 1.3 keine Demo-Tabelle mehr, sondern den **Start-Hub** — erst entdecken, dann Felder binden. Seit 1.4 ist er auf den Self-Service von Controllern zugeschnitten, seit 1.4.1 sieht er aus wie im Schwester-Visual ChartKitchen. Der Hub ist ein Werkzeug für Autoren: Er erscheint nur im Bearbeitungsmodus, solange Felder fehlen — oder auf Knopfdruck über ☰ Start. Die Navigation im Hub ist lokaler Zustand; gespeichert wird davon nichts.
+
+### Die Startseite: Loslegen und vier Knöpfe
+
+Oben steht der Produktname mit dem Untertitel „Entdecke das Visual, bevor du Felder bindest — oder leg gleich los.“, darunter über die volle Breite der Teal-Knopf **🚀 Loslegen** und vier große Kacheln. Die Ziffern 1–4 öffnen die Kacheln direkt.
+
+- **Was kann das Visual?** — eine Tour in 7 Karten: GuV als Tabelle, Mega-Table mit IBCS-Templates, Werttreiberbaum, Struktur-Balken, Zeilen-Waterfall, Kacheln, Dunkel & Hochkontrast. Jede Karte zeigt ein echtes, verkleinertes Rendering des Visuals über der eingebauten Demo — keine Bilder. Blättern mit ‹ › oder den Pfeiltasten.
+- **Templates** — die Template-Galerie nach Zweck (siehe unten).
+- **Demo ansehen** — die Beispiel-GuV mit Pharma-Daten (Smart Start), auf der Ansichten, Toolbar und Templates schon funktionieren.
+- **Felder erklären** — alle 20 Datenrollen in vier Gruppen („Pflicht · Struktur und Ist“, „Szenarien und Zeit“, „Statement-Logik“, „Extras“), je mit einem Satz Zweck und ✓, sobald gebunden. Dazu zwei Prämissen: *IBCS-Notation* (AC voll · PY grau · PL Rahmen bzw. Doppellinie · FC schraffiert; Regel „Minuend → Füllung, Referenz → Achse“) und *Struktur vs. Zeit* (Konten laufen vertikal in Zeilen, die Zeit horizontal in Blöcken Monat | _YTD | FY).
+
+Jede Unterseite und Ebene trägt oben links die Pille **„← Zurück“**; Esc geht eine Ebene zurück, der Fokus kehrt auf die Kachel bzw. den Loslegen-Knopf zurück. Alles sind native Buttons (Tab · Enter · Leertaste); Dark Mode und Hochkontrast gelten auch im Hub.
+
+### Die Template-Galerie nach Zweck
+
+18 Kacheln — die klassische Tabelle und die 17 IBCS-Templates (Kapitel 07) — stehen in vier Gruppen, jede mit einem Satz Zweck. Jede Kachel trägt einen Finance-Titel, eine Nutzen-Zeile und die T-Nummer als kleines Badge auf der Vorschau; Templates, die den Forecast analysieren, zeigen eine Vorschau mit simuliertem FC.
+
+| Gruppe | Template | Kachel-Titel | Nutzen-Zeile |
+| --- | --- | --- | --- |
+| **Struktur-Vergleich** Regionen, Produkte, Kostenstellen nebeneinander — wer liegt über, wer unter Plan? | T01A | Regionen mit Plan-Abweichung | Werte und Δ als Zahlen, Monat \| YTD; Schwellen färben Ausreißer rot. |
+|  | T01B | Regionen mit Zwischensummen | Wie T01A, gegliedert in Zwischensummen-Blöcke je Bereich — für Konzern- und Segmentsichten. |
+|  | T02A | Plan-Abweichung als Balken | ΔPL-Balken und -Pins: welcher Bereich über, welcher unter Plan liegt — auf einen Blick. |
+|  | T02B | Ranking nach Ist (YTD) | T02A nach AC sortiert: die größten Bereiche oben — für Top-/Flop-Listen. |
+|  | T02C | Ranking nach Abweichung (Monat) | T02A nach Δ des Monats sortiert: die größten Baustellen zuerst — für die Monatsbesprechung. |
+| **Forecast** Die Erwartungsrechnung (FC) gegen Plan und Vorjahr — schraffiert nach IBCS. | T02E | Forecast gegen Vorjahr | FC schraffiert, ΔPY-Balken und -Pins, nach Abweichung sortiert — wächst der Bereich? |
+|  | T02F | Forecast gegen Plan | Landet der Bereich im Budget? ΔPL-Balken und -Pins zum Forecast, größte Lücken zuerst. |
+|  | T03B | Forecast-GuV mit Δ zu Vorjahr und Plan | Die Erwartungsrechnung als Statement: PY · PL · FC und beide Abweichungen als Zahlen. |
+|  | T04D | Forecast-GuV mit Plan-Wasserfall | Wie der Forecast vom Plan zum Ergebnis kommt: ΔPL-Wasserfall Zeile für Zeile. |
+|  | T04E | Forecast-GuV mit Vorjahres-Wasserfall | Was treibt das erwartete Ergebnis gegenüber dem Vorjahr? ΔPY-Wasserfall mit Pins. |
+| **GuV-Statement** Die Ergebnisrechnung Zeile für Zeile — Abweichungen als Zahl, Balken oder Wasserfall. | T03A | GuV mit Abweichung zu Vorjahr und Plan | Das Standard-Statement für den Monatsbericht: PY · PL · AC, ΔPY und ΔPL als Zahlen. |
+|  | T04A | GuV mit Plan-Abweichungsbalken | Jede Zeile mit ΔPL-Balken und -Pins — Kosten- und Erlösabweichungen werden sichtbar. |
+|  | T04B | GuV mit Δ-Wasserfall | Vom Plan- zum Ist-Ergebnis: der integrierte ΔPL-Wasserfall zeigt, was jede Zeile beiträgt. |
+|  | T04C | GuV mit Vorjahres-Wasserfall | Die Ergebnisbrücke zum Vorjahr: ΔPY-Wasserfall auf grauer Achse, Pins für Δ %. |
+| **Report-Ansichten** Kaskaden, Jahresausblick, Planrechnung — und die klassische Tabelle. | 12A | Wert-Kaskaden Vorjahr und Ist | PY- und AC-Kaskade nebeneinander, ΔPY-Balken und -Pins — die Ergebnisrechnung als Bild. |
+|  | 12G | Jahresausblick (FY) | Ist + Forecast als Gesamtjahr gegen Vorjahr: YTD voll, Restjahr schraffiert, mit Headline. |
+|  | 12H | Planrechnung gegen Vorjahr | Für die Budgetrunde: PL umrandet gegen Vorjahr, Abweichungen blass getönt, Headline-Slot. |
+|  | Aus | Klassische GuV-Tabelle | Spalten-Presets, Sparklines und Perioden-Blöcke — Leser schalten selbst in der Toolbar. |
+
+- **Klick = anwenden.** Die Kachel schreibt dasselbe wie das Toolbar-Dropdown: Template, alle Schalter, Dezimalstellen und gegebenenfalls den Headline-Slot in einem Speichervorgang. Die aktive Kachel trägt „✓ aktiv“, einen Akzentrahmen und getönten Grund; ein erneuter Klick wendet das Template noch einmal an.
+- **Ohne Felder** wird die Wahl gespeichert („Gespeichert: T03A — wird aktiv, sobald Felder gebunden sind.“) und greift beim Binden.
+- **Im Overlay** (über ☰ Start) wendet ein Klick das Template an, stellt die Ansicht Tabelle ein — auch aus Balken, Waterfall oder Baum — und schließt das Overlay auf dem Ergebnis.
+
+### 🚀 Loslegen — die ersten drei Minuten
+
+Drei Schritte von leeren Feldbereichen zur fertigen GuV: eine geführte Checkliste, deren Häkchen live mitgehen. Gespeichert wird davon nichts.
+
+1. **Felder binden** — der schnelle Weg zuerst. Pflicht: Ebenen-Spalten L1..Ln (oder Konto-ID + Parent-ID) und AC. Empfohlen: PY und/oder PL (Abweichungen), Periode (Blöcke Monat | YTD) sowie Zeilentyp + Rechenvorzeichen (Ergebnis- und Margenzeilen). „Alle Felder erklärt →“ springt ins Feld-Intro.
+2. **Template wählen** — zeigt den Stand („Gewählt: …“ oder noch die klassische Tabelle) und springt mit „Zur Template-Galerie →“ in die Galerie.
+3. **Feinschliff** — im Formatbereich, in dieser Reihenfolge: Hausbegriffe (Szenario-Begriffe → AC = „Ist“, PL = „Budget“), Schwellen (Spalten & Mega-Table → Δ rot unter Schwelle · Wesentlichkeit ab) und Dezimalen (Zahlen → Dezimalstellen) — mit ✓, sobald gesetzt.
+
+### Die untere Leiste: Schriftgröße und Doku
+
+Eine feste Leiste schließt jede Hub-Seite ab — Startseite, Loslegen, Tour, Galerie, Demo, Felder und alle Seiten im Overlay:
+
+- **Aa · HD · Full HD · UHD** — die drei Pillen schreiben *Stil → Schriftgrößen-Preset* (×1 · ×1,25 · ×1,6), die aktive ist Teal gefüllt; daneben der Hinweis „Schriftgröße — HD für Laptops · Full HD für Monitore · UHD für Beamer & 4K“, der als Einziges bei Platzmangel weicht. Ein Klick speichert und zeichnet sofort neu — im Overlay auch die GuV darunter.
+- **📖 Doku öffnen** — rechts als umrandete Pille: öffnet diese Seite im Browser (bei deutscher Berichtssprache diese Fassung, sonst die englische). Das ist der einzige Aufruf nach außen — nur auf Klick und nur im Bearbeitungsmodus.
+- Darunter steht mittig die Signatur „made by Daten-WG“.
+
+### Mit Daten: ☰ Start und ↺ Zum Template zurück
+
+- **☰ Start** ist im Bearbeitungsmodus das *erste* Element der Toolbar — vor der Template-Auswahl, mit Akzentrahmen und fetter Schrift. Er öffnet den Hub als Overlay über der GuV; „✕ Schließen“ oder Esc entfernt die Schicht, die Ansicht darunter ist exakt wie zuvor (samt Scroll-Position), der Fokus kehrt auf den Knopf zurück. Wechselt der Host in die Leseansicht, schließt sich das Overlay.
+- **↺ Zum Template zurück** steht neben dem Template-Dropdown (Bearbeitungsmodus, Ansicht Tabelle), sobald ein Template gesetzt ist und mindestens ein Template-Schalter (Spalten, Headline) abweicht. Ein Klick stellt den Template-Stand wieder her — alle Schalter und Dezimalstellen. Geänderte Dezimalstellen allein gelten nicht als Abweichung.
+
+### Was Leser sehen
+
+Leser, PDF-Export und Abos sehen nie Hub, Overlay oder Leiste. Ohne Daten zeigt das Visual ihnen seit 1.4.1 eine ruhige **Landing-Karte**: den Produktnamen fett, darunter „Dieses Visual hat noch keine Daten — Felder werden im Bearbeitungsmodus gebunden.“ und eine statische Reihe aus drei Chart-Schemata — keine Buttons, keine Pillen, kein Doku-Link. Ein eigener Leer-Zustand-Text des Autors gewinnt weiterhin. Dieselbe Regel gilt in ChartKitchen.
+
+> Es geht auch ohne Hub: *Leer-Zustand → Solange Felder fehlen (Bearbeitungsmodus)* bietet die Demo-GuV (Smart Start), das Feld-Intro oder eine eigene Nachricht (Kapitel 08). Berichte, die `demo` oder `fields` gespeichert haben, ändern sich nicht. Visuals unter 300 × 220 px zeigen auch beim Bearbeiten nur den Hinweistext statt des Hubs.
+
+## 04 · Schnellstart & Import
 
 ### 1 · Visual importieren
 
-1. Lade die Datei [`pnlByDatenWG…1.2.0.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.2.0.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
+1. Lade die Datei [`pnlByDatenWG…1.4.1.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.4.1.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
 2. In Power BI Desktop: *Visualisierungen* → *⋯* → *Visual aus einer Datei importieren* und die `.pbiviz` wählen. Eine ältere Version wird dabei ersetzt.
-3. Das Visual großzügig aufziehen (mindestens etwa 1200 × 800 px) — Toolbar und zwei Spaltenblöcke brauchen Breite. Frisch auf der Seite zeigt es eine **Demo-GuV** (Smart Start), auf der Ansichten, Toolbar und Templates schon funktionieren.
+3. Das Visual großzügig aufziehen (mindestens etwa 1200 × 800 px) — Toolbar und zwei Spaltenblöcke brauchen Breite. Frisch auf der Seite zeigt es im Bearbeitungsmodus den **Start-Hub** (Kapitel 03): „🚀 Loslegen“ führt mit Häkchen durch Felder, Template und Feinschliff, „Demo ansehen“ öffnet die Beispiel-GuV, auf der Ansichten, Toolbar und Templates schon funktionieren.
 
 ### 2 · Minimal-Setup
 
 1. Ziehe die Ebenen deiner Hierarchie in **Ebenen-Spalten (L1..Ln)** — in der Reihenfolge von oben nach unten. Alternative: **Konto-ID (Key)** + **Parent-Konto-ID**.
-2. Binde deine Hauptkennzahl an **AC (Ist)**. Sobald AC und eine Hierarchie gebunden sind, verschwindet die Demo und das Statement erscheint.
+2. Binde deine Hauptkennzahl an **AC (Ist)**. Sobald AC und eine Hierarchie gebunden sind, verschwindet der Start-Hub und das Statement erscheint.
 3. Stelle alle Gruppierungsfelder auf **„Nicht zusammenfassen“** — sonst aggregiert Power BI sie und das Visual bekommt leere Werte.
 
 ### 3 · Ausbau
 
 1. **PY · PL · FC** binden — jedes gebundene Szenario schaltet seine Δ-Spalten frei.
 2. **Periode (Monat)** binden — für Monats- und YTD-Block, Sparklines und Monatskarten.
-3. Für eine echte GuV: **Zeilentyp**, **Formeldefinition** und das **Vorzeichen-Trio** (Kapitel 03); für den Ganzjahres-Ausblick **FC Gesamtjahr** und **PL Gesamtjahr** als `MAX`-Measures.
-4. Optional ein IBCS-Template wählen: im Bearbeitungsmodus das Dropdown **Template** ganz links in der Toolbar (Ansicht Tabelle) oder Formatbereich → *Spalten & Mega-Table* → *Template* (Kapitel 05).
+3. Für eine echte GuV: **Zeilentyp**, **Formeldefinition** und das **Vorzeichen-Trio** (Kapitel 05); für den Ganzjahres-Ausblick **FC Gesamtjahr** und **PL Gesamtjahr** als `MAX`-Measures.
+4. Optional ein IBCS-Template wählen: per Klick in der Template-Galerie des Start-Hubs (☰ Start), im Bearbeitungsmodus über das Dropdown **Template** gleich nach ☰ Start in der Toolbar (Ansicht Tabelle) oder über Formatbereich → *Spalten & Mega-Table* → *Template* (Kapitel 07).
 
 > Beide Wege Schritt für Schritt — die normale Hierarchie in zwei Minuten und die volle GuV mit Formelzeilen —, eine Beispiel-Kontendimension und die Pharma-Demodaten zum Mitspielen stehen auf der [Schnellstart-Seite](../pnl-schnellstart.html).
 
-## 03 · Datenmodell & Rollen
+## 05 · Datenmodell & Rollen
 
 Das Visual braucht eine Kontendimension — eine Zeile je GuV-Zeile — und eine Faktentabelle mit den Measures. Für die Hierarchie gibt es zwei voll unterstützte Eingabemodi:
 
@@ -77,7 +201,7 @@ Je Rolle höchstens ein Feld, die Ebenen-Spalten höchstens acht. Das Visual lie
 | Feldrolle | Typ | Wofür |
 | --- | --- | --- |
 | Ebenen-Spalten (L1..Ln) | Gruppierung · bis 8 | Sternschema-Hierarchie in Ziehreihenfolge — der primäre Modus. Ragged-Regeln siehe oben. |
-| Konto-ID (Key) | Gruppierung | Eindeutiger, stabiler Kontoschlüssel. Pflicht im Parent-Child-Modus, im Ebenen-Modus optional (Blatt-ID). Basis der Selektion und des Drillthroughs. Ohne Ebenen-Spalten und Konto-ID zeigt das Visual den Leer-Zustand (Demo). |
+| Konto-ID (Key) | Gruppierung | Eindeutiger, stabiler Kontoschlüssel. Pflicht im Parent-Child-Modus, im Ebenen-Modus optional (Blatt-ID). Basis der Selektion und des Drillthroughs. Ohne Ebenen-Spalten und Konto-ID zeigt das Visual den Leer-Zustand (im Bearbeitungsmodus den Start-Hub). |
 | Kontoname | Gruppierung | Anzeigename der Zeile. Ohne Feld zeigt das Visual die Konto-ID bzw. im Ebenen-Modus den Text der letzten gefüllten Ebene. |
 | Parent-Konto-ID | Gruppierung | Parent-Child-Verknüpfung; unbalancierte Hierarchien sind erlaubt. Gewinnt, wenn zusätzlich Ebenen-Spalten gebunden sind. |
 | AC (Ist) | Kennzahl · Pflicht | Ist-Wert — die zentrale Kennzahl, ausgefüllt gezeichnet. |
@@ -117,7 +241,7 @@ Ein Feld wie Segment oder Quartal in **Spalten-Kategorie** lässt die klassische
 
 > **DAX-Regeln, an denen Modelle scheitern:** FY-Measures mit `MAX` statt `SUM` (die Jahreswerte stehen auf jeder Monatszeile); ein Berichtsjahr filtern, sonst summieren AC/PY/PL/FC über Jahre; Measures, die für nicht existierende Konto-/Perioden-Kombinationen einen Wert liefern (`COALESCE(x, 0)`, `+0`), erzeugen Geisterzeilen — Wächter-Muster `IF(COUNTROWS('Fakt') > 0, …)`. Zeitintelligenz, Währungsumrechnung und Row-Level Security bleiben im Modell: das Visual verrechnet ausschließlich die gelieferten Daten.
 
-## 04 · Die Ansichten
+## 06 · Die Ansichten
 
 Die Toolbar-Gruppe *Ansicht* schaltet zwischen Tabelle, Balken, Wasserfall und Baum. Der Mega-Table ist keine eigene Ansicht, sondern ein Modus der Tabellen-Ansicht; die Kachel-Ansicht öffnet sich aus dem Baum. Die gewählte Ansicht ist ein Leser-Zustand und wird mit dem Bericht und in Lesezeichen gespeichert.
 
@@ -145,11 +269,12 @@ Der Ergebnisbaum als DuPont-Graph: Wurzel ist die letzte Formel-/KPI-Zeile mit O
 
 Ein Klick auf das Diagramm einer Baum-Karte zoomt den Knoten auf die ganze Fläche: Kombi-Chart aus Monatssäulen (Referenz versetzt hinter AC) und Brücke, darunter das Szenario-Grid, daneben die Mikro-Karten „Zahlt ein auf“ und „Getrieben von“ (bei vielen Treibern blätterbar). Die Seite passt sich in den Viewport ein — das Diagramm ist das elastische Element, das Grid wird bei knapper Höhe kompakter. „← Zurück zum Baum“ und die Breadcrumb führen heraus; „↗ Drill“ setzt die Selektion des Knotens und öffnet das Kontextmenü mit den Drillthrough-Zielen in einem Griff. Quotenzeilen (Margen) zeigen keine Brücke, weil Prozente nicht additiv sind. In der Toolbar bleiben nur Δ-Referenz und Einheit.
 
-## 05 · IBCS-Templates
+## 07 · IBCS-Templates
 
 Der Mega-Table stellt die offiziellen IBCS-Templates T01A–T04E sowie die Report-Varianten 12A, 12G und 12H nach. Ein Template ist nur ein **Preset**: Es setzt alle Schalter der Gruppe Mega-Table und die Dezimalstellen (12G und 12H zusätzlich den Headline-Slot) in *einem* Speichervorgang — danach ist jeder Schalter frei, du kannst jedes Element einzeln ein- und ausblenden. Templates wirken nur in der Ansicht *Tabelle*; *Aus (klassische Tabelle)* stellt alle Mega-Schalter zurück.
 
-- **Toolbar (seit 1.2, am schnellsten):** Im Bearbeitungsmodus steht ganz links das Dropdown *Template* (nur Ansicht Tabelle). Es schreibt dieselben Einstellungen wie der Formatbereich; Leser und Export sehen es nie. Abschaltbar über Darstellung & Toolbar → *Template-Auswahl im Bearbeitungsmodus*.
+- **Template-Galerie (seit 1.3, am anschaulichsten):** Im Start-Hub bzw. über ☰ Start stehen alle Templates als Kacheln mit Vorschau, nach Zweck gruppiert (Kapitel 03); ein Klick wendet an, auch erneut.
+- **Toolbar (seit 1.2, am schnellsten):** Im Bearbeitungsmodus steht gleich nach ☰ Start das Dropdown *Template* (nur Ansicht Tabelle). Es schreibt dieselben Einstellungen wie der Formatbereich; Leser und Export sehen es nie. Abschaltbar über Darstellung & Toolbar → *Template-Auswahl im Bearbeitungsmodus*.
 - **Formatbereich:** Karte *Spalten & Mega-Table* → erste Gruppe *Mega-Table (IBCS-Templates)* → *Template (IBCS-Tabelle)*.
 
 > **Szenario-Regel (eine Regel für alle Elemente):** Der **Minuend** — das analysierte Szenario — bestimmt die **Füllung**: AC voll, FC schraffiert, PL umrandet mit blass getönten Δ-Elementen (Planrechnung). Die **Referenz** bestimmt die **Achse**: PY = graue Achse, PL = Doppellinie. Dieselbe Kennung steht als Unterstreichung unter den Spaltenköpfen (AC voll, PY grau, PL doppelt, FC schraffiert). Im FY-Block ist der Minuend AC&FC — überwiegend Forecast, deshalb sind dessen Δ-Elemente schraffiert.
@@ -176,9 +301,9 @@ Der Mega-Table stellt die offiziellen IBCS-Templates T01A–T04E sowie die Repor
 
 Für alle Templates gilt: Szenario-Unterstreichungen und Zahlen an Balken / Pins / Kaskaden an, Ausreißer-Pfeile für Δ-Balken aus, Perioden-Block YTD (außer 12G: FY), zweiter Block links = Monat; nicht genannte Schalter stehen aus. Der zweite Perioden-Block braucht das Periodenfeld — ohne Periode fallen „Monat“ und der zweite Block still auf einen YTD-Block zurück, ohne FC Gesamtjahr fällt FY auf YTD zurück.
 
-> Dasselbe Template ein zweites Mal zu wählen wendet es nicht erneut an — kurz ein anderes Template wählen und zurück (auch im Toolbar-Dropdown). Wer Berichte per PBIR schreibt, setzt `columns.template` und `columns.templateApplied` auf denselben Wert, sonst wendet das Visual das Template beim ersten Rendern an und überschreibt die mitgeschriebenen Schalter (siehe [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)). Die Referenzblätter im Vergleich: [TEMPLATE-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/TEMPLATE-GUIDE.md) und der HTML-Prototyp `pnlByDatenWG/prototype/megatable.html`.
+> Dasselbe Template erneut anwenden geht seit 1.3: ein Klick auf die aktive Kachel der Galerie oder „↺ Zum Template zurück“ neben dem Toolbar-Dropdown stellt den Template-Stand wieder her — das native Dropdown selbst kann einen schon gewählten Eintrag nicht noch einmal melden. Wer Berichte per PBIR schreibt, setzt `columns.template` und `columns.templateApplied` auf denselben Wert, sonst wendet das Visual das Template beim ersten Rendern an und überschreibt die mitgeschriebenen Schalter (siehe [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)). Die Referenzblätter im Vergleich: [TEMPLATE-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/TEMPLATE-GUIDE.md) und der HTML-Prototyp `pnlByDatenWG/prototype/megatable.html`.
 
-## 06 · Einstellungs-Referenz
+## 08 · Einstellungs-Referenz
 
 Der Formatbereich hat acht Karten in dieser Reihenfolge: **Spalten & Mega-Table** → **Darstellung & Toolbar** → **Zahlen** → **Szenario-Begriffe** → **Stil** → **Titelblock** → **Hierarchie** → **Leer-Zustand**. Die Tabellen listen alle Einstellungen mit Optionen und Standardwert; die Namen entsprechen der deutschen Oberfläche.
 
@@ -279,7 +404,7 @@ Was Leser über dem Statement sehen und selbst umschalten dürfen. Eine ausgeble
 | Gruppe: Optionen | % vom Umsatz, Nullzeilen ausblenden, auf Breite einpassen. | An / Aus · Standard An |
 | Gruppe: Szenario (Mega-Table) | Leser schalten das analysierte Szenario AC / FC und die Referenz-Sicht ΔPY · ΔPL · beide des Mega-Tables um. | An / Aus · Standard Aus |
 | Gruppe: Wertspalten (Szenarien einzeln) | Leser kombinieren die Wertspalten frei — AC, PY, PL, FC und Δ gegen die Δ-Referenz (klassische Tabelle), analysiertes Szenario · PY · PL (Mega-Table). Die Spalten-Presets bleiben als Schnellwahl. | An / Aus · Standard Aus |
-| Template-Auswahl im Bearbeitungsmodus | Kompaktes Template-Dropdown am Anfang der Toolbar, solange du den Bericht bearbeitest (Ansicht Tabelle). Leser und Export sehen es nie. | An / Aus · Standard An |
+| Template-Auswahl im Bearbeitungsmodus | Kompaktes Template-Dropdown vorn in der Toolbar, direkt nach ☰ Start, solange du den Bericht bearbeitest (Ansicht Tabelle). Leser und Export sehen es nie. | An / Aus · Standard An |
 
 ### Zahlen
 
@@ -324,7 +449,7 @@ Hausbegriffe für AC, PY, PL und FC — etwa „Ist“, „VJ“ oder „Budget�
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
-| Schriftgrößen-Preset | Skaliert alle Beschriftungen auf einmal: HD ×1 · Full HD ×1,25 · UHD ×1,6. | Optionen: HD (kompakt) \| Full HD \| UHD / Präsentation · Standard „HD (kompakt)“ |
+| Schriftgrößen-Preset | Skaliert alle Beschriftungen auf einmal: HD ×1 · Full HD ×1,25 · UHD ×1,6. Seit 1.4 auch über die Leiste HD · Full HD · UHD unten im Start-Hub; seit 1.4.1 heißen die Einträge auch im Formatbereich nur noch HD, Full HD und UHD (gespeicherte Werte `hd` · `fullhd` · `uhd` unverändert). | Optionen: HD \| Full HD \| UHD · Standard „HD“ |
 | Schrift-Feinskalierung (%) | Zusätzlich zum Preset (100 = Preset unverändert). Das Produkt aus Preset und Feinskalierung ist bei 2,2 gedeckelt. | 80–160 · Standard 100 |
 | Schriftgröße Kopfzeilen (px, 0 = automatisch) | 0 = automatisch (eingebaute Größen), sonst 7–20 px; wirkt auch auf die Köpfe des Mega-Tables. | 0–20 · Standard 0 |
 | Schriftfarbe Kopfzeilen (Überschreibung) | Leer = eingebautes weiches Grau. | Farbe · Standard leer |
@@ -364,17 +489,17 @@ Der dreizeilige IBCS-Titel (Berichtseinheit · Kennzahl + Einheit · Zeitraum + 
 
 ### Leer-Zustand
 
-Was das Visual zeigt, wenn nichts darzustellen ist. Demo und Feld-Intro erscheinen nur im Bearbeitungsmodus; Leser, PDF-Export und Abos sehen immer den Standardtext oder die eigene Nachricht, nie Demo-Zahlen.
+Was das Visual zeigt, wenn nichts darzustellen ist. Start-Hub, Demo und Feld-Intro erscheinen nur im Bearbeitungsmodus; Leser, PDF-Export und Abos sehen die ruhige Landing-Karte (seit 1.4.1) oder die eigene Nachricht, nie Demo-Zahlen.
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
-| Solange Felder fehlen (Bearbeitungsmodus) | Demo = Beispiel-GuV (Smart Start) · Feld-Intro = welches Feld wohin, minimal und im Ausbau, mit ✓ für gebundene Rollen · Eigene Nachricht = Titel und Text darunter. Umschalten auch per Knopf direkt im Leer-Zustand („Felder erklären“ / „Demo ansehen“). | Optionen: Demo-GuV (Smart Start) \| Feld-Intro (welches Feld wohin) \| Eigene Nachricht (Titel / Text darunter) · Standard „Demo-GuV (Smart Start)“ |
+| Solange Felder fehlen (Bearbeitungsmodus) | Start-Hub = große Knöpfe für Loslegen, Feature-Tour, Template-Galerie, Demo und Feld-Intro, unten HD · Full HD · UHD und die Doku (Kapitel 03; Standard seit 1.3) · Demo = Beispiel-GuV (Smart Start) · Feld-Intro = welches Feld wohin, minimal und im Ausbau, mit ✓ für gebundene Rollen · Eigene Nachricht = Titel und Text darunter. Umschalten auch per Knopf direkt im Leer-Zustand („Felder erklären“ / „Demo ansehen“). | Optionen: Start-Hub (Tour, Templates, Demo, Felder) \| Demo-GuV (Smart Start) \| Feld-Intro (welches Feld wohin) \| Eigene Nachricht (Titel / Text darunter) · Standard „Start-Hub (Tour, Templates, Demo, Felder)“ |
 | Eigener Titel | Ersetzt die Überschrift, wenn nichts dargestellt wird (im Lesemodus keine Felder gebunden oder Auswahl ohne Zeilen). Leer = Standardtext. | Text · Standard leer |
 | Eigener Text | Textkörper unter dem Titel im Leer-Zustand — z. B. ein Hinweis, welche Filter der Leser prüfen soll. Leer = Standardtext. | Text · Standard leer |
 
 > Zwei Properties stehen nicht im Formatbereich: `columns.templateApplied` (zuletzt angewendetes Template, Echo-Guard) und `state.uiState` (der Leser-Zustand der Toolbar als JSON, lesezeichenfähig). Property-Namen, Typen und das Schema für das PBIR-Authoring stehen im [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md).
 
-## 07 · Interaktion
+## 09 · Interaktion
 
 ### Toolbar
 
@@ -382,7 +507,9 @@ Die Toolbar über dem Statement zeigt je Ansicht nur die Gruppen, die dort etwas
 
 | Gruppe | Wann sichtbar | Was sie schaltet |
 | --- | --- | --- |
+| ☰ Start | Bearbeitungsmodus, immer als erstes Element | Öffnet den Start-Hub als Overlay: Loslegen, Tour, Templates, Demo, Felder, Doku (Kapitel 03). |
 | Template | Bearbeitungsmodus, Ansicht Tabelle | Dropdown aller IBCS-Templates; schreibt Template und Schalter in einem Speichervorgang. |
+| ↺ Zum Template zurück | Bearbeitungsmodus, Ansicht Tabelle, sobald ein Template-Schalter abweicht | Stellt alle Schalter und Dezimalstellen des gewählten Templates wieder her. |
 | Ansicht | immer, außer in der Kachel-Ansicht | Tabelle · Balken · Wasserfall · Baum. |
 | Spalten-Preset | klassische Tabelle | Die sechs Presets als Schnellwahl. |
 | Wertspalten | klassische Tabelle oder Mega-Table, mit „Gruppe: Wertspalten“ | Klassisch: AC · PY · PL · FC · ΔRef als einzelne Knöpfe. Mega-Table: analysiertes Szenario · PY · PL. |
@@ -427,9 +554,9 @@ In Tabelle, Mega-Table, Balken und Waterfall zeigen Zeilen, Zellen, Balken, Pins
 
 ### Tastatur
 
-Toolbar-Knöpfe und die Auf-/Zuklapp-Elemente der Zeilen sind per `Tab` erreichbar; `Enter` oder `Leertaste` löst aus bzw. klappt auf und zu. Der Fokus ist als Ring sichtbar — auch auf nachgezeichneten Zeilen langer Mega-Tables.
+Toolbar-Knöpfe und die Auf-/Zuklapp-Elemente der Zeilen sind per `Tab` erreichbar; `Enter` oder `Leertaste` löst aus bzw. klappt auf und zu. Der Fokus ist als Ring sichtbar — auch auf nachgezeichneten Zeilen langer Mega-Tables. Im Start-Hub öffnen die Ziffern 1–4 die vier Kacheln, ‹ › und die Pfeiltasten blättern die Tour, Esc geht eine Ebene zurück bzw. schließt das Overlay.
 
-## 08 · Bekannte Abweichungen von den IBCS-Blättern
+## 10 · Bekannte Abweichungen von den IBCS-Blättern
 
 Das Visual stellt die Referenzblätter so genau wie möglich nach, baut aber deren Inkonsistenzen und Druckfehler bewusst nicht nach. Vier Abweichungen sind dokumentiert (vollständig in [SPEC-MEGATABLE.md](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/SPEC-MEGATABLE.md), Abschnitt „Bewusst offen / Abweichungen“):
 
@@ -440,7 +567,7 @@ Das Visual stellt die Referenzblätter so genau wie möglich nach, baut aber der
 
 Davon unabhängig ist die Teal-Farbgebung eine bewusste, dokumentierte Abweichung (Kapitel 01).
 
-## 09 · Troubleshooting
+## 11 · Troubleshooting
 
 ### Buttons wirken „tot“.
 
@@ -456,7 +583,15 @@ Schwellen gelten in **Anzeige-Einheiten**, also nach der k/m-Skalierung — −2
 
 ### Dasselbe Template noch einmal gewählt — nichts passiert.
 
-Das gleiche Template erneut zu wählen wendet es nicht neu an. Kurz ein anderes Template wählen und zurück, auch im Toolbar-Dropdown.
+Ein natives Dropdown kann den schon gewählten Eintrag nicht erneut melden. Seit 1.3 wendet ein Klick auf die aktive Kachel der Template-Galerie (Start-Hub bzw. ☰ Start) das Template erneut an; weichen Schalter ab, stellt „↺ Zum Template zurück“ neben dem Dropdown den Template-Stand wieder her.
+
+### Statt der Demo-GuV erscheint ein Start-Hub.
+
+Seit 1.3 der Standard für Autoren (Kapitel 03); die Demo-GuV steckt hinter „Demo ansehen“. Wer sie direkt sehen will, stellt Leer-Zustand → *Solange Felder fehlen* auf „Demo-GuV (Smart Start)“. Leser und Exporte sehen den Hub nie.
+
+### Sehen Leser „☰ Start“ oder „↺ Zum Template zurück“?
+
+Nein. ☰ Start, die Template-Auswahl und ↺ erscheinen nur im Bearbeitungsmodus; Leser, Export und Abos sehen sie nie.
 
 ### In der Toolbar fehlt das Template-Dropdown.
 
@@ -492,12 +627,15 @@ Ein Parent- oder Ebenen-Pfad zeigt ins Leere. Das ist ein gewolltes Datenqualit�
 
 ### Die Kosten erscheinen günstig, obwohl sie über Plan liegen.
 
-Die Kostenzeile trägt Rechenvorzeichen `-1` *und* Abweichungsfarbe drehen = `true` — die beiden Mechanismen heben sich auf. Bei `-1` die Abweichungsfarbe nicht zusätzlich drehen (Kapitel 03).
+Die Kostenzeile trägt Rechenvorzeichen `-1` *und* Abweichungsfarbe drehen = `true` — die beiden Mechanismen heben sich auf. Bei `-1` die Abweichungsfarbe nicht zusätzlich drehen (Kapitel 05).
 
-## 10 · Versionshinweis 1.2.0.0
+## 12 · Versionshinweis 1.4.1.0
 
-Diese Dokumentation beschreibt **Version 1.2.0.0** vom 17.10.2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). Das Visual ist nicht im Microsoft AppSource gelistet und damit nicht von Microsoft zertifiziert. Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind seit 1.0 stabil; jede neue Einstellung steht per Standard aus oder verhält sich wie bisher.
+Diese Dokumentation beschreibt **Version 1.4.1.0** vom 18.10.2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). Das Visual ist nicht im Microsoft AppSource gelistet und damit nicht von Microsoft zertifiziert. Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind seit 1.0 stabil; jede neue Einstellung steht per Standard aus oder verhält sich wie bisher. Einzige Standard-Änderung seit 1.2: Im Bearbeitungsmodus ohne Felder erscheint der Start-Hub statt der Demo-GuV.
 
+- **1.4.1.0 — Familien-Hub:** ein Look mit dem Schwester-Visual ChartKitchen — untere Leiste mit HD · Full HD · UHD und „📖 Doku öffnen“, „← Zurück“ als Pille, Loslegen in Teal über die volle Breite, Galerie-Gruppen als Eyebrow; Preset-Namen HD · Full HD · UHD auch im Formatbereich; ruhige Landing-Karte für Leser und Exporte ohne Daten.
+- **1.4.0.0 — Hub-Polish für Controller:** Template-Galerie nach Zweck (vier Gruppen, Finance-Titel, Nutzen-Zeile), „🚀 Loslegen“-Checkliste, Feld-Intro mit allen 20 Rollen und zwei Prämissen, Schriftgrößen-Leiste und Doku-Knopf auf jeder Hub-Seite, „← Zurück“ überall, ☰ Start als erstes Toolbar-Element.
+- **1.3.0.0 — Start-Hub:** vier Knöpfe statt Demo-Tabelle (Tour, Templates, Demo, Felder), ☰ Start als Overlay über der GuV, Template erneut anwenden, „↺ Zum Template zurück“.
 - **1.2.0.0 — Ease of Use:** Wertspalten frei kombinieren (Preset „Eigene Auswahl“, Toolbar-Gruppe Wertspalten, auch im Mega-Table), Template-Auswahl in der Toolbar, Template-Gruppe zuerst im Formatbereich, Leer-Zustand mit Feld-Intro, Feldliste in gewohnter Reihenfolge, Balken-Ansicht wie ChartKitchen (überlappt, Dreiecke), Spalten-Kategorie.
 - **1.1.0.0:** 12G, 12H und Headline-Slot, Skalen-Sync, Blau/Orange, Virtualisierung langer Mega-Tables; Finance-Handwerk aus ChartKitchen (Tooltips, Σ-treue Rundung, Klammern, Mrd., Hausbegriffe, Auto-Botschaft, Fußzeilen, Hervorheben, Wesentlichkeit, Leser-Szenario, Leer-Zustand, Tastatur); Block-Arten Monat · YTD · FY.
 - **1.0.1.0:** Toolbar-Knöpfe wirken in jeder Ansicht, gesperrte Knöpfe mit Tooltip, Formatbereich-Vorgaben gewinnen nach Änderung, Echo-Guard für den Toolbar-Zustand.
@@ -506,11 +644,13 @@ Diese Dokumentation beschreibt **Version 1.2.0.0** vom 17.10.2026 (GUID `pnlByDa
 
 Die vollständige Versionshistorie steht im [CHANGELOG](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md).
 
-**P&L Statement byDatenWG** · Version 1.2.0.0
+**P&L Statement byDatenWG** · Version 1.4.1.0
+
+Schwester-Visual: [ChartKitchen byDatenWG – Dokumentation](../chartkitchen-doku.html)
 
 Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
-Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html) · Download: [.pbiviz 1.2.0.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.2.0.0.pbiviz) · Quellcode und Änderungsprotokoll: [pnlByDatenWG im Repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · Für KI-Agenten: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
+Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html) · Download: [.pbiviz 1.4.1.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.4.1.0.pbiviz) · Quellcode und Änderungsprotokoll: [pnlByDatenWG im Repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · Für KI-Agenten: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
 
 > Notation nach den IBCS®-Standards 1.2 der IBCS Association (CC BY-SA 4.0, ibcs.com). Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke der HICHERT+FAISST GmbH. Dieses Visual ist nicht von der IBCS Association zertifiziert und steht in keiner Verbindung zu ihr.
 
