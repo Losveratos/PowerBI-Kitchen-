@@ -577,7 +577,7 @@
   "Hub_TplNeeds": "braucht das Feld: {0}",
   "Hub_TplActive": "aktiv — Klick wendet sie erneut an",
   "Tpl_Reset": "↺ Zum Template zurück",
-  "Tpl_ResetTip": "Einstellungen weichen von Vorlage {0} ab — Klick stellt den Vorlagen-Stand wieder her (alles andere bleibt)",
+  "Tpl_ResetTip": "Einstellungen weichen von Vorlage {0} ab — Klick stellt den Vorlagen-Stand wieder her (alles andere bleibt). Änderungen behalten? Vorlage im Formatbereich auf „Aus“ stellen.",
   "Tour_1_T": "13 Chart-Modi · Zeitreihen",
   "Tour_1_B": "Säulen für Monate und Quartale, Linie für lange Reihen (Wochen, Tage) — AC solide, PY grau, PL umrandet, FC schraffiert, wie IBCS es vorsieht.",
   "Tour_2_T": "13 Chart-Modi · Struktur",

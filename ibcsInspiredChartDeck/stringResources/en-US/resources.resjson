@@ -577,7 +577,7 @@
   "Hub_TplNeeds": "needs the field: {0}",
   "Hub_TplActive": "active — click applies it again",
   "Tpl_Reset": "↺ Back to template",
-  "Tpl_ResetTip": "Settings differ from template {0} — click to restore the template state (everything else stays)",
+  "Tpl_ResetTip": "Settings differ from template {0} — click to restore the template state (everything else stays). Keeping your changes? Set the template to “Off” in the format pane.",
   "Tour_1_T": "13 chart modes · time series",
   "Tour_1_B": "Columns for months and quarters, line for long series (weeks, days) — AC solid, PY grey, PL outlined, FC hatched, as IBCS prescribes.",
   "Tour_2_T": "13 chart modes · structure",

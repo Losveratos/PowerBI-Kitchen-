@@ -170,7 +170,8 @@ in **einem** Visual löst:
   High-Contrast-Modus (nur Vorder-/Hintergrundfarbe, Unterscheidung über Outlines/Muster)
 - Wertelabels mit Halo, kompakte Einheiten (k/M/B, auto), Hover-Feedback,
   Tooltips (AC/FC/PY/PL/ΔBasis/ΔBasis %), Cross-Filtering per Klick (Strg = Mehrfachauswahl),
-  Kontextmenü (Rechtsklick), Landing Page bei leeren Feldern
+  Kontextmenü (Rechtsklick), Start-Hub bei leeren Feldern (Feature-Tour,
+  IBCS-Vorlagen-Galerie, Demo, Feld-Intro; ab 1.50 auch per „☰ Start“ im Bearbeitungsmodus)
 
 ## Installation in Power BI
 

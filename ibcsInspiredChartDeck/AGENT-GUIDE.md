@@ -8,7 +8,7 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.49.0.0** (17.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.50.0.0** (18.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -63,7 +63,30 @@ Geisterzeilen/Kreuzprodukte. Wächter-Muster:
 | KPI-Kacheln | `cards` | category + actual |
 | Pareto / Dumbbell / Slope | `pareto` / `dumbbell` / `slope` | category + actual (+ Basis) |
 
-## Settings-Referenz (aus capabilities.json generiert, 1.49.0.0)
+## Settings-Referenz (aus capabilities.json generiert, 1.50.0.0)
+
+**Neu in 1.50:** Start-Hub. (1) `emptyState.mode` hat den neuen Wert und
+Default **`hub`**: Leer-Zustand im Bearbeitungsmodus = vier Knöpfe „Was kann
+das Visual?“ (Feature-Tour, 11 Karten) · „Templates“ (Vorlagen-Galerie C01–C13
+mit Mini-Vorschau) · „Demo ansehen“ (die bisherige Galerie) · „Felder
+erklären“ (Feld-Intro); Unterseiten mit „← Zurück“/Esc. Navigation ist
+Sitzungszustand und persistiert NICHTS. `demo` (= Verhalten bis 1.49),
+`fields`, `message` unverändert; Leser (`viewMode` 0) und Exporte
+(`allowInteractions` false) sehen nie den Hub. Für PBIR: wer die alte
+Galerie will, setzt `emptyState.mode = "demo"`. (2) **Galerie-Klick** schreibt
+in EINEM Merge `chart.template` + `templateApplied` + das Preset (wie das
+Dropdown; `template` ist im Echo-Guard mitgeführt, ein stale Update mit altem
+Dropdown-Wert kippt nichts) — auch für die bereits aktive Vorlage
+(= Re-Apply). Ohne Felder wird gespeichert und greift beim Binden. (3) Mit
+gebundenen Daten im Bearbeitungsmodus (`viewMode` ≥ 1, interaktiv) liegt
+unten links eine HTML-Chip-Leiste (`data-icd="chip-bar"`): **„☰ Start“**
+(`hub-chip`, sichtbar bei Hover/Fokus) öffnet den Hub als Overlay-SVG
+(`hub-overlay`) über dem nur verborgenen Chart; Schließen zeigt ihn
+unverändert, außer im Overlay wurde etwas umgestellt (dann ein Re-Render).
+**„↺ Zum Template zurück“** (`tpl-reset`) erscheint, wenn `chart.template`
+gesetzt ist und eine Preset-Property abweicht; Klick = ein Merge mit Preset +
+`templateApplied`. Ohne gemeldeten `viewMode` keine Chips. 601 resjson-Keys
+je Sprache. Tests c220–c229.
 
 **Neu in 1.49:** Sechs Muster aus dem P&L-Visual. (1) **IBCS-Chart-Vorlagen**
 `chart.template` (erste Position der Chart-Karte; `off` · `C01`…`C06` ·
@@ -169,7 +192,7 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 
 | Property | Typ | Werte |
 | --- | --- | --- |
-| `template` | enum | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C08` · `C09` · `C10` · `C12` · `C13` — IBCS-Vorlage (ab 1.49, Mapping oben) |
+| `template` | enum | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C08` · `C09` · `C10` · `C12` · `C13` — IBCS-Vorlage (ab 1.49, Mapping oben; ab 1.50 auch per Hub-Galerie, Re-Apply per Galerie-Klick oder ↺-Chip) |
 | `templateApplied` | text (persistiert) | zuletzt angewandte Vorlage (Echo-Guard; `off` = keine) |
 | `orientation` | enum | `columns` · `bars` · `line` · `waterfall` · `intwaterfall` · `catbridge` · `table` · `pareto` · `dumbbell` · `slope` · `scatter` · `cards` · `pnl` |
 | `pnlView` | text (persistiert) | `ac` · `acfc` · `pl` |
@@ -255,7 +278,7 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 
 | Property | Typ | Werte |
 | --- | --- | --- |
-| `mode` | enum | `demo` (Default, Galerie wie bisher) · `fields` (Feld-Intro mit ✓ an gebundenen Rollen) · `message` (eigene Nachricht) — ab 1.49, nur Bearbeitungsmodus; Leser/Export unverändert |
+| `mode` | enum | `hub` (Default ab 1.50: Start-Hub mit Tour · Vorlagen · Demo · Felder) · `demo` (Galerie, Default bis 1.49) · `fields` (Feld-Intro mit ✓ an gebundenen Rollen) · `message` (eigene Nachricht) — ab 1.49, nur Bearbeitungsmodus; Leser/Export sehen immer Galerie bzw. eigene Nachricht |
 | `title` | text | Eigener Titel im Leer-Zustand — ersetzt „ChartKitchen byDatenWG" |
 | `body` | text | Eigener Text darunter (Wortumbruch). Gesetzt + Lesemodus → NUR Titel+Text, keine Modus-Galerie; im Edit-Modus bleibt die Galerie mit den eigenen Texten als Header |
 
@@ -320,7 +343,7 @@ Persistierte Zustände (Sortierung, aufgeklappte Zeilen, Spaltenbreiten,
 GuV-Sicht) sind normale Properties — ein Agent kann sie **vorkonfigurieren**,
 statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
 
-## Bekannte Fallen (Stand 1.49)
+## Bekannte Fallen (Stand 1.50)
 
 1. **Import bei gleicher GUID:** Nach „Visual aus Datei importieren" kann die
    laufende Sandbox-Instanz eingefroren weiterlaufen (reagiert nicht auf
@@ -359,6 +382,15 @@ statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
    bleibt im Code für den Harness erhalten, erhält von Power BI aber keine
    Daten mehr. Die EIGENE Selektion im Visual (Klick auf Balken) dimmt
    weiterhin lokal (selectionManager, unabhängig von dieser Einstellung).
+9. **Dieselbe Vorlage im Dropdown erneut wählen (ab 1.50 entschärft):** Ein
+   natives Dropdown meldet die Wahl des schon gewählten Eintrags nicht — das
+   Visual bekommt kein Update. Re-Apply daher über die Hub-Galerie (Klick auf
+   die aktive Kachel) oder den Chip „↺ Zum Template zurück“. Per PBIR:
+   `templateApplied` entfernen (oder ≠ `template` setzen) — dann wird
+   `template` beim nächsten Rendern einmal angewandt.
+10. **Start-Hub im Harness/Agent-Screenshot:** Ohne `viewMode` behandelt der
+   Leer-Zustand den Host als Bearbeitungsmodus (Hub sichtbar), die Chips über
+   gebundenen Charts erscheinen dagegen nur bei gemeldetem `viewMode` ≥ 1.
 
 ## Verwandte Dateien
 
@@ -367,4 +399,4 @@ statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
 - `CHANGELOG.md` / `BACKLOG.md` — was sich geändert hat / was fehlt
 - `.claude/skills/chartkitchen-report/` — Claude-Skill mit Report-Blaupausen
   (Monitoring · Monatsreport · Sales-Analyse) und Referenz-Instanz-Workflow
-- `test/test.html` — rund 240 Render-Cases (c1–c219 inkl. Varianten) als lebende Beispiele jeder Funktion
+- `test/test.html` — rund 270 Render-Cases (c1–c229 inkl. Varianten) als lebende Beispiele jeder Funktion

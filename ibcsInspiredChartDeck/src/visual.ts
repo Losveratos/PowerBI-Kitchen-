@@ -2932,11 +2932,12 @@ export class Visual implements IVisual {
 
     // --------------------------------------------------------------- start hub (1.50)
 
-    /** chip + overlay only for the AUTHOR: explicit edit mode on an interactive host.
-     *  A host that reports no view mode gets no chip, so a bound chart renders exactly
-     *  as before; the empty-state hub keeps the landing's own rule (null = edit). */
+    /** chip + overlay only for the AUTHOR: explicit edit mode (Edit = 1, InFocusEdit
+     *  = 2) on an interactive host. A host that reports no view mode gets no chip, so
+     *  a bound chart renders exactly as before; the empty-state hub keeps the
+     *  landing's own rule (null = edit). */
     private hubChipAllowed(): boolean {
-        return this.allowInteractions && this.viewMode === 1;
+        return this.allowInteractions && this.viewMode != null && this.viewMode >= 1;
     }
 
     /** landing font factor (preset × free scale), capped so fixed tiles never overflow */
@@ -3234,17 +3235,19 @@ export class Visual implements IVisual {
         };
         if (dev != null) {
             const rb = mk("tpl-reset", this.locStr("Tpl_Reset", "↺ Back to template"),
-                this.locStr("Tpl_ResetTip", "Settings differ from template {0} — click to restore the template state (everything else stays)")
-                    .replace("{0}", dev),
+                this.locStr("Tpl_ResetTip", "Settings differ from template {0} — click to restore the template state (everything else stays). Keeping your changes? Set the template to “Off” in the format pane.")
+                    .replace(/\{0\}/g, dev),
                 () => { this.applyChartTemplate(dev); this.rerender(); });
-            rb.style.opacity = "0.9";
+            rb.setAttribute("data-rest", "0.75");
         }
         if (start) {
             const sb = mk("hub-chip", this.locStr("Hub_Chip", "☰ Start"),
                 this.locStr("Hub_ChipTip", "Start hub: feature tour, IBCS templates, demo gallery, field guide — only visible while editing"),
                 () => this.openHub());
-            sb.addEventListener("focus", () => this.syncHubChipOpacity());
-            sb.addEventListener("blur", () => this.syncHubChipOpacity());
+        }
+        for (const btn of Array.from(bar.querySelectorAll("button"))) {
+            btn.addEventListener("focus", () => this.syncHubChipOpacity());
+            btn.addEventListener("blur", () => this.syncHubChipOpacity());
         }
         this.root.appendChild(bar);
         this.chipBar = bar;
@@ -3258,11 +3261,15 @@ export class Visual implements IVisual {
         this.chipBarSig = "";
     }
 
-    /** ☰ Start: invisible until the author points at the visual or tabs onto it */
+    /** ☰ Start: invisible until the author points at the visual or tabs onto it;
+     *  ↺ stays visible (it reports a state) but rests a little lighter */
     private syncHubChipOpacity(): void {
-        const b = this.chipBar?.querySelector('[data-icd="hub-chip"]') as HTMLElement | null;
-        if (!b) { return; }
-        b.style.opacity = this.rootHover || document.activeElement === b ? "1" : "0";
+        const bar = this.chipBar;
+        if (!bar) { return; }
+        for (const b of Array.from(bar.querySelectorAll("button"))) {
+            const on = this.rootHover || document.activeElement === b;
+            b.style.opacity = on ? "1" : (b.getAttribute("data-rest") ?? "0");
+        }
     }
 
     // ------------------------------------------------------------ hub pages

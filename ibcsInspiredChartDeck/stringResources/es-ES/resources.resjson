@@ -577,7 +577,7 @@
   "Hub_TplNeeds": "necesita el campo: {0}",
   "Hub_TplActive": "activa: un clic la vuelve a aplicar",
   "Tpl_Reset": "↺ Volver a la plantilla",
-  "Tpl_ResetTip": "La configuración difiere de la plantilla {0}: haz clic para restaurar el estado de la plantilla (todo lo demás se mantiene)",
+  "Tpl_ResetTip": "La configuración difiere de la plantilla {0}: haz clic para restaurar el estado de la plantilla (todo lo demás se mantiene). ¿Quieres conservar tus cambios? Pon la plantilla en «Desactivado» en el panel de formato.",
   "Tour_1_T": "13 modos de gráfico · series temporales",
   "Tour_1_B": "Columnas para meses y trimestres, línea para series largas (semanas, días): AC sólido, PY gris, PL con contorno, FC rayado, como prescribe IBCS.",
   "Tour_2_T": "13 modos de gráfico · estructura",
