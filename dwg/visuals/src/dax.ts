@@ -70,8 +70,8 @@ export function daxQuery(kind: VisualKind, bindings: Bindings, opts: DaxOptions 
             if (list.length !== 1) { throw new Error(`Measure-Rolle "${role}" braucht genau einen Ausdruck.`); }
             measures.push([role, list[0]]);
             out[role] = `[${role}]`;
-            // einfacher Measure-Verweis [Umsatz AC] → Anzeigename „Umsatz AC“, sonst die Rolle
-            const m = /^\s*\[((?:[^\]]|\]\])+)\]\s*$/.exec(list[0]);
+            // Measure-Verweis [Umsatz AC] oder 'Sales'[Umsatz AC] → Anzeigename „Umsatz AC“, sonst die Rolle
+            const m = /^\s*(?:'(?:[^']|'')+'|[A-Za-z_][\w\- ]*)?\s*\[((?:[^\]]|\]\])+)\]\s*$/.exec(list[0]);
             displayNames[`[${role}]`] = m ? m[1].replace(/\]\]/g, "]") : role;
         } else {
             for (const ref of list) {

@@ -55,6 +55,17 @@ test("daxQuery ChartKitchen: Gruppen, Measures, Sortierung, Filter", () => {
     assert.deepEqual(q.displayNames, { "[actual]": "Umsatz AC", "[previousYear]": "Umsatz PY" });
 });
 
+test("daxQuery mit der App-Spec aus Fabric-Apps-Demo (tabellenqualifizierte Measures)", () => {
+    const q = daxQuery("chartkitchen", {
+        category: "'Calender'[Month Name Short]", actual: "'Sales Demo'[AC]", previousYear: "'Sales Demo'[PY]",
+    }, { sortBy: { "'Calender'[Month Name Short]": "'Calender'[Month]" }, filters: [{ column: "'Calender'[Year]", values: [2026] }] });
+    assert.match(q.query, /"actual", 'Sales Demo'\[AC\]/);
+    assert.match(q.query, /TREATAS\(\{2026\}, 'Calender'\[Year\]\)/);
+    assert.match(q.query, /ORDER BY 'Calender'\[Month\]$/);
+    assert.deepEqual(q.displayNames, { "[actual]": "AC", "[previousYear]": "PY" });
+    assert.equal(q.bindings.category, "Calender[Month Name Short]");
+});
+
 test("daxQuery P&L: levels als Liste, ADDMISSINGITEMS für Formelzeilen", () => {
     const q = daxQuery("pnl", {
         levels: ["'Konten'[Ebene 1]", "'Konten'[Ebene 2]"], rowType: "'Konten'[Zeilentyp]", ac: "[AC]",
