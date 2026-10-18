@@ -1,5 +1,55 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.50.0.0 (2026-10-18)
+
+**Start-Hub: Wer das Visual leer auf die Seite zieht, bekommt vier große Knöpfe statt einer Galerie — Feature-Tour, IBCS-Vorlagen mit Vorschau, Demo, Felder erklären.**
+
+- **Start-Hub als neuer Leer-Zustand im Bearbeitungsmodus** (`emptyState.mode`
+  = `hub`, neuer Standard): „Was kann das Visual?“ · „Templates“ · „Demo
+  ansehen“ · „Felder erklären“. Jede Unterseite hat „← Zurück“, Esc führt
+  ebenfalls zurück. Die bisherigen Werte `demo` (nur Galerie, Verhalten bis
+  1.49), `fields` und `message` bleiben wählbar und verhalten sich wie
+  bisher; Feld-Intro und eigene Nachricht bieten zusätzlich den Umschalter
+  „☰ Start-Hub“.
+- **Feature-Tour:** 11 durchblätterbare Karten (‹ ›, Pfeiltasten, Pos1/Ende,
+  Punkte) mit Mini-Vorschau und ein, zwei Sätzen je Kern-Fähigkeit — die 13
+  Chart-Modi in vier Gruppen (Zeitreihen, Struktur, Brücken & GuV, Analyse),
+  Varianz-Panels, Small Multiples, Kommentare, Dark Mode & Hochkontrast,
+  Play & Animation, YTD/Wesentlichkeit/Exceptions, Vorlagen & Smart-Start
+  (mit Sprung in die Vorlagen-Galerie). Die Vorschauen zeichnet dieselbe
+  SVG-Pipeline wie die Demo-Galerie (keine Bitmaps).
+- **Vorlagen-Galerie:** die IBCS-Vorlagen C01–C13 als Kacheln mit
+  Mini-Vorschau; ein Klick schreibt dasselbe wie das Dropdown (`template`,
+  `templateApplied` und das Preset in EINEM Merge, Echo-Guard). Ohne
+  gebundene Felder wird die Wahl gespeichert („✓ C03 gespeichert — wird
+  aktiv, sobald Felder gebunden sind“) und greift beim Binden. Kacheln nennen
+  ein noch fehlendes Pflichtfeld (Stack-Serie, Blasengröße, Small Multiples);
+  bei wenig Platz blättert die Galerie seitenweise.
+- **„☰ Start“ über dem fertigen Chart** (nur Bearbeitungsmodus, erscheint
+  beim Überfahren des Visuals oder per Tab): öffnet denselben Hub als
+  Overlay — die Vorlagen-Galerie ist damit jederzeit erreichbar. Der Chart
+  wird darunter nur verborgen; „✕ Schließen“ bzw. Esc zeigt ihn exakt wie
+  vorher. Eine Vorlagen-Wahl im Overlay wendet an und schließt es, damit das
+  Ergebnis sofort sichtbar ist.
+- **Vorlage erneut anwenden:** Ein Klick auf die bereits aktive Vorlage in der
+  Galerie wendet sie wieder an (bisher wirkungslos). Das Dropdown im
+  Formatbereich kann den schon gewählten Eintrag nicht erneut melden — dafür
+  gibt es die Galerie und den neuen Chip:
+- **„↺ Zum Template zurück“** (unten links, nur Bearbeitungsmodus): erscheint,
+  sobald eine Vorlage gesetzt ist und eine ihrer Einstellungen davon abweicht;
+  ein Klick stellt den Vorlagen-Stand wieder her, alle anderen Einstellungen
+  bleiben.
+- **Leser und Exporte sehen nie den Hub** und keine der neuen Chips: der
+  Leer-Zustand zeigt für sie unverändert Galerie bzw. eigene Nachricht.
+- Tastatur: alle Hub-Knöpfe per Tab erreichbar, Enter/Leertaste lösen aus,
+  Esc geht zurück bzw. schließt; Dark Mode und Hochkontrast (Host-Palette,
+  `foregroundSelected` als Akzent) auch im Hub.
+- 53 neue resjson-Keys (601 je Sprache, de/en/es/ja identisch), Testfälle
+  c220–c229. Pixel-Regression aller Bestandsfälle gegen 1.49: identisch bis
+  auf die Leer-Zustände im Bearbeitungsmodus — c11, c135, c139 zeigen jetzt
+  den Hub statt der Galerie (Default-Änderung), c203, c204, c206 haben den
+  zusätzlichen Umschalter „☰ Start-Hub“. Lese- und Export-Fälle unverändert.
+
 ## 1.49.0.0 (2026-10-17)
 
 **Sechs bewährte Muster aus dem Schwester-Visual P&L zurückübernommen: IBCS-Vorlagen, Nachladen, Lesezeichen, gesperrte Chips, Feld-Intro, Hochkontrast.**

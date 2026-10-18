@@ -122,6 +122,29 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     C13: { multiplesTotal: true, multiplesSameScale: true }
 };
 
+/** 1.50 start hub: schematic preview per IBCS template — keys of drawModeMini, the
+ *  same SVG pipeline as the demo gallery (nothing is embedded as a bitmap) */
+const TEMPLATE_MINI: Record<string, string> = {
+    C01: "stackcols", C02: "stackbars", C03: "columns", C04: "bars", C05: "intwaterfall",
+    C06: "catbridgecols", C08: "line", C09: "scatter", C10: "bubble", C12: "waterfall",
+    C13: "multiples"
+};
+/** field role a template needs on top of category + AC (hint on the gallery tile) */
+const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> = {
+    C01: { role: "series", key: "Role_Series", en: "Stack series" },
+    C02: { role: "series", key: "Role_Series", en: "Stack series" },
+    C10: { role: "bubbleSize", key: "Role_BubbleSize", en: "Bubble size (optional)" },
+    C13: { role: "multiples", key: "Role_Multiples", en: "Small Multiples" }
+};
+/** 1.50 start hub pages — transient session state, never persisted */
+type HubPage = "home" | "tour" | "templates" | "demo" | "fields";
+/** resolved hub palette (light · dark · high contrast) */
+interface HubColors {
+    hc: boolean; ink: string; grey: string; teal: string; red: string; paper: string;
+    subtle: string; soft: string; tile: string; tileOn: string; edge: string; edge2: string;
+    onAccent: string;
+}
+
 type Orientation = "columns" | "bars";
 type Basis = "py" | "plan" | "fcrev";
 
@@ -784,6 +807,27 @@ export class Visual implements IVisual {
     private pendingEmptyModeTtl = 0;
     /** data view of the last update — the field intro marks the bound roles from it */
     private lastDataView: DataView | undefined = undefined;
+    // --- 1.50 start hub (edit mode only; navigation is transient, never persisted) ---
+    private hubPage: HubPage = "home";
+    /** tour card and template-gallery page currently shown */
+    private hubTourIdx = 0;
+    private hubTplPage = 0;
+    /** template picked in the hub without bound fields — "saved, active once bound" */
+    private hubTplSaved: string | null = null;
+    /** hub opened as overlay above a bound chart (☰ Start chip) */
+    private hubOpen = false;
+    /** overlay surface: the chart SVG is only hidden underneath, never re-drawn */
+    private hubSvg: SVGSVGElement | null = null;
+    /** a setting changed from inside the overlay → closing re-renders the chart */
+    private hubDirty = false;
+    /** element (data-icd) to focus after the next hub draw — keyboard navigation */
+    private hubFocus: string | null = null;
+    /** size of the empty-state surface the hub was drawn on */
+    private hubW = 0;
+    private hubH = 0;
+    /** HTML chip row bottom-left (☰ Start · ↺ back to template), edit mode only */
+    private chipBar: HTMLDivElement | null = null;
+    private rootHover = false;
     // --- 1.49 segmented loading (fetchMoreData, PnL pattern) ---
     /** category rows delivered by the host so far (accumulated data view) */
     private loadedRows = 0;
@@ -924,6 +968,10 @@ export class Visual implements IVisual {
             e.preventDefault();
             this.selectionManager.showContextMenu(null, { x: e.clientX, y: e.clientY });
         });
+        // 1.50: the ☰ Start chip stays out of the way until the author points at
+        // the visual (like the host's own visual header) or tabs onto it
+        this.root.addEventListener("mouseenter", () => { this.rootHover = true; this.syncHubChipOpacity(); });
+        this.root.addEventListener("mouseleave", () => { this.rootHover = false; this.syncHubChipOpacity(); });
     }
 
     public update(options: VisualUpdateOptions): void {
@@ -936,6 +984,9 @@ export class Visual implements IVisual {
             this.viewMode = options.viewMode ?? null;
             // resolve dark mode before any branch renders (landing gallery included)
             this.uiDark = this.resolveDarkMode();
+            // 1.50: the hub overlay is an author tool — reading view or an export
+            // context closes it (readers and exports never see the hub)
+            if (this.hubOpen && !this.hubChipAllowed()) { this.hideHubOverlay(); }
             // Mehrfeld-Kategorie: Drill-Hierarchie automatisch aufklappen, damit
             // der klickbare Zeilenbaum direkt beim Hineinziehen erscheint
             this.maybeAutoExpand(dataView);
@@ -1156,6 +1207,8 @@ export class Visual implements IVisual {
                 this.closeStructureMenu();
             }
             if (!points || points.length === 0) {
+                // the data went away under an open overlay: the empty state IS the hub now
+                if (this.hubOpen) { this.hideHubOverlay(); }
                 this.renderDemo(width, height);
                 this.events.renderingFinished(options);
                 return;
@@ -1166,6 +1219,12 @@ export class Visual implements IVisual {
             this.finishChips();
             this.drawLoadState(width, height);
             this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
+            this.updateChipBar();
+            // an update under the open overlay re-draws the chart hidden underneath
+            // and keeps the hub on its page (e.g. the template gallery after a pick)
+            if (this.hubOpen) {
+                if (width >= 300 && height >= 220) { this.drawHubOverlay(); } else { this.hideHubOverlay(); }
+            }
             this.events.renderingFinished(options);
         } catch (error) {
             this.events.renderingFailed(options, String(error));
@@ -1181,6 +1240,7 @@ export class Visual implements IVisual {
         this.finishChips();
         this.drawLoadState(this.lastRender.width, this.lastRender.height);
         this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
+        this.updateChipBar();
     }
 
     // ------------------------------------------------------------ IBCS templates (1.49)
@@ -1218,14 +1278,42 @@ export class Visual implements IVisual {
         this.applyChartTemplate(tpl);
     }
 
-    private applyChartTemplate(tpl: string): void {
+    /**
+     * Writes a template's properties locally + in ONE merge. `withTemplate` (hub
+     * gallery pick) also writes chart.template itself — exactly what the pane
+     * dropdown would have stored — and guards it like the other props, so a stale
+     * update still carrying the old dropdown value cannot "apply" that one instead.
+     * Calling it for the template already applied is the re-apply (1.50): the merge
+     * runs regardless of templateApplied, the echo guard covers the round trip.
+     */
+    private applyChartTemplate(tpl: string, withTemplate = false): void {
         const props: Record<string, TplValue> = { ...(CHART_TEMPLATES[tpl] ?? {}) };
+        if (withTemplate) { props["template"] = tpl; }
         for (const [k, v] of Object.entries(props)) { this.chartSliceSet(k, v); }
         this.templatePending = { applied: tpl, props, ttl: 5 };
         this.templateSessionTpl = tpl;
         this.host.persistProperties({
             merge: [{ objectName: "chart", selector: null, properties: { ...props, templateApplied: tpl } }]
         });
+    }
+
+    /** 1.50: the template set in chart.template whose properties the current
+     *  settings no longer match (null = no template, or nothing deviates) */
+    private templateDeviation(): string | null {
+        const tpl = String(this.formattingSettings?.chartCard.template.value.value ?? "off");
+        const props = CHART_TEMPLATES[tpl];
+        if (!props) { return null; }
+        for (const [k, v] of Object.entries(props)) {
+            if (!this.chartSliceIs(k, v)) { return tpl; }
+        }
+        return null;
+    }
+
+    /** 1.50 hub gallery pick: same storage as the pane dropdown (template +
+     *  templateApplied + the preset), also when the tile is the active template */
+    private pickTemplate(tpl: string): void {
+        if (!CHART_TEMPLATES[tpl]) { return; }
+        this.applyChartTemplate(tpl, true);
     }
 
     /** a chart-card slice by property name (toggle, number or dropdown) */
@@ -2159,22 +2247,27 @@ export class Visual implements IVisual {
      * mode once fields are bound. Replaces the old single pre-rendered sample.
      */
     private renderDemo(width: number, height: number): void {
+        // 1.50: an action inside the hub overlay (gallery mode pick, font preset …)
+        // re-draws the overlay — never the chart hidden underneath, which then
+        // re-renders once when the overlay closes
+        if (this.hubOpen && this.lastRender) {
+            this.hubDirty = true;
+            this.drawHubOverlay();
+            return;
+        }
         // no live data: in-chart interactions must not re-render a stale dataset
         this.lastRender = null;
         this.compareCats = [];
+        this.removeChipBar();
         this.svg.style.display = "block";
         while (this.svg.firstChild) { this.svg.removeChild(this.svg.firstChild); }
         // brand palette with dark-mode stand-ins — same tones the chart uses
+        // (the gallery resolves its full palette itself, see drawGallery)
         const dk = this.uiDark;
-        const ink = dk ? DARK_INK : "#404040", grey = dk ? "#8A8A8A" : "#B3B3B3",
-            teal = dk ? "#3FB3C2" : "#1E8F9E", red = dk ? "#E4635F" : "#D64541";
-        const subtle = dk ? DARK_SUBTLE : "#6E6E6E", paper = dk ? this.darkPaper() : "#FFFFFF";
-        // landing surfaces: tile fills, borders and the secondary text tone
-        const tile = dk ? "#262624" : "#FAFAF8", tileOn = dk ? "#1E3236" : "#EEF6F7";
-        const edge = dk ? DARK_FAINT : "#E4E4DF", edge2 = dk ? DARK_FAINT : "#DDDDD8";
-        const soft = dk ? "#BFBFBF" : "#5A5A5A";
-        const hint = this.missingHint
-            || this.locStr("Demo_Hint", "Sample data — add Category and Actual (AC)");
+        const ink = dk ? DARK_INK : "#404040";
+        const subtle = dk ? DARK_SUBTLE : "#6E6E6E";
+        const tile = dk ? "#262624" : "#FAFAF8";
+        const edge2 = dk ? DARK_FAINT : "#DDDDD8";
 
         // custom empty state (pane card "Leer-Zustand"): the author's own title/body
         // replace the branding. Readers (view mode) get ONLY the message — the mode
@@ -2195,6 +2288,11 @@ export class Visual implements IVisual {
         // previous behaviour above/below — "demo" is exactly the old landing
         const emptyMode = String(esc.mode.value.value);
         if (isEdit && this.allowInteractions && width >= 300 && height >= 220) {
+            // 1.50 default: the start hub (tour · templates · demo · fields)
+            if (emptyMode === "hub") {
+                this.renderHub(width, height);
+                return;
+            }
             if (emptyMode === "fields") {
                 this.renderFieldIntro(width, height);
                 return;
@@ -2207,6 +2305,28 @@ export class Visual implements IVisual {
                 return;
             }
         }
+        this.drawGallery(width, height, false);
+    }
+
+    /**
+     * The demo gallery (mode list with mini previews, font-preset pills) — the
+     * landing up to 1.49 and, since 1.50, the hub's "View demo" page. `back` adds
+     * the hub's "← Back" chip top-right and nothing else; without it the output is
+     * byte-identical to the 1.49 landing.
+     */
+    private drawGallery(width: number, height: number, back: boolean): void {
+        const dk = this.uiDark;
+        const ink = dk ? DARK_INK : "#404040", grey = dk ? "#8A8A8A" : "#B3B3B3",
+            teal = dk ? "#3FB3C2" : "#1E8F9E", red = dk ? "#E4635F" : "#D64541";
+        const subtle = dk ? DARK_SUBTLE : "#6E6E6E", paper = dk ? this.darkPaper() : "#FFFFFF";
+        const tile = dk ? "#262624" : "#FAFAF8", tileOn = dk ? "#1E3236" : "#EEF6F7";
+        const edge = dk ? DARK_FAINT : "#E4E4DF", edge2 = dk ? DARK_FAINT : "#DDDDD8";
+        const soft = dk ? "#BFBFBF" : "#5A5A5A";
+        const hint = this.missingHint
+            || this.locStr("Demo_Hint", "Sample data — add Category and Actual (AC)");
+        const esc = this.formattingSettings.emptyStateCard;
+        const cTitle = (esc.title.value || "").trim();
+        const cBody = (esc.body.value || "").trim();
 
         // tiny visuals: no room for the gallery — title + hint only
         if (width < 300 || height < 220) {
@@ -2580,6 +2700,13 @@ export class Visual implements IVisual {
                 sx += wds[i] + segGap;
             });
         }
+        // 1.50 hub page: "← Back" top-right; the heading steps aside for it
+        if (back) {
+            const bw = this.drawHubBackChip(width, this.hubColors());
+            const tx = Number(title.getAttribute("x"));
+            title.textContent = this.truncate(cTitle !== "" ? cTitle : "ChartKitchen byDatenWG",
+                Math.max(40, width - 22 - bw - tx), titleF);
+        }
     }
 
     /**
@@ -2588,7 +2715,7 @@ export class Visual implements IVisual {
      * one-line purpose each, in the report language (PnL 1.2 pattern, drawn as SVG
      * like the rest of the landing). A missing-AC hint stays on top.
      */
-    private renderFieldIntro(width: number, height: number): void {
+    private renderFieldIntro(width: number, height: number, back = false): void {
         const dk = this.uiDark;
         const ink = dk ? DARK_INK : "#404040", teal = dk ? "#3FB3C2" : "#1E8F9E";
         const subtle = dk ? DARK_SUBTLE : "#6E6E6E", soft = dk ? "#BFBFBF" : "#5A5A5A";
@@ -2601,15 +2728,7 @@ export class Visual implements IVisual {
             * Math.max(0.5, Math.min(3, Number(sLc.fontScale.value ?? 100) / 100)));
         const tf = Math.min(1.4, Math.max(1, kf));
         const fT = Math.round(14 * tf), fB = Math.round(11 * tf), fS = Math.round(9.5 * tf);
-        // bound roles: metadata columns (host) and the categorical sources (harness)
-        const dv = this.lastDataView;
-        const roles = new Set<string>();
-        const take = (r: { [k: string]: boolean } | undefined) => {
-            for (const k of Object.keys(r ?? {})) { if (r && r[k]) { roles.add(k); } }
-        };
-        for (const c of dv?.metadata?.columns ?? []) { take(c.roles); }
-        for (const c of dv?.categorical?.categories ?? []) { take(c.source.roles); }
-        for (const c of dv?.categorical?.values ?? []) { take(c.source.roles); }
+        const roles = this.boundRoles();
         const rows: { id: string; key: string; en: string; tKey: string; tEn: string; sec: number }[] = [
             { id: "category", key: "Role_Category", en: "Category", sec: 0,
                 tKey: "FI_Category", tEn: "Axis or structure — months for time series, regions/products for structure; several fields = drill hierarchy" },
@@ -2627,8 +2746,10 @@ export class Visual implements IVisual {
                 tKey: "FI_Multiples", tEn: "One tile per value, all on the same scale (template C13)" }
         ];
         const pad = 12;
-        const boxX = pad, boxY = pad, boxW = Math.min(width - 2 * pad, 760);
-        const switchH = Math.round(21 * tf) + 12;
+        // hub page (1.50): the box leaves the top-right corner to the "← Back" chip
+        const backW = back ? this.hubBackChipWidth() + 8 : 0;
+        const boxX = pad, boxY = pad, boxW = Math.min(width - 2 * pad - backW, 760);
+        const switchH = back ? 0 : Math.round(21 * tf) + 12;
         const boxH = height - 2 * pad - switchH;
         const g = this.el("g", { "data-icd": "field-intro" }, this.svg) as SVGGElement;
         const box = this.el("rect", {
@@ -2681,7 +2802,24 @@ export class Visual implements IVisual {
         // the dashed box hugs its content; the switches sit right below it
         const fitH = Math.max(40, Math.min(boxH, y - boxY + Math.round(fB * 0.9) + 6));
         box.setAttribute("height", String(fitH));
+        if (back) {
+            this.drawHubBackChip(width, this.hubColors());
+            return;
+        }
         this.drawEmptySwitches(width, height, "fields", { ink, subtle, tile, edge2 }, boxY + fitH + 10);
+    }
+
+    /** bound roles: metadata columns (host) and the categorical sources (harness) */
+    private boundRoles(): Set<string> {
+        const dv = this.lastDataView;
+        const roles = new Set<string>();
+        const take = (r: { [k: string]: boolean } | undefined) => {
+            for (const k of Object.keys(r ?? {})) { if (r && r[k]) { roles.add(k); } }
+        };
+        for (const c of dv?.metadata?.columns ?? []) { take(c.roles); }
+        for (const c of dv?.categorical?.categories ?? []) { take(c.source.roles); }
+        for (const c of dv?.categorical?.values ?? []) { take(c.source.roles); }
+        return roles;
     }
 
     /**
@@ -2699,6 +2837,8 @@ export class Visual implements IVisual {
         const f = Math.round(10.5 * tf), bh = Math.round(21 * tf);
         const tip = this.locStr("Es_SwitchTip", "Saved as Empty state → mode — readers keep seeing the gallery or the own message");
         const opts = [
+            // 1.50: back to the start hub (the new default) from fields / own message
+            { v: "hub", key: "Es_Hub", en: "☰ Start hub" },
             { v: "demo", key: "Es_Demo", en: "Show gallery" },
             { v: "fields", key: "Es_Fields", en: "Explain fields" },
             { v: "message", key: "Es_Message", en: "Own message" }
@@ -2727,6 +2867,7 @@ export class Visual implements IVisual {
                 if (it) { sl.value = it; }
                 this.pendingEmptyMode = o.v;
                 this.pendingEmptyModeTtl = 5;
+                if (o.v === "hub") { this.hubPage = "home"; }
                 this.host.persistProperties({
                     merge: [{ objectName: "emptyState", selector: null, properties: { mode: o.v } }]
                 });
@@ -2787,6 +2928,869 @@ export class Visual implements IVisual {
             }
             y += lineH;
         }
+    }
+
+    // --------------------------------------------------------------- start hub (1.50)
+
+    /** chip + overlay only for the AUTHOR: explicit edit mode (Edit = 1, InFocusEdit
+     *  = 2) on an interactive host. A host that reports no view mode gets no chip, so
+     *  a bound chart renders exactly as before; the empty-state hub keeps the
+     *  landing's own rule (null = edit). */
+    private hubChipAllowed(): boolean {
+        return this.allowInteractions && this.viewMode != null && this.viewMode >= 1;
+    }
+
+    /** landing font factor (preset × free scale), capped so fixed tiles never overflow */
+    private landingTf(): number {
+        const sLc = this.formattingSettings.labelsCard;
+        const kf = Math.min(3, ({ compact: 1, fullhd: 1.5, presentation: 2 }[
+            String(sLc.fontPreset.value.value)] ?? 1)
+            * Math.max(0.5, Math.min(3, Number(sLc.fontScale.value ?? 100) / 100)));
+        return Math.min(1.4, Math.max(1, kf));
+    }
+
+    /** hub palette: the landing's brand tones, dark stand-ins, or the host's
+     *  high-contrast palette (foreground for everything, foregroundSelected as accent) */
+    private hubColors(): HubColors {
+        const pal = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette;
+        if (pal && pal.isHighContrast) {
+            const fg = pal.foreground?.value || "#FFFFFF";
+            const bg = pal.background?.value || "#000000";
+            const sel = pal.foregroundSelected?.value || fg;
+            return { hc: true, ink: fg, grey: fg, teal: sel, red: fg, paper: bg, subtle: fg, soft: fg,
+                tile: bg, tileOn: bg, edge: fg, edge2: fg, onAccent: bg };
+        }
+        const dk = this.uiDark;
+        return {
+            hc: false, ink: dk ? DARK_INK : "#404040", grey: dk ? "#8A8A8A" : "#B3B3B3",
+            teal: dk ? "#3FB3C2" : "#1E8F9E", red: dk ? "#E4635F" : "#D64541",
+            paper: dk ? this.darkPaper() : "#FFFFFF", subtle: dk ? DARK_SUBTLE : "#6E6E6E",
+            soft: dk ? "#BFBFBF" : "#5A5A5A", tile: dk ? "#262624" : "#FAFAF8",
+            tileOn: dk ? "#1E3236" : "#EEF6F7", edge: dk ? DARK_FAINT : "#E4E4DF",
+            edge2: dk ? DARK_FAINT : "#DDDDD8", onAccent: dk ? "#1A1A1A" : "#FFFFFF"
+        };
+    }
+
+    /** hatch pattern of the FC mini column (drawModeMini), once per surface */
+    private ensureDemoHatch(c: HubColors): void {
+        if (this.svg.querySelector("#icd-demo-hatch")) { return; }
+        const defs = this.el("defs", {}, this.svg);
+        const pat = this.el("pattern", {
+            id: "icd-demo-hatch", width: 4, height: 4,
+            patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)"
+        }, defs);
+        this.el("rect", { x: 0, y: 0, width: 4, height: 4, fill: c.paper }, pat);
+        this.el("line", { x1: 0, y1: 0, x2: 0, y2: 4, stroke: c.ink, "stroke-width": 1.4 }, pat);
+    }
+
+    /** the hub page currently selected — on the empty state or the overlay surface */
+    private renderHub(width: number, height: number): void {
+        this.hubW = width;
+        this.hubH = height;
+        switch (this.hubPage) {
+            case "tour": this.drawHubTour(width, height); break;
+            case "templates": this.drawHubTemplates(width, height); break;
+            case "demo": this.drawGallery(width, height, true); break;
+            case "fields": this.renderFieldIntro(width, height, true); break;
+            default: this.drawHubHome(width, height);
+        }
+        // keyboard navigation: the element that triggered the redraw keeps the focus
+        // (only after a user action — the initial render never steals focus)
+        const fk = this.hubFocus;
+        this.hubFocus = null;
+        if (fk) {
+            const f = this.svg.querySelector(`[data-icd="${fk}"]`) as SVGGElement | null;
+            if (f && typeof f.focus === "function") { f.focus(); }
+        }
+    }
+
+    /** redraw the current hub surface (navigation: nothing is persisted) */
+    private hubRedraw(): void {
+        if (this.hubOpen && this.lastRender) { this.drawHubOverlay(); return; }
+        this.renderDemo(this.hubW, this.hubH);
+    }
+
+    private hubGo(page: HubPage, focus?: string): void {
+        const from = this.hubPage;
+        // the tour always starts with its first card, the gallery with its first page
+        if (page === "tour" && from !== "tour") { this.hubTourIdx = 0; }
+        if (page === "templates" && from !== "templates") { this.hubTplPage = 0; }
+        this.hubPage = page;
+        this.hubFocus = focus ?? (page === "home" ? `hub-${from}` : "hub-back");
+        this.hubRedraw();
+    }
+
+    /** "← Back" / Esc: sub page → hub home; hub home in the overlay → close */
+    private hubBack(): void {
+        if (this.hubPage !== "home") { this.hubGo("home"); return; }
+        if (this.hubOpen) { this.closeHub(); }
+    }
+
+    /** focusable SVG button: click / Enter / Space act, Esc steps back */
+    private hubBtn(parent: Node, key: string, label: string, act: () => void): SVGGElement {
+        const b = this.el("g", { role: "button", tabindex: "0", "data-icd": key }, parent) as SVGGElement;
+        b.setAttribute("aria-label", label);
+        const tt = this.el("title", {}, b);
+        tt.textContent = label;
+        b.style.cursor = "pointer";
+        b.style.outline = "none";
+        b.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); act(); });
+        b.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault(); e.stopPropagation(); act();
+            } else if (e.key === "Escape") {
+                e.preventDefault(); e.stopPropagation(); this.hubBack();
+            }
+        });
+        return b;
+    }
+
+    /** hover + keyboard focus ring on a hub button's frame (accent stroke) */
+    private hubFrame(b: SVGGElement, frame: SVGElement, c: HubColors): void {
+        const stroke = frame.getAttribute("stroke") ?? c.edge;
+        const sw = frame.getAttribute("stroke-width") ?? "1";
+        let hover = false, focus = false;
+        const sync = () => {
+            const on = hover || focus;
+            frame.setAttribute("stroke", on ? c.teal : stroke);
+            frame.setAttribute("stroke-width", on ? String(Math.max(2, Number(sw))) : sw);
+        };
+        b.addEventListener("mouseenter", () => { hover = true; sync(); });
+        b.addEventListener("mouseleave", () => { hover = false; sync(); });
+        b.addEventListener("focus", () => { focus = true; sync(); });
+        b.addEventListener("blur", () => { focus = false; sync(); });
+    }
+
+    /** word wrap against real text metrics; CJK breaks between characters; the last
+     *  line ends in "…" when the text does not fit into maxLines */
+    private hubWrap(text: string, maxW: number, f: number, maxLines: number): string[] {
+        if (maxLines <= 0 || maxW <= 8) { return []; }
+        const tokens = text.split(/(\s+)/)
+            .flatMap(t => /[　-鿿＀-￯]/.test(t) ? [...t] : [t]);
+        const out: string[] = [];
+        let line = "";
+        let cut = false;
+        for (const tok of tokens) {
+            if (tok === "") { continue; }
+            if (/^\s+$/.test(tok)) { if (line !== "") { line += " "; } continue; }
+            const probe = line + tok;
+            if (line.trim() === "" || this.textWidth(probe, f) <= maxW) { line = probe; continue; }
+            out.push(line.trimEnd());
+            if (out.length >= maxLines) { cut = true; break; }
+            line = tok;
+        }
+        if (!cut && line.trim() !== "") { out.push(line.trimEnd()); }
+        if (cut) {
+            let last = out.pop() ?? "";
+            while (last.length > 1 && this.textWidth(last + "…", f) > maxW) { last = last.slice(0, -1); }
+            out.push(last.trimEnd() + "…");
+        }
+        return out.map(l => this.truncate(l, maxW, f));
+    }
+
+    /** "← Back" (sub pages) or "✕ Close" (overlay home) chip top-right; returns its width */
+    private hubBackChipWidth(close = false): number {
+        const f = Math.round(10.5 * this.landingTf());
+        const label = close ? this.locStr("Hub_Close", "✕ Close") : this.locStr("Hub_Back", "← Back");
+        return Math.ceil(this.textWidth(label, f)) + 22;
+    }
+
+    private drawHubBackChip(width: number, c: HubColors, close = false): number {
+        const tf = this.landingTf();
+        const f = Math.round(10.5 * tf), bh = Math.round(21 * tf);
+        const label = close ? this.locStr("Hub_Close", "✕ Close") : this.locStr("Hub_Back", "← Back");
+        const w = this.hubBackChipWidth(close);
+        const x = width - 12 - w, y = 8;
+        const tip = close
+            ? this.locStr("Hub_CloseTip", "Close the start hub — the chart appears exactly as before (Esc)")
+            : this.locStr("Hub_BackTip", "Back to the start hub (Esc)");
+        const b = this.hubBtn(this.svg, close ? "hub-close" : "hub-back", tip,
+            () => { if (close) { this.closeHub(); } else { this.hubGo("home"); } });
+        const fr = this.el("rect", {
+            x, y, width: w, height: bh, rx: 4, fill: c.tile, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1
+        }, b);
+        this.hubFrame(b, fr, c);
+        const t = this.el("text", {
+            x: x + w / 2, y: y + bh / 2 + f * 0.36, "text-anchor": "middle",
+            "font-size": f, fill: c.ink, "font-family": FONT
+        }, b);
+        t.textContent = label;
+        return w;
+    }
+
+    // ------------------------------------------------------------ overlay + chips
+
+    /** ☰ Start (bound chart, edit mode): the hub as overlay. The chart SVG is only
+     *  hidden — closing shows it again untouched, unless a setting changed inside */
+    private openHub(): void {
+        if (!this.lastRender || !this.hubChipAllowed()) { return; }
+        this.closeCommentEditor();
+        this.closeStructureMenu();
+        this.hideDarkTip();
+        this.hubOpen = true;
+        this.hubDirty = false;
+        this.hubPage = "home";
+        this.hubTplSaved = null;
+        this.hubFocus = "hub-tour";
+        this.removeChipBar();
+        this.drawHubOverlay();
+    }
+
+    private drawHubOverlay(): void {
+        const lr = this.lastRender;
+        if (!lr) { return; }
+        if (!this.hubSvg) {
+            const s = document.createElementNS(SVG_NS, "svg");
+            s.setAttribute("data-icd", "hub-overlay");
+            s.setAttribute("role", "dialog");
+            this.root.appendChild(s);
+            this.hubSvg = s;
+        }
+        const hs = this.hubSvg;
+        hs.setAttribute("width", String(lr.width));
+        hs.setAttribute("height", String(lr.height));
+        hs.setAttribute("aria-label", this.locStr("Hub_Overlay", "ChartKitchen start hub"));
+        hs.style.display = "block";
+        this.svg.style.display = "none";
+        // every hub/gallery/field-intro drawer paints into this.svg — point it at the
+        // overlay for this synchronous draw only; event handlers come back through
+        // renderDemo / hubRedraw, which route to the overlay again
+        const main = this.svg;
+        this.svg = hs;
+        try {
+            while (hs.firstChild) { hs.removeChild(hs.firstChild); }
+            this.renderHub(lr.width, lr.height);
+        } finally {
+            this.svg = main;
+        }
+    }
+
+    /** hide the overlay without touching the chart (state change from outside) */
+    private hideHubOverlay(): void {
+        this.hubOpen = false;
+        if (this.hubSvg) {
+            while (this.hubSvg.firstChild) { this.hubSvg.removeChild(this.hubSvg.firstChild); }
+            this.hubSvg.style.display = "none";
+        }
+        this.svg.style.display = "block";
+    }
+
+    private closeHub(): void {
+        const dirty = this.hubDirty;
+        this.hideHubOverlay();
+        this.hubDirty = false;
+        this.hubPage = "home";
+        // untouched: the hidden chart is exactly the one from before; otherwise the
+        // locally applied settings (template, mode …) render once right away
+        if (dirty) { this.rerender(); } else { this.updateChipBar(); }
+        const chip = this.chipBar?.querySelector('[data-icd="hub-chip"]') as HTMLElement | null;
+        if (chip) { chip.focus(); this.syncHubChipOpacity(); }
+    }
+
+    private chipBarSig = "";
+
+    /**
+     * HTML chip row bottom-left over the bound chart, edit mode only: "↺ Back to
+     * template" whenever the settings deviate from the template set in
+     * chart.template, and "☰ Start" (visible on hover / keyboard focus) opening the
+     * hub overlay. Rebuilt only when its content changes; readers and exports never
+     * get it (and a host without view mode neither — the chart stays pixel-identical).
+     */
+    private updateChipBar(): void {
+        const lr = this.lastRender;
+        const ok = !this.hubOpen && lr != null && this.hubChipAllowed();
+        const start = ok && lr.width >= 300 && lr.height >= 220;
+        const dev = ok && lr.width >= 160 && lr.height >= 60 ? this.templateDeviation() : null;
+        if (!start && dev == null) { this.removeChipBar(); return; }
+        const c = this.hubColors();
+        const fs = Math.round(11 * Math.min(1.5, Math.max(1, this.fontK)));
+        const sig = `${start}|${dev}|${c.ink}|${c.paper}|${c.edge2}|${fs}`;
+        if (this.chipBar && this.chipBarSig === sig && this.chipBar.parentNode === this.root) {
+            this.syncHubChipOpacity();
+            return;
+        }
+        this.removeChipBar();
+        this.root.style.position = "relative";
+        const bar = document.createElement("div");
+        bar.setAttribute("data-icd", "chip-bar");
+        Object.assign(bar.style, {
+            position: "absolute", left: "4px", bottom: "4px", display: "flex", gap: "4px", zIndex: "4"
+        });
+        const mk = (key: string, label: string, tip: string, act: () => void): HTMLButtonElement => {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.setAttribute("data-icd", key);
+            b.textContent = label;
+            b.title = tip;
+            b.setAttribute("aria-label", tip);
+            Object.assign(b.style, {
+                font: `${fs}px ${FONT}`, lineHeight: `${Math.round(fs * 1.45)}px`, padding: "1px 8px",
+                borderRadius: `${Math.round(fs * 0.9)}px`, border: `1px solid ${c.hc ? c.ink : c.edge2}`,
+                background: c.paper, color: c.ink, cursor: "pointer", whiteSpace: "nowrap",
+                transition: "opacity .15s"
+            });
+            b.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); act(); });
+            bar.appendChild(b);
+            return b;
+        };
+        if (dev != null) {
+            const rb = mk("tpl-reset", this.locStr("Tpl_Reset", "↺ Back to template"),
+                this.locStr("Tpl_ResetTip", "Settings differ from template {0} — click to restore the template state (everything else stays). Keeping your changes? Set the template to “Off” in the format pane.")
+                    .replace(/\{0\}/g, dev),
+                () => { this.applyChartTemplate(dev); this.rerender(); });
+            rb.setAttribute("data-rest", "0.75");
+        }
+        if (start) {
+            const sb = mk("hub-chip", this.locStr("Hub_Chip", "☰ Start"),
+                this.locStr("Hub_ChipTip", "Start hub: feature tour, IBCS templates, demo gallery, field guide — only visible while editing"),
+                () => this.openHub());
+        }
+        for (const btn of Array.from(bar.querySelectorAll("button"))) {
+            btn.addEventListener("focus", () => this.syncHubChipOpacity());
+            btn.addEventListener("blur", () => this.syncHubChipOpacity());
+        }
+        this.root.appendChild(bar);
+        this.chipBar = bar;
+        this.chipBarSig = sig;
+        this.syncHubChipOpacity();
+    }
+
+    private removeChipBar(): void {
+        if (this.chipBar) { this.chipBar.remove(); }
+        this.chipBar = null;
+        this.chipBarSig = "";
+    }
+
+    /** ☰ Start: invisible until the author points at the visual or tabs onto it;
+     *  ↺ stays visible (it reports a state) but rests a little lighter */
+    private syncHubChipOpacity(): void {
+        const bar = this.chipBar;
+        if (!bar) { return; }
+        for (const b of Array.from(bar.querySelectorAll("button"))) {
+            const on = this.rootHover || document.activeElement === b;
+            b.style.opacity = on ? "1" : (b.getAttribute("data-rest") ?? "0");
+        }
+    }
+
+    // ------------------------------------------------------------ hub pages
+
+    /** hub home: four large buttons (tour · templates · demo · fields) */
+    private drawHubHome(width: number, height: number): void {
+        const c = this.hubColors();
+        const tf = this.landingTf();
+        this.ensureDemoHatch(c);
+        const esc = this.formattingSettings.emptyStateCard;
+        const cTitle = (esc.title.value || "").trim();
+        const cBody = (esc.body.value || "").trim();
+        const fT = Math.round(15 * tf), fS = Math.round(10.5 * tf);
+        const fL = Math.round(13 * tf), fD = Math.round(10.5 * tf);
+        const pad = 12, gap = 10;
+        const closeW = this.hubOpen ? this.drawHubBackChip(width, c, true) : 0;
+        const tplNow = String(this.formattingSettings.chartCard.template.value.value);
+        const items: { id: HubPage; label: string; desc: string }[] = [
+            { id: "tour", label: this.locStr("Hub_Tour", "What can the visual do?"),
+                desc: this.locStr("Hub_TourDesc", "Feature tour in 11 cards: chart modes, variances, small multiples, comments …") },
+            { id: "templates", label: this.locStr("Hub_Templates", "Templates"),
+                desc: CHART_TEMPLATES[tplNow]
+                    ? this.locStr("Hub_TemplatesDescOn", "IBCS templates with preview — active: {0}").replace("{0}", tplNow)
+                    : this.locStr("Hub_TemplatesDesc", "IBCS templates C01–C13 with preview — one click applies") },
+            { id: "demo", label: this.locStr("Hub_Demo", "View demo"),
+                desc: this.locStr("Hub_DemoDesc", "All 13 chart types as a gallery — a click picks the mode") },
+            { id: "fields", label: this.locStr("Hub_Fields", "Explain fields"),
+                desc: this.locStr("Hub_FieldsDesc", "Which field goes where — ✓ at the fields already bound") }
+        ];
+        const top = pad + fT + 6 + fS + 12;
+        const footH = height >= 260 ? 22 : 6;
+        const availW = width - 2 * pad, availH = height - top - footH;
+        // 4 in a row (wide and low), 2 × 2, or one column (narrow)
+        let cols = 2;
+        if (availW >= 4 * 170 + 3 * gap && availH < 2 * 96 + gap) { cols = 4; }
+        else if (availW < 2 * 190 + gap) { cols = 1; }
+        const rows = Math.ceil(items.length / cols);
+        const bw = Math.min(400, (availW - (cols - 1) * gap) / cols);
+        const bh = Math.max(28, Math.min(120, (availH - (rows - 1) * gap) / rows));
+        const blockW = cols * bw + (cols - 1) * gap, blockH = rows * bh + (rows - 1) * gap;
+        const x0 = pad + Math.max(0, (availW - blockW) / 2);
+        const y0 = top + Math.max(0, (availH - blockH) / 2);
+        // header sits right above the (centered) block, like the gallery's
+        const subY = Math.max(pad + fT + 6 + fS, y0 - 12);
+        const t = this.el("text", {
+            x: x0, y: subY - fS - 6, "font-size": fT, "font-weight": 700, fill: c.ink, "font-family": FONT
+        }, this.svg);
+        const hdrW = width - x0 - pad - (subY - fS - 6 - fT < 8 + 21 * tf ? closeW + 8 : 0);
+        t.textContent = this.truncate(cTitle !== "" ? cTitle : "ChartKitchen byDatenWG", hdrW, fT);
+        const st = this.el("text", {
+            x: x0, y: subY, "font-size": fS, fill: this.missingHint ? c.red : c.subtle, "font-family": FONT
+        }, this.svg);
+        st.textContent = this.truncate(this.missingHint
+            ?? (cBody !== "" ? cBody : this.locStr("Hub_Sub", "Start — pick what you want to do first")),
+        width - x0 - pad, fS);
+        items.forEach((it, i) => {
+            const x = x0 + (i % cols) * (bw + gap), y = y0 + Math.floor(i / cols) * (bh + gap);
+            const g = this.hubBtn(this.svg, `hub-${it.id}`, `${it.label} — ${it.desc}`, () => this.hubGo(it.id));
+            const fr = this.el("rect", {
+                x, y, width: bw, height: bh, rx: 8, fill: c.tile, stroke: c.hc ? c.ink : c.edge, "stroke-width": 1
+            }, g);
+            this.hubFrame(g, fr, c);
+            let tx = x + 14;
+            // the pictogram yields when it would cut the button label
+            const iwProbe = Math.min((bh - 16) * 1.45, bw * 0.34);
+            const labelFits = this.textWidth(it.label, fL) <= bw - 30 - iwProbe;
+            if (bh >= 56 && bw >= 210 && labelFits) {
+                const ih = bh - 16, iw = Math.min(ih * 1.45, bw * 0.34);
+                this.el("rect", {
+                    x: x + 8, y: y + 8, width: iw, height: ih, rx: 5,
+                    fill: c.paper, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1
+                }, g);
+                this.drawHubIcon(g, it.id, x + 14, y + 14, iw - 12, ih - 12, c);
+                tx = x + 8 + iw + 12;
+            }
+            const tmax = x + bw - 10 - tx;
+            const descLines = bh >= 46 ? this.hubWrap(it.desc, tmax, fD, bh >= 84 ? 2 : 1) : [];
+            const lh = Math.round(fD * 1.35);
+            const textH = fL + (descLines.length > 0 ? 6 + descLines.length * lh - (lh - fD) : 0);
+            let ty = y + (bh - textH) / 2 + fL * 0.86;
+            const lt = this.el("text", {
+                x: tx, y: ty, "font-size": fL, "font-weight": 700, fill: c.ink, "font-family": FONT
+            }, g);
+            lt.textContent = this.truncate(it.label, tmax, fL);
+            ty += 6 + fD * 0.14;
+            for (const dl of descLines) {
+                ty += lh;
+                const dt = this.el("text", {
+                    x: tx, y: ty - (lh - fD), "font-size": fD, fill: c.soft, "font-family": FONT
+                }, g);
+                dt.textContent = dl;
+            }
+        });
+        if (footH > 6) {
+            const made = this.el("text", {
+                x: width / 2, y: height - 8, "text-anchor": "middle",
+                "font-size": 10, fill: c.subtle, "font-family": FONT
+            }, this.svg);
+            made.textContent = "made by Daten-WG";
+        }
+    }
+
+    /** small pictogram per hub button, drawn with the gallery's mini pipeline */
+    private drawHubIcon(g: SVGElement, id: HubPage, x: number, y: number, w: number, h: number,
+        c: HubColors): void {
+        const mc = { ink: c.ink, grey: c.grey, teal: c.teal, red: c.red, paper: c.paper };
+        if (id === "tour") {
+            this.drawModeMini(g, "columns", x, y, w, h, mc);
+        } else if (id === "templates") {
+            // a small stack of template cards, the front one with a preview
+            for (const k of [2, 1]) {
+                this.el("rect", {
+                    x: x + k * 0.07 * w, y: y + (2 - k) * 0.07 * h, width: w * 0.84, height: h * 0.84, rx: 2,
+                    fill: c.paper, stroke: c.grey, "stroke-width": 0.8
+                }, g);
+            }
+            this.el("rect", {
+                x, y: y + 0.16 * h, width: w * 0.84, height: h * 0.84, rx: 2,
+                fill: c.paper, stroke: c.ink, "stroke-width": 0.9
+            }, g);
+            this.drawModeMini(g, "waterfall", x + 0.1 * w, y + 0.28 * h, w * 0.64, h * 0.62, mc);
+        } else if (id === "demo") {
+            const minis = ["bars", "line", "cards", "scatter"];
+            minis.forEach((m, i) => {
+                const cx = x + (i % 2) * 0.54 * w, cy = y + Math.floor(i / 2) * 0.54 * h;
+                this.drawModeMini(g, m, cx, cy, w * 0.46, h * 0.40, mc);
+            });
+        } else {
+            // field list: ✓ ✓ ○ with field bars
+            for (let i = 0; i < 3; i++) {
+                const ry = y + (0.12 + i * 0.32) * h;
+                const on = i < 2;
+                const cr = Math.max(2.5, Math.min(w, h) * 0.09);
+                this.el("circle", {
+                    cx: x + cr + 1, cy: ry + cr, r: cr,
+                    fill: on ? c.teal : c.paper, stroke: on ? c.teal : c.grey, "stroke-width": 1
+                }, g);
+                this.el("rect", {
+                    x: x + 2 * cr + 6, y: ry + cr * 0.4, width: w * (0.62 - i * 0.12), height: cr * 1.2,
+                    rx: 1, fill: on ? c.ink : c.grey
+                }, g);
+            }
+        }
+    }
+
+    /** caption of a mini preview: chart-mode name (without the bracket) or template code */
+    private hubMiniCaption(key: string): string {
+        const modes: Record<string, [string, string]> = {
+            columns: ["Enum_Orientation_Columns", "Columns (Time)"], bars: ["Enum_Orientation_Bars", "Bars (Structure)"],
+            line: ["Enum_Orientation_Line", "Line"], waterfall: ["Enum_Orientation_Waterfall", "Waterfall / Bridge"],
+            intwaterfall: ["Enum_Orientation_IntWaterfall", "Integrated Bridge"],
+            catbridge: ["Enum_Orientation_CatBridge", "Category Bridge"], table: ["Enum_Orientation_Table", "Table (IBCS)"],
+            pnl: ["Enum_Orientation_Pnl", "P&L Statement"], cards: ["Enum_Orientation_Cards", "KPI Cards"],
+            pareto: ["Enum_Orientation_Pareto", "Pareto"], dumbbell: ["Enum_Orientation_Dumbbell", "Dumbbell"],
+            slope: ["Enum_Orientation_Slope", "Slope"], scatter: ["Enum_Orientation_Scatter", "Scatter / bubble"]
+        };
+        const m = modes[key];
+        if (m) { return this.locStr(m[0], m[1]).split(/\s*[(（]/)[0].trim(); }
+        const code = Object.keys(TEMPLATE_MINI).find(k => TEMPLATE_MINI[k] === key);
+        return code ?? "";
+    }
+
+    /** the tour: one card per core capability — mini previews + 1–2 sentences */
+    private hubTourCards(): { t: string; b: string; minis: string[]; action?: HubPage }[] {
+        const L = (k: string, en: string) => this.locStr(k, en);
+        return [
+            { t: L("Tour_1_T", "13 chart modes · time series"), minis: ["columns", "line"],
+                b: L("Tour_1_B", "Columns for months and quarters, line for long series (weeks, days) — AC solid, PY grey, PL outlined, FC hatched, as IBCS prescribes.") },
+            { t: L("Tour_2_T", "13 chart modes · structure"), minis: ["bars", "table", "cards"],
+                b: L("Tour_2_B", "Bars compare regions and products; the IBCS table adds hierarchy, Σ row and matrix columns; KPI cards show the status at a glance.") },
+            { t: L("Tour_3_T", "13 chart modes · bridges & P&L"), minis: ["waterfall", "intwaterfall", "catbridge", "pnl"],
+                b: L("Tour_3_B", "Waterfall for P&L rows, the integrated bridge PY → AC across the months, the category bridge per driver and the P&L statement with cascade columns.") },
+            { t: L("Tour_4_T", "13 chart modes · analysis"), minis: ["pareto", "dumbbell", "slope", "scatter"],
+                b: L("Tour_4_B", "Pareto (ABC with cumulative %), dumbbell and slope for before/after, scatter and bubble with quadrants for two KPIs.") },
+            { t: L("Tour_5_T", "Variance panels"), minis: ["tour-variance"],
+                b: L("Tour_5_B", "ΔPY or ΔPL as absolute bars and % pins right next to the chart — good teal, bad red, below the materiality threshold grey. Dual variance shows ΔPL and ΔPY at once.") },
+            { t: L("Tour_6_T", "Small multiples"), minis: ["multiples"],
+                b: L("Tour_6_B", "One tile per region or product, all on the same scale — with a Σ total tile, Top N + rest and a zoom (⤢) per tile.") },
+            { t: L("Tour_7_T", "Comments"), minis: ["tour-comments"],
+                b: L("Tour_7_B", "Numbered markers ①② at the data point and a footnote panel — from a text measure or typed right into the report (✎ comment mode).") },
+            { t: L("Tour_8_T", "Dark mode & high contrast"), minis: ["tour-dark"],
+                b: L("Tour_8_B", "Dark report themes are detected automatically; in high-contrast mode the status shows as a pattern (filled · hollow · dashed) instead of colour.") },
+            { t: L("Tour_9_T", "Play & animation"), minis: ["tour-play"],
+                b: L("Tour_9_B", "▶ builds bridges step by step; the scatter play mode runs through the periods like Hans Rosling's bubbles.") },
+            { t: L("Tour_10_T", "YTD, materiality & exceptions"), minis: ["tour-ytd"],
+                b: L("Tour_10_B", "YTD, QTD or R12 at the click of a chip, small variances greyed out, exception reporting folds the unremarkable rows into one.") },
+            { t: L("Tour_11_T", "Templates & Smart-Start"), minis: ["stackcols", "catbridgecols", "bubble"], action: "templates",
+                b: L("Tour_11_B", "Eleven IBCS templates set mode, comparison and panels in one click; Smart-Start suggests a better chart type from the bound fields.") }
+        ];
+    }
+
+    private drawHubTour(width: number, height: number): void {
+        const c = this.hubColors();
+        const tf = this.landingTf();
+        this.ensureDemoHatch(c);
+        const cards = this.hubTourCards();
+        const n = cards.length;
+        const idx = ((this.hubTourIdx % n) + n) % n;
+        this.hubTourIdx = idx;
+        const card = cards[idx];
+        const pad = 12;
+        const fT = Math.round(14 * tf), fB = Math.round(11 * tf), fS = Math.round(9.5 * tf);
+        const backW = this.drawHubBackChip(width, c);
+        const hT = this.el("text", {
+            x: pad, y: pad + fT, "font-size": fT, "font-weight": 700, fill: c.ink, "font-family": FONT
+        }, this.svg);
+        hT.textContent = this.truncate(this.locStr("Hub_Tour", "What can the visual do?"), width - 2 * pad - backW - 8, fT);
+        const hS = this.el("text", {
+            x: pad, y: pad + fT + 5 + fS, "font-size": fS, fill: c.subtle, "font-family": FONT
+        }, this.svg);
+        hS.textContent = this.truncate(this.locStr("Hub_TourSub", "Core capabilities with mini previews — ← → to browse, Esc to go back"),
+            width - 2 * pad, fS);
+        const top = pad + fT + 5 + fS + 10;
+        const dotsH = Math.round(16 * tf);
+        const bottom = height - 6 - dotsH;
+        const ar = Math.round(12 * tf);
+        const cx0 = pad + 2 * ar + 8, cx1 = width - pad - 2 * ar - 8;
+        const cw = cx1 - cx0, ch = bottom - top;
+        const go = (d: number, focus: string) => {
+            this.hubTourIdx = (idx + d + n) % n;
+            this.hubFocus = focus;
+            this.hubRedraw();
+        };
+        // the card itself: focusable, ← → browse, Esc back
+        const cg = this.el("g", {
+            role: "group", tabindex: "0", "data-icd": "hub-tour-card", "data-idx": idx,
+            "aria-roledescription": "slide"
+        }, this.svg) as SVGGElement;
+        cg.setAttribute("aria-label", `${idx + 1} / ${n} · ${card.t} — ${card.b}`);
+        cg.style.outline = "none";
+        cg.addEventListener("keydown", (e: KeyboardEvent) => {
+            const k = e.key;
+            if (k === "ArrowRight" || k === "ArrowLeft" || k === "Escape" || k === "Home" || k === "End") {
+                e.preventDefault(); e.stopPropagation();
+            }
+            if (k === "ArrowRight") { go(1, "hub-tour-card"); }
+            else if (k === "ArrowLeft") { go(-1, "hub-tour-card"); }
+            else if (k === "Home") { go(-idx, "hub-tour-card"); }
+            else if (k === "End") { go(n - 1 - idx, "hub-tour-card"); }
+            else if (k === "Escape") { this.hubBack(); }
+        });
+        const fr = this.el("rect", {
+            x: cx0, y: top, width: cw, height: ch, rx: 8, fill: c.tile, stroke: c.hc ? c.ink : c.edge, "stroke-width": 1
+        }, cg);
+        this.hubFrame(cg, fr, c);
+        const wide = cw >= 460 && ch >= 120;
+        const ip = 12;
+        let px: number, py: number, pw: number, ph: number, tx: number, ty: number, tw: number;
+        if (wide) {
+            pw = Math.min((cw - 3 * ip) * 0.54, (ch - 2 * ip) * 2.1);
+            ph = ch - 2 * ip;
+            px = cx0 + ip; py = top + ip;
+            tx = px + pw + 16; ty = top + ip; tw = cx0 + cw - ip - tx;
+        } else {
+            pw = cw - 2 * ip;
+            ph = Math.max(40, (ch - 2 * ip) * 0.5);
+            px = cx0 + ip; py = top + ip;
+            tx = px; ty = py + ph + 8; tw = pw;
+        }
+        this.drawTourPreview(cg, card.minis, px, py, pw, ph, c, fS);
+        // text block: title (≤ 2 lines) + body (as many lines as fit) + optional action
+        const textBottom = top + ch - ip - (card.action ? Math.round(21 * tf) + 8 : 0);
+        const lhT = Math.round(fT * 1.3), lhB = Math.round(fB * 1.45);
+        const tLines = this.hubWrap(card.t, tw, fT, 2);
+        let y = ty + fT;
+        if (wide) {
+            // vertically centered next to the preview
+            const room = Math.floor((textBottom - ty - tLines.length * lhT - 6) / lhB);
+            const bl = this.hubWrap(card.b, tw, fB, Math.max(0, room)).length;
+            const blockH = tLines.length * lhT + 6 + bl * lhB + (card.action ? Math.round(21 * tf) + 8 : 0);
+            y = top + Math.max(ip, (ch - blockH) / 2) + fT;
+        }
+        for (const l of tLines) {
+            if (y > textBottom + 2) { break; }
+            const e = this.el("text", { x: tx, y, "font-size": fT, "font-weight": 700, fill: c.ink, "font-family": FONT }, cg);
+            e.textContent = l;
+            y += lhT;
+        }
+        y += 6 - lhT + lhB;
+        const room = Math.floor((textBottom - (y - lhB)) / lhB);
+        for (const l of this.hubWrap(card.b, tw, fB, Math.max(0, room))) {
+            const e = this.el("text", { x: tx, y, "font-size": fB, fill: c.soft, "font-family": FONT }, cg);
+            e.textContent = l;
+            y += lhB;
+        }
+        if (card.action) {
+            const af = Math.round(10.5 * tf), abh = Math.round(21 * tf);
+            const label = this.locStr("Hub_TourToTpl", "Open templates →");
+            const aw = Math.ceil(this.textWidth(label, af)) + 22;
+            const ay = Math.min(y - lhB + 10, top + ch - ip - abh);
+            const act = card.action;
+            const ab = this.hubBtn(this.svg, "hub-tour-action", label, () => this.hubGo(act));
+            const afr = this.el("rect", {
+                x: tx, y: ay, width: aw, height: abh, rx: 4, fill: c.teal, stroke: c.teal, "stroke-width": 1
+            }, ab);
+            this.hubFrame(ab, afr, { ...c, teal: c.ink });
+            const at = this.el("text", {
+                x: tx + aw / 2, y: ay + abh / 2 + af * 0.36, "text-anchor": "middle",
+                "font-size": af, "font-weight": 600, fill: c.onAccent, "font-family": FONT
+            }, ab);
+            at.textContent = label;
+        }
+        // ‹ › at the sides
+        const arrow = (ax: number, d: number, glyph: string, key: string) => {
+            const target = cards[(idx + d + n) % n];
+            const tip = `${d < 0 ? this.locStr("Hub_Prev", "Previous") : this.locStr("Hub_Next", "Next")}: ${target.t}`;
+            const a = this.hubBtn(this.svg, key, tip, () => go(d, key));
+            a.addEventListener("keydown", (e: KeyboardEvent) => {
+                if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+                    e.preventDefault(); e.stopPropagation(); go(e.key === "ArrowRight" ? 1 : -1, key);
+                }
+            });
+            const ci = this.el("circle", {
+                cx: ax, cy: top + ch / 2, r: ar, fill: c.tile, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1
+            }, a);
+            this.hubFrame(a, ci, c);
+            const t = this.el("text", {
+                x: ax, y: top + ch / 2 + ar * 0.38, "text-anchor": "middle",
+                "font-size": Math.round(ar * 1.1), "font-weight": 700, fill: c.ink, "font-family": FONT
+            }, a);
+            t.textContent = glyph;
+        };
+        arrow(pad + ar, -1, "‹", "hub-prev");
+        arrow(width - pad - ar, 1, "›", "hub-next");
+        // page dots + "n / N" (dots are mouse shortcuts; the keyboard uses ← →)
+        const dr = Math.max(2.5, 3 * tf), dg = Math.round(11 * tf);
+        const cnt = `${idx + 1} / ${n}`;
+        const cntW = this.textWidth(cnt, fS) + 10;
+        const dotsW = (n - 1) * dg;
+        let dx = width / 2 - (dotsW + cntW) / 2;
+        const dy = height - 6 - dotsH / 2;
+        for (let i = 0; i < n; i++) {
+            const on = i === idx;
+            const d = this.el("circle", {
+                cx: dx, cy: dy, r: dr, fill: on ? c.teal : c.paper,
+                stroke: on ? c.teal : c.hc ? c.ink : c.grey, "stroke-width": 1, "data-dot": i
+            }, this.svg);
+            if (!on) {
+                d.style.cursor = "pointer";
+                const ti = this.el("title", {}, d);
+                ti.textContent = cards[i].t;
+                d.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); go(i - idx, "hub-tour-card"); });
+            }
+            dx += dg;
+        }
+        const ct = this.el("text", {
+            x: dx - dg + 10, y: dy + fS * 0.36, "font-size": fS, fill: c.subtle, "font-family": FONT,
+            "data-icd": "hub-tour-count"
+        }, this.svg);
+        ct.textContent = cnt;
+    }
+
+    /** 1–4 mini previews in framed cells with captions (gallery pipeline) */
+    private drawTourPreview(g: SVGElement, minis: string[], x: number, y: number, w: number, h: number,
+        c: HubColors, fCap: number): void {
+        const mc = { ink: c.ink, grey: c.grey, teal: c.teal, red: c.red, paper: c.paper };
+        const n = minis.length;
+        if (n === 1) {
+            this.el("rect", { x, y, width: w, height: h, rx: 5, fill: c.paper, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1 }, g);
+            const ins = Math.min(w, h) * 0.12;
+            this.drawModeMini(g, minis[0], x + ins, y + ins, w - 2 * ins, h - 2 * ins, mc);
+            return;
+        }
+        // grid with the cell aspect closest to 1.5 : 1 (incl. caption)
+        const capH = fCap + 6;
+        let best = { cols: n, rows: 1, score: Infinity };
+        for (let cols = n; cols >= 1; cols--) {
+            const rows = Math.ceil(n / cols);
+            const cwc = (w - (cols - 1) * 8) / cols, chc = (h - (rows - 1) * 8) / rows - capH;
+            if (cwc < 30 || chc < 20) { continue; }
+            const score = Math.abs(Math.log((cwc / chc) / 1.5));
+            if (score < best.score) { best = { cols, rows, score }; }
+        }
+        const cols = best.cols, rows = best.rows;
+        const cwc = (w - (cols - 1) * 8) / cols, chc = Math.max(16, (h - (rows - 1) * 8) / rows - capH);
+        minis.forEach((m, i) => {
+            const cx = x + (i % cols) * (cwc + 8), cy = y + Math.floor(i / cols) * (chc + capH + 8);
+            this.el("rect", { x: cx, y: cy, width: cwc, height: chc, rx: 4, fill: c.paper, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1 }, g);
+            const ins = Math.min(cwc, chc) * 0.14;
+            this.drawModeMini(g, m, cx + ins, cy + ins, cwc - 2 * ins, chc - 2 * ins, mc);
+            const cap = this.el("text", {
+                x: cx + cwc / 2, y: cy + chc + fCap + 2, "text-anchor": "middle",
+                "font-size": fCap, fill: c.subtle, "font-family": FONT
+            }, g);
+            cap.textContent = this.truncate(this.hubMiniCaption(m), cwc, fCap);
+        });
+    }
+
+    /** template gallery: one tile per IBCS template (mini preview + label); a click
+     *  stores it exactly like the pane dropdown — also for the active template */
+    private drawHubTemplates(width: number, height: number): void {
+        const c = this.hubColors();
+        const tf = this.landingTf();
+        this.ensureDemoHatch(c);
+        const pad = 12, gap = 8;
+        const fT = Math.round(14 * tf), fS = Math.round(10 * tf), fC = Math.round(10 * tf), fN = Math.round(9 * tf);
+        const backW = this.drawHubBackChip(width, c);
+        const hT = this.el("text", {
+            x: pad, y: pad + fT, "font-size": fT, "font-weight": 700, fill: c.ink, "font-family": FONT
+        }, this.svg);
+        hT.textContent = this.truncate(this.locStr("Hub_TplTitle", "IBCS templates"), width - 2 * pad - backW - 8, fT);
+        const hasData = this.lastRender != null;
+        const saved = !hasData ? this.hubTplSaved : null;
+        const items = this.formattingSettings.chartCard.template.items
+            .filter(it => String(it.value) !== "off" && CHART_TEMPLATES[String(it.value)]);
+        const cur = String(this.formattingSettings.chartCard.template.value.value);
+        const subTxt = saved
+            ? this.locStr("Hub_TplSaved", "✓ {0} saved — becomes active as soon as fields are bound").replace("{0}", saved)
+            : hasData
+                ? this.locStr("Hub_TplHintData", "One click applies the template — every setting stays freely changeable afterwards")
+                : this.locStr("Hub_TplHintEmpty", "Preview with demo data — your pick is saved and becomes active as soon as fields are bound");
+        const hS = this.el("text", {
+            x: pad, y: pad + fT + 5 + fS, "font-size": fS, fill: saved ? c.teal : c.subtle,
+            "font-family": FONT, "font-weight": saved ? 600 : 400, "data-icd": "hub-tpl-hint"
+        }, this.svg);
+        hS.textContent = this.truncate(subTxt, width - 2 * pad, fS);
+        const roles = this.boundRoles();
+        const top = pad + fT + 5 + fS + 10;
+        const availW = width - 2 * pad;
+        const minTW = Math.round(128 * Math.min(1.2, tf)), minTH = Math.round(54 + 2 * fC);
+        const cols = Math.max(1, Math.min(6, Math.floor((availW + gap) / (minTW + gap))));
+        const navH = Math.round(22 * tf) + 6;
+        let availH = height - top - 6;
+        let rowsFit = Math.max(1, Math.floor((availH + gap) / (minTH + gap)));
+        let pages = Math.ceil(items.length / (cols * rowsFit));
+        if (pages > 1) {
+            availH -= navH;
+            rowsFit = Math.max(1, Math.floor((availH + gap) / (minTH + gap)));
+            pages = Math.ceil(items.length / (cols * rowsFit));
+        }
+        const per = cols * rowsFit;
+        const page = Math.max(0, Math.min(pages - 1, this.hubTplPage));
+        this.hubTplPage = page;
+        const shown = items.slice(page * per, page * per + per);
+        const rowsUsed = pages > 1 ? rowsFit : Math.ceil(shown.length / cols);
+        const tw = Math.min(200, (availW - (cols - 1) * gap) / cols);
+        const th = Math.min(150, (availH - (rowsUsed - 1) * gap) / rowsUsed);
+        const blockW = cols * tw + (cols - 1) * gap, blockH = rowsUsed * th + (rowsUsed - 1) * gap;
+        const x0 = pad + Math.max(0, (availW - blockW) / 2);
+        // the grid hugs the header (a centered block left a gap under the title)
+        const y0 = top + (pages > 1 ? Math.max(0, (availH - blockH) / 2) : 0);
+        shown.forEach((it, i) => {
+            const code = String(it.value);
+            const label = String(it.displayName);
+            const on = code === cur;
+            const need = TEMPLATE_NEEDS[code];
+            const needTxt = need ? this.locStr("Hub_TplNeeds", "needs the field: {0}")
+                .replace("{0}", this.locStr(need.key, need.en).split(/\s*[(（]/)[0].trim()) : "";
+            const missing = need != null && !roles.has(need.role);
+            const x = x0 + (i % cols) * (tw + gap), y = y0 + Math.floor(i / cols) * (th + gap);
+            const tip = `${label}${needTxt ? ` — ${needTxt}` : ""}${on ? ` · ${this.locStr("Hub_TplActive", "active — click applies it again")}` : ""}`;
+            const g = this.hubBtn(this.svg, `hub-tpl-${code}`, tip, () => this.hubPickTemplate(code));
+            g.setAttribute("aria-pressed", String(on));
+            const fr = this.el("rect", {
+                x, y, width: tw, height: th, rx: 6, fill: on ? c.tileOn : c.tile,
+                stroke: on ? c.teal : c.hc ? c.ink : c.edge, "stroke-width": on ? 1.6 : 1
+            }, g);
+            this.hubFrame(g, fr, c);
+            const showNeed = missing && th >= 96;
+            const capH = fC + 8 + (showNeed ? fN + 3 : 0);
+            const pvX = x + 6, pvY = y + 6, pvW = tw - 12, pvH = th - 12 - capH;
+            this.el("rect", {
+                x: pvX, y: pvY, width: pvW, height: pvH, rx: 4, fill: c.paper,
+                stroke: on ? c.teal : c.hc ? c.ink : c.edge2, "stroke-width": 1
+            }, g);
+            const ins = Math.max(4, Math.min(pvW, pvH) * 0.12);
+            this.drawModeMini(g, TEMPLATE_MINI[code] ?? "columns", pvX + ins, pvY + ins, pvW - 2 * ins, pvH - 2 * ins,
+                { ink: c.ink, grey: c.grey, teal: c.teal, red: c.red, paper: c.paper });
+            const cap = this.el("text", {
+                x: x + 8, y: pvY + pvH + 4 + fC, "font-size": fC, fill: c.ink, "font-family": FONT,
+                "font-weight": on ? 700 : 400
+            }, g);
+            cap.textContent = this.truncate(`${on ? "✓ " : ""}${label}`, tw - 14, fC);
+            if (showNeed) {
+                const nt = this.el("text", {
+                    x: x + 8, y: pvY + pvH + 4 + fC + 3 + fN, "font-size": fN, fill: c.subtle, "font-family": FONT
+                }, g);
+                nt.textContent = this.truncate(`+ ${needTxt}`, tw - 14, fN);
+            }
+        });
+        if (pages > 1) {
+            const ny = height - 6 - navH / 2;
+            const lbl = `${page + 1} / ${pages}`;
+            const lw = this.textWidth(lbl, fS) + 16;
+            const nav = (cx: number, d: number, glyph: string, key: string) => {
+                const r = Math.round(10 * tf);
+                const tip = d < 0 ? this.locStr("Hub_Prev", "Previous") : this.locStr("Hub_Next", "Next");
+                const a = this.hubBtn(this.svg, key, tip, () => {
+                    this.hubTplPage = (page + d + pages) % pages;
+                    this.hubFocus = key;
+                    this.hubRedraw();
+                });
+                const ci = this.el("circle", { cx, cy: ny, r, fill: c.tile, stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1 }, a);
+                this.hubFrame(a, ci, c);
+                const t = this.el("text", {
+                    x: cx, y: ny + r * 0.4, "text-anchor": "middle", "font-size": Math.round(r * 1.2),
+                    "font-weight": 700, fill: c.ink, "font-family": FONT
+                }, a);
+                t.textContent = glyph;
+            };
+            nav(width / 2 - lw / 2 - 14, -1, "‹", "hub-tpl-prev");
+            nav(width / 2 + lw / 2 + 14, 1, "›", "hub-tpl-next");
+            const pt = this.el("text", {
+                x: width / 2, y: ny + fS * 0.36, "text-anchor": "middle", "font-size": fS, fill: c.subtle, "font-family": FONT
+            }, this.svg);
+            pt.textContent = lbl;
+        }
+    }
+
+    /** gallery click: bound chart → apply + close (the result shows at once);
+     *  empty state → saved, marked ✓, active as soon as fields are bound */
+    private hubPickTemplate(tpl: string): void {
+        this.pickTemplate(tpl);
+        if (this.hubOpen && this.lastRender) {
+            this.hubDirty = true;
+            this.closeHub();
+            return;
+        }
+        this.hubTplSaved = tpl;
+        this.hubFocus = `hub-tpl-${tpl}`;
+        this.hubRedraw();
     }
 
     /** small schematic previews for the landing gallery — fixed brand colors */
@@ -2979,6 +3983,191 @@ export class Visual implements IVisual {
                     cx: x + 0.78 * w, cy: y + 0.28 * h, r: 6.4 * u,
                     fill: "none", stroke: c.teal, "stroke-width": 1.2
                 }, g);
+                break;
+            }
+            // ---- 1.50 hub previews (template gallery + feature tour) ----
+            case "stackcols": {
+                // C01: stacked columns — dark base, half tone, outlined top segment
+                const segs = [[0.30, 0.18, 0.12], [0.34, 0.20, 0.14], [0.38, 0.18, 0.18], [0.42, 0.24, 0.18], [0.46, 0.22, 0.22]];
+                segs.forEach((seg, i) => {
+                    let base = 1;
+                    seg.forEach((sh, j) => {
+                        base -= sh;
+                        r(0.04 + i * 0.195, base, 0.14, sh, j === 2 ? c.paper : c.ink,
+                            j === 1 ? { "fill-opacity": 0.45 } : j === 2 ? { stroke: c.ink, "stroke-width": 1 } : {});
+                    });
+                });
+                line(0, 1, 1, 1, c.ink, 1.6);
+                break;
+            }
+            case "stackbars": {
+                // C02: stacked bars, longest on top
+                const segs = [[0.36, 0.24, 0.18], [0.30, 0.20, 0.14], [0.24, 0.16, 0.12], [0.18, 0.12, 0.08]];
+                segs.forEach((seg, i) => {
+                    let x0 = 0;
+                    seg.forEach((sw2, j) => {
+                        r(x0, 0.05 + i * 0.245, sw2, 0.17, j === 2 ? c.paper : c.ink,
+                            j === 1 ? { "fill-opacity": 0.45 } : j === 2 ? { stroke: c.ink, "stroke-width": 1 } : {});
+                        x0 += sw2;
+                    });
+                });
+                line(0, 0, 0, 1, c.ink, 1.6);
+                break;
+            }
+            case "catbridgecols": {
+                // C06: category bridge as vertical cascade — PY total, drivers, AC total
+                r(0.00, 0.34, 0.13, 0.66, c.grey);
+                r(0.18, 0.20, 0.12, 0.14, c.teal); r(0.34, 0.10, 0.12, 0.10, c.teal);
+                r(0.50, 0.10, 0.12, 0.18, c.red); r(0.66, 0.16, 0.12, 0.12, c.teal);
+                r(0.84, 0.16, 0.14, 0.84, c.ink);
+                line(0.13, 0.34, 0.18, 0.34, c.grey, 0.8); line(0.30, 0.20, 0.34, 0.20, c.grey, 0.8);
+                line(0.46, 0.10, 0.50, 0.10, c.grey, 0.8); line(0.62, 0.28, 0.66, 0.28, c.grey, 0.8);
+                line(0.78, 0.16, 0.84, 0.16, c.grey, 0.8);
+                line(0, 1, 1, 1, c.ink, 1.6);
+                break;
+            }
+            case "bubble": {
+                // C10: scatter whose point AREA carries a third measure + size legend
+                const u = Math.max(0.6, Math.min(w, h) / 60);
+                for (const [x1, y1, x2, y2] of [[0.52, 0, 0.52, 1], [0, 0.48, 1, 0.48]]) {
+                    this.el("line", {
+                        x1: x + x1 * w, y1: y + y1 * h, x2: x + x2 * w, y2: y + y2 * h,
+                        stroke: c.grey, "stroke-width": 1, "stroke-dasharray": "3,2"
+                    }, g);
+                }
+                line(0, 0, 0, 1, c.ink, 1.2); line(0, 1, 1, 1, c.ink, 1.2);
+                const dots: [number, number, number][] = [[0.14, 0.76, 3], [0.27, 0.58, 6.5], [0.40, 0.72, 4],
+                    [0.56, 0.36, 8.5], [0.68, 0.60, 5], [0.84, 0.20, 6]];
+                for (const [dx, dy, dr] of dots) {
+                    this.el("circle", {
+                        cx: x + dx * w, cy: y + dy * h, r: dr * u,
+                        fill: c.ink, "fill-opacity": 0.35, stroke: c.ink, "stroke-width": 0.8
+                    }, g);
+                }
+                for (const rr of [5, 3.2, 1.8]) {
+                    this.el("circle", {
+                        cx: x + 0.88 * w, cy: y + 0.95 * h - rr * u, r: rr * u,
+                        fill: "none", stroke: c.grey, "stroke-width": 0.8
+                    }, g);
+                }
+                break;
+            }
+            case "multiples": {
+                // C13: 2 × 2 tiles on ONE scale — equal heights mean equal values
+                const tiles = [[0.90, 0.80, 1.00, 0.86], [0.60, 0.55, 0.70, 0.62], [0.40, 0.46, 0.36, 0.50], [0.24, 0.20, 0.30, 0.22]];
+                tiles.forEach((hs, ti) => {
+                    const tx = (ti % 2) * 0.52, ty = Math.floor(ti / 2) * 0.52;
+                    this.el("rect", {
+                        x: x + tx * w, y: y + ty * h, width: 0.48 * w, height: 0.48 * h, rx: 2,
+                        fill: c.paper, stroke: c.grey, "stroke-width": 0.8
+                    }, g);
+                    hs.forEach((hh, i) => r(tx + 0.05 + i * 0.105, ty + 0.44 - 0.36 * hh, 0.07, 0.36 * hh, c.ink));
+                    line(tx + 0.03, ty + 0.44, tx + 0.45, ty + 0.44, c.ink, 1);
+                });
+                break;
+            }
+            case "tour-variance": {
+                // Δ% pins on top, absolute Δ bars in the middle, PY/AC columns at the base
+                const d = [0.6, -0.4, 0.8, 0.3, -0.7];
+                const acH = [0.30, 0.26, 0.34, 0.30, 0.24];
+                d.forEach((v, i) => {
+                    const cx = 0.10 + i * 0.19;
+                    const col = v >= 0 ? c.teal : c.red;
+                    line(cx, 0.17, cx, 0.17 - v * 0.14, col, 1.4);
+                    this.el("rect", {
+                        x: x + cx * w - 1.8, y: y + (0.17 - v * 0.14) * h - 1.8, width: 3.6, height: 3.6, fill: c.ink
+                    }, g);
+                    r(cx - 0.05, v >= 0 ? 0.46 - v * 0.14 : 0.46, 0.10, Math.abs(v) * 0.14, col);
+                    const pyH = acH[i] - v * 0.05;
+                    r(cx - 0.075, 1 - pyH, 0.06, pyH, c.grey);
+                    r(cx - 0.01, 1 - acH[i], 0.08, acH[i], c.ink);
+                });
+                line(0, 0.17, 1, 0.17, c.grey, 0.8); line(0, 0.46, 1, 0.46, c.grey, 0.8);
+                line(0, 1, 1, 1, c.ink, 1.6);
+                break;
+            }
+            case "tour-comments": {
+                // columns with numbered markers ①② and the footnote panel on the right
+                const hs = [0.42, 0.60, 0.36, 0.66, 0.50];
+                hs.forEach((hh, i) => r(0.02 + i * 0.13, 1 - hh, 0.09, hh, c.ink));
+                line(0, 1, 0.66, 1, c.ink, 1.6);
+                const u = Math.max(0.6, Math.min(w, h) / 60);
+                const fz = Math.max(5, 6.5 * u);
+                const mark = (mx: number, my: number, no: string) => {
+                    this.el("circle", { cx: x + mx * w, cy: y + my * h, r: 5.2 * u, fill: c.paper, stroke: c.ink, "stroke-width": 0.9 }, g);
+                    const t = this.el("text", {
+                        x: x + mx * w, y: y + my * h + fz * 0.36, "text-anchor": "middle",
+                        "font-size": fz, "font-weight": 700, fill: c.ink, "font-family": FONT
+                    }, g);
+                    t.textContent = no;
+                };
+                mark(0.195, 0.40 - 0.08, "1");
+                mark(0.455, 0.34 - 0.08, "2");
+                line(0.72, 0.04, 0.72, 1, c.grey, 0.8);
+                mark(0.79, 0.14, "1");
+                r(0.85, 0.11, 0.14, 0.06, c.grey); r(0.85, 0.20, 0.10, 0.05, c.grey);
+                mark(0.79, 0.46, "2");
+                r(0.85, 0.43, 0.13, 0.06, c.grey); r(0.85, 0.52, 0.08, 0.05, c.grey);
+                break;
+            }
+            case "tour-dark": {
+                // the same chart on a light and on a dark theme ground
+                this.drawModeMini(g, "bars", x + 0.02 * w, y + 0.08 * h, w * 0.42, h * 0.84, c);
+                this.el("rect", {
+                    x: x + 0.52 * w, y, width: 0.48 * w, height: h, rx: 3, fill: DARK_PAPER
+                }, g);
+                this.drawModeMini(g, "bars", x + 0.56 * w, y + 0.08 * h, w * 0.40, h * 0.84,
+                    { ink: DARK_INK, grey: "#8A8A8A", teal: "#3FB3C2", red: "#E4635F", paper: DARK_PAPER });
+                break;
+            }
+            case "tour-play": {
+                // a bubble moving through the periods (trail) + the ▶ play button
+                const u = Math.max(0.6, Math.min(w, h) / 60);
+                line(0, 0, 0, 1, c.ink, 1.2); line(0, 1, 1, 1, c.ink, 1.2);
+                const trail: [number, number][] = [[0.14, 0.80], [0.28, 0.66], [0.42, 0.56], [0.56, 0.40], [0.68, 0.26]];
+                trail.forEach(([tx, ty], i) => {
+                    const last = i === trail.length - 1;
+                    this.el("circle", {
+                        cx: x + tx * w, cy: y + ty * h, r: (last ? 5 : 3) * u,
+                        fill: last ? c.teal : c.grey, "fill-opacity": last ? 1 : 0.25 + i * 0.15
+                    }, g);
+                });
+                const trail2: [number, number][] = [[0.20, 0.50], [0.30, 0.56], [0.40, 0.64]];
+                trail2.forEach(([tx, ty], i) => {
+                    this.el("circle", {
+                        cx: x + tx * w, cy: y + ty * h, r: (i === 2 ? 4 : 2.6) * u,
+                        fill: c.ink, "fill-opacity": i === 2 ? 0.8 : 0.2 + i * 0.2
+                    }, g);
+                });
+                const pr = Math.min(w, h) * 0.13;
+                const pcx = x + 0.86 * w, pcy = y + 0.78 * h;
+                this.el("circle", { cx: pcx, cy: pcy, r: pr, fill: c.ink }, g);
+                this.el("path", {
+                    d: `M${pcx - pr * 0.32},${pcy - pr * 0.45} L${pcx + pr * 0.5},${pcy} L${pcx - pr * 0.32},${pcy + pr * 0.45} Z`,
+                    fill: c.paper
+                }, g);
+                break;
+            }
+            case "tour-ytd": {
+                // cumulative columns climbing + the YTD chip; one immaterial variance grey
+                const hs = [0.16, 0.30, 0.44, 0.58, 0.74];
+                hs.forEach((hh, i) => r(0.03 + i * 0.13, 1 - hh, 0.09, hh, c.ink));
+                line(0, 1, 0.68, 1, c.ink, 1.6);
+                const u = Math.max(0.6, Math.min(w, h) / 60);
+                const fz = Math.max(5, 7 * u);
+                this.el("rect", {
+                    x: x + 0.74 * w, y: y + 0.02 * h, width: 0.26 * w, height: Math.max(8, fz * 1.7),
+                    rx: Math.max(4, fz * 0.85), fill: c.ink
+                }, g);
+                const t = this.el("text", {
+                    x: x + 0.87 * w, y: y + 0.02 * h + Math.max(8, fz * 1.7) / 2 + fz * 0.36, "text-anchor": "middle",
+                    "font-size": fz, "font-weight": 700, fill: c.paper, "font-family": FONT
+                }, g);
+                t.textContent = "YTD";
+                line(0.76, 0.62, 1, 0.62, c.grey, 0.8);
+                r(0.78, 0.44, 0.05, 0.18, c.teal);
+                r(0.86, 0.58, 0.05, 0.04, c.grey);
+                r(0.94, 0.62, 0.05, 0.16, c.red);
                 break;
             }
         }

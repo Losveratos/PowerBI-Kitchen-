@@ -2134,5 +2134,269 @@ addStage("c219", "HC · Palette ohne foreground/background/foregroundSelected �
 runCap("c219", dataView(months.slice(0, 6), [col("actual", ac.slice(0, 6)), col("previousYear", py.slice(0, 6))]), 480, 240, { palette: { isHighContrast: true } });
 check(document.querySelectorAll("#c219 svg rect").length > 5, "c219: rendert trotz unvollständiger Palette");
 </script>
+<script>
+// ======================================================================
+// 1.50 · Start-Hub (c220+) — Leerzustand im Bearbeitungsmodus, ☰-Start-Overlay,
+// Vorlagen-Galerie, Re-Apply, ↺-Zurück-Chip; Leser/Export unverändert
+// ======================================================================
+const hubQ = (id, key) => document.querySelector(`#${id} [data-icd="${key}"]`);
+const hubClick = (id, key) => {
+  const g = hubQ(id, key);
+  if (!g) { console.error("FAIL · " + id + ": element " + key + " fehlt"); return; }
+  if (g.tagName === "BUTTON") { g.click(); return; }
+  (g.querySelector("rect,circle,text") || g).dispatchEvent(new MouseEvent("click", { bubbles: true }));
+};
+const hubKey = (id, key, k) => { const g = hubQ(id, key); g && g.dispatchEvent(new KeyboardEvent("keydown", { key: k, bubbles: true })); };
+const hubPages = ["hub-tour", "hub-templates", "hub-demo", "hub-fields"];
+const tourIdx = (id) => { const c = hubQ(id, "hub-tour-card"); return c ? Number(c.getAttribute("data-idx")) : -1; };
+const mainSvg = (id) => document.querySelector(`#${id} > svg:not([data-icd])`);
+const overlay = (id) => document.querySelector(`#${id} > svg[data-icd="hub-overlay"]`);
+const bound = (objs) => dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €")], objs);
+const c03 = { template: "C03", templateApplied: "C03", orientation: "columns", comparisonMode: "py",
+  showAbsoluteVariance: true, showRelativeVariance: true, dualVariance: false, waterfallStyle: false };
+
+// c220: Default-Leerzustand im Bearbeitungsmodus = Start-Hub mit vier großen Knöpfen
+addStage("c220", "Start-Hub (emptyState.mode = hub, neuer Default) · Bearbeitungsmodus · 2 × 2", 960, 380);
+runCap("c220", emptyDv({}), 960, 380, { viewMode: 1 });
+check(hubPages.every(k => !!hubQ("c220", k)) && window.__persist.c220.length === 0 && !hubQ("c220", "chip-bar"),
+  "c220: Hub mit Tour · Templates · Demo · Felder, kein persistProperties");
+addStage("c220b", "Start-Hub schmal (340 × 260) · eine Spalte", 340, 260);
+runCap("c220b", emptyDv({}), 340, 260, { viewMode: 1 });
+addStage("c220c", "Start-Hub breit + flach (1300 × 240) · vier in einer Reihe · Full-HD-Preset", 1300, 240);
+runCap("c220c", emptyDv({ labels: { fontPreset: "fullhd" } }), 1300, 240, { viewMode: 1 });
+check(["c220b", "c220c"].every(id => hubPages.every(k => !!hubQ(id, k))), "c220b/c: alle vier Knöpfe in jeder Größe");
+
+// c221: Tour blättern — Klick ›, Pfeiltasten, End/Wrap, Esc zurück
+addStage("c221", "Feature-Tour · › + Pfeiltasten + End + Wrap + Esc · endet auf Karte 3 (Brücken & GuV)", 960, 380);
+{
+  runCap("c221", emptyDv({}), 960, 380, { viewMode: 1 });
+  hubClick("c221", "hub-tour");
+  const seq = [tourIdx("c221")];
+  hubClick("c221", "hub-next"); seq.push(tourIdx("c221"));
+  hubKey("c221", "hub-tour-card", "ArrowRight"); seq.push(tourIdx("c221"));
+  hubKey("c221", "hub-tour-card", "ArrowLeft"); seq.push(tourIdx("c221"));
+  hubKey("c221", "hub-tour-card", "End"); seq.push(tourIdx("c221"));
+  hubKey("c221", "hub-tour-card", "ArrowRight"); seq.push(tourIdx("c221"));
+  hubClick("c221", "hub-prev"); seq.push(tourIdx("c221"));
+  check(JSON.stringify(seq) === "[0,1,2,1,10,0,10]", "c221: Blättern 0→1→2→1→End 10→Wrap 0→‹ 10 " + JSON.stringify(seq));
+  const cnt = hubQ("c221", "hub-tour-count");
+  check(!!cnt && cnt.textContent === "11 / 11", "c221: Zähler „11 / 11“");
+  hubKey("c221", "hub-tour-card", "Escape");
+  check(!!hubQ("c221", "hub-tour") && !hubQ("c221", "hub-tour-card"), "c221: Esc → zurück zum Hub");
+  hubClick("c221", "hub-tour"); hubClick("c221", "hub-next"); hubClick("c221", "hub-next");
+  check(window.__persist.c221.length === 0 && tourIdx("c221") === 2, "c221: Navigation persistiert nichts");
+}
+const tourAt = (id, title, w, h, idx, opts) => {
+  addStage(id, title, w, h, opts && opts.bg);
+  runCap(id, emptyDv((opts && opts.objs) || {}), w, h, Object.assign({ viewMode: 1 }, opts || {}));
+  hubClick(id, "hub-tour");
+  for (let i = 0; i < idx; i++) { hubKey(id, "hub-tour-card", "ArrowRight"); }
+};
+tourAt("c221b", "Tour · Karte 5 Varianz-Panels · Dark Mode (colors.appearance = dark)", 960, 340, 4,
+  { objs: { colors: { appearance: "dark" } }, bg: "#1E1E1E" });
+tourAt("c221c", "Tour · Karte 8 Dark Mode & Hochkontrast · Hochkontrast-Palette", 960, 340, 7,
+  { palette: hcPal, bg: "#000" });
+tourAt("c221d", "Tour · Karte 6 Small Multiples · schmal (360 × 300)", 360, 300, 5);
+tourAt("c221e", "Tour · Karte 11 Vorlagen & Smart-Start → Aktionsknopf öffnet die Galerie", 960, 340, 10);
+{
+  check(!!hubQ("c221e", "hub-tour-action"), "c221e: Aktionsknopf „Vorlagen öffnen“");
+  addStage("c221f", "Tour · Karte 1 Zeitreihen (Gegenprobe Klick auf Aktionsknopf in c221e → Galerie)", 960, 340);
+  runCap("c221f", emptyDv({}), 960, 340, { viewMode: 1 });
+  hubClick("c221f", "hub-tour");
+  hubClick("c221e", "hub-tour-action");
+  check(!!hubQ("c221e", "hub-tpl-C01") && !hubQ("c221e", "hub-tour-card"), "c221e: Aktionsknopf → Vorlagen-Galerie");
+}
+
+// c222: Vorlagen-Galerie ohne Felder — Klick speichert wie das Dropdown, greift beim Binden
+addStage("c222", "Vorlagen-Galerie ohne Felder · Klick C03 → EIN Merge · Echo · dann Felder binden → C03 aktiv", 960, 420);
+{
+  const r = runCap("c222", emptyDv({}), 960, 420, { viewMode: 1 });
+  hubClick("c222", "hub-templates");
+  const tiles = [...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8));
+  check(JSON.stringify(tiles) === '["C01","C02","C03","C04","C05","C06","C08","C09","C10","C12","C13"]', "c222: 11 Vorlagen-Kacheln " + JSON.stringify(tiles));
+  hubClick("c222", "hub-tpl-C03");
+  const pp = window.__persist.c222;
+  const m = pp.length === 1 ? pp[0].merge[0] : null;
+  check(!!m && m.objectName === "chart" && m.properties.template === "C03" && m.properties.templateApplied === "C03"
+    && m.properties.orientation === "columns" && m.properties.comparisonMode === "py" && m.properties.showRelativeVariance === true,
+    "c222: EIN persistProperties-Merge mit template + templateApplied + Preset " + JSON.stringify(m && m.properties));
+  check(hubQ("c222", "hub-tpl-C03").getAttribute("aria-pressed") === "true" && /C03/.test(hubQ("c222", "hub-tpl-hint").textContent),
+    "c222: Kachel ✓ + Hinweis „gespeichert … aktiv, sobald Felder gebunden sind“");
+  r.upd(emptyDv({ chart: Object.assign({}, m.properties) }));
+  check(pp.length === 1 && hubQ("c222", "hub-tpl-C03").getAttribute("aria-pressed") === "true", "c222: Host-Echo → kein zweiter Merge, Galerie bleibt");
+  r.upd(bound({ chart: Object.assign({}, m.properties, { orientation: "bars" }) }));
+  // Felder gebunden: die gespeicherte Wahl ist schon angewandt — bars aus dem Pane bleibt frei änderbar
+  check(pp.length === 1 && String(r.v.formattingSettings.chartCard.orientation.value.value) === "bars" && !!r.v.lastRender,
+    "c222: Binden wendet nicht erneut an (frei änderbar), kein Merge");
+  r.upd(bound({ chart: Object.assign({}, m.properties) }));
+  check(pp.length === 1 && String(r.v.formattingSettings.chartCard.orientation.value.value) === "columns", "c222: Chart mit C03-Stand");
+}
+addStage("c222b", "Vorlagen-Galerie · Dark Mode · C05 gewählt (✓) · Kachel-Hinweise „braucht Feld …“", 1100, 460, "#1E1E1E");
+{
+  runCap("c222b", emptyDv({ colors: { appearance: "dark" } }), 1100, 460, { viewMode: 1 });
+  hubClick("c222b", "hub-templates"); hubClick("c222b", "hub-tpl-C05");
+}
+addStage("c222c", "Vorlagen-Galerie klein (320 × 230) · Seiten ‹ › · Seite 2", 320, 230);
+{
+  runCap("c222c", emptyDv({}), 320, 230, { viewMode: 1 });
+  hubClick("c222c", "hub-templates");
+  const p1 = [...document.querySelectorAll('#c222c [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd"));
+  hubClick("c222c", "hub-tpl-next");
+  const p2 = [...document.querySelectorAll('#c222c [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd"));
+  check(p1.length > 0 && p2.length > 0 && p1[0] !== p2[0] && window.__persist.c222c.length === 0, "c222c: Blättern zeigt die nächsten Kacheln, kein Persist");
+}
+addStage("c222d", "Vorlagen-Galerie · Hochkontrast", 960, 400, "#000");
+runCap("c222d", emptyDv({}), 960, 400, { viewMode: 1, palette: hcPal });
+hubClick("c222d", "hub-templates");
+
+// c223: ↺ Zum Template zurück — nur Edit-Modus, nur bei Abweichung
+addStage("c223", "↺-Chip · C03 gesetzt, Chart-Typ auf Balken umgestellt → Klick stellt den Vorlagen-Stand her", 960, 400);
+{
+  const r = runCap("c223", bound({ chart: Object.assign({}, c03, { orientation: "bars" }) }), 960, 400, { viewMode: 1 });
+  const chip = hubQ("c223", "tpl-reset");
+  check(!!chip && window.__persist.c223.length === 0, "c223: ↺-Chip sichtbar bei Abweichung, Render persistiert nichts");
+  hubClick("c223", "tpl-reset");
+  const pp = window.__persist.c223;
+  const props = pp.length === 1 ? pp[0].merge[0].properties : {};
+  check(pp.length === 1 && props.orientation === "columns" && props.templateApplied === "C03" && !("template" in props),
+    "c223: EIN Merge mit dem Preset + templateApplied " + JSON.stringify(props));
+  check(String(r.v.formattingSettings.chartCard.orientation.value.value) === "columns" && !hubQ("c223", "tpl-reset"),
+    "c223: sofort Säulen, Chip verschwindet");
+  r.upd(bound({ chart: Object.assign({}, c03, { orientation: "bars" }) }));
+  check(String(r.v.formattingSettings.chartCard.orientation.value.value) === "columns" && pp.length === 1,
+    "c223: stale Update kippt nicht zurück (Echo-Guard)");
+  r.upd(bound({ chart: Object.assign({}, c03) }));
+  check(r.v.templatePending === null && !hubQ("c223", "tpl-reset") && pp.length === 1, "c223: Echo beendet den Guard");
+}
+addStage("c223b", "↺-Chip-Gegenproben · keine Abweichung (links) · Leser mit Abweichung (rechts)", 960, 300);
+{
+  const st = document.getElementById("c223b"); st.style.display = "flex";
+  const a = document.createElement("div"); a.id = "c223b1"; a.style.cssText = "width:480px;height:300px;position:relative";
+  const b = document.createElement("div"); b.id = "c223b2"; b.style.cssText = "width:480px;height:300px;position:relative";
+  st.appendChild(a); st.appendChild(b);
+  runCap("c223b1", bound({ chart: Object.assign({}, c03) }), 480, 300, { viewMode: 1 });
+  runCap("c223b2", bound({ chart: Object.assign({}, c03, { orientation: "bars" }) }), 480, 300, { viewMode: 0 });
+  check(!hubQ("c223b1", "tpl-reset") && !!hubQ("c223b1", "hub-chip") && !hubQ("c223b2", "chip-bar"),
+    "c223b: ohne Abweichung kein ↺ · Leser ohne Chips");
+}
+
+// c224: Re-Apply — dasselbe Template in der Galerie erneut klicken wendet es wieder an
+addStage("c224", "Re-Apply · ☰ Start → Vorlagen → aktive C03 erneut klicken → Merge + Overlay zu", 960, 420);
+{
+  const r = runCap("c224", bound({ chart: Object.assign({}, c03) }), 960, 420, { viewMode: 1 });
+  hubClick("c224", "hub-chip");
+  check(!!overlay("c224") && overlay("c224").style.display === "block" && mainSvg("c224").style.display === "none",
+    "c224: Overlay offen, Chart nur verborgen");
+  hubClick("c224", "hub-templates");
+  check(hubQ("c224", "hub-tpl-C03").getAttribute("aria-pressed") === "true", "c224: C03 als aktiv markiert");
+  hubClick("c224", "hub-tpl-C03");
+  const pp = window.__persist.c224;
+  check(pp.length === 1 && pp[0].merge[0].properties.templateApplied === "C03" && pp[0].merge[0].properties.template === "C03",
+    "c224: gleiche Vorlage erneut → EIN Merge (kein No-op)");
+  check(overlay("c224").style.display === "none" && mainSvg("c224").style.display === "block", "c224: Overlay geschlossen, Chart sichtbar");
+  // Abweichung + Dropdown-Wert bleibt C03: Re-Apply per Galerie stellt den Stand wieder her
+  r.upd(bound({ chart: Object.assign({}, c03, { orientation: "line" }) }));
+  hubClick("c224", "hub-chip"); hubClick("c224", "hub-templates"); hubClick("c224", "hub-tpl-C03");
+  check(pp.length === 2 && pp[1].merge[0].properties.orientation === "columns"
+    && String(r.v.formattingSettings.chartCard.orientation.value.value) === "columns", "c224: Re-Apply nach Abweichung → Säulen");
+}
+
+// c225: ☰ Start-Overlay — Schließen stellt den Chart exakt wieder her
+addStage("c225", "☰ Start · Overlay öffnen → Tour blättern → zurück → schließen = Chart unverändert (SVG identisch)", 960, 420);
+{
+  const r = runCap("c225", bound({}), 960, 420, { viewMode: 1 });
+  const chip = hubQ("c225", "hub-chip");
+  check(!!chip && chip.style.opacity === "0", "c225: ☰-Chip vorhanden, dezent (erst bei Hover/Fokus sichtbar)");
+  document.getElementById("c225").dispatchEvent(new MouseEvent("mouseenter"));
+  check(chip.style.opacity === "1", "c225: Hover zeigt den ☰-Chip");
+  document.getElementById("c225").dispatchEvent(new MouseEvent("mouseleave"));
+  const before = mainSvg("c225").innerHTML;
+  hubClick("c225", "hub-chip");
+  check(!hubQ("c225", "chip-bar") && !!hubQ("c225", "hub-close") && hubPages.every(k => !!hubQ("c225", k)), "c225: Hub im Overlay, Chips weg, ✕ Schließen");
+  hubClick("c225", "hub-tour"); hubClick("c225", "hub-next"); hubClick("c225", "hub-back");
+  hubClick("c225", "hub-close");
+  check(mainSvg("c225").innerHTML === before && mainSvg("c225").style.display === "block" && overlay("c225").style.display === "none"
+    && window.__persist.c225.length === 0 && !!hubQ("c225", "hub-chip"), "c225: Schließen → Chart-SVG identisch, nichts persistiert, Chip zurück");
+  // Esc auf der Hub-Startseite schließt ebenfalls
+  hubClick("c225", "hub-chip");
+  hubKey("c225", "hub-tour", "Escape");
+  check(overlay("c225").style.display === "none" && mainSvg("c225").innerHTML === before, "c225: Esc schließt das Overlay");
+  // Host-Update unter offenem Overlay: Hub bleibt auf seiner Seite
+  hubClick("c225", "hub-chip"); hubClick("c225", "hub-fields");
+  r.upd(bound({}));
+  check(overlay("c225").style.display === "block" && !!hubQ("c225", "field-intro") && mainSvg("c225").style.display === "none",
+    "c225: Update unter offenem Overlay → Feld-Intro bleibt offen");
+  // Wechsel in die Leseansicht schließt das Overlay
+  r.upd(bound({}), { viewMode: 0 });
+  check(overlay("c225").style.display === "none" && mainSvg("c225").style.display === "block" && !hubQ("c225", "chip-bar"),
+    "c225: Leseansicht → Overlay zu, keine Chips");
+  r.upd(bound({}), { viewMode: 1 });
+}
+addStage("c225b", "☰ Start-Overlay offen über gebundenem Chart (Startseite mit ✕ Schließen)", 960, 380);
+runCap("c225b", bound({ chart: { template: "C04", templateApplied: "C04", orientation: "bars", comparisonMode: "plan" } }), 960, 380, { viewMode: 1 });
+hubClick("c225b", "hub-chip");
+
+// c226: Leser/Export unverändert — Default (hub) rendert für Leser exakt die bisherige Galerie
+addStage("c226", "Leser (viewMode 0) · Default-Modus hub → bisherige Galerie, identisch zum Zwilling mode = demo", 960, 380);
+addStage("c226b", "Zwilling · mode = demo · Leser", 960, 380);
+addStage("c226c", "Export (allowInteractions = false) · Default hub → Galerie wie bisher", 960, 380);
+addStage("c226d", "Zwilling · mode = demo · Export", 960, 380);
+{
+  runCap("c226", emptyDv({}), 960, 380, { viewMode: 0 });
+  runCap("c226b", emptyDv({ emptyState: { mode: "demo" } }), 960, 380, { viewMode: 0 });
+  runCap("c226c", emptyDv({}), 960, 380, { viewMode: 1, noInteract: true });
+  runCap("c226d", emptyDv({ emptyState: { mode: "demo" } }), 960, 380, { viewMode: 1, noInteract: true });
+  const html = (id) => document.querySelector(`#${id} svg`).innerHTML;
+  check(html("c226") === html("c226b") && !hubQ("c226", "hub-tour"), "c226: Leser sehen nie den Hub (SVG identisch zur Galerie)");
+  check(html("c226c") === html("c226d") && !hubQ("c226c", "hub-tour"), "c226: Export sieht nie den Hub");
+  addStage("c226e", "Leser · eigene Nachricht gesetzt → nur Titel + Text (wie bisher)", 960, 240);
+  runCap("c226e", emptyDv({ emptyState: { title: "Keine Daten", body: "Bitte Filter prüfen." } }), 960, 240, { viewMode: 0 });
+  check(!hubQ("c226e", "hub-tour") && /Keine Daten/.test(document.querySelector("#c226e svg").textContent), "c226e: Leser + eigene Nachricht unverändert");
+}
+
+// c227: Unterseiten Felder erklären + Demo ansehen, jeweils mit ← Zurück
+addStage("c227", "Hub → Felder erklären (Feld-Intro mit ← Zurück, Kategorie + PY gebunden)", 960, 380);
+{
+  runCap("c227", emptyDv({}, [{ source: { displayName: "Monat", roles: { category: true } }, values: months }], [col("previousYear", py)]), 960, 380, { viewMode: 1 });
+  hubClick("c227", "hub-fields");
+  const m = fiMarks("c227");
+  check(!!hubQ("c227", "field-intro") && !!hubQ("c227", "hub-back") && m.category === "1" && m.previousYear === "1" && !hubQ("c227", "es-demo"),
+    "c227: Feld-Intro mit ✓ + ← Zurück statt Umschalter");
+  hubClick("c227", "hub-back");
+  check(!!hubQ("c227", "hub-fields") && !hubQ("c227", "field-intro"), "c227: ← Zurück → Hub");
+  hubClick("c227", "hub-fields");
+}
+addStage("c227b", "Hub → Demo ansehen (bisherige Galerie + ← Zurück) · Klick Modus → persist, bleibt auf der Seite", 960, 420);
+{
+  runCap("c227b", emptyDv({}), 960, 420, { viewMode: 1 });
+  hubClick("c227b", "hub-demo");
+  const tiles = [...document.querySelectorAll('#c227b svg g[role=button][aria-pressed]')].filter(g => !/:/.test(g.getAttribute("aria-label")));
+  check(tiles.length === 13 && !!hubQ("c227b", "hub-back"), "c227b: 13 Modus-Kacheln + ← Zurück");
+  tiles[1].querySelector("rect").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  const pp = window.__persist.c227b;
+  check(pp.length === 1 && pp[0].merge[0].properties.orientation === "bars" && !!hubQ("c227b", "hub-back"),
+    "c227b: Modus-Klick persistiert orientation, Galerie bleibt Unterseite");
+}
+// c228: Feld-Intro/Nachricht bieten den Weg zurück zum Hub
+addStage("c228", "mode = message · Umschalter „☰ Start-Hub“ → persist mode = hub + Hub sofort", 960, 300);
+{
+  runCap("c228", emptyDv({ emptyState: { mode: "message", title: "Keine Daten", body: "Bitte Filter prüfen." } }), 960, 300, { viewMode: 1 });
+  hubClick("c228", "es-hub");
+  const pp = window.__persist.c228;
+  check(pp.length === 1 && pp[0].merge[0].properties.mode === "hub" && !!hubQ("c228", "hub-tour"), "c228: Umschalter → Hub");
+}
+// c229: Echo-Guard der Galerie-Wahl — stale Update mit altem Dropdown-Wert kippt nicht
+addStage("c229", "Galerie-Wahl C05 · stale Update (template = off) → kein Rückfall, kein zweiter Merge · Echo", 480, 260);
+{
+  const r = runCap("c229", emptyDv({ chart: { template: "off", templateApplied: "off" } }), 480, 260, { viewMode: 1 });
+  hubClick("c229", "hub-templates"); hubClick("c229", "hub-tpl-C05");
+  r.upd(emptyDv({ chart: { template: "off", templateApplied: "off" } }));
+  const pp = window.__persist.c229;
+  check(pp.length === 1 && String(r.v.formattingSettings.chartCard.template.value.value) === "C05"
+    && String(r.v.formattingSettings.chartCard.orientation.value.value) === "intwaterfall", "c229: stale Update → C05 bleibt, ein Merge");
+  r.upd(emptyDv({ chart: Object.assign({}, pp[0].merge[0].properties) }));
+  check(r.v.templatePending === null && pp.length === 1, "c229: Echo beendet den Guard");
+}
+</script>
 </body>
 </html>
