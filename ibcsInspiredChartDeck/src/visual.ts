@@ -3011,6 +3011,9 @@ export class Visual implements IVisual {
 
     private hubGo(page: HubPage, focus?: string): void {
         const from = this.hubPage;
+        // the tour always starts with its first card, the gallery with its first page
+        if (page === "tour" && from !== "tour") { this.hubTourIdx = 0; }
+        if (page === "templates" && from !== "templates") { this.hubTplPage = 0; }
         this.hubPage = page;
         this.hubFocus = focus ?? (page === "home" ? `hub-${from}` : "hub-back");
         this.hubRedraw();
@@ -3323,7 +3326,10 @@ export class Visual implements IVisual {
             }, g);
             this.hubFrame(g, fr, c);
             let tx = x + 14;
-            if (bh >= 56 && bw >= 210) {
+            // the pictogram yields when it would cut the button label
+            const iwProbe = Math.min((bh - 16) * 1.45, bw * 0.34);
+            const labelFits = this.textWidth(it.label, fL) <= bw - 30 - iwProbe;
+            if (bh >= 56 && bw >= 210 && labelFits) {
                 const ih = bh - 16, iw = Math.min(ih * 1.45, bw * 0.34);
                 this.el("rect", {
                     x: x + 8, y: y + 8, width: iw, height: ih, rx: 5,
@@ -3696,14 +3702,15 @@ export class Visual implements IVisual {
         const th = Math.min(150, (availH - (rowsUsed - 1) * gap) / rowsUsed);
         const blockW = cols * tw + (cols - 1) * gap, blockH = rowsUsed * th + (rowsUsed - 1) * gap;
         const x0 = pad + Math.max(0, (availW - blockW) / 2);
-        const y0 = top + Math.max(0, (availH - blockH) / 2);
+        // the grid hugs the header (a centered block left a gap under the title)
+        const y0 = top + (pages > 1 ? Math.max(0, (availH - blockH) / 2) : 0);
         shown.forEach((it, i) => {
             const code = String(it.value);
             const label = String(it.displayName);
             const on = code === cur;
             const need = TEMPLATE_NEEDS[code];
             const needTxt = need ? this.locStr("Hub_TplNeeds", "needs the field: {0}")
-                .replace("{0}", this.locStr(need.key, need.en)) : "";
+                .replace("{0}", this.locStr(need.key, need.en).split(/\s*[(（]/)[0].trim()) : "";
             const missing = need != null && !roles.has(need.role);
             const x = x0 + (i % cols) * (tw + gap), y = y0 + Math.floor(i / cols) * (th + gap);
             const tip = `${label}${needTxt ? ` — ${needTxt}` : ""}${on ? ` · ${this.locStr("Hub_TplActive", "active — click applies it again")}` : ""}`;
