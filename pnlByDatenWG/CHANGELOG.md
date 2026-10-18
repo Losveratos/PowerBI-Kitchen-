@@ -1,5 +1,39 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.4.1.0 (2026-10-18) — Familien-Hub: ein Look mit ChartKitchen
+
+Der Start-Hub fühlt sich wie im Schwester-Visual ChartKitchen an (eine
+Produktfamilie, gemeinsame Spezifikation). Keine neue Property, keine neue
+Rolle, capabilities.json und persistierte Werte unverändert; Werttreiberbaum
+unangetastet. Pixel-Regression aller 58 Harness-Bühnen gegen 1.4.0.0:
+52 byte-identisch, gewollte Abweichungen nur auf den Hub-Bühnen p12, p21–p24,
+p26 (Leiste, Titelzeile, Kacheln, Galerie-Überschriften, ← Zurück, Loslegen);
+die Mega-Shots m1–m31 und alle übrigen Test-PNGs unverändert.
+
+- **Untere Leiste (jede Hub-Seite):** „Aa" + drei Pillen **HD · Full HD ·
+  UHD** (Radius = Höhe/2, aktiv Teal #0E8585 mit weißer Schrift, Dark
+  #3FB3C2 mit dunkler Schrift, Hochkontrast mit foregroundSelected-Rahmen,
+  6 px Abstand), danach der gedämpfte Hinweis „Schriftgröße — HD für Laptops ·
+  Full HD für Monitore · UHD für Beamer & 4K" (bei Platzmangel fällt nur er
+  weg), rechts „📖 Doku öffnen" als Outline-Pille. Paddings 8 px · 12 px,
+  1-px-Trennlinie in 10 % Tinte, 38 px hoch (HD); darunter mittig die
+  Signatur „made by Daten-WG" (9 px, 60 % Deckkraft).
+- **Labels umbenannt:** Formatmenü „Schriftgrößen-Preset" zeigt jetzt **HD ·
+  Full HD · UHD** (statt „HD (kompakt)" / „UHD / Präsentation"), vier
+  Sprachen. Gespeicherte Werte (`hd` · `fullhd` · `uhd`) bleiben — Berichte
+  ändern sich nicht.
+- **Familien-Werte im Hub:** Titelzeile Produktname fett (700) + Untertitel in
+  ink-soft; Einstiegs-Kacheln mit 10 px Ecken und dem Hover-Lift der Galerie
+  (−2 px); „🚀 Loslegen" in Teal über die volle Breite des Kachelblocks;
+  „← Zurück" als Outline-Pille links oben; Galerie-Gruppen als
+  GROSSBUCHSTABEN-Eyebrow in ink-soft (11 px·k).
+- **Lesemodus ohne Daten:** Leser und Exporte sehen statt des Feld-Hinweistexts
+  eine ruhige Landing-Karte — Produktname fett, „Dieses Visual hat noch keine
+  Daten — Felder werden im Bearbeitungsmodus gebunden." (der emptyState-Text
+  des Autors gewinnt weiterhin) und eine statische Reihe aus drei
+  Chart-Schemata. Keine Buttons, keine Pillen, kein Doku-Link. Der
+  Bearbeitungsmodus (Hub, kleine Visuals) bleibt wie in 1.4.
+
 ## 1.4.0.0 (2026-10-18) — Hub-Polish: Self-Service für Controller
 
 Der Einstieg soll für Controller und Finance ohne Sackgassen funktionieren —

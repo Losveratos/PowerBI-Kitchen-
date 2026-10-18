@@ -2460,7 +2460,7 @@ export class Visual implements IVisual {
         bar.appendChild(seg);
         // the hint: one muted line; where it does not fit, only the hint goes (hubFitNote) — never the pills
         const note = document.createElement("span");
-        note.setAttribute("data-pnl", "hub-font-note");
+        note.setAttribute("data-pnl", "hub-hint");
         note.textContent = this.tr("UI_HubFont");
         note.style.cssText = `flex:1 1 0;min-width:0;color:${f.soft};font-size:${this.kpx(10)};line-height:1.3;` +
             "white-space:nowrap;overflow:hidden;";
@@ -2494,7 +2494,7 @@ export class Visual implements IVisual {
 
     /** after the page is attached: the hint of the bottom bar disappears when it does not fit its line */
     private hubFitNote(scope: HTMLElement): void {
-        const n = scope.querySelector<HTMLElement>('[data-pnl="hub-font-note"]');
+        const n = scope.querySelector<HTMLElement>('[data-pnl="hub-hint"]');
         if (!n) { return; }
         n.style.visibility = "";
         n.removeAttribute("data-hidden");
@@ -3441,8 +3441,8 @@ export class Visual implements IVisual {
         this.root.style.background = this.pageBg();
         // emptyState (1.1, ChartKitchen 1.44): readers get the author's own text
         // instead of the field instructions; edit mode keeps the instructions
-        const isEdit = this.viewMode == null || this.viewMode >= 1;
-        if (this.customEmpty() && !isEdit) { this.renderEmptyMessage(); return; }
+        // 1.4.1 readers and exports (no edit aids allowed): the calm family landing card
+        if (!this.startAllowed()) { this.root.replaceChildren(this.readLanding()); return; }
         const box = document.createElement("div");
         box.style.cssText = "padding:22px 26px;max-width:600px;";
         const h = document.createElement("div");
@@ -3453,6 +3453,89 @@ export class Visual implements IVisual {
         p.textContent = this.tr("UI_Landing");
         box.appendChild(h); box.appendChild(p);
         this.root.replaceChildren(box);
+    }
+
+    /**
+     * 1.4.1 family landing card for readers and exports without data (the
+     * same build in ChartKitchen): the product name bold — or the author's
+     * emptyState title —, one ink-soft line "no data yet — fields are bound in
+     * edit mode" — or the author's emptyState text, which still wins —, and,
+     * where there is room, a quiet row of three static chart schemata. No
+     * button, no pill, no docs link: nothing to click.
+     */
+    private readLanding(): HTMLElement {
+        const e = this.settings?.emptyStateCard;
+        const ownTitle = e ? e.title.value.trim() : "";
+        const ownBody = e ? e.body.value.trim() : "";
+        const f = this.hubFam();
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "read-landing");
+        wrap.style.cssText = "padding:16px;box-sizing:border-box;";
+        const card = document.createElement("div");
+        card.setAttribute("data-pnl", "empty-state");
+        card.style.cssText = `max-width:520px;box-sizing:border-box;padding:14px 16px;border:1px solid ${f.hc ? f.ink : C.cardEdge};` +
+            `border-radius:10px;background:${f.paper};color:${f.ink};font-family:${FONT};`;
+        const h = document.createElement("div");
+        h.setAttribute("data-pnl", "read-title");
+        h.style.cssText = `font-size:${this.kpx(15)};font-weight:700;line-height:1.3;`;
+        h.textContent = ownTitle || "P&L Statement byDatenWG";
+        const p = document.createElement("div");
+        p.setAttribute("data-pnl", "read-text");
+        p.style.cssText = `font-size:${this.kpx(11)};color:${f.soft};line-height:1.5;margin-top:4px;`;
+        p.textContent = ownBody || this.tr("UI_ReadEmpty");
+        card.appendChild(h); card.appendChild(p);
+        const w = this.vpW || this.root.clientWidth; const hh = this.vpH || this.root.clientHeight;
+        if (w >= 280 && hh >= 170) { card.appendChild(this.readSchemata(f)); }
+        wrap.appendChild(card);
+        return wrap;
+    }
+
+    /** three static, decorative chart schemata of the landing card: statement, variance bars, driver tree */
+    private readSchemata(f: { hc: boolean; ink: string; soft: string; teal: string; tealEdge: string }): HTMLElement {
+        const row = document.createElement("div");
+        row.setAttribute("data-pnl", "read-schemata");
+        row.setAttribute("aria-hidden", "true");
+        row.style.cssText = "display:flex;gap:10px;margin-top:12px;pointer-events:none;";
+        const ns = "http://www.w3.org/2000/svg";
+        const W = 72, H = 44;
+        const grey = f.hc ? f.ink : C.py, ink = f.hc ? f.ink : C.ac, good = f.hc ? f.ink : f.tealEdge, bad = f.hc ? f.ink : C.tealBad;
+        const mk = (draw: (add: (tag: string, a: Record<string, string | number>) => void) => void): SVGSVGElement => {
+            const svg = document.createElementNS(ns, "svg");
+            svg.setAttribute("width", String(W)); svg.setAttribute("height", String(H));
+            svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+            svg.style.cssText = `display:block;border:1px solid ${f.hc ? f.ink : C.cardEdge};border-radius:6px;opacity:.75;`;
+            draw((tag, a) => {
+                const el = document.createElementNS(ns, tag);
+                for (const k of Object.keys(a)) { el.setAttribute(k, String(a[k])); }
+                svg.appendChild(el);
+            });
+            return svg;
+        };
+        // statement: label lines, values, a total line
+        row.appendChild(mk(add => {
+            for (let i = 0; i < 4; i++) {
+                const y = 9 + i * 8;
+                add("rect", { x: 7, y: y - 1.5, width: i === 3 ? 22 : 18 + (i % 2) * 6, height: 3, fill: grey });
+                add("rect", { x: 46, y: y - 1.5, width: 18, height: 3, fill: i === 3 ? ink : grey });
+            }
+            add("line", { x1: 7, y1: 31.5, x2: 65, y2: 31.5, stroke: ink, "stroke-width": 1 });
+        }));
+        // variance bars: an axis with good / bad bars
+        row.appendChild(mk(add => {
+            add("line", { x1: 36, y1: 6, x2: 36, y2: 38, stroke: ink, "stroke-width": 1 });
+            const bars: [number, number][] = [[14, 1], [-9, 0], [20, 1], [-5, 0]];
+            bars.forEach(([v, g], i) => {
+                const y = 8 + i * 8;
+                add("rect", { x: v >= 0 ? 36 : 36 + v, y, width: Math.abs(v), height: 5, fill: g ? good : bad });
+            });
+        }));
+        // driver tree: a root card with three children
+        row.appendChild(mk(add => {
+            add("rect", { x: 6, y: 17, width: 16, height: 10, rx: 2, fill: "none", stroke: ink, "stroke-width": 1 });
+            add("path", { d: "M22 22 H31 M31 9 V35 M31 9 H40 M31 22 H40 M31 35 H40", fill: "none", stroke: grey, "stroke-width": 1 });
+            for (const y of [4, 17, 30]) { add("rect", { x: 40, y, width: 24, height: 10, rx: 2, fill: "none", stroke: grey, "stroke-width": 1 }); }
+        }));
+        return row;
     }
 
     private renderEmpty(): void {

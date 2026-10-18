@@ -13,6 +13,7 @@ export const UI_EN: Record<string, string> = {
     UI_Drill: "↗ Drill",
     UI_DrillTip: "Set the selection of this card and open the drillthrough targets",
     UI_Landing: "Add the AC measure plus level columns (L1..Ln, star schema) or Account ID + Parent ID. Optional: PY / PL / FC, FY outlook measures (FC/PL full year), period (month) for sparklines, row type, formula, sign, comment.",
+    UI_ReadEmpty: "This visual has no data yet — fields are bound in edit mode.",
     UI_NoData: "No data for the current selection.",
     UI_ScaleNote: "uniform Δ scale: bars ±{0} · pins ±40%",
     UI_TitleMeasure: "Income statement (P&L)",

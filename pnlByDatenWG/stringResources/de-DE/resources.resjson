@@ -284,6 +284,7 @@
   "UI_Drill": "↗ Drill",
   "UI_DrillTip": "Selektion dieser Karte setzen und Drillthrough-Ziele öffnen",
   "UI_Landing": "AC-Measure zuweisen plus Ebenen-Spalten (L1..Ln, Sternschema) oder Konto-ID + Parent-ID. Optional: PY / PL / FC, FY-Outlook-Measures (FC/PL Gesamtjahr), Periode (Monat) für Sparklines, Zeilentyp, Formel, Vorzeichen, Kommentar.",
+  "UI_ReadEmpty": "Dieses Visual hat noch keine Daten — Felder werden im Bearbeitungsmodus gebunden.",
   "UI_NoData": "Keine Daten für die aktuelle Auswahl.",
   "UI_ScaleNote": "einheitliche Δ-Skala: Balken ±{0} · Pins ±40%",
   "UI_TitleMeasure": "GuV (P&L)",

@@ -284,6 +284,7 @@
   "UI_Drill": "↗ Detalle",
   "UI_DrillTip": "Fijar la selección de esta tarjeta y abrir los destinos de obtención de detalles",
   "UI_Landing": "Añada la medida AC y las columnas de nivel (L1..Ln, esquema en estrella) o ID de cuenta + ID padre. Opcional: PY / PL / FC, medidas de perspectiva anual (FC/PL año completo), periodo (mes) para minigráficos, tipo de fila, fórmula, signo, comentario.",
+  "UI_ReadEmpty": "Este visual aún no tiene datos — los campos se asignan en el modo de edición.",
   "UI_NoData": "No hay datos para la selección actual.",
   "UI_ScaleNote": "escala Δ uniforme: barras ±{0} · pines ±40%",
   "UI_TitleMeasure": "Cuenta de resultados (P&L)",
