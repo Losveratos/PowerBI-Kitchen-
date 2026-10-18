@@ -6,13 +6,13 @@
 
 *Titelbild: Dietmar Schuch. Cover mit freundlicher Genehmigung von Michael Thomanek.*
 
-Interview · Persönliche Entwicklung
+Interview · Philosophie & Persönliche Entwicklung
 
-Wie inneres Kämpfen dich wandelt. Auf der Matte und im Alltag.
+Wie inneres Kämpfen dich wandelt – Auf der Matte und im Alltag
 
 Michael Tenner im Gespräch mit Michael Thomanek, „Micha“, über sein Buch, über persönliche Entwicklung und über die Frage, was davon im Projektalltag von Datenleuten trägt.
 
-Interview · Persönliche Entwicklung · Lesezeit ca. 12 Min. · Entwurf
+Interview · Philosophie & Persönliche Entwicklung · Lesezeit ca. 12 Min. · Entwurf
 
 > **Entwurf, nicht veröffentlicht.** Diese Seite ist noch nirgends verlinkt und für Suchmaschinen gesperrt. Stellen mit [Entwurf] sind Platzhalter zum Überarbeiten, die Antworten von Micha folgen nach dem Gespräch.
 
@@ -136,31 +136,31 @@ Ein typisches Beispiel: „Ach, ich muss zur Arbeit, ich hab keinen Bock, aber i
 
 „Je größer der Widerstand, desto weniger Strom fließt.“
 
-### Frage 6 · Was passiert auf der Matte, das im Kopf ankommt?
+### Frage 6 · Was passiert auf der Matte, das im Herzen ankommt?
 
 Jenseits von Selbstverteidigung kommt man durch die Übungen in einen Fluss. Das Wichtigste zuerst: Dem Trainer gelingt es oft, den Kopf auszuschalten. Wie bei einem Kind, das hingefallen ist und gleich anfängt zu weinen. Man klatscht in die Hände, sagt „guck mal, da oben“, und das Kind ist ganz woanders. Ähnlich ist es mit Schülern auf der Matte. Werden die Bewegungen fließend geübt, werden sie mit der Wiederholung widerstandslos. Und genau das überträgt sich auf das Innere, auf das Mentale.
 
-Ich habe meine Schüler immer so ernst genommen wie mich selbst und versucht, Blockaden zu lösen, die mir aufgefallen sind. Es gibt Menschen, die laufen steif, und genauso steif tanzen sie auch. Nach einer Zeit im Training werden sie insgesamt flüssiger, auch beim Tanzen.
+Ich habe meine Schüler immer so ernst genommen wie mich selbst und versucht, Blockaden zu lösen, die mir aufgefallen sind. Es gibt Menschen, die bewegen sich steif, und genauso steif tanzen sie auch. Nach einiger Zeit im Training werden ihre Bewegungen insgesamt fließender, auch beim Tanzen. Weil ihre Lebensenergie wieder freier fließen kann.
 
 Wichtig ist mir die Unterscheidung zwischen Kampfkunst, Selbstverteidigung und Kampfsport. Das sind drei Paar Schuhe, die die meisten vermischen. MMA zum Beispiel ist ganz klar Kampfsport, vor allem Wettkampfsport. Bei uns lernt man realistische, sehr effektive Techniken, aber die Leute kommen nicht, weil an der nächsten Haltestelle ein Feind wartet. Die wichtigste „Technik“ ist für mich eine Einstellung: Offenheit. Wer offen ist, nimmt mehr wahr. Wer mehr wahrnimmt, erkennt Gefahren früher, kann sie vermeiden, oft gar nicht erst entstehen lassen, notfalls abwenden und erst ganz zuletzt sich verteidigen. Offen sein heißt dabei nicht, keine Grenzen zu haben.
 
 ### Frage 7 · Warum sollte jemand, der im Job vor einer schwierigen Entscheidung steht, dein Buch lesen?
 
-Ich glaube, dass wir Menschen uns mit der Vorstellung von uns selbst verwechseln. Wir nehmen eine Rolle ein: Vater, Bruder, Freund, Mutter, Trainer und so weiter. Irgendwann sind wir diese Rolle, leben als diese Rolle und merken nicht mehr, dass wir sie nur leben. Ich glaube, dass wir darüber hinaus mehr sind. Mit diesem Mehr erkennt man auch das Potenzial.
+Ich glaube, dass wir Menschen uns mit dem inneren Bild von uns selbst verwechseln. Wir nehmen eine Rolle ein: Vater, Bruder, Freund, Mutter, Trainer und so weiter. Irgendwann sind wir diese Rolle, leben als diese Rolle und merken nicht mehr, dass wir sie nur leben. Ich glaube, dass wir darüber hinaus mehr sind. Mit diesem Mehr erkennt man auch das Potenzial.
 
 Von diesem Standpunkt aus kann man besser differenzieren und gerät nicht so leicht in einen inneren Konflikt. Dann kann ich abwägen und auch eine schwierige Entscheidung sachlich treffen, ohne selbst ein emotionales Problem damit zu haben.
 
-Hilft das gegen den mentalen Overload, den gerade so viele spüren? Es kann helfen, wenn man es ernst meint und sich darauf einlässt. Im Grunde ist es eine ganz langweilige Stille oder Meditation, die auf sich selbst zurückführt. Und der Blick darauf, wogegen wir eigentlich ständig sind: gegen das System, gegen andere, gegen uns selbst. Das sind erst mal nur Geschichten, die sich in unserem Kopf zeigen. Wir suchen gern etwas, damit wir uns nicht für uns selbst verantworten müssen. Das tun die meisten Menschen.
+Hilft das gegen den mentalen Overload, den gerade so viele spüren? Es kann helfen, wenn man es ernst meint und sich darauf einlässt. Im Grunde ist es eine ganz langweilige Stille oder Meditation, die auf sich selbst zurückführt. Und der Blick darauf, wogegen wir eigentlich ständig sind: gegen das System, gegen andere, gegen uns selbst. Das sind erst mal nur Geschichten, die sich in unserem Kopf zeigen. Wir suchen gern etwas, damit wir uns nicht für uns selbst verantworten müssen.
 
-„Wir verwechseln uns mit der Vorstellung von uns selbst.“
+„Wir verwechseln uns mit dem inneren Bild von uns selbst.“
 
 ### Frage 8 · Was sollen Leser aus dem Buch mitnehmen, und was kommt als Nächstes?
 
-Drei Dinge. Erstens: Wer sich für Kampfkunst interessiert, kann sich danach klar einordnen. Interessiere ich mich mehr für Kampfsport, für Selbstverteidigung oder für Kampfkunst? Daraus entsteht innere Stärke, immer mehr Angstfreiheit, immer mehr Bei-sich-Sein. Zweitens die Verwechslung: dass wir uns mit unseren Vorstellungen und Rollen von uns selbst verwechseln. Drittens schließt sich am Ende der Kreis mit der Frage, wie man einen eigenen Weg gestalten kann, mit universellen Beispielen, die man für sich nutzen kann. Oder man lässt es.
+Drei Dinge. Erstens: Wer sich für Kampfkunst interessiert, kann sich danach klar einordnen. Interessiere ich mich mehr für Kampfsport, für Selbstverteidigung oder für Kampfkunst? Daraus entsteht innere Stärke, immer mehr Angstfreiheit, immer mehr Bei-sich-Sein. Zweitens die Verwechslung: dass wir uns mit dem inneren Bild von uns selbst und mit unseren Rollen verwechseln. Drittens schließt sich am Ende der Kreis mit der Frage, wie man einen eigenen Weg gestalten kann, mit universellen Beispielen, die man für sich nutzen kann. Oder man lässt es.
 
 Ganz praktisch: In Kapitel 7, „Übung und Alltag“, gibt es eine Anleitung, mit der man Dinge zu Hause auf dem Stuhl oder im Bett ausprobieren und im Alltag anwenden kann.
 
-Ich bin kein Verkäufer, und ich habe das Buch nicht geschrieben, um Geld zu verdienen. Ich wollte Menschen erreichen. In meinen Trainingsgruppen sind meist zehn Leute, und von denen erreiche ich viele. Wenn du zehn erreichst, kannst du auch tausend erreichen. Die müssen nur zuhören oder eben ein Buch lesen. Gefehlt hat lange die Zeit. Am Ende habe ich mir drei Monate auf Fuerteventura genommen, eine Struktur erarbeitet und geschrieben. Das war verdammt anstrengend, und ich habe mir ein paarmal gewünscht, ich hätte es mir nicht vorgenommen. Gerade arbeite ich an einer Kinderversion. Diesmal ohne Deadline.
+Ich bin kein Verkäufer, und ich habe das Buch nicht geschrieben, um Geld zu verdienen. Ich wollte Menschen erreichen. In meinen Trainingsgruppen sind in der Regel zehn Menschen, und von ihnen erreiche ich viele. Irgendwann dachte ich mir: Wenn ich zehn Menschen erreichen kann, warum dann nicht auch tausend? Sie müssen nur zuhören und offen dafür sein, oder eben dieses Buch lesen. Lange fehlte mir die Zeit, dieses Buch zu schreiben. Schließlich konnte ich mir drei Monate auf Fuerteventura dafür nehmen, eine Struktur erarbeiten und schreiben. Das war verdammt anstrengend, und ich habe mir ein paarmal gewünscht, ich hätte es mir nicht vorgenommen. Gerade arbeite ich an einer Jugendversion. Das wird keine vereinfachte Ausgabe des Buches, sondern eine eigenständige Geschichte. Diesmal ohne Deadline.
 
 ## Was ich für mich mitnehme
 
@@ -172,7 +172,7 @@ Und das Dritte: Kopf, Geist und Körper kann man nicht trennen. Micha zeigt das 
 
 ### Der unsichtbare Kampf
 
-Wie inneres Kämpfen dich wandelt. Auf der Matte und im Alltag
+Wie inneres Kämpfen dich wandelt – Auf der Matte und im Alltag
 
 - **Autor:** Michael Thomanek
 - **Verlag:** Kenamo Verlag
