@@ -6,31 +6,148 @@ Power BI visual · End-user documentation
 
 An IBCS-inspired chart deck for Power BI: 13 chart modes in a single visual, with a consistent scenario notation (AC filled, PY grey, PL outlined, FC hatched) and variances built in throughout. This documentation takes you from import through the 13 modes and the key features to the complete settings reference.
 
-Version · **1.48.0.0** · As of · **2026-10-16** · IBCS-inspired
+Version · **1.51.1.0** · As of · **2026-10-18** · IBCS-inspired
 
 ## Contents
 
 1. [What is ChartKitchen?](#intro)
-2. [Quick start](#quickstart)
-3. [The 13 modes](#modes)
-4. [ChartKitchen in action](#inaction)
-5. [Features in detail](#features)
-6. [Settings reference](#settings)
-7. [FAQ & troubleshooting](#faq)
+2. [The product family](#family)
+3. [The start hub](#hub)
+4. [Quick start](#quickstart)
+5. [The 13 modes](#modes)
+6. [ChartKitchen in action](#inaction)
+7. [Features in detail](#features)
+8. [Settings reference](#settings)
+9. [FAQ & troubleshooting](#faq)
 
 ## 01 · What is ChartKitchen?
 
-**ChartKitchen byDatenWG** is a single Power BI custom visual that unifies 13 chart modes — from columns, bars and lines through waterfall and bridge layouts to an IBCS table (with a matrix variant), KPI cards, a full P&L statement and a scatter/bubble plot for correlations. Instead of picking a different visual for every question, you switch the orientation and keep the same notation, colours and scaling logic.
+**ChartKitchen byDatenWG** is a single Power BI custom visual that unifies 13 chart modes — from columns, bars and lines through waterfall and bridge layouts to an IBCS table (with a matrix variant), KPI cards, a full P&L statement and a scatter/bubble plot for correlations. Instead of picking a different visual for every question, you switch the orientation and keep the same notation, colours and scaling logic. For the income statement in depth there is the sister visual [P&L Statement byDatenWG](../pnl-doku_en.html) — same notation, same start hub; chapter 02 “The product family” shows how the two work together.
 
 The design is inspired by the **IBCS® principles** (International Business Communication Standards): one consistent scenario notation — **AC** (actual) filled, **PY** (prior year) grey, **PL** (plan) outlined, **FC** (forecast) hatched — and variances that are always present: absolute and relative variance panels appear automatically next to or above the base chart. Every chart reads by the same rules, whichever mode you choose.
 
-This guide describes the state of version **1.48.0.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 03.
+This guide describes the state of version **1.51.1.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07).
 
-## 02 · Quick start
+## 02 · The product family
+
+ChartKitchen and P&L Statement are two visuals from one kitchen: the same IBCS notation, the same handling, the same start hub. They do not compete, they complement each other — ChartKitchen covers the **breadth** of chart forms, P&L Statement the **depth** of the income statement.
+
+### Which visual for what?
+
+Breadth · 13 chart modes
+
+#### ChartKitchen byDatenWG
+
+One visual for every question about trend, structure and correlation — “How is … developing?”, “Who drives …?”.
+
+- **Time series:** columns and line, the integrated bridge PY → AC across the months, hatched forecast, YTD at a click.
+- **Structures:** bars, category bridge, Pareto, dumbbell and slope, plus the IBCS table and matrix.
+- **Scatter & bubble:** two measures against each other, with quadrants, trend line, movement arrows and play mode.
+- **KPI cards:** monitoring tiles with status light, bullet against a benchmark and trend sparkline.
+- **Small multiples:** one tile per region or product, all on the same scale, with Σ and top-N tiles.
+
+✓ This documentation
+
+Depth · tables & statements
+
+#### P&L Statement byDatenWG
+
+The income statement row by row — “What is in the P&L, and why does it deviate?”.
+
+- **Mega table:** the IBCS table templates T01–T04 plus 12A, 12G and 12H — value cascades, Δ waterfalls, pins, thresholds.
+- **Formula engine:** hierarchy, subtotals, formula and margin rows straight from the account dimension (level columns or parent-child).
+- **Value driver tree:** the formula graph as a DuPont tree with mini charts on every card and a tile zoom per node.
+- **Period blocks:** month · YTD · FY outlook side by side; readers switch columns, reference and unit in the toolbar.
+- **Structure bars & row waterfall:** the same P&L rows as size bars or as a cascade with result anchors.
+
+[Go to the P&L docs →](../pnl-doku_en.html#family)
+
+> **A typical report page uses both side by side** — the P&L from P&L Statement on the left, ChartKitchen with the monthly trend, a driver bridge or KPI cards on the right. With `fixedMax` they share the scale: enter the same amount in ChartKitchen under *Scale & reference line → Scale minimum maximum* and in P&L Statement under *Numbers → Scale minimum-maximum (values)* — equal amounts then give bars of equal length (IBCS: identical scales).
+
+### Shared handling
+
+If you can operate one of the two visuals, you can operate the other: getting started, templates and rendering follow one shared specification. The table lists what is the same and where it sits in each visual.
+
+| Shared | ChartKitchen | P&L Statement |
+| --- | --- | --- |
+| **Start hub** 🚀 Get started plus four buttons: tour · template gallery · demo · explain fields — edit mode only. | Tour with 11 cards, demo = gallery of the 13 chart types, field guide with all 19 roles. | Tour with 7 cards (real mini renderings), demo = example P&L, field guide with all 20 roles. |
+| **Templates as presets** Gallery by purpose; one click sets every switch, afterwards everything is free. “↺ Back to template” restores the template state. | 11 IBCS chart templates C01–C13 (without C07/C11) in four groups; ↺ at the bottom left of the chart. | 17 IBCS table templates T01A–12H plus the classic table in four groups; ↺ next to the template dropdown. |
+| **Font size HD · Full HD · UHD** Bar at the bottom of every hub page, with “📖 Open docs” on the right. | Saves *Data labels → Size preset* (in the format pane Compact · Full HD · Presentation; ×1 · ×1.5 · ×2). | Saves *Style → Font size preset* (HD · Full HD · UHD; ×1 · ×1.25 · ×1.6). |
+| **IBCS notation, teal by default** AC filled, PY grey, PL outlined, FC hatched; favourable variances teal instead of green — readable with red–green colour-vision deficiency. | Teal #1E8F9E · red #D64541; colour preset blue/orange. | Teal #0E8585 · red #E02B1D; presets IBCS green and blue/orange. |
+| **Four languages** German, English, Spanish, Japanese — follows the report language, in the hub too. | Format pane, chart texts and hub. | Format pane, toolbar, statement and hub. |
+| **Dark mode & high contrast** “Auto” detects dark report themes; in high contrast, patterns instead of colours carry the message. | *IBCS colors → Appearance*. | *Style → Appearance*. |
+| **Keyboard** Every button via Tab, Enter or Space triggers, Esc goes back one level or closes. | Tour: ‹ ›, arrow keys, Home/End. | Hub: digits 1–4 open the buttons; tour: ‹ › and arrow keys. |
+| **Reader landing** Without data, readers and exports see a calm card without buttons; the author's own empty-state text wins. | Since 1.51.1. | Since 1.4.1. |
+
+## 03 · The start hub
+
+Drag ChartKitchen onto a report page without fields and you do not get an error message but the **start hub** (since 1.50, polished for controller self-service in 1.51 and 1.51.1). It is an author's tool: it appears in edit mode only, while no data is displayed — or on demand via ☰ Start. Readers and exports never see it, and nothing of the navigation inside the hub is saved in the report.
+
+### The start page: get started and four buttons
+
+At the top sit the product name and the line “Start — pick what you want to do first”, below it the full-width teal button **🚀 Get started** and four large entry tiles:
+
+- **What can the visual do?** — a feature tour in 11 cards with mini previews: the 13 chart modes in four groups (time series, structure, bridges & P&L, analysis), variance panels, small multiples, comments, dark mode & high contrast, play & animation, YTD/materiality/exceptions, and templates & Smart-Start. Page with ‹ ›, the arrow keys or Home/End; “Open templates →” jumps to the gallery, the last card leads home with “← Back to start”.
+- **Templates** — the template gallery by purpose (see below).
+- **View demo** — the gallery of all 13 chart types with mini previews and the fields each mode needs; a click picks the mode. Up to 1.49 this was the landing page.
+- **Explain fields** — all 19 data roles in four sections (required & axis · scenarios · breakdown · special), each with a short purpose and ✓ once bound. Plus two premise boxes: *IBCS notation* (AC filled · PY grey · PL outlined · FC hatched, good/bad) and *time vs. structure* (“time runs horizontally, structure vertically”). Whatever does not fit on one page pages with ‹ n / N ›.
+
+Every sub-page carries the **“← Back”** pill at the top left; Esc goes back as well. Every button is reachable with Tab and triggers with Enter or Space. Dark mode and high contrast apply in the hub too.
+
+### The template gallery by purpose
+
+The eleven IBCS templates (chapter 07) appear as tiles with a preview in four groups. Every tile names its purpose in finance language, with a benefit line below; the C number sits as a small badge in the preview. Groups that fit side by side share a row; with little space the gallery pages row by row.
+
+| Group | Template | Tile title | Benefit line |
+| --- | --- | --- | --- |
+| **Time series** | C01 | Stacked columns by segment | Revenue mix per month |
+|  | C03 | Columns with prior-year variance | Monthly report AC vs. PY |
+|  | C05 | Integrated year bridge | PY → AC/FC across the months |
+|  | C08 | Line for long series | Weekly or daily trend vs. PY |
+| **Structure** | C02 | Stacked bars by segment | Cost structure per unit |
+|  | C04 | Bars with plan variance | Regions or products AC vs. PL |
+|  | C06 | Driver bridge by category | Which units explain ΔPY? |
+| **Correlation** | C09 | Scatter with quadrants | Revenue vs. margin per customer |
+|  | C10 | Bubble chart | Plus volume as bubble size |
+| **Bridges & multiples** | C12 | Waterfall / P&L bridge | Revenue → EBIT step by step |
+|  | C13 | Small multiples | One chart per region, same scale |
+
+- **Click = apply.** The tile writes the same as the dropdown in the format pane — the template and all its settings in one save. The active template carries “✓ active” and a strong border; clicking it again applies it once more.
+- **Without fields** the choice is saved (“✓ C03 saved — becomes active as soon as fields are bound”) and takes effect on binding. If a template needs another field (stack series, bubble size, small multiples), the tile names it.
+- **In the overlay** (via ☰ Start) a click applies the template and closes the overlay so you see the result right away.
+
+### 🚀 Get started — the first three minutes
+
+The highlighted button opens a guided checklist. The ticks follow live; none of it is saved.
+
+1. **Bind fields** — ✓ per role: Actual (AC) is required, category, previous year (PY) and plan (PL) are recommended; a hint shows where the field wells are.
+2. **Pick a template** — jump into the template gallery; ✓ once a template is set.
+3. **Fine-tune** — comparison & variance, IBCS title and size preset.
+
+### The bottom bar: font size and docs
+
+Every hub page — start, get started, tour, templates, demo, fields — ends in the same bar:
+
+- **Aa · HD · Full HD · UHD** — three pills, the active one filled teal, next to them the hint “Font size — HD for laptops · Full HD for monitors · UHD for projectors & 4K”. A click saves the size preset at once (HD = Compact ×1, Full HD ×1.5, UHD = Presentation ×2) and redraws the hub in the new size; in the overlay the chart appears in the new size when you close it.
+- **📖 Open docs** — an outlined pill on the right: opens this page in the browser, the German version for a German report language, otherwise the English one.
+- Below, centred, the signature “made by Daten-WG”.
+
+### With data: ☰ Start and ↺ Back to template
+
+- **☰ Start** sits at the bottom left above the finished chart in edit mode — subtle at half opacity, fully visible on hover or Tab focus. If chart text lies underneath (for example the first axis label), the chip bar moves up one step. The button opens the same hub as an overlay; the chart is only hidden underneath, “✕ Close” or Esc shows it exactly as before.
+- **↺ Back to template** appears next to it as soon as a template is set and one of its settings deviates. A click restores the template state; every other setting stays. To keep your changes, set the template to “Off” in the format pane.
+
+### What readers see
+
+Readers in reading view and exports (PDF, PowerPoint, subscriptions) see neither the hub nor the chips nor the bar. If the visual has no data for them, it shows a **calm landing card** since 1.51.1: the product name, below it “This visual has no data yet — fields are bound in edit mode.” and three static mini schematics — no buttons, no pills, no docs link. If you have set your own title or text in the *Empty state* card, they take its place (then without schematics). The same rule applies in the sister visual P&L Statement.
+
+> You can do without the hub: *Empty state → Empty state in edit mode* offers the demo gallery (behaviour up to 1.49), the field guide or your own message (chapter 07, “Empty state”). Visuals smaller than 300 × 220 px show the demo gallery instead of the hub even while editing. For PBIR authors: `emptyState.mode = "demo"` restores the old gallery.
+
+## 04 · Quick start
 
 ### 1 · Import the visual
 
-1. Get the `ChartKitchen byDatenWG` file (extension `.pbiviz`).
+1. Download the file [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (extension `.pbiviz`) — the link always delivers the current version, at present 1.51.1.0.
 2. In Power BI Desktop: in the *Visualizations* pane click *… (More options)* → *Import a visual from a file* and select the `.pbiviz`.
 3. The ChartKitchen icon appears in the Visualizations pane. Drag it onto the report page.
 
@@ -38,7 +155,7 @@ This guide describes the state of version **1.48.0.0**. The count matches the vi
 
 1. Assign your axis to the **Category** role — a time axis (months, quarters) or a structure (regions, products, accounts).
 2. Assign your main measure to the **Actual (AC)** role. With just these two fields the visual already draws labelled columns with a title and a Σ header.
-3. While fields are missing, ChartKitchen shows a landing page with tile previews of every mode and the fields each one needs — clicking a tile picks the matching orientation.
+3. While fields are missing, ChartKitchen shows the **start hub** in edit mode (chapter 03): “🚀 Get started” walks you through fields, template and fine-tuning with ticks, “Templates” sets an IBCS template in one click, “View demo” shows the tile gallery of every mode with the fields each one needs.
 
 ### Field roles
 
@@ -64,17 +181,18 @@ This guide describes the state of version **1.48.0.0**. The count matches the vi
 | Bubble size | Measure | Scatter/bubble only, optional: scales the dot area proportionally to the value (3–22 px) — turning the scatter into a bubble chart. |
 | Trend (time) | Grouping | KPI cards only (since 1.47): a time field turns every card into a time series with a mini chart (sparkline or columns). Other modes ignore the role and re-aggregate the rows. |
 
-![Landing page with empty field wells: a tile overview of every mode with the fields each one needs.](../doku-assets/feature-landing.png)
+![Demo gallery (in the start hub under “View demo”, the landing page up to 1.49): a tile overview of every mode with the fields each one needs — a click picks the mode.](../doku-assets/feature-landing.png)
 
 ### 3 · First comparison with PY
 
 1. Add the matching measure to the **Previous Year (PY)** role. The variance panels *ΔPY absolute* and *ΔPY %* appear above the base chart immediately — green when better, red when worse.
 2. For a plan comparison also bind **Plan / Budget (PL)**; under *Chart → Variance basis* you choose what the panels compute against (Auto uses PL, otherwise PY).
 3. From here you change the mode under *Chart → Chart type* — since 1.45 the Chart card is the first card in the format pane. Everything that follows builds on that.
+4. Shortcut: an IBCS template sets mode, basis and panels in one step — for example *C03 · Columns + variances (PY)* under Chart → IBCS chart template, or with one click in the template gallery of the start hub.
 
-## 03 · The 13 modes
+## 05 · The 13 modes
 
-ChartKitchen counts 13 chart types — exactly as the mode gallery on the landing page shows them. The matrix is not a separate type but the table variant with the column role filled; it is described here as card 07b.
+ChartKitchen counts 13 chart types — exactly as the demo gallery in the start hub shows them. The matrix is not a separate type but the table variant with the column role filled; it is described here as card 07b.
 
 ### 01 · Columns
 
@@ -174,9 +292,9 @@ The full P&L statement: an income statement with subtotal, delta and margin rows
 
 The correlation mode (new in 1.47): every category as a dot, Y axis = AC, X axis = the new “X axis (scatter)” role; with the “Bubble size” role filled it becomes a bubble chart (dot area proportional, 3–22 px). Quadrant lines can sit at the mean or median of both axes — set reference lines (including the new X reference line) override them. The axes show at most 5 round ticks with the unit in the axis title; labels avoid collisions automatically (emphasized categories before biggest bubbles before extreme points). An optional status coloring tints the dots by ΔPY/ΔPL including the materiality threshold. Emphasis (EMPHASIZE), FC hatching, comments, cross-filtering, dark mode and high contrast work as in the other modes.
 
-Since 1.48 the mode has been extended substantially: a field in the small-multiples role now creates true scatter tiles with a shared X/Y scale — quadrant lines, reference lines and the bubble scale apply to all tiles alike; the Σ and top-N rest tiles are deliberately off in scatter (no sums over ratios). The point coloring “By group/series” uses six muted colors without red or green (those stay reserved for good/bad) and shows a legend on top — from the 7th group on with “+n more”. The new “X axis PY (scatter)” role turns the PY→AC movement arrows into true 2D movement. And play mode (Rosling animation) turns the category into a time axis: one dot per series per frame, the current period as a large watermark in the background, without playing the chart shows the last period — only for the single dot cloud, not with tiles. On top of that: a trend line with an R² label, a size legend, shapes per group, quadrant corner labels, fixable axes and log scales (settings reference, chapter 06).
+Since 1.48 the mode has been extended substantially: a field in the small-multiples role now creates true scatter tiles with a shared X/Y scale — quadrant lines, reference lines and the bubble scale apply to all tiles alike; the Σ and top-N rest tiles are deliberately off in scatter (no sums over ratios). The point coloring “By group/series” uses six muted colors without red or green (those stay reserved for good/bad) and shows a legend on top — from the 7th group on with “+n more”. The new “X axis PY (scatter)” role turns the PY→AC movement arrows into true 2D movement. And play mode (Rosling animation) turns the category into a time axis: one dot per series per frame, the current period as a large watermark in the background, without playing the chart shows the last period — only for the single dot cloud, not with tiles. On top of that: a trend line with an R² label, a size legend, shapes per group, quadrant corner labels, fixable axes and log scales (settings reference, chapter 08).
 
-## 04 · ChartKitchen in action
+## 06 · ChartKitchen in action
 
 The following captures come straight from Power BI Desktop, with sample data from a real report. The other figures in this documentation are produced by the same renderer — here you see the visual as it works together in day-to-day reporting.
 
@@ -192,7 +310,32 @@ The following captures come straight from Power BI Desktop, with sample data fro
 
 ![Year-to-go view: the remaining-year requirement per country against plan and benchmark, with the PL→AC cascade on the right and the strongest and weakest driver in the message line.](../doku-assets/pbi/pbi-ytg.png)
 
-## 05 · Features in detail
+## 07 · Features in detail
+
+### IBCS templates C01–C13
+
+Since 1.49 ChartKitchen ships the IBCS chart templates as **presets** — the same pattern as the table templates in the sister visual P&L Statement. A template is only a starting point: it sets chart type, variance basis, variance panels and the matching switches in one save; afterwards every setting is free to change.
+
+1. Format pane → *Chart* → group *Chart type* → *IBCS chart template* (first position of the Chart card, default “Off”) — or click a tile in the template gallery of the start hub (chapter 03).
+2. If a setting of the template deviates afterwards, **“↺ Back to template”** appears at the bottom left in edit mode: a click restores the template state, every other setting stays.
+3. To apply the same template again, click the active tile in the gallery — the dropdown in the format pane cannot report an entry that is already selected.
+4. C07 (area) and C11 (distribution) do not exist in the visual, so they are missing from the list.
+
+| Template | What it sets | Also bind |
+| --- | --- | --- |
+| C01 · Stacked columns | Columns, variance basis Auto, no variance panels | Stack series |
+| C02 · Stacked bars | like C01, as bars | Stack series |
+| C03 · Columns + variances (PY) | Columns, basis previous year, variance absolute and in % | Previous Year (PY) |
+| C04 · Bars + variances (PL) | Bars, basis plan, variance absolute and in % | Plan (PL) |
+| C05 · Integrated bridge | Integrated bridge, basis previous year, variance absolute and in % | Previous Year (PY) |
+| C06 · Category bridge vertical | Category bridge as a column cascade, basis previous year | Previous Year (PY) |
+| C08 · Line | Line, basis Auto, absolute variance | — |
+| C09 · Scatter | Scatter, quadrants at the mean, single colour | X axis (scatter) |
+| C10 · Bubble | like C09, plus the size legend | X axis + bubble size |
+| C12 · Waterfall / bridge | Waterfall, basis Auto, variance absolute and in % | Waterfall type recommended |
+| C13 · Small multiples | Σ total tile and same scale; the chart type stays | Small Multiples |
+
+For PBIR authors: set `chart.template` and the hidden property `chart.templateApplied` to the same value — otherwise the visual applies the template on its first render (details in the [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/ibcsInspiredChartDeck/AGENT-GUIDE.md)).
 
 ### Scenarios, forecast hatching & benchmark
 
@@ -288,7 +431,7 @@ The following captures come straight from Power BI Desktop, with sample data fro
 1. The IBCS title (“KPI · unit · period: scenarios”) is built automatically; override the KPI name and period in the “IBCS title” card.
 2. Enter a message line (IBCS: SAY) at the top or let “Auto message” build it from the total variance and the biggest drivers.
 3. Two footers are available: “Footer (data status · source)” at the bottom left and the filter footer with the bound filter-info measure plus the display state (YTD, Top-N, sorting …).
-4. Scale all fonts centrally via Data labels → Size preset (Compact/Full HD/Presentation) and the “Scale all labels %” factor; label density controls the thinning.
+4. Scale all fonts centrally via Data labels → Size preset (Compact/Full HD/Presentation — in the start hub as HD · Full HD · UHD) and the “Scale all labels %” factor; label density controls the thinning.
 
 ### Monitoring cards (status light & bullet)
 
@@ -313,14 +456,34 @@ The following captures come straight from Power BI Desktop, with sample data fro
 1. Under IBCS colors → “Appearance” choose Auto · Light · Dark (since 1.43). “Auto” detects dark report themes from the luminance of the theme background color; for manually darkened pages without a dark theme, “Dark” is the explicit switch.
 2. In dark mode, ink, paper and secondary grey switch to light tones; halos and hollow markers fill with the dark page background so they blend with the page.
 3. Color pickers still on their light defaults (AC/PL, PY, good, bad) are replaced automatically by their light counterparts — colors you chose yourself stay untouched. The blue/orange preset lightens accordingly.
-4. The landing gallery and the HTML overlays (row search, structure menu, comment editor) follow the appearance; high-contrast mode remains its own path.
+4. The start hub, the demo gallery and the HTML overlays (row search, structure menu, comment editor) follow the appearance; high-contrast mode remains its own path.
 5. Since 1.44 the visual also draws the hover tooltip itself in dark mode: a dark box, light text, the category as header — in light mode the native Power BI tooltip remains.
 
-### Custom empty state
+### Large data: loading up to 30,000 rows
 
-1. In the “Empty state” card you set a custom title and a custom text (since 1.44) — they replace the “ChartKitchen byDatenWG” branding whenever no data is shown (empty field wells or a selection without rows).
-2. In reading mode, report readers see only title + text, centred and word-wrapped — the mode gallery is a builder tool and stays reserved for edit mode (where your texts appear as a preview above the gallery).
-3. Without custom texts everything stays as before.
+1. Power BI hands a visual its data in windows of 1,000 category rows. Up to 1.48 the visual silently stopped at the first window; since 1.49 ChartKitchen fetches the further segments.
+2. While loading, a subtle “⏳ n rows loaded …” appears at the bottom right. The first window is drawn right away and, once everything has arrived, the complete data set once.
+3. If Power BI refuses further segments (the host's memory limit of about 100 MB) or the safety limit of 30,000 category rows kicks in, a note in the chart says that the data is incomplete — there is no silent truncation any more.
+4. Up to 1,000 rows nothing changes.
+
+### Locked instead of silent chips
+
+1. Since 1.49, in-chart buttons that would have no effect in the current state are dimmed and not clickable; the tooltip names the reason. A click on them saves nothing.
+2. Typical cases: YTD on P&L rows or with a single period · ⇅ when the order already equals the impact sort · ⚠ when there is nothing to condense (e.g. benchmark cards without ΔPY/ΔPL) · the card sort without a comparison value · ▶, ⇅ and ΔPY|ΔPL of a bridge that only shows its hint.
+3. P&L Statement locks its toolbar buttons by the same rule.
+
+### High contrast: patterns instead of colour
+
+1. In Windows high-contrast mode ChartKitchen takes its colours from the host palette since 1.49 — foreground, background and `foregroundSelected` for highlight and hover.
+2. Status then lives in the pattern instead of the colour: good filled, bad hollow, immaterial dashed — in the KPI cards (status stripe, mini bridge) and in the scatter status too. The PY line in line mode is dashed.
+3. The start hub and the field guide use the same palette. Without high contrast nothing changes.
+
+### Empty state: start hub, demo, field guide or own message
+
+1. In the *Empty state* card, “Empty state in edit mode” decides what you as the author see while no data is displayed: **start hub** (default since 1.50, chapter 03) · **demo gallery** (pick a chart type, the behaviour up to 1.49) · **field guide** (which field goes where, ✓ on bound roles) · **own message** (title and text below).
+2. The field guide and the own message carry switch buttons, among them “☰ Start hub”; a click saves the chosen mode.
+3. Custom title and custom text (since 1.44) replace the “ChartKitchen byDatenWG” branding whenever no data is shown (empty field wells or a selection without rows).
+4. Readers and exports never see the hub, the gallery or buttons, but since 1.51.1 the calm landing card — with your title and text, if set.
 
 ### Scaling guarantees & axis break (waterfall)
 
@@ -337,8 +500,9 @@ The following captures come straight from Power BI Desktop, with sample data fro
 3. In scatter/bubble mode there is additionally a rectangle selection since 1.48: dragging a rectangle on empty plot area selects all contained dots as ONE multi-select and filters the other visuals (cross-filter). A click on empty area clears the selection as before.
 4. On hover, default and canvas tooltips show values, variances, series and comment; canvas tooltips (report-page tooltips) are supported. In dark mode the visual draws the hover tooltip itself (a dark box with the category as header).
 5. Interactive states are bookmark-capable: the variance basis, the YTD view, in-chart sorting, expanded rows/columns, captured comments and column widths travel with the report or the bookmark.
+6. Since 1.49 bookmarks also restore the **selection**: a bookmark with selected categories (likewise a selection set by another visual) dims the other marks as after a click; a bookmark without a selection removes the dimming.
 
-## 06 · Settings reference
+## 08 · Settings reference
 
 The following schematics show the structure and order of the format pane (naming as in Power BI). Each card and subgroup appears as a schematic sketch next to its settings table, so you can locate every toggle and dropdown in the pane itself. The German format pane is shown; the English pane is laid out identically.
 
@@ -356,7 +520,9 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 
 | Setting | Description | Options / default |
 | --- | --- | --- |
+| IBCS chart template | Since 1.49, first position of the Chart card (group Chart type): a starting point after the IBCS chart templates — sets chart type, variance basis, variance panels and the matching switches in one step; afterwards every setting is free to change. C01/C02 stack via the “Stack series” field, C10 additionally needs “Bubble size”, C13 keeps the chart type and needs “Small Multiples”. Not included: C07 (area) and C11. | Options: Off (no template) \| C01 · Stacked columns (series) \| C02 · Stacked bars (series) \| C03 · Columns + variances (PY) \| C04 · Bars + variances (PL) \| C05 · Integrated bridge (time) \| C06 · Category bridge vertical \| C08 · Line (long time series) \| C09 · Scatter \| C10 · Bubble (scatter + size) \| C12 · Waterfall / bridge \| C13 · Small multiples · default „Off (no template)“ |
 | Chart type | The chart mode — called “Orientation” until 1.45; since then at the very top of the first card in the format pane. | Options: Columns (Time) \| Bars (Structure) \| Line (Time, many points) \| Waterfall / Bridge \| Integrated Bridge (Time) \| Category Bridge (Structure) \| Table (IBCS) \| Pareto (Structure) \| Dumbbell (Structure) \| Slope · Before/After \| KPI Cards (Tiles) \| P&L Statement (IBCS) \| Scatter / Bubble (Correlation) · default „Columns (Time)“ |
+| Smart-Start suggestions | Shows a subtle suggestion chip top-left of the chart when the bound fields clearly point to a better-fitting mode (e.g. date + AC + PL → columns with ΔPL). Only visible in edit mode, never in the read view or in exports. | On / Off · default On |
 | Variance basis | Basis for the variance panels. Auto: PL if available, otherwise PY. | Options: Auto \| Previous Year (PY) \| Plan (PL) \| Prior-month FC (revision) · default „Auto“ |
 | Absolute variance (ΔAC) | — | On / Off · default On |
 | Relative variance (ΔAC %) | — | On / Off · default On |
@@ -489,7 +655,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | --- | --- | --- |
 | Show labels | — | On / Off · default On |
 | Label density | Controls the thinning of value labels: "Automatic" hides them when space is tight (previous behavior), "All" labels every point (may overlap), "First · last · extremes" shows only the first/last value plus minimum and maximum. | Options: Automatic (thin out) \| All \| First · last · extremes · default „Automatic (thin out)“ |
-| Size preset | Scales all fonts in the visual at once: Compact ×1 (default) · Full HD ×1.5 (recommended for 1080p reports) · Presentation ×2. | Options: Compact (dashboard tile) \| Full HD (1080p) \| Presentation (4K / projector) · default „Compact (dashboard tile)“ |
+| Size preset | Scales all fonts in the visual at once: Compact ×1 (default) · Full HD ×1.5 (recommended for 1080p reports) · Presentation ×2. In the start hub the same setting appears as the bar HD · Full HD · UHD (HD = Compact, UHD = Presentation). | Options: Compact (dashboard tile) \| Full HD (1080p) \| Presentation (4K / projector) · default „Compact (dashboard tile)“ |
 | Scale all labels % | Enlarges or shrinks ALL labels on top of the preset by a free factor (50–300 %). 100 = neutral. Preset × factor gives the effective font size. | 50–300 · default 100 |
 | Font size | — | 6–24 · default 10 |
 | Decimal places | — | 0–3 · default 1 |
@@ -572,10 +738,11 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 
 | Setting | Description | Options / default |
 | --- | --- | --- |
-| Custom title | Replaces the “ChartKitchen byDatenWG” heading in the empty state (no fields bound, or a selection without rows). In reading mode, report readers see only title + text, centred and word-wrapped; in edit mode your texts appear as a preview above the mode gallery. Since 1.44. | Free text · empty = default |
+| Empty state in edit mode | What the report author sees while no data is displayed: the start hub (“Get started” checklist, feature tour, IBCS templates by purpose, demo gallery, field guide with every role; HD · Full HD · UHD and the docs at the bottom), only the demo gallery for picking the chart type (behaviour up to 1.49), the field guide or the own message from title/text below. Since 1.49, start hub since 1.50. Readers and exports see the calm landing card regardless. | Options: Start hub (get started, tour, templates, demo, fields) \| Demo gallery (pick a chart type) \| Field guide (which field goes where) \| Own message (title / text below) · default „Start hub (get started, tour, templates, demo, fields)“ |
+| Custom title | Replaces the “ChartKitchen byDatenWG” heading in the empty state (no fields bound, or a selection without rows) — for readers and exports on the calm landing card (since 1.51.1), while editing in the “Own message” mode. Since 1.44. | Free text · empty = default |
 | Custom text | Your own text below the title — e.g. a hint which fields to bind or why the selection is empty. | Free text · empty = default |
 
-## 07 · FAQ & troubleshooting
+## 09 · FAQ & troubleshooting
 
 ### The visual only shows a hint like “requires PY or PL”.
 
@@ -625,7 +792,25 @@ Intended (since 1.46): the visual interaction for ChartKitchen is always “filt
 
 Set IBCS colors → “Appearance” to “Auto” (detects dark themes from the background luminance) or explicitly to “Dark” — ink, axes, areas and, since 1.44, the hover tooltip then switch to a dark rendering with light text.
 
-**ChartKitchen byDatenWG** · Version 1.48.0.0
+### Instead of the mode gallery a start hub with large buttons appears.
+
+The default for authors since 1.50 (chapter 03). The previous gallery sits behind “View demo”; to see it directly, set Empty state → “Empty state in edit mode” to “Demo gallery”. Readers never see the hub.
+
+### “⏳ n rows loaded …” or a note about incomplete data appears at the bottom right.
+
+Since 1.49 the visual fetches more than 1,000 category rows. The note about incomplete data appears when Power BI delivers no further segments or the 30,000-row limit kicks in — then condense the category or filter the page.
+
+### A button in the chart is grey and does not react.
+
+It is locked because it would have no effect in the current state; the tooltip names the reason (chapter 07, “Locked instead of silent chips”).
+
+### “↺ Back to template” appears at the bottom left.
+
+An IBCS template is set and at least one of its settings has been changed. A click restores the template state; to keep your changes, set Chart → IBCS chart template to “Off”. Readers and exports never see the chip.
+
+**ChartKitchen byDatenWG** · Version 1.51.1.0
+
+Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (always the current version) · Sister visual: [P&L Statement byDatenWG – documentation](../pnl-doku_en.html)
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 

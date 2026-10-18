@@ -6,24 +6,26 @@ Power BI visual · End-user documentation
 
 The IBCS-inspired P&L visual for Power BI: a statement straight from your account dimension — as a classic table or as a mega table with the IBCS templates T01–T04, 12A, 12G and 12H, plus structure bars, row waterfall, value driver tree and tile zoom. This documentation leads from the import through data model, views and templates to the complete settings reference.
 
-Version · **1.2.0.0** · As of · **2026-10-17** · IBCS-inspired
+Version · **1.4.1.0** · As of · **2026-10-18** · IBCS-inspired
 
 ## Contents
 
 1. [What is the visual?](#intro)
-2. [Quick start & import](#quickstart)
-3. [Data model & roles](#data)
-4. [The views](#views)
-5. [IBCS templates](#templates)
-6. [Settings reference](#settings)
-7. [Interaction](#interaction)
-8. [Deviations from the IBCS sheets](#deviations)
-9. [Troubleshooting](#faq)
-10. [Version note 1.2.0.0](#version)
+2. [The product family](#family)
+3. [The start hub](#hub)
+4. [Quick start & import](#quickstart)
+5. [Data model & roles](#data)
+6. [The views](#views)
+7. [IBCS templates](#templates)
+8. [Settings reference](#settings)
+9. [Interaction](#interaction)
+10. [Deviations from the IBCS sheets](#deviations)
+11. [Troubleshooting](#faq)
+12. [Version note 1.4.1.0](#version)
 
 ## 01 · What is the visual?
 
-**P&L Statement byDatenWG** is a standalone Power BI custom visual for the income statement and any other account hierarchy — the sister visual of [ChartKitchen](../chartkitchen-doku_en.html). It reads the hierarchy from your dimension table (star-schema levels L1..Ln or parent-child), computes subtotals, formula and margin rows itself and shows the scenarios **AC** (actual), **PY** (previous year), **PL** (plan) and **FC** (forecast) with their variances.
+**P&L Statement byDatenWG** is a standalone Power BI custom visual for the income statement and any other account hierarchy — the sister visual of [ChartKitchen](../chartkitchen-doku_en.html); the two form a product family with a shared notation and handling (chapter 02). It reads the hierarchy from your dimension table (star-schema levels L1..Ln or parent-child), computes subtotals, formula and margin rows itself and shows the scenarios **AC** (actual), **PY** (previous year), **PL** (plan) and **FC** (forecast) with their variances.
 
 *One* data binding gives four views, switched in the toolbar above the statement — readers need no format pane for it:
 
@@ -32,36 +34,158 @@ Version · **1.2.0.0** · As of · **2026-10-17** · IBCS-inspired
 - **Structure bars and row waterfall:** the same rows as size bars against the reference, or as a cascade in which the result rows anchor on the zero line.
 - **Value driver tree with tiles:** the formula graph as a DuPont tree (or, without formula rows, the plain hierarchy) with a mini chart on every card; a click opens the node's tile view with combo chart, scenario grid and drivers.
 
-The notation follows the **IBCS® principles**: AC filled in dark gray (#404040), PY gray, PL white with an outline, FC hatched; labels outside with an explicit “+”, one identical scale per Δ column across all rows, margin rows with Δ in percentage points, no gridlines. The interface speaks German, English, Spanish and Japanese (it follows the report language), has a dark mode and shows a demo statement when you drag it onto the page. The visual makes no external calls, stores nothing outside the report and sends no telemetry.
+The notation follows the **IBCS® principles**: AC filled in dark gray (#404040), PY gray, PL white with an outline, FC hatched; labels outside with an explicit “+”, one identical scale per Δ column across all rows, margin rows with Δ in percentage points, no gridlines. The interface speaks German, English, Spanish and Japanese (it follows the report language), has a dark mode and high contrast, and welcomes authors with a start hub when they drag it onto the page (chapter 03). The visual makes no external calls, stores nothing outside the report and sends no telemetry.
 
 > **Documented deviation: teal instead of green.** Favorable variances are teal (#0E8585) by default, unfavorable ones red (#E02B1D) — instead of the IBCS green #8CB400 / red #FF2600. This keeps variances readable with red–green color-vision deficiency; legend and footer name the deviation. Switch it under Style → Variance colors (IBCS classic green) or with the variance color preset Blue / orange (ColorBrewer #2C7BB6 / #E66101, distinguishable even without color vision and in black-and-white print). Dark mode uses the ChartKitchen pair #3FB3C2 / #E4635F.
 
-This guide describes version **1.2.0.0**. Every default in the settings reference has been checked against the visual's settings model.
+This guide describes version **1.4.1.0**. Every default in the settings reference has been checked against the visual's settings model. New since 1.2: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.
 
-## 02 · Quick start & import
+## 02 · The product family
+
+ChartKitchen and P&L Statement are two visuals from one kitchen: the same IBCS notation, the same handling, the same start hub. They do not compete, they complement each other — ChartKitchen covers the **breadth** of chart forms, P&L Statement the **depth** of the income statement.
+
+### Which visual for what?
+
+Breadth · 13 chart modes
+
+#### ChartKitchen byDatenWG
+
+One visual for every question about trend, structure and correlation — “How is … developing?”, “Who drives …?”.
+
+- **Time series:** columns and line, the integrated bridge PY → AC across the months, hatched forecast, YTD at a click.
+- **Structures:** bars, category bridge, Pareto, dumbbell and slope, plus the IBCS table and matrix.
+- **Scatter & bubble:** two measures against each other, with quadrants, trend line, movement arrows and play mode.
+- **KPI cards:** monitoring tiles with status light, bullet against a benchmark and trend sparkline.
+- **Small multiples:** one tile per region or product, all on the same scale, with Σ and top-N tiles.
+
+[Go to the ChartKitchen docs →](../chartkitchen-doku_en.html#family)
+
+Depth · tables & statements
+
+#### P&L Statement byDatenWG
+
+The income statement row by row — “What is in the P&L, and why does it deviate?”.
+
+- **Mega table:** the IBCS table templates T01–T04 plus 12A, 12G and 12H — value cascades, Δ waterfalls, pins, thresholds.
+- **Formula engine:** hierarchy, subtotals, formula and margin rows straight from the account dimension (level columns or parent-child).
+- **Value driver tree:** the formula graph as a DuPont tree with mini charts on every card and a tile zoom per node.
+- **Period blocks:** month · YTD · FY outlook side by side; readers switch columns, reference and unit in the toolbar.
+- **Structure bars & row waterfall:** the same P&L rows as size bars or as a cascade with result anchors.
+
+✓ This documentation
+
+> **A typical report page uses both side by side** — the P&L from P&L Statement on the left, ChartKitchen with the monthly trend, a driver bridge or KPI cards on the right. With `fixedMax` they share the scale: enter the same amount in ChartKitchen under *Scale & reference line → Scale minimum maximum* and in P&L Statement under *Numbers → Scale minimum-maximum (values)* — equal amounts then give bars of equal length (IBCS: identical scales).
+
+### Shared handling
+
+If you can operate one of the two visuals, you can operate the other: getting started, templates and rendering follow one shared specification. The table lists what is the same and where it sits in each visual.
+
+| Shared | ChartKitchen | P&L Statement |
+| --- | --- | --- |
+| **Start hub** 🚀 Get started plus four buttons: tour · template gallery · demo · explain fields — edit mode only. | Tour with 11 cards, demo = gallery of the 13 chart types, field guide with all 19 roles. | Tour with 7 cards (real mini renderings), demo = example P&L, field guide with all 20 roles. |
+| **Templates as presets** Gallery by purpose; one click sets every switch, afterwards everything is free. “↺ Back to template” restores the template state. | 11 IBCS chart templates C01–C13 (without C07/C11) in four groups; ↺ at the bottom left of the chart. | 17 IBCS table templates T01A–12H plus the classic table in four groups; ↺ next to the template dropdown. |
+| **Font size HD · Full HD · UHD** Bar at the bottom of every hub page, with “📖 Open docs” on the right. | Saves *Data labels → Size preset* (in the format pane Compact · Full HD · Presentation; ×1 · ×1.5 · ×2). | Saves *Style → Font size preset* (HD · Full HD · UHD; ×1 · ×1.25 · ×1.6). |
+| **IBCS notation, teal by default** AC filled, PY grey, PL outlined, FC hatched; favourable variances teal instead of green — readable with red–green colour-vision deficiency. | Teal #1E8F9E · red #D64541; colour preset blue/orange. | Teal #0E8585 · red #E02B1D; presets IBCS green and blue/orange. |
+| **Four languages** German, English, Spanish, Japanese — follows the report language, in the hub too. | Format pane, chart texts and hub. | Format pane, toolbar, statement and hub. |
+| **Dark mode & high contrast** “Auto” detects dark report themes; in high contrast, patterns instead of colours carry the message. | *IBCS colors → Appearance*. | *Style → Appearance*. |
+| **Keyboard** Every button via Tab, Enter or Space triggers, Esc goes back one level or closes. | Tour: ‹ ›, arrow keys, Home/End. | Hub: digits 1–4 open the buttons; tour: ‹ › and arrow keys. |
+| **Reader landing** Without data, readers and exports see a calm card without buttons; the author's own empty-state text wins. | Since 1.51.1. | Since 1.4.1. |
+
+## 03 · The start hub
+
+Drag P&L Statement onto a report page without fields and since 1.3 you no longer get a demo table but the **start hub** — explore first, then bind fields. Since 1.4 it is tailored to controller self-service, since 1.4.1 it looks like the one in the sister visual ChartKitchen. The hub is an author's tool: it appears in edit mode only, while fields are missing — or on demand via ☰ Start. Navigation inside the hub is local state; none of it is saved.
+
+### The start page: get started and four buttons
+
+At the top sits the product name with the subtitle “Explore the visual before you bind fields — or just get going.”, below it the full-width teal button **🚀 Get started** and four large tiles. The digits 1–4 open the tiles directly.
+
+- **What can the visual do?** — a tour in 7 cards: the P&L as a table, mega table with IBCS templates, value driver tree, structure bars, row waterfall, tiles, dark mode & high contrast. Every card shows a real, scaled-down rendering of the visual over the built-in demo — no images. Page with ‹ › or the arrow keys.
+- **Templates** — the template gallery by purpose (see below).
+- **Show demo** — the example P&L with pharma data (Smart Start), on which views, toolbar and templates already work.
+- **Explain fields** — all 20 data roles in four groups (“Required · structure and actual”, “Scenarios and time”, “Statement logic”, “Extras”), each with one sentence of purpose and ✓ once bound. Plus two premises: *IBCS notation* (AC filled · PY grey · PL outline or double line · FC hatched; rule “minuend → fill, reference → axis”) and *structure vs time* (accounts run vertically in rows, time horizontally in blocks month | _YTD | FY).
+
+Every sub-page and level carries the **“← Back”** pill at the top left; Esc goes back one level and the focus returns to the tile or the get-started button. Everything is a native button (Tab · Enter · Space); dark mode and high contrast apply in the hub too.
+
+### The template gallery by purpose
+
+18 tiles — the classic table and the 17 IBCS templates (chapter 07) — sit in four groups, each with one sentence of purpose. Every tile carries a finance title, a benefit line and the T number as a small badge on the preview; templates that analyse the forecast show a preview with simulated FC.
+
+| Group | Template | Tile title | Benefit line |
+| --- | --- | --- | --- |
+| **Structure comparison** Regions, products, cost centres side by side — who is above, who below plan? | T01A | Regions with plan variance | Values and Δ as figures, month \| YTD; thresholds flag outliers in red. |
+|  | T01B | Regions with subtotals | Like T01A, grouped into subtotal blocks per area — for group and segment views. |
+|  | T02A | Plan variance as bars | ΔPL bars and pins: which area is above, which below plan — at a glance. |
+|  | T02B | Ranking by actual (YTD) | T02A sorted by AC: the largest areas on top — for top / flop lists. |
+|  | T02C | Ranking by variance (month) | T02A sorted by the month's Δ: the biggest issues first — for the monthly review. |
+| **Forecast** The expected outcome (FC) against plan and previous year — hatched as in IBCS. | T02E | Forecast vs previous year | FC hatched, ΔPY bars and pins, sorted by variance — is the area growing? |
+|  | T02F | Forecast vs plan | Will the area land on budget? ΔPL bars and pins for the forecast, largest gaps first. |
+|  | T03B | Forecast P&L with Δ to PY and plan | The outlook as a statement: PY · PL · FC and both variances as figures. |
+|  | T04D | Forecast P&L with plan waterfall | How the forecast gets from plan to result: ΔPL waterfall row by row. |
+|  | T04E | Forecast P&L with PY waterfall | What drives the expected result against the previous year? ΔPY waterfall with pins. |
+| **P&L statement** The P&L row by row — variances as figures, bars or waterfall. | T03A | P&L with variance to PY and plan | The standard statement for the monthly report: PY · PL · AC, ΔPY and ΔPL as figures. |
+|  | T04A | P&L with plan variance bars | Every row with ΔPL bars and pins — cost and revenue variances become visible. |
+|  | T04B | P&L with Δ waterfall | From planned to actual result: the integrated ΔPL waterfall shows how much each row contributes. |
+|  | T04C | P&L with PY waterfall | The result bridge to the previous year: ΔPY waterfall on a gray axis, pins for Δ %. |
+| **Report views** Cascades, full-year outlook, plan statement — and the classic table. | 12A | Value cascades PY and actual | PY and AC cascades side by side, ΔPY bars and pins — the P&L as a picture. |
+|  | 12G | Full-year outlook (FY) | Actual + forecast as the full year against PY: YTD solid, rest of year hatched, with a headline. |
+|  | 12H | Plan statement vs previous year | For the budget round: PL outlined against PY, variances in pale tints, headline slot. |
+|  | Off | Classic P&L table | Column presets, sparklines and period blocks — readers switch for themselves in the toolbar. |
+
+- **Click = apply.** The tile writes the same as the toolbar dropdown: template, every switch, decimals and, where relevant, the headline slot in one save. The active tile carries “✓ active”, an accent border and a tinted background; clicking it again applies the template once more.
+- **Without fields** the choice is saved (“Saved: T03A — becomes active once fields are bound.”) and takes effect on binding.
+- **In the overlay** (via ☰ Start) a click applies the template, switches to the table view — from bars, waterfall or tree too — and closes the overlay on the result.
+
+### 🚀 Get started — the first three minutes
+
+Three steps from empty field wells to a finished P&L: a guided checklist whose ticks follow live. None of it is saved.
+
+1. **Bind the fields** — the fast way first. Required: level columns L1..Ln (or account ID + parent ID) and AC. Recommended: PY and/or PL (variances), period (month | YTD blocks) and row type + sign (result and margin rows). “All fields explained →” jumps to the field guide.
+2. **Pick a template** — shows the current state (“Selected: …” or still the classic table) and jumps to the gallery with “Open the template gallery →”.
+3. **Fine-tuning** — in the format pane, in this order: house terms (Scenario names → AC = “Actual”, PL = “Budget”), thresholds (Columns & mega table → Δ in red if below threshold · materiality) and decimals (Numbers → decimals) — with ✓ once set.
+
+### The bottom bar: font size and docs
+
+A fixed bar closes every hub page — start page, get started, tour, gallery, demo, fields and every page in the overlay:
+
+- **Aa · HD · Full HD · UHD** — the three pills write *Style → Font size preset* (×1 · ×1.25 · ×1.6), the active one is filled teal; next to them the hint “Font size — HD for laptops · Full HD for monitors · UHD for projectors & 4K”, the only element that gives way when space is short. A click saves and redraws at once — in the overlay the P&L underneath too.
+- **📖 Open docs** — an outlined pill on the right: opens this page in the browser (the German version for a German report language, otherwise this English one). It is the only outbound call — on click only and in edit mode only.
+- Below, centred, the signature “made by Daten-WG”.
+
+### With data: ☰ Start and ↺ Back to template
+
+- **☰ Start** is the *first* element of the toolbar in edit mode — before the template picker, with an accent border and bold type. It opens the hub as an overlay above the P&L; “✕ Close” or Esc removes the layer, the view underneath is exactly as before (scroll position included) and the focus returns to the button. If the host switches to reading view, the overlay closes.
+- **↺ Back to template** sits next to the template dropdown (edit mode, table view) as soon as a template is set and at least one template switch (columns, headline) deviates. A click restores the template state — every switch and the decimals. Changed decimals alone do not count as a deviation.
+
+### What readers see
+
+Readers, PDF export and subscriptions never see the hub, the overlay or the bar. Without data the visual shows them a calm **landing card** since 1.4.1: the product name in bold, below it “This visual has no data yet — fields are bound in edit mode.” and a static row of three chart schematics — no buttons, no pills, no docs link. The author's own empty-state text still wins. The same rule applies in ChartKitchen.
+
+> You can do without the hub: *Empty state → While fields are missing (edit mode)* offers the demo statement (Smart Start), the field guide or your own message (chapter 08). Reports that saved `demo` or `fields` do not change. Visuals smaller than 300 × 220 px show only the hint text instead of the hub, even while editing.
+
+## 04 · Quick start & import
 
 ### 1 · Import the visual
 
-1. Download the file [`pnlByDatenWG…1.2.0.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.2.0.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
+1. Download the file [`pnlByDatenWG…1.4.1.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.4.1.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
 2. In Power BI Desktop: *Visualizations* → *⋯* → *Import a visual from a file* and pick the `.pbiviz`. An older version is replaced.
-3. Draw the visual generously (at least about 1200 × 800 px) — the toolbar and two column blocks need width. Freshly placed, it shows a **demo statement** (Smart Start) on which views, toolbar and templates already work.
+3. Draw the visual generously (at least about 1200 × 800 px) — the toolbar and two column blocks need width. Freshly placed, it shows the **start hub** in edit mode (chapter 03): “🚀 Get started” walks you through fields, template and fine-tuning with ticks, “Show demo” opens the example statement on which views, toolbar and templates already work.
 
 ### 2 · Minimal setup
 
 1. Drag the levels of your hierarchy into **Level columns (L1..Ln)** — top to bottom. Alternative: **Account ID (key)** + **Parent account ID**.
-2. Bind your main measure to **AC (Actual)**. As soon as AC and a hierarchy are bound, the demo disappears and the statement appears.
+2. Bind your main measure to **AC (Actual)**. As soon as AC and a hierarchy are bound, the start hub disappears and the statement appears.
 3. Set every grouping field to **“Don't summarize”** — otherwise Power BI aggregates them and the visual receives empty values.
 
 ### 3 · Extend
 
 1. Bind **PY · PL · FC** — every bound scenario unlocks its Δ columns.
 2. Bind **Period (month)** — for the month and YTD block, sparklines and monthly cards.
-3. For a real P&L: **Row type**, **Formula definition** and the **sign trio** (chapter 03); for the full-year outlook **FC Full Year** and **PL Full Year** as `MAX` measures.
-4. Optionally pick an IBCS template: in edit mode the **Template** dropdown at the far left of the toolbar (table view), or format pane → *Columns & mega table* → *Template* (chapter 05).
+3. For a real P&L: **Row type**, **Formula definition** and the **sign trio** (chapter 05); for the full-year outlook **FC Full Year** and **PL Full Year** as `MAX` measures.
+4. Optionally pick an IBCS template: with one click in the template gallery of the start hub (☰ Start), in edit mode via the **Template** dropdown right after ☰ Start in the toolbar (table view), or via format pane → *Columns & mega table* → *Template* (chapter 07).
 
 > Both paths step by step — the plain hierarchy in two minutes and the full P&L with formula rows —, a sample account dimension and the pharma demo data to play along are on the [quick start page](../pnl-schnellstart_en.html).
 
-## 03 · Data model & roles
+## 05 · Data model & roles
 
 The visual needs an account dimension — one row per P&L row — and a fact table with the measures. There are two fully supported input modes for the hierarchy:
 
@@ -77,7 +201,7 @@ At most one field per role, at most eight level columns. The visual reads every 
 | Field role | Type | Purpose |
 | --- | --- | --- |
 | Level columns (L1..Ln) | Grouping · up to 8 | Star-schema hierarchy in drag order — the primary mode. Ragged rules see above. |
-| Account ID (key) | Grouping | Unique, stable account key. Required in parent-child mode, optional in level mode (leaf ID). Basis of selection and drillthrough. Without level columns and account ID the visual shows the empty state (demo). |
+| Account ID (key) | Grouping | Unique, stable account key. Required in parent-child mode, optional in level mode (leaf ID). Basis of selection and drillthrough. Without level columns and account ID the visual shows the empty state (the start hub in edit mode). |
 | Account name | Grouping | Display name of the row. Without it the visual shows the account ID, or in level mode the text of the last filled level. |
 | Parent account ID | Grouping | Parent-child link; unbalanced hierarchies are allowed. Wins when level columns are bound as well. |
 | AC (Actual) | Measure · required | Actual value — the primary measure, drawn filled. |
@@ -117,7 +241,7 @@ A field such as segment or quarter in **Column category** makes the classic tabl
 
 > **DAX rules models fail on:** FY measures with `MAX`, not `SUM` (the full-year values repeat on every month row); filter one reporting year, otherwise AC/PY/PL/FC sum across years; measures that return a value for non-existing account/period combinations (`COALESCE(x, 0)`, `+0`) create ghost rows — guard pattern `IF(COUNTROWS('Fact') > 0, …)`. Time intelligence, currency conversion and row-level security stay in the model: the visual only computes with the data it receives.
 
-## 04 · The views
+## 06 · The views
 
 The toolbar group *View* switches between table, bars, waterfall and tree. The mega table is not a view of its own but a mode of the table view; the tile view opens from the tree. The chosen view is reader state and is saved with the report and in bookmarks.
 
@@ -145,11 +269,12 @@ The result tree as a DuPont graph: the root is the last formula/KPI row with ope
 
 A click on the chart of a tree card zooms the node to the full area: combo chart of monthly columns (reference offset behind AC) and bridge, below it the scenario grid, next to it the micro cards “Feeds into” and “Driven by” (pageable when there are many drivers). The page fits itself into the viewport — the chart is the elastic element, the grid gets more compact when height is tight. “← Back to tree” and the breadcrumb lead out; “↗ Drill” sets the node's selection and opens the context menu with the drillthrough targets in one go. Ratio rows (margins) show no bridge, because percentages are not additive. Only Δ reference and unit remain in the toolbar.
 
-## 05 · IBCS templates
+## 07 · IBCS templates
 
 The mega table rebuilds the official IBCS templates T01A–T04E as well as the report variants 12A, 12G and 12H. A template is only a **preset**: it sets all switches of the mega table group and the decimals (12G and 12H also the headline slot) in *one* save — afterwards every switch is free, you can show or hide every element individually. Templates only act in the *Table* view; *Off (classic table)* resets all mega switches.
 
-- **Toolbar (since 1.2, fastest):** in edit mode the *Template* dropdown sits at the far left (table view only). It writes the same settings as the format pane; readers and exports never see it. Switch it off under Display & toolbar → *Template picker in edit mode*.
+- **Template gallery (since 1.3, most visual):** in the start hub or via ☰ Start every template appears as a tile with a preview, grouped by purpose (chapter 03); a click applies it, again too.
+- **Toolbar (since 1.2, fastest):** in edit mode the *Template* dropdown sits right after ☰ Start (table view only). It writes the same settings as the format pane; readers and exports never see it. Switch it off under Display & toolbar → *Template picker in edit mode*.
 - **Format pane:** card *Columns & mega table* → first group *Mega table (IBCS templates)* → *Template (IBCS table)*.
 
 > **Scenario rule (one rule for every element):** the **minuend** — the analysed scenario — decides the **fill**: AC solid, FC hatched, PL outlined with pale tinted Δ elements (plan statement). The **reference** decides the **axis**: PY = gray axis, PL = double line. The same code appears as an underline below the column heads (AC solid, PY gray, PL double, FC hatched). In the FY block the minuend is AC&FC — mostly forecast, so its Δ elements are hatched.
@@ -176,9 +301,9 @@ The mega table rebuilds the official IBCS templates T01A–T04E as well as the r
 
 For every template: scenario underlines and numbers at bars / pins / cascades on, outlier arrows for Δ bars off, period block YTD (except 12G: FY), second block on the left = month; switches not named are off. The second period block needs the period field — without a period, “month” and the second block silently fall back to one YTD block; without FC Full Year, FY falls back to YTD.
 
-> Picking the same template a second time does not apply it again — briefly pick another template and back (in the toolbar dropdown too). If you write reports as PBIR, set `columns.template` and `columns.templateApplied` to the same value; otherwise the visual applies the template on its first render and overwrites the switches you wrote (see the [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)). For comparison with the reference sheets: [TEMPLATE-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/TEMPLATE-GUIDE.md) and the HTML prototype `pnlByDatenWG/prototype/megatable.html`.
+> Re-applying the same template works since 1.3: a click on the active tile in the gallery or “↺ Back to template” next to the toolbar dropdown restores the template state — the native dropdown itself cannot report an entry that is already selected. If you write reports as PBIR, set `columns.template` and `columns.templateApplied` to the same value; otherwise the visual applies the template on its first render and overwrites the switches you wrote (see the [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)). For comparison with the reference sheets: [TEMPLATE-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/TEMPLATE-GUIDE.md) and the HTML prototype `pnlByDatenWG/prototype/megatable.html`.
 
-## 06 · Settings reference
+## 08 · Settings reference
 
 The format pane has eight cards in this order: **Columns & mega table** → **Display & toolbar** → **Numbers** → **Scenario names** → **Style** → **Title block** → **Hierarchy** → **Empty state**. The tables list every setting with options and default; names follow the English interface.
 
@@ -279,7 +404,7 @@ What readers see above the statement and what they may switch themselves. A hidd
 | Group: options | % of revenue, hide zero rows, fit to width. | On / Off · Default On |
 | Group: scenario (mega table) | Readers switch the analysed scenario AC / FC and the reference view ΔPY · ΔPL · both of the mega table. | On / Off · Default Off |
 | Group: value columns (scenarios one by one) | Readers combine the value columns freely — AC, PY, PL, FC and Δ against the Δ reference (classic table), analysed scenario · PY · PL (mega table). The column presets stay as quick picks. | On / Off · Default Off |
-| Template picker in edit mode | A compact template dropdown at the start of the toolbar while you edit the report (table view). Readers and exports never see it. | On / Off · Default On |
+| Template picker in edit mode | A compact template dropdown at the front of the toolbar, right after ☰ Start, while you edit the report (table view). Readers and exports never see it. | On / Off · Default On |
 
 ### Numbers
 
@@ -324,7 +449,7 @@ House terms for AC, PY, PL and FC — e.g. “Actual”, “LY” or “Budget�
 
 | Setting | Description | Options / Default |
 | --- | --- | --- |
-| Font size preset | Scales every label at once: HD ×1 · Full HD ×1.25 · UHD ×1.6. | Options: HD (compact) \| Full HD \| UHD / presentation · Default “HD (compact)” |
+| Font size preset | Scales every label at once: HD ×1 · Full HD ×1.25 · UHD ×1.6. Since 1.4 also via the HD · Full HD · UHD bar at the bottom of the start hub; since 1.4.1 the entries in the format pane are named just HD, Full HD and UHD too (saved values `hd` · `fullhd` · `uhd` unchanged). | Options: HD \| Full HD \| UHD · Default “HD” |
 | Font fine scaling (%) | On top of the size preset (100 = preset unchanged). The product of preset and fine scaling is capped at 2.2. | 80–160 · Default 100 |
 | Header font size (px) | 0 = automatic (built-in sizes), otherwise 7–20 px; also acts on the mega table heads. | 0–20 · Default 0 |
 | Header font color (override) | Empty = the built-in soft gray. | Color · Default empty |
@@ -364,17 +489,17 @@ The three-line IBCS title (reporting unit · measure + unit · period + scenario
 
 ### Empty state
 
-What the visual shows when there is nothing to display. Demo and field guide appear in edit mode only; readers, PDF export and subscriptions always see the standard text or the own message, never demo numbers.
+What the visual shows when there is nothing to display. Start hub, demo and field guide appear in edit mode only; readers, PDF export and subscriptions see the calm landing card (since 1.4.1) or the own message, never demo numbers.
 
 | Setting | Description | Options / Default |
 | --- | --- | --- |
-| While fields are missing (edit mode) | Demo = example statement (Smart Start) · Field guide = which field goes where, minimal and extended, with ✓ for bound roles · Own message = the title and text below. Also switchable by button right in the empty state (“Explain fields” / “Show demo”). | Options: Demo statement (Smart Start) \| Field guide (which field goes where) \| Own message (title / text below) · Default “Demo statement (Smart Start)” |
+| While fields are missing (edit mode) | Start hub = big buttons for get started, feature tour, template gallery, demo and field guide, with HD · Full HD · UHD and the docs at the bottom (chapter 03; default since 1.3) · Demo = example statement (Smart Start) · Field guide = which field goes where, minimal and extended, with ✓ for bound roles · Own message = the title and text below. Also switchable by button right in the empty state (“Explain fields” / “Show demo”). | Options: Start hub (tour, templates, demo, fields) \| Demo statement (Smart Start) \| Field guide (which field goes where) \| Own message (title / text below) · Default “Start hub (tour, templates, demo, fields)” |
 | Custom title | Replaces the heading when nothing is displayed (no fields bound in reading view, or the selection returns no rows). Empty = standard text. | Text · Default empty |
 | Custom text | Body text below the title in the empty state — e.g. which filters the reader should check. Empty = standard text. | Text · Default empty |
 
 > Two properties do not appear in the format pane: `columns.templateApplied` (the last applied template, echo guard) and `state.uiState` (the reader state of the toolbar as JSON, bookmarkable). Property names, types and the schema for PBIR authoring are in the [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md).
 
-## 07 · Interaction
+## 09 · Interaction
 
 ### Toolbar
 
@@ -382,7 +507,9 @@ The toolbar above the statement shows, per view, only the groups that do somethi
 
 | Group | When visible | What it switches |
 | --- | --- | --- |
+| ☰ Start | edit mode, always the first element | Opens the start hub as an overlay: get started, tour, templates, demo, fields, docs (chapter 03). |
 | Template | edit mode, table view | Dropdown of all IBCS templates; writes template and switches in one save. |
+| ↺ Back to template | edit mode, table view, once a template switch deviates | Restores every switch and the decimals of the selected template. |
 | View | always, except in the tile view | Table · Bars · Waterfall · Tree. |
 | Column preset | classic table | The six presets as quick picks. |
 | Value columns | classic table or mega table, with “Group: value columns” | Classic: AC · PY · PL · FC · ΔRef as separate buttons. Mega table: analysed scenario · PY · PL. |
@@ -427,9 +554,9 @@ In table, mega table, bars and waterfall, rows, cells, bars, pins and cascades s
 
 ### Keyboard
 
-Toolbar buttons and the expand/collapse controls of the rows are reachable with `Tab`; `Enter` or `Space` triggers them or folds and unfolds. The focus shows as a ring — on re-drawn rows of long mega tables too.
+Toolbar buttons and the expand/collapse controls of the rows are reachable with `Tab`; `Enter` or `Space` triggers them or folds and unfolds. The focus shows as a ring — on re-drawn rows of long mega tables too. In the start hub the digits 1–4 open the four tiles, ‹ › and the arrow keys page the tour, Esc goes back one level or closes the overlay.
 
-## 08 · Known deviations from the IBCS sheets
+## 10 · Known deviations from the IBCS sheets
 
 The visual rebuilds the reference sheets as closely as possible but deliberately does not reproduce their inconsistencies and misprints. Four deviations are documented (in full in [SPEC-MEGATABLE.md](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/SPEC-MEGATABLE.md), section “Bewusst offen / Abweichungen”):
 
@@ -440,7 +567,7 @@ The visual rebuilds the reference sheets as closely as possible but deliberately
 
 Independently of these, the teal coloring is a deliberate, documented deviation (chapter 01).
 
-## 09 · Troubleshooting
+## 11 · Troubleshooting
 
 ### Buttons seem “dead”.
 
@@ -456,7 +583,15 @@ Thresholds apply in **display units**, i.e. after k/m scaling — −20 means �
 
 ### Picked the same template again — nothing happens.
 
-Picking the same template again does not re-apply it. Briefly pick another template and back, in the toolbar dropdown too.
+A native dropdown cannot report the entry that is already selected. Since 1.3 a click on the active tile in the template gallery (start hub or ☰ Start) applies the template again; if switches deviate, “↺ Back to template” next to the dropdown restores the template state.
+
+### A start hub appears instead of the demo statement.
+
+The default for authors since 1.3 (chapter 03); the demo statement sits behind “Show demo”. To see it directly, set Empty state → *While fields are missing* to “Demo statement (Smart Start)”. Readers and exports never see the hub.
+
+### Do readers see “☰ Start” or “↺ Back to template”?
+
+No. ☰ Start, the template picker and ↺ appear in edit mode only; readers, export and subscriptions never see them.
 
 ### The template dropdown is missing from the toolbar.
 
@@ -492,12 +627,15 @@ A parent or level path points nowhere. This is an intended data-quality signal: 
 
 ### Costs show as favorable although they are above plan.
 
-The cost row carries sign convention `-1` *and* variance invert = `true` — the two mechanisms cancel each other out. With `-1`, do not flip the variance color as well (chapter 03).
+The cost row carries sign convention `-1` *and* variance invert = `true` — the two mechanisms cancel each other out. With `-1`, do not flip the variance color as well (chapter 05).
 
-## 10 · Version note 1.2.0.0
+## 12 · Version note 1.4.1.0
 
-This documentation describes **version 1.2.0.0** of 17 October 2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). The visual is not listed in Microsoft AppSource and therefore not certified by Microsoft. Field roles, property names and the saved toolbar state are stable since 1.0; every new setting is off by default or behaves as before.
+This documentation describes **version 1.4.1.0** of 18 October 2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). The visual is not listed in Microsoft AppSource and therefore not certified by Microsoft. Field roles, property names and the saved toolbar state are stable since 1.0; every new setting is off by default or behaves as before. The only changed default since 1.2: in edit mode without fields the start hub appears instead of the demo statement.
 
+- **1.4.1.0 — family hub:** one look with the sister visual ChartKitchen — bottom bar with HD · Full HD · UHD and “📖 Open docs”, “← Back” as a pill, get started in teal across the full width, gallery groups as an eyebrow; preset names HD · Full HD · UHD in the format pane too; calm landing card for readers and exports without data.
+- **1.4.0.0 — hub polish for controllers:** template gallery by purpose (four groups, finance titles, benefit line), “🚀 Get started” checklist, field guide with all 20 roles and two premises, font-size bar and docs button on every hub page, “← Back” everywhere, ☰ Start as the first toolbar element.
+- **1.3.0.0 — start hub:** four buttons instead of the demo table (tour, templates, demo, fields), ☰ Start as an overlay above the P&L, re-apply a template, “↺ Back to template”.
 - **1.2.0.0 — ease of use:** combine value columns freely (preset “Own selection”, toolbar group value columns, also in the mega table), template picker in the toolbar, template group first in the format pane, empty state with field guide, field list in the familiar order, bars view like ChartKitchen (overlapping, triangles), column category.
 - **1.1.0.0:** 12G, 12H and the headline slot, scale sync, blue/orange, virtualization of long mega tables; finance craft from ChartKitchen (tooltips, sum-safe rounding, parentheses, billions, house terms, auto message, footers, highlight, materiality, reader scenario, empty state, keyboard); block kinds month · YTD · FY.
 - **1.0.1.0:** toolbar buttons act in every view, locked buttons with tooltip, format-pane defaults win after a change, echo guard for the toolbar state.
@@ -506,11 +644,13 @@ This documentation describes **version 1.2.0.0** of 17 October 2026 (GUID `pnlBy
 
 The complete version history is in the [CHANGELOG](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md) (German).
 
-**P&L Statement byDatenWG** · Version 1.2.0.0
+**P&L Statement byDatenWG** · Version 1.4.1.0
+
+Sister visual: [ChartKitchen byDatenWG – documentation](../chartkitchen-doku_en.html)
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
-Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.2.0.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.2.0.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
+Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.4.1.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.4.1.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
 
 > Notation follows the IBCS® Standards 1.2 of the IBCS Association (CC BY-SA 4.0, ibcs.com). Documented deviation: teal replaces the IBCS variance green to stay readable with red–green color-vision deficiency. IBCS® is a registered trademark of HICHERT+FAISST GmbH. This visual is not certified by the IBCS Association and is not affiliated with it.
 

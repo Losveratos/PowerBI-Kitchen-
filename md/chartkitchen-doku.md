@@ -6,31 +6,148 @@ Power-BI-Visual · Enddokumentation
 
 Ein IBCS-inspiriertes Chart-Deck für Power BI: 13 Diagramm-Modi in einem einzigen Visual, mit einheitlicher Szenario-Notation (AC ausgefüllt, PY grau, PL umrandet, FC schraffiert) und mitgedachten Varianzen. Diese Dokumentation führt vom Import über die 13 Modi und die wichtigsten Funktionen bis zur vollständigen Einstellungs-Referenz.
 
-Version · **1.48.0.0** · Stand · **2026-10-16** · IBCS-inspired
+Version · **1.51.1.0** · Stand · **2026-10-18** · IBCS-inspired
 
 ## Inhalt
 
 1. [Was ist ChartKitchen?](#intro)
-2. [Schnellstart](#quickstart)
-3. [Die 13 Modi](#modes)
-4. [ChartKitchen im Einsatz](#inaction)
-5. [Funktionen im Detail](#features)
-6. [Einstellungs-Referenz](#settings)
-7. [FAQ & Troubleshooting](#faq)
+2. [Die Produktfamilie](#family)
+3. [Der Start-Hub](#hub)
+4. [Schnellstart](#quickstart)
+5. [Die 13 Modi](#modes)
+6. [ChartKitchen im Einsatz](#inaction)
+7. [Funktionen im Detail](#features)
+8. [Einstellungs-Referenz](#settings)
+9. [FAQ & Troubleshooting](#faq)
 
 ## 01 · Was ist ChartKitchen?
 
-**ChartKitchen byDatenWG** ist ein einzelnes Power-BI-Custom-Visual, das 13 Diagramm-Modi vereint — von Säulen, Balken und Linien über Wasserfall- und Brücken-Darstellungen bis zu IBCS-Tabelle (mit Matrix-Variante), KPI-Karten, einem vollständigen GuV-Statement und einem Scatter/Bubble-Plot für Korrelationen. Statt für jede Fragestellung ein eigenes Visual zu wählen, stellst du die Ausrichtung um und behältst dieselbe Notation, Farbwelt und Skalenlogik bei.
+**ChartKitchen byDatenWG** ist ein einzelnes Power-BI-Custom-Visual, das 13 Diagramm-Modi vereint — von Säulen, Balken und Linien über Wasserfall- und Brücken-Darstellungen bis zu IBCS-Tabelle (mit Matrix-Variante), KPI-Karten, einem vollständigen GuV-Statement und einem Scatter/Bubble-Plot für Korrelationen. Statt für jede Fragestellung ein eigenes Visual zu wählen, stellst du die Ausrichtung um und behältst dieselbe Notation, Farbwelt und Skalenlogik bei. Für die GuV in der Tiefe gibt es das Schwester-Visual [P&L Statement byDatenWG](../pnl-doku.html) — gleiche Notation, gleicher Start-Hub; wie beide zusammenspielen, zeigt Kapitel 02 „Die Produktfamilie“.
 
 Die Gestaltung ist von den **IBCS®-Prinzipien** (International Business Communication Standards) inspiriert: eine einheitliche Szenario-Notation — **AC** (Ist) ausgefüllt, **PY** (Vorjahr) grau, **PL** (Plan) umrandet, **FC** (Forecast) schraffiert — und Abweichungen, die immer mitgedacht sind: absolute und relative Varianz-Panels stehen automatisch neben oder über dem Basis-Chart. So liest sich jede Grafik nach denselben Regeln, egal welcher Modus.
 
-Diese Anleitung beschreibt den Stand der Version **1.48.0.0**. Gezählt wird wie im Visual selbst: 13 Chart-Typen — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 03 trotzdem eine eigene Karte.
+Diese Anleitung beschreibt den Stand der Version **1.51.1.0**. Gezählt wird wie im Visual selbst: 13 Chart-Typen — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 05 trotzdem eine eigene Karte. Neu seit 1.48: der Start-Hub für den Einstieg (Kapitel 03), die IBCS-Vorlagen C01–C13, das Nachladen bis 30.000 Zeilen, Lesezeichen, die die Auswahl wiederherstellen, gesperrte statt stummer Chips, wählbare Leer-Zustände und echter Hochkontrast (Kapitel 07).
 
-## 02 · Schnellstart
+## 02 · Die Produktfamilie
+
+ChartKitchen und P&L Statement sind zwei Visuals aus einer Küche: dieselbe IBCS-Notation, dieselbe Bedienung, derselbe Start-Hub. Sie konkurrieren nicht, sie ergänzen sich — ChartKitchen deckt die **Breite** der Diagrammformen ab, P&L Statement die **Tiefe** der Ergebnisrechnung.
+
+### Wofür welches Visual?
+
+Breite · 13 Chart-Modi
+
+#### ChartKitchen byDatenWG
+
+Ein Visual für jede Frage nach Verlauf, Struktur und Zusammenhang — „Wie entwickelt sich …?“, „Wer treibt …?“.
+
+- **Zeitreihen:** Säulen und Linie, die integrierte Brücke PY → AC über die Monate, Forecast schraffiert, YTD per Klick.
+- **Strukturen:** Balken, Kategorie-Brücke, Pareto, Dumbbell und Slope, dazu IBCS-Tabelle und Matrix.
+- **Scatter & Bubble:** zwei Kennzahlen gegeneinander, mit Quadranten, Trendlinie, Bewegungspfeilen und Play-Modus.
+- **KPI-Karten:** Monitoring-Kacheln mit Ampel, Bullet gegen Benchmark und Trend-Sparkline.
+- **Small Multiples:** eine Kachel je Region oder Produkt, alle auf derselben Skala, mit Σ- und Top-N-Kachel.
+
+✓ Diese Dokumentation
+
+Tiefe · Tabellen & Statements
+
+#### P&L Statement byDatenWG
+
+Die Ergebnisrechnung Zeile für Zeile — „Was steht in der GuV, und warum weicht sie ab?“.
+
+- **Mega-Table:** die IBCS-Tabellen-Templates T01–T04 sowie 12A, 12G und 12H — Wert-Kaskaden, Δ-Wasserfälle, Pins, Schwellen.
+- **Formel-Engine:** Hierarchie, Zwischensummen, Formel- und Margenzeilen direkt aus der Kontendimension (Ebenen-Spalten oder Parent-Child).
+- **Werttreiberbaum:** der Formel-Graph als DuPont-Baum mit Mini-Charts auf jeder Karte und Kachel-Zoom je Knoten.
+- **Perioden-Blöcke:** Monat · YTD · FY-Ausblick nebeneinander; Leser schalten Spalten, Referenz und Einheit in der Toolbar.
+- **Struktur-Bars & Zeilen-Waterfall:** dieselben GuV-Zeilen als Größenbalken oder als Kaskade mit Ergebnisankern.
+
+[Zur P&L-Doku →](../pnl-doku.html#family)
+
+> **Die typische Berichtsseite nutzt beide nebeneinander** — links die GuV aus P&L Statement, rechts ChartKitchen mit Monatsverlauf, Treiber-Brücke oder KPI-Karten. Mit `fixedMax` teilen sie den Maßstab: denselben Betrag in ChartKitchen unter *Skala & Referenzlinie → Skalen-Mindest-Maximum* und im P&L Statement unter *Zahlen → Skalen-Mindestmaximum (Werte)* eintragen — gleiche Beträge ergeben dann gleich lange Balken (IBCS: identische Skalen).
+
+### Gemeinsame Bedienung
+
+Wer eines der beiden Visuals bedienen kann, kann auch das andere: Einstieg, Vorlagen und Darstellung folgen einer gemeinsamen Spezifikation. Die Tabelle nennt, was gleich ist, und wo es im jeweiligen Visual sitzt.
+
+| Gemeinsam | ChartKitchen | P&L Statement |
+| --- | --- | --- |
+| **Start-Hub** 🚀 Loslegen plus vier Knöpfe: Tour · Vorlagen-Galerie · Demo · Felder erklären — nur im Bearbeitungsmodus. | Tour mit 11 Karten, Demo = Galerie der 13 Chart-Typen, Feld-Intro mit allen 19 Rollen. | Tour mit 7 Karten (echte Mini-Renderings), Demo = Beispiel-GuV, Feld-Intro mit allen 20 Rollen. |
+| **Vorlagen als Presets** Galerie nach Zweck; ein Klick setzt alle Schalter, danach ist alles frei. „↺ Zum Template zurück“ stellt den Vorlagen-Stand wieder her. | 11 IBCS-Chart-Vorlagen C01–C13 (ohne C07/C11) in vier Gruppen; ↺ unten links im Chart. | 17 IBCS-Tabellen-Templates T01A–12H plus klassische Tabelle in vier Gruppen; ↺ neben dem Template-Dropdown. |
+| **Schriftgröße HD · Full HD · UHD** Leiste unten auf jeder Hub-Seite, rechts daneben „📖 Doku öffnen“. | Speichert *Datenbeschriftungen → Größen-Preset* (im Formatbereich Kompakt · Full HD · Präsentation; ×1 · ×1,5 · ×2). | Speichert *Stil → Schriftgrößen-Preset* (HD · Full HD · UHD; ×1 · ×1,25 · ×1,6). |
+| **IBCS-Notation, Teal als Standard** AC voll, PY grau, PL Rahmen, FC schraffiert; günstige Abweichungen Teal statt Grün — lesbar bei Rot-Grün-Schwäche. | Teal #1E8F9E · Rot #D64541; Farbpreset Blau/Orange. | Teal #0E8585 · Rot #E02B1D; Presets IBCS-Grün und Blau/Orange. |
+| **Vier Sprachen** Deutsch, Englisch, Spanisch, Japanisch — folgt der Berichtssprache, auch im Hub. | Formatbereich, Chart-Texte und Hub. | Formatbereich, Toolbar, Statement und Hub. |
+| **Dark Mode & Hochkontrast** „Auto“ erkennt dunkle Berichts-Themes; im Hochkontrast tragen Muster statt Farben die Aussage. | *IBCS-Farben → Erscheinungsbild*. | *Stil → Erscheinungsbild*. |
+| **Tastatur** Alle Knöpfe per Tab, Enter oder Leertaste lösen aus, Esc geht eine Ebene zurück bzw. schließt. | Tour: ‹ ›, Pfeiltasten, Pos1/Ende. | Hub: Ziffern 1–4 öffnen die Knöpfe; Tour: ‹ › und Pfeiltasten. |
+| **Leser-Landing** Ohne Daten sehen Leser und Exporte eine ruhige Karte ohne Knöpfe; der eigene Leer-Zustand-Text gewinnt. | Seit 1.51.1. | Seit 1.4.1. |
+
+## 03 · Der Start-Hub
+
+Wer ChartKitchen leer auf die Berichtsseite zieht, landet nicht vor einer Fehlermeldung, sondern im **Start-Hub** (seit 1.50, für den Self-Service von Controllern poliert in 1.51 und 1.51.1). Er ist ein Werkzeug für Autoren: Er erscheint nur im Bearbeitungsmodus, solange keine Daten dargestellt werden — oder auf Knopfdruck über ☰ Start. Leser und Exporte sehen ihn nie, und nichts von der Navigation im Hub wird im Bericht gespeichert.
+
+### Die Startseite: Loslegen und vier Knöpfe
+
+Oben stehen der Produktname und die Zeile „Start — womit möchtest du beginnen?“, darunter über die volle Breite der Teal-Knopf **🚀 Loslegen** und vier große Einstiegs-Kacheln:
+
+- **Was kann das Visual?** — eine Feature-Tour in 11 Karten mit Mini-Vorschau: die 13 Chart-Modi in vier Gruppen (Zeitreihen, Struktur, Brücken & GuV, Analyse), Varianz-Panels, Small Multiples, Kommentare, Dark Mode & Hochkontrast, Play & Animation, YTD/Wesentlichkeit/Exceptions sowie Vorlagen & Smart-Start. Blättern mit ‹ ›, den Pfeiltasten oder Pos1/Ende; „Vorlagen öffnen →“ springt in die Galerie, die letzte Karte führt mit „← Zurück zum Start“ heim.
+- **Templates** — die Vorlagen-Galerie nach Zweck (siehe unten).
+- **Demo ansehen** — die Galerie aller 13 Chart-Typen mit Mini-Vorschau und den je Modus benötigten Feldern; ein Klick wählt den Modus. Bis 1.49 war das die Startseite.
+- **Felder erklären** — alle 19 Datenrollen in vier Abschnitten (Pflicht & Achse · Szenarien · Gliederung · Spezial), je mit kurzem Zweck und ✓, sobald gebunden. Dazu zwei Prämissen-Boxen: *IBCS-Notation* (AC voll · PY grau · PL Rahmen · FC schraffiert, gut/schlecht) und *Zeit vs. Struktur* („Zeit läuft horizontal, Struktur vertikal“). Was nicht auf eine Seite passt, blättert mit ‹ n / N ›.
+
+Jede Unterseite trägt oben links die Pille **„← Zurück“**; Esc führt ebenfalls zurück. Alle Knöpfe sind per Tab erreichbar und lösen mit Enter oder Leertaste aus. Dark Mode und Hochkontrast gelten auch im Hub.
+
+### Die Vorlagen-Galerie nach Zweck
+
+Die elf IBCS-Vorlagen (Kapitel 07) stehen als Kacheln mit Vorschau in vier Gruppen. Jede Kachel nennt den Zweck in Finance-Sprache, darunter eine Nutzen-Zeile; die C-Nummer steht als kleines Badge in der Vorschau. Gruppen, die nebeneinander passen, teilen sich eine Reihe; bei wenig Platz blättert die Galerie reihenweise.
+
+| Gruppe | Vorlage | Kachel-Titel | Nutzen-Zeile |
+| --- | --- | --- | --- |
+| **Zeitverlauf** | C01 | Säulen gestapelt nach Segment | Umsatzmix je Monat |
+|  | C03 | Säulen mit Vorjahres-Abweichung | Monatsbericht AC vs. PY |
+|  | C05 | Integrierte Jahresbrücke | PY → AC/FC über die Monate |
+|  | C08 | Linie für lange Reihen | Wochen- oder Tagestrend vs. PY |
+| **Struktur** | C02 | Balken gestapelt nach Segment | Kostenstruktur je Bereich |
+|  | C04 | Balken mit Plan-Abweichung | Regionen oder Produkte AC vs. PL |
+|  | C06 | Treiber-Brücke je Kategorie | Welche Bereiche erklären ΔPY? |
+| **Korrelation** | C09 | Streudiagramm mit Quadranten | Umsatz vs. Marge je Kunde |
+|  | C10 | Blasendiagramm | Plus Volumen als Blasengröße |
+| **Brücken & Mehrfach** | C12 | Wasserfall / GuV-Brücke | Umsatz → EBIT in Stufen |
+|  | C13 | Small Multiples | Ein Chart je Region, gleiche Skala |
+
+- **Klick = anwenden.** Die Kachel schreibt dasselbe wie das Dropdown im Formatbereich — die Vorlage und alle ihre Einstellungen in einem Speichervorgang. Die aktive Vorlage trägt „✓ aktiv“ und einen kräftigen Rahmen; ein erneuter Klick darauf wendet sie noch einmal an.
+- **Ohne Felder** wird die Wahl gespeichert („✓ C03 gespeichert — wird aktiv, sobald Felder gebunden sind“) und greift beim Binden. Braucht eine Vorlage ein weiteres Feld (Stack-Serie, Blasengröße, Small Multiples), nennt die Kachel es.
+- **Im Overlay** (über ☰ Start) wendet ein Klick die Vorlage an und schließt das Overlay, damit du das Ergebnis sofort siehst.
+
+### 🚀 Loslegen — die ersten drei Minuten
+
+Der hervorgehobene Knopf öffnet eine geführte Checkliste. Die Häkchen gehen live mit, gespeichert wird davon nichts.
+
+1. **Felder binden** — ✓ je Rolle: Ist (AC) ist Pflicht, Kategorie, Vorjahr (PY) und Plan (PL) sind empfohlen; ein Hinweis zeigt, wo die Feldbereiche sitzen.
+2. **Template wählen** — Sprung in die Vorlagen-Galerie; ✓, sobald eine Vorlage gesetzt ist.
+3. **Feinschliff** — Vergleich & Abweichung, IBCS-Titel und Größen-Preset.
+
+### Die untere Leiste: Schriftgröße und Doku
+
+Jede Hub-Seite — Start, Loslegen, Tour, Vorlagen, Demo, Felder — endet in derselben Leiste:
+
+- **Aa · HD · Full HD · UHD** — drei Pillen, die aktive Teal gefüllt, daneben der Hinweis „Schriftgröße — HD für Laptops · Full HD für Monitore · UHD für Beamer & 4K“. Ein Klick speichert sofort das Größen-Preset (HD = Kompakt ×1, Full HD ×1,5, UHD = Präsentation ×2) und zeichnet den Hub in der neuen Größe; im Overlay erscheint der Chart beim Schließen in der neuen Größe.
+- **📖 Doku öffnen** — rechts als umrandete Pille: öffnet diese Seite im Browser, bei deutscher Berichtssprache die deutsche, sonst die englische Fassung.
+- Darunter steht mittig die Signatur „made by Daten-WG“.
+
+### Mit Daten: ☰ Start und ↺ Zum Template zurück
+
+- **☰ Start** sitzt im Bearbeitungsmodus unten links über dem fertigen Chart — dezent halb transparent, beim Überfahren oder per Tab-Fokus voll sichtbar. Liegt dort Text des Charts (etwa die erste Achsenbeschriftung), rückt die Chip-Leiste eine Stufe nach oben. Der Knopf öffnet denselben Hub als Overlay; der Chart wird darunter nur verborgen, „✕ Schließen“ oder Esc zeigt ihn exakt wie vorher.
+- **↺ Zum Template zurück** erscheint daneben, sobald eine Vorlage gesetzt ist und eine ihrer Einstellungen davon abweicht. Ein Klick stellt den Vorlagen-Stand wieder her, alle anderen Einstellungen bleiben. Wer die Änderungen behalten will, stellt die Vorlage im Formatbereich auf „Aus“.
+
+### Was Leser sehen
+
+Leser im Lesemodus und Exporte (PDF, PowerPoint, Abos) sehen weder Hub noch Chips noch Leiste. Hat das Visual für sie keine Daten, zeigt es seit 1.51.1 eine **ruhige Landing-Karte**: den Produktnamen, darunter „Dieses Visual hat noch keine Daten — Felder werden im Bearbeitungsmodus gebunden.“ und drei statische Mini-Schemata — keine Knöpfe, keine Pillen, kein Doku-Link. Hast du in der Karte *Leer-Zustand* einen eigenen Titel oder Text hinterlegt, stehen diese an ihrer Stelle (dann ohne Schemata). Dieselbe Regel gilt im Schwester-Visual P&L Statement.
+
+> Es geht auch ohne Hub: *Leer-Zustand → Leer-Zustand im Bearbeitungsmodus* bietet die Demo-Galerie (Verhalten bis 1.49), das Feld-Intro oder eine eigene Nachricht (Kapitel 07, „Leer-Zustand“). Visuals unter 300 × 220 px zeigen auch beim Bearbeiten die Demo-Galerie statt des Hubs. Für PBIR-Autoren: `emptyState.mode = "demo"` stellt die alte Galerie wieder her.
+
+## 04 · Schnellstart
 
 ### 1 · Visual importieren
 
-1. Besorge die Datei `ChartKitchen byDatenWG` (Endung `.pbiviz`).
+1. Lade die Datei [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) herunter (Endung `.pbiviz`) — der Link liefert immer die aktuelle Version, derzeit 1.51.1.0.
 2. In Power BI Desktop: im Bereich *Visualisierungen* auf *… (Weitere Optionen)* → *Visual aus Datei importieren* klicken und die `.pbiviz` auswählen.
 3. Das ChartKitchen-Icon erscheint im Visualisierungsbereich. Ziehe es auf die Berichtsseite.
 
@@ -38,7 +155,7 @@ Diese Anleitung beschreibt den Stand der Version **1.48.0.0**. Gezählt wird wie
 
 1. Weise der Rolle **Kategorie** deine Achse zu — eine Zeitachse (Monate, Quartale) oder eine Struktur (Regionen, Produkte, Konten).
 2. Weise der Rolle **Ist (AC)** deine Hauptkennzahl zu. Mit nur diesen beiden Feldern zeichnet das Visual bereits Säulen mit Beschriftung, Titel und Σ-Kopfzeile.
-3. Solange Felder fehlen, zeigt ChartKitchen eine Startseite mit Kachel-Vorschauen aller Modi und den je Modus benötigten Feldern — ein Klick auf eine Kachel wählt die passende Ausrichtung.
+3. Solange Felder fehlen, zeigt ChartKitchen im Bearbeitungsmodus den **Start-Hub** (Kapitel 03): „🚀 Loslegen“ führt mit Häkchen durch Felder, Vorlage und Feinschliff, „Templates“ setzt eine IBCS-Vorlage mit einem Klick, „Demo ansehen“ zeigt die Kachel-Galerie aller Modi mit den je Modus benötigten Feldern.
 
 ### Feldrollen
 
@@ -64,17 +181,18 @@ Diese Anleitung beschreibt den Stand der Version **1.48.0.0**. Gezählt wird wie
 | Blasengröße | Kennzahl | Nur Scatter/Bubble, optional: skaliert die Punktfläche proportional zum Wert (3–22 px) — aus dem Scatter wird ein Bubble-Chart. |
 | Trend (Zeit) | Gruppierung | Nur KPI-Karten (seit 1.47): ein Zeitfeld macht jede Karte zur Zeitreihe mit Mini-Chart (Sparkline oder Säulen). Andere Modi ignorieren die Rolle und aggregieren die Zeilen. |
 
-![Startseite bei leeren Feldern: Kachel-Übersicht aller Modi mit den je Modus benötigten Feldern.](../doku-assets/feature-landing.png)
+![Demo-Galerie (im Start-Hub unter „Demo ansehen“, bis 1.49 die Startseite): Kachel-Übersicht aller Modi mit den je Modus benötigten Feldern — ein Klick wählt den Modus.](../doku-assets/feature-landing.png)
 
 ### 3 · Erster Vergleich mit PY
 
 1. Füge der Rolle **Vorjahr (PY)** die entsprechende Kennzahl hinzu. Sofort erscheinen über dem Basis-Chart die Varianz-Panels *ΔPY absolut* und *ΔPY %* — grün, wenn besser, rot, wenn schlechter.
 2. Für einen Plan-Vergleich bindest du zusätzlich **Plan / Budget (PL)**; über *Chart → Abweichungsbasis* wählst du, wogegen die Panels rechnen (Auto nimmt PL, sonst PY).
 3. Von hier aus änderst du über *Chart → Chart-Typ* den Modus — seit 1.45 ist die Chart-Karte die erste Karte im Formatbereich. Alle folgenden Kapitel bauen darauf auf.
+4. Abkürzung: Eine IBCS-Vorlage setzt Modus, Basis und Panels in einem Schritt — etwa *C03 · Säulen + Varianzen (PY)* unter Chart → IBCS-Chart-Vorlage oder per Klick in der Vorlagen-Galerie des Start-Hubs.
 
-## 03 · Die 13 Modi
+## 05 · Die 13 Modi
 
-ChartKitchen zählt 13 Chart-Typen — so, wie sie auch die Modus-Galerie der Startseite zeigt. Die Matrix ist dabei kein eigener Typ, sondern die Tabellen-Variante mit gefüllter Spalten-Rolle; sie wird hier als Karte 07b beschrieben.
+ChartKitchen zählt 13 Chart-Typen — so, wie sie auch die Demo-Galerie im Start-Hub zeigt. Die Matrix ist dabei kein eigener Typ, sondern die Tabellen-Variante mit gefüllter Spalten-Rolle; sie wird hier als Karte 07b beschrieben.
 
 ### 01 · Säulen
 
@@ -174,9 +292,9 @@ Das vollständige GuV-Statement: Ergebnisrechnung mit Summen-, Delta- und Margen
 
 Der Korrelations-Modus (neu in 1.47): jede Kategorie als Punkt, Y-Achse = AC, X-Achse = die neue Rolle „X-Achse (Scatter)“; mit gefüllter Rolle „Blasengröße“ wird daraus ein Bubble-Chart (Punktfläche proportional, 3–22 px). Quadranten-Linien lassen sich auf Mittelwert oder Median legen — gesetzte Referenzlinien (auch die neue X-Referenzlinie) übersteuern sie. Die Achsen zeigen maximal 5 runde Ticks mit der Einheit im Achsentitel; Labels weichen Kollisionen automatisch aus (hervorgehobene Kategorien vor größten Blasen vor Extrempunkten). Optional färbt eine Status-Färbung die Punkte nach ΔPY/ΔPL inklusive Wesentlichkeitsschwelle. Hervorhebung (EMPHASIZE), FC-Schraffur, Kommentare, Crossfilter, Dark Mode und Hochkontrast funktionieren wie in den übrigen Modi.
 
-Seit 1.48 ist der Modus deutlich ausgebaut: Ein Feld in der Small-Multiples-Rolle erzeugt jetzt echte Scatter-Kacheln mit gemeinsamer X/Y-Skala — Quadranten-Linien, Referenzlinien und Blasenskala gelten für alle Kacheln gleich; die Σ- und die Top-N-Rest-Kachel sind im Scatter bewusst aus (keine Summen über Quoten). Die Punkt-Färbung „Nach Gruppe/Serie“ nutzt sechs gedeckte Farben ohne Rot und Grün (die bleiben für gut/schlecht reserviert) und zeigt eine Legende oben — ab der 7. Gruppe mit „+n weitere“. Die neue Rolle „X-Achse VJ (Scatter)“ macht aus den PY→AC-Bewegungspfeilen echte 2D-Bewegungen. Und der Play-Modus (Rosling-Animation) macht die Kategorie zur Zeitachse: je Frame ein Punkt pro Serie, die laufende Periode steht als großes Wasserzeichen im Hintergrund, ohne Abspielen zeigt der Chart die letzte Periode — nur für die einzelne Punktwolke, nicht bei Kacheln. Dazu kommen Trendlinie mit R²-Label, Größen-Legende, Punktformen je Gruppe, Quadranten-Ecklabels, fixierbare Achsen und Log-Skalen (Einstellungs-Referenz, Kapitel 06).
+Seit 1.48 ist der Modus deutlich ausgebaut: Ein Feld in der Small-Multiples-Rolle erzeugt jetzt echte Scatter-Kacheln mit gemeinsamer X/Y-Skala — Quadranten-Linien, Referenzlinien und Blasenskala gelten für alle Kacheln gleich; die Σ- und die Top-N-Rest-Kachel sind im Scatter bewusst aus (keine Summen über Quoten). Die Punkt-Färbung „Nach Gruppe/Serie“ nutzt sechs gedeckte Farben ohne Rot und Grün (die bleiben für gut/schlecht reserviert) und zeigt eine Legende oben — ab der 7. Gruppe mit „+n weitere“. Die neue Rolle „X-Achse VJ (Scatter)“ macht aus den PY→AC-Bewegungspfeilen echte 2D-Bewegungen. Und der Play-Modus (Rosling-Animation) macht die Kategorie zur Zeitachse: je Frame ein Punkt pro Serie, die laufende Periode steht als großes Wasserzeichen im Hintergrund, ohne Abspielen zeigt der Chart die letzte Periode — nur für die einzelne Punktwolke, nicht bei Kacheln. Dazu kommen Trendlinie mit R²-Label, Größen-Legende, Punktformen je Gruppe, Quadranten-Ecklabels, fixierbare Achsen und Log-Skalen (Einstellungs-Referenz, Kapitel 08).
 
-## 04 · ChartKitchen im Einsatz
+## 06 · ChartKitchen im Einsatz
 
 Die folgenden Aufnahmen stammen direkt aus Power BI Desktop, mit Beispieldaten aus einem echten Bericht. Die übrigen Abbildungen dieser Dokumentation sind mit demselben Renderer erzeugt — hier siehst du das Visual so, wie es im Berichtsalltag zusammenspielt.
 
@@ -192,7 +310,32 @@ Die folgenden Aufnahmen stammen direkt aus Power BI Desktop, mit Beispieldaten a
 
 ![Year-to-go-Sicht: Restjahres-Bedarf je Land gegen Plan und Benchmark, rechts die PL→AC-Kaskade mit dem stärksten und schwächsten Treiber in der Botschaftszeile.](../doku-assets/pbi/pbi-ytg.png)
 
-## 05 · Funktionen im Detail
+## 07 · Funktionen im Detail
+
+### IBCS-Vorlagen C01–C13
+
+Seit 1.49 bringt ChartKitchen die IBCS-Chart-Templates als **Presets** mit — dasselbe Muster wie die Tabellen-Templates im Schwester-Visual P&L Statement. Eine Vorlage ist nur ein Startpunkt: Sie setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Speichervorgang, danach ist jede Einstellung frei änderbar.
+
+1. Formatbereich → *Chart* → Gruppe *Chart-Typ* → *IBCS-Chart-Vorlage* (erste Position der Chart-Karte, Standard „Aus“) — oder ein Klick auf eine Kachel der Vorlagen-Galerie im Start-Hub (Kapitel 03).
+2. Weicht danach eine Einstellung der Vorlage ab, erscheint im Bearbeitungsmodus unten links **„↺ Zum Template zurück“**: Ein Klick stellt den Vorlagen-Stand wieder her, alle übrigen Einstellungen bleiben.
+3. Dieselbe Vorlage erneut anwenden: in der Galerie die aktive Kachel klicken — das Dropdown im Formatbereich kann einen bereits gewählten Eintrag nicht noch einmal melden.
+4. C07 (Fläche) und C11 (Verteilung) gibt es im Visual nicht; sie fehlen deshalb in der Liste.
+
+| Vorlage | Was sie setzt | Dazu binden |
+| --- | --- | --- |
+| C01 · Gestapelte Säulen | Säulen, Abweichungsbasis Auto, ohne Abweichungs-Panels | Stack-Serie |
+| C02 · Gestapelte Balken | wie C01, als Balken | Stack-Serie |
+| C03 · Säulen + Varianzen (PY) | Säulen, Basis Vorjahr, Abweichung absolut und in % | Vorjahr (PY) |
+| C04 · Balken + Varianzen (PL) | Balken, Basis Plan, Abweichung absolut und in % | Plan (PL) |
+| C05 · Integrierte Brücke | Integrierte Brücke, Basis Vorjahr, Abweichung absolut und in % | Vorjahr (PY) |
+| C06 · Kategorie-Brücke vertikal | Kategorie-Brücke als Säulen-Kaskade, Basis Vorjahr | Vorjahr (PY) |
+| C08 · Linie | Linie, Basis Auto, Abweichung absolut | — |
+| C09 · Scatter | Scatter, Quadranten am Mittelwert, einfarbig | X-Achse (Scatter) |
+| C10 · Bubble | wie C09, dazu die Größen-Legende | X-Achse + Blasengröße |
+| C12 · Waterfall / Brücke | Wasserfall, Basis Auto, Abweichung absolut und in % | Waterfall-Typ empfohlen |
+| C13 · Small Multiples | Σ-Gesamt-Kachel und gleiche Skala; der Chart-Typ bleibt | Small Multiples |
+
+Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateApplied` auf denselben Wert setzen — sonst wendet das Visual die Vorlage beim ersten Rendern an (Details im [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/ibcsInspiredChartDeck/AGENT-GUIDE.md)).
 
 ### Szenarien, Forecast-Schraffur & Benchmark
 
@@ -288,7 +431,7 @@ Die folgenden Aufnahmen stammen direkt aus Power BI Desktop, mit Beispieldaten a
 1. Der IBCS-Titel („KPI · Einheit · Zeitraum: Szenarien“) entsteht automatisch; KPI-Name und Zeitraum überschreibst du in der Karte „IBCS-Titel“.
 2. Eine Botschaftszeile (IBCS: SAY) trägst du oben ein oder lässt sie über „Automatische Botschaft“ aus Gesamtabweichung und größten Treibern erzeugen.
 3. Zwei Fußzeilen sind möglich: „Fußzeile (Datenstand · Quelle)“ unten links und die Filter-Fußzeile mit der gebundenen Filter-Info-Measure plus dem Anzeige-Zustand (YTD, Top-N, Sortierung …).
-4. Alle Schriften skalierst du zentral über Datenbeschriftungen → Größen-Preset (Kompakt/Full HD/Präsentation) und den Faktor „Alle Beschriftungen skalieren %“; die Beschriftungs-Dichte steuert das Ausdünnen.
+4. Alle Schriften skalierst du zentral über Datenbeschriftungen → Größen-Preset (Kompakt/Full HD/Präsentation — im Start-Hub als HD · Full HD · UHD) und den Faktor „Alle Beschriftungen skalieren %“; die Beschriftungs-Dichte steuert das Ausdünnen.
 
 ### Monitoring-Karten (Ampel & Bullet)
 
@@ -313,14 +456,34 @@ Die folgenden Aufnahmen stammen direkt aus Power BI Desktop, mit Beispieldaten a
 1. Unter IBCS-Farben → „Erscheinungsbild“ wählst du Auto · Hell · Dunkel (seit 1.43). „Auto“ erkennt dunkle Berichts-Themes an der Luminanz der Theme-Hintergrundfarbe; für manuell dunkel eingefärbte Seiten ohne dunkles Theme gibt es „Dunkel“ als expliziten Schalter.
 2. Im Dark Mode wechseln Tinte, Papier und Sekundärgrau auf helle Töne; Halos und hohle Marker füllen mit dem dunklen Seitenhintergrund, damit sie mit der Seite verschmelzen.
 3. Farbwähler, die noch auf ihrem hellen Standard stehen (AC/PL, PY, Gut, Schlecht), werden automatisch durch die helle Entsprechung ersetzt — selbst gewählte Farben bleiben unangetastet. Auch das Blau/Orange-Preset hellt analog auf.
-4. Startseiten-Galerie und HTML-Overlays (Zeilensuche, Struktur-Menü, Kommentar-Editor) folgen dem Erscheinungsbild; der Hochkontrast-Modus bleibt ein eigener Pfad.
+4. Start-Hub, Demo-Galerie und HTML-Overlays (Zeilensuche, Struktur-Menü, Kommentar-Editor) folgen dem Erscheinungsbild; der Hochkontrast-Modus bleibt ein eigener Pfad.
 5. Seit 1.44 zeichnet das Visual im Dark Mode auch den Hover-Tooltip selbst: dunkler Kasten, helle Schrift, Kategorie als Header — im hellen Modus bleibt der native Power-BI-Tooltip.
 
-### Eigener Leer-Zustand
+### Große Datenmengen: Nachladen bis 30.000 Zeilen
 
-1. In der Karte „Leer-Zustand“ hinterlegst du einen eigenen Titel und einen eigenen Text (seit 1.44) — sie ersetzen das „ChartKitchen byDatenWG“-Branding, wenn keine Daten dargestellt werden (Felder leer oder Auswahl ohne Zeilen).
-2. Im Lesemodus sehen Berichtsleser nur noch Titel + Text, zentriert und mit Wortumbruch — die Modus-Galerie ist ein Builder-Werkzeug und bleibt dem Bearbeitungsmodus vorbehalten (dort erscheinen die eigenen Texte als Vorschau über der Galerie).
-3. Ohne eigene Texte bleibt alles wie bisher.
+1. Power BI liefert einem Visual die Daten in Fenstern zu 1.000 Kategoriezeilen. Bis 1.48 blieb es still beim ersten Fenster; seit 1.49 lädt ChartKitchen die weiteren Segmente nach.
+2. Während des Ladens steht unten rechts dezent „⏳ n Zeilen geladen …“. Gezeichnet wird zuerst das erste Fenster und, sobald alles da ist, einmal der vollständige Bestand.
+3. Verweigert Power BI weitere Segmente (Speichergrenze des Hosts, rund 100 MB) oder greift die Sicherheitsgrenze von 30.000 Kategoriezeilen, sagt ein Hinweis im Chart, dass die Daten unvollständig sind — eine stille Kappung gibt es nicht mehr.
+4. Bis 1.000 Zeilen ändert sich nichts.
+
+### Gesperrte statt stummer Chips
+
+1. Knöpfe im Chart, die im aktuellen Zustand nichts bewirken würden, sind seit 1.49 gedimmt und nicht klickbar; der Tooltip nennt den Grund. Ein Klick darauf speichert nichts.
+2. Typische Fälle: YTD auf GuV-Zeilen oder bei nur einer Periode · ⇅, wenn die Reihenfolge schon der Wirkungs-Sortierung entspricht · ⚠, wenn nichts zu verdichten ist (z. B. Benchmark-Karten ohne ΔPY/ΔPL) · die Karten-Sortierung ohne Vergleichswert · ▶, ⇅ und ΔPY|ΔPL einer Brücke, die nur ihren Hinweis zeigt.
+3. Das P&L Statement sperrt seine Toolbar-Knöpfe nach derselben Regel.
+
+### Hochkontrast: Muster statt Farbe
+
+1. Im Windows-Hochkontrastmodus übernimmt ChartKitchen seit 1.49 die Farben der Host-Palette — Vordergrund, Hintergrund und `foregroundSelected` für Hervorhebung und Hover.
+2. Der Status steckt dann im Muster statt in der Farbe: gut gefüllt, schlecht hohl, unwesentlich gestrichelt — auch in den KPI-Karten (Statusstreifen, Mini-Brücke) und im Scatter-Status. Die PY-Linie im Linienmodus ist gestrichelt.
+3. Start-Hub und Feld-Intro nutzen dieselbe Palette. Ohne Hochkontrast bleibt alles unverändert.
+
+### Leer-Zustand: Start-Hub, Demo, Feld-Intro oder eigene Nachricht
+
+1. In der Karte *Leer-Zustand* legt „Leer-Zustand im Bearbeitungsmodus“ fest, was du als Autor siehst, solange keine Daten dargestellt werden: **Start-Hub** (Standard seit 1.50, Kapitel 03) · **Demo-Galerie** (Chart-Typ wählen, das Verhalten bis 1.49) · **Feld-Intro** (welches Feld wohin, ✓ an gebundenen Rollen) · **Eigene Nachricht** (Titel und Text darunter).
+2. Feld-Intro und eigene Nachricht tragen Umschalt-Knöpfe, darunter „☰ Start-Hub“; ein Klick darauf speichert den gewählten Modus.
+3. Eigener Titel und eigener Text (seit 1.44) ersetzen das „ChartKitchen byDatenWG“-Branding, wenn keine Daten dargestellt werden (Felder leer oder Auswahl ohne Zeilen).
+4. Leser und Exporte sehen nie Hub, Galerie oder Knöpfe, sondern seit 1.51.1 die ruhige Landing-Karte — mit deinem Titel und Text, falls gesetzt.
 
 ### Skalierungs-Garantien & Achsenschnitt (Wasserfall)
 
@@ -337,8 +500,9 @@ Die folgenden Aufnahmen stammen direkt aus Power BI Desktop, mit Beispieldaten a
 3. Im Scatter/Bubble-Modus gibt es seit 1.48 zusätzlich die Rechteck-Auswahl: Ziehst du auf leerer Plotfläche ein Rechteck auf, werden alle enthaltenen Punkte als EINE Mehrfachauswahl selektiert und filtern die übrigen Visuals (Crossfilter). Ein Klick auf leere Fläche setzt die Auswahl wie bisher zurück.
 4. Beim Überfahren zeigen Standard- und Canvas-Tooltips Werte, Abweichungen, Serie und Kommentar; Canvas-Tooltips (Report-Page-Tooltips) werden unterstützt. Im Dark Mode zeichnet das Visual den Hover-Tooltip selbst (dunkler Kasten mit Kategorie-Header).
 5. Interaktive Zustände sind bookmark-fähig: die Varianz-Basis, die YTD-Sicht, die In-Chart-Sortierung, aufgeklappte Zeilen/Spalten, erfasste Kommentare und Spaltenbreiten wandern mit dem Bericht bzw. dem Lesezeichen.
+6. Seit 1.49 stellen Lesezeichen auch die **Auswahl** wieder her: Ein Lesezeichen mit ausgewählten Kategorien (ebenso eine Auswahl, die ein anderes Visual setzt) dimmt die übrigen Marken wie nach einem Klick; ein Lesezeichen ohne Auswahl hebt die Dimmung auf.
 
-## 06 · Einstellungs-Referenz
+## 08 · Einstellungs-Referenz
 
 Die folgenden Darstellungen zeigen Aufbau und Reihenfolge des Formatbereichs (Schema — Benennung wie in Power BI). Jede Karte und Untergruppe erscheint als schematische Skizze neben ihrer Einstellungstabelle, sodass du Schalter und Auswahlfelder direkt im Pane wiederfindest.
 
@@ -356,7 +520,9 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
+| IBCS-Chart-Vorlage | Seit 1.49, erste Position der Chart-Karte (Gruppe Chart-Typ): Startpunkt nach den IBCS-Chart-Templates — setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt, danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie“, C10 braucht zusätzlich „Blasengröße“, C13 behält den Chart-Typ und braucht „Small Multiples“. Nicht enthalten: C07 (Fläche) und C11. | Optionen: Aus (keine Vorlage) \| C01 · Gestapelte Säulen (Serie) \| C02 · Gestapelte Balken (Serie) \| C03 · Säulen + Varianzen (PY) \| C04 · Balken + Varianzen (PL) \| C05 · Integrierte Brücke (Zeit) \| C06 · Kategorie-Brücke vertikal \| C08 · Linie (lange Zeitreihe) \| C09 · Scatter \| C10 · Bubble (Scatter + Größe) \| C12 · Waterfall / Brücke \| C13 · Small Multiples · Standard „Aus (keine Vorlage)“ |
 | Chart-Typ | Der Diagramm-Modus — hieß bis 1.45 „Ausrichtung“ und steht seitdem ganz oben in der ersten Karte des Formatbereichs. | Optionen: Columns (Zeit) \| Bars (Struktur) \| Line (Zeit, viele Punkte) \| Waterfall / Brücke \| Integrierte Brücke (Zeit) \| Kategorie-Brücke (Struktur) \| Tabelle (IBCS) \| Pareto (Struktur) \| Dumbbell (Struktur) \| Slope · Vorher/Nachher \| KPI-Karten (Kacheln) \| GuV-Statement (IBCS) \| Scatter / Bubble (Korrelation) · Standard „Columns (Zeit)“ |
+| Smart-Start-Vorschläge | Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL). Nur im Bearbeitungsmodus sichtbar, nie in der Leseansicht oder in Exporten. | An / Aus · Standard An |
 | Abweichungsbasis | Basis für die Abweichungs-Panels. Auto: PL wenn vorhanden, sonst PY. | Optionen: Auto \| Vorjahr (PY) \| Plan (PL) \| FC Vormonat (Revision) · Standard „Auto“ |
 | Absolute Abweichung (ΔAC) | — | An / Aus · Standard An |
 | Relative Abweichung (ΔAC %) | — | An / Aus · Standard An |
@@ -489,7 +655,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | --- | --- | --- |
 | Beschriftungen anzeigen | — | An / Aus · Standard An |
 | Beschriftungs-Dichte | Steuert die Ausdünnung der Wertbeschriftungen: „Automatisch" blendet bei Platzmangel aus (bisheriges Verhalten), „Alle" beschriftet jeden Punkt (kann überlappen), „Anfang · Ende · Extrema" zeigt nur ersten/letzten Wert sowie Minimum und Maximum. | Optionen: Automatisch (ausdünnen) \| Alle \| Anfang · Ende · Extrema · Standard „Automatisch (ausdünnen)“ |
-| Größen-Preset | Skaliert alle Schriften im Visual auf einmal: Kompakt ×1 (Standard) · Full HD ×1,5 (empfohlen für 1080p-Berichte) · Präsentation ×2. | Optionen: Kompakt (Dashboard-Kachel) \| Full HD (1080p) \| Präsentation (4K / Beamer) · Standard „Kompakt (Dashboard-Kachel)“ |
+| Größen-Preset | Skaliert alle Schriften im Visual auf einmal: Kompakt ×1 (Standard) · Full HD ×1,5 (empfohlen für 1080p-Berichte) · Präsentation ×2. Im Start-Hub steht dieselbe Einstellung als Leiste HD · Full HD · UHD (HD = Kompakt, UHD = Präsentation). | Optionen: Kompakt (Dashboard-Kachel) \| Full HD (1080p) \| Präsentation (4K / Beamer) · Standard „Kompakt (Dashboard-Kachel)“ |
 | Alle Beschriftungen skalieren % | Vergrößert bzw. verkleinert ALLE Beschriftungen zusätzlich zum Preset um einen freien Faktor (50–300 %). 100 = neutral. Preset × Faktor ergibt die effektive Schriftgröße. | 50–300 · Standard 100 |
 | Textgröße | — | 6–24 · Standard 10 |
 | Dezimalstellen | — | 0–3 · Standard 1 |
@@ -572,10 +738,11 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
-| Eigener Titel | Ersetzt im Leer-Zustand (keine Felder gebunden oder Auswahl ohne Zeilen) die Überschrift „ChartKitchen byDatenWG“. Im Lesemodus sehen Berichtsleser nur noch Titel + Text, zentriert und mit Wortumbruch; im Bearbeitungsmodus erscheinen die eigenen Texte als Vorschau über der Modus-Galerie. Seit 1.44. | Freitext · leer = Standard |
+| Leer-Zustand im Bearbeitungsmodus | Was der Bericht-Autor sieht, solange keine Daten dargestellt werden: der Start-Hub (Checkliste „Loslegen“, Feature-Tour, IBCS-Vorlagen nach Zweck, Demo-Galerie, Feld-Intro mit allen Rollen; unten HD · Full HD · UHD und die Doku), nur die Demo-Galerie zur Chart-Typ-Wahl (Verhalten bis 1.49), das Feld-Intro oder die eigene Nachricht aus Titel/Text darunter. Seit 1.49, Start-Hub seit 1.50. Leser und Exporte sehen unabhängig davon die ruhige Landing-Karte. | Optionen: Start-Hub (Loslegen, Tour, Vorlagen, Demo, Felder) \| Demo-Galerie (Chart-Typ wählen) \| Feld-Intro (welches Feld wohin) \| Eigene Nachricht (Titel / Text unten) · Standard „Start-Hub (Loslegen, Tour, Vorlagen, Demo, Felder)“ |
+| Eigener Titel | Ersetzt im Leer-Zustand (keine Felder gebunden oder Auswahl ohne Zeilen) die Überschrift „ChartKitchen byDatenWG“ — für Leser und Exporte auf der ruhigen Landing-Karte (seit 1.51.1), beim Bearbeiten im Modus „Eigene Nachricht“. Seit 1.44. | Freitext · leer = Standard |
 | Eigener Text | Eigener Text unter dem Titel — z. B. ein Hinweis, welche Felder zu binden sind oder warum die Auswahl leer ist. | Freitext · leer = Standard |
 
-## 07 · FAQ & Troubleshooting
+## 09 · FAQ & Troubleshooting
 
 ### Das Visual zeigt nur einen Hinweis wie „benötigt PY oder PL“.
 
@@ -625,7 +792,25 @@ Gewollt (seit 1.46): Die Visual-Wechselwirkung steht für ChartKitchen immer auf
 
 Stelle IBCS-Farben → „Erscheinungsbild“ auf „Auto“ (erkennt dunkle Themes an der Hintergrund-Luminanz) oder explizit auf „Dunkel“ — Tinte, Achsen, Flächen und seit 1.44 auch der Hover-Tooltip wechseln dann auf dunkle Darstellung mit heller Schrift.
 
-**ChartKitchen byDatenWG** · Version 1.48.0.0
+### Statt der Modus-Galerie erscheint ein Start-Hub mit großen Knöpfen.
+
+Seit 1.50 der Standard für Autoren (Kapitel 03). Die bisherige Galerie steckt hinter „Demo ansehen“; wer sie direkt sehen will, stellt Leer-Zustand → „Leer-Zustand im Bearbeitungsmodus“ auf „Demo-Galerie“. Leser sehen den Hub nie.
+
+### Unten rechts steht „⏳ n Zeilen geladen …“ oder ein Hinweis auf unvollständige Daten.
+
+Das Visual lädt seit 1.49 mehr als 1.000 Kategoriezeilen nach. Der Hinweis auf unvollständige Daten erscheint, wenn Power BI keine weiteren Segmente liefert oder die Grenze von 30.000 Zeilen greift — dann die Kategorie verdichten oder die Seite filtern.
+
+### Ein Knopf im Chart ist grau und reagiert nicht.
+
+Er ist gesperrt, weil er im aktuellen Zustand nichts bewirken würde; der Tooltip nennt den Grund (Kapitel 07, „Gesperrte statt stummer Chips“).
+
+### Unten links steht „↺ Zum Template zurück“.
+
+Eine IBCS-Vorlage ist gesetzt, und mindestens eine ihrer Einstellungen wurde geändert. Ein Klick stellt den Vorlagen-Stand wieder her; wer die Änderungen behalten will, stellt Chart → IBCS-Chart-Vorlage auf „Aus“. Leser und Exporte sehen den Chip nie.
+
+**ChartKitchen byDatenWG** · Version 1.51.1.0
+
+Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (immer die aktuelle Version) · Schwester-Visual: [P&L Statement byDatenWG – Dokumentation](../pnl-doku.html)
 
 Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
