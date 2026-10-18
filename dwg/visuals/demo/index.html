@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dwg visuals · Spike</title>
+<link rel="stylesheet" href="../../../assets/fonts/geist/geist.css">
+<link rel="stylesheet" href="../../../assets/fonts/jetbrains-mono/jetbrains-mono.css">
+<style>
+:root{--bg:#f6f6f3;--card:#fff;--ink:#0f1e2e;--soft:#5b6675;--line:#e3e3de;--accent:#1e8f9e}
+:root[data-theme="dark"]{--bg:#0f1114;--card:#16191d;--ink:#e8eaed;--soft:#9aa3ad;--line:#2a2f36}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Geist,system-ui,sans-serif}
+header{display:flex;align-items:center;gap:16px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--card)}
+header h1{font-size:16px;margin:0;font-weight:600}
+header .meta{color:var(--soft);font:12px "JetBrains Mono",monospace}
+header button{margin-left:auto}
+button{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
+#chips{display:flex;gap:8px;padding:10px 18px 0}
+.chip{border-color:var(--accent);color:var(--accent)}
+main{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:18px;padding:18px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0}
+.tile h2{margin:0 0 8px;font-size:13px;font-weight:600;color:var(--soft)}
+.wide{grid-column:1/-1}
+#v-kpis{height:190px}#v-zeit{height:430px}#v-kosten{height:430px}#v-guv{height:560px}
+footer{padding:0 18px 18px;color:var(--soft);font:12px "JetBrains Mono",monospace;display:grid;gap:6px}
+pre{margin:0;white-space:pre-wrap}
+#errors{color:#c0392b}
+@media (max-width:900px){main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>dwg visuals · Spike</h1>
+  <span class="meta" id="versions"></span>
+  <button id="theme" type="button">Hell / Dunkel</button>
+</header>
+<div id="chips" hidden></div>
+<main>
+  <section class="tile wide"><h2>KPI-Karten · ChartKitchen „cards"</h2><div id="v-kpis"></div></section>
+  <section class="tile"><h2>Umsatz · integrierte Varianzanalyse (Klick auf einen Monat filtert)</h2><div id="v-zeit"></div></section>
+  <section class="tile"><h2>Kosten AC gegen PL · Kategorie-Brücke</h2><div id="v-kosten"></div></section>
+  <section class="tile wide"><h2>GuV · P&amp;L Statement byDatenWG</h2><div id="v-guv"></div></section>
+</main>
+<footer>
+  <span id="mount-ms"></span>
+  <span id="timings"></span>
+  <span>Letzte Auswahl: <span id="last-select">–</span></span>
+  <details><summary>DAX, die daxQuery() für die Varianzanalyse erzeugt</summary><pre id="dax"></pre></details>
+  <span>Alle Zahlen sind Demodaten. IBCS® ist eine eingetragene Marke des IBCS Institute.</span>
+  <pre id="errors"></pre>
+</footer>
+<script type="module" src="build/main.js"></script>
+</body>
+</html>

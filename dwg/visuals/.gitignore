@@ -1,0 +1,6 @@
+node_modules/
+dist/
+src/_generated.ts
+src/visuals/_locales-*.ts
+test/out/
+demo/build/

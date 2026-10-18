@@ -1,14 +1,19 @@
 # Plan · Kitchen für Fabric Apps
 
-_Stand: 18.10.2026 · Entwurf zur Freigabe · betrifft die Repos `PowerBI-Kitchen-` und `Fabric-Apps-Demo`_
+_Stand: 18.10.2026 · betrifft die Repos `PowerBI-Kitchen-` und `Fabric-Apps-Demo` · Arbeitsname **dwg cli**_
+
+> **Update 18.10.2026:** Plan auf ein MVP eingedampft (siehe Phasen). Daten kommen in der Regel aus Fabric-Semantikmodellen.
+> Start mit dem Adapter für ChartKitchen und P&L: **Spike erledigt, Urteil Go.** Code, Messwerte und Screenshots in
+> [`dwg/visuals/`](../dwg/visuals/README.md). 17 von 17 Browser-Prüfungen grün, Original-Visuals ohne Codeänderung,
+> Querfilter per Klick, Dark Mode, 210–480 ms bis vier Visuals stehen, ChartKitchen 218 KB / P&L 139 KB gzip.
 
 ## Ziel
 
 Eine Fabric App mit IBCS-inspirierten Grafiken soll in Minuten stehen, nicht in einer Stunde Agentenarbeit:
 
 ```bash
-npx kitchen new vertrieb --blueprint monitoring --model "Vertriebscontrolling" --workspace dev
-npx kitchen up
+npx dwg new vertrieb --blueprint monitoring --model "Vertriebscontrolling" --workspace dev
+npx dwg up
 ```
 
 Drei Grundsätze:
@@ -57,18 +62,18 @@ Abhängigkeiten und setzt Schalter in `rayfin/rayfin.yml`. Eigene Templates gehe
  (optional)        │  Seiten · Kacheln · Rollen · │     monitoring · monatsreport
                    │  Visual-Props · Filter       │     sales · guv
                    └──────────────┬───────────────┘
-                                  │  kitchen new / kitchen add
+                                  │  dwg new / dwg add
                                   ▼
  ┌─────────────────────────────── Rayfin-Projekt (universal-app) ─────────────────────────────┐
  │  Pack kitchen-ibcs                                                                          │
  │   ├─ Rahmen: Kopfband + Nav, KPI-Leiste, Kachelraster, Filterpanel + Chips, Fußzeile, Tile   │
  │   ├─ Tokens + Dark Mode (eine Quelle)                                                       │
  │   ├─ Daten: Query-Hook, Würfel laden, Text-/Datums-Normalisierung, Szenario-Logik           │
- │   └─ @datenwg/kitchen-visuals-web                                                           │
+ │   └─ @dwg/visuals                                                           │
  │        <ChartKitchen kind="varint" …/>   <PnlStatement …/>                                  │
  │        = originaler visual.ts + Host-Adapter (DataView, Auswahl, Tooltip, Theme, Sprache)   │
  └─────────────────────────────────────────────────────────────────────────────────────────────┘
-                                  │  kitchen lint · kitchen check · kitchen up
+                                  │  dwg lint · dwg check · dwg up
                                   ▼
                         rayfin up (+ connector apply + zweites up)
 ```
@@ -87,7 +92,7 @@ exportiert und wie PBIR sie in `visual.json` speichert:
 
 ## Bausteine
 
-### A · `@datenwg/kitchen-visuals-web` (Host-Adapter)
+### A · `@dwg/visuals` (Host-Adapter)
 
 Liegt im Repo `PowerBI-Kitchen-` neben dem Visual-Code, damit Adapter und Visual zusammen versioniert und getestet werden.
 
@@ -132,25 +137,25 @@ Liegt im Repo `Fabric-Apps-Demo` (neuer Ordner `kitchen/`).
 | `sales` | S1 Overview: `cards` + Small Multiples je Region · S2 Struktur: `pareto`, `bars` mit Varianz, `dumbbell` · S3 Trend: `columns`/`line`, `intwaterfall`, `slope` · S4 Details: `table` Kunde × Produkt × Zeit (Ziel des Detailpanels) |
 | `guv` | P&L Statement (reine Hierarchie oder volle GuV mit Formelzeilen, wie im Skill `pnl-report`) · Treiberbaum (`columns.treeRoot`) · Mega-Table (z. B. 12G YTD + Restjahr) |
 
-- **Feld-Mapping ohne Mockup:** `kitchen map` liest das Semantikmodell (Rayfin-Skill `schema-discovery` bzw. TMDL),
+- **Feld-Mapping ohne Mockup:** `dwg map` liest das Semantikmodell (Rayfin-Skill `schema-discovery` bzw. TMDL),
   schlägt Rollen per Namensregel vor (dieselbe Regel wie `catalog.js` für AC/PY/PL/FC, inkl. Fix R1) und fragt nur die
   offenen Punkte ab: Zeitfeld, Vergleich, Polarität je KPI, additiv ja/nein. Ergebnis landet in `app-spec.json`.
 
-### D · CLI `kitchen`
+### D · CLI `dwg` (Arbeitsname)
 
-Node-Paket `@datenwg/kitchen-cli`, dünn, ruft Rayfin und npm auf.
+Node-Paket `@dwg/cli`, dünn, ruft Rayfin und npm auf.
 
 | Befehl | Zweck |
 | --- | --- |
-| `kitchen doctor` | Node, npm 11, Rayfin-Login, Region und Tenant-Schalter als Hinweisliste |
-| `kitchen new <app> [--blueprint …] [--from mockup-spec.json] --model … --workspace …` | `rayfin init` mit Template, Konnektor anlegen, App-Spec erzeugen, Seiten und Kacheln generieren, DAX-Abfragen als `.dax` |
-| `kitchen map` | Feld-Mapping vorschlagen und prüfen |
-| `kitchen add page \| tile` | Seite oder Kachel aus Katalog ergänzen |
-| `kitchen lint` | IBCS- und Textregeln (siehe unten) |
-| `kitchen check` | typecheck, ESLint, Tests, Build in einem Lauf |
-| `kitchen up [--workspace …]` | `rayfin up`, bei Semantikmodell-Konnektor `connector apply` und zweites `up`, Ausgabe URL als JSON |
+| `dwg doctor` | Node, npm 11, Rayfin-Login, Region und Tenant-Schalter als Hinweisliste |
+| `dwg new <app> [--blueprint …] [--from mockup-spec.json] --model … --workspace …` | `rayfin init` mit Template, Konnektor anlegen, App-Spec erzeugen, Seiten und Kacheln generieren, DAX-Abfragen als `.dax` |
+| `dwg map` | Feld-Mapping vorschlagen und prüfen |
+| `dwg add page \| tile` | Seite oder Kachel aus Katalog ergänzen |
+| `dwg lint` | IBCS- und Textregeln (siehe unten) |
+| `dwg check` | typecheck, ESLint, Tests, Build in einem Lauf |
+| `dwg up [--workspace …]` | `rayfin up`, bei Semantikmodell-Konnektor `connector apply` und zweites `up`, Ausgabe URL als JSON |
 
-**Regeln für `kitchen lint`** (aus `memory/04` und den Visual-Regeln):
+**Regeln für `dwg lint`** (aus `memory/04` und den Visual-Regeln):
 Brücke nur bei additiven KPIs · keine Brücke gegen Vorwoche · VP statt PY, wenn kein Vorjahr · Polarität je KPI gesetzt ·
 gemeinsame Skala für vergleichbare Kacheln · Szenario-Notation nur über Tokens, keine freien Farben ·
 jede Kachel hat Titel und Kernaussage · keine Gedankenstriche in UI-Texten · IBCS-Markenhinweis genau einmal ·
@@ -166,24 +171,26 @@ Im Repo `PowerBI-Kitchen-`, `assets/mockup/`:
 - Kacheln mit Engine `ck` und `custom` (`pnlByDatenWG`) gehen 1:1 in die App-Spec, native Typen werden auf den
   nächstliegenden ChartKitchen-Modus abgebildet oder als „nicht unterstützt" gemeldet.
 
-## Phasen
+## Phasen (MVP)
 
-Aufwand grob in Arbeitstagen mit Agenten, vor dem Spike unsicher.
+Jede Stufe endet mit einer Go/No-Go-Entscheidung. Aufwand grob in Arbeitstagen mit Agenten.
 
-| Phase | Inhalt | Ergebnis / Abnahme | Aufwand |
-| --- | --- | --- | --- |
-| **0 · Entscheidungen** | offene Punkte unten | Freigabe | ½ |
-| **1 · Spike Host-Adapter** | VarInt (ChartKitchen) und GuV (P&L) in einer Vite-React-Seite mit Fixture-Daten | gleiche SVG wie im Harness, Auswahl kommt in React an, Dark Mode, Bundle-Größe und Renderzeit gemessen. **Go/No-Go** | 1–2 |
-| **2 · `kitchen-visuals-web`** | DataView-Builder, Host, Hüllen, Paritätstests, alle ChartKitchen-Modi und P&L | Paket baut, Paritätstests grün | 3–5 |
-| **3 · Pack + Template** | Rahmen, Tokens, Daten-Helfer, Skill, Template `kitchen-cockpit` | `rayfin init -t ./kitchen-cockpit` + `pack:add` erzeugt lauffähige Beispiel-App | 3–4 |
-| **4 · Blaupausen + `kitchen new`** | App-Spec-Schema, 4 Blaupausen, Generator, `kitchen map` | Aus dem Demo-Modell entsteht ohne Mockup eine 3-Seiten-App, Tests grün | 3–4 |
-| **5 · `lint`, `check`, `up`, `doctor`** | Regeln, Deploy-Ablauf | Deploy in Dev-Workspace mit einem Befehl (Abnahme online durch Michael) | 2 |
-| **6 · Migration** | Sales Cockpit zuerst, dann Finance, Auslastung, Rhein, PnL (Library bleibt, kein IBCS) | Ports gelöscht, Tests grün, Sichtprüfung online | je ~1 |
-| **7 · MockupKitchen-Brücke** | Zielschalter, App-Spec-Export, Zusatzblöcke | `kitchen new --from` mit dem Review-Mockup ergibt dieselbe App wie die Blaupause plus Mockup-Details | 3–5 |
-| **8 · Doku + Talk** | README, Schnellstart, `memory/` aktualisieren, Talk-Demo | „App in 5 Minuten" live vorführbar | 1–2 |
+| Stufe | Inhalt | Ergebnis / Abnahme | Aufwand | Stand |
+| --- | --- | --- | --- | --- |
+| **1 · Spike Adapter** | ChartKitchen (Karten, VarInt, Brücke) und P&L (GuV) über Host-Adapter, Querfilter, Dark Mode, DAX-Generator | 17/17 Browser-Prüfungen, Messwerte, Screenshots | 1 | **erledigt, Go** |
+| **2 · Adapter ausbauen** | React-Hülle `<DwgVisual>`, alle ChartKitchen-Modi und P&L-Ansichten als Paritätstests gegen die Harness-Fälle, Kontextmenü → Detailpanel, `persistProperties` live, Sprachressourcen je Sprache nachladen, Toolbar-Frage klären | Paritätstests grün, Hülle in einer Vite-Seite | 3–4 | offen |
+| **3 · Eine App umstellen** | Sales Cockpit: Nachbauten (`VarIntChart`, `TimeChart`, `StructureBridge` …) durch `@dwg/visuals` ersetzen, Daten per `daxQuery` aus dem Semantikmodell | Tests grün, Sichtvergleich alt/neu online durch Michael. **Go/No-Go für den Rest** | 2–3 | offen |
+| **4 · Template + Skill** | Template `kitchen-cockpit` (Rahmen, Tokens, Adapter), Agent-Skill mit Blaupausen und IBCS-Regeln statt eigener CLI | `rayfin init -t …` ergibt lauffähige App mit Blaupause | 3–4 | offen |
+| **5 · `dwg` CLI** | `new`, `map`, `add`, `lint`, `check`, `up`, `doctor`, erst wenn Stufe 4 stabil ist und andere es nutzen sollen | Deploy in Dev-Workspace mit einem Befehl | 2–3 | später |
+| **6 · Restliche Apps** | Finance, Auslastung, Rhein, PnL (Library bleibt) | je App Tests grün, Sichtprüfung | je ~1 | später |
+| **7 · MockupKitchen-Brücke** | Zielschalter `fabric-app`, App-Spec-Export, Zusatzblöcke | `dwg new --from` aus dem Review-Mockup | 3–5 | später |
 
-Reihenfolge begründet: Phase 1 entscheidet, ob der Kernansatz trägt. Phase 4 liefert den Standard ohne Mockup früh,
-weil er ohne MockupKitchen-Änderungen auskommt. Die Brücke (7) kommt zuletzt und nutzt dann denselben Generator.
+Zurückgestellt bis nach Stufe 3: npm-Veröffentlichung, CLI, MockupKitchen-Brücke.
+
+**Datenweg:** Standard ist `daxQuery()` je Kachel gegen das Semantikmodell. Die Zahlen kommen dann aus den Measures
+und stimmen mit dem Power-BI-Bericht überein (keine zweite Wahrheit). Das Würfel-Muster aus `memory/03` (einmal laden,
+im Browser rechnen) bleibt für Seiten, die Interaktion ohne Wartezeit brauchen. In Stufe 3 messen: Wartezeit je Klick
+und das API-Limit von 120 Abfragen pro Minute und Nutzer.
 
 ## Risiken
 
@@ -200,17 +207,16 @@ weil er ohne MockupKitchen-Änderungen auskommt. Die Brücke (7) kommt zuletzt u
 ## Offene Entscheidungen
 
 1. **Verteilung des Adapters:** öffentliches npm-Paket `@datenwg/…` (wie die Visuals Open Source), Git-Tag, oder
-   als Kopie im Pack? Empfehlung: zuerst Kopie im Pack, npm ab Phase 5.
+   als Kopie im Pack? Empfehlung: zuerst Kopie im Pack, npm ab Stufe 5.
 2. **Eine Farbe für gut/schlecht:** `#1E8F9E`/`#D64541` (ChartKitchen), `#0E8585`/`#E02B1D` (P&L) oder `#117865`/`#c0392b`
    (Apps)? Empfehlung: ChartKitchen-Werte, weil das Visual sie in der App ohnehin zeichnet.
 3. **App-eigene Grafiken:** Ports ganz ersetzen oder dort behalten, wo die App mehr kann (z. B. Zoom zu Small Multiples,
    Simulation im PnL)? Empfehlung: ersetzen, App-Extras als Hülle um das Visual.
-4. **Name der CLI:** `kitchen`, `kitchen-apps`, `datenwg`?
+4. ~~Name der CLI~~ entschieden: Arbeitsname `dwg cli`, Pakete `@dwg/visuals`, später `@dwg/cli`.
 5. **Öffentlich oder privat:** `Fabric-Apps-Demo` ist privat. Pack, Template und CLI eigenes öffentliches Repo?
 
 ## Nächster Schritt
 
-Nach Freigabe von 1–3: Phase 1 (Spike) im Repo `PowerBI-Kitchen-` unter `tools/kitchen-visuals-web/`, Ergebnis als
-kurzer Bericht mit Messwerten und Screenshot.
+Stufe 2 (Adapter ausbauen) und parallel Entscheidungen 1–3. Danach Stufe 3 im Repo `Fabric-Apps-Demo` auf einem Branch.
 
 IBCS® ist eine eingetragene Marke des IBCS Institute. Die Kitchen-Visuals sind an IBCS angelehnt, nicht zertifiziert.
