@@ -2025,6 +2025,12 @@ export class Visual implements IVisual {
         // the demo follows pane edits as well (locally — it never persists)
         this.syncPaneDefaults();
         this.render();
+        // the hub's demo page: the focus goes to its ← Zurück button (keyboard flow)
+        if (this.hubFocusKey && this.emptyMode() === "hub") {
+            const el = this.root.querySelector<HTMLElement>(`[data-pnl="${this.hubFocusKey}"]`);
+            this.hubFocusKey = null;
+            if (el) { el.focus(); }
+        }
     }
 
     /**

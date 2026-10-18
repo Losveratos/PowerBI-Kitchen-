@@ -2,11 +2,11 @@
 
 IBCS-inspiriertes GuV-/P&L-Custom-Visual für Power BI — eigenständiges
 Schwester-Visual von [ChartKitchen byDatenWG](../ibcsInspiredChartDeck/) und der
-[IBCS KPI Card](../ibcsKpiCard/). **Version 1.2.0.0**:
+[IBCS KPI Card](../ibcsKpiCard/). **Version 1.3.0.0**:
 Tabelle mit **Mega-Table** (IBCS-Templates T01–T04, 12A, 12G und 12H), Struktur-Bars,
 Zeilen-Waterfall und **Werttreiberbaum (DuPont)** mit Kachel-Zoom; Selektion,
 Drillthrough und natives Kontextmenü; **vier Sprachen** (de · en · es · ja),
-**Smart Start** (Demo-GuV beim Hineinziehen) und **Dark Mode** (Auto · Hell ·
+**Start-Hub** (Tour, Template-Galerie, Demo, Feld-Intro beim Hineinziehen) und **Dark Mode** (Auto · Hell ·
 Dunkel) in der Handschrift von ChartKitchen.
 **Sternschema (L1..Ln) ist der primäre Hierarchie-Modus** — Parent-Child
 bleibt als Alternative voll unterstützt. Die Toolbar macht das Visual für
@@ -37,7 +37,7 @@ Toolbar-Zustände sind bookmark-fähig persistiert.
 | Mega-Table | IBCS-Tabellen T01A/B, T02A–F, T03A/B, T04A–E, 12A, 12G und 12H als Zuschaltung der Tabellen-Ansicht (Spalten & Mega-Table → Template): Wert- und Δ-Spalten frei kombinierbar, Δ-Balken, Δ%-Pins, integrierter Δ-Wasserfall, Wert-Kaskaden (12G: YTD + Restjahr in einem Balken), Planrechnung mit getönten Δ (12H), Blöcke Monat \| YTD \| FY, Schwellen mit Fußzeile, ab 150 Zeilen virtualisiert — siehe [`SPEC-MEGATABLE.md`](SPEC-MEGATABLE.md) |
 | Finance | Wie ChartKitchen: Tooltips, Σ-treue Rundung, Klammern statt Minus, Hausbegriffe (Ist/VJ/Budget), Wesentlichkeit, Zeilen hervorheben, Skalen-Sync über Visuals (`numbers.fixedMax`/`fixedVarMax`), Farb-Preset Blau/Orange |
 | Sprachen | Deutsch, Englisch, Spanisch, Japanisch — Formatmenü, Feldrollen, Toolbar, Tooltips, Fußzeilen, Fehlermeldungen und Demo (`stringResources/<locale>/resources.resjson`) |
-| Smart Start | Ohne Felder zeigt das Visual im Bearbeitungsmodus eine Demo-GuV mit Hinweis, welche Rollen fehlen, oder (1.2, Leer-Zustand → Modus) ein **Feld-Intro**: welches Feld wohin, minimal und im Ausbau, mit ✓ für gebundene Rollen. Umschalten per Knopf direkt im Leerzustand. Nie im Lesemodus oder Export |
+| Start-Hub | Ohne Felder zeigt das Visual im Bearbeitungsmodus (1.3, Standard) **vier große Knöpfe**: *Was kann das Visual?* (Tour mit Mini-Renderings), *Templates* (Galerie mit Vorschau, ein Klick wendet an), *Demo ansehen* (die Demo-GuV) und *Felder erklären*. Mit Daten öffnet **☰ Start** in der Toolbar denselben Hub als Overlay. Unter Leer-Zustand → Modus bleiben Demo (Smart Start), Feld-Intro und eigene Nachricht wählbar. Nie im Lesemodus oder Export |
 | Ease of Use (1.2) | **Wertspalten frei kombinieren**: Preset „Eigene Auswahl" bzw. Toolbar-Gruppe „Wertspalten" mit AC · PY · PL · FC · Δ als einzelne Schalter (auch im Mega-Table). **Template-Auswahl in der Toolbar** im Bearbeitungsmodus, Template-Gruppe zuerst im Formatbereich. **Spalten-Kategorie**: Spaltensatz je Segment/Quartal wiederholt, Gesamt-Block danach. **Balken-Ansicht** wie ChartKitchen: Szenarien überlappt, Dreieck-Marker. Feldliste in gewohnter Reihenfolge |
 | Dark Mode | Stil → Erscheinungsbild: Auto erkennt dunkle Berichtsthemen (wie ChartKitchen), Hell/Dunkel erzwingen |
 
@@ -100,6 +100,7 @@ npm run test:render   # Headless-Render aller Testfälle -> test/render.png
 npm run test:tree     # Interaktionstest: Baum (Chevrons, Drill, ⌖) + Selektion/Kontextmenü
 npm run test:toolbar  # Toolbar-Knöpfe in allen Ansichten, Echo-Guard, Wertspalten-Sweep, Template-Auswahl
 npm run test:ease     # 1.2: Pane-/Rollen-Reihenfolge, Leer-Zustand-Modi, Balken-Notation, Spalten-Kategorie
+npm run test:hub      # 1.3: Start-Hub, Tour, Template-Galerie, Overlay, ↺ Zum Template zurück
 npm run test:start    # Smart Start, Dark Mode, Formatmenü-Gates, Sprachen im Bild (test/i18n-*.png)
 npm run test:finance  # Finance-Features F1–F11 (Tooltips, Σ-treue Rundung, Klammern, Hausbegriffe …)
 npm run test:perf     # 5 000 Konten klassisch (Fensterung, Budgets)

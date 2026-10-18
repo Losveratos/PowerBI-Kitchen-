@@ -1,5 +1,91 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.3.0.0 (2026-10-18) — Start-Hub: erst entdecken, dann Felder binden
+
+Ziel ist leichtere Bedienung: Wer das Visual ohne Daten auf die Seite zieht,
+sieht jetzt vier große Knöpfe statt einer Demo-Tabelle. Lese- und Export-Pfade
+sind unverändert. Die 51 Harness-Bühnen von 1.2 (p1–p20, m1–m31) rendern
+byte-identisch, mit genau zwei begründeten Ausnahmen: p12 (Leerzustand im
+Bearbeitungsmodus ist jetzt der Hub) und p20 (Bearbeitungsmodus mit Daten: der
+neue „☰ Start"-Knopf rechts in der Toolbar, 162 Pixel in einem 36 × 9-px-Feld).
+Der Werttreiberbaum und seine Logik sind unangetastet.
+
+### Der Start-Hub (`emptyState.mode = hub`, neuer Standard)
+
+- **Vier Knöpfe:** *Was kann das Visual?* (Feature-Tour) · *Templates*
+  (Galerie) · *Demo ansehen* (die bisherige Demo-GuV, unverändert) · *Felder
+  erklären* (das 1.2-Feld-Intro). Navigation Hub ↔ Unterseite mit „← Zurück",
+  Esc geht eine Ebene zurück, die Ziffern 1–4 öffnen die Knöpfe, ‹ › und die
+  Pfeiltasten blättern die Tour. Alles sind native Buttons (Tab · Enter ·
+  Leertaste), der Fokus folgt der Navigation. Vier Sprachen, Dark und
+  Hochkontrast.
+- **Tour:** sieben Karten (GuV-Tabelle, Mega-Table mit IBCS-Templates,
+  Werttreiberbaum, Struktur-Balken, Zeilen-Waterfall, Kacheln, Dark Mode) mit
+  1–2 Sätzen und einem **echten Mini-Rendering**: eine verschachtelte,
+  nicht-interaktive Instanz des Visuals über der eingebauten Demo (dieselbe
+  Pipeline wie Smart Start), per Transform verkleinert. Keine Bitmaps.
+- **Templates:** Galerie mit **18 Kacheln** (klassische Tabelle + T01A–12H),
+  jede mit Mini-Vorschau. Ein Klick schreibt dasselbe wie das Toolbar-Dropdown
+  (`template`, `templateApplied`, alle Schalter, Dezimalstellen und ggf. Headline
+  in **einem** Speichervorgang, Echo-Guard inklusive). Ohne gebundene Felder
+  steht der Hinweis „Gespeichert … wird aktiv, sobald Felder gebunden sind",
+  die Wahl greift beim Binden. Templates, die FC analysieren, zeigen eine
+  Vorschau mit simuliertem FC (am Hinweis erkennbar).
+- **Mit gebundenen Daten:** ein quieter **„☰ Start"**-Knopf am Ende der Toolbar
+  (nur Bearbeitungsmodus) öffnet den Hub als **Overlay** über der GuV. Schließen
+  (✕, Esc) entfernt die Schicht; die Ansicht darunter ist Byte für Byte wie
+  zuvor (DOM und Scroll-Position), der Fokus kehrt auf den Knopf zurück. Ein
+  Klick in der Galerie wendet das Template an, stellt die Ansicht Tabelle
+  ein (auch aus Balken/Waterfall/Baum, wird als Leser-Zustand gespeichert) und
+  schließt das Overlay auf dem Ergebnis. Demo und Feld-Intro laufen im Overlay
+  als Unterseiten.
+- **Nie für Leser und Export:** Lesemodus, `allowInteractions = false` und zu
+  kleine Visuals (< 300 × 220) behalten den Landing-Text bzw. die eigene
+  Nachricht. Das Overlay schließt sich, wenn der Host in die Leseansicht
+  wechselt. Navigation im Hub ist lokaler Zustand, nichts davon wird gespeichert.
+- **`emptyState.mode`** hat `hub` als ersten Eintrag und Standard. `demo`,
+  `fields` und `message` bleiben wählbar und verhalten sich wie in 1.2 (Demo
+  pixelgleich zu 1.2, belegt durch Bühne p25 gegen p12 von 1.2). Berichte, die
+  `demo` oder `fields` gespeichert haben, ändern sich nicht.
+- Seitenfüller: Der Hub zeichnet seine Minis in Päckchen (die Galerie nach dem
+  ersten Paint, Tour/Demo sofort), ein unverändertes Update zeichnet nichts neu.
+
+### Template-Bedienung
+
+- **Erneut anwenden:** Dasselbe Template noch einmal anwenden wirkt jetzt. Ein
+  natives Dropdown kann den bereits gewählten Eintrag nicht noch einmal wählen
+  (der Altfall „erneute Wahl tut nichts"). Deshalb gibt es drei Wege, die alle
+  unbedingt schreiben: ein Klick auf die aktive Kachel der Galerie, der
+  Zurück-Knopf unten und ein change-Ereignis des Dropdowns. Der Echo-Guard
+  (`megaPending`, TTL) hält die Werte, bis Power BI sie bestätigt.
+- **„↺ Zum Template zurück":** neben dem Template-Dropdown, nur im
+  Bearbeitungsmodus und der Tabellen-Ansicht, nur wenn ein Template gesetzt ist
+  **und** mindestens ein Template-Schalter (Spalten, Headline) abweicht. Ein
+  Klick stellt den Template-Stand wieder her (alle Schalter und
+  Dezimalstellen). Dezimalstellen allein gelten nicht als Abweichung.
+
+### Technik
+
+- Neu: `src/hub.ts` (rein, ohne Power-BI-Import: `templateSwitches`, Tour-Karten,
+  `miniObjects`); `applyMegaTemplate` liest jetzt `templateSwitches` (Schreibweise
+  unverändert, Test gegen die 1.2-Logik). `showStart` baut das Demo-Modell über
+  `installDemoModel` (Smart Start, Hub-Demo und Minis teilen es).
+- `capabilities.json`: nur eine neue Aufzählung `hub` in `emptyState.mode`.
+- Sprachdateien: 42 neue Schlüssel in allen vier Sprachen (Hub, Tour, Galerie,
+  ↺-Knopf, Enum), paritätisch.
+- Tests: `test/hub-test.js` (rein, 7), `test/hub-interact.js` (80 Prüfungen:
+  Hub, Tour, Galerie mit Persist und Re-Apply, Navigation, Overlay, ↺, Sprachen,
+  Dark, Paletten-Sicherheit). Neue Bühnen p21–p27 in `test/test.html`. Die
+  Smart-Start- und Leer-Zustand-Tests der Version 1.2 prüfen die Demo jetzt über
+  den expliziten Modus `demo`.
+
+### Dokumentation
+
+- AGENT-GUIDE und TEMPLATE-GUIDE: Kostenzeilen-Trio berichtigt
+  (`SignConvention -1 · DisplayInvert true · VarianceInvert false`; `-1` plus
+  Drehen färbt eine Überschreitung fälschlich günstig) und die Headline-Angabe
+  berichtigt (nur 12G und 12H schalten sie ein, nicht 12A).
+
 ## 1.2.0.0 (2026-10-17) — Leichter bedienen: freie Szenarien, Template in der Toolbar, Feld-Intro, Spalten-Kategorie
 
 1.2 sammelt die kleinen Sachen, die beim Testen in Power BI aufgefallen sind.

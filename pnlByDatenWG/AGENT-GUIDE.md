@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.2.0.0** (17.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.3.0.0** (18.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -19,7 +19,7 @@ Stand: **1.2.0.0** (17.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lese
 | --- | --- |
 | GUID | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
-| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.2.0.0.pbiviz` |
+| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.3.0.0.pbiviz` |
 | API | `powerbi-visuals-api` 5.11 |
 | Datenfenster | `dataReductionAlgorithm window 30000` Zeilen; weitere Segmente lädt das Visual per `fetchMoreData` nach (Ladebalken + „≈" an Summen, bis alles da ist) |
 | Fähigkeiten | Tooltips (default + canvas) · Tastaturfokus · Landing Page · Multi-Visual-Selektion · `supportsHighlight: false` (Cross-Interaktion filtert) |
@@ -32,7 +32,7 @@ Interne Rollennamen für PBIR (`projections`) — je Rolle max. 1 Feld, `levels`
 | Rolle (intern) | Kind | Semantik + Fallstricke |
 | --- | --- | --- |
 | `levels` | Grouping | Sternschema L1..Ln (Reihenfolge = Hierarchie). **Primärer Modus.** Ragged: leere tiefere Ebene oder Wiederholung der vorigen beendet den Pfad. Gleiche Pfade werden aggregiert |
-| `account` | Grouping | Konto-ID (Key), eindeutig + stabil. Pflicht im Parent-Child-Modus; im Level-Modus optional (Blatt-ID). Ohne `levels` und `account` zeigt das Visual Smart Start |
+| `account` | Grouping | Konto-ID (Key), eindeutig + stabil. Pflicht im Parent-Child-Modus; im Level-Modus optional (Blatt-ID). Ohne `levels` und `account` zeigt das Visual im Bearbeitungsmodus den Start-Hub (1.3; `emptyState.mode`) |
 | `accountName` | Grouping | Anzeigename. Ohne ihn heißt das Blatt wie die letzte gefüllte Ebene |
 | `parent` | Grouping | Parent-ID → Parent-Child-Modus (gewinnt, wenn zusätzlich `levels` gebunden ist) |
 | `ac` | Measure | AC (Pflicht) |
@@ -43,7 +43,7 @@ Interne Rollennamen für PBIR (`projections`) — je Rolle max. 1 Feld, `levels`
 | `formulaDef` | Grouping | für Formula/KPI: `[EBITDA]/[Umsatz]`, `+ - * /`, Klammern; Verweis per eindeutigem Zeilennamen, Formel-auf-Formel erlaubt, Zirkel → Fehler an der Zeile |
 | `signConvention` | Grouping | Rechenvorzeichen: Erlös `1`, Kosten `-1` (Subtotal = Vorzeichen × Σ Kinder) |
 | `displayInvert` | Grouping | Kosten positiv anzeigen (Anzeige ≠ Rechnung) |
-| `varianceInvert` | Grouping | Gut/schlecht drehen (Kosten unter Plan = günstig) |
+| `varianceInvert` | Grouping | Gut/schlecht drehen. **Nicht** auf Kostenzeilen mit `SignConvention = -1` setzen: deren Δ ist über das Rechenvorzeichen schon richtig bewertet, ein zusätzliches Drehen färbt eine Kostenüberschreitung fälschlich günstig. Nur für Zeilen mit +1, bei denen „mehr“ schlecht ist |
 | `sortOrder` | Grouping | Reihenfolge innerhalb des Elternknotens |
 | `comment` | Grouping | Kommentar je Zeile → Marker ①② + Fußnote |
 | `filterInfo` | Measure (Text) | Filterkontext-Text für die Filter-Fußzeile (`titleBlock.filterFooter`) — Berichtsfilter sind für Custom Visuals unsichtbar |
@@ -52,7 +52,7 @@ Interne Rollennamen für PBIR (`projections`) — je Rolle max. 1 Feld, `levels`
 Reihenfolge = Feldliste seit 1.2 (Ebenen → Schlüssel → AC · PY · PL · FC → Periode → Spalten-Kategorie → Spezialrollen → Filter-Info → FY). Das Visual liest jede Spalte über ihre **Rolle**, nie über die Position.
 
 **Vorzeichen-Dreierlogik:** SignConvention (rechnen) · DisplayInvert (zeigen) ·
-VarianceInvert (bewerten) sind unabhängig. Typische Kostenzeile: `-1`, `true`, `true`.
+VarianceInvert (bewerten) sind unabhängig. Typische Kostenzeile: `SignConvention -1` · `DisplayInvert true` · `VarianceInvert false` (so rechnen Engine-Tests und Pharma-Demo). **Warnung:** `-1` zusammen mit `VarianceInvert true` dreht die Bewertung doppelt — eine Kostenüberschreitung würde als günstig gefärbt.
 
 **DAX-Regel:** Measures, die für nicht existierende Konto/Perioden-Kombinationen
 non-blank liefern (`COALESCE(x,0)`, `+0`), erzeugen Geisterzeilen und
@@ -86,7 +86,13 @@ Die Ansicht ist Leser-Zustand (Toolbar) und steht in `state.uiState` (unten).
 - Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport
   (+30 Zeilen Puffer); Export zeichnet immer alles.
 
-## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.2.0.0)
+## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.3.0.0)
+
+**Neu in 1.3** (Start-Hub): `emptyState.mode` += `hub` (neuer **Standard**, erster
+Eintrag; `demo`/`fields`/`message` unverändert wählbar). Keine neue Property,
+keine neue Rolle. Der Hub ist lokaler Zustand (nichts davon wird gespeichert);
+geschrieben wird nur beim Klick auf ein Template (wie das Toolbar-Dropdown).
+Details unter „Start-Hub (1.3)" bei den Fallen.
 
 **Neu in 1.2** (Ease of Use): `columns.preset` += `custom` mit `colAc`/`colPy`/
 `colPl`/`colFc`/`colDelta`; `columns.barOverlap`/`barTriangles` (Balken-Ansicht);
@@ -252,7 +258,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 
 | Property | Typ | Default | Bedeutung (de-DE-Pane) |
 | --- | --- | --- | --- |
-| `mode` | enum `demo` · `fields` · `message` | `demo` | Solange Felder fehlen (Bearbeitungsmodus): Demo = Beispiel-GuV (Smart Start) · Feld-Intro = welches Feld wohin, minimal und im Ausbau · Eigene Nachricht = Titel und Text darunter. Leser sehen immer den Standardtext oder die eigene Nachricht. Standard: Demo |
+| `mode` | enum `hub` · `demo` · `fields` · `message` | `hub` | Solange Felder fehlen (Bearbeitungsmodus): Start-Hub = große Knöpfe für Feature-Tour, Template-Galerie, Demo und Feld-Intro · Demo = Beispiel-GuV (Smart Start) · Feld-Intro = welches Feld wohin, minimal und im Ausbau · Eigene Nachricht = Titel und Text darunter. Leser sehen immer den Standardtext oder die eigene Nachricht. Standard: Start-Hub |
 | `title` | text | `—` | Eigener Titel: Ersetzt die Überschrift, wenn nichts dargestellt wird (im Lesemodus keine Felder gebunden oder Auswahl ohne Zeilen). Leer = Standardtext |
 | `body` | text | `—` | Eigener Text: Textkörper unter dem Titel im Leer-Zustand — z. B. ein Hinweis, welche Filter der Leser prüfen soll. Leer = Standardtext |
 <!-- hidden: columns.templateApplied -->
@@ -401,7 +407,28 @@ werden dann überschrieben).
     (beides bleibt im Gesamt-Block). Nicht-additive Measures (Durchschnitte,
     distinct counts) ergeben im Gesamt-Block die Summe der Kategorien, nicht
     den Modellwert. Die gleiche Regel gilt schon für die Periode.
-13. **Baum unantastbar:** Der Werttreiberbaum hat eigenen Klapp-Zustand
+13. **Start-Hub (1.3):** Ohne Felder zeigt der Bearbeitungsmodus (`viewMode` ≥ 1 oder
+    kein gemeldeter View-Mode, Bühne ≥ 300 × 220 px, `allowInteractions` nicht
+    false) den Hub: Tour (7 Karten mit Mini-Renderings), Template-Galerie
+    (18 Kacheln), Demo, Feld-Intro. Leser, Export und kleine Visuals bekommen wie
+    bisher den Landing-Text. Mit gebundenen Daten öffnet der Toolbar-Knopf
+    „☰ Start" (nur `viewMode` ≥ 1) den Hub als Overlay; Schließen stellt die
+    Ansicht unverändert her. Ein Galerie-Klick schreibt in **einem** Merge
+    `columns` (`template`, `templateApplied`, alle Schalter) + `numbers` (+
+    `titleBlock.headline`) und, wenn die Ansicht nicht Tabelle war,
+    `state.uiState.view = table`. **PBIR-Agenten:** Wer einen Bericht ohne Hub
+    ausliefern will, setzt `emptyState.mode` = `demo` / `fields` / `message`;
+    ein vorkonfiguriertes Template braucht wie bisher `templateApplied`. Die
+    Minis sind verschachtelte Visual-Instanzen über der Demo (`renderMini`),
+    ohne Persist, Selektion und Tooltips. Der Hub zeichnet sie nach dem ersten
+    Paint in Päckchen.
+14. **Template erneut anwenden (1.3):** Ein natives Dropdown feuert für den
+    bereits gewählten Eintrag kein `change`. Wiederanwenden geht über einen Klick
+    auf die aktive Galerie-Kachel oder über „↺ Zum Template zurück" (nur
+    sichtbar, wenn Template-Schalter abweichen). Beide schreiben unbedingt
+    (`applyMegaTemplate(tpl, true)`, Echo-Guard wie beim Dropdown); ein
+    PBIR-Agent muss dafür nichts tun, `template` + `templateApplied` reichen.
+15. **Baum unantastbar:** Der Werttreiberbaum hat eigenen Klapp-Zustand
     (`treeCollapsed`) und SVG-Titel statt Tooltips; Mega-/Finance-Schalter wirken
     dort nicht.
 
@@ -413,4 +440,5 @@ werden dann überschrieben).
 - `SPEC-MEGATABLE.md` — Maße, Notation, Abweichungen von den Referenzblättern
 - `CHANGELOG.md` · `README.md` · `QUICKSTART.md`
 - `../.claude/skills/pnl-report/` — Claude-Skill: GuV-Seite in ein PBIP bauen
-- `test/test.html` — Render-Fälle p1–p20 · m1–m31 als lebende Beispiele
+- `src/hub.ts` — Start-Hub, reiner Teil (Template-Schalter, Tour-Karten, Mini-Objekte)
+- `test/test.html` — Render-Fälle p1–p27 · m1–m31 als lebende Beispiele
