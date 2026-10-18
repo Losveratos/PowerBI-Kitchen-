@@ -8,7 +8,7 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.51.0.0** (18.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.51.1.0** (18.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 

@@ -541,6 +541,7 @@
   "Es_Fields": "Explicar campos",
   "Es_Message": "Mensaje propio",
   "Es_SwitchTip": "Se guarda como Estado vacío → modo; los lectores siguen viendo la galería o el mensaje propio",
+  "Es_ReaderEmpty": "Este objeto visual aún no tiene datos: los campos se vinculan en el modo de edición.",
   "Es_MessageEmpty": "Aún no hay mensaje propio: introduce el título y el texto en el panel de formato, en «Estado vacío».",
   "Load_Progress": "⏳ {0} filas cargadas … cargando más",
   "Load_SelfCap": "{0} filas cargadas: límite superior del objeto visual, no se cargan más filas",

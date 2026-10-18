@@ -1314,8 +1314,8 @@ run("c136", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", 
   { chart: { showAbsoluteVariance: true, showRelativeVariance: true } }), 960, 480);
 </script>
 
-<div class="case"><h4>c137 · 1.44 · Eigener Leer-Zustand im LESE-Modus (viewMode=0) — nur Titel + umbrochener Text zentriert, KEINE Galerie, kein "ChartKitchen byDatenWG"</h4><div class="stage" id="c137" style="width:960px;height:320px"></div></div>
-<div class="case"><h4>c138 · 1.44 · Eigener Leer-Zustand · Dark + Lese-Modus — helle Schrift auf dunkler Seite</h4><div class="stage" id="c138" style="width:960px;height:320px;background:#1E1E1E"></div></div>
+<div class="case"><h4>c137 · 1.44 (1.51.1: Leser-Karte) · Eigener Leer-Zustand im LESE-Modus (viewMode=0) — eigener Titel + umbrochener Text in der ruhigen Leser-Karte, KEINE Galerie, kein "ChartKitchen byDatenWG"</h4><div class="stage" id="c137" style="width:960px;height:320px"></div></div>
+<div class="case"><h4>c138 · 1.44 (1.51.1: Leser-Karte) · Eigener Leer-Zustand · Dark + Lese-Modus — helle Schrift auf dunkler Karte</h4><div class="stage" id="c138" style="width:960px;height:320px;background:#1E1E1E"></div></div>
 <div class="case"><h4>c139 · 1.44 · Eigener Leer-Zustand im EDIT-Modus (default) — Galerie bleibt für den Builder, aber Header/Sub zeigen die eigenen Texte</h4><div class="stage" id="c139" style="width:960px;height:380px"></div></div>
 <script>
 const esObj = { emptyState: {
@@ -1964,8 +1964,8 @@ runCap("c204", emptyDv({ emptyState: { mode: "fields" }, labels: { fontPreset: "
   check(m.category === "1" && m.previousYear === "1" && m.series === "1" && m.actual === "0" && m.plan === "0",
     "c204: ✓ genau an Kategorie, PY, Serie " + JSON.stringify(m));
 }
-// c205: gleiche Einstellung im Lesemodus → Galerie wie bisher (kein Feld-Intro, keine Umschalter)
-addStage("c205", "Feld-Intro-Einstellung im LESEMODUS → Galerie wie bisher", 960, 380);
+// c205: gleiche Einstellung im Lesemodus → 1.51.1 ruhige Leser-Karte (kein Feld-Intro, keine Umschalter)
+addStage("c205", "Feld-Intro-Einstellung im LESEMODUS → Leser-Karte (1.51.1)", 960, 380);
 runCap("c205", emptyDv({ emptyState: { mode: "fields" } }), 960, 380, { viewMode: 0 });
 check(!document.querySelector('#c205 [data-icd="field-intro"]') && !document.querySelector('#c205 [data-icd^="es-"]'),
   "c205: Leser sehen kein Feld-Intro und keine Umschalter");
@@ -1980,8 +1980,8 @@ addStage("c206", "Eigene Nachricht (mode = message) · Bearbeitungsmodus · Klic
   check(pp.length === 1 && pp[0].merge[0].objectName === "emptyState" && pp[0].merge[0].properties.mode === "fields"
     && !!document.querySelector('#c206 [data-icd="field-intro"]'), "c206: Umschalter persistiert emptyState.mode=fields und zeigt das Feld-Intro sofort");
 }
-// c207: Export (allowInteractions=false) mit mode = fields → bisheriges Verhalten (Galerie)
-addStage("c207", "Export (allowInteractions=false) mit mode = fields → bisheriges Verhalten", 960, 380);
+// c207: Export (allowInteractions=false) mit mode = fields → 1.51.1 Leser-Karte
+addStage("c207", "Export (allowInteractions=false) mit mode = fields → Leser-Karte (1.51.1)", 960, 380);
 runCap("c207", emptyDv({ emptyState: { mode: "fields" } }), 960, 380, { viewMode: 1, noInteract: true });
 check(!document.querySelector('#c207 [data-icd="field-intro"]'), "c207: Export ohne Feld-Intro");
 </script>
@@ -2341,10 +2341,10 @@ addStage("c225b", "☰ Start-Overlay offen über gebundenem Chart (Startseite mi
 runCap("c225b", bound({ chart: { template: "C04", templateApplied: "C04", orientation: "bars", comparisonMode: "plan" } }), 960, 380, { viewMode: 1 });
 hubClick("c225b", "hub-chip");
 
-// c226: Leser/Export unverändert — Default (hub) rendert für Leser exakt die bisherige Galerie
-addStage("c226", "Leser (viewMode 0) · Default-Modus hub → bisherige Galerie, identisch zum Zwilling mode = demo", 960, 380);
+// c226: Leser/Export — Default (hub) rendert für Leser die ruhige Leser-Karte (1.51.1; bis 1.51 die Galerie)
+addStage("c226", "Leser (viewMode 0) · Default-Modus hub → Leser-Karte (1.51.1), identisch zum Zwilling mode = demo", 960, 380);
 addStage("c226b", "Zwilling · mode = demo · Leser", 960, 380);
-addStage("c226c", "Export (allowInteractions = false) · Default hub → Galerie wie bisher", 960, 380);
+addStage("c226c", "Export (allowInteractions = false) · Default hub → Leser-Karte (1.51.1)", 960, 380);
 addStage("c226d", "Zwilling · mode = demo · Export", 960, 380);
 {
   runCap("c226", emptyDv({}), 960, 380, { viewMode: 0 });
@@ -2352,11 +2352,11 @@ addStage("c226d", "Zwilling · mode = demo · Export", 960, 380);
   runCap("c226c", emptyDv({}), 960, 380, { viewMode: 1, noInteract: true });
   runCap("c226d", emptyDv({ emptyState: { mode: "demo" } }), 960, 380, { viewMode: 1, noInteract: true });
   const html = (id) => document.querySelector(`#${id} svg`).innerHTML;
-  check(html("c226") === html("c226b") && !hubQ("c226", "hub-tour"), "c226: Leser sehen nie den Hub (SVG identisch zur Galerie)");
+  check(html("c226") === html("c226b") && !hubQ("c226", "hub-tour"), "c226: Leser sehen nie den Hub (SVG identisch zum Zwilling mode = demo)");
   check(html("c226c") === html("c226d") && !hubQ("c226c", "hub-tour"), "c226: Export sieht nie den Hub");
-  addStage("c226e", "Leser · eigene Nachricht gesetzt → nur Titel + Text (wie bisher)", 960, 240);
+  addStage("c226e", "Leser · eigene Nachricht gesetzt → eigener Titel + Text in der Leser-Karte (1.51.1)", 960, 240);
   runCap("c226e", emptyDv({ emptyState: { title: "Keine Daten", body: "Bitte Filter prüfen." } }), 960, 240, { viewMode: 0 });
-  check(!hubQ("c226e", "hub-tour") && /Keine Daten/.test(document.querySelector("#c226e svg").textContent), "c226e: Leser + eigene Nachricht unverändert");
+  check(!hubQ("c226e", "hub-tour") && /Keine Daten/.test(document.querySelector("#c226e svg").textContent), "c226e: Leser + eigene Nachricht gewinnt");
 }
 
 // c227: Unterseiten Felder erklären + Demo ansehen, jeweils mit ← Zurück
@@ -2596,6 +2596,106 @@ addStage("c236", "Feld-Intro im Hub · Full HD · 960 × 380 → Seite 2 (Spezia
   const pg2 = hubQ("c236", "fi-page").textContent;
   check(/^1 \/ \d$/.test(pg1) && /^2 \/ \d$/.test(pg2) && !!hubQ("c236", "fi-notation") && window.__persist.c236.length === 0,
     "c236: Feld-Intro blättert (" + pg1 + " → " + pg2 + "), Prämissen auf späterer Seite, nichts persistiert");
+}
+// ======================================================================
+// 1.51.1 · Familien-Spezifikation (identisch im P&L) — Hub-Leiste, Zurück-Pille,
+// Einstiegs-Kacheln, Gruppen-Eyebrow, Leser-Karte im Lesemodus ohne Daten
+// ======================================================================
+const attr = (el, a) => el ? el.getAttribute(a) : null;
+const frameOf = (id, key) => { const b = hubQ(id, key); return b ? b.querySelector("rect[rx]") : null; };
+const pill = (r) => !!r && Math.abs(Number(attr(r, "rx")) - Number(attr(r, "height")) / 2) < 0.01;
+
+// c237: die Leiste nach Spezifikation (Light · HD · 960 × 380 · Startseite)
+addStage("c237", "Hub-Leiste (Familie) · „Aa“ · HD · Full HD · UHD als Pillen (aktiv Teal #0E8585 / weiß) · Hinweis · Doku-Pille rechts · Signatur darunter", 960, 380);
+{
+  runCap("c237", emptyDv({}), 960, 380, { viewMode: 1 });
+  const f = hubQ("c237", "hub-foot");
+  const rule = hubQ("c237", "hub-foot-rule"), aa = hubQ("c237", "hub-foot-glyph");
+  const ps = ["compact", "fullhd", "presentation"].map(v => frameOf("c237", "hub-size-" + v));
+  const ts = ["compact", "fullhd", "presentation"].map(v => hubQ("c237", "hub-size-" + v).querySelector("text"));
+  check(!!aa && aa.textContent === "Aa" && attr(aa, "fill") === "#5A5A5A" && Number(attr(aa, "x")) === 12, "c237: „Aa“-Glyph links (ink-soft, 12 px Rand)");
+  check(ps.every(pill) && attr(ps[0], "fill") === "#0E8585" && attr(ts[0], "fill") === "#FFFFFF"
+    && attr(ps[1], "fill") === "#FFFFFF" && attr(ps[1], "stroke") === "#5A5A5A" && attr(ts[1], "fill") === "#404040",
+    "c237: Pillen (rx = h/2) · aktiv Teal-Füllung + weiße Schrift · inaktiv weiß, ink-soft-Rahmen, ink-Text");
+  const gaps = [0, 1].map(i => Number(attr(ps[i + 1], "x")) - Number(attr(ps[i], "x")) - Number(attr(ps[i], "width")));
+  check(gaps.every(g => g === 6), "c237: 6 px zwischen den Pillen " + JSON.stringify(gaps));
+  const ry = Number(attr(rule, "y1"));
+  check(attr(rule, "stroke-opacity") === "0.1" && attr(rule, "stroke") === "#404040" && Number(attr(ps[0], "y")) === ry - 0.5 + 1 + 8
+    && Math.abs(380 - 14 - (Number(attr(ps[0], "y")) + Number(attr(ps[0], "height")) + 8)) < 0.01,
+    "c237: Trennlinie 1 px · 10 % ink · 8 px vertikal innen · Signaturzeile darunter");
+  const hint = hubQ("c237", "hub-foot-hint");
+  check(!!hint && /HD for laptops · Full HD for monitors · UHD for projectors & 4K/.test(hint.textContent) && attr(hint, "fill") === "#5A5A5A",
+    "c237: Hinweis (Harness: englischer Fallback) in ink-soft");
+  const dr = frameOf("c237", "hub-docs");
+  check(pill(dr) && attr(dr, "fill") === "#FFFFFF" && attr(dr, "stroke") === "#404040"
+    && Math.abs(Number(attr(dr, "x")) + Number(attr(dr, "width")) - (960 - 12)) < 0.01 && /📖 Open docs/.test(hubQ("c237", "hub-docs").textContent),
+    "c237: „📖 Open docs“ als outlined Pille rechtsbündig (12 px)");
+  const sig = hubQ("c237", "hub-sig");
+  check(!!sig && sig.textContent === "made by Daten-WG" && attr(sig, "opacity") === "0.6" && Number(attr(sig, "x")) === 480
+    && Number(attr(sig, "y")) > Number(attr(ps[0], "y")) + Number(attr(ps[0], "height")) && f.contains(sig),
+    "c237: Mikro-Signatur mittig unter der Leiste, 60 % Opazität");
+  // Startseite: Kacheln rx 10 + Hover-Lift, „🚀 Loslegen“ Teal über die volle Block-Breite
+  const st = frameOf("c237", "hub-start"), tl = frameOf("c237", "hub-tour"), tr = frameOf("c237", "hub-templates");
+  check(attr(st, "fill") === "#0E8585" && attr(st, "rx") === "10" && Math.abs(Number(attr(st, "x")) + Number(attr(st, "width")) - Number(attr(tr, "x")) - Number(attr(tr, "width"))) < 0.01
+    && Number(attr(st, "x")) === Number(attr(tl, "x")), "c237: „🚀 Loslegen“ Teal, volle Breite des Kachel-Blocks");
+  const tg = hubQ("c237", "hub-tour");
+  tg.dispatchEvent(new MouseEvent("mouseenter"));
+  const up = attr(tg, "transform") === "translate(0,-2)" && attr(tg.previousElementSibling, "opacity") === "1";
+  tg.dispatchEvent(new MouseEvent("mouseleave"));
+  check(["hub-tour", "hub-templates", "hub-demo", "hub-fields"].every(k => attr(frameOf("c237", k), "rx") === "10") && up && !attr(tg, "transform"),
+    "c237: vier Einstiegs-Kacheln rx 10 + Hover-Lift (2 px + Schatten)");
+  // Unterseite: „← Zurück“ als outlined Pille links oben, Titel rechts daneben; Eyebrow-Gruppen ink-soft 11 px
+  hubClick("c237", "hub-templates");
+  hubQ("c237", "hub-back").dispatchEvent(new FocusEvent("blur")); // Ruhezustand (nach Navigation trägt sie den Fokusring)
+  const bk = frameOf("c237", "hub-back");
+  const ttl = [...document.querySelectorAll("#c237 svg > text")].find(t => /IBCS/.test(t.textContent));
+  const ey = hubQ("c237", "hub-tpl-group-time");
+  check(pill(bk) && Number(attr(bk, "x")) === 12 && attr(bk, "stroke") === "#404040" && attr(bk, "fill") === "#FFFFFF"
+    && Number(attr(ttl, "x")) > Number(attr(bk, "x")) + Number(attr(bk, "width")), "c237: „← Zurück“ outlined Pille links oben, Titel rechts daneben");
+  check(attr(ey, "fill") === "#5A5A5A" && attr(ey, "font-size") === "11" && ey.textContent === ey.textContent.toUpperCase(),
+    "c237: Gruppen-Eyebrow GROSS, ink-soft, 11 px·k");
+  hubClick("c237", "hub-back");
+}
+addStage("c237b", "Hub-Leiste schmal (340 × 260) · Hinweis weicht, die drei Pillen bleiben", 340, 260);
+{
+  runCap("c237b", emptyDv({}), 340, 260, { viewMode: 1 });
+  check(!hubQ("c237b", "hub-foot-hint") && ["compact", "fullhd", "presentation"].every(v => !!hubQ("c237b", "hub-size-" + v)) && !!hubQ("c237b", "hub-foot-glyph"),
+    "c237b: bei Platzmangel nur der Hinweis ausgeblendet");
+}
+addStage("c237c", "Hub-Leiste Dark · aktive Pille Dark-Teal #3FB3C2 mit dunkler Schrift", 960, 300, "#1E1E1E");
+{
+  runCap("c237c", emptyDv({ colors: { appearance: "dark" } }), 960, 300, { viewMode: 1 });
+  const p = frameOf("c237c", "hub-size-compact"), t = hubQ("c237c", "hub-size-compact").querySelector("text");
+  check(attr(p, "fill") === "#3FB3C2" && attr(t, "fill") === "#1A1A1A", "c237c: Dark-Teal + dunkle Schrift");
+}
+addStage("c237d", "Hub-Leiste Hochkontrast · aktive Pille mit foregroundSelected-Rahmen", 960, 300, "#000000");
+{
+  const pal = { isHighContrast: true, foreground: { value: "#FFFF00" }, background: { value: "#000000" }, foregroundSelected: { value: "#00FFFF" } };
+  runCap("c237d", emptyDv({}), 960, 300, { viewMode: 1, palette: pal });
+  const p = frameOf("c237d", "hub-size-compact"), q = frameOf("c237d", "hub-size-fullhd");
+  check(attr(p, "stroke") === "#00FFFF" && attr(p, "stroke-width") === "2" && attr(p, "fill") === "#000000" && attr(q, "stroke") === "#FFFF00",
+    "c237d: HC aktiv = foregroundSelected-Rahmen, inaktiv = foreground");
+}
+
+// c238: Lesemodus ohne Daten — ruhige, nicht interaktive Leser-Karte (Familien-Regel, identisch im P&L)
+addStage("c238", "Leser (viewMode 0) ohne Daten · Leser-Karte: Produktname · ink-soft-Zeile · 3 statische Mini-Schemata · keine Knöpfe/Pillen/Doku", 960, 300);
+{
+  runCap("c238", emptyDv({}), 960, 300, { viewMode: 0 });
+  const card = document.querySelector('#c238 [data-icd="reader-card"]');
+  const txt = card ? [...card.querySelectorAll("text")].map(t => t.textContent) : [];
+  check(!!card && txt[0] === "ChartKitchen byDatenWG" && /no data yet — fields are bound in edit mode/.test(txt[1] || ""),
+    "c238: Produktname fett + Zeile (Harness: englischer Fallback) " + JSON.stringify(txt));
+  check(!document.querySelector('#c238 [role="button"], #c238 [tabindex]') && !document.querySelector('#c238 [data-icd^="hub-"]')
+    && card.style.pointerEvents === "none" && card.querySelectorAll(":scope > rect").length === 4,
+    "c238: keine Knöpfe, keine Pillen, kein Doku-Link, nicht klickbar · Karte + 3 Mini-Vorschauen");
+  addStage("c238b", "Leser · eigener Leer-Text gewinnt (ohne Mini-Vorschauen) · schmal 320 × 160", 320, 160);
+  runCap("c238b", emptyDv({ emptyState: { body: "Bitte Filter prüfen." } }), 320, 160, { viewMode: 0 });
+  const c2 = document.querySelector('#c238b [data-icd="reader-card"]');
+  check(!!c2 && /Bitte Filter prüfen/.test(c2.textContent) && c2.querySelectorAll(":scope > rect").length === 1,
+    "c238b: Autor-Text gewinnt, keine Vorschauen");
+  addStage("c238c", "Export (allowInteractions = false) ohne Daten · dieselbe Leser-Karte", 960, 300);
+  runCap("c238c", emptyDv({}), 960, 300, { viewMode: 1, noInteract: true });
+  check(document.querySelector("#c238c svg").innerHTML === document.querySelector("#c238 svg").innerHTML, "c238c: Export = Leser-Karte");
 }
 </script>
 </body>

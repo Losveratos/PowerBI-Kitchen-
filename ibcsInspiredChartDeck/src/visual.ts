@@ -2350,8 +2350,11 @@ export class Visual implements IVisual {
         const custom = cTitle !== "" || cBody !== "";
         // null = no host context (harness) → treat as edit, like Smart-Start does
         const isEdit = this.viewMode == null || this.viewMode >= 1;
-        if (custom && !isEdit) {
-            this.renderEmptyMessage(width, height, cTitle, cBody, ink, subtle);
+        // 1.51.1 family rule (identical in P&L): readers — reading view, and hosts
+        // without interactions (exports) — get a calm, non-interactive landing card
+        // instead of the clickable gallery; the author's empty-state text still wins
+        if (!isEdit || !this.allowInteractions) {
+            this.renderReaderCard(width, height, cTitle, cBody);
             return;
         }
 
@@ -3211,6 +3214,80 @@ export class Visual implements IVisual {
                 t.textContent = ln;
             }
             y += lineH;
+        }
+    }
+
+    /**
+     * 1.51.1 reader landing (reading view / export without data), the same card in
+     * both visuals of the family: product name bold, below it one ink-soft line
+     * („This visual has no data yet — fields are bound in edit mode“, or the
+     * author's empty-state title/text, which wins) and — for the default text only,
+     * where room allows — a quiet row of three static chart schemata. No buttons,
+     * no pills, no docs link, nothing focusable or clickable.
+     */
+    private renderReaderCard(width: number, height: number, cTitle: string, cBody: string): void {
+        const c = this.hubColors();
+        const tf = this.landingTf();
+        const custom = cTitle !== "" || cBody !== "";
+        const fT = Math.round(15 * tf), fB = Math.round(11 * tf), lh = Math.round(fB * 1.45);
+        const title = cTitle !== "" ? cTitle : "ChartKitchen byDatenWG";
+        const body = cBody !== "" ? cBody
+            : this.locStr("Es_ReaderEmpty", "This visual has no data yet — fields are bound in edit mode.");
+        const m = width >= 160 && height >= 70 ? 12 : 4;
+        const ip = width >= 200 && height >= 90 ? 16 : 6;
+        const cardW = Math.max(40, Math.min(width - 2 * m, 520));
+        const innerW = cardW - 2 * ip;
+        const maxH = height - 2 * m;
+        // body: paragraphs wrapped against real metrics, as many lines as fit
+        const roomLines = Math.max(0, Math.floor((maxH - 2 * ip - fT - 8) / lh));
+        const lines: string[] = [];
+        for (const para of body.split(/\n/)) {
+            if (lines.length >= roomLines) { break; }
+            const wl = this.hubWrap(para.trim(), innerW, fB, roomLines - lines.length);
+            lines.push(...(wl.length > 0 ? wl : [""]));
+        }
+        while (lines.length > 0 && lines[lines.length - 1] === "") { lines.pop(); }
+        const textH = fT + (lines.length > 0 ? 8 + (lines.length - 1) * lh + fB : 0);
+        // the optional static preview row (default text only)
+        const gap = 10;
+        const cellW = (innerW - 2 * gap) / 3;
+        const cellH = Math.round(Math.min(cellW * 0.6, 54 * tf));
+        const minis = !custom && cellW >= 44 && 2 * ip + textH + 14 + cellH <= maxH;
+        const cardH = 2 * ip + textH + (minis ? 14 + cellH : 0);
+        const x0 = (width - cardW) / 2, y0 = Math.max(m, (height - cardH) / 2);
+        const g = this.el("g", { "data-icd": "reader-card" }, this.svg) as SVGGElement;
+        g.style.pointerEvents = "none";
+        this.el("rect", {
+            x: x0, y: y0, width: cardW, height: cardH, rx: 10, fill: c.tile,
+            stroke: c.hc ? c.ink : c.edge, "stroke-width": 1
+        }, g);
+        let y = y0 + ip + fT * 0.86;
+        const t = this.el("text", {
+            x: x0 + ip, y, "font-size": fT, "font-weight": 700, fill: c.ink, "font-family": FONT
+        }, g);
+        t.textContent = this.truncate(title, innerW, fT);
+        y += fT * 0.14 + 8 + fB * 0.86;
+        lines.forEach((ln, i) => {
+            if (ln === "") { return; }
+            const e = this.el("text", {
+                x: x0 + ip, y: y + i * lh, "font-size": fB, fill: c.soft, "font-family": FONT
+            }, g);
+            e.textContent = ln;
+        });
+        if (minis) {
+            this.ensureDemoHatch(c);
+            const my = y0 + ip + textH + 14;
+            ["columns", "bars", "waterfall"].forEach((mode, i) => {
+                const mx = x0 + ip + i * (cellW + gap);
+                this.el("rect", {
+                    x: mx, y: my, width: cellW, height: cellH, rx: 5, fill: c.paper,
+                    stroke: c.hc ? c.ink : c.edge2, "stroke-width": 1
+                }, g);
+                const ins = Math.min(cellW, cellH) * 0.16;
+                const mg = this.el("g", { opacity: c.hc ? 1 : 0.75 }, g);
+                this.drawModeMini(mg, mode, mx + ins, my + ins, cellW - 2 * ins, cellH - 2 * ins,
+                    { ink: c.ink, grey: c.grey, teal: c.teal, red: c.red, paper: c.paper });
+            });
         }
     }
 
