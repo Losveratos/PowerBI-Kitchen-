@@ -8,7 +8,18 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.51.1.0** (18.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.52.0.0** (20.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+
+**Neu in 1.52 (Standardverhalten, keine neue Property):** Skalierung nach IBCS 2.0 /
+ISO 24896. Absolute Δ-Panels (ΔBasis, ΔBasis2, ΔPY-Stufe im GuV-Wasserfall) haben
+den px-je-Einheit-Maßstab der Basis; ihre Höhe folgt der Δ-Spanne, `fixedVarMax`
+wirkt weiter als Untergrenze der Δ-Spanne. Zu kleine Abweichungen werden um einen
+runden Faktor vergrößert und ausgewiesen (Titel „ΔPY ×4“, Skalenband,
+`data-icd="scale-zoom"` mit `data-factor`). C05: Monatssäulen auf der Ankerskala
+(sonst „Monatssäulen ×f“), alle Breiten 2/3. C12: Basis-Anker nach Basis gefüllt.
+Slots für absolute Werte 2/3 statt 0,62. Δ-Zahlen höchstens 3 Ziffern, keine
+signierte Null, echtes Minus. Scatter: Bruchzeichen `axis-break-x|y`, wenn eine
+Achse die Null nicht enthält. Geometrie-Test: `npm run test:scale`.
 
 ## Steckbrief
 

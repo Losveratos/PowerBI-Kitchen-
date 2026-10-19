@@ -71,6 +71,11 @@ function relLuminance(hex: string): number {
 }
 /** small-multiples grid cap — shared-scale maxima must only span rendered tiles */
 const MULT_MAX_CELLS = 24;
+/** 1.52 IBCS slot width for absolute values (ISO 24896: 2/3 of the category width) */
+const SLOT_ABS = 2 / 3;
+/** 1.52 round magnification factors for variance panels that would be unreadably
+ *  small on the base scale — always shown as "×f" plus a scale band (IBCS CH 4.3/4.5) */
+const ZOOM_FACTORS = [2, 4, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
 
 /** 1.49 segmented loading (fetchMoreData): powerbi.VisualDataChangeOperationKind.Append
  *  as a literal — const-enum values do not exist at runtime in the test shim */
@@ -325,7 +330,9 @@ interface WfSeg {
     from: number;
     to: number;
     kind: "anchor" | "delta";
-    outlined?: boolean;
+    /** variance bridge: the comparison-basis anchor (styled per basis: PY grey,
+     *  PL outlined, FC hatched — 1.52, it used to be outlined for every basis) */
+    basisAnchor?: boolean;
     hatched?: boolean;
     good?: boolean;
     p?: DataPoint;
@@ -610,6 +617,14 @@ interface Cascade {
 function linearScale(d0: number, d1: number, r0: number, r1: number): Scale {
     const dd = (d1 - d0) || 1;
     return (v: number) => r0 + ((v - d0) / dd) * (r1 - r0);
+}
+
+/** 1.52 IBCS "max 3 digits in charts": decimals for a value q (in display units)
+ *  so that it shows at most 3 digits, a leading "0," counting as one (0–3) */
+function sigDecimals(q: number): number {
+    const a = Math.abs(q);
+    const intDigits = a >= 1 ? Math.floor(Math.log10(a)) + 1 : 1;
+    return Math.max(0, Math.min(3, 3 - intDigits));
 }
 
 function extent(values: (number | null)[]): [number, number] {
@@ -2091,18 +2106,43 @@ export class Visual implements IVisual {
     /**
      * variance formatter on the SAME display unit as the values (IBCS: one unit
      * per chart — "100,0K€" next to "+2.000 T€" reads as two scales, S13). The
-     * unit comes from the larger of both magnitudes; small deltas under a big
-     * unit get extra decimals (max 3) so the largest one keeps ~3 significant
-     * digits ("+0,055M€" for 55 K€) instead of collapsing to "+0,1" / "+0,0".
+     * unit comes from the larger of both magnitudes.
+     * 1.52 (IBCS: at most 3 digits per number in charts): the decimals follow the
+     * largest Δ ("+0,32M", "+1,64M", "+12,3M"); a larger number (the Σ row) drops
+     * decimals to stay within 3 digits, a smaller one that would round to zero
+     * gains decimals up to that budget ("+0,04M" instead of "+0,0M"). Before, the
+     * largest Δ got 3 significant digits plus a leading zero ("−0,588M", 4 digits)
+     * and every label in the chart shared it. `commonPrec` lets several charts
+     * (KPI cards) share one precision.
      */
     private makeVarFormatter(maxAbs: number, maxVarAbs: number, allIntegers: boolean,
-        formatOverride?: string): IValueFormatter {
+        formatOverride?: string, commonPrec?: number): IValueFormatter {
         const { unit, prec } = this.formatterParams(Math.max(maxAbs, maxVarAbs), allIntegers, formatOverride);
-        let p = prec;
-        if (unit > 0 && maxVarAbs > 0 && maxVarAbs < unit) {
-            p = Math.max(p, Math.min(3, Math.ceil(Math.log10(unit / maxVarAbs)) + 2));
-        }
-        return this.buildFormatter(unit, p, formatOverride);
+        if (!(unit > 0)) { return this.buildFormatter(unit, prec, formatOverride); }
+        const pCommon = commonPrec ?? (maxVarAbs > 0 ? sigDecimals(maxVarAbs / unit) : prec);
+        const cache = new Map<number, IValueFormatter>();
+        const at = (pp: number): IValueFormatter => {
+            let f = cache.get(pp);
+            if (!f) { f = this.buildFormatter(unit, pp, formatOverride); cache.set(pp, f); }
+            return f;
+        };
+        return {
+            format: (v: unknown) => {
+                if (typeof v !== "number" || !isFinite(v) || v === 0) { return at(pCommon).format(v); }
+                const q = Math.abs(v) / unit;
+                const budget = sigDecimals(q);
+                let pp = Math.min(pCommon, budget);
+                while (pp < budget && Math.round(q * Math.pow(10, pp)) === 0) { pp++; }
+                return at(pp).format(v);
+            }
+        } as IValueFormatter;
+    }
+
+    /** decimals the variance formatter would give a value in display units — for
+     *  sharing one precision across several formatters (KPI cards) */
+    private varPrecision(maxAbs: number, maxVarAbs: number, allIntegers: boolean): number {
+        const { unit, prec } = this.formatterParams(Math.max(maxAbs, maxVarAbs), allIntegers);
+        return unit > 0 && maxVarAbs > 0 ? sigDecimals(maxVarAbs / unit) : prec;
     }
 
     private buildFormatter(unit: number, prec: number, formatOverride?: string): IValueFormatter {
@@ -2156,17 +2196,26 @@ export class Visual implements IVisual {
         return s && s !== key ? s : fallback;
     }
 
+    /** signed variance text. 1.52: a value that rounds to zero at its precision
+     *  carries no sign ("0,0M", never "+0,0M"/"−0,0M"), negatives use the real
+     *  minus sign like the Δ% labels */
     private fmtSigned(fmt: IValueFormatter, v: number): string {
-        return (v > 0 ? "+" : "") + fmt.format(v);
+        const t = fmt.format(v);
+        if (!/[1-9]/.test(t)) { return fmt.format(0); }
+        return (v > 0 ? "+" : "") + t.replace(/^-/, "−");
     }
 
     private fmtPercent(v: number): string {
+        // 1.52: at most 3 digits ("+123%", not "+123,4%"), no signed zero
+        const dec = Math.abs(v) >= 99.95 ? 0 : 1;
         const nf = new Intl.NumberFormat(this.host.locale, {
-            minimumFractionDigits: 1, maximumFractionDigits: 1
+            minimumFractionDigits: dec, maximumFractionDigits: dec
         });
-        if (this.financeFmt && v < 0) { return `(${nf.format(Math.abs(v))}%)`; }
+        const body = nf.format(Math.abs(v));
+        if (!/[1-9]/.test(body)) { return body + "%"; }
+        if (this.financeFmt && v < 0) { return `(${body}%)`; }
         const sign = v > 0 ? "+" : v < 0 ? "−" : "";
-        return sign + nf.format(Math.abs(v)) + "%";
+        return sign + body + "%";
     }
 
     /** UN 4.1 "n.a." case of a point's Δ% (primary or second basis): Δ exists, basis ≤ 0 */
@@ -6114,7 +6163,7 @@ export class Visual implements IVisual {
         } else if (pts.some(p => p.varAbs != null)) {
             const basisSum = pts.reduce((a, p) => a + (p.basis ?? 0), 0);
             const valueSum = pts.reduce((a, p) => a + (p.value ?? 0), 0);
-            segs.push({ label: cfg.basisLabel, from: 0, to: basisSum, kind: "anchor", outlined: true });
+            segs.push({ label: cfg.basisLabel, from: 0, to: basisSum, kind: "anchor", basisAnchor: true });
             let cum = basisSum;
             for (const p of pts) {
                 if (p.varAbs == null) { continue; }
@@ -6166,26 +6215,11 @@ export class Visual implements IVisual {
         // pins per calculation line. In the variance-bridge mode the waterfall bars
         // ARE the absolute deltas, so only the relative tier is added there.
         const good = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
-        const isVarBridge = segs.some(sg => sg.outlined);
+        const isVarBridge = segs.some(sg => sg.basisAnchor);
         const tierPts = segs.map(sg => (sg.p && sg.p.varAbs != null) ? sg.p : null);
         const compactH = outer.h < 170 * k;
         const wantRel = cfg.showRel && !compactH && tierPts.some(p => p?.varRel != null);
         const wantAbs = cfg.showAbs && !compactH && !isVarBridge && tierPts.some(p => p != null);
-        let rect = outer;
-        let relRect: Rect | null = null, absRect: Rect | null = null;
-        if (wantRel || wantAbs) {
-            let yCur = outer.y;
-            if (wantRel) {
-                relRect = { x: outer.x, y: yCur, w: outer.w, h: Math.round(outer.h * 0.20) };
-                yCur += relRect.h;
-            }
-            if (wantAbs) {
-                absRect = { x: outer.x, y: yCur, w: outer.w, h: Math.round(outer.h * 0.24) };
-                yCur += absRect.h;
-            }
-            rect = { x: outer.x, y: yCur, w: outer.w, h: outer.y + outer.h - yCur };
-        }
-
         const domain = extent(segs.flatMap(sg => [sg.from, sg.to]));
         if (this.sharedWfDomain) {
             domain[0] = Math.min(domain[0], this.sharedWfDomain[0]);
@@ -6200,13 +6234,44 @@ export class Visual implements IVisual {
         // axis break (IBCS UN 5.3): 0..cut shrinks to a fixed stub above the baseline,
         // the deltas run linearly in [cut, max] — the cut is shared by all tiles
         const brk = cfg.wfBreak?.active ? cfg.wfBreak.at : null;
+        const absDomain: [number, number] = varDomains
+            ? [...varDomains.abs] as [number, number]
+            : extent(tierPts.map(p => p?.varAbs ?? null));
+
+        let rect = outer;
+        let relRect: Rect | null = null, absRect: Rect | null = null;
+        // 1.52: the ΔBasis tier shares the waterfall's px per unit (IBCS: same scale
+        // as the base); with an axis break that is the linear part above the cut
+        let wfZoom = 1;
+        if (wantRel || wantAbs) {
+            let yCur = outer.y;
+            if (wantRel) {
+                relRect = { x: outer.x, y: yCur, w: outer.w, h: Math.round(outer.h * 0.20) };
+                yCur += relRect.h;
+            }
+            if (wantAbs) {
+                const avail = outer.y + outer.h - yCur;
+                const stubGuess = Math.max(8, Math.min(Math.round(22 * k), Math.round(avail * 0.75 * 0.3)));
+                const base = brk != null
+                    ? { ov: labelPad + 14 + stubGuess, span: (Math.max(domain[1], brk) - brk) * 1.02 }
+                    : this.panelGeom(domain, "columns", labelPad, false);
+                const tier = this.panelGeom(absDomain, "columns", labelPad, true);
+                const sp = this.sameScaleSplit(avail, base, [tier],
+                    Math.max(10, Math.round(8 * k)));
+                const absH = sp ? sp.tierPlots[0] + tier.ov : Math.round(outer.h * 0.24);
+                if (sp) { wfZoom = sp.factor; }
+                absRect = { x: outer.x, y: yCur, w: outer.w, h: absH };
+                yCur += absRect.h;
+            }
+            rect = { x: outer.x, y: yCur, w: outer.w, h: outer.y + outer.h - yCur };
+        }
         const stubPx = Math.max(8, Math.min(Math.round(22 * k), Math.round(rect.h * 0.3)));
         const scale = brk != null
             ? this.makeBrokenScale(domain, brk, rect, labelPad, stubPx)
             : this.makePanelScale(domain, rect, "columns", labelPad);
         const n = segs.length;
         const step = (bandEnd - bandStart) / n;
-        const slotW = Math.max(2, step * 0.62);
+        const slotW = Math.max(2, step * SLOT_ABS);
         const pos = (i: number) => bandStart + i * step + (step - slotW) / 2;
         const showTierLabels = cfg.showLabels && step > cfg.labelFont * 1.4;
 
@@ -6248,12 +6313,17 @@ export class Visual implements IVisual {
         // ΔBasis bars tier
         if (absRect) {
             const tg = this.el("g", {}, this.svg);
-            const absDomain: [number, number] = varDomains
-                ? [...varDomains.abs] as [number, number]
-                : extent(tierPts.map(p => p?.varAbs ?? null));
             const absScale = this.makePanelScale(absDomain, absRect, "columns", labelPad, true);
             this.drawBaseline(tg, absRect, absScale, "columns", bandStart, bandEnd, cfg.basisMode, cfg.colors);
-            this.drawPanelTitle(tg, absRect, `Δ${cfg.basisLabel}`, "columns", titleH, region, undefined, cfg.subtle);
+            this.drawPanelTitle(tg, absRect, `Δ${cfg.basisLabel}${wfZoom > 1 ? ` ×${wfZoom}` : ""}`,
+                "columns", titleH, region, undefined, cfg.subtle);
+            // magnified tier: scale band at the same value in tier and waterfall
+            // (with an axis break the base band would sit in the squeezed stub — the
+            // "×f" title alone marks the zoom there)
+            if (wfZoom > 1) {
+                this.drawScaleBands(tg, cfg, "columns", bandStart, bandEnd, wfZoom, absDomain,
+                    brk != null ? null : scale, [{ rect: absRect, scale: absScale }]);
+            }
             for (let i = 0; i < n; i++) {
                 const p = tierPts[i];
                 const v = p?.varAbs;
@@ -6278,7 +6348,7 @@ export class Visual implements IVisual {
             && !(brk != null && cfg.refLine <= brk)) {
             this.drawRefLine(bg, rect, scale, "columns", bandStart, bandEnd, cfg);
         }
-        let title = segs[0].outlined ? `${cfg.basisLabel} → ${cfg.scenL.ac}` : cfg.scenL.ac;
+        let title = segs[0].basisAnchor ? `${cfg.basisLabel} → ${cfg.scenL.ac}` : cfg.scenL.ac;
         // transparency: the panel title states the cut ("· Achse ab 90 Mio geschnitten")
         if (brk != null) {
             title += ` · ${this.locStr("WfBreak_Title", "axis broken from {0}").replace("{0}", cfg.fmt.format(brk))}`;
@@ -6291,8 +6361,8 @@ export class Visual implements IVisual {
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
             let style: Record<string, string | number>;
             if (sg.kind === "anchor") {
-                style = sg.outlined
-                    ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 }
+                style = sg.basisAnchor
+                    ? this.basisAnchorStyle(cfg)
                     : sg.hatched
                         ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                         : { fill: cfg.colors.ac };
@@ -6356,6 +6426,17 @@ export class Visual implements IVisual {
         }
     }
 
+    /** scenario notation of a comparison-basis anchor bar (IBCS/ISO 24896): PY solid
+     *  light grey, PL outlined, FC (prior forecast) hatched; high contrast keeps the
+     *  dashed PY outline of the other renderers */
+    private basisAnchorStyle(cfg: ChartConfig): Record<string, string | number> {
+        if (cfg.basisMode === "plan") { return { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 }; }
+        if (cfg.basisMode === "fcrev") { return { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }; }
+        return cfg.hc
+            ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
+            : { fill: cfg.colors.py };
+    }
+
     /** centered hint when a chart mode is missing its required reference measure */
     private drawModeHint(region: Rect, cfg: ChartConfig, msg: string): void {
         const t = this.el("text", {
@@ -6413,21 +6494,26 @@ export class Visual implements IVisual {
         const right = region.x + region.w - pad;
         const calloutW = Math.max(54, Math.min(96, region.w * 0.085)) + lf * 1.6;
         const sideLblW = lf * 2.4;
-        const totW = Math.max(26, Math.min(60, region.w * 0.055));
         // with both PY and PL bound, the left side shows two total columns
         // (like the category bridge's PY/PL total rows) — reserve the space
         const pySum = pts.reduce((a, p) => a + (p.py ?? 0), 0);
         const plSum = pts.reduce((a, p) => a + (p.pl ?? 0), 0);
         const twoTotals = pts.some(p => p.py != null) && pts.some(p => p.pl != null);
+        // 1.52 (ISO 24896): ONE width for everything absolute in this chart — anchor
+        // totals, cascade bricks and the monthly column pairs are all 2/3 of the
+        // category step (before: anchors ~5.5 % of the width, bricks 0.8, months 0.5)
+        const nTot = twoTotals ? 3 : 2;
+        const step = (right - left - calloutW - sideLblW - 20 - (twoTotals ? 8 : 0)) / (n + SLOT_ABS * nTot);
+        const totW = step * SLOT_ABS;
         const bandStart = left + totW + (twoTotals ? totW + 8 : 0) + 10;
-        const bandEnd = right - calloutW - sideLblW - totW - 10;
-        if (bandEnd - bandStart < n * 8) {
+        const bandEnd = bandStart + n * step;
+        if (step < 8) {
             this.drawModeHint(region, cfg, this.locStr("Hint_IntWfSpace", "Not enough space for the integrated bridge"));
             return;
         }
-        const step = (bandEnd - bandStart) / n;
-        const segW = Math.max(6, step * 0.8);
-        const colW = Math.max(3, step * 0.5);
+        const segW = totW;
+        // monthly pair: basis behind, AC in front, offset like the column chart
+        const colW = segW * 0.82;
         const cx = (i: number) => bandStart + i * step + step / 2;
         const cxTot = bandEnd + 10 + totW / 2;
 
@@ -6436,10 +6522,37 @@ export class Visual implements IVisual {
         const maxTot = cfg.sharedIntWf?.maxTot
             ?? Math.max(basisSum, vTot, twoTotals ? Math.max(pySum, plSum) : 0, this.intWfPeak(pts), 1);
         const S = linearScale(0, maxTot, yBase, plotTop + lf + 8);
-        const maxMon = cfg.sharedIntWf?.maxMon ?? Math.max(...pts.map(p =>
+        // 1.52 (IBCS CH 4.1): the monthly columns stand on the ANCHOR scale (same
+        // unit, same px per unit). Only when they would run into the cascade, or be
+        // unreadably small, they get a round factor — shown as "×f" in the caption
+        // plus a scale band, never silently (CH 4.3/4.5)
+        const kS = (yBase - plotTop - lf - 8) / maxTot;
+        let floorLevel = basisSum;
+        {
+            let lv = basisSum;
+            for (const p of pts) {
+                if (p.varAbs == null) { continue; }
+                floorLevel = Math.min(floorLevel, lv, lv + p.varAbs);
+                lv += p.varAbs;
+            }
+        }
+        const roomPx = (yBase - S(floorLevel)) - lf - 8;
+        const minMonPx = Math.max(12, Math.round(10 * k));
+        // decided on THIS tile's tallest column (the deck-wide maxMon of the same-scale
+        // multiples would shrink a small tile whose columns fit perfectly well)
+        const ownMon = Math.max(...pts.map(p =>
             Math.max(p.value ?? 0, p.basis ?? 0, cfg.pyTriangle ? (p.py ?? 0) : 0)), 1);
-        const miniH = Math.min((yBase - plotTop) * 0.30, region.h * 0.16);
-        const BS = linearScale(0, maxMon, 0, miniH);
+        let monZoom = 1;
+        if (ownMon * kS > roomPx) {
+            monZoom = [0.5, 0.25, 0.2, 0.1, 0.05].find(f => ownMon * kS * f <= roomPx) ?? 0.05;
+        } else if (ownMon * kS < minMonPx) {
+            for (const f of ZOOM_FACTORS) {
+                if (ownMon * kS * f > roomPx) { break; }
+                monZoom = f;
+                if (ownMon * kS * f >= minMonPx) { break; }
+            }
+        }
+        const BS = (v: number) => v * kS * monZoom;
 
         const bg = this.el("g", {}, this.svg);
         const marks = this.el("g", {}, this.svg);
@@ -6596,11 +6709,11 @@ export class Visual implements IVisual {
             if (p.basis != null) {
                 if (cfg.pyTriangle && cfg.basisMode === "py") {
                     const triScale: Scale = (v: number) => yBase - BS(v);
-                    this.drawPyTriangle(g, x - colW * 0.2, colW * 1.4, p.basis, triScale, "columns", cfg);
+                    this.drawPyTriangle(g, x - segW / 2, segW, p.basis, triScale, "columns", cfg);
                 } else {
                     const h = BS(p.basis);
                     this.el("rect", {
-                        x: x - colW * 0.8, y: yBase - h, width: colW, height: h,
+                        x: x - segW / 2, y: yBase - h, width: colW, height: h,
                         ...(cfg.basisMode === "plan"
                             ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.2 }
                             : cfg.hc
@@ -6611,12 +6724,16 @@ export class Visual implements IVisual {
             }
             if (cfg.pyTriangle && cfg.basisMode !== "py" && p.py != null) {
                 const triScale: Scale = (v: number) => yBase - BS(v);
-                this.drawPyTriangle(g, x - colW * 0.2, colW * 1.4, p.py, triScale, "columns", cfg);
+                this.drawPyTriangle(g, x - segW / 2, segW, p.py, triScale, "columns", cfg);
             }
+            // AC in front, shifted right; alone (PY as triangle) it takes the full slot
+            const soloAc = cfg.pyTriangle && cfg.basisMode === "py";
+            const acX = soloAc ? x - segW / 2 : x + segW / 2 - colW;
+            const acW = soloAc ? segW : colW;
             if (p.value != null) {
                 const h = BS(p.value);
                 this.el("rect", {
-                    x: x - colW * 0.2, y: yBase - h, width: colW, height: h,
+                    x: acX, y: yBase - h, width: acW, height: h,
                     ...(p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                         : { fill: cfg.colors.ac })
@@ -6625,7 +6742,7 @@ export class Visual implements IVisual {
                     const hMax = Math.max(BS(p.value), p.basis != null ? BS(p.basis) : 0,
                         cfg.pyTriangle && p.py != null ? BS(p.py) + 4 : 0);
                     const vt = this.el("text", {
-                        x: x + colW * 0.3 - colW * 0.5, y: yBase - hMax - 3, "text-anchor": "middle",
+                        x: soloAc ? x : x + segW / 2 - colW / 2, y: yBase - hMax - 3, "text-anchor": "middle",
                         "font-size": lf, fill: cfg.ink, "font-family": FONT,
                         stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
                     }, g);
@@ -6726,9 +6843,30 @@ export class Visual implements IVisual {
         pt.textContent = text;
 
         // ------- scenario caption top-left
+        const zoomTxt = monZoom !== 1
+            ? ` ×${new Intl.NumberFormat(this.host.locale).format(monZoom)}` : "";
         this.drawPanelTitle(bg, { x: region.x, y: region.y + pad, w: region.w, h: 12 },
-            `${cfg.basisLabel} → AC${cfg.hasFc ? "/FC" : ""} · Brücke + Monatssäulen`,
+            `${cfg.basisLabel} → AC${cfg.hasFc ? "/FC" : ""} · Brücke + Monatssäulen${zoomTxt}`,
             "columns", Math.round(12 * k), region, undefined, cfg.subtle);
+        // scale band: the same value on the anchor scale (total columns) and on the
+        // monthly scale — the visible step between both shows the factor (CH 4.3)
+        if (monZoom !== 1) {
+            const v = Math.pow(10, Math.floor(Math.log10(ownMon)));
+            const zg = this.el("g", { "data-icd": "scale-zoom", "data-factor": monZoom, "data-band": v }, bg);
+            const bandAt = (x0: number, x1: number, h: number) => {
+                this.el("rect", {
+                    x: x0, y: yBase - h, width: x1 - x0, height: Math.max(h, 1),
+                    fill: cfg.hc ? cfg.paper : "#0064FF", "fill-opacity": cfg.hc ? 0 : 0.09
+                }, zg);
+                this.el("line", {
+                    x1: x0, y1: yBase - h, x2: x1, y2: yBase - h, stroke: cfg.hc ? cfg.ink : "#0064FF",
+                    "stroke-width": 1, "stroke-opacity": cfg.hc ? 1 : 0.45, "stroke-dasharray": "3,2"
+                }, zg);
+            };
+            bandAt(left, bandStart - 4, v * kS);
+            bandAt(bandStart, bandEnd, BS(v));
+            bandAt(xT, xT + totW, v * kS);
+        }
     }
 
     /**
@@ -7210,7 +7348,7 @@ export class Visual implements IVisual {
         // half a slot of air between the AC anchor and the reconciliation columns
         const units = slots.length + 0.5;
         const step = (bandEnd - bandStart) / units;
-        const barW = Math.max(2, step * 0.62);
+        const barW = Math.max(2, step * SLOT_ABS);
         const slotX = (i: number) => bandStart + (i + (slots[i].kind === "dref" || slots[i].kind === "doth" ? 0.5 : 0)) * step
             + (step - barW) / 2;
         const center = (i: number) => slotX(i) + barW / 2;
@@ -10327,6 +10465,27 @@ export class Visual implements IVisual {
             }
         }
 
+        // 1.52: every card of the same display unit shows its Δ with ONE precision
+        // (before: per card, "−1,0M" next to "−0,138M"); the largest Δ in that
+        // unit sets it, within the 3-digit rule
+        const cardMag = (q: DataPoint) => {
+            const bm = (q.bm != null && q.value != null) ? (q.value as number) - q.bm : null;
+            const int = [q.value, q.py, q.pl, q.fc].every(v => v == null || Number.isInteger(v));
+            const mag = Math.max(Math.abs(q.value ?? 0), Math.abs(q.basis ?? 0), Math.abs(q.py ?? 0), Math.abs(q.pl ?? 0));
+            const magVar = Math.max(Math.abs(q.varAbs ?? 0), Math.abs(q.var2Abs ?? 0), Math.abs(bm ?? 0));
+            return { int, mag, magVar, unit: this.formatterParams(Math.max(mag, magVar), int).unit };
+        };
+        const unitVarMax = new Map<number, { magVar: number; int: boolean; mag: number }>();
+        for (const q of pts) {
+            const m = cardMag(q);
+            const cur = unitVarMax.get(m.unit);
+            if (!cur || m.magVar > cur.magVar) { unitVarMax.set(m.unit, m); }
+        }
+        const cardPrec = (q: DataPoint) => {
+            const m = unitVarMax.get(cardMag(q).unit);
+            return m ? this.varPrecision(m.mag, m.magVar, m.int) : undefined;
+        };
+
         pts.forEach((p, i) => {
             const x = region.x + gap / 2 + (i % cols) * cw + 2;
             const y = region.y + gap / 2 + Math.floor(i / cols) * ch + 2;
@@ -10387,7 +10546,7 @@ export class Visual implements IVisual {
             const magVarP = Math.max(
                 Math.abs(p.varAbs ?? 0), Math.abs(p.var2Abs ?? 0), Math.abs(bmV ?? 0));
             const fmtP = this.makeFormatter(Math.max(magP, magVarP), pInt);
-            const fmtVarP = this.makeVarFormatter(magP, magVarP, pInt);
+            const fmtVarP = this.makeVarFormatter(magP, magVarP, pInt, undefined, cardPrec(p));
             const valueText = fmtP.format(p.value as number);
 
             const txt = (tx: number, ty: number, text: string, font: number, bold: boolean,
@@ -10943,7 +11102,7 @@ export class Visual implements IVisual {
         const pctY = (v: number) => pctBottom - (v / 100) * (pctBottom - pctTop);
 
         const step = (bandEnd - bandStart) / n;
-        const slotW = Math.max(2, step * 0.62);
+        const slotW = Math.max(2, step * SLOT_ABS);
         const pos = (i: number) => bandStart + i * step + (step - slotW) / 2;
         const cx = (i: number) => pos(i) + slotW / 2;
 
@@ -11363,12 +11522,34 @@ export class Visual implements IVisual {
         const refList = refs.filter((r): r is number => r != null && isFinite(r));
         let [lo, hi] = this.scatterRange(vals, null);
         for (const r of refList) { lo = Math.min(lo, r); hi = Math.max(hi, r); }
+        // 1.52: a range that nearly reaches zero simply includes it (no cut axis,
+        // no break sign needed) — only for automatic bounds
+        if (!logWanted && lo > 0 && lo < 0.15 * (hi - lo)) { lo = 0; }
+        if (!logWanted && hi < 0 && -hi < 0.15 * (hi - lo)) { hi = 0; }
         let fLo = fixMin ?? lo, fHi = fixMax ?? hi;
         if (fLo >= fHi) { fLo = lo; fHi = hi; }
         if (fLo >= fHi) { fHi = fLo + (Math.abs(fLo) > 0 ? Math.abs(fLo) * 0.1 : 1); }
         const log = logWanted && fLo > 0 && fHi > 0
             && vals.every(v => v > 0) && refList.every(r => r > 0);
         return { lo: fLo, hi: fHi, log };
+    }
+
+    /** axis break sign on a scatter axis line: a paper gap with two slanted strokes
+     *  (horizontal = on the X axis at x, else on the Y axis at y) */
+    private drawScatterAxisBreak(parent: SVGElement, x: number, y: number, horizontal: boolean,
+        cfg: ChartConfig): void {
+        const k = this.fontK, h = Math.round(5 * k), gap = Math.max(3, Math.round(3 * k));
+        const g = this.el("g", { "data-icd": horizontal ? "axis-break-x" : "axis-break-y" }, parent);
+        const stroke = { stroke: cfg.subtle, "stroke-width": 1 };
+        if (horizontal) {
+            this.el("rect", { x: x - gap / 2, y: y - h, width: gap, height: 2 * h, fill: cfg.paper }, g);
+            this.el("line", { x1: x - gap / 2 - 2, y1: y + h, x2: x - gap / 2 + 2, y2: y - h, ...stroke }, g);
+            this.el("line", { x1: x + gap / 2 - 2, y1: y + h, x2: x + gap / 2 + 2, y2: y - h, ...stroke }, g);
+        } else {
+            this.el("rect", { x: x - h, y: y - gap / 2, width: 2 * h, height: gap, fill: cfg.paper }, g);
+            this.el("line", { x1: x - h, y1: y - gap / 2 + 2, x2: x + h, y2: y - gap / 2 - 2, ...stroke }, g);
+            this.el("line", { x1: x - h, y1: y + gap / 2 + 2, x2: x + h, y2: y + gap / 2 - 2, ...stroke }, g);
+        }
     }
 
     /** the coloring value of a scatter point (series or multiples label) */
@@ -11878,8 +12059,14 @@ export class Visual implements IVisual {
         // keeps its ticks inside [lo, hi] (decades resp. 1-2-5 steps, no inset stretch)
         const yMaxTicks = Math.max(2, Math.min(5, Math.floor(plotH / (axF * 2.4))));
         const yPer = (yHi - yLo) / Math.max(plotH - 2 * inset, 10);
+        // 1.52: an axis whose values are all ≥ 0 (≤ 0) never gets ticks across zero
+        // — the marker inset must not invent a "−10" on a margin axis
+        const signClamp = (lo: number, hi: number, vLo: number, vHi: number): [number, number] =>
+            [vLo >= 0 ? Math.max(lo, 0) : lo, vHi <= 0 ? Math.min(hi, 0) : hi];
+        const keepSign = (ticks: number[], vLo: number, vHi: number) =>
+            ticks.filter(t => !(vLo >= 0 && t < 0) && !(vHi <= 0 && t > 0));
         const yTicks = ay.log ? logTicks(yLo, yHi, yMaxTicks)
-            : niceTicks(yLo - inset * yPer, yHi + inset * yPer, yMaxTicks);
+            : keepSign(niceTicks(...signClamp(yLo - inset * yPer, yHi + inset * yPer, yLo, yHi), yMaxTicks), yLo, yHi);
         const yTickTxt = tickTexts(yTicks, cfg.fmtUnit, undefined, ay.log);
         const plotLeft = region.x + pad + this.maxTextWidth(yTickTxt, axF) + 8;
         const plotRight = region.x + region.w - pad - 2;
@@ -11890,7 +12077,7 @@ export class Visual implements IVisual {
         let xTickTxt: string[] = [];
         for (let m = 5; m >= 2; m--) {
             xTicks = ax.log ? logTicks(xLo, xHi, m)
-                : niceTicks(xLo - inset * xPer, xHi + inset * xPer, m);
+                : keepSign(niceTicks(...signClamp(xLo - inset * xPer, xHi + inset * xPer, xLo, xHi), m), xLo, xHi);
             xTickTxt = tickTexts(xTicks, sc.xDiv, sc.xFormat, ax.log);
             if (xTicks.length * (this.maxTextWidth(xTickTxt, axF) + 12) <= plotW) { break; }
         }
@@ -11944,10 +12131,16 @@ export class Visual implements IVisual {
             const t = this.el("text", {
                 x: Math.min(Math.max(x, region.x + half + 1), region.x + region.w - half - 1),
                 y: plotBottom + 4 + axF, "text-anchor": "middle", "font-size": axF,
-                fill: cfg.subtle, "font-family": FONT
+                fill: cfg.subtle, "font-family": FONT, "data-icd": "scatter-xtick"
             }, bg);
             t.textContent = xTickTxt[i];
         });
+        // 1.52 (IBCS CH 1.1): a linear axis whose visible range does not contain zero
+        // is a cut axis — mark it with the break sign next to the origin corner
+        const cutX = !ax.log && (xLo - inset * xPer > 0 || xHi + inset * xPer < 0);
+        const cutY = !ay.log && (yLo - inset * yPer > 0 || yHi + inset * yPer < 0);
+        if (cutX) { this.drawScatterAxisBreak(bg, plotLeft + Math.round(10 * k), plotBottom, true, cfg); }
+        if (cutY) { this.drawScatterAxisBreak(bg, plotLeft, plotBottom - Math.round(10 * k), false, cfg); }
 
         // marks: area-proportional radius r = rMax·√(size / max), never below rMin
         const rOf = (p: DataPoint): number => !hasSize ? rPlain
@@ -12470,7 +12663,7 @@ export class Visual implements IVisual {
         const labelPad = cfg.showLabels ? lf + 6 : 6;
         const scale = this.makePanelScale(domain, rect, orientation, labelPad);
         const step = (bandEnd - bandStart) / n;
-        const slotW = Math.max(2, step * 0.62);
+        const slotW = Math.max(2, step * SLOT_ABS);
         const pos = (i: number) => bandStart + i * step + (step - slotW) / 2;
 
         const bg = this.el("g", {}, this.svg);
@@ -12599,25 +12792,38 @@ export class Visual implements IVisual {
 
         let bandStart: number, bandEnd: number;
         let panels: { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect };
+        const labelPad = cfg.showLabels ? cfg.labelFont + 6 : 6;
+        const compactLabelPad = compact && cfg.showLabels && orientation === "columns"
+            ? labelPad + cfg.labelFont + 4 : labelPad;
+        // 1.52: Δ panels on the base scale (IBCS); below ~8 px·k of variance the
+        // panels are magnified by a round factor and say so (scale band + "×f")
+        const minPlot = Math.max(10, Math.round(8 * this.fontK));
+        let zoom = 1;
+        const split = (start: number, span: number, vertical: boolean) => {
+            const same = this.splitPanelsSameScale(start, span, showAbs, showRel, vertical, region,
+                showDual, showBridge, domains, compactLabelPad, labelPad, minPlot);
+            if (same) { zoom = same.zoom; return same.panels; }
+            return this.splitPanels(start, span, showAbs, showRel, vertical, region, showDual, showBridge);
+        };
 
         if (orientation === "columns") {
             const catArea = cfg.catFont + 10;
             bandStart = region.x + pad + 2;
             bandEnd = region.x + region.w - pad;
             const plotTop = region.y + pad + headerH, plotBottom = region.y + region.h - catArea;
-            panels = this.splitPanels(plotTop, plotBottom - plotTop, showAbs, showRel, true, region, showDual, showBridge);
+            panels = split(plotTop, plotBottom - plotTop, true);
         } else {
             const catArea = Math.min(region.w * 0.28, this.maxTextWidth(points.map(p => p.cat), cfg.catFont) + 12);
             // room for the header and the panel titles above the first bar
             bandStart = region.y + pad + headerH + titleH + 2;
             bandEnd = region.y + region.h - pad;
             const plotLeft = region.x + pad + catArea, plotRight = region.x + region.w - pad;
-            panels = this.splitPanels(plotLeft, plotRight - plotLeft, showAbs, showRel, false, region, showDual, showBridge);
+            panels = split(plotLeft, plotRight - plotLeft, false);
         }
 
         const bandSpan = bandEnd - bandStart;
         const step = bandSpan / n;
-        const slotW = Math.max(2, step * 0.62);
+        const slotW = Math.max(2, step * SLOT_ABS);
         // with the PY triangle the third column disappears — AC/PL get the full slot back.
         // scenario bars are OFFSET, never stacked on top of each other (table look):
         // PY at the back, the PL outline slightly shifted, AC in front
@@ -12634,7 +12840,7 @@ export class Visual implements IVisual {
         // to make room for the two extra anchors.
         const bridgeN = n + 2;
         const bridgeStep = bandSpan / bridgeN;
-        const bridgeSlotW = Math.max(2, bridgeStep * 0.62);
+        const bridgeSlotW = Math.max(2, bridgeStep * SLOT_ABS);
         const bridgeSlotPos = (i: number) => bandStart + i * bridgeStep + (bridgeStep - bridgeSlotW) / 2;
 
         // ------- precompute label texts + thinning predicates
@@ -12657,9 +12863,6 @@ export class Visual implements IVisual {
         const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cfg.catFont, step, orientation, undefined, true);
 
         // ------- scales
-        const labelPad = cfg.showLabels ? cfg.labelFont + 6 : 6;
-        const compactLabelPad = compact && cfg.showLabels && orientation === "columns"
-            ? labelPad + cfg.labelFont + 4 : labelPad;
         const mainScale = this.makePanelScale(domains.main, panels.main, orientation, compactLabelPad);
         const absScale = panels.abs
             ? this.makePanelScale(domains.abs, panels.abs, orientation, labelPad) : null;
@@ -12705,9 +12908,11 @@ export class Visual implements IVisual {
         const barsTitleY = orientation === "bars" ? bandStart - 6 : undefined;
         this.drawPanelTitle(bg, panels.main, scenarioTitle + compactVarHint,
             orientation, titleH, region, barsTitleY, cfg.subtle);
+        // magnified Δ panels say so: "×f" in the title (IBCS CH 4.5) …
+        const zoomTag = zoom > 1 ? ` ×${zoom}` : "";
         if (panels.abs && absScale) {
             baseline(panels.abs, absScale, cfg.basisMode);
-            this.drawPanelTitle(bg, panels.abs, `Δ${cfg.basisLabel}`, orientation, titleH, region, barsTitleY, cfg.subtle);
+            this.drawPanelTitle(bg, panels.abs, `Δ${cfg.basisLabel}${zoomTag}`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
         if (panels.rel && relScale) {
             baseline(panels.rel, relScale, cfg.basisMode);
@@ -12718,7 +12923,13 @@ export class Visual implements IVisual {
         const basis2Mode: Basis = this.basis2Mode;
         if (panels.abs2 && abs2Scale) {
             baseline(panels.abs2, abs2Scale, basis2Mode);
-            this.drawPanelTitle(bg, panels.abs2, `Δ${cfg.basis2Label}`, orientation, titleH, region, barsTitleY, cfg.subtle);
+            this.drawPanelTitle(bg, panels.abs2, `Δ${cfg.basis2Label}${zoomTag}`, orientation, titleH, region, barsTitleY, cfg.subtle);
+        }
+        // … and a scale band at the same value in the base and the Δ panel(s) (CH 4.3)
+        if (zoom > 1 && panels.abs && absScale) {
+            const tiers = [{ rect: panels.abs, scale: absScale }];
+            if (panels.abs2 && abs2Scale) { tiers.push({ rect: panels.abs2, scale: abs2Scale }); }
+            this.drawScaleBands(bg, cfg, orientation, bandStart, bandEnd, zoom, domains.abs, mainScale, tiers);
         }
         if (panels.rel2 && rel2Scale) {
             baseline(panels.rel2, rel2Scale, basis2Mode);
@@ -12994,7 +13205,8 @@ export class Visual implements IVisual {
                 const good = cfg.isGood(p.varAbs, p);
                 const mat = cfg.isMaterial(p);
                 const color = (p.varAbs === 0 || !mat) ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
-                const vw = barW; // IBCS: same width as the base bars
+                // IBCS: same width as the base bars (line mode: the 2/3 slot)
+                const vw = lineMode ? slotW : barW;
                 const vx = cx - vw / 2;
                 const hollowBad = cfg.hc && !good && p.varAbs !== 0;
                 this.drawBar(g, vx, vw, 0, p.varAbs, absScale, orientation,
@@ -13045,7 +13257,7 @@ export class Visual implements IVisual {
                 const good = cfg.isGood(p.var2Abs, p);
                 const mat = cfg.isMaterial(p, p.var2Abs, p.var2Rel);
                 const color = (p.var2Abs === 0 || !mat) ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
-                const vw = barW; // IBCS: same width as the base bars
+                const vw = lineMode ? slotW : barW; // IBCS: same width as the base bars
                 const vx = cx - vw / 2;
                 const hollowBad = cfg.hc && !good && p.var2Abs !== 0;
                 this.drawBar(g, vx, vw, 0, p.var2Abs, abs2Scale, orientation,
@@ -13449,8 +13661,22 @@ export class Visual implements IVisual {
             ts.textContent = text;
             t.appendChild(ts);
         };
-        if (kpi) { span(kpi, true); }
-        if (unit) { span(` in ${unit}`, false); }
+        // 1.52: a measure name that already names its unit ("Nettoumsatz in EUR")
+        // and a bare magnitude suffix ("M") merge into one unit ("in Mio. EUR",
+        // English "in mEUR") instead of "Nettoumsatz in EUR in M"
+        const named = /^(.*\S)\s+in\s+([A-Za-z€$£¥]{1,4})$/i.exec(kpi);
+        const mag = /^(K|T|M|Mio|B|bn|Mrd)$/i.exec(unit);
+        if (named && mag) {
+            const de = /^de/i.test(this.host.locale || "");
+            const m = mag[1].toLowerCase();
+            const word = m === "k" || m === "t" ? (de ? "Tsd." : "k")
+                : m === "m" || m === "mio" ? (de ? "Mio." : "m") : (de ? "Mrd." : "b");
+            span(named[1], true);
+            span(` in ${de ? `${word} ${named[2]}` : `${word}${named[2]}`}`, false);
+        } else {
+            if (kpi) { span(kpi, true); }
+            if (unit) { span(` in ${unit}`, false); }
+        }
         span(`${kpi || unit ? " · " : ""}${period ? period + ": " : ""}${valueScen}${hasRef ? " vs. " + refScen : ""}`, false);
 
         let message = (s.message.value || "").trim();
@@ -14246,6 +14472,142 @@ export class Visual implements IVisual {
             cursor += size + gap;
         }
         return out as { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect };
+    }
+
+    /**
+     * 1.52 (IBCS CH 4.1, ISO 24896): the absolute variance panels share the base
+     * panel's px per unit — "same width and same scale as the base chart". The rel
+     * (Δ%), dual-rel and bridge panels keep their share of the old split (other unit
+     * or other magnitude); main and abs/abs2 divide the rest so that a Δ panel is
+     * exactly as tall (columns) or wide (bars) as its value span needs. When that
+     * leaves the variances too small to read, the panels are magnified by a round
+     * factor (zoom), which the caller must show (scale band + "×f", CH 4.3/4.5).
+     * Returns null when there is no room for the proportional layout (the caller
+     * then falls back to the share split, e.g. tiny tiles).
+     */
+    private splitPanelsSameScale(start: number, span: number, showAbs: boolean, showRel: boolean,
+        vertical: boolean, region: Rect, showDual: boolean, showBridge: boolean,
+        domains: Domains, mainPad: number, labelPad: number, minPlot: number)
+        : { panels: { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect }; zoom: number } | null {
+        const old = this.splitPanels(start, span, showAbs, showRel, vertical, region, showDual, showBridge);
+        if (!old.abs) { return { panels: old, zoom: 1 }; }
+        const orient: Orientation = vertical ? "columns" : "bars";
+        const gap = 10;
+        const sizeOf = (r?: Rect) => r ? (vertical ? r.h : r.w) : 0;
+        const fixed = sizeOf(old.rel) + sizeOf(old.rel2) + sizeOf(old.bridge);
+        const nParts = 1 + (old.abs ? 1 : 0) + (old.abs2 ? 1 : 0) + (old.rel ? 1 : 0)
+            + (old.rel2 ? 1 : 0) + (old.bridge ? 1 : 0);
+        const avail = span - gap * (nParts - 1) - fixed;
+        const base = this.panelGeom(domains.main, orient, mainPad, false);
+        const tiers = [domains.abs, ...(old.abs2 ? [domains.abs2] : [])]
+            .map(d => this.panelGeom(d, orient, labelPad, false));
+        const split = this.sameScaleSplit(avail, base, tiers, minPlot);
+        if (!split) { return null; }
+        // lay the parts out in the original order with the new sizes
+        const size: Record<string, number> = {
+            main: split.basePlot + base.ov,
+            abs: split.tierPlots[0] + tiers[0].ov,
+            abs2: old.abs2 ? split.tierPlots[1] + tiers[1].ov : 0,
+            rel: sizeOf(old.rel), rel2: sizeOf(old.rel2), bridge: sizeOf(old.bridge)
+        };
+        const order = vertical
+            ? ["rel", "abs", "rel2", "abs2", "bridge", "main"]
+            : ["main", "bridge", "abs", "rel", "abs2", "rel2"];
+        const out: Record<string, Rect> = {};
+        let cursor = start;
+        for (const key of order) {
+            if (!(old as Record<string, Rect | undefined>)[key]) { continue; }
+            out[key] = vertical
+                ? { x: region.x, y: cursor, w: region.w, h: size[key] }
+                : { x: cursor, y: region.y, w: size[key], h: region.h };
+            cursor += size[key] + gap;
+        }
+        return {
+            panels: out as { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect },
+            zoom: split.factor
+        };
+    }
+
+    /** pixel overhead (label room, end padding) and padded value span of a panel —
+     *  mirrors makePanelScale, so px per unit = plot / span exactly */
+    private panelGeom(domain: [number, number], orientation: Orientation, labelPad: number,
+        bothEnds: boolean): { ov: number; span: number } {
+        let [mn, mx] = domain;
+        const raw = mx - mn;
+        if (mn === 0 && mx === 0) { mx = 1; }
+        const lo = bothEnds || mn < 0, hi = bothEnds || mx > 0;
+        const span = raw > 0 ? (mx - mn) * (1 + 0.02 * ((lo ? 1 : 0) + (hi ? 1 : 0))) : 0;
+        const ov = orientation === "columns"
+            ? (hi ? labelPad + 12 : 12) + (lo ? labelPad : 2)
+            : (lo ? labelPad + 4 : 4) + (hi ? labelPad + 24 : 4);
+        return { ov, span };
+    }
+
+    /**
+     * divides `avail` px between a base plot and tier plots on ONE px-per-unit
+     * (tiers optionally magnified by a round factor ≥ 2 when their biggest plot
+     * stays below minPlot). null when the base span is 0 or nothing fits.
+     */
+    private sameScaleSplit(avail: number, base: { ov: number; span: number },
+        tiers: { ov: number; span: number }[], minPlot: number)
+        : { basePlot: number; tierPlots: number[]; factor: number } | null {
+        if (base.span <= 0) { return null; }
+        const ovSum = base.ov + tiers.reduce((a, t) => a + t.ov, 0);
+        const free = avail - ovSum;
+        if (free < 40) { return null; }
+        const solve = (f: number) => {
+            const ratios = tiers.map(t => f * t.span / base.span);
+            const basePlot = free / (1 + ratios.reduce((a, r) => a + r, 0));
+            return { basePlot, tierPlots: ratios.map(r => r * basePlot), factor: f };
+        };
+        let best = solve(1);
+        const maxTier = (s: { tierPlots: number[] }) => Math.max(...s.tierPlots);
+        if (maxTier(best) > 0 && maxTier(best) < minPlot) {
+            for (const f of ZOOM_FACTORS) {
+                best = solve(f);
+                if (maxTier(best) >= minPlot) { break; }
+            }
+        }
+        // no variance at all (span 0): keep a flat strip for the baseline
+        best.tierPlots = best.tierPlots.map(p => Math.max(p, 0));
+        if (best.basePlot < 20) { return null; }
+        return best;
+    }
+
+    /**
+     * IBCS scale band (CH 4.3/UN 5.2) for a magnified variance panel: the same value
+     * v drawn from zero in the base panel AND in each zoomed Δ panel, so the reader
+     * sees the different px per unit. Light blue area + dashed edge line.
+     * v = the largest power of ten not above the bigger Δ side.
+     */
+    private drawScaleBands(parent: SVGElement, cfg: ChartConfig, orientation: Orientation,
+        bandStart: number, bandEnd: number, factor: number, varDomain: [number, number],
+        mainScale: Scale | null, tiers: { rect: Rect; scale: Scale }[]): void {
+        const side = Math.abs(varDomain[1]) >= Math.abs(varDomain[0]) ? 1 : -1;
+        const mag = Math.max(Math.abs(varDomain[0]), Math.abs(varDomain[1]));
+        if (!(mag > 0)) { return; }
+        const v = side * Math.pow(10, Math.floor(Math.log10(mag)));
+        const g = this.el("g", { "data-icd": "scale-zoom", "data-factor": factor, "data-band": v }, parent);
+        const fillC = cfg.hc ? cfg.paper : "#0064FF";
+        // no value label inside the plot (it collides with the Δ labels at the
+        // right end); the "×f" title names the zoom, data-band carries the value
+        const band = (scale: Scale) => {
+            const a = scale(0), b = scale(v);
+            const lo = Math.min(a, b), hi = Math.max(a, b);
+            if (orientation === "columns") {
+                this.el("rect", { x: bandStart, y: lo, width: bandEnd - bandStart, height: Math.max(hi - lo, 1),
+                    fill: fillC, "fill-opacity": cfg.hc ? 0 : 0.09 }, g);
+                this.el("line", { x1: bandStart, y1: b, x2: bandEnd, y2: b, stroke: cfg.hc ? cfg.ink : "#0064FF",
+                    "stroke-width": 1, "stroke-opacity": cfg.hc ? 1 : 0.45, "stroke-dasharray": "3,2" }, g);
+            } else {
+                this.el("rect", { x: lo, y: bandStart, width: Math.max(hi - lo, 1), height: bandEnd - bandStart,
+                    fill: fillC, "fill-opacity": cfg.hc ? 0 : 0.09 }, g);
+                this.el("line", { x1: b, y1: bandStart, x2: b, y2: bandEnd, stroke: cfg.hc ? cfg.ink : "#0064FF",
+                    "stroke-width": 1, "stroke-opacity": cfg.hc ? 1 : 0.45, "stroke-dasharray": "3,2" }, g);
+            }
+        };
+        if (mainScale) { band(mainScale); }
+        tiers.forEach(t => band(t.scale));
     }
 
     private makePanelScale(domain: [number, number], rect: Rect, orientation: Orientation,

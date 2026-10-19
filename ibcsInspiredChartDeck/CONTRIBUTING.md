@@ -41,6 +41,7 @@ By signing off you certify the DCO (v1.1):
 npm ci
 npx eslint src/          # must pass clean
 npm run test:render      # headless render suite (needs Chromium/Playwright)
+npm run test:scale       # IBCS scaling geometry: px per unit of base vs. variance panels
 npx pbiviz package       # produces dist/*.pbiviz
 ```
 
