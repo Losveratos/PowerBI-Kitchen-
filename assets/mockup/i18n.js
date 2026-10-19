@@ -293,6 +293,9 @@
       noTypeMatch: 'Kein Typ passt zur Suche.',
       pickTypeSub: 'ChartKitchen oder nativ', changeType: '{group} · Typ ändern',
       uiScaleInfo: 'Skalierung ×{k}: Schriften, Rahmenhöhen und Abstände werden aus HD-Basiswerten hochgerechnet.',
+      pixel: 'Pixelraster', pixelOff: 'aus (freie Verteilung)', pixel12: '12er-Raster (pixelgenau)',
+      pixelInfo: 'Rand {l} · {r} · {t} · {b} · Zwischenraum {g} · Spalte {px} ({col} + {g}) · Zeile {py}',
+      pixelTip: 'Rastermodus: Ränder lösen sich automatisch, gleiche Brüche liegen auf demselben Pixel, jeder Zwischenraum ist genau g. Basisrand 18, Rand-Eingabe gilt dann nicht.',
     },
 
     quickstart: {
@@ -1196,6 +1199,9 @@
       noTypeMatch: 'No type matches the search.',
       pickTypeSub: 'ChartKitchen or native', changeType: '{group} · change type',
       uiScaleInfo: 'Scale ×{k}: fonts, frame heights and spacing are extrapolated from the HD base values.',
+      pixel: 'Pixel grid', pixelOff: 'off (free distribution)', pixel12: '12-column grid (pixel-exact)',
+      pixelInfo: 'Margin {l} · {r} · {t} · {b} · gutter {g} · column {px} ({col} + {g}) · row {py}',
+      pixelTip: 'Grid mode: margins are solved automatically, equal fractions land on the same pixel, every gutter is exactly g. Base margin 18; the margin input does not apply.',
     },
 
     quickstart: {

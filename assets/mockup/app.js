@@ -567,7 +567,7 @@ window.MK_VERSION = '0.6.2';
     }
     const k = ui(), dim = dir === 'row' ? 'w' : 'h', min = Math.round((dir === 'row' ? 100 : 60) * k * 10) / 10;
     const before = {}; computeAll(pg).leaves.forEach(l => { before[l.node.id] = l.rect[dim]; });
-    const out = { leaves: [], gutters: [] }; layoutRects(next, zones().content, out, Math.round(S.spacing.gutter * k));
+    const out = rectsOf(next, zones().content, { leaves: [], gutters: [] });
     const shrunk = out.leaves.map(l => l.rect[dim]).filter((v, i) => { const b = before[out.leaves[i].node.id]; return v < min && (b == null || v < b); });
     if (shrunk.length) return toast(t(dir === 'row' ? 'toast.edgeTooNarrow' : 'toast.edgeTooLow', { v: Math.min(...shrunk), min: Math.round(min) }));
     pg.layout = next; sel = fresh.id; commit(); toast(t('toast.inserted'));
@@ -697,20 +697,18 @@ window.MK_VERSION = '0.6.2';
   $('#pagebar').addEventListener('dblclick', e => { const el = e.target.closest('[data-page]'); if (!el || e.target.closest('[data-delpage]')) return; const p = S.pages.find(x => x.id === el.dataset.page); const n = prompt(t('ask.pageName'), p.name); if (n && n.trim()) { p.name = n.trim(); dropDefault(p, 'name'); commit(); } });
 
   // ------------------------------------------------------------------ Geometrie
-  function zones() {
-    const { w, h } = S.canvas; const c = S.chrome; const k = ui(); const m = Math.round(S.spacing.margin * k);
-    let top = 0, bottom = h, left = 0, right = w; const z = {};
-    if (c.nav.on) { const nw = Math.round(c.nav.w * k); z.nav = { x: 0, y: 0, w: nw, h }; left = nw; }
-    if (c.header.on) { const hh = Math.round(c.header.h * k); z.header = { x: left, y: 0, w: w - left, h: hh }; top = hh; }
-    if (c.footer.on) { const fh = Math.round(c.footer.h * k); z.footer = { x: left, y: h - fh, w: w - left, h: fh }; bottom = h - fh; }
-    if (c.filter.on) {
-      if (c.filter.side === 'right') { const fw = Math.round(c.filter.w * k); z.filter = { x: w - fw, y: top, w: fw, h: bottom - top }; right = w - fw; }
-      else if (c.filter.side === 'left') { const fw = Math.round(c.filter.w * k); z.filter = { x: left, y: top, w: fw, h: bottom - top }; left += fw; }
-      else if (c.filter.side === 'top') { const fh = Math.round((c.filter.topH || 56) * k); z.filter = { x: left, y: top, w: right - left, h: fh }; top += fh; }
-      // burger: keine Zone, Button im Kopfband; Panel entsteht per Bookmark
-    }
-    z.content = { x: left + m, y: top + m, w: Math.max(40, right - left - 2 * m), h: Math.max(40, bottom - top - 2 * m) };
-    return z;
+  // Zonen und Raster aus pixelgrid.js (eine Quelle mit der dwg cli). Ohne S.pixel byte-gleich wie bis 0.6.2;
+  // mit S.pixel = { mode: 'lattice', n: 12 } lösen sich die Ränder automatisch (KONZEPT-PIXELRASTER.md).
+  const PG = window.MK_PIXELGRID;
+  const latticeOn = () => !!(S.pixel && S.pixel.mode === 'lattice');
+  function zonesFull() { return PG.zones(S.canvas, S.chrome, { margin: S.spacing.margin, lattice: latticeOn() ? { n: S.pixel.n || 12, margin: S.pixel.margin == null ? 18 : S.pixel.margin, gutter: S.spacing.gutter } : null }); }
+  function zones() { const z = zonesFull(); delete z.area; delete z.lattice; return z; }
+  function lattice() { return latticeOn() ? zonesFull().lattice : null; }
+  // Rechtecke eines Layouts: im Rastermodus Brüche im Pitch-Raum (pixelgrid.layout), sonst wie bisher layoutRects()
+  function rectsOf(layout, content, out) {
+    const lat = lattice();
+    if (lat) { const r = PG.layout(layout, lat); out.leaves.push(...r.leaves); out.gutters.push(...r.gutters); return out; }
+    layoutRects(layout, content, out, Math.round(S.spacing.gutter * ui())); return out;
   }
   function layoutRects(node, rect, out, gutter) {
     if (node.type === 'leaf') { out.leaves.push({ node, rect: roundRect(rect) }); return; }
@@ -743,8 +741,8 @@ window.MK_VERSION = '0.6.2';
     });
   }
   function roundRect(r) { return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.w), h: Math.round(r.h) }; }
-  function computeAll(p) { p = p || page(); const z = zones(); const out = { leaves: [], gutters: [], zones: z }; layoutRects(p.layout, z.content, out, Math.round(S.spacing.gutter * ui())); if (p === page()) lastRects = out; return out; }
-  window.MK_GEOM = { zones, computeAll };
+  function computeAll(p) { p = p || page(); const z = zones(); const out = { leaves: [], gutters: [], zones: z }; rectsOf(p.layout, z.content, out); if (p === page()) lastRects = out; return out; }
+  window.MK_GEOM = { zones, computeAll, lattice };
 
   // ------------------------------------------------------------------ Rendering: Seite
   const pageEl = $('#page'), stage = $('#stage');
@@ -1277,6 +1275,7 @@ window.MK_VERSION = '0.6.2';
     $('#canvasPreset').value = S.canvas.preset; $('#customSize').hidden = S.canvas.preset !== 'custom'; $('#canvasW').value = S.canvas.w; $('#canvasH').value = S.canvas.h;
     $('#uiScaleInfo').textContent = t('hint.uiScaleInfo', { k: ui().toFixed(2) });
     $('#spMargin').value = S.spacing.margin; $('#spGutter').value = S.spacing.gutter; $('#spPad').value = S.spacing.pad; $('#defScenario').value = S.defScenario;
+    { const lat = lattice(); $('#spPixel').value = lat ? String(lat.n) : 'off'; $('#spMargin').disabled = !!lat; const inf = $('#spPixelInfo'); inf.hidden = !lat; if (lat) inf.textContent = t('hint.pixelInfo', { l: lat.margins.l, r: lat.margins.r, t: lat.margins.t, b: lat.margins.b, g: lat.g, px: lat.P.x / lat.n, col: lat.P.x / lat.n - lat.g, py: lat.P.y / lat.n }); }
     $('#hdOn').checked = c.header.on; $('#hdH').value = c.header.h; $('#hdLogoPos').value = c.header.logoPos || 'left'; $('#hdTitle').value = c.header.title; $('#hdSub').value = c.header.sub; $('#hdNavPos').value = navPosOf(c); $('#hdNavAuto').checked = !!c.header.navAuto; $('#hdNav').value = (c.header.nav || []).join(', '); $('#hdNav').disabled = !!c.header.navAuto;
     $('#nvOn').checked = c.nav.on; $('#nvW').value = c.nav.w;
     $('#ftOn').checked = c.filter.on; $('#ftSide').value = c.filter.side; const fh0 = c.filter.heading || {}; $('#ftHeadShow').value = fh0.show || 'auto'; $('#ftHeadText').value = fh0.text || ''; $('#ftText').value = c.filter.text || ''; const ty0 = typo(); $('#tyScale').value = String(ty0.scale); $('#tyTitle').value = ty0.title; $('#tySub').value = ty0.sub; $('#tyChart').value = ty0.chart; $('#ftW').value = c.filter.side === 'top' ? (c.filter.topH || 56) : c.filter.w; $('#ftWHint').textContent = c.filter.side === 'top' ? t('hint.height') : t('hint.width'); $('#ftW').disabled = c.filter.side === 'burger';
@@ -1316,6 +1315,7 @@ window.MK_VERSION = '0.6.2';
   $('#btnPageDup').onclick = dupPage; $('#btnPageDel').onclick = delPage;
   bind('canvasPreset', v => { S.canvas.preset = v; if (v !== 'custom') { const [w, h] = v.split('x').map(Number); S.canvas.w = w; S.canvas.h = h; fitZoom(); } });
   bind('canvasW', v => { S.canvas.w = clamp(+v || 1280, 320, 4000); fitZoom(); }); bind('canvasH', v => { S.canvas.h = clamp(+v || 720, 200, 4000); fitZoom(); });
+  bind('spPixel', v => { if (v === 'off') delete S.pixel; else S.pixel = { mode: 'lattice', n: +v }; });
   bind('spMargin', v => S.spacing.margin = clamp(+v, 0, 64), 'input'); bind('spGutter', v => S.spacing.gutter = clamp(+v, 0, 48), 'input'); bind('spPad', v => S.spacing.pad = clamp(+v, 0, 32), 'input');
   bind('defScenario', v => S.defScenario = v);
   bind('hdOn', v => S.chrome.header.on = v); bind('hdH', v => S.chrome.header.h = clamp(+v, 32, 120), 'input'); bind('hdLogoPos', v => S.chrome.header.logoPos = v);
@@ -1830,7 +1830,7 @@ window.MK_VERSION = '0.6.2';
   // Öffentliche API für export.js
   window.MK = {
     get state() { return S; }, set state(v) { S = migrate(v); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Öffnen nie verhindern */ } sel = null; commit(); },
-    page, visuals, leaves, zones, computeAll, ui, toast, findNode, insertEdge, mergeGutter, fmtOf, FORMAT_WISH, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, roleOf, PAGE_ROLES, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
+    page, visuals, leaves, zones, computeAll, lattice, ui, toast, findNode, insertEdge, mergeGutter, fmtOf, FORMAT_WISH, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, roleOf, PAGE_ROLES, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     fieldStatus, refMismatch, sketchScenario, basisOfName, syncFieldFlags,
     effScen, sketchOpts, sketchInfo, tileGeom, placeholderChips, hasChips: hasChipsOf,
     setLang, get lang() { return I18N.lang; }, copyText, tileInk,
