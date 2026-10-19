@@ -123,6 +123,11 @@
                 "ibcs": {
                     "displayName": "IBCS-inspiriertes Styling",
                     "type": { "bool": true }
+                },
+                "gruppenNamen": {
+                    "displayName": "Gruppennamen im Chart",
+                    "description": "Zeigt den Namen jeder Gruppenzeile (Projekt/Ebene) zusätzlich am Anfang ihres Summenbalkens — nützlich, wenn die Tabelle schmal oder ausgeblendet ist.",
+                    "type": { "bool": true }
                 }
             }
         },

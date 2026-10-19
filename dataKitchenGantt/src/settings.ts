@@ -89,9 +89,15 @@ class DarstellungCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    gruppenNamen = new formattingSettings.ToggleSwitch({
+        name: "gruppenNamen",
+        displayName: "Gruppennamen im Chart",
+        value: true
+    });
+
     name: string = "darstellung";
     displayName: string = "Darstellung";
-    slices: Array<FormattingSettingsSlice> = [this.theme, this.zeiteinheit, this.tageEinheit, this.wochenenden, this.abhaengigkeiten, this.heuteLinie, this.tabellenBreite, this.ibcs];
+    slices: Array<FormattingSettingsSlice> = [this.theme, this.zeiteinheit, this.tageEinheit, this.wochenenden, this.abhaengigkeiten, this.heuteLinie, this.tabellenBreite, this.gruppenNamen, this.ibcs];
 }
 
 class SpaltenCardSettings extends FormattingSettingsCard {

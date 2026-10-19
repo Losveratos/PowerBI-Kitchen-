@@ -257,6 +257,7 @@ export class Visual implements IVisual {
                 start: sp.start.value, end: sp.ende.value, days: sp.tage.value,
                 status: sp.status.value, pct: sp.fortschritt.value, ow: sp.wer.value
             },
+            gruppenNamen: d.gruppenNamen.value,
             basisplan: b.anzeigen.value,
             deltaSpalte: b.deltaSpalte.value,
             verzugZeilen: b.verzugZeilen.value,

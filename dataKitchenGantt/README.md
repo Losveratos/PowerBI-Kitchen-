@@ -69,7 +69,13 @@ Zeilen rendern damit in ~140 ms statt ~8 s.
   Fläche (ziehbar, Klick auf die Spur springt); Klick-Toleranz 8 px, damit
   Touchpad-Klicks (leichtes Verrutschen beim Drücken) nicht als Pannen zählen
 - „Heute" zentriert auf das aktuelle Datum, „Alles" passt den gesamten Plan ein
-- Phasenzeile anklicken = auf-/zuklappen — in der Tabelle **und** im Chart;
+- Gruppenzeile (Projekt oder Ebene) anklicken = auf-/zuklappen. Das gilt für die
+  **ganze Zeile, an jeder Stelle** — in der Tabelle und im Chart, auf dem
+  Summenbalken, auf dem Gruppennamen und auch auf den Meilenstein-Rauten, die
+  eine zugeklappte Gruppe (und immer die Projektzeile) trägt. Letztere
+  selektieren dort bewusst **nicht**: bei ~48 Meilensteinen je Projekt wäre die
+  Zeile sonst größtenteils tot. Zum Selektieren eines Meilensteins die Gruppe
+  aufklappen und seine eigene Zeile anklicken.
   Klicks werden koordinatenbasiert über stabile Container aufgelöst, damit
   Hover-Re-Renders keine Klicks mehr „verschlucken"
 - Task anklicken = Crossfilter-Selektion (Strg = Mehrfachauswahl), Rechtsklick = Kontextmenü
@@ -81,6 +87,10 @@ Zeilen rendern damit in ~140 ms statt ~8 s.
 
 Theme Hell/Dunkel · Wochenenden schattieren · Abhängigkeitspfeile · Heute-Linie ·
 Tabellenbreite in px (0 = Tabelle ausblenden; Spalten weichen automatisch bei Platzmangel)
+
+**Gruppennamen im Chart** — blendet den Namen jeder Gruppenzeile zusätzlich am
+Anfang ihres Summenbalkens ein (Vorgabe: an). Hilft, wenn die Tabelle schmal ist
+und tiefe Ebenen dort abgeschnitten werden, oder ganz ausgeblendet ist.
 
 **Tabellenspalten** — Start, Ende, Dauer, Status, Fortschritt, Wer einzeln
 ein-/ausblenden (Δ Plan sitzt in der Karte „Basisplan").
@@ -108,7 +118,7 @@ npm run harness        # kompiliert src/gantt.ts nach test/ für den Browser-Tes
 Browser-Testharness: `test/harness.html` (Demo-Daten = Sample „BI-Rollout 2026" inkl.
 Basisplan mit Verzügen; URL-Parameter: `?dark=1`, `?ibcs=1`, `?tw=430`, `?deps=0`,
 `?wochenenden=0`, `?heute=0`, `?plan=0`, `?delta=0`, `?verzug=0`,
-`?msnamen=0`, `?mslabel=nurName|beides`).
+`?msnamen=0`, `?mslabel=nurName|beides`, `?gnamen=0`).
 **`?ebenen=1`** lädt das mehrstufige Sample (Projekt MAR-S005, vier Ebenen,
 ungleich tiefe Zweige, gleichnamige Vorgänge, Sammelvorgangs-Zeile);
 `?proj=1` das Portfolio-Sample mit zwei Projekten.

@@ -46,6 +46,7 @@ export interface GanttOptions {
     heuteLinie: boolean;
     tabellenBreite: number;             // 0 = Tabelle ausblenden
     spalten?: Record<string, boolean>;  // Tabellenspalten einzeln ein-/ausblenden (Schlüssel = ColDef.key)
+    gruppenNamen?: boolean;             // Namen der Gruppenzeilen auch im Chart zeigen (default true)
     basisplan?: boolean;                // Plan-Balken zeichnen (default true)
     deltaSpalte?: boolean;              // Δ-Spalte in der Tabelle (default true)
     verzugZeilen?: boolean;             // Zeilen mit Verzug rot hinterlegen (default true)
@@ -1315,6 +1316,7 @@ export class GanttRenderer {
         const planH = Math.max(4, Math.round(6 * m.s));
         const planGap = Math.max(1, Math.round(2 * m.s));
         const planStroke = ibcs ? IBCS_AC : t.sub;
+        const gruppenNamen = o.gruppenNamen !== false;
         const mkPlanBar = (ps: number, pe: number, topPx: number, dimmed: boolean): HTMLElement => el('div',
             'position:absolute;left:' + x(ps) + 'px;top:' + topPx + 'px;width:' + Math.max(2, x(pe + DAY) - x(ps)) + 'px;height:' + planH + 'px;' +
             'border-radius:' + rad(3) + ';background:transparent;box-shadow:inset 0 0 0 1px ' + planStroke + ';' +
@@ -1333,6 +1335,18 @@ export class GanttRenderer {
                     (ibcs ? ';box-shadow:inset 0 0 0 1px ' + IBCS_AC : ''));
                 bar.appendChild(el('div', 'height:100%;width:' + (it.pct === null ? 0 : it.pct) + '%;background:' + it.color + ';border-radius:' + rad(5)));
                 this.scrollLayer.appendChild(bar);
+                // Name der Gruppe am Balkenanfang: ohne Tabelle (oder bei schmaler
+                // Tabelle, wo tiefe Ebenen abgeschnitten werden) ist sonst nicht
+                // erkennbar, welche Ebene die Zeile zeigt. pointer-events:none,
+                // damit der Klick auf die Zeile durchfällt und sie klappt.
+                if (gruppenNamen) {
+                    this.scrollLayer.appendChild(el('div',
+                        'position:absolute;left:' + x(it.s) + 'px;top:' + (top + phTop - Math.round(12 * m.s)) + 'px;' +
+                        'height:' + Math.round(12 * m.s) + 'px;display:flex;align-items:center;' +
+                        'font-size:' + this.fs(9.5) + ';font-weight:700;color:' + t.sub + ';' +
+                        'white-space:nowrap;pointer-events:none',
+                        it.name));
+                }
                 if (showPlan) this.scrollLayer.appendChild(
                     mkPlanBar(it.ps as number, it.pe as number, top + phTop + m.phBarH + planGap, false));
                 // Kompakt-Meilensteine der zugeklappten Phase: Rauten auf der
@@ -1352,7 +1366,11 @@ export class GanttRenderer {
                             'transform:rotate(45deg);border-radius:' + rad(2) + ';background:' + it.color + ';cursor:pointer;' +
                             (ibcs ? '' : 'box-shadow:0 1px 3px rgba(0,0,0,0.25);') +
                             'opacity:' + (msDim ? 0.3 : 1));
-                        dEl.setAttribute('data-task', ms.key);
+                        // BEWUSST kein data-task: auf einer Gruppenzeile soll ein
+                        // Klick die Zeile auf-/zuklappen, auch wenn er eine Raute
+                        // trifft (bei ~48 Meilensteinen je Projekt wäre die Zeile
+                        // sonst größtenteils tot). Der Titel bleibt als Tooltip.
+                        dEl.style.cursor = 'pointer';
                         dEl.setAttribute('title', ms.name + ' · ' + fmtDate(ms.s));
                         this.scrollLayer.appendChild(dEl);
                         const lbl = msLblMode === 'nurName' ? ms.name
