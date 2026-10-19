@@ -2,7 +2,7 @@
 
 ## 1.52.0.0 (2026-10-20)
 
-**Skalierung nach IBCS 2.0 / ISO 24896 als neuer Standard: Abweichungen in der Skala der Basis, eine Breite je Grafik, höchstens drei Ziffern.**
+**Skalierung nach IBCS 2.0 / ISO 24896 als neuer Standard in allen Chart-Typen: gleiche Einheit, gleiche Skala über alle Panels einer Grafik, sonst ein sichtbarer Faktor. Dazu eine Breite je Grafik, höchstens drei Ziffern und neu ein einklappbares Bedienmenü (☰).**
 
 > **Bestehende Berichte ändern ihr Bild.** Das ist gewollt und nicht abschaltbar: Δ-Panels werden flacher (sie
 > zeigen jetzt die wahre Größe der Abweichung), Säulen und Balken etwas breiter, Δ-Zahlen kürzer. Wer Seiten mit
@@ -28,13 +28,33 @@ Grundlage ist eine Pixelmessung an der Showcase-App; nachgemessen mit dem neuen 
 | Σ-Zeile | „ΔPY +1,352M“ | „ΔPY +1,35M“ |
 | KPI-Karten derselben Einheit | „-1,000M“ · „-0,138M“ · „+0,100M“ | „−1,00M“ · „−0,14M“ · „+0,10M“ |
 | Titel | „Nettoumsatz in EUR in M“ | „Nettoumsatz in Mio. EUR“ |
+| Tabelle: ΔPY-Balken gegen AC·PY-Balken | **9,61×** | **1,00×** |
+| GuV-Statement: Δ-Spalte gegen Kaskade | **4,87×** | **1,00×** |
+| Small Multiples im Zoom (⤢): Δ gegen Basis | **4,0×** | **1,00×** |
+| Small Multiples im Zoom: Basis gegen Übersicht | ×2,9, kein Hinweis | ×3,5, Hinweis „Skala ×3,5 zur Übersicht“ |
+| Säulen + Brücken-Panel (waterfallStyle) | eigene Skala, 0,04× ohne Hinweis | 0,025×, Titel „PL → AC ×0,025“ |
+| C05 mit AC&FC und PY (zwei Szenarien) | PY als Dreieck | PY als graue Säule |
+| Kategorie-Brücke, KPI-Karte (Mini-Brücke) | 1,00× | 1,00× (schon eine Skala) |
+
+Gestapelte Säulen/Balken, Pareto, Dumbbell und Slope haben kein Δ-Panel und nur eine Werteskala; Scatter misst
+zwei verschiedene Größen. Die senkrechte Kategorie-Brücke nutzt wie die waagrechte eine Skala für alles.
 
 - **Δ-Panels in der Skala der Basis** (CH 4.1, Notation: Abweichungssäulen gleiche Breite und gleiche Skala wie
   die Basis). Die festen Höhenanteile der absoluten Δ-Panels entfallen: ΔBasis und ΔBasis2 bekommen den px-je-Einheit-
   Maßstab des Hauptpanels, ihre Höhe (Säulen) bzw. Breite (Balken) ergibt sich aus der Δ-Spanne plus Platz für die
   Beschriftung. Gilt für Säulen, Balken, Linie, Doppel-Varianz, Small Multiples und die ΔPY-Stufe über dem
   GuV-Wasserfall (mit Achsenschnitt: der lineare Teil oberhalb des Schnitts). Δ%-Pins bleiben eine eigene Skala
-  (andere Einheit), ebenso das Brücken-Panel (Summen statt Einzelwerte); beide behalten ihre bisherige Größe.
+  (andere Einheit) und behalten ihre bisherige Größe; das Brücken-Panel behält seine Größe, siehe unten.
+- **Tabelle und GuV-Statement:** Die Δ-Balken der Tabelle laufen im Maßstab der AC·PY-Balkenspalte, die Δ-Spalte des
+  GuV-Statements im Maßstab der Kaskaden-Spalten (bisher je Spalte auf volle Breite gestreckt, bis 9,6-fach). Passt
+  Δ nicht in die Spalte oder bliebe es unsichtbar, gilt ein runder Faktor, ausgewiesen als „×0,5“ bzw. „×4“ im
+  Spaltenkopf (`data-icd="scale-zoom-table"` bzw. `scale-zoom-pnl`).
+- **Brücken-Panel (Säulen/Balken mit „Wasserfall-Brücke“):** Die Summen-Anker sind n-mal größer als die Einzelwerte;
+  das Panel läuft jetzt auf dem Basismaßstab mal einem runden Faktor < 1, der im Titel steht („PL → AC ×0,025“,
+  `data-icd="scale-zoom-bridge"`), statt auf einer eigenen, unmarkierten Skala.
+- **Small Multiples im Zoom (⤢):** Die vergrößerte Kachel zeichnet mehr px je Einheit als die Übersicht; das steht
+  jetzt neben dem Gruppennamen („Skala ×3,5 zur Übersicht“, `data-icd="zoom-scale"`, gemessen an derselben Kachel in
+  Gittergröße). Die Δ-Panels folgen im Zoom exakt der vergrößerten Basis.
 - **Lupe statt stillem Vergrößern** (CH 4.3/4.5): Wäre die größte Abweichung im Basismaßstab kleiner als etwa
   8 px·Schriftfaktor, wird das Δ-Panel um einen runden Faktor (2, 4, 5, 10, 20 …) vergrößert und sagt das:
   Titel „ΔPY ×4“ und ein hellblaues Skalenband auf derselben Zahl (Zehnerpotenz) in Basis- und Δ-Panel.
@@ -43,6 +63,8 @@ Grundlage ist eine Pixelmessung an der Showcase-App; nachgemessen mit dem neuen 
   (Faktor < 1) oder unlesbar klein wären (Faktor > 1), bekommen sie einen runden Faktor, ausgewiesen als
   „Monatssäulen ×0,5“ in der Überschrift plus Skalenband an Ankern und Monatssäulen. Anker, Brückensteine und
   Monatspaare haben dieselbe Breite (2/3 der Kategorie), das Monatspaar ist versetzt wie im Säulen-Chart.
+- **C05 mit zwei Szenarien:** AC&FC ist eine Reihe (IBCS), AC&FC + PY also zwei Szenarien: PY ist eine graue,
+  versetzte Säule wie in C03. Das PY-Dreieck gibt es nur noch beim dritten Szenario (AC + PY + PL).
 - **C12 Varianzbrücke:** Der Basis-Anker folgt der Basis: PY hellgrau gefüllt, PL Umriss, FC Vm schraffiert
   (bisher immer Umriss).
 - **Breiten:** Säulen und Balken für absolute Werte nehmen 2/3 der Kategorie ein (ISO 24896; bisher 0,62), in allen
@@ -58,7 +80,13 @@ Grundlage ist eine Pixelmessung an der Showcase-App; nachgemessen mit dem neuen 
   Spanne), beginnt die Achse bei null. Liegen alle Werte bei ≥ 0, gibt es keine negativen Ticks mehr.
 - **Titel:** Nennt der Kennzahlname schon die Einheit („Nettoumsatz in EUR“) und kommt nur ein Größenzusatz
   hinzu, verschmilzt beides zu „in Mio. EUR“ (deutsch, Tsd./Mio./Mrd.) bzw. „in mEUR“ (andere Sprachen).
-- **Tests:** neuer Geometrie-Test `npm run test:scale` (`test/scale.html` + `test/scale.js`, 23 Prüfungen, misst px
+- **Neu: „Bedienleisten einklappen (☰)“** (Chart → Interaktion im Bericht, Property `chipMenu`, Standard aus): Die
+  In-Chart-Bedienelemente (Sortieren ⇅, YTD, ⫽ Achse, ΔPY|ΔPL, ▶, Ausnahme-Chip, Modus-Chips, Karten-Sortierung,
+  Scatter-Play, GuV-Ansicht) liegen dann hinter einem kleinen ☰ oben rechts; Klick klappt sie auf (✕ wieder zu),
+  nichts wird gespeichert. Aus: alles wie bisher. Vier Sprachen, 686 resjson-Keys je Sprache.
+- **Power-BI-Host und App gleich:** Alle Panel-Größen ergeben sich aus px je Einheit des Basis-Panels in derselben
+  Render-Funktion; es gibt keinen host-spezifischen Pfad (Desktop, Service und Fabric-App zeichnen identisch).
+- **Tests:** neuer Geometrie-Test `npm run test:scale` (`test/scale.html` + `test/scale.js`, 33 Prüfungen, misst px
   je Einheit von Basis und Δ direkt im SVG). `test/shot.js` hing am Vollseiten-Screenshot der sehr hohen Testseite;
   jetzt Viewport-Bild plus Einzelbilder per `SHOT=c12,c22`, Zusammenfassung „n checks ok, n FAIL“. Render-Test
   153/153, kein FAIL; 208 der 285 Stages zeichnen gewollt anders (Breiten, Δ-Panels, Zahlen).

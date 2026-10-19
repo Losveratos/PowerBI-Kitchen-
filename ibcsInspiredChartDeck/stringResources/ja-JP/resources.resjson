@@ -679,5 +679,10 @@
   "Start_OpenGallery": "ギャラリーを開く →",
   "Start_T1": "比較と差異 — 基準は PY または計画（グラフ カード）",
   "Start_T2": "IBCS タイトル — 指標 · 期間 · メッセージ（IBCS タイトル カード）",
-  "Start_T3": "サイズプリセット — HD · Full HD · UHD（下部のバー）"
+  "Start_T3": "サイズプリセット — HD · Full HD · UHD（下部のバー）",
+  "Chart_ChipMenu": "グラフ内コントロールを折りたたむ (☰)",
+  "Desc_Chart_ChipMenu": "グラフ内のコントロール（並べ替え、YTD、軸の省略、ΔPY/ΔPL、⇅、▶、例外チップ）を右上の小さな ☰ にまとめます。クリックで展開、もう一度で折りたたみ。保存はされません。オフ: 従来どおり常に表示。",
+  "Chip_MenuOpen": "コントロールを表示",
+  "Chip_MenuClose": "コントロールを隠す",
+  "Zoom_ScaleNote": "概要の ×{0} スケール"
 }

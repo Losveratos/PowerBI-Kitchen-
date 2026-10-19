@@ -451,6 +451,7 @@
                     }
                 },
                 "chartButtons": { "type": { "bool": true } },
+                "chipMenu": { "type": { "bool": true } },
                 "driverNote": { "type": { "bool": true } },
                 "compareClick": { "type": { "bool": true } },
                 "invert": { "type": { "bool": true } },

@@ -679,5 +679,10 @@
   "Start_OpenGallery": "Abrir la galería →",
   "Start_T1": "Comparación y desviación: base PY o plan (tarjeta Gráfico)",
   "Start_T2": "Título IBCS: indicador · periodo · mensaje (tarjeta Título IBCS)",
-  "Start_T3": "Tamaño predefinido: HD · Full HD · UHD (barra inferior)"
+  "Start_T3": "Tamaño predefinido: HD · Full HD · UHD (barra inferior)",
+  "Chart_ChipMenu": "Plegar controles del gráfico (☰)",
+  "Desc_Chart_ChipMenu": "Pliega los controles del gráfico (ordenar, YTD, corte de eje, ΔPY/ΔPL, ⇅, ▶, filtro de excepciones) detrás de un pequeño ☰ arriba a la derecha. Un clic los despliega, otro los pliega; no se guarda nada. Desactivado: siempre visibles como antes.",
+  "Chip_MenuOpen": "Mostrar controles",
+  "Chip_MenuClose": "Ocultar controles",
+  "Zoom_ScaleNote": "escala ×{0} respecto a la vista general"
 }

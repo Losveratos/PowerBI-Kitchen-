@@ -679,5 +679,10 @@
   "Start_OpenGallery": "Open the gallery →",
   "Start_T1": "Comparison & variance — basis PY or plan (Chart card)",
   "Start_T2": "IBCS title — KPI · period · message (IBCS title card)",
-  "Start_T3": "Size preset — HD · Full HD · UHD (footer below)"
+  "Start_T3": "Size preset — HD · Full HD · UHD (footer below)",
+  "Chart_ChipMenu": "Fold chart controls (☰)",
+  "Desc_Chart_ChipMenu": "Folds the in-chart controls (sort, YTD, axis break, ΔPY/ΔPL, ⇅, ▶, exception chip) behind a small ☰ at the top right. One click unfolds them, a second folds them; nothing is saved. Off: always visible as before.",
+  "Chip_MenuOpen": "Show chart controls",
+  "Chip_MenuClose": "Hide chart controls",
+  "Zoom_ScaleNote": "scale ×{0} of the overview"
 }

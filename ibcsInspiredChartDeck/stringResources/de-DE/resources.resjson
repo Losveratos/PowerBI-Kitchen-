@@ -679,5 +679,10 @@
   "Start_OpenGallery": "Galerie öffnen →",
   "Start_T1": "Vergleich & Abweichung — Basis PY oder Plan (Karte Chart)",
   "Start_T2": "IBCS-Titel — Kennzahl · Zeitraum · Botschaft (Karte IBCS-Titel)",
-  "Start_T3": "Größen-Preset — HD · Full HD · UHD (Leiste unten)"
+  "Start_T3": "Größen-Preset — HD · Full HD · UHD (Leiste unten)",
+  "Chart_ChipMenu": "Bedienleisten einklappen (☰)",
+  "Desc_Chart_ChipMenu": "Klappt die Bedienleisten im Chart (Sortieren, YTD, Achsenschnitt, ΔPY/ΔPL, ⇅, ▶, Ausnahme-Chip) hinter ein kleines ☰ oben rechts. Ein Klick klappt sie auf, ein zweiter zu; nichts wird gespeichert. Aus: wie bisher immer sichtbar.",
+  "Chip_MenuOpen": "Bedienleisten zeigen",
+  "Chip_MenuClose": "Bedienleisten ausblenden",
+  "Zoom_ScaleNote": "Skala ×{0} zur Übersicht"
 }

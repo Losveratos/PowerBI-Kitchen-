@@ -523,6 +523,15 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    chipMenu = new formattingSettings.ToggleSwitch({
+        name: "chipMenu",
+        displayName: "Fold chart controls (☰)",
+        displayNameKey: "Chart_ChipMenu",
+        description: "Klappt die Bedienleisten im Chart (Sortieren, YTD, Achsenschnitt, ΔPY/ΔPL, ⇅, ▶, Ausnahme-Chip) hinter ein kleines ☰ oben rechts. Ein Klick klappt sie auf, ein zweiter wieder zu; nichts wird gespeichert. Aus (Standard): Bedienleisten wie bisher immer sichtbar.",
+        descriptionKey: "Desc_Chart_ChipMenu",
+        value: false
+    });
+
     pyTriangle = new formattingSettings.ToggleSwitch({
         name: "pyTriangle",
         displayName: "PY as triangle (AC + PY + PL)",
@@ -1141,7 +1150,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartInteraction",
         displayName: "Interaction in the report",
         displayNameKey: "Group_Interaction",
-        slices: [this.chartButtons, this.cumulativeButton, this.compareClick]
+        slices: [this.chartButtons, this.cumulativeButton, this.compareClick, this.chipMenu]
     });
 
     displayGroup = new formattingSettings.Group({

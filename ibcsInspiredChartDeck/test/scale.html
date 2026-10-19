@@ -290,6 +290,150 @@ run("DUAL", "Doppel-Varianz ΔPL + ΔPY", dataView(mon8, [col("actual", ac8, FMT
   check(/^Nettoumsatz in Mio\. EUR/.test(title), "C03: Titel „Nettoumsatz in Mio. EUR“ statt doppeltem „in“");
 }
 
+// ---- C05 mit AC&FC + PY (zwei Szenarien): PY als graue Säule, kein Dreieck
+{
+  const mon12 = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+  const a = [...ac8, null, null, null, null], f = [null, null, null, null, null, null, null, null, 4.3, 4.4, 4.6, 4.9].map(v => v == null ? null : v * M);
+  const py = [...py8, 4.1, 4.2, 4.4, 4.7].map(v => v);
+  py.splice(8, 4, ...[4.1, 4.2, 4.4, 4.7].map(v => v * M));
+  run("C05fc", "Integrierte Brücke · AC&FC + PY (zwei Szenarien)", dataView(mon12,
+    [col("actual", a, FMT), col("forecast", f, FMT), col("previousYear", py, FMT)],
+    { chart: { orientation: "intwaterfall", comparisonMode: "py", showAbsoluteVariance: true, showRelativeVariance: true } }), 1100, 560);
+  const tri = document.querySelectorAll("#C05fc g.icd-cat polygon").length;
+  const pyCols = [...document.querySelectorAll("#C05fc g.icd-cat rect")].filter(r => fill(r) === PY_C).length;
+  measure(`C05fc AC&FC + PY: PY-Dreiecke ${tri}, PY-Säulen ${pyCols}`);
+  check(tri === 0 && pyCols === 12, "C05fc: bei zwei Szenarien PY als graue Säule, kein Dreieck");
+}
+
+// ---- Säulen + Brücken-Panel (waterfallStyle): Brücke im Basismaßstab × ausgewiesenem Faktor
+run("BRIDGE", "Säulen + Brücke PL → AC", dataView(mon8, [col("actual", ac8, FMT), col("plan", pl8, FMT)],
+  { chart: { orientation: "columns", waterfallStyle: true, showAbsoluteVariance: false, showRelativeVariance: false } }), 900, 520);
+{
+  const groups = [...document.querySelectorAll("#BRIDGE g.icd-cat")].slice(0, 8);
+  const kM = [], kB = [];
+  groups.forEach((g, i) => {
+    const rects = [...g.querySelectorAll(":scope > rect")];
+    const ai = rects.findIndex(r => fill(r) === AC_C);
+    if (ai >= 0) { kM.push(num(rects[ai], "height") / ac8[i]); }
+    const br = rects.slice(ai + 1).find(r => [GOOD, BAD].includes(fill(r)));
+    if (br && Math.abs(dPl8[i]) >= 0.08 * M) { kB.push(num(br, "height") / Math.abs(dPl8[i])); }
+  });
+  const z = document.querySelector('#BRIDGE [data-icd="scale-zoom-bridge"]');
+  const fz = z ? parseFloat(z.getAttribute("data-factor")) : 1;
+  // the bricks are sub-pixel at this factor (0.5 px minimum) — measure the AC total anchor
+  const anchor = [...document.querySelectorAll("#BRIDGE svg > g > rect")].filter(r => fill(r) === AC_C)
+    .sort((x, y) => num(y, "height") - num(x, "height"))[0];
+  kB.length = 0; kB.push(num(anchor, "height") / ac8.reduce((x, y) => x + y, 0));
+  const ratio = med(kB) / med(kM);
+  const title = [...document.querySelectorAll("#BRIDGE text")].map(t => t.textContent).find(t => t.startsWith("PL → AC")) || "";
+  measure(`BRIDGE Brücken-Panel: AC ${r2(med(kM) * M)} px/M, Brücke ${r2(med(kB) * M)} px/M → Faktor ${r2(ratio)} · ausgewiesen ${z ? fz : "keiner"} („${title}“)`);
+  check(Math.abs(ratio / fz - 1) < 0.04 && (fz === 1 || /×/.test(title)), "BRIDGE: Brücke im Basismaßstab bzw. mit ausgewiesenem Faktor");
+}
+
+// ---- Tabelle: Δ-Balken im Maßstab der AC·PY-Balkenspalte
+{
+  const a = [5.4, 1.9, 2.4, 3.1, 2.8].map(v => v * M), py = [5.1, 2.0, 2.2, 3.3, 2.6].map(v => v * M);
+  const cats = ["Deutschland", "Österreich", "Schweiz", "Frankreich", "Italien"];
+  run("TABLE", "Tabelle · AC·PY-Balken + ΔPY-Balken", dataView(cats, [col("actual", a, FMT), col("previousYear", py, FMT)],
+    { chart: { orientation: "table", showAbsoluteVariance: true, showRelativeVariance: true, showTotal: false } }), 1200, 300);
+  const rects = [...document.querySelectorAll("#TABLE svg rect")];
+  const acR = rects.filter(r => fill(r) === AC_C).sort((x, y) => num(y, "width") - num(x, "width"))[0];
+  const dR = rects.filter(r => [GOOD, BAD].includes(fill(r))).sort((x, y) => num(y, "width") - num(x, "width"))[0];
+  const kA = num(acR, "width") / 5.4e6, kD = num(dR, "width") / 0.3e6;
+  const zt = document.querySelector('#TABLE [data-icd="scale-zoom-table"]');
+  const fz = zt ? parseFloat(zt.textContent.replace("×", "").replace(",", ".")) : 1;
+  measure(`TABLE Tabelle: AC-Balken ${r2(kA * M)} px/M, ΔPY-Balken ${r2(kD * M)} px/M → Faktor ${r2(kD / kA)} · ausgewiesen ${zt ? zt.textContent : "keiner"}`);
+  check(Math.abs(kD / kA / fz - 1) < 0.05, "TABLE: Δ-Balken im Maßstab der Wertbalken bzw. mit ausgewiesenem Faktor");
+}
+
+// ---- GuV-Statement: Δ-Spalte im Maßstab der Kaskade
+{
+  const cats = ["Umsatz", "Material", "Personal", "Rohertrag", "Vertrieb", "EBIT"];
+  const types = ["sum", "delta", "delta", "sum", "delta", "sum"];
+  const a = [9.8, -4.2, -2.4, 3.2, -0.9, 2.3].map(v => v * M), py = [9.1, -3.9, -2.3, 2.9, -0.8, 2.1].map(v => v * M);
+  run("PNL", "GuV-Statement · Kaskade + ΔPY", dataView(cats, [col("actual", a, FMT), col("previousYear", py, FMT)],
+    { chart: { orientation: "pnl", showAbsoluteVariance: true, showRelativeVariance: true } }, null, types), 1280, 360);
+  const rects = [...document.querySelectorAll("#PNL svg rect")];
+  const acR = rects.filter(r => fill(r) === AC_C).sort((x, y) => num(y, "width") - num(x, "width"))[0];
+  const dR = rects.filter(r => [GOOD, BAD].includes(fill(r))).sort((x, y) => num(y, "width") - num(x, "width"))[0];
+  const kA = num(acR, "width") / 9.8e6, kD = num(dR, "width") / 0.7e6;
+  const zt = document.querySelector('#PNL [data-icd="scale-zoom-pnl"]');
+  const fz = zt ? parseFloat(zt.textContent.replace("×", "").replace(",", ".")) : 1;
+  measure(`PNL GuV-Statement: Kaskade ${r2(kA * M)} px/M, ΔPY ${r2(kD * M)} px/M → Faktor ${r2(kD / kA)} · ausgewiesen ${zt ? zt.textContent : "keiner"}`);
+  check(Math.abs(kD / kA / fz - 1) < 0.05, "PNL: Δ-Spalte im Maßstab der Kaskade bzw. mit ausgewiesenem Faktor");
+}
+
+// ---- Small Multiples Zoom: Hinweis auf die geänderte Skala gegenüber der Übersicht
+{
+  const regions = ["Nord", "Süd", "West", "Ost"], f = [1, 0.7, 0.45, 0.25];
+  const cats = [], mult = [], a = [], p = [];
+  regions.forEach((r, ri) => mon8.forEach((m, mi) => { cats.push(m); mult.push(r); a.push(ac8[mi] * f[ri]); p.push(py8[mi] * f[ri]); }));
+  run("ZOOM", "Small Multiples · Klick auf Kachel Nord (Zoom)", dataView(cats, [col("actual", a, FMT), col("previousYear", p, FMT)],
+    { chart: { orientation: "columns", comparisonMode: "py", showAbsoluteVariance: true, showRelativeVariance: true, multiplesSameScale: true } }, mult), 1100, 560);
+  const acH = () => { const r = [...document.querySelectorAll("#ZOOM g.icd-cat")][6].querySelector(":scope > rect[fill='#404040']"); return num(r, "height"); };
+  const gridH = acH();
+  const hdr = [...document.querySelectorAll('#ZOOM [role="button"]')].find(b => /Nord/.test(b.textContent));
+  hdr.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  const zoomH = acH();
+  const note = document.querySelector('#ZOOM [data-icd="zoom-scale"]');
+  const fz = note ? parseFloat(note.getAttribute("data-factor")) : 1;
+  const m = tierRatio("ZOOM", ac8, dPy8, true, { minD: 0.05 * M });
+  const zz = scaleOf("ZOOM"), fd = zz ? parseFloat(zz.getAttribute("data-factor")) : 1;
+  measure(`ZOOM Small Multiples: Jul ${r2(gridH)} px (Übersicht) → ${r2(zoomH)} px (Zoom) = ×${r2(zoomH / gridH)} · Hinweis „${note ? note.textContent : "keiner"}“ · Δ im Zoom Faktor ${r2(m.ratio)} (Lupe ${zz ? fd : "keine"})`);
+  check(!!note && Math.abs(zoomH / gridH / fz - 1) < 0.03, "ZOOM: geänderte Skala gegenüber der Übersicht wird ausgewiesen");
+  check(Math.abs(m.ratio / fd - 1) < 0.03, "ZOOM: Δ-Panel im Zoom in der Basisskala");
+}
+
+// ---- Burger-Menü für die In-Chart-Bedienleisten
+{
+  run("MENU", "Bedienleisten einklappen (☰) · YTD-Chip", dataView(mon8, [col("actual", ac8, FMT), col("previousYear", py8, FMT)],
+    { chart: { orientation: "columns", cumulativeButton: true, chipMenu: true } }), 900, 360);
+  const ctl = () => [...document.querySelectorAll("#MENU [data-ck-ctl]")];
+  const burger = document.querySelector('#MENU [data-icd="chip-menu"]');
+  const hidden = ctl().length > 0 && ctl().every(c => c.style.display === "none");
+  if (burger) { burger.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+  const shown = ctl().every(c => c.style.display !== "none");
+  const b2 = document.querySelector('#MENU [data-icd="chip-menu"]');
+  measure(`MENU: ${ctl().length} Bedienelemente, zu ${hidden ? "ja" : "nein"}, nach Klick sichtbar ${shown ? "ja" : "nein"}, Knopf „${b2 ? b2.textContent.trim() : "keiner"}“`);
+  check(!!burger && hidden && shown && !!b2 && b2.getAttribute("data-open") === "1", "MENU: ☰ klappt die Bedienleisten ein und aus");
+  run("MENU0", "ohne Option · Bedienleisten wie bisher", dataView(mon8, [col("actual", ac8, FMT), col("previousYear", py8, FMT)],
+    { chart: { orientation: "columns", cumulativeButton: true } }), 900, 360);
+  check(!document.querySelector('#MENU0 [data-icd="chip-menu"]')
+    && [...document.querySelectorAll("#MENU0 [data-ck-ctl]")].every(c => c.style.display !== "none"), "MENU0: Standard unverändert, kein ☰");
+}
+
+// ---- Kategorie-Brücke (waagrecht/senkrecht) und KPI-Karten: Werte und Δ im selben Maßstab?
+{
+  const cats = ["Pils", "Lager", "Dunkel", "Weizen", "Bock"];
+  const a = [2.45, 1.82, 1.31, 1.12, 0.64].map(v => v * M), py = [2.30, 1.95, 1.20, 1.05, 0.70].map(v => v * M);
+  const d = a.map((v, i) => v - py[i]);
+  const pair = (id, vertical, skipThin) => {
+    const kA = [], kD = [];
+    [...document.querySelectorAll(`#${id} g.icd-cat`)].forEach(g => {
+      const name = [...g.querySelectorAll("text")].map(t => t.textContent).find(t => cats.some(c => t.startsWith(c)));
+      const i = cats.findIndex(c => name && name.startsWith(c));
+      if (i < 0) { return; }
+      const rects = [...g.querySelectorAll("rect")].filter(r => !(skipThin && num(r, "width") < 6));
+      const ar = rects.find(r => fill(r) === AC_C);
+      const dr = rects.find(r => [GOOD, BAD].includes(fill(r)));
+      if (ar) { kA.push((vertical ? num(ar, "height") : num(ar, "width")) / a[i]); }
+      if (dr && Math.abs(d[i]) >= 0.07 * M) { kD.push((vertical ? num(dr, "height") : num(dr, "width")) / Math.abs(d[i])); }
+    });
+    return { kA: med(kA), kD: med(kD), ratio: med(kD) / med(kA), n: kA.length };
+  };
+  run("CATB", "Kategorie-Brücke waagrecht", dataView(cats, [col("actual", a, FMT), col("previousYear", py, FMT)],
+    { chart: { orientation: "catbridge", comparisonMode: "py", bridgeOrientation: "bars" } }), 1200, 520);
+  const m1 = pair("CATB", false, false);
+  measure(`CATB Kategorie-Brücke waagrecht: AC ${r2(m1.kA * M)} px/M, ΔPY-Stein ${r2(m1.kD * M)} px/M → Faktor ${r2(m1.ratio)}`);
+  check(Math.abs(m1.ratio - 1) < 0.05, "CATB: Zeilenbalken und Steine in einer Skala");
+  run("CARDS2", "KPI-Karten · Mini-Brücke", dataView(cats, [col("actual", a, FMT), col("previousYear", py, FMT)],
+    { chart: { orientation: "cards", cardBars: true } }), 1200, 300);
+  const m3 = pair("CARDS2", true, true), m3h = pair("CARDS2", false, true);
+  const mc = isFinite(m3.ratio) && Math.abs(m3.ratio - 1) < Math.abs(m3h.ratio - 1) ? m3 : m3h;
+  measure(`CARDS2 KPI-Karte Mini-Brücke: AC ${r2(mc.kA * M)} px/M, Δ ${r2(mc.kD * M)} px/M → Faktor ${r2(mc.ratio)}`);
+  check(Math.abs(mc.ratio - 1) < 0.08, "CARDS2: Mini-Brücke einer Karte in einer Skala");
+}
+
 // ---- KPI-Karten: ein Δ-Format für alle Karten derselben Einheit
 {
   const cats = ["Umsatz Nord", "Umsatz Süd", "Umsatz West"];

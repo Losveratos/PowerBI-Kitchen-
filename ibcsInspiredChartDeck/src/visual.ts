@@ -76,6 +76,9 @@ const SLOT_ABS = 2 / 3;
 /** 1.52 round magnification factors for variance panels that would be unreadably
  *  small on the base scale — always shown as "×f" plus a scale band (IBCS CH 4.3/4.5) */
 const ZOOM_FACTORS = [2, 4, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
+/** 1.52 round reductions for a panel whose values do not fit at the base scale */
+const REDUCE_FACTORS = [0.5, 0.4, 0.25, 0.2, 0.1, 0.05, 0.04, 0.025, 0.02, 0.01, 0.005, 0.004,
+    0.0025, 0.002, 0.001];
 
 /** 1.49 segmented loading (fetchMoreData): powerbi.VisualDataChangeOperationKind.Append
  *  as a literal — const-enum values do not exist at runtime in the test shim */
@@ -822,6 +825,13 @@ export class Visual implements IVisual {
     private animTimers: number[] = [];
     /** small multiples: currently zoomed-in group (transient, ⤢/← in the chart) */
     private zoomGroup: string | null = null;
+    /** 1.52: px per value unit of the last drawn base panel (zoom scale note) */
+    private lastScaleK: number | null = null;
+    /** 1.52 chart.chipMenu: in-chart controls folded behind ☰ (session state) */
+    private ctlOpen = false;
+    private ctlInset = 0;
+    private ctlRight = Infinity;
+    private ctlCfg: ChartConfig | null = null;
     /** table mode: expanded hierarchy parents (transient, chevron click in the chart) */
     private expandedRows = new Set<string>();
     /** persist-race guard: expand-state JSON we wrote but the host has not echoed */
@@ -1306,6 +1316,7 @@ export class Visual implements IVisual {
             this.lastRender = { points, width, height };
             this.render(points, width, height);
             this.finishChips();
+            this.applyChipMenu();
             this.drawLoadState(width, height);
             this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
             this.updateChipBar();
@@ -1327,6 +1338,7 @@ export class Visual implements IVisual {
         // render() mutates order in place via groups — pass a copy of the point list
         this.render([...this.lastRender.points], this.lastRender.width, this.lastRender.height);
         this.finishChips();
+        this.applyChipMenu();
         this.drawLoadState(this.lastRender.width, this.lastRender.height);
         this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
         this.updateChipBar();
@@ -1650,7 +1662,8 @@ export class Visual implements IVisual {
         fs.chartCard.exportExpandAll.visible = orient === "table" || orient === "pnl";
         // neue Gruppe nur zeigen, wenn mindestens ein Schalter im Modus wirkt
         fs.chartCard.interactionGroup.visible = fs.chartCard.chartButtons.visible
-            || fs.chartCard.cumulativeButton.visible || fs.chartCard.compareClick.visible;
+            || fs.chartCard.cumulativeButton.visible || fs.chartCard.compareClick.visible
+            || fs.chartCard.chipMenu.visible;
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 
@@ -5537,12 +5550,12 @@ export class Visual implements IVisual {
             hasBm: points.some(p => p.bm != null),
             bmInChart: (orientationRaw === "columns" || orientationRaw === "bars"
                 || orientationRaw === "line" || isTable) && points.some(p => p.bm != null),
-            // triangle notation only when three scenarios actually appear together —
-            // AC+PY+PL generally; in the integrated bridge AC+FC+PY also qualifies
+            // triangle notation only when three scenarios actually appear together:
+            // AC+PY+PL. 1.52: AC&FC is ONE series (IBCS), so AC+FC+PY in the integrated
+            // bridge is two scenarios and keeps the grey PY column (was a triangle)
             pyTriangle: s.chartCard.pyTriangle.value
                 && points.some(p => p.py != null)
-                && (points.some(p => p.pl != null)
-                    || (orientationRaw === "intwaterfall" && points.some(p => p.isFc))),
+                && points.some(p => p.pl != null),
             sharedScale: groups.length > 1,
             mainDomain: [0, 0],
             varDomain: [0, 0],
@@ -5841,7 +5854,13 @@ export class Visual implements IVisual {
         };
         // in-chart chrome only where the host allows interactions — exports to
         // PDF/PowerPoint and subscription mails get a clean chart without buttons
+        // 1.52 chart.chipMenu: the controls move left of the ☰ chip (applyChipMenu)
+        this.ctlCfg = cfg;
+        this.ctlInset = this.allowInteractions && s.chartCard.chipMenu.value
+            ? Math.round(18 * this.fontK) + 6 : 0;
+        this.ctlRight = width - this.ctlInset;
         if (this.allowInteractions) {
+            width -= this.ctlInset;
             // sort button (once, top-right of the whole visual) — the only literal "button":
             // toggles the format-pane property so the choice persists and stays bookmarkable
             if (wfStyleGlobal) {
@@ -5907,6 +5926,7 @@ export class Visual implements IVisual {
                         : null;
                 this.drawCumButton(width - (wfStyleGlobal ? 30 : 6), cfg, ytdLock);
             }
+            width += this.ctlInset;
         }
         // IBCS title block on top of everything (incl. multiples grid)
         const titleH = s.ibcsTitleCard.show.value
@@ -6002,20 +6022,6 @@ export class Visual implements IVisual {
             return;
         }
 
-        // small multiples zoom: ⤢ on a tile shows just that group full-size (same
-        // shared scales — IBCS), the ← chip goes back to the grid. Transient state.
-        if (this.zoomGroup != null) {
-            const grp = groups.find(g => (g.name ?? "") === this.zoomGroup);
-            if (grp) {
-                // chart first, chip after — the click target must stay on top of the marks
-                const chipH = Math.round(11 * this.fontK) + 17;
-                renderCell(grp, { x: 0, y: topOffset + chipH, w: chartW, h: availH - chipH });
-                this.drawZoomBackChip(topOffset, grp.name ?? "", cfg);
-                return;
-            }
-            this.zoomGroup = null;
-        }
-
         // grid layout for small multiples: keep cells at a usable width
         const MAX_CELLS = MULT_MAX_CELLS;
         const shown = groups.slice(0, MAX_CELLS);
@@ -6040,6 +6046,31 @@ export class Visual implements IVisual {
         // scatter: the regular cell bounds the bubble radius of every tile (hero included)
         if (isScatter && cfg.scatter?.shared) {
             cfg.scatter.shared.refCell = { w: cellW - 4, h: cellH - groupTitleH - 2 };
+        }
+
+        // small multiples zoom: ⤢ on a tile shows just that group full-size (same
+        // shared domains — IBCS), the ← chip goes back to the grid. Transient state.
+        // 1.52: the bigger area means more px per unit than in the overview — the
+        // chip line says by how much ("scale ×2,4 of the overview"), measured on the
+        // tile at its grid size; the Δ panels follow the zoomed base scale exactly
+        if (this.zoomGroup != null) {
+            const grp = groups.find(g => (g.name ?? "") === this.zoomGroup);
+            if (grp) {
+                const gi = shown.indexOf(grp);
+                const cell: Rect = heroOn && gi === 0
+                    ? { x: 2, y: topOffset + groupTitleH, w: heroW - 6, h: availH - groupTitleH - 2 }
+                    : { x: 2, y: topOffset + groupTitleH, w: cellW - 4, h: cellH - groupTitleH - 2 };
+                const kGrid = this.measureScaleK(() => renderCell(grp, cell));
+                // chart first, chip after — the click target must stay on top of the marks
+                const chipH = Math.round(11 * this.fontK) + 17;
+                this.lastScaleK = null;
+                renderCell(grp, { x: 0, y: topOffset + chipH, w: chartW, h: availH - chipH });
+                const kZoom = this.lastScaleK as number | null;
+                this.drawZoomBackChip(topOffset, grp.name ?? "", cfg,
+                    kGrid != null && kZoom != null && kGrid > 0 ? kZoom / kGrid : null);
+                return;
+            }
+            this.zoomGroup = null;
         }
         if (heroOn) {
             renderCell(shown[0],
@@ -6102,7 +6133,8 @@ export class Visual implements IVisual {
     }
 
     /** back chip when a small-multiples tile is zoomed in; returns consumed height */
-    private drawZoomBackChip(top: number, groupName: string, cfg: ChartConfig): number {
+    private drawZoomBackChip(top: number, groupName: string, cfg: ChartConfig,
+        scaleRatio: number | null = null): number {
         const k = this.fontK;
         const font = Math.round(11 * k);
         const text = "← Alle Gruppen";
@@ -6131,6 +6163,18 @@ export class Visual implements IVisual {
             fill: cfg.ink, "font-family": FONT, "font-weight": 600
         }, this.svg);
         gl.textContent = groupName;
+        // 1.52: the zoomed tile draws on a different px per unit than the overview —
+        // say so instead of letting the reader compare bar lengths across both views
+        if (scaleRatio != null && Math.abs(scaleRatio - 1) > 0.03) {
+            const r = new Intl.NumberFormat(this.host.locale, { maximumFractionDigits: 1 })
+                .format(Math.round(scaleRatio * 10) / 10);
+            const note = this.el("text", {
+                x: 6 + w + 10 + this.textWidth(groupName, font) * 1.08 + 12, y: top + 3 + h / 2 + font * 0.36,
+                "font-size": font, fill: cfg.subtle, "font-family": FONT,
+                "data-icd": "zoom-scale", "data-factor": Math.round(scaleRatio * 1000) / 1000
+            }, this.svg);
+            note.textContent = this.locStr("Zoom_ScaleNote", "scale ×{0} of the overview").replace("{0}", r);
+        }
         return h + 8;
     }
 
@@ -6269,6 +6313,9 @@ export class Visual implements IVisual {
         const scale = brk != null
             ? this.makeBrokenScale(domain, brk, rect, labelPad, stubPx)
             : this.makePanelScale(domain, rect, "columns", labelPad);
+        this.lastScaleK = brk != null && domain[1] > brk
+            ? Math.abs(scale(domain[1]) - scale(brk)) / (domain[1] - brk)
+            : Math.abs(scale(1) - scale(0));
         const n = segs.length;
         const step = (bandEnd - bandStart) / n;
         const slotW = Math.max(2, step * SLOT_ABS);
@@ -6527,6 +6574,7 @@ export class Visual implements IVisual {
         // unreadably small, they get a round factor — shown as "×f" in the caption
         // plus a scale band, never silently (CH 4.3/4.5)
         const kS = (yBase - plotTop - lf - 8) / maxTot;
+        this.lastScaleK = kS;
         let floorLevel = basisSum;
         {
             let lv = basisSum;
@@ -6986,6 +7034,7 @@ export class Visual implements IVisual {
         const minV = cfg.sharedCatBridge?.minV
             ?? Math.min(0, hasPy ? PYt : 0, hasPl ? PLt : 0, ACt, ext[0]);
         const X = linearScale(minV, maxV, x0, xValEnd);
+        this.lastScaleK = Math.abs(X(1) - X(0));
         // zero line of all bars (== x0 unless something is negative)
         const xZ = X(0);
         const hBar = (v: number) => ({ x: Math.min(xZ, X(v)), width: Math.max(Math.abs(X(v) - xZ), 1) });
@@ -7384,6 +7433,7 @@ export class Visual implements IVisual {
         const plotTop = cTop + labelPad;
         const plotBottom = cBottom - (minV < 0 ? labelPad : 2);
         const Y = linearScale(minV, maxV, plotBottom, plotTop);
+        this.lastScaleK = Math.abs(Y(1) - Y(0));
         const yZ = Y(0);
 
         const bg = this.el("g", {}, this.svg);
@@ -7752,6 +7802,7 @@ export class Visual implements IVisual {
         // labels live at bar ends — reserve space for them inside the bar columns
         const lblRes = lf * 3.6;
         const PX = (wBar - lblRes) / Math.max(hi - lo, 1e-9);
+        this.lastScaleK = PX;
         const bx = (col: number, v: number) => col + (v - lo) * PX;
 
         // ------- row layout
@@ -7804,7 +7855,15 @@ export class Visual implements IVisual {
         const maxD = Math.max(...pts.filter(p => !isPct(p))
             .map(p => Math.abs((mVal(p) ?? 0) - (rVal(p) ?? 0))), 1e-9);
         // clamp to ≥0: negative room would flip bars/pins to the wrong axis side
-        const dPX = Math.max(0, (wD * 0.42 - lf * 2.6)) / maxD;
+        const dFitPX = Math.max(0, (wD * 0.42 - lf * 2.6)) / maxD;
+        // 1.52 (IBCS CH 4.1): the Δ column uses the cascade columns' px per unit;
+        // a round factor only where Δ would not fit or stay invisible ("×f" in the head)
+        const pnlZoom = this.sameScaleFactor(PX, dFitPX, maxD, Math.max(6, Math.round(6 * k)));
+        const dPX = PX * pnlZoom;
+        if (showD && pnlZoom !== 1) {
+            txt(xD + wD - 2, region.y + pad + cf, this.zoomText(pnlZoom), "end", cf, false, cfg.subtle, bg)
+                .setAttribute("data-icd", "scale-zoom-pnl");
+        }
         const P_CAP = 100;
         const pLen = Math.max(0, wP * 0.38 - lf * 2.2);
 
@@ -7978,7 +8037,7 @@ export class Visual implements IVisual {
         let xRight = width - 6;
         const btn = (w: number, text: string, active: boolean, label: string, onClick: () => void) => {
             const x = xRight - w;
-            const b = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+            const b = this.el("g", { tabindex: "0", role: "button", "data-ck-ctl": "1" }, this.svg) as SVGGElement;
             b.setAttribute("aria-label", label);
             const tip = this.el("title", {}, b);
             tip.textContent = label;
@@ -8611,6 +8670,7 @@ export class Visual implements IVisual {
         const barScale = colX["bars"]
             ? linearScale(Math.min(barDomain[0], 0), Math.max(barDomain[1], 1), colX["bars"].x + 2, colX["bars"].x + colX["bars"].w - 2)
             : null;
+        if (barScale) { this.lastScaleK = Math.abs(barScale(1) - barScale(0)); }
         const rowsBottom = top + shown.length * rowH;
         // hover highlight layer, populated after the row loop (declared here so the
         // per-row mouseenter closures can reference it)
@@ -8646,7 +8706,24 @@ export class Visual implements IVisual {
             }, bg);
         }
         const dAxis = colX["dbar"] ? colX["dbar"].x + 4 + zeroFrac * (colX["dbar"].w - 8) : 0;
-        const dUnit = colX["dbar"] ? unitOf(colX["dbar"].w - 8, negD, posD) : 0;
+        const dFit = colX["dbar"] ? unitOf(colX["dbar"].w - 8, negD, posD) : 0;
+        const d2Fit = colX["d2bar"] ? unitOf(colX["d2bar"].w - 8, neg2, pos2) : 0;
+        // 1.52 (IBCS CH 4.1): Δ bars share the AC·PY bar column's px per unit (same
+        // unit); a round factor only where they would not fit or stay invisible, then
+        // "×f" in the column head. Without a bar column there is nothing to compare
+        const kBar = barScale ? Math.abs(barScale(1) - barScale(0)) : 0;
+        const fitMin = Math.min(dFit > 0 ? dFit : Infinity, d2Fit > 0 ? d2Fit : Infinity);
+        const tblZoom = kBar > 0 && Number.isFinite(fitMin)
+            ? this.sameScaleFactor(kBar, fitMin, Math.max(negD, posD, neg2, pos2), Math.max(6, Math.round(6 * k)))
+            : 1;
+        const dUnit = kBar > 0 && Number.isFinite(fitMin) ? kBar * tblZoom : dFit;
+        if (tblZoom !== 1) {
+            for (const key of ["dbar", "d2bar"]) {
+                if (!colX[key]) { continue; }
+                txt(colX[key].x + colX[key].w - 2, region.y + pad + hFont + 2, this.zoomText(tblZoom), "end",
+                    hFont, true, cfg.subtle, bg).setAttribute("data-icd", "scale-zoom-table");
+            }
+        }
         if (colX["dbar"]) {
             this.el("rect", { x: dAxis - 1, y: top, width: 2, height: rowsBottom - top, fill: cfg.colors.py }, bg);
         }
@@ -8657,7 +8734,7 @@ export class Visual implements IVisual {
             this.el("rect", { x: pctAxis - 1, y: top, width: 2, height: rowsBottom - top, fill: cfg.colors.py }, bg);
         }
         const d2Axis = colX["d2bar"] ? colX["d2bar"].x + 4 + zeroFrac * (colX["d2bar"].w - 8) : 0;
-        const d2Unit = colX["d2bar"] ? unitOf(colX["d2bar"].w - 8, neg2, pos2) : 0;
+        const d2Unit = colX["d2bar"] ? (kBar > 0 && Number.isFinite(fitMin) ? kBar * tblZoom : d2Fit) : 0;
         if (colX["d2bar"]) {
             this.el("rect", { x: d2Axis - 1, y: top, width: 2, height: rowsBottom - top, fill: cfg.colors.py }, bg);
         }
@@ -11009,7 +11086,7 @@ export class Visual implements IVisual {
         // chip to its left — both anchored on the same right edge so they never overlap.
         // Luft zum Kachelrand statt 2px Klebeabstand (Beta-Feedback A. Korn)
         const chipTop = region.y + Math.round(8 * k) - 2;
-        let chipRight = region.x + region.w - Math.round(8 * k);
+        let chipRight = Math.min(region.x + region.w, this.ctlRight) - Math.round(8 * k);
         // in-chart sort chip (top-right of the region): cycles none → deviation →
         // worst → best; persists as an override of the pane dropdown, bookmarkable
         if (this.allowInteractions && region.w >= 220 * k) {
@@ -11027,7 +11104,7 @@ export class Visual implements IVisual {
             const segW = this.textWidth(label, font) + Math.round(16 * k);
             const cx = chipRight - segW, cy = chipTop;
             chipRight -= segW + Math.round(6 * k);
-            const chip = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+            const chip = this.el("g", { tabindex: "0", role: "button", "data-ck-ctl": "1" }, this.svg) as SVGGElement;
             chip.setAttribute("aria-label", this.locStr("Cards_Sort", "Sort by deviation"));
             const tip = this.el("title", {}, chip);
             tip.textContent = this.locStr("Cards_Sort", "Sort by deviation");
@@ -11672,7 +11749,7 @@ export class Visual implements IVisual {
         const k = this.fontK;
         const bh = Math.round(18 * k), font = Math.round(10 * k);
         const w = Math.round(28 * k);
-        const g = this.el("g", { role: "button", tabindex: "0" }, this.svg) as SVGGElement;
+        const g = this.el("g", { role: "button", "data-ck-ctl": "1", tabindex: "0" }, this.svg) as SVGGElement;
         this.el("rect", {
             x: xRight - w, y: yTop, width: w, height: bh, rx: bh / 2,
             fill: cfg.hc ? cfg.paper : cfg.colors.ac,
@@ -12570,7 +12647,7 @@ export class Visual implements IVisual {
                     size: Math.max(p.sizeVal ?? 0, 0)
                 });
             }
-            const chip = this.drawScatterPlayChip(region.x + region.w - 6, region.y + pad, cfg);
+            const chip = this.drawScatterPlayChip(Math.min(region.x + region.w, this.ctlRight) - 6, region.y + pad, cfg);
             this.scatterAnim = {
                 frames, frameData,
                 dots: dots ?? new Map(),
@@ -12864,6 +12941,7 @@ export class Visual implements IVisual {
 
         // ------- scales
         const mainScale = this.makePanelScale(domains.main, panels.main, orientation, compactLabelPad);
+        this.lastScaleK = Math.abs(mainScale(1) - mainScale(0));
         const absScale = panels.abs
             ? this.makePanelScale(domains.abs, panels.abs, orientation, labelPad) : null;
         const relScale = panels.rel
@@ -12874,8 +12952,22 @@ export class Visual implements IVisual {
             ? this.makePanelScale(domains.rel2, panels.rel2, orientation, labelPad) : null;
         // the bridge domain is zero-based like its anchor bars (S2) — label room only
         // on the side(s) away from zero, exactly like the main panel
-        const bridgeScale = panels.bridge
+        const bridgeNat = panels.bridge
             ? this.makePanelScale(domains.bridge, panels.bridge, orientation, labelPad) : null;
+        // 1.52 (IBCS CH 4.1): the bridge panel shows the same unit as the base — its
+        // totals are n× larger, so it runs on the base px per unit times a round
+        // reduction (shown as "×0,1" in its title) instead of an own silent scale
+        let bridgeZoom = 1;
+        let bridgeScale: Scale | null = bridgeNat;
+        if (bridgeNat) {
+            const kMain = Math.abs(mainScale(1) - mainScale(0));
+            const kNat = Math.abs(bridgeNat(1) - bridgeNat(0));
+            bridgeZoom = this.sameScaleFactor(kMain, kNat,
+                Math.max(Math.abs(domains.bridge[0]), Math.abs(domains.bridge[1])), 0);
+            const z0 = bridgeNat(0), dir = Math.sign(bridgeNat(1) - z0) || 1;
+            const kB = kMain * bridgeZoom;
+            bridgeScale = (v: number) => z0 + dir * v * kB;
+        }
 
         // ------- background layer: baselines + panel titles
         const bg = this.el("g", {}, this.svg);
@@ -12938,7 +13030,11 @@ export class Visual implements IVisual {
         if (panels.bridge && bridgeScale && cascade) {
             // the anchors stand on zero now — give them the AC baseline to stand on
             this.drawBaseline(bg, panels.bridge, bridgeScale, orientation, bandStart, bandEnd, "ac", cfg.colors);
-            const bridgeTitle = `${cfg.basisLabel} → AC` + (cfg.sortByImpact ? " ⇅" : "");
+            const bridgeTitle = `${cfg.basisLabel} → AC` + (cfg.sortByImpact ? " ⇅" : "")
+                + (bridgeZoom !== 1 ? ` ${this.zoomText(bridgeZoom)}` : "");
+            if (bridgeZoom !== 1) {
+                this.el("g", { "data-icd": "scale-zoom-bridge", "data-factor": bridgeZoom }, bg);
+            }
             this.drawPanelTitle(bg, panels.bridge, bridgeTitle, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
 
@@ -13490,7 +13586,7 @@ export class Visual implements IVisual {
     private drawSortButton(width: number, cfg: ChartConfig): void {
         const cx = width - 14, cy = 14;
         const btn = this.el("g", {
-            "class": "icd-sortbtn", tabindex: "0", role: "button"
+            "class": "icd-sortbtn", tabindex: "0", role: "button", "data-ck-ctl": "1"
         }, this.svg) as SVGGElement;
         const sortLabel = cfg.sortByImpact
             ? this.locStr("Btn_SortOff", "Remove impact sorting")
@@ -13547,7 +13643,7 @@ export class Visual implements IVisual {
             const r = bh / 2;
             const cx = xRight - r, cy = 6 + r;
             xRight -= bh + 6;
-            const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+            const btn = this.el("g", { tabindex: "0", role: "button", "data-ck-ctl": "1" }, this.svg) as SVGGElement;
             btn.setAttribute("aria-label", label);
             const tip = this.el("title", {}, btn);
             tip.textContent = label;
@@ -13583,7 +13679,7 @@ export class Visual implements IVisual {
             const segW = Math.round(34 * k);
             const x0 = xRight - segW * 2;
             const seg = (x: number, text: string, active: boolean, label: string, onClick: () => void) => {
-                const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+                const btn = this.el("g", { tabindex: "0", role: "button", "data-ck-ctl": "1" }, this.svg) as SVGGElement;
                 btn.setAttribute("aria-label", label);
                 const tip = this.el("title", {}, btn);
                 tip.textContent = label;
@@ -14526,6 +14622,97 @@ export class Visual implements IVisual {
             panels: out as { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect },
             zoom: split.factor
         };
+    }
+
+    /**
+     * 1.52: factor f for a panel that shows the base unit at f·kBase px per unit.
+     * 1 when the values fit into kFit (the panel's own maximum px per unit); a round
+     * reduction when they do not; a round zoom ≥ 2 when the biggest value would stay
+     * below minPx at the base scale (and the zoom still fits). Callers show f ≠ 1.
+     */
+    private sameScaleFactor(kBase: number, kFit: number, maxVal: number, minPx: number): number {
+        if (!(kBase > 0) || !(kFit > 0) || !(maxVal > 0)) { return 1; }
+        if (kBase > kFit * 1.0001) {
+            return REDUCE_FACTORS.find(f => kBase * f <= kFit) ?? kFit / kBase;
+        }
+        let f = 1;
+        if (maxVal * kBase < minPx) {
+            for (const z of ZOOM_FACTORS) {
+                if (kBase * z > kFit) { break; }
+                f = z;
+                if (maxVal * kBase * z >= minPx) { break; }
+            }
+        }
+        return f;
+    }
+
+    /** "×4", "×0,1" — the zoom factor in the report locale */
+    private zoomText(f: number): string {
+        return `×${new Intl.NumberFormat(this.host.locale, { maximumFractionDigits: 4 }).format(f)}`;
+    }
+
+    /**
+     * 1.52: draws `draw` into a detached SVG and returns the base px per unit it
+     * reported (lastScaleK) — the small-multiples zoom compares its scale with the
+     * overview tile this way. Side effects on the interaction lists are undone.
+     */
+    private measureScaleK(draw: () => void): number | null {
+        const keep = this.svg;
+        const nCat = this.catGroups.length, nAnim = this.animGroups.length;
+        const anchors = new Map(this.compareAnchors);
+        this.svg = document.createElementNS(SVG_NS, "svg") as SVGSVGElement;
+        this.lastScaleK = null;
+        try { draw(); } finally {
+            this.svg = keep;
+            this.catGroups.length = nCat;
+            this.animGroups.length = nAnim;
+            this.compareAnchors = anchors;
+        }
+        const k = this.lastScaleK;
+        this.lastScaleK = null;
+        return k;
+    }
+
+    /**
+     * 1.52 chart.chipMenu: folds the in-chart controls ([data-ck-ctl]) behind a
+     * small ☰ chip at the top right; a click unfolds them (session state, nothing
+     * persists). Off (default) = controls always visible as before.
+     */
+    private applyChipMenu(): void {
+        const cfg = this.ctlCfg;
+        if (!cfg || this.ctlInset <= 0 || !this.allowInteractions) { return; }
+        const ctls = Array.from(this.svg.querySelectorAll("[data-ck-ctl]")) as SVGElement[];
+        if (ctls.length === 0) { return; }
+        for (const c of ctls) { c.style.display = this.ctlOpen ? "" : "none"; }
+        const k = this.fontK;
+        const bh = Math.round(18 * k), font = Math.round(11 * k);
+        const x = this.ctlRight + 6, y = 6;
+        const g = this.el("g", { tabindex: "0", role: "button", "data-icd": "chip-menu",
+            "data-open": this.ctlOpen ? "1" : "0" }, this.svg) as SVGGElement;
+        const label = this.ctlOpen
+            ? this.locStr("Chip_MenuClose", "Hide chart controls")
+            : this.locStr("Chip_MenuOpen", "Show chart controls");
+        g.setAttribute("aria-label", label);
+        g.setAttribute("aria-expanded", this.ctlOpen ? "true" : "false");
+        const tip = this.el("title", {}, g);
+        tip.textContent = label;
+        this.el("rect", {
+            x, y, width: bh, height: bh, rx: Math.round(4 * k),
+            fill: this.ctlOpen ? cfg.colors.ac : cfg.paper,
+            stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
+        }, g);
+        const t = this.el("text", {
+            x: x + bh / 2, y: y + bh / 2 + font * 0.36, "text-anchor": "middle", "font-size": font,
+            fill: this.ctlOpen ? cfg.paper : cfg.ink, "font-family": FONT
+        }, g);
+        t.textContent = this.ctlOpen ? "✕" : "☰";
+        g.style.cursor = "pointer";
+        const toggle = () => { this.ctlOpen = !this.ctlOpen; this.rerender(); };
+        g.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); toggle(); });
+        g.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key !== "Enter" && e.key !== " ") { return; }
+            e.preventDefault(); e.stopPropagation(); toggle();
+        });
     }
 
     /** pixel overhead (label room, end padding) and padded value span of a panel —
@@ -15513,7 +15700,7 @@ export class Visual implements IVisual {
         // echte Textbreite statt Zeichen×Faktor — lange lokalisierte Labels
         // (ja-JP!) liefen sonst aus der Pille (UX-10 teilweise)
         const w = Math.round(this.textWidth(text, font)) + Math.round(16 * k);
-        const g = this.el("g", { role: "button", tabindex: "0" }, this.svg) as SVGGElement;
+        const g = this.el("g", { role: "button", "data-ck-ctl": "1", tabindex: "0" }, this.svg) as SVGGElement;
         this.el("rect", {
             x: xRight - w, y: 6, width: w, height: bh, rx: bh / 2,
             fill: cfg.hc ? cfg.paper : cfg.colors.ac,
@@ -15593,7 +15780,7 @@ export class Visual implements IVisual {
         const x = xRight - segW;
         const tipText = this.locStr("ChipTip_Exception",
             "Exceptions only: shows just the categories above the materiality threshold, everything else as one collected row. The Σ total stays unchanged.");
-        const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+        const btn = this.el("g", { tabindex: "0", role: "button", "data-ck-ctl": "1" }, this.svg) as SVGGElement;
         btn.setAttribute("aria-label", tipText);
         const tip = this.el("title", {}, btn);
         tip.textContent = tipText;
@@ -15669,7 +15856,7 @@ export class Visual implements IVisual {
                     : this.locStr("ChipTip_WfBreakOff",
                         "Break the axis from {0} — anchors are shortened with ⫽, the variances become readable")
         ).replace("{0}", atTxt);
-        const btn = this.el("g", { tabindex: disabled ? "-1" : "0", role: "button" }, this.svg) as SVGGElement;
+        const btn = this.el("g", { tabindex: disabled ? "-1" : "0", role: "button", "data-ck-ctl": "1" }, this.svg) as SVGGElement;
         btn.setAttribute("aria-label", tipText);
         if (disabled) { btn.setAttribute("aria-disabled", "true"); }
         btn.setAttribute("aria-pressed", on ? "true" : "false");
@@ -15718,7 +15905,7 @@ export class Visual implements IVisual {
         const bh = Math.round(18 * k), font = Math.round(11 * k);
         const segW = Math.round(38 * k);
         const x = xRight - segW;
-        const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+        const btn = this.el("g", { tabindex: "0", role: "button", "data-ck-ctl": "1" }, this.svg) as SVGGElement;
         btn.setAttribute("aria-label", cfg.cumulative
             ? this.locStr("Btn_CumOff", "Turn cumulative view (YTD) off") : this.locStr("Btn_CumOn", "Turn cumulative view (YTD) on"));
         const cumTip = this.el("title", {}, btn);

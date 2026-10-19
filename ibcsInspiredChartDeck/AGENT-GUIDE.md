@@ -19,7 +19,14 @@ runden Faktor vergrößert und ausgewiesen (Titel „ΔPY ×4“, Skalenband,
 (sonst „Monatssäulen ×f“), alle Breiten 2/3. C12: Basis-Anker nach Basis gefüllt.
 Slots für absolute Werte 2/3 statt 0,62. Δ-Zahlen höchstens 3 Ziffern, keine
 signierte Null, echtes Minus. Scatter: Bruchzeichen `axis-break-x|y`, wenn eine
-Achse die Null nicht enthält. Geometrie-Test: `npm run test:scale`.
+Achse die Null nicht enthält. Tabelle (Δ-Balken), GuV-Statement (Δ-Spalte) und das
+Brücken-Panel (`waterfallStyle`) laufen ebenfalls im Basismaßstab, ein Faktor ≠ 1
+steht im Spaltenkopf bzw. Titel (`scale-zoom-table`, `scale-zoom-pnl`,
+`scale-zoom-bridge`); der ⤢-Zoom einer Kachel nennt seine Skala gegenüber der
+Übersicht (`zoom-scale`). C05: PY-Dreieck nur bei AC + PY + PL. Neue Property
+`chart.chipMenu` (bool, Standard false): In-Chart-Bedienelemente
+(`[data-ck-ctl]`) hinter ☰ (`data-icd="chip-menu"`, Sitzungszustand). 686
+resjson-Keys je Sprache. Geometrie-Test: `npm run test:scale`.
 
 ## Steckbrief
 
@@ -282,6 +289,7 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 | `chartButtons` | bool | In-Chart-Buttons (ΔPY\|ΔPL, ⇅, ▶) |
 | `driverNote` | bool | Treiber-Notiz Kategorie-Brücke |
 | `compareClick` | bool | 2-Klick-Differenzvergleich |
+| `chipMenu` | bool | In-Chart-Bedienelemente hinter ☰ einklappen (ab 1.52, Standard false) |
 | `invert` / `invertList` | bool / text | Kosten-Logik global / je Kategorie |
 
 ### Objekt `colors`
