@@ -1,5 +1,15 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.51.2.0 (2026-10-19)
+
+**KPI-Karten: gleiche Skala für alle Mini-Brücken.**
+
+- **Neu: „Karten: gleiche Skala“** (Chart → KPI-Karten, Property `cardSameScale`, Standard aus): Alle Mini-Brücken
+  Basis → Δ → AC teilen einen Maßstab über alle Karten, gleiche Beträge ergeben gleich hohe Balken (IBCS: identische
+  Skalen). Gedacht für Karten derselben Kennzahl je Kategorie (z. B. Umsatz je Kanal); bisher skalierte jede Karte für
+  sich, 15,4 Mio. und 3,0 Mio. waren gleich hoch. Bei Karten mit verschiedenen Einheiten aus lassen.
+- Sichtbar wie „Mini-Brücke zeigen“; vier Sprachen. Keine Änderung an bestehenden Berichten (Standard aus).
+
 ## 1.51.1.0 (2026-10-18)
 
 **Familien-Angleichung mit P&L: Hub-Leiste, Zurück-Pille und Leser-Karte nach einer gemeinsamen Spezifikation.**

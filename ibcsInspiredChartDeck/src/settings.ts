@@ -913,6 +913,15 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    cardSameScale = new formattingSettings.ToggleSwitch({
+        name: "cardSameScale",
+        displayName: "Same scale for all cards",
+        displayNameKey: "Cards_SameScale",
+        description: "Alle Mini-Brücken teilen einen Maßstab: gleiche Beträge ergeben gleich hohe Balken (IBCS: identische Skalen). Für Karten derselben Kennzahl je Kategorie (z. B. Umsatz je Kanal). Aus: jede Karte skaliert für sich, nötig bei Karten mit verschiedenen Einheiten.",
+        descriptionKey: "Desc_Cards_SameScale",
+        value: false
+    });
+
     cardTrendChart = new formattingSettings.ItemDropdown({
         name: "cardTrendChart",
         displayName: "Trend mini chart",
@@ -958,7 +967,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "KPI cards",
         displayNameKey: "Group_Cards",
         slices: [this.cardStatusBasis, this.cardHighlight, this.cardRefValues, this.cardSort,
-            this.cardBars, this.cardTrendChart, this.cardTrendValue, this.cardTint,
+            this.cardBars, this.cardSameScale, this.cardTrendChart, this.cardTrendValue, this.cardTint,
             this.cardTintStrength, this.cardBullet, this.cardBulletZoom]
     });
 

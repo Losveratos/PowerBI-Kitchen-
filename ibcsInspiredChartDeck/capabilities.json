@@ -314,6 +314,7 @@
                     }
                 },
                 "cardBars": { "type": { "bool": true } },
+                "cardSameScale": { "type": { "bool": true } },
                 "cardTrendChart": {
                     "type": {
                         "enumeration": [

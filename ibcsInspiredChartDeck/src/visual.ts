@@ -409,6 +409,8 @@ interface ChartConfig {
     cardHl: string;
     /** KPI cards: show the mini bridge (AC/PY bars) */
     cardBars: boolean;
+    /** all card mini bridges share one scale (identical scales across cards) */
+    cardSameScale: boolean;
     /** KPI cards: order ("none" | "deviation" — biggest color deviation first) */
     cardSort: string;
     /** KPI cards: reference values as own rows ("off" | "basis" | "all") */
@@ -1544,6 +1546,7 @@ export class Visual implements IVisual {
         fs.chartCard.cardTrendValue.visible = trendCards;
         fs.chartCard.cardBars.visible = !trendCards
             || String(fs.chartCard.cardTrendChart.value.value) === "off";
+        fs.chartCard.cardSameScale.visible = fs.chartCard.cardBars.visible;
         // Brücken-Ausrichtung wirkt nur auf die Kategorie-Brücke
         fs.chartCard.bridgeOrientation.visible = orient === "catbridge";
         // Scatter: eigene Gruppe nur im Scatter; Δ-Panels gibt es dort nicht (Status-
@@ -5469,6 +5472,7 @@ export class Visual implements IVisual {
             catBridgeVertical: isCatBridge
                 && String(s.chartCard.bridgeOrientation.value.value) === "columns",
             cardBars: s.chartCard.cardBars.value,
+            cardSameScale: s.chartCard.cardSameScale.value,
             // the in-chart chip override wins over the pane dropdown when set
             cardSort: this.cardSortSel !== "" ? this.cardSortSel
                 : String(s.chartCard.cardSort.value.value),
@@ -10313,6 +10317,15 @@ export class Visual implements IVisual {
         // direction is suppressed it renders in the neutral scenario grey
         const hlShow = (v: number, pp?: DataPoint | null) =>
             cfg.cardHl === "both" || (cfg.cardHl === "good" ? good(v, pp) : !good(v, pp));
+        // identical scales across cards (opt-in): one domain over every card's basis and value
+        let sharedLo = 0, sharedHi = 0;
+        if (cfg.cardSameScale) {
+            for (const q of pts) {
+                if (q.basis == null) { continue; }
+                sharedLo = Math.min(sharedLo, q.basis, q.value as number);
+                sharedHi = Math.max(sharedHi, q.basis, q.value as number);
+            }
+        }
 
         pts.forEach((p, i) => {
             const x = region.x + gap / 2 + (i % cols) * cw + 2;
@@ -10426,8 +10439,9 @@ export class Visual implements IVisual {
                 if (p.basis == null) { return; }
                 // signed scale: domain spans zero, negatives grow downward from the
                 // zero line instead of flipping upward via Math.abs
-                const lo0 = Math.min(0, p.basis, p.value as number);
-                const hi0 = Math.max(0, p.basis, p.value as number);
+                const shared = cfg.cardSameScale && sharedHi > sharedLo;
+                const lo0 = shared ? sharedLo : Math.min(0, p.basis, p.value as number);
+                const hi0 = shared ? sharedHi : Math.max(0, p.basis, p.value as number);
                 const sc = bridgeH / Math.max(hi0 - lo0, 1e-9);
                 const zeroY = byBottom + lo0 * sc;   // == byBottom when nothing is negative
                 const yOf = (v: number) => zeroY - v * sc;
