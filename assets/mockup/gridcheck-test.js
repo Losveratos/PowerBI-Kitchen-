@@ -12,9 +12,10 @@ function eq(actual, expected, msg) {
 const codes = r => r.findings.map(f => f.code);
 
 const chrome = { nav: { on: false }, header: { on: true, h: 56 }, footer: { on: true, h: 24 }, filter: { on: true, side: 'right', w: 200 } };
-const lat = PG.zones({ w: 1920, h: 1080 }, chrome, { lattice: { n: 12 } }).lattice;
-const kpis = [0, 3, 6, 9].map((a, i) => Object.assign({ id: 'k' + i }, PG.span(lat, a, a + 3, 0, 3)));
-const main = [Object.assign({ id: 'main' }, PG.span(lat, 0, 8, 3, 12)), Object.assign({ id: 'detail' }, PG.span(lat, 8, 12, 3, 12))];
+const lat = PG.zones({ w: 1920, h: 1080 }, chrome);
+const span = (a, b, c, d) => { const r = PG.place(lat, a, b, c, d); return { x: r[0], y: r[1], w: r[2], h: r[3] }; };
+const kpis = [0, 3, 6, 9].map((a, i) => Object.assign({ id: 'k' + i }, span(a, a + 3, 0, 3)));
+const main = [Object.assign({ id: 'main' }, span(0, 8, 3, 12)), Object.assign({ id: 'detail' }, span(8, 12, 3, 12))];
 const ok = kpis.concat(main);
 
 eq(GC.checkLattice(ok, lat), { ok: true, findings: [] }, 'Raster: alles auf Linien und bündig');
@@ -28,7 +29,7 @@ eq(res.findings[0].edges.map(e => [e.id, e.edge, e.delta]), [['k1', 'left', 2], 
 eq(codes(GC.check(null, { leaves: shifted.map(r => ({ rect: r })) }, lat.g)), ['GUTTER_MISMATCH'], 'check(): Zwischenraum ≠ g');
 
 // Freie Linie (1/5 der Breite) ist kein Befund
-const fifth = [Object.assign({ id: 'a' }, PG.place(lat, [0, 1], [1, 5], [0, 1], [1, 1])), Object.assign({ id: 'b' }, PG.place(lat, [1, 5], [1, 1], [0, 1], [1, 1]))];
+const fifth = [Object.assign({ id: 'a' }, PG.placeFrac(lat, [0, 1], [1, 5], [0, 1], [1, 1])), Object.assign({ id: 'b' }, PG.placeFrac(lat, [1, 5], [1, 1], [0, 1], [1, 1]))];
 eq(GC.checkLattice(fifth, lat).ok, true, 'Raster: 1/5 ist eine freie Linie');
 
 // Knapp nicht bündig (rechts 10 px Luft) und außerhalb des Inhalts

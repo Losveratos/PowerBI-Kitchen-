@@ -701,9 +701,10 @@ window.MK_VERSION = '0.6.2';
   // mit S.pixel = { mode: 'lattice', n: 12 } lösen sich die Ränder automatisch (KONZEPT-PIXELRASTER.md).
   const PG = window.MK_PIXELGRID;
   const latticeOn = () => !!(S.pixel && S.pixel.mode === 'lattice');
-  function zonesFull() { return PG.zones(S.canvas, S.chrome, { margin: S.spacing.margin, lattice: latticeOn() ? { n: S.pixel.n || 12, margin: S.pixel.margin == null ? 18 : S.pixel.margin, gutter: S.spacing.gutter } : null }); }
-  function zones() { const z = zonesFull(); delete z.area; delete z.lattice; return z; }
-  function lattice() { return latticeOn() ? zonesFull().lattice : null; }
+  function zonesFull() { return PG.zones(S.canvas, S.chrome, latticeOn() ? { n: S.pixel.n || 12, margin: S.pixel.margin == null ? 18 : S.pixel.margin, gutter: S.spacing.gutter } : { legacy: true, margin: S.spacing.margin }); }
+  // Nur die Zonen, in der Reihenfolge wie bis 0.6.2 (Export und specHash bleiben gleich); Rasterwerte über lattice()
+  function zones() { const z = zonesFull(), out = {}; ['nav', 'header', 'footer', 'filter', 'content'].forEach(k => { if (z[k]) out[k] = z[k]; }); return out; }
+  function lattice() { return latticeOn() ? zonesFull() : null; }
   // Rechtecke eines Layouts: im Rastermodus Brüche im Pitch-Raum (pixelgrid.layout), sonst wie bisher layoutRects()
   function rectsOf(layout, content, out) {
     const lat = lattice();
@@ -1275,7 +1276,7 @@ window.MK_VERSION = '0.6.2';
     $('#canvasPreset').value = S.canvas.preset; $('#customSize').hidden = S.canvas.preset !== 'custom'; $('#canvasW').value = S.canvas.w; $('#canvasH').value = S.canvas.h;
     $('#uiScaleInfo').textContent = t('hint.uiScaleInfo', { k: ui().toFixed(2) });
     $('#spMargin').value = S.spacing.margin; $('#spGutter').value = S.spacing.gutter; $('#spPad').value = S.spacing.pad; $('#defScenario').value = S.defScenario;
-    { const lat = lattice(); $('#spPixel').value = lat ? String(lat.n) : 'off'; $('#spMargin').disabled = !!lat; const inf = $('#spPixelInfo'); inf.hidden = !lat; if (lat) inf.textContent = t('hint.pixelInfo', { l: lat.margins.l, r: lat.margins.r, t: lat.margins.t, b: lat.margins.b, g: lat.g, px: lat.P.x / lat.n, col: lat.P.x / lat.n - lat.g, py: lat.P.y / lat.n }); }
+    { const lat = lattice(); $('#spPixel').value = lat ? String(lat.n) : 'off'; $('#spMargin').disabled = !!lat; const inf = $('#spPixelInfo'); inf.hidden = !lat; if (lat) inf.textContent = t('hint.pixelInfo', { l: lat.margins.l, r: lat.margins.r, t: lat.margins.t, b: lat.margins.b, g: lat.g, px: lat.pitch.x / lat.n, col: lat.pitch.x / lat.n - lat.g, py: lat.pitch.y / lat.n }); }
     $('#hdOn').checked = c.header.on; $('#hdH').value = c.header.h; $('#hdLogoPos').value = c.header.logoPos || 'left'; $('#hdTitle').value = c.header.title; $('#hdSub').value = c.header.sub; $('#hdNavPos').value = navPosOf(c); $('#hdNavAuto').checked = !!c.header.navAuto; $('#hdNav').value = (c.header.nav || []).join(', '); $('#hdNav').disabled = !!c.header.navAuto;
     $('#nvOn').checked = c.nav.on; $('#nvW').value = c.nav.w;
     $('#ftOn').checked = c.filter.on; $('#ftSide').value = c.filter.side; const fh0 = c.filter.heading || {}; $('#ftHeadShow').value = fh0.show || 'auto'; $('#ftHeadText').value = fh0.text || ''; $('#ftText').value = c.filter.text || ''; const ty0 = typo(); $('#tyScale').value = String(ty0.scale); $('#tyTitle').value = ty0.title; $('#tySub').value = ty0.sub; $('#tyChart').value = ty0.chart; $('#ftW').value = c.filter.side === 'top' ? (c.filter.topH || 56) : c.filter.w; $('#ftWHint').textContent = c.filter.side === 'top' ? t('hint.height') : t('hint.width'); $('#ftW').disabled = c.filter.side === 'burger';

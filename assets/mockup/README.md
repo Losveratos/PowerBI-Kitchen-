@@ -5,12 +5,18 @@ Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau i
 
 ## Pixelraster als gemeinsames Modul (20.10.2026)
 
-- **`pixelgrid.js`** setzt Stufe 1 aus `KONZEPT-PIXELRASTER.md` als reines Rechenmodul um: `zones()`, `solveMargins()`,
-  `lattice()`, `line()` (Ganzzahl-Brüche, BigInt), `place()`, `span()`, `layout()` (Baum und Grid im Pitch-Raum),
-  `lines()`, `pixelBlock()`. Ohne Rastermodus liefert `zones()` byte-gleich die Zonen von 0.6.2 (Test über 384 Fälle).
+- **`pixelgrid.js`** setzt Stufe 1 aus `KONZEPT-PIXELRASTER.md` als reines Rechenmodul um: `zones()` (Raster als
+  Standard, `{legacy: true}` = fester Rand wie 0.6.2, byte-gleich, Test über 384 Fälle), `solveMargins()`, `line()`
+  (Ganzzahl-Brüche, BigInt), `place()` und `placeFrac()`, `layout()` (Baum und Grid im Pitch-Raum), `cellOf()` und
+  `transfer()` (Seite pixelgenau in eine andere Auflösung), `slicerStack()`, `inside()`, `lines()`, `pixelBlock()`,
+  Chrome-Vorlagen `MOCKUP_CHROME` und `DWG_CHROME`. Typen in `pixelgrid.d.ts`. Die API folgt der ersten dwg-Fassung
+  (`dwg/layout/pixelgrid.mjs` der Showcase-Runde), damit deren Aufrufer und Tests unverändert bleiben.
 - **Eine Quelle für zwei Werkzeuge:** MockupKitchen lädt die Datei per `<script>` vor `gridcheck.js` und `app.js`
-  (`window.MK_PIXELGRID`), die dwg cli (Repo Fabric-Apps-Demo) holt sie mit `dwg mockup build` samt `gridcheck.js`,
-  `a11y.js` und dem Konverter des Skills `mockup-to-powerbi`. Änderungen also nur hier, danach in dwg neu holen.
+  (`window.MK_PIXELGRID`). Die dwg cli (Repo Fabric-Apps-Demo) erzeugt daraus mit `dwg mockup build` ihr ES-Modul
+  `dwg/layout/pixelgrid.mjs` (Inhalt unverändert plus Export-Zeilen) und holt `gridcheck.js`, `a11y.js` und den
+  Konverter des Skills `mockup-to-powerbi` nach `dwg/mockup/vendor/`. Warum hier: MockupKitchen ist ein Browser-Tool
+  ohne Build und kann nichts aus dem dwg-Repo laden; dwg hat schon den Weg „aus dem Kitchen-Repo bauen“ (`dwg visuals
+  build`) und prüft per Manifest, dass niemand die geholten Dateien von Hand ändert. Änderungen also nur hier.
 - **Rastermodus im Tool:** Design > Abstände > „Pixelraster“ (aus · 12er-Raster). Mit Raster lösen sich die Ränder
   (Basis 18), die Lesezeile zeigt Rand, Zwischenraum, Spalten- und Zeilenschritt; die Rand-Eingabe ruht. Zustand
   `S.pixel = {mode: 'lattice', n: 12}`, Export `canvas.pixel` und `visuals[].cell` (Brüche), beides ohne Einfluss auf

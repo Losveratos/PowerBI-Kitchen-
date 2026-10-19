@@ -181,7 +181,7 @@
   }
 
   // ---- Rastermodus (pixelgrid.js) ------------------------------------------------
-  // Prüft fertige Rechtecke gegen ein Raster lat = MK_PIXELGRID.lattice(...): liegt jede Kante auf einer Linie j/n bzw.
+  // Prüft fertige Rechtecke gegen ein Raster lat = MK_PIXELGRID.zones(...) (Rastermodus): liegt jede Kante auf einer Linie j/n bzw.
   // j/2n (linke/obere Kante auf L, rechte/untere auf L - g)? Gemeldet werden nur knappe Fehltreffer (1..TOL px), weit
   // entfernte Kanten sind freie Linien (1/5 ist erlaubt). Dazu: Kachel außerhalb des Inhaltsbereichs, Außenkante knapp
   // nicht bündig mit dem Inhaltsrand. rects: [{x, y, w, h, id?}]. Liefert { ok, findings } wie check().
