@@ -242,6 +242,7 @@ export class GanttRenderer {
     private hasPlan = false;                // mindestens ein Task mit Basisplan-Daten
     private sbDrag: { y0: number; sy0: number } | null = null;   // aktiver Scrollbalken-Drag
     private sbGeom: { trackH: number; thumbH: number } | null = null;
+    private tblDown: { x: number; y: number; id: string } | null = null;   // Mousedown in der Tabelle
     private twDrag: { x0: number; w0: number } | null = null;    // aktiver Tabellen-Trenner-Drag
     private twOverride: number | null = null;                    // per Drag gesetzte Tabellenbreite
     private lastOptTW: number | null = null;                     // letzter Options-Wert (Override-Reset)
@@ -357,13 +358,30 @@ export class GanttRenderer {
         this.rowsViewport.addEventListener('mouseleave', () => { this.setState({ hover: null }); });
         // Klicks laufen über den stabilen Viewport und werden per Koordinate zur
         // Zeile aufgelöst — NICHT über per-Zeilen-Listener: Hover/Tooltip lösen
-        // Re-Renders aus, die die Zeilen-Knoten ersetzen. Wird ein Knoten zwischen
-        // Mousedown und Mouseup erneuert, feuert sein click-Event nie ("verschluckte"
-        // Klicks — das machte das Auf-/Zuklappen unzuverlässig).
-        this.rowsViewport.addEventListener('click', (ev) => {
-            if (!this.opts) return;
+        // Re-Renders aus, die die Zeilen-Knoten ersetzen.
+        //
+        // Und bewusst über mousedown+mouseup statt über 'click': wird der Knoten
+        // unter dem Zeiger zwischen Drücken und Loslassen ersetzt, stellt der
+        // Browser gar kein click-Event zu — auch nicht an einen Vorfahren. Ein
+        // Listener auf dem stabilen Viewport hilft dagegen NICHT. Genau das machte
+        // das Auf-/Zuklappen unbrauchbar: ein menschlicher Klick dauert länger als
+        // ein Frame, ein synthetischer (Test) nicht — deshalb fiel es lange nicht
+        // auf. mouseup wird dagegen immer an das Element unter dem Zeiger
+        // zugestellt und blubbert hoch.
+        this.rowsViewport.addEventListener('mousedown', (ev) => {
+            if (ev.button !== 0) return;
             const it = this.tableItemAtY(ev.clientY);
-            if (!it) { this.opts.onClear(); return; }
+            this.tblDown = { x: ev.clientX, y: ev.clientY, id: it ? it.id : '' };
+        });
+        this.rowsViewport.addEventListener('mouseup', (ev) => {
+            const d = this.tblDown;
+            this.tblDown = null;
+            if (!d || ev.button !== 0 || !this.opts) return;
+            // gleiche Toleranz wie im Chart: Touchpad-Klicks verrutschen leicht
+            if (Math.abs(ev.clientX - d.x) > 8 || Math.abs(ev.clientY - d.y) > 8) return;
+            const it = this.tableItemAtY(ev.clientY);
+            if (!it) { if (d.id === '') this.opts.onClear(); return; }
+            if (it.id !== d.id) return;
             if (it.kind === 'phase' || it.kind === 'proj') this.togglePhase(it.phaseKey as string);
             else if (it.task) {
                 this.opts.onSelect(it.task, ev);
@@ -433,13 +451,19 @@ export class GanttRenderer {
     // ---------- Zustands-Helfer ----------
 
     private setState(patch: Partial<{ pxd: number; view: number; mode: string; hover: string | null; tip: { id: string; x: number; y: number } | null; sy: number }>): void {
-        if (patch.pxd !== undefined) this.pxd = patch.pxd;
-        if (patch.view !== undefined) this.view = patch.view;
-        if (patch.mode !== undefined) this.mode = patch.mode;
-        if (patch.hover !== undefined) this.hover = patch.hover;
-        if (patch.tip !== undefined) this.tip = patch.tip;
-        if (patch.sy !== undefined) this.sy = patch.sy;
-        this.invalidate();
+        let geaendert = false;
+        if (patch.pxd !== undefined && patch.pxd !== this.pxd) { this.pxd = patch.pxd; geaendert = true; }
+        if (patch.view !== undefined && patch.view !== this.view) { this.view = patch.view; geaendert = true; }
+        if (patch.mode !== undefined && patch.mode !== this.mode) { this.mode = patch.mode; geaendert = true; }
+        if (patch.hover !== undefined && patch.hover !== this.hover) { this.hover = patch.hover; geaendert = true; }
+        if (patch.sy !== undefined && patch.sy !== this.sy) { this.sy = patch.sy; geaendert = true; }
+        if (patch.tip !== undefined) {
+            const a = this.tip, b = patch.tip;
+            const gleich = (a === null && b === null)
+                || (a !== null && b !== null && a.id === b.id && a.x === b.x && a.y === b.y);
+            if (!gleich) { this.tip = patch.tip; geaendert = true; }
+        }
+        if (geaendert) this.invalidate();
     }
 
     private invalidate(): void {
@@ -591,6 +615,7 @@ export class GanttRenderer {
             this.invalidate();
             return;
         }
+        this.tblDown = null;
         if (this.sbDrag) { this.sbDrag = null; this.invalidate(); return; }
         const pan = this.pan;
         this.pan = null;

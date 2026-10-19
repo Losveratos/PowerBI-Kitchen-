@@ -76,8 +76,15 @@ Zeilen rendern damit in ~140 ms statt ~8 s.
   selektieren dort bewusst **nicht**: bei ~48 Meilensteinen je Projekt wäre die
   Zeile sonst größtenteils tot. Zum Selektieren eines Meilensteins die Gruppe
   aufklappen und seine eigene Zeile anklicken.
-  Klicks werden koordinatenbasiert über stabile Container aufgelöst, damit
-  Hover-Re-Renders keine Klicks mehr „verschlucken". Die Umrechnung
+  Klicks laufen über **mousedown + mouseup** auf dem stabilen Viewport, nicht
+  über `click`: wird der Knoten unter dem Zeiger zwischen Drücken und Loslassen
+  ersetzt, stellt der Browser gar kein `click` zu — auch nicht an einen
+  Vorfahren. Ein menschlicher Klick dauert länger als ein Frame, ein
+  synthetischer nicht; deshalb fiel das in Tests lange nicht auf.
+  `setState()` zeichnet zudem nur noch neu, wenn sich wirklich etwas ändert —
+  vorher löste jedes `mouseenter` ein Neuzeichnen aus, das die Zeilen ersetzte,
+  worauf der neue Knoten unter dem Zeiger sofort wieder `mouseenter` feuerte
+  (gemessene Dauerschleife: 110 Renders in 2 s bei stillstehender Maus). Die Umrechnung
   berücksichtigt eine **CSS-Skalierung des Visuals** (Power BI: „Anpassen an
   Seite", Fokusmodus, Browser-Zoom, mobile Layouts) — ohne das trifft ein
   Klick die falsche Zeile, und zwar umso weiter daneben, je tiefer sie liegt.
