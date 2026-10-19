@@ -77,7 +77,11 @@ Zeilen rendern damit in ~140 ms statt ~8 s.
   Zeile sonst größtenteils tot. Zum Selektieren eines Meilensteins die Gruppe
   aufklappen und seine eigene Zeile anklicken.
   Klicks werden koordinatenbasiert über stabile Container aufgelöst, damit
-  Hover-Re-Renders keine Klicks mehr „verschlucken"
+  Hover-Re-Renders keine Klicks mehr „verschlucken". Die Umrechnung
+  berücksichtigt eine **CSS-Skalierung des Visuals** (Power BI: „Anpassen an
+  Seite", Fokusmodus, Browser-Zoom, mobile Layouts) — ohne das trifft ein
+  Klick die falsche Zeile, und zwar umso weiter daneben, je tiefer sie liegt.
+  Dasselbe gilt für Pannen, Scrollbalken, Zoom-Anker und Tooltip-Position
 - Task anklicken = Crossfilter-Selektion (Strg = Mehrfachauswahl), Rechtsklick = Kontextmenü
 - **Bewusst entfernt gegenüber dem HTML-Sample:** Balken per Drag verschieben/verlängern —
   Power BI bindet Start/Ende aus dem Datenmodell (gleiche Entscheidung wie beim

@@ -208,7 +208,8 @@ export class GanttRenderer {
             if (!g || g.trackH <= g.thumbH)
                 return;
             const r = this.vTrack.getBoundingClientRect();
-            const frac = Math.max(0, Math.min(1, (e.clientY - r.top - g.thumbH / 2) / (g.trackH - g.thumbH)));
+            const sk = this.skala(this.vTrack);
+            const frac = Math.max(0, Math.min(1, ((e.clientY - r.top) / sk - g.thumbH / 2) / (g.trackH - g.thumbH)));
             this.sbDrag = { y0: e.clientY, sy0: frac * this.maxSy };
             this.setState({ sy: frac * this.maxSy });
         });
@@ -240,7 +241,7 @@ export class GanttRenderer {
                     this.tip = null;
                 }
                 else {
-                    const r = this.chartArea.getBoundingClientRect();
+                    const r = { width: this.chartArea.clientWidth, height: this.chartArea.clientHeight };
                     const bx = (it.s - this.view) / DAY * this.pxd + 14;
                     const by = this.m.axisH + this.lastItems.indexOf(it) * this.m.rowH - this.sy + Math.round(this.m.rowH * 0.7);
                     this.tip = {
@@ -346,7 +347,7 @@ export class GanttRenderer {
         e.preventDefault();
         if (e.ctrlKey || e.metaKey) {
             const r = this.chartArea.getBoundingClientRect();
-            const mx = e.clientX - r.left;
+            const mx = (e.clientX - r.left) / this.skala(this.chartArea);
             const f = Math.exp(-e.deltaY * 0.0022);
             const np = Math.min(60, Math.max(0.25, this.pxd * f));
             const tms = this.view + mx / this.pxd * DAY;
@@ -378,10 +379,10 @@ export class GanttRenderer {
     // Zeile aus einer Bildschirm-Y-Koordinate ableiten (render-fest: braucht
     // keine lebenden DOM-Knoten, nur die Item-Liste des letzten Renders)
     tableItemAtY(clientY) {
-        return this.itemAt(this.rowsViewport.getBoundingClientRect(), clientY);
+        return this.itemAt(this.rowsViewport, clientY);
     }
     chartItemAtY(clientY) {
-        return this.itemAt(this.bodyClip.getBoundingClientRect(), clientY);
+        return this.itemAt(this.bodyClip, clientY);
     }
     // Nur die Zeilen im Sichtfenster (plus Puffer) bekommen DOM-Knoten. Ohne das
     // entstehen bei 30.000 Zeilen ~460.000 Knoten und der erste Frame dauert
@@ -394,10 +395,30 @@ export class GanttRenderer {
         const b = Math.min(len, Math.ceil((sy + Math.max(0, viewH)) / rh) + puffer);
         return [a, b];
     }
-    itemAt(r, clientY) {
+    // Power BI skaliert das Visual per CSS-Transform (Anpassen an Seite,
+    // Fokusmodus, Browser-Zoom, mobile Layouts). getBoundingClientRect und
+    // alle client-Koordinaten sind dann SKALIERTE Pixel, Zeilenhöhe, pxd und
+    // sy dagegen unskaliert. Ohne Korrektur trifft ein Klick die falsche Zeile
+    // — und zwar umso weiter daneben, je tiefer sie liegt — und Pannen,
+    // Scrollbalken, Zoom und Tooltip laufen um denselben Faktor daneben.
+    skala(host) {
+        const h = host.offsetHeight, w = host.offsetWidth;
+        const r = host.getBoundingClientRect();
+        if (h > 0 && r.height > 0)
+            return r.height / h;
+        if (w > 0 && r.width > 0)
+            return r.width / w;
+        return 1;
+    }
+    // Skalierung des gesamten Visuals (für Deltas, die zu keinem Host gehören)
+    skalaRoot() {
+        return this.skala(this.root);
+    }
+    itemAt(host, clientY) {
+        const r = host.getBoundingClientRect();
         if (clientY < r.top || clientY > r.bottom)
             return null;
-        const idx = Math.floor((clientY - r.top + this.sy) / this.m.rowH);
+        const idx = Math.floor(((clientY - r.top) / this.skala(host) + this.sy) / this.m.rowH);
         return idx >= 0 && idx < this.lastItems.length ? this.lastItems[idx] : null;
     }
     togglePhase(k) {
@@ -425,7 +446,7 @@ export class GanttRenderer {
         // Tabellen-Trenner-Drag: Breite live anpassen
         if (this.twDrag) {
             const availW = this.panel.clientWidth || this.container.clientWidth;
-            const w = Math.max(0, Math.min(Math.round(availW * 0.7), this.twDrag.w0 + (e.clientX - this.twDrag.x0)));
+            const w = Math.max(0, Math.min(Math.round(availW * 0.7), this.twDrag.w0 + (e.clientX - this.twDrag.x0) / this.skalaRoot()));
             this.twOverride = w;
             this.invalidate();
             return;
@@ -434,7 +455,7 @@ export class GanttRenderer {
         if (this.sbDrag) {
             const g = this.sbGeom;
             if (g && g.trackH > g.thumbH) {
-                const dy = e.clientY - this.sbDrag.y0;
+                const dy = (e.clientY - this.sbDrag.y0) / this.skalaRoot();
                 const sy = Math.max(0, Math.min(this.maxSy, this.sbDrag.sy0 + dy * this.maxSy / (g.trackH - g.thumbH)));
                 this.setState({ sy });
             }
@@ -448,7 +469,7 @@ export class GanttRenderer {
         if (!this.pan.moved && Math.abs(e.clientX - this.pan.x0) < 8 && Math.abs(e.clientY - this.pan.y0) < 8)
             return;
         this.pan.moved = true;
-        this.setState({ view: this.pan.v0 - (e.clientX - this.pan.x0) / this.pxd * DAY });
+        this.setState({ view: this.pan.v0 - (e.clientX - this.pan.x0) / this.skalaRoot() / this.pxd * DAY });
     };
     onWinUp = (e) => {
         if (this.twDrag) {
@@ -487,7 +508,8 @@ export class GanttRenderer {
     };
     tipAt(item, e) {
         const r = this.chartArea.getBoundingClientRect();
-        let x = e.clientX - r.left + 16, y = e.clientY - r.top + 16;
+        const sk = this.skala(this.chartArea);
+        let x = (e.clientX - r.left) / sk + 16, y = (e.clientY - r.top) / sk + 16;
         x = Math.max(4, Math.min(x, r.width - 240));
         y = Math.max(4, Math.min(y, r.height - 190));
         this.setState({ tip: { id: item.id, x, y }, hover: item.id });
