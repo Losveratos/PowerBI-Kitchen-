@@ -56,15 +56,18 @@
     [["Group result"], "grp", 75, "formula", "[Result after tax]+[Profit to other investors]"],
   ];
 
-  function statement(set) {
+  // opt.outlier (1.5): Consulting and Purchases each +60 in AC — two outlier Δ
+  // that cancel out in the operating result (m33: outlier zone of the Δ bars)
+  function statement(set, opt) {
     const src = ST[set || "T03"];
     const rows = [];
+    const bump = opt && opt.outlier ? { con: 60, pur: 60 } : {};
     ACC.forEach(([levels, account, sort, sign, di], i) => {
       if (src.labels && src.labels[account]) { levels = [...levels.slice(0, -1), src.labels[account]]; }
       rows.push({
         levels, account, sort, rowType: "account", formulaDef: null, sign, displayInvert: di,
         varianceInvert: false, month: null, comment: null,
-        values: { ac: src.ac[i], py: src.py[i], pl: src.pl[i], fc: src.fc[i] },
+        values: { ac: src.ac[i] + (bump[account] || 0), py: src.py[i], pl: src.pl[i], fc: src.fc[i] },
       });
     });
     for (const [levels, account, sort, rowType, formulaDef] of FORMULAS) {
@@ -105,14 +108,19 @@
   /** month value: November = the sheet's month, the 10 months before share the rest of the YTD */
   const split = (nov, ytd, mi) => mi === 10 ? nov : Math.round((ytd - nov) / 10 * 1000) / 1000;
 
-  function regions() {
+  // opt.single (1.5): Czechia and Slovakia are regions without countries
+  // (Level 2 = Level 1, folded into one row) between Europe and Americas
+  const SINGLE = { "Czechia:Czechia": [40, 44, 46, 410, 430, 452], "Slovakia:Slovakia": [22, 21, 23, 230, 228, 241] };
+  function regions(opt) {
     const rows = [];
     let sort = 0;
-    for (const [g, leaves] of GROUPS) {
+    const groups = opt && opt.single
+      ? [GROUPS[0], ["Czechia", ["Czechia"]], ["Slovakia", ["Slovakia"]], ...GROUPS.slice(1)] : GROUPS;
+    for (const [g, leaves] of groups) {
       for (const leaf of leaves) {
         sort++;
         const k = g + ":" + leaf;
-        const b = BASE[k]; const f = FC[k];
+        const b = BASE[k] || SINGLE[k]; const f = FC[k] || [b[2], b[5]];
         MONTHS.forEach((m, mi) => rows.push({
           levels: ["World", g, leaf], account: k, sort, rowType: "account", formulaDef: null,
           sign: 1, displayInvert: false, varianceInvert: false, month: m, comment: null,

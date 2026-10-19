@@ -47,10 +47,11 @@ test("presets: T01–T04 only set toggles, 'off' switches the mega table off", (
     assert.equal(M.MEGA_PRESETS.T02E.dPyBar && M.MEGA_PRESETS.T02E.dPyPin && !M.MEGA_PRESETS.T02E.dPlBar, true);
     assert.deepEqual([M.MEGA_PRESETS.T02B.sort, M.MEGA_PRESETS.T02B.sortBlock], ["min", "ytd"]);
     assert.deepEqual([M.MEGA_PRESETS.T02C.sort, M.MEGA_PRESETS.T02C.sortBlock], ["delta", "period"]);
-    // derived Δ% decimals (SPEC "Zahlenformat"): T01 1 · T03 0 · T02/T04A pins 1
+    // Δ% decimals (1.5): ONE decimal in every template, values per template
     assert.deepEqual([M.MEGA_PRESETS.T01A.decimals, M.MEGA_PRESETS.T01A.pctDecimals], [0, 1]);
-    assert.deepEqual([M.MEGA_PRESETS.T03A.decimals, M.MEGA_PRESETS.T03A.pctDecimals], [1, 0]);
+    assert.deepEqual([M.MEGA_PRESETS.T03A.decimals, M.MEGA_PRESETS.T03A.pctDecimals], [1, 1]);
     assert.deepEqual([M.MEGA_PRESETS.T04A.decimals, M.MEGA_PRESETS.T04A.pctDecimals], [1, 1]);
+    for (const k of M.MEGA_PRESET_KEYS) { assert.equal(M.MEGA_PRESETS[k].pctDecimals, 1, k + " Δ% decimals"); }
 });
 
 test("columns from toggles: T03A one block, T01A two blocks with the label column in between", () => {
@@ -179,12 +180,13 @@ test("layout T02: Δ↓ sort per run keeps Other last, (↓) on the sorting bloc
     const L = M.layoutMega(regionInput({ t }));
     // ΔPL month: Germany −19 before Austria −31 (descending), Other (+47) stays last
     assert.deepEqual(L.rows.map(r => r.id), ["g", "a", "o", "eu"]);
-    const heads = L.cols.map(c => c.head);
+    // (the month block is drawn magnified at the table scale: its head carries the factor)
+    const heads = L.cols.map(c => c.head.replace(/ ×\d+$/, ""));
     assert.deepEqual(heads.filter(h => /↓/.test(h)), ["ΔPL(↓)"]);
-    assert.equal(L.cols.find(c => c.head === "ΔPL(↓)").block, 0);
+    assert.equal(L.cols.find(c => /^ΔPL\(↓\)/.test(c.head)).block, 0);
 });
 
-test("layout T02: one scale per block × family, shared by all its chart columns", () => {
+test("layout T02: one scale per unit over both blocks; the unreadable month block is magnified ×5 and says so", () => {
     const t = Object.assign(toggles(M.MEGA_PRESETS.T02A), { d: { PY: { num: false, bar: true, pct: false, pin: true },
         PL: { num: false, bar: true, pct: false, pin: true } }, showPY: true });
     const L = M.layoutMega(regionInput({ t }));
@@ -192,8 +194,17 @@ test("layout T02: one scale per block × family, shared by all its chart columns
     assert.equal(bars0.length, 2);
     assert.equal(bars0[0].k, bars0[1].k, "ΔPY and ΔPL bars of the month share k");
     const bars1 = L.charts.filter(c => c.block === 1 && c.type === "bar");
-    assert.notEqual(bars0[0].k, bars1[0].k, "month and YTD have their own scale");
     assert.ok(L.famK["0:delta"] > 0 && L.famK["0:pct"] > 0 && L.famK["1:delta"] > 0);
+    // the YTD block draws at the table scale, the month block at a round multiple of it
+    assert.equal(bars1[0].k, L.unitK.amount);
+    const f = bars0[0].k / L.unitK.amount;
+    assert.ok([2, 5, 10, 20, 50].some(m => Math.abs(f - m) < 1e-9), String(f));
+    assert.ok(bars0.every(c => c.mag === Math.round(f) && c.head.endsWith(" ×" + Math.round(f))), bars0.map(c => c.head).join("|"));
+    assert.ok(bars1.every(c => !c.mag && !/×/.test(c.head)));
+    assert.deepEqual(L.mags.map(m => [m.block, m.family, m.factor]), [[0, "delta", Math.round(f)]]);
+    // pins: one scale over both blocks (Δ% of a month and of the year are alike)
+    const pins = L.charts.filter(c => c.type === "pin");
+    assert.ok(pins.every(c => c.k === L.unitK.pct), "one pin scale");
     // the axis sits where the data needs it: every element fits inside its column
     for (const c of L.charts) {
         for (const e of c.els) {
@@ -238,11 +249,11 @@ test("presets T04B–E / 12A: waterfall + pins, value cascades, decimals like th
     assert.deepEqual([P.T04D.min, P.T04D.dPlWf], ["FC", true]);
     assert.deepEqual([P.T04E.min, P.T04E.dPyWf], ["FC", true]);
     for (const k of ["T04B", "T04C", "T04D", "T04E"]) {
-        assert.deepEqual([P[k].decimals, P[k].pctDecimals, P[k].showPctRows], [2, 2, true], k);
+        assert.deepEqual([P[k].decimals, P[k].pctDecimals, P[k].showPctRows], [2, 1, true], k);
     }
     assert.deepEqual([P["12A"].valueCascade, P["12A"].showPY, P["12A"].showPL, P["12A"].showMin, P["12A"].dPyBar,
         P["12A"].dPyPin, P["12A"].showPctRows, P["12A"].decimals, P["12A"].pctDecimals],
-    [true, true, false, true, true, true, false, 0, 0]);
+    [true, true, false, true, true, true, false, 0, 1]);
     // nothing of phase 3 leaks into the phase-1/2 presets
     for (const k of ["off", "T01A", "T01B", "T02A", "T02B", "T02C", "T02E", "T02F", "T03A", "T03B", "T04A"]) {
         assert.deepEqual([P[k].valueCascade, P[k].dPyWf, P[k].dPlWf], [false, false, false], k);
@@ -450,7 +461,11 @@ test("value cascade 12A: one scale for all scenarios (family valueCascade), weig
     assert.equal(v.length, 2);
     assert.ok(L.famK["0:valueCascade"] > 0);
     assert.equal(v[0].k, v[1].k);
-    assert.notEqual(v[0].k, L.famK["0:delta"]);
+    // 1.5: Δ bars and value cascades are ONE unit — the bars draw at the cascade
+    // scale or at a round multiple of it, marked in the head
+    const dk = L.famK["0:delta"] / v[0].k;
+    const barC = L.charts.find(c => c.type === "bar");
+    assert.ok(dk === 1 ? !barC.mag : barC.mag === dk && barC.head.endsWith(" ×" + dk), `${dk} ${barC.head}`);
     // PY: Sales revenue anchor 905.46, Operating expenses spans down by 862.32
     const py = v.find(c => c.scen === "PY").casc;
     assert.equal(py.get("sales").type, "anchor");
@@ -460,7 +475,9 @@ test("value cascade 12A: one scale for all scenarios (family valueCascade), weig
     const bar = L.charts.find(c => c.type === "bar");
     assert.ok(Math.abs(v[0].w / bar.w - 1.5) < 0.02 || v[0].w === 13 * 28 || v[0].w === 13 * 7, `${v[0].w} / ${bar.w}`);
     assert.deepEqual([L.style.rowRules, L.style.continuousSumRules, L.style.headerRules], [false, true, false]);
-    assert.deepEqual(L.cols.map(c => c.head), ["", "PY", "AC", "ΔPY", "ΔPY%"]);
+    // T04 amounts: Δ around ±10 next to values around 900 — at the cascade scale
+    // the Δ bars would vanish, so they are magnified ×20 and say so
+    assert.deepEqual(L.cols.map(c => c.head), ["", "PY", "AC", "ΔPY ×20", "ΔPY%"]);
 });
 
 test("megaCascade: a folded total (no child row shown) is a plain step; structure grand total anchors", () => {
@@ -766,6 +783,128 @@ test("scale sync: fixedVarMax / fixedMax hold the family scale — equal k for d
     // off: byte-identical layout numbers
     const off = M.layoutMega(Object.assign({}, base, { fixedVarMax: undefined, fixedMax: undefined }));
     assert.deepEqual(off.famK, M.layoutMega(base).famK);
+});
+
+// ---- 1.5 · IBCS 2.0 / ISO 24896 scaling --------------------------------------
+/** px per unit of a drawn element: the bar / pin / cascade length over its amount */
+const pxPerUnit = (c, v) => Math.abs(v * c.k) / Math.abs(v);
+/** the region input with the month block's amounts multiplied by f (Δ% unchanged) */
+function monthScaled(f, over) {
+    const base = regionInput(over);
+    const b0 = base.blocks[0];
+    base.blocks[0] = Object.assign({}, b0, {
+        value: (r, s) => b0.value(r, s) * f,
+        delta: (r, min, ref) => { const D = b0.delta(r, min, ref); return D && { ...D, d: D.d * f, impact: D.impact * f }; },
+    });
+    return base;
+}
+
+test("niceFactor: round magnifications 1 · 2 · 5 · 10 · 20 · 50 …", () => {
+    assert.deepEqual([0.5, 1, 1.9, 2, 4.99, 5, 8.6, 9.99, 10, 19, 23, 51, 230].map(M.niceFactor),
+        [1, 1, 1, 2, 2, 5, 5, 5, 10, 10, 20, 50, 200]);
+});
+
+test("geometry: same amount, same length — Δ bars of the month and the YTD block share px per unit", () => {
+    // month amounts ×4: readable at the YTD scale → no magnification, ONE k
+    const L = M.layoutMega(monthScaled(4, { t: toggles(M.MEGA_PRESETS.T02A) }));
+    const b0 = L.charts.find(c => c.type === "bar" && c.block === 0);
+    const b1 = L.charts.find(c => c.type === "bar" && c.block === 1);
+    assert.equal(L.mags.length, 0, JSON.stringify(L.mags));
+    assert.equal(b0.k, b1.k);
+    assert.equal(b0.k, L.unitK.amount);
+    // a Δ of 100 is equally long in both blocks
+    assert.ok(Math.abs(pxPerUnit(b0, 100) - pxPerUnit(b1, 100)) < 1e-12);
+    // pins: one k over both blocks as well
+    const p0 = L.charts.find(c => c.type === "pin" && c.block === 0);
+    const p1 = L.charts.find(c => c.type === "pin" && c.block === 1);
+    assert.equal(p0.k, p1.k);
+    // every element still fits its column
+    for (const c of L.charts) {
+        for (const e of c.els) { assert.ok(c.x0 + e.p * c.k - e.a >= c.x - 0.5 && c.x0 + e.q * c.k + e.c <= c.x + c.w + 0.5, c.type + c.block); }
+    }
+});
+
+test("geometry: an unreadable block is magnified by a round factor, never silently rescaled", () => {
+    for (const f of [1, 0.5, 0.2]) {
+        const L = M.layoutMega(monthScaled(f, { t: toggles(M.MEGA_PRESETS.T02A) }));
+        const b0 = L.charts.find(c => c.type === "bar" && c.block === 0);
+        const b1 = L.charts.find(c => c.type === "bar" && c.block === 1);
+        const ratio = b0.k / b1.k;
+        // either the table scale exactly, or a round multiple named in the head
+        assert.ok(ratio === 1 && !b0.mag || [2, 5, 10, 20, 50, 100].includes(b0.mag) && Math.abs(ratio - b0.mag) < 1e-9
+            && b0.head.endsWith(" ×" + b0.mag), `f ${f}: ratio ${ratio}, head ${b0.head}`);
+        // the magnified month never leaves its column
+        for (const e of b0.els) { assert.ok(b0.x0 + e.q * b0.k + e.c <= b0.x + b0.w + 0.5); }
+        // the YTD block (the binding one) stays at the table scale
+        assert.equal(b1.k, L.unitK.amount);
+    }
+});
+
+test("geometry 12A: Δ bars on the scale of the value cascades unless magnified (ISO: Δ in the scale of the base)", () => {
+    const t12 = toggles(M.MEGA_PRESETS["12A"]);
+    // Δ blown up ×30: large enough to read at the cascade scale → exactly the cascade k
+    const base = statementInput({ t: t12, dec: 0, pdec: 0 });
+    const big = Object.assign({}, base, { blocks: [Object.assign({}, base.blocks[0], {
+        delta: (r, min, ref) => { const D = base.blocks[0].delta(r, min, ref); return D && { ...D, d: D.d * 30, impact: D.impact * 30 }; },
+    })] });
+    const L = M.layoutMega(big);
+    const vwf = L.charts.find(c => c.type === "vwf"); const bar = L.charts.find(c => c.type === "bar");
+    assert.equal(bar.k, vwf.k, "one px per kEUR for the cascades and the Δ");
+    assert.ok(!bar.mag && bar.head === "ΔPY", bar.head);
+    // the original T04 Δ (±10 next to 900) are magnified ×20 — the head says so, the factor is exact
+    const L2 = M.layoutMega(base);
+    const bar2 = L2.charts.find(c => c.type === "bar"); const v2 = L2.charts.find(c => c.type === "vwf");
+    assert.equal(bar2.mag, 20);
+    assert.ok(Math.abs(bar2.k / v2.k - 20) < 1e-9);
+    assert.deepEqual(L2.mags.map(m => [m.family, m.factor, m.heads.join()]), [["delta", 20, "ΔPY"]]);
+    // pins are another unit (%): untouched by the amount scale
+    assert.equal(L2.charts.find(c => c.type === "pin").k, L2.unitK.pct);
+});
+
+test("outlier cap: ONE limit per family over all blocks — the largest regular value of any block", () => {
+    const t = toggles(M.MEGA_PRESETS.T02A);
+    const ids = ["a", "o", "g", "eu", "x1", "x2", "x3", "x4"];
+    const rows = ids.map(id => ({ id, label: id, kind: "acc", op: "", level: 0, group: "w", other: false }));
+    const P = { // Δ% per block (month | YTD): +400 is an outlier of the YTD block
+        a: [5, 400], o: [-8, 6], g: [12, -7], eu: [4, 5], x1: [-6, 8], x2: [7, -4], x3: [3, 6], x4: [-5, 9],
+    };
+    const blk = (bi, name) => ({
+        name, th: { abs: -20, pct: -0.1 },
+        value: () => 100,
+        delta: (r) => { const p = P[r.id][bi] / 100; return { d: p * 100, p, good: p >= 0, impact: p * 100, impactPct: p, pp: false }; },
+    });
+    const L = M.layoutMega(regionInput({ t, rows, blocks: [blk(0, "Nov"), blk(1, "_Nov")] }));
+    const pins = L.charts.filter(c => c.type === "pin");
+    assert.equal(pins.length, 2);
+    assert.equal(pins[0].cap, pins[1].cap, "same limit in both blocks");
+    // the limit = the largest regular value of any block: +12 of the month
+    assert.equal(pins[1].cap, 12);
+    const capped = (c, id) => Math.abs(c.vals.find(o => o.r.id === id).v) > c.cap;
+    assert.equal(capped(pins[1], "a"), true);
+    assert.equal(capped(pins[0], "g"), false, "+12 stays regular in the month");
+    assert.equal(capped(pins[1], "x4"), false);
+});
+
+test("outlier zone: a capped element reaches past the largest regular value (zone ≥ 10 % of the column)", () => {
+    const t = toggles(M.MEGA_PRESETS.T02A);
+    const ids = ["a", "o", "g", "eu", "x1", "x2", "x3", "x4"];
+    const rows = ids.map(id => ({ id, label: id, kind: "acc", op: "", level: 0, group: "w", other: false }));
+    const P = { a: 32.2, o: 6.0, g: -4, eu: 3, x1: -2.5, x2: 4.4, x3: 1.2, x4: -3.3 };
+    const blk = {
+        name: "", th: { abs: -20, pct: -0.1 }, value: () => 100,
+        delta: (r) => { const p = P[r.id] / 100; return { d: p * 100, p, good: p >= 0, impact: p * 100, impactPct: p, pp: false }; },
+    };
+    const L = M.layoutMega(regionInput({ t: Object.assign({}, t, { capBars: true }), rows, blocks: [blk] }));
+    for (const c of L.charts) {
+        assert.equal(c.cap, 6, c.type);
+        assert.ok(c.zone >= 0.1 * (c.w - 2 * 5) - 1, `${c.zone} / ${c.w}`);
+        // +32.2 % ends zone px beyond +6.0 % (then the triangle) — no longer at the same spot
+        const endRegular = c.x0 + 6 * c.k;
+        const endCapped = c.x0 + c.cap * c.k + c.zone;
+        assert.ok(endCapped - endRegular >= 0.1 * (c.w - 10) - 1, `${c.type}: ${endCapped} vs ${endRegular}`);
+        // the layout reserves zone + triangle + number for it: nothing leaves the column
+        for (const e of c.els) { assert.ok(c.x0 + e.p * c.k - e.a >= c.x - 0.5 && c.x0 + e.q * c.k + e.c <= c.x + c.w + 0.5, c.type); }
+    }
 });
 
 console.log(`\n${n} mega-table layout test blocks passed`);

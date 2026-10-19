@@ -59,7 +59,9 @@ function readMega(id) {
             rects: [...g.querySelectorAll("rect")].map(r => ({ fill: r.getAttribute("fill"), stroke: r.getAttribute("stroke"),
                 w: +r.getAttribute("width"), h: +r.getAttribute("height") })),
             stems: [...g.querySelectorAll("g:not([shape-rendering]) > line")].length,
-            arrows: g.querySelectorAll("path").length,
+            arrows: g.querySelectorAll('path:not([data-pnl="mega-break"])').length,
+            // 1.5: break marks of capped elements (outlier zone, UN 5.3)
+            breaks: g.querySelectorAll('path[data-pnl="mega-break"]').length,
         };
     });
     const rowIds = [...body.querySelectorAll('rect[data-pnl-part="cells"]')].map(r => r.getAttribute("data-pnl-row"));
@@ -94,7 +96,7 @@ function readMega(id) {
     await page.waitForTimeout(600);
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
-        "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31"];
+        "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -115,7 +117,7 @@ function readMega(id) {
     check("m1 T03A heads PY PL AC ΔPY ΔPL (paired Δ%)", JSON.stringify(heads("m1")) === JSON.stringify(["PY", "PL", "AC", "ΔPY", "ΔPL"]), heads("m1").join("|"));
     check("m1 Sales revenue AC 1 031.2", has("m1", "1 031.2"));
     check("m1 Operating expenses ΔPY +37.4 (display orientation, costs up)", has("m1", "+37.4"));
-    check("m1 Operating expenses ΔPY% +7%", has("m1", "+7%"));
+    check("m1 Operating expenses ΔPY% +6.6% (1.5: one Δ% decimal in every template)", has("m1", "+6.6%"));
     check("m1 Gross margin AC 45.3% italic", cell("m1", "45.3%") && cell("m1", "45.3%").italic);
     check("m1 Gross margin ΔPY +8.6%p", has("m1", "+8.6%p"));
     check("m1 Gross margin ΔPY% relative +23% (with % sign, T03A)", has("m1", "+23%") && !has("m1", "+23"));
@@ -245,7 +247,7 @@ function readMega(id) {
         check("m11 Purchases +11.12 (raw Δ, cost) left of its bar, bar red", pur && pur.anchor === "end"
             && wf.bars.some(b => b.fill === "#E02B1D" && Math.abs(b.x - 3 - pur.x) < 0.6));
         check("m11 Group result +6.04 bold", wf.labels.some(l => l.t === "+6.04" && l.bold));
-        check("m11 pins with 2 decimals (+25.26)", S.m11.charts[1].labels.some(l => l.t === "+25.26"));
+        check("m11 pins with one decimal (+25.3, 1.5)", S.m11.charts[1].labels.some(l => l.t === "+25.3"));
         check("m11 margin row keeps its %p-free values (10.99%)", has("m11", "10.99%"));
         // the cascade really runs on: Other op. income starts where Sales revenue ended
         const ids11 = S.m11.rowIds; const y11 = S.m11.rowY;
@@ -266,7 +268,7 @@ function readMega(id) {
         check("m15 value labels (Sales revenue AC 1 061 bold, Operating expenses 752)",
             ac.labels.some(l => l.t === nb("1 061") && l.bold) && ac.labels.some(l => l.t === "752"));
         check("m15 cascade connectors", py.conn >= 15 && ac.conn >= 15, `${py.conn}/${ac.conn}`);
-        check("m15 ΔPY% outliers +983 / +391 capped with arrows", D.charts[3].arrows === 2);
+        check("m15 ΔPY% outliers +983.3 / +390.9 capped: triangle + break mark each", D.charts[3].arrows === 2 && D.charts[3].breaks === 2);
         check("m15 no gray row rules, no head rules (12A)", !D.ruleColors.includes("#D9D9D9") && D.headLines === 0);
         check("m15 no margin row", !D.body.some(x => /%$/.test(x.t)));
         check("m15 one value-cascade scale for PY and AC (same Licences px per kEUR)", (() => {
@@ -347,8 +349,8 @@ function readMega(id) {
     // fix 10 — % of revenue in the mega table
     if (S.m24) {
         check("m24 % Rev right after AC", JSON.stringify(heads("m24").slice(0, 4)) === JSON.stringify(["PY", "PL", "AC", "% Rev"]), heads("m24").join("|"));
-        const lic = cell("m24", "87%");
-        check("m24 Licences 87% italic, right-aligned", lic && lic.italic && lic.anchor === "end");
+        const lic = cell("m24", "86.9%");
+        check("m24 Licences 86.9% italic, right-aligned", lic && lic.italic && lic.anchor === "end");
         check("m24 off by default (m1 has no % Rev)", !heads("m1").includes("% Rev"));
     }
     // fix 4 — sort indicator moves to the category head when the sorting column is off
@@ -361,12 +363,13 @@ function readMega(id) {
     // ---- 1.1 Paket C ------------------------------------------------------------
     const pageInfo = await page.evaluate(() => {
         const o = {};
-        for (const id of ["m27", "m28", "m29", "m30", "m1", "m15"]) {
+        for (const id of ["m27", "m28", "m29", "m30", "m1", "m15", "m5", "m11", "m33"]) {
             const st = document.getElementById(id);
             const hl = st.querySelector('[data-pnl="headline"]');
             const note = st.querySelector('[data-pnl="scale-fixed"]');
+            const sn = st.querySelector('[data-pnl="scale-note"]');
             o[id] = { headline: hl ? hl.textContent : null, headlineFs: hl ? parseFloat(hl.style.fontSize) : 0,
-                note: note ? note.textContent : null, text: st.innerText,
+                note: note ? note.textContent : null, scaleNote: sn ? sn.textContent : null, text: st.innerText,
                 ytd: [...st.querySelectorAll('text[data-pnl="mega-ytd"]')].map(t => ({ t: t.textContent, fill: t.getAttribute("fill") })) };
         }
         return o;
@@ -386,7 +389,9 @@ function readMega(id) {
         check("m27 ΔPY on the year (+721, +885, +637 costs)", has("m27", "+721") && has("m27", "+885") && has("m27", "+637"));
         check("m27 ΔPY bars hatched", S.m27.charts[2].bars.length > 10 && S.m27.charts[2].bars.every(b => /^url\(/.test(b.fill)));
         check("m27 legend explains the hatch (FC) next to PY + AC", /FC/.test(S.m27.legend) && /PY/.test(S.m27.legend) && /AC/.test(S.m27.legend));
-        check("m27 headline slot: generated message, large", /^Group result ΔPY \+144/.test(pageInfo.m27.headline || "")
+        // 1.5: one sentence, drivers with their effect on the result, the unit of the title line
+        check("m27 headline slot: generated sentence, large", pageInfo.m27.headline === "Group result is 144 kEUR (+76.6%) above previous year; "
+            + "strongest driver is Licences with +721, largest drag is Purchases with -262."
             && pageInfo.m27.headlineFs >= 16, JSON.stringify(pageInfo.m27.headline));
     }
     if (S.m28) {
@@ -454,6 +459,57 @@ function readMega(id) {
         check("below the threshold every row is painted (m15: 20 rows)", S.m15.rowIds.length === 20, String(S.m15.rowIds.length));
     }
 
+    // ==== 1.5 · IBCS 2.0 / ISO 24896 scaling ======================================
+    const rowBar = (id, ci, rowId) => {
+        const i = S[id].rowIds.indexOf(rowId); const y = S[id].rowY[i];
+        return S[id].charts[ci].bars.find(b => b.y > y && b.y < y + 22);
+    };
+    if (S.m5) {
+        // one Δ scale over month and YTD; the month block is unreadable at it → ×5, named in head + note
+        check("m5 month ΔPL head carries the scaling indicator ×5, YTD ΔPL none",
+            heads("m5").includes("ΔPL ×5") && heads("m5").filter(h => h === "ΔPL").length === 1, heads("m5").join("|"));
+        check("m5 scale note names the magnified block", pageInfo.m5.scaleNote
+            === "One scale per unit across all blocks · magnified (scaling indicator): ΔPL November ×5", pageInfo.m5.scaleNote);
+        const m = rowBar("m5", 0, "L:World¦Europe"); const y = rowBar("m5", 2, "L:World¦Europe");
+        const ratio = m && y ? (m.w / 36) / (y.w / 653) : 0;
+        check("m5 px per kEUR: month = 5 × YTD exactly (Europe −36 vs −653)", Math.abs(ratio - 5) < 0.15, String(ratio));
+        // pins: one scale over both blocks; Japan +65.5 % capped into the outlier zone
+        const pinY = S.m5.charts[3];
+        const jp = pinY.labels.find(l => l.t === "+65.5"); const cn = pinY.labels.find(l => l.t === "+24.6");
+        check("m5 Japan +65.5 runs past China +24.6 (outlier zone), break mark + triangle, number outside",
+            pinY.breaks === 1 && pinY.arrows === 1 && jp && cn && jp.anchor === "start" && jp.x0 > cn.x0 + 10,
+            JSON.stringify({ jp, cn, b: pinY.breaks }));
+        check("m5 no paper halo on capped numbers any more", S.m5.charts.every(c => c.halos.length === 0));
+    }
+    if (S.m15) {
+        const i = S.m15.rowIds.indexOf(S.m15.rowIds.find(r => /lic$/.test(r)));
+        const yy = S.m15.rowY[i];
+        const ac = S.m15.charts[1].bars.find(b => b.y > yy && b.y < yy + 22);
+        const dpy = S.m15.charts[2].bars.find(b => b.y > yy && b.y < yy + 22);
+        const r = ac && dpy ? (dpy.w / 183) / (ac.w / 896) : 0;
+        check("m15 ΔPY bars on the scale of the value cascades (Licences +183 vs AC 896: same px per kEUR)",
+            Math.abs(r - 1) < 0.03 && !heads("m15").some(h => /×/.test(h)), String(r));
+        check("m15 no scale note (nothing magnified, nothing fixed)", pageInfo.m15.scaleNote === null, pageInfo.m15.scaleNote);
+    }
+    if (S.m32) {
+        const ids = S.m32.rowIds; const ys = S.m32.rowY;
+        const iSk = ids.findIndex(r => /Slovakia$/.test(r)); const iCz = ids.findIndex(r => /Czechia$/.test(r));
+        check("m32 single-node regions Czechia / Slovakia shown as rows", iCz >= 0 && iSk === iCz + 1, ids.join(","));
+        check("m32 spacer between Slovakia and the next block (Brazil)", iSk >= 0 && ys[iSk + 1] - ys[iSk] > 22 + 5
+            && /Brazil$/.test(ids[iSk + 1]), `${ys[iSk]} → ${ys[iSk + 1]} ${ids[iSk + 1]}`);
+        check("m32 spacer after Europe stays (sum → row)", iCz > 0 && ys[iCz] - ys[iCz - 1] > 22 + 5);
+        check("m32 Czechia and Slovakia stay together (same parent)", ys[iSk] - ys[iCz] === 22);
+    }
+    if (S.m33) {
+        const bar = S.m33.charts[0];
+        const ws = bar.bars.map(b => b.w).sort((a, b) => b - a);
+        check("m33 capped Δ bars: break mark + triangle each (Consulting, Purchases, Sales revenue, Operating expenses)",
+            bar.breaks >= 2 && bar.breaks === bar.arrows, `${bar.breaks} / ${bar.arrows}`);
+        check("m33 a capped bar runs ≥ 15 px past the longest regular bar", ws[bar.breaks - 1] - ws[bar.breaks] >= 15, ws.slice(0, 6).join(","));
+    }
+    check("footer names IBCS 2.0 (ISO 24896), not certified", /IBCS® Standards 2\.0 \(ISO 24896\)/.test(pageInfo.m1.text)
+        && !/Standards 1\.2/.test(pageInfo.m1.text) && /not certified/.test(pageInfo.m1.text));
+
     // ---- preset dropdown wrote the switches (persistProperties payload) ----------
     const persist = await page.evaluate(() => (window.__persist || []).map(x => ({ id: x.id, p: x.p })));
     const m1p = persist.find(x => x.id === "m1");
@@ -461,21 +517,21 @@ function readMega(id) {
     const numObj = m1p && m1p.p.merge.find(o => o.objectName === "numbers");
     check("preset T03A persisted the switches + templateApplied", colObj && colObj.properties.templateApplied === "T03A"
         && colObj.properties.dPyAbs === true && colObj.properties.dPlPct === true && colObj.properties.secondBlock === false);
-    check("preset T03A persisted decimals 1 / Δ% 0", numObj && numObj.properties.decimals === 1 && numObj.properties.pctDecimals === 0);
+    check("preset T03A persisted decimals 1 / Δ% 1", numObj && numObj.properties.decimals === 1 && numObj.properties.pctDecimals === 1);
     check("single switches (m8) persist nothing", !persist.some(x => x.id === "m8"));
     const tplP = (id) => { const x = persist.find(q => q.id === id); return x ? x.p.merge : []; };
     const colsOf = id => (tplP(id).find(o => o.objectName === "columns") || {}).properties || {};
     const numsOf = id => (tplP(id).find(o => o.objectName === "numbers") || {}).properties || {};
-    check("preset T04B persisted dPlWaterfall + pins, decimals 2 / Δ% 2", colsOf("m11").templateApplied === "T04B"
+    check("preset T04B persisted dPlWaterfall + pins, decimals 2 / Δ% 1", colsOf("m11").templateApplied === "T04B"
         && colsOf("m11").dPlWaterfall === true && colsOf("m11").dPlBar === false && colsOf("m11").dPlPin === true
-        && numsOf("m11").decimals === 2 && numsOf("m11").pctDecimals === 2);
+        && numsOf("m11").decimals === 2 && numsOf("m11").pctDecimals === 1);
     check("preset T04C persisted dPyWaterfall, PY column, no PL", colsOf("m12").dPyWaterfall === true && colsOf("m12").showPY === true
         && colsOf("m12").showPL === false && colsOf("m12").dPlWaterfall === false);
     check("presets T04D / T04E persisted minuend FC", colsOf("m13").minuend === "fc" && colsOf("m14").minuend === "fc"
         && colsOf("m13").dPlWaterfall === true && colsOf("m14").dPyWaterfall === true);
-    check("preset 12A persisted valueCascade + ΔPY bars/pins, no margins, decimals 0 / 0", colsOf("m15").valueCascade === true
+    check("preset 12A persisted valueCascade + ΔPY bars/pins, no margins, decimals 0 / Δ% 1", colsOf("m15").valueCascade === true
         && colsOf("m15").dPyBar === true && colsOf("m15").dPyPin === true && colsOf("m15").showPctRows === false
-        && numsOf("m15").decimals === 0 && numsOf("m15").pctDecimals === 0);
+        && numsOf("m15").decimals === 0 && numsOf("m15").pctDecimals === 1);
     check("single switches (m16) persist nothing", !persist.some(x => x.id === "m16"));
     check("synced template (m9) persists nothing", !persist.some(x => x.id === "m9"));
 

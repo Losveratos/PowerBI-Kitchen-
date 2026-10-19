@@ -3830,6 +3830,39 @@ export class Visual implements IVisual {
         this.root.appendChild(note);
     }
 
+    /**
+     * 1.5 scale note of the mega table (IBCS UN 5.2): the table draws one scale
+     * per unit across all period blocks; the note appears only when something
+     * deviates from that — a block or column magnified by a round factor (its
+     * head carries "×5" as well) or a scale held by fixedMax / fixedVarMax. In
+     * edit mode the fixed scale is already named by the author note under the
+     * table ("Scale fixed"), so the note leaves it out there. Null = no note.
+     */
+    private megaScaleNote(L: MegaLayout, fmt: Fmt): HTMLElement | null {
+        const parts: string[] = [];
+        const blocks = L.input.blocks;
+        if (L.mags.length) {
+            const list = L.mags.map(m => m.heads.join(" · ")
+                + (blocks.length > 1 && blocks[m.block]?.name ? " " + blocks[m.block].name : "") + " ×" + m.factor);
+            parts.push(this.tr("UI_MegaScaleMag", list.join(", ")));
+        }
+        const authorNote = (this.viewMode == null || this.viewMode >= 1) && !this.exporting();
+        if (!authorNote && (this.fixedMax() != null || this.fixedVarMax() != null)) {
+            const unit = fmt.suffix + this.settings.numbersCard.unitText.value;
+            const part = (v: number | null, key: string): string =>
+                v == null ? "" : this.tr(key, fmt.val(v) + (unit ? " " + unit : ""));
+            parts.push(this.tr("UI_MegaScaleFixed",
+                [part(this.fixedMax(), "UI_ScaleFixedVal"), part(this.fixedVarMax(), "UI_ScaleFixedVar")].filter(Boolean).join(" · ")));
+        }
+        if (!parts.length) { return null; }
+        const note = document.createElement("div");
+        note.setAttribute("data-pnl", "scale-note");
+        note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};text-align:right;box-sizing:border-box;` +
+            `width:${Math.ceil(L.tableW)}px;padding:0 0 3px 0;`;
+        note.textContent = [this.tr("UI_MegaScale"), ...parts].join(" · ");
+        return note;
+    }
+
     /** the uniform-Δ-scale note — part of the frozen head, not of the table */
     private scaleNote(fmt: Fmt, maxAbsDelta: number): HTMLElement {
         const note = document.createElement("div");
@@ -8434,10 +8467,19 @@ export class Visual implements IVisual {
             }
             const n = it.node;
             // spacer row: a new block after a bold total (T03), and the grand
-            // total right below its last subtotal block (T01B "World")
+            // total right below its last subtotal block (T01B "World"). 1.5:
+            // structure data with subtotal blocks also separates rows of
+            // another parent — a region folded into a single row (Poland,
+            // Slovakia: no countries below) no longer sticks to the next
+            // block as if it belonged to it — and a grand total that follows
+            // such a row (it has subtotal blocks among its children)
+            const struct = subtotals && !statement;
             if (prev && prev.node && it.kind !== "pct" && (
                 (prev.kind === "sum" || prev.kind === "formula") && it.kind === "acc"
-                || it.kind === "sum" && prev.kind === "sum" && prev.node.row.parent === n.row.id && subtotals && !statement
+                || it.kind === "sum" && prev.kind === "sum" && prev.node.row.parent === n.row.id && struct
+                || struct && prev.kind === "acc" && it.kind === "acc" && prev.node.row.parent !== n.row.parent
+                || struct && prev.kind === "acc" && it.kind === "sum" && prev.node.row.parent === n.row.id
+                    && n.children.some(c => c.hasChildren)
             )) {
                 if (out.length && out[out.length - 1].kind !== "gap") { out.push(this.megaGap()); }
             }
@@ -8678,6 +8720,11 @@ export class Visual implements IVisual {
         const wrap = document.createElement("div");
         wrap.setAttribute("data-pnl", "mega");
         wrap.style.cssText = `padding:2px ${TABLE_PAD_X}px 8px ${TABLE_PAD_X}px;width:max-content;`;
+        // 1.5: the scale note above the table — magnified blocks / columns and
+        // fixed scales are named for every reader, the export included
+        // (the gallery's mini previews stay quiet: their heads carry the factor)
+        const note = this.miniQuiet() ? null : this.megaScaleNote(L, fmt);
+        if (note) { wrap.appendChild(note); }
         const headWrap = document.createElement("div");
         headWrap.setAttribute("data-pnl", "mega-head-wrap");
         headWrap.style.cssText = `background:${this.pageBg()};`;
@@ -9227,6 +9274,11 @@ export class Visual implements IVisual {
      * the weakest driver (leaf rows, ranked by their effect: favourable Δ up,
      * unfavourable down). Mega table: its minuend and first reference, display
      * orientation; classic: AC vs the toolbar reference. YTD window.
+     * 1.5: one complete sentence (IBCS SAY: a message, not a keyword list) —
+     * "EBIT liegt 691 Tsd. EUR (−29 %) unter Vorjahr; stärkster Treiber ist
+     * Lizenzen mit +120, größte Belastung ist Logistik mit −813." The drivers
+     * carry the sign of their effect on the result (a cost overrun reads −813,
+     * not +813), the amount the unit of the title line.
      */
     private autoMessage(fmt: Fmt): string {
         const model = this.model; const ui = this.ui;
@@ -9262,24 +9314,44 @@ export class Visual implements IVisual {
             : roots.length === 1 ? roots[0] : syntheticTotal(model);
         const total = dv(result);
         if (!total) { return ""; }
-        const unit = fmt.suffix + this.settings.numbersCard.unitText.value;
-        const refName = this.relabel(ref === "plfy" ? "PL" : ref.toUpperCase());
-        const parts = [(result.row.name ? result.row.name + " " : "") + `Δ${refName} ${fmt.val(total.d, true)}${unit ? " " + unit : ""}`
-            + (total.p != null ? ` (${fmt.pct(total.p, true)})` : "")];
-        const drivers: { n: PnlNode; d: number; score: number }[] = [];
+        const unit = this.titleUnit(fmt);
+        const code = ref === "plfy" ? "PL" : ref.toUpperCase();
+        // the reference by name ("Vorjahr", "Plan"); house terms (labels.labelPy …) win
+        const refName = this.relabel(code) !== code ? this.relabel(code) : this.tr(code === "PY" ? "UI_AutoRefPY" : "UI_AutoRefPL");
+        const name = result.row.name || this.tr("UI_AutoResult");
+        const amount = fmt.val(Math.abs(total.d)) + (unit ? " " + unit : "") + (total.p != null ? ` (${fmt.pct(total.p, true)})` : "");
+        let sentence = total.d === 0 ? this.tr("UI_AutoEq", name, refName)
+            : this.tr(total.d > 0 ? "UI_AutoAbove" : "UI_AutoBelow", name, amount, refName);
+        const drivers: { n: PnlNode; score: number }[] = [];
         for (const n of model.byId.values()) {
             if (n.hasChildren || n.row.rowType !== "account") { continue; }
             const v = dv(n);
             if (!v || v.d === 0) { continue; }
-            drivers.push({ n, d: v.d, score: v.good ? Math.abs(v.d) : -Math.abs(v.d) });
+            drivers.push({ n, score: v.good ? Math.abs(v.d) : -Math.abs(v.d) });
         }
+        const tail: string[] = [];
         if (drivers.length >= 3) {
             drivers.sort((x, y) => y.score - x.score);
             const best = drivers[0]; const worst = drivers[drivers.length - 1];
-            if (best !== worst && best.score > 0) { parts.push(`${this.tr("UI_AutoBest")}: ${best.n.row.name} (${fmt.val(best.d, true)})`); }
-            if (best !== worst && worst.score < 0) { parts.push(`${this.tr("UI_AutoWorst")}: ${worst.n.row.name} (${fmt.val(worst.d, true)})`); }
+            // the effect on the result: favourable +, unfavourable − (a cost overrun is −813)
+            if (best !== worst && best.score > 0) { tail.push(this.tr("UI_AutoBest", best.n.row.name, fmt.val(best.score, true))); }
+            if (best !== worst && worst.score < 0) { tail.push(this.tr("UI_AutoWorst", worst.n.row.name, fmt.val(worst.score, true))); }
         }
-        return parts.join(" · ");
+        if (tail.length) { sentence += this.tr("UI_AutoJoin") + tail.join(this.tr("UI_AutoAnd")); }
+        return sentence + this.tr("UI_AutoEnd");
+    }
+
+    /**
+     * 1.5: the unit of the title's measure line ("… in Tsd. EUR" → "Tsd. EUR",
+     * "… en kEUR", "…単位：kEUR") — the generated message names amounts the way
+     * the title does. Without an author line (or a recognisable unit in it) the
+     * visual's own unit: scaling suffix + numbers.unitText ("kEUR").
+     */
+    private titleUnit(fmt: Fmt): string {
+        const own = fmt.suffix + this.settings.numbersCard.unitText.value;
+        const line = this.settings.titleCard.measureLine.value.trim();
+        const m = /(?:\s(?:in|en)\s+|単位[:：]\s*)([^\s].{0,18}?)\s*$/i.exec(line);
+        return m ? m[1] : own;
     }
 
     /** first non-empty value of the bound filterInfo text measure */

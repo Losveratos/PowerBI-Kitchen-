@@ -358,9 +358,10 @@ check("capabilities: new objects (numbers.financeFormat/sumSafeRounding/scaling 
         out.hidden = !h.__el.querySelector('[data-pnl="title-footer"]');
         return out;
     });
-    check("F6 auto message: result row Δ vs reference + strongest / weakest driver",
-        /Result ΔPL \+0\.4 EUR \(\+15\.4%\) · strongest driver: Beta \(\+0\.4\) · weakest: Material \(\+0\.1\)|Result ΔPL/.test(F6.text)
-        && /strongest driver: Beta/.test(F6.text) && /weakest: /.test(F6.text), F6.text.slice(0, 260));
+    // 1.5: one sentence; the drivers carry the sign of their effect on the result
+    check("F6 auto message: one sentence, result row Δ vs reference + strongest driver + largest drag",
+        /Result is 0\.4 EUR \(\+15\.4%\) above plan; strongest driver is Beta with \+0\.4, largest drag is \w+ with -0\.1\./.test(F6.text),
+        F6.text.slice(0, 260));
     check("F6 auto message: an own message wins", /Own finding/.test(F6.own) && !/strongest driver/.test(F6.own));
     check("F6 footer + filter footer: free text, then “Filter: <filterInfo> · zero rows hidden”",
         F6.footer === "Actuals as of Jun 2026 · source: SAP FI\nFilter: Region = EMEA · Year = 2026 · zero rows hidden", JSON.stringify(F6.footer));

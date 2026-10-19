@@ -305,10 +305,10 @@ const P_OFF: MegaPreset = {
 const preset = (base: MegaPreset, o: Partial<MegaPreset>): MegaPreset => ({ ...base, ...o });
 
 /**
- * Template presets (SPEC "Defaults je Preset"). Δ% decimals follow the
- * prototype's derived rule and are written to numbers.pctDecimals: regions
- * max(1, d), statements d ≥ 2 ? 1 : 0 for Δ% numbers, pins max(1, d)
- * (statement pins with d = 0 → 0: 12A).
+ * Template presets (SPEC "Defaults je Preset"). Δ% numbers and pins carry ONE
+ * decimal in every template (1.5, written to numbers.pctDecimals) — until 1.4
+ * they followed the reference sheets (T03 / 12-series 0, T04B–E 2), and the
+ * same deviation read differently from template to template.
  */
 const T01A = preset(P_OFF, {
     showPY: true, showPL: true, showMin: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true,
@@ -319,10 +319,10 @@ const T02A = preset(P_OFF, {
 });
 const T03A = preset(P_OFF, {
     showPY: true, showPL: true, showMin: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true,
-    decimals: 1, pctDecimals: 0,
+    decimals: 1, pctDecimals: 1,
 });
 const T04A = preset(P_OFF, { showPL: true, showMin: true, dPlBar: true, dPlPin: true, decimals: 1, pctDecimals: 1 });
-const T04B = preset(T04A, { dPlBar: false, dPlWf: true, decimals: 2, pctDecimals: 2 });
+const T04B = preset(T04A, { dPlBar: false, dPlWf: true, decimals: 2, pctDecimals: 1 });
 const T04C = preset(T04B, {
     showPY: true, showPL: false, dPlWf: false, dPlPin: false, dPyWf: true, dPyPin: true,
 });
@@ -347,17 +347,17 @@ export const MEGA_PRESETS: Record<string, MegaPreset> = {
     T04E: preset(T04C, { min: "FC" }),
     "12A": preset(P_OFF, {
         showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
-        showPctRows: false, decimals: 0, pctDecimals: 0,
+        showPctRows: false, decimals: 0, pctDecimals: 1,
     }),
     // 12G: FY outlook — PY year vs AC&FC stacked (YTD solid + rest of year hatched), ΔPY on the year
     "12G": preset(P_OFF, {
         showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
-        blockKind: "fy", decimals: 0, pctDecimals: 0, headline: true,
+        blockKind: "fy", decimals: 0, pctDecimals: 1, headline: true,
     }),
     // 12H: plan statement — PL (outlined) vs PY, Δ bars tinted pale
     "12H": preset(P_OFF, {
         min: "PL", showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
-        showPctRows: false, decimals: 0, pctDecimals: 0, headline: true,
+        showPctRows: false, decimals: 0, pctDecimals: 1, headline: true,
     }),
 };
 export const MEGA_PRESET_KEYS = Object.keys(MEGA_PRESETS);
@@ -511,8 +511,23 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
  * Tukey fence (factor 4) on |values|: fence = Q3 + 4 × (Q3 − Q1), from 8
  * values on; cap = largest |value| ≤ fence (Infinity = nothing capped).
  * Matches 12A (+983/+391 capped, +95 fits), T02A (+16.5 fits), T04 (+25.6 fits).
+ * `zone` (1.5, IBCS UN 5.3): share of a chart column reserved beyond the
+ * largest regular value — a capped element runs into it, carries a break mark
+ * and ends in a triangle in its growth direction.
  */
-export const MEGA_OUTLIER = { fence: 4, minN: 8 };
+export const MEGA_OUTLIER = { fence: 4, minN: 8, zone: 0.12 };
+
+/**
+ * Magnification factors of a scaling indicator (1.5, IBCS UN 5.2 / CH 4.3):
+ * the largest of 1 · 2 · 5 · 10 · 20 · 50 … that is ≤ x — round factors a
+ * reader can multiply in his head ("ΔPY ×5").
+ */
+export function niceFactor(x: number): number {
+    if (!isFinite(x) || x < 1) { return 1; }
+    const p = Math.pow(10, Math.floor(Math.log10(x) + 1e-9));
+    const m = x / p;
+    return (m >= 5 - 1e-9 ? 5 : m >= 2 - 1e-9 ? 2 : 1) * p;
+}
 export function outlierCap(values: number[]): number {
     const a = values.map(Math.abs).filter(x => x > 0).sort((x, y) => x - y);
     if (a.length < MEGA_OUTLIER.minN) { return Infinity; }
@@ -576,6 +591,23 @@ export interface MegaCol {
     stack?: boolean;
     /** second head text of a stacked column ("YTD", left-aligned over the solid part) */
     head2?: string;
+    /** px reserved beyond the largest regular value for capped elements (outlier zone, UN 5.3) */
+    zone?: number;
+    /**
+     * 1.5 scaling indicator: this column is drawn at `mag` × the table scale of
+     * its unit (round factor, head reads "ΔPY ×5"). Absent = the table scale.
+     */
+    mag?: number;
+}
+
+/** 1.5: one magnified group of chart columns (block × family) — the scale note lists them */
+export interface MegaMag {
+    block: number;
+    /** "delta" (Δ bars + Δ waterfalls) · "valueCascade" · "pct" (pins) */
+    family: string;
+    factor: number;
+    /** heads of the magnified columns, without the factor */
+    heads: string[];
 }
 
 export interface MegaCellText {
@@ -606,7 +638,14 @@ export interface MegaLayout {
     /** font size + row height of the column heads and block titles (headFs; default fs / rowH) */
     headFs: number; headRowH: number;
     bodyBottom: number; footY: number; height: number;
+    /** final k per block × family ("0:delta", "1:pct", "0:valueCascade") — equal within a unit unless magnified */
     famK: Record<string, number>;
+    /**
+     * 1.5: the table scale per unit ("amount": Δ bars, Δ waterfalls and value
+     * cascades of every block; "pct": every pin) and the magnified groups
+     */
+    unitK: Record<string, number>;
+    mags: MegaMag[];
     cellText: (c: MegaCol, r: MegaRow) => MegaCellText | null;
 }
 
@@ -900,7 +939,12 @@ export function layoutMega(input: MegaInput): MegaLayout {
     const footY = bodyBottom + (style.closing ? G.markH + 4 : 2);
     const height = footY + (style.thresholds ? G.rowH : 0) + 4;
 
-    // ---- scale per block × family --------------------------------------------
+    // ---- scale: one per unit over the whole table (1.5, IBCS 2.0 / ISO 24896) --
+    // Same unit, same scale: the Δ bars, Δ waterfalls and value cascades of
+    // every period block share ONE k ("amount"), every Δ% pin another ("pct").
+    // A block or column that would become unreadable at that scale is drawn
+    // magnified by a round factor and says so in its head ("ΔPY ×5") and in
+    // the scale note — never rescaled silently (UN 5.2, CH 4.3 / 4.5).
     const lblW = (s: string, bold: boolean): number => t.labels ? tw(s, G.fs, bold) + G.lblGap : 0;
     for (const c of charts) {
         const blk = blocks[c.block];
@@ -929,14 +973,22 @@ export function layoutMega(input: MegaInput): MegaLayout {
             if (v != null && isFinite(v)) { c.vals.push({ r, v, D }); }
         }
     }
-    // outlier cap per block × family (all pin columns of a block share it)
-    for (let b = 0; b < nb; b++) {
-        for (const fam of ["pin", "bar"] as MegaColType[]) {
-            const cs = charts.filter(c => c.block === b && c.type === fam);
-            const allV = ([] as number[]).concat(...cs.map(c => c.vals!.map(o => o.v)));
-            const cap = fam === "pin" || t.capBars ? outlierCap(allV) : Infinity;
-            cs.forEach(c => { c.cap = cap; });
+    // outlier cap: ONE limit per family over all blocks (all pin columns of the
+    // table share it, the Δ bars another). Tukey decides per block what is an
+    // outlier there (a month's amounts are no outliers of the year); the common
+    // limit is the largest regular value of any block, so a value that stays
+    // regular in one block is never capped in another
+    for (const fam of ["pin", "bar"] as MegaColType[]) {
+        const cs = charts.filter(c => c.type === fam);
+        let cap = -Infinity; let any = false;
+        for (let b = 0; b < nb; b++) {
+            const allV = ([] as number[]).concat(...cs.filter(c => c.block === b).map(c => c.vals!.map(o => Math.abs(o.v))));
+            if (!allV.length) { continue; }
+            const capB = fam === "pin" || t.capBars ? outlierCap(allV) : Infinity;
+            if (capB !== Infinity) { any = true; }
+            cap = Math.max(cap, capB === Infinity ? Math.max(...allV) : capB);
         }
+        cs.forEach(c => { c.cap = any ? cap : Infinity; });
     }
     // scale sync (fixedMax / fixedVarMax): phantom elements hold the scale at
     // least at [0, max] (value cascades) / ±max (Δ bars and Δ waterfalls),
@@ -963,18 +1015,23 @@ export function layoutMega(input: MegaInput): MegaLayout {
             continue;
         }
         const side = c.type === "pin" ? G.pinHead / 2 + G.lblGap : 0;
+        // the outlier zone: ~12 % of the column, at least two triangle lengths
+        c.zone = Math.max(2 * G.arrowW, Math.round(MEGA_OUTLIER.zone * (c.w - 2 * G.pad)));
         for (const { r, v, D } of c.vals!) {
             const capped = Math.abs(v) > c.cap!;
             const vv = capped ? Math.sign(v) * c.cap! : v;
             const text = c.type === "bar" ? fmt.delta(v) : fmt.pin(D.p!);
-            const extra = capped ? G.arrowW : side + lblW(text, megaIsBold(r));
+            // a capped element: zone + triangle, its number outside beyond the tip
+            const extra = (capped ? c.zone + G.arrowW : side) + lblW(text, megaIsBold(r));
             if (vv >= 0) { c.els!.push({ p: 0, q: vv, a: 0, c: extra }); }
             else { c.els!.push({ p: vv, q: 0, a: extra, c: 0 }); }
         }
         phantom(c);
     }
-    // families: Δ bars + Δ waterfall share "delta", pins "pct", value cascades "valueCascade"
+    // groups: per block, Δ bars + Δ waterfall share "delta", pins "pct", value
+    // cascades "valueCascade"; units: "delta" and "valueCascade" are amounts
     const family = (c: MegaCol): string => c.type === "pin" ? "pct" : c.type === "vwf" ? "valueCascade" : "delta";
+    const unitOf = (fam: string): string => fam === "pct" ? "pct" : "amount";
     const famK: Record<string, number> = {};
     for (const c of charts) {
         c.inner = c.w - 2 * G.pad;
@@ -988,12 +1045,12 @@ export function layoutMega(input: MegaInput): MegaLayout {
             c.inner = Math.ceil(a + b); c.w = c.inner + 2 * G.pad; c.kSelf = kMin;
         }
     }
-    // one k per block × family = the smallest k of its columns. The minimum data
-    // span holds per column only at that column's own k — a family partner with
-    // far larger values (ΔPL bars next to tiny ΔPY bars, a cascade next to bars)
-    // can push the shared k below it. Then the family k is raised to what the
-    // smallest column needs, as far as every column of the family can grow up to
-    // its width limit (chartMax / vwfMax; a column already wider keeps its
+    // (1) one k per block × family = the smallest k of its columns. The minimum
+    // data span holds per column only at that column's own k — a family partner
+    // with far larger values (ΔPL bars next to tiny ΔPY bars, a cascade next to
+    // bars) can push the shared k below it. Then the family k is raised to what
+    // the smallest column needs, as far as every column of the family can grow
+    // up to its width limit (chartMax / vwfMax; a column already wider keeps its
     // width); the binding columns grow to the needs at that k — the table
     // scrolls instead of collapsing bars. Beyond that limit the shared scale
     // wins: a column of tiny values next to huge ones stays short (comparable
@@ -1005,6 +1062,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
         const list = fams.get(key);
         if (list) { list.push(c); } else { fams.set(key, [c]); }
     }
+    const groupK = new Map<string, number>();
     for (const [key, cs] of fams) {
         let k = Math.min(...cs.map(c => c.kSelf!));
         const live = cs.filter(c => spanOf(c) > 0);
@@ -1021,7 +1079,43 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 }
             }
         }
+        groupK.set(key, k);
+    }
+    // (2) one k per unit over the whole table = the smallest group k
+    const unitK: Record<string, number> = {};
+    for (const [key, cs] of fams) {
+        const u = unitOf(family(cs[0]));
+        unitK[u] = Math.min(unitK[u] ?? Infinity, groupK.get(key)!);
+    }
+    // (3) a group whose data span would fall below the minimum data span at the
+    // table scale — and that has room for at least twice that scale — is drawn
+    // magnified by the largest round factor its columns hold. Every other group
+    // keeps the table scale, even when it could be drawn larger.
+    const mags: MegaMag[] = [];
+    for (const [key, cs] of fams) {
+        const fam = family(cs[0]);
+        const kU = unitK[unitOf(fam)];
+        const kG = groupK.get(key)!;
+        const span = Math.max(...cs.map(spanOf));
+        let k = kU;
+        if (span > 0 && span * kU < G.minSpan && kG >= 2 * kU * (1 - 1e-9)) {
+            const m = niceFactor(kG / kU * (1 + 1e-9));
+            if (m >= 2) {
+                k = kU * m;
+                cs.forEach(c => { c.mag = m; });
+                mags.push({ block: cs[0].block, family: fam, factor: m, heads: cs.map(c => c.head) });
+            }
+        }
         famK[key] = k;
+    }
+    // the scaling indicator sits in the head of every magnified column; a
+    // column too narrow for the longer head grows (the extra width is slack,
+    // the scale stays)
+    for (const c of charts) {
+        if (!c.mag) { continue; }
+        c.head += " ×" + c.mag;
+        const need = Math.ceil(tw(c.head, headFs) + 2 * G.pad + (c.head2 ? tw(c.head2, headFs) + G.pad : 0));
+        if (need > c.w) { c.inner = c.inner! + need - c.w; c.w = need; }
     }
     let x = 0;
     for (const c of cols) { x += gapPx(c.gap); c.x = x; x += c.w; }
@@ -1035,7 +1129,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
 
     return {
         G, input, fmt, rows, R, cols, charts, N, NB, style, sortInfo, tableW,
-        blockTitleY, colHeadY, markY, bodyTop, headH, headFs, headRowH, bodyBottom, footY, height, famK, cellText,
+        blockTitleY, colHeadY, markY, bodyTop, headH, headFs, headRowH, bodyBottom, footY, height, famK, unitK, mags, cellText,
     };
 }
 
@@ -1385,6 +1479,16 @@ function paintChartColumn(
             fill: hollow ? MEGA_C.white : fill, stroke: hollow ? MEGA_C.ink : null, "stroke-width": hollow ? 1 : null,
         }, g);
     };
+    // break mark of a capped element (UN 5.3): two slanted strokes in the paper
+    // tone cut the bar / stem just past the largest regular value
+    const breakMark = (xb: number, cy: number, dir: number, hgt: number): void => {
+        const h = hgt / 2 + 2; const s = 2.5;
+        const d = [0, 3.5].map(o => {
+            const xm = xb + dir * o;
+            return `M${xm - s},${cy + h} L${xm + s},${cy - h}`;
+        }).join(" ");
+        svgEl("path", { d, stroke: MEGA_C.white, "stroke-width": 1.6, fill: "none", "data-pnl": "mega-break" }, g);
+    };
     // high contrast: good and bad share the foreground — unfavourable is hollow
     const hollow: MegaPaint = { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1.4 };
     const hatch = B.hatch;
@@ -1409,23 +1513,29 @@ function paintChartColumn(
         const color = ov.D.immaterial ? MEGA_C.soft : ov.D.good ? pal.good : pal.bad;
         const bad = hc && !ov.D.good && !ov.D.immaterial;
         const bold = megaIsBold(r);
+        // a capped element runs past the largest regular value through the
+        // outlier zone, is cut by a break mark and ends in a triangle; its
+        // number stands outside beyond the tip
+        const zone = capped ? c.zone ?? 2 * G.arrowW : 0;
         if (c.type === "bar") {
-            const x2 = X(vv);
+            const xr = X(vv); const x2 = xr + dir * zone;
             const bx = Math.min(c.x0!, x2); const bw = Math.abs(x2 - c.x0!);
             if (v !== 0) { rect(Math.round(bx * 2) / 2, cy - G.barH / 2, Math.max(bw, 1), G.barH, bad ? hollow : N.area(color, hatch), gBars); }
             if (capped) {
+                breakMark(xr + dir * Math.min(5, zone / 3), cy, dir, G.barH);
                 arrow(x2 + dir * G.arrowW, cy, dir, G.barH + 4, color, bad);
-                label(x2 - dir * 3, ty, fmt.delta(v), dir > 0 ? "end" : "start", bold, true);
+                label(x2 + dir * (G.arrowW + G.lblGap), ty, fmt.delta(v), dir > 0 ? "start" : "end", bold);
             } else {
                 const lx = dir > 0 ? Math.max(x2, c.x0! + axisHalf) + G.lblGap : Math.min(x2, c.x0! - axisHalf) - G.lblGap;
                 label(lx, ty, fmt.delta(v), dir > 0 ? "start" : "end", bold);
             }
         } else {
-            const xh = X(vv);
+            const xr = X(vv); const xh = xr + dir * zone;
             svgEl("line", { x1: c.x0!, x2: xh, y1: cy, y2: cy, stroke: color, "stroke-width": G.pinStem }, gBars);
             if (capped) {
+                breakMark(xr + dir * Math.min(5, zone / 3), cy, dir, G.pinHead);
                 arrow(xh + dir * G.arrowW, cy, dir, G.pinHead + 2, color, bad);
-                label(xh - dir * 3, ty, fmt.pin(ov.D.p!), dir > 0 ? "end" : "start", bold, true);
+                label(xh + dir * (G.arrowW + G.lblGap), ty, fmt.pin(ov.D.p!), dir > 0 ? "start" : "end", bold);
             } else {
                 const hs = G.pinHead;
                 rect(xh - hs / 2, cy - hs / 2, hs, hs, bad ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1 } : N.head(hatch), gBars);

@@ -119,7 +119,7 @@ jede Referenz 1:1 nach, inkl. des jeweiligen Datenstands.
 | Größe | Formel | fs 13 |
 |---|---|---|
 | Zeilenhöhe `rowH` | `round(1.7·fs)` | 22 px |
-| Leerzeile vor Zwischensummen-Block (T01B, GuV-Gruppen) | `round(0.5·rowH)` | 11 px |
+| Leerzeile vor Zwischensummen-Block (T01B, GuV-Gruppen; seit 1.5 auch zwischen Zeilen verschiedener Eltern, z. B. Einzelknoten-Region vor dem nächsten Block) | `round(0.5·rowH)` | 11 px |
 | Kleinschrift (Margen-Zeile, Fußzeile) | `0.85·fs` | 11.1 px |
 | Spaltenlücke innerhalb Gruppe | `round(0.5·fs)` | 7 px |
 | Gruppenlücke (Werte \| ΔPY \| ΔPL) | `round(1.1·fs)` | 14 px |
@@ -184,9 +184,18 @@ schraffierte Flächen tragen zusätzlich 1-px-Kontur in derselben Farbe.
 
 ### Balken-/Pin-Maßstab
 
-- **Je Block × Familie EIN Maßstab k** (px pro Einheit): Familien `delta`
-  (Δ-Balken + Δ-Wasserfall, ΔPY und ΔPL gemeinsam), `pct` (alle Δ%-Pins),
-  `value` (alle Wert-Kaskaden). Monat und _YTD haben getrennte Maßstäbe.
+- **Seit 1.5: je Einheit EIN Maßstab k für die ganze Tabelle** (px pro
+  Einheit, IBCS 2.0 / ISO 24896 „gleiche Einheit, gleiche Skala"): Einheit
+  `amount` = Δ-Balken, Δ-Wasserfälle und Wert-Kaskaden aller Blöcke (ΔPY und
+  ΔPL gemeinsam, absolute Abweichungen in der Skala der Basiswerte), Einheit
+  `pct` = alle Δ%-Pins aller Blöcke. Rechenweg: (1) je Block × Familie
+  (`delta`, `valueCascade`, `pct`) das kleinste k ihrer Spalten wie bisher,
+  inklusive Anheben für die Mindest-Datenfläche; (2) k der Einheit = kleinstes
+  dieser k; (3) eine Gruppe, deren Datenfläche bei diesem k unter `3·fs`
+  fiele und die mindestens das Doppelte hält, zeichnet mit dem größten runden
+  Faktor (1 · 2 · 5 · 10 …), den ihre Spalten halten, und trägt ihn im Kopf
+  („ΔPL ×5") und im Skalenhinweis über der Tabelle (UN 5.2 / CH 4.3). Bis 1.4:
+  Maßstab je Block × Familie, Monat und _YTD getrennt, Kaskade und Δ getrennt.
 - **Löser:** Jedes Element liefert eine Spanne `[p, q]` in Einheiten plus
   Beschriftungsbedarf links `a` / rechts `c` in px. Gesucht ist das größte k mit
   `max(a − p·k) + max(q·k + c) ≤ Spaltenbreite − 2·pad` (konvex → Bisektion,
@@ -198,10 +207,16 @@ schraffierte Flächen tragen zusätzlich 1-px-Kontur in derselben Farbe.
   Pins 3.75 / 5.05 px/%-Pkt.; T04B Wasserfall 9.52 px/kEUR; 12A Wert-Kaskade
   0.25 px/kEUR. (Die Statuszeile im Prototyp zeigt k und Kappung live.)
 - **Überlauf-Grenze / Ausreißer:** Tukey-Zaun auf |Werte| der Familie im Block:
-  `Zaun = Q3 + 4·(Q3 − Q1)`, ab 8 Werten; Kappung = größter |Wert| ≤ Zaun.
-  Gekappte Elemente laufen bis `x0 ± Kappung·k`, dann Pfeilspitze (9 px), keine
-  Kopf-Marke; die Zahl steht mit 3-px-Weißhalo auf dem Stiel/Balken vor der
-  Spitze (12A „+983 →"). Default: an für Pins, aus für Δ-Balken (Schalter).
+  `Zaun = Q3 + 4·(Q3 − Q1)`, ab 8 Werten; Kappung je Block = größter |Wert| ≤
+  Zaun. Seit 1.5 gilt EINE Grenze je Familie für die ganze Tabelle: der größte
+  reguläre Wert aller Blöcke (ein Block ohne Ausreißer bringt sein Maximum
+  ein). Gekappte Elemente laufen bis `x0 ± Kappung·k`, dann weiter durch die
+  **Ausreißerzone** (`max(2·Pfeil, 12 % der Spalte)`), ein Bruchzeichen (zwei
+  schräge Striche im Papierton, `data-pnl="mega-break"`) kurz hinter dem
+  regulären Maximum, am Ende die Pfeilspitze (9 px) in Wuchsrichtung, keine
+  Kopf-Marke; die Zahl steht außen hinter der Spitze (UN 5.3). Bis 1.4 endete
+  das gekappte Element genau beim regulären Maximum, die Zahl stand mit
+  Weißhalo auf dem Stiel. Default: an für Pins, aus für Δ-Balken (Schalter).
   Trifft 12A (+983/+391 gekappt, +95 passt), T02A (+16.5 passt), T04 (+25.6
   passt). T02F kappt im Referenzbild schon bei Sprung 1.35× — bewusst nicht
   nachgebaut (jede Regel, die das trifft, kappt T02A fälschlich).
@@ -233,8 +248,9 @@ der Notations-Tabelle, Kostenzeilen hell (PY `#D9D9D9`, AC `#8A8886`).
 ### Zahlenformat
 
 Tausender-Trenner U+202F (wie `NBSP_GROUP`), Minus als „-". Dezimalen `d` gelten
-für Werte/ΔAbs/Margen; Δ%-Zahlen: Regionen `max(1,d)`, GuV `d ≥ 2 ? 1 : 0`;
-Pins: GuV mit `d = 0` → 0, sonst `max(1,d)`. Margen-Zeile: Wert `36.7%`,
+für Werte/ΔAbs/Margen; Δ%-Zahlen und Pins seit 1.5 in jedem Template mit einer
+Nachkommastelle (`numbers.pctDecimals = 1`; bis 1.4 nach Referenzblatt:
+Regionen `max(1,d)`, GuV `d ≥ 2 ? 1 : 0`, Pins GuV mit `d = 0` → 0). Margen-Zeile: Wert `36.7%`,
 ΔAbs `+8.6%p`, Δ% als relative Änderung mit Zeichen `+23%` (wie T03A; bis
 1.0.1 ohne Zeichen), kursiv/klein — `%p` steht nur an der Punktdifferenz.
 Schwellen: rot, wenn `Δ × (Kosten ? −1 : 1) < Schwelle` (Default Monat −20 /

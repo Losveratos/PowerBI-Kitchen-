@@ -376,44 +376,53 @@ werden dann überschrieben).
 4. **Minuend PL (12H):** `minuend = pl` braucht die PL-Rolle (sonst AC). Ein ΔPL
    gegen sich selbst existiert nicht — ΔPL-Schalter wirken dann nicht, `showPL`
    und `showMinuend` ergeben EINE PL-Spalte.
-5. **Skalen-Sync** (`fixedMax`/`fixedVarMax`): Text in **Dateneinheiten** (vor
+5. **Skalen im Mega-Table (1.5, IBCS 2.0 / ISO 24896):** eine Skala je Einheit
+   über alle Perioden-Blöcke (Δ-Balken, Δ-Wasserfälle und Wert-Kaskaden teilen
+   sie, Pins haben eine zweite). Ein Block oder eine Spalte, die dabei unter
+   die Mindest-Datenfläche fiele, zeichnet mit rundem Faktor vergrößert; der
+   Kopf trägt ihn („ΔPL ×5"), ein Skalenhinweis über der Tabelle nennt ihn.
+   Pixel je Betrag sind also zwischen Monat und YTD gleich, außer der Kopf
+   sagt etwas anderes. Gekappte Ausreißer laufen in eine Ausreißerzone
+   (Bruchzeichen, Dreieck, Zahl außen); die Kappungsgrenze gilt tabellenweit.
+   Templates schreiben `numbers.pctDecimals = 1`.
+6. **Skalen-Sync** (`fixedMax`/`fixedVarMax`): Text in **Dateneinheiten** (vor
    k/m/b-Skalierung), Suffixe k/m/b, Komma oder Punkt. Es ist ein
    **Mindest**-Maximum wie im ChartKitchen: größere Daten erweitern die Skala
    weiterhin. Gleiche Pixel je Betrag gibt es nur bei gleich breiten Spalten —
    Visuals gleicher Größe und gleicher Schalter. Im Bearbeitungsmodus steht
    „Skala fixiert" unter der Tabelle (Leser/Export sehen es nicht).
-6. **`variancePreset = auto`** folgt dem älteren `colorMode` (teal/ibcs); jeder
+7. **`variancePreset = auto`** folgt dem älteren `colorMode` (teal/ibcs); jeder
    andere Wert übersteuert ihn (der colorMode-Schalter verschwindet dann aus dem
    Pane). `goodColor`/`badColor` übersteuern beides. Hochkontrast ignoriert alles
    (Muster statt Farbe).
-7. **const enums der API:** `powerbi.VisualDataChangeOperationKind`,
+8. **const enums der API:** `powerbi.VisualDataChangeOperationKind`,
    `ViewMode` u. a. sind in der d.ts als `const enum` deklariert — zur Laufzeit
    gibt es kein Objekt. Im Code als Zahl spiegeln (`OP_APPEND = 1`), nie
    `powerbi.X.Y` zur Laufzeit lesen (esbuild-Harness bricht sonst).
-8. **Export/Abo** (`allowInteractions = false`): keine Toolbar, alle Zeilen
+9. **Export/Abo** (`allowInteractions = false`): keine Toolbar, alle Zeilen
    aufgeklappt (`columns.exportExpandAll`), keine Virtualisierung, kein
    „Skala fixiert". Bildschirm und PDF dürfen sich absichtlich unterscheiden.
-9. **Formelzeilen** verweisen per Zeilen**name** — doppelte Namen machen die
+10. **Formelzeilen** verweisen per Zeilen**name** — doppelte Namen machen die
    Referenz mehrdeutig (Fehler an der Zeile). Σ-treue Rundung lässt Formel- und
    Margenzeilen aus.
-10. **Template-Auswahl in der Toolbar (1.2)** ist ein Autoren-Werkzeug: Sie
+11. **Template-Auswahl in der Toolbar (1.2)** ist ein Autoren-Werkzeug: Sie
     erscheint nur, wenn der Host `viewMode` ≥ 1 meldet (Desktop-Bearbeitung,
     Service-Bearbeiten), und schreibt `columns.template` + `templateApplied` +
     alle Schalter in einem Merge, also genau das, was ein PBIR-Agent auch
     schreiben soll. Dieselbe Bedingung gilt für die Umschalter im Leerzustand
     (`emptyState.mode`). Ohne gemeldeten View-Mode (Test-Harness) gibt es beides
     nicht.
-11. **Wertspalten-Schalter (1.2):** Ein Klick in der Gruppe „Wertspalten"
+12. **Wertspalten-Schalter (1.2):** Ein Klick in der Gruppe „Wertspalten"
     schreibt `preset = custom` + `vals` in `state.uiState`. Ein geändertes
     `columns.preset` oder `colAc…colDelta` im Pane gewinnt wie jede
     Pane-Vorgabe. Ein PBIR-Agent setzt für eine feste freie Kombination
     `preset = 'custom'` plus die `col*`-Schalter.
-12. **Spalten-Kategorie (1.2)** wirkt nur in der klassischen Tabellen-Ansicht.
+13. **Spalten-Kategorie (1.2)** wirkt nur in der klassischen Tabellen-Ansicht.
     Die Kategorie-Blöcke rechnen ohne Σ-treue Rundung und ohne „% vom Umsatz"
     (beides bleibt im Gesamt-Block). Nicht-additive Measures (Durchschnitte,
     distinct counts) ergeben im Gesamt-Block die Summe der Kategorien, nicht
     den Modellwert. Die gleiche Regel gilt schon für die Periode.
-13. **Start-Hub (1.3):** Ohne Felder zeigt der Bearbeitungsmodus (`viewMode` ≥ 1 oder
+14. **Start-Hub (1.3):** Ohne Felder zeigt der Bearbeitungsmodus (`viewMode` ≥ 1 oder
     kein gemeldeter View-Mode, Bühne ≥ 300 × 220 px, `allowInteractions` nicht
     false) den Hub: Tour (7 Karten mit Mini-Renderings), Template-Galerie
     (18 Kacheln), Demo, Feld-Intro (1.4: dazu „🚀 Loslegen" und die untere Leiste). Leser, Export und kleine Visuals bekommen wie
@@ -428,13 +437,13 @@ werden dann überschrieben).
     Minis sind verschachtelte Visual-Instanzen über der Demo (`renderMini`),
     ohne Persist, Selektion und Tooltips. Der Hub zeichnet sie nach dem ersten
     Paint in Päckchen.
-14. **Template erneut anwenden (1.3):** Ein natives Dropdown feuert für den
+15. **Template erneut anwenden (1.3):** Ein natives Dropdown feuert für den
     bereits gewählten Eintrag kein `change`. Wiederanwenden geht über einen Klick
     auf die aktive Galerie-Kachel oder über „↺ Zum Template zurück" (nur
     sichtbar, wenn Template-Schalter abweichen). Beide schreiben unbedingt
     (`applyMegaTemplate(tpl, true)`, Echo-Guard wie beim Dropdown); ein
     PBIR-Agent muss dafür nichts tun, `template` + `templateApplied` reichen.
-15. **Hub-Polish (1.4):** Die Galerie ordnet die 18 Kacheln in vier
+16. **Hub-Polish (1.4):** Die Galerie ordnet die 18 Kacheln in vier
     Zweck-Gruppen (`HUB_GALLERY` in `src/hub.ts`: Struktur-Vergleich · Forecast ·
     GuV-Statement · Report-Ansichten; die klassische Tabelle steht zuletzt) —
     die Enum-Reihenfolge von `columns.template` bleibt Pane-Reihenfolge. Die
@@ -447,7 +456,7 @@ werden dann überschrieben).
     der Modus `emptyState.mode = fields` zeigt weiter das knappe 1.2-Intro.
     „🚀 Loslegen" ist lokaler Zustand: die Häkchen lesen gebundene Rollen,
     `labels.*`, `columns.thresholds`/`materiality*` und `numbers.*Decimals`.
-16. **Baum unantastbar:** Der Werttreiberbaum hat eigenen Klapp-Zustand
+17. **Baum unantastbar:** Der Werttreiberbaum hat eigenen Klapp-Zustand
     (`treeCollapsed`) und SVG-Titel statt Tooltips; Mega-/Finance-Schalter wirken
     dort nicht.
 

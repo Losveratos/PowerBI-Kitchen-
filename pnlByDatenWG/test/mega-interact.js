@@ -198,7 +198,7 @@ function check(label, cond, detail) {
     check("8 T04B renders at once: waterfall (with connectors) + pins", s.charts === 2 && s.conn === 1, `${s.charts} / ${s.conn}`);
     s = await upd3({ ...BASE, columns: { template: "T04B" } });
     check("8 stale update: guard holds T04B, no second persist", s.persists === 1 && s.charts === 2 && s.conn === 1);
-    const ECHO3 = { ...BASE, columns: { ...c4, template: "T04B" }, numbers: { decimals: 2, pctDecimals: 2 } };
+    const ECHO3 = { ...BASE, columns: { ...c4, template: "T04B" }, numbers: { decimals: 2, pctDecimals: 1 } };
     s = await upd3(ECHO3);
     check("8 echo: no persist", s.persists === 1 && s.charts === 2);
     s = await upd3({ ...ECHO3, columns: { ...ECHO3.columns, dPlWaterfall: false } });
@@ -287,7 +287,8 @@ function check(label, cond, detail) {
         && part(s, "titleBlock").headline === true && part(s, "numbers").decimals === 0, JSON.stringify(s.last));
     check("11 12G renders at once: FY block, stacked AC&FC (YTD numbers inside), headline from the generator",
         s.heads.includes("FY 2025") && s.heads.includes("YTD") && s.heads.includes("AC&FC") && s.stacked >= 5
-        && /^Group result ΔPY \+144/.test(s.headline || ""), JSON.stringify([s.heads, s.stacked, s.headline]));
+        && /^Group result is 144 (k?EUR )?\(\+76\.6%\) above previous year; strongest driver is Licences with \+721, /.test(s.headline || ""),
+        JSON.stringify([s.heads, s.stacked, s.headline]));
     s = await upd4({ ...BASE, columns: { template: "12G" } });
     check("11 stale update: the guard holds blockKind + headline, no second persist", s.persists === 1
         && s.heads.includes("FY 2025") && s.headline != null);
@@ -298,7 +299,7 @@ function check(label, cond, detail) {
     check("11 12H renders PY | PL cascades and ΔPY only (no ΔPL against itself)",
         JSON.stringify(s.heads) === JSON.stringify(["PY", "PL", "ΔPY", "ΔPY%"]), s.heads.join("|"));
     // an own message beats the generator; the headline switch off returns the bold line
-    const echo12H = { ...BASE, columns: { ...part(s, "columns"), template: "12H" }, numbers: { decimals: 0, pctDecimals: 0 },
+    const echo12H = { ...BASE, columns: { ...part(s, "columns"), template: "12H" }, numbers: { decimals: 0, pctDecimals: 1 },
         titleBlock: { headline: true, message: "Own message" } };
     s = await upd4(echo12H, "12A");
     check("11 headline shows the own message", s.headline === "Own message" && s.persists === 2);

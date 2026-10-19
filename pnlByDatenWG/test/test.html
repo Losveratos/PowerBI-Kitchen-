@@ -52,6 +52,8 @@
 <div class="case"><h4>m29 · 1.1 Paket C · 12H dunkel + Blau/Orange-Preset</h4><div class="stage" id="m29" style="width:1320px;height:760px"></div></div>
 <div class="case"><h4>m30 · 1.1 Paket C · Skalen-Sync: T04B mit fixedVarMax 60, 12A mit fixedMax 2k (Fußnote im Edit-Modus)</h4><div class="stage" id="m30" style="width:1320px;height:760px"></div></div>
 <div class="case"><h4>m31 · 1.1 Paket C · Virtualisierung: 400 Konten (T02A-Schalter), nur sichtbare Zeilen gezeichnet</h4><div class="stage" id="m31" style="width:1320px;height:600px"></div></div>
+<div class="case"><h4>m32 · 1.5 · T01B mit Einzelknoten-Regionen (Poland, Slovakia ohne Länder): Blocklücke vor dem nächsten Block</h4><div class="stage" id="m32" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m33 · 1.5 · T04A-Schalter mit Ausreißer-Kappung auch für Δ-Balken: Ausreißerzone, Bruchzeichen, Dreieck, Zahl außen</h4><div class="stage" id="m33" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>p12 · Smart Start (1.0) · Demo-GuV ohne Felder · Banner „Demo“ · de-DE</h4><div class="stage" id="p12" style="width:1200px;height:700px"></div></div>
 <div class="case"><h4>p13 · Dark Mode (1.0) · Tabelle · style.appearance = dark</h4><div class="stage" id="p13" style="width:1560px;height:700px"></div></div>
 <div class="case"><h4>p14 · Dark Mode (1.0) · Mega-Table T04B · Werttreiberbaum folgt in test:start</h4><div class="stage" id="p14" style="width:1320px;height:700px"></div></div>
@@ -431,6 +433,15 @@ runRows("m30", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2
 runRows("m31", MEGA_DEMO.long(400), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },
   hierarchy: { defaultLevel: 0 }, numbers: { scaling: "none", decimals: 0 },
   columns: { showPL: true, showMinuend: true, dPlBar: true, dPlPin: true } });
+
+// ---- 1.5 · IBCS 2.0 scaling ------------------------------------------------------
+// m32 — T01B: Poland / Slovakia are regions without countries (folded into one row)
+runRows("m32", MEGA_DEMO.regions({ single: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  columns: { template: "T01B" } });
+// m33 — T04A with capBars: an outlier Δ bar runs into the outlier zone
+runRows("m33", MEGA_DEMO.statement("T04", { outlier: true }), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, numbers: { decimals: 1, pctDecimals: 1 },
+  columns: { showPL: true, showMinuend: true, dPlBar: true, dPlPin: true, capBars: true } });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);
