@@ -75,6 +75,12 @@ const over3 = list => list.filter(t => t.replace(/[^0-9]/g, "").length > 3);
   const z = texts("Z4");
   measure("Z4 Texte: " + z.filter(t => /\d/.test(t)).join(" "));
   check(!z.some(t => /^[+−-]?0,0+\s*[MK]?$/.test(t)) && z.includes("0"), "6: Null als „0“, kein „0,00M“");
+  // 1.52.2: a Δ that is not zero but rounds to zero keeps its sign next to its pin
+  run("Z5", "Balken · Δ rundet auf null (C04)", dataView(prod, [col("actual", [2.45, 1.3102, 1.31, 1.12].map(v => v * M), FMT), col("plan", [2.30, 1.31, 1.29, 1.05].map(v => v * M), FMT)],
+    { chart: { orientation: "bars", comparisonMode: "plan", showAbsoluteVariance: true, showRelativeVariance: true } }), 900, 300);
+  const z5 = texts("Z5");
+  measure("Z5 Texte: " + z5.filter(t => /\d/.test(t)).join(" "));
+  check(z5.some(t => /^\+0,0+%?$/.test(t)) && !z5.some(t => /^0,0+%?$/.test(t)), "6b: Δ ≠ 0, gerundet null: „+0,0…“ mit Vorzeichen");
 }
 
 // ---- 3 · mit sumSafeRounding: eine Präzision für Labels und Σ, Summe geht auf
@@ -137,7 +143,7 @@ const over3 = list => list.filter(t => t.replace(/[^0-9]/g, "").length > 3);
   const bricks2 = [...document.querySelectorAll("#B5b g.icd-cat")].map(g => [...g.querySelectorAll("rect")].find(x => [GOOD, BAD].includes(fill(x)) || /url\(#icd-hatch-(good|bad)/.test(x.getAttribute("fill") || "")));
   const ks = bricks2.map((b, i) => b && Math.abs(dY[i]) > 0.1 * M ? num(b, "height") / Math.abs(dY[i]) : null).filter(v => v != null);
   const spread = Math.max(...ks) / Math.min(...ks);
-  const caption = texts("B5b").find(t => /Brücke \+ Monatssäulen/.test(t)) || "";
+  const caption = texts("B5b").find(t => /Brücke \+ Monatssäulen|bridge \+ monthly columns/.test(t)) || "";
   const breaks = [...document.querySelectorAll("#B5b line")].filter(l => (l.getAttribute("stroke") || "").toUpperCase() === "#FFFFFF" && l.getAttribute("stroke-width") === "7").length;
   measure(`B5b Bruch: ${mark ? "ab " + mark.getAttribute("data-cut") : "nein"} · Stufen ${r2(Math.max(...ks) * M)} px/M (×${r2(Math.max(...ks) / kA)} gegen ungekürzt) · Streuung ${r2(spread)} · ⫽ ${breaks} · „${caption}“`);
   check(!!mark && breaks >= 2 && spread < 1.03 && /Achse ab|axis broken/.test(caption), "7: Anker mit ⫽ gekürzt, Stufen in einer linearen Skala, Schnitt im Titel");
@@ -248,6 +254,27 @@ const over3 = list => list.filter(t => t.replace(/[^0-9]/g, "").length > 3);
   bc.forEach((c, i) => ser.forEach((s, j) => { bcc.push(c); bs.push(s); bv.push([2.6, 1.9, 1.5][j] * (1 - i * 0.2) * M); }));
   run("S2b", "C02 · gestapelte Balken", dataView(bcc, [col("actual", bv, FMT)], { chart: { orientation: "bars" } }, [["series", "Produkt", bs]]), 900, 300);
   check(!!document.querySelector('#S2b [data-icd="stack-legend-direct"]'), "11: C02-Legende über dem ersten Balken");
+  // 1.52.2: C02 with a first bar that carries one series only (Mähren) — names at the widest segments
+  const cc2 = ["Mähren", "Prag", "Polen", "Prag", "Prag"], ss2 = ["Pils", "Pils", "Lager", "Lager", "Dunkel"];
+  const vv2 = [2.5, 2.1, 1.6, 12.9, 3.0].map(v => v * M);
+  run("S2c", "C02 · erster Balken mit einer Reihe", dataView(cc2, [col("actual", vv2, FMT)], { chart: { orientation: "bars" } }, [["series", "Produkt", ss2]]), 900, 360);
+  const dl2 = document.querySelector('#S2c [data-icd="stack-legend-direct"]');
+  const nb = dl2 ? [...dl2.querySelectorAll("text")].map(t => t.getBBox()) : [];
+  const overlap = nb.some((a, i) => nb.some((b, j) => j > i && a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height));
+  measure(`S2c Legende: ${dl2 ? "am Stapel: " + [...dl2.querySelectorAll("text")].map(t => t.textContent).join(" · ") : "Schlüssel oben"}`);
+  check(!!dl2 && nb.length === 3 && !overlap, "11b: C02-Namen am Stapel, auch wenn der erste Balken nicht alle Reihen hat");
   run("S1off", "C01 · stackLegendDirect aus", dataView(cc, [col("actual", vv, FMT)], { chart: { orientation: "columns", stackLegendDirect: false } }, [["series", "Produkt", ss]]), 900, 360);
   check(!document.querySelector('#S1off [data-icd="stack-legend-direct"]'), "11: Option aus = Schlüssel oben");
+}
+
+// ---- 12 · 1.52.2: AC → FC-Trennlinie läuft nicht durch Beschriftungen (C13)
+{
+  run("F13", "C03 · FC-Trennlinie und Labels", dataView(mon12, [col("actual", acY, FMT), col("forecast", fcY, FMT, "Umsatz FC"), col("previousYear", pyY, FMT, "Umsatz PY")],
+    { chart: { orientation: "columns", comparisonMode: "py", showAbsoluteVariance: true, showRelativeVariance: true } }), 700, 360);
+  const lines = [...document.querySelectorAll('#F13 line[data-icd="fc-boundary"]')];
+  const boxes = [...document.querySelectorAll("#F13 text")].map(t => t.getBBox()).filter(b => b.width > 0);
+  const hit = lines.some(l => { const x = +l.getAttribute("x1"), y1 = +l.getAttribute("y1"), y2 = +l.getAttribute("y2");
+    return boxes.some(b => x >= b.x && x <= b.x + b.width && b.y + b.height > y1 + 0.5 && b.y < y2 - 0.5); });
+  measure(`F13 FC-Linie: ${lines.length} Stücke`);
+  check(lines.length >= 1 && !hit, "12: FC-Trennlinie in Stücken, keine Beschriftung gekreuzt");
 }

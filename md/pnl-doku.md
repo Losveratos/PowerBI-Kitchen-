@@ -6,7 +6,7 @@ Power-BI-Visual · Enddokumentation
 
 Das IBCS-inspirierte GuV-Visual für Power BI: ein Statement direkt aus deiner Kontendimension — als klassische Tabelle oder als Mega-Table mit den IBCS-Templates T01–T04, 12A, 12G und 12H, dazu Struktur-Bars, Zeilen-Waterfall, Werttreiberbaum und Kachel-Zoom. Diese Dokumentation führt vom Import über Datenmodell, Ansichten und Templates bis zur vollständigen Einstellungs-Referenz.
 
-Version · **1.5.1.0** · Stand · **2026-10-20** · IBCS-inspired
+Version · **1.5.2.0** · Stand · **2026-10-20** · IBCS-inspired
 
 ## Inhalt
 
@@ -21,7 +21,7 @@ Version · **1.5.1.0** · Stand · **2026-10-20** · IBCS-inspired
 9. [Interaktion](#interaction)
 10. [Abweichungen von den IBCS-Blättern](#deviations)
 11. [Troubleshooting](#faq)
-12. [Versionshinweis 1.5.1.0](#version)
+12. [Versionshinweis 1.5.2.0](#version)
 
 ## 01 · Was ist das Visual?
 
@@ -38,7 +38,7 @@ Die Notation folgt den **IBCS®-Prinzipien**: AC ausgefüllt in Dunkelgrau (#404
 
 > **Dokumentierte Abweichung: Teal statt Grün.** Günstige Abweichungen sind standardmäßig Teal (#0E8585), ungünstige Rot (#E02B1D) — statt des IBCS-Grüns #8CB400 / Rot #FF2600. So bleiben die Abweichungen bei Rot-Grün-Sehschwäche lesbar; Legende und Fußzeile nennen die Abweichung. Umschaltbar unter Stil → Abweichungsfarben (IBCS-Grün klassisch) oder per Abweichungsfarben-Preset Blau / Orange (ColorBrewer #2C7BB6 / #E66101, auch ohne Farbsehen und im Schwarzweiß-Druck unterscheidbar). Im Dunkelmodus gilt das ChartKitchen-Paar #3FB3C2 / #E4635F.
 
-Diese Anleitung beschreibt den Stand der Version **1.5.1.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft. Neu seit 1.5: die Skalierung nach IBCS 2.0 / ISO 24896 als Standard in allen Ansichten (eine Skala je Einheit, Ausreißerzone, Skalenhinweis; Kapitel 06), einklappbare Bedienleisten (☰, Kapitel 08) und die Auto-Headline als ganzer Satz. Seit 1.3 und 1.4: der Start-Hub (Kapitel 03) mit Template-Galerie nach Zweck, „🚀 Loslegen“, Schriftgrößen-Leiste HD · Full HD · UHD und Doku-Knopf, ☰ Start als erster Toolbar-Knopf, „↺ Zum Template zurück“ samt Wiederanwenden und die ruhige Landing-Karte für Leser.
+Diese Anleitung beschreibt den Stand der Version **1.5.2.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft. Neu seit 1.5: die Skalierung nach IBCS 2.0 / ISO 24896 als Standard in allen Ansichten (eine Skala je Einheit, Ausreißerzone, Skalenhinweis; Kapitel 06), einklappbare Bedienleisten (☰, Kapitel 08) und die Auto-Headline als ganzer Satz. Seit 1.3 und 1.4: der Start-Hub (Kapitel 03) mit Template-Galerie nach Zweck, „🚀 Loslegen“, Schriftgrößen-Leiste HD · Full HD · UHD und Doku-Knopf, ☰ Start als erster Toolbar-Knopf, „↺ Zum Template zurück“ samt Wiederanwenden und die ruhige Landing-Karte für Leser.
 
 ## 02 · Die Produktfamilie
 
@@ -166,7 +166,7 @@ Leser, PDF-Export und Abos sehen nie Hub, Overlay oder Leiste. Ohne Daten zeigt 
 
 ### 1 · Visual importieren
 
-1. Lade die Datei [`pnlByDatenWG…1.5.1.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.1.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
+1. Lade die Datei [`pnlByDatenWG…1.5.2.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.2.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
 2. In Power BI Desktop: *Visualisierungen* → *⋯* → *Visual aus einer Datei importieren* und die `.pbiviz` wählen. Eine ältere Version wird dabei ersetzt.
 3. Das Visual großzügig aufziehen (mindestens etwa 1200 × 800 px) — Toolbar und zwei Spaltenblöcke brauchen Breite. Frisch auf der Seite zeigt es im Bearbeitungsmodus den **Start-Hub** (Kapitel 03): „🚀 Loslegen“ führt mit Häkchen durch Felder, Template und Feinschliff, „Demo ansehen“ öffnet die Beispiel-GuV, auf der Ansichten, Toolbar und Templates schon funktionieren.
 
@@ -251,7 +251,7 @@ Das Statement: Konten, Zwischensummen, Formel- und Margenzeilen mit Auf- und Zuk
 
 ### 02 · Mega-Table
 
-Sobald in der Tabellen-Ansicht ein Spalten-Schalter des Mega-Tables an ist (Wertspalte PY, PL oder AC/FC, eine ΔPY-/ΔPL-Darstellung), zeichnet das Visual die IBCS-Tabelle; alle Schalter aus = klassische Tabelle. Wertspalten und Δ-Spalten sind frei kombinierbar: Δ als Zahl, als Balken auf einer Nulllinie, als **integrierter Wasserfall** (jeder Δ-Balken beginnt am Ende des vorigen, „=“-Zeilen setzen an der Nulllinie neu an), Δ % als Zahl oder Pin; Wertspalten optional als **Wert-Kaskaden** (12A). Ein oder zwei **Perioden-Blöcke** (Monat · YTD · FY-Ausblick) auf einer gemeinsamen Skala, **Schwellen** („Δ rot, wenn …“) mit Fußzeile, Margenzeilen kursiv mit Δ in Prozentpunkten (pp) statt Δ %, Szenario-Unterstreichungen in Kopf und Schlusszeile. Bei Strukturdaten (Regionen statt GuV) gibt es Zwischensummen-Blöcke mit Leerzeile und eine Sortierung je Block mit „(↓)“ am sortierenden Kopf; Zeilen namens „Other …“/„Sonstige …“ bleiben unten; eine Leerzeile folgt jedem Element der obersten sichtbaren Ebene, auch zwischen zwei Einzelzeilen, und eine Gruppe mit genau einem gezeigten Kind steht als eine Zeile („Deutschland · Sachsen“) ohne wiederholte Zwischensumme (1.5.1). Pins kappen Ausreißer automatisch (Tukey-Zaun Q3 + 4 × IQR, eine Grenze für die ganze Tabelle); das gekappte Element läuft in eine Ausreißerzone, getrennt durch ein Bruchzeichen, mit Dreieck und der Zahl außen. Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport; der Export zeichnet immer alles. Im Mega-Modus blendet die Toolbar Spalten-Preset, Δ-Referenz, Perioden und Einpassen aus — die Spalten kommen aus dem Formatbereich.
+Sobald in der Tabellen-Ansicht ein Spalten-Schalter des Mega-Tables an ist (Wertspalte PY, PL oder AC/FC, eine ΔPY-/ΔPL-Darstellung), zeichnet das Visual die IBCS-Tabelle; alle Schalter aus = klassische Tabelle. Wertspalten und Δ-Spalten sind frei kombinierbar: Δ als Zahl, als Balken auf einer Nulllinie, als **integrierter Wasserfall** (jeder Δ-Balken beginnt am Ende des vorigen, „=“-Zeilen setzen an der Nulllinie neu an), Δ % als Zahl oder Pin; Wertspalten optional als **Wert-Kaskaden** (12A). Ein oder zwei **Perioden-Blöcke** (Monat · YTD · FY-Ausblick) auf einer gemeinsamen Skala, **Schwellen** („Δ rot, wenn …“) mit Fußzeile, Margenzeilen kursiv mit Δ in Prozentpunkten (pp) statt Δ %, Szenario-Unterstreichungen in Kopf und Schlusszeile. Bei Strukturdaten (Regionen statt GuV) gibt es Zwischensummen-Blöcke mit Leerzeile und eine Sortierung mit „(↓)“ am sortierenden Kopf, die Zeilen je Block und die Blöcke selbst in derselben Richtung (seit 1.5.2, Einkindgruppen wie Blöcke); Zeilen namens „Other …“/„Sonstige …“ bleiben unten; eine Leerzeile folgt jedem Element der obersten sichtbaren Ebene, auch zwischen zwei Einzelzeilen, und eine Gruppe mit genau einem gezeigten Kind steht als eine Zeile („Deutschland · Sachsen“) ohne wiederholte Zwischensumme (1.5.1). Pins kappen Ausreißer automatisch (Tukey-Zaun Q3 + 4 × IQR, eine Grenze für die ganze Tabelle); das gekappte Element läuft in eine Ausreißerzone, getrennt durch ein Bruchzeichen, mit Dreieck und der Zahl außen. Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport; der Export zeichnet immer alles. Im Mega-Modus blendet die Toolbar Spalten-Preset, Δ-Referenz, Perioden und Einpassen aus — die Spalten kommen aus dem Formatbereich.
 
 > **Skalierung nach IBCS 2.0 / ISO 24896 (seit 1.5):** Gleiche Einheit, gleiche Skala. Alle Δ-Balken und Δ-Wasserfälle aller Perioden-Blöcke (Monat, YTD, FY) teilen einen Maßstab, alle Δ%-Pins einen zweiten; zwischen den Blöcken gibt es keinen Faktor, auch wenn der Monat dabei kurz wird (1.5.1). In 12A, 12G und 12H zeichnen die Δ-Balken in der Skala der Wert-Kaskaden. Nur wenn sie dort unter die Mindest-Datenfläche fielen, gilt ein runder Faktor (2, 5, 10, 20 …) für alle Δ-Spalten der Tabelle: Der Spaltenkopf nennt ihn („ΔPY ×5“), und über der Tabelle steht rechtsbündig ein Skalenhinweis. Still umskaliert wird nie. Gekappte Ausreißer laufen in eine Ausreißerzone (12 % der Spalte) mit Bruchzeichen, Dreieck und Zahl außen. Kommentar-Fußnoten bleiben immer sichtbar: Reicht der Platz nicht, setzt das Visual sie mehrspaltig, verringert dann die Zeilenhöhe und lässt den Block zuletzt am unteren Rand stehen, während die Tabelle dahinter scrollt.
 
@@ -646,10 +646,11 @@ Ein Parent- oder Ebenen-Pfad zeigt ins Leere. Das ist ein gewolltes Datenqualit�
 
 Die Kostenzeile trägt Rechenvorzeichen `-1` *und* Abweichungsfarbe drehen = `true` — die beiden Mechanismen heben sich auf. Bei `-1` die Abweichungsfarbe nicht zusätzlich drehen (Kapitel 05).
 
-## 12 · Versionshinweis 1.5.1.0
+## 12 · Versionshinweis 1.5.2.0
 
-Diese Dokumentation beschreibt **Version 1.5.1.0** vom 20.10.2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). Das Visual ist nicht im Microsoft AppSource gelistet und damit nicht von Microsoft zertifiziert. Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind seit 1.0 stabil; jede neue Einstellung steht per Standard aus oder verhält sich wie bisher. Standard-Änderungen seit 1.2: Im Bearbeitungsmodus ohne Felder erscheint der Start-Hub statt der Demo-GuV (1.3); seit 1.5 gilt die Skalierung nach IBCS 2.0 / ISO 24896 als Standard, bestehende Berichte ändern dadurch ihr Bild.
+Diese Dokumentation beschreibt **Version 1.5.2.0** vom 20.10.2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). Das Visual ist nicht im Microsoft AppSource gelistet und damit nicht von Microsoft zertifiziert. Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind seit 1.0 stabil; jede neue Einstellung steht per Standard aus oder verhält sich wie bisher. Standard-Änderungen seit 1.2: Im Bearbeitungsmodus ohne Felder erscheint der Start-Hub statt der Demo-GuV (1.3); seit 1.5 gilt die Skalierung nach IBCS 2.0 / ISO 24896 als Standard, bestehende Berichte ändern dadurch ihr Bild.
 
+- **1.5.2.0 · kosmetische Restpunkte:** IBCS-Notationszeile im Fuß bleibt mit Kommentarblock in der Kachel; Markenhinweis „IBCS Institute“; 12G-Headline „im Forecast“; 12G-YTD-Zahlen vor dem Balken, wenn sie innen nicht passen; Tooltip „pp“; Blöcke und Einkindgruppen in derselben Richtung sortiert wie die Zeilen (T02E/T02F); Verbindungslinien im Δ-Wasserfall an Zahlen unterbrochen; Δ, das auf null rundet, mit Vorzeichen („+0,00“).
 - **1.5.1.0 — Restpunkte der Skalen-Messung:** kein Faktor mehr zwischen Perioden-Blöcken, Skalierungshinweis ×n nur noch für Δ gegen die Wert-Kaskade (ein Faktor je Tabelle); Headline mit dem Δ des Treibers samt Wirkung in Worten („Mehrkosten“) und Einheit „Mio. EUR“; Margenzeilen ohne Δ %, Δ in pp mit den Δ%-Dezimalen; Schwellen-Standard bei Mio. umgerechnet; Leerzeile nach jedem Element der obersten Ebene, Einkindgruppen ohne doppelte Zwischensumme; Kommentar-Fußnoten mehrspaltig und immer sichtbar; Δ-Balken bei Minuend PL rot/grün umrandet; lesbare YTD-Zahlen in 12G; echtes Minuszeichen „−“.
 - **1.5.0.0 — Skalierung nach IBCS 2.0 / ISO 24896 als Standard:** eine Δ-Skala über alle Perioden-Blöcke, Δ in der Skala der Wert-Kaskaden, Ausreißerzone mit Bruchzeichen und Dreieck, Skalenhinweis über der Tabelle; dieselbe Regel in Balken-, Wasserfall- und Baum-Ansicht (Hover-Lupe als eigene Skala gekennzeichnet); Auto-Headline als ganzer Satz; Δ % mit einer Dezimale in jedem Template; einklappbare Bedienleisten (☰, Standard aus); Fußnote nennt IBCS 2.0 (ISO 24896).
 - **1.4.2.0 — Korrektur:** GuV-Reihenfolge im Ebenen-Modus mit Sortierspalte; erzeugte Zwischenebenen erben die kleinste Sortierung ihrer Kinder, Formelzeilen stehen wieder an ihrem Platz.
@@ -664,15 +665,15 @@ Diese Dokumentation beschreibt **Version 1.5.1.0** vom 20.10.2026 (GUID `pnlByDa
 
 Die vollständige Versionshistorie steht im [CHANGELOG](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md).
 
-**P&L Statement byDatenWG** · Version 1.5.1.0
+**P&L Statement byDatenWG** · Version 1.5.2.0
 
 Schwester-Visual: [ChartKitchen byDatenWG – Dokumentation](../chartkitchen-doku.html)
 
 Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
-Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html) · Download: [.pbiviz 1.5.1.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.1.0.pbiviz) · Quellcode und Änderungsprotokoll: [pnlByDatenWG im Repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · Für KI-Agenten: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
+Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html) · Download: [.pbiviz 1.5.2.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.2.0.pbiviz) · Quellcode und Änderungsprotokoll: [pnlByDatenWG im Repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · Für KI-Agenten: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
 
-> Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS Association (CC BY-SA 4.0, ibcs.com). Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke der HICHERT+FAISST GmbH. Dieses Visual ist nicht von der IBCS Association zertifiziert und steht in keiner Verbindung zu ihr.
+> Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS Association (CC BY-SA 4.0, ibcs.com). Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke des IBCS Institute. Dieses Visual ist nicht von der IBCS Association zertifiziert und steht in keiner Verbindung zu ihr.
 
 ---
 

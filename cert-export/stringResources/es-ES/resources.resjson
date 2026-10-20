@@ -403,6 +403,7 @@
   "ChipTip_WfBreakNa": "Corte de eje no posible: un ancla o una desviación queda por debajo del valor de corte — el eje sigue desde cero",
   "ChipTip_WfBreakNaTile": "Corte de eje no posible: el mosaico «{0}» queda por debajo del corte común — todos los mosaicos siguen desde cero",
   "WfBreak_Title": "eje cortado a partir de {0}",
+  "WfBridge_Title": "puente + columnas mensuales",
   "Foot_WfBreak": "⫽ Eje desde {0}",
   "Desc_Scale_WfAxisBreak": "Corte de eje IBCS (UN 5.3) para cascadas sobre una base grande: las anclas y subtotales se acortan con ⫽ y las desviaciones superiores se vuelven legibles. Desactivado = siempre desde cero, sin chip. Auto = desde cero, el lector corta el eje con el chip «⫽ Eje» (resaltado cuando las desviaciones son pequeñas frente a la base). Activado = cortado, el chip vuelve atrás. Solo se corta si todas las anclas y desviaciones quedan por encima del corte; si no, el eje sigue desde cero.",
   "Desc_Scale_WfBreakAt": "Valor hasta el que se comprime el eje. 0 = automático (un valor redondo por debajo del nivel más bajo). Si un ancla o una desviación queda por debajo, no se corta.",

@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 The IBCS-inspired P&L visual for Power BI: a statement straight from your account dimension — as a classic table or as a mega table with the IBCS templates T01–T04, 12A, 12G and 12H, plus structure bars, row waterfall, value driver tree and tile zoom. This documentation leads from the import through data model, views and templates to the complete settings reference.
 
-Version · **1.5.1.0** · As of · **2026-10-20** · IBCS-inspired
+Version · **1.5.2.0** · As of · **2026-10-20** · IBCS-inspired
 
 ## Contents
 
@@ -21,7 +21,7 @@ Version · **1.5.1.0** · As of · **2026-10-20** · IBCS-inspired
 9. [Interaction](#interaction)
 10. [Deviations from the IBCS sheets](#deviations)
 11. [Troubleshooting](#faq)
-12. [Version note 1.5.1.0](#version)
+12. [Version note 1.5.2.0](#version)
 
 ## 01 · What is the visual?
 
@@ -38,7 +38,7 @@ The notation follows the **IBCS® principles**: AC filled in dark gray (#404040)
 
 > **Documented deviation: teal instead of green.** Favorable variances are teal (#0E8585) by default, unfavorable ones red (#E02B1D) — instead of the IBCS green #8CB400 / red #FF2600. This keeps variances readable with red–green color-vision deficiency; legend and footer name the deviation. Switch it under Style → Variance colors (IBCS classic green) or with the variance color preset Blue / orange (ColorBrewer #2C7BB6 / #E66101, distinguishable even without color vision and in black-and-white print). Dark mode uses the ChartKitchen pair #3FB3C2 / #E4635F.
 
-This guide describes version **1.5.1.0**. Every default in the settings reference has been checked against the visual's settings model. New since 1.5: scaling following IBCS 2.0 / ISO 24896 as the default in every view (one scale per unit, outlier zone, scale note; chapter 06), collapsible control bars (☰, chapter 08) and the auto headline as a full sentence. Since 1.3 and 1.4: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.
+This guide describes version **1.5.2.0**. Every default in the settings reference has been checked against the visual's settings model. New since 1.5: scaling following IBCS 2.0 / ISO 24896 as the default in every view (one scale per unit, outlier zone, scale note; chapter 06), collapsible control bars (☰, chapter 08) and the auto headline as a full sentence. Since 1.3 and 1.4: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.
 
 ## 02 · The product family
 
@@ -166,7 +166,7 @@ Readers, PDF export and subscriptions never see the hub, the overlay or the bar.
 
 ### 1 · Import the visual
 
-1. Download the file [`pnlByDatenWG…1.5.1.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.1.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
+1. Download the file [`pnlByDatenWG…1.5.2.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.2.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
 2. In Power BI Desktop: *Visualizations* → *⋯* → *Import a visual from a file* and pick the `.pbiviz`. An older version is replaced.
 3. Draw the visual generously (at least about 1200 × 800 px) — the toolbar and two column blocks need width. Freshly placed, it shows the **start hub** in edit mode (chapter 03): “🚀 Get started” walks you through fields, template and fine-tuning with ticks, “Show demo” opens the example statement on which views, toolbar and templates already work.
 
@@ -251,7 +251,7 @@ The statement: accounts, subtotals, formula and margin rows with expand and coll
 
 ### 02 · Mega table
 
-As soon as a column switch of the mega table is on in the table view (value column PY, PL or AC/FC, or any ΔPY/ΔPL display), the visual draws the IBCS table; all switches off = classic table. Value and Δ columns combine freely: Δ as a number, as bars on one zero line, as an **integrated waterfall** (each Δ bar starts where the previous one ended, “=” rows restart from the zero line), Δ % as a number or pin; value columns optionally as **value cascades** (12A). One or two **period blocks** (month · YTD · FY outlook) on one shared scale, **thresholds** (“Δ in red if …”) with a footer, margin rows in italics with Δ in percentage points (pp) instead of Δ %, scenario underlines in the header and closing row. With structure data (regions instead of a P&L) there are subtotal blocks with a spacer row and a sort per block with “(↓)” at the sorting header; rows named “Other …” stay at the bottom; a spacer row follows every element of the top visible level, also between two single rows, and a group with exactly one shown child is one row (“Germany · Saxony”) without a repeated subtotal (1.5.1). Pins cap outliers automatically (Tukey fence Q3 + 4 × IQR, one limit for the whole table); the capped element runs into an outlier zone, separated by a break mark, with a triangle and the number outside. From 150 visible rows the mega table only draws the window around the viewport; the export always draws everything. In mega mode the toolbar hides column preset, Δ reference, periods and fit — the columns come from the format pane.
+As soon as a column switch of the mega table is on in the table view (value column PY, PL or AC/FC, or any ΔPY/ΔPL display), the visual draws the IBCS table; all switches off = classic table. Value and Δ columns combine freely: Δ as a number, as bars on one zero line, as an **integrated waterfall** (each Δ bar starts where the previous one ended, “=” rows restart from the zero line), Δ % as a number or pin; value columns optionally as **value cascades** (12A). One or two **period blocks** (month · YTD · FY outlook) on one shared scale, **thresholds** (“Δ in red if …”) with a footer, margin rows in italics with Δ in percentage points (pp) instead of Δ %, scenario underlines in the header and closing row. With structure data (regions instead of a P&L) there are subtotal blocks with a spacer row and a sort with “(↓)” at the sorting header, the rows of each block and the blocks themselves in the same direction (since 1.5.2, one-child groups like blocks); rows named “Other …” stay at the bottom; a spacer row follows every element of the top visible level, also between two single rows, and a group with exactly one shown child is one row (“Germany · Saxony”) without a repeated subtotal (1.5.1). Pins cap outliers automatically (Tukey fence Q3 + 4 × IQR, one limit for the whole table); the capped element runs into an outlier zone, separated by a break mark, with a triangle and the number outside. From 150 visible rows the mega table only draws the window around the viewport; the export always draws everything. In mega mode the toolbar hides column preset, Δ reference, periods and fit — the columns come from the format pane.
 
 > **Scaling following IBCS 2.0 / ISO 24896 (since 1.5):** Same unit, same scale. All Δ bars and Δ waterfalls of all period blocks (month, YTD, FY) share one scale, all Δ% pins a second one; there is no factor between blocks, even if the month gets short (1.5.1). In 12A, 12G and 12H the Δ bars are drawn on the scale of the value cascades. Only if they would fall below the minimum data area there, a round factor (2, 5, 10, 20 …) applies to all Δ columns of the table: the column head names it (“ΔPY ×5”), and a scale note stands right-aligned above the table. Nothing is ever rescaled silently. Capped outliers run into an outlier zone (12 % of the column) with a break mark, a triangle and the number outside. Comment footnotes always stay visible: if space runs short, the visual sets them in several columns, then reduces the row height and finally keeps the block at the bottom edge while the table scrolls behind it.
 
@@ -646,10 +646,11 @@ A parent or level path points nowhere. This is an intended data-quality signal: 
 
 The cost row carries sign convention `-1` *and* variance invert = `true` — the two mechanisms cancel each other out. With `-1`, do not flip the variance color as well (chapter 05).
 
-## 12 · Version note 1.5.1.0
+## 12 · Version note 1.5.2.0
 
-This documentation describes **version 1.5.1.0** of 20 October 2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). The visual is not listed in Microsoft AppSource and therefore not certified by Microsoft. Field roles, property names and the saved toolbar state are stable since 1.0; every new setting is off by default or behaves as before. Changed defaults since 1.2: in edit mode without fields the start hub appears instead of the demo statement (1.3); since 1.5 scaling following IBCS 2.0 / ISO 24896 is the default, so existing reports change their picture.
+This documentation describes **version 1.5.2.0** of 20 October 2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). The visual is not listed in Microsoft AppSource and therefore not certified by Microsoft. Field roles, property names and the saved toolbar state are stable since 1.0; every new setting is off by default or behaves as before. Changed defaults since 1.2: in edit mode without fields the start hub appears instead of the demo statement (1.3); since 1.5 scaling following IBCS 2.0 / ISO 24896 is the default, so existing reports change their picture.
 
+- **1.5.2.0 · cosmetic remaining points:** the IBCS notation line stays inside the tile with a comment block; trademark note “IBCS Institute”; 12G headline “(forecast)”; 12G YTD numbers before the bar when they do not fit inside; tooltip “pp”; blocks and one-child groups sorted in the same direction as the rows (T02E/T02F); Δ waterfall connectors interrupted at numbers; a Δ that rounds to zero keeps its sign (“+0.00”).
 - **1.5.1.0 — remaining points of the scale measurement:** no factor between period blocks any more, scaling indicator ×n only for Δ against the value cascade (one factor per table); headline with the driver's Δ including its effect in words (“higher costs”) and the unit “m EUR”; margin rows without Δ %, Δ in pp with the Δ% decimals; threshold defaults converted at m scaling; spacer row after every element of the top level, single-child groups without a repeated subtotal; comment footnotes in several columns and always visible; Δ bars with minuend PL outlined in red / green; readable YTD numbers in 12G; true minus sign “−”.
 - **1.5.0.0 — scaling following IBCS 2.0 / ISO 24896 as the default:** one Δ scale across all period blocks, Δ on the scale of the value cascades, outlier zone with break mark and triangle, scale note above the table; the same rule in the bars, waterfall and tree views (hover magnifier marked as its own scale); auto headline as a full sentence; Δ % with one decimal in every template; collapsible control bars (☰, default off); the footnote names IBCS 2.0 (ISO 24896).
 - **1.4.2.0 — fix:** P&L order in level mode with a sort column; generated intermediate levels inherit the smallest sort of their children, formula rows are back in place.
@@ -664,15 +665,15 @@ This documentation describes **version 1.5.1.0** of 20 October 2026 (GUID `pnlBy
 
 The complete version history is in the [CHANGELOG](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md) (German).
 
-**P&L Statement byDatenWG** · Version 1.5.1.0
+**P&L Statement byDatenWG** · Version 1.5.2.0
 
 Sister visual: [ChartKitchen byDatenWG – documentation](../chartkitchen-doku_en.html)
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
-Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.5.1.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.1.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
+Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.5.2.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.2.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
 
-> Notation follows the IBCS® Standards 2.0 (ISO 24896) of the IBCS Association (CC BY-SA 4.0, ibcs.com). Documented deviation: teal replaces the IBCS variance green to stay readable with red–green color-vision deficiency. IBCS® is a registered trademark of HICHERT+FAISST GmbH. This visual is not certified by the IBCS Association and is not affiliated with it.
+> Notation follows the IBCS® Standards 2.0 (ISO 24896) of the IBCS Association (CC BY-SA 4.0, ibcs.com). Documented deviation: teal replaces the IBCS variance green to stay readable with red–green color-vision deficiency. IBCS® is a registered trademark of the IBCS Institute. This visual is not certified by the IBCS Association and is not affiliated with it.
 
 ---
 

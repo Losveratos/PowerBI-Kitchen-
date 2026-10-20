@@ -1,5 +1,25 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.52.2.0 (2026-10-20)
+
+**Kosmetische Restpunkte der Showcase-Messung. Keine neue Option, capabilities.json unverändert; `test:notation`
+jetzt 34 Prüfungen.**
+
+- **KPI-Karten: Δ mit den Dezimalen des Werts.** „18,5 · ΔPL −1,1" statt einer zweiten Dezimale beim Δ („−0,05");
+  rundet ein Δ ungleich null auf null, steht „+0,0" bzw. „−0,0" statt mehr Stellen.
+- **Null mit Vorzeichen neben Pins (C04, C05, C13).** Ein Δ, das nicht null ist, aber auf null rundet, behält sein
+  Vorzeichen („+0,00M", „+0,0%"); auch eine Brückenstufe, die die summensichere Rundung auf null setzt (C05 August).
+  Eine exakte Null bleibt „0".
+- **Scatter und Bubble (C09, C10): Einheit wie im Titel.** Achsentitel nennen die Einheit in Langform („Absatz hl
+  in Tsd.", vorher „in K"); Ø-Linie, Größenangabe und Größenlegende ohne K/M („Ø 23,3", „○ Umsatz in Mio.
+  (max 9,0)").
+- **Stapellegende bei Balken (C02).** Die Namen stehen auch dann am Stapel, wenn der erste Balken nicht alle Reihen
+  trägt: jede Reihe über ihrem breitesten Segment; der Schlüssel kommt nur zurück, wenn ein Name nicht passt.
+- **FC-Trennlinie (C13 und alle Säulen mit Forecast-Ende).** Die gestrichelte Linie wird an Beschriftungen
+  unterbrochen (Δ-Labels, Hinweis „Summe weicht rundungsbedingt ab"). Marker `data-icd="fc-boundary"`.
+- **C05-Überschrift lokalisiert.** „PY → AC/FC · Brücke + Monatssäulen ×f" kommt aus den Sprachressourcen
+  (`WfBridge_Title`) und nutzt die Szenario-Namen.
+
 ## 1.52.1.0 (2026-10-20)
 
 **Notation nach der Pixelmessung der Showcase-App (IBCS 2.0 / ISO 24896): Einheit einmal im Titel, Szenarien ohne

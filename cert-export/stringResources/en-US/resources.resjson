@@ -403,6 +403,7 @@
   "ChipTip_WfBreakNa": "Axis break not possible: an anchor or a variance reaches below the cut value — the axis stays zero-based",
   "ChipTip_WfBreakNaTile": "Axis break not possible: tile “{0}” reaches below the shared cut value — all tiles stay zero-based",
   "WfBreak_Title": "axis broken from {0}",
+  "WfBridge_Title": "bridge + monthly columns",
   "Foot_WfBreak": "⫽ Axis from {0}",
   "Desc_Scale_WfAxisBreak": "IBCS axis break (UN 5.3) for waterfalls on a large base: anchors and subtotals are shortened with ⫽, the variances above become readable. Off = always zero-based, no chip. Auto = zero-based, the reader breaks the axis via the “⫽ Axis” chip (highlighted when the variances are small against the base). On = broken, the chip switches back. The axis is only broken when every anchor and variance lies above the cut — otherwise it stays zero-based.",
   "Desc_Scale_WfBreakAt": "Value up to which the axis is compressed. 0 = automatic (a round value below the lowest level). If an anchor or a variance lies below it, the axis is not broken.",

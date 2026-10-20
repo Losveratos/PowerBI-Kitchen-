@@ -403,6 +403,7 @@
   "ChipTip_WfBreakNa": "Achsenschnitt nicht möglich: Ein Anker oder eine Abweichung reicht unter den Schnittwert — die Achse bleibt nullbasiert",
   "ChipTip_WfBreakNaTile": "Achsenschnitt nicht möglich: Kachel „{0}“ reicht unter den gemeinsamen Schnittwert — alle Kacheln bleiben nullbasiert",
   "WfBreak_Title": "Achse ab {0} geschnitten",
+  "WfBridge_Title": "Brücke + Monatssäulen",
   "Foot_WfBreak": "⫽ Achse ab {0}",
   "Desc_Scale_WfAxisBreak": "IBCS-Achsenschnitt (UN 5.3) für Wasserfälle mit großem Sockel: Anker und Zwischensummen werden mit ⫽ gekürzt, die Abweichungen darüber werden lesbar. Aus = immer nullbasiert, kein Chip. Auto = nullbasiert, der Leser schneidet per „⫽ Achse“-Chip (hervorgehoben, wenn die Abweichungen klein gegenüber dem Sockel sind). An = geschnitten, der Chip schaltet zurück. Geschnitten wird nur, wenn alle Anker und Abweichungen oberhalb des Schnitts liegen — sonst bleibt die Achse nullbasiert.",
   "Desc_Scale_WfBreakAt": "Wert, bis zu dem die Achse gestaucht wird. 0 = automatisch (runder Wert unterhalb des niedrigsten Stands). Liegt ein Anker oder eine Abweichung darunter, wird nicht geschnitten.",
