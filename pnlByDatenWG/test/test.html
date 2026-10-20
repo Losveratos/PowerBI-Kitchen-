@@ -54,6 +54,11 @@
 <div class="case"><h4>m31 · 1.1 Paket C · Virtualisierung: 400 Konten (T02A-Schalter), nur sichtbare Zeilen gezeichnet</h4><div class="stage" id="m31" style="width:1320px;height:600px"></div></div>
 <div class="case"><h4>m32 · 1.5 · T01B mit Einzelknoten-Regionen (Poland, Slovakia ohne Länder): Blocklücke vor dem nächsten Block</h4><div class="stage" id="m32" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m33 · 1.5 · T04A-Schalter mit Ausreißer-Kappung auch für Δ-Balken: Ausreißerzone, Bruchzeichen, Dreieck, Zahl außen</h4><div class="stage" id="m33" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m34 · 1.5.1 · T01A-Schalter in Mio. (numbers.scaling m): Standard-Schwellen umgerechnet (−0,02 / −0,22)</h4><div class="stage" id="m34" style="width:1320px;height:720px"></div></div>
+<div class="case"><h4>m35 · 1.5.1 · 12A in fester Kachel mit drei Kommentaren: jede Fußnote sichtbar</h4><div class="stage" id="m35" style="width:1320px;height:620px"></div></div>
+<div class="case"><h4>m36 · 1.5.1 · 12G de-DE, „GuV in Mio. EUR, Jahresausblick gegen Vorjahr“: Headline mit Einheit vor dem Komma</h4><div class="stage" id="m36" style="width:1320px;height:760px"></div></div>
+<div class="case"><h4>m37 · 1.5.1 · 12G de-DE ohne Maßzeile, Skalierung m: Einheit „Mio. EUR“ aus Skalierung + unitText</h4><div class="stage" id="m37" style="width:1320px;height:760px"></div></div>
+<div class="case"><h4>m38 · 1.5.1 · T02B: Monat und YTD auf einer Δ-Skala (kein ×n zwischen Blöcken)</h4><div class="stage" id="m38" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>p12 · Smart Start (1.0) · Demo-GuV ohne Felder · Banner „Demo“ · de-DE</h4><div class="stage" id="p12" style="width:1200px;height:700px"></div></div>
 <div class="case"><h4>p13 · Dark Mode (1.0) · Tabelle · style.appearance = dark</h4><div class="stage" id="p13" style="width:1560px;height:700px"></div></div>
 <div class="case"><h4>p14 · Dark Mode (1.0) · Mega-Table T04B · Werttreiberbaum folgt in test:start</h4><div class="stage" id="p14" style="width:1320px;height:700px"></div></div>
@@ -311,6 +316,8 @@ function dvRows(rows, objects) {
     col("varianceInvert", "VarInv", rows.map(r => r.varianceInvert)),
   ];
   if (rows.some(r => r.month != null)) { categories.push(col("period", "Monat", rows.map(r => r.month))); }
+  // 1.5.1: comments only when the rows carry them — older cases keep their data view
+  if (rows.some(r => r.comment)) { categories.push(col("comment", "Kommentar", rows.map(r => r.comment || null))); }
   const values = [
     col("ac", "AC", rows.map(r => r.values.ac ?? null)),
     col("py", "PY", rows.map(r => r.values.py ?? null)),
@@ -442,6 +449,29 @@ runRows("m32", MEGA_DEMO.regions({ single: true }), { titleBlock: { ...MT, perio
 runRows("m33", MEGA_DEMO.statement("T04", { outlier: true }), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },
   hierarchy: { defaultLevel: 0 }, numbers: { decimals: 1, pctDecimals: 1 },
   columns: { showPL: true, showMinuend: true, dPlBar: true, dPlPin: true, capBars: true } });
+
+// ---- 1.5.1 · Restpunkte der Showcase-Messung ---------------------------------------
+/** every amount × f (the harness data are thousands; ×1000 = EUR, ×1e6 for millions) */
+const xs = (rows, f) => rows.map(r => ({ ...r, values: Object.fromEntries(Object.entries(r.values).map(([k, v]) => [k, v == null ? v : v * f])) }));
+// m34 — T01A switches at numbers.scaling "m": the built-in thresholds −20 / −220 (thousands) become −0.02 / −0.22
+runRows("m34", xs(MEGA_DEMO.regions(), 1000), { titleBlock: { ...MT, measureLine: "Revenue in mEUR", periodLine: "November 2026" }, ...REG,
+  numbers: { scaling: "m", decimals: 3, pctDecimals: 1 },
+  columns: { template: "T01A", templateApplied: "T01A", showPY: true, showPL: true, showMinuend: true, dPyAbs: true, dPyPct: true,
+    dPlAbs: true, dPlPct: true, secondBlock: true, structureSubtotals: false, thresholds: true } });
+// m35 — 12A in a fixed tile with three comments (12A ①②③): every footnote must be visible
+const CM = { lic: "Licence deal pulled forward from Q1", per: "Two senior hires in sales", oth: "Minority share of the services unit" };
+runRows("m35", MEGA_DEMO.statement("12A").map(r => CM[r.account] ? { ...r, comment: CM[r.account] } : r), { titleBlock: { unitLine: "Software and Service Group",
+  measureLine: "Profit and loss statement in kEUR", periodLine: "AC 2025, PY and ΔPY" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "12A" } });
+// m36 / m37 — 12G in German: the unit before a comma, and the unit from scaling + unitText (never "mEUR")
+const G12 = { unitLine: "Software and Service Group", periodLine: "2025 per Mai" };
+runRows("m36", xs(MEGA_DEMO.statement12G(), 1e6), { titleBlock: { ...G12, measureLine: "GuV in Mio. EUR, Jahresausblick gegen Vorjahr" },
+  toolbar: { show: false }, hierarchy: { defaultLevel: 0 }, numbers: { scaling: "m" }, columns: { template: "12G" } }, "de-DE");
+runRows("m37", xs(MEGA_DEMO.statement12G(), 1e6), { titleBlock: { ...G12, measureLine: "" },
+  toolbar: { show: false }, hierarchy: { defaultLevel: 0 }, numbers: { scaling: "m" }, columns: { template: "12G" } }, "de-DE");
+// m38 — T02B: month | YTD sorted by the minuend, one Δ scale (1.5 drew "ΔPL ×2" on the month)
+runRows("m38", MEGA_DEMO.regions({ single: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  columns: { template: "T02B" } });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);

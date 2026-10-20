@@ -80,18 +80,23 @@ test("notation: minuend fills, subtrahend axes, scenario marks", () => {
     assert.deepEqual(["AC", "PY", "PL", "FC"].map(acpl.mark), ["solid", "gray", "double", "hatch"]);
 });
 
-test("number format: explicit +, '-' minus, zero without a sign, %p and relative Δ%", () => {
+test("number format: explicit +, '−' (U+2212) minus, zero without a sign, margins and pp with the Δ% decimals", () => {
     const f = M.megaFmt(num, 1, 0);
     assert.equal(f.delta(37.36), "+37.4");
     assert.equal(f.delta(-0.04), "0.0");
+    assert.equal(f.delta(-3.25), "−3.3");
     assert.equal(f.val(1031.2), "1 031.2");
     assert.equal(f.pct(0.0662), "+7%");
-    assert.equal(f.pin(-0.154), "-15");
-    assert.equal(f.margin(0.4532), "45.3%");
-    assert.equal(f.pp(8.62), "+8.6%p");
-    // margin rows: the relative change carries its % sign (T03A "+23%"), %p is the point difference
+    assert.equal(f.pin(-0.154), "−15");
+    // 1.5.1: margins and their point difference carry pctDecimals (here 0), the suffix is "pp"
+    assert.equal(f.margin(0.4532), "45%");
+    assert.equal(f.pp(8.62), "+9 pp");
     assert.equal(f.rel(0.234), "+23%");
     assert.equal(f.share(0.4532), "45%");
+    const f2 = M.megaFmt(num, 2, 1);
+    assert.equal(f2.margin(0.52236), "52.2%", "not 52.24 % with the value decimals");
+    assert.equal(f2.pp(-1.234), "−1.2 pp");
+    assert.equal(M.MEGA_MINUS, "−");
 });
 
 test("threshold footer decimals: the value as the author typed it (−20.5 stays −20.5)", () => {
@@ -100,8 +105,8 @@ test("threshold footer decimals: the value as the author typed it (−20.5 stays
     assert.equal(M.megaDecimals(-0.105 * 100), 1, "−10.5 % via the fraction");
     assert.equal(M.megaDecimals(-12.25), 2);
     const f = M.megaFmt(num, 0, 1);
-    assert.equal(f.signed(-20.5, M.megaDecimals(-20.5), false), "-20.5");
-    assert.equal(f.signed(-220, M.megaDecimals(-220), false), "-220");
+    assert.equal(f.signed(-20.5, M.megaDecimals(-20.5), false), "−20.5");
+    assert.equal(f.signed(-220, M.megaDecimals(-220), false), "−220");
 });
 
 test("outlier cap: Tukey fence Q3 + 4·IQR (12A ΔPY% pins: +983/+391 capped, +95 fits)", () => {
@@ -162,14 +167,14 @@ test("layout T01A: thresholds turn Δ red (impact below), footer + block titles 
     const dPY0 = L.cols.find(c => c.type === "delta" && c.ref === "PY" && c.block === 0);
     const g = L.rows.find(r => r.id === "g");
     const a = L.rows.find(r => r.id === "a");
-    assert.equal(L.cellText(dPY0, g).t, "-85");
+    assert.equal(L.cellText(dPY0, g).t, "−85");
     assert.equal(L.cellText(dPY0, g).color, "#E02B1D");
     assert.equal(L.cellText(dPY0, a).color, "#1A1A1A");
     const dPY1 = L.cols.find(c => c.type === "delta" && c.ref === "PY" && c.block === 1);
-    assert.equal(L.cellText(dPY1, g).t, "-274");
+    assert.equal(L.cellText(dPY1, g).t, "−274");
     assert.equal(L.cellText(dPY1, g).color, "#E02B1D", "YTD threshold −220");
     const pct0 = L.cols.find(c => c.type === "dpct" && c.ref === "PY" && c.block === 0);
-    assert.equal(L.cellText(pct0, g).t, "-24.6%");
+    assert.equal(L.cellText(pct0, g).t, "−24.6%");
     // sum rows bold, row y strictly increasing, spacer-free flat list
     assert.equal(L.cellText(dPY0, L.rows.find(r => r.id === "eu")).bold, true);
     assert.deepEqual(L.R.map(x => x.y - L.R[0].y), [0, 22, 44, 66]);
@@ -180,13 +185,13 @@ test("layout T02: Δ↓ sort per run keeps Other last, (↓) on the sorting bloc
     const L = M.layoutMega(regionInput({ t }));
     // ΔPL month: Germany −19 before Austria −31 (descending), Other (+47) stays last
     assert.deepEqual(L.rows.map(r => r.id), ["g", "a", "o", "eu"]);
-    // (the month block is drawn magnified at the table scale: its head carries the factor)
-    const heads = L.cols.map(c => c.head.replace(/ ×\d+$/, ""));
+    // 1.5.1: no factor between blocks, the heads carry none
+    const heads = L.cols.map(c => c.head);
     assert.deepEqual(heads.filter(h => /↓/.test(h)), ["ΔPL(↓)"]);
     assert.equal(L.cols.find(c => /^ΔPL\(↓\)/.test(c.head)).block, 0);
 });
 
-test("layout T02: one scale per unit over both blocks; the unreadable month block is magnified ×5 and says so", () => {
+test("layout T02: one Δ scale and one pin scale over both blocks, no factor between blocks (1.5.1)", () => {
     const t = Object.assign(toggles(M.MEGA_PRESETS.T02A), { d: { PY: { num: false, bar: true, pct: false, pin: true },
         PL: { num: false, bar: true, pct: false, pin: true } }, showPY: true });
     const L = M.layoutMega(regionInput({ t }));
@@ -195,13 +200,11 @@ test("layout T02: one scale per unit over both blocks; the unreadable month bloc
     assert.equal(bars0[0].k, bars0[1].k, "ΔPY and ΔPL bars of the month share k");
     const bars1 = L.charts.filter(c => c.block === 1 && c.type === "bar");
     assert.ok(L.famK["0:delta"] > 0 && L.famK["0:pct"] > 0 && L.famK["1:delta"] > 0);
-    // the YTD block draws at the table scale, the month block at a round multiple of it
+    // both blocks draw at the table scale (1.5 magnified the month ×5 here)
     assert.equal(bars1[0].k, L.unitK.amount);
-    const f = bars0[0].k / L.unitK.amount;
-    assert.ok([2, 5, 10, 20, 50].some(m => Math.abs(f - m) < 1e-9), String(f));
-    assert.ok(bars0.every(c => c.mag === Math.round(f) && c.head.endsWith(" ×" + Math.round(f))), bars0.map(c => c.head).join("|"));
-    assert.ok(bars1.every(c => !c.mag && !/×/.test(c.head)));
-    assert.deepEqual(L.mags.map(m => [m.block, m.family, m.factor]), [[0, "delta", Math.round(f)]]);
+    assert.equal(bars0[0].k, L.unitK.amount);
+    assert.ok([...bars0, ...bars1].every(c => !c.mag && !/×/.test(c.head)), bars0.map(c => c.head).join("|"));
+    assert.deepEqual(L.mags, []);
     // pins: one scale over both blocks (Δ% of a month and of the year are alike)
     const pins = L.charts.filter(c => c.type === "pin");
     assert.ok(pins.every(c => c.k === L.unitK.pct), "one pin scale");
@@ -365,16 +368,16 @@ function statementInput(over) {
         R("pur", "Purchases", "acc", "", "opex", -1, false, 1), R("mat", "Material expenses", "acc", "", "opex", -1, false, 1),
         R("per", "Personnel expenses", "acc", "", "opex", -1, false, 1), R("amo", "Amortization", "acc", "", "opex", -1, false, 1),
         R("oox", "Other op. expenses", "acc", "", "opex", -1, false, 1),
-        R("opex", "Operating expenses", "sum", "-", null, -1),
+        R("opex", "Operating expenses", "sum", "−", null, -1),
         R("opres", "Operating result", "formula", "=", null, 1, true),
         { id: "gm", label: "Gross margin", kind: "pct", op: "", level: 0, group: null, other: false },
         { id: "", label: "", kind: "gap", op: "", level: 0, group: null, other: false },
         R("inv", "Investment income", "acc", "+", null, 1), R("fin", "Financial income, net", "acc", "+", null, 1),
         R("rbt", "Result before tax", "formula", "=", null, 1, true),
         { id: "", label: "", kind: "gap", op: "", level: 0, group: null, other: false },
-        R("tax", "Income tax", "acc", "-", null, -1), R("rat", "Result after tax", "formula", "=", null, 1, true),
+        R("tax", "Income tax", "acc", "−", null, -1), R("rat", "Result after tax", "formula", "=", null, 1, true),
         { id: "", label: "", kind: "gap", op: "", level: 0, group: null, other: false },
-        R("oth", "Profit to other investors", "acc", "-", null, -1), R("grp", "Group result", "formula", "=", null, 1, true),
+        R("oth", "Profit to other investors", "acc", "−", null, -1), R("grp", "Group result", "formula", "=", null, 1, true),
     ];
     // displayed values (costs positive) — T04 sheet
     const IDS = ["lic", "con", "mai", "orev", "ooi", "pur", "mat", "per", "amo", "oox", "inv", "fin", "tax", "oth"];
@@ -615,7 +618,7 @@ test("high contrast: palette → host fg / bg, red threshold numbers underlined"
         const L = M.layoutMega(regionInput({ hc: true, pal: { good: "#FFFF00", bad: "#FFFF00" } }));
         const d = L.cols.find(c => c.type === "delta" && c.ref === "PY" && c.block === 0);
         const g = L.cellText(d, L.rows.find(r => r.id === "g"));
-        assert.deepEqual([g.t, g.color, g.underline], ["-85", "#FFFF00", true]);
+        assert.deepEqual([g.t, g.color, g.underline], ["−85", "#FFFF00", true]);
         assert.equal(L.cellText(d, L.rows.find(r => r.id === "a")).underline, undefined);
     } finally { M.setMegaPalette(false); }
     assert.equal(M.MEGA_C.ink, "#404040", "the light palette is back");
@@ -636,16 +639,16 @@ test("finance format: (1 234) with the unit inside, + stays on positive Δ, exac
     assert.equal(f.pct(0.1234), "+12.3%");
     assert.equal(f.pin(-0.05), "(5.0)");
     assert.equal(f.margin(-0.367), "(36.7%)");
-    assert.equal(f.pp(-8.6), "(8.6%p)");
+    assert.equal(f.pp(-8.6), "(8.6 pp)");
     assert.equal(f.rel(-0.23), "(23%)");
     assert.equal(f.share(0.25), "25.0%");
     assert.equal(f.val(0), "–", "exact zero");
     assert.equal(f.val(-0.04), "0.0", "a rounded zero has neither sign nor parentheses");
     // the threshold footer is a rule, not a figure
-    assert.equal(f.signed(-20, 0, false), "-20");
-    // off: the 1.0 format, byte for byte
+    assert.equal(f.signed(-20, 0, false), "−20");
+    // off: the plain format (1.5.1: typographic minus)
     const o = M.megaFmt(num, 1, 1);
-    assert.deepEqual([o.val(-1234.5), o.delta(3.25), o.pct(-0.1234), o.val(0)], ["-" + k, "+3.3", "-12.3%", "0.0"]);
+    assert.deepEqual([o.val(-1234.5), o.delta(3.25), o.pct(-0.1234), o.val(0)], ["−" + k, "+3.3", "−12.3%", "0.0"]);
     const L = M.layoutMega(regionInput({ fin: true }));
     const d = L.cols.find(c => c.type === "delta" && c.ref === "PY" && c.block === 0);
     assert.equal(L.cellText(d, L.rows.find(r => r.id === "g")).t, "(85)");
@@ -701,18 +704,23 @@ test("PL minuend (12H): one PL value column, no ΔPL against itself, activeRefs 
     assert.deepEqual(M.activeRefs(Object.assign({}, t, { min: "AC" })), ["PY", "PL"]);
 });
 
-test("notation: PL minuend tints the Δ area (pale good / bad in an ink outline), dark pendant, HC solid", () => {
+test("notation: PL minuend outlines the Δ area in good / bad on paper (1.5.1), HC solid", () => {
     const hatch = (c) => "url(#h" + c + ")";
     const N = M.notation("PL", "PY");
     const a = N.area("#0E8585", hatch);
-    assert.deepEqual([a.fill, a.stroke, a.sw], [M.megaTint("#0E8585"), M.MEGA_C.ink, 1]);
+    assert.deepEqual([a.fill, a.stroke, a.sw], [M.MEGA_C.white, "#0E8585", 1]);
+    assert.deepEqual(N.area("#E02B1D", hatch), { fill: M.MEGA_C.white, stroke: "#E02B1D", sw: 1 });
+    M.setMegaPalette(true);
+    try { assert.equal(M.notation("PL", "PY").area("#3FB3C2", hatch).fill, "#1E1E1E", "dark paper inside the outline"); }
+    finally { M.setMegaPalette(false); }
+    // megaTint stays available (no longer used by the Δ area)
     assert.equal(M.megaTint("#0E8585"), "#BCDDDD", "72 % paper on white");
     assert.equal(M.megaTint("#E02B1D"), "#F6C4C0");
     assert.equal(M.megaTint("#FFF"), "#FFFFFF");
     assert.equal(M.megaTint("rgb(1,2,3)"), "rgb(1,2,3)", "unparsable colours stay");
     // the PL pin head stays outlined, PY axis
     assert.deepEqual([N.head(hatch).fill, N.head(hatch).stroke, N.axis], [M.MEGA_C.white, M.MEGA_C.ink, "gray"]);
-    // dark paper: the tint mixes toward the dark paper (dark pendant)
+    // dark paper: megaTint mixes toward the dark paper
     M.setMegaPalette(true);
     try { assert.equal(M.megaTint("#3FB3C2"), "#27484C"); } finally { M.setMegaPalette(false); }
     // high contrast: no mid tones — the area is solid
@@ -824,19 +832,22 @@ test("geometry: same amount, same length — Δ bars of the month and the YTD bl
     }
 });
 
-test("geometry: an unreadable block is magnified by a round factor, never silently rescaled", () => {
-    for (const f of [1, 0.5, 0.2]) {
+test("geometry 1.5.1: blocks never get a factor against each other (T02B month vs YTD, any ratio)", () => {
+    for (const f of [1, 0.5, 0.2, 0.05]) {
         const L = M.layoutMega(monthScaled(f, { t: toggles(M.MEGA_PRESETS.T02A) }));
         const b0 = L.charts.find(c => c.type === "bar" && c.block === 0);
         const b1 = L.charts.find(c => c.type === "bar" && c.block === 1);
-        const ratio = b0.k / b1.k;
-        // either the table scale exactly, or a round multiple named in the head
-        assert.ok(ratio === 1 && !b0.mag || [2, 5, 10, 20, 50, 100].includes(b0.mag) && Math.abs(ratio - b0.mag) < 1e-9
-            && b0.head.endsWith(" ×" + b0.mag), `f ${f}: ratio ${ratio}, head ${b0.head}`);
-        // the magnified month never leaves its column
-        for (const e of b0.els) { assert.ok(b0.x0 + e.q * b0.k + e.c <= b0.x + b0.w + 0.5); }
-        // the YTD block (the binding one) stays at the table scale
+        // the same px per unit in both blocks, no scaling indicator, no scale-note entry
+        assert.equal(b0.k, b1.k, `f ${f}`);
         assert.equal(b1.k, L.unitK.amount);
+        assert.ok(!b0.mag && !b1.mag && !/×/.test(b0.head + b1.head), `f ${f}: ${b0.head} | ${b1.head}`);
+        assert.deepEqual(L.mags, []);
+        const p0 = L.charts.find(c => c.type === "pin" && c.block === 0);
+        const p1 = L.charts.find(c => c.type === "pin" && c.block === 1);
+        assert.equal(p0.k, p1.k, "one pin scale");
+        for (const c of L.charts) {
+            for (const e of c.els) { assert.ok(c.x0 + e.p * c.k - e.a >= c.x - 0.5 && c.x0 + e.q * c.k + e.c <= c.x + c.w + 0.5, c.type + c.block); }
+        }
     }
 });
 
@@ -905,6 +916,88 @@ test("outlier zone: a capped element reaches past the largest regular value (zon
         // the layout reserves zone + triangle + number for it: nothing leaves the column
         for (const e of c.els) { assert.ok(c.x0 + e.p * c.k - e.a >= c.x - 0.5 && c.x0 + e.q * c.k + e.c <= c.x + c.w + 0.5, c.type); }
     }
+});
+
+// ---- 1.5.1 · Restpunkte der Showcase-Messung ----------------------------------
+test("1.5.1 Δ factor against the value cascades: ONE factor for the whole table, every block (12A with two blocks)", () => {
+    const t12 = toggles(M.MEGA_PRESETS["12A"]);
+    const base = statementInput({ t: t12, dec: 0, pdec: 0 });
+    // a second block with a tenth of the amounts (a month next to its YTD)
+    const b = base.blocks[0];
+    const tenth = Object.assign({}, b, {
+        name: "Nov",
+        value: (r, s) => { const v = b.value(r, s); return v == null || r.kind === "pct" ? v : v / 10; },
+        delta: (r, min, ref) => { const D = b.delta(r, min, ref); return D && (D.pp ? D : { ...D, d: D.d / 10, impact: D.impact / 10 }); },
+    });
+    const L = M.layoutMega(Object.assign({}, base, { blocks: [tenth, Object.assign({}, b, { name: "YTD" })] }));
+    const bars = L.charts.filter(c => c.type === "bar");
+    const casc = L.charts.filter(c => c.type === "vwf");
+    assert.equal(bars.length, 2);
+    // the cascades of both blocks share one k, the Δ bars of both blocks another (= m × cascade k)
+    assert.ok(casc.every(c => c.k === casc[0].k), "one cascade scale over both blocks");
+    assert.equal(bars[0].k, bars[1].k, "one Δ scale over both blocks");
+    assert.equal(bars[0].mag, bars[1].mag);
+    assert.ok(bars[0].mag >= 2 && Math.abs(bars[0].k / casc[0].k - bars[0].mag) < 1e-9, String(bars[0].mag));
+    assert.ok(bars.every(c => c.head.endsWith(" ×" + bars[0].mag)), bars.map(c => c.head).join("|"));
+    // the scale note gets ONE entry for the whole table (block −1)
+    assert.deepEqual(L.mags.map(m => [m.block, m.family, m.factor, m.heads.join()]), [[-1, "delta", bars[0].mag, "ΔPY"]]);
+    // pins: one scale, never magnified
+    const pins = L.charts.filter(c => c.type === "pin");
+    assert.ok(pins.every(c => c.k === L.unitK.pct && !c.mag));
+    // every element stays inside its column
+    for (const c of L.charts) {
+        for (const e of c.els) { assert.ok(c.x0 + e.p * c.k - e.a >= c.x - 0.5 && c.x0 + e.q * c.k + e.c <= c.x + c.w + 0.5, c.type + c.block); }
+    }
+});
+
+test("1.5.1 margin rows: no relative Δ%, margin with pctDecimals, Δ in pp; T04 prints the pp at the axis", () => {
+    // T03A: Δ column "+x.x pp" with pdec, Δ% column empty on the margin row
+    const L = M.layoutMega(statementInput({ t: toggles(M.MEGA_PRESETS.T03A), dec: 2, pdec: 1 }));
+    const gm = L.rows.find(r => r.id === "gm");
+    const val = L.cols.find(c => c.type === "value" && c.scen === "AC");
+    const dPy = L.cols.find(c => c.type === "delta" && c.ref === "PY");
+    const pPy = L.cols.find(c => c.type === "dpct" && c.ref === "PY");
+    assert.match(L.cellText(val, gm).t, /^\d+\.\d%$/, "one decimal like Δ%, not the two of the amounts");
+    assert.match(L.cellText(dPy, gm).t, /^[+−]\d+\.\d pp$/);
+    assert.equal(L.cellText(pPy, gm), null, "no Δ% of a percentage");
+    // an amount row keeps its Δ%
+    assert.ok(L.cellText(pPy, L.rows.find(r => r.id === "lic")).t.endsWith("%"));
+    // T04A (bars + pins, no Δ number column): the bar column carries the pp of the margin row
+    const L4 = M.layoutMega(statementInput({ t: toggles(M.MEGA_PRESETS.T04A), dec: 2, pdec: 1 }));
+    const bar = L4.charts.find(c => c.type === "bar");
+    assert.deepEqual((bar.ppRows || []).map(x => x.r.id), ["gm"]);
+    assert.ok(!bar.vals.some(v => v.r.id === "gm"), "a point difference is no bar");
+    assert.equal(L4.charts.find(c => c.type === "pin").ppRows, undefined, "pins: nothing for the margin row");
+    // T04B (Δ waterfall): the same number at the waterfall axis
+    const L4b = M.layoutMega(statementInput({ dec: 2, pdec: 1 }));
+    assert.deepEqual((L4b.charts.find(c => c.type === "wf").ppRows || []).map(x => x.r.id), ["gm"]);
+    // labels off: no pp numbers at the axis either
+    const off = M.layoutMega(statementInput({ t: Object.assign(toggles(M.MEGA_PRESETS.T04A), { labels: false }) }));
+    assert.equal(off.charts.find(c => c.type === "bar").ppRows, undefined);
+});
+
+test("1.5.1 readable YTD numbers: dark ink on the light cost tone, paper tone on the ink (≥ 4.5:1)", () => {
+    assert.ok(Math.abs(M.megaContrast("#FFFFFF", "#000000") - 21) < 1e-9);
+    assert.equal(M.megaReadableOn(M.MEGA_C.soft), M.MEGA_C.text, "light cost tone #8A8886: dark text");
+    assert.ok(M.megaContrast(M.MEGA_C.text, M.MEGA_C.soft) >= 4.5);
+    assert.ok(M.megaContrast(M.MEGA_C.white, M.MEGA_C.soft) < 4.5, "white on it was below AA");
+    assert.equal(M.megaReadableOn(M.MEGA_C.ink), M.MEGA_C.white, "AC ink: paper tone");
+    assert.equal(M.megaReadableOn("#777777"), null, "neither reaches 4.5:1: no number inside");
+    M.setMegaPalette(true);
+    try { assert.ok(M.megaReadableOn(M.MEGA_C.soft) != null && M.megaReadableOn(M.MEGA_C.ink) != null, "dark mode"); }
+    finally { M.setMegaPalette(false); }
+});
+
+test("1.5.1 rowK: the table can be set tighter (1.3 .. 1.7 × fs), columns and scales unchanged", () => {
+    const L = M.layoutMega(statementInput());
+    const T = M.layoutMega(statementInput({ rowK: 1.3 }));
+    const X = M.layoutMega(statementInput({ rowK: 0.5 }));
+    assert.equal(L.G.rowH, Math.round(13 * 1.7));
+    assert.equal(T.G.rowH, Math.round(13 * 1.3));
+    assert.equal(X.G.rowH, Math.round(13 * 1.3), "never below 1.3");
+    assert.ok(T.height < L.height);
+    assert.deepEqual(T.cols.map(c => c.w), L.cols.map(c => c.w));
+    assert.deepEqual(T.famK, L.famK);
 });
 
 console.log(`\n${n} mega-table layout test blocks passed`);

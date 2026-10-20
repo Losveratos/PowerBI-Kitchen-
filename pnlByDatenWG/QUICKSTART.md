@@ -5,7 +5,7 @@ Hierarchie plus die Kennzahlen (zwei Minuten). **Weg 2** ergänzt die Felder,
 die daraus eine echte GuV machen — Zeilentypen, Formelzeilen, Vorzeichen,
 Kommentare.
 
-Version **1.4.1.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
+Version **1.5.1.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 Web-Fassung dieser Anleitung: [`pnl-schnellstart.html`](../pnl-schnellstart.html)
 (DE) · [`pnl-schnellstart_en.html`](../pnl-schnellstart_en.html) (EN).
 
@@ -160,7 +160,7 @@ führt zurück.
 Periode): der AC&FC-Balken zeigt Ist bis heute voll und den Rest des Jahres
 schraffiert, die Δ-Spalten vergleichen das Jahr mit dem Vorjahr. **12H** ist die
 Planrechnung (analysiertes Szenario = PL, braucht PL): Plan umrandet, Δ-Balken
-blass getönt. Beide schalten den **Headline-Slot** an (Titelblock →
+rot/grün umrandet. Beide schalten den **Headline-Slot** an (Titelblock →
 „Headline-Slot"): die Botschaft groß neben dem Titel — eigene Botschaft oder,
 wenn leer, die generierte.
 

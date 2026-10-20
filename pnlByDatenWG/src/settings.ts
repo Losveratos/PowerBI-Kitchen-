@@ -110,7 +110,7 @@ const templateItems: LocEnumMember[] = [
     { value: "T04E", displayName: "T04E · FC: ΔPY waterfall + pins", key: "Enum_Template_T04E" },
     { value: "12A", displayName: "12A · PY + AC value cascades, ΔPY bars + pins", key: "Enum_Template_12A" },
     { value: "12G", displayName: "12G · FY outlook: PY + AC&FC (YTD + rest of year) cascades, ΔPY", key: "Enum_Template_12G" },
-    { value: "12H", displayName: "12H · plan: PY + PL cascades, ΔPY bars tinted", key: "Enum_Template_12H" }
+    { value: "12H", displayName: "12H · plan: PY + PL cascades, ΔPY bars outlined", key: "Enum_Template_12H" }
 ];
 
 /** empty state: the Start hub (1.3, default), the Smart Start demo, the field explanation or the author's own message */
@@ -342,7 +342,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         "Sets the switches below to the template defaults — afterwards every switch is free. Default: off (classic table)",
         templateItems);
     minuend = dropdown("minuend", "Mega_Minuend", "Analysed scenario (minuend)",
-        "AC filled, FC hatched, PL outlined with pale Δ bars (plan statement, 12H) — the Δ columns compare it with PY / PL. Needs the FC / PL field. Default: AC",
+        "AC filled, FC hatched, PL outlined; the Δ bars follow the minuend (PL: outlined in red / green, plan statement 12H). The Δ columns compare it with PY / PL. Needs the FC / PL field. Default: AC",
         minuendItems);
     showPY = megaToggle("showPY", "Value column PY", false, "Previous-year values as a number column. Default: off");
     showPL = megaToggle("showPL", "Value column PL", false, "Plan values as a number column. Default: off");
@@ -380,11 +380,11 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
     thresholds = megaToggle("thresholds", "Δ in red if below threshold (+ footer)", false,
         "Δ numbers below the thresholds turn red; a footer names the rule. Default: off");
     thresholdAbs = megaThreshold("thresholdAbs", "Threshold Δ (month / single block)", -20,
-        "In display units (after k/m scaling). Default: −20");
+        "In display units (after k/m scaling). Default: −20 k, converted at m and b scaling (m: −0.02)");
     thresholdPct = megaThreshold("thresholdPct", "Threshold Δ% (month / single block)", -10,
         "In whole percent. Default: −10");
     thresholdYtdAbs = megaThreshold("thresholdYtdAbs", "Threshold Δ (_YTD block)", -220,
-        "Threshold of the second block, in display units. Default: −220");
+        "Threshold of the second block, in display units. Default: −220 k, converted at m and b scaling (m: −0.22)");
     thresholdYtdPct = megaThreshold("thresholdYtdPct", "Threshold Δ% (_YTD block)", -10,
         "Threshold of the second block, in whole percent. Default: −10");
     scenarioMarks = megaToggle("scenarioMarks", "Scenario underlines (head + closing)", true,

@@ -2,7 +2,7 @@
 
 IBCS-inspiriertes GuV-/P&L-Custom-Visual für Power BI — eigenständiges
 Schwester-Visual von [ChartKitchen byDatenWG](../ibcsInspiredChartDeck/) und der
-[IBCS KPI Card](../ibcsKpiCard/). **Version 1.4.1.0**:
+[IBCS KPI Card](../ibcsKpiCard/). **Version 1.5.1.0**:
 Tabelle mit **Mega-Table** (IBCS-Templates T01–T04, 12A, 12G und 12H), Struktur-Bars,
 Zeilen-Waterfall und **Werttreiberbaum (DuPont)** mit Kachel-Zoom; Selektion,
 Drillthrough und natives Kontextmenü; **vier Sprachen** (de · en · es · ja),
@@ -34,7 +34,7 @@ Toolbar-Zustände sind bookmark-fähig persistiert.
 | F9 | Skalierung Auto/k/m/b, Dezimalstellen, 3-zeiliger IBCS-Titelblock mit Message-Zeile, Auto-Botschaft und Headline-Slot der 12er-Serie; Fußzeilen für Datenstand und Filter |
 | F11 | Selektion & Cross-Filtering: Linksklick auf eine Wertspalte (bzw. den Kachel-Kopf) setzt die Power-BI-Selektion der Zeile — inkl. aller Quellzeilen eines Kontos; Subtotals und Formelzeilen selektieren die Blätter darunter |
 | F12 | Natives Kontextmenü per Rechtsklick auf jede Zeile und jede Karte — Power BI hängt die **Drillthrough-Ziele** der Seite selbst ein; in der Kachel-Ansicht erledigt der Knopf „↗ Drill“ Selektion und Menü in einem Griff. Abschaltbar über Stil → „Selektion & Kontextmenü aktiv“ |
-| Mega-Table | IBCS-Tabellen T01A/B, T02A–F, T03A/B, T04A–E, 12A, 12G und 12H als Zuschaltung der Tabellen-Ansicht (Spalten & Mega-Table → Template): Wert- und Δ-Spalten frei kombinierbar, Δ-Balken, Δ%-Pins, integrierter Δ-Wasserfall, Wert-Kaskaden (12G: YTD + Restjahr in einem Balken), Planrechnung mit getönten Δ (12H), Blöcke Monat \| YTD \| FY, Schwellen mit Fußzeile, ab 150 Zeilen virtualisiert — siehe [`SPEC-MEGATABLE.md`](SPEC-MEGATABLE.md) |
+| Mega-Table | IBCS-Tabellen T01A/B, T02A–F, T03A/B, T04A–E, 12A, 12G und 12H als Zuschaltung der Tabellen-Ansicht (Spalten & Mega-Table → Template): Wert- und Δ-Spalten frei kombinierbar, Δ-Balken, Δ%-Pins, integrierter Δ-Wasserfall, Wert-Kaskaden (12G: YTD + Restjahr in einem Balken), Planrechnung mit umrandeten Δ (12H), Blöcke Monat \| YTD \| FY, Schwellen mit Fußzeile, ab 150 Zeilen virtualisiert — siehe [`SPEC-MEGATABLE.md`](SPEC-MEGATABLE.md) |
 | Finance | Wie ChartKitchen: Tooltips, Σ-treue Rundung, Klammern statt Minus, Hausbegriffe (Ist/VJ/Budget), Wesentlichkeit, Zeilen hervorheben, Skalen-Sync über Visuals (`numbers.fixedMax`/`fixedVarMax`), Farb-Preset Blau/Orange |
 | Sprachen | Deutsch, Englisch, Spanisch, Japanisch — Formatmenü, Feldrollen, Toolbar, Tooltips, Fußzeilen, Fehlermeldungen und Demo (`stringResources/<locale>/resources.resjson`) |
 | Start-Hub | Ohne Felder zeigt das Visual im Bearbeitungsmodus (1.3, Standard) **vier große Knöpfe**: *Was kann das Visual?* (Tour mit Mini-Renderings), *Templates* (Galerie mit Vorschau, ein Klick wendet an), *Demo ansehen* (die Demo-GuV) und *Felder erklären*. Mit Daten öffnet **☰ Start** in der Toolbar denselben Hub als Overlay. Unter Leer-Zustand → Modus bleiben Demo (Smart Start), Feld-Intro und eigene Nachricht wählbar. Nie im Lesemodus oder Export |

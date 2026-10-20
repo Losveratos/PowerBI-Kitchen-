@@ -35,7 +35,8 @@ PL doppelt, FC schraffiert (siehe T01/T03-Köpfe und Summen-Unterstreichungen).
 ### Phase 1 — Varianz-Spalten-Engine (T03A/B; Basis T01A/B)
 
 - Frei kombinierbarer Spaltensatz: PY | PL | AC oder FC | ΔPY | ΔPY% | ΔPL | ΔPL%.
-- %‑Zeilen (Margen, `rowType`): Varianzen als **%p** (Prozentpunkte), kursiv.
+- %‑Zeilen (Margen, `rowType`): Varianzen als **pp** (Prozentpunkte, seit 1.5.1;
+  vorher „%p"), kursiv, kein relatives Δ%.
 - „Δ in red if"-Schwellenwert je Spalte (absolut/%) mit Fußnoten-Zeile wie T01A
   (`Δ in red if: <-20 · <10%`); Werte unterhalb → rote Zahl.
 - Kosten-Invertierung über vorhandenes `varianceInvert`.
@@ -196,6 +197,14 @@ schraffierte Flächen tragen zusätzlich 1-px-Kontur in derselben Farbe.
   Faktor (1 · 2 · 5 · 10 …), den ihre Spalten halten, und trägt ihn im Kopf
   („ΔPL ×5") und im Skalenhinweis über der Tabelle (UN 5.2 / CH 4.3). Bis 1.4:
   Maßstab je Block × Familie, Monat und _YTD getrennt, Kaskade und Δ getrennt.
+  **1.5.1 ersetzt Schritt (3):** zwischen Blöcken nie ein Faktor (alle Δ-Gruppen
+  aller Blöcke zeichnen mit `unitK.amount`, alle Pins mit `unitK.pct`). Ein Faktor
+  nur für die Familie `delta` gegenüber `valueCascade` (12A/12G/12H): fällt die
+  größte Δ-Spanne bei `unitK.amount` unter `3·fs`, gilt `m = niceFactor(min kG /
+  kU)` für ALLE Δ-Spalten der Tabelle; `mags` enthält dann genau einen Eintrag mit
+  `block = −1`. Spalten, die für ein höheres eigenes k gewachsen waren, schrumpfen
+  auf den Bedarf beim Tabellen-k zurück (nie unter ihren Anteil an der freien
+  Breite, `baseInner`).
 - **Löser:** Jedes Element liefert eine Spanne `[p, q]` in Einheiten plus
   Beschriftungsbedarf links `a` / rechts `c` in px. Gesucht ist das größte k mit
   `max(a − p·k) + max(q·k + c) ≤ Spaltenbreite − 2·pad` (konvex → Bisektion,
@@ -247,12 +256,15 @@ der Notations-Tabelle, Kostenzeilen hell (PY `#D9D9D9`, AC `#8A8886`).
 
 ### Zahlenformat
 
-Tausender-Trenner U+202F (wie `NBSP_GROUP`), Minus als „-". Dezimalen `d` gelten
-für Werte/ΔAbs/Margen; Δ%-Zahlen und Pins seit 1.5 in jedem Template mit einer
+Tausender-Trenner U+202F (wie `NBSP_GROUP`), Minus als „−" (U+2212, seit 1.5.1;
+vorher „-"). Dezimalen `d` gelten für Werte/ΔAbs, Margen und ihre Punktdifferenz
+seit 1.5.1 mit `pctDecimals`; Δ%-Zahlen und Pins seit 1.5 in jedem Template mit einer
 Nachkommastelle (`numbers.pctDecimals = 1`; bis 1.4 nach Referenzblatt:
-Regionen `max(1,d)`, GuV `d ≥ 2 ? 1 : 0`, Pins GuV mit `d = 0` → 0). Margen-Zeile: Wert `36.7%`,
-ΔAbs `+8.6%p`, Δ% als relative Änderung mit Zeichen `+23%` (wie T03A; bis
-1.0.1 ohne Zeichen), kursiv/klein — `%p` steht nur an der Punktdifferenz.
+Regionen `max(1,d)`, GuV `d ≥ 2 ? 1 : 0`, Pins GuV mit `d = 0` → 0). Margen-Zeile (1.5.1): Wert `36.7%` mit `pctDecimals`,
+ΔAbs `+8.6 pp` (schmales Leerzeichen, `pctDecimals`), kein Δ% (bis 1.5 die
+relative Änderung `+23%` und `%p`), kursiv/klein. Neben Δ-Balken oder einem
+Δ-Wasserfall ohne Δ-Zahlenspalte (T04A bis E) steht die pp-Zahl an der Achse,
+ohne Balken; derselbe Schalter `showPctRows` steuert beides.
 Schwellen: rot, wenn `Δ × (Kosten ? −1 : 1) < Schwelle` (Default Monat −20 /
 −10 %, _YTD −220 / −10 %; GuV −20 / −10 %). Die Fußzeile druckt die Schwelle
 mit den Dezimalen, die sie trägt (`<-20.5`, `<-10.5%`; 1.0 rundete auf 0), der
@@ -685,6 +697,12 @@ p1–p14 / m1–m26 gegen 1.1 Paket A+B byte-identisch (PNG und innerHTML je Sta
   Löser — Wert-Kaskaden `[0, max]`, Δ-Balken und Δ-Wasserfälle `±max`, jeweils mit
   Beschriftungsbedarf der fetten max-Zahl. ChartKitchen-Semantik „Mindest-
   Maximum": größere Daten weiten die Skala weiter; Pins bleiben aus dem Sync.
+  Kaskaden und Δ sind eine Einheit (`unitK.amount` = kleinstes k aller Gruppen),
+  ein Phantom kann also auch die andere Familie verkleinern. Reiter-Gruppen
+  (1.5.1, gemessen 1566 × 742): mit beiden Werten gleich k in 12A/12G/12H
+  (Kaskade und Δ), mit `fixedVarMax` gleich k in T04B bis T04E; nur `fixedMax`
+  reicht in den 12ern nicht, weil der Δ-Faktor (×n) dann je Reiter aus den
+  Daten folgt.
   Klassisch: einheitlicher Δ-Maßstab = max(Daten, fixedVarMax) (Skalennotiz folgt),
   Wert-/Kaskadenbalken der Balken- und Waterfall-Ansicht mit fixedMax. Fußnote
   „Skala fixiert: Werte ≥ … · Δ ≥ ±…" nur im Bearbeitungsmodus, nie im Export.
@@ -740,6 +758,36 @@ Identität).
 Tests: `test/toolbar-interact.js` I (Template-Auswahl) und J
 (Mega-Wertspalten), `test/ease-interact.js` P (Pane) und C (Mega ignoriert die
 Kategorie). Pixel-Regression: m1–m31 byte-identisch zu 1.1.
+
+### Stand 1.5.1 · Restpunkte der Showcase-Messung
+
+- **Skala:** kein Faktor zwischen Blöcken (T02B zeichnete „ΔPL ×2" am Monat, T02C
+  bei fast gleichem Verhältnis nicht). Ein Faktor nur Δ gegen Wert-Kaskade, einer
+  je Tabelle (siehe Löser, Schritt 3).
+- **Margen:** `pctDecimals`, Δ in pp, kein Δ% (T03A/B, T04A bis E einheitlich).
+- **Schwellen:** Standardwerte −20 / −220 sind Tausender; bei `numbers.scaling`
+  m / b (auch Auto, wenn es dorthin schaltet) gilt `d · 1000 / div` (−0,02 bzw.
+  −0,22 in Mio.). Ohne Skalierung und bei k bleiben −20 / −220. Gesetzte Werte
+  (Property in `metadata.objects.columns` vorhanden) gelten wie eingetippt.
+- **Lücken (Strukturdaten mit Zwischensummen):** nach jedem Element der obersten
+  sichtbaren Ebene (unter einer einzigen Gesamtsumme deren Kinder, sonst die
+  Wurzeln) eine Leerzeile, auch zwischen zwei Einzelzeilen (Polen, Slowakei).
+  Eine Gruppe mit genau einem gezeigten Kind hat keine Zwischensumme; die
+  Kindzeile steht allein und heißt „Gruppe · Kind" (Deutschland · Sachsen).
+- **12H:** Δ-Elemente bei Minuend PL rot/grün umrandet auf Papier (vorher blass
+  getönt), Hochkontrast voll. FC bleibt schraffiert.
+- **12G:** YTD-Zahl im vollen Teil in Papierton oder Textfarbe, je nachdem was
+  mehr Kontrast hat; unter 4,5:1 keine Zahl (`megaReadableOn`). Kostenzeilen
+  (#8A8886) jetzt dunkel (5,0:1 statt 3,5:1).
+- **Kommentar-Fußnoten:** enden sie unter dem sichtbaren Bereich, werden sie
+  mehrspaltig gesetzt, dann die Zeilenhöhe bis 1,3 · fs verringert
+  (`MegaInput.rowK`), zuletzt klebt der Block unten (`position: sticky`). Export
+  unverändert.
+- **Headline:** Treiber mit dem Δ der Tabelle und Wirkung in Worten („+0,81 Mio.
+  EUR Mehrkosten"), Einheit auch vor Komma („GuV in Mio. EUR, …"), Fallback
+  „Mio. EUR" / „Tsd. EUR" aus Skalierung + `unitText`, Minuend ≠ AC im Subjekt
+  („liegt im Plan"), Prozent „−28,5 %".
+- **Minus:** „−" (U+2212) in allen Zahlen und in der Vorzeichen-Spalte.
 
 ### Stand 1.3 · Start-Hub und Template-Bedienung (was den Mega-Table berührt)
 

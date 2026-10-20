@@ -96,7 +96,8 @@ function readMega(id) {
     await page.waitForTimeout(600);
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
-        "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33"];
+        "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
+        "m34", "m35", "m36", "m37", "m38"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -109,9 +110,10 @@ function readMega(id) {
     }
     const heads = id => S[id] ? S[id].head.map(t => t.t) : [];
     // numbers group with a narrow no-break space (U+202F) — tests write a blank
-    const nb = t => t.replace(/(\d) (\d)/g, "$1\u202F$2");
+    // 1.5.1: numbers carry the typographic minus (U+2212) — tests write "-85"
+    const nb = t => t.replace(/(\d) (\d)/g, "$1\u202F$2").replace(/(^|[<(\s])-(?=\d)/g, "$1\u2212");
     const has = (id, t) => S[id] && S[id].body.some(x => x.t === nb(t));
-    const cell = (id, t) => S[id] && S[id].body.find(x => x.t === t);
+    const cell = (id, t) => S[id] && S[id].body.find(x => x.t === nb(t));
 
     // ---- T03A: column set, values, %p row, marks, sign column ---------------
     check("m1 T03A heads PY PL AC ΔPY ΔPL (paired Δ%)", JSON.stringify(heads("m1")) === JSON.stringify(["PY", "PL", "AC", "ΔPY", "ΔPL"]), heads("m1").join("|"));
@@ -119,10 +121,12 @@ function readMega(id) {
     check("m1 Operating expenses ΔPY +37.4 (display orientation, costs up)", has("m1", "+37.4"));
     check("m1 Operating expenses ΔPY% +6.6% (1.5: one Δ% decimal in every template)", has("m1", "+6.6%"));
     check("m1 Gross margin AC 45.3% italic", cell("m1", "45.3%") && cell("m1", "45.3%").italic);
-    check("m1 Gross margin ΔPY +8.6%p", has("m1", "+8.6%p"));
-    check("m1 Gross margin ΔPY% relative +23% (with % sign, T03A)", has("m1", "+23%") && !has("m1", "+23"));
+    check("m1 Gross margin ΔPY +8.6 pp (1.5.1: pp, Δ% decimals)", has("m1", "+8.6\u202Fpp"));
+    check("m1 Gross margin: no relative Δ% any more (1.5.1)", !has("m1", "+23%") && !has("m1", "+23"));
     check("m1 Group result AC 422.2 bold", cell("m1", "422.2") && cell("m1", "422.2").bold);
-    check("m1 sign column: = / + / -", has("m1", "=") && has("m1", "+") && has("m1", "-"));
+    check("m1 sign column: = / + / − (U+2212)", has("m1", "=") && has("m1", "+") && has("m1", "\u2212"));
+    check("1.5.1 no hyphen-minus in front of a number anywhere (m1, m3, m5, m15)", ["m1", "m3", "m5", "m15"].every(id => S[id]
+        && !S[id].body.some(x => /(^|[^A-Za-z])-\d/.test(x.t)) && !S[id].charts.some(c => c.labels.some(l => /(^|[^A-Za-z])-\d/.test(l.t)))));
     check("m1 head marks: AC solid ink + PY gray", S.m1 && S.m1.headRects.some(r => r.fill === "#404040" && r.h === 4)
         && S.m1.headRects.some(r => r.fill === "#B3B3B3" && r.h === 4));
     check("m1 no chart columns", S.m1 && S.m1.charts.length === 0);
@@ -139,7 +143,7 @@ function readMega(id) {
     check("m3 World AC month 3 254 + YTD 32 489", has("m3", "3 254") && has("m3", "32 489"));
     check("m3 duplicate leaves named after their region", has("m3", "Other Europe") && has("m3", "Other Americas"));
     check("m3 no subtotal rows (Europe hidden)", !has("m3", "Europe"));
-    const red = (id, t) => S[id] && S[id].body.some(x => x.t === t && x.fill === "#E02B1D");
+    const red = (id, t) => S[id] && S[id].body.some(x => x.t === nb(t) && x.fill === "#E02B1D");
     check("m3 Germany ΔPY -85 red (< -20)", red("m3", "-85"));
     check("m3 Germany ΔPY% -24.6% red (< -10%)", red("m3", "-24.6%"));
     check("m3 Austria ΔPY +59 not red", has("m3", "+59") && !red("m3", "+59"));
@@ -248,7 +252,9 @@ function readMega(id) {
             && wf.bars.some(b => b.fill === "#E02B1D" && Math.abs(b.x - 3 - pur.x) < 0.6));
         check("m11 Group result +6.04 bold", wf.labels.some(l => l.t === "+6.04" && l.bold));
         check("m11 pins with one decimal (+25.3, 1.5)", S.m11.charts[1].labels.some(l => l.t === "+25.3"));
-        check("m11 margin row keeps its %p-free values (10.99%)", has("m11", "10.99%"));
+        // 1.5.1: the margin carries the Δ% decimals (11.0 %, not 10.99 %), its Δ prints as pp at the waterfall axis
+        check("m11 margin row with pctDecimals (11.0%, not 10.99%)", has("m11", "11.0%") && !has("m11", "10.99%"));
+        check("m11 margin row: +0.8 pp at the ΔPL waterfall axis, no bar", wf.labels.some(l => l.t === "+0.8\u202Fpp"));
         // the cascade really runs on: Other op. income starts where Sales revenue ended
         const ids11 = S.m11.rowIds; const y11 = S.m11.rowY;
         const seg = id => { const i = ids11.indexOf(id); return wf.bars.find(b => b.y > y11[i] && b.y < y11[i] + 22); };
@@ -282,7 +288,7 @@ function readMega(id) {
         const D = S.m16;
         check("m16 six chart columns (bar, waterfall, pins per block)", D.charts.length === 6);
         const wf0 = D.charts[1];
-        check("m16 subtotal blocks span their regions (Europe -36 left of its bar)", wf0.labels.some(l => l.t === "-36" && l.bold && l.anchor === "end"));
+        check("m16 subtotal blocks span their regions (Europe -36 left of its bar)", wf0.labels.some(l => l.t === "\u221236" && l.bold && l.anchor === "end"));
         check("m16 World anchored on the zero line", (() => {
             const i = D.rowIds.indexOf("L:World"); const y = D.rowY[i];
             const b = wf0.bars.find(r => r.y > y && r.y < y + 22);
@@ -299,7 +305,8 @@ function readMega(id) {
 
     // ==== 1.1 package A ==========================================================
     // fix 1 — margin rows: relative Δ% with %, %p only for the point difference
-    check("m2 T03B margin row relative +21% / +20% (with %)", has("m2", "+21%") && has("m2", "+20%") && has("m2", "+7.7%p"));
+    // 1.5.1: margin rows: the point difference in pp, no relative Δ% (a percentage of a percentage)
+    check("m2 T03B margin row +7.7 pp, no relative +21% / +20%", has("m2", "+7.7\u202Fpp") && !has("m2", "+21%") && !has("m2", "+20%"));
     // fix 3 — legend = the scenarios the mega columns show; axis note only for real Δ axes
     const lg = id => S[id] ? S[id].legend : "";
     check("m7 T02F legend PL + FC only (no AC, no PY)", /PL plan/.test(lg("m7")) && /FC forecast/.test(lg("m7"))
@@ -326,7 +333,7 @@ function readMega(id) {
             bars.every(c => c.bars.some(b => b.fill === "#000000" && b.stroke === "#FFFF00") && c.bars.some(b => b.fill === "#FFFF00" && !b.stroke)));
         check("m19 HC: unfavourable pin heads hollow", D.charts[1].rects.some(r => r.fill === "#000000" && r.stroke === "#FFFF00" && r.w === 8));
         check("m19 HC: PY head mark dashed", D.pyMarkDashed === 2, String(D.pyMarkDashed));
-        check("m19 HC: red threshold numbers underlined (-85, -274)", D.underlined.includes("-85") && D.underlined.includes("-274")
+        check("m19 HC: red threshold numbers underlined (−85, −274)", D.underlined.includes("\u221285") && D.underlined.includes("\u2212274")
             && !D.underlined.includes("+59"), D.underlined.join(","));
         check("m19 HC: no teal note in the legend", !/teal/.test(D.legend));
     }
@@ -363,7 +370,7 @@ function readMega(id) {
     // ---- 1.1 Paket C ------------------------------------------------------------
     const pageInfo = await page.evaluate(() => {
         const o = {};
-        for (const id of ["m27", "m28", "m29", "m30", "m1", "m15", "m5", "m11", "m33"]) {
+        for (const id of ["m27", "m28", "m29", "m30", "m1", "m15", "m5", "m11", "m33", "m36", "m37", "m38"]) {
             const st = document.getElementById(id);
             const hl = st.querySelector('[data-pnl="headline"]');
             const note = st.querySelector('[data-pnl="scale-fixed"]');
@@ -377,10 +384,14 @@ function readMega(id) {
     if (S.m27) {
         check("m27 12G heads: FY 2025 · PY · YTD + AC&FC · ΔPY · ΔPY%", ["FY 2025", "PY", "YTD", "AC&FC", "ΔPY", "ΔPY%"].every(h => heads("m27").includes(h)),
             heads("m27").join("|"));
-        // the stacked bar: YTD inside (paper tone), the year outside (Licences 538 ▓ 1 434, Sales revenue 637 ▓ 1 698)
+        // the stacked bar: YTD inside, the year outside (Licences 538 ▓ 1 434, Sales revenue 637 ▓ 1 698)
         const ytd = pageInfo.m27.ytd.map(x => x.t);
+        const fillOf = t => (pageInfo.m27.ytd.find(x => x.t === t) || {}).fill;
         check("m27 YTD numbers inside the solid part (538, 637, 196, 267, 200) on the paper tone",
-            ["538", "637", "196", "267", "200"].every(x => ytd.includes(x)) && pageInfo.m27.ytd.every(x => x.fill === "#FFFFFF"), ytd.join(","));
+            ["538", "637", "196", "267", "200"].every(x => ytd.includes(x) && fillOf(x) === "#FFFFFF"), ytd.join(","));
+        // 1.5.1: on the light cost tone (#8A8886) the number is dark ink (≥ 4.5:1), not white (~3.5:1)
+        check("m27 YTD numbers of cost rows (227, 451) in dark ink on the light tone (1.5.1)",
+            ["227", "451"].every(x => fillOf(x) === "#1A1A1A"), JSON.stringify(pageInfo.m27.ytd));
         check("m27 year numbers outside (1 434, 1 698, 1 202)", has("m27", "1 434") && has("m27", "1 698") && has("m27", "1 202"));
         const vwf = S.m27.charts[1];
         check("m27 AC&FC cascade: solid YTD + hatched rest of year per row", vwf.bars.filter(b => /^url\(/.test(b.fill)).length >= 15
@@ -390,15 +401,18 @@ function readMega(id) {
         check("m27 ΔPY bars hatched", S.m27.charts[2].bars.length > 10 && S.m27.charts[2].bars.every(b => /^url\(/.test(b.fill)));
         check("m27 legend explains the hatch (FC) next to PY + AC", /FC/.test(S.m27.legend) && /PY/.test(S.m27.legend) && /AC/.test(S.m27.legend));
         // 1.5: one sentence, drivers with their effect on the result, the unit of the title line
-        check("m27 headline slot: generated sentence, large", pageInfo.m27.headline === "Group result is 144 kEUR (+76.6%) above previous year; "
-            + "strongest driver is Licences with +721, largest drag is Purchases with -262."
+        // 1.5.1: drivers with the Δ the table shows (+262 for the cost overrun), unit and effect in words, "%" after a narrow space
+        check("m27 headline slot: generated sentence, large", pageInfo.m27.headline === "Group result is 144\u00A0kEUR (+76.6\u202F%) above previous year; "
+            + "strongest driver is Licences with +721\u00A0kEUR higher income, largest drag is Purchases with +262\u00A0kEUR higher costs."
             && pageInfo.m27.headlineFs >= 16, JSON.stringify(pageInfo.m27.headline));
     }
     if (S.m28) {
         check("m28 12H heads PY | PL | ΔPY | ΔPY%", JSON.stringify(heads("m28")) === JSON.stringify(["PY", "PL", "ΔPY", "ΔPY%"]), heads("m28").join("|"));
         const bars = S.m28.charts[2].bars;
-        check("m28 ΔPY bars tinted pale teal / red in an ink outline", bars.length > 10
-            && bars.every(b => (b.fill === "#BCDDDD" || b.fill === "#F6C4C0") && b.stroke === "#404040"), JSON.stringify(bars.slice(0, 3)));
+        // 1.5.1: PL minuend = outlined Δ bars (good / bad outline on paper), no pale tint any more
+        check("m28 ΔPY bars outlined teal / red on paper", bars.length > 10
+            && bars.every(b => b.fill === "#FFFFFF" && (b.stroke === "#0E8585" || b.stroke === "#E02B1D"))
+            && bars.some(b => b.stroke === "#E02B1D"), JSON.stringify(bars.slice(0, 3)));
         check("m28 PL cascade outlined, cost rows on the pale ground", S.m28.charts[1].bars.some(b => b.fill === "#FFFFFF" && b.stroke === "#404040")
             && S.m28.charts[1].bars.some(b => b.fill === "#F2F2F2"));
         check("m28 PL pins: outlined heads", S.m28.charts[3].rects.some(r => r.fill === "#FFFFFF" && r.stroke === "#404040"));
@@ -409,8 +423,11 @@ function readMega(id) {
     }
     if (S.m29) {
         const bars = S.m29.charts[2].bars;
-        check("m29 dark + blue/orange: tints of #5BA3DC / #F0821E toward the dark paper", bars.length > 10
-            && bars.every(b => b.fill === "#2F4353" || b.fill === "#593A1E"), [...new Set(bars.map(b => b.fill))].join(","));
+        check("m29 dark + blue/orange: Δ bars outlined #5BA3DC / #F0821E on the dark paper", bars.length > 10
+            && bars.every(b => b.fill === "#1E1E1E" && (b.stroke === "#5BA3DC" || b.stroke === "#F0821E")), [...new Set(bars.map(b => b.fill + b.stroke))].join(","));
+        // 1.5.1: the minuend PL is named in the subject of the generated headline
+        check("m29 headline names the plan in the subject: “Group result (plan) is …”", /^Group result \(plan\) is 111\u00A0kEUR \(\+59\.0\u202F%\) above previous year; /.test(pageInfo.m29.headline || ""),
+            JSON.stringify(pageInfo.m29.headline));
         check("m29 pins in #5BA3DC / #F0821E, no teal", S.m29.paints.includes("#5BA3DC") && S.m29.paints.includes("#F0821E")
             && !S.m29.paints.includes("#3FB3C2"));
         check("m29 deviation notes name blue / orange", /blue \/ orange/.test(pageInfo.m29.text) && !/teal replaces/.test(pageInfo.m29.text));
@@ -465,14 +482,13 @@ function readMega(id) {
         return S[id].charts[ci].bars.find(b => b.y > y && b.y < y + 22);
     };
     if (S.m5) {
-        // one Δ scale over month and YTD; the month block is unreadable at it → ×5, named in head + note
-        check("m5 month ΔPL head carries the scaling indicator ×5, YTD ΔPL none",
-            heads("m5").includes("ΔPL ×5") && heads("m5").filter(h => h === "ΔPL").length === 1, heads("m5").join("|"));
-        check("m5 scale note names the magnified block", pageInfo.m5.scaleNote
-            === "One scale per unit across all blocks · magnified (scaling indicator): ΔPL November ×5", pageInfo.m5.scaleNote);
+        // 1.5.1: one Δ scale over month and YTD, no factor between blocks (1.5 drew the month "ΔPL ×5")
+        check("m5 no scaling indicator between blocks (two plain ΔPL heads)",
+            !heads("m5").some(h => /×/.test(h)) && heads("m5").filter(h => h === "ΔPL").length === 2, heads("m5").join("|"));
+        check("m5 no scale note (nothing magnified, nothing fixed)", pageInfo.m5.scaleNote === null, pageInfo.m5.scaleNote);
         const m = rowBar("m5", 0, "L:World¦Europe"); const y = rowBar("m5", 2, "L:World¦Europe");
         const ratio = m && y ? (m.w / 36) / (y.w / 653) : 0;
-        check("m5 px per kEUR: month = 5 × YTD exactly (Europe −36 vs −653)", Math.abs(ratio - 5) < 0.15, String(ratio));
+        check("m5 px per kEUR: month = YTD (Europe −36 vs −653, ratio 1)", Math.abs(ratio - 1) < 0.05, String(ratio));
         // pins: one scale over both blocks; Japan +65.5 % capped into the outlier zone
         const pinY = S.m5.charts[3];
         const jp = pinY.labels.find(l => l.t === "+65.5"); const cn = pinY.labels.find(l => l.t === "+24.6");
@@ -495,10 +511,55 @@ function readMega(id) {
         const ids = S.m32.rowIds; const ys = S.m32.rowY;
         const iSk = ids.findIndex(r => /Slovakia$/.test(r)); const iCz = ids.findIndex(r => /Czechia$/.test(r));
         check("m32 single-node regions Czechia / Slovakia shown as rows", iCz >= 0 && iSk === iCz + 1, ids.join(","));
-        check("m32 spacer between Slovakia and the next block (Brazil)", iSk >= 0 && ys[iSk + 1] - ys[iSk] > 22 + 5
-            && /Brazil$/.test(ids[iSk + 1]), `${ys[iSk]} → ${ys[iSk + 1]} ${ids[iSk + 1]}`);
+        check("m32 spacer between Slovakia and the next row (1.5.1: Hungary · Budapest)", iSk >= 0 && ys[iSk + 1] - ys[iSk] > 22 + 5
+            && /Budapest$/.test(ids[iSk + 1]), `${ys[iSk]} → ${ys[iSk + 1]} ${ids[iSk + 1]}`);
         check("m32 spacer after Europe stays (sum → row)", iCz > 0 && ys[iCz] - ys[iCz - 1] > 22 + 5);
-        check("m32 Czechia and Slovakia stay together (same parent)", ys[iSk] - ys[iCz] === 22);
+        // 1.5.1: a gap after EVERY element of the top level, also between two single rows
+        check("m32 gap between Czechia and Slovakia (1.5.1: every top-level element)", ys[iSk] - ys[iCz] > 22 + 5, `${ys[iCz]} → ${ys[iSk]}`);
+        // 1.5.1: Hungary has one child — no subtotal that repeats Budapest, one row "Hungary · Budapest" between gaps
+        const iHu = ids.findIndex(r => /Budapest$/.test(r));
+        const labels32 = S.m32.body.map(x => x.t);
+        check("m32 one-child group: one row “Hungary · Budapest”, no Hungary subtotal", iHu === iSk + 1
+            && labels32.includes("Hungary · Budapest") && !labels32.includes("Hungary") && !ids.some(r => /Hungary$/.test(r)), ids.join(","));
+        check("m32 one-child group stands between gaps like the others", ys[iHu] - ys[iSk] > 22 + 5 && ys[iHu + 1] - ys[iHu] > 22 + 5);
+    }
+    // ==== 1.5.1 ====================================================================
+    if (S.m34) {
+        // numbers.scaling m: the built-in thresholds −20 / −220 (thousands) are −0.02 / −0.22
+        check("m34 thresholds converted at m: footer <−0.02 / <−0.22", has("m34", "<-0.02") && has("m34", "<-0.22") && !has("m34", "<-20"));
+        const redM = t => { const c = cell("m34", t); return c && c.fill === "#E02B1D"; };
+        check("m34 Germany ΔPY −0.085 red (< −0.02), YTD −0.274 red (< −0.22), Austria +0.059 not", redM("-0.085") && redM("-0.274")
+            && !redM("+0.059"));
+    }
+    if (S.m38) {
+        // T02B: one Δ scale over month and YTD, no factor between blocks
+        check("m38 T02B: no ×n in any head", !heads("m38").some(h => /×/.test(h)), heads("m38").join("|"));
+        const m = rowBar("m38", 0, "L:World¦Europe"); const y = rowBar("m38", 2, "L:World¦Europe");
+        const ratio = m && y ? (m.w / 36) / (y.w / 653) : 0;
+        check("m38 px per kEUR: month = YTD (ratio 1)", Math.abs(ratio - 1) < 0.05, String(ratio));
+        check("m38 no scale note", pageInfo.m38.scaleNote === null, pageInfo.m38.scaleNote);
+    }
+    if (pageInfo.m36) {
+        check("m36 de-DE headline: unit before the comma (Mio. EUR), Δ and effect in words, −/narrow space",
+            pageInfo.m36.headline === "Group result liegt 144\u00A0Mio.\u00A0EUR (+76,6\u202F%) über Vorjahr; stärkster Treiber ist Licences mit "
+            + "+721\u00A0Mio.\u00A0EUR Mehrertrag, größte Belastung ist Purchases mit +262\u00A0Mio.\u00A0EUR Mehrkosten.", JSON.stringify(pageInfo.m36.headline));
+        check("m37 de-DE headline without a measure line: unit from scaling + unitText (Mio. EUR, never mEUR)",
+            /^Group result liegt 144\u00A0Mio\.\u00A0EUR /.test(pageInfo.m37.headline || "") && !/mEUR/.test(pageInfo.m37.headline || ""),
+            JSON.stringify(pageInfo.m37.headline));
+    }
+    if (S.m35) {
+        // every comment marked in the table (①②③) is visible in the tile without scrolling
+        const fit = await page.evaluate(() => {
+            const st = document.getElementById("m35");
+            const root = st.firstElementChild;
+            const rb = root.getBoundingClientRect();
+            const notes = [...st.querySelectorAll('[data-pnl="footnote"]')];
+            return { n: notes.length, scroll: root.scrollTop,
+                inside: notes.map(li => { const b = li.getBoundingClientRect(); return b.top >= rb.top - 0.5 && b.bottom <= rb.bottom + 0.5; }),
+                marks: (st.querySelector('svg[data-pnl="mega-body"]').textContent.match(/[①②③]/g) || []).length };
+        });
+        check("m35 three comments marked in the table and all three footnotes inside the visible tile",
+            fit.n === 3 && fit.marks === 3 && fit.inside.every(Boolean) && fit.scroll === 0, JSON.stringify(fit));
     }
     if (S.m33) {
         const bar = S.m33.charts[0];

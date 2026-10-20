@@ -39,7 +39,7 @@ Interne Rollennamen für PBIR (`projections`) — je Rolle max. 1 Feld, `levels`
 | `py` / `pl` / `fc` | Measure | PY / PL / FC je Periode |
 | `period` | Grouping | Monat/Periode — schaltet Sparklines, MTD/YTD-Blöcke, `secondBlock` frei. Formate: `2026-03`, Datum, Monatsnamen deutsch/englisch (lang/kurz), `1..12`; Fiskaljahr → `columns.periodSort = data` |
 | `colCategory` | Grouping | **1.2** Spalten-Kategorie (max. 1), nur klassische Tabelle: der Spaltensatz des YTD-Blocks (sonst des ersten) wiederholt sich je Kategoriewert (Segment, Quartal …) mit Gruppen-Kopf, danach der Block als „Gesamt". Jede Kategorie rechnet ein eigenes Modell (Formeln, Margen), Monate auf den Kalender des Gesamtmodells gelegt; einheitlicher Δ-Maßstab; max. 24 Werte (Rest → Fußnote). Mega-Table/Balken/Waterfall ignorieren die Rolle (Hinweis im Bearbeitungsmodus). Measures müssen additiv sein (Gesamt = Σ Kategorien, wie bei der Periode) |
-| `rowType` | Grouping | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator` (Groß/klein egal). KPI = Margenzeile (%-Anzeige, Δ in %p) |
+| `rowType` | Grouping | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator` (Groß/klein egal). KPI = Margenzeile (%-Anzeige mit `pctDecimals`, Δ in pp, kein Δ%) |
 | `formulaDef` | Grouping | für Formula/KPI: `[EBITDA]/[Umsatz]`, `+ - * /`, Klammern; Verweis per eindeutigem Zeilennamen, Formel-auf-Formel erlaubt, Zirkel → Fehler an der Zeile |
 | `signConvention` | Grouping | Rechenvorzeichen: Erlös `1`, Kosten `-1` (Subtotal = Vorzeichen × Σ Kinder) |
 | `displayInvert` | Grouping | Kosten positiv anzeigen (Anzeige ≠ Rechnung) |
@@ -78,7 +78,8 @@ Die Ansicht ist Leser-Zustand (Toolbar) und steht in `state.uiState` (unten).
   (12G/12H zusätzlich `titleBlock.headline`) per `persistProperties` und merkt sich
   das in `columns.templateApplied`. Danach ist jeder Schalter frei.
 - Notation (eine Regel): Minuend → Füllung (AC voll · FC schraffiert · PL umrandet,
-  Δ-Elemente blass getönt), Subtrahend → Achse (PY grau · PL doppelt).
+  auch die Δ-Elemente: rot/grün umrandet auf Papier, 1.5.1), Subtrahend → Achse
+  (PY grau · PL doppelt).
 - Blöcke: `blockKind` (month · ytd · fy) + optional `secondBlock` mit
   `leftBlockKind`. FY-Block: Minuend = AC&FC (`fcFy`), PL = `plFy`, PY = ganzes Vorjahr.
 - 12G (FY + Wert-Kaskade + Minuend AC): der AC&FC-Balken stapelt YTD (voll, Zahl
@@ -143,7 +144,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `materialityAbs` | numeric | `0` | Wesentlichkeit ab (absolut): Abweichungen unter diesem absoluten Betrag (Dateneinheiten, vor k/m-Skalierung) werden in sanftem Grau statt in den Abweichungsfarben dargestellt — Zahlen, Balken, Pins und Wasserfall-Stufen. 0 = aus |
 | `materialityPct` | numeric | `0` | Wesentlichkeit ab (%): Abweichungen unter diesem Δ % werden in sanftem Grau dargestellt. Sind beide Schwellen gesetzt, muss eine Abweichung beide überschreiten, um farbig zu sein. 0 = aus |
 | `template` | enum `off` · `T01A` · `T01B` · `T02A` · `T02B` · `T02C` · `T02E` · `T02F` · `T03A` · `T03B` · `T04A` · `T04B` · `T04C` · `T04D` · `T04E` · `12A` · `12G` · `12H` | `off` | Template (IBCS-Tabelle): Setzt die Schalter darunter auf die Template-Vorgaben — danach ist jeder Schalter frei. Standard: aus (klassische Tabelle) |
-| `minuend` | enum `ac` · `fc` · `pl` | `ac` | Analysiertes Szenario (Minuend): AC gefüllt, FC schraffiert, PL umrandet mit blassen Δ-Balken (Planrechnung, 12H) — die Δ-Spalten vergleichen es mit PY / PL. FC / PL brauchen ihr Feld. Standard: AC |
+| `minuend` | enum `ac` · `fc` · `pl` | `ac` | Analysiertes Szenario (Minuend): AC gefüllt, FC schraffiert, PL umrandet; die Δ-Balken folgen dem Minuenden (bei PL rot/grün umrandet, Planrechnung 12H). Die Δ-Spalten vergleichen es mit PY / PL. FC / PL brauchen ihr Feld. Standard: AC |
 | `showPY` | bool | `false` | Wertspalte PY: Vorjahreswerte als Zahlenspalte. Standard: aus |
 | `showPL` | bool | `false` | Wertspalte PL: Planwerte als Zahlenspalte. Standard: aus |
 | `showMinuend` | bool | `false` | Wertspalte AC / FC: Werte des analysierten Szenarios als Zahlenspalte. Standard: aus |
@@ -165,9 +166,9 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `structureSubtotals` | bool | `true` | Zwischensummen-Blöcke (Strukturdaten): Regionen / Strukturhierarchien: Zwischensummen-Blöcke mit Leerzeile; aus = nur Blätter + Gesamtsumme. Standard: an |
 | `showPctRows` | bool | `true` | Margen-/%-Zeilen: KPI-Zeilen (Margen) kursiv, ihre Δ in Prozentpunkten. Standard: an |
 | `thresholds` | bool | `false` | Δ rot unter Schwelle (+ Fußzeile): Δ-Zahlen unter den Schwellen werden rot; eine Fußzeile nennt die Regel. Standard: aus |
-| `thresholdAbs` | numeric | `-20` | Schwelle Δ (Monat / einziger Block): In Anzeige-Einheiten (nach k/m-Skalierung). Standard: −20 |
+| `thresholdAbs` | numeric | `-20` | Schwelle Δ (Monat / einziger Block): In Anzeige-Einheiten (nach k/m-Skalierung). Standard: −20 Tsd., bei Mio.- und Mrd.-Skalierung umgerechnet (Mio.: −0,02); ein gesetzter Wert gilt wie eingetippt |
 | `thresholdPct` | numeric | `-10` | Schwelle Δ% (Monat / einziger Block): In ganzen Prozent. Standard: −10 |
-| `thresholdYtdAbs` | numeric | `-220` | Schwelle Δ (_YTD-Block): Schwelle des zweiten Blocks, in Anzeige-Einheiten. Standard: −220 |
+| `thresholdYtdAbs` | numeric | `-220` | Schwelle Δ (_YTD-Block): Schwelle des zweiten Blocks, in Anzeige-Einheiten. Standard: −220 Tsd., bei Mio.- und Mrd.-Skalierung umgerechnet (Mio.: −0,22); ein gesetzter Wert gilt wie eingetippt |
 | `thresholdYtdPct` | numeric | `-10` | Schwelle Δ% (_YTD-Block): Schwelle des zweiten Blocks, in ganzen Prozent. Standard: −10 |
 | `scenarioMarks` | bool | `true` | Szenario-Unterstreichungen (Kopf + Schluss): AC voll, PY grau, PL doppelt, FC schraffiert unter den Spaltenköpfen. Standard: an |
 | `chartLabels` | bool | `true` | Zahlen an Balken / Pins / Kaskaden: Wertbeschriftung an jedem Diagramm-Element. Standard: an |
@@ -380,11 +381,12 @@ werden dann überschrieben).
    und `showMinuend` ergeben EINE PL-Spalte.
 5. **Skalen im Mega-Table (1.5, IBCS 2.0 / ISO 24896):** eine Skala je Einheit
    über alle Perioden-Blöcke (Δ-Balken, Δ-Wasserfälle und Wert-Kaskaden teilen
-   sie, Pins haben eine zweite). Ein Block oder eine Spalte, die dabei unter
-   die Mindest-Datenfläche fiele, zeichnet mit rundem Faktor vergrößert; der
-   Kopf trägt ihn („ΔPL ×5"), ein Skalenhinweis über der Tabelle nennt ihn.
-   Pixel je Betrag sind also zwischen Monat und YTD gleich, außer der Kopf
-   sagt etwas anderes. Gekappte Ausreißer laufen in eine Ausreißerzone
+   sie, Pins haben eine zweite). 1.5.1: zwischen Blöcken (Monat | YTD | FY) gibt
+   es keinen Faktor mehr, auch wenn der Monat dabei kurz wird. Einziger Faktor:
+   Δ gegenüber den Wert-Kaskaden (12A, 12G, 12H), wenn die Δ-Balken bei der
+   Kaskadenskala unter die Mindest-Datenfläche fielen; dann ein runder Faktor für
+   alle Δ-Spalten der Tabelle, im Kopf („ΔPY ×5") und im Skalenhinweis genannt.
+   Gekappte Ausreißer laufen in eine Ausreißerzone
    (Bruchzeichen, Dreieck, Zahl außen); die Kappungsgrenze gilt tabellenweit.
    Templates schreiben `numbers.pctDecimals = 1`. Dieselbe Regel gilt in Balken-
    und Wasserfall-Ansicht (Δ-Balken in der Skala der Wertbalken, sonst „ΔPL ×5")
@@ -393,9 +395,17 @@ werden dann überschrieben).
 6. **Skalen-Sync** (`fixedMax`/`fixedVarMax`): Text in **Dateneinheiten** (vor
    k/m/b-Skalierung), Suffixe k/m/b, Komma oder Punkt. Es ist ein
    **Mindest**-Maximum wie im ChartKitchen: größere Daten erweitern die Skala
-   weiterhin. Gleiche Pixel je Betrag gibt es nur bei gleich breiten Spalten —
-   Visuals gleicher Größe und gleicher Schalter. Im Bearbeitungsmodus steht
-   „Skala fixiert" unter der Tabelle (Leser/Export sehen es nicht).
+   weiterhin. `fixedMax` hält die Wert-Kaskaden (12A/12G/12H) bei `[0, max]`,
+   `fixedVarMax` die Δ-Balken und Δ-Wasserfälle bei `±max` (jeweils mit Platz
+   für die fette Zahl); Δ%-Pins bleiben immer automatisch. In den 12er-Templates
+   sind Kaskade und Δ eine Einheit: die kleinere der beiden Skalen gilt für beide.
+   Gleiche Pixel je Betrag über Reiter einer Gruppe gibt es bei gleich großen
+   Kacheln, gleichem Template-Spaltensatz und gleicher Schriftgröße, wenn kein
+   Reiter über die Werte hinausgeht. In 12A/12G/12H **beide** Werte setzen:
+   sonst kann ein Reiter „ΔPY ×5" bekommen und ein anderer nicht (gemessen bei
+   1566 × 742: nur `fixedMax` 2k → 12H Δ ×5, 12A/12G ×1; mit `fixedVarMax`
+   gleich 0,158 px je Einheit in allen drei). Im Bearbeitungsmodus steht
+   „Skala fixiert" unter der Tabelle, für Leser im Skalenhinweis.
 7. **`variancePreset = auto`** folgt dem älteren `colorMode` (teal/ibcs); jeder
    andere Wert übersteuert ihn (der colorMode-Schalter verschwindet dann aus dem
    Pane). `goodColor`/`badColor` übersteuern beides. Hochkontrast ignoriert alles

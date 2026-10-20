@@ -147,7 +147,8 @@ check("capabilities: new objects (numbers.financeFormat/sumSafeRounding/scaling 
         const el = await page.$("#" + id);
         if (el) { await el.screenshot({ path: path.join(__dirname, file) }); }
     };
-    const n = (s) => Number(String(s).replace(/[  \s]/g, "").replace(/^\((.*)\)$/, "-$1").replace("–", "0"));
+    // 1.5.1: numbers carry the typographic minus (U+2212)
+    const n = (s) => Number(String(s).replace(/[  \s]/g, "").replace(/\u2212/g, "-").replace(/^\((.*)\)$/, "-$1").replace("–", "0"));
 
     // ===================================================================== F1 · tooltips
     const F1 = await page.evaluate(() => {
@@ -260,11 +261,11 @@ check("capabilities: new objects (numbers.financeFormat/sumSafeRounding/scaling 
     });
     check("F3 finance (classic): negative Δ in parentheses, positive Δ keeps +, no leading minus anywhere",
         F3.svgText.some(t => /^\(\d/.test(t)) && F3.svgText.some(t => /^\+\d/.test(t))
-        && !F3.svgText.some(t => /^-\d/.test(t)) && !Object.values(F3.cells).flat().some(t => /^-\d/.test(t)), JSON.stringify(F3.svgText));
+        && !F3.svgText.some(t => /^[-\u2212]\d/.test(t)) && !Object.values(F3.cells).flat().some(t => /^[-\u2212]\d/.test(t)), JSON.stringify(F3.svgText));
     check("F3 finance (classic): Δ% in parentheses with the % inside", F3.svgText.some(t => /^\(\d+\.\d%\)/.test(t)), JSON.stringify(F3.svgText));
-    check("F3 finance (mega T01A): (85) style Δ, (…%) Δ%, the threshold footer stays “<-20”",
+    check("F3 finance (mega T01A): (85) style Δ, (…%) Δ%, the threshold footer stays “<−20”",
         F3.megaTexts.some(t => /^\(\d+\)$/.test(t)) && F3.megaTexts.some(t => /^\(\d+\.\d%\)$/.test(t))
-        && F3.megaTexts.includes("<-20") && !F3.megaTexts.some(t => /^-\d/.test(t)), F3.megaTexts.filter(t => /^[(<-]/.test(t)).join(" "));
+        && F3.megaTexts.includes("<\u221220") && !F3.megaTexts.some(t => /^[-\u2212]\d/.test(t)), F3.megaTexts.filter(t => /^[(<-]/.test(t)).join(" "));
     await shot("f3m", "finance-f3-parentheses.png");
 
     // ===================================================================== F4 · billions
@@ -360,7 +361,7 @@ check("capabilities: new objects (numbers.financeFormat/sumSafeRounding/scaling 
     });
     // 1.5: one sentence; the drivers carry the sign of their effect on the result
     check("F6 auto message: one sentence, result row Δ vs reference + strongest driver + largest drag",
-        /Result is 0\.4 EUR \(\+15\.4%\) above plan; strongest driver is Beta with \+0\.4, largest drag is \w+ with -0\.1\./.test(F6.text),
+        /Result is 0\.4\u00A0EUR \(\+15\.4\u202F%\) above plan; strongest driver is Beta with \+0\.4\u00A0EUR higher income, largest drag is \w+ with \u22120\.1\u00A0EUR lower income\./.test(F6.text),
         F6.text.slice(0, 260));
     check("F6 auto message: an own message wins", /Own finding/.test(F6.own) && !/strongest driver/.test(F6.own));
     check("F6 footer + filter footer: free text, then “Filter: <filterInfo> · zero rows hidden”",

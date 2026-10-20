@@ -109,13 +109,15 @@
   const split = (nov, ytd, mi) => mi === 10 ? nov : Math.round((ytd - nov) / 10 * 1000) / 1000;
 
   // opt.single (1.5): Czechia and Slovakia are regions without countries
-  // (Level 2 = Level 1, folded into one row) between Europe and Americas
-  const SINGLE = { "Czechia:Czechia": [40, 44, 46, 410, 430, 452], "Slovakia:Slovakia": [22, 21, 23, 230, 228, 241] };
+  // (Level 2 = Level 1, folded into one row) between Europe and Americas;
+  // 1.5.1: Hungary is a region with exactly one child (Budapest)
+  const SINGLE = { "Czechia:Czechia": [40, 44, 46, 410, 430, 452], "Slovakia:Slovakia": [22, 21, 23, 230, 228, 241],
+    "Hungary:Budapest": [31, 30, 35, 300, 310, 322] };
   function regions(opt) {
     const rows = [];
     let sort = 0;
     const groups = opt && opt.single
-      ? [GROUPS[0], ["Czechia", ["Czechia"]], ["Slovakia", ["Slovakia"]], ...GROUPS.slice(1)] : GROUPS;
+      ? [GROUPS[0], ["Czechia", ["Czechia"]], ["Slovakia", ["Slovakia"]], ["Hungary", ["Budapest"]], ...GROUPS.slice(1)] : GROUPS;
     for (const [g, leaves] of groups) {
       for (const leaf of leaves) {
         sort++;

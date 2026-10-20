@@ -1,5 +1,77 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.5.1.0 (2026-10-20): Restpunkte der Skalen-Messung (Showcase, 17 Templates)
+
+Keine neue Property, keine neue Rolle, capabilities.json unverändert. Grundlage
+war eine Pixelmessung der Showcase-App nach IBCS 2.0 / ISO 24896 („gleiche
+Einheit, gleiche Skala"); die Skalierung stimmte fast überall, diese Punkte
+nicht. Bestehende Berichte ändern ihr Bild an den genannten Stellen.
+
+- **Kein Faktor zwischen Blöcken (T02B).** Monat, YTD und FY einer Tabelle
+  teilen immer eine Δ-Skala und eine Pin-Skala. 1.5 zeichnete den Monat in T02B
+  mit „ΔPL ×2" (Showcase 629 gegen 303 px/Mio.), T02C bei fast gleichem
+  Verhältnis nicht. Jetzt: Harness T02A/T02B Monat = YTD (Verhältnis 1,00), kein
+  ×n im Kopf, kein Skalenhinweis. Den markierten Faktor gibt es nur noch für Δ
+  gegenüber der Wert-Kaskade (12A, 12G, 12H) und dann einen je Tabelle für alle
+  Δ-Spalten aller Blöcke. Spalten, die für ein eigenes, größeres Maß gewachsen
+  waren, schrumpfen auf den Bedarf beim Tabellenmaß zurück.
+- **Headline-Automatik (12G, 12H).** Treiber mit dem Δ, das die Tabelle zeigt,
+  samt Vorzeichen und Wirkung in Worten: „größte Belastung ist Logistik mit
+  +0,81 Mio. EUR Mehrkosten" (1.5: „mit −0,81"). Wirkung: Mehrertrag,
+  Einsparung, Mehrkosten, Minderertrag; die Reihenfolge der Treiber richtet sich
+  weiter nach der Ergebniswirkung. Einheit auch vor einem Komma oder einer
+  Klammer („GuV in Mio. EUR, Jahresausblick gegen Vorjahr" → „Mio. EUR"); ohne
+  erkennbare Einheit aus Skalierung + `numbers.unitText` („Mio. EUR",
+  „Tsd. EUR", nie „mEUR"); Zahl und Einheit brechen nicht um. Ist der Minuend
+  nicht AC, steht das Szenario im Subjekt („EBIT liegt im Plan … über Vorjahr",
+  „im Forecast"; Hausbegriffe gewinnen). Prozent mit echtem Minus und schmalem
+  Leerzeichen: „(−28,5 %)". Vier Sprachen.
+- **Margen- und Quotenzeilen (T03A, T03B, T04A bis E).** Kein relatives Δ%
+  mehr (1.5: „+23%" als Prozent eines Prozents); Margen mit
+  `numbers.pctDecimals` statt der Wert-Dezimalen (52,2 % statt 52,24 %); Δ in
+  Prozentpunkten „+8,6 pp" statt „+8,6%p". T04 zeigt dieselbe pp-Zahl an der
+  Achse der Δ-Balken bzw. des Δ-Wasserfalls (ohne Balken); `columns.showPctRows`
+  steuert T03 und T04 gleich.
+- **Schwellen-Standard bei Mio. (T01A, T01B).** −20 / −220 sind Tausender; bei
+  Skalierung m (oder b, auch per Auto) werden die Standardwerte umgerechnet
+  (−0,02 / −0,22 Mio.), damit wieder rot wird, was rot sein soll. Ohne
+  Skalierung und bei k bleibt es bei −20 / −220. Ein gesetzter Wert gilt wie
+  eingetippt.
+- **Lücken und Einkindgruppen (T01B, T02A, T02E).** Leerzeile nach jedem
+  Element der obersten sichtbaren Ebene, auch zwischen zwei Einzelzeilen (Polen
+  und Slowakei standen ohne Lücke). Eine Gruppe mit genau einem gezeigten Kind
+  bekommt keine Zwischensumme mehr, die nur das Kind wiederholt: eine Zeile
+  „Deutschland · Sachsen", mit Lücke wie die anderen.
+- **Kommentar-Fußnoten immer sichtbar (12A ③, 12G ② ③, 12H ③).** Enden die
+  Fußnoten unter der Kachel, setzt das Visual sie mehrspaltig, verringert dann
+  die Zeilenhöhe des Mega-Tables (bis 1,3 × Schriftgröße, Skalen unverändert)
+  und lässt den Block zuletzt am unteren Rand stehen, während die Tabelle
+  dahinter scrollt. Exporte drucken wie bisher alles im Fluss.
+- **12G: lesbare YTD-Zahlen.** Im vollen YTD-Teil steht die Zahl in Papierton
+  oder Textfarbe, je nachdem was mehr Kontrast hat; Kostenzeilen auf hellem
+  Grau (#8A8886) jetzt dunkel (5,0:1 statt 3,5:1). Unter 4,5:1 keine Zahl im
+  Balken.
+- **12H: Δ-Balken umrandet.** Bei Minuend PL sind Δ-Balken rot/grün umrandet
+  auf Papier, passend zu den hohlen Pins und der umrandeten PL-Kaskade (1.1 bis
+  1.5: blass getönt, verwechselbar mit „unter Wesentlichkeit"). Hochkontrast
+  voll. Minuend FC bleibt schraffiert (geprüft).
+- **Minuszeichen „−" (U+2212)** in allen Zahlen (Werte, Δ, Δ%, Pins, Baum,
+  Schwellen-Fußzeile) und in der Vorzeichen-Spalte, wie im ChartKitchen.
+- **Feste Skala über Seiten (`fixedMax` / `fixedVarMax`), geprüft, nicht
+  geändert.** Beide sind Mindest-Maxima in Dateneinheiten; `fixedMax` hält die
+  Wert-Kaskaden bei [0, max], `fixedVarMax` Δ-Balken und Δ-Wasserfälle bei ±max,
+  Pins nie. Harness 1566 × 742: 12A/12G/12H mit beiden Werten gleich
+  0,0836 px je Einheit (Kaskade und Δ), T04B bis T04E mit `fixedVarMax` 40 gleich
+  2,309 px; nur `fixedMax` reicht in den 12ern nicht (12H „ΔPY ×5", 12A/12G ×1).
+  Details in AGENT-GUIDE „Bekannte Fallen" 6.
+- **Tests:** `megatable-test.js` 46 Blöcke (neu: ein Δ-Faktor je Tabelle über
+  zwei Blöcke, Margen pp/pctDecimals/T04-Achse, Kontrast der YTD-Zahl, rowK;
+  angepasst: kein Faktor zwischen Blöcken, Notation PL umrandet, Minus „−");
+  `mega-shot.js` 271 Prüfungen (neu m34 Schwellen in Mio., m35 Fußnoten in fester
+  Kachel, m36/m37 deutsche Headline mit Einheit, m38 T02B; m32 mit Einkindgruppe
+  Ungarn · Budapest); `mega-interact` 42, `finance-test` 59, `scale-views` 17,
+  `i18n` 12 (neue Schlüssel in vier Sprachen).
+
 ## 1.5.0.0 (2026-10-20): Skalierung nach IBCS 2.0 / ISO 24896 als Standard
 
 **Bestehende Berichte ändern ihr Bild.** Die Skalierung im Mega-Table folgt

@@ -287,7 +287,7 @@ function check(label, cond, detail) {
         && part(s, "titleBlock").headline === true && part(s, "numbers").decimals === 0, JSON.stringify(s.last));
     check("11 12G renders at once: FY block, stacked AC&FC (YTD numbers inside), headline from the generator",
         s.heads.includes("FY 2025") && s.heads.includes("YTD") && s.heads.includes("AC&FC") && s.stacked >= 5
-        && /^Group result is 144 (k?EUR )?\(\+76\.6%\) above previous year; strongest driver is Licences with \+721, /.test(s.headline || ""),
+        && /^Group result is 144(\u00A0k?EUR)? \(\+76\.6\u202F%\) above previous year; strongest driver is Licences with \+721(\u00A0k?EUR)? higher income, /.test(s.headline || ""),
         JSON.stringify([s.heads, s.stacked, s.headline]));
     s = await upd4({ ...BASE, columns: { template: "12G" } });
     check("11 stale update: the guard holds blockKind + headline, no second persist", s.persists === 1

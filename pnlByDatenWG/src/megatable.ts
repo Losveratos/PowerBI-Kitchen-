@@ -83,8 +83,10 @@ export interface MegaGeometry {
     axisPY: number; axisPLGap: number;
 }
 
-export function megaGeometry(fs: number): MegaGeometry {
-    const rowH = Math.round(fs * 1.7);
+export function megaGeometry(fs: number, rowK = 1.7): MegaGeometry {
+    // rowK (1.5.1): row height in fs — below 1.7 only when the visual makes room
+    // for its comment footnotes (MegaInput.rowK), never below 1.3
+    const rowH = Math.round(fs * Math.max(1.3, Math.min(1.7, rowK)));
     return {
         fs, rowH,
         fsSmall: Math.round(fs * 0.85 * 10) / 10,
@@ -273,6 +275,12 @@ export interface MegaInput {
      */
     fixedMax?: number;
     fixedVarMax?: number;
+    /**
+     * 1.5.1: row height in font sizes (default 1.7, clamped to 1.3..1.7) — the
+     * visual sets the table tighter when the comment footnotes would otherwise
+     * fall below the visible area
+     */
+    rowK?: number;
 }
 
 // ============================================================================
@@ -371,8 +379,8 @@ interface ScenNotation {
     mark: "solid" | "hatch" | "gray" | "double"; fill: MegaFillKind; axis?: "gray" | "double";
     /**
      * fill of the Δ elements (bars, waterfall steps) when this scenario is the
-     * minuend: AC solid, FC hatched, PL tinted — the pale good / bad tone in an
-     * ink outline (12H). PY is never a minuend.
+     * minuend: AC solid, FC hatched, PL outlined in good / bad on paper (12H,
+     * 1.5.1; 1.1 to 1.5 tinted pale). PY is never a minuend.
      */
     area: MegaFillKind;
     /** value cascade (12A): palette tone of the scenario, and of its cost rows ("hell abgesetzt") —
@@ -383,7 +391,11 @@ const SCENARIO_NOTATION: Record<MegaScen, ScenNotation> = {
     AC: { mark: "solid", fill: "solid", area: "solid", tone: "ink", toneLight: "soft" },
     FC: { mark: "hatch", fill: "hatch", area: "hatch", tone: "ink", toneLight: "soft" },
     PY: { mark: "gray", fill: "solid", area: "solid", axis: "gray", tone: "py", toneLight: "pyLight" },
-    PL: { mark: "double", fill: "outline", area: "tint", axis: "double", tone: "ink", toneLight: "ink" },
+    // 1.5.1: PL Δ elements outlined in good / bad on paper (12H): the minuend
+    // decides the fill (AC solid, FC hatched, PL outlined), like its hollow pin
+    // heads and its outlined value cascade; the pale tint of 1.1 to 1.5 read
+    // like "below materiality"
+    PL: { mark: "double", fill: "outline", area: "outline", axis: "double", tone: "ink", toneLight: "ink" },
 };
 
 /** share of the paper in a plan tint (12H: pale teal / red; on dark paper the dark pendants) */
@@ -404,11 +416,39 @@ export function megaTint(color: string, share = MEGA_TINT): string {
 
 export interface MegaPaint { fill: string; stroke: string | null; sw: number; dash?: string; }
 
+/** WCAG contrast ratio of two #RGB / #RRGGBB colours (null when either is no hex colour) */
+export function megaContrast(a: string, b: string): number | null {
+    const lum = (c: string): number | null => {
+        const m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec((c || "").trim());
+        if (!m) { return null; }
+        const h = m[1].length === 3 ? m[1].split("").map(x => x + x).join("") : m[1];
+        const ch = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255)
+            .map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+        return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+    };
+    const x = lum(a); const y = lum(b);
+    if (x == null || y == null) { return null; }
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+
+/**
+ * 1.5.1: text colour for a number on a filled bar — the paper tone or the text
+ * ink, whichever contrasts more; null when neither reaches 4.5:1 (WCAG AA)
+ */
+export function megaReadableOn(fill: string): string | null {
+    let best: string | null = null; let bestC = 0;
+    for (const c of [MEGA_C.white, MEGA_C.text]) {
+        const k = megaContrast(c, fill);
+        if (k != null && k > bestC) { best = c; bestC = k; }
+    }
+    return bestC >= 4.5 ? best : null;
+}
+
 /**
  * notation(minuend, subtrahend):
  *   minuend  (AC | FC | PL) → FILL:  AC solid, FC hatched (+ 1 px outline in the
- *            same colour), PL tinted (pale good / bad in a 1 px ink outline, 12H;
- *            high contrast: solid — no mid tones)
+ *            same colour), PL outlined (1 px good / bad outline on paper, 12H,
+ *            1.5.1; high contrast: solid)
  *   subtrahend (PY | PL) → AXIS: PY gray line, PL double line
  * The same table yields the scenario mark of every scenario (column-head and
  * closing underline): AC solid ink · PY solid gray · PL double · FC hatched,
@@ -429,7 +469,9 @@ export function notation(minuend: MegaMin, subtrahend: MegaRef | null, hc = fals
                 : kind === "tint" && !hc ? { fill: megaTint(color), stroke: MEGA_C.ink, sw: 1 }
                     : { fill: color, stroke: null, sw: 0 };
     return {
-        area: (color, hatch) => paintOf(m.area, color, hatch),
+        // high contrast: good and bad share the foreground and "bad" is hollow;
+        // an outlined PL area stays solid there, or the two could not be told apart
+        area: (color, hatch) => hc && m.area === "outline" ? { fill: color, stroke: null, sw: 0 } : paintOf(m.area, color, hatch),
         head: (hatch) => paintOf(m.fill, MEGA_C.ink, hatch),
         axis: s.axis ?? "gray",
         mark: (scen) => SCENARIO_NOTATION[scen].mark,
@@ -465,8 +507,13 @@ export function megaDecimals(x: number, max = 4): number {
     return max;
 }
 
+/** 1.5.1: the typographic minus (U+2212) of every number — the same glyph as ChartKitchen */
+export const MEGA_MINUS = "−";
+/** 1.5.1: suffix of a percentage-point difference (narrow no-break space + "pp") */
+export const MEGA_PP = " pp";
+
 /**
- * explicit "+", "-" as minus, zero without a sign (also a rounded −0.0).
+ * explicit "+", "−" (U+2212) as minus, zero without a sign (also a rounded −0.0).
  * Finance format (`fin`, ChartKitchen labels.financeFormat): a negative number
  * goes into parentheses with its unit inside — (1 234), (12.5%) — positive Δ
  * keep their "+", an exact zero prints "–" (a rounded zero stays "0.0").
@@ -478,7 +525,7 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
         const f = Math.pow(10, d);
         const r = Math.round(Math.abs(v) * f) / f;
         const zero = r === 0;
-        return (v < 0 && !zero ? "-" : plus && !zero ? "+" : "") + num(r, d);
+        return (v < 0 && !zero ? MEGA_MINUS : plus && !zero ? "+" : "") + num(r, d);
     };
     const fs = (v: number, d: number, plus: boolean, unit = ""): string => {
         if (!fin) { return signed(v, d, plus) + unit; }
@@ -493,10 +540,14 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
         delta: v => fs(v, dec, true),
         pct: p => fs(p * 100, pdec, true, "%"),
         pin: p => fs(p * 100, pdec, true),
-        margin: m => fs(m * 100, dec, false, "%"),
-        pp: x => fs(x, dec, true, "%p"),
-        // margin rows: relative change of the ratio, WITH the % sign (T03A "+23%");
-        // %p stays the sign of the point difference (pp)
+        // 1.5.1: margins and their Δ are percentages — they carry the Δ% decimals
+        // (pctDecimals), not the decimals of the amounts (52.24 % next to 1-decimal
+        // Δ% read like two different kinds of number); the point difference reads
+        // "pp" (percentage points), not "%p"
+        margin: m => fs(m * 100, pdec, false, "%"),
+        pp: x => fs(x, pdec, true, MEGA_PP),
+        // relative change of a ratio — no longer printed in the table (a Δ% of a
+        // margin is a percentage of a percentage), kept for callers
         rel: p => fs(p * 100, 0, true, "%"),
         share: p => fs(p * 100, pdec, false, "%"),
         signed,
@@ -582,6 +633,10 @@ export interface MegaCol {
     els?: MegaEl[];
     cap?: number;
     inner?: number;
+    /** inner width from the share of the free width, before any growth for a minimum data span */
+    baseInner?: number;
+    /** 1.5.1: margin rows whose point difference is printed at the axis of this Δ bar / waterfall column */
+    ppRows?: { r: MegaRow; D: MegaDelta }[];
     kSelf?: number;
     k?: number;
     x0?: number;
@@ -600,7 +655,11 @@ export interface MegaCol {
     mag?: number;
 }
 
-/** 1.5: one magnified group of chart columns (block × family) — the scale note lists them */
+/**
+ * 1.5: one magnified group of chart columns — the scale note lists them.
+ * 1.5.1: only the Δ family against the value cascades, one factor for the
+ * whole table (block −1 = every block)
+ */
 export interface MegaMag {
     block: number;
     /** "delta" (Δ bars + Δ waterfalls) · "valueCascade" · "pct" (pins) */
@@ -793,7 +852,7 @@ function cascadeText(input: MegaInput, fmt: MegaFmt, c: MegaCol, r: MegaRow): st
 
 export function layoutMega(input: MegaInput): MegaLayout {
     const { t, blocks } = input;
-    const G = megaGeometry(input.fs);
+    const G = megaGeometry(input.fs, input.rowK);
     const nb = blocks.length;
     const ord = orderRows(input);
     const rows = ord.rows;
@@ -847,10 +906,12 @@ export function layoutMega(input: MegaInput): MegaLayout {
             return { ...base, t: pct ? fmt.pp(D.d) : fmt.delta(D.d), ...redText(red) };
         }
         if (c.type === "dpct") {
-            if (D.p == null) { return null; }
+            // 1.5.1: a margin row has no relative Δ% (a percentage of a
+            // percentage) — its Δ is the point difference in the Δ column
+            if (D.p == null || pct) { return null; }
             const imp = D.impactPct;
             const red = t.thresholds && !pct && imp != null && imp < blk.th.pct - 1e-9;
-            return { ...base, t: pct ? fmt.rel(D.p) : fmt.pct(D.p), ...redText(red) };
+            return { ...base, t: fmt.pct(D.p), ...redText(red) };
         }
         return null;
     };
@@ -950,6 +1011,21 @@ export function layoutMega(input: MegaInput): MegaLayout {
         const blk = blocks[c.block];
         c.els = [{ p: 0, q: 0, a: 3, c: 3 }]; // the axis itself
         c.vals = [];
+        // 1.5.1: margin rows next to Δ bars / a Δ waterfall (T04A–E) print their
+        // point difference as a number at the axis — the same "+8.6 pp" the Δ
+        // column of T03 shows (columns.showPctRows decides both); a percentage
+        // point is no amount, so it never becomes a bar
+        if ((c.type === "bar" || c.type === "wf") && t.labels
+            && !cols.some(x => x.type === "delta" && x.block === c.block && x.ref === c.ref)) {
+            for (const { r } of R) {
+                if (r.kind !== "pct") { continue; }
+                const D = blk.delta(r, t.min, c.ref!);
+                if (!D || !D.pp || !isFinite(D.d)) { continue; }
+                const w = tw(fmt.pp(D.d), G.fsSmall, false, true) + G.lblGap;
+                (c.ppRows = c.ppRows ?? []).push({ r, D });
+                c.els.push(D.d >= 0 ? { p: 0, q: 0, a: 0, c: w + 3 } : { p: 0, q: 0, a: w + 3, c: 0 });
+            }
+        }
         if (c.type === "wf") {
             // Δ waterfall: the Δ of every row in its effect on the result
             c.casc = megaCascade(R.map(x => x.r), r => {
@@ -1035,6 +1111,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
     const famK: Record<string, number> = {};
     for (const c of charts) {
         c.inner = c.w - 2 * G.pad;
+        c.baseInner = c.inner;
         c.kSelf = solveK(c.els!, c.inner);
         // minimum data span: the drawn area (without labels) must stay ≥ minSpan —
         // the column grows (the table scrolls) instead of collapsing the bars
@@ -1087,26 +1164,48 @@ export function layoutMega(input: MegaInput): MegaLayout {
         const u = unitOf(family(cs[0]));
         unitK[u] = Math.min(unitK[u] ?? Infinity, groupK.get(key)!);
     }
-    // (3) a group whose data span would fall below the minimum data span at the
-    // table scale — and that has room for at least twice that scale — is drawn
-    // magnified by the largest round factor its columns hold. Every other group
-    // keeps the table scale, even when it could be drawn larger.
+    // (3) 1.5.1: blocks of one table (month | YTD | FY) never get a factor
+    // against each other — every Δ bar / Δ waterfall of every block draws at
+    // ONE Δ scale, every pin at ONE pin scale (T02B drew "ΔPL ×2" on the month
+    // while T02C, almost the same ratio, stayed ×1). The only factor left is
+    // the Δ family against the value cascades (12A, 12G, 12H): when the largest
+    // Δ span would fall below the minimum data span at the cascade scale, ALL
+    // Δ columns of the table are drawn magnified by one round factor (the one
+    // the tightest Δ group still holds) and their heads say so ("ΔPY ×5").
     const mags: MegaMag[] = [];
-    for (const [key, cs] of fams) {
-        const fam = family(cs[0]);
-        const kU = unitK[unitOf(fam)];
-        const kG = groupK.get(key)!;
-        const span = Math.max(...cs.map(spanOf));
-        let k = kU;
+    const deltaKeys = [...fams.keys()].filter(key => family(fams.get(key)![0]) === "delta");
+    const hasCascade = [...fams.values()].some(cs => family(cs[0]) === "valueCascade");
+    let deltaMag = 1;
+    if (hasCascade && deltaKeys.length) {
+        const kU = unitK.amount;
+        const span = Math.max(...deltaKeys.map(key => Math.max(...fams.get(key)!.map(spanOf))));
+        const kG = Math.min(...deltaKeys.map(key => groupK.get(key)!));
         if (span > 0 && span * kU < G.minSpan && kG >= 2 * kU * (1 - 1e-9)) {
             const m = niceFactor(kG / kU * (1 + 1e-9));
-            if (m >= 2) {
-                k = kU * m;
-                cs.forEach(c => { c.mag = m; });
-                mags.push({ block: cs[0].block, family: fam, factor: m, heads: cs.map(c => c.head) });
-            }
+            if (m >= 2) { deltaMag = m; }
+        }
+    }
+    for (const [key, cs] of fams) {
+        const fam = family(cs[0]);
+        let k = unitK[unitOf(fam)];
+        if (fam === "delta" && deltaMag > 1) {
+            k *= deltaMag;
+            cs.forEach(c => { c.mag = deltaMag; });
         }
         famK[key] = k;
+    }
+    if (deltaMag > 1) {
+        const heads: string[] = [];
+        for (const key of deltaKeys) { for (const c of fams.get(key)!) { if (!heads.includes(c.head)) { heads.push(c.head); } } }
+        mags.push({ block: -1, family: "delta", factor: deltaMag, heads });
+    }
+    // a column that grew for a scale it no longer draws at (its own or its
+    // block's k, above the table scale) shrinks back to what the table scale
+    // needs — never below its share of the free width
+    for (const c of charts) {
+        const [a, b] = megaNeeds(c.els!, famK[c.block + ":" + family(c)]);
+        const inner = Math.max(c.baseInner!, Math.ceil(a + b));
+        if (inner < c.inner!) { c.inner = inner; c.w = inner + 2 * G.pad; }
     }
     // the scaling indicator sits in the head of every magnified column; a
     // column too narrow for the longer head grows (the extra width is slack,
@@ -1492,6 +1591,17 @@ function paintChartColumn(
     // high contrast: good and bad share the foreground — unfavourable is hollow
     const hollow: MegaPaint = { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1.4 };
     const hatch = B.hatch;
+    // 1.5.1: the point difference of a margin row, as a number at the axis (T04)
+    for (const { r, D } of c.ppRows ?? []) {
+        const i = R.findIndex(x => x.r === r);
+        if (i < 0 || (win && (i < win.from || i >= win.to))) { continue; }
+        const { y, h: rh } = R[i];
+        const up = D.d >= 0;
+        text(B, up ? c.x0! + axisHalf + G.lblGap : c.x0! - axisHalf - G.lblGap, base(y, rh, G.fsSmall), fmt.pp(D.d), {
+            anchor: up ? "start" : "end", italic: true, fs: G.fsSmall, parent: g,
+            color: D.immaterial ? MEGA_C.soft : MEGA_C.text,
+        }).setAttribute("data-pnl", "mega-pp");
+    }
     if (c.casc) {
         // the drawn axis band (the 12A value line sits half a pixel right)
         paintCascade(L, c, B, g, X, label, vline, rect, paintAxis, pal,
@@ -1637,13 +1747,16 @@ function paintCascade(
             if (solidB - solidA > 0.01 || restB - restA <= 0.01) {
                 rect(solidA, top, Math.max(solidB - solidA, 1), G.barH, N.value("AC", light, B.hatch), g);
             }
-            // the YTD number inside the solid part, on the paper tone, when it fits
+            // the YTD number inside the solid part when it fits, in the paper tone
+            // or the text ink, whichever reads better on that fill (1.5.1: the
+            // light cost tone took white at ~3:1); below 4.5:1 (WCAG AA) no number
             if (input.t.labels) {
                 const w = input.measure(ytdPart.t, G.fs, megaIsBold(r), false);
-                if (w + 6 <= solidB - solidA) {
+                const ink = megaReadableOn(N.value("AC", light, B.hatch).fill);
+                if (w + 6 <= solidB - solidA && ink) {
                     svgEl("text", {
                         x: (solidA + solidB) / 2, y: base(y, rh), "text-anchor": "middle",
-                        "font-weight": megaIsBold(r) ? "bold" : null, fill: MEGA_C.white, "data-pnl": "mega-ytd",
+                        "font-weight": megaIsBold(r) ? "bold" : null, fill: ink, "data-pnl": "mega-ytd",
                     }, g).textContent = ytdPart.t;
                 }
             }

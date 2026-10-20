@@ -28,7 +28,7 @@ function check(label, cond, detail) {
 /** runs in the page: px per unit of every chart column of a classic table (largest regular element) */
 function classic(id) {
     const st = document.getElementById(id);
-    const num = (s) => { const v = parseFloat(String(s).replace(/[   ]/g, "").replace(/[()▸%]/g, "")); return isFinite(v) ? v : null; };
+    const num = (s) => { const v = parseFloat(String(s).replace(/−/g, "-").replace(/[   ]/g, "").replace(/[()▸%]/g, "")); return isFinite(v) ? v : null; };
     const hdr = [...st.querySelectorAll('[data-pnl="hdr-row"]')].pop();
     const heads = hdr ? [...hdr.children].map(c => c.textContent.trim()) : [];
     const rows = [...st.querySelectorAll("[data-pnl-row]")].filter(r => r.children.length === heads.length);
@@ -76,7 +76,7 @@ function tree(id) {
         const rects = [...g.querySelectorAll("rect")].filter(r => /^#(404040|0E8585|E02B1D)$/i.test(r.getAttribute("fill") || ""));
         let best = null;
         for (const t of g.querySelectorAll("text")) {
-            const v = parseFloat(t.textContent.replace(/[   +]/g, ""));
+            const v = parseFloat(t.textContent.replace(/−/g, "-").replace(/[   +]/g, ""));
             if (!isFinite(v) || v === 0 || /%|pp/.test(t.textContent)) { continue; }
             const x = +t.getAttribute("x");
             const r = rects.map(rc => ({ rc, d: Math.abs(+rc.getAttribute("x") + +rc.getAttribute("width") / 2 - x) }))

@@ -73,14 +73,14 @@ Jedes Template ist nur ein Preset: Es setzt alle Schalter
 | **T02A** | PL·AC + ΔPL-Balken + ΔPL%-Pins, zwei Blöcke | AC/PL |
 | **T02B/C** | wie T02A, sortiert nach AC↓ bzw. ΔPL↓ („(↓)" im Kopf) | — |
 | **T02E/F** | FC statt AC (schraffierte Balken), Referenz PY bzw. PL (graue bzw. Doppellinien-Achse) | FC + PY bzw. PL |
-| **T03A/B** | GuV-Statement: +/−/=-Zeilen, PY·PL·AC(bzw. FC) + Δ-Zahlenspalten, Margen-Zeile in %p | Kontendimension mit RowType |
+| **T03A/B** | GuV-Statement: +/−/=-Zeilen, PY·PL·AC(bzw. FC) + Δ-Zahlenspalten, Margen-Zeile in pp | Kontendimension mit RowType |
 | **T04A–E** | Statement mit **integriertem Δ-Wasserfall** (kaskadierende Balken, =-Anker) + Δ%-Pins; A/B = vs. PL, C = vs. PY, D/E = FC | wie T03 |
 | **12A** | PY- und AC-**Wert-Kaskaden** als eigene Spalten + ΔPY-Balken/Pins (Headline bleibt aus; nur 12G und 12H schalten sie ein) | wie T03 |
 | **12G** | FY-Block: YTD voll + Restjahr **schraffiert im selben Balken**, Δ aufs Jahr | FC (+ FY-Werte) |
-| **12H** | Plan-Kaskade umrandet, Varianzbalken **blass getönt** | PL als Minuend |
+| **12H** | Plan-Kaskade umrandet, Varianzbalken **rot/grün umrandet** | PL als Minuend |
 
 **Szenario-Logik (eine Regel):** Minuend bestimmt die Füllung (AC voll ·
-FC schraffiert · PL getönt/umrandet), Referenz bestimmt die Achse
+FC schraffiert · PL umrandet), Referenz bestimmt die Achse
 (PY = grau · PL = Doppellinie). Minuend AC/FC/PL: Karte Spalten →
 **Analysiertes Szenario**; für Leser optional als Toolbar-Buttons
 (Karte Toolbar → **Szenario-Gruppe**, Standard aus).

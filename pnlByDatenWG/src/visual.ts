@@ -48,6 +48,8 @@ import { templateSwitches, HUB_TEMPLATES, TOUR_CARDS, MiniSpec, miniObjects, tem
 
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const NBSP_GROUP = " "; // narrow space, IBCS number grouping
+/** 1.5.1: the typographic minus (U+2212) in every number, as in ChartKitchen */
+const MINUS = "−";
 
 /**
  * The palette of the visual. `C` is the live palette every painter reads at
@@ -690,6 +692,8 @@ export class Visual implements IVisual {
     private measureCtx: CanvasRenderingContext2D | null = null;
     /** Intl number formats of the mega table per decimal count */
     private megaNf = new Map<string, Intl.NumberFormat>();
+    /** 1.5.1: the last mega layout (megaFitNotes reads its rows) */
+    private megaLast: MegaLayout | null = null;
 
     // --- 1.1 Paket B: tooltips · sum-safe rounding · filter footer ---
     /** host tooltip service (null in shims without one) */
@@ -1673,7 +1677,7 @@ export class Visual implements IVisual {
         const nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
         const pf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: pdec, maximumFractionDigits: pdec });
         const grp = (nfr: Intl.NumberFormat, v: number): string =>
-            nfr.formatToParts(v).map(p => (p.type === "group" ? NBSP_GROUP : p.value)).join("");
+            nfr.formatToParts(v).map(p => (p.type === "group" ? NBSP_GROUP : p.type === "minusSign" ? MINUS : p.value)).join("");
         if (this.finance()) {
             // finance convention (ChartKitchen financeFormat): negatives in
             // parentheses with the unit inside, exact zero "–", a rounded zero
@@ -3776,14 +3780,16 @@ export class Visual implements IVisual {
             // correction pass: when the body brings a vertical scrollbar along,
             // the few pixels it takes come out of the chart columns instead of
             // pushing a horizontal scrollbar in
-            const table = this.buildMega(fmt, 0);
+            let table = this.buildMega(fmt, 0);
             this.root.appendChild(table);
             const over = this.root.scrollWidth - this.root.clientWidth;
-            if (over > 0 && over <= 40) { this.root.replaceChild(this.buildMega(fmt, over), table); }
+            const shrink = over > 0 && over <= 40 ? over : 0;
+            if (shrink) { const t2 = this.buildMega(fmt, shrink); this.root.replaceChild(t2, table); table = t2; }
             this.appendScaleFixedNote();
             this.appendCatNote();
-            this.buildFootnotes(fmt);
+            const notes = this.buildFootnotes(fmt);
             this.root.appendChild(this.buildFooter());
+            this.megaFitNotes(fmt, table, notes, shrink);
             this.root.scrollTop = keepScroll;
             this.syncMegaWindow();
         } else {
@@ -6216,7 +6222,7 @@ export class Visual implements IVisual {
         const a = Math.abs(scaled);
         const dec = a >= 100 ? 0 : a >= 10 ? 1 : 2;
         const nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
-        return nf.formatToParts(scaled).map(p => (p.type === "group" ? NBSP_GROUP : p.value)).join("");
+        return nf.formatToParts(scaled).map(p => (p.type === "group" ? NBSP_GROUP : p.type === "minusSign" ? MINUS : p.value)).join("");
     }
 
     private fitLabel(s: string, maxW: number, fs: number): string {
@@ -8652,16 +8658,32 @@ export class Visual implements IVisual {
         const first = roots.find(r => r.row.rowType !== "separator");
         const chainStart = statement && first && first.hasChildren
             && (first.row.rowType === "subtotal" || first.row.rowType === "account") ? first : null;
-        const glyph = (n: PnlNode): string => n.row.displayInvert ? "-" : "+";
+        const glyph = (n: PnlNode): string => n.row.displayInvert ? MINUS : "+";
         const realRoots = roots.filter(r => r.row.rowType !== "separator");
         const soleRoot = realRoots.length === 1 ? realRoots[0] : null;
         const keep = (n: PnlNode): boolean => !(ui.hideZero && isZeroRow(n));
+        const struct = subtotals && !statement;
+        // 1.5.1: a structure group with exactly one shown child carries no
+        // subtotal that only repeats that child (Germany / Saxony): the child
+        // stands alone, named after both ("Germany · Saxony"), like a region
+        // without countries (Poland)
+        const single = new Map<string, string>();
 
         const emit = (n: PnlNode, under: PnlNode | null): void => {
             const t = n.row.rowType;
             if (t === "separator") { items.push({ node: null, kind: "gap", level: 0, op: "" }); return; }
             if (t === "kpi" && !showPct) { return; }
             const open = n.hasChildren && !collapsed.has(n.row.id);
+            if (open && struct && n !== soleRoot) {
+                const kids = n.children.filter(c => c.row.rowType !== "separator" && keep(c));
+                if (kids.length === 1) {
+                    const k = kids[0];
+                    if (k.row.name !== n.row.name) { single.set(k.row.id, `${single.get(n.row.id) ?? n.row.name} · ${k.row.name}`); }
+                    else if (single.has(n.row.id)) { single.set(k.row.id, single.get(n.row.id)!); }
+                    emit(k, n);
+                    return;
+                }
+            }
             if (open) { for (const c of n.children) { emit(c, n); } }
             // structure data without subtotal blocks: only leaves and the top totals
             if (open && !subtotals && n.level > 0) { return; }
@@ -8687,6 +8709,19 @@ export class Visual implements IVisual {
             for (const it of items) { if (it.node) { dupe.set(it.node.row.name, (dupe.get(it.node.row.name) ?? 0) + 1); } }
         }
 
+        // 1.5.1: the element of the top visible level a row belongs to (its
+        // ancestor right below a single grand total, else its root)
+        const topLevel = soleRoot ? 1 : 0;
+        const topOf = (n: PnlNode): string => {
+            let cur = n;
+            for (let i = 0; i < 64 && cur.level > topLevel && cur.row.parent != null; i++) {
+                const p = model.byId.get(cur.row.parent);
+                if (!p) { break; }
+                cur = p;
+            }
+            return cur.row.id;
+        };
+
         // comment footnotes are numbered in reading order of this table
         this.comments = [];
         this.commentNo.clear();
@@ -8699,19 +8734,15 @@ export class Visual implements IVisual {
             }
             const n = it.node;
             // spacer row: a new block after a bold total (T03), and the grand
-            // total right below its last subtotal block (T01B "World"). 1.5:
-            // structure data with subtotal blocks also separates rows of
-            // another parent — a region folded into a single row (Poland,
-            // Slovakia: no countries below) no longer sticks to the next
-            // block as if it belonged to it — and a grand total that follows
-            // such a row (it has subtotal blocks among its children)
-            const struct = subtotals && !statement;
+            // total right below its last subtotal block (T01B "World").
+            // 1.5.1: structure data with subtotal blocks separates EVERY
+            // element of the top visible level (the level below a single
+            // grand total) from the next one — a region block, a region
+            // without countries (Poland, Slovakia: 1.5 left two such rows in
+            // a row without a gap), a one-child group and the grand total
             if (prev && prev.node && it.kind !== "pct" && (
                 (prev.kind === "sum" || prev.kind === "formula") && it.kind === "acc"
-                || it.kind === "sum" && prev.kind === "sum" && prev.node.row.parent === n.row.id && struct
-                || struct && prev.kind === "acc" && it.kind === "acc" && prev.node.row.parent !== n.row.parent
-                || struct && prev.kind === "acc" && it.kind === "sum" && prev.node.row.parent === n.row.id
-                    && n.children.some(c => c.hasChildren)
+                || struct && topOf(prev.node) !== topOf(n)
             )) {
                 if (out.length && out[out.length - 1].kind !== "gap") { out.push(this.megaGap()); }
             }
@@ -8729,7 +8760,8 @@ export class Visual implements IVisual {
                 suffix.push({ t: " ≈", color: C.loading });
             }
             const parent = n.row.parent ? model.byId.get(n.row.parent) : undefined;
-            const name = (dupe.get(n.row.name) ?? 0) > 1 && parent ? `${n.row.name} ${parent.row.name}` : n.row.name;
+            const name = single.get(n.row.id)
+                ?? ((dupe.get(n.row.name) ?? 0) > 1 && parent ? `${n.row.name} ${parent.row.name}` : n.row.name);
             // cascades (T04 Δ waterfall, 12A value cascade): "=" rows anchor —
             // formula rows, the statement's chain start, the single grand total
             // of a structure hierarchy; every other row steps with the effect
@@ -8810,7 +8842,7 @@ export class Visual implements IVisual {
         return ctx.measureText(t).width;
     }
 
-    private buildMega(fmt: Fmt, shrink: number): HTMLElement {
+    private buildMega(fmt: Fmt, shrink: number, rowK?: number): HTMLElement {
         const model = this.model!; const ui = this.ui!;
         const cc = this.settings.columnsCard;
         const t = this.megaToggles();
@@ -8830,11 +8862,21 @@ export class Visual implements IVisual {
         const scenOf = (key: BlockKey, s: MegaScen): Scenario | null => this.megaScenOf(key, s);
         const revBase = t.share ? revenueBase(model, cc.revenueBase.value) : null;
         const num = (v: unknown, d: number): number => { const x = Number(v); return isFinite(x) ? x : d; };
-        const th = [
-            { abs: num(cc.thresholdAbs.value, -20), pct: num(cc.thresholdPct.value, -10) / 100 },
-            { abs: num(cc.thresholdYtdAbs.value, -220), pct: num(cc.thresholdYtdPct.value, -10) / 100 },
-        ];
         const div = fmt.div;
+        // 1.5.1: the built-in thresholds (−20 / −220) are thousands — at a
+        // larger scaling they are converted (−20 k = −0.02 at "m", −0.00002 at
+        // "b"; until 1.5 nothing turned red at millions). Without scaling the
+        // numbers are taken as already shown in the author's unit and keep
+        // −20 / −220 as before. A value the author set stays in display units,
+        // exactly as typed.
+        const thObjs = this.lastDv?.metadata?.objects?.["columns"];
+        const thSet = (k: string): boolean => thObjs != null && thObjs[k] != null && isFinite(Number(thObjs[k]));
+        const thAbs = (k: string, v: unknown, d: number): number =>
+            thSet(k) ? num(v, d) : div > 1e3 ? d * 1e3 / div : d;
+        const th = [
+            { abs: thAbs("thresholdAbs", cc.thresholdAbs.value, -20), pct: num(cc.thresholdPct.value, -10) / 100 },
+            { abs: thAbs("thresholdYtdAbs", cc.thresholdYtdAbs.value, -220), pct: num(cc.thresholdYtdPct.value, -10) / 100 },
+        ];
         const raw = (n: PnlNode, key: BlockKey, s: MegaScen): number | null => {
             const sc = scenOf(key, s);
             return sc == null ? null : this.megaRaw(n, key, sc);
@@ -8923,7 +8965,9 @@ export class Visual implements IVisual {
             // scale sync (numbers.fixedMax / fixedVarMax): data units → display units
             fixedMax: this.fixedMax() != null ? this.fixedMax()! / div : undefined,
             fixedVarMax: this.fixedVarMax() != null ? this.fixedVarMax()! / div : undefined,
+            rowK,
         });
+        this.megaLast = L;
         const ns = "http://www.w3.org/2000/svg";
         const opts: MegaPaintOpts = {
             font: FONT,
@@ -9508,9 +9552,11 @@ export class Visual implements IVisual {
      * orientation; classic: AC vs the toolbar reference. YTD window.
      * 1.5: one complete sentence (IBCS SAY: a message, not a keyword list) —
      * "EBIT liegt 691 Tsd. EUR (−29 %) unter Vorjahr; stärkster Treiber ist
-     * Lizenzen mit +120, größte Belastung ist Logistik mit −813." The drivers
-     * carry the sign of their effect on the result (a cost overrun reads −813,
-     * not +813), the amount the unit of the title line.
+     * Lizenzen mit +120 Tsd. EUR Mehrertrag, größte Belastung ist Logistik mit
+     * +813 Tsd. EUR Mehrkosten." 1.5.1: the drivers carry the Δ the table
+     * shows (a cost overrun is +813 there) and name its effect in words; they
+     * are still ranked by their effect on the result. A minuend other than AC
+     * is named in the subject ("liegt im Plan").
      */
     private autoMessage(fmt: Fmt): string {
         const model = this.model; const ui = this.ui;
@@ -9547,27 +9593,43 @@ export class Visual implements IVisual {
         const total = dv(result);
         if (!total) { return ""; }
         const unit = this.titleUnit(fmt);
+        // number and unit never break apart ("+721 Mio. | EUR" in a narrow headline)
+        const withUnit = (s: string): string => s + (unit ? " " + unit.replace(/ /g, " ") : "");
         const code = ref === "plfy" ? "PL" : ref.toUpperCase();
         // the reference by name ("Vorjahr", "Plan"); house terms (labels.labelPy …) win
         const refName = this.relabel(code) !== code ? this.relabel(code) : this.tr(code === "PY" ? "UI_AutoRefPY" : "UI_AutoRefPL");
+        // 1.5.1: a minuend other than AC is named in the subject ("EBIT liegt im
+        // Plan … über Vorjahr", 12H; "im Forecast" for FC) — house terms win
+        const minCode: string = mt ? mt.min : "AC";
+        const minName = minCode === "AC" ? "" : this.relabel(minCode) !== minCode ? this.relabel(minCode)
+            : this.tr(minCode === "PL" ? "UI_AutoRefPL" : "UI_AutoScenFC");
+        const inScen = minName ? this.tr("UI_AutoIn", minName) : "";
         const name = result.row.name || this.tr("UI_AutoResult");
-        const amount = fmt.val(Math.abs(total.d)) + (unit ? " " + unit : "") + (total.p != null ? ` (${fmt.pct(total.p, true)})` : "");
-        let sentence = total.d === 0 ? this.tr("UI_AutoEq", name, refName)
-            : this.tr(total.d > 0 ? "UI_AutoAbove" : "UI_AutoBelow", name, amount, refName);
-        const drivers: { n: PnlNode; score: number }[] = [];
+        // 1.5.1: Δ% with the typographic minus and a narrow space before "%" ("−28,5 %")
+        const pctH = (p: number): string => fmt.pct(p, true).replace("%", " %");
+        const amount = withUnit(fmt.val(Math.abs(total.d))) + (total.p != null ? ` (${pctH(total.p)})` : "");
+        let sentence = total.d === 0 ? this.tr("UI_AutoEq", name, refName, inScen)
+            : this.tr(total.d > 0 ? "UI_AutoAbove" : "UI_AutoBelow", name, amount, refName, inScen);
+        const drivers: { n: PnlNode; score: number; d: number; good: boolean }[] = [];
         for (const n of model.byId.values()) {
             if (n.hasChildren || n.row.rowType !== "account") { continue; }
             const v = dv(n);
             if (!v || v.d === 0) { continue; }
-            drivers.push({ n, score: v.good ? Math.abs(v.d) : -Math.abs(v.d) });
+            drivers.push({ n, score: v.good ? Math.abs(v.d) : -Math.abs(v.d), d: v.d, good: v.good });
         }
+        // 1.5.1: a driver reads with the Δ the table shows (sign and all: a cost
+        // overrun is +813, as in the Δ column) and its effect in words —
+        // "größte Belastung ist Logistik mit +0,81 Mio. EUR Mehrkosten". The
+        // ranking still goes by the effect on the result.
+        const effect = (x: { d: number; good: boolean }): string => this.tr(
+            x.good ? (x.d > 0 ? "UI_AutoEffIncome" : "UI_AutoEffSaving") : (x.d > 0 ? "UI_AutoEffCost" : "UI_AutoEffShortfall"),
+            withUnit(fmt.val(x.d, true)));
         const tail: string[] = [];
         if (drivers.length >= 3) {
             drivers.sort((x, y) => y.score - x.score);
             const best = drivers[0]; const worst = drivers[drivers.length - 1];
-            // the effect on the result: favourable +, unfavourable − (a cost overrun is −813)
-            if (best !== worst && best.score > 0) { tail.push(this.tr("UI_AutoBest", best.n.row.name, fmt.val(best.score, true))); }
-            if (best !== worst && worst.score < 0) { tail.push(this.tr("UI_AutoWorst", worst.n.row.name, fmt.val(worst.score, true))); }
+            if (best !== worst && best.score > 0) { tail.push(this.tr("UI_AutoBest", best.n.row.name, effect(best))); }
+            if (best !== worst && worst.score < 0) { tail.push(this.tr("UI_AutoWorst", worst.n.row.name, effect(worst))); }
         }
         if (tail.length) { sentence += this.tr("UI_AutoJoin") + tail.join(this.tr("UI_AutoAnd")); }
         return sentence + this.tr("UI_AutoEnd");
@@ -9576,14 +9638,27 @@ export class Visual implements IVisual {
     /**
      * 1.5: the unit of the title's measure line ("… in Tsd. EUR" → "Tsd. EUR",
      * "… en kEUR", "…単位：kEUR") — the generated message names amounts the way
-     * the title does. Without an author line (or a recognisable unit in it) the
-     * visual's own unit: scaling suffix + numbers.unitText ("kEUR").
+     * the title does. 1.5.1: the unit may also stand before a comma or a
+     * bracket ("GuV in Mio. EUR, Jahresausblick gegen Vorjahr"); of several
+     * "in …" phrases the last one that looks like a unit wins. Without one, the
+     * visual's own unit in words: scaling + numbers.unitText ("Mio. EUR",
+     * "Tsd. EUR"), never the code "mEUR".
      */
     private titleUnit(fmt: Fmt): string {
-        const own = fmt.suffix + this.settings.numbersCard.unitText.value;
+        const unitText = this.settings.numbersCard.unitText.value.trim();
         const line = this.settings.titleCard.measureLine.value.trim();
-        const m = /(?:\s(?:in|en)\s+|単位[:：]\s*)([^\s].{0,18}?)\s*$/i.exec(line);
-        return m ? m[1] : own;
+        const looksLikeUnit = (s: string): boolean =>
+            /[A-Z]{3}|[€$£¥%]|千|百万|億/.test(s) || /\b(?:tsd|mio|mrd|thousand|million|billion|miles|millones|mill)\b/i.test(s)
+            || (unitText !== "" && s.includes(unitText));
+        const found: string[] = [];
+        for (const m of line.matchAll(/(?:^|\s)(?:in|en)\s+([^,;·|()\n]{1,24}?)\s*(?=[,;·|()]|$)/gi)) { found.push(m[1].trim()); }
+        const jp = /単位[:：]\s*([^,;·|()、。\s][^,;·|()、。]{0,18}?)\s*(?=[,;·|()、。]|$)/.exec(line);
+        if (jp) { found.push(jp[1].trim()); }
+        for (let i = found.length - 1; i >= 0; i--) {
+            if (found[i] && looksLikeUnit(found[i])) { return found[i]; }
+        }
+        const key = fmt.suffix === "k" ? "UI_UnitK" : fmt.suffix === "m" ? "UI_UnitM" : fmt.suffix === "b" ? "UI_UnitB" : "";
+        return (key ? this.tr(key, unitText) : unitText).replace(/\s+/g, " ").trim();
     }
 
     /** first non-empty value of the bound filterInfo text measure */
@@ -9625,12 +9700,13 @@ export class Visual implements IVisual {
 
     // ---------------- footnotes / footer ----------------
 
-    private buildFootnotes(fmt: Fmt): void {
+    private buildFootnotes(fmt: Fmt): HTMLElement | null {
         void fmt;
         const model = this.model!;
         const warnings = [...this.statusWarnings, ...model.warnings];
-        if (this.comments.length === 0 && warnings.length === 0) { return; }
+        if (this.comments.length === 0 && warnings.length === 0) { return null; }
         const box = document.createElement("div");
+        box.setAttribute("data-pnl", "footnotes");
         box.style.cssText = "padding:8px 14px 4px 14px;max-width:960px;";
         const h = document.createElement("div");
         h.style.cssText = `font-size:${this.kpx(9)};font-weight:700;letter-spacing:.08em;` +
@@ -9639,7 +9715,8 @@ export class Visual implements IVisual {
         box.appendChild(h);
         for (const cm of this.comments) {
             const li = document.createElement("div");
-            li.style.cssText = `font-size:${this.kpx(10)};line-height:1.5;margin-bottom:3px;`;
+            li.style.cssText = `font-size:${this.kpx(10)};line-height:1.5;margin-bottom:3px;break-inside:avoid;`;
+            li.setAttribute("data-pnl", "footnote");
             const m = document.createElement("span");
             m.style.cssText = `color:${C.comment};margin-right:6px;`;
             m.textContent = String.fromCharCode(0x2460 + cm.n - 1);
@@ -9656,6 +9733,56 @@ export class Visual implements IVisual {
             box.appendChild(li);
         }
         this.root.appendChild(box);
+        return box;
+    }
+
+    /**
+     * 1.5.1: every comment marked in the mega table (①, ②, ③ …) must be
+     * readable without scrolling — in a fixed tile the footnotes used to fall
+     * below the visible area (12A ③, 12G ② ③). When the footnotes end below
+     * the viewport: (1) they are set in columns, (2) the table rows are set
+     * tighter (row height down to 1.3 × the font size, a layout of its own,
+     * scales unchanged in kind), (3) if that is still not enough, the footnote
+     * block sticks to the bottom edge while the table scrolls behind it.
+     * Exports print everything in flow and are left alone.
+     */
+    private megaFitNotes(fmt: Fmt, table: HTMLElement, notes: HTMLElement | null, shrink: number): void {
+        if (!notes || this.comments.length === 0 || this.exporting() || this.miniQuiet()) { return; }
+        const avail = this.root.clientHeight;
+        if (!avail) { return; }
+        const bottom = (): number => Math.ceil(notes.getBoundingClientRect().bottom
+            - this.root.getBoundingClientRect().top + this.root.scrollTop);
+        if (bottom() <= avail) { return; }
+        // (1) columns: one comment per line, as many columns as the width holds
+        if (this.comments.length > 1) {
+            notes.style.maxWidth = "none";
+            notes.style.columnWidth = this.kpx(300);
+            notes.style.columnGap = this.kpx(24);
+            const head = notes.firstElementChild as HTMLElement | null;
+            if (head) { head.style.columnSpan = "all"; }
+        }
+        let over = bottom() - avail;
+        // (2) tighter rows
+        const L = this.megaLast;
+        if (over > 0 && L && L.R.length > 0) {
+            const gaps = L.rows.filter(r => r.kind === "gap").length;
+            const per = over / (L.R.length + 0.5 * gaps);
+            const rowK = (L.G.rowH - per - 0.5) / L.G.fs;
+            if (rowK < 1.7) {
+                const tight = this.buildMega(fmt, shrink, rowK);
+                this.root.replaceChild(tight, table);
+                over = bottom() - avail;
+            }
+        }
+        // (3) still too tall: the footnotes stay on screen at the bottom edge
+        if (over > 0) {
+            notes.setAttribute("data-pnl-sticky", "1");
+            notes.style.position = "sticky";
+            notes.style.bottom = "0";
+            notes.style.zIndex = "20";
+            notes.style.background = this.pageBg();
+            notes.style.borderTop = `1px solid ${C.gridSoft}`;
+        }
     }
 
     private buildFooter(): HTMLElement {
