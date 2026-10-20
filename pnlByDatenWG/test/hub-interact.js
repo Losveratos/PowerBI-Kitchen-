@@ -297,7 +297,7 @@ function check(label, cond, detail) {
     check("G a click = ONE persist: columns (template + templateApplied + every switch) and numbers", G.persistN === 1 && G.objs.join() === "columns,numbers"
         && G.cols && G.cols.template === "T03A" && G.cols.applied === "T03A" && G.cols.showPY === true && G.cols.showPL === true && G.cols.showMinuend === true
         && G.cols.dPyAbs === true && G.cols.dPlPct === true && G.cols.blockKind === "ytd", JSON.stringify(G.cols) + JSON.stringify(G.objs));
-    check("G the number format travels with the template (T03A: 1 / 0 decimals)", G.nums && G.nums.decimals === 1 && G.nums.pctDecimals === 0, JSON.stringify(G.nums));
+    check("G the number format travels with the template (T03A: 1 / 1 decimals, 1.5)", G.nums && G.nums.decimals === 1 && G.nums.pctDecimals === 1, JSON.stringify(G.nums));
     check("G without fields the pick is shown as saved, the tile active, the focus stays on the tile",
         /^Saved: T03A/.test(G.savedNote || "") && G.activeNow.join() === "tpl-T03A" && G.focus === "tpl-T03A", `${G.savedNote} | ${G.activeNow} | ${G.focus}`);
     check("G echo guard: a stale update keeps the pick, the echo confirms it, no second write",

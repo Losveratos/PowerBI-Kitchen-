@@ -413,6 +413,16 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "foldable": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "startFolded": {
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         },

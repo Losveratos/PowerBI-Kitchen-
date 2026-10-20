@@ -1,5 +1,134 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.5.0.0 (2026-10-20): Skalierung nach IBCS 2.0 / ISO 24896 als Standard
+
+**Bestehende Berichte ändern ihr Bild.** Die Skalierung im Mega-Table folgt
+jetzt der Regel „gleiche Einheit, gleiche Skala" (IBCS 2.0, ISO 24896) als
+Standard, nicht als Option, in allen Ansichten (Mega-Table, Tabelle, Balken,
+Wasserfall, Werttreiberbaum). Keine neue Rolle; neu sind nur die zwei
+Properties der einklappbaren Bedienleisten (`toolbar.foldable`,
+`toolbar.startFolded`, Standard aus). Grundlage war eine Pixelmessung an der
+Showcase-App (T02A bis T02C, T04A, 12A, 12G, 12H); die Zahlen unten stammen aus
+dem Test-Harness (1320 px breit, Referenzdaten der IBCS-Blätter). IBCS bleibt
+Referenz, das Visual ist nicht zertifiziert.
+
+- **Eine Δ-Skala über alle Perioden-Blöcke.** Bis 1.4 hatte jeder Block
+  (Monat, YTD, FY) seine eigene Skala, ohne Hinweis: im T02A-Harness zeichnete
+  der Monat 0,795 kEUR/px, das YTD 7,867 kEUR/px (Faktor 9,9), in der Showcase
+  wirkte −75 im Monat größer als −342 im YTD. Jetzt teilen alle Δ-Balken und
+  Δ-Wasserfälle aller Blöcke einen Maßstab, alle Δ%-Pins einen zweiten. Wird
+  ein Block dadurch unlesbar (seine Datenfläche fiele unter die
+  Mindest-Datenfläche 3·fs), zeichnet er vergrößert mit einem runden Faktor
+  (2, 5, 10, 20 …) und sagt es: der Spaltenkopf trägt den Faktor („ΔPL ×5"),
+  über der Tabelle steht ein Skalenhinweis. Nie still umskaliert (IBCS UN 5.2,
+  CH 4.3). Harness T02A nachher: YTD 7,867 kEUR/px, Monat genau 1/5 davon
+  (1,573), Kopf „ΔPL ×5"; Pins vorher 0,238 / 0,237, nachher 0,294 / 0,295
+  %-Pkt/px (eine Skala).
+- **Δ in der Skala der Basiswerte (12A, 12G, 12H).** Wert-Kaskaden und Δ-Balken
+  hatten je ein eigenes k (Showcase 12A 8,6×, 12G 8,9×, 12H 5,6×). Jetzt sind
+  sie eine Einheit: absolute Abweichungen zeichnen in der Skala der Kaskaden.
+  Werden sie dort zu klein, gilt derselbe Skalierungshinweis am Δ-Kopf
+  („ΔPY ×5"). Harness: 12A Kaskaden 3,84 und ΔPY 1,891 kEUR/px vorher, nachher
+  beide 3,84; 12H 3,634 gegen 1,508 vorher, nachher beide 3,634; 12G 6,145
+  gegen 6,201 vorher, nachher beide 6,201. T04-Beträge (±10 neben 900) im
+  12A-Layout zeichnen „ΔPY ×20".
+- **Gekappte Ausreißer sichtbar über das Maximum hinaus.** Bis 1.4 endete ein
+  gekappter Balken oder Pin genau dort, wo der größte reguläre Wert endet
+  (+32,2 % so lang wie +6,0 %, die Zahl auf dem Balken). Jetzt reserviert jede
+  Chart-Spalte eine Ausreißerzone (12 % der Spalte, mindestens zwei
+  Dreieckslängen): das gekappte Element läuft über das reguläre Maximum in die
+  Zone, ein Bruchzeichen (zwei schräge Striche im Papierton) trennt es, ein
+  Dreieck zeigt in Wuchsrichtung, die Zahl steht außen hinter der Spitze
+  (IBCS UN 5.3). Die Kappungsgrenze ist eine für die ganze Tabelle: Tukey
+  entscheidet je Block, was dort ein Ausreißer ist, die gemeinsame Grenze ist
+  der größte reguläre Wert aller Blöcke. Harness T02A: Japan +65,5 % und China
+  +24,6 % waren vorher beide 104 px lang, jetzt China 84 px und Japan 110 px
+  mit Bruchzeichen, danach das Dreieck. `columns.capBars` (Kappung auch für Δ-Balken) ist damit sinnvoll
+  nutzbar (Bühne m33: gekappter Balken 146 px, längster regulärer 113 px).
+- **Skalenhinweis auch im Mega-Table.** Über der Tabelle, rechtsbündig, nur wenn
+  etwas von der einen Skala abweicht: „Eine Skala je Einheit über alle Blöcke ·
+  vergrößert (Skalierungshinweis): ΔPL November ×5". Fixierte Skalen
+  (`fixedMax` / `fixedVarMax`) nennt er Lesern und im Export („Skala fixiert:
+  …"); im Bearbeitungsmodus steht das wie bisher in der Autoren-Notiz unter der
+  Tabelle.
+- **Auto-Headline als ganzer Satz (12G, 12H, autoMessage).** Statt der
+  Stichwortliste „EBIT ΔPY −691 kEUR (−29%) · stärkster Treiber: … ·
+  schwächster: Logistik (+813)" jetzt: „EBIT liegt 691 Tsd. EUR (−29 %) unter
+  Vorjahr; stärkster Treiber ist Lizenzen mit +120, größte Belastung ist
+  Logistik mit −813." Die Treiber tragen das Vorzeichen ihrer Ergebniswirkung
+  (eine Kostenüberschreitung ist −813, nicht +813). Die Einheit kommt aus der
+  zweiten Titelzeile, wenn sie auf „in …" endet („… in Tsd. EUR"), sonst aus
+  Skalierung + `numbers.unitText`. Referenz als Wort (Vorjahr, Plan);
+  Hausbegriffe gewinnen. Vier Sprachen.
+- **Δ%-Nachkommastellen einheitlich.** Jedes Template schreibt jetzt
+  `numbers.pctDecimals = 1` (bis 1.4: T03A/B und 12A/12G/12H 0, T04B bis E 2,
+  sonst 1); dieselbe Abweichung liest sich nicht mehr von Template zu Template
+  anders. Gespeicherte Berichte behalten ihren Wert, bis das Template erneut
+  angewendet wird; bis dahin erscheint im Bearbeitungsmodus „↺ Zum Template
+  zurück".
+- **Blocklücke bei zusammengefassten Einzelknoten (T01B, T02A).** Eine Region
+  ohne eigene Länder (Level 2 = Level 1, z. B. Slowakei) steht als einzelne
+  Zeile; bis 1.4 klebte sie ohne Lücke am nächsten Block und wirkte
+  zugehörig. Jetzt trennt eine Leerzeile Zeilen verschiedener Eltern, und die
+  Gesamtsumme steht auch nach einer solchen Zeile abgesetzt. Gilt nur für
+  Strukturdaten mit Zwischensummen-Blöcken; GuV-Statements unverändert.
+- **Fußnote:** „Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS
+  Association" statt 1.2; der Satz „nicht zertifiziert" bleibt.
+
+**Dieselbe Regel in allen Ansichten** (Prüfung im Harness, `test/scale-views.js`,
+px je Einheit Δ zu Basis bzw. Karte zu Karte):
+
+| Ansicht | vorher | nachher |
+|---|---|---|
+| Mega-Table T02A, Δ Monat zu YTD | 9,9× ohne Hinweis | ×5, im Kopf „ΔPL ×5" und im Skalenhinweis |
+| Mega-Table 12A / 12H / 12G, Δ zu Kaskade | 2,0× / 2,4× / 0,99× | 1,00× / 1,00× / 1,00× |
+| Tabelle (klassisch), Δ-Balken über Blöcke | eine Skala | unverändert eine Skala |
+| Tabelle, Δ%-Pins über ±40 % | Nadel endet bei 40 %, „▸" an der Zahl | Ausreißerzone, Bruchzeichen, Dreieck |
+| Balken-Ansicht, Δ-Balken zu Wertbalken | 6,85× ohne Hinweis | ×5, Kopf „ΔPL ×5" und Skalenhinweis |
+| Wasserfall-Ansicht, Δ-Balken zu Kaskade | 5,37× ohne Hinweis | ×5, Kopf „ΔPL ×5" und Skalenhinweis |
+| Baum, Karten „Monate" | jede Karte eigene Skala (0,19 bis 4,87 px je Einheit, 25×) | eine Skala (0,19), kleine Karten ×2 / ×10 / ×20 markiert |
+| Baum, Karten „Δ" | 1,86 bis 280 px je Einheit (150×) | eine Skala (1,86), ×5 / ×100 markiert |
+| Baum, Kachel-Zoom (Mikrokarten einer Spalte) | je Karte eigene Skala | eine Skala je Einheit, ×n markiert |
+| Baum, Kachel-Zoom und Hover-Lupe (Hauptchart) | eigene Skala ohne Hinweis | eigene Skala, als „Lupe" gekennzeichnet |
+
+- **Balken- und Wasserfall-Ansicht:** Neben Wertbalken oder Kaskaden zeichnen
+  die Δ-Balken in deren Skala. Reichen sie über die Spalte, wird die Spalte
+  breiter; blieben sie unter einer halben Spalte, gilt ein runder Faktor, den
+  Spaltenkopf („ΔPL ×5") und Skalenhinweis nennen. Die Tabellen-Ansicht ohne
+  Wertbalken behält die eine Δ-Skala ±max über alle Blöcke.
+- **Δ%-Pins der klassischen Tabelle:** Gibt es in der Tabelle einen Pin über
+  ±40 %, nehmen ±40 % die inneren 80 % der Spur ein; der Ausreißer läuft in die
+  äußere Zone, ein Bruchzeichen trennt ihn, ein Dreieck zeigt in Wuchsrichtung.
+- **Werttreiberbaum:** Alle Karten derselben Einheit (Beträge; Prozent-Kennzahlen
+  getrennt) zeichnen in einem Maßstab; ein Messdurchgang ermittelt ihn vor dem
+  Zeichnen. Bedeckte eine Karte damit weniger als ein Viertel ihrer Fläche,
+  zeichnet sie mit rundem Faktor vergrößert und trägt „×5" oben rechts (Tooltip
+  erklärt es); die Hinweiszeile nennt die Regel. Gilt für Monats-, Δ- und
+  Brücken-Karten und für die Mikrokarten der Kachel. Die Hover-Lupe und das
+  Hauptchart der Kachel bleiben bewusst eigene Skala und sagen das („Lupe: Diese
+  Detailansicht hat ihre eigene Skala.").
+
+**Bedienleisten einklappbar (neu, Standard aus).** `toolbar.foldable`
+(„Bedienleisten einklappbar (☰)") und `toolbar.startFolded` („Startzustand
+eingeklappt", Standard an, sichtbar mit foldable): Toolbar, Legende und
+Hinweiszeilen (Skalenhinweis, Baum-Hinweis) klappen hinter einen kleinen
+☰-Knopf. Eingeklappt bleibt eine Zeile (Harness 640 × 360: 27 px statt
+210 px Bedienfläche); aufgeklappt führt ☰ die Toolbar an. Die Wahl des Lesers
+gilt zur Laufzeit und wird nicht gespeichert. Exporte drucken die Legende wie
+bisher. Titel, Spaltenköpfe mit Skalierungsfaktor und die ×n-Marken der Karten
+bleiben auch eingeklappt sichtbar. Neue Properties in capabilities.json, vier
+Sprachen.
+
+- **Tests (Nachtrag):** neu `test/scale-views.js` (`npm run test:scale`, 17
+  Prüfungen: px je Einheit Δ zu Wertbalken in p2/p7/p16, eine Δ-Skala und
+  Pin-Ausreißerzone in p1, eine Kartenskala × Marke in p8/p10);
+  `toolbar-interact.js` Block K (7 Prüfungen ☰).
+- **Tests:** `megatable-test.js` 42 Blöcke (neu: runde Faktoren, gleiche px je
+  Einheit über Blöcke, Lupe statt stiller Umskalierung, Kaskade gegen Δ,
+  gemeinsame Kappung, Ausreißerzone); `mega-shot.js` 247 Prüfungen (neu: m32
+  Einzelknoten-Regionen, m33 Ausreißerzone der Δ-Balken, Messung Monat = 5 ×
+  YTD in m5, Δ in Kaskadenskala in m15, Satz-Headline, Fußnote 2.0).
+
 ## 1.4.2.0 (2026-10-18) — Korrektur: GuV-Reihenfolge im Ebenen-Modus
 
 Bugfix ohne neue Property oder Rolle; capabilities.json und persistierte Werte

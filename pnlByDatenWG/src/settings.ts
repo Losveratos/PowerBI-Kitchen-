@@ -235,6 +235,15 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
     /** 1.2: the template dropdown in the toolbar — edit mode only, readers never see it */
     showTemplate = toggle("showTemplate", "Toolbar_ShowTemplate", "Template picker in edit mode",
         "A compact template dropdown at the start of the toolbar while you edit the report (table view). Readers and exports never see it. Default: on", true);
+    /**
+     * 1.5: the control bars (toolbar, legend, hint lines) fold behind a small
+     * ☰ button — for small tiles, where they took two thirds of the height.
+     * Off by default: an existing report keeps exactly its head.
+     */
+    foldable = toggle("foldable", "Toolbar_Collapsible", "Control bars collapsible (☰)",
+        "Toolbar, legend and hint lines fold behind a small ☰ button; folded, one slim row remains. For small tiles. Exports always print the legend. Default: off", false);
+    startFolded = toggle("startFolded", "Toolbar_StartCollapsed", "Start collapsed",
+        "With collapsible control bars: the visual opens folded, readers unfold them with ☰. Default: on", true);
 
     name: string = "toolbar";
     displayName: string = "Display & toolbar";
@@ -243,7 +252,7 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
     descriptionKey: string = "Desc_Card_Toolbar";
     slices = [this.show, this.showLegend, this.showView, this.showPresets, this.showReference,
         this.showPeriods, this.showUnit, this.showDensity, this.showLevels, this.showOptions, this.showScenario,
-        this.showValues, this.showTemplate];
+        this.showValues, this.showTemplate, this.foldable, this.startFolded];
 }
 
 /**
@@ -707,6 +716,7 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     const tb = m.toolbarCard;
     for (const s of [tb.showView, tb.showPresets, tb.showReference, tb.showPeriods, tb.showUnit,
         tb.showDensity, tb.showLevels, tb.showOptions, tb.showScenario, tb.showValues, tb.showTemplate]) { s.visible = tb.show.value; }
+    tb.startFolded.visible = tb.foldable.value;
 
     const c = m.columnsCard;
     const has = ctx.has;

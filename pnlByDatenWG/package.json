@@ -1,7 +1,7 @@
 {
   "name": "pnl-by-datenwg",
   "description": "IBCS-inspired P&L statement custom visual for Power BI",
-  "version": "1.4.2.0",
+  "version": "1.5.0.0",
   "license": "MIT",
   "scripts": {
     "pbiviz": "pbiviz",
@@ -16,7 +16,8 @@
     "test:megaperf": "node test/build.js && node test/mega-perf.js",
     "test:mega": "node test/megatable-test.js && node test/build.js && node test/mega-shot.js && node test/mega-interact.js",
     "test:waterfall": "node test/waterfall-test.js",
-    "test": "npm run test:i18n && npm run test:engine && npm run test:mega && npm run test:waterfall && npm run test:render && npm run test:tree && npm run test:toolbar && npm run test:ease && npm run test:hub && npm run test:start && npm run test:finance && npm run test:perf && npm run test:megaperf",
+    "test:scale": "node test/build.js && node test/scale-views.js",
+    "test": "npm run test:i18n && npm run test:engine && npm run test:mega && npm run test:waterfall && npm run test:render && npm run test:tree && npm run test:toolbar && npm run test:ease && npm run test:hub && npm run test:start && npm run test:finance && npm run test:scale && npm run test:perf && npm run test:megaperf",
     "test:i18n": "node test/i18n-test.js",
     "test:start": "node test/build.js && node test/start-dark-test.js",
     "test:finance": "node test/build.js && node test/finance-test.js",
