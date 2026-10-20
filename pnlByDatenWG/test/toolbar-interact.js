@@ -35,6 +35,9 @@
  *   J  1.2 mega value switches: analysed scenario · PY · PL on top of the
  *      author's switches; the last column is locked (the mega table never
  *      falls back to the classic table by a click)
+ *   K  1.5 collapsible control bars (toolbar.foldable / startFolded): folded,
+ *      one slim row with ☰; ☰ unfolds toolbar, legend and scale note without
+ *      persisting anything; off by default
  *
  * Run: node test/toolbar-interact.js  (npm run test:toolbar)
  */
@@ -491,6 +494,50 @@ function check(label, cond, detail) {
     s = await ev(() => { const T = window.__T; T.tj.objects.columns.showPY = false; T.tj.objects.columns.showMinuend = false;
         T.tj.update(); T.tj.flush(); return T.state("tj"); });
     check("J an author change of the mega value switches ends the reader's choice", s.ui.megaVals === null);
+
+    // ---- K · 1.5 collapsible control bars (toolbar.foldable) ---------------------
+    const fold = (id) => page.evaluate((id) => {
+        const b = __T.box(id); const head = b.querySelector('[data-pnl="head"]');
+        return {
+            folded: !!b.querySelector('[data-pnl="tb-folded"]'),
+            burger: !!b.querySelector('[data-pnl="tb-burger"]'),
+            first: head && head.querySelector("button") ? head.querySelector("button").getAttribute("data-pnl") : null,
+            btns: head ? head.querySelectorAll("button").length : 0,
+            legend: head ? /AC actual/.test(head.textContent) : false,
+            note: !!b.querySelector('[data-pnl="scale-note"]'),
+            headH: head ? Math.round(head.getBoundingClientRect().height) : 0,
+            // the control part of the head: from the row of the ☰ button down (the title stays)
+            ctlH: (() => {
+                const bt = b.querySelector('[data-pnl="tb-burger"]');
+                return head && bt ? Math.round(head.getBoundingClientRect().bottom - bt.parentElement.getBoundingClientRect().top) : 0;
+            })(),
+            persists: __T[id].persists.length,
+        };
+    }, id);
+    await page.evaluate(() => { __T.mk("tk0", "pharma", { toolbar: { show: true } }); });
+    let k = await fold("tk0");
+    check("K default: no ☰, the head as before", !k.burger && !k.folded && k.btns > 5 && k.legend, JSON.stringify(k));
+    await page.evaluate(() => { __T.mk("tk", "pharma", { toolbar: { show: true, foldable: true } }); });
+    k = await fold("tk");
+    check("K foldable (start folded by default): one slim row with ☰ only, no legend, no scale note",
+        k.folded && k.btns === 1 && k.first === "tb-burger" && !k.legend && !k.note, JSON.stringify(k));
+    const hFolded = k.ctlH;
+    await page.evaluate(() => { __T.box("tk").querySelector('[data-pnl="tb-burger"]').click(); });
+    k = await fold("tk");
+    check("K ☰ unfolds: toolbar with ☰ first, legend and scale note back, nothing persisted",
+        !k.folded && k.first === "tb-burger" && k.btns > 5 && k.legend && k.note && k.persists === 0, JSON.stringify(k));
+    check("K folded, the control part is at most a third of the unfolded one (title unchanged)", hFolded > 0 && hFolded * 3 <= k.ctlH,
+        `${hFolded} / ${k.ctlH}`);
+    await page.evaluate(() => { __T.box("tk").querySelector('[data-pnl="tb-burger"]').click(); });
+    k = await fold("tk");
+    check("K ☰ folds again", k.folded && k.btns === 1, JSON.stringify(k));
+    await page.evaluate(() => { __T.mk("tk2", "pharma", { toolbar: { show: true, foldable: true, startFolded: false } }); });
+    k = await fold("tk2");
+    check("K startFolded off: opens unfolded, ☰ leads the toolbar", !k.folded && k.first === "tb-burger" && k.legend, JSON.stringify(k));
+    await page.evaluate(() => { __T.mk("tk3", "pharma", { toolbar: { show: false, showLegend: true, foldable: true, startFolded: false } }); });
+    k = await fold("tk3");
+    check("K toolbar off, legend on: ☰ leads the legend row", !k.folded && k.burger && k.legend && k.btns === 1, JSON.stringify(k));
+    await page.evaluate(() => { ["tk0", "tk", "tk2", "tk3"].forEach(id => __T.box(id).remove()); });
 
     // ---- G · hit targets in every locale -------------------------------------
     const hit = await ev(() => {

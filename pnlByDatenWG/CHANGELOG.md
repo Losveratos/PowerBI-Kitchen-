@@ -4,8 +4,10 @@
 
 **Bestehende Berichte ändern ihr Bild.** Die Skalierung im Mega-Table folgt
 jetzt der Regel „gleiche Einheit, gleiche Skala" (IBCS 2.0, ISO 24896) als
-Standard, nicht als Option. Keine neue Property, keine neue Rolle,
-capabilities.json unverändert. Grundlage war eine Pixelmessung an der
+Standard, nicht als Option, in allen Ansichten (Mega-Table, Tabelle, Balken,
+Wasserfall, Werttreiberbaum). Keine neue Rolle; neu sind nur die zwei
+Properties der einklappbaren Bedienleisten (`toolbar.foldable`,
+`toolbar.startFolded`, Standard aus). Grundlage war eine Pixelmessung an der
 Showcase-App (T02A bis T02C, T04A, 12A, 12G, 12H); die Zahlen unten stammen aus
 dem Test-Harness (1320 px breit, Referenzdaten der IBCS-Blätter). IBCS bleibt
 Referenz, das Visual ist nicht zertifiziert.
@@ -72,6 +74,55 @@ Referenz, das Visual ist nicht zertifiziert.
   Strukturdaten mit Zwischensummen-Blöcken; GuV-Statements unverändert.
 - **Fußnote:** „Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS
   Association" statt 1.2; der Satz „nicht zertifiziert" bleibt.
+
+**Dieselbe Regel in allen Ansichten** (Prüfung im Harness, `test/scale-views.js`,
+px je Einheit Δ zu Basis bzw. Karte zu Karte):
+
+| Ansicht | vorher | nachher |
+|---|---|---|
+| Mega-Table T02A, Δ Monat zu YTD | 9,9× ohne Hinweis | ×5, im Kopf „ΔPL ×5" und im Skalenhinweis |
+| Mega-Table 12A / 12H / 12G, Δ zu Kaskade | 2,0× / 2,4× / 0,99× | 1,00× / 1,00× / 1,00× |
+| Tabelle (klassisch), Δ-Balken über Blöcke | eine Skala | unverändert eine Skala |
+| Tabelle, Δ%-Pins über ±40 % | Nadel endet bei 40 %, „▸" an der Zahl | Ausreißerzone, Bruchzeichen, Dreieck |
+| Balken-Ansicht, Δ-Balken zu Wertbalken | 6,85× ohne Hinweis | ×5, Kopf „ΔPL ×5" und Skalenhinweis |
+| Wasserfall-Ansicht, Δ-Balken zu Kaskade | 5,37× ohne Hinweis | ×5, Kopf „ΔPL ×5" und Skalenhinweis |
+| Baum, Karten „Monate" | jede Karte eigene Skala (0,19 bis 4,87 px je Einheit, 25×) | eine Skala (0,19), kleine Karten ×2 / ×10 / ×20 markiert |
+| Baum, Karten „Δ" | 1,86 bis 280 px je Einheit (150×) | eine Skala (1,86), ×5 / ×100 markiert |
+| Baum, Kachel-Zoom (Mikrokarten einer Spalte) | je Karte eigene Skala | eine Skala je Einheit, ×n markiert |
+| Baum, Kachel-Zoom und Hover-Lupe (Hauptchart) | eigene Skala ohne Hinweis | eigene Skala, als „Lupe" gekennzeichnet |
+
+- **Balken- und Wasserfall-Ansicht:** Neben Wertbalken oder Kaskaden zeichnen
+  die Δ-Balken in deren Skala. Reichen sie über die Spalte, wird die Spalte
+  breiter; blieben sie unter einer halben Spalte, gilt ein runder Faktor, den
+  Spaltenkopf („ΔPL ×5") und Skalenhinweis nennen. Die Tabellen-Ansicht ohne
+  Wertbalken behält die eine Δ-Skala ±max über alle Blöcke.
+- **Δ%-Pins der klassischen Tabelle:** Gibt es in der Tabelle einen Pin über
+  ±40 %, nehmen ±40 % die inneren 80 % der Spur ein; der Ausreißer läuft in die
+  äußere Zone, ein Bruchzeichen trennt ihn, ein Dreieck zeigt in Wuchsrichtung.
+- **Werttreiberbaum:** Alle Karten derselben Einheit (Beträge; Prozent-Kennzahlen
+  getrennt) zeichnen in einem Maßstab; ein Messdurchgang ermittelt ihn vor dem
+  Zeichnen. Bedeckte eine Karte damit weniger als ein Viertel ihrer Fläche,
+  zeichnet sie mit rundem Faktor vergrößert und trägt „×5" oben rechts (Tooltip
+  erklärt es); die Hinweiszeile nennt die Regel. Gilt für Monats-, Δ- und
+  Brücken-Karten und für die Mikrokarten der Kachel. Die Hover-Lupe und das
+  Hauptchart der Kachel bleiben bewusst eigene Skala und sagen das („Lupe: Diese
+  Detailansicht hat ihre eigene Skala.").
+
+**Bedienleisten einklappbar (neu, Standard aus).** `toolbar.foldable`
+(„Bedienleisten einklappbar (☰)") und `toolbar.startFolded` („Startzustand
+eingeklappt", Standard an, sichtbar mit foldable): Toolbar, Legende und
+Hinweiszeilen (Skalenhinweis, Baum-Hinweis) klappen hinter einen kleinen
+☰-Knopf. Eingeklappt bleibt eine Zeile (Harness 640 × 360: 27 px statt
+210 px Bedienfläche); aufgeklappt führt ☰ die Toolbar an. Die Wahl des Lesers
+gilt zur Laufzeit und wird nicht gespeichert. Exporte drucken die Legende wie
+bisher. Titel, Spaltenköpfe mit Skalierungsfaktor und die ×n-Marken der Karten
+bleiben auch eingeklappt sichtbar. Neue Properties in capabilities.json, vier
+Sprachen.
+
+- **Tests (Nachtrag):** neu `test/scale-views.js` (`npm run test:scale`, 17
+  Prüfungen: px je Einheit Δ zu Wertbalken in p2/p7/p16, eine Δ-Skala und
+  Pin-Ausreißerzone in p1, eine Kartenskala × Marke in p8/p10);
+  `toolbar-interact.js` Block K (7 Prüfungen ☰).
 - **Tests:** `megatable-test.js` 42 Blöcke (neu: runde Faktoren, gleiche px je
   Einheit über Blöcke, Lupe statt stiller Umskalierung, Kaskade gegen Δ,
   gemeinsame Kappung, Ausreißerzone); `mega-shot.js` 247 Prüfungen (neu: m32

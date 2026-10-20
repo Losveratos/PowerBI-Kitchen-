@@ -196,6 +196,8 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `showScenario` | bool | `false` | Gruppe: Szenario (Mega-Table): Leser schalten das analysierte Szenario AC / FC und die Referenz-Sicht ΔPY · ΔPL · beide des Mega-Tables um. Standard: aus |
 | `showValues` | bool | `false` | Gruppe: Wertspalten (Szenarien einzeln): Leser kombinieren die Wertspalten frei — AC, PY, PL, FC und Δ gegen die Δ-Referenz (klassische Tabelle), analysiertes Szenario · PY · PL (Mega-Table). Die Spalten-Presets bleiben als Schnellwahl. Standard: aus |
 | `showTemplate` | bool | `true` | Template-Auswahl im Bearbeitungsmodus: Kompaktes Template-Dropdown am Anfang der Toolbar, solange du den Bericht bearbeitest (Ansicht Tabelle). Leser und Export sehen es nie. Standard: an |
+| `foldable` | bool | `false` | Bedienleisten einklappbar (☰): Toolbar, Legende und Hinweiszeilen klappen hinter einen kleinen ☰-Knopf; eingeklappt bleibt eine schmale Zeile. Für kleine Kacheln. Exporte drucken die Legende immer. Standard: aus (1.5) |
+| `startFolded` | bool | `true` | Startzustand eingeklappt (nur mit `foldable`); die Wahl des Lesers gilt zur Laufzeit, nichts wird gespeichert (1.5) |
 
 ### Objekt `numbers` — Zahlen
 
@@ -384,7 +386,10 @@ werden dann überschrieben).
    Pixel je Betrag sind also zwischen Monat und YTD gleich, außer der Kopf
    sagt etwas anderes. Gekappte Ausreißer laufen in eine Ausreißerzone
    (Bruchzeichen, Dreieck, Zahl außen); die Kappungsgrenze gilt tabellenweit.
-   Templates schreiben `numbers.pctDecimals = 1`.
+   Templates schreiben `numbers.pctDecimals = 1`. Dieselbe Regel gilt in Balken-
+   und Wasserfall-Ansicht (Δ-Balken in der Skala der Wertbalken, sonst „ΔPL ×5")
+   und im Baum (eine Kartenskala je Einheit, kleine Karten „×n"); Hover-Lupe und
+   Kachel-Hauptchart sind als eigene Skala gekennzeichnet.
 6. **Skalen-Sync** (`fixedMax`/`fixedVarMax`): Text in **Dateneinheiten** (vor
    k/m/b-Skalierung), Suffixe k/m/b, Komma oder Punkt. Es ist ein
    **Mindest**-Maximum wie im ChartKitchen: größere Daten erweitern die Skala

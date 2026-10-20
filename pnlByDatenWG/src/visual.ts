@@ -38,7 +38,7 @@ import {
     FormulaOp, InputRow, LevelInputRow, PeriodSort, PnlModel, PnlNode, Scenario,
 } from "./engine";
 import {
-    layoutMega, paintMega, megaActive, activeRefs, setMegaPalette, buildColumns, MEGA_PRESETS, parseAmount,
+    layoutMega, paintMega, megaActive, activeRefs, setMegaPalette, buildColumns, MEGA_PRESETS, parseAmount, niceFactor,
     MegaBlock, MegaDelta, MegaRef, MegaRow, MegaScen, MegaToggles, MegaLayout, MegaPaintOpts, MegaPainted,
 } from "./megatable";
 import { cascade, CascadeNode } from "./waterfall";
@@ -485,6 +485,8 @@ interface GeoCache {
     maxPosD: number;
     maxNegD: number;
     wf: Map<string, Map<string, { s: number; e: number }>>;
+    /** 1.5: some Δ% pin of the table runs past ±40 % — the pin lanes reserve an outlier zone */
+    pOver: boolean;
 }
 
 /** Pixel geometry of one table render (see tableGeo). */
@@ -503,6 +505,16 @@ interface TableGeo {
     pinW: number;
     valW: number;
     maxAbsDelta: number;
+    /**
+     * 1.5 (IBCS 2.0 / ISO 24896): px per data unit of the Δ bars next to value
+     * bars or cascades — the value scale, or a round multiple of it (`dMag`,
+     * head "ΔPL ×5") when the Δ would be unreadable there. 0 = the Δ bars stand
+     * alone (table view) and keep the uniform Δ scale ±maxAbsDelta.
+     */
+    dPpu: number;
+    dMag: number;
+    /** 1.5: the pin lanes keep ±40 % in the inner 80 %, the rest is the outlier zone */
+    pinZone: boolean;
     vbarW: number;
     vAxisX: number;
     vPpu: number;
@@ -616,6 +628,10 @@ export class Visual implements IVisual {
     private headStuck = false;
     /** resolved height of the integrated zoom chart (see ZOOM_CHART_H) */
     private zoomChartH = ZOOM_CHART_H;
+    /** 1.5 tree cards: shared px per unit per "unit:mode" (measuring pass, then drawing); null = every chart for itself */
+    private treeScl: { collect: boolean; fit: Map<string, number>; mags: number } | null = null;
+    /** 1.5 collapsible control bars: the reader's ☰ choice (null = toolbar.startFolded) — runtime only */
+    private tbOpen: boolean | null = null;
     /** pager refresh of the tile-view neighbour columns (rebuilt every render) */
     private pagerSync: (() => void)[] = [];
     /** memoized "last month with AC data" over the whole model (see mtdIndex) */
@@ -3694,15 +3710,28 @@ export class Visual implements IVisual {
             (this.sticky() ? "position:sticky;top:0;z-index:30;" : "");
         if (this.demo && !this.miniQuiet()) { head.appendChild(this.buildDemoBanner()); }
         if (this.settings.titleCard.show.value) { head.appendChild(this.buildTitle(fmt)); }
+        // 1.5: collapsible control bars — folded, one slim row with ☰ remains
+        const folded = this.tbFolded();
+        if (folded) { head.appendChild(this.buildTbBurger()); }
         // an export prints no buttons nobody can press (the legend stays: it explains the notation)
-        if (this.settings.toolbarCard.show.value && !this.exporting()) { head.appendChild(this.buildToolbar()); }
+        if (this.settings.toolbarCard.show.value && !this.exporting() && !folded) {
+            const tb = this.buildToolbar();
+            if (this.tbCollapsible()) { tb.insertBefore(this.tbFoldButton(), tb.firstChild); }
+            head.appendChild(tb);
+        }
         if (this.awaitingSegment) { head.appendChild(this.buildLoadingBar()); }
-        if (this.settings.toolbarCard.showLegend.value) { head.appendChild(this.buildLegend()); }
+        if (this.settings.toolbarCard.showLegend.value && !folded) {
+            // toolbar off but legend on: the fold button leads the legend row
+            if (this.tbCollapsible() && !(this.settings.toolbarCard.show.value && !this.exporting())) {
+                head.appendChild(this.buildTbBurger());
+            }
+            head.appendChild(this.buildLegend());
+        }
         // the mega table is a mode of the TABLE view only — a template must
         // never take over Bars or Waterfall (1.0.0 did, and the toolbar of those
         // views then drove a body that ignored every one of its buttons)
         const mega = this.megaInView();
-        if (ui.view !== "tree" && !mega) { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
+        if (ui.view !== "tree" && !mega && !folded) { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
         if (head.childElementCount > 0) {
             this.root.appendChild(head);
             this.headEl = head;
@@ -3861,6 +3890,62 @@ export class Visual implements IVisual {
             `width:${Math.ceil(L.tableW)}px;padding:0 0 3px 0;`;
         note.textContent = [this.tr("UI_MegaScale"), ...parts].join(" · ");
         return note;
+    }
+
+    /** 1.5: toolbar.foldable — the control bars may fold (never in an export) */
+    private tbCollapsible(): boolean {
+        return this.settings?.toolbarCard?.foldable?.value === true && !this.exporting() && !this.miniQuiet();
+    }
+
+    /** 1.5: the control bars are folded right now (the reader's choice, else toolbar.startFolded) */
+    private tbFolded(): boolean {
+        if (!this.tbCollapsible()) { return false; }
+        return this.tbOpen == null ? this.settings.toolbarCard.startFolded.value : !this.tbOpen;
+    }
+
+    /** 1.5: the ☰ button that folds / unfolds the control bars */
+    private tbFoldButton(): HTMLElement {
+        const folded = this.tbFolded();
+        const b = document.createElement("button");
+        b.setAttribute("data-pnl", "tb-burger");
+        b.setAttribute("aria-expanded", String(!folded));
+        const label = this.tr(folded ? "UI_TbExpand" : "UI_TbCollapse");
+        b.setAttribute("aria-label", label);
+        b.title = label;
+        b.textContent = "☰";
+        b.style.cssText = `font-family:${FONT};font-size:${this.kpx(12)};line-height:1;cursor:pointer;` +
+            `padding:${this.kpx(3)} ${this.kpx(7)};border-radius:4px;border:1px solid ${C.ctlEdge};` +
+            `background:${this.cardBg()};color:${C.text};align-self:flex-end;`;
+        b.onclick = (e: Event): void => {
+            e.stopPropagation();
+            this.tbOpen = folded;
+            this.rerender();
+        };
+        return b;
+    }
+
+    /** 1.5: the slim row of folded control bars — only the ☰ button (unfolded without toolbar: the row above the legend) */
+    private buildTbBurger(): HTMLElement {
+        const row = document.createElement("div");
+        // folded: the slim row; unfolded without a toolbar: the row leading the legend
+        row.setAttribute("data-pnl", this.tbFolded() ? "tb-folded" : "tb-lead");
+        row.style.cssText = `display:flex;padding:${this.kpx(4)} 14px ${this.kpx(2)} 14px;`;
+        row.appendChild(this.tbFoldButton());
+        return row;
+    }
+
+    /**
+     * 1.5: the classic scale note follows the geometry of the table just
+     * built — next to value bars or cascades (bars and waterfall view) the Δ
+     * bars share the value scale, or carry a round magnification that the
+     * column head names as well ("ΔPL ×5").
+     */
+    private syncScaleNote(geo: TableGeo): void {
+        const note = this.headEl?.querySelector('[data-pnl="scale-note"]') as HTMLElement | null
+            ?? this.root.querySelector('[data-pnl="scale-note"]') as HTMLElement | null;
+        if (!note || geo.dPpu <= 0) { return; }
+        note.textContent = geo.dMag > 1 ? this.tr("UI_ScaleNoteMag", geo.dMag) : this.tr("UI_ScaleNoteValue");
+        note.setAttribute("data-mag", String(geo.dMag));
     }
 
     /** the uniform-Δ-scale note — part of the frozen head, not of the table */
@@ -4817,7 +4902,7 @@ export class Visual implements IVisual {
         const fscale = this.fontScale();
         const rowH = Math.round((compact ? 18 : 23) * fscale);
         const fs = Math.round((compact ? 10 : 11) * fscale);
-        const BAR_HALF = Math.max(34 * k * fscale, FIT_BAR_HALF_MIN);
+        let BAR_HALF = Math.max(34 * k * fscale, FIT_BAR_HALF_MIN);
         const PIN_HALF = Math.max(24 * k * fscale, FIT_PIN_HALF_MIN);
         const lk = Math.max(k, FIT_LABEL_MIN);
         const labelFs = fs * lk;
@@ -4832,7 +4917,6 @@ export class Visual implements IVisual {
         const laneSlack = (fscale - 1) * 3;
         const dLabelW = Math.ceil(gc.dLabelLen * (labelFs * 0.52 + laneSlack)) + 4;
         const pLabelW = Math.ceil(gc.pLabelLen * (labelFs * 0.52 + laneSlack)) + 4;
-        const barW = 2 * (BAR_HALF + dLabelW + 4) + 8;
         const pinW = 2 * (PIN_HALF + pLabelW + 4) + 8;
         const valW = Math.round((compact ? 66 : 76) * lk * fscale);
 
@@ -4849,6 +4933,21 @@ export class Visual implements IVisual {
             vAxisX = 4 + vLabelW + gc.maxNegD * vPpu;
             vbarW = span + 2 * (vLabelW + 4) + 8;
         }
+        // 1.5: same unit, same scale — next to value bars or cascades the Δ
+        // bars take the value scale. Δ that reach the lane widen it; Δ that
+        // would stay below half a lane are magnified by a round factor
+        // (2 · 5 · 10 …) and say so in the head ("ΔPL ×5") and the scale note
+        let dPpu = 0; let dMag = 1;
+        if (vPpu > 0 && cols.some(c => c.kind === "bar") && maxAbsDelta > 0) {
+            const dSpan = maxAbsDelta * vPpu;
+            dPpu = vPpu;
+            if (dSpan >= BAR_HALF) { BAR_HALF = dSpan; }
+            else if (dSpan < BAR_HALF / 2) {
+                dMag = niceFactor(BAR_HALF / dSpan * (1 + 1e-9));
+                dPpu = vPpu * dMag;
+            }
+        }
+        const barW = 2 * (BAR_HALF + dLabelW + 4) + 8;
 
         const gapW = Math.round(18 * fscale);
         let colsW = 0;
@@ -4859,6 +4958,7 @@ export class Visual implements IVisual {
                         : c.kind === "bar" ? barW : pinW);
         }
         return { rowH, fs, labelFs, barLabelFs, valLabelFs, BAR_HALF, PIN_HALF, barW, pinW, valW, maxAbsDelta,
+            dPpu, dMag, pinZone: gc.pOver,
             vbarW, vAxisX, vPpu, vLabelW, gapW,
             sepExtraH: Math.round(SEP_EXTRA_H * fscale),
             sparkH: Math.round(SPARK_ROW_H * fscale), colsW };
@@ -4917,6 +5017,7 @@ export class Visual implements IVisual {
         // waterfall view: cascade segments per scenario (tree order, expand-independent)
         this.wfSegs = gc.wf;
         const geo = this.tableGeo(cols, gc, maxAbsDelta, this.fitK, this.fitPad);
+        this.syncScaleNote(geo);
 
         // comment footnotes are numbered over ALL visible rows, not just the
         // rows currently in the DOM (windowed rendering)
@@ -4993,7 +5094,7 @@ export class Visual implements IVisual {
         const key = keyParts.join("~");
         if (this.geoCache && this.geoCache.key === key) { return this.geoCache; }
 
-        let dLabelLen = 2; let pLabelLen = 3;
+        let dLabelLen = 2; let pLabelLen = 3; let pOver = false;
         for (const node of model.byId.values()) {
             if (node.row.rowType === "kpi") { continue; }
             for (const c of cols) {
@@ -5008,7 +5109,10 @@ export class Visual implements IVisual {
                     // caps the needle at ±40%, never the number. Measuring the
                     // capped value sized the lane for "+40.0%▸" and clipped
                     // "+220.0%▸" (p2). Within ±40% nothing changes.
-                    if (v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length); }
+                    if (v.deltaPct != null) {
+                        pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length);
+                        if (Math.abs(v.deltaPct) > 0.4) { pOver = true; }
+                    }
                 }
             }
         }
@@ -5021,7 +5125,10 @@ export class Visual implements IVisual {
                 if (node.row.rowType === "kpi") { continue; }
                 const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
                 if (c.kind === "bar" && v.delta != null) { dLabelLen = Math.max(dLabelLen, fmt.val(v.delta, true).length); }
-                if (c.kind === "pin" && v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length); }
+                if (c.kind === "pin" && v.deltaPct != null) {
+                    pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length);
+                    if (Math.abs(v.deltaPct) > 0.4) { pOver = true; }
+                }
             }
         }
 
@@ -5069,7 +5176,7 @@ export class Visual implements IVisual {
             }
         }
 
-        this.geoCache = { key, dLabelLen, pLabelLen, vLabelLen, maxPosD, maxNegD, wf };
+        this.geoCache = { key, dLabelLen, pLabelLen, vLabelLen, maxPosD, maxNegD, wf, pOver };
         return this.geoCache;
     }
 
@@ -5164,7 +5271,7 @@ export class Visual implements IVisual {
         return row;
     }
 
-    private headerRow(cols: ColSpec[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number; gapW: number }): HTMLElement {
+    private headerRow(cols: ColSpec[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number; gapW: number; dMag: number }): HTMLElement {
         const row = document.createElement("div");
         row.style.cssText = "display:table-row;";
         const gapFs = this.headerFs(9);
@@ -5182,7 +5289,10 @@ export class Visual implements IVisual {
                 const style = c.scen === "ac" ? "ac" : c.scen === "py" ? "py" : (c.scen === "fc" || c.scen === "fcfy") ? "fc" : "pl";
                 cell.appendChild(this.legendChip(style as "ac"));
             }
-            cell.appendChild(document.createTextNode(c.label));
+            // 1.5 scaling indicator: Δ bars magnified against the value bars
+            const mag = c.kind === "bar" && geo.dMag > 1 ? " ×" + geo.dMag : "";
+            cell.appendChild(document.createTextNode(c.label + mag));
+            if (mag) { cell.setAttribute("data-pnl", "scale-mag"); }
             row.appendChild(cell);
         }
         return row;
@@ -5448,12 +5558,14 @@ export class Visual implements IVisual {
     }
 
     private deltaBarCell(v: { delta: number | null; good: boolean }, c: ColSpec,
-        geo: { rowH: number; fs: number; barLabelFs: number; BAR_HALF: number; barW: number; maxAbsDelta: number }, fmt: Fmt,
+        geo: { rowH: number; fs: number; barLabelFs: number; BAR_HALF: number; barW: number; maxAbsDelta: number; dPpu: number }, fmt: Fmt,
         soft = false, labelDelta: number | null = null): HTMLElement {
         const cell = this.cell(geo.barW, "left", geo.fs);
         if (v.delta == null) { return cell; }
         const w = geo.barW - 8; const h = geo.rowH - 4; const mid = w / 2;
-        const frac = geo.maxAbsDelta > 0 ? Math.min(Math.abs(v.delta) / geo.maxAbsDelta, 1) : 0;
+        // next to value bars / cascades the value scale (1.5), else the uniform Δ scale
+        const frac = geo.dPpu > 0 ? Math.min(Math.abs(v.delta) * geo.dPpu / geo.BAR_HALF, 1)
+            : geo.maxAbsDelta > 0 ? Math.min(Math.abs(v.delta) / geo.maxAbsDelta, 1) : 0;
         const len = Math.max(frac * geo.BAR_HALF, v.delta === 0 ? 0 : 1.5);
         const x = v.delta >= 0 ? mid : mid - len;
         const color = soft ? C.soft : v.good ? this.goodColor() : this.badColor();
@@ -5486,15 +5598,21 @@ export class Visual implements IVisual {
     }
 
     private deltaPinCell(v: { deltaPct: number | null; good: boolean }, c: ColSpec,
-        geo: { rowH: number; fs: number; barLabelFs: number; PIN_HALF: number; pinW: number }, fmt: Fmt,
+        geo: { rowH: number; fs: number; barLabelFs: number; PIN_HALF: number; pinW: number; pinZone: boolean }, fmt: Fmt,
         soft = false): HTMLElement {
         const cell = this.cell(geo.pinW, "left", geo.fs);
         if (v.deltaPct == null) { return cell; }
         const w = geo.pinW - 8; const h = geo.rowH - 4; const mid = w / 2;
         const cap = 0.4;
         const clamped = this.capPct(v.deltaPct);
-        const px = mid + (clamped / cap) * geo.PIN_HALF;
         const overflow = Math.abs(v.deltaPct) > cap;
+        // 1.5 (IBCS UN 5.3): with an outlier anywhere in the table, ±40 % take
+        // the inner 80 % of the lane; a pin beyond runs on into the outlier
+        // zone, is cut by a break mark and ends in a triangle — before, it
+        // stopped exactly where +40 % stops
+        const reg = geo.pinZone ? geo.PIN_HALF * 0.8 : geo.PIN_HALF;
+        const dir = v.deltaPct >= 0 ? 1 : -1;
+        const px = overflow && geo.pinZone ? mid + dir * geo.PIN_HALF : mid + (clamped / cap) * reg;
         const color = soft ? C.soft : v.good ? this.goodColor() : this.badColor();
         const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
@@ -5506,22 +5624,41 @@ export class Visual implements IVisual {
         needle.setAttribute("y1", String(h / 2)); needle.setAttribute("y2", String(h / 2));
         needle.setAttribute("stroke", color); needle.setAttribute("stroke-width", "1.4");
         svg.appendChild(needle);
-        const head = document.createElementNS(ns, "circle");
-        head.setAttribute("cx", String(px)); head.setAttribute("cy", String(h / 2));
-        head.setAttribute("r", overflow ? "2" : "2.8");
-        // pin head carries the minuend's scenario fill (IBCS): FC → outlined
-        if (c.minuend === "fcfy") {
-            head.setAttribute("fill", C.paper); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1.4");
-        } else { head.setAttribute("fill", color); }
-        svg.appendChild(head);
+        let tip = px;
+        if (overflow && geo.pinZone) {
+            // break mark just past the regular maximum, triangle in growth direction
+            const xb = mid + dir * (reg + 2);
+            const brk = document.createElementNS(ns, "path");
+            brk.setAttribute("d", [0, 2.5].map(o => `M${xb + dir * o - 1.5},${h / 2 + 3} L${xb + dir * o + 1.5},${h / 2 - 3}`).join(" "));
+            brk.setAttribute("stroke", C.paper); brk.setAttribute("stroke-width", "1.4"); brk.setAttribute("fill", "none");
+            brk.setAttribute("data-pnl", "pin-break");
+            svg.appendChild(brk);
+            const tw = 4.5;
+            const tri = document.createElementNS(ns, "path");
+            tri.setAttribute("d", `M${px + dir * tw},${h / 2} L${px},${h / 2 - 3.2} L${px},${h / 2 + 3.2} Z`);
+            tri.setAttribute("fill", color);
+            tri.setAttribute("data-pnl", "pin-outlier");
+            svg.appendChild(tri);
+            tip = px + dir * tw;
+        } else {
+            const head = document.createElementNS(ns, "circle");
+            head.setAttribute("cx", String(px)); head.setAttribute("cy", String(h / 2));
+            head.setAttribute("r", overflow ? "2" : "2.8");
+            // pin head carries the minuend's scenario fill (IBCS): FC → outlined
+            if (c.minuend === "fcfy") {
+                head.setAttribute("fill", C.paper); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1.4");
+            } else { head.setAttribute("fill", color); }
+            svg.appendChild(head);
+        }
         const txt = document.createElementNS(ns, "text");
         const anchor = v.deltaPct >= 0 ? "start" : "end";
-        const tx = v.deltaPct >= 0 ? Math.max(px + 4, mid + 4) : Math.min(px - 4, mid - 4);
+        const tx = v.deltaPct >= 0 ? Math.max(tip + 4, mid + 4) : Math.min(tip - 4, mid - 4);
         txt.setAttribute("x", String(tx)); txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
         txt.setAttribute("text-anchor", anchor);
         txt.setAttribute("font-size", String(geo.barLabelFs)); txt.setAttribute("font-family", FONT);
         txt.setAttribute("fill", color);
-        txt.textContent = fmt.pct(v.deltaPct, true) + (overflow ? "▸" : "");
+        // the triangle marks the outlier; without the zone the "▸" of 1.4 stays
+        txt.textContent = fmt.pct(v.deltaPct, true) + (overflow && !geo.pinZone ? "▸" : "");
         svg.appendChild(txt);
         cell.appendChild(svg);
         return cell;
@@ -6283,6 +6420,52 @@ export class Visual implements IVisual {
      * three value labels are drawn — first, last and the absolute extremum —
      * and only the outer periods carry a tag.
      */
+    /**
+     * 1.5 (IBCS 2.0 / ISO 24896, UN 5.2): the scale a card chart of the tree
+     * draws at. `key` = unit + card mode ("amt:months", "pct:delta" …). In the
+     * measuring pass (treeScl.collect) the card records its own fit (px per
+     * unit); while drawing it gets the shared scale of its unit — the smallest
+     * fit, so every card fits — or, when its data would cover less than a
+     * quarter of its room at that scale, a round multiple (2 · 5 · 10 …) that
+     * the card names as "×5". Outside a tree (hover zoom, tile) treeScl is
+     * null: the chart keeps its own fit.
+     */
+    private treeScaleOf(key: string, fit: number, extent: number, room: number): { ppu: number; mag: number } {
+        const sc = this.treeScl;
+        if (!sc || !isFinite(fit) || fit <= 0) { return { ppu: fit, mag: 1 }; }
+        if (sc.collect) {
+            sc.fit.set(key, Math.min(sc.fit.get(key) ?? Infinity, fit));
+            return { ppu: fit, mag: 1 };
+        }
+        const shared = Math.min(sc.fit.get(key) ?? fit, fit);
+        if (extent * shared < 0.25 * room && fit >= 2 * shared * (1 - 1e-9)) {
+            const m = niceFactor(fit / shared * (1 + 1e-9));
+            if (m >= 2) { sc.mags++; return { ppu: shared * m, mag: m }; }
+        }
+        return { ppu: shared, mag: 1 };
+    }
+
+    /** 1.5: the scaling indicator of a magnified card chart — "×5" in its top right corner */
+    private treeMagMark(g: SVGGElement, box: { x: number; y: number; w: number; h: number }, mag: number, s: number): void {
+        if (mag <= 1) { return; }
+        const ns = "http://www.w3.org/2000/svg";
+        const t = document.createElementNS(ns, "text");
+        t.setAttribute("x", (box.x + box.w).toFixed(2));
+        t.setAttribute("y", (box.y + 6.5 * s).toFixed(2));
+        t.setAttribute("text-anchor", "end");
+        t.setAttribute("font-size", (7 * s).toFixed(1));
+        t.setAttribute("font-family", FONT);
+        t.setAttribute("font-weight", "600");
+        t.setAttribute("fill", C.soft);
+        t.setAttribute("data-pnl", "tree-mag");
+        t.setAttribute("data-factor", String(mag));
+        t.textContent = "×" + mag;
+        const tt = document.createElementNS(ns, "title");
+        tt.textContent = this.tr("UI_TreeMagTip", mag);
+        t.appendChild(tt);
+        g.appendChild(t);
+    }
+
     private treeMini(g: SVGGElement, node: PnlNode, box: { x: number; y: number; w: number; h: number },
         s: number, fmt: Fmt, svg: SVGSVGElement, rightInset: number): void {
         const ns = "http://www.w3.org/2000/svg";
@@ -6301,8 +6484,11 @@ export class Visual implements IVisual {
         if (max === min) { max = min + 1; }
         const top = box.y + lfs + 2;
         const bot = box.y + box.h - (min < 0 ? lfs + 2 : 0);
-        const yOf = (v: number): number => bot - ((v - min) / (max - min)) * (bot - top);
+        // 1.5: one scale per unit across the cards (or a marked magnification)
+        const sc = this.treeScaleOf((isRatio ? "pct" : "amt") + ":months", (bot - top) / (max - min), max - min, bot - top);
+        const yOf = (v: number): number => bot - (v - min) * sc.ppu;
         const zeroY = yOf(0);
+        this.treeMagMark(g, box, sc.mag, s);
 
         const rect = (x: number, w: number, v: number, fill: string, stroke: string | null, sw: number): void => {
             const y = Math.min(yOf(v), zeroY);
@@ -6432,8 +6618,11 @@ export class Visual implements IVisual {
         if (max === min) { max = min + 1; }
         const top = box.y + lfs + 2;
         const bot = box.y + box.h - (min < 0 ? lfs + 2 : 0);
-        const yOf = (v: number): number => bot - ((v - min) / (max - min)) * (bot - top);
+        // 1.5: one scale per unit across the cards (or a marked magnification)
+        const sc = this.treeScaleOf((isRatio ? "pct" : "amt") + ":delta", (bot - top) / (max - min), max - min, bot - top);
+        const yOf = (v: number): number => bot - (v - min) * sc.ppu;
         const zeroY = yOf(0);
+        this.treeMagMark(g, box, sc.mag, s);
 
         // label the one or two biggest swings only, and never two neighbours —
         // adjacent labels are exactly the crowding this mode avoids
@@ -6504,8 +6693,11 @@ export class Visual implements IVisual {
         const availW = Math.max(box.w - labW - valW - rightInset, 8 * s);
         const lo = Math.min(0, acv ?? 0, refv ?? 0);
         const hi = Math.max(0, acv ?? 0, refv ?? 0);
-        const S = availW / ((hi - lo) || 1);
+        // 1.5: one scale per unit across the cards (or a marked magnification)
+        const sc = this.treeScaleOf((isRatio ? "pct" : "amt") + ":bridge", availW / ((hi - lo) || 1), (hi - lo) || 1, availW);
+        const S = sc.ppu;
         const xz = x0 + (0 - lo) * S;
+        this.treeMagMark(g, { x: box.x, y: box.y - 1.5 * s, w: box.w, h: box.h }, sc.mag, s);
         const xOf = (v: number): number => xz + v * S;
 
         const rows = refv != null ? 3 : 1;
@@ -6716,6 +6908,8 @@ export class Visual implements IVisual {
             draw(g, svg);
         };
         const zs = 1.15 * zk;
+        // 1.5: the hover zoom is a magnifying glass — its charts keep their own scale, and say so
+        caption(this.tr("UI_ZoomOwnScale"));
         caption(this.tr("UI_CapMonths", refUp));
         chart(this.k(104), (g, svg) => this.treeMini(g, node, { x: 0, y: 2, w: inner, h: this.k(100) }, zs, fmt, svg, 0));
         caption(this.tr("UI_CapDelta", refUp));
@@ -7393,6 +7587,22 @@ export class Visual implements IVisual {
             chart(h, (g, svg) => this.treeZoomCombo(g, node,
                 { x: 1, y: 2, w: inner - 2, h: h - 6 }, 1.25 * k * sc, fmt, svg));
         }
+        // 1.5: the tile is a magnifying glass of one card — its chart keeps its
+        // own scale and says so in its top right corner (no extra line: the
+        // tile is fitted to the page height)
+        const zsvgs = tile.querySelectorAll("svg");
+        const zsvg = zsvgs.length ? zsvgs[zsvgs.length - 1] : null;
+        if (zsvg) {
+            const t = document.createElementNS(ns, "text");
+            t.setAttribute("x", String(inner - 2)); t.setAttribute("y", String(Math.round(9 * k)));
+            t.setAttribute("text-anchor", "end");
+            t.setAttribute("font-size", (8 * k).toFixed(1));
+            t.setAttribute("font-family", FONT);
+            t.setAttribute("fill", C.soft);
+            t.setAttribute("data-pnl", "zoom-own-scale");
+            t.textContent = this.tr("UI_ZoomOwnScale");
+            zsvg.appendChild(t);
+        }
         const skipped = isRatio ? 0 : this.treeMissingMonths(node);
         if (skipped > 0) {
             // months without actuals and without a forecast are not zero months:
@@ -7470,9 +7680,16 @@ export class Visual implements IVisual {
         list.style.cssText = "flex:1 1 auto;min-height:0;position:relative;" +
             "overflow-y:auto;overflow-x:hidden;";
         const more = items.length - TREE_ZOOM_CARDS_MAX;
-        for (const it of items.slice(0, TREE_ZOOM_CARDS_MAX)) {
+        // 1.5: the micro cards of a column share one scale per unit (measuring
+        // pass first, magnified cards say "×5"), like the cards of the tree
+        const shown = items.slice(0, TREE_ZOOM_CARDS_MAX);
+        this.treeScl = { collect: true, fit: new Map(), mags: 0 };
+        for (const it of shown) { this.treeMicroCard(it.node, it.op, fmt, w, side); }
+        this.treeScl.collect = false;
+        for (const it of shown) {
             list.appendChild(this.treeMicroCard(it.node, it.op, fmt, w, side));
         }
+        this.treeScl = null;
 
         const arrow = (dir: -1 | 1): HTMLElement => {
             const b = document.createElement("button");
@@ -8145,7 +8362,8 @@ export class Visual implements IVisual {
         note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};margin:0;padding:0;line-height:1.5;`;
         note.textContent = this.tr("UI_TreeHint")
             + (this.interactive() ? this.tr("UI_TreeHintInteract") : "");
-        wrap.appendChild(note);
+        // 1.5: folded control bars take the hint line along (the cards keep their ×n marks)
+        if (!this.tbFolded()) { wrap.appendChild(note); }
 
         const ns = "http://www.w3.org/2000/svg";
         const pad = 6;
@@ -8215,11 +8433,25 @@ export class Visual implements IVisual {
                 });
             }
         }
+        // 1.5: one scale per unit across the cards — a measuring pass on a
+        // detached svg collects every card's own fit, the drawing pass then
+        // uses the smallest one (magnified cards say "×5")
+        this.treeScl = { collect: true, fit: new Map(), mags: 0 };
+        const scratch = document.createElementNS(ns, "svg") as SVGSVGElement;
+        for (const c of all) {
+            if (!c.compact) { this.treeCardG(c, { cw, s, fmt, svg: scratch }, false); }
+        }
+        this.treeScl.collect = false;
         for (const c of all) {
             // any branching card can become the root — formula rows as well as
             // subtotals that open into their account hierarchy
             inner.appendChild(this.treeCardG(c, { cw, s, fmt, svg }, c !== rootCard && c.hasKids));
         }
+        const mags = this.treeScl.mags;
+        this.treeScl = null;
+        // the hint line names the rule — and the magnified cards when there are any
+        note.textContent += " " + this.tr(mags > 0 ? "UI_TreeScaleMag" : "UI_TreeScale");
+        note.setAttribute("data-pnl", "tree-scale-note");
         wrap.appendChild(svg);
         return wrap;
     }
@@ -8723,7 +8955,7 @@ export class Visual implements IVisual {
         // 1.5: the scale note above the table — magnified blocks / columns and
         // fixed scales are named for every reader, the export included
         // (the gallery's mini previews stay quiet: their heads carry the factor)
-        const note = this.miniQuiet() ? null : this.megaScaleNote(L, fmt);
+        const note = this.miniQuiet() || this.tbFolded() ? null : this.megaScaleNote(L, fmt);
         if (note) { wrap.appendChild(note); }
         const headWrap = document.createElement("div");
         headWrap.setAttribute("data-pnl", "mega-head-wrap");
