@@ -8,7 +8,7 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.52.1.0** (20.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.52.2.0** (20.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 **Neu in 1.52.1:** Der Titel nennt die Einheit einmal in Langform („Nettoumsatz in Mio. EUR je Kanal“), kein
 Szenario-Suffix, wenn `ibcsTitle.period` schon AC/PY/PL/BU/FC nennt; „AC&FC“ bei Forecast-Anteil. Zahlen in Grafiken
@@ -298,7 +298,7 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 | `compareClick` | bool | 2-Klick-Differenzvergleich |
 | `chipMenu` | bool | In-Chart-Bedienelemente hinter ☰ einklappen (ab 1.52, Standard false) |
 | `bridgeBreak` | bool | Summen-Anker mit ⫽ kürzen, Stufen linear (C05, C06 senkrecht, C12; ab 1.52.1, Standard false) |
-| `stackLegendDirect` | bool | Seriennamen am Stapel statt Schlüssel (C01/C02; ab 1.52.1, Standard true, fällt bei Platzmangel zurück) |
+| `stackLegendDirect` | bool | Seriennamen am Stapel statt Schlüssel (C01/C02; ab 1.52.1, Standard true, fällt bei Platzmangel zurück; Balken ab 1.52.2: jede Serie über ihrem breitesten Segment) |
 | `invert` / `invertList` | bool / text | Kosten-Logik global / je Kategorie |
 
 ### Objekt `colors`
