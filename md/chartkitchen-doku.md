@@ -6,7 +6,7 @@ Power-BI-Visual · Enddokumentation
 
 Ein IBCS-inspiriertes Chart-Deck für Power BI: 13 Diagramm-Modi in einem einzigen Visual, mit einheitlicher Szenario-Notation (AC ausgefüllt, PY grau, PL umrandet, FC schraffiert) und mitgedachten Varianzen. Diese Dokumentation führt vom Import über die 13 Modi und die wichtigsten Funktionen bis zur vollständigen Einstellungs-Referenz.
 
-Version · **1.51.1.0** · Stand · **2026-10-18** · IBCS-inspired
+Version · **1.52.1.0** · Stand · **2026-10-20** · IBCS-inspired
 
 ## Inhalt
 
@@ -26,7 +26,7 @@ Version · **1.51.1.0** · Stand · **2026-10-18** · IBCS-inspired
 
 Die Gestaltung ist von den **IBCS®-Prinzipien** (International Business Communication Standards) inspiriert: eine einheitliche Szenario-Notation — **AC** (Ist) ausgefüllt, **PY** (Vorjahr) grau, **PL** (Plan) umrandet, **FC** (Forecast) schraffiert — und Abweichungen, die immer mitgedacht sind: absolute und relative Varianz-Panels stehen automatisch neben oder über dem Basis-Chart. So liest sich jede Grafik nach denselben Regeln, egal welcher Modus.
 
-Diese Anleitung beschreibt den Stand der Version **1.51.1.0**. Gezählt wird wie im Visual selbst: 13 Chart-Typen — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 05 trotzdem eine eigene Karte. Neu seit 1.48: der Start-Hub für den Einstieg (Kapitel 03), die IBCS-Vorlagen C01–C13, das Nachladen bis 30.000 Zeilen, Lesezeichen, die die Auswahl wiederherstellen, gesperrte statt stummer Chips, wählbare Leer-Zustände und echter Hochkontrast (Kapitel 07).
+Diese Anleitung beschreibt den Stand der Version **1.52.1.0**. Gezählt wird wie im Visual selbst: 13 Chart-Typen — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 05 trotzdem eine eigene Karte. Neu seit 1.48: der Start-Hub für den Einstieg (Kapitel 03), die IBCS-Vorlagen C01–C13, das Nachladen bis 30.000 Zeilen, Lesezeichen, die die Auswahl wiederherstellen, gesperrte statt stummer Chips, wählbare Leer-Zustände und echter Hochkontrast (Kapitel 07). Seit 1.52 skaliert das Visual nach IBCS 2.0 / ISO 24896 (Kapitel 07, „Skalierung nach IBCS 2.0 / ISO 24896“).
 
 ## 02 · Die Produktfamilie
 
@@ -147,7 +147,7 @@ Leser im Lesemodus und Exporte (PDF, PowerPoint, Abos) sehen weder Hub noch Chip
 
 ### 1 · Visual importieren
 
-1. Lade die Datei [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) herunter (Endung `.pbiviz`) — der Link liefert immer die aktuelle Version, derzeit 1.51.1.0.
+1. Lade die Datei [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) herunter (Endung `.pbiviz`) — der Link liefert immer die aktuelle Version, derzeit 1.52.1.0.
 2. In Power BI Desktop: im Bereich *Visualisierungen* auf *… (Weitere Optionen)* → *Visual aus Datei importieren* klicken und die `.pbiviz` auswählen.
 3. Das ChartKitchen-Icon erscheint im Visualisierungsbereich. Ziehe es auf die Berichtsseite.
 
@@ -214,7 +214,7 @@ Für Strukturvergleiche ohne Zeitbezug — Produkte, Regionen, Konten. Die Kateg
 
 ![So sieht es in Power BI Desktop aus: Linien-Modus über das Geschäftsjahr: AC durchgezogen, PL gestrichelt und der Forecast-Abschnitt abgesetzt, darüber die Panels ΔPL und ΔPL % je Monat.](../doku-assets/pbi/pbi-line.png)
 
-Für lange Zeitreihen mit vielen Datenpunkten (Wochen, Tage), bei denen Säulen zu dicht würden. AC als kräftige Linie, PY dünn und grau; optional ein gleitender Durchschnitt über N Perioden für den Trend. Der Fokus liegt auf Verlauf und Wendepunkten, nicht auf der Einzelperiode.
+Für lange Zeitreihen mit vielen Datenpunkten (Wochen, Tage), bei denen Säulen zu dicht würden. Alle absoluten Linien haben dieselbe Stärke: AC dunkel, PY hellgrau, PL hohl, nur FC gestrichelt; optional ein gleitender Durchschnitt über N Perioden für den Trend. Der Fokus liegt auf Verlauf und Wendepunkten, nicht auf der Einzelperiode.
 
 ### 04 · Wasserfall
 
@@ -343,7 +343,7 @@ Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateA
 
 1. Binde AC, PY, PL und FC in die jeweiligen Feldrollen — alle vier erscheinen in einem Chart.
 2. FC wird automatisch schraffiert gezeichnet. Alternativ zur FC-Measure kannst du eine 1/0-Spalte in die Rolle „Forecast-Flag“ binden.
-3. Bei drei Szenarien (AC + PY + PL) zeigt IBCS PY als graues Dreieck an der Säule. Über Chart → „PY als Dreieck“ schaltest du das aus.
+3. Bei drei Szenarien (AC + PY + PL) zeigt IBCS PY als graues Dreieck an der Säule. Über Chart → „PY als Dreieck“ schaltest du das aus. In der Integrierten Brücke (C05) ist PY bei nur zwei Szenarien (AC&FC + PY) eine graue Säule.
 4. Für einen Zielwert je Kategorie füllst du die Benchmark-Rolle — sie erscheint als Querstrich-Marker (Dreieck).
 5. Eine feste Ziel- oder Schwellenlinie ziehst du stattdessen über Skala → Referenzlinie (Wert + Beschriftung).
 
@@ -356,7 +356,7 @@ Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateA
 1. Ziehe ein Gruppierungsfeld (z. B. Region) in die Rolle „Small Multiples“. Das Visual zerlegt sich in eine Kachel je Gruppe auf gemeinsamer Skala (IBCS).
 2. Unter Chart → Small Multiples steuerst du eine vorangestellte „Σ Gesamt“-Kachel, Top-N-Kacheln (der Rest wird zu „Rest“ aggregiert) und eine größere erste Kachel.
 3. Für die Brücken-Modi (Integrierte/Kategorie-Brücke) erzwingst du mit „Brücken: gleiche Skala für alle Kacheln“ eine identische Skala; Säulen, Balken und Wasserfall teilen sie ohnehin.
-4. Ein Klick auf das Zoom-Symbol einer Kachel vergrößert sie temporär.
+4. Ein Klick auf das Zoom-Symbol einer Kachel vergrößert sie temporär. Seit 1.52 steht neben dem Gruppennamen, wie stark die Skala gegenüber der Übersicht vergrößert ist („Skala ×3,5 zur Übersicht“).
 
 ### Matrix: Spaltengruppen, Drill & horizontales Scrollen
 
@@ -428,7 +428,7 @@ Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateA
 
 ![IBCS-Titel und Fußzeilen: „KPI · Einheit · Zeitraum: Szenarien“ mit Botschaftszeile oben, Filterkontext und Datenstand als Fußzeilen unten.](../doku-assets/feature-title.png)
 
-1. Der IBCS-Titel („KPI · Einheit · Zeitraum: Szenarien“) entsteht automatisch; KPI-Name und Zeitraum überschreibst du in der Karte „IBCS-Titel“.
+1. Der IBCS-Titel („KPI · Einheit · Zeitraum: Szenarien“) entsteht automatisch; KPI-Name und Zeitraum überschreibst du in der Karte „IBCS-Titel“. Seit 1.52.1 nennt er die Einheit einmal in Langform („in Mio. EUR“) und hängt kein Szenario-Suffix an, wenn der Zeitraum schon Szenariokürzel nennt (Abschnitt „Skalierung nach IBCS 2.0 / ISO 24896“).
 2. Eine Botschaftszeile (IBCS: SAY) trägst du oben ein oder lässt sie über „Automatische Botschaft“ aus Gesamtabweichung und größten Treibern erzeugen.
 3. Zwei Fußzeilen sind möglich: „Fußzeile (Datenstand · Quelle)“ unten links und die Filter-Fußzeile mit der gebundenen Filter-Info-Measure plus dem Anzeige-Zustand (YTD, Top-N, Sortierung …).
 4. Alle Schriften skalierst du zentral über Datenbeschriftungen → Größen-Preset (Kompakt/Full HD/Präsentation — im Start-Hub als HD · Full HD · UHD) und den Faktor „Alle Beschriftungen skalieren %“; die Beschriftungs-Dichte steuert das Ausdünnen.
@@ -441,7 +441,7 @@ Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateA
 
 1. Im KPI-Karten-Modus steuerst du unter Chart → KPI-Karten die Status-Basis: gegen die Abweichungsbasis (ΔPL/ΔPY) oder gegen die gebundene Benchmark-Measure.
 2. Die Hintergrund-Färbung (Ampel) samt Intensität und die Highlight-Richtung (beide / nur schlecht / nur gut) bewerten AC gegen diese Basis.
-3. Das Bullet gegen die Benchmark (optional mit Zoom auf den Zielbereich) und die Mini-Brücke zeigst du je nach Bedarf; sortieren kannst du nach Abweichung (größte oben-links).
+3. Das Bullet gegen die Benchmark (optional mit Zoom auf den Zielbereich) und die Mini-Brücke zeigst du je nach Bedarf; mit „Karten: gleiche Skala“ teilen alle Mini-Brücken einen Maßstab; sortieren kannst du nach Abweichung (größte oben-links).
 4. Für die Benchmark-Bewertung muss die Benchmark-Rolle gefüllt sein.
 
 ### Trend-Karten: KPI-Karten mit Zeitreihe
@@ -485,12 +485,31 @@ Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateA
 3. Eigener Titel und eigener Text (seit 1.44) ersetzen das „ChartKitchen byDatenWG“-Branding, wenn keine Daten dargestellt werden (Felder leer oder Auswahl ohne Zeilen).
 4. Leser und Exporte sehen nie Hub, Galerie oder Knöpfe, sondern seit 1.51.1 die ruhige Landing-Karte — mit deinem Titel und Text, falls gesetzt.
 
+### Skalierung nach IBCS 2.0 / ISO 24896
+
+Seit 1.52 skaliert ChartKitchen in allen Chart-Typen nach IBCS 2.0 / ISO 24896: eine Einheit, eine Skala über alle Panels einer Grafik, sonst ein sichtbarer Faktor. IBCS dient dabei als Bezug, das Visual ist nicht zertifiziert.
+
+> **Bestehende Berichte ändern ihr Bild.** Das ist gewollt und nicht abschaltbar: Δ-Panels werden flacher, weil sie die wahre Größe der Abweichung zeigen, Säulen und Balken etwas breiter, Δ-Zahlen kürzer. Seiten mit festen Erwartungen an Panel-Höhen (Screenshots, Abo-PDFs) nach dem Update neu ansehen.
+
+1. **Δ in der Skala der Basis.** Absolute Δ-Panels (ΔPY, ΔPL, Doppel-Varianz, die ΔPY-Stufe über dem GuV-Wasserfall) zeichnen im selben Maßstab (px je Einheit) wie das Basis-Chart. Ihre Höhe bei Säulen bzw. Breite bei Balken ergibt sich aus der Δ-Spanne plus Platz für die Beschriftung; feste Höhenanteile gibt es nicht mehr. Ebenso laufen die Δ-Balken der Tabelle im Maßstab der AC·PY-Balkenspalte und die Δ-Spalte des GuV-Statements im Maßstab der Kaskade. Δ%-Pins behalten eine eigene Skala, weil sie eine andere Einheit zeigen.
+2. **Lupe statt stiller Vergrößerung.** Wäre die größte Abweichung im Basismaßstab zu klein zum Lesen, vergrößert das Visual das Δ-Panel um einen runden Faktor (2, 4, 5, 10, 20 …) und weist ihn aus: Titel „ΔPY ×4“ und ein hellblaues Skalenband auf derselben Zahl in Basis- und Δ-Panel. Tabelle und GuV-Statement nennen einen Faktor im Spaltenkopf („×0,5“, „×4“), das Brücken-Panel von Säulen/Balken mit Wasserfall-Brücke im Titel („PL → AC ×0,025“). Unmarkiert wird nichts vergrößert.
+3. **Breiten.** Säulen und Balken für absolute Werte nehmen 2/3 der Kategorie ein, in allen Modi mit Slots (Säulen, Balken, Brücken-Panel, Wasserfall, Kategorie-Brücke senkrecht, Pareto, gestapelt). Δ-Säulen unter einer Linie sind so breit wie der Slot.
+4. **Höchstens drei Ziffern.** Zahlen in Grafiken haben höchstens drei Ziffern, gezählt nach dem Runden („161,8K“ wird „162K“, „99,96“ wird „100“). Die größte Abweichung bestimmt die Nachkommastellen der Δ-Beschriftungen; kleine Werte, die sonst auf null fielen, bekommen Stellen dazu („+0,04M“). Werte unter der Darstellungsgrenze zeigen „0“ ohne Einheit und Vorzeichen, negative Δ das echte Minus. KPI-Karten derselben Einheit geben Wert und Δ dieselben Dezimalen. Tabelle und GuV-Statement behalten ihre Dezimalen. Mit „Σ-treue Rundung der Beschriftungen“ gilt eine Präzision für Beschriftungen und Σ, damit die Summe aufgeht.
+5. **Gleiche Skala über Small Multiples und Karten.** Small Multiples teilen Wertebereich und Lupenfaktor. Der ⤢-Zoom einer Kachel nennt neben dem Gruppennamen seinen Maßstab gegenüber der Übersicht („Skala ×3,5 zur Übersicht“), die Δ-Panels folgen der vergrößerten Basis. Für KPI-Karten schaltet Chart → KPI-Karten → „Karten: gleiche Skala“ (`chart.cardSameScale`, seit 1.51.2, Standard aus) einen gemeinsamen Maßstab für alle Mini-Brücken ein: gleiche Beträge ergeben gleich hohe Balken. Gedacht für Karten derselben Kennzahl je Kategorie, bei verschiedenen Einheiten aus lassen.
+6. **Integrierte Brücke (C05).** Anker, Brückensteine und Monatspaare sind gleich breit (2/3 der Kategorie), die Monatssäulen stehen auf der Ankerskala. Nur wenn sie in die Kaskade ragen oder unlesbar klein wären, bekommen sie einen runden Faktor, ausgewiesen als „Monatssäulen ×0,5“ in der Überschrift plus Skalenband. Die Brückenstufen zeichnen in echter Höhe mit einer 1-px-Haarlinie darunter, eine Mindesthöhe gibt es nicht mehr. Bei AC&FC und PY (zwei Szenarien) ist PY eine graue, versetzte Säule wie in C03; das PY-Dreieck erscheint nur beim dritten Szenario (AC + PY + PL).
+7. **Gekürzte Brückenanker.** Chart → Brücke → „Anker kürzen (Achsenbruch)“ (`chart.bridgeBreak`, Standard aus) kürzt die Summen-Anker mit sichtbarem ⫽, die Stufen laufen darüber in einer linearen Skala und werden lesbar hoch. C05: Monatssäulen im unteren Band mit ausgewiesenem Faktor, der Schnitt steht im Titel („Achse ab 45,0M geschnitten“). C06 senkrecht: Anker PY, PL und AC mit ⫽. C12: schaltet den Achsenschnitt unter Skala → Wasserfall-Achse ein, solange dieser auf „Aus“ steht. Gekürzt wird nur, wenn alle Stände über dem Schnitt liegen; Small Multiples mit gleicher Skala bleiben nullbasiert.
+8. **Einheit einmal im Titel.** Der Titel nennt Größenordnung und Einheit in Langform („Nettoumsatz in Mio. EUR je Kanal“, „in Tsd. hl“), nie „M“ oder „K“. Steht keine Einheit im Kennzahlnamen, ergänzt das Visual sie aus dem Formatstring. Scatter und Bubble tragen die Einheiten an den Achsentiteln. Schaltest du Datenbeschriftungen → „Einheit an jeder Beschriftung“ aus (`labels.unitSuffix`, Standard an), zeigen die Beschriftungen nur die Zahl („18,5“), und KPI-Karten nehmen eine gemeinsame Einheit für alle Karten. Die Abkürzung bleibt „K“ wie in Power BI.
+9. **Szenario-Suffix ohne Dopplung.** Nennt der Zeitraum in der Karte IBCS-Titel schon Szenariokürzel (AC, PY, PL, BU, FC), hängt das Visual nichts an. Sonst bildet es den Suffix aus Abweichungsbasis und gebundenen Rollen; der Ist-Wert heißt „AC&FC“, wenn ein Forecast-Anteil gezeigt wird. Wasserfall, Kategorie-Brücke, Pareto, Dumbbell und Slope nennen nur die Basis.
+10. **Linien-Notation (C08).** Alle absoluten Linien haben dieselbe Stärke: AC dunkel durchgezogen, PY hellgrau durchgezogen, PL hohl (Rand mit hellem Kern), nur FC gestrichelt. Die AC-Beschriftung steht über dem Punkt, wenn AC oben liegt, und darunter, wenn AC unten liegt.
+11. **Stapellegende am Stapel.** Bei gestapelten Säulen und Balken (C01/C02) stehen die Seriennamen direkt am Stapel: bei Säulen rechts neben der letzten Säule, bei Balken über dem ersten Balken. Passen sie nicht (Serie fehlt dort, Überlappung, negative Segmente, Small Multiples), bleibt der Schlüssel oben. Schalter: Chart → Darstellung → „Stapellegende am Stapel“ (`chart.stackLegendDirect`, Standard an). Ein Stapel aus nur einem beschrifteten Segment zeigt den Wert einmal.
+12. **Bedienmenü ☰.** Chart → Interaktion im Bericht → „Bedienleisten einklappen (☰)“ (`chart.chipMenu`, Standard aus) legt die Bedienelemente im Chart (Sortieren ⇅, YTD, ⫽ Achse, ΔPY|ΔPL, ▶, Ausnahme-Chip, Modus-Chips, Karten-Sortierung, Scatter-Play, GuV-Ansicht) hinter ein kleines ☰ oben rechts. Ein Klick klappt sie auf, ✕ wieder zu; gespeichert wird nichts. Aus: alles wie bisher sichtbar.
+
 ### Skalierungs-Garantien & Achsenschnitt (Wasserfall)
 
 1. Seit 1.45 gelten harte Skalen-Garantien: ΔPY- und ΔPL-Panels teilen EINE Skala (absolut und %), Brücken nehmen alle Kaskaden-Zwischenstände in die Skala, gestapelte Small Multiples teilen eine gemeinsame Skala, und Werte wie Varianzen nutzen EINEN Einheitenmaßstab — kein „K€ neben T€“ mehr. Formate mit eigenem Präfix („#,0 T€“, „Mio €“) schalten die Auto-Einheit ab.
 2. „Skalen-Mindest-Maximum“ und die Ausreißer-Kappung wirken jetzt auch im Wasserfall; der ⫽-Marker sitzt an jedem gekappten Element (PY, PL, BM, Linie).
 3. Δ% zeigt „n.a.“ bei Basis 0 oder Vorzeichenwechsel zwischen Basis und Ist — statt irreführender Werte wie „−250 %“. GuV-Kostenzeilen mit durchgängig negativer Basis behalten ihre Prozente.
-4. Achsenschnitt im Wasserfall (IBCS UN 5.3, seit 1.45): Unter Skala → „Wasserfall-Achse“ stellst du den Schnitt auf Aus · Auto · An; geschnitten wird nur, wenn alle Anker und Deltas vollständig über dem Schnitt liegen. Anker werden zu Stummeln mit ⫽ über die volle Balkenbreite; Titel-Suffix und Export-Fußzeile weisen den Schnitt aus, Small Multiples teilen EINEN Schnitt.
+4. Achsenschnitt im Wasserfall (IBCS UN 5.3, seit 1.45): Unter Skala → „Wasserfall-Achse“ stellst du den Schnitt auf Aus · Auto · An; geschnitten wird nur, wenn alle Anker und Deltas vollständig über dem Schnitt liegen. Anker werden zu Stummeln mit ⫽ über die volle Balkenbreite; Titel-Suffix und Export-Fußzeile weisen den Schnitt aus, Small Multiples teilen EINEN Schnitt. Für Integrierte Brücke und senkrechte Kategorie-Brücke gibt es seit 1.52.1 „Anker kürzen (Achsenbruch)“ unter Chart → Brücke.
 5. Alternativ klickst du den In-Chart-Chip „⫽ Achse“: Er schaltet den Schnitt an/aus, hebt sich bei Auto-Vorschlag hervor und ist bei unzulässigem Schnitt deaktiviert — der Tooltip nennt den Grund bzw. die blockierende Kachel.
 
 ### Cross-Filter, Tooltips & Bookmarks
@@ -527,7 +546,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Absolute Abweichung (ΔAC) | — | An / Aus · Standard An |
 | Relative Abweichung (ΔAC %) | — | An / Aus · Standard An |
 | Doppelte Abweichung (PL + PY) | Zeigt zusätzlich die Abweichungs-Panels zur zweiten Basis — ΔPL und ΔPY gleichzeitig (benötigt PY und PL). | An / Aus · Standard Aus |
-| PY als Dreieck (bei AC + PY + PL) | IBCS-Notation bei drei Szenarien: Sind AC, PY und PL gebunden, wird das Vorjahr als graues Dreieck (▶) am Säulen-/Balkenrand auf PY-Höhe gezeigt statt als dritte Säule — weniger überladen. Aus = PY wieder als graue Säule. | An / Aus · Standard An |
+| PY als Dreieck (bei AC + PY + PL) | IBCS-Notation bei drei Szenarien: Sind AC, PY und PL gebunden, wird das Vorjahr als graues Dreieck (▶) am Säulen-/Balkenrand auf PY-Höhe gezeigt statt als dritte Säule — weniger überladen. Aus = PY wieder als graue Säule. In der Integrierten Brücke (C05) erscheint das Dreieck seit 1.52 nur beim dritten Szenario; bei AC&FC + PY ist PY eine graue, versetzte Säule. | An / Aus · Standard An |
 | Summen-Kopfzeile (Σ) | Zeigt Summe und Gesamtabweichung als Kopfzeile. | An / Aus · Standard An |
 | Trennlinie alle N Kategorien | Zeichnet eine dünne Trennlinie nach jeweils N Kategorien, quer durch alle Panels — für Struktur-Vergleiche mit natürlichen Untergruppen (z. B. Regionen). 0 = aus. | 0–50 · Standard 0 |
 
@@ -551,6 +570,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Wesentlichkeit ab (%) | Wesentlichkeits-Schwelle in Prozent: Abweichungen unter diesem Δ % werden grau dargestellt. Sind beide Schwellen gesetzt, muss eine Abweichung beide überschreiten, um farbig zu sein. 0 = aus. | 0–100 · Standard 0 |
 | Δ%-Pin-Form | Form des Lollipop-Kopfes der Δ%-Pins. „Automatisch" behält den bisherigen Stil je Modus (Säulen/Balken/Wasserfall rund, Brücken und Tabelle quadratisch); „Rund" oder „Quadratisch" vereinheitlichen alle Modi. | Optionen: Automatisch (je Modus) \| Rund \| Quadratisch · Standard „Automatisch (je Modus)“ |
 | Trend-Icons ▲▼● | Stellt den Δ-Werten in Tabelle und KPI-Karten Richtungspfeile voran: ▲ Anstieg, ▼ Rückgang, ● unwesentlich (unter der Materialitätsschwelle). Lesbar auch in Schwarzweiß-Druck und für Farbenblinde — die Farbe bewertet weiterhin gut/schlecht. | An / Aus · Standard Aus |
+| Stapellegende am Stapel | Gruppe Darstellung, seit 1.52.1 (Property `chart.stackLegendDirect`): Gestapelte Säulen und Balken zeigen die Seriennamen direkt am Stapel (Säulen: rechts neben der letzten Säule, Balken: über dem ersten Balken) statt als Schlüssel oben. Passen sie nicht, bleibt der Schlüssel. Aus = immer Schlüssel oben. | An / Aus · Standard An |
 
 #### Small Multiples
 
@@ -572,8 +592,10 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Wasserfall-Brücke | Nur Columns/Bars: zeigt die Kategorien als Wasserfall-Brücke von der Basis (PY/PL) zu AC mit Verbindungslinien, statt als einzelne Balken. Optional — Standard ist aus. | An / Aus · Standard Aus |
 | Nach Wirkung sortieren | Nur bei Waterfall bridge: sortiert die Kategorien nach Abweichungsgröße (größter Treiber zuerst). Eine Top-N-Rest-Zeile bleibt am Ende. Auch per Klick auf das ⇅-Symbol im Chart umschaltbar. | An / Aus · Standard Aus |
 | In-Chart-Buttons | Integrierte/Kategorie-Brücke: zeigt klickbare Buttons oben rechts im Chart — ΔPY/ΔPL-Referenz-Umschalter, ⇅ Sortierung und ▶ Aufbau-Animation. Der Enduser kann die Varianz-Basis direkt im Bericht wechseln; die Wahl wird persistiert. | An / Aus · Standard An |
+| Bedienleisten einklappen (☰) | Gruppe Interaktion im Bericht, seit 1.52 (Property `chart.chipMenu`): Klappt die Bedienelemente im Chart (Sortieren ⇅, YTD, ⫽ Achse, ΔPY\|ΔPL, ▶, Ausnahme-Chip, Modus-Chips, Karten-Sortierung, Scatter-Play, GuV-Ansicht) hinter ein kleines ☰ oben rechts. Ein Klick klappt sie auf, ✕ wieder zu; gespeichert wird nichts. Aus: wie bisher immer sichtbar. | An / Aus · Standard Aus |
 | Treiber-Notiz im Chart | Kategorie-Brücke: kursive Notiz am größten Treiber („größter Treiber · n % der Gesamtabweichung“) — überlagert den Zeilenbereich, hier abschaltbar. | An / Aus · Standard An |
 | Brücke: Ausrichtung | Kategorie-Brücke (seit 1.47): „Automatisch“ wählt wie bisher, „Balken“ erzwingt die horizontale Brücke, „Säulen“ die vertikale Säulen-Kaskade (PY-Anker → Treiber → AC mit ΔBasis-Überleitung, Δ%-Pins oben). Hervorhebung, Treiber-Notiz, n.a.-Regel und Small-Multiples-Skala gelten auch dort. | Optionen: Automatisch \| Balken \| Säulen · Standard „Automatisch“ |
+| Anker kürzen (Achsenbruch) | Seit 1.52.1 (Property `chart.bridgeBreak`): Integrierte Brücke, Kategorie-Brücke (Säulen) und Wasserfall kürzen die Summen-Anker mit sichtbarem ⫽, damit die Brückenstufen in echter Höhe lesbar werden; alle Stufen bleiben in einer linearen Skala. Gekürzt wird nur, wenn alle Stände über dem Schnitt liegen. Im Wasserfall schaltet die Option den Achsenschnitt (Skala → Wasserfall-Achse) ein, solange dieser auf „Aus“ steht. | An / Aus · Standard Aus |
 
 #### Tabelle
 
@@ -608,6 +630,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Highlight-Status | Welche Richtung farbig hervorgehoben wird: beide (Ampel), nur schlechte (Problem-Monitoring — Positives bleibt neutral) oder nur gute (Erfolgs-Board). Gilt für Streifen, Hintergrund, Δ-Zeilen und Bullet. | Optionen: Gut & schlecht \| Nur schlechte \| Nur gute · Standard „Gut & schlecht“ |
 | Nach Abweichung sortieren | Ordnet die Karten nach der farbrelevanten Abweichung (Benchmark bzw. ΔPL/ΔPY, je nach Status-Basis): größte Abweichung oben-links — für maximalen Fokus. „Datenreihenfolge“ lässt sie wie im Modell. | Optionen: Datenreihenfolge \| Größte Abweichung zuerst \| Schlechteste zuerst (oben) \| Beste zuerst (oben) · Standard „Datenreihenfolge“ |
 | Mini-Brücke zeigen (AC/PY-Balken) | Zeigt die kleine Balken-Brücke Basis → Δ → AC unten auf der Karte. Aus: reine Zahlen-Karte (großer Wert + Δ-Zeilen), ruhiger für dichte KPI-Wände. | An / Aus · Standard An |
+| Karten: gleiche Skala | Seit 1.51.2 (Property `chart.cardSameScale`): Alle Mini-Brücken teilen einen Maßstab über alle Karten, gleiche Beträge ergeben gleich hohe Balken (IBCS: identische Skalen). Für Karten derselben Kennzahl je Kategorie (z. B. Umsatz je Kanal). Aus: jede Karte skaliert für sich, nötig bei Karten mit verschiedenen Einheiten. | An / Aus · Standard Aus |
 | Hintergrund einfärben (Ampel) | Färbt den Karten-Hintergrund dezent: leicht grün wenn besser, leicht rot wenn schlechter als die Status-Basis — neutral (unterhalb der Wesentlichkeit) bleibt ohne Farbe. Für Monitoring-Wände; im Hochkontrast-Modus aus. | An / Aus · Standard Aus |
 | Färbe-Intensität % | Deckkraft der Hintergrund-Färbung in Prozent (4–40). Standard 12 — kräftiger für Kontrollraum-Monitore, dezenter für Board-Reports. | 4–40 · Standard 12 |
 | Bullet vs. Benchmark | Kleines Bullet-Chart auf der Karte: AC-Balken auf hellem Band, Benchmark als Tick — unter der Zahl (Stapel-Layout) bzw. neben den Δ-Zeilen (flaches Layout). Braucht die Benchmark-Rolle. | An / Aus · Standard Aus |
@@ -658,10 +681,11 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Größen-Preset | Skaliert alle Schriften im Visual auf einmal: Kompakt ×1 (Standard) · Full HD ×1,5 (empfohlen für 1080p-Berichte) · Präsentation ×2. Im Start-Hub steht dieselbe Einstellung als Leiste HD · Full HD · UHD (HD = Kompakt, UHD = Präsentation). | Optionen: Kompakt (Dashboard-Kachel) \| Full HD (1080p) \| Präsentation (4K / Beamer) · Standard „Kompakt (Dashboard-Kachel)“ |
 | Alle Beschriftungen skalieren % | Vergrößert bzw. verkleinert ALLE Beschriftungen zusätzlich zum Preset um einen freien Faktor (50–300 %). 100 = neutral. Preset × Faktor ergibt die effektive Schriftgröße. | 50–300 · Standard 100 |
 | Textgröße | — | 6–24 · Standard 10 |
-| Dezimalstellen | — | 0–3 · Standard 1 |
+| Dezimalstellen | Gilt unverändert für Tabelle und GuV-Statement. In Grafiken hat jede Zahl seit 1.52.1 höchstens drei Ziffern: ab 10 der Anzeige-Einheit höchstens eine Nachkommastelle, ab 100 keine. | 0–3 · Standard 1 |
 | Einheiten | — | Optionen: Auto \| Keine \| Tausend (k) \| Millionen (M) \| Milliarden (B) · Standard „Auto“ |
 | Finance-Format (Klammern) | Finanzkonvention für Zahlen: negative Werte in Klammern statt Minuszeichen — (1.234) — und Null als „–". Gilt für Wert- und Δ-Beschriftungen inkl. Δ %. | An / Aus · Standard Aus |
-| Σ-treue Rundung der Beschriftungen | Rundet die Wertbeschriftungen nach dem Restwertverfahren so, dass sie exakt auf die Σ-Kopfzeile aufaddieren — keine Rundungsdifferenz-Nachfragen mehr. Aus = mathematisch exakte Einzelrundung, dafür erscheint bei Abweichung ein Rundungshinweis unter der Σ-Zeile. | An / Aus · Standard Aus |
+| Σ-treue Rundung der Beschriftungen | Rundet die Wertbeschriftungen nach dem Restwertverfahren so, dass sie exakt auf die Σ-Kopfzeile aufaddieren — keine Rundungsdifferenz-Nachfragen mehr. Aus = mathematisch exakte Einzelrundung, dafür erscheint bei Abweichung ein Rundungshinweis unter der Σ-Zeile. Seit 1.52.1 gilt mit der Option eine Präzision für Beschriftungen und Σ, gesetzt von der größten Zahl; ohne die Option vergleicht der Rundungshinweis die gedruckten Zahlen. | An / Aus · Standard Aus |
+| Einheit an jeder Beschriftung | Seit 1.52.1 (Property `labels.unitSuffix`): An = jede Beschriftung trägt Größenordnung und Einheit („18,5M“). Aus = nur die Zahl („18,5“), die Einheit steht einmal im Titel („Nettoumsatz in Mio. EUR“), wie es IBCS empfiehlt; KPI-Karten nehmen dann eine gemeinsame Einheit. Die Abkürzung bleibt „K“ wie in Power BI. | An / Aus · Standard An |
 
 ### Kategorienachse
 
@@ -695,7 +719,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
 | Skalen-Mindest-Maximum | Skaliert das Basis-Chart mindestens bis zu diesem Wert — für identische Skalen über mehrere Visuals (IBCS). 0 = automatisch. Größere Datenwerte erweitern die Skala weiterhin. Wirkt seit 1.45 auch im Wasserfall. | ab 0 · Standard 0 |
-| Abweichungs-Mindest-Maximum | Wie oben, für die Abweichungs-Panels (symmetrisch ±). 0 = automatisch. Seit 1.45 teilen ΔPY- und ΔPL-Panel EINE Skala — der Wert wirkt auf beide. | ab 0 · Standard 0 |
+| Abweichungs-Mindest-Maximum | Wie oben, für die Abweichungs-Panels (symmetrisch ±). 0 = automatisch. Seit 1.45 teilen ΔPY- und ΔPL-Panel EINE Skala — der Wert wirkt auf beide. Seit 1.52 laufen die Δ-Panels im Maßstab der Basis; der Wert wirkt als Untergrenze der Δ-Spanne. | ab 0 · Standard 0 |
 | Ausreißer am Maximum kappen | Macht das Skalen-Maximum hart: größere Werte werden gekappt und mit ⫽-Doppelstrich markiert (Label zeigt den echten Wert). Seit 1.45 trägt jedes gekappte Element den Marker (auch PY, PL, BM und Linien); eine Ziellinie über dem Cap dehnt die Achse nicht mehr. | An / Aus · Standard Aus |
 
 #### Scatter-Achsen
@@ -721,7 +745,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
-| Achsenschnitt | IBCS-Achsenschnitt im Wasserfall (seit 1.45): Anker werden zu Stummeln mit ⫽ über die volle Balkenbreite. Geschnitten wird nur, wenn alle Anker und Deltas vollständig über dem Schnitt liegen; Titel-Suffix und Export-Fußzeile weisen den Schnitt aus, Small Multiples teilen EINEN Schnitt. „Auto“ hebt den In-Chart-Chip „⫽ Achse“ hervor — geschnitten wird erst per Klick. | Optionen: Aus \| Auto \| An · Standard „Aus“ |
+| Achsenschnitt | IBCS-Achsenschnitt im Wasserfall (seit 1.45): Anker werden zu Stummeln mit ⫽ über die volle Balkenbreite. Geschnitten wird nur, wenn alle Anker und Deltas vollständig über dem Schnitt liegen; Titel-Suffix und Export-Fußzeile weisen den Schnitt aus, Small Multiples teilen EINEN Schnitt. „Auto“ hebt den In-Chart-Chip „⫽ Achse“ hervor — geschnitten wird erst per Klick. „Anker kürzen (Achsenbruch)“ unter Chart → Brücke schaltet den Schnitt ein, solange er auf „Aus“ steht. | Optionen: Aus \| Auto \| An · Standard „Aus“ |
 | Schnitt bei Wert | Manueller Schnittwert; 0 = automatisch (runder Wert unter dem tiefsten Kaskaden-Stand). | ab 0 · Standard 0 |
 
 ### Kommentare
@@ -808,7 +832,7 @@ Er ist gesperrt, weil er im aktuellen Zustand nichts bewirken würde; der Toolti
 
 Eine IBCS-Vorlage ist gesetzt, und mindestens eine ihrer Einstellungen wurde geändert. Ein Klick stellt den Vorlagen-Stand wieder her; wer die Änderungen behalten will, stellt Chart → IBCS-Chart-Vorlage auf „Aus“. Leser und Exporte sehen den Chip nie.
 
-**ChartKitchen byDatenWG** · Version 1.51.1.0
+**ChartKitchen byDatenWG** · Version 1.52.1.0
 
 Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (immer die aktuelle Version) · Schwester-Visual: [P&L Statement byDatenWG – Dokumentation](../pnl-doku.html)
 

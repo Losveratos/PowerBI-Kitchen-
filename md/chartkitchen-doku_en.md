@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 An IBCS-inspired chart deck for Power BI: 13 chart modes in a single visual, with a consistent scenario notation (AC filled, PY grey, PL outlined, FC hatched) and variances built in throughout. This documentation takes you from import through the 13 modes and the key features to the complete settings reference.
 
-Version · **1.51.1.0** · As of · **2026-10-18** · IBCS-inspired
+Version · **1.52.1.0** · As of · **2026-10-20** · IBCS-inspired
 
 ## Contents
 
@@ -26,7 +26,7 @@ Version · **1.51.1.0** · As of · **2026-10-18** · IBCS-inspired
 
 The design is inspired by the **IBCS® principles** (International Business Communication Standards): one consistent scenario notation — **AC** (actual) filled, **PY** (prior year) grey, **PL** (plan) outlined, **FC** (forecast) hatched — and variances that are always present: absolute and relative variance panels appear automatically next to or above the base chart. Every chart reads by the same rules, whichever mode you choose.
 
-This guide describes the state of version **1.51.1.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07).
+This guide describes the state of version **1.52.1.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”).
 
 ## 02 · The product family
 
@@ -147,7 +147,7 @@ Readers in reading view and exports (PDF, PowerPoint, subscriptions) see neither
 
 ### 1 · Import the visual
 
-1. Download the file [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (extension `.pbiviz`) — the link always delivers the current version, at present 1.51.1.0.
+1. Download the file [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (extension `.pbiviz`) — the link always delivers the current version, at present 1.52.1.0.
 2. In Power BI Desktop: in the *Visualizations* pane click *… (More options)* → *Import a visual from a file* and select the `.pbiviz`.
 3. The ChartKitchen icon appears in the Visualizations pane. Drag it onto the report page.
 
@@ -214,7 +214,7 @@ For structural comparisons without a time axis — products, regions, accounts. 
 
 ![As it looks in Power BI Desktop: Line mode across the fiscal year: AC solid, PL dashed and the forecast section set apart, topped by the ΔPL and ΔPL % panels per month.](../doku-assets/pbi/pbi-line.png)
 
-For long time series with many data points (weeks, days) where columns would get too dense. AC as a solid line, PY thin and grey; optionally a moving average over N periods for the trend. The focus is on the trajectory and turning points, not the single period.
+For long time series with many data points (weeks, days) where columns would get too dense. All absolute lines have the same weight: AC dark, PY light grey, PL hollow, only FC dashed; optionally a moving average over N periods for the trend. The focus is on the trajectory and turning points, not the single period.
 
 ### 04 · Waterfall
 
@@ -343,7 +343,7 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 
 1. Bind AC, PY, PL and FC to their field roles — all four appear in one chart.
 2. FC is drawn hatched automatically. As an alternative to the FC measure you can bind a 1/0 column to the “Forecast flag” role.
-3. With three scenarios (AC + PY + PL) IBCS shows PY as a grey triangle on the column. Turn it off under Chart → “PY as triangle”.
+3. With three scenarios (AC + PY + PL) IBCS shows PY as a grey triangle on the column. Turn it off under Chart → “PY as triangle”. In the integrated bridge (C05) PY is a grey column with only two scenarios (AC&FC + PY).
 4. For a target value per category fill the Benchmark role — it appears as a tick marker (triangle).
 5. For a fixed target or threshold line use Scale → Reference line (value + label) instead.
 
@@ -356,7 +356,7 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 1. Drag a grouping field (e.g. region) into the “Small Multiples” role. The visual splits into one tile per group on a shared scale (IBCS).
 2. Under Chart → Small Multiples you control a leading “Σ Total” tile, Top-N tiles (the rest is aggregated into “Other”) and a larger first tile.
 3. For the bridge modes (integrated/category bridge) force an identical scale with “Bridges: same scale for all tiles”; columns, bars and waterfall share it anyway.
-4. Clicking a tile’s zoom icon enlarges it temporarily.
+4. Clicking a tile’s zoom icon enlarges it temporarily. Since 1.52 the group name is followed by the scale relative to the overview (“scale ×3.5 of the overview”).
 
 ### Matrix: column groups, drill & horizontal scrolling
 
@@ -428,7 +428,7 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 
 ![IBCS title and footers: "KPI · unit · period: scenarios" with a message line on top, filter context and data status as footers at the bottom.](../doku-assets/feature-title.png)
 
-1. The IBCS title (“KPI · unit · period: scenarios”) is built automatically; override the KPI name and period in the “IBCS title” card.
+1. The IBCS title (“KPI · unit · period: scenarios”) is built automatically; override the KPI name and period in the “IBCS title” card. Since 1.52.1 it states the unit once in long form (“in mEUR”) and adds no scenario suffix when the period already names scenario codes (section “Scaling according to IBCS 2.0 / ISO 24896”).
 2. Enter a message line (IBCS: SAY) at the top or let “Auto message” build it from the total variance and the biggest drivers.
 3. Two footers are available: “Footer (data status · source)” at the bottom left and the filter footer with the bound filter-info measure plus the display state (YTD, Top-N, sorting …).
 4. Scale all fonts centrally via Data labels → Size preset (Compact/Full HD/Presentation — in the start hub as HD · Full HD · UHD) and the “Scale all labels %” factor; label density controls the thinning.
@@ -441,7 +441,7 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 
 1. In KPI-card mode, under Chart → KPI cards, set the status basis: against the variance basis (ΔPL/ΔPY) or against the bound benchmark measure.
 2. The background tint (traffic light) with its intensity and the highlight direction (both / only bad / only good) rate AC against that basis.
-3. Show the bullet against the benchmark (optionally zoomed to the target range) and the mini bridge as needed; you can sort by deviation (biggest top-left).
+3. Show the bullet against the benchmark (optionally zoomed to the target range) and the mini bridge as needed; with “Same scale for all cards” all mini bridges share one scale; you can sort by deviation (biggest top-left).
 4. The benchmark role must be filled for the benchmark rating.
 
 ### Trend cards: KPI cards with a time series
@@ -485,12 +485,31 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 3. Custom title and custom text (since 1.44) replace the “ChartKitchen byDatenWG” branding whenever no data is shown (empty field wells or a selection without rows).
 4. Readers and exports never see the hub, the gallery or buttons, but since 1.51.1 the calm landing card — with your title and text, if set.
 
+### Scaling according to IBCS 2.0 / ISO 24896
+
+Since 1.52 ChartKitchen scales every chart type according to IBCS 2.0 / ISO 24896: one unit, one scale across all panels of a chart, otherwise a visible factor. IBCS serves as a reference; the visual is not certified.
+
+> **Existing reports change their look.** This is intended and cannot be switched off: Δ panels get flatter because they show the true size of the variance, columns and bars get a little wider, Δ numbers shorter. Review pages built around fixed panel heights (screenshots, subscription PDFs) after the update.
+
+1. **Δ in the scale of the base.** Absolute Δ panels (ΔPY, ΔPL, double variance, the ΔPY step above the P&L waterfall) are drawn at the same scale (px per unit) as the base chart. Their height (columns) or width (bars) follows the Δ span plus room for the labels; fixed height shares are gone. Likewise the table’s Δ bars run at the scale of the AC·PY bar column and the P&L statement’s Δ column at the scale of the cascade. Δ% pins keep their own scale because they show a different unit.
+2. **Magnifier instead of silent enlargement.** If the largest variance would be too small to read at the base scale, the visual enlarges the Δ panel by a round factor (2, 4, 5, 10, 20 …) and says so: title “ΔPY ×4” and a light-blue scale band at the same value in the base and the Δ panel. Table and P&L statement show a factor in the column header (“×0.5”, “×4”), the bridge panel of columns/bars with waterfall bridge in its title (“PL → AC ×0.025”). Nothing is enlarged without a mark.
+3. **Widths.** Columns and bars for absolute values take 2/3 of the category in every slot-based mode (columns, bars, bridge panel, waterfall, vertical category bridge, Pareto, stacked). Δ columns below a line are as wide as the slot.
+4. **At most three digits.** Numbers in charts have at most three digits, counted after rounding (“161.8K” becomes “162K”, “99.96” becomes “100”). The largest variance sets the decimals of the Δ labels; small values that would otherwise round to zero get extra digits (“+0.04M”). Values below the display threshold show “0” without unit or sign, negative Δ use the true minus sign. KPI cards of the same unit give value and Δ the same decimals. Table and P&L statement keep their decimals. With “Sum-safe label rounding” one precision applies to labels and Σ so the total adds up.
+5. **Same scale across small multiples and cards.** Small multiples share their value range and magnifier factor. A tile’s ⤢ zoom states its scale relative to the overview next to the group name (“scale ×3.5 of the overview”), and the Δ panels follow the enlarged base. For KPI cards, Chart → KPI cards → “Same scale for all cards” (`chart.cardSameScale`, since 1.51.2, default off) switches on one common scale for all mini bridges: equal amounts give equally tall bars. Meant for cards of one measure per category; leave it off for cards with different units.
+6. **Integrated bridge (C05).** Anchors, bridge steps and month pairs have the same width (2/3 of the category), the month columns stand on the anchor scale. Only when they would reach into the cascade or be unreadably small do they get a round factor, stated in the panel caption (for example “×0.5”) plus a scale band. The bridge steps are drawn at their true height with a 1 px hairline below; there is no minimum height any more. With AC&FC and PY (two scenarios) PY is a grey, offset column as in C03; the PY triangle only appears with the third scenario (AC + PY + PL).
+7. **Shortened bridge anchors.** Chart → Bridge → “Shorten anchors (axis break)” (`chart.bridgeBreak`, default off) shortens the total anchors with a visible ⫽; the steps above run on one linear scale and become readable. C05: month columns in the lower band with a stated factor, the cut is named in the caption (“axis broken from 45.0M”). C06 vertical: anchors PY, PL and AC with ⫽. C12: switches on the axis break under Scale → Waterfall axis while that is set to “Off”. The axis is only cut when every level lies above the cut; small multiples with the same scale stay zero-based.
+8. **Unit once in the title.** The title states magnitude and unit in long form (“Net revenue in mEUR per channel”, “in k hl”), never a bare “M” or “K”. If the measure name has no unit, the visual adds it from the format string. Scatter and bubble carry their units on the axis titles. If you switch Data Labels → “Unit on every label” off (`labels.unitSuffix`, default on), labels show the number only (“18.5”) and KPI cards use one common unit for all cards. The abbreviation stays “K” as in Power BI.
+9. **Scenario suffix without repetition.** If the period in the IBCS Title card already names scenario codes (AC, PY, PL, BU, FC), the visual appends nothing. Otherwise it builds the suffix from the variance basis and the bound roles; the actual is called “AC&FC” when a forecast share is shown. Waterfall, category bridge, Pareto, dumbbell and slope name only the basis.
+10. **Line notation (C08).** All absolute lines have the same weight: AC dark solid, PY light grey solid, PL hollow (outline with a light core), only FC dashed. The AC label sits above the point when AC is on top and below it when AC is at the bottom.
+11. **Stack legend at the stack.** For stacked columns and bars (C01/C02) the series names sit right at the stack: next to the last column for columns, above the first bar for bars. When they do not fit (series missing there, overlap, negative segments, small multiples), the key stays at the top. Switch: Chart → Display → “Stack legend at the stack” (`chart.stackLegendDirect`, default on). A stack with only one labelled segment shows the value once.
+12. **Control menu ☰.** Chart → Interaction in the report → “Fold chart controls (☰)” (`chart.chipMenu`, default off) puts the in-chart controls (sort ⇅, YTD, ⫽ axis, ΔPY|ΔPL, ▶, exception chip, mode chips, card sorting, scatter play, P&L view) behind a small ☰ at the top right. One click unfolds them, ✕ folds them again; nothing is saved. Off: everything visible as before.
+
 ### Scaling guarantees & axis break (waterfall)
 
 1. Since 1.45 hard scaling guarantees apply: the ΔPY and ΔPL panels share ONE scale (absolute and %), bridges include every cascade intermediate in the scale, stacked small multiples share a common scale, and values and variances use ONE unit scale — no more “k€ next to thousands”. Formats with their own prefix (“#,0 T€”, “Mio €”) switch the auto unit off.
 2. “Scale minimum maximum” and outlier capping now also apply in the waterfall; the ⫽ marker sits on every capped element (PY, PL, BM, line).
 3. Δ% shows “n.a.” when the basis is 0 or the sign flips between basis and actual — instead of misleading values like “−250 %”. P&L cost rows with a consistently negative basis keep their percentages.
-4. Axis break in the waterfall (IBCS UN 5.3, since 1.45): under Scale → “Waterfall axis” set the break to Off · Auto · On; the axis is only cut when all anchors and deltas sit entirely above the break. Anchors become stubs with ⫽ across the full bar width; a title suffix and the export footer disclose the break, and small multiples share ONE break.
+4. Axis break in the waterfall (IBCS UN 5.3, since 1.45): under Scale → “Waterfall axis” set the break to Off · Auto · On; the axis is only cut when all anchors and deltas sit entirely above the break. Anchors become stubs with ⫽ across the full bar width; a title suffix and the export footer disclose the break, and small multiples share ONE break. For the integrated bridge and the vertical category bridge, “Shorten anchors (axis break)” under Chart → Bridge is available since 1.52.1.
 5. Alternatively click the in-chart chip “⫽ axis”: it toggles the break, highlights itself on an auto suggestion, and is disabled when a break would be invalid — the tooltip names the reason or the blocking tile.
 
 ### Cross-filter, tooltips & bookmarks
@@ -527,7 +546,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Absolute variance (ΔAC) | — | On / Off · default On |
 | Relative variance (ΔAC %) | — | On / Off · default On |
 | Dual variance (PL + PY) | Additionally shows the variance panels for the second basis — ΔPL and ΔPY at the same time (requires PY and PL). | On / Off · default Off |
-| PY as triangle (AC + PY + PL) | IBCS notation with three scenarios: when AC, PY and PL are bound, the previous year is shown as a grey triangle (▶) at the column/bar edge at PY height instead of as a third column — less cluttered. Off = PY shown as a grey column again. | On / Off · default On |
+| PY as triangle (AC + PY + PL) | IBCS notation with three scenarios: when AC, PY and PL are bound, the previous year is shown as a grey triangle (▶) at the column/bar edge at PY height instead of as a third column — less cluttered. Off = PY shown as a grey column again. In the integrated bridge (C05) the triangle only appears with the third scenario since 1.52; with AC&FC + PY, PY is a grey, offset column. | On / Off · default On |
 | Total (Σ) header | Shows the total and the total variance as a header row. | On / Off · default On |
 | Group separator every N categories | Draws a thin separator line after every N categories, across all panels — for structural comparisons with natural subgroups (e.g. regions). 0 = off. | 0–50 · default 0 |
 
@@ -551,6 +570,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Materiality from (%) | Materiality threshold in percent: variances below this Δ % are shown in grey. If both thresholds are set, a variance must exceed both to be colored. 0 = off. | 0–100 · default 0 |
 | Δ%-pin shape | Shape of the lollipop head of the Δ% pins. "Automatic" keeps the previous style per mode (Columns/Bars/Waterfall round, bridges and table square); "Round" or "Square" unify all modes. | Options: Automatic (per mode) \| Round \| Square · default „Automatic (per mode)“ |
 | Trend icons ▲▼● | Prefixes the Δ values in the table and KPI cards with direction arrows: ▲ increase, ▼ decrease, ● immaterial (below the materiality threshold). Also readable in black-and-white print and for color-blind users — color still rates good/bad. | On / Off · default Off |
+| Stack legend at the stack | Display group, since 1.52.1 (property `chart.stackLegendDirect`): stacked columns and bars show the series names right at the stack (columns: next to the last column, bars: above the first bar) instead of a key at the top. When they do not fit, the key stays. Off = always the key at the top. | On / Off · default On |
 
 #### Small Multiples
 
@@ -572,8 +592,10 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Waterfall bridge | Columns/Bars only: shows the categories as a waterfall bridge from the basis (PY/PL) to AC with connecting lines instead of individual bars. Optional — off by default. | On / Off · default Off |
 | Sort by impact | Waterfall bridge only: sorts the categories by variance size (biggest driver first). A Top-N remainder row stays at the end. Also toggleable by clicking the ⇅ symbol in the chart. | On / Off · default Off |
 | In-chart buttons | Integrated/Category bridge: shows clickable buttons at the top right of the chart — ΔPY/ΔPL reference toggle, ⇅ sorting and ▶ build-up animation. The end user can switch the variance basis directly in the report; the choice is persisted. | On / Off · default On |
+| Fold chart controls (☰) | Interaction in the report group, since 1.52 (property `chart.chipMenu`): folds the in-chart controls (sort ⇅, YTD, ⫽ axis, ΔPY\|ΔPL, ▶, exception chip, mode chips, card sorting, scatter play, P&L view) behind a small ☰ at the top right. One click unfolds them, ✕ folds them again; nothing is saved. Off: always visible as before. | On / Off · default Off |
 | Driver note in chart | Category bridge: italic note at the biggest driver ("biggest driver · n % of the total variance") — overlays the row area, can be turned off here. | On / Off · default On |
 | Bridge: orientation | Category bridge (since 1.47): “Automatic” picks as before, “Bars” forces the horizontal bridge, “Columns” the vertical column cascade (PY anchor → drivers → AC with a Δbasis reconciliation, Δ% pins on top). Emphasis, driver note, the n.a. rule and the small-multiples scale apply there too. | Options: Automatic \| Bars \| Columns · default “Automatic” |
+| Shorten anchors (axis break) | Since 1.52.1 (property `chart.bridgeBreak`): integrated bridge, category bridge (columns) and waterfall shorten the total anchors with a visible ⫽ so the bridge steps become readable at their true height; all steps keep one linear scale. The axis is only cut when every level lies above the cut. In the waterfall the option switches on the axis break (Scale → Waterfall axis) while that is set to “Off”. | On / Off · default Off |
 
 #### Table
 
@@ -608,6 +630,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Highlight status | Which direction is highlighted in color: both (traffic light), only bad (problem monitoring — positives stay neutral) or only good (success board). Applies to stripes, background, Δ rows and bullet. | Options: Good & bad \| Only bad \| Only good · default „Good & bad“ |
 | Sort by deviation | Orders the cards by the color-relevant variance (benchmark or ΔPL/ΔPY, depending on the status basis): biggest variance top-left — for maximum focus. "Data order" leaves them as in the model. | Options: Data order \| Biggest deviation first \| Worst first (bad on top) \| Best first (good on top) · default „Data order“ |
 | Show mini bridge (AC/PY bars) | Shows the small bar bridge basis → Δ → AC at the bottom of the card. Off: pure number card (large value + Δ rows), calmer for dense KPI walls. | On / Off · default On |
+| Same scale for all cards | Since 1.51.2 (property `chart.cardSameScale`): all mini bridges share one scale across the cards, equal amounts give equally tall bars (IBCS: identical scales). For cards of one measure per category (e.g. revenue per channel). Off: each card scales on its own, needed for cards with different units. | On / Off · default Off |
 | Tint card background | Subtly tints the card background: slightly green when better, slightly red when worse than the status basis — neutral (below materiality) stays uncolored. For monitoring walls; off in high-contrast mode. | On / Off · default Off |
 | Tint intensity % | Opacity of the background tint in percent (4–40). Default 12 — stronger for control-room monitors, subtler for board reports. | 4–40 · default 12 |
 | Bullet vs. benchmark | Small bullet chart on the card: AC bar on a light band, benchmark as a tick — below the number (stacked layout) or next to the Δ rows (flat layout). Requires the benchmark role. | On / Off · default Off |
@@ -658,10 +681,11 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Size preset | Scales all fonts in the visual at once: Compact ×1 (default) · Full HD ×1.5 (recommended for 1080p reports) · Presentation ×2. In the start hub the same setting appears as the bar HD · Full HD · UHD (HD = Compact, UHD = Presentation). | Options: Compact (dashboard tile) \| Full HD (1080p) \| Presentation (4K / projector) · default „Compact (dashboard tile)“ |
 | Scale all labels % | Enlarges or shrinks ALL labels on top of the preset by a free factor (50–300 %). 100 = neutral. Preset × factor gives the effective font size. | 50–300 · default 100 |
 | Font size | — | 6–24 · default 10 |
-| Decimal places | — | 0–3 · default 1 |
+| Decimal places | Applies unchanged to the table and the P&L statement. In charts every number has at most three digits since 1.52.1: from 10 of the display unit at most one decimal, from 100 none. | 0–3 · default 1 |
 | Display units | — | Options: Auto \| None \| Thousands (k) \| Millions (M) \| Billions (B) · default „Auto“ |
 | Finance format (parentheses) | Finance convention for numbers: negative values in parentheses instead of a minus sign — (1,234) — and zero as "–". Applies to value and Δ labels including Δ %. | On / Off · default Off |
-| Sum-safe label rounding | Rounds the value labels using the largest-remainder method so they add up exactly to the Σ header — no more rounding-difference questions. Off = mathematically exact individual rounding, but a rounding note appears below the Σ row when there is a discrepancy. | On / Off · default Off |
+| Sum-safe label rounding | Rounds the value labels using the largest-remainder method so they add up exactly to the Σ header — no more rounding-difference questions. Off = mathematically exact individual rounding, but a rounding note appears below the Σ row when there is a discrepancy. Since 1.52.1 the option applies one precision to labels and Σ, set by the largest number; without it the rounding note compares the printed numbers. | On / Off · default Off |
+| Unit on every label | Since 1.52.1 (property `labels.unitSuffix`): On = every label carries magnitude and unit (“18.5M”). Off = the number only (“18.5”), the unit appears once in the title (“Net revenue in mEUR”), as IBCS recommends; KPI cards then use one common unit. The abbreviation stays “K” as in Power BI. | On / Off · default On |
 
 ### Category Axis
 
@@ -695,7 +719,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Setting | Description | Options / default |
 | --- | --- | --- |
 | Scale minimum maximum | Scales the base chart at least up to this value — for identical scales across multiple visuals (IBCS). 0 = automatic. Larger data values still extend the scale. Since 1.45 it also applies in the waterfall. | from 0 · default 0 |
-| Variance minimum maximum | As above, for the variance panels (symmetric ±). 0 = automatic. Since 1.45 the ΔPY and ΔPL panels share ONE scale — the value applies to both. | from 0 · default 0 |
+| Variance minimum maximum | As above, for the variance panels (symmetric ±). 0 = automatic. Since 1.45 the ΔPY and ΔPL panels share ONE scale — the value applies to both. Since 1.52 the Δ panels run at the scale of the base; the value acts as the lower limit of the Δ span. | from 0 · default 0 |
 | Cap outliers at maximum | Makes the scale maximum hard: larger values are capped and marked with a ⫽ double stroke (the label shows the real value). Since 1.45 every capped element carries the marker (including PY, PL, BM and lines); a target line above the cap no longer stretches the axis. | On / Off · default Off |
 
 #### Scatter axes
@@ -721,7 +745,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 
 | Setting | Description | Options / default |
 | --- | --- | --- |
-| Axis break | IBCS axis break in the waterfall (since 1.45): anchors become stubs with ⫽ across the full bar width. The axis is only cut when all anchors and deltas sit entirely above the break; a title suffix and the export footer disclose it, and small multiples share ONE break. “Auto” highlights the in-chart chip “⫽ axis” — the cut happens only on click. | Options: Off \| Auto \| On · default “Off” |
+| Axis break | IBCS axis break in the waterfall (since 1.45): anchors become stubs with ⫽ across the full bar width. The axis is only cut when all anchors and deltas sit entirely above the break; a title suffix and the export footer disclose it, and small multiples share ONE break. “Auto” highlights the in-chart chip “⫽ axis” — the cut happens only on click. “Shorten anchors (axis break)” under Chart → Bridge switches the break on while it is set to “Off”. | Options: Off \| Auto \| On · default “Off” |
 | Break at value | Manual break value; 0 = automatic (a round value below the lowest cascade level). | from 0 · default 0 |
 
 ### Comments
@@ -808,7 +832,7 @@ It is locked because it would have no effect in the current state; the tooltip n
 
 An IBCS template is set and at least one of its settings has been changed. A click restores the template state; to keep your changes, set Chart → IBCS chart template to “Off”. Readers and exports never see the chip.
 
-**ChartKitchen byDatenWG** · Version 1.51.1.0
+**ChartKitchen byDatenWG** · Version 1.52.1.0
 
 Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (always the current version) · Sister visual: [P&L Statement byDatenWG – documentation](../pnl-doku_en.html)
 

@@ -1,6 +1,6 @@
 # IBCS-Templates mit „P&L Statement byDatenWG" nachstellen · Kurzanleitung
 
-Stand: **Visual 1.4.1.0** (18.10.2026). Für die lokale Arbeit in Power BI Desktop —
+Stand: **Visual 1.5.1.0** (20.10.2026). Für die lokale Arbeit in Power BI Desktop —
 alles Nötige, um die offiziellen IBCS-Templates (T01A–T04E, 12A, 12G, 12H)
 nachzubauen. Referenzbilder liegen in `prototype/refs/`, der interaktive
 HTML-Prototyp in `prototype/megatable.html` (im Browser öffnen, Referenz-Dropdown
@@ -85,19 +85,37 @@ FC schraffiert · PL umrandet), Referenz bestimmt die Achse
 **Analysiertes Szenario**; für Leser optional als Toolbar-Buttons
 (Karte Toolbar → **Szenario-Gruppe**, Standard aus).
 
-## 4 · Die wichtigsten Einstellungen (1.1 / 1.2)
+## 4 · Die wichtigsten Einstellungen (1.1 bis 1.5.1)
 
 - **Spalten** einzeln: PY/PL/AC(FC) · je Referenz getrennt Δ-Zahl, Δ-Balken,
   Δ-Wasserfall, Δ%-Zahl, Δ%-Pins · Wert-Kaskade · % vom Umsatz · Margen-Zeilen
 - **Blöcke:** 1 oder 2; Block-Art je Seite: **Monat / YTD / FY** (FY = AC&FC vs. PL FY)
-- **Schwellen:** „Δ in red if" absolut + % je Block, Fußzeile zeigt sie an
+- **Schwellen:** „Δ in red if" absolut + % je Block, Fußzeile zeigt sie an.
+  Standard −20 / −220 meint Tausender; bei Mio.- und Mrd.-Skalierung rechnet das
+  Visual ihn um (−0,02 / −0,22 Mio., 1.5.1), ein gesetzter Wert gilt wie eingetippt
 - **Zahlen:** Dezimalen, k/m/**b**, **Σ-treue Rundung**, **Klammern-Negativ**
 - **Beschriftungen:** Hausbegriffe (z. B. PL → „Budget")
 - **Titelblock:** 3-Zeilen-Titel, **Auto-Message**, große **Headline**,
   Quellen-Fußzeile, **Filter-Fußzeile** (Rolle „Filter-Info" binden)
 - **Hervorheben** (Zeilennamen-Liste) und **Wesentlichkeit** (Δ unter Schwelle grau)
 - **Skalen-Sync:** Zahlen → fixedMax/fixedVarMax (leer = auto, k/m/b-Suffixe) —
-  gleiche Skala über mehrere Instanzen, auch neben ChartKitchen
+  gleiche Skala über mehrere Instanzen, auch neben ChartKitchen. Beide sind
+  Mindest-Maxima in Dateneinheiten vor der Skalierung: `fixedMax` hält die
+  Wert-Kaskaden bei [0, max], `fixedVarMax` Δ-Balken und Δ-Wasserfälle bei ±max,
+  Pins bleiben automatisch. In 12A/12G/12H beide setzen, sonst kann ein Reiter
+  „ΔPY ×5" bekommen und ein anderer nicht. Gleiche Pixel je Betrag über Reiter
+  gibt es bei gleich großen Kacheln, gleichem Template und gleicher Schriftgröße
+- **Skalierung (1.5, nach IBCS 2.0 / ISO 24896):** eine Skala je Einheit über
+  alle Perioden-Blöcke, kein Faktor zwischen Monat, YTD und FY (1.5.1). Nur Δ
+  gegenüber den Wert-Kaskaden (12A/12G/12H) bekommt bei Bedarf einen runden
+  Faktor, im Kopf („ΔPY ×5") und im Skalenhinweis über der Tabelle genannt.
+  Gekappte Ausreißer laufen in eine Ausreißerzone mit Bruchzeichen und Dreieck.
+  Jedes Template schreibt Δ%-Dezimalen = 1
+- **Margen-Zeilen (1.5.1):** Δ in pp („+8,6 pp"), kein relatives Δ%, Margen
+  mit den Δ%-Dezimalen; T04 zeigt die pp-Zahl an der Achse
+- **Bedienleisten einklappbar (1.5):** Darstellung & Toolbar → „Bedienleisten
+  einklappbar (☰)" und „Startzustand eingeklappt": Toolbar, Legende und
+  Hinweiszeilen klappen hinter ☰, gut für kleine Kacheln (Standard aus)
 - **Farben:** Teal = Standard (farbfehlsicher), Presets ibcs-Grün und Blau/Orange;
   Dark Mode Auto/Hell/Dunkel
 - **Wertspalten für Leser (1.2):** Darstellung & Toolbar → „Gruppe: Wertspalten"
@@ -129,7 +147,11 @@ FC schraffiert · PL umrandet), Referenz bestimmt die Achse
 - **ΔPL-Spalten leer:** PL-Rolle nicht gebunden (Pane blendet die Schalter
   dann aus). FC-Minuend braucht die FC-Rolle.
 - **Schwellen färben nicht:** Schwellen gelten in **Anzeige-Einheiten**
-  (nach k/m-Skalierung).
+  (nach k/m-Skalierung). Die Standardwerte rechnet das Visual seit 1.5.1 bei
+  Mio./Mrd. um; ein selbst gesetztes −20 heißt bei Mio. −20 Mio.
+- **„ΔPY ×5" im Spaltenkopf:** Skalierungshinweis (1.5). Die Δ-Balken zeichnen
+  in der Skala der Wert-Kaskaden und wären dort zu klein. Für gleiche Reiter
+  `fixedMax` und `fixedVarMax` setzen.
 - **Template erneut anwenden** (z. B. nach Schalter-Änderungen): Seit 1.3 reicht
   ein Klick auf die aktive Kachel der Galerie oder auf **↺ Zum Template zurück**
   neben dem Dropdown (erscheint, sobald Schalter vom Template abweichen). Das
@@ -148,5 +170,5 @@ FC schraffiert · PL umrandet), Referenz bestimmt die Achse
 - `SPEC-MEGATABLE.md` — Spezifikation, Maße, Schalter-Liste, Umsetzungsstand
 - `AGENT-GUIDE.md` — Property-Referenz, persistierte Zustände, Fallen (für Agenten/Skills)
 - `prototype/megatable.html` + `prototype/refs/` — Soll-Bilder und 1:1-Vergleich
-- `CHANGELOG.md` — was 1.0 → 1.0.1 → 1.1 → 1.2 jeweils kam
+- `CHANGELOG.md` — was 1.0 → 1.0.1 → 1.1 → 1.2 … 1.5.1 jeweils kam
 - Skill `.claude/skills/pnl-report` — baut GuV-Seiten in PBIP-Projekten auf

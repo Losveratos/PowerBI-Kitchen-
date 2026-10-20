@@ -314,6 +314,7 @@
                     }
                 },
                 "cardBars": { "type": { "bool": true } },
+                "cardSameScale": { "type": { "bool": true } },
                 "cardTrendChart": {
                     "type": {
                         "enumeration": [
@@ -440,6 +441,8 @@
                 "multiplesSameScale": { "type": { "bool": true } },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
+                "bridgeBreak": { "type": { "bool": true } },
+                "stackLegendDirect": { "type": { "bool": true } },
                 "bridgeOrientation": {
                     "type": {
                         "enumeration": [
@@ -450,6 +453,7 @@
                     }
                 },
                 "chartButtons": { "type": { "bool": true } },
+                "chipMenu": { "type": { "bool": true } },
                 "driverNote": { "type": { "bool": true } },
                 "compareClick": { "type": { "bool": true } },
                 "invert": { "type": { "bool": true } },
@@ -487,6 +491,7 @@
             "properties": {
                 "show": { "type": { "bool": true } },
                 "sumSafeRounding": { "type": { "bool": true } },
+                "unitSuffix": { "type": { "bool": true } },
                 "financeFormat": { "type": { "bool": true } },
                 "labelAc": { "type": { "text": true } },
                 "labelPy": { "type": { "text": true } },

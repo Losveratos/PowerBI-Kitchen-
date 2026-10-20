@@ -705,7 +705,7 @@ p1–p14 / m1–m26 gegen 1.1 Paket A+B byte-identisch (PNG und innerHTML je Sta
   Daten folgt.
   Klassisch: einheitlicher Δ-Maßstab = max(Daten, fixedVarMax) (Skalennotiz folgt),
   Wert-/Kaskadenbalken der Balken- und Waterfall-Ansicht mit fixedMax. Fußnote
-  „Skala fixiert: Werte ≥ … · Δ ≥ ±…" nur im Bearbeitungsmodus, nie im Export.
+  „Skala fixiert: Werte ≥ … · Δ ≥ ±…" im Bearbeitungsmodus; der Skalenhinweis nennt die fixierte Skala auch Lesern und im Export (seit 1.5.0).
 - **Blau/Orange** `style.variancePreset` (auto · teal · ibcs · blueOrange,
   Default auto = folgt `style.colorMode`; ein gesetzter Wert übersteuert ihn und
   blendet colorMode im Pane aus). ColorBrewer #2C7BB6 / #E66101, dunkel

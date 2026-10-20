@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.4.1.0** (18.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.5.1.0** (20.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -19,7 +19,7 @@ Stand: **1.4.1.0** (18.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lese
 | --- | --- |
 | GUID | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
-| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.4.1.0.pbiviz` |
+| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.1.0.pbiviz` |
 | API | `powerbi-visuals-api` 5.11 |
 | Datenfenster | `dataReductionAlgorithm window 30000` Zeilen; weitere Segmente lädt das Visual per `fetchMoreData` nach (Ladebalken + „≈" an Summen, bis alles da ist) |
 | Fähigkeiten | Tooltips (default + canvas) · Tastaturfokus · Landing Page · Multi-Visual-Selektion · `supportsHighlight: false` (Cross-Interaktion filtert) |
@@ -87,7 +87,17 @@ Die Ansicht ist Leser-Zustand (Toolbar) und steht in `state.uiState` (unten).
 - Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport
   (+30 Zeilen Puffer); Export zeichnet immer alles.
 
-## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.4.1.0)
+## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.5.1.0)
+
+**Neu in 1.5** (Skalierung nach IBCS 2.0 / ISO 24896): `toolbar.foldable` und
+`toolbar.startFolded` (Bedienleisten einklappbar, Standard aus); keine neue Rolle.
+Die Skalierung ist Standard, nicht Option: eine Skala je Einheit über alle
+Perioden-Blöcke und Ansichten, Ausreißerzone, Skalenhinweis (Fallen 5 und 6).
+Templates schreiben `numbers.pctDecimals = 1`. **1.5.1:** keine neue Property;
+Schwellen-Standard (−20 / −220 Tsd.) bei m/b umgerechnet, Margen ohne Δ% mit Δ in
+pp, Auto-Headline mit Wirkung in Worten, Δ-Balken bei Minuend PL umrandet.
+**1.4.2:** Bugfix der Blockreihenfolge im Ebenen-Modus mit Sortierspalte, ohne
+neue Property.
 
 **Neu in 1.4** (Hub-Polish): keine neue Property, keine neue Rolle. Der Hub
 schreibt zusätzlich `style.fontPreset` (Leiste HD · Full HD · UHD unten auf
@@ -164,7 +174,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `blockKind` | enum `month` · `ytd` · `fy` | `ytd` | Perioden-Block: Monat der letzten Ist-Daten, Jahr bis dato oder FY-Ausblick (AC&FC vs PL, braucht die FY-Felder); mit zweitem Block der rechte. Standard: YTD |
 | `leftBlockKind` | enum `month` · `ytd` · `fy` | `month` | Zweiter Block (links): Periode des Blocks links vom Perioden-Block, wenn der zweite Block an ist. Standard: Monat |
 | `structureSubtotals` | bool | `true` | Zwischensummen-Blöcke (Strukturdaten): Regionen / Strukturhierarchien: Zwischensummen-Blöcke mit Leerzeile; aus = nur Blätter + Gesamtsumme. Standard: an |
-| `showPctRows` | bool | `true` | Margen-/%-Zeilen: KPI-Zeilen (Margen) kursiv, ihre Δ in Prozentpunkten. Standard: an |
+| `showPctRows` | bool | `true` | Margen-/%-Zeilen: KPI-Zeilen (Margen) kursiv, ihre Δ in Prozentpunkten. Standard: an. 1.5.1: Δ als „+8,6 pp“, kein relatives Δ%, Margen mit `pctDecimals`; steuert T03 und T04 gleich |
 | `thresholds` | bool | `false` | Δ rot unter Schwelle (+ Fußzeile): Δ-Zahlen unter den Schwellen werden rot; eine Fußzeile nennt die Regel. Standard: aus |
 | `thresholdAbs` | numeric | `-20` | Schwelle Δ (Monat / einziger Block): In Anzeige-Einheiten (nach k/m-Skalierung). Standard: −20 Tsd., bei Mio.- und Mrd.-Skalierung umgerechnet (Mio.: −0,02); ein gesetzter Wert gilt wie eingetippt |
 | `thresholdPct` | numeric | `-10` | Schwelle Δ% (Monat / einziger Block): In ganzen Prozent. Standard: −10 |
@@ -337,7 +347,7 @@ bleibt die Leser-Entscheidung aus `uiState`.
         "blockKind":       { "expr": { "Literal": { "Value": "'fy'" } } } } } ],
       "numbers":    [ { "properties": {
         "decimals":    { "expr": { "Literal": { "Value": "0D" } } },
-        "pctDecimals": { "expr": { "Literal": { "Value": "0D" } } },
+        "pctDecimals": { "expr": { "Literal": { "Value": "1D" } } },
         "fixedMax":    { "expr": { "Literal": { "Value": "'2m'" } } },
         "fixedVarMax": { "expr": { "Literal": { "Value": "'500k'" } } } } } ],
       "titleBlock": [ { "properties": {
@@ -415,8 +425,10 @@ werden dann überschrieben).
    gibt es kein Objekt. Im Code als Zahl spiegeln (`OP_APPEND = 1`), nie
    `powerbi.X.Y` zur Laufzeit lesen (esbuild-Harness bricht sonst).
 9. **Export/Abo** (`allowInteractions = false`): keine Toolbar, alle Zeilen
-   aufgeklappt (`columns.exportExpandAll`), keine Virtualisierung, kein
-   „Skala fixiert". Bildschirm und PDF dürfen sich absichtlich unterscheiden.
+   aufgeklappt (`columns.exportExpandAll`), keine Virtualisierung, keine
+   Autoren-Notiz „Skala fixiert" unter der Tabelle (im Mega-Table nennt der
+   Skalenhinweis eine fixierte Skala auch im Export, 1.5). Bildschirm und PDF
+   dürfen sich absichtlich unterscheiden.
 10. **Formelzeilen** verweisen per Zeilen**name** — doppelte Namen machen die
    Referenz mehrdeutig (Fehler an der Zeile). Σ-treue Rundung lässt Formel- und
    Margenzeilen aus.
@@ -484,4 +496,4 @@ werden dann überschrieben).
 - `CHANGELOG.md` · `README.md` · `QUICKSTART.md`
 - `../.claude/skills/pnl-report/` — Claude-Skill: GuV-Seite in ein PBIP bauen
 - `src/hub.ts` — Start-Hub, reiner Teil (Template-Schalter, Tour-Karten, Mini-Objekte; 1.4: Galerie-Gruppen, Feld-Rollen, Loslegen-Schritte, Schrift-Presets, Doku-URL)
-- `test/test.html` — Render-Fälle p1–p27 · m1–m31 als lebende Beispiele
+- `test/test.html` — Render-Fälle p1–p27 · m1–m38 als lebende Beispiele

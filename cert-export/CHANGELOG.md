@@ -1,5 +1,173 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.52.1.0 (2026-10-20)
+
+**Notation nach der Pixelmessung der Showcase-App (IBCS 2.0 / ISO 24896): Einheit einmal im Titel, Szenarien ohne
+Dopplung, höchstens drei Ziffern, Brückenstufen in echter Höhe, Linien-Notation, Scatter-Ränder. Drei neue Optionen;
+zwei behalten das bisherige Bild als Standard, die Stapellegende steht neu am Stapel.**
+
+Gemessen mit dem neuen Test `test/notation.html` (`npm run test:notation`, 31 Prüfungen; 1.52.0.0 besteht davon 5):
+
+| Befund | 1.52.0.0 | 1.52.1.0 |
+| --- | --- | --- |
+| Titel, kpi „Nettoumsatz in EUR je Kanal“ | „Nettoumsatz in EUR je Kanal in M“ | „Nettoumsatz in Mio. EUR je Kanal“ |
+| Titel ohne Einheit im kpi, Format „#,0 €“ | „… je Kanal in M€“ | „… je Kanal in Mio. €“ |
+| Scatter-Titel | „… (x) je Kunde in %“ | „… (x) je Kunde“ (Einheiten an den Achsen) |
+| period „2026 AC&FC gegen PL“ | „…: AC vs. PL, PY“ angehängt | kein Suffix |
+| period ohne Kürzel, Ist-Wert „Umsatz AC&FC“ | „AC vs. PL, PY“ | „AC&FC vs. PL, PY“ |
+| Wasserfall mit PY und PL gebunden, Basis PY | „AC vs. PY, PL“ | „AC vs. PY“ (PL wird nicht gezeigt) |
+| Werte ab 100 der Anzeige-Einheit | „161,8K“, „Σ 407,6K“ | „162K“, „Σ 408K“ |
+| Stapel aus einem Segment | „161,8K“ zweimal | einmal |
+| Nullwert / unter der Darstellungsgrenze | „0,0M“, „0,00M“ | „0“ |
+| KPI-Karte Wert und Δ | „18,5M“ und „−1,05M“ | „18,5M“ und „−1,1M“ |
+| C05 Brückenstufen (6,9 px/M) | 4 px Mindesthöhe, bis 4× still vergrößert | echte Höhe 1,0 bis 2,2 px, Haarlinie 1 px |
+| C05 mit `chart.bridgeBreak` | nicht vorhanden | Anker mit ⫽ gekürzt, Stufen 38,8 px/M (×5,6), eine lineare Skala |
+| C08 Linienstärken AC / PY / PL / FC | 2 / 1,4 / 1,2 gestrichelt / 2 gestrichelt | 3 / 3 / 3 hohl / 3 gestrichelt |
+| C08 AC-Beschriftungen auf einer Linie | 10 von 12 | 0 von 12 |
+| C09 Punkte in den Ecken (Testfall) | 9 von 12 beschriftet | 12 von 12 |
+| C10 x-Achse bei Werten ab 150 | Ursprung im Negativen (Tick 0 liegt 28 px rechts der Achse) | Ursprung 0 |
+| C12 mit `sumSafeRounding` | „6,2M · +1,15M · … · 7,3M“, Stufen ergeben 7,34 | „6,21M · +1,14M · … · 7,34M“, Summe exakt |
+| Stapellegende C01/C02 | Schlüssel oben | Namen am Stapel |
+
+- **Titel-Einheit (eine Einheit, einmal genannt):** „in <Einheit>“ wird überall im Kennzahltext erkannt
+  (Währungscode, Symbol, %, hl, kg, Stk. …) und um die Anzeige-Größenordnung ergänzt, in Langform („in Mio. EUR“,
+  „in Tsd. hl“, englisch „in mEUR“, „in k hl“); „M“ oder „K“ stehen nie im Titel. Ohne Einheit im Text hängt das
+  Visual Größenordnung plus bekannte Basiseinheit aus dem Formatstring an. Scatter/Bubble bekommen keine Einheit
+  am Titel, die Achsentitel tragen sie.
+- **Szenario-Suffix:** Nennt `ibcsTitle.period` schon Szenariokürzel (AC, PY, PL, BU, FC oder die Hausbegriffe), hängt
+  das Visual nichts an. Sonst bildet es den Suffix aus `comparisonMode` und den gebundenen Rollen; der Ist-Wert heißt
+  „AC&FC“, wenn ein Forecast-Anteil gezeigt wird (FC-Monate oder ein Messwertname „… AC&FC“). Wasserfall,
+  Kategorie-Brücke, Pareto, Dumbbell und Slope nennen nur die Basis.
+- **Höchstens drei Ziffern** in Grafiken: jede Zahl verliert ab 100 (bzw. 10) der Anzeige-Einheit Nachkommastellen,
+  gezählt nach dem Runden („99,96“ wird „100“). Tabelle und GuV-Statement behalten ihre Dezimalen. Mit
+  `sumSafeRounding` gilt eine Präzision für Labels und Σ, gesetzt von der größten Zahl, damit die Summe aufgeht; der
+  Rundungshinweis ohne `sumSafeRounding` vergleicht jetzt die gedruckten Zahlen.
+- **Neu: `labels.unitSuffix`** (bool, Standard an wie bisher): aus = nur die Zahl („18,5“), die Einheit steht im
+  Titel. KPI-Karten nehmen dann eine gemeinsame Einheit für alle Karten. Die Abkürzung bleibt „K“ wie in Power BI
+  (SI wäre „k“), bewusst nicht still geändert.
+- **Null:** Werte unter der Darstellungsgrenze zeigen „0“ (Finanzformat „–“), ohne Einheit und Vorzeichen.
+- **KPI-Karten:** Wert und Δ einer Einheit haben dieselben Dezimalen, die größte Zahl der Einheit setzt sie. Ein Δ,
+  das sonst auf null fiele, bekommt wie bisher eine Stelle dazu („+0,01“).
+- **C05 Integrierte Brücke:** Stufen in echter Höhe, darunter eine 1-px-Haarlinie (bisher 4 px Minimum). C05, C06
+  (Kategorie-Brücke, Säulen) und C12 teilen für Anker und Stufen eine Präzision; mit `sumSafeRounding` gehen die
+  Stufen exakt zwischen den gerundeten Ankern auf.
+- **Neu: `chart.bridgeBreak`** (bool, Standard aus): kürzt die Summen-Anker mit sichtbarem ⫽, die Stufen laufen in
+  einer linearen Skala darüber (IBCS UN 5.3). C05: Monatssäulen im unteren Band mit ausgewiesenem Faktor, Schnitt im
+  Titel („Achse ab 45,0M geschnitten“). C06 senkrecht: Anker PY/PL/AC mit ⫽. C12: schaltet den vorhandenen
+  Achsenschnitt (`scale.wfAxisBreak`) ein, solange dieser auf „aus“ steht. Gekürzt wird nur, wenn alle Stände über
+  dem Schnitt liegen; Small Multiples mit gleicher Skala bleiben nullbasiert. Markierung `data-icd="bridge-break"`.
+- **C08 Linien:** absolute Werte in einer Linienstärke; AC dunkel durchgezogen, PY hellgrau durchgezogen, PL hohl
+  (Rand plus Papierkern, `data-icd="line-pl"`), nur FC gestrichelt. Die AC-Beschriftung steht über dem Punkt, wenn
+  AC oben liegt, darunter, wenn AC unten liegt, sonst über der höchsten Linie.
+- **C09 Scatter:** Randpunkte bekommen diagonale Plätze nach innen bzw. einen nach innen geschobenen Platz, statt
+  ohne Beschriftung zu bleiben. **C10:** Reichen die Daten bis an die Null, beginnt die Achse dort; der
+  Blasen-Innenabstand verschiebt den Ursprung nicht mehr ins Negative.
+- **Stapel:** Ein Stapel aus einem beschrifteten Segment zeigt den Wert einmal. **Neu: `chart.stackLegendDirect`**
+  (bool, Standard an): Seriennamen bei Säulen rechts am letzten Stapel, bei Balken über dem ersten Balken; passen
+  sie nicht (Serie fehlt dort, Überlappung, negative Segmente, Small Multiples), bleibt der Schlüssel oben.
+- 692 resjson-Keys je Sprache.
+
+## 1.52.0.0 (2026-10-20)
+
+**Skalierung nach IBCS 2.0 / ISO 24896 als neuer Standard in allen Chart-Typen: gleiche Einheit, gleiche Skala über alle Panels einer Grafik, sonst ein sichtbarer Faktor. Dazu eine Breite je Grafik, höchstens drei Ziffern und neu ein einklappbares Bedienmenü (☰).**
+
+> **Bestehende Berichte ändern ihr Bild.** Das ist gewollt und nicht abschaltbar: Δ-Panels werden flacher (sie
+> zeigen jetzt die wahre Größe der Abweichung), Säulen und Balken etwas breiter, Δ-Zahlen kürzer. Wer Seiten mit
+> festen Erwartungen an Panel-Höhen gebaut hat (Screenshots, Abo-PDFs), sieht sie nach dem Update neu an.
+> IBCS dient dabei als Referenz, das Visual ist nicht zertifiziert.
+
+Grundlage ist eine Pixelmessung an der Showcase-App; nachgemessen mit dem neuen Geometrie-Test
+`test/scale.html` (Werte px je Mio., vorher → nachher):
+
+| Befund | vorher | nachher |
+| --- | --- | --- |
+| C03 Säulen + ΔPY: ΔPY-Panel gegen AC | 162 zu 43 px/M, **3,76×** still vergrößert | 51,4 zu 51,4 px/M, **1,00×** |
+| C08 Linie + ΔPL | **4,67×** | **1,00×** |
+| C04 Balken + ΔPL | **2,32×** | **1,00×** |
+| C13 Small Multiples + ΔPY | **2,68×** ohne Hinweis | **2,00×**, ausgewiesen als „ΔPY ×2“ mit Skalenband |
+| Doppel-Varianz ΔPL/ΔPY | 91,6 / 71,1 zu 43,1 px/M | 49,4 / 49,4 zu 49,4 px/M |
+| GuV-Wasserfall, ΔPY-Stufe | **2,86×** | **1,00×** |
+| C05 Monatssäulen gegen Anker | **1,85×** | **1,00×** (Ankerskala) |
+| C05 Breiten Stein / Anker / Monatspaar | 0,80 / 0,59 / 0,80 je Kategorie | 0,67 / 0,67 / 0,67 |
+| C08 Breite der Δ-Säulen | 0,55 | 0,67 |
+| C12 Basis-Anker bei Basis PY | Umriss (PL-Notation) | hellgrau gefüllt |
+| C04 Δ-Beschriftungen | „+0,150M“, „-0,080M“ | „+0,15M“, „−0,08M“ |
+| Σ-Zeile | „ΔPY +1,352M“ | „ΔPY +1,35M“ |
+| KPI-Karten derselben Einheit | „-1,000M“ · „-0,138M“ · „+0,100M“ | „−1,00M“ · „−0,14M“ · „+0,10M“ |
+| Titel | „Nettoumsatz in EUR in M“ | „Nettoumsatz in Mio. EUR“ |
+| Tabelle: ΔPY-Balken gegen AC·PY-Balken | **9,61×** | **1,00×** |
+| GuV-Statement: Δ-Spalte gegen Kaskade | **4,87×** | **1,00×** |
+| Small Multiples im Zoom (⤢): Δ gegen Basis | **4,0×** | **1,00×** |
+| Small Multiples im Zoom: Basis gegen Übersicht | ×2,9, kein Hinweis | ×3,5, Hinweis „Skala ×3,5 zur Übersicht“ |
+| Säulen + Brücken-Panel (waterfallStyle) | eigene Skala, 0,04× ohne Hinweis | 0,025×, Titel „PL → AC ×0,025“ |
+| C05 mit AC&FC und PY (zwei Szenarien) | PY als Dreieck | PY als graue Säule |
+| Kategorie-Brücke, KPI-Karte (Mini-Brücke) | 1,00× | 1,00× (schon eine Skala) |
+
+Gestapelte Säulen/Balken, Pareto, Dumbbell und Slope haben kein Δ-Panel und nur eine Werteskala; Scatter misst
+zwei verschiedene Größen. Die senkrechte Kategorie-Brücke nutzt wie die waagrechte eine Skala für alles.
+
+- **Δ-Panels in der Skala der Basis** (CH 4.1, Notation: Abweichungssäulen gleiche Breite und gleiche Skala wie
+  die Basis). Die festen Höhenanteile der absoluten Δ-Panels entfallen: ΔBasis und ΔBasis2 bekommen den px-je-Einheit-
+  Maßstab des Hauptpanels, ihre Höhe (Säulen) bzw. Breite (Balken) ergibt sich aus der Δ-Spanne plus Platz für die
+  Beschriftung. Gilt für Säulen, Balken, Linie, Doppel-Varianz, Small Multiples und die ΔPY-Stufe über dem
+  GuV-Wasserfall (mit Achsenschnitt: der lineare Teil oberhalb des Schnitts). Δ%-Pins bleiben eine eigene Skala
+  (andere Einheit) und behalten ihre bisherige Größe; das Brücken-Panel behält seine Größe, siehe unten.
+- **Tabelle und GuV-Statement:** Die Δ-Balken der Tabelle laufen im Maßstab der AC·PY-Balkenspalte, die Δ-Spalte des
+  GuV-Statements im Maßstab der Kaskaden-Spalten (bisher je Spalte auf volle Breite gestreckt, bis 9,6-fach). Passt
+  Δ nicht in die Spalte oder bliebe es unsichtbar, gilt ein runder Faktor, ausgewiesen als „×0,5“ bzw. „×4“ im
+  Spaltenkopf (`data-icd="scale-zoom-table"` bzw. `scale-zoom-pnl`).
+- **Brücken-Panel (Säulen/Balken mit „Wasserfall-Brücke“):** Die Summen-Anker sind n-mal größer als die Einzelwerte;
+  das Panel läuft jetzt auf dem Basismaßstab mal einem runden Faktor < 1, der im Titel steht („PL → AC ×0,025“,
+  `data-icd="scale-zoom-bridge"`), statt auf einer eigenen, unmarkierten Skala.
+- **Small Multiples im Zoom (⤢):** Die vergrößerte Kachel zeichnet mehr px je Einheit als die Übersicht; das steht
+  jetzt neben dem Gruppennamen („Skala ×3,5 zur Übersicht“, `data-icd="zoom-scale"`, gemessen an derselben Kachel in
+  Gittergröße). Die Δ-Panels folgen im Zoom exakt der vergrößerten Basis.
+- **Lupe statt stillem Vergrößern** (CH 4.3/4.5): Wäre die größte Abweichung im Basismaßstab kleiner als etwa
+  8 px·Schriftfaktor, wird das Δ-Panel um einen runden Faktor (2, 4, 5, 10, 20 …) vergrößert und sagt das:
+  Titel „ΔPY ×4“ und ein hellblaues Skalenband auf derselben Zahl (Zehnerpotenz) in Basis- und Δ-Panel.
+  Small Multiples teilen Domain und Faktor. Markierung im SVG: `data-icd="scale-zoom"` mit `data-factor`.
+- **C05 Integrierte Brücke:** Monatssäulen stehen auf der Ankerskala. Nur wenn sie in die Kaskade ragen würden
+  (Faktor < 1) oder unlesbar klein wären (Faktor > 1), bekommen sie einen runden Faktor, ausgewiesen als
+  „Monatssäulen ×0,5“ in der Überschrift plus Skalenband an Ankern und Monatssäulen. Anker, Brückensteine und
+  Monatspaare haben dieselbe Breite (2/3 der Kategorie), das Monatspaar ist versetzt wie im Säulen-Chart.
+- **C05 mit zwei Szenarien:** AC&FC ist eine Reihe (IBCS), AC&FC + PY also zwei Szenarien: PY ist eine graue,
+  versetzte Säule wie in C03. Das PY-Dreieck gibt es nur noch beim dritten Szenario (AC + PY + PL).
+- **C12 Varianzbrücke:** Der Basis-Anker folgt der Basis: PY hellgrau gefüllt, PL Umriss, FC Vm schraffiert
+  (bisher immer Umriss).
+- **Breiten:** Säulen und Balken für absolute Werte nehmen 2/3 der Kategorie ein (ISO 24896; bisher 0,62), in allen
+  Modi mit Slots (Säulen, Balken, Brücken-Panel, Wasserfall, Kategorie-Brücke senkrecht, Pareto, gestapelt).
+  Δ-Säulen unter einer Linie sind so breit wie der Slot.
+- **Zahlen:** Δ-Beschriftungen haben höchstens drei Ziffern (IBCS: max. 3 Stellen in Charts). Die Nachkommastellen
+  richtet die größte Abweichung aus („+0,32M“, „+1,64M“, „+12,3M“); größere Zahlen wie die Σ-Zeile kürzen auf drei
+  Ziffern, kleinere, die sonst auf null fielen, bekommen Stellen dazu („+0,04M“ statt „+0,0M“). Eine auf null
+  gerundete Abweichung trägt kein Vorzeichen mehr, negative Δ verwenden das echte Minus wie die Δ%-Werte. Δ% ab
+  100 ohne Nachkommastelle („−100%“). KPI-Karten mit derselben Anzeigeeinheit teilen eine Δ-Präzision.
+- **Scatter/Bubble (C09/C10):** Eine lineare Achse, deren sichtbarer Bereich die Null nicht enthält, trägt am
+  Ursprung das Bruchzeichen (`data-icd="axis-break-x|y"`). Reicht der Datenbereich fast bis null (unter 15 % der
+  Spanne), beginnt die Achse bei null. Liegen alle Werte bei ≥ 0, gibt es keine negativen Ticks mehr.
+- **Titel:** Nennt der Kennzahlname schon die Einheit („Nettoumsatz in EUR“) und kommt nur ein Größenzusatz
+  hinzu, verschmilzt beides zu „in Mio. EUR“ (deutsch, Tsd./Mio./Mrd.) bzw. „in mEUR“ (andere Sprachen).
+- **Neu: „Bedienleisten einklappen (☰)“** (Chart → Interaktion im Bericht, Property `chipMenu`, Standard aus): Die
+  In-Chart-Bedienelemente (Sortieren ⇅, YTD, ⫽ Achse, ΔPY|ΔPL, ▶, Ausnahme-Chip, Modus-Chips, Karten-Sortierung,
+  Scatter-Play, GuV-Ansicht) liegen dann hinter einem kleinen ☰ oben rechts; Klick klappt sie auf (✕ wieder zu),
+  nichts wird gespeichert. Aus: alles wie bisher. Vier Sprachen, 686 resjson-Keys je Sprache.
+- **Power-BI-Host und App gleich:** Alle Panel-Größen ergeben sich aus px je Einheit des Basis-Panels in derselben
+  Render-Funktion; es gibt keinen host-spezifischen Pfad (Desktop, Service und Fabric-App zeichnen identisch).
+- **Tests:** neuer Geometrie-Test `npm run test:scale` (`test/scale.html` + `test/scale.js`, 33 Prüfungen, misst px
+  je Einheit von Basis und Δ direkt im SVG). `test/shot.js` hing am Vollseiten-Screenshot der sehr hohen Testseite;
+  jetzt Viewport-Bild plus Einzelbilder per `SHOT=c12,c22`, Zusammenfassung „n checks ok, n FAIL“. Render-Test
+  153/153, kein FAIL; 208 der 285 Stages zeichnen gewollt anders (Breiten, Δ-Panels, Zahlen).
+
+## 1.51.2.0 (2026-10-19)
+
+**KPI-Karten: gleiche Skala für alle Mini-Brücken.**
+
+- **Neu: „Karten: gleiche Skala“** (Chart → KPI-Karten, Property `cardSameScale`, Standard aus): Alle Mini-Brücken
+  Basis → Δ → AC teilen einen Maßstab über alle Karten, gleiche Beträge ergeben gleich hohe Balken (IBCS: identische
+  Skalen). Gedacht für Karten derselben Kennzahl je Kategorie (z. B. Umsatz je Kanal); bisher skalierte jede Karte für
+  sich, 15,4 Mio. und 3,0 Mio. waren gleich hoch. Bei Karten mit verschiedenen Einheiten aus lassen.
+- Sichtbar wie „Mini-Brücke zeigen“; vier Sprachen. Keine Änderung an bestehenden Berichten (Standard aus).
+
 ## 1.51.1.0 (2026-10-18)
 
 **Familien-Angleichung mit P&L: Hub-Leiste, Zurück-Pille und Leser-Karte nach einer gemeinsamen Spezifikation.**
