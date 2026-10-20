@@ -2,7 +2,7 @@
 
 IBCS-inspiriertes GuV-/P&L-Custom-Visual für Power BI — eigenständiges
 Schwester-Visual von [ChartKitchen byDatenWG](../ibcsInspiredChartDeck/) und der
-[IBCS KPI Card](../ibcsKpiCard/). **Version 1.5.1.0**:
+[IBCS KPI Card](../ibcsKpiCard/). **Version 1.5.2.0**:
 Tabelle mit **Mega-Table** (IBCS-Templates T01–T04, 12A, 12G und 12H), Struktur-Bars,
 Zeilen-Waterfall und **Werttreiberbaum (DuPont)** mit Kachel-Zoom; Selektion,
 Drillthrough und natives Kontextmenü; **vier Sprachen** (de · en · es · ja),
@@ -129,6 +129,6 @@ erzeugt: `node test/gen-demo.js`.
 - Später: Spalten-Kategorie im Mega-Table, gemischte Einheiten (F8), Exception-Reporting mit Sammelzeile,
   AppSource-Zertifizierung, Top-N
 
-> „IBCS" ist eine eingetragene Marke der IBCS Association / HICHERT+FAISST GmbH.
+> „IBCS" ist eine eingetragene Marke der IBCS Institute.
 > Dieses Visual ist nicht von der IBCS Association zertifiziert und nutzt den
 > Begriff beschreibend. IBCS-Standards 1.2 unter CC BY-SA (ibcs.com).

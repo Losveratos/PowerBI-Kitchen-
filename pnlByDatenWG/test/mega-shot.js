@@ -377,7 +377,7 @@ function readMega(id) {
             const sn = st.querySelector('[data-pnl="scale-note"]');
             o[id] = { headline: hl ? hl.textContent : null, headlineFs: hl ? parseFloat(hl.style.fontSize) : 0,
                 note: note ? note.textContent : null, scaleNote: sn ? sn.textContent : null, text: st.innerText,
-                ytd: [...st.querySelectorAll('text[data-pnl="mega-ytd"]')].map(t => ({ t: t.textContent, fill: t.getAttribute("fill") })) };
+                ytd: [...st.querySelectorAll('text[data-pnl="mega-ytd"]')].map(t => ({ t: t.textContent, fill: t.getAttribute("fill"), out: t.getAttribute("data-pos") === "out" })) };
         }
         return o;
     });
@@ -394,6 +394,10 @@ function readMega(id) {
             ["227", "451"].every(x => fillOf(x) === "#1A1A1A"), JSON.stringify(pageInfo.m27.ytd));
         check("m27 year numbers outside (1 434, 1 698, 1 202)", has("m27", "1 434") && has("m27", "1 698") && has("m27", "1 202"));
         const vwf = S.m27.charts[1];
+        // 1.5.2: every stacked row shows its YTD number — inside when it fits, else before the bar start
+        const stacked = vwf.bars.filter(b => /^url\(/.test(b.fill)).length;
+        check("m27 every stacked row carries its YTD number (inside or before the bar)",
+            pageInfo.m27.ytd.length >= stacked && pageInfo.m27.ytd.some(x => x.out), `${pageInfo.m27.ytd.length} / ${stacked} ` + JSON.stringify(pageInfo.m27.ytd));
         check("m27 AC&FC cascade: solid YTD + hatched rest of year per row", vwf.bars.filter(b => /^url\(/.test(b.fill)).length >= 15
             && vwf.bars.filter(b => b.fill === "#404040").length >= 8, JSON.stringify(vwf.bars.slice(0, 4)));
         // Δ on the year: Licences +721 (1 434 − 713), Sales revenue +885, bars hatched (AC&FC mostly forecast)
@@ -402,7 +406,8 @@ function readMega(id) {
         check("m27 legend explains the hatch (FC) next to PY + AC", /FC/.test(S.m27.legend) && /PY/.test(S.m27.legend) && /AC/.test(S.m27.legend));
         // 1.5: one sentence, drivers with their effect on the result, the unit of the title line
         // 1.5.1: drivers with the Δ the table shows (+262 for the cost overrun), unit and effect in words, "%" after a narrow space
-        check("m27 headline slot: generated sentence, large", pageInfo.m27.headline === "Group result is 144\u00A0kEUR (+76.6\u202F%) above previous year; "
+        // 1.5.2: FY outlook with minuend AC = AC&FC, the subject says "forecast"
+        check("m27 headline slot: generated sentence, large", pageInfo.m27.headline === "Group result (forecast) is 144\u00A0kEUR (+76.6\u202F%) above previous year; "
             + "strongest driver is Licences with +721\u00A0kEUR higher income, largest drag is Purchases with +262\u00A0kEUR higher costs."
             && pageInfo.m27.headlineFs >= 16, JSON.stringify(pageInfo.m27.headline));
     }
@@ -541,10 +546,10 @@ function readMega(id) {
     }
     if (pageInfo.m36) {
         check("m36 de-DE headline: unit before the comma (Mio. EUR), Δ and effect in words, −/narrow space",
-            pageInfo.m36.headline === "Group result liegt 144\u00A0Mio.\u00A0EUR (+76,6\u202F%) über Vorjahr; stärkster Treiber ist Licences mit "
+            pageInfo.m36.headline === "Group result liegt im Forecast 144\u00A0Mio.\u00A0EUR (+76,6\u202F%) über Vorjahr; stärkster Treiber ist Licences mit "
             + "+721\u00A0Mio.\u00A0EUR Mehrertrag, größte Belastung ist Purchases mit +262\u00A0Mio.\u00A0EUR Mehrkosten.", JSON.stringify(pageInfo.m36.headline));
         check("m37 de-DE headline without a measure line: unit from scaling + unitText (Mio. EUR, never mEUR)",
-            /^Group result liegt 144\u00A0Mio\.\u00A0EUR /.test(pageInfo.m37.headline || "") && !/mEUR/.test(pageInfo.m37.headline || ""),
+            /^Group result liegt im Forecast 144\u00A0Mio\.\u00A0EUR /.test(pageInfo.m37.headline || "") && !/mEUR/.test(pageInfo.m37.headline || ""),
             JSON.stringify(pageInfo.m37.headline));
     }
     if (S.m35) {
@@ -554,12 +559,17 @@ function readMega(id) {
             const root = st.firstElementChild;
             const rb = root.getBoundingClientRect();
             const notes = [...st.querySelectorAll('[data-pnl="footnote"]')];
+            const foot = st.querySelector('[data-pnl="footer"]');
+            const fb = foot ? foot.getBoundingClientRect() : null;
             return { n: notes.length, scroll: root.scrollTop,
                 inside: notes.map(li => { const b = li.getBoundingClientRect(); return b.top >= rb.top - 0.5 && b.bottom <= rb.bottom + 0.5; }),
+                footer: !!fb && fb.top >= rb.top - 0.5 && fb.bottom <= rb.bottom + 0.5,
                 marks: (st.querySelector('svg[data-pnl="mega-body"]').textContent.match(/[①②③]/g) || []).length };
         });
         check("m35 three comments marked in the table and all three footnotes inside the visible tile",
             fit.n === 3 && fit.marks === 3 && fit.inside.every(Boolean) && fit.scroll === 0, JSON.stringify(fit));
+        // 1.5.2: the IBCS notation line under the footnotes is inside the tile too
+        check("m35 the footer (IBCS notation line) is inside the visible tile", fit.footer, JSON.stringify(fit));
     }
     if (S.m33) {
         const bar = S.m33.charts[0];
@@ -569,7 +579,8 @@ function readMega(id) {
         check("m33 a capped bar runs ≥ 15 px past the longest regular bar", ws[bar.breaks - 1] - ws[bar.breaks] >= 15, ws.slice(0, 6).join(","));
     }
     check("footer names IBCS 2.0 (ISO 24896), not certified", /IBCS® Standards 2\.0 \(ISO 24896\)/.test(pageInfo.m1.text)
-        && !/Standards 1\.2/.test(pageInfo.m1.text) && /not certified/.test(pageInfo.m1.text));
+        && !/Standards 1\.2/.test(pageInfo.m1.text) && /not certified/.test(pageInfo.m1.text)
+        && /trademark of the IBCS Institute/.test(pageInfo.m1.text) && !/HICHERT/.test(pageInfo.m1.text));
 
     // ---- preset dropdown wrote the switches (persistProperties payload) ----------
     const persist = await page.evaluate(() => (window.__persist || []).map(x => ({ id: x.id, p: x.p })));

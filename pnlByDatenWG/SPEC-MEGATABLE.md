@@ -51,7 +51,8 @@ PL doppelt, FC schraffiert (siehe T01/T03-Köpfe und Summen-Unterstreichungen).
   teal/rot; Zahlen außen am Balken (Wachstumsrichtung), `+` immer explizit.
 - Ausreißer-Pfeile bei Überlauf (Pfeilspitze + Wert, wie 12A „+983 →").
 - Sortierung je Block: Kategorie-Reihenfolge, AC↓ oder Δ↓; Indikator `(↓)` im
-  Spaltenkopf (T02B/C).
+  Spaltenkopf (T02B/C). 1.5.2: die Blöcke der obersten Ebene (Region, Einkindgruppe,
+  Region ohne Länder) folgen derselben Richtung, Gesamtsumme und „Rest …" bleiben unten.
 - EIN gemeinsamer Δ-Maßstab je Block (alle Zeilen), getrennte Maßstäbe je Block.
 
 ### Phase 3 — Integrierter Wasserfall (T04A–E)

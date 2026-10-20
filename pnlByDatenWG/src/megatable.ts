@@ -521,10 +521,14 @@ export const MEGA_PP = " pp";
  * ("<-20"), not a figure.
  */
 export function megaFmt(num: (abs: number, dec: number) => string, dec: number, pdec: number, fin = false): MegaFmt {
+    // 1.5.2: a Δ that is not zero but rounds to zero keeps its sign ("+0,00",
+    // "−0,0") — beside a pin or bar that visibly points one way an unsigned
+    // "0,00" read like "no deviation". An exact zero (below float noise) stays "0".
+    const tiny = (v: number): boolean => Math.abs(v) > 1e-9;
     const signed = (v: number, d: number, plus: boolean): string => {
         const f = Math.pow(10, d);
         const r = Math.round(Math.abs(v) * f) / f;
-        const zero = r === 0;
+        const zero = r === 0 && !(plus && tiny(v));
         return (v < 0 && !zero ? MEGA_MINUS : plus && !zero ? "+" : "") + num(r, d);
     };
     const fs = (v: number, d: number, plus: boolean, unit = ""): string => {
@@ -532,7 +536,7 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
         if (v === 0) { return "–"; }
         const f = Math.pow(10, d);
         const r = Math.round(Math.abs(v) * f) / f;
-        if (r === 0) { return num(r, d) + unit; }
+        if (r === 0 && !(plus && tiny(v))) { return num(r, d) + unit; }
         return v < 0 ? "(" + num(r, d) + unit + ")" : (plus ? "+" : "") + num(r, d) + unit;
     };
     return {
@@ -797,18 +801,47 @@ export function orderRows(input: MegaInput): { rows: MegaRow[]; info: { ref: Meg
         const v = b.value(r, ref);
         return a == null || v == null ? -Infinity : a - v;
     };
-    const out: MegaRow[] = []; let run: MegaRow[] = [];
-    const flush = (): void => {
-        const rest = run.filter(r => !r.other).sort((x, y) => key(y) - key(x));
-        out.push(...rest, ...run.filter(r => r.other)); run = [];
+    const sortRuns = (list: MegaRow[]): MegaRow[] => {
+        const out: MegaRow[] = []; let run: MegaRow[] = [];
+        const flush = (): void => {
+            const rest = run.filter(r => !r.other).sort((x, y) => key(y) - key(x));
+            out.push(...rest, ...run.filter(r => r.other)); run = [];
+        };
+        for (const r of list) {
+            if (r.kind === "acc") {
+                if (run.length && run[0].group !== r.group) { flush(); }
+                run.push(r);
+            } else { flush(); out.push(r); }
+        }
+        flush();
+        return out;
     };
+    // 1.5.2: the elements of the top visible level (the stretches between
+    // spacer rows: a region block, a one-child group "Germany · Saxony", a
+    // region without countries) are sorted too — in the same direction as
+    // the rows inside them, by the key of their last row (the block total or
+    // the single row). Until 1.5.1 the blocks kept the data order (T02F
+    // Handel −1.38 before Export +0.17 while the rows ran the other way) and
+    // single rows were never sorted (T02E). A stretch holding a cascade
+    // anchor (the grand total) keeps its place, "Other …" goes last.
+    const segs: MegaRow[][] = [[]];
     for (const r of rows) {
-        if (r.kind === "acc") {
-            if (run.length && run[0].group !== r.group) { flush(); }
-            run.push(r);
-        } else { flush(); out.push(r); }
+        if (r.kind === "gap") { segs.push([]); } else { segs[segs.length - 1].push(r); }
     }
-    flush();
+    const real = segs.filter(s => s.length > 0);
+    if (real.length < 2) { return { rows: sortRuns(rows), info: { ref, block: bi } }; }
+    const fixed = (s: MegaRow[]): boolean => s.some(r => megaAnchor(r));
+    const segKey = (s: MegaRow[]): number => key(s[s.length - 1]);
+    const free = real.filter(s => !fixed(s));
+    const order = [...free.filter(s => !s[s.length - 1].other).sort((x, y) => segKey(y) - segKey(x)),
+        ...free.filter(s => s[s.length - 1].other)];
+    let fi = 0;
+    const gaps = rows.filter(r => r.kind === "gap");
+    const out: MegaRow[] = [];
+    real.forEach((s, i) => {
+        if (i > 0 && gaps.length) { out.push(gaps[Math.min(i - 1, gaps.length - 1)]); }
+        out.push(...sortRuns(fixed(s) ? s : order[fi++]));
+    });
     return { rows: out, info: { ref, block: bi } };
 }
 
@@ -1078,6 +1111,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
             c.els!.push({ p: -F, q: 0, a: lblW(fmt.delta(-F), true), c: 0 }, { p: 0, q: F, a: 0, c: lblW(fmt.delta(F), true) });
         }
     };
+    const blk0 = (c: MegaCol): MegaBlock => blocks[c.block];
     for (const c of charts) {
         if (c.casc) {
             for (const { r } of R) {
@@ -1085,7 +1119,11 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 if (!seg) { continue; }
                 const lw = lblW(cascadeText(input, fmt, c, r), megaIsBold(r));
                 const up = seg.e >= seg.s;
-                c.els!.push({ p: Math.min(seg.s, seg.e), q: Math.max(seg.s, seg.e), a: up ? 0 : lw, c: up ? lw : 0 });
+                // 1.5.2 (12G): room for the YTD number before the bar start, where
+                // it stands when the solid part is too short to hold it
+                const yv = c.stack && blk0(c).ytd ? blk0(c).ytd!(r) : null;
+                const yw = yv != null && isFinite(yv) ? lblW(fmt.val(yv), megaIsBold(r)) : 0;
+                c.els!.push({ p: Math.min(seg.s, seg.e), q: Math.max(seg.s, seg.e), a: up ? yw : lw, c: up ? lw : yw });
             }
             phantom(c);
             continue;
@@ -1591,13 +1629,19 @@ function paintChartColumn(
     // high contrast: good and bad share the foreground — unfavourable is hollow
     const hollow: MegaPaint = { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1.4 };
     const hatch = B.hatch;
+    // 1.5.2: boxes of the numbers a cascade connector must not run through
+    const avoid: { x0: number; x1: number; y0: number; y1: number }[] = [];
     // 1.5.1: the point difference of a margin row, as a number at the axis (T04)
     for (const { r, D } of c.ppRows ?? []) {
         const i = R.findIndex(x => x.r === r);
         if (i < 0 || (win && (i < win.from || i >= win.to))) { continue; }
         const { y, h: rh } = R[i];
         const up = D.d >= 0;
-        text(B, up ? c.x0! + axisHalf + G.lblGap : c.x0! - axisHalf - G.lblGap, base(y, rh, G.fsSmall), fmt.pp(D.d), {
+        const px = up ? c.x0! + axisHalf + G.lblGap : c.x0! - axisHalf - G.lblGap;
+        const py = base(y, rh, G.fsSmall);
+        const pw = input.measure(fmt.pp(D.d), G.fsSmall, false, true);
+        avoid.push({ x0: up ? px : px - pw, x1: up ? px + pw : px, y0: py - G.fsSmall * 0.85, y1: py + G.fsSmall * 0.25 });
+        text(B, px, py, fmt.pp(D.d), {
             anchor: up ? "start" : "end", italic: true, fs: G.fsSmall, parent: g,
             color: D.immaterial ? MEGA_C.soft : MEGA_C.text,
         }).setAttribute("data-pnl", "mega-pp");
@@ -1605,7 +1649,7 @@ function paintChartColumn(
     if (c.casc) {
         // the drawn axis band (the 12A value line sits half a pixel right)
         paintCascade(L, c, B, g, X, label, vline, rect, paintAxis, pal,
-            { x: axisKind === "value" ? ax + 0.5 : ax, half: axisHalf }, win);
+            { x: axisKind === "value" ? ax + 0.5 : ax, half: axisHalf }, win, avoid);
         return;
     }
     const byRow = new Map(c.vals!.map(v => [v.r, v]));
@@ -1676,6 +1720,7 @@ function paintCascade(
     pal: { good: string; bad: string },
     axis: { x: number; half: number },
     win?: { from: number; to: number },
+    avoid: { x0: number; x1: number; y0: number; y1: number }[] = [],
 ): void {
     const { G, R, input } = L;
     const N = L.NB[c.block] ?? L.N;
@@ -1689,8 +1734,18 @@ function paintCascade(
     const gConn = svgEl("g", { "shape-rendering": "crispEdges", "data-pnl": "mega-conn" }, g);
     const base = (y: number, h: number): number => y + h / 2 + G.fs * 0.35;
     const near = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-6 * Math.max(1, Math.abs(a), Math.abs(b));
+    // 1.5.2: connectors are collected and drawn last, interrupted where a
+    // number sits on their line (T04B/C/E: "−0,25" and the margin rows' "pp"
+    // were crossed by the run of a total through its child rows)
+    const conns: { x: number; ya: number; yb: number }[] = [];
     const conn = (v: number, ya: number, yb: number): void => {
-        if (yb - ya > 0.5 && yb >= wTop && ya <= wBot) { vline(B, Math.round(X(v)) + 0.5, ya, yb, MEGA_C.soft, 1, gConn); }
+        if (yb - ya > 0.5 && yb >= wTop && ya <= wBot) { conns.push({ x: Math.round(X(v)) + 0.5, ya, yb }); }
+    };
+    const labelBox = (x: number, y: number, s: string, anchor: string, bold: boolean): void => {
+        if (!input.t.labels || !s) { return; }
+        const w = input.measure(s, G.fs, bold, false);
+        avoid.push({ x0: anchor === "end" ? x - w : anchor === "middle" ? x - w / 2 : x,
+            x1: anchor === "end" ? x : anchor === "middle" ? x + w / 2 : x + w, y0: y - G.fs * 0.85, y1: y + G.fs * 0.25 });
     };
     let last: { v: number; yb: number } | null = null;   // run end of the last drawn segment
     const spanFrom = new Map<string, { v: number; yb: number }>(); // total → run before its first child
@@ -1749,11 +1804,23 @@ function paintCascade(
             }
             // the YTD number inside the solid part when it fits, in the paper tone
             // or the text ink, whichever reads better on that fill (1.5.1: the
-            // light cost tone took white at ~3:1); below 4.5:1 (WCAG AA) no number
+            // light cost tone took white at ~3:1). 1.5.2: otherwise (too short,
+            // or below 4.5:1 WCAG AA) it stands outside before the bar start
+            // ("1,94 ▓▒ 2,73") — 1.5.1 dropped it, 12G lost 10 of 19 YTD values
             if (input.t.labels) {
                 const w = input.measure(ytdPart.t, G.fs, megaIsBold(r), false);
                 const ink = megaReadableOn(N.value("AC", light, B.hatch).fill);
-                if (w + 6 <= solidB - solidA && ink) {
+                if (!(w + 6 <= solidB - solidA && ink)) {
+                    const upS = seg.e >= seg.s;
+                    const ox = upS ? xs - G.lblGap : xs + G.lblGap;
+                    labelBox(ox, base(y, rh), ytdPart.t, upS ? "end" : "start", megaIsBold(r));
+                    svgEl("text", {
+                        x: ox, y: base(y, rh), "text-anchor": upS ? "end" : "start",
+                        "font-weight": megaIsBold(r) ? "bold" : null, fill: MEGA_C.text, "data-pnl": "mega-ytd",
+                        "data-pos": "out",
+                    }, g).textContent = ytdPart.t;
+                } else {
+                    labelBox((solidA + solidB) / 2, base(y, rh), ytdPart.t, "middle", megaIsBold(r));
                     svgEl("text", {
                         x: (solidA + solidB) / 2, y: base(y, rh), "text-anchor": "middle",
                         "font-weight": megaIsBold(r) ? "bold" : null, fill: ink, "data-pnl": "mega-ytd",
@@ -1785,6 +1852,18 @@ function paintCascade(
             const l0 = up ? lx : lx - w; const l1 = up ? lx + w : lx;
             crosses = l0 < axis.x + axis.half + 0.5 && l1 > axis.x - axis.half - 0.5;
         }
+        labelBox(lx, base(y, rh), txt, up ? "start" : "end", megaIsBold(r));
         label(lx, base(y, rh), txt, up ? "start" : "end", megaIsBold(r), crosses);
+    }
+    const pad = 1.5;
+    for (const k of conns) {
+        const cut = avoid.filter(b => k.x >= b.x0 - pad && k.x <= b.x1 + pad && b.y1 > k.ya && b.y0 < k.yb)
+            .sort((a, b) => a.y0 - b.y0);
+        let y0 = k.ya;
+        for (const b of cut) {
+            if (b.y0 - 1 > y0) { vline(B, k.x, y0, b.y0 - 1, MEGA_C.soft, 1, gConn); }
+            y0 = Math.max(y0, b.y1 + 1);
+        }
+        if (k.yb - y0 > 0.5) { vline(B, k.x, y0, k.yb, MEGA_C.soft, 1, gConn); }
     }
 }

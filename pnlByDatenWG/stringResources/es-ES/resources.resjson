@@ -382,7 +382,7 @@
   "UI_RedIf": "Δ en rojo si:",
   "UI_FootHead": "COMENTARIOS Y SEÑALES DE CALIDAD DE DATOS",
   "UI_FooterDev": " Desviación corporativa documentada: el verde azulado sustituye al verde de desviación IBCS para seguir siendo legible con daltonismo rojo-verde.",
-  "UI_FooterIbcs": "Notación basada en los estándares IBCS® 2.0 (ISO 24896) de la IBCS Association (CC BY-SA 4.0, ibcs.com).{0} IBCS® es una marca registrada de HICHERT+FAISST GmbH. Este visual no está certificado por la IBCS Association ni vinculado a ella.",
+  "UI_FooterIbcs": "Notación basada en los estándares IBCS® 2.0 (ISO 24896) de la IBCS Association (CC BY-SA 4.0, ibcs.com).{0} IBCS® es una marca registrada del IBCS Institute. Este visual no está certificado por la IBCS Association ni vinculado a ella.",
   "UI_WarnDuplicate": "ID duplicado: {0}",
   "UI_WarnCycle": "{0} fila(s) en un ciclo padre-hijo",
   "UI_WarnOrphans": "{0} fila(s) huérfana(s) movida(s) a «{1}»",

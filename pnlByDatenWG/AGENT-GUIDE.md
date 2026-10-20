@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.5.1.0** (20.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.5.2.0** (20.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -19,7 +19,7 @@ Stand: **1.5.1.0** (20.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lese
 | --- | --- |
 | GUID | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
-| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.1.0.pbiviz` |
+| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.2.0.pbiviz` |
 | API | `powerbi-visuals-api` 5.11 |
 | Datenfenster | `dataReductionAlgorithm window 30000` Zeilen; weitere Segmente lädt das Visual per `fetchMoreData` nach (Ladebalken + „≈" an Summen, bis alles da ist) |
 | Fähigkeiten | Tooltips (default + canvas) · Tastaturfokus · Landing Page · Multi-Visual-Selektion · `supportsHighlight: false` (Cross-Interaktion filtert) |
@@ -83,11 +83,15 @@ Die Ansicht ist Leser-Zustand (Toolbar) und steht in `state.uiState` (unten).
 - Blöcke: `blockKind` (month · ytd · fy) + optional `secondBlock` mit
   `leftBlockKind`. FY-Block: Minuend = AC&FC (`fcFy`), PL = `plFy`, PY = ganzes Vorjahr.
 - 12G (FY + Wert-Kaskade + Minuend AC): der AC&FC-Balken stapelt YTD (voll, Zahl
-  innen) + Restjahr (schraffiert, Jahreszahl außen); Δ-Elemente des FY-Blocks schraffiert.
+  innen, 1.5.2: sonst vor dem Balkenanfang, `data-pos="out"`) + Restjahr (schraffiert,
+  Jahreszahl außen); Δ-Elemente des FY-Blocks schraffiert. Headline: „liegt im Forecast“.
+- 1.5.2: Fußzeile `data-pnl="footer"` (IBCS-Notationszeile) bleibt mit Kommentarblock in
+  der Kachel. Strukturdaten mit `sort` ≠ `cat`: auch die Blöcke der obersten Ebene
+  (inkl. Einkindgruppen) werden in derselben Richtung sortiert wie die Zeilen.
 - Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport
   (+30 Zeilen Puffer); Export zeichnet immer alles.
 
-## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.5.1.0)
+## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.5.2.0)
 
 **Neu in 1.5** (Skalierung nach IBCS 2.0 / ISO 24896): `toolbar.foldable` und
 `toolbar.startFolded` (Bedienleisten einklappbar, Standard aus); keine neue Rolle.

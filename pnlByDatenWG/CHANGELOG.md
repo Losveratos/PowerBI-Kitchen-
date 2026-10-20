@@ -1,5 +1,34 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.5.2.0 (2026-10-20): kosmetische Restpunkte der Showcase-Messung
+
+Keine neue Property, keine neue Rolle, capabilities.json unverändert. Die
+Skalierung nach IBCS 2.0 / ISO 24896 war nach 1.5.1 sauber; diese Punkte aus
+derselben Messung bleiben.
+
+- **Fußzeile mit Kommentarblock (T03A/B, T04A bis E, 12A/G/H).** Die
+  IBCS-Notationszeile zählt jetzt zum Block, der in die Kachel passen muss;
+  1.5.1 rechnete nur die Fußnoten und schnitt die Zeile darunter ab. Reicht
+  der Platz auch mit engeren Zeilen nicht, wandert sie in den haftenden
+  Fußnotenblock. Neuer Marker `data-pnl="footer"`.
+- **Markenhinweis.** „IBCS® ist eine eingetragene Marke des IBCS Institute",
+  wie in der App und der Kitchen-Doku (vorher HICHERT+FAISST GmbH). Vier
+  Sprachen, Doku und Schnellstart nachgezogen.
+- **12G-Headline.** Ein Jahresausblick mit Minuend AC vergleicht AC&FC; das
+  Subjekt sagt es: „EBIT liegt im Forecast 0,69 Mio. EUR unter Vorjahr".
+- **12G YTD-Werte.** Passt die YTD-Zahl nicht in den vollen Teil des Balkens,
+  steht sie vor dem Balkenanfang („1,94 ▓▒ 2,73"); 1.5.1 ließ sie weg (10 von
+  19 Zeilen). Das Layout hält dafür Platz frei. Marker `data-pos="out"`.
+- **Tooltip Mega-Table.** Margenzeilen nennen die Differenz in „pp", nicht „%p".
+- **Sortierung (T02E, T02F, auch T02B/C).** Blöcke der obersten Ebene
+  (Region, Einkindgruppe „Deutschland · Sachsen", Region ohne Länder) werden in
+  derselben Richtung sortiert wie die Zeilen darin, nach ihrer Summenzeile.
+  Gesamtsumme bleibt unten, „Rest …"/„Sonstige …" nach den sortierten Blöcken.
+- **Δ-Wasserfall (T04B/C/E).** Verbindungslinien werden an Zahlen unterbrochen
+  (Δ-Labels und pp der Margenzeilen); vorher liefen sie durch „−0,25".
+- **Nullwerte neben Pins.** Ein Δ, das nicht null ist, aber auf null rundet,
+  behält sein Vorzeichen: „+0,00", „−0,0". Eine exakte Null bleibt „0".
+
 ## 1.5.1.0 (2026-10-20): Restpunkte der Skalen-Messung (Showcase, 17 Templates)
 
 Keine neue Property, keine neue Rolle, capabilities.json unverändert. Grundlage

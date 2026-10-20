@@ -382,7 +382,7 @@
   "UI_RedIf": "Δ rot, wenn:",
   "UI_FootHead": "KOMMENTARE & DATENQUALITÄTS-SIGNALE",
   "UI_FooterDev": " Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben.",
-  "UI_FooterIbcs": "Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS Association (CC BY-SA 4.0, ibcs.com).{0} IBCS® ist eine eingetragene Marke der HICHERT+FAISST GmbH. Dieses Visual ist nicht von der IBCS Association zertifiziert.",
+  "UI_FooterIbcs": "Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS Association (CC BY-SA 4.0, ibcs.com).{0} IBCS® ist eine eingetragene Marke des IBCS Institute. Dieses Visual ist nicht von der IBCS Association zertifiziert.",
   "UI_WarnDuplicate": "doppelte ID: {0}",
   "UI_WarnCycle": "{0} Zeile(n) in einem Parent-Child-Zyklus",
   "UI_WarnOrphans": "{0} verwaiste Zeile(n) nach „{1}“ verschoben",

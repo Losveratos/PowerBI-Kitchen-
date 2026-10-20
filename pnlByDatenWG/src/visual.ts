@@ -38,7 +38,7 @@ import {
     FormulaOp, InputRow, LevelInputRow, PeriodSort, PnlModel, PnlNode, Scenario,
 } from "./engine";
 import {
-    layoutMega, paintMega, megaActive, activeRefs, setMegaPalette, buildColumns, MEGA_PRESETS, parseAmount, niceFactor,
+    layoutMega, paintMega, megaActive, activeRefs, setMegaPalette, buildColumns, MEGA_PRESETS, parseAmount, niceFactor, MEGA_PP,
     MegaBlock, MegaDelta, MegaRef, MegaRow, MegaScen, MegaToggles, MegaLayout, MegaPaintOpts, MegaPainted,
 } from "./megatable";
 import { cascade, CascadeNode } from "./waterfall";
@@ -3788,8 +3788,9 @@ export class Visual implements IVisual {
             this.appendScaleFixedNote();
             this.appendCatNote();
             const notes = this.buildFootnotes(fmt);
-            this.root.appendChild(this.buildFooter());
-            this.megaFitNotes(fmt, table, notes, shrink);
+            const footer = this.buildFooter();
+            this.root.appendChild(footer);
+            this.megaFitNotes(fmt, table, notes, shrink, footer);
             this.root.scrollTop = keepScroll;
             this.syncMegaWindow();
         } else {
@@ -9272,7 +9273,7 @@ export class Visual implements IVisual {
                 const D = displayVariance(node.row, a, r);
                 if (!D) { continue; }
                 if (D.pp) {
-                    out.push({ displayName: name, value: fmt.pct(D.d / 100, true).replace("%", "%p") });
+                    out.push({ displayName: name, value: fmt.pct(D.d / 100, true).replace("%", MEGA_PP) });
                     continue;
                 }
                 const sa = this.ssRaw(node, block, min, fmt); const sb = this.ssRaw(node, block, ref, fmt);
@@ -9600,7 +9601,10 @@ export class Visual implements IVisual {
         const refName = this.relabel(code) !== code ? this.relabel(code) : this.tr(code === "PY" ? "UI_AutoRefPY" : "UI_AutoRefPL");
         // 1.5.1: a minuend other than AC is named in the subject ("EBIT liegt im
         // Plan … über Vorjahr", 12H; "im Forecast" for FC) — house terms win
-        const minCode: string = mt ? mt.min : "AC";
+        // 1.5.2: an FY outlook with minuend AC compares AC&FC (YTD actual plus
+        // the forecast of the rest of the year) — the subject says so ("EBIT
+        // liegt im Forecast … unter Vorjahr", 12G), not like a booked actual
+        const minCode: string = mt ? (block === "fy" && mt.min === "AC" ? "FC" : mt.min) : "AC";
         const minName = minCode === "AC" ? "" : this.relabel(minCode) !== minCode ? this.relabel(minCode)
             : this.tr(minCode === "PL" ? "UI_AutoRefPL" : "UI_AutoScenFC");
         const inScen = minName ? this.tr("UI_AutoIn", minName) : "";
@@ -9746,11 +9750,15 @@ export class Visual implements IVisual {
      * block sticks to the bottom edge while the table scrolls behind it.
      * Exports print everything in flow and are left alone.
      */
-    private megaFitNotes(fmt: Fmt, table: HTMLElement, notes: HTMLElement | null, shrink: number): void {
+    private megaFitNotes(fmt: Fmt, table: HTMLElement, notes: HTMLElement | null, shrink: number, footer?: HTMLElement): void {
         if (!notes || this.comments.length === 0 || this.exporting() || this.miniQuiet()) { return; }
         const avail = this.root.clientHeight;
         if (!avail) { return; }
-        const bottom = (): number => Math.ceil(notes.getBoundingClientRect().bottom
+        // 1.5.2: the footer (IBCS notation line, title footers) belongs to the
+        // block that must fit — measuring only the footnotes cut the notation
+        // line off below the tile edge as soon as a comment was shown (T03, T04, 12A/G/H)
+        const lastEl = (): HTMLElement => footer && footer.parentNode === this.root ? footer : notes;
+        const bottom = (): number => Math.ceil(lastEl().getBoundingClientRect().bottom
             - this.root.getBoundingClientRect().top + this.root.scrollTop);
         if (bottom() <= avail) { return; }
         // (1) columns: one comment per line, as many columns as the width holds
@@ -9774,8 +9782,10 @@ export class Visual implements IVisual {
                 over = bottom() - avail;
             }
         }
-        // (3) still too tall: the footnotes stay on screen at the bottom edge
+        // (3) still too tall: the footnotes stay on screen at the bottom edge,
+        // the footer rides along inside the sticky block
         if (over > 0) {
+            if (footer && footer.parentNode === this.root) { notes.appendChild(footer); }
             notes.setAttribute("data-pnl-sticky", "1");
             notes.style.position = "sticky";
             notes.style.bottom = "0";
@@ -9787,6 +9797,7 @@ export class Visual implements IVisual {
 
     private buildFooter(): HTMLElement {
         const f = document.createElement("div");
+        f.setAttribute("data-pnl", "footer");
         f.style.cssText = `padding:10px 14px 12px 14px;border-top:1px solid ${C.gridSoft};` +
             `margin-top:8px;font-size:${this.kpx(8.5)};color:${C.soft};line-height:1.5;` +
             `max-width:${this.k(960)}px;`;

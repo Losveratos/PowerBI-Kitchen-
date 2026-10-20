@@ -111,7 +111,7 @@ export const UI_EN: Record<string, string> = {
     UI_RedIf: "Δ in red if:",
     UI_FootHead: "COMMENTS & DATA-QUALITY SIGNALS",
     UI_FooterDev: " Documented corporate deviation: teal replaces the IBCS variance green to remain readable with red–green color-vision deficiency.",
-    UI_FooterIbcs: "Notation based on the IBCS® Standards 2.0 (ISO 24896) by the IBCS Association (CC BY-SA 4.0, ibcs.com).{0} IBCS® is a registered trademark of HICHERT+FAISST GmbH. This visual is not certified by or affiliated with the IBCS Association.",
+    UI_FooterIbcs: "Notation based on the IBCS® Standards 2.0 (ISO 24896) by the IBCS Association (CC BY-SA 4.0, ibcs.com).{0} IBCS® is a registered trademark of the IBCS Institute. This visual is not certified by or affiliated with the IBCS Association.",
     UI_WarnDuplicate: "duplicate id: {0}",
     UI_WarnCycle: "{0} row(s) in a parent-child cycle",
     UI_WarnOrphans: "{0} orphan row(s) moved to \"{1}\"",

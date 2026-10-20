@@ -80,10 +80,16 @@ test("notation: minuend fills, subtrahend axes, scenario marks", () => {
     assert.deepEqual(["AC", "PY", "PL", "FC"].map(acpl.mark), ["solid", "gray", "double", "hatch"]);
 });
 
-test("number format: explicit +, '−' (U+2212) minus, zero without a sign, margins and pp with the Δ% decimals", () => {
+test("number format: explicit +, '−' (U+2212) minus, exact zero without a sign, margins and pp with the Δ% decimals", () => {
     const f = M.megaFmt(num, 1, 0);
     assert.equal(f.delta(37.36), "+37.4");
-    assert.equal(f.delta(-0.04), "0.0");
+    // 1.5.2: a Δ that rounds to zero keeps its sign (it stands beside a pin / bar pointing that way)
+    assert.equal(f.delta(-0.04), "−0.0");
+    assert.equal(f.delta(0.04), "+0.0");
+    assert.equal(f.pin(0.0004), "+0");
+    assert.equal(f.delta(0), "0.0");
+    assert.equal(f.delta(1e-12), "0.0");
+    assert.equal(f.val(-0.04), "0.0");
     assert.equal(f.delta(-3.25), "−3.3");
     assert.equal(f.val(1031.2), "1 031.2");
     assert.equal(f.pct(0.0662), "+7%");
@@ -189,6 +195,25 @@ test("layout T02: Δ↓ sort per run keeps Other last, (↓) on the sorting bloc
     const heads = L.cols.map(c => c.head);
     assert.deepEqual(heads.filter(h => /↓/.test(h)), ["ΔPL(↓)"]);
     assert.equal(L.cols.find(c => /^ΔPL\(↓\)/.test(c.head)).block, 0);
+});
+
+test("sort T02E/T02F (1.5.2): blocks and single rows in the rows' direction, grand total and Rest last", () => {
+    const t = Object.assign(toggles(M.MEGA_PRESETS.T02A), { sort: "delta", sortBlock: 0 });
+    const acc = (id, group) => ({ id, label: id, kind: "acc", op: "", level: 1, group, other: /^rest/i.test(id) });
+    const sum = (id, extra) => ({ id, label: id, kind: "sum", op: "", level: 0, group: null, other: /^rest/i.test(id), ...extra });
+    const gap = () => ({ id: "", label: "", kind: "gap", op: "", level: 0, group: null, other: false });
+    // Δ (AC − PL) per row
+    const D = { sx: 0.13, pl: 0.56, sk: 0.09, prg: 0.55, mb: 0.17, mh: 0.14, cz: 0.86, r1: 0.9, rest: 0.9, w: 2.5 };
+    const rows = [acc("sx", "de"), gap(), acc("pl", "pl0"), gap(), acc("sk", "sk0"), gap(),
+        acc("mh", "cz"), acc("prg", "cz"), acc("mb", "cz"), sum("cz"), gap(),
+        acc("r1", "rest"), sum("rest"), gap(), sum("w", { anchor: true })];
+    const blk = { name: "", th: { abs: 0, pct: 0 },
+        value: (r, s) => s === "AC" ? 10 + D[r.id] : 10, delta: () => null };
+    const o = M.orderRows({ rows, blocks: [blk], t, statement: false });
+    const ids = o.rows.map(r => r.kind === "gap" ? "|" : r.id);
+    // Czechia (+0.86) leads, its rows descending; Poland, Saxony, Slovakia follow; "Rest" stays
+    // after the sorted blocks, the anchored grand total keeps the last place
+    assert.deepEqual(ids, ["prg", "mb", "mh", "cz", "|", "pl", "|", "sx", "|", "sk", "|", "r1", "rest", "|", "w"]);
 });
 
 test("layout T02: one Δ scale and one pin scale over both blocks, no factor between blocks (1.5.1)", () => {

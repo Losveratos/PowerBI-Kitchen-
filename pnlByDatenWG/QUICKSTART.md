@@ -5,7 +5,7 @@ Hierarchie plus die Kennzahlen (zwei Minuten). **Weg 2** ergänzt die Felder,
 die daraus eine echte GuV machen — Zeilentypen, Formelzeilen, Vorzeichen,
 Kommentare.
 
-Version **1.5.1.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
+Version **1.5.2.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 Web-Fassung dieser Anleitung: [`pnl-schnellstart.html`](../pnl-schnellstart.html)
 (DE) · [`pnl-schnellstart_en.html`](../pnl-schnellstart_en.html) (EN).
 
@@ -216,8 +216,8 @@ Vollständiger Aufbau- und Testplan inklusive Reconciliation-Werten:
 
 ---
 
-Notation nach den IBCS®-Standards 1.2 der IBCS Association (CC BY-SA 4.0,
+Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS Association (CC BY-SA 4.0,
 ibcs.com). Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei
-Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke der
-HICHERT+FAISST GmbH. Dieses Visual ist nicht von der IBCS Association
+Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke des
+IBCS Institute. Dieses Visual ist nicht von der IBCS Association
 zertifiziert und steht in keiner Verbindung zu ihr.
