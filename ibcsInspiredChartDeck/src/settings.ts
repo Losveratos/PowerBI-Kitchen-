@@ -670,11 +670,23 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: bridgeOrientationItems[0]
     });
 
+    // 1.52.1: shortened anchors with a visible axis break, the steps of the bridge
+    // keep one linear scale (IBCS UN 5.3) — integrated bridge, vertical category
+    // bridge and waterfall
+    bridgeBreak = new formattingSettings.ToggleSwitch({
+        name: "bridgeBreak",
+        displayName: "Shorten anchors (axis break)",
+        displayNameKey: "Chart_BridgeBreak",
+        description: "Integrierte Brücke, Kategorie-Brücke (Säulen) und Wasserfall: Die Summen-Anker (z. B. PY und AC+FC) werden mit sichtbarem Achsenbruch ⫽ gekürzt, damit die Brückenstufen in echter Höhe lesbar werden. Alle Stufen bleiben in einer Skala. Gekürzt wird nur, wenn alle Stände oberhalb des Schnitts liegen. Standard: aus.",
+        descriptionKey: "Desc_Chart_BridgeBreak",
+        value: false
+    });
+
     bridgeGroup = new formattingSettings.Group({
         name: "chartBridge",
         displayName: "Bridge",
         displayNameKey: "Group_Bridge",
-        slices: [this.waterfallStyle, this.sortByImpact, this.bridgeOrientation]
+        slices: [this.waterfallStyle, this.sortByImpact, this.bridgeOrientation, this.bridgeBreak]
     });
 
     valueColumns = new formattingSettings.ItemDropdown({
@@ -1153,11 +1165,22 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         slices: [this.chartButtons, this.cumulativeButton, this.compareClick, this.chipMenu]
     });
 
+    // 1.52.1: series names of stacked columns/bars right at the stack (IBCS) instead
+    // of a key above the chart; falls back to the key when they do not fit
+    stackLegendDirect = new formattingSettings.ToggleSwitch({
+        name: "stackLegendDirect",
+        displayName: "Stack legend at the stack",
+        displayNameKey: "Chart_StackLegendDirect",
+        description: "Gestapelte Säulen und Balken: Die Seriennamen stehen direkt am Stapel (Säulen: rechts neben der letzten Säule, Balken: über dem ersten Balken) statt als Schlüssel oben. Passen sie nicht, bleibt der Schlüssel. Aus = immer Schlüssel oben.",
+        descriptionKey: "Desc_Chart_StackLegendDirect",
+        value: true
+    });
+
     displayGroup = new formattingSettings.Group({
         name: "chartDisplay",
         displayName: "Display",
         displayNameKey: "Group_Display",
-        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.exportExpandAll]
+        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.exportExpandAll]
     });
 
     name: string = "chart";
@@ -1333,6 +1356,17 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    // 1.52.1: unit suffix on every label ("18,5M") or bare numbers with the unit in
+    // the title only ("18,5", title „… in Mio. EUR")
+    unitSuffix = new formattingSettings.ToggleSwitch({
+        name: "unitSuffix",
+        displayName: "Unit on every label",
+        displayNameKey: "Labels_UnitSuffix",
+        description: "An = jede Beschriftung trägt Größenordnung und Einheit („18,5M“). Aus = nur die Zahl („18,5“), die Einheit steht einmal im Titel („Nettoumsatz in Mio. EUR“), so wie es IBCS empfiehlt.",
+        descriptionKey: "Desc_Labels_UnitSuffix",
+        value: true
+    });
+
     labelDensity = new formattingSettings.ItemDropdown({
         name: "labelDensity",
         displayName: "Label density",
@@ -1406,6 +1440,7 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         this.displayUnits,
         this.financeFormat,
         this.sumSafeRounding,
+        this.unitSuffix,
         this.labelAc,
         this.labelPy,
         this.labelPl,

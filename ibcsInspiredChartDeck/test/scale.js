@@ -1,5 +1,7 @@
 // runs test/scale.html headless (1.52 IBCS scaling geometry): prints the
-// measurements, fails on FAIL checks or page errors. SHOT=1 writes test/scale.png
+// measurements, fails on FAIL checks or page errors. SHOT=1 writes test/scale.png.
+// 1.52.1: an optional argument picks another page of the same kind,
+// e.g. `node test/scale.js notation.html` (notation checks, SHOT → notation.png)
 let chromium;
 try { ({ chromium } = require("playwright")); }
 catch { ({ chromium } = require("/opt/node22/lib/node_modules/playwright")); }
@@ -15,9 +17,10 @@ catch { ({ chromium } = require("/opt/node22/lib/node_modules/playwright")); }
         else if (t.startsWith("measure ·")) { console.log(t); }
     });
     page.on("pageerror", e => { errors++; console.log("[pageerror]", e.message); });
-    await page.goto("file://" + __dirname + "/scale.html");
+    const file = process.argv[2] || "scale.html";
+    await page.goto("file://" + __dirname + "/" + file);
     await page.waitForTimeout(300);
-    if (process.env.SHOT) { await page.screenshot({ path: __dirname + "/scale.png", fullPage: true, timeout: 60000 }); }
+    if (process.env.SHOT) { await page.screenshot({ path: __dirname + "/" + file.replace(/\.html$/, ".png"), fullPage: true, timeout: 60000 }); }
     await browser.close();
     console.log(oks + " checks ok, " + errors + " errors");
     if (errors > 0) { process.exit(1); }

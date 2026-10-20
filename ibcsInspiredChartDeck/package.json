@@ -13,7 +13,8 @@
     "package": "pbiviz package",
     "lint": "npx eslint .",
     "test:render": "node test/build.js && node test/shot.js",
-    "test:scale": "node test/build.js && node test/scale.js"
+    "test:scale": "node test/build.js && node test/scale.js",
+    "test:notation": "node test/build.js && node test/scale.js notation.html"
   },
   "dependencies": {
     "powerbi-visuals-api": "~5.11.0",

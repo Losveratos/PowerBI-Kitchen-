@@ -1,5 +1,72 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.52.1.0 (2026-10-20)
+
+**Notation nach der Pixelmessung der Showcase-App (IBCS 2.0 / ISO 24896): Einheit einmal im Titel, Szenarien ohne
+Dopplung, höchstens drei Ziffern, Brückenstufen in echter Höhe, Linien-Notation, Scatter-Ränder. Drei neue Optionen;
+zwei behalten das bisherige Bild als Standard, die Stapellegende steht neu am Stapel.**
+
+Gemessen mit dem neuen Test `test/notation.html` (`npm run test:notation`, 31 Prüfungen; 1.52.0.0 besteht davon 5):
+
+| Befund | 1.52.0.0 | 1.52.1.0 |
+| --- | --- | --- |
+| Titel, kpi „Nettoumsatz in EUR je Kanal“ | „Nettoumsatz in EUR je Kanal in M“ | „Nettoumsatz in Mio. EUR je Kanal“ |
+| Titel ohne Einheit im kpi, Format „#,0 €“ | „… je Kanal in M€“ | „… je Kanal in Mio. €“ |
+| Scatter-Titel | „… (x) je Kunde in %“ | „… (x) je Kunde“ (Einheiten an den Achsen) |
+| period „2026 AC&FC gegen PL“ | „…: AC vs. PL, PY“ angehängt | kein Suffix |
+| period ohne Kürzel, Ist-Wert „Umsatz AC&FC“ | „AC vs. PL, PY“ | „AC&FC vs. PL, PY“ |
+| Wasserfall mit PY und PL gebunden, Basis PY | „AC vs. PY, PL“ | „AC vs. PY“ (PL wird nicht gezeigt) |
+| Werte ab 100 der Anzeige-Einheit | „161,8K“, „Σ 407,6K“ | „162K“, „Σ 408K“ |
+| Stapel aus einem Segment | „161,8K“ zweimal | einmal |
+| Nullwert / unter der Darstellungsgrenze | „0,0M“, „0,00M“ | „0“ |
+| KPI-Karte Wert und Δ | „18,5M“ und „−1,05M“ | „18,5M“ und „−1,1M“ |
+| C05 Brückenstufen (6,9 px/M) | 4 px Mindesthöhe, bis 4× still vergrößert | echte Höhe 1,0 bis 2,2 px, Haarlinie 1 px |
+| C05 mit `chart.bridgeBreak` | nicht vorhanden | Anker mit ⫽ gekürzt, Stufen 38,8 px/M (×5,6), eine lineare Skala |
+| C08 Linienstärken AC / PY / PL / FC | 2 / 1,4 / 1,2 gestrichelt / 2 gestrichelt | 3 / 3 / 3 hohl / 3 gestrichelt |
+| C08 AC-Beschriftungen auf einer Linie | 10 von 12 | 0 von 12 |
+| C09 Punkte in den Ecken (Testfall) | 9 von 12 beschriftet | 12 von 12 |
+| C10 x-Achse bei Werten ab 150 | Ursprung im Negativen (Tick 0 liegt 28 px rechts der Achse) | Ursprung 0 |
+| C12 mit `sumSafeRounding` | „6,2M · +1,15M · … · 7,3M“, Stufen ergeben 7,34 | „6,21M · +1,14M · … · 7,34M“, Summe exakt |
+| Stapellegende C01/C02 | Schlüssel oben | Namen am Stapel |
+
+- **Titel-Einheit (eine Einheit, einmal genannt):** „in <Einheit>“ wird überall im Kennzahltext erkannt
+  (Währungscode, Symbol, %, hl, kg, Stk. …) und um die Anzeige-Größenordnung ergänzt, in Langform („in Mio. EUR“,
+  „in Tsd. hl“, englisch „in mEUR“, „in k hl“); „M“ oder „K“ stehen nie im Titel. Ohne Einheit im Text hängt das
+  Visual Größenordnung plus bekannte Basiseinheit aus dem Formatstring an. Scatter/Bubble bekommen keine Einheit
+  am Titel, die Achsentitel tragen sie.
+- **Szenario-Suffix:** Nennt `ibcsTitle.period` schon Szenariokürzel (AC, PY, PL, BU, FC oder die Hausbegriffe), hängt
+  das Visual nichts an. Sonst bildet es den Suffix aus `comparisonMode` und den gebundenen Rollen; der Ist-Wert heißt
+  „AC&FC“, wenn ein Forecast-Anteil gezeigt wird (FC-Monate oder ein Messwertname „… AC&FC“). Wasserfall,
+  Kategorie-Brücke, Pareto, Dumbbell und Slope nennen nur die Basis.
+- **Höchstens drei Ziffern** in Grafiken: jede Zahl verliert ab 100 (bzw. 10) der Anzeige-Einheit Nachkommastellen,
+  gezählt nach dem Runden („99,96“ wird „100“). Tabelle und GuV-Statement behalten ihre Dezimalen. Mit
+  `sumSafeRounding` gilt eine Präzision für Labels und Σ, gesetzt von der größten Zahl, damit die Summe aufgeht; der
+  Rundungshinweis ohne `sumSafeRounding` vergleicht jetzt die gedruckten Zahlen.
+- **Neu: `labels.unitSuffix`** (bool, Standard an wie bisher): aus = nur die Zahl („18,5“), die Einheit steht im
+  Titel. KPI-Karten nehmen dann eine gemeinsame Einheit für alle Karten. Die Abkürzung bleibt „K“ wie in Power BI
+  (SI wäre „k“), bewusst nicht still geändert.
+- **Null:** Werte unter der Darstellungsgrenze zeigen „0“ (Finanzformat „–“), ohne Einheit und Vorzeichen.
+- **KPI-Karten:** Wert und Δ einer Einheit haben dieselben Dezimalen, die größte Zahl der Einheit setzt sie. Ein Δ,
+  das sonst auf null fiele, bekommt wie bisher eine Stelle dazu („+0,01“).
+- **C05 Integrierte Brücke:** Stufen in echter Höhe, darunter eine 1-px-Haarlinie (bisher 4 px Minimum). C05, C06
+  (Kategorie-Brücke, Säulen) und C12 teilen für Anker und Stufen eine Präzision; mit `sumSafeRounding` gehen die
+  Stufen exakt zwischen den gerundeten Ankern auf.
+- **Neu: `chart.bridgeBreak`** (bool, Standard aus): kürzt die Summen-Anker mit sichtbarem ⫽, die Stufen laufen in
+  einer linearen Skala darüber (IBCS UN 5.3). C05: Monatssäulen im unteren Band mit ausgewiesenem Faktor, Schnitt im
+  Titel („Achse ab 45,0M geschnitten“). C06 senkrecht: Anker PY/PL/AC mit ⫽. C12: schaltet den vorhandenen
+  Achsenschnitt (`scale.wfAxisBreak`) ein, solange dieser auf „aus“ steht. Gekürzt wird nur, wenn alle Stände über
+  dem Schnitt liegen; Small Multiples mit gleicher Skala bleiben nullbasiert. Markierung `data-icd="bridge-break"`.
+- **C08 Linien:** absolute Werte in einer Linienstärke; AC dunkel durchgezogen, PY hellgrau durchgezogen, PL hohl
+  (Rand plus Papierkern, `data-icd="line-pl"`), nur FC gestrichelt. Die AC-Beschriftung steht über dem Punkt, wenn
+  AC oben liegt, darunter, wenn AC unten liegt, sonst über der höchsten Linie.
+- **C09 Scatter:** Randpunkte bekommen diagonale Plätze nach innen bzw. einen nach innen geschobenen Platz, statt
+  ohne Beschriftung zu bleiben. **C10:** Reichen die Daten bis an die Null, beginnt die Achse dort; der
+  Blasen-Innenabstand verschiebt den Ursprung nicht mehr ins Negative.
+- **Stapel:** Ein Stapel aus einem beschrifteten Segment zeigt den Wert einmal. **Neu: `chart.stackLegendDirect`**
+  (bool, Standard an): Seriennamen bei Säulen rechts am letzten Stapel, bei Balken über dem ersten Balken; passen
+  sie nicht (Serie fehlt dort, Überlappung, negative Segmente, Small Multiples), bleibt der Schlüssel oben.
+- 692 resjson-Keys je Sprache.
+
 ## 1.52.0.0 (2026-10-20)
 
 **Skalierung nach IBCS 2.0 / ISO 24896 als neuer Standard in allen Chart-Typen: gleiche Einheit, gleiche Skala über alle Panels einer Grafik, sonst ein sichtbarer Faktor. Dazu eine Breite je Grafik, höchstens drei Ziffern und neu ein einklappbares Bedienmenü (☰).**

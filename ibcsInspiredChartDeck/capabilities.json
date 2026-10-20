@@ -441,6 +441,8 @@
                 "multiplesSameScale": { "type": { "bool": true } },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
+                "bridgeBreak": { "type": { "bool": true } },
+                "stackLegendDirect": { "type": { "bool": true } },
                 "bridgeOrientation": {
                     "type": {
                         "enumeration": [
@@ -489,6 +491,7 @@
             "properties": {
                 "show": { "type": { "bool": true } },
                 "sumSafeRounding": { "type": { "bool": true } },
+                "unitSuffix": { "type": { "bool": true } },
                 "financeFormat": { "type": { "bool": true } },
                 "labelAc": { "type": { "text": true } },
                 "labelPy": { "type": { "text": true } },

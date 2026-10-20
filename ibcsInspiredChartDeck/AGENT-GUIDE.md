@@ -8,7 +8,14 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.52.0.0** (20.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.52.1.0** (20.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+
+**Neu in 1.52.1:** Der Titel nennt die Einheit einmal in Langform („Nettoumsatz in Mio. EUR je Kanal“), kein
+Szenario-Suffix, wenn `ibcsTitle.period` schon AC/PY/PL/BU/FC nennt; „AC&FC“ bei Forecast-Anteil. Zahlen in Grafiken
+höchstens 3 Ziffern („162K“), Null als „0“, KPI-Karten Wert und Δ mit gleichen Dezimalen, C05-Stufen in echter Höhe,
+C08 alle absoluten Linien gleich dick (PL hohl, FC gestrichelt). Neue Properties: `labels.unitSuffix` (bool,
+Standard true), `chart.bridgeBreak` (bool, Standard false), `chart.stackLegendDirect` (bool, Standard true).
+Test: `npm run test:notation`.
 
 **Neu in 1.52 (Standardverhalten, keine neue Property):** Skalierung nach IBCS 2.0 /
 ISO 24896. Absolute Δ-Panels (ΔBasis, ΔBasis2, ΔPY-Stufe im GuV-Wasserfall) haben
@@ -290,6 +297,8 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 | `driverNote` | bool | Treiber-Notiz Kategorie-Brücke |
 | `compareClick` | bool | 2-Klick-Differenzvergleich |
 | `chipMenu` | bool | In-Chart-Bedienelemente hinter ☰ einklappen (ab 1.52, Standard false) |
+| `bridgeBreak` | bool | Summen-Anker mit ⫽ kürzen, Stufen linear (C05, C06 senkrecht, C12; ab 1.52.1, Standard false) |
+| `stackLegendDirect` | bool | Seriennamen am Stapel statt Schlüssel (C01/C02; ab 1.52.1, Standard true, fällt bei Platzmangel zurück) |
 | `invert` / `invertList` | bool / text | Kosten-Logik global / je Kategorie |
 
 ### Objekt `colors`
@@ -307,6 +316,7 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 | --- | --- | --- |
 | `show` | bool | true/false |
 | `sumSafeRounding` | bool | Σ-treue Rundung (Restwertverfahren) |
+| `unitSuffix` | bool | Größenordnung und Einheit an jeder Zahl (Standard true); false = nur die Zahl, Einheit im Titel (ab 1.52.1) |
 | `financeFormat` | bool | (1.234) statt −1.234 |
 | `labelAc` / `labelPy` / `labelPl` / `labelFc` | text | Hausbegriffe („Ist", „VJ", „Budget") — leer = IBCS-Kürzel; wirken auf Titel, Köpfe, Brücken, Legenden, Tooltips |
 | `labelDensity` | enum | `auto` · `all` · `ends` |

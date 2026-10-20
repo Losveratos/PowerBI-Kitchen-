@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- 1.52.1 notation checks after the showcase pixel measurement (IBCS 2.0 / ISO 24896):
+     title unit + scenario suffix, at most 3 digits, unit suffix option, card decimals,
+     zero labels, bridge step heights + bridgeBreak, line notation, scatter/bubble
+     labels and domains, C12 decimals, single stack segments.
+     Run: node test/build.js && node test/scale.js notation.html -->
+<style>
+  body { font-family: 'Segoe UI', sans-serif; background: #f2f2f2; margin: 20px; }
+  .case { background: #fff; border: 1px solid #ddd; margin-bottom: 24px; padding: 8px; }
+  .case h4 { margin: 0 0 6px 0; font-size: 12px; color: #666; }
+  .stage { position: relative; }
+</style>
+</head>
+<body>
+<script src="visual.bundle.js"></script>
+<script>
+const Visual = ChartKitchen.Visual;
+const AC_C = "#404040", PY_C = "#B3B3B3", GOOD = "#1E8F9E", BAD = "#D64541";
+
+function makeHost() {
+  return {
+    hostCapabilities: { allowInteractions: true },
+    colorPalette: { isHighContrast: false },
+    eventService: { renderingStarted(){}, renderingFinished(){}, renderingFailed(o, e){ console.error("renderfail", e); } },
+    createSelectionManager: () => ({ select: () => Promise.resolve([]), clear: () => Promise.resolve(), getSelectionIds: () => [], showContextMenu(){} }),
+    createSelectionIdBuilder: () => ({ withCategory(){ return this; }, withMeasure(){ return this; }, withSeries(){ return this; }, createSelectionId(){ return { equals: () => false }; } }),
+    tooltipService: { show(){}, move(){}, hide(){} },
+    createLocalizationManager: () => ({ getDisplayName: () => "" }),
+    persistProperties: () => {}, drill: () => {}, launchUrl: () => {},
+    locale: "de-DE"
+  };
+}
+function col(role, values, format, name) {
+  return { source: { displayName: name ?? (role === "actual" ? "Umsatz AC" : role), roles: { [role]: true }, isMeasure: true, format }, values };
+}
+function dataView(cats, cols, objects, extraCats) {
+  const categories = [{ source: { displayName: "Monat", roles: { category: true } }, values: cats }];
+  for (const [role, name, values] of (extraCats || [])) {
+    categories.push({ source: { displayName: name, roles: { [role]: true } }, values });
+  }
+  return { metadata: { columns: [], objects: objects || {} }, categorical: { categories, values: cols } };
+}
+function stage(id, title, w, h) {
+  const c = document.createElement("div"); c.className = "case";
+  c.innerHTML = `<h4>${id} · ${title}</h4><div class="stage" id="${id}" style="width:${w}px;height:${h}px"></div>`;
+  document.body.appendChild(c);
+}
+function run(id, title, dv, w, h) {
+  stage(id, title, w, h);
+  const v = new Visual({ element: document.getElementById(id), host: makeHost() });
+  v.update({ viewport: { width: w, height: h }, dataViews: [dv], viewMode: 0 });
+  return v;
+}
+function check(cond, msg) { if (cond) { console.log("ok · " + msg); } else { console.error("FAIL · " + msg); } }
+function measure(msg) { console.log("measure · " + msg); }
+const fill = el => (el.getAttribute("fill") || "").toUpperCase();
+const num = (el, a) => parseFloat(el.getAttribute(a));
+const r2 = v => Math.round(v * 100) / 100;
+const texts = id => [...document.querySelectorAll(`#${id} svg text`)].map(t => t.textContent.trim()).filter(t => t);
+const titleOf = id => { const t = document.querySelector(`#${id} svg > text`); return t ? t.textContent : ""; };
+/** numeric labels: text nodes that are a number with optional sign/unit */
+const numLabels = id => texts(id).filter(t => /^[Σ\s]*[+−-]?\(?\d[\d.,]*\)?\s*[A-Za-z€%]*$/.test(t) || /^Σ /.test(t));
+const digits = t => (t.match(/\d[\d.,]*/g) || []).map(n => n.replace(/[^0-9]/g, "").replace(/^0+(?=\d)/, ""));
+const decs = t => { const m = /,(\d+)/.exec(t); return m ? m[1].length : 0; };
+
+const M = 1e6, K = 1e3;
+const mon12 = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+const acY = [3.62, 3.75, 3.98, 4.05, 4.12, 4.21, 4.30, 4.18, null, null, null, null].map(v => v == null ? null : v * M);
+const fcY = [null, null, null, null, null, null, null, null, 4.3, 4.4, 4.6, 4.9].map(v => v == null ? null : v * M);
+const pyY = [3.50, 3.66, 3.80, 3.95, 3.90, 4.05, 3.98, 4.02, 4.1, 4.2, 4.4, 4.7].map(v => v * M);
+const plY = [3.70, 3.70, 3.90, 4.10, 4.00, 4.30, 4.20, 4.25, 4.2, 4.3, 4.5, 4.8].map(v => v * M);
+const FMT = "#,0";
+
+window.CASES = [];
+</script>
+<script src="notation-cases.js"></script>
+</body>
+</html>
