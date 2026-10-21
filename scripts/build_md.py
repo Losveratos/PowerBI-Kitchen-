@@ -1573,7 +1573,7 @@ PAGES: list[dict] = [
         **KAMPF_POST,
         "basename": "der-unsichtbare-kampf-post",
         "lang": "de",
-        "title": "Der unsichtbare Kampf — Interview mit Michael Thomanek (Entwurf)",
+        "title": "Der unsichtbare Kampf — Interview mit Michael Thomanek",
         "append_md": (
             "---\n\n"
             "## Weiterlesen\n\n"
