@@ -803,6 +803,30 @@ function formatCarriesMagnitude(fmt: string | undefined): boolean {
         || /(?:^|\s)[KM]\s*$/.test(lit);
 }
 
+/**
+ * 1.52.3: a measure format with an explicit plus in its positive section
+ * ("+#,##0;-#,##0;0", common for signed P&L measures) signed every value the
+ * model formatter wrote — bridge anchors read "+8,01" — and fmtSigned put its
+ * own sign in front of the Δ ("++1,41"). ChartKitchen sets signs itself (Δ
+ * signed, values plain), so the plus of the positive section goes; negative
+ * and zero sections, quoted text and escapes stay as they are.
+ */
+export function unsignedFormat(fmt: string | undefined): string | undefined {
+    if (!fmt) { return fmt; }
+    const sections: string[] = [];
+    let cur = "", quoted = false;
+    for (let i = 0; i < fmt.length; i++) {
+        const ch = fmt[i];
+        if (ch === "\\" && i + 1 < fmt.length) { cur += ch + fmt[++i]; continue; }
+        if (ch === '"') { quoted = !quoted; }
+        if (ch === ";" && !quoted) { sections.push(cur); cur = ""; continue; }
+        cur += ch;
+    }
+    sections.push(cur);
+    sections[0] = sections[0].replace(/^(\s*)(?:\+|"\+"|\\\+)/, "$1");
+    return sections.join(";");
+}
+
 export class Visual implements IVisual {
     private events: IVisualEventService;
     private host: IVisualHost;
@@ -1805,24 +1829,24 @@ export class Visual implements IVisual {
                 if (roles[role]) {
                     byRole[role] = col.values.map(v => (typeof v === "number" && isFinite(v)) ? v : null);
                     if (role === "actual" || (role === "forecast" && !this.measureFormat)) {
-                        if (col.source.format) { this.measureFormat = col.source.format; }
+                        if (col.source.format) { this.measureFormat = unsignedFormat(col.source.format); }
                         if (!this.measureName || role === "actual") {
                             this.measureName = col.source.displayName;
                         }
                     }
                     if (role === "lineMeasure") {
-                        this.lineFormat = col.source.format;
+                        this.lineFormat = unsignedFormat(col.source.format);
                         this.lineName = col.source.displayName;
                     }
                     if (role === "xValue") {
-                        this.xFormat = col.source.format;
+                        this.xFormat = unsignedFormat(col.source.format);
                         this.xName = col.source.displayName;
                     }
                     if (role === "xPrevious") {
                         this.xPrevName = col.source.displayName;
                     }
                     if (role === "bubbleSize") {
-                        this.sizeFormat = col.source.format;
+                        this.sizeFormat = unsignedFormat(col.source.format);
                         this.sizeName = col.source.displayName;
                     }
                     if (col.highlights) {

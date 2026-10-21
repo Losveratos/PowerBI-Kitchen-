@@ -278,3 +278,18 @@ const over3 = list => list.filter(t => t.replace(/[^0-9]/g, "").length > 3);
   measure(`F13 FC-Linie: ${lines.length} Stücke`);
   check(lines.length >= 1 && !hit, "12: FC-Trennlinie in Stücken, keine Beschriftung gekreuzt");
 }
+
+// ---- 13 · 1.52.3: Formatstring mit explizitem Plus (Modell-Measure „GuV ± AC“: +#,##0;-#,##0;0)
+{
+  const SIGNED = "+#,##0;-#,##0;0";
+  run("W13", "C12 · Formatstring mit Plus", dataView(["Nettoumsatz", "Wareneinsatz", "Betriebskosten", "Abschreibungen"],
+    [col("actual", [29.51, -8.34, -11.28, -2.02].map(v => v * M), SIGNED, "EBIT AC"), col("previousYear", [28.10, -8.05, -10.11, -1.93].map(v => v * M), SIGNED, "EBIT PY")],
+    { chart: { orientation: "waterfall", comparisonMode: "auto", showAbsoluteVariance: true, showRelativeVariance: true },
+      labels: { sumSafeRounding: true, unitSuffix: false } }), 900, 400);
+  const all = texts("W13");
+  const lbl = [...document.querySelectorAll("#W13 g.icd-cat text")].map(t => t.textContent.trim()).filter(t => /\d/.test(t));
+  measure(`W13 Brücke: ${lbl.join(" ")}`);
+  check(!all.some(t => /\+\+|−−|-−|\+−/.test(t)), "13: kein doppeltes Vorzeichen");
+  check(lbl.length >= 2 && !/^\+/.test(lbl[0]) && !/^\+/.test(lbl[lbl.length - 1]), "13: Anker (PY, AC) ohne Plus");
+  check(lbl.slice(1, -1).some(t => /^\+\d/.test(t)) && lbl.slice(1, -1).some(t => /^−\d/.test(t)), "13: Stufen mit genau einem Vorzeichen");
+}
