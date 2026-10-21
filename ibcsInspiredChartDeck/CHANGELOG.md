@@ -1,5 +1,16 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.52.3.0 (2026-10-21)
+
+**Formatstring mit explizitem Plus. Keine neue Option, capabilities.json unverändert; `test:notation` jetzt 37
+Prüfungen.**
+
+- **Vorzeichen nur einmal.** Ein Measure-Format wie `+#,##0;-#,##0;0` (typisch für GuV-Kennzahlen mit Vorzeichen)
+  ergab in Power BI „++1,17" an den Brückenstufen und „+8,01" an den Ankern (C12). ChartKitchen setzt Vorzeichen
+  selbst (Δ mit Vorzeichen, Werte ohne) und entfernt deshalb das Plus aus dem positiven Abschnitt des Formatstrings;
+  Minus- und Nullabschnitt, Text in Anführungszeichen und Escapes bleiben. Gilt für Wert, Linie, x und Größe.
+  In der Fabric App trat es nicht auf, weil dort kein Formatstring des Modells ankommt.
+
 ## 1.52.2.0 (2026-10-20)
 
 **Kosmetische Restpunkte der Showcase-Messung. Keine neue Option, capabilities.json unverändert; `test:notation`
