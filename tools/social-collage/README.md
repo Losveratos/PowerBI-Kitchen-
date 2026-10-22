@@ -18,3 +18,5 @@ await p.screenshot({path:'out.png'});await b.close();})()"
 
 Design-Tokens wie überall: Tinte `#0F1E2E`, ink-soft `#475569`, Teal `#0E8585`,
 Gelb `#F5B301`, Papier `#F4F3EE`; Kochmützen-Logo `hat.svg`.
+
+- `linkedin-banner.html` — LinkedIn-Profilbanner 1584×396 („WG meets Kitchen": Fliesenspiegel aus Mini-IBCS-Charts; rechts Text, links bleibt frei fürs Profilfoto)
