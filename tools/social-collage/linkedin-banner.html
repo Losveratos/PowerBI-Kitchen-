@@ -84,9 +84,33 @@ const charts = [
     <rect x="58" y="44" width="22" height="14" rx="3" fill="${teal}"/>
     <rect x="58" y="70" width="22" height="14" rx="3" fill="${yel}"/>
     <path d="M30,48 C45,48 45,23 58,23 M30,48 C45,48 45,51 58,51 M30,48 C45,48 45,77 58,77" fill="none" stroke="${soft}" stroke-width="2.4"/>`),
+  // Wärmestreifen (Klima-Story)
+  svgWrap(`<rect x="10" y="20" width="8" height="60" fill="#3B6FB5"/><rect x="19" y="20" width="8" height="60" fill="#6E9BD0"/>
+    <rect x="28" y="20" width="8" height="60" fill="#A9C4E4"/><rect x="37" y="20" width="8" height="60" fill="#E8EDF2"/>
+    <rect x="46" y="20" width="8" height="60" fill="#F2C9B0"/><rect x="55" y="20" width="8" height="60" fill="#E89A6F"/>
+    <rect x="64" y="20" width="8" height="60" fill="#D96A45"/><rect x="73" y="20" width="8" height="60" fill="#C43D2B"/>
+    <rect x="82" y="20" width="8" height="60" fill="#9E1B1B"/>`),
+  // Sankey (Strommix-Rechner)
+  svgWrap(`<path d="M10,22 C45,22 55,16 90,16 L90,30 C55,30 45,36 10,36 Z" fill="${teal}" opacity=".85"/>
+    <path d="M10,40 C45,40 55,42 90,36 L90,48 C55,52 45,50 10,52 Z" fill="${yel}" opacity=".9"/>
+    <path d="M10,56 C45,56 55,58 90,54 L90,62 C55,66 45,66 10,66 Z" fill="${grey}"/>
+    <path d="M10,70 C45,70 55,70 90,68 L90,84 C55,86 45,80 10,80 Z" fill="${ink}" opacity=".85"/>`),
+  // Karten-Punkte (Köln blitzt / Raser-Story)
+  svgWrap(`<path d="M18,80 C30,60 36,58 44,44 C50,34 62,30 82,22" fill="none" stroke="${grey}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M14,34 C34,40 52,56 86,62" fill="none" stroke="${grey}" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+    <circle cx="44" cy="44" r="7" fill="${red}"/><circle cx="60" cy="33" r="5" fill="${red}" opacity=".8"/>
+    <circle cx="30" cy="62" r="4.5" fill="${red}" opacity=".65"/><circle cx="70" cy="58" r="4" fill="${ink}" opacity=".5"/>
+    <circle cx="24" cy="38" r="3.5" fill="${ink}" opacity=".4"/>`),
+  // Kachel-Kartogramm (Länder-Atlas)
+  svgWrap(`<g stroke="#fff" stroke-width="2.4">
+    <rect x="22" y="14" width="18" height="18" fill="${grey}"/><rect x="42" y="14" width="18" height="18" fill="${teal}" opacity=".55"/>
+    <rect x="12" y="34" width="18" height="18" fill="${teal}" opacity=".8"/><rect x="32" y="34" width="18" height="18" fill="${teal}"/>
+    <rect x="52" y="34" width="18" height="18" fill="${yel}"/><rect x="72" y="34" width="18" height="18" fill="${grey}" opacity=".6"/>
+    <rect x="22" y="54" width="18" height="18" fill="${ink}" opacity=".85"/><rect x="42" y="54" width="18" height="18" fill="${teal}" opacity=".4"/>
+    <rect x="62" y="54" width="18" height="18" fill="${grey}"/><rect x="32" y="74" width="18" height="18" fill="${yel}" opacity=".7"/></g>`)
 ];
 const grid = document.getElementById('tiles');
-const order = [0,'blank',1,'teal',2,'blank', 3,'blank',4,'yel',5,'blank', 'blank',6,'blank',0,'blank',1, 2,'blank','teal',3,'blank',4];
+const order = [0,'blank',7,'teal',2,8, 3,9,4,'yel',5,'blank', 10,6,'blank',1,'blank',7, 8,'blank','teal',9,'blank',10];
 for (const o of order) {
   const d = document.createElement('div');
   if (o === 'blank' || o === 'teal' || o === 'yel') { d.className = 'tile ' + (o === 'blank' ? 'blank' : o); }
