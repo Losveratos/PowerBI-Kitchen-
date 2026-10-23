@@ -1765,6 +1765,26 @@ export class Visual implements IVisual {
         const v = this.settings.styleCard.cardBackground.value?.value || "#FFF";
         return this.dark && /^#fff(fff)?$/i.test(v) ? DARK_CARD : v;
     }
+    /**
+     * Layout pixels per screen pixel. The visual can sit inside a scaled stage
+     * (CSS transform, e.g. a Fabric App canvas at 1.25× or 2×). Then
+     * getBoundingClientRect reports screen pixels while top, height, width and
+     * scrollTop work in layout pixels: a sticky offset measured that way pushed
+     * the column header down into the rows. In Power BI the factor is 1.
+     */
+    private zoom(): number {
+        const w = this.root.offsetWidth;
+        const r = this.root.getBoundingClientRect().width;
+        return w > 0 && r > 0 ? r / w : 1;
+    }
+
+    /** getBoundingClientRect in layout pixels (see zoom) */
+    private rect(el: Element): { top: number; bottom: number; left: number; right: number; width: number; height: number } {
+        const b = el.getBoundingClientRect();
+        const z = this.zoom();
+        return { top: b.top / z, bottom: b.bottom / z, left: b.left / z, right: b.right / z, width: b.width / z, height: b.height / z };
+    }
+
     /** whether head block and column headers stay on screen while scrolling */
     private sticky(): boolean {
         return this.settings.styleCard.stickyHeader.value;
@@ -3825,8 +3845,8 @@ export class Visual implements IVisual {
     private contentHeight(): number {
         const last = this.root.lastElementChild as HTMLElement | null;
         if (!last) { return 0; }
-        const rb = this.root.getBoundingClientRect();
-        return Math.ceil(last.getBoundingClientRect().bottom - rb.top + this.root.scrollTop);
+        const rb = this.rect(this.root);
+        return Math.ceil(this.rect(last).bottom - rb.top + this.root.scrollTop);
     }
 
     /**
@@ -3976,12 +3996,12 @@ export class Visual implements IVisual {
     private applySticky(): void {
         this.syncHeadShadow();
         if (!this.sticky()) { return; }
-        let top = this.headEl ? Math.round(this.headEl.getBoundingClientRect().height) : 0;
+        let top = this.headEl ? Math.round(this.rect(this.headEl).height) : 0;
         const zoomHead = this.root.querySelector('[data-pnl="zoom-head"]') as HTMLElement | null;
         if (zoomHead) {
             zoomHead.style.top = top + "px";
             zoomHead.style.boxShadow = `0 -1px 0 ${this.pageBg()}`;
-            top += Math.round(zoomHead.getBoundingClientRect().height);
+            top += Math.round(this.rect(zoomHead).height);
         }
         // the mega table's head svg is an ordinary block — it sticks by itself
         const megaHead = this.root.querySelector('[data-pnl="mega-head-wrap"]') as HTMLElement | null;
@@ -4017,7 +4037,7 @@ export class Visual implements IVisual {
     private zoomPostLayout(): void {
         const tile = this.root.querySelector('[data-pnl="zoom-center"]') as HTMLElement | null;
         if (tile) {
-            const h = Math.round(tile.getBoundingClientRect().height);
+            const h = Math.round(this.rect(tile).height);
             const cols = this.root.querySelectorAll('[data-pnl="zoom-side"]');
             for (let i = 0; i < cols.length; i++) { (cols[i] as HTMLElement).style.height = h + "px"; }
         }
@@ -4034,9 +4054,9 @@ export class Visual implements IVisual {
             // measure the real pitch (sub-pixel): rounding a card height would
             // let a hairline of the next card peek out — exactly the stump the
             // pager exists to avoid
-            const r0 = first.getBoundingClientRect();
+            const r0 = this.rect(first);
             const second = list.children[1] as HTMLElement | undefined;
-            const pitch = second ? second.getBoundingClientRect().top - r0.top
+            const pitch = second ? this.rect(second).top - r0.top
                 : r0.height + this.k(MICRO_CARD_GAP);
             const gap = Math.max(pitch - r0.height, 0);
             if (pitch <= 0) { continue; }
@@ -4116,8 +4136,8 @@ export class Visual implements IVisual {
     private measureWindow(): void {
         const vs = this.vs;
         if (!vs) { return; }
-        const rootBox = this.root.getBoundingClientRect();
-        const topBox = vs.top.getBoundingClientRect();
+        const rootBox = this.rect(this.root);
+        const topBox = this.rect(vs.top);
         vs.bodyTop = topBox.top - rootBox.top + this.root.scrollTop;
         this.syncWindow();
     }
@@ -4984,7 +5004,7 @@ export class Visual implements IVisual {
         const table = this.tableEl;
         const avail = this.root.clientWidth;
         if (!table || avail <= 0) { return false; }
-        const now = table.getBoundingClientRect().width;
+        const now = this.rect(table).width;
         const room = avail - 2 * TABLE_PAD_X;
         if (now <= room) { return false; }
         const cols = this.flatCols(this.colSpecs());
@@ -5238,14 +5258,14 @@ export class Visual implements IVisual {
             for (let i = 0; i < src.length; i++) {
                 const d = dst[i] as HTMLElement;
                 d.style.visibility = "visible";
-                d.style.width = (src[i] as HTMLElement).getBoundingClientRect().width.toFixed(2) + "px";
+                d.style.width = this.rect(src[i] as HTMLElement).width.toFixed(2) + "px";
                 d.style.boxSizing = "border-box";
                 d.style.overflow = "hidden";
             }
             wrap.appendChild(clone);
         }
-        const rb = this.root.getBoundingClientRect();
-        const tb = table.getBoundingClientRect();
+        const rb = this.rect(this.root);
+        const tb = this.rect(table);
         wrap.style.left = (tb.left - rb.left + this.root.scrollLeft).toFixed(2) + "px";
         this.floatTop = topOffset;
         this.root.appendChild(wrap);
@@ -6940,8 +6960,8 @@ export class Visual implements IVisual {
 
         // ---- place next to the card, clamped to the visible viewport
         this.root.appendChild(box);
-        const ar = anchor.getBoundingClientRect();
-        const rr = this.root.getBoundingClientRect();
+        const ar = this.rect(anchor);
+        const rr = this.rect(this.root);
         const bh = box.offsetHeight;
         let left = ar.right - rr.left + this.root.scrollLeft + 10;
         if (left + W > this.root.scrollLeft + this.root.clientWidth - 6) {
@@ -9065,7 +9085,7 @@ export class Visual implements IVisual {
         const R = vs.L.R;
         if (R.length === 0) { return; }
         // body pixel 0 = layout y headH (the body svg's viewBox starts there)
-        const top = this.root.getBoundingClientRect().top - vs.body.getBoundingClientRect().top + vs.L.headH;
+        const top = this.rect(this.root).top - this.rect(vs.body).top + vs.L.headH;
         const viewH = this.root.clientHeight || 800;
         const at = (y: number): number => {
             let lo = 0; let hi = R.length - 1;
@@ -9373,11 +9393,13 @@ export class Visual implements IVisual {
     private moveDarkTip(e: MouseEvent): void {
         const d = this.darkTip;
         if (!d) { return; }
-        const r = this.root.getBoundingClientRect();
-        let x = e.clientX - r.left + 14;
-        let y = e.clientY - r.top + 14;
-        if (x + d.offsetWidth > r.width - 4) { x = Math.max(4, e.clientX - r.left - d.offsetWidth - 14); }
-        if (y + d.offsetHeight > r.height - 4) { y = Math.max(4, e.clientY - r.top - d.offsetHeight - 14); }
+        const r = this.rect(this.root);
+        const z = this.zoom();
+        const cx = e.clientX / z; const cy = e.clientY / z;
+        let x = cx - r.left + 14;
+        let y = cy - r.top + 14;
+        if (x + d.offsetWidth > r.width - 4) { x = Math.max(4, cx - r.left - d.offsetWidth - 14); }
+        if (y + d.offsetHeight > r.height - 4) { y = Math.max(4, cy - r.top - d.offsetHeight - 14); }
         // the root scrolls — the box lives in its content coordinates
         d.style.left = `${x + this.root.scrollLeft}px`;
         d.style.top = `${y + this.root.scrollTop}px`;
@@ -9758,8 +9780,8 @@ export class Visual implements IVisual {
         // block that must fit — measuring only the footnotes cut the notation
         // line off below the tile edge as soon as a comment was shown (T03, T04, 12A/G/H)
         const lastEl = (): HTMLElement => footer && footer.parentNode === this.root ? footer : notes;
-        const bottom = (): number => Math.ceil(lastEl().getBoundingClientRect().bottom
-            - this.root.getBoundingClientRect().top + this.root.scrollTop);
+        const bottom = (): number => Math.ceil(this.rect(lastEl()).bottom
+            - this.rect(this.root).top + this.root.scrollTop);
         if (bottom() <= avail) { return; }
         // (1) columns: one comment per line, as many columns as the width holds
         if (this.comments.length > 1) {
@@ -9785,7 +9807,16 @@ export class Visual implements IVisual {
         // (3) still too tall: the footnotes stay on screen at the bottom edge,
         // the footer rides along inside the sticky block
         if (over > 0) {
-            if (footer && footer.parentNode === this.root) { notes.appendChild(footer); }
+            // the footer spans all comment columns, otherwise the notation line
+            // is torn into column fragments
+            if (footer && footer.parentNode === this.root) { notes.appendChild(footer); footer.style.columnSpan = "all"; }
+            // only while the rows keep a usable window: frozen head, column
+            // header and a sticky footnote block together ate small tiles
+            // completely (a Fabric App tile showed title and footnotes only)
+            const megaHead = this.root.querySelector('[data-pnl="mega-head-wrap"]') as HTMLElement | null;
+            const frozen = this.sticky() ? (this.headEl?.offsetHeight ?? 0) + (megaHead?.offsetHeight ?? 0) : 0;
+            const rowH = L ? L.G.rowH : this.k(20);
+            if (avail - frozen - notes.offsetHeight < Math.max(5 * rowH, 0.3 * avail)) { return; }
             notes.setAttribute("data-pnl-sticky", "1");
             notes.style.position = "sticky";
             notes.style.bottom = "0";
