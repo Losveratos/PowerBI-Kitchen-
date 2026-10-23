@@ -68,8 +68,10 @@ Screenshots, PDF und XLSX landen unter `tests/rechner/.artifacts/<suite>/`
 | `inhaltsverzeichnis-und-graph` | Seitenleiste ab Ebene 2, Sprungziele, Ebenenwechsel beim Klick, klickbarer Wirkungsgraph, Knoten-Popups mit Bedienelementen, Fokus und Tastatur, 390 / 1100 / 1240 px, Druck | 67 | ~90 s |
 | `lizenzbasis` | v0.18-Annahme `licViewerShare`: Feld, Wirkung auf die Lizenzkosten, **100 % reproduziert exakt die v0.17-Zahlen**, Kopplung an „IBCS verbindlich“, Site-Lizenz, Share-Link, Bedienung im Graph-Popup | 35 | ~45 s |
 | `wirkungsgraph-abschnitt` | v0.19-Informationsarchitektur: Seitenfolge Überblick → Karte → Eingaben → Ergebnis → Details, Sichtbarkeit je Ebene, Erklärblock, Ansatz-Reiter, Knotenauswahl, Popup, Druck, 390 / 768 / 1100 px | 49 | ~70 s |
+| `bedienbarkeit` | v0.20: Tastaturbedienung, Fokus an Sprungzielen, Kontraste, Schriftgroessen, Rollen an den Segment-Schaltern, offene Details im Ausdruck | 66 | ~75 s |
+| `handrechnung` | **Unabhaengige Verankerung des Rechenkerns:** ein Mini-Szenario, das allein aus der Modellbeschreibung von Hand durchgerechnet wurde (`handrechnung.md`), Posten fuer Posten gegen `expected()`; dazu zwei benannte Abweichungen | 43 | ~10 s |
 
-**Summe: 306 Prüfungen, zusammen rund 6 Minuten** (die Suiten laufen nacheinander,
+**Summe: 416 Prüfungen, zusammen rund 5,5 Minuten** (die Suiten laufen nacheinander,
 jede startet ihren eigenen Chromium).
 
 ---
@@ -78,10 +80,13 @@ jede startet ihren eigenen Chromium).
 
 Bewusst offen, damit niemand mehr Sicherheit annimmt als da ist:
 
-* **Der Rechenkern selbst** hat keine Prüfung gegen von Hand nachgerechnete
-  Zahlen. Geprüft wird Determinismus, Konsistenz (CapEx + OpEx = Summe) und
-  Unverändertheit gegenüber gemessenen Referenzwerten — nicht, ob eine Formel
-  fachlich richtig ist.
+* **Der Rechenkern** ist seit `handrechnung.test.js` an **einem** von Hand
+  nachgerechneten Szenario verankert (1 Ersteller, 10 Viewer, 3 Jahre, zwei
+  Ansätze, sieben Posten — alle auf den Cent). Das ist ein Stichpunkt, keine
+  Flächendeckung: andere Mengengerüste, die Simulation, die Null-Option und die
+  Report-Klassen ohne IBCS-Pflicht sind weiterhin nur gegen gemessene
+  Referenzwerte gehalten. Was dabei über die Lückenhaftigkeit der
+  Modellbeschreibung herauskam, steht in `rechner/handrechnung.md`.
 * **Die Referenzzahlen** in `lizenzbasis.test.js` (`REF`) sind gemessene
   v0.17-Werte, keine unabhängige Quelle. Sie fangen unbeabsichtigte
   Änderungen, nicht gemeinsame Fehler.

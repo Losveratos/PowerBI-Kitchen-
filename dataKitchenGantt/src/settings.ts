@@ -89,9 +89,15 @@ class DarstellungCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    gruppenNamen = new formattingSettings.ToggleSwitch({
+        name: "gruppenNamen",
+        displayName: "Gruppennamen im Chart",
+        value: true
+    });
+
     name: string = "darstellung";
     displayName: string = "Darstellung";
-    slices: Array<FormattingSettingsSlice> = [this.theme, this.zeiteinheit, this.tageEinheit, this.wochenenden, this.abhaengigkeiten, this.heuteLinie, this.tabellenBreite, this.ibcs];
+    slices: Array<FormattingSettingsSlice> = [this.theme, this.zeiteinheit, this.tageEinheit, this.wochenenden, this.abhaengigkeiten, this.heuteLinie, this.tabellenBreite, this.gruppenNamen, this.ibcs];
 }
 
 class SpaltenCardSettings extends FormattingSettingsCard {
@@ -194,35 +200,12 @@ class SchriftCardSettings extends FormattingSettingsCard {
     slices: Array<FormattingSettingsSlice> = [this.font];
 }
 
-class LeerZustandCardSettings extends FormattingSettingsCard {
-    titel = new formattingSettings.TextInput({
-        name: "titel",
-        displayName: "Eigener Titel",
-        description: "Ersetzt die Überschrift „DataKitchen Gantt\", wenn keine Vorgänge dargestellt werden (Felder leer oder Auswahl ohne Zeilen).",
-        placeholder: "z. B. Keine Vorgänge für diese Auswahl",
-        value: ""
-    });
-
-    text = new formattingSettings.TextInput({
-        name: "text",
-        displayName: "Eigener Text",
-        description: "Textkörper unter dem Titel im Leer-Zustand — z. B. ein Hinweis, welche Filter der Leser prüfen soll.",
-        placeholder: "z. B. Bitte Projekt- oder Zeitraum-Filter anpassen.",
-        value: ""
-    });
-
-    name: string = "leerZustand";
-    displayName: string = "Leer-Zustand";
-    slices: Array<FormattingSettingsSlice> = [this.titel, this.text];
-}
-
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     darstellungCard = new DarstellungCardSettings();
     spaltenCard = new SpaltenCardSettings();
     basisplanCard = new BasisplanCardSettings();
     meilensteineCard = new MeilensteineCardSettings();
     schriftCard = new SchriftCardSettings();
-    leerZustandCard = new LeerZustandCardSettings();
 
-    cards = [this.darstellungCard, this.spaltenCard, this.basisplanCard, this.meilensteineCard, this.schriftCard, this.leerZustandCard];
+    cards = [this.darstellungCard, this.spaltenCard, this.basisplanCard, this.meilensteineCard, this.schriftCard];
 }

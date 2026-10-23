@@ -1,0 +1,56 @@
+name: Visual-Standards-Rechner — Prüfungen
+
+# Faehrt die Playwright-Suiten aus tests/rechner/ gegen die Rechner-Datei.
+# Hintergrund: bis September 2026 lagen die Testskripte nur im fluechtigen
+# Arbeitsverzeichnis einer Sitzung, und nichts hinderte einen Commit mit roten
+# Tests. Seitdem liegen sie im Repository — dieser Workflow sorgt dafuer, dass
+# sie auch laufen.
+
+on:
+  push:
+    paths:
+      - "visual-standards-rechner.html"
+      - "tests/rechner/**"
+      - "tests/run-all.js"
+      - "assets/js/xlsx.full.min.js"
+      - ".github/workflows/rechner-tests.yml"
+  pull_request:
+    paths:
+      - "visual-standards-rechner.html"
+      - "tests/rechner/**"
+      - "tests/run-all.js"
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    # Der volle Satz braucht lokal rund 5,5 Minuten; im Runner grosszuegiger,
+    # aber nicht unbegrenzt — eine haengende Suite soll den Job beenden.
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Playwright und Chromium installieren
+        # Kein package.json im Repo-Wurzelverzeichnis: Playwright wird direkt
+        # installiert. --with-deps holt die Systembibliotheken, die Chromium
+        # auf einem nackten Ubuntu-Runner braucht.
+        run: |
+          npm install --no-save playwright@latest
+          npx playwright install --with-deps chromium
+
+      - name: Prüfungen
+        run: node tests/run-all.js
+
+      - name: Artefakte der fehlgeschlagenen Läufe sichern
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rechner-test-artefakte
+          path: tests/rechner/.artifacts/
+          retention-days: 7
+          if-no-files-found: ignore

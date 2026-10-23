@@ -69,9 +69,26 @@ Zeilen rendern damit in ~140 ms statt ~8 s.
   Fläche (ziehbar, Klick auf die Spur springt); Klick-Toleranz 8 px, damit
   Touchpad-Klicks (leichtes Verrutschen beim Drücken) nicht als Pannen zählen
 - „Heute" zentriert auf das aktuelle Datum, „Alles" passt den gesamten Plan ein
-- Phasenzeile anklicken = auf-/zuklappen — in der Tabelle **und** im Chart;
-  Klicks werden koordinatenbasiert über stabile Container aufgelöst, damit
-  Hover-Re-Renders keine Klicks mehr „verschlucken"
+- Gruppenzeile (Projekt oder Ebene) anklicken = auf-/zuklappen. Das gilt für die
+  **ganze Zeile, an jeder Stelle** — in der Tabelle und im Chart, auf dem
+  Summenbalken, auf dem Gruppennamen und auch auf den Meilenstein-Rauten, die
+  eine zugeklappte Gruppe (und immer die Projektzeile) trägt. Letztere
+  selektieren dort bewusst **nicht**: bei ~48 Meilensteinen je Projekt wäre die
+  Zeile sonst größtenteils tot. Zum Selektieren eines Meilensteins die Gruppe
+  aufklappen und seine eigene Zeile anklicken.
+  Klicks laufen über **mousedown + mouseup** auf dem stabilen Viewport, nicht
+  über `click`: wird der Knoten unter dem Zeiger zwischen Drücken und Loslassen
+  ersetzt, stellt der Browser gar kein `click` zu — auch nicht an einen
+  Vorfahren. Ein menschlicher Klick dauert länger als ein Frame, ein
+  synthetischer nicht; deshalb fiel das in Tests lange nicht auf.
+  `setState()` zeichnet zudem nur noch neu, wenn sich wirklich etwas ändert —
+  vorher löste jedes `mouseenter` ein Neuzeichnen aus, das die Zeilen ersetzte,
+  worauf der neue Knoten unter dem Zeiger sofort wieder `mouseenter` feuerte
+  (gemessene Dauerschleife: 110 Renders in 2 s bei stillstehender Maus). Die Umrechnung
+  berücksichtigt eine **CSS-Skalierung des Visuals** (Power BI: „Anpassen an
+  Seite", Fokusmodus, Browser-Zoom, mobile Layouts) — ohne das trifft ein
+  Klick die falsche Zeile, und zwar umso weiter daneben, je tiefer sie liegt.
+  Dasselbe gilt für Pannen, Scrollbalken, Zoom-Anker und Tooltip-Position
 - Task anklicken = Crossfilter-Selektion (Strg = Mehrfachauswahl), Rechtsklick = Kontextmenü
 - **Bewusst entfernt gegenüber dem HTML-Sample:** Balken per Drag verschieben/verlängern —
   Power BI bindet Start/Ende aus dem Datenmodell (gleiche Entscheidung wie beim
@@ -81,6 +98,10 @@ Zeilen rendern damit in ~140 ms statt ~8 s.
 
 Theme Hell/Dunkel · Wochenenden schattieren · Abhängigkeitspfeile · Heute-Linie ·
 Tabellenbreite in px (0 = Tabelle ausblenden; Spalten weichen automatisch bei Platzmangel)
+
+**Gruppennamen im Chart** — blendet den Namen jeder Gruppenzeile zusätzlich am
+Anfang ihres Summenbalkens ein (Vorgabe: an). Hilft, wenn die Tabelle schmal ist
+und tiefe Ebenen dort abgeschnitten werden, oder ganz ausgeblendet ist.
 
 **Tabellenspalten** — Start, Ende, Dauer, Status, Fortschritt, Wer einzeln
 ein-/ausblenden (Δ Plan sitzt in der Karte „Basisplan").
@@ -97,24 +118,6 @@ Plan-Meilensteine als Outline-Raute) · Δ-Spalte in der Tabelle („+3 d" rot =
 „−2 d" grün = früher) · Verzug-Zeilen leicht rot hinterlegen (Tabelle + Chart-Lane).
 Phasen aggregieren den Plan ihrer Kinder (Hülle) und zeigen das Verzugs-Delta der Phase.
 
-**Leer-Zustand** (ab 1.13) — eigene Karte: Eigener Titel + Eigener Text ersetzen
-das „DataKitchen Gantt"-Branding, wenn keine Vorgänge dargestellt werden (Felder
-leer oder Auswahl ohne Zeilen) — z. B. „Keine Vorgänge für diese Auswahl" mit
-Filter-Hinweis. Leer gelassen bleibt der bisherige Felder-Hinweis.
-
-**Tooltip im Dunkel-Theme** (ab 1.13): nicht mehr invertiert hell, sondern als
-leicht angehobenes dunkles Panel mit Rand — passend zur dunklen Seite. Im hellen
-Theme bleibt der klassische dunkle Tooltip unverändert.
-
-**Ansichts-Zustand bleibt erhalten** (ab 1.14): Zoom, Position, gewählte
-Zeiteinheit (Tage … Jahre) und auf-/zugeklappte Ebenen werden entprellt in die
-Formatoptionen persistiert (`zustand.ansicht`/`zustand.zugeklappt`, unsichtbar
-im Formatbereich) und beim nächsten Öffnen wiederhergestellt — statt wie bisher
-immer alles aufzuklappen und neu einzupassen. Wiederherstellung greift einmal
-pro Sitzung; danach gewinnt immer der Live-Zustand (Host-Echos drehen nichts
-zurück). „Alles"/„Heute" funktionieren weiter wie gewohnt und werden ebenfalls
-gemerkt.
-
 ## Entwicklung
 
 ```bash
@@ -126,7 +129,7 @@ npm run harness        # kompiliert src/gantt.ts nach test/ für den Browser-Tes
 Browser-Testharness: `test/harness.html` (Demo-Daten = Sample „BI-Rollout 2026" inkl.
 Basisplan mit Verzügen; URL-Parameter: `?dark=1`, `?ibcs=1`, `?tw=430`, `?deps=0`,
 `?wochenenden=0`, `?heute=0`, `?plan=0`, `?delta=0`, `?verzug=0`,
-`?msnamen=0`, `?mslabel=nurName|beides`).
+`?msnamen=0`, `?mslabel=nurName|beides`, `?gnamen=0`).
 **`?ebenen=1`** lädt das mehrstufige Sample (Projekt MAR-S005, vier Ebenen,
 ungleich tiefe Zweige, gleichnamige Vorgänge, Sammelvorgangs-Zeile);
 `?proj=1` das Portfolio-Sample mit zwei Projekten.
