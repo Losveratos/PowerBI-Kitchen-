@@ -1,0 +1,424 @@
+/// Fact table: account x month (Datum = month end) x currency, values in local currency (LC), costs booked positive.
+/// AC is empty for open months; PY/PL/FC cover all 12 months; FC is the "9+3" version (actuals + forecast).
+/// Measures convert LC -> CC (EUR) per month x currency: AC/FC at AKT, PL at BUD, PY at VJ (finance-data-model, variant B).
+table FaktFinanz
+
+	/// AC in CC (EUR) at the current actual rate (AKT).
+	measure AC =
+			SUMX (
+				SUMMARIZE ( FaktFinanz, FaktFinanz[Datum], FaktFinanz[Currency] ),
+				VAR _kurs =
+					IF (
+						LEN ( FaktFinanz[Currency] ) = 0, 1,
+						LOOKUPVALUE ( DimKurs[Kurs],
+							DimKurs[Periode], FaktFinanz[Datum],
+							DimKurs[Currency], FaktFinanz[Currency],
+							DimKurs[Kursart], "AKT" )
+					)
+				RETURN DIVIDE ( CALCULATE ( SUM ( FaktFinanz[AC] ) ), _kurs )
+			)
+		formatString: #,0
+		displayFolder: 1 Roles (CC EUR)
+
+	/// PY in CC (EUR) as reported last year (rate type VJ).
+	measure PY =
+			SUMX (
+				SUMMARIZE ( FaktFinanz, FaktFinanz[Datum], FaktFinanz[Currency] ),
+				VAR _kurs =
+					IF (
+						LEN ( FaktFinanz[Currency] ) = 0, 1,
+						LOOKUPVALUE ( DimKurs[Kurs],
+							DimKurs[Periode], FaktFinanz[Datum],
+							DimKurs[Currency], FaktFinanz[Currency],
+							DimKurs[Kursart], "VJ" )
+					)
+				RETURN DIVIDE ( CALCULATE ( SUM ( FaktFinanz[PY] ) ), _kurs )
+			)
+		formatString: #,0
+		displayFolder: 1 Roles (CC EUR)
+
+	/// PL in CC (EUR) - always at the budget rate (BUD).
+	measure PL =
+			SUMX (
+				SUMMARIZE ( FaktFinanz, FaktFinanz[Datum], FaktFinanz[Currency] ),
+				VAR _kurs =
+					IF (
+						LEN ( FaktFinanz[Currency] ) = 0, 1,
+						LOOKUPVALUE ( DimKurs[Kurs],
+							DimKurs[Periode], FaktFinanz[Datum],
+							DimKurs[Currency], FaktFinanz[Currency],
+							DimKurs[Kursart], "BUD" )
+					)
+				RETURN DIVIDE ( CALCULATE ( SUM ( FaktFinanz[PL] ) ), _kurs )
+			)
+		formatString: #,0
+		displayFolder: 1 Roles (CC EUR)
+
+	/// FC in CC (EUR) at the current (carried forward) rate (AKT).
+	measure FC =
+			SUMX (
+				SUMMARIZE ( FaktFinanz, FaktFinanz[Datum], FaktFinanz[Currency] ),
+				VAR _kurs =
+					IF (
+						LEN ( FaktFinanz[Currency] ) = 0, 1,
+						LOOKUPVALUE ( DimKurs[Kurs],
+							DimKurs[Periode], FaktFinanz[Datum],
+							DimKurs[Currency], FaktFinanz[Currency],
+							DimKurs[Kursart], "AKT" )
+					)
+				RETURN DIVIDE ( CALCULATE ( SUM ( FaktFinanz[FC] ) ), _kurs )
+			)
+		formatString: #,0
+		displayFolder: 1 Roles (CC EUR)
+
+	/// Full-year plan from the converted months (role plFy).
+	measure 'PL FY' = CALCULATE ( [PL], REMOVEFILTERS ( DimDatum ), VALUES ( DimDatum[Jahr] ) )
+		formatString: #,0
+		displayFolder: 1 Roles (CC EUR)
+
+	/// Full-year outlook AC&FC = sum of the FC version n+m (role fcFy).
+	measure 'AC&FC FY' = CALCULATE ( [FC], REMOVEFILTERS ( DimDatum ), VALUES ( DimDatum[Jahr] ) )
+		formatString: #,0
+		displayFolder: 1 Roles (CC EUR)
+
+	/// FX-adjusted actuals: AC at the budget rate.
+	measure 'AC @BUD' =
+			SUMX (
+				SUMMARIZE ( FaktFinanz, FaktFinanz[Datum], FaktFinanz[Currency] ),
+				VAR _kurs =
+					IF (
+						LEN ( FaktFinanz[Currency] ) = 0, 1,
+						LOOKUPVALUE ( DimKurs[Kurs],
+							DimKurs[Periode], FaktFinanz[Datum],
+							DimKurs[Currency], FaktFinanz[Currency],
+							DimKurs[Kursart], "BUD" )
+					)
+				RETURN DIVIDE ( CALCULATE ( SUM ( FaktFinanz[AC] ) ), _kurs )
+			)
+		formatString: #,0
+		displayFolder: 2 FX views
+
+	/// FX-adjusted forecast: FC at the budget rate.
+	measure 'FC @BUD' =
+			SUMX (
+				SUMMARIZE ( FaktFinanz, FaktFinanz[Datum], FaktFinanz[Currency] ),
+				VAR _kurs =
+					IF (
+						LEN ( FaktFinanz[Currency] ) = 0, 1,
+						LOOKUPVALUE ( DimKurs[Kurs],
+							DimKurs[Periode], FaktFinanz[Datum],
+							DimKurs[Currency], FaktFinanz[Currency],
+							DimKurs[Kursart], "BUD" )
+					)
+				RETURN DIVIDE ( CALCULATE ( SUM ( FaktFinanz[FC] ) ), _kurs )
+			)
+		formatString: #,0
+		displayFolder: 2 FX views
+
+	/// Prior year at constant (current) rates - organic growth view.
+	measure 'PY @AKT' =
+			SUMX (
+				SUMMARIZE ( FaktFinanz, FaktFinanz[Datum], FaktFinanz[Currency] ),
+				VAR _kurs =
+					IF (
+						LEN ( FaktFinanz[Currency] ) = 0, 1,
+						LOOKUPVALUE ( DimKurs[Kurs],
+							DimKurs[Periode], FaktFinanz[Datum],
+							DimKurs[Currency], FaktFinanz[Currency],
+							DimKurs[Kursart], "AKT" )
+					)
+				RETURN DIVIDE ( CALCULATE ( SUM ( FaktFinanz[PY] ) ), _kurs )
+			)
+		formatString: #,0
+		displayFolder: 2 FX views
+
+	/// FX effect = reported AC minus AC at budget rate.
+	measure 'FX-Effekt' = [AC] - [AC @BUD]
+		formatString: +#,0;-#,0;0
+		displayFolder: 2 FX views
+
+	/// AC following the Kurssicht slicer (reported or at budget rate).
+	measure 'AC (Sicht)' = IF ( SELECTEDVALUE ( Kurssicht[Sicht], "berichtet" ) = "zum Budgetkurs", [AC @BUD], [AC] )
+		formatString: #,0
+		displayFolder: 2 FX views
+
+	/// FC following the Kurssicht slicer (reported or at budget rate).
+	measure 'FC (Sicht)' = IF ( SELECTEDVALUE ( Kurssicht[Sicht], "berichtet" ) = "zum Budgetkurs", [FC @BUD], [FC] )
+		formatString: #,0
+		displayFolder: 2 FX views
+
+	/// AC in local currency - only meaningful with exactly one currency in the filter.
+	measure 'AC LC' = IF ( HASONEVALUE ( FaktFinanz[Currency] ), SUM ( FaktFinanz[AC] ) )
+		formatString: #,0
+		displayFolder: 3 Local currency (LC)
+
+	measure 'PY LC' = IF ( HASONEVALUE ( FaktFinanz[Currency] ), SUM ( FaktFinanz[PY] ) )
+		formatString: #,0
+		displayFolder: 3 Local currency (LC)
+
+	measure 'PL LC' = IF ( HASONEVALUE ( FaktFinanz[Currency] ), SUM ( FaktFinanz[PL] ) )
+		formatString: #,0
+		displayFolder: 3 Local currency (LC)
+
+	measure 'FC LC' = IF ( HASONEVALUE ( FaktFinanz[Currency] ), SUM ( FaktFinanz[FC] ) )
+		formatString: #,0
+		displayFolder: 3 Local currency (LC)
+
+	/// Signed AC (cost rows x -1) for ChartKitchen P&L / waterfall modes.
+	measure 'AC ±' = SUMX ( VALUES ( DimKonto[SignConvention] ), DimKonto[SignConvention] * [AC] )
+		formatString: #,0
+		displayFolder: 4 ChartKitchen bridge
+
+	measure 'PY ±' = SUMX ( VALUES ( DimKonto[SignConvention] ), DimKonto[SignConvention] * [PY] )
+		formatString: #,0
+		displayFolder: 4 ChartKitchen bridge
+
+	measure 'PL ±' = SUMX ( VALUES ( DimKonto[SignConvention] ), DimKonto[SignConvention] * [PL] )
+		formatString: #,0
+		displayFolder: 4 ChartKitchen bridge
+
+	/// Staircase P&L: formula rows = running total of all EUR accounts before them.
+	measure 'AC GuV' =
+			VAR _typ = SELECTEDVALUE ( DimKonto[RowType] )
+			VAR _bis = MAX ( DimKonto[SortOrder] )
+			RETURN
+				SWITCH ( TRUE (),
+					_typ = "Formula",
+						CALCULATE ( [AC ±], REMOVEFILTERS ( DimKonto ),
+							DimKonto[SortOrder] < _bis, DimKonto[RowType] = "Account", DimKonto[Einheit] = "EUR" ),
+					_typ = "KPI", BLANK (),
+					[AC ±] )
+		formatString: #,0
+		displayFolder: 4 ChartKitchen bridge
+
+	measure 'PY GuV' =
+			VAR _typ = SELECTEDVALUE ( DimKonto[RowType] )
+			VAR _bis = MAX ( DimKonto[SortOrder] )
+			RETURN
+				SWITCH ( TRUE (),
+					_typ = "Formula",
+						CALCULATE ( [PY ±], REMOVEFILTERS ( DimKonto ),
+							DimKonto[SortOrder] < _bis, DimKonto[RowType] = "Account", DimKonto[Einheit] = "EUR" ),
+					_typ = "KPI", BLANK (),
+					[PY ±] )
+		formatString: #,0
+		displayFolder: 4 ChartKitchen bridge
+
+	measure 'PL GuV' =
+			VAR _typ = SELECTEDVALUE ( DimKonto[RowType] )
+			VAR _bis = MAX ( DimKonto[SortOrder] )
+			RETURN
+				SWITCH ( TRUE (),
+					_typ = "Formula",
+						CALCULATE ( [PL ±], REMOVEFILTERS ( DimKonto ),
+							DimKonto[SortOrder] < _bis, DimKonto[RowType] = "Account", DimKonto[Einheit] = "EUR" ),
+					_typ = "KPI", BLANK (),
+					[PL ±] )
+		formatString: #,0
+		displayFolder: 4 ChartKitchen bridge
+
+	/// Text measure for the ChartKitchen role "comments".
+	measure Kommentar = SELECTEDVALUE ( DimKonto[Comment] )
+		displayFolder: 4 ChartKitchen bridge
+
+	measure 'Revenue AC' = CALCULATE ( [AC], DimKonto[L1] = "Umsatzerlöse" )
+		formatString: #,0
+		displayFolder: 5 Stack helpers
+
+	measure 'Revenue PY' = CALCULATE ( [PY], DimKonto[L1] = "Umsatzerlöse" )
+		formatString: #,0
+		displayFolder: 5 Stack helpers
+
+	measure 'Revenue PL' = CALCULATE ( [PL], DimKonto[L1] = "Umsatzerlöse" )
+		formatString: #,0
+		displayFolder: 5 Stack helpers
+
+	measure 'Revenue FC' = CALCULATE ( [FC], DimKonto[L1] = "Umsatzerlöse" )
+		formatString: #,0
+		displayFolder: 5 Stack helpers
+
+	/// Actuals where available, forecast for the open months (one continuous series).
+	measure 'Revenue AC&FC' =
+			SUMX (
+				VALUES ( DimDatum[Monat] ),
+				VAR _ac = [Revenue AC]
+				RETURN IF ( ISBLANK ( _ac ), [Revenue FC], _ac )
+			)
+		formatString: #,0
+		displayFolder: 5 Stack helpers
+
+	measure 'Revenue AC @BUD' = CALCULATE ( [AC @BUD], DimKonto[L1] = "Umsatzerlöse" )
+		formatString: #,0
+		displayFolder: 5 Stack helpers
+
+	measure 'Revenue FX effect' = [Revenue AC] - [Revenue AC @BUD]
+		formatString: +#,0;-#,0;0
+		displayFolder: 5 Stack helpers
+
+	/// Deneb (Stack 2): columns template, values in kEUR.
+	measure 'Revenue AC&FC kEUR' = DIVIDE ( [Revenue AC&FC], 1000 )
+		formatString: #,0.0
+		displayFolder: 5 Stack helpers\Deneb
+
+	measure 'Revenue PL kEUR' = DIVIDE ( [Revenue PL], 1000 )
+		formatString: #,0.0
+		displayFolder: 5 Stack helpers\Deneb
+
+	/// Deneb (Stack 2): waterfall template - signed account values, 0 on sum rows (the spec accumulates), KPI rows hidden.
+	measure 'AC WF kEUR' =
+			VAR _typ = SELECTEDVALUE ( DimKonto[RowType] )
+			RETURN
+				SWITCH ( TRUE (),
+					_typ = "Formula", 0,
+					_typ = "KPI", BLANK (),
+					DIVIDE ( [AC ±], 1000 ) )
+		formatString: #,0.0
+		displayFolder: 5 Stack helpers\Deneb
+
+	measure 'PY WF kEUR' =
+			VAR _typ = SELECTEDVALUE ( DimKonto[RowType] )
+			RETURN
+				SWITCH ( TRUE (),
+					_typ = "Formula", 0,
+					_typ = "KPI", BLANK (),
+					DIVIDE ( [PY ±], 1000 ) )
+		formatString: #,0.0
+		displayFolder: 5 Stack helpers\Deneb
+
+	/// Signed variance AC - PL (positive = favourable, costs already carry -1).
+	measure 'ΔPL ±' =
+			IF (
+				NOT ISBLANK ( [AC] ),
+				SUMX ( VALUES ( DimKonto[SignConvention] ), DimKonto[SignConvention] * ( [AC] - [PL] ) )
+			)
+		formatString: +#,0;-#,0;0
+		displayFolder: 6 SVG (Stack 1)
+
+	measure 'ΔPL %' = DIVIDE ( [ΔPL ±], ABS ( [PL] ) )
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 6 SVG (Stack 1)
+
+	/// IBCS-style variance bar (green favourable / red unfavourable) scaled to the largest row in the visual.
+	measure 'SVG ΔPL Bar' =
+			VAR _d = [ΔPL ±]
+			VAR _max = MAXX ( ALLSELECTED ( DimKonto[L1], DimKonto[L2] ), ABS ( [ΔPL ±] ) )
+			VAR _half = 56
+			VAR _len = IF ( _max > 0, MIN ( _half, ROUND ( DIVIDE ( ABS ( _d ), _max ) * _half, 0 ) ), 0 )
+			VAR _x = IF ( _d >= 0, 60, 60 - _len )
+			VAR _fill = IF ( _d >= 0, "rgb(140,180,0)", "rgb(255,0,0)" )
+			RETURN
+				IF (
+					NOT ISBLANK ( _d ),
+					"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='20' viewBox='0 0 120 20'>"
+						& "<rect x='" & _x & "' y='4' width='" & _len & "' height='12' fill='" & _fill & "'/>"
+						& "<line x1='60' y1='1' x2='60' y2='19' stroke='rgb(64,64,64)' stroke-width='1'/>"
+						& "</svg>"
+				)
+		dataCategory: ImageUrl
+		displayFolder: 6 SVG (Stack 1)
+
+	/// IBCS pin for the relative variance: stick + head, +-25 % fills the half width.
+	measure 'SVG ΔPL% Pin' =
+			VAR _p = [ΔPL %]
+			VAR _half = 52
+			VAR _len = MIN ( _half, ROUND ( DIVIDE ( ABS ( _p ), 0.25 ) * _half, 0 ) )
+			VAR _end = IF ( _p >= 0, 60 + _len, 60 - _len )
+			VAR _fill = IF ( _p >= 0, "rgb(140,180,0)", "rgb(255,0,0)" )
+			RETURN
+				IF (
+					NOT ISBLANK ( _p ),
+					"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='20' viewBox='0 0 120 20'>"
+						& "<line x1='60' y1='10' x2='" & _end & "' y2='10' stroke='" & _fill & "' stroke-width='2'/>"
+						& "<rect x='" & ( _end - 4 ) & "' y='6' width='8' height='8' fill='" & _fill & "'/>"
+						& "<line x1='60' y1='1' x2='60' y2='19' stroke='rgb(64,64,64)' stroke-width='1'/>"
+						& "</svg>"
+				)
+		dataCategory: ImageUrl
+		displayFolder: 6 SVG (Stack 1)
+
+	/// Scenario bar: AC solid dark grey, PL as outlined frame (IBCS scenario notation).
+	measure 'SVG AC vs PL' =
+			VAR _ac = ABS ( [AC] )
+			VAR _pl = ABS ( [PL] )
+			VAR _max = MAXX ( ALLSELECTED ( DimKonto[L1], DimKonto[L2] ), MAX ( ABS ( [AC] ), ABS ( [PL] ) ) )
+			VAR _w = 112
+			VAR _acw = IF ( _max > 0, MIN ( _w, ROUND ( DIVIDE ( _ac, _max ) * _w, 0 ) ), 0 )
+			VAR _plw = IF ( _max > 0, MIN ( _w, ROUND ( DIVIDE ( _pl, _max ) * _w, 0 ) ), 0 )
+			RETURN
+				IF (
+					NOT ISBLANK ( [AC] ),
+					"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='20' viewBox='0 0 120 20'>"
+						& "<rect x='2' y='3' width='" & _plw & "' height='14' fill='white' stroke='rgb(64,64,64)' stroke-width='1'/>"
+						& "<rect x='2' y='6' width='" & _acw & "' height='8' fill='rgb(64,64,64)'/>"
+						& "</svg>"
+				)
+		dataCategory: ImageUrl
+		displayFolder: 6 SVG (Stack 1)
+
+	column AccountID
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AccountID
+
+	column Datum
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: Datum
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Periode
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Periode
+
+	column Currency
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Currency
+
+	column AC
+		dataType: double
+		isHidden
+		formatString: #,0
+		summarizeBy: none
+		sourceColumn: AC
+
+	column PY
+		dataType: double
+		isHidden
+		formatString: #,0
+		summarizeBy: none
+		sourceColumn: PY
+
+	column PL
+		dataType: double
+		isHidden
+		formatString: #,0
+		summarizeBy: none
+		sourceColumn: PL
+
+	column FC
+		dataType: double
+		isHidden
+		formatString: #,0
+		summarizeBy: none
+		sourceColumn: FC
+
+	partition FaktFinanz = m
+		mode: import
+		source =
+				let
+					IsWeb = Text.StartsWith(DataFolder, "http"),
+					Base = if Text.EndsWith(DataFolder, "/") or Text.EndsWith(DataFolder, "\") then DataFolder else DataFolder & (if IsWeb then "/" else "\"),
+					Raw = if IsWeb then Web.Contents(Base, [RelativePath = "demo-fakt-finanz.csv"]) else File.Contents(Base & "demo-fakt-finanz.csv"),
+					Csv = Csv.Document(Raw, [Delimiter = ";", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+					Promoted = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),
+					EmptyToNull = Table.TransformColumns(Promoted, {}, each if _ = "" then null else _),
+					Typed = Table.TransformColumnTypes(EmptyToNull, {
+						{"AccountID", type text}, {"Datum", type date}, {"Periode", type text}, {"Currency", type text},
+						{"AC", type number}, {"PY", type number}, {"PL", type number}, {"FC", type number}
+					}, "en-US")
+				in
+					Typed

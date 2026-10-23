@@ -1,0 +1,12 @@
+/// Rate view switch for slicers: "berichtet" (reported, AC/FC at current rate) or "zum Budgetkurs" (FX-adjusted).
+table Kurssicht
+
+	column Sicht
+		dataType: string
+		isNameInferred
+		summarizeBy: none
+		sourceColumn: [Sicht]
+
+	partition Kurssicht = calculated
+		mode: import
+		source = DATATABLE ( "Sicht", STRING, { { "berichtet" }, { "zum Budgetkurs" } } )

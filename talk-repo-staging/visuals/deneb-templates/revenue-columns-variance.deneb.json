@@ -1,0 +1,626 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "config": {
+    "background": "#ffffff",
+    "font": "Arial, Helvetica, sans-serif",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "domainColor": "#404040",
+      "domainWidth": 1.5,
+      "ticks": false,
+      "grid": false,
+      "labelColor": "#555555",
+      "labelFont": "Arial",
+      "labelFontSize": 11,
+      "title": null
+    },
+    "legend": {
+      "disable": true
+    }
+  },
+  "title": {
+    "anchor": "start",
+    "font": "Arial",
+    "fontSize": 13.5,
+    "color": "#404040",
+    "subtitleFont": "Arial",
+    "subtitleFontSize": 12.5,
+    "subtitleColor": "#404040",
+    "offset": 16,
+    "text": "Daten-WG Brewery",
+    "subtitle": [
+      "Revenue in kEUR",
+      "2026 · AC&FC vs PL"
+    ]
+  },
+  "vconcat": [
+    {
+      "width": 580,
+      "height": 95,
+      "data": {
+        "name": "dataset"
+      },
+      "transform": [
+        {
+          "calculate": "datum[\"__2__\"] > 0 ? (datum[\"__1__\"] - datum[\"__2__\"])/datum[\"__2__\"]*100 : null",
+          "as": "rv"
+        }
+      ],
+      "encoding": {
+        "x": {
+          "field": "__0__",
+          "type": "nominal",
+          "sort": null,
+          "axis": {
+            "domain": false,
+            "ticks": false,
+            "labels": false,
+            "grid": false,
+            "title": null
+          }
+        }
+      },
+      "layer": [
+        {
+          "mark": {
+            "type": "rule",
+            "color": "#404040",
+            "strokeWidth": 1
+          },
+          "encoding": {
+            "yOffset": {
+              "value": -1.6
+            },
+            "y": {
+              "datum": 0
+            },
+            "x": null
+          }
+        },
+        {
+          "mark": {
+            "type": "rule",
+            "color": "#404040",
+            "strokeWidth": 1
+          },
+          "encoding": {
+            "yOffset": {
+              "value": 1.6
+            },
+            "y": {
+              "datum": 0
+            },
+            "x": null
+          }
+        },
+        {
+          "mark": {
+            "type": "rule",
+            "strokeWidth": 2
+          },
+          "encoding": {
+            "y": {
+              "field": "rv",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "y2": {
+              "datum": 0
+            },
+            "color": {
+              "condition": {
+                "test": "datum.rv >= 0",
+                "value": "#2e7d4f"
+              },
+              "value": "#c0392b"
+            }
+          }
+        },
+        {
+          "mark": {
+            "type": "point",
+            "filled": true,
+            "size": 55,
+            "tooltip": {
+              "content": "data"
+            }
+          },
+          "encoding": {
+            "y": {
+              "field": "rv",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "fill": {
+              "condition": [
+                {
+                  "test": "datum[\"__3__\"]",
+                  "value": "#ffffff"
+                },
+                {
+                  "test": "datum.rv >= 0",
+                  "value": "#2e7d4f"
+                }
+              ],
+              "value": "#c0392b"
+            },
+            "stroke": {
+              "condition": [
+                {
+                  "test": "datum[\"__3__\"] && datum.rv >= 0",
+                  "value": "#2e7d4f"
+                },
+                {
+                  "test": "datum[\"__3__\"]",
+                  "value": "#c0392b"
+                }
+              ],
+              "value": "transparent"
+            },
+            "strokeWidth": {
+              "condition": {
+                "test": "datum[\"__3__\"]",
+                "value": 1.4
+              },
+              "value": 0
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.rv >= 0"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dy": -12,
+            "fontSize": 11,
+            "font": "Arial",
+            "color": "#404040"
+          },
+          "encoding": {
+            "y": {
+              "field": "rv",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "text": {
+              "field": "rv",
+              "type": "quantitative",
+              "format": "+.1f"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.rv < 0"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dy": 17,
+            "fontSize": 11,
+            "font": "Arial",
+            "color": "#404040"
+          },
+          "encoding": {
+            "y": {
+              "field": "rv",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "text": {
+              "field": "rv",
+              "type": "quantitative",
+              "format": "+.1f"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "width": 580,
+      "height": 110,
+      "data": {
+        "name": "dataset"
+      },
+      "transform": [
+        {
+          "calculate": "datum[\"__1__\"] - datum[\"__2__\"]",
+          "as": "d"
+        }
+      ],
+      "encoding": {
+        "x": {
+          "field": "__0__",
+          "type": "nominal",
+          "sort": null,
+          "axis": {
+            "domain": false,
+            "ticks": false,
+            "labels": false,
+            "grid": false,
+            "title": null
+          }
+        }
+      },
+      "layer": [
+        {
+          "mark": {
+            "type": "rule",
+            "color": "#404040",
+            "strokeWidth": 1
+          },
+          "encoding": {
+            "yOffset": {
+              "value": -1.6
+            },
+            "y": {
+              "datum": 0
+            },
+            "x": null
+          }
+        },
+        {
+          "mark": {
+            "type": "rule",
+            "color": "#404040",
+            "strokeWidth": 1
+          },
+          "encoding": {
+            "yOffset": {
+              "value": 1.6
+            },
+            "y": {
+              "datum": 0
+            },
+            "x": null
+          }
+        },
+        {
+          "mark": {
+            "type": "bar",
+            "size": 16,
+            "tooltip": {
+              "content": "data"
+            }
+          },
+          "encoding": {
+            "y": {
+              "field": "d",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "fill": {
+              "condition": {
+                "test": "datum.d >= 0",
+                "value": "#2e7d4f"
+              },
+              "value": "#c0392b"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.d >= 0"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dy": -9,
+            "fontSize": 11,
+            "font": "Arial",
+            "color": "#404040"
+          },
+          "encoding": {
+            "y": {
+              "field": "d",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "text": {
+              "field": "d",
+              "type": "quantitative",
+              "format": "+,.0f"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.d < 0"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dy": 14,
+            "fontSize": 11,
+            "font": "Arial",
+            "color": "#404040"
+          },
+          "encoding": {
+            "y": {
+              "field": "d",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "text": {
+              "field": "d",
+              "type": "quantitative",
+              "format": "+,.0f"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "width": 580,
+      "height": 200,
+      "data": {
+        "name": "dataset"
+      },
+      "encoding": {
+        "x": {
+          "field": "__0__",
+          "type": "nominal",
+          "sort": null,
+          "axis": {
+            "labelAngle": 0,
+            "labelPadding": 6
+          }
+        }
+      },
+      "layer": [
+        {
+          "mark": {
+            "type": "bar",
+            "size": 16,
+            "xOffset": -5.5,
+            "fill": "#ffffff",
+            "stroke": "#404040",
+            "strokeWidth": 1.3,
+            "tooltip": {
+              "content": "data"
+            }
+          },
+          "encoding": {
+            "y": {
+              "field": "__2__",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            }
+          }
+        },
+        {
+          "mark": {
+            "type": "bar",
+            "size": 16,
+            "xOffset": 5.5,
+            "tooltip": {
+              "content": "data"
+            }
+          },
+          "encoding": {
+            "fill": {
+              "condition": {
+                "test": "datum[\"__3__\"]",
+                "value": "#ffffff"
+              },
+              "value": "#404040"
+            },
+            "stroke": {
+              "condition": {
+                "test": "datum[\"__3__\"]",
+                "value": "#404040"
+              },
+              "value": "transparent"
+            },
+            "strokeWidth": {
+              "condition": {
+                "test": "datum[\"__3__\"]",
+                "value": 1.2
+              },
+              "value": 0
+            },
+            "strokeDash": {
+              "condition": {
+                "test": "datum[\"__3__\"]",
+                "value": [
+                  3,
+                  2
+                ]
+              },
+              "value": [
+                1,
+                0
+              ]
+            },
+            "y": {
+              "field": "__1__",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum[\"__1__\"] >= 0"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dy": -9,
+            "fontSize": 11,
+            "font": "Arial",
+            "xOffset": 5.5,
+            "color": "#404040"
+          },
+          "encoding": {
+            "y": {
+              "field": "__1__",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "text": {
+              "field": "__1__",
+              "type": "quantitative",
+              "format": ",.0f"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum[\"__1__\"] < 0"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dy": 14,
+            "fontSize": 11,
+            "font": "Arial",
+            "xOffset": 5.5,
+            "color": "#404040"
+          },
+          "encoding": {
+            "y": {
+              "field": "__1__",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "text": {
+              "field": "__1__",
+              "type": "quantitative",
+              "format": ",.0f"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "spacing": 16,
+  "usermeta": {
+    "information": {
+      "name": "Daten-WG Brewery",
+      "description": "2026 · AC&FC vs PL · erzeugt mit dem Business Chart Builder (IBCS-Notation) · Mehrteiliges Layout: feste/dynamische Größe unterstützt Vega-Lite hier nicht – im Deneb-Visual „Scaling: Auto“ aktivieren. · Tooltips: in den Deneb-Settings den Tooltip-Handler aktivieren.",
+      "author": "Business Chart Builder",
+      "uuid": "c3258ad7-3c28-4fa8-a9d8-b1a73513aaab",
+      "generated": "2026-10-23T19:10:54.174Z"
+    },
+    "deneb": {
+      "build": "1.6.4.0",
+      "metaVersion": 1,
+      "provider": "vegaLite",
+      "providerVersion": "5.16.3"
+    },
+    "interactivity": {
+      "tooltip": true,
+      "contextMenu": true,
+      "selection": false,
+      "highlight": false,
+      "dataPointLimit": 60
+    },
+    "dataset": [
+      {
+        "key": "__0__",
+        "name": "Monat",
+        "description": "Dimension",
+        "type": "text",
+        "kind": "column"
+      },
+      {
+        "key": "__1__",
+        "name": "Revenue AC&FC kEUR",
+        "description": "Kennzahl · AC",
+        "type": "numeric",
+        "kind": "measure"
+      },
+      {
+        "key": "__2__",
+        "name": "Revenue PL kEUR",
+        "description": "Kennzahl · PL",
+        "type": "numeric",
+        "kind": "measure"
+      },
+      {
+        "key": "__3__",
+        "name": "FC Flag",
+        "description": "FC-Flag (1 = Forecast, 0/leer = Ist)",
+        "type": "numeric",
+        "kind": "column"
+      }
+    ]
+  }
+}

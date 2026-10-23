@@ -1,0 +1,618 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "config": {
+    "background": "#ffffff",
+    "font": "Arial, Helvetica, sans-serif",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "domainColor": "#404040",
+      "domainWidth": 1.5,
+      "ticks": false,
+      "grid": false,
+      "labelColor": "#555555",
+      "labelFont": "Arial",
+      "labelFontSize": 11,
+      "title": null
+    },
+    "legend": {
+      "disable": true
+    }
+  },
+  "title": {
+    "anchor": "start",
+    "font": "Arial",
+    "fontSize": 13.5,
+    "color": "#404040",
+    "subtitleFont": "Arial",
+    "subtitleFontSize": 12.5,
+    "subtitleColor": "#404040",
+    "offset": 16,
+    "text": "Daten-WG Brewery",
+    "subtitle": [
+      "P&L bridge in kEUR",
+      "YTD Jan–Sep 2026 · AC vs PY"
+    ]
+  },
+  "hconcat": [
+    {
+      "width": 230,
+      "height": {
+        "step": 27
+      },
+      "data": {
+        "name": "dataset"
+      },
+      "transform": [
+        {
+          "window": [
+            {
+              "op": "row_number",
+              "as": "vord"
+            }
+          ]
+        },
+        {
+          "window": [
+            {
+              "op": "lead",
+              "field": "__0__",
+              "as": "leadK"
+            }
+          ],
+          "sort": [
+            {
+              "field": "vord"
+            }
+          ]
+        },
+        {
+          "window": [
+            {
+              "op": "sum",
+              "field": "__1__",
+              "as": "cumA"
+            }
+          ],
+          "sort": [
+            {
+              "field": "vord"
+            }
+          ],
+          "frame": [
+            null,
+            0
+          ],
+          "ignorePeers": true
+        },
+        {
+          "window": [
+            {
+              "op": "sum",
+              "field": "__2__",
+              "as": "cumR"
+            }
+          ],
+          "sort": [
+            {
+              "field": "vord"
+            }
+          ],
+          "frame": [
+            null,
+            0
+          ],
+          "ignorePeers": true
+        },
+        {
+          "calculate": "datum[\"__3__\"]==='sum'",
+          "as": "sum"
+        },
+        {
+          "calculate": "datum.sum ? 0 : datum.cumA - datum[\"__1__\"]",
+          "as": "s"
+        },
+        {
+          "calculate": "datum.cumA",
+          "as": "e"
+        },
+        {
+          "calculate": "datum.sum ? 0 : datum.cumR - datum[\"__2__\"]",
+          "as": "sR"
+        },
+        {
+          "calculate": "datum.cumR",
+          "as": "eR"
+        },
+        {
+          "calculate": "datum.sum ? datum.cumR : datum[\"__2__\"]",
+          "as": "refv"
+        },
+        {
+          "calculate": "datum.sum ? datum.cumA - datum.cumR : datum[\"__1__\"] - datum[\"__2__\"]",
+          "as": "d"
+        },
+        {
+          "calculate": "datum.refv > 0 ? datum.d / datum.refv * 100 : null",
+          "as": "rv"
+        }
+      ],
+      "encoding": {
+        "y": {
+          "field": "__0__",
+          "type": "nominal",
+          "sort": null,
+          "axis": {
+            "labelPadding": 8
+          }
+        }
+      },
+      "layer": [
+        {
+          "transform": [
+            {
+              "filter": "datum.leadK != null"
+            }
+          ],
+          "mark": {
+            "type": "rule",
+            "color": "#c2c2c2",
+            "strokeWidth": 1
+          },
+          "encoding": {
+            "x": {
+              "field": "e",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "y2": {
+              "field": "leadK",
+              "type": "nominal"
+            }
+          }
+        },
+        {
+          "mark": {
+            "type": "bar",
+            "size": 15,
+            "fill": "#404040",
+            "tooltip": {
+              "content": "data"
+            }
+          },
+          "encoding": {
+            "x": {
+              "field": "s",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "x2": {
+              "field": "e"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.sum"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dx": 6,
+            "align": "left",
+            "fontSize": 11,
+            "font": "Arial",
+            "color": "#404040",
+            "fontWeight": "bold"
+          },
+          "encoding": {
+            "x": {
+              "field": "e",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "text": {
+              "field": "e",
+              "type": "quantitative",
+              "format": ",.0f"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "!datum.sum && datum.e >= datum.s"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dx": 6,
+            "align": "left",
+            "fontSize": 11,
+            "font": "Arial",
+            "color": "#404040"
+          },
+          "encoding": {
+            "x": {
+              "field": "e",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "text": {
+              "field": "__1__",
+              "type": "quantitative",
+              "format": "+,.0f"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "!datum.sum && datum.e < datum.s"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dx": -6,
+            "align": "right",
+            "fontSize": 11,
+            "font": "Arial",
+            "color": "#404040"
+          },
+          "encoding": {
+            "x": {
+              "field": "e",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "text": {
+              "field": "__1__",
+              "type": "quantitative",
+              "format": "+,.0f"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "width": 150,
+      "height": {
+        "step": 27
+      },
+      "data": {
+        "name": "dataset"
+      },
+      "transform": [
+        {
+          "window": [
+            {
+              "op": "row_number",
+              "as": "vord"
+            }
+          ]
+        },
+        {
+          "window": [
+            {
+              "op": "lead",
+              "field": "__0__",
+              "as": "leadK"
+            }
+          ],
+          "sort": [
+            {
+              "field": "vord"
+            }
+          ]
+        },
+        {
+          "window": [
+            {
+              "op": "sum",
+              "field": "__1__",
+              "as": "cumA"
+            }
+          ],
+          "sort": [
+            {
+              "field": "vord"
+            }
+          ],
+          "frame": [
+            null,
+            0
+          ],
+          "ignorePeers": true
+        },
+        {
+          "window": [
+            {
+              "op": "sum",
+              "field": "__2__",
+              "as": "cumR"
+            }
+          ],
+          "sort": [
+            {
+              "field": "vord"
+            }
+          ],
+          "frame": [
+            null,
+            0
+          ],
+          "ignorePeers": true
+        },
+        {
+          "calculate": "datum[\"__3__\"]==='sum'",
+          "as": "sum"
+        },
+        {
+          "calculate": "datum.sum ? 0 : datum.cumA - datum[\"__1__\"]",
+          "as": "s"
+        },
+        {
+          "calculate": "datum.cumA",
+          "as": "e"
+        },
+        {
+          "calculate": "datum.sum ? 0 : datum.cumR - datum[\"__2__\"]",
+          "as": "sR"
+        },
+        {
+          "calculate": "datum.cumR",
+          "as": "eR"
+        },
+        {
+          "calculate": "datum.sum ? datum.cumR : datum[\"__2__\"]",
+          "as": "refv"
+        },
+        {
+          "calculate": "datum.sum ? datum.cumA - datum.cumR : datum[\"__1__\"] - datum[\"__2__\"]",
+          "as": "d"
+        },
+        {
+          "calculate": "datum.refv > 0 ? datum.d / datum.refv * 100 : null",
+          "as": "rv"
+        }
+      ],
+      "encoding": {
+        "y": {
+          "field": "__0__",
+          "type": "nominal",
+          "sort": null,
+          "axis": {
+            "domain": false,
+            "ticks": false,
+            "labels": false,
+            "grid": false,
+            "title": null
+          }
+        }
+      },
+      "layer": [
+        {
+          "mark": {
+            "type": "point",
+            "size": 0,
+            "opacity": 0,
+            "tooltip": {
+              "content": "data"
+            }
+          },
+          "encoding": {}
+        },
+        {
+          "mark": {
+            "type": "rule",
+            "color": "#a8a8a8",
+            "strokeWidth": 3.5
+          },
+          "encoding": {
+            "x": {
+              "datum": 0
+            },
+            "y": null
+          }
+        },
+        {
+          "mark": {
+            "type": "bar",
+            "size": 11,
+            "tooltip": {
+              "content": "data"
+            }
+          },
+          "encoding": {
+            "x": {
+              "field": "d",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "fill": {
+              "condition": {
+                "test": "datum.d >= 0",
+                "value": "#2e7d4f"
+              },
+              "value": "#c0392b"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.d >= 0"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dx": 6,
+            "align": "left",
+            "fontSize": 11,
+            "font": "Arial"
+          },
+          "encoding": {
+            "x": {
+              "field": "d",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "text": {
+              "field": "d",
+              "type": "quantitative",
+              "format": "+,.0f"
+            },
+            "color": {
+              "condition": {
+                "test": "datum.d >= 0",
+                "value": "#2e7d4f"
+              },
+              "value": "#c0392b"
+            }
+          }
+        },
+        {
+          "transform": [
+            {
+              "filter": "datum.d < 0"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dx": -6,
+            "align": "right",
+            "fontSize": 11,
+            "font": "Arial"
+          },
+          "encoding": {
+            "x": {
+              "field": "d",
+              "type": "quantitative",
+              "axis": {
+                "domain": false,
+                "ticks": false,
+                "labels": false,
+                "grid": false,
+                "title": null
+              }
+            },
+            "text": {
+              "field": "d",
+              "type": "quantitative",
+              "format": "+,.0f"
+            },
+            "color": {
+              "condition": {
+                "test": "datum.d >= 0",
+                "value": "#2e7d4f"
+              },
+              "value": "#c0392b"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "spacing": 26,
+  "resolve": {
+    "scale": {
+      "y": "independent"
+    }
+  },
+  "usermeta": {
+    "information": {
+      "name": "Daten-WG Brewery",
+      "description": "YTD Jan–Sep 2026 · AC vs PY · erzeugt mit dem Business Chart Builder (IBCS-Notation) · Mehrteiliges Layout: feste/dynamische Größe unterstützt Vega-Lite hier nicht – im Deneb-Visual „Scaling: Auto“ aktivieren. · Tooltips: in den Deneb-Settings den Tooltip-Handler aktivieren.",
+      "author": "Business Chart Builder",
+      "uuid": "7ec08626-bfb9-496c-b652-f7641b7f700a",
+      "generated": "2026-10-23T19:10:54.187Z"
+    },
+    "deneb": {
+      "build": "1.6.4.0",
+      "metaVersion": 1,
+      "provider": "vegaLite",
+      "providerVersion": "5.16.3"
+    },
+    "interactivity": {
+      "tooltip": true,
+      "contextMenu": true,
+      "selection": false,
+      "highlight": false,
+      "dataPointLimit": 60
+    },
+    "dataset": [
+      {
+        "key": "__0__",
+        "name": "L1",
+        "description": "Dimension",
+        "type": "text",
+        "kind": "column"
+      },
+      {
+        "key": "__1__",
+        "name": "AC WF kEUR",
+        "description": "Wert · AC",
+        "type": "numeric",
+        "kind": "measure"
+      },
+      {
+        "key": "__2__",
+        "name": "PY WF kEUR",
+        "description": "Referenz · PY",
+        "type": "numeric",
+        "kind": "measure"
+      },
+      {
+        "key": "__3__",
+        "name": "CK_RowType",
+        "description": "Typ-Feld (sum/delta)",
+        "type": "text",
+        "kind": "column"
+      }
+    ]
+  }
+}
