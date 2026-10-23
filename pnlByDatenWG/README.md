@@ -28,7 +28,7 @@ Toolbar-Zustände sind bookmark-fähig persistiert.
 |------|---------|
 | F1 | Unbalancierte Parent-Child-Kontenhierarchie in beliebiger Tiefe, gesteuert aus einer Dimensionstabelle — Waisen-Konten landen sichtbar in „Nicht zugeordnet", nie stilles Verschlucken |
 | F2 | Summen- und Formelzeilen per `RowType` + `FormulaDef` (z. B. `[EBITDA]/[Umsatz]`), inkl. Formel-auf-Formel, Zirkelbezug-Erkennung und Fehleranzeige an der Zeile |
-| F3 | Vorzeichenlogik: `SignConvention` (±1 Rechenvorzeichen), `DisplayInvert` (Kosten positiv anzeigen), `VarianceInvert` (Kosten unter Plan = grün) |
+| F3 | Vorzeichenlogik: `SignConvention` (±1 Rechenvorzeichen), `DisplayInvert` (Kosten positiv anzeigen), `VarianceInvert` (nur für positiv geführte Kosten mit `+1`; bei `-1` bewertet die Engine selbst, Kosten unter Plan sind dort ohnehin grün) |
 | F4 | Szenarien AC / PY / PL / FC als Measure-Slots (Datenvertrag Variante A); Δ und Δ% gegen wählbare Referenz (Auto/PY/PL/FC), zweites Δ% parallel zuschaltbar |
 | F7 | Expand/Collapse je Zeile + Ebenen-Buttons (1·2·3·alle); Zustand wird via `persistProperties` gehalten (bookmark-fähig) und übersteht Cross-Filter |
 | F9 | Skalierung Auto/k/m/b, Dezimalstellen, 3-zeiliger IBCS-Titelblock mit Message-Zeile, Auto-Botschaft und Headline-Slot der 12er-Serie; Fußzeilen für Datenstand und Filter |
@@ -77,7 +77,7 @@ Kontendimension (eine Zeile pro Konto/Zeile der GuV):
 | FormulaDef | Formeldefinition | für Formula/KPI: `[EBITDA]/[Umsatz]`, `+ - * /`, Klammern |
 | SignConvention | Rechenvorzeichen | Erlös `+1`, Kosten `-1` |
 | DisplayInvert | Anzeige invertieren | Kosten positiv anzeigen trotz negativem Rechenwert |
-| VarianceInvert | Abweichungsfarbe drehen | Kosten unter Plan = grün |
+| VarianceInvert | Abweichungsfarbe drehen | nur bei `SignConvention +1` und „mehr ist schlecht“; bei `-1` immer `false` |
 
 Optional (1.2): **Spalten-Kategorie** — ein Feld wie Segment oder Quartal; die
 klassische Tabelle wiederholt ihren Spaltensatz je Wert (max. 24) und zeigt den

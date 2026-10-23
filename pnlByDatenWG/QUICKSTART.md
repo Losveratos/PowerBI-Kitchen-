@@ -84,7 +84,7 @@ Alles aus Weg 1, plus die Struktur-Spalten der Kontendimension:
 | Formeldefinition | z. B. `[Gross profit]+[Operating expenses]`, `[EBITDA]/[Net revenue]` — Referenz **per Zeilenname**, Formel auf Formel erlaubt |
 | Rechenvorzeichen (±1) | `1` Erlöse, `-1` Kosten |
 | Anzeige invertieren | `true` bei Kostenzeilen (rechnen negativ, werden positiv angezeigt) |
-| Abweichungsfarbe drehen | `true`, wo „unter Plan" gut ist (Kosten, Steuern) |
+| Abweichungsfarbe drehen | `false` bei allen Zeilen mit `-1` (auch Steuern): die Engine bewertet über das Vorzeichen schon richtig. `true` nur für positiv geführte Kosten (`+1`) und Kosten-Quoten, bei denen mehr schlecht ist |
 | Kommentar | Freitext je Konto → nummerierter Marker + Fußnote |
 | FC Gesamtjahr · PL Gesamtjahr | Jahres-Skalare für den FY-Ausblicksblock |
 

@@ -34,7 +34,8 @@ Hinweise:
 
 Beide enthalten: unbalancierte Hierarchie, Formelzeilen
 (EBITDA/EBIT/EBT/Jahresüberschuss), %-KPI-Zeilen (EBITDA-Marge, Umsatzrendite),
-Kosten mit Vorzeichenlogik und einen VarianceInvert-Fall (Steuern).
+Kosten mit Vorzeichenlogik (`-1 · true · false`, auch die Steuerzeile — die Engine
+bewertet über das Vorzeichen, `VarianceInvert` bleibt überall `false`).
 
 Ragged-Regeln im Level-Modus (beide in `guv-demo-levels.csv` enthalten):
 
