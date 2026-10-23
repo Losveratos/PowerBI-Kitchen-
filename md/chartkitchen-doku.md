@@ -834,7 +834,7 @@ Eine IBCS-Vorlage ist gesetzt, und mindestens eine ihrer Einstellungen wurde ge�
 
 **ChartKitchen byDatenWG** · Version 1.52.4.0
 
-Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (immer die aktuelle Version) · Schwester-Visual: [P&L Statement byDatenWG – Dokumentation](../pnl-doku.html)
+Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (immer die aktuelle Version) · Schwester-Visual: [P&L Statement byDatenWG – Dokumentation](../pnl-doku.html) · Für IT & Admins: [Sicherheit & Betrieb](../visuals-sicherheit.html)
 
 Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 

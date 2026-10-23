@@ -67,12 +67,13 @@ em{color:var(--ink);font-style:normal;font-weight:600;}
 code{font-family:var(--mono);font-size:.86em;background:var(--bg-soft);padding:1px 5px;border-radius:4px;color:var(--accent-deep);overflow-wrap:anywhere;}
 ul.plain,ol.plain{margin:0 0 16px 20px;max-width:78ch;color:var(--ink-soft);}
 ul.plain li,ol.plain li{margin-bottom:7px;padding-left:2px;}
-ol.chk{list-style:none;counter-reset:chk;margin:0 0 16px;max-width:86ch;}
-ol.chk li{counter-increment:chk;position:relative;padding:12px 0 12px 46px;border-bottom:1px solid var(--line);color:var(--ink-soft);}
-ol.chk li:last-child{border-bottom:none;}
-ol.chk li::before{content:counter(chk);position:absolute;left:0;top:12px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;
+div.chk{margin:0 0 16px;max-width:86ch;}
+div.chk-i{position:relative;padding:12px 0 12px 46px;border-bottom:1px solid var(--line);color:var(--ink-soft);}
+div.chk-i:last-child{border-bottom:none;}
+div.chk-i p{margin:0;}
+div.chk-i .cn{position:absolute;left:0;top:12px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;
   font-family:var(--mono);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-ol.chk pre{margin:8px 0 0;}
+div.chk-i pre{margin:8px 0 0;}
 pre{font-family:var(--mono);font-size:12.5px;line-height:1.5;background:var(--ink);color:#E8EEF4;border-radius:var(--radius);padding:12px 14px;overflow-x:auto;max-width:100%;}
 .muted{color:var(--ink-mute);}
 
@@ -100,10 +101,10 @@ table.wide{min-width:640px;}
 .vcard.pnl{border-top-color:var(--teal);}
 .vcard.gantt{border-top-color:var(--ink-soft);}
 .vcard h3{margin:0 0 8px;font-size:1.08rem;}
-.vcard table{border-collapse:collapse;width:100%;font-size:13.5px;}
-.vcard td{border-top:1px solid var(--line);padding:7px 0;vertical-align:top;color:var(--ink-soft);}
-.vcard td:first-child{width:36%;padding-right:10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);}
-.vcard td code{word-break:break-all;overflow-wrap:anywhere;}
+.vcard dl.facts{display:grid;grid-template-columns:34% minmax(0,1fr);font-size:13.5px;margin:0;}
+.vcard dl.facts dt,.vcard dl.facts dd{border-top:1px solid var(--line);padding:7px 0;color:var(--ink-soft);min-width:0;}
+.vcard dl.facts dt{padding-right:10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);}
+.vcard dl.facts dd code{word-break:break-all;overflow-wrap:anywhere;}
 
 /* footer */
 footer.foot{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-mute);line-height:1.65;}
@@ -159,33 +160,33 @@ a.inl{color:var(--accent-deep);font-weight:600;}
     <div class="vgrid">
       <article class="vcard">
         <h3>ChartKitchen byDatenWG</h3>
-        <table>
-          <tr><td>Version</td><td><code>1.52.4.0</code></td></tr>
-          <tr><td>API</td><td><code>5.11.0</code></td></tr>
-          <tr><td>GUID</td><td><code>chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D</code></td></tr>
-          <tr><td>Lizenz</td><td>Apache-2.0 (<code>LICENSE</code> + <code>NOTICE</code>)</td></tr>
-          <tr><td>Ordner</td><td><a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/ibcsInspiredChartDeck" target="_blank" rel="noopener">ibcsInspiredChartDeck/</a></td></tr>
-        </table>
+        <dl class="facts">
+          <dt>Version</dt><dd><code>1.52.4.0</code></dd>
+          <dt>API</dt><dd><code>5.11.0</code></dd>
+          <dt>GUID</dt><dd><code>chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D</code></dd>
+          <dt>Lizenz</dt><dd>Apache-2.0 (<code>LICENSE</code> + <code>NOTICE</code>)</dd>
+          <dt>Ordner</dt><dd><a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/ibcsInspiredChartDeck" target="_blank" rel="noopener">ibcsInspiredChartDeck/</a></dd>
+        </dl>
       </article>
       <article class="vcard pnl">
         <h3>P&amp;L Statement byDatenWG</h3>
-        <table>
-          <tr><td>Version</td><td><code>1.5.3.0</code></td></tr>
-          <tr><td>API</td><td><code>5.11.0</code></td></tr>
-          <tr><td>GUID</td><td><code>pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358</code></td></tr>
-          <tr><td>Lizenz</td><td>MIT (<code>LICENSE</code> im Repo-Wurzelverzeichnis)</td></tr>
-          <tr><td>Ordner</td><td><a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG" target="_blank" rel="noopener">pnlByDatenWG/</a></td></tr>
-        </table>
+        <dl class="facts">
+          <dt>Version</dt><dd><code>1.5.3.0</code></dd>
+          <dt>API</dt><dd><code>5.11.0</code></dd>
+          <dt>GUID</dt><dd><code>pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358</code></dd>
+          <dt>Lizenz</dt><dd>MIT (<code>LICENSE</code> im Repo-Wurzelverzeichnis)</dd>
+          <dt>Ordner</dt><dd><a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG" target="_blank" rel="noopener">pnlByDatenWG/</a></dd>
+        </dl>
       </article>
       <article class="vcard gantt">
         <h3>dataKitchenGantt</h3>
-        <table>
-          <tr><td>Version</td><td><code>1.15.0.0</code></td></tr>
-          <tr><td>API</td><td><code>5.3.0</code></td></tr>
-          <tr><td>GUID</td><td><code>dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44</code></td></tr>
-          <tr><td>Lizenz</td><td>MIT (<code>LICENSE</code> im Repo-Wurzelverzeichnis)</td></tr>
-          <tr><td>Ordner</td><td><a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/dataKitchenGantt" target="_blank" rel="noopener">dataKitchenGantt/</a></td></tr>
-        </table>
+        <dl class="facts">
+          <dt>Version</dt><dd><code>1.15.0.0</code></dd>
+          <dt>API</dt><dd><code>5.3.0</code></dd>
+          <dt>GUID</dt><dd><code>dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44</code></dd>
+          <dt>Lizenz</dt><dd>MIT (<code>LICENSE</code> im Repo-Wurzelverzeichnis)</dd>
+          <dt>Ordner</dt><dd><a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/dataKitchenGantt" target="_blank" rel="noopener">dataKitchenGantt/</a></dd>
+        </dl>
       </article>
     </div>
     <p class="muted" style="font-size:13.5px;">Quelle der Angaben: <code>pbiviz.json</code> (Version, API, GUID) im jeweiligen Ordner des Repositories <a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-" target="_blank" rel="noopener">Losveratos/PowerBI-Kitchen-</a>. Maßgeblich ist immer die <code>pbiviz.json</code> der Datei, die Sie prüfen — spätere Releases tragen eine höhere Version, behalten aber die GUID. Bei der Lizenz zählt die <code>LICENSE</code>-Datei im jeweiligen Geltungsbereich: ChartKitchen liefert eine eigene Apache-2.0-Lizenz mit; die Namen und das Logo „ChartKitchen“, „byDatenWG“, „Daten-WG“ sind davon ausgenommen (<code>NOTICE</code>).</p>
@@ -309,28 +310,28 @@ a.inl{color:var(--accent-deep);font-weight:600;}
   <section class="block" id="checkliste">
     <h2 class="sec-h"><span class="snum">07</span>Prüf-Checkliste für Admins</h2>
     <p>Sieben Schritte, die Sie ohne uns durchführen können. Beispiel: ChartKitchen; für die anderen Visuals Dateinamen und GUID tauschen. Die Befehle sind PowerShell (Windows); unter macOS/Linux funktionieren <code>unzip</code> und <code>grep</code> entsprechend.</p>
-    <ol class="chk">
-      <li><strong>Datei sichern und Hash festhalten.</strong> Laden Sie die <code>.pbiviz</code> (ChartKitchen: <code>downloads/chartkitchen-byDatenWG-latest.pbiviz</code> auf dieser Website) und notieren Sie den SHA-256 im Freigabe-Protokoll. Nach jedem Update neu bilden.
-<pre>Get-FileHash .\chartkitchen-byDatenWG-latest.pbiviz -Algorithm SHA256</pre></li>
-      <li><strong>Paket entpacken.</strong> Eine <code>.pbiviz</code> ist ein ZIP-Archiv mit <code>package.json</code> und <code>resources/&lt;GUID&gt;.pbiviz.json</code>.
+    <div class="chk">
+      <div class="chk-i"><p><span class="cn">1</span><strong>Datei sichern und Hash festhalten.</strong> Laden Sie die <code>.pbiviz</code> (ChartKitchen: <code>downloads/chartkitchen-byDatenWG-latest.pbiviz</code> auf dieser Website) und notieren Sie den SHA-256 im Freigabe-Protokoll. Nach jedem Update neu bilden.</p>
+<pre>Get-FileHash .\chartkitchen-byDatenWG-latest.pbiviz -Algorithm SHA256</pre></div>
+      <div class="chk-i"><p><span class="cn">2</span><strong>Paket entpacken.</strong> Eine <code>.pbiviz</code> ist ein ZIP-Archiv mit <code>package.json</code> und <code>resources/&lt;GUID&gt;.pbiviz.json</code>.</p>
 <pre>Copy-Item .\chartkitchen-byDatenWG-latest.pbiviz .\ck.zip
-Expand-Archive .\ck.zip -DestinationPath .\ck</pre></li>
-      <li><strong>Berechtigungen lesen.</strong> In der entpackten JSON-Datei müssen <code>capabilities.privileges</code> leer und <code>externalJS</code> leer sein; <code>apiVersion</code> und <code>visual.version</code> stehen im selben Dokument.
+Expand-Archive .\ck.zip -DestinationPath .\ck</pre></div>
+      <div class="chk-i"><p><span class="cn">3</span><strong>Berechtigungen lesen.</strong> In der entpackten JSON-Datei müssen <code>capabilities.privileges</code> leer und <code>externalJS</code> leer sein; <code>apiVersion</code> und <code>visual.version</code> stehen im selben Dokument.</p>
 <pre>$j = Get-Content .\ck\resources\*.pbiviz.json -Raw | ConvertFrom-Json
 $j.capabilities.privileges   # leere Ausgabe = leer
 $j.externalJS                # leere Ausgabe = leer
-$j.apiVersion; $j.visual.version</pre></li>
-      <li><strong>Im Code suchen.</strong> Der folgende Befehl muss ohne Ausgabe enden. Die Adressen-Liste zeigt alle URLs im Paket (erwartet: SVG-Namensraum, Dokumentations- und Support-Links).
+$j.apiVersion; $j.visual.version</pre></div>
+      <div class="chk-i"><p><span class="cn">4</span><strong>Im Code suchen.</strong> Der folgende Befehl muss ohne Ausgabe enden. Die Adressen-Liste zeigt alle URLs im Paket (erwartet: SVG-Namensraum, Dokumentations- und Support-Links).</p>
 <pre>Select-String -Path .\ck\resources\*.pbiviz.json -Pattern 'fetch\(|XMLHttpRequest|WebSocket|sendBeacon|eval\(|new Function|\.innerHTML|localStorage|sessionStorage|document\.cookie|indexedDB' -AllMatches
-Select-String -Path .\ck\resources\*.pbiviz.json -Pattern 'https?://[^"'' )\\]+' -AllMatches | % { $_.Matches.Value } | Sort-Object -Unique</pre></li>
-      <li><strong>GUID vergleichen.</strong> Die GUID im Dateinamen der JSON-Datei, im Feld <code>visual.guid</code> und in <code>pbiviz.json</code> des Repositories (Abschnitt 01) muss übereinstimmen; beim Austausch im Org-Store muss sie der bereits installierten entsprechen.</li>
-      <li><strong>Laufzeit beobachten.</strong> Visual in einem Testbericht mit Testdaten einsetzen, im Browser die Entwicklerwerkzeuge öffnen (F12 → Netzwerk) und mit dem Visual arbeiten (filtern, sortieren, Kommentar anlegen). Erwartung: keine Anfragen, die vom Visual ausgehen; nur der Klick auf „Doku öffnen“ öffnet einen neuen Tab zu <code>datenwgknowledgekitchen.com</code>.</li>
-      <li><strong>Quelle gegenprüfen.</strong> Den Quellstand aus dem Repository holen (Commit, in dem die Version in <code>pbiviz.json</code> gesetzt wurde), selbst bauen und Quelltext und Bundle vergleichen. Ein bitgleicher Hash ist nicht zugesichert (Build-Metadaten), ein inhaltlicher Vergleich ist möglich.
+Select-String -Path .\ck\resources\*.pbiviz.json -Pattern 'https?://[^"'' )\\]+' -AllMatches | % { $_.Matches.Value } | Sort-Object -Unique</pre></div>
+      <div class="chk-i"><p><span class="cn">5</span><strong>GUID vergleichen.</strong> Die GUID im Dateinamen der JSON-Datei, im Feld <code>visual.guid</code> und in <code>pbiviz.json</code> des Repositories (Abschnitt 01) muss übereinstimmen; beim Austausch im Org-Store muss sie der bereits installierten entsprechen.</p></div>
+      <div class="chk-i"><p><span class="cn">6</span><strong>Laufzeit beobachten.</strong> Visual in einem Testbericht mit Testdaten einsetzen, im Browser die Entwicklerwerkzeuge öffnen (F12 → Netzwerk) und mit dem Visual arbeiten (filtern, sortieren, Kommentar anlegen). Erwartung: keine Anfragen, die vom Visual ausgehen; nur der Klick auf „Doku öffnen“ öffnet einen neuen Tab zu <code>datenwgknowledgekitchen.com</code>.</p></div>
+      <div class="chk-i"><p><span class="cn">7</span><strong>Quelle gegenprüfen.</strong> Den Quellstand aus dem Repository holen (Commit, in dem die Version in <code>pbiviz.json</code> gesetzt wurde), selbst bauen und Quelltext und Bundle vergleichen. Ein bitgleicher Hash ist nicht zugesichert (Build-Metadaten), ein inhaltlicher Vergleich ist möglich.</p>
 <pre>git clone https://github.com/Losveratos/PowerBI-Kitchen-
 cd PowerBI-Kitchen-\ibcsInspiredChartDeck
 npm ci
-npx pbiviz package</pre></li>
-    </ol>
+npx pbiviz package</pre></div>
+    </div>
     <p>Danach: in einer Testumgebung als Organisationsvisual hochladen, mit den Tenant-Einstellungen Ihrer Organisation testen und erst dann für das Visualisierungsfenster freigeben (Abschnitt 04).</p>
   </section>
 

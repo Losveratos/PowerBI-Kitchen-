@@ -668,7 +668,7 @@ Die vollständige Versionshistorie steht im [CHANGELOG](https://github.com/Losve
 
 **P&L Statement byDatenWG** · Version 1.5.3.0
 
-Schwester-Visual: [ChartKitchen byDatenWG – Dokumentation](../chartkitchen-doku.html)
+Schwester-Visual: [ChartKitchen byDatenWG – Dokumentation](../chartkitchen-doku.html) · Für IT & Admins: [Sicherheit & Betrieb](../visuals-sicherheit.html)
 
 Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 

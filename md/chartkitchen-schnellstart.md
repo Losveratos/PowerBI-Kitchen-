@@ -62,4 +62,6 @@ Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@
 
 Die vollständige Dokumentation gibt es als [Web-Seite](../chartkitchen-doku.html) und als [PDF](../chartkitchen-doku.pdf).
 
+Für IT & Admins vor der Freigabe: [Sicherheit & Betrieb](../visuals-sicherheit.html) (Datenfluss, Berechtigungen, Org-Store, Prüf-Checkliste).
+
 > IBCS® ist eine eingetragene Marke der IBCS Association. Dieses Visual ist von den IBCS-Prinzipien inspiriert und steht in keiner Verbindung zur IBCS Association.

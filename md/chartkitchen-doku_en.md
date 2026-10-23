@@ -834,7 +834,7 @@ An IBCS template is set and at least one of its settings has been changed. A cli
 
 **ChartKitchen byDatenWG** · Version 1.52.4.0
 
-Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (always the current version) · Sister visual: [P&L Statement byDatenWG – documentation](../pnl-doku_en.html)
+Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (always the current version) · Sister visual: [P&L Statement byDatenWG – documentation](../pnl-doku_en.html) · For IT & admins: [Security & deployment](../visuals-sicherheit_en.html)
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
