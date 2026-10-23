@@ -123,6 +123,11 @@
                 "ibcs": {
                     "displayName": "IBCS-inspiriertes Styling",
                     "type": { "bool": true }
+                },
+                "gruppenNamen": {
+                    "displayName": "Gruppennamen im Chart",
+                    "description": "Zeigt den Namen jeder Gruppenzeile (Projekt/Ebene) zusätzlich am Anfang ihres Summenbalkens — nützlich, wenn die Tabelle schmal oder ausgeblendet ist.",
+                    "type": { "bool": true }
                 }
             }
         },
@@ -215,25 +220,6 @@
                 "fontSize": {
                     "displayName": "Schriftgröße",
                     "type": { "formatting": { "fontSize": true } }
-                }
-            }
-        },
-        "zustand": {
-            "properties": {
-                "ansicht": { "type": { "text": true } },
-                "zugeklappt": { "type": { "text": true } }
-            }
-        },
-        "leerZustand": {
-            "displayName": "Leer-Zustand",
-            "properties": {
-                "titel": {
-                    "displayName": "Eigener Titel",
-                    "type": { "text": true }
-                },
-                "text": {
-                    "displayName": "Eigener Text",
-                    "type": { "text": true }
                 }
             }
         },

@@ -69,3 +69,11 @@ tests/rechner/.artifacts/
 
 # Raser-Story: verlustfreies Zwischenbild der Infografik (5 MB, aus build_infografik.py)
 blog/assets/raser-infografik.png
+
+# i18n: Zwischenprodukte der Uebersetzung (Fragmente werden aus der deutschen Fassung erzeugt)
+i18n/frag/
+i18n/strings.json
+i18n/reste.json
+
+# Fabric-Workspace-Backups (koennen interne Daten enthalten — nie committen)
+fabric_backup/

@@ -21,7 +21,7 @@ Vorbereitung (hängt organisatorisch, technisch ready). Die Visuals sind
 | --- | --- | --- | --- |
 | ChartKitchen byDatenWG | 1.52.4.0 | `ibcsInspiredChartDeck/` | 13 Chart-Modi, Start-Hub, IBCS-Vorlagen C01–C13, 4 Sprachen. GUID `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D` |
 | P&L Statement byDatenWG | 1.5.3.0 | `pnlByDatenWG/` | Mega-Table (Templates T01A–12H), Treiberbaum, Start-Hub, IBCS-2.0-Skalierung. GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
-| dataKitchenGantt | 1.14.0.0 | `dataKitchenGantt/` | 1.15.0.0 liegt ungemergt auf Branch `claude/gantt-weiterentwicklung-4w6v6q` |
+| dataKitchenGantt | 1.15.0.0 | `dataKitchenGantt/` | Gruppenzeilen-Klick überall, skalierungs-fest |
 | MockupKitchen | — | `mockup-kitchen.html` | Browser-Tool, Export für den Skill `mockup-to-powerbi` |
 
 ## Release-Konvention (Kurzform)
@@ -41,13 +41,11 @@ jeweiligen Visual-Ordner.
   wartet darauf, dass das GitHub-Repo `one-model-three-stacks` angelegt wird;
   danach dorthin pushen und Fabric-Workspace per Git-Integration verbinden.
 - **AppSource:** Einreichung liegt bei Artur (organisatorisch).
-- **Branch-Hygiene:** Lösch-Liste überholter Remote-Branches siehe letzte
-  Session-Zusammenfassung; `kitchen-refresh-data` gehört dem Refresh-Workflow
-  und bleibt. Ungemergte Arbeit liegt noch auf: `claude/gantt-weiterentwicklung-4w6v6q`
-  (Gantt 1.15), `claude/power-bi-visual-standards-zpbron` (englischer
-  Visual-Standards-Rechner), `claude/mock-upkitche-rayfin-chartkitchen-roqocc`
-  (dwg-Host-Adapter/Fabric-Apps-Spike), `claude/fabric-workspace-metadata-extract-7bvd2l`
-  (Fabric-Backup-Skript), `claude/powerbi-modeling-mcp-install-b3i8bf` (.mcp.json).
+- **Branch-Hygiene:** `kitchen-refresh-data` gehört dem Refresh-Workflow und
+  bleibt. Einziger Branch mit bewusst ungemergter Arbeit:
+  `claude/mock-upkitche-rayfin-chartkitchen-roqocc` (dwg-Host-Adapter/
+  Fabric-Apps-Spike, Archiv). Alles andere ist gemergt oder zur Löschung
+  freigegeben.
 
 ## Nützliche Einstiege
 

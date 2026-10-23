@@ -99,9 +99,6 @@ export class GanttRenderer {
     maxSy = 0;
     pan = null;
     fitted = false;
-    /** initZustand nur einmal pro Renderer-Lebenszeit anwenden — Host-Echos der
-     *  eigenen Persistierung dürfen den Live-Zustand nicht zurückdrehen */
-    zustandInit = false;
     lastSig = '';
     raf = 0;
     timer = 0;
@@ -116,6 +113,7 @@ export class GanttRenderer {
     hasPlan = false; // mindestens ein Task mit Basisplan-Daten
     sbDrag = null; // aktiver Scrollbalken-Drag
     sbGeom = null;
+    tblDown = null; // Mousedown in der Tabelle
     twDrag = null; // aktiver Tabellen-Trenner-Drag
     twOverride = null; // per Drag gesetzte Tabellenbreite
     lastOptTW = null; // letzter Options-Wert (Override-Reset)
@@ -211,7 +209,8 @@ export class GanttRenderer {
             if (!g || g.trackH <= g.thumbH)
                 return;
             const r = this.vTrack.getBoundingClientRect();
-            const frac = Math.max(0, Math.min(1, (e.clientY - r.top - g.thumbH / 2) / (g.trackH - g.thumbH)));
+            const sk = this.skala(this.vTrack);
+            const frac = Math.max(0, Math.min(1, ((e.clientY - r.top) / sk - g.thumbH / 2) / (g.trackH - g.thumbH)));
             this.sbDrag = { y0: e.clientY, sy0: frac * this.maxSy };
             this.setState({ sy: frac * this.maxSy });
         });
@@ -222,17 +221,38 @@ export class GanttRenderer {
         this.rowsViewport.addEventListener('mouseleave', () => { this.setState({ hover: null }); });
         // Klicks laufen über den stabilen Viewport und werden per Koordinate zur
         // Zeile aufgelöst — NICHT über per-Zeilen-Listener: Hover/Tooltip lösen
-        // Re-Renders aus, die die Zeilen-Knoten ersetzen. Wird ein Knoten zwischen
-        // Mousedown und Mouseup erneuert, feuert sein click-Event nie ("verschluckte"
-        // Klicks — das machte das Auf-/Zuklappen unzuverlässig).
-        this.rowsViewport.addEventListener('click', (ev) => {
-            if (!this.opts)
+        // Re-Renders aus, die die Zeilen-Knoten ersetzen.
+        //
+        // Und bewusst über mousedown+mouseup statt über 'click': wird der Knoten
+        // unter dem Zeiger zwischen Drücken und Loslassen ersetzt, stellt der
+        // Browser gar kein click-Event zu — auch nicht an einen Vorfahren. Ein
+        // Listener auf dem stabilen Viewport hilft dagegen NICHT. Genau das machte
+        // das Auf-/Zuklappen unbrauchbar: ein menschlicher Klick dauert länger als
+        // ein Frame, ein synthetischer (Test) nicht — deshalb fiel es lange nicht
+        // auf. mouseup wird dagegen immer an das Element unter dem Zeiger
+        // zugestellt und blubbert hoch.
+        this.rowsViewport.addEventListener('mousedown', (ev) => {
+            if (ev.button !== 0)
+                return;
+            const it = this.tableItemAtY(ev.clientY);
+            this.tblDown = { x: ev.clientX, y: ev.clientY, id: it ? it.id : '' };
+        });
+        this.rowsViewport.addEventListener('mouseup', (ev) => {
+            const d = this.tblDown;
+            this.tblDown = null;
+            if (!d || ev.button !== 0 || !this.opts)
+                return;
+            // gleiche Toleranz wie im Chart: Touchpad-Klicks verrutschen leicht
+            if (Math.abs(ev.clientX - d.x) > 8 || Math.abs(ev.clientY - d.y) > 8)
                 return;
             const it = this.tableItemAtY(ev.clientY);
             if (!it) {
-                this.opts.onClear();
+                if (d.id === '')
+                    this.opts.onClear();
                 return;
             }
+            if (it.id !== d.id)
+                return;
             if (it.kind === 'phase' || it.kind === 'proj')
                 this.togglePhase(it.phaseKey);
             else if (it.task) {
@@ -243,7 +263,7 @@ export class GanttRenderer {
                     this.tip = null;
                 }
                 else {
-                    const r = this.chartArea.getBoundingClientRect();
+                    const r = { width: this.chartArea.clientWidth, height: this.chartArea.clientHeight };
                     const bx = (it.s - this.view) / DAY * this.pxd + 14;
                     const by = this.m.axisH + this.lastItems.indexOf(it) * this.m.rowH - this.sy + Math.round(this.m.rowH * 0.7);
                     this.tip = {
@@ -306,34 +326,38 @@ export class GanttRenderer {
     }
     // ---------- Zustands-Helfer ----------
     setState(patch) {
-        if (patch.pxd !== undefined)
+        let geaendert = false;
+        if (patch.pxd !== undefined && patch.pxd !== this.pxd) {
             this.pxd = patch.pxd;
-        if (patch.view !== undefined)
-            this.view = patch.view;
-        if (patch.mode !== undefined)
-            this.mode = patch.mode;
-        if (patch.hover !== undefined)
-            this.hover = patch.hover;
-        if (patch.tip !== undefined)
-            this.tip = patch.tip;
-        if (patch.sy !== undefined)
-            this.sy = patch.sy;
-        // Ansichts-Änderungen (nicht Hover/Tooltip/Scroll) dem Host melden
-        if (patch.pxd !== undefined || patch.view !== undefined || patch.mode !== undefined) {
-            this.meldeZustand();
+            geaendert = true;
         }
-        this.invalidate();
-    }
-    /** Schnappschuss des Ansichts-Zustands an den Host geben (Persistierung) */
-    meldeZustand() {
-        if (!this.opts || !this.opts.onZustand)
-            return;
-        this.opts.onZustand({
-            mode: this.mode,
-            pxd: this.pxd,
-            view: this.view,
-            collapsed: Object.keys(this.collapsed).filter(k => this.collapsed[k])
-        });
+        if (patch.view !== undefined && patch.view !== this.view) {
+            this.view = patch.view;
+            geaendert = true;
+        }
+        if (patch.mode !== undefined && patch.mode !== this.mode) {
+            this.mode = patch.mode;
+            geaendert = true;
+        }
+        if (patch.hover !== undefined && patch.hover !== this.hover) {
+            this.hover = patch.hover;
+            geaendert = true;
+        }
+        if (patch.sy !== undefined && patch.sy !== this.sy) {
+            this.sy = patch.sy;
+            geaendert = true;
+        }
+        if (patch.tip !== undefined) {
+            const a = this.tip, b = patch.tip;
+            const gleich = (a === null && b === null)
+                || (a !== null && b !== null && a.id === b.id && a.x === b.x && a.y === b.y);
+            if (!gleich) {
+                this.tip = patch.tip;
+                geaendert = true;
+            }
+        }
+        if (geaendert)
+            this.invalidate();
     }
     invalidate() {
         // rAF für flüssiges Pannen/Zoomen; setTimeout-Fallback, weil rAF in
@@ -364,7 +388,7 @@ export class GanttRenderer {
         e.preventDefault();
         if (e.ctrlKey || e.metaKey) {
             const r = this.chartArea.getBoundingClientRect();
-            const mx = e.clientX - r.left;
+            const mx = (e.clientX - r.left) / this.skala(this.chartArea);
             const f = Math.exp(-e.deltaY * 0.0022);
             const np = Math.min(60, Math.max(0.25, this.pxd * f));
             const tms = this.view + mx / this.pxd * DAY;
@@ -396,10 +420,10 @@ export class GanttRenderer {
     // Zeile aus einer Bildschirm-Y-Koordinate ableiten (render-fest: braucht
     // keine lebenden DOM-Knoten, nur die Item-Liste des letzten Renders)
     tableItemAtY(clientY) {
-        return this.itemAt(this.rowsViewport.getBoundingClientRect(), clientY);
+        return this.itemAt(this.rowsViewport, clientY);
     }
     chartItemAtY(clientY) {
-        return this.itemAt(this.bodyClip.getBoundingClientRect(), clientY);
+        return this.itemAt(this.bodyClip, clientY);
     }
     // Nur die Zeilen im Sichtfenster (plus Puffer) bekommen DOM-Knoten. Ohne das
     // entstehen bei 30.000 Zeilen ~460.000 Knoten und der erste Frame dauert
@@ -412,15 +436,34 @@ export class GanttRenderer {
         const b = Math.min(len, Math.ceil((sy + Math.max(0, viewH)) / rh) + puffer);
         return [a, b];
     }
-    itemAt(r, clientY) {
+    // Power BI skaliert das Visual per CSS-Transform (Anpassen an Seite,
+    // Fokusmodus, Browser-Zoom, mobile Layouts). getBoundingClientRect und
+    // alle client-Koordinaten sind dann SKALIERTE Pixel, Zeilenhöhe, pxd und
+    // sy dagegen unskaliert. Ohne Korrektur trifft ein Klick die falsche Zeile
+    // — und zwar umso weiter daneben, je tiefer sie liegt — und Pannen,
+    // Scrollbalken, Zoom und Tooltip laufen um denselben Faktor daneben.
+    skala(host) {
+        const h = host.offsetHeight, w = host.offsetWidth;
+        const r = host.getBoundingClientRect();
+        if (h > 0 && r.height > 0)
+            return r.height / h;
+        if (w > 0 && r.width > 0)
+            return r.width / w;
+        return 1;
+    }
+    // Skalierung des gesamten Visuals (für Deltas, die zu keinem Host gehören)
+    skalaRoot() {
+        return this.skala(this.root);
+    }
+    itemAt(host, clientY) {
+        const r = host.getBoundingClientRect();
         if (clientY < r.top || clientY > r.bottom)
             return null;
-        const idx = Math.floor((clientY - r.top + this.sy) / this.m.rowH);
+        const idx = Math.floor(((clientY - r.top) / this.skala(host) + this.sy) / this.m.rowH);
         return idx >= 0 && idx < this.lastItems.length ? this.lastItems[idx] : null;
     }
     togglePhase(k) {
         this.collapsed[k] = !this.collapsed[k];
-        this.meldeZustand();
         this.invalidate();
     }
     onChartDown = (e) => {
@@ -444,7 +487,7 @@ export class GanttRenderer {
         // Tabellen-Trenner-Drag: Breite live anpassen
         if (this.twDrag) {
             const availW = this.panel.clientWidth || this.container.clientWidth;
-            const w = Math.max(0, Math.min(Math.round(availW * 0.7), this.twDrag.w0 + (e.clientX - this.twDrag.x0)));
+            const w = Math.max(0, Math.min(Math.round(availW * 0.7), this.twDrag.w0 + (e.clientX - this.twDrag.x0) / this.skalaRoot()));
             this.twOverride = w;
             this.invalidate();
             return;
@@ -453,7 +496,7 @@ export class GanttRenderer {
         if (this.sbDrag) {
             const g = this.sbGeom;
             if (g && g.trackH > g.thumbH) {
-                const dy = e.clientY - this.sbDrag.y0;
+                const dy = (e.clientY - this.sbDrag.y0) / this.skalaRoot();
                 const sy = Math.max(0, Math.min(this.maxSy, this.sbDrag.sy0 + dy * this.maxSy / (g.trackH - g.thumbH)));
                 this.setState({ sy });
             }
@@ -467,7 +510,7 @@ export class GanttRenderer {
         if (!this.pan.moved && Math.abs(e.clientX - this.pan.x0) < 8 && Math.abs(e.clientY - this.pan.y0) < 8)
             return;
         this.pan.moved = true;
-        this.setState({ view: this.pan.v0 - (e.clientX - this.pan.x0) / this.pxd * DAY });
+        this.setState({ view: this.pan.v0 - (e.clientX - this.pan.x0) / this.skalaRoot() / this.pxd * DAY });
     };
     onWinUp = (e) => {
         if (this.twDrag) {
@@ -478,6 +521,7 @@ export class GanttRenderer {
             this.invalidate();
             return;
         }
+        this.tblDown = null;
         if (this.sbDrag) {
             this.sbDrag = null;
             this.invalidate();
@@ -506,7 +550,8 @@ export class GanttRenderer {
     };
     tipAt(item, e) {
         const r = this.chartArea.getBoundingClientRect();
-        let x = e.clientX - r.left + 16, y = e.clientY - r.top + 16;
+        const sk = this.skala(this.chartArea);
+        let x = (e.clientX - r.left) / sk + 16, y = (e.clientY - r.top) / sk + 16;
         x = Math.max(4, Math.min(x, r.width - 240));
         y = Math.max(4, Math.min(y, r.height - 190));
         this.setState({ tip: { id: item.id, x, y }, hover: item.id });
@@ -561,19 +606,16 @@ export class GanttRenderer {
     }
     // ---------- Ableitungen ----------
     theme(dark) {
-        // Tooltip: im hellen Theme bewusst invertiert dunkel (klassischer Stil);
-        // im dunklen Theme NICHT invertiert hell — ein greller Kasten blendet auf
-        // dunkler Seite. Stattdessen leicht angehobenes dunkles Panel mit Rand.
         return dark ? {
             bg: '#151619', panel: '#1E2023', border: '#33363C', grid: '#2A2D32',
             text: '#E9E7E2', sub: '#90939A', weekend: 'rgba(255,255,255,0.035)',
             hoverBg: 'rgba(255,255,255,0.055)', today: okl(0.66, 0.16, 30),
-            dep: '#6A6E76', tipBg: '#2A2D33', tipFg: '#E9E7E2', tipSub: '#9BA0A8', tipBd: '#484C54'
+            dep: '#6A6E76', tipBg: '#F3F2EE', tipFg: '#26251F', tipSub: '#7A776F'
         } : {
             bg: '#F4F3F0', panel: '#FFFFFF', border: '#E4E2DC', grid: '#F0EEE9',
             text: '#2A2925', sub: '#8B887E', weekend: 'rgba(60,55,40,0.05)',
             hoverBg: 'rgba(60,55,40,0.055)', today: okl(0.58, 0.17, 30),
-            dep: '#B5B2A9', tipBg: '#26251F', tipFg: '#F5F4F0', tipSub: '#A3A098', tipBd: 'transparent'
+            dep: '#B5B2A9', tipBg: '#26251F', tipFg: '#F5F4F0', tipSub: '#A3A098'
         };
     }
     // Meilenstein-Erkennung: Ende leer ist immer ein Meilenstein; optional
@@ -815,13 +857,8 @@ export class GanttRenderer {
             this.landing.style.display = 'flex';
             this.landing.style.color = t.sub;
             this.landing.replaceChildren();
-            // Leer-Zustand: eigene Texte aus dem Formatbereich ersetzen das Branding —
-            // z. B. "Keine Vorgänge für diese Auswahl" statt des Felder-Hinweises
-            const cTitel = (o.leerTitel || '').trim();
-            const cText = (o.leerText || '').trim();
-            const head = el('div', 'font-weight:700;font-size:15px;color:' + t.text + ';margin-bottom:6px', cTitel !== '' ? cTitel : 'DataKitchen Gantt');
-            const body = el('div', 'font-size:12.5px;max-width:560px;line-height:1.55', cText !== '' ? cText
-                : 'Bitte mindestens "Task" und "Start (Datum)" befüllen. Optional: Ende (leer = Meilenstein), Phase, Fortschritt, Status, Wer, Abhängigkeiten.');
+            const head = el('div', 'font-weight:700;font-size:15px;color:' + t.text + ';margin-bottom:6px', 'DataKitchen Gantt');
+            const body = el('div', 'font-size:12.5px', 'Bitte mindestens "Task" und "Start (Datum)" befüllen. Optional: Ende (leer = Meilenstein), Phase, Fortschritt, Status, Wer, Abhängigkeiten.');
             const wrap = el('div', '');
             wrap.appendChild(head);
             wrap.appendChild(body);
@@ -848,23 +885,6 @@ export class GanttRenderer {
         this.tableWrap.style.width = tableW + 'px';
         this.tableWrap.style.borderRight = '1px solid ' + t.border;
         this.divider.style.background = this.twDrag ? t.sub : t.border;
-        // Gespeicherter Ansichts-Zustand: einmal pro Lebenszeit anwenden, BEVOR
-        // das Auto-Einpassen greift — das Visual öffnet dann exakt so, wie es
-        // verlassen wurde (Zoom/Pan/Zeiteinheit + zugeklappte Ebenen)
-        if (!this.zustandInit && o.initZustand) {
-            const z = o.initZustand;
-            this.zustandInit = true;
-            if (Array.isArray(z.collapsed)) {
-                z.collapsed.forEach(k => { this.collapsed[String(k)] = true; });
-            }
-            if (typeof z.pxd === 'number' && isFinite(z.pxd) && z.pxd > 0
-                && typeof z.view === 'number' && isFinite(z.view)) {
-                this.pxd = Math.min(60, Math.max(0.25, z.pxd));
-                this.view = z.view;
-                this.mode = typeof z.mode === 'string' ? z.mode : '';
-                this.fitted = true; // Wiederherstellung ersetzt das Einpassen
-            }
-        }
         if (!this.fitted && this.chartArea.clientWidth > 0) {
             // Layout ist nach dem Anhängen synchron messbar → direkt einpassen
             this.fitted = true;
@@ -945,7 +965,6 @@ export class GanttRenderer {
             const anyOpen = this.projKeys.some(k => !this.collapsed[k]);
             mkBtn(anyOpen ? '▾ Projekte' : '▸ Projekte', () => {
                 this.projKeys.forEach(k => this.collapsed[k] = anyOpen);
-                this.meldeZustand();
                 this.invalidate();
             }, true);
         }
@@ -954,7 +973,6 @@ export class GanttRenderer {
             const lbl = this.levelCount > 1 ? 'Ebenen' : 'Phasen';
             mkBtn((anyOpen ? '▾ ' : '▸ ') + lbl, () => {
                 this.phaseKeys.forEach(k => this.collapsed[k] = anyOpen);
-                this.meldeZustand();
                 this.invalidate();
             }, true);
         }
@@ -1219,6 +1237,7 @@ export class GanttRenderer {
         const planH = Math.max(4, Math.round(6 * m.s));
         const planGap = Math.max(1, Math.round(2 * m.s));
         const planStroke = ibcs ? IBCS_AC : t.sub;
+        const gruppenNamen = o.gruppenNamen !== false;
         const mkPlanBar = (ps, pe, topPx, dimmed) => el('div', 'position:absolute;left:' + x(ps) + 'px;top:' + topPx + 'px;width:' + Math.max(2, x(pe + DAY) - x(ps)) + 'px;height:' + planH + 'px;' +
             'border-radius:' + rad(3) + ';background:transparent;box-shadow:inset 0 0 0 1px ' + planStroke + ';' +
             'pointer-events:none;opacity:' + (dimmed ? 0.25 : 0.85));
@@ -1235,6 +1254,16 @@ export class GanttRenderer {
                     (ibcs ? ';box-shadow:inset 0 0 0 1px ' + IBCS_AC : ''));
                 bar.appendChild(el('div', 'height:100%;width:' + (it.pct === null ? 0 : it.pct) + '%;background:' + it.color + ';border-radius:' + rad(5)));
                 this.scrollLayer.appendChild(bar);
+                // Name der Gruppe am Balkenanfang: ohne Tabelle (oder bei schmaler
+                // Tabelle, wo tiefe Ebenen abgeschnitten werden) ist sonst nicht
+                // erkennbar, welche Ebene die Zeile zeigt. pointer-events:none,
+                // damit der Klick auf die Zeile durchfällt und sie klappt.
+                if (gruppenNamen) {
+                    this.scrollLayer.appendChild(el('div', 'position:absolute;left:' + x(it.s) + 'px;top:' + (top + phTop - Math.round(12 * m.s)) + 'px;' +
+                        'height:' + Math.round(12 * m.s) + 'px;display:flex;align-items:center;' +
+                        'font-size:' + this.fs(9.5) + ';font-weight:700;color:' + t.sub + ';' +
+                        'white-space:nowrap;pointer-events:none', it.name));
+                }
                 if (showPlan)
                     this.scrollLayer.appendChild(mkPlanBar(it.ps, it.pe, top + phTop + m.phBarH + planGap, false));
                 // Kompakt-Meilensteine der zugeklappten Phase: Rauten auf der
@@ -1253,7 +1282,11 @@ export class GanttRenderer {
                             'transform:rotate(45deg);border-radius:' + rad(2) + ';background:' + it.color + ';cursor:pointer;' +
                             (ibcs ? '' : 'box-shadow:0 1px 3px rgba(0,0,0,0.25);') +
                             'opacity:' + (msDim ? 0.3 : 1));
-                        dEl.setAttribute('data-task', ms.key);
+                        // BEWUSST kein data-task: auf einer Gruppenzeile soll ein
+                        // Klick die Zeile auf-/zuklappen, auch wenn er eine Raute
+                        // trifft (bei ~48 Meilensteinen je Projekt wäre die Zeile
+                        // sonst größtenteils tot). Der Titel bleibt als Tooltip.
+                        dEl.style.cursor = 'pointer';
                         dEl.setAttribute('title', ms.name + ' · ' + fmtDate(ms.s));
                         this.scrollLayer.appendChild(dEl);
                         const lbl = msLblMode === 'nurName' ? ms.name
@@ -1353,7 +1386,6 @@ export class GanttRenderer {
             return;
         const isM = it.kind === 'ms';
         const box = el('div', 'position:absolute;left:' + this.tip.x + 'px;top:' + this.tip.y + 'px;background:' + t.tipBg + ';color:' + t.tipFg + ';' +
-            'border:1px solid ' + t.tipBd + ';' +
             'border-radius:' + (ibcs ? '0' : '9px') + ';padding:11px 13px;box-shadow:' + (ibcs ? '0 0 0 1px rgba(0,0,0,0.15)' : '0 10px 28px rgba(0,0,0,0.25)') + ';min-width:200px;max-width:300px');
         box.appendChild(el('div', 'font-weight:700;font-size:' + this.fs(12.5) + ';margin-bottom:7px', it.name));
         const grid = el('div', 'display:grid;grid-template-columns:auto 1fr;gap:3px 14px;font-size:' + this.fs(11.5));

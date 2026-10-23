@@ -40,16 +40,11 @@
     const opts = () => ({
       dark: params.get('dark') === '1',
       ibcs: params.get('ibcs') === '1',
-      leerTitel: params.get('leertitel') || '',
-      leerText: params.get('leertext') || '',
-      // ?zustand={"mode":"Jahre","pxd":0.5,"view":1700000000000,"collapsed":["…"]}
-      // simuliert den persistierten Ansichts-Zustand; Änderungen landen in window.__zustand
-      initZustand: params.has('zustand') ? JSON.parse(params.get('zustand')) : null,
-      onZustand: (z) => { window.__zustand = z; },
       wochenenden: params.get('wochenenden') !== '0',
       abhaengigkeiten: params.get('deps') !== '0',
       heuteLinie: params.get('heute') !== '0',
       tabellenBreite: params.has('tw') ? Number(params.get('tw')) : 620,
+      gruppenNamen: params.get('gnamen') !== '0',
       basisplan: params.get('plan') !== '0',
       deltaSpalte: params.get('delta') !== '0',
       verzugZeilen: params.get('verzug') !== '0',
@@ -117,8 +112,7 @@
         ...TASKS.map(t => clone(t, 'B:', 'Speicher Gladbeck', shift))
       ];
     }
-    // ?empty=1 → Leer-Zustand testen (mit ?leertitel=…&leertext=… für eigene Texte)
-    r.setData(params.get('empty') === '1' ? [] : DATA);
+    r.setData(DATA);
     r.setOptions(opts());
     window.__gantt = r; // für Debug-Zugriff
   </script>
