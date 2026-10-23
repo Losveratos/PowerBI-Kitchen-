@@ -352,6 +352,9 @@ interface Domains {
 }
 
 interface Rect { x: number; y: number; w: number; h: number; }
+/** label room of a value panel per side (bars: px left of zero / right of the
+ *  largest value) — measured from the label texts instead of the font size */
+interface PanelPad { lo: number; hi: number; }
 
 interface Scale { (v: number): number; }
 
@@ -2513,8 +2516,8 @@ export class Visual implements IVisual {
     private maybeAutoExpand(dataView: DataView | undefined): void {
         const s = this.formattingSettings;
         if (!s.chartCard.autoExpandHierarchy.value) { return; }
-        // export/print/subscription renders show the report state as saved — a drill
-        // request from there would re-query behind a picture that is already final
+        // export/print renders show the report state as saved — a drill request
+        // from there would re-query behind a picture that is already final
         if (!this.allowInteractions) { return; }
         const orient = String(s.chartCard.orientation.value.value);
         if (orient !== "table" && orient !== "pnl") { return; }
@@ -13415,11 +13418,38 @@ export class Visual implements IVisual {
         // panels are magnified by a round factor and say so (scale band + "×f")
         const minPlot = Math.max(10, Math.round(8 * this.fontK));
         let zoom = 1;
+        // bars: the label room right/left of a panel follows the widest label text on
+        // that side (export tiles: "+43,3 %" next to the Δ% pin used to run past the
+        // visual's edge with the old font-based pad) — never less than before
+        const valueTexts0 = (cfg.sumSafe && !cfg.cumulative
+            ? this.sumSafeAdjust(points.map(p => p.value), cfg.fmtUnit, cfg.fmtPrec)
+            : points.map(p => p.value)).map(v => v != null ? cfg.fmt.format(v) : "");
+        const barPad = (base: number, texts: string[], vals: (number | null)[], extra: number): number | PanelPad => {
+            if (orientation === "columns" || !cfg.showLabels) { return base; }
+            let lo = 0, hi = 0;
+            texts.forEach((t, i) => {
+                const v = vals[i];
+                if (!t || v == null) { return; }
+                const w = this.textWidth(t, cfg.labelFont) + 4 + extra + 3;
+                if (v < 0) { lo = Math.max(lo, w); } else { hi = Math.max(hi, w); }
+            });
+            return { lo: Math.max(base + 4, lo), hi: Math.max(base + 24, hi) };
+        };
+        const rPin = 4.5; // upper bound of the Δ% pin head radius
+        const mainPadB = barPad(compactLabelPad, valueTexts0, points.map(p => p.value), 0);
+        const absPadB = barPad(labelPad, points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : ""),
+            points.map(p => p.varAbs), 0);
+        const relPadB = barPad(labelPad, points.map(p => this.relText(p)), points.map(p => p.varRel), rPin + 3);
+        const abs2PadB = barPad(labelPad, points.map(p => p.var2Abs != null ? this.fmtSigned(cfg.fmtVar, p.var2Abs) : ""),
+            points.map(p => p.var2Abs), 0);
+        const rel2PadB = barPad(labelPad, points.map(p => this.relText(p, true)), points.map(p => p.var2Rel), rPin + 3);
+        const padSum = (pp: number | PanelPad) => typeof pp === "number" ? 0 : pp.lo + pp.hi;
+        const relMin = orientation === "columns" ? 0 : Math.max(padSum(relPadB), padSum(rel2PadB)) + 24;
         const split = (start: number, span: number, vertical: boolean) => {
             const same = this.splitPanelsSameScale(start, span, showAbs, showRel, vertical, region,
-                showDual, showBridge, domains, compactLabelPad, labelPad, minPlot);
+                showDual, showBridge, domains, mainPadB, absPadB, minPlot, abs2PadB, relMin);
             if (same) { zoom = same.zoom; return same.panels; }
-            return this.splitPanels(start, span, showAbs, showRel, vertical, region, showDual, showBridge);
+            return this.splitPanels(start, span, showAbs, showRel, vertical, region, showDual, showBridge, relMin);
         };
 
         if (orientation === "columns") {
@@ -13479,16 +13509,16 @@ export class Visual implements IVisual {
         const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cfg.catFont, step, orientation, undefined, true);
 
         // ------- scales
-        const mainScale = this.makePanelScale(domains.main, panels.main, orientation, compactLabelPad);
+        const mainScale = this.makePanelScale(domains.main, panels.main, orientation, mainPadB);
         this.lastScaleK = Math.abs(mainScale(1) - mainScale(0));
         const absScale = panels.abs
-            ? this.makePanelScale(domains.abs, panels.abs, orientation, labelPad) : null;
+            ? this.makePanelScale(domains.abs, panels.abs, orientation, absPadB) : null;
         const relScale = panels.rel
-            ? this.makePanelScale(domains.rel, panels.rel, orientation, labelPad) : null;
+            ? this.makePanelScale(domains.rel, panels.rel, orientation, relPadB) : null;
         const abs2Scale = panels.abs2
-            ? this.makePanelScale(domains.abs2, panels.abs2, orientation, labelPad) : null;
+            ? this.makePanelScale(domains.abs2, panels.abs2, orientation, abs2PadB) : null;
         const rel2Scale = panels.rel2
-            ? this.makePanelScale(domains.rel2, panels.rel2, orientation, labelPad) : null;
+            ? this.makePanelScale(domains.rel2, panels.rel2, orientation, rel2PadB) : null;
         // the bridge domain is zero-based like its anchor bars (S2) — label room only
         // on the side(s) away from zero, exactly like the main panel
         const bridgeNat = panels.bridge
@@ -15172,7 +15202,7 @@ export class Visual implements IVisual {
     }
 
     private splitPanels(start: number, span: number, showAbs: boolean, showRel: boolean,
-        vertical: boolean, region: Rect, showDual = false, showBridge = false)
+        vertical: boolean, region: Rect, showDual = false, showBridge = false, relMin = 0)
         : { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect } {
         const gap = 10;
         type Key = "main" | "abs" | "rel" | "abs2" | "rel2" | "bridge";
@@ -15196,10 +15226,26 @@ export class Visual implements IVisual {
         }
         const totalShare = parts.reduce((a, b) => a + b.share, 0);
         const usable = span - gap * (parts.length - 1);
+        const sizes = parts.map(part => usable * (part.share / totalShare));
+        // bars: a Δ% panel needs room for its pins AND the labels on both sides —
+        // widened at the expense of the base panel (capped at 40 % of the span each)
+        if (!vertical && relMin > 0) {
+            const mi = parts.findIndex(x => x.key === "main");
+            parts.forEach((part, pi) => {
+                if (part.key !== "rel" && part.key !== "rel2") { return; }
+                const want = Math.min(relMin, usable * 0.4);
+                const deficit = want - sizes[pi];
+                if (deficit > 0 && sizes[mi] - deficit > usable * 0.3) {
+                    sizes[pi] += deficit;
+                    sizes[mi] -= deficit;
+                }
+            });
+        }
         const out: Partial<Record<Key, Rect>> = {};
         let cursor = start;
-        for (const part of parts) {
-            const size = usable * (part.share / totalShare);
+        for (let pi = 0; pi < parts.length; pi++) {
+            const part = parts[pi];
+            const size = sizes[pi];
             out[part.key] = vertical
                 ? { x: region.x, y: cursor, w: region.w, h: size }
                 : { x: cursor, y: region.y, w: size, h: region.h };
@@ -15221,9 +15267,10 @@ export class Visual implements IVisual {
      */
     private splitPanelsSameScale(start: number, span: number, showAbs: boolean, showRel: boolean,
         vertical: boolean, region: Rect, showDual: boolean, showBridge: boolean,
-        domains: Domains, mainPad: number, labelPad: number, minPlot: number)
+        domains: Domains, mainPad: number | PanelPad, labelPad: number | PanelPad, minPlot: number,
+        abs2Pad: number | PanelPad = labelPad, relMin = 0)
         : { panels: { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect }; zoom: number } | null {
-        const old = this.splitPanels(start, span, showAbs, showRel, vertical, region, showDual, showBridge);
+        const old = this.splitPanels(start, span, showAbs, showRel, vertical, region, showDual, showBridge, relMin);
         if (!old.abs) { return { panels: old, zoom: 1 }; }
         const orient: Orientation = vertical ? "columns" : "bars";
         const gap = 10;
@@ -15234,7 +15281,7 @@ export class Visual implements IVisual {
         const avail = span - gap * (nParts - 1) - fixed;
         const base = this.panelGeom(domains.main, orient, mainPad, false);
         const tiers = [domains.abs, ...(old.abs2 ? [domains.abs2] : [])]
-            .map(d => this.panelGeom(d, orient, labelPad, false));
+            .map((d, ti) => this.panelGeom(d, orient, ti === 0 ? labelPad : abs2Pad, false));
         const split = this.sameScaleSplit(avail, base, tiers, minPlot);
         if (!split) { return null; }
         // lay the parts out in the original order with the new sizes
@@ -15355,17 +15402,27 @@ export class Visual implements IVisual {
 
     /** pixel overhead (label room, end padding) and padded value span of a panel —
      *  mirrors makePanelScale, so px per unit = plot / span exactly */
-    private panelGeom(domain: [number, number], orientation: Orientation, labelPad: number,
+    private panelGeom(domain: [number, number], orientation: Orientation, labelPad: number | PanelPad,
         bothEnds: boolean): { ov: number; span: number } {
         let [mn, mx] = domain;
         const raw = mx - mn;
         if (mn === 0 && mx === 0) { mx = 1; }
         const lo = bothEnds || mn < 0, hi = bothEnds || mx > 0;
         const span = raw > 0 ? (mx - mn) * (1 + 0.02 * ((lo ? 1 : 0) + (hi ? 1 : 0))) : 0;
+        const pp = this.sidePads(labelPad, orientation);
         const ov = orientation === "columns"
-            ? (hi ? labelPad + 12 : 12) + (lo ? labelPad : 2)
-            : (lo ? labelPad + 4 : 4) + (hi ? labelPad + 24 : 4);
+            ? (hi ? pp.hi + 12 : 12) + (lo ? pp.lo : 2)
+            : (lo ? pp.lo : 4) + (hi ? pp.hi : 4);
         return { ov, span };
+    }
+
+    /** per-side label room: a plain number keeps the historic formulas (columns:
+     *  labelPad on both sides, bars: +4 left / +24 right); a PanelPad is used as is */
+    private sidePads(labelPad: number | PanelPad, orientation: Orientation): PanelPad {
+        if (typeof labelPad !== "number") { return labelPad; }
+        return orientation === "columns"
+            ? { lo: labelPad, hi: labelPad }
+            : { lo: labelPad + 4, hi: labelPad + 24 };
     }
 
     /**
@@ -15436,21 +15493,28 @@ export class Visual implements IVisual {
     }
 
     private makePanelScale(domain: [number, number], rect: Rect, orientation: Orientation,
-        labelPad: number, bothEnds = false): Scale {
+        labelPad: number | PanelPad, bothEnds = false): Scale {
         let [mn, mx] = domain;
         if (mn === 0 && mx === 0) { mx = 1; }
         const span = mx - mn;
         const padFrac = 0.02;
         const mnp = (bothEnds || mn < 0) ? mn - span * padFrac : mn;
         const mxp = (bothEnds || mx > 0) ? mx + span * padFrac : mx;
+        const pp = this.sidePads(labelPad, orientation);
         if (orientation === "columns") {
-            const top = rect.y + ((bothEnds || mx > 0) ? labelPad + 12 : 12);
-            const bottom = rect.y + rect.h - ((bothEnds || mn < 0) ? labelPad : 2);
+            const top = rect.y + ((bothEnds || mx > 0) ? pp.hi + 12 : 12);
+            const bottom = rect.y + rect.h - ((bothEnds || mn < 0) ? pp.lo : 2);
             return linearScale(mnp, mxp, bottom, top);
         } else {
-            const left = rect.x + ((bothEnds || mn < 0) ? labelPad + 4 : 4);
-            const right = rect.x + rect.w - ((bothEnds || mx > 0) ? labelPad + 24 : 4);
-            return linearScale(mnp, mxp, left, right);
+            let lo = (bothEnds || mn < 0) ? pp.lo : 4;
+            let hi = (bothEnds || mx > 0) ? pp.hi : 4;
+            // a narrow panel keeps some room for the marks (24 px, at most a third)
+            const maxPad = rect.w - Math.min(24, rect.w / 3);
+            if (typeof labelPad !== "number" && lo + hi > maxPad && lo + hi > 0) {
+                const f = maxPad / (lo + hi);
+                lo *= f; hi *= f;
+            }
+            return linearScale(mnp, mxp, rect.x + lo, rect.x + rect.w - hi);
         }
     }
 

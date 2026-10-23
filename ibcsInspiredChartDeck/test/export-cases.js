@@ -1,6 +1,8 @@
-// Export-Layout-Suite (PDF / PowerPoint / Abo-Mail): the four sheets that really
-// get printed, each in three export-typical tile sizes, rendered in the export
-// host context (hostCapabilities.allowInteractions = false, viewMode 0 = View).
+// Export-Layout-Suite: the four sheets that really get printed, each in three
+// export-typical tile sizes, rendered in the non-interactive host context
+// (hostCapabilities.allowInteractions = false, viewMode 0 = View) — what Power BI
+// Desktop's PDF export and printing use (the service export renders certified
+// visuals only, so it applies after certification).
 //
 //   1  Monatssäulen + Δ   columns · 12 months · AC + PL + PY · ΔPL / ΔPL% panels
 //   2  Struktur-Balken    bars · 16 customers (long names) · AC + PY · Δ panels right
@@ -125,7 +127,7 @@ function pageLib() {
                     ibcsTitle: { show: true, kpi: "Nettoumsatz in EUR", period: "Jan bis Dez 2026, Ist bis Aug",
                         footer: "Quelle: SAP FI · Stand 05.09.2026", filterFooter: true }
                 }, preset)),
-            expect: [/^ΔPL$/, /^ΔPL ?%$/]
+            expect: [/^ΔPL( ×[\d,]+)?$/, /^ΔPL ?%$/]
         },
         bars: {
             title: "Struktur-Balken (16 Kunden, ΔPY)",
@@ -136,7 +138,7 @@ function pageLib() {
                     ibcsTitle: { show: true, kpi: "Deckungsbeitrag in EUR je Kunde", period: "Jan bis Aug 2026",
                         footer: "Quelle: CO-PA · Stand 05.09.2026" }
                 }, preset)),
-            expect: [/^ΔPY$/, /^ΔPY ?%$/]
+            expect: [/^ΔPY( ×[\d,]+)?$/, /^ΔPY ?%$/]
         },
         bridge: {
             title: "Kategorie-Brücke PY → AC",
@@ -158,7 +160,7 @@ function pageLib() {
                     ibcsTitle: { show: true, kpi: "GuV in EUR", period: "Jan bis Aug 2026",
                         footer: "Quelle: SAP FI · Stand 05.09.2026" }
                 }, preset), [["rowType", "Typ", pnlTypes]]),
-            expect: [/^Jahresüberschuss$/, /^EBIT$/, /^ΔPY$/, /^ΔPY ?%$/]
+            expect: [/^Jahresüberschuss$/, /^EBIT$/, /^ΔPY( ×[\d,]+)?$/, /^ΔPY ?%$/]
         },
         matrix: {
             title: "Matrix Quartal → Monat + Σ (YTD)",
