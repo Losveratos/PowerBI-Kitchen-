@@ -4,7 +4,7 @@
    Herkunft: Scratchpad-Skript test_v19.js (Stand v0.19).
    Start:  node tests/rechner/wirkungsgraph-abschnitt.test.js
    Laeuft aus jedem Verzeichnis — Pfade kommen aus lib/harness.js. */
-const { chromium, URL: U, artifactDir, skipWizard: skip, reporter } = require('./lib/harness');
+const { chromium, URL: U, artifactDir, waitStable, skipWizard: skip, reporter } = require('./lib/harness');
 const DIR = artifactDir('wirkungsgraph-abschnitt');
 const R = reporter('wirkungsgraph-abschnitt');
 const ok = R.ok, watch = R.watch, errs = R.errs;
@@ -33,7 +33,7 @@ let v=await p.evaluate(()=>{const s=document.getElementById('s-map');const r=s.g
   return {disp:getComputedStyle(s).display,h:Math.round(r.height)};});
 ok('Ebene 1: Karte ausgeblendet',v.disp==='none'&&v.h===0,JSON.stringify(v));
 ok('Ebene 1: Einzeiler mit Sprung auf die Karte',await p.isVisible('#s0 .lnk[data-goto="s-map"]'));
-await p.click('#s0 .lnk[data-goto="s-map"]');await p.waitForTimeout(1200);
+await p.click('#s0 .lnk[data-goto="s-map"]');await p.waitForTimeout(1200);await waitStable(p);
 v=await p.evaluate(()=>({lv:S.level,top:Math.round(document.getElementById('s-map').getBoundingClientRect().top),
   vis:document.getElementById('graph-svg').getBoundingClientRect().height>0}));
 ok('Einzeiler wechselt die Ebene und springt zur Karte',v.lv===2&&v.vis&&v.top>-40&&v.top<300,JSON.stringify(v));
@@ -117,7 +117,7 @@ ok('Escape hebt auf',await p.evaluate(()=>graphSel===null&&document.getElementBy
 
 /* ---------- 6) Werkzeugleiste, Inhaltsverzeichnis, gefuehrter Einstieg ---------- */
 await p.click('.stepper [data-level="1"]');await p.waitForTimeout(700);
-await p.click('#btn-graph');await p.waitForTimeout(1200);
+await p.click('#btn-graph');await p.waitForTimeout(1200);await waitStable(p);
 v=await p.evaluate(()=>({lv:S.level,top:Math.round(document.getElementById('s-map').getBoundingClientRect().top),
   vis:document.getElementById('graph-svg').getBoundingClientRect().height>0}));
 ok('Werkzeugleisten-Knopf springt auf Ebene 2 zur Karte',v.lv===2&&v.vis&&v.top>-40&&v.top<300,JSON.stringify(v));
@@ -135,7 +135,7 @@ for(let i=0;i<6;i++){await p.click('#wiz-next');await p.waitForTimeout(250);}
 ok('Einstieg hat die Option „Modell als Karte“',await p.isVisible('[data-wact="graph"]'));
 const hint=await p.evaluate(()=>document.querySelector('.wiz-hint').textContent);
 ok('Einstieg-Hinweis nennt nicht mehr Ebene 3',!/Wirkungsgraph in Ebene 3/.test(hint));
-await p.click('[data-wact="graph"]');await p.waitForTimeout(1400);
+await p.click('[data-wact="graph"]');await p.waitForTimeout(1400);await waitStable(p);
 v=await p.evaluate(()=>({lv:S.level,top:Math.round(document.getElementById('s-map').getBoundingClientRect().top),
   vis:document.getElementById('graph-svg').getBoundingClientRect().height>0}));
 ok('Einstieg springt auf Ebene 2 zur Karte',v.lv===2&&v.vis&&v.top>-40&&v.top<300,JSON.stringify(v));
