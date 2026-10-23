@@ -1,5 +1,18 @@
 # Daten-WG Knowledge Kitchen · Channel-Guide
 
+> **Einordnung (Stand Okt 2026):** Dieses Repo ist inzwischen mehr als der
+> Channel-Guide, den dieser Leitfaden beschreibt. Es enthält die komplette
+> Website datenwgknowledgekitchen.com (GitHub Pages von `main`) und die
+> Power-BI-Custom-Visuals **ChartKitchen byDatenWG** (`ibcsInspiredChartDeck/`),
+> **P&L Statement byDatenWG** (`pnlByDatenWG/`) und **dataKitchenGantt**
+> (`dataKitchenGantt/`). Überblick und aktueller Stand: `README.md` und
+> `STATUS.md`; Visual-Arbeit beginnt beim `AGENT-GUIDE.md` im jeweiligen
+> Visual-Ordner (Release-Konvention, Property-Referenz, bekannte Fallen).
+> Der Rest dieser Datei ist der ursprüngliche Auftrag für den
+> YouTube-Channel-Guide — er gilt weiter für `daten_wg_learn_buckets.html`
+> und die `scripts/`-Pipeline (heute per Skill `kitchen-update`).
+> Das Kapitel „Design-System" unten gilt für **alle** Seiten des Repos.
+
 > **Ziel:** Alle ~100+ Videos vom YouTube-Kanal [@Daten-WG](https://www.youtube.com/@Daten-WG)
 > automatisch holen, thematisch in 9 Buckets clustern, und in eine bestehende
 > HTML-Seite einbinden — mit Tags, Volltextsuche, lazy-loaded YouTube-Embeds und

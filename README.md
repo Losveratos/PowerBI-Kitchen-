@@ -1,31 +1,47 @@
-# Daten-WG · Knowledge Kitchen
+# Daten-WG · Knowledge Kitchen & Power-BI-Visuals
 
-Statische Single-Page, die alle Videos vom YouTube-Kanal [@Daten-WG](https://www.youtube.com/@Daten-WG)
-thematisch in 9 Buckets sortiert. Inklusive Tag-Filter, Volltextsuche (auch in Auto-Transkripten),
-lazy-loaded YouTube-Embeds und Kapitel-Sprungmarken aus den Video-Beschreibungen.
+Das Repo hinter **[datenwgknowledgekitchen.com](https://www.datenwgknowledgekitchen.com)**
+(GitHub Pages von `main`) — und zugleich die Quelle der Power-BI-Custom-Visuals
+**byDatenWG**. Autor: Michael Tenner · Daten-WG.
 
-**Stand:** 72 Folgen · v 3 · Channel-Guide
+## Was hier liegt
+
+| Bereich | Ordner/Dateien | Kurz |
+| --- | --- | --- |
+| **ChartKitchen byDatenWG** | `ibcsInspiredChartDeck/` | Custom Visual mit 13 IBCS-inspirierten Chart-Modi (Säulen, Balken, Linien, Waterfall/Brücke, GuV, Tabelle/Matrix, KPI-Karten, Scatter/Bubble …). Quellcode, Tests, `dist/*.pbiviz`, CHANGELOG |
+| **P&L Statement byDatenWG** | `pnlByDatenWG/` | Custom Visual für GuV/P&L: Mega-Table mit IBCS-Templates T01A–12H, Treiberbaum, klassische Tabelle |
+| **dataKitchenGantt** | `dataKitchenGantt/` | Custom Visual: Gantt-/Projektplan |
+| **MockupKitchen & Co** | `mockup-kitchen.html`, `business-chart-builder.html` | Browser-Werkzeuge: Report-Mockups skizzieren, Deneb/Vega-Charts bauen |
+| **Downloads** | `downloads/` | Immer die aktuelle ChartKitchen-.pbiviz (`chartkitchen-byDatenWG-latest.pbiviz` + `latest.json`); P&L-Download zeigt auf `pnlByDatenWG/dist/` |
+| **Doku-Seiten** | `chartkitchen-doku.html`, `pnl-doku.html` (+ `_en`, Schnellstarts) | Endnutzer-Doku der Visuals, DE/EN |
+| **Knowledge Kitchen** | `daten_wg_learn_buckets.html` (= `index.html`-Kern), `scripts/`, `videos.json`, `transcripts.json` | Alle Daten-WG-YouTube-Folgen in 9 Themen-Buckets, Volltextsuche, Kapitel |
+| **Stories & Posts** | `*-story.html`, `*-post.html`, `blog/`, `md/` | Daten-Stories (Kölner Raser, Rhein, Strommix, …), Blog-/LinkedIn-Begleittexte, Markdown-Spiegel der Seiten |
+| **Skills** | `.claude/skills/` | Claude-Code-Skills: Reports mit den Visuals bauen, Finance-Datenmodell, Deneb-Deploy, Mockup-Umsetzung, Kitchen-Update |
+| **Einreichung** | `cert-export/` | AppSource-Einreichungsstand von ChartKitchen (wird je Release synchron gehalten) |
+| **Sonstiges** | `assets/` (selbst gehostete Fonts, JS-Vendor), `tests/`, `tools/`, `whitepaper-*`, `wissensgraph/` | Design-System, Playwright-Tests, Social-Media-Vorlagen, Whitepaper |
+
+Schwester-Repo für die Visual-Downloads:
+[Losveratos/power-bi-custom-visuals-bydatenwg](https://github.com/Losveratos/power-bi-custom-visuals-bydatenwg).
 
 ## Live-Version
 
-→ **https://losveratos.github.io/PowerBI-Kitchen-/**
+→ **https://www.datenwgknowledgekitchen.com** (GitHub Pages, Build ~1–3 min nach Push auf `main`)
 
-(Aktiv ab dem ersten erfolgreichen GitHub-Pages-Build. Falls 404: in
-Repo-Settings → Pages prüfen, ob `main` / root als Source gewählt ist.)
+Lokal: `python -m http.server 8000` → http://localhost:8000/
 
-## Lokal anschauen
+## Visuals bauen
 
 ```
-python -m http.server 8000
-# Browser: http://localhost:8000/
+cd ibcsInspiredChartDeck   # oder pnlByDatenWG / dataKitchenGantt
+npm install
+npm run package            # erzeugt dist/<GUID>.<version>.pbiviz
+npm test                   # pnlByDatenWG; ChartKitchen: npm run test:render / test:scale / test:notation
 ```
 
-`index.html` und `daten_wg_learn_buckets.html` sind identisch — die `index.html`
-ist nur für GitHub Pages, damit die Root-URL direkt funktioniert.
+Release-Ablauf (Version, Changelog, Downloads, Doku, cert-export): siehe
+`ibcsInspiredChartDeck/AGENT-GUIDE.md` bzw. `pnlByDatenWG/AGENT-GUIDE.md`.
 
-## Daten aktualisieren
-
-Wenn neue Folgen veröffentlicht wurden:
+## Kitchen-Daten aktualisieren (YouTube-Folgen)
 
 ```
 python scripts/fetch_videos.py    # holt nur neue Videos (Cache greift)
@@ -35,16 +51,9 @@ python scripts/build_html.py      # mergt, schreibt HTML + index.html
 node   scripts/validate_html.js   # Sanity-Check
 ```
 
-Dann committen und pushen:
-
-```
-git add -A
-git commit -m "Update: neue Folgen vom YouTube-Kanal"
-git push
-```
-
-GitHub Pages liefert nach dem Push automatisch die neue Version aus
-(meist innerhalb 1–2 Minuten).
+Pipeline-Details (Heuristiken, Bucket-Reihenfolge, Fallstricke): [PowerBIhub.md](PowerBIhub.md).
+Ein GitHub-Actions-Workflow (`kitchen-refresh.yml`) legt Daten-Refreshes auf dem
+Branch `kitchen-refresh-data` ab — den Branch nicht löschen.
 
 ## Prüfungen
 
@@ -53,25 +62,15 @@ node scripts/validate_html.js      # Kitchen-Seite: EPISODES, Buckets, ytId-Dupl
 node tests/run-all.js              # Visual-Standards-Rechner: Playwright-Regressionen
 ```
 
-Details und Voraussetzungen: [tests/README.md](tests/README.md).
-
-## Pipeline-Details
-
-Siehe [PowerBIhub.md](PowerBIhub.md) für die komplette Doku der Build-Pipeline:
-Heuristik-Regeln, Bucket-Reihenfolge, Merge-Strategie, Fallstricke.
-
 ## Was wird NICHT versioniert
 
-Siehe [.gitignore](.gitignore). Kurz:
-
-- `videos_*.json` (yt-dlp Caches, regenerierbar)
-- `existing_episodes.json`, `.episodes_range.json` (Build-Zwischenstände)
-- `daten_wg_learn_buckets.backup.html` (lokales Pre-Build-Backup)
+Siehe [.gitignore](.gitignore): yt-dlp-Caches (`videos_*.json`), Build-Zwischenstände,
+lokale Backups, `node_modules`.
 
 ## Lizenz
 
-Der Code in diesem Repository (inkl. der Power-BI-Custom-Visuals) steht unter
-der [MIT-Lizenz](LICENSE): Nutzung, Änderung und Weitergabe sind frei — auch
-kommerziell —, solange der Autor-/Copyright-Hinweis
-(© Michael Tenner · PowerBI Kitchen) erhalten bleibt.
-Video-Inhalte gehören dem Daten-WG-Kanal.
+Der Code in diesem Repository (inkl. der Power-BI-Custom-Visuals) steht unter der
+[MIT-Lizenz](LICENSE): Nutzung, Änderung und Weitergabe sind frei — auch kommerziell —,
+solange der Autor-/Copyright-Hinweis (© Michael Tenner · PowerBI Kitchen) erhalten bleibt.
+Video-Inhalte gehören dem Daten-WG-Kanal. Die Visuals sind **IBCS-inspiriert**,
+nicht IBCS-zertifiziert; IBCS® ist eine Marke der IBCS Association.
