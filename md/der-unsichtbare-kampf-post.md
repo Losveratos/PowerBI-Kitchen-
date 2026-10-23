@@ -1,4 +1,4 @@
-# Der unsichtbare Kampf — Interview mit Michael Thomanek (Entwurf)
+# Der unsichtbare Kampf — Interview mit Michael Thomanek
 
 > Markdown-Fassung von [der-unsichtbare-kampf-post.html](../der-unsichtbare-kampf-post.html) · https://datenwgknowledgekitchen.com/der-unsichtbare-kampf-post.html · generiert mit scripts/build_md.py — bei Abweichungen gilt die HTML-Fassung.
 
@@ -12,9 +12,7 @@ Wie inneres Kämpfen dich wandelt – Auf der Matte und im Alltag
 
 Michael Tenner im Gespräch mit Michael Thomanek, „Micha“, über sein Buch, über persönliche Entwicklung und über die Frage, was davon im Projektalltag von Datenleuten trägt.
 
-Interview · Philosophie & Persönliche Entwicklung · Lesezeit ca. 12 Min. · Entwurf
-
-> **Entwurf, nicht veröffentlicht.** Diese Seite ist noch nirgends verlinkt und für Suchmaschinen gesperrt. Stellen mit [Entwurf] sind Platzhalter zum Überarbeiten, die Antworten von Micha folgen nach dem Gespräch.
+Interview · Philosophie & Persönliche Entwicklung · Lesezeit ca. 12 Min.
 
 ## Warum dieses Buch in der Kitchen?
 
