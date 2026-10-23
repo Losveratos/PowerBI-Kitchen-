@@ -387,8 +387,12 @@ function readMega(id) {
         // the stacked bar: YTD inside, the year outside (Licences 538 ▓ 1 434, Sales revenue 637 ▓ 1 698)
         const ytd = pageInfo.m27.ytd.map(x => x.t);
         const fillOf = t => (pageInfo.m27.ytd.find(x => x.t === t) || {}).fill;
-        check("m27 YTD numbers inside the solid part (538, 637, 196, 267, 200) on the paper tone",
-            ["538", "637", "196", "267", "200"].every(x => ytd.includes(x) && fillOf(x) === "#FFFFFF"), ytd.join(","));
+        // 1.5.2: a YTD number that no longer fits the solid part moves before the bar in ink
+        const posOf = t => (pageInfo.m27.ytd.find(x => x.t === t) || {}).out;
+        check("m27 YTD numbers inside the solid part (538, 637, 267) on the paper tone",
+            ["538", "637", "267"].every(x => ytd.includes(x) && fillOf(x) === "#FFFFFF" && !posOf(x)), ytd.join(","));
+        check("m27 short YTD numbers (196, 200) before the bar start in dark ink (1.5.2)",
+            ["196", "200"].every(x => ytd.includes(x) && posOf(x) && fillOf(x) === "#1A1A1A"), JSON.stringify(pageInfo.m27.ytd));
         // 1.5.1: on the light cost tone (#8A8886) the number is dark ink (≥ 4.5:1), not white (~3.5:1)
         check("m27 YTD numbers of cost rows (227, 451) in dark ink on the light tone (1.5.1)",
             ["227", "451"].every(x => fillOf(x) === "#1A1A1A"), JSON.stringify(pageInfo.m27.ytd));
