@@ -1,0 +1,22 @@
+# Power BI Desktop: per-user / per-machine files (see Microsoft Learn, "Power BI Desktop projects")
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+**/.pbi/unappliedChanges.json
+*.abf
+
+# Backups and temp files
+*.pbix.bak
+~$*
+*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+.venv/

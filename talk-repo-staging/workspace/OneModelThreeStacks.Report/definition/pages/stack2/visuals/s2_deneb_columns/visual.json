@@ -1,0 +1,265 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "s2_deneb_columns",
+  "position": {
+    "x": 24,
+    "y": 80,
+    "z": 3,
+    "width": 616,
+    "height": 616,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "deneb7E15AEF80B9E4D4F8E12924291ECE89A",
+    "query": {
+      "queryState": {
+        "dataset": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimDatum"
+                    }
+                  },
+                  "Property": "Monat"
+                }
+              },
+              "queryRef": "DimDatum.Monat",
+              "nativeQueryRef": "Monat"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FaktFinanz"
+                    }
+                  },
+                  "Property": "Revenue AC&FC kEUR"
+                }
+              },
+              "queryRef": "FaktFinanz.Revenue AC&FC kEUR",
+              "nativeQueryRef": "Revenue AC&FC kEUR"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FaktFinanz"
+                    }
+                  },
+                  "Property": "Revenue PL kEUR"
+                }
+              },
+              "queryRef": "FaktFinanz.Revenue PL kEUR",
+              "nativeQueryRef": "Revenue PL kEUR"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimDatum"
+                    }
+                  },
+                  "Property": "FC Flag"
+                }
+              },
+              "queryRef": "DimDatum.FC Flag",
+              "nativeQueryRef": "FC Flag"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "vega": [
+        {
+          "properties": {
+            "jsonSpec": {
+              "expr": {
+                "Literal": {
+                  "Value": "'{\n  \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.json\",\n  \"config\": {\n    \"background\": \"#ffffff\",\n    \"font\": \"Arial, Helvetica, sans-serif\",\n    \"view\": {\n      \"stroke\": null\n    },\n    \"axis\": {\n      \"domainColor\": \"#404040\",\n      \"domainWidth\": 1.5,\n      \"ticks\": false,\n      \"grid\": false,\n      \"labelColor\": \"#555555\",\n      \"labelFont\": \"Arial\",\n      \"labelFontSize\": 11,\n      \"title\": null\n    },\n    \"legend\": {\n      \"disable\": true\n    }\n  },\n  \"title\": {\n    \"anchor\": \"start\",\n    \"font\": \"Arial\",\n    \"fontSize\": 13.5,\n    \"color\": \"#404040\",\n    \"subtitleFont\": \"Arial\",\n    \"subtitleFontSize\": 12.5,\n    \"subtitleColor\": \"#404040\",\n    \"offset\": 16,\n    \"text\": \"Daten-WG Brewery\",\n    \"subtitle\": [\n      \"Revenue in kEUR\",\n      \"2026 · AC&FC vs PL\"\n    ]\n  },\n  \"vconcat\": [\n    {\n      \"width\": 580,\n      \"height\": 95,\n      \"data\": {\n        \"name\": \"dataset\"\n      },\n      \"transform\": [\n        {\n          \"calculate\": \"datum[\\\"Revenue PL kEUR\\\"] > 0 ? (datum[\\\"Revenue AC&FC kEUR\\\"] - datum[\\\"Revenue PL kEUR\\\"])/datum[\\\"Revenue PL kEUR\\\"]*100 : null\",\n          \"as\": \"rv\"\n        }\n      ],\n      \"encoding\": {\n        \"x\": {\n          \"field\": \"Monat\",\n          \"type\": \"nominal\",\n          \"sort\": null,\n          \"axis\": {\n            \"domain\": false,\n            \"ticks\": false,\n            \"labels\": false,\n            \"grid\": false,\n            \"title\": null\n          }\n        }\n      },\n      \"layer\": [\n        {\n          \"mark\": {\n            \"type\": \"rule\",\n            \"color\": \"#404040\",\n            \"strokeWidth\": 1\n          },\n          \"encoding\": {\n            \"yOffset\": {\n              \"value\": -1.6\n            },\n            \"y\": {\n              \"datum\": 0\n            },\n            \"x\": null\n          }\n        },\n        {\n          \"mark\": {\n            \"type\": \"rule\",\n            \"color\": \"#404040\",\n            \"strokeWidth\": 1\n          },\n          \"encoding\": {\n            \"yOffset\": {\n              \"value\": 1.6\n            },\n            \"y\": {\n              \"datum\": 0\n            },\n            \"x\": null\n          }\n        },\n        {\n          \"mark\": {\n            \"type\": \"rule\",\n            \"strokeWidth\": 2\n          },\n          \"encoding\": {\n            \"y\": {\n              \"field\": \"rv\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"y2\": {\n              \"datum\": 0\n            },\n            \"color\": {\n              \"condition\": {\n                \"test\": \"datum.rv >= 0\",\n                \"value\": \"#2e7d4f\"\n              },\n              \"value\": \"#c0392b\"\n            }\n          }\n        },\n        {\n          \"mark\": {\n            \"type\": \"point\",\n            \"filled\": true,\n            \"size\": 55,\n            \"tooltip\": {\n              \"content\": \"data\"\n            }\n          },\n          \"encoding\": {\n            \"y\": {\n              \"field\": \"rv\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"fill\": {\n              \"condition\": [\n                {\n                  \"test\": \"datum[\\\"FC Flag\\\"]\",\n                  \"value\": \"#ffffff\"\n                },\n                {\n                  \"test\": \"datum.rv >= 0\",\n                  \"value\": \"#2e7d4f\"\n                }\n              ],\n              \"value\": \"#c0392b\"\n            },\n            \"stroke\": {\n              \"condition\": [\n                {\n                  \"test\": \"datum[\\\"FC Flag\\\"] && datum.rv >= 0\",\n                  \"value\": \"#2e7d4f\"\n                },\n                {\n                  \"test\": \"datum[\\\"FC Flag\\\"]\",\n                  \"value\": \"#c0392b\"\n                }\n              ],\n              \"value\": \"transparent\"\n            },\n            \"strokeWidth\": {\n              \"condition\": {\n                \"test\": \"datum[\\\"FC Flag\\\"]\",\n                \"value\": 1.4\n              },\n              \"value\": 0\n            }\n          }\n        },\n        {\n          \"transform\": [\n            {\n              \"filter\": \"datum.rv >= 0\"\n            }\n          ],\n          \"mark\": {\n            \"type\": \"text\",\n            \"dy\": -12,\n            \"fontSize\": 11,\n            \"font\": \"Arial\",\n            \"color\": \"#404040\"\n          },\n          \"encoding\": {\n            \"y\": {\n              \"field\": \"rv\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"text\": {\n              \"field\": \"rv\",\n              \"type\": \"quantitative\",\n              \"format\": \"+.1f\"\n            }\n          }\n        },\n        {\n          \"transform\": [\n            {\n              \"filter\": \"datum.rv < 0\"\n            }\n          ],\n          \"mark\": {\n            \"type\": \"text\",\n            \"dy\": 17,\n            \"fontSize\": 11,\n            \"font\": \"Arial\",\n            \"color\": \"#404040\"\n          },\n          \"encoding\": {\n            \"y\": {\n              \"field\": \"rv\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"text\": {\n              \"field\": \"rv\",\n              \"type\": \"quantitative\",\n              \"format\": \"+.1f\"\n            }\n          }\n        }\n      ]\n    },\n    {\n      \"width\": 580,\n      \"height\": 110,\n      \"data\": {\n        \"name\": \"dataset\"\n      },\n      \"transform\": [\n        {\n          \"calculate\": \"datum[\\\"Revenue AC&FC kEUR\\\"] - datum[\\\"Revenue PL kEUR\\\"]\",\n          \"as\": \"d\"\n        }\n      ],\n      \"encoding\": {\n        \"x\": {\n          \"field\": \"Monat\",\n          \"type\": \"nominal\",\n          \"sort\": null,\n          \"axis\": {\n            \"domain\": false,\n            \"ticks\": false,\n            \"labels\": false,\n            \"grid\": false,\n            \"title\": null\n          }\n        }\n      },\n      \"layer\": [\n        {\n          \"mark\": {\n            \"type\": \"rule\",\n            \"color\": \"#404040\",\n            \"strokeWidth\": 1\n          },\n          \"encoding\": {\n            \"yOffset\": {\n              \"value\": -1.6\n            },\n            \"y\": {\n              \"datum\": 0\n            },\n            \"x\": null\n          }\n        },\n        {\n          \"mark\": {\n            \"type\": \"rule\",\n            \"color\": \"#404040\",\n            \"strokeWidth\": 1\n          },\n          \"encoding\": {\n            \"yOffset\": {\n              \"value\": 1.6\n            },\n            \"y\": {\n              \"datum\": 0\n            },\n            \"x\": null\n          }\n        },\n        {\n          \"mark\": {\n            \"type\": \"bar\",\n            \"size\": 16,\n            \"tooltip\": {\n              \"content\": \"data\"\n            }\n          },\n          \"encoding\": {\n            \"y\": {\n              \"field\": \"d\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"fill\": {\n              \"condition\": {\n                \"test\": \"datum.d >= 0\",\n                \"value\": \"#2e7d4f\"\n              },\n              \"value\": \"#c0392b\"\n            }\n          }\n        },\n        {\n          \"transform\": [\n            {\n              \"filter\": \"datum.d >= 0\"\n            }\n          ],\n          \"mark\": {\n            \"type\": \"text\",\n            \"dy\": -9,\n            \"fontSize\": 11,\n            \"font\": \"Arial\",\n            \"color\": \"#404040\"\n          },\n          \"encoding\": {\n            \"y\": {\n              \"field\": \"d\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"text\": {\n              \"field\": \"d\",\n              \"type\": \"quantitative\",\n              \"format\": \"+,.0f\"\n            }\n          }\n        },\n        {\n          \"transform\": [\n            {\n              \"filter\": \"datum.d < 0\"\n            }\n          ],\n          \"mark\": {\n            \"type\": \"text\",\n            \"dy\": 14,\n            \"fontSize\": 11,\n            \"font\": \"Arial\",\n            \"color\": \"#404040\"\n          },\n          \"encoding\": {\n            \"y\": {\n              \"field\": \"d\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"text\": {\n              \"field\": \"d\",\n              \"type\": \"quantitative\",\n              \"format\": \"+,.0f\"\n            }\n          }\n        }\n      ]\n    },\n    {\n      \"width\": 580,\n      \"height\": 200,\n      \"data\": {\n        \"name\": \"dataset\"\n      },\n      \"encoding\": {\n        \"x\": {\n          \"field\": \"Monat\",\n          \"type\": \"nominal\",\n          \"sort\": null,\n          \"axis\": {\n            \"labelAngle\": 0,\n            \"labelPadding\": 6\n          }\n        }\n      },\n      \"layer\": [\n        {\n          \"mark\": {\n            \"type\": \"bar\",\n            \"size\": 16,\n            \"xOffset\": -5.5,\n            \"fill\": \"#ffffff\",\n            \"stroke\": \"#404040\",\n            \"strokeWidth\": 1.3,\n            \"tooltip\": {\n              \"content\": \"data\"\n            }\n          },\n          \"encoding\": {\n            \"y\": {\n              \"field\": \"Revenue PL kEUR\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            }\n          }\n        },\n        {\n          \"mark\": {\n            \"type\": \"bar\",\n            \"size\": 16,\n            \"xOffset\": 5.5,\n            \"tooltip\": {\n              \"content\": \"data\"\n            }\n          },\n          \"encoding\": {\n            \"fill\": {\n              \"condition\": {\n                \"test\": \"datum[\\\"FC Flag\\\"]\",\n                \"value\": \"#ffffff\"\n              },\n              \"value\": \"#404040\"\n            },\n            \"stroke\": {\n              \"condition\": {\n                \"test\": \"datum[\\\"FC Flag\\\"]\",\n                \"value\": \"#404040\"\n              },\n              \"value\": \"transparent\"\n            },\n            \"strokeWidth\": {\n              \"condition\": {\n                \"test\": \"datum[\\\"FC Flag\\\"]\",\n                \"value\": 1.2\n              },\n              \"value\": 0\n            },\n            \"strokeDash\": {\n              \"condition\": {\n                \"test\": \"datum[\\\"FC Flag\\\"]\",\n                \"value\": [\n                  3,\n                  2\n                ]\n              },\n              \"value\": [\n                1,\n                0\n              ]\n            },\n            \"y\": {\n              \"field\": \"Revenue AC&FC kEUR\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            }\n          }\n        },\n        {\n          \"transform\": [\n            {\n              \"filter\": \"datum[\\\"Revenue AC&FC kEUR\\\"] >= 0\"\n            }\n          ],\n          \"mark\": {\n            \"type\": \"text\",\n            \"dy\": -9,\n            \"fontSize\": 11,\n            \"font\": \"Arial\",\n            \"xOffset\": 5.5,\n            \"color\": \"#404040\"\n          },\n          \"encoding\": {\n            \"y\": {\n              \"field\": \"Revenue AC&FC kEUR\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"text\": {\n              \"field\": \"Revenue AC&FC kEUR\",\n              \"type\": \"quantitative\",\n              \"format\": \",.0f\"\n            }\n          }\n        },\n        {\n          \"transform\": [\n            {\n              \"filter\": \"datum[\\\"Revenue AC&FC kEUR\\\"] < 0\"\n            }\n          ],\n          \"mark\": {\n            \"type\": \"text\",\n            \"dy\": 14,\n            \"fontSize\": 11,\n            \"font\": \"Arial\",\n            \"xOffset\": 5.5,\n            \"color\": \"#404040\"\n          },\n          \"encoding\": {\n            \"y\": {\n              \"field\": \"Revenue AC&FC kEUR\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"text\": {\n              \"field\": \"Revenue AC&FC kEUR\",\n              \"type\": \"quantitative\",\n              \"format\": \",.0f\"\n            }\n          }\n        }\n      ]\n    }\n  ],\n  \"spacing\": 16,\n  \"description\": \"Generated with the Daten-WG Business Chart Builder (IBCS-inspired notation), fields mapped to the BreweryFinance model.\"\n}'"
+                }
+              }
+            },
+            "jsonConfig": {
+              "expr": {
+                "Literal": {
+                  "Value": "'{}'"
+                }
+              }
+            },
+            "provider": {
+              "expr": {
+                "Literal": {
+                  "Value": "'vegaLite'"
+                }
+              }
+            },
+            "version": {
+              "expr": {
+                "Literal": {
+                  "Value": "'5.16.3'"
+                }
+              }
+            },
+            "renderMode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'svg'"
+                }
+              }
+            },
+            "enableTooltips": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "enableContextMenu": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "enableSelection": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "enableHighlight": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Revenue by month · AC&FC vs PL with ΔPL / ΔPL%'"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#0F1E2E'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#E2E8F0'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "6D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropShadow": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "annotations": [
+    {
+      "name": "source",
+      "value": "Business Chart Builder template, see visuals/deneb-templates/"
+    }
+  ]
+}

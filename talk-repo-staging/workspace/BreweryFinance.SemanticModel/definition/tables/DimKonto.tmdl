@@ -1,0 +1,119 @@
+/// Account dimension (chart of accounts) — column contract of the finance-data-model skill:
+/// level columns L1..L3, RowType, FormulaDef and the sign trio SignConvention / DisplayInvert / VarianceInvert.
+/// Cost rows: -1 · true · false (never -1 together with VarianceInvert = true).
+table DimKonto
+
+	column AccountID
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AccountID
+
+	column AccountName
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AccountName
+
+	column L1
+		dataType: string
+		summarizeBy: none
+		sourceColumn: L1
+		sortByColumn: L1Sort
+
+	column L2
+		dataType: string
+		summarizeBy: none
+		sourceColumn: L2
+		sortByColumn: L2Sort
+
+	column L3
+		dataType: string
+		summarizeBy: none
+		sourceColumn: L3
+
+	column SortOrder
+		dataType: int64
+		formatString: 0
+		summarizeBy: none
+		sourceColumn: SortOrder
+
+	column RowType
+		dataType: string
+		summarizeBy: none
+		sourceColumn: RowType
+
+	column FormulaDef
+		dataType: string
+		summarizeBy: none
+		sourceColumn: FormulaDef
+
+	column SignConvention
+		dataType: int64
+		formatString: 0
+		summarizeBy: none
+		sourceColumn: SignConvention
+
+	column DisplayInvert
+		dataType: string
+		summarizeBy: none
+		sourceColumn: DisplayInvert
+
+	column VarianceInvert
+		dataType: string
+		summarizeBy: none
+		sourceColumn: VarianceInvert
+
+	column Einheit
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Einheit
+
+	column Comment
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Comment
+
+	/// Smallest SortOrder per L1 node (built in Power Query, so "Sort by column" has no circular dependency).
+	column L1Sort
+		dataType: int64
+		formatString: 0
+		isHidden
+		summarizeBy: none
+		sourceColumn: L1Sort
+
+	/// Smallest SortOrder per L2 node.
+	column L2Sort
+		dataType: int64
+		formatString: 0
+		isHidden
+		summarizeBy: none
+		sourceColumn: L2Sort
+
+	/// ChartKitchen bridge (role rowType): Formula/Subtotal -> sum, KPI -> pct, accounts -> delta.
+	column CK_RowType = SWITCH ( DimKonto[RowType], "Formula", "sum", "Subtotal", "sum", "KPI", "pct", "delta" )
+		dataType: string
+		summarizeBy: none
+
+	partition DimKonto = m
+		mode: import
+		source =
+				let
+					IsWeb = Text.StartsWith(DataFolder, "http"),
+					Base = if Text.EndsWith(DataFolder, "/") or Text.EndsWith(DataFolder, "\") then DataFolder else DataFolder & (if IsWeb then "/" else "\"),
+					Raw = if IsWeb then Web.Contents(Base, [RelativePath = "demo-dim-konto.csv"]) else File.Contents(Base & "demo-dim-konto.csv"),
+					Csv = Csv.Document(Raw, [Delimiter = ";", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+					Promoted = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),
+					EmptyToNull = Table.TransformColumns(Promoted, {}, each if _ = "" then null else _),
+					Typed = Table.TransformColumnTypes(EmptyToNull, {
+						{"AccountID", type text}, {"AccountName", type text},
+						{"L1", type text}, {"L2", type text}, {"L3", type text},
+						{"SortOrder", Int64.Type}, {"RowType", type text}, {"FormulaDef", type text},
+						{"SignConvention", Int64.Type}, {"DisplayInvert", type text}, {"VarianceInvert", type text},
+						{"Einheit", type text}, {"Comment", type text}
+					}, "en-US"),
+					L1Min = Table.Group(Typed, {"L1"}, {{"L1Sort", each List.Min([SortOrder]), Int64.Type}}),
+					L2Min = Table.Group(Typed, {"L2"}, {{"L2Sort", each List.Min([SortOrder]), Int64.Type}}),
+					WithL1 = Table.ExpandTableColumn(Table.NestedJoin(Typed, {"L1"}, L1Min, {"L1"}, "L1m", JoinKind.LeftOuter), "L1m", {"L1Sort"}),
+					WithL2 = Table.ExpandTableColumn(Table.NestedJoin(WithL1, {"L2"}, L2Min, {"L2"}, "L2m", JoinKind.LeftOuter), "L2m", {"L2Sort"}),
+					Result = Table.Sort(WithL2, {{"SortOrder", Order.Ascending}})
+				in
+					Result

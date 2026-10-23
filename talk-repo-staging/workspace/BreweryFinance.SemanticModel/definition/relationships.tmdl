@@ -1,0 +1,7 @@
+relationship 21a583b0-6a58-486a-b7c6-3fbf021f6ad4
+	fromColumn: FaktFinanz.AccountID
+	toColumn: DimKonto.AccountID
+
+relationship 0d4a604b-4371-4e38-b7d0-7fe48ab9f521
+	fromColumn: FaktFinanz.Datum
+	toColumn: DimDatum.Datum

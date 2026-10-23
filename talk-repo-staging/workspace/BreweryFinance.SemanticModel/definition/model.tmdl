@@ -1,0 +1,12 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+
+annotation PBI_QueryOrder = ["DataFolder","DimKonto","FaktFinanz","DimKurs","DimDatum"]
+
+ref table DimKonto
+ref table FaktFinanz
+ref table DimKurs
+ref table DimDatum
+ref table Kurssicht

@@ -1,0 +1,375 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "s2_deneb_waterfall",
+  "position": {
+    "x": 656,
+    "y": 80,
+    "z": 4,
+    "width": 600,
+    "height": 616,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "deneb7E15AEF80B9E4D4F8E12924291ECE89A",
+    "query": {
+      "queryState": {
+        "dataset": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "L1"
+                }
+              },
+              "queryRef": "DimKonto.L1",
+              "nativeQueryRef": "L1"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FaktFinanz"
+                    }
+                  },
+                  "Property": "AC WF kEUR"
+                }
+              },
+              "queryRef": "FaktFinanz.AC WF kEUR",
+              "nativeQueryRef": "AC WF kEUR"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FaktFinanz"
+                    }
+                  },
+                  "Property": "PY WF kEUR"
+                }
+              },
+              "queryRef": "FaktFinanz.PY WF kEUR",
+              "nativeQueryRef": "PY WF kEUR"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "CK_RowType"
+                }
+              },
+              "queryRef": "DimKonto.CK_RowType",
+              "nativeQueryRef": "CK_RowType"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "vega": [
+        {
+          "properties": {
+            "jsonSpec": {
+              "expr": {
+                "Literal": {
+                  "Value": "'{\n  \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.json\",\n  \"config\": {\n    \"background\": \"#ffffff\",\n    \"font\": \"Arial, Helvetica, sans-serif\",\n    \"view\": {\n      \"stroke\": null\n    },\n    \"axis\": {\n      \"domainColor\": \"#404040\",\n      \"domainWidth\": 1.5,\n      \"ticks\": false,\n      \"grid\": false,\n      \"labelColor\": \"#555555\",\n      \"labelFont\": \"Arial\",\n      \"labelFontSize\": 11,\n      \"title\": null\n    },\n    \"legend\": {\n      \"disable\": true\n    }\n  },\n  \"title\": {\n    \"anchor\": \"start\",\n    \"font\": \"Arial\",\n    \"fontSize\": 13.5,\n    \"color\": \"#404040\",\n    \"subtitleFont\": \"Arial\",\n    \"subtitleFontSize\": 12.5,\n    \"subtitleColor\": \"#404040\",\n    \"offset\": 16,\n    \"text\": \"Daten-WG Brewery\",\n    \"subtitle\": [\n      \"P&L bridge in kEUR\",\n      \"YTD Jan–Sep 2026 · AC vs PY\"\n    ]\n  },\n  \"hconcat\": [\n    {\n      \"width\": 230,\n      \"height\": {\n        \"step\": 27\n      },\n      \"data\": {\n        \"name\": \"dataset\"\n      },\n      \"transform\": [\n        {\n          \"window\": [\n            {\n              \"op\": \"row_number\",\n              \"as\": \"vord\"\n            }\n          ]\n        },\n        {\n          \"window\": [\n            {\n              \"op\": \"lead\",\n              \"field\": \"L1\",\n              \"as\": \"leadK\"\n            }\n          ],\n          \"sort\": [\n            {\n              \"field\": \"vord\"\n            }\n          ]\n        },\n        {\n          \"window\": [\n            {\n              \"op\": \"sum\",\n              \"field\": \"AC WF kEUR\",\n              \"as\": \"cumA\"\n            }\n          ],\n          \"sort\": [\n            {\n              \"field\": \"vord\"\n            }\n          ],\n          \"frame\": [\n            null,\n            0\n          ],\n          \"ignorePeers\": true\n        },\n        {\n          \"window\": [\n            {\n              \"op\": \"sum\",\n              \"field\": \"PY WF kEUR\",\n              \"as\": \"cumR\"\n            }\n          ],\n          \"sort\": [\n            {\n              \"field\": \"vord\"\n            }\n          ],\n          \"frame\": [\n            null,\n            0\n          ],\n          \"ignorePeers\": true\n        },\n        {\n          \"calculate\": \"datum[\\\"CK_RowType\\\"]===''sum''\",\n          \"as\": \"sum\"\n        },\n        {\n          \"calculate\": \"datum.sum ? 0 : datum.cumA - datum[\\\"AC WF kEUR\\\"]\",\n          \"as\": \"s\"\n        },\n        {\n          \"calculate\": \"datum.cumA\",\n          \"as\": \"e\"\n        },\n        {\n          \"calculate\": \"datum.sum ? 0 : datum.cumR - datum[\\\"PY WF kEUR\\\"]\",\n          \"as\": \"sR\"\n        },\n        {\n          \"calculate\": \"datum.cumR\",\n          \"as\": \"eR\"\n        },\n        {\n          \"calculate\": \"datum.sum ? datum.cumR : datum[\\\"PY WF kEUR\\\"]\",\n          \"as\": \"refv\"\n        },\n        {\n          \"calculate\": \"datum.sum ? datum.cumA - datum.cumR : datum[\\\"AC WF kEUR\\\"] - datum[\\\"PY WF kEUR\\\"]\",\n          \"as\": \"d\"\n        },\n        {\n          \"calculate\": \"datum.refv > 0 ? datum.d / datum.refv * 100 : null\",\n          \"as\": \"rv\"\n        }\n      ],\n      \"encoding\": {\n        \"y\": {\n          \"field\": \"L1\",\n          \"type\": \"nominal\",\n          \"sort\": null,\n          \"axis\": {\n            \"labelPadding\": 8\n          }\n        }\n      },\n      \"layer\": [\n        {\n          \"transform\": [\n            {\n              \"filter\": \"datum.leadK != null\"\n            }\n          ],\n          \"mark\": {\n            \"type\": \"rule\",\n            \"color\": \"#c2c2c2\",\n            \"strokeWidth\": 1\n          },\n          \"encoding\": {\n            \"x\": {\n              \"field\": \"e\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"y2\": {\n              \"field\": \"leadK\",\n              \"type\": \"nominal\"\n            }\n          }\n        },\n        {\n          \"mark\": {\n            \"type\": \"bar\",\n            \"size\": 15,\n            \"fill\": \"#404040\",\n            \"tooltip\": {\n              \"content\": \"data\"\n            }\n          },\n          \"encoding\": {\n            \"x\": {\n              \"field\": \"s\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"x2\": {\n              \"field\": \"e\"\n            }\n          }\n        },\n        {\n          \"transform\": [\n            {\n              \"filter\": \"datum.sum\"\n            }\n          ],\n          \"mark\": {\n            \"type\": \"text\",\n            \"dx\": 6,\n            \"align\": \"left\",\n            \"fontSize\": 11,\n            \"font\": \"Arial\",\n            \"color\": \"#404040\",\n            \"fontWeight\": \"bold\"\n          },\n          \"encoding\": {\n            \"x\": {\n              \"field\": \"e\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"text\": {\n              \"field\": \"e\",\n              \"type\": \"quantitative\",\n              \"format\": \",.0f\"\n            }\n          }\n        },\n        {\n          \"transform\": [\n            {\n              \"filter\": \"!datum.sum && datum.e >= datum.s\"\n            }\n          ],\n          \"mark\": {\n            \"type\": \"text\",\n            \"dx\": 6,\n            \"align\": \"left\",\n            \"fontSize\": 11,\n            \"font\": \"Arial\",\n            \"color\": \"#404040\"\n          },\n          \"encoding\": {\n            \"x\": {\n              \"field\": \"e\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"text\": {\n              \"field\": \"AC WF kEUR\",\n              \"type\": \"quantitative\",\n              \"format\": \"+,.0f\"\n            }\n          }\n        },\n        {\n          \"transform\": [\n            {\n              \"filter\": \"!datum.sum && datum.e < datum.s\"\n            }\n          ],\n          \"mark\": {\n            \"type\": \"text\",\n            \"dx\": -6,\n            \"align\": \"right\",\n            \"fontSize\": 11,\n            \"font\": \"Arial\",\n            \"color\": \"#404040\"\n          },\n          \"encoding\": {\n            \"x\": {\n              \"field\": \"e\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"text\": {\n              \"field\": \"AC WF kEUR\",\n              \"type\": \"quantitative\",\n              \"format\": \"+,.0f\"\n            }\n          }\n        }\n      ]\n    },\n    {\n      \"width\": 150,\n      \"height\": {\n        \"step\": 27\n      },\n      \"data\": {\n        \"name\": \"dataset\"\n      },\n      \"transform\": [\n        {\n          \"window\": [\n            {\n              \"op\": \"row_number\",\n              \"as\": \"vord\"\n            }\n          ]\n        },\n        {\n          \"window\": [\n            {\n              \"op\": \"lead\",\n              \"field\": \"L1\",\n              \"as\": \"leadK\"\n            }\n          ],\n          \"sort\": [\n            {\n              \"field\": \"vord\"\n            }\n          ]\n        },\n        {\n          \"window\": [\n            {\n              \"op\": \"sum\",\n              \"field\": \"AC WF kEUR\",\n              \"as\": \"cumA\"\n            }\n          ],\n          \"sort\": [\n            {\n              \"field\": \"vord\"\n            }\n          ],\n          \"frame\": [\n            null,\n            0\n          ],\n          \"ignorePeers\": true\n        },\n        {\n          \"window\": [\n            {\n              \"op\": \"sum\",\n              \"field\": \"PY WF kEUR\",\n              \"as\": \"cumR\"\n            }\n          ],\n          \"sort\": [\n            {\n              \"field\": \"vord\"\n            }\n          ],\n          \"frame\": [\n            null,\n            0\n          ],\n          \"ignorePeers\": true\n        },\n        {\n          \"calculate\": \"datum[\\\"CK_RowType\\\"]===''sum''\",\n          \"as\": \"sum\"\n        },\n        {\n          \"calculate\": \"datum.sum ? 0 : datum.cumA - datum[\\\"AC WF kEUR\\\"]\",\n          \"as\": \"s\"\n        },\n        {\n          \"calculate\": \"datum.cumA\",\n          \"as\": \"e\"\n        },\n        {\n          \"calculate\": \"datum.sum ? 0 : datum.cumR - datum[\\\"PY WF kEUR\\\"]\",\n          \"as\": \"sR\"\n        },\n        {\n          \"calculate\": \"datum.cumR\",\n          \"as\": \"eR\"\n        },\n        {\n          \"calculate\": \"datum.sum ? datum.cumR : datum[\\\"PY WF kEUR\\\"]\",\n          \"as\": \"refv\"\n        },\n        {\n          \"calculate\": \"datum.sum ? datum.cumA - datum.cumR : datum[\\\"AC WF kEUR\\\"] - datum[\\\"PY WF kEUR\\\"]\",\n          \"as\": \"d\"\n        },\n        {\n          \"calculate\": \"datum.refv > 0 ? datum.d / datum.refv * 100 : null\",\n          \"as\": \"rv\"\n        }\n      ],\n      \"encoding\": {\n        \"y\": {\n          \"field\": \"L1\",\n          \"type\": \"nominal\",\n          \"sort\": null,\n          \"axis\": {\n            \"domain\": false,\n            \"ticks\": false,\n            \"labels\": false,\n            \"grid\": false,\n            \"title\": null\n          }\n        }\n      },\n      \"layer\": [\n        {\n          \"mark\": {\n            \"type\": \"point\",\n            \"size\": 0,\n            \"opacity\": 0,\n            \"tooltip\": {\n              \"content\": \"data\"\n            }\n          },\n          \"encoding\": {}\n        },\n        {\n          \"mark\": {\n            \"type\": \"rule\",\n            \"color\": \"#a8a8a8\",\n            \"strokeWidth\": 3.5\n          },\n          \"encoding\": {\n            \"x\": {\n              \"datum\": 0\n            },\n            \"y\": null\n          }\n        },\n        {\n          \"mark\": {\n            \"type\": \"bar\",\n            \"size\": 11,\n            \"tooltip\": {\n              \"content\": \"data\"\n            }\n          },\n          \"encoding\": {\n            \"x\": {\n              \"field\": \"d\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"fill\": {\n              \"condition\": {\n                \"test\": \"datum.d >= 0\",\n                \"value\": \"#2e7d4f\"\n              },\n              \"value\": \"#c0392b\"\n            }\n          }\n        },\n        {\n          \"transform\": [\n            {\n              \"filter\": \"datum.d >= 0\"\n            }\n          ],\n          \"mark\": {\n            \"type\": \"text\",\n            \"dx\": 6,\n            \"align\": \"left\",\n            \"fontSize\": 11,\n            \"font\": \"Arial\"\n          },\n          \"encoding\": {\n            \"x\": {\n              \"field\": \"d\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"text\": {\n              \"field\": \"d\",\n              \"type\": \"quantitative\",\n              \"format\": \"+,.0f\"\n            },\n            \"color\": {\n              \"condition\": {\n                \"test\": \"datum.d >= 0\",\n                \"value\": \"#2e7d4f\"\n              },\n              \"value\": \"#c0392b\"\n            }\n          }\n        },\n        {\n          \"transform\": [\n            {\n              \"filter\": \"datum.d < 0\"\n            }\n          ],\n          \"mark\": {\n            \"type\": \"text\",\n            \"dx\": -6,\n            \"align\": \"right\",\n            \"fontSize\": 11,\n            \"font\": \"Arial\"\n          },\n          \"encoding\": {\n            \"x\": {\n              \"field\": \"d\",\n              \"type\": \"quantitative\",\n              \"axis\": {\n                \"domain\": false,\n                \"ticks\": false,\n                \"labels\": false,\n                \"grid\": false,\n                \"title\": null\n              }\n            },\n            \"text\": {\n              \"field\": \"d\",\n              \"type\": \"quantitative\",\n              \"format\": \"+,.0f\"\n            },\n            \"color\": {\n              \"condition\": {\n                \"test\": \"datum.d >= 0\",\n                \"value\": \"#2e7d4f\"\n              },\n              \"value\": \"#c0392b\"\n            }\n          }\n        }\n      ]\n    }\n  ],\n  \"spacing\": 26,\n  \"resolve\": {\n    \"scale\": {\n      \"y\": \"independent\"\n    }\n  },\n  \"description\": \"Generated with the Daten-WG Business Chart Builder (IBCS-inspired notation), fields mapped to the BreweryFinance model.\"\n}'"
+                }
+              }
+            },
+            "jsonConfig": {
+              "expr": {
+                "Literal": {
+                  "Value": "'{}'"
+                }
+              }
+            },
+            "provider": {
+              "expr": {
+                "Literal": {
+                  "Value": "'vegaLite'"
+                }
+              }
+            },
+            "version": {
+              "expr": {
+                "Literal": {
+                  "Value": "'5.16.3'"
+                }
+              }
+            },
+            "renderMode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'svg'"
+                }
+              }
+            },
+            "enableTooltips": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "enableContextMenu": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "enableSelection": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "enableHighlight": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'P&L bridge YTD · AC vs PY'"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#0F1E2E'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#E2E8F0'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "6D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropShadow": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "f_s2_wf_eur",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DimKonto"
+              }
+            },
+            "Property": "Einheit"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "f",
+              "Entity": "DimKonto",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "f"
+                          }
+                        },
+                        "Property": "Einheit"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'EUR'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "f_s2_wf_ytd",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DimDatum"
+              }
+            },
+            "Property": "FC Flag"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "f",
+              "Entity": "DimDatum",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "f"
+                          }
+                        },
+                        "Property": "FC Flag"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "0L"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "annotations": [
+    {
+      "name": "source",
+      "value": "Business Chart Builder template, see visuals/deneb-templates/"
+    }
+  ]
+}

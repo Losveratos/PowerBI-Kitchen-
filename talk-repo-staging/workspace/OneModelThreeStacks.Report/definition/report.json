@@ -1,0 +1,24 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/1.0.0/schema.json",
+  "layoutOptimization": "None",
+  "themeCollection": {
+    "baseTheme": {
+      "name": "CY24SU06",
+      "reportVersionAtImport": "5.55",
+      "type": "SharedResources"
+    }
+  },
+  "publicCustomVisuals": [
+    "deneb7E15AEF80B9E4D4F8E12924291ECE89A"
+  ],
+  "annotations": [
+    {
+      "name": "privateCustomVisuals",
+      "value": "chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D;pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358 - import the .pbiviz files from /visuals once in Power BI Desktop (or the service editor) and save; this registers them under CustomVisuals/ and resourcePackages."
+    },
+    {
+      "name": "defaultPage",
+      "value": "overview"
+    }
+  ]
+}

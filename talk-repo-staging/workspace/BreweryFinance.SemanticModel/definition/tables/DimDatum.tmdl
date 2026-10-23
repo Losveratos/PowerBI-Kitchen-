@@ -1,0 +1,55 @@
+/// Month dimension derived from the fact periods (Datum = month end).
+/// FC Flag = 1 for months without any actuals (open months) - used by Deneb and as YTD filter (FC Flag = 0).
+table DimDatum
+
+	column Datum
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: Datum
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Monat
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Monat
+
+	column MonthShort
+		dataType: string
+		summarizeBy: none
+		sourceColumn: MonthShort
+		sortByColumn: MonatNr
+
+	column MonatNr
+		dataType: int64
+		formatString: 0
+		summarizeBy: none
+		sourceColumn: MonatNr
+
+	column Jahr
+		dataType: int64
+		formatString: 0
+		summarizeBy: none
+		sourceColumn: Jahr
+
+	column 'FC Flag'
+		dataType: int64
+		formatString: 0
+		summarizeBy: none
+		sourceColumn: FC Flag
+
+	partition DimDatum = m
+		mode: import
+		source =
+				let
+					Source = FaktFinanz,
+					Months = Table.Group(Source, {"Datum"}, {{"AcRows", each List.NonNullCount([AC]), Int64.Type}}),
+					AddMonat = Table.AddColumn(Months, "Monat", each Date.ToText([Datum], [Format = "yyyy-MM", Culture = "en-US"]), type text),
+					AddShort = Table.AddColumn(AddMonat, "MonthShort", each Date.ToText([Datum], [Format = "MMM", Culture = "en-US"]), type text),
+					AddNr = Table.AddColumn(AddShort, "MonatNr", each Date.Month([Datum]), Int64.Type),
+					AddJahr = Table.AddColumn(AddNr, "Jahr", each Date.Year([Datum]), Int64.Type),
+					AddFc = Table.AddColumn(AddJahr, "FC Flag", each if [AcRows] = 0 then 1 else 0, Int64.Type),
+					Result = Table.Sort(Table.RemoveColumns(AddFc, {"AcRows"}), {{"Datum", Order.Ascending}})
+				in
+					Result
