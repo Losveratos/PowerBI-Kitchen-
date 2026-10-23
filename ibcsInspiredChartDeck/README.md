@@ -107,8 +107,8 @@ in **einem** Visual löst:
 - **In-Chart-Buttons** (optional, Chart → Bridge): ΔPY|ΔPL-Referenz-Umschalter
   (persistiert — Enduser wechselt die Varianz-Basis direkt im Bericht),
   ⇅ Sortierung und ▶ Aufbau-Animation für die beiden Brücken-Modi
-- **Schriftgrößen-Preset** (Data labels → Size preset): Kompakt ×1 ·
-  **Full HD ×1,5** (Standard für 1080p-Berichte) · Präsentation ×2 — skaliert alle
+- **Schriftgrößen-Preset** (Data labels → Size preset): HD ×1 ·
+  **Full HD ×1,5** (Standard für 1080p-Berichte) · UHD ×2 — skaliert alle
   Schriften im Visual auf einmal, Textgrößen-Regler bleiben zur Feinjustierung
 - **Hervorhebung** (EMPHASIZE): Kategorien per Formatbereich markieren —
   schattiertes Band über alle Panels, fettes Label

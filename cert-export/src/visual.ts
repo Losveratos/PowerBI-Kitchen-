@@ -2956,9 +2956,9 @@ export class Visual implements IVisual {
         // above resizes immediately — live preview of the preset
         if (showSel) {
             const presets = [
-                { v: "compact", key: "Enum_FontPreset_Compact", en: "Compact" },
+                { v: "compact", key: "Enum_FontPreset_Compact", en: "HD" },
                 { v: "fullhd", key: "Enum_FontPreset_FullHd", en: "Full HD" },
-                { v: "presentation", key: "Enum_FontPreset_Presentation", en: "Presentation" }
+                { v: "presentation", key: "Enum_FontPreset_Presentation", en: "UHD" }
             ];
             const cur = String(sLc.fontPreset.value.value);
             const selTip = this.locStr("Labels_FontPreset", "Size preset");

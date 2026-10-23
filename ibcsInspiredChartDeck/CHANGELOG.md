@@ -1,5 +1,16 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.52.4.0 (2026-10-23)
+
+**Größen-Preset heißt jetzt wie in der Produktfamilie: HD · Full HD · UHD. Nur Labels, keine neue Option —
+die gespeicherten Werte (`compact`/`fullhd`/`presentation`) bleiben unverändert, bestehende Berichte sind
+nicht betroffen.**
+
+- **Formatmenü = Start-Hub-Leiste.** „Kompakt / Full HD / Präsentation" hieß in der unteren Hub-Leiste schon
+  „HD · Full HD · UHD" (wie beim P&L Statement byDatenWG). Jetzt sagen Formatmenü (Data labels → Size preset),
+  Hub-Pillen und Beschreibungstext in allen vier Sprachen dasselbe; die Klammerzusätze (Dashboard-Kachel,
+  1080p, 4K/Beamer) bleiben als Orientierung.
+
 ## 1.52.3.0 (2026-10-21)
 
 **Formatstring mit explizitem Plus. Keine neue Option, capabilities.json unverändert; `test:notation` jetzt 37
