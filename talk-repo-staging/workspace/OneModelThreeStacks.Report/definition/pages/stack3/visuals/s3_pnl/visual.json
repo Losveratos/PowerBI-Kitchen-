@@ -1,0 +1,552 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "s3_pnl",
+  "position": {
+    "x": 656,
+    "y": 80,
+    "z": 4,
+    "width": 600,
+    "height": 616,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358",
+    "query": {
+      "queryState": {
+        "levels": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "L1"
+                }
+              },
+              "queryRef": "DimKonto.L1",
+              "nativeQueryRef": "L1",
+              "active": true
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "L2"
+                }
+              },
+              "queryRef": "DimKonto.L2",
+              "nativeQueryRef": "L2"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "L3"
+                }
+              },
+              "queryRef": "DimKonto.L3",
+              "nativeQueryRef": "L3"
+            }
+          ]
+        },
+        "account": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "AccountID"
+                }
+              },
+              "queryRef": "DimKonto.AccountID",
+              "nativeQueryRef": "AccountID"
+            }
+          ],
+          "showAll": true
+        },
+        "accountName": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "AccountName"
+                }
+              },
+              "queryRef": "DimKonto.AccountName",
+              "nativeQueryRef": "AccountName"
+            }
+          ]
+        },
+        "sortOrder": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "SortOrder"
+                }
+              },
+              "queryRef": "DimKonto.SortOrder",
+              "nativeQueryRef": "SortOrder"
+            }
+          ]
+        },
+        "rowType": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "RowType"
+                }
+              },
+              "queryRef": "DimKonto.RowType",
+              "nativeQueryRef": "RowType"
+            }
+          ]
+        },
+        "formulaDef": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "FormulaDef"
+                }
+              },
+              "queryRef": "DimKonto.FormulaDef",
+              "nativeQueryRef": "FormulaDef"
+            }
+          ]
+        },
+        "signConvention": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "SignConvention"
+                }
+              },
+              "queryRef": "DimKonto.SignConvention",
+              "nativeQueryRef": "SignConvention"
+            }
+          ]
+        },
+        "displayInvert": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "DisplayInvert"
+                }
+              },
+              "queryRef": "DimKonto.DisplayInvert",
+              "nativeQueryRef": "DisplayInvert"
+            }
+          ]
+        },
+        "varianceInvert": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "VarianceInvert"
+                }
+              },
+              "queryRef": "DimKonto.VarianceInvert",
+              "nativeQueryRef": "VarianceInvert"
+            }
+          ]
+        },
+        "comment": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimKonto"
+                    }
+                  },
+                  "Property": "Comment"
+                }
+              },
+              "queryRef": "DimKonto.Comment",
+              "nativeQueryRef": "Comment"
+            }
+          ]
+        },
+        "period": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimDatum"
+                    }
+                  },
+                  "Property": "Monat"
+                }
+              },
+              "queryRef": "DimDatum.Monat",
+              "nativeQueryRef": "Monat"
+            }
+          ]
+        },
+        "ac": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FaktFinanz"
+                    }
+                  },
+                  "Property": "AC"
+                }
+              },
+              "queryRef": "FaktFinanz.AC",
+              "nativeQueryRef": "AC"
+            }
+          ]
+        },
+        "py": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FaktFinanz"
+                    }
+                  },
+                  "Property": "PY"
+                }
+              },
+              "queryRef": "FaktFinanz.PY",
+              "nativeQueryRef": "PY"
+            }
+          ]
+        },
+        "pl": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FaktFinanz"
+                    }
+                  },
+                  "Property": "PL"
+                }
+              },
+              "queryRef": "FaktFinanz.PL",
+              "nativeQueryRef": "PL"
+            }
+          ]
+        },
+        "fc": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FaktFinanz"
+                    }
+                  },
+                  "Property": "FC"
+                }
+              },
+              "queryRef": "FaktFinanz.FC",
+              "nativeQueryRef": "FC"
+            }
+          ]
+        },
+        "fcFy": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FaktFinanz"
+                    }
+                  },
+                  "Property": "AC&FC FY"
+                }
+              },
+              "queryRef": "FaktFinanz.AC&FC FY",
+              "nativeQueryRef": "AC&FC FY"
+            }
+          ]
+        },
+        "plFy": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FaktFinanz"
+                    }
+                  },
+                  "Property": "PL FY"
+                }
+              },
+              "queryRef": "FaktFinanz.PL FY",
+              "nativeQueryRef": "PL FY"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "numbers": [
+        {
+          "properties": {
+            "scaling": {
+              "expr": {
+                "Literal": {
+                  "Value": "'k'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "titleBlock": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "unitLine": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Daten-WG Brewery'"
+                }
+              }
+            },
+            "measureLine": {
+              "expr": {
+                "Literal": {
+                  "Value": "'P&L statement in kEUR'"
+                }
+              }
+            },
+            "periodLine": {
+              "expr": {
+                "Literal": {
+                  "Value": "'2026'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#E2E8F0'"
+                    }
+                  }
+                }
+              }
+            },
+            "radius": {
+              "expr": {
+                "Literal": {
+                  "Value": "6D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropShadow": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "f_s3_pnl_eur",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DimKonto"
+              }
+            },
+            "Property": "Einheit"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "f",
+              "Entity": "DimKonto",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "f"
+                          }
+                        },
+                        "Property": "Einheit"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'EUR'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

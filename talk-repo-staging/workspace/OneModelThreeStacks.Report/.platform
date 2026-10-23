@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "OneModelThreeStacks"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "9151d365-35b3-45e7-b982-6f3c59f5dfb4"
+  }
+}

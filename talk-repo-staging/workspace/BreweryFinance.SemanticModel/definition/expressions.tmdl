@@ -1,0 +1,5 @@
+/// Folder or URL that holds demo-dim-konto.csv, demo-fakt-finanz.csv and demo-kurse.csv.
+/// Local folder (Power BI Desktop):  C:\repos\one-model-three-stacks\data\fx\
+/// Public URL (Desktop or Fabric):   https://raw.githubusercontent.com/<owner>/one-model-three-stacks/main/data/fx/
+expression DataFolder = "https://raw.githubusercontent.com/Losveratos/one-model-three-stacks/main/data/fx/" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = true]
+	annotation PBI_ResultType = Text

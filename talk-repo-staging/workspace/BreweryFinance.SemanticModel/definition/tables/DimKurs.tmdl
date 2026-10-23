@@ -1,0 +1,43 @@
+/// Exchange rates: period x currency x rate type (AKT = current actual rate, BUD = budget rate, VJ = prior-year rate).
+/// Quotation: foreign currency per 1 EUR (ECB style) -> CC = LC / Kurs. No relationship: looked up by the measures.
+table DimKurs
+
+	column Periode
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: Periode
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Currency
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Currency
+
+	column Kursart
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Kursart
+
+	column Kurs
+		dataType: double
+		formatString: 0.0000
+		summarizeBy: none
+		sourceColumn: Kurs
+
+	partition DimKurs = m
+		mode: import
+		source =
+				let
+					IsWeb = Text.StartsWith(DataFolder, "http"),
+					Base = if Text.EndsWith(DataFolder, "/") or Text.EndsWith(DataFolder, "\") then DataFolder else DataFolder & (if IsWeb then "/" else "\"),
+					Raw = if IsWeb then Web.Contents(Base, [RelativePath = "demo-kurse.csv"]) else File.Contents(Base & "demo-kurse.csv"),
+					Csv = Csv.Document(Raw, [Delimiter = ";", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+					Promoted = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]),
+					EmptyToNull = Table.TransformColumns(Promoted, {}, each if _ = "" then null else _),
+					Typed = Table.TransformColumnTypes(EmptyToNull, {
+						{"Periode", type date}, {"Currency", type text}, {"Kursart", type text}, {"Kurs", type number}
+					}, "en-US")
+				in
+					Typed
