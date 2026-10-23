@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 An IBCS-inspired chart deck for Power BI: 13 chart modes in a single visual, with a consistent scenario notation (AC filled, PY grey, PL outlined, FC hatched) and variances built in throughout. This documentation takes you from import through the 13 modes and the key features to the complete settings reference.
 
-Version · **1.52.3.0** · As of · **2026-10-21** · IBCS-inspired
+Version · **1.52.4.0** · As of · **2026-10-23** · IBCS-inspired
 
 ## Contents
 
@@ -26,7 +26,7 @@ Version · **1.52.3.0** · As of · **2026-10-21** · IBCS-inspired
 
 The design is inspired by the **IBCS® principles** (International Business Communication Standards): one consistent scenario notation — **AC** (actual) filled, **PY** (prior year) grey, **PL** (plan) outlined, **FC** (forecast) hatched — and variances that are always present: absolute and relative variance panels appear automatically next to or above the base chart. Every chart reads by the same rules, whichever mode you choose.
 
-This guide describes the state of version **1.52.3.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”).
+This guide describes the state of version **1.52.4.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”).
 
 ## 02 · The product family
 
@@ -72,7 +72,7 @@ If you can operate one of the two visuals, you can operate the other: getting st
 | --- | --- | --- |
 | **Start hub** 🚀 Get started plus four buttons: tour · template gallery · demo · explain fields — edit mode only. | Tour with 11 cards, demo = gallery of the 13 chart types, field guide with all 19 roles. | Tour with 7 cards (real mini renderings), demo = example P&L, field guide with all 20 roles. |
 | **Templates as presets** Gallery by purpose; one click sets every switch, afterwards everything is free. “↺ Back to template” restores the template state. | 11 IBCS chart templates C01–C13 (without C07/C11) in four groups; ↺ at the bottom left of the chart. | 17 IBCS table templates T01A–12H plus the classic table in four groups; ↺ next to the template dropdown. |
-| **Font size HD · Full HD · UHD** Bar at the bottom of every hub page, with “📖 Open docs” on the right. | Saves *Data labels → Size preset* (in the format pane Compact · Full HD · Presentation; ×1 · ×1.5 · ×2). | Saves *Style → Font size preset* (HD · Full HD · UHD; ×1 · ×1.25 · ×1.6). |
+| **Font size HD · Full HD · UHD** Bar at the bottom of every hub page, with “📖 Open docs” on the right. | Saves *Data labels → Size preset* (in the format pane HD · Full HD · UHD; ×1 · ×1.5 · ×2). | Saves *Style → Font size preset* (HD · Full HD · UHD; ×1 · ×1.25 · ×1.6). |
 | **IBCS notation, teal by default** AC filled, PY grey, PL outlined, FC hatched; favourable variances teal instead of green — readable with red–green colour-vision deficiency. | Teal #1E8F9E · red #D64541; colour preset blue/orange. | Teal #0E8585 · red #E02B1D; presets IBCS green and blue/orange. |
 | **Four languages** German, English, Spanish, Japanese — follows the report language, in the hub too. | Format pane, chart texts and hub. | Format pane, toolbar, statement and hub. |
 | **Dark mode & high contrast** “Auto” detects dark report themes; in high contrast, patterns instead of colours carry the message. | *IBCS colors → Appearance*. | *Style → Appearance*. |
@@ -128,7 +128,7 @@ The highlighted button opens a guided checklist. The ticks follow live; none of 
 
 Every hub page — start, get started, tour, templates, demo, fields — ends in the same bar:
 
-- **Aa · HD · Full HD · UHD** — three pills, the active one filled teal, next to them the hint “Font size — HD for laptops · Full HD for monitors · UHD for projectors & 4K”. A click saves the size preset at once (HD = Compact ×1, Full HD ×1.5, UHD = Presentation ×2) and redraws the hub in the new size; in the overlay the chart appears in the new size when you close it.
+- **Aa · HD · Full HD · UHD** — three pills, the active one filled teal, next to them the hint “Font size — HD for laptops · Full HD for monitors · UHD for projectors & 4K”. A click saves the size preset at once (HD ×1, Full HD ×1.5, UHD ×2) and redraws the hub in the new size; in the overlay the chart appears in the new size when you close it.
 - **📖 Open docs** — an outlined pill on the right: opens this page in the browser, the German version for a German report language, otherwise the English one.
 - Below, centred, the signature “made by Daten-WG”.
 
@@ -147,7 +147,7 @@ Readers in reading view and exports (PDF, PowerPoint, subscriptions) see neither
 
 ### 1 · Import the visual
 
-1. Download the file [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (extension `.pbiviz`) — the link always delivers the current version, at present 1.52.3.0.
+1. Download the file [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (extension `.pbiviz`) — the link always delivers the current version, at present 1.52.4.0.
 2. In Power BI Desktop: in the *Visualizations* pane click *… (More options)* → *Import a visual from a file* and select the `.pbiviz`.
 3. The ChartKitchen icon appears in the Visualizations pane. Drag it onto the report page.
 
@@ -431,7 +431,7 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 1. The IBCS title (“KPI · unit · period: scenarios”) is built automatically; override the KPI name and period in the “IBCS title” card. Since 1.52.1 it states the unit once in long form (“in mEUR”) and adds no scenario suffix when the period already names scenario codes (section “Scaling according to IBCS 2.0 / ISO 24896”).
 2. Enter a message line (IBCS: SAY) at the top or let “Auto message” build it from the total variance and the biggest drivers.
 3. Two footers are available: “Footer (data status · source)” at the bottom left and the filter footer with the bound filter-info measure plus the display state (YTD, Top-N, sorting …).
-4. Scale all fonts centrally via Data labels → Size preset (Compact/Full HD/Presentation — in the start hub as HD · Full HD · UHD) and the “Scale all labels %” factor; label density controls the thinning.
+4. Scale all fonts centrally via Data labels → Size preset (HD/Full HD/UHD — identical to the start-hub bar) and the “Scale all labels %” factor; label density controls the thinning.
 
 ### Monitoring cards (status light & bullet)
 
@@ -678,7 +678,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | --- | --- | --- |
 | Show labels | — | On / Off · default On |
 | Label density | Controls the thinning of value labels: "Automatic" hides them when space is tight (previous behavior), "All" labels every point (may overlap), "First · last · extremes" shows only the first/last value plus minimum and maximum. | Options: Automatic (thin out) \| All \| First · last · extremes · default „Automatic (thin out)“ |
-| Size preset | Scales all fonts in the visual at once: Compact ×1 (default) · Full HD ×1.5 (recommended for 1080p reports) · Presentation ×2. In the start hub the same setting appears as the bar HD · Full HD · UHD (HD = Compact, UHD = Presentation). | Options: Compact (dashboard tile) \| Full HD (1080p) \| Presentation (4K / projector) · default „Compact (dashboard tile)“ |
+| Size preset | Scales all fonts in the visual at once: HD ×1 (default) · Full HD ×1.5 (recommended for 1080p reports) · UHD ×2. In the start hub the same setting appears as the bar HD · Full HD · UHD. | Options: HD (dashboard tile) \| Full HD (1080p) \| UHD (4K / projector) · default „HD (dashboard tile)“ |
 | Scale all labels % | Enlarges or shrinks ALL labels on top of the preset by a free factor (50–300 %). 100 = neutral. Preset × factor gives the effective font size. | 50–300 · default 100 |
 | Font size | — | 6–24 · default 10 |
 | Decimal places | Applies unchanged to the table and the P&L statement. In charts every number has at most three digits since 1.52.1: from 10 of the display unit at most one decimal, from 100 none. | 0–3 · default 1 |
@@ -832,7 +832,7 @@ It is locked because it would have no effect in the current state; the tooltip n
 
 An IBCS template is set and at least one of its settings has been changed. A click restores the template state; to keep your changes, set Chart → IBCS chart template to “Off”. Readers and exports never see the chip.
 
-**ChartKitchen byDatenWG** · Version 1.52.3.0
+**ChartKitchen byDatenWG** · Version 1.52.4.0
 
 Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (always the current version) · Sister visual: [P&L Statement byDatenWG – documentation](../pnl-doku_en.html)
 

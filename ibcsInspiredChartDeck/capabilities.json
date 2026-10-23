@@ -510,9 +510,9 @@
                 "fontPreset": {
                     "type": {
                         "enumeration": [
-                            { "value": "compact", "displayName": "Kompakt (Dashboard-Kachel)" },
+                            { "value": "compact", "displayName": "HD (Dashboard-Kachel)" },
                             { "value": "fullhd", "displayName": "Full HD (1080p)" },
-                            { "value": "presentation", "displayName": "Präsentation (4K / Beamer)" }
+                            { "value": "presentation", "displayName": "UHD (4K / Beamer)" }
                         ]
                     }
                 },

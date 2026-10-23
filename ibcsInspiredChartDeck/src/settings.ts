@@ -60,9 +60,9 @@ const cumulativeKindItems: LocEnumMember[] = [
 ];
 
 const fontPresetItems: LocEnumMember[] = [
-    { value: "compact", displayName: "Compact (dashboard tile)", key: "Enum_FontPreset_Compact" },
+    { value: "compact", displayName: "HD (dashboard tile)", key: "Enum_FontPreset_Compact" },
     { value: "fullhd", displayName: "Full HD (1080p)", key: "Enum_FontPreset_FullHd" },
-    { value: "presentation", displayName: "Presentation (4K / projector)", key: "Enum_FontPreset_Presentation" }
+    { value: "presentation", displayName: "UHD (4K / projector)", key: "Enum_FontPreset_Presentation" }
 ];
 
 const valueColumnsItems: LocEnumMember[] = [
@@ -1296,7 +1296,7 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         name: "fontPreset",
         displayName: "Size preset",
         displayNameKey: "Labels_FontPreset",
-        description: "Skaliert alle Schriften im Visual auf einmal: Kompakt ×1 (Standard) · Full HD ×1,5 (empfohlen für 1080p-Berichte) · Präsentation ×2.",
+        description: "Skaliert alle Schriften im Visual auf einmal: HD ×1 (Standard) · Full HD ×1,5 (empfohlen für 1080p-Berichte) · UHD ×2.",
         descriptionKey: "Desc_Labels_FontPreset",
         items: fontPresetItems,
         value: fontPresetItems[0]

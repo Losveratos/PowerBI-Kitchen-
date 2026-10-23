@@ -8,7 +8,7 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.52.3.0** (21.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.52.4.0** (23.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 **Neu in 1.52.1:** Der Titel nennt die Einheit einmal in Langform („Nettoumsatz in Mio. EUR je Kanal“), kein
 Szenario-Suffix, wenn `ibcsTitle.period` schon AC/PY/PL/BU/FC nennt; „AC&FC“ bei Forecast-Anteil. Zahlen in Grafiken
