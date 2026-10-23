@@ -1,5 +1,31 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.5.3.0 (2026-10-23): Spaltenkopf auf skalierter Bühne, niedrige Kacheln
+
+Keine neue Property, keine neue Rolle, capabilities.json unverändert. Beide
+Fehler zeigten sich in der Fabric App (Showcase, T03A bis T04E, 12A/G/H); in
+Power BI Desktop und im Dienst ist die Bühne nicht skaliert, dort ändert sich
+nichts.
+
+- **Spaltenkopf mitten in der Tabelle.** Die App zeichnet ihre Seiten auf einer
+  skalierten Bühne (CSS-Transform, 1,25× bis 2×). Das Visual maß die Höhe des
+  Titelblocks mit `getBoundingClientRect`, also in Bildschirmpixeln, und setzte
+  sie als Haftabstand in Layoutpixeln. Der haftende Spaltenkopf (PY, PL, AC, ΔPY,
+  ΔPL) saß dadurch um den Faktor zu tief, verdeckte Zeilen und ließ darüber eine
+  Lücke. Alle Messungen, die als Stil zurückgeschrieben werden (Haftabstand,
+  schwebender Kopf der klassischen Tabelle, Fenster des virtualisierten
+  Mega-Table, Kachelansicht, Tooltip, Einpassen der Fußnoten), rechnen jetzt in
+  Layoutpixeln.
+- **Niedrige Kacheln.** Haftender Titelblock, Spaltenkopf und haftende Fußnoten
+  belegten zusammen die ganze Kachel; zu sehen waren nur Titel und Kommentare.
+  Die Fußnoten haften jetzt nur, solange darüber mindestens fünf Zeilen oder
+  30 % der Kachel frei bleiben; sonst stehen sie am Ende der Tabelle.
+- **Notationszeile im Fußnotenblock.** Wandert die IBCS-Notationszeile in den
+  mehrspaltigen Fußnotenblock, läuft sie über alle Spalten und wird nicht mehr
+  in Spaltenstücke zerrissen.
+- Test `npm run test:stage` (skalierte Bühne 1,5×, niedrige Kachel mit drei
+  Kommentaren, Fußzeile über alle Spalten).
+
 ## 1.5.2.0 (2026-10-20): kosmetische Restpunkte der Showcase-Messung
 
 Keine neue Property, keine neue Rolle, capabilities.json unverändert. Die
