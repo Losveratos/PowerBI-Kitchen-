@@ -235,9 +235,10 @@ gerechnet −560 gegen −520, Δ = −40 → ungünstig (rot) — richtig. Mit
 falsch ist Variante 3 mit `VarianceInvert = true`. Der Validator warnt bei
 beiden.
 
-> Die älteren Demo-Dateien im Visual-Repo (`pnlByDatenWG/demoData/pharma/`,
-> `demoData/pbip/`) tragen bei der Steuerzeile noch `-1 · true · true`. Nicht
-> als Vorlage übernehmen.
+> Frühere Stände der Demo-Dateien im Visual-Repo (`pnlByDatenWG/demoData/`,
+> `test/demo-data.js`) trugen bei der Steuerzeile `-1 · true · true`. Das ist
+> behoben: die Steuerzeile steht überall auf `-1 · true · false`. Ältere
+> Kopien nicht als Vorlage übernehmen.
 
 Variante „-1 · false · false" (Kosten mit Minus zeigen) ist erlaubt, wenn das
 Haus Kosten negativ druckt; der Validator weist darauf hin.

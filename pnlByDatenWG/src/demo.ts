@@ -57,7 +57,7 @@ const ROWS: DemoRow[] = [
     { id: "850120", levels: ["FinResult","InterestInc"], sort: 62, type: "account", f: null, sign: 1, disp: false, varInv: false,
       ac: [15,15,16,17,16,16], py: [12,12,13,13,12,13], pl: [14,14,15,16,15,16], fcfy: 188, plfy: 192 },
     { id: "F_EBT", levels: ["Ebt"], sort: 65, type: "formula", f: "[@Ebit]+[@FinResult]", sign: 1, disp: false, varInv: false },
-    { id: "900110", levels: ["Taxes"], sort: 70, type: "account", f: null, sign: -1, disp: true, varInv: true,
+    { id: "900110", levels: ["Taxes"], sort: 70, type: "account", f: null, sign: -1, disp: true, varInv: false,
       ac: [185,191,203,209,197,208], py: [158,163,173,178,168,178], pl: [169,174,185,191,180,191], fcfy: 2014, plfy: 2231 },
     { id: "F_NETINCOME", levels: ["NetIncome"], sort: 80, type: "formula", f: "[@Ebt]+[@Taxes]", sign: 1, disp: false, varInv: false },
     { id: "K_NETMARGIN", levels: ["NetMargin"], sort: 81, type: "kpi", f: "[@NetIncome]/[@Revenue]", sign: 1, disp: false, varInv: false },

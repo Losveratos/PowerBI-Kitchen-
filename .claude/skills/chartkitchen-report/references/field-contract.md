@@ -74,8 +74,8 @@ Aus dem Objekt `chart` in `capabilities.json`, Defaults/Beschreibung aus
 | `dualVariance` | bool | false | ΔPL + ΔPY gleichzeitig (braucht PY+PL). |
 | `pyTriangle` | bool | true | Bei AC+PY+PL: PY als graues Dreieck statt dritter Säule. |
 | `showTotal` | bool | true | Σ-Kopfzeile mit Gesamtabweichung. |
-| `invert` | bool | false | Kosten-KPI: mehr = schlecht (rot). |
-| `invertList` | text | "" | Kommagetrennte Kategorien mit umgekehrter Wertung. |
+| `invert` | bool | false | Kosten-KPI: mehr = schlecht (rot). Nur für Kosten, die als **positive** Werte im Measure stehen; ein mit Vorzeichen `-1` signiertes Measure (Gewinn-Sicht) nie zusätzlich invertieren — sonst färben Mehrkosten günstig (Matrix: Skill `finance-data-model`, `konten-dimension.md` §6). |
+| `invertList` | text | "" | Kommagetrennte Kategorien mit umgekehrter Wertung (gleiche Regel wie `invert`: nur positiv geführte Kosten). |
 | `cumulative` | bool | false | Kumulierte (YTD) Sicht. |
 | `cumulativeKind` | `ytd`·`qtd`·`r12` | ytd | Art der Kumulation. |
 | `fiscalStart` | numeric 1–12 | 1 | Fiskaljahres-Startmonat für YTD/QTD. |

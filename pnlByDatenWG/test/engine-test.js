@@ -689,6 +689,24 @@ test("displayVariance: cost rows, VarianceInvert costs, margin rows (%p)", () =>
     assert.equal(E.displayVariance(rev ? row("x", null) : null, null, 3), null);
 });
 
+// demo data hygiene — the forbidden trio (SignConvention −1 + VarianceInvert true) turns the
+// rating twice: a cost overrun would be coloured favourable (finance-data-model, konten-dimension §6)
+test("demo data: no sign −1 row carries VarianceInvert; tax overrun rates unfavourable", () => {
+    const sb = { window: {} };
+    require("vm").runInNewContext(require("fs").readFileSync(path.join(__dirname, "demo-data.js"), "utf8"), sb);
+    const rows = sb.window.PNL_DEMO.levelRows;
+    const bad = rows.filter(r => r.sign < 0 && r.varianceInvert);
+    assert.deepEqual(bad.map(r => r.account), [], "forbidden trio -1 · * · true in demo data");
+    const tax = rows.find(r => r.account === "900110");
+    assert.ok(tax && tax.sign === -1 && tax.displayInvert === true && tax.varianceInvert === false);
+    // AC 18.5 against PL 16.9 (more tax than planned): computed −18.5 vs −16.9
+    const d = E.displayVariance(tax, tax.sign * 18.5, tax.sign * 16.9);
+    assert.equal(d.good, false, "more tax than planned = unfavourable (red)");
+    assert.ok(Math.abs(d.d - 1.6) < 1e-9 && d.impact < 0);
+    // …and less tax than planned = favourable
+    assert.equal(E.displayVariance(tax, -15, -16.9).good, true);
+});
+
 // 1.1 Paket B — numbers.sumSafeRounding (largest remainder along the hierarchy)
 test("largestRemainder: floors + the biggest remainders, surplus from the smallest, ties in order", () => {
     assert.deepEqual(E.largestRemainder([1.4, 1.4, 1.4], 4), [2, 1, 1]);

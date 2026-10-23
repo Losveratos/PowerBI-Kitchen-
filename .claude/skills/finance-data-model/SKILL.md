@@ -184,7 +184,8 @@ Plan und offene Entscheidungen zusammenfassen und bestätigen lassen. Danach:
   → offene Entscheidung.
 - Rollen- und Spaltenregeln nur aus den Wahrheitsquellen; Visual-Repos
   (`pnlByDatenWG/`, `ibcsInspiredChartDeck/`) werden nur gelesen.
-- Die älteren Demo-Dateien im Visual-Repo tragen bei der Steuerzeile noch
-  `-1 · true · true` — nicht als Vorlage übernehmen.
+- Frühere Stände der Demo-Dateien im Visual-Repo trugen bei der Steuerzeile
+  `-1 · true · true` (behoben, jetzt `-1 · true · false`) — ältere Kopien
+  nicht als Vorlage übernehmen.
 - Keine `.pbix` (binär) anfassen; nur PBIP/TMDL/CSV (Text).
 - Absolute Pfade verwenden.
