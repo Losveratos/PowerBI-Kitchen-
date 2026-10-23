@@ -1457,6 +1457,9 @@ export class Visual implements IVisual {
         const props: Record<string, TplValue> = { ...(CHART_TEMPLATES[tpl] ?? {}) };
         if (withTemplate) { props["template"] = tpl; }
         for (const [k, v] of Object.entries(props)) { this.chartSliceSet(k, v); }
+        // export/print contexts render the template locally but never write back
+        // (no persistProperties from a static render; the next edit session applies it)
+        if (!this.allowInteractions) { return; }
         this.templatePending = { applied: tpl, props, ttl: 5 };
         this.templateSessionTpl = tpl;
         this.host.persistProperties({
@@ -2510,6 +2513,9 @@ export class Visual implements IVisual {
     private maybeAutoExpand(dataView: DataView | undefined): void {
         const s = this.formattingSettings;
         if (!s.chartCard.autoExpandHierarchy.value) { return; }
+        // export/print/subscription renders show the report state as saved — a drill
+        // request from there would re-query behind a picture that is already final
+        if (!this.allowInteractions) { return; }
         const orient = String(s.chartCard.orientation.value.value);
         if (orient !== "table" && orient !== "pnl") { return; }
         const drillable = dataView?.metadata?.dataRoles?.drillableRoles?.["category"];
@@ -8215,8 +8221,9 @@ export class Visual implements IVisual {
             if (collapsible.size > 0) {
                 if (sum && collapsible.has(key)) {
                     const open = !this.pnlCollapsed.has(key);
-                    const ch = txt(lx, cy + cf * 0.36, open ? "▾" : "▸", "start", Math.round(cf * 0.9), false, cfg.subtle, g);
-                    ch.style.cursor = "pointer";
+                    const ch = txt(lx, cy + cf * 0.36, this.exportAllOpen ? "" : open ? "▾" : "▸",
+                        "start", Math.round(cf * 0.9), false, cfg.subtle, g);
+                    if (this.allowInteractions) { ch.style.cursor = "pointer"; }
                     (ch as SVGElement).addEventListener("click", (e: Event) => {
                         e.stopPropagation();
                         if (this.pnlCollapsed.has(key)) { this.pnlCollapsed.delete(key); }
@@ -9104,7 +9111,10 @@ export class Visual implements IVisual {
             // "davon:"-style indent list: extra indent + subtle ink, no hierarchy field
             const davon = cfg.indentSet.has(p.cat.trim().toLowerCase());
             const indentX = (row.depth + (davon ? 1 : 0)) * Math.round(14 * k);
-            const nameText = isParent
+            // export with "expand all": every branch is open — the chevron would be a
+            // dead control in the picture (a collapsed ▸ in exports without expand-all
+            // stays: it tells the reader that detail is folded away)
+            const nameText = isParent && !this.exportAllOpen
                 ? `${row.expanded ? "▾" : "▸"} ${p.cat}`
                 : p.cat;
             const nameEl = this.drawCatName(g,
@@ -9920,7 +9930,8 @@ export class Visual implements IVisual {
                 const spanX = colX[bi].x, spanW = colX[end].x + colX[end].w - spanX;
                 const open = this.colExpanded.has(`col¦${l0}`) || this.exportAllOpen;
                 const hasKids = nd.kids.length > 0;
-                const lbl = `${hasKids ? (open ? "▾ " : "▸ ") : ""}${l0}`;
+                // export with "expand all": no chevron (nothing left to click or unfold)
+                const lbl = `${hasKids && !this.exportAllOpen ? (open ? "▾ " : "▸ ") : ""}${l0}`;
                 const ht = txt(spanX + spanW / 2, hy0, this.truncate(lbl, spanW, hFont),
                     "middle", hFont, true, cfg.ink, headerParent);
                 if (hasKids && this.allowInteractions) {
@@ -10124,7 +10135,7 @@ export class Visual implements IVisual {
             }
             const depth = isTotal ? 0 : (row as MRow).depth;
             const indentX = (depth + (davon ? 1 : 0)) * Math.round(14 * k);
-            const nameText = isParent
+            const nameText = isParent && !this.exportAllOpen
                 ? `${(row as MRow).expanded ? "▾" : "▸"} ${label}`
                 : label;
             const nameEl = this.drawCatName(g,
@@ -15666,8 +15677,10 @@ export class Visual implements IVisual {
         const allow = this.host.hostCapabilities?.allowInteractions !== false;
         g.style.cursor = !allow ? "default" : this.commentEdit ? "text" : "pointer";
 
-        // keyboard navigation: tab through categories, Enter/Space selects
-        g.setAttribute("tabindex", "0");
+        // keyboard navigation: tab through categories, Enter/Space selects — not in
+        // export/print or dashboard contexts: a focus stop that cannot select anything
+        // is a dead control (role + aria-label stay for screen readers)
+        if (allow) { g.setAttribute("tabindex", "0"); }
         g.setAttribute("role", "option");
         const aria = [`${p.cat}`];
         if (cfg.scatter && p.xVal != null) {

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sicherheit &amp; Betrieb · byDatenWG-Visuals</title>
+<meta name="description" content="Eine Seite für Power-BI-Admins, IT-Security und Datenschutz: Was die Custom Visuals ChartKitchen, P&amp;L Statement und dataKitchenGantt tun und nicht tun — Datenfluss, Berechtigungen, Speicherung, Freigabe im Organisations-Store, Zertifizierungsstatus, Prüf-Checkliste. Jede Aussage ist am Quellcode nachprüfbar.">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/visuals-sicherheit.html">
+<link rel="alternate" hreflang="de" href="https://datenwgknowledgekitchen.com/visuals-sicherheit.html">
+<link rel="alternate" hreflang="en" href="https://datenwgknowledgekitchen.com/visuals-sicherheit_en.html">
+<link rel="alternate" type="text/markdown" title="Markdown" href="md/visuals-sicherheit.md">
+<style>
+:root{
+  --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#0F1E2E; --ink-soft:#475569; --ink-mute:#6B7686;
+  --line:#E4E2DA; --accent:#C25A2D; --accent-deep:#A2481F; --teal:#1B9AA8; --teal-deep:#14727D;
+  --radius:10px; --radius-lg:16px;
+  --shadow-sm:0 1px 2px rgba(15,30,46,.04),0 1px 3px rgba(15,30,46,.06);
+  --shadow-md:0 6px 18px rgba(15,30,46,.08),0 2px 6px rgba(15,30,46,.05);
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans);font-size:16px;line-height:1.62;color:var(--ink);background:var(--bg);
+  background-image:radial-gradient(circle at 10% -5%,rgba(194,90,45,.05),transparent 34%),radial-gradient(circle at 96% 8%,rgba(27,154,168,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased;min-height:100vh;}
+a{color:inherit;}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 26px 120px;}
+@media(max-width:480px){.wrap{padding:24px 16px 96px;}}
+
+/* top chrome */
+.topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:26px;}
+.back-link,.lang-pill,.doku-link{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;
+  padding:8px 14px;border:1px solid var(--line);border-radius:100px;color:var(--ink-mute);transition:all .15s ease;background:var(--bg-card);}
+.back-link:hover,.doku-link:hover{color:var(--accent);border-color:var(--accent);}
+.lang-group{display:inline-flex;gap:6px;}
+.lang-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.lang-pill:hover{border-color:var(--accent);}
+.doku-link{color:var(--teal-deep);border-color:#B9DEE2;}
+.doku-link:hover{background:var(--teal);color:#fff;border-color:var(--teal);}
+.top-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* hero */
+header.hero{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:34px;}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:16px;}
+.eyebrow::before{content:'';width:26px;height:1px;background:var(--accent);}
+h1.hero-title{font-family:var(--serif);font-weight:600;font-size:clamp(2rem,5.2vw,3.2rem);line-height:1.07;letter-spacing:-.02em;margin-bottom:16px;overflow-wrap:anywhere;}
+h1.hero-title em{font-style:normal;color:var(--accent);}
+.dek{font-size:17px;color:var(--ink-soft);line-height:1.55;max-width:72ch;margin-bottom:20px;}
+.chips{display:flex;flex-wrap:wrap;gap:10px;}
+.chip{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.03em;
+  padding:7px 14px;border-radius:100px;background:var(--bg-soft);border:1px solid var(--line);color:var(--ink);}
+.chip.teal{border-color:#B9DEE2;color:var(--teal-deep);}
+
+/* sections */
+section.block{margin-bottom:48px;}
+.sec-h{font-family:var(--serif);font-weight:600;font-size:clamp(1.35rem,3.1vw,1.8rem);letter-spacing:-.01em;
+  margin:0 0 6px;display:flex;align-items:baseline;gap:12px;padding-bottom:10px;border-bottom:2px solid var(--accent);margin-bottom:16px;}
+.sec-h .snum{font-family:var(--mono);font-size:.95rem;color:var(--accent-deep);font-weight:700;}
+h3{font-family:var(--serif);font-weight:600;font-size:1.1rem;margin:22px 0 8px;color:var(--ink);}
+p{margin:0 0 14px;color:var(--ink-soft);max-width:78ch;}
+strong{color:var(--ink);font-weight:600;}
+em{color:var(--ink);font-style:normal;font-weight:600;}
+code{font-family:var(--mono);font-size:.86em;background:var(--bg-soft);padding:1px 5px;border-radius:4px;color:var(--accent-deep);overflow-wrap:anywhere;}
+ul.plain,ol.plain{margin:0 0 16px 20px;max-width:78ch;color:var(--ink-soft);}
+ul.plain li,ol.plain li{margin-bottom:7px;padding-left:2px;}
+ol.chk{list-style:none;counter-reset:chk;margin:0 0 16px;max-width:86ch;}
+ol.chk li{counter-increment:chk;position:relative;padding:12px 0 12px 46px;border-bottom:1px solid var(--line);color:var(--ink-soft);}
+ol.chk li:last-child{border-bottom:none;}
+ol.chk li::before{content:counter(chk);position:absolute;left:0;top:12px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;
+  font-family:var(--mono);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+ol.chk pre{margin:8px 0 0;}
+pre{font-family:var(--mono);font-size:12.5px;line-height:1.5;background:var(--ink);color:#E8EEF4;border-radius:var(--radius);padding:12px 14px;overflow-x:auto;max-width:100%;}
+.muted{color:var(--ink-mute);}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:12px 0 20px;border:1px solid var(--line);border-radius:var(--radius);}
+table.ref{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--bg-card);}
+table.ref th{text-align:left;background:var(--bg-soft);border-bottom:2px solid var(--ink);padding:9px 12px;font-weight:600;color:var(--ink);}
+table.ref td{border-bottom:1px solid var(--line);padding:9px 12px;vertical-align:top;color:var(--ink-soft);}
+table.ref tr:last-child td{border-bottom:none;}
+table.ref td.k{font-weight:600;color:var(--ink);white-space:nowrap;}
+table.ref td.n{font-family:var(--mono);text-align:center;color:var(--ink);white-space:nowrap;}
+table.grep td.k{font-family:var(--mono);font-size:12.5px;}
+table.wide{min-width:640px;}
+
+/* notes */
+.notebox{background:var(--bg-soft);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--radius);padding:14px 18px;margin:6px 0 18px;font-size:14.5px;color:var(--ink-soft);max-width:86ch;}
+.notebox.ok{border-left-color:var(--teal);}
+.notebox p{font-size:14.5px;}
+.notebox p:last-child{margin-bottom:0;}
+
+/* visual cards */
+.vgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:12px 0 8px;}
+@media(max-width:960px){.vgrid{grid-template-columns:1fr;}}
+.vcard{background:var(--bg-card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:var(--radius-lg);padding:16px 18px 8px;box-shadow:var(--shadow-sm);min-width:0;}
+.vcard.pnl{border-top-color:var(--teal);}
+.vcard.gantt{border-top-color:var(--ink-soft);}
+.vcard h3{margin:0 0 8px;font-size:1.08rem;}
+.vcard table{border-collapse:collapse;width:100%;font-size:13.5px;}
+.vcard td{border-top:1px solid var(--line);padding:7px 0;vertical-align:top;color:var(--ink-soft);}
+.vcard td:first-child{width:36%;padding-right:10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);}
+.vcard td code{word-break:break-all;overflow-wrap:anywhere;}
+
+/* footer */
+footer.foot{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-mute);line-height:1.65;}
+footer.foot a{color:var(--accent-deep);}
+footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
+a.inl{color:var(--accent-deep);font-weight:600;}
+</style>
+</head>
+<body>
+<script src="assets/js/site-chrome.js" data-chrome="full"></script>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
+    <div class="top-r">
+      <a class="doku-link" href="chartkitchen-doku.html">ChartKitchen-Doku →</a>
+      <a class="doku-link" href="pnl-doku.html">P&amp;L-Doku →</a>
+      <div class="lang-group">
+        <a class="lang-pill active" href="visuals-sicherheit.html" hreflang="de" lang="de">DE</a>
+        <a class="lang-pill" href="visuals-sicherheit_en.html" hreflang="en" lang="en">EN</a>
+      </div>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">Power-BI-Visuals · für Admins, IT-Security, Datenschutz</div>
+    <h1 class="hero-title">Sicherheit &amp; Betrieb der <em>byDatenWG</em>-Visuals</h1>
+    <p class="dek">Eine Seite für alle, die ein Custom Visual freigeben müssen: was die Visuals tun, was sie nicht tun, was im Bericht gespeichert wird, wie die Freigabe im Organisations-Store läuft und wo die Grenzen liegen. Sachlich und prüfbar — jede Aussage ist am Quellcode oder an der Microsoft-Dokumentation nachvollziehbar, die Checkliste in Abschnitt 07 führt Sie durch die Prüfung.</p>
+    <div class="chips">
+      <span class="chip">Stand 23.10.2026</span>
+      <span class="chip teal">privileges: [] in allen drei Visuals</span>
+      <span class="chip">Quellcode offen</span>
+      <span class="chip">nicht von Microsoft zertifiziert</span>
+    </div>
+  </header>
+
+  <section class="block" id="kurz">
+    <h2 class="sec-h"><span class="snum">00</span>Kurzfassung</h2>
+    <div class="notebox ok">
+      <ul class="plain" style="margin-bottom:0;">
+        <li><strong>Kein Netzwerkzugriff:</strong> In <code>capabilities.json</code> aller drei Visuals steht <code>"privileges": []</code> — keine Web-Access-, Download- oder Local-Storage-Berechtigung. Im Quellcode gibt es 0 Treffer für <code>fetch(</code>, <code>XMLHttpRequest</code>, <code>WebSocket</code>, <code>sendBeacon</code>, <code>eval(</code>, <code>new Function</code>, <code>localStorage</code>, <code>sessionStorage</code>, <code>document.cookie</code>, <code>indexedDB</code>.</li>
+        <li><strong>Keine Telemetrie, keine externen Schriften oder Skripte:</strong> <code>externalJS</code> ist leer, das Stylesheet enthält kein <code>url()</code> und kein <code>@import</code>.</li>
+        <li><strong>Gespeichert wird nur Darstellung:</strong> Format-Einstellungen und Ansichtszustand per <code>persistProperties</code> in der Berichtsdatei, dazu vom Autor eingetragene Texte (Titel, Kommentare).</li>
+        <li><strong>Eine Ausnahme beim Öffnen von Links:</strong> ChartKitchen und P&amp;L haben einen „Doku öffnen“-Knopf (<code>host.launchUrl</code>); er öffnet auf Klick unsere Dokumentation in einem neuen Tab. Es werden keine Daten angehängt.</li>
+        <li><strong>Nicht zertifiziert:</strong> Die Visuals sind (Stand heute) nicht im AppSource gelistet und nicht zertifiziert. Folge laut Microsoft: Export nach PDF und PowerPoint sowie Abo-Mails zeigen unzertifizierte Visuals nicht an (Abschnitt 04).</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block" id="visuals">
+    <h2 class="sec-h"><span class="snum">01</span>Was die Visuals sind</h2>
+    <p>Drei Power-BI-Custom-Visuals von Michael Tenner (Daten-WG), gemeinsam in einem öffentlichen Repository entwickelt. Sie sind <em>IBCS-inspiriert</em> (Notation nach den IBCS-Prinzipien) und <strong>nicht IBCS-zertifiziert</strong>; IBCS® ist eine eingetragene Marke der IBCS Association.</p>
+    <div class="vgrid">
+      <article class="vcard">
+        <h3>ChartKitchen byDatenWG</h3>
+        <table>
+          <tr><td>Version</td><td><code>1.52.4.0</code></td></tr>
+          <tr><td>API</td><td><code>5.11.0</code></td></tr>
+          <tr><td>GUID</td><td><code>chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D</code></td></tr>
+          <tr><td>Lizenz</td><td>Apache-2.0 (<code>LICENSE</code> + <code>NOTICE</code>)</td></tr>
+          <tr><td>Ordner</td><td><a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/ibcsInspiredChartDeck" target="_blank" rel="noopener">ibcsInspiredChartDeck/</a></td></tr>
+        </table>
+      </article>
+      <article class="vcard pnl">
+        <h3>P&amp;L Statement byDatenWG</h3>
+        <table>
+          <tr><td>Version</td><td><code>1.5.3.0</code></td></tr>
+          <tr><td>API</td><td><code>5.11.0</code></td></tr>
+          <tr><td>GUID</td><td><code>pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358</code></td></tr>
+          <tr><td>Lizenz</td><td>MIT (<code>LICENSE</code> im Repo-Wurzelverzeichnis)</td></tr>
+          <tr><td>Ordner</td><td><a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG" target="_blank" rel="noopener">pnlByDatenWG/</a></td></tr>
+        </table>
+      </article>
+      <article class="vcard gantt">
+        <h3>dataKitchenGantt</h3>
+        <table>
+          <tr><td>Version</td><td><code>1.15.0.0</code></td></tr>
+          <tr><td>API</td><td><code>5.3.0</code></td></tr>
+          <tr><td>GUID</td><td><code>dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44</code></td></tr>
+          <tr><td>Lizenz</td><td>MIT (<code>LICENSE</code> im Repo-Wurzelverzeichnis)</td></tr>
+          <tr><td>Ordner</td><td><a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/dataKitchenGantt" target="_blank" rel="noopener">dataKitchenGantt/</a></td></tr>
+        </table>
+      </article>
+    </div>
+    <p class="muted" style="font-size:13.5px;">Quelle der Angaben: <code>pbiviz.json</code> (Version, API, GUID) im jeweiligen Ordner des Repositories <a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-" target="_blank" rel="noopener">Losveratos/PowerBI-Kitchen-</a>. Maßgeblich ist immer die <code>pbiviz.json</code> der Datei, die Sie prüfen — spätere Releases tragen eine höhere Version, behalten aber die GUID. Bei der Lizenz zählt die <code>LICENSE</code>-Datei im jeweiligen Geltungsbereich: ChartKitchen liefert eine eigene Apache-2.0-Lizenz mit; die Namen und das Logo „ChartKitchen“, „byDatenWG“, „Daten-WG“ sind davon ausgenommen (<code>NOTICE</code>).</p>
+  </section>
+
+  <section class="block" id="datenfluss">
+    <h2 class="sec-h"><span class="snum">02</span>Datenfluss &amp; Netzwerk</h2>
+    <p>Die Visuals erhalten ihre Daten ausschließlich über die Power-BI-Host-Schnittstelle (<code>update()</code> mit dem DataView) und zeichnen sie in den eigenen Container. Der Code enthält keinen Weg, Daten nach außen zu senden. Microsoft führt Custom-Visual-Code nach eigener Aussage in einer Sandbox aus; ob ein Visual vertrauenswürdig ist, zu beurteilen liegt laut Whitepaper beim Kunden (<a class="inl" href="https://learn.microsoft.com/power-bi/guidance/white-paper-powerbi-security" target="_blank" rel="noopener">Power BI security white paper</a>). Deshalb hier die Belege zum Nachprüfen.</p>
+
+    <h3>Berechtigungen (capabilities.json)</h3>
+    <div class="tbl-wrap"><table class="ref">
+      <thead><tr><th>Eigenschaft</th><th>ChartKitchen</th><th>P&amp;L Statement</th><th>dataKitchenGantt</th></tr></thead>
+      <tbody>
+        <tr><td class="k"><code>privileges</code></td><td class="n">[]</td><td class="n">[]</td><td class="n">[]</td></tr>
+        <tr><td class="k"><code>externalJS</code> (pbiviz.json)</td><td class="n">null</td><td class="n">null</td><td class="n">null</td></tr>
+        <tr><td class="k"><code>dependencies</code> (pbiviz.json)</td><td class="n">null</td><td class="n">null</td><td class="n">null</td></tr>
+      </tbody>
+    </table></div>
+    <p>Ein leeres <code>privileges</code>-Array bedeutet: kein <code>WebAccess</code> (keine erlaubten URLs), kein <code>ExportContent</code> (kein Datei-Download aus dem Visual), kein <code>LocalStorage</code>. Seit API 4.6.0 müssen Berechtigungen ausdrücklich deklariert werden (<a class="inl" href="https://learn.microsoft.com/power-bi/developer/visuals/capabilities#privileges-define-the-special-permissions-that-your-visual-requires" target="_blank" rel="noopener">Microsoft: Capabilities</a>); alle drei Visuals nutzen API 5.x.</p>
+
+    <h3>Trefferzahlen im Quellcode (<code>src/</code>)</h3>
+    <div class="tbl-wrap"><table class="ref grep wide">
+      <thead><tr><th>Suchmuster</th><th>ChartKitchen</th><th>P&amp;L Statement</th><th>dataKitchenGantt</th></tr></thead>
+      <tbody>
+        <tr><td class="k">fetch(</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td class="k">XMLHttpRequest</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td class="k">WebSocket</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td class="k">navigator.sendBeacon</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td class="k">&lt;script src</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td class="k">eval(</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td class="k">new Function</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td class="k">innerHTML</td><td class="n">0</td><td class="n">0</td><td class="n">1 *</td></tr>
+        <tr><td class="k">localStorage</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td class="k">sessionStorage</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td class="k">document.cookie</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td class="k">indexedDB</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+        <tr><td class="k">Quelldateien in <code>src/</code></td><td class="n">2</td><td class="n">8</td><td class="n">3</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted" style="font-size:13.5px;">* Der eine Treffer in dataKitchenGantt ist ein Kommentar (<code>gantt.ts</code>, Zeile 20: „Rendering per DOM-Knoten (textContent, kein innerHTML)“), kein Aufruf. Weitere Muster ohne Treffer in allen drei Quellbäumen: <code>importScripts</code>, <code>window.open</code>, <code>postMessage</code>, <code>createObjectURL</code>, <code>new Worker</code>, <code>iframe</code>, <code>DOMParser</code>, <code>document.write</code>, <code>insertAdjacentHTML</code>, <code>outerHTML</code>, <code>navigator.</code>, <code>FontFace</code>. Dieselben zwölf Muster (bei <code>&lt;script</code> ohne das Attribut „src“) ergeben auch im <strong>gebauten Paket</strong> (<code>.pbiviz</code>, Stand der drei Dateien im Repository vom 23.10.2026) 0 Treffer; die einzigen URLs im Bundle sind der SVG-Namensraum <code>http://www.w3.org/2000/svg</code>, die Dokumentations-Adressen unserer Website (ChartKitchen, P&amp;L) und die Support-Links in den Metadaten.</p>
+
+    <h3>Die eine Ausnahme: „Doku öffnen“</h3>
+    <p>ChartKitchen (<code>visual.ts</code>, Start-Hub) und P&amp;L Statement (<code>visual.ts</code>/<code>hub.ts</code>, nur im Bearbeitungsmodus) rufen auf einen Klick auf „Doku öffnen“ <code>host.launchUrl(…)</code> auf. Die Adresse ist eine feste Konstante (<code>datenwgknowledgekitchen.com/chartkitchen-doku.html</code> bzw. <code>pnl-doku.html</code>, je nach Locale mit <code>_en</code>); Daten werden nicht angehängt. Power BI öffnet die Seite in einem neuen Browser-Tab — das Visual selbst sendet nichts. <code>launchUrl</code> benötigt keine Berechtigung in <code>privileges</code> (<a class="inl" href="https://learn.microsoft.com/power-bi/developer/visuals/launch-url" target="_blank" rel="noopener">Microsoft: Launch URL</a>). dataKitchenGantt hat keinen solchen Knopf.</p>
+
+    <h3>Schriften, Telemetrie, Fremdcode</h3>
+    <ul class="plain">
+      <li><strong>Schriften:</strong> Das gebündelte Stylesheet enthält weder <code>@font-face</code> noch <code>url()</code> noch <code>@import</code>; die Visuals nutzen Systemschriften bzw. die Schrift des Berichts. Es werden keine Web-Fonts geladen.</li>
+      <li><strong>Telemetrie:</strong> Es gibt keinen Code-Pfad, der Nutzungs- oder Fehlerdaten übermittelt (siehe Trefferzahlen: keine Netzwerk-API). Kein Konto, kein Lizenzserver, kein Tracking.</li>
+      <li><strong>Fremdcode im Paket:</strong> nur die Microsoft-Hilfspakete <code>powerbi-visuals-api</code> und <code>powerbi-visuals-utils-formattingmodel</code> (ChartKitchen zusätzlich <code>powerbi-visuals-utils-formattingutils</code>); keine Diagramm- oder UI-Bibliothek von Dritten (<code>dependencies</code> in der jeweiligen <code>package.json</code>).</li>
+    </ul>
+
+    <div class="notebox"><p><strong>Grenzen dieser Prüfung:</strong> Ein Suchlauf belegt das Fehlen der genannten Muster, nicht das Fehlen jeder denkbaren Umgehung (etwa dynamisch zusammengesetzter Funktionsnamen). Deshalb bildet die Kombination aus leerem <code>privileges</code> (vom Host durchgesetzt), Quellcode-Prüfung und eigener Netzwerkbeobachtung (Abschnitt 07, Punkt 6) die belastbare Aussage. Die Visuals sind nicht von Microsoft auditiert.</p></div>
+  </section>
+
+  <section class="block" id="speicherung">
+    <h2 class="sec-h"><span class="snum">03</span>Was gespeichert wird</h2>
+    <p>Alles, was die Visuals festhalten, geht über die Host-Schnittstelle <code>persistProperties</code> in die Berichtsdatei (.pbix / PBIR) — dorthin, wo auch die übrigen Formateinstellungen des Berichts liegen. Außerhalb der Berichtsdatei speichern die Visuals nichts (kein Browser-Speicher, keine Cookies, kein Server).</p>
+    <div class="tbl-wrap"><table class="ref">
+      <thead><tr><th>Visual</th><th>Persistierte Objekte (<code>capabilities.json</code>)</th><th>Inhalt</th></tr></thead>
+      <tbody>
+        <tr><td class="k">ChartKitchen</td><td><code>ibcsTitle</code>, <code>chart</code>, <code>colors</code>, <code>labels</code>, <code>emptyState</code>, <code>commentsPanel</code>, <code>scale</code>, <code>categoryAxis</code></td><td>Formatierung und Ansichtszustand (Sortierung, aufgeklappte Zeilen, Spaltenbreiten, zuletzt angewandte Vorlage); vom Autor eingetragene Texte: Titelzeilen, Szenario-Beschriftungen, Leer-Zustand-Text und <strong>Kommentare</strong> (<code>commentsPanel.userComments</code>, JSON).</td></tr>
+        <tr><td class="k">P&amp;L Statement</td><td><code>toolbar</code>, <code>columns</code>, <code>numbers</code>, <code>style</code>, <code>titleBlock</code>, <code>labels</code>, <code>emptyState</code>, <code>hierarchy</code>, <code>state</code></td><td>Formatierung; Ansichtszustand als JSON (<code>state.uiState</code>, z. B. zugeklappte Zeilen, Treiberbaum-Wurzel); Titelblock und Leer-Zustand-Text vom Autor.</td></tr>
+        <tr><td class="k">dataKitchenGantt</td><td><code>darstellung</code>, <code>spalten</code>, <code>meilensteine</code>, <code>basisplan</code>, <code>schrift</code>, <code>dataPoint</code></td><td>Formatierung, Farben, Tabellenbreite (per Trenner gezogen).</td></tr>
+      </tbody>
+    </table></div>
+    <div class="notebox"><p><strong>Hinweis für den Datenschutz:</strong> Es werden keine Messwerte oder Datenzeilen persistiert. Der Ansichtszustand kann aber <em>Bezeichnungen</em> aus Ihren Daten enthalten — etwa die Schlüssel aufgeklappter oder ausgeblendeter Zeilen, oder die Kategorie, an der ein Kommentar hängt. Kommentare und Titel sind Freitext des Berichtsautors; geben Sie dort keine Daten ein, die nicht in die Berichtsdatei gehören. Die Aussage zur Art der Properties folgt aus den deklarierten Typen in <code>capabilities.json</code> (Text, Zahl, Bool); wir haben nicht jede einzelne Schreibstelle im Code ausgewertet.</p></div>
+    <p><strong>Lesezeichen:</strong> ChartKitchen und P&amp;L Statement registrieren einen Selektions-Callback (<code>registerOnSelectCallback</code>) und übernehmen eine vom Host wiederhergestellte Auswahl, wenn ein Lesezeichen angewendet wird. Für dataKitchenGantt gibt es keine eigene Lesezeichen-Logik — Auswahl und Format verhalten sich wie bei den Standard-Mechanismen des Hosts (nicht gesondert getestet).</p>
+  </section>
+
+  <section class="block" id="deployment">
+    <h2 class="sec-h"><span class="snum">04</span>Freigabe &amp; Deployment</h2>
+    <p>Die folgenden Angaben zu Power BI stammen aus der Microsoft-Dokumentation (abgerufen am 23.10.2026; Links unten). Bezeichnungen der Einstellungen stehen im englischen Originaltext, die deutsche Oberfläche kann abweichen.</p>
+
+    <h3>Drei Wege ins Berichtswesen</h3>
+    <div class="tbl-wrap"><table class="ref wide">
+      <thead><tr><th>Weg</th><th>So geht es</th><th>Was dazu gehört</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Import je Bericht</td><td>Visualisierungen → „…“ → <em>Visual aus einer Datei importieren</em> (<code>.pbiviz</code>). Das Visual steckt dann in der Berichtsdatei.</td><td>Im Service greift das Tenant-Setting <em>Allow visuals created using the Power BI SDK</em> (laut Microsoft standardmäßig deaktiviert) und ggf. <em>Add and use certified visuals only</em>. In Desktop steuern das Gruppenrichtlinien (<code>EnableCustomVisuals</code>, <code>EnableUncertifiedVisuals</code>).</td></tr>
+        <tr><td class="k">Organisationsvisual</td><td>Admin-Portal → <em>Organizational visuals</em> → <em>Add visual</em> → <em>From a file</em>; Name, Icon, Beschreibung, Zugriff festlegen. Optional <em>Enable for Visualization Pane</em>, damit das Visual allen Autoren direkt angeboten wird; sonst finden Autoren es unter <em>Get more visuals → My organization</em>.</td><td>Von den beiden obigen Tenant-Settings <strong>nicht betroffen</strong>: Organisationsvisuals gelten auch, wenn Dateiimport und unzertifizierte Visuals gesperrt sind. Zentrale Versionierung, Aktivieren/Deaktivieren, Löschen. Von Microsoft dokumentierte Warnung: Eine hochgeladene Datei kann Code mit Sicherheitsrisiken enthalten — Quelle prüfen (Abschnitt 07).</td></tr>
+        <tr><td class="k">AppSource (zertifiziert)</td><td>Visual aus dem Marketplace importieren oder per <em>Add visual → From AppSource</em> in den Org-Store.</td><td><strong>Für unsere Visuals noch nicht verfügbar</strong> (Abschnitt 05).</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Update-Weg</h3>
+    <ul class="plain">
+      <li><strong>Organisationsvisual:</strong> Visual auswählen → <em>Settings</em> → <em>Browse</em> → neue <code>.pbiviz</code> wählen → <em>Update</em>. Laut Microsoft erhalten danach alle Berichte, die dieses Visual verwenden, automatisch die neue Version — es gibt eine zentral kontrollierte Version, die Sie vorher testen können.</li>
+      <li><strong>Gleiche GUID:</strong> Die GUID (Abschnitt 01) ist die Identität des Visuals; wir ändern sie zwischen Releases nicht. Prüfen Sie vor dem Austausch, dass die GUID der neuen Datei der bisherigen entspricht (Checkliste, Punkt 5). Eine ausdrückliche GUID-Regel nennt die Microsoft-Seite zum Update nicht.</li>
+      <li><strong>Import je Bericht:</strong> Die Datei muss pro Bericht erneut importiert werden; ältere Berichte behalten bis dahin ihre eingebettete Version.</li>
+      <li><strong>Deaktivieren/Löschen:</strong> Deaktiviert rendert das Visual in bestehenden Berichten nicht mehr („This custom visual is no longer available“); Löschen ist unumkehrbar. Power BI Report Server unterstützt Organisationsvisuals nicht.</li>
+    </ul>
+
+    <h3>Export nach PDF, PowerPoint und Abo-Mails</h3>
+    <div class="notebox"><p><strong>Rendering-Events sind umgesetzt — das genügt aber nicht für den Export.</strong> Alle drei Visuals rufen in <code>update()</code> <code>renderingStarted</code> auf und beenden mit <code>renderingFinished</code> bzw. <code>renderingFailed</code> (<code>visual.ts</code>). Das ist die technische Voraussetzung für Export und für die Zertifizierung. Microsoft dokumentiert jedoch: Custom Visuals werden für <em>Export to PDF</em>, <em>Export to PowerPoint</em> und Abonnement-Mails <strong>nur unterstützt, wenn sie zertifiziert sind</strong>; Organisationsvisuals (aus Datei) ausdrücklich nicht. Bei unzertifizierten Visuals ist die Export-Option ausgegraut oder fehlt; in Abo-Mails erscheint ein Fehlersymbol. Planen Sie bis zu einer Zertifizierung also ohne PDF-/PPT-Export und ohne diese Visuals in Abo-Mails — für Exportseiten bieten sich native Visuals oder ein Screenshot an.</p></div>
+    <p class="muted" style="font-size:13.5px;">Microsoft-Quellen: <a class="inl" href="https://learn.microsoft.com/fabric/admin/organizational-visuals" target="_blank" rel="noopener">Manage Power BI visuals admin settings</a> · <a class="inl" href="https://learn.microsoft.com/power-bi/developer/visuals/power-bi-custom-visuals-organization" target="_blank" rel="noopener">Power BI organizational visuals</a> · <a class="inl" href="https://learn.microsoft.com/power-bi/developer/visuals/power-bi-custom-visuals-certified" target="_blank" rel="noopener">Certified Power BI visuals</a> · <a class="inl" href="https://learn.microsoft.com/power-bi/collaborate-share/end-user-pdf" target="_blank" rel="noopener">Export to PDF</a> · <a class="inl" href="https://learn.microsoft.com/power-bi/collaborate-share/end-user-powerpoint" target="_blank" rel="noopener">Export to PowerPoint</a> · <a class="inl" href="https://learn.microsoft.com/power-bi/developer/visuals/event-service" target="_blank" rel="noopener">Rendering events</a> · <a class="inl" href="https://learn.microsoft.com/power-bi/developer/visuals/import-visual" target="_blank" rel="noopener">Import a visual</a></p>
+  </section>
+
+  <section class="block" id="zertifizierung">
+    <h2 class="sec-h"><span class="snum">05</span>Status der Zertifizierung</h2>
+    <ul class="plain">
+      <li><strong>Heute:</strong> Keines der drei Visuals ist im Microsoft AppSource gelistet oder von Microsoft zertifiziert.</li>
+      <li><strong>ChartKitchen:</strong> technisch auf die AppSource-Einreichung vorbereitet — der Ordner <a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/cert-export" target="_blank" rel="noopener">cert-export/</a> enthält den buildbaren Quellstand, Listing-Texte, Datenschutztext und eine Einreichungs-Checkliste. Die Einreichung ist <strong>in Vorbereitung</strong> und noch nicht erfolgt; ein Zeitpunkt oder Ergebnis lässt sich nicht zusagen. Eine Zertifizierung ist freiwillig und wird von Microsoft entschieden.</li>
+      <li><strong>P&amp;L Statement und dataKitchenGantt:</strong> Für diese beiden Visuals liegt kein Einreichungspaket vor.</li>
+      <li><strong>Was „vorbereitet“ nicht heißt:</strong> Die oben belegten Eigenschaften (leeres <code>privileges</code>, kein <code>fetch</code>/<code>XMLHttpRequest</code>/<code>eval</code>, Rendering-Events) entsprechen Anforderungen aus Microsofts Zertifizierungsliste. Ob ein Visual alle Punkte erfüllt, entscheidet Microsoft im Prüfverfahren — wir behaupten das nicht.</li>
+    </ul>
+  </section>
+
+  <section class="block" id="barrierefreiheit">
+    <h2 class="sec-h"><span class="snum">06</span>Barrierefreiheit (kurz)</h2>
+    <div class="tbl-wrap"><table class="ref wide">
+      <thead><tr><th>Merkmal</th><th>ChartKitchen</th><th>P&amp;L Statement</th><th>dataKitchenGantt</th></tr></thead>
+      <tbody>
+        <tr><td class="k"><code>supportsKeyboardFocus</code></td><td class="n">true</td><td class="n">true</td><td class="n">nicht gesetzt</td></tr>
+        <tr><td class="k"><code>supportsHighlight</code></td><td class="n">false</td><td class="n">false</td><td class="n">nicht gesetzt</td></tr>
+        <tr><td class="k">Hochkontrast (<code>colorPalette.isHighContrast</code> im Code)</td><td class="n">ja</td><td class="n">ja</td><td class="n">nein</td></tr>
+        <tr><td class="k">Tastatur-Handler im Code (<code>keydown</code>/<code>tabindex</code>)</td><td class="n">ja</td><td class="n">ja</td><td class="n">nein</td></tr>
+      </tbody>
+    </table></div>
+    <p>ChartKitchen und P&amp;L Statement werten die Hochkontrast-Palette des Hosts aus; dort tragen Muster statt Farben die Aussage (Szenario-Notation AC/PY/PL/FC). Bedienelemente im Start-Hub sind per Tab erreichbar. <code>supportsHighlight: false</code> heißt: Hervorhebung durch andere Visuals läuft nicht über die Highlight-Schnittstelle (Kreuzfilterung per Auswahl ist unabhängig davon). dataKitchenGantt hat <strong>keine</strong> Hochkontrast-Auswertung und keine Tastatursteuerung — für Berichte mit Barrierefreiheits-Anforderung ist es derzeit nicht geeignet. Eine formale Barrierefreiheits-Prüfung (z. B. mit Screenreader) liegt für keines der Visuals vor.</p>
+  </section>
+
+  <section class="block" id="checkliste">
+    <h2 class="sec-h"><span class="snum">07</span>Prüf-Checkliste für Admins</h2>
+    <p>Sieben Schritte, die Sie ohne uns durchführen können. Beispiel: ChartKitchen; für die anderen Visuals Dateinamen und GUID tauschen. Die Befehle sind PowerShell (Windows); unter macOS/Linux funktionieren <code>unzip</code> und <code>grep</code> entsprechend.</p>
+    <ol class="chk">
+      <li><strong>Datei sichern und Hash festhalten.</strong> Laden Sie die <code>.pbiviz</code> (ChartKitchen: <code>downloads/chartkitchen-byDatenWG-latest.pbiviz</code> auf dieser Website) und notieren Sie den SHA-256 im Freigabe-Protokoll. Nach jedem Update neu bilden.
+<pre>Get-FileHash .\chartkitchen-byDatenWG-latest.pbiviz -Algorithm SHA256</pre></li>
+      <li><strong>Paket entpacken.</strong> Eine <code>.pbiviz</code> ist ein ZIP-Archiv mit <code>package.json</code> und <code>resources/&lt;GUID&gt;.pbiviz.json</code>.
+<pre>Copy-Item .\chartkitchen-byDatenWG-latest.pbiviz .\ck.zip
+Expand-Archive .\ck.zip -DestinationPath .\ck</pre></li>
+      <li><strong>Berechtigungen lesen.</strong> In der entpackten JSON-Datei müssen <code>capabilities.privileges</code> leer und <code>externalJS</code> leer sein; <code>apiVersion</code> und <code>visual.version</code> stehen im selben Dokument.
+<pre>$j = Get-Content .\ck\resources\*.pbiviz.json -Raw | ConvertFrom-Json
+$j.capabilities.privileges   # leere Ausgabe = leer
+$j.externalJS                # leere Ausgabe = leer
+$j.apiVersion; $j.visual.version</pre></li>
+      <li><strong>Im Code suchen.</strong> Der folgende Befehl muss ohne Ausgabe enden. Die Adressen-Liste zeigt alle URLs im Paket (erwartet: SVG-Namensraum, Dokumentations- und Support-Links).
+<pre>Select-String -Path .\ck\resources\*.pbiviz.json -Pattern 'fetch\(|XMLHttpRequest|WebSocket|sendBeacon|eval\(|new Function|\.innerHTML|localStorage|sessionStorage|document\.cookie|indexedDB' -AllMatches
+Select-String -Path .\ck\resources\*.pbiviz.json -Pattern 'https?://[^"'' )\\]+' -AllMatches | % { $_.Matches.Value } | Sort-Object -Unique</pre></li>
+      <li><strong>GUID vergleichen.</strong> Die GUID im Dateinamen der JSON-Datei, im Feld <code>visual.guid</code> und in <code>pbiviz.json</code> des Repositories (Abschnitt 01) muss übereinstimmen; beim Austausch im Org-Store muss sie der bereits installierten entsprechen.</li>
+      <li><strong>Laufzeit beobachten.</strong> Visual in einem Testbericht mit Testdaten einsetzen, im Browser die Entwicklerwerkzeuge öffnen (F12 → Netzwerk) und mit dem Visual arbeiten (filtern, sortieren, Kommentar anlegen). Erwartung: keine Anfragen, die vom Visual ausgehen; nur der Klick auf „Doku öffnen“ öffnet einen neuen Tab zu <code>datenwgknowledgekitchen.com</code>.</li>
+      <li><strong>Quelle gegenprüfen.</strong> Den Quellstand aus dem Repository holen (Commit, in dem die Version in <code>pbiviz.json</code> gesetzt wurde), selbst bauen und Quelltext und Bundle vergleichen. Ein bitgleicher Hash ist nicht zugesichert (Build-Metadaten), ein inhaltlicher Vergleich ist möglich.
+<pre>git clone https://github.com/Losveratos/PowerBI-Kitchen-
+cd PowerBI-Kitchen-\ibcsInspiredChartDeck
+npm ci
+npx pbiviz package</pre></li>
+    </ol>
+    <p>Danach: in einer Testumgebung als Organisationsvisual hochladen, mit den Tenant-Einstellungen Ihrer Organisation testen und erst dann für das Visualisierungsfenster freigeben (Abschnitt 04).</p>
+  </section>
+
+  <section class="block" id="kontakt">
+    <h2 class="sec-h"><span class="snum">08</span>Kontakt &amp; Stand</h2>
+    <ul class="plain">
+      <li><strong>Kontakt:</strong> Michael Tenner, Daten-WG · <a class="inl" href="mailto:michael.tenner84@gmail.com?subject=Sicherheitsfrage%20byDatenWG-Visuals">michael.tenner84@gmail.com</a>. Auch für Sicherheitsfunde und für Fragen des Datenschutzbeauftragten.</li>
+      <li><strong>Fehler und Wünsche:</strong> Issues im <a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-/issues" target="_blank" rel="noopener">Repository</a>.</li>
+      <li><strong>Stand dieser Seite:</strong> 23.10.2026 · ChartKitchen 1.52.4.0 · P&amp;L Statement 1.5.3.0 · dataKitchenGantt 1.15.0.0. Neuere Releases tragen höhere Versionsnummern; prüfen Sie jede Datei nach Abschnitt 07.</li>
+      <li><strong>Gewährleistung:</strong> Die Visuals werden ohne Gewähr bereitgestellt (Lizenztexte im Repository). Diese Seite ist keine Zusicherung im Rechtssinn, sondern eine Prüfhilfe.</li>
+    </ul>
+  </section>
+
+  <footer class="foot">
+    <strong>Sicherheit &amp; Betrieb · byDatenWG-Visuals</strong> · Stand 23.10.2026<br>
+    Dokumentation: <a href="chartkitchen-doku.html">ChartKitchen</a> · <a href="pnl-doku.html">P&amp;L Statement</a> · Schnellstart: <a href="chartkitchen-schnellstart.html">ChartKitchen</a> · <a href="pnl-schnellstart.html">P&amp;L</a><br>
+    Kontakt: Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>
+    <a href="md/visuals-sicherheit.md">📄 Diese Seite als Markdown</a>
+    <div class="ibcs">IBCS® ist eine eingetragene Marke der IBCS Association. Die Visuals sind von den IBCS-Prinzipien inspiriert und stehen in keiner Verbindung zur IBCS Association; sie sind nicht IBCS-zertifiziert.</div>
+  </footer>
+
+</div>
+</body>
+</html>
