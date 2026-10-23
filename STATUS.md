@@ -28,7 +28,7 @@ Vorbereitung (hängt organisatorisch, technisch ready). Die Visuals sind
 
 Je Visual-Release: Version in `pbiviz.json` (2×) → `npm run package` → alte dist
 raus → `downloads/` (CK: `chartkitchen-byDatenWG-latest.pbiviz` + `latest.json`)
-→ CHANGELOG oben → Doku + Schnellstart DE/EN Versions-Flip → AGENT-GUIDE-Stand
+→ CHANGELOG oben → Doku + Schnellstart DE/EN Versions-Flip → AGENT-GUIDE-Stand (`npm run guide`)
 → CK zusätzlich: `cert-export/`-Sync (feste Dateiliste, README nie) und
 `.claude/skills/deploy-to-powerbi/catalog.json` → Commit → PR → Squash-Merge →
 Pages-Workflow prüfen → Schwester-Repo nachziehen. Details: AGENT-GUIDE im
