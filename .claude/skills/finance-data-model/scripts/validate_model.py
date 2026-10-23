@@ -3,11 +3,17 @@
 "P&L Statement byDatenWG" und "ChartKitchen byDatenWG".
 
 Aufruf:
-    python3 -I validate_model.py <dim-konto.csv> <fakt-finanz.csv> [--tol 0.05] [--year 2026] [--ascii]
+    python3 -I validate_model.py <dim-konto.csv> <fakt-finanz.csv>
+        [--kurse <kurse.csv>] [--cc EUR] [--kurs-multiplizieren]
+        [--tol 0.05] [--year 2026] [--ascii]
+
+Variante A (nur Euro) / B (Fremdwährung) erkennt das Skript an einer
+Währungsspalte (Currency/Waehrung) in den Fakten. Bei B sucht es ohne --kurse
+eine *kurs*/*rate*/*fx*.csv neben der Faktentabelle.
 
 Die Regeln spiegeln pnlByDatenWG/src/engine.ts (parseRowType, parseBool,
 parseSign, rowsFromLevels, buildModel, parseFormula). Nur Standardbibliothek,
-liest keine Dateien außer den beiden übergebenen CSVs.
+liest nur die übergebenen CSVs (bzw. die Kurstabelle daneben).
 
 Exit-Code: 0 = kein ✗ · 1 = mindestens ein ✗ · 2 = Aufruf- oder Lesefehler.
 """
@@ -15,6 +21,7 @@ import argparse
 import calendar
 import csv
 import io
+import os
 import re
 import sys
 from collections import OrderedDict, defaultdict
@@ -107,6 +114,7 @@ DIM_ALIASES = {
     "disp": ["displayinvert", "anzeigeinvertieren"],
     "var": ["varianceinvert", "abweichungsfarbedrehen"],
     "comment": ["comment", "kommentar"],
+    "unit": ["einheit", "unit", "mengeneinheit", "uom"],
 }
 FACT_ALIASES = {
     "id": DIM_ALIASES["id"],
@@ -114,7 +122,21 @@ FACT_ALIASES = {
     "period": ["periode", "period", "monat", "month", "monatkey", "periodkey"],
     "scenario": ["szenario", "scenario", "version"],
     "value": ["wert", "value", "betrag", "amount"],
+    "currency": ["currency", "waehrung", "curr", "belegwaehrung", "hauswaehrung", "lc", "currencycode"],
+    "entity": ["gesellschaft", "entity", "company", "buchungskreis", "mandant", "bukrs"],
 }
+RATE_ALIASES = {
+    "period": ["periode", "period", "datum", "date", "monatsende", "monat", "month"],
+    "currency": FACT_ALIASES["currency"],
+    "kind": ["kursart", "ratetype", "kurstyp", "art", "type"],
+    "rate": ["kurs", "rate", "wert", "value", "fxrate"],
+}
+KIND = {"akt": "AKT", "ist": "AKT", "actual": "AKT", "aktuell": "AKT", "avg": "AKT",
+        "bud": "BUD", "budget": "BUD", "plan": "BUD", "pl": "BUD",
+        "vj": "VJ", "py": "VJ", "vorjahr": "VJ"}
+# Kursart je Szenario im "berichteten" Bild: AC/FC zum aktuellen Kurs, PL zum Budgetkurs, PY zum Vorjahreskurs
+SCEN_KIND = {"AC": "AKT", "FC": "AKT", "PL": "BUD", "PY": "VJ"}
+MONEY_UNITS = {"", "eur", "teur", "keur", "meur", "chf", "usd", "gbp", "waehrung", "currency", "lc", "cc", "geld"}
 WIDE_SCEN = {
     "ac": "AC", "ist": "AC", "py": "PY", "vj": "PY", "vorjahr": "PY",
     "pl": "PL", "plan": "PL", "bu": "PL", "budget": "PL", "fc": "FC", "forecast": "FC",
@@ -321,6 +343,7 @@ class Node:
         self.own = {}
         self.val = {}
         self.error = None
+        self.unit, self.money = "", True
 
 
 def fmt(v, kpi=False):
@@ -335,6 +358,10 @@ def main():
     ap.add_argument("fact", help="CSV der Faktentabelle (breit: AC/PY/PL/FC[/PL_FY/FC_FY] · schmal: Szenario + Wert)")
     ap.add_argument("--tol", type=float, default=0.05, help="absolute Toleranz für Summen-Abgleiche (Dateneinheiten, Standard 0.05)")
     ap.add_argument("--year", type=int, default=None, help="Berichtsjahr für Stichprobe (Standard: letztes Jahr mit AC)")
+    ap.add_argument("--kurse", default=None, help="CSV der Kurstabelle (Variante B). Ohne Angabe: *kurs*/*rate*/*fx*.csv neben der Faktentabelle")
+    ap.add_argument("--cc", default="EUR", help="Konzern-/Berichtswährung (Standard EUR)")
+    ap.add_argument("--kurs-multiplizieren", action="store_true",
+                    help="Kurs = CC je 1 Fremdwährung (multiplizieren). Standard: Fremdwährung je 1 CC (EZB-Notierung, dividieren)")
     ap.add_argument("--ascii", action="store_true", help="[OK]/[WARN]/[FAIL] statt ✓/⚠/✗")
     a = ap.parse_args()
 
@@ -427,6 +454,7 @@ def main():
             "name": (r[dc["name"]] if dc["name"] else "").strip(),
             "parent": (r[dc["parent"]] if dc["parent"] else "").strip(),
             "levels": [r[c] for c in lv],
+            "unit": (r[dc["unit"]] if dc["unit"] else "").strip(),
         })
 
     R.section("[2] Zeilentypen, Sortierung, Hierarchie")
@@ -555,6 +583,32 @@ def main():
             roots = [n for n in nodes.values() if not n.parent]
             R.add("ok", f"Parent-Child konsistent: {len(roots)} Wurzel(n), keine Waisen, keine Zyklen")
 
+    # Einheiten: Geld (EUR …) und Mengen (hl, Stk, FTE) dürfen sich in keiner Summe treffen
+    unit_of = {x["id"]: x["unit"] for x in rows}
+    for n in nodes.values():
+        n.unit = unit_of.get(n.id, "")
+        n.money = n.unit.lower() in MONEY_UNITS
+    for _ in range(8):
+        for n in nodes.values():
+            if n.synthetic and n.children:
+                us = {c.unit for c in n.children if c.type in ("account", "subtotal")}
+                if len(us) == 1:
+                    n.unit = us.pop()
+                    n.money = n.unit.lower() in MONEY_UNITS
+    mixed = []
+    for n in nodes.values():
+        kids = [c for c in n.children if c.type in ("account", "subtotal")]
+        if kids and len({c.money for c in kids} | ({n.money} if not n.synthetic else set())) > 1:
+            mixed.append(f"{n.name}: " + ", ".join(f"{c.name} [{c.unit or 'Geld'}]" for c in kids))
+    qty = [n for n in nodes.values() if not n.synthetic and not n.money]
+    if mixed:
+        R.add("fail", "Geld und Mengen in derselben Summe — Mengenzeilen gehören in einen eigenen Block oder eine eigene Wurzel", mixed)
+    if qty and not mixed:
+        units = sorted({n.unit for n in qty})
+        R.add("ok", f"{len(qty)} Mengenzeile(n) ({', '.join(units)}) getrennt vom Geld — im P&L-Visual per Visualfilter "
+              "Einheit = EUR ausblenden (keine Zeilenformate dort), in ChartKitchen per rowFormats zeigen",
+              [f"{n.id} {n.name}" for n in qty])
+
     excluded = [f"{n.id} ({n.type})" for n in nodes.values()
                 if n.type in ("formula", "kpi", "separator") and any(c.type in ("account", "subtotal") for c in n.children)]
     if excluded:
@@ -582,7 +636,7 @@ def main():
 
     # ============================================================ [3] Formeln
     R.section("[3] Formeln (FormulaDef)")
-    asts, graph, ferr, referenced = {}, {}, [], set()
+    asts, graph, ferr, referenced, unit_kpi = {}, {}, [], set(), []
     for n in nodes.values():
         if n.type not in ("formula", "kpi"):
             continue
@@ -602,6 +656,10 @@ def main():
                 ferr.append(f"{n.id}: Referenz [{ref}] {why}")
                 continue
             referenced.add(tgt.id)
+            if n.money and not tgt.money:
+                (ferr if n.type == "formula" else unit_kpi).append(
+                    f"{n.id}: [{ref}] ist eine Mengenzeile ({tgt.unit})"
+                    + ("" if n.type == "formula" else " — das P&L-Visual zeigt KPI-Zeilen als %, Kennzahlen wie EUR/hl gehören in ChartKitchen"))
             if tgt.type == "separator":
                 ferr.append(f"{n.id}: Referenz [{ref}] ist eine Trennzeile (immer leer)")
             if tgt.type in ("formula", "kpi"):
@@ -636,6 +694,8 @@ def main():
         R.add("ok", "Keine Formel-/KPI-Zeilen (reine Hierarchie)")
     if ignored_f:
         R.add("warn", "FormulaDef auf Nicht-Formelzeilen wird ignoriert", ignored_f)
+    if unit_kpi:
+        R.add("warn", "KPI-Zeile rechnet mit einer Mengenzeile", unit_kpi)
     amb = [f"'{k}': {', '.join(v)}" for k, v in by_name.items() if len(v) > 1 and not any(i in referenced for i in v)]
     if amb:
         R.add("warn", "Doppelte Zeilennamen — als Formelreferenz und für 'Nach Spalte sortieren' (ChartKitchen) unbrauchbar", amb)
@@ -688,8 +748,11 @@ def main():
                 wide_cols[h] = s
     pcol = fc["date"] or fc["period"]
     R.text("")
+    fx = fc["currency"] is not None
     R.text(f"  Fakten:    {a.fact} ({len(frows)} Zeilen, Trenner '{fdelim}', Format: "
            + ("schmal (Szenario + Wert)" if narrow else "breit (" + " ".join(wide_cols.values()) + ")") + ")")
+    R.text("  Variante:  " + (f"B · Fremdwährung (Spalte '{fc['currency']}', Konzernwährung {a.cc})" if fx
+                              else "A · nur Euro (keine Währungsspalte)"))
 
     R.section("[5] Fakten ↔ Dimension")
     if fc["id"] is None or pcol is None:
@@ -708,6 +771,11 @@ def main():
     days = defaultdict(set)
     not_month_end, per_mismatch = [], []
     fact_ids_any = set()
+    entries = []  # (id, szenario, jahr, monat, wert, währung)
+    row_count = defaultdict(int)
+    cur_by = defaultdict(set)   # (id, gesellschaft) -> {währung}
+    cur_ent = defaultdict(set)  # gesellschaft -> {währung}
+    no_cur, qty_cur = [], []
     for r in frows:
         rid = r[fc["id"]]
         p = parse_period(r[pcol])
@@ -726,6 +794,9 @@ def main():
         fact_ids_any.add(rid)
         if rid not in nodes:
             unknown_ids[rid] += 1
+        cur = r[fc["currency"]].strip().upper() if fx else a.cc.upper()
+        ent = r[fc["entity"]].strip() if fc["entity"] else ""
+        row_count[(rid, ent, y, m) if not narrow else (rid, ent, y, m, r[fc["scenario"]])] += 1
         if narrow:
             sc = WIDE_SCEN.get(norm(r[fc["scenario"]]))
             if sc is None:
@@ -741,6 +812,16 @@ def main():
                 continue
             if v is not None:
                 facts[rid][sc][(y, m)].append(v)
+                entries.append((rid, sc, y, m, v, cur))
+                node = nodes.get(rid)
+                if fx and node is not None and node.money:
+                    if not cur:
+                        no_cur.append(f"Zeile {r['__line__']}: {rid} {sc}")
+                    else:
+                        cur_by[(rid, ent)].add(cur)
+                        cur_ent[ent].add(cur)
+                elif fx and node is not None and not node.money and cur:
+                    qty_cur.append(f"Zeile {r['__line__']}: {rid} ({node.unit}) mit Währung {cur}")
 
     if unknown_ids:
         R.add("fail", f"{len(unknown_ids)} AccountID(s) der Fakten fehlen in der Dimension — diese Werte fallen im Visual weg",
@@ -793,8 +874,7 @@ def main():
                 months_by[sc][y].add(m)
                 if sc == "AC":
                     zero_ac[y][m] = zero_ac[y][m] and all(v == 0 for v in vs)
-                if len(vs) > 1 and sc in SERIES and not narrow:
-                    dup_rows.append(f"{rid} {y}-{m:02d} {sc}: {len(vs)} Zeilen")
+    dup_rows = [f"{k[0]}{' / ' + k[1] if k[1] else ''} {k[2]}-{k[3]:02d}: {n} Zeilen" for k, n in row_count.items() if n > 1]
     years = sorted({y for sc in months_by for y in months_by[sc]})
     if len(years) > 1:
         R.add("warn", f"Mehrere Jahre in den Fakten ({', '.join(map(str, years))}) — der Bericht muss ein Berichtsjahr filtern, "
@@ -821,6 +901,18 @@ def main():
                         break
                 if tail:
                     ac_zero_tail.append(f"{y}: Monate {', '.join(f'{m:02d}' for m in sorted(tail))} haben AC = 0 statt leer")
+    acc_gaps = []
+    for rid, sc_map in facts.items():
+        if rid not in nodes or nodes[rid].type not in ("account", "subtotal"):
+            continue
+        for sc in SERIES:
+            for y in years:
+                ms = {m for (yy, m) in sc_map.get(sc, {}) if yy == y}
+                hole = [m for m in range(min(ms), max(ms) + 1) if m not in ms] if ms else []
+                if hole:
+                    acc_gaps.append(f"{rid} {sc} {y}: Monate {', '.join(f'{m:02d}' for m in hole)}")
+    if acc_gaps:
+        R.add("warn", "Lücken je Konto (Monat ohne Buchung — gewollt, oder fehlt eine Lieferung?)", acc_gaps)
     if gaps:
         R.add("fail", "Perioden-Lücken je Szenario", gaps)
     else:
@@ -873,8 +965,118 @@ def main():
         elif not fy_err:
             R.add("ok", "FY-Skalare konstant je Konto, PL_FY = Σ PL und FC_FY = AC + FC-Restjahr")
 
-    # ============================================================ [7] Summen-Stichprobe
-    R.section("[7] Summen-Stichprobe (rechnet wie das Visual)")
+    # ============================================================ [7] Währung
+    rates = {}  # (währung, jahr, monat, kursart) -> kurs
+    cc = a.cc.upper()
+    R.section("[7] Währung")
+    if not fx:
+        R.add("ok", f"Variante A · nur Euro: Werte direkt in {cc}, keine Kurstabelle, Measures = dünne Wrapper")
+        if a.kurse:
+            R.add("warn", f"--kurse angegeben, aber die Fakten haben keine Währungsspalte — Kurstabelle wird ignoriert")
+    else:
+        kpath = a.kurse
+        if not kpath:
+            fdir = os.path.dirname(os.path.abspath(a.fact))
+            cands = sorted(f for f in os.listdir(fdir) if f.lower().endswith(".csv")
+                           and re.search(r"kurs|rate|fx", f.lower())
+                           and os.path.abspath(os.path.join(fdir, f)) not in (os.path.abspath(a.fact), os.path.abspath(a.dim)))
+            kpath = os.path.join(fdir, cands[0]) if cands else None
+        currencies = sorted({c for v in cur_by.values() for c in v})
+        if no_cur:
+            R.add("fail", f"{len(no_cur)} Geld-Werte ohne Währung — Umrechnung unmöglich", no_cur)
+        if qty_cur:
+            R.add("warn", "Mengenzeilen mit Währung — Mengen werden nie umgerechnet, Währung leer lassen", qty_cur)
+        multi = [f"{k[0]}{' / ' + k[1] if k[1] else ''}: {', '.join(sorted(v))}" for k, v in sorted(cur_by.items()) if len(v) > 1]
+        if multi:
+            R.add("fail", "Mischwährung je Konto" + ("" if fc["entity"] else " ohne Kennzeichnung (Gesellschaft-Spalte fehlt)")
+                  + " — eine Währung je Konto und Gesellschaft", multi)
+        ent_multi = [f"{e}: {', '.join(sorted(v))}" for e, v in cur_ent.items() if e and len(v) > 1]
+        if ent_multi:
+            R.add("warn", "Gesellschaft bucht in mehreren Währungen — Hauswährung prüfen", ent_multi)
+        if not multi and not no_cur:
+            per_cur = defaultdict(int)
+            for (rid, _), v in cur_by.items():
+                per_cur[next(iter(v))] += 1
+            R.add("ok", "Eine Währung je Konto: " + " · ".join(f"{c} {n} Konten" for c, n in sorted(per_cur.items())))
+        if not kpath or not os.path.exists(kpath):
+            R.add("fail", "Keine Kurstabelle gefunden — mit --kurse angeben (Periode · Currency · Kursart · Kurs)")
+        else:
+            try:
+                kh, krows, _ = read_csv(kpath)
+            except (OSError, ValueError) as e:
+                kh, krows = [], []
+                R.add("fail", f"Kurstabelle nicht lesbar: {e}")
+            kc = {k: find_col(kh, v) for k, v in RATE_ALIASES.items()}
+            R.text(f"  Kurse:     {kpath} ({len(krows)} Zeilen)")
+            if krows and None in kc.values():
+                R.add("fail", "Kurstabelle braucht die Spalten Periode, Currency, Kursart, Kurs")
+            elif krows:
+                bad_k, unk_kind, dup_k = [], defaultdict(int), []
+                for r in krows:
+                    p = parse_period(r[kc["period"]])
+                    kind = KIND.get(norm(r[kc["kind"]]))
+                    v = parse_num(r[kc["rate"]])
+                    if kind is None:
+                        unk_kind[r[kc["kind"]]] += 1
+                        continue
+                    if p is None or p[0] is None or not isinstance(v, float) or v <= 0:
+                        bad_k.append(f"Zeile {r['__line__']}: {r[kc['period']]} / {r[kc['rate']]}")
+                        continue
+                    key = (r[kc["currency"]].strip().upper(), p[0], p[1], kind)
+                    if key in rates:
+                        dup_k.append(f"{key[0]} {key[1]}-{key[2]:02d} {kind}")
+                    rates[key] = v
+                if bad_k:
+                    R.add("fail", "Kurse nicht lesbar oder ≤ 0", bad_k)
+                if dup_k:
+                    R.add("fail", "Doppelte Kurse (Periode × Währung × Kursart)", dup_k)
+                if unk_kind:
+                    R.add("warn", "Unbekannte Kursarten (erwartet AKT · BUD · VJ)", [f"'{k}' ×{n}" for k, n in unk_kind.items()])
+                fmonths = sorted({(e[2], e[3]) for e in entries})
+                need = [c for c in currencies if c != cc]
+                missing, missing_vj = [], []
+                has_py = any(e[1] == "PY" for e in entries)
+                for c in need:
+                    for kind in ("AKT", "BUD"):
+                        gap = [f"{y}-{m:02d}" for y, m in fmonths if (c, y, m, kind) not in rates]
+                        if gap:
+                            missing.append(f"{c} {kind}: {', '.join(gap[:6])}{' …' if len(gap) > 6 else ''}")
+                    gap = [f"{y}-{m:02d}" for y, m in fmonths if (c, y, m, "VJ") not in rates]
+                    if has_py and gap:
+                        missing_vj.append(f"{c}: {len(gap)} Monate")
+                if missing:
+                    R.add("fail", "Kurse fehlen — jede Fakten-Währung braucht für jede Periode einen aktuellen (AKT) und einen Budget-Kurs (BUD)", missing)
+                elif need:
+                    R.add("ok", f"Kurse vollständig: {', '.join(need)} × {len(fmonths)} Perioden × AKT/BUD")
+                if missing_vj:
+                    R.add("warn", "Kein Vorjahreskurs (VJ) — PY wird zum aktuellen Kurs umgerechnet (= konstante Kurse). Gewollt?", missing_vj)
+                cc_bad = sorted({f"{k[3]} {k[1]}-{k[2]:02d}: {v:g}" for k, v in rates.items() if k[0] == cc and abs(v - 1) > 1e-9})
+                if cc_bad:
+                    R.add("fail", f"Kurs der Konzernwährung {cc} ≠ 1", cc_bad)
+                bud_var = []
+                for c in need:
+                    for y in sorted({k[1] for k in rates if k[0] == c}):
+                        vals = {v for k, v in rates.items() if k[0] == c and k[1] == y and k[3] == "BUD"}
+                        if len(vals) > 1:
+                            bud_var.append(f"{c} {y}: {len(vals)} verschiedene Budgetkurse")
+                if bud_var:
+                    R.add("warn", "Budgetkurs schwankt im Jahr — üblich ist ein fixer Kurs je Planjahr", bud_var)
+                quote = "CC je 1 Fremdwährung (multiplizieren)" if a.kurs_multiplizieren else f"Fremdwährung je 1 {cc} (dividieren)"
+                R.add("ok", f"Kursnotierung angenommen: {quote} · Kursart je Szenario: AC/FC → AKT, PL → BUD, PY → VJ; "
+                      "FX-bereinigt: AC → BUD")
+
+    def conv(rid, sc, y, m, v, cur, kind=None):
+        node = nodes.get(rid)
+        if not fx or node is None or not node.money or not cur or cur == cc:
+            return v
+        kind = kind or SCEN_KIND.get(sc, "AKT")
+        k = rates.get((cur, y, m, kind)) or (rates.get((cur, y, m, "AKT")) if kind == "VJ" else None)
+        if not k:
+            return None
+        return v * k if a.kurs_multiplizieren else v / k
+
+    # ============================================================ [8] Summen-Stichprobe
+    R.section("[8] Summen-Stichprobe (rechnet wie das Visual)")
     ac_years = sorted(months_by["AC"].keys())
     year = a.year or (ac_years[-1] if ac_years else (years[-1] if years else None))
     if year is None:
@@ -885,17 +1087,40 @@ def main():
     last = max(months_by["AC"].get(year, {0}))
     window = set(range(1, last + 1)) if last else set(range(1, 13))
 
+    fy_cols = {e[1] for e in entries if e[1] in FY}
+    derive_fy = fx or not fy_cols
+    if fx and fy_cols:
+        R.add("warn", "FY-Spalten in Fremdwährung lassen sich nicht sauber umrechnen — FY in Variante B als Measure "
+              "aus den umgerechneten Monatswerten bilden (Stichprobe rechnet so)")
+    any_fc = any(e[1] == "FC" and e[2] == year for e in entries)
+    own = defaultdict(dict)
+
+    def add(rid, key, v):
+        if v is not None:
+            own[rid][key] = own[rid].get(key, 0.0) + v
+
+    for rid, sc, y, m, v, cur in sorted(entries, key=lambda e: (e[2], e[3])):
+        if y != year:
+            continue
+        if sc in FY:
+            if not derive_fy and sc not in own[rid]:
+                own[rid][sc] = v
+            continue
+        cv = conv(rid, sc, y, m, v, cur)
+        if m in window:
+            add(rid, sc, cv)
+            if sc == "AC" and fx:
+                add(rid, "AC_BUD", conv(rid, sc, y, m, v, cur, "BUD"))
+        if sc == "PY":
+            add(rid, "PY_FY", cv)
+        if derive_fy:
+            if sc == "PL":
+                add(rid, "PL_FY", cv)
+            if any_fc and ((sc == "AC" and m <= last) or (sc == "FC" and m > last)):
+                add(rid, "FC_FY", cv)
     for n in nodes.values():
-        sc_map = facts.get(n.id, {})
-        for sc in SERIES:
-            vs = [v for (yy, mm), l in sc_map.get(sc, {}).items() if yy == year and mm in window for v in l]
-            n.own[sc] = sum(vs) if vs else None
-        vs = [v for (yy, _), l in sc_map.get("PY", {}).items() if yy == year for v in l]
-        n.own["PY_FY"] = sum(vs) if vs else None
-        for sc in FY:
-            vs = [v for (yy, _), l in sorted(sc_map.get(sc, {}).items()) if yy == year for v in l]
-            n.own[sc] = vs[0] if vs else None
-    scen = SERIES + ["PY_FY"] + FY
+        n.own = dict(own.get(n.id, {}))
+    scen = SERIES + ["PY_FY"] + FY + (["AC_BUD"] if fx else [])
 
     def contributes(n):
         return n.type in ("account", "subtotal")
@@ -1002,7 +1227,7 @@ def main():
     run = defaultdict(float)
     stair_bad, stair_n = [], 0
     for n, factor in order:
-        if n.type == "account" and not n.children:
+        if n.type == "account" and not n.children and n.money:
             for sc in ("AC", "PL"):
                 if n.val.get(sc) is not None:
                     run[sc] += n.val[sc] * factor
@@ -1023,26 +1248,41 @@ def main():
 
     # (c) Kennzahlen-Tabelle zum Gegenrechnen mit dem Quellsystem
     shown = [n for n, _ in order if n.type != "separator" and (n.parent is None or n.parent not in nodes)]
+    big = max((abs(v) for n in shown if n.type != "kpi" for v in n.val.values() if v is not None), default=0)
+    scale, sname = (1e6, "Mio.") if big >= 1e8 else (1e3, "Tsd.") if big >= 1e5 else (1, "")
+    if fx:
+        cols = [("AC", "AC"), ("AC@BUD", "AC_BUD"), ("PL", "PL"), ("ΔPL", "d:AC:PL"), ("ΔPL@BUD", "d:AC_BUD:PL"),
+                ("PY", "PY"), ("PL FY", "PL_FY"), ("AC&FC FY", "FC_FY")]
+    else:
+        cols = [("AC", "AC"), ("PY", "PY"), ("PL", "PL"), ("ΔPL", "d:AC:PL"), ("PY FY", "PY_FY"), ("PL FY", "PL_FY"),
+                ("AC&FC FY", "FC_FY")]
     R.text("")
-    R.text(f"  Stichprobe {year}: YTD 01–{last:02d} (letzter Monat mit AC) · FY = Gesamtjahr · Werte wie angezeigt")
-    hdr = f"    {'Zeile':<34}{'AC':>10}{'PY':>10}{'PL':>10}{'ΔPL':>10}{'PY FY':>10}{'PL FY':>10}{'AC&FC FY':>10}"
+    R.text(f"  Stichprobe {year}: YTD 01–{last:02d} (letzter Monat mit AC) · FY = Gesamtjahr · Werte wie angezeigt"
+           + f", in {sname + ' ' if sname else ''}{cc}"
+           + (" (AC/FC zum AKT-, PL zum BUD-, PY zum VJ-Kurs; @BUD = zum Budgetkurs, FX-bereinigt)" if fx else ""))
+    if derive_fy:
+        R.text("  FY-Spalten aus den Monatswerten abgeleitet (PL FY = Σ PL · AC&FC FY = AC bis Ist-Monat + FC Restjahr)")
+    hdr = f"    {'Zeile':<30}" + "".join(f"{h:>11}" for h, _ in cols)
     R.text(hdr)
     R.text("    " + "─" * (len(hdr) - 4))
     for n in shown:
         kpi = n.type == "kpi"
         flip = -1 if (n.disp and not kpi) else 1
-
-        def g(sc):
-            v = n.val.get(sc)
-            return None if v is None else v * flip
-        d = None
-        if n.val.get("AC") is not None and n.val.get("PL") is not None:
-            d = (n.val["AC"] - n.val["PL"]) * flip
+        cells = []
+        for _, key in cols:
+            if key.startswith("d:"):
+                _, x, y_ = key.split(":")
+                if n.val.get(x) is None or n.val.get(y_) is None:
+                    cells.append("—")
+                elif kpi:
+                    cells.append(f"{(n.val[x] - n.val[y_]) * 100:+.1f} pp")
+                else:
+                    cells.append(f"{(n.val[x] - n.val[y_]) * flip / scale:+,.1f}".replace(",", " "))
+            else:
+                v = n.val.get(key)
+                cells.append(fmt(None if v is None else v * flip / (1 if kpi else scale), kpi))
         label = ("= " if n.type == "formula" else "  " if kpi else "") + n.name
-        cells = [fmt(g(s), kpi) for s in ("AC", "PY", "PL")] + [
-            (f"{d * 100:+.1f} pp" if kpi else f"{d:+,.1f}".replace(",", " ")) if d is not None else "—"] + [
-            fmt(g(s), kpi) for s in ("PY_FY", "PL_FY", "FC_FY")]
-        R.text(f"    {label[:33]:<34}" + "".join(f"{c:>10}" for c in cells))
+        R.text(f"    {label[:29]:<30}" + "".join(f"{c:>11}" for c in cells))
     errs = [n.id for n in nodes.values() if n.error]
     if errs:
         R.add("fail", "Zeilen mit Rechenfehler (siehe [3])", errs)
