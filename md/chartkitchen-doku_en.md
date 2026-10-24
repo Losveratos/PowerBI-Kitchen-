@@ -26,7 +26,7 @@ Version · **1.53.0.0** · As of · **2026-10-24** · IBCS-inspired
 
 The design is inspired by the **IBCS® principles** (International Business Communication Standards): one consistent scenario notation — **AC** (actual) filled, **PY** (prior year) grey, **PL** (plan) outlined, **FC** (forecast) hatched — and variances that are always present: absolute and relative variance panels appear automatically next to or above the base chart. Every chart reads by the same rules, whichever mode you choose.
 
-This guide describes the state of version **1.53.0.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”).
+This guide describes the state of version **1.53.0.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”). New in 1.53: row structure as a data contract via [rowType tokens](#rowtype), negative values in both bridges (chapter 05) and a tested [export layout](#export) with honest limits in the Power BI service (chapter 07).
 
 ## 02 · The product family
 
@@ -174,7 +174,7 @@ Readers in reading view and exports (PDF, PowerPoint, subscriptions) see neither
 | Filter info (footer) | Measure | Text measure with the current filter context (e.g. via CONCATENATEX/SELECTEDVALUE) — shown as a second footer when the filter footer is on. |
 | Comments | Measure | Text measure: categories with a comment get a numbered marker, the text appears in the tooltip and the comment list. |
 | Small Multiples | Grouping | Splits the chart into small tiles per group — with identical scaling (IBCS small multiples). |
-| Waterfall type (sum/delta) | Grouping | Waterfall/P&L only: “sum” = absolute subtotal, “delta” = movement (P&L waterfall). |
+| Waterfall type (rowType) | Grouping | Row structure as tokens per row (waterfall, P&L statement, table): result row (`total`, formerly “sum”), movement (“delta”), margin row (`pct`) and flags such as `exclude`, `hide`, `davon`, `invert`, `emphasize`, `graphic` — combinable, e.g. `davon \| exclude`. The same column feeds the [P&L Statement](../pnl-doku_en.html). Token table: [chapter 07](#rowtype). |
 | Forecast flag (0=actual · 1=FC · 2=preliminary) | Grouping | Alternative to the FC measure: a 1/0 column — rows flagged 1 are drawn as forecast (hatched), the AC measure runs through. |
 | X axis (scatter) | Measure | Scatter/bubble only (since 1.47): measure for the X axis — the Y axis stays AC. |
 | X axis PY (scatter) | Measure | Scatter/bubble only, optional (since 1.48, max. 1 field): prior-year value for the X axis. With PY bound and movement arrows enabled the arrows show true 2D movement from (X PY, PY) to the AC position — without this field only the Y axis moves. |
@@ -226,7 +226,7 @@ The classic P&L cascade: via the “Waterfall type” role (sum/delta), subtotal
 
 ![Integrated bridge: PY total column on the left, ΔPY cascade with monthly columns, stacked AC+FC total column on the right.](../doku-assets/mode-intwaterfall.png)
 
-The year bridge: the PY total column on the left, the ΔPY cascade across the months in the middle, the stacked AC+FC total column on the right. It answers “how do we get from last year to today?” over time. It needs PY or PL as a basis and does not support all-negative values.
+The year bridge: the PY total column on the left, the ΔPY cascade across the months in the middle, the stacked AC+FC total column on the right. It answers “how do we get from last year to today?” over time. It needs PY or PL as a basis. **Negative values (since 1.53):** loss months hang below the zero line. If an anchor or a cascade level falls below zero (prior-year loss → profit, a cost series as negative amounts), the cascade gets its own visible zero line: the anchors stand as full bars upward or downward, the steps float at their true height — including a step that crosses zero (+2 → −5 → −3). The monthly columns then sit in a strip of their own below (split layout). “Shorten anchors” never cuts across zero; on all-negative bridges the cut is mirrored below the zero line.
 
 ### 06 · Category bridge
 
@@ -234,7 +234,7 @@ The year bridge: the PY total column on the left, the ΔPY cascade across the mo
 
 ![As it looks in Power BI Desktop: Structure bridge by country: PL and PY reference rows on top, an AC bar per country, the ΔPL cascade with ΔPL % pins on the right and the AC total at the bottom.](../doku-assets/pbi/pbi-bridge-structure.png)
 
-The driver bridge across categories: a PY row on top, each driver as an AC-PY bar plus a cascade segment and a ΔPY% pin, an AC reconciliation row at the bottom. You see at a glance which category drives the total variance. The biggest driver is flagged automatically with a note. Since 1.47 the orientation is selectable (Chart → Bridge): “Automatic”, “Bars” (as before) or “Columns” — a vertical column cascade from the PY anchor through the drivers to AC, with Δ% pins on top.
+The driver bridge across categories: a PY row on top, each driver as an AC-PY bar plus a cascade segment and a ΔPY% pin, an AC reconciliation row at the bottom. You see at a glance which category drives the total variance. The biggest driver is flagged automatically with a note. Since 1.47 the orientation is selectable (Chart → Bridge): “Automatic”, “Bars” (as before) or “Columns” — a vertical column cascade from the PY anchor through the drivers to AC, with Δ% pins on top. **Negative values (since 1.53):** with all-negative totals (for example a cost series as negative amounts) the zero line sits on the right (bars) or at the top (columns), labels stay outside, colouring follows the sign logic and “Invert” works as usual. If the cascade runs through a row's own bars, that row shows bars on top and the step below instead of painted-over bars. With small multiples and “Same scale”, one negative tile sets the shared zero line for all tiles.
 
 ### 07 · Table
 
@@ -402,10 +402,43 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 
 ### P&L statement & row types
 
-1. In the “P&L statement” mode (or waterfall) the “Waterfall type” role sets each row: “sum” = subtotal, “delta” = movement.
-2. Without that role you structure via lists under Chart → Table: result rows (bold anchor), exclude rows from totals, hide, indent (“of which”), chart only listed rows.
+1. In the “P&L statement” mode (or waterfall) the “Waterfall type” role (rowType) sets what each row is: result row (subtotal, anchor), movement or margin row. Since 1.53 this works through tokens that can also carry flags such as “memo” or “of which” — see the next section.
+2. Without that role (or additionally as an override) you structure via lists under Chart → Table: result rows (bold anchor), exclude rows from totals, hide, indent (“of which”), chart only listed rows.
 3. Formula rows (e.g. “Margin = EBIT / Revenue”) and per-row number formats (e.g. “Margin = 0.0 %”) add calculated or mixed €/%/unit rows.
-4. Structure mode (Chart → Table → “Edit row structure”) sets these properties by clicking a row; the choice is persisted in the lists.
+4. Structure mode (Chart → Table → “Edit row structure”) sets these properties by clicking a row; the choice is persisted in the lists. Properties that come from the data via token appear there ticked and locked — they can only be changed in the model.
+
+### Row structure by token: the “Waterfall type” role (rowType, since 1.53)
+
+Row names are not a stable data contract: rename or translate a row and the name lists stop working. Since 1.53 the “Waterfall type” role (technically `rowType`) therefore carries the structure from the data — one column in the account dimension, one or more tokens per row. Renaming, translating and multilingual models no longer break anything.
+
+| Token | Aliases (selection) | P&L value | Effect · matches the list |
+| --- | --- | --- | --- |
+| total | summe, ergebnis, zwischensumme, sum, subtotal, result, formula | Subtotal, Formula | Result row: bold, separator line, anchor in the waterfall, not in Σ · “Result rows” |
+| pct | prozent, marge, quote, kennzahl, margin, ratio, kpi | KPI | Margin row: % display, Δ in percentage points · no list |
+| exclude | nachrichtlich, ausnehmen, memo | — | not in Σ, scales and cascade, shown subtly · “Skip rows (exclude from totals)” |
+| hide | ausblenden, versteckt | — | hidden, Σ keeps computing · “Hide rows” |
+| davon | of-which, thereof | — | indented and subtle · “Indent rows (davon)” |
+| invert | invertieren, kosten, cost | — | rating reversed (higher cost is bad) · “Invert per category” |
+| emphasize | hervorheben, highlight | — | IBCS emphasis (EMPHASIZE) · “Highlight categories” |
+| graphic | grafik, chart | — | only rows with this token show bar/pin graphics · “Chart only these rows” |
+| detail | normal, delta, konto, leer | Account, Separator | plain movement row · nothing |
+
+1. **Separators:** separate several tokens per cell with a comma, semicolon, space or `|`; case does not matter — e.g. `total; graphic` or `davon | exclude`.
+2. **Union with the lists:** what applies is the union of role and list. The lists under Chart → Table stay as an override for models without a role column; stating something twice does no harm, but a list cannot cancel a token — change the model for that.
+3. **Existing reports:** cells with the previous values `sum`, `delta` and `pct` behave unchanged. A cell with flags only (for example just `invert`) makes no structure statement; if the column carries only such cells, the model does not count as a P&L.
+4. **Hierarchies:** tokens apply to the leaf that carries the value; parent nodes only inherit the structure of their first child, not flags.
+5. **Unknown tokens** (typos, free text such as “Erlös”) are ignored. Only in edit mode, a note at the bottom right of the chart names up to three of them (plus “+n”); readers and exports see nothing.
+
+**Example:** a column `DimKonto[RowType]` next to the account name bound as category:
+
+| Account (category) | Cell in rowType | Result |
+| --- | --- | --- |
+| Revenue | `Account` | plain row |
+| of which export | `davon \| exclude` | indented, not in Σ |
+| Cost of materials | `Account; invert` | plain row, rating reversed (cost) |
+| Gross profit | `Subtotal` | result row (bold, anchor) |
+
+**One column for both visuals:** the same column feeds the [P&L Statement byDatenWG](../pnl-doku_en.html#data) (role “Row type”: Account · Subtotal · Formula · KPI · Separator). ChartKitchen understands these values directly, so a translating helper measure is no longer needed. The P&L Statement reads only its own values from the cell; extra tokens such as `davon` or `invert` do not disturb it but have no effect there. In the shared column, therefore write `Subtotal` rather than `total` — only the former is also known to the P&L Statement.
 
 ### Comments
 
@@ -509,7 +542,7 @@ Since 1.52 ChartKitchen scales every chart type according to IBCS 2.0 / ISO 2489
 1. Since 1.45 hard scaling guarantees apply: the ΔPY and ΔPL panels share ONE scale (absolute and %), bridges include every cascade intermediate in the scale, stacked small multiples share a common scale, and values and variances use ONE unit scale — no more “k€ next to thousands”. Formats with their own prefix (“#,0 T€”, “Mio €”) switch the auto unit off.
 2. “Scale minimum maximum” and outlier capping now also apply in the waterfall; the ⫽ marker sits on every capped element (PY, PL, BM, line).
 3. Δ% shows “n.a.” when the basis is 0 or the sign flips between basis and actual — instead of misleading values like “−250 %”. P&L cost rows with a consistently negative basis keep their percentages.
-4. Axis break in the waterfall (IBCS UN 5.3, since 1.45): under Scale → “Waterfall axis” set the break to Off · Auto · On; the axis is only cut when all anchors and deltas sit entirely above the break. Anchors become stubs with ⫽ across the full bar width; a title suffix and the export footer disclose the break, and small multiples share ONE break. For the integrated bridge and the vertical category bridge, “Shorten anchors (axis break)” under Chart → Bridge is available since 1.52.1.
+4. Axis break in the waterfall (IBCS UN 5.3, since 1.45): under Scale → “Waterfall axis” set the break to Off · Auto · On; the axis is only cut when all anchors and deltas sit entirely above the break. Anchors become stubs with ⫽ across the full bar width; a title suffix and the export footer disclose the break, and small multiples share ONE break. For the integrated bridge and the vertical category bridge, “Shorten anchors (axis break)” under Chart → Bridge is available since 1.52.1; since 1.53 the cut on all-negative bridges is mirrored below the zero line, and a cut never crosses zero.
 5. Alternatively click the in-chart chip “⫽ axis”: it toggles the break, highlights itself on an auto suggestion, and is disabled when a break would be invalid — the tooltip names the reason or the blocking tile.
 
 ### Cross-filter, tooltips & bookmarks
@@ -520,6 +553,14 @@ Since 1.52 ChartKitchen scales every chart type according to IBCS 2.0 / ISO 2489
 4. On hover, default and canvas tooltips show values, variances, series and comment; canvas tooltips (report-page tooltips) are supported. In dark mode the visual draws the hover tooltip itself (a dark box with the category as header).
 5. Interactive states are bookmark-capable: the variance basis, the YTD view, in-chart sorting, expanded rows/columns, captured comments and column widths travel with the report or the bookmark.
 6. Since 1.49 bookmarks also restore the **selection**: a bookmark with selected categories (likewise a selection set by another visual) dims the other marks as after a click; a bookmark without a selection removes the dimming.
+
+### Export: desktop PDF, print and the limit in the Power BI service
+
+1. **What happens in the export context:** the visual shows a calm still image — no buttons or toolbars, data marks are no longer focusable, titles that are too long wrap onto a second line, bar panels reserve room for the widest label. The export writes nothing back to the report (no bookmark or column-width changes, no comments).
+2. **Everything expanded:** with the switch Chart → Display → “Export: expand all levels” (default on), table, matrix and P&L statement render all row and column levels expanded; the expand arrows are omitted. Off = the export shows the current state.
+3. **Matrix:** if the expanded months do not fit the tile, the export falls back first to the report's expand state and then to collapsed quarter blocks instead of cutting quarters off; the “… +n” hint sits in the header of the name column.
+4. **Tested** is the layout for monthly columns with Δ, structure bars, category bridge, P&L waterfall and matrix with a YTD column, each as an A4-landscape tile (1100×620), half page (540×620) and PowerPoint tile (960×540), in HD and Full HD.
+5. **The honest limit:** according to Microsoft, PDF/PowerPoint export and subscription emails in the Power BI service render only *certified* visuals; ChartKitchen is not certified until the AppSource certification (the submission is in preparation, no date can be promised). There the export option is greyed out or the visual is missing, and subscription emails show an error icon. **Until then** export works via **Power BI Desktop** (File → Export → PDF) and **browser print**. Background, sources and admin checklist: [Security & operations](../visuals-sicherheit_en.html#deployment).
 
 ## 08 · Settings reference
 
@@ -562,9 +603,9 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | YTD button in chart | Shows a clickable "YTD" button at the top right of the chart (Columns/Line) — the end user toggles the cumulative view directly in the report; the choice is persisted. Off by default. | On / Off · default Off |
 | Moving average (periods) | Thin overlay line with a moving average over N periods (Columns/Line). 0 = off. | 0–24 · default 0 |
 | Top N (bars) | Structure modes (Bars, Category bridge, Table, Dumbbell, KPI cards): shows the N largest categories, the rest is aggregated. 0 = all. | 0–50 · default 0 |
-| Highlight categories | Comma-separated category names to emphasize (IBCS EMPHASIZE), e.g. the current month. | Free text · z. B. Jul, Aug |
+| Highlight categories | Comma-separated category names to emphasize (IBCS EMPHASIZE), e.g. the current month. Since 1.53 alternatively as token `emphasize` in the “Waterfall type” role (rowType, [token table](#rowtype)) — what applies is the union of role and list. | Free text · z. B. Jul, Aug |
 | Invert (higher is bad) | For cost KPIs: a higher value is bad (red), a lower value is good (green). | On / Off · default Off |
-| Invert per category | Comma-separated categories whose rating is reversed (e.g. cost rows next to revenue rows in KPI cards or the P&L table). Applies in addition to the global invert switch. | Free text · z. B. Opex, Materialaufwand |
+| Invert per category | Comma-separated categories whose rating is reversed (e.g. cost rows next to revenue rows in KPI cards or the P&L table). Applies in addition to the global invert switch. Since 1.53 alternatively as token `invert` in the “Waterfall type” role (rowType, [token table](#rowtype)) — what applies is the union of role and list. | Free text · z. B. Opex, Materialaufwand |
 | Compare on click | Columns/Bars only: clicking two columns/bars shows the difference (absolute + %) as an overlay — clicks then no longer cross-filter. Clicking empty space resets. Off by default. | On / Off · default Off |
 | Materiality from (absolute) | Materiality threshold: variances below this absolute amount are shown in grey instead of red/green (panels, waterfall steps, table). 0 = off. | from 0 · default 0 |
 | Materiality from (%) | Materiality threshold in percent: variances below this Δ % are shown in grey. If both thresholds are set, a variance must exceed both to be colored. 0 = off. | 0–100 · default 0 |
@@ -604,12 +645,12 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Setting | Description | Options / default |
 | --- | --- | --- |
 | Value columns | Extra number columns next to AC: the variance basis (PY or PL, depending on the comparison basis) or both reference scenarios — for print- and board-ready tables without bar interpretation. | Options: AC only \| AC + variance basis \| AC · PY · PL · default „AC only“ |
-| Edit row structure (click) | Edit mode: clicking a row opens a small menu with "Invert", "Result row" and "Exclude from totals" — the one-click P&L without changing the data model. The choice is persisted in the lists below; turn off again to report. | On / Off · default Off |
-| Result rows | Comma-separated row names that are formatted as result rows (bold, separator line, excluded from Σ; anchors in the waterfall) — an alternative to the waterfall type role. | Free text · z. B. EBIT, Rohertrag |
-| Skip rows (exclude from totals) | Comma-separated row names that do not flow into the Σ row, the scales and the waterfall cascade (e.g. memo items). The row stays visible but is shown subtly. | Free text · z. B. Davon-Positionen |
-| Hide rows | Comma-separated row names that are only hidden — the Σ row, scales and formulas still compute with them (unlike "Exclude from totals"). Can also be set by clicking in structure mode. | Free text · z. B. Sonstige, Intern |
-| Chart only these rows | Comma-separated row names: when filled, only these rows show the bar/pin graphics — all others stay pure number rows. Empty = graphics everywhere. The Σ row always keeps its graphic. | Free text · z. B. Umsatz, EBIT |
-| Indent rows (davon) | Comma-separated row names shown indented and subtly as "of which:" items — without a hierarchy field. Usually combined with "Exclude from totals". | Free text · z. B. davon Export |
+| Edit row structure (click) | Edit mode: clicking a row opens a small menu with "Invert", "Result row" and "Exclude from totals" — the one-click P&L without changing the data model. The choice is persisted in the lists below; turn off again to report. Properties that come from the data via rowType token appear ticked and locked. | On / Off · default Off |
+| Result rows | Comma-separated row names that are formatted as result rows (bold, separator line, excluded from Σ; anchors in the waterfall) — an alternative to the waterfall type role. Since 1.53 alternatively as token `total` in the “Waterfall type” role (rowType, [token table](#rowtype)) — what applies is the union of role and list. | Free text · z. B. EBIT, Rohertrag |
+| Skip rows (exclude from totals) | Comma-separated row names that do not flow into the Σ row, the scales and the waterfall cascade (e.g. memo items). The row stays visible but is shown subtly. Since 1.53 alternatively as token `exclude` in the “Waterfall type” role (rowType, [token table](#rowtype)) — what applies is the union of role and list. | Free text · z. B. Davon-Positionen |
+| Hide rows | Comma-separated row names that are only hidden — the Σ row, scales and formulas still compute with them (unlike "Exclude from totals"). Can also be set by clicking in structure mode. Since 1.53 alternatively as token `hide` in the “Waterfall type” role (rowType, [token table](#rowtype)) — what applies is the union of role and list. | Free text · z. B. Sonstige, Intern |
+| Chart only these rows | Comma-separated row names: when filled, only these rows show the bar/pin graphics — all others stay pure number rows. Empty = graphics everywhere. The Σ row always keeps its graphic. Since 1.53 alternatively as token `graphic` in the “Waterfall type” role (rowType, [token table](#rowtype)) — what applies is the union of role and list. | Free text · z. B. Umsatz, EBIT |
+| Indent rows (davon) | Comma-separated row names shown indented and subtly as "of which:" items — without a hierarchy field. Usually combined with "Exclude from totals". Since 1.53 alternatively as token `davon` in the “Waterfall type” role (rowType, [token table](#rowtype)) — what applies is the union of role and list. | Free text · z. B. davon Export |
 | Row number formats | Number format per row, semicolon-separated: "Margin = 0.0 %; Quantity = #,0". Percent multiplies by 100; values appear unscaled (no k€ division) — for mixed €, % and unit rows. | Free text · z. B. Marge = 0.0 % |
 | Matrix: column comparison | Comparison within the matrix columns: "Δ vs. previous column" replaces the Δbasis per block with the change to the previous column (period comparison Q2 vs. Q1, Mar vs. Feb …). | Options: Off (Δ vs. basis) \| Δ vs. previous column · default „Off (Δ vs. basis)“ |
 | Formula rows | Calculated rows, semicolon-separated: "EBIT = Revenue - Costs" adds a subtotal row, "Margin = EBIT / Revenue" a % row. Operands are row names; please surround operators with spaces. Formula rows do not flow into the Σ row. | Free text · z. B. Marge = EBIT / Umsatz |
@@ -619,6 +660,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Grid lines | Separator style: “Horizontal” (default) row lines only, “None” for a calm look, “Horizontal + vertical” adds subtle column/block dividers. | Options: Horizontal \| None \| Horizontal + vertical · default „Horizontal“ |
 | Cell layout (matrix) | Matrix only: “Columns” (default) shows the value and Δbasis side by side. “Two rows” puts the value large on top and the smaller Δ number directly below it in the same cell — the matrix becomes roughly half as wide. The Δ mini-bar is dropped; reference (value) columns stay as their own columns next to the value. | Options: Columns (value · Δ side by side) \| Two rows: value on top, Δ below · default „Columns (value · Δ side by side)“ |
 | Auto-expand hierarchy | Multiple fields in the category role (table/P&L): the visual expands the drill hierarchy into the clickable row tree automatically — once per field constellation; manual collapsing is preserved. Since 1.47. | On / Off · default On |
+| Export: expand all levels | Table, matrix and P&L statement only (group Display): PDF/PowerPoint export and subscription emails render all row and column levels expanded — the printout shows everything regardless of the on-screen collapse state. Off = the export shows the current state. See [Export](#export). | On / Off · default On |
 
 #### KPI cards
 
@@ -770,15 +812,15 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 
 ### The visual only shows a hint like “requires PY or PL”.
 
-The integrated bridge, category bridge, P&L statement, dumbbell and slope modes need a comparison basis. Bind a measure to the Previous Year (PY) or Plan (PL) role. For all-negative totals, switch to waterfall or columns with the waterfall bridge.
+The integrated bridge, category bridge, P&L statement, dumbbell and slope modes need a comparison basis. Bind a measure to the Previous Year (PY) or Plan (PL) role.
 
 ### Why is there no running total (YTD) in the matrix?
 
 Cumulation is deliberately disabled in the matrix: it would cumulate over the flat row list and double-count the column groups (e.g. quarters). Use YTD in columns or line mode, or compute the running total as a measure in the data model.
 
-### The bridge breaks on negative totals.
+### What does the bridge look like with negative values or losses?
 
-The integrated and category bridge do not support all-negative totals — the visual shows a hint instead of a broken graphic. Use the waterfall mode or columns/bars with the waterfall bridge enabled.
+Since 1.53 the integrated and category bridge draw negative values instead of falling back to a hint (up to 1.52.4 the docs said “does not support all-negative totals”). Loss months hang below a zero line, anchors below zero become bars pointing down, and all-negative category bridges are mirrored (zero line on the right or at the top). Details and special cases are under the “Integrated bridge” and “Category bridge” modes in chapter 05. If the bridge still shows only a hint, the comparison basis PY/PL is missing or, in the integrated bridge, there is not enough room.
 
 ### Numbers appear in k€ instead of thousands as expected.
 
@@ -786,7 +828,11 @@ The display units are set to Auto or Thousands (k). Set Data labels → Display 
 
 ### Horizontal scrolling of the matrix is missing in the PDF/PowerPoint export.
 
-A still image cannot scroll, so the “… +n” hint applies on export. Narrow the matrix beforehand: two-row compact mode, fewer value columns, adjusted column widths or collapsed column groups.
+A still image cannot scroll, so the “… +n” hint applies on export (since 1.53 in the header of the name column). If the expanded months do not fit the tile, the export falls back first to the report's expand state and then to collapsed quarter blocks instead of cutting quarters off. Narrow the matrix beforehand: two-row compact mode, fewer value columns, adjusted column widths or collapsed column groups.
+
+### In the Power BI service “Export to PDF/PowerPoint” is greyed out or the visual is missing from the subscription email.
+
+That is not a setting in the visual: PDF/PowerPoint export and subscription emails in the service render only **certified** visuals, and ChartKitchen is not certified until the AppSource certification. Until then, export via Power BI Desktop (File → Export → PDF) or browser print — details and a link to the security page in the section [“Export”](#export) in chapter 07.
 
 ### PY appears as a triangle instead of a column.
 
