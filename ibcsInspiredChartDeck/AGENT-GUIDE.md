@@ -10,7 +10,13 @@ Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 **Property-Referenz wird generiert: `npm run guide`** (Prüfung: `npm run guide:check`) — die Tabellen
 im Abschnitt „Settings-Referenz“ nie von Hand ändern, sondern `settings.ts`/`capabilities.json` anpassen.
 
-Stand: **1.52.4.0** (23.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.52.4.0** (23.10.2026) + Branch-Arbeit für 1.53 (rowType-Token, negative Brücken, Export-Layout).
+Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+
+**Neu in 1.53 (rowType-Token, keine neue Property, keine neue Rolle):** Die Rolle `rowType`
+(„Waterfall-Typ“) ist der Datenvertrag für die Zeilenstruktur — Token je Zeile statt Zeilennamen in
+sieben Komma-Listen. Tabelle, Semantik und Vereinigungsregel: Abschnitt „rowType-Token“ unten;
+Falle 12. 694 resjson-Keys je Sprache. Tests c248–c257.
 
 **Neu in 1.52.1:** Der Titel nennt die Einheit einmal in Langform („Nettoumsatz in Mio. EUR je Kanal“), kein
 Szenario-Suffix, wenn `ibcsTitle.period` schon AC/PY/PL/BU/FC nennt; „AC&FC“ bei Forecast-Anteil. Zahlen in Grafiken
@@ -35,7 +41,7 @@ steht im Spaltenkopf bzw. Titel (`scale-zoom-table`, `scale-zoom-pnl`,
 Übersicht (`zoom-scale`). C05: PY-Dreieck nur bei AC + PY + PL. Neue Property
 `chart.chipMenu` (bool, Standard false): In-Chart-Bedienelemente
 (`[data-ck-ctl]`) hinter ☰ (`data-icd="chip-menu"`, Sitzungszustand). 686
-resjson-Keys je Sprache. Geometrie-Test: `npm run test:scale`.
+resjson-Keys je Sprache (Stand 1.52.0; 1.52.4 + Brücken-Arbeit: 691; mit den rowType-Token: 694). Geometrie-Test: `npm run test:scale`.
 
 ## Steckbrief
 
@@ -65,7 +71,7 @@ Interne Rollennamen für PBIR (`projections`) — Reihenfolge egal, Semantik nic
 | `series` | Grouping | Stacking — schaltet Columns/Bars auf gestapelt um |
 | `colgroup` | Grouping | Matrix-Spaltengruppen (max. 2 Ebenen) — macht aus `table` die Matrix |
 | `multiples` | Grouping | Small Multiples (Kacheln, gleiche Skala) |
-| `rowType` | Grouping | Waterfall/GuV: `sum` = Zwischensumme/Anker · `delta` = Bewegung · `pct` = Margenzeile (%-Anzeige, Δ in Pp) |
+| `rowType` | Grouping | Zeilentyp (Pane: „Waterfall-Typ“). Struktur: `sum`/`total` = Zwischensumme/Anker · `delta` = Bewegung · `pct` = Margenzeile (%-Anzeige, Δ in Pp). Ab 1.53 zusätzlich kombinierbare Flag-Token je Zeile (`exclude` · `hide` · `davon` · `invert` · `emphasize` · `graphic`), vereinigt mit den Komma-Listen — siehe „rowType-Token“ |
 | `xValue` | Measure | X-Achse im Scatter/Bubble (Y = `actual`); Pflicht für `orientation = scatter` |
 | `xPrevious` | Measure | X-Achse VJ (Scatter, optional): macht die PY-Pfeile zu 2D-Bewegungen (`scatterArrows`) |
 | `bubbleSize` | Measure | Blasengröße im Scatter (optional) — macht daraus ein Bubble-Chart (Vorlage C10) |
@@ -78,6 +84,48 @@ existierende Kategorie-Kombinationen non-blank liefert (`COALESCE(x, 0)`,
 `+0`), zwingt Power BI, diese Kombinationen ins DataView zu schicken →
 Geisterzeilen/Kreuzprodukte. Wächter-Muster:
 `IF(COUNTROWS('Fakt') > 0, COALESCE(MAX('Fakt'[x]), 0))`.
+
+### rowType-Token (ab 1.53)
+
+Namen sind kein Datenvertrag: Wer Zeilen über die Komma-Listen steuert, verliert die Wirkung bei
+Umbenennung, Übersetzung oder Mehrsprachigkeit. Die Rolle `rowType` trägt dieselbe Information
+datengetrieben. Eine Zelle enthält ein oder mehrere Token, getrennt durch Komma, Semikolon,
+Leerzeichen oder `|`; Groß-/Kleinschreibung egal (Beispiel: `total; graphic`, `davon | exclude`).
+
+| Token (kanonisch) | Aliasse | Wirkung = Komma-Liste | Art |
+| --- | --- | --- | --- |
+| `total` | `sum` (und jedes Token, das mit `sum` beginnt), `subtotal`, `summe`, `ergebnis`, `zwischensumme`, `result`, `formula`, `formel` | Ergebniszeile wie `resultList` — technisch der bisherige rowType `sum` (fett, Trennlinie, Anker, nicht im Σ; wirkt dadurch auch im GuV-Statement) | Struktur |
+| `pct` | jedes Token, das mit `pct` beginnt, `percent`, `prozent`, `margin`, `marge`, `kpi`, `ratio`, `quote`, `kennzahl` | Margenzeile (bisheriger rowType `pct`) — keine Liste | Struktur |
+| `detail` | `normal`, `delta`, `account`, `konto`, `separator`, `+`, `-`, `−`, leere Zelle | nichts — normale Bewegungszeile | Struktur |
+| `exclude` | `memo`, `nachrichtlich`, `ausnehmen` | `skipList` (nicht in Σ, Skalen, Kaskade; kursiv) | Flag |
+| `hide` | `ausblenden`, `versteckt` | `hideList` (ausgeblendet, Σ rechnet weiter) | Flag |
+| `davon` | `of-which`, `ofwhich`, `thereof` | `indentList` (eingerückt, dezent) | Flag |
+| `invert` | `invertieren`, `kosten`, `cost`, `costs` | `invertList` (Wertung umgekehrt) | Flag |
+| `emphasize` | `highlight`, `hervorheben` | `highlight` (IBCS EMPHASIZE) | Flag |
+| `graphic` | `chart`, `grafik` | `chartList` (wenn mind. eine Zeile/Liste es trägt: nur diese Zeilen zeigen Grafiken) | Flag |
+
+Die Aliasse decken die RowType-Werte des P&L-Visuals ab (`Subtotal`, `Formula`, `KPI`, `Account`,
+`Separator`), damit dieselbe Spalte `DimKonto[RowType]` beide Visuals speisen kann.
+
+Regeln (Code: `parseRowTypeCell` und `listWithFlag` in `src/visual.ts`):
+
+- **Alte Werte unverändert:** Beginnt der ganze Zellwert mit `sum` oder `pct`, bleibt er wie bis 1.52.4
+  der rowType. Jeder andere nicht-leere Wert (auch leerer Text `""`) bleibt eine GuV-Bewegungszeile —
+  `sum`/`delta`/`pct`-Berichte zeichnen pixelgleich (SVG-Vergleich aller Bestandsfälle).
+- **Wirksame Menge = Rolle ∪ Liste.** Die Listen bleiben als Override für Modelle ohne Rollen-Spalte;
+  doppelte Angabe wirkt einfach. Abgeglichen wird wie bei den Listen über den Zeilennamen: gleichnamige
+  Zeilen (andere Small-Multiples-Kachel, gleiches Blatt unter anderem Elternknoten) teilen ein Flag.
+- **Ebene:** Token gelten für die DataView-Zeile, die den Wert trägt — bei Hierarchien das Blatt
+  (abgeglichen über den Pfad „A · B“ und das Blatt-Label). Elternknoten erben wie bisher nur die
+  Struktur des ersten Kinds (`sum`/`pct`), keine Flags.
+- **Nur-Flag-Zellen** (z. B. nur `invert`) machen keine Strukturaussage: rowType bleibt `null`. Trägt
+  die Rolle ausschließlich solche Zellen, gilt das Modell nicht als GuV (kein „GuV-Wasserfall?“-
+  Vorschlag, YTD bleibt möglich, der Wasserfall bleibt Varianz-Brücke).
+- **Unbekannte Token** werden ignoriert und im Bearbeitungsmodus unten rechts gemeldet
+  (`data-icd="rowtype-note"`, resjson `Note_RowTypeUnknown`, max. drei Token + „+n“); Leser und
+  Exporte sehen nichts.
+- **Struktur-Menü** (`chart.structureEdit`): per Token gesetzte Eigenschaften erscheinen angehakt und
+  gesperrt (`label[data-icd-role="1"]`, Tooltip `Struct_FromRole`) — abschalten geht nur im Modell.
 
 ## Modus-Wahl (chart.orientation)
 
@@ -175,7 +223,9 @@ wirkungslose In-Chart-Knöpfe tragen `data-icd-locked="1"`,
 `aria-disabled`, Opacity 0.4 und den Grund im Tooltip; Klick persistiert
 nichts (YTD auf rowType/1 Periode, ⇅ bei identischer Wirkungs-Reihenfolge,
 ⚠ ohne verdichtbare Zeile, Karten-Sortierung ohne Vergleichswert/1 Karte,
-Brücken-Toolbar im Hinweis-Zustand). (5) **Leer-Zustand:**
+Brücken-Toolbar im Hinweis-Zustand — den gibt es seit den negativen Brücken nur noch ohne
+Vergleichsbasis PY/PL bzw. bei zu wenig Platz in der Integrierten Brücke; rein negative Werte
+zeichnen eine Brücke). (5) **Leer-Zustand:**
 `emptyState.mode` (`demo` Default = bisherige Galerie · `fields` Feld-Intro ·
 `message` eigene Nachricht) wirkt nur im Bearbeitungsmodus mit
 Interaktion; Umschalt-Knöpfe persistieren `emptyState.mode` (Echo-Guard
@@ -637,7 +687,8 @@ dass jede solche Property in `capabilities.json` hier mit ihrem Namen vorkommt.
 
 - **Listen** (`invertList`, `resultList`, `skipList`, `hideList`, `chartList`,
   `indentList`, `highlight`): kommagetrennt, case-insensitive, exakter
-  Kategoriename. Beispiel: `"Opex, Materialaufwand"`.
+  Kategoriename. Beispiel: `"Opex, Materialaufwand"`. Ab 1.53 datengetriebene
+  Alternative über die Rolle `rowType` (Token, siehe „rowType-Token“); beide wirken vereinigt.
 - **`formulaRows`**: Einträge per `;` oder Zeilenumbruch.
   `Label = A + B - C` (Summenzeile) · `Marge = X / Y` (%-Zeile, Δ in Pp).
   **Operatoren brauchen Leerzeichen drumherum** („E-Commerce" bleibt so ein
@@ -667,7 +718,7 @@ Persistierte Zustände (Sortierung, aufgeklappte Zeilen, Spaltenbreiten,
 GuV-Sicht) sind normale Properties — ein Agent kann sie **vorkonfigurieren**,
 statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
 
-## Bekannte Fallen (Stand 1.51)
+## Bekannte Fallen (Stand 1.53)
 
 1. **Import bei gleicher GUID:** Nach „Visual aus Datei importieren" kann die
    laufende Sandbox-Instanz eingefroren weiterlaufen (reagiert nicht auf
@@ -721,6 +772,15 @@ statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
 11. **Hub-Preset-Leiste schreibt `labels.fontPreset`** (ab 1.51): Ein Klick auf
    HD · Full HD · UHD im Hub ändert die Schriftgröße des ganzen Visuals — wer
    per PBIR eine Größe vorgibt, setzt `labels.fontPreset` direkt.
+12. **Komma-Listen sind Override, die Rolle ist der Vertrag (ab 1.53):** Für neue
+   Berichte die Zeilenstruktur als Token in eine Modell-Spalte legen (`rowType`),
+   nicht in `resultList`/`skipList`/… — Namen brechen bei Umbenennung und
+   Übersetzung. Beide Quellen werden vereinigt; eine Liste kann ein Token also
+   nicht aufheben (dafür das Modell ändern). Unbekannte Token (Tippfehler,
+   freie Texte wie „Erlös“) melden sich im Bearbeitungsmodus unten rechts im
+   Chart — wer eine Spalte mit beliebigen Texten in `rowType` legt, sieht dort
+   einen Hinweis. Werte, die mit `sum`/`pct` beginnen, gelten wie bisher als
+   Ganzes (Präfix-Regel bis 1.52).
 
 ## Verwandte Dateien
 
@@ -729,6 +789,11 @@ statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
 - `CHANGELOG.md` / `BACKLOG.md` — was sich geändert hat / was fehlt
 - `.claude/skills/chartkitchen-report/` — Claude-Skill mit Report-Blaupausen
   (Monitoring · Monatsreport · Sales-Analyse) und Referenz-Instanz-Workflow
-- `test/test.html` — rund 280 Render-Cases (Nummern c1 bis zur höchsten in der Datei, inkl. Varianten) als
-  lebende Beispiele jeder Funktion
+- `test/test.html` — 327 Render-Stages (Nummern c1 bis c257, inkl. Varianten wie `c248L`) als
+  lebende Beispiele jeder Funktion; `npm run test:render` (Checks + Fehler). Weitere Suiten:
+  `test:scale` (Skalierungs-Geometrie), `test:notation` (Notation), `test:export` (PDF/PPT-Layouts).
+  c45, c90 und c92 waren bis 1.52.4 Hinweis-Fälle („rein negativ“) und zeichnen seit den negativen
+  Brücken eine Brücke mit Nulllinie (Split-Layout); ein Hinweis erscheint nur noch ohne Vergleichsbasis
+  (bzw. bei zu wenig Platz in der Integrierten Brücke).
+  rowType-Token: c248–c257 (Listen-Referenzen `…L`, SVG-Gleichheit als Nachweis)
 - `test/gen-agent-guide.js` — erzeugt die Property-Referenz dieser Datei (`npm run guide` / `guide:check`)
