@@ -186,7 +186,7 @@ const FIELD_INTRO_SECTIONS: { key: string; en: string; roles: [string, string, s
         ["colgroup", "FI_ColGroup", "Matrix columns, e.g. quarter"],
         ["trend", "FI_Trend", "Time axis inside KPI cards"]] },
     { key: "FI_SecSpecial", en: "Special", roles: [
-        ["rowType", "FI_RowType", "P&L row type sum/delta/pct"],
+        ["rowType", "FI_RowType", "Row type: sum/pct + tokens (invert, hide …)"],
         ["lineMeasure", "FI_Line", "2nd measure as line (margin)"],
         ["xValue", "FI_XValue", "X axis of the scatter"],
         ["xPrevious", "FI_XPrev", "X prior year → motion arrows"],
@@ -228,6 +228,66 @@ type Basis = "py" | "plan" | "fcrev";
 
 /** persisted comma lists editable via the one-click structure menu */
 type ListProp = "invertList" | "resultList" | "skipList" | "hideList" | "chartList" | "indentList";
+
+/**
+ * 1.53 rowType tokens: the "Waterfall type" role carries the row structure as data
+ * (names are no data contract). A cell holds one or more tokens, separated by
+ * comma, semicolon, whitespace or "|", case-insensitive. Structure tokens set the
+ * legacy rowType ("sum" anchor / "pct" margin row); flag tokens feed the same name
+ * sets as the comma lists (union — the lists stay as an override). "none" tokens
+ * mark an ordinary movement row. Aliases follow the P&L visual's parseRowType, so
+ * one DimKonto[RowType] column can feed both visuals.
+ */
+type RowFlag = "invert" | "emphasize" | "exclude" | "hide" | "davon" | "graphic";
+const ROW_FLAGS: RowFlag[] = ["invert", "emphasize", "exclude", "hide", "davon", "graphic"];
+const ROW_TOKENS: Record<string, RowFlag | "total" | "pct" | "none"> = {
+    total: "total", sum: "total", subtotal: "total", summe: "total", ergebnis: "total",
+    zwischensumme: "total", result: "total", formula: "total", formel: "total",
+    pct: "pct", percent: "pct", prozent: "pct", margin: "pct", marge: "pct", kpi: "pct",
+    ratio: "pct", quote: "pct", kennzahl: "pct",
+    exclude: "exclude", memo: "exclude", nachrichtlich: "exclude", ausnehmen: "exclude",
+    hide: "hide", ausblenden: "hide", versteckt: "hide",
+    davon: "davon", "of-which": "davon", ofwhich: "davon", thereof: "davon",
+    invert: "invert", invertieren: "invert", kosten: "invert", cost: "invert", costs: "invert",
+    emphasize: "emphasize", highlight: "emphasize", hervorheben: "emphasize",
+    graphic: "graphic", chart: "graphic", grafik: "graphic",
+    detail: "none", normal: "none", delta: "none", account: "none", konto: "none",
+    separator: "none", "+": "none", "-": "none", "−": "none"
+};
+interface RowTypeParse {
+    /** legacy rowType of the DataPoint: "sum…" | "pct…" | other text = movement row;
+     *  null = the cell carries flag tokens only (no structure statement) */
+    rowType: string | null;
+    flags: RowFlag[];
+    unknown: string[];
+}
+/** parses one non-null rowType cell. Values ≤ 1.52 (sum…/pct…/delta/anything) keep
+ *  exactly their old rowType string — the whole-value prefix rule decides first */
+function parseRowTypeCell(raw: unknown): RowTypeParse {
+    const s = String(raw).toLowerCase();
+    const tokens = s.split(/[\s,;|]+/).filter(t => t !== "");
+    const flags: RowFlag[] = [];
+    const unknown: string[] = [];
+    let struct: "sum" | "pct" | null = null;
+    // an empty cell or any non-flag token is a structure statement (≤ 1.52: every
+    // non-null value made the row a P&L row)
+    let structural = tokens.length === 0;
+    for (const t of tokens) {
+        const k = ROW_TOKENS[t] ?? (t.startsWith("sum") ? "total" : t.startsWith("pct") ? "pct" : undefined);
+        if (k === undefined) { unknown.push(t); structural = true; continue; }
+        if (k === "total" || k === "pct") {
+            structural = true;
+            if (struct == null) { struct = k === "total" ? "sum" : "pct"; }
+        } else if (k === "none") {
+            structural = true;
+        } else if (!flags.includes(k)) {
+            flags.push(k);
+        }
+    }
+    const rowType = s.startsWith("sum") || s.startsWith("pct") ? s
+        : struct ?? (structural ? s : null);
+    return { rowType, flags, unknown };
+}
 
 /** Smart-Start: one high-confidence mode suggestion derived from bound fields */
 interface SmartStartSuggestion {
@@ -1055,6 +1115,13 @@ export class Visual implements IVisual {
      *  current orientation's own filtering of those fields */
     private paneHasRowType = false;
     private paneHasColgroup = false;
+    /** 1.53 rowType flag tokens per flag: normalized row names (lower-case, trimmed
+     *  and raw; with a hierarchy also the leaf label) — united with the comma lists */
+    private rowFlagNames = new Map<RowFlag, Set<string>>();
+    /** same, one entry per flagged row (joined, trimmed) — counts for the footer */
+    private rowFlagRows = new Map<RowFlag, Set<string>>();
+    /** distinct unknown rowType tokens of the last parse (shown as a subtle note) */
+    private rowTypeUnknown: string[] = [];
     /** Smart-Start: distinct category count + time-likeness of the primary category field,
      *  and its display name (used in the dismiss signature) — computed once in parseData */
     private smartStartCatCount = 0;
@@ -1389,6 +1456,7 @@ export class Visual implements IVisual {
             this.finishChips();
             this.applyChipMenu();
             this.drawLoadState(width, height);
+            this.drawRowTypeNote(width, height);
             this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
             this.updateChipBar();
             // an update under the open overlay re-draws the chart hidden underneath
@@ -1411,6 +1479,7 @@ export class Visual implements IVisual {
         this.finishChips();
         this.applyChipMenu();
         this.drawLoadState(this.lastRender.width, this.lastRender.height);
+        this.drawRowTypeNote(this.lastRender.width, this.lastRender.height);
         this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
         this.updateChipBar();
     }
@@ -1561,6 +1630,35 @@ export class Visual implements IVisual {
             fill: fg, "font-family": FONT
         }, g);
         t.textContent = this.truncate(text, w - 10, f);
+    }
+
+    /** 1.53: unknown rowType tokens are ignored, but never silently — one subtle
+     *  italic line bottom right (above the load state), edit mode only: a typo in
+     *  the model is the author's to fix, readers and exports stay clean */
+    private drawRowTypeNote(width: number, height: number): void {
+        if (this.rowTypeUnknown.length === 0 || !this.allowInteractions
+            || this.viewMode === 0 /* powerbi.ViewMode.View */) { return; }
+        const shown = this.rowTypeUnknown.slice(0, 3).map(t => `„${t}“`).join(" · ")
+            + (this.rowTypeUnknown.length > 3 ? ` +${this.rowTypeUnknown.length - 3}` : "");
+        const text = this.locStr("Note_RowTypeUnknown", "Waterfall type: unknown entry ignored — {0}")
+            .replace("{0}", shown);
+        const dk = this.uiDark;
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette;
+        const hc = !!(palette && palette.isHighContrast);
+        const fg = hc ? palette.foreground.value : dk ? DARK_SUBTLE : "#6E6E6E";
+        const bg = hc ? palette.background.value : dk ? this.darkPaper() : "#FFFFFF";
+        const f = Math.round(9 * this.fontK);
+        const loadUp = this.awaitingSegment || this.hostCapped || this.selfCapped
+            ? Math.round(9.5 * this.fontK) + 10 : 0;
+        const g = this.el("g", { "data-icd": "rowtype-note" }, this.svg);
+        const tip = this.el("title", {}, g);
+        tip.textContent = `${text} (${this.rowTypeUnknown.join(", ")})`;
+        const t = this.el("text", {
+            x: width - 8, y: height - 6 - loadUp, "text-anchor": "end", "font-size": f,
+            fill: fg, "font-family": FONT, "font-style": "italic",
+            stroke: bg, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+        }, g);
+        t.textContent = this.truncate(text, Math.max(40, width - 16), f);
     }
 
     // ------------------------------------------------------------ locked chips (1.49)
@@ -1746,10 +1844,23 @@ export class Visual implements IVisual {
 
     // ------------------------------------------------------------------ data
 
+    /** 1.53: a comma list (case-insensitive names) united with the rows that carry
+     *  the matching rowType flag token — the list stays an override for models
+     *  without the role, the role is the data contract */
+    private listWithFlag(list: string, flag: RowFlag | null): Set<string> {
+        const out = new Set(String(list || "").split(",").map(x => x.trim().toLowerCase()).filter(x => x));
+        const names = flag ? this.rowFlagNames.get(flag) : undefined;
+        if (names) { for (const n of names) { out.add(n); } }
+        return out;
+    }
+
     private missingHint: string | null = null;
 
     private parseData(dataView: DataView | undefined): DataPoint[] | null {
         this.missingHint = null;
+        this.rowFlagNames = new Map();
+        this.rowFlagRows = new Map();
+        this.rowTypeUnknown = [];
         const catCols = dataView?.categorical?.categories;
         // with drilldown, "expand all" delivers several category-role columns (one per level)
         const catLevels = catCols?.filter(c => c.source.roles?.["category"]) ?? [];
@@ -1902,6 +2013,7 @@ export class Visual implements IVisual {
         const acFcSplit = String(this.formattingSettings.chartCard.acFcSplit.value.value);
         // without a category the measures deliver a single scalar row each
         const rowCount = cat ? cat.values.length : (valueCols[0]?.values?.length ?? 1);
+        let rtCells = 0, rtFlagOnly = 0;
         for (let i = 0; i < rowCount; i++) {
             if (hideBlank && catLevels.length > 0 && catLevels.every(l => {
                 const v = l.values[i];
@@ -1952,6 +2064,32 @@ export class Visual implements IVisual {
             if (levelLabels.length === 0) {
                 levelLabels.push(this.measureName ?? this.locStr("Role_Actual", "Actual (AC)"));
             }
+            // 1.53 rowType tokens: structure → rowType, flags → name sets (union with
+            // the comma lists in render). The flags belong to the row that carries the
+            // value — with a hierarchy the leaf, matched by its joined path (Σ bases)
+            // and by its own label (the displayed tree row), like the lists
+            const rtRaw = rowTypeCol ? rowTypeCol.values[i] : null;
+            const rtParse = rtRaw != null ? parseRowTypeCell(rtRaw) : null;
+            if (rtParse) {
+                rtCells++;
+                if (rtParse.rowType == null) { rtFlagOnly++; }
+                for (const u of rtParse.unknown) {
+                    if (!this.rowTypeUnknown.includes(u)) { this.rowTypeUnknown.push(u); }
+                }
+                const joined = levelLabels.join(" · ");
+                const leaf = levelLabels[levelLabels.length - 1];
+                for (const f of rtParse.flags) {
+                    let names = this.rowFlagNames.get(f);
+                    if (!names) { names = new Set(); this.rowFlagNames.set(f, names); }
+                    let rows = this.rowFlagRows.get(f);
+                    if (!rows) { rows = new Set(); this.rowFlagRows.set(f, rows); }
+                    for (const n of [joined, leaf]) {
+                        names.add(n.toLowerCase());
+                        names.add(n.trim().toLowerCase());
+                    }
+                    rows.add(joined.trim().toLowerCase());
+                }
+            }
             points.push({
                 cat: levelLabels.join(" · "),
                 catLevels: levelLabels.length > 1 ? levelLabels : null,
@@ -1974,13 +2112,15 @@ export class Visual implements IVisual {
                 comment,
                 commentNo: comment != null ? ++commentCounter : null,
                 group: mult ? this.categoryLabel(mult.values[i]) : null,
-                rowType: rowTypeCol && rowTypeCol.values[i] != null
-                    ? String(rowTypeCol.values[i]).toLowerCase() : null,
+                rowType: rtParse ? rtParse.rowType : null,
                 isRest: false,
                 dim: anyHighlights && !hlRows[i],
                 sel: catLevels.length > 0 || mult ? selBuilder.createSelectionId() : null
             });
         }
+        // a role that carries flag tokens only (invert/emphasize … on KPI cards) makes
+        // no P&L structure statement — no "P&L waterfall?" suggestion for it
+        if (rtCells > 0 && rtFlagOnly === rtCells) { this.paneHasRowType = false; }
         // merge user-entered comments (persisted via the in-chart editor) and renumber;
         // with a stack series the same category repeats — only its first point gets the marker
         if (this.userComments.size > 0) {
@@ -3211,7 +3351,10 @@ export class Visual implements IVisual {
                 const on = roles.has(u.role);
                 const row = this.el("g", { "data-fi-row": u.role }, g);
                 const tt = this.el("title", {}, row);
-                tt.textContent = `${on ? "✓ " : ""}${name} — ${purpose}`;
+                // 1.53: the row type's token list lives in the tooltip (the row is one line)
+                const more = u.role === "rowType" ? ` · ${this.locStr("FI_RowTypeTokens",
+                    "tokens per row, combinable: total · pct · exclude · hide · davon · invert · emphasize · graphic — replace the comma lists")}` : "";
+                tt.textContent = `${on ? "✓ " : ""}${name} — ${purpose}${more}`;
                 const mark = txt(row, cx, p.y, on ? "✓" : "○", fB, on ? c.teal : c.subtle, true, 16);
                 mark.setAttribute("data-fi", u.role);
                 mark.setAttribute("data-on", on ? "1" : "0");
@@ -5419,10 +5562,10 @@ export class Visual implements IVisual {
         // YTD only where a running total over the category axis makes sense — bridge,
         // structure and stacked modes would silently cumulate nonsense; the same goes
         // for structured P&L rows (sum/delta/pct): those are accounts, not periods
-        const parseList = (v: string) => new Set(String(v || "")
-            .split(",").map(x => x.trim().toLowerCase()).filter(x => x));
-        const listResult = parseList(String(s.chartCard.resultList.value));
-        const listSkip = parseList(String(s.chartCard.skipList.value));
+        // 1.53: comma list ∪ rowType token rows (the role is the contract, the list
+        // stays an override); "total" tokens arrive as rowType "sum" instead
+        const listResult = this.listWithFlag(String(s.chartCard.resultList.value), null);
+        const listSkip = this.listWithFlag(String(s.chartCard.skipList.value), "exclude");
         const listPnl = orientationRaw === "table" && (listResult.size > 0 || listSkip.size > 0)
             && points.some(p => listResult.has(p.cat.trim().toLowerCase())
                 || listSkip.has(p.cat.trim().toLowerCase()));
@@ -5611,8 +5754,7 @@ export class Visual implements IVisual {
             invert: s.chartCard.invert.value,
             isGood: (() => {
                 const inv = s.chartCard.invert.value;
-                const invSet = new Set(String(s.chartCard.invertList.value || "")
-                    .split(",").map(x => x.trim().toLowerCase()).filter(x => x));
+                const invSet = this.listWithFlag(String(s.chartCard.invertList.value), "invert");
                 return (v: number, pp?: DataPoint | null) =>
                     (inv !== (pp != null && invSet.has(pp.cat.toLowerCase()))) ? v < 0 : v > 0;
             })(),
@@ -5641,8 +5783,7 @@ export class Visual implements IVisual {
             faint: hc ? fg : dark ? DARK_FAINT : FAINT,
             wash: hc ? bgc : dark ? DARK_WASH : WASH,
             band: hc ? bgc : dark ? DARK_BAND : BAND,
-            highlight: new Set(String(s.chartCard.highlight.value || "")
-                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
+            highlight: this.listWithFlag(String(s.chartCard.highlight.value), "emphasize"),
             capMax: (s.scaleCard.capOverflow.value && (s.scaleCard.fixedMax.value ?? 0) > 0)
                 ? s.scaleCard.fixedMax.value : null,
             cumulative: cumulativeOn,
@@ -5691,16 +5832,11 @@ export class Visual implements IVisual {
             patBad: `icd-hatch-bad-${this.instanceId}`,
             patPrelim: `icd-prelim-${this.instanceId}`,
             valueCols: String(s.chartCard.valueColumns.value.value),
-            resultSet: new Set(String(s.chartCard.resultList.value || "")
-                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
-            skipSet: new Set(String(s.chartCard.skipList.value || "")
-                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
-            hideSet: new Set(String(s.chartCard.hideList.value || "")
-                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
-            chartSet: new Set(String(s.chartCard.chartList.value || "")
-                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
-            indentSet: new Set(String(s.chartCard.indentList.value || "")
-                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
+            resultSet: listResult,
+            skipSet: listSkip,
+            hideSet: this.listWithFlag(String(s.chartCard.hideList.value), "hide"),
+            chartSet: this.listWithFlag(String(s.chartCard.chartList.value), "graphic"),
+            indentSet: this.listWithFlag(String(s.chartCard.indentList.value), "davon"),
             rowFmt: this.parseRowFormats(String(s.chartCard.rowFormats.value || "")),
             matrixCompare: String(s.chartCard.matrixCompare.value.value),
             totalPos: String(s.chartCard.totalRowPosition.value.value),
@@ -6176,7 +6312,10 @@ export class Visual implements IVisual {
                 filterParts.push(`⇅ ${lbl} ${sd === "asc" ? "▲" : "▼"}`);
             }
             if (isTable && cfg.skipSet.size > 0) {
-                filterParts.push(`Σ − ${cfg.skipSet.size}`);
+                // list entries ∪ token rows (the name set also holds raw/leaf spellings)
+                const skipN = new Set([...this.listWithFlag(String(s.chartCard.skipList.value), null),
+                    ...(this.rowFlagRows.get("exclude") ?? [])]).size;
+                filterParts.push(`Σ − ${skipN}`);
             }
             if (this.compareActive && this.compareCats.length === 2) {
                 filterParts.push(this.compareCats.join(" vs "));
@@ -16759,12 +16898,32 @@ export class Visual implements IVisual {
             String(this.formattingSettings.chartCard[prop].value || "")
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)
                 .includes(p.cat.trim().toLowerCase());
+        // 1.53: set by a rowType token in the model → shown ticked and locked (the
+        // list cannot switch the data contract off; change it in the model)
+        const listFlag: Record<ListProp, RowFlag | null> = {
+            invertList: "invert", resultList: null, skipList: "exclude",
+            hideList: "hide", chartList: "graphic", indentList: "davon"
+        };
+        const fromRole = (prop: ListProp): boolean => {
+            if (prop === "resultList") { return (p.rowType ?? "").startsWith("sum"); }
+            const f = listFlag[prop];
+            return f != null && (this.rowFlagNames.get(f)?.has(p.cat.trim().toLowerCase()) ?? false);
+        };
         const mkCheck = (label: string, prop: ListProp) => {
             const row = document.createElement("label");
             row.style.cssText = "display:flex;align-items:center;gap:6px;margin:4px 0;cursor:pointer;";
             const cb = document.createElement("input");
             cb.type = "checkbox";
             cb.checked = inList(prop);
+            const viaRole = fromRole(prop);
+            if (viaRole) {
+                cb.checked = true;
+                cb.disabled = true;
+                row.style.cursor = "default";
+                row.style.opacity = "0.6";
+                row.title = this.locStr("Struct_FromRole", "Set by the Waterfall type field (token) — change it in the model");
+                row.setAttribute("data-icd-role", "1");
+            }
             cb.addEventListener("change", ev => {
                 ev.stopPropagation();
                 this.toggleListEntry(prop, p.cat, cb.checked);
