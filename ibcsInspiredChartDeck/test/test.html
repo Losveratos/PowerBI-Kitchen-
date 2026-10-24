@@ -2877,6 +2877,42 @@ addStage("c242", "Integrierte Brücke · Nulldurchgang eines Schritts: PY +2,0 �
   check(a && nbAttr(a, "y") < yZc - 10 && nbBottom(a) > yZc + 10 && Math.abs(nbAttr(a, "height") - 5e6 * kc) < 0.6, "c242b: Segment kreuzt die Nulllinie in voller Höhe");
 }
 
+// c242c/d: horizontal category bridge — a level crossing the row's own values: that
+// row gets two tiers (bars above, brick below) instead of the brick covering the bar
+{
+  addStage("c242c", "Kategorie-Brücke (Balken) · Nulldurchgang eines Schritts: PY +2,0 → A −5,0 → AC −3,0 — Zeile A zweistufig", 1000, 380);
+  runCap("c242c", dataView(["A", "B"], [col("actual", [-3500, 500].map(v => v * 1000), "#,0"), col("previousYear", [1500, 500].map(v => v * 1000), "#,0")],
+    { chart: { orientation: "catbridge", comparisonMode: "py" } }), 1000, 380);
+  nbSane("c242c");
+  const xZ = nbAttr(nbQ("c242c", '[data-icd="bridge-zero"]')[0], "x1");
+  const py = nbAnchors("c242c", NB.PY).sort((a, b) => nbAttr(b, "width") - nbAttr(a, "width"))[0];
+  const k = nbAttr(py, "width") / 2e6;
+  const rowA = nbQ("c242c", "g.icd-cat")[0];
+  const brick = [...rowA.querySelectorAll("rect")].find(r => nbFill(r) === NB.BAD);
+  const acBar = [...rowA.querySelectorAll("rect")].find(r => nbFill(r) === NB.AC);
+  check(brick && nbAttr(brick, "x") < xZ - 10 && nbAttr(brick, "x") + nbAttr(brick, "width") > xZ + 10
+    && Math.abs(nbAttr(brick, "width") - 5e6 * k) < 0.6, "c242c: Segment kreuzt die Nulllinie in voller Länge (5,0)");
+  check(rowA.getAttribute("data-icd") === "bridge-row-tiered" && nbAttr(brick, "y") >= nbBottom(acBar) - 0.5,
+    "c242c: Zeile A zweistufig — Stufe unter dem AC-Balken statt darüber gemalt");
+  check(nbQ("c242c", "g.icd-cat")[1].getAttribute("data-icd") !== "bridge-row-tiered", "c242c: Zeile B ohne Kollision bleibt einstufig");
+  const ov = nbOverlaps("c242c");
+  check(ov.length === 0, "c242c: Wertlabels überlappen nicht " + JSON.stringify(ov));
+  addStage("c242d", "Kategorie-Brücke (Balken) · gemischte Vorzeichen, AC + PY + PL (PY-Dreiecke) — Kaskade läuft durch die Zeilenbalken", 1100, 460);
+  runCap("c242d", dataView(["A", "B", "C", "D"], [col("actual", [1200, -2500, 800, -600].map(v => v * 1000), "#,0"), col("previousYear", [1000, 500, 900, -200].map(v => v * 1000), "#,0"),
+    col("plan", [1100, 200, 1000, -400].map(v => v * 1000), "#,0")], { chart: { orientation: "catbridge", comparisonMode: "py" } }), 1100, 460);
+  nbSane("c242d");
+  const rows = nbQ("c242d", "g.icd-cat");
+  const tiers = rows.filter(g => g.getAttribute("data-icd") === "bridge-row-tiered").map(g => g.querySelector("text").textContent);
+  check(JSON.stringify(tiers) === '["B","D"]', "c242d: genau die Zeilen B und D zweistufig " + JSON.stringify(tiers));
+  const ov2 = nbOverlaps("c242d", t => !/%$/.test(t.textContent));
+  check(ov2.length === 0, "c242d: Wertlabels überlappen nicht " + JSON.stringify(ov2));
+  check(!rows.filter(g => g.getAttribute("data-icd") === "bridge-row-tiered").some(g => {
+    const br = [...g.querySelectorAll("rect")].find(r => [NB.GOOD, NB.BAD].includes(nbFill(r)));
+    const ac = [...g.querySelectorAll("rect")].find(r => nbFill(r) === NB.AC);
+    return br && ac && nbAttr(br, "y") < nbBottom(ac) - 0.5;
+  }), "c242d: in zweistufigen Zeilen liegt keine Stufe über einem AC-Balken");
+}
+
 // ---- c243: Small Multiples · eine Kachel negativ — gemeinsame Skala über alle Kacheln
 addStage("c243", "Integrierte Brücke · Small Multiples, multiplesSameScale, nur „Süd“ startet negativ — beide Kacheln split, gleiche Nulllinie und px je Einheit", 1340, 560);
 {

@@ -677,7 +677,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "bridgeBreak",
         displayName: "Shorten anchors (axis break)",
         displayNameKey: "Chart_BridgeBreak",
-        description: "Integrierte Brücke, Kategorie-Brücke (Säulen) und Wasserfall: Die Summen-Anker (z. B. PY und AC+FC) werden mit sichtbarem Achsenbruch ⫽ gekürzt, damit die Brückenstufen in echter Höhe lesbar werden. Alle Stufen bleiben in einer Skala. Gekürzt wird nur, wenn alle Stände oberhalb des Schnitts liegen. Standard: aus.",
+        description: "Integrierte Brücke, Kategorie-Brücke (Säulen) und Wasserfall: Die Summen-Anker (z. B. PY und AC+FC) werden mit sichtbarem Achsenbruch ⫽ gekürzt, damit die Brückenstufen in echter Höhe lesbar werden. Alle Stufen bleiben in einer Skala. Gekürzt wird nur, wenn alle Stände jenseits des Schnitts liegen — bei rein negativen Brücken (integrierte und Kategorie-Brücke) gespiegelt unter der Nulllinie, über Null hinweg nie. Standard: aus.",
         descriptionKey: "Desc_Chart_BridgeBreak",
         value: false
     });

@@ -463,7 +463,7 @@
   "Chart_BridgeBreak": "Anker kürzen (Achsenbruch)",
   "Chart_StackLegendDirect": "Stapellegende am Stapel",
   "Desc_Chart_BridgeOrientation": "Nur Kategorie-Brücke: „Balken (horizontal)“ zeigt die Kaskade zeilenweise wie bisher (Kategorien untereinander, Δ%-Pins rechts). „Säulen (vertikal)“ zeichnet sie als klassischen Säulen-Wasserfall — Basis-Anker (PY/PL) links, eine Treiber-Säule je Kategorie, AC-Anker und Überleitung rechts, Δ%-Pins oben. „Automatisch“ = bisheriges Verhalten (horizontal).",
-  "Desc_Chart_BridgeBreak": "Integrierte Brücke, Kategorie-Brücke (Säulen) und Wasserfall: Die Summen-Anker (z. B. PY und AC+FC) werden mit sichtbarem Achsenbruch ⫽ gekürzt, damit die Brückenstufen in echter Höhe lesbar werden. Alle Stufen bleiben in einer Skala. Gekürzt wird nur, wenn alle Stände oberhalb des Schnitts liegen. Standard: aus.",
+  "Desc_Chart_BridgeBreak": "Integrierte Brücke, Kategorie-Brücke (Säulen) und Wasserfall: Die Summen-Anker (z. B. PY und AC+FC) werden mit sichtbarem Achsenbruch ⫽ gekürzt, damit die Brückenstufen in echter Höhe lesbar werden. Alle Stufen bleiben in einer Skala. Gekürzt wird nur, wenn alle Stände jenseits des Schnitts liegen — bei rein negativen Brücken (integrierte und Kategorie-Brücke) gespiegelt unter der Nulllinie, über Null hinweg nie. Standard: aus.",
   "Desc_Chart_StackLegendDirect": "Gestapelte Säulen und Balken: Die Seriennamen stehen direkt am Stapel (Säulen: rechts neben der letzten Säule, Balken: über dem ersten Balken) statt als Schlüssel oben. Passen sie nicht, bleibt der Schlüssel. Aus = immer Schlüssel oben.",
   "Enum_BridgeOrient_Auto": "Automatisch",
   "Enum_BridgeOrient_Bars": "Balken (horizontal)",

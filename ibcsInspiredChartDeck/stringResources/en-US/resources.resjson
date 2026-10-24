@@ -463,7 +463,7 @@
   "Chart_BridgeBreak": "Shorten anchors (axis break)",
   "Chart_StackLegendDirect": "Stack legend at the stack",
   "Desc_Chart_BridgeOrientation": "Category bridge only: \"Bars (horizontal)\" shows the cascade row by row as before (categories stacked, Δ% pins on the right). \"Columns (vertical)\" draws it as a classic column waterfall — basis anchor (PY/PL) left, one driver column per category, AC anchor and reconciliation right, Δ% pins on top. \"Automatic\" = previous behavior (horizontal).",
-  "Desc_Chart_BridgeBreak": "Integrated bridge, category bridge (columns) and waterfall: the total anchors (e.g. PY and AC+FC) are shortened with a visible axis break ⫽ so the bridge steps become readable at their true height. All steps keep one scale. Only cut when every level lies above the cut. Default: off.",
+  "Desc_Chart_BridgeBreak": "Integrated bridge, category bridge (columns) and waterfall: the total anchors (e.g. PY and AC+FC) are shortened with a visible axis break ⫽ so the bridge steps become readable at their true height. All steps keep one scale. Only cut when every level lies beyond the cut — mirrored below the zero line for purely negative bridges (integrated and category bridge), never across zero. Default: off.",
   "Desc_Chart_StackLegendDirect": "Stacked columns and bars: the series names sit right at the stack (columns: next to the last column, bars: above the first bar) instead of a key at the top. When they do not fit, the key stays. Off = always the key at the top.",
   "Enum_BridgeOrient_Auto": "Automatic",
   "Enum_BridgeOrient_Bars": "Bars (horizontal)",

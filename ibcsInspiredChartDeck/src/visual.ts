@@ -7031,6 +7031,12 @@ export class Visual implements IVisual {
         const BS = (v: number) => v * kS * monZoom;
         // anchors and totals: a bar from the zero line, its label beyond the end
         const vLblY = (v: number) => v >= 0 ? S(v) - 5 : S(v) + lf + 2;
+        // …centered on its column but kept inside the tile: an edge column is
+        // narrower than a long label ("−1.600K" under the PY anchor of a half-page tile)
+        const vLblX = (xc: number, text: string, bold: boolean) => {
+            const half = this.textWidth(text, lf, bold) / 2 + 2;
+            return Math.max(region.x + half, Math.min(region.x + region.w - half, xc));
+        };
 
         const bg = this.el("g", {}, this.svg);
         const marks = this.el("g", {}, this.svg);
@@ -7136,7 +7142,7 @@ export class Visual implements IVisual {
             this.el("rect", { x, y: Math.min(yT, yZ), width: totW, height: Math.max(Math.abs(yZ - yT), 1), ...style }, bg);
             if (cut > 0) { this.drawAxisBreak(bg, x, totW, breakY, "columns", cfg); }
             const vl = this.el("text", {
-                x: x + totW / 2, y: vLblY(sum), "text-anchor": "middle", "font-size": lf,
+                x: vLblX(x + totW / 2, fmtA.format(sum), bold), y: vLblY(sum), "text-anchor": "middle", "font-size": lf,
                 fill: cfg.ink, "font-family": FONT, ...(bold ? { "font-weight": 600 } : {})
             }, bg);
             vl.textContent = fmtA.format(sum);
@@ -7336,7 +7342,7 @@ export class Visual implements IVisual {
             this.el("g", { "data-icd": "bridge-break", "data-cut": cut }, bg);
         }
         const tv = this.el("text", {
-            x: xT + totW / 2, y: vLblY(vTot), "text-anchor": "middle", "font-size": lf,
+            x: vLblX(xT + totW / 2, fmtA.format(vTot), true), y: vLblY(vTot), "text-anchor": "middle", "font-size": lf,
             fill: cfg.ink, "font-family": FONT, "font-weight": 600
         }, bg);
         tv.textContent = fmtA.format(vTot);
@@ -7759,12 +7765,46 @@ export class Visual implements IVisual {
         const pyBarH = Math.max(3, rowH * 0.30);
         const acBarH = Math.max(4, rowH * 0.42);
         const brickH = Math.max(5, rowH * 0.48);
+        // 1.52.5: a row whose cascade brick (with its Δ label) runs through the row's
+        // own AC/PY bars or value label — mixed signs, a level crossing the row's
+        // values (+2 → −5 → −3) — gets two tiers: bars + value label above, brick +
+        // Δ label below, instead of the brick covering the bar. All other rows keep
+        // the shared tier (positive and purely negative bridges never need it)
+        const tiered: boolean[] = [];
+        {
+            const lblW = (t: string) => cfg.showLabels ? this.textWidth(t, lf) + 6 : 0;
+            let lv = REF;
+            for (const p of pts) {
+                const d = dOf(p);
+                const behind = hasPy ? p.py : p.pl;
+                if (d == null || (p.value == null && behind == null)) { tiered.push(false); continue; }
+                const a = lv, b = lv + d;
+                lv = b;
+                const xA = X(Math.min(a, b)), xB = X(Math.max(a, b));
+                const bk0 = d >= 0 ? xA : xA - lblW(fmtD(d)), bk1 = d >= 0 ? xB + lblW(fmtD(d)) : xB;
+                const ends = [xZ, ...[p.value, behind].filter((v): v is number => v != null).map(v => X(v))];
+                let r0 = Math.min(...ends), r1 = Math.max(...ends);
+                if (p.value != null) {
+                    const w = lblW(cfg.fmt.format(p.value));
+                    if (p.value >= 0) { r1 = Math.max(r1 + w, X(p.value) + w); } else { r0 = Math.min(r0 - w, X(p.value) - w); }
+                }
+                tiered.push(Math.min(bk1, r1) - Math.max(bk0, r0) > 0.5);
+            }
+        }
+        // row geometry (fractions of rowH): bar tier, brick tier, label lines
+        const rowGeo = (i: number) => tiered[i]
+            ? { pyY: 0.06, pyH: Math.max(2, rowH * 0.18), acY: 0.16, acH: Math.max(3, rowH * 0.30), triY: 0.16, triW: 0.3,
+                barLbl: 0.31, bkY: 0.54, bkH: Math.max(4, rowH * 0.38), bkLbl: 0.73 }
+            : { pyY: 0.12, pyH: pyBarH, acY: 0.30, acH: acBarH, triY: 0.28, triW: 0.5,
+                barLbl: 0.5, bkY: 0.26, bkH: brickH, bkLbl: 0.5 };
         let cum = REF;
         const refRowY = refIsPl ? (yPL as number) : (yPY as number);
-        guide(X(REF), refRowY + rowH, yS0 + rowH * 0.26, true, bg);
+        guide(X(REF), refRowY + rowH, yS0 + rowH * rowGeo(0).bkY, true, bg);
         pts.forEach((p, i) => {
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
             const yy = yS0 + i * rowH;
+            const rg = rowGeo(i);
+            if (tiered[i]) { g.setAttribute("data-icd", "bridge-row-tiered"); }
             rowLabel(yy, p.cat, this.isEmph(cfg, p.cat), g);
 
             // mini bars: reference (PY grey / PL outline) behind, AC in front;
@@ -7772,10 +7812,10 @@ export class Visual implements IVisual {
             const behind = hasPy ? p.py : p.pl;
             if (behind != null) {
                 if (cfg.pyTriangle && hasPy) {
-                    this.drawPyTriangle(g, yy + rowH * 0.28, rowH * 0.5, behind, X, "bars", cfg);
+                    this.drawPyTriangle(g, yy + rowH * rg.triY, rowH * rg.triW, behind, X, "bars", cfg);
                 } else {
                     this.el("rect", {
-                        ...hBar(behind), y: yy + rowH * 0.12, height: pyBarH,
+                        ...hBar(behind), y: yy + rowH * rg.pyY, height: rg.pyH,
                         ...(cfg.hc || !hasPy
                             ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1 }
                             : { fill: cfg.colors.py })
@@ -7784,7 +7824,7 @@ export class Visual implements IVisual {
             }
             if (p.value != null) {
                 this.el("rect", {
-                    ...hBar(p.value), y: yy + rowH * 0.30, height: acBarH,
+                    ...hBar(p.value), y: yy + rowH * rg.acY, height: rg.acH,
                     ...(p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                         : { fill: cfg.colors.ac })
@@ -7792,10 +7832,10 @@ export class Visual implements IVisual {
                 if (cfg.showLabels) {
                     if (p.value >= 0) {
                         const xl = Math.max(X(p.value), behind != null ? X(behind) : 0);
-                        valLabel(xl + 6, yy + rowH / 2 + lf * 0.35, cfg.fmt.format(p.value), false, g);
+                        valLabel(xl + 6, yy + rowH * rg.barLbl + lf * 0.35, cfg.fmt.format(p.value), false, g);
                     } else {
                         const xl = Math.min(X(p.value), behind != null ? X(behind) : X(p.value));
-                        valLabel(xl - 6, yy + rowH / 2 + lf * 0.35, cfg.fmt.format(p.value), false, g, "end");
+                        valLabel(xl - 6, yy + rowH * rg.barLbl + lf * 0.35, cfg.fmt.format(p.value), false, g, "end");
                     }
                 }
             }
@@ -7808,7 +7848,7 @@ export class Visual implements IVisual {
                 const c = colOf(d, p);
                 const hollowBad = cfg.hc && !goodOf(d, p) && d !== 0;
                 this.el("rect", {
-                    x: xA, y: yy + rowH * 0.26, width: Math.max(xB - xA, 2), height: brickH,
+                    x: xA, y: yy + rowH * rg.bkY, width: Math.max(xB - xA, 2), height: rg.bkH,
                     ...(hollowBad
                         ? { fill: cfg.paper, stroke: c, "stroke-width": 1.4 }
                         : p.isFc
@@ -7816,8 +7856,8 @@ export class Visual implements IVisual {
                             : { fill: c })
                 }, g);
                 if (cfg.showLabels) {
-                    if (d >= 0) { valLabel(xB + 6, yy + rowH / 2 + lf * 0.35, fmtD(d), false, g); }
-                    else { valLabel(xA - 6, yy + rowH / 2 + lf * 0.35, fmtD(d), false, g, "end"); }
+                    if (d >= 0) { valLabel(xB + 6, yy + rowH * rg.bkLbl + lf * 0.35, fmtD(d), false, g); }
+                    else { valLabel(xA - 6, yy + rowH * rg.bkLbl + lf * 0.35, fmtD(d), false, g, "end"); }
                 }
                 // größter Treiber annotation (optional — overlays the row area)
                 if (i === drvIdx && dTot !== 0 && region.w >= 640
@@ -7845,11 +7885,12 @@ export class Visual implements IVisual {
                     let noteRoom = d >= 0 ? pinEdge - noteX : noteX - x0 - 4;
                     let noteRight = d >= 0;
                     const noteW = this.textWidth(note, noteFont);
-                    if (noteRoom < noteW) {
+                    if (noteRoom < noteW && minV < 0) {
                         // 1.52.5: the far side of the brick (no value label there) when
                         // the whole note fits between it and the row's own bars resp.
                         // the pin / name column — a purely negative bridge has its
                         // falling bricks at the left end of the scale, next to the names
+                        // (positive bridges unchanged: there the note keeps its side)
                         const ends = [p.value, behind].filter((v): v is number => v != null).map(v => X(v));
                         const bars0 = Math.min(xZ, ...ends), bars1 = Math.max(xZ, ...ends);
                         const altX = d >= 0 ? xA - 8 : xB + 8;
@@ -7866,7 +7907,7 @@ export class Visual implements IVisual {
                     if (noteRoom >= noteFont * 6) {
                         const nt = this.el("text", {
                             x: noteX,
-                            y: yy + rowH / 2 + lf * 0.35, "text-anchor": noteRight ? "start" : "end",
+                            y: yy + rowH * rg.bkLbl + lf * 0.35, "text-anchor": noteRight ? "start" : "end",
                             "font-size": noteFont, fill: cfg.subtle, "font-family": FONT, "font-style": "italic",
                             stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
                         }, g);
@@ -7874,8 +7915,8 @@ export class Visual implements IVisual {
                     }
                 }
                 // vertical connector to the next row / to the AC row
-                const nextY = i < n - 1 ? yy + rowH + rowH * 0.26 : yAC + rowH * 0.2;
-                guide(X(b), yy + rowH * 0.26 + brickH, nextY, true, bg);
+                const nextY = i < n - 1 ? yy + rowH + rowH * rowGeo(i + 1).bkY : yAC + rowH * 0.2;
+                guide(X(b), yy + rowH * rg.bkY + rg.bkH, nextY, true, bg);
                 cum = b;
             }
 

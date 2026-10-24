@@ -463,7 +463,7 @@
   "Chart_BridgeBreak": "Acortar anclas (corte de eje)",
   "Chart_StackLegendDirect": "Leyenda junto a la pila",
   "Desc_Chart_BridgeOrientation": "Solo puente por categorías: «Barras (horizontal)» muestra la cascada fila a fila como antes (categorías una debajo de otra, pines Δ% a la derecha). «Columnas (vertical)» la dibuja como una cascada clásica de columnas — ancla base (PY/PL) a la izquierda, una columna impulsora por categoría, ancla AC y conciliación a la derecha, pines Δ% arriba. «Automático» = comportamiento anterior (horizontal).",
-  "Desc_Chart_BridgeBreak": "Puente integrado, puente por categoría (columnas) y cascada: las anclas de total (p. ej. PY y AC+FC) se acortan con un corte de eje visible ⫽ para que los escalones se lean a su altura real. Todos los escalones mantienen una escala. Solo se corta si todos los niveles quedan por encima del corte. Predeterminado: desactivado.",
+  "Desc_Chart_BridgeBreak": "Puente integrado, puente por categoría (columnas) y cascada: las anclas de total (p. ej. PY y AC+FC) se acortan con un corte de eje visible ⫽ para que los escalones se lean a su altura real. Todos los escalones mantienen una escala. Solo se corta si todos los niveles quedan más allá del corte: en puentes puramente negativos (integrado y por categoría), reflejado bajo la línea cero; nunca a través del cero. Predeterminado: desactivado.",
   "Desc_Chart_StackLegendDirect": "Columnas y barras apiladas: los nombres de las series aparecen junto a la pila (columnas: a la derecha de la última columna, barras: sobre la primera barra) en lugar de una clave arriba. Si no caben, se mantiene la clave. Desactivado = siempre la clave arriba.",
   "Enum_BridgeOrient_Auto": "Automático",
   "Enum_BridgeOrient_Bars": "Barras (horizontal)",
